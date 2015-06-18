@@ -1,39 +1,45 @@
-From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+From: Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>
 Subject: Re: [PATCH] driver/i2c/mux: Add register based mux i2c-mux-reg
-Date: Thu, 18 Jun 2015 09:58:22 +0200
-Message-ID: <55827A1E.4020608@nokia.com>
+Date: Thu, 18 Jun 2015 10:08:21 +0200
+Message-ID: <1434614901.2385.27.camel@x220>
 References: <1434475692-4611-1-git-send-email-yorksun@freescale.com>
- <55818C3C.8000704@nokia.com> <5581A3CA.4050805@freescale.com>
+	 <1434531244.2069.111.camel@x220> <55818BAB.5090605@nokia.com>
+	 <1434556990.2400.16.camel@x220> <558275F1.5020100@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5581A3CA.4050805-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <558275F1.5020100-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello!
+Hi Alexander,
 
-On 17/06/15 18:43, ext York Sun wrote:
->> > Yeah, this is really bad idea. You maybe want something like
->> > __iomem "cookie" here instead of this bare pointer.
-> Let me try.
+On Thu, 2015-06-18 at 09:40 +0200, Alexander Sverdlin wrote:
+> On 17/06/15 18:03, ext Paul Bolle wrote:
+> >> You do not see the platform_device, because there are no users yet, put
+> >> > this MODULE_ALIAS() is perfectly fine, it will allow automatic module loading
+> >> > in non-DT case.
+> > Do you mean that it will allow automatic module loading once the patch
+> > that adds a struct platform_device with a "i2c-mux-reg" name lands?
 > 
+> Any platform code which will register the platform_device will trigger uevent and
+> udevd will be able to find the module with this macro. This is a legacy alternative
+> to device-tree approach.
 
-Could you think about different access widths, please?
-Not all buses are 32-bits wide and even on 64-bit CPUs one might have 16-bit bus
-and 32 bits accesses are not allowed or perform two accesses, etc...
+That means I've correctly figured out the purpose of this
+MODULE_ALIAS("platform:" stuff. Because it might actually be documented
+somewhere but I managed to not stumble on that documentation.
 
-So to cover the use-cases which I see one needs to have a possibility to select between
-__raw_writeb()/__raw_writew()/__raw_writel()/__raw_writeq() (now that I'm thinking about
-it, I think these native-Endianness functions are preferred and if one has a bus with
-different Endianness he should think about the conversion in the reg property of subnodes).
+With that out of the way: am I right in thinking there's currently no
+platform code that triggers that uevent for
+"MODALIAS=platform:i2c-mux-reg"? Because if there's no struct
+platform_device taking care of that I think this MODULE_ALIAS() should
+not be added, not yet.
 
-Very important is readback with corresponding __raw_read*(), but maybe you want to do
-this optional via additional DT property...
+Thanks,
 
--- 
-Best regards,
-Alexander Sverdlin.
+
+Paul Bolle
