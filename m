@@ -1,60 +1,33 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: improve duty cycle on SCL
-Date: Thu, 18 Jun 2015 08:39:11 +0200
-Message-ID: <5582678F.4010505@gmx.de>
-References: <1434482276-1210-1-git-send-email-balbi@ti.com> <55815581.80807@gmx.de> <20150617153812.GB18421@saruman.tx.rr.com>
+From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] driver/i2c/mux: Add register based mux i2c-mux-reg
+Date: Thu, 18 Jun 2015 09:40:33 +0200
+Message-ID: <558275F1.5020100@nokia.com>
+References: <1434475692-4611-1-git-send-email-yorksun@freescale.com>
+ <1434531244.2069.111.camel@x220> <55818BAB.5090605@nokia.com>
+ <1434556990.2400.16.camel@x220>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150617153812.GB18421-HgARHv6XitJaoMGHk7MhZQC/G2K4zDHf@public.gmane.org>
+In-Reply-To: <1434556990.2400.16.camel@x220>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: balbi-l0cyMroinI0@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Dave Gerlach <d-gerlach-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: ext Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>
+Cc: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 17.06.2015 um 17:38 schrieb Felipe Balbi:
-> Hi,
->
-> On Wed, Jun 17, 2015 at 01:09:53PM +0200, Michael Lawnick wrote:
->> Am 16.06.2015 um 21:17 schrieb Felipe Balbi:
->>> With this patch we try to be as close to 50%
->>> duty cycle as possible. The reason for this
->>> is that some devices present an erratic behavior
->>> with certain duty cycles.
->>>
->>> One such example is TPS65218 PMIC which fails
->>> to change voltages when running @ 400kHz and
->>> duty cycle is lower than 34%.
->>>
->>> The idea of the patch is simple:
->>>
->>> calculate desired scl_period from requested scl
->>> and use 50% for tLow and 50% for tHigh.
->> ...
->> Hmm, and what's about  Philips I2C specification 2.1, Jan 2000, Tabl=
-e 5?
->>
->>> PARAMETER                       SYMBOL  STANDARD-MODE   FAST-MODE  =
-   UNIT
->>>                                           MIN. MAX.     MIN. MAX.
->>> LOW period of the SCL clock     tLOW      4.7   =E2=80=93       1.3=
-   =E2=80=93       =C2=B5s
->>> HIGH period of the SCL clock    tHIGH     4.0   =E2=80=93       0.6=
-   =E2=80=93       =C2=B5s
->>
->> Your signal is in spec (0.85 =C2=B5s high, 1,65 low).
->> Maybe your TPS65218 is just buggy or signals are bad?
->
-> yes, tps is buggy, it's written in the commit log itself.
->
+Hi!
 
-So I think it is unacceptable to change the adapters code violating=20
-specification because some buggy device doesn't work properly.
-This change for your device has chance to blow up many correctly workin=
-g=20
-ones.
---=20
-KR
-Michael
+On 17/06/15 18:03, ext Paul Bolle wrote:
+>> You do not see the platform_device, because there are no users yet, put
+>> > this MODULE_ALIAS() is perfectly fine, it will allow automatic module loading
+>> > in non-DT case.
+> Do you mean that it will allow automatic module loading once the patch
+> that adds a struct platform_device with a "i2c-mux-reg" name lands?
+
+Any platform code which will register the platform_device will trigger uevent and
+udevd will be able to find the module with this macro. This is a legacy alternative
+to device-tree approach.
+
+-- 
+Best regards,
+Alexander Sverdlin.
