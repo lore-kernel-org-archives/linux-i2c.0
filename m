@@ -1,45 +1,57 @@
-From: Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>
-Subject: Re: [PATCH] driver/i2c/mux: Add register based mux i2c-mux-reg
-Date: Thu, 18 Jun 2015 11:32:23 +0200
-Message-ID: <1434619943.2385.59.camel@x220>
-References: <1434475692-4611-1-git-send-email-yorksun@freescale.com>
-	 <1434531244.2069.111.camel@x220> <55818BAB.5090605@nokia.com>
-	 <1434556990.2400.16.camel@x220> <558275F1.5020100@nokia.com>
-	 <1434614901.2385.27.camel@x220> <5582899B.9030307@nokia.com>
+From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: davinci: Fix bus rate calculation on Keystone SoC
+Date: Thu, 18 Jun 2015 11:37:29 +0200
+Message-ID: <55829159.8050707@nokia.com>
+References: <5582870B.7030304@nokia.com> <558288B0.1020706@ti.com>
+ <55828ADB.3080604@nokia.com> <55828E7F.8060501@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5582899B.9030307-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <55828E7F.8060501-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+To: ext Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2015-06-18 at 11:04 +0200, Alexander Sverdlin wrote:
-> Maybe (and hopefully) there will never be a legacy user of this driver. But this macro
-> is perfectly fine, adds no overhead (but modinfo)
+Hello!
 
-(The test for any line of code is whether it adds value. Adding no
-overhead is not adding value. That goes for one line macros too.)
+On 18/06/15 11:25, ext Sekhar Nori wrote:
+>>>> +	if (davinci_i2c_read_reg(dev, DAVINCI_I2C_ICPID2_REG) == 0x2206) {
+>>>>> >>>> +		dev_dbg(dev->dev, "Keystone SoC detected\n");
+>>>>> >>>> +		d = 6;
+>>>>> >>>> +	}
+>>> >> I think its better to use a different compatible string for i2c on
+>>> >> keystone devices rather than using a fixed hardcoded IP version.
+>> > 
+>> > Yeah, this should have been done from the beginning, when the driver has been
+>> > re-used for Keystone, but this time is already missed, so I don't want
+>> > to introduce huge incompatibility with the existing device-trees.
+> How is backward compatibility broken? compatible property is a list, so
+> you would do something like:
+> 
+> 	compatible = "ti,keystone-i2c", "ti,davinci-i2c";
+> 
+> Newer kernels would keep working with older device tree blobs. Older
+> kernels wont have the fix, but thats true even now.
 
->  and make the module "complete" in a
-> sense that it supports both types of binding. There is a legacy probe function in it,
-> all the support for legacy binding with platform_data in it and this modalias is simply
-> the last part of it.
+Ah, beyond the evalboards, there are device-trees not linked into the kernel,
+but flashed into the boards, as originally in OF. They are part of the HW, its
+description. Not part or description of the Kernel. And you have no way to
+introduce this fix any more without updating this OF part if you go with
+new compatible property.
 
-As I understand it, we've established that:
-- this macro setups up udev, and modprobe, and friends, to listen to a
-"MODALIAS=platform:i2c-mux-reg" message; and
-- that there's currently no code in the kernel that will send out this
-message.
+>> > And from the other PoV, device-trees are for something one cannot probe. We
+>> > can probe for Keystone revisions and can free the end-user from this headache
+>> > completely.
+> Keep in mind that this can invite driver patching whenever version
+> number is tinkered with in hardware - even for otherwise
+> software-invsible changes.
 
-Did I get that right? Because it follows from the above that this line
-serves no purpose. Worse, it makes the code actually confusing. Because
-it suggests the availability of functionality that in reality doesn't
-exist.
+That's true. But I do not have an overview, how many IP versions do you actually have?
+I've found one revision in Davinci manual, one revision in Keystone manual, even
+including minor revision. Checking only major revision now can survive couple of minor
+changes in IP.
 
-Thanks,
-
-
-Paul Bolle
+-- 
+Best regards,
+Alexander Sverdlin.
