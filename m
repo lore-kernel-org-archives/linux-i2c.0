@@ -1,40 +1,47 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [RFC] i2c-tools: allow linker and compile flags from command line
-Date: Fri, 19 Jun 2015 11:24:32 +0200
-Message-ID: <1434705872-2866-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 0/2] new tool 'i2ctransfer'
+Date: Fri, 19 Jun 2015 12:40:30 +0200
+Message-ID: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Mainly for debugging, so one can pass stuff like -O0 or -static.
+So, here is my updated, better tested, much improved version of i2ctransfer:
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- tools/Module.mk | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+* rewrote parser to match agreed syntax (even improved it futher by reusing
+  last address if not specified again)
 
-diff --git a/tools/Module.mk b/tools/Module.mk
-index 8efddbb..641ac81 100644
---- a/tools/Module.mk
-+++ b/tools/Module.mk
-@@ -9,13 +9,13 @@
- 
- TOOLS_DIR	:= tools
- 
--TOOLS_CFLAGS	:= -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-qual \
-+TOOLS_CFLAGS	+= -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-qual \
- 		   -Wcast-align -Wwrite-strings -Wnested-externs -Winline \
- 		   -W -Wundef -Wmissing-prototypes -Iinclude
- ifeq ($(USE_STATIC_LIB),1)
--TOOLS_LDFLAGS	:= $(LIB_DIR)/$(LIB_STLIBNAME)
-+TOOLS_LDFLAGS	+= $(LIB_DIR)/$(LIB_STLIBNAME)
- else
--TOOLS_LDFLAGS	:= -Llib -li2c
-+TOOLS_LDFLAGS	+= -Llib -li2c
- endif
- 
- TOOLS_TARGETS	:= i2cdetect i2cdump i2cset i2cget
+* fixed 0-byte length transfers
+
+* way more error checking
+
+* better error reporting
+
+And further details and cleanups. I still believe we should let Linux clean up
+the buffers, but I suspect Jean won't like it, so I added a patch to just do
+that.
+
+Please review, test, apply...
+
+Thanks,
+
+   Wolfram
+
+
+Wolfram Sang (2):
+  i2c-tools: add new tool 'i2ctransfer'
+  i2c-tools: i2ctransfer: clean up allocated resources
+
+ tools/Module.mk     |   8 +-
+ tools/i2ctransfer.c | 330 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 337 insertions(+), 1 deletion(-)
+ create mode 100644 tools/i2ctransfer.c
+
 -- 
 2.1.4
+
