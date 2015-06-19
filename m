@@ -1,197 +1,125 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 2/2] i2c-tools: i2ctransfer: clean up allocated resources
-Date: Fri, 19 Jun 2015 12:40:32 +0200
-Message-ID: <1434710432-4182-3-git-send-email-wsa@the-dreams.de>
-References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] i2c: omap: improve duty cycle on SCL
+Date: Fri, 19 Jun 2015 10:30:21 -0500
+Message-ID: <20150619153021.GD29392@saruman.tx.rr.com>
+References: <1434482276-1210-1-git-send-email-balbi@ti.com>
+ <55815581.80807@gmx.de>
+ <20150617153812.GB18421@saruman.tx.rr.com>
+ <5582678F.4010505@gmx.de>
+ <20150618172428.GB27790@saruman.tx.rr.com>
+ <5583AB9D.6090805@gmx.de>
+Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="u65IjBhB3TIa72Vp"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <5583AB9D.6090805-Mmb7MZpHnFY@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: balbi-l0cyMroinI0@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Dave Gerlach <d-gerlach-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-=46rom: Wolfram Sang <wsa+renesas@sang-engineering.com>
+--u65IjBhB3TIa72Vp
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I still think this makes the code less readable and unnecessarily big [=
-1],
-but I assume Jean insists on it :) So, here is an add-on patch to squas=
-h.
+On Fri, Jun 19, 2015 at 07:41:49AM +0200, Michael Lawnick wrote:
+> Am 18.06.2015 um 19:24 schrieb Felipe Balbi:
+> >On Thu, Jun 18, 2015 at 08:39:11AM +0200, Michael Lawnick wrote:
+> >>Am 17.06.2015 um 17:38 schrieb Felipe Balbi:
+> >>>Hi,
+> >>>
+> >>>On Wed, Jun 17, 2015 at 01:09:53PM +0200, Michael Lawnick wrote:
+> >>>>Am 16.06.2015 um 21:17 schrieb Felipe Balbi:
+> >>>>>With this patch we try to be as close to 50%
+> >>>>>duty cycle as possible. The reason for this
+> >>>>>is that some devices present an erratic behavior
+> >>>>>with certain duty cycles.
+> >>>>>
+> >>>>>One such example is TPS65218 PMIC which fails
+> >>>>>to change voltages when running @ 400kHz and
+> >>>>>duty cycle is lower than 34%.
+> >>>>>
+> >>>>>The idea of the patch is simple:
+> >>>>>
+> >>>>>calculate desired scl_period from requested scl
+> >>>>>and use 50% for tLow and 50% for tHigh.
+> >>>>...
+> >>>>Hmm, and what's about  Philips I2C specification 2.1, Jan 2000, Table=
+ 5?
+> >>>>
+> >>>>>PARAMETER                       SYMBOL  STANDARD-MODE   FAST-MODE   =
+  UNIT
+> >>>>>                                          MIN. MAX.     MIN. MAX.
+> >>>>>LOW period of the SCL clock     tLOW      4.7   =E2=80=93       1.3 =
+  =E2=80=93       =C2=B5s
+> >>>>>HIGH period of the SCL clock    tHIGH     4.0   =E2=80=93       0.6 =
+  =E2=80=93       =C2=B5s
+> >>>>
+> >>>>Your signal is in spec (0.85 =C2=B5s high, 1,65 low).
+> >>>>Maybe your TPS65218 is just buggy or signals are bad?
+> >>>
+> >>>yes, tps is buggy, it's written in the commit log itself.
+> >>>
+> >>
+> >>So I think it is unacceptable to change the adapters code violating
+> >>specification because some buggy device doesn't work properly.
+> >
+> >read the other thread and you'll see that it's not violating jack
+> >
+> >>This change for your device has chance to blow up many correctly
+> >>working ones.
+> >
+> >How ?
+> >
+> The answer is so obvious that I'm a bit irritated.
+> Your patch description tells: 'and use 50% for tLow and 50% for tHigh'
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+another one who can't do simple algebra.
 
-[1] http://www.gnu.org/software/libc/manual/html_node/Freeing-after-Mal=
-loc.html#Freeing-after-Malloc
+http://marc.info/?l=3Dlinux-i2c&m=3D143456423512634&w=3D2
+http://marc.info/?l=3Dlinux-i2c&m=3D143456444212698&w=3D2
+http://marc.info/?l=3Dlinux-omap&m=3D143456762413953&w=3D2
 
-"There is no point in freeing blocks at the end of a program, because
-all of the program=E2=80=99s space is given back to the system when the=
- process
-terminates."
----
- tools/i2ctransfer.c | 44 +++++++++++++++++++++++++++-----------------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+> For 400kHz this means 1.25 us for high and low. This clearly violates the
+> specification for minimum low period and will not work with any device th=
+at
+> relies on it.
+> In the other thread it is discussed that your patch does effectively not =
+do
+> what you describe but this is something completely independent.
 
-diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
-index 27f4d7a..418e303 100644
---- a/tools/i2ctransfer.c
-+++ b/tools/i2ctransfer.c
-@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
- {
- 	char filename[20];
- 	char *end;
--	int i2cbus, address =3D -1, file, arg_idx =3D 1, nmsgs =3D 0, nmsgs_s=
-ent;
-+	int i2cbus, address =3D -1, file, arg_idx =3D 1, nmsgs =3D 0, nmsgs_s=
-ent, i;
- 	int force =3D 0, yes =3D 0, version =3D 0, verbose =3D 0;
- 	unsigned buf_idx =3D 0;
- 	unsigned long len, raw_data;
-@@ -138,6 +138,9 @@ int main(int argc, char *argv[])
- 	struct i2c_rdwr_ioctl_data rdwr;
- 	enum parse_state state =3D PARSE_GET_DESC;
-=20
-+	for (i =3D 0; i < I2C_RDRW_IOCTL_MAX_MSGS; i++)
-+		msgs[i].buf =3D NULL;
-+
- 	/* handle (optional) arg_idx first */
- 	while (arg_idx < argc && argv[arg_idx][0] =3D=3D '-') {
- 		switch (argv[arg_idx][1]) {
-@@ -178,7 +181,7 @@ int main(int argc, char *argv[])
- 		if (nmsgs > I2C_RDRW_IOCTL_MAX_MSGS) {
- 			fprintf(stderr, "Error: Too many messages (max: %d)\n",
- 				I2C_RDRW_IOCTL_MAX_MSGS);
--			exit(1);
-+			goto err_out;
- 		}
-=20
- 		switch (state) {
-@@ -190,20 +193,20 @@ int main(int argc, char *argv[])
- 			case 'w': break;
- 			default:
- 				fprintf(stderr, "Error: Invalid direction\n");
--				goto err_out;
-+				goto err_out_with_arg;
- 			}
-=20
- 			len =3D strtoul(arg_ptr, &end, 0);
- 			if (len > 65535) {
- 				fprintf(stderr, "Error: Length invalid\n");
--				goto err_out;
-+				goto err_out_with_arg;
- 			}
-=20
- 			arg_ptr =3D end;
- 			if (*arg_ptr) {
- 				if (*arg_ptr++ !=3D '@') {
- 					fprintf(stderr, "Error: No '@' after length\n");
--					goto err_out;
-+					goto err_out_with_arg;
- 				}
-=20
- 				/* We skip 10-bit support for now. If we want it, it
-@@ -213,16 +216,16 @@ int main(int argc, char *argv[])
-=20
- 				address =3D parse_i2c_address(arg_ptr);
- 				if (address < 0)
--					goto err_out;
-+					goto err_out_with_arg;
-=20
- 				if (!force && set_slave_addr(file, address, 0))
--					goto err_out;
-+					goto err_out_with_arg;
-=20
- 			} else {
- 				/* Reuse last address if possible */
- 				if (address < 0) {
- 					fprintf(stderr, "Error: No address given\n");
--					goto err_out;
-+					goto err_out_with_arg;
- 				}
- 			}
-=20
-@@ -234,7 +237,7 @@ int main(int argc, char *argv[])
- 				buf =3D malloc(len);
- 				if (!buf) {
- 					fprintf(stderr, "Error: No memory for buffer\n");
--					goto err_out;
-+					goto err_out_with_arg;
- 				}
- 				memset(buf, 0, len);
- 				msgs[nmsgs].buf =3D buf;
-@@ -253,7 +256,7 @@ int main(int argc, char *argv[])
- 			raw_data =3D strtoul(arg_ptr, &end, 0);
- 			if (raw_data > 255) {
- 				fprintf(stderr, "Error: Data byte invalid\n");
--				goto err_out;
-+				goto err_out_with_arg;
- 			}
- 			data =3D raw_data;
- 			len =3D msgs[nmsgs].len;
-@@ -270,7 +273,7 @@ int main(int argc, char *argv[])
- 				case '=3D': break;
- 				default:
- 					fprintf(stderr, "Error: Invalid data byte suffix\n");
--					goto err_out;
-+					goto err_out_with_arg;
- 				}
- 			}
-=20
-@@ -283,7 +286,7 @@ int main(int argc, char *argv[])
-=20
- 		default:
- 			fprintf(stderr, "Error: Unnkown state in state machine!\n");
--			goto err_out;
-+			goto err_out_with_arg;
- 		}
-=20
- 		arg_idx++;
-@@ -291,18 +294,18 @@ int main(int argc, char *argv[])
-=20
- 	if (state !=3D PARSE_GET_DESC || nmsgs =3D=3D 0) {
- 		fprintf(stderr, "Error: Incomplete message\n");
--		exit(1);
-+		goto err_out;
- 	}
-=20
- 	if (!yes && !confirm(filename, msgs, nmsgs))
--		exit(0);
-+		goto out;
-=20
- 	rdwr.msgs =3D msgs;
- 	rdwr.nmsgs =3D nmsgs;
- 	nmsgs_sent =3D ioctl(file, I2C_RDWR, &rdwr);
- 	if (nmsgs_sent < 0) {
- 		fprintf(stderr, "Error: Sending messages failed: %s\n", strerror(err=
-no));
--		exit(errno);
-+		goto err_out;
- 	} else if (nmsgs_sent < nmsgs) {
- 		fprintf(stderr, "Warning: only %d/%d messages were sent\n", nmsgs_se=
-nt, nmsgs);
- 	}
-@@ -311,10 +314,17 @@ int main(int argc, char *argv[])
-=20
- 	print_msgs(msgs, nmsgs_sent, PRINT_READ_BUF | (verbose ? PRINT_HEADER=
- | PRINT_WRITE_BUF : 0));
-=20
--	/* let Linux free malloced memory on termination */
-+out:
-+	for (i =3D 0; i <=3D nmsgs; i++)
-+		free(msgs[i].buf);
-+
- 	exit(0);
-=20
--err_out:
-+err_out_with_arg:
- 	fprintf(stderr, "Error: faulty argument is '%s'\n", argv[arg_idx]);
-+err_out:
-+	for (i =3D 0; i <=3D nmsgs; i++)
-+		free(msgs[i].buf);
-+
- 	exit(1);
- }
+Read the comment where the calculation goes, it states that we try to
+get as close to 50% duty cycle while making sure we're within spec.
+
+Also, commit log is saying that we're using 50% of SCL period for tLow
+and tHigh calculation, not that duty cycle will be 50%, which it isn't.
+
 --=20
-2.1.4
+balbi
 
+--u65IjBhB3TIa72Vp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVhDWNAAoJEIaOsuA1yqRESEUP/jNlWfGVikRlqRv+85M8pf5r
+d705ZECWwlNhm+2TVceRyh+wZiQNIoFHb1D9+szPqgStRfegvu/ycJNTZNnsB+dZ
+KPPpSXWr6Uy1Y+a/ahDbqmC33NJEtRJmmWsUOAb0EW8JzVWQBH9n1FDB67seOw2c
+GvOLngklcYoPGz1bEw1QvztDXxtA6FIjI7SEqKk3gJRlp6D8C80iS0CclMPTr84Q
+ke0/kY2bh5zSza61vtZIMDhY8hb26aIG4V0UFVjdiKfD1oXIht+YrbYlaXc3MarS
+SxmgHyhu8clyISlZiyLOmn/e3lfztHln4UHIwDpO5qAFmoo/sh3pwiwqJWyuHtyU
+RMJ0D14urhc1JrKgK324MofpuZgz1ow6lJYK12h5whGy8t6j7W/LBz8dMtivlznd
+kzjfYo/58PamV2uCcqajeYEjUrM/7TaxGxm8Mkg80y3Ao41kAhXHafbHqKdIYbRx
+WVZRVKWVgRqabTl1sNBLNLPrYFEzsOChOvfp6LFAJekCckYbMKzS8FyNrF+FJrz7
+VYcpy8fALODzcQBtN26ESaB9I/XUf7t4DqSsg+uWI24NstjA01nsJNAynv4DDR8r
+cGgcpyPaunsXuY84smrPeNKdgNR1kvrqkl7kWYtWc+05Hl51gknpZgQCd1IFhyAk
+Db2tvdx1cPlXRJorgS3v
+=5C6B
+-----END PGP SIGNATURE-----
+
+--u65IjBhB3TIa72Vp--
