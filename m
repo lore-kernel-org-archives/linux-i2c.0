@@ -1,31 +1,40 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: lm-sensor.org is down
-Date: Fri, 19 Jun 2015 09:17:24 +0200
-Message-ID: <1434698244.4379.9.camel@chaos.site>
-References: <CA+TH9VnFAx135zg4B23h6nZbnJHPhE5Gn4ueX4bBdKO30i=Qaw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [RFC] i2c-tools: allow linker and compile flags from command line
+Date: Fri, 19 Jun 2015 11:24:32 +0200
+Message-ID: <1434705872-2866-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CA+TH9VnFAx135zg4B23h6nZbnJHPhE5Gn4ueX4bBdKO30i=Qaw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Angelo,
+Mainly for debugging, so one can pass stuff like -O0 or -static.
 
-Le Friday 19 June 2015 =C3=A0 08:58 +0200, Angelo Compagnucci a =C3=A9c=
-rit :
-> lm-sensorg.org is down:
->=20
-> http://isup.me/www.lm-sensor.org
->=20
-> "It's not just you! http://www.lm-sensor.org looks down from here. "
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ tools/Module.mk | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-I've noticed it too. Hopefully the admin (Axel Thimm) has noticed as
-well and is already looking at the problem.
-
---=20
-Jean Delvare
-SUSE L3 Support
+diff --git a/tools/Module.mk b/tools/Module.mk
+index 8efddbb..641ac81 100644
+--- a/tools/Module.mk
++++ b/tools/Module.mk
+@@ -9,13 +9,13 @@
+ 
+ TOOLS_DIR	:= tools
+ 
+-TOOLS_CFLAGS	:= -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-qual \
++TOOLS_CFLAGS	+= -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-qual \
+ 		   -Wcast-align -Wwrite-strings -Wnested-externs -Winline \
+ 		   -W -Wundef -Wmissing-prototypes -Iinclude
+ ifeq ($(USE_STATIC_LIB),1)
+-TOOLS_LDFLAGS	:= $(LIB_DIR)/$(LIB_STLIBNAME)
++TOOLS_LDFLAGS	+= $(LIB_DIR)/$(LIB_STLIBNAME)
+ else
+-TOOLS_LDFLAGS	:= -Llib -li2c
++TOOLS_LDFLAGS	+= -Llib -li2c
+ endif
+ 
+ TOOLS_TARGETS	:= i2cdetect i2cdump i2cset i2cget
+-- 
+2.1.4
