@@ -1,51 +1,30 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: sh_mobile: use adapter default for timeout
-Date: Sat, 20 Jun 2015 20:53:54 +0200
-Message-ID: <20150620185354.GA3333@katana>
-References: <1434826104-16346-1-git-send-email-wsa@the-dreams.de>
- <1434826104-16346-3-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1434826104-16346-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 0/4] generic timeout handling for Renesas drivers
+Date: Sat, 20 Jun 2015 21:03:18 +0200
+Message-ID: <1434827002-25918-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
+Here is a small patch series to make I2C timeout handling easier for users. It
+is not so amazingly huge anymore and it can be modified via i2c-dev if wanted.
+While at it, fix the type of the timeout variable to the proper one.
+This time build-tested twice!
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Wolfram Sang (4):
+  i2c: rcar: use adapter default for timeout
+  i2c: rcar: use proper type for timeout
+  i2c: sh_mobile: use adapter default for timeout
+  i2c: sh_mobile: use proper type for timeout
 
-> -				       5 * HZ);
-> +				       adap->timeout);
+ drivers/i2c/busses/i2c-rcar.c      | 5 +++--
+ drivers/i2c/busses/i2c-sh_mobile.c | 9 +++++----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-This should be adapter->timeout :(
+-- 
+2.1.4
 
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVhbbCAAoJEBQN5MwUoCm2bOsP/2hStK77b2hqkhQHX33bMeWS
-ow3SfKWHZK5OBGuV6KDq2nSsYgelvIh3LzZtsJpH2SZo0j1j0dXDAO7oDPHvdapc
-pSPUEt23qEI5TpVeSzikXKAI3O5G3lUIXr5oyEqIOw06ahgKfNndhkO6PPo74JY2
-kOr0udcPbUdfrxB/IRdsMUW5FDZyE1WK6g6PLbV0+IdwzttHt+UlWSZwTms+0MJN
-zQ2QyW4dHzaZt3RWoZMU+FgZQj/MThwmd7/LiHYo9IS6ISZRYZgX4c4f72F2stwz
-PMLVjBPzsb1zzlLTS3oNXOZ7S2/ak4uEGzzojxauOxNI+36mIh00F4+zy6vsh9PK
-ZGqTRnH0zQXNRkodNqYIArLPHG/jiF6xmhMsjC5keduDtWxUdNQ06Cz9qNHOasVS
-fCZlz6bkPgGUQlBRt1+EL2AW0IrFpMHZnAo6ofTAAqcusg4iNRlyBCeuhuCm7prx
-UKmsoImXRd0bOsIZa20A4L/+T/bRXugCi89A+mFQaPRTTRa8oNCVzVARrTyi0KwH
-88Hxa1KIlxbidpEgJsDALCDUFGFD0qCyZGuA0zTa1GXb1v4A4FPLTN0yrv/YvHp1
-kOlbTu2lylEvZUjWE22VDQs96kw3T4pGtTOT6dWKGCI/7LNx1awoUtAIMDhvj/Vs
-3X3u7HNCzMeOROjnpVjp
-=UlMG
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-sh" in
