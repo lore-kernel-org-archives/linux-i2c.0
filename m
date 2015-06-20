@@ -1,28 +1,39 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/4] generic timeout handling for Renesas drivers
-Date: Sat, 20 Jun 2015 21:03:18 +0200
-Message-ID: <1434827002-25918-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 1/4] i2c: rcar: use adapter default for timeout
+Date: Sat, 20 Jun 2015 21:03:19 +0200
+Message-ID: <1434827002-25918-2-git-send-email-wsa@the-dreams.de>
+References: <1434827002-25918-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1434827002-25918-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Here is a small patch series to make I2C timeout handling easier for users. It
-is not so amazingly huge anymore and it can be modified via i2c-dev if wanted.
-While at it, fix the type of the timeout variable to the proper one.
-This time build-tested twice!
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Wolfram Sang (4):
-  i2c: rcar: use adapter default for timeout
-  i2c: rcar: use proper type for timeout
-  i2c: sh_mobile: use adapter default for timeout
-  i2c: sh_mobile: use proper type for timeout
+5 seconds is a very large timeout, and it is hardcoded. Use the default
+timeout from 'struct adapter' which is 1 second. It can also be modified
+from userspace for specific workloads via i2c-dev.
 
- drivers/i2c/busses/i2c-rcar.c      | 5 +++--
- drivers/i2c/busses/i2c-sh_mobile.c | 9 +++++----
- 2 files changed, 8 insertions(+), 6 deletions(-)
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 9eef46254369b3..e57e520b4756a9 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -532,7 +532,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 
+ 		timeout = wait_event_timeout(priv->wait,
+ 					     rcar_i2c_flags_has(priv, ID_DONE),
+-					     5 * HZ);
++					     adap->timeout);
+ 		if (!timeout) {
+ 			ret = -ETIMEDOUT;
+ 			break;
 -- 
 2.1.4
 
