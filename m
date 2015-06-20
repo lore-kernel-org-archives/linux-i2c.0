@@ -1,23 +1,41 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 0/2] generic timeout handling for Renesas drivers
-Date: Sat, 20 Jun 2015 20:48:22 +0200
-Message-ID: <1434826104-16346-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 1/2] i2c: rcar: use adapter default for timeout
+Date: Sat, 20 Jun 2015 20:48:23 +0200
+Message-ID: <1434826104-16346-2-git-send-email-wsa@the-dreams.de>
+References: <1434826104-16346-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1434826104-16346-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Here is a small patch series to make I2C timeout handling easier for users. It
-is not so amazingly huge anymore and it can be modified via i2c-dev if wanted.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Wolfram Sang (2):
-  i2c: rcar: use adapter default for timeout
-  i2c: sh_mobile: use adapter default for timeout
+5 seconds is a very large timeout, and it is hardcoded. Use the default
+timeout from 'struct adapter' which is 1 second. It can also be modified
+from userspace for specific workloads.
 
- drivers/i2c/busses/i2c-rcar.c      | 2 +-
- drivers/i2c/busses/i2c-sh_mobile.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 9eef46254369b3..e57e520b4756a9 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -532,7 +532,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 
+ 		timeout = wait_event_timeout(priv->wait,
+ 					     rcar_i2c_flags_has(priv, ID_DONE),
+-					     5 * HZ);
++					     adap->timeout);
+ 		if (!timeout) {
+ 			ret = -ETIMEDOUT;
+ 			break;
 -- 
 2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-sh" in
