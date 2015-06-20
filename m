@@ -1,125 +1,132 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: improve duty cycle on SCL
-Date: Fri, 19 Jun 2015 10:30:21 -0500
-Message-ID: <20150619153021.GD29392@saruman.tx.rr.com>
-References: <1434482276-1210-1-git-send-email-balbi@ti.com>
- <55815581.80807@gmx.de>
- <20150617153812.GB18421@saruman.tx.rr.com>
- <5582678F.4010505@gmx.de>
- <20150618172428.GB27790@saruman.tx.rr.com>
- <5583AB9D.6090805@gmx.de>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v1] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Sat, 20 Jun 2015 23:10:23 +0800
+Message-ID: <CAAj6DX0dvoL8RJtEtjE-+SPstLkvRGwgqSfsonDgG_Vgn8dKEQ@mail.gmail.com>
+References: <1434587656-2359-1-git-send-email-ellen@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="u65IjBhB3TIa72Vp"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5583AB9D.6090805-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <1434587656-2359-1-git-send-email-ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: balbi-l0cyMroinI0@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Dave Gerlach <d-gerlach-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Cc: David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---u65IjBhB3TIa72Vp
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Jun 18, 2015 at 8:34 AM, Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org> wrote:
+> cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+> on longers reads.  The fix is to wrap a loop around
+> cp2112_read() to pick up all the returned data.
+>
+> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 
-On Fri, Jun 19, 2015 at 07:41:49AM +0200, Michael Lawnick wrote:
-> Am 18.06.2015 um 19:24 schrieb Felipe Balbi:
-> >On Thu, Jun 18, 2015 at 08:39:11AM +0200, Michael Lawnick wrote:
-> >>Am 17.06.2015 um 17:38 schrieb Felipe Balbi:
-> >>>Hi,
-> >>>
-> >>>On Wed, Jun 17, 2015 at 01:09:53PM +0200, Michael Lawnick wrote:
-> >>>>Am 16.06.2015 um 21:17 schrieb Felipe Balbi:
-> >>>>>With this patch we try to be as close to 50%
-> >>>>>duty cycle as possible. The reason for this
-> >>>>>is that some devices present an erratic behavior
-> >>>>>with certain duty cycles.
-> >>>>>
-> >>>>>One such example is TPS65218 PMIC which fails
-> >>>>>to change voltages when running @ 400kHz and
-> >>>>>duty cycle is lower than 34%.
-> >>>>>
-> >>>>>The idea of the patch is simple:
-> >>>>>
-> >>>>>calculate desired scl_period from requested scl
-> >>>>>and use 50% for tLow and 50% for tHigh.
-> >>>>...
-> >>>>Hmm, and what's about  Philips I2C specification 2.1, Jan 2000, Table=
- 5?
-> >>>>
-> >>>>>PARAMETER                       SYMBOL  STANDARD-MODE   FAST-MODE   =
-  UNIT
-> >>>>>                                          MIN. MAX.     MIN. MAX.
-> >>>>>LOW period of the SCL clock     tLOW      4.7   =E2=80=93       1.3 =
-  =E2=80=93       =C2=B5s
-> >>>>>HIGH period of the SCL clock    tHIGH     4.0   =E2=80=93       0.6 =
-  =E2=80=93       =C2=B5s
-> >>>>
-> >>>>Your signal is in spec (0.85 =C2=B5s high, 1,65 low).
-> >>>>Maybe your TPS65218 is just buggy or signals are bad?
-> >>>
-> >>>yes, tps is buggy, it's written in the commit log itself.
-> >>>
-> >>
-> >>So I think it is unacceptable to change the adapters code violating
-> >>specification because some buggy device doesn't work properly.
-> >
-> >read the other thread and you'll see that it's not violating jack
-> >
-> >>This change for your device has chance to blow up many correctly
-> >>working ones.
-> >
-> >How ?
-> >
-> The answer is so obvious that I'm a bit irritated.
-> Your patch description tells: 'and use 50% for tLow and 50% for tHigh'
+Hi Ellen,
 
-another one who can't do simple algebra.
+with this patch the driver occasionally enters in an infinite loop.
+I spent some time to understand the reason.
 
-http://marc.info/?l=3Dlinux-i2c&m=3D143456423512634&w=3D2
-http://marc.info/?l=3Dlinux-i2c&m=3D143456444212698&w=3D2
-http://marc.info/?l=3Dlinux-omap&m=3D143456762413953&w=3D2
+The sequence for a data read in cp2112_i2c_xfer() is:
+1) send report CP2112_DATA_READ_REQUEST (no reply is expected)
+2) send report CP2112_TRANSFER_STATUS_REQUEST
+3) wait for reply report CP2112_TRANSFER_STATUS_RESPONSE to indicate
+i2c read completed
+4) send report CP2112_DATA_READ_FORCE_SEND
+5) wait for reply report CP2112_DATA_READ_RESPONSE containing the data just read
 
-> For 400kHz this means 1.25 us for high and low. This clearly violates the
-> specification for minimum low period and will not work with any device th=
-at
-> relies on it.
-> In the other thread it is discussed that your patch does effectively not =
-do
-> what you describe but this is something completely independent.
+Your patch repeats step 4) and 5) until all data are received.
 
-Read the comment where the calculation goes, it states that we try to
-get as close to 50% duty cycle while making sure we're within spec.
+Every report CP2112_DATA_READ_RESPONSE can carry max 61 bytes of data.
+It is not reported in Silab documentation (or maybe I failed to find
+it), but if you send a request CP2112_DATA_READ_FORCE_SEND for _more_
+than 61 bytes then cp2112 replies with a sequence of reports
+CP2112_DATA_READ_RESPONSE, each report carrying 61 bytes max.
 
-Also, commit log is saying that we're using 50% of SCL period for tLow
-and tHigh calculation, not that duty cycle will be 50%, which it isn't.
+To get only one report as reply, the request in 4) should not exceed 61 bytes!
 
---=20
-balbi
+The current code in cp2112_raw_event() is very simple and can only
+handle receiving one data report at a time; it's not designed to
+handle a sequence of reports.
+If a new incoming report arrives while we are still consuming a
+previous report, the new data will overwrite the older one.
 
---u65IjBhB3TIa72Vp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+If the loop over 4) and 5) is not fast enough (e.g. CPU overloaded,
+interrupts) then you get reports overwritten.
+Once one report is overwritten, we fail to get the whole data, the
+loop will not reach the upper limit and will never exit!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+I got this case just adding a hid_info() inside the loop.
+If you want, you can check by adding a msleep(100) inside the loop.
+Enough to get infinite loop at almost every execution.
 
-iQIcBAEBAgAGBQJVhDWNAAoJEIaOsuA1yqRESEUP/jNlWfGVikRlqRv+85M8pf5r
-d705ZECWwlNhm+2TVceRyh+wZiQNIoFHb1D9+szPqgStRfegvu/ycJNTZNnsB+dZ
-KPPpSXWr6Uy1Y+a/ahDbqmC33NJEtRJmmWsUOAb0EW8JzVWQBH9n1FDB67seOw2c
-GvOLngklcYoPGz1bEw1QvztDXxtA6FIjI7SEqKk3gJRlp6D8C80iS0CclMPTr84Q
-ke0/kY2bh5zSza61vtZIMDhY8hb26aIG4V0UFVjdiKfD1oXIht+YrbYlaXc3MarS
-SxmgHyhu8clyISlZiyLOmn/e3lfztHln4UHIwDpO5qAFmoo/sh3pwiwqJWyuHtyU
-RMJ0D14urhc1JrKgK324MofpuZgz1ow6lJYK12h5whGy8t6j7W/LBz8dMtivlznd
-kzjfYo/58PamV2uCcqajeYEjUrM/7TaxGxm8Mkg80y3Ao41kAhXHafbHqKdIYbRx
-WVZRVKWVgRqabTl1sNBLNLPrYFEzsOChOvfp6LFAJekCckYbMKzS8FyNrF+FJrz7
-VYcpy8fALODzcQBtN26ESaB9I/XUf7t4DqSsg+uWI24NstjA01nsJNAynv4DDR8r
-cGgcpyPaunsXuY84smrPeNKdgNR1kvrqkl7kWYtWc+05Hl51gknpZgQCd1IFhyAk
-Db2tvdx1cPlXRJorgS3v
-=5C6B
------END PGP SIGNATURE-----
+Hints in the code below:
 
---u65IjBhB3TIa72Vp--
+> ---
+> This is like the previous patch but with the controversial
+> part left out.
+> ---
+>  drivers/hid/hid-cp2112.c |   26 +++++++++++++++++++-------
+>  1 file changed, 19 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+> index 3318de6..5a72819 100644
+> --- a/drivers/hid/hid-cp2112.c
+> +++ b/drivers/hid/hid-cp2112.c
+> @@ -509,13 +509,25 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>         if (!(msgs->flags & I2C_M_RD))
+>                 goto finish;
+>
+> -       ret = cp2112_read(dev, msgs->buf, msgs->len);
+> -       if (ret < 0)
+> -               goto power_normal;
+> -       if (ret != msgs->len) {
+> -               hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+> -               ret = -EIO;
+> -               goto power_normal;
+> +       for (count = 0; count < msgs->len;) {
+> +               ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
+
+Limit the read to 61 bytes with a check like
+        if (size > 61)
+                size = 61;
+        ret = cp2112_read(..., size);
+This guarantees we get back only one report at a time.
+Instead of the magic number 61, you can use sizeof(dev->read_data).
+
+Or, better, put the check inside cp2112_read(). We are not supposed to
+use this function for more than 61 bytes due to current simple
+cp2112_raw_event(). Please also comment the change in cp2112_read().
+The code in cp2112_read() expects only one report of data. Seams the
+proper place to limit the amount of data requested.
+
+> +               if (ret < 0)
+> +                       goto power_normal;
+
+If ret == 0 it means we have lost one report and the operation should
+be aborted.
+I cannot imagine what could cause it (maybe weak USB contacts or line
+noise), but for sure this return value is unexpected.
+Please generate error for ret == 0 so we never get infinite loop.
+
+Thanks,
+Antonio
+
+> +               count += ret;
+> +               if (count > msgs->len) {
+> +                       /*
+> +                        * The hardware returned too much data.
+> +                        * This is mostly harmless because cp2112_read()
+> +                        * has a limit check so didn't overrun our
+> +                        * buffer.  Nevertheless, we return an error
+> +                        * because something is seriously wrong and
+> +                        * it shouldn't go unnoticed.
+> +                        */
+> +                       hid_err(hdev, "long read: %d > %zd\n",
+> +                               ret, msgs->len - count + ret);
+> +                       ret = -EIO;
+> +                       goto power_normal;
+> +               }
+>         }
+>
+>  finish:
+> --
+> 1.7.10.4
+>
