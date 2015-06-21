@@ -1,50 +1,50 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 4/4] i2c: sh_mobile: use proper type for timeout
-Date: Sat, 20 Jun 2015 21:03:22 +0200
-Message-ID: <1434827002-25918-5-git-send-email-wsa@the-dreams.de>
-References: <1434827002-25918-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434827002-25918-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Antonio Borneo <borneo.antonio@gmail.com>
+Subject: [PATCH] HID: cp2112: fix to force single data-report reply
+Date: Sun, 21 Jun 2015 14:20:25 +0800
+Message-ID: <1434867625-3062-1-git-send-email-borneo.antonio@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: Antonio Borneo <borneo.antonio@gmail.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Ellen Wang <ellen@cumulusnetworks.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Current implementation of cp2112_raw_event() only accepts one data
+report at a time. If last received data report is not fully handled
+yet, a new incoming data report will overwrite it. In such case we
+don't guaranteed to propagate the correct incoming data.
 
-wait_event_timeout returns long, not int.
+The trivial fix implemented here forces a single report at a time
+by requesting in cp2112_read() no more than 61 byte of data, which
+is the payload size of a single data report.
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 5490bfb58f3e80..47659a925e09cd 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -730,7 +730,8 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
- 	struct sh_mobile_i2c_data *pd = i2c_get_adapdata(adapter);
- 	struct i2c_msg	*msg;
- 	int err = 0;
--	int i, k;
-+	int i;
-+	long timeout;
+Hi Jiri,
+
+I think this should go through linux-stable.
+
+Thanks,
+Antonio
+
+ drivers/hid/hid-cp2112.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 3318de6..a2dbbbe 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -356,6 +356,8 @@ static int cp2112_read(struct cp2112_device *dev, u8 *data, size_t size)
+ 	struct cp2112_force_read_report report;
+ 	int ret;
  
- 	activate_ch(pd);
++	if (size > sizeof(dev->read_data))
++		size = sizeof(dev->read_data);
+ 	report.report = CP2112_DATA_READ_FORCE_SEND;
+ 	report.length = cpu_to_be16(size);
  
-@@ -749,10 +750,10 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
- 			i2c_op(pd, OP_START, 0);
- 
- 		/* The interrupt handler takes care of the rest... */
--		k = wait_event_timeout(pd->wait,
-+		timeout = wait_event_timeout(pd->wait,
- 				       pd->sr & (ICSR_TACK | SW_DONE),
- 				       adapter->timeout);
--		if (!k) {
-+		if (!timeout) {
- 			dev_err(pd->dev, "Transfer request timed out\n");
- 			if (pd->dma_direction != DMA_NONE)
- 				sh_mobile_i2c_cleanup_dma(pd);
 -- 
-2.1.4
+2.4.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" in
