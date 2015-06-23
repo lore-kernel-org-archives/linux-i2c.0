@@ -1,143 +1,126 @@
-From: Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Mon, 22 Jun 2015 19:01:32 -0500
-Message-ID: <CAL_JsqKAWs2McpAP-47UwDMtuBoR+0xkJYvu8+-7yOQwiUfvpw@mail.gmail.com>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
- <CAL_Jsq+EWLEJhRudTGAwYsOg4tX2-pGhygeQGHae9RL8rBpMiA@mail.gmail.com> <CAAObsKCdv_X+YPFacO7NjbRMnvuDisAmiQOWE-Xb3xFFrn6Qog@mail.gmail.com>
+From: christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org
+Subject: Re: [PATCH] i2c: designware: use enable on resume instead initialization
+Date: Tue, 23 Jun 2015 18:45:10 +0200
+Message-ID: <OFB47A681B.5488F019-ONC1257E6D.005A6CD2-C1257E6D.005BD52F@alitech.com>
+References: <1433785828-4100-1-git-send-email-lucas.de.marchi@gmail.com> <20150609085146.GD1478@lahna.fi.intel.com> <CAKi4VAJwD45VbWuCHegfkB-tbgvgza52-cgVNF4AxF8NCuYyRQ@mail.gmail.com> <20150610070722.GM1478@lahna.fi.intel.com> <OF847FFF39.1FF5F96A-ONC1257E60.00506AFD-C1257E60.0052A8CE@LocalDomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CAAObsKCdv_X+YPFacO7NjbRMnvuDisAmiQOWE-Xb3xFFrn6Qog@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, =?UTF-8?Q?St=C3=A9phane_Marchesin?= <stephane.marchesin@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Holler <holler@ahsoftware.de>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dan Williams <dan.j.williams@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, dmaengine@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, linux-clk@vger.kernel.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.or>
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <OF847FFF39.1FF5F96A-ONC1257E60.00506AFD-C1257E60.0052A8CE@LocalDomain>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org
+Cc: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Fabio Mello <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 22, 2015 at 10:23 AM, Tomeu Vizoso
-<tomeu.vizoso@collabora.com> wrote:
-> On 28 May 2015 at 06:33, Rob Herring <robherring2@gmail.com> wrote:
->> On Mon, May 25, 2015 at 9:53 AM, Tomeu Vizoso
->> <tomeu.vizoso@collabora.com> wrote:
->>> Hello,
->>>
->>> I have a problem with the panel on my Tegra Chromebook taking longe=
-r than
->>> expected to be ready during boot (St=C3=A9phane Marchesin reported =
-what is
->>> basically the same issue in [0]), and have looked into ordered prob=
-ing as a
->>> better way of solving this than moving nodes around in the DT or pl=
-aying with
->>> initcall levels.
->>>
->>> While reading the thread [1] that Alexander Holler started with his=
- series to
->>> make probing order deterministic, it occurred to me that it should =
-be possible
->>> to achieve the same by registering devices as they are referenced b=
-y other
->>> devices.
->>
->> I like the concept and novel approach.
->>
->>> This basically reuses the information that is already implicit in t=
-he probe()
->>> implementations, saving us from refactoring existing drivers or add=
-ing
->>> information to DTBs.
->>>
->>> Something I'm not completely happy with is that I have had to move =
-the call to
->>> of_platform_populate after all platform drivers have been registere=
-d.
->>> Otherwise I don't see how I could register drivers on demand as we =
-don't have
->>> yet each driver's compatible strings.
->>
->> Yeah, this is the opposite of what we'd really like.
->
-> Can you elaborate on the reasons why we would like to have devices
-> registered before built-in drivers finish registering, even if we
-> don't probe them yet?
+Hello,
 
-My main thought was for modules we will almost always have devices
-appearing first. More generally, we can have devices and drivers
-coming or going at any point in time and should not put restrictions
-on ordering.
+Christian Ruppert/ALi_GVA/ALi wrote on 10.06.2015 17:05:16:
+> Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote on 10.06.
+> 2015 09:07:22:
+> > On Tue, Jun 09, 2015 at 03:29:01PM -0300, Lucas De Marchi wrote:
+> > > Hi Mika,
+> > > 
+> > > On Tue, Jun 9, 2015 at 5:51 AM, Mika Westerberg
+> > > <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> > > > On Mon, Jun 08, 2015 at 02:50:28PM -0300, 
+> lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+> > > >> From: Fabio Mello <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > > >>
+> > > >> According to documentation and tests, initialization is not
+> > > >> necessary on module resume, since the controller keeps its state
+> > > >> between disable/enable. Change the target address is also 
+allowed.
+> > > >>
+> > > >> So, this patch replaces the initialization on module resume with 
+a
+> > > >> simple enable, and removes the (non required anymore) enables and
+> > > >> disables.
+> > > >>
+> > > >> Signed-off-by: Fabio Mello <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > > >> Signed-off-by: Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > > >> ---
+> > > >>
+> > > >> These pictures explain a little more the consequence of letting 
+the
+> > > >> enable+disable in the code:
+> > > >>
+> > > >>       http://pub.politreco.com/paste/TEK0011-before.jpg
+> > > >>       http://pub.politreco.com/paste/TEK0007-after.jpg
+> > > >>
+> > > >> The yellow line is a GPIO toggle in userspace to mark when we 
+> > start and finish
+> > > >> the i2c transactions.  The blue line is the SCL in that i2c 
+> > bus. Take a look on
+> > > >> the huge pauses we have between any 2 transactions.  These 
+> > pauses are removed
+> > > >> with this patch and we are able to read our sensor's values in 
+> > 950usec rather
+> > > >> than 5.24msec we had before.  We are testing this using a 
+> > Minnowboard Max that
+> > > >> has a designware i2c controller.
+> > > >
+> > > > Did you test this on any other platform than Intel Baytrail?
+> > > 
+> > > No. The only soc we have here with this controller is the Baytrail.
+> > 
+> > My concern is that this patch might break some non-Intel platform. It
+> > would be nice if someone (Christian?) could try this out.
+> 
+> Ouch, this one brings back painful memories. Take a look at patch 
+> 38d7fadef4973bb94e36897fcb6bb6a12fdd10c9 (https://git.kernel.org/
+> cgit/linux/kernel/git/torvalds/linux.git/commit/?
+> id=38d7fadef4973bb94e36897fcb6bb6a12fdd10c9) for the context.
+> 
+> In brief:
+> - Before patch 38d7fade, the driver disabled the hardware after 
+> successful transfers. I do not know the reason for this and I cannot
+> judge whether this is necessary or not. I thus decided not to modify
+> this behaviour in patch 38d7fade.
+> 
+> - After patch 38d7fade, the driver disabled the dw controller after 
+> all transfers, in particular in the case of unsuccessful transfers. 
+> This modification was necessary because of a race condition 
+> triggered by an i2c slave device which interrupted transfers in the 
+> middle. In this case, the dw controller (at least our version) seems
+> to send spurious interrupts later if it is not disabled. The 
+> interrupt handler is not designed to be called on already aborted 
+> transfers, however, which leads to undesirable behaviour if the 
+> interrupt occurs at the wrong moment (system hangs in irq loop).
+> 
+> I will try to dig out the test setup we used to validate the patch 
+> at the time but given the fact that this was two years ago this 
+> might take a little while. In the meantime, do you have any means to
+> stress test the case of unexpected events on the bus (client aborts 
+> transfer, timeout etc.)? An alternative might be to only disable the
+> controller in the case of errors and leave it active after 
+> successful transfers. We should understand why the controller was 
+> disabled after successful transfers in the first place, however. 
+> Maybe some quirk with older versions of the hardware? Mika, do you 
+> have any memories about this?
 
-Also, I think all the probe ordering and dependency tracking should be
-done within the driver core (i.e. dependencies are a list of struct
-devices). At some level it has to become firmware specific, but we
-want to minimize that part. I could be convinced otherwise and you
-have put more thought into this problem than I have.
+As promised I tried to dig out the test setup we used to validate patch 
+38d7fade at the time but without success. (I half expected that after such 
+a long time...)
 
->> Ideally, we would
->> have a solution that works for modules too. However, we're no worse
->> off. We pretty much build-in dependencies to avoid module ordering
->> problems.
->
-> Nod, I haven't looked yet at requesting modules on-demand, but I gues=
-s
-> it should be doable. Modules that have dependencies described in the
-> firmware should get them probed automatically already though.
->
->> Perhaps we need to make the probing on-demand rather than simply on
->> device<->driver match occurring.
->
-> I'm afraid that too much old code depends on that. For example, Rafae=
-l
-> pointed out to the PNP subsystem, which registers a driver that will
-> probe devices with the EISA ID PNP0c02 to reserve memory regions for
-> devices that will be probed later.
->
-> http://lxr.free-electrons.com/source/drivers/pnp/system.c
->
-> My understanding is that probing of PNP0c02 devices must happen befor=
-e
-> the actual devices that depend on those regions are probed, so if we
-> decoupled the probing from the driver/device registration, we would b=
-e
-> breaking that assumption.
+So I said to myself, let's give the patch a try nevertheless and see if it 
+works in our system at least in the nominal case (no i2c bus errors).
 
-That shouldn't matter as PNP matching is PNP specific. We already have
-different ways of matching with device/driver name or of_match_table
-for example. Changing how and when OF matching occurs would not affect
-PNP matching. We do matching on device and driver add currently. For
-the "when" part, we would need to add what I'll call async matching or
-deferred matching which in addition to matching on the of_match_table
-also matches on the dependency list having probed. Your last series
-essentially does this, but the difference is yours is not OF specific
-and I think it needs to be. I mean it is OF specific only in the
-aspect that matching already is. From a driver and subsystem
-standpoint, it should not be OF specific much like deferred probe is
-not OF specific, but in reality only occurs (currently) on OF probed
-drivers.
+The result is not very encouraging: Out of five (identical) designware i2c 
+controllers we have on my test SOC, the first one initialises properly but 
+the second one gets stuck in the famous irq loop right away when the 
+module is enabled in i2c_dw_init. The system never gets around to try 
+initialising the remaining three controllers due to the irq loop. I didn't 
+have the time to investigate the details yet but I suspect this is 
+triggered by some nastily behaved device on the bus. For example, some of 
+our external devices are notorious for keeping i2c  lines tied to zero 
+before being properly powered on/reset/initialised by their respective 
+drivers (which in turn depend on the i2c master to be initialised first, 
+obviously). I'll grab an oscilloscope and dump the waves to confirm this 
+suspicion on the occasion.
+However, similar situations might occur in multi-master setups (which we 
+don't have). I suspect the driver/hardware to also end up in the irq loop 
+after loosing arbitration with this patch. Has anybody the means to test 
+this in a multi-master system?
 
->>> For machs that don't move of_platform_populate() to a later point, =
-these
->>> patches shouldn't cause any problems but it's not guaranteed that w=
-e'll avoid
->>> all the deferred probes as some drivers may not be registered yet.
->>
->> Ideally, of_platform_populate is not explicitly called by each
->> platform. So I think we need to make this work for the default case.
->
-> The problem is that some platforms will need fixing because some
-> initcalls assume that some devices will have been registered already,
-> or even probed. I think removing those assumptions shouldn't be
-> problematic because I haven't had much trouble with this on the four
-> platforms I have tested with, but I cannot test every board that is
-> supported upstream.
->
-> I can ask though the KernelCI folks to boot my branch in all their
-> boards and make sure that those work when of_platform_populate is
-> called in late_initcall.
-
-I'd imagine Kevin would be happy to. That is still a subset of h/w, so
-we'd need a way to disable any solution.
-
-Rob
---
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
+Greetings,
+  Christian
