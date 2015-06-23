@@ -1,63 +1,51 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v5] i2c: busses: i2c-bcm2835: limits cdiv to allowed
- values
-Date: Tue, 23 Jun 2015 19:58:13 +0200
-Message-ID: <20150623175813.GB3326@katana>
-References: <1434618611-16062-1-git-send-email-linux_wi@tinag.ch>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 0/2] I2C/SMBus: add support for Host Notify in i2c_i801
+Date: Tue, 23 Jun 2015 14:58:17 -0400
+Message-ID: <1435085899-11017-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1434618611-16062-1-git-send-email-linux_wi-ADq4ffItWIY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
-Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
---l76fUT7nc3MelDdI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am currently working on the Synaptics touchpads that can be found on many
+Lenovo laptops. These touchpads are capable of talking over the PS/2 bus but
+also over SMBus. The PS/2 bus is somewhat limited in what it allows to do
+and using the SMBus protocol would allow us to be close to what the Windows
+driver implements (and thus benefit from the firmware QA that is made for this
+system).
 
-On Thu, Jun 18, 2015 at 11:10:11AM +0200, Silvan Wicki wrote:
-> Checks if the cdiv value is in between min (0x2) and max (0xFFFE)
-> supported values by the bcm2835. If not, it returns -ENODEV.
->=20
-> See page 33/34 of BCM2835-ARM-Peripherals.pdf for the DIV register.
-> https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Periph=
-erals.pdf
->=20
-> Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+The current WIP is posted here:
+https://github.com/bentiss/linux branch synaptics-rmi4-smbus-v4.1-15-06-23
 
-Applied to for-next, thanks!
+We are still missing a few bits here and there to actually switch the default
+to this driver (PS/2 pass-through for example), so I am splitting the series
+in the hope of receiving feedbacks earlier.
 
-But I needed to rebase on top of your "i2c: bcm2835: clear reserved bits
-in S-Register" patch. A small patch series would have been a good choice
-here.
+The Synaptics touchpads are using the SMBus Host Notification feature which an
+implementation is proposed in this series.
+I am not sure if the Host Notification feature can be emulated by all
+controllers so I based my work on what is available on the i801 PCH: an hardware
+feature introduced in ICH 3.
 
+Any comments welcome!
 
---l76fUT7nc3MelDdI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Cheers,
+Benjamin
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Benjamin Tissoires (2):
+  i2c: add SMBus Host Notify support
+  i2c: i801: add support of Host Notify
 
-iQIcBAEBAgAGBQJViZ41AAoJEBQN5MwUoCm26kUP/0nuDL00SJd7q9gxDLzP1X5P
-dNKgh764bjjVwiNKDOGChnFjtK7rYuOKknee78nZbjPbbOn2bFC/RCfJf7vWR3Aj
-uaTSqOu2jcd+IFuknkJwwcWw6gaWytTKmVKNwNhCWjn0waAeFH0Jck1KC+URM+fo
-pzMUrR9ctmFIpPcCwDaaOJx7Y2C9+5jPEJ1zDftcu6N0YllWxLP5uoRkWI7O0FYO
-vGUb/cRc44bCrmn1q73/SWcA77D3ZvtjSF6oGWgGtyrB/++SeKsguYLqrF1GQpMU
-sJbiaTWePorGBo5/Nk9JpaDXCLFqtIjsttKSregDmp/9Y0PxoY42vqQj2r+64VO7
-PYzw27jWmKbejk4HEtrKhZa3fJ63ggF6G1+NJlQolETpJsqOND4HY0l66tgzQDni
-ZXMg2csqQbG21TAdGat7v5UuSJaWm/kKCNe/ULY2eRxIr5UyIRBqdPYrhdBekkwn
-9zV8m5dZdJs6WvtvJmkmIDOw59MPA/GHqhv7rPhuWIgTkYAGATWM3T85Ju057TqV
-MJtjrXPMgpzEBQ2ZHr7TGNVdNmlBcW4ynSbAR7YSdwokoS9oJMc3mAZeZdZzM8by
-LrCQsUpXvqTW0Qp60fZxZPcDFZ998k9IQrolcjGwrvL1wUaSe4MOITEVTZ84EINJ
-c/P/cuaVky5MilfuzAG7
-=yRvM
------END PGP SIGNATURE-----
+ Documentation/i2c/smbus-protocol |   4 +
+ drivers/i2c/busses/i2c-i801.c    | 223 +++++++++++++++++++++++++++++++--------
+ drivers/i2c/i2c-core.c           |  60 +++++++++++
+ drivers/i2c/i2c-smbus.c          |  17 +--
+ include/linux/i2c.h              |  11 ++
+ include/uapi/linux/i2c.h         |   1 +
+ 6 files changed, 256 insertions(+), 60 deletions(-)
 
---l76fUT7nc3MelDdI--
+-- 
+2.4.3
