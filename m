@@ -1,62 +1,63 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/4] generic timeout handling for Renesas drivers
-Date: Tue, 23 Jun 2015 19:51:45 +0200
-Message-ID: <20150623175145.GA3326@katana>
-References: <1434827002-25918-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5] i2c: busses: i2c-bcm2835: limits cdiv to allowed
+ values
+Date: Tue, 23 Jun 2015 19:58:13 +0200
+Message-ID: <20150623175813.GB3326@katana>
+References: <1434618611-16062-1-git-send-email-linux_wi@tinag.ch>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1434827002-25918-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+In-Reply-To: <1434618611-16062-1-git-send-email-linux_wi-ADq4ffItWIY@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Q68bSM7Ycu6FN28Q
+--l76fUT7nc3MelDdI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jun 20, 2015 at 09:03:18PM +0200, Wolfram Sang wrote:
-> Here is a small patch series to make I2C timeout handling easier for user=
-s. It
-> is not so amazingly huge anymore and it can be modified via i2c-dev if wa=
-nted.
-> While at it, fix the type of the timeout variable to the proper one.
-> This time build-tested twice!
+On Thu, Jun 18, 2015 at 11:10:11AM +0200, Silvan Wicki wrote:
+> Checks if the cdiv value is in between min (0x2) and max (0xFFFE)
+> supported values by the bcm2835. If not, it returns -ENODEV.
 >=20
-> Wolfram Sang (4):
->   i2c: rcar: use adapter default for timeout
->   i2c: rcar: use proper type for timeout
->   i2c: sh_mobile: use adapter default for timeout
->   i2c: sh_mobile: use proper type for timeout
+> See page 33/34 of BCM2835-ARM-Peripherals.pdf for the DIV register.
+> https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Periph=
+erals.pdf
+>=20
+> Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
 
 Applied to for-next, thanks!
 
+But I needed to rebase on top of your "i2c: bcm2835: clear reserved bits
+in S-Register" patch. A small patch series would have been a good choice
+here.
 
---Q68bSM7Ycu6FN28Q
+
+--l76fUT7nc3MelDdI
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJViZyxAAoJEBQN5MwUoCm2dVoP/0U8ox3Mb9hUucwT4bEVZ8sw
-5nWWTxUAmhzuiMUdXnvamYijxnWINPvwk8Wuvx64rUgdsIo2mWM1frR5TRZZ20Ty
-KM3s/ldtFQgSx1OxDyBF9cWyWPbZIRYa6vYXj39mGqYQ783YWm4l7RtXbJJLEd2t
-zYLagoQZpdxzeXyiXGWK5a+bZnnquHngbPMpzx7d9/HpyqBT8KxZ4viZs7ohkV7M
-dijT7rppsIerAF4QB+uYMbC8GR9X4nnjocL6J3E1GwK4mD+CNOBghKvB3GIsDfuX
-QlSvmfTphVZQCfhrzIfCitpo6yqGepLm1/ZyD94c4esBbtxskuwnMzPfFx8BFIxw
-+lAuieRY308hLgVzYswBAu6rWbGfmMzUspOxuQthVijaDBmNljQnmvVRysS2aIaM
-q34GSsJphz88ufYAxNghBEiRzAbP9T2heQ0aMw8ywGJ/5Pb4L8S/QAOFu8hCe1Fc
-L0o4DBbBjEIHZERo+U2zxI6yyB9HOeRQ8I0a47aasV72rxqOkIdS6cJSTTarrAXc
-paOiLwY5jkj3tM5syregA0NqYBo5GqlYu9Q1muoTuqQftW2DAqjD7sPn+L8YCmS1
-ETJLPZwxDLYvak0vLunST3h2+nWM2ekP9HjJwDwBawPJD59NqC6f5ZlD2qxofY8n
-GQ1QYNtAnEJbP83QMINj
-=Sels
+iQIcBAEBAgAGBQJViZ41AAoJEBQN5MwUoCm26kUP/0nuDL00SJd7q9gxDLzP1X5P
+dNKgh764bjjVwiNKDOGChnFjtK7rYuOKknee78nZbjPbbOn2bFC/RCfJf7vWR3Aj
+uaTSqOu2jcd+IFuknkJwwcWw6gaWytTKmVKNwNhCWjn0waAeFH0Jck1KC+URM+fo
+pzMUrR9ctmFIpPcCwDaaOJx7Y2C9+5jPEJ1zDftcu6N0YllWxLP5uoRkWI7O0FYO
+vGUb/cRc44bCrmn1q73/SWcA77D3ZvtjSF6oGWgGtyrB/++SeKsguYLqrF1GQpMU
+sJbiaTWePorGBo5/Nk9JpaDXCLFqtIjsttKSregDmp/9Y0PxoY42vqQj2r+64VO7
+PYzw27jWmKbejk4HEtrKhZa3fJ63ggF6G1+NJlQolETpJsqOND4HY0l66tgzQDni
+ZXMg2csqQbG21TAdGat7v5UuSJaWm/kKCNe/ULY2eRxIr5UyIRBqdPYrhdBekkwn
+9zV8m5dZdJs6WvtvJmkmIDOw59MPA/GHqhv7rPhuWIgTkYAGATWM3T85Ju057TqV
+MJtjrXPMgpzEBQ2ZHr7TGNVdNmlBcW4ynSbAR7YSdwokoS9oJMc3mAZeZdZzM8by
+LrCQsUpXvqTW0Qp60fZxZPcDFZ998k9IQrolcjGwrvL1wUaSe4MOITEVTZ84EINJ
+c/P/cuaVky5MilfuzAG7
+=yRvM
 -----END PGP SIGNATURE-----
 
---Q68bSM7Ycu6FN28Q--
+--l76fUT7nc3MelDdI--
