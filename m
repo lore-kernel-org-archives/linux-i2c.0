@@ -1,52 +1,59 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: "De Marchi, Lucas" <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH] i2c: designware: use enable on resume instead
  initialization
-Date: Wed, 24 Jun 2015 14:27:23 +0300
-Message-ID: <20150624112723.GE827@lahna.fi.intel.com>
+Date: Wed, 24 Jun 2015 12:56:19 +0000
+Message-ID: <1435150578.1075.5.camel@intel.com>
 References: <1433785828-4100-1-git-send-email-lucas.de.marchi@gmail.com>
- <20150609085146.GD1478@lahna.fi.intel.com>
- <CAKi4VAJwD45VbWuCHegfkB-tbgvgza52-cgVNF4AxF8NCuYyRQ@mail.gmail.com>
- <20150610070722.GM1478@lahna.fi.intel.com>
- <OF847FFF39.1FF5F96A-ONC1257E60.00506AFD-C1257E60.0052A8CE@LocalDomain>
- <OFB47A681B.5488F019-ONC1257E6D.005A6CD2-C1257E6D.005BD52F@alitech.com>
- <CAKi4VA+t3d-XoqDiL9ez+9qDR_ndgGnAOhkpZsJyJ2tMjfCYLA@mail.gmail.com>
- <OFB918064C.F72245F4-ONC1257E6E.00287EC7-C1257E6E.00299EF2@alitech.com>
+	 <20150609085146.GD1478@lahna.fi.intel.com>
+	 <CAKi4VAJwD45VbWuCHegfkB-tbgvgza52-cgVNF4AxF8NCuYyRQ@mail.gmail.com>
+	 <20150610070722.GM1478@lahna.fi.intel.com>
+	 <OF847FFF39.1FF5F96A-ONC1257E60.00506AFD-C1257E60.0052A8CE@LocalDomain>
+	 <OFB47A681B.5488F019-ONC1257E6D.005A6CD2-C1257E6D.005BD52F@alitech.com>
+	 <CAKi4VA+t3d-XoqDiL9ez+9qDR_ndgGnAOhkpZsJyJ2tMjfCYLA@mail.gmail.com>
+	 <OFB918064C.F72245F4-ONC1257E6E.00287EC7-C1257E6E.00299EF2@alitech.com>
+	 <20150624112723.GE827@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <OFB918064C.F72245F4-ONC1257E6E.00287EC7-C1257E6E.00299EF2-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20150624112723.GE827-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+Content-Language: en-US
+Content-ID: <B3CB35074413FC4AADD7A6EA84115FAF-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org
-Cc: Lucas De Marchi <lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Fabio Mello <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org" <christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org>
+Cc: "lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Mello, Fabio" <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org" <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 24, 2015 at 09:36:43AM +0200, christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org wrote:
-> Dear Lucas,
-> 
-> Lucas De Marchi <lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote on 23.06.2015 19:02:03:
-> > On Tue, Jun 23, 2015 at 1:45 PM,  <christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org> wrote:
-> > > Hello,
-> > >
-> > > Christian Ruppert/ALi_GVA/ALi wrote on 10.06.2015 17:05:16:
-> > [...]
-> > > The result is not very encouraging: Out of five (identical) designware 
-> i2c
-> > > controllers we have on my test SOC, the first one initialises properly 
-> but
-> > > the second one gets stuck in the famous irq loop right away when the
-> > > module is enabled in i2c_dw_init. The system never gets around to try
-> > 
-> > Are you using the pci or platform driver?  I noticed yesterday the pci
-> > version is failing here with a NULL pointer dereference.
-> 
-> The test was performed with the platform driver (instantiated through 
-> device tree).
-> I just re-checked and the ultimate problem which hangs/kills the system in 
-> my case is the IRQ loop.
-> I haven't observed any NULL pointer dereferences on the road.
-
-Thanks Christian for testing.
-
-Since the patch causes problems on your hardware, I don't think it is
-good idea to merge it.
+T24gV2VkLCAyMDE1LTA2LTI0IGF0IDE0OjI3ICswMzAwLCBNaWthIFdlc3RlcmJlcmcgd3JvdGU6
+DQo+IE9uIFdlZCwgSnVuIDI0LCAyMDE1IGF0IDA5OjM2OjQzQU0gKzAyMDAsIGNocmlzdGlhbi5y
+dXBwZXJ0QGFsaXRlY2guY29tIHdyb3QNCj4gZToNCj4gPiBEZWFyIEx1Y2FzLA0KPiA+IA0KPiA+
+IEx1Y2FzIERlIE1hcmNoaSA8bHVjYXMuZGUubWFyY2hpQGdtYWlsLmNvbT4gd3JvdGUgb24gMjMu
+MDYuMjAxNSAxOTowMjowMzoNCj4gPiA+IE9uIFR1ZSwgSnVuIDIzLCAyMDE1IGF0IDE6NDUgUE0s
+ICA8Y2hyaXN0aWFuLnJ1cHBlcnRAYWxpdGVjaC5jb20+IHdyb3RlOg0KPiA+ID4gPiBIZWxsbywN
+Cj4gPiA+ID4gDQo+ID4gPiA+IENocmlzdGlhbiBSdXBwZXJ0L0FMaV9HVkEvQUxpIHdyb3RlIG9u
+IDEwLjA2LjIwMTUgMTc6MDU6MTY6DQo+ID4gPiBbLi4uXQ0KPiA+ID4gPiBUaGUgcmVzdWx0IGlz
+IG5vdCB2ZXJ5IGVuY291cmFnaW5nOiBPdXQgb2YgZml2ZSAoaWRlbnRpY2FsKSBkZXNpZ253YXJl
+IA0KPiA+ID4gPiANCj4gPiBpMmMNCj4gPiA+ID4gY29udHJvbGxlcnMgd2UgaGF2ZSBvbiBteSB0
+ZXN0IFNPQywgdGhlIGZpcnN0IG9uZSBpbml0aWFsaXNlcyBwcm9wZXJseSANCj4gPiA+ID4gDQo+
+ID4gYnV0DQo+ID4gPiA+IHRoZSBzZWNvbmQgb25lIGdldHMgc3R1Y2sgaW4gdGhlIGZhbW91cyBp
+cnEgbG9vcCByaWdodCBhd2F5IHdoZW4gdGhlDQo+ID4gPiA+IG1vZHVsZSBpcyBlbmFibGVkIGlu
+IGkyY19kd19pbml0LiBUaGUgc3lzdGVtIG5ldmVyIGdldHMgYXJvdW5kIHRvIHRyeQ0KPiA+ID4g
+DQo+ID4gPiBBcmUgeW91IHVzaW5nIHRoZSBwY2kgb3IgcGxhdGZvcm0gZHJpdmVyPyAgSSBub3Rp
+Y2VkIHllc3RlcmRheSB0aGUgcGNpDQo+ID4gPiB2ZXJzaW9uIGlzIGZhaWxpbmcgaGVyZSB3aXRo
+IGEgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlLg0KPiA+IA0KPiA+IFRoZSB0ZXN0IHdhcyBwZXJm
+b3JtZWQgd2l0aCB0aGUgcGxhdGZvcm0gZHJpdmVyIChpbnN0YW50aWF0ZWQgdGhyb3VnaCANCj4g
+PiBkZXZpY2UgdHJlZSkuDQo+ID4gSSBqdXN0IHJlLWNoZWNrZWQgYW5kIHRoZSB1bHRpbWF0ZSBw
+cm9ibGVtIHdoaWNoIGhhbmdzL2tpbGxzIHRoZSBzeXN0ZW0gaW4gDQo+ID4gDQo+ID4gbXkgY2Fz
+ZSBpcyB0aGUgSVJRIGxvb3AuDQo+ID4gSSBoYXZlbid0IG9ic2VydmVkIGFueSBOVUxMIHBvaW50
+ZXIgZGVyZWZlcmVuY2VzIG9uIHRoZSByb2FkLg0KPiANCj4gVGhhbmtzIENocmlzdGlhbiBmb3Ig
+dGVzdGluZy4NCj4gDQo+IFNpbmNlIHRoZSBwYXRjaCBjYXVzZXMgcHJvYmxlbXMgb24geW91ciBo
+YXJkd2FyZSwgSSBkb24ndCB0aGluayBpdCBpcw0KPiBnb29kIGlkZWEgdG8gbWVyZ2UgaXQuDQoN
+Cg0KWWVhaCwgYnV0IGl0IHdvdWxkIGJlIGJhZCB0byBpZ25vcmUgdGhlIHByb2JsZW0gYXMgd2Vs
+bC4gVGhlIHdheSBpdCBpcyBub3cNCmtpbGxzIGFueSBwb3NzaWJpbGl0eSBvZiB1c2luZyBEVyBj
+b250cm9sbGVyIGZvciByZWFkaW5nIHNlbnNvcnMgbGlrZQ0KZ3lyb3Njb3BlLCBhY2NlbGVyb21l
+dGVyLCBiYXJvbWV0ZXIgdGhhdCBoYXZlIGhpZ2hlciBzYW1wbGluZyByYXRlIGV0Yy4gIEknbGwN
+CnRyeSB0byBjb21lIHVwIHdpdGggYSBuZXcgcGF0Y2ggYnV0IHNpbmNlIEkgY2FuJ3QgcmVwcm9k
+dWNlIHRoZSBwcm9ibGVtIGhlcmUNCml0J2QgYmUgZ29vZCB0byBrbm93IGlmIHRoZXJlJ3MgYW55
+IG1lYW5zIGZvciBtZSB0byB0ZXN0LiAgV2hhdCBkbyB5b3UgdGhpbmsNCnRoYXQgY291bGQgYmUg
+ZG9uZT8gTWF5YmUgcHV0dGluZyB0aGUgY29udHJvbGxlciB0byBzbGVlcCBvbmx5IGluIGNhc2Ug
+b2YNCmVycm9ycz8NCg0KdGhhbmtzDQoNCi0tIA0KTHVjYXMgRGUgTWFyY2hp
