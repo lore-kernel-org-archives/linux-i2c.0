@@ -1,84 +1,56 @@
-From: christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org
-Subject: Re: [PATCH] i2c: designware: use enable on resume instead initialization
-Date: Wed, 24 Jun 2015 16:06:45 +0200
-Message-ID: <OFF6E472DA.067DC73F-ONC1257E6E.004C4637-C1257E6E.004D542C@alitech.com>
-References: <1433785828-4100-1-git-send-email-lucas.de.marchi@gmail.com>	 <20150609085146.GD1478@lahna.fi.intel.com>
-	 <CAKi4VAJwD45VbWuCHegfkB-tbgvgza52-cgVNF4AxF8NCuYyRQ@mail.gmail.com>	 <20150610070722.GM1478@lahna.fi.intel.com>
-	 <OF847FFF39.1FF5F96A-ONC1257E60.00506AFD-C1257E60.0052A8CE@LocalDomain>
-	 <OFB47A681B.5488F019-ONC1257E6D.005A6CD2-C1257E6D.005BD52F@alitech.com>
-	 <CAKi4VA+t3d-XoqDiL9ez+9qDR_ndgGnAOhkpZsJyJ2tMjfCYLA@mail.gmail.com>	 <OFB918064C.F72245F4-ONC1257E6E.00287EC7-C1257E6E.00299EF2@alitech.com>
-	 <20150624112723.GE827@lahna.fi.intel.com> <1435150578.1075.5.camel@intel.com>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH] i2c: removed work arounds in i2c driver for Zynq
+ Ultrascale+ MPSoC
+Date: Thu, 25 Jun 2015 16:18:00 +0100
+Message-ID: <20150625151800.GC6844@leverpostej>
+References: <1434644382-11905-1-git-send-email-anuragku@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435150578.1075.5.camel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "De Marchi, Lucas" <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org" <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, "Mello, Fabio" <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1434644382-11905-1-git-send-email-anuragku-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Anurag Kumar Vulisha <anurag.kumar.vulisha-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "punnaia-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <punnaia-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "anirudh-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <anirudh-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "svemula-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <svemula-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Anurag Kumar Vulisha <anuragku-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Lucas,
+On Thu, Jun 18, 2015 at 05:19:42PM +0100, Anurag Kumar Vulisha wrote:
+> Removed the workarounds present in the cadence i2c driver for
+> Zynq Ultrascale+ MPSoC
 
-"De Marchi, Lucas" <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote on 24.06.2015 
-14:56:19:
-> On Wed, 2015-06-24 at 14:27 +0300, Mika Westerberg wrote:
-> > On Wed, Jun 24, 2015 at 09:36:43AM +0200, 
-christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org wrot
-> > e:
-> > > Dear Lucas,
-> > > 
-> > > Lucas De Marchi <lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote on 23.06.2015 
-19:02:03:
-> > > > On Tue, Jun 23, 2015 at 1:45 PM,  <christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org> 
-wrote:
-> > > > > Hello,
-> > > > > 
-> > > > > Christian Ruppert/ALi_GVA/ALi wrote on 10.06.2015 17:05:16:
-> > > > [...]
-> > > > > The result is not very encouraging: Out of five (identical) 
-> designware 
-> > > > > 
-> > > i2c
-> > > > > controllers we have on my test SOC, the first one 
-> initialises properly 
-> > > > > 
-> > > but
-> > > > > the second one gets stuck in the famous irq loop right away when 
-the
-> > > > > module is enabled in i2c_dw_init. The system never gets around 
-to try
-> > > > 
-> > > > Are you using the pci or platform driver?  I noticed yesterday the 
-pci
-> > > > version is failing here with a NULL pointer dereference.
-> > > 
-> > > The test was performed with the platform driver (instantiated 
-through 
-> > > device tree).
-> > > I just re-checked and the ultimate problem which hangs/kills 
-thesystem in 
-> > > 
-> > > my case is the IRQ loop.
-> > > I haven't observed any NULL pointer dereferences on the road.
-> > 
-> > Thanks Christian for testing.
-> > 
-> > Since the patch causes problems on your hardware, I don't think it is
-> > good idea to merge it.
+I guess this means that cdns,i2c-r1p10 had quirks fixed in
+cdns,i2c-r1p14? It would be helpful to be a bit more explicit in the
+commit message.
+
 > 
+> Signed-off-by: Anurag Kumar Vulisha <anuragku-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> ---
+>  .../devicetree/bindings/i2c/i2c-cadence.txt        |    2 +-
+>  drivers/i2c/busses/i2c-cadence.c                   |   67 ++++++++++++++++---
+>  2 files changed, 57 insertions(+), 12 deletions(-)
 > 
-> Yeah, but it would be bad to ignore the problem as well. The way it is 
-now
-> kills any possibility of using DW controller for reading sensors like
-> gyroscope, accelerometer, barometer that have higher sampling rate etc. 
-I'll
-> try to come up with a new patch but since I can't reproduce the problem 
-here
-> it'd be good to know if there's any means for me to test.
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-cadence.txt b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
+> index 7cb0b56..11ef7f2 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
+> @@ -2,7 +2,7 @@ Binding for the Cadence I2C controller
+>  
+>  Required properties:
+>    - reg: Physical base address and size of the controller's register area.
+> -  - compatible: Compatibility string. Must be 'cdns,i2c-r1p10'.
+> +  - compatible: Compatibility string.Use 'cdns,i2c-r1p10' or 'cdns,i2c-r1p14'
 
-I'll analyse the problem a bit further and send you a description (sda and 
-scl state at enable time) as soon as I can put my hands on an oscilloscope 
-one evening.
+Please format this as a list. It aids legibility and expansion. e.g:
 
-Greetings,
-  Christian
+- compatible: should contain one of:
+  * "cdns,i2c-r1p10"
+  * "cdns,i2c-r1p14"
+
+Perhaps with notes as to the differences.
+
+Thanks,
+Mark.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
