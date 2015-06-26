@@ -1,38 +1,37 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 3/3] i2c: omap: on ->remove() call pm_runtime_put_sync()
-Date: Thu, 25 Jun 2015 14:34:50 -0500
-Message-ID: <1435260890-32335-3-git-send-email-balbi@ti.com>
-References: <1435260890-32335-1-git-send-email-balbi@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: [PATCH] i2c: I2C_MT65XX should depend on HAS_DMA
+Date: Fri, 26 Jun 2015 14:12:10 +0200
+Message-ID: <1435320730-5506-1-git-send-email-geert@linux-m68k.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435260890-32335-1-git-send-email-balbi-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-we're about to remove the module, so we can't
-really schedule a PM transition in the future,
-we must wait for it to finish.
+If NO_DMA=y:
 
-Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+    ERROR: "dma_unmap_single" [drivers/i2c/busses/i2c-mt65xx.ko] undefined!
+    ERROR: "dma_mapping_error" [drivers/i2c/busses/i2c-mt65xx.ko] undefined!
+    ERROR: "dma_map_single" [drivers/i2c/busses/i2c-mt65xx.ko] undefined!
+
+Add a dependency on HAS_DMA to fix this.
+
+Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 828d5caccfcb..b57d84e01562 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1395,7 +1395,7 @@ static int omap_i2c_remove(struct platform_device *pdev)
- 		return ret;
- 
- 	omap_i2c_write_reg(omap, OMAP_I2C_CON_REG, 0);
--	pm_runtime_put(&pdev->dev);
-+	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	return 0;
- }
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 35ac23768ce9662f..577d58d1f1a19881 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -633,6 +633,7 @@ config I2C_MPC
+ config I2C_MT65XX
+ 	tristate "MediaTek I2C adapter"
+ 	depends on ARCH_MEDIATEK || COMPILE_TEST
++	depends on HAS_DMA
+ 	help
+ 	  This selects the MediaTek(R) Integrated Inter Circuit bus driver
+ 	  for MT65xx and MT81xx.
 -- 
-2.4.4
+1.9.1
