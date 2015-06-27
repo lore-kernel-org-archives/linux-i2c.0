@@ -1,37 +1,97 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: [PATCH] i2c: I2C_MT65XX should depend on HAS_DMA
-Date: Fri, 26 Jun 2015 14:12:10 +0200
-Message-ID: <1435320730-5506-1-git-send-email-geert@linux-m68k.org>
+From: "Matwey V. Kornilov" <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-tools: Implement Module.mk for eepromer subdir
+Date: Sat, 27 Jun 2015 11:49:07 +0300
+Message-ID: <1435394947-5228-1-git-send-email-matwey.kornilov@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, "Matwey V. Kornilov" <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If NO_DMA=y:
+eepromer/Module.mk has to be present in order to do
+    make EXTRA=eepromer
 
-    ERROR: "dma_unmap_single" [drivers/i2c/busses/i2c-mt65xx.ko] undefined!
-    ERROR: "dma_mapping_error" [drivers/i2c/busses/i2c-mt65xx.ko] undefined!
-    ERROR: "dma_map_single" [drivers/i2c/busses/i2c-mt65xx.ko] undefined!
-
-Add a dependency on HAS_DMA to fix this.
-
-Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Signed-off-by: Matwey V. Kornilov <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 35ac23768ce9662f..577d58d1f1a19881 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -633,6 +633,7 @@ config I2C_MPC
- config I2C_MT65XX
- 	tristate "MediaTek I2C adapter"
- 	depends on ARCH_MEDIATEK || COMPILE_TEST
-+	depends on HAS_DMA
- 	help
- 	  This selects the MediaTek(R) Integrated Inter Circuit bus driver
- 	  for MT65xx and MT81xx.
--- 
-1.9.1
+--- /dev/null
++++ i2c-tools-3.1.1/eepromer/Module.mk
+@@ -0,0 +1,79 @@
++# eepromer
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++
++EEPROMER_DIR	:= eepromer
++
++EEPROMER_CFLAGS := -O2 -Iinclude -Wall 
++ifeq ($(USE_STATIC_LIB),1)
++EEPROMER_LDFLAGS	:= $(LIB_DIR)/$(LIB_STLIBNAME)
++else
++EEPROMER_LDFLAGS	:= -L$(LIB_DIR) -li2c
++endif
++
++EEPROMER_TARGETS	:= eepromer eeprom eeprog
++
++#
++# Programs
++#
++
++$(EEPROMER_DIR)/eepromer:  $(EEPROMER_DIR)/eepromer.o
++	$(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
++
++$(EEPROMER_DIR)/eeprom: $(EEPROMER_DIR)/eeprom.o
++	$(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
++
++$(EEPROMER_DIR)/eeprog: $(EEPROMER_DIR)/eeprog.o $(EEPROMER_DIR)/24cXX.o
++	$(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
++
++#
++# Objects
++#
++
++$(EEPROMER_DIR)/eepromer.o: $(EEPROMER_DIR)/eepromer.c
++	$(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
++
++$(EEPROMER_DIR)/eeprom.o: $(EEPROMER_DIR)/eeprom.c
++	$(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
++
++$(EEPROMER_DIR)/eeprog.o: $(EEPROMER_DIR)/eeprog.c $(EEPROMER_DIR)/24cXX.h
++	$(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
++
++$(EEPROMER_DIR)/24cXX.o: $(EEPROMER_DIR)/24cXX.c $(EEPROMER_DIR)/24cXX.h
++	$(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
++
++#
++# Commands
++#
++
++all-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
++
++strip-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
++	strip $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
++
++clean-eepromer:
++	$(RM) $(addprefix $(EEPROMER_DIR)/,*.o $(EEPROMER_TARGETS))
++
++install-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
++	$(INSTALL_DIR) $(DESTDIR)$(sbindir) $(DESTDIR)$(man8dir)
++	for program in $(EEPROMER_TARGETS) ; do \
++	$(INSTALL_PROGRAM) $(EEPROMER_DIR)/$$program $(DESTDIR)$(sbindir) ; \
++	$(INSTALL_DATA) $(EEPROMER_DIR)/$$program.8 $(DESTDIR)$(man8dir) ; done
++
++uninstall-eepromer:
++	for program in $(EEPROMER_TARGETS) ; do \
++	$(RM) $(DESTDIR)$(sbindir)/$$program ; \
++	$(RM) $(DESTDIR)$(man8dir)/$$program.8 ; done
++
++all: all-eepromer
++
++strip: strip-eepromer
++
++clean: clean-eepromer
++
++install: install-eepromer
++
++uninstall: uninstall-eepromer
