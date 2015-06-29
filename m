@@ -1,148 +1,88 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] i2c-tools: Implement Module.mk for eepromer subdir
-Date: Mon, 29 Jun 2015 10:41:17 +0200
-Message-ID: <20150629104117.5c3d632a@endymion.delvare>
-References: <1435394947-5228-1-git-send-email-matwey.kornilov@gmail.com>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH-V2 00/12] i2c: pxa: Fixes, cleanup and support for pxa910
+ family
+Date: Mon, 29 Jun 2015 14:22:17 +0530
+Message-ID: <55910741.9020106@linaro.org>
+References: <vaibhav.hiremath@linaro.org> <1434383399-2370-1-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435394947-5228-1-git-send-email-matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1434383399-2370-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Matwey V. Kornilov" <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nikola Pajkovsky <npajkovs-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Matwey,
 
-On Sat, 27 Jun 2015 11:49:07 +0300, Matwey V. Kornilov wrote:
-> eepromer/Module.mk has to be present in order to do
->     make EXTRA=eepromer
 
-The problem with the eepromer directory is that it's a mess. There are
-3 tools there which do basically the same (programming EEPROMs), but
-each has its own limitations:
- * eeprom can't deal with 16-bit addressed EEPROMs nor SMBus-only
-   controllers.
- * eepromer can't deal with 8-bit addressed EEPROMs nor SMBus-only
-   controllers.
- * eeprog only uses SMBus byte/word reads and writes, it lacks support
-   for raw I2C block writes so it is slow on large EEPROMs.
+On Monday 15 June 2015 09:19 PM, Vaibhav Hiremath wrote:
+> This patch series fixes bugs/warnings, cleans up the code and adds
+> support for PXA910 family of devices to PXA I2C bus driver.
+>
+> There has been one attempt made sometime back in 2012 to upstream
+> some of the patches from below list, but did not get follow up later.
+> I have consolidated all the patches, cleaned them up, splited into
+> logical changes, added new patches and submitting it now.
+>
+> I tried to maintain authorship & Signoff except where I did some
+> significant changes to the code/logic.
+>
+> Link to previous post:
+> http://permalink.gmane.org/gmane.linux.drivers.i2c/13557
+>
+> Testing:
+>    - Basic testing on PMIC device on I2C-0 interface
+>    - Boot tested on platform based on PXA1928
+>    - Probe is successfully passing
+>    - Read few registers of PMIC (RTC, ID, etc...) during boot
+>
+>
+> V1 => V2:
+> ========
 
-On top of that, eeprom and eepromer build with a lot of warnings.
+Ping !!!
 
-I really don't want to maintain 3 different tools with the same
-purpose. eeprog seems to be the most promising of all 3, as it is fully
-functional, but I don't feel comfortable dropping the other 2 until
-block write support is added to eeprog.
 
-Would you be interested in adding block write support to eeprog? It has
-been on my to-do list for a long time but I could never find the time
-to actually look into it. I do not use these tools myself so my
-personal interest is low and this is why it never makes it to the top
-of my to-do list.
+Thanks,
+Vaibhav
 
-> Signed-off-by: Matwey V. Kornilov <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
-> --- /dev/null
-> +++ i2c-tools-3.1.1/eepromer/Module.mk
-> @@ -0,0 +1,79 @@
-> +# eepromer
-> +#
-> +# This program is free software; you can redistribute it and/or modify
-> +# it under the terms of the GNU General Public License as published by
-> +# the Free Software Foundation; either version 2 of the License, or
-> +# (at your option) any later version.
-> +
-> +EEPROMER_DIR	:= eepromer
-> +
-> +EEPROMER_CFLAGS := -O2 -Iinclude -Wall 
-> +ifeq ($(USE_STATIC_LIB),1)
-> +EEPROMER_LDFLAGS	:= $(LIB_DIR)/$(LIB_STLIBNAME)
-> +else
-> +EEPROMER_LDFLAGS	:= -L$(LIB_DIR) -li2c
-> +endif
 
-This will link eepromer and eeprom with libi2c even though they don't
-need it, right?
 
-> +
-> +EEPROMER_TARGETS	:= eepromer eeprom eeprog
-> +
-> +#
-> +# Programs
-> +#
-> +
-> +$(EEPROMER_DIR)/eepromer:  $(EEPROMER_DIR)/eepromer.o
-> +	$(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
-> +
-> +$(EEPROMER_DIR)/eeprom: $(EEPROMER_DIR)/eeprom.o
-> +	$(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
-> +
-> +$(EEPROMER_DIR)/eeprog: $(EEPROMER_DIR)/eeprog.o $(EEPROMER_DIR)/24cXX.o
-> +	$(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
-> +
-> +#
-> +# Objects
-> +#
-> +
-> +$(EEPROMER_DIR)/eepromer.o: $(EEPROMER_DIR)/eepromer.c
-> +	$(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
-> +
-> +$(EEPROMER_DIR)/eeprom.o: $(EEPROMER_DIR)/eeprom.c
-> +	$(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
-> +
-> +$(EEPROMER_DIR)/eeprog.o: $(EEPROMER_DIR)/eeprog.c $(EEPROMER_DIR)/24cXX.h
-> +	$(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
-> +
-> +$(EEPROMER_DIR)/24cXX.o: $(EEPROMER_DIR)/24cXX.c $(EEPROMER_DIR)/24cXX.h
-
-Also depends on $(INCLUDE_DIR)/i2c/smbus.h.
-
-> +	$(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
-> +
-> +#
-> +# Commands
-> +#
-> +
-> +all-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
-> +
-> +strip-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
-> +	strip $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
-> +
-> +clean-eepromer:
-> +	$(RM) $(addprefix $(EEPROMER_DIR)/,*.o $(EEPROMER_TARGETS))
-> +
-> +install-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
-> +	$(INSTALL_DIR) $(DESTDIR)$(sbindir) $(DESTDIR)$(man8dir)
-> +	for program in $(EEPROMER_TARGETS) ; do \
-> +	$(INSTALL_PROGRAM) $(EEPROMER_DIR)/$$program $(DESTDIR)$(sbindir) ; \
-> +	$(INSTALL_DATA) $(EEPROMER_DIR)/$$program.8 $(DESTDIR)$(man8dir) ; done
-> +
-> +uninstall-eepromer:
-> +	for program in $(EEPROMER_TARGETS) ; do \
-> +	$(RM) $(DESTDIR)$(sbindir)/$$program ; \
-> +	$(RM) $(DESTDIR)$(man8dir)/$$program.8 ; done
-> +
-> +all: all-eepromer
-> +
-> +strip: strip-eepromer
-> +
-> +clean: clean-eepromer
-> +
-> +install: install-eepromer
-> +
-> +uninstall: uninstall-eepromer
-
-I don't think it makes sense to integrate eeprom and eepromer in the
-main build system if the plan is to get rid of them. I'd rather only
-integrate eeprog, so that distributions ship only that and everybody
-uses only that.
-
-Maybe eeprog should be moved to its own directory, and that new
-directory would be integrated into the build system while the rest of
-the eepromer directory would be left alone (and ultimately deleted.)
-
--- 
-Jean Delvare
-SUSE L3 Support
+> Link to V1 - http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347012.html
+>
+>    - Fixed all comments from "Robert Jarzmik" and "Wolfram Sang"
+>    - Dropped Patch
+> 	05/12: using core bus reset implementation - under work.
+>                 Will submit shortly.
+> 	08/12: NAKed and dropped
+>    - Seperated DT binding patch from driver changes, for easy merge
+>
+>
+> Leilei Shang (1):
+>    i2c: pxa: keep i2c irq ON in suspend
+>
+> Shouming Wang (1):
+>    i2c: pxa: Return I2C_RETRY when timeout in pio mode
+>
+> Vaibhav Hiremath (8):
+>    i2c: pxa: No need to set slave addr for i2c master mode reset
+>    i2c: pxa: Reset i2c controller on timeout in interrupt and pio mode
+>    i2c: pxa: Update debug function to dump more info on error
+>    i2c:pxa: Use devm_ variants in probe function
+>    Documentation: binding: add new property 'disable_after_xfer' to
+>      i2c-pxa
+>    i2c: pxa: Add support for pxa910/988 & new configuration features
+>    i2c: pxa: Add ILCR (tLow & tHigh) configuration support
+>    Documentation: binding: add sclk adjustment properties to i2c-pxa
+>
+> Yi Zhang (1):
+>    i2c: pxa: enable/disable i2c module across msg xfer
+>
+> Yipeng Yao (1):
+>    i2c: pxa: Remove compile warnning in 64bit mode
+>
+>   Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  18 ++
+>   drivers/i2c/busses/i2c-pxa.c                      | 267 ++++++++++++++++------
+>   2 files changed, 220 insertions(+), 65 deletions(-)
+>
