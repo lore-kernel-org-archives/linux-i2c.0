@@ -1,165 +1,157 @@
-From: "Matwey V. Kornilov" <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-tools: Implement Module.mk for eepromer subdir
-Date: Mon, 29 Jun 2015 12:09:00 +0300
-Message-ID: <CAJs94EYDu-yn9JG6FvXB+etYvH9N_JxS0z_0AYH_J=HgOo4a+w@mail.gmail.com>
-References: <1435394947-5228-1-git-send-email-matwey.kornilov@gmail.com> <20150629104117.5c3d632a@endymion.delvare>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: add SMBus Host Notify support
+Date: Mon, 29 Jun 2015 15:00:35 +0200
+Message-ID: <20150629150035.4c027502@endymion.delvare>
+References: <1435085899-11017-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1435085899-11017-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150629104117.5c3d632a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1435085899-11017-2-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nikola Pajkovsky <npajkovs-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-2015-06-29 11:41 GMT+03:00 Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>:
-> Hi Matwey,
->
-> On Sat, 27 Jun 2015 11:49:07 +0300, Matwey V. Kornilov wrote:
->> eepromer/Module.mk has to be present in order to do
->>     make EXTRA=eepromer
->
-> The problem with the eepromer directory is that it's a mess. There are
-> 3 tools there which do basically the same (programming EEPROMs), but
-> each has its own limitations:
->  * eeprom can't deal with 16-bit addressed EEPROMs nor SMBus-only
->    controllers.
->  * eepromer can't deal with 8-bit addressed EEPROMs nor SMBus-only
->    controllers.
->  * eeprog only uses SMBus byte/word reads and writes, it lacks support
->    for raw I2C block writes so it is slow on large EEPROMs.
->
-> On top of that, eeprom and eepromer build with a lot of warnings.
->
-> I really don't want to maintain 3 different tools with the same
-> purpose. eeprog seems to be the most promising of all 3, as it is fully
-> functional, but I don't feel comfortable dropping the other 2 until
-> block write support is added to eeprog.
->
-> Would you be interested in adding block write support to eeprog? It has
-> been on my to-do list for a long time but I could never find the time
-> to actually look into it. I do not use these tools myself so my
-> personal interest is low and this is why it never makes it to the top
-> of my to-do list.
+Hi Benjamin,
 
-So am I.
-I wanted to program EEPROM on my BeagleBone and I've found that eeprog
-was missed in openSUSE packages. So,now I just want to simplify
-packaging eeprog somehow in acceptable manner.
+On Tue, 23 Jun 2015 14:58:18 -0400, Benjamin Tissoires wrote:
+> SMBus Host Notify allows a slave device to act as a master on a bus to
+> notify the host of an interrupt. The functionality is directly implemented
+> in the firmware so we just export a toggle function and rely on the
+> adapter to actually support this.
 
->
->> Signed-off-by: Matwey V. Kornilov <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->> --- /dev/null
->> +++ i2c-tools-3.1.1/eepromer/Module.mk
->> @@ -0,0 +1,79 @@
->> +# eepromer
->> +#
->> +# This program is free software; you can redistribute it and/or modify
->> +# it under the terms of the GNU General Public License as published by
->> +# the Free Software Foundation; either version 2 of the License, or
->> +# (at your option) any later version.
->> +
->> +EEPROMER_DIR := eepromer
->> +
->> +EEPROMER_CFLAGS := -O2 -Iinclude -Wall
->> +ifeq ($(USE_STATIC_LIB),1)
->> +EEPROMER_LDFLAGS     := $(LIB_DIR)/$(LIB_STLIBNAME)
->> +else
->> +EEPROMER_LDFLAGS     := -L$(LIB_DIR) -li2c
->> +endif
->
-> This will link eepromer and eeprom with libi2c even though they don't
-> need it, right?
->
->> +
->> +EEPROMER_TARGETS     := eepromer eeprom eeprog
->> +
->> +#
->> +# Programs
->> +#
->> +
->> +$(EEPROMER_DIR)/eepromer:  $(EEPROMER_DIR)/eepromer.o
->> +     $(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
->> +
->> +$(EEPROMER_DIR)/eeprom: $(EEPROMER_DIR)/eeprom.o
->> +     $(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
->> +
->> +$(EEPROMER_DIR)/eeprog: $(EEPROMER_DIR)/eeprog.o $(EEPROMER_DIR)/24cXX.o
->> +     $(CC) $(LDFLAGS) -o $@ $^ $(EEPROMER_LDFLAGS)
->> +
->> +#
->> +# Objects
->> +#
->> +
->> +$(EEPROMER_DIR)/eepromer.o: $(EEPROMER_DIR)/eepromer.c
->> +     $(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
->> +
->> +$(EEPROMER_DIR)/eeprom.o: $(EEPROMER_DIR)/eeprom.c
->> +     $(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
->> +
->> +$(EEPROMER_DIR)/eeprog.o: $(EEPROMER_DIR)/eeprog.c $(EEPROMER_DIR)/24cXX.h
->> +     $(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
->> +
->> +$(EEPROMER_DIR)/24cXX.o: $(EEPROMER_DIR)/24cXX.c $(EEPROMER_DIR)/24cXX.h
->
-> Also depends on $(INCLUDE_DIR)/i2c/smbus.h.
->
->> +     $(CC) $(CFLAGS) $(EEPROMER_CFLAGS) -c $< -o $@
->> +
->> +#
->> +# Commands
->> +#
->> +
->> +all-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
->> +
->> +strip-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
->> +     strip $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
->> +
->> +clean-eepromer:
->> +     $(RM) $(addprefix $(EEPROMER_DIR)/,*.o $(EEPROMER_TARGETS))
->> +
->> +install-eepromer: $(addprefix $(EEPROMER_DIR)/,$(EEPROMER_TARGETS))
->> +     $(INSTALL_DIR) $(DESTDIR)$(sbindir) $(DESTDIR)$(man8dir)
->> +     for program in $(EEPROMER_TARGETS) ; do \
->> +     $(INSTALL_PROGRAM) $(EEPROMER_DIR)/$$program $(DESTDIR)$(sbindir) ; \
->> +     $(INSTALL_DATA) $(EEPROMER_DIR)/$$program.8 $(DESTDIR)$(man8dir) ; done
->> +
->> +uninstall-eepromer:
->> +     for program in $(EEPROMER_TARGETS) ; do \
->> +     $(RM) $(DESTDIR)$(sbindir)/$$program ; \
->> +     $(RM) $(DESTDIR)$(man8dir)/$$program.8 ; done
->> +
->> +all: all-eepromer
->> +
->> +strip: strip-eepromer
->> +
->> +clean: clean-eepromer
->> +
->> +install: install-eepromer
->> +
->> +uninstall: uninstall-eepromer
->
-> I don't think it makes sense to integrate eeprom and eepromer in the
-> main build system if the plan is to get rid of them. I'd rather only
-> integrate eeprog, so that distributions ship only that and everybody
-> uses only that.
->
-> Maybe eeprog should be moved to its own directory, and that new
-> directory would be integrated into the build system while the rest of
-> the eepromer directory would be left alone (and ultimately deleted.)
+Why does it need to be toggled? I mean, if the controller supports it,
+why don't we just enable the feature all the time?
 
-It is fine for me too.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> ---
+>  Documentation/i2c/smbus-protocol |  4 ++++
+>  drivers/i2c/i2c-core.c           | 26 ++++++++++++++++++++++++++
+>  include/linux/i2c.h              |  8 ++++++++
+>  include/uapi/linux/i2c.h         |  1 +
+>  4 files changed, 39 insertions(+)
+> 
+> diff --git a/Documentation/i2c/smbus-protocol b/Documentation/i2c/smbus-protocol
+> index 6012b12..af4e4b9 100644
+> --- a/Documentation/i2c/smbus-protocol
+> +++ b/Documentation/i2c/smbus-protocol
+> @@ -199,6 +199,10 @@ alerting device's address.
+>  
+>  [S] [HostAddr] [Wr] A [DevAddr] A [DataLow] A [DataHigh] A [P]
+>  
+> +I2C drivers for devices which can trigger SMBus Host Notify should call
+> +i2c_smbus_toggle_host_notify() to enable SMBUS Host Notify on the adapter
+> +and implement the optional alert() callback.
+> +
+>  
+>  Packet Error Checking (PEC)
+>  ===========================
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 987c124..eaaf5b0 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2959,6 +2959,32 @@ int i2c_slave_unregister(struct i2c_client *client)
+>  EXPORT_SYMBOL_GPL(i2c_slave_unregister);
+>  #endif
+>  
+> +int i2c_smbus_toggle_host_notify(struct i2c_client *client, bool state)
+> +{
+> +	int ret;
+> +
+> +	if (!client)
+> +		return -EINVAL;
+> +
+> +	if (!(client->flags & I2C_CLIENT_TEN)) {
+> +		/* Enforce stricter address checking */
+> +		ret = i2c_check_addr_validity(client->addr);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	if (!client->adapter->algo->toggle_smbus_host_notify)
+> +		return -EOPNOTSUPP;
+> +
+> +	i2c_lock_adapter(client->adapter);
+> +	ret = client->adapter->algo->toggle_smbus_host_notify(client->adapter,
+> +							      state);
+> +	i2c_unlock_adapter(client->adapter);
+> +
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_smbus_toggle_host_notify);
+> +
 
->
-> --
-> Jean Delvare
-> SUSE L3 Support
+As this is an SMBus feature, can't it go to drivers/i2c/i2c-smbus.c?
 
+>  MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
+>  MODULE_DESCRIPTION("I2C-Bus main module");
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index e83a738..7ffc970 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -177,6 +177,8 @@ struct i2c_driver {
+>  	 * The format and meaning of the data value depends on the protocol.
+>  	 * For the SMBus alert protocol, there is a single bit of data passed
+>  	 * as the alert response's low bit ("event flag").
+> +	 * For the SMBus Host Notify protocol, the data corresponds to the
+> +	 * 16-bits payload data reported by the external device.
+
+16-bit (no s)
+
+>  	 */
+>  	void (*alert)(struct i2c_client *, unsigned int data);
+>  
+> @@ -270,6 +272,9 @@ static inline int i2c_slave_event(struct i2c_client *client,
+>  }
+>  #endif
+>  
+> +
+
+No double blank lines in source code please.
+
+> +extern int i2c_smbus_toggle_host_notify(struct i2c_client *client, bool state);
+> +
+>  /**
+>   * struct i2c_board_info - template for device creation
+>   * @type: chip type, to initialize i2c_client.name
+> @@ -378,6 +383,8 @@ i2c_register_board_info(int busnum, struct i2c_board_info const *info,
+>   *   from the I2C_FUNC_* flags.
+>   * @reg_slave: Register given client to I2C slave mode of this adapter
+>   * @unreg_slave: Unregister given client from I2C slave mode of this adapter
+> + * @toggle_smbus_host_notify: toggle the SMBus Host Notify support of this
+> + *   adapter.
+>   *
+>   * The following structs are for those who like to implement new bus drivers:
+>   * i2c_algorithm is the interface to a class of hardware solutions which can
+> @@ -408,6 +415,7 @@ struct i2c_algorithm {
+>  	int (*reg_slave)(struct i2c_client *client);
+>  	int (*unreg_slave)(struct i2c_client *client);
+>  #endif
+> +	int (*toggle_smbus_host_notify)(struct i2c_adapter *adap, bool state);
+
+Please put it after u32 (*functionality), so that the field offsets do
+not depend on configuration options.
+
+>  };
+>  
+>  /**
+> diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+> index 0e949cb..c72708e 100644
+> --- a/include/uapi/linux/i2c.h
+> +++ b/include/uapi/linux/i2c.h
+> @@ -100,6 +100,7 @@ struct i2c_msg {
+>  #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
+>  #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
+>  #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
+> +#define I2C_FUNC_SMBUS_HOST_NOTIFY	0x10000000
+>  
+>  #define I2C_FUNC_SMBUS_BYTE		(I2C_FUNC_SMBUS_READ_BYTE | \
+>  					 I2C_FUNC_SMBUS_WRITE_BYTE)
 
 
 -- 
-With best regards,
-Matwey V. Kornilov
-http://blog.matwey.name
-xmpp://0x2207-962d5TIgE1qHXe+LvDLADg@public.gmane.org
+Jean Delvare
+SUSE L3 Support
