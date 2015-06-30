@@ -1,50 +1,35 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH v1 0/10] Fixes and API additions for firmware nodes
-Date: Tue, 30 Jun 2015 16:54:58 +0200
-Message-ID: <1435676108-20590-1-git-send-email-tomeu.vizoso@collabora.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mark Brown <broonie@kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, devicetree@vger.kernel.org, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, Robert Moore <robert.moore@intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Lv Zheng <lv.zheng@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Grant Likely <grant.likely@linaro.org>, devel@acpica.org
+From: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+Subject: [PATCH v1 02/10] i2c: core: Have clients point to their firmware nodes
+Date: Tue, 30 Jun 2015 16:55:00 +0200
+Message-ID: <1435676108-20590-3-git-send-email-tomeu.vizoso@collabora.com>
+References: <1435676108-20590-1-git-send-email-tomeu.vizoso@collabora.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1435676108-20590-1-git-send-email-tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+This is needed by platform-independent code that needs to do something
+with devices based on the data provided by the firmware.
 
-this series makes it possible to extract device dependencies from firmware data
-with fwnode, thus not depending on the particular format of that data.
+Signed-off-by: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+---
 
-The first patches are about making sure that we can reach the fwnode
-handle of the firmware data associated with a given device, and the rest
-add API that makes dependency extraction possible.
+ drivers/i2c/i2c-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks,
-
-Tomeu
-
-
-Tomeu Vizoso (10):
-  of/platform: Set fwnode field for new devices
-  i2c: core: Have clients point to their firmware nodes
-  mfd: Have child devices point to their firmware nodes
-  device property: add fwnode_get_parent()
-  device property: add fwnode_get_name()
-  ACPI / scan: Add acpi_dev_get_next_child()
-  device property: Add fwnode_get_next_child_node()
-  device property: add fwnode_is_compatible()
-  device: property: add fwnode_driver_match_device()
-  core: platform: use fwnode_driver_match_device()
-
- drivers/acpi/scan.c      |  5 +--
- drivers/base/platform.c  |  8 +---
- drivers/base/property.c  | 95 ++++++++++++++++++++++++++++++++++++++++++++----
- drivers/i2c/i2c-core.c   |  1 +
- drivers/mfd/mfd-core.c   |  1 +
- drivers/of/platform.c    |  1 +
- include/acpi/acpi_bus.h  |  5 +++
- include/linux/acpi.h     | 22 ++++++++++-
- include/linux/property.h | 17 +++++++++
- 9 files changed, 136 insertions(+), 19 deletions(-)
-
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 069a41f..707850a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1295,6 +1295,7 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
+ 	}
+ 
+ 	info.of_node = of_node_get(node);
++	info.fwnode = info.of_node ? &info.of_node->fwnode : NULL;
+ 	info.archdata = &dev_ad;
+ 
+ 	if (of_get_property(node, "wakeup-source", NULL))
 -- 
 2.4.1
-
