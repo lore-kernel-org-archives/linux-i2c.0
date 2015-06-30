@@ -1,31 +1,52 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v1 0/10] Fixes and API additions for firmware nodes
-Date: Tue, 30 Jun 2015 17:32:56 +0200
-Message-ID: <1941489.kUW5F8q9QD@vostro.rjw.lan>
-References: <1435676108-20590-1-git-send-email-tomeu.vizoso@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1435676108-20590-1-git-send-email-tomeu.vizoso@collabora.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>, devicetree@vger.kernel.org, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, Robert Moore <robert.moore@intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Lv Zheng <lv.zheng@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Grant Likely <grant.likely@linaro.org>, devel@acpica.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFC 1/3] of: make of_mutex public
+Date: Tue, 30 Jun 2015 23:44:09 +0200
+Message-ID: <1435700651-3543-2-git-send-email-wsa@the-dreams.de>
+References: <1435700651-3543-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1435700651-3543-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-sh@vger.kernel.org
+Cc: Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, June 30, 2015 04:54:58 PM Tomeu Vizoso wrote:
-> Hi,
-> 
-> this series makes it possible to extract device dependencies from firmware data
-> with fwnode, thus not depending on the particular format of that data.
-> 
-> The first patches are about making sure that we can reach the fwnode
-> handle of the firmware data associated with a given device, and the rest
-> add API that makes dependency extraction possible.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-It would really help if you sent the whole series to linux-acpi.  People on
-that list would see the entire context then.
+If we want to use OF_DYNAMIC features outside the of framework, we need
+to access this lock. If OF maintainers don't like exporting, we can
+maybe create accessor functions that we can use?
 
-Thanks,
-Rafael
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/of/of_private.h | 1 -
+ include/linux/of.h      | 2 ++
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
+index 8e882e706cd8c6..f92ec41efb5dfd 100644
+--- a/drivers/of/of_private.h
++++ b/drivers/of/of_private.h
+@@ -31,7 +31,6 @@ struct alias_prop {
+ 	char stem[0];
+ };
+ 
+-extern struct mutex of_mutex;
+ extern struct list_head aliases_lookup;
+ extern struct kset *of_kset;
+ 
+diff --git a/include/linux/of.h b/include/linux/of.h
+index b871ff9d81d720..f0464efcbdc5aa 100644
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -32,6 +32,8 @@
+ typedef u32 phandle;
+ typedef u32 ihandle;
+ 
++extern struct mutex of_mutex;
++
+ struct property {
+ 	char	*name;
+ 	int	length;
+-- 
+2.1.4
 
