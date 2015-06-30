@@ -1,207 +1,67 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [RFC 3/3] ARM: shmobile: r8a7790: rework dts to use i2c demuxer
-Date: Tue, 30 Jun 2015 23:44:11 +0200
-Message-ID: <1435700651-3543-4-git-send-email-wsa@the-dreams.de>
-References: <1435700651-3543-1-git-send-email-wsa@the-dreams.de>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435700651-3543-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFC 0/3] switch I2C IP cores at runtime
+Date: Tue, 30 Jun 2015 23:44:08 +0200
+Message-ID: <1435700651-3543-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-sh@vger.kernel.org
+Cc: Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+This series allows an I2C bus to switch between multiple masters. This is not
+hot-switching because connected I2C slaves will be re-instantiated. It is meant
+to select the best I2C core at runtime once the task is known. Example: Prefer
+i2c-gpio over another I2C core because of HW errata affecting your use case.
 
-Create a seperate bus for HDMI related I2C slaves and assign it
-to a i2c-gpio master. It can be switched to the i2c-rcar or
-i2c-sh_mobile core at runtime.
+It works by using OF_DYNAMIC and en-/disabling the devices as needed. See patch
+2 for the implementation and more documentation.
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
----
- arch/arm/boot/dts/r8a7790-lager.dts | 141 ++++++++++++++++++++++--------------
- 1 file changed, 88 insertions(+), 53 deletions(-)
 
-diff --git a/arch/arm/boot/dts/r8a7790-lager.dts b/arch/arm/boot/dts/r8a7790-lager.dts
-index aaa4f258e279cc..c695728b451506 100644
---- a/arch/arm/boot/dts/r8a7790-lager.dts
-+++ b/arch/arm/boot/dts/r8a7790-lager.dts
-@@ -49,6 +49,8 @@
- 	aliases {
- 		serial0 = &scifa0;
- 		serial1 = &scifa1;
-+		i2c8 = &i2chdmi;
-+		i2c9 = &gpioi2c;
- 	};
- 
- 	chosen {
-@@ -245,6 +247,79 @@
- 		#clock-cells = <0>;
- 		clock-frequency = <148500000>;
- 	};
-+
-+
-+	gpioi2c: i2c@9 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "i2c-gpio";
-+		status = "disabled";
-+		gpios = <&gpio5 6 GPIO_ACTIVE_HIGH /* sda */
-+			 &gpio5 5 GPIO_ACTIVE_HIGH /* scl */
-+			>;
-+		i2c-gpio,delay-us = <5>;
-+	};
-+
-+	i2chdmi: i2c@8 {
-+
-+		compatible = "i2c-demux-pinctrl";
-+		i2c-parent = <&gpioi2c>, <&iic2>, <&i2c2>;
-+		i2c-bus-name = "i2c-hdmi";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		ak4643: sound-codec@12 {
-+			compatible = "asahi-kasei,ak4643";
-+
-+			#sound-dai-cells = <0>;
-+			reg = <0x12>;
-+		};
-+
-+		composite-in@20 {
-+			compatible = "adi,adv7180";
-+			reg = <0x20>;
-+			remote = <&vin1>;
-+
-+			port {
-+				adv7180: endpoint {
-+					bus-width = <8>;
-+					remote-endpoint = <&vin1ep0>;
-+				};
-+			};
-+		};
-+
-+		hdmi@39 {
-+			compatible = "adi,adv7511w";
-+			reg = <0x39>;
-+			interrupt-parent = <&gpio1>;
-+			interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
-+
-+			adi,input-depth = <8>;
-+			adi,input-colorspace = "rgb";
-+			adi,input-clock = "1x";
-+			adi,input-style = <1>;
-+			adi,input-justification = "evenly";
-+
-+			ports {
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				port@0 {
-+					reg = <0>;
-+					adv7511_in: endpoint {
-+						remote-endpoint = <&du_out_lvds0>;
-+					};
-+				};
-+
-+				port@1 {
-+					reg = <1>;
-+					adv7511_out: endpoint {
-+						remote-endpoint = <&hdmi_con>;
-+					};
-+				};
-+			};
-+		};
-+	};
- };
- 
- &du {
-@@ -340,6 +415,11 @@
- 		renesas,function = "iic1";
- 	};
- 
-+	i2c2_pins: i2c2 {
-+		renesas,groups = "i2c2";
-+		renesas,function = "i2c2";
-+	};
-+
- 	iic2_pins: iic2 {
- 		renesas,groups = "iic2";
- 		renesas,function = "iic2";
-@@ -518,63 +598,18 @@
- 	pinctrl-names = "default";
- };
- 
--&iic2	{
--	status = "okay";
--	pinctrl-0 = <&iic2_pins>;
--	pinctrl-names = "default";
-+&i2c2	{
-+	pinctrl-0 = <&i2c2_pins>;
-+	pinctrl-names = "i2c-hdmi";
- 
- 	clock-frequency = <100000>;
-+};
- 
--	ak4643: sound-codec@12 {
--		compatible = "asahi-kasei,ak4643";
--		#sound-dai-cells = <0>;
--		reg = <0x12>;
--	};
--
--	composite-in@20 {
--		compatible = "adi,adv7180";
--		reg = <0x20>;
--		remote = <&vin1>;
--
--		port {
--			adv7180: endpoint {
--				bus-width = <8>;
--				remote-endpoint = <&vin1ep0>;
--			};
--		};
--	};
--
--	hdmi@39 {
--		compatible = "adi,adv7511w";
--		reg = <0x39>;
--		interrupt-parent = <&gpio1>;
--		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
--
--		adi,input-depth = <8>;
--		adi,input-colorspace = "rgb";
--		adi,input-clock = "1x";
--		adi,input-style = <1>;
--		adi,input-justification = "evenly";
--
--		ports {
--			#address-cells = <1>;
--			#size-cells = <0>;
--
--			port@0 {
--				reg = <0>;
--				adv7511_in: endpoint {
--					remote-endpoint = <&du_out_lvds0>;
--				};
--			};
-+&iic2	{
-+	pinctrl-0 = <&iic2_pins>;
-+	pinctrl-names = "i2c-hdmi";
- 
--			port@1 {
--				reg = <1>;
--				adv7511_out: endpoint {
--					remote-endpoint = <&hdmi_con>;
--				};
--			};
--		};
--	};
-+	clock-frequency = <100000>;
- };
- 
- &iic3 {
+Changes since alpha v2 (only sent to sh-devel):
+
+* don't use the i2c-mux infrastructure but create own adapter
+  This makes the DT binding proper. Otherwise, they were nested
+  another level deeper only for a useless reg = <0>;
+  It makes the approach also less I2C specific.
+
+* the bus can now be named
+  I like this and consider moving this out of this series and
+  implement it in the i2c-core.
+
+* pinctrl states to be used are now named as the bus
+  "active" was just a too random name IMO.
+
+* bugfixes (removed two OOPSes)
+
+* more error checking
+
+* beautified the sysfs-readout to make distinction of adapters
+  easier
+
+So, this not only a brush up since the last version, rather a new revision.
+I couldn't send this to the public with these obvious points left open :)
+
+PS: Since these patches depend on two others, I pushed out a branch here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/ip-core-switch-v2-on-4.1-experimental
+
+
+Wolfram Sang (3):
+  of: make of_mutex public
+  i2c: mux: demux-pinctrl: add driver
+  ARM: shmobile: r8a7790: rework dts to use i2c demuxer
+
+ .../devicetree/bindings/i2c/i2c-demux-pinctrl.txt  |  44 ++++
+ arch/arm/boot/dts/r8a7790-lager.dts                | 141 +++++++----
+ drivers/i2c/muxes/Kconfig                          |   9 +
+ drivers/i2c/muxes/Makefile                         |   2 +
+ drivers/i2c/muxes/i2c-demux-pinctrl.c              | 266 +++++++++++++++++++++
+ drivers/of/of_private.h                            |   1 -
+ include/linux/of.h                                 |   2 +
+ 7 files changed, 411 insertions(+), 54 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+ create mode 100644 drivers/i2c/muxes/i2c-demux-pinctrl.c
+
 -- 
 2.1.4
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
