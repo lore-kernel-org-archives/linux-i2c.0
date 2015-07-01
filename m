@@ -1,153 +1,155 @@
-From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v1] HID: cp2112: support large i2c transfers in hid-cp2112
-Date: Tue, 30 Jun 2015 23:16:58 -0700
-Message-ID: <559385DA.6040406@cumulusnetworks.com>
-References: <1434587656-2359-1-git-send-email-ellen@cumulusnetworks.com>	<CAAj6DX0dvoL8RJtEtjE-+SPstLkvRGwgqSfsonDgG_Vgn8dKEQ@mail.gmail.com> <CAAj6DX2OzKnf280dC_b3YSiP9Z7S1da2=Xiv80q6e_krXVFGFg@mail.gmail.com>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [RFC 2/3] i2c: mux: demux-pinctrl: add driver
+Date: Wed, 1 Jul 2015 09:08:12 +0200
+Message-ID: <CAMuHMdW+rd+U0VQjitbyJ3AiZakhLztdYe27n1rkK9tFWT=z4w@mail.gmail.com>
+References: <1435700651-3543-1-git-send-email-wsa@the-dreams.de>
+	<1435700651-3543-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAAj6DX2OzKnf280dC_b3YSiP9Z7S1da2=Xiv80q6e_krXVFGFg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1435700651-3543-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Sorry this fell off my todo list for a while.
+Hi Wolfram,
 
-On 06/20/2015 11:30 PM, Antonio Borneo wrote:
-> On Sat, Jun 20, 2015 at 11:10 PM, Antonio Borneo
-> <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> On Thu, Jun 18, 2015 at 8:34 AM, Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org> wrote:
->>> cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
->>> on longers reads.  The fix is to wrap a loop around
->>> cp2112_read() to pick up all the returned data.
->>>
->>> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
->>
->> Hi Ellen,
->>
->> with this patch the driver occasionally enters in an infinite loop.
->> I spent some time to understand the reason.
->>
->> The sequence for a data read in cp2112_i2c_xfer() is:
->> 1) send report CP2112_DATA_READ_REQUEST (no reply is expected)
->> 2) send report CP2112_TRANSFER_STATUS_REQUEST
->> 3) wait for reply report CP2112_TRANSFER_STATUS_RESPONSE to indicate
->> i2c read completed
->> 4) send report CP2112_DATA_READ_FORCE_SEND
->> 5) wait for reply report CP2112_DATA_READ_RESPONSE containing the data just read
->>
->> Your patch repeats step 4) and 5) until all data are received.
->>
->> Every report CP2112_DATA_READ_RESPONSE can carry max 61 bytes of data.
->> It is not reported in Silab documentation (or maybe I failed to find
->> it), but if you send a request CP2112_DATA_READ_FORCE_SEND for _more_
->> than 61 bytes then cp2112 replies with a sequence of reports
->> CP2112_DATA_READ_RESPONSE, each report carrying 61 bytes max.
->>
->> To get only one report as reply, the request in 4) should not exceed 61 bytes!
->>
->> The current code in cp2112_raw_event() is very simple and can only
->> handle receiving one data report at a time; it's not designed to
->> handle a sequence of reports.
->> If a new incoming report arrives while we are still consuming a
->> previous report, the new data will overwrite the older one.
->>
->> If the loop over 4) and 5) is not fast enough (e.g. CPU overloaded,
->> interrupts) then you get reports overwritten.
->> Once one report is overwritten, we fail to get the whole data, the
->> loop will not reach the upper limit and will never exit!
->>
->> I got this case just adding a hid_info() inside the loop.
->> If you want, you can check by adding a msleep(100) inside the loop.
->> Enough to get infinite loop at almost every execution.
-
-Sigh.  I just reread the documentation 
-(https://www.silabs.com/Support%20Documents/TechnicalDocs/AN495.pdf). 
-It doesn't say one way or the other but it does seem to imply one 
-CP2112_DATA_READ_RESPONSE is returned for each 
-CP2112_DATA_READ_FORCE_SEND.  Sorry about the bug.
-
->> Hints in the code below:
->>
->>> ---
->>> This is like the previous patch but with the controversial
->>> part left out.
->>> ---
->>>   drivers/hid/hid-cp2112.c |   26 +++++++++++++++++++-------
->>>   1 file changed, 19 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
->>> index 3318de6..5a72819 100644
->>> --- a/drivers/hid/hid-cp2112.c
->>> +++ b/drivers/hid/hid-cp2112.c
->>> @@ -509,13 +509,25 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->>>          if (!(msgs->flags & I2C_M_RD))
->>>                  goto finish;
->>>
->>> -       ret = cp2112_read(dev, msgs->buf, msgs->len);
->>> -       if (ret < 0)
->>> -               goto power_normal;
->>> -       if (ret != msgs->len) {
->>> -               hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
->>> -               ret = -EIO;
->>> -               goto power_normal;
->>> +       for (count = 0; count < msgs->len;) {
->>> +               ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
->>
->> Limit the read to 61 bytes with a check like
->>          if (size > 61)
->>                  size = 61;
->>          ret = cp2112_read(..., size);
->> This guarantees we get back only one report at a time.
->> Instead of the magic number 61, you can use sizeof(dev->read_data).
->>
->> Or, better, put the check inside cp2112_read(). We are not supposed to
->> use this function for more than 61 bytes due to current simple
->> cp2112_raw_event(). Please also comment the change in cp2112_read().
->> The code in cp2112_read() expects only one report of data. Seams the
->> proper place to limit the amount of data requested.
+On Tue, Jun 30, 2015 at 11:44 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 >
-> Hi Ellen,
+> This driver allows an I2C bus to switch between multiple masters. This
+> is not hot-switching because connected I2C slaves will be
+> re-instantiated. It is meant to select the best I2C core at runtime once
+> the task is known. Example: Prefer i2c-gpio over another I2C core
+> because of HW errata affecting your use case.
 >
-> at last I changed mind!
-> The multi-report issus is a bug of current code and must be fixed separately.
-> I just sent out a patch for it, tagging it for linux-stable too.
+> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> ---
+>  .../devicetree/bindings/i2c/i2c-demux-pinctrl.txt  |  44 ++++
+>  drivers/i2c/muxes/Kconfig                          |   9 +
+>  drivers/i2c/muxes/Makefile                         |   2 +
+>  drivers/i2c/muxes/i2c-demux-pinctrl.c              | 266 +++++++++++++++++++++
+>  4 files changed, 321 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+>  create mode 100644 drivers/i2c/muxes/i2c-demux-pinctrl.c
 >
-> Regarding you patch.
-> No need to handle the case of size > 61, supposed already fixed. Just
-> keep your code as is.
-> But please rise an error in case of ret == 0 to avoid infinite loop.
->
-> Best Regards,
-> Antonio
->
->>
->>> +               if (ret < 0)
->>> +                       goto power_normal;
->>
->> If ret == 0 it means we have lost one report and the operation should
->> be aborted.
->> I cannot imagine what could cause it (maybe weak USB contacts or line
->> noise), but for sure this return value is unexpected.
->> Please generate error for ret == 0 so we never get infinite loop.
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt b/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+> new file mode 100644
+> index 00000000000000..2211f6acbf8c0c
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
 
-Absolutely.  The loop should always make progress.  I will send an 
-updated patch.  I should have handled that case in the first place.
+> +Changing I2C controllers:
+> +
+> +The created mux-device will have a file "cur_master" in its sysfs-entry. Write
+> +0 there for the first master listed in the "i2c-parent" property, 1 for the
+> +second etc. Reading the file will give you a list with the active master
+> +marked.
 
-Also, I took a look at cp2112_raw_event() and cp2112_read().  There's 
-really no fundamental reason the code can't get all the data with a 
-single CP2112_DATA_READ_FORCE_SEND.  It just has to arrange for 
-cp2112_raw_event() to fill the i2c_msg buffer directly.
+This paragraph doesn't belong in the DT binding doc, but somewhere
+under Documentation/i2c/
 
-For that matter, it can probably set auto_send_read and do away with 
-CP2112_DATA_READ_FORCE_SEND all together.
+> diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+> new file mode 100644
+> index 00000000000000..5444c65de76c55
+> --- /dev/null
+> +++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+> @@ -0,0 +1,266 @@
+> +/*
+> + * Pinctrl based I2C DeMultiplexer V2 PROTOTYPE!
+> + *
+> + * Copyright (C) 2015 by Wolfram Sang, Sang Engineering <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> + * Copyright (C) 2015 by Renesas Electronics Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the
+> + * Free Software Foundation; version 2 of the License.
+> + *
+> + * See the bindings doc for DTS setup.
+> + */
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/mutex.h>
+> +#include <linux/of.h>
+> +#include <linux/pinctrl/consumer.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +#include <linux/sysfs.h>
+> +
+> +struct i2c_demux_pinctrl_chan {
+> +       struct device_node *parent_np;
+> +       struct i2c_adapter *parent_adap;
+> +       struct of_changeset chgset;
+> +};
+> +
+> +struct i2c_demux_pinctrl_priv {
+> +       int cur_chan;
+> +       int num_chan;
 
-There are some complications (like the wait timeout value may have to 
-change) and it will take a lot of testing so I should do the safe fix first.
+unsigned int
 
->> Thanks,
->> Antonio
+> +       struct device *dev;
+> +       const char *bus_name;
+> +       struct i2c_adapter cur_adap;
+> +       struct i2c_algorithm algo;
+> +       struct i2c_demux_pinctrl_chan chan[];
+> +};
+> +
+> +static struct property status_okay = { .name = "status", .length = 3, .value = "ok" };
 
-Thanks!
+"okay" or "ok"?
+
+> +static ssize_t cur_master_show(struct device *dev, struct device_attribute *attr,
+> +                          char *buf)
+> +{
+> +       struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
+> +       int count = 0, i;
+
+unsigned int i
+
+> +
+> +       for (i = 0; i < priv->num_chan; i++)
+> +               count += sprintf(buf + count, "%c %d - %s\n",
+> +                                i == priv->cur_chan ? '*' : ' ', i,
+> +                                priv->chan[i].parent_np->full_name);
+> +       //FIXME: Check count > PAGE_SIZE
+
+Can you use seq_printf() for device attributes?
+
+> +
+> +       return count;
+> +}
+> +
+> +static ssize_t cur_master_store(struct device *dev, struct device_attribute *attr,
+> +                           const char *buf, size_t count)
+> +{
+> +       struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
+> +       unsigned long val;
+
+unsigned int
+
+> +       int ret;
+> +
+> +       ret = kstrtoul(buf, 0, &val);
+
+kstrtouint()
+
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       if (val >= priv->num_chan)
+> +               return -EINVAL;
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
