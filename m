@@ -1,147 +1,29 @@
 From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [RFC 2/3] i2c: mux: demux-pinctrl: add driver
-Date: Wed, 1 Jul 2015 09:08:12 +0200
-Message-ID: <CAMuHMdW+rd+U0VQjitbyJ3AiZakhLztdYe27n1rkK9tFWT=z4w@mail.gmail.com>
+Subject: Re: [RFC 3/3] ARM: shmobile: r8a7790: rework dts to use i2c demuxer
+Date: Wed, 1 Jul 2015 09:10:23 +0200
+Message-ID: <CAMuHMdXTnY_gg+VWcSxUZWnD6yrL9xxCSoJYQVCh4Dj7Lxr8Qg@mail.gmail.com>
 References: <1435700651-3543-1-git-send-email-wsa@the-dreams.de>
-	<1435700651-3543-3-git-send-email-wsa@the-dreams.de>
+	<1435700651-3543-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435700651-3543-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <1435700651-3543-4-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
 On Tue, Jun 30, 2015 at 11:44 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
->
-> This driver allows an I2C bus to switch between multiple masters. This
-> is not hot-switching because connected I2C slaves will be
-> re-instantiated. It is meant to select the best I2C core at runtime once
-> the task is known. Example: Prefer i2c-gpio over another I2C core
-> because of HW errata affecting your use case.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-demux-pinctrl.txt  |  44 ++++
->  drivers/i2c/muxes/Kconfig                          |   9 +
->  drivers/i2c/muxes/Makefile                         |   2 +
->  drivers/i2c/muxes/i2c-demux-pinctrl.c              | 266 +++++++++++++++++++++
->  4 files changed, 321 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
->  create mode 100644 drivers/i2c/muxes/i2c-demux-pinctrl.c
->
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt b/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
-> new file mode 100644
-> index 00000000000000..2211f6acbf8c0c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+> --- a/arch/arm/boot/dts/r8a7790-lager.dts
+> +++ b/arch/arm/boot/dts/r8a7790-lager.dts
+> @@ -49,6 +49,8 @@
+>         aliases {
+>                 serial0 = &scifa0;
+>                 serial1 = &scifa1;
+> +               i2c8 = &i2chdmi;
+> +               i2c9 = &gpioi2c;
 
-> +Changing I2C controllers:
-> +
-> +The created mux-device will have a file "cur_master" in its sysfs-entry. Write
-> +0 there for the first master listed in the "i2c-parent" property, 1 for the
-> +second etc. Reading the file will give you a list with the active master
-> +marked.
-
-This paragraph doesn't belong in the DT binding doc, but somewhere
-under Documentation/i2c/
-
-> diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> new file mode 100644
-> index 00000000000000..5444c65de76c55
-> --- /dev/null
-> +++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> @@ -0,0 +1,266 @@
-> +/*
-> + * Pinctrl based I2C DeMultiplexer V2 PROTOTYPE!
-> + *
-> + * Copyright (C) 2015 by Wolfram Sang, Sang Engineering <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-> + * Copyright (C) 2015 by Renesas Electronics Corporation
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the
-> + * Free Software Foundation; version 2 of the License.
-> + *
-> + * See the bindings doc for DTS setup.
-> + */
-> +
-> +#include <linux/i2c.h>
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/mutex.h>
-> +#include <linux/of.h>
-> +#include <linux/pinctrl/consumer.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +#include <linux/sysfs.h>
-> +
-> +struct i2c_demux_pinctrl_chan {
-> +       struct device_node *parent_np;
-> +       struct i2c_adapter *parent_adap;
-> +       struct of_changeset chgset;
-> +};
-> +
-> +struct i2c_demux_pinctrl_priv {
-> +       int cur_chan;
-> +       int num_chan;
-
-unsigned int
-
-> +       struct device *dev;
-> +       const char *bus_name;
-> +       struct i2c_adapter cur_adap;
-> +       struct i2c_algorithm algo;
-> +       struct i2c_demux_pinctrl_chan chan[];
-> +};
-> +
-> +static struct property status_okay = { .name = "status", .length = 3, .value = "ok" };
-
-"okay" or "ok"?
-
-> +static ssize_t cur_master_show(struct device *dev, struct device_attribute *attr,
-> +                          char *buf)
-> +{
-> +       struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
-> +       int count = 0, i;
-
-unsigned int i
-
-> +
-> +       for (i = 0; i < priv->num_chan; i++)
-> +               count += sprintf(buf + count, "%c %d - %s\n",
-> +                                i == priv->cur_chan ? '*' : ' ', i,
-> +                                priv->chan[i].parent_np->full_name);
-> +       //FIXME: Check count > PAGE_SIZE
-
-Can you use seq_printf() for device attributes?
-
-> +
-> +       return count;
-> +}
-> +
-> +static ssize_t cur_master_store(struct device *dev, struct device_attribute *attr,
-> +                           const char *buf, size_t count)
-> +{
-> +       struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
-> +       unsigned long val;
-
-unsigned int
-
-> +       int ret;
-> +
-> +       ret = kstrtoul(buf, 0, &val);
-
-kstrtouint()
-
-> +       if (ret < 0)
-> +               return ret;
-> +
-> +       if (val >= priv->num_chan)
-> +               return -EINVAL;
+"i2c<suffix>" or "<prefix>i2c"?
 
 Gr{oetje,eeting}s,
 
