@@ -1,123 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC 2/3] i2c: mux: demux-pinctrl: add driver
-Date: Wed, 1 Jul 2015 12:07:08 +0200
-Message-ID: <20150701100707.GA1926@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC 3/3] ARM: shmobile: r8a7790: rework dts to use i2c demuxer
+Date: Wed, 1 Jul 2015 12:08:03 +0200
+Message-ID: <20150701100803.GB1926@katana>
 References: <1435700651-3543-1-git-send-email-wsa@the-dreams.de>
- <1435700651-3543-3-git-send-email-wsa@the-dreams.de>
- <CAMuHMdW+rd+U0VQjitbyJ3AiZakhLztdYe27n1rkK9tFWT=z4w@mail.gmail.com>
+ <1435700651-3543-4-git-send-email-wsa@the-dreams.de>
+ <CAMuHMdXTnY_gg+VWcSxUZWnD6yrL9xxCSoJYQVCh4Dj7Lxr8Qg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdW+rd+U0VQjitbyJ3AiZakhLztdYe27n1rkK9tFWT=z4w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAMuHMdXTnY_gg+VWcSxUZWnD6yrL9xxCSoJYQVCh4Dj7Lxr8Qg@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---FCuugMFkClbJLl1L
+--7iMSBzlTiPOCCT2k
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> > +Changing I2C controllers:
-> > +
-> > +The created mux-device will have a file "cur_master" in its sysfs-entr=
-y. Write
-> > +0 there for the first master listed in the "i2c-parent" property, 1 fo=
-r the
-> > +second etc. Reading the file will give you a list with the active mast=
-er
-> > +marked.
+On Wed, Jul 01, 2015 at 09:10:23AM +0200, Geert Uytterhoeven wrote:
+> On Tue, Jun 30, 2015 at 11:44 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> > --- a/arch/arm/boot/dts/r8a7790-lager.dts
+> > +++ b/arch/arm/boot/dts/r8a7790-lager.dts
+> > @@ -49,6 +49,8 @@
+> >         aliases {
+> >                 serial0 =3D &scifa0;
+> >                 serial1 =3D &scifa1;
+> > +               i2c8 =3D &i2chdmi;
+> > +               i2c9 =3D &gpioi2c;
 >=20
-> This paragraph doesn't belong in the DT binding doc, but somewhere
-> under Documentation/i2c/
+> "i2c<suffix>" or "<prefix>i2c"?
 
-Yes.
-
-> > +struct i2c_demux_pinctrl_priv {
-> > +       int cur_chan;
-> > +       int num_chan;
->=20
-> unsigned int
-
-When comparing variables, I prefer to have them the same signedness.
-
-> > +static struct property status_okay =3D { .name =3D "status", .length =
-=3D 3, .value =3D "ok" };
->=20
-> "okay" or "ok"?
-
-Both are valid, I took the shorter one.
-
-> > +       struct i2c_demux_pinctrl_priv *priv =3D dev_get_drvdata(dev);
-> > +       int count =3D 0, i;
->=20
-> unsigned int i
-
-Same as above.
-
->=20
-> > +
-> > +       for (i =3D 0; i < priv->num_chan; i++)
-> > +               count +=3D sprintf(buf + count, "%c %d - %s\n",
-> > +                                i =3D=3D priv->cur_chan ? '*' : ' ', i,
-> > +                                priv->chan[i].parent_np->full_name);
-> > +       //FIXME: Check count > PAGE_SIZE
->=20
-> Can you use seq_printf() for device attributes?
-
-I can't find a reference to that.
+i2c<suffix> describes the bus here. <prefix>i2c another master. Could be
+made more obvious, probably.
 
 
-> > +static ssize_t cur_master_store(struct device *dev, struct device_attr=
-ibute *attr,
-> > +                           const char *buf, size_t count)
-> > +{
-> > +       struct i2c_demux_pinctrl_priv *priv =3D dev_get_drvdata(dev);
-> > +       unsigned long val;
->=20
-> unsigned int
->=20
-> > +       int ret;
-> > +
-> > +       ret =3D kstrtoul(buf, 0, &val);
->=20
-> kstrtouint()
-
-Yes, I agree to the last two.
-
-Thanks for the review,
-
-   Wolfram
-
-
---FCuugMFkClbJLl1L
+--7iMSBzlTiPOCCT2k
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVk7vLAAoJEBQN5MwUoCm2VXoP/2i+I6LwDxbyw/TFGBVsREp+
-0vvLY2wnZERNhbU6BIlB+RDE3Tv1Gk95NLZ8ljDqC50HzsBCxWdj20sqkUS9vy4q
-oYZybnenghwBWJTpaeoSqaMCKx/K/re+yTSmZT9npMHYuBDYke60ELUrwuDGbXhi
-u6ojQZlZ1ylpLUTDAtOOEqvGPx53jdY1dwx3cPYGxyWMytNDZbYXDiZ4lgLFaS+u
-Ydb0gkHVvYcmNZ4accxFfJqBHOYtlbrpjDzlM7QBPFxvia/56v3n+rZQLL4gO0MO
-pi7UQNr6wO81CwyX9aNMmQKXz0vPDOQlpHptPGq2kjyHHNwBJ0VX/zaenAN2nK3i
-4EebCVugtYww/ZHoo1hPr+YSgDk4rI+MIrFjQb0xiF7QB+yhpPUaxNB+a6/MQ6ip
-Xv2owsd3oM3yQz5X+g+Rf65SH0jSeoDmPiOF48IgwlYB8IXJj/KnU8yNlL2sm8xR
-WyBQ69CHZOxuPi1w1saN+50Pw8UmVH5ktQPsrqJpbE3EBSQw4iy2nFP0P48bFwGW
-HCONULPxegdmvdnoSEHwl17Dir/4f8HFE0bHC57SahRuj4T7wQcXAtjWTL6jHGNV
-FGv4yzpfPh/1JQRD4f/BL7/4oOtPzaepUcW0b4fA95Ccadue8lQa7xD7Gu5A68v1
-JW+jpjBreIC2pxNf3Q5P
-=KGTo
+iQIcBAEBAgAGBQJVk7wDAAoJEBQN5MwUoCm2rRQP/1paHnQcfriGVGKjmlk11v+H
+RXpWNGV2VYGIEb9QDtmniTqQrGR5Z0ZrItrXJo5Xnd6wY92kYQ30DQtCvYUnSVy+
+5TJ1ibS7zsV98cR4Qrnsuf9NzY9YsJPTFteJcJfiMuqvU59uRkX8qelszYk0NA+z
+520Bos8PdEoaLNi2Zxf6SKtCA3AAUlJewDyxm0QjqhYHQwuF+svZJyX94ygMGfLt
+S/2tQJ6jLiwwVhGlPKG+rK9BiorMcHlgwNGrVOR6sGCmYKvzP2AVgqW2BoUG17zy
+b3cMSeNliqxgA1jPZlWWGfEvD4czDoEa8irl6wLgZ/jW5unghxUUFKlyw7/c54A9
+80huHVtZzzZ1pnC3Ivr57dWBV/tnnwEDEisto0+Yz3qZL7ijSTkRG8WMeUvF9V4t
+JztUJsCJJCFrzVnEi9zhOokF9gI21yLk3Omu4d2K9Yq6246PlO0grYOgYjSePxA0
+hDLikoOCcCoFgQr6VMW/sQdXEHFuIXoKe8TE6BIuL1/N0LGhZ0I2ew07jAU9bhYR
+qLn46vCTT9wkrv7VBpVzCBUjpBe9eaogX63yLIZF7qnnpG6I0hCzlgWlePYpsDop
+T5m6GJkZArhxYZVKdUGPEyuVvGbNVGmYG3pql6Ygn1EhD5j43Sb80UXI9vt2nx5w
+LVCS6gAKbmj20IbfR72u
+=JXYV
 -----END PGP SIGNATURE-----
 
---FCuugMFkClbJLl1L--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--7iMSBzlTiPOCCT2k--
