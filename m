@@ -1,100 +1,69 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH-V2 00/12] i2c: pxa: Fixes, cleanup and support for pxa910
- family
-Date: Thu, 02 Jul 2015 22:24:51 +0530
-Message-ID: <55956CDB.90309@linaro.org>
-References: <vaibhav.hiremath@linaro.org> <1434383399-2370-1-git-send-email-vaibhav.hiremath@linaro.org> <55910741.9020106@linaro.org>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [RFC 1/3] of: make of_mutex public
+Date: Thu, 2 Jul 2015 23:43:30 -0500
+Message-ID: <CAL_Jsq+-Tx=hwj9ScXBXeGxNwHhq-Lpe-5Kzd-Tu_SNue2aWTA@mail.gmail.com>
+References: <1435700651-3543-1-git-send-email-wsa@the-dreams.de> <1435700651-3543-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55910741.9020106-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1435700651-3543-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Cc: SH-Linux <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
++Pantelis
 
+On Tue, Jun 30, 2015 at 4:44 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> If we want to use OF_DYNAMIC features outside the of framework, we need
+> to access this lock. If OF maintainers don't like exporting, we can
+> maybe create accessor functions that we can use?
 
-On Monday 29 June 2015 02:22 PM, Vaibhav Hiremath wrote:
->
->
-> On Monday 15 June 2015 09:19 PM, Vaibhav Hiremath wrote:
->> This patch series fixes bugs/warnings, cleans up the code and adds
->> support for PXA910 family of devices to PXA I2C bus driver.
->>
->> There has been one attempt made sometime back in 2012 to upstream
->> some of the patches from below list, but did not get follow up later.
->> I have consolidated all the patches, cleaned them up, splited into
->> logical changes, added new patches and submitting it now.
->>
->> I tried to maintain authorship & Signoff except where I did some
->> significant changes to the code/logic.
->>
->> Link to previous post:
->> http://permalink.gmane.org/gmane.linux.drivers.i2c/13557
->>
->> Testing:
->>    - Basic testing on PMIC device on I2C-0 interface
->>    - Boot tested on platform based on PXA1928
->>    - Probe is successfully passing
->>    - Read few registers of PMIC (RTC, ID, etc...) during boot
->>
->>
->> V1 => V2:
->> ========
->
-> Ping !!!
->
+It looks like you are just taking the mutex around various
+of_changeset_* calls. We should either split the mutex into of_mutex
+for core and changesets and an overlay mutex for overlays, or we need
+to do the typical pattern of having changeset functions having locked
+and unlocked versions for external and internal (overlays) use.
 
-If there are no review comments on this series, can it be merged?
+Rob
 
-Thanks,
-Vaibhav
-
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/of/of_private.h | 1 -
+>  include/linux/of.h      | 2 ++
+>  2 files changed, 2 insertions(+), 1 deletion(-)
 >
-> Thanks,
-> Vaibhav
+> diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
+> index 8e882e706cd8c6..f92ec41efb5dfd 100644
+> --- a/drivers/of/of_private.h
+> +++ b/drivers/of/of_private.h
+> @@ -31,7 +31,6 @@ struct alias_prop {
+>         char stem[0];
+>  };
 >
+> -extern struct mutex of_mutex;
+>  extern struct list_head aliases_lookup;
+>  extern struct kset *of_kset;
 >
+> diff --git a/include/linux/of.h b/include/linux/of.h
+> index b871ff9d81d720..f0464efcbdc5aa 100644
+> --- a/include/linux/of.h
+> +++ b/include/linux/of.h
+> @@ -32,6 +32,8 @@
+>  typedef u32 phandle;
+>  typedef u32 ihandle;
 >
->> Link to V1 -
->> http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347012.html
->>
->>
->>    - Fixed all comments from "Robert Jarzmik" and "Wolfram Sang"
->>    - Dropped Patch
->>     05/12: using core bus reset implementation - under work.
->>                 Will submit shortly.
->>     08/12: NAKed and dropped
->>    - Seperated DT binding patch from driver changes, for easy merge
->>
->>
->> Leilei Shang (1):
->>    i2c: pxa: keep i2c irq ON in suspend
->>
->> Shouming Wang (1):
->>    i2c: pxa: Return I2C_RETRY when timeout in pio mode
->>
->> Vaibhav Hiremath (8):
->>    i2c: pxa: No need to set slave addr for i2c master mode reset
->>    i2c: pxa: Reset i2c controller on timeout in interrupt and pio mode
->>    i2c: pxa: Update debug function to dump more info on error
->>    i2c:pxa: Use devm_ variants in probe function
->>    Documentation: binding: add new property 'disable_after_xfer' to
->>      i2c-pxa
->>    i2c: pxa: Add support for pxa910/988 & new configuration features
->>    i2c: pxa: Add ILCR (tLow & tHigh) configuration support
->>    Documentation: binding: add sclk adjustment properties to i2c-pxa
->>
->> Yi Zhang (1):
->>    i2c: pxa: enable/disable i2c module across msg xfer
->>
->> Yipeng Yao (1):
->>    i2c: pxa: Remove compile warnning in 64bit mode
->>
->>   Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  18 ++
->>   drivers/i2c/busses/i2c-pxa.c                      | 267
->> ++++++++++++++++------
->>   2 files changed, 220 insertions(+), 65 deletions(-)
->>
+> +extern struct mutex of_mutex;
+> +
+>  struct property {
+>         char    *name;
+>         int     length;
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
