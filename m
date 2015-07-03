@@ -1,59 +1,47 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 1/3] of: make of_mutex public
-Date: Fri, 3 Jul 2015 09:24:55 +0200
-Message-ID: <20150703072455.GA1521@katana>
-References: <1435700651-3543-1-git-send-email-wsa@the-dreams.de>
- <1435700651-3543-2-git-send-email-wsa@the-dreams.de>
- <CAL_Jsq+-Tx=hwj9ScXBXeGxNwHhq-Lpe-5Kzd-Tu_SNue2aWTA@mail.gmail.com>
- <8FECDF89-828C-4F8F-A141-B2E1EF2E2B24@konsulko.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8FECDF89-828C-4F8F-A141-B2E1EF2E2B24@konsulko.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Cc: Rob Herring <robherring2@gmail.com>, SH-Linux <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+From: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3 0/8] Add support for best effort block read emulation
+Date: Fri,  3 Jul 2015 12:33:29 +0300
+Message-ID: <1435916017-12859-1-git-send-email-irina.tirdea@intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This is version 3 for adding i2c_smbus_read_i2c_block_data_or_emulated
+to i2c-core. The i2c core part is the same as in v2, but I have added
+3 more users for iio drivers.
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Changes in v2:
+ - changed bmc150-accel, kxcjk-1013 and bmg160 drivers to use
+i2c_smbus_read_i2c_block_data_or_emulated
 
+Changes in v1:
+ - dropped the RFC tag
+ - changed at24 to use i2c_smbus_read_i2c_block_data_or_emulated
+ - when reading an odd number of bytes using word emulation, read an even
+number of bytes and drop the last one
+ - add a comment that this might not be suitable for all I2C slaves 
 
-> What is it that we=E2=80=99re trying to do here? What is the use case?
+Adriana Reus (2):
+  iio: accel: kxcjk-1013: use available_scan_masks
+  iio: accel: kxcjk-1013: optimize i2c transfers in trigger handler
 
-http://www.spinics.net/lists/devicetree/msg85462.html
+Irina Tirdea (6):
+  i2c: core: Add support for best effort block read emulation
+  eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
+  iio: accel: bmc150: use available_scan_masks
+  iio: accel: bmc150: optimize i2c transfers in trigger handler
+  iio: gyro: bmg160: use available_scan_masks
+  iio: gyro: bmg160: optimize i2c transfers in trigger handler
 
-I'll bounce the mails to you as well.
+ drivers/i2c/i2c-core.c           | 60 ++++++++++++++++++++++++++++++++++++++++
+ drivers/iio/accel/bmc150-accel.c | 23 +++++++--------
+ drivers/iio/accel/kxcjk-1013.c   | 24 ++++++++--------
+ drivers/iio/gyro/bmg160.c        | 23 +++++++--------
+ drivers/misc/eeprom/at24.c       | 40 ++++++---------------------
+ include/linux/i2c.h              |  3 ++
+ 6 files changed, 108 insertions(+), 65 deletions(-)
 
-Thanks,
-
-   Wolfram
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVljjHAAoJEBQN5MwUoCm2sXMQAIJtiQXzlloIQrFD0LzHtWji
-Gbm2WLmN6uga46dx12SMx4ANhygtN7rRmgb0y8yt1rDKGO/1kTN6bQ6yW32zfqUp
-tSn4dQdsAHjNL2EPTvkWcmXGOiOdasQ6EGtgGEqoFhSYtT3nYw4PSn0PnENstT+z
-oPm86v2SAYILVrM9hoh4YTXFcnusIYKAnJy+WGEEEfdd4R4k+sW9aqtdXpWdEu1j
-2v6PVFwQ3B8E2CnW4UzQd4vCQVmViqF9uOxBTrgyOXK0CU3j7A/WLvtQYKWZVlD1
-MqkFYeVK4ZFTcgR6za+D5qijxZqoPEa4zpUMm1RPoygDjcipPUxKyYUxEkuK6vYc
-q1T+UaVejYB95jNHewp9425cldggZ1afXem1Oaj4VyvyJl4CCfSHnJBq/FM6SGXj
-4ZvNBRxm8UG9UegBuvRgszu9S3JPLZldQmEw/QMDD6bv1rfZHCC4KQrtQlR64H2f
-sC3RxkJoPR1/knrMTjk/mcAQd2hquxeneYCSvHq9wW2mdZGCWLrKjhVg0GMSADGJ
-untwQCuqU1y+sy5mCeW61fUxy9KP1ZLt8fW73WfzEf8vTw8j7xUROlVVcKqW5lFH
-icN9Yn3TnYeLhog1d09N2pvCZ1dEI7oFhZBYMpHYZ2M1RinY2gx67eI0TaxynQqA
-vP4aRpQMCzCoIrQD4s+6
-=tcnr
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--
+-- 
+1.9.1
