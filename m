@@ -1,33 +1,48 @@
-From: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
-Subject: Re: [PATCH-V2 03/12] i2c: pxa: Return I2C_RETRY when timeout in pio mode
-Date: Fri, 03 Jul 2015 23:07:03 +0200
-Message-ID: <87si959ci0.fsf@belgarion.home>
-References: <vaibhav.hiremath@linaro.org>
-	<1434383399-2370-1-git-send-email-vaibhav.hiremath@linaro.org>
-	<1434383399-2370-4-git-send-email-vaibhav.hiremath@linaro.org>
+From: Antony Pavlov <antonynpavlov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: i2c: i2c-mv64xxx: rework offload support to fix several
+ problems
+Date: Sat, 4 Jul 2015 09:59:08 +0300
+Message-ID: <20150704095908.18a15912ceff03764ed15ff1@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434383399-2370-4-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-	(Vaibhav Hiremath's message of "Mon, 15 Jun 2015 21:19:50 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
+Hi!
 
-> From: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->
-> In case of timeout in pio mode of operation return I2C_RETRY.
-> This behavior will be same as interrupt mode of operation.
->
-> Signed-off-by: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> [vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated changelog]
-> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Acked-by: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
+I have found your commit in the linux kernel mainline
 
-Cheers.
+  commit 00d8689b85a7bb37cc57ba4c40bd46325f51ced4
+  Author: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+  Date:   Thu Dec 11 17:33:46 2014 +0100
 
--- 
-Robert
+      i2c: mv64xxx: rework offload support to fix several problems
+
+see also https://patchwork.ozlabs.org/patch/420180/
+
+Here is a fragment:
+
++static bool
++mv64xxx_i2c_can_offload(struct mv64xxx_i2c_data *drv_data)
++{
++	struct i2c_msg *msgs =3D drv_data->msgs;
++	int num =3D drv_data->num_msgs;
++
++	return false;
+^^^^^^^^^^^^^^^^^^^^^
++
++	if (!drv_data->offload_enabled)
++		return false;
+
+So mv64xxx_i2c_can_offload() is always returns false and offload is alw=
+ays disabled.
+
+Please comment this.
+
+--=A0
+Best regards,
+=A0 Antony Pavlov
