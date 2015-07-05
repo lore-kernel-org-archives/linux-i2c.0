@@ -1,59 +1,129 @@
-From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: i2c: i2c-mv64xxx: rework offload support to fix several
- problems
-Date: Sat, 4 Jul 2015 10:15:25 +0200
-Message-ID: <20150704101525.77bf8d32@free-electrons.com>
-References: <20150704095908.18a15912ceff03764ed15ff1@gmail.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 1/8] i2c: core: Add support for best effort block read
+ emulation
+Date: Sun, 05 Jul 2015 12:58:31 +0100
+Message-ID: <55991BE7.6050705@kernel.org>
+References: <1435916017-12859-1-git-send-email-irina.tirdea@intel.com> <1435916017-12859-2-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150704095908.18a15912ceff03764ed15ff1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Antony Pavlov <antonynpavlov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gregory =?UTF-8?B?Q2zDqW1lbnQ=?= <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1435916017-12859-2-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Antony Pavlov,
+On 03/07/15 10:33, Irina Tirdea wrote:
+> There are devices that need to handle block transactions
+> regardless of the capabilities exported by the adapter.
+> For performance reasons, they need to use i2c read blocks
+> if available, otherwise emulate the block transaction with word
+> or byte transactions.
+> 
+> Add support for a helper function that would read a data block
+> using the best transfer available: I2C_FUNC_SMBUS_READ_I2C_BLOCK,
+> I2C_FUNC_SMBUS_READ_WORD_DATA or I2C_FUNC_SMBUS_READ_BYTE_DATA.
+> 
+> Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Looks good to me - I vaguely wondered if it would make sense to use
+an endian conversion in the word case, but as we have possible odd
+numbers of bytes that gets fiddly.
 
-On Sat, 4 Jul 2015 09:59:08 +0300, Antony Pavlov wrote:
+I wonder what devices do if you do a word read beyond their end address?
+Perhaps in odd cases we should always fall back to byte reads?
 
-> I have found your commit in the linux kernel mainline
+> ---
+>  drivers/i2c/i2c-core.c | 60 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h    |  3 +++
+>  2 files changed, 63 insertions(+)
 > 
->   commit 00d8689b85a7bb37cc57ba4c40bd46325f51ced4
->   Author: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
->   Date:   Thu Dec 11 17:33:46 2014 +0100
-> 
->       i2c: mv64xxx: rework offload support to fix several problems
-> 
-> see also https://patchwork.ozlabs.org/patch/420180/
-> 
-> Here is a fragment:
-> 
-> +static bool
-> +mv64xxx_i2c_can_offload(struct mv64xxx_i2c_data *drv_data)
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 96771ea..55a3455 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2914,6 +2914,66 @@ trace:
+>  }
+>  EXPORT_SYMBOL(i2c_smbus_xfer);
+>  
+> +/**
+> + * i2c_smbus_read_i2c_block_data_or_emulated - read block or emulate
+> + * @client: Handle to slave device
+> + * @command: Byte interpreted by slave
+> + * @length: Size of data block; SMBus allows at most 32 bytes
+> + * @values: Byte array into which data will be read; big enough to hold
+> + *	the data returned by the slave.  SMBus allows at most 32 bytes.
+> + *
+> + * This executes the SMBus "block read" protocol if supported by the adapter.
+> + * If block read is not supported, it emulates it using either word or byte
+> + * read protocols depending on availability.
+> + *
+> + * Before using this function you must double-check if the I2C slave does
+> + * support exchanging a block transfer with a byte transfer.
+Add something here about addressing assumptions.  You get odd devices which
+will give bulk reads of addresses not mapped to a nice linear region when
+you do byte reads.
+> + */
+> +s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+> +					      u8 command, u8 length, u8 *values)
 > +{
-> +	struct i2c_msg *msgs = drv_data->msgs;
-> +	int num = drv_data->num_msgs;
+> +	u8 i;
+> +	int status;
 > +
-> +	return false;
-> ^^^^^^^^^^^^^^^^^^^^^
-
-Wow, thanks for spotting. This is indeed a big mistake that has
-apparently do been caught at review time. This means I'll have to re-do
-some testing to validate that the offload is actually working. We had a
-specific device that is making some specific I2C accesses that
-triggered the need to rework the offload handling, so I'll have to test
-on this platform.
-
-In order to not forget about it, I've added an entry in our Marvell
-related bug tracker:
-https://github.com/MISL-EBU-System-SW/mainline-public/issues/75.
-
-Thanks for reporting!
-
-Thomas
--- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+> +	if (length > I2C_SMBUS_BLOCK_MAX)
+> +		length = I2C_SMBUS_BLOCK_MAX;
+> +
+> +	if (i2c_check_functionality(client->adapter,
+> +				    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+> +		return i2c_smbus_read_i2c_block_data(client, command,
+> +						     length, values);
+> +	} else if (i2c_check_functionality(client->adapter,
+> +					   I2C_FUNC_SMBUS_READ_WORD_DATA)) {
+> +		for (i = 0; i < length; i += 2) {
+> +			status = i2c_smbus_read_word_data(client, command + i);
+> +			if (status < 0)
+> +				return status;
+> +			values[i] = status & 0xff;
+> +			if ((i + 1) < length)
+> +				values[i + 1] = status >> 8;
+> +		}
+> +		if (i > length)
+> +			return length;
+> +		return i;
+> +	} else if (i2c_check_functionality(client->adapter,
+> +					   I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+> +		for (i = 0; i < length; i++) {
+> +			status = i2c_smbus_read_byte_data(client, command + i);
+> +			if (status < 0)
+> +				return status;
+> +			values[i] = status;
+> +		}
+> +		return i;
+> +	}
+> +
+> +	dev_err(&client->adapter->dev, "Unsupported transactions: %d,%d,%d\n",
+> +		I2C_SMBUS_I2C_BLOCK_DATA, I2C_SMBUS_WORD_DATA,
+> +		I2C_SMBUS_BYTE_DATA);
+> +
+> +	return -EOPNOTSUPP;
+> +}
+> +EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data_or_emulated);
+> +
+>  #if IS_ENABLED(CONFIG_I2C_SLAVE)
+>  int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
+>  {
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index e83a738..faf518d 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -121,6 +121,9 @@ extern s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client,
+>  extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+>  					  u8 command, u8 length,
+>  					  const u8 *values);
+> +extern s32
+> +i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+> +					  u8 command, u8 length, u8 *values);
+>  #endif /* I2C */
+>  
+>  /**
+> 
