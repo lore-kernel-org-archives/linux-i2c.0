@@ -1,155 +1,63 @@
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: [PATCH-v3 07/11] i2c: pxa: enable/disable i2c module across msg xfer
-Date: Tue,  7 Jul 2015 00:54:51 +0530
-Message-ID: <1436210695-19159-8-git-send-email-vaibhav.hiremath@linaro.org>
-References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: devicetree@vger.kernel.org, wsa@the-dreams.de, Yi Zhang <yizhang@marvell.com>, linux-kernel@vger.kernel.org, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, robh+dt@kernel.org, robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 0/5] enable I2C on Renesas EMEV2 and KZM9D board
+Date: Mon,  6 Jul 2015 23:46:04 +0200
+Message-ID: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Yi Zhang <yizhang@marvell.com>
+So, I picked up the old series from Ian and reworked it significantly. While
+his series was already an improvement from the driver found in the BSP, it was
+still not ready for upstream. It should be now :) My idea was to start simple
+and improve incrementally, so e.g. clock handling was broken, so clocks are
+always on for starters. Major changes include:
 
-Enable i2c module/unit before transmission and disable when it finishes.
+* clock handling simplified and adapted to current EMEV clock handling
+* switch from wait_event to completion mechanism. The old one was basically
+  some kind of completion with custom code around wait_events
+* dropped using signals; they always cause trouble with I2C
+* simplified the bus free logic. If it turns out to be too simple, we'd need
+  to switch to the bus_recovery infrastructure probably. But we'd need a test
+  case for that
+* error handling improved to match subsystem standards
+* removed some BSP angst code
+* lots of refactoring to make code simpler, more readable...
+* bugfixes
 
-why?
-It's because the i2c bus may be distrubed if the slave device,
-typically a touch, powers on.
+I also added all the glue code to add clocks, disable reset etc which was
+missing before. I'd prefer to take the first three patches via i2c myself,
+and the latter two via Simon's tree.
 
-As we do not want to break slave mode support, this patch introduces
-DT property to control disable of the I2C module after xfer in master mode
-of operation.
+A branch for testing can be found here:
 
-i2c-disable-after-xfer : If set, driver will disable I2C module after msg xfer
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/emma-i2c
 
-Signed-off-by: Yi Zhang <yizhang@marvell.com>
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
----
- drivers/i2c/busses/i2c-pxa.c | 43 +++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 41 insertions(+), 2 deletions(-)
+Please test, comment...
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 2de9300..dfd1dd0 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -161,6 +161,7 @@ struct pxa_i2c {
- 	unsigned char		master_code;
- 	unsigned long		rate;
- 	bool			highmode_enter;
-+	bool			disable_after_xfer;
- };
- 
- #define _IBMR(i2c)	((i2c)->reg_ibmr)
-@@ -284,6 +285,24 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
- static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
- static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
- 
-+/* enable/disable i2c unit */
-+static inline int i2c_pxa_is_enabled(struct pxa_i2c *i2c)
-+{
-+	return (readl(_ICR(i2c)) & ICR_IUE);
-+}
-+
-+static inline void i2c_pxa_enable(struct pxa_i2c *i2c, bool enable)
-+{
-+	if (enable) {
-+		if (!i2c_pxa_is_enabled(i2c)) {
-+			writel(readl(_ICR(i2c)) | ICR_IUE, _ICR(i2c));
-+			udelay(100);
-+		}
-+	} else {
-+		writel(readl(_ICR(i2c)) & ~ICR_IUE, _ICR(i2c));
-+	}
-+}
-+
- static inline int i2c_pxa_is_slavemode(struct pxa_i2c *i2c)
- {
- 	return !(readl(_ICR(i2c)) & ICR_SCLE);
-@@ -480,8 +499,7 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
- 	i2c_pxa_set_slave(i2c, 0);
- 
- 	/* enable unit */
--	writel(readl(_ICR(i2c)) | ICR_IUE, _ICR(i2c));
--	udelay(100);
-+	i2c_pxa_enable(i2c, true);
- }
- 
- 
-@@ -832,6 +850,9 @@ static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
- 	struct pxa_i2c *i2c = adap->algo_data;
- 	int ret, i;
- 
-+	/* Enable i2c unit */
-+	i2c_pxa_enable(i2c, true);
-+
- 	/* If the I2C controller is disabled we need to reset it
- 	  (probably due to a suspend/resume destroying state). We do
- 	  this here as we can then avoid worrying about resuming the
-@@ -852,6 +873,11 @@ static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
- 	ret = -EREMOTEIO;
-  out:
- 	i2c_pxa_set_slave(i2c, ret);
-+
-+	/* disable i2c unit */
-+	if (i2c->disable_after_xfer)
-+		i2c_pxa_enable(i2c, false);
-+
- 	return ret;
- }
- 
-@@ -1067,6 +1093,9 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
- 	struct pxa_i2c *i2c = adap->algo_data;
- 	int ret, i;
- 
-+	/* Enable i2c unit */
-+	i2c_pxa_enable(i2c, true);
-+
- 	for (i = adap->retries; i >= 0; i--) {
- 		ret = i2c_pxa_do_xfer(i2c, msgs, num);
- 		if (ret != I2C_RETRY)
-@@ -1080,6 +1109,10 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
- 	ret = -EREMOTEIO;
-  out:
- 	i2c_pxa_set_slave(i2c, ret);
-+	/* disable i2c unit */
-+	if (i2c->disable_after_xfer)
-+		i2c_pxa_enable(i2c, false);
-+
- 	return ret;
- }
- 
-@@ -1120,6 +1153,9 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
- 	/* For device tree we always use the dynamic or alias-assigned ID */
- 	i2c->adap.nr = -1;
- 
-+	i2c->disable_after_xfer = of_property_read_bool(np,
-+				"i2c-disable-after-xfer");
-+
- 	if (of_get_property(np, "mrvl,i2c-polling", NULL))
- 		i2c->use_pio = 1;
- 	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
-@@ -1271,6 +1307,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 
- 	platform_set_drvdata(dev, i2c);
- 
-+	if (i2c->disable_after_xfer)
-+		i2c_pxa_enable(i2c, false);
-+
- #ifdef CONFIG_I2C_PXA_SLAVE
- 	dev_info(&i2c->adap.dev, " PXA I2C adapter, slave address %d\n",
- 		i2c->slave_addr);
+Thanks!
+
+   Wolfram
+
+
+Wolfram Sang (5):
+  clk: shmobile: emev2: deassert reset for IIC0/1
+  i2c: emev2: add binding documentation
+  i2c: emev2: add driver
+  ARM: shmobile: emev2: add IIC cores to dtsi
+  ARM: shmobile: emev2: kzm9d: enable IIC busses
+
+ .../devicetree/bindings/i2c/i2c-emev2.txt          |  22 ++
+ arch/arm/boot/dts/emev2-kzm9d.dts                  |   8 +
+ arch/arm/boot/dts/emev2.dtsi                       |  48 +++
+ drivers/clk/shmobile/clk-emev2.c                   |   6 +
+ drivers/i2c/busses/Kconfig                         |   7 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-emev2.c                     | 334 +++++++++++++++++++++
+ 7 files changed, 426 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-emev2.txt
+ create mode 100644 drivers/i2c/busses/i2c-emev2.c
+
 -- 
-1.9.1
+2.1.4
