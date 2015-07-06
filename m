@@ -1,82 +1,43 @@
 From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH-v3 00/11] i2c: pxa: Fixes, cleanup and support for pxa910 family
-Date: Tue,  7 Jul 2015 00:54:44 +0530
-Message-ID: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
+Subject: [PATCH-v3 03/11] i2c: pxa: Return I2C_RETRY when timeout in pio mode
+Date: Tue,  7 Jul 2015 00:54:47 +0530
+Message-ID: <1436210695-19159-4-git-send-email-vaibhav.hiremath@linaro.org>
+References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1436210695-19159-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch series fixes bugs/warnings, cleans up the code and adds
-support for PXA910 family of devices to PXA I2C bus driver.
+From: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 
-There has been one attempt made sometime back in 2012 to upstream
-some of the patches from below list, but did not get follow up later.
-I have consolidated all the patches, cleaned them up, splited into
-logical changes, added new patches and submitting it now.
+In case of timeout in pio mode of operation return I2C_RETRY.
+This behavior will be same as interrupt mode of operation.
 
-I tried to maintain authorship & Signoff except where I did some
-significant changes to the code/logic.
+Signed-off-by: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+[vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated changelog]
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Acked-by: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Link to previous post:
-http://permalink.gmane.org/gmane.linux.drivers.i2c/13557
-
-Testing:
-  - Basic testing on PMIC device on I2C-0 interface
-  - Boot tested on platform based on PXA1928
-  - Probe is successfully passing
-  - Read few registers of PMIC (RTC, ID, etc...) during boot
-
-V2 => V3
-=======
-Link to V2: http://www.spinics.net/lists/linux-i2c/msg20059.html
-
-  - Removed PATCH [4/12] related to reset of I2C module.
-    Suggested by "Robert Jarzmik"
-  - Updated commit description for,
-     PATCH [11/12]: Mentioned reasoning about moment of clk_get code.
-     PATCH [12/12]: for DT property node.
-  - Added Acked by "Robert Jarzmik" to patched which he acked.
-
-V1 => V2:
-========
-Link to V1 - http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347012.html
-
-  - Fixed all comments from "Robert Jarzmik" and "Wolfram Sang"
-  - Dropped Patch
-	05/12: using core bus reset implementation - under work.
-               Will submit shortly.
-	08/12: NAKed and dropped
-  - Separated DT binding patch from driver changes, for easy merge
-
-
-
-Leilei Shang (1):
-  i2c: pxa: keep i2c irq ON in suspend
-
-Shouming Wang (1):
-  i2c: pxa: Return I2C_RETRY when timeout in pio mode
-
-Vaibhav Hiremath (7):
-  i2c: pxa: No need to set slave addr for i2c master mode reset
-  i2c: pxa: Update debug function to dump more info on error
-  i2c:pxa: Use devm_ variants in probe function
-  Documentation: binding: add new property 'disable_after_xfer' to
-    i2c-pxa
-  i2c: pxa: Add support for pxa910/988 & new configuration features
-  i2c: pxa: Add ILCR (tLow & tHigh) configuration support
-  Documentation: binding: add sclk adjustment properties to i2c-pxa
-
-Yi Zhang (1):
-  i2c: pxa: enable/disable i2c module across msg xfer
-
-Yipeng Yao (1):
-  i2c: pxa: Remove compile warnning in 64bit mode
-
- Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  18 ++
- drivers/i2c/busses/i2c-pxa.c                      | 262 ++++++++++++++++------
- 2 files changed, 215 insertions(+), 65 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 023e59f..632008f 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -745,8 +745,10 @@ static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
+ 	ret = i2c->msg_idx;
+ 
+ out:
+-	if (timeout == 0)
++	if (timeout == 0) {
+ 		i2c_pxa_scream_blue_murder(i2c, "timeout");
++		ret = I2C_RETRY;
++	}
+ 
+ 	return ret;
+ }
 -- 
 1.9.1
