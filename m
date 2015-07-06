@@ -1,43 +1,46 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH-v3 03/11] i2c: pxa: Return I2C_RETRY when timeout in pio mode
-Date: Tue,  7 Jul 2015 00:54:47 +0530
-Message-ID: <1436210695-19159-4-git-send-email-vaibhav.hiremath@linaro.org>
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Subject: [PATCH-v3 01/11] i2c: pxa: keep i2c irq ON in suspend
+Date: Tue,  7 Jul 2015 00:54:45 +0530
+Message-ID: <1436210695-19159-2-git-send-email-vaibhav.hiremath@linaro.org>
 References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1436210695-19159-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de, robert.jarzmik@free.fr, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, Leilei Shang <shangll@marvell.com>, Raul Xiong <xjian@marvell.com>, Xiaofan Tian <tianxf@marvell.com>, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+From: Leilei Shang <shangll@marvell.com>
 
-In case of timeout in pio mode of operation return I2C_RETRY.
-This behavior will be same as interrupt mode of operation.
+During suspend there may still be some i2c access happening, as the
+interrupt is shared between multiple drivers.
+And if we don't keep i2c irq ON, there may be i2c access timeout if
+i2c is in irq mode of operation.
 
-Signed-off-by: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-[vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated changelog]
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Acked-by: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
+Signed-off-by: Raul Xiong <xjian@marvell.com>
+Signed-off-by: Xiaofan Tian <tianxf@marvell.com>
+[vaibhav.hiremath@linaro.org: updated Changelog]
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-pxa.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-pxa.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 023e59f..632008f 100644
+index d9c0d6a..f4ac8c5 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -745,8 +745,10 @@ static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
- 	ret = i2c->msg_idx;
- 
- out:
--	if (timeout == 0)
-+	if (timeout == 0) {
- 		i2c_pxa_scream_blue_murder(i2c, "timeout");
-+		ret = I2C_RETRY;
-+	}
- 
- 	return ret;
- }
+@@ -1232,8 +1232,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 		i2c->adap.algo = &i2c_pxa_pio_algorithm;
+ 	} else {
+ 		i2c->adap.algo = &i2c_pxa_algorithm;
+-		ret = request_irq(irq, i2c_pxa_handler, IRQF_SHARED,
+-				  dev_name(&dev->dev), i2c);
++		ret = request_irq(irq, i2c_pxa_handler,
++				IRQF_SHARED | IRQF_NO_SUSPEND,
++				dev_name(&dev->dev), i2c);
+ 		if (ret)
+ 			goto ereqirq;
+ 	}
 -- 
 1.9.1
