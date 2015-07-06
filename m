@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 2/5] i2c: emev2: add binding documentation
-Date: Mon,  6 Jul 2015 23:46:06 +0200
-Message-ID: <1436219188-4325-3-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 4/5] ARM: shmobile: emev2: add IIC cores to dtsi
+Date: Mon,  6 Jul 2015 23:46:08 +0200
+Message-ID: <1436219188-4325-5-git-send-email-wsa@the-dreams.de>
 References: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
@@ -14,28 +14,57 @@ From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- .../devicetree/bindings/i2c/i2c-emev2.txt          | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-emev2.txt
+ arch/arm/boot/dts/emev2.dtsi | 48 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-emev2.txt b/Documentation/devicetree/bindings/i2c/i2c-emev2.txt
-new file mode 100644
-index 00000000000000..a6740066835056
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-emev2.txt
-@@ -0,0 +1,22 @@
-+Device tree configuration for Renesas EMEV2 IIC driver
-+
-+Required properties:
-+- compatible      : "renesas,iic-<soctype>". "renesas,iic-emev2" as fallback
-+- reg             : address start and address range size of device
-+- interrupts      : 1 interrupt
-+- clocks          : phandle to the IP core SCLK
-+- clock-names     : must be "sclk"
-+- #address-cells  : should be <1>
-+- #size-cells     : should be <0>
-+
-+Example:
+diff --git a/arch/arm/boot/dts/emev2.dtsi b/arch/arm/boot/dts/emev2.dtsi
+index bb45694d91bc1e..edad0c4eea3505 100644
+--- a/arch/arm/boot/dts/emev2.dtsi
++++ b/arch/arm/boot/dts/emev2.dtsi
+@@ -21,6 +21,8 @@
+ 		gpio2 = &gpio2;
+ 		gpio3 = &gpio3;
+ 		gpio4 = &gpio4;
++		i2c0 = &iic0;
++		i2c1 = &iic1;
+ 	};
+ 
+ 	cpus {
+@@ -66,6 +68,30 @@
+ 			clock-frequency = <32768>;
+ 			#clock-cells = <0>;
+ 		};
++		iic0_sclkdiv: iic0_sclkdiv {
++			compatible = "renesas,emev2-smu-clkdiv";
++			reg = <0x624 0>;
++			clocks = <&pll3_fo>;
++			#clock-cells = <0>;
++		};
++		iic0_sclk: iic0_sclk {
++			compatible = "renesas,emev2-smu-gclk";
++			reg = <0x48c 1>;
++			clocks = <&iic0_sclkdiv>;
++			#clock-cells = <0>;
++		};
++		iic1_sclkdiv: iic1_sclkdiv {
++			compatible = "renesas,emev2-smu-clkdiv";
++			reg = <0x624 16>;
++			clocks = <&pll3_fo>;
++			#clock-cells = <0>;
++		};
++		iic1_sclk: iic1_sclk {
++			compatible = "renesas,emev2-smu-gclk";
++			reg = <0x490 1>;
++			clocks = <&iic1_sclkdiv>;
++			#clock-cells = <0>;
++		};
+ 		pll3_fo: pll3_fo {
+ 			compatible = "fixed-factor-clock";
+ 			clocks = <&c32ki>;
+@@ -234,4 +260,26 @@
+ 		interrupt-controller;
+ 		#interrupt-cells = <2>;
+ 	};
 +
 +	iic0: i2c@e0070000 {
 +		#address-cells = <1>;
@@ -45,7 +74,20 @@ index 00000000000000..a6740066835056
 +		interrupts = <0 32 IRQ_TYPE_EDGE_RISING>;
 +		clocks = <&iic0_sclk>;
 +		clock-names = "sclk";
++		status = "disabled";
 +	};
++
++	iic1: i2c@e10a0000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "renesas,iic-emev2";
++		reg = <0xe10a0000 0x28>;
++		interrupts = <0 33 IRQ_TYPE_EDGE_RISING>;
++		clocks = <&iic1_sclk>;
++		clock-names = "sclk";
++		status = "disabled";
++	};
+ };
 -- 
 2.1.4
 
