@@ -1,52 +1,51 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 1/5] clk: shmobile: emev2: deassert reset for IIC0/1
-Date: Mon,  6 Jul 2015 23:46:05 +0200
-Message-ID: <1436219188-4325-2-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 2/5] i2c: emev2: add binding documentation
+Date: Mon,  6 Jul 2015 23:46:06 +0200
+Message-ID: <1436219188-4325-3-git-send-email-wsa@the-dreams.de>
 References: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Mike Turquette <mturquette@linaro.org>, Stephen Boyd <sboyd@codeaurora.org>, linux-clk@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-We have a driver now for IIC, so disable reset for them.
-
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
+ .../devicetree/bindings/i2c/i2c-emev2.txt          | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-emev2.txt
 
-If possible, I'd like to take this patch via the I2C tree because the driver
-will spit WARNs if the dependency to this patch is not met. OK?
-
- drivers/clk/shmobile/clk-emev2.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/clk/shmobile/clk-emev2.c b/drivers/clk/shmobile/clk-emev2.c
-index 5b60beb7d0ebce..a91825471c79ac 100644
---- a/drivers/clk/shmobile/clk-emev2.c
-+++ b/drivers/clk/shmobile/clk-emev2.c
-@@ -28,6 +28,8 @@
- #define USIBU1_RSTCTRL 0x0ac
- #define USIBU2_RSTCTRL 0x0b0
- #define USIBU3_RSTCTRL 0x0b4
-+#define IIC0_RSTCTRL 0x0dc
-+#define IIC1_RSTCTRL 0x0e0
- #define STI_RSTCTRL 0x124
- #define STI_CLKSEL 0x688
- 
-@@ -66,6 +68,10 @@ static void __init emev2_smu_init(void)
- 	emev2_smu_write(2, USIBU1_RSTCTRL);
- 	emev2_smu_write(2, USIBU2_RSTCTRL);
- 	emev2_smu_write(2, USIBU3_RSTCTRL);
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-emev2.txt b/Documentation/devicetree/bindings/i2c/i2c-emev2.txt
+new file mode 100644
+index 00000000000000..a6740066835056
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-emev2.txt
+@@ -0,0 +1,22 @@
++Device tree configuration for Renesas EMEV2 IIC driver
 +
-+	/* deassert reset for IIC0->IIC1 */
-+	emev2_smu_write(1, IIC0_RSTCTRL);
-+	emev2_smu_write(1, IIC1_RSTCTRL);
- }
- 
- static void __init emev2_smu_clkdiv_init(struct device_node *np)
++Required properties:
++- compatible      : "renesas,iic-<soctype>". "renesas,iic-emev2" as fallback
++- reg             : address start and address range size of device
++- interrupts      : 1 interrupt
++- clocks          : phandle to the IP core SCLK
++- clock-names     : must be "sclk"
++- #address-cells  : should be <1>
++- #size-cells     : should be <0>
++
++Example:
++
++	iic0: i2c@e0070000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "renesas,iic-emev2";
++		reg = <0xe0070000 0x28>;
++		interrupts = <0 32 IRQ_TYPE_EDGE_RISING>;
++		clocks = <&iic0_sclk>;
++		clock-names = "sclk";
++	};
 -- 
 2.1.4
 
