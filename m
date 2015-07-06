@@ -1,83 +1,82 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 8/8] iio: accel: kxcjk-1013: optimize i2c transfers
- in trigger handler
-Date: Sun, 05 Jul 2015 13:11:04 +0100
-Message-ID: <55991ED8.5020500@kernel.org>
-References: <1435916017-12859-1-git-send-email-irina.tirdea@intel.com> <1435916017-12859-9-git-send-email-irina.tirdea@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH-v3 00/11] i2c: pxa: Fixes, cleanup and support for pxa910 family
+Date: Tue,  7 Jul 2015 00:54:44 +0530
+Message-ID: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435916017-12859-9-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/07/15 10:33, Irina Tirdea wrote:
-> From: Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> 
-> Some i2c busses (e.g.: Synopsys DesignWare I2C adapter) need to
-> enable/disable the bus at each i2c transfer and must wait for
-> the enable/disable to happen before sending the data.
-> 
-> When reading data in the trigger handler, the kxcjk-1013 accel driver
-> does one i2c transfer for each axis. This has an impact on the
-> frequency of the accelerometer at high sample rates due to additional
-> delays introduced by the i2c bus at each transfer.
-> 
-> Reading all axis values in one i2c transfer reduces the delays
-> introduced by the i2c bus. Uses i2c_smbus_read_i2c_block_data_or_emulated
-> that will fallback to reading each axis as a separate word in case i2c
-> block read is not supported.
-> 
-> Signed-off-by: Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Same comments as previously.
+This patch series fixes bugs/warnings, cleans up the code and adds
+support for PXA910 family of devices to PXA I2C bus driver.
 
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/iio/accel/kxcjk-1013.c | 19 ++++++++-----------
->  1 file changed, 8 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-> index 4960397..8f401c2 100644
-> --- a/drivers/iio/accel/kxcjk-1013.c
-> +++ b/drivers/iio/accel/kxcjk-1013.c
-> @@ -923,7 +923,7 @@ static const struct iio_event_spec kxcjk1013_event = {
->  		.realbits = 12,						\
->  		.storagebits = 16,					\
->  		.shift = 4,						\
-> -		.endianness = IIO_CPU,					\
-> +		.endianness = IIO_LE,					\
->  	},								\
->  	.event_spec = &kxcjk1013_event,				\
->  	.num_event_specs = 1						\
-> @@ -955,19 +955,16 @@ static irqreturn_t kxcjk1013_trigger_handler(int irq, void *p)
->  	struct iio_poll_func *pf = p;
->  	struct iio_dev *indio_dev = pf->indio_dev;
->  	struct kxcjk1013_data *data = iio_priv(indio_dev);
-> -	int bit, ret, i = 0;
-> +	int ret;
->  
->  	mutex_lock(&data->mutex);
-> -
-> -	for (bit = 0; bit < AXIS_MAX; bit++) {
-> -		ret = kxcjk1013_get_acc_reg(data, bit);
-> -		if (ret < 0) {
-> -			mutex_unlock(&data->mutex);
-> -			goto err;
-> -		}
-> -		data->buffer[i++] = ret;
-> -	}
-> +	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
-> +							KXCJK1013_REG_XOUT_L,
-> +							AXIS_MAX * 2,
-> +							(u8 *)data->buffer);
->  	mutex_unlock(&data->mutex);
-> +	if (ret < 0)
-> +		goto err;
->  
->  	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
->  					   data->timestamp);
-> 
+There has been one attempt made sometime back in 2012 to upstream
+some of the patches from below list, but did not get follow up later.
+I have consolidated all the patches, cleaned them up, splited into
+logical changes, added new patches and submitting it now.
+
+I tried to maintain authorship & Signoff except where I did some
+significant changes to the code/logic.
+
+Link to previous post:
+http://permalink.gmane.org/gmane.linux.drivers.i2c/13557
+
+Testing:
+  - Basic testing on PMIC device on I2C-0 interface
+  - Boot tested on platform based on PXA1928
+  - Probe is successfully passing
+  - Read few registers of PMIC (RTC, ID, etc...) during boot
+
+V2 => V3
+=======
+Link to V2: http://www.spinics.net/lists/linux-i2c/msg20059.html
+
+  - Removed PATCH [4/12] related to reset of I2C module.
+    Suggested by "Robert Jarzmik"
+  - Updated commit description for,
+     PATCH [11/12]: Mentioned reasoning about moment of clk_get code.
+     PATCH [12/12]: for DT property node.
+  - Added Acked by "Robert Jarzmik" to patched which he acked.
+
+V1 => V2:
+========
+Link to V1 - http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347012.html
+
+  - Fixed all comments from "Robert Jarzmik" and "Wolfram Sang"
+  - Dropped Patch
+	05/12: using core bus reset implementation - under work.
+               Will submit shortly.
+	08/12: NAKed and dropped
+  - Separated DT binding patch from driver changes, for easy merge
+
+
+
+Leilei Shang (1):
+  i2c: pxa: keep i2c irq ON in suspend
+
+Shouming Wang (1):
+  i2c: pxa: Return I2C_RETRY when timeout in pio mode
+
+Vaibhav Hiremath (7):
+  i2c: pxa: No need to set slave addr for i2c master mode reset
+  i2c: pxa: Update debug function to dump more info on error
+  i2c:pxa: Use devm_ variants in probe function
+  Documentation: binding: add new property 'disable_after_xfer' to
+    i2c-pxa
+  i2c: pxa: Add support for pxa910/988 & new configuration features
+  i2c: pxa: Add ILCR (tLow & tHigh) configuration support
+  Documentation: binding: add sclk adjustment properties to i2c-pxa
+
+Yi Zhang (1):
+  i2c: pxa: enable/disable i2c module across msg xfer
+
+Yipeng Yao (1):
+  i2c: pxa: Remove compile warnning in 64bit mode
+
+ Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  18 ++
+ drivers/i2c/busses/i2c-pxa.c                      | 262 ++++++++++++++++------
+ 2 files changed, 215 insertions(+), 65 deletions(-)
+
+-- 
+1.9.1
