@@ -1,152 +1,155 @@
 From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: [PATCH-v3 10/11] i2c: pxa: Add ILCR (tLow & tHigh) configuration support
-Date: Tue,  7 Jul 2015 00:54:54 +0530
-Message-ID: <1436210695-19159-11-git-send-email-vaibhav.hiremath@linaro.org>
+Subject: [PATCH-v3 07/11] i2c: pxa: enable/disable i2c module across msg xfer
+Date: Tue,  7 Jul 2015 00:54:51 +0530
+Message-ID: <1436210695-19159-8-git-send-email-vaibhav.hiremath@linaro.org>
 References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de, robert.jarzmik@free.fr, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, "Jett.Zhou" <jtzhou@marvell.com>, Yi Zhang <yizhang@marvell.com>
+Cc: devicetree@vger.kernel.org, wsa@the-dreams.de, Yi Zhang <yizhang@marvell.com>, linux-kernel@vger.kernel.org, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, robh+dt@kernel.org, robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-With addition of PXA910 family of devices, the TWSI module supports
-SCL clock adjustment using ILCR register.
+From: Yi Zhang <yizhang@marvell.com>
 
-This patch enables the control and configuration of ICLR through DT
-properties,
+Enable i2c module/unit before transmission and disable when it finishes.
 
-i2c-sclk-high-time-ns:
-  SCLK high time (tHigh), for standard/fast/high speed mode
-i2c-sclk-low-time-ns:
-  SCLK low time (tLow), for standard/fast/high speed mode
+why?
+It's because the i2c bus may be distrubed if the slave device,
+typically a touch, powers on.
 
-Note that in case of standard and fast mod, the tLow and tHigh counters
-are same, and software will use tLow value.
+As we do not want to break slave mode support, this patch introduces
+DT property to control disable of the I2C module after xfer in master mode
+of operation.
 
-Also, brought up devm_clk_get() fn above i2c_pxa_probe_dt(), as it
-uses clk rate for timing calculations.
+i2c-disable-after-xfer : If set, driver will disable I2C module after msg xfer
 
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Signed-off-by: Jett.Zhou <jtzhou@marvell.com>
 Signed-off-by: Yi Zhang <yizhang@marvell.com>
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 ---
- drivers/i2c/busses/i2c-pxa.c | 68 +++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 61 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c | 43 +++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 41 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index d5cf6f5..537555a 100644
+index 2de9300..dfd1dd0 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -195,6 +195,9 @@ struct pxa_i2c {
+@@ -161,6 +161,7 @@ struct pxa_i2c {
+ 	unsigned char		master_code;
  	unsigned long		rate;
  	bool			highmode_enter;
- 	bool			disable_after_xfer;
-+
-+	unsigned int		sclk_thigh_load_cnt;
-+	unsigned int		sclk_tlow_load_cnt;
++	bool			disable_after_xfer;
  };
  
  #define _IBMR(i2c)	((i2c)->reg_ibmr)
-@@ -507,6 +510,33 @@ static void i2c_pxa_set_slave(struct pxa_i2c *i2c, int errcode)
- #define i2c_pxa_set_slave(i2c, err)	do { } while (0)
- #endif
+@@ -284,6 +285,24 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+ static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
+ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
  
-+static void i2c_pxa_do_sclk_adj(struct pxa_i2c *i2c)
++/* enable/disable i2c unit */
++static inline int i2c_pxa_is_enabled(struct pxa_i2c *i2c)
 +{
-+	unsigned int reg_ilcr;
-+
-+	reg_ilcr = readl(_ILCR(i2c));
-+
-+	/* For standard/fast mode tlow and thigh counters are same */
-+	if (i2c->sclk_tlow_load_cnt) {
-+		unsigned int mask, shift;
-+
-+		mask = i2c->high_mode ? ILCR_HLVL_MASK :
-+			i2c->fast_mode ? ILCR_FLV_MASK : ILCR_SLV_MASK;
-+		shift = i2c->high_mode ? ILCR_HLVL_SHIFT :
-+			i2c->fast_mode ? ILCR_FLV_SHIFT : ILCR_SLV_SHIFT;
-+
-+		reg_ilcr &= ~mask;
-+		reg_ilcr |= i2c->sclk_tlow_load_cnt << shift;
-+	}
-+
-+	if (i2c->high_mode && i2c->sclk_thigh_load_cnt) {
-+		reg_ilcr &= ~ILCR_HLVH_MASK;
-+		reg_ilcr |= i2c->sclk_thigh_load_cnt << ILCR_HLVH_SHIFT;
-+	}
-+
-+	writel(reg_ilcr, _ILCR(i2c));
++	return (readl(_ICR(i2c)) & ICR_IUE);
 +}
 +
- static void i2c_pxa_reset(struct pxa_i2c *i2c)
- {
- 	pr_debug("Resetting I2C Controller Unit\n");
-@@ -526,6 +556,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
- 	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
- 	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
- 
-+	i2c_pxa_do_sclk_adj(i2c);
-+
- #ifdef CONFIG_I2C_PXA_SLAVE
- 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
- 	writel(readl(_ICR(i2c)) | ICR_SADIE | ICR_ALDIE | ICR_SSDIE, _ICR(i2c));
-@@ -1198,6 +1230,26 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
- 
- 	*i2c_types = (long)(of_id->data);
- 
-+	/* optional properties */
-+	if (of_device_is_compatible(np, "mrvl,mmp-twsi")) {
-+		unsigned int tlow = 0, thigh = 0;
-+		unsigned int clk_ns;
-+
-+		/* clock time in nsec */
-+		clk_ns = 1000000 / (i2c->rate / 1000);
-+
-+		of_property_read_u32(np, "i2c-sclk-high-time-ns", &thigh);
-+		i2c->sclk_thigh_load_cnt = thigh / clk_ns;
-+
-+		of_property_read_u32(np, "i2c-sclk-low-time-ns", &tlow);
-+		i2c->sclk_tlow_load_cnt = tlow / clk_ns;
-+
-+		/* For std/fast mode tlow & thigh have same bit-fields */
-+		if (!i2c->high_mode &&
-+			(i2c->sclk_tlow_load_cnt != i2c->sclk_thigh_load_cnt))
-+			dev_warn(&i2c->adap.dev,
-+				"mismatch of tLow & tHigh values, using tLow\n");
++static inline void i2c_pxa_enable(struct pxa_i2c *i2c, bool enable)
++{
++	if (enable) {
++		if (!i2c_pxa_is_enabled(i2c)) {
++			writel(readl(_ICR(i2c)) | ICR_IUE, _ICR(i2c));
++			udelay(100);
++		}
++	} else {
++		writel(readl(_ICR(i2c)) & ~ICR_IUE, _ICR(i2c));
 +	}
- 	return 0;
++}
++
+ static inline int i2c_pxa_is_slavemode(struct pxa_i2c *i2c)
+ {
+ 	return !(readl(_ICR(i2c)) & ICR_SCLE);
+@@ -480,8 +499,7 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+ 	i2c_pxa_set_slave(i2c, 0);
+ 
+ 	/* enable unit */
+-	writel(readl(_ICR(i2c)) | ICR_IUE, _ICR(i2c));
+-	udelay(100);
++	i2c_pxa_enable(i2c, true);
  }
  
-@@ -1247,6 +1299,15 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 		return irq;
- 	}
  
-+	i2c->clk = devm_clk_get(&dev->dev, NULL);
-+	if (IS_ERR(i2c->clk)) {
-+		dev_err(&dev->dev, "failed to get the clk: %ld\n",
-+			PTR_ERR(i2c->clk));
-+		return PTR_ERR(i2c->clk);
-+	}
+@@ -832,6 +850,9 @@ static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
+ 	struct pxa_i2c *i2c = adap->algo_data;
+ 	int ret, i;
+ 
++	/* Enable i2c unit */
++	i2c_pxa_enable(i2c, true);
 +
-+	i2c->rate = clk_get_rate(i2c->clk);
+ 	/* If the I2C controller is disabled we need to reset it
+ 	  (probably due to a suspend/resume destroying state). We do
+ 	  this here as we can then avoid worrying about resuming the
+@@ -852,6 +873,11 @@ static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
+ 	ret = -EREMOTEIO;
+  out:
+ 	i2c_pxa_set_slave(i2c, ret);
 +
- 	/* Default adapter num to device id; i2c_pxa_probe_dt can override. */
- 	i2c->adap.nr = dev->id;
++	/* disable i2c unit */
++	if (i2c->disable_after_xfer)
++		i2c_pxa_enable(i2c, false);
++
+ 	return ret;
+ }
  
-@@ -1264,13 +1325,6 @@ static int i2c_pxa_probe(struct platform_device *dev)
+@@ -1067,6 +1093,9 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
+ 	struct pxa_i2c *i2c = adap->algo_data;
+ 	int ret, i;
  
- 	strlcpy(i2c->adap.name, "pxa_i2c-i2c", sizeof(i2c->adap.name));
++	/* Enable i2c unit */
++	i2c_pxa_enable(i2c, true);
++
+ 	for (i = adap->retries; i >= 0; i--) {
+ 		ret = i2c_pxa_do_xfer(i2c, msgs, num);
+ 		if (ret != I2C_RETRY)
+@@ -1080,6 +1109,10 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
+ 	ret = -EREMOTEIO;
+  out:
+ 	i2c_pxa_set_slave(i2c, ret);
++	/* disable i2c unit */
++	if (i2c->disable_after_xfer)
++		i2c_pxa_enable(i2c, false);
++
+ 	return ret;
+ }
  
--	i2c->clk = devm_clk_get(&dev->dev, NULL);
--	if (IS_ERR(i2c->clk)) {
--		dev_err(&dev->dev, "failed to get the clk: %ld\n",
--			PTR_ERR(i2c->clk));
--		return PTR_ERR(i2c->clk);
--	}
--
- 	i2c->reg_base = devm_ioremap_resource(&dev->dev, res);
- 	if (IS_ERR(i2c->reg_base)) {
- 		dev_err(&dev->dev, "failed to map resource: %ld\n",
+@@ -1120,6 +1153,9 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
+ 	/* For device tree we always use the dynamic or alias-assigned ID */
+ 	i2c->adap.nr = -1;
+ 
++	i2c->disable_after_xfer = of_property_read_bool(np,
++				"i2c-disable-after-xfer");
++
+ 	if (of_get_property(np, "mrvl,i2c-polling", NULL))
+ 		i2c->use_pio = 1;
+ 	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
+@@ -1271,6 +1307,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 
+ 	platform_set_drvdata(dev, i2c);
+ 
++	if (i2c->disable_after_xfer)
++		i2c_pxa_enable(i2c, false);
++
+ #ifdef CONFIG_I2C_PXA_SLAVE
+ 	dev_info(&i2c->adap.dev, " PXA I2C adapter, slave address %d\n",
+ 		i2c->slave_addr);
 -- 
 1.9.1
