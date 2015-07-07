@@ -1,107 +1,193 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 5/5] i2c: davinci: use ICPFUNC to toggle I2C as gpio
- for bus recovery
-Date: Tue, 7 Jul 2015 16:13:12 +0200
-Message-ID: <20150707141312.GC3411@katana>
-References: <1417010393-30598-1-git-send-email-grygorii.strashko@ti.com>
- <1417010393-30598-6-git-send-email-grygorii.strashko@ti.com>
- <20141126160407.GN4431@pengutronix.de>
- <5476085B.40009@ti.com>
- <1436276269.3344.94.camel@pengutronix.de>
- <20150707134852.GE9671@pengutronix.de>
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: add SMBus Host Notify support
+Date: Tue, 7 Jul 2015 10:23:33 -0400
+Message-ID: <20150707142333.GC18484@mail.corp.redhat.com>
+References: <1435085899-11017-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1435085899-11017-2-git-send-email-benjamin.tissoires@redhat.com>
+ <20150629150035.4c027502@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nmemrqcdn5VTmUEE"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150707134852.GE9671-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Jan =?utf-8?B?TMO8YmJl?= <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20150629150035.4c027502-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Jean,
 
---nmemrqcdn5VTmUEE
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Jun 29 2015 or thereabouts, Jean Delvare wrote:
+> Hi Benjamin,
+> 
+> On Tue, 23 Jun 2015 14:58:18 -0400, Benjamin Tissoires wrote:
+> > SMBus Host Notify allows a slave device to act as a master on a bus to
+> > notify the host of an interrupt. The functionality is directly implemented
+> > in the firmware so we just export a toggle function and rely on the
+> > adapter to actually support this.
+> 
+> Why does it need to be toggled? I mean, if the controller supports it,
+> why don't we just enable the feature all the time?
 
-On Tue, Jul 07, 2015 at 03:48:52PM +0200, Uwe Kleine-K=C3=B6nig wrote:
-> Hello,
->=20
-> On Tue, Jul 07, 2015 at 03:37:49PM +0200, Jan L=C3=BCbbe wrote:
-> > On Mi, 2014-11-26 at 19:05 +0200, Grygorii Strashko wrote:
-> > > On 11/26/2014 06:04 PM, Uwe Kleine-K=C3=B6nig wrote:
-> > > > On Wed, Nov 26, 2014 at 03:59:53PM +0200, Grygorii Strashko wrote:
-> > > >> Having a board where the I2C bus locks up occasionally made it cle=
-ar
-> > > >> that the bus recovery in the i2c-davinci driver will only work on
-> > > >> some boards, because on regular boards, this will only toggle GPIO
-> > > >> lines that aren't muxed to the actual pins.
-> > > >>
-> > > >> The I2C controller on SoCs like da850 (and da830), Keystone 2 has =
-the
-> > > >> built-in capability to bit-bang its lines by using the ICPFUNC reg=
-isters
-> > > >> of the i2c controller.
-> > > >> Implement the suggested procedure by toggling SCL and checking SDA=
- using
-> > > >> the ICPFUNC registers of the I2C controller when present. Allow pl=
-atforms
-> > > >> to indicate the presence of the ICPFUNC registers with a has_pfunc=
- platform
-> > > >> data flag and add optional DT property "ti,has-pfunc" to indicate
-> > > >> the same in DT.
-> > > > On what does it depend if this pfunc stuff works or not? Only the S=
-oC,
-> > > > or also on some board specific properties?
-> > >=20
-> > > SoC / set of SoCs. Also, similar feature is supported by OMAP and AM3=
-35x/AM437x SoCs
-> > > using I2C_SYSTEST register.
-> > >=20
-> > > > Given the former using the
-> > > > compatible string to detect its availability would be better. (In t=
-his
-> > > > case also sorry, didn't consider this case when requesting the prop=
-erty
-> > > > in the last round.)
-> >=20
-> > I only stumbled across this after it was merged, with the additional
-> I also wonder how it came to the Reviewed-by tag for me. The last thing
-> that I said about the patch was "On what does it depend if this pfunc
-> stuff works or not? Only the SoC, or also on some board specific
-> properties?" (see above) and "the patch looks ok". IMHO this hardly
-> justifies to add the Reviewed-by tag for the next round. :-(
+That is definitively a solution. I however had once a problem with
+suspend/resume where i2c_i801 was not able to reset the Host Notify
+feature, but that was maybe a side effect of unloading/reloading the
+module tons of times during the session.
 
-That needs to be discussed with Grygorii. I can't verify the correctness
-of tags for every patch, although I do try to keep an eye on it...
+I will work on that and submit a v2 this week.
 
+I still wonder if you think we should expose a KConfig parameter for
+this or not. I would prefer not to (because it is handled in hardware
+and people might screw up their input drivers), but I'd prefer have your
+opinion on this first.
 
---nmemrqcdn5VTmUEE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> > ---
+> >  Documentation/i2c/smbus-protocol |  4 ++++
+> >  drivers/i2c/i2c-core.c           | 26 ++++++++++++++++++++++++++
+> >  include/linux/i2c.h              |  8 ++++++++
+> >  include/uapi/linux/i2c.h         |  1 +
+> >  4 files changed, 39 insertions(+)
+> > 
+> > diff --git a/Documentation/i2c/smbus-protocol b/Documentation/i2c/smbus-protocol
+> > index 6012b12..af4e4b9 100644
+> > --- a/Documentation/i2c/smbus-protocol
+> > +++ b/Documentation/i2c/smbus-protocol
+> > @@ -199,6 +199,10 @@ alerting device's address.
+> >  
+> >  [S] [HostAddr] [Wr] A [DevAddr] A [DataLow] A [DataHigh] A [P]
+> >  
+> > +I2C drivers for devices which can trigger SMBus Host Notify should call
+> > +i2c_smbus_toggle_host_notify() to enable SMBUS Host Notify on the adapter
+> > +and implement the optional alert() callback.
+> > +
+> >  
+> >  Packet Error Checking (PEC)
+> >  ===========================
+> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > index 987c124..eaaf5b0 100644
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> > @@ -2959,6 +2959,32 @@ int i2c_slave_unregister(struct i2c_client *client)
+> >  EXPORT_SYMBOL_GPL(i2c_slave_unregister);
+> >  #endif
+> >  
+> > +int i2c_smbus_toggle_host_notify(struct i2c_client *client, bool state)
+> > +{
+> > +	int ret;
+> > +
+> > +	if (!client)
+> > +		return -EINVAL;
+> > +
+> > +	if (!(client->flags & I2C_CLIENT_TEN)) {
+> > +		/* Enforce stricter address checking */
+> > +		ret = i2c_check_addr_validity(client->addr);
+> > +		if (ret)
+> > +			return ret;
+> > +	}
+> > +
+> > +	if (!client->adapter->algo->toggle_smbus_host_notify)
+> > +		return -EOPNOTSUPP;
+> > +
+> > +	i2c_lock_adapter(client->adapter);
+> > +	ret = client->adapter->algo->toggle_smbus_host_notify(client->adapter,
+> > +							      state);
+> > +	i2c_unlock_adapter(client->adapter);
+> > +
+> > +	return ret;
+> > +}
+> > +EXPORT_SYMBOL_GPL(i2c_smbus_toggle_host_notify);
+> > +
+> 
+> As this is an SMBus feature, can't it go to drivers/i2c/i2c-smbus.c?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+I asked myself this question, and I figured it was not possible because
+i2c-smbus consists in the smbus_alert i2c driver.
 
-iQIcBAEBAgAGBQJVm954AAoJEBQN5MwUoCm2ltgQAJO2ysHyJhuGYg+qe7+hK2qB
-ZpOA7s0U9uSkVczWOBuNvdGorPsLX/L479LwfyzGYcMfqNLWOr9uj+m9V0rPzV2S
-JOISCDQ3rX3HNYZJW716S0c7LgL4QVCli8zbNYDioCJ7kCCM33Fsoa2TwMwD+UcX
-FfbBQRRw7Ou0DOJ3y3Nwo8NeUOUJv+L8N/JLs1Vz8lw13bBoRvWUtZCc3lEqsKPE
-TDUu2Oot2qqK6cYyAk0gi+gbikYPvj9GXWeVZRfYKz5Lr98s+gnuZSaS0/nJDwhu
-6YQxZ6edwuqpuXubB1zW3VhBMc3LNSH0vvG2qWKWSfi0UnuNai/MiyPvd2OE/GPU
-Oux1Q0d+e3ZjL+lyz7NtCL7dm4J0SaVZcaMokT/kYjDuaGPhTzD61WMH9xqGIDYL
-F/6G5tjclrSU3lScl+hcmAENHRnodWaEbjML+vpoFnxOI5dQSsAAaci4ONfa4mqm
-teilrlSzjLczwlhd9Jvi3FqspJKH6RPCJT+E56yB404bym8VvXGWJv+uM/137acA
-as4n5fSdp8ydMotegIv7QirNAd6U03BKXD5hqK0Oq+c+1+JVbIfPC6xucfcrmItV
-CC5w/YEE2fHBpSzVvxsELUO/EPC/ZIFLCr0N9tiRHtO1DxXY0W2wtNgDLOJ9xdyV
-P30F6aQybrLPtXEpAIo/
-=cxHH
------END PGP SIGNATURE-----
+After re-reading the code, I see now that it could definitively goes
+there too. However, if we choose not to expose the toggle to the
+drivers, then there will be no need to make deep changes in i2c-smbus
+:).
 
---nmemrqcdn5VTmUEE--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> >  MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
+> >  MODULE_DESCRIPTION("I2C-Bus main module");
+> >  MODULE_LICENSE("GPL");
+> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> > index e83a738..7ffc970 100644
+> > --- a/include/linux/i2c.h
+> > +++ b/include/linux/i2c.h
+> > @@ -177,6 +177,8 @@ struct i2c_driver {
+> >  	 * The format and meaning of the data value depends on the protocol.
+> >  	 * For the SMBus alert protocol, there is a single bit of data passed
+> >  	 * as the alert response's low bit ("event flag").
+> > +	 * For the SMBus Host Notify protocol, the data corresponds to the
+> > +	 * 16-bits payload data reported by the external device.
+> 
+> 16-bit (no s)
+
+ack
+
+> 
+> >  	 */
+> >  	void (*alert)(struct i2c_client *, unsigned int data);
+> >  
+> > @@ -270,6 +272,9 @@ static inline int i2c_slave_event(struct i2c_client *client,
+> >  }
+> >  #endif
+> >  
+> > +
+> 
+> No double blank lines in source code please.
+
+oops, sorry.
+
+> 
+> > +extern int i2c_smbus_toggle_host_notify(struct i2c_client *client, bool state);
+> > +
+> >  /**
+> >   * struct i2c_board_info - template for device creation
+> >   * @type: chip type, to initialize i2c_client.name
+> > @@ -378,6 +383,8 @@ i2c_register_board_info(int busnum, struct i2c_board_info const *info,
+> >   *   from the I2C_FUNC_* flags.
+> >   * @reg_slave: Register given client to I2C slave mode of this adapter
+> >   * @unreg_slave: Unregister given client from I2C slave mode of this adapter
+> > + * @toggle_smbus_host_notify: toggle the SMBus Host Notify support of this
+> > + *   adapter.
+> >   *
+> >   * The following structs are for those who like to implement new bus drivers:
+> >   * i2c_algorithm is the interface to a class of hardware solutions which can
+> > @@ -408,6 +415,7 @@ struct i2c_algorithm {
+> >  	int (*reg_slave)(struct i2c_client *client);
+> >  	int (*unreg_slave)(struct i2c_client *client);
+> >  #endif
+> > +	int (*toggle_smbus_host_notify)(struct i2c_adapter *adap, bool state);
+> 
+> Please put it after u32 (*functionality), so that the field offsets do
+> not depend on configuration options.
+
+OK. But again, if we enable it anyway, this will be just removed.
+
+> 
+> >  };
+> >  
+> >  /**
+> > diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+> > index 0e949cb..c72708e 100644
+> > --- a/include/uapi/linux/i2c.h
+> > +++ b/include/uapi/linux/i2c.h
+> > @@ -100,6 +100,7 @@ struct i2c_msg {
+> >  #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
+> >  #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
+> >  #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
+> > +#define I2C_FUNC_SMBUS_HOST_NOTIFY	0x10000000
+> >  
+> >  #define I2C_FUNC_SMBUS_BYTE		(I2C_FUNC_SMBUS_READ_BYTE | \
+> >  					 I2C_FUNC_SMBUS_WRITE_BYTE)
+> 
+
+Thanks for the review!
+
+Cheers,
+Benjamin
