@@ -1,68 +1,37 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH-RESEND 0/3] i2c: core/pxa: Add support for hardware lock
-Date: Tue, 07 Jul 2015 12:13:00 +0530
-Message-ID: <559B74F4.5090205@linaro.org>
-References: <vaibhav.hiremath@linaro.org> <1433270731-23790-1-git-send-email-vaibhav.hiremath@linaro.org> <557FDE4B.3060304@linaro.org>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [PATCH 0/5] enable I2C on Renesas EMEV2 and KZM9D board
+Date: Tue, 7 Jul 2015 10:38:55 +0200
+Message-ID: <CAMuHMdUwivjTgj-nOKnHhmmU2po0JMPDhHqW6z7ngiO-D+a6iA@mail.gmail.com>
+References: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <557FDE4B.3060304-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1436219188-4325-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
+CC Ian
 
-On Tuesday 16 June 2015 01:58 PM, Vaibhav Hiremath wrote:
->
->
-> On Wednesday 03 June 2015 12:15 AM, Vaibhav Hiremath wrote:
->> To justify the need for hardware lock, lets take a real usecase
->> scenario -
->>
->> In case of Marvell SoC, PXA910 silicon, both AP and CP are present and
->> these two ARM cores are sharing one pair of I2C pins.
->>
->> In order to keep I2C transaction operated with atomic, hardware lock
->> (RIPC) is required.
->>
->> This patch extends support for atomic operation by adding hardware
->> lock support
->> to the i2c-core.
->>
->> PATCH[1/3] : Core changes for hardware lock
->> PATCH[2/3 & 3/3] : hardware lock support to i2c-pxa bus driver.
->>
->> Link to previous post:
->> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02352.html
->> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02353.html
->> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02354.html
->>
->> TODO:
->>    - DT node addition
->>      I am using PXA1928 based platform which is still not available
->>      in Mainline, so it is based on, below patch-series
->>      Link to Rob's patches:
->>       https://lkml.org/lkml/2015/5/1/14
->>       https://lkml.org/lkml/2015/5/19/1206
->>      PMIC 88pm860 support
->>       http://www.spinics.net/lists/arm-kernel/msg422554.html
->>
->> Vaibhav Hiremath (3):
->>    i2c: core: append hardware lock with bus lock
->>    i2c: pxa: Add support for hardware lock
->>    i2c: pxa: Add pin ctrl support for CP core access
->>
->
-> Wolfram,
->
-> Any update on this patch-series?
->
+On Mon, Jul 6, 2015 at 11:46 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> So, I picked up the old series from Ian and reworked it significantly. While
+> his series was already an improvement from the driver found in the BSP, it was
+> still not ready for upstream. It should be now :) My idea was to start simple
+> and improve incrementally, so e.g. clock handling was broken, so clocks are
+> always on for starters. Major changes include:
 
-Any update? Its long time since this patch is pending for review.
+Thanks for your series!
 
+Gr{oetje,eeting}s,
 
-Thanks,
-Vaibhav
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
