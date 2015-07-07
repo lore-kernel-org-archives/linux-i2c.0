@@ -1,29 +1,68 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH 1/5] clk: shmobile: emev2: deassert reset for IIC0/1
-Date: Mon, 6 Jul 2015 14:57:20 -0700
-Message-ID: <20150706215720.GE20866@codeaurora.org>
-References: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
- <1436219188-4325-2-git-send-email-wsa@the-dreams.de>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH-RESEND 0/3] i2c: core/pxa: Add support for hardware lock
+Date: Tue, 07 Jul 2015 12:13:00 +0530
+Message-ID: <559B74F4.5090205@linaro.org>
+References: <vaibhav.hiremath@linaro.org> <1433270731-23790-1-git-send-email-vaibhav.hiremath@linaro.org> <557FDE4B.3060304@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1436219188-4325-2-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mike Turquette <mturquette@linaro.org>, linux-clk@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <557FDE4B.3060304-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/06, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
-> We have a driver now for IIC, so disable reset for them.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
 
-Acked-by: Stephen Boyd <sboyd@codeaurora.org>
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+On Tuesday 16 June 2015 01:58 PM, Vaibhav Hiremath wrote:
+>
+>
+> On Wednesday 03 June 2015 12:15 AM, Vaibhav Hiremath wrote:
+>> To justify the need for hardware lock, lets take a real usecase
+>> scenario -
+>>
+>> In case of Marvell SoC, PXA910 silicon, both AP and CP are present and
+>> these two ARM cores are sharing one pair of I2C pins.
+>>
+>> In order to keep I2C transaction operated with atomic, hardware lock
+>> (RIPC) is required.
+>>
+>> This patch extends support for atomic operation by adding hardware
+>> lock support
+>> to the i2c-core.
+>>
+>> PATCH[1/3] : Core changes for hardware lock
+>> PATCH[2/3 & 3/3] : hardware lock support to i2c-pxa bus driver.
+>>
+>> Link to previous post:
+>> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02352.html
+>> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02353.html
+>> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02354.html
+>>
+>> TODO:
+>>    - DT node addition
+>>      I am using PXA1928 based platform which is still not available
+>>      in Mainline, so it is based on, below patch-series
+>>      Link to Rob's patches:
+>>       https://lkml.org/lkml/2015/5/1/14
+>>       https://lkml.org/lkml/2015/5/19/1206
+>>      PMIC 88pm860 support
+>>       http://www.spinics.net/lists/arm-kernel/msg422554.html
+>>
+>> Vaibhav Hiremath (3):
+>>    i2c: core: append hardware lock with bus lock
+>>    i2c: pxa: Add support for hardware lock
+>>    i2c: pxa: Add pin ctrl support for CP core access
+>>
+>
+> Wolfram,
+>
+> Any update on this patch-series?
+>
+
+Any update? Its long time since this patch is pending for review.
+
+
+Thanks,
+Vaibhav
