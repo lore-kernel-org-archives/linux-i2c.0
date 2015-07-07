@@ -1,62 +1,71 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [RFC] i2c-tools: allow linker and compile flags from command
- line
-Date: Tue, 7 Jul 2015 21:08:28 +0200
-Message-ID: <20150707210828.0e5caf05@endymion.delvare>
-References: <1434705872-2866-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/5] i2c: emev2: add binding documentation
+Date: Tue, 7 Jul 2015 21:43:13 +0200
+Message-ID: <20150707194313.GB1572@katana>
+References: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
+ <1436219188-4325-3-git-send-email-wsa@the-dreams.de>
+ <2376548.GgBSKQ3Rxq@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434705872-2866-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <2376548.GgBSKQ3Rxq@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Fri, 19 Jun 2015 11:24:32 +0200, Wolfram Sang wrote:
-> Mainly for debugging, so one can pass stuff like -O0 or -static.
-> 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> ---
->  tools/Module.mk | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/tools/Module.mk b/tools/Module.mk
-> index 8efddbb..641ac81 100644
-> --- a/tools/Module.mk
-> +++ b/tools/Module.mk
-> @@ -9,13 +9,13 @@
->  
->  TOOLS_DIR	:= tools
->  
-> -TOOLS_CFLAGS	:= -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-qual \
-> +TOOLS_CFLAGS	+= -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-qual \
->  		   -Wcast-align -Wwrite-strings -Wnested-externs -Winline \
->  		   -W -Wundef -Wmissing-prototypes -Iinclude
->  ifeq ($(USE_STATIC_LIB),1)
-> -TOOLS_LDFLAGS	:= $(LIB_DIR)/$(LIB_STLIBNAME)
-> +TOOLS_LDFLAGS	+= $(LIB_DIR)/$(LIB_STLIBNAME)
->  else
-> -TOOLS_LDFLAGS	:= -Llib -li2c
-> +TOOLS_LDFLAGS	+= -Llib -li2c
+--kORqDWCi7qDJ0mEj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Note that -Llib has become -L$(LIB_DIR) meanwhile.
+> > +Device tree configuration for Renesas EMEV2 IIC driver
+>=20
+> s/driver/controller/
 
->  endif
->  
->  TOOLS_TARGETS	:= i2cdetect i2cdump i2cset i2cget
+Yes,
 
-You can already overwrite CFLAGS and LDFLAGS on the command line, and
-this works for the whole package. Do you really need to set different
-CFLAGS (or LDFLAGS) for different parts of i2c-tools? Seems overkill to
-me.
+> > +- interrupts      : 1 interrupt
+>=20
+> I'd write this as "specifier for the IIC controller interrupt".
 
-If you really need that then this should be done consistently for all
-"modules": not just tools but also lib and now eeprog.
+Yes.
 
--- 
-Jean Delvare
-SUSE L3 Support
+>=20
+> > +- clocks          : phandle to the IP core SCLK
+>=20
+> The datasheet mentions PCLK and IIC_SCLK but doesn't provide details. Do =
+you=20
+> have more information ?
+
+I follow what is done for the other EMEV2 IP cores currently supported.
+All cores I checked have PCLK and SCLK but only SCLK is referenced in
+the DTS.
+
+
+--kORqDWCi7qDJ0mEj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVnCvRAAoJEBQN5MwUoCm2MygP/2OkVQL3U5MqvXWqUJ5f/JHG
++y30HqCwQfbpPa+vbEWKK4T9CYV4l2WWz5OKJDxq4B3VIDSv2Sdk8nFpvRBdusYc
+ZQcGLiGRauoF+feC5ToVWanlAWen3JpMRmfT1ah2Ih37WVrWoGiiN06erXhJaG+J
+ojzKo+Vt5qLeuHzP5tdzItLpyvU+F4ACVJ0wZi2Py2H8gSC2Mh5/LAd3j+iBeKBZ
+d7m0vCH3L7/pTnxuOAgZASYT8cQCGFSb9DGno4IQ3GgSp/UIgpSVHmgtQuPbMAnn
+Zsjl5iai9+iIAenxpVzcki5CNWOMQHk2DcZG9EWD3eeTINHhztHvavEP8eIHO2IG
++Py1mKYfyuSUnaU0M1Q0JZeEt79F2n+6PJcXGSr/o5eesUxqHgexeNXJcldB4iyg
+mbRSHJbPpyqo1F9lquxOMYwagkKfUNrFmQZzGVxbNrW9E42AJMOALxo90nD3vORQ
+9DkmX3dcrb+2cmJhvvsa4ML/fxIvMzlWz9x6PMqF0aXzj7PXRjonjT/GAUMw+680
+1tOIWmsAvLf/+ffVOFwnait0kKnHH60YTCv0vSXh9AVSPx+YqgDEcC7VX9pnMO41
+uiBka1BUHpMMroH+8j4So3t/MtAwrffZGwTDM8duZH0AZqHIpud7buCqJj+r04SI
+Hqe5Qximix5QNA5UOiXZ
+=9rdT
+-----END PGP SIGNATURE-----
+
+--kORqDWCi7qDJ0mEj--
