@@ -1,296 +1,452 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: i801: add support of Host Notify
-Date: Tue, 7 Jul 2015 20:11:25 +0200
-Message-ID: <20150707201125.66b2b5b9@endymion.delvare>
-References: <1435085899-11017-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1435085899-11017-3-git-send-email-benjamin.tissoires@redhat.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 3/5] i2c: emev2: add driver
+Date: Tue, 07 Jul 2015 21:40:30 +0300
+Message-ID: <8117172.9hfShvmdlS@avalon>
+References: <1436219188-4325-1-git-send-email-wsa@the-dreams.de> <1436219188-4325-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1435085899-11017-3-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1436219188-4325-4-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Benjamin,
+Hi Wolfram,
 
-On Tue, 23 Jun 2015 14:58:19 -0400, Benjamin Tissoires wrote:
-> The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
-> in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
-> 
-> Implement .toggle_smbus_host_notify() and rely on .alert() to notify
-> the actual client that it has a notification.
-> 
-> With a T440s and a Synaptics touchpad that implements Host Notify, the
-> payload data is always 0x0000, so I am not sure if the device actually
-> sends the payload or if there is a problem regarding the implementation.
-> 
-> Part of this code is inspired by i2c-smbus.c.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Thank you for the patch.
 
-An explanation on why a fifo is needed would be good to add, as I can't
-see any obvious reason.
-
-No time for a full review but just a few random comments.
-
+On Monday 06 July 2015 23:46:07 Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> Add a basic driver for the Renesas EMEV2 SoC. Based on the driver from
+> the BSP which was first worked on by Ian, and made ready for upstream by
+> me.
+> 
+> Signed-off-by: Ian Molton <ian.molton@codethink.co.uk>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > ---
->  drivers/i2c/busses/i2c-i801.c | 223 +++++++++++++++++++++++++++++++++---------
->  drivers/i2c/i2c-core.c        |  34 +++++++
->  drivers/i2c/i2c-smbus.c       |  17 +---
->  include/linux/i2c.h           |   3 +
->  4 files changed, 217 insertions(+), 60 deletions(-)
-
-You really shouldn't mix core changes with driver specific changes.
-Anyone should be able to backport the core changes alone, and then add
-support to a different bus driver, without drawing in the i2c-i801
-specific changes (that may not be needed and may not even apply.)
-
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 5ecbb3f..22a3218 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> (...)
-> @@ -221,6 +233,17 @@ struct i801_priv {
->  	const struct i801_mux_config *mux_drvdata;
->  	struct platform_device *mux_pdev;
->  #endif
+>  drivers/i2c/busses/Kconfig     |   7 +
+>  drivers/i2c/busses/Makefile    |   1 +
+>  drivers/i2c/busses/i2c-emev2.c | 334 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 342 insertions(+)
+>  create mode 100644 drivers/i2c/busses/i2c-emev2.c
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 2255af23b9c70e..503abb64861f37 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -516,6 +516,13 @@ config I2C_EG20T
+>  	  ML7213/ML7223/ML7831 is companion chip for Intel Atom E6xx series.
+>  	  ML7213/ML7223/ML7831 is completely compatible for Intel EG20T PCH.
+> 
+> +config I2C_EMEV2
+> +	tristate "EMMA Mobile series I2C adapter"
+> +	depends on HAVE_CLK
+> +	help
+> +	  If you say yes to this option, support will be included for the
+> +	  I2C interface on the Renesas Electronics EM/EV family of processors.
 > +
-> +	bool host_notify_requested;
-> +	struct work_struct host_notify;
-> +	struct kfifo host_notify_fifo;
+>  config I2C_EXYNOS5
+>  	tristate "Exynos5 high-speed I2C driver"
+>  	depends on ARCH_EXYNOS && OF
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> index cdf941da91c65e..73f1145da5b4c8 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -48,6 +48,7 @@ i2c-designware-pci-objs := i2c-designware-pcidrv.o
+>  obj-$(CONFIG_I2C_DIGICOLOR)	+= i2c-digicolor.o
+>  obj-$(CONFIG_I2C_EFM32)		+= i2c-efm32.o
+>  obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
+> +obj-$(CONFIG_I2C_EMEV2)		+= i2c-emev2.o
+>  obj-$(CONFIG_I2C_EXYNOS5)	+= i2c-exynos5.o
+>  obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
+>  obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
+> diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
+> new file mode 100644
+> index 00000000000000..baa88fc5ff05e5
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-emev2.c
+> @@ -0,0 +1,334 @@
+> +/*
+> + * I2C driver for the Renesas EMEV2 SoC
+> + *
+> + * Copyright (C) 2015 Wolfram Sang <wsa@sang-engineering.com>
+> + * Copyright 2013 Codethink Ltd.
+> + * Copyright 2010-2015 Renesas Electronics Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2
+> + * as published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/completion.h>
+> +#include <linux/device.h>
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/of_device.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/sched.h>
+> +
+> +/* I2C Registers */
+> +#define I2C_OFS_IICACT0		0x00	/* start */
+> +#define I2C_OFS_IIC0		0x04	/* shift */
+> +#define I2C_OFS_IICC0		0x08	/* control */
+> +#define I2C_OFS_SVA0		0x0c	/* slave address */
+> +#define I2C_OFS_IICCL0		0x10	/* clock select */
+> +#define I2C_OFS_IICX0		0x14	/* extension */
+> +#define I2C_OFS_IICS0		0x18	/* status */
+> +#define I2C_OFS_IICSE0		0x1c	/* status For emulation */
+> +#define I2C_OFS_IICF0		0x20	/* IIC flag */
+> +
+> +/* I2C IICACT0 Masks */
+> +#define I2C_BIT_IICE0		0x0001
+> +
+> +/* I2C IICC0 Masks */
+> +#define I2C_BIT_LREL0		0x0040
+> +#define I2C_BIT_WREL0		0x0020
+> +#define I2C_BIT_SPIE0		0x0010
+> +#define I2C_BIT_WTIM0		0x0008
+> +#define I2C_BIT_ACKE0		0x0004
+> +#define I2C_BIT_STT0		0x0002
+> +#define I2C_BIT_SPT0		0x0001
+> +
+> +/* I2C IICCL0 Masks */
+> +#define I2C_BIT_SMC0		0x0008
+> +#define I2C_BIT_DFC0		0x0004
+> +
+> +/* I2C IICSE0 Masks */
+> +#define I2C_BIT_MSTS0		0x0080
+> +#define I2C_BIT_ALD0		0x0040
+> +#define I2C_BIT_EXC0		0x0020
+> +#define I2C_BIT_COI0		0x0010
+> +#define I2C_BIT_TRC0		0x0008
+> +#define I2C_BIT_ACKD0		0x0004
+> +#define I2C_BIT_STD0		0x0002
+> +#define I2C_BIT_SPD0		0x0001
+> +
+> +/* I2C IICF0 Masks */
+> +#define I2C_BIT_STCF		0x0080
+> +#define I2C_BIT_IICBSY		0x0040
+> +#define I2C_BIT_STCEN		0x0002
+> +#define I2C_BIT_IICRSV		0x0001
+> +
+> +struct em_i2c_device {
+> +	void __iomem *base;
+> +	struct i2c_adapter adap;
+> +	struct completion msg_done;
+> +	struct clk *sclk;
 > +};
 > +
-> +#define SMBHSTNTFY_SIZE		8
-> +
-> +struct smbus_host_notify_data {
-> +	u8 addr;
-> +	u16 payload;
->  };
+> +static inline void em_clear_set_bit(struct em_i2c_device *priv, u8 clear,
+> u8 set, u8 reg)
 
-This structure seems generic to the protocol and not specific to the
-Intel 82801 implementation, so it should go to <linux/i2c-smbus.h>.
+Maybe em_i2c_clear_set_bit for consistency ? I'd prefer having the reg 
+argument before clear and set, but maybe that's just me.
 
->  #define FEATURE_SMBUS_PEC	(1 << 0)
-> (...)
-> @@ -801,12 +894,35 @@ static u32 i801_func(struct i2c_adapter *adapter)
->  	       I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_WRITE_I2C_BLOCK |
->  	       ((priv->features & FEATURE_SMBUS_PEC) ? I2C_FUNC_SMBUS_PEC : 0) |
->  	       ((priv->features & FEATURE_I2C_BLOCK_READ) ?
-> -		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0);
-> +		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0) |
-> +	       ((priv->features & FEATURE_HOST_NOTIFY) ?
-> +		I2C_FUNC_SMBUS_HOST_NOTIFY : 0);
-> +}
-> +
-> +static int i801_toggle_host_ntfy(struct i2c_adapter *adapter, bool state)
-
-Probably no longer relevant, but please spell out "notify" completely
-in function and variable names (NTFY in register defines is OK.)
+I would have also introduced em_i2c_read and em_i2c_write. That's entirely up 
+to you.
 
 > +{
-> +	struct i801_priv *priv = i2c_get_adapdata(adapter);
+> +	writeb((readb(priv->base + reg) & ~clear) | set, priv->base + reg);
+> +}
 > +
-> +	if (!(priv->features & FEATURE_HOST_NOTIFY))
-> +		return -EOPNOTSUPP;
+> +static int em_i2c_wait_for_event(struct em_i2c_device *priv)
+> +{
+> +	unsigned long time_left;
+> +	int status;
 > +
-> +	if (state) {
-> +		outb_p(SMBSLVCMD_HST_NTFY_INTREN, SMBSLVCMD(priv));
-> +		/* clear Host Notify bit to allow a new notification */
-> +		outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
-> +	} else {
-> +		outb_p(0, SMBSLVCMD(priv));
+> +	reinit_completion(&priv->msg_done);
+> +
+> +	time_left = wait_for_completion_timeout(&priv->msg_done,
+> priv->adap.timeout);
+> +
+> +	if (!time_left)
+> +		return -ETIMEDOUT;
+> +
+> +	status = readb(priv->base + I2C_OFS_IICSE0);
+> +	return status & I2C_BIT_ALD0 ? -EAGAIN : status;
+> +}
+> +
+> +static void em_i2c_stop(struct em_i2c_device *priv)
+> +{
+> +	/* Send Stop condition */
+> +	em_clear_set_bit(priv, 0, I2C_BIT_SPT0 | I2C_BIT_SPIE0, I2C_OFS_IICC0);
+> +
+> +	/* Wait for stop condition */
+> +	em_i2c_wait_for_event(priv);
+> +}
+> +
+> +static void em_i2c_reset(struct i2c_adapter *adap)
+> +{
+> +	struct em_i2c_device *priv = i2c_get_adapdata(adap);
+> +	int retr;
+> +
+> +	/* If I2C active */
+> +	if (readb(priv->base + I2C_OFS_IICACT0) & I2C_BIT_IICE0) {
+> +		/* Disable I2C operation */
+> +		writeb(0, priv->base + I2C_OFS_IICACT0);
+> +
+> +		retr = 1000;
+> +		while (readb(priv->base + I2C_OFS_IICACT0) == 1 && retr)
+
+How about adding a cpu_relax() here ?
+
+> +			retr--;
+> +		WARN_ON(retr == 0);
 > +	}
 > +
-> +	priv->host_notify_requested = state;
+> +	/* Transfer mode set */
+> +	writeb(I2C_BIT_DFC0, priv->base + I2C_OFS_IICCL0);
 > +
-> +	return 0;
->  }
->  
->  static const struct i2c_algorithm smbus_algorithm = {
-> -	.smbus_xfer	= i801_access,
-> -	.functionality	= i801_func,
-> +	.smbus_xfer			= i801_access,
-> +	.functionality			= i801_func,
-> +	.toggle_smbus_host_notify	= i801_toggle_host_ntfy,
->  };
->  
->  static const struct pci_device_id i801_ids[] = {
-> @@ -1166,6 +1282,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  		priv->features |= FEATURE_BLOCK_BUFFER;
->  		/* fall through */
->  	case PCI_DEVICE_ID_INTEL_82801CA_3:
-> +		priv->features |= FEATURE_HOST_NOTIFY;
+> +	/* Can Issue start without detecting a stop, Reservation disabled. */
+> +	writeb(I2C_BIT_STCEN | I2C_BIT_IICRSV, priv->base + I2C_OFS_IICF0);
+> +
+> +	/* I2C enable, 9 bit interrupt mode */
+> +	writeb(I2C_BIT_WTIM0, priv->base + I2C_OFS_IICC0);
+> +
+> +	/* Enable I2C operation */
+> +	writeb(I2C_BIT_IICE0, priv->base + I2C_OFS_IICACT0);
+> +
+> +	retr = 1000;
+> +	while (readb(priv->base + I2C_OFS_IICACT0) == 0 && retr)
 
-Please add a /* fall through */ comment for consistency and clarity.
+And here too.
 
->  	case PCI_DEVICE_ID_INTEL_82801BA_2:
->  	case PCI_DEVICE_ID_INTEL_82801AB_3:
->  	case PCI_DEVICE_ID_INTEL_82801AA_3:
-> @@ -1250,6 +1367,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  		}
->  	}
->  
-> +	INIT_WORK(&priv->host_notify, i801_host_notify);
-> +	if (kfifo_alloc(&priv->host_notify_fifo,
-> +			SMBHSTNTFY_SIZE * sizeof(struct smbus_host_notify_data),
-> +			GFP_KERNEL)) {
-> +		dev_err(&dev->dev,
-> +			"%s:failed allocating host_notify_fifo\n", __func__);
+> +		retr--;
+> +	WARN_ON(retr == 0);
+> +}
+> +
+> +static int __em_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msg,
+> +				int stop)
+> +{
+> +	struct em_i2c_device *priv = i2c_get_adapdata(adap);
+> +	int count, status;
+> +
+> +	/* Send start condition */
+> +	em_clear_set_bit(priv, 0, I2C_BIT_ACKE0 | I2C_BIT_WTIM0, I2C_OFS_IICC0);
+> +	em_clear_set_bit(priv, 0, I2C_BIT_STT0, I2C_OFS_IICC0);
+> +
+> +	/* Send slave address and R/W type */
+> +	writeb((msg->addr << 1) | ((msg->flags & I2C_M_RD) ? 1 : 0),
+> +		priv->base + I2C_OFS_IIC0);
+> +
+> +	/* Wait for transaction */
+> +	status = em_i2c_wait_for_event(priv);
+> +	if (status < 0)
+> +		goto out_reset;
+> +
+> +	/* Received NACK (result of setting slave address and R/W) */
+> +	if (!(status & I2C_BIT_ACKD0)) {
+> +		em_i2c_stop(priv);
+> +		goto out;
+> +	}
+> +
+> +	/* Extra setup for read transactions */
+> +	if (!(status & I2C_BIT_TRC0)) {
 
-Adding the function name does not add value. Other messages in this
-driver do not include it, so for consistency do not either. A leading
-capital would be good too. Also kfifo_alloc() returns an actual error
-code, which you should save, include in the error message and return to
-the caller instead of hard-coding -ENOMEM.
+How about checking msg->flags & I2C_M_RD here ? It should be equivalent but 
+would make the code more readable by not requiring knowledge of the hardware. 
+Same for the check in the loop below.
 
-I think priv->host_notify_fifo is leaked if i801_probe() fails later on.
+> +		/* 8 bit interrupt mode */
+> +		em_clear_set_bit(priv, I2C_BIT_WTIM0, I2C_BIT_ACKE0, I2C_OFS_IICC0);
+> +		em_clear_set_bit(priv, I2C_BIT_WTIM0, I2C_BIT_WREL0, I2C_OFS_IICC0);
+> +
+> +		/* Wait for transaction */
+> +		status = em_i2c_wait_for_event(priv);
+> +		if (status < 0)
+> +			goto out_reset;
+> +	}
+> +
+> +	/* Send / receive data */
+> +	for (count = 0; count < msg->len; count++) {
+> +		if (!(status & I2C_BIT_TRC0)) { /* Read transaction */
+> +			msg->buf[count] = readb(priv->base + I2C_OFS_IIC0);
+> +			em_clear_set_bit(priv, 0, I2C_BIT_WREL0, I2C_OFS_IICC0);
+> +
+> +		} else { /* Write transaction */
+> +			/* Received NACK */
+> +			if (!(status & I2C_BIT_ACKD0)) {
+> +				em_i2c_stop(priv);
+> +				goto out;
+> +			}
+> +
+> +			/* Write data */
+> +			writeb(msg->buf[count], priv->base + I2C_OFS_IIC0);
+> +		}
+> +
+> +		/* Wait for R/W transaction */
+> +		status = em_i2c_wait_for_event(priv);
+> +		if (status < 0)
+> +			goto out_reset;
+> +	}
+> +
+> +	if (stop)
+> +		em_i2c_stop(priv);
+> +
+> +	return count;
+> +
+> +out_reset:
+> +	em_i2c_reset(adap);
+> +out:
+> +	return status < 0 ? status : -ENXIO;
+> +}
+> +
+> +static int em_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+> +	int num)
+> +{
+> +	struct em_i2c_device *priv = i2c_get_adapdata(adap);
+> +	int ret, i;
+> +
+> +	if (readb(priv->base + I2C_OFS_IICF0) & I2C_BIT_IICBSY)
+> +		return -EAGAIN;
+> +
+> +	for (i = 0; i < num; i++) {
+> +		ret = __em_i2c_xfer(adap, &msgs[i], (i == (num - 1)));
+> +		if (ret < 0)
+> +			return ret;
+> +	}
+> +
+> +	/* I2C transfer completed */
+> +	return num;
+> +}
+> +
+> +static irqreturn_t em_i2c_irq_handler(int this_irq, void *dev_id)
+> +{
+> +	struct em_i2c_device *priv = dev_id;
+> +
+> +	complete(&priv->msg_done);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static u32 em_i2c_func(struct i2c_adapter *adap)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
+> +
+> +static struct i2c_algorithm em_i2c_algo = {
+> +	.master_xfer = em_i2c_xfer,
+> +	.functionality = em_i2c_func,
+> +};
+> +
+> +static int em_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct em_i2c_device *priv;
+> +	struct resource *r;
+> +	int irq, ret;
+> +
+> +	priv = devm_kzalloc(&pdev->dev, sizeof(struct em_i2c_device), 
+GFP_KERNEL);
 
+I'd use sizeof(*priv).
+
+> +	if (!priv)
 > +		return -ENOMEM;
-> +	}
 > +
->  	if (priv->features & FEATURE_IRQ) {
->  		init_waitqueue_head(&priv->waitq);
->  
-> @@ -1292,6 +1418,9 @@ static void i801_remove(struct pci_dev *dev)
->  {
->  	struct i801_priv *priv = pci_get_drvdata(dev);
->  
-> +	cancel_work_sync(&priv->host_notify);
-> +	kfifo_free(&priv->host_notify_fifo);
+> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	priv->base = devm_ioremap_resource(&pdev->dev, r);
+> +	if (IS_ERR(priv->base))
+> +		return PTR_ERR(priv->base);
 > +
->  	i801_del_mux(priv);
->  	i2c_del_adapter(&priv->adapter);
->  	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
-> @@ -1315,8 +1444,12 @@ static int i801_suspend(struct pci_dev *dev, pm_message_t mesg)
->  
->  static int i801_resume(struct pci_dev *dev)
->  {
-> +	struct i801_priv *priv = pci_get_drvdata(dev);
+> +	strlcpy(priv->adap.name, "EMEV2 I2C", sizeof(priv->adap.name));
 > +
->  	pci_set_power_state(dev, PCI_D0);
->  	pci_restore_state(dev);
-> +	if (priv->host_notify_requested)
-> +		i801_toggle_host_ntfy(&priv->adapter, true);
->  	return 0;
->  }
->  #else
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index eaaf5b0..87904ec 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -2145,6 +2145,40 @@ int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
->  EXPORT_SYMBOL(i2c_master_send);
->  
->  /**
-> + * i2c_alert - call an alert for the given i2c_client.
-> + * @client: Handle to slave device
-> + * @data: Payload data that will be sent to the slave
+> +	priv->sclk = devm_clk_get(&pdev->dev, "sclk");
+> +	if (IS_ERR(priv->sclk))
+> +		return PTR_ERR(priv->sclk);
+> +
+> +	clk_prepare_enable(priv->sclk);
+> +
+> +	irq = platform_get_irq(pdev, 0);
 
-Actually this is data that was received from the "slave" device
-(temporarily acting as a master), if I understand how Host Notify works.
+I'd move this call right before devm_request_irq() below. devm_request_irq() 
+should handle invalid IRQs, but won't print an error message. I'd let you 
+decide whether that's a problem.
 
-> + *
-> + * Returns negative errno, or 0.
-> + */
-> +int i2c_alert(struct i2c_client *client, unsigned int data)
+> +	priv->adap.timeout = msecs_to_jiffies(100);
+> +	priv->adap.retries = 5;
+
+Is there a particular reason for setting the number of retries to 5 ?
+
+> +	priv->adap.dev.parent = &pdev->dev;
+> +	priv->adap.algo = &em_i2c_algo;
+> +	priv->adap.owner = THIS_MODULE;
+> +	priv->adap.dev.of_node = pdev->dev.of_node;
+> +
+> +	init_completion(&priv->msg_done);
+> +
+> +	platform_set_drvdata(pdev, priv);
+> +	i2c_set_adapdata(&priv->adap, priv);
+> +
+> +	em_i2c_reset(&priv->adap);
+> +
+> +	ret = devm_request_irq(&pdev->dev, irq, em_i2c_irq_handler, 0,
+> +				"em_i2c", priv);
+> +	if (ret)
+> +		goto exit_clk;
+
+Nitpicking, I'd call this error_clk to show that the label is used in case of 
+error only. You could also just call it error as there's no other error-
+related label.
+
+> +
+> +	ret = i2c_add_adapter(&priv->adap);
+> +
+> +	if (ret)
+> +		goto exit_clk;
+> +
+> +	dev_info(&pdev->dev, "Added i2c controller %d irq %d @ 0x%p\n",
+> +		priv->adap.nr, irq, priv->base);
+
+Is priv->base useful here ? The physical address of the registers block could 
+be, but its kernel virtual address doesn't seem very interesting to me.
+
+> +
+> +	return 0;
+> +
+> +exit_clk:
+> +	clk_disable_unprepare(priv->sclk);
+> +	return ret;
+> +}
+> +
+> +static int em_i2c_remove(struct platform_device *dev)
 > +{
-> +	struct i2c_driver *driver;
+> +	struct em_i2c_device *priv = platform_get_drvdata(dev);
 > +
-> +	if (!client)
-> +		return -EINVAL;
-
-Do you actually need to check for that? It seems redundant with the
-check in smbus_do_alert().
-
-> +
-> +	/*
-> +	 * Drivers should either disable alerts, or provide at least
-> +	 * a minimal handler.  Lock so the driver won't change.
-> +	 */
-> +	device_lock(&client->adapter->dev);
-> +	if (client->dev.driver) {
-> +		driver = to_i2c_driver(client->dev.driver);
-> +		if (driver->alert)
-> +			driver->alert(client, data);
-
-So you use the same driver callback for SMBus Alert and SMBus Host
-Notify. This makes some sense, but if a given driver supports both, how
-does it know which event happened? The data is completely different and
-most probably the action required from the driver as well.
-
-> +		else
-> +			dev_warn(&client->dev, "no driver alert()!\n");
-> +	} else
-> +		dev_dbg(&client->dev, "alert with no driver\n");
-> +	device_unlock(&client->adapter->dev);
+> +	i2c_del_adapter(&priv->adap);
+> +	clk_disable_unprepare(priv->sclk);
 > +
 > +	return 0;
 > +}
-> +EXPORT_SYMBOL_GPL(i2c_alert);
 > +
+> +static const struct of_device_id em_i2c_ids[] = {
+> +	{ .compatible = "renesas,iic-emev2", },
+> +	{ }
+> +};
 > +
-
-Please avoid duplicate blank lines.
-
-> +/**
->   * i2c_master_recv - issue a single I2C message in master receive mode
->   * @client: Handle to slave device
->   * @buf: Where to store data read from slave
-> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> index 9ebf9cb..26439a8 100644
-> --- a/drivers/i2c/i2c-smbus.c
-> +++ b/drivers/i2c/i2c-smbus.c
-> @@ -41,27 +41,14 @@ static int smbus_do_alert(struct device *dev, void *addrp)
->  {
->  	struct i2c_client *client = i2c_verify_client(dev);
->  	struct alert_data *data = addrp;
-> -	struct i2c_driver *driver;
->  
->  	if (!client || client->addr != data->addr)
->  		return 0;
->  	if (client->flags & I2C_CLIENT_TEN)
->  		return 0;
->  
-> -	/*
-> -	 * Drivers should either disable alerts, or provide at least
-> -	 * a minimal handler.  Lock so the driver won't change.
-> -	 */
-> -	device_lock(dev);
-> -	if (client->dev.driver) {
-> -		driver = to_i2c_driver(client->dev.driver);
-> -		if (driver->alert)
-> -			driver->alert(client, data->flag);
-> -		else
-> -			dev_warn(&client->dev, "no driver alert()!\n");
-> -	} else
-> -		dev_dbg(&client->dev, "alert with no driver\n");
-> -	device_unlock(dev);
-> +	if (i2c_alert(client, data->flag))
-> +		return 0;
->  
->  	/* Stop iterating after we find the device */
->  	return -EBUSY;
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 7ffc970..fbca48a 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -72,6 +72,9 @@ extern int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  extern int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  			  int num);
->  
-> +/* call an alert. */
-
-What a vague comment :(
-
-> +extern int i2c_alert(struct i2c_client *client, unsigned int data);
+> +static struct platform_driver em_i2c_driver = {
+> +	.probe = em_i2c_probe,
+> +	.remove = em_i2c_remove,
+> +	.driver = {
+> +		.name = "em-i2c",
+> +		.of_match_table = em_i2c_ids,
+> +	}
+> +};
+> +module_platform_driver(em_i2c_driver);
 > +
->  /* This is the very generalized SMBus access routine. You probably do not
->     want to use this, though; one of the functions below may be much easier,
->     and probably just as fast.
+> +MODULE_DESCRIPTION("EMEV2 I2C bus driver");
+> +MODULE_AUTHOR("Ian Molton and Wolfram Sang <wsa@sang-engineering.com>");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_DEVICE_TABLE(of, em_i2c_ids);
 
 -- 
-Jean Delvare
-SUSE L3 Support
+Regards,
+
+Laurent Pinchart
+
