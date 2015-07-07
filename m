@@ -1,80 +1,55 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH v2 5/5] i2c: davinci: use ICPFUNC to toggle I2C as gpio
- for bus recovery
-Date: Tue, 7 Jul 2015 17:53:59 +0300
-Message-ID: <559BE807.2030802@ti.com>
-References: <1417010393-30598-1-git-send-email-grygorii.strashko@ti.com>
- <1417010393-30598-6-git-send-email-grygorii.strashko@ti.com>
- <20141126160407.GN4431@pengutronix.de> <5476085B.40009@ti.com>
- <1436276269.3344.94.camel@pengutronix.de>
- <20150707134852.GE9671@pengutronix.de> <20150707141312.GC3411@katana>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-tools: Implement Module.mk for eeprog subdir
+Date: Tue, 7 Jul 2015 17:22:33 +0200
+Message-ID: <20150707172233.54abcc72@endymion.delvare>
+References: <1435601687-6177-1-git-send-email-matwey.kornilov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20150707141312.GC3411@katana>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig@pengutronix.de>
-Cc: devicetree@vger.kernel.org, =?UTF-8?B?SmFuIEzDvGJiZQ==?= <jlu@pengutronix.de>, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>, Sekhar Nori <nsekhar@ti.com>, linux-kernel@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, linux-i2c@vger.kernel.org, Mike Looijmans <milo-software@users.sourceforge.net>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1435601687-6177-1-git-send-email-matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Matwey V. Kornilov" <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, npajkovs-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDcvMDcvMjAxNSAwNToxMyBQTSwgV29sZnJhbSBTYW5nIHdyb3RlOgo+IE9uIFR1ZSwgSnVs
-IDA3LCAyMDE1IGF0IDAzOjQ4OjUyUE0gKzAyMDAsIFV3ZSBLbGVpbmUtS8O2bmlnIHdyb3RlOgoK
-Pj4gT24gVHVlLCBKdWwgMDcsIDIwMTUgYXQgMDM6Mzc6NDlQTSArMDIwMCwgSmFuIEzDvGJiZSB3
-cm90ZToKPj4+IE9uIE1pLCAyMDE0LTExLTI2IGF0IDE5OjA1ICswMjAwLCBHcnlnb3JpaSBTdHJh
-c2hrbyB3cm90ZToKPj4+PiBPbiAxMS8yNi8yMDE0IDA2OjA0IFBNLCBVd2UgS2xlaW5lLUvDtm5p
-ZyB3cm90ZToKPj4+Pj4gT24gV2VkLCBOb3YgMjYsIDIwMTQgYXQgMDM6NTk6NTNQTSArMDIwMCwg
-R3J5Z29yaWkgU3RyYXNoa28gd3JvdGU6Cj4+Pj4+PiBIYXZpbmcgYSBib2FyZCB3aGVyZSB0aGUg
-STJDIGJ1cyBsb2NrcyB1cCBvY2Nhc2lvbmFsbHkgbWFkZSBpdCBjbGVhcgo+Pj4+Pj4gdGhhdCB0
-aGUgYnVzIHJlY292ZXJ5IGluIHRoZSBpMmMtZGF2aW5jaSBkcml2ZXIgd2lsbCBvbmx5IHdvcmsg
-b24KPj4+Pj4+IHNvbWUgYm9hcmRzLCBiZWNhdXNlIG9uIHJlZ3VsYXIgYm9hcmRzLCB0aGlzIHdp
-bGwgb25seSB0b2dnbGUgR1BJTwo+Pj4+Pj4gbGluZXMgdGhhdCBhcmVuJ3QgbXV4ZWQgdG8gdGhl
-IGFjdHVhbCBwaW5zLgo+Pj4+Pj4KPj4+Pj4+IFRoZSBJMkMgY29udHJvbGxlciBvbiBTb0NzIGxp
-a2UgZGE4NTAgKGFuZCBkYTgzMCksIEtleXN0b25lIDIgaGFzIHRoZQo+Pj4+Pj4gYnVpbHQtaW4g
-Y2FwYWJpbGl0eSB0byBiaXQtYmFuZyBpdHMgbGluZXMgYnkgdXNpbmcgdGhlIElDUEZVTkMgcmVn
-aXN0ZXJzCj4+Pj4+PiBvZiB0aGUgaTJjIGNvbnRyb2xsZXIuCj4+Pj4+PiBJbXBsZW1lbnQgdGhl
-IHN1Z2dlc3RlZCBwcm9jZWR1cmUgYnkgdG9nZ2xpbmcgU0NMIGFuZCBjaGVja2luZyBTREEgdXNp
-bmcKPj4+Pj4+IHRoZSBJQ1BGVU5DIHJlZ2lzdGVycyBvZiB0aGUgSTJDIGNvbnRyb2xsZXIgd2hl
-biBwcmVzZW50LiBBbGxvdyBwbGF0Zm9ybXMKPj4+Pj4+IHRvIGluZGljYXRlIHRoZSBwcmVzZW5j
-ZSBvZiB0aGUgSUNQRlVOQyByZWdpc3RlcnMgd2l0aCBhIGhhc19wZnVuYyBwbGF0Zm9ybQo+Pj4+
-Pj4gZGF0YSBmbGFnIGFuZCBhZGQgb3B0aW9uYWwgRFQgcHJvcGVydHkgInRpLGhhcy1wZnVuYyIg
-dG8gaW5kaWNhdGUKPj4+Pj4+IHRoZSBzYW1lIGluIERULgo+Pj4+PiBPbiB3aGF0IGRvZXMgaXQg
-ZGVwZW5kIGlmIHRoaXMgcGZ1bmMgc3R1ZmYgd29ya3Mgb3Igbm90PyBPbmx5IHRoZSBTb0MsCj4+
-Pj4+IG9yIGFsc28gb24gc29tZSBib2FyZCBzcGVjaWZpYyBwcm9wZXJ0aWVzPwo+Pj4+Cj4+Pj4g
-U29DIC8gc2V0IG9mIFNvQ3MuIEFsc28sIHNpbWlsYXIgZmVhdHVyZSBpcyBzdXBwb3J0ZWQgYnkg
-T01BUCBhbmQgQU0zMzV4L0FNNDM3eCBTb0NzCj4+Pj4gdXNpbmcgSTJDX1NZU1RFU1QgcmVnaXN0
-ZXIuCj4+Pj4KPj4+Pj4gR2l2ZW4gdGhlIGZvcm1lciB1c2luZyB0aGUKPj4+Pj4gY29tcGF0aWJs
-ZSBzdHJpbmcgdG8gZGV0ZWN0IGl0cyBhdmFpbGFiaWxpdHkgd291bGQgYmUgYmV0dGVyLiAoSW4g
-dGhpcwo+Pj4+PiBjYXNlIGFsc28gc29ycnksIGRpZG4ndCBjb25zaWRlciB0aGlzIGNhc2Ugd2hl
-biByZXF1ZXN0aW5nIHRoZSBwcm9wZXJ0eQo+Pj4+PiBpbiB0aGUgbGFzdCByb3VuZC4pCj4+Pgo+
-Pj4gSSBvbmx5IHN0dW1ibGVkIGFjcm9zcyB0aGlzIGFmdGVyIGl0IHdhcyBtZXJnZWQsIHdpdGgg
-dGhlIGFkZGl0aW9uYWwKPj4gSSBhbHNvIHdvbmRlciBob3cgaXQgY2FtZSB0byB0aGUgUmV2aWV3
-ZWQtYnkgdGFnIGZvciBtZS4gVGhlIGxhc3QgdGhpbmcKPj4gdGhhdCBJIHNhaWQgYWJvdXQgdGhl
-IHBhdGNoIHdhcyAiT24gd2hhdCBkb2VzIGl0IGRlcGVuZCBpZiB0aGlzIHBmdW5jCj4+IHN0dWZm
-IHdvcmtzIG9yIG5vdD8gT25seSB0aGUgU29DLCBvciBhbHNvIG9uIHNvbWUgYm9hcmQgc3BlY2lm
-aWMKPj4gcHJvcGVydGllcz8iIChzZWUgYWJvdmUpIGFuZCAidGhlIHBhdGNoIGxvb2tzIG9rIi4g
-SU1ITyB0aGlzIGhhcmRseQo+PiBqdXN0aWZpZXMgdG8gYWRkIHRoZSBSZXZpZXdlZC1ieSB0YWcg
-Zm9yIHRoZSBuZXh0IHJvdW5kLiA6LSgKPiAKPiBUaGF0IG5lZWRzIHRvIGJlIGRpc2N1c3NlZCB3
-aXRoIEdyeWdvcmlpLiBJIGNhbid0IHZlcmlmeSB0aGUgY29ycmVjdG5lc3MKPiBvZiB0YWdzIGZv
-ciBldmVyeSBwYXRjaCwgYWx0aG91Z2ggSSBkbyB0cnkgdG8ga2VlcCBhbiBleWUgb24gaXQuLi4K
-PiAKClJlZ2FyZGluZyAidGhlIHBhdGNoIGxvb2tzIG9rIiAtIHNpbmNlcmVseSBzb3JyeSEKVGhp
-cyBpcyBub3QgdGhlIGZpcnN0IHRpbWUgSSd2ZSB0cmVhdGVkICJsb29rcyBnb29kLi4iIGFzIFJl
-dmlld2VkLWJ5IGFuZCBJIGdvdCBubyBjb21wbGFpbnRzIGJlZm9yZSA6KApXaWxsIHRha2UgaXQg
-aW50byBhY2NvdW50LgoKClJlZ2FyZGluZyB0ZWNobmljYWwgY29tbWVudHM6Ck9LLiBTZWVtcyBJ
-IG1pc3NlZCBzbXRoLiBvciB1bmRlcnN0b29kIHdyb25nbHkuClNvLCBJJ2xsIHNheSB3aGF0J3Mg
-cGVvcGxlIHVzdWFsbHkgc2F5aW5nIGhlcmUgLSBTb3JyeSBmb3IgdGhhdCA6KApCdXQsIHRvIGJl
-IGhvbmVzdCBJIGRvbid0IGZlZWwgZ3VpbHR5LCBiZWNhdXNlOgotIHY0IG9mIHRoZXNlIHBhdGNo
-ZXMgd2FzIG1lcmdlZCBmaW5hbGx5Ci0gdGhhdCB2NCBtaXNzZWQgPjIga2VybmVsIHJlbGVhc2Vz
-Ci0geW91IHdlcmUgYWRkZWQgaW4gIlRPOiIgZm9yIGFsbCB2ZXJzaW9ucyBvZiB0aGVzZSBwYXRj
-aGVzLgoKLS0gCnJlZ2FyZHMsCi1ncnlnb3JpaQoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgt
-YXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3Jn
-L21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+Hi Matwey,
+
+On Mon, 29 Jun 2015 21:14:47 +0300, Matwey V. Kornilov wrote:
+> Move eeprog to separate subdir and implement Module.mk for it
+> 
+> Signed-off-by: Matwey V. Kornilov <matwey.kornilov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  eeprog/24cXX.c         | 185 ++++++++++++++++++++++++++++++++
+>  eeprog/24cXX.h         |  58 ++++++++++
+>  eeprog/Module.mk       |  67 ++++++++++++
+>  eeprog/README.eeprog   |  12 +++
+>  eeprog/eeprog.8        | 103 ++++++++++++++++++
+>  eeprog/eeprog.c        | 283 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  eepromer/24cXX.c       | 185 --------------------------------
+>  eepromer/24cXX.h       |  58 ----------
+>  eepromer/Makefile      |   6 +-
+>  eepromer/README.eeprog |  12 ---
+>  eepromer/eeprog.8      | 103 ------------------
+>  eepromer/eeprog.c      | 283 -------------------------------------------------
+>  12 files changed, 710 insertions(+), 645 deletions(-)
+>  create mode 100644 eeprog/24cXX.c
+>  create mode 100644 eeprog/24cXX.h
+>  create mode 100644 eeprog/Module.mk
+>  create mode 100644 eeprog/README.eeprog
+>  create mode 100644 eeprog/eeprog.8
+>  create mode 100644 eeprog/eeprog.c
+>  delete mode 100644 eepromer/24cXX.c
+>  delete mode 100644 eepromer/24cXX.h
+>  delete mode 100644 eepromer/README.eeprog
+>  delete mode 100644 eepromer/eeprog.8
+>  delete mode 100644 eepromer/eeprog.c
+
+The patch does not apply to SVN, not sure how you generated it.
+
+No big deal, I get the idea, I'll redo it myself. Some SVN magic is
+needed to handle file moves properly anyway.
+
+-- 
+Jean Delvare
+SUSE L3 Support
