@@ -1,189 +1,58 @@
-From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 04/10] drm: imx-tve: use of_get_i2c_adapter_by_node interface
-Date: Wed, 8 Jul 2015 15:59:43 +0300
-Message-ID: <1436360383-9327-1-git-send-email-vladimir_zapolskiy@mentor.com>
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Subject: [PATCH 06/10] drm: sti_hdmi: use of_get_i2c_adapter_by_node interface
+Date: Wed, 8 Jul 2015 15:59:56 +0300
+Message-ID: <1436360396-9417-1-git-send-email-vladimir_zapolskiy@mentor.com>
 References: <1436360095-9065-1-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1436360095-9065-1-git-send-email-vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <1436360095-9065-1-git-send-email-vladimir_zapolskiy@mentor.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: David Airlie <airlied@linux.ie>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Arnaud Pouliquen <arnaud.pouliquen@st.com>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Thierry Reding <treding@nvidia.com>, Ajay Kumar <ajaykumar.rs@samsung.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-This change is needed to properly lock I2C bus driver, which serves DDC.
-
-Note that prior to this change put_device() coupled with
-of_find_i2c_adapter_by_node() is missing on imx_tve_bind() error path
-and imx_tve_unbind(), also the change fixes possibly left enabled voltage
-regulator on imx_tve_bind() error path.
-
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
----
- drivers/gpu/drm/imx/imx-tve.c | 56 +++++++++++++++++++++++++++++--------------
- 1 file changed, 38 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
-index 214ecee..f1ac927 100644
---- a/drivers/gpu/drm/imx/imx-tve.c
-+++ b/drivers/gpu/drm/imx/imx-tve.c
-@@ -581,14 +581,15 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 
- 	ddc_node = of_parse_phandle(np, "ddc-i2c-bus", 0);
- 	if (ddc_node) {
--		tve->ddc = of_find_i2c_adapter_by_node(ddc_node);
-+		tve->ddc = of_get_i2c_adapter_by_node(ddc_node);
- 		of_node_put(ddc_node);
- 	}
- 
- 	tve->mode = of_get_tve_mode(np);
- 	if (tve->mode != TVE_MODE_VGA) {
- 		dev_err(dev, "only VGA mode supported, currently\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto i2c_release;
- 	}
- 
- 	if (tve->mode == TVE_MODE_VGA) {
-@@ -597,7 +598,7 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 
- 		if (ret < 0) {
- 			dev_err(dev, "failed to get vsync pin\n");
--			return ret;
-+			goto i2c_release;
- 		}
- 
- 		ret |= of_property_read_u32(np, "fsl,vsync-pin",
-@@ -605,14 +606,16 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 
- 		if (ret < 0) {
- 			dev_err(dev, "failed to get vsync pin\n");
--			return ret;
-+			goto i2c_release;
- 		}
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	base = devm_ioremap_resource(dev, res);
--	if (IS_ERR(base))
--		return PTR_ERR(base);
-+	if (IS_ERR(base)) {
-+		ret = PTR_ERR(base);
-+		goto i2c_release;
-+	}
- 
- 	tve_regmap_config.lock_arg = tve;
- 	tve->regmap = devm_regmap_init_mmio_clk(dev, "tve", base,
-@@ -620,13 +623,15 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 	if (IS_ERR(tve->regmap)) {
- 		dev_err(dev, "failed to init regmap: %ld\n",
- 			PTR_ERR(tve->regmap));
--		return PTR_ERR(tve->regmap);
-+		ret = PTR_ERR(tve->regmap);
-+		goto i2c_release;
- 	}
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
- 		dev_err(dev, "failed to get irq\n");
--		return irq;
-+		ret = irq;
-+		goto i2c_release;
- 	}
- 
- 	ret = devm_request_threaded_irq(dev, irq, NULL,
-@@ -634,7 +639,7 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 					"imx-tve", tve);
- 	if (ret < 0) {
- 		dev_err(dev, "failed to request irq: %d\n", ret);
--		return ret;
-+		goto i2c_release;
- 	}
- 
- 	tve->dac_reg = devm_regulator_get(dev, "dac");
-@@ -642,14 +647,15 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 		regulator_set_voltage(tve->dac_reg, 2750000, 2750000);
- 		ret = regulator_enable(tve->dac_reg);
- 		if (ret)
--			return ret;
-+			goto i2c_release;
- 	}
- 
- 	tve->clk = devm_clk_get(dev, "tve");
- 	if (IS_ERR(tve->clk)) {
- 		dev_err(dev, "failed to get high speed tve clock: %ld\n",
- 			PTR_ERR(tve->clk));
--		return PTR_ERR(tve->clk);
-+		ret = PTR_ERR(tve->clk);
-+		goto regulator_release;
- 	}
- 
- 	/* this is the IPU DI clock input selector, can be parented to tve_di */
-@@ -657,36 +663,48 @@ static int imx_tve_bind(struct device *dev, struct device *master, void *data)
- 	if (IS_ERR(tve->di_sel_clk)) {
- 		dev_err(dev, "failed to get ipu di mux clock: %ld\n",
- 			PTR_ERR(tve->di_sel_clk));
--		return PTR_ERR(tve->di_sel_clk);
-+		ret = PTR_ERR(tve->di_sel_clk);
-+		goto regulator_release;
- 	}
- 
- 	ret = tve_clk_init(tve, base);
- 	if (ret < 0)
--		return ret;
-+		goto regulator_release;
- 
- 	ret = regmap_read(tve->regmap, TVE_COM_CONF_REG, &val);
- 	if (ret < 0) {
- 		dev_err(dev, "failed to read configuration register: %d\n",
- 			ret);
--		return ret;
-+		goto regulator_release;
- 	}
- 	if (val != 0x00100000) {
--		dev_err(dev, "configuration register default value indicates this is not a TVEv2\n");
--		return -ENODEV;
-+		dev_err(dev,
-+			"configuration register default value indicates this is not a TVEv2\n");
-+		ret = -ENODEV;
-+		goto regulator_release;
- 	}
- 
- 	/* disable cable detection for VGA mode */
- 	ret = regmap_write(tve->regmap, TVE_CD_CONT_REG, 0);
- 	if (ret)
--		return ret;
-+		goto regulator_release;
- 
- 	ret = imx_tve_register(drm, tve);
- 	if (ret)
--		return ret;
-+		goto regulator_release;
- 
- 	dev_set_drvdata(dev, tve);
- 
- 	return 0;
-+
-+ regulator_release:
-+	if (!IS_ERR(tve->dac_reg))
-+		regulator_disable(tve->dac_reg);
-+
-+ i2c_release:
-+	i2c_put_adapter(tve->ddc);
-+
-+	return ret;
- }
- 
- static void imx_tve_unbind(struct device *dev, struct device *master,
-@@ -699,6 +717,8 @@ static void imx_tve_unbind(struct device *dev, struct device *master,
- 
- 	if (!IS_ERR(tve->dac_reg))
- 		regulator_disable(tve->dac_reg);
-+
-+	i2c_put_adapter(tve->ddc);
- }
- 
- static const struct component_ops imx_tve_ops = {
--- 
-2.1.4
+VGhpcyBjaGFuZ2UgaXMgbmVlZGVkIHRvIHByb3Blcmx5IGxvY2sgSTJDIGJ1cyBkcml2ZXIsIHdo
+aWNoIHNlcnZlcyBEREMuCgpPbiByZWxlYXNlIG9mX2dldF9pMmNfYWRhcHRlcl9ieV9ub2RlKCkg
+cmVxdWlyZXMgaTJjX3B1dF9hZGFwdGVyKCkgY2FsbC4KCk5vdGUsIHRoYXQgcHJpb3IgdG8gdGhl
+IGNoYW5nZSBwdXRfZGV2aWNlKCkgY291cGxlZCB3aXRoCm9mX2ZpbmRfaTJjX2FkYXB0ZXJfYnlf
+bm9kZSgpIHdhcyBpbmNvcnJlY3RseSBwbGFjZWQgdG8gc3RpX2hkbWlfcmVtb3ZlKCkKaW5zdGVh
+ZCBvZiBzdGlfaGRtaV91bmJpbmQoKS4KClNpZ25lZC1vZmYtYnk6IFZsYWRpbWlyIFphcG9sc2tp
+eSA8dmxhZGltaXJfemFwb2xza2l5QG1lbnRvci5jb20+Ci0tLQogZHJpdmVycy9ncHUvZHJtL3N0
+aS9zdGlfaGRtaS5jIHwgMTkgKysrKysrKy0tLS0tLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDcg
+aW5zZXJ0aW9ucygrKSwgMTIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
+ZHJtL3N0aS9zdGlfaGRtaS5jIGIvZHJpdmVycy9ncHUvZHJtL3N0aS9zdGlfaGRtaS5jCmluZGV4
+IGYyOGE0ZDUuLjU4MGE0MTMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9zdGkvc3RpX2hk
+bWkuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vc3RpL3N0aV9oZG1pLmMKQEAgLTY5OCwxNCArNjk4
+LDEwIEBAIHN0YXRpYyBpbnQgc3RpX2hkbWlfYmluZChzdHJ1Y3QgZGV2aWNlICpkZXYsIHN0cnVj
+dCBkZXZpY2UgKm1hc3Rlciwgdm9pZCAqZGF0YSkKIAogCWRkYyA9IG9mX3BhcnNlX3BoYW5kbGUo
+ZGV2LT5vZl9ub2RlLCAiZGRjIiwgMCk7CiAJaWYgKGRkYykgewotCQloZG1pLT5kZGNfYWRhcHQg
+PSBvZl9maW5kX2kyY19hZGFwdGVyX2J5X25vZGUoZGRjKTsKLQkJaWYgKCFoZG1pLT5kZGNfYWRh
+cHQpIHsKLQkJCWVyciA9IC1FUFJPQkVfREVGRVI7Ci0JCQlvZl9ub2RlX3B1dChkZGMpOwotCQkJ
+cmV0dXJuIGVycjsKLQkJfQotCisJCWhkbWktPmRkY19hZGFwdCA9IG9mX2dldF9pMmNfYWRhcHRl
+cl9ieV9ub2RlKGRkYyk7CiAJCW9mX25vZGVfcHV0KGRkYyk7CisJCWlmICghaGRtaS0+ZGRjX2Fk
+YXB0KQorCQkJcmV0dXJuIC1FUFJPQkVfREVGRVI7CiAJfQogCiAJLyogU2V0IHRoZSBkcm0gZGV2
+aWNlIGhhbmRsZSAqLwpAQCAtNzYyLDE0ICs3NTgsMTUgQEAgZXJyX3N5c2ZzOgogZXJyX2Nvbm5l
+Y3RvcjoKIAlkcm1fY29ubmVjdG9yX2NsZWFudXAoZHJtX2Nvbm5lY3Rvcik7CiBlcnJfYWRhcHQ6
+Ci0JcHV0X2RldmljZSgmaGRtaS0+ZGRjX2FkYXB0LT5kZXYpOworCWkyY19wdXRfYWRhcHRlciho
+ZG1pLT5kZGNfYWRhcHQpOworCiAJcmV0dXJuIC1FSU5WQUw7CiB9CiAKIHN0YXRpYyB2b2lkIHN0
+aV9oZG1pX3VuYmluZChzdHJ1Y3QgZGV2aWNlICpkZXYsCiAJCXN0cnVjdCBkZXZpY2UgKm1hc3Rl
+ciwgdm9pZCAqZGF0YSkKIHsKLQkvKiBkbyBub3RoaW5nICovCisJaTJjX3B1dF9hZGFwdGVyKGhk
+bWktPmRkY19hZGFwdCk7CiB9CiAKIHN0YXRpYyBjb25zdCBzdHJ1Y3QgY29tcG9uZW50X29wcyBz
+dGlfaGRtaV9vcHMgPSB7CkBAIC04ODUsMTAgKzg4Miw4IEBAIHN0YXRpYyBpbnQgc3RpX2hkbWlf
+cmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCiB7CiAJc3RydWN0IHN0aV9oZG1p
+ICpoZG1pID0gZGV2X2dldF9kcnZkYXRhKCZwZGV2LT5kZXYpOwogCi0JaWYgKGhkbWktPmRkY19h
+ZGFwdCkKLQkJcHV0X2RldmljZSgmaGRtaS0+ZGRjX2FkYXB0LT5kZXYpOwotCiAJY29tcG9uZW50
+X2RlbCgmcGRldi0+ZGV2LCAmc3RpX2hkbWlfb3BzKTsKKwogCXJldHVybiAwOwogfQogCi0tIAoy
+LjEuNAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJp
+LWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6
+Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
