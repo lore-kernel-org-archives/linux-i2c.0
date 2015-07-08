@@ -1,66 +1,42 @@
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Subject: [PATCH 07/10] drm: tegra: use of_get_i2c_adapter_by_node interface
-Date: Wed, 8 Jul 2015 16:00:03 +0300
-Message-ID: <1436360403-9462-1-git-send-email-vladimir_zapolskiy@mentor.com>
+From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 10/10] i2c: i2c-arb-gpio-challenge: use of_get_i2c_adapter_by_node interface
+Date: Wed, 8 Jul 2015 16:00:21 +0300
+Message-ID: <1436360421-9600-1-git-send-email-vladimir_zapolskiy@mentor.com>
 References: <1436360095-9065-1-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1436360095-9065-1-git-send-email-vladimir_zapolskiy@mentor.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: David Airlie <airlied@linux.ie>, Thierry Reding <thierry.reding@gmail.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, =?UTF-8?q?Terje=20Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1436360095-9065-1-git-send-email-vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-VGhpcyBjaGFuZ2UgaXMgbmVlZGVkIHRvIHByb3Blcmx5IGxvY2sgSTJDIGJ1cyBkcml2ZXIsIHdo
-aWNoIHNlcnZlcyBEREMuCgpPbiByZWxlYXNlIG9mX2dldF9pMmNfYWRhcHRlcl9ieV9ub2RlKCkg
-cmVxdWlyZXMgaTJjX3B1dF9hZGFwdGVyKCkgY2FsbC4KCk5vdGUsIHRoYXQgcHJpb3IgdG8gdGhl
-IGNoYW5nZSBwdXRfZGV2aWNlKCkgY291cGxlZCB3aXRoCm9mX2ZpbmRfaTJjX2FkYXB0ZXJfYnlf
-bm9kZSgpIHdhcyBtaXNzaW5nIG9uIGVycm9yIHBhdGggb2YKdGVncmFfb3V0cHV0X3Byb2JlKCku
-CgpTaWduZWQtb2ZmLWJ5OiBWbGFkaW1pciBaYXBvbHNraXkgPHZsYWRpbWlyX3phcG9sc2tpeUBt
-ZW50b3IuY29tPgotLS0KIGRyaXZlcnMvZ3B1L2RybS90ZWdyYS9vdXRwdXQuYyB8IDE5ICsrKysr
-KysrKysrLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspLCA4IGRlbGV0
-aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS90ZWdyYS9vdXRwdXQuYyBiL2Ry
-aXZlcnMvZ3B1L2RybS90ZWdyYS9vdXRwdXQuYwppbmRleCAzN2RiNDc5Li5kNzczMWNkIDEwMDY0
-NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vdGVncmEvb3V0cHV0LmMKKysrIGIvZHJpdmVycy9ncHUv
-ZHJtL3RlZ3JhL291dHB1dC5jCkBAIC0xMTYsNyArMTE2LDcgQEAgaW50IHRlZ3JhX291dHB1dF9w
-cm9iZShzdHJ1Y3QgdGVncmFfb3V0cHV0ICpvdXRwdXQpCiAKIAlkZGMgPSBvZl9wYXJzZV9waGFu
-ZGxlKG91dHB1dC0+b2Zfbm9kZSwgIm52aWRpYSxkZGMtaTJjLWJ1cyIsIDApOwogCWlmIChkZGMp
-IHsKLQkJb3V0cHV0LT5kZGMgPSBvZl9maW5kX2kyY19hZGFwdGVyX2J5X25vZGUoZGRjKTsKKwkJ
-b3V0cHV0LT5kZGMgPSBvZl9nZXRfaTJjX2FkYXB0ZXJfYnlfbm9kZShkZGMpOwogCQlpZiAoIW91
-dHB1dC0+ZGRjKSB7CiAJCQllcnIgPSAtRVBST0JFX0RFRkVSOwogCQkJb2Zfbm9kZV9wdXQoZGRj
-KTsKQEAgLTEzNiwxNCArMTM2LDEzIEBAIGludCB0ZWdyYV9vdXRwdXRfcHJvYmUoc3RydWN0IHRl
-Z3JhX291dHB1dCAqb3V0cHV0KQogCQkJCSAgICAgICAiSERNSSBob3RwbHVnIGRldGVjdCIpOwog
-CQlpZiAoZXJyIDwgMCkgewogCQkJZGV2X2VycihvdXRwdXQtPmRldiwgImdwaW9fcmVxdWVzdF9v
-bmUoKTogJWRcbiIsIGVycik7Ci0JCQlyZXR1cm4gZXJyOworCQkJZ290byBpMmNfcmVsZWFzZTsK
-IAkJfQogCiAJCWVyciA9IGdwaW9fdG9faXJxKG91dHB1dC0+aHBkX2dwaW8pOwogCQlpZiAoZXJy
-IDwgMCkgewogCQkJZGV2X2VycihvdXRwdXQtPmRldiwgImdwaW9fdG9faXJxKCk6ICVkXG4iLCBl
-cnIpOwotCQkJZ3Bpb19mcmVlKG91dHB1dC0+aHBkX2dwaW8pOwotCQkJcmV0dXJuIGVycjsKKwkJ
-CWdvdG8gZ3Bpb19yZWxlYXNlOwogCQl9CiAKIAkJb3V0cHV0LT5ocGRfaXJxID0gZXJyOwpAQCAt
-MTU2LDggKzE1NSw3IEBAIGludCB0ZWdyYV9vdXRwdXRfcHJvYmUoc3RydWN0IHRlZ3JhX291dHB1
-dCAqb3V0cHV0KQogCQlpZiAoZXJyIDwgMCkgewogCQkJZGV2X2VycihvdXRwdXQtPmRldiwgImZh
-aWxlZCB0byByZXF1ZXN0IElSUSMldTogJWRcbiIsCiAJCQkJb3V0cHV0LT5ocGRfaXJxLCBlcnIp
-OwotCQkJZ3Bpb19mcmVlKG91dHB1dC0+aHBkX2dwaW8pOwotCQkJcmV0dXJuIGVycjsKKwkJCWdv
-dG8gZ3Bpb19yZWxlYXNlOwogCQl9CiAKIAkJb3V0cHV0LT5jb25uZWN0b3IucG9sbGVkID0gRFJN
-X0NPTk5FQ1RPUl9QT0xMX0hQRDsKQEAgLTE3MSw2ICsxNjksMTIgQEAgaW50IHRlZ3JhX291dHB1
-dF9wcm9iZShzdHJ1Y3QgdGVncmFfb3V0cHV0ICpvdXRwdXQpCiAJfQogCiAJcmV0dXJuIDA7CisK
-KyBncGlvX3JlbGVhc2U6CisJZ3Bpb19mcmVlKG91dHB1dC0+aHBkX2dwaW8pOworIGkyY19yZWxl
-YXNlOgorCWkyY19wdXRfYWRhcHRlcihvdXRwdXQtPmRkYyk7CisJcmV0dXJuIGVycjsKIH0KIAog
-dm9pZCB0ZWdyYV9vdXRwdXRfcmVtb3ZlKHN0cnVjdCB0ZWdyYV9vdXRwdXQgKm91dHB1dCkKQEAg
-LTE4MCw4ICsxODQsNyBAQCB2b2lkIHRlZ3JhX291dHB1dF9yZW1vdmUoc3RydWN0IHRlZ3JhX291
-dHB1dCAqb3V0cHV0KQogCQlncGlvX2ZyZWUob3V0cHV0LT5ocGRfZ3Bpbyk7CiAJfQogCi0JaWYg
-KG91dHB1dC0+ZGRjKQotCQlwdXRfZGV2aWNlKCZvdXRwdXQtPmRkYy0+ZGV2KTsKKwlpMmNfcHV0
-X2FkYXB0ZXIob3V0cHV0LT5kZGMpOwogfQogCiBpbnQgdGVncmFfb3V0cHV0X2luaXQoc3RydWN0
-IGRybV9kZXZpY2UgKmRybSwgc3RydWN0IHRlZ3JhX291dHB1dCAqb3V0cHV0KQotLSAKMi4xLjQK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZl
-bCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+This change is needed to properly lock I2C bus driver, which serves DDC.
+
+Prior to this change i2c_put_adapter() is misused, which may lead
+to an overflow over zero of I2C bus driver user counter.
+By the way added of_node_put() to eliminate memory leak, if OF_DYNAMIC
+is enabled.
+
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
+index 5cf1b60..402e3a6 100644
+--- a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
++++ b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
+@@ -196,7 +196,8 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
+ 		dev_err(dev, "Cannot parse i2c-parent\n");
+ 		return -EINVAL;
+ 	}
+-	arb->parent = of_find_i2c_adapter_by_node(parent_np);
++	arb->parent = of_get_i2c_adapter_by_node(parent_np);
++	of_node_put(parent_np);
+ 	if (!arb->parent) {
+ 		dev_err(dev, "Cannot find parent bus\n");
+ 		return -EPROBE_DEFER;
+-- 
+2.1.4
