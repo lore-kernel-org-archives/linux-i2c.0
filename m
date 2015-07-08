@@ -1,58 +1,117 @@
-From: Jan Luebbe <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] i2c: omap: fix bus recovery setup
-Date: Wed,  8 Jul 2015 16:35:27 +0200
-Message-ID: <1436366127-24756-1-git-send-email-jlu@pengutronix.de>
+From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v2] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Wed, 08 Jul 2015 11:08:56 -0700
+Message-ID: <559D6738.1050003@cumulusnetworks.com>
+References: <1436351118-3360-1-git-send-email-ellen@cumulusnetworks.com> <559D126B.6050505@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <559D126B.6050505-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Jan Luebbe <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-At least on the AM335x, enabling OMAP_I2C_SYSTEST_ST_EN is not enough to
-allow direct access to the SCL and SDA pins. In addition to ST_EN, we
-need to set the TMODE to 0b11 (Loop back & SDA/SCL IO mode select).
-Also, as the reset values of SCL_O and SDA_O are 0 (which means "drive
-low level"), we need to set them to 1 (which means "high-impedance") to
-avoid unwanted changes on the pins.
 
-As a precaution, reset all these bits to their default values after
-recovery is complete.
 
-Signed-off-by: Jan Luebbe <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+On 07/08/2015 05:07 AM, Vaibhav Hiremath wrote:
+>
+>
+> On Wednesday 08 July 2015 03:55 PM, Ellen Wang wrote:
+>> cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+>> on longers reads.  The fix is to wrap a loop around
+>> cp2112_read() to pick up all the returned data.
+>>
+>> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+>> ---
+>> This is the updated patch with a check for 0 return from
+>> cp2112_read().  I tested it with a suitable delay in the loop
+>> to trigger the cp2112_raw_event() overrun bug, which must
+>> be fixed before this patch is applied.
+>> ---
+>>   drivers/hid/hid-cp2112.c | 33 ++++++++++++++++++++++++++-------
+>>   1 file changed, 26 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+>> index 3318de6..e2ffac0 100644
+>> --- a/drivers/hid/hid-cp2112.c
+>> +++ b/drivers/hid/hid-cp2112.c
+>> @@ -509,13 +509,32 @@ static int cp2112_i2c_xfer(struct i2c_adapter
+>> *adap, struct i2c_msg *msgs,
+>>       if (!(msgs->flags & I2C_M_RD))
+>>           goto finish;
+>>
+>> -    ret = cp2112_read(dev, msgs->buf, msgs->len);
+>> -    if (ret < 0)
+>> -        goto power_normal;
+>> -    if (ret != msgs->len) {
+>> -        hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+>> -        ret = -EIO;
+>> -        goto power_normal;
+>> +    for (count = 0; count < msgs->len;) {
+>> +        ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
+>> +        hid_warn(hdev, "read returned %d for %zd\n",
+>> +             ret, msgs->len - count);
+>
+> Do you always want to throw warning here, unconditionally ?
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index d1c22e3fdd14..fc9bf7f30e35 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1247,7 +1247,14 @@ static void omap_i2c_prepare_recovery(struct i2c_adapter *adap)
- 	u32 reg;
- 
- 	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+	/* enable test mode */
- 	reg |= OMAP_I2C_SYSTEST_ST_EN;
-+	/* select SDA/SCL IO mode */
-+	reg |= 3 << OMAP_I2C_SYSTEST_TMODE_SHIFT;
-+	/* set SCL to high-impedance state (reset value is 0) */
-+	reg |= OMAP_I2C_SYSTEST_SCL_O;
-+	/* set SDA to high-impedance state (reset value is 0) */
-+	reg |= OMAP_I2C_SYSTEST_SDA_O;
- 	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
- }
- 
-@@ -1257,7 +1264,11 @@ static void omap_i2c_unprepare_recovery(struct i2c_adapter *adap)
- 	u32 reg;
- 
- 	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+	/* restore reset values */
- 	reg &= ~OMAP_I2C_SYSTEST_ST_EN;
-+	reg &= ~OMAP_I2C_SYSTEST_TMODE_MASK;
-+	reg &= ~OMAP_I2C_SYSTEST_SCL_O;
-+	reg &= ~OMAP_I2C_SYSTEST_SDA_O;
- 	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
- }
- 
--- 
-2.1.4
+Yeah.  Sorry.  I had debugging code in my workspace then ran git diff 
+with the wrong options.  I'll resend.
+
+>> +        if (ret < 0)
+>> +            goto power_normal;
+>> +        if (ret == 0) {
+>> +            hid_err(hdev, "read returned 0\n");
+>> +            ret = -EIO;
+>> +            goto power_normal;
+>> +        }
+>
+> bit simplified, I guess :)
+>
+> if (ret < 0 || ret == 0) {
+>      hid_err(hdev, "read returned %d", ret);
+>      ret = ret == 0 ? -EIO : ret;
+>      goto power_normal;
+> }
+>
+>
+>> +        count += ret;
+>> +        if (count > msgs->len) {
+>> +            /*
+>> +             * The hardware returned too much data.
+>> +             * This is mostly harmless because cp2112_read()
+>> +             * has a limit check so didn't overrun our
+>> +             * buffer.  Nevertheless, we return an error
+>> +             * because something is seriously wrong and
+>> +             * it shouldn't go unnoticed.
+>> +             */
+>> +            hid_err(hdev, "long read: %d > %zd\n",
+>> +                ret, msgs->len - count + ret);
+>
+> You may want to take another look here.
+> 'ret' will be either,
+>
+>      - ret = msgs->len
+>          Not applicable
+>      - ret > msgs->len
+>          (count > msgs->len) will happen in one single
+>          iteration, and will
+>      - ret < msgs->len
+>          (count > msgs->len) will happen in multiple iterations
+>          where count keeps incrementing based on ret
+>
+> In the 2 scenarios above, I believe you would want to show,
+>
+>      actual read bytes > requested read bytes
+>
+>
+> Am I missing something here?
+
+(count > msgs->len) should never happen, so there's really no predicting 
+it.  Or do you mean something else?
+
+
+> Thanks,
+> Vaibhav
+
+Thank you.
