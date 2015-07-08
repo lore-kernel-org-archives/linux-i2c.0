@@ -1,35 +1,32 @@
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 1/1] i2c: designware-pci: use IRQF_COND_SUSPEND flag
-Date: Wed,  8 Jul 2015 13:15:36 +0300
-Message-ID: <1436350536-99102-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Ellen Wang <ellen@cumulusnetworks.com>
+Subject: Re: [PATCH] HID: cp2112: fix to force single data-report reply
+Date: Wed, 08 Jul 2015 03:24:39 -0700
+Message-ID: <559CFA67.70301@cumulusnetworks.com>
+References: <1434867625-3062-1-git-send-email-borneo.antonio@gmail.com> <55939F3E.7070505@cumulusnetworks.com> <alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.com>
+Cc: Antonio Borneo <borneo.antonio@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The mentioned flag fixes a warning on Intel Edison board since one of the I2C
-controller shares IRQ line with watchdog timer.
+On 07/08/2015 02:15 AM, Jiri Kosina wrote:
+> On Wed, 1 Jul 2015, Ellen Wang wrote:
+>
+>> Works as described.  Thank you!
+>>
+>> By the way, I tested the code with and without your fix on my rev 2 chip, and
+>> it behaved the same way as you describe on your rev 1 chip.
+>
+> Ellen, are you okay with me applying the patch with
+>
+> 	Tested-by: Ellen Wang <ellen@cumulusnetworks.com>
+>
+> ?
+>
+> Thanks,
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-pcidrv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 6643d2d..df23e8c 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -260,8 +260,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 
- 	snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci");
- 
--	r = devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr, IRQF_SHARED,
--			adap->name, dev);
-+	r = devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr,
-+			IRQF_SHARED | IRQF_COND_SUSPEND, adap->name, dev);
- 	if (r) {
- 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
- 		return r;
--- 
-2.1.4
+Yes.  Thank you.
