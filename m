@@ -1,59 +1,71 @@
 From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Subject: [PATCH 03/10] drm: exynos_hdmi: use of_get_i2c_adapter_by_node interface
-Date: Wed, 8 Jul 2015 15:59:34 +0300
-Message-ID: <1436360374-9275-1-git-send-email-vladimir_zapolskiy@mentor.com>
+Subject: [PATCH 02/10] drm: dw_hdmi: use of_get_i2c_adapter_by_node interface
+Date: Wed, 8 Jul 2015 15:59:24 +0300
+Message-ID: <1436360364-9229-1-git-send-email-vladimir_zapolskiy@mentor.com>
 References: <1436360095-9065-1-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 In-Reply-To: <1436360095-9065-1-git-send-email-vladimir_zapolskiy@mentor.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: David Airlie <airlied@linux.ie>, Inki Dae <inki.dae@samsung.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: David Airlie <airlied@linux.ie>, Philipp Zabel <p.zabel@pengutronix.de>, Russell King <rmk+kernel@arm.linux.org.uk>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, Wolfram Sang <wsa@the-dreams.de>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Yakir Yang <ykk@rock-chips.com>, Andy Yan <andy.yan@rock-chips.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-This change is needed to properly lock I2C bus driver, which serves DDC.
-
-On release of_get_i2c_adapter_by_node() requires i2c_put_adapter() call,
-which replaces put_device(). By the way added of_node_put(ddc_node) to
-eliminate memory leak, if OF_DYNAMIC is enabled.
-
-Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
----
- drivers/gpu/drm/exynos/exynos_hdmi.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/gpu/drm/exynos/exynos_hdmi.c b/drivers/gpu/drm/exynos/exynos_hdmi.c
-index 99e2864..399eff9 100644
---- a/drivers/gpu/drm/exynos/exynos_hdmi.c
-+++ b/drivers/gpu/drm/exynos/exynos_hdmi.c
-@@ -2407,7 +2407,8 @@ static int hdmi_probe(struct platform_device *pdev)
- 	}
- 
- out_get_ddc_adpt:
--	hdata->ddc_adpt = of_find_i2c_adapter_by_node(ddc_node);
-+	hdata->ddc_adpt = of_get_i2c_adapter_by_node(ddc_node);
-+	of_node_put(ddc_node);
- 	if (!hdata->ddc_adpt) {
- 		DRM_ERROR("Failed to get ddc i2c adapter by node\n");
- 		return -EPROBE_DEFER;
-@@ -2485,7 +2486,7 @@ err_hdmiphy:
- 	if (hdata->hdmiphy_port)
- 		put_device(&hdata->hdmiphy_port->dev);
- err_ddc:
--	put_device(&hdata->ddc_adpt->dev);
-+	i2c_put_adapter(hdata->ddc_adpt);
- 
- 	return ret;
- }
-@@ -2501,7 +2502,7 @@ static int hdmi_remove(struct platform_device *pdev)
- 
- 	if (hdata->hdmiphy_port)
- 		put_device(&hdata->hdmiphy_port->dev);
--	put_device(&hdata->ddc_adpt->dev);
-+	i2c_put_adapter(hdata->ddc_adpt);
- 
- 	pm_runtime_disable(&pdev->dev);
- 	component_del(&pdev->dev, &hdmi_component_ops);
--- 
-2.1.4
+VGhpcyBjaGFuZ2UgaXMgbmVlZGVkIHRvIHByb3Blcmx5IGxvY2sgSTJDIGJ1cyBkcml2ZXIsIHdo
+aWNoIHNlcnZlcyBEREMuCgpUaGUgY2hhbmdlIGZpeGVzIGFuIG92ZXJmbG93IG92ZXIgemVybyBv
+ZiBJMkMgYnVzIGRyaXZlciB1c2VyIGNvdW50ZXI6CgogICAgcm9vdEBteDZxOn4jIGxzbW9kIHwg
+Z3JlcCBpMmMKICAgIGkyY19pbXggICAgICAgICAgICAgICAgMTAyMTMgIDAKICAgIHJvb3RAbXg2
+cTp+IyBsc21vZCB8IGdyZXAgZHdfaGRtaV9pbXgKICAgIGR3X2hkbWlfaW14ICAgICAgICAgICAg
+IDM2MzEgIDAKICAgIGR3X2hkbWkgICAgICAgICAgICAgICAgMTE4NDYgIDEgZHdfaGRtaV9pbXgK
+ICAgIGlteGRybSAgICAgICAgICAgICAgICAgIDg2NzQgIDMgZHdfaGRtaV9pbXgsaW14X2lwdXYz
+X2NydGMsaW14X2xkYgogICAgZHJtX2ttc19oZWxwZXIgICAgICAgIDExMzc2NSAgNSBkd19oZG1p
+LGlteGRybSxpbXhfaXB1djNfY3J0YyxpbXhfbGRiCiAgICByb290QG14NnE6fiMgcm1tb2QgZHdf
+aGRtaV9pbXgKICAgIHJvb3RAbXg2cTp+IyBsc21vZCB8IGdyZXAgaTJjCiAgICBpMmNfaW14ICAg
+ICAgICAgICAgICAgIDEwMjEzICAtMQoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+Xl5eXl4KCiAgICByb290QG14NnE6fiMgcm1tb2QgaTJjX2lteAogICAgcm1tb2Q6IEVSUk9SOiBN
+b2R1bGUgaTJjX2lteCBpcyBpbiB1c2UKCk5vdGUgdGhhdCBwcmlvciB0byB0aGlzIGNoYW5nZSBw
+dXRfZGV2aWNlKCkgY291cGxlZCB3aXRoCm9mX2ZpbmRfaTJjX2FkYXB0ZXJfYnlfbm9kZSgpIHdh
+cyBtaXNzaW5nIG9uIGVycm9yIHBhdGggb2YKZHdfaGRtaV9iaW5kKCksIGFkZGVkIGkyY19wdXRf
+YWRhcHRlcigpIHRoZXJlIGFsb25nIHdpdGggdGhlIGNoYW5nZS4KClNpZ25lZC1vZmYtYnk6IFZs
+YWRpbWlyIFphcG9sc2tpeSA8dmxhZGltaXJfemFwb2xza2l5QG1lbnRvci5jb20+Ci0tLQogZHJp
+dmVycy9ncHUvZHJtL2JyaWRnZS9kd19oZG1pLmMgfCAxNCArKysrKysrKystLS0tLQogMSBmaWxl
+IGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9k
+cml2ZXJzL2dwdS9kcm0vYnJpZGdlL2R3X2hkbWkuYyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2Uv
+ZHdfaGRtaS5jCmluZGV4IDgxNmQxMDQuLmU4Njc3NmMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1
+L2RybS9icmlkZ2UvZHdfaGRtaS5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvZHdfaGRt
+aS5jCkBAIC0xNTkxLDcgKzE1OTEsNyBAQCBpbnQgZHdfaGRtaV9iaW5kKHN0cnVjdCBkZXZpY2Ug
+KmRldiwgc3RydWN0IGRldmljZSAqbWFzdGVyLAogCiAJZGRjX25vZGUgPSBvZl9wYXJzZV9waGFu
+ZGxlKG5wLCAiZGRjLWkyYy1idXMiLCAwKTsKIAlpZiAoZGRjX25vZGUpIHsKLQkJaGRtaS0+ZGRj
+ID0gb2ZfZmluZF9pMmNfYWRhcHRlcl9ieV9ub2RlKGRkY19ub2RlKTsKKwkJaGRtaS0+ZGRjID0g
+b2ZfZ2V0X2kyY19hZGFwdGVyX2J5X25vZGUoZGRjX25vZGUpOwogCQlvZl9ub2RlX3B1dChkZGNf
+bm9kZSk7CiAJCWlmICghaGRtaS0+ZGRjKSB7CiAJCQlkZXZfZGJnKGhkbWktPmRldiwgImZhaWxl
+ZCB0byByZWFkIGRkYyBub2RlXG4iKTsKQEAgLTE2MDMsMjAgKzE2MDMsMjIgQEAgaW50IGR3X2hk
+bWlfYmluZChzdHJ1Y3QgZGV2aWNlICpkZXYsIHN0cnVjdCBkZXZpY2UgKm1hc3RlciwKIAl9CiAK
+IAloZG1pLT5yZWdzID0gZGV2bV9pb3JlbWFwX3Jlc291cmNlKGRldiwgaW9yZXMpOwotCWlmIChJ
+U19FUlIoaGRtaS0+cmVncykpCi0JCXJldHVybiBQVFJfRVJSKGhkbWktPnJlZ3MpOworCWlmIChJ
+U19FUlIoaGRtaS0+cmVncykpIHsKKwkJcmV0ID0gUFRSX0VSUihoZG1pLT5yZWdzKTsKKwkJZ290
+byBlcnJfcmVzOworCX0KIAogCWhkbWktPmlzZnJfY2xrID0gZGV2bV9jbGtfZ2V0KGhkbWktPmRl
+diwgImlzZnIiKTsKIAlpZiAoSVNfRVJSKGhkbWktPmlzZnJfY2xrKSkgewogCQlyZXQgPSBQVFJf
+RVJSKGhkbWktPmlzZnJfY2xrKTsKIAkJZGV2X2VycihoZG1pLT5kZXYsICJVbmFibGUgdG8gZ2V0
+IEhETUkgaXNmciBjbGs6ICVkXG4iLCByZXQpOwotCQlyZXR1cm4gcmV0OworCQlnb3RvIGVycl9y
+ZXM7CiAJfQogCiAJcmV0ID0gY2xrX3ByZXBhcmVfZW5hYmxlKGhkbWktPmlzZnJfY2xrKTsKIAlp
+ZiAocmV0KSB7CiAJCWRldl9lcnIoaGRtaS0+ZGV2LCAiQ2Fubm90IGVuYWJsZSBIRE1JIGlzZnIg
+Y2xvY2s6ICVkXG4iLCByZXQpOwotCQlyZXR1cm4gcmV0OworCQlnb3RvIGVycl9yZXM7CiAJfQog
+CiAJaGRtaS0+aWFoYl9jbGsgPSBkZXZtX2Nsa19nZXQoaGRtaS0+ZGV2LCAiaWFoYiIpOwpAQCAt
+MTY4Miw2ICsxNjg0LDggQEAgZXJyX2lhaGI6CiAJY2xrX2Rpc2FibGVfdW5wcmVwYXJlKGhkbWkt
+PmlhaGJfY2xrKTsKIGVycl9pc2ZyOgogCWNsa19kaXNhYmxlX3VucHJlcGFyZShoZG1pLT5pc2Zy
+X2Nsayk7CitlcnJfcmVzOgorCWkyY19wdXRfYWRhcHRlcihoZG1pLT5kZGMpOwogCiAJcmV0dXJu
+IHJldDsKIH0KLS0gCjIuMS40CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVz
+a3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2Ry
+aS1kZXZlbAo=
