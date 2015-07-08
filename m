@@ -1,32 +1,71 @@
 From: Ellen Wang <ellen@cumulusnetworks.com>
-Subject: Re: [PATCH] HID: cp2112: fix to force single data-report reply
-Date: Wed, 08 Jul 2015 03:24:39 -0700
-Message-ID: <559CFA67.70301@cumulusnetworks.com>
-References: <1434867625-3062-1-git-send-email-borneo.antonio@gmail.com> <55939F3E.7070505@cumulusnetworks.com> <alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1507081115220.10183@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Antonio Borneo <borneo.antonio@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: [PATCH v2] HID: cp2112: support large i2c transfers in hid-cp2112
+Date: Wed,  8 Jul 2015 03:25:18 -0700
+Message-ID: <1436351118-3360-1-git-send-email-ellen@cumulusnetworks.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: ellen@cumulusnetworks.com
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/08/2015 02:15 AM, Jiri Kosina wrote:
-> On Wed, 1 Jul 2015, Ellen Wang wrote:
->
->> Works as described.  Thank you!
->>
->> By the way, I tested the code with and without your fix on my rev 2 chip, and
->> it behaved the same way as you describe on your rev 1 chip.
->
-> Ellen, are you okay with me applying the patch with
->
-> 	Tested-by: Ellen Wang <ellen@cumulusnetworks.com>
->
-> ?
->
-> Thanks,
+cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
+on longers reads.  The fix is to wrap a loop around
+cp2112_read() to pick up all the returned data.
 
-Yes.  Thank you.
+Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+---
+This is the updated patch with a check for 0 return from
+cp2112_read().  I tested it with a suitable delay in the loop
+to trigger the cp2112_raw_event() overrun bug, which must
+be fixed before this patch is applied.
+---
+ drivers/hid/hid-cp2112.c | 33 ++++++++++++++++++++++++++-------
+ 1 file changed, 26 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 3318de6..e2ffac0 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -509,13 +509,32 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	if (!(msgs->flags & I2C_M_RD))
+ 		goto finish;
+ 
+-	ret = cp2112_read(dev, msgs->buf, msgs->len);
+-	if (ret < 0)
+-		goto power_normal;
+-	if (ret != msgs->len) {
+-		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+-		ret = -EIO;
+-		goto power_normal;
++	for (count = 0; count < msgs->len;) {
++		ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
++		hid_warn(hdev, "read returned %d for %zd\n",
++			 ret, msgs->len - count);
++		if (ret < 0)
++			goto power_normal;
++		if (ret == 0) {
++			hid_err(hdev, "read returned 0\n");
++			ret = -EIO;
++			goto power_normal;
++		}
++		count += ret;
++		if (count > msgs->len) {
++			/*
++			 * The hardware returned too much data.
++			 * This is mostly harmless because cp2112_read()
++			 * has a limit check so didn't overrun our
++			 * buffer.  Nevertheless, we return an error
++			 * because something is seriously wrong and
++			 * it shouldn't go unnoticed.
++			 */
++			hid_err(hdev, "long read: %d > %zd\n",
++				ret, msgs->len - count + ret);
++			ret = -EIO;
++			goto power_normal;
++		}
+ 	}
+ 
+ finish:
+-- 
+1.9.1
+
