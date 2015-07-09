@@ -1,61 +1,70 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCHv2 2/9] i2c: xiic: move the xiic_process to thread context
-Date: Thu, 9 Jul 2015 19:31:58 +0200
-Message-ID: <20150709173158.GD4744@katana>
+Subject: Re: [PATCHv2 0/9] i2c: xiic: cleanups
+Date: Thu, 9 Jul 2015 19:35:01 +0200
+Message-ID: <20150709173501.GE4744@katana>
 References: <1434554299-23443-1-git-send-email-shubhraj@xilinx.com>
- <1434554299-23443-3-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UoPmpPX/dBe4BELn"
+	protocol="application/pgp-signature"; boundary="Dzs2zDY0zgkG72+7"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1434554299-23443-3-git-send-email-shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1434554299-23443-1-git-send-email-shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---UoPmpPX/dBe4BELn
+--Dzs2zDY0zgkG72+7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  static int xiic_bus_busy(struct xiic_i2c *i2c)
-> @@ -602,16 +601,21 @@ static void xiic_start_send(struct xiic_i2c *i2c)
->  static irqreturn_t xiic_isr(int irq, void *dev_id)
->  {
->  	struct xiic_i2c *i2c = dev_id;
-> -
-> -	spin_lock(&i2c->lock);
-> +	u32 pend, isr, ier;
-> +	irqreturn_t ret = IRQ_HANDLED;
-> +	/* Do not processes a devices interrupts if the device has no
-> +	 * interrupts pending
-> +	 */
+On Wed, Jun 17, 2015 at 08:48:10PM +0530, Shubhrajyoti Datta wrote:
+> This is a series of cleanups for the axi iic.
+> tested on zc702 and microblaze.
+>=20
+> Changes from v1
+> Updated the commit message.
+> =20
+>=20
+> Shubhrajyoti Datta (9):
+>   i2c: xiic: Remove the disabling of interrupts
+>   i2c: xiic: move the xiic_process to thread context
+>   i2c: xiic: Do not reset controller before every transfer
+>   i2c: xiic: Remove the disabling of interrupts
+>   i2c: xiic: Remove busy loop while waiting for bus busy
+>   i2c: xiic: Add a debug msg in case of timeout
+>   i2c: xiic: Remove the Addressed as slave interrupt
+>   i2c: xiic: Service all interrupts in isr
+>   i2c: xiic: Do not continue in case of errors in Rx
 
-Shouldn't you init 'ret' to IRQ_NONE then?
+Commit messages are a lot better, thanks!
+
+Two minor comments. If you agree to them, I can simply drop patch 6 and
+fixup patch 2. Then, no need for resending.
 
 
---UoPmpPX/dBe4BELn
+--Dzs2zDY0zgkG72+7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVnrANAAoJEBQN5MwUoCm2SxgQALK0AbtQOkeDovnGyQzbnRYp
-D59Rn1lF5/6GVnMsxhp6Gj531DdZ0q+PLP1HzEy67Ie15DdgPGJE802dcVu8v0yq
-HU9jl4kCmwJ0ri5scMiEO5xSIZxU+UXTwZLhGLzWBOgAF2RVwUUqeeT9K+xlOdpi
-ov9OQpD2RSY1qE2CIc3rVb1Ag9nTMOTo1KQfETOs6vZI3mSEsgqhC6IkxQ479zKe
-CGawj+got6In55cIlxI41NpiyLpYVqIPl8pyz1/QbDbe7qTd4L/1UIDHOkPmVAah
-V9iPwzoJrNeu/5JtgLdNg4eEGqHFvAsHCzmzqaBmwm+Vmn2BGscdrMl0dbSBRbsH
-kkcA3FkkRxx7cOaiTPlbatJNHv1Gb2wW7xvqT9pufXqzS1qO/Q/OZZwXhUPDoY4H
-nrB+Ce1JMoGiCGPJdXeOY+RDNxjD/mzUFhrSjNEC21j1UzfA2vzhAr883OwESqWw
-+8hMIHISQtKgj7OLGHkheABLXM2enN8DgSWDic08DW5fotIahDIWdEVZYQsuc/Lc
-c3KS3VTWat/LZ0GJdLENmZQSgWrplRkmnZqJVb7wkKC2abV/43/FWhEdWHgQiOP5
-mq7+uoJqzf4o25uRDM4XKHlJbdqnTUrR9tDJ9Kg6RF+q2anz0PCaEDylD7lnl8OT
-YgQxB/ESNKH5d6bV3yVd
-=Qciz
+iQIcBAEBAgAGBQJVnrDFAAoJEBQN5MwUoCm21S8P/A2HD4aa56WYQ6wnRpncA3hs
+vIRzQz12U2LNKiKzOgi5l06dzKVgaEcBAjQHWdZ2wx3l7aFJe2jlU8P7ZSGssTfe
+UCKfQqWlem0ZXGCymnrw90RjJA1uVxcj5jLYZZN8Da1inkWq8Z37t3PtMk2tcKPJ
+ERXTZupOtQ4SLvwWDdrc8/UXEtWrG22uAb6XXeMUph+AnpZd/pAPu60JrkDNayVp
+gNKqQwQnSe4rghI1SjXLgnKgyrjd7xNG/LkZlDQOMPTbN7QyF3FAB5ssSvXiU1Fi
+pKNeocqlDNQyyRoh+dFr1aQVV0FY8l8nZV/2XE89ZTLXYjRffiOtTHsBHwXk6iuG
+mUjIzrv4MCrChqqJHi0LXqX8dq8LlyxxFn81MSk9hT2SIkV1THm9mmK2PNdHZK5/
+43pDYCAYgjC2C5KtKbx3BUE/7HkjHwG5pqsiekoTS/k1kJ/s3ReBCTi9hxbNexP3
+KgF+g6KLTry1sYPDzyjI5ltsk50htagzyFwcFjbcDQGfZSqjOnCyhU32UB3WGVZe
+2TZRk7rKMQS2mQGHKmJAYyELADTAfg9lBJP3Vtc9gm5fFWAlghwq+shSBOjdtQG/
+NnuGzya1fLrf/CBYmg5OtaXQNB25I2V51Oh2ux5huXHCjR55mkHZW28xc6/4YB9n
+NDgCDsm7rEQfJj5WgDmv
+=cIv/
 -----END PGP SIGNATURE-----
 
---UoPmpPX/dBe4BELn--
+--Dzs2zDY0zgkG72+7--
