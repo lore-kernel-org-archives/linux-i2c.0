@@ -1,58 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: xgene-slimpro: Fix missing mbox_free_channel call
- in probe error path
-Date: Thu, 9 Jul 2015 22:17:29 +0200
-Message-ID: <20150709201729.GO4744@katana>
-References: <1435633726.14315.1.camel@ingics.com>
- <20150709201422.GN4744@katana>
+Subject: Re: [PATCH] i2c: jz4780: Fix return value if probe fails
+Date: Thu, 9 Jul 2015 22:17:49 +0200
+Message-ID: <20150709201748.GP4744@katana>
+References: <1435635718.14315.3.camel@ingics.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4ZQ/M1iA+qg8otEW"
+	protocol="application/pgp-signature"; boundary="3loezlmesXOUD0D5"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150709201422.GN4744@katana>
+In-Reply-To: <1435635718.14315.3.camel-8E1dMatC8ynQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Axel Lin <axel.lin-8E1dMatC8ynQT0dZR+AlfA@public.gmane.org>
-Cc: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Zubair Lutfullah Kakakhel <Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---4ZQ/M1iA+qg8otEW
+--3loezlmesXOUD0D5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 09, 2015 at 10:14:22PM +0200, Wolfram Sang wrote:
-> On Tue, Jun 30, 2015 at 11:08:46AM +0800, Axel Lin wrote:
-> > Free requested mailbox channel before return error.
-> >=20
-> > Signed-off-by: Axel Lin <axel.lin-8E1dMatC8ynQT0dZR+AlfA@public.gmane.org>
+On Tue, Jun 30, 2015 at 11:41:58AM +0800, Axel Lin wrote:
+> Current code returns 0 if fails to read clock-frequency DT property,
+> fix it. Also add checking return value of clk_prepare_enable and
+> propagate return value of devm_request_irq.
 >=20
-> Applied to for-next, thanks!
+> Signed-off-by: Axel Lin <axel.lin-8E1dMatC8ynQT0dZR+AlfA@public.gmane.org>
 
-for-current, I mean. Sorry for the noise.
+Applied to for-current, thanks!
 
 
---4ZQ/M1iA+qg8otEW
+--3loezlmesXOUD0D5
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVntbZAAoJEBQN5MwUoCm20AAP/RRHRKHeOcLd2pvDJV07URsC
-daWh6F5DczAF84ZVwXMPQyjNSr8DLgEMR+sENVK4qF8LkRo7ofkd+S5+DpeMMB4V
-Y6SN4iqD4qXWYtmF1HH7lJztNUH8HXo2+z/Mt50ALEKJ2vm+ZNf4msdsVNNa+Z5I
-to4H+6pWZjP297mmgS3khw+3ly/Nj9N9DrwKqPgkIDu2xjz7lsM6vX1l0yLKLMjL
-YakujRr1Ff4DyRQxlVByEg5n2iKFRGNuoB427SPZxeNZIrtaln2mfDvWNzyir1ue
-TnUaS2p2965pOUD0PR4kLq0gHb2o5GqodPC4lZxPm4RwziMyANU5/tSeOieX3l/N
-E1IJeX5f6yHhGXsj47foMy+566q3n1YDiegslkT0/GYoTX8QhLQ1JG4XQIxgs18M
-6DQ266nalkDaWcFHffzdr6j+4zZXnAeQwQYANOlw9KJokzIsQ4+c/eFoE5d4gvt3
-QafKI9Dp0Vf3B+EkCygC8Gyk7cYh778j72ggE1T6+U63w5OACK7KN22Xr5RiPZ5Y
-TWqO9OdAB0g5YSUiXl4ckY19itUriA8HU4NHKGH0d1eL5g6px8RP46NVElFRBTO7
-raaYTJ7u90z7rYkXfhxdOghrzdGxyc+UYTnfb0rCYclCYYy4L0MBF3V1wwh+ABDr
-iiCWY1p0Y9AWhQ32NOow
-=+Tqv
+iQIcBAEBAgAGBQJVntbsAAoJEBQN5MwUoCm2IA8P/iMZlwjUzs2nzbBJHY+DgV52
+1ro9GZD8wWyUhgqCIVBlkxYSpaFasDIqZcoUqNQJNOvDg4cA60pbRz550PvEbC/9
+HbHDNCs5xandT1xBlj+44QlH5o3bplaQXR/tFF9dE2t/I4tLAokX7UDupronKNs4
+Om9TqhKCz4/3q4TiLMEdsC361tLgtZ5so8qpGkuSIvBT+/C/XugfOKvHnxObO19o
+vMYudntXXlYkwbKbmooYCE/I6G4zXxQJ4oSQdBhXENyOw9P9awzhlJeTZCfatUM1
+iuG66kXPBIEMZBIbj6YG7E8oebtY0k4MyzPoqu0xglt7BHRoSDfzk6pw3CDJ7UxL
+pkg/ppVGUH5opBP8wm9vPVNdg014cZllcGb/HxN06AN1LFCiBNNgzNhs3rqv2uDC
+ITWVfcKcWyVJOZSfjxhalr+cixKaJKpUhbQ+H0geSrlVUZ7m6y4DNT/3lHi4KGBR
+TShjyMBq9CcH1ipiGRkCtNpBsByieeOX2ltmn/IDjeLV8qFnye8jAx6mo/+JAYYU
+wxwiKB0sSlkLujob8izLyQmD3OPDQhPMEhqiz7bgeCnFdtDHrQmyzm4XtzuxzuZL
+2HyF8bCrjiyTxcZ5BXnlddAmh0wFvYT/cXL6/xxshY8aq/DqEUY3l8bHqU2sGoqM
+CulCge3oeakZPZ4BoOOQ
+=/wgY
 -----END PGP SIGNATURE-----
 
---4ZQ/M1iA+qg8otEW--
+--3loezlmesXOUD0D5--
