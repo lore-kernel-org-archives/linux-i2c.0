@@ -1,188 +1,231 @@
-From: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: [PATCH V4 4/7] i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
-Date: Thu,  9 Jul 2015 08:55:47 +0530
-Message-ID: <1436412350-19519-5-git-send-email-sricharan@codeaurora.org>
+From: Sricharan R <sricharan@codeaurora.org>
+Subject: [PATCH V4 2/7] qup: i2c: factor out common code for reuse
+Date: Thu,  9 Jul 2015 08:55:45 +0530
+Message-ID: <1436412350-19519-3-git-send-email-sricharan@codeaurora.org>
 References: <1436412350-19519-1-git-send-email-sricharan@codeaurora.org>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1436412350-19519-1-git-send-email-sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1436412350-19519-1-git-send-email-sricharan@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: iivanov@mm-sol.com, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: sricharan@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
 
-The definition of i2c_msg says that
+The qup_i2c_write/read_one functions can be split to have
+the common initialization code and function to loop around
+the data bytes separately. This way the initialization code
+can be reused while adding v2 tags functionality.
 
-"If this is the last message in a group, it is followed by a STOP.
-Otherwise it is followed by the next @i2c_msg transaction segment,
-beginning with a (repeated) START"
-
-So the expectation is that there is no 'STOP' bit inbetween individual
-i2c_msg segments with repeated 'START'. The QUP i2c hardware has no way
-to inform that there should not be a 'STOP' at the end of transaction.
-The only way to implement this is to coalesce all the i2c_msg in i2c_msgs
-in to one transaction and transfer them. Adding the support for the same.
-
-This is required for some clients like touchscreen which keeps
-incrementing counts across individual transfers and 'STOP' bit inbetween
-resets the counter, which is not required.
-
-This patch adds the support in non-dma mode.
-
-Signed-off-by: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Signed-off-by: Sricharan R <sricharan@codeaurora.org>
 ---
- drivers/i2c/busses/i2c-qup.c | 40 ++++++++++++++++++++++++++++++----------
- 1 file changed, 30 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-qup.c | 147 +++++++++++++++++++++++++------------------
+ 1 file changed, 87 insertions(+), 60 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index a4e20d9..c0757d9 100644
+index 81ed120..131dc28 100644
 --- a/drivers/i2c/busses/i2c-qup.c
 +++ b/drivers/i2c/busses/i2c-qup.c
-@@ -113,6 +113,7 @@
- #define SET_BIT				0x1
- #define RESET_BIT			0x0
- #define ONE_BYTE			0x1
-+#define QUP_I2C_MX_CONFIG_DURING_RUN   BIT(31)
- 
- struct qup_i2c_block {
- 	int	count;
-@@ -121,6 +122,7 @@ struct qup_i2c_block {
- 	int	rx_tag_len;
- 	int	data_len;
- 	u8	tags[6];
-+	int     config_run;
- };
- 
- struct qup_i2c_dev {
-@@ -152,6 +154,10 @@ struct qup_i2c_dev {
- 
- 	int (*qup_i2c_write_one)(struct qup_i2c_dev *qup,
- 				 struct i2c_msg *msg);
-+	/* Current i2c_msg in i2c_msgs */
-+	int			cmsg;
-+	/* total num of i2c_msgs */
-+	int			num;
- 
- 	int (*qup_i2c_read_one)(struct qup_i2c_dev *qup,
- 				struct i2c_msg *msg);
-@@ -278,7 +284,8 @@ static int qup_i2c_wait_ready(struct qup_i2c_dev *qup, int op, bool val,
- 		status = readl(qup->base + QUP_I2C_STATUS);
- 
- 		if (((opflags & op) >> shift) == val) {
--			if (op == QUP_OUT_NOT_EMPTY) {
-+			if ((op == QUP_OUT_NOT_EMPTY) &&
-+			    (qup->cmsg == (qup->num - 1))) {
- 				if (!(status & I2C_STATUS_BUS_ACTIVE))
- 					return 0;
- 			} else {
-@@ -301,12 +308,14 @@ static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 	if (total < qup->out_fifo_sz) {
- 		/* FIFO mode */
- 		writel(QUP_REPACK_EN, qup->base + QUP_IO_MODE);
--		writel(total, qup->base + QUP_MX_WRITE_CNT);
-+		writel(total | qup->blk.config_run,
-+		       qup->base + QUP_MX_WRITE_CNT);
- 	} else {
- 		/* BLOCK mode (transfer data on chunks) */
- 		writel(QUP_OUTPUT_BLK_MODE | QUP_REPACK_EN,
- 		       qup->base + QUP_IO_MODE);
--		writel(total, qup->base + QUP_MX_OUTPUT_CNT);
-+		writel(total | qup->blk.config_run,
-+		       qup->base + QUP_MX_OUTPUT_CNT);
- 	}
+@@ -324,53 +324,72 @@ static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 	return ret;
  }
  
-@@ -374,6 +383,9 @@ static void qup_i2c_get_blk_data(struct qup_i2c_dev *qup,
- 	/* There are 2 tag bytes that are read in to fifo for every block */
- 	if (msg->flags & I2C_M_RD)
- 		qup->blk.rx_tag_len = qup->blk.count * 2;
+-static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
++static int qup_i2c_wait_for_complete(struct qup_i2c_dev *qup,
++				     struct i2c_msg *msg)
+ {
+ 	unsigned long left;
+-	int ret;
+-
+-	qup->msg = msg;
+-	qup->pos = 0;
++	int ret = 0;
+ 
+-	enable_irq(qup->irq);
++	left = wait_for_completion_timeout(&qup->xfer, HZ);
++	if (!left) {
++		writel(1, qup->base + QUP_SW_RESET);
++		ret = -ETIMEDOUT;
++	}
+ 
+-	qup_i2c_set_write_mode(qup, msg);
++	if (qup->bus_err || qup->qup_err) {
++		if (qup->bus_err & QUP_I2C_NACK_FLAG) {
++			dev_err(qup->dev, "NACK from %x\n", msg->addr);
++			ret = -EIO;
++		}
++	}
+ 
+-	ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+-	if (ret)
+-		goto err;
++	return ret;
++}
+ 
+-	writel(qup->clk_ctl, qup->base + QUP_I2C_CLK_CTL);
++static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
++{
++	int ret = 0;
+ 
+ 	do {
+ 		ret = qup_i2c_change_state(qup, QUP_PAUSE_STATE);
+ 		if (ret)
+-			goto err;
++			return ret;
+ 
+ 		ret = qup_i2c_issue_write(qup, msg);
+ 		if (ret)
+-			goto err;
++			return ret;
+ 
+ 		ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+ 		if (ret)
+-			goto err;
+-
+-		left = wait_for_completion_timeout(&qup->xfer, HZ);
+-		if (!left) {
+-			writel(1, qup->base + QUP_SW_RESET);
+-			ret = -ETIMEDOUT;
+-			goto err;
+-		}
++			return ret;
+ 
+-		if (qup->bus_err || qup->qup_err) {
+-			if (qup->bus_err & QUP_I2C_NACK_FLAG)
+-				dev_err(qup->dev, "NACK from %x\n", msg->addr);
+-			ret = -EIO;
+-			goto err;
+-		}
++		ret = qup_i2c_wait_for_complete(qup, msg);
++		if (ret)
++			return ret;
+ 	} while (qup->pos < msg->len);
+ 
+-	/* Wait for the outstanding data in the fifo to drain */
++	return ret;
++}
 +
-+	if (qup->cmsg)
-+		qup->blk.config_run = QUP_I2C_MX_CONFIG_DURING_RUN;
- }
++static int qup_i2c_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
++{
++	int ret;
++
++	qup->msg = msg;
++	qup->pos = 0;
++	enable_irq(qup->irq);
++	qup_i2c_set_write_mode(qup, msg);
++
++	ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
++	if (ret)
++		goto err;
++
++	writel(qup->clk_ctl, qup->base + QUP_I2C_CLK_CTL);
++
++	ret = qup_i2c_write_one(qup, msg);
++	if (ret)
++		goto err;
++
+ 	ret = qup_i2c_wait_ready(qup, QUP_OUT_NOT_EMPTY, RESET_BIT, ONE_BYTE);
  
- static int qup_i2c_send_data(struct qup_i2c_dev *qup, int tlen, u8 *tbuf,
-@@ -440,7 +452,8 @@ static int qup_i2c_get_tags(u8 *tags, struct qup_i2c_dev *qup,
- 	}
+ err:
+@@ -436,51 +455,59 @@ static int qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
  
- 	/* Send _STOP commands for the last block */
--	if (qup->blk.pos == (qup->blk.count - 1)) {
-+	if (qup->blk.pos == (qup->blk.count - 1)
-+	    && (qup->cmsg == (qup->num - 1))) {
- 		if (msg->flags & I2C_M_RD)
- 			tags[len++] = QUP_TAG_V2_DATARD_STOP;
- 		else
-@@ -571,7 +584,6 @@ static int qup_i2c_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ static int qup_i2c_read_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ {
+-	unsigned long left;
+-	int ret;
++	int ret = 0;
+ 
+-	qup->msg = msg;
+-	qup->pos  = 0;
++	/*
++	 * The QUP block will issue a NACK and STOP on the bus when reaching
++	 * the end of the read, the length of the read is specified as one byte
++	 * which limits the possible read to 256 (QUP_READ_LIMIT) bytes.
++	 */
++	if (msg->len > QUP_READ_LIMIT) {
++		dev_err(qup->dev, "HW not capable of reads over %d bytes\n",
++			QUP_READ_LIMIT);
++		return -EINVAL;
++	}
+ 
+-	enable_irq(qup->irq);
++	ret = qup_i2c_change_state(qup, QUP_PAUSE_STATE);
++	if (ret)
++		return ret;
+ 
+-	qup_i2c_set_read_mode(qup, msg->len);
++	qup_i2c_issue_read(qup, msg);
+ 
+ 	ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+ 	if (ret)
+-		goto err;
++		return ret;
+ 
+-	writel(qup->clk_ctl, qup->base + QUP_I2C_CLK_CTL);
++	do {
++		ret = qup_i2c_wait_for_complete(qup, msg);
++		if (ret)
++			return ret;
++		ret = qup_i2c_read_fifo(qup, msg);
++		if (ret)
++			return ret;
++	} while (qup->pos < msg->len);
+ 
+-	ret = qup_i2c_change_state(qup, QUP_PAUSE_STATE);
+-	if (ret)
+-		goto err;
++	return ret;
++}
+ 
+-	qup_i2c_issue_read(qup, msg);
++static int qup_i2c_read(struct qup_i2c_dev *qup, struct i2c_msg *msg)
++{
++	int ret;
++
++	qup->msg = msg;
++	qup->pos  = 0;
++
++	enable_irq(qup->irq);
++
++	qup_i2c_set_read_mode(qup, msg->len);
+ 
+ 	ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+ 	if (ret)
  		goto err;
  
- 	ret = qup_i2c_wait_ready(qup, QUP_OUT_NOT_EMPTY, RESET_BIT, ONE_BYTE);
+-	do {
+-		left = wait_for_completion_timeout(&qup->xfer, HZ);
+-		if (!left) {
+-			writel(1, qup->base + QUP_SW_RESET);
+-			ret = -ETIMEDOUT;
+-			goto err;
+-		}
 -
+-		if (qup->bus_err || qup->qup_err) {
+-			if (qup->bus_err & QUP_I2C_NACK_FLAG)
+-				dev_err(qup->dev, "NACK from %x\n", msg->addr);
+-			ret = -EIO;
+-			goto err;
+-		}
++	writel(qup->clk_ctl, qup->base + QUP_I2C_CLK_CTL);
+ 
+-		ret = qup_i2c_read_fifo(qup, msg);
+-		if (ret)
+-			goto err;
+-	} while (qup->pos < msg->len);
++	ret = qup_i2c_read_one(qup, msg);
+ 
  err:
  	disable_irq(qup->irq);
- 	qup->msg = NULL;
-@@ -584,18 +596,19 @@ static void qup_i2c_set_read_mode(struct qup_i2c_dev *qup, int len)
- 	int tx_len = qup->blk.tx_tag_len;
+@@ -520,9 +547,9 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
+ 		}
  
- 	len += qup->blk.rx_tag_len;
-+	tx_len |= qup->blk.config_run;
- 
- 	if (len < qup->in_fifo_sz) {
- 		/* FIFO mode */
- 		writel(QUP_REPACK_EN, qup->base + QUP_IO_MODE);
--		writel(len, qup->base + QUP_MX_READ_CNT);
- 		writel(tx_len, qup->base + QUP_MX_WRITE_CNT);
-+		writel(len | qup->blk.config_run, qup->base + QUP_MX_READ_CNT);
- 	} else {
- 		/* BLOCK mode (transfer data on chunks) */
- 		writel(QUP_INPUT_BLK_MODE | QUP_REPACK_EN,
- 		       qup->base + QUP_IO_MODE);
--		writel(len, qup->base + QUP_MX_INPUT_CNT);
- 		writel(tx_len, qup->base + QUP_MX_OUTPUT_CNT);
-+		writel(len | qup->blk.config_run, qup->base + QUP_MX_INPUT_CNT);
- 	}
- }
- 
-@@ -770,6 +783,8 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
- 	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
- 	int ret, idx;
- 
-+	qup->num = 1;
-+
- 	ret = pm_runtime_get_sync(qup->dev);
- 	if (ret < 0)
- 		goto out;
-@@ -823,6 +838,9 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
- 	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
- 	int ret, idx;
- 
-+	qup->num = num;
-+	qup->cmsg = 0;
-+
- 	ret = pm_runtime_get_sync(qup->dev);
- 	if (ret < 0)
- 		goto out;
-@@ -854,13 +872,15 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
+ 		if (msgs[idx].flags & I2C_M_RD)
+-			ret = qup_i2c_read_one(qup, &msgs[idx]);
++			ret = qup_i2c_read(qup, &msgs[idx]);
  		else
- 			ret = qup_i2c_write(qup, &msgs[idx]);
+-			ret = qup_i2c_write_one(qup, &msgs[idx]);
++			ret = qup_i2c_write(qup, &msgs[idx]);
  
--		if (!ret)
--			ret = qup_i2c_change_state(qup, QUP_RESET_STATE);
--
  		if (ret)
  			break;
-+
-+		qup->cmsg++;
- 	}
- 
-+	if (!ret)
-+		ret = qup_i2c_change_state(qup, QUP_RESET_STATE);
-+
- 	if (ret == 0)
- 		ret = num;
- out:
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
