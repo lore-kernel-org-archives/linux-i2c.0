@@ -1,53 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-parport: use dev_*
-Date: Thu, 9 Jul 2015 22:02:54 +0200
-Message-ID: <20150709200254.GJ4744@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] i2c-parport: start using pr_fmt
+Date: Thu, 9 Jul 2015 22:04:05 +0200
+Message-ID: <20150709200405.GK4744@katana>
 References: <1434632627-18955-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <1434632627-18955-2-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NgG1H2o5aFKkgPy/"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="9a9Vq1BJdYBEXpLG"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1434632627-18955-1-git-send-email-sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1434632627-18955-2-git-send-email-sudipm.mukherjee@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---NgG1H2o5aFKkgPy/
+--9a9Vq1BJdYBEXpLG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 18, 2015 at 06:33:46PM +0530, Sudip Mukherjee wrote:
-> Now parport is using device model so use dev_* macros instead of printk.
+On Thu, Jun 18, 2015 at 06:33:47PM +0530, Sudip Mukherjee wrote:
+> Start using pr_fmt and convert all remaining printk to use
+> pr_* family of macros.
 >=20
-> Signed-off-by: Sudip Mukherjee <sudip-ofJRbWXBVFamYgehrs7/Lw@public.gmane.org>
+> Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 
 Applied to for-next, thanks!
 
+One modification:
 
---NgG1H2o5aFKkgPy/
+>  	adapter =3D kzalloc(sizeof(struct i2c_par), GFP_KERNEL);
+>  	if (adapter =3D=3D NULL) {
+> -		printk(KERN_ERR "i2c-parport: Failed to kzalloc\n");
+> +		pr_err("Failed to kzalloc\n");
+
+I removed this printout, since we get a dump in this case anyhow.
+
+
+--9a9Vq1BJdYBEXpLG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVntNuAAoJEBQN5MwUoCm2rTgQAKuLFG9G/tS9KLlqFm+8tF1K
-Cz8OhVXZv68nID3yActJVCkVow2CKgeRVoA0DQZEJjOeUOOxz5KDhYnZf2XNkQj0
-PXAifQNHVd0x19Ju9/9cULv4uiNTWTpAb1BTp6wRITHVxgcuKjVkfWZ+rdQK6WoB
-WcS5kCnWvv5F7KJ+M5PMBAsuA1eI7A3oRXguvGyjUWCz2TI9Fr8GqbEfZ8A4WVPP
-XRGN+Cgj9y4NTmhH3p8VeGMBhqjp1tzuzizWrIKxf+9whxpkhVFZ80khde8NzoV4
-Z1IFQQFjtr1QDVdXUGESHh+OO2tdUTXwyhn1EB/tdNT+ZSNOiEHOFvDUtFo4RJT7
-GwF+UkwBOfBwaSKDzk535VIgmai1GPrRG76KaYvuDGYyHJt/BMa05gRru+wG2dOO
-1GunmHZdS1ZWRNQT/A2ZaTIJVZ0+IFNj760skDcrfhRY8ADsottgnB/zjXN4AkLE
-XQGKKW2PLsIcos3slerQTl0pxnXo0aa/QcsCfCpIiaRbjVizI0zvZWgw52k4LD4W
-K3nP6lcsRQKIer+9otC96/+TPJrlJen8/MhkvRhwuu9NJQlHpU5DetDqxOILVwSy
-xPTyGNloWVvGW+JHWULDDOrq4as0axoQiuNOU/gfn3O0okdZ+2DkNZLFqPD9pCx0
-ChOrZX5YFFskJs6XBCap
-=QxJL
+iQIcBAEBAgAGBQJVntO0AAoJEBQN5MwUoCm20uUP/0dazZQuREjFK3q6ehyYeJq/
+wwK7z9ePPNyy7n7j8W7q+P5gi48OX3dMvGet8j8bsDJZkGmVYUVDYD+3LRwz2inl
+E5wofj+HfCbQ6anN7QK3DA6UmOKqpBVicvW94zA3R9Q8w7rrCIOwcrPAeB0jp3La
+fMq4nBaPEa3pW8VPA3/Ex3ZdO3mNMuz3UzM/seIYPXmtLHXis+3OaqtCQNIOejAj
+DmYKmfzz3Y/7ZjY8EHojkMMqCzVqxFNbGmGdyw+FAZ9xzT1jM4M7zdgmpZCvimAT
+b8tRQwrfn0hqVyrI9+5scbu8fLRxgshtcFNXpw4lgQZHI4VFpvydAtENlw5pTeQj
+CmACpaKdWOPxin9UEYI3EoUwu6LjhLFXRbcjpXBtk8TXqpvEGw3U0fNk8U5Uw/4a
+yzxtiqL+Ptgrbky0z8Xm7zHxsIMM3WNBlw0fptjTnJhjFd9rPe0a6oAzPycaPF6E
++A/0N9Gx+8BOZ+8L7af0nkzL9wGP58xtLuBDircHz7XJ77kuUwbTgAhVUsacBz6n
+u6hvRDFHo3DSeizb+N9smQ5dVHL24Iwa/ox6tqeUO7PVQn1DbxIPYViQZIqMSKBL
+0S76nsmB2DK0qu5VJygHm7P2UJ7nAbL/Tx2hruJRhCPe2dfhlRlc4d9jWK0wbmx5
+ZAc7uYdxwhAv506tyM1W
+=4GYc
 -----END PGP SIGNATURE-----
 
---NgG1H2o5aFKkgPy/--
+--9a9Vq1BJdYBEXpLG--
