@@ -1,63 +1,61 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: removed work arounds in i2c driver for Zynq
- Ultrascale+ MPSoC
-Date: Thu, 9 Jul 2015 22:09:13 +0200
-Message-ID: <20150709200913.GL4744@katana>
-References: <1434644382-11905-1-git-send-email-anuragku@xilinx.com>
+Subject: Re: [PATCH] i2c: I2C_MT65XX should depend on HAS_DMA
+Date: Thu, 9 Jul 2015 22:10:37 +0200
+Message-ID: <20150709201037.GM4744@katana>
+References: <1435320730-5506-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Jbyekxk18hnEXT0m"
+	protocol="application/pgp-signature"; boundary="YIwHDYD8sUXtBKvt"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1434644382-11905-1-git-send-email-anuragku-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1435320730-5506-1-git-send-email-geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anurag Kumar Vulisha <anurag.kumar.vulisha-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, punnaia-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, anirudh-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, svemula-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, Anurag Kumar Vulisha <anuragku-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Jbyekxk18hnEXT0m
+--YIwHDYD8sUXtBKvt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Fri, Jun 26, 2015 at 02:12:10PM +0200, Geert Uytterhoeven wrote:
+> If NO_DMA=3Dy:
+>=20
+>     ERROR: "dma_unmap_single" [drivers/i2c/busses/i2c-mt65xx.ko] undefine=
+d!
+>     ERROR: "dma_mapping_error" [drivers/i2c/busses/i2c-mt65xx.ko] undefin=
+ed!
+>     ERROR: "dma_map_single" [drivers/i2c/busses/i2c-mt65xx.ko] undefined!
+>=20
+> Add a dependency on HAS_DMA to fix this.
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 
-thanks for the submission!
-
-> +#define CDNS_I2C_BROKEN_HOLD_BIT	0x00000001
-
-BIT(0) maybe?
-
-> +static const struct cdns_platform_data r1p10_i2c_def = {
-> +				.quirks = CDNS_I2C_BROKEN_HOLD_BIT, };
-
-Closing '}' should be on seperate line.
-
-And what Mark said.
-
-Other than that, looks okay I'd say.
+Applied to for-current, thanks!
 
 
---Jbyekxk18hnEXT0m
+--YIwHDYD8sUXtBKvt
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVntTpAAoJEBQN5MwUoCm2/FwP/1PfMFQP111mBlAJMjVt5zw1
-8qPfXCnf+yjMV1JhSmNtoD+Iy3FvVKHoJeISRYG1oJtx/NVfcocwWOQc63uofnJN
-e4WasP7C1Moww2hE6Mm9Oe/XW+EIWug4cbwTA79AtzCwZcgQEBoKpa6LlhVVJq+E
-4PEJcAeXE9+exdrSZL8TlhlKbShlhRlK8vIjMIDbJBeIvy2hDlqmf345LBK3OYKk
-ZjuDwBeNm0hECb3vuvipEWNGawPY6nctDpTgm58lHSRN8kq1lLcu3w6e+CFtHYmI
-lE3vWxuW3j7NDk3uwxvj7sMcTs5ZmcZiK/R/BE2bLWVnsQ83eqcJaIM08rpRY3uN
-RvFmacJ/ThVdBuExZy+z0JEnP3nSqHqn42ePFtvzuzFKpYlIApvjAnn+g8hMP0rM
-gxxKEv+Kkg8D/aIEmclvx4LP4UAl5A+C4qOE1MK5sgQ950U59i/53Y+B94HQlRtY
-8dDIId7t4aXDKEIvsudkXUQwqfNFiBWOeGeUVgV+l6kmJoFFwScmPYGENRhtvtA1
-KV18UaT2LDqntdDF2La7J/9eNUXEyvRSQAFEm8oIJt+DFUrFQbkCXAn0rytn0YFI
-7zM44iCVbrR9SfY326AJVzCXbaH+ReAD0HB5FYEc5w24GJTHcPMnyFmehqHeS/Q3
-XZ/FM6PLzlkRla+oaYOf
-=sEKs
+iQIcBAEBAgAGBQJVntU8AAoJEBQN5MwUoCm2zpIP/0E75Wu1eXfpsMTs12Hmdx1v
+fHgDafQQmvZxXvZFVKjvQCYldXRfndYnxllDB0W0hapmOC8eJisGQ9cuc5RJRdDh
+gplPD8D/DgZyVmsZJaFgquLX4CBUdrpErZRkEOnq2F2peDZGDFvNTXMxSZexKWAV
+2ijWVbjhf2Wlj9Q1DixnvB+sPcXrT45H55z0alk5OmgZ86Y39bWKtj9Fpi7BCuZC
+FKLUd8AIildfda6eQk5JuPdFn7xoprEwVpWX08A1/0r0W37o8jQlp+tkHmDHDCND
+1B6lV/jXbbvOUpeMQST/JThG+GDk4Rcb6whumznFrc8Wq5iihTF5pq2dIyOy0bMV
+R5M785g3ZiWnV9AGe/RIcTRsoPDnO+ColuLW+6pk9mxoz5jsiafQ9gU9q4x4ydyO
+5mGvGTrMbCn+9SWBJv6rjqr/1sC+W5Nhq1lvyarkgmTM1mXurX6ISUfnhRTQh+xl
+Gg5cutrVmefDgiCqI1YBaVWGKnpWu0SlB0wG/7+sTHgNLBZm+8Y7E1Vv0x8zCkT9
+wUxjfcUXfCJcdTFdVGTvThnmWFV5qhFe4dp6D9in0UiLbxgIemSwQI3I6fJ+4Yhq
+pCubGzcCs7yqvJneqAcMj5mIKD81XDO5JQaYmEoMYNr4ilnVoienNLyROjbj36kF
+zp9orFDUBohrvPBets7f
+=zJjG
 -----END PGP SIGNATURE-----
 
---Jbyekxk18hnEXT0m--
+--YIwHDYD8sUXtBKvt--
