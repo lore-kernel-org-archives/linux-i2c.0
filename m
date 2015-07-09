@@ -1,67 +1,38 @@
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Subject: Re: [PATCH] i2c: core: only use set_scl for bus recovery after
- calling prepare_recovery
-Date: Thu, 9 Jul 2015 09:58:10 +0200
-Message-ID: <559E2992.7050203@nokia.com>
-References: <1436366106-11779-1-git-send-email-jlu@pengutronix.de>
+From: Kefeng Wang <wangkefeng.wang-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Subject: question about i2c-designware
+Date: Thu, 9 Jul 2015 16:59:03 +0800
+Message-ID: <559E37D7.6040103@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1436366106-11779-1-git-send-email-jlu@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: ext Jan Luebbe <jlu@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexey Brodkin <abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Ding Tianhong <dingtianhong-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, "Guohanjun (Hanjun Guo)" <guohanjun-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
+Hi all,
 
-On 08/07/15 16:35, ext Jan Luebbe wrote:
-> Using set_scl may be ineffective before calling the driver specific
-> prepare_recovery callback, which might change into a test mode. So
-> instead of setting SCL in i2c_generic_scl_recovery, move it to
-> i2c_generic_recovery (after the optional prepare_recovery).
-> 
-> Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+  We met a issue when use Synopsys DesignWare I2C. The SDA will keep low level and never go back to the high level
+if both i2c controllers simultaneously access the same i2c device(rtc), then both two i2c controllers can't send any data.
+we try to reset the rtc, but not working. After reset the i2c controller, the SDA goes back to the high state and we
+can get time from rtc again.
 
-Makes sense,
-Acked-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+The scenario is as follows, any advice will be appreciated.
 
-> ---
->  drivers/i2c/i2c-core.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 069a41f116dd..be992b3e0be8 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -567,6 +567,9 @@ static int i2c_generic_recovery(struct i2c_adapter *adap)
->  	if (bri->prepare_recovery)
->  		bri->prepare_recovery(adap);
->  
-> +	bri->set_scl(adap, val);
-> +	ndelay(RECOVERY_NDELAY);
-> +
->  	/*
->  	 * By this time SCL is high, as we need to give 9 falling-rising edges
->  	 */
-> @@ -597,7 +600,6 @@ static int i2c_generic_recovery(struct i2c_adapter *adap)
->  
->  int i2c_generic_scl_recovery(struct i2c_adapter *adap)
->  {
-> -	adap->bus_recovery_info->set_scl(adap, 1);
->  	return i2c_generic_recovery(adap);
->  }
->  EXPORT_SYMBOL_GPL(i2c_generic_scl_recovery);
+                   OS 1            |     OS 2
+                                  |
+	+--------------+----------|--------------+
+	|	       |	  |              |
+	|    +---------|----+-----|---------+    |
+	|    |	       |    |     |         |    |
+   ----------------    ------	  |    -----------------
+   |i2c controller1|   | rtc|	  |    |i2c controller2|
+   ----------------    ------     |    -----------------
+                                  |
+note:
+1) i2c controller1 and controller2 use same IP.
+2) OS1 use v3.19 and OS2 use 2.6
 
--- 
-Best regards,
-Alexander Sverdlin.
+Thanks
+Kefeng
