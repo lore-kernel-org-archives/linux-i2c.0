@@ -1,43 +1,93 @@
 From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v2 0/3] I2C/SMBus: add support for Host Notify (in i2c_i801)
-Date: Thu,  9 Jul 2015 13:30:49 -0400
-Message-ID: <1436463052-6944-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 1/3] i2c: add a protocol parameter to the alert callback
+Date: Thu,  9 Jul 2015 13:30:50 -0400
+Message-ID: <1436463052-6944-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1436463052-6944-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1436463052-6944-1-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+.alert() is meant to be generic, but there is currently no way
+for the device driver to know which protocol generated the alert.
+Add a parameter in .alert() to help the device driver to understand
+what is given in data.
 
-this is a v2 of this patch series. Things are starting to shape better I think,
-but I am still not sure about one or two things:
-- do we want to #ifdef i2c_propagate_smbus_host_notify() so that we do not add
-  a dependency in the KConfig for i2c_i801, or do actually want the dependency?
-- do we want to have i2c_propagate_smbus_host_notify() to actually be able to
-  sleep or do we prefer calling it directly a worker?
+This patch is required to have the support of SMBus Host Notify protocol
+through .alert().
 
-Note that I only compile-tested the ipmi_ssif changes, but this seems
-straightforward enough.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+---
 
-Thanks for your inputs.
+New in v2
 
-Cheers,
-Benjamin
+ drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
+ drivers/i2c/i2c-smbus.c       | 3 ++-
+ include/linux/i2c.h           | 7 ++++++-
+ 3 files changed, 13 insertions(+), 3 deletions(-)
 
-Benjamin Tissoires (3):
-  i2c: add a protocol parameter to the alert callback
-  i2c-smbus: add SMBus Host Notify support
-  i2c: i801: add support of Host Notify
-
- Documentation/i2c/smbus-protocol |   3 +
- drivers/char/ipmi/ipmi_ssif.c    |   6 +-
- drivers/i2c/busses/i2c-i801.c    | 172 +++++++++++++++++++++++++++++----------
- drivers/i2c/i2c-smbus.c          |  35 +++++++-
- include/linux/i2c-smbus.h        |   8 ++
- include/linux/i2c.h              |  10 ++-
- include/uapi/linux/i2c.h         |   1 +
- 7 files changed, 186 insertions(+), 49 deletions(-)
-
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index 207689c..1d4cece 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -567,12 +567,16 @@ static void retry_timeout(unsigned long data)
+ }
+ 
+ 
+-static void ssif_alert(struct i2c_client *client, unsigned int data)
++static void ssif_alert(struct i2c_client *client,
++		       enum i2c_alert_protocol protocol, unsigned int data)
+ {
+ 	struct ssif_info *ssif_info = i2c_get_clientdata(client);
+ 	unsigned long oflags, *flags;
+ 	bool do_get = false;
+ 
++	if (protocol != I2C_PROTOCOL_SMBUS_ALERT)
++		return;
++
+ 	ssif_inc_stat(ssif_info, alerts);
+ 
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index 94765a8..abad351 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
+ 	if (client->dev.driver) {
+ 		driver = to_i2c_driver(client->dev.driver);
+ 		if (driver->alert)
+-			driver->alert(client, data->flag);
++			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
++				      data->flag);
+ 		else
+ 			dev_warn(&client->dev, "no driver alert()!\n");
+ 	} else
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index e83a738..6764734 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -123,6 +123,10 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ 					  const u8 *values);
+ #endif /* I2C */
+ 
++enum i2c_alert_protocol {
++	I2C_PROTOCOL_SMBUS_ALERT,
++};
++
+ /**
+  * struct i2c_driver - represent an I2C device driver
+  * @class: What kind of i2c device we instantiate (for detect)
+@@ -178,7 +182,8 @@ struct i2c_driver {
+ 	 * For the SMBus alert protocol, there is a single bit of data passed
+ 	 * as the alert response's low bit ("event flag").
+ 	 */
+-	void (*alert)(struct i2c_client *, unsigned int data);
++	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
++		      unsigned int data);
+ 
+ 	/* a ioctl like command that can be used to perform specific functions
+ 	 * with the device.
 -- 
 2.4.3
