@@ -1,56 +1,57 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/5] i2c: emev2: add binding documentation
-Date: Thu, 9 Jul 2015 17:20:49 +0200
-Message-ID: <20150709152048.GA3284@katana>
-References: <1436219188-4325-1-git-send-email-wsa@the-dreams.de>
- <13947160.RNzBrc1uk4@avalon>
- <20150707195313.GD1572@katana>
- <68423578.FklJfiBCEe@avalon>
+Subject: Re: [RFC] i2c-tools: allow linker and compile flags from command line
+Date: Thu, 9 Jul 2015 18:50:48 +0200
+Message-ID: <20150709165047.GA4744@katana>
+References: <1434705872-2866-1-git-send-email-wsa@the-dreams.de>
+ <20150707210828.0e5caf05@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <68423578.FklJfiBCEe@avalon>
+In-Reply-To: <20150707210828.0e5caf05-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---bg08WKrSYDhXBjb5
+--nFreZHaLTZJo0R7j
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 
-> Is that the functional clock, while SCLK is the clock used to control ser=
-ial=20
-> communication ?
+> You can already overwrite CFLAGS and LDFLAGS on the command line, and
+> this works for the whole package. Do you really need to set different
+> CFLAGS (or LDFLAGS) for different parts of i2c-tools? Seems overkill to
+> me.
 
-Yes, that's how I read it.
+I agree, not really needed now. Let's skip this one.
 
+Thanks,
 
---bg08WKrSYDhXBjb5
+   Wolfram
+
+--nFreZHaLTZJo0R7j
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVnpFQAAoJEBQN5MwUoCm2d+wP/ikpKTLIYNuC2BwGCWo6jvA6
-M/4RqtlUJgx6jJgtlPvdesAec3r+XQ7wjjFHn9yrVDCQlgnm36NW7UG0yXh98IQ3
-HWuJqOI+TwGak/2WEMNTFjsNMEHY2hALncSkh2tSzf/SxzgYuFCDAjp4B040Cfch
-X2/IRH9zs9Vz4I7lJ2dTnaMM0GHe8xHKO5vE+0q8XR7UDZcsfu5GEmMxdHNZNcm2
-FiwJv/8lM6S6pJ7aq47u4YqMv4I+47sybZy78IV254tTMPCjVkNHPUpNHcy8ME2f
-II9Kp0Ei9WBuZsoKmpOvdxDCSQcVdxh/3odq2oHCWY4ipa55iTEcmZsEcRokVkm+
-nSXouV8cD6s4iXn0YWQV8Q+nOASgcA9+l+y2VUgbZGB9T9UAi/o6kGZAc7N21tWH
-inhIghG3yEv9yiyIcabCW60SmKgGxRT9UpBPSUuY79pJIKRPda5QpT90r0BtJ6UC
-h5JIZrEZkF85Rk1nt/4YKWtPEE4FatOxWKn+O1d09JARztgqYLLuKZMYjWXrpQsk
-Cke8psQoAplzObnrUCjJ9ppjfxoh89urRHoLN+zx93ow+o/9rMjgBbJ0X7w3hsNU
-oTpCY4byO4JrTLZSPjU3f6e6yUaZZTMPFMJhKKA38TnHtwkLUBrsYOmjGt0q4EL8
-B7uYAWYxx+FijQ8QYpzq
-=mrjZ
+iQIcBAEBAgAGBQJVnqZnAAoJEBQN5MwUoCm25D4P/RKNhpSO6UbMZ6MfsHvTnICx
+732dj2SdyY29jOuGtBI0NtUL8uDslUdx3KUy6ss/HJPw0wE5PC8mPVLl1tNOce3v
+jExOcmaAaCtXOEucfJ3mkBNYaA3WNUwQH0KO2o1GI0IYV137ijKnPARQr0pF1Mkp
+1Do9eKec8FGtj5IIzVgHT1aIv7d2FtmOy2FQcm1qfVXZPCjC0RaOUFH4h1lTmI9l
+K0tIN1p8M6GICJiBabQPA68LPc6QQhQLCZLaTAthm8+/eoHxCb7ewPjKRPVaVCUf
+4HHR7C/7/nd5uup06adMO1koD5py7Smq4G/TxdpplxEnLXOra1OPmWnrNKkI+W5G
+A0EN6nSs3qukBc2vP+Gh3ze/MvwMORJePoJnayYnvjAgAuSoMWwxpza71mdxUrrp
+OWMTFJ6hVU1L4dvW3E39LZnJElZ7c+0axj+KK67HCUV9eoiCW0cqxWSP/ii4xeJW
+wwNyc8T0X5WUj1dbGYLO9pywVPQ2gJSvDV9kOpyddagXEkRw67xalyGUrqTCA7I0
+yJMXb65mvJMcXxYt63TIvVmj75Jcrk0tjI0LM7S0U2mKEqKd6swW1gLvmOnNZUth
+AoSlEmUfRDtf1fdWIFk7lzJiZ5mwX0Rw2ZBMzIQr3Ty6JSNwgQULS4CRHjzqvKrF
+WFV6zVWH3jUY3ymkXtk+
+=kp/f
 -----END PGP SIGNATURE-----
 
---bg08WKrSYDhXBjb5--
+--nFreZHaLTZJo0R7j--
