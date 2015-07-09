@@ -1,50 +1,67 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [RFT PATCH 1/2] i2c: tegra: update CONFIG_LOAD for new conifiguration
-Date: Thu, 9 Jul 2015 11:10:24 +0530
-Message-ID: <559E0948.1050004@nvidia.com>
-References: <1435661667-11554-1-git-send-email-ldewangan@nvidia.com> <559D89D8.50500@wwwdotorg.org>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Subject: Re: [PATCH] i2c: core: only use set_scl for bus recovery after
+ calling prepare_recovery
+Date: Thu, 9 Jul 2015 09:58:10 +0200
+Message-ID: <559E2992.7050203@nokia.com>
+References: <1436366106-11779-1-git-send-email-jlu@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <559D89D8.50500-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andrewc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chaitanya Bandi <bandik-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1436366106-11779-1-git-send-email-jlu@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: ext Jan Luebbe <jlu@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi!
 
-On Thursday 09 July 2015 02:06 AM, Stephen Warren wrote:
-> On 06/30/2015 04:54 AM, Laxman Dewangan wrote:
->>
->>
->> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->> Signed-off-by: Chaitanya Bandi <bandik-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->
-> I'm not sure why Chaitanya's S-o-b is there and listed last if he's 
-> not the patch author. If he wrote the patch, he should be the git 
-> author and his S-o-b should be first. If he didn't and you simply 
-> based this patch on work by Chaitanya, then his S-o-b probably 
-> shouldn't be present, and yours would be last since you're submitting 
-> the patch.
+On 08/07/15 16:35, ext Jan Luebbe wrote:
+> Using set_scl may be ineffective before calling the driver specific
+> prepare_recovery callback, which might change into a test mode. So
+> instead of setting SCL in i2c_generic_scl_recovery, move it to
+> i2c_generic_recovery (after the optional prepare_recovery).
+> 
+> Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
 
-The patch I created is based on Chaitanya's work, edited on his work to 
-match with mainline.
+Makes sense,
+Acked-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
->
->> ---
->> Stephen/Andrew,
->> I need help on testing this on other platform. I tested this on T210.
->
-> I'm puzzled how this was tested on T210, since it isn't supported 
-> upstream yet.
+> ---
+>  drivers/i2c/i2c-core.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 069a41f116dd..be992b3e0be8 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -567,6 +567,9 @@ static int i2c_generic_recovery(struct i2c_adapter *adap)
+>  	if (bri->prepare_recovery)
+>  		bri->prepare_recovery(adap);
+>  
+> +	bri->set_scl(adap, val);
+> +	ndelay(RECOVERY_NDELAY);
+> +
+>  	/*
+>  	 * By this time SCL is high, as we need to give 9 falling-rising edges
+>  	 */
+> @@ -597,7 +600,6 @@ static int i2c_generic_recovery(struct i2c_adapter *adap)
+>  
+>  int i2c_generic_scl_recovery(struct i2c_adapter *adap)
+>  {
+> -	adap->bus_recovery_info->set_scl(adap, 1);
+>  	return i2c_generic_recovery(adap);
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_generic_scl_recovery);
 
-We tested this as:
-- K318 kernel release + i2c subsystem from linux-next in downstream boards.
-- Chrome-OS team on smaug with their tree.
-
-
-> The series,
-> Tested-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-
-Thanks for testing.
+-- 
+Best regards,
+Alexander Sverdlin.
