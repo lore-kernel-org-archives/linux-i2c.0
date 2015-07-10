@@ -1,62 +1,75 @@
-From: Anurag Kumar Vulisha <anurag.kumar.vulisha-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH] i2c: removed work arounds in i2c driver for Zynq
- Ultrascale+ MPSoC
-Date: Fri, 10 Jul 2015 07:29:39 +0000
-Message-ID: <3802E9A6666DF54886E2B9CBF743BA98011EFAFC@XAP-PVEXMBX01.xlnx.xilinx.com>
-References: <1434644382-11905-1-git-send-email-anuragku@xilinx.com>
- <20150709200913.GL4744@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCHv2 2/9] i2c: xiic: move the xiic_process to thread context
+Date: Fri, 10 Jul 2015 09:53:09 +0200
+Message-ID: <20150710075309.GA1528@katana>
+References: <1434554299-23443-1-git-send-email-shubhraj@xilinx.com>
+ <1434554299-23443-3-git-send-email-shubhraj@xilinx.com>
+ <20150709173158.GD4744@katana>
+ <CAKfKVtGOxWU-66fQSd8D6Ue0Si0koQF-CrR0pVZ8RupMNQ=-GQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150709200913.GL4744@katana>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "pawel.moll-5wv7dgnIgG8@public.gmane.org" <pawel.moll-5wv7dgnIgG8@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Michal Simek <michals-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Soren Brinkmann <sorenb-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Punnaiah Choudary Kalluri <punnaia-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Anirudha Sarangi <anirudh-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Srikanth Vemula <svemula-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAKfKVtGOxWU-66fQSd8D6Ue0Si0koQF-CrR0pVZ8RupMNQ=-GQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
-Hi,
-        Thanks for reviewing the code. I will make the changes as said and send the patch as v2.
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Jul 10, 2015 at 10:38:11AM +0530, Shubhrajyoti Datta wrote:
+> On Thu, Jul 9, 2015 at 11:01 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> >>  static int xiic_bus_busy(struct xiic_i2c *i2c)
+> >> @@ -602,16 +601,21 @@ static void xiic_start_send(struct xiic_i2c *i2c)
+> >>  static irqreturn_t xiic_isr(int irq, void *dev_id)
+> >>  {
+> >>       struct xiic_i2c *i2c =3D dev_id;
+> >> -
+> >> -     spin_lock(&i2c->lock);
+> >> +     u32 pend, isr, ier;
+> >> +     irqreturn_t ret =3D IRQ_HANDLED;
+> >> +     /* Do not processes a devices interrupts if the device has no
+> >> +      * interrupts pending
+> >> +      */
+> >
+> > Shouldn't you init 'ret' to IRQ_NONE then?
+> >
+>=20
+> Indeed I missed it.
+
+Can you test this change on HW and report back?
+
 Thanks,
-Anurag Kumar V
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
-> Sent: Friday, July 10, 2015 1:39 AM
-> To: Anurag Kumar Vulisha
-> Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; pawel.moll-5wv7dgnIgG8@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org;
-> ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org; galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org; Michal Simek; Soren
-> Brinkmann; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
-> kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; Punnaiah
-> Choudary Kalluri; Harini Katakam; Anirudha Sarangi; Srikanth Vemula; Anurag
-> Kumar Vulisha
-> Subject: Re: [PATCH] i2c: removed work arounds in i2c driver for Zynq
-> Ultrascale+ MPSoC
->
-> Hi,
->
-> thanks for the submission!
->
-> > +#define CDNS_I2C_BROKEN_HOLD_BIT   0x00000001
->
-> BIT(0) maybe?
->
-> > +static const struct cdns_platform_data r1p10_i2c_def = {
-> > +                           .quirks = CDNS_I2C_BROKEN_HOLD_BIT, };
->
-> Closing '}' should be on seperate line.
->
-> And what Mark said.
->
-> Other than that, looks okay I'd say.
+   Wolfram
 
 
+--vkogqOf2sHV7VnPd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+iQIcBAEBAgAGBQJVn3nlAAoJEBQN5MwUoCm2BFIP/RHd6wIbVDQqBPwcj23YsZJB
+btNGFdlwEic1vnhYDtCf6ZGzmoPLH8XJmdtUJwF2oJAgEPUQI3QyZ9cXYhD3piap
+aOX0PUzkxuN2ob/l+V23cBzVKDJ17hgeawXBcGmXogT6WqfoZSvQxs8kdPYA2Mol
+IyszeC9Dnp3VI7Jni6riWoFHxf/BsK/24x3hNU1DE7AMVt3htCTcRAnD9125zmSz
+zlyBNd/6vEUKZMMJ3gbLbZQKhI2wRyjGOAQGrwUDeETX3ht65cdxj9kRz+Q60r/E
+Z67mRvdTPTPd4gri377hnovzKLnMh7xQ89vuvmNfFDFZwgJKZlwMVvXIRvro+ci1
+rbdJ0m1oh19l1i4lBpINgCFdq6Mh+3ZyI/9xds5+JlC5j6h7zrVsJKqfIYIYmFVQ
+N+bdagHip8iKi1Pe0KFKXmjyTur7vrTgqUvEBxEOrcHYdLqY8SktWaYeljtuTDan
+WK7x0WvmSy9EfNkwh7Aor4WATNzVg0Y6THeKXUTkhBOmPpi6z09bQMcpnwV7DGMg
+nJoK/dZUavUZRvPH779YrLIVgVYODgnp3WfSv/5W6nUsvbfi9T4+t5271L/WIkvE
+xHxp0WJ00Ooyl+kMLeIqMXuTQhwD0KJwQlF590n6Vsy9Y0hZM3m2/UkBumOTz5Rf
+PGVcS09tikU3PvKgpLEq
+=fYHy
+-----END PGP SIGNATURE-----
+
+--vkogqOf2sHV7VnPd--
