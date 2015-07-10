@@ -1,49 +1,73 @@
-From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Subject: Re: [RFC PATCH] i2c: busses: i2c-omap: Increase timeout for i2c interrupt
-Date: Fri, 10 Jul 2015 17:02:39 +0300
-Message-ID: <559FD07F.7040402@ti.com>
-References: <1436504994-31137-1-git-send-email-vigneshr@ti.com> <559F8670.2060305@nokia.com> <20150710090909.GF1528@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH-v3 02/11] i2c: pxa: No need to set slave addr for i2c
+ master mode reset
+Date: Fri, 10 Jul 2015 16:14:40 +0200
+Message-ID: <20150710141440.GA6594@katana>
+References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1436210695-19159-3-git-send-email-vaibhav.hiremath@linaro.org>
+ <20150710081148.GB1528@katana>
+ <559FBCD3.4050402@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150710090909.GF1528@katana>
+Content-Disposition: inline
+In-Reply-To: <559FBCD3.4050402-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: ext Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On 07/10/2015 12:09 PM, Wolfram Sang wrote:
-> 
->> 60 s sounds way too much and actually I simply don't believe this is
->> the root cause. If I take a look into the driver, then I see, that
-> 
-> I agree, this is just a workaround.
-> 
->> the design is not really the best. The whole IRQ handling could be
->> actually performed in hard IRQ handler, without threading overhead.
->> Putting even 2 bytes in the controller FIFO should not be too heavy
->> for the hard IRQ handler. Then these ridiculous spin_lock()s. What
->> is the reason behind? The IRQ is flagged with ONESHOT, so thread and
->> hardirq handler are anyway mutually excluded. But if this thread
->> ever runs longer than it's allowed in IRQ context, then it anyway
->> produces this IRQ latency because it locks spin_lock_irqsave() for
->> the whole time! So the whole point of threaded interrupt is missing.
-> 
-> Furthermore, this combination of threaded_irq and struct completion seems
-> bogus to me. If you just want to ensure the irq happened before timeout,
-> you just complete when the irq happened and do the "bottom half" after the
-> completion returned?
-> 
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd very appreciated if You would be able to clarify your point a bit, pls?
-completion is used to indicate end of one message transfer (+check for msg timeout),
-so .master_xfer()->omap_i2c_xfer could switch to next msg.
-And there could be more than on IRQ triggered depending on msg length
-while one message is being transfered.
+On Fri, Jul 10, 2015 at 06:08:43PM +0530, Vaibhav Hiremath wrote:
+>=20
+>=20
+> On Friday 10 July 2015 01:41 PM, Wolfram Sang wrote:
+> >On Tue, Jul 07, 2015 at 12:54:46AM +0530, Vaibhav Hiremath wrote:
+> >>Normally i2c controller works as master, so slave addr is not needed, o=
+r it
+> >>will impact some slave device (eg. ST NFC chip) i2c accesses, because i=
+t has
+> >>the same i2c address with controller.
+> >
+> >Just to make sure: Does it? As I read the code, slave interrupts are
+> >enabled later only when slave mode is selected? Is that a HW bug? And if
+> >so, can't the code just be moved into this #ifdef block later?
+> >
+>=20
+> Yes we could, infact I thought about it;
+> but I would break recommended sequence here.
 
--- 
-regards,
--grygorii
+And did you set the "own slave address" to a value which one of your
+existing i2c slaves also has (without enabling slave mode)? Did it
+disturb communication?
+
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVn9NPAAoJEBQN5MwUoCm2s50P/14d/hdv+zOYstTUqIyZ5Evg
+JhpUQlf2Ft/mVNh9U/zvqLsi0h3ryr1AWNku9G/zRFEtW0C1xSJ1jbt5vKPgDCar
+UYjT0UHFTfCJsK+k89Xp9lOkcCDoYnt3lbIqhDS82JYSrn4rg/UvNj+Wj/UeFB73
+j+VJMwxUwkdUK1ih7haL4zSo6NQ5zkbYaybRUZcIPjYru0FfTcDvc2Nsr3cCSPw5
+4wjqsyID+DbpDM+XBpVKvwWHqvo6fPUy2C6xxWGLWsNkROQfxkLLLWPt+x5q0sDe
+YVw0aDdmvItS3NpOf7jx44kBLFl/l7CwBJkka46H84Tk70sYwTcA86SBrQSvb7TS
+98WRs8smaN2YNtmOO3bDiPgGjcqaZ3QqfYZs0Jgu3EVzTiCPrvA3NcbwlXuTrraR
+VPOkuVNozCaFI1uxLL1jlC40SE6YzljAl4Ej5f6oKehht8pyxdLlJspdazpvc1pW
+gedXNUZEtf/NIjn5Kktzj6FRz1lb20OZXsC2CEvKCFooitNMeU+4evfty24w1SKi
+FM8ZfkrphWstxCVKmv8zF+bU5WoaGJ3WpNrzc+f12J02SwxGdiuw3HizfaAIUfQz
+3eUICJuuZQmFtTdfV0DboQrr6Tv1qqFV0PS+LHd9b9oikpsKeqINHOw/YUMMDNSo
+/7amZKiH7lOanuyGHuoQ
+=M7gJ
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--
