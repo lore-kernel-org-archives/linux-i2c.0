@@ -1,126 +1,67 @@
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: Re: [PATCH v2] HID: cp2112: support large i2c transfers in hid-cp2112
-Date: Thu, 09 Jul 2015 13:37:02 +0530
-Message-ID: <559E2BA6.4020904@linaro.org>
-References: <1436351118-3360-1-git-send-email-ellen@cumulusnetworks.com> <559D126B.6050505@linaro.org> <559D6738.1050003@cumulusnetworks.com>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH-v3 02/11] i2c: pxa: No need to set slave addr for i2c
+ master mode reset
+Date: Fri, 10 Jul 2015 18:08:43 +0530
+Message-ID: <559FBCD3.4050402@linaro.org>
+References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org> <1436210695-19159-3-git-send-email-vaibhav.hiremath@linaro.org> <20150710081148.GB1528@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <559D6738.1050003@cumulusnetworks.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Ellen Wang <ellen@cumulusnetworks.com>, borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150710081148.GB1528@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
 
-On Wednesday 08 July 2015 11:38 PM, Ellen Wang wrote:
+On Friday 10 July 2015 01:41 PM, Wolfram Sang wrote:
+> On Tue, Jul 07, 2015 at 12:54:46AM +0530, Vaibhav Hiremath wrote:
+>> Normally i2c controller works as master, so slave addr is not needed, or it
+>> will impact some slave device (eg. ST NFC chip) i2c accesses, because it has
+>> the same i2c address with controller.
 >
->
-> On 07/08/2015 05:07 AM, Vaibhav Hiremath wrote:
->>
->>
->> On Wednesday 08 July 2015 03:55 PM, Ellen Wang wrote:
->>> cp2112_i2c_xfer() only reads up to 61 bytes, returning EIO
->>> on longers reads.  The fix is to wrap a loop around
->>> cp2112_read() to pick up all the returned data.
->>>
->>> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
->>> ---
->>> This is the updated patch with a check for 0 return from
->>> cp2112_read().  I tested it with a suitable delay in the loop
->>> to trigger the cp2112_raw_event() overrun bug, which must
->>> be fixed before this patch is applied.
->>> ---
->>>   drivers/hid/hid-cp2112.c | 33 ++++++++++++++++++++++++++-------
->>>   1 file changed, 26 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
->>> index 3318de6..e2ffac0 100644
->>> --- a/drivers/hid/hid-cp2112.c
->>> +++ b/drivers/hid/hid-cp2112.c
->>> @@ -509,13 +509,32 @@ static int cp2112_i2c_xfer(struct i2c_adapter
->>> *adap, struct i2c_msg *msgs,
->>>       if (!(msgs->flags & I2C_M_RD))
->>>           goto finish;
->>>
->>> -    ret = cp2112_read(dev, msgs->buf, msgs->len);
->>> -    if (ret < 0)
->>> -        goto power_normal;
->>> -    if (ret != msgs->len) {
->>> -        hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
->>> -        ret = -EIO;
->>> -        goto power_normal;
->>> +    for (count = 0; count < msgs->len;) {
->>> +        ret = cp2112_read(dev, msgs->buf + count, msgs->len - count);
->>> +        hid_warn(hdev, "read returned %d for %zd\n",
->>> +             ret, msgs->len - count);
->>
->> Do you always want to throw warning here, unconditionally ?
->
-> Yeah.  Sorry.  I had debugging code in my workspace then ran git diff
-> with the wrong options.  I'll resend.
->
->>> +        if (ret < 0)
->>> +            goto power_normal;
->>> +        if (ret == 0) {
->>> +            hid_err(hdev, "read returned 0\n");
->>> +            ret = -EIO;
->>> +            goto power_normal;
->>> +        }
->>
->> bit simplified, I guess :)
->>
->> if (ret < 0 || ret == 0) {
->>      hid_err(hdev, "read returned %d", ret);
->>      ret = ret == 0 ? -EIO : ret;
->>      goto power_normal;
->> }
->>
->>
->>> +        count += ret;
->>> +        if (count > msgs->len) {
->>> +            /*
->>> +             * The hardware returned too much data.
->>> +             * This is mostly harmless because cp2112_read()
->>> +             * has a limit check so didn't overrun our
->>> +             * buffer.  Nevertheless, we return an error
->>> +             * because something is seriously wrong and
->>> +             * it shouldn't go unnoticed.
->>> +             */
->>> +            hid_err(hdev, "long read: %d > %zd\n",
->>> +                ret, msgs->len - count + ret);
->>
->> You may want to take another look here.
->> 'ret' will be either,
->>
->>      - ret = msgs->len
->>          Not applicable
->>      - ret > msgs->len
->>          (count > msgs->len) will happen in one single
->>          iteration, and will
->>      - ret < msgs->len
->>          (count > msgs->len) will happen in multiple iterations
->>          where count keeps incrementing based on ret
->>
->> In the 2 scenarios above, I believe you would want to show,
->>
->>      actual read bytes > requested read bytes
->>
->>
->> Am I missing something here?
->
-> (count > msgs->len) should never happen, so there's really no predicting
-> it.  Or do you mean something else?
+> Just to make sure: Does it? As I read the code, slave interrupts are
+> enabled later only when slave mode is selected? Is that a HW bug? And if
+> so, can't the code just be moved into this #ifdef block later?
 >
 
+Yes we could, infact I thought about it;
+but I would break recommended sequence here.
 
-I meant the message which you are printing above seems wrong to me.
+As per spec, it only says,
+
+The SocC writes this register before it enable TWSI operations.
+
+I decided not to break the existing sequence and just fix the code, as
+I do can not validate slave mode of operation functionally. I do not
+have slave mode setup with me.
 
 Thanks,
 Vaibhav
->
->> Thanks,
->> Vaibhav
->
-> Thank you.
+
+>>
+>> Signed-off-by: Jett.Zhou <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>> Acked-by: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
+>> ---
+>>   drivers/i2c/busses/i2c-pxa.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+>> index f4ac8c5..023e59f 100644
+>> --- a/drivers/i2c/busses/i2c-pxa.c
+>> +++ b/drivers/i2c/busses/i2c-pxa.c
+>> @@ -459,7 +459,7 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+>>   	writel(I2C_ISR_INIT, _ISR(i2c));
+>>   	writel(readl(_ICR(i2c)) & ~ICR_UR, _ICR(i2c));
+>>
+>> -	if (i2c->reg_isar)
+>> +	if (i2c->reg_isar && IS_ENABLED(CONFIG_I2C_PXA_SLAVE))
+>>   		writel(i2c->slave_addr, _ISAR(i2c));
+>>
+>>   	/* set control register values */
+>> --
+>> 1.9.1
+>>
