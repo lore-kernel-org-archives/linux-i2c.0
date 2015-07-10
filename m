@@ -1,80 +1,78 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 6/8] iio: gyro: bmg160: optimize i2c transfers in
- trigger handler
-Date: Fri, 10 Jul 2015 17:46:35 +0000
-Message-ID: <1436550260.2377.14.camel@spandruv-DESK3.jf.intel.com>
-References: <1435916017-12859-1-git-send-email-irina.tirdea@intel.com>
-	 <1435916017-12859-7-git-send-email-irina.tirdea@intel.com>
-	 <55991E2F.5020901@kernel.org>
-	 <1F3AC3675D538145B1661F571FE1805F2F068001@irsmsx105.ger.corp.intel.com>
+From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] i2c: davinci: Fix bus rate calculation on Keystone SoC
+Date: Fri, 10 Jul 2015 21:26:30 +0300
+Message-ID: <55A00E56.2020308@ti.com>
+References: <5582870B.7030304@nokia.com> <558288B0.1020706@ti.com> <5582F049.8070407@ti.com> <20150709195309.GI4744@katana> <559FEC8C.9030603@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1F3AC3675D538145B1661F571FE1805F2F068001-pww93C2UFcwu0RiL9chJVbfspsVTdybXVpNB7YpNyf8@public.gmane.org>
-Content-Language: en-US
-Content-ID: <CEBE6990AF33D64B8CBF200C346E2755-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org" <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <559FEC8C.9030603-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Cc: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gRnJpLCAyMDE1LTA3LTEwIGF0IDE3OjMxICswMDAwLCBUaXJkZWEsIElyaW5hIHdyb3RlOg0K
-PiANCj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+IEZyb206IEpvbmF0aGFuIENh
-bWVyb24gW21haWx0bzpqaWMyM0BrZXJuZWwub3JnXQ0KPiA+IFNlbnQ6IDA1IEp1bHksIDIwMTUg
-MTU6MDgNCj4gPiBUbzogVGlyZGVhLCBJcmluYTsgV29sZnJhbSBTYW5nOyBsaW51eC1paW9Admdl
-ci5rZXJuZWwub3JnOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnDQo+ID4gQ2M6IGxpbnV4LWtl
-cm5lbEB2Z2VyLmtlcm5lbC5vcmc7IFBhbmRydXZhZGEsIFNyaW5pdmFzOyBQZXRlciBNZWVyd2Fs
-ZA0KPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjMgNi84XSBpaW86IGd5cm86IGJtZzE2MDogb3B0
-aW1pemUgaTJjIHRyYW5zZmVycyBpbiB0cmlnZ2VyIGhhbmRsZXINCj4gPiANCj4gPiBPbiAwMy8w
-Ny8xNSAxMDozMywgSXJpbmEgVGlyZGVhIHdyb3RlOg0KPiA+ID4gU29tZSBpMmMgYnVzc2VzIChl
-LmcuOiBTeW5vcHN5cyBEZXNpZ25XYXJlIEkyQyBhZGFwdGVyKSBuZWVkIHRvDQo+ID4gPiBlbmFi
-bGUvZGlzYWJsZSB0aGUgYnVzIGF0IGVhY2ggaTJjIHRyYW5zZmVyIGFuZCBtdXN0IHdhaXQgZm9y
-DQo+ID4gPiB0aGUgZW5hYmxlL2Rpc2FibGUgdG8gaGFwcGVuIGJlZm9yZSBzZW5kaW5nIHRoZSBk
-YXRhLg0KPiA+ID4NCj4gPiA+IFdoZW4gcmVhZGluZyBkYXRhIGluIHRoZSB0cmlnZ2VyIGhhbmRs
-ZXIsIHRoZSBibWcxNjAgZHJpdmVyIGRvZXMNCj4gPiA+IG9uZSBpMmMgdHJhbnNmZXIgZm9yIGVh
-Y2ggYXhpcy4gVGhpcyBoYXMgYW4gaW1wYWN0IG9uIHRoZSBmcmVxdWVuY3kNCj4gPiA+IG9mIHRo
-ZSBneXJvc2NvcGUgYXQgaGlnaCBzYW1wbGUgcmF0ZXMgZHVlIHRvIGFkZGl0aW9uYWwgZGVsYXlz
-DQo+ID4gPiBpbnRyb2R1Y2VkIGJ5IHRoZSBpMmMgYnVzIGF0IGVhY2ggdHJhbnNmZXIuDQo+ID4g
-Pg0KPiA+ID4gUmVhZGluZyBhbGwgYXhpcyB2YWx1ZXMgaW4gb25lIGkyYyB0cmFuc2ZlciByZWR1
-Y2VzIHRoZSBkZWxheXMNCj4gPiA+IGludHJvZHVjZWQgYnkgdGhlIGkyYyBidXMuIFVzZXMgaTJj
-X3NtYnVzX3JlYWRfaTJjX2Jsb2NrX2RhdGFfb3JfZW11bGF0ZWQNCj4gPiA+IHRoYXQgd2lsbCBm
-YWxsYmFjayB0byByZWFkaW5nIGVhY2ggYXhpcyBhcyBhIHNlcGFyYXRlIHdvcmQgaW4gY2FzZSBp
-MmMNCj4gPiA+IGJsb2NrIHJlYWQgaXMgbm90IHN1cHBvcnRlZC4NCj4gPiA+DQo+ID4gPiBTaWdu
-ZWQtb2ZmLWJ5OiBJcmluYSBUaXJkZWEgPGlyaW5hLnRpcmRlYUBpbnRlbC5jb20+DQo+ID4gQWNr
-ZWQtYnk6IEpvbmF0aGFuIENhbWVyb24gPGppYzIzQGtlcm5lbC5vcmc+DQo+ID4gDQo+IA0KPiBU
-aGFua3MgSm9uYXRoYW4hDQo+IA0KPiA+IE9idmlvdXNseSB5b3UnbGwgaWRlYWxseSBwaWNrIHVw
-IEFjaydzIGZyb20gdGhlIGRyaXZlciBhdXRob3JzIC9tYWludGFpbmVycw0KPiA+IGFzIHdlbGwu
-DQo+ID4gDQo+IA0KPiBTcmluaXZhcywgYXJlIHlvdSBPSyB3aXRoIHRoZXNlIGNoYW5nZXMgZm9y
-IGJtYzE1MCwgYm1nMTYwIGFuZCBreGNqay0xMDEzPw0KPiANClllcy4NCg0KQWNrZWQtYnk6IFNy
-aW5pdmFzIFBhbmRydXZhZGEgPHNyaW5pdmFzLnBhbmRydXZhZGFAbGludXguaW50ZWwuY29tPg0K
-DQo+IFRoYW5rcywNCj4gSXJpbmENCj4gDQo+ID4gSm9uYXRoYW4NCj4gPiA+IC0tLQ0KPiA+ID4g
-IGRyaXZlcnMvaWlvL2d5cm8vYm1nMTYwLmMgfCAxOCArKysrKysrKy0tLS0tLS0tLS0NCj4gPiA+
-ICAxIGZpbGUgY2hhbmdlZCwgOCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkNCj4gPiA+
-DQo+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9paW8vZ3lyby9ibWcxNjAuYyBiL2RyaXZlcnMv
-aWlvL2d5cm8vYm1nMTYwLmMNCj4gPiA+IGluZGV4IDRiNDIzZjIuLjA0ZTE1ZTkgMTAwNjQ0DQo+
-ID4gPiAtLS0gYS9kcml2ZXJzL2lpby9neXJvL2JtZzE2MC5jDQo+ID4gPiArKysgYi9kcml2ZXJz
-L2lpby9neXJvL2JtZzE2MC5jDQo+ID4gPiBAQCAtNzg0LDYgKzc4NCw3IEBAIHN0YXRpYyBjb25z
-dCBzdHJ1Y3QgaWlvX2V2ZW50X3NwZWMgYm1nMTYwX2V2ZW50ID0gew0KPiA+ID4gIAkJLnNpZ24g
-PSAncycsCQkJCQkJXA0KPiA+ID4gIAkJLnJlYWxiaXRzID0gMTYsCQkJCQlcDQo+ID4gPiAgCQku
-c3RvcmFnZWJpdHMgPSAxNiwJCQkJCVwNCj4gPiA+ICsJCS5lbmRpYW5uZXNzID0gSUlPX0xFLAkJ
-CQkJXA0KPiA+ID4gIAl9LAkJCQkJCQkJXA0KPiA+ID4gIAkuZXZlbnRfc3BlYyA9ICZibWcxNjBf
-ZXZlbnQsCQkJCQlcDQo+ID4gPiAgCS5udW1fZXZlbnRfc3BlY3MgPSAxCQkJCQkJXA0KPiA+ID4g
-QEAgLTgyMiwxOSArODIzLDE2IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBibWcxNjBfdHJpZ2dlcl9o
-YW5kbGVyKGludCBpcnEsIHZvaWQgKnApDQo+ID4gPiAgCXN0cnVjdCBpaW9fcG9sbF9mdW5jICpw
-ZiA9IHA7DQo+ID4gPiAgCXN0cnVjdCBpaW9fZGV2ICppbmRpb19kZXYgPSBwZi0+aW5kaW9fZGV2
-Ow0KPiA+ID4gIAlzdHJ1Y3QgYm1nMTYwX2RhdGEgKmRhdGEgPSBpaW9fcHJpdihpbmRpb19kZXYp
-Ow0KPiA+ID4gLQlpbnQgYml0LCByZXQsIGkgPSAwOw0KPiA+ID4gKwlpbnQgcmV0ID0gMDsNCj4g
-PiA+DQo+ID4gPiAgCW11dGV4X2xvY2soJmRhdGEtPm11dGV4KTsNCj4gPiA+IC0JZm9yIChiaXQg
-PSAwOyBiaXQgPCBBWElTX01BWDsgYml0KyspIHsNCj4gPiA+IC0JCXJldCA9IGkyY19zbWJ1c19y
-ZWFkX3dvcmRfZGF0YShkYXRhLT5jbGllbnQsDQo+ID4gPiAtCQkJCQkgICAgICAgQk1HMTYwX0FY
-SVNfVE9fUkVHKGJpdCkpOw0KPiA+ID4gLQkJaWYgKHJldCA8IDApIHsNCj4gPiA+IC0JCQltdXRl
-eF91bmxvY2soJmRhdGEtPm11dGV4KTsNCj4gPiA+IC0JCQlnb3RvIGVycjsNCj4gPiA+IC0JCX0N
-Cj4gPiA+IC0JCWRhdGEtPmJ1ZmZlcltpKytdID0gcmV0Ow0KPiA+ID4gLQl9DQo+ID4gPiArCXJl
-dCA9IGkyY19zbWJ1c19yZWFkX2kyY19ibG9ja19kYXRhX29yX2VtdWxhdGVkKGRhdGEtPmNsaWVu
-dCwNCj4gPiA+ICsJCQkJCQkJQk1HMTYwX1JFR19YT1VUX0wsDQo+ID4gPiArCQkJCQkJCUFYSVNf
-TUFYICogMiwNCj4gPiA+ICsJCQkJCQkJKHU4ICopZGF0YS0+YnVmZmVyKTsNCj4gPiA+ICAJbXV0
-ZXhfdW5sb2NrKCZkYXRhLT5tdXRleCk7DQo+ID4gPiArCWlmIChyZXQgPCAwKQ0KPiA+ID4gKwkJ
-Z290byBlcnI7DQo+ID4gPg0KPiA+ID4gIAlpaW9fcHVzaF90b19idWZmZXJzX3dpdGhfdGltZXN0
-YW1wKGluZGlvX2RldiwgZGF0YS0+YnVmZmVyLA0KPiA+ID4gIAkJCQkJICAgZGF0YS0+dGltZXN0
-YW1wKTsNCj4gPiA+DQo+IA0KDQo=
+Hi,
+On 07/10/2015 07:02 PM, Sekhar Nori wrote:
+> On Friday 10 July 2015 01:23 AM, Wolfram Sang wrote:
+>> On Thu, Jun 18, 2015 at 12:22:33PM -0400, Murali Karicheri wrote:
+>>> On 06/18/2015 05:00 AM, Sekhar Nori wrote:
+>>>> On Thursday 18 June 2015 02:23 PM, Alexander Sverdlin wrote:
+>>>>> According to KeyStone Architecture I2C User Guide,
+>>>>>
+>>>>>                           module clock frequency
+>>>>> master clock frequency = ----------------------
+>>>>>                           (ICCL + 6) + (ICCH + 6)
+>>>>>
+>>>>> i.e. "d" in i2c_davinci_calc_clk_dividers() should be fixed and
+>>>>> not dependent from module clock prescaler PSC on these SoCs.
+>>>>>
+>>>>> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+>>>>> ---
+>>>>>
+>>>>> RFC: If someone from TI has an idea how to improve the coverage of future Keystone
+>>>>> revisions -- hints/patches are welcome. The current ID check is based on
+>>>>> Davinci/Keystone datasheets and is at least working on real Keystone II.
+>>>>
+>>>> + Murali who works on Keystone devices in TI.
+>>>
+>>> + Grygorii
+>>>
+>>> + Grygorii has been involved in the Keystone related enhancement and
+>>> reviewing prior patches. Need to have his ack for this change
+>>
+>> Any news?
+> 
+> Fixing Grygorii's e-mail id.
+> 
+> Grygorii, let me know if you don't have the thread. I can forward.
+
+Thanks Sekhar.
+
+My opinion - it's time for compatible string :) "ti,keystone-i2c". 
+Especially taking int account two things:
+1) In Datasheet SPRS893B TCI6630K2L Multicore DSP+ARM KeyStone II System-on-Chip (SoC) (Rev. E) 
+   values for those registers specified as:
+   0x0034 ICPID1 I2C Peripheral Identification Register 1 [value: 0x0000 0105]
+   0x0038 ICPID2 I2C Peripheral Identification Register 2 [value: 0x0000 0005]
+   (actually the same is in k2h, k2e Datasheets).
+
+2) This is not the first time such discussion has been raised.
+
+
+>> > This is not really critical fix. Currently bus rate is lower than expected because of these
+>> > calculation errors. The fix maximizes the bus rate. So newer SoCs will run little bit slower
+>> > until support is added to this part of the code. Not really critical. 
+
+Regarding the patch itself:
+- Seems the "d" value is fixed to 6 as per User Guide SPRUGV3
+  "KeyStone Architecture 2 Inter-IC Control Bus (I2C)" and this change is correct. 
+  It would be nice to have ref on document in commit message as above.
+
+- I think, it will be very useful to have same real digits/calculation mentioned in
+  commit message which can show how valuable is the improvement. 
+
+-- 
+regards,
+-grygorii
