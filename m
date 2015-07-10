@@ -1,75 +1,65 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCHv2 2/9] i2c: xiic: move the xiic_process to thread context
-Date: Fri, 10 Jul 2015 09:53:09 +0200
-Message-ID: <20150710075309.GA1528@katana>
-References: <1434554299-23443-1-git-send-email-shubhraj@xilinx.com>
- <1434554299-23443-3-git-send-email-shubhraj@xilinx.com>
- <20150709173158.GD4744@katana>
- <CAKfKVtGOxWU-66fQSd8D6Ue0Si0koQF-CrR0pVZ8RupMNQ=-GQ@mail.gmail.com>
+From: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Subject: Re: [RFC PATCH] i2c: busses: i2c-omap: Increase timeout for i2c interrupt
+Date: Fri, 10 Jul 2015 11:09:35 +0300
+Message-ID: <559F7DBF.1010706@ti.com>
+References: <1436504994-31137-1-git-send-email-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAKfKVtGOxWU-66fQSd8D6Ue0Si0koQF-CrR0pVZ8RupMNQ=-GQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1436504994-31137-1-git-send-email-vigneshr-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Vignesh,
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 10/07/15 08:09, Vignesh R wrote:
+> When system is under load and there is an i2c transaction running
+> following warning appears on the console:
+> 
+> [  730.003617] omap_i2c 48070000.i2c: controller timed out
+> [  731.023643] omap_i2c 48070000.i2c: controller timed out
+> 
+> This is because, the completion() call, which is done in bottom half of
+> the interrupt handler, happens after the timeout period(1s) has elapsed
+> for the wait_for_completion_timeout() in omap_i2c_xfer_msg(). The
+> interrupt is raised within a second but due to system load (or other
+> interrupts), the bottom half does not get scheduled within a second.
+> Hence even though the interrupt has happened within required time frame,
+> due to delayed scheduling of bottom half, spurious timeout errors are
+> reported on the console and i2c controller is reset.
+> 
+> i2c timeout is a rare condition, hence increase timeout to 60s in order
+> to avoid reporting false timeout events under load.
 
-On Fri, Jul 10, 2015 at 10:38:11AM +0530, Shubhrajyoti Datta wrote:
-> On Thu, Jul 9, 2015 at 11:01 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> >>  static int xiic_bus_busy(struct xiic_i2c *i2c)
-> >> @@ -602,16 +601,21 @@ static void xiic_start_send(struct xiic_i2c *i2c)
-> >>  static irqreturn_t xiic_isr(int irq, void *dev_id)
-> >>  {
-> >>       struct xiic_i2c *i2c =3D dev_id;
-> >> -
-> >> -     spin_lock(&i2c->lock);
-> >> +     u32 pend, isr, ier;
-> >> +     irqreturn_t ret =3D IRQ_HANDLED;
-> >> +     /* Do not processes a devices interrupts if the device has no
-> >> +      * interrupts pending
-> >> +      */
-> >
-> > Shouldn't you init 'ret' to IRQ_NONE then?
-> >
->=20
-> Indeed I missed it.
+why not 5s instead of 60s?
 
-Can you test this change on HW and report back?
+cheers,
+-roger
 
-Thanks,
-
-   Wolfram
-
-
---vkogqOf2sHV7VnPd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVn3nlAAoJEBQN5MwUoCm2BFIP/RHd6wIbVDQqBPwcj23YsZJB
-btNGFdlwEic1vnhYDtCf6ZGzmoPLH8XJmdtUJwF2oJAgEPUQI3QyZ9cXYhD3piap
-aOX0PUzkxuN2ob/l+V23cBzVKDJ17hgeawXBcGmXogT6WqfoZSvQxs8kdPYA2Mol
-IyszeC9Dnp3VI7Jni6riWoFHxf/BsK/24x3hNU1DE7AMVt3htCTcRAnD9125zmSz
-zlyBNd/6vEUKZMMJ3gbLbZQKhI2wRyjGOAQGrwUDeETX3ht65cdxj9kRz+Q60r/E
-Z67mRvdTPTPd4gri377hnovzKLnMh7xQ89vuvmNfFDFZwgJKZlwMVvXIRvro+ci1
-rbdJ0m1oh19l1i4lBpINgCFdq6Mh+3ZyI/9xds5+JlC5j6h7zrVsJKqfIYIYmFVQ
-N+bdagHip8iKi1Pe0KFKXmjyTur7vrTgqUvEBxEOrcHYdLqY8SktWaYeljtuTDan
-WK7x0WvmSy9EfNkwh7Aor4WATNzVg0Y6THeKXUTkhBOmPpi6z09bQMcpnwV7DGMg
-nJoK/dZUavUZRvPH779YrLIVgVYODgnp3WfSv/5W6nUsvbfi9T4+t5271L/WIkvE
-xHxp0WJ00Ooyl+kMLeIqMXuTQhwD0KJwQlF590n6Vsy9Y0hZM3m2/UkBumOTz5Rf
-PGVcS09tikU3PvKgpLEq
-=fYHy
------END PGP SIGNATURE-----
-
---vkogqOf2sHV7VnPd--
+> 
+> Signed-off-by: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+> ---
+> 
+> I reproduced this while running i2cdump in a loop and reading from flash
+> using dd command.
+> 
+>  drivers/i2c/busses/i2c-omap.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index d1c22e3fdd14..fa7758f0302c 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -50,7 +50,7 @@
+>  #define OMAP_I2C_REV_ON_4430_PLUS	0x50400002
+>  
+>  /* timeout waiting for the controller to respond */
+> -#define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
+> +#define OMAP_I2C_TIMEOUT (msecs_to_jiffies(60 * 1000))
+>  
+>  /* timeout for pm runtime autosuspend */
+>  #define OMAP_I2C_PM_TIMEOUT		1000	/* ms */
+> 
