@@ -1,40 +1,52 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH v2 5/5] ARM: shmobile: emev2: kzm9d: enable IIC busses
-Date: Sat, 11 Jul 2015 09:46:26 +0200
-Message-ID: <1436600786-3068-6-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v2 1/5] clk: shmobile: emev2: deassert reset for IIC0/1
+Date: Sat, 11 Jul 2015 09:46:22 +0200
+Message-ID: <1436600786-3068-2-git-send-email-wsa@the-dreams.de>
 References: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1436600786-3068-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
----
- arch/arm/boot/dts/emev2-kzm9d.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
+We have a driver now for IIC, so disable reset for them.
 
-diff --git a/arch/arm/boot/dts/emev2-kzm9d.dts b/arch/arm/boot/dts/emev2-kzm9d.dts
-index 0aa1b345f871c9..2e944437287599 100644
---- a/arch/arm/boot/dts/emev2-kzm9d.dts
-+++ b/arch/arm/boot/dts/emev2-kzm9d.dts
-@@ -95,6 +95,14 @@
- 	};
- };
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Acked-by: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+---
+
+Change since v1:
+* added ack from Stephen, thanks
+
+ drivers/clk/shmobile/clk-emev2.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/clk/shmobile/clk-emev2.c b/drivers/clk/shmobile/clk-emev2.c
+index 5b60beb7d0ebce..a91825471c79ac 100644
+--- a/drivers/clk/shmobile/clk-emev2.c
++++ b/drivers/clk/shmobile/clk-emev2.c
+@@ -28,6 +28,8 @@
+ #define USIBU1_RSTCTRL 0x0ac
+ #define USIBU2_RSTCTRL 0x0b0
+ #define USIBU3_RSTCTRL 0x0b4
++#define IIC0_RSTCTRL 0x0dc
++#define IIC1_RSTCTRL 0x0e0
+ #define STI_RSTCTRL 0x124
+ #define STI_CLKSEL 0x688
  
-+&iic0 {
-+	status = "okay";
-+};
+@@ -66,6 +68,10 @@ static void __init emev2_smu_init(void)
+ 	emev2_smu_write(2, USIBU1_RSTCTRL);
+ 	emev2_smu_write(2, USIBU2_RSTCTRL);
+ 	emev2_smu_write(2, USIBU3_RSTCTRL);
 +
-+&iic1 {
-+	status = "okay";
-+};
-+
- &pfc {
- 	uart1_pins: serial@e1030000 {
- 		renesas,groups = "uart1_ctrl", "uart1_data";
++	/* deassert reset for IIC0->IIC1 */
++	emev2_smu_write(1, IIC0_RSTCTRL);
++	emev2_smu_write(1, IIC1_RSTCTRL);
+ }
+ 
+ static void __init emev2_smu_clkdiv_init(struct device_node *np)
 -- 
 2.1.4
