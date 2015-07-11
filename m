@@ -1,58 +1,65 @@
-From: Ellen Wang <ellen@cumulusnetworks.com>
-Subject: Re: [PATCH v2] HID: cp2112: support large i2c transfers in hid-cp2112
-Date: Fri, 10 Jul 2015 13:18:42 -0700
-Message-ID: <55A028A2.3040204@cumulusnetworks.com>
-References: <1436351118-3360-1-git-send-email-ellen@cumulusnetworks.com> <559D126B.6050505@linaro.org> <559D6738.1050003@cumulusnetworks.com> <559E2BA6.4020904@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <559E2BA6.4020904@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
-To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH v2 0/5] enable I2C on Renesas EMEV2 and KZM9D board
+Date: Sat, 11 Jul 2015 09:46:21 +0200
+Message-ID: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Ian Molton <ian.molton@codethink.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/09/2015 01:07 AM, Vaibhav Hiremath wrote:
-> ...
->>>> +        count += ret;
->>>> +        if (count > msgs->len) {
->>>> +            /*
->>>> +             * The hardware returned too much data.
->>>> +             * This is mostly harmless because cp2112_read()
->>>> +             * has a limit check so didn't overrun our
->>>> +             * buffer.  Nevertheless, we return an error
->>>> +             * because something is seriously wrong and
->>>> +             * it shouldn't go unnoticed.
->>>> +             */
->>>> +            hid_err(hdev, "long read: %d > %zd\n",
->>>> +                ret, msgs->len - count + ret);
->>>
->>> You may want to take another look here.
->>> 'ret' will be either,
->>>
->>>      - ret = msgs->len
->>>          Not applicable
->>>      - ret > msgs->len
->>>          (count > msgs->len) will happen in one single
->>>          iteration, and will
->>>      - ret < msgs->len
->>>          (count > msgs->len) will happen in multiple iterations
->>>          where count keeps incrementing based on ret
->>>
->>> In the 2 scenarios above, I believe you would want to show,
->>>
->>>      actual read bytes > requested read bytes
->>>
->>>
->>> Am I missing something here?
->>
->> (count > msgs->len) should never happen, so there's really no predicting
->> it.  Or do you mean something else?
->>
->
-> I meant the message which you are printing above seems wrong to me.
+So, I picked up the old series from Ian and reworked it significantly. While
+his series was already an improvement from the driver found in the BSP, it was
+still not ready for upstream. It should be now :) My idea was to start simple
+and improve incrementally, so e.g. clock handling was broken, so clocks are
+always on for starters. Major changes include:
 
-It does print the size of the read request.  I guess I could have 
-written it as msgs->len - (count - ret).
+* clock handling simplified and adapted to current EMEV clock handling
+* switch from wait_event to completion mechanism. The old one was basically
+  some kind of completion with custom code around wait_events
+* dropped using signals; they always cause trouble with I2C
+* simplified the bus free logic. If it turns out to be too simple, we'd need
+  to switch to the bus_recovery infrastructure probably. But we'd need a test
+  case for that
+* error handling improved to match subsystem standards
+* removed some BSP angst code
+* lots of refactoring to make code simpler, more readable...
+* bugfixes
 
-Or I'm still missing what you mean.
+I also added all the glue code to add clocks, disable reset etc which was
+missing before. I'd prefer to take the first three patches via i2c myself,
+and the latter two via Simon's tree.
+
+Since V1, there are minor updates fixing issues found in reviews. Thanks!
+
+A branch for testing can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/emma-i2c
+
+Please test, comment...
+
+Thanks!
+
+   Wolfram
+
+Wolfram Sang (5):
+  clk: shmobile: emev2: deassert reset for IIC0/1
+  i2c: emev2: add binding documentation
+  i2c: emev2: add driver
+  ARM: shmobile: emev2: add IIC cores to dtsi
+  ARM: shmobile: emev2: kzm9d: enable IIC busses
+
+ .../devicetree/bindings/i2c/i2c-emev2.txt          |  22 ++
+ arch/arm/boot/dts/emev2-kzm9d.dts                  |   8 +
+ arch/arm/boot/dts/emev2.dtsi                       |  48 +++
+ drivers/clk/shmobile/clk-emev2.c                   |   6 +
+ drivers/i2c/busses/Kconfig                         |   7 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-emev2.c                     | 333 +++++++++++++++++++++
+ 7 files changed, 425 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-emev2.txt
+ create mode 100644 drivers/i2c/busses/i2c-emev2.c
+
+-- 
+2.1.4
+
