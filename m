@@ -1,55 +1,40 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 2/5] i2c: emev2: add binding documentation
-Date: Sat, 11 Jul 2015 09:46:23 +0200
-Message-ID: <1436600786-3068-3-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH v2 5/5] ARM: shmobile: emev2: kzm9d: enable IIC busses
+Date: Sat, 11 Jul 2015 09:46:26 +0200
+Message-ID: <1436600786-3068-6-git-send-email-wsa@the-dreams.de>
 References: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Ian Molton <ian.molton@codethink.co.uk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1436600786-3068-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 ---
-Change since v1:
-* removed <soctype> binding, thanks Geert
-* reworded interrupt property, thanks Laurent
+ arch/arm/boot/dts/emev2-kzm9d.dts | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
- .../devicetree/bindings/i2c/i2c-emev2.txt          | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-emev2.txt
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-emev2.txt b/Documentation/devicetree/bindings/i2c/i2c-emev2.txt
-new file mode 100644
-index 00000000000000..5ed1ea1c7e14a9
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-emev2.txt
-@@ -0,0 +1,22 @@
-+Device tree configuration for Renesas EMEV2 IIC controller
+diff --git a/arch/arm/boot/dts/emev2-kzm9d.dts b/arch/arm/boot/dts/emev2-kzm9d.dts
+index 0aa1b345f871c9..2e944437287599 100644
+--- a/arch/arm/boot/dts/emev2-kzm9d.dts
++++ b/arch/arm/boot/dts/emev2-kzm9d.dts
+@@ -95,6 +95,14 @@
+ 	};
+ };
+ 
++&iic0 {
++	status = "okay";
++};
 +
-+Required properties:
-+- compatible      : "renesas,iic-emev2"
-+- reg             : address start and address range size of device
-+- interrupts      : specifier for the IIC controller interrupt
-+- clocks          : phandle to the IP core SCLK
-+- clock-names     : must be "sclk"
-+- #address-cells  : should be <1>
-+- #size-cells     : should be <0>
++&iic1 {
++	status = "okay";
++};
 +
-+Example:
-+
-+	iic0: i2c@e0070000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "renesas,iic-emev2";
-+		reg = <0xe0070000 0x28>;
-+		interrupts = <0 32 IRQ_TYPE_EDGE_RISING>;
-+		clocks = <&iic0_sclk>;
-+		clock-names = "sclk";
-+	};
+ &pfc {
+ 	uart1_pins: serial@e1030000 {
+ 		renesas,groups = "uart1_ctrl", "uart1_data";
 -- 
 2.1.4
-
