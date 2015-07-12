@@ -1,68 +1,30 @@
-From: Alexander Sverdlin <alexander.sverdlin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: fix bus recovery setup
-Date: Sun, 12 Jul 2015 17:32:17 +0200
-Message-ID: <55A28881.60703@gmail.com>
-References: <1436366127-24756-1-git-send-email-jlu@pengutronix.de>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH v2 3/5] i2c: emev2: add driver
+Date: Mon, 13 Jul 2015 00:12:33 +0300
+Message-ID: <2917132.jbtRA6ZB7M@avalon>
+References: <1436600786-3068-1-git-send-email-wsa@the-dreams.de> <1436600786-3068-4-git-send-email-wsa@the-dreams.de> <20150711100312.GA1536@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1436366127-24756-1-git-send-email-jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20150711100312.GA1536@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jan Luebbe <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/07/15 16:35, Jan Luebbe wrote:
-> At least on the AM335x, enabling OMAP_I2C_SYSTEST_ST_EN is not enough to
-> allow direct access to the SCL and SDA pins. In addition to ST_EN, we
-> need to set the TMODE to 0b11 (Loop back & SDA/SCL IO mode select).
-> Also, as the reset values of SCL_O and SDA_O are 0 (which means "drive
-> low level"), we need to set them to 1 (which means "high-impedance") to
-> avoid unwanted changes on the pins.
+On Saturday 11 July 2015 12:03:13 Wolfram Sang wrote:
+> > +	dev_info(&pdev->dev, "Added i2c controller %d irq %d @ 0x%zx\n",
+> > +		priv->adap.nr, irq, r->start);
 > 
-> As a precaution, reset all these bits to their default values after
-> recovery is complete.
-> 
-> Signed-off-by: Jan Luebbe <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> I removed the address printout entirely. It is part of the dev_*
+> printout already and I got a format warning from buildbot.
 
-Tested with oscilloscope on Beagle Bone Black, without the patch nothing
-meningful appears on SCL during recovery, with the patch I'm able to see
-the recovery pulses.
+With that change,
 
-Tested-by: Alexander Sverdlin <alexander.sverdlin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 
-> ---
->  drivers/i2c/busses/i2c-omap.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index d1c22e3fdd14..fc9bf7f30e35 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -1247,7 +1247,14 @@ static void omap_i2c_prepare_recovery(struct i2c_adapter *adap)
->  	u32 reg;
->  
->  	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-> +	/* enable test mode */
->  	reg |= OMAP_I2C_SYSTEST_ST_EN;
-> +	/* select SDA/SCL IO mode */
-> +	reg |= 3 << OMAP_I2C_SYSTEST_TMODE_SHIFT;
-> +	/* set SCL to high-impedance state (reset value is 0) */
-> +	reg |= OMAP_I2C_SYSTEST_SCL_O;
-> +	/* set SDA to high-impedance state (reset value is 0) */
-> +	reg |= OMAP_I2C_SYSTEST_SDA_O;
->  	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
->  }
->  
-> @@ -1257,7 +1264,11 @@ static void omap_i2c_unprepare_recovery(struct i2c_adapter *adap)
->  	u32 reg;
->  
->  	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-> +	/* restore reset values */
->  	reg &= ~OMAP_I2C_SYSTEST_ST_EN;
-> +	reg &= ~OMAP_I2C_SYSTEST_TMODE_MASK;
-> +	reg &= ~OMAP_I2C_SYSTEST_SCL_O;
-> +	reg &= ~OMAP_I2C_SYSTEST_SDA_O;
->  	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
->  }
+-- 
+Regards,
+
+Laurent Pinchart
