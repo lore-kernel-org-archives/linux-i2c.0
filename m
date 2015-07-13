@@ -1,59 +1,50 @@
-From: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Subject: [PATCH] i2c-parport: Add VCT-jig adapter
-Date: Mon, 13 Jul 2015 19:31:12 +0200
-Message-ID: <1436808672-15503-1-git-send-email-linux@rainbow-software.org>
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH 1/3] i2c: omap: switch to dev_get_drvdata()
+Date: Mon, 13 Jul 2015 15:38:02 -0500
+Message-ID: <1436819884-1614-1-git-send-email-balbi@ti.com>
+References: <20150710172701.GB20408@saruman.tx.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150710172701.GB20408-HgARHv6XitJaoMGHk7MhZQC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kernel development list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add support for VCT-jig parallel port I2C adapter to i2c-parport.
+there's no need to fetch the platform_device
+in order to dereference it back to the dev
+pointer to access drvdata, we can use
+dev_get_drvdata() instead.
 
-The adapter schematic can be found here (in the RAR file):
-http://remont-aud.net/shop/22/desc/vct-jig-komplekt-dlja-samostojatelnoj-sborki
-
-Signed-off-by: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 ---
- Documentation/i2c/busses/i2c-parport |    1 +
- drivers/i2c/busses/i2c-parport.h     |    8 ++++++++
- 2 files changed, 9 insertions(+)
+ drivers/i2c/busses/i2c-omap.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/i2c/busses/i2c-parport b/Documentation/i2c/busses/i2c-parport
-index 0e2d17b..c3dbb3b 100644
---- a/Documentation/i2c/busses/i2c-parport
-+++ b/Documentation/i2c/busses/i2c-parport
-@@ -20,6 +20,7 @@ It currently supports the following devices:
-  * (type=5) Analog Devices evaluation boards: ADM1025, ADM1030, ADM1031
-  * (type=6) Barco LPT->DVI (K5800236) adapter
-  * (type=7) One For All JP1 parallel port adapter
-+ * (type=8) VCT-jig
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index d1c22e3fdd14..2dcf4cac663d 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1465,8 +1465,7 @@ static int omap_i2c_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int omap_i2c_runtime_suspend(struct device *dev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
++	struct omap_i2c_dev *_dev = dev_get_drvdata(dev);
  
- These devices use different pinout configurations, so you have to tell
- the driver what you have, using the type module parameter. There is no
-diff --git a/drivers/i2c/busses/i2c-parport.h b/drivers/i2c/busses/i2c-parport.h
-index 4e12945..84a6616 100644
---- a/drivers/i2c/busses/i2c-parport.h
-+++ b/drivers/i2c/busses/i2c-parport.h
-@@ -89,6 +89,13 @@ static const struct adapter_parm adapter_parm[] = {
- 		.getsda	= { 0x80, PORT_STAT, 1 },
- 		.init	= { 0x04, PORT_DATA, 1 },
- 	},
-+	/* type 8: VCT-jig */
-+	{
-+		.setsda	= { 0x04, PORT_DATA, 1 },
-+		.setscl	= { 0x01, PORT_DATA, 1 },
-+		.getsda	= { 0x40, PORT_STAT, 0 },
-+		.getscl	= { 0x80, PORT_STAT, 1 },
-+	},
- };
+ 	_dev->iestate = omap_i2c_read_reg(_dev, OMAP_I2C_IE_REG);
  
- static int type = -1;
-@@ -103,4 +110,5 @@ MODULE_PARM_DESC(type,
- 	" 5 = ADM1025, ADM1030 and ADM1031 evaluation boards\n"
- 	" 6 = Barco LPT->DVI (K5800236) adapter\n"
- 	" 7 = One For All JP1 parallel port adapter\n"
-+	" 8 = VCT-jig\n"
- );
+@@ -1492,8 +1491,7 @@ static int omap_i2c_runtime_suspend(struct device *dev)
+ 
+ static int omap_i2c_runtime_resume(struct device *dev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
++	struct omap_i2c_dev *_dev = dev_get_drvdata(dev);
+ 
+ 	pinctrl_pm_select_default_state(dev);
+ 
 -- 
-Ondrej Zary
+2.4.4
