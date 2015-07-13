@@ -1,52 +1,59 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH-v3 07/11] i2c: pxa: enable/disable i2c module across msg
- xfer
-Date: Mon, 13 Jul 2015 22:11:07 +0530
-Message-ID: <55A3EA23.8070009@linaro.org>
-References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org> <1436210695-19159-8-git-send-email-vaibhav.hiremath@linaro.org> <20150710082419.GE1528@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+Subject: [PATCH] i2c-parport: Add VCT-jig adapter
+Date: Mon, 13 Jul 2015 19:31:12 +0200
+Message-ID: <1436808672-15503-1-git-send-email-linux@rainbow-software.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150710082419.GE1528@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kernel development list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Add support for VCT-jig parallel port I2C adapter to i2c-parport.
 
+The adapter schematic can be found here (in the RAR file):
+http://remont-aud.net/shop/22/desc/vct-jig-komplekt-dlja-samostojatelnoj-sborki
 
-On Friday 10 July 2015 01:54 PM, Wolfram Sang wrote:
-> On Tue, Jul 07, 2015 at 12:54:51AM +0530, Vaibhav Hiremath wrote:
->> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->>
->> Enable i2c module/unit before transmission and disable when it finishes.
->>
->> why?
->> It's because the i2c bus may be distrubed if the slave device,
->> typically a touch, powers on.
->>
->> As we do not want to break slave mode support, this patch introduces
->> DT property to control disable of the I2C module after xfer in master mode
->> of operation.
->>
->> i2c-disable-after-xfer : If set, driver will disable I2C module after msg xfer
->
-> Hmm, I am not sure this property fits into the "describing hardware"
-> category. And we can't make the below behaviour default, because the
-> udelay(100) will cause quite some latency.
->
->>
+Signed-off-by: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+---
+ Documentation/i2c/busses/i2c-parport |    1 +
+ drivers/i2c/busses/i2c-parport.h     |    8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-Sorry for delayed response,
-I thought I responded to this, but when I was preparing for V4,
-realized it that I did not :)
-
-Yes, I agree that, this doesn't look like HW description. But I could
-not find any other mechanism to handle this.
-And also during V1 discussion, I did not get any objection to this
-approach.
-
-
-Thanks,
-Vaibhav
+diff --git a/Documentation/i2c/busses/i2c-parport b/Documentation/i2c/busses/i2c-parport
+index 0e2d17b..c3dbb3b 100644
+--- a/Documentation/i2c/busses/i2c-parport
++++ b/Documentation/i2c/busses/i2c-parport
+@@ -20,6 +20,7 @@ It currently supports the following devices:
+  * (type=5) Analog Devices evaluation boards: ADM1025, ADM1030, ADM1031
+  * (type=6) Barco LPT->DVI (K5800236) adapter
+  * (type=7) One For All JP1 parallel port adapter
++ * (type=8) VCT-jig
+ 
+ These devices use different pinout configurations, so you have to tell
+ the driver what you have, using the type module parameter. There is no
+diff --git a/drivers/i2c/busses/i2c-parport.h b/drivers/i2c/busses/i2c-parport.h
+index 4e12945..84a6616 100644
+--- a/drivers/i2c/busses/i2c-parport.h
++++ b/drivers/i2c/busses/i2c-parport.h
+@@ -89,6 +89,13 @@ static const struct adapter_parm adapter_parm[] = {
+ 		.getsda	= { 0x80, PORT_STAT, 1 },
+ 		.init	= { 0x04, PORT_DATA, 1 },
+ 	},
++	/* type 8: VCT-jig */
++	{
++		.setsda	= { 0x04, PORT_DATA, 1 },
++		.setscl	= { 0x01, PORT_DATA, 1 },
++		.getsda	= { 0x40, PORT_STAT, 0 },
++		.getscl	= { 0x80, PORT_STAT, 1 },
++	},
+ };
+ 
+ static int type = -1;
+@@ -103,4 +110,5 @@ MODULE_PARM_DESC(type,
+ 	" 5 = ADM1025, ADM1030 and ADM1031 evaluation boards\n"
+ 	" 6 = Barco LPT->DVI (K5800236) adapter\n"
+ 	" 7 = One For All JP1 parallel port adapter\n"
++	" 8 = VCT-jig\n"
+ );
+-- 
+Ondrej Zary
