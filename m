@@ -1,48 +1,64 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCHv2 2/9] i2c: xiic: move the xiic_process to thread context
-Date: Mon, 13 Jul 2015 11:58:16 +0530
-Message-ID: <CAKfKVtGMCSMtXUCd3ujt9x8=SCwV+k9C0FNHRwRNTHO6prsEZg@mail.gmail.com>
-References: <1434554299-23443-1-git-send-email-shubhraj@xilinx.com>
-	<1434554299-23443-3-git-send-email-shubhraj@xilinx.com>
-	<20150709173158.GD4744@katana>
-	<CAKfKVtGOxWU-66fQSd8D6Ue0Si0koQF-CrR0pVZ8RupMNQ=-GQ@mail.gmail.com>
-	<20150710075309.GA1528@katana>
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Subject: Re: [PATCH-v3 02/11] i2c: pxa: No need to set slave addr for i2c
+ master mode reset
+Date: Mon, 13 Jul 2015 12:39:53 +0530
+Message-ID: <55A36441.2020206@linaro.org>
+References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org> <1436210695-19159-3-git-send-email-vaibhav.hiremath@linaro.org> <20150710081148.GB1528@katana> <559FBCD3.4050402@linaro.org> <20150710141440.GA6594@katana> <559FD5DB.9030308@linaro.org> <20150710145628.GB6594@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150710075309.GA1528@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150710145628.GB6594@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, robert.jarzmik@free.fr, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, "Jett.Zhou" <jtzhou@marvell.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 10, 2015 at 1:23 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Fri, Jul 10, 2015 at 10:38:11AM +0530, Shubhrajyoti Datta wrote:
->> On Thu, Jul 9, 2015 at 11:01 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->> >>  static int xiic_bus_busy(struct xiic_i2c *i2c)
->> >> @@ -602,16 +601,21 @@ static void xiic_start_send(struct xiic_i2c *i2c)
->> >>  static irqreturn_t xiic_isr(int irq, void *dev_id)
->> >>  {
->> >>       struct xiic_i2c *i2c = dev_id;
->> >> -
->> >> -     spin_lock(&i2c->lock);
->> >> +     u32 pend, isr, ier;
->> >> +     irqreturn_t ret = IRQ_HANDLED;
->> >> +     /* Do not processes a devices interrupts if the device has no
->> >> +      * interrupts pending
->> >> +      */
->> >
->> > Shouldn't you init 'ret' to IRQ_NONE then?
->> >
+
+
+On Friday 10 July 2015 08:26 PM, Wolfram Sang wrote:
+> On Fri, Jul 10, 2015 at 07:55:31PM +0530, Vaibhav Hiremath wrote:
 >>
->> Indeed I missed it.
+>>
+>> On Friday 10 July 2015 07:44 PM, Wolfram Sang wrote:
+>>> On Fri, Jul 10, 2015 at 06:08:43PM +0530, Vaibhav Hiremath wrote:
+>>>>
+>>>>
+>>>> On Friday 10 July 2015 01:41 PM, Wolfram Sang wrote:
+>>>>> On Tue, Jul 07, 2015 at 12:54:46AM +0530, Vaibhav Hiremath wrote:
+>>>>>> Normally i2c controller works as master, so slave addr is not needed, or it
+>>>>>> will impact some slave device (eg. ST NFC chip) i2c accesses, because it has
+>>>>>> the same i2c address with controller.
+>>>>>
+>>>>> Just to make sure: Does it? As I read the code, slave interrupts are
+>>>>> enabled later only when slave mode is selected? Is that a HW bug? And if
+>>>>> so, can't the code just be moved into this #ifdef block later?
+>>>>>
+>>>>
+>>>> Yes we could, infact I thought about it;
+>>>> but I would break recommended sequence here.
+>>>
+>>> And did you set the "own slave address" to a value which one of your
+>>> existing i2c slaves also has (without enabling slave mode)? Did it
+>>> disturb communication?
+>>>
+>>
+>> Since slave and master mode are mutual exclusive,
+>> I did not try this.
 >
-> Can you test this change on HW and report back?
+> Ehrm, what I meant was. Did you see the issue mentioned in the above
+> commit message? Can you reproduce it? You don't need to enable slave
+> mode for that, no?
+>
 
-I have tested it.
+Ohh yes,
 
->
-> Thanks,
->
->    Wolfram
->
+I am able to reproduce this issue.
+
+I have pxa1928 based board, where I have only PMIC 88PM860 connected to
+I2C bus, and whenever I set slave address to 0x30 (PMIC slave address)
+all I2C transaction for PMIC goes for toss.
+
+
+Thanks,
+Vaibhav
