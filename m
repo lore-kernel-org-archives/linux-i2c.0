@@ -1,39 +1,36 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 3/3] i2c: omap: on ->remove() call pm_runtime_put_sync()
-Date: Mon, 13 Jul 2015 15:38:04 -0500
-Message-ID: <1436819884-1614-3-git-send-email-balbi@ti.com>
-References: <20150710172701.GB20408@saruman.tx.rr.com>
- <1436819884-1614-1-git-send-email-balbi@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1436819884-1614-1-git-send-email-balbi-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+From: Ellen Wang <ellen@cumulusnetworks.com>
+Subject: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
+Date: Mon, 13 Jul 2015 15:23:54 -0700
+Message-ID: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: borneo.antonio@gmail.com, dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: ellen@cumulusnetworks.com
 List-Id: linux-i2c@vger.kernel.org
 
-we're about to remove the module, so we can't
-really schedule a PM transition in the future,
-we must wait for it to finish.
+When doing an I2C_SMBUS_BYTE write (one byte write, no address),
+the data to be written is in "command" not "data->byte".
 
-Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
 ---
- drivers/i2c/busses/i2c-omap.c | 2 +-
+Forgot signed-off-by tag last time, sorry.
+---
+ drivers/hid/hid-cp2112.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 7030903a3057..133dd0db6f5b 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1457,7 +1457,7 @@ static int omap_i2c_remove(struct platform_device *pdev)
- 		return ret;
- 
- 	omap_i2c_write_reg(omap, OMAP_I2C_CON_REG, 0);
--	pm_runtime_put(&pdev->dev);
-+	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	return 0;
- }
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index a3703b8..7afc3fc 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -606,7 +606,7 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+ 		if (I2C_SMBUS_READ == read_write)
+ 			count = cp2112_read_req(buf, addr, read_length);
+ 		else
+-			count = cp2112_write_req(buf, addr, data->byte, NULL,
++			count = cp2112_write_req(buf, addr, command, NULL,
+ 						 0);
+ 		break;
+ 	case I2C_SMBUS_BYTE_DATA:
 -- 
-2.4.4
+1.9.1
+
