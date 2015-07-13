@@ -1,65 +1,52 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1] HID: cp2112: fix byte order in SMBUS operations
-Date: Mon, 13 Jul 2015 16:41:09 +0200
-Message-ID: <20150713144109.GA8115@katana>
-References: <1436504671-2485-1-git-send-email-ellen@cumulusnetworks.com>
- <alpine.LNX.2.00.1507131322180.7522@pobox.suse.cz>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH-v3 07/11] i2c: pxa: enable/disable i2c module across msg
+ xfer
+Date: Mon, 13 Jul 2015 22:11:07 +0530
+Message-ID: <55A3EA23.8070009@linaro.org>
+References: <1436210695-19159-1-git-send-email-vaibhav.hiremath@linaro.org> <1436210695-19159-8-git-send-email-vaibhav.hiremath@linaro.org> <20150710082419.GE1528@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1507131322180.7522@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>
-Cc: Ellen Wang <ellen@cumulusnetworks.com>, borneo.antonio@gmail.com, dbarksdale@uplogix.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150710082419.GE1528@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 13, 2015 at 01:23:52PM +0200, Jiri Kosina wrote:
-> On Thu, 9 Jul 2015, Ellen Wang wrote:
->=20
-> > Change all occurrences of be16 to le16 in cp2112_xfer(),
-> > because SMBUS words are little endian, not big endian.
-> >=20
-> > Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
->=20
-> Alright, this means that I2C_SMBUS_WORD_DATA and I2C_SMBUS_PROC_CALL have=
-=20
-> been terminally broken since the very beginning and noone noticed.
->=20
-> Does this mean that those commands are in practice mostly unused anyway?=
-=20
-> This is important for 4.2 vs 4.3 consideration.
+On Friday 10 July 2015 01:54 PM, Wolfram Sang wrote:
+> On Tue, Jul 07, 2015 at 12:54:51AM +0530, Vaibhav Hiremath wrote:
+>> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>>
+>> Enable i2c module/unit before transmission and disable when it finishes.
+>>
+>> why?
+>> It's because the i2c bus may be distrubed if the slave device,
+>> typically a touch, powers on.
+>>
+>> As we do not want to break slave mode support, this patch introduces
+>> DT property to control disable of the I2C module after xfer in master mode
+>> of operation.
+>>
+>> i2c-disable-after-xfer : If set, driver will disable I2C module after msg xfer
+>
+> Hmm, I am not sure this property fits into the "describing hardware"
+> category. And we can't make the below behaviour default, because the
+> udelay(100) will cause quite some latency.
+>
+>>
 
-PROC_CALL is really rare. WORD_DATA depends on the setup, it is used.
+Sorry for delayed response,
+I thought I responded to this, but when I was preparing for V4,
+realized it that I did not :)
+
+Yes, I agree that, this doesn't look like HW description. But I could
+not find any other mechanism to handle this.
+And also during V1 discussion, I did not get any objection to this
+approach.
 
 
---dDRMvlgZJXvWKvBx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVo84FAAoJEBQN5MwUoCm2EwQP/1ouMmzpYtbXsZsxvAdmtbMK
-MrgK2srwRXk9I9ZeT3wf4ambVr6lCwuntV9M5KDxWL97IwLfEW9EeX1lCzhkJ2Nq
-E9+g16CyoT+DZoTpW4UrE5p3m/ugxsc1CKxbkQPlDiPLB+F0pDQsSOCk1ofQItQb
-uFh9PmwBm9+2C6B7D/ab1d4ucJ+ntWMagX/UachYJgC9iaadHNW1zp1JrMqTgnhg
-zIWEGzE8pWkfy+5qhGRcGAsSEKZqLVKsz7LNdcg8LmIIo6rOmmHMmJA6PFmyEOCx
-M0eel9eWt8k2iH/QjnRYDNCKiiHhFgJ7SLbkZeEP56ERrx/G5Yn/bcW9rakgaiob
-0vw9KU0rgytwzECdItHhg8rp0lTwDxRkVbWz7YkFtSPTfBW8hScPDfFl8ZZUJnZ8
-P2GcYJiws6CmeoazNogKA1hl5Za/p2+0NrfG76LzLzyaASyvUYppBsEmzsECcjOD
-9lLKEKF09hRkmt5I5QyP3kW3PhtN0JQrEZTidLG4xYTZA766tm/zJHTk6wd+oYY6
-8x0CB9IvGzLm3ICxhDtgKAavBIZo32f98UAUDp6lYQbwk5MeGmKRKeUbuKpgXqJ/
-i6tXPMXbEeCpxGyTcQxv4RSxzh4rPeVU0ydABj4PTmYCadZsclQb+7Xf+nmgDiWT
-8P9jOZAhhtoD8/9a91WA
-=uLqW
------END PGP SIGNATURE-----
-
---dDRMvlgZJXvWKvBx--
+Thanks,
+Vaibhav
