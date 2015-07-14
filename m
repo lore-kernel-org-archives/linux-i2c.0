@@ -1,45 +1,42 @@
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: Re: [PATCH-v4 00/11] i2c: pxa: Fixes, cleanup and support for pxa910
- family
-Date: Tue, 14 Jul 2015 17:06:20 +0530
-Message-ID: <55A4F434.9080407@linaro.org>
-References: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org> <20150714113436.GD1517@katana>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH-v4 06/11] i2c:pxa: Use devm_ variants in probe function
+Date: Tue, 14 Jul 2015 17:09:53 +0530
+Message-ID: <55A4F509.6010009@linaro.org>
+References: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org> <1436859410-28878-7-git-send-email-vaibhav.hiremath@linaro.org> <20150714113556.GE1517@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150714113436.GD1517@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, robh+dt@kernel.org, robert.jarzmik@free.fr, yizhang@marvell.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150714113556.GE1517@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
 
-On Tuesday 14 July 2015 05:04 PM, Wolfram Sang wrote:
-> On Tue, Jul 14, 2015 at 01:06:39PM +0530, Vaibhav Hiremath wrote:
->> This patch series fixes bugs/warnings, cleans up the code and adds
->> support for PXA910 family of devices to PXA I2C bus driver.
->>
->> There has been one attempt made sometime back in 2012 to upstream
->> some of the patches from below list, but did not get follow up later.
->> I have consolidated all the patches, cleaned them up, splited into
->> logical changes, added new patches and submitting it now.
->>
->> I tried to maintain authorship & Signoff except where I did some
->> significant changes to the code/logic.
+On Tuesday 14 July 2015 05:05 PM, Wolfram Sang wrote:
+>> +	i2c->reg_base = devm_ioremap_resource(&dev->dev, res);
+>> +	if (IS_ERR(i2c->reg_base)) {
+>> +		dev_err(&dev->dev, "failed to map resource: %ld\n",
+>> +			PTR_ERR(i2c->reg_base));
+>> +		return PTR_ERR(i2c->reg_base);
+>> +	}
 >
-> So, I applied patches 1-6 to for-next to make some progress.
->
-> The others need more thought because of the bindings which shall be
-> discussed replying to the patches in question.
->
-> Thanks for the updated work with lots of proper references.
+> One change I did when applying: removed this error message.
+> devm_ioremap_resource prints out the errors it finds.
 >
 
-OK, Thanks and no issues.
+devm_ioremap_resource doesn't print return value.
 
-Lets discuss more on the bindings.
+So this additional error message would print one of, -EINVAL, -EBUSY
+or -ENOMEM.
+
+That was the reason I kept it.
+
+If you feel it is not required, I am OK to remove it.
+
+Thanks for the update, it certainly saved one more version :) .
 
 Thanks,
 Vaibhav
