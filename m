@@ -1,249 +1,95 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [Patch v1] i2c: imx: implement bus recovery
-Date: Tue, 14 Jul 2015 08:48:32 +0200
-Message-ID: <20150714064832.GY1426@pengutronix.de>
-References: <1436839486-11110-1-git-send-email-b54642@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH-v4 00/11] i2c: pxa: Fixes, cleanup and support for pxa910 family
+Date: Tue, 14 Jul 2015 13:06:39 +0530
+Message-ID: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1436839486-11110-1-git-send-email-b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, B20596-KZfg59tc24xl57MIdRCFDg@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Gao,
+This patch series fixes bugs/warnings, cleans up the code and adds
+support for PXA910 family of devices to PXA I2C bus driver.
 
-On Tue, Jul 14, 2015 at 10:04:46AM +0800, Gao Pan wrote:
-> Implement bus recovery methods for i2c-imx so we can recover from
-> situations where SCL/SDA are stuck low.
->=20
-> Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
-> pinctrl to gpio mode by calling pinctrl sleep set function, and then
-> use GPIO to emulate the i2c protocol to send nine dummy clock to reco=
-ver
-> i2c device. After recovery, set i2c pinctrl to default group setting.
->=20
-> Signed-off-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Signed-off-by: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-imx.txt |   4 +
->  drivers/i2c/busses/i2c-imx.c                      | 102 ++++++++++++=
-+++++++++-
->  2 files changed, 105 insertions(+), 1 deletion(-)
->=20
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Docu=
-mentation/devicetree/bindings/i2c/i2c-imx.txt
-> index ce4311d..0a0848f5 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> @@ -14,6 +14,8 @@ Optional properties:
->    The absence of the propoerty indicates the default frequency 100 k=
-Hz.
->  - dmas: A list of two dma specifiers, one for each entry in dma-name=
-s.
->  - dma-names: should contain "tx" and "rx".
-> +- recover-scl: specify the gpio related to SCL pin
-> +- recover-sda: specify the gpio related to SDA pin
-I don't like the naming here. That the gpios are used for recovery isn'=
-t
-a hardware description. What about "scl-gpio" and "sda-gpio"?
-=20
->  Examples:
-> =20
-> @@ -37,4 +39,6 @@ i2c0: i2c@40066000 { /* i2c0 on vf610 */
->  	dmas =3D <&edma0 0 50>,
->  		<&edma0 0 51>;
->  	dma-names =3D "rx","tx";
-> +	recover-scl =3D <&gpio5 26 0>;
-> +	recover-sda =3D <&gpio5 27 0>;
->  };
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
-x.c
-> index 785aa67..eb4f95c 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -40,6 +40,7 @@
->  #include <linux/dmapool.h>
->  #include <linux/err.h>
->  #include <linux/errno.h>
-> +#include <linux/gpio.h>
->  #include <linux/i2c.h>
->  #include <linux/init.h>
->  #include <linux/interrupt.h>
-> @@ -48,6 +49,7 @@
->  #include <linux/module.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
-> +#include <linux/of_gpio.h>
->  #include <linux/of_dma.h>
->  #include <linux/platform_data/i2c-imx.h>
->  #include <linux/platform_device.h>
-> @@ -175,6 +177,16 @@ enum imx_i2c_type {
->  	VF610_I2C,
->  };
-> =20
-> +enum imx_i2c_vol_level {
-> +	I2C_IMX_LOW_VOL_LEVEL,
-> +	I2C_IMX_HIGH_VOL_LEVEL,
-> +};
-These are used as return value for the get_scl and get_sda callbacks
-which should return an int. I'd use plain 0 and 1 here.
+There has been one attempt made sometime back in 2012 to upstream
+some of the patches from below list, but did not get follow up later.
+I have consolidated all the patches, cleaned them up, splited into
+logical changes, added new patches and submitting it now.
 
-> +struct imx_i2c_pinctrl {
-> +	unsigned int	sda_pin;
-> +	unsigned int	scl_pin;
-> +};
-> +
->  struct imx_i2c_hwdata {
->  	enum imx_i2c_type	devtype;
->  	unsigned		regshift;
-> @@ -206,6 +218,7 @@ struct imx_i2c_struct {
->  	unsigned int		ifdr; /* IMX_I2C_IFDR */
->  	unsigned int		cur_clk;
->  	unsigned int		bitrate;
-> +	struct imx_i2c_pinctrl	pins;
->  	const struct imx_i2c_hwdata	*hwdata;
-> =20
->  	struct imx_i2c_dma	*dma;
-> @@ -436,7 +449,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct=
- *i2c_imx, int for_busy)
->  		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
->  			dev_dbg(&i2c_imx->adapter.dev,
->  				"<%s> I2C bus is busy\n", __func__);
-> -			return -ETIMEDOUT;
-> +			return i2c_recover_bus(&i2c_imx->adapter);
+I tried to maintain authorship & Signoff except where I did some
+significant changes to the code/logic.
 
-This looks wrong. What if the bus is still busy after the call to
-i2c_recover_bus?  Also it doesn't feel right to call i2c_recover_bus
-just because the bus is busy.
 
->  		}
->  		schedule();
->  	}
-> @@ -450,6 +463,7 @@ static int i2c_imx_trx_complete(struct imx_i2c_st=
-ruct *i2c_imx)
-> =20
->  	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
->  		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
-> +		i2c_recover_bus(&i2c_imx->adapter);
->  		return -ETIMEDOUT;
-ditto.
+Link to previous post:
+http://permalink.gmane.org/gmane.linux.drivers.i2c/13557
 
->  	}
->  	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
-> @@ -956,6 +970,67 @@ fail0:
->  	return (result < 0) ? result : num;
->  }
-> =20
-> +static int i2c_imx_get_scl(struct i2c_adapter *adap)
-> +{
-> +	struct imx_i2c_struct *i2c_imx;
-> +
-> +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> +	if (i2c_imx->pins.sda_pin && i2c_imx->pins.scl_pin)
-> +		return gpio_get_value(i2c_imx->pins.scl_pin);
-> +
-> +	return I2C_IMX_HIGH_VOL_LEVEL;
-> +}
-> +
-> +static int i2c_imx_get_sda(struct i2c_adapter *adap)
-> +{
-> +	struct imx_i2c_struct *i2c_imx;
-> +
-> +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> +	if (i2c_imx->pins.sda_pin && i2c_imx->pins.scl_pin) {
-> +		gpio_direction_input(i2c_imx->pins.sda_pin);
-Don't you want that call in the prepare callback?
+Testing:
+  - Basic testing on PMIC device on I2C-0 interface
+  - Boot tested on platform based on PXA1928
+  - Probe is successfully passing
+  - Read few registers of PMIC (RTC, ID, etc...) during boot
 
-> +		return gpio_get_value(i2c_imx->pins.sda_pin);
-> +	}
-> +
-> +	return I2C_IMX_HIGH_VOL_LEVEL;
-> +}
-> +
-> +static void i2c_imx_set_scl(struct i2c_adapter *adap, int val)
-> +{
-> +	struct imx_i2c_struct *i2c_imx;
-> +
-> +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> +	if (i2c_imx->pins.sda_pin && i2c_imx->pins.scl_pin)
-> +		gpio_direction_output(i2c_imx->pins.scl_pin, val);
-Please move the gpio_direction_output call to the prepare callback and
-only use gpio_set_value here.
+V3 => V4
+=======
+Link to V3: http://www.spinics.net/lists/devicetree/msg85904.html
 
-> +}
-> +
-> +static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
-> +{
-> +	struct imx_i2c_struct *i2c_imx;
-> +
-> +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> +	if (i2c_imx->pins.sda_pin && i2c_imx->pins.scl_pin)
-> +		pinctrl_pm_select_sleep_state(&adap->dev);
-So the sleep state is expected to mux the pins into their gpio function=
-?
+  - [PATCH 06/11] Removed unnecessary dev_err on devm_kzalloc() check
+  - [PATCH 06/11] Removed return check on platform_get_resource(), as 
+    devm_ioremap_resource() does it for us.
+    Also, brought up the devm_ioremap_resource() function call in the execution
+    sequence, as no point in delaying it if we do not have resource.
+    It make sense, after this change.
+  - [PATCH 04/11] Typecast changed to 'enum pxa_i2c_types'
+    Also updated the subject line "Removed ==> Fix"
 
-> +
-spare empty line
+V2 => V3
+=======
+Link to V2: http://www.spinics.net/lists/linux-i2c/msg20059.html
 
-> +}
-> +
-> +static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
-> +{
-> +	struct imx_i2c_struct *i2c_imx;
-> +
-> +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> +	if (i2c_imx->pins.sda_pin && i2c_imx->pins.scl_pin)
-> +		pinctrl_pm_select_default_state(&adap->dev);
-> +}
-> +
-> +static struct i2c_bus_recovery_info i2c_imx_bus_recovery_info =3D {
-> +	.get_scl                =3D i2c_imx_get_scl,
-> +	.get_sda                =3D i2c_imx_get_sda,
-> +	.set_scl                =3D i2c_imx_set_scl,
-> +	.prepare_recovery	=3D i2c_imx_prepare_recovery,
-> +	.unprepare_recovery	=3D i2c_imx_unprepare_recovery,
-> +	.recover_bus            =3D i2c_generic_scl_recovery,
-Mixed tab and spaces used for indention (if you ask me, use a single
-space before the '=3D' ...
+  - Removed PATCH [4/12] related to reset of I2C module.
+    Suggested by "Robert Jarzmik"
+  - Updated commit description for,
+      PATCH [11/12]: Mentioned reasoning about moment of clk_get code.
+      PATCH [12/12]: for DT property node.
+  - Added Acked by "Robert Jarzmik" to patched which he acked.
 
-> +};
-> +
->  static u32 i2c_imx_func(struct i2c_adapter *adapter)
->  {
->  	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-> @@ -1009,6 +1084,7 @@ static int i2c_imx_probe(struct platform_device=
- *pdev)
->  	i2c_imx->adapter.dev.parent	=3D &pdev->dev;
->  	i2c_imx->adapter.nr		=3D pdev->id;
->  	i2c_imx->adapter.dev.of_node	=3D pdev->dev.of_node;
-> +	i2c_imx->adapter.bus_recovery_info	=3D &i2c_imx_bus_recovery_info;
->  	i2c_imx->base			=3D base;
-=2E.. which prevents uglyness as introduce here.)
+V1 => V2:
+========
+Link to V1 - http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347012.html
 
-> =20
->  	/* Get I2C clock */
-> @@ -1037,6 +1113,30 @@ static int i2c_imx_probe(struct platform_devic=
-e *pdev)
->  	/* Set up adapter data */
->  	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
-> =20
-> +	/* Init recover pins */
-> +	i2c_imx->pins.sda_pin =3D
-> +		of_get_named_gpio(pdev->dev.of_node, "recover-sda", 0);
-> +	i2c_imx->pins.scl_pin =3D
-> +		of_get_named_gpio(pdev->dev.of_node, "recover-scl", 0);
-I'd use devm_gpiod_get_optional here.
+  - Fixed all comments from "Robert Jarzmik" and "Wolfram Sang"
+  - Dropped Patch
+	05/12: using core bus reset implementation - under work.
+               Will submit shortly.
+       	08/12: NAKed and dropped
+  - Separated DT binding patch from driver changes, for easy merge
 
-Best regards
-Uwe
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Leilei Shang (1):
+  i2c: pxa: keep i2c irq ON in suspend
+
+Shouming Wang (1):
+  i2c: pxa: Return I2C_RETRY when timeout in pio mode
+
+Vaibhav Hiremath (7):
+  i2c: pxa: No need to set slave addr for i2c master mode reset
+  i2c: pxa: Update debug function to dump more info on error
+  i2c:pxa: Use devm_ variants in probe function
+  Documentation: binding: add new property 'disable_after_xfer' to
+    i2c-pxa
+  i2c: pxa: Add support for pxa910/988 & new configuration features
+  i2c: pxa: Add ILCR (tLow & tHigh) configuration support
+  Documentation: binding: add sclk adjustment properties to i2c-pxa
+
+Yi Zhang (1):
+  i2c: pxa: enable/disable i2c module across msg xfer
+
+Yipeng Yao (1):
+  i2c: pxa: Fix compile warning in 64bit mode
+
+ Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  18 ++
+ drivers/i2c/busses/i2c-pxa.c                      | 261 ++++++++++++++++------
+ 2 files changed, 211 insertions(+), 68 deletions(-)
+
+-- 
+1.9.1
