@@ -1,43 +1,45 @@
 From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: [PATCH-v4 02/11] i2c: pxa: No need to set slave addr for i2c master mode reset
-Date: Tue, 14 Jul 2015 13:06:41 +0530
-Message-ID: <1436859410-28878-3-git-send-email-vaibhav.hiremath@linaro.org>
+Subject: [PATCH-v4 04/11] i2c: pxa: Fix compile warning in 64bit mode
+Date: Tue, 14 Jul 2015 13:06:43 +0530
+Message-ID: <1436859410-28878-5-git-send-email-vaibhav.hiremath@linaro.org>
 References: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, robert.jarzmik@free.fr, yizhang@marvell.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, "Jett.Zhou" <jtzhou@marvell.com>
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, robert.jarzmik@free.fr, yizhang@marvell.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Yipeng Yao <ypyao@marvell.com>, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Normally i2c controller works as master, so slave addr is not needed, or
-it will impact some slave device (eg. ST NFC chip) i2c accesses, because
-it has the same i2c address with controller.
+From: Yipeng Yao <ypyao@marvell.com>
 
-For example,
-On the pxa1928 based platform, where PMIC (88pm860) is present @0x30
-address on TWSI0 interface, and if we set 0x30 as a slave address in
-pxa1928 TWSI0 module, all the transactions towards PMIC would go for toss.
+Fix below warning message, coming from 64 bit toolchain.
 
-Signed-off-by: Jett.Zhou <jtzhou@marvell.com>
+drivers/i2c/busses/i2c-pxa.c:1237:15:
+warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+
+Signed-off-by: Yipeng Yao <ypyao@marvell.com>
+[vaibhav.hiremath@linaro.org: Updated Changelog]
 Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
 ---
- drivers/i2c/busses/i2c-pxa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-pxa.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index f4ac8c5..023e59f 100644
+index 632008f..d0cc058 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -459,7 +459,7 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
- 	writel(I2C_ISR_INIT, _ISR(i2c));
- 	writel(readl(_ICR(i2c)) & ~ICR_UR, _ICR(i2c));
+@@ -1116,7 +1116,9 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
+ 		i2c->use_pio = 1;
+ 	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
+ 		i2c->fast_mode = 1;
+-	*i2c_types = (u32)(of_id->data);
++
++	*i2c_types = (enum pxa_i2c_types)(of_id->data);
++
+ 	return 0;
+ }
  
--	if (i2c->reg_isar)
-+	if (i2c->reg_isar && IS_ENABLED(CONFIG_I2C_PXA_SLAVE))
- 		writel(i2c->slave_addr, _ISAR(i2c));
- 
- 	/* set control register values */
 -- 
 1.9.1
