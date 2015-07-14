@@ -1,86 +1,137 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH-v4 05/11] i2c: pxa: Update debug function to dump more info on error
-Date: Tue, 14 Jul 2015 13:06:44 +0530
-Message-ID: <1436859410-28878-6-git-send-email-vaibhav.hiremath@linaro.org>
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Subject: [PATCH-v4 09/11] i2c: pxa: Add support for pxa910/988 & new configuration features
+Date: Tue, 14 Jul 2015 13:06:48 +0530
+Message-ID: <1436859410-28878-10-git-send-email-vaibhav.hiremath@linaro.org>
 References: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1436859410-28878-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, robert.jarzmik@free.fr, yizhang@marvell.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, "Jett.Zhou" <jtzhou@marvell.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Update i2c_pxa_scream_blue_murder() fn to print more information
-in case of error.
-Also, use dev_err variants instead of printk.
+TWSI_ILCR & TWSI_IWCR registers are used to adjust clock rate
+of standard & fast mode in pxa910/988; so this patch adds these two new
+entries to "struct pxa_reg_layout" and "struct pxa_i2c".
 
-Signed-off-by: Jett.Zhou <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+As discussed in the previous patch-series, the idea here is to add standard
+DT properties for ilcr and iwcr configuration fields.
+In case of Master ilcr is used for low/high time and in case of slave mode
+of operation iwcr is used for setup/hold time.
+
+Signed-off-by: Jett.Zhou <jtzhou@marvell.com>
+Signed-off-by: Yi Zhang <yizhang@marvell.com>
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
 ---
- drivers/i2c/busses/i2c-pxa.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c | 42 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 41 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index d0cc058..beeed7c 100644
+index abf04f2..8d76197 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -132,6 +132,7 @@ struct pxa_i2c {
- 	unsigned int		msg_idx;
- 	unsigned int		msg_ptr;
- 	unsigned int		slave_addr;
-+	unsigned int		req_slave_addr;
+@@ -46,12 +46,15 @@ struct pxa_reg_layout {
+ 	u32 icr;
+ 	u32 isr;
+ 	u32 isar;
++	u32 ilcr;
++	u32 iwcr;
+ };
  
- 	struct i2c_adapter	adap;
- 	struct clk		*clk;
-@@ -253,15 +254,20 @@ static void i2c_pxa_show_state(struct pxa_i2c *i2c, int lno, const char *fname)
- static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
- {
- 	unsigned int i;
--	printk(KERN_ERR "i2c: error: %s\n", why);
--	printk(KERN_ERR "i2c: msg_num: %d msg_idx: %d msg_ptr: %d\n",
-+	struct device *dev = &i2c->adap.dev;
+ enum pxa_i2c_types {
+ 	REGS_PXA2XX,
+ 	REGS_PXA3XX,
+ 	REGS_CE4100,
++	REGS_PXA910,
+ };
+ 
+ /*
+@@ -79,12 +82,22 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
+ 		.isr =	0x04,
+ 		/* no isar register */
+ 	},
++	[REGS_PXA910] = {
++		.ibmr = 0x00,
++		.idbr = 0x08,
++		.icr =	0x10,
++		.isr =	0x18,
++		.isar = 0x20,
++		.ilcr = 0x28,
++		.iwcr = 0x30,
++	},
+ };
+ 
+ static const struct platform_device_id i2c_pxa_id_table[] = {
+ 	{ "pxa2xx-i2c",		REGS_PXA2XX },
+ 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
+ 	{ "ce4100-i2c",		REGS_CE4100 },
++	{ "pxa910-i2c",		REGS_PXA910 },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+@@ -124,6 +137,24 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+ #define ISR_SAD		(1 << 9)	   /* slave address detected */
+ #define ISR_BED		(1 << 10)	   /* bus error no ACK/NAK */
+ 
++/* bit field shift & mask */
++#define ILCR_SLV_SHIFT		0
++#define ILCR_SLV_MASK		(0x1FF << ILCR_SLV_SHIFT)
++#define ILCR_FLV_SHIFT		9
++#define ILCR_FLV_MASK		(0x1FF << ILCR_FLV_SHIFT)
++#define ILCR_HLVL_SHIFT		18
++#define ILCR_HLVL_MASK		(0x1FF << ILCR_HLVL_SHIFT)
++#define ILCR_HLVH_SHIFT		27
++#define ILCR_HLVH_MASK		(0x1F << ILCR_HLVH_SHIFT)
 +
-+	dev_err(dev, "slave_0x%x error: %s\n",
-+		i2c->req_slave_addr >> 1, why);
-+	dev_err(dev, "msg_num: %d msg_idx: %d msg_ptr: %d\n",
- 		i2c->msg_num, i2c->msg_idx, i2c->msg_ptr);
--	printk(KERN_ERR "i2c: ICR: %08x ISR: %08x\n",
--	       readl(_ICR(i2c)), readl(_ISR(i2c)));
--	printk(KERN_DEBUG "i2c: log: ");
-+	dev_err(dev, "IBMR: %08x IDBR: %08x ICR: %08x ISR: %08x\n",
-+		readl(_IBMR(i2c)), readl(_IDBR(i2c)), readl(_ICR(i2c)),
-+		readl(_ISR(i2c)));
-+	dev_dbg(dev, "log: ");
- 	for (i = 0; i < i2c->irqlogidx; i++)
--		printk("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
--	printk("\n");
-+		pr_debug("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
++#define IWCR_CNT_SHIFT		0
++#define IWCR_CNT_MASK		(0x1F << IWCR_CNT_SHIFT)
++#define IWCR_HS_CNT1_SHIFT	5
++#define IWCR_HS_CNT1_MASK	(0x1F << IWCR_HS_CNT1_SHIFT)
++#define IWCR_HS_CNT2_SHIFT	10
++#define IWCR_HS_CNT2_MASK	(0x1F << IWCR_HS_CNT2_SHIFT)
 +
-+	pr_debug("\n");
- }
++
+ struct pxa_i2c {
+ 	spinlock_t		lock;
+ 	wait_queue_head_t	wait;
+@@ -150,6 +181,8 @@ struct pxa_i2c {
+ 	void __iomem		*reg_icr;
+ 	void __iomem		*reg_isr;
+ 	void __iomem		*reg_isar;
++	void __iomem		*reg_ilcr;
++	void __iomem		*reg_iwcr;
  
- #else /* ifdef DEBUG */
-@@ -638,6 +644,7 @@ static inline void i2c_pxa_start_message(struct pxa_i2c *i2c)
- 	 * Step 1: target slave address into IDBR
- 	 */
- 	writel(i2c_pxa_addr_byte(i2c->msg), _IDBR(i2c));
-+	i2c->req_slave_addr = i2c_pxa_addr_byte(i2c->msg);
+ 	unsigned long		iobase;
+ 	unsigned long		iosize;
+@@ -169,6 +202,8 @@ struct pxa_i2c {
+ #define _ICR(i2c)	((i2c)->reg_icr)
+ #define _ISR(i2c)	((i2c)->reg_isr)
+ #define _ISAR(i2c)	((i2c)->reg_isar)
++#define _ILCR(i2c)	((i2c)->reg_ilcr)
++#define _IWCR(i2c)	((i2c)->reg_iwcr)
  
- 	/*
- 	 * Step 2: initiate the write.
-@@ -951,6 +958,7 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32 isr)
- 		 * Write the next address.
- 		 */
- 		writel(i2c_pxa_addr_byte(i2c->msg), _IDBR(i2c));
-+		i2c->req_slave_addr = i2c_pxa_addr_byte(i2c->msg);
+ /*
+  * I2C Slave mode address
+@@ -1135,7 +1170,7 @@ static const struct i2c_algorithm i2c_pxa_pio_algorithm = {
+ static const struct of_device_id i2c_pxa_dt_ids[] = {
+ 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
+ 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
+-	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA2XX },
++	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
+@@ -1243,6 +1278,11 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	if (i2c_type != REGS_CE4100)
+ 		i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
  
- 		/*
- 		 * And trigger a repeated start, and send the byte.
++	if (i2c_type == REGS_PXA910) {
++		i2c->reg_ilcr = i2c->reg_base + pxa_reg_layout[i2c_type].ilcr;
++		i2c->reg_iwcr = i2c->reg_base + pxa_reg_layout[i2c_type].iwcr;
++	}
++
+ 	i2c->iobase = res->start;
+ 	i2c->iosize = resource_size(res);
+ 
 -- 
 1.9.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
