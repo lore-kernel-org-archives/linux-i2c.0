@@ -1,106 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 0/5] enable I2C on Renesas EMEV2 and KZM9D board
-Date: Tue, 14 Jul 2015 13:18:58 +0200
-Message-ID: <20150714111857.GC1517@katana>
-References: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH-v4 00/11] i2c: pxa: Fixes, cleanup and support for pxa910
+ family
+Date: Tue, 14 Jul 2015 13:34:36 +0200
+Message-ID: <20150714113436.GD1517@katana>
+References: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4ZLFUWh1odzi/v6L"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="Ycz6tD7Th1CMF4v7"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Ian Molton <ian.molton@codethink.co.uk>
+In-Reply-To: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Cc: linux-i2c@vger.kernel.org, robh+dt@kernel.org, robert.jarzmik@free.fr, yizhang@marvell.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---4ZLFUWh1odzi/v6L
+--Ycz6tD7Th1CMF4v7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jul 11, 2015 at 09:46:21AM +0200, Wolfram Sang wrote:
-> So, I picked up the old series from Ian and reworked it significantly. Wh=
-ile
-> his series was already an improvement from the driver found in the BSP, i=
-t was
-> still not ready for upstream. It should be now :) My idea was to start si=
-mple
-> and improve incrementally, so e.g. clock handling was broken, so clocks a=
-re
-> always on for starters. Major changes include:
+On Tue, Jul 14, 2015 at 01:06:39PM +0530, Vaibhav Hiremath wrote:
+> This patch series fixes bugs/warnings, cleans up the code and adds
+> support for PXA910 family of devices to PXA I2C bus driver.
 >=20
-> * clock handling simplified and adapted to current EMEV clock handling
-> * switch from wait_event to completion mechanism. The old one was basical=
-ly
->   some kind of completion with custom code around wait_events
-> * dropped using signals; they always cause trouble with I2C
-> * simplified the bus free logic. If it turns out to be too simple, we'd n=
-eed
->   to switch to the bus_recovery infrastructure probably. But we'd need a =
-test
->   case for that
-> * error handling improved to match subsystem standards
-> * removed some BSP angst code
-> * lots of refactoring to make code simpler, more readable...
-> * bugfixes
+> There has been one attempt made sometime back in 2012 to upstream
+> some of the patches from below list, but did not get follow up later.
+> I have consolidated all the patches, cleaned them up, splited into
+> logical changes, added new patches and submitting it now.
 >=20
-> I also added all the glue code to add clocks, disable reset etc which was
-> missing before. I'd prefer to take the first three patches via i2c myself,
-> and the latter two via Simon's tree.
->=20
-> Since V1, there are minor updates fixing issues found in reviews. Thanks!
->=20
-> A branch for testing can be found here:
->=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/emma-=
-i2c
->=20
-> Please test, comment...
->=20
-> Thanks!
->=20
->    Wolfram
->=20
-> Wolfram Sang (5):
->   clk: shmobile: emev2: deassert reset for IIC0/1
->   i2c: emev2: add binding documentation
->   i2c: emev2: add driver
+> I tried to maintain authorship & Signoff except where I did some
+> significant changes to the code/logic.
 
-Those patches applied to for-next...
+So, I applied patches 1-6 to for-next to make some progress.
+
+The others need more thought because of the bindings which shall be
+discussed replying to the patches in question.
+
+Thanks for the updated work with lots of proper references.
 
 
->   ARM: shmobile: emev2: add IIC cores to dtsi
->   ARM: shmobile: emev2: kzm9d: enable IIC busses
-
-=2E.. so Simon, you can pick up these, I'd say.
-
-Thanks,
-
-   Wolfram
-
-
---4ZLFUWh1odzi/v6L
+--Ycz6tD7Th1CMF4v7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVpPAhAAoJEBQN5MwUoCm2Fv8P/i8eAl9eqjGeprEKdmKed15U
-8vY0wlX59G+wMj0w81fanOgwbIpiQWJUZ7lcgFZG6kY98ZnBbzjzkFrN5zTFQmKo
-z8h5Pn0bCykFPH0sYDFNeGieCfnyYtzpurY3NvhaI5YM8CElRey0RhIbBNC2tsKV
-5Pzy/DWrgMAZto6QB04yEMA7HIvu41UeLh45Z9guGEOqF9TuMBcq6rk8clgyxkP/
-1SSKyVOQO2f/wAP8+0tLGT4Sm/l9cPFi9vuPplnygxkWcAZ8H43PkKQyV1pAz57k
-+owRPI6T/K/LVqkw3GmYeyM5c4ZnEdPobitQt9+OmdZ0l8aAD6zDMihY6/IM/6w7
-Zs15V9CfsvGDOE3L69D3J94ymBd5KdLPUE9sw0wNisv9c908U/bPFo7cylDaaF/O
-98xtElFAxhZ0WCL8kl+CYEFIljGphr4tgrZda/ZOalvwN7gbnjM2oypO9hhXd7L+
-I/a7F5PEHkYCiW4K4vMngVf5J4oqKWO9RuVixTDyraFWQLrmAZrLteJw+827Leuk
-7WbRwmULMvd69TzrZMvBy3ZcUPjJ7+JHICCTMEYncGgv+JVciBIkege4QrSSuFPF
-NZnsRgKEvai+Qgq5x5Rjf8XkN36zHBicS8fDEqlPNTgeZwZvnktZnwkxytyn5iC/
-TC0CJCcQ0ZAZwGWmgYvm
-=vU41
+iQIcBAEBAgAGBQJVpPPLAAoJEBQN5MwUoCm2NL8QAKXE9Qa9yJdAV2/MMCmStjw9
+dudYnRX3IVIBCBo3t/ZfPzycobeBnCxcHHevkiBdFBIQjpqAHqdCc2BUfnwsuIZj
+WrnXjzkIU6yW2aErg+3g7hrI2pGFOW9OTh+KaBXhfZhumpI1mhglCt0VdavpRc+Z
+Bzrego23Ev86YdAnrdMNK+POHwC2G3ahBWo9Yn64gmWOkrV1DaR9PC55BwbN5ywk
+t8QCW//cRlOq1BmPuqPN98hdZb1fInFhbndsGRhy3ZKz+ePZ6MXppMhtSFq6N1GM
+bpbqUtyuEJ7yvZW/g2YaqK0WvupdcLe9DahKKY0JkYyG+Yff0wfNroFFpVVonb0d
+toFCZMypisF98v8lhYQOLV1XaVfxoiDlsPHHA96K1sKD6WW9Xf18Wr50J/D+8v1w
+fbB4aV0cVBzUvBNOsNbacfz9aAIq1Qck7nE1KuyVie27rNSt0viLGil5oB3ooaIM
+rA+q8bVlVn63qRwETEzMnFPNvdl+N4VTQhXunx+RvCuDsJHDFyXu5SCUAs4WMgmB
+9ecZJlkWrj1ZDOkzlqfs5leW2Y7MvZR3B2NdqHZRbPRH+1E4gt9rz4Vnx5walL/o
+kWsb9IQBAwL/VI7Y4gU+++uHJRI5QrFpNnjQ7BCZqL1HYubus3sYOhlGMaFfar4z
+B8A2LMOMuwv7JXITi5Sx
+=Qyuc
 -----END PGP SIGNATURE-----
 
---4ZLFUWh1odzi/v6L--
+--Ycz6tD7Th1CMF4v7--
