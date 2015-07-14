@@ -1,63 +1,41 @@
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: [PATCH-v4 11/11] Documentation: binding: add sclk adjustment properties to i2c-pxa
-Date: Tue, 14 Jul 2015 13:06:50 +0530
-Message-ID: <1436859410-28878-12-git-send-email-vaibhav.hiremath@linaro.org>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH-v4 08/11] Documentation: binding: add new property 'disable_after_xfer' to i2c-pxa
+Date: Tue, 14 Jul 2015 13:06:47 +0530
+Message-ID: <1436859410-28878-9-git-send-email-vaibhav.hiremath@linaro.org>
 References: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, robert.jarzmik@free.fr, yizhang@marvell.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1436859410-28878-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-With addition of PXA910 family of devices, the TWSI module supports
-new feature which allows us to adjust SCLK. i2c-pxa driver takes input
-configuration in nsec and converts it to respective bit-fields,
+Driver now supports enable/disable across msg xfer, which user
+can control it by new DT property -
 
- - i2c-sclk-low-time-ns : SCLK low time (tlow)
-   This property is used along with mode selection.
- - i2c-sclk-high-time-ns : SCLK high time (thigh)
- - i2c-start-hold-time-ns : Used in case of high speed mode for start bit
-   hold/setup wait counter.
- - i2c-stop-hold-time-ns : Used in case of high speed mode for stop bit
-   hold/setup wait counter.
- - i2c-sda-hold-time-ns : Used to calculate hold/setup wait counter for
-   standard and fast mode.
+i2c-disable-after-xfer : If set, driver will disable I2C module after msg
+ xfer and enable it back before xfer.
 
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-pxa.txt | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-pxa.txt | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
-index 9657db5..bb4df60 100644
+index 12b78ac..9657db5 100644
 --- a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
 +++ b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
-@@ -23,12 +23,25 @@ Optional properties :
-  - i2c-disable-after-xfer : If set, driver will disable I2C module
-    after msg xfer and enable it again before xfer.
+@@ -18,6 +18,11 @@ Recommended properties :
+    status register of i2c controller instead.
+  - mrvl,i2c-fast-mode : Enable fast mode of i2c controller.
  
-+   (Applicable to PXA910 family):
++Optional properties :
 +
-+ - i2c-sclk-low-time-ns : SCLK low time (tlow), for standard/fast/high
-+   speed mode.
-+   This property is used along with mode selection. Driver uses this property
-+   to set low/high time for standard and fast speed mode, as HW counter
-+   bit-field is same for both.
-+ - i2c-sclk-high-time-ns : SCLK high time (thigh), Used in case of high speed
-+   mode only.
++ - i2c-disable-after-xfer : If set, driver will disable I2C module
++   after msg xfer and enable it again before xfer.
 +
  Examples:
  	twsi1: i2c@d4011000 {
  		compatible = "mrvl,mmp-twsi";
- 		reg = <0xd4011000 0x1000>;
- 		interrupts = <7>;
- 		mrvl,i2c-fast-mode;
-+
-+		i2c-sclk-low-time-ns = <988>;
-+		i2c-sclk-high-time-ns = <988>;
- 	};
- 	
- 	twsi2: i2c@d4025000 {
 -- 
 1.9.1
