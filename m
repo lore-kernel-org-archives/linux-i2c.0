@@ -1,101 +1,106 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: fix bus recovery setup
-Date: Tue, 14 Jul 2015 13:10:05 +0200
-Message-ID: <20150714111004.GB1517@katana>
-References: <1436366127-24756-1-git-send-email-jlu@pengutronix.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 0/5] enable I2C on Renesas EMEV2 and KZM9D board
+Date: Tue, 14 Jul 2015 13:18:58 +0200
+Message-ID: <20150714111857.GC1517@katana>
+References: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="4ZLFUWh1odzi/v6L"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1436366127-24756-1-git-send-email-jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jan Luebbe <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+In-Reply-To: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Ian Molton <ian.molton@codethink.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
 
---A6N2fC+uXW/VQSAv
+--4ZLFUWh1odzi/v6L
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 08, 2015 at 04:35:27PM +0200, Jan Luebbe wrote:
-> At least on the AM335x, enabling OMAP_I2C_SYSTEST_ST_EN is not enough to
+On Sat, Jul 11, 2015 at 09:46:21AM +0200, Wolfram Sang wrote:
+> So, I picked up the old series from Ian and reworked it significantly. Wh=
+ile
+> his series was already an improvement from the driver found in the BSP, i=
+t was
+> still not ready for upstream. It should be now :) My idea was to start si=
+mple
+> and improve incrementally, so e.g. clock handling was broken, so clocks a=
+re
+> always on for starters. Major changes include:
+>=20
+> * clock handling simplified and adapted to current EMEV clock handling
+> * switch from wait_event to completion mechanism. The old one was basical=
+ly
+>   some kind of completion with custom code around wait_events
+> * dropped using signals; they always cause trouble with I2C
+> * simplified the bus free logic. If it turns out to be too simple, we'd n=
+eed
+>   to switch to the bus_recovery infrastructure probably. But we'd need a =
+test
+>   case for that
+> * error handling improved to match subsystem standards
+> * removed some BSP angst code
+> * lots of refactoring to make code simpler, more readable...
+> * bugfixes
+>=20
+> I also added all the glue code to add clocks, disable reset etc which was
+> missing before. I'd prefer to take the first three patches via i2c myself,
+> and the latter two via Simon's tree.
+>=20
+> Since V1, there are minor updates fixing issues found in reviews. Thanks!
+>=20
+> A branch for testing can be found here:
+>=20
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/emma-=
+i2c
+>=20
+> Please test, comment...
+>=20
+> Thanks!
+>=20
+>    Wolfram
+>=20
+> Wolfram Sang (5):
+>   clk: shmobile: emev2: deassert reset for IIC0/1
+>   i2c: emev2: add binding documentation
+>   i2c: emev2: add driver
 
-Felipe: it seems you did not need this; is this AM335x specific?
+Those patches applied to for-next...
 
-> allow direct access to the SCL and SDA pins. In addition to ST_EN, we
-> need to set the TMODE to 0b11 (Loop back & SDA/SCL IO mode select).
-> Also, as the reset values of SCL_O and SDA_O are 0 (which means "drive
-> low level"), we need to set them to 1 (which means "high-impedance") to
-> avoid unwanted changes on the pins.
->=20
-> As a precaution, reset all these bits to their default values after
-> recovery is complete.
->=20
-> Signed-off-by: Jan Luebbe <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-omap.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index d1c22e3fdd14..fc9bf7f30e35 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -1247,7 +1247,14 @@ static void omap_i2c_prepare_recovery(struct i2c_a=
-dapter *adap)
->  	u32 reg;
-> =20
->  	reg =3D omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-> +	/* enable test mode */
->  	reg |=3D OMAP_I2C_SYSTEST_ST_EN;
-> +	/* select SDA/SCL IO mode */
-> +	reg |=3D 3 << OMAP_I2C_SYSTEST_TMODE_SHIFT;
-> +	/* set SCL to high-impedance state (reset value is 0) */
-> +	reg |=3D OMAP_I2C_SYSTEST_SCL_O;
-> +	/* set SDA to high-impedance state (reset value is 0) */
-> +	reg |=3D OMAP_I2C_SYSTEST_SDA_O;
->  	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
->  }
-> =20
-> @@ -1257,7 +1264,11 @@ static void omap_i2c_unprepare_recovery(struct i2c=
-_adapter *adap)
->  	u32 reg;
-> =20
->  	reg =3D omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-> +	/* restore reset values */
->  	reg &=3D ~OMAP_I2C_SYSTEST_ST_EN;
-> +	reg &=3D ~OMAP_I2C_SYSTEST_TMODE_MASK;
-> +	reg &=3D ~OMAP_I2C_SYSTEST_SCL_O;
-> +	reg &=3D ~OMAP_I2C_SYSTEST_SDA_O;
->  	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
->  }
-> =20
-> --=20
-> 2.1.4
->=20
 
---A6N2fC+uXW/VQSAv
+>   ARM: shmobile: emev2: add IIC cores to dtsi
+>   ARM: shmobile: emev2: kzm9d: enable IIC busses
+
+=2E.. so Simon, you can pick up these, I'd say.
+
+Thanks,
+
+   Wolfram
+
+
+--4ZLFUWh1odzi/v6L
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVpO4MAAoJEBQN5MwUoCm2UioP+wR7mlSAYqA1KhLA0NvJCLl/
-lg0p8M3CahfjkI64nqzcZpLSYWOsZxtpoaJ1txRVHEjlFwvUh/uX3f1z5aEilLia
-Xx2j6jRo+BlKZ6QUYM1biA7f8GAIRF1sUm0UD5lCSIQjaF78uLrVSp/xLU8/8Cnd
-ocahJ/kNRetThRzx3N2Q7zFPtFw6gbu9etmFcwZtVd50mOeyHtG1PT8HP/baTc8/
-uopN6BlQmvMJUA06SfNXtS890r4Hcu8hVwPouZ1+6MbBYCc3Bqa0hlAwpsz2cH6w
-ebwa8In67f7bNhlxPtFAgv9B4oTBzbb88eSiw6wWxe53/qPLTRXaoO7CkJNwze1+
-krWIqMoqHU1VmxvohxrnSKOloFb7EzWmXexnrzWbh0FPqjThc41yHSsayEW9icBW
-2S5BaBSaZ1zcKieezlqJAtXczNdTXIUG/UC2jMq98ApsS/8vHTopSXdegO0pqnA4
-vij6LPSYDT2yFX6I3um+b38xU7DRCrCG6OtFRVE+nLG1IplUHuGMQ4R4vx6HRabj
-2i+xl+UhTsfc7Z9YcHafPLZqgAUq/6x0mGKZRykjygypJdHq4QkYzVd73uuYiax8
-/O8HTXZEmKp8Uj1xv4Yxa7BdDUQLSIBGwFhLHjYVsdEinMwK6erZGmLh/it8YeCB
-/2vQhkxnIHzbFhJ/wOsa
-=7oIj
+iQIcBAEBAgAGBQJVpPAhAAoJEBQN5MwUoCm2Fv8P/i8eAl9eqjGeprEKdmKed15U
+8vY0wlX59G+wMj0w81fanOgwbIpiQWJUZ7lcgFZG6kY98ZnBbzjzkFrN5zTFQmKo
+z8h5Pn0bCykFPH0sYDFNeGieCfnyYtzpurY3NvhaI5YM8CElRey0RhIbBNC2tsKV
+5Pzy/DWrgMAZto6QB04yEMA7HIvu41UeLh45Z9guGEOqF9TuMBcq6rk8clgyxkP/
+1SSKyVOQO2f/wAP8+0tLGT4Sm/l9cPFi9vuPplnygxkWcAZ8H43PkKQyV1pAz57k
++owRPI6T/K/LVqkw3GmYeyM5c4ZnEdPobitQt9+OmdZ0l8aAD6zDMihY6/IM/6w7
+Zs15V9CfsvGDOE3L69D3J94ymBd5KdLPUE9sw0wNisv9c908U/bPFo7cylDaaF/O
+98xtElFAxhZ0WCL8kl+CYEFIljGphr4tgrZda/ZOalvwN7gbnjM2oypO9hhXd7L+
+I/a7F5PEHkYCiW4K4vMngVf5J4oqKWO9RuVixTDyraFWQLrmAZrLteJw+827Leuk
+7WbRwmULMvd69TzrZMvBy3ZcUPjJ7+JHICCTMEYncGgv+JVciBIkege4QrSSuFPF
+NZnsRgKEvai+Qgq5x5Rjf8XkN36zHBicS8fDEqlPNTgeZwZvnktZnwkxytyn5iC/
+TC0CJCcQ0ZAZwGWmgYvm
+=vU41
 -----END PGP SIGNATURE-----
 
---A6N2fC+uXW/VQSAv--
+--4ZLFUWh1odzi/v6L--
