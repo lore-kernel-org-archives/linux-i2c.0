@@ -1,57 +1,76 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
-Date: Tue, 14 Jul 2015 13:49:17 +0200
-Message-ID: <20150714114917.GG1517@katana>
-References: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com>
+Subject: Re: [PATCHv2 0/9] i2c: xiic: cleanups
+Date: Tue, 14 Jul 2015 13:59:54 +0200
+Message-ID: <20150714115954.GH1517@katana>
+References: <1434554299-23443-1-git-send-email-shubhraj@xilinx.com>
+ <20150709173501.GE4744@katana>
+ <CAKfKVtE5qfQjxJNDOBXfVLncVYXJjgfXe6Anb6M=dSFkHsTt8w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KIzF6Cje4W/osXrF"
+	protocol="application/pgp-signature"; boundary="MGu/vTNewDGZ7tmp"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1436826234-2447-1-git-send-email-ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <CAKfKVtE5qfQjxJNDOBXfVLncVYXJjgfXe6Anb6M=dSFkHsTt8w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Cc: borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---KIzF6Cje4W/osXrF
+--MGu/vTNewDGZ7tmp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 13, 2015 at 03:23:54PM -0700, Ellen Wang wrote:
-> When doing an I2C_SMBUS_BYTE write (one byte write, no address),
-> the data to be written is in "command" not "data->byte".
->=20
-> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+On Fri, Jul 10, 2015 at 10:43:18AM +0530, Shubhrajyoti Datta wrote:
+> On Thu, Jul 9, 2015 at 11:05 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> > On Wed, Jun 17, 2015 at 08:48:10PM +0530, Shubhrajyoti Datta wrote:
+> >> This is a series of cleanups for the axi iic.
+> >> tested on zc702 and microblaze.
+> >>
+> >> Changes from v1
+> >> Updated the commit message.
+> >>
+> >>
+> >> Shubhrajyoti Datta (9):
+> >>   i2c: xiic: Remove the disabling of interrupts
+> >>   i2c: xiic: move the xiic_process to thread context
+> >>   i2c: xiic: Do not reset controller before every transfer
+> >>   i2c: xiic: Remove the disabling of interrupts
+> >>   i2c: xiic: Remove busy loop while waiting for bus busy
+> >>   i2c: xiic: Add a debug msg in case of timeout
+> >>   i2c: xiic: Remove the Addressed as slave interrupt
+> >>   i2c: xiic: Service all interrupts in isr
+> >>   i2c: xiic: Do not continue in case of errors in Rx
+> >
+> > Commit messages are a lot better, thanks!
+> >
+> > Two minor comments. If you agree to them, I can simply drop patch 6 and
+> > fixup patch 2
+> I agree anyways 2 was like a debug patch.
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-
-Wow, that driver seems to be largely untested. Thanks for cleaning it
-up! Sidenote: i2c drivers should really be in drivers/i2c ;)
+Applied patches as discussed to for-next, thanks!
 
 
---KIzF6Cje4W/osXrF
+--MGu/vTNewDGZ7tmp
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVpPc9AAoJEBQN5MwUoCm2MS0P/23XpeiglbCESU/H1Z/K8JtA
-ZREJT1Sm15teGzhd6GVwtHO/819RkLDm8egcBadbD87cScoPIGdR+f1kwcLBQUDZ
-Ug+aP287Bbsgq78P8sD7IFmjcNeqKCN0Dj9h6EptCfMqPoQHFg6Im2tJMfN02fPR
-qTS5Z6MfXuWmMOnrXKyi+VNXIJVtFHgCNNEEVNnJytLYTX+SojX+He7s5cEfRgtb
-dF+tiBhSUX8Ac1TPt1Q9XLoj1XnMHuP7CHxvL6IgK2c7yTqp/R9J3oOwBuJ1pKos
-uNba5BqyGNJTkIEt0KqxyEDJNGZtu6u00WFq7IPPBmu6VsH1cd9bt9gyn/7I6jjq
-NOSvxUz9g/RDPTrMXfEVMjHYQBywBNVaVV2imTJY5KTtsFs0ayRJkkrnVOAZFDUi
-LwuQIaDeEte+ToAY79ia/cC6DZBtZhi0nO5txZ2p8StUf0bqLW66gQXs1bRz6z+S
-V/YDeBuQgyC4Xsdu3kUXcrVLCvbJPdyI8zjYep1baUhxvYP0XbSXSzVtvKwgseZx
-M5EWCOf9WoIojagPQNvh1o3fIaMwatjybyqJpqCQ98bAvxCopgDtrYh1ITL6X/e2
-uGIkhlbf3nrMpy0gxdypj+w27HEZHxvMQyjYpTViHnSCAB+rQGyKX6XM7rlFzY0O
-sPnL1W4lg3nIPXSEk4L+
-=GcDo
+iQIcBAEBAgAGBQJVpPm6AAoJEBQN5MwUoCm2+1MP/0xOa73RF6JeSANmh1ETaB4o
+w67GtU0UdlGT7Eq65skoIxGjw8qIqflkrRLKFAXCd2+LVqL9Zpew2Xoa3hDqQyUL
+B7xFar4cVgKYA14Dj/RN32Q33oQEMybOQ+b8NqDnlbaCYssTwGMFENwYbdjdu89Y
+KF8HPKWZAzhRTbsk1s4HRuIfPTxZhPprAQ1ErfG3XlJWFnfV3mJkRBLFlSmuAfZM
+uVWNYGdnMmNtBKc9LHEnsN5fQfryP6Z479WSLmugzL8BCdN6aigcg8b4ToBHZzbt
+90BtfaG8XJA2g3xzl64AoTMalICsdoYVncYQIryyXSNyZWTvGx3RhMCClu+1lwOk
+G3FIDxsB25gar99Cx1W1vKCQLdLZyALznVZgcFHb96TM59BJik7C4Kro1tTLehsh
+HbmXv3NzqCqWzroQ5/bMnrlOs8Jr3QxtfTg3XLM0nUF29la77PlSVOviu5Z4yXzT
+qu32vLGMyWXWB9THaU6nxlV8eW/SgEdWodDp4Z4CevB7b+ETsdVdHM94ZXeQSAvv
+Wc/QDhP2+TICykhOsKD+3TyzKrJ6PvEZ9H1PNC8YOENM5VSQYCbxKqUCWjJy7FYK
+ssiKsa67TUZOLf+lFB0xTsCDv+U55NKr0UXmRNZPd5mFBRUx8pIvQBIRaADhda3X
+nvMN++rZAhyXwrbN3WfY
+=OSBs
 -----END PGP SIGNATURE-----
 
---KIzF6Cje4W/osXrF--
+--MGu/vTNewDGZ7tmp--
