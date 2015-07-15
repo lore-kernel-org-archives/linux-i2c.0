@@ -1,32 +1,67 @@
-From: Ellen Wang <ellen@cumulusnetworks.com>
-Subject: Re: [PATCH v2] HID: cp2112: fix I2C_SMBUS_BYTE write
-Date: Tue, 14 Jul 2015 15:54:39 -0700
-Message-ID: <55A5932F.90505@cumulusnetworks.com>
-References: <1436826234-2447-1-git-send-email-ellen@cumulusnetworks.com> <20150714114917.GG1517@katana> <alpine.LNX.2.00.1507141452140.7522@pobox.suse.cz>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH v2 0/5] enable I2C on Renesas EMEV2 and KZM9D board
+Date: Wed, 15 Jul 2015 09:12:45 +0900
+Message-ID: <20150715001245.GC30642@verge.net.au>
+References: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
+ <20150714111857.GC1517@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1507141452140.7522@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: borneo.antonio@gmail.com, dbarksdale@uplogix.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150714111857.GC1517@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Ian Molton <ian.molton@codethink.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/14/2015 05:54 AM, Jiri Kosina wrote:
-> On Mon, 13 Jul 2015, Ellen Wang wrote:
->
->> When doing an I2C_SMBUS_BYTE write (one byte write, no address),
->> the data to be written is in "command" not "data->byte".
->>
->> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
->> ---
->> Forgot signed-off-by tag last time, sorry.
->
-> Applied to for-4.3/cp2112.
+On Tue, Jul 14, 2015 at 01:18:58PM +0200, Wolfram Sang wrote:
+> On Sat, Jul 11, 2015 at 09:46:21AM +0200, Wolfram Sang wrote:
+> > So, I picked up the old series from Ian and reworked it significantly. While
+> > his series was already an improvement from the driver found in the BSP, it was
+> > still not ready for upstream. It should be now :) My idea was to start simple
+> > and improve incrementally, so e.g. clock handling was broken, so clocks are
+> > always on for starters. Major changes include:
+> > 
+> > * clock handling simplified and adapted to current EMEV clock handling
+> > * switch from wait_event to completion mechanism. The old one was basically
+> >   some kind of completion with custom code around wait_events
+> > * dropped using signals; they always cause trouble with I2C
+> > * simplified the bus free logic. If it turns out to be too simple, we'd need
+> >   to switch to the bus_recovery infrastructure probably. But we'd need a test
+> >   case for that
+> > * error handling improved to match subsystem standards
+> > * removed some BSP angst code
+> > * lots of refactoring to make code simpler, more readable...
+> > * bugfixes
+> > 
+> > I also added all the glue code to add clocks, disable reset etc which was
+> > missing before. I'd prefer to take the first three patches via i2c myself,
+> > and the latter two via Simon's tree.
+> > 
+> > Since V1, there are minor updates fixing issues found in reviews. Thanks!
+> > 
+> > A branch for testing can be found here:
+> > 
+> > git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/emma-i2c
+> > 
+> > Please test, comment...
+> > 
+> > Thanks!
+> > 
+> >    Wolfram
+> > 
+> > Wolfram Sang (5):
+> >   clk: shmobile: emev2: deassert reset for IIC0/1
+> >   i2c: emev2: add binding documentation
+> >   i2c: emev2: add driver
+> 
+> Those patches applied to for-next...
+> 
+> 
+> >   ARM: shmobile: emev2: add IIC cores to dtsi
+> >   ARM: shmobile: emev2: kzm9d: enable IIC busses
+> 
+> ... so Simon, you can pick up these, I'd say.
 
-Would it be possible to consider it for stable, as well as the other 
-recent commits (6debce6f4e787a8eb4cec94e7afa85fb4f40db27 and 
-5ddfb12e90c73cf86881345be422e09c367f6981)?
+Thanks for the reminder; done.
 
-Thanks!
