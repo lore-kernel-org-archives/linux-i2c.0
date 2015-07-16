@@ -1,67 +1,50 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH v2 0/5] enable I2C on Renesas EMEV2 and KZM9D board
-Date: Wed, 15 Jul 2015 09:12:45 +0900
-Message-ID: <20150715001245.GC30642@verge.net.au>
-References: <1436600786-3068-1-git-send-email-wsa@the-dreams.de>
- <20150714111857.GC1517@katana>
+From: Andrey Danin <danindrey@mail.ru>
+Subject: Re: How to encode being an I2C slave in DT?
+Date: Thu, 16 Jul 2015 12:03:43 +0300
+Message-ID: <55A7736F.5090802@mail.ru>
+References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
+ <20150403194635.GC2016@katana> <1549160.njMIY2NVTi@fb07-iapwap2>
+ <20150505105513.GA1841@katana> <554922EF.3050906@wwwdotorg.org>
+ <20150506161712.GA4003@katana>
+ <CAL_Jsq+iyeK-bV3ggcJv8Cw3EU71fkBo1wqYZnhCoh2-b_tO-Q@mail.gmail.com>
+ <20150519061619.GA4448@schokonusskuchen.bad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150714111857.GC1517@katana>
-Sender: linux-sh-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20150519061619.GA4448@schokonusskuchen.bad>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Ian Molton <ian.molton@codethink.co.uk>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Stephen Warren <swarren@wwwdotorg.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Marc Dietrich <marvin24@gmx.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 14, 2015 at 01:18:58PM +0200, Wolfram Sang wrote:
-> On Sat, Jul 11, 2015 at 09:46:21AM +0200, Wolfram Sang wrote:
-> > So, I picked up the old series from Ian and reworked it significantly. While
-> > his series was already an improvement from the driver found in the BSP, it was
-> > still not ready for upstream. It should be now :) My idea was to start simple
-> > and improve incrementally, so e.g. clock handling was broken, so clocks are
-> > always on for starters. Major changes include:
-> > 
-> > * clock handling simplified and adapted to current EMEV clock handling
-> > * switch from wait_event to completion mechanism. The old one was basically
-> >   some kind of completion with custom code around wait_events
-> > * dropped using signals; they always cause trouble with I2C
-> > * simplified the bus free logic. If it turns out to be too simple, we'd need
-> >   to switch to the bus_recovery infrastructure probably. But we'd need a test
-> >   case for that
-> > * error handling improved to match subsystem standards
-> > * removed some BSP angst code
-> > * lots of refactoring to make code simpler, more readable...
-> > * bugfixes
-> > 
-> > I also added all the glue code to add clocks, disable reset etc which was
-> > missing before. I'd prefer to take the first three patches via i2c myself,
-> > and the latter two via Simon's tree.
-> > 
-> > Since V1, there are minor updates fixing issues found in reviews. Thanks!
-> > 
-> > A branch for testing can be found here:
-> > 
-> > git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/emma-i2c
-> > 
-> > Please test, comment...
-> > 
-> > Thanks!
-> > 
-> >    Wolfram
-> > 
-> > Wolfram Sang (5):
-> >   clk: shmobile: emev2: deassert reset for IIC0/1
-> >   i2c: emev2: add binding documentation
-> >   i2c: emev2: add driver
-> 
-> Those patches applied to for-next...
-> 
-> 
-> >   ARM: shmobile: emev2: add IIC cores to dtsi
-> >   ARM: shmobile: emev2: kzm9d: enable IIC busses
-> 
-> ... so Simon, you can pick up these, I'd say.
+Hello Wolfram,
 
-Thanks for the reminder; done.
+On 19.05.2015 9:16, Wolfram Sang wrote:
+>
+>>> I give in to the flag idea. I also noticed that we'd need another flag
+>>> anyhow to mark 10 bit addresses. I am still thinking between using two
+>>> address-cells in that case (clean seperation between address and flags)
+>>> or to encode the flags as MSB in the current address (all busses will
+>>> have same address-cells and child description, less code paths and no
+>>> overhead in dtbs).
+>>
+>> Reading thru the thread, this seems good to me. I would go with adding
+>> flags in the MSB of the reg cell rather than adding a cell.
+>
+> Thanks. I was leaning to the MSB idea, too, and am currently checking
+> how the code would look like. Feels much better to do knowing that it is
+> basically upstream compatible ;)
+>
+Did you have enough time to check this ?
+(sorry for the noise, if I missed patch(es) in the ml)
 
+Thanks.
