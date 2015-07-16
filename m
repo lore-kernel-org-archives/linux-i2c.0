@@ -1,28 +1,71 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [RFT PATCH 1/2] i2c: tegra: update CONFIG_LOAD for new conifiguration
-Date: Thu, 16 Jul 2015 15:46:12 +0530
-Message-ID: <55A7846C.6080208@nvidia.com>
-References: <1435661667-11554-1-git-send-email-ldewangan@nvidia.com> <559D89D8.50500@wwwdotorg.org>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH] i2c-parport: Add VCT-jig adapter
+Date: Thu, 16 Jul 2015 14:53:24 +0200
+Message-ID: <20150716145324.2fcc32f5@endymion.delvare>
+References: <1436808672-15503-1-git-send-email-linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <559D89D8.50500-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+In-Reply-To: <1436808672-15503-1-git-send-email-linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andrewc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chaitanya Bandi <bandik-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kernel development list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram,
+On Mon, 13 Jul 2015 19:31:12 +0200, Ondrej Zary wrote:
+> Add support for VCT-jig parallel port I2C adapter to i2c-parport.
+> 
+> The adapter schematic can be found here (in the RAR file):
+> http://remont-aud.net/shop/22/desc/vct-jig-komplekt-dlja-samostojatelnoj-sborki
+> 
+> Signed-off-by: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+> ---
+>  Documentation/i2c/busses/i2c-parport |    1 +
+>  drivers/i2c/busses/i2c-parport.h     |    8 ++++++++
+>  2 files changed, 9 insertions(+)
+> 
+> diff --git a/Documentation/i2c/busses/i2c-parport b/Documentation/i2c/busses/i2c-parport
+> index 0e2d17b..c3dbb3b 100644
+> --- a/Documentation/i2c/busses/i2c-parport
+> +++ b/Documentation/i2c/busses/i2c-parport
+> @@ -20,6 +20,7 @@ It currently supports the following devices:
+>   * (type=5) Analog Devices evaluation boards: ADM1025, ADM1030, ADM1031
+>   * (type=6) Barco LPT->DVI (K5800236) adapter
+>   * (type=7) One For All JP1 parallel port adapter
+> + * (type=8) VCT-jig
+>  
+>  These devices use different pinout configurations, so you have to tell
+>  the driver what you have, using the type module parameter. There is no
+> diff --git a/drivers/i2c/busses/i2c-parport.h b/drivers/i2c/busses/i2c-parport.h
+> index 4e12945..84a6616 100644
+> --- a/drivers/i2c/busses/i2c-parport.h
+> +++ b/drivers/i2c/busses/i2c-parport.h
+> @@ -89,6 +89,13 @@ static const struct adapter_parm adapter_parm[] = {
+>  		.getsda	= { 0x80, PORT_STAT, 1 },
+>  		.init	= { 0x04, PORT_DATA, 1 },
+>  	},
+> +	/* type 8: VCT-jig */
+> +	{
+> +		.setsda	= { 0x04, PORT_DATA, 1 },
+> +		.setscl	= { 0x01, PORT_DATA, 1 },
+> +		.getsda	= { 0x40, PORT_STAT, 0 },
+> +		.getscl	= { 0x80, PORT_STAT, 1 },
+> +	},
+>  };
+>  
+>  static int type = -1;
+> @@ -103,4 +110,5 @@ MODULE_PARM_DESC(type,
+>  	" 5 = ADM1025, ADM1030 and ADM1031 evaluation boards\n"
+>  	" 6 = Barco LPT->DVI (K5800236) adapter\n"
+>  	" 7 = One For All JP1 parallel port adapter\n"
+> +	" 8 = VCT-jig\n"
+>  );
 
-On Thursday 09 July 2015 02:06 AM, Stephen Warren wrote:
-> On 06/30/2015 04:54 AM, Laxman Dewangan wrote:
->> Once the new configuration is set on the conifg register of
->> I2C controller, it is require to update the CONFIG_LOAD register
->> to transfer the new SW configuration to actual HW internal
->> registers that would be used in the actual logic.
+Looks good.
 
-Can you please review this series?
+Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 
-Thanks,
-Laxman
+-- 
+Jean Delvare
+SUSE L3 Support
