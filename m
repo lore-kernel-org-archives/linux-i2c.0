@@ -1,51 +1,26 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 9/9] dts: tegra: WIP: hack dts to test new dt flags for i2c
-Date: Fri, 17 Jul 2015 16:11:40 +0200
-Message-ID: <20150717141140.GA9473@katana>
-References: <1437142109-31975-1-git-send-email-wsa@the-dreams.de>
- <1437142109-31975-10-git-send-email-wsa@the-dreams.de>
+From: "Allen" <beijingparam3-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Subject: Translation Application-(ENG<>CHN)
+Date: Sat, 18 Jul 2015 02:14:56 +0800
+Message-ID: <201507180214569371086@a.aoshiwuhuang.com>
+Reply-To: beijingparam3-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1437142109-31975-10-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrey Danin <danindrey@mail.ru>, linux-tegra@vger.kernel.org
+Content-Type: text/plain;
+	charset="GB2312"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---wac7ysb48OaltWcw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-> +			//FIXME: Should be I2C_OWN_SLAVE_ADDRESS | 0x42
-> +			reg = <0xc0000042>;
-
-That should have been 0x40000042, sorry!
-
-
---wac7ysb48OaltWcw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVqQ0cAAoJEBQN5MwUoCm2Cz8P/0eqPbyuGoIwcOFVpzHgrQfK
-7WuElj1V2yo3fJUZIFyDNsQXDhT/NvlmkRs20pCsp2TsCi+RO5iwie4ZyToIf9EI
-BK4JXn1wXgcIIzGGYL8/Ru48jn6G0S2THcH5pDaJ7fLgXvf2/LPTKRmfyXXuGXZ4
-AIrMFB9kML9NzBvCsiA5M29wJozVJGd6UbBhj1NeUAKadeFLwiJHZ6F9e/61dG9R
-Xj1R4FnON/3eC/ultqOO33PghSUUNRZBpE+Kv/qw4+PgaN2Z2UxoNp3ScmB9qMTK
-+kiV8lIAKGWazfG6R+jqsHqxUaMMUKJQ8emsXmRcVwoSgvbCqKphbalOWo8pLjlo
-V0jr1HIvhvpAyMNgSHsSi66xkl15ZAbidJ5Ahs9u9VKFOzqLzeI5/bK9CPunhd7B
-JdNxBtI9uAm6bBHY/Tva8CaPM0OuyWc2LFh/12O4dV5v30/u43uy8mY2NIcFgrVQ
-AG5Q5QYTVhq5Y4+Tb0ClBC1kXBFYR2DXpdtFYNZZwg/Od72tVDZAMVKrBddAbXd6
-9pX7tFOBMYdTOt1S8ZfzuXr2+MzA6xMmOEOnDJ5cU1XuLRrKoAhJWZUu5JbDKoyT
-5XDyuE27Hr/Yj4MZ/We+3nU2VvHKW4DNO2iHusdUQOOWPS1crSM6sFobtN5hGoNq
-BhvYN2Nz7oKuILDFVeks
-=JGv9
------END PGP SIGNATURE-----
-
---wac7ysb48OaltWcw--
+SGVsbG8sDQoNCk15IG5hbWUgaXMgQWxsZW4sIGFuZCBJJ20gYSBuYXRpdmUgQ2hpbmVzZSBzcGVh
+a2VyLiBJIHdvbmRlciBpZiB5b3UgbmVlZCBFbmdsaXNoIHRvIENoaW5lc2Ugb3IgQ2hpbmVzZSB0
+byBFbmdsaXNoIHRyYW5zbGF0b3IuIFNvIEkgZGVjaWRlZCB0byBkcm9wIHlvdSBhIGxpbmUuDQoN
+ClNvbWUgd29yZHMgYWJvdXQgbXlzZWxmOkNoaW5lc2UgPD5FbmdsaXNoIFRyYW5zbGF0aW9uLg0K
+Q0FUIHRvb2xzOiBTREwgVHJhZG9zIFN0dWRpbyAyMDA5LDIwMTMNCg0KSSdsbCBiZSBnbGFkIHRv
+IGhlbHAgeW91IHdpdGggdHJhbnNsYXRpb24gZnJvbSBFbmdsaXNoIHRvIENoaW5lc2UuIEknbSBl
+eHBlcmllbmNlZCBpbiB0cmFuc2xhdGluZyBkaWZmZXJlbnQgdHlwZXMgb2YgdGV4dHMgLWxlZ2Fs
+LCBlZHVjYXRpb24sdGVjaG5pY2FsIChJVCwgc29mdHdhcmUsIGhhcmR3YXJlLCB0ZWxlY29tbXVu
+aWNhdGlvbnMpLCBlY29ub21pY2FsLCBmaW5hbmNpYWwsIG1lZGljYWwsIHNvY2lhbCwgZ2VuZXJh
+bCwgYW5kIG1hcmtldGluZy4NCg0KSWYgeW91IGhhdmUgYW55IHF1ZXN0aW9ucyBmZWVsIGZyZWUg
+dG8gY29udGFjdCBtZSB1c2luZyB0aGlzIGUtbWFpbCBhZGRyZXNzIA0KQmVpamluZ3BhcmFtM0Bo
+b3RtYWlsLmNvbQ0KDQpCZXN0IHJlZ2FyZHMsDQpBbGxlbg==
