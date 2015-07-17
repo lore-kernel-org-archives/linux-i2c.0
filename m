@@ -1,54 +1,50 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: s3c2410: remove unused variable
-Date: Thu, 16 Jul 2015 22:40:19 +0200
-Message-ID: <20150716204019.GA1533@katana>
-References: <1437078976-29145-1-git-send-email-laurent.navet@gmail.com>
+From: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [Patch v1] i2c: imx: implement bus recovery
+Date: Fri, 17 Jul 2015 02:26:09 +0000
+Message-ID: <CY1PR0301MB085871D1FF9A9CF52F452E99CF980@CY1PR0301MB0858.namprd03.prod.outlook.com>
+References: <1436839486-11110-1-git-send-email-b54642@freescale.com>
+	 <20150714064832.GY1426@pengutronix.de>
+	 <CY1PR0301MB0858C32968C39EA0E60E2904CF9B0@CY1PR0301MB0858.namprd03.prod.outlook.com>
+ <1437051462.3344.140.camel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1437078976-29145-1-git-send-email-laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1437051462.3344.140.camel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?utf-8?B?SmFuIEzDvGJiZQ==?= <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: =?utf-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Jul 16, 2015 at 10:36:16PM +0200, Laurent Navet wrote:
-> ret is assigned zero and just used to return. remove it.
-> Found by using coccinelle.
->=20
-> Signed-off-by: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Why not make it void?
-
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVqBazAAoJEBQN5MwUoCm2IkEP/0+689ujUByWyV8AnvPSLydN
-KEvllrTXapF10mqXQJBLBYmLG+M65azy+yDZIG5DEY2evTBWV6IkhVWIC0Gu5Cce
-mQ2vcM2LdxWAB7b2L7UnjtRx3Pe5/qWw2GAO0tYDBlRAqblNltluNzxpKLFSYlH8
-vcSInxu88BKyhNE56ipO0w3gXQlk6j1ol3RLd0mZ31ynEefWrezSEZ/lqNotvtZl
-uz5dfc6ebBwf5Ebc3U+N5BBLCSYfXq7y3I+YUCoYAlEkKkSMgei9bWnXFok7QxSS
-52EG3PWQ0+ebfLk+Gu7QaDAyY1gQRF85VEyO4atuFVx0SI0wrxuOY6azpJ43bAKs
-Sr76caOsF0OGrR6BLWYuxSJVEmxOPzugC5vzDFkUlLp7XWyewiGN6S/qO76LMb5C
-D0hJZgJqU8gZ6BToRR5aIeQdcpWPuYjjwpO5Oofl9SlmzMiBQB0Vv0wP1NN47s5X
-VKQnhwhz72226IpTh6j/I2qw7vpBx904FkowzKOEWwZNtdy3dwERDKIac7f4PQSf
-odOovuHEwj1HqrI05gNSpAAZTLj1+WQoc6Np5T4WCuALfw1bANeoWJcRJIrNo+25
-laykw+CQQ4DjEJNUNJr4DhaMdiU4pZTBsZ3wwjlnHoicisRJTml6015CnvTkgtOY
-W7wmYJ1aJmj4bUV1qW1X
-=D1eq
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+RnJvbTogSmFuIEzDvGJiZSA8bWFpbHRvOmpsdUBwZW5ndXRyb25peC5kZT4gU2VudDogVGh1cnNk
+YXksIEp1bHkgMTYsIDIwMTUgODo1OCBQTQ0KPiBUbzogR2FvIFBhbi1CNTQ2NDINCj4gQ2M6IFV3
+ZSBLbGVpbmUtS8O2bmlnOyB3c2FAdGhlLWRyZWFtcy5kZTsgbGludXgtaTJjQHZnZXIua2VybmVs
+Lm9yZzsgTGkNCj4gRnJhbmstQjIwNTk2OyBEdWFuIEZ1Z2FuZy1CMzg2MTENCj4gU3ViamVjdDog
+UmU6IFtQYXRjaCB2MV0gaTJjOiBpbXg6IGltcGxlbWVudCBidXMgcmVjb3ZlcnkNCj4gDQo+IE9u
+IERpLCAyMDE1LTA3LTE0IGF0IDA4OjEyICswMDAwLCBHYW8gUGFuZHkgd3JvdGU6DQo+ID4gPiA+
+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLWlteC50eHQN
+Cj4gPiA+ID4gKysrIGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMt
+aW14LnR4dA0KPiA+ID4gPiBAQCAtMTQsNiArMTQsOCBAQCBPcHRpb25hbCBwcm9wZXJ0aWVzOg0K
+PiA+ID4gPiAgICBUaGUgYWJzZW5jZSBvZiB0aGUgcHJvcG9lcnR5IGluZGljYXRlcyB0aGUgZGVm
+YXVsdCBmcmVxdWVuY3kNCj4gPiAxMDAga0h6Lg0KPiA+ID4gPiAgLSBkbWFzOiBBIGxpc3Qgb2Yg
+dHdvIGRtYSBzcGVjaWZpZXJzLCBvbmUgZm9yIGVhY2ggZW50cnkgaW4NCj4gPiBkbWEtbmFtZXMu
+DQo+ID4gPiA+ICAtIGRtYS1uYW1lczogc2hvdWxkIGNvbnRhaW4gInR4IiBhbmQgInJ4Ii4NCj4g
+PiA+ID4gKy0gcmVjb3Zlci1zY2w6IHNwZWNpZnkgdGhlIGdwaW8gcmVsYXRlZCB0byBTQ0wgcGlu
+DQo+ID4gPiA+ICstIHJlY292ZXItc2RhOiBzcGVjaWZ5IHRoZSBncGlvIHJlbGF0ZWQgdG8gU0RB
+IHBpbg0KPiA+ID4gSSBkb24ndCBsaWtlIHRoZSBuYW1pbmcgaGVyZS4gVGhhdCB0aGUgZ3Bpb3Mg
+YXJlIHVzZWQgZm9yIHJlY292ZXJ5DQo+ID4gaXNuJ3QNCj4gPiA+IGEgaGFyZHdhcmUgZGVzY3Jp
+cHRpb24uIFdoYXQgYWJvdXQgInNjbC1ncGlvIiBhbmQgInNkYS1ncGlvIj8NCj4gPg0KPiA+IFRo
+YW5rcy4gSSB3aWxsIGNoYW5nZSBpdCBpbiB0aGUgbmV4dCB2ZXJzaW9uLg0KPiANCj4gVGhlcmUg
+aXMgYWxyZWFkeSBhIGJpbmRpbmcgZm9yIGkyYy1ncGlvOg0KPiBEb2N1bWVudGF0aW9uL2Rldmlj
+ZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1ncGlvLnR4dA0KPiANCj4gV2Ugc2hvdWxkIGJlIGFibGUg
+dG8gcmV1c2UgdGhvc2UgcHJvcGVydGllcyBhcy1pcywgaW5zdGVhZCBvZiBkZWZpbmluZw0KPiBz
+b21ldGhpbmcgZm9yIGVhY2ggaTJjIGNvbnRyb2xsZXIgYmluZGluZy4NCg0KVGhhbmtzLiBUaGUg
+aGFyZHdhcmUgZGVzY3JpcHRpb24gaW4gaTJjLWdwaW8udHh0IGRlc2NyaWJlcyB0aGUgY2FzZSBv
+ZiANCmkyYyBncGlvLiBIb3dldmVyLCBpbiBvdXIgcGF0Y2gsIHdlIGp1c3Qgd2FudCB0aGUgc2Rh
+IGFuZCBzY2wgcGlucyBjaGFuZ2UNCnRvIGdwaW8gbW9kZSBmb3IgYnVzIHJlY292ZXJ5LCBhZnRl
+ciByZWNvdmVyeSwgd2Ugc2V0IHRoZSB0d28gcGlucyB0byBpMmMgZnVuY3Rpb24sDQppMmMgaG9z
+dCBjb250cm9sbGVyIHdpbGwgdGFrZSBvdmVyIHRoZSB0cmFuc2Zlci4gU28gaXQncyBhIGRpZmZl
+cmVudCBjYXNlLg0KDQpPbmNlIHdlIHVzZSB0aGUgaGFyZHdhcmUgZGVzY3JpcHRpb24gaW4gaTJj
+LWdwaW8udHh0LCBhZGRpdGlvbmFsIGdwaW9zIHNob3VsZA0KYmUgYXBwbGllZC4gQ29ycmVzcG9u
+ZGluZ2x5LCBpdCBhbHNvIG5lZWQgcGxlbnRpZnVsIGNvZGUgc3VwcG9ydC4NCg==
