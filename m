@@ -1,140 +1,94 @@
-From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Subject: Re: [PATCH V4 3/7] i2c: qup: Add V2 tags support
-Date: Mon, 20 Jul 2015 12:44:03 +0300
-Message-ID: <1437385443.6267.5.camel@mm-sol.com>
-References: <1436412350-19519-1-git-send-email-sricharan@codeaurora.org>
-	 <1436412350-19519-4-git-send-email-sricharan@codeaurora.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 1/4] i2c: tegra: implement slave mode
+Date: Mon, 20 Jul 2015 11:50:49 +0200
+Message-ID: <20150720095049.GD2551@katana>
+References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
+ <1427745615-5428-2-git-send-email-danindrey@mail.ru>
+ <20150403194626.GB2016@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1436412350-19519-4-git-send-email-sricharan@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Sricharan R <sricharan@codeaurora.org>
-Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="11Y7aswkeuHtSBEs"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150403194626.GB2016@katana>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ac100-oU9gvf+ajcQ97yFScArB1dHuzzzSOjJt@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
-Hi Sricharan,
+--11Y7aswkeuHtSBEs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2015-07-09 at 08:55 +0530, Sricharan R wrote:
-> QUP from version 2.1.1 onwards, supports a new format of
-> i2c command tags. Tag codes instructs the controller to
-> perform a operation like read/write. This new tagging version
-> supports bam dma and transfers of more than 256 bytes without 'stop'
-> in between. Adding the support for the same.
+On Fri, Apr 03, 2015 at 09:46:26PM +0200, Wolfram Sang wrote:
+> > +static void tegra_i2c_slave_write(struct tegra_i2c_dev *i2c_dev, u32 v=
+al)
+> > +{
+> > +	i2c_writel(i2c_dev, val, I2C_SL_RCVD);
+> > +
+> > +	/*
+> > +	 * TODO: A correct fix needs to be found for this.
+> > +	 *
+> > +	 * We experience less incomplete messages with this delay than without
+> > +	 * it, but we don't know why. Help is appreciated.
+> > +	 */
+>=20
+> Uh oh. So I assume this is another reason for staging?
 
-IIRC, more than 256 bytes in message is supported only in BAM(DMA)
-mode, if this is true, please be more explicit in commit message.
+I think we can live with this upstream, no need for staging.
 
-You haven't tried to read more than 256 bytes with this
-patch, right? See qup_i2c_quirks ;-) 
+> > +	if (!i2c_dev->slave || !i2c_dev->slave->slave_cb)
+> > +		return -EINVAL;
+>=20
+> The core checks for slave_cb being valid.
+>=20
+> > +		i2c_slave_event(i2c_dev->slave, I2C_SLAVE_STOP, &dummy);
+>=20
+> You could use value here, too, or?
+>=20
+> > +	if (!tegra_i2c_slave_isr(irq, i2c_dev))
+> > +		return IRQ_HANDLED;
+>=20
+> Minor nit: I'd prefer =3D=3D 0 here, since it reads "if not slave_isr ret=
+urn
+> handled".
+>=20
+> > +	if (slave->addr > 0x7F)
+> > +		addr2 =3D (slave->addr >> 7) | I2C_SL_ADDR2_TEN_BIT_MODE;
+>=20
+> Nope. There are 10 bit encodings of addresses 0x000-0x07f, too. So, you
+> need to check for the flag (slave->flags & I2C_CLIENT_TEN).
 
-> 
-> 
->  struct qup_i2c_dev {
->         struct device*dev;
->         void __iomem*base;
-> @@ -117,6 +138,7 @@ struct qup_i2c_dev {
->         int     in_blk_sz;
-> 
->         unsigned longone_byte_t;
-> +       struct qup_i2c_blockblk;
-> 
->         struct i2c_msg*msg;
->         /* Current posion in user message buffer */
-> @@ -126,6 +148,14 @@ struct qup_i2c_dev {
->         /* QUP core errors */
->         u32     qup_err;
-> 
-> +       int     use_v2_tags;
-> +
-> +       int (*qup_i2c_write_one)(struct qup_i2c_dev *qup,
-> +                                       struct i2c_msg *msg);
-> +
-> +       int (*qup_i2c_read_one)(struct qup_i2c_dev *qup,
-> +                               struct i2c_msg *msg);
-> +
+If you'd fix up these and resend, I'll happily include this patch for 4.3
+already.
 
-Do we really need additional level of indirection?
+Thanks,
 
-We have separate struct i2c_algorithm, then we have common 
-qup_i2c_read/write methods and then we have different 
-read/write sub functions. I don't think 3-4 lines code reuse
-deserve increased complexity.
+   Wolfram
 
-<snip>
 
-> +static void qup_i2c_get_blk_data(struct qup_i2c_dev *qup,
-> +                                       struct i2c_msg *msg)
-> +{
+--11Y7aswkeuHtSBEs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-This is more like "set_blk_metadata". Second argument could fit line above.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-> +       memset(&qup->blk, 0, sizeof(qup->blk));
-> +
-> +       if (!qup->use_v2_tags) {
-> +               if (!(msg->flags & I2C_M_RD))
-> +                       qup->blk.tx_tag_len = 1;
-> +               return;
-> +       }
-> +
-> +       qup->blk.data_len = msg->len;
-> +       qup->blk.count = (msg->len + QUP_READ_LIMIT - 1) / QUP_READ_LIMIT;
-> +
-> +       /* 4 bytes for first block and 2 writes for rest */
-> +       qup->blk.tx_tag_len = 4 + (qup->blk.count - 1) * 2;
-> +
-> +       /* There are 2 tag bytes that are read in to fifo for every block */
-> +       if (msg->flags & I2C_M_RD)
-> +               qup->blk.rx_tag_len = qup->blk.count * 2;
-> +}
-> +
+iQIcBAEBAgAGBQJVrMR5AAoJEBQN5MwUoCm29gYP/jk9qWhTjLu3Vyfixpw19nJp
+Wu3I2+mYowNVxjD27rIihYYAc2NBhxaD/0tXld/vGdDTba0fnfxw+y2APLigsqhh
+arH/05ae2VVQMVHgOWuA5Ux4Jt/LHbJ2VTY2NXM92iDZgP7pqRBc/qA43YxBYgdA
++2PWyf/TAotud+xMZyn3SQjA+Q8LIpLHOYo/txigeQ+irT6AplL9OfWKq3smI3W7
+5wyUR9zoYJJu+6OCERU7PXU0IWE4Mw8EXs6STobkd4XIzeBB9stGqyNruGeoK42F
+3encICz8cdW7sO9DXEJOJUcag0tyQ0sQE5klwd8QwBjdN4ZJry9v1LVpyYWBdLQ+
+vIL0xVPv/lpmoVIONN7pp7EIZbzN6glHDRg6H+MfstWTRfyUIGoNGFicoryCPDsK
+SvzDlV+4qP65+zhlWbI1u816dhvtKsz9C4T3rFOtva3dZK4Dm3DxJaHzulo5HBzG
+hXMUZrqNtFu9KPq3oJHIRk4Sm8Fioq0gWAdlvT3XSc4a9G3NEfzhmXiEP0H8ldkm
+GxWHviF1mPFqjbu5akmV2su531TXvpw3A2nXyC4c7lchyIRCP0T5+9RFOV9gPXVI
+u39lFNk9hcfqEwdBQX3WKa6uHVZMZOql9Iweb3VE86fNHaJbfapBnHfr+Na4X5QO
+LT/RMWeGywvHgNh04b6g
+=2IuQ
+-----END PGP SIGNATURE-----
 
-<snip>
-
-> +static int qup_i2c_get_tags(u8 *tags, struct qup_i2c_dev *qup,
-> +                                                       struct i2c_msg *msg)
-> +{
-
-This is more like "set_tags".
-
-> +       u16 addr = (msg->addr << 1) | ((msg->flags & I2C_M_RD) == I2C_M_RD);
-> +       int len = 0;
-> +       int data_len;
-> +
-> +       if (qup->blk.pos == 0) {
-> +               tags[len++] = QUP_TAG_V2_START;
-> +               tags[len++] = addr & 0xff;
-> +
-> +               if (msg->flags & I2C_M_TEN)
-> +                       tags[len++] = addr >> 8;
-> +       }
-> +
-> +       /* Send _STOP commands for the last block */
-> +       if (qup->blk.pos == (qup->blk.count - 1)) {
-> +               if (msg->flags & I2C_M_RD)
-> +                       tags[len++] = QUP_TAG_V2_DATARD_STOP;
-> +               else
-> +                       tags[len++] = QUP_TAG_V2_DATAWR_STOP;
-> +       } else {
-> +               if (msg->flags & I2C_M_RD)
-> +                       tags[len++] = QUP_TAG_V2_DATARD;
-> +               else
-> +                       tags[len++] = QUP_TAG_V2_DATAWR;
-> +       }
-> +
-> +       data_len = qup_i2c_get_data_len(qup);
-> +
-> +       /* 0 implies 256 bytes */
-> +       if (data_len == QUP_READ_LIMIT)
-> +               tags[len++] = 0;
-> +       else
-> +               tags[len++] = data_len;
-> +
-> +       return len;
-> +}
-> +
-
-Regards,
-Ivan
+--11Y7aswkeuHtSBEs--
