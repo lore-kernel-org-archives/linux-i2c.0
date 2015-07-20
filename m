@@ -1,69 +1,65 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 9/9] dts: tegra: WIP: hack dts to test new dt flags for i2c
-Date: Mon, 20 Jul 2015 10:45:57 +0200
-Message-ID: <20150720084557.GA2551@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [RFC 0/9] i2c: slave: improve i2c client address spaces and
+ their DT support
+Date: Mon, 20 Jul 2015 10:52:31 +0200
+Message-ID: <20150720085230.GB2551@katana>
 References: <1437142109-31975-1-git-send-email-wsa@the-dreams.de>
- <1437142109-31975-10-git-send-email-wsa@the-dreams.de>
- <3764937.mMMXIHUnrR@avalon>
+ <55ACA1D8.6010403@mail.ru>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="dTy3Mrz/UPE2dbVg"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <3764937.mMMXIHUnrR@avalon>
-Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Rob Herring <robherring2@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrey Danin <danindrey@mail.ru>, linux-tegra@vger.kernel.org
+In-Reply-To: <55ACA1D8.6010403-JGs/UdohzUI@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---IS0zKkzwUGydFO0o
+--dTy3Mrz/UPE2dbVg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 
-> > +
-> > +		eeprom@42 {
-> > +			compatible =3D "linux,slave-24c02";
-> > +			//FIXME: Should be I2C_OWN_SLAVE_ADDRESS | 0x42
-> > +			reg =3D <0xc0000042>;
->=20
-> The node name doesn't match the reg property anymore. Isn't that consider=
-ed as=20
-> a problem ?
+> Thanks for the patches. Slave mode works for me.
 
-Hmm, true. So far, Rob (CCed) was fine with this approach:
-http://www.spinics.net/lists/linux-tegra/msg22760.html
+Okay, need to have a closer look this week. I combined two I2C busses on
+my Jetson TK1. While the initialization of the slave works fine, reading
+=66rom the slave via the second I2C controller does not work (yet).
 
-@Rob: If we introduce flag bits in the MSBs of an I2C address, the reg
-property is different from the node name. Is this a problem?
+> The series looks good.
 
-Thanks,
+Great. I'd be happy for Acked-by or Tested-by tags if possible.
 
-   Wolfram
+> Only hardcoded values in patch 4 confuse me a little.
+
+Yes, they will most likely be replaced by defines in the next series. We
+will need them in another place, too. However, since userspace relies on
+them, they should never be changed.
 
 
---IS0zKkzwUGydFO0o
+--dTy3Mrz/UPE2dbVg
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVrLVFAAoJEBQN5MwUoCm2EsYP/ju1Ly2SSnBYKOENYGM2Rh/r
-MSR4+kmVT1e0I/Kxns+QO9pVfVMg1+c4jJX8reBhjm1ThjThck9a/SmdHdYtFmuG
-0pXzAPgSbi0oy+/FwBpSpyRByGEHwLh06kF2IpEL2BaHKqGjiR64e56CCUkIclUA
-GL/erkqxG9+5M4McrxLm+vwL4Z2owmQosHu/4ghLPwv26RtqTTOAEbqGaPbVzRI1
-Zeh4L4yXw0uAuyi76nW0sgiq98QzZwpRGjtBSbUg8Q4hNZlyR4Dt9BHJxx9o4SE+
-MYJsXMnhxuBPf7AknU86OWu80o3b4ohYcD90pKz5t7V7QDYdpCK0N7D/IcjcONmw
-/5SnWndjnMLa41MURY6TejHB1dZZxI5HpNWNnYi1UeuZIaTso9V0CDSC4q8tyGlH
-RZnhBb7WSFHJaoGSVdi6a6VVC+DYZEvSYOXlelx3KcmBCAt/5PEwTTs0g5UD0RZc
-46rqhGJladZEy2Y1s7XQn6w/pPMrfR/ghcCM82DICpU4oLIGJIuuOqi9X3vystTb
-N6K/7nHLdIMKHeVkbagP2uTxFxnZEnW4ysY32fkmtL5liouBc0xTHmCO2RMEMjl9
-o0FS9N2Aqkm9hZMLTch7RfGSilhsKV6fFy6FqrJp8+3jy0bQLJS3QVdqszE33cit
-2fWGDw5V3xTSBllJ240b
-=PiOa
+iQIcBAEBAgAGBQJVrLbOAAoJEBQN5MwUoCm2PwYP/RpOE/M8OeTa1HwVD9n7wYGA
+BHP9APrEghzDycFt++K9c0DWHlwHi9Lfj9d2NHfhNnsQso+6FvBTbcBulBWiUavJ
+TS12/rFyge8znHnk51P2VZwJCXPca/8+wxy0wkSX3J7WBU0Ya7fmCy4n9A+mgiQs
+6VcTOABz7l6huKxETLltLkw6ISnuIA6UuAFrszaRSy4v5RriPdZvHJ5F/yNCwIKF
+EbEI/c/Oz5TajgK5ex6hBC48BHnRmvgA8WvhTPVvt0EuibCZVvXViDi/sl+75auA
+c0OPk9pzW8vu/sIr6MLPAs4/36fgJEzZAZWhmiSP92LKlEn1QVkWGVPCUyKKoB3z
+R9xNVoGPdBcKoa+EW/rlxS+IGGA6GHyRytwbKxOo+WSv6z8fAdiFeXUZ+INPyTI1
+gPfCRGo86r+mfj+u5fSL20aaUeJSqNpFYFfXpMtqILTi8aBZeUUCQ6Mx5GDCIP6K
+0ICgNuxVOeV82dl2J/Zh/R9kgNEgvhWERX6OED+UB3p343vLeYbO3xZe0sBak5h1
+VqNgxRwkuPpfUT71S63klEj2/N7Dgb8i/84AUcIK3DrFoMoPAybh++/kgfw9zD4P
+JXzKa56T9qN5veEfhl1hzV89Di7Yk8Cn0S/CpaOK1NNg3Bcd/apMerOzA1risltI
+xaa/xod3A0ymMEBdtaU7
+=T5eh
 -----END PGP SIGNATURE-----
 
---IS0zKkzwUGydFO0o--
+--dTy3Mrz/UPE2dbVg--
