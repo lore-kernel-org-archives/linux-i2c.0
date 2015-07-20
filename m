@@ -1,94 +1,73 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 1/4] i2c: tegra: implement slave mode
-Date: Mon, 20 Jul 2015 11:50:49 +0200
-Message-ID: <20150720095049.GD2551@katana>
-References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
- <1427745615-5428-2-git-send-email-danindrey@mail.ru>
- <20150403194626.GB2016@katana>
+From: "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH V4 4/7] i2c: qup: Transfer each i2c_msg in i2c_msgs
+ without a stop bit
+Date: Mon, 20 Jul 2015 14:22:54 +0300
+Message-ID: <1437391374.6267.7.camel@mm-sol.com>
+References: <1436412350-19519-1-git-send-email-sricharan@codeaurora.org>
+	 <1436412350-19519-5-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="11Y7aswkeuHtSBEs"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150403194626.GB2016@katana>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ac100-oU9gvf+ajcQ97yFScArB1dHuzzzSOjJt@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1436412350-19519-5-git-send-email-sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---11Y7aswkeuHtSBEs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi, 
 
-On Fri, Apr 03, 2015 at 09:46:26PM +0200, Wolfram Sang wrote:
-> > +static void tegra_i2c_slave_write(struct tegra_i2c_dev *i2c_dev, u32 v=
-al)
-> > +{
-> > +	i2c_writel(i2c_dev, val, I2C_SL_RCVD);
-> > +
-> > +	/*
-> > +	 * TODO: A correct fix needs to be found for this.
-> > +	 *
-> > +	 * We experience less incomplete messages with this delay than without
-> > +	 * it, but we don't know why. Help is appreciated.
-> > +	 */
->=20
-> Uh oh. So I assume this is another reason for staging?
+On Thu, 2015-07-09 at 08:55 +0530, Sricharan R wrote:
 
-I think we can live with this upstream, no need for staging.
+<snip>
 
-> > +	if (!i2c_dev->slave || !i2c_dev->slave->slave_cb)
-> > +		return -EINVAL;
->=20
-> The core checks for slave_cb being valid.
->=20
-> > +		i2c_slave_event(i2c_dev->slave, I2C_SLAVE_STOP, &dummy);
->=20
-> You could use value here, too, or?
->=20
-> > +	if (!tegra_i2c_slave_isr(irq, i2c_dev))
-> > +		return IRQ_HANDLED;
->=20
-> Minor nit: I'd prefer =3D=3D 0 here, since it reads "if not slave_isr ret=
-urn
-> handled".
->=20
-> > +	if (slave->addr > 0x7F)
-> > +		addr2 =3D (slave->addr >> 7) | I2C_SL_ADDR2_TEN_BIT_MODE;
->=20
-> Nope. There are 10 bit encodings of addresses 0x000-0x07f, too. So, you
-> need to check for the flag (slave->flags & I2C_CLIENT_TEN).
+>  #define ONE_BYTE                       0x1
+> +#define QUP_I2C_MX_CONFIG_DURING_RUN   BIT(31)
+> 
+>  struct qup_i2c_block {
+>         int     count;
+> @@ -121,6 +122,7 @@ struct qup_i2c_block {
+>         int     rx_tag_len;
+>         int     data_len;
+>         u8      tags[6];
+> +       int     config_run;
 
-If you'd fix up these and resend, I'll happily include this patch for 4.3
-already.
+This is not directly related to "block" control logic, right?
+Could it made part of qup_i2c_dev structure?
 
-Thanks,
+>  };
+> 
+>  struct qup_i2c_dev {
+> @@ -152,6 +154,10 @@ struct qup_i2c_dev {
+> 
+>         int (*qup_i2c_write_one)(struct qup_i2c_dev *qup,
+>                                         struct i2c_msg *msg);
+> +       /* Current i2c_msg in i2c_msgs */
+> +       int     cmsg;
+> +       /* total num of i2c_msgs */
+> +       int     num;
 
-   Wolfram
+I think it will be simpler with just "bool is_last" evaluated in main xfer loop.
 
+<snip>
 
---11Y7aswkeuHtSBEs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> 
+> @@ -374,6 +383,9 @@ static void qup_i2c_get_blk_data(struct qup_i2c_dev *qup,
+>         /* There are 2 tag bytes that are read in to fifo for every block */
+>         if (msg->flags & I2C_M_RD)
+>                 qup->blk.rx_tag_len = qup->blk.count * 2;
+> +
+> +       if (qup->cmsg)
+> +               qup->blk.config_run = QUP_I2C_MX_CONFIG_DURING_RUN;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+This could be moved to qup_i2c_xfer_v2() to avoid repeatedly setting it. 
 
-iQIcBAEBAgAGBQJVrMR5AAoJEBQN5MwUoCm29gYP/jk9qWhTjLu3Vyfixpw19nJp
-Wu3I2+mYowNVxjD27rIihYYAc2NBhxaD/0tXld/vGdDTba0fnfxw+y2APLigsqhh
-arH/05ae2VVQMVHgOWuA5Ux4Jt/LHbJ2VTY2NXM92iDZgP7pqRBc/qA43YxBYgdA
-+2PWyf/TAotud+xMZyn3SQjA+Q8LIpLHOYo/txigeQ+irT6AplL9OfWKq3smI3W7
-5wyUR9zoYJJu+6OCERU7PXU0IWE4Mw8EXs6STobkd4XIzeBB9stGqyNruGeoK42F
-3encICz8cdW7sO9DXEJOJUcag0tyQ0sQE5klwd8QwBjdN4ZJry9v1LVpyYWBdLQ+
-vIL0xVPv/lpmoVIONN7pp7EIZbzN6glHDRg6H+MfstWTRfyUIGoNGFicoryCPDsK
-SvzDlV+4qP65+zhlWbI1u816dhvtKsz9C4T3rFOtva3dZK4Dm3DxJaHzulo5HBzG
-hXMUZrqNtFu9KPq3oJHIRk4Sm8Fioq0gWAdlvT3XSc4a9G3NEfzhmXiEP0H8ldkm
-GxWHviF1mPFqjbu5akmV2su531TXvpw3A2nXyC4c7lchyIRCP0T5+9RFOV9gPXVI
-u39lFNk9hcfqEwdBQX3WKa6uHVZMZOql9Iweb3VE86fNHaJbfapBnHfr+Na4X5QO
-LT/RMWeGywvHgNh04b6g
-=2IuQ
------END PGP SIGNATURE-----
+>  }
 
---11Y7aswkeuHtSBEs--
+Regards,
+Ivan
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
