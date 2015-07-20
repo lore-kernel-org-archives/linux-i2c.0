@@ -1,43 +1,59 @@
-From: Andrey Danin <danindrey@mail.ru>
-Subject: Re: [RFC 0/9] i2c: slave: improve i2c client address spaces and their
- DT support
-Date: Mon, 20 Jul 2015 10:23:04 +0300
-Message-ID: <55ACA1D8.6010403@mail.ru>
-References: <1437142109-31975-1-git-send-email-wsa@the-dreams.de>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [RFC 9/9] dts: tegra: WIP: hack dts to test new dt flags for i2c
+Date: Mon, 20 Jul 2015 10:53:09 +0300
+Message-ID: <3764937.mMMXIHUnrR@avalon>
+References: <1437142109-31975-1-git-send-email-wsa@the-dreams.de> <1437142109-31975-10-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1437142109-31975-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-tegra@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1437142109-31975-10-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+Hi Wolfram,
 
-On 17.07.2015 17:08, Wolfram Sang wrote:
-> As promised here is my RFC to improve address spaces for I2C. This should give
-> i2c seperate address spaces for standard clients, 10 bit clients, and our own
-> slave clients. So, you can now have a 7 bit slave at 0x50 and a 10 bit slave at
-> 0x050. Or, you can have a slave driver listening at some address and at the
-> same time have a client driver talking to this address. Note that this is only
-> the core support for that separation, I am still not sure if there is hardware
-> being able talking to its own slave address, but we will see.
->
-> This RFC and while I did some quick tests, it is not thoroughly tested. But I
-> wanted to push it out before I leave the computer for the weekend. It still
-> shows what path I chose to solve the problem. So, comments on that and further
-> testing are more than welcome!
->
-> BTW Andrey, I did not modify your patch and couldn't get the i2c-slave-eeprom driver
-> to work with my Jetson TK1. Does this work for you?
->
-> Thanks,
->
->     Wolfram
->
+Thank you for the patch.
 
-Thanks for the patches. Slave mode works for me.
+On Friday 17 July 2015 16:08:29 Wolfram Sang wrote:
+> Not-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/tegra124-jetson-tk1.dts | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/tegra124-jetson-tk1.dts
+> b/arch/arm/boot/dts/tegra124-jetson-tk1.dts index
+> bd43ed6d6ec7c0..4d5f2a4c4da1ce 100644
+> --- a/arch/arm/boot/dts/tegra124-jetson-tk1.dts
+> +++ b/arch/arm/boot/dts/tegra124-jetson-tk1.dts
+> @@ -1,5 +1,6 @@
+>  /dts-v1/;
+> 
+> +#include <dt-bindings/i2c/i2c.h>
+>  #include <dt-bindings/input/input.h>
+>  #include "tegra124.dtsi"
+> 
+> @@ -1390,6 +1391,12 @@
+>  			reg = <0x56>;
+>  			pagesize = <8>;
+>  		};
+> +
+> +		eeprom@42 {
+> +			compatible = "linux,slave-24c02";
+> +			//FIXME: Should be I2C_OWN_SLAVE_ADDRESS | 0x42
+> +			reg = <0xc0000042>;
 
-The series looks good. Only hardcoded values in patch 4 confuse me a little.
+The node name doesn't match the reg property anymore. Isn't that considered as 
+a problem ?
+
+> +		};
+>  	};
+> 
+>  	/* Expansion GEN2_I2C_* */
+
+-- 
+Regards,
+
+Laurent Pinchart
