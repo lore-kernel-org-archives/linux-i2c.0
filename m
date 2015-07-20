@@ -1,87 +1,50 @@
-From: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
-Subject: Re: [PATCH-v4 00/11] i2c: pxa: Fixes, cleanup and support for pxa910 family
-Date: Mon, 20 Jul 2015 22:30:55 +0200
-Message-ID: <87si8ifu68.fsf@belgarion.home>
-References: <1436859410-28878-1-git-send-email-vaibhav.hiremath@linaro.org>
-	<20150714113436.GD1517@katana> <55A4F434.9080407@linaro.org>
-	<87d1zqimyc.fsf@belgarion.home> <55AC9E05.7040308@linaro.org>
-	<55AC9E8E.8080708@linaro.org> <55AC9F61.3090207@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>
+Subject: [PATCH v3 0/4] arm: tegra: implement NVEC driver using tegra i2c.
+Date: Mon, 20 Jul 2015 23:35:42 +0300
+Message-ID: <1437424546-30405-1-git-send-email-danindrey@mail.ru>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55AC9F61.3090207-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> (Vaibhav Hiremath's message of
-	"Mon, 20 Jul 2015 12:42:33 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ac100-oU9gvf+ajcQ97yFScArB1dHuzzzSOjJt@public.gmane.org
+Cc: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
+This version (v3) is for pushing tegra i2c driver to i2c tree.
+NVEC driver will be reworked later to use i2c core slave framework.
 
-> On Monday 20 July 2015 12:39 PM, Vaibhav Hiremath wrote:
->>
->>
->> On Monday 20 July 2015 12:36 PM, Vaibhav Hiremath wrote:
->>>
->>>
->>> On Saturday 18 July 2015 01:19 AM, Robert Jarzmik wrote:
->>>> Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
->>>>
->>>>>> So, I applied patches 1-6 to for-next to make some progress.
->>>>>>
->>>>>> The others need more thought because of the bindings which shall be
->>>>>> discussed replying to the patches in question.
->>>>>>
->>>>>> Thanks for the updated work with lots of proper references.
->>>>>>
->>>>>
->>>>> OK, Thanks and no issues.
->>>>>
->>>>> Lets discuss more on the bindings.
->>>>
->>>> I made a simple try on my reference platform with the whole patchset.
->>>> It oopses on a NULL dereference.
->>>>
->>>> The stack is in [1].
->>>> I think it boils down to :
->>>>   - i2c_pxa_do_sclk_adj()
->>>>     - reg_ilcr = readl(_ILCR(i2c));
->>>>
->>>> I also think the faulty patch is :
->>>>   - i2c: pxa: Add ILCR (tLow & tHigh) configuration support
->>>>
->>>> My case, an I2C master case, I'd like you to find the issue and fix it.
->>>>
->>>
->>> Which is this reference platform?
->>> Can you share few details -
->>>
->>>   - reference Platform?
-Mitac Mio A701, pxa270.
+NVEC driver contains code to manage tegra i2c controller in slave mode.
+I2C slave support was implemented in linux kernel. The goal of this
+patch serie is to implement I2C slave mode in tegra drived and rework
+NVEC driver to use it.
 
->>>   - DT file if you could
-None, ran in platform_data mode.
+Patches are based on i2c for-next.
 
->>>   - Boot log (if you could)
-You already found the issue, no need for that anymore.
+Changes for v3:
+- rebase on top of i2c for-next tree
+- fix 10-bit address condition in tegra i2c driver
 
->>> I am using pxa1928 based platform, and I do not see any issues.
+Changes for v2:
+- rebased on top of new i2c slave framework.
+- old code is removed in separate patch
+- documentation patch is integrated to main nvec patch
 
->> Having said that,
->> I see issues in the patch for non PXA910 platform, where
->> i2c_pxa_do_sclk_adj() will be called unconditionally and obviously
->> reg_ilcr and reg_wcr are not set.
-Yep.
 
->> I will fix this and send the patch.
->
-> This should fix the issue -
-Most probably yes.
+Thanks in advance
 
-> If you are ok, I will re-spin the patch and submit.
-Yes, I'm ok, let's try the next iteration.
+*** BLURB HERE ***
 
-Cheers.
+Andrey Danin (4):
+  i2c: tegra: implement slave mode
+  staging/nvec: reimplement on top of tegra i2c driver
+  staging/nvec: remove old code
+  dt: paz00: define nvec as child of i2c bus
+
+ .../devicetree/bindings/nvec/nvidia,nvec.txt       |  21 +-
+ arch/arm/boot/dts/tegra20-paz00.dts                |  22 +-
+ drivers/i2c/busses/Kconfig                         |   1 +
+ drivers/i2c/busses/i2c-tegra.c                     | 119 ++++++
+ drivers/staging/nvec/nvec.c                        | 411 +++++++--------------
+ drivers/staging/nvec/nvec.h                        |  10 -
+ 6 files changed, 269 insertions(+), 315 deletions(-)
 
 -- 
-Robert
+1.9.1
