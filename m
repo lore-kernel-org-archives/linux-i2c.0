@@ -1,57 +1,140 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 9/9] dts: tegra: WIP: hack dts to test new dt flags for i2c
-Date: Mon, 20 Jul 2015 11:03:11 +0200
-Message-ID: <20150720090310.GC2551@katana>
-References: <1437142109-31975-1-git-send-email-wsa@the-dreams.de>
- <1437142109-31975-10-git-send-email-wsa@the-dreams.de>
- <55ACA314.6090104@mail.ru>
+From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Subject: Re: [PATCH V4 3/7] i2c: qup: Add V2 tags support
+Date: Mon, 20 Jul 2015 12:44:03 +0300
+Message-ID: <1437385443.6267.5.camel@mm-sol.com>
+References: <1436412350-19519-1-git-send-email-sricharan@codeaurora.org>
+	 <1436412350-19519-4-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VywGB/WGlW4DM4P8"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <55ACA314.6090104@mail.ru>
-Sender: linux-sh-owner@vger.kernel.org
-To: Andrey Danin <danindrey@mail.ru>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-tegra@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <1436412350-19519-4-git-send-email-sricharan@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Sricharan R <sricharan@codeaurora.org>
+Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---VywGB/WGlW4DM4P8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Sricharan,
 
+On Thu, 2015-07-09 at 08:55 +0530, Sricharan R wrote:
+> QUP from version 2.1.1 onwards, supports a new format of
+> i2c command tags. Tag codes instructs the controller to
+> perform a operation like read/write. This new tagging version
+> supports bam dma and transfers of more than 256 bytes without 'stop'
+> in between. Adding the support for the same.
 
-> >+			//FIXME: Should be I2C_OWN_SLAVE_ADDRESS | 0x42
-> >+			reg =3D <0xc0000042>;
->=20
-> I used it in this way:
-> reg =3D <(I2C_OWN_SLAVE_ADDRESS | 0x42)>;
+IIRC, more than 256 bytes in message is supported only in BAM(DMA)
+mode, if this is true, please be more explicit in commit message.
 
-Ah, nice, it was that easy :) Thanks!
+You haven't tried to read more than 256 bytes with this
+patch, right? See qup_i2c_quirks ;-) 
 
+> 
+> 
+>  struct qup_i2c_dev {
+>         struct device*dev;
+>         void __iomem*base;
+> @@ -117,6 +138,7 @@ struct qup_i2c_dev {
+>         int     in_blk_sz;
+> 
+>         unsigned longone_byte_t;
+> +       struct qup_i2c_blockblk;
+> 
+>         struct i2c_msg*msg;
+>         /* Current posion in user message buffer */
+> @@ -126,6 +148,14 @@ struct qup_i2c_dev {
+>         /* QUP core errors */
+>         u32     qup_err;
+> 
+> +       int     use_v2_tags;
+> +
+> +       int (*qup_i2c_write_one)(struct qup_i2c_dev *qup,
+> +                                       struct i2c_msg *msg);
+> +
+> +       int (*qup_i2c_read_one)(struct qup_i2c_dev *qup,
+> +                               struct i2c_msg *msg);
+> +
 
---VywGB/WGlW4DM4P8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Do we really need additional level of indirection?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+We have separate struct i2c_algorithm, then we have common 
+qup_i2c_read/write methods and then we have different 
+read/write sub functions. I don't think 3-4 lines code reuse
+deserve increased complexity.
 
-iQIcBAEBAgAGBQJVrLlOAAoJEBQN5MwUoCm2qQMQAKHQ258qR5P1kWerVRW7MrZ8
-kIHfUcYvwELYZbLw8M8t6BbJFwz4TzoQ+URSxRG6Awtx945/XfAf1ZFPntJo3DWy
-gylDgcNF2SKcGFKMlbVBg72UkI+9MDb2UksoH/LWgWuMoBNptNm4gEHKdPhjFSQu
-84JZXZmYMNMIeL069vvb4TvmIal446KMGU+AXp1RVsDCH5h170vlMVwF7U4dZ8nJ
-GK+NTittr8LFowKC3DogC2oco1ix4abNId6IxpYq44/3Eh0h2ZId9nAkFB96+ZZC
-tbyC2cjUAOxPfmOvPctQruhmrNmNlN9OjTygJk2XIuXXjgs9nsyBc16toRONa9Pd
-XOHAJ1rCJdwBI83mYAWb4lUno/xnnXwYck2SbpfdP6sYqFjMFeDGEc6M+Bldj9+T
-fTSjt5xjANMGqO9AU3KdHOvE+z7dc3DxF6mXLH6b5Aa/0Vd7LrgypceFWrjeZFgt
-GzH8DyJ661uI0qHpGV6wbyW5QrmozoHS5QK7Ettzeiq9tIBAqmPzbdaWxow+9bxW
-bgrWjllt5yUb5MxD7nbLayBDbs4+QrHwvYjD32sonFuiHPv420YSJIpIefBsKgxh
-9w4Qh/+zneIRsK8rpt5+6mO3CXpZXrGIUQI2c1R2eYE15rVnPPbVA+HTvXFqWc1W
-CkF+9ekxVv07eQYtj/aS
-=rUg4
------END PGP SIGNATURE-----
+<snip>
 
---VywGB/WGlW4DM4P8--
+> +static void qup_i2c_get_blk_data(struct qup_i2c_dev *qup,
+> +                                       struct i2c_msg *msg)
+> +{
+
+This is more like "set_blk_metadata". Second argument could fit line above.
+
+> +       memset(&qup->blk, 0, sizeof(qup->blk));
+> +
+> +       if (!qup->use_v2_tags) {
+> +               if (!(msg->flags & I2C_M_RD))
+> +                       qup->blk.tx_tag_len = 1;
+> +               return;
+> +       }
+> +
+> +       qup->blk.data_len = msg->len;
+> +       qup->blk.count = (msg->len + QUP_READ_LIMIT - 1) / QUP_READ_LIMIT;
+> +
+> +       /* 4 bytes for first block and 2 writes for rest */
+> +       qup->blk.tx_tag_len = 4 + (qup->blk.count - 1) * 2;
+> +
+> +       /* There are 2 tag bytes that are read in to fifo for every block */
+> +       if (msg->flags & I2C_M_RD)
+> +               qup->blk.rx_tag_len = qup->blk.count * 2;
+> +}
+> +
+
+<snip>
+
+> +static int qup_i2c_get_tags(u8 *tags, struct qup_i2c_dev *qup,
+> +                                                       struct i2c_msg *msg)
+> +{
+
+This is more like "set_tags".
+
+> +       u16 addr = (msg->addr << 1) | ((msg->flags & I2C_M_RD) == I2C_M_RD);
+> +       int len = 0;
+> +       int data_len;
+> +
+> +       if (qup->blk.pos == 0) {
+> +               tags[len++] = QUP_TAG_V2_START;
+> +               tags[len++] = addr & 0xff;
+> +
+> +               if (msg->flags & I2C_M_TEN)
+> +                       tags[len++] = addr >> 8;
+> +       }
+> +
+> +       /* Send _STOP commands for the last block */
+> +       if (qup->blk.pos == (qup->blk.count - 1)) {
+> +               if (msg->flags & I2C_M_RD)
+> +                       tags[len++] = QUP_TAG_V2_DATARD_STOP;
+> +               else
+> +                       tags[len++] = QUP_TAG_V2_DATAWR_STOP;
+> +       } else {
+> +               if (msg->flags & I2C_M_RD)
+> +                       tags[len++] = QUP_TAG_V2_DATARD;
+> +               else
+> +                       tags[len++] = QUP_TAG_V2_DATAWR;
+> +       }
+> +
+> +       data_len = qup_i2c_get_data_len(qup);
+> +
+> +       /* 0 implies 256 bytes */
+> +       if (data_len == QUP_READ_LIMIT)
+> +               tags[len++] = 0;
+> +       else
+> +               tags[len++] = data_len;
+> +
+> +       return len;
+> +}
+> +
+
+Regards,
+Ivan
