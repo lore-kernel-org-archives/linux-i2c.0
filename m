@@ -1,32 +1,86 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH] i2c: cadence: set THIS_MODULE to the owner of the adapter
-Date: Tue, 21 Jul 2015 16:14:36 +0900
-Message-ID: <1437462876-13755-1-git-send-email-yamada.masahiro@socionext.com>
+From: "Sricharan" <sricharan@codeaurora.org>
+Subject: RE: [PATCH V4 4/7] i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
+Date: Tue, 21 Jul 2015 13:39:46 +0530
+Message-ID: <000601d0c38c$9f4177d0$ddc46770$@codeaurora.org>
+References: <1436412350-19519-1-git-send-email-sricharan@codeaurora.org>	 <1436412350-19519-5-git-send-email-sricharan@codeaurora.org> <1437391374.6267.7.camel@mm-sol.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1437391374.6267.7.camel@mm-sol.com>
+Content-language: en-us
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, =?UTF-8?q?S=C3=B6ren=20Brinkmann?= <soren.brinkmann@xilinx.com>, Michal Simek <michal.simek@xilinx.com>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org
+To: "'Ivan T. Ivanov'" <iivanov@mm-sol.com>
+Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-The owner of the adapter is missing, while this driver is tristate.
+Hi Ivan,
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+> -----Original Message-----
+> From: Ivan T. Ivanov [mailto:iivanov@mm-sol.com]
+> Sent: Monday, July 20, 2015 4:53 PM
+> To: Sricharan R
+> Cc: devicetree@vger.kernel.org; linux-arm-msm@vger.kernel.org;
+> galak@codeaurora.org; linux-kernel@vger.kernel.org; linux-
+> i2c@vger.kernel.org; agross@codeaurora.org; dmaengine@vger.kernel.org;
+> linux-arm-kernel@lists.infradead.org
+> Subject: Re: [PATCH V4 4/7] i2c: qup: Transfer each i2c_msg in i2c_msgs
+> without a stop bit
+> 
+> 
+> Hi,
+> 
+> On Thu, 2015-07-09 at 08:55 +0530, Sricharan R wrote:
+> 
+> <snip>
+> 
+> >  #define ONE_BYTE                       0x1
+> > +#define QUP_I2C_MX_CONFIG_DURING_RUN   BIT(31)
+> >
+> >  struct qup_i2c_block {
+> >         int     count;
+> > @@ -121,6 +122,7 @@ struct qup_i2c_block {
+> >         int     rx_tag_len;
+> >         int     data_len;
+> >         u8      tags[6];
+> > +       int     config_run;
+> 
+> This is not directly related to "block" control logic, right?
+> Could it made part of qup_i2c_dev structure?
+> 
+   Yes, can move it there.
 
- drivers/i2c/busses/i2c-cadence.c | 1 +
- 1 file changed, 1 insertion(+)
+> >  };
+> >
+> >  struct qup_i2c_dev {
+> > @@ -152,6 +154,10 @@ struct qup_i2c_dev {
+> >
+> >         int (*qup_i2c_write_one)(struct qup_i2c_dev *qup,
+> >                                         struct i2c_msg *msg);
+> > +       /* Current i2c_msg in i2c_msgs */
+> > +       int     cmsg;
+> > +       /* total num of i2c_msgs */
+> > +       int     num;
+> 
+> I think it will be simpler with just "bool is_last" evaluated in main xfer loop.
+  
+   Hmm ok. Will change it that way. Set it one place and use it other places.
+> 
+> <snip>
+> 
+> >
+> > @@ -374,6 +383,9 @@ static void qup_i2c_get_blk_data(struct
+> qup_i2c_dev *qup,
+> >         /* There are 2 tag bytes that are read in to fifo for every block */
+> >         if (msg->flags & I2C_M_RD)
+> >                 qup->blk.rx_tag_len = qup->blk.count * 2;
+> > +
+> > +       if (qup->cmsg)
+> > +               qup->blk.config_run = QUP_I2C_MX_CONFIG_DURING_RUN;
+> 
+> This could be moved to qup_i2c_xfer_v2() to avoid repeatedly setting it.
+     Ok, correct.
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 2ee78e0..3b33b8a 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -844,6 +844,7 @@ static int cdns_i2c_probe(struct platform_device *pdev)
- 
- 	id->irq = platform_get_irq(pdev, 0);
- 
-+	id->adap.owner = THIS_MODULE;
- 	id->adap.dev.of_node = pdev->dev.of_node;
- 	id->adap.algo = &cdns_i2c_algo;
- 	id->adap.timeout = CDNS_I2C_TIMEOUT;
--- 
-1.9.1
+Regards,
+ Sricharan
