@@ -1,153 +1,60 @@
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: [PATCH-v5 5/5] i2c: pxa: Add ILCR (tLow & tHigh) configuration support
-Date: Tue, 21 Jul 2015 18:11:06 +0530
-Message-ID: <1437482466-16126-6-git-send-email-vaibhav.hiremath@linaro.org>
-References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: robert.jarzmik@free.fr, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, "Jett.Zhou" <jtzhou@marvell.com>, Yi Zhang <yizhang@marvell.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3 4/4] dt: paz00: define nvec as child of i2c bus
+Date: Tue, 21 Jul 2015 22:52:50 +0200
+Message-ID: <20150721205250.GA1521@katana>
+References: <1437424546-30405-1-git-send-email-danindrey@mail.ru>
+ <4778199.vGjAP5lpOS@fb07-iapwap2>
+ <55AE0803.10603@mail.ru>
+ <2107735.0gMPOtIgYc@fb07-iapwap2>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <2107735.0gMPOtIgYc@fb07-iapwap2>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+Cc: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-With addition of PXA910 family of devices, the TWSI module supports
-SCL clock adjustment using ILCR register.
 
-This patch enables the control and configuration of ICLR through DT
-properties,
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-i2c-sclk-high-time-ns:
-  SCLK high time (tHigh), for standard/fast/high speed mode
-i2c-sclk-low-time-ns:
-  SCLK low time (tLow), for standard/fast/high speed mode
 
-Note that in case of standard and fast mod, the tLow and tHigh counters
-are same, and software will use tLow value.
+> It's up to you. I think if the NV guys are ok with the tegra i2c change,=
+=20
+> Wolfram can merge it right away for 4.3.
 
-Also, brought up devm_clk_get() fn above i2c_pxa_probe_dt(), as it
-uses clk rate for timing calculations.
+I asked him to resend, because I *want* to merge it for 4.3 :) Only the
+slave-mode enablement for i2c, of course. The other patches need to go
+via some other tree (when they are done).
 
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Signed-off-by: Jett.Zhou <jtzhou@marvell.com>
-Signed-off-by: Yi Zhang <yizhang@marvell.com>
----
- drivers/i2c/busses/i2c-pxa.c | 69 ++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 63 insertions(+), 6 deletions(-)
+So, V4 with only this one patch is a good idea in my book.
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 8d76197..6012ae5 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -195,6 +195,9 @@ struct pxa_i2c {
- 	unsigned long		rate;
- 	bool			highmode_enter;
- 	bool			disable_after_xfer;
-+
-+	unsigned int		sclk_thigh_load_cnt;
-+	unsigned int		sclk_tlow_load_cnt;
- };
- 
- #define _IBMR(i2c)	((i2c)->reg_ibmr)
-@@ -507,6 +510,36 @@ static void i2c_pxa_set_slave(struct pxa_i2c *i2c, int errcode)
- #define i2c_pxa_set_slave(i2c, err)	do { } while (0)
- #endif
- 
-+static void i2c_pxa_do_sclk_adj(struct pxa_i2c *i2c)
-+{
-+	unsigned int reg_ilcr;
-+
-+	if (!i2c->reg_ilcr)
-+		return;
-+
-+	reg_ilcr = readl(_ILCR(i2c));
-+
-+	/* For standard/fast mode tlow and thigh counters are same */
-+	if (i2c->sclk_tlow_load_cnt) {
-+		unsigned int mask, shift;
-+
-+		mask = i2c->high_mode ? ILCR_HLVL_MASK :
-+			i2c->fast_mode ? ILCR_FLV_MASK : ILCR_SLV_MASK;
-+		shift = i2c->high_mode ? ILCR_HLVL_SHIFT :
-+			i2c->fast_mode ? ILCR_FLV_SHIFT : ILCR_SLV_SHIFT;
-+
-+		reg_ilcr &= ~mask;
-+		reg_ilcr |= i2c->sclk_tlow_load_cnt << shift;
-+	}
-+
-+	if (i2c->high_mode && i2c->sclk_thigh_load_cnt) {
-+		reg_ilcr &= ~ILCR_HLVH_MASK;
-+		reg_ilcr |= i2c->sclk_thigh_load_cnt << ILCR_HLVH_SHIFT;
-+	}
-+
-+	writel(reg_ilcr, _ILCR(i2c));
-+}
-+
- static void i2c_pxa_reset(struct pxa_i2c *i2c)
- {
- 	pr_debug("Resetting I2C Controller Unit\n");
-@@ -526,6 +559,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
- 	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
- 	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
- 
-+	i2c_pxa_do_sclk_adj(i2c);
-+
- #ifdef CONFIG_I2C_PXA_SLAVE
- 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
- 	writel(readl(_ICR(i2c)) | ICR_SADIE | ICR_ALDIE | ICR_SSDIE, _ICR(i2c));
-@@ -1198,6 +1233,26 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
- 
- 	*i2c_types = (enum pxa_i2c_types)(of_id->data);
- 
-+	/* optional properties */
-+	if (of_device_is_compatible(np, "mrvl,mmp-twsi")) {
-+		unsigned int tlow = 0, thigh = 0;
-+		unsigned int clk_ns;
-+
-+		/* clock time in nsec */
-+		clk_ns = 1000000 / (i2c->rate / 1000);
-+
-+		of_property_read_u32(np, "i2c-sclk-high-time-ns", &thigh);
-+		i2c->sclk_thigh_load_cnt = thigh / clk_ns;
-+
-+		of_property_read_u32(np, "i2c-sclk-low-time-ns", &tlow);
-+		i2c->sclk_tlow_load_cnt = tlow / clk_ns;
-+
-+		/* For std/fast mode tlow & thigh have same bit-fields */
-+		if (!i2c->high_mode &&
-+			(i2c->sclk_tlow_load_cnt != i2c->sclk_thigh_load_cnt))
-+			dev_warn(&i2c->adap.dev,
-+				"mismatch of tLow & tHigh values, using tLow\n");
-+	}
- 	return 0;
- }
- 
-@@ -1248,6 +1303,14 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 		return irq;
- 	}
- 
-+	i2c->clk = devm_clk_get(&dev->dev, NULL);
-+	if (IS_ERR(i2c->clk)) {
-+		dev_err(&dev->dev, "failed to get the clk: %ld\n", PTR_ERR(i2c->clk));
-+		return PTR_ERR(i2c->clk);
-+	}
-+
-+	i2c->rate = clk_get_rate(i2c->clk);
-+
- 	/* Default adapter num to device id; i2c_pxa_probe_dt can override. */
- 	i2c->adap.nr = dev->id;
- 
-@@ -1265,12 +1328,6 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 
- 	strlcpy(i2c->adap.name, "pxa_i2c-i2c", sizeof(i2c->adap.name));
- 
--	i2c->clk = devm_clk_get(&dev->dev, NULL);
--	if (IS_ERR(i2c->clk)) {
--		dev_err(&dev->dev, "failed to get the clk: %ld\n", PTR_ERR(i2c->clk));
--		return PTR_ERR(i2c->clk);
--	}
--
- 	i2c->reg_ibmr = i2c->reg_base + pxa_reg_layout[i2c_type].ibmr;
- 	i2c->reg_idbr = i2c->reg_base + pxa_reg_layout[i2c_type].idbr;
- 	i2c->reg_icr = i2c->reg_base + pxa_reg_layout[i2c_type].icr;
--- 
-1.9.1
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVrrEiAAoJEBQN5MwUoCm2gGAP/2bVp+X9GDE2skRGIHa+60b0
+MvW2DZnF+j5yC7URzx9LxlZ/udynSga7Ndr7nGDybOg92yOwbK4o42oKElgRmXCG
+lzEaGfN2627r7l5DQUxuqxVWxMSpy4dVdcUPLinpudmme5hpgmXE+5gWHlxR2sl6
+b2vhogzjQVCEU4NdMOVkeVUtUXWDqAKfKrDRe+v8N31829zh62gRmVPE4EwhtNZZ
+0XxQ9COoRPErU8U6UmBgZAL+NaV0YXyxX/iwKiM0JW6HpHX24rneyzygDA5Y2uQg
+YrOt6BDD5K7kzw2abPlTSSTOpOtuY5zIkuEharO/ASR3FtPoSGL31VHv6+93jPGc
+lB65rn6MfCEAHdMhQnFeA+/X/bkwh1xTZz6SYn7vRtcQws6GTQQjSEwlrYthOiyw
+nvW4EB8DFoOlTPp9to8/veAFVeO5pe/g5yomJS4sm7/wHA3VVMqL0lCnf640Unww
+icBfY7SYT9Y1nHafmGpwrpNeC5X7inscQwjucZIsvdCrnaOEdcWlYice+qBJ/lqK
+j702gMewIT5S+Sk7DGBm4hGFhRPiLw2DFpMSALLsuxsvB31x2lIWCg+dgk8Rt8uF
+KVfbgJTczmS2Vc8XYpULNnf59g301wP5o+8qmjKKGPohZHXVh/vdpcics04J18+A
+cCv/JBx918p9nIDPEPlR
+=mCbX
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--
