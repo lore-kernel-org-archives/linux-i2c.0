@@ -1,41 +1,331 @@
-From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v4 0/3] I2C/SMBus: add support for Host Notify (in i2c_i801)
-Date: Thu, 23 Jul 2015 14:55:15 -0400
-Message-ID: <1437677718-7894-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v4 3/3] i2c: i801: add support of Host Notify
+Date: Thu, 23 Jul 2015 14:55:18 -0400
+Message-ID: <1437677718-7894-4-git-send-email-benjamin.tissoires@redhat.com>
+References: <1437677718-7894-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1437677718-7894-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: benjamin.tissoires@gmail.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
+in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
 
-this is the v4 of this patch series which fixes the race we discovered this
-week when accessing the registers in i2c_i801.
+Enable the functionality unconditionally and propagate the alert
+on each notification.
 
-Compared to v3, i2c_handle_smbus_host_notify can now be called in a non sleeping
-thread because a worker will be spawn later on.
-That also means that we need to allocate the worker and some other structures,
-so I introduced i2c_setup_smbus_host_notify().
+With a T440s and a Synaptics touchpad that implements Host Notify, the
+payload data is always 0x0000, so I am not sure if the device actually
+sends the payload or if there is a problem regarding the implementation.
 
-Cheers,
-Benjamin
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
+changes in v2:
+- removed the description of the Slave functionality support in the chip table
+  (the table shows what is supported, not what the hardware is capable of)
+- use i2c-smbus to forward the notification
+- remove the fifo, and directly retrieve the address and payload in the worker
+- do not check for Host Notification is the feature is not enabled
+- use inw_p() to read the payload instead of 2 inb_p() calls
+- add /* fall-through */ comment
+- unconditionally enable Host Notify if the hardware supports it (can be
+  disabled by the user)
 
-Benjamin Tissoires (3):
-  i2c: add a protocol parameter to the alert callback
-  i2c-smbus: add SMBus Host Notify support
-  i2c: i801: add support of Host Notify
+no changes in v3
 
- Documentation/i2c/smbus-protocol |   3 +
- drivers/char/ipmi/ipmi_ssif.c    |   6 +-
- drivers/hwmon/lm90.c             |   3 +-
- drivers/i2c/busses/i2c-i801.c    | 164 +++++++++++++++++++++++++++++----------
- drivers/i2c/i2c-smbus.c          | 113 +++++++++++++++++++++++++--
- include/linux/i2c-smbus.h        |  43 ++++++++++
- include/linux/i2c.h              |  10 ++-
- include/uapi/linux/i2c.h         |   1 +
- 8 files changed, 292 insertions(+), 51 deletions(-)
+changes in v4:
+- make use of the new API -> no more worker spawning here
+- solved a race between the access of the Host Notify registers and the actual
+  I2C transfers.
 
+ drivers/i2c/busses/i2c-i801.c | 164 +++++++++++++++++++++++++++++++-----------
+ 1 file changed, 121 insertions(+), 43 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 5ecbb3f..752f236 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -20,46 +20,46 @@
+ /*
+  * Supports the following Intel I/O Controller Hubs (ICH):
+  *
+- *					I/O			Block	I2C
+- *					region	SMBus	Block	proc.	block
+- * Chip name			PCI ID	size	PEC	buffer	call	read
+- * ---------------------------------------------------------------------------
+- * 82801AA (ICH)		0x2413	16	no	no	no	no
+- * 82801AB (ICH0)		0x2423	16	no	no	no	no
+- * 82801BA (ICH2)		0x2443	16	no	no	no	no
+- * 82801CA (ICH3)		0x2483	32	soft	no	no	no
+- * 82801DB (ICH4)		0x24c3	32	hard	yes	no	no
+- * 82801E (ICH5)		0x24d3	32	hard	yes	yes	yes
+- * 6300ESB			0x25a4	32	hard	yes	yes	yes
+- * 82801F (ICH6)		0x266a	32	hard	yes	yes	yes
+- * 6310ESB/6320ESB		0x269b	32	hard	yes	yes	yes
+- * 82801G (ICH7)		0x27da	32	hard	yes	yes	yes
+- * 82801H (ICH8)		0x283e	32	hard	yes	yes	yes
+- * 82801I (ICH9)		0x2930	32	hard	yes	yes	yes
+- * EP80579 (Tolapai)		0x5032	32	hard	yes	yes	yes
+- * ICH10			0x3a30	32	hard	yes	yes	yes
+- * ICH10			0x3a60	32	hard	yes	yes	yes
+- * 5/3400 Series (PCH)		0x3b30	32	hard	yes	yes	yes
+- * 6 Series (PCH)		0x1c22	32	hard	yes	yes	yes
+- * Patsburg (PCH)		0x1d22	32	hard	yes	yes	yes
+- * Patsburg (PCH) IDF		0x1d70	32	hard	yes	yes	yes
+- * Patsburg (PCH) IDF		0x1d71	32	hard	yes	yes	yes
+- * Patsburg (PCH) IDF		0x1d72	32	hard	yes	yes	yes
+- * DH89xxCC (PCH)		0x2330	32	hard	yes	yes	yes
+- * Panther Point (PCH)		0x1e22	32	hard	yes	yes	yes
+- * Lynx Point (PCH)		0x8c22	32	hard	yes	yes	yes
+- * Lynx Point-LP (PCH)		0x9c22	32	hard	yes	yes	yes
+- * Avoton (SOC)			0x1f3c	32	hard	yes	yes	yes
+- * Wellsburg (PCH)		0x8d22	32	hard	yes	yes	yes
+- * Wellsburg (PCH) MS		0x8d7d	32	hard	yes	yes	yes
+- * Wellsburg (PCH) MS		0x8d7e	32	hard	yes	yes	yes
+- * Wellsburg (PCH) MS		0x8d7f	32	hard	yes	yes	yes
+- * Coleto Creek (PCH)		0x23b0	32	hard	yes	yes	yes
+- * Wildcat Point (PCH)		0x8ca2	32	hard	yes	yes	yes
+- * Wildcat Point-LP (PCH)	0x9ca2	32	hard	yes	yes	yes
+- * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
+- * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
+- * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
++ *					I/O	SMBus	Block	I2C
++ *					region	Host	SMBus	Block	proc.	block
++ * Chip name			PCI ID	size	notify	PEC	buffer	call	read
++ * ----------------------------------------------------------------------------------
++ * 82801AA (ICH)		0x2413	16	no	no	no	no	no
++ * 82801AB (ICH0)		0x2423	16	no	no	no	no	no
++ * 82801BA (ICH2)		0x2443	16	no	no	no	no	no
++ * 82801CA (ICH3)		0x2483	32	yes	soft	no	no	no
++ * 82801DB (ICH4)		0x24c3	32	yes	hard	yes	no	no
++ * 82801E (ICH5)		0x24d3	32	yes	hard	yes	yes	yes
++ * 6300ESB			0x25a4	32	yes	hard	yes	yes	yes
++ * 82801F (ICH6)		0x266a	32	yes	hard	yes	yes	yes
++ * 6310ESB/6320ESB		0x269b	32	yes	hard	yes	yes	yes
++ * 82801G (ICH7)		0x27da	32	yes	hard	yes	yes	yes
++ * 82801H (ICH8)		0x283e	32	yes	hard	yes	yes	yes
++ * 82801I (ICH9)		0x2930	32	yes	hard	yes	yes	yes
++ * EP80579 (Tolapai)		0x5032	32	yes	hard	yes	yes	yes
++ * ICH10			0x3a30	32	yes	hard	yes	yes	yes
++ * ICH10			0x3a60	32	yes	hard	yes	yes	yes
++ * 5/3400 Series (PCH)		0x3b30	32	yes	hard	yes	yes	yes
++ * 6 Series (PCH)		0x1c22	32	yes	hard	yes	yes	yes
++ * Patsburg (PCH)		0x1d22	32	yes	hard	yes	yes	yes
++ * Patsburg (PCH) IDF		0x1d70	32	yes	hard	yes	yes	yes
++ * Patsburg (PCH) IDF		0x1d71	32	yes	hard	yes	yes	yes
++ * Patsburg (PCH) IDF		0x1d72	32	yes	hard	yes	yes	yes
++ * DH89xxCC (PCH)		0x2330	32	yes	hard	yes	yes	yes
++ * Panther Point (PCH)		0x1e22	32	yes	hard	yes	yes	yes
++ * Lynx Point (PCH)		0x8c22	32	yes	hard	yes	yes	yes
++ * Lynx Point-LP (PCH)		0x9c22	32	yes	hard	yes	yes	yes
++ * Avoton (SOC)			0x1f3c	32	yes	hard	yes	yes	yes
++ * Wellsburg (PCH)		0x8d22	32	yes	hard	yes	yes	yes
++ * Wellsburg (PCH) MS		0x8d7d	32	yes	hard	yes	yes	yes
++ * Wellsburg (PCH) MS		0x8d7e	32	yes	hard	yes	yes	yes
++ * Wellsburg (PCH) MS		0x8d7f	32	yes	hard	yes	yes	yes
++ * Coleto Creek (PCH)		0x23b0	32	yes	hard	yes	yes	yes
++ * Wildcat Point (PCH)		0x8ca2	32	yes	hard	yes	yes	yes
++ * Wildcat Point-LP (PCH)	0x9ca2	32	yes	hard	yes	yes	yes
++ * BayTrail (SOC)		0x0f12	32	yes	hard	yes	yes	yes
++ * Sunrise Point-H (PCH)	0xa123  32	yes	hard	yes	yes	yes
++ * Sunrise Point-LP (PCH)	0x9d23	32	yes	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -68,6 +68,7 @@
+  * Block process call transaction	no
+  * I2C block read transaction		yes (doesn't use the block buffer)
+  * Slave mode				no
++ * SMBus Host Notify			yes
+  * Interrupt processing			yes
+  *
+  * See the file Documentation/i2c/busses/i2c-i801 for details.
+@@ -82,6 +83,7 @@
+ #include <linux/ioport.h>
+ #include <linux/init.h>
+ #include <linux/i2c.h>
++#include <linux/i2c-smbus.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+ #include <linux/dmi.h>
+@@ -107,6 +109,10 @@
+ #define SMBPEC(p)	(8 + (p)->smba)		/* ICH3 and later */
+ #define SMBAUXSTS(p)	(12 + (p)->smba)	/* ICH4 and later */
+ #define SMBAUXCTL(p)	(13 + (p)->smba)	/* ICH4 and later */
++#define SMBSLVSTS(p)	(16 + (p)->smba)	/* ICH3 and later */
++#define SMBSLVCMD(p)	(17 + (p)->smba)	/* ICH3 and later */
++#define SMBNTFDADD(p)	(20 + (p)->smba)	/* ICH3 and later */
++#define SMBNTFDDAT(p)	(22 + (p)->smba)	/* ICH3 and later */
+ 
+ /* PCI Address Constants */
+ #define SMBBAR		4
+@@ -158,6 +164,12 @@
+ #define SMBHSTSTS_INTR		0x02
+ #define SMBHSTSTS_HOST_BUSY	0x01
+ 
++/* Host Notify Status registers bits */
++#define SMBSLVSTS_HST_NTFY_STS	1
++
++/* Host Notify Command registers bits */
++#define SMBSLVCMD_HST_NTFY_INTREN	0x01
++
+ #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
+ 				 SMBHSTSTS_DEV_ERR)
+ 
+@@ -221,13 +233,18 @@ struct i801_priv {
+ 	const struct i801_mux_config *mux_drvdata;
+ 	struct platform_device *mux_pdev;
+ #endif
++
++	struct smbus_host_notify *host_notify;
+ };
+ 
++#define SMBHSTNTFY_SIZE		8
++
+ #define FEATURE_SMBUS_PEC	(1 << 0)
+ #define FEATURE_BLOCK_BUFFER	(1 << 1)
+ #define FEATURE_BLOCK_PROC	(1 << 2)
+ #define FEATURE_I2C_BLOCK_READ	(1 << 3)
+ #define FEATURE_IRQ		(1 << 4)
++#define FEATURE_HOST_NOTIFY	(1 << 5)
+ /* Not really a feature, but it's convenient to handle it as such */
+ #define FEATURE_IDF		(1 << 15)
+ 
+@@ -237,6 +254,7 @@ static const char *i801_feature_names[] = {
+ 	"Block process call",
+ 	"I2C block read",
+ 	"Interrupt",
++	"SMBus Host Notify",
+ };
+ 
+ static unsigned int disable_features;
+@@ -245,7 +263,8 @@ MODULE_PARM_DESC(disable_features, "Disable selected driver features:\n"
+ 	"\t\t  0x01  disable SMBus PEC\n"
+ 	"\t\t  0x02  disable the block buffer\n"
+ 	"\t\t  0x08  disable the I2C block read functionality\n"
+-	"\t\t  0x10  don't use interrupts ");
++	"\t\t  0x10  don't use interrupts\n"
++	"\t\t  0x20  disable SMBus Host Notify ");
+ 
+ /* Make sure the SMBus host is ready to start transmitting.
+    Return 0 if it is, -EBUSY if it is not. */
+@@ -479,8 +498,23 @@ static void i801_isr_byte_done(struct i801_priv *priv)
+ 	outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
+ }
+ 
++static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
++{
++	unsigned short addr;
++	unsigned int data;
++
++	addr = inb_p(SMBNTFDADD(priv)) >> 1;
++	data = inw_p(SMBNTFDDAT(priv));
++
++	i2c_handle_smbus_host_notify(priv->host_notify, addr, data);
++
++	/* clear Host Notify bit and return */
++	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
++	return IRQ_HANDLED;
++}
++
+ /*
+- * There are two kinds of interrupts:
++ * There are three kinds of interrupts:
+  *
+  * 1) i801 signals transaction completion with one of these interrupts:
+  *      INTR - Success
+@@ -492,6 +526,8 @@ static void i801_isr_byte_done(struct i801_priv *priv)
+  *
+  * 2) For byte-by-byte (I2C read/write) transactions, one BYTE_DONE interrupt
+  *    occurs for each byte of a byte-by-byte to prepare the next byte.
++ *
++ * 3) Host Notify interrupts
+  */
+ static irqreturn_t i801_isr(int irq, void *dev_id)
+ {
+@@ -504,6 +540,12 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+ 	if (!(pcists & SMBPCISTS_INTS))
+ 		return IRQ_NONE;
+ 
++	if (priv->features & FEATURE_HOST_NOTIFY) {
++		status = inb_p(SMBSLVSTS(priv));
++		if (status & SMBSLVSTS_HST_NTFY_STS)
++			return i801_host_notify_isr(priv);
++	}
++
+ 	status = inb_p(SMBHSTSTS(priv));
+ 	if (status & SMBHSTSTS_BYTE_DONE)
+ 		i801_isr_byte_done(priv);
+@@ -801,7 +843,29 @@ static u32 i801_func(struct i2c_adapter *adapter)
+ 	       I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_WRITE_I2C_BLOCK |
+ 	       ((priv->features & FEATURE_SMBUS_PEC) ? I2C_FUNC_SMBUS_PEC : 0) |
+ 	       ((priv->features & FEATURE_I2C_BLOCK_READ) ?
+-		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0);
++		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0) |
++	       ((priv->features & FEATURE_HOST_NOTIFY) ?
++		I2C_FUNC_SMBUS_HOST_NOTIFY : 0);
++}
++
++static int i801_enable_host_notify(struct i2c_adapter *adapter)
++{
++	struct i801_priv *priv = i2c_get_adapdata(adapter);
++
++	if (!(priv->features & FEATURE_HOST_NOTIFY))
++		return -ENOTSUPP;
++
++	if (!priv->host_notify)
++		priv->host_notify = i2c_setup_smbus_host_notify(adapter);
++
++	if (!priv->host_notify)
++		return -ENOMEM;
++
++	outb_p(SMBSLVCMD_HST_NTFY_INTREN, SMBSLVCMD(priv));
++	/* clear Host Notify bit to allow a new notification */
++	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
++
++	return 0;
+ }
+ 
+ static const struct i2c_algorithm smbus_algorithm = {
+@@ -1166,6 +1230,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		priv->features |= FEATURE_BLOCK_BUFFER;
+ 		/* fall through */
+ 	case PCI_DEVICE_ID_INTEL_82801CA_3:
++		priv->features |= FEATURE_HOST_NOTIFY;
++		/* fall through */
+ 	case PCI_DEVICE_ID_INTEL_82801BA_2:
+ 	case PCI_DEVICE_ID_INTEL_82801AB_3:
+ 	case PCI_DEVICE_ID_INTEL_82801AA_3:
+@@ -1279,6 +1345,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		return err;
+ 	}
+ 
++	/*
++	 * Enable Host Notify for chips that supports it.
++	 * It is done after i2c_add_adapter() so that we are sure the work queue
++	 * is not used if i2c_add_adapter() fails.
++	 */
++	err = i801_enable_host_notify(&priv->adapter);
++	if (err && err != -ENOTSUPP)
++		dev_warn(&dev->dev, "Unable to enable SMBus Host Notify\n");
++
+ 	i801_probe_optional_slaves(priv);
+ 	/* We ignore errors - multiplexing is optional */
+ 	i801_add_mux(priv);
+@@ -1315,8 +1390,11 @@ static int i801_suspend(struct pci_dev *dev, pm_message_t mesg)
+ 
+ static int i801_resume(struct pci_dev *dev)
+ {
++	struct i801_priv *priv = pci_get_drvdata(dev);
++
+ 	pci_set_power_state(dev, PCI_D0);
+ 	pci_restore_state(dev);
++	i801_enable_host_notify(&priv->adapter);
+ 	return 0;
+ }
+ #else
 -- 
 2.4.3
