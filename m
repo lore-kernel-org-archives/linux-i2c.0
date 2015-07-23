@@ -1,15 +1,21 @@
 From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] hwmon: ads7828: Add devicetree documentation
-Date: Thu, 23 Jul 2015 11:41:42 +0200
-Message-ID: <1437644502-12348-1-git-send-email-denis@eukrea.com>
+Subject: [PATCH v2] hwmon: ads7828: Add devicetree documentation
+Date: Thu, 23 Jul 2015 12:03:47 +0200
+Message-ID: <1437645827-13115-1-git-send-email-denis@eukrea.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This adds devicetree documentation for the bindings of the
+ads7828 driver.
+
 Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
 Acked-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+---
+ChangeLog v1->v2:
+- Added a commit message.
 ---
  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
  1 file changed, 2 insertions(+)
