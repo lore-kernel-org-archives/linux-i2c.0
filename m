@@ -1,315 +1,113 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v4 2/3] i2c-smbus: add SMBus Host Notify support
-Date: Thu, 23 Jul 2015 14:55:17 -0400
-Message-ID: <1437677718-7894-3-git-send-email-benjamin.tissoires@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v4 1/3] i2c: add a protocol parameter to the alert callback
+Date: Thu, 23 Jul 2015 14:55:16 -0400
+Message-ID: <1437677718-7894-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1437677718-7894-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1437677718-7894-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: benjamin.tissoires@gmail.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1437677718-7894-1-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SMBus Host Notify allows a slave device to act as a master on a bus to
-notify the host of an interrupt. On Intel chipsets, the functionality
-is directly implemented in the firmware. We just need to export a
-function to call .alert() on the proper device driver.
+.alert() is meant to be generic, but there is currently no way
+for the device driver to know which protocol generated the alert.
+Add a parameter in .alert() to help the device driver to understand
+what is given in data.
 
-i2c_handle_smbus_host_notify() behaves like i2c_handle_smbus_alert().
-When called, it schedules a task that will be able to sleep to go through
-the list of devices attached to the adapter.
+This patch is required to have the support of SMBus Host Notify protocol
+through .alert().
 
-The current implementation allows one Host Notification to be scheduled
-while an other is running.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
 
-changes in v2:
-- do the actual processing of finding the device in i2c-smbus.c
-- remove the i2c-core implementations
-- remove the manual toggle of SMBus Host Notify
+new in v2
 
-no changes in v3
+changes in v3:
+- added also lm90.c to support the new API
 
-changes in v4:
-- schedule the worker in i2c_handle_smbus_host_notify() -> it can now be called
-  in an interrupt context.
-- introduce i2c_setup_smbus_host_notify()
+no changes in v4
 
- Documentation/i2c/smbus-protocol |   3 ++
- drivers/i2c/i2c-smbus.c          | 114 ++++++++++++++++++++++++++++++++++++---
- include/linux/i2c-smbus.h        |  43 +++++++++++++++
- include/linux/i2c.h              |   3 ++
- include/uapi/linux/i2c.h         |   1 +
- 5 files changed, 158 insertions(+), 6 deletions(-)
+ drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
+ drivers/hwmon/lm90.c          | 3 ++-
+ drivers/i2c/i2c-smbus.c       | 3 ++-
+ include/linux/i2c.h           | 7 ++++++-
+ 4 files changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/i2c/smbus-protocol b/Documentation/i2c/smbus-protocol
-index 6012b12..4e07848 100644
---- a/Documentation/i2c/smbus-protocol
-+++ b/Documentation/i2c/smbus-protocol
-@@ -199,6 +199,9 @@ alerting device's address.
+diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+index 207689c..1d4cece 100644
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -567,12 +567,16 @@ static void retry_timeout(unsigned long data)
+ }
  
- [S] [HostAddr] [Wr] A [DevAddr] A [DataLow] A [DataHigh] A [P]
  
-+I2C drivers for devices which can trigger SMBus Host Notify should implement
-+the optional alert() callback.
+-static void ssif_alert(struct i2c_client *client, unsigned int data)
++static void ssif_alert(struct i2c_client *client,
++		       enum i2c_alert_protocol protocol, unsigned int data)
+ {
+ 	struct ssif_info *ssif_info = i2c_get_clientdata(client);
+ 	unsigned long oflags, *flags;
+ 	bool do_get = false;
+ 
++	if (protocol != I2C_PROTOCOL_SMBUS_ALERT)
++		return;
 +
+ 	ssif_inc_stat(ssif_info, alerts);
  
- Packet Error Checking (PEC)
- ===========================
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+index c9ff08d..2b77dbd 100644
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -1624,7 +1624,8 @@ static int lm90_remove(struct i2c_client *client)
+ 	return 0;
+ }
+ 
+-static void lm90_alert(struct i2c_client *client, unsigned int flag)
++static void lm90_alert(struct i2c_client *client, enum i2c_alert_protocol type,
++		       unsigned int flag)
+ {
+ 	u16 alarms;
+ 
 diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index abad351..e2abb26 100644
+index 94765a8..abad351 100644
 --- a/drivers/i2c/i2c-smbus.c
 +++ b/drivers/i2c/i2c-smbus.c
-@@ -19,7 +19,6 @@
- #include <linux/module.h>
- #include <linux/device.h>
- #include <linux/interrupt.h>
--#include <linux/workqueue.h>
- #include <linux/i2c.h>
- #include <linux/i2c-smbus.h>
- #include <linux/slab.h>
-@@ -33,7 +32,8 @@ struct i2c_smbus_alert {
- 
- struct alert_data {
- 	unsigned short		addr;
--	u8			flag:1;
-+	enum i2c_alert_protocol	type;
-+	unsigned int		data;
- };
- 
- /* If this is the alerting device, notify its driver */
-@@ -56,8 +56,7 @@ static int smbus_do_alert(struct device *dev, void *addrp)
+@@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
  	if (client->dev.driver) {
  		driver = to_i2c_driver(client->dev.driver);
  		if (driver->alert)
--			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
--				      data->flag);
-+			driver->alert(client, data->type, data->data);
+-			driver->alert(client, data->flag);
++			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
++				      data->flag);
  		else
  			dev_warn(&client->dev, "no driver alert()!\n");
  	} else
-@@ -97,8 +96,9 @@ static void smbus_alert(struct work_struct *work)
- 		if (status < 0)
- 			break;
- 
--		data.flag = status & 1;
-+		data.data = status & 1;
- 		data.addr = status >> 1;
-+		data.type = I2C_PROTOCOL_SMBUS_ALERT;
- 
- 		if (data.addr == prev_addr) {
- 			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
-@@ -106,7 +106,7 @@ static void smbus_alert(struct work_struct *work)
- 			break;
- 		}
- 		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
--			data.addr, data.flag);
-+			data.addr, data.data);
- 
- 		/* Notify driver for the device which issued the alert */
- 		device_for_each_child(&ara->adapter->dev, &data,
-@@ -240,6 +240,108 @@ int i2c_handle_smbus_alert(struct i2c_client *ara)
- }
- EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert);
- 
-+static void smbus_host_notify_work(struct work_struct *work)
-+{
-+	struct alert_data alert;
-+	struct i2c_adapter *adapter;
-+	unsigned long flags;
-+	u16 payload;
-+	u8 addr;
-+	struct smbus_host_notify *data;
-+
-+	data = container_of(work, struct smbus_host_notify, work);
-+
-+	spin_lock_irqsave(&data->lock, flags);
-+	payload = data->payload;
-+	addr = data->addr;
-+	adapter = data->adapter;
-+
-+	/* clear the pending bit and release the spinlock */
-+	data->pending = false;
-+	spin_unlock_irqrestore(&data->lock, flags);
-+
-+	if (!adapter || !addr)
-+		return;
-+
-+	alert.type = I2C_PROTOCOL_SMBUS_HOST_NOTIFY;
-+	alert.addr = addr;
-+	alert.data = payload;
-+
-+	device_for_each_child(&adapter->dev, &alert, smbus_do_alert);
-+}
-+
-+/**
-+ * i2c_setup_smbus_host_notify - Allocate a new smbus_host_notify for the given
-+ * I2C adapter.
-+ * @adapter: the adapter we want to associate a Host Notify function
-+ *
-+ * Returns a struct smbus_host_notify pointer on success, and NULL on failure.
-+ * The resulting smbus_host_notify must not be freed afterwards, it is a
-+ * managed resource already.
-+ */
-+struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
-+{
-+	struct smbus_host_notify *host_notify;
-+
-+	host_notify = devm_kzalloc(&adap->dev, sizeof(struct smbus_host_notify),
-+				   GFP_KERNEL);
-+	if (!host_notify)
-+		return NULL;
-+
-+	host_notify->adapter = adap;
-+
-+	spin_lock_init(&host_notify->lock);
-+	INIT_WORK(&host_notify->work, smbus_host_notify_work);
-+
-+	return host_notify;
-+}
-+EXPORT_SYMBOL_GPL(i2c_setup_smbus_host_notify);
-+
-+/**
-+ * i2c_handle_smbus_host_notify - Forward a Host Notify event to the correct
-+ * I2C client.
-+ * @host_notify: the struct host_notify attached to the relevant adapter
-+ * @data: the Host Notify data which contains the payload and address of the
-+ * client
-+ * Context: can't sleep
-+ *
-+ * Helper function to be called from an I2C bus driver's interrupt
-+ * handler. It will schedule the Host Notify work, in turn calling the
-+ * corresponding I2C device driver's alert function.
-+ *
-+ * host_notify should be a valid pointer previously returned by
-+ * i2c_setup_smbus_host_notify().
-+ */
-+int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
-+				 unsigned short addr, unsigned int data)
-+{
-+	unsigned long flags;
-+	struct i2c_adapter *adapter;
-+
-+	if (!host_notify || !host_notify->adapter)
-+		return -EINVAL;
-+
-+	adapter = host_notify->adapter;
-+
-+	spin_lock_irqsave(&host_notify->lock, flags);
-+
-+	if (host_notify->pending) {
-+		spin_unlock_irqrestore(&host_notify->lock, flags);
-+		dev_warn(&adapter->dev, "Host Notify already scheduled\n.");
-+		return -EFAULT;
-+	}
-+
-+	host_notify->payload = data;
-+	host_notify->addr = addr;
-+
-+	/* Mark that there is a pending notification and release the lock */
-+	host_notify->pending = true;
-+	spin_unlock_irqrestore(&host_notify->lock, flags);
-+
-+	return schedule_work(&host_notify->work);
-+}
-+EXPORT_SYMBOL_GPL(i2c_handle_smbus_host_notify);
-+
- module_i2c_driver(smbalert_driver);
- 
- MODULE_AUTHOR("Jean Delvare <jdelvare@suse.de>");
-diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-index 8f1b086..d2fbd19 100644
---- a/include/linux/i2c-smbus.h
-+++ b/include/linux/i2c-smbus.h
-@@ -23,6 +23,8 @@
- #define _LINUX_I2C_SMBUS_H
- 
- #include <linux/i2c.h>
-+#include <linux/spinlock.h>
-+#include <linux/workqueue.h>
- 
- 
- /**
-@@ -48,4 +50,45 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
- 					 struct i2c_smbus_alert_setup *setup);
- int i2c_handle_smbus_alert(struct i2c_client *ara);
- 
-+/**
-+ * smbus_host_notify - internal structure used by the Host Notify mechanism.
-+ * @adapter: the I2C adapter associated with this struct
-+ * @work: worker used to schedule the IRQ in the slave device
-+ * @lock: spinlock to check if a notification is already pending
-+ * @pending: flag set when a notification is pending (any new notification will
-+ *		be rejected if pending is true)
-+ * @payload: the actual payload of the Host Notify event
-+ * @addr: the address of the slave device which raised the notification
-+ *
-+ * This struct needs to be allocated by i2c_setup_smbus_host_notify() and does
-+ * not need to be freed. Internally, i2c_setup_smbus_host_notify() uses a
-+ * managed resource to clean this up when the adapter get released.
-+ */
-+struct smbus_host_notify {
-+	struct i2c_adapter	*adapter;
-+	struct work_struct	work;
-+	spinlock_t		lock;
-+	bool			pending;
-+	u16			payload;
-+	u8			addr;
-+};
-+
-+#if defined(CONFIG_I2C_SMBUS) || defined(CONFIG_I2C_SMBUS_MODULE)
-+struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap);
-+int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
-+				 unsigned short addr, unsigned int data);
-+#else
-+static inline struct smbus_host_notify *
-+i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
-+{
-+	return NULL;
-+}
-+
-+static inline int i2c_handle_smbus_host_notify(struct i2c_adapter *adapter,
-+				     unsigned short addr, unsigned int data)
-+{
-+	return 0;
-+}
-+#endif /* I2C_SMBUS */
-+
- #endif /* _LINUX_I2C_SMBUS_H */
 diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 6764734..81344d3 100644
+index e83a738..6764734 100644
 --- a/include/linux/i2c.h
 +++ b/include/linux/i2c.h
-@@ -125,6 +125,7 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+@@ -123,6 +123,10 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ 					  const u8 *values);
+ #endif /* I2C */
  
- enum i2c_alert_protocol {
- 	I2C_PROTOCOL_SMBUS_ALERT,
-+	I2C_PROTOCOL_SMBUS_HOST_NOTIFY,
- };
- 
++enum i2c_alert_protocol {
++	I2C_PROTOCOL_SMBUS_ALERT,
++};
++
  /**
-@@ -181,6 +182,8 @@ struct i2c_driver {
- 	 * The format and meaning of the data value depends on the protocol.
+  * struct i2c_driver - represent an I2C device driver
+  * @class: What kind of i2c device we instantiate (for detect)
+@@ -178,7 +182,8 @@ struct i2c_driver {
  	 * For the SMBus alert protocol, there is a single bit of data passed
  	 * as the alert response's low bit ("event flag").
-+	 * For the SMBus Host Notify protocol, the data corresponds to the
-+	 * 16-bit payload data reported by the slave device acting as master.
  	 */
- 	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
- 		      unsigned int data);
-diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
-index b0a7dd6..83ec8ae 100644
---- a/include/uapi/linux/i2c.h
-+++ b/include/uapi/linux/i2c.h
-@@ -101,6 +101,7 @@ struct i2c_msg {
- #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
- #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
- #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
-+#define I2C_FUNC_SMBUS_HOST_NOTIFY	0x10000000
+-	void (*alert)(struct i2c_client *, unsigned int data);
++	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
++		      unsigned int data);
  
- #define I2C_FUNC_SMBUS_BYTE		(I2C_FUNC_SMBUS_READ_BYTE | \
- 					 I2C_FUNC_SMBUS_WRITE_BYTE)
+ 	/* a ioctl like command that can be used to perform specific functions
+ 	 * with the device.
 -- 
 2.4.3
