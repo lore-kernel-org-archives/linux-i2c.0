@@ -1,113 +1,84 @@
-From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v4 1/3] i2c: add a protocol parameter to the alert callback
-Date: Thu, 23 Jul 2015 14:55:16 -0400
-Message-ID: <1437677718-7894-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1437677718-7894-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1437677718-7894-1-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 1/4] i2c: tegra: implement slave mode
+Date: Fri, 24 Jul 2015 11:27:20 +0200
+Message-ID: <20150724092720.GA1597@katana>
+References: <1437424546-30405-1-git-send-email-danindrey@mail.ru>
+ <1437424546-30405-2-git-send-email-danindrey@mail.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1437424546-30405-2-git-send-email-danindrey@mail.ru>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrey Danin <danindrey@mail.ru>
+Cc: devicetree@vger.kernel.org, devel@linuxdriverproject.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, ac100@lists.launchpad.net, Laxman Dewangan <ldewangan@nvidia.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Julian Andres Klode <jak@jak-linux.org>, Marc Dietrich <marvin24@gmx.de>
 List-Id: linux-i2c@vger.kernel.org
 
-.alert() is meant to be generic, but there is currently no way
-for the device driver to know which protocol generated the alert.
-Add a parameter in .alert() to help the device driver to understand
-what is given in data.
 
-This patch is required to have the support of SMBus Host Notify protocol
-through .alert().
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
+Hi Andrey,
 
-new in v2
+On Mon, Jul 20, 2015 at 11:35:43PM +0300, Andrey Danin wrote:
+> Initialization code is based on NVEC driver.
+>=20
+> There is a HW bug in AP20 that was also mentioned in kernel sources
+> for Toshiba AC100.
+>=20
+> Signed-off-by: Andrey Danin <danindrey@mail.ru>
 
-changes in v3:
-- added also lm90.c to support the new API
+Still doesn't work for me and I think I understand why. Do you run your
+I2C controller in slave mode only? That might work, but using it in
+master/slave mode simultanously won't work yet as I see it:
 
-no changes in v4
+* After every transfer (as master), clocks get disabled. I assume the IP
+  core won't be able to detect its own address then.
 
- drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
- drivers/hwmon/lm90.c          | 3 ++-
- drivers/i2c/i2c-smbus.c       | 3 ++-
- include/linux/i2c.h           | 7 ++++++-
- 4 files changed, 15 insertions(+), 4 deletions(-)
+* There is this code in tegra_i2c_init():
 
-diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index 207689c..1d4cece 100644
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -567,12 +567,16 @@ static void retry_timeout(unsigned long data)
- }
- 
- 
--static void ssif_alert(struct i2c_client *client, unsigned int data)
-+static void ssif_alert(struct i2c_client *client,
-+		       enum i2c_alert_protocol protocol, unsigned int data)
- {
- 	struct ssif_info *ssif_info = i2c_get_clientdata(client);
- 	unsigned long oflags, *flags;
- 	bool do_get = false;
- 
-+	if (protocol != I2C_PROTOCOL_SMBUS_ALERT)
-+		return;
-+
- 	ssif_inc_stat(ssif_info, alerts);
- 
- 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
-diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-index c9ff08d..2b77dbd 100644
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -1624,7 +1624,8 @@ static int lm90_remove(struct i2c_client *client)
- 	return 0;
- }
- 
--static void lm90_alert(struct i2c_client *client, unsigned int flag)
-+static void lm90_alert(struct i2c_client *client, enum i2c_alert_protocol type,
-+		       unsigned int flag)
- {
- 	u16 alarms;
- 
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index 94765a8..abad351 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
- 	if (client->dev.driver) {
- 		driver = to_i2c_driver(client->dev.driver);
- 		if (driver->alert)
--			driver->alert(client, data->flag);
-+			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
-+				      data->flag);
- 		else
- 			dev_warn(&client->dev, "no driver alert()!\n");
- 	} else
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index e83a738..6764734 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -123,6 +123,10 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
- 					  const u8 *values);
- #endif /* I2C */
- 
-+enum i2c_alert_protocol {
-+	I2C_PROTOCOL_SMBUS_ALERT,
-+};
-+
- /**
-  * struct i2c_driver - represent an I2C device driver
-  * @class: What kind of i2c device we instantiate (for detect)
-@@ -178,7 +182,8 @@ struct i2c_driver {
- 	 * For the SMBus alert protocol, there is a single bit of data passed
- 	 * as the alert response's low bit ("event flag").
- 	 */
--	void (*alert)(struct i2c_client *, unsigned int data);
-+	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
-+		      unsigned int data);
- 
- 	/* a ioctl like command that can be used to perform specific functions
- 	 * with the device.
--- 
-2.4.3
+	if (!i2c_dev->is_dvc) {
+		u32 sl_cfg =3D i2c_readl(i2c_dev, I2C_SL_CNFG);
+		sl_cfg |=3D I2C_SL_CNFG_NACK | I2C_SL_CNFG_NEWSL;
+		i2c_writel(i2c_dev, sl_cfg, I2C_SL_CNFG);
+		i2c_writel(i2c_dev, 0xfc, I2C_SL_ADDR1);
+		i2c_writel(i2c_dev, 0x00, I2C_SL_ADDR2);
+
+	}
+
+  It probably messes up the slave initialization in tegra_reg_slave().
+  At least I see that the slave address gets overwritten when I peek
+  the register after boot.
+
+Does that make sense to you?
+
+Thanks,
+
+   Wolfram
+
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVsgT3AAoJEBQN5MwUoCm28TkQAJ8GtWdUEhjDsXnlwbznCTXw
+0ztaEoxnmK1CW3iglVwyMEJAC6d8+V3HAItUZbkP+XBRbmBu1OQPOdZNrT9VfaR/
+dqjwMWmYg+VxyQGvjCG4uYRFc8YMHYpam3f4y9Gxi8lxz7MDRgDr1o00c08JIZuf
+FsM2aWXO0qSxhO9PxBCsKIE5gsmw/VTt6tW57oNPrgb4KRWaFmcAmXGUDDwUPy1k
+R4BwxNMe2wWfAiegGfPDS/vYYveJcNP+Sf3nrNUY4p5hYTVKZsiQdDkIyAYkIiJg
+uON8pr8DLWvftjXVzQyRrG4g1i+0xvrtSYJsApJw+UXwcSOoNYWNIWwS4xjbKQCO
+Kvvrz8fbrIkwsn/YFgmOQrLOz/coTeFt3JwNUbhXvvC+dgRqzJPyUW5c0oEd9r7f
+N7vUKne85chLFOJ7ZNxiGtuJ0Dassn0PP+m4C/e+69MBjyG61OFn5KqLK00SWTJ7
+C+8CNYa9nmV0Fh9ed+12VeaqCtXXeg0xOh0oLB0+kRtW2ZH8M5D4JhYnBl/C8ncd
+PxRBkfKsO/TqrWVbqnyzND7eWVGpsU+TTFL1k1T4hx0n3pHA6tg2o60VaamFctvO
+s/lyoJ/YPhcrF8lhlMOZtungmAJpF0zpQaC9vI1QPUcLe6raaE65ZSRg9runI0je
+Epun1jJ9IcWcnOYBR+IE
+=bK/2
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--
