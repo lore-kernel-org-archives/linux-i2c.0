@@ -1,96 +1,169 @@
-From: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] i2c: core: add support for read commands longer than byte
-Date: Fri, 24 Jul 2015 15:20:42 +0200
-Message-ID: <1437744042-24471-1-git-send-email-cmo@melexis.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] of/irq: introduce of_has_named_irqs helper
+Date: Fri, 24 Jul 2015 13:16:13 -0700
+Message-ID: <20150724201613.GB33241@dtor-ws>
+References: <20150724182655.GA22007@dtor-ws>
+ <CAL_Jsq+JGpNBwS3HF1fF4HdefRCwhniaYCm5G4_WAnio7t-1og@mail.gmail.com>
+ <20150724192619.GA33241@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150724192619.GA33241@dtor-ws>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Simon G. Vogl" <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
+To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-If you want to send more than 1 byte as command to slave you need to go away
-from the smbus (which has a 8 bit command defined in specification). i2c has
-no such limitation in specification and since we want to have a longer than
-1 byte command, we need additional function to handle it. With outside
-buffers we have also avoided endianness problems (if we would just define a
-u16 command instead of u8). Also there are now no limitations (as per i2c
-specification) of command length.
-Addressed read function is when we have a slave device which accepts commands
-longer than byte or some subcommands in same write string before issuing a
-repeat start before read cycle to read more than byte (or byte) from slave
-device.
+On Fri, Jul 24, 2015 at 12:26:19PM -0700, Dmitry Torokhov wrote:
+> On Fri, Jul 24, 2015 at 02:14:57PM -0500, Rob Herring wrote:
+> > On Fri, Jul 24, 2015 at 1:26 PM, Dmitry Torokhov
+> > <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> > > Sometimes drivers might wish to transition from index-based to named
+> > > interrupt descriptions. To aid in decision-making when parsing device
+> > > tree data let's provide a helper that will indicate the scheme that is
+> > > being used.
+> > 
+> > Generally, IRQs are retrieved by platform_get_irq or
+> > platform_get_irq_byname. Drivers should not call the of_irq_*
+> > functions directly in most cases.
+> 
+> That would be true for platform drivers, but not all devices are
+> platform devices.
+> 
+> > 
+> > >
+> > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > > ---
+> > >
+> > > The intent is to it like this:
+> > >
+> > >         if (of_has_named_irqs(np) {
+> > >                 /* Wake IRQ is optional */
+> > >                 dev->wakeirq = of_irq_get_byname(np, "wakeup");
+> > >                 if (dev->wakeirq < 0 && dev->wakeirq != -ENODATA)
+> > >                         return dev->wakeirq;
+> > >         }
+> > 
+> > of_irq_get_byname will already return an error if the property is not
+> > present. Use that.
+> 
+> I do not like that it returns -EINVAL when property is missing, can we
+> change it to return -ENODATA (so it is the same as when the property is
+> defined but such name is missing)?
 
-Signed-off-by: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
+So here is what I had in mind.. It is based on recent patch by Vignesh
+for pixcir touchscreen, but I think it should be made available to all
+I2C devices. Completely untested at the moment.
+
 ---
- drivers/i2c/i2c-core.c | 40 ++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h    |  4 ++++
- 2 files changed, 44 insertions(+)
+ drivers/i2c/i2c-core.c |   43 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 37 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 069a41f..bccf83f 100644
+index e6d4935..3971461 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -2980,6 +2980,46 @@ int i2c_slave_unregister(struct i2c_client *client)
- EXPORT_SYMBOL_GPL(i2c_slave_unregister);
- #endif
+@@ -47,6 +47,7 @@
+ #include <linux/rwsem.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/pm_domain.h>
++#include <linux/pm_wakeirq.h>
+ #include <linux/acpi.h>
+ #include <linux/jump_label.h>
+ #include <asm/uaccess.h>
+@@ -631,6 +632,7 @@ static int i2c_device_probe(struct device *dev)
+ {
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+ 	struct i2c_driver	*driver;
++	int wakeirq = 0;
+ 	int status;
  
-+/**
-+ * i2c_addressed_read - writes read commands with desired length and read
-+ * desired length of data.
-+ * @client: Handle to slave device
-+ * @command: Pointer to command location
-+ * @cmd_len: Number of command bytes on command location
-+ * @data: Pointer to read data location
-+ * @data_len: Expected number of read bytes
-+ *
-+ * Addressed read on slave device when command is longer than byte. Returns
-+ * negative errno on error and 0 on success.
-+ */
-+s32 i2c_addressed_read(const struct i2c_client *client, u8 *command,
-+		       u16 cmd_len, u8 *data, u16 data_len)
-+{
-+	s32 status;
-+	struct i2c_msg msg[2] =	{
-+		{
-+			.addr = client->addr,
-+			.flags = client->flags,
-+			.len = cmd_len,
-+			.buf = command,
-+		},
-+		{
-+			.addr = client->addr,
-+			.flags = client->flags | I2C_M_RD,
-+			.len = data_len,
-+			.buf = data,
-+		},
-+	};
+ 	if (!client)
+@@ -639,11 +641,13 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!client->irq) {
+ 		int irq = -ENOENT;
+ 
+-		if (dev->of_node)
+-			irq = of_irq_get(dev->of_node, 0);
+-		else if (ACPI_COMPANION(dev))
++		if (dev->of_node) {
++			irq = of_has_named_irqs(dev->of_node) ?
++				of_irq_get_byname(dev->of_node, "irq") :
++				of_irq_get(dev->of_node, 0);
++		} else if (ACPI_COMPANION(dev)) {
+ 			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+-
++		}
+ 		if (irq == -EPROBE_DEFER)
+ 			return irq;
+ 		if (irq < 0)
+@@ -652,6 +656,15 @@ static int i2c_device_probe(struct device *dev)
+ 		client->irq = irq;
+ 	}
+ 
++	if (dev->of_node && of_has_named_irqs(dev->of_node)) {
++		wakeirq = of_irq_get_byname(dev->of_node, "wakeup");
++		if (wakeirq < 0) {
++			if (wakeirq != -ENODATA)
++				return wakeirq;
++			wakeirq = 0;
++		}
++	}
 +
-+	status = i2c_transfer(client->adapter, msg, 2);
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (!driver->probe || !driver->id_table)
+ 		return -ENODEV;
+@@ -659,20 +672,34 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!device_can_wakeup(&client->dev))
+ 		device_init_wakeup(&client->dev,
+ 					client->flags & I2C_CLIENT_WAKE);
 +
-+	if (status < 0)
-+		return status;
++	status = wakeirq > 0 ?
++			dev_pm_set_dedicated_wake_irq(dev, wakeirq) :
++			(client->irq > 0 ?
++				dev_pm_set_wake_irq(dev, client->irq) : 0);
++	if (status)
++		dev_warn(&client->dev, "failed to set up wakeup irq");
 +
+ 	dev_dbg(dev, "probe\n");
+ 
+ 	status = of_clk_set_defaults(dev->of_node, false);
+ 	if (status < 0)
+-		return status;
++		goto err_clear_wakeup_irq;
+ 
+ 	status = dev_pm_domain_attach(&client->dev, true);
+ 	if (status != -EPROBE_DEFER) {
+ 		status = driver->probe(client, i2c_match_id(driver->id_table,
+ 					client));
+ 		if (status)
+-			dev_pm_domain_detach(&client->dev, true);
++			goto err_detach_pm_domain;
+ 	}
+ 
 +	return 0;
-+}
-+EXPORT_SYMBOL(i2c_addressed_read);
 +
- MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
- MODULE_DESCRIPTION("I2C-Bus main module");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index e83a738..d3cc1af 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -121,6 +121,10 @@ extern s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client,
- extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
- 					  u8 command, u8 length,
- 					  const u8 *values);
-+
-+s32 i2c_addressed_read(const struct i2c_client *client, u8 *command,
-+		       u16 cmd_len, u8 *data, u16 data_len);
-+
- #endif /* I2C */
++err_detach_pm_domain:
++	dev_pm_domain_detach(&client->dev, true);
++err_clear_wakeup_irq:
++	dev_pm_clear_wake_irq(&client->dev);
+ 	return status;
+ }
  
- /**
+@@ -692,6 +719,10 @@ static int i2c_device_remove(struct device *dev)
+ 	}
+ 
+ 	dev_pm_domain_detach(&client->dev, true);
++
++	dev_pm_clear_wake_irq(&client->dev);
++	device_init_wakeup(&client->dev, 0);
++
+ 	return status;
+ }
+ 
+
+Thanks.
+
 -- 
-2.1.4
+Dmitry
