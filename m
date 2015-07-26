@@ -1,38 +1,47 @@
 From: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 6/8] misc: eeprom: at24: clean up at24_bin_write()
-Date: Mon, 27 Jul 2015 00:18:51 +0300
-Message-ID: <1437945533-27996-6-git-send-email-vz@mleia.com>
-References: <1437945502-27944-1-git-send-email-vz@mleia.com>
+Subject: [PATCH] i2c: slave eeprom: clean up sysfs bin attribute read()/write()
+Date: Mon, 27 Jul 2015 00:16:31 +0300
+Message-ID: <1437945391-27823-1-git-send-email-vz@mleia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1437945502-27944-1-git-send-email-vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The change removes redundant sysfs binary file boundary check, since
-this task is already done on caller side in fs/sysfs/file.c
+The change removes redundant sysfs binary file boundary checks,
+since this task is already done on caller side in fs/sysfs/file.c
+
+Note, on file size overflow read() now returns 0, and this is a
+correct and expected EOF notification according to POSIX.
 
 Signed-off-by: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
- drivers/misc/eeprom/at24.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/i2c/i2c-slave-eeprom.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2d3db81..6ded3dc 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -438,9 +438,6 @@ static ssize_t at24_bin_write(struct file *filp, struct kobject *kobj,
- {
- 	struct at24_data *at24;
+diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
+index 8223746..1da4496 100644
+--- a/drivers/i2c/i2c-slave-eeprom.c
++++ b/drivers/i2c/i2c-slave-eeprom.c
+@@ -80,9 +80,6 @@ static ssize_t i2c_slave_eeprom_bin_read(struct file *filp, struct kobject *kobj
+ 	struct eeprom_data *eeprom;
+ 	unsigned long flags;
  
--	if (unlikely(off >= attr->size))
+-	if (off + count > attr->size)
 -		return -EFBIG;
 -
- 	at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
- 	return at24_write(at24, buf, off, count);
- }
+ 	eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
+ 
+ 	spin_lock_irqsave(&eeprom->buffer_lock, flags);
+@@ -98,9 +95,6 @@ static ssize_t i2c_slave_eeprom_bin_write(struct file *filp, struct kobject *kob
+ 	struct eeprom_data *eeprom;
+ 	unsigned long flags;
+ 
+-	if (off + count > attr->size)
+-		return -EFBIG;
+-
+ 	eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
+ 
+ 	spin_lock_irqsave(&eeprom->buffer_lock, flags);
 -- 
 2.1.4
