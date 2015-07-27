@@ -1,7 +1,7 @@
 From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v2 1/4] i2c: core: fix leaked device refcount on of_find_i2c_* error path
-Date: Mon, 27 Jul 2015 17:30:48 +0300
-Message-ID: <1438007451-8553-2-git-send-email-vladimir_zapolskiy@mentor.com>
+Subject: [PATCH v2 2/4] i2c: core: manage i2c bus device refcount in i2c_[get|put]_adapter
+Date: Mon, 27 Jul 2015 17:30:49 +0300
+Message-ID: <1438007451-8553-3-git-send-email-vladimir_zapolskiy@mentor.com>
 References: <1438007451-8553-1-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,63 +12,53 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thierry Reding <
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-If of_find_i2c_device_by_node() or of_find_i2c_adapter_by_node() find
-a device by node, but its type does not match, a reference to that
-device is still held. This change fixes the problem.
+In addition to module_get()/module_put() add get_device()/put_device()
+calls into i2c_get_adapter()/i2c_put_adapter() exported
+interfaces. This is done to lock I2C bus device, if it is in use by a
+client.
 
 Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
 ---
 Changes from v1 to v2:
-* none, new change
+* none, new change suggested by Thierry
 
- drivers/i2c/i2c-core.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/i2c/i2c-core.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index e6d4935..d5fe5a4 100644
+index d5fe5a4..a7054ac 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -1338,13 +1338,17 @@ static int of_dev_node_match(struct device *dev, void *data)
- struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
- {
- 	struct device *dev;
-+	struct i2c_client *client;
+@@ -2411,9 +2411,15 @@ struct i2c_adapter *i2c_get_adapter(int nr)
  
--	dev = bus_find_device(&i2c_bus_type, NULL, node,
--					 of_dev_node_match);
-+	dev = bus_find_device(&i2c_bus_type, NULL, node, of_dev_node_match);
- 	if (!dev)
- 		return NULL;
- 
--	return i2c_verify_client(dev);
-+	client = i2c_verify_client(dev);
-+	if (!client)
-+		put_device(dev);
-+
-+	return client;
- }
- EXPORT_SYMBOL(of_find_i2c_device_by_node);
- 
-@@ -1352,13 +1356,17 @@ EXPORT_SYMBOL(of_find_i2c_device_by_node);
- struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
- {
- 	struct device *dev;
-+	struct i2c_adapter *adapter;
- 
--	dev = bus_find_device(&i2c_bus_type, NULL, node,
--					 of_dev_node_match);
-+	dev = bus_find_device(&i2c_bus_type, NULL, node, of_dev_node_match);
- 	if (!dev)
- 		return NULL;
- 
--	return i2c_verify_adapter(dev);
-+	adapter = i2c_verify_adapter(dev);
+ 	mutex_lock(&core_lock);
+ 	adapter = idr_find(&i2c_adapter_idr, nr);
+-	if (adapter && !try_module_get(adapter->owner))
 +	if (!adapter)
-+		put_device(dev);
++		goto exit;
 +
-+	return adapter;
++	if (try_module_get(adapter->owner))
++		get_device(&adapter->dev);
++	else
+ 		adapter = NULL;
+ 
++ exit:
+ 	mutex_unlock(&core_lock);
+ 	return adapter;
  }
- EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
- #else
+@@ -2421,8 +2427,11 @@ EXPORT_SYMBOL(i2c_get_adapter);
+ 
+ void i2c_put_adapter(struct i2c_adapter *adap)
+ {
+-	if (adap)
+-		module_put(adap->owner);
++	if (!adap)
++		return;
++
++	put_device(&adap->dev);
++	module_put(adap->owner);
+ }
+ EXPORT_SYMBOL(i2c_put_adapter);
+ 
 -- 
 2.1.4
