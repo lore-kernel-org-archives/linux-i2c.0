@@ -1,93 +1,250 @@
-From: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 6/7] i2c: img-scb: add handle for stop detected interrupt
-Date: Mon, 27 Jul 2015 12:56:01 +0100
-Message-ID: <1437998162-32724-7-git-send-email-sifan.naeem@imgtec.com>
-References: <1437998162-32724-1-git-send-email-sifan.naeem@imgtec.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 2/5] i2c: i801: Create iTCO device on newer Intel PCHs
+Date: Mon, 27 Jul 2015 07:08:08 -0700
+Message-ID: <55B63B48.2040603@roeck-us.net>
+References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk> <1438004292-16382-3-git-send-email-matt@codeblueprint.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1437998162-32724-1-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1438004292-16382-3-git-send-email-matt@codeblueprint.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matt Fleming <matt@codeblueprint.co.uk>, Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Matt Fleming <matt.fleming@intel.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Stop Detected interrupt is triggered when a Stop bit is detected on
-the bus, which indicates the end of the current transfer.
+On 07/27/2015 06:38 AM, Matt Fleming wrote:
+> From: Mika Westerberg <mika.westerberg@linux.intel.com>
+>
+> Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog resources
+> have been moved to reside under the i801 SMBus host controller whereas
+> previously they were under the LPC device.
+>
+> In order to support the iTCO watchdog on newer PCHs we need to create the
+> platform device here in the SMBus driver and pass all known resources using
+> platform data.
+>
+> Cc: Jean Delvare <jdelvare@suse.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Signed-off-by: Matt Fleming <matt.fleming@intel.com>
 
-When the end of a transfer is indicated by the Stop bit interrupt,
-drain the FIFO and signal completion for the transaction. But if the
-interrupt was triggered before all data is written to the fifo or with
-more data expected return error with transfer complete signal.
+That really asks for an mfd driver, but that might be a bit overkill.
+Copying the i2c mailing list for additional feedback.
 
-Halting the bus is no longer necessary after a stop bit is detected
-on the bus, as there cannot be a repeated start transfer when the stop
-bit has been issued, hence remove the transaction halt bit.
+> ---
+>   drivers/i2c/busses/i2c-i801.c | 127 +++++++++++++++++++++++++++++++++++++++++-
+>   1 file changed, 126 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 5ecbb3fdc27e..c79dbe116ccc 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -88,12 +88,13 @@
+>   #include <linux/slab.h>
+>   #include <linux/wait.h>
+>   #include <linux/err.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/platform_data/iTCO_wdt.h>
+>
+>   #if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
+>   		defined CONFIG_DMI
+>   #include <linux/gpio.h>
+>   #include <linux/i2c-mux-gpio.h>
+> -#include <linux/platform_device.h>
+>   #endif
+>
+>   /* I801 SMBus address offsets */
+> @@ -113,6 +114,16 @@
+>   #define SMBPCICTL	0x004
+>   #define SMBPCISTS	0x006
+>   #define SMBHSTCFG	0x040
+> +#define TCOBASE		0x050
+> +#define TCOCTL		0x054
+> +
+> +#define ACPIBASE		0x040
+> +#define ACPIBASE_SMI_OFF	0x030
+> +#define ACPICTRL		0x044
+> +#define ACPICTRL_EN		BIT(7)
 
-Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-img-scb.c |   28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+If you use BIT, you should include bitops.h.
+Not sure if that makes too much sense here, though, without converting
+the rest of the driver to use BIT as well.
 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 10141a9..90faf48 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -152,6 +152,7 @@
- #define INT_TRANSACTION_DONE		BIT(15)
- #define INT_SLAVE_EVENT			BIT(16)
- #define INT_TIMING			BIT(18)
-+#define INT_STOP_DETECTED		BIT(19)
- 
- #define INT_FIFO_FULL_FILLING	(INT_FIFO_FULL  | INT_FIFO_FILLING)
- 
-@@ -175,7 +176,8 @@
- 					 INT_WRITE_ACK_ERR    | \
- 					 INT_FIFO_FULL        | \
- 					 INT_FIFO_FILLING     | \
--					 INT_FIFO_EMPTY)
-+					 INT_FIFO_EMPTY       | \
-+					 INT_STOP_DETECTED)
- 
- #define INT_ENABLE_MASK_WAITSTOP	(INT_SLAVE_EVENT      | \
- 					 INT_ADDR_ACK_ERR     | \
-@@ -907,6 +909,18 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
- 				return ISR_COMPLETE(0);
- 			}
- 		}
-+		if (int_status & INT_STOP_DETECTED) {
-+			int ret;
-+			/*
-+			 * Stop bit indicates the end of the transfer, it means
-+			 * we should read all the data (or drain the FIFO). We
-+			 * must signal completion for this transaction.
-+			 */
-+			img_i2c_transaction_halt(i2c, false);
-+			img_i2c_read_fifo(i2c);
-+			ret = (i2c->msg.len == 0) ? 0 : EIO;
-+			return ISR_COMPLETE(ret);
-+		}
- 	} else {
- 		if (int_status & INT_FIFO_EMPTY) {
- 			if (i2c->msg.len == 0) {
-@@ -916,6 +930,18 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
- 			}
- 			img_i2c_write_fifo(i2c);
- 		}
-+		if (int_status & INT_STOP_DETECTED) {
-+			int ret;
-+
-+			img_i2c_transaction_halt(i2c, false);
-+			/*
-+			 * Stop bit indicates the end of a transfer and if the
-+			 * transfer has ended before all data is written to the
-+			 * fifo, return an error with transfer complete signal.
-+			 */
-+			ret = (i2c->msg.len == 0) ? 0 : EIO;
-+			return ISR_COMPLETE(ret);
-+		}
- 	}
- 
- 	return 0;
--- 
-1.7.9.5
+> +
+> +#define SBREG_BAR		0x10
+> +#define SBREG_SMBCTRL		0xc6000c
+>
+>   /* Host status bits for SMBPCISTS */
+>   #define SMBPCISTS_INTS		0x08
+> @@ -125,6 +136,9 @@
+>   #define SMBHSTCFG_SMB_SMI_EN	2
+>   #define SMBHSTCFG_I2C_EN	4
+>
+> +/* TCO configuration bits for TCOCTL */
+> +#define TCOCTL_EN		BIT(8)
+> +
+>   /* Auxiliary control register bits, ICH4+ only */
+>   #define SMBAUXCTL_CRC		1
+>   #define SMBAUXCTL_E32B		2
+> @@ -221,6 +235,7 @@ struct i801_priv {
+>   	const struct i801_mux_config *mux_drvdata;
+>   	struct platform_device *mux_pdev;
+>   #endif
+> +	struct platform_device *tco_pdev;
+>   };
+>
+>   #define FEATURE_SMBUS_PEC	(1 << 0)
+> @@ -230,6 +245,7 @@ struct i801_priv {
+>   #define FEATURE_IRQ		(1 << 4)
+>   /* Not really a feature, but it's convenient to handle it as such */
+>   #define FEATURE_IDF		(1 << 15)
+> +#define FEATURE_TCO		(1 << 16)
+>
+>   static const char *i801_feature_names[] = {
+>   	"SMBus PEC",
+> @@ -1132,6 +1148,102 @@ static inline unsigned int i801_get_adapter_class(struct i801_priv *priv)
+>   }
+>   #endif
+>
+> +static const struct iTCO_wdt_platform_data tco_platform_data = {
+> +	.name = "Intel PCH",
+> +	.iTCO_version = 4,
+> +};
+> +
+> +static DEFINE_SPINLOCK(p2sb_spinlock);
+> +
+> +static void i801_add_tco(struct i801_priv *priv)
+> +{
+> +	struct pci_dev *pci_dev = priv->pci_dev;
+> +	struct resource tco_res[3], *res;
+> +	struct platform_device *pdev;
+> +	unsigned int devfn;
+> +	u32 tco_base, tco_ctl;
+> +	u32 base_addr, ctrl_val;
+> +	u64 base64_addr;
+> +
+> +	if (!(priv->features & FEATURE_TCO))
+> +		return;
+> +
+> +	pci_read_config_dword(pci_dev, TCOBASE, &tco_base);
+> +	pci_read_config_dword(pci_dev, TCOCTL, &tco_ctl);
+> +	if (!(tco_ctl & TCOCTL_EN))
+> +		return;
+> +
+> +	memset(&tco_res[0], 0, sizeof(tco_res));
+> +	res = &tco_res[ICH_RES_IO_TCO];
+> +	res->start = tco_base & ~1;
+> +	res->end = res->start + 32 - 1;
+> +	res->flags = IORESOURCE_IO;
+> +
+> +	/*
+> +	 * Power Management registers.
+> +	 */
+> +	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
+> +	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr);
+> +
+> +	res = &tco_res[ICH_RES_IO_SMI];
+> +	res->start = (base_addr & ~1) + ACPIBASE_SMI_OFF;
+> +	res->end = res->start + 3;
+> +	res->flags = IORESOURCE_IO;
+> +
+> +	/*
+> +	 * Enable the ACPI I/O space.
+> +	 */
+> +	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val);
+> +	ctrl_val |= ACPICTRL_EN;
+> +	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val);
+> +
+> +	/*
+> +	 * We must access the NO_REBOOT bit over the Primary to Sideband
+> +	 * bridge (P2SB). The BIOS prevents the P2SB device from being
+> +	 * enumerated by the PCI subsystem, so we need to unhide/hide it
+> +	 * to lookup the P2SB BAR.
+> +	 */
+> +	spin_lock(&p2sb_spinlock);
+> +
+> +	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 1);
+> +
+> +	/* Unhide the P2SB device */
+> +	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x0);
+> +
+> +	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR, &base_addr);
+> +	base64_addr = base_addr & 0xfffffff0;
+> +
+> +	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR + 0x4, &base_addr);
+> +	base64_addr |= (u64)base_addr << 32;
+> +
+> +	/* Hide the P2SB device */
+> +	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x1);
+> +	spin_unlock(&p2sb_spinlock);
+> +
+> +	res = &tco_res[ICH_RES_MEM_OFF];
+> +	res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL;
+> +	res->end = res->start + 3;
+> +	res->flags = IORESOURCE_MEM;
+> +
+> +	pdev = platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
+> +						 &tco_res[0], 3, &tco_platform_data,
+> +						 sizeof(tco_platform_data));
+> +	if (IS_ERR(pdev)) {
+> +		dev_warn(&pci_dev->dev, "failed to create iTCO device\n");
+> +		return;
+> +	}
+> +
+> +	priv->tco_pdev = pdev;
+> +}
+> +
+> +static void i801_del_tco(struct i801_priv *priv)
+> +{
+> +	if (priv->tco_pdev) {
+
+platform_device_unregister() handles NULL pointers, so this if statement
+is strictly speaking unnecessary.
+
+> +		platform_device_unregister(priv->tco_pdev);
+> +		priv->tco_pdev = NULL;
+
+Unnecessary; priv is going to be freed right afterwards.
+
+> +	}
+> +}
+> +
+>   static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>   {
+>   	unsigned char temp;
+> @@ -1149,6 +1261,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>
+>   	priv->pci_dev = dev;
+>   	switch (dev->device) {
+> +	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
+> +	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
+> +		priv->features |= FEATURE_I2C_BLOCK_READ;
+> +		priv->features |= FEATURE_IRQ;
+> +		priv->features |= FEATURE_SMBUS_PEC;
+> +		priv->features |= FEATURE_BLOCK_BUFFER;
+> +		priv->features |= FEATURE_TCO;
+> +		break;
+> +
+>   	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
+>   	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1:
+>   	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2:
+> @@ -1265,6 +1386,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>   	dev_info(&dev->dev, "SMBus using %s\n",
+>   		 priv->features & FEATURE_IRQ ? "PCI interrupt" : "polling");
+>
+> +	i801_add_tco(priv);
+> +
+>   	/* set up the sysfs linkage to our parent device */
+>   	priv->adapter.dev.parent = &dev->dev;
+>
+> @@ -1296,6 +1419,8 @@ static void i801_remove(struct pci_dev *dev)
+>   	i2c_del_adapter(&priv->adapter);
+>   	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
+>
+> +	i801_del_tco(priv);
+> +
+>   	/*
+>   	 * do not call pci_disable_device(dev) since it can cause hard hangs on
+>   	 * some systems during power-off (eg. Fujitsu-Siemens Lifebook E8010)
+>
