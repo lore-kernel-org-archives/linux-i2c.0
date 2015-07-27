@@ -1,47 +1,52 @@
-From: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: slave eeprom: clean up sysfs bin attribute read()/write()
-Date: Mon, 27 Jul 2015 00:16:31 +0300
-Message-ID: <1437945391-27823-1-git-send-email-vz@mleia.com>
+From: Fugang Duan <b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH] i2c: imx: change dev_info to dev_dbg to reduce dummy log
+Date: Mon, 27 Jul 2015 16:26:55 +0800
+Message-ID: <1437985615-30791-1-git-send-email-b38611@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The change removes redundant sysfs binary file boundary checks,
-since this task is already done on caller side in fs/sysfs/file.c
+For most of imx platforms, there have no DMA support for I2C bus.
+So, by default, there is only cpu mode.
 
-Note, on file size overflow read() now returns 0, and this is a
-correct and expected EOF notification according to POSIX.
+The current driver to check whether there have DMA channel config in
+dts file to judge whether it support DMA mode or not, if doesn't config
+it print out "can't use DMA" for each bus during probe.
 
-Signed-off-by: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
+kernel boot up log:
+i2c i2c-0: IMX I2C adapter registered
+i2c i2c-0: can't use DMA
+i2c i2c-1: IMX I2C adapter registered
+i2c i2c-1: can't use DMA
+i2c i2c-2: IMX I2C adapter registered
+i2c i2c-2: can't use DMA
+i2c i2c-3: IMX I2C adapter registered
+i2c i2c-3: can't use DMA
+
+It is very ugly and confused. So change the dev_info() to deb_dbg() to
+avoid print dummy and redundant log.
+
+Signed-off-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
- drivers/i2c/i2c-slave-eeprom.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-index 8223746..1da4496 100644
---- a/drivers/i2c/i2c-slave-eeprom.c
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -80,9 +80,6 @@ static ssize_t i2c_slave_eeprom_bin_read(struct file *filp, struct kobject *kobj
- 	struct eeprom_data *eeprom;
- 	unsigned long flags;
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 785aa67..28fba91 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -339,7 +339,7 @@ fail_tx:
+ 	dma_release_channel(dma->chan_tx);
+ fail_al:
+ 	devm_kfree(dev, dma);
+-	dev_info(dev, "can't use DMA\n");
++	dev_dbg(dev, "can't use DMA\n");
+ }
  
--	if (off + count > attr->size)
--		return -EFBIG;
--
- 	eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
- 
- 	spin_lock_irqsave(&eeprom->buffer_lock, flags);
-@@ -98,9 +95,6 @@ static ssize_t i2c_slave_eeprom_bin_write(struct file *filp, struct kobject *kob
- 	struct eeprom_data *eeprom;
- 	unsigned long flags;
- 
--	if (off + count > attr->size)
--		return -EFBIG;
--
- 	eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
- 
- 	spin_lock_irqsave(&eeprom->buffer_lock, flags);
+ static void i2c_imx_dma_callback(void *arg)
 -- 
-2.1.4
+1.9.1
