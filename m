@@ -1,99 +1,162 @@
-From: James Hogan <james.hogan@imgtec.com>
-Subject: Re: [PATCH 6/8] i2c: img-scb: remove start bit detected status after
- handling
-Date: Tue, 28 Jul 2015 14:53:01 +0100
-Message-ID: <55B7893D.4020409@imgtec.com>
-References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com> <1437997641-32575-7-git-send-email-sifan.naeem@imgtec.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] of/irq: introduce of_has_named_irqs helper
+Date: Tue, 28 Jul 2015 10:23:36 -0700
+Message-ID: <20150728172336.GC19610@dtor-ws>
+References: <20150724182655.GA22007@dtor-ws>
+ <CAL_Jsq+JGpNBwS3HF1fF4HdefRCwhniaYCm5G4_WAnio7t-1og@mail.gmail.com>
+ <20150724192619.GA33241@dtor-ws>
+ <20150724201613.GB33241@dtor-ws>
+ <55B78268.4040603@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="02H6emxTx3cL9S3mB3jxX5vTadphQT0wx"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1437997641-32575-7-git-send-email-sifan.naeem@imgtec.com>
-Sender: stable-owner@vger.kernel.org
-To: Sifan Naeem <sifan.naeem@imgtec.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: "Stable kernel (v3.19+)" <stable@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <55B78268.4040603-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+Cc: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benoit Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---02H6emxTx3cL9S3mB3jxX5vTadphQT0wx
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+On Tue, Jul 28, 2015 at 06:53:52PM +0530, Vignesh R wrote:
+> Hi Dmitry,
+> 
+> On 07/25/2015 01:46 AM, Dmitry Torokhov wrote:
+> > On Fri, Jul 24, 2015 at 12:26:19PM -0700, Dmitry Torokhov wrote:
+> >> On Fri, Jul 24, 2015 at 02:14:57PM -0500, Rob Herring wrote:
+> >>> On Fri, Jul 24, 2015 at 1:26 PM, Dmitry Torokhov
+> >>> <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> >>>> Sometimes drivers might wish to transition from index-based to named
+> >>>> interrupt descriptions. To aid in decision-making when parsing device
+> >>>> tree data let's provide a helper that will indicate the scheme that is
+> >>>> being used.
+> >>>
+> >>> Generally, IRQs are retrieved by platform_get_irq or
+> >>> platform_get_irq_byname. Drivers should not call the of_irq_*
+> >>> functions directly in most cases.
+> >>
+> >> That would be true for platform drivers, but not all devices are
+> >> platform devices.
+> >>
+> >>>
+> >>>>
+> >>>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >>>> ---
+> >>>>
+> >>>> The intent is to it like this:
+> >>>>
+> >>>>         if (of_has_named_irqs(np) {
+> >>>>                 /* Wake IRQ is optional */
+> >>>>                 dev->wakeirq = of_irq_get_byname(np, "wakeup");
+> >>>>                 if (dev->wakeirq < 0 && dev->wakeirq != -ENODATA)
+> >>>>                         return dev->wakeirq;
+> >>>>         }
+> >>>
+> >>> of_irq_get_byname will already return an error if the property is not
+> >>> present. Use that.
+> >>
+> >> I do not like that it returns -EINVAL when property is missing, can we
+> >> change it to return -ENODATA (so it is the same as when the property is
+> >> defined but such name is missing)?
+> > 
+> > So here is what I had in mind.. It is based on recent patch by Vignesh
+> > for pixcir touchscreen, but I think it should be made available to all
+> > I2C devices. Completely untested at the moment.
+> > 
+> 
+> Thanks for the patch! I tested this on am437x-gp-evm and the
+> suspend/resume worked fine (below patch + $subject patch). I was able to
+> wake the system from low power state using touchscreen. Also verified
+> module insertion and removal. One comment though, please see below.
+> 
+> > ---
+> >  drivers/i2c/i2c-core.c |   43 +++++++++++++++++++++++++++++++++++++------
+> >  1 file changed, 37 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > index e6d4935..3971461 100644
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> > @@ -47,6 +47,7 @@
+> >  #include <linux/rwsem.h>
+> >  #include <linux/pm_runtime.h>
+> >  #include <linux/pm_domain.h>
+> > +#include <linux/pm_wakeirq.h>
+> >  #include <linux/acpi.h>
+> >  #include <linux/jump_label.h>
+> >  #include <asm/uaccess.h>
+> > @@ -631,6 +632,7 @@ static int i2c_device_probe(struct device *dev)
+> >  {
+> >  	struct i2c_client	*client = i2c_verify_client(dev);
+> >  	struct i2c_driver	*driver;
+> > +	int wakeirq = 0;
+> >  	int status;
+> >  
+> >  	if (!client)
+> > @@ -639,11 +641,13 @@ static int i2c_device_probe(struct device *dev)
+> >  	if (!client->irq) {
+> >  		int irq = -ENOENT;
+> >  
+> > -		if (dev->of_node)
+> > -			irq = of_irq_get(dev->of_node, 0);
+> > -		else if (ACPI_COMPANION(dev))
+> > +		if (dev->of_node) {
+> > +			irq = of_has_named_irqs(dev->of_node) ?
+> > +				of_irq_get_byname(dev->of_node, "irq") :
+> > +				of_irq_get(dev->of_node, 0);
+> > +		} else if (ACPI_COMPANION(dev)) {
+> >  			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+> > -
+> > +		}
+> >  		if (irq == -EPROBE_DEFER)
+> >  			return irq;
+> >  		if (irq < 0)
+> > @@ -652,6 +656,15 @@ static int i2c_device_probe(struct device *dev)
+> >  		client->irq = irq;
+> >  	}
+> >  
+> > +	if (dev->of_node && of_has_named_irqs(dev->of_node)) {
+> > +		wakeirq = of_irq_get_byname(dev->of_node, "wakeup");
+> > +		if (wakeirq < 0) {
+> > +			if (wakeirq != -ENODATA)
+> > +				return wakeirq;
+> > +			wakeirq = 0;
+> > +		}
+> > +	}
+> > +
+> >  	driver = to_i2c_driver(dev->driver);
+> >  	if (!driver->probe || !driver->id_table)
+> >  		return -ENODEV;
+> > @@ -659,20 +672,34 @@ static int i2c_device_probe(struct device *dev)
+> >  	if (!device_can_wakeup(&client->dev))
+> >  		device_init_wakeup(&client->dev,
+> >  					client->flags & I2C_CLIENT_WAKE);
+> > +
+> > +	status = wakeirq > 0 ?
+> > +			dev_pm_set_dedicated_wake_irq(dev, wakeirq) :
+> > +			(client->irq > 0 ?
+> > +				dev_pm_set_wake_irq(dev, client->irq) : 0);
+> 
+> Above code tries to register wakeirq irrespective of whether the device
+> is specified as wakeup-source in the dt or not. Hence, I see warn
+> messages from every i2c device that has irq line but hasn't declared
+> itself as wakeup-source:
+> For example tps is on i2c:
+> [    1.961613] tps65218 0-0024: forgot to call call device_init_wakeup?
+> [    1.968340] tps65218 0-0024: failed to set up wakeup irq
+> 
+> May be you can register wakeup-source only if I2C_CLIENT_WAKE flag is
+> set in client->flags?
 
-On 27/07/15 12:47, Sifan Naeem wrote:
-> Remove start bit detected status after it is handled,
-> doing so will prevent this condition being hit for
-> every interrupt on a particular transfer.
->=20
-> Fixes: 27bce4 ("i2c: img-scb: Add Imagination Technologies I2C SCB driv=
-er")
-> Signed-off-by: Sifan Naeem <sifan.naeem@imgtec.com>
-> Cc: Stable kernel (v3.19+) <stable@vger.kernel.org>
-> ---
->  drivers/i2c/busses/i2c-img-scb.c |   16 ++++++++++++----
->  1 file changed, 12 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-=
-img-scb.c
-> index 653f9bd..341130e 100644
-> --- a/drivers/i2c/busses/i2c-img-scb.c
-> +++ b/drivers/i2c/busses/i2c-img-scb.c
-> @@ -871,10 +871,18 @@ static unsigned int img_i2c_auto(struct img_i2c *=
-i2c,
->  	}
-> =20
->  	/* Enable transaction halt on start bit */
-> -	if (!i2c->last_msg && i2c->line_status & LINESTAT_START_BIT_DET) {
+Makes sense, I'll prepare a new version.
 
-i2c->line_status accumulates the line status bits that have been seen
-with each interrupt. If we're only interested in that bit from the
-current interrupt, should it just be referring to line_status (the
-argument to img_i2c_auto) instead of i2c->line_status?
+Just to confirm: do you see any issues with these 2 patches if you do
+not modify the drivers to drop calls enable_irq_wake() from them?
 
-Cheers
-James
+Thanks.
 
-> -		img_i2c_transaction_halt(i2c, true);
-> -		/* we're no longer interested in the slave event */
-> -		i2c->int_enable &=3D ~INT_SLAVE_EVENT;
-> +	if (i2c->line_status & LINESTAT_START_BIT_DET) {
-> +		if (!i2c->last_msg) {
-> +			img_i2c_transaction_halt(i2c, true);
-> +			/* we're no longer interested in the slave event */
-> +			i2c->int_enable &=3D ~INT_SLAVE_EVENT;
-> +		}
-> +		/*
-> +		 * Remove start bit detected status after it is handled,
-> +		 * doing so will prevent this condition being hit for
-> +		 * every interrupt on a particular transfer.
-> +		 */
-> +		i2c->line_status &=3D ~LINESTAT_START_BIT_DET;
->  	}
-> =20
->  	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
->=20
-
-
---02H6emxTx3cL9S3mB3jxX5vTadphQT0wx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJVt4k9AAoJEGwLaZPeOHZ61g4QAKrytWf0ghQUfLSXU9GzR6lj
-XevCNpFS5HS1FAE/M/I6C83wAZyz+0dRnhZC6vkt+iza4+Gmpt+ugvK/Qp7Gi6DR
-SzxbNy2wQu05aNTojGc4DJJqRP+6EXoZAhybZLAR6iX4T65ClCTXzSVhNywtvhvK
-5HYvtu2y34OGAjKr3p9SqewbO2KkIcJxbrdcVJ2ET7ayUsHfbQADqKxTHVZlMBsN
-DD1xxa1sbnLaMPU0QUT1y4u+q2bzntlTLIlqwUjH/VSlUYf5xfL5myEtbJRb36u8
-HcM9/thsS8E2o7vxMBOET/+vPNj4KapBvqJYH7Yu2yzR948xLs6lFaDJ/LsOP7nV
-2N5AK+rh0OsH1XX3P45vcgcJZatdcPBeeM9bl9/+FfxniO7BHP5X6r9Crz0UNFYN
-nysmkoAQo0gNNGWdzMrk5+7g7m8FcWN+53TdxKbZFMt2nSYjoltNn23Ia4SyFFg0
-pbzkIeUcBT1SJdGNFkuMqpuwXtfhVGbr5r13hzBZuBhLK8mbZ1l9kShfscevkd77
-drBQWHDj2CqoPHl4ygxUawEbx8DXYue0Q5hC2iDNaJ7U3/VNMTMm4jU8dEDmZGhp
-atXwl2ikftAPXEbQr+JzXFCbGc31UahX/+noOmUOnpb1VInWr3DaKh+nX/FGW/1y
-s1GIMUt4vgkC67vcaAqD
-=2Shx
------END PGP SIGNATURE-----
-
---02H6emxTx3cL9S3mB3jxX5vTadphQT0wx--
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
