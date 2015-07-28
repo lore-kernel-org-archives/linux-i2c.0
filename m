@@ -1,109 +1,100 @@
-From: James Hogan <james.hogan@imgtec.com>
-Subject: Re: [PATCH 4/8] i2c: img-scb: fix LOW and HIGH period values for
- the SCL clock
-Date: Tue, 28 Jul 2015 12:27:09 +0100
-Message-ID: <55B7670D.7080806@imgtec.com>
-References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com> <1437997641-32575-5-git-send-email-sifan.naeem@imgtec.com>
+From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 5/8] i2c: img-scb: reset interrupts in img_i2c_soft_reset
+Date: Tue, 28 Jul 2015 12:35:44 +0100
+Message-ID: <55B76910.8030006@imgtec.com>
+References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com> <1437997641-32575-6-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
 	protocol="application/pgp-signature";
-	boundary="dq2VmBCQgS6WjsIKiX4D3FWimPw0NbsEp"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1437997641-32575-5-git-send-email-sifan.naeem@imgtec.com>
-Sender: stable-owner@vger.kernel.org
-To: Sifan Naeem <sifan.naeem@imgtec.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: "Stable kernel (v3.19+)" <stable@vger.kernel.org>
+	boundary="1JhKAIduck3F2ubANSNt26VTCanNl9riu"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1437997641-32575-6-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "Stable kernel (v3.19+)" <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---dq2VmBCQgS6WjsIKiX4D3FWimPw0NbsEp
+--1JhKAIduck3F2ubANSNt26VTCanNl9riu
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: quoted-printable
 
-Hi Sifan,
-
 On 27/07/15 12:47, Sifan Naeem wrote:
-> After determining the minimum value for the High period (TCKH) the
-> remainder of the internal clock pulses is set as the Low period (TCKL).=
+> Reset interrupt enable register and clear any generated interrupts
+> to make sure of a clean slate after a soft reset. Not doing so might
+> leave unhandle line status or generated interrupts which can cause
+> issues when handling new transfers.
 
-> This causes the i2c clock duty cycle to be much less than 50%.
->=20
-> The fix suggested here, start with TCKH and TCKL at 50% of the internal=
-
-> clock pulses and adjusts the TCKH and TCKL values from there if the
-> minimum value for TCKL is not met. This will make sure the i2c clock
-> duty cycle is at 50% or close 50% whenever possible.
->=20
-> Fixes: 27bce4 ("i2c: img-scb: Add Imagination Technologies I2C SCB driv=
-er")
-> Signed-off-by: Sifan Naeem <sifan.naeem@imgtec.com>
-> Cc: Stable kernel (v3.19+) <stable@vger.kernel.org>
-> ---
->  drivers/i2c/busses/i2c-img-scb.c |   30 +++++++++++++++++-------------=
-
->  1 file changed, 17 insertions(+), 13 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-=
-img-scb.c
-> index b4f59e1..51a5be8 100644
-> --- a/drivers/i2c/busses/i2c-img-scb.c
-> +++ b/drivers/i2c/busses/i2c-img-scb.c
-> @@ -1178,25 +1178,29 @@ static int img_i2c_init(struct img_i2c *i2c)
->  	    ((bitrate_khz * clk_period) / 2))
->  		int_bitrate++;
-> =20
-> -	/* Setup TCKH value */
-> -	tckh =3D DIV_ROUND_UP(timing.tckh, clk_period);
-> +	/*
-> +	 * Setup clock duty cycle, start with 50% and adjust TCKH and TCKL
-> +	 * values from there if they don't meet minimum timing requirements
-> +	 */
-> +	 tckh =3D int_bitrate / 2;
-> +	 tckl =3D int_bitrate - tckh;
-
-too much indentation here.
-
-Otherwise looks good to me.
-
-Acked-by: James Hogan <james.hogan@imgtec.com>
+That already happens after the call to img_i2c_soft_reset, you've just
+moved it to while the clock is off and the block is in soft reset. So
+are you saying its important for interrupts and the various event bits
+to be clear before taking it out of reset and enabling the clock? TBH
+I'm confused how they could do any harm.
 
 Cheers
 James
 
+>=20
+> Fixes: 27bce4 ("i2c: img-scb: Add Imagination Technologies I2C SCB driv=
+er")
+> Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+> Cc: Stable kernel (v3.19+) <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-img-scb.c |   26 ++++++++++++++------------
+>  1 file changed, 14 insertions(+), 12 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-=
+img-scb.c
+> index 51a5be8..653f9bd 100644
+> --- a/drivers/i2c/busses/i2c-img-scb.c
+> +++ b/drivers/i2c/busses/i2c-img-scb.c
+> @@ -507,8 +507,22 @@ static void img_i2c_soft_reset(struct img_i2c *i2c=
+)
+>  {
+>  	i2c->t_halt =3D false;
+>  	img_i2c_writel(i2c, SCB_CONTROL_REG, 0);
+> +
+> +	/* Disable all interrupts */
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, 0);
+> +
+> +	/* Clear all interrupts */
+> +	img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
+> +
+> +	/* Clear the scb_line_status events */
+> +	img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
+> +
+>  	img_i2c_writel(i2c, SCB_CONTROL_REG,
+>  		       SCB_CONTROL_CLK_ENABLE | SCB_CONTROL_SOFT_RESET);
+> +
+> +	/* Enable interrupts */
+> +	img_i2c_switch_mode(i2c, MODE_INACTIVE);
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+>  }
 > =20
-> -	if (tckh > 0)
-> -		data =3D tckh - 1;
-> -	else
-> -		data =3D 0;
-> +	/* Adjust TCKH and TCKL values */
-> +	data =3D DIV_ROUND_UP(timing.tckl, clk_period);
+>  /* enable or release transaction halt for control of repeated starts *=
+/
+> @@ -1242,18 +1256,6 @@ static int img_i2c_init(struct img_i2c *i2c)
+>  	/* Take module out of soft reset and enable clocks */
+>  	img_i2c_soft_reset(i2c);
 > =20
-> -	img_i2c_writel(i2c, SCB_TIME_TCKH_REG, data);
-> +	if (tckl < data) {
-> +		tckl =3D data;
-> +		tckh =3D int_bitrate - tckl;
-> +	}
+> -	/* Disable all interrupts */
+> -	img_i2c_writel(i2c, SCB_INT_MASK_REG, 0);
+> -
+> -	/* Clear all interrupts */
+> -	img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
+> -
+> -	/* Clear the scb_line_status events */
+> -	img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
+> -
+> -	/* Enable interrupts */
+> -	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+> -
+>  	/* Perform a synchronous sequence to reset the bus */
+>  	ret =3D img_i2c_reset_bus(i2c);
 > =20
-> -	/* Setup TCKL value */
-> -	tckl =3D int_bitrate - tckh;
-> +	if (tckh > 0)
-> +		--tckh;
-> =20
->  	if (tckl > 0)
-> -		data =3D tckl - 1;
-> -	else
-> -		data =3D 0;
-> +		--tckl;
-> =20
-> -	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, data);
-> +	img_i2c_writel(i2c, SCB_TIME_TCKH_REG, tckh);
-> +	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, tckl);
-> =20
->  	/* Setup TSDH value */
->  	tsdh =3D DIV_ROUND_UP(timing.tsdh, clk_period);
 >=20
 
 
---dq2VmBCQgS6WjsIKiX4D3FWimPw0NbsEp
+--1JhKAIduck3F2ubANSNt26VTCanNl9riu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -111,19 +102,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBAgAGBQJVt2cNAAoJEGwLaZPeOHZ6OJ8QAL6h7SkhzWPAJimHJXdnxp3N
-OJp0c4kC7kdH7LkPiOvK3bbnN7/vxhp8QtvK1wGen/svG5rbblsjeVaGuTF/T3+X
-TKLlPIwEkBDyidRtm1KY9NREK2lZJ5os0G9RGDCoHEJReLsEx7+2X5JY3dC6trZu
-J+deAMeogpdJ4GfrkjssiT+iXasXhsXmA/M7G1Pl+llSGBuyxAJJd+FRGFQeiTAN
-d4cb3+O9ZqKJLH77PtXeH0u4iSTB/uINuhI5kxdLft/F+lQTGJWUYN/qLXrEadIL
-qyL97N8CpNQB7yB/+NRNY+zr1e5zmZ2HD8bAC7IWjYg0DvJVAT7uj003djujGjjt
-8YmVwsKASVNWAFVxJKQD8lw2b0nOH/WHFim+5ndE+Y9Lj3smIjRZjftwe5QYYFgk
-dx/4Pb6gbsA+jaT39IfcpyBTbku2DT+HCJCsnRFEOlBqqUlqI73Ii821Phtj1yVL
-tBJE6KTYhXKs0gCr2o3ETzEFHYPgUGr1bz8ICyL4hsydJd2yMO3zRdqPhCi8XXdn
-FIp/IR2UxmAjzvCWGuFe8YLcdVoQrjfYpT2EYDad0KhyJ//8c5a49+QRdtjqlWxS
-ajsKhowb6yRsf0jvmk5kUK6N/nYbNJ1vRxjB+qTBlvCqY81PlR6V+ezV0MvJ3Mv/
-oKpUIIH0j1U4MCdB13t6
-=JE5l
+iQIcBAEBAgAGBQJVt2kQAAoJEGwLaZPeOHZ6lNAQAL2xRvpl3PbUe1aYnZl1RsJ6
+TCOgey+BsdCLDWna4QCVw0OuAAIxCU2v+XYcXVhqwGYsird8T/PSp+7HP53PreWj
++nhiKdtNiaKmbdVsZgMrKFhxSsWGrgxTVlmqyEf2GHEkkjB+2BKzVJTWKKvEpAvh
+8F3EMPNQ01xCHxzy/tY/02W2VjLLcwObZHC5UJV4Q4sMnz2fgkacj0cvUdEmrJU8
+8S9zfOwDSU9wcgjs2OPpehpzPVGWrMOkVD1DTeZ4XurCnbzO/nHvAQrJxsRqu6Vf
+4PwnGTKJ1xLJXIOlWcXmwSXoRk5XxjQ5ftJykLJK7nWWbeCtV4l1Qs6BU5QxeXZo
+xGleJ91sZYfmoAz2G6T9nEIG/NII2l54/mVTD79QYoLLKnbDDOxGokCeS2HdBspy
+e4Sfu55TLAsqF63YfHTxPIn4HI4YBUCoQ3nijO47yMuAj9eheWuFG0Hl40yRMmcG
+FTvOLxTDltm9P5cXQRAJhTkqGfZDS+J6v8XGX1BpQ/bxpbU+jZzovPlbiwg4qRbz
+WtaHykhZe7e0KTMPvAy3l5JaWdiYaY5d1/Pf/TrgsB6Rb5Wvc+y4jGlL+3WMMkYB
+xcf0IBMnAVp/kX8mS9Tdfhzn6v5b1xHi+wGObTKi6q9K84AIkRC7WeDSOmXNR9q/
+siJbdNqRfVN1I/rGRa2T
+=x8cl
 -----END PGP SIGNATURE-----
 
---dq2VmBCQgS6WjsIKiX4D3FWimPw0NbsEp--
+--1JhKAIduck3F2ubANSNt26VTCanNl9riu--
