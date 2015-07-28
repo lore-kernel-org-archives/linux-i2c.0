@@ -1,86 +1,59 @@
-From: Sifan Naeem <Sifan.Naeem@imgtec.com>
-Subject: RE: [PATCH 1/8] i2c: img-scb: enable fencing for all versions of
- the ip
-Date: Tue, 28 Jul 2015 09:26:09 +0000
-Message-ID: <A0E307549471DA4DBAF2DE2DE6CBFB7E4966D862@hhmail02.hh.imgtec.org>
-References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com>
- <1437997641-32575-2-git-send-email-sifan.naeem@imgtec.com>
- <20150727202055.GG18890@jhogan-linux.le.imgtec.org>
+From: Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
+Subject: Re: [PATCH 2/5] i2c: i801: Create iTCO device on newer Intel PCHs
+Date: Tue, 28 Jul 2015 10:34:49 +0100
+Message-ID: <20150728093449.GE2492@codeblueprint.co.uk>
+References: <1438004292-16382-1-git-send-email-matt@codeblueprint.co.uk>
+ <1438004292-16382-3-git-send-email-matt@codeblueprint.co.uk>
+ <55B63B48.2040603@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20150727202055.GG18890@jhogan-linux.le.imgtec.org>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: James Hogan <James.Hogan@imgtec.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Stable kernel (v3.19+)" <stable@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <55B63B48.2040603-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matt Fleming <matt.fleming-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgSmFtZXMsDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFtZXMg
-SG9nYW4NCj4gU2VudDogMjcgSnVseSAyMDE1IDIxOjIxDQo+IFRvOiBTaWZhbiBOYWVlbQ0KPiBD
-YzogV29sZnJhbSBTYW5nOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBTdGFibGUga2VybmVs
-ICh2My4xOSspDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMS84XSBpMmM6IGltZy1zY2I6IGVuYWJs
-ZSBmZW5jaW5nIGZvciBhbGwgdmVyc2lvbnMgb2YgdGhlIGlwDQo+IA0KPiBIaSBTaWZhbiwNCj4g
-DQo+IE9uIE1vbiwgSnVsIDI3LCAyMDE1IGF0IDEyOjQ3OjE0UE0gKzAxMDAsIFNpZmFuIE5hZWVt
-IHdyb3RlOg0KPiA+IFRoZSBjb2RlIHRvIHJlYWQgZnJvbSB0aGUgbWFzdGVyIHJlYWQgZmlmbywg
-YW5kIHdyaXRlIHRvIHRoZSBtYXN0ZXINCj4gPiB3cml0ZSBmaWZvLCBjaGVja3MgYSBiaXQgaW4g
-YW4gU0NCIHJlZ2lzdGVyIGJlZm9yZSBldmVyeSBieXRlIHRvDQo+ID4gZW5zdXJlIHRoYXQgdGhl
-IGZpZm8gaXMgbm90IGZ1bGwgKHdyaXRlIGZpZm8pIG9yIGVtcHR5IChyZWFkIGZpZm8pLg0KPiA+
-IER1ZSB0byBjbG9jayBkb21haW4gY3Jvc3NpbmcgaW5zaWRlIHRoZSBTQ0IgYmxvY2sgdGhlIHVw
-ZGF0ZWQgdmFsdWUgb2YNCj4gPiB0aGlzIGJpdCBpcyBvbmx5IHZpc2libGUgYWZ0ZXIgMiBjeWNs
-ZXMuDQo+ID4NCj4gPiBUaGUgc2NiX3dyX3JkX2ZlbmNlKCkgZnVuY3Rpb24gZG9lcyAyIGR1bW15
-IHdyaXRlcyAodG8gdGhlIHJlYWQtb25seQ0KPiA+IHJldmlzaW9uIHJlZ2lzdGVyKSwgYW5kIGl0
-J3MgY2FsbGVkIGJlZm9yZSByZWFkaW5nIGZyb20gb3Igd3JpdGluZyB0bw0KPiA+IHRoZSBmaWZv
-cyB0byBlbnN1cmUgdGhhdCBzdWJzZXF1ZW50IHJlYWRzIG9mIHRoZSBmaWZvIHN0YXR1cyBiaXRz
-IGRvDQo+ID4gbm90IHJlYWQgc3RhbGUgdmFsdWVzLg0KPiA+DQo+ID4gQXMgdGhlIDIgZHVtbXkg
-d3JpdGVzIGFyZSByZXF1aXJlZCBpbiBhbGwgdmVyc2lvbnMgb2YgdGhlIGlwLCB0aGUNCj4gPiB2
-ZXJzaW9uIGNoZWNrIGlzIGRyb3BwZWQuDQo+IA0KPiBJcyBpdCBhbnRpY2lwYXRlZCB0aGF0IGEg
-ZnV0dXJlIHZlcnNpb24gb2YgdGhlIGhhcmR3YXJlIHdpbGwgcHJvYmFibHkgcmVzb2x2ZQ0KPiB0
-aGUgY2xvY2sgZG9tYWluIGNyb3NzaW5nIGlzc3VlPyBJZiBzbyBmaW5lLCBidXQgaWYgbm90IGl0
-cyBwcm9iYWJseSB3b3J0aA0KPiByZW1vdmluZyBuZWVkX3dyX3JkX2ZlbmNlLg0KPiANClllcywg
-aXQncyBleHBlY3RlZCB0byBiZSBmaXhlZCBpbiB0aGUgZnV0dXJlLCBhbGJlaXQgbm90IGluIHRo
-ZSBuZWFyIGZ1dHVyZS4NCg0KPiA+DQo+ID4gRml4ZXM6IDI3YmNlNCAoImkyYzogaW1nLXNjYjog
-QWRkIEltYWdpbmF0aW9uIFRlY2hub2xvZ2llcyBJMkMgU0NCDQo+ID4gZHJpdmVyIikNCj4gDQo+
-IEkgYmVsaWV2ZSAxMiBkaWdpdHMgb2YgU0hBMSBpcyByZWNvbW1lbmRlZCBub3csIHRvIGF2b2lk
-IGNvbGxpc2lvbnMuIEkgc3VnZ2VzdA0KPiBkb2luZyB0aGlzOg0KPiAkIGdpdCBjb25maWcgLS1n
-bG9iYWwgY29yZS5hYmJyZXYgMTINCj4gDQpTaG91bGQgSSBzZW5kIGEgbmV3IHBhdGNoIHdpdGgg
-MTIgZGlnaXQgU0hBMT8NCg0KPiA+IFNpZ25lZC1vZmYtYnk6IFNpZmFuIE5hZWVtIDxzaWZhbi5u
-YWVlbUBpbWd0ZWMuY29tPg0KPiA+IENjOiBTdGFibGUga2VybmVsICh2My4xOSspIDxzdGFibGVA
-dmdlci5rZXJuZWwub3JnPg0KPiANCj4gVGhhdCdzIGEgZmFpcmx5IG5vbi1jb252ZW50aW9uYWwg
-d2F5IHRvIHNwZWNpZnkgc3RhYmxlIHZlcnNpb25zLiBUaGUNCj4gcmVjb21tZW5kZWQgd2F5IHRv
-IENjIHN0YWJsZSBhY2NvcmRpbmcgdG8NCj4gRG9jdW1lbnRhdGlvbi9zdGFibGVfa2VybmVsX3J1
-bGVzLnR4dCBpcyBtb3JlIGxpa2UgdGhpczoNCj4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3Jn
-PiAjIDMuMTkueC0NCj4gDQoNCkkgZ28gdGhpcyBlcnJvciB3aGVuIGRvaW5nIHRoYXQgd2F5Og0K
-DQooYm9keSkgQWRkaW5nIGNjOiBTaWZhbiBOYWVlbSA8c2lmYW4ubmFlZW1AaW1ndGVjLmNvbT4g
-ZnJvbSBsaW5lICdTaWduZWQtb2ZmLWJ5OiBTaWZhbiBOYWVlbSA8c2lmYW4ubmFlZW1AaW1ndGVj
-LmNvbT4nDQooYm9keSkgQWRkaW5nIGNjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4gIyA0LjEg
-ZnJvbSBsaW5lICdDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgNC4xJw0KVXNlIG9mIHVu
-aW5pdGlhbGl6ZWQgdmFsdWUgJGNjIGluIHN0cmluZyBlcSBhdCAvdXNyL2xpYi9naXQtY29yZS9n
-aXQtc2VuZC1lbWFpbCBsaW5lIDk4My4NClVzZSBvZiB1bmluaXRpYWxpemVkIHZhbHVlICRjYyBp
-biBxdW90ZW1ldGEgYXQgL3Vzci9saWIvZ2l0LWNvcmUvZ2l0LXNlbmQtZW1haWwgbGluZSA5ODMu
-DQpXOiB1bmFibGUgdG8gZXh0cmFjdCBhIHZhbGlkIGFkZHJlc3MgZnJvbTogPHN0YWJsZUB2Z2Vy
-Lmtlcm5lbC5vcmc+ICMgNC4xDQpXOiB1bmFibGUgdG8gZXh0cmFjdCBhIHZhbGlkIGFkZHJlc3Mg
-ZnJvbTogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgNC4xDQoNCj4gUGF0Y2ggbG9va3MgZmlu
-ZSB0aG91Z2gNCj4gDQo+IEFja2VkLWJ5OiBKYW1lcyBIb2dhbiA8amFtZXMuaG9nYW5AaW1ndGVj
-LmNvbT4NCj4gDQpUaGFua3MsDQpTaWZhbg0KDQo+IFRoYW5rcw0KPiBKYW1lcw0KPiANCj4gPiAt
-LS0NCj4gPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbWctc2NiLmMgfCAgICA4ICsrLS0tLS0t
-DQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pDQo+
-ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbWctc2NiLmMNCj4g
-PiBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW1nLXNjYi5jDQo+ID4gaW5kZXggMDBmZmQ2Ni4u
-NWMzYzYxNSAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWltZy1zY2Iu
-Yw0KPiA+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW1nLXNjYi5jDQo+ID4gQEAgLTI3
-OCw4ICsyNzgsNiBAQA0KPiA+ICAjZGVmaW5lIElTUl9DT01QTEVURShlcnIpCShJU1JfQ09NUExF
-VEVfTSB8IChJU1JfU1RBVFVTX00gJg0KPiAoZXJyKSkpDQo+ID4gICNkZWZpbmUgSVNSX0ZBVEFM
-KGVycikJCShJU1JfQ09NUExFVEUoZXJyKSB8IElTUl9GQVRBTF9NKQ0KPiA+DQo+ID4gLSNkZWZp
-bmUgUkVMX1NPQ19JUF9TQ0JfMl8yXzEJMHgwMDAyMDIwMQ0KPiA+IC0NCj4gPiAgZW51bSBpbWdf
-aTJjX21vZGUgew0KPiA+ICAJTU9ERV9JTkFDVElWRSwNCj4gPiAgCU1PREVfUkFXLA0KPiA+IEBA
-IC0xMTIwLDEwICsxMTE4LDggQEAgc3RhdGljIGludCBpbWdfaTJjX2luaXQoc3RydWN0IGltZ19p
-MmMgKmkyYykNCj4gPiAgCQlyZXR1cm4gLUVJTlZBTDsNCj4gPiAgCX0NCj4gPg0KPiA+IC0JaWYg
-KHJldiA9PSBSRUxfU09DX0lQX1NDQl8yXzJfMSkgew0KPiA+IC0JCWkyYy0+bmVlZF93cl9yZF9m
-ZW5jZSA9IHRydWU7DQo+ID4gLQkJZGV2X2luZm8oaTJjLT5hZGFwLmRldi5wYXJlbnQsICJmZW5j
-ZSBxdWlyayBlbmFibGVkIik7DQo+ID4gLQl9DQo+ID4gKwkvKiBGZW5jaW5nIGVuYWJsZWQgYnkg
-ZGVmYXVsdC4gKi8NCj4gPiArCWkyYy0+bmVlZF93cl9yZF9mZW5jZSA9IHRydWU7DQo+ID4NCj4g
-PiAgCWJpdHJhdGVfa2h6ID0gaTJjLT5iaXRyYXRlIC8gMTAwMDsNCj4gPiAgCWNsa19raHogPSBj
-bGtfZ2V0X3JhdGUoaTJjLT5zY2JfY2xrKSAvIDEwMDA7DQo+ID4gLS0NCj4gPiAxLjcuOS41DQo+
-ID4NCg==
+On Mon, 27 Jul, at 07:08:08AM, Guenter Roeck wrote:
+> >@@ -113,6 +114,16 @@
+> >  #define SMBPCICTL	0x004
+> >  #define SMBPCISTS	0x006
+> >  #define SMBHSTCFG	0x040
+> >+#define TCOBASE		0x050
+> >+#define TCOCTL		0x054
+> >+
+> >+#define ACPIBASE		0x040
+> >+#define ACPIBASE_SMI_OFF	0x030
+> >+#define ACPICTRL		0x044
+> >+#define ACPICTRL_EN		BIT(7)
+> 
+> If you use BIT, you should include bitops.h.
+> Not sure if that makes too much sense here, though, without converting
+> the rest of the driver to use BIT as well.
+ 
+OK, I'll just switch to the existing notation used throughout the
+driver rather than using bitops.
+
+> >+static void i801_del_tco(struct i801_priv *priv)
+> >+{
+> >+	if (priv->tco_pdev) {
+> 
+> platform_device_unregister() handles NULL pointers, so this if statement
+> is strictly speaking unnecessary.
+ 
+Good point, I'll remove this check since it makes the code simpler too.
+
+> >+		platform_device_unregister(priv->tco_pdev);
+> >+		priv->tco_pdev = NULL;
+> 
+> Unnecessary; priv is going to be freed right afterwards.
+ 
+I'll drop this.
+
+-- 
+Matt Fleming, Intel Open Source Technology Center
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
