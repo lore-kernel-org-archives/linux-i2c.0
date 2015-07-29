@@ -1,70 +1,45 @@
-From: Sifan Naeem <Sifan.Naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH 4/7] i2c: img-scb: mark transaction as complete when no
- more data to write
-Date: Wed, 29 Jul 2015 14:38:15 +0000
-Message-ID: <A0E307549471DA4DBAF2DE2DE6CBFB7E4966DD48@hhmail02.hh.imgtec.org>
-References: <1437998162-32724-1-git-send-email-sifan.naeem@imgtec.com>
- <1437998162-32724-5-git-send-email-sifan.naeem@imgtec.com>
- <55B8E19A.8010302@imgtec.com>
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] i2c: i801: add support of Host Notify
+Date: Wed, 29 Jul 2015 10:58:13 -0400
+Message-ID: <CAN+gG=FYZGTaPxxVJh0QOSrY3xsBN42j0=ymONxTG=WW56q0Cg@mail.gmail.com>
+References: <1436463052-6944-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1436463052-6944-4-git-send-email-benjamin.tissoires@redhat.com>
+	<20150721212455.GA7565@mail.corp.redhat.com>
+	<20150725181128.3da38c70@endymion.delvare>
+	<CAN+gG=H4ebn6=gLX1aGkQNXYF888CRSvaQnsnuTy9qi2LOeENA@mail.gmail.com>
+	<20150725233807.2c209817@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55B8E19A.8010302-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <20150725233807.2c209817-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: James Hogan <James.Hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi James,
+On Sat, Jul 25, 2015 at 5:38 PM, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
+> On Sat, 25 Jul 2015 12:22:02 -0400, Benjamin Tissoires wrote:
+>> On Sat, Jul 25, 2015 at 12:11 PM, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
+>> > Hi Benjamin,
+>> >
+>> > On Tue, 21 Jul 2015 17:24:55 -0400, Benjamin Tissoires wrote:
+>> >> So please disregard this series, I will send a v4 hopefully soonish.
+>> >
+>> > From v2 directly to v4? Did I miss something?
+>>
+>> I had to send a v3 to amend 1/3. Given that it was a small fix, I only
+>> resent 1/3 and not the whole series.
+>
+> Never received that one, thus my confusion.
 
-> On 27/07/15 12:55, Sifan Naeem wrote:
-> > We can mark the transfer as complete without waiting for the stop bit.
-> > This is important when handling repeated start transfers as we have to
-> > start the next transfer without the stop bit being issued.
-> >
-> > This doesn't affect the older versions of the IP.
-> >
-> > Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-img-scb.c |   15 +++++----------
-> >  1 file changed, 5 insertions(+), 10 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-img-scb.c
-> > b/drivers/i2c/busses/i2c-img-scb.c
-> > index e27c3e0..efad4d7 100644
-> > --- a/drivers/i2c/busses/i2c-img-scb.c
-> > +++ b/drivers/i2c/busses/i2c-img-scb.c
-> > @@ -911,16 +911,11 @@ static unsigned int img_i2c_auto(struct img_i2c
-> *i2c,
-> >  		}
-> >  	} else {
-> >  		if (int_status & INT_FIFO_EMPTY_EMPTYING) {
-> > -			/*
-> > -			 * The write fifo empty indicates that we're in the
-> > -			 * last byte so it's safe to start a new write
-> > -			 * transaction without losing any bytes from the
-> > -			 * previous one.
-> > -			 * see 2.3.7 Repeated Start Transactions.
-> > -			 */
-> > -			if ((int_status & INT_FIFO_EMPTY) &&
-> > -			    i2c->msg.len == 0)
-> > -				return ISR_WAITSTOP;
-> > +			if (i2c->msg.len == 0) {
-> > +				if (i2c->last_msg)
-> > +					return ISR_WAITSTOP;
-> > +				return ISR_COMPLETE(0);
-> > +			}
-> 
-> Again, already happens in img_i2c_isr().
-> 
-Will drop this patch from v2.
+After a second thought, I wonder if you received also the v4. It looks
+fine on my side (you are CC-ed to it), but given that you missed the
+v3, I'd rather be sure you have the v4 on your radar before we forget
+about it.
+Can you check that you have actually received
+http://www.spinics.net/lists/linux-i2c/msg20616.html and the 3 after?
 
-Sifan
-> Cheers
-> James
-> 
-> >  			img_i2c_write_fifo(i2c);
-> >  		}
-> >  	}
-> >
+(the v3 was http://www.spinics.net/lists/linux-i2c/msg20418.html)
+
+Cheers,
+Benjamin
