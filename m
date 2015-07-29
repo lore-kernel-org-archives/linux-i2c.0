@@ -1,147 +1,57 @@
 From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 2/7] i2c: img-scb: support repeated starts on IP v3.3
-Date: Wed, 29 Jul 2015 15:17:59 +0100
-Message-ID: <55B8E097.7010909@imgtec.com>
-References: <1437998162-32724-1-git-send-email-sifan.naeem@imgtec.com> <1437998162-32724-3-git-send-email-sifan.naeem@imgtec.com>
+Subject: Re: [PATCH 3/7] i2c: img-scb: mark transaction as complete when all
+ data is read
+Date: Wed, 29 Jul 2015 15:21:15 +0100
+Message-ID: <55B8E15B.9070002@imgtec.com>
+References: <1437998162-32724-1-git-send-email-sifan.naeem@imgtec.com> <1437998162-32724-4-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
 	protocol="application/pgp-signature";
-	boundary="aH7Mju8gKgrvn54Tq5hLOo4XRWmpTJ2km"
+	boundary="VGxtj1WGCSq5EKt33GrLDJA94CkjVNDVK"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1437998162-32724-3-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1437998162-32724-4-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---aH7Mju8gKgrvn54Tq5hLOo4XRWmpTJ2km
+--VGxtj1WGCSq5EKt33GrLDJA94CkjVNDVK
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: quoted-printable
 
-Hi Sifan,
-
 On 27/07/15 12:55, Sifan Naeem wrote:
-> In version 3.3 of the IP when transaction halt is set, an interrupt
-> will be generated after each byte of a transfer instead of after
-> every transfer but before the stop bit.
-> Due to this behaviour we have to be careful that every time we
-> release the transaction halt we have to re-enable it straight away
-> so that we only process a single byte, not doing so will result in
-> all remaining bytes been processed and a stop bit being issued,
-> which will prevent us having a repeated start.
->=20
-> This change will have no effect on earlier versions of the IP.
-
-Do we still need the img_i2c_transaction_halt() in img_i2c_auto, or the
-i2c->int_enable |=3D INT_SLAVE_EVENT in img_i2c_read/img_i2c_write now if=
-
-we're not bothering to wait until the start bit is detected before
-re-enabling transaction halt?
-
+> We can mark the transfer as complete without waiting for the stop
+> bit. This is important when handling repeated start transfers as
+> we have to start the next transfer without the stop bit being issued.
 >=20
 > Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-img-scb.c |   43 ++++++++++++++++++++++++++++++=
-+-------
->  1 file changed, 35 insertions(+), 8 deletions(-)
+>  drivers/i2c/busses/i2c-img-scb.c |    7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
 >=20
 > diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-=
 img-scb.c
-> index 31cd8c3..24b09fe 100644
+> index 24b09fe..e27c3e0 100644
 > --- a/drivers/i2c/busses/i2c-img-scb.c
 > +++ b/drivers/i2c/busses/i2c-img-scb.c
-> @@ -525,7 +525,17 @@ static void img_i2c_soft_reset(struct img_i2c *i2c=
-)
->  	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
->  }
-> =20
-> -/* enable or release transaction halt for control of repeated starts *=
-/
-> +/*
-> + * Enable or release transaction halt for control of repeated starts.
-> + * In version 3.3 of the IP when transaction halt is set, an interrupt=
+> @@ -903,8 +903,11 @@ static unsigned int img_i2c_auto(struct img_i2c *i=
+2c,
+>  	if (i2c->msg.flags & I2C_M_RD) {
+>  		if (int_status & INT_FIFO_FULL_FILLING) {
+>  			img_i2c_read_fifo(i2c);
+> -			if (i2c->msg.len =3D=3D 0)
+> -				return ISR_WAITSTOP;
+> +			if (i2c->msg.len =3D=3D 0) {
+> +				if (i2c->last_msg)
+> +					return ISR_WAITSTOP;
+> +				return ISR_COMPLETE(0);
 
-> + * will be generated after each byte of a transfer instead of after
-> + * every transfer but before the stop bit.
-> + * Due to this behaviour we have to be careful that every time we
-> + * release the transaction halt we have to re-enable it straight away
-> + * so that we only process a single byte, not doing so will result in
-> + * all remaining bytes been processed and a stop bit being issued,
-> + * which will prevent us having a repeated start.
-> + */
->  static void img_i2c_transaction_halt(struct img_i2c *i2c, bool t_halt)=
-
->  {
->  	u32 val;
-> @@ -594,7 +604,6 @@ static void img_i2c_read(struct img_i2c *i2c)
->  	img_i2c_writel(i2c, SCB_READ_ADDR_REG, i2c->msg.addr);
->  	img_i2c_writel(i2c, SCB_READ_COUNT_REG, i2c->msg.len);
-> =20
-> -	img_i2c_transaction_halt(i2c, false);
->  	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
->  }
-> =20
-> @@ -608,7 +617,6 @@ static void img_i2c_write(struct img_i2c *i2c)
->  	img_i2c_writel(i2c, SCB_WRITE_ADDR_REG, i2c->msg.addr);
->  	img_i2c_writel(i2c, SCB_WRITE_COUNT_REG, i2c->msg.len);
-> =20
-> -	img_i2c_transaction_halt(i2c, false);
->  	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
->  	img_i2c_write_fifo(i2c);
-> =20
-> @@ -1090,12 +1098,31 @@ static int img_i2c_xfer(struct i2c_adapter *ada=
-p, struct i2c_msg *msgs,
->  		i2c->last_msg =3D (i =3D=3D num - 1);
->  		reinit_completion(&i2c->msg_complete);
-> =20
-> -		if (atomic)
-> +		if (atomic) {
->  			img_i2c_atomic_start(i2c);
-> -		else if (msg->flags & I2C_M_RD)
-> -			img_i2c_read(i2c);
-> -		else
-> -			img_i2c_write(i2c);
-> +		} else {
-> +			/*
-> +			 * Enable transaction halt if not the last message in
-> +			 * the queue so that we can control repeated starts.
-> +			 */
-> +			img_i2c_transaction_halt(i2c, !i2c->last_msg);
-> +
-> +			if (msg->flags & I2C_M_RD)
-> +				img_i2c_read(i2c);
-> +			else
-> +				img_i2c_write(i2c);
-> +
-> +			/*
-> +			 * Release and then enable transaction halt, to
-> +			 * allow only a single byte to proceed.
-> +			 * This doesn't have an effect on the initial transfer
-> +			 * but will allow the following transfers to start
-> +			 * processing if the previous transfer was marked as
-> +			 * complete while the i2c block was halted.
-> +			 */
-> +			img_i2c_transaction_halt(i2c, false);
-> +			img_i2c_transaction_halt(i2c, !i2c->last_msg);
-
-Do we have confirmation from the hw guys that no matter how fast these
-two functions execute, the two writes will be sufficient to allow the
-transaction to continue?
-
-Should something also be doing this quick temporary disable of t_halt
-when the interrupt is generated after each byte? I don't see anything
-doing that at the moment?
+That already happens in img_i2c_isr().
 
 Cheers
 James
 
-> +		}
->  		spin_unlock_irqrestore(&i2c->lock, flags);
-> =20
->  		time_left =3D wait_for_completion_timeout(&i2c->msg_complete,
->=20
 
-
---aH7Mju8gKgrvn54Tq5hLOo4XRWmpTJ2km
+--VGxtj1WGCSq5EKt33GrLDJA94CkjVNDVK
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -149,19 +59,19 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBAgAGBQJVuOCXAAoJEGwLaZPeOHZ6OewQALptMdeyeMztgAbs+1yzB/E+
-Uv21e2SsAVnv0A+Qc8Ba3JN9WcVOxskMO7bZMPGMRP0Vu4BKAKJBP0OIX3afLdpj
-psiHb1DKqjBzhNF2i+0g8CN8mlUxJpISpzGDpnBMOPbqjr6YjcCBLTWMh/DraO9A
-VFJK+yK3WyyLEfojNOmI+cJ2uEz23AdNpz0YtYO6mY6wmNll/iFcwh2kfNRfL2ab
-cg+/c15Qsdk6AZz/II6AbDoJbcEkGfZfCanhu5eTl2PAZ5GXjqmjFSl0QCZ2FhlA
-oVGqCVpviCCCKZwyDcAJ0oL/iE0dnllyNwVFHzkZXpCnL+ggjOTQUHcBxdLtHAsz
-BviO6M7MYh1IZuMp4PQJ/fUaUq2zVQ6wqOQfEKm/Vt6kSHDqilxIi4bC3+rH76Or
-7tVH0Bq0qbnE59EkHUSB1BfFyIoFUljoHKYk/nLb8X0f425ZKoS1YdeNP5fMif+0
-FAYS0LeJn7+MkcOmqqFXJtCRYyiD4aOTnfUBDaeQrchFUGaZnzelj3i/OwYFnBpO
-dOwTwLVMoMjPRtorVR3KWlv0LWsaSA5w/zfx70Pr/vzg4nN4oIpS2/bCsXsclxYD
-yUbmXHDNx/kQ2NNxl9AAA/63r1CkdR2YP2R6gaDoA7PwdCShSMFVQ2fcpj+D3+CE
-/YmBkhW6dJh4LSbhWNiN
-=KwDc
+iQIcBAEBAgAGBQJVuOFbAAoJEGwLaZPeOHZ6lPgP/ifF3ARPLmd01o8TytYlobBF
+QPq/8Qzrz75VQQ9Nhw10YgvQGwEN/bSCSopY16nAKqqyJTcTXjA6fQHdrWPl4w6P
+N4EHHz7AiXZP+EWF5qN917JdvGrus6BO1AB9mt9A9oFYbdFjVHEAB7L98gR78aI0
+MJMGSq4oCngSoDL8ZBoieau7pH9BLA72XsY46J6qsSS+OPW8G6ux849vwoSIdu8+
+v0Ihfki/2MUb3L/PcN+CWMpa3RVq9L76Mo2StwLsh/rhd9iSXVDn4/uzX9CCrWjg
+aUUY1iwc629yNzkAGZ9mkbJw/o3Bc2WnmmvnQu89dGZPAZXdq1J4T9x7yzswxxNA
+qWkgKL2+JmN1iKLne6ZIJkGBcWpdGqvBhutytDsD9mExuMIjzcdFh8hGS1aRYR4y
+PHC9GEBB4l9+KUg11fuFmCVt20AxVzn60XbH1RKQqErH5PG0sn14jnnL7NKsVZ01
+7v/GVzya4b6EXYTAW6szmvyQQoYEmSZob09gDm7KTCV4W5s65Z69nBimEIPxpu9D
+ctHE3tYVvQBxqJmoIVlZgwb40bjavCs+tO0/bMaycK6vu496Sx5625rPO1EqYbj5
+bY2RfbHzQktzuZulc0g/Rqqdt2TU/QpiRlLKxJXwEveRxJ+B6l6UzWjH5XgBId6D
+/bJ/bATiP3wVEGTrkg/x
+=9Hof
 -----END PGP SIGNATURE-----
 
---aH7Mju8gKgrvn54Tq5hLOo4XRWmpTJ2km--
+--VGxtj1WGCSq5EKt33GrLDJA94CkjVNDVK--
