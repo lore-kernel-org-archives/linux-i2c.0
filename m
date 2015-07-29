@@ -1,102 +1,53 @@
-From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 5/7] i2c: img-scb: remove fifo EMPTYING interrupts handle
-Date: Wed, 29 Jul 2015 17:01:05 +0100
-Message-ID: <55B8F8C1.8030507@imgtec.com>
-References: <1437998162-32724-1-git-send-email-sifan.naeem@imgtec.com> <1437998162-32724-6-git-send-email-sifan.naeem@imgtec.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] i2c: i801: add support of Host Notify
+Date: Wed, 29 Jul 2015 18:08:03 +0200
+Message-ID: <20150729180803.2cbcd6d5@endymion.delvare>
+References: <1436463052-6944-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1436463052-6944-4-git-send-email-benjamin.tissoires@redhat.com>
+	<20150721212455.GA7565@mail.corp.redhat.com>
+	<20150725181128.3da38c70@endymion.delvare>
+	<CAN+gG=H4ebn6=gLX1aGkQNXYF888CRSvaQnsnuTy9qi2LOeENA@mail.gmail.com>
+	<20150725233807.2c209817@endymion.delvare>
+	<CAN+gG=FYZGTaPxxVJh0QOSrY3xsBN42j0=ymONxTG=WW56q0Cg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="8i7trFtvvtdlU4srrgO2eW9nu2GMi88Pm"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1437998162-32724-6-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <CAN+gG=FYZGTaPxxVJh0QOSrY3xsBN42j0=ymONxTG=WW56q0Cg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---8i7trFtvvtdlU4srrgO2eW9nu2GMi88Pm
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+On Wed, 29 Jul 2015 10:58:13 -0400, Benjamin Tissoires wrote:
+> On Sat, Jul 25, 2015 at 5:38 PM, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
+> > On Sat, 25 Jul 2015 12:22:02 -0400, Benjamin Tissoires wrote:
+> >> On Sat, Jul 25, 2015 at 12:11 PM, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
+> >> > Hi Benjamin,
+> >> >
+> >> > On Tue, 21 Jul 2015 17:24:55 -0400, Benjamin Tissoires wrote:
+> >> >> So please disregard this series, I will send a v4 hopefully soonish.
+> >> >
+> >> > From v2 directly to v4? Did I miss something?
+> >>
+> >> I had to send a v3 to amend 1/3. Given that it was a small fix, I only
+> >> resent 1/3 and not the whole series.
+> >
+> > Never received that one, thus my confusion.
+> 
+> After a second thought, I wonder if you received also the v4. It looks
+> fine on my side (you are CC-ed to it), but given that you missed the
+> v3, I'd rather be sure you have the v4 on your radar before we forget
+> about it.
+> Can you check that you have actually received
+> http://www.spinics.net/lists/linux-i2c/msg20616.html and the 3 after?
+> 
+> (the v3 was http://www.spinics.net/lists/linux-i2c/msg20418.html)
 
-On 27/07/15 12:56, Sifan Naeem wrote:
-> This interrupt could have been useful for repeated start transfers
-> as the current transfer could be marked as complete while it's
-> processing the final byte of the transfer.
-> But having to use the transaction halt interrupt to safely control
-> repeated start transfers, means handling of the fifo EMPTYING
-> interrupts is no longer necessary.
->=20
-> Handling this interrupt along with Transaction Halt interrupt can
-> cause erratic behaviour.
+I did receive v4, and also v3. The problem is on my side, the email
+address change at suse confused my mail filters and the mails were not
+where I was looking for them.
 
-I'd be interested to know the cause of the erratic behaviour. It feels a
-little like we're just masking a real bug somewhere.
-
-Cheers
-James
-
->=20
-> Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-img-scb.c |    6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-=
-img-scb.c
-> index efad4d7..10141a9 100644
-> --- a/drivers/i2c/busses/i2c-img-scb.c
-> +++ b/drivers/i2c/busses/i2c-img-scb.c
-> @@ -154,7 +154,6 @@
->  #define INT_TIMING			BIT(18)
-> =20
->  #define INT_FIFO_FULL_FILLING	(INT_FIFO_FULL  | INT_FIFO_FILLING)
-> -#define INT_FIFO_EMPTY_EMPTYING	(INT_FIFO_EMPTY | INT_FIFO_EMPTYING)
-> =20
->  /* Level interrupts need clearing after handling instead of before */
->  #define INT_LEVEL			0x01e00
-> @@ -176,8 +175,7 @@
->  					 INT_WRITE_ACK_ERR    | \
->  					 INT_FIFO_FULL        | \
->  					 INT_FIFO_FILLING     | \
-> -					 INT_FIFO_EMPTY       | \
-> -					 INT_FIFO_EMPTYING)
-> +					 INT_FIFO_EMPTY)
-> =20
->  #define INT_ENABLE_MASK_WAITSTOP	(INT_SLAVE_EVENT      | \
->  					 INT_ADDR_ACK_ERR     | \
-> @@ -910,7 +908,7 @@ static unsigned int img_i2c_auto(struct img_i2c *i2=
-c,
->  			}
->  		}
->  	} else {
-> -		if (int_status & INT_FIFO_EMPTY_EMPTYING) {
-> +		if (int_status & INT_FIFO_EMPTY) {
->  			if (i2c->msg.len =3D=3D 0) {
->  				if (i2c->last_msg)
->  					return ISR_WAITSTOP;
->=20
-
-
---8i7trFtvvtdlU4srrgO2eW9nu2GMi88Pm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJVuPjBAAoJEGwLaZPeOHZ6rnkQALoi+44L3tSez1aOzFdCqop7
-HK2io0bb08ifYt0ocVGGXmjfSGo7nlbax2KpGM+jAOmN3jX/raBrEAZz0bjoWSAm
-f1OSL9S3CBO5nnMOmsCGqBc4UfgxcfCPec7COM2uOZHsWzjSvsSdvLRykaoj8fUE
-Tj6rlMMLmxTLm/uLlUVSbrtE0iklqZvr5pISWnE13UCvlejjdT1s1b2GyQDZUbPj
-rrHBXq6jltS9OC7NX3MKGg67uFoN/AKq4wb1efkKEHiFlwFfptbTcdu5qipSWdGt
-RJX1bdrZz+XfTv/Nt9hqzCCPvJ/JdVPRkoWQ+aOqZx/WyeCjdPdBfzwoWdcE62lR
-eAq5yLeeDfnSjkL0LJLbqyHbo44RvozsLrzwoosYvsqf99zI+0GVODA2mUV7tAeC
-Kbp2uzvEcFlxc7BjuyPLDdnkfqD08TNGu/GWPYdI/aRmTiUMZoppcR1XtKqUPQkv
-o4Pw4p+4OgSLMY4Mfa0a1zw8Gjxn7SpdMxk+MaEgg86Ng4hEyWRNIej5YhPO2OIS
-s6rnr36/TcG37l+MurQJGZtt2LULGnAViZKBFfQwJh3gqwpPOg/L+1IhunR4Cr/I
-UVTp0P61iySEmZd1vJSEHnMtsm3oekrKvjdBvDEGyd76rvBtaQBsT8w7AozVt7p0
-q2PTgUrSslC0q08/HJAf
-=8psK
------END PGP SIGNATURE-----
-
---8i7trFtvvtdlU4srrgO2eW9nu2GMi88Pm--
+-- 
+Jean Delvare
+SUSE L3 Support
