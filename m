@@ -1,80 +1,85 @@
-From: Sifan Naeem <Sifan.Naeem@imgtec.com>
-Subject: RE: [PATCH 8/8] i2c: img-scb: verify support for requested bit rate
-Date: Wed, 29 Jul 2015 13:34:17 +0000
-Message-ID: <A0E307549471DA4DBAF2DE2DE6CBFB7E4966DC9E@hhmail02.hh.imgtec.org>
+From: Sifan Naeem <Sifan.Naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH 7/8] i2c: img-scb: improve transaction complete handle
+Date: Wed, 29 Jul 2015 13:35:33 +0000
+Message-ID: <A0E307549471DA4DBAF2DE2DE6CBFB7E4966DCAA@hhmail02.hh.imgtec.org>
 References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com>
- <1437997641-32575-9-git-send-email-sifan.naeem@imgtec.com>
- <55B8C0B9.1070108@imgtec.com>
+ <1437997641-32575-8-git-send-email-sifan.naeem@imgtec.com>
+ <55B8C56A.7050102@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <55B8C0B9.1070108@imgtec.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <55B8C56A.7050102-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: James Hogan <James.Hogan@imgtec.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "Stable kernel (v3.19+)" <stable@vger.kernel.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: James Hogan <James.Hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "Stable kernel (v3.19+)" <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Hi James,
 
+> -----Original Message-----
+> From: James Hogan
+> Sent: 29 July 2015 13:22
+> To: Sifan Naeem; Wolfram Sang; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: Stable kernel (v3.19+)
+> Subject: Re: [PATCH 7/8] i2c: img-scb: improve transaction complete handle
+> 
+> Hi Sifan,
+> 
 > On 27/07/15 12:47, Sifan Naeem wrote:
-> > The requested bit rate can be outside the range supported by the driver.
-> > The maximum bit rate this driver supports at the moment is 400Khz.
-> >
-> > Return -EINVAL if the bit rate is larger than 400khz.
-> >
-> > Maximum speed supported by the driver can be increased to 1Mhz by
-> > adding support for "fast plus mode" in the future.
+> > Clear line status and all interrupts when transaction is complete, as
+> > not doing so might leave unserviced interrupts that might be
+> 
+> Do you have a specific example of when this might happen, and whether it
+> could occur after img_i2c_complete_transaction()?
+> 
+> I'm just wondering if it would be better to do this before starting every new
+> message instead of after handling the last irq that is of interest (maybe
+> somewhere in img_i2c_xfer).
+> 
+Moved to happen before each transfer.
+
+> > handled in the context of a new transfer. Soft reset if the the
+> > transfer failed to bring back the i2c block to a reset state.
 > >
 > > Fixes: 27bce4 ("i2c: img-scb: Add Imagination Technologies I2C SCB
 > > driver")
-> > Signed-off-by: Sifan Naeem <sifan.naeem@imgtec.com>
-> > Cc: Stable kernel (v3.19+) <stable@vger.kernel.org>
+> > Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+> > Cc: Stable kernel (v3.19+) <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 > > ---
-> >  drivers/i2c/busses/i2c-img-scb.c |    6 ++++++
-> >  1 file changed, 6 insertions(+)
+> >  drivers/i2c/busses/i2c-img-scb.c |    5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
 > >
 > > diff --git a/drivers/i2c/busses/i2c-img-scb.c
 > > b/drivers/i2c/busses/i2c-img-scb.c
-> > index bbfee33..07a039c 100644
+> > index 341130e..bbfee33 100644
 > > --- a/drivers/i2c/busses/i2c-img-scb.c
 > > +++ b/drivers/i2c/busses/i2c-img-scb.c
-> > @@ -1157,6 +1157,12 @@ static int img_i2c_init(struct img_i2c *i2c)
-> >  			break;
-> >  		}
-> >  	}
-> > +	if (i2c->bitrate > timing.max_bitrate) {
-> > +		dev_err(i2c->adap.dev.parent,
-> > +			"requested bitrate (%d) is higher than the max
-> bitrate supported (%d)\n",
-> > +			 i2c->bitrate, timing.max_bitrate);
-> > +		return -EINVAL;
-> > +	}
+> > @@ -626,7 +626,10 @@ static void img_i2c_complete_transaction(struct
+> img_i2c *i2c, int status)
+> >  	img_i2c_switch_mode(i2c, MODE_INACTIVE);
+> >  	if (status) {
+> >  		i2c->msg_status = status;
+> > -		img_i2c_transaction_halt(i2c, false);
+> > +		img_i2c_soft_reset(i2c);
 > 
-> The timing is only chosen if i2c->bitrate <= timing.max_bitrate, so you'd only
-> hit this case if none of the timings were valid, in which case timing ==
-> timings[0], so when you print timing.max_bitrate it won't be the max bitrate
-> supported, it'll be the max bitrate of the first timing in the array.
+> This seems like overkill. This will only happen in a couple of cases:
+> (1) an automatic mode ack error, which is completely recoverable.
+> (2) a fatal error (clock low timeout), which switches mode to MODE_FATAL
+> anyway, preventing further transactions.
 > 
-> Anyway, I think the original intent of the DT provided clock-frequency was
-> more as a maximum bitrate. This was used with TZ1090 as a way to limit the
-> bitrate of the bus if some devices on the bus don't support the full speed,
-> e.g. we had an HDMI chip that would get confused at 400khz.
-> 
-> So would it be acceptable to change it to just clamp the bitrate to the
-> maximum rate supported, before the bitrate_khz calculation, such that if you
-> specified 1MHz in DT, it could safely fall back to 400KHz until the driver
-> supports the faster mode?
-> 
-I'll rework this, when the requested bit rate is larger than the maximum supported, set the bitrate down to the maximum supported before bitrate_khz is calculated. 
+Removed. 
 
 Thanks,
 Sifan
 > Cheers
 > James
 > 
-> >
-> >  	/* Find the prescale that would give us that inc (approx delay = 0) */
-> >  	prescale = SCB_OPT_INC * clk_khz / (256 * 16 * bitrate_khz);
+> > +	} else {
+> > +		img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
+> > +		img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
+> >  	}
+> >  	complete(&i2c->msg_complete);
+> >  }
 > >
