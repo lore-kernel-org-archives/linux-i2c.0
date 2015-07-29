@@ -1,231 +1,98 @@
-From: Matt Fleming <matt@codeblueprint.co.uk>
-Subject: [PATCH v2 2/3] i2c: i801: Create iTCO device on newer Intel PCHs
-Date: Wed, 29 Jul 2015 13:10:43 +0100
-Message-ID: <1438171844-24861-3-git-send-email-matt@codeblueprint.co.uk>
-References: <1438171844-24861-1-git-send-email-matt@codeblueprint.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1438171844-24861-1-git-send-email-matt@codeblueprint.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Matt Fleming <matt.fleming@intel.com>
+From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 7/8] i2c: img-scb: improve transaction complete handle
+Date: Wed, 29 Jul 2015 13:22:02 +0100
+Message-ID: <55B8C56A.7050102@imgtec.com>
+References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com> <1437997641-32575-8-git-send-email-sifan.naeem@imgtec.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="38110gI8hgluvErkHAfFjgdAk8DTg7BRO"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1437997641-32575-8-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "Stable kernel (v3.19+)" <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+--38110gI8hgluvErkHAfFjgdAk8DTg7BRO
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog resources
-have been moved to reside under the i801 SMBus host controller whereas
-previously they were under the LPC device.
+Hi Sifan,
 
-In order to support the iTCO watchdog on newer PCHs we need to create the
-platform device here in the SMBus driver and pass all known resources using
-platform data.
+On 27/07/15 12:47, Sifan Naeem wrote:
+> Clear line status and all interrupts when transaction is complete,
+> as not doing so might leave unserviced interrupts that might be
 
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: <linux-i2c@vger.kernel.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Matt Fleming <matt.fleming@intel.com>
----
+Do you have a specific example of when this might happen, and whether it
+could occur after img_i2c_complete_transaction()?
 
-v2:
- - Don't use bitops but same scheme used already
- - Delete superfluous NULL-checks for platform_device_unregister()
+I'm just wondering if it would be better to do this before starting
+every new message instead of after handling the last irq that is of
+interest (maybe somewhere in img_i2c_xfer).
 
- drivers/i2c/busses/i2c-i801.c | 120 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 119 insertions(+), 1 deletion(-)
+> handled in the context of a new transfer. Soft reset if the the
+> transfer failed to bring back the i2c block to a reset state.
+>=20
+> Fixes: 27bce4 ("i2c: img-scb: Add Imagination Technologies I2C SCB driv=
+er")
+> Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+> Cc: Stable kernel (v3.19+) <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-img-scb.c |    5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-=
+img-scb.c
+> index 341130e..bbfee33 100644
+> --- a/drivers/i2c/busses/i2c-img-scb.c
+> +++ b/drivers/i2c/busses/i2c-img-scb.c
+> @@ -626,7 +626,10 @@ static void img_i2c_complete_transaction(struct im=
+g_i2c *i2c, int status)
+>  	img_i2c_switch_mode(i2c, MODE_INACTIVE);
+>  	if (status) {
+>  		i2c->msg_status =3D status;
+> -		img_i2c_transaction_halt(i2c, false);
+> +		img_i2c_soft_reset(i2c);
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 5ecbb3fdc27e..eaef9bc9d88c 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -88,12 +88,13 @@
- #include <linux/slab.h>
- #include <linux/wait.h>
- #include <linux/err.h>
-+#include <linux/platform_device.h>
-+#include <linux/platform_data/itco_wdt.h>
- 
- #if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
- 		defined CONFIG_DMI
- #include <linux/gpio.h>
- #include <linux/i2c-mux-gpio.h>
--#include <linux/platform_device.h>
- #endif
- 
- /* I801 SMBus address offsets */
-@@ -113,6 +114,16 @@
- #define SMBPCICTL	0x004
- #define SMBPCISTS	0x006
- #define SMBHSTCFG	0x040
-+#define TCOBASE		0x050
-+#define TCOCTL		0x054
-+
-+#define ACPIBASE		0x040
-+#define ACPIBASE_SMI_OFF	0x030
-+#define ACPICTRL		0x044
-+#define ACPICTRL_EN		0x080
-+
-+#define SBREG_BAR		0x10
-+#define SBREG_SMBCTRL		0xc6000c
- 
- /* Host status bits for SMBPCISTS */
- #define SMBPCISTS_INTS		0x08
-@@ -125,6 +136,9 @@
- #define SMBHSTCFG_SMB_SMI_EN	2
- #define SMBHSTCFG_I2C_EN	4
- 
-+/* TCO configuration bits for TCOCTL */
-+#define TCOCTL_EN		0x0100
-+
- /* Auxiliary control register bits, ICH4+ only */
- #define SMBAUXCTL_CRC		1
- #define SMBAUXCTL_E32B		2
-@@ -221,6 +235,7 @@ struct i801_priv {
- 	const struct i801_mux_config *mux_drvdata;
- 	struct platform_device *mux_pdev;
- #endif
-+	struct platform_device *tco_pdev;
- };
- 
- #define FEATURE_SMBUS_PEC	(1 << 0)
-@@ -230,6 +245,7 @@ struct i801_priv {
- #define FEATURE_IRQ		(1 << 4)
- /* Not really a feature, but it's convenient to handle it as such */
- #define FEATURE_IDF		(1 << 15)
-+#define FEATURE_TCO		(1 << 16)
- 
- static const char *i801_feature_names[] = {
- 	"SMBus PEC",
-@@ -1132,6 +1148,95 @@ static inline unsigned int i801_get_adapter_class(struct i801_priv *priv)
- }
- #endif
- 
-+static const struct itco_wdt_platform_data tco_platform_data = {
-+	.name = "Intel PCH",
-+	.version = 4,
-+};
-+
-+static DEFINE_SPINLOCK(p2sb_spinlock);
-+
-+static void i801_add_tco(struct i801_priv *priv)
-+{
-+	struct pci_dev *pci_dev = priv->pci_dev;
-+	struct resource tco_res[3], *res;
-+	struct platform_device *pdev;
-+	unsigned int devfn;
-+	u32 tco_base, tco_ctl;
-+	u32 base_addr, ctrl_val;
-+	u64 base64_addr;
-+
-+	if (!(priv->features & FEATURE_TCO))
-+		return;
-+
-+	pci_read_config_dword(pci_dev, TCOBASE, &tco_base);
-+	pci_read_config_dword(pci_dev, TCOCTL, &tco_ctl);
-+	if (!(tco_ctl & TCOCTL_EN))
-+		return;
-+
-+	memset(tco_res, 0, sizeof(tco_res));
-+
-+	res = &tco_res[ICH_RES_IO_TCO];
-+	res->start = tco_base & ~1;
-+	res->end = res->start + 32 - 1;
-+	res->flags = IORESOURCE_IO;
-+
-+	/*
-+	 * Power Management registers.
-+	 */
-+	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
-+	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr);
-+
-+	res = &tco_res[ICH_RES_IO_SMI];
-+	res->start = (base_addr & ~1) + ACPIBASE_SMI_OFF;
-+	res->end = res->start + 3;
-+	res->flags = IORESOURCE_IO;
-+
-+	/*
-+	 * Enable the ACPI I/O space.
-+	 */
-+	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val);
-+	ctrl_val |= ACPICTRL_EN;
-+	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val);
-+
-+	/*
-+	 * We must access the NO_REBOOT bit over the Primary to Sideband
-+	 * bridge (P2SB). The BIOS prevents the P2SB device from being
-+	 * enumerated by the PCI subsystem, so we need to unhide/hide it
-+	 * to lookup the P2SB BAR.
-+	 */
-+	spin_lock(&p2sb_spinlock);
-+
-+	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 1);
-+
-+	/* Unhide the P2SB device */
-+	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x0);
-+
-+	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR, &base_addr);
-+	base64_addr = base_addr & 0xfffffff0;
-+
-+	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR + 0x4, &base_addr);
-+	base64_addr |= (u64)base_addr << 32;
-+
-+	/* Hide the P2SB device */
-+	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x1);
-+	spin_unlock(&p2sb_spinlock);
-+
-+	res = &tco_res[ICH_RES_MEM_OFF];
-+	res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL;
-+	res->end = res->start + 3;
-+	res->flags = IORESOURCE_MEM;
-+
-+	pdev = platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
-+						 tco_res, 3, &tco_platform_data,
-+						 sizeof(tco_platform_data));
-+	if (IS_ERR(pdev)) {
-+		dev_warn(&pci_dev->dev, "failed to create iTCO device\n");
-+		return;
-+	}
-+
-+	priv->tco_pdev = pdev;
-+}
-+
- static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	unsigned char temp;
-@@ -1149,6 +1254,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- 	priv->pci_dev = dev;
- 	switch (dev->device) {
-+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
-+		priv->features |= FEATURE_I2C_BLOCK_READ;
-+		priv->features |= FEATURE_IRQ;
-+		priv->features |= FEATURE_SMBUS_PEC;
-+		priv->features |= FEATURE_BLOCK_BUFFER;
-+		priv->features |= FEATURE_TCO;
-+		break;
-+
- 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
- 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1:
- 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2:
-@@ -1265,6 +1379,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	dev_info(&dev->dev, "SMBus using %s\n",
- 		 priv->features & FEATURE_IRQ ? "PCI interrupt" : "polling");
- 
-+	i801_add_tco(priv);
-+
- 	/* set up the sysfs linkage to our parent device */
- 	priv->adapter.dev.parent = &dev->dev;
- 
-@@ -1296,6 +1412,8 @@ static void i801_remove(struct pci_dev *dev)
- 	i2c_del_adapter(&priv->adapter);
- 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
- 
-+	platform_device_unregister(priv->tco_pdev);
-+
- 	/*
- 	 * do not call pci_disable_device(dev) since it can cause hard hangs on
- 	 * some systems during power-off (eg. Fujitsu-Siemens Lifebook E8010)
--- 
-2.1.0
+This seems like overkill. This will only happen in a couple of cases:
+(1) an automatic mode ack error, which is completely recoverable.
+(2) a fatal error (clock low timeout), which switches mode to MODE_FATAL
+anyway, preventing further transactions.
+
+Cheers
+James
+
+> +	} else {
+> +		img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
+> +		img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
+>  	}
+>  	complete(&i2c->msg_complete);
+>  }
+>=20
+
+
+--38110gI8hgluvErkHAfFjgdAk8DTg7BRO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBAgAGBQJVuMVqAAoJEGwLaZPeOHZ6tIoP/2BoGTkFCESmoKV0I9Gq7OnC
+4doQiR6h4RumBvBM99ZPOb2N3l3HE++/T0ii9bMXevyF+WMMgbloSn2q7iVnay5E
+slrjBlZgY13FoACQApNF1xBPObD9GgQMzn0XDzu7o2uLT2hSjbQCJOTI4cXymLhU
+ei4Y8EnGguFqMzvufd0IsSVDQZ33JtPFqCZYVmhWXVA1V6ANBKvpc7SHfW4SY6vg
+p5Mtpzz1k9ia3R/SoBbdYunPeyqyx7o9bK0uTc4ZDUj9JrGJKAMFYvYP/MWf1qx1
+FOSq1b3PMONf04EbBFRq52Cx9tCli7R9M1y8iwPlIWwABP6kczOuwGDWaeutYYag
+LtlNlE6LPwOUx+V4ZhLExkmB1Kp84TIOZ/72qIZrnyrCHrZVJ0z/0DtHNx+Ya6DI
+notZkiytZl6waPFkJuarQBOAYLF929eNSanXgmM2n3Y2Ul0PcmDM9zMOBUpQBvjv
+ZFb3K331qzHMpb0VWt+BwObYUOi8gXZLbVO9WpXer7Dj8eGUXmCGMoVUU6XFT4f8
+YjCsg14jHjDGlVNXM3199QzJi2+Ws6B+9tCbr/j+HG95PxWfimC7wEQgTi8TzgqA
+bSwMMGNGSBQPua88lZ8hxoyj5Qp/5G4fP17mExqbXnw22q8gqCR8cifKtTLiiiAN
+b57FJ9xbO/GE0nHf1NA0
+=EJfV
+-----END PGP SIGNATURE-----
+
+--38110gI8hgluvErkHAfFjgdAk8DTg7BRO--
