@@ -1,86 +1,80 @@
 From: Sifan Naeem <Sifan.Naeem@imgtec.com>
-Subject: RE: [PATCH 6/8] i2c: img-scb: remove start bit detected status
- after handling
-Date: Wed, 29 Jul 2015 12:49:04 +0000
-Message-ID: <A0E307549471DA4DBAF2DE2DE6CBFB7E4966DA5C@hhmail02.hh.imgtec.org>
+Subject: RE: [PATCH 8/8] i2c: img-scb: verify support for requested bit rate
+Date: Wed, 29 Jul 2015 13:34:17 +0000
+Message-ID: <A0E307549471DA4DBAF2DE2DE6CBFB7E4966DC9E@hhmail02.hh.imgtec.org>
 References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com>
- <1437997641-32575-7-git-send-email-sifan.naeem@imgtec.com>
- <55B7893D.4020409@imgtec.com>
+ <1437997641-32575-9-git-send-email-sifan.naeem@imgtec.com>
+ <55B8C0B9.1070108@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <55B7893D.4020409@imgtec.com>
+In-Reply-To: <55B8C0B9.1070108@imgtec.com>
 Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 To: James Hogan <James.Hogan@imgtec.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 Cc: "Stable kernel (v3.19+)" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi James,
 
-
-> -----Original Message-----
-> From: James Hogan
-> Sent: 28 July 2015 14:53
-> To: Sifan Naeem; Wolfram Sang; linux-i2c@vger.kernel.org
-> Cc: Stable kernel (v3.19+)
-> Subject: Re: [PATCH 6/8] i2c: img-scb: remove start bit detected status after
-> handling
-> 
 > On 27/07/15 12:47, Sifan Naeem wrote:
-> > Remove start bit detected status after it is handled, doing so will
-> > prevent this condition being hit for every interrupt on a particular
-> > transfer.
+> > The requested bit rate can be outside the range supported by the driver.
+> > The maximum bit rate this driver supports at the moment is 400Khz.
+> >
+> > Return -EINVAL if the bit rate is larger than 400khz.
+> >
+> > Maximum speed supported by the driver can be increased to 1Mhz by
+> > adding support for "fast plus mode" in the future.
 > >
 > > Fixes: 27bce4 ("i2c: img-scb: Add Imagination Technologies I2C SCB
 > > driver")
 > > Signed-off-by: Sifan Naeem <sifan.naeem@imgtec.com>
 > > Cc: Stable kernel (v3.19+) <stable@vger.kernel.org>
 > > ---
-> >  drivers/i2c/busses/i2c-img-scb.c |   16 ++++++++++++----
-> >  1 file changed, 12 insertions(+), 4 deletions(-)
+> >  drivers/i2c/busses/i2c-img-scb.c |    6 ++++++
+> >  1 file changed, 6 insertions(+)
 > >
 > > diff --git a/drivers/i2c/busses/i2c-img-scb.c
 > > b/drivers/i2c/busses/i2c-img-scb.c
-> > index 653f9bd..341130e 100644
+> > index bbfee33..07a039c 100644
 > > --- a/drivers/i2c/busses/i2c-img-scb.c
 > > +++ b/drivers/i2c/busses/i2c-img-scb.c
-> > @@ -871,10 +871,18 @@ static unsigned int img_i2c_auto(struct img_i2c
-> *i2c,
+> > @@ -1157,6 +1157,12 @@ static int img_i2c_init(struct img_i2c *i2c)
+> >  			break;
+> >  		}
 > >  	}
-> >
-> >  	/* Enable transaction halt on start bit */
-> > -	if (!i2c->last_msg && i2c->line_status & LINESTAT_START_BIT_DET) {
+> > +	if (i2c->bitrate > timing.max_bitrate) {
+> > +		dev_err(i2c->adap.dev.parent,
+> > +			"requested bitrate (%d) is higher than the max
+> bitrate supported (%d)\n",
+> > +			 i2c->bitrate, timing.max_bitrate);
+> > +		return -EINVAL;
+> > +	}
 > 
-> i2c->line_status accumulates the line status bits that have been seen
-> with each interrupt. If we're only interested in that bit from the current
-> interrupt, should it just be referring to line_status (the argument to
-> img_i2c_auto) instead of i2c->line_status?
+> The timing is only chosen if i2c->bitrate <= timing.max_bitrate, so you'd only
+> hit this case if none of the timings were valid, in which case timing ==
+> timings[0], so when you print timing.max_bitrate it won't be the max bitrate
+> supported, it'll be the max bitrate of the first timing in the array.
 > 
-Yes, I can't think of why we cannot use line_status from the argument.
+> Anyway, I think the original intent of the DT provided clock-frequency was
+> more as a maximum bitrate. This was used with TZ1090 as a way to limit the
+> bitrate of the bus if some devices on the bus don't support the full speed,
+> e.g. we had an HDMI chip that would get confused at 400khz.
+> 
+> So would it be acceptable to change it to just clamp the bitrate to the
+> maximum rate supported, before the bitrate_khz calculation, such that if you
+> specified 1MHz in DT, it could safely fall back to 400KHz until the driver
+> supports the faster mode?
+> 
+I'll rework this, when the requested bit rate is larger than the maximum supported, set the bitrate down to the maximum supported before bitrate_khz is calculated. 
 
 Thanks,
 Sifan
-
 > Cheers
 > James
 > 
-> > -		img_i2c_transaction_halt(i2c, true);
-> > -		/* we're no longer interested in the slave event */
-> > -		i2c->int_enable &= ~INT_SLAVE_EVENT;
-> > +	if (i2c->line_status & LINESTAT_START_BIT_DET) {
-> > +		if (!i2c->last_msg) {
-> > +			img_i2c_transaction_halt(i2c, true);
-> > +			/* we're no longer interested in the slave event */
-> > +			i2c->int_enable &= ~INT_SLAVE_EVENT;
-> > +		}
-> > +		/*
-> > +		 * Remove start bit detected status after it is handled,
-> > +		 * doing so will prevent this condition being hit for
-> > +		 * every interrupt on a particular transfer.
-> > +		 */
-> > +		i2c->line_status &= ~LINESTAT_START_BIT_DET;
-> >  	}
 > >
-> >  	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
+> >  	/* Find the prescale that would give us that inc (approx delay = 0) */
+> >  	prescale = SCB_OPT_INC * clk_khz / (256 * 16 * bitrate_khz);
 > >
