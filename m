@@ -1,55 +1,44 @@
-From: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH] [trivial] i2c: Fix typo in i2c-bfin-twi.c
-Date: Wed, 29 Jul 2015 03:01:57 +0000
-Message-ID: <B168F8A49F4BCF4C84FD23DA5F6363EE6828B45B@NWD2MBX5.ad.analog.com>
-References: <1438081883-23883-1-git-send-email-standby24x7@gmail.com>
+From: Jan =?ISO-8859-1?Q?L=FCbbe?= <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: omap: fix bus recovery setup
+Date: Wed, 29 Jul 2015 12:27:30 +0200
+Message-ID: <1438165650.20986.2.camel@pengutronix.de>
+References: <1436366127-24756-1-git-send-email-jlu@pengutronix.de>
+	 <20150714111004.GB1517@katana> <55A4FC19.4040709@ti.com>
+	 <20150714121207.GI1517@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1438081883-23883-1-git-send-email-standby24x7-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <20150714121207.GI1517@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Masanari Iida <standby24x7-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Acked-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Di, 2015-07-14 at 14:12 +0200, Wolfram Sang wrote:
+> On Tue, Jul 14, 2015 at 03:10:01PM +0300, Grygorii Strashko wrote:
+> > Hi Wolfram,
+> > 
+> > On 07/14/2015 02:10 PM, Wolfram Sang wrote:
+> > > On Wed, Jul 08, 2015 at 04:35:27PM +0200, Jan Luebbe wrote:
+> > >> At least on the AM335x, enabling OMAP_I2C_SYSTEST_ST_EN is not enough to
+> > > 
+> > > Felipe: it seems you did not need this; is this AM335x specific?
+> > 
+> > We need it (Felipe's reply can be delayed).
+> 
+> So, how did it work for him?
+> 
+> > It's not AM335x specific. TMODE has to be configured for all OMAP4+ SoCs too.
+> 
+> Okay, thanks for the stepping in!
 
->-----Original Message-----
->From: Masanari Iida [mailto:standby24x7-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]
->Sent: Tuesday, July 28, 2015 7:11 PM
->To: trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; Zhang, Sonic; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
->bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org
->Cc: Masanari Iida
->Subject: [PATCH] [trivial] i2c: Fix typo in i2c-bfin-twi.c
->
->This patch fix some typos found in a printk message and MODULE_DESCRIPTION.
->
->Signed-off-by: Masanari Iida <standby24x7-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->---
-> drivers/i2c/busses/i2c-bfin-twi.c | 4 ++--
-> 1 file changed, 2 insertions(+), 2 deletions(-)
->
->diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
->index af162b4..025686d 100644
->--- a/drivers/i2c/busses/i2c-bfin-twi.c
->+++ b/drivers/i2c/busses/i2c-bfin-twi.c
->@@ -692,7 +692,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
->
-> 	platform_set_drvdata(pdev, iface);
->
->-	dev_info(&pdev->dev, "Blackfin BF5xx on-chip I2C TWI Contoller, "
->+	dev_info(&pdev->dev, "Blackfin BF5xx on-chip I2C TWI Controller, "
-> 		"regs_base@%p\n", iface->regs_base);
->
-> 	return 0;
->@@ -735,6 +735,6 @@ subsys_initcall(i2c_bfin_twi_init);
-> module_exit(i2c_bfin_twi_exit);
->
-> MODULE_AUTHOR("Bryan Wu, Sonic Zhang"); -MODULE_DESCRIPTION("Blackfin BF5xx on-chip I2C TWI Contoller
->Driver");
->+MODULE_DESCRIPTION("Blackfin BF5xx on-chip I2C TWI Controller Driver");
-> MODULE_LICENSE("GPL");
-> MODULE_ALIAS("platform:i2c-bfin-twi");
->--
->2.5.0
+Wolfram, will you pick this as-is?
+
+Regards,
+Jan
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
