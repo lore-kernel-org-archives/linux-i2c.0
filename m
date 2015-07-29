@@ -1,107 +1,231 @@
-From: James Hogan <james.hogan@imgtec.com>
-Subject: Re: [PATCH 8/8] i2c: img-scb: verify support for requested bit rate
-Date: Wed, 29 Jul 2015 13:02:01 +0100
-Message-ID: <55B8C0B9.1070108@imgtec.com>
-References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com> <1437997641-32575-9-git-send-email-sifan.naeem@imgtec.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="ilWHSTI11Manu76D6EhhKv3gOetbcHTPw"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1437997641-32575-9-git-send-email-sifan.naeem@imgtec.com>
-Sender: stable-owner@vger.kernel.org
-To: Sifan Naeem <sifan.naeem@imgtec.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: "Stable kernel (v3.19+)" <stable@vger.kernel.org>
+From: Matt Fleming <matt@codeblueprint.co.uk>
+Subject: [PATCH v2 2/3] i2c: i801: Create iTCO device on newer Intel PCHs
+Date: Wed, 29 Jul 2015 13:10:43 +0100
+Message-ID: <1438171844-24861-3-git-send-email-matt@codeblueprint.co.uk>
+References: <1438171844-24861-1-git-send-email-matt@codeblueprint.co.uk>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1438171844-24861-1-git-send-email-matt@codeblueprint.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Matt Fleming <matt.fleming@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
---ilWHSTI11Manu76D6EhhKv3gOetbcHTPw
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On 27/07/15 12:47, Sifan Naeem wrote:
-> The requested bit rate can be outside the range supported by the driver=
-=2E
-> The maximum bit rate this driver supports at the moment is 400Khz.
->=20
-> Return -EINVAL if the bit rate is larger than 400khz.
->=20
-> Maximum speed supported by the driver can be increased to 1Mhz by
-> adding support for "fast plus mode" in the future.
->=20
-> Fixes: 27bce4 ("i2c: img-scb: Add Imagination Technologies I2C SCB driv=
-er")
-> Signed-off-by: Sifan Naeem <sifan.naeem@imgtec.com>
-> Cc: Stable kernel (v3.19+) <stable@vger.kernel.org>
-> ---
->  drivers/i2c/busses/i2c-img-scb.c |    6 ++++++
->  1 file changed, 6 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-=
-img-scb.c
-> index bbfee33..07a039c 100644
-> --- a/drivers/i2c/busses/i2c-img-scb.c
-> +++ b/drivers/i2c/busses/i2c-img-scb.c
-> @@ -1157,6 +1157,12 @@ static int img_i2c_init(struct img_i2c *i2c)
->  			break;
->  		}
->  	}
-> +	if (i2c->bitrate > timing.max_bitrate) {
-> +		dev_err(i2c->adap.dev.parent,
-> +			"requested bitrate (%d) is higher than the max bitrate supported (%=
-d)\n",
-> +			 i2c->bitrate, timing.max_bitrate);
-> +		return -EINVAL;
-> +	}
+Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog resources
+have been moved to reside under the i801 SMBus host controller whereas
+previously they were under the LPC device.
 
-The timing is only chosen if i2c->bitrate <=3D timing.max_bitrate, so
-you'd only hit this case if none of the timings were valid, in which
-case timing =3D=3D timings[0], so when you print timing.max_bitrate it wo=
-n't
-be the max bitrate supported, it'll be the max bitrate of the first
-timing in the array.
+In order to support the iTCO watchdog on newer PCHs we need to create the
+platform device here in the SMBus driver and pass all known resources using
+platform data.
 
-Anyway, I think the original intent of the DT provided clock-frequency
-was more as a maximum bitrate. This was used with TZ1090 as a way to
-limit the bitrate of the bus if some devices on the bus don't support
-the full speed, e.g. we had an HDMI chip that would get confused at 400kh=
-z.
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: <linux-i2c@vger.kernel.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Matt Fleming <matt.fleming@intel.com>
+---
 
-So would it be acceptable to change it to just clamp the bitrate to the
-maximum rate supported, before the bitrate_khz calculation, such that if
-you specified 1MHz in DT, it could safely fall back to 400KHz until the
-driver supports the faster mode?
+v2:
+ - Don't use bitops but same scheme used already
+ - Delete superfluous NULL-checks for platform_device_unregister()
 
-Cheers
-James
+ drivers/i2c/busses/i2c-i801.c | 120 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 119 insertions(+), 1 deletion(-)
 
-> =20
->  	/* Find the prescale that would give us that inc (approx delay =3D 0)=
- */
->  	prescale =3D SCB_OPT_INC * clk_khz / (256 * 16 * bitrate_khz);
->=20
-
-
---ilWHSTI11Manu76D6EhhKv3gOetbcHTPw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJVuMC5AAoJEGwLaZPeOHZ6tLoP/j1XockqwwxufB2t8mC3XIpu
-fpeZed3RDuIPNZTF7RSF1kuqh1BM5bHs+QKFyNKgGI5IMRvi/8b6MybhiAL0beUa
-E4bJbygeoOIIDkWUVLUB9se3S1LhcgMxVVS/6eOLPIg7s+CryCUADoPDxbIdBSzP
-LTIpUkzJ9OPjwYT9x1R7ByM1iBPqwxQ4bRIblv2cd0DiqT/5mWa8jFBX4gP4sTc5
-xTW2hAl4zk526vtcH/ieruaaagJ3KpREtWR2wi06X/5PYQfdvp4g9p/dZ2yaF399
-roWOp8RH0dm8c/JgmSSFFTazBxE0RYRtF8lgmzVNQFzZK+psQVLink4ahOgoHkyc
-PNqel36XM1a0wwcIfWnFIwsRab/pyRYWfVr56IroxuNa0V6VLvNs66xe/j4ELzgy
-piBmM+v4ws972cm+ojfq0EA4T0YFdlaeAI+QFNao2MgvpD3EZ9FDe6gYyUlPPAGj
-HwKRryNJeiAY7gEs9KD53hAtG1VuvydNSUe3fUvdj8pzw7kASfXZlHoRQ7aIwtAq
-yIhvK5fVXdMrktE/dBuZSc2GaSJgV5ywe7f8dpkz7Jp9y7TbBKp6TAMGdwOY8wcL
-1TzxNnsLloPtMUFSXqtzL27ewZ+yICYHI2+3lgD9QnZAeMAFKEsYhH4rKnoXl3oJ
-FiVCtYrQYb5+Py2NMEEd
-=J7nA
------END PGP SIGNATURE-----
-
---ilWHSTI11Manu76D6EhhKv3gOetbcHTPw--
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 5ecbb3fdc27e..eaef9bc9d88c 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -88,12 +88,13 @@
+ #include <linux/slab.h>
+ #include <linux/wait.h>
+ #include <linux/err.h>
++#include <linux/platform_device.h>
++#include <linux/platform_data/itco_wdt.h>
+ 
+ #if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
+ 		defined CONFIG_DMI
+ #include <linux/gpio.h>
+ #include <linux/i2c-mux-gpio.h>
+-#include <linux/platform_device.h>
+ #endif
+ 
+ /* I801 SMBus address offsets */
+@@ -113,6 +114,16 @@
+ #define SMBPCICTL	0x004
+ #define SMBPCISTS	0x006
+ #define SMBHSTCFG	0x040
++#define TCOBASE		0x050
++#define TCOCTL		0x054
++
++#define ACPIBASE		0x040
++#define ACPIBASE_SMI_OFF	0x030
++#define ACPICTRL		0x044
++#define ACPICTRL_EN		0x080
++
++#define SBREG_BAR		0x10
++#define SBREG_SMBCTRL		0xc6000c
+ 
+ /* Host status bits for SMBPCISTS */
+ #define SMBPCISTS_INTS		0x08
+@@ -125,6 +136,9 @@
+ #define SMBHSTCFG_SMB_SMI_EN	2
+ #define SMBHSTCFG_I2C_EN	4
+ 
++/* TCO configuration bits for TCOCTL */
++#define TCOCTL_EN		0x0100
++
+ /* Auxiliary control register bits, ICH4+ only */
+ #define SMBAUXCTL_CRC		1
+ #define SMBAUXCTL_E32B		2
+@@ -221,6 +235,7 @@ struct i801_priv {
+ 	const struct i801_mux_config *mux_drvdata;
+ 	struct platform_device *mux_pdev;
+ #endif
++	struct platform_device *tco_pdev;
+ };
+ 
+ #define FEATURE_SMBUS_PEC	(1 << 0)
+@@ -230,6 +245,7 @@ struct i801_priv {
+ #define FEATURE_IRQ		(1 << 4)
+ /* Not really a feature, but it's convenient to handle it as such */
+ #define FEATURE_IDF		(1 << 15)
++#define FEATURE_TCO		(1 << 16)
+ 
+ static const char *i801_feature_names[] = {
+ 	"SMBus PEC",
+@@ -1132,6 +1148,95 @@ static inline unsigned int i801_get_adapter_class(struct i801_priv *priv)
+ }
+ #endif
+ 
++static const struct itco_wdt_platform_data tco_platform_data = {
++	.name = "Intel PCH",
++	.version = 4,
++};
++
++static DEFINE_SPINLOCK(p2sb_spinlock);
++
++static void i801_add_tco(struct i801_priv *priv)
++{
++	struct pci_dev *pci_dev = priv->pci_dev;
++	struct resource tco_res[3], *res;
++	struct platform_device *pdev;
++	unsigned int devfn;
++	u32 tco_base, tco_ctl;
++	u32 base_addr, ctrl_val;
++	u64 base64_addr;
++
++	if (!(priv->features & FEATURE_TCO))
++		return;
++
++	pci_read_config_dword(pci_dev, TCOBASE, &tco_base);
++	pci_read_config_dword(pci_dev, TCOCTL, &tco_ctl);
++	if (!(tco_ctl & TCOCTL_EN))
++		return;
++
++	memset(tco_res, 0, sizeof(tco_res));
++
++	res = &tco_res[ICH_RES_IO_TCO];
++	res->start = tco_base & ~1;
++	res->end = res->start + 32 - 1;
++	res->flags = IORESOURCE_IO;
++
++	/*
++	 * Power Management registers.
++	 */
++	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
++	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr);
++
++	res = &tco_res[ICH_RES_IO_SMI];
++	res->start = (base_addr & ~1) + ACPIBASE_SMI_OFF;
++	res->end = res->start + 3;
++	res->flags = IORESOURCE_IO;
++
++	/*
++	 * Enable the ACPI I/O space.
++	 */
++	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val);
++	ctrl_val |= ACPICTRL_EN;
++	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val);
++
++	/*
++	 * We must access the NO_REBOOT bit over the Primary to Sideband
++	 * bridge (P2SB). The BIOS prevents the P2SB device from being
++	 * enumerated by the PCI subsystem, so we need to unhide/hide it
++	 * to lookup the P2SB BAR.
++	 */
++	spin_lock(&p2sb_spinlock);
++
++	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 1);
++
++	/* Unhide the P2SB device */
++	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x0);
++
++	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR, &base_addr);
++	base64_addr = base_addr & 0xfffffff0;
++
++	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR + 0x4, &base_addr);
++	base64_addr |= (u64)base_addr << 32;
++
++	/* Hide the P2SB device */
++	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x1);
++	spin_unlock(&p2sb_spinlock);
++
++	res = &tco_res[ICH_RES_MEM_OFF];
++	res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL;
++	res->end = res->start + 3;
++	res->flags = IORESOURCE_MEM;
++
++	pdev = platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
++						 tco_res, 3, &tco_platform_data,
++						 sizeof(tco_platform_data));
++	if (IS_ERR(pdev)) {
++		dev_warn(&pci_dev->dev, "failed to create iTCO device\n");
++		return;
++	}
++
++	priv->tco_pdev = pdev;
++}
++
+ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	unsigned char temp;
+@@ -1149,6 +1254,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 
+ 	priv->pci_dev = dev;
+ 	switch (dev->device) {
++	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
++	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
++		priv->features |= FEATURE_I2C_BLOCK_READ;
++		priv->features |= FEATURE_IRQ;
++		priv->features |= FEATURE_SMBUS_PEC;
++		priv->features |= FEATURE_BLOCK_BUFFER;
++		priv->features |= FEATURE_TCO;
++		break;
++
+ 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
+ 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1:
+ 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2:
+@@ -1265,6 +1379,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	dev_info(&dev->dev, "SMBus using %s\n",
+ 		 priv->features & FEATURE_IRQ ? "PCI interrupt" : "polling");
+ 
++	i801_add_tco(priv);
++
+ 	/* set up the sysfs linkage to our parent device */
+ 	priv->adapter.dev.parent = &dev->dev;
+ 
+@@ -1296,6 +1412,8 @@ static void i801_remove(struct pci_dev *dev)
+ 	i2c_del_adapter(&priv->adapter);
+ 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
+ 
++	platform_device_unregister(priv->tco_pdev);
++
+ 	/*
+ 	 * do not call pci_disable_device(dev) since it can cause hard hangs on
+ 	 * some systems during power-off (eg. Fujitsu-Siemens Lifebook E8010)
+-- 
+2.1.0
