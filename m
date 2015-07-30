@@ -1,38 +1,51 @@
-From: Jiang Liu <jiang.liu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: Regression in v4.2-rc1 caused by hierarchical irqdomain changes
-Date: Thu, 30 Jul 2015 12:08:49 +0800
-Message-ID: <55B9A351.1060702@linux.intel.com>
-References: <20150727152107.GA3571@codeblueprint.co.uk>
- <55B65DD8.9020002@linux.intel.com>
- <20150727211502.GA2492@codeblueprint.co.uk>
- <alpine.DEB.2.11.1507292245000.3825@nanos>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH 0/3] i2c: uniphier: add two I2C controller drivers for
+ UniPhier SoC platform
+Date: Thu, 30 Jul 2015 17:12:19 +0900
+Message-ID: <1438243942-26401-1-git-send-email-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.DEB.2.11.1507292245000.3825@nanos>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "H. Peter Anvin" <hpa-YMNOUZJC4hwAvxtiuMwx3w@public.gmane.org>, Ingo Molnar <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Baruch Siach <baruch@tkos.co.il>, Wolfram Sang <wsa@the-dreams.de>, Andrew Bresticker <abrestic@chromium.org>, Sachin Kamat <sachin.kamat@samsung.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, David Box <david.e.box@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Xudong Chen <xudong.chen@mediatek.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Subhendu Sekhar Behera <sbehera@broadcom.com>, Wei Yan <sledge.yanwei@huawei.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Zhangfei Gao <zhangfei.gao@linaro.org>, Laurentiu Palcu <laurentiu.palcu@intel.com>, devicetree@vger.kernel.org, Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Ray Jui <rjui@broadcom.com>, Beniamino Galvani <b.galvani@gmail.com>, Rob
 List-Id: linux-i2c@vger.kernel.org
 
-On 2015/7/30 5:03, Thomas Gleixner wrote:
-> On Mon, 27 Jul 2015, Matt Fleming wrote:
->> [BAD]
->>   3:          1          0          0          0  IR-IO-APIC   3-edge    
->>   6:          0          0          0          0  IR-IO-APIC   6-edge      dw_dmac
->>   7:         15          1          0          0  IR-IO-APIC   7-edge      INT3432:00, INT3433:00
-> 
-> [GOOD]
->>   3:         16         17         49         20  IR-IO-APIC-fasteoi   AudioDSP, dw_dmac
->>   6:          0          0          0          0  IR-IO-APIC-fasteoi   dw_dmac
->>   7:       2662       3072      12307       5419  IR-IO-APIC-fasteoi   INT3432:00, INT3433:00
-> 
-> So the old code uses fasteoi while the new one uses edge.
-> 
-> Jiang????
-Sorry for the slow response.
-We have reproduced this regression on Surface Pro 3, but are still
-trying to figure out the root cause.
-Thanks!
-Gerry
+
+This series adds two I2C controller drivers.
+(they are completely different IPs.)
+
+The first one is a very simple FIFO-less I2C controller,
+which is used on some older UniPhier SoCs.
+
+The other one is higher-performance I2C controller with TX/RX FIFO,
+used on newer UniPhier SoCs.
+
+
+
+Masahiro Yamada (3):
+  i2c: uniphier: add UniPhier FIFO-less I2C driver
+  i2c: uniphier_f: add UniPhier FIFO-builtin I2C driver
+  i2c: uniphier: add bindings for UniPhier I2C controllers
+
+ .../devicetree/bindings/i2c/i2c-uniphier.txt       |  46 ++
+ drivers/i2c/busses/Kconfig                         |  16 +
+ drivers/i2c/busses/Makefile                        |   2 +
+ drivers/i2c/busses/i2c-uniphier-f.c                | 589 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-uniphier.c                  | 446 ++++++++++++++++
+ 5 files changed, 1099 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-uniphier.txt
+ create mode 100644 drivers/i2c/busses/i2c-uniphier-f.c
+ create mode 100644 drivers/i2c/busses/i2c-uniphier.c
+
+-- 
+1.9.1
