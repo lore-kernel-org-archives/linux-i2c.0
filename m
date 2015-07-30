@@ -1,521 +1,178 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 1/3] i2c: uniphier: add UniPhier FIFO-less I2C driver
-Date: Thu, 30 Jul 2015 17:12:20 +0900
-Message-ID: <1438243942-26401-2-git-send-email-yamada.masahiro@socionext.com>
-References: <1438243942-26401-1-git-send-email-yamada.masahiro@socionext.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1438243942-26401-1-git-send-email-yamada.masahiro@socionext.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: Laurentiu Palcu <laurentiu.palcu@intel.com>, Xudong Chen <xudong.chen@mediatek.com>, Baruch Siach <baruch@tkos.co.il>, Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Andrew Bresticker <abrestic@chromium.org>, Lee Jones <lee.jones@linaro.org>, Max Schwarz <max.schwarz@online.de>, linux-kernel@vger.kernel.org, Ray Jui <rjui@broadcom.com>, Sachin Kamat <sachin.kamat@samsung.com>, Wei Yan <sledge.yanwei@huawei.com>, Anders Berg <anders.berg@avagotech.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kamal Dasu <kdasu.kdev@gmail.com>, David Box <david.e.box@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-arm-kernel@lists.infradead.org
+From: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+Subject: [PATCH 00/27] Export I2C and OF module aliases in missing drivers
+Date: Thu, 30 Jul 2015 18:18:25 +0200
+Message-ID: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Takashi Iwai <tiwai-IBi9RG/b67k@public.gmane.org>, Liam Girdwood <lgirdw>
 List-Id: linux-i2c@vger.kernel.org
 
-Add support for on-chip I2C controller used on old UniPhier SoCs
-such as PH1-LD4, PH1-sLD8, etc..  This adapter is so simple that
-it has no FIFO in it.
+Hello,
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+Short version:
 
- drivers/i2c/busses/Kconfig        |   8 +
- drivers/i2c/busses/Makefile       |   1 +
- drivers/i2c/busses/i2c-uniphier.c | 446 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 455 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-uniphier.c
+This series add the missing MODULE_DEVICE_TABLE() for OF and I2C tables
+to export that information so modules have the correct aliases built-in
+and autoloading works correctly.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 577d58d..7073a19 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -885,6 +885,14 @@ config I2C_TEGRA
- 	  If you say yes to this option, support will be included for the
- 	  I2C controller embedded in NVIDIA Tegra SOCs
- 
-+config I2C_UNIPHIER
-+	tristate "UniPhier FIFO-less I2C controller"
-+	depends on ARCH_UNIPHIER
-+	help
-+	  If you say yes to this option, support will be included for
-+	  the UniPhier FIFO-less I2C interface embedded in PH1-LD4, PH1-sLD8,
-+	  or older UniPhier SoCs.
-+
- config I2C_VERSATILE
- 	tristate "ARM Versatile/Realview I2C bus support"
- 	depends on ARCH_VERSATILE || ARCH_REALVIEW || ARCH_VEXPRESS
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index e5f537c..e89969c 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -85,6 +85,7 @@ obj-$(CONFIG_I2C_ST)		+= i2c-st.o
- obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
- obj-$(CONFIG_I2C_SUN6I_P2WI)	+= i2c-sun6i-p2wi.o
- obj-$(CONFIG_I2C_TEGRA)		+= i2c-tegra.o
-+obj-$(CONFIG_I2C_UNIPHIER)	+= i2c-uniphier.o
- obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
- obj-$(CONFIG_I2C_WMT)		+= i2c-wmt.o
- obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
-diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-new file mode 100644
-index 0000000..bd9877f
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-uniphier.c
-@@ -0,0 +1,446 @@
-+/*
-+ * Copyright (C) 2015 Masahiro Yamada <yamada.masahiro@socionext.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+
-+#define UNIPHIER_I2C_DTRM	0x00	/* TX register */
-+#define     UNIPHIER_I2C_DTRM_IRQEN	BIT(11)	/* enable interrupt */
-+#define     UNIPHIER_I2C_DTRM_STA	BIT(10)	/* start condition */
-+#define     UNIPHIER_I2C_DTRM_STO	BIT(9)	/* stop condition */
-+#define     UNIPHIER_I2C_DTRM_NACK	BIT(8)	/* do not return ACK */
-+#define     UNIPHIER_I2C_DTRM_RD	BIT(0)	/* read transaction */
-+#define UNIPHIER_I2C_DREC	0x04	/* RX register */
-+#define     UNIPHIER_I2C_DREC_MST	BIT(14)	/* 1 = master, 0 = slave */
-+#define     UNIPHIER_I2C_DREC_TX	BIT(13)	/* 1 = transmit, 0 = receive */
-+#define     UNIPHIER_I2C_DREC_STS	BIT(12)	/* stop condition detected */
-+#define     UNIPHIER_I2C_DREC_LRB	BIT(11)	/* no ACK */
-+#define     UNIPHIER_I2C_DREC_LAB	BIT(9)	/* arbitration lost */
-+#define     UNIPHIER_I2C_DREC_BBN	BIT(8)	/* bus not busy */
-+#define UNIPHIER_I2C_MYAD	0x08	/* slave address */
-+#define UNIPHIER_I2C_CLK	0x0c	/* clock frequency control */
-+#define UNIPHIER_I2C_BRST	0x10	/* bus reset */
-+#define     UNIPHIER_I2C_BRST_FOEN	BIT(1)	/* normal operation */
-+#define     UNIPHIER_I2C_BRST_RSCL	BIT(0)	/* release SCL */
-+#define UNIPHIER_I2C_HOLD	0x14	/* hold time control */
-+#define UNIPHIER_I2C_BSTS	0x18	/* bus status monitor */
-+#define     UNIPHIER_I2C_BSTS_SDA	BIT(1)	/* readback of SDA line */
-+#define     UNIPHIER_I2C_BSTS_SCL	BIT(0)	/* readback of SCL line */
-+#define UNIPHIER_I2C_NOISE	0x1c	/* noise filter control */
-+#define UNIPHIER_I2C_SETUP	0x20	/* setup time control */
-+
-+#define UNIPHIER_I2C_DEFAULT_SPEED	100000
-+#define UNIPHIER_I2C_MAX_SPEED		400000
-+
-+struct uniphier_i2c_priv {
-+	struct completion comp;
-+	struct i2c_adapter adap;
-+	void __iomem *membase;
-+	struct clk *clk;
-+	unsigned int busy_cnt;
-+};
-+
-+static irqreturn_t uniphier_i2c_interrupt(int irq, void *dev_id)
-+{
-+	struct uniphier_i2c_priv *priv = dev_id;
-+
-+	/*
-+	 * This hardware uses edge triggered interrupt.  Do not touch the
-+	 * hardware registers in this handler to make sure to catch the next
-+	 * interrupt edge.  Just send a complete signal and return.
-+	 */
-+	complete(&priv->comp);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int uniphier_i2c_xfer_byte(struct i2c_adapter *adap, u32 txdata,
-+				  u32 *rxdatap)
-+{
-+	struct uniphier_i2c_priv *priv = i2c_get_adapdata(adap);
-+	unsigned long time_left;
-+	u32 rxdata;
-+
-+	reinit_completion(&priv->comp);
-+
-+	txdata |= UNIPHIER_I2C_DTRM_IRQEN;
-+	dev_dbg(&adap->dev, "write data: 0x%04x\n", txdata);
-+	writel(txdata, priv->membase + UNIPHIER_I2C_DTRM);
-+
-+	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
-+	if (unlikely(!time_left)) {
-+		dev_err(&adap->dev, "transaction timeout\n");
-+		return -ETIMEDOUT;
-+	}
-+
-+	rxdata = readl(priv->membase + UNIPHIER_I2C_DREC);
-+	dev_dbg(&adap->dev, "read data: 0x%04x\n", rxdata);
-+
-+	if (rxdatap)
-+		*rxdatap = rxdata;
-+
-+	return 0;
-+}
-+
-+static int uniphier_i2c_send_byte(struct i2c_adapter *adap, u32 txdata)
-+{
-+	u32 rxdata;
-+	int ret;
-+
-+	ret = uniphier_i2c_xfer_byte(adap, txdata, &rxdata);
-+	if (ret)
-+		return ret;
-+
-+	if (unlikely(rxdata & UNIPHIER_I2C_DREC_LAB)) {
-+		dev_dbg(&adap->dev, "arbitration lost\n");
-+		return -EAGAIN;
-+	}
-+	if (unlikely(rxdata & UNIPHIER_I2C_DREC_LRB)) {
-+		dev_dbg(&adap->dev, "could not get ACK\n");
-+		return -ENXIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int uniphier_i2c_tx(struct i2c_adapter *adap, u16 addr, u16 len,
-+			   const u8 *buf)
-+{
-+	int ret;
-+
-+	dev_dbg(&adap->dev, "start condition\n");
-+	ret = uniphier_i2c_send_byte(adap, addr << 1 |
-+				     UNIPHIER_I2C_DTRM_STA |
-+				     UNIPHIER_I2C_DTRM_NACK);
-+	if (ret)
-+		return ret;
-+
-+	while (len--) {
-+		ret = uniphier_i2c_send_byte(adap,
-+					     UNIPHIER_I2C_DTRM_NACK | *buf++);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int uniphier_i2c_rx(struct i2c_adapter *adap, u16 addr, u16 len,
-+			   u8 *buf)
-+{
-+	int ret;
-+
-+	dev_dbg(&adap->dev, "start condition\n");
-+	ret = uniphier_i2c_send_byte(adap, addr << 1 |
-+				     UNIPHIER_I2C_DTRM_STA |
-+				     UNIPHIER_I2C_DTRM_NACK |
-+				     UNIPHIER_I2C_DTRM_RD);
-+	if (ret)
-+		return ret;
-+
-+	while (len--) {
-+		u32 rxdata;
-+
-+		ret = uniphier_i2c_xfer_byte(adap,
-+					     len ? 0 : UNIPHIER_I2C_DTRM_NACK,
-+					     &rxdata);
-+		if (ret)
-+			return ret;
-+		*buf++ = rxdata;
-+	}
-+
-+	return 0;
-+}
-+
-+static int uniphier_i2c_stop(struct i2c_adapter *adap)
-+{
-+	dev_dbg(&adap->dev, "stop condition\n");
-+	return uniphier_i2c_send_byte(adap, UNIPHIER_I2C_DTRM_STO |
-+				      UNIPHIER_I2C_DTRM_NACK);
-+}
-+
-+static int uniphier_i2c_master_xfer_one(struct i2c_adapter *adap,
-+					struct i2c_msg *msg, bool stop)
-+{
-+	bool is_read = msg->flags & I2C_M_RD;
-+	bool recovery = false;
-+	int ret;
-+
-+	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
-+		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
-+
-+	if (is_read)
-+		ret = uniphier_i2c_rx(adap, msg->addr, msg->len, msg->buf);
-+	else
-+		ret = uniphier_i2c_tx(adap, msg->addr, msg->len, msg->buf);
-+
-+	if (ret == -EAGAIN) /* could not acquire bus. bail out without STOP */
-+		return ret;
-+
-+	if (ret == -ETIMEDOUT) {
-+		/* This error is fatal.  Needs recovery. */
-+		stop = false;
-+		recovery = true;
-+	}
-+
-+	if (stop) {
-+		int ret2 = uniphier_i2c_stop(adap);
-+
-+		if (ret2) {
-+			/* Failed to issue STOP.  The bus needs recovery. */
-+			recovery = true;
-+			ret = ret ?: ret2;
-+		}
-+	}
-+
-+	if (recovery)
-+		i2c_recover_bus(adap);
-+
-+	return ret;
-+}
-+
-+static int uniphier_i2c_check_bus_busy(struct i2c_adapter *adap)
-+{
-+	struct uniphier_i2c_priv *priv = i2c_get_adapdata(adap);
-+
-+	if (!(readl(priv->membase + UNIPHIER_I2C_DREC) &
-+						UNIPHIER_I2C_DREC_BBN)) {
-+		if (priv->busy_cnt++ > 3) {
-+			/*
-+			 * If bus busy continues too long, it is probably
-+			 * in a wrong state.  Try bus recovery.
-+			 */
-+			i2c_recover_bus(adap);
-+			priv->busy_cnt = 0;
-+		}
-+
-+		return -EAGAIN;
-+	}
-+
-+	priv->busy_cnt = 0;
-+	return 0;
-+}
-+
-+static int uniphier_i2c_master_xfer(struct i2c_adapter *adap,
-+				    struct i2c_msg *msgs, int num)
-+{
-+	struct i2c_msg *msg, *emsg = msgs + num;
-+	int ret;
-+
-+	ret = uniphier_i2c_check_bus_busy(adap);
-+	if (ret)
-+		return ret;
-+
-+	for (msg = msgs; msg < emsg; msg++) {
-+		/* If next message is read, skip the stop condition */
-+		bool stop = !(msg + 1 < emsg && msg[1].flags & I2C_M_RD);
-+		/* but, force it if I2C_M_STOP is set */
-+		if (msg->flags & I2C_M_STOP)
-+			stop = true;
-+
-+		ret = uniphier_i2c_master_xfer_one(adap, msg, stop);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return num;
-+}
-+
-+static u32 uniphier_i2c_functionality(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C;
-+}
-+
-+static const struct i2c_algorithm uniphier_i2c_algo = {
-+	.master_xfer = uniphier_i2c_master_xfer,
-+	.functionality = uniphier_i2c_functionality,
-+};
-+
-+static void uniphier_i2c_reset(struct uniphier_i2c_priv *priv, bool reset_on)
-+{
-+	u32 val = UNIPHIER_I2C_BRST_RSCL;
-+
-+	val |= reset_on ? 0 : UNIPHIER_I2C_BRST_FOEN;
-+	writel(val, priv->membase + UNIPHIER_I2C_BRST);
-+}
-+
-+static int uniphier_i2c_get_scl(struct i2c_adapter *adap)
-+{
-+	struct uniphier_i2c_priv *priv = i2c_get_adapdata(adap);
-+
-+	return !!(readl(priv->membase + UNIPHIER_I2C_BSTS) &
-+							UNIPHIER_I2C_BSTS_SCL);
-+}
-+
-+static void uniphier_i2c_set_scl(struct i2c_adapter *adap, int val)
-+{
-+	struct uniphier_i2c_priv *priv = i2c_get_adapdata(adap);
-+
-+	writel(val ? UNIPHIER_I2C_BRST_RSCL : 0,
-+	       priv->membase + UNIPHIER_I2C_BRST);
-+}
-+
-+static int uniphier_i2c_get_sda(struct i2c_adapter *adap)
-+{
-+	struct uniphier_i2c_priv *priv = i2c_get_adapdata(adap);
-+
-+	return !!(readl(priv->membase + UNIPHIER_I2C_BSTS) &
-+							UNIPHIER_I2C_BSTS_SDA);
-+}
-+
-+static void uniphier_i2c_unprepare_recovery(struct i2c_adapter *adap)
-+{
-+	uniphier_i2c_reset(i2c_get_adapdata(adap), false);
-+}
-+
-+static struct i2c_bus_recovery_info uniphier_i2c_bus_recovery_info = {
-+	.recover_bus = i2c_generic_scl_recovery,
-+	.get_scl = uniphier_i2c_get_scl,
-+	.set_scl = uniphier_i2c_set_scl,
-+	.get_sda = uniphier_i2c_get_sda,
-+	.unprepare_recovery = uniphier_i2c_unprepare_recovery,
-+};
-+
-+static int uniphier_i2c_clk_init(struct device *dev,
-+				 struct uniphier_i2c_priv *priv)
-+{
-+	struct device_node *np = dev->of_node;
-+	unsigned long clk_rate;
-+	u32 bus_speed;
-+	int ret;
-+
-+	if (of_property_read_u32(np, "clock-frequency", &bus_speed))
-+		bus_speed = UNIPHIER_I2C_DEFAULT_SPEED;
-+
-+	if (bus_speed > UNIPHIER_I2C_MAX_SPEED)
-+		bus_speed = UNIPHIER_I2C_MAX_SPEED;
-+
-+	/* Get input clk rate through clk driver */
-+	priv->clk = devm_clk_get(dev, NULL);
-+	if (IS_ERR(priv->clk)) {
-+		dev_err(dev, "failed to get clock\n");
-+		return PTR_ERR(priv->clk);
-+	}
-+
-+	ret = clk_prepare_enable(priv->clk);
-+	if (ret)
-+		return ret;
-+
-+	clk_rate = clk_get_rate(priv->clk);
-+
-+	uniphier_i2c_reset(priv, true);
-+
-+	writel((clk_rate / bus_speed / 2 << 16) | (clk_rate / bus_speed),
-+	       priv->membase + UNIPHIER_I2C_CLK);
-+
-+	uniphier_i2c_reset(priv, false);
-+
-+	return 0;
-+}
-+
-+static int uniphier_i2c_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct uniphier_i2c_priv *priv;
-+	struct resource *regs;
-+	int irq;
-+	int ret;
-+
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!regs) {
-+		dev_err(dev, "failed to get memory resource");
-+		return -EINVAL;
-+	}
-+
-+	priv->membase = devm_ioremap_resource(dev, regs);
-+	if (IS_ERR(priv->membase))
-+		return PTR_ERR(priv->membase);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(dev, "failed to get IRQ number");
-+		return irq;
-+	}
-+
-+	init_completion(&priv->comp);
-+	priv->adap.owner = THIS_MODULE;
-+	priv->adap.algo = &uniphier_i2c_algo;
-+	priv->adap.dev.parent = dev;
-+	priv->adap.dev.of_node = dev->of_node;
-+	strlcpy(priv->adap.name, "UniPhier I2C", sizeof(priv->adap.name));
-+	priv->adap.bus_recovery_info = &uniphier_i2c_bus_recovery_info;
-+	i2c_set_adapdata(&priv->adap, priv);
-+	platform_set_drvdata(pdev, priv);
-+
-+	ret = uniphier_i2c_clk_init(dev, priv);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_request_irq(dev, irq, uniphier_i2c_interrupt, 0, pdev->name,
-+			       priv);
-+	if (ret) {
-+		dev_err(dev, "failed to request irq %d\n", irq);
-+		goto err;
-+	}
-+
-+	ret = i2c_add_adapter(&priv->adap);
-+	if (ret) {
-+		dev_err(dev, "failed to add I2C adapter\n");
-+		goto err;
-+	}
-+
-+err:
-+	if (ret)
-+		clk_disable_unprepare(priv->clk);
-+
-+	return ret;
-+}
-+
-+static int uniphier_i2c_remove(struct platform_device *pdev)
-+{
-+	struct uniphier_i2c_priv *priv = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&priv->adap);
-+	clk_disable_unprepare(priv->clk);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id uniphier_i2c_match[] = {
-+	{ .compatible = "socionext,uniphier-i2c" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, uniphier_i2c_match);
-+
-+static struct platform_driver uniphier_i2c_drv = {
-+	.probe  = uniphier_i2c_probe,
-+	.remove = uniphier_i2c_remove,
-+	.driver = {
-+		.name  = "uniphier-i2c",
-+		.of_match_table = uniphier_i2c_match,
-+	},
-+};
-+module_platform_driver(uniphier_i2c_drv);
-+
-+MODULE_DESCRIPTION("UniPhier I2C bus driver");
-+MODULE_AUTHOR("Masahiro Yamada <yamada.masahiro@socionext.com>");
-+MODULE_LICENSE("GPL");
+Longer version:
+
+Currently it's mandatory for I2C drivers to have an I2C device ID table
+regardless if the device was registered using platform data or OF. This
+is because the I2C core needs an I2C device ID table for two reasons:
+
+1) Match the I2C client with a I2C device ID so a struct i2c_device_id
+   is passed to the I2C driver probe() function.
+
+2) Export the module aliases from the I2C device ID table so userspace
+   can auto-load the correct module. This is because i2c_device_uevent
+   always reports a MODALIAS of the form i2c:<client->name>.
+
+Lee Jones posted a patch series [0] to solve 1) by allowing the I2C
+drivers to have a probe() function that does not get a i2c_device_id.
+
+The problem is that his series didn't take into account 2) so if that
+was merged and the I2C ID table is removed from all the drivers that
+don't needed it, module auto-loading will break for those.
+
+But even now there are many I2C drivers were module auto-loading is
+not working because of the fact that the I2C core always reports the
+MODALIAS as i2c:<client->name> and many developers didn't expect this.
+
+I've identified I2C drivers with 3 types of different issues:
+
+a) Those that have an i2c_table but are not exported. The match works
+   and the correct i2c_device_id is passed on probe but since the ID
+   table is not exported, module auto-load won't work.
+
+b) Those that have a of_table but are not exported. This is currently
+   not an issue since even when the of_table is used to match the dev
+   with the driver, an OF modalias is not reported by the I2C core.
+   But if the I2C core is changed to report the MODALIAS of the form
+   of:N*T*C as it's made by other subsystems, then module auto-load
+   will break for these drivers.
+
+c) Those that don't have a of_table but should since are OF drivers
+   with DT bindings doc for them. Since the I2C core does not report
+   a OF modalias and since i2c_device_match() fallbacks to match the
+   device part of the compatible string with the I2C device ID table,
+   many OF drivers don't have an of_table to match. After all having
+   a I2C device ID table is mandatory so it works without a of_table.
+
+So, in order to not make mandatory to have a I2C device ID table, at
+least a) and b) needs to be addressed, this series does that.
+
+c) should be fixed too since it seems wrong that a driver with a DT
+binding document, does not have a OF table and export it to modules.
+
+Also stripping the vendor part from the compatible string to match
+with the I2C devices ID table and reporting only the device name to
+user-space doesn't seem to be correct. I've identified at least two
+drivers that have the same name on their I2C device ID table so the
+manufacturer prefix is important. But I've not tried to fix c) yet
+since that is not so easy to automate due drivers not having all the
+information (i.e: the device name can match a documented compatible
+string device part but without the vendor prefix is hard to tell).
+
+I split the changes so the patches in this series are independent and
+can be picked individually by subsystem maintainers. Patch #27 changes
+the logic of i2c_device_uevent() to report an OF modalias if the device
+was registered using OF. But this patch is included in the series only
+as an RFC for illustration purposes since changing that without fixing
+c) will break module auto-loading for the drivers of devices registered
+with OF but that don't have a of_match_table.
+
+Although arguably, those drivers were relying on the assumption that a
+MODALIAS=i2c:<foo> would always be reported even for the OF case which
+is not the true on other subsystems.
+
+[0]: https://lkml.org/lkml/2014/8/28/283
+
+Best regards,
+Javier
+
+
+Javier Martinez Canillas (27):
+  mfd: stw481x: Export I2C module alias information
+  spi: xcomm: Export I2C module alias information
+  iio: Export I2C module alias information in missing drivers
+  [media] Export I2C module alias information in missing drivers
+  macintosh: therm_windtunnel: Export I2C module alias information
+  misc: eeprom: Export I2C module alias information in missing drivers
+  Input: Export I2C module alias information in missing drivers
+  power: Export I2C module alias information in missing drivers
+  i2c: core: Export I2C module alias information in dummy driver
+  backlight: tosa: Export I2C module alias information
+  [media] staging: media: lirc: Export I2C module alias information
+  usb: phy: isp1301: Export I2C module alias information
+  ALSA: ppc: keywest: Export I2C module alias information
+  hwmon: (nct7904) Export I2C module alias information
+  regulator: fan53555: Export I2C module alias information
+  mfd: Export OF module alias information in missing drivers
+  iio: Export OF module alias information in missing drivers
+  hwmon: (g762) Export OF module alias information
+  extcon: Export OF module alias information in missing drivers
+  ASoC: Export OF module alias information in missing codec drivers
+  rtc: Export OF module alias information in missing drivers
+  macintosh: therm_windtunnel: Export OF module alias information
+  leds: Export OF module alias information in missing drivers
+  [media] smiapp: Export OF module alias information
+  Input: touchscreen - Export OF module alias information
+  regulator: isl9305: Export OF module alias information
+  i2c: (RFC, don't apply) report OF style modalias when probing using DT
+
+ drivers/extcon/extcon-rt8973a.c         | 1 +
+ drivers/extcon/extcon-sm5502.c          | 1 +
+ drivers/hwmon/g762.c                    | 1 +
+ drivers/hwmon/nct7904.c                 | 1 +
+ drivers/i2c/i2c-core.c                  | 9 +++++++++
+ drivers/iio/accel/mma8452.c             | 1 +
+ drivers/iio/accel/stk8312.c             | 1 +
+ drivers/iio/accel/stk8ba50.c            | 1 +
+ drivers/iio/light/cm32181.c             | 1 +
+ drivers/iio/light/cm3232.c              | 1 +
+ drivers/iio/light/cm36651.c             | 1 +
+ drivers/iio/light/gp2ap020a00f.c        | 1 +
+ drivers/iio/light/stk3310.c             | 1 +
+ drivers/input/misc/gp2ap002a00f.c       | 1 +
+ drivers/input/touchscreen/egalax_ts.c   | 1 +
+ drivers/input/touchscreen/goodix.c      | 1 +
+ drivers/input/touchscreen/mms114.c      | 1 +
+ drivers/leds/leds-pca963x.c             | 1 +
+ drivers/leds/leds-tca6507.c             | 1 +
+ drivers/macintosh/therm_windtunnel.c    | 2 ++
+ drivers/media/i2c/ir-kbd-i2c.c          | 1 +
+ drivers/media/i2c/s5k6a3.c              | 1 +
+ drivers/media/i2c/smiapp/smiapp-core.c  | 1 +
+ drivers/mfd/rt5033.c                    | 1 +
+ drivers/mfd/stw481x.c                   | 1 +
+ drivers/mfd/tps65217.c                  | 1 +
+ drivers/mfd/tps65218.c                  | 1 +
+ drivers/misc/eeprom/eeprom.c            | 1 +
+ drivers/misc/eeprom/max6875.c           | 1 +
+ drivers/power/bq24190_charger.c         | 1 +
+ drivers/power/rt5033_battery.c          | 2 +-
+ drivers/regulator/fan53555.c            | 1 +
+ drivers/regulator/isl9305.c             | 1 +
+ drivers/rtc/rtc-ab-b5ze-s3.c            | 1 +
+ drivers/rtc/rtc-isl12022.c              | 1 +
+ drivers/rtc/rtc-isl12057.c              | 1 +
+ drivers/spi/spi-xcomm.c                 | 1 +
+ drivers/staging/media/lirc/lirc_zilog.c | 1 +
+ drivers/usb/phy/phy-isp1301.c           | 1 +
+ drivers/video/backlight/tosa_bl.c       | 1 +
+ sound/ppc/keywest.c                     | 1 +
+ sound/soc/codecs/da9055.c               | 1 +
+ sound/soc/codecs/wm8510.c               | 1 +
+ sound/soc/codecs/wm8523.c               | 1 +
+ sound/soc/codecs/wm8580.c               | 1 +
+ 45 files changed, 54 insertions(+), 1 deletion(-)
+
 -- 
-1.9.1
+2.4.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
