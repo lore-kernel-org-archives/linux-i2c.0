@@ -1,75 +1,131 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 00/27] Export I2C and OF module aliases in missing drivers
-Date: Thu, 30 Jul 2015 19:13:44 +0200
-Message-ID: <55BA5B48.1050005@osg.samsung.com>
-References: <1438273132-20926-1-git-send-email-javier@osg.samsung.com>
- <20150730163517.GA13165@dtor-ws> <20150730163708.GB13165@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: allow specifying separate wakeup interrupt in device
+ tree
+Date: Thu, 30 Jul 2015 13:14:31 -0700
+Message-ID: <20150730201431.GA5255@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <20150730163708.GB13165@dtor-ws>
-Sender: linux-leds-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Mark Brown <broonie@kernel.org>, linux-iio@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-i2c@vger.kernel.org, linux-leds@vger.kernel.org, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Chanwoo Choi <cw00.choi@samsung.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, lm-sensors@lm-sensors.org, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jean Delvare <jdelvare@suse.com>, Jonathan Cameron <jic23@kernel.org>, linux-media@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Guenter Roeck <linux@roeck-us.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Wolfram Sang <wsa@the-dreams.de>, Takashi Iwai <tiwai@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Sjoe
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Dmitry,
+Instead of having each i2c driver individually parse device tree data in
+case it or platform supports separate wakeup interrupt, and handle
+enabling and disabling wakeup interrupts in their power management
+routines, let's have i2c core do that for us.
 
-Thanks a lot for your feedback.
+Platforms wishing to specify separate wakeup interrupt for the device
+should use named interrupt syntax in their DTSes:
 
-On 07/30/2015 06:37 PM, Dmitry Torokhov wrote:
-> On Thu, Jul 30, 2015 at 09:35:17AM -0700, Dmitry Torokhov wrote:
->> Hi Javier,
->>
->> On Thu, Jul 30, 2015 at 06:18:25PM +0200, Javier Martinez Canillas wrote:
->>> Hello,
->>>
->>> Short version:
->>>
->>> This series add the missing MODULE_DEVICE_TABLE() for OF and I2C tables
->>> to export that information so modules have the correct aliases built-in
->>> and autoloading works correctly.
->>>
->>> Longer version:
->>>
->>> Currently it's mandatory for I2C drivers to have an I2C device ID table
->>> regardless if the device was registered using platform data or OF. This
->>> is because the I2C core needs an I2C device ID table for two reasons:
->>>
->>> 1) Match the I2C client with a I2C device ID so a struct i2c_device_id
->>>    is passed to the I2C driver probe() function.
->>>
->>> 2) Export the module aliases from the I2C device ID table so userspace
->>>    can auto-load the correct module. This is because i2c_device_uevent
->>>    always reports a MODALIAS of the form i2c:<client->name>.
->>
->> Why are we not fixing this? We emit specially carved uevent for
->> ACPI-based devices, why not the same for OF? Platform bus does this...
-> 
-> Ah, now I see the 27/27 patch. I think it is exactly what we need. And
+	interrupt-parent = <&intc1>;
+	interrupts = <5 0>, <6 0>;
+	interrupt-names = "irq", "wakeup";
 
-Yes, patch 27/27 is needed but the problem is as I explained before that
-there are drivers relying on the current behavior. The item c) in the list
-of issues that I mentioned. So those drivers need to be fixed before that
-patch is merged...
+This patch is inspired by work done by Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org> for
+pixcir_i2c_ts driver.
 
-> probably for SPI bus as well.
->
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 46 ++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 40 insertions(+), 6 deletions(-)
 
-Yes, I didn't mention SPI because the cover letter became too long
-already but it does indeed have the same issue and I discussed this
-with  Mark already some time ago [0].
-
-Once I2C uevent report is fixed, I plan to do the same for SPI.
-
-> Thanks.
-> 
-
-[0]: https://lkml.org/lkml/2014/9/11/458
-
-Best regards,
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index e6d4935..19e7a17 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -47,6 +47,7 @@
+ #include <linux/rwsem.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/pm_domain.h>
++#include <linux/pm_wakeirq.h>
+ #include <linux/acpi.h>
+ #include <linux/jump_label.h>
+ #include <asm/uaccess.h>
+@@ -639,11 +640,13 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!client->irq) {
+ 		int irq = -ENOENT;
+ 
+-		if (dev->of_node)
+-			irq = of_irq_get(dev->of_node, 0);
+-		else if (ACPI_COMPANION(dev))
++		if (dev->of_node) {
++			irq = of_irq_get_byname(dev->of_node, "irq");
++			if (irq == -EINVAL || irq == -ENODATA)
++				irq = of_irq_get(dev->of_node, 0);
++		} else if (ACPI_COMPANION(dev)) {
+ 			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+-
++		}
+ 		if (irq == -EPROBE_DEFER)
+ 			return irq;
+ 		if (irq < 0)
+@@ -659,20 +662,47 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!device_can_wakeup(&client->dev))
+ 		device_init_wakeup(&client->dev,
+ 					client->flags & I2C_CLIENT_WAKE);
++
++	if (device_can_wakeup(&client->dev)) {
++		int wakeirq = -ENOENT;
++
++		if (dev->of_node) {
++			wakeirq = of_irq_get_byname(dev->of_node, "wakeup");
++			if (wakeirq == -EPROBE_DEFER)
++				return wakeirq;
++		}
++
++		if (wakeirq > 0 && wakeirq != client->irq)
++			status = dev_pm_set_dedicated_wake_irq(dev, wakeirq);
++		else if (client->irq > 0)
++			status = dev_pm_set_wake_irq(dev, wakeirq);
++		else
++			status = 0;
++
++		if (status)
++			dev_warn(&client->dev, "failed to set up wakeup irq");
++	}
++
+ 	dev_dbg(dev, "probe\n");
+ 
+ 	status = of_clk_set_defaults(dev->of_node, false);
+ 	if (status < 0)
+-		return status;
++		goto err_clear_wakeup_irq;
+ 
+ 	status = dev_pm_domain_attach(&client->dev, true);
+ 	if (status != -EPROBE_DEFER) {
+ 		status = driver->probe(client, i2c_match_id(driver->id_table,
+ 					client));
+ 		if (status)
+-			dev_pm_domain_detach(&client->dev, true);
++			goto err_detach_pm_domain;
+ 	}
+ 
++	return 0;
++
++err_detach_pm_domain:
++	dev_pm_domain_detach(&client->dev, true);
++err_clear_wakeup_irq:
++	dev_pm_clear_wake_irq(&client->dev);
+ 	return status;
+ }
+ 
+@@ -692,6 +722,10 @@ static int i2c_device_remove(struct device *dev)
+ 	}
+ 
+ 	dev_pm_domain_detach(&client->dev, true);
++
++	dev_pm_clear_wake_irq(&client->dev);
++	device_init_wakeup(&client->dev, 0);
++
+ 	return status;
+ }
+ 
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+2.5.0.rc2.392.g76e840b
+
+
+-- 
+Dmitry
