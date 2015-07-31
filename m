@@ -1,59 +1,57 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v1 02/10] i2c: core: Have clients point to their firmware
- nodes
-Date: Fri, 31 Jul 2015 12:36:24 +0200
-Message-ID: <20150731103624.GB1522@katana>
-References: <1435676108-20590-1-git-send-email-tomeu.vizoso@collabora.com>
- <1435676108-20590-3-git-send-email-tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH] i2c: omap: fix cleanup regression
+Date: Fri, 31 Jul 2015 12:39:54 +0200
+Message-ID: <20150731103954.GC1522@katana>
+References: <1436875847-18700-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uQr8t48UFsdbeI+V"
+	protocol="application/pgp-signature"; boundary="mvpLiMfbWzRoNl4x"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1435676108-20590-3-git-send-email-tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+In-Reply-To: <1436875847-18700-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---uQr8t48UFsdbeI+V
+--mvpLiMfbWzRoNl4x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 30, 2015 at 04:55:00PM +0200, Tomeu Vizoso wrote:
-> This is needed by platform-independent code that needs to do something
-> with devices based on the data provided by the firmware.
+On Tue, Jul 14, 2015 at 02:10:47PM +0200, Wolfram Sang wrote:
+> Patch "i2c: omap: abolish variable name confusion" triggered a
+> coccinelle warning which we fix here:
 >=20
-> Signed-off-by: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+> drivers/i2c/busses/i2c-omap.c:1333:5-24: pm_runtime_get_sync returns < 0 =
+as error. Unecessary IS_ERR_VALUE at line 1334
+>=20
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-Dunno the status of this series, but the i2c change is trivial enough.
-So in case, the rest is accepted:
-
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Applied to for-next, thanks!
 
 
---uQr8t48UFsdbeI+V
+--mvpLiMfbWzRoNl4x
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVu0+oAAoJEBQN5MwUoCm2zJoP+gLonf7safvROTXI6CFFQcgh
-B8jEs+SIEXkk/Lv2B/5BBwrEZh9lj09ICRiHplHf08ghpfM0cXG7RWDa8Q+S6eCx
-2J7Kpb5UNQRlInzPXxsNTJFesPMzarhhH86GiRmplf8ZDu9Yqh/LOwJZCttVNBA4
-p/wy55N5wv97UX4p87WySvlLmYLFGDitpMGtgxVK/jsJkdRNPCgZ34P9785HubBj
-anMeWCjoNR+e2QExHWhVWF19tzEup7FzTrvS+S2VXMAxpW7IuTSt9S/UeksjkXGq
-1XRoUYZtAY3F6Ja3w4uyBMn4ac8GdYPXnC3Wizxa8lAw19F574PS2BbW+hFW/QBr
-fDHVXrf7eCU4HBOdHgPfNhxOw84IQ1qH0V9kdeLiqNAaNgxs/6ntA5wcrX07sWhU
-3tx4KpJuuclIA12nhjZ25q+GDDdgLhT35X48Yx6i3h+7JTuKErS/QJlkquqpZkus
-tJamPvHdABi0RTmZXsoT9MDkL2RX9Rru54VRAA3HNog/w/3Uml1ywu9KJKztL6Uj
-8y2GPD7XcLMgl1xBU2rCkN/c5wGIdcxYOVVpbDaenDUBe90zfnMfq2PXhpjpCWf8
-RpIolsQCT4WBL4HBlBCfe9XjqaJlkeiA+CnQf3e9owUmBl06CbUNjQOocK7wJyYS
-6OnOAPoA9HqPPenj/sV3
-=+jS6
+iQIcBAEBAgAGBQJVu1B6AAoJEBQN5MwUoCm2iZUP/094tCwzCAW/itUkzim7IW0X
+IbRiY/7e5zoIQ32mL1H7zis5sNCJoxov2gLM7MltZHkxIgJMeoa50j0g+mUm1J3y
+jluodBL9eE0XlNdscPhYR4bGPgk/QnFCkh8h2eu0Bylg16gdB3+1Rk1GuiaCj4og
+QQ+zzZujXn0CRnqwkU1TYIkYgbmwaeA8PY1Ffte2iJiuiYAd4KmaEnw8Y8xVmcL8
+Tve35bMLu9T8rJF0AyCrpnk3SaeNPK7VQfxCslPRbjGu3wtg0wh2CriyRZW0oQY/
+ZigWMzfw5qJSpKmMlFhOeZyJAmhieBZcgNPw4yZXtsp4agv4CeMJAVxYbAoZ1Lds
+OCT7m8o2Rw1DpSjk2inMeSaPBf99XONQqmFo4wTUvSPOvo/NQaPkSN1eUAZTi+Iv
+REsc3TOGBfgICAK1hmyg6uoNqVSXnYu9KMIxOfA3S0nVIiEdx6tXsB4Z6KRA9AHu
+oQkFhmz80OWnmghWCvnWwOOLI7WyoW8BVjvLPRjimOE6IsAetE6N4sIaKce0CbWs
+GZaLXXCplqa/ruakgxfnsdlha7vWPabnOQZf9iy+Jp1MCgo5f6i/2fcHH2P9fsbt
+D9jYdPIRC854NkZt7pgaaEvYp70SIHNe29yW/50kYY1APSn/fUQZ+87HbqqzGH2m
+ttKUkYL+AyNd+9SOyy/3
+=cAXC
 -----END PGP SIGNATURE-----
 
---uQr8t48UFsdbeI+V--
+--mvpLiMfbWzRoNl4x--
