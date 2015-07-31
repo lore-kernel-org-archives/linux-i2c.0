@@ -1,57 +1,33 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-parport: Add VCT-jig adapter
-Date: Fri, 31 Jul 2015 13:24:23 +0200
-Message-ID: <20150731112422.GN1522@katana>
-References: <1436808672-15503-1-git-send-email-linux@rainbow-software.org>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: designware-pci: use IRQF_COND_SUSPEND flag
+Date: Fri, 31 Jul 2015 14:35:33 +0300
+Message-ID: <20150731113533.GJ11956@lahna.fi.intel.com>
+References: <1436350536-99102-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1437997043.29746.86.camel@linux.intel.com>
+ <20150731100723.GA1522@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iwjEIfU64POCkTAH"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1436808672-15503-1-git-send-email-linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20150731100723.GA1522@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kernel development list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Jul 31, 2015 at 12:07:23PM +0200, Wolfram Sang wrote:
+> On Mon, Jul 27, 2015 at 02:37:23PM +0300, Andy Shevchenko wrote:
+> > On Wed, 2015-07-08 at 13:15 +0300, Andy Shevchenko wrote:
+> > > The mentioned flag fixes a warning on Intel Edison board since one of 
+> > > the I2C
+> > > controller shares IRQ line with watchdog timer.
+> > > 
+> > 
+> > Wolfram, do you have any comments on this?
+> 
+> Adding Mika to cc, he is more experienced with these platforms.
 
---iwjEIfU64POCkTAH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+intel_mid_wdt.c requests the same IRQ with IRQF_NO_SUSPEND so this patch
+makes sense to me,
 
-On Mon, Jul 13, 2015 at 07:31:12PM +0200, Ondrej Zary wrote:
-> Add support for VCT-jig parallel port I2C adapter to i2c-parport.
->=20
-> The adapter schematic can be found here (in the RAR file):
-> http://remont-aud.net/shop/22/desc/vct-jig-komplekt-dlja-samostojatelnoj-=
-sborki
->=20
-> Signed-off-by: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-
-Applied to for-next, thanks!
-
-
---iwjEIfU64POCkTAH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVu1rmAAoJEBQN5MwUoCm2BUEP/idwM2fJPHzUzrZpIsev6u/4
-/77pyDkpK99PK/mD81/k6obrjyBwusoZQWsK6l9RtEfAL3D3nDM1mAfAYN84k5cT
-DPSbeJjpfREgbfGg2hgRV4VH3APR8N3iVfLbqkVdkWlLVPw029tdqT9jVTwQ7PZU
-PpAcGHiT5R5l5qYLOMeOhIe8FYz/xqzouQfqsDWIvCkwAaZ1Mgcb85nP8DqOP3Ug
-4ndvyF5wJFjH01W/aiGyccvrQcAKLsMa6lHoJya0pBL/Zd5tc4p9X552pfjgQs4m
-KGo63KRxO9Qy3s7K+eidVeCInLrbVEvXGSDZvlP4t2bW/BWQohWh2OD1zZNhD8zV
-rBsQ2bNGRLJRt9z/TitK1S9Pvoq7iKlwbqKoz120ZuPIe6xqMZRHGrspVI7O/CqW
-4LbzTXFFT3G3id5IOYtTv6rcsN7q/O2NPmxA2VUsnE6xZ8myyOFwfd62+qh+N0uv
-Vw+7v6I25BaCqqwu25QGt70JB+IqiZKLc/6PWt2vitLJZXv/j86tEduyglwx8u1i
-r5BqDSoRKf7KAGzlpg/HnuCa1L/KbZ/ZiqYT2k4Dre19AIZhKHAO7xFPyxd18x7q
-inKftg9Ow84tuJMjmXQi0JmQIZWktLQGZzhgdlbQk61tN+b7esvDLhTAfLzt8p3u
-BcnfwefOXax9Qa2W2eRW
-=IK6S
------END PGP SIGNATURE-----
-
---iwjEIfU64POCkTAH--
+Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
