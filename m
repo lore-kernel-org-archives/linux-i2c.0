@@ -1,89 +1,87 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: designware-pci: use IRQF_COND_SUSPEND flag
-Date: Fri, 31 Jul 2015 12:07:23 +0200
-Message-ID: <20150731100723.GA1522@katana>
-References: <1436350536-99102-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1437997043.29746.86.camel@linux.intel.com>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: Re: [PATCH v2 0/22] On-demand device probing
+Date: Fri, 31 Jul 2015 12:28:13 +0200
+Message-ID: <CAAObsKDALm94ZFwY+jBv3o8++-trTviiaGctAvvuySw9sxmLRQ@mail.gmail.com>
+References: <1438089593-7696-1-git-send-email-tomeu.vizoso@collabora.com>
+ <CAL_Jsq+2q=c6JbER8EMOGFtR=a6gvHermb8DRo9dKyj6fvdnXg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1437997043.29746.86.camel-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAL_Jsq+2q=c6JbER8EMOGFtR=a6gvHermb8DRo9dKyj6fvdnXg@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Rob Herring <robherring2@gmail.com>
+Cc: "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Linux USB List <linux-usb@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linus Walleij <linus.walleij@linaro.org>, Linux-ALSA <alsa-devel@alsa-project.org>, dri-devel <dri-devel@lists.freedesktop.org>, Liam Girdwood <lgirdwood@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org, Alexandre Courbot <gnurou@gmail.com>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Vinod Koul <vinod.koul@intel.com>, Stephen Warren <swarren@wwwdotorg.org>, Kishon Vijay Abraham I <kishon@ti.com>, linux-acpi@vger.ke
 List-Id: linux-i2c@vger.kernel.org
 
-
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jul 27, 2015 at 02:37:23PM +0300, Andy Shevchenko wrote:
-> On Wed, 2015-07-08 at 13:15 +0300, Andy Shevchenko wrote:
-> > The mentioned flag fixes a warning on Intel Edison board since one of=
-=20
-> > the I2C
-> > controller shares IRQ line with watchdog timer.
-> >=20
->=20
-> Wolfram, do you have any comments on this?
-
-Adding Mika to cc, he is more experienced with these platforms.
-
->=20
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-designware-pcidrv.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c=20
-> > b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > index 6643d2d..df23e8c 100644
-> > --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > @@ -260,8 +260,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
-> > =20
-> >  	snprintf(adap->name, sizeof(adap->name), "i2c-designware
-> > -pci");
-> > =20
-> > -	r =3D devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr,=20
-> > IRQF_SHARED,
-> > -			adap->name, dev);
-> > +	r =3D devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr,
-> > +			IRQF_SHARED | IRQF_COND_SUSPEND, adap->name,=20
-> > dev);
-> >  	if (r) {
-> >  		dev_err(&pdev->dev, "failure requesting irq %i\n",=20
-> > dev->irq);
-> >  		return r;
->=20
-> --=20
-> Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Intel Finland Oy
-
---ZPt4rx8FFjLCG7dd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVu0jbAAoJEBQN5MwUoCm2uF4P/2+pBT6BNjflq+03eRzdlf4z
-jduDZD+9HB2tAV9/7sD8A/okUc9RLdnxjovr3QOjtO6HT7n0uINfEEpm/BCT9PbF
-xauMKEfvyDnVYUA4qMuc/IjSYiH3+BPXeBweKrE6ezcwbDbTKO08o3Ej+uZNkgGj
-qWqZLnAO9KQph8aPTQ9gsM0i3LzJ7H8Y9ypn3X/2ILXrjafUj6/+JPpalSNOrkyU
-tD7RBp7LZPNY0gJMbTIfloLVXfUIogUOvyji5c034rdYEwRN8WigsJxibjrHLbdP
-3kz+9XXLNn8Mp/KgNTNcMGOU3GW+7FUAIHohFz2q0OjrzpsC+HE76X+EMSsj1gxO
-tLFQoXOI9xuNx0FTQli3Kpbt850j3n+cE9ZFARZNUkI/CTlAGgfGWc1RXQel5W7i
-9/jd395ARGKoJpDS7c/hIF+SpZjSgm6e/7trvrLpoLLyZUZG+PSqV3TB4NkE1oQV
-MD6j1IV6aIxV/9NCKBs+uTOqnLzhFEEsKmdFFEEzw88WnFyN5mCUoHCf9LWEZxU4
-TNw8pGgL9spGvuJc0j7SMGtcyy9WMuFS6GxupTuOk87zdYK5wZnnHlO2U00cUk/8
-JdCH8+e3qEiUwegTLsNHsUFr/yKlU5WEwPYDebj18VgBfgQAsWx9vHxfNXOEOlhZ
-fBuPAe9ToBsp3jeSnTOr
-=k/Uu
------END PGP SIGNATURE-----
-
---ZPt4rx8FFjLCG7dd--
+T24gMzAgSnVseSAyMDE1IGF0IDA1OjA2LCBSb2IgSGVycmluZyA8cm9iaGVycmluZzJAZ21haWwu
+Y29tPiB3cm90ZToKPiBPbiBUdWUsIEp1bCAyOCwgMjAxNSBhdCA4OjE5IEFNLCBUb21ldSBWaXpv
+c28KPiA8dG9tZXUudml6b3NvQGNvbGxhYm9yYS5jb20+IHdyb3RlOgo+PiBIZWxsbywKPj4KPj4g
+SSBoYXZlIGEgcHJvYmxlbSB3aXRoIHRoZSBwYW5lbCBvbiBteSBUZWdyYSBDaHJvbWVib29rIHRh
+a2luZyBsb25nZXIKPj4gdGhhbiBleHBlY3RlZCB0byBiZSByZWFkeSBkdXJpbmcgYm9vdCAoU3TD
+qXBoYW5lIE1hcmNoZXNpbiByZXBvcnRlZCB3aGF0Cj4+IGlzIGJhc2ljYWxseSB0aGUgc2FtZSBp
+c3N1ZSBpbiBbMF0pLCBhbmQgaGF2ZSBsb29rZWQgaW50byBvcmRlcmVkCj4+IHByb2JpbmcgYXMg
+YSBiZXR0ZXIgd2F5IG9mIHNvbHZpbmcgdGhpcyB0aGFuIG1vdmluZyBub2RlcyBhcm91bmQgaW4g
+dGhlCj4+IERUIG9yIHBsYXlpbmcgd2l0aCBpbml0Y2FsbCBsZXZlbHMgYW5kIGxpbmtpbmcgb3Jk
+ZXIuCj4+Cj4+IFdoaWxlIHJlYWRpbmcgdGhlIHRocmVhZCBbMV0gdGhhdCBBbGV4YW5kZXIgSG9s
+bGVyIHN0YXJ0ZWQgd2l0aCBoaXMKPj4gc2VyaWVzIHRvIG1ha2UgcHJvYmluZyBvcmRlciBkZXRl
+cm1pbmlzdGljLCBpdCBvY2N1cnJlZCB0byBtZSB0aGF0IGl0Cj4+IHNob3VsZCBiZSBwb3NzaWJs
+ZSB0byBhY2hpZXZlIHRoZSBzYW1lIGJ5IHByb2JpbmcgZGV2aWNlcyBhcyB0aGV5IGFyZQo+PiBy
+ZWZlcmVuY2VkIGJ5IG90aGVyIGRldmljZXMuCj4+Cj4+IFRoaXMgYmFzaWNhbGx5IHJldXNlcyB0
+aGUgaW5mb3JtYXRpb24gdGhhdCBpcyBhbHJlYWR5IGltcGxpY2l0IGluIHRoZQo+PiBwcm9iZSgp
+IGltcGxlbWVudGF0aW9ucywgc2F2aW5nIHVzIGZyb20gcmVmYWN0b3JpbmcgZXhpc3RpbmcgZHJp
+dmVycyBvcgo+PiBhZGRpbmcgaW5mb3JtYXRpb24gdG8gRFRCcy4KPj4KPj4gRHVyaW5nIHJldmll
+dyBvZiB2MSBvZiB0aGlzIHNlcmllcyBMaW51cyBXYWxsZWlqIHN1Z2dlc3RlZCB0aGF0IGl0Cj4+
+IHNob3VsZCBiZSB0aGUgZGV2aWNlIGRyaXZlciBjb3JlIHRvIG1ha2Ugc3VyZSB0aGF0IGRlcGVu
+ZGVuY2llcyBhcmUKPj4gcmVhZHkgYmVmb3JlIHByb2JpbmcgYSBkZXZpY2UuIEkgZ2F2ZSB0aGlz
+IGlkZWEgYSB0cnkgWzJdIGJ1dCBNYXJrIEJyb3duCj4+IHBvaW50ZWQgb3V0IHRvIHRoZSBsb2dp
+YyBkdXBsaWNhdGlvbiBiZXR3ZWVuIHRoZSByZXNvdXJjZSBhY3F1aXNpdGlvbgo+PiBhbmQgZGVw
+ZW5kZW5jeSBkaXNjb3ZlcnkgY29kZSBwYXRocyAodGhvdWdoIEkgdGhpbmsgaXQncyBmYWlybHkg
+bWlub3IpLgo+Pgo+PiBUbyBhZGRyZXNzIHRoYXQgY29kZSBkdXBsaWNhdGlvbiBJIGV4cGVyaW1l
+bnRlZCB3aXRoIEFybmQncyBkZXZtX3Byb2JlCj4+IFszXSBjb25jZXB0IG9mIGhhdmluZyBkcml2
+ZXJzIGRlY2xhcmUgdGhlaXIgZGVwZW5kZW5jaWVzIGluc3RlYWQgb2YKPj4gYWNxdWlyaW5nIHRo
+ZW0gZHVyaW5nIHByb2JlLCBhbmQgd2hpbGUgaXQgd29ya2VkIFs0XSwgSSBkb24ndCB0aGluayB3
+ZQo+PiBlbmQgdXAgd2lubmluZyBhbnl0aGluZyB3aGVuIGNvbXBhcmVkIHRvIGp1c3QgcHJvYmlu
+ZyBkZXZpY2VzIG9uLWRlbWFuZAo+PiBmcm9tIHJlc291cmNlIGdldHRlcnMuCj4+Cj4+IE9uZSBy
+ZW1haW5pbmcgb2JqZWN0aW9uIGlzIHRvIHRoZSAic3ByaW5rbGluZyIgb2YgY2FsbHMgdG8KPj4g
+Zndub2RlX2Vuc3VyZV9kZXZpY2UoKSBpbiB0aGUgcmVzb3VyY2UgZ2V0dGVycyBvZiBlYWNoIHN1
+YnN5c3RlbSwgYnV0IEkKPj4gdGhpbmsgaXQncyB0aGUgcmlnaHQgdGhpbmcgdG8gZG8gZ2l2ZW4g
+dGhhdCB0aGUgc3RvcmFnZSBvZiByZXNvdXJjZXMgaXMKPj4gY3VycmVudGx5IHN1YnN5c3RlbS1z
+cGVjaWZpYy4KPgo+IFNlZW1zIGxpa2UgYSBtaW5vciBjaGFuZ2UgdG8gbWUuCj4KPj4gV2UgY291
+bGQgYXZvaWQgdGhlIGFib3ZlIGJ5IG1vdmluZyByZXNvdXJjZSBzdG9yYWdlIGludG8gdGhlIGNv
+cmUsIGJ1dCBJCj4+IGRvbid0IHRoaW5rIHRoZXJlJ3MgYSBjb21wZWxsaW5nIGNhc2UgZm9yIHRo
+YXQuCj4+Cj4+IEkgaGF2ZSB0ZXN0ZWQgdGhpcyBvbiBib2FyZHMgd2l0aCBUZWdyYSwgaU1YLjYs
+IEV4eW5vcyBhbmQgT01BUCBTb0NzLAo+PiBhbmQgdGhlc2UgcGF0Y2hlcyB3ZXJlIGVub3VnaCB0
+byBlbGltaW5hdGUgYWxsIHRoZSBkZWZlcnJlZCBwcm9iZXMKPj4gKGV4Y2VwdCBvbmUgaW4gUGFu
+ZGFCb2FyZCBiZWNhdXNlIG9tYXBfZG1hX3N5c3RlbSBkb2Vzbid0IGhhdmUgYQo+PiBmaXJtd2Fy
+ZSBub2RlIGFzIG9mIHlldCkuCj4+Cj4+IFdpdGggdGhpcyBzZXJpZXMgSSBnZXQgdGhlIGtlcm5l
+bCB0byBvdXRwdXQgdG8gdGhlIHBhbmVsIGluIDAuNXMsCj4+IGluc3RlYWQgb2YgMi44cy4KPgo+
+IEdlbmVyYWxseSwgSSB0aGluayB0aGlzIGxvb2tzIHByZXR0eSBnb29kLiBJdCBpcyBzaW1wbGUg
+YW5kIHRoZSBlcnJvcgo+IHBhdGggaXMgc2ltcGx5IGZhbGxpbmcgYmFjayB0byBkZWZlcnJlZCBw
+cm9iZS4KPgo+IE9uZSBvdmVyYWxsIGNvbW1lbnQgaXMgSSdtIG5vdCBzbyBzdXJlIGlmIGZ3bm9k
+ZV9lbnN1cmVfZGV2aWNlCj4gc2hvdWxkbid0IGp1c3QgYmUgb2ZfZW5zdXJlX2RldmljZS4gQXQg
+bGVhc3QgY3VycmVudGx5LCBpdCBsb29rcyBsaWtlCj4gYWxsIHRoZSBjYWxsaW5nIGxvY2F0aW9u
+cyBhcmUgRFQgc3BlY2lmaWMgZnVuY3Rpb25zIGFueXdheS4gVGhlcmUncwo+IHZlcnkgbGl0dGxl
+IGxvZ2ljIHdpdGhpbiB0aGUgZnVuY3Rpb24gdG8gcmVhbGx5IGJlbmVmaXQgc2hhcmluZyB3aXRo
+Cj4gQUNQSS4gSXQgaXMgYmFzaWNhbGx5IGp1c3QgYSBjYWxsIHRvIG9mX3BsYXRmb3JtX2Rldmlj
+ZV9maW5kIGFuZCB0aGVuCj4gYnVzX3Byb2JlX2RldmljZS4gSSBleHBlY3QgdGhlIGdldCBmdW5j
+dGlvbnMgd2lsbCBhbHdheXMgY2FsbCBpbnRvCj4gRFQvQUNQSSBzcGVjaWZpYyBmdW5jdGlvbnMg
+d2hpY2ggY2FuIHRoZW4gY2FsbCB0aGUgZmlybXdhcmUgc3BlY2lmaWMKPiBkZXZpY2UgZmluZCBm
+dW5jdGlvbi4KClRoYXQncyBmaW5lIHdpdGggbWUuIEkganVzdCB3ZW50IHRoYXQgd2F5IGJlY2F1
+c2UgSSBhc3N1bWVkIHRoZSBwbGFuCndhcyBmb3Igc3Vic3lzdGVtcyB0byBtb3ZlIHRvIGNvbnN1
+bWUgZncgZGF0YSB0aHJvdWdoIGZ3bm9kZSBhbmQgZHJvcAphcyBtdWNoIGZ3LXNwZWNpZmljIGNv
+ZGUgYXMgcG9zc2libGUuCgpCdXQgSSBoYXZlIGp1c3QgbG9va2VkIGF0IGZ3bm9kZV9nZXRfbmFt
+ZWRfZ3Bpb2QgYW5kIHRoZSBPRiBhbmQgQUNQSQpjb2RlIHBhdGhzIGFyZSBzbyBkaXNzaW1pbGFy
+IHRoYXQgSSBndWVzcyB0aGF0J3Mgbm90IHNvIGFuZCB3b3VsZCBiZQpiZXR0ZXIgdG8gZG8gYXMg
+eW91IHNheS4KClRoYW5rcywKClRvbWV1CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0t
+a2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFp
+bG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
