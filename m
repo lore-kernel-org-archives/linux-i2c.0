@@ -1,67 +1,77 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFT PATCH 2/2] i2c: tegra: add support for fast plus (FM+) mode
- clock rate
-Date: Fri, 31 Jul 2015 12:43:06 +0200
-Message-ID: <20150731104306.GE1522@katana>
-References: <1435661667-11554-1-git-send-email-ldewangan@nvidia.com>
- <1435661667-11554-2-git-send-email-ldewangan@nvidia.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: omap: fix bus recovery setup
+Date: Fri, 31 Jul 2015 12:49:13 +0200
+Message-ID: <20150731104912.GF1522@katana>
+References: <1436366127-24756-1-git-send-email-jlu@pengutronix.de>
+ <20150714111004.GB1517@katana>
+ <55A4FC19.4040709@ti.com>
+ <20150714121207.GI1517@katana>
+ <1438165650.20986.2.camel@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="19uQFt6ulqmgNgg1"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="4VrXvz3cwkc87Wze"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1435661667-11554-2-git-send-email-ldewangan@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: swarren@wwwdotorg.org, thierry.reding@gmail.com, andrewc@nvidia.com, gnurou@gmail.com, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Chaitanya Bandi <bandik@nvidia.com>
+In-Reply-To: <1438165650.20986.2.camel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jan =?utf-8?B?TMO8YmJl?= <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---19uQFt6ulqmgNgg1
-Content-Type: text/plain; charset=us-ascii
+--4VrXvz3cwkc87Wze
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 30, 2015 at 04:24:27PM +0530, Laxman Dewangan wrote:
-> Tegra I2C controller required to configure the clock divisor
-> register inside controller to different value based on the clock
-> speed. The recommended clock divisor for the I2C controller for
-> standard/fast mode is 0x19 and for fast-mode plus is 0x10.
+On Wed, Jul 29, 2015 at 12:27:30PM +0200, Jan L=C3=BCbbe wrote:
+> On Di, 2015-07-14 at 14:12 +0200, Wolfram Sang wrote:
+> > On Tue, Jul 14, 2015 at 03:10:01PM +0300, Grygorii Strashko wrote:
+> > > Hi Wolfram,
+> > >=20
+> > > On 07/14/2015 02:10 PM, Wolfram Sang wrote:
+> > > > On Wed, Jul 08, 2015 at 04:35:27PM +0200, Jan Luebbe wrote:
+> > > >> At least on the AM335x, enabling OMAP_I2C_SYSTEST_ST_EN is not eno=
+ugh to
+> > > >=20
+> > > > Felipe: it seems you did not need this; is this AM335x specific?
+> > >=20
+> > > We need it (Felipe's reply can be delayed).
+> >=20
+> > So, how did it work for him?
+> >=20
+> > > It's not AM335x specific. TMODE has to be configured for all OMAP4+ S=
+oCs too.
+> >=20
+> > Okay, thanks for the stepping in!
 >=20
-> Add support to configure clock divisor register of I2C controller
-> based on bus clock rate.
->=20
-> This clock divisor is supported form T114 onwards.
->=20
-> This is based on change done by
->         Chaitanya Bandi <bandik@nvidia.com>
->=20
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
-> Signed-off-by: Chaitanya Bandi <bandik@nvidia.com>
+> Wolfram, will you pick this as-is?
 
-Applied to for-next, thanks!
+Yes, I was hoping for an answer to my above question to get a better
+understanding, but we can still apply the patches meanwhile.
 
 
---19uQFt6ulqmgNgg1
+
+--4VrXvz3cwkc87Wze
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVu1E6AAoJEBQN5MwUoCm2tzkQAIspkfS5k0APKYPzh50fV3W9
-gqLaFDzbr2VPjt2T5l4J5dfyLgwD7rS1H4k07Bs+zkp0bKe4FV63zi6iLGvld0Kv
-jtgeE+RdNLNf2pwx7GMrKitnR1C0YEojbBuegYJGBgySSeN+T0+u1VOvaLXYUMzD
-tm+6xJ/NooEcA0A30KoIpf/kOeVTxD/FK52afPKPHoImlGX0c6Iijift/tDV5FAu
-2jV8p28XhuwKJfel7RsorQbXn2mbnTUGeGFZhkvmcH282Opajb37BNPmofmXqVi8
-c6OCwWaBdylK2HfSAlh3qs4j/NR0cwacPG3w5fLZQ3Z2WXqG3x28Lq1ZHfj0Kywi
-P11ktZJcM/YpCa8kTwP6pFgzGCVuK0pq6ZAF5Ye0LP6lGggwj4+DkLRbrPB+KzHQ
-zKUCOZgLIa/QbgYPQW4cqEvsDoY4MUkJSf+nJg6lpccqDsvZg4UUleJDQx9Y6O74
-qyzMtitXFJ2zCF8E5ksUUi2ftRuLusWpHO6ZbQOV9L3IZM6p+Ijle3GwN+fMLAeT
-U8VYrGDppeTZlKWDS9I8mXEyEdCHbqTY0CH4SS70Fjmdn0nwWOZlmK3y+za3vcw1
-IK7Go2oIIt9DxkD0yf4uVFc6ACXfZ7qM6GjeqgI69LIxkdWXzAhbKXoEQJFoODXJ
-gm4WmyjvIaa7rgxuIPiQ
-=iVzf
+iQIcBAEBAgAGBQJVu1KoAAoJEBQN5MwUoCm23A0QAKav8gFzVwVEcLJDBjMqubj2
+Y1hrJxOv8CHQ6ZCdNIDUHTqL05Ea1vfdNg1zsuedGi2a1hB3PtfVp1YTIUtYqoSK
+33fvJERhsFaXm0+rn4AzHJmY1FK2fkpng5mhikxQhRUadJe767tF9Qa/YFr1uGGi
+0rkshlmMhASELaDV6WdZRuDRg/WZD0KgUeNt4khsIQ/tWtcvF4UjRRLCK28YEsNp
+Ya6HoROOjL4mxW1u7wWJms9mgY9Qp+TkcwoI+uyQjAuDms2mxSMc8t1/IPmaizGg
+7+bSmbpFBR4F9FyUX1QetP3eVB4SHNFnn7MyIJ3MRDGa/Aan24Y31ZhP2ztcApXj
+CMJYb6y2MPHxBhdakJRhAMutKux7R7nr8vQyG/FB1JuzsX0UU9QLkx1V80eomnbc
+LkpXNuEZqdCs5WDAQ88RroDs2nfmbkKQkOv2HqJJhP7+3LBwEI+iQxD9RPxBgsP2
+71FZ0lslDNPsNcTkzts2qGgG56srAZgH90d1iY5HL+MScMfX7svCILLIqxNlzJD2
++IRiInlizt2NqfzCLQom3mEI5wfaH8egEEE+MCHKuEKY1mtO3P3u3vk6vlvgRm5o
+EFMccYXbhXYa9Zlj6/U1UJCVgyVcfG5Uzt8p8toqVMEBReIuErNgg8jhEc6/KSc0
+LrGFuf9OQOLs0g6WEm9U
+=1fpR
 -----END PGP SIGNATURE-----
 
---19uQFt6ulqmgNgg1--
+--4VrXvz3cwkc87Wze--
