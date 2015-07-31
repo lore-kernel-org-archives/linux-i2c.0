@@ -1,234 +1,89 @@
-From: Matt Fleming <matt@codeblueprint.co.uk>
-Subject: [PATCH v3 2/3] i2c: i801: Create iTCO device on newer Intel PCHs
-Date: Thu, 30 Jul 2015 22:59:00 +0100
-Message-ID: <1438293541-26131-3-git-send-email-matt@codeblueprint.co.uk>
-References: <1438293541-26131-1-git-send-email-matt@codeblueprint.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1438293541-26131-1-git-send-email-matt@codeblueprint.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org, Matt Fleming <matt.fleming@intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: designware-pci: use IRQF_COND_SUSPEND flag
+Date: Fri, 31 Jul 2015 12:07:23 +0200
+Message-ID: <20150731100723.GA1522@katana>
+References: <1436350536-99102-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1437997043.29746.86.camel@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1437997043.29746.86.camel-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog resources
-have been moved to reside under the i801 SMBus host controller whereas
-previously they were under the LPC device.
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In order to support the iTCO watchdog on newer PCHs we need to create the
-platform device here in the SMBus driver and pass all known resources using
-platform data.
+On Mon, Jul 27, 2015 at 02:37:23PM +0300, Andy Shevchenko wrote:
+> On Wed, 2015-07-08 at 13:15 +0300, Andy Shevchenko wrote:
+> > The mentioned flag fixes a warning on Intel Edison board since one of=
+=20
+> > the I2C
+> > controller shares IRQ line with watchdog timer.
+> >=20
+>=20
+> Wolfram, do you have any comments on this?
 
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: <linux-i2c@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Matt Fleming <matt.fleming@intel.com>
----
+Adding Mika to cc, he is more experienced with these platforms.
 
-v3:
- - Added Guenter's Review tag
+>=20
+> > Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-designware-pcidrv.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c=20
+> > b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> > index 6643d2d..df23e8c 100644
+> > --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> > +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> > @@ -260,8 +260,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+> > =20
+> >  	snprintf(adap->name, sizeof(adap->name), "i2c-designware
+> > -pci");
+> > =20
+> > -	r =3D devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr,=20
+> > IRQF_SHARED,
+> > -			adap->name, dev);
+> > +	r =3D devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr,
+> > +			IRQF_SHARED | IRQF_COND_SUSPEND, adap->name,=20
+> > dev);
+> >  	if (r) {
+> >  		dev_err(&pdev->dev, "failure requesting irq %i\n",=20
+> > dev->irq);
+> >  		return r;
+>=20
+> --=20
+> Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Intel Finland Oy
 
-v2:
- - Don't use bitops but same scheme used already
- - Delete superfluous NULL-checks for platform_device_unregister()
+--ZPt4rx8FFjLCG7dd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
- drivers/i2c/busses/i2c-i801.c | 120 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 119 insertions(+), 1 deletion(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 5ecbb3fdc27e..eaef9bc9d88c 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -88,12 +88,13 @@
- #include <linux/slab.h>
- #include <linux/wait.h>
- #include <linux/err.h>
-+#include <linux/platform_device.h>
-+#include <linux/platform_data/itco_wdt.h>
- 
- #if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
- 		defined CONFIG_DMI
- #include <linux/gpio.h>
- #include <linux/i2c-mux-gpio.h>
--#include <linux/platform_device.h>
- #endif
- 
- /* I801 SMBus address offsets */
-@@ -113,6 +114,16 @@
- #define SMBPCICTL	0x004
- #define SMBPCISTS	0x006
- #define SMBHSTCFG	0x040
-+#define TCOBASE		0x050
-+#define TCOCTL		0x054
-+
-+#define ACPIBASE		0x040
-+#define ACPIBASE_SMI_OFF	0x030
-+#define ACPICTRL		0x044
-+#define ACPICTRL_EN		0x080
-+
-+#define SBREG_BAR		0x10
-+#define SBREG_SMBCTRL		0xc6000c
- 
- /* Host status bits for SMBPCISTS */
- #define SMBPCISTS_INTS		0x08
-@@ -125,6 +136,9 @@
- #define SMBHSTCFG_SMB_SMI_EN	2
- #define SMBHSTCFG_I2C_EN	4
- 
-+/* TCO configuration bits for TCOCTL */
-+#define TCOCTL_EN		0x0100
-+
- /* Auxiliary control register bits, ICH4+ only */
- #define SMBAUXCTL_CRC		1
- #define SMBAUXCTL_E32B		2
-@@ -221,6 +235,7 @@ struct i801_priv {
- 	const struct i801_mux_config *mux_drvdata;
- 	struct platform_device *mux_pdev;
- #endif
-+	struct platform_device *tco_pdev;
- };
- 
- #define FEATURE_SMBUS_PEC	(1 << 0)
-@@ -230,6 +245,7 @@ struct i801_priv {
- #define FEATURE_IRQ		(1 << 4)
- /* Not really a feature, but it's convenient to handle it as such */
- #define FEATURE_IDF		(1 << 15)
-+#define FEATURE_TCO		(1 << 16)
- 
- static const char *i801_feature_names[] = {
- 	"SMBus PEC",
-@@ -1132,6 +1148,95 @@ static inline unsigned int i801_get_adapter_class(struct i801_priv *priv)
- }
- #endif
- 
-+static const struct itco_wdt_platform_data tco_platform_data = {
-+	.name = "Intel PCH",
-+	.version = 4,
-+};
-+
-+static DEFINE_SPINLOCK(p2sb_spinlock);
-+
-+static void i801_add_tco(struct i801_priv *priv)
-+{
-+	struct pci_dev *pci_dev = priv->pci_dev;
-+	struct resource tco_res[3], *res;
-+	struct platform_device *pdev;
-+	unsigned int devfn;
-+	u32 tco_base, tco_ctl;
-+	u32 base_addr, ctrl_val;
-+	u64 base64_addr;
-+
-+	if (!(priv->features & FEATURE_TCO))
-+		return;
-+
-+	pci_read_config_dword(pci_dev, TCOBASE, &tco_base);
-+	pci_read_config_dword(pci_dev, TCOCTL, &tco_ctl);
-+	if (!(tco_ctl & TCOCTL_EN))
-+		return;
-+
-+	memset(tco_res, 0, sizeof(tco_res));
-+
-+	res = &tco_res[ICH_RES_IO_TCO];
-+	res->start = tco_base & ~1;
-+	res->end = res->start + 32 - 1;
-+	res->flags = IORESOURCE_IO;
-+
-+	/*
-+	 * Power Management registers.
-+	 */
-+	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
-+	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr);
-+
-+	res = &tco_res[ICH_RES_IO_SMI];
-+	res->start = (base_addr & ~1) + ACPIBASE_SMI_OFF;
-+	res->end = res->start + 3;
-+	res->flags = IORESOURCE_IO;
-+
-+	/*
-+	 * Enable the ACPI I/O space.
-+	 */
-+	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val);
-+	ctrl_val |= ACPICTRL_EN;
-+	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val);
-+
-+	/*
-+	 * We must access the NO_REBOOT bit over the Primary to Sideband
-+	 * bridge (P2SB). The BIOS prevents the P2SB device from being
-+	 * enumerated by the PCI subsystem, so we need to unhide/hide it
-+	 * to lookup the P2SB BAR.
-+	 */
-+	spin_lock(&p2sb_spinlock);
-+
-+	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 1);
-+
-+	/* Unhide the P2SB device */
-+	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x0);
-+
-+	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR, &base_addr);
-+	base64_addr = base_addr & 0xfffffff0;
-+
-+	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR + 0x4, &base_addr);
-+	base64_addr |= (u64)base_addr << 32;
-+
-+	/* Hide the P2SB device */
-+	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x1);
-+	spin_unlock(&p2sb_spinlock);
-+
-+	res = &tco_res[ICH_RES_MEM_OFF];
-+	res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL;
-+	res->end = res->start + 3;
-+	res->flags = IORESOURCE_MEM;
-+
-+	pdev = platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
-+						 tco_res, 3, &tco_platform_data,
-+						 sizeof(tco_platform_data));
-+	if (IS_ERR(pdev)) {
-+		dev_warn(&pci_dev->dev, "failed to create iTCO device\n");
-+		return;
-+	}
-+
-+	priv->tco_pdev = pdev;
-+}
-+
- static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	unsigned char temp;
-@@ -1149,6 +1254,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- 	priv->pci_dev = dev;
- 	switch (dev->device) {
-+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
-+		priv->features |= FEATURE_I2C_BLOCK_READ;
-+		priv->features |= FEATURE_IRQ;
-+		priv->features |= FEATURE_SMBUS_PEC;
-+		priv->features |= FEATURE_BLOCK_BUFFER;
-+		priv->features |= FEATURE_TCO;
-+		break;
-+
- 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
- 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1:
- 	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2:
-@@ -1265,6 +1379,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	dev_info(&dev->dev, "SMBus using %s\n",
- 		 priv->features & FEATURE_IRQ ? "PCI interrupt" : "polling");
- 
-+	i801_add_tco(priv);
-+
- 	/* set up the sysfs linkage to our parent device */
- 	priv->adapter.dev.parent = &dev->dev;
- 
-@@ -1296,6 +1412,8 @@ static void i801_remove(struct pci_dev *dev)
- 	i2c_del_adapter(&priv->adapter);
- 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
- 
-+	platform_device_unregister(priv->tco_pdev);
-+
- 	/*
- 	 * do not call pci_disable_device(dev) since it can cause hard hangs on
- 	 * some systems during power-off (eg. Fujitsu-Siemens Lifebook E8010)
--- 
-2.1.0
+iQIcBAEBAgAGBQJVu0jbAAoJEBQN5MwUoCm2uF4P/2+pBT6BNjflq+03eRzdlf4z
+jduDZD+9HB2tAV9/7sD8A/okUc9RLdnxjovr3QOjtO6HT7n0uINfEEpm/BCT9PbF
+xauMKEfvyDnVYUA4qMuc/IjSYiH3+BPXeBweKrE6ezcwbDbTKO08o3Ej+uZNkgGj
+qWqZLnAO9KQph8aPTQ9gsM0i3LzJ7H8Y9ypn3X/2ILXrjafUj6/+JPpalSNOrkyU
+tD7RBp7LZPNY0gJMbTIfloLVXfUIogUOvyji5c034rdYEwRN8WigsJxibjrHLbdP
+3kz+9XXLNn8Mp/KgNTNcMGOU3GW+7FUAIHohFz2q0OjrzpsC+HE76X+EMSsj1gxO
+tLFQoXOI9xuNx0FTQli3Kpbt850j3n+cE9ZFARZNUkI/CTlAGgfGWc1RXQel5W7i
+9/jd395ARGKoJpDS7c/hIF+SpZjSgm6e/7trvrLpoLLyZUZG+PSqV3TB4NkE1oQV
+MD6j1IV6aIxV/9NCKBs+uTOqnLzhFEEsKmdFFEEzw88WnFyN5mCUoHCf9LWEZxU4
+TNw8pGgL9spGvuJc0j7SMGtcyy9WMuFS6GxupTuOk87zdYK5wZnnHlO2U00cUk/8
+JdCH8+e3qEiUwegTLsNHsUFr/yKlU5WEwPYDebj18VgBfgQAsWx9vHxfNXOEOlhZ
+fBuPAe9ToBsp3jeSnTOr
+=k/Uu
+-----END PGP SIGNATURE-----
+
+--ZPt4rx8FFjLCG7dd--
