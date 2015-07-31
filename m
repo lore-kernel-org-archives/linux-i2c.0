@@ -1,93 +1,61 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/8] i2c: img-scb: fixes to support i2c on pistachio
-Date: Fri, 31 Jul 2015 13:12:52 +0200
-Message-ID: <20150731111252.GL1522@katana>
-References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com>
+Subject: Re: [PATCH v2] i2c: removed work arounds in i2c driver for Zynq
+ Ultrascale+ MPSoC
+Date: Fri, 31 Jul 2015 13:21:12 +0200
+Message-ID: <20150731112111.GM1522@katana>
+References: <1436539214-21536-1-git-send-email-anuragku@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7l042bGvurpep9Wg"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="KSyhVCl2eeZHT0Rn"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1437997641-32575-1-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Cc: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Stable kernel (v3.19+)" <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1436539214-21536-1-git-send-email-anuragku-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Anurag Kumar Vulisha <anurag.kumar.vulisha-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, punnaia-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, svemula-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, anirudh-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, Anurag Kumar Vulisha <anuragku-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---7l042bGvurpep9Wg
+--KSyhVCl2eeZHT0Rn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 27, 2015 at 12:47:13PM +0100, Sifan Naeem wrote:
-> Following patches are required to fix the existing driver to
-> support i2c on pistachio.
+On Fri, Jul 10, 2015 at 08:10:14PM +0530, Anurag Kumar Vulisha wrote:
+> Cadence 1.0 version has bugs which have been fixed in the cadence 1.4 ver=
+sion.
+> This patch removes the quirks present in the driver for cadence 1.4 versi=
+on.
 >=20
-> Tested on Pistachio bub using an Adafruit I2C Non-Volatile FRAM Breakout
-> (256Kbit / 32KByte) eeprom.
->=20
-> Used i2c buildroot tools to test the eeprom and the other i2c blocks.
-> Also used dd commands to copy data to and then to dump data from the
-> eeprom. i2ctransfer was used to test repeated starts and verified
-> using a scope.
+> Signed-off-by: Anurag Kumar Vulisha <anuragku-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 
-That sounds like good testing \o/ If you are happy with i2ctransfer,
-then please consider adding Tested-by tags to the i2ctransfer patches,
-so Jean gets a more cosy feeling to include them to i2ctools.
+Applied to for-next, thanks!
 
->=20
-> Cc: Stable kernel (v3.19+) <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 
-I am happy for indications like "please consider adding this line for
-stable: ...", but not CC stable yourself. These patches need changes,
-so they are noise for the stable lists. The ones I ultimately apply are
-the proper ones.
-
-That being said, I'll mark all your patches "changes reqeuested" since you
-need to resend based on current review from James (thanks a lot!). Even
-if some patches are good and got acked, but it is easier for me to mark
-them all the same :)
-
->=20
-> Sifan Naeem (8):
->   i2c: img-scb: enable fencing for all versions of the ip
->   i2c: img-scb: do dummy writes before fifo access
->   i2c: img-scb: use DIV_ROUND_UP to round divisor values
->   i2c: img-scb: fix LOW and HIGH period values for the SCL clock
->   i2c: img-scb: reset interrupts in img_i2c_soft_reset
->   i2c: img-scb: remove start bit detected status after handling
->   i2c: img-scb: improve transaction complete handle
->   i2c: img-scb: verify support for requested bit rate
->=20
->  drivers/i2c/busses/i2c-img-scb.c |  101 ++++++++++++++++++++++----------=
-------
->  1 file changed, 58 insertions(+), 43 deletions(-)
->=20
-> --=20
-> 1.7.9.5
->=20
-
---7l042bGvurpep9Wg
+--KSyhVCl2eeZHT0Rn
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVu1g0AAoJEBQN5MwUoCm23lwP/153c/IJeQWFM2f3trwnmosN
-d8jtFDkXpeVD2jEbnW8w1k3Ya46SSOTIA7Fd88JJF18pqE4BB9jFAFoGJFwQekxv
-G8N675pbnU+Zg593p71cxPZ766nkSUng72Xtu91fHba1eFi5wIz9dOyvpZoTyLzz
-7IZn2VylxTTjq6gDBFbtQh+OD7XfNHfFGzoOpAbz7MBWGwyyL3DZ3hyxQZpjcUfd
-0Q/uDEyu2oj9U1P8GYrbBKtd2g+NTg60742mCm6Rysa/ju6aMJq91fjKgaOFT6J2
-xMDiq9yGpgI10JYiiCG1Cuix4A5Crfk8S3tD6DkIEB2w6uJz7ybeH7B2FGp6UH3l
-2WBcNz6viNGaJPvbxiANPt9Bc6nt+Q9GUTylX/9H3IpqUqrYhnlh+Jo5QSPxTkrD
-2jnch4WGyfkVfnvenEOrPNb4G+3/3R6pdG05O8Kk2+rRb8gSv8jUmadTPH9P6dk9
-S7PtVcBJOTrOn9GYpFBX6+ziFCXQeuPYjC5zgAqL+yiihik6IViGs6Y++bR2/XSg
-yRK6Ww4Q4vzaSqkH618ypSosRvKaxGnKook8/mlDg+cRLiC8cL522uTGKWxCD55m
-uUtfhls25qPQLv+RpHUz9YlP8E2AwhzmelqBHQ9jTgfFBGFi9GB037qh0NibTNiD
-cBlnF1/F/BTmIer2ECAT
-=lBsN
+iQIcBAEBAgAGBQJVu1onAAoJEBQN5MwUoCm2T3kQAJHvDqJHwXDYLWG9Dc0Vm5AE
+zUb9hw9D5yP1xDC4vg3GnVoM3EjrwswFzN2iFmSTeu95N8kbpRwBPc1dxqzdnpdI
+KWij2j9uHqRJTkOKlBFlZk4dZNOA60gaREqInia9CKOPP/AaaCDnwdcXLHa7iz3G
+lD0fPXOu7QZio6ZC56IU57Vly7YAyZXbU8myIEhm5YzYq5nqV5LHx1Fd/0jGAIPa
+XaC8dO8FVHjT4Acu1HoUj5YRVjGkc49nMOlyrCwnSvUb5DxLgxHHfg0UcLwTTNSH
+D/bq9yxn+47Nn5Suipp7V8VCCBIAitcItuUd/k9krTpk1mte3ft4RR8BTD8zj9Eb
+yMcuI+ts3118Hp1gMKBE93jw+tfyy8Bz1tNFgZ5ANhKlekr99V3XI/jb70U80lAS
+lNA9SDFTbXBUhEEUSE8N5kGZDBQnvzIUiK0FI5IVITn0j+R6ngh8F+qUYI8f36Rn
+uF4Ypaab9gw49m1hSLXxD+/KouOyb6I2pBUGT+eTdzYVGdaQZlPYrJ3fqxW28769
+bZEuAAQB0CR3UY6UjkkWiFzGOvPZGu9KDrbdKtnyx77KltP/lvZepxEJU0EUguft
+AtNiKjKMCHGQ+hIDKTHicXCQuf51RMzUQX18xnMRljC9c05/CEnGJx6kuGMzMzJW
+KA14lp4z/Vu+JvR7Ks2F
+=8z7V
 -----END PGP SIGNATURE-----
 
---7l042bGvurpep9Wg--
+--KSyhVCl2eeZHT0Rn--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
