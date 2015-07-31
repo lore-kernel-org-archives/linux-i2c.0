@@ -1,7 +1,7 @@
 From: Robert ABEL <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
-Subject: [PATCH 3/6] i2c: Xilinx IIC: make all ioread/write calls 32-bit
-Date: Fri, 31 Jul 2015 14:00:31 +0200
-Message-ID: <1438344034-20211-5-git-send-email-rabel@cit-ec.uni-bielefeld.de>
+Subject: [PATCH 2/6] i2x: Xilinx IIC: remove non-initial tabs
+Date: Fri, 31 Jul 2015 14:00:30 +0200
+Message-ID: <1438344034-20211-4-git-send-email-rabel@cit-ec.uni-bielefeld.de>
 References: <1438344034-20211-1-git-send-email-rabel@cit-ec.uni-bielefeld.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1438344034-20211-1-git-send-email-rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
@@ -10,220 +10,148 @@ To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHX
 Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, Robert ABEL <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-According to DS756, XIIC ignores WSTRB and assumes all byte lanes are active.
-Thus, 8-bit and 16-bit writes might trash reserved bits. Only read/write aligned 32-bit
-words for consistency.
-
 Signed-off-by: Robert ABEL <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-xiic.c | 80 ++++++++++++++++---------------------------
- 1 file changed, 29 insertions(+), 51 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 110 +++++++++++++++++++++---------------------
+ 1 file changed, 55 insertions(+), 55 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index e566ccb..c6448f2 100644
+index dd897b5..e566ccb 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -168,30 +168,8 @@ struct xiic_i2c {
- static void xiic_start_xfer(struct xiic_i2c *i2c);
- static void __xiic_start_xfer(struct xiic_i2c *i2c);
+@@ -48,28 +48,28 @@ enum xilinx_i2c_state {
  
--static inline void xiic_setreg8(struct xiic_i2c *i2c, int reg, u8 value)
--{
--	iowrite8(value, i2c->base + reg);
--}
--
--static inline u8 xiic_getreg8(struct xiic_i2c *i2c, int reg)
--{
--	return ioread8(i2c->base + reg);
--}
--
--static inline void xiic_setreg16(struct xiic_i2c *i2c, int reg, u16 value)
--{
--	iowrite16(value, i2c->base + reg);
--}
--
--static inline void xiic_setreg32(struct xiic_i2c *i2c, int reg, int value)
--{
--	iowrite32(value, i2c->base + reg);
--}
--
--static inline int xiic_getreg32(struct xiic_i2c *i2c, int reg)
--{
--	return ioread32(i2c->base + reg);
--}
-+#define xiic_getreg32(i2c, reg)        ioread32(i2c->base + reg)
-+#define xiic_setreg32(i2c, reg, value) iowrite32(value, i2c->base + reg)
- 
- static inline void xiic_irq_dis(struct xiic_i2c *i2c, u32 mask)
- {
-@@ -219,11 +197,11 @@ static inline void xiic_irq_clr_en(struct xiic_i2c *i2c, u32 mask)
- 
- static void xiic_clear_rx_fifo(struct xiic_i2c *i2c)
- {
--	u8 sr;
--	for (sr = xiic_getreg8(i2c, XIIC_SR_REG);
-+	u32 sr;
-+	for (sr = xiic_getreg32(i2c, XIIC_SR_REG);
- 		!(sr & XIIC_SR_RX_FIFO_EMPTY_MASK);
--		sr = xiic_getreg8(i2c, XIIC_SR_REG))
--		xiic_getreg8(i2c, XIIC_DRR_REG);
-+		sr = xiic_getreg32(i2c, XIIC_SR_REG))
-+		xiic_getreg32(i2c, XIIC_DRR_REG);
- }
- 
- static void xiic_reinit(struct xiic_i2c *i2c)
-@@ -231,13 +209,13 @@ static void xiic_reinit(struct xiic_i2c *i2c)
- 	xiic_setreg32(i2c, XIIC_RESETR_OFFSET, XIIC_RESET_MASK);
- 
- 	/* Set receive Fifo depth to maximum (zero based). */
--	xiic_setreg8(i2c, XIIC_RFD_REG, IIC_RX_FIFO_DEPTH - 1);
-+	xiic_setreg32(i2c, XIIC_RFD_REG, IIC_RX_FIFO_DEPTH - 1);
- 
- 	/* Reset Tx Fifo. */
--	xiic_setreg8(i2c, XIIC_CR_REG, XIIC_CR_TX_FIFO_RESET_MASK);
-+	xiic_setreg32(i2c, XIIC_CR_REG, XIIC_CR_TX_FIFO_RESET_MASK);
- 
- 	/* Enable IIC Device, remove Tx Fifo reset & disable general call. */
--	xiic_setreg8(i2c, XIIC_CR_REG, XIIC_CR_ENABLE_DEVICE_MASK);
-+	xiic_setreg32(i2c, XIIC_CR_REG, XIIC_CR_ENABLE_DEVICE_MASK);
- 
- 	/* make sure RX fifo is empty */
- 	xiic_clear_rx_fifo(i2c);
-@@ -250,36 +228,36 @@ static void xiic_reinit(struct xiic_i2c *i2c)
- 
- static void xiic_deinit(struct xiic_i2c *i2c)
- {
--	u8 cr;
-+	u32 cr;
- 
- 	xiic_setreg32(i2c, XIIC_RESETR_OFFSET, XIIC_RESET_MASK);
- 
- 	/* Disable IIC Device. */
--	cr = xiic_getreg8(i2c, XIIC_CR_REG);
--	xiic_setreg8(i2c, XIIC_CR_REG, cr & ~XIIC_CR_ENABLE_DEVICE_MASK);
-+	cr = xiic_getreg32(i2c, XIIC_CR_REG);
-+	xiic_setreg32(i2c, XIIC_CR_REG, cr & ~XIIC_CR_ENABLE_DEVICE_MASK);
- }
- 
- static void xiic_read_rx(struct xiic_i2c *i2c)
- {
--	u8 bytes_in_fifo;
-+	u32 bytes_in_fifo;
- 	int i;
- 
--	bytes_in_fifo = xiic_getreg8(i2c, XIIC_RFO_REG) + 1;
-+	bytes_in_fifo = xiic_getreg32(i2c, XIIC_RFO_REG) + 1;
- 
- 	dev_dbg(i2c->adap.dev.parent,
- 		"%s entry, bytes in fifo: %d, msg: %d, SR: 0x%x, CR: 0x%x\n",
- 		__func__, bytes_in_fifo, xiic_rx_space(i2c),
--		xiic_getreg8(i2c, XIIC_SR_REG),
--		xiic_getreg8(i2c, XIIC_CR_REG));
-+		xiic_getreg32(i2c, XIIC_SR_REG),
-+		xiic_getreg32(i2c, XIIC_CR_REG));
- 
- 	if (bytes_in_fifo > xiic_rx_space(i2c))
- 		bytes_in_fifo = xiic_rx_space(i2c);
- 
- 	for (i = 0; i < bytes_in_fifo; i++)
- 		i2c->rx_msg->buf[i2c->rx_pos++] =
--			xiic_getreg8(i2c, XIIC_DRR_REG);
-+			xiic_getreg32(i2c, XIIC_DRR_REG);
- 
--	xiic_setreg8(i2c, XIIC_RFD_REG,
-+	xiic_setreg32(i2c, XIIC_RFD_REG,
- 		(xiic_rx_space(i2c) > IIC_RX_FIFO_DEPTH) ?
- 		IIC_RX_FIFO_DEPTH - 1 :  xiic_rx_space(i2c) - 1);
- }
-@@ -287,12 +265,12 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
- static int xiic_tx_fifo_space(struct xiic_i2c *i2c)
- {
- 	/* return the actual space left in the FIFO */
--	return IIC_TX_FIFO_DEPTH - xiic_getreg8(i2c, XIIC_TFO_REG) - 1;
-+	return IIC_TX_FIFO_DEPTH - xiic_getreg32(i2c, XIIC_TFO_REG) - 1;
- }
- 
- static void xiic_fill_tx_fifo(struct xiic_i2c *i2c)
- {
--	u8 fifo_space = xiic_tx_fifo_space(i2c);
-+	u32 fifo_space = xiic_tx_fifo_space(i2c);
- 	int len = xiic_tx_space(i2c);
- 
- 	len = (len > fifo_space) ? fifo_space : len;
-@@ -307,7 +285,7 @@ static void xiic_fill_tx_fifo(struct xiic_i2c *i2c)
- 			data |= XIIC_TX_DYN_STOP_MASK;
- 			dev_dbg(i2c->adap.dev.parent, "%s TX STOP\n", __func__);
- 		}
--		xiic_setreg16(i2c, XIIC_DTR_REG, data);
-+		xiic_setreg32(i2c, XIIC_DTR_REG, data);
- 	}
- }
- 
-@@ -340,7 +318,7 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
- 	dev_dbg(i2c->adap.dev.parent, "%s: IER: 0x%x, ISR: 0x%x, pend: 0x%x\n",
- 		__func__, ier, isr, pend);
- 	dev_dbg(i2c->adap.dev.parent, "%s: SR: 0x%x, msg: %p, nmsgs: %d\n",
--		__func__, xiic_getreg8(i2c, XIIC_SR_REG),
-+		__func__, xiic_getreg32(i2c, XIIC_SR_REG),
- 		i2c->tx_msg, i2c->nmsgs);
+ /**
+  * struct xiic_i2c - Internal representation of the XIIC I2C bus
+- * @base:	Memory base of the HW registers
+- * @wait:	Wait queue for callers
+- * @adap:	Kernel adapter representation
+- * @tx_msg:	Messages from above to be sent
+- * @lock:	Mutual exclusion
+- * @tx_pos:	Current pos in TX message
+- * @nmsgs:	Number of messages in tx_msg
+- * @state:	See STATE_
+- * @rx_msg:	Current RX message
+- * @rx_pos:	Position within current RX message
++ * @base:   Memory base of the HW registers
++ * @wait:   Wait queue for callers
++ * @adap:   Kernel adapter representation
++ * @tx_msg: Messages from above to be sent
++ * @lock:   Mutual exclusion
++ * @tx_pos: Position within current TX message
++ * @nmsgs:  Number of messages in tx_msg
++ * @state:  Current controller state
++ * @rx_msg: Current RX message
++ * @rx_pos: Position within current RX message
+  */
+ struct xiic_i2c {
+-	void __iomem		*base;
+-	wait_queue_head_t	wait;
+-	struct i2c_adapter	adap;
+-	struct i2c_msg		*tx_msg;
+-	spinlock_t		lock;
+-	unsigned int		tx_pos;
+-	unsigned int		nmsgs;
+-	enum xilinx_i2c_state	state;
+-	struct i2c_msg		*rx_msg;
+-	int			rx_pos;
++	void __iomem *        base;
++	wait_queue_head_t     wait;
++	struct i2c_adapter    adap;
++	struct i2c_msg        *tx_msg;
++	spinlock_t            lock;
++	unsigned int          tx_pos;
++	unsigned int          nmsgs;
++	enum xilinx_i2c_state state;
++	struct i2c_msg        *rx_msg;
++	int                   rx_pos;
+ };
  
  
-@@ -468,7 +446,7 @@ out:
+@@ -78,49 +78,49 @@ struct xiic_i2c {
+ /*
+  * Register offsets in bytes from RegisterBase.
+  */
+-#define XIIC_CR_REG   (0x00+XIIC_REG_OFFSET)	/* Control Register   */
+-#define XIIC_SR_REG   (0x04+XIIC_REG_OFFSET)	/* Status Register    */
+-#define XIIC_DTR_REG  (0x08+XIIC_REG_OFFSET)	/* Data Tx Register   */
+-#define XIIC_DRR_REG  (0x0C+XIIC_REG_OFFSET)	/* Data Rx Register   */
+-#define XIIC_ADR_REG  (0x10+XIIC_REG_OFFSET)	/* Address Register   */
+-#define XIIC_TFO_REG  (0x14+XIIC_REG_OFFSET)	/* Tx FIFO Occupancy  */
+-#define XIIC_RFO_REG  (0x18+XIIC_REG_OFFSET)	/* Rx FIFO Occupancy  */
+-#define XIIC_TBA_REG  (0x1C+XIIC_REG_OFFSET)	/* 10 Bit Address reg */
+-#define XIIC_RFD_REG  (0x20+XIIC_REG_OFFSET)	/* Rx FIFO Depth reg  */
+-#define XIIC_GPO_REG  (0x24+XIIC_REG_OFFSET)	/* Output Register    */
++#define XIIC_CR_REG   (0x00+XIIC_REG_OFFSET) /* Control Register   */
++#define XIIC_SR_REG   (0x04+XIIC_REG_OFFSET) /* Status Register    */
++#define XIIC_DTR_REG  (0x08+XIIC_REG_OFFSET) /* Data Tx Register   */
++#define XIIC_DRR_REG  (0x0C+XIIC_REG_OFFSET) /* Data Rx Register   */
++#define XIIC_ADR_REG  (0x10+XIIC_REG_OFFSET) /* Address Register   */
++#define XIIC_TFO_REG  (0x14+XIIC_REG_OFFSET) /* Tx FIFO Occupancy  */
++#define XIIC_RFO_REG  (0x18+XIIC_REG_OFFSET) /* Rx FIFO Occupancy  */
++#define XIIC_TBA_REG  (0x1C+XIIC_REG_OFFSET) /* 10 Bit Address reg */
++#define XIIC_RFD_REG  (0x20+XIIC_REG_OFFSET) /* Rx FIFO Depth reg  */
++#define XIIC_GPO_REG  (0x24+XIIC_REG_OFFSET) /* Output Register    */
  
- static int xiic_bus_busy(struct xiic_i2c *i2c)
- {
--	u8 sr = xiic_getreg8(i2c, XIIC_SR_REG);
-+	u32 sr = xiic_getreg32(i2c, XIIC_SR_REG);
+ /* Control Register masks */
+-#define XIIC_CR_ENABLE_DEVICE_MASK        0x01	/* Device enable = 1      */
+-#define XIIC_CR_TX_FIFO_RESET_MASK        0x02	/* Transmit FIFO reset=1  */
+-#define XIIC_CR_MSMS_MASK                 0x04	/* Master starts Txing=1  */
+-#define XIIC_CR_DIR_IS_TX_MASK            0x08	/* Dir of tx. Txing=1     */
+-#define XIIC_CR_NO_ACK_MASK               0x10	/* Tx Ack. NO ack = 1     */
+-#define XIIC_CR_REPEATED_START_MASK       0x20	/* Repeated start = 1     */
+-#define XIIC_CR_GENERAL_CALL_MASK         0x40	/* Gen Call enabled = 1   */
++#define XIIC_CR_ENABLE_DEVICE_MASK        0x01 /* Device enable = 1      */
++#define XIIC_CR_TX_FIFO_RESET_MASK        0x02 /* Transmit FIFO reset=1  */
++#define XIIC_CR_MSMS_MASK                 0x04 /* Master starts Txing=1  */
++#define XIIC_CR_DIR_IS_TX_MASK            0x08 /* Dir of tx. Txing=1     */
++#define XIIC_CR_NO_ACK_MASK               0x10 /* Tx Ack. NO ack = 1     */
++#define XIIC_CR_REPEATED_START_MASK       0x20 /* Repeated start = 1     */
++#define XIIC_CR_GENERAL_CALL_MASK         0x40 /* Gen Call enabled = 1   */
  
- 	return (sr & XIIC_SR_BUS_BUSY_MASK) ? -EBUSY : 0;
- }
-@@ -511,17 +489,17 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
- 	rx_watermark = msg->len;
- 	if (rx_watermark > IIC_RX_FIFO_DEPTH)
- 		rx_watermark = IIC_RX_FIFO_DEPTH;
--	xiic_setreg8(i2c, XIIC_RFD_REG, rx_watermark - 1);
-+	xiic_setreg32(i2c, XIIC_RFD_REG, rx_watermark - 1);
+ /* Status Register masks */
+-#define XIIC_SR_GEN_CALL_MASK             0x01	/* 1=a mstr issued a GC   */
+-#define XIIC_SR_ADDR_AS_SLAVE_MASK        0x02	/* 1=when addr as slave   */
+-#define XIIC_SR_BUS_BUSY_MASK             0x04	/* 1 = bus is busy        */
+-#define XIIC_SR_MSTR_RDING_SLAVE_MASK     0x08	/* 1=Dir: mstr <-- slave  */
+-#define XIIC_SR_TX_FIFO_FULL_MASK         0x10	/* 1 = Tx FIFO full       */
+-#define XIIC_SR_RX_FIFO_FULL_MASK         0x20	/* 1 = Rx FIFO full       */
+-#define XIIC_SR_RX_FIFO_EMPTY_MASK        0x40	/* 1 = Rx FIFO empty      */
+-#define XIIC_SR_TX_FIFO_EMPTY_MASK        0x80	/* 1 = Tx FIFO empty      */
++#define XIIC_SR_GEN_CALL_MASK             0x01 /* 1=a mstr issued a GC   */
++#define XIIC_SR_ADDR_AS_SLAVE_MASK        0x02 /* 1=when addr as slave   */
++#define XIIC_SR_BUS_BUSY_MASK             0x04 /* 1 = bus is busy        */
++#define XIIC_SR_MSTR_RDING_SLAVE_MASK     0x08 /* 1=Dir: mstr <-- slave  */
++#define XIIC_SR_TX_FIFO_FULL_MASK         0x10 /* 1 = Tx FIFO full       */
++#define XIIC_SR_RX_FIFO_FULL_MASK         0x20 /* 1 = Rx FIFO full       */
++#define XIIC_SR_RX_FIFO_EMPTY_MASK        0x40 /* 1 = Rx FIFO empty      */
++#define XIIC_SR_TX_FIFO_EMPTY_MASK        0x80 /* 1 = Tx FIFO empty      */
  
- 	if (!(msg->flags & I2C_M_NOSTART))
- 		/* write the address */
--		xiic_setreg16(i2c, XIIC_DTR_REG,
-+		xiic_setreg32(i2c, XIIC_DTR_REG,
- 			(msg->addr << 1) | XIIC_READ_OPERATION |
- 			XIIC_TX_DYN_START_MASK);
+ /* Interrupt Status Register masks    Interrupt occurs when...       */
+-#define XIIC_INTR_ARB_LOST_MASK           0x01	/* 1 = arbitration lost   */
+-#define XIIC_INTR_TX_ERROR_MASK           0x02	/* 1=Tx error/msg complete */
+-#define XIIC_INTR_TX_EMPTY_MASK           0x04	/* 1 = Tx FIFO/reg empty  */
+-#define XIIC_INTR_RX_FULL_MASK            0x08	/* 1=Rx FIFO/reg=OCY level */
+-#define XIIC_INTR_BNB_MASK                0x10	/* 1 = Bus not busy       */
+-#define XIIC_INTR_AAS_MASK                0x20	/* 1 = when addr as slave */
+-#define XIIC_INTR_NAAS_MASK               0x40	/* 1 = not addr as slave  */
+-#define XIIC_INTR_TX_HALF_MASK            0x80	/* 1 = TX FIFO half empty */
++#define XIIC_INTR_ARB_LOST_MASK           0x01 /* 1 = arbitration lost   */
++#define XIIC_INTR_TX_ERROR_MASK           0x02 /* 1=Tx error/msg complete */
++#define XIIC_INTR_TX_EMPTY_MASK           0x04 /* 1 = Tx FIFO/reg empty  */
++#define XIIC_INTR_RX_FULL_MASK            0x08 /* 1=Rx FIFO/reg=OCY level */
++#define XIIC_INTR_BNB_MASK                0x10 /* 1 = Bus not busy       */
++#define XIIC_INTR_AAS_MASK                0x20 /* 1 = when addr as slave */
++#define XIIC_INTR_NAAS_MASK               0x40 /* 1 = not addr as slave  */
++#define XIIC_INTR_TX_HALF_MASK            0x80 /* 1 = TX FIFO half empty */
  
- 	xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
+ /* The following constants specify the depth of the FIFOs */
+-#define IIC_RX_FIFO_DEPTH         16	/* Rx fifo capacity               */
+-#define IIC_TX_FIFO_DEPTH         16	/* Tx fifo capacity               */
++#define IIC_RX_FIFO_DEPTH         16 /* Rx fifo capacity               */
++#define IIC_TX_FIFO_DEPTH         16 /* Tx fifo capacity               */
  
--	xiic_setreg16(i2c, XIIC_DTR_REG,
-+	xiic_setreg32(i2c, XIIC_DTR_REG,
- 		msg->len | ((i2c->nmsgs == 1) ? XIIC_TX_DYN_STOP_MASK : 0));
- 	if (i2c->nmsgs == 1)
- 		/* very last, enable bus not busy as well */
-@@ -541,7 +519,7 @@ static void xiic_start_send(struct xiic_i2c *i2c)
- 		__func__, msg, msg->len);
- 	dev_dbg(i2c->adap.dev.parent, "%s entry, ISR: 0x%x, CR: 0x%x\n",
- 		__func__, xiic_getreg32(i2c, XIIC_IISR_OFFSET),
--		xiic_getreg8(i2c, XIIC_CR_REG));
-+		xiic_getreg32(i2c, XIIC_CR_REG));
- 
- 	if (!(msg->flags & I2C_M_NOSTART)) {
- 		/* write the address */
-@@ -551,7 +529,7 @@ static void xiic_start_send(struct xiic_i2c *i2c)
- 			/* no data and last message -> add STOP */
- 			data |= XIIC_TX_DYN_STOP_MASK;
- 
--		xiic_setreg16(i2c, XIIC_DTR_REG, data);
-+		xiic_setreg32(i2c, XIIC_DTR_REG, data);
- 	}
- 
- 	xiic_fill_tx_fifo(i2c);
-@@ -639,7 +617,7 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	int err;
- 
- 	dev_dbg(adap->dev.parent, "%s entry SR: 0x%x\n", __func__,
--		xiic_getreg8(i2c, XIIC_SR_REG));
-+		xiic_getreg32(i2c, XIIC_SR_REG));
- 
- 	err = xiic_busy(i2c);
- 	if (err)
+ /* The following constants specify groups of interrupts that are typically
+  * enabled or disables at the same time
 -- 
 2.5.0
