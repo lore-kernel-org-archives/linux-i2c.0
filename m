@@ -1,89 +1,57 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 0/4] i2c: fix i2c adapter device driver user counter
-Date: Sat, 1 Aug 2015 12:09:29 +0200
-Message-ID: <20150801100929.GA4379@katana>
+Subject: Re: [PATCH v2 1/4] i2c: core: fix leaked device refcount on
+ of_find_i2c_* error path
+Date: Sat, 1 Aug 2015 12:09:44 +0200
+Message-ID: <20150801100944.GB4379@katana>
 References: <1438007451-8553-1-git-send-email-vladimir_zapolskiy@mentor.com>
+ <1438007451-8553-2-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1438007451-8553-1-git-send-email-vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1438007451-8553-2-git-send-email-vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
 Cc: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---x+6KMIRAuhnl3hBn
+--neYutvxvOLaeuPCA
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 27, 2015 at 05:30:47PM +0300, Vladimir Zapolskiy wrote:
-> The series fixes i2c bus device refcounting for clients of i2c_get_adapter(),
-> of_find_i2c_adapter_by_node() and of_find_i2c_device_by_node() interfaces.
+On Mon, Jul 27, 2015 at 05:30:48PM +0300, Vladimir Zapolskiy wrote:
+> If of_find_i2c_device_by_node() or of_find_i2c_adapter_by_node() find
+> a device by node, but its type does not match, a reference to that
+> device is still held. This change fixes the problem.
+>=20
+> Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
 
-Yay, thanks for working on that!
-
-> The v2 3/4 change adds and exports new of_get_i2c_adapter_by_node()
-> interface of i2c core, v2 4/4 is an unchanged version of v1 10/10, which
-> utilizes this new interface in order to fix the refcounting bug described
-> below in detail.
-
-And thanks for the good descriptions, too.
-
-> To fix existing users of these interfaces and to avoid any further
-> confusion and misusage in future, add one more interface
-> of_get_i2c_adapter_by_node(), it is similar to i2c_get_adapter() in
-> sense that an I2C bus device driver found and locked by user can be
-> correctly unlocked by i2c_put_adapter().
-
-I tend to agree to the idea of the new function, should be less error
-prone to users. Need to think about it a day more, though.
-
-> Changes from v1 to v2:
-> * added two more patches 1/4 and 2/4 fixing i2c bus device refcounting,
->   thanks to Thierry for the idea of 2/4 change,
-
-I'll apply 1/4 to for-current, since this is a clear bugfix. 2/4 seems
-very worthwhile, too, but seems like less a bugfix to me; while it
-changes things to be more correct, it also is a preparation for the
-following patches.
-
-> * defer changes in 8 broken DRM and fbdev clients until i2c-core changes
->   are added to linux-next (or preferably 4.2.0-rc Linus' branch, if possible)
->   to improve signal/noise ratio on mailing lists.
-
-That was a clever thing to do. However, my gut feeling is that these
-changes to refcounting behaviour should go via the next merge window to
-get proper testing. If you guys want that in 4.2, then I would need a
-lot of Tested, Acked, and Reviewed-by tags very soon.
-
-Thanks again,
-
-   Wolfram
+Applied to for-current, thanks!
 
 
---x+6KMIRAuhnl3hBn
+--neYutvxvOLaeuPCA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVvJrZAAoJEBQN5MwUoCm2xqcP/37onFmwOeWb97kT4IMx3aqA
-wNX+hTk4Cyf8n0YxCDxljF0q0K6vXVDSXoTqEbuBML6+Xix0AW2K8og6u0yGY+8w
-LTkfdK7l00EXWtGhM/LO23z9/9fQDHHGv1hi9BCP/oTwk9uFeUtyveJdhsMR2uKZ
-tFd03bHOm9ZlWPloAOAeI/0q9nMxQdZ6GGy3EeTuAdSyz1WbZw1PpyCpnBf+HvPX
-BbjfzfM6esndPJ6vL+z/uaQ5OjsjOAKORe1rpAhjRSlTxJ2QUe9PoIXauGRnYRuq
-iN2UjM9LDoPUuQfojhsSAhMiezt25NC81Tsh4CgU9k2l1O31hrZsXn94W5OYbYTc
-a/5R1kkzgNrNj+6jnKm3RRtLQSvy34WLF251e/Nfs3SDby44QoRg54cmHIptd0Ds
-Nn6NImREJtIwOXiIf3OQq3Tp0WZPWMpekJJfnEpzxhbtTrjU8UkAKijf5veq/CXG
-Smw3sPOxK+io1jmbKMbdw+bMTX4xqsz8CI6DQc+NLpBZSpbBhsRzMux/xjubxbGh
-NUc1sNz+AUXuI6YOBZ+4VsZ2MCsRGi1ucaRtV0sgu7Q6IclAumwCW4j6f5HHEeaF
-GAXZnndxSlP35ODkFs/iSmgytYwLC9nBObaSditfdN+Wi0u5KXoiJIb+fMSdGR4n
-9ZVPYIQymy3zXDGlEB4S
-=IZM2
+iQIcBAEBAgAGBQJVvJroAAoJEBQN5MwUoCm2YZMQAKO0SDVSSC9lrKPJJtRev1GG
+Egu7u01BnVj1uwH30pDlL83cHNKXDVYQstSEm1btDwUI1j1gCM4yF+6Dfetz9MK5
+7Wqt4v++Bqr7OAZsYIivMGuYJdtOxARCjtq9Pc42oaA4YHRT0B/pCxkviszOpNcx
+CwmFtjDFHPgPjPhkEGl8OJBXnXqPfxJxVSfiZldQwKedFa3Pir6OnkPT/hKvRFHx
+xn0jtlSXSFlG0Y0ZKCyeq40pLE3vihbD8NnRlWXmDlZuiAR/vxgZY1vhlFaaP80f
+GYIi1WhpI1TLRm3xykFhoOCgHj8LdJUtGz8B+jQcSDfGLxFxJhsRDJvpOit90VQH
+8ab3DSpXNhgI//vBVUd+xtgYsGGW34ViBcOwayi1e1RCe6bQ6fwxPD+UdgUVB2AZ
+388ZI3lcMNxkYRzElJ9AuGkDXRD8yARuLu8vkJTAc4q74cQv7I2o6A0f7SL39gUW
+Tf1vKUlsJNw2XV4/AZQWRUwf7hp0dJs3w9yzkyaDDCQhf5QxNh5ssx2bSvQz4j/R
+/KiGlzVr6JvMLRagEccPsstsjr10PsUCcrzM4aXL0zxUQy/Jikx3WiqnBQGQHgCM
+hhV/zVP1vDjcyki5p6PGINZ/wqiZAoZaMoWHh2Rhz0YqfMhP8mvbGlcr33/4V/dJ
+aOhcXbEZIjUIFngUjUaY
+=jgwG
 -----END PGP SIGNATURE-----
 
---x+6KMIRAuhnl3hBn--
+--neYutvxvOLaeuPCA--
