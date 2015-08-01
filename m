@@ -1,55 +1,66 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] misc: Drop owner assignment from i2c_driver
-Date: Sun, 2 Aug 2015 00:57:44 +0200
-Message-ID: <20150801225743.GC1528@katana>
-References: <1436509397-27721-1-git-send-email-k.kozlowski@samsung.com>
+From: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 0/4] i2c: fix i2c adapter device driver user counter
+Date: Sun, 02 Aug 2015 02:37:06 +0300
+Message-ID: <55BD5822.6000806@mleia.com>
+References: <1438007451-8553-1-git-send-email-vladimir_zapolskiy@mentor.com> <20150801100929.GA4379@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+xNpyl7Qekk2NvDX"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1436509397-27721-1-git-send-email-k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20150801100929.GA4379@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Eric Piel <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---+xNpyl7Qekk2NvDX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 01.08.2015 13:09, Wolfram Sang wrote:
+> On Mon, Jul 27, 2015 at 05:30:47PM +0300, Vladimir Zapolskiy wrote:
+>> The series fixes i2c bus device refcounting for clients of i2c_get_adapter(),
+>> of_find_i2c_adapter_by_node() and of_find_i2c_device_by_node() interfaces.
+> 
+> Yay, thanks for working on that!
+> 
+>> The v2 3/4 change adds and exports new of_get_i2c_adapter_by_node()
+>> interface of i2c core, v2 4/4 is an unchanged version of v1 10/10, which
+>> utilizes this new interface in order to fix the refcounting bug described
+>> below in detail.
+> 
+> And thanks for the good descriptions, too.
+> 
+>> To fix existing users of these interfaces and to avoid any further
+>> confusion and misusage in future, add one more interface
+>> of_get_i2c_adapter_by_node(), it is similar to i2c_get_adapter() in
+>> sense that an I2C bus device driver found and locked by user can be
+>> correctly unlocked by i2c_put_adapter().
+> 
+> I tend to agree to the idea of the new function, should be less error
+> prone to users. Need to think about it a day more, though.
+> 
+>> Changes from v1 to v2:
+>> * added two more patches 1/4 and 2/4 fixing i2c bus device refcounting,
+>>   thanks to Thierry for the idea of 2/4 change,
+> 
+> I'll apply 1/4 to for-current, since this is a clear bugfix. 2/4 seems
+> very worthwhile, too, but seems like less a bugfix to me; while it
+> changes things to be more correct, it also is a preparation for the
+> following patches.
+> 
+>> * defer changes in 8 broken DRM and fbdev clients until i2c-core changes
+>>   are added to linux-next (or preferably 4.2.0-rc Linus' branch, if possible)
+>>   to improve signal/noise ratio on mailing lists.
+> 
+> That was a clever thing to do. However, my gut feeling is that these
+> changes to refcounting behaviour should go via the next merge window to
+> get proper testing. If you guys want that in 4.2, then I would need a
+> lot of Tested, Acked, and Reviewed-by tags very soon.
+> 
 
-On Fri, Jul 10, 2015 at 03:23:17PM +0900, Krzysztof Kozlowski wrote:
-> i2c_driver does not need to set an owner because i2c_register_driver()
-> will set it.
->=20
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->=20
+thank you for review, I'm fine if the rest of the changes enters
+linux-next, after that, when drm-next picks them up, I'll send fixes to
+the clients.
 
-I took the liberty and applied it to my for-next, thanks!
-
-
---+xNpyl7Qekk2NvDX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVvU7nAAoJEBQN5MwUoCm2zFYQAJyXCSwEKbtJ942h5bGE7Kej
-sXlGj6Tslx0cfzZTUrZzf1DPmowUBREjyZkNWBo3H8LrJwne7dIZ9D8KOmK/eDkN
-1enBQpAQDmFis7XdnEy0Dxdgl5UmZ4lYjFgw8JJzrVYGP6n18jzPjq8bRfxNZoYw
-lk2/6X/oMXxegB253bl6GPS2mnBkLRx99TuxMcXNlVcP6amUrFi+HaxkFDGikisR
-IJbVjoVBX48WiFMwEY4W/kdBavZMxG4YNdbzXm71JPA0U9hMUeNopHdumaOQRyAP
-Q0CfJO98J1wr20MK1ENeWpxXHeRVGqz7j0eQPuE+CMDZoXvDr3+mv+TaDYgO1f6E
-7TMMJ/4ozg3FOWJmfiEoBHcCmvlcXmir7hn3/0PIFL4BaJReupLy2qhKH32dEc2j
-yJFuJy7cRLCxWBuCQEIOPSpTNPc09TcGog1amltFOsX0dTlVtfNBGr6CrjrqszPT
-hCJ56bVK4O/l7aI7ogMt/Wi7iQeQvUByYg3wOq02YPR6YPM3772QnQVtn+M91Ugn
-vqD++QmAoTiAqMlmhdwgmlEB7Smhslikqd6HgE8j6kOzN5WjUM4HRKu9SB5iJN1M
-MkjCLMBJn64OQ0IXUeC8djehM8wjlUPn/CxlgoIBnmq1cuQ0+pzDU5t5Yc3YKvn5
-0qid8j54yn1exUTB1C/c
-=+d7h
------END PGP SIGNATURE-----
-
---+xNpyl7Qekk2NvDX--
+--
+With best wishes,
+Vladimir
