@@ -1,55 +1,129 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: designware-pci: use IRQF_COND_SUSPEND flag
-Date: Sat, 1 Aug 2015 12:13:40 +0200
-Message-ID: <20150801101340.GC4379@katana>
-References: <1436350536-99102-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v3 1/8] i2c: core: Add support for best effort block read
+ emulation
+Date: Sat, 1 Aug 2015 21:53:20 +0200
+Message-ID: <20150801195320.GA1590@katana>
+References: <1435916017-12859-1-git-send-email-irina.tirdea@intel.com>
+ <1435916017-12859-2-git-send-email-irina.tirdea@intel.com>
+ <55991BE7.6050705@kernel.org>
+ <1F3AC3675D538145B1661F571FE1805F2F067FA4@irsmsx105.ger.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/e2eDi0V/xtL+Mc8"
+	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1436350536-99102-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <1F3AC3675D538145B1661F571FE1805F2F067FA4-pww93C2UFcwu0RiL9chJVbfspsVTdybXVpNB7YpNyf8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---/e2eDi0V/xtL+Mc8
+--6TrnltStXW4iwmi0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 08, 2015 at 01:15:36PM +0300, Andy Shevchenko wrote:
-> The mentioned flag fixes a warning on Intel Edison board since one of the=
- I2C
-> controller shares IRQ line with watchdog timer.
+
+> > I wonder what devices do if you do a word read beyond their end address?
+> > Perhaps in odd cases we should always fall back to byte reads?
 >=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> In my tests I can read beyond the end address, but I cannot be sure if th=
+is is OK for all
+> devices. This was actually a suggestion from Wolfram for v1, but maybe I'=
+m missing
+> something.
+>=20
+> Wolfram, is it safe to read one byte beyond the end address or should I b=
+etter use
+> only byte reads for odd lengths?
 
-Applied to for-next, thanks!
+Well, from a device perspective, it is probably better to be safe than
+sorry and fall back to a single byte read. That means, however, that we
+need READ_WORD_DATA and READ_BYTE_DATA to be supported by the adapter.
+Should be OK, I don't think there are adapters which can only read words.
+
+> > > + */
+> > > +s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_clien=
+t *client,
+> > > +					      u8 command, u8 length, u8 *values)
+> > > +{
+> > > +	u8 i;
+> > > +	int status;
+> > > +
+> > > +	if (length > I2C_SMBUS_BLOCK_MAX)
+> > > +		length =3D I2C_SMBUS_BLOCK_MAX;
+> > > +
+> > > +	if (i2c_check_functionality(client->adapter,
+> > > +				    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+> > > +		return i2c_smbus_read_i2c_block_data(client, command,
+> > > +						     length, values);
+
+I am not very strict with the 80 char limit. I'd think the code is more
+readable if the two statements above would be oneliners. And for some
+other lines later as well.
+
+> > > +	} else if (i2c_check_functionality(client->adapter,
+
+No need for else since we return in the above if anyhow.
+
+> > > +					   I2C_FUNC_SMBUS_READ_WORD_DATA)) {
+> > > +		for (i =3D 0; i < length; i +=3D 2) {
+> > > +			status =3D i2c_smbus_read_word_data(client, command + i);
+> > > +			if (status < 0)
+> > > +				return status;
+> > > +			values[i] =3D status & 0xff;
+> > > +			if ((i + 1) < length)
+> > > +				values[i + 1] =3D status >> 8;
+> > > +		}
+> > > +		if (i > length)
+> > > +			return length;
+> > > +		return i;
+> > > +	} else if (i2c_check_functionality(client->adapter,
+> > > +					   I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+> > > +		for (i =3D 0; i < length; i++) {
+> > > +			status =3D i2c_smbus_read_byte_data(client, command + i);
+> > > +			if (status < 0)
+> > > +				return status;
+> > > +			values[i] =3D status;
+> > > +		}
+> > > +		return i;
+> > > +	}
+> > > +
+> > > +	dev_err(&client->adapter->dev, "Unsupported transactions: %d,%d,%d\=
+n",
+> > > +		I2C_SMBUS_I2C_BLOCK_DATA, I2C_SMBUS_WORD_DATA,
+> > > +		I2C_SMBUS_BYTE_DATA);
+
+I don't think the %d printouts are useful. Just say that the adapter
+lacks support for needed transactions. And I think the device which
+reports the error should be the client device, no?
+
+Thanks,
+
+   Wolfram
 
 
---/e2eDi0V/xtL+Mc8
+--6TrnltStXW4iwmi0
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVvJvUAAoJEBQN5MwUoCm2Wj0P+waL5pgtiH1p26dNZt52jAsa
-br7MT8MpKOGjM4x3zfVYmND9AfxO3SOl4AHOf5EBRAjlacutRm5g19y8xyLNFc8T
-sF4ZomNLgnHL2ji4eQuQVKfdkr78O9BAMorlvD7a5Wgy3AKl6d+0CWgY4zrsoV1z
-TPy9PFCfDYR8388w8iqSBL8XwuslRFS3oznUvw3VrXSf9PtMXF+ouicBfwz3lJlU
-0Xp2GXpQnqjaWRZKaxQ8z7JMOc/LQ6d6XricTeWV5/IVeSkllU8Q01S/LyBBQr3c
-TdyQIbJck30vsTl3vyJpCrDYdl6v+Xbhu5y0CBbvNX0NIhqswfAU9lMMciZm8gh9
-U0zej2GyS/5MnTidvIspGYlcLQAmThCaOXQwX/FB5IOaVBn3wojBeC3iqZUAosYw
-4Sq6rwGyVr9htCD2/GLAJSvQzhbIY2yDAQw/z7alvPJZcNppVW1L22P0tCIIuggA
-b0jk9WWXfvpgtwv1A6r892X7KKfGsUxJFdf9GkLexO0vXo2kUgMCjxt9P1iXBvKv
-YT4+eIn7xVNHk7tSwPdcfQdf2P8+4k7VT9UKvrJ+3EUipfMRLszw2jJeKKsLIZ8R
-V2Mwl2ZKh9kvXy7prTV0ATrkrl9xjwj32LdlLyyFjus8RnroZ40rWGLX1NtiWHLT
-h0JIcst+231SjHek5bJI
-=g/8b
+iQIcBAEBAgAGBQJVvSOwAAoJEBQN5MwUoCm23AMQAKFugpEeYzSgiCJZHs9lEhAC
+kxobw/tlsE9AVxnrwsBD4BXAVcnBZAHLvBOs/E5FYHvDIouU2YuBFHeAMiT/XXMf
+Dqg+UhUcYEAp92XJPwS8t/yP5Z0i8MpeX02MeuS8uROPD53QDE2JBLxZJ22pN9qu
+/USBouMWKtdoAvAOfQJmBv+YNnbLEP26+ztLyot7IC/p1f5oiagBLbJe1E+EtLOu
+AdvNtisHUDAHA7cMftmxkh8oT9B/KwEE+VAAo4hpomYe5JMk0gRaxFXoJCCOHzrG
+meCHM2CVnpxlDUuwxTXw0JsVdvdztQuY4c9/hjnbWyZ72EENzOuTnlSNNIsUs0Lz
+fnKYE+wxmad5Sbcm3oF+txI2a45CCCCtzQsz4fh/iqUZf/NMUS85HhpX6K1Iv1Xd
+tT5KWlEpku+v3PVNMfKHkaiMweHrPxUoUIGB4qcN1AOVe9Ava0yCeh8VdBkJ/A8F
+im4O8SXJPV209er5vYYSFGmuFUlvLXvFTO8NsaZpw4UQ6gY2Til9A3AiSt+912pM
+lnifsUL5okfXRwtBMVT/pLmKlmcm1BLTJ/5p2FptdElnkh5QQcXVJ9UoXWCVxaYP
+LH9fEbgNqybNHL7e5cJYdC+xb7Zf3gFv4C2qltSp2ne4IPJMrajKA10IZz79MRAu
+R3KEO5rCa8kU3sCeqJQ7
+=WlbZ
 -----END PGP SIGNATURE-----
 
---/e2eDi0V/xtL+Mc8--
+--6TrnltStXW4iwmi0--
