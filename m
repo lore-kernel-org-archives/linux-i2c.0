@@ -1,57 +1,91 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 2/8] eeprom: at24: use
- i2c_smbus_read_i2c_block_data_or_emulated
-Date: Sat, 1 Aug 2015 21:57:56 +0200
-Message-ID: <20150801195756.GB1590@katana>
-References: <1435916017-12859-1-git-send-email-irina.tirdea@intel.com>
- <1435916017-12859-3-git-send-email-irina.tirdea@intel.com>
+Subject: Re: [Patch v2] i2c: imx: add runtime pm support to improve the
+ performance
+Date: Sun, 2 Aug 2015 00:40:42 +0200
+Message-ID: <20150801224042.GA1528@katana>
+References: <1434619651-5720-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wzJLGUyc3ArbnUjN"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1435916017-12859-3-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
+In-Reply-To: <1434619651-5720-1-git-send-email-b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, B20596-KZfg59tc24xl57MIdRCFDg@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---wzJLGUyc3ArbnUjN
-Content-Type: text/plain; charset=us-ascii
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +		if (at24->use_smbus) {
-> +			status =
-> +			    i2c_smbus_read_i2c_block_data_or_emulated(client,
-> +								      offset,
-> +								      count,
-> +								      buf);
+On Thu, Jun 18, 2015 at 05:27:31PM +0800, Gao Pan wrote:
+> In our former i2c driver, i2c clk is enabled and disabled in
+> xfer function, which contributes to power saving. However,
+> the clk enable process brings a busy wait delay until the core
+> is stable. As a result, the performance is sacrificed.
+>=20
+> To weigh the power consumption and i2c bus performance, runtime
+> pm is the good solution for it. The clk is enabled when a i2c
+> transfer starts, and disabled after a specifically defined delay.
+>=20
+> Without the patch the test case (many eeprom reads) executes with approx:
+> real 1m7.735s
+> user 0m0.488s
+> sys 0m20.040s
+>=20
+> With the patch the same test case (many eeprom reads) executes with appro=
+x:
+> real 0m54.241s
+> user 0m0.440s
+> sys 0m5.920s
+>=20
+> From the test result, the patch get better performance.
 
-Please ignore checkpatch warnings for this one and find a nice readable
-way to squeeze that into two lines.
+Looks OK to me. coccicheck says something, though:
+
+drivers/i2c/busses/i2c-imx.c:1098:7-26: pm_runtime_get_sync returns < 0 as =
+error. Unecessary IS_ERR_VALUE at line 1099
+drivers/i2c/busses/i2c-imx.c:896:10-29: pm_runtime_get_sync returns < 0 as =
+error. Unecessary IS_ERR_VALUE at line 897
+
+Please fix that and add "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" to CC when resending. I know
+they use the driver a lot.
 
 
---wzJLGUyc3ArbnUjN
+> V2:
+> As Uwe Kleine-K=C3=B6nig's suggestion, the version do below changes:
+> - call clk_prepare_enable in probe to avoid never enabling clock
+>   if CONFIG_PM is disabled
+> - enable clock before request IRQ in probe
+> - remove the pm staff in i2c_imx_isr
+
+Thanks for this info. If you could put it below "---" that would be preferr=
+ed by me.
+
+
+--wRRV7LY7NUeQGEoC
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVvSTEAAoJEBQN5MwUoCm2/T4P/i6/AIs/wo0ZLNCEl5GKUDnv
-/xSwVvJc25837a3HkhIPzlpu+mfoUAzX5VQBrnF+uKFZADr8F7n6wpeT53w5RCGJ
-HaC6wpOpSQEN0IrB1V04f4Ek3dt2nUUEi+t1+fZhQn5uRG/k4YKnEx5zp+7K8NSO
-/x6WsI3GEZWSTI7+gBfGf3d54pg5XJQAoYB5RnOXASP9Uh3WVqzNtfDRGfH3zzFD
-Qb4YpQDrlaAZXo2ywa+zcACbDRQP5XnWxzc9s3apj1LImiym+6M/VXh4Gpr6kt/W
-ohY4opxUNROCCeUkmbQDIK31XAbe37aOqacIttTlqbmigkJlACYOS2VaFW6x09Gk
-Bq3DGt66loou7bVB79w1Ch06oVjs74x8suCTukMBAeemjHcdoV7gpCHRaui3HUNR
-OaJgy3gUQFNJS3D3eiDLnVDPcS8KhMj3+oZMyS0rfUFfbwYYdHJTMboBGasAgmDI
-t/x3l9RqEUSy/0ioGmLzXnxNC9Vwp68PWCmCkVIKHZFJl5siCpR740KhVhKZ3nz/
-VV9s6R+Jah72Es9iV9Nprsyxth3jne3fdiTYxRT34ZPQTEettUzdjeXhlHmMHacS
-dfZocPohWHoXTUM3Ly/sdjA+f7/Ms6SjrZo8ALoxMYo6Utu8mREAShxp0gRJNpzI
-6tB8y+HFFcXH7OYMZttq
-=2vqt
+iQIcBAEBAgAGBQJVvUrqAAoJEBQN5MwUoCm2iQQP/iGj3HlwKFyrj39XTJ0TP2ye
+1rsFGewyn4S/yuLZKI5813r4Bn6ePTqT+iy5iWKXUINtjCJ/GGxW8x9C6al7lWpK
+m/3YKccpQAxgAQSMNTVlJ/rNw0nThnB8zxKq+ZJcEFMQPaQM163be5F7ZnoJWLCh
+6loPYH5EcnXaGqDzBJSr+JzrNoZFoPsL2sTjnXc//O+PQGLHWz9+1wqZxr0yxxSN
+5hMZ5dQPqM/18LZFselFqE9VXa/WWS5dncW1ZHxqBU8A55Qg1ZgUfT75BL5k9nK0
+4EPbyirrdEgssxzutBKav2SR/PBAo4eJvJqrrbVACAu8TiFMHNedlPbvfxDpFvMn
+KeHUcirG9nX7WhEaaO34WWTQMRuomm0CUAGwhYIQhOjN/kt1PAVGoESgKWJk79B9
+OY4r/P3imrbU/f2PV68cnZZWY7mcPjI8tiwXuF7E9Ab39ZONneq1I5EkoxdslWi3
+qvv1X/CaLgf+00ju7SLpvrJSWDIHnEPE2h20TwGCWpoCvE3dZC4FEiZMa1sFRTaR
+fRVPD8/AwMruoajxIobc363BaOp375ppFk/9mSotQxEHi4eyCLfVug5Mr+mICsbc
+EifYLqNm0n5SyzgVagi8+O6eCX12HRvW3iVmpJmOLZ7tvlEX/RWQL8MWqS9tZwu4
+1/RPhO6S5PJvyN3tpcqW
+=6rHN
 -----END PGP SIGNATURE-----
 
---wzJLGUyc3ArbnUjN--
+--wRRV7LY7NUeQGEoC--
