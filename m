@@ -1,66 +1,55 @@
-From: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 0/4] i2c: fix i2c adapter device driver user counter
-Date: Sun, 02 Aug 2015 02:37:06 +0300
-Message-ID: <55BD5822.6000806@mleia.com>
-References: <1438007451-8553-1-git-send-email-vladimir_zapolskiy@mentor.com> <20150801100929.GA4379@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH V2] i2c: s3c2410: remove unused variable
+Date: Sun, 2 Aug 2015 03:59:00 +0200
+Message-ID: <20150802015900.GA1726@katana>
+References: <1437164839-9287-1-git-send-email-laurent.navet@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150801100929.GA4379@katana>
+Content-Disposition: inline
+In-Reply-To: <1437164839-9287-1-git-send-email-laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On 01.08.2015 13:09, Wolfram Sang wrote:
-> On Mon, Jul 27, 2015 at 05:30:47PM +0300, Vladimir Zapolskiy wrote:
->> The series fixes i2c bus device refcounting for clients of i2c_get_adapter(),
->> of_find_i2c_adapter_by_node() and of_find_i2c_device_by_node() interfaces.
-> 
-> Yay, thanks for working on that!
-> 
->> The v2 3/4 change adds and exports new of_get_i2c_adapter_by_node()
->> interface of i2c core, v2 4/4 is an unchanged version of v1 10/10, which
->> utilizes this new interface in order to fix the refcounting bug described
->> below in detail.
-> 
-> And thanks for the good descriptions, too.
-> 
->> To fix existing users of these interfaces and to avoid any further
->> confusion and misusage in future, add one more interface
->> of_get_i2c_adapter_by_node(), it is similar to i2c_get_adapter() in
->> sense that an I2C bus device driver found and locked by user can be
->> correctly unlocked by i2c_put_adapter().
-> 
-> I tend to agree to the idea of the new function, should be less error
-> prone to users. Need to think about it a day more, though.
-> 
->> Changes from v1 to v2:
->> * added two more patches 1/4 and 2/4 fixing i2c bus device refcounting,
->>   thanks to Thierry for the idea of 2/4 change,
-> 
-> I'll apply 1/4 to for-current, since this is a clear bugfix. 2/4 seems
-> very worthwhile, too, but seems like less a bugfix to me; while it
-> changes things to be more correct, it also is a preparation for the
-> following patches.
-> 
->> * defer changes in 8 broken DRM and fbdev clients until i2c-core changes
->>   are added to linux-next (or preferably 4.2.0-rc Linus' branch, if possible)
->>   to improve signal/noise ratio on mailing lists.
-> 
-> That was a clever thing to do. However, my gut feeling is that these
-> changes to refcounting behaviour should go via the next merge window to
-> get proper testing. If you guys want that in 4.2, then I would need a
-> lot of Tested, Acked, and Reviewed-by tags very soon.
-> 
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-thank you for review, I'm fine if the rest of the changes enters
-linux-next, after that, when drm-next picks them up, I'll send fixes to
-the clients.
 
---
-With best wishes,
-Vladimir
+> @@ -565,7 +564,7 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
+>  	tmp &= ~S3C2410_IICCON_IRQPEND;
+>  	writel(tmp, i2c->regs + S3C2410_IICCON);
+>   out:
+> -	return ret;
+> +	return;
+
+What about removing out: and return as well?
+
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVvXlkAAoJEBQN5MwUoCm27tgQAJszIQLQsHbt8ro+TU6OtUO/
+t+Apz4JoB+D2Rlw9dSPLB0gGsazr8SRZuXFG/s3EGvDsdR+8MxCJJPQ+KHKI7URV
+T7sqPJOfaRnZKOxVittsDv7Yw/i9XRp0I+pe/1an543SxqaJRnGD9pvEjumg3PRV
+fT0635zDtkVHmZeNLGApRYLXPaGcKANDepIPDCmmxkPcw1bevdjgtSzeKOiSXsHl
+ozRNQO2sqASJSts7PRbuBk/rSRg7gYArpVfhV9qolYNlAesDxW/Fd6RwgX+YN4VC
+BqcYuTo6L1gw9t+tcrSlxf1y5AEwdegRpHRWYEm0SL31ICDFUrSsEPNSN3EJbFqU
+VIbVyU2k29BNu/utDR8YLvB+iHJUwhbrDaL0Oet2/0AlmnT//NPCXplL1nJNLlak
+zMRz4SouPM+s/FFy2kiKZjA9T1ef0RzmcjuYzioSYY/3PfS2vd7n50NGnbx1kgDa
+X17QFaQNnnFpn3pdXbMQcbRqKR9+XKfmJ/wNFQ5q6U6kvFYVXeWPr3cmVCqpEVnt
+Nf3gKcIZ9UIsiBpFOWPV3RonRyil0iOUBMvkVWvGdoYK5WPxE36bqPxyI7BpDZ7j
+F7OFczW0RRKxfFsUJZQXvmSFMzrOjYz/XstpWv7+fsLL8vxIeiPbz0nvBz0HVOB5
+ouN2I33nbeqaXbRR504n
+=rZ45
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--
