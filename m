@@ -1,44 +1,77 @@
-From: Robert Abel <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
-Subject: Re: [PATCH 0/6] i2c: Xilinx IIC: rework driver
-Date: Mon, 3 Aug 2015 09:56:56 +0200
-Message-ID: <CAMdRc4FMO2ZknwJLgU6yAP-1kqFh45knCu=i48Z5ujKF0H54Yg@mail.gmail.com>
-References: <1438344034-20211-1-git-send-email-rabel@cit-ec.uni-bielefeld.de>
-	<55BEFB87.1090909@xilinx.com>
-	<CAMdRc4EKRQki+Pm-Et29FyaKARkiCeNGsGYMAQFVyYyvxW2EOg@mail.gmail.com>
-	<55BF1BF5.4010809@xilinx.com>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: allow specifying separate wakeup interrupt in
+ device tree
+Date: Mon, 3 Aug 2015 03:21:21 -0700
+Message-ID: <20150803102121.GO16878@atomide.com>
+References: <20150730201431.GA5255@dtor-ws>
+ <55BB54B1.80603@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55BF1BF5.4010809-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <55BB54B1.80603-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michal,
+* Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org> [150731 04:00]:
+> On 07/31/2015 01:44 AM, Dmitry Torokhov wrote:
+> > Instead of having each i2c driver individually parse device tree data in
+> > case it or platform supports separate wakeup interrupt, and handle
+> > enabling and disabling wakeup interrupts in their power management
+> > routines, let's have i2c core do that for us.
 
-On Mon, Aug 3, 2015 at 9:44 AM, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org> wrote:
-> yes we are sync with mainline. And make no sense to point to our SoC
-> tree if you target mainline and ask them for review.
+Good idea, yes the dedicated wake-up interrupts can be handled
+at the bus level to keep device drivers generic.
 
-As I see it, Xilinx is the maintainer/contant of the Xilinx drivers,
-so I doubt the I2C subsystem maintainer would ACK something that
-wasn't ACKed by you in the first place.
-I can obviously rebase onto mainline and resend all the patches, but
-that won't make the maintainers and the people who have to merge
-linux-xlnx changes and my changes any happier at the end of the day.
+One question below though..
 
-I also see linux-i2c as a general way to let interested people know
-that this patchset is going on. That's also a reason why I posted the
-patches to the public list.
+> > @@ -639,11 +640,13 @@ static int i2c_device_probe(struct device *dev)
+> >  	if (!client->irq) {
+> >  		int irq = -ENOENT;
+> >  
+> > -		if (dev->of_node)
+> > -			irq = of_irq_get(dev->of_node, 0);
+> > -		else if (ACPI_COMPANION(dev))
+> > +		if (dev->of_node) {
+> > +			irq = of_irq_get_byname(dev->of_node, "irq");
+> > +			if (irq == -EINVAL || irq == -ENODATA)
+> > +				irq = of_irq_get(dev->of_node, 0);
+> > +		} else if (ACPI_COMPANION(dev)) {
+> >  			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+> > -
+> > +		}
+> >  		if (irq == -EPROBE_DEFER)
+> >  			return irq;
+> >  		if (irq < 0)
+> > @@ -659,20 +662,47 @@ static int i2c_device_probe(struct device *dev)
+> >  	if (!device_can_wakeup(&client->dev))
+> >  		device_init_wakeup(&client->dev,
+> >  					client->flags & I2C_CLIENT_WAKE);
+> > +
+> > +	if (device_can_wakeup(&client->dev)) {
+> > +		int wakeirq = -ENOENT;
+> > +
+> > +		if (dev->of_node) {
+> > +			wakeirq = of_irq_get_byname(dev->of_node, "wakeup");
+> > +			if (wakeirq == -EPROBE_DEFER)
+> > +				return wakeirq;
+> > +		}
+> > +
+> > +		if (wakeirq > 0 && wakeirq != client->irq)
+> > +			status = dev_pm_set_dedicated_wake_irq(dev, wakeirq);
+> > +		else if (client->irq > 0)
+> > +			status = dev_pm_set_wake_irq(dev, wakeirq);
+> > +		else
+> > +			status = 0;
 
-Ideally, we'd get my changes in to your linux-xlnx tree, you send a
-pull request in the next merge window and we're done.
-If that's not acceptable, I'll rebase to mainline, resend the patches,
-hopefully get ACKed by I2C subsystem maintainer, changes in their tree
-make it into next merge window, so do yours, Linus or whoever has to
-merge by hand. :-/
+Hmm why do we need the check for if (device_can_wakeup(&client->dev)))?
 
-Regards
+Also wondering about the dev vs &client->dev usage here.. But I take
+you have checked that we end up calling the runtime PM calls of the
+client instead of the i2c bus controller :)
 
-Robert
+Regards,
+
+Tony
