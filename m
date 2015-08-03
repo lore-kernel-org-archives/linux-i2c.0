@@ -1,55 +1,54 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V2] i2c: s3c2410: remove unused variable
-Date: Sun, 2 Aug 2015 03:59:00 +0200
-Message-ID: <20150802015900.GA1726@katana>
-References: <1437164839-9287-1-git-send-email-laurent.navet@gmail.com>
+From: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [Patch v2] i2c: imx: add runtime pm support to improve the
+ performance
+Date: Mon, 3 Aug 2015 02:03:49 +0000
+Message-ID: <CY1PR0301MB0858C7B0560C259C34AB2D3DCF770@CY1PR0301MB0858.namprd03.prod.outlook.com>
+References: <1434619651-5720-1-git-send-email-b54642@freescale.com>
+ <20150801224042.GA1528@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1437164839-9287-1-git-send-email-laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20150801224042.GA1528@katana>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> @@ -565,7 +564,7 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
->  	tmp &= ~S3C2410_IICCON_IRQPEND;
->  	writel(tmp, i2c->regs + S3C2410_IICCON);
->   out:
-> -	return ret;
-> +	return;
-
-What about removing out: and return as well?
-
-
---r5Pyd7+fXNt84Ff3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVvXlkAAoJEBQN5MwUoCm27tgQAJszIQLQsHbt8ro+TU6OtUO/
-t+Apz4JoB+D2Rlw9dSPLB0gGsazr8SRZuXFG/s3EGvDsdR+8MxCJJPQ+KHKI7URV
-T7sqPJOfaRnZKOxVittsDv7Yw/i9XRp0I+pe/1an543SxqaJRnGD9pvEjumg3PRV
-fT0635zDtkVHmZeNLGApRYLXPaGcKANDepIPDCmmxkPcw1bevdjgtSzeKOiSXsHl
-ozRNQO2sqASJSts7PRbuBk/rSRg7gYArpVfhV9qolYNlAesDxW/Fd6RwgX+YN4VC
-BqcYuTo6L1gw9t+tcrSlxf1y5AEwdegRpHRWYEm0SL31ICDFUrSsEPNSN3EJbFqU
-VIbVyU2k29BNu/utDR8YLvB+iHJUwhbrDaL0Oet2/0AlmnT//NPCXplL1nJNLlak
-zMRz4SouPM+s/FFy2kiKZjA9T1ef0RzmcjuYzioSYY/3PfS2vd7n50NGnbx1kgDa
-X17QFaQNnnFpn3pdXbMQcbRqKR9+XKfmJ/wNFQ5q6U6kvFYVXeWPr3cmVCqpEVnt
-Nf3gKcIZ9UIsiBpFOWPV3RonRyil0iOUBMvkVWvGdoYK5WPxE36bqPxyI7BpDZ7j
-F7OFczW0RRKxfFsUJZQXvmSFMzrOjYz/XstpWv7+fsLL8vxIeiPbz0nvBz0HVOB5
-ouN2I33nbeqaXbRR504n
-=rZ45
------END PGP SIGNATURE-----
-
---r5Pyd7+fXNt84Ff3--
+RnJvbTogV29sZnJhbSBTYW5nIDxtYWlsdG86d3NhQHRoZS1kcmVhbXMuZGU+IFNlbnQ6IFN1bmRh
+eSwgQXVndXN0IDAyLCAyMDE1IDY6NDEgQU0NCj4gVG86IEdhbyBQYW4tQjU0NjQyDQo+IENjOiBs
+aW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBMaSBGcmFuay1CMjA1OTY7IER1YW4gRnVnYW5nLUIz
+ODYxMTsNCj4gdS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlDQo+IFN1YmplY3Q6IFJlOiBb
+UGF0Y2ggdjJdIGkyYzogaW14OiBhZGQgcnVudGltZSBwbSBzdXBwb3J0IHRvIGltcHJvdmUgdGhl
+DQo+IHBlcmZvcm1hbmNlDQo+IA0KPiBPbiBUaHUsIEp1biAxOCwgMjAxNSBhdCAwNToyNzozMVBN
+ICswODAwLCBHYW8gUGFuIHdyb3RlOg0KPiA+IEluIG91ciBmb3JtZXIgaTJjIGRyaXZlciwgaTJj
+IGNsayBpcyBlbmFibGVkIGFuZCBkaXNhYmxlZCBpbiB4ZmVyDQo+ID4gZnVuY3Rpb24sIHdoaWNo
+IGNvbnRyaWJ1dGVzIHRvIHBvd2VyIHNhdmluZy4gSG93ZXZlciwgdGhlIGNsayBlbmFibGUNCj4g
+PiBwcm9jZXNzIGJyaW5ncyBhIGJ1c3kgd2FpdCBkZWxheSB1bnRpbCB0aGUgY29yZSBpcyBzdGFi
+bGUuIEFzIGENCj4gPiByZXN1bHQsIHRoZSBwZXJmb3JtYW5jZSBpcyBzYWNyaWZpY2VkLg0KPiA+
+DQo+ID4gVG8gd2VpZ2ggdGhlIHBvd2VyIGNvbnN1bXB0aW9uIGFuZCBpMmMgYnVzIHBlcmZvcm1h
+bmNlLCBydW50aW1lIHBtIGlzDQo+ID4gdGhlIGdvb2Qgc29sdXRpb24gZm9yIGl0LiBUaGUgY2xr
+IGlzIGVuYWJsZWQgd2hlbiBhIGkyYyB0cmFuc2Zlcg0KPiA+IHN0YXJ0cywgYW5kIGRpc2FibGVk
+IGFmdGVyIGEgc3BlY2lmaWNhbGx5IGRlZmluZWQgZGVsYXkuDQo+ID4NCj4gPiBXaXRob3V0IHRo
+ZSBwYXRjaCB0aGUgdGVzdCBjYXNlIChtYW55IGVlcHJvbSByZWFkcykgZXhlY3V0ZXMgd2l0aA0K
+PiBhcHByb3g6DQo+ID4gcmVhbCAxbTcuNzM1cw0KPiA+IHVzZXIgMG0wLjQ4OHMNCj4gPiBzeXMg
+MG0yMC4wNDBzDQo+ID4NCj4gPiBXaXRoIHRoZSBwYXRjaCB0aGUgc2FtZSB0ZXN0IGNhc2UgKG1h
+bnkgZWVwcm9tIHJlYWRzKSBleGVjdXRlcyB3aXRoDQo+IGFwcHJveDoNCj4gPiByZWFsIDBtNTQu
+MjQxcw0KPiA+IHVzZXIgMG0wLjQ0MHMNCj4gPiBzeXMgMG01LjkyMHMNCj4gPg0KPiA+IEZyb20g
+dGhlIHRlc3QgcmVzdWx0LCB0aGUgcGF0Y2ggZ2V0IGJldHRlciBwZXJmb3JtYW5jZS4NCj4gDQo+
+IExvb2tzIE9LIHRvIG1lLiBjb2NjaWNoZWNrIHNheXMgc29tZXRoaW5nLCB0aG91Z2g6DQo+IA0K
+PiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jOjEwOTg6Ny0yNjogcG1fcnVudGltZV9nZXRf
+c3luYyByZXR1cm5zIDwgMA0KPiBhcyBlcnJvci4gVW5lY2Vzc2FyeSBJU19FUlJfVkFMVUUgYXQg
+bGluZSAxMDk5DQo+IGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmM6ODk2OjEwLTI5OiBwbV9y
+dW50aW1lX2dldF9zeW5jIHJldHVybnMgPCAwDQo+IGFzIGVycm9yLiBVbmVjZXNzYXJ5IElTX0VS
+Ul9WQUxVRSBhdCBsaW5lIDg5Nw0KPiANCj4gUGxlYXNlIGZpeCB0aGF0IGFuZCBhZGQgImtlcm5l
+bEBwZW5ndXRyb25peC5kZSIgdG8gQ0Mgd2hlbiByZXNlbmRpbmcuIEkNCj4ga25vdyB0aGV5IHVz
+ZSB0aGUgZHJpdmVyIGEgbG90Lg0KDQpUaGFua3MsIHdpbGwgZml4IGl0IGluIG5leHQgdmVyc2lv
+bi4NCg0KPiA+IFYyOg0KPiA+IEFzIFV3ZSBLbGVpbmUtS8O2bmlnJ3Mgc3VnZ2VzdGlvbiwgdGhl
+IHZlcnNpb24gZG8gYmVsb3cgY2hhbmdlczoNCj4gPiAtIGNhbGwgY2xrX3ByZXBhcmVfZW5hYmxl
+IGluIHByb2JlIHRvIGF2b2lkIG5ldmVyIGVuYWJsaW5nIGNsb2NrDQo+ID4gICBpZiBDT05GSUdf
+UE0gaXMgZGlzYWJsZWQNCj4gPiAtIGVuYWJsZSBjbG9jayBiZWZvcmUgcmVxdWVzdCBJUlEgaW4g
+cHJvYmUNCj4gPiAtIHJlbW92ZSB0aGUgcG0gc3RhZmYgaW4gaTJjX2lteF9pc3INCj4gDQo+IFRo
+YW5rcyBmb3IgdGhpcyBpbmZvLiBJZiB5b3UgY291bGQgcHV0IGl0IGJlbG93ICItLS0iIHRoYXQg
+d291bGQgYmUNCj4gcHJlZmVycmVkIGJ5IG1lLg0KDQpUaGFua3MuDQo=
