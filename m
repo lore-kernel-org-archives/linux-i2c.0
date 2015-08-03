@@ -1,77 +1,31 @@
-From: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 5/6] i2c: Xilinx IIC: make reset after TX error
- configurable
-Date: Mon, 3 Aug 2015 07:34:27 +0200
-Message-ID: <55BEFD63.6090108@xilinx.com>
+From: Robert Abel <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
+Subject: Re: [PATCH 0/6] i2c: Xilinx IIC: rework driver
+Date: Mon, 3 Aug 2015 09:30:30 +0200
+Message-ID: <CAMdRc4EKRQki+Pm-Et29FyaKARkiCeNGsGYMAQFVyYyvxW2EOg@mail.gmail.com>
 References: <1438344034-20211-1-git-send-email-rabel@cit-ec.uni-bielefeld.de>
- <1438344034-20211-7-git-send-email-rabel@cit-ec.uni-bielefeld.de>
+	<55BEFB87.1090909@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1438344034-20211-7-git-send-email-rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
+In-Reply-To: <55BEFB87.1090909-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Robert ABEL <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org
+To: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/31/2015 02:00 PM, Robert ABEL wrote:
-> CONFIG_I2C_XILINX_ERRATA makes resetting XIIC after every
-> Master Transmit error configurable.
-> Also mention proper module name for XIIC kernel module.
+Hi Michal,
 
-Datasheet? version.
+On Mon, Aug 3, 2015 at 7:26 AM, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org> wrote:
+> I am confused. Do you want to change xilinx tree or mainline? You are
+> using public mailing list that's why all you patches have to be based on
+> the mainline repository not xilinx tree.
 
-> 
-> Signed-off-by: Robert ABEL <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
-> ---
->  drivers/i2c/busses/Kconfig    | 9 ++++++++-
->  drivers/i2c/busses/i2c-xiic.c | 9 +++++++++
->  2 files changed, 17 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 46d5488..3255e89 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -886,7 +886,14 @@ config I2C_XILINX
->  	  Xilinx I2C controller.
->  
->  	  This driver can also be built as a module.  If so, the module
-> -	  will be called xilinx_i2c.
-> +	  will be called i2c-xiic.
-> +
-> +config I2C_XILINX_ERRATA
-> +	bool "Reset on "
-> +	depends on I2C_XILINX
-> +	help
-> +	  By enabling this option, the Xilinx I2C Controller will be reset
-> +	  after Master Transmit Errors.
->  
->  config I2C_XLR
->  	tristate "XLR I2C support"
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index 5c9897e..6a834bc 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -509,6 +509,15 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
->  			break;
->  		}
->  
-> +#if defined(CONFIG_I2C_XILINX_ERRATA)
-> +		if (!(msg->flags & I2C_M_RD)) {
-> +			/* dynamic mode seem to suffer from problems if we just flush
-> +			 * fifos and the next message is a TX with len 0 (only addr)
-> +			 * reset the IP instead of just flushing fifos
-> +			 */
-> +			xiic_reinit(i2c);
-> +		}
-> +#endif
->  	}
->  	
->  	/* Receive FIFO is full */
-> 
+Both. I'm guessing Xilinx will sooner rather than later submit their
+patches from linux-xlnx to mainline any way, judging from their
+history. If that isn't the case, let me know and I'll gladly rebase.
+But right now, I'd like to save all involved some trouble and I'm fine
+with my patches not going in until the next merge window.
 
-Make it DT configurable.
+Regards,
 
-Thanks,
-Michal
+Robert
