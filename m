@@ -1,66 +1,125 @@
-From: Eddie Huang <eddie.huang@mediatek.com>
-Subject: [PATCH 1/2] i2c: mediatek: Reset DMA engine in hardware init function
-Date: Tue, 4 Aug 2015 19:44:52 +0800
-Message-ID: <1438688693-60275-2-git-send-email-eddie.huang@mediatek.com>
-References: <1438688693-60275-1-git-send-email-eddie.huang@mediatek.com>
+From: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH v3 1/8] i2c: core: Add support for best effort block
+ read emulation
+Date: Tue, 4 Aug 2015 13:51:13 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0ADC68@irsmsx105.ger.corp.intel.com>
+References: <1435916017-12859-1-git-send-email-irina.tirdea@intel.com>
+ <1435916017-12859-2-git-send-email-irina.tirdea@intel.com>
+ <55991BE7.6050705@kernel.org>
+ <1F3AC3675D538145B1661F571FE1805F2F067FA4@irsmsx105.ger.corp.intel.com>
+ <20150801195320.GA1590@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1438688693-60275-1-git-send-email-eddie.huang@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Liguo Zhang <liguo.zhang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, Eddie Huang <eddie.huang@mediatek.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150801195320.GA1590@katana>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Reset DMA in hardware init function to avoid unknown hardware state
-before do any I2C operation.
 
-Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
-Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
----
- drivers/i2c/busses/i2c-mt65xx.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 9920eef..055159d 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -1,6 +1,8 @@
- /*
-  * Copyright (c) 2014 MediaTek Inc.
-- * Author: Xudong Chen <xudong.chen@mediatek.com>
-+ * Author:
-+ *   Xudong Chen <xudong.chen@mediatek.com>
-+ *   Liguo Zhang <liguo.zhang@mediatek.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-@@ -59,6 +61,7 @@
- #define I2C_DMA_START_EN		0x0001
- #define I2C_DMA_INT_FLAG_NONE		0x0000
- #define I2C_DMA_CLR_FLAG		0x0000
-+#define I2C_DMA_HARD_RST		0x0002
- 
- #define I2C_DEFAULT_SPEED		100000	/* hz */
- #define MAX_FS_MODE_SPEED		400000
-@@ -81,6 +84,7 @@ enum DMA_REGS_OFFSET {
- 	OFFSET_INT_FLAG = 0x0,
- 	OFFSET_INT_EN = 0x04,
- 	OFFSET_EN = 0x08,
-+	OFFSET_RST = 0x0c,
- 	OFFSET_CON = 0x18,
- 	OFFSET_TX_MEM_ADDR = 0x1c,
- 	OFFSET_RX_MEM_ADDR = 0x20,
-@@ -262,6 +266,10 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- 		      I2C_CONTROL_CLK_EXT_EN | I2C_CONTROL_DMA_EN;
- 	writew(control_reg, i2c->base + OFFSET_CONTROL);
- 	writew(I2C_DELAY_LEN, i2c->base + OFFSET_DELAY_LEN);
-+
-+	writel(I2C_DMA_HARD_RST, i2c->pdmabase + OFFSET_RST);
-+	udelay(50);
-+	writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
- }
- 
- /*
--- 
-1.7.9.5
+> -----Original Message-----
+> From: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Wolfram Sang
+> Sent: 01 August, 2015 22:53
+> To: Tirdea, Irina
+> Cc: Jonathan Cameron; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Pandruvada, Srinivas; Peter Meerwald; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: Re: [PATCH v3 1/8] i2c: core: Add support for best effort block read emulation
+> 
+> 
+> > > I wonder what devices do if you do a word read beyond their end address?
+> > > Perhaps in odd cases we should always fall back to byte reads?
+> >
+> > In my tests I can read beyond the end address, but I cannot be sure if this is OK for all
+> > devices. This was actually a suggestion from Wolfram for v1, but maybe I'm missing
+> > something.
+> >
+> > Wolfram, is it safe to read one byte beyond the end address or should I better use
+> > only byte reads for odd lengths?
+> 
+> Well, from a device perspective, it is probably better to be safe than
+> sorry and fall back to a single byte read. That means, however, that we
+> need READ_WORD_DATA and READ_BYTE_DATA to be supported by the adapter.
+> Should be OK, I don't think there are adapters which can only read words.
+> 
+
+OK. In this case, I would rather go back to how reading odd lengths was handled in
+the first version of this patch: use word reads up to the last byte and read that last
+byte using a byte read. In this way, odd and even lengths are both handled as
+expected (by first falling back to word reads and then to byte reads).
+Also, some adapters have performance issues when using more i2c transactions,
+so using word instead of byte reads where is possible could help.
+I'll send v4 like this and wait for your feedback.
+
+> > > > + */
+> > > > +s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+> > > > +					      u8 command, u8 length, u8 *values)
+> > > > +{
+> > > > +	u8 i;
+> > > > +	int status;
+> > > > +
+> > > > +	if (length > I2C_SMBUS_BLOCK_MAX)
+> > > > +		length = I2C_SMBUS_BLOCK_MAX;
+> > > > +
+> > > > +	if (i2c_check_functionality(client->adapter,
+> > > > +				    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+> > > > +		return i2c_smbus_read_i2c_block_data(client, command,
+> > > > +						     length, values);
+> 
+> I am not very strict with the 80 char limit. I'd think the code is more
+> readable if the two statements above would be oneliners. And for some
+> other lines later as well.
+> 
+Ok. 
+> > > > +	} else if (i2c_check_functionality(client->adapter,
+> 
+> No need for else since we return in the above if anyhow.
+
+Ok. Will fix this.
+> 
+> > > > +					   I2C_FUNC_SMBUS_READ_WORD_DATA)) {
+> > > > +		for (i = 0; i < length; i += 2) {
+> > > > +			status = i2c_smbus_read_word_data(client, command + i);
+> > > > +			if (status < 0)
+> > > > +				return status;
+> > > > +			values[i] = status & 0xff;
+> > > > +			if ((i + 1) < length)
+> > > > +				values[i + 1] = status >> 8;
+> > > > +		}
+> > > > +		if (i > length)
+> > > > +			return length;
+> > > > +		return i;
+> > > > +	} else if (i2c_check_functionality(client->adapter,
+> > > > +					   I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+> > > > +		for (i = 0; i < length; i++) {
+> > > > +			status = i2c_smbus_read_byte_data(client, command + i);
+> > > > +			if (status < 0)
+> > > > +				return status;
+> > > > +			values[i] = status;
+> > > > +		}
+> > > > +		return i;
+> > > > +	}
+> > > > +
+> > > > +	dev_err(&client->adapter->dev, "Unsupported transactions: %d,%d,%d\n",
+> > > > +		I2C_SMBUS_I2C_BLOCK_DATA, I2C_SMBUS_WORD_DATA,
+> > > > +		I2C_SMBUS_BYTE_DATA);
+> 
+> I don't think the %d printouts are useful. Just say that the adapter
+> lacks support for needed transactions. And I think the device which
+> reports the error should be the client device, no?
+> 
+
+I actually looked at i2c_smbus_xfer_emulated that is printing a similar message along
+with the unsupported transaction size. Probably the client should print these kind of
+messages anyway, so I will remove the %d printouts. I can remove the dev_err entirely
+if you think that is better.
+
+Thanks,
+Irina
+
+> Thanks,
+> 
+>    Wolfram
