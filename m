@@ -1,43 +1,54 @@
-From: "Tirdea, Irina" <irina.tirdea@intel.com>
-Subject: RE: [PATCH v3 2/8] eeprom: at24: use
- i2c_smbus_read_i2c_block_data_or_emulated
-Date: Tue, 4 Aug 2015 13:52:18 +0000
-Message-ID: <1F3AC3675D538145B1661F571FE1805F2F0ADC7C@irsmsx105.ger.corp.intel.com>
-References: <1435916017-12859-1-git-send-email-irina.tirdea@intel.com>
- <1435916017-12859-3-git-send-email-irina.tirdea@intel.com>
- <20150801195756.GB1590@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Irina Tirdea <irina.tirdea@intel.com>
+Subject: [PATCH v4 0/8] Add support for best effort block read emulation
+Date: Tue,  4 Aug 2015 17:04:08 +0300
+Message-ID: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150801195756.GB1590@katana>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jonathan Cameron <jic23@kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, Peter Meerwald <pmeerw@pmeerw.net>
+To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, Peter Meerwald <pmeerw@pmeerw.net>, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This is version 4 for adding i2c_smbus_read_i2c_block_data_or_emulated
+to i2c-core.
 
+Changes from v3:
+ - when reading an odd number of bytes using word emulation, read an even
+number of bytes using word reads and the last byte using byte read
+ - code styling changes to improve readability
+ - add a comment about addressing assumptions to the
+i2c_smbus_read_i2c_block_data_or_emulated function as Jonathan suggested
+ - add Acked-by from Jonathan and Srinivas to the iio changes
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa@the-dreams.de]
-> Sent: 01 August, 2015 22:58
-> To: Tirdea, Irina
-> Cc: Jonathan Cameron; linux-iio@vger.kernel.org; linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org; Pandruvada, Srinivas;
-> Peter Meerwald
-> Subject: Re: [PATCH v3 2/8] eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
-> 
-> > +		if (at24->use_smbus) {
-> > +			status =
-> > +			    i2c_smbus_read_i2c_block_data_or_emulated(client,
-> > +								      offset,
-> > +								      count,
-> > +								      buf);
-> 
-> Please ignore checkpatch warnings for this one and find a nice readable
-> way to squeeze that into two lines.
+Changes from v2:
+ - changed bmc150-accel, kxcjk-1013 and bmg160 drivers to use
+i2c_smbus_read_i2c_block_data_or_emulated
 
-Sure, I will fix this.
+Changes from v1:
+ - dropped the RFC tag
+ - changed at24 to use i2c_smbus_read_i2c_block_data_or_emulated
+ - when reading an odd number of bytes using word emulation, read an even
+number of bytes and drop the last one
+ - add a comment that this might not be suitable for all I2C slaves
 
-Thanks,
-Irina
+Adriana Reus (2):
+  iio: accel: kxcjk-1013: use available_scan_masks
+  iio: accel: kxcjk-1013: optimize i2c transfers in trigger handler
+
+Irina Tirdea (6):
+  i2c: core: Add support for best effort block read emulation
+  eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
+  iio: accel: bmc150: use available_scan_masks
+  iio: accel: bmc150: optimize i2c transfers in trigger handler
+  iio: gyro: bmg160: use available_scan_masks
+  iio: gyro: bmg160: optimize i2c transfers in trigger handler
+
+ drivers/i2c/i2c-core.c           | 65 ++++++++++++++++++++++++++++++++++++++++
+ drivers/iio/accel/bmc150-accel.c | 23 +++++++-------
+ drivers/iio/accel/kxcjk-1013.c   | 24 +++++++--------
+ drivers/iio/gyro/bmg160.c        | 23 +++++++-------
+ drivers/misc/eeprom/at24.c       | 37 ++++-------------------
+ include/linux/i2c.h              |  3 ++
+ 6 files changed, 110 insertions(+), 65 deletions(-)
+
+-- 
+1.9.1
