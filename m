@@ -1,7 +1,7 @@
 From: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4 3/8] iio: accel: bmc150: use available_scan_masks
-Date: Tue,  4 Aug 2015 17:04:11 +0300
-Message-ID: <1438697056-2946-4-git-send-email-irina.tirdea@intel.com>
+Subject: [PATCH v4 1/8] i2c: core: Add support for best effort block read emulation
+Date: Tue,  4 Aug 2015 17:04:09 +0300
+Message-ID: <1438697056-2946-2-git-send-email-irina.tirdea@intel.com>
 References: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1438697056-2946-1-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
@@ -10,56 +10,111 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Cameron
 Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Use available_scan_masks to allow the iio core to select
-the data to send to userspace depending on which axes are
-enabled, instead of doing this in the driver's interrupt
-handler.
+There are devices that need to handle block transactions
+regardless of the capabilities exported by the adapter.
+For performance reasons, they need to use i2c read blocks
+if available, otherwise emulate the block transaction with word
+or byte transactions.
+
+Add support for a helper function that would read a data block
+using the best transfer available: I2C_FUNC_SMBUS_READ_I2C_BLOCK,
+I2C_FUNC_SMBUS_READ_WORD_DATA or I2C_FUNC_SMBUS_READ_BYTE_DATA.
 
 Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/iio/accel/bmc150-accel.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |  3 +++
+ 2 files changed, 68 insertions(+)
 
-diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
-index 4e70f51..49b2f8e 100644
---- a/drivers/iio/accel/bmc150-accel.c
-+++ b/drivers/iio/accel/bmc150-accel.c
-@@ -136,6 +136,7 @@ enum bmc150_accel_axis {
- 	AXIS_X,
- 	AXIS_Y,
- 	AXIS_Z,
-+	AXIS_MAX,
- };
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index c83e4d1..79ba6a8 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -2942,6 +2942,71 @@ trace:
+ }
+ EXPORT_SYMBOL(i2c_smbus_xfer);
  
- enum bmc150_power_modes {
-@@ -1200,6 +1201,8 @@ static const struct iio_info bmc150_accel_info_fifo = {
- 	.driver_module		= THIS_MODULE,
- };
- 
-+static const unsigned long bmc150_accel_scan_masks[] = {0x7, 0};
++/**
++ * i2c_smbus_read_i2c_block_data_or_emulated - read block or emulate
++ * @client: Handle to slave device
++ * @command: Byte interpreted by slave
++ * @length: Size of data block; SMBus allows at most 32 bytes
++ * @values: Byte array into which data will be read; big enough to hold
++ *	the data returned by the slave.  SMBus allows at most 32 bytes.
++ *
++ * This executes the SMBus "block read" protocol if supported by the adapter.
++ * If block read is not supported, it emulates it using either word or byte
++ * read protocols depending on availability.
++ *
++ * The addresses of the I2C slave device that are accessed with this function
++ * must be mapped to a linear region, so that a block read will have the same
++ * effect as a byte read. Before using this function you must double-check
++ * if the I2C slave does support exchanging a block transfer with a byte
++ * transfer.
++ */
++s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
++					      u8 command, u8 length, u8 *values)
++{
++	u8 i;
++	int status;
 +
- static irqreturn_t bmc150_accel_trigger_handler(int irq, void *p)
++	if (length > I2C_SMBUS_BLOCK_MAX)
++		length = I2C_SMBUS_BLOCK_MAX;
++
++	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_I2C_BLOCK))
++		return i2c_smbus_read_i2c_block_data(client, command, length, values);
++
++	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_WORD_DATA |
++				    I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
++		for (i = 0; (i + 2) <= length; i += 2) {
++			status = i2c_smbus_read_word_data(client, command + i);
++			if (status < 0)
++				return status;
++			values[i] = status & 0xff;
++			values[i + 1] = status >> 8;
++		}
++		if (i < length) {
++			status = i2c_smbus_read_byte_data(client, command + i);
++			if (status < 0)
++				return status;
++			values[i] = status;
++			i++;
++		}
++		return i;
++	}
++
++	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
++		for (i = 0; i < length; i++) {
++			status = i2c_smbus_read_byte_data(client, command + i);
++			if (status < 0)
++				return status;
++			values[i] = status;
++		}
++		return i;
++	}
++
++	dev_err(&client->adapter->dev, "Unsupported transactions\n");
++
++	return -EOPNOTSUPP;
++}
++EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data_or_emulated);
++
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
+ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
  {
- 	struct iio_poll_func *pf = p;
-@@ -1208,8 +1211,7 @@ static irqreturn_t bmc150_accel_trigger_handler(int irq, void *p)
- 	int bit, ret, i = 0;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index e83a738..faf518d 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -121,6 +121,9 @@ extern s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client,
+ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ 					  u8 command, u8 length,
+ 					  const u8 *values);
++extern s32
++i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
++					  u8 command, u8 length, u8 *values);
+ #endif /* I2C */
  
- 	mutex_lock(&data->mutex);
--	for_each_set_bit(bit, indio_dev->active_scan_mask,
--			 indio_dev->masklength) {
-+	for (bit = 0; bit < AXIS_MAX; bit++) {
- 		ret = i2c_smbus_read_word_data(data->client,
- 					       BMC150_ACCEL_AXIS_TO_REG(bit));
- 		if (ret < 0) {
-@@ -1647,6 +1649,7 @@ static int bmc150_accel_probe(struct i2c_client *client,
- 	indio_dev->dev.parent = &client->dev;
- 	indio_dev->channels = data->chip_info->channels;
- 	indio_dev->num_channels = data->chip_info->num_channels;
-+	indio_dev->available_scan_masks = bmc150_accel_scan_masks;
- 	indio_dev->name = name;
- 	indio_dev->modes = INDIO_DIRECT_MODE;
- 	indio_dev->info = &bmc150_accel_info;
+ /**
 -- 
 1.9.1
