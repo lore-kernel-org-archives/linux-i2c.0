@@ -1,7 +1,7 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v4 2/8] eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
-Date: Tue,  4 Aug 2015 17:04:10 +0300
-Message-ID: <1438697056-2946-3-git-send-email-irina.tirdea@intel.com>
+Subject: [PATCH v4 4/8] iio: accel: bmc150: optimize i2c transfers in trigger handler
+Date: Tue,  4 Aug 2015 17:04:12 +0300
+Message-ID: <1438697056-2946-5-git-send-email-irina.tirdea@intel.com>
 References: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
@@ -10,75 +10,65 @@ To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Cameron <jic23@kernel.org>, linux
 Cc: linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, Peter Meerwald <pmeerw@pmeerw.net>, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-For i2c busses that support only SMBUS extensions, the eeprom at24
-driver reads data from the device using the SMBus block, word or byte
-read protocols depending on availability.
+Some i2c busses (e.g.: Synopsys DesignWare I2C adapter) need to
+enable/disable the bus at each i2c transfer and must wait for
+the enable/disable to happen before sending the data.
 
-Replace the block read emulation from the driver with the
-i2c_smbus_read_i2c_block_data_or_emulated call from i2c core.
+When reading data in the trigger handler, the bmc150 accel driver does
+one i2c transfer for each axis. This has an impact on the frequency
+of the accelerometer at high sample rates due to additional delays
+introduced by the i2c bus at each transfer.
+
+Reading all axis values in one i2c transfer reduces the delays
+introduced by the i2c bus. Uses i2c_smbus_read_i2c_block_data_or_emulated
+that will fallback to reading each axis as a separate word in case i2c
+block read is not supported.
 
 Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/misc/eeprom/at24.c | 37 ++++++-------------------------------
- 1 file changed, 6 insertions(+), 31 deletions(-)
+ drivers/iio/accel/bmc150-accel.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 6ded3dc..f336f01 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -186,19 +186,11 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	if (count > io_limit)
- 		count = io_limit;
+diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
+index 49b2f8e..6991200 100644
+--- a/drivers/iio/accel/bmc150-accel.c
++++ b/drivers/iio/accel/bmc150-accel.c
+@@ -1082,6 +1082,7 @@ static const struct iio_event_spec bmc150_accel_event = {
+ 		.realbits = (bits),					\
+ 		.storagebits = 16,					\
+ 		.shift = 16 - (bits),					\
++		.endianness = IIO_LE,					\
+ 	},								\
+ 	.event_spec = &bmc150_accel_event,				\
+ 	.num_event_specs = 1						\
+@@ -1208,19 +1209,16 @@ static irqreturn_t bmc150_accel_trigger_handler(int irq, void *p)
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct bmc150_accel_data *data = iio_priv(indio_dev);
+-	int bit, ret, i = 0;
++	int ret;
  
--	switch (at24->use_smbus) {
--	case I2C_SMBUS_I2C_BLOCK_DATA:
-+	if (at24->use_smbus) {
- 		/* Smaller eeproms can work given some SMBus extension calls */
- 		if (count > I2C_SMBUS_BLOCK_MAX)
- 			count = I2C_SMBUS_BLOCK_MAX;
--		break;
--	case I2C_SMBUS_WORD_DATA:
--		count = 2;
--		break;
--	case I2C_SMBUS_BYTE_DATA:
--		count = 1;
--		break;
--	default:
-+	} else {
- 		/*
- 		 * When we have a better choice than SMBus calls, use a
- 		 * combined I2C message. Write address; then read up to
-@@ -229,27 +221,10 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	timeout = jiffies + msecs_to_jiffies(write_timeout);
- 	do {
- 		read_time = jiffies;
--		switch (at24->use_smbus) {
--		case I2C_SMBUS_I2C_BLOCK_DATA:
--			status = i2c_smbus_read_i2c_block_data(client, offset,
--					count, buf);
--			break;
--		case I2C_SMBUS_WORD_DATA:
--			status = i2c_smbus_read_word_data(client, offset);
--			if (status >= 0) {
--				buf[0] = status & 0xff;
--				buf[1] = status >> 8;
--				status = count;
--			}
--			break;
--		case I2C_SMBUS_BYTE_DATA:
--			status = i2c_smbus_read_byte_data(client, offset);
--			if (status >= 0) {
--				buf[0] = status;
--				status = count;
--			}
--			break;
--		default:
-+		if (at24->use_smbus) {
-+			status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
-+									   count, buf);
-+		} else {
- 			status = i2c_transfer(client->adapter, msg, 2);
- 			if (status == 2)
- 				status = count;
+ 	mutex_lock(&data->mutex);
+-	for (bit = 0; bit < AXIS_MAX; bit++) {
+-		ret = i2c_smbus_read_word_data(data->client,
+-					       BMC150_ACCEL_AXIS_TO_REG(bit));
+-		if (ret < 0) {
+-			mutex_unlock(&data->mutex);
+-			goto err_read;
+-		}
+-		data->buffer[i++] = ret;
+-	}
++	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
++							BMC150_ACCEL_REG_XOUT_L,
++							AXIS_MAX * 2,
++							(u8 *)data->buffer);
+ 	mutex_unlock(&data->mutex);
++	if (ret < 0)
++		goto err_read;
+ 
+ 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+ 					   pf->timestamp);
 -- 
 1.9.1
