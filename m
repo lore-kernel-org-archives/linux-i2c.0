@@ -1,78 +1,65 @@
-From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v4 8/8] iio: accel: kxcjk-1013: optimize i2c transfers in trigger handler
-Date: Tue,  4 Aug 2015 17:04:16 +0300
-Message-ID: <1438697056-2946-9-git-send-email-irina.tirdea@intel.com>
+From: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v4 3/8] iio: accel: bmc150: use available_scan_masks
+Date: Tue,  4 Aug 2015 17:04:11 +0300
+Message-ID: <1438697056-2946-4-git-send-email-irina.tirdea@intel.com>
 References: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, Peter Meerwald <pmeerw@pmeerw.net>, Adriana Reus <adriana.reus@intel.com>, Irina Tirdea <irina.tirdea@intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1438697056-2946-1-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Adriana Reus <adriana.reus@intel.com>
+Use available_scan_masks to allow the iio core to select
+the data to send to userspace depending on which axes are
+enabled, instead of doing this in the driver's interrupt
+handler.
 
-Some i2c busses (e.g.: Synopsys DesignWare I2C adapter) need to
-enable/disable the bus at each i2c transfer and must wait for
-the enable/disable to happen before sending the data.
-
-When reading data in the trigger handler, the kxcjk-1013 accel driver
-does one i2c transfer for each axis. This has an impact on the
-frequency of the accelerometer at high sample rates due to additional
-delays introduced by the i2c bus at each transfer.
-
-Reading all axis values in one i2c transfer reduces the delays
-introduced by the i2c bus. Uses i2c_smbus_read_i2c_block_data_or_emulated
-that will fallback to reading each axis as a separate word in case i2c
-block read is not supported.
-
-Signed-off-by: Adriana Reus <adriana.reus@intel.com>
-Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-Acked-by: Jonathan Cameron <jic23@kernel.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/iio/accel/kxcjk-1013.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+ drivers/iio/accel/bmc150-accel.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-index d4b80e7..e8f7b45 100644
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -926,7 +926,7 @@ static const struct iio_event_spec kxcjk1013_event = {
- 		.realbits = 12,						\
- 		.storagebits = 16,					\
- 		.shift = 4,						\
--		.endianness = IIO_CPU,					\
-+		.endianness = IIO_LE,					\
- 	},								\
- 	.event_spec = &kxcjk1013_event,				\
- 	.num_event_specs = 1						\
-@@ -964,19 +964,16 @@ static irqreturn_t kxcjk1013_trigger_handler(int irq, void *p)
+diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
+index 4e70f51..49b2f8e 100644
+--- a/drivers/iio/accel/bmc150-accel.c
++++ b/drivers/iio/accel/bmc150-accel.c
+@@ -136,6 +136,7 @@ enum bmc150_accel_axis {
+ 	AXIS_X,
+ 	AXIS_Y,
+ 	AXIS_Z,
++	AXIS_MAX,
+ };
+ 
+ enum bmc150_power_modes {
+@@ -1200,6 +1201,8 @@ static const struct iio_info bmc150_accel_info_fifo = {
+ 	.driver_module		= THIS_MODULE,
+ };
+ 
++static const unsigned long bmc150_accel_scan_masks[] = {0x7, 0};
++
+ static irqreturn_t bmc150_accel_trigger_handler(int irq, void *p)
+ {
  	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct kxcjk1013_data *data = iio_priv(indio_dev);
--	int bit, ret, i = 0;
-+	int ret;
+@@ -1208,8 +1211,7 @@ static irqreturn_t bmc150_accel_trigger_handler(int irq, void *p)
+ 	int bit, ret, i = 0;
  
  	mutex_lock(&data->mutex);
--
--	for (bit = 0; bit < AXIS_MAX; bit++) {
--		ret = kxcjk1013_get_acc_reg(data, bit);
--		if (ret < 0) {
--			mutex_unlock(&data->mutex);
--			goto err;
--		}
--		data->buffer[i++] = ret;
--	}
-+	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
-+							KXCJK1013_REG_XOUT_L,
-+							AXIS_MAX * 2,
-+							(u8 *)data->buffer);
- 	mutex_unlock(&data->mutex);
-+	if (ret < 0)
-+		goto err;
- 
- 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
- 					   data->timestamp);
+-	for_each_set_bit(bit, indio_dev->active_scan_mask,
+-			 indio_dev->masklength) {
++	for (bit = 0; bit < AXIS_MAX; bit++) {
+ 		ret = i2c_smbus_read_word_data(data->client,
+ 					       BMC150_ACCEL_AXIS_TO_REG(bit));
+ 		if (ret < 0) {
+@@ -1647,6 +1649,7 @@ static int bmc150_accel_probe(struct i2c_client *client,
+ 	indio_dev->dev.parent = &client->dev;
+ 	indio_dev->channels = data->chip_info->channels;
+ 	indio_dev->num_channels = data->chip_info->num_channels;
++	indio_dev->available_scan_masks = bmc150_accel_scan_masks;
+ 	indio_dev->name = name;
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
+ 	indio_dev->info = &bmc150_accel_info;
 -- 
 1.9.1
