@@ -1,7 +1,7 @@
 From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v4 4/8] iio: accel: bmc150: optimize i2c transfers in trigger handler
-Date: Tue,  4 Aug 2015 17:04:12 +0300
-Message-ID: <1438697056-2946-5-git-send-email-irina.tirdea@intel.com>
+Subject: [PATCH v4 5/8] iio: gyro: bmg160: use available_scan_masks
+Date: Tue,  4 Aug 2015 17:04:13 +0300
+Message-ID: <1438697056-2946-6-git-send-email-irina.tirdea@intel.com>
 References: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
@@ -10,65 +10,56 @@ To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Cameron <jic23@kernel.org>, linux
 Cc: linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, Peter Meerwald <pmeerw@pmeerw.net>, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Some i2c busses (e.g.: Synopsys DesignWare I2C adapter) need to
-enable/disable the bus at each i2c transfer and must wait for
-the enable/disable to happen before sending the data.
-
-When reading data in the trigger handler, the bmc150 accel driver does
-one i2c transfer for each axis. This has an impact on the frequency
-of the accelerometer at high sample rates due to additional delays
-introduced by the i2c bus at each transfer.
-
-Reading all axis values in one i2c transfer reduces the delays
-introduced by the i2c bus. Uses i2c_smbus_read_i2c_block_data_or_emulated
-that will fallback to reading each axis as a separate word in case i2c
-block read is not supported.
+Use available_scan_masks to allow the iio core to select
+the data to send to userspace depending on which axes are
+enabled, instead of doing this in the driver's interrupt
+handler.
 
 Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
 Acked-by: Jonathan Cameron <jic23@kernel.org>
 Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/iio/accel/bmc150-accel.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/iio/gyro/bmg160.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/accel/bmc150-accel.c b/drivers/iio/accel/bmc150-accel.c
-index 49b2f8e..6991200 100644
---- a/drivers/iio/accel/bmc150-accel.c
-+++ b/drivers/iio/accel/bmc150-accel.c
-@@ -1082,6 +1082,7 @@ static const struct iio_event_spec bmc150_accel_event = {
- 		.realbits = (bits),					\
- 		.storagebits = 16,					\
- 		.shift = 16 - (bits),					\
-+		.endianness = IIO_LE,					\
- 	},								\
- 	.event_spec = &bmc150_accel_event,				\
- 	.num_event_specs = 1						\
-@@ -1208,19 +1209,16 @@ static irqreturn_t bmc150_accel_trigger_handler(int irq, void *p)
+diff --git a/drivers/iio/gyro/bmg160.c b/drivers/iio/gyro/bmg160.c
+index 460bf71..b2a6ccb 100644
+--- a/drivers/iio/gyro/bmg160.c
++++ b/drivers/iio/gyro/bmg160.c
+@@ -114,6 +114,7 @@ enum bmg160_axis {
+ 	AXIS_X,
+ 	AXIS_Y,
+ 	AXIS_Z,
++	AXIS_MAX,
+ };
+ 
+ static const struct {
+@@ -801,6 +802,8 @@ static const struct iio_info bmg160_info = {
+ 	.driver_module		= THIS_MODULE,
+ };
+ 
++static const unsigned long bmg160_scan_masks[] = {0x7, 0};
++
+ static irqreturn_t bmg160_trigger_handler(int irq, void *p)
+ {
  	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct bmc150_accel_data *data = iio_priv(indio_dev);
--	int bit, ret, i = 0;
-+	int ret;
+@@ -809,8 +812,7 @@ static irqreturn_t bmg160_trigger_handler(int irq, void *p)
+ 	int bit, ret, i = 0;
  
  	mutex_lock(&data->mutex);
--	for (bit = 0; bit < AXIS_MAX; bit++) {
--		ret = i2c_smbus_read_word_data(data->client,
--					       BMC150_ACCEL_AXIS_TO_REG(bit));
--		if (ret < 0) {
--			mutex_unlock(&data->mutex);
--			goto err_read;
--		}
--		data->buffer[i++] = ret;
--	}
-+	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
-+							BMC150_ACCEL_REG_XOUT_L,
-+							AXIS_MAX * 2,
-+							(u8 *)data->buffer);
- 	mutex_unlock(&data->mutex);
-+	if (ret < 0)
-+		goto err_read;
- 
- 	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
- 					   pf->timestamp);
+-	for_each_set_bit(bit, indio_dev->active_scan_mask,
+-			 indio_dev->masklength) {
++	for (bit = 0; bit < AXIS_MAX; bit++) {
+ 		ret = i2c_smbus_read_word_data(data->client,
+ 					       BMG160_AXIS_TO_REG(bit));
+ 		if (ret < 0) {
+@@ -1062,6 +1064,7 @@ static int bmg160_probe(struct i2c_client *client,
+ 	indio_dev->dev.parent = &client->dev;
+ 	indio_dev->channels = bmg160_channels;
+ 	indio_dev->num_channels = ARRAY_SIZE(bmg160_channels);
++	indio_dev->available_scan_masks = bmg160_scan_masks;
+ 	indio_dev->name = name;
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
+ 	indio_dev->info = &bmg160_info;
 -- 
 1.9.1
