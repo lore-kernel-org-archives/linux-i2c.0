@@ -1,33 +1,43 @@
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: Re: [PATCH-v5 1/5] Documentation: binding: add new property 'disable_after_xfer'
- to i2c-pxa
-Date: Wed, 05 Aug 2015 15:11:32 +0530
-Message-ID: <55C1DA4C.6040700@linaro.org>
-References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org> <1437482466-16126-2-git-send-email-vaibhav.hiremath@linaro.org> <20150727140911.GB15004@beef> <55C1AE71.3010700@linaro.org> <20150805084917.GA1523@katana>
+From: Shubhrajyoti Datta <shubhrajyoti.datta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH-v5 2/5] i2c: pxa: enable/disable i2c module across msg xfer
+Date: Wed, 5 Aug 2015 16:16:44 +0530
+Message-ID: <CAKfKVtGzDjgHzy70aa0d2W=ROMcxVzerg-qpuB9e4PaGKPpMTQ@mail.gmail.com>
+References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>
+	<1437482466-16126-3-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150805084917.GA1523@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Matt Porter <mporter@konsulko.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, robert.jarzmik@free.fr
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1437482466-16126-3-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+hi ,
+On Tue, Jul 21, 2015 at 6:11 PM, Vaibhav Hiremath
+<vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>
+> Enable i2c module/unit before transmission and disable when it
+> finishes.
+>
+> why?
+> It's because the i2c bus may be disturbed if the slave device,
+> typically a touch, powers on.
 
+Why should that be an issue?
+Is it an errata.
 
-On Wednesday 05 August 2015 02:19 PM, Wolfram Sang wrote:
-> I will start such a file today as part of the i2c slave framework
-> update which introduces flags to the reg property. Will post to the i2c
-> list this week.
+In which mode it is an issue slave / master or both?
 
-Great and thanks for taking this.
-
-I believe, better to wait for your patch and then rebase my patch-
-series against it. right?
-
-Request to review the this patch-series, so that I can incorporate all
-comments in V6.
-
-Thanks,
-Vaibhav
+>
+> As we do not want to break slave mode support, this patch introduces
+> DT property to control disable of the I2C module after xfer in master
+> mode of operation.
+>
+> i2c-disable-after-xfer : If set, driver will disable I2C module after
+> msg xfer
+>
+> Signed-off-by: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
