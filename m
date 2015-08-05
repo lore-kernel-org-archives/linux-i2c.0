@@ -1,44 +1,34 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH-v5 2/5] i2c: pxa: enable/disable i2c module across msg
- xfer
-Date: Wed, 05 Aug 2015 18:12:09 +0530
-Message-ID: <55C204A1.3060206@linaro.org>
-References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>	<1437482466-16126-3-git-send-email-vaibhav.hiremath@linaro.org> <CAKfKVtGzDjgHzy70aa0d2W=ROMcxVzerg-qpuB9e4PaGKPpMTQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKfKVtGzDjgHzy70aa0d2W=ROMcxVzerg-qpuB9e4PaGKPpMTQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFT 0/2] i2c: add support for r8a7795 (RCar H3)
+Date: Wed,  5 Aug 2015 15:18:24 +0200
+Message-ID: <1438780706-20945-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
+Here are the driver updates to support this new SoC. Since I don't have HW
+access, this is a request for testing. The IP cores are backwards compatible to
+Gen2. So, as long as the clocks are properly setup and the bus speed is OK,
+the rest should work out of the box.
+
+Question: Shall I prototype the dtsi additions for these modules? On the one
+hand, this is quite some change for not being able to test. On the other hand,
+other people might be so busy setting up the rest, so it may be useful after
+all.
 
 
-On Wednesday 05 August 2015 04:16 PM, Shubhrajyoti Datta wrote:
-> hi ,
-> On Tue, Jul 21, 2015 at 6:11 PM, Vaibhav Hiremath
-> <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->>
->> Enable i2c module/unit before transmission and disable when it
->> finishes.
->>
->> why?
->> It's because the i2c bus may be disturbed if the slave device,
->> typically a touch, powers on.
->
-> Why should that be an issue?
-> Is it an errata.
->
+Wolfram Sang (2):
+  i2c: rcar: add support for r8a7795 (R-Car H3)
+  i2c: sh_mobile: add support for r8a7795 (R-Car H3)
 
-Not I am aware of.
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt      | 1 +
+ Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 1 +
+ drivers/i2c/busses/i2c-rcar.c                           | 3 +++
+ drivers/i2c/busses/i2c-sh_mobile.c                      | 1 +
+ 4 files changed, 6 insertions(+)
 
-> In which mode it is an issue slave / master or both?
->
+-- 
+2.1.4
 
-since it talks about touch, I expect it to be master mode.
-
-Thanks,
-Vaibhav
