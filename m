@@ -1,47 +1,53 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH] i2c: allow specifying separate wakeup interrupt in
- device tree
-Date: Wed, 5 Aug 2015 06:33:44 -0700
-Message-ID: <20150805133343.GL16878@atomide.com>
-References: <20150730201431.GA5255@dtor-ws>
- <55BB54B1.80603@ti.com>
- <20150803102121.GO16878@atomide.com>
- <20150803200246.GB38878@dtor-ws>
+From: Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH-v5 1/5] Documentation: binding: add new property
+ 'disable_after_xfer' to i2c-pxa
+Date: Wed, 5 Aug 2015 10:20:11 -0400
+Message-ID: <20150805142011.GC23173@beef>
+References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1437482466-16126-2-git-send-email-vaibhav.hiremath@linaro.org>
+ <20150727140911.GB15004@beef>
+ <55C1AE71.3010700@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150803200246.GB38878@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Vignesh R <vigneshr@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <55C1AE71.3010700-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [150803 13:05]:
-> On Mon, Aug 03, 2015 at 03:21:21AM -0700, Tony Lindgren wrote:
-> > 
-> > Hmm why do we need the check for if (device_can_wakeup(&client->dev)))?
+On Wed, Aug 05, 2015 at 12:04:25PM +0530, Vaibhav Hiremath wrote:
 > 
-> Because of the code in device_wakeup_attach_irq():
 > 
-> 	ws = dev->power.wakeup;
-> 	if (!ws) {
-> 		dev_err(dev, "forgot to call call device_init_wakeup?\n");
-> 		return -EINVAL;
-> 	}
-
-OK :) 
-
-> > Also wondering about the dev vs &client->dev usage here.. But I take
-> > you have checked that we end up calling the runtime PM calls of the
-> > client instead of the i2c bus controller :)
+> On Monday 27 July 2015 07:39 PM, Matt Porter wrote:
+> >On Tue, Jul 21, 2015 at 06:11:02PM +0530, Vaibhav Hiremath wrote:
+> >>Driver will now supports enable/disable across msg xfer, which user
+> >>can control it by new DT property -
+> >>
+> >>i2c-disable-after-xfer : If set, driver will disable I2C module after msg
+> >>  xfer and enable it back before xfer.
+> >
+> >If this is a new property specific to this Marvell part, it needs
+> >the vendor prefix as in mrvl,i2c-disable-after-xfer
+> >
 > 
-> dev *is* clent->dev in this context:
+> We discussed about this, I think in V1 or V2. Decided to use generic
+> name, as feature (in turn property) could be used by other drivers as
+> well.
+
+Ahh, ok, thanks...coming in too late on this one. :)
+
+> >Or, it couldn't hurt to start an i2c.txt for generic i2c bindings
+> >and store it there as this and others later in this series would
+> >reasonably apply to other controllers.
+> >
 > 
-> 	struct i2c_client *client = i2c_verify_client(dev);
+> Yeah, we could start i2c.txt, probably better to have separate new
+> patch all together.
 
-OK thanks for confirming that.
+Great, yes, I've always found it hard to follow i2c generic bindings
+since they aren't defined in a clear place like other similar hardware
+(e.g. SPI).
 
-Regards,
-
-Tony
+-Matt
