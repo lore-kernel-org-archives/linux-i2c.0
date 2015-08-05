@@ -1,34 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFT 0/2] i2c: add support for r8a7795 (RCar H3)
-Date: Wed,  5 Aug 2015 15:18:24 +0200
-Message-ID: <1438780706-20945-1-git-send-email-wsa@the-dreams.de>
+Subject: [RFT 1/2] i2c: rcar: add support for r8a7795 (R-Car H3)
+Date: Wed,  5 Aug 2015 15:18:25 +0200
+Message-ID: <1438780706-20945-2-git-send-email-wsa@the-dreams.de>
+References: <1438780706-20945-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1438780706-20945-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Here are the driver updates to support this new SoC. Since I don't have HW
-access, this is a request for testing. The IP cores are backwards compatible to
-Gen2. So, as long as the clocks are properly setup and the bus speed is OK,
-the rest should work out of the box.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Question: Shall I prototype the dtsi additions for these modules? On the one
-hand, this is quite some change for not being able to test. On the other hand,
-other people might be so busy setting up the rest, so it may be useful after
-all.
+Enable the I2C core for this SoC. I add a new type because this version
+has new features (e.g. DMA) which will be added somewhen later.
 
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 1 +
+ drivers/i2c/busses/i2c-rcar.c                      | 3 +++
+ 2 files changed, 4 insertions(+)
 
-Wolfram Sang (2):
-  i2c: rcar: add support for r8a7795 (R-Car H3)
-  i2c: sh_mobile: add support for r8a7795 (R-Car H3)
-
- Documentation/devicetree/bindings/i2c/i2c-rcar.txt      | 1 +
- Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 1 +
- drivers/i2c/busses/i2c-rcar.c                           | 3 +++
- drivers/i2c/busses/i2c-sh_mobile.c                      | 1 +
- 4 files changed, 6 insertions(+)
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+index 16b3e07aa98fdd..ea406eb20fa5ad 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -10,6 +10,7 @@ Required properties:
+ 	"renesas,i2c-r8a7792"
+ 	"renesas,i2c-r8a7793"
+ 	"renesas,i2c-r8a7794"
++	"renesas,i2c-r8a7795"
+ - reg: physical base address of the controller and length of memory mapped
+   region.
+ - interrupts: interrupt specifier.
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index d8361dada58455..3e125654bb288a 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -103,6 +103,7 @@
+ enum rcar_i2c_type {
+ 	I2C_RCAR_GEN1,
+ 	I2C_RCAR_GEN2,
++	I2C_RCAR_GEN3,
+ };
+ 
+ struct rcar_i2c_priv {
+@@ -178,6 +179,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+ 		cdf_width = 2;
+ 		break;
+ 	case I2C_RCAR_GEN2:
++	case I2C_RCAR_GEN3:
+ 		cdf_width = 3;
+ 		break;
+ 	default:
+@@ -625,6 +627,7 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,i2c-r8a7792", .data = (void *)I2C_RCAR_GEN2 },
+ 	{ .compatible = "renesas,i2c-r8a7793", .data = (void *)I2C_RCAR_GEN2 },
+ 	{ .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
++	{ .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
 -- 
 2.1.4
 
