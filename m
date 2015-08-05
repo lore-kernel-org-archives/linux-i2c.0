@@ -1,49 +1,45 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH-v5 4/5] Documentation: binding: add sclk adjustment properties
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Subject: Re: [PATCH-v5 1/5] Documentation: binding: add new property 'disable_after_xfer'
  to i2c-pxa
-Date: Wed, 05 Aug 2015 11:59:01 +0530
-Message-ID: <55C1AD2D.90109@linaro.org>
-References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org> <1437482466-16126-5-git-send-email-vaibhav.hiremath@linaro.org> <20150727141152.GC15004@beef>
+Date: Wed, 05 Aug 2015 12:04:25 +0530
+Message-ID: <55C1AE71.3010700@linaro.org>
+References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org> <1437482466-16126-2-git-send-email-vaibhav.hiremath@linaro.org> <20150727140911.GB15004@beef>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150727141152.GC15004@beef>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150727140911.GB15004@beef>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matt Porter <mporter@konsulko.com>
+Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, wsa@the-dreams.de, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, robert.jarzmik@free.fr
 List-Id: linux-i2c@vger.kernel.org
 
 
 
-On Monday 27 July 2015 07:41 PM, Matt Porter wrote:
-> On Tue, Jul 21, 2015 at 06:11:05PM +0530, Vaibhav Hiremath wrote:
->> With addition of PXA910 family of devices, the TWSI module supports
->> new feature which allows us to adjust SCLK. i2c-pxa driver takes input
->> configuration in nsec and converts it to respective bit-fields,
+On Monday 27 July 2015 07:39 PM, Matt Porter wrote:
+> On Tue, Jul 21, 2015 at 06:11:02PM +0530, Vaibhav Hiremath wrote:
+>> Driver will now supports enable/disable across msg xfer, which user
+>> can control it by new DT property -
 >>
->>   - i2c-sclk-low-time-ns : SCLK low time (tlow)
->>     This property is used along with mode selection.
->>   - i2c-sclk-high-time-ns : SCLK high time (thigh)
->>   - i2c-start-hold-time-ns : Used in case of high speed mode for start bit
->>     hold/setup wait counter.
->>   - i2c-stop-hold-time-ns : Used in case of high speed mode for stop bit
->>     hold/setup wait counter.
->>   - i2c-sda-hold-time-ns : Used to calculate hold/setup wait counter for
->>     standard and fast mode.
+>> i2c-disable-after-xfer : If set, driver will disable I2C module after msg
+>>   xfer and enable it back before xfer.
 >
-> Again, these should have a mrvl prefix..very specific to this PXA
-> controller.
+> If this is a new property specific to this Marvell part, it needs
+> the vendor prefix as in mrvl,i2c-disable-after-xfer
 >
 
-Sorry for delayed response, was down with health issue for week.
+We discussed about this, I think in V1 or V2. Decided to use generic
+name, as feature (in turn property) could be used by other drivers as
+well.
 
-Coming back to your comment,
+> Or, it couldn't hurt to start an i2c.txt for generic i2c bindings
+> and store it there as this and others later in this series would
+> reasonably apply to other controllers.
+>
 
-No, they are not Marvell specific. If you refer back to my V1, we
-discussed about it and concluded that we should use generic property
-here.
-There are quite a few drivers using same properties for similar purpose.
+Yeah, we could start i2c.txt, probably better to have separate new
+patch all together.
+
 
 Thanks,
 Vaibhav
