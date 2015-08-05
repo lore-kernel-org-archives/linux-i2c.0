@@ -1,66 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFT 1/2] i2c: rcar: add support for r8a7795 (R-Car H3)
-Date: Wed,  5 Aug 2015 15:18:25 +0200
-Message-ID: <1438780706-20945-2-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [RFT 2/2] i2c: sh_mobile: add support for r8a7795 (R-Car H3)
+Date: Wed,  5 Aug 2015 15:18:26 +0200
+Message-ID: <1438780706-20945-3-git-send-email-wsa@the-dreams.de>
 References: <1438780706-20945-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1438780706-20945-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1438780706-20945-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Enable the I2C core for this SoC. I add a new type because this version
-has new features (e.g. DMA) which will be added somewhen later.
+Enable the I2C core for this SoC. It is compitable to Gen2 SoCs, so
+reuse the settings.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 1 +
- drivers/i2c/busses/i2c-rcar.c                      | 3 +++
- 2 files changed, 4 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 1 +
+ drivers/i2c/busses/i2c-sh_mobile.c                      | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-index 16b3e07aa98fdd..ea406eb20fa5ad 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+index 2bfc6e7ed09473..214f94c25d370b 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
 @@ -10,6 +10,7 @@ Required properties:
- 	"renesas,i2c-r8a7792"
- 	"renesas,i2c-r8a7793"
- 	"renesas,i2c-r8a7794"
-+	"renesas,i2c-r8a7795"
- - reg: physical base address of the controller and length of memory mapped
-   region.
- - interrupts: interrupt specifier.
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index d8361dada58455..3e125654bb288a 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -103,6 +103,7 @@
- enum rcar_i2c_type {
- 	I2C_RCAR_GEN1,
- 	I2C_RCAR_GEN2,
-+	I2C_RCAR_GEN3,
- };
- 
- struct rcar_i2c_priv {
-@@ -178,6 +179,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 		cdf_width = 2;
- 		break;
- 	case I2C_RCAR_GEN2:
-+	case I2C_RCAR_GEN3:
- 		cdf_width = 3;
- 		break;
- 	default:
-@@ -625,6 +627,7 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
- 	{ .compatible = "renesas,i2c-r8a7792", .data = (void *)I2C_RCAR_GEN2 },
- 	{ .compatible = "renesas,i2c-r8a7793", .data = (void *)I2C_RCAR_GEN2 },
- 	{ .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
-+	{ .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
+ 			- "renesas,iic-r8a7792" (R-Car V2H)
+ 			- "renesas,iic-r8a7793" (R-Car M2-N)
+ 			- "renesas,iic-r8a7794" (R-Car E2)
++			- "renesas,iic-r8a7795" (R-Car H3)
+ 			- "renesas,iic-sh73a0" (SH-Mobile AG5)
+ - reg             : address start and address range size of device
+ - interrupts      : interrupt of device
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 47659a925e09cd..7d2bd3ec2d2d25 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -836,6 +836,7 @@ static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,iic-r8a7792", .data = &fast_clock_dt_config },
+ 	{ .compatible = "renesas,iic-r8a7793", .data = &fast_clock_dt_config },
+ 	{ .compatible = "renesas,iic-r8a7794", .data = &fast_clock_dt_config },
++	{ .compatible = "renesas,iic-r8a7795", .data = &fast_clock_dt_config },
+ 	{ .compatible = "renesas,iic-sh73a0", .data = &fast_clock_dt_config },
  	{},
  };
- MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
 -- 
 2.1.4
-
