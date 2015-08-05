@@ -1,57 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH-v5 1/5] Documentation: binding: add new property
- 'disable_after_xfer' to i2c-pxa
-Date: Wed, 5 Aug 2015 10:49:18 +0200
-Message-ID: <20150805084917.GA1523@katana>
-References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>
- <1437482466-16126-2-git-send-email-vaibhav.hiremath@linaro.org>
- <20150727140911.GB15004@beef>
- <55C1AE71.3010700@linaro.org>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH-v5 5/5] i2c: pxa: Add ILCR (tLow & tHigh) configuration
+ support
+Date: Wed, 05 Aug 2015 14:21:26 +0530
+Message-ID: <55C1CE8E.9000601@linaro.org>
+References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org> <1437482466-16126-6-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <55C1AE71.3010700@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Cc: Matt Porter <mporter@konsulko.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, robert.jarzmik@free.fr
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1437482466-16126-6-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: robert.jarzmik-GANU6spQydw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
+On Tuesday 21 July 2015 06:11 PM, Vaibhav Hiremath wrote:
+> With addition of PXA910 family of devices, the TWSI module supports
+> SCL clock adjustment using ILCR register.
+>
+> This patch enables the control and configuration of ICLR through DT
+> properties,
+>
+> i2c-sclk-high-time-ns:
+>    SCLK high time (tHigh), for standard/fast/high speed mode
+> i2c-sclk-low-time-ns:
+>    SCLK low time (tLow), for standard/fast/high speed mode
+>
+> Note that in case of standard and fast mod, the tLow and tHigh counters
+> are same, and software will use tLow value.
+>
+> Also, brought up devm_clk_get() fn above i2c_pxa_probe_dt(), as it
+> uses clk rate for timing calculations.
+>
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Jett.Zhou <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> ---
+>   drivers/i2c/busses/i2c-pxa.c | 69 ++++++++++++++++++++++++++++++++++++++++----
+>   1 file changed, 63 insertions(+), 6 deletions(-)
+>
 
-> Yeah, we could start i2c.txt, probably better to have separate new
-> patch all together.
+Robert,
 
-I will start such a file today as part of the i2c slave framework
-update which introduces flags to the reg property. Will post to the i2c
-list this week.
+It would be helpful if you can test this patch-series and confirm that
+it now fixes the NULL pointer deference issue.
 
-
---1yeeQ81UyVL57Vl7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVwc4NAAoJEBQN5MwUoCm2AA8QAInpAv1D8eJ6jU5ManxOrAz3
-HZd4TMcA4xy9Jzshf5Gn1ZMLxVetPuy7opDEuGp8DjBZY1KLABUwrnPNAV7QDhkZ
-AyZp8y8JvRinZof7RbpJLRz7zpXkguvwNuaxKPvH3xC0B45eQ7o+CFism+94vmO2
-clnHsJgXCCDA6Isr4C1cPd9ljRyJRSqfaf0yot/WtSLDvBDW3wzJUvbJcuDld5P+
-XuywqifNCPjgb3TQJI8eKYMmzaJudzAUSOy0TuUVKpNcRFFsTezV0ff++TOQG19q
-Eycz6guizH08Zm9GrfnpvkotevSnawhUeVdlPbm8T2fhptda+7KepgxcSKl6O6lI
-j8MxTwYTsmDDUjBMyJA5CJgZcPXUy4js2JCQqqNiQZNotsZ7SRQPVfaVBD03we/8
-rbdbKTt/rn0rGt91oyiSAJ0D/PmFfset9WP0yJsY4EA3oV7mhkTcjlp/tszGVsXd
-QLkp9OhTkAT+GHTM3H1f6vvlSxqo/Uyadayvy0xP+puVaN4R5KUobmd7gI+Ia5e+
-p+rnkONi7B7jZgIX89LfTxVni/Vl3kOdhefuTqmf8DHSvUGQ/LpT3/Ci8MEr2FHR
-Ho6FrNEIe36rURL1rSYGYnYNO61fyOhiS3oTBh8ZZgidyQi3Huv9Rh+Jz227bBSl
-BAKav6JuUPbJqrlhVUYk
-=T6X0
------END PGP SIGNATURE-----
-
---1yeeQ81UyVL57Vl7--
+Thanks,
+Vaibhav
