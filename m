@@ -1,34 +1,79 @@
-From: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
-Subject: Re: [PATCH-v5 5/5] i2c: pxa: Add ILCR (tLow & tHigh) configuration support
-Date: Wed, 05 Aug 2015 21:11:17 +0200
-Message-ID: <87h9odlfe2.fsf@belgarion.home>
-References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>
-	<1437482466-16126-6-git-send-email-vaibhav.hiremath@linaro.org>
-	<55C1CE8E.9000601@linaro.org>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [RFT 1/2] i2c: rcar: add support for r8a7795 (R-Car H3)
+Date: Thu, 6 Aug 2015 09:30:41 +0900
+Message-ID: <20150806003041.GA17231@verge.net.au>
+References: <1438780706-20945-1-git-send-email-wsa@the-dreams.de>
+ <1438780706-20945-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55C1CE8E.9000601-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> (Vaibhav Hiremath's message of
-	"Wed, 05 Aug 2015 14:21:26 +0530")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1438780706-20945-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
+On Wed, Aug 05, 2015 at 03:18:25PM +0200, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> Enable the I2C core for this SoC. I add a new type because this version
+> has new features (e.g. DMA) which will be added somewhen later.
 
-> Robert,
->
-> It would be helpful if you can test this patch-series and confirm that
-> it now fixes the NULL pointer deference issue.
->
-> Thanks,
-> Vaibhav
-Hi Vaibhav,
+Minor nit: s/somewhen/sometime/
+or: s/somewhen //
 
-My next slot is probably this comming Sunday. I'll do the test and report.
-
-Cheers.
-
--- 
-Robert
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 1 +
+>  drivers/i2c/busses/i2c-rcar.c                      | 3 +++
+>  2 files changed, 4 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> index 16b3e07aa98fdd..ea406eb20fa5ad 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> @@ -10,6 +10,7 @@ Required properties:
+>  	"renesas,i2c-r8a7792"
+>  	"renesas,i2c-r8a7793"
+>  	"renesas,i2c-r8a7794"
+> +	"renesas,i2c-r8a7795"
+>  - reg: physical base address of the controller and length of memory mapped
+>    region.
+>  - interrupts: interrupt specifier.
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index d8361dada58455..3e125654bb288a 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -103,6 +103,7 @@
+>  enum rcar_i2c_type {
+>  	I2C_RCAR_GEN1,
+>  	I2C_RCAR_GEN2,
+> +	I2C_RCAR_GEN3,
+>  };
+>  
+>  struct rcar_i2c_priv {
+> @@ -178,6 +179,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+>  		cdf_width = 2;
+>  		break;
+>  	case I2C_RCAR_GEN2:
+> +	case I2C_RCAR_GEN3:
+>  		cdf_width = 3;
+>  		break;
+>  	default:
+> @@ -625,6 +627,7 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
+>  	{ .compatible = "renesas,i2c-r8a7792", .data = (void *)I2C_RCAR_GEN2 },
+>  	{ .compatible = "renesas,i2c-r8a7793", .data = (void *)I2C_RCAR_GEN2 },
+>  	{ .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
+> +	{ .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
+> -- 
+> 2.1.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
