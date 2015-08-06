@@ -1,74 +1,48 @@
-From: Robert Abel <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>
-Subject: Re: [PATCH 5/6] i2c: Xilinx IIC: make reset after TX error configurable
-Date: Thu, 6 Aug 2015 11:40:10 +0200
-Message-ID: <CAMdRc4EhS_wDzLHoa4_vAh_A1wtsGy7gqt_sVLcC5-4LDV+b9A@mail.gmail.com>
-References: <1438344034-20211-1-git-send-email-rabel@cit-ec.uni-bielefeld.de>
-	<1438344034-20211-7-git-send-email-rabel@cit-ec.uni-bielefeld.de>
-	<55BEFD63.6090108@xilinx.com>
-	<CAMdRc4F__S-dQOOsZv0pUtER5+-kwH=Mt+wfanvJXHWqS=YRMA@mail.gmail.com>
-	<55C32666.6070304@xilinx.com>
+From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2 4/4] i2c: arb-gpio-challenge: use of_get_i2c_adapter_by_node
+ interface
+Date: Thu, 6 Aug 2015 13:18:55 +0300
+Message-ID: <55C3348F.7030801@mentor.com>
+References: <1438007451-8553-1-git-send-email-vladimir_zapolskiy@mentor.com> <1438007451-8553-5-git-send-email-vladimir_zapolskiy@mentor.com> <20150806005151.GD1743@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55C32666.6070304-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <20150806005151.GD1743@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michal,
+Hi Wolfram,
 
-On Thu, Aug 6, 2015 at 11:18 AM, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>=
- wrote:
-> Every patch like this has to fix something. If some certain IP versio=
-ns
-> are affected then it should be listed at least one version.
+On 06.08.2015 03:51, Wolfram Sang wrote:
+> On Mon, Jul 27, 2015 at 05:30:51PM +0300, Vladimir Zapolskiy wrote:
+>> This change is needed to properly lock I2C parent bus driver.
+>>
+>> Prior to this change i2c_put_adapter() is misused, which may lead
+>> to an overflow over zero of I2C bus driver user counter.
+>>
+>> By the way added a missing of_node_put() to eliminate memory leak,
+>> if OF_DYNAMIC is enabled.
+>>
+>> Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+>> Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> 
+> Applied to for-next! However...
 
-Please re-read my email. I said:
-- I do NOT know of any bug.
-- all information about a possible bug come from that three lines of
-commentary which are in the _original_ mainline driver.
-- there is no errata mentioned in any of the datasheets I read.
+great, thank you.
 
-> Huh. Don't get what you are saying here. Based on your description it=
- is
-> HW bug and it is completely fine to have dt property to avoid this bu=
-g.
-> Having another config property is just not acceptable solution now.
+>> +	of_node_put(parent_np);
+> 
+> I removed this line. Please resend this as a seperate patch since it
+> fixes a seperate issue.
+> 
 
-You misunderstood. To recapitulate:
+Definitely, I always forget about non-zero probability of any commit
+reverse. I'll resend this change plus at least two more similar fixes in
+drivers/i2c I have in mind in a separate series.
 
-- I have not seen this bug in action.-
-- I have not observed this bug in simulation.
-- I don't think it exists in current IP.
-- I personally think any odd behavior the original committers might
-have observed came down to bugs in their ISR.
-
-If any errata had existed in previous IP, I would expect the
-datasheets to mention this-- they don't. I have looked at datasheets
-axi_iic_ds756 v1.01a, axi_iic_ds756 v1.01b, axi_iic_ds756 v1.02a and
-xps_iic_ds606 v2.03a.
-I have simulated axi_iic v1.02a and successfully use axi_iic v1.02a in
-hardware with my patched driver without the CONFIG_I2C_XILINX_ERRATA
-configuration option configured, i.e. # CONFIG_I2C_XILINX_ERRATA is
-not set.
-
-On the off-chance this bug _does_ exist in previous or current IP, I
-provided this compile-time configurable option to enable the _old_
-mainline behavior of resetting the IP after every TX error so as to
-not break somebody's platform.
-And that's why it isn't a DT property. It can always be promoted to a
-DT property when the existence of any errata were actually verified,
-but I have neither time nor inclination to do so.
-
-Therefore, I _don't know_ which version of the IP _if any_ is
-affected. If you require more information, I suggest you inquire with
-Richard R=C3=B6jfors or possibly Ben Dooks about it. Richard R=C3=B6jfo=
-rs is to
-git blame for the reset-after-Tx-error functionality and the comment
-mentioning a possible errata.
-
-Regards,
-
-Robert
+--
+With best wishes,
+Vladimir
