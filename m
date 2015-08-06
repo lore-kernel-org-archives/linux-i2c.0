@@ -1,84 +1,71 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 3/4] i2c: core: add and export
- of_get_i2c_adapter_by_node() interface
-Date: Thu, 6 Aug 2015 02:50:24 +0200
-Message-ID: <20150806005024.GC1743@katana>
+Subject: Re: [PATCH v2 4/4] i2c: arb-gpio-challenge: use
+ of_get_i2c_adapter_by_node interface
+Date: Thu, 6 Aug 2015 02:51:51 +0200
+Message-ID: <20150806005151.GD1743@katana>
 References: <1438007451-8553-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <1438007451-8553-4-git-send-email-vladimir_zapolskiy@mentor.com>
+ <1438007451-8553-5-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
+	protocol="application/pgp-signature"; boundary="wULyF7TL5taEdwHz"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1438007451-8553-4-git-send-email-vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1438007451-8553-5-git-send-email-vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Cc: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---QRj9sO5tAVLaXnSD
+--wULyF7TL5taEdwHz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 27, 2015 at 05:30:50PM +0300, Vladimir Zapolskiy wrote:
-> of_find_i2c_adapter_by_node() call requires quite often missing
-> put_device(), and i2c_put_adapter() releases a device locked by
-> i2c_get_adapter() only. In general module_put(adapter->owner) and
-> put_device(dev) are not interchangeable.
+On Mon, Jul 27, 2015 at 05:30:51PM +0300, Vladimir Zapolskiy wrote:
+> This change is needed to properly lock I2C parent bus driver.
 >=20
-> This is a common error reproduction scenario as a result of the
-> misusage described above (for clearness this is run on iMX6 platform
-> with HDMI and I2C bus drivers compiled as kernel modules):
+> Prior to this change i2c_put_adapter() is misused, which may lead
+> to an overflow over zero of I2C bus driver user counter.
 >=20
->     root@mx6q:~# lsmod | grep i2c
->     i2c_imx                10213  0
->     root@mx6q:~# lsmod | grep dw_hdmi_imx
->     dw_hdmi_imx             3631  0
->     dw_hdmi                11846  1 dw_hdmi_imx
->     imxdrm                  8674  3 dw_hdmi_imx,imx_ipuv3_crtc,imx_ldb
->     drm_kms_helper        113765  5 dw_hdmi,imxdrm,imx_ipuv3_crtc,imx_ldb
->     root@mx6q:~# rmmod dw_hdmi_imx
->     root@mx6q:~# lsmod | grep i2c
->     i2c_imx                10213  -1
->=20
->                                  ^^^^^
->=20
->     root@mx6q:~# rmmod i2c_imx
->     rmmod: ERROR: Module i2c_imx is in use
->=20
-> To fix existing users of these interfaces and to avoid any further
-> confusion and misusage in future, add one more interface
-> of_get_i2c_adapter_by_node(), it is similar to i2c_get_adapter() in
-> sense that an I2C bus device driver found and locked by user can be
-> correctly unlocked by i2c_put_adapter().
+> By the way added a missing of_node_put() to eliminate memory leak,
+> if OF_DYNAMIC is enabled.
 >=20
 > Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+> Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 
-Applied to for-next, thanks!
+Applied to for-next! However...
+
+> +	of_node_put(parent_np);
+
+I removed this line. Please resend this as a seperate patch since it
+fixes a seperate issue.
+
+Thanks,
+
+   Wolfram
 
 
---QRj9sO5tAVLaXnSD
+--wULyF7TL5taEdwHz
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVwq9QAAoJEBQN5MwUoCm2QoQQAIZSLiXkxOke3JRfUKotuQnC
-qbTjMxwRetnb9b6lGCzdgbxArq5Qo69tADksBxioP/VGRl4FaqS+xWmrdLmwQ+r1
-KAO9YMPbRVuPzxl+Xd9dfefsdXZ8T/UJxreiQHtaXzy24GlB3RSmHK1uFJMTnU9K
-Jc0LFcQOSVsz9pg4OrNK0iM1LSVkprtpWH5UF6ye+BzEmu5kIuJDXuoR2sFjuFgA
-5Uvvpr/EESlUGFApmi79nZKlcZ+JnjSQLkvhM3Tc3TIbBOuY8dMiha8Yo7ZU4W05
-EEHY+OZNiFqUQychwMdZCsVJv8v2vh2BV86Kw3ORo0r13i0EJWS5UUNAsQzTPUkk
-jS0mQmU3K9KuGmUFXcv3fd7/iMmlmBCOx4tQw31qrrjp85I+69BL38TxUVoXcWCK
-B+8CKI64cNH+w1dRx7w+VQ7Ft+2s2NAUovdHmX4wEiNbpB2UzezhtJFXzrxD7bzA
-hNaxSGUyHv0a+NGlZgwPheg4SKxUlXOoMVFRD6l3FIoSnxVK8QaG6cJefLc5BTAt
-Fve+1sv4w7rSH5pSC7OJjFGNPsJMoWjqgoYtBOBiF/semgHpVjd113MIyLkiBwee
-Inl3eoalVy9lIkpv3IgVlRPhemWkEUHTtYCsVLzGi4wgUXNsR6FkZ+f4Wh242wy4
-oYiytIxGKzDNP5M4x+L0
-=1I1+
+iQIcBAEBAgAGBQJVwq+nAAoJEBQN5MwUoCm2G2MP/3xeGk8gfN0JHCUK4R1zSF/f
+QjuajvDGd2aGdgN3hyrObmc+NY0sNaNX9QY05uH6rPqUEJdrvWz+LQAW7E1MNjJF
+K+SYldIn6YHsezCMO2EAwp6GHofAaA8XJ0fKIODkrx0YNWKCekP2iJdGYSeUeKSF
+SbtIKCd7xXc52xmvsey0K31uELKS3fN6MDkUG/HluXkb/qwXCedWRYvutflkan60
+W7qGlUivMrng2tnSWriOl8uFrD5OZnXyH1JhuQwkkwSZ9B2UKIw/9AMXhGpjEN4K
+wgQ7vPk3Q3RLHvp1SO9IiFDwRg8xqMff3tBofUCioGPAmNRWAmcYAwUekLvVMc2n
+Rtdy5fLYNKJQ/AH1OYcibiQo5SBDc/oYE05oADEXoRelDEujFzrDOuveouuPAs6v
+MCk6cYmmGH9ouHdYE3gIgrb0Ml+TdB3Aa5iDoDZi5zloqhlDM2eZ5KYCcZ/zVakG
+sbl/s7RwHlVt/djAigypFFe6swIsQ+hBLSDG/mlj9Nm/5F4v6ZiJioMQQeL8rGyJ
+dwIboulWK9XLktHpNCSDd3I9DMn/y62vhdPektxO+xM2wnO930khXk1MlD7unZ2j
+AJ2yCr5BAIak/FGg56iLwvsrFnZIJnyhIJxUn6QGj+OCFHJL0wRehzb692rEG9sj
+Fgdx5LC28iktUmjRXm92
+=Xl/s
 -----END PGP SIGNATURE-----
 
---QRj9sO5tAVLaXnSD--
+--wULyF7TL5taEdwHz--
