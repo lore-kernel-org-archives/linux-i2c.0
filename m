@@ -1,36 +1,37 @@
-From: Simon Horman <horms@verge.net.au>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Subject: Re: [RFT 1/2] i2c: rcar: add support for r8a7795 (R-Car H3)
-Date: Thu, 6 Aug 2015 09:30:41 +0900
-Message-ID: <20150806003041.GA17231@verge.net.au>
-References: <1438780706-20945-1-git-send-email-wsa@the-dreams.de>
- <1438780706-20945-2-git-send-email-wsa@the-dreams.de>
+Date: Thu, 06 Aug 2015 03:34:05 +0300
+Message-ID: <4463128.lAKghhIhbx@avalon>
+References: <1438780706-20945-1-git-send-email-wsa@the-dreams.de> <1438780706-20945-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <1438780706-20945-2-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 05, 2015 at 03:18:25PM +0200, Wolfram Sang wrote:
+Hi Wolfram,
+
+Thank you for the patch.
+
+On Wednesday 05 August 2015 15:18:25 Wolfram Sang wrote:
 > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > 
 > Enable the I2C core for this SoC. I add a new type because this version
 > has new features (e.g. DMA) which will be added somewhen later.
-
-Minor nit: s/somewhen/sometime/
-or: s/somewhen //
-
+> 
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > ---
 >  Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 1 +
 >  drivers/i2c/busses/i2c-rcar.c                      | 3 +++
 >  2 files changed, 4 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-> index 16b3e07aa98fdd..ea406eb20fa5ad 100644
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt index
+> 16b3e07aa98fdd..ea406eb20fa5ad 100644
 > --- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
 > +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
 > @@ -10,6 +10,7 @@ Required properties:
@@ -51,10 +52,10 @@ or: s/somewhen //
 >  	I2C_RCAR_GEN2,
 > +	I2C_RCAR_GEN3,
 >  };
->  
+> 
 >  struct rcar_i2c_priv {
-> @@ -178,6 +179,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
->  		cdf_width = 2;
+> @@ -178,6 +179,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv
+> *priv, cdf_width = 2;
 >  		break;
 >  	case I2C_RCAR_GEN2:
 > +	case I2C_RCAR_GEN3:
@@ -66,14 +67,16 @@ or: s/somewhen //
 >  	{ .compatible = "renesas,i2c-r8a7793", .data = (void *)I2C_RCAR_GEN2 },
 >  	{ .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
 > +	{ .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
+
+If H3 is compatible with Gen2, can't you just use I2C_RCAR_GEN2 here ? You can 
+always add I2C_RCAR_GEN3 later if you find differences.
+
 >  	{},
 >  };
 >  MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
-> -- 
-> 2.1.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+
+-- 
+Regards,
+
+Laurent Pinchart
+
