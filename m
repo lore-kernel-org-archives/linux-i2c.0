@@ -1,58 +1,51 @@
-From: Eddie Huang <eddie.huang@mediatek.com>
-Subject: [PATCH v2 2/2] i2c: mediatek: Fixup i2c ack error interrupt handling
-Date: Thu, 6 Aug 2015 15:22:11 +0800
-Message-ID: <1438845731-17805-3-git-send-email-eddie.huang@mediatek.com>
-References: <1438845731-17805-1-git-send-email-eddie.huang@mediatek.com>
+From: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 5/6] i2c: Xilinx IIC: make reset after TX error
+ configurable
+Date: Thu, 6 Aug 2015 11:18:30 +0200
+Message-ID: <55C32666.6070304@xilinx.com>
+References: <1438344034-20211-1-git-send-email-rabel@cit-ec.uni-bielefeld.de>
+ <1438344034-20211-7-git-send-email-rabel@cit-ec.uni-bielefeld.de>
+ <55BEFD63.6090108@xilinx.com>
+ <CAMdRc4F__S-dQOOsZv0pUtER5+-kwH=Mt+wfanvJXHWqS=YRMA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1438845731-17805-1-git-send-email-eddie.huang@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Liguo Zhang <liguo.zhang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, Eddie Huang <eddie.huang@mediatek.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAMdRc4F__S-dQOOsZv0pUtER5+-kwH=Mt+wfanvJXHWqS=YRMA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Robert Abel <rabel-Ejy783gw450hGw5VS8l+XCM2BslAju9D@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-When occur i2c ack error, i2c controller generate two interrupts,
-first is the ack error interrupt, then the complete interrupt.
-i2c interrupt handler should keep the two interrupt value, and only
-call complete() for the complete interrupt.
+On 08/03/2015 09:50 AM, Robert Abel wrote:
+> Hi Michal,
+> 
+> On Mon, Aug 3, 2015 at 7:34 AM, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org> wrote:
+>> Datasheet? version.
+>>
+>> Make it DT configurable.
+> 
+> I'm not sure what you're asking here. This errata isn't covered by any
+> datasheets and I don't have the time to confirm whether it actually
+> exists.
+> I'm thinking it might have been an issue with the old ISR and not the
+> IP itself (it works fine in simulation when I cause a TX error, then
+> transmit only SLA afterwards).
+> I cannot test exhaustively on hardware right now, as I'm not able to
+> monitor the bus directly on my development platform.
 
-Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
-Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
----
- drivers/i2c/busses/i2c-mt65xx.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+Every patch like this has to fix something. If some certain IP versions
+are affected then it should be listed at least one version.
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index e28ad4c..c02e6c0 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -557,15 +557,22 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
- {
- 	struct mtk_i2c *i2c = dev_id;
- 	u16 restart_flag = 0;
-+	u16 intr_stat;
- 
- 	if (i2c->dev_comp->auto_restart)
- 		restart_flag = I2C_RS_TRANSFER;
- 
--	i2c->irq_stat = readw(i2c->base + OFFSET_INTR_STAT);
--	writew(restart_flag | I2C_HS_NACKERR | I2C_ACKERR
--		| I2C_TRANSAC_COMP, i2c->base + OFFSET_INTR_STAT);
-+	intr_stat = readw(i2c->base + OFFSET_INTR_STAT);
-+	writew(intr_stat, i2c->base + OFFSET_INTR_STAT);
- 
--	complete(&i2c->msg_complete);
-+	/*
-+	 * when occurs ack error, i2c controller generate two interrupts
-+	 * first is the ack error interrupt, then the complete interrupt
-+	 * i2c->irq_stat need keep the two interrupt value.
-+	 */
-+	i2c->irq_stat |= intr_stat;
-+	if (i2c->irq_stat & (I2C_TRANSAC_COMP | restart_flag))
-+		complete(&i2c->msg_complete);
- 
- 	return IRQ_HANDLED;
- }
--- 
-1.7.9.5
+
+> Because of the above 'hunch', I didn't make this DT configurable,
+> because I feel either the bug is present and thus the code should
+> always be run, or the bug doesn't exist.
+> I don't think it depends on the hardware device, so hence no DT binding.
+
+Huh. Don't get what you are saying here. Based on your description it is
+HW bug and it is completely fine to have dt property to avoid this bug.
+Having another config property is just not acceptable solution now.
+
+Thanks,
+Michal
