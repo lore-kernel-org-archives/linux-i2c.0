@@ -1,64 +1,68 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 0/8] misc: remove boundary checks from bin attr users
-Date: Fri, 7 Aug 2015 18:10:55 +0200
-Message-ID: <20150807161055.GD25357@katana>
-References: <1437945502-27944-1-git-send-email-vz@mleia.com>
+Date: Fri, 07 Aug 2015 19:15:46 +0300
+Message-ID: <55C4D9B2.3000708@mleia.com>
+References: <1437945502-27944-1-git-send-email-vz@mleia.com> <20150807161055.GD25357@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wULyF7TL5taEdwHz"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1437945502-27944-1-git-send-email-vz@mleia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Jean Delvare <jdelvare@suse.com>, Ian Munsie <imunsie@au1.ibm.com>, Michael Neuling <mikey@neuling.org>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150807161055.GD25357@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Ian Munsie <imunsie-8fk3Idey6ehBDgjK7y7TUQ@public.gmane.org>, Michael Neuling <mikey-/owAOxkjmzZAfugRpC6u6w@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---wULyF7TL5taEdwHz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 07.08.2015 19:10, Wolfram Sang wrote:
+> Vladimir,
+> 
+> On Mon, Jul 27, 2015 at 12:18:22AM +0300, Vladimir Zapolskiy wrote:
+>> This change removes a number of redundant checks on bin attribute
+>> client's side, the same checks are done by sysfs_kf_bin_read() or
+>> sysfs_kf_bin_write() caller from fs/sysfs/file.c.
+>>
+>> Note, drivers/misc/pch_phub.c and drivers/misc/c2port/core.c may be
+>> updated in a similar way, however this task is not done due to more
+>> complicated read()/write() callbacks.
+> 
+> Can you resend the patches which touch i2c drivers with me on cc? I'd
+> like to take care of them.
 
-Vladimir,
+if we're talking about this particular series, you should have them in
+your mailbox, since you have them applied in wsa/i2c/for-next:
 
-On Mon, Jul 27, 2015 at 12:18:22AM +0300, Vladimir Zapolskiy wrote:
-> This change removes a number of redundant checks on bin attribute
-> client's side, the same checks are done by sysfs_kf_bin_read() or
-> sysfs_kf_bin_write() caller from fs/sysfs/file.c.
->=20
-> Note, drivers/misc/pch_phub.c and drivers/misc/c2port/core.c may be
-> updated in a similar way, however this task is not done due to more
-> complicated read()/write() callbacks.
+commit d12c0aaf3780c5b26b4ea9e795252381f586c063
+Author: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
+Date:   Mon Jul 27 00:18:51 2015 +0300
 
-Can you resend the patches which touch i2c drivers with me on cc? I'd
-like to take care of them.
+    misc: eeprom: at24: clean up at24_bin_write()
 
-Thanks,
+    The change removes redundant sysfs binary file boundary check, since
+    this task is already done on caller side in fs/sysfs/file.c
 
-   Wolfram
+    Signed-off-by: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
+    Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+
+commit 1f023297f7f77d434ecc221018d2e181eac0ae36
+Author: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
+Date:   Mon Jul 27 00:16:31 2015 +0300
+
+    i2c: slave eeprom: clean up sysfs bin attribute read()/write()
+
+    The change removes redundant sysfs binary file boundary checks,
+    since this task is already done on caller side in fs/sysfs/file.c
+
+    Note, on file size overflow read() now returns 0, and this is a
+    correct and expected EOF notification according to POSIX.
+
+    Signed-off-by: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
+    Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
 
---wULyF7TL5taEdwHz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Do you want me to send them to you again anyway?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVxNiPAAoJEBQN5MwUoCm2WZUP/RpeKlzxg8sa83oU8h6AEP+w
-tlkv3VRwta2HNDY10+UjMDEEa7vfOZvgC4ZtXQolVZM/nDT/8WPeWpYAfNiqD15U
-8y1Nn9trDPUq1z9BB6RkOFdSxztECQ+/tJmArtme1nqPuN5phzjQmHAWpKDv+5Aj
-uTwc6mMyC9Dp01gSd107KzzMe6QHo8hd64ztv2YklKkIcUj68nuC68WWSLWZGkw4
-pv2Fk3eRjK8uqiafGyfUY5DVqUHuxpymm3+CN9yAdMR48lQjCC5+k5g+OnQmTr2k
-n8GLZpKXT6ejPq4fqb6iUoppAKP5/WoGzRdQRbgvI6htZBPiQpS7Srl5Qi8hZeGS
-gjfDsB7+TDDbT+BpOKNLBKjKCvgUL098vXwYllY7XN5iIkR+HApLPxFhH98lhvUs
-inZebC/xCNHK5qQvuv/rxzfuavJsjnNICuHbc0HIBJ0H9Ed4FxDM7Dy6PTGUWOvo
-2/tVH07oCIs5A9BrI/5jvBlzcGG+tPzFaBE9VPvfBYHo+lm4SCGJslnWzRYCHv3s
-acgNpw7NzxYbkbLWHH+hD7JJlPHuWqoZZkz7Yi9mnD8Mnjb+tD2oHlVtDD73/qPD
-NPzd6kDGIWmtqU+8XB+55B+tjn/yHJBGpny8vEjyt7OAw2x8jE5Pvaq8wZ3O2U25
-LKaa+AJ/jAfZ6bN1FGKv
-=ptiU
------END PGP SIGNATURE-----
-
---wULyF7TL5taEdwHz--
+--
+With best wishes,
+Vladimir
