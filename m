@@ -1,41 +1,54 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v4 2/3] i2c: i801: Create iTCO device on newer Intel PCHs
-Date: Fri, 07 Aug 2015 09:27:04 -0700
-Message-ID: <55C4DC58.5030602@roeck-us.net>
-References: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk> <1438865186-25794-3-git-send-email-matt@codeblueprint.co.uk> <20150807155535.GA25357@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/8] misc: remove boundary checks from bin attr users
+Date: Sat, 8 Aug 2015 00:34:56 +0200
+Message-ID: <20150807223456.GA1527@katana>
+References: <1437945502-27944-1-git-send-email-vz@mleia.com>
+ <20150807161055.GD25357@katana>
+ <55C4D9B2.3000708@mleia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150807155535.GA25357@katana>
+Content-Disposition: inline
+In-Reply-To: <55C4D9B2.3000708@mleia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Lee Jones <lee.jones@linaro.org>, Darren Hart <dvhart@infradead.org>, linux-i2c@vger.kernel.org, Matt Fleming <matt.fleming@intel.com>
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Jean Delvare <jdelvare@suse.com>, Ian Munsie <imunsie@au1.ibm.com>, Michael Neuling <mikey@neuling.org>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/07/2015 08:55 AM, Wolfram Sang wrote:
-> On Thu, Aug 06, 2015 at 01:46:25PM +0100, Matt Fleming wrote:
->> From: Mika Westerberg <mika.westerberg@linux.intel.com>
->>
->> Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog resources
->> have been moved to reside under the i801 SMBus host controller whereas
->> previously they were under the LPC device.
->>
->> In order to support the iTCO watchdog on newer PCHs we need to create the
->> platform device here in the SMBus driver and pass all known resources using
->> platform data.
->>
->> Cc: Jean Delvare <jdelvare@suse.com>
->> Cc: Wolfram Sang <wsa@the-dreams.de>
->> Cc: <linux-i2c@vger.kernel.org>
->> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
->> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
->> Signed-off-by: Matt Fleming <matt.fleming@intel.com>
->
-> Dunno which tree this should go through (probably MFD or watchdog), but
-> doesn't look like I2C, so:
->
 
-Probably watchdog ?
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Guenter
+
+> if we're talking about this particular series, you should have them in
+> your mailbox, since you have them applied in wsa/i2c/for-next:
+
+Those are already in linus tree. I mean all drivers which use struct
+i2c_driver. Or do you prefer they go via Greg? I am fine with both.
+
+
+--6TrnltStXW4iwmi0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVxTKQAAoJEBQN5MwUoCm2EWIP/RU7JTgjtGACCq42fx0JqEN1
+ta9GKrK1LCbdJtarMgM2JguNFCNEM5ZXBzscgkmC1n1qCGCXTIKI3mpSpUa6jadJ
+sI0Vc+EfM777WLTQAxz/j5ZR7qFR+b20CRrwEQCIt4/9UlNsbYZkDr2hl9TdVcDq
+L5oePCyfPqHXHF5cvdC1XZqGEkX1xzZTKBnxxMysRJ1FnNNGfj5l/fHZJfNgXqQr
+hiWRXWrHkuGi2whXAcniBbHZ6/WR7sIkhLSR8LK1SKCj1RJlNc73QoGjf8DR4RqC
+C/g/TzWql4Tp1mthq6yfIloIRbSJDyzxJChMOPouQB2yFIH/nxS+vjfDBPE4vgbF
+7/Pzx8Wp463VihqJnW8lbrBgOKHnu01s3aSUED2RyBIky47PSIneoL9QvIt8pH48
+LDVfNpAGcFLPMkhtBl7oS4/e07iYTcN0zUSpVQSgOwpbRmKnHp6j+r8oznX8kNGA
+D2nXMFCLghPvRdUr+VLcDnbTpQybkgvJwGlfGRsMAMQeajEaANNc4isAmUJCaPbl
+DZqMic5mVM79YiXiJXawDGW+7FepZeVj0tX4kZAzkb1sH80f+HiwDtqn02oiftj2
+0swhlCXF2lK8h3koO+M1qI3dcudeq6rQmaisqcy2lliTf/h2JxF6OJhkZX/mIhun
+R3Det08n+d4+j8VdnwxL
+=qjG3
+-----END PGP SIGNATURE-----
+
+--6TrnltStXW4iwmi0--
