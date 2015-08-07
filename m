@@ -1,75 +1,58 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 2/3] i2c: i801: Create iTCO device on newer Intel PCHs
-Date: Fri, 7 Aug 2015 17:55:35 +0200
-Message-ID: <20150807155535.GA25357@katana>
-References: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk>
- <1438865186-25794-3-git-send-email-matt@codeblueprint.co.uk>
+Subject: Re: [PATCH] i2c: designware: Make debug print in i2c_dw_isr() shorter
+Date: Fri, 7 Aug 2015 18:02:27 +0200
+Message-ID: <20150807160227.GB25357@katana>
+References: <1438948383-20646-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="Yylu36WmvOXNoKYn"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1438865186-25794-3-git-send-email-matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
-Cc: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Darren Hart <dvhart-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matt Fleming <matt.fleming-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1438948383-20646-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Dxnq1zWXvFF0Q93v
+--Yylu36WmvOXNoKYn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 06, 2015 at 01:46:25PM +0100, Matt Fleming wrote:
-> From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+On Fri, Aug 07, 2015 at 02:53:03PM +0300, Jarkko Nikula wrote:
+> Printing adapter name is irrelevant from this debug print and makes output
+> needlessly long. Having already device and functions names printed here is
+> enough for debugging.
 >=20
-> Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog resources
-> have been moved to reside under the i801 SMBus host controller whereas
-> previously they were under the LPC device.
+> While at it remove extra space from "enabled=3D 0x" and use "%#x" for
+> printing "0x" prefixed hexadecimal values.
 >=20
-> In order to support the iTCO watchdog on newer PCHs we need to create the
-> platform device here in the SMBus driver and pass all known resources usi=
-ng
-> platform data.
->=20
-> Cc: Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-> Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Signed-off-by: Matt Fleming <matt.fleming-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Dunno which tree this should go through (probably MFD or watchdog), but
-doesn't look like I2C, so:
-
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Applied to for-next, thanks!
 
 
---Dxnq1zWXvFF0Q93v
+--Yylu36WmvOXNoKYn
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVxNT3AAoJEBQN5MwUoCm2F8gP+wTXJQ4p8vFB/DHUyPwCclur
-nYvZH1fYGVhDDX0clrdlGnVREgi0/7e99DHdJDGyUvDV9m8omJFxeezunOkYOhff
-qRt61Ab86vAmWR03AGT38mUcIYJ7B4iZu0IpDBdOQoxNBaFQjyncDw3kbIp70bGD
-DE08Fn1orWcjEcr+Ww5GgDX+8N8MZ9IXKXOuX3sfUkPERTiZOQfjt2KO7/Abb/it
-0Ba/cvSw4SzO+LRIKKVmLq4oloL0kTQEc0Y1ON6ak9ZEaXYWcYLh8vAPYJkgs8Si
-tRmQwL0Q9LIfVGqG1ZdWjwn5wsPbTQ6gjyWMIRArL8UOcLkhHzKBip/tQkctU1eB
-KWoqV2EBZ41xXZIBBE+OM2HPfUEcEacbOhjSZq1BsVeQe1aKDq+uAKA836Y6tIui
-gx5IH6zTjEBfWhOUeNcRdleJBNES7ftZ0S1IHsqT6jMsrvJcsaDKU9OI0788Fknz
-n9KtNW6c+EKEzejF4V1fXYdgJtgRTPHag+b19mIvs+Lkwx6Hu6ANSPVJZE+imVDo
-xAWTaoWIlEuE3MDI5UzXPdjjtNtwm/22dkUMxm7AQd1SJkDUxt686wbJZ1ZrXaPO
-NzQ1b9AsgkOSNG85lYUo8tKcSDoLaDLy+9WIVb88n6OcYmUjMAAemdGz3JKQmTlo
-r372suC/lms+U9IE8edi
-=5Ju2
+iQIcBAEBAgAGBQJVxNaTAAoJEBQN5MwUoCm2vRkQAJolGZzPYjmF4h79WeKIvshV
+4Mg0r4JmTMoxO7yI073VXKY20ImmI3vJT9jE2qxfnpRgjvnUruWRVwUlDWYHwx48
+4VxDQyrCUXfIfu4qdXGnA2X8vrDl72UI6OYl0wFTVE+bAHLCHuSjhqT31qgr8xCw
++cY+8llEUDEe5inqPMrgulezQPhK9L/ItAP58wrgiZmyfbaiAwy2rzaotBcp6ku8
+EZ46AmkDcQ3dBOVVE6fp27f3Ow+0MM2nkHzBiLAz+J2ZyuWw8lbI1bFEnro6cJmX
+X1EDLz2JKFCFvhUfXHAu9WRHTi855TwVmWF5aCt/DpkrzLE0ruG8tyv5K0/6a5aR
+L1NVEiiP2CWSZfpyfn3uURHeCW2+wlKEyc7XfTmc3c/qG83vGrFxsbU52vgAPcQR
+4LqahMl1sVR3tTGaAbR0mKtEKu4d6AcgZpR1ZNj8tm6jnJ4qmZLajTZmq89h8JUj
+Gg/0mJsUM+OwiSFs5mwjDdjrpO2FGYh0ZonmwcWUleEwkTPoTZk9u5Y3C+dqeCd8
+ebS+2+VHC/fAYU6AlIkfE46fihDwjwniujTe+obdmprifzOMY7Y/NHMVl/plPyE5
+J0bGPbx0/d0Ekz1P59aQP7BMrrNxP64pSomh0mQCZmy3SldBJoi0MqOOhII1LN+X
+tcmRNy73WNwV78v9BtGL
+=0K8n
 -----END PGP SIGNATURE-----
 
---Dxnq1zWXvFF0Q93v--
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--Yylu36WmvOXNoKYn--
