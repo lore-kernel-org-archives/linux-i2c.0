@@ -1,31 +1,43 @@
 From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: designware: Remove adapter name from debug print
- in i2c_dw_isr()
-Date: Fri, 07 Aug 2015 14:17:38 +0300
-Message-ID: <55C493D2.6070109@linux.intel.com>
-References: <1438944208-16276-1-git-send-email-jarkko.nikula@linux.intel.com> <1438944208-16276-2-git-send-email-jarkko.nikula@linux.intel.com> <20150807111029.GB12206@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] i2c: designware: Make debug print in i2c_dw_isr() shorter
+Date: Fri,  7 Aug 2015 14:53:03 +0300
+Message-ID: <1438948383-20646-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150807111029.GB12206@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 07.08.2015 14:10, Wolfram Sang wrote:
-> On Fri, Aug 07, 2015 at 01:43:28PM +0300, Jarkko Nikula wrote:
->> Printing adapter name is irrelevant from this debug print and makes output
->> needlessly long. Having already device and functions names printed here is
->> enough for debugging.
->>
->> Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->
-> So much about the double space :) I think I'll squash those two.
->
-Fine to me. Actually long "Synopsys DesignWare I2C adapter" printed 
-bothered me most.
+Printing adapter name is irrelevant from this debug print and makes output
+needlessly long. Having already device and functions names printed here is
+enough for debugging.
 
+While at it remove extra space from "enabled= 0x" and use "%#x" for
+printing "0x" prefixed hexadecimal values.
+
+Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+This is my previous "[PATCH 1/2] i2c: designware: Remove space between
+variable and its value in debug print" and "[PATCH 2/2] i2c: designware:
+Remove adapter name from debug print in i2c_dw_isr()" squashed.
+---
+ drivers/i2c/busses/i2c-designware-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 6f19a33773fe..cc98b2a75591 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -777,8 +777,8 @@ irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 
+ 	enabled = dw_readl(dev, DW_IC_ENABLE);
+ 	stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
+-	dev_dbg(dev->dev, "%s:  %s enabled= 0x%x stat=0x%x\n", __func__,
+-		dev->adapter.name, enabled, stat);
++	dev_dbg(dev->dev, "%s: enabled=%#x stat=%#x\n", __func__,
++		enabled, stat);
+ 	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
+ 		return IRQ_NONE;
+ 
 -- 
-Jarkko
+2.4.6
