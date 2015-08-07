@@ -1,38 +1,50 @@
-From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 2/2] i2c: designware: Remove adapter name from debug print in i2c_dw_isr()
-Date: Fri,  7 Aug 2015 13:43:28 +0300
-Message-ID: <1438944208-16276-2-git-send-email-jarkko.nikula@linux.intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: designware: Remove space between variable and
+ its value in debug print
+Date: Fri, 7 Aug 2015 13:08:43 +0200
+Message-ID: <20150807110843.GA12206@katana>
 References: <1438944208-16276-1-git-send-email-jarkko.nikula@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
 In-Reply-To: <1438944208-16276-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Printing adapter name is irrelevant from this debug print and makes output
-needlessly long. Having already device and functions names printed here is
-enough for debugging.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 7310051d4a50..cc98b2a75591 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -777,8 +777,8 @@ irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 
- 	enabled = dw_readl(dev, DW_IC_ENABLE);
- 	stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
--	dev_dbg(dev->dev, "%s:  %s enabled=%#x stat=%#x\n", __func__,
--		dev->adapter.name, enabled, stat);
-+	dev_dbg(dev->dev, "%s: enabled=%#x stat=%#x\n", __func__,
-+		enabled, stat);
- 	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
- 		return IRQ_NONE;
- 
--- 
-2.4.6
+> +	dev_dbg(dev->dev, "%s:  %s enabled=%#x stat=%#x\n", __func__,
+
+What about the double space between the %s?
+
+
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVxJG7AAoJEBQN5MwUoCm2L5wQAJZQt/QnJRPgKvgQdvreuCF9
+SKkNE5I4KupqNXLuxZjJ4Zb/geZKzUHiWzp0gu6H2rGj3ujePkbiMlmFw070PuOJ
+T66xmXhnFcsAISBRXzrNOdYtlrcdcblw6qazqdbRy9xiyTgvoylJIAL2rqI1mmPc
+yLJRwP+kAjgCb+TDQyg2wAJjXBFPek+wpXuI4JbD3iiAIb7KV80n0/i/t5GkGkjl
+aV5Ma4bREBbQvsweH4IqvGXfr+ui0QYCvF7qmgKyU0l5W0EXU9+Hcn8e+demO/Xp
+iukNoa0ZoJCFsE4EufLf5+6iu/kP8AwM0HiibId00R1s++CqEe3Qf7opS3IC1/7x
+YjDEIs+a6THGsKS4A07z2SCXjdgCM9V7F+aDVvRhbyZ4fsrE1jBTkY6rZzGn4+HS
+wj457Wnfe8H2FgSWf+iKvXCUhIEfgSSTR+sppMH++p8timtP7oDD29QibIVao0CH
+X00czUwTqtVdNW9/GDvq+uPmY7Wjrdhuo8JB84EzsRgHsrTULL86SZradpPG41Qw
++B3Kzv9sKnSGJJukzsxejqop55mi/s4pws/0taKsiRQxseHlOUnMccTdSX9hygAG
+8HhPLSaiMNR3Hz6UVdbEH+HthnVvjHa7JBt7GU6tB4XOVsU7n5BmT6ODD7YxoUGJ
+aOeyu3SLJmGM4OtL5lva
+=L/aI
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--
