@@ -1,58 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: Make debug print in i2c_dw_isr() shorter
-Date: Fri, 7 Aug 2015 18:02:27 +0200
-Message-ID: <20150807160227.GB25357@katana>
-References: <1438948383-20646-1-git-send-email-jarkko.nikula@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/8] misc: remove boundary checks from bin attr users
+Date: Fri, 7 Aug 2015 18:10:55 +0200
+Message-ID: <20150807161055.GD25357@katana>
+References: <1437945502-27944-1-git-send-email-vz@mleia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Yylu36WmvOXNoKYn"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="wULyF7TL5taEdwHz"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1438948383-20646-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1437945502-27944-1-git-send-email-vz@mleia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Jean Delvare <jdelvare@suse.com>, Ian Munsie <imunsie@au1.ibm.com>, Michael Neuling <mikey@neuling.org>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Yylu36WmvOXNoKYn
+--wULyF7TL5taEdwHz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 07, 2015 at 02:53:03PM +0300, Jarkko Nikula wrote:
-> Printing adapter name is irrelevant from this debug print and makes output
-> needlessly long. Having already device and functions names printed here is
-> enough for debugging.
+Vladimir,
+
+On Mon, Jul 27, 2015 at 12:18:22AM +0300, Vladimir Zapolskiy wrote:
+> This change removes a number of redundant checks on bin attribute
+> client's side, the same checks are done by sysfs_kf_bin_read() or
+> sysfs_kf_bin_write() caller from fs/sysfs/file.c.
 >=20
-> While at it remove extra space from "enabled=3D 0x" and use "%#x" for
-> printing "0x" prefixed hexadecimal values.
->=20
-> Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Note, drivers/misc/pch_phub.c and drivers/misc/c2port/core.c may be
+> updated in a similar way, however this task is not done due to more
+> complicated read()/write() callbacks.
 
-Applied to for-next, thanks!
+Can you resend the patches which touch i2c drivers with me on cc? I'd
+like to take care of them.
+
+Thanks,
+
+   Wolfram
 
 
---Yylu36WmvOXNoKYn
+--wULyF7TL5taEdwHz
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVxNaTAAoJEBQN5MwUoCm2vRkQAJolGZzPYjmF4h79WeKIvshV
-4Mg0r4JmTMoxO7yI073VXKY20ImmI3vJT9jE2qxfnpRgjvnUruWRVwUlDWYHwx48
-4VxDQyrCUXfIfu4qdXGnA2X8vrDl72UI6OYl0wFTVE+bAHLCHuSjhqT31qgr8xCw
-+cY+8llEUDEe5inqPMrgulezQPhK9L/ItAP58wrgiZmyfbaiAwy2rzaotBcp6ku8
-EZ46AmkDcQ3dBOVVE6fp27f3Ow+0MM2nkHzBiLAz+J2ZyuWw8lbI1bFEnro6cJmX
-X1EDLz2JKFCFvhUfXHAu9WRHTi855TwVmWF5aCt/DpkrzLE0ruG8tyv5K0/6a5aR
-L1NVEiiP2CWSZfpyfn3uURHeCW2+wlKEyc7XfTmc3c/qG83vGrFxsbU52vgAPcQR
-4LqahMl1sVR3tTGaAbR0mKtEKu4d6AcgZpR1ZNj8tm6jnJ4qmZLajTZmq89h8JUj
-Gg/0mJsUM+OwiSFs5mwjDdjrpO2FGYh0ZonmwcWUleEwkTPoTZk9u5Y3C+dqeCd8
-ebS+2+VHC/fAYU6AlIkfE46fihDwjwniujTe+obdmprifzOMY7Y/NHMVl/plPyE5
-J0bGPbx0/d0Ekz1P59aQP7BMrrNxP64pSomh0mQCZmy3SldBJoi0MqOOhII1LN+X
-tcmRNy73WNwV78v9BtGL
-=0K8n
+iQIcBAEBAgAGBQJVxNiPAAoJEBQN5MwUoCm2WZUP/RpeKlzxg8sa83oU8h6AEP+w
+tlkv3VRwta2HNDY10+UjMDEEa7vfOZvgC4ZtXQolVZM/nDT/8WPeWpYAfNiqD15U
+8y1Nn9trDPUq1z9BB6RkOFdSxztECQ+/tJmArtme1nqPuN5phzjQmHAWpKDv+5Aj
+uTwc6mMyC9Dp01gSd107KzzMe6QHo8hd64ztv2YklKkIcUj68nuC68WWSLWZGkw4
+pv2Fk3eRjK8uqiafGyfUY5DVqUHuxpymm3+CN9yAdMR48lQjCC5+k5g+OnQmTr2k
+n8GLZpKXT6ejPq4fqb6iUoppAKP5/WoGzRdQRbgvI6htZBPiQpS7Srl5Qi8hZeGS
+gjfDsB7+TDDbT+BpOKNLBKjKCvgUL098vXwYllY7XN5iIkR+HApLPxFhH98lhvUs
+inZebC/xCNHK5qQvuv/rxzfuavJsjnNICuHbc0HIBJ0H9Ed4FxDM7Dy6PTGUWOvo
+2/tVH07oCIs5A9BrI/5jvBlzcGG+tPzFaBE9VPvfBYHo+lm4SCGJslnWzRYCHv3s
+acgNpw7NzxYbkbLWHH+hD7JJlPHuWqoZZkz7Yi9mnD8Mnjb+tD2oHlVtDD73/qPD
+NPzd6kDGIWmtqU+8XB+55B+tjn/yHJBGpny8vEjyt7OAw2x8jE5Pvaq8wZ3O2U25
+LKaa+AJ/jAfZ6bN1FGKv
+=ptiU
 -----END PGP SIGNATURE-----
 
---Yylu36WmvOXNoKYn--
+--wULyF7TL5taEdwHz--
