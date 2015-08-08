@@ -1,67 +1,22 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 10/10] i2c: dt: describe generic bindings
-Date: Sat,  8 Aug 2015 22:33:27 +0200
-Message-ID: <1439066007-13951-11-git-send-email-wsa@the-dreams.de>
-References: <1439066007-13951-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1439066007-13951-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Andrey Danin <danindrey@mail.ru>, Stephen Warren <swarren@wwwdotorg.org>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [PATCH 2/4] hwmon: max6697: move binding docs to proper place
+Date: Sat, 08 Aug 2015 13:47:52 -0700
+Message-ID: <55C66AF8.5090400@roeck-us.net>
+References: <1439058636-3082-1-git-send-email-wsa@the-dreams.de> <1439058636-3082-3-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1439058636-3082-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On 08/08/2015 11:30 AM, Wolfram Sang wrote:
+> The I2C dir is not for I2C client devices! Move it to the proper folder.
+>
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 
-Start a new file which describes the generic bindings used for I2C with
-device tree. So we have a central place to look for them, increase
-visibility of them, and hopefully reduce the amount of custom properties
-introduced.
-
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- Documentation/devicetree/bindings/i2c/i2c.txt | 33 +++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c.txt
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-new file mode 100644
-index 00000000000000..1175efed4a41b5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-@@ -0,0 +1,33 @@
-+Generic device tree bindings for I2C busses
-+===========================================
-+
-+This document describes generic bindings which can be used to describe I2C
-+busses in a device tree.
-+
-+Required properties
-+-------------------
-+
-+- #address-cells  - should be <1>. Read more about addresses below.
-+- #size-cells     - should be <0>.
-+- compatible      - name of I2C bus controller following generic names
-+		    recommended practice.
-+
-+For other required properties e.g. to describe register sets, interrupts,
-+clocks, etc. check the binding documentation of the specific driver.
-+
-+The cells properties above define that an address of children of an I2C bus
-+are described by a single value. This is usually a 7 bit address. However,
-+flags can be attached to the address. I2C_TEN_BIT_ADDRESS is used to mark a 10
-+bit address. It is needed to avoid the ambiguity between e.g. a 7 bit address
-+of 0x50 and a 10 bit address of 0x050 which, in theory, can be on the same bus.
-+Another flag is I2C_OWN_SLAVE_ADDRESS to mark addresses on which we listen to
-+be devices ourselves.
-+
-+Optional properties
-+-------------------
-+
-+These properties may not be supported by all drivers. However, if a driver
-+wants to support one of the below features, it should adapt the bindings below.
-+
-+- clock-frequency	- frequency of bus clock in Hz
-+- wakeup-source		- device can be used as a wakeup source.
--- 
-2.1.4
-
+Acked-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
