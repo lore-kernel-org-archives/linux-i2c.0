@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 05/10] i2c: make address check indpendent from client struct
-Date: Sat,  8 Aug 2015 22:33:22 +0200
-Message-ID: <1439066007-13951-6-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 07/10] i2c: take address space into account when checking for used addresses
+Date: Sat,  8 Aug 2015 22:33:24 +0200
+Message-ID: <1439066007-13951-8-git-send-email-wsa@the-dreams.de>
 References: <1439066007-13951-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1439066007-13951-1-git-send-email-wsa@the-dreams.de>
@@ -12,52 +12,58 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-We want to use this function with struct boardinfo soon, so let's just
-pass the parameters really needed. We also extend the type of addr, so
-more types can be input. Remove a superfluous dangling comment while
-here.
+It is not enough to compare the plain address value, we also need to
+check the flags enabling a different address space. E.g. it is valid to
+have address 0x50 as a 7-bit address and 0x050 as 10-bit address on the
+same bus. Same for addresses when we are the slave.
 
 Tested-by: Andrey Danin <danindrey@mail.ru>
 Acked-by: Stephen Warren <swarren@nvidia.com>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/i2c/i2c-core.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 28766b7208bcc2..4a83d39a5aabe2 100644
+index 7638eb1a5998f8..24c96dd0a5bee4 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -796,15 +796,15 @@ static unsigned short i2c_encode_flags_to_addr(struct i2c_client *client)
+@@ -837,7 +837,7 @@ static int __i2c_check_addr_busy(struct device *dev, void *addrp)
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+ 	int			addr = *(int *)addrp;
  
- /* This is a permissive address validity check, I2C address map constraints
-  * are purposely not enforced, except for the general call address. */
--static int i2c_check_addr_validity(const struct i2c_client *client)
-+static int i2c_check_addr_validity(unsigned addr, unsigned short flags)
- {
--	if (client->flags & I2C_CLIENT_TEN) {
-+	if (flags & I2C_CLIENT_TEN) {
- 		/* 10-bit address, all values are valid */
--		if (client->addr > 0x3ff)
-+		if (addr > 0x3ff)
- 			return -EINVAL;
- 	} else {
- 		/* 7-bit address, reject the general call address */
--		if (client->addr == 0x00 || client->addr > 0x7f)
-+		if (addr == 0x00 || addr > 0x7f)
- 			return -EINVAL;
- 	}
+-	if (client && client->addr == addr)
++	if (client && i2c_encode_flags_to_addr(client) == addr)
+ 		return -EBUSY;
  	return 0;
-@@ -982,8 +982,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ }
+@@ -991,7 +991,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ 	}
  
- 	strlcpy(client->name, info->type, sizeof(client->name));
+ 	/* Check for address business */
+-	status = i2c_check_addr_busy(adap, client->addr);
++	status = i2c_check_addr_busy(adap, i2c_encode_flags_to_addr(client));
+ 	if (status)
+ 		goto out_err;
  
--	/* Check for address validity */
--	status = i2c_check_addr_validity(client);
-+	status = i2c_check_addr_validity(client->addr, client->flags);
- 	if (status) {
- 		dev_err(&adap->dev, "Invalid %d-bit I2C address 0x%02hx\n",
- 			client->flags & I2C_CLIENT_TEN ? 10 : 7, client->addr);
+@@ -2287,7 +2287,7 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+ 		return err;
+ 	}
+ 
+-	/* Skip if already in use */
++	/* Skip if already in use (7 bit, no need to encode flags) */
+ 	if (i2c_check_addr_busy(adapter, addr))
+ 		return 0;
+ 
+@@ -2403,7 +2403,7 @@ i2c_new_probed_device(struct i2c_adapter *adap,
+ 			continue;
+ 		}
+ 
+-		/* Check address availability */
++		/* Check address availability (7 bit, no need to encode flags) */
+ 		if (i2c_check_addr_busy(adap, addr_list[i])) {
+ 			dev_dbg(&adap->dev, "Address 0x%02x already in "
+ 				"use, not probing\n", addr_list[i]);
 -- 
 2.1.4
 
