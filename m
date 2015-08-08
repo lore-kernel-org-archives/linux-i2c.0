@@ -1,27 +1,28 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 4/4] hwmon: ina209: move binding docs to proper place
-Date: Sat,  8 Aug 2015 20:30:36 +0200
-Message-ID: <1439058636-3082-5-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 1/4] rtc: bq32k: move binding docs to proper place
+Date: Sat,  8 Aug 2015 20:30:33 +0200
+Message-ID: <1439058636-3082-2-git-send-email-wsa@the-dreams.de>
 References: <1439058636-3082-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1439058636-3082-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1439058636-3082-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, Wolfram Sang <wsa@the-dreams.de>, Pavel Machek <pavel@denx.de>, Jason Cooper <jason@lakedameon.net>
 List-Id: linux-i2c@vger.kernel.org
 
 The I2C dir is not for I2C client devices! Move it to the proper folder.
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: Pavel Machek <pavel@denx.de>
+Cc: Jason Cooper <jason@lakedameon.net>
 ---
- Documentation/devicetree/bindings/{i2c => hwmon}/ina209.txt | 0
+ Documentation/devicetree/bindings/{i2c => rtc}/ti,bq32k.txt | 0
  1 file changed, 0 insertions(+), 0 deletions(-)
- rename Documentation/devicetree/bindings/{i2c => hwmon}/ina209.txt (100%)
+ rename Documentation/devicetree/bindings/{i2c => rtc}/ti,bq32k.txt (100%)
 
-diff --git a/Documentation/devicetree/bindings/i2c/ina209.txt b/Documentation/devicetree/bindings/hwmon/ina209.txt
+diff --git a/Documentation/devicetree/bindings/i2c/ti,bq32k.txt b/Documentation/devicetree/bindings/rtc/ti,bq32k.txt
 similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/ina209.txt
-rename to Documentation/devicetree/bindings/hwmon/ina209.txt
+rename from Documentation/devicetree/bindings/i2c/ti,bq32k.txt
+rename to Documentation/devicetree/bindings/rtc/ti,bq32k.txt
 -- 
 2.1.4
