@@ -1,69 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 07/10] i2c: take address space into account when checking for used addresses
-Date: Sat,  8 Aug 2015 22:33:24 +0200
-Message-ID: <1439066007-13951-8-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 10/10] i2c: dt: describe generic bindings
+Date: Sat,  8 Aug 2015 22:33:27 +0200
+Message-ID: <1439066007-13951-11-git-send-email-wsa@the-dreams.de>
 References: <1439066007-13951-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1439066007-13951-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Andrey Danin <danindrey@mail.ru>, Stephen Warren <swarren@wwwdotorg.org>, Stephen Warren <swarren@nvidia.com>
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Andrey Danin <danindrey@mail.ru>, Stephen Warren <swarren@wwwdotorg.org>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-It is not enough to compare the plain address value, we also need to
-check the flags enabling a different address space. E.g. it is valid to
-have address 0x50 as a 7-bit address and 0x050 as 10-bit address on the
-same bus. Same for addresses when we are the slave.
+Start a new file which describes the generic bindings used for I2C with
+device tree. So we have a central place to look for them, increase
+visibility of them, and hopefully reduce the amount of custom properties
+introduced.
 
-Tested-by: Andrey Danin <danindrey@mail.ru>
-Acked-by: Stephen Warren <swarren@nvidia.com>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c.txt | 33 +++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c.txt
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 7638eb1a5998f8..24c96dd0a5bee4 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -837,7 +837,7 @@ static int __i2c_check_addr_busy(struct device *dev, void *addrp)
- 	struct i2c_client	*client = i2c_verify_client(dev);
- 	int			addr = *(int *)addrp;
- 
--	if (client && client->addr == addr)
-+	if (client && i2c_encode_flags_to_addr(client) == addr)
- 		return -EBUSY;
- 	return 0;
- }
-@@ -991,7 +991,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- 	}
- 
- 	/* Check for address business */
--	status = i2c_check_addr_busy(adap, client->addr);
-+	status = i2c_check_addr_busy(adap, i2c_encode_flags_to_addr(client));
- 	if (status)
- 		goto out_err;
- 
-@@ -2287,7 +2287,7 @@ static int i2c_detect_address(struct i2c_client *temp_client,
- 		return err;
- 	}
- 
--	/* Skip if already in use */
-+	/* Skip if already in use (7 bit, no need to encode flags) */
- 	if (i2c_check_addr_busy(adapter, addr))
- 		return 0;
- 
-@@ -2403,7 +2403,7 @@ i2c_new_probed_device(struct i2c_adapter *adap,
- 			continue;
- 		}
- 
--		/* Check address availability */
-+		/* Check address availability (7 bit, no need to encode flags) */
- 		if (i2c_check_addr_busy(adap, addr_list[i])) {
- 			dev_dbg(&adap->dev, "Address 0x%02x already in "
- 				"use, not probing\n", addr_list[i]);
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+new file mode 100644
+index 00000000000000..1175efed4a41b5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -0,0 +1,33 @@
++Generic device tree bindings for I2C busses
++===========================================
++
++This document describes generic bindings which can be used to describe I2C
++busses in a device tree.
++
++Required properties
++-------------------
++
++- #address-cells  - should be <1>. Read more about addresses below.
++- #size-cells     - should be <0>.
++- compatible      - name of I2C bus controller following generic names
++		    recommended practice.
++
++For other required properties e.g. to describe register sets, interrupts,
++clocks, etc. check the binding documentation of the specific driver.
++
++The cells properties above define that an address of children of an I2C bus
++are described by a single value. This is usually a 7 bit address. However,
++flags can be attached to the address. I2C_TEN_BIT_ADDRESS is used to mark a 10
++bit address. It is needed to avoid the ambiguity between e.g. a 7 bit address
++of 0x50 and a 10 bit address of 0x050 which, in theory, can be on the same bus.
++Another flag is I2C_OWN_SLAVE_ADDRESS to mark addresses on which we listen to
++be devices ourselves.
++
++Optional properties
++-------------------
++
++These properties may not be supported by all drivers. However, if a driver
++wants to support one of the below features, it should adapt the bindings below.
++
++- clock-frequency	- frequency of bus clock in Hz
++- wakeup-source		- device can be used as a wakeup source.
 -- 
 2.1.4
 
