@@ -1,53 +1,36 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: cadence: set THIS_MODULE to the owner of the adapter
-Date: Sun, 9 Aug 2015 09:43:12 +0200
-Message-ID: <20150809074312.GD1526@katana>
-References: <1437462876-13755-1-git-send-email-yamada.masahiro@socionext.com>
+From: Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>
+Subject: unmet direct dependencies in -next
+Date: Sun, 9 Aug 2015 11:40:05 +0200
+Message-ID: <55C71FF5.1020902@nod.at>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RYJh/3oyKhIjGcML"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1437462876-13755-1-git-send-email-yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Masahiro Yamada <yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, yann.morin.1998-GANU6spQydw@public.gmane.org, linux-kbuild <linux-kbuild-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "open list:I2C SUBSYSTEM" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, user-mode-linux-devel <user-mode-linux-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi!
 
---RYJh/3oyKhIjGcML
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-next faces some build issues on UML because of unmet direct dependencies.
+Mostly due to HAS_IOMEM and I2C.
 
-On Tue, Jul 21, 2015 at 04:14:36PM +0900, Masahiro Yamada wrote:
-> The owner of the adapter is missing, while this driver is tristate.
->=20
-> Signed-off-by: Masahiro Yamada <yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org>
+warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
+warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
+PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
+HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
+warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
+warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
+PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
+HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
 
-Applied to for-next, thanks!
+For example MFD_SYSCON cannot build on UML as it depends on HAS_IOMEM.
+While the symbol MFD_SYSCON has correct dependencies some users of MFD_SYSCON
+just issue a "select MFD_SYSCON" and bypass the HAS_IOMEM dependency and causing the build to fail.
 
+This brings me to a question on kconfig itself, wouldn't it be better to just disable a symbol if it has
+unmet direct dependencies?
 
---RYJh/3oyKhIjGcML
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVxwSQAAoJEBQN5MwUoCm2x9YP/0WqYeCLDkjDJIyhLuUpYv8p
-BxkxjQd+eIKEofLCuFx51Esriyoraj2GtpjGj9JQIxqfJgUNIh0t8ONhTpPa/o+l
-X5fLOFuzOqIQCGKpYTl+r5/vt7tS6TSyY+QxopQ0T/0zb5WcdKqYM6XkOQJUCKIm
-xnkciUHR13XaBiOhXPEzlcQpKJnhpdArQdNbUTkn2wr3hYa3OAbBa9Sy+SK906xA
-7Ko67etUH87VD0g3viRbnCSf0iLRm1huNNZKX/FwdAFlJ/rSowb7wJhCu5nittSj
-XgZ7qOxTwSTY4dzYOf3B/hU5/Vg0kj2vs/4Dr2nL4bUUGxf8TB74ImKBITK6XeDG
-HQyJFjsr3DYr2iwl7FX+dOihtA8ceQbqP0wyG2vSR81Hvb0NkxoNMe7oT/8+d5uG
-eMiVvBFbd4398ZYrfFQc3h1FBzN6gXWXTxKg+AikUXdan3Q+p/zAFX/H1WjltYLK
-jSV152YjEM5q6DHJoPxX+FlmePgtVDemH07PpAzma5/udgHjcX15rOeYEs+i+rnt
-+Ct9hE+Cq37xsE8dP/7IyhecTp4vAab6ZtI7RF67GyrfxCP3urpmFsb3z78eEiWQ
-ae2i4MOHr2lAISXZd7JwZU+YpxyaLKU0tvWCtXHFnyVgb7rGptSCq+a/fkuMq+xI
-HAXLUJoYv/Q//sJoOjkg
-=LmjG
------END PGP SIGNATURE-----
-
---RYJh/3oyKhIjGcML--
+Thanks,
+//richard
