@@ -1,32 +1,86 @@
-From: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
-Subject: Re: [PATCH-v5 5/5] i2c: pxa: Add ILCR (tLow & tHigh) configuration support
-Date: Sun, 09 Aug 2015 14:18:57 +0200
-Message-ID: <87bnegk632.fsf@belgarion.home>
-References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>
-	<1437482466-16126-6-git-send-email-vaibhav.hiremath@linaro.org>
-	<55C1CE8E.9000601@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 13/22] i2c: core: Probe i2c master devices on demand
+Date: Sun, 9 Aug 2015 14:34:30 +0200
+Message-ID: <20150809123430.GB1521@katana>
+References: <1438089593-7696-1-git-send-email-tomeu.vizoso@collabora.com>
+ <1438089593-7696-14-git-send-email-tomeu.vizoso@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55C1CE8E.9000601-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> (Vaibhav Hiremath's message of
-	"Wed, 05 Aug 2015 14:21:26 +0530")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Y7xTucakfITjPcLV"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1438089593-7696-14-git-send-email-tomeu.vizoso@collabora.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Mark Brown <broonie@kernel.org>, Thierry Reding <thierry.reding@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, linux-acpi@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
 
-> Robert,
->
-> It would be helpful if you can test this patch-series and confirm that
-> it now fixes the NULL pointer deference issue.
-Tested, it works on pxa27x in master mode, in non-DT mode.
+--Y7xTucakfITjPcLV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For all non-DT patches, you can add my :
-Tested-by: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
+On Tue, Jul 28, 2015 at 03:19:44PM +0200, Tomeu Vizoso wrote:
+> When looking up an i2c master through its firmware node, probe it if it
+> hasn't already.
+>=20
+> The goal is to reduce deferred probes to a minimum, as it makes it very
+> cumbersome to find out why a device failed to probe, and can introduce
+> very big delays in when a critical device is probed.
+>=20
+> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
 
-Cheers.
+What is the status of this series? The boot time reduction sounds great.
 
--- 
-Robert
+> ---
+>=20
+> Changes in v2: None
+>=20
+>  drivers/i2c/i2c-core.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index e6d4935161e4..5520b413e3db 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -1353,6 +1353,8 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(str=
+uct device_node *node)
+>  {
+>  	struct device *dev;
+> =20
+> +	fwnode_ensure_device(&node->fwnode);
+
+TBH, the function name doesn't tell me a lot. It ensures what?
+
+> +
+>  	dev =3D bus_find_device(&i2c_bus_type, NULL, node,
+>  					 of_dev_node_match);
+>  	if (!dev)
+> --=20
+> 2.4.3
+>=20
+
+--Y7xTucakfITjPcLV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVx0jWAAoJEBQN5MwUoCm2dfkP/RwJheGHqSbnXM3/QEfsOCtE
+1joUxJcgVOSniFqAcvKMNRuxnWDqOAiuU+ts7Fa1BQ/UGLGM9hYVUUKjBqAZaDRH
+Z4gQddCu87WLzHShwbNKCa3p4grVn0XYIeIzE+j0pPSdONcISdb8Mp6fJUA8AvX4
+7sl8D5ayZgRezYwpAHpkv6yFxrCfzS8iX91g5JjX0tykIUDLWnhJvcmpLl7i6kaO
+xWnruNXGzJMGo/90iLJLFaGHCKmUaNTIxwtELTv8+66wJ5wy0Afq0ycaWXB8lPNp
+a9SOZdz/VC2fUj3qOW4IVHflSuhrHyLuJrTjiiFbIgYKj1kNFSZ5NwutMatahAYO
+HuC6Z6aIpjAVc2IgsFPZCLB86S9wO2M33xReivljwA80/USlwxjK0QoixXCF+L+n
+9wZ7JLEsK3/4caHP9f5drrq+ZUtgNyqDGfbGVP+Dxv0Ck/pp87yqfVRoF2xLpxMA
+v9ehTe1nc8KlWeyEHmsNOHtS/gBX5Xyfm0N4TeieDlkxQupg1Ig0C8eVZ5pG24mQ
+47YAGUN8DVwtij9SnOldCOtwJzvdde5fQmxmhWK8oROqS4ZmiW6lujerwG74rcFF
+92QPSXo/5GYHVSFfWULUL5pD2VJm3XGFBYIUl4URITk5VM1LAAwOOnC7jf/2ayM/
+pOJtlvUT5x80dzsfxUed
+=OHet
+-----END PGP SIGNATURE-----
+
+--Y7xTucakfITjPcLV--
