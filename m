@@ -1,31 +1,57 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: [PATCH 1/4] rtc: bq32k: move binding docs to proper place
-Date: Sat, 8 Aug 2015 23:50:35 +0200
-Message-ID: <20150808215035.GB17085@amd>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/4] i2c: move client binding docs to proper place
+Date: Sun, 9 Aug 2015 09:09:29 +0200
+Message-ID: <20150809070929.GA1526@katana>
 References: <1439058636-3082-1-git-send-email-wsa@the-dreams.de>
- <1439058636-3082-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1439058636-3082-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Jason Cooper <jason-E2nrXYax+wsBe96aLqz0jA@public.gmane.org>
+In-Reply-To: <1439058636-3082-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat 2015-08-08 20:30:33, Wolfram Sang wrote:
-> The I2C dir is not for I2C client devices! Move it to the proper folder.
-> 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-Acked-by: Pavel Machek <pavel-ynQEQJNshbs@public.gmane.org>
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> diff --git a/Documentation/devicetree/bindings/i2c/ti,bq32k.txt b/Documentation/devicetree/bindings/rtc/ti,bq32k.txt
-> similarity index 100%
-> rename from Documentation/devicetree/bindings/i2c/ti,bq32k.txt
-> rename to Documentation/devicetree/bindings/rtc/ti,bq32k.txt
+On Sat, Aug 08, 2015 at 08:30:32PM +0200, Wolfram Sang wrote:
+> The I2C binding directory is for master controllers, muxes and alike. Not=
+ for
+> client drivers. Move those who slipped in to their proper places.
+>=20
+> I'd like to take these patches via my tree, so it is promptly cleaned up =
+in one
+> go. So, I am mainly asking for acks here.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Thanks for the acks. Applied this series to for-next, thanks!
+
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVxvypAAoJEBQN5MwUoCm2CqgQAIALBBU8Kate9KLAkdZFrU8p
+z9HnslYW6cCKozgIPuVy40lXub77kDLgHetT8VRHF1qWGE/hG0bfCQIr42ghkAG6
+ALYbscdFLtZB4f51Uo5ctCoyuA6ywLyXLAhVyzEK1uzvdnSFkdj6TSjxslmdDx6l
+zNfgxG7gPIPrA/gjxEkA046ILCtVffLUIUMyhskgjZm+9ZKoRCV8yB4Ker/BPTU0
+NwhJfV+FelO5GPBmsCXcDJY7SO0nODANVl4BE2n2d3Vxom469mjl0NBBUEYK1tvR
+fmDsheQep1lyHjiH92QpZ7dxBQ384/jsq0jxFateru62OWp9uq6WCpC1YjjkY3pa
+vCtRT5rHPTroP2nLKaiNQKPE46WUgxQ1q89v94wKQ5AQVXwoN8Iu17wLdxOaI80w
+MPTWGueUuDVRNhZ4crPMvmair/H+Q7h7qaeGWh4wk5Kj4YZm5lwShKMniIm54VAH
+qGnQiyS0AYgEU38xG5W0ALqXRbMGfmTJPbIyP0OmJ9ROgzFhvSMcc+qocLnN3g+2
+thLNNrBEdWUTwkQqLhgyTGK++9BMXuUCOmH/YnBXJg9/t8KWTJUByK5XtB9GE0J3
+zbmykPrAxpIg88y4jeFv7czU0j8xfz67s2ZZ0T8DfNwEs0SrieNaZ1ndxbYCRTGF
+6J7cvkPPNjP0HQWJoDv5
+=b3X/
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--
