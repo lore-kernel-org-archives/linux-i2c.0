@@ -1,36 +1,86 @@
-From: Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>
-Subject: unmet direct dependencies in -next
-Date: Sun, 9 Aug 2015 11:40:05 +0200
-Message-ID: <55C71FF5.1020902@nod.at>
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Subject: Re: [PATCH 10/10] i2c: dt: describe generic bindings
+Date: Sun, 09 Aug 2015 15:21:33 +0530
+Message-ID: <55C722A5.4020403@linaro.org>
+References: <1439066007-13951-1-git-send-email-wsa@the-dreams.de> <1439066007-13951-11-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, yann.morin.1998-GANU6spQydw@public.gmane.org, linux-kbuild <linux-kbuild-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "open list:I2C SUBSYSTEM" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, user-mode-linux-devel <user-mode-linux-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1439066007-13951-11-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrey Danin <danindrey@mail.ru>, Stephen Warren <swarren@wwwdotorg.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
 
--next faces some build issues on UML because of unmet direct dependencies.
-Mostly due to HAS_IOMEM and I2C.
 
-warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
-warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
-PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
-HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
-warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
-warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
-PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
-HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
+On Sunday 09 August 2015 02:03 AM, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> Start a new file which describes the generic bindings used for I2C with
+> device tree. So we have a central place to look for them, increase
+> visibility of them, and hopefully reduce the amount of custom properties
+> introduced.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>   Documentation/devicetree/bindings/i2c/i2c.txt | 33 +++++++++++++++++++++++++++
+>   1 file changed, 33 insertions(+)
+>   create mode 100644 Documentation/devicetree/bindings/i2c/i2c.txt
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+> new file mode 100644
+> index 00000000000000..1175efed4a41b5
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> @@ -0,0 +1,33 @@
+> +Generic device tree bindings for I2C busses
+> +===========================================
+> +
+> +This document describes generic bindings which can be used to describe I2C
+> +busses in a device tree.
+> +
+> +Required properties
+> +-------------------
+> +
+> +- #address-cells  - should be <1>. Read more about addresses below.
+> +- #size-cells     - should be <0>.
+> +- compatible      - name of I2C bus controller following generic names
+> +		    recommended practice.
+> +
+> +For other required properties e.g. to describe register sets, interrupts,
+> +clocks, etc. check the binding documentation of the specific driver.
+> +
+> +The cells properties above define that an address of children of an I2C bus
+> +are described by a single value. This is usually a 7 bit address. However,
+> +flags can be attached to the address. I2C_TEN_BIT_ADDRESS is used to mark a 10
+> +bit address. It is needed to avoid the ambiguity between e.g. a 7 bit address
+> +of 0x50 and a 10 bit address of 0x050 which, in theory, can be on the same bus.
+> +Another flag is I2C_OWN_SLAVE_ADDRESS to mark addresses on which we listen to
+> +be devices ourselves.
+> +
+> +Optional properties
+> +-------------------
+> +
+> +These properties may not be supported by all drivers. However, if a driver
+> +wants to support one of the below features, it should adapt the bindings below.
+> +
+> +- clock-frequency	- frequency of bus clock in Hz
+> +- wakeup-source		- device can be used as a wakeup source.
+>
 
-For example MFD_SYSCON cannot build on UML as it depends on HAS_IOMEM.
-While the symbol MFD_SYSCON has correct dependencies some users of MFD_SYSCON
-just issue a "select MFD_SYSCON" and bypass the HAS_IOMEM dependency and causing the build to fail.
+Thanks for the patch and it looks good to me.
 
-This brings me to a question on kconfig itself, wouldn't it be better to just disable a symbol if it has
-unmet direct dependencies?
+Shouldn't we also update/add other generic optional properties?
+For example,
+
+  - i2c-sclk-low-time-ns
+  - i2c-sclk-high-time-ns
+  - etc...
+
+
+We need to consolidate all such generic properties in here.
 
 Thanks,
-//richard
+Vaibhav
