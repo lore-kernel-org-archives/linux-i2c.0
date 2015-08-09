@@ -1,42 +1,32 @@
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: Re: [PATCH 10/10] i2c: dt: describe generic bindings
-Date: Sun, 09 Aug 2015 17:47:14 +0530
-Message-ID: <55C744CA.7080108@linaro.org>
-References: <1439066007-13951-1-git-send-email-wsa@the-dreams.de> <1439066007-13951-11-git-send-email-wsa@the-dreams.de> <55C722A5.4020403@linaro.org> <20150809121545.GA1521@katana>
+From: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
+Subject: Re: [PATCH-v5 5/5] i2c: pxa: Add ILCR (tLow & tHigh) configuration support
+Date: Sun, 09 Aug 2015 14:18:57 +0200
+Message-ID: <87bnegk632.fsf@belgarion.home>
+References: <1437482466-16126-1-git-send-email-vaibhav.hiremath@linaro.org>
+	<1437482466-16126-6-git-send-email-vaibhav.hiremath@linaro.org>
+	<55C1CE8E.9000601@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20150809121545.GA1521@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrey Danin <danindrey@mail.ru>, Stephen Warren <swarren@wwwdotorg.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <55C1CE8E.9000601-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> (Vaibhav Hiremath's message of
+	"Wed, 05 Aug 2015 14:21:26 +0530")
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
 
-
-On Sunday 09 August 2015 05:45 PM, Wolfram Sang wrote:
+> Robert,
 >
->> Thanks for the patch and it looks good to me.
->
-> Thanks, I interpret this as an Acked-by :)
->
->> Shouldn't we also update/add other generic optional properties?
->> For example,
->>
->>   - i2c-sclk-low-time-ns
->>   - i2c-sclk-high-time-ns
->>   - etc...
->
-> Yes, I will do this as an incremental patch once people are happy with
-> this start. Review is usually easier if done in small chunks.
->
+> It would be helpful if you can test this patch-series and confirm that
+> it now fixes the NULL pointer deference issue.
+Tested, it works on pxa27x in master mode, in non-DT mode.
 
-Agreed.
+For all non-DT patches, you can add my :
+Tested-by: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
 
-Feel free to add
+Cheers.
 
-Reviewed-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-
-Thanks,
-Vaibhav
+-- 
+Robert
