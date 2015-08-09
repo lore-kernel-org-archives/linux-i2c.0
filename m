@@ -1,159 +1,148 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 1/8] i2c: core: Add support for best effort block read
- emulation
-Date: Sun, 9 Aug 2015 09:31:36 +0200
-Message-ID: <20150809073135.GB1526@katana>
-References: <1438697056-2946-1-git-send-email-irina.tirdea@intel.com>
- <1438697056-2946-2-git-send-email-irina.tirdea@intel.com>
+Subject: Re: [PATCH] i2c: core: add support for read commands longer than byte
+Date: Sun, 9 Aug 2015 09:40:06 +0200
+Message-ID: <20150809074006.GC1526@katana>
+References: <1437744042-24471-1-git-send-email-cmo@melexis.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
+	protocol="application/pgp-signature"; boundary="S1BNGpv0yoYahz37"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1438697056-2946-2-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1437744042-24471-1-git-send-email-cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
+To: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
+Cc: "Simon G. Vogl" <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---61jdw2sOBCFtR2d/
+--S1BNGpv0yoYahz37
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 04, 2015 at 05:04:09PM +0300, Irina Tirdea wrote:
-> There are devices that need to handle block transactions
-> regardless of the capabilities exported by the adapter.
-> For performance reasons, they need to use i2c read blocks
-> if available, otherwise emulate the block transaction with word
-> or byte transactions.
+On Fri, Jul 24, 2015 at 03:20:42PM +0200, Crt Mori wrote:
+> If you want to send more than 1 byte as command to slave you need to go a=
+way
+> from the smbus (which has a 8 bit command defined in specification). i2c =
+has
+> no such limitation in specification and since we want to have a longer th=
+an
+> 1 byte command, we need additional function to handle it. With outside
+> buffers we have also avoided endianness problems (if we would just define=
+ a
+> u16 command instead of u8). Also there are now no limitations (as per i2c
+> specification) of command length.
+> Addressed read function is when we have a slave device which accepts comm=
+ands
+> longer than byte or some subcommands in same write string before issuing a
+> repeat start before read cycle to read more than byte (or byte) from slave
+> device.
 >=20
-> Add support for a helper function that would read a data block
-> using the best transfer available: I2C_FUNC_SMBUS_READ_I2C_BLOCK,
-> I2C_FUNC_SMBUS_READ_WORD_DATA or I2C_FUNC_SMBUS_READ_BYTE_DATA.
+> Signed-off-by: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
+
+I don't see much gain over using i2c_transfer directly to be honest. Do
+you see much use of that in the kernel? Any other gain I missed? And if
+at all, the function should be probably named i2c_write_then_read or
+something.
+
+> ---
+>  drivers/i2c/i2c-core.c | 40 ++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h    |  4 ++++
+>  2 files changed, 44 insertions(+)
 >=20
-> Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-
-We are close, but I think there is one optimization left to do.
-
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 069a41f..bccf83f 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2980,6 +2980,46 @@ int i2c_slave_unregister(struct i2c_client *client)
+>  EXPORT_SYMBOL_GPL(i2c_slave_unregister);
+>  #endif
+> =20
 > +/**
-> + * i2c_smbus_read_i2c_block_data_or_emulated - read block or emulate
+> + * i2c_addressed_read - writes read commands with desired length and read
+> + * desired length of data.
 > + * @client: Handle to slave device
-> + * @command: Byte interpreted by slave
-> + * @length: Size of data block; SMBus allows at most 32 bytes
-
-Please refer to I2C_SMBUS_BLOCK_MAX instead of 32. The new SMBus specs
-increased this amount to 256. (Yes, we don't support that yet.)
-
-> + * @values: Byte array into which data will be read; big enough to hold
-> + *	the data returned by the slave.  SMBus allows at most 32 bytes.
+> + * @command: Pointer to command location
+> + * @cmd_len: Number of command bytes on command location
+> + * @data: Pointer to read data location
+> + * @data_len: Expected number of read bytes
 > + *
-> + * This executes the SMBus "block read" protocol if supported by the ada=
-pter.
-> + * If block read is not supported, it emulates it using either word or b=
-yte
-> + * read protocols depending on availability.
-> + *
-> + * The addresses of the I2C slave device that are accessed with this fun=
-ction
-> + * must be mapped to a linear region, so that a block read will have the=
- same
-> + * effect as a byte read. Before using this function you must double-che=
-ck
-> + * if the I2C slave does support exchanging a block transfer with a byte
-> + * transfer.
+> + * Addressed read on slave device when command is longer than byte. Retu=
+rns
+> + * negative errno on error and 0 on success.
 > + */
-> +s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *c=
-lient,
-> +					      u8 command, u8 length, u8 *values)
+> +s32 i2c_addressed_read(const struct i2c_client *client, u8 *command,
+> +		       u16 cmd_len, u8 *data, u16 data_len)
 > +{
-> +	u8 i;
-> +	int status;
+> +	s32 status;
+> +	struct i2c_msg msg[2] =3D	{
+> +		{
+> +			.addr =3D client->addr,
+> +			.flags =3D client->flags,
+> +			.len =3D cmd_len,
+> +			.buf =3D command,
+> +		},
+> +		{
+> +			.addr =3D client->addr,
+> +			.flags =3D client->flags | I2C_M_RD,
+> +			.len =3D data_len,
+> +			.buf =3D data,
+> +		},
+> +	};
 > +
-> +	if (length > I2C_SMBUS_BLOCK_MAX)
-> +		length =3D I2C_SMBUS_BLOCK_MAX;
+> +	status =3D i2c_transfer(client->adapter, msg, 2);
 > +
-> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_I2C_BL=
-OCK))
-> +		return i2c_smbus_read_i2c_block_data(client, command, length, values);
+> +	if (status < 0)
+> +		return status;
 > +
-> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_WORD_D=
-ATA |
-> +				    I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
-> +		for (i =3D 0; (i + 2) <=3D length; i +=3D 2) {
-> +			status =3D i2c_smbus_read_word_data(client, command + i);
-> +			if (status < 0)
-> +				return status;
-> +			values[i] =3D status & 0xff;
-> +			values[i + 1] =3D status >> 8;
-> +		}
-> +		if (i < length) {
-> +			status =3D i2c_smbus_read_byte_data(client, command + i);
-> +			if (status < 0)
-> +				return status;
-> +			values[i] =3D status;
-> +			i++;
-> +		}
-> +		return i;
-> +	}
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL(i2c_addressed_read);
 > +
-> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_BYTE_D=
-ATA)) {
-> +		for (i =3D 0; i < length; i++) {
-> +			status =3D i2c_smbus_read_byte_data(client, command + i);
-> +			if (status < 0)
-> +				return status;
-> +			values[i] =3D status;
-> +		}
-> +		return i;
-> +	}
+>  MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
+>  MODULE_DESCRIPTION("I2C-Bus main module");
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index e83a738..d3cc1af 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -121,6 +121,10 @@ extern s32 i2c_smbus_read_i2c_block_data(const struc=
+t i2c_client *client,
+>  extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *clien=
+t,
+>  					  u8 command, u8 length,
+>  					  const u8 *values);
+> +
+> +s32 i2c_addressed_read(const struct i2c_client *client, u8 *command,
+> +		       u16 cmd_len, u8 *data, u16 data_len);
+> +
+>  #endif /* I2C */
+> =20
+>  /**
+> --=20
+> 2.1.4
+>=20
 
-We have two very similar blocks for transferring READ_BYTE_DATA now.
-What about this pseudo code:
-
-	if (check_func(I2C_BLOCK))
-		return i2c_smbus_read_i2c_block_data(...);
-
-	if (!check_func(I2C_READ_BYTE_DATA)
-		return -EOPNOTSUPP;
-
-	if (check_func(I2C_READ_WORD_DATA)
-		read_as_many_words_as_possible;
-
-	read_all_the_remaining_bytes;
-
-
-> +	dev_err(&client->adapter->dev, "Unsupported transactions\n");
-
-Again, if you want to keep this one, it should be the client device
-reporting the error.
-
-Thanks,
-
-   Wolfram
-
-
---61jdw2sOBCFtR2d/
+--S1BNGpv0yoYahz37
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVxwHXAAoJEBQN5MwUoCm2loAQALKaH0C1g5pJuv1pcJHHILl2
-eGQjcXO92tQSMQcy5uvz9P1auAwnBDeqLz/7OYGNvNrZKm6xQzzbWsZiDPkh2/KT
-4V7i10gGgIOy0GxlI/crGvMqXBugu6+8LlQse4bEFl7pNd175OBsx12+nBvut5Iz
-kA9AvIgIuWws4QYaP9DiQB7rEjaiw4zmfEA3Pu/NzTXRqvXbBQYNznOfvMUW7ppg
-vlAFQmH1Bj+nckEYAK4tSeEoOZfZc1SjC9SxGbWfr3A+pIhYxBIBffdSOSQ746fh
-heQiplgB8SqDNLRCp/ezlHBWAQEiadPG0YM9TID9hStDLS7zaBlWak1kextJGAa3
-a+h0Y2KMY6MjCQ+T1xG05N1figM/opbhX0a6LdbMVgdKuj2UqLXZ0vYOYtnG+s/d
-ClpnEolDgsdVg034P04pKHd44M4rTyC/z462EoupzZ75k0yGnGieagfyExk+JUjE
-l8L3iogctOL/nt/+YLutzAEioJ9uOD770Y8WU8VTDt2uaiF7JPbvS+5o/knFxsTM
-RjHxfuCFj8BZpuySnJ3cTRvKy9lKGiAiBR4FBQydwyeCWUIzLvMzz1Wk3Hp+9zQj
-ra6C2XaM/Q6LE5xcFs1fXnnWgeUXz4wHkqxe6kPyej6K/YopO2el2vr98KG+lEOS
-r1z/8yGtOWW3xwvmHc0R
-=490i
+iQIcBAEBAgAGBQJVxwPVAAoJEBQN5MwUoCm2KygQAKDFDFlNDLig6iqZ5rjH5gdx
+aZLvflgOKfxWBsc57A8mEH10MWJhPF8hp/Jmwxq8K27uA/ny22jyX8Ux/Pxy0qtE
+G2QAOX3b0o1Yz5WeCYTtXVeARJ+sVSwdSvcEihOuNpqxz2aTCgiJYtdMEneTsihm
+UI6Dj+UqOysUVPHnB2eqJXI6lf96fDbRzyc4mv3qa07KzpB4Z5e8JBCmBMb2EZPK
+gKxZaPCIM4M+7yQLeX8fV79emBT+6H+tXyLBUO2a0dwkji2qYSBxlGRKzaMdILFE
+H/4gwQ+/978m5lohwZxn6niWIjqXds2NIw28+08YpDPpc6EcFwmV2EgmrzLBBiJO
+fC0r2Hyj5Wdh+nrxUAMQTnHojUJuZWnkZyyX7y8gTzBNAPgrqht8/Zi6UgGHRvp5
+132Qf4xIbcy49iyyeMZT/xjnrGS+w8vIja6S+5hfba0kGVjI+8O6nudNMWq+tKQS
+VY/DoLAkhd8FU53nIW6yojUG0NA4VRux8JYPTrekgsbtYoSg+odh/AQDCF9SrzdK
+k8Njrxyy2C8SDv2qE5t8BVy4FhQv3e/V1JKvG7K0PncPKEWc2WZOdNtSsXXsw37M
+FOllOGSFQYas5tx00xTozeXL6KDQu3+M8BapBGLldTMrTXWWwVQGGxKKAAydpUTe
+7TprlWlORL1MehKQxz+p
+=refz
 -----END PGP SIGNATURE-----
 
---61jdw2sOBCFtR2d/--
+--S1BNGpv0yoYahz37--
