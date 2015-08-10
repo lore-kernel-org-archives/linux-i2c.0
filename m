@@ -1,54 +1,72 @@
-From: Richard Weinberger <richard@nod.at>
-Subject: Re: unmet direct dependencies in -next
-Date: Mon, 10 Aug 2015 11:14:14 +0200
-Message-ID: <55C86B66.3020601@nod.at>
-References: <55C71FF5.1020902@nod.at> <20150810091004.GC3249@x1>
+From: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: core: add support for read commands longer than byte
+Date: Mon, 10 Aug 2015 12:06:07 +0200
+Message-ID: <CAKv63usQZBqjcAWFEpFvkRuGLd7JXcJh=5aKmd8B94A68dsZ7w@mail.gmail.com>
+References: <1437744042-24471-1-git-send-email-cmo@melexis.com>
+ <20150809074006.GC1526@katana> <CAKv63usiWb4QgV=pnwuqFJtTogRca7UjtmiSKV69OTM2h7LtHw@mail.gmail.com>
+ <20150810091352.GB4682@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20150810091004.GC3249@x1>
-Sender: linux-next-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-next@vger.kernel.org, sameo@linux.intel.com, Arnd Bergmann <arnd@arndb.de>, yann.morin.1998@free.fr, linux-kbuild <linux-kbuild@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, user-mode-linux-devel <user-mode-linux-devel@lists.sourceforge.net>, mmarek@suse.cz
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150810091352.GB4682@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "Simon G. Vogl" <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Am 10.08.2015 um 11:10 schrieb Lee Jones:
-> On Sun, 09 Aug 2015, Richard Weinberger wrote:
-> 
->> Hi!
->>
->> -next faces some build issues on UML because of unmet direct dependencies.
->> Mostly due to HAS_IOMEM and I2C.
->>
->> warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
->> warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
->> PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
->> HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
->> warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
->> warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
->> PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
->> HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
->>
->> For example MFD_SYSCON cannot build on UML as it depends on HAS_IOMEM.
->> While the symbol MFD_SYSCON has correct dependencies some users of MFD_SYSCON
->> just issue a "select MFD_SYSCON" and bypass the HAS_IOMEM dependency and causing the build to fail.
->>
->> This brings me to a question on kconfig itself, wouldn't it be better to just disable a symbol if it has
->> unmet direct dependencies?
-> 
-> If this is a question about "kconfig itself", you should probably have
-> included the correct ML and Maintainer:
-> 
-> KCONFIG
-> M:      Michal Marek <mmarek@suse.cz>
-> L:      linux-kbuild@vger.kernel.org
-> S:      Odd Fixes
-> F:      Documentation/kbuild/kconfig-language.txt
-> F:      scripts/kconfig/
+On 10 August 2015 at 11:13, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>
+>
+> > This debate is what I wanted to have. The new Melexis sensor will be
+> > using it and since I think some others might also be using it in
+> > future I would rather put it to i2c. It is more i2c command than
+> > sensor specific so I think it fits into i2c.
+>
+> There is no thing as 'I2C command'. There are just I2C messages combined
+> into a transfer. I think you mix SMBus and I2C terminology here.
+>
+This is true, but write/read sequence can also be a request/reply
+which is basically
+a command for reading.
 
-Isn't this kbuild related? I've added kbuild folks...
-But adding Michal now too...
+> > Another gain is that when number of functions each device does increase, as
+> > well as ram/rom addressing read commands with longer than 8-bit register read
+> > commands will be needed. Especially since most sensors have digital design of
+> > i2c interface (not software) which means native access to registers is required,
+> > therefor 8bit read addressing (smbus) might not be suitable.
+>
+> Adding a function to i2c-core will grow the kernel for everyone. So, it
+> really has to be justified. So, here is the deal: If you can send a
+> series which fixes existing drivers to use your new function and it
+> shows that it really saves code, we can add it. Otherwise "thinking it
+> might be useful in the future" is too vague for me in this case.
+>
+Same function as my exists in: ./drivers/base/regmap/regmap-i2c.c ,
+maybe it is better
+just to use that?
 
-Thanks,
-//richard
+So far in IIO I have found:
+-./drivers/iio/accel/bmc150-accel.c:913
+-./drivers/iio/gyro/itg3200_buffer.c:26 itg3200_read_all_channels
+
+Grep showed me quite a bit more in drivers for example (won't list all):
+-./drivers/mfd/menelaus.c:899 menelaus_read_time
+-./drivers/mfd/tps65912-i2c.c:25 tps65912_i2c_read
+-./drivers/rtc/rtc-pcf8563.c:81 pcf8563_read_block_data
+-./drivers/rtc/rtc-ds1672.c:33 ds1672_get_datetime
+-./drivers/power/ltc2941-battery-gauge.c:90 ltc294x_read_regs
+Also in other parts:
+-./sound/soc/codecs/rl6347a.c:79 rl6347a_hw_read
+-./sound/soc/codecs/tas5086.c:202 tas5086_reg_read
+-./sound/soc/codecs/sigmadsp-i2c.c: 37 sigmadsp_read_i2c
+as well as good resemblance:
+-./arch/arm/mach-davinci/board-dm644x-evm.c:517 dm6444evm_msp430_get_pins
+
+Do you want me to prepare a patch to fix all this?
+> > I can fix the function name, but in core this is a master read command.
+>
+> What "core" are you referring to?
+>
+> You set up a write and a read message, no?
+>
+True, but focus is on read
