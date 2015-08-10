@@ -1,54 +1,57 @@
-From: Richard Weinberger <richard@nod.at>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: unmet direct dependencies in -next
-Date: Mon, 10 Aug 2015 13:24:00 +0200
-Message-ID: <55C889D0.6060001@nod.at>
-References: <55C71FF5.1020902@nod.at> <20150810091004.GC3249@x1>
- <55C86B66.3020601@nod.at> <55C88738.80400@suse.cz>
+Date: Mon, 10 Aug 2015 13:55:41 +0200
+Message-ID: <20150810115541.GA6479@katana>
+References: <55C71FF5.1020902@nod.at>
+ <20150810091004.GC3249@x1>
+ <55C86B66.3020601@nod.at>
+ <55C88738.80400@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
 Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <55C88738.80400@suse.cz>
 Sender: linux-next-owner@vger.kernel.org
-To: Michal Marek <mmarek@suse.cz>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-next@vger.kernel.org, sameo@linux.intel.com, Arnd Bergmann <arnd@arndb.de>, yann.morin.1998@free.fr, linux-kbuild <linux-kbuild@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, user-mode-linux-devel <user-mode-linux-devel@lists.sourceforge.net>
+To: Michal Marek <mmarek@suse.cz>
+Cc: Richard Weinberger <richard@nod.at>, Lee Jones <lee.jones@linaro.org>, linux-next@vger.kernel.org, sameo@linux.intel.com, Arnd Bergmann <arnd@arndb.de>, yann.morin.1998@free.fr, linux-kbuild <linux-kbuild@vger.kernel.org>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, user-mode-linux-devel <user-mode-linux-devel@lists.sourceforge.net>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 10.08.2015 um 13:12 schrieb Michal Marek:
-> On 2015-08-10 11:14, Richard Weinberger wrote:
->> Am 10.08.2015 um 11:10 schrieb Lee Jones:
->>> On Sun, 09 Aug 2015, Richard Weinberger wrote:
->>>
->>>> Hi!
->>>>
->>>> -next faces some build issues on UML because of unmet direct dependencies.
->>>> Mostly due to HAS_IOMEM and I2C.
->>>>
->>>> warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
->>>> warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
->>>> PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
->>>> HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
->>>> warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
->>>> warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
->>>> PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
->>>> HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
->>>>
->>>> For example MFD_SYSCON cannot build on UML as it depends on HAS_IOMEM.
->>>> While the symbol MFD_SYSCON has correct dependencies some users of MFD_SYSCON
->>>> just issue a "select MFD_SYSCON" and bypass the HAS_IOMEM dependency and causing the build to fail.
->>>>
->>>> This brings me to a question on kconfig itself, wouldn't it be better to just disable a symbol if it has
->>>> unmet direct dependencies?
-> 
+
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
 > The result of the given .config does not matter as much. The point of
 > the warnings is that there are missing select statements in the Kconfig
 > files.
 
-IMHO the situation could be improved.
-What about of failing hard "Your Kconfig is broken" or as I wrote disabling affected symbols?
+For the I2C part, I think they should rather depend on I2C_MUX.
+Selecting I2C should be rare, like when you really need that PMIC to
+boot.
 
-The current warning is something between.
-Kbuild detects that something is broken but produces a .config file.
 
-Thanks,
-//richard
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVyJE9AAoJEBQN5MwUoCm2omcP/ikOy+3u3CkzSyfpJFqfINE0
+owxiVuJXLp70RTE8eQPimfxCgD0otCADSmQ67zFJVTk7TQbyA8rzCnePnqmNMi9+
+6BajoS2NC+wZKjNu50spB+f4ozQ6/4TCU35j7QODo4b8XAotdDvyJ2P7/DCkwaRf
+NP+8ViNS+UsJiw3/V/53OtlVP5IKtWnQQRoJmrdN63NsOux6dakzuEjK7c/fCusa
+XPmmZMqiPNYhXLZskhqxfSvRQNYV0LfutttLBPSFWVA93LqbNA64B17mfQI04Oyx
+jSBfNqofGFwFM1c8errO6CVSfeD3co+EfRUm9P0/8UN283aQ05Owa11498UFaGac
+t+D2xYzlR+vnqZBEWyjzuJRdTimqlOZmHjlomemutchH0RBxiulGog6Q2E7AsMPL
+4dEujVxQSjXV0bR+lqjFU2x1FMdRWhw4P7NJRmSvQi6COjjOMW67X8KDqLOMrpsp
+3wOhdDH9IDb4Rqc9Bc7LDL8Jo7N1mGZ1NvUMmJ8cjHQ0sejcL/9RMTXRQOEU7qIk
+ZvZUmLmm1WqxcDp7kLbwmsL4gYMKKkVR5UdbUrg5QbOV+ittCe28aeS9a4zieITS
+Rl88M/DdN/Nfl0Q/d5ZbdkNuoWFmSBVCITmaHOuSfN4i9JTrBiAGhUK8oYxYkLhj
+18UPcW1CewfoEOij9wwY
+=jTW3
+-----END PGP SIGNATURE-----
+
+--PEIAKu/WMn1b1Hv9--
