@@ -1,74 +1,54 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: core: add support for read commands longer than byte
-Date: Mon, 10 Aug 2015 11:13:53 +0200
-Message-ID: <20150810091352.GB4682@katana>
-References: <1437744042-24471-1-git-send-email-cmo@melexis.com>
- <20150809074006.GC1526@katana>
- <CAKv63usiWb4QgV=pnwuqFJtTogRca7UjtmiSKV69OTM2h7LtHw@mail.gmail.com>
+From: Richard Weinberger <richard@nod.at>
+Subject: Re: unmet direct dependencies in -next
+Date: Mon, 10 Aug 2015 11:14:14 +0200
+Message-ID: <55C86B66.3020601@nod.at>
+References: <55C71FF5.1020902@nod.at> <20150810091004.GC3249@x1>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAKv63usiWb4QgV=pnwuqFJtTogRca7UjtmiSKV69OTM2h7LtHw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
-Cc: "Simon G. Vogl" <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20150810091004.GC3249@x1>
+Sender: linux-next-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-next@vger.kernel.org, sameo@linux.intel.com, Arnd Bergmann <arnd@arndb.de>, yann.morin.1998@free.fr, linux-kbuild <linux-kbuild@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, user-mode-linux-devel <user-mode-linux-devel@lists.sourceforge.net>, mmarek@suse.cz
 List-Id: linux-i2c@vger.kernel.org
 
+Am 10.08.2015 um 11:10 schrieb Lee Jones:
+> On Sun, 09 Aug 2015, Richard Weinberger wrote:
+> 
+>> Hi!
+>>
+>> -next faces some build issues on UML because of unmet direct dependencies.
+>> Mostly due to HAS_IOMEM and I2C.
+>>
+>> warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
+>> warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
+>> PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
+>> HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
+>> warning: (MEDIA_SUBDRV_AUTOSELECT && VIDEO_CX231XX && INV_MPU6050_IIO) selects I2C_MUX which has unmet direct dependencies (I2C && HAS_IOMEM)
+>> warning: (ST_IRQCHIP && HIP04_ETH && STMMAC_PLATFORM && DWMAC_IPQ806X && DWMAC_LPC18XX && DWMAC_ROCKCHIP && DWMAC_SOCFPGA && DWMAC_STI && TI_CPSW && PINCTRL_ROCKCHIP &&
+>> PINCTRL_DOVE && POWER_RESET_KEYSTONE && POWER_RESET_SYSCON && POWER_RESET_SYSCON_POWEROFF && S3C2410_WATCHDOG && VIDEO_OMAP3 && VIDEO_S5P_FIMC && RTC_DRV_AT91SAM9 && VIDEO_OMAP4 &&
+>> HWSPINLOCK_QCOM && ATMEL_ST && QCOM_GSBI) selects MFD_SYSCON which has unmet direct dependencies (HAS_IOMEM)
+>>
+>> For example MFD_SYSCON cannot build on UML as it depends on HAS_IOMEM.
+>> While the symbol MFD_SYSCON has correct dependencies some users of MFD_SYSCON
+>> just issue a "select MFD_SYSCON" and bypass the HAS_IOMEM dependency and causing the build to fail.
+>>
+>> This brings me to a question on kconfig itself, wouldn't it be better to just disable a symbol if it has
+>> unmet direct dependencies?
+> 
+> If this is a question about "kconfig itself", you should probably have
+> included the correct ML and Maintainer:
+> 
+> KCONFIG
+> M:      Michal Marek <mmarek@suse.cz>
+> L:      linux-kbuild@vger.kernel.org
+> S:      Odd Fixes
+> F:      Documentation/kbuild/kconfig-language.txt
+> F:      scripts/kconfig/
 
---8GpibOaaTibBMecb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Isn't this kbuild related? I've added kbuild folks...
+But adding Michal now too...
 
-
-> This debate is what I wanted to have. The new Melexis sensor will be
-> using it and since I think some others might also be using it in
-> future I would rather put it to i2c. It is more i2c command than
-> sensor specific so I think it fits into i2c.
-
-There is no thing as 'I2C command'. There are just I2C messages combined
-into a transfer. I think you mix SMBus and I2C terminology here.
-
-> Another gain is that when number of functions each device does increase, as
-> well as ram/rom addressing read commands with longer than 8-bit register read
-> commands will be needed. Especially since most sensors have digital design of
-> i2c interface (not software) which means native access to registers is required,
-> therefor 8bit read addressing (smbus) might not be suitable.
-
-Adding a function to i2c-core will grow the kernel for everyone. So, it
-really has to be justified. So, here is the deal: If you can send a
-series which fixes existing drivers to use your new function and it
-shows that it really saves code, we can add it. Otherwise "thinking it
-might be useful in the future" is too vague for me in this case.
-
-> I can fix the function name, but in core this is a master read command.
-
-What "core" are you referring to?
-
-You set up a write and a read message, no?
-
-
---8GpibOaaTibBMecb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVyGtQAAoJEBQN5MwUoCm2EeQP/1GTSRNdFF5ydXazXfQgUXqM
-XS2BAWHhonPIOvMh1tM1kBuJhVDZ7QQc7ZrhjjJqrmQWgzsBWsEqS7jrN6nV/osK
-x0vC0aj4CFMJlLEXpd99Ut9q1bM7yIohUFZNs32cCytFNBRr1waMjv0ScXhqHcDE
-VztJYbrsrQfTyU6ZUVfhntrj4NL/4RMzWKG1jzvtabPx93OZKTitv5r9d6PS6j4P
-5jP/mYcMS/QTf3WdKnCRtxSfuEAuArzn8sVQod6VreROPLSKkTM1S/oPSPP71luO
-mZaZRQYZLR7kPyGTRO/5eXEtXyjfLSHlOg1ex+AqU45rtLBzUsv7AIL+K2i7z16y
-ZrjOVCPmL4I9Qbs68KCHMmspbXZ4Latr7NUnzY4yfkmRRh13HM8dVXTq1a04sfEL
-kJQADnX++sGZTJFSSTIt+kGXjVeiybEW4B10N73STtSO0dTyANfwMD70Sav1Kf2m
-rxJ5PhkK4S2JDiwg5wGdukN31L35OrhcUQHFVomcphkvAnh6Ylnvs5pbPxa85m7b
-lnd1HhNdzZNStM/2yDPJUTmTkE9J+Dlscn0ZlRDFKcPA9tmZU3ZI/kNXryLYhVmf
-nbT/pRZq7KGs2y2o00JeyEApyByTkrdEqov9aOJoEWj/YNSlZvYWTYxThdWzzM3E
-dpboq9IPKTnlWCvr+vTv
-=+nIE
------END PGP SIGNATURE-----
-
---8GpibOaaTibBMecb--
+Thanks,
+//richard
