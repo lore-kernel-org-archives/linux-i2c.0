@@ -1,71 +1,45 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Subject: Re: [Patch v3] driver/i2c/mux: Add register-based mux i2c-mux-reg
-Date: Tue, 11 Aug 2015 18:16:10 +0200
-Message-ID: <20150811161610.GA1523@katana>
-References: <1434657458-16553-1-git-send-email-yorksun@freescale.com>
- <20150811153916.GD1525@katana>
- <55CA1ADF.200@freescale.com>
+Date: Tue, 11 Aug 2015 09:36:02 -0700
+Message-ID: <55CA2472.9080000@freescale.com>
+References: <1434657458-16553-1-git-send-email-yorksun@freescale.com> <20150811153916.GD1525@katana> <55CA1ADF.200@freescale.com> <20150811161610.GA1523@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <55CA1ADF.200-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <20150811161610.GA1523@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-> >> +	if (of_find_property(np, "little-endian", NULL)) {
-> >=20
-> > You should check for a "big-endian" property as well, no?
->=20
-> I use the little-endian as an option to indicate the nature of litten-end=
-ian
-> register. It is default to big-endian if this property doesn't exist. I p=
-refer
-> this way unless you strongly suggest to add both and throw out an error if
-> neither exists.
+On 08/11/2015 09:16 AM, Wolfram Sang wrote:
+>>>> +	if (of_find_property(np, "little-endian", NULL)) {
+>>>
+>>> You should check for a "big-endian" property as well, no?
+>>
+>> I use the little-endian as an option to indicate the nature of litten-endian
+>> register. It is default to big-endian if this property doesn't exist. I prefer
+>> this way unless you strongly suggest to add both and throw out an error if
+>> neither exists.
+> 
+> I'd think that "little-endian" or "big-endian" force a setting. If none
+> is present, we shall take the CPU endianess. Or am I overlooking
+> something?
 
-I'd think that "little-endian" or "big-endian" force a setting. If none
-is present, we shall take the CPU endianess. Or am I overlooking
-something?
+You are right. The current code checks for littel-endian property. If missing,
+the CPU endianess is used. Do you prefer to check littlen-endian first, if
+missing then big-endian, if both missing then use CPU endianess?
 
-Oh, and I forgot the biggest issue: I get build errors, because
-__LITTLE_ENDIAN__ should be __LITTLE_ENDIAN. Is this a recent change or
-why did it work for you?
+> 
+> Oh, and I forgot the biggest issue: I get build errors, because
+> __LITTLE_ENDIAN__ should be __LITTLE_ENDIAN. Is this a recent change or
+> why did it work for you?
+> 
 
-Thanks for the quick response,
+I tested it on 4.0.4 kernel. I see a lot of reference of __LITTLE_ENDIAN__. I
+will test the new patch on the latest kernel.
 
-   Wolfram
-
-
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVyh/KAAoJEBQN5MwUoCm2qSwQAJsW6hioc2JzPuWOM6sQcMyh
-tAi8D8vqgm3fuchhmwZv0ktgYUE6b/duPEt9+PnGowEBx75knlKp0n/Jf40YiGtO
-/YwpWb5MCU3p80QIi5PJWyHbMJRY2eEy0PgmEuGWxaB7+jprXcHtXWXvuPdZngjZ
-2LBg1yWkXPgMR1kx2mSAtuEFusskRhJ/D9uEZIHGFd3dR2IycHXNd+T5bT4khfPD
-LTQlPe9uDB2uJZTfEDO8NOh1OAovaAC5X8W+E0Vy0DtjthQibLKtooZXE8RNtGXI
-94HCNzc+yGqWb6HqFY9JcXfp0JrQ/c3ouv6l65eMPy3MpZIz4sjeHKJDc3p4i6ge
-rkRrrXqXagUcpG8IGEXE1nuWY/cs5s5yViAHhHYG3+tcRpC8dGteJrKG03P/paQS
-drt5xLrClpZnm7oqIEg/nUw2qYVmjOqwgtEvfbWWapvskZOaOVpQvnWJo4jEks8t
-fOg9QzjnHJ7YZfQlKPUOyrwkGt7H4+5FF8eo2Q5SV35spYe+UuoxVtBgXspuHOK3
-sAHv40va59pweoLq59csvfAPqj+Mah7oxRbG1+UEMeYkcWuajXsBPhjKamfNt6bt
-62Gaf7fYkpAzyisHxVZygSXbEHMbSFQjPkblyFvv0s9AyQgooTZxVdqbgDuyV/fc
-coNIu7Nh0utpC0PgcciV
-=3SEN
------END PGP SIGNATURE-----
-
---FCuugMFkClbJLl1L--
+York
