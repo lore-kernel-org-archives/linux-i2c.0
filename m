@@ -1,83 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 08/10] i2c: support 10 bit and slave addresses in sysfs
- 'new_device'
-Date: Mon, 10 Aug 2015 16:00:22 +0200
-Message-ID: <20150810140022.GA7159@katana>
-References: <1439066007-13951-1-git-send-email-wsa@the-dreams.de>
- <1439066007-13951-9-git-send-email-wsa@the-dreams.de>
- <CAMuHMdWfL3SwzZ=Wu5X96Npf9RHmVWc7o7R+uLfvuiRRSpQR9w@mail.gmail.com>
+From: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: mediatek: Reset DMA engine in hardware init function
+Date: Tue, 11 Aug 2015 16:32:38 +0800
+Message-ID: <CAGS+omAXRz5obq3si1tOdT5JSLB6m8XcdaN2VGpaLbuqMyqVGw@mail.gmail.com>
+References: <1438845731-17805-1-git-send-email-eddie.huang@mediatek.com> <1438845731-17805-2-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdWfL3SwzZ=Wu5X96Npf9RHmVWc7o7R+uLfvuiRRSpQR9w@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Andrey Danin <danindrey@mail.ru>, Stephen Warren <swarren@wwwdotorg.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1438845731-17805-2-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Aug 6, 2015 at 3:22 PM, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> wrote:
+> Reset DMA in hardware init function to avoid unknown hardware state
+> before do any I2C operation.
+>
+> Signed-off-by: Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> Signed-off-by: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 
-On Mon, Aug 10, 2015 at 03:17:03PM +0200, Geert Uytterhoeven wrote:
-> Hi Wolfram,
->=20
-> On Sat, Aug 8, 2015 at 10:33 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> > diff --git a/Documentation/i2c/slave-interface b/Documentation/i2c/slav=
-e-interface
-> > index 2dee4e2d62df19..61ed05cd95317f 100644
-> > --- a/Documentation/i2c/slave-interface
-> > +++ b/Documentation/i2c/slave-interface
-> > @@ -31,10 +31,13 @@ User manual
-> >  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> >
-> >  I2C slave backends behave like standard I2C clients. So, you can insta=
-ntiate
-> > -them as described in the document 'instantiating-devices'. A quick exa=
-mple for
-> > -instantiating the slave-eeprom driver from userspace at address 0x64 o=
-n bus 1:
-> > +them as described in the document 'instantiating-devices'. The only di=
-fference
-> > +is that i2c slave backends have their own address space. So, you have =
-to add
-> > +0x1000 to the address you would originally request. An example for
-> > +instantiating the slave-eeprom driver from userspace at the 7 bit addr=
-ess 0x64
-> > +on bus 1:
-> >
-> > -  # echo slave-24c02 0x64 > /sys/bus/i2c/devices/i2c-1/new_device
-> > +  # echo slave-24c02 0x1064 > /sys/bus/i2c/devices/i2c-1/new_device
->=20
-> Does 0x64 still work? It's an ABI since v4.1.
-
-Yes, you'll see the warning from patch 9.
-
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVyK52AAoJEBQN5MwUoCm2y9MQAI7nuC0161zwS78vkVB11cyc
-5JGtvoN0qwSBYMZrYp0GKRGby3bV2OnJLpepa3/0UwRWdYCh12Z334dHwV5XQJ7d
-ZqLzUioVA0P21y4MDX2BG8BfpWuqDIPmSmspQTgVFMM8Ei1l4qpx8qBGLlFqsPZq
-qtMNk7ELjM3LPAFYHscGJlxHWomomqQlq2pfZ1V9eJTkAOKq9zratpAAk2QUmSBT
-EaJL8fOEQ6VfQSVDSiCR/vdRn5AK1RDzKRC8o2iCg4TwYme0sJx4ggfd5n9YplNP
-SfcapIufhRZkgaiToGUP+Srjtn4x9G85DpHDaKe3jUUUyHBtKIoPCBZZIuhSgXMr
-bvXHlj0TefvLk+kBuZlKMkrWy0mx5GlXFRr7S2FBt8rAegEsT5IGfLw7pb9q7YTZ
-QUnv6bIkHTRknOzdiZg60+fei9vjt6+rAyyGLVcdbInYD9jS/0gP4fZLpngayoXU
-vVZuG+QTneylO66FpF8zzWW04omf+5q5JiLrY7Ik4PvVsCaH2+SS4e3JY2BHJNmu
-OMdtuUhZDqo54OuN/zHUOgTeuOVmWKYa7OB3LM1f3KS5C0UZELb0e6h2pPgwrsnI
-txTRHOFZYHGorWmBF8xx6YzCHriJeoH4KSyRCgsgu83Z62UPRlqI+Gcy01j2mbzv
-JycFSVIFOJpQYQHGVma7
-=AbSy
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+> ---
+>  drivers/i2c/busses/i2c-mt65xx.c |    6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+> index 9920eef..e28ad4c 100644
+> --- a/drivers/i2c/busses/i2c-mt65xx.c
+> +++ b/drivers/i2c/busses/i2c-mt65xx.c
+> @@ -59,6 +59,7 @@
+>  #define I2C_DMA_START_EN               0x0001
+>  #define I2C_DMA_INT_FLAG_NONE          0x0000
+>  #define I2C_DMA_CLR_FLAG               0x0000
+> +#define I2C_DMA_HARD_RST               0x0002
+>
+>  #define I2C_DEFAULT_SPEED              100000  /* hz */
+>  #define MAX_FS_MODE_SPEED              400000
+> @@ -81,6 +82,7 @@ enum DMA_REGS_OFFSET {
+>         OFFSET_INT_FLAG = 0x0,
+>         OFFSET_INT_EN = 0x04,
+>         OFFSET_EN = 0x08,
+> +       OFFSET_RST = 0x0c,
+>         OFFSET_CON = 0x18,
+>         OFFSET_TX_MEM_ADDR = 0x1c,
+>         OFFSET_RX_MEM_ADDR = 0x20,
+> @@ -262,6 +264,10 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
+>                       I2C_CONTROL_CLK_EXT_EN | I2C_CONTROL_DMA_EN;
+>         writew(control_reg, i2c->base + OFFSET_CONTROL);
+>         writew(I2C_DELAY_LEN, i2c->base + OFFSET_DELAY_LEN);
+> +
+> +       writel(I2C_DMA_HARD_RST, i2c->pdmabase + OFFSET_RST);
+> +       udelay(50);
+> +       writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_RST);
+>  }
+>
+>  /*
+> --
+> 1.7.9.5
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
