@@ -1,274 +1,59 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 2/3] i2c: i801: Create iTCO device on newer Intel PCHs
-Date: Tue, 11 Aug 2015 15:14:59 +0100
-Message-ID: <20150811141459.GJ18282@x1>
-References: <1438865186-25794-1-git-send-email-matt@codeblueprint.co.uk>
- <1438865186-25794-3-git-send-email-matt@codeblueprint.co.uk>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] i2c: mediatek: Fixup i2c ack error interrupt
+ handling
+Date: Tue, 11 Aug 2015 16:55:21 +0200
+Message-ID: <20150811145521.GB1525@katana>
+References: <1438845731-17805-1-git-send-email-eddie.huang@mediatek.com>
+ <1438845731-17805-3-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1438865186-25794-3-git-send-email-matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
-Cc: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Darren Hart <dvhart-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matt Fleming <matt.fleming-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1438845731-17805-3-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 06 Aug 2015, Matt Fleming wrote:
 
-> From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->=20
-> Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog reso=
-urces
-> have been moved to reside under the i801 SMBus host controller wherea=
-s
-> previously they were under the LPC device.
->=20
-> In order to support the iTCO watchdog on newer PCHs we need to create=
- the
-> platform device here in the SMBus driver and pass all known resources=
- using
-> platform data.
->=20
-> Cc: Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-> Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Signed-off-by: Matt Fleming <matt.fleming-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->=20
-> v4:
->  - No changes
->=20
-> v3:
->  - Added Guenter's Review tag
->=20
-> v2:
->  - Don't use bitops but same scheme used already
->  - Delete superfluous NULL-checks for platform_device_unregister()
->=20
->  drivers/i2c/busses/i2c-i801.c | 120 ++++++++++++++++++++++++++++++++=
-+++++++++-
->  1 file changed, 119 insertions(+), 1 deletion(-)
+--LpQ9ahxlCli8rRTG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Applied, thanks.
+On Thu, Aug 06, 2015 at 03:22:11PM +0800, Eddie Huang wrote:
+> When occur i2c ack error, i2c controller generate two interrupts,
+> first is the ack error interrupt, then the complete interrupt.
+> i2c interrupt handler should keep the two interrupt value, and only
+> call complete() for the complete interrupt.
+>=20
+> Signed-off-by: Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> Signed-off-by: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i=
-801.c
-> index 5ecbb3fdc27e..eaef9bc9d88c 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -88,12 +88,13 @@
->  #include <linux/slab.h>
->  #include <linux/wait.h>
->  #include <linux/err.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/platform_data/itco_wdt.h>
-> =20
->  #if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODU=
-LE) && \
->  		defined CONFIG_DMI
->  #include <linux/gpio.h>
->  #include <linux/i2c-mux-gpio.h>
-> -#include <linux/platform_device.h>
->  #endif
-> =20
->  /* I801 SMBus address offsets */
-> @@ -113,6 +114,16 @@
->  #define SMBPCICTL	0x004
->  #define SMBPCISTS	0x006
->  #define SMBHSTCFG	0x040
-> +#define TCOBASE		0x050
-> +#define TCOCTL		0x054
-> +
-> +#define ACPIBASE		0x040
-> +#define ACPIBASE_SMI_OFF	0x030
-> +#define ACPICTRL		0x044
-> +#define ACPICTRL_EN		0x080
-> +
-> +#define SBREG_BAR		0x10
-> +#define SBREG_SMBCTRL		0xc6000c
-> =20
->  /* Host status bits for SMBPCISTS */
->  #define SMBPCISTS_INTS		0x08
-> @@ -125,6 +136,9 @@
->  #define SMBHSTCFG_SMB_SMI_EN	2
->  #define SMBHSTCFG_I2C_EN	4
-> =20
-> +/* TCO configuration bits for TCOCTL */
-> +#define TCOCTL_EN		0x0100
-> +
->  /* Auxiliary control register bits, ICH4+ only */
->  #define SMBAUXCTL_CRC		1
->  #define SMBAUXCTL_E32B		2
-> @@ -221,6 +235,7 @@ struct i801_priv {
->  	const struct i801_mux_config *mux_drvdata;
->  	struct platform_device *mux_pdev;
->  #endif
-> +	struct platform_device *tco_pdev;
->  };
-> =20
->  #define FEATURE_SMBUS_PEC	(1 << 0)
-> @@ -230,6 +245,7 @@ struct i801_priv {
->  #define FEATURE_IRQ		(1 << 4)
->  /* Not really a feature, but it's convenient to handle it as such */
->  #define FEATURE_IDF		(1 << 15)
-> +#define FEATURE_TCO		(1 << 16)
-> =20
->  static const char *i801_feature_names[] =3D {
->  	"SMBus PEC",
-> @@ -1132,6 +1148,95 @@ static inline unsigned int i801_get_adapter_cl=
-ass(struct i801_priv *priv)
->  }
->  #endif
-> =20
-> +static const struct itco_wdt_platform_data tco_platform_data =3D {
-> +	.name =3D "Intel PCH",
-> +	.version =3D 4,
-> +};
-> +
-> +static DEFINE_SPINLOCK(p2sb_spinlock);
-> +
-> +static void i801_add_tco(struct i801_priv *priv)
-> +{
-> +	struct pci_dev *pci_dev =3D priv->pci_dev;
-> +	struct resource tco_res[3], *res;
-> +	struct platform_device *pdev;
-> +	unsigned int devfn;
-> +	u32 tco_base, tco_ctl;
-> +	u32 base_addr, ctrl_val;
-> +	u64 base64_addr;
-> +
-> +	if (!(priv->features & FEATURE_TCO))
-> +		return;
-> +
-> +	pci_read_config_dword(pci_dev, TCOBASE, &tco_base);
-> +	pci_read_config_dword(pci_dev, TCOCTL, &tco_ctl);
-> +	if (!(tco_ctl & TCOCTL_EN))
-> +		return;
-> +
-> +	memset(tco_res, 0, sizeof(tco_res));
-> +
-> +	res =3D &tco_res[ICH_RES_IO_TCO];
-> +	res->start =3D tco_base & ~1;
-> +	res->end =3D res->start + 32 - 1;
-> +	res->flags =3D IORESOURCE_IO;
-> +
-> +	/*
-> +	 * Power Management registers.
-> +	 */
-> +	devfn =3D PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
-> +	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr=
-);
-> +
-> +	res =3D &tco_res[ICH_RES_IO_SMI];
-> +	res->start =3D (base_addr & ~1) + ACPIBASE_SMI_OFF;
-> +	res->end =3D res->start + 3;
-> +	res->flags =3D IORESOURCE_IO;
-> +
-> +	/*
-> +	 * Enable the ACPI I/O space.
-> +	 */
-> +	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val)=
-;
-> +	ctrl_val |=3D ACPICTRL_EN;
-> +	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val)=
-;
-> +
-> +	/*
-> +	 * We must access the NO_REBOOT bit over the Primary to Sideband
-> +	 * bridge (P2SB). The BIOS prevents the P2SB device from being
-> +	 * enumerated by the PCI subsystem, so we need to unhide/hide it
-> +	 * to lookup the P2SB BAR.
-> +	 */
-> +	spin_lock(&p2sb_spinlock);
-> +
-> +	devfn =3D PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 1);
-> +
-> +	/* Unhide the P2SB device */
-> +	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x0);
-> +
-> +	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR, &base_add=
-r);
-> +	base64_addr =3D base_addr & 0xfffffff0;
-> +
-> +	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR + 0x4, &ba=
-se_addr);
-> +	base64_addr |=3D (u64)base_addr << 32;
-> +
-> +	/* Hide the P2SB device */
-> +	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x1);
-> +	spin_unlock(&p2sb_spinlock);
-> +
-> +	res =3D &tco_res[ICH_RES_MEM_OFF];
-> +	res->start =3D (resource_size_t)base64_addr + SBREG_SMBCTRL;
-> +	res->end =3D res->start + 3;
-> +	res->flags =3D IORESOURCE_MEM;
-> +
-> +	pdev =3D platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt=
-", -1,
-> +						 tco_res, 3, &tco_platform_data,
-> +						 sizeof(tco_platform_data));
-> +	if (IS_ERR(pdev)) {
-> +		dev_warn(&pci_dev->dev, "failed to create iTCO device\n");
-> +		return;
-> +	}
-> +
-> +	priv->tco_pdev =3D pdev;
-> +}
-> +
->  static int i801_probe(struct pci_dev *dev, const struct pci_device_i=
-d *id)
->  {
->  	unsigned char temp;
-> @@ -1149,6 +1254,15 @@ static int i801_probe(struct pci_dev *dev, con=
-st struct pci_device_id *id)
-> =20
->  	priv->pci_dev =3D dev;
->  	switch (dev->device) {
-> +	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
-> +	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
-> +		priv->features |=3D FEATURE_I2C_BLOCK_READ;
-> +		priv->features |=3D FEATURE_IRQ;
-> +		priv->features |=3D FEATURE_SMBUS_PEC;
-> +		priv->features |=3D FEATURE_BLOCK_BUFFER;
-> +		priv->features |=3D FEATURE_TCO;
-> +		break;
-> +
->  	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
->  	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1:
->  	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2:
-> @@ -1265,6 +1379,8 @@ static int i801_probe(struct pci_dev *dev, cons=
-t struct pci_device_id *id)
->  	dev_info(&dev->dev, "SMBus using %s\n",
->  		 priv->features & FEATURE_IRQ ? "PCI interrupt" : "polling");
-> =20
-> +	i801_add_tco(priv);
-> +
->  	/* set up the sysfs linkage to our parent device */
->  	priv->adapter.dev.parent =3D &dev->dev;
-> =20
-> @@ -1296,6 +1412,8 @@ static void i801_remove(struct pci_dev *dev)
->  	i2c_del_adapter(&priv->adapter);
->  	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
-> =20
-> +	platform_device_unregister(priv->tco_pdev);
-> +
->  	/*
->  	 * do not call pci_disable_device(dev) since it can cause hard hang=
-s on
->  	 * some systems during power-off (eg. Fujitsu-Siemens Lifebook E801=
-0)
+Applied to for-next, thanks!
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--LpQ9ahxlCli8rRTG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVygzZAAoJEBQN5MwUoCm2PLUQAIGePqS8CPsPurg00pgUGkOF
+Os8CMsA6hdFJf6WbVJdkE3qTGfmwnSdxe+4hIC8Il3IhO6meknFSfM/Y4r/fVz4v
+5+hCeBMAdQKmWF4XPCz103btnnU793Hup41zSd1X4ccnW/jAUNvczposPa8GYk3u
+44/itgC4PvlamAzlVsNQsmZ3zLl2pgSodX75fR+2A6Z2c9QIsIDuqCoDbUTVhhtD
+MP/r94iWgUPvwEYlRTb4JIt26f/3xg8TnyPQFCJiEnGSv6hc62TQZL3CLUCa3l+J
+mLMz85IKX1QrCvdxl+1wNG1zxa6ryYqIY1LsyZkgjqA3gVS9qM756sOa94LjA1dl
+8N4c008QQjpK7rDmLmeQwS7A8Y74GqFmLjtInKroFwCr7JhpUzsr7JGmlbg1QfE0
+qw90Df6rHENRWhFcjqy1cMjk835OC+fcYGwfAgbz9iqym42VFcHi/jXunbOzQUj2
+RKqoukgaIo49fMVm1voYkz2WomKJrLZGiDspJqPSv/ry0sdiRjmzASAqWupYaF8g
+FpQjoM+c2aXHC4a2z/BXJKaZeK03HP5CJMlMOcXkwldvoEgp+NrUTOCviE+Hp3FR
+IGzRx/J+6kJGB5+VAQmdOHOJDawmV6ZqzGnA9eRhp3zqfL3fR62J8/dfgCJRsv1d
+CJOs5wMdilIamU49bvor
+=PVj7
+-----END PGP SIGNATURE-----
+
+--LpQ9ahxlCli8rRTG--
