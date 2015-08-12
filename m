@@ -1,84 +1,112 @@
-From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v5 2/8] eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
-Date: Wed, 12 Aug 2015 17:31:34 +0300
-Message-ID: <1439389900-10108-3-git-send-email-irina.tirdea@intel.com>
+From: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v5 1/8] i2c: core: Add support for best effort block read emulation
+Date: Wed, 12 Aug 2015 17:31:33 +0300
+Message-ID: <1439389900-10108-2-git-send-email-irina.tirdea@intel.com>
 References: <1439389900-10108-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1439389900-10108-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, Peter Meerwald <pmeerw@pmeerw.net>, Irina Tirdea <irina.tirdea@intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1439389900-10108-1-git-send-email-irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-For i2c busses that support only SMBUS extensions, the eeprom at24
-driver reads data from the device using the SMBus block, word or byte
-read protocols depending on availability.
+There are devices that need to handle block transactions
+regardless of the capabilities exported by the adapter.
+For performance reasons, they need to use i2c read blocks
+if available, otherwise emulate the block transaction with word
+or byte transactions.
 
-Replace the block read emulation from the driver with the
-i2c_smbus_read_i2c_block_data_or_emulated call from i2c core.
+Add support for a helper function that would read a data block
+using the best transfer available: I2C_FUNC_SMBUS_READ_I2C_BLOCK,
+I2C_FUNC_SMBUS_READ_WORD_DATA or I2C_FUNC_SMBUS_READ_BYTE_DATA.
 
-Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/misc/eeprom/at24.c | 37 ++++++-------------------------------
- 1 file changed, 6 insertions(+), 31 deletions(-)
+ drivers/i2c/i2c-core.c | 57 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |  3 +++
+ 2 files changed, 60 insertions(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2b254f3..c6cb7f8 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -186,19 +186,11 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	if (count > io_limit)
- 		count = io_limit;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 07a83f3..0c581bc 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -2969,6 +2969,63 @@ trace:
+ }
+ EXPORT_SYMBOL(i2c_smbus_xfer);
  
--	switch (at24->use_smbus) {
--	case I2C_SMBUS_I2C_BLOCK_DATA:
-+	if (at24->use_smbus) {
- 		/* Smaller eeproms can work given some SMBus extension calls */
- 		if (count > I2C_SMBUS_BLOCK_MAX)
- 			count = I2C_SMBUS_BLOCK_MAX;
--		break;
--	case I2C_SMBUS_WORD_DATA:
--		count = 2;
--		break;
--	case I2C_SMBUS_BYTE_DATA:
--		count = 1;
--		break;
--	default:
-+	} else {
- 		/*
- 		 * When we have a better choice than SMBus calls, use a
- 		 * combined I2C message. Write address; then read up to
-@@ -229,27 +221,10 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	timeout = jiffies + msecs_to_jiffies(write_timeout);
- 	do {
- 		read_time = jiffies;
--		switch (at24->use_smbus) {
--		case I2C_SMBUS_I2C_BLOCK_DATA:
--			status = i2c_smbus_read_i2c_block_data(client, offset,
--					count, buf);
--			break;
--		case I2C_SMBUS_WORD_DATA:
--			status = i2c_smbus_read_word_data(client, offset);
--			if (status >= 0) {
--				buf[0] = status & 0xff;
--				buf[1] = status >> 8;
--				status = count;
--			}
--			break;
--		case I2C_SMBUS_BYTE_DATA:
--			status = i2c_smbus_read_byte_data(client, offset);
--			if (status >= 0) {
--				buf[0] = status;
--				status = count;
--			}
--			break;
--		default:
-+		if (at24->use_smbus) {
-+			status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
-+									   count, buf);
-+		} else {
- 			status = i2c_transfer(client->adapter, msg, 2);
- 			if (status == 2)
- 				status = count;
++/**
++ * i2c_smbus_read_i2c_block_data_or_emulated - read block or emulate
++ * @client: Handle to slave device
++ * @command: Byte interpreted by slave
++ * @length: Size of data block; SMBus allows at most I2C_SMBUS_BLOCK_MAX bytes
++ * @values: Byte array into which data will be read; big enough to hold
++ *	the data returned by the slave.  SMBus allows at most
++ *	I2C_SMBUS_BLOCK_MAX bytes.
++ *
++ * This executes the SMBus "block read" protocol if supported by the adapter.
++ * If block read is not supported, it emulates it using either word or byte
++ * read protocols depending on availability.
++ *
++ * The addresses of the I2C slave device that are accessed with this function
++ * must be mapped to a linear region, so that a block read will have the same
++ * effect as a byte read. Before using this function you must double-check
++ * if the I2C slave does support exchanging a block transfer with a byte
++ * transfer.
++ */
++s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
++					      u8 command, u8 length, u8 *values)
++{
++	u8 i = 0;
++	int status;
++
++	if (length > I2C_SMBUS_BLOCK_MAX)
++		length = I2C_SMBUS_BLOCK_MAX;
++
++	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_I2C_BLOCK))
++		return i2c_smbus_read_i2c_block_data(client, command, length, values);
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA))
++		return -EOPNOTSUPP;
++
++	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_WORD_DATA)) {
++		while ((i + 2) <= length) {
++			status = i2c_smbus_read_word_data(client, command + i);
++			if (status < 0)
++				return status;
++			values[i] = status & 0xff;
++			values[i + 1] = status >> 8;
++			i += 2;
++		}
++	}
++
++	while (i < length) {
++		status = i2c_smbus_read_byte_data(client, command + i);
++		if (status < 0)
++			return status;
++		values[i] = status;
++		i++;
++	}
++
++	return i;
++}
++EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data_or_emulated);
++
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
+ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
+ {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index e2c859b..32b925c 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -121,6 +121,9 @@ extern s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client,
+ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ 					  u8 command, u8 length,
+ 					  const u8 *values);
++extern s32
++i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
++					  u8 command, u8 length, u8 *values);
+ #endif /* I2C */
+ 
+ /**
 -- 
 1.9.1
