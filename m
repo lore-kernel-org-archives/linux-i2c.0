@@ -1,52 +1,98 @@
-From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: davinci: Fix bus rate calculation on Keystone SoC
-Date: Thu, 13 Aug 2015 12:29:06 +0200
-Message-ID: <55CC7172.9090700@nokia.com>
-References: <5582870B.7030304@nokia.com> <558288B0.1020706@ti.com>
- <5582F049.8070407@ti.com> <20150709195309.GI4744@katana>
- <559FEC8C.9030603@ti.com> <55A00E56.2020308@ti.com>
- <20150812084352.GA1524@katana>
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH v3] i2c: omap: improve duty cycle on SCL
+Date: Thu, 13 Aug 2015 09:36:51 -0500
+Message-ID: <20150813143651.GG27560@saruman.tx.rr.com>
+References: <1434569475-17378-1-git-send-email-balbi@ti.com>
+ <55827CD7.7030207@nokia.com>
+ <20150618172558.GC27790@saruman.tx.rr.com>
+ <20150709194241.GF4744@katana>
+ <20150710172714.GC20408@saruman.tx.rr.com>
+Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="APlYHCtpeOhspHkB"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150812084352.GA1524@katana>
+Content-Disposition: inline
+In-Reply-To: <20150710172714.GC20408-HgARHv6XitJaoMGHk7MhZQC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Dave Gerlach <d-gerlach-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+--APlYHCtpeOhspHkB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 12/08/15 10:43, ext Wolfram Sang wrote:
->> > My opinion - it's time for compatible string :) "ti,keystone-i2c". 
->> > Especially taking int account two things:
->> > 1) In Datasheet SPRS893B TCI6630K2L Multicore DSP+ARM KeyStone II System-on-Chip (SoC) (Rev. E) 
->> >    values for those registers specified as:
->> >    0x0034 ICPID1 I2C Peripheral Identification Register 1 [value: 0x0000 0105]
->> >    0x0038 ICPID2 I2C Peripheral Identification Register 2 [value: 0x0000 0005]
->> >    (actually the same is in k2h, k2e Datasheets).
->> > 
->> > 2) This is not the first time such discussion has been raised.
->> > 
->> > 
->>>>> > >> > This is not really critical fix. Currently bus rate is lower than expected because of these
->>>>> > >> > calculation errors. The fix maximizes the bus rate. So newer SoCs will run little bit slower
->>>>> > >> > until support is added to this part of the code. Not really critical. 
->> > 
->> > Regarding the patch itself:
->> > - Seems the "d" value is fixed to 6 as per User Guide SPRUGV3
->> >   "KeyStone Architecture 2 Inter-IC Control Bus (I2C)" and this change is correct. 
->> >   It would be nice to have ref on document in commit message as above.
->> > 
->> > - I think, it will be very useful to have same real digits/calculation mentioned in
->> >   commit message which can show how valuable is the improvement. 
-> Alexander, any comments to this feedback?
+On Fri, Jul 10, 2015 at 12:27:15PM -0500, Felipe Balbi wrote:
+> On Thu, Jul 09, 2015 at 09:42:41PM +0200, Wolfram Sang wrote:
+> > On Thu, Jun 18, 2015 at 12:25:58PM -0500, Felipe Balbi wrote:
+> > > On Thu, Jun 18, 2015 at 10:09:59AM +0200, Alexander Sverdlin wrote:
+> > > > Hello Felipe,
+> > > >=20
+> > > > On 17/06/15 21:31, ext Felipe Balbi wrote:
+> > > > > With this patch we try to be as close to 50%
+> > > > > duty cycle as possible. The reason for this
+> > > > > is that some devices present an erratic behavior
+> > > > > with certain duty cycles.
+> > > > >=20
+> > > > > One such example is TPS65218 PMIC which fails
+> > > > > to change voltages when running @ 400kHz and
+> > > > > duty cycle is lower than 34%.
+> > > > >=20
+> > > > > The idea of the patch is simple:
+> > > > >=20
+> > > > > calculate desired scl_period from requested scl
+> > > > > and use 50% for tLow and 50% for tHigh.
+> > > > >=20
+> > > > > tLow is calculated with a DIV_ROUND_UP() to make
+> > > > > sure it's slightly higher than tHigh and to make
+> > > > > sure that we end up within I2C specifications.
+> > > >=20
+> > > > if you refuse to change the calculations to achieve maximum possible
+> > > > bus rate (as I've shown you with SCLL=3D9 and SCLH=3D9), maybe you =
+want to
+> > > > change the description? Because you are doing something else than is
+> > > > written here. You are only in spec because you are not doing 50% du=
+ty
+> > > > cycle. And you didn't mention here that you lower the bus speed bel=
+ow
+> > > > 400kHz to achieve this.
+> > >=20
+> > > and there's a comment where the calculation goes which states "as clo=
+se
+> > > to 50% as possible but we make sure tLow is higher than tHigh so we're
+> > > still within spec".
+> >=20
+> > So, is that ready to go in for-next?
+>=20
+> should be.
 
-I would need to rework the patch to distinguish Keystones basing on DT compatible property.
-I will re-send another version along with actual bofore-after real world numbers.
-Thanks for feedback!
+ping ?
 
--- 
-Best regards,
-Alexander Sverdlin.
+--=20
+balbi
+
+--APlYHCtpeOhspHkB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVzKuDAAoJEIaOsuA1yqREd/wP/Rsg7UHhmqDfKqnEcIRRAiBJ
+FJCEdDg/mT5Ul5mB8m71+Fd1xQn3S9v7oOY3ohE8enr8+iz9FjBwmJ+J8YKvV9W4
+YTwpz+yqz/0u0cLf5df5sh6deS3EUFeFb9hXxt+AnDPRUQkwK7NtmrL1jq/E4uly
+EI+U/MFXbN2QCvoLzlo9Si8wH2z7GyCwFbrbgei65ZP43JOGTmrxpHgec5RXpMFs
+P+KAtO2aa3Ku6zCuiz6bODDxS+DTQZee0nBYiOU8itiRbYwD3OeKf28yz9W1ovIt
+1exkh+XgL7yVxEANz3cIoYkeo0BzHs5jvyVd08VZOW++HMVLDE71n0u1MjsjJmML
+IuoYVhdYdgN11c8ImsOCOCJ4mCvKmbyMpZazk0nkPWZEmOVxBIpnxmnbY2pYTOcO
+cLteZtiNvQKBdL+LSQAiqjnJVP8Zkf1kw+s5Edhy17ywjV5HeWsBH1N41OY4qpfs
+s3EVVVr1rnAraPJKJkZ1oUYIJKJtogyYKHw/4D0sUi3GeH3WZU0509OqMV0O8J7l
+xwrWRZBanhwPgNS1/1fKHBvFxVX8YQgQgDbebRrK50tCrk3QJTqVm9IhM0pl86Hn
+qStrVs+KkUvF1toL67Ta9IkRHJLgtKXLFq2nA0ZrYa4xCcTahng62orDGZzP88Lk
+holhwqFqWTRNMqrBCrI2
+=uBGc
+-----END PGP SIGNATURE-----
+
+--APlYHCtpeOhspHkB--
