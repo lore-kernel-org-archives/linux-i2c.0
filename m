@@ -1,155 +1,147 @@
-From: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [Patch v2] i2c: imx: implement bus recovery
-Date: Thu, 13 Aug 2015 05:51:02 +0000
-Message-ID: <CY1PR0301MB0858F69ECE08BB0A13D791E7CF7D0@CY1PR0301MB0858.namprd03.prod.outlook.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [Patch v2] i2c: imx: implement bus recovery
+Date: Thu, 13 Aug 2015 10:15:28 +0200
+Message-ID: <20150813081528.GA9999@pengutronix.de>
 References: <1437100605-28047-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
 In-Reply-To: <1437100605-28047-1-git-send-email-b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, B20596-KZfg59tc24xl57MIdRCFDg@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-UGluZy4uLg0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEdhbyBQYW4g
-W21haWx0bzpiNTQ2NDJAZnJlZXNjYWxlLmNvbV0NCj4gU2VudDogRnJpZGF5LCBKdWx5IDE3LCAy
-MDE1IDEwOjM3IEFNDQo+IFRvOiB3c2FAdGhlLWRyZWFtcy5kZQ0KPiBDYzogbGludXgtaTJjQHZn
-ZXIua2VybmVsLm9yZzsgTGkgRnJhbmstQjIwNTk2OyBEdWFuIEZ1Z2FuZy1CMzg2MTE7IEdhbw0K
-PiBQYW4tQjU0NjQyOyB1LmtsZWluZS1rb2VuaWdAcGVuZ3V0cm9uaXguZGUNCj4gU3ViamVjdDog
-W1BhdGNoIHYyXSBpMmM6IGlteDogaW1wbGVtZW50IGJ1cyByZWNvdmVyeQ0KPiANCj4gSW1wbGVt
-ZW50IGJ1cyByZWNvdmVyeSBtZXRob2RzIGZvciBpMmMtaW14IHNvIHdlIGNhbiByZWNvdmVyIGZy
-b20NCj4gc2l0dWF0aW9ucyB3aGVyZSBTQ0wvU0RBIGFyZSBzdHVjayBsb3cuDQo+IA0KPiBPbmNl
-IGkyYyBidXMgU0NML1NEQSBhcmUgc3R1Y2sgbG93IGR1cmluZyB0cmFuc2ZlciwgY29uZmlnIHRo
-ZSBpMmMNCj4gcGluY3RybCB0byBncGlvIG1vZGUgYnkgY2FsbGluZyBwaW5jdHJsIHNsZWVwIHNl
-dCBmdW5jdGlvbiwgYW5kIHRoZW4gdXNlDQo+IEdQSU8gdG8gZW11bGF0ZSB0aGUgaTJjIHByb3Rv
-Y29sIHRvIHNlbmQgbmluZSBkdW1teSBjbG9jayB0byByZWNvdmVyIGkyYw0KPiBkZXZpY2UuIEFm
-dGVyIHJlY292ZXJ5LCBzZXQgaTJjIHBpbmN0cmwgdG8gZGVmYXVsdCBncm91cCBzZXR0aW5nLg0K
-PiANCj4gVjI6DQo+IEFzIFV3ZSBLbGVpbmUtS8O2bmlnJ3Mgc3VnZ2VzdGlvbiwgdGhlIHZlcnNp
-b24gZG8gYmVsb3cgY2hhbmdlczoNCj4gIC1yZXBsYWNlIG9mX2dldF9uYW1lZF9ncGlvKCkgd2l0
-aCBkZXZtX2dwaW9kX2dldF9vcHRpb25hbCgpICAtbW92ZQ0KPiBncGlvX2RpcmVjdGlvbl9pbnB1
-dCgpIGFuZCBncGlvX2RpcmVjdGlvbl9vdXRwdXQoKSBjYWxsIHRvIHRoZQ0KPiAgIHByZXBhcmUg
-Y2FsbGJhY2sNCj4gIC11c2UgMCBhbmQgMSBhcyByZXR1cm4gdmFsdWUgZm9yIHRoZSBnZXRfc2Ns
-IGFuZCBnZXRfc2RhIGNhbGxiYWNrcw0KPiANCj4gU2lnbmVkLW9mZi1ieTogRnVnYW5nIER1YW4g
-PEIzODYxMUBmcmVlc2NhbGUuY29tPg0KPiBTaWduZWQtb2ZmLWJ5OiBHYW8gUGFuIDxiNTQ2NDJA
-ZnJlZXNjYWxlLmNvbT4NCj4gLS0tDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
-Z3MvaTJjL2kyYy1pbXgudHh0IHwgICA0ICsNCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14
-LmMgICAgICAgICAgICAgICAgICAgICAgfCAxMDQNCj4gKysrKysrKysrKysrKysrKysrKystLQ0K
-PiAgMiBmaWxlcyBjaGFuZ2VkLCAxMDAgaW5zZXJ0aW9ucygrKSwgOCBkZWxldGlvbnMoLSkNCj4g
-DQo+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2ky
-Yy1pbXgudHh0DQo+IGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMt
-aW14LnR4dA0KPiBpbmRleCBjZTQzMTFkLi5hOWZlNTI1IDEwMDY0NA0KPiAtLS0gYS9Eb2N1bWVu
-dGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1pbXgudHh0DQo+ICsrKyBiL0RvY3Vt
-ZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLWlteC50eHQNCj4gQEAgLTE0LDYg
-KzE0LDggQEAgT3B0aW9uYWwgcHJvcGVydGllczoNCj4gICAgVGhlIGFic2VuY2Ugb2YgdGhlIHBy
-b3BvZXJ0eSBpbmRpY2F0ZXMgdGhlIGRlZmF1bHQgZnJlcXVlbmN5IDEwMCBrSHouDQo+ICAtIGRt
-YXM6IEEgbGlzdCBvZiB0d28gZG1hIHNwZWNpZmllcnMsIG9uZSBmb3IgZWFjaCBlbnRyeSBpbiBk
-bWEtbmFtZXMuDQo+ICAtIGRtYS1uYW1lczogc2hvdWxkIGNvbnRhaW4gInR4IiBhbmQgInJ4Ii4N
-Cj4gKy0gc2NsLWdwaW86IHNwZWNpZnkgdGhlIGdwaW8gcmVsYXRlZCB0byBTQ0wgcGluDQo+ICst
-IHNkYS1ncGlvOiBzcGVjaWZ5IHRoZSBncGlvIHJlbGF0ZWQgdG8gU0RBIHBpbg0KPiANCj4gIEV4
-YW1wbGVzOg0KPiANCj4gQEAgLTM3LDQgKzM5LDYgQEAgaTJjMDogaTJjQDQwMDY2MDAwIHsgLyog
-aTJjMCBvbiB2ZjYxMCAqLw0KPiAgCWRtYXMgPSA8JmVkbWEwIDAgNTA+LA0KPiAgCQk8JmVkbWEw
-IDAgNTE+Ow0KPiAgCWRtYS1uYW1lcyA9ICJyeCIsInR4IjsNCj4gKwlzY2wtZ3BpbyA9IDwmZ3Bp
-bzUgMjYgMD47DQo+ICsJc2RhLWdwaW8gPSA8JmdwaW81IDI3IDA+Ow0KPiAgfTsNCj4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMgYi9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLWlteC5jDQo+IGluZGV4IDc4NWFhNjcuLjRmNzUzNzAgMTAwNjQ0DQo+IC0tLSBhL2RyaXZl
-cnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1p
-bXguYw0KPiBAQCAtNDAsNiArNDAsNyBAQA0KPiAgI2luY2x1ZGUgPGxpbnV4L2RtYXBvb2wuaD4N
-Cj4gICNpbmNsdWRlIDxsaW51eC9lcnIuaD4NCj4gICNpbmNsdWRlIDxsaW51eC9lcnJuby5oPg0K
-PiArI2luY2x1ZGUgPGxpbnV4L2dwaW8uaD4NCj4gICNpbmNsdWRlIDxsaW51eC9pMmMuaD4NCj4g
-ICNpbmNsdWRlIDxsaW51eC9pbml0Lmg+DQo+ICAjaW5jbHVkZSA8bGludXgvaW50ZXJydXB0Lmg+
-DQo+IEBAIC00OCw2ICs0OSw3IEBADQo+ICAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQo+ICAj
-aW5jbHVkZSA8bGludXgvb2YuaD4NCj4gICNpbmNsdWRlIDxsaW51eC9vZl9kZXZpY2UuaD4NCj4g
-KyNpbmNsdWRlIDxsaW51eC9vZl9ncGlvLmg+DQo+ICAjaW5jbHVkZSA8bGludXgvb2ZfZG1hLmg+
-DQo+ICAjaW5jbHVkZSA8bGludXgvcGxhdGZvcm1fZGF0YS9pMmMtaW14Lmg+ICAjaW5jbHVkZQ0K
-PiA8bGludXgvcGxhdGZvcm1fZGV2aWNlLmg+IEBAIC0xNzUsNiArMTc3LDExIEBAIGVudW0gaW14
-X2kyY190eXBlIHsNCj4gIAlWRjYxMF9JMkMsDQo+ICB9Ow0KPiANCj4gK3N0cnVjdCBpbXhfaTJj
-X3BpbmN0cmwgew0KPiArCXN0cnVjdCBncGlvX2Rlc2MgKnNkYTsNCj4gKwlzdHJ1Y3QgZ3Bpb19k
-ZXNjICpzY2w7DQo+ICt9Ow0KPiArDQo+ICBzdHJ1Y3QgaW14X2kyY19od2RhdGEgew0KPiAgCWVu
-dW0gaW14X2kyY190eXBlCWRldnR5cGU7DQo+ICAJdW5zaWduZWQJCXJlZ3NoaWZ0Ow0KPiBAQCAt
-MjA2LDYgKzIxMyw3IEBAIHN0cnVjdCBpbXhfaTJjX3N0cnVjdCB7DQo+ICAJdW5zaWduZWQgaW50
-CQlpZmRyOyAvKiBJTVhfSTJDX0lGRFIgKi8NCj4gIAl1bnNpZ25lZCBpbnQJCWN1cl9jbGs7DQo+
-ICAJdW5zaWduZWQgaW50CQliaXRyYXRlOw0KPiArCXN0cnVjdCBpbXhfaTJjX3BpbmN0cmwJcGlu
-czsNCj4gIAljb25zdCBzdHJ1Y3QgaW14X2kyY19od2RhdGEJKmh3ZGF0YTsNCj4gDQo+ICAJc3Ry
-dWN0IGlteF9pMmNfZG1hCSpkbWE7DQo+IEBAIC00MzYsNyArNDQ0LDcgQEAgc3RhdGljIGludCBp
-MmNfaW14X2J1c19idXN5KHN0cnVjdCBpbXhfaTJjX3N0cnVjdA0KPiAqaTJjX2lteCwgaW50IGZv
-cl9idXN5KQ0KPiAgCQlpZiAodGltZV9hZnRlcihqaWZmaWVzLCBvcmlnX2ppZmZpZXMgKyBtc2Vj
-c190b19qaWZmaWVzKDUwMCkpKQ0KPiB7DQo+ICAJCQlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVy
-LmRldiwNCj4gIAkJCQkiPCVzPiBJMkMgYnVzIGlzIGJ1c3lcbiIsIF9fZnVuY19fKTsNCj4gLQkJ
-CXJldHVybiAtRVRJTUVET1VUOw0KPiArCQkJcmV0dXJuIGkyY19yZWNvdmVyX2J1cygmaTJjX2lt
-eC0+YWRhcHRlcik7DQo+ICAJCX0NCj4gIAkJc2NoZWR1bGUoKTsNCj4gIAl9DQo+IEBAIC00NTAs
-NyArNDU4LDcgQEAgc3RhdGljIGludCBpMmNfaW14X3RyeF9jb21wbGV0ZShzdHJ1Y3QgaW14X2ky
-Y19zdHJ1Y3QNCj4gKmkyY19pbXgpDQo+IA0KPiAgCWlmICh1bmxpa2VseSghKGkyY19pbXgtPmky
-Y3NyICYgSTJTUl9JSUYpKSkgew0KPiAgCQlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwg
-Ijwlcz4gVGltZW91dFxuIiwgX19mdW5jX18pOw0KPiAtCQlyZXR1cm4gLUVUSU1FRE9VVDsNCj4g
-KwkJcmV0dXJuIGkyY19yZWNvdmVyX2J1cygmaTJjX2lteC0+YWRhcHRlcik7DQo+ICAJfQ0KPiAg
-CWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIuZGV2LCAiPCVzPiBUUlggY29tcGxldGVcbiIsIF9f
-ZnVuY19fKTsNCj4gIAlpMmNfaW14LT5pMmNzciA9IDA7DQo+IEBAIC05NTYsNiArOTY0LDY3IEBA
-IGZhaWwwOg0KPiAgCXJldHVybiAocmVzdWx0IDwgMCkgPyByZXN1bHQgOiBudW07DQo+ICB9DQo+
-IA0KPiArc3RhdGljIGludCBpMmNfaW14X2dldF9zY2woc3RydWN0IGkyY19hZGFwdGVyICphZGFw
-KSB7DQo+ICsJc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14Ow0KPiArDQo+ICsJaTJjX2lt
-eCA9IGNvbnRhaW5lcl9vZihhZGFwLCBzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QsIGFkYXB0ZXIpOw0K
-PiArCWlmIChpMmNfaW14LT5waW5zLnNjbCkNCj4gKwkJcmV0dXJuIGdwaW9kX2dldF92YWx1ZShp
-MmNfaW14LT5waW5zLnNjbCk7DQo+ICsNCj4gKwlyZXR1cm4gMTsNCj4gK30NCj4gKw0KPiArc3Rh
-dGljIGludCBpMmNfaW14X2dldF9zZGEoc3RydWN0IGkyY19hZGFwdGVyICphZGFwKSB7DQo+ICsJ
-c3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14Ow0KPiArDQo+ICsJaTJjX2lteCA9IGNvbnRh
-aW5lcl9vZihhZGFwLCBzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QsIGFkYXB0ZXIpOw0KPiArCWlmIChp
-MmNfaW14LT5waW5zLnNkYSkNCj4gKwkJcmV0dXJuIGdwaW9kX2dldF92YWx1ZShpMmNfaW14LT5w
-aW5zLnNkYSk7DQo+ICsNCj4gKwlyZXR1cm4gMTsNCj4gK30NCj4gKw0KPiArc3RhdGljIHZvaWQg
-aTJjX2lteF9zZXRfc2NsKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCwgaW50IHZhbCkgew0KPiAr
-CXN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lteDsNCj4gKw0KPiArCWkyY19pbXggPSBjb250
-YWluZXJfb2YoYWRhcCwgc3RydWN0IGlteF9pMmNfc3RydWN0LCBhZGFwdGVyKTsNCj4gKwlpZiAo
-aTJjX2lteC0+cGlucy5zY2wpDQo+ICsJCWdwaW9kX3NldF92YWx1ZShpMmNfaW14LT5waW5zLnNj
-bCwgdmFsKTsgfQ0KPiArDQo+ICtzdGF0aWMgdm9pZCBpMmNfaW14X3ByZXBhcmVfcmVjb3Zlcnko
-c3RydWN0IGkyY19hZGFwdGVyICphZGFwKSB7DQo+ICsJc3RydWN0IGlteF9pMmNfc3RydWN0ICpp
-MmNfaW14Ow0KPiArDQo+ICsJaTJjX2lteCA9IGNvbnRhaW5lcl9vZihhZGFwLCBzdHJ1Y3QgaW14
-X2kyY19zdHJ1Y3QsIGFkYXB0ZXIpOw0KPiArCWlmIChpMmNfaW14LT5waW5zLnNkYSAmJiBpMmNf
-aW14LT5waW5zLnNjbCkgew0KPiArCQlwaW5jdHJsX3BtX3NlbGVjdF9zbGVlcF9zdGF0ZSgmYWRh
-cC0+ZGV2KTsNCj4gKwkJZ3Bpb2RfZGlyZWN0aW9uX2lucHV0KGkyY19pbXgtPnBpbnMuc2RhKTsN
-Cj4gKwkJZ3Bpb2RfZGlyZWN0aW9uX291dHB1dChpMmNfaW14LT5waW5zLnNjbCwgMSk7DQo+ICsJ
-fQ0KPiArfQ0KPiArDQo+ICtzdGF0aWMgdm9pZCBpMmNfaW14X3VucHJlcGFyZV9yZWNvdmVyeShz
-dHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApIHsNCj4gKwlzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmky
-Y19pbXg7DQo+ICsNCj4gKwlpMmNfaW14ID0gY29udGFpbmVyX29mKGFkYXAsIHN0cnVjdCBpbXhf
-aTJjX3N0cnVjdCwgYWRhcHRlcik7DQo+ICsJaWYgKGkyY19pbXgtPnBpbnMuc2RhICYmIGkyY19p
-bXgtPnBpbnMuc2NsKQ0KPiArCQlwaW5jdHJsX3BtX3NlbGVjdF9kZWZhdWx0X3N0YXRlKCZhZGFw
-LT5kZXYpOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgc3RydWN0IGkyY19idXNfcmVjb3ZlcnlfaW5m
-byBpMmNfaW14X2J1c19yZWNvdmVyeV9pbmZvID0gew0KPiArCS5nZXRfc2NsID0gaTJjX2lteF9n
-ZXRfc2NsLA0KPiArCS5nZXRfc2RhID0gaTJjX2lteF9nZXRfc2RhLA0KPiArCS5zZXRfc2NsID0g
-aTJjX2lteF9zZXRfc2NsLA0KPiArCS5wcmVwYXJlX3JlY292ZXJ5ID0gaTJjX2lteF9wcmVwYXJl
-X3JlY292ZXJ5LA0KPiArCS51bnByZXBhcmVfcmVjb3ZlcnkgPSBpMmNfaW14X3VucHJlcGFyZV9y
-ZWNvdmVyeSwNCj4gKwkucmVjb3Zlcl9idXMgPSBpMmNfZ2VuZXJpY19zY2xfcmVjb3ZlcnksIH07
-DQo+ICsNCj4gIHN0YXRpYyB1MzIgaTJjX2lteF9mdW5jKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRh
-cHRlcikgIHsNCj4gIAlyZXR1cm4gSTJDX0ZVTkNfSTJDIHwgSTJDX0ZVTkNfU01CVVNfRU1VTCBA
-QCAtMTAwNCwxMiArMTA3MywxMyBAQA0KPiBzdGF0aWMgaW50IGkyY19pbXhfcHJvYmUoc3RydWN0
-IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gDQo+ICAJLyogU2V0dXAgaTJjX2lteCBkcml2ZXIg
-c3RydWN0dXJlICovDQo+ICAJc3RybGNweShpMmNfaW14LT5hZGFwdGVyLm5hbWUsIHBkZXYtPm5h
-bWUsIHNpemVvZihpMmNfaW14LQ0KPiA+YWRhcHRlci5uYW1lKSk7DQo+IC0JaTJjX2lteC0+YWRh
-cHRlci5vd25lcgkJPSBUSElTX01PRFVMRTsNCj4gLQlpMmNfaW14LT5hZGFwdGVyLmFsZ28JCT0g
-JmkyY19pbXhfYWxnbzsNCj4gLQlpMmNfaW14LT5hZGFwdGVyLmRldi5wYXJlbnQJPSAmcGRldi0+
-ZGV2Ow0KPiAtCWkyY19pbXgtPmFkYXB0ZXIubnIJCT0gcGRldi0+aWQ7DQo+IC0JaTJjX2lteC0+
-YWRhcHRlci5kZXYub2Zfbm9kZQk9IHBkZXYtPmRldi5vZl9ub2RlOw0KPiAtCWkyY19pbXgtPmJh
-c2UJCQk9IGJhc2U7DQo+ICsJaTJjX2lteC0+YWRhcHRlci5vd25lciA9IFRISVNfTU9EVUxFOw0K
-PiArCWkyY19pbXgtPmFkYXB0ZXIuYWxnbyA9ICZpMmNfaW14X2FsZ287DQo+ICsJaTJjX2lteC0+
-YWRhcHRlci5kZXYucGFyZW50ID0gJnBkZXYtPmRldjsNCj4gKwlpMmNfaW14LT5hZGFwdGVyLm5y
-ID0gcGRldi0+aWQ7DQo+ICsJaTJjX2lteC0+YWRhcHRlci5kZXYub2Zfbm9kZSA9IHBkZXYtPmRl
-di5vZl9ub2RlOw0KPiArCWkyY19pbXgtPmFkYXB0ZXIuYnVzX3JlY292ZXJ5X2luZm8gPSAmaTJj
-X2lteF9idXNfcmVjb3ZlcnlfaW5mbzsNCj4gKwlpMmNfaW14LT5iYXNlID0gYmFzZTsNCj4gDQo+
-ICAJLyogR2V0IEkyQyBjbG9jayAqLw0KPiAgCWkyY19pbXgtPmNsayA9IGRldm1fY2xrX2dldCgm
-cGRldi0+ZGV2LCBOVUxMKTsgQEAgLTEwMzcsNiArMTEwNywyNA0KPiBAQCBzdGF0aWMgaW50IGky
-Y19pbXhfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gIAkvKiBTZXQgdXAg
-YWRhcHRlciBkYXRhICovDQo+ICAJaTJjX3NldF9hZGFwZGF0YSgmaTJjX2lteC0+YWRhcHRlciwg
-aTJjX2lteCk7DQo+IA0KPiArCS8qIEluaXQgcmVjb3ZlciBwaW5zICovDQo+ICsJaTJjX2lteC0+
-cGlucy5zZGEgPQ0KPiArCQlkZXZtX2dwaW9kX2dldF9vcHRpb25hbCgmcGRldi0+ZGV2LCAic2Rh
-LWdwaW8iLCAwKTsNCj4gKwlpMmNfaW14LT5waW5zLnNjbCA9DQo+ICsJCWRldm1fZ3Bpb2RfZ2V0
-X29wdGlvbmFsKCZwZGV2LT5kZXYsICJzY2wtZ3BpbyIsIDApOw0KPiArDQo+ICsJaWYgKElTX0VS
-UihpMmNfaW14LT5waW5zLnNkYSkpIHsNCj4gKwkJcmV0ID0gUFRSX0VSUihpMmNfaW14LT5waW5z
-LnNkYSk7DQo+ICsJCWRldl9lcnIoJnBkZXYtPmRldiwgIkZhaWxlZCB0byBnZXQgc2RhIGdwaW86
-ICVkXG4iLCByZXQpOw0KPiArCQlpMmNfaW14LT5waW5zLnNkYSA9IE5VTEw7DQo+ICsJfQ0KPiAr
-DQo+ICsJaWYgKElTX0VSUihpMmNfaW14LT5waW5zLnNjbCkpIHsNCj4gKwkJcmV0ID0gUFRSX0VS
-UihpMmNfaW14LT5waW5zLnNjbCk7DQo+ICsJCWRldl9lcnIoJnBkZXYtPmRldiwgIkZhaWxlZCB0
-byBnZXQgc2NsIGdwaW86ICVkXG4iLCByZXQpOw0KPiArCQlpMmNfaW14LT5waW5zLnNjbCA9IE5V
-TEw7DQo+ICsJfQ0KPiArDQo+ICAJLyogU2V0IHVwIGNsb2NrIGRpdmlkZXIgKi8NCj4gIAlpMmNf
-aW14LT5iaXRyYXRlID0gSU1YX0kyQ19CSVRfUkFURTsNCj4gIAlyZXQgPSBvZl9wcm9wZXJ0eV9y
-ZWFkX3UzMihwZGV2LT5kZXYub2Zfbm9kZSwNCj4gLS0NCj4gMS45LjENCg0K
+Hello,
+
+On Fri, Jul 17, 2015 at 10:36:45AM +0800, Gao Pan wrote:
+> Implement bus recovery methods for i2c-imx so we can recover from
+> situations where SCL/SDA are stuck low.
+>=20
+> Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
+> pinctrl to gpio mode by calling pinctrl sleep set function, and then
+> use GPIO to emulate the i2c protocol to send nine dummy clock to reco=
+ver
+> i2c device. After recovery, set i2c pinctrl to default group setting.
+>=20
+> V2:
+> As Uwe Kleine-K=F6nig's suggestion, the version do below changes:
+>  -replace of_get_named_gpio() with devm_gpiod_get_optional()
+>  -move gpio_direction_input() and gpio_direction_output() call to the
+>   prepare callback
+>  -use 0 and 1 as return value for the get_scl and get_sda callbacks
+
+this section usally goes after the triple-dash below. Otherwise this is
+included in the commit log which it shouldn't.
+
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Docu=
+mentation/devicetree/bindings/i2c/i2c-imx.txt
+> index ce4311d..a9fe525 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+> @@ -14,6 +14,8 @@ Optional properties:
+>    The absence of the propoerty indicates the default frequency 100 k=
+Hz.
+>  - dmas: A list of two dma specifiers, one for each entry in dma-name=
+s.
+>  - dma-names: should contain "tx" and "rx".
+> +- scl-gpio: specify the gpio related to SCL pin
+> +- sda-gpio: specify the gpio related to SDA pin
+
+In the meantime I learned that "...-gpios" is the recommended name for
+such properties, even if conceptually there can only be a single gpio
+here. (You might want to help to change that?!)
+
+> @@ -436,7 +444,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct=
+ *i2c_imx, int for_busy)
+>  		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+>  			dev_dbg(&i2c_imx->adapter.dev,
+>  				"<%s> I2C bus is busy\n", __func__);
+> -			return -ETIMEDOUT;
+> +			return i2c_recover_bus(&i2c_imx->adapter);
+>  		}
+>  		schedule();
+>  	}
+> @@ -450,7 +458,7 @@ static int i2c_imx_trx_complete(struct imx_i2c_st=
+ruct *i2c_imx)
+> =20
+>  	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+>  		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+> -		return -ETIMEDOUT;
+> +		return i2c_recover_bus(&i2c_imx->adapter);
+
+I'm still not convinced that doing that here unconditionally is a good
+idea. Wolfram will know for sure.
+
+> +static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct imx_i2c_struct *i2c_imx;
+> +
+> +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
+> +	if (i2c_imx->pins.sda && i2c_imx->pins.scl) {
+> +		pinctrl_pm_select_sleep_state(&adap->dev);
+
+Your requirement that the sleep state should configure the pins as gpio
+is strange. Maybe better introduce a dedicated state for recovery? At
+least you should document this requirement.
+
+> @@ -1004,12 +1073,13 @@ static int i2c_imx_probe(struct platform_devi=
+ce *pdev)
+> =20
+>  	/* Setup i2c_imx driver structure */
+>  	strlcpy(i2c_imx->adapter.name, pdev->name, sizeof(i2c_imx->adapter.=
+name));
+> -	i2c_imx->adapter.owner		=3D THIS_MODULE;
+> -	i2c_imx->adapter.algo		=3D &i2c_imx_algo;
+> -	i2c_imx->adapter.dev.parent	=3D &pdev->dev;
+> -	i2c_imx->adapter.nr		=3D pdev->id;
+> -	i2c_imx->adapter.dev.of_node	=3D pdev->dev.of_node;
+> -	i2c_imx->base			=3D base;
+> +	i2c_imx->adapter.owner =3D THIS_MODULE;
+> +	i2c_imx->adapter.algo =3D &i2c_imx_algo;
+> +	i2c_imx->adapter.dev.parent =3D &pdev->dev;
+> +	i2c_imx->adapter.nr =3D pdev->id;
+> +	i2c_imx->adapter.dev.of_node =3D pdev->dev.of_node;
+> +	i2c_imx->adapter.bus_recovery_info =3D &i2c_imx_bus_recovery_info;
+
+What happens if the device tree only specifies a gpio for sda but not
+scl? The recovery stuff is still hooked up, right? What about only doin=
+g
+that if both properties are valid? This would also get rid of the tests
+for validity in the recovery callbacks.
+
+> @@ -1037,6 +1107,24 @@ static int i2c_imx_probe(struct platform_devic=
+e *pdev)
+>  	/* Set up adapter data */
+>  	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
+> =20
+> +	/* Init recover pins */
+> +	i2c_imx->pins.sda =3D
+> +		devm_gpiod_get_optional(&pdev->dev, "sda-gpio", 0);
+> +	i2c_imx->pins.scl =3D
+> +		devm_gpiod_get_optional(&pdev->dev, "scl-gpio", 0);
+
+0 is wrong here, better use GPIOD_ASIS. Is there a reason not to
+configure the direction as input already here?
+
+> +
+> +	if (IS_ERR(i2c_imx->pins.sda)) {
+> +		ret =3D PTR_ERR(i2c_imx->pins.sda);
+> +		dev_err(&pdev->dev, "Failed to get sda gpio: %d\n", ret);
+> +		i2c_imx->pins.sda =3D NULL;
+> +	}
+
+As you're using devm_gpiod_get_optional there is no justification to
+ignore the error code.
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
