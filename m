@@ -1,98 +1,27 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: omap: improve duty cycle on SCL
-Date: Thu, 13 Aug 2015 09:36:51 -0500
-Message-ID: <20150813143651.GG27560@saruman.tx.rr.com>
-References: <1434569475-17378-1-git-send-email-balbi@ti.com>
- <55827CD7.7030207@nokia.com>
- <20150618172558.GC27790@saruman.tx.rr.com>
- <20150709194241.GF4744@katana>
- <20150710172714.GC20408@saruman.tx.rr.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [Patch v3] driver/i2c/mux: Add register-based mux i2c-mux-reg
+Date: Thu, 13 Aug 2015 08:57:59 -0700
+Message-ID: <55CCBE87.3070201@freescale.com>
+References: <1434657458-16553-1-git-send-email-yorksun@freescale.com> <20150811153916.GD1525@katana> <55CA1ADF.200@freescale.com> <20150811161610.GA1523@katana> <55CA2472.9080000@freescale.com> <20150811200254.GC1523@katana> <55CA6365.1090009@freescale.com> <20150812013543.GA1602@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="APlYHCtpeOhspHkB"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150710172714.GC20408-HgARHv6XitJaoMGHk7MhZQC/G2K4zDHf@public.gmane.org>
+In-Reply-To: <20150812013543.GA1602@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Dave Gerlach <d-gerlach-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---APlYHCtpeOhspHkB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 10, 2015 at 12:27:15PM -0500, Felipe Balbi wrote:
-> On Thu, Jul 09, 2015 at 09:42:41PM +0200, Wolfram Sang wrote:
-> > On Thu, Jun 18, 2015 at 12:25:58PM -0500, Felipe Balbi wrote:
-> > > On Thu, Jun 18, 2015 at 10:09:59AM +0200, Alexander Sverdlin wrote:
-> > > > Hello Felipe,
-> > > >=20
-> > > > On 17/06/15 21:31, ext Felipe Balbi wrote:
-> > > > > With this patch we try to be as close to 50%
-> > > > > duty cycle as possible. The reason for this
-> > > > > is that some devices present an erratic behavior
-> > > > > with certain duty cycles.
-> > > > >=20
-> > > > > One such example is TPS65218 PMIC which fails
-> > > > > to change voltages when running @ 400kHz and
-> > > > > duty cycle is lower than 34%.
-> > > > >=20
-> > > > > The idea of the patch is simple:
-> > > > >=20
-> > > > > calculate desired scl_period from requested scl
-> > > > > and use 50% for tLow and 50% for tHigh.
-> > > > >=20
-> > > > > tLow is calculated with a DIV_ROUND_UP() to make
-> > > > > sure it's slightly higher than tHigh and to make
-> > > > > sure that we end up within I2C specifications.
-> > > >=20
-> > > > if you refuse to change the calculations to achieve maximum possible
-> > > > bus rate (as I've shown you with SCLL=3D9 and SCLH=3D9), maybe you =
-want to
-> > > > change the description? Because you are doing something else than is
-> > > > written here. You are only in spec because you are not doing 50% du=
-ty
-> > > > cycle. And you didn't mention here that you lower the bus speed bel=
-ow
-> > > > 400kHz to achieve this.
-> > >=20
-> > > and there's a comment where the calculation goes which states "as clo=
-se
-> > > to 50% as possible but we make sure tLow is higher than tHigh so we're
-> > > still within spec".
-> >=20
-> > So, is that ready to go in for-next?
->=20
-> should be.
 
-ping ?
+On 08/11/2015 06:35 PM, Wolfram Sang wrote:
+> 
+>> Do I have to add myself to MAINTAINER file for this driver?
+> 
+> Do you want to maintain this driver?
+> 
 
---=20
-balbi
+I prefer not, if that is OK.
 
---APlYHCtpeOhspHkB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVzKuDAAoJEIaOsuA1yqREd/wP/Rsg7UHhmqDfKqnEcIRRAiBJ
-FJCEdDg/mT5Ul5mB8m71+Fd1xQn3S9v7oOY3ohE8enr8+iz9FjBwmJ+J8YKvV9W4
-YTwpz+yqz/0u0cLf5df5sh6deS3EUFeFb9hXxt+AnDPRUQkwK7NtmrL1jq/E4uly
-EI+U/MFXbN2QCvoLzlo9Si8wH2z7GyCwFbrbgei65ZP43JOGTmrxpHgec5RXpMFs
-P+KAtO2aa3Ku6zCuiz6bODDxS+DTQZee0nBYiOU8itiRbYwD3OeKf28yz9W1ovIt
-1exkh+XgL7yVxEANz3cIoYkeo0BzHs5jvyVd08VZOW++HMVLDE71n0u1MjsjJmML
-IuoYVhdYdgN11c8ImsOCOCJ4mCvKmbyMpZazk0nkPWZEmOVxBIpnxmnbY2pYTOcO
-cLteZtiNvQKBdL+LSQAiqjnJVP8Zkf1kw+s5Edhy17ywjV5HeWsBH1N41OY4qpfs
-s3EVVVr1rnAraPJKJkZ1oUYIJKJtogyYKHw/4D0sUi3GeH3WZU0509OqMV0O8J7l
-xwrWRZBanhwPgNS1/1fKHBvFxVX8YQgQgDbebRrK50tCrk3QJTqVm9IhM0pl86Hn
-qStrVs+KkUvF1toL67Ta9IkRHJLgtKXLFq2nA0ZrYa4xCcTahng62orDGZzP88Lk
-holhwqFqWTRNMqrBCrI2
-=uBGc
------END PGP SIGNATURE-----
-
---APlYHCtpeOhspHkB--
+York
