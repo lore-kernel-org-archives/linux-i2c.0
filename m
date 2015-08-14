@@ -1,7 +1,7 @@
 From: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v2 4/5] i2c: img-scb: add handle for Master halt interrupt
-Date: Fri, 14 Aug 2015 16:50:45 +0100
-Message-ID: <1439567447-8139-5-git-send-email-sifan.naeem@imgtec.com>
+Subject: [PATCH v2 1/5] i2c: img-scb: support I2C_M_IGNORE_NAK
+Date: Fri, 14 Aug 2015 16:50:42 +0100
+Message-ID: <1439567447-8139-2-git-send-email-sifan.naeem@imgtec.com>
 References: <1439567447-8139-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,70 +12,63 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <jam
 Cc: Ionela Voinescu <Ionela.Voinescu-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Master halt is issued after each byte of a transaction is processed in
-IP version 3.3.
-Master halt will stall the bus by holding the SCK line low until the
-halt bit in the scb_general_control is cleared.
+This commit adds support for the I2C_M_IGNORE_NAK protocol
+modification.
 
-After the last byte of a transfer is processed we can use the Master
-Halt interrupt to facilitate a repeated start transfer without
-issuing a stop bit.
+Such behaviour can only be implemented in atomic mode. So, if a
+transaction contains a message with such flag the drivers
+switches to atomic mode. The implementation consists simply in
+treating NAKs as ACKs.
 
 Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Acked-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Reviewed-by: James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-img-scb.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-img-scb.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 17e13ff475bb..837a73a43a6d 100644
+index c16caaccc363..ad1d1df943db 100644
 --- a/drivers/i2c/busses/i2c-img-scb.c
 +++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -151,6 +151,7 @@
- #define INT_FIFO_EMPTYING		BIT(12)
- #define INT_TRANSACTION_DONE		BIT(15)
- #define INT_SLAVE_EVENT			BIT(16)
-+#define INT_MASTER_HALTED		BIT(17)
- #define INT_TIMING			BIT(18)
- #define INT_STOP_DETECTED		BIT(19)
+@@ -750,7 +750,9 @@ static unsigned int img_i2c_atomic(struct img_i2c *i2c,
+ 			next_cmd = CMD_RET_ACK;
+ 		break;
+ 	case CMD_RET_ACK:
+-		if (i2c->line_status & LINESTAT_ACK_DET) {
++		if (i2c->line_status & LINESTAT_ACK_DET ||
++		    (i2c->line_status & LINESTAT_NACK_DET &&
++		    i2c->msg.flags & I2C_M_IGNORE_NAK)) {
+ 			if (i2c->msg.len == 0) {
+ 				next_cmd = CMD_GEN_STOP;
+ 			} else if (i2c->msg.flags & I2C_M_RD) {
+@@ -1025,20 +1027,23 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		return -EIO;
  
-@@ -177,6 +178,7 @@
- 					 INT_FIFO_FULL        | \
- 					 INT_FIFO_FILLING     | \
- 					 INT_FIFO_EMPTY       | \
-+					 INT_MASTER_HALTED    | \
- 					 INT_STOP_DETECTED)
- 
- #define INT_ENABLE_MASK_WAITSTOP	(INT_SLAVE_EVENT      | \
-@@ -883,17 +885,26 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
+ 	for (i = 0; i < num; i++) {
+-		if (likely(msgs[i].len))
+-			continue;
+ 		/*
+ 		 * 0 byte reads are not possible because the slave could try
+ 		 * and pull the data line low, preventing a stop bit.
+ 		 */
+-		if (unlikely(msgs[i].flags & I2C_M_RD))
++		if (!msgs[i].len && msgs[i].flags & I2C_M_RD)
+ 			return -EIO;
+ 		/*
+ 		 * 0 byte writes are possible and used for probing, but we
+ 		 * cannot do them in automatic mode, so use atomic mode
+ 		 * instead.
++		 *
++		 * Also, the I2C_M_IGNORE_NAK mode can only be implemented
++		 * in atomic mode.
+ 		 */
+-		atomic = true;
++		if (!msgs[i].len ||
++		    (msgs[i].flags & I2C_M_IGNORE_NAK))
++			atomic = true;
  	}
  
- 	if (i2c->msg.flags & I2C_M_RD) {
--		if (int_status & INT_FIFO_FULL_FILLING) {
-+		if (int_status & (INT_FIFO_FULL_FILLING | INT_MASTER_HALTED)) {
- 			img_i2c_read_fifo(i2c);
- 			if (i2c->msg.len == 0)
- 				return ISR_WAITSTOP;
- 		}
- 	} else {
--		if (int_status & INT_FIFO_EMPTY) {
--			if (i2c->msg.len == 0)
-+		if (int_status & (INT_FIFO_EMPTY | INT_MASTER_HALTED)) {
-+			if ((int_status & INT_FIFO_EMPTY) &&
-+			    i2c->msg.len == 0)
- 				return ISR_WAITSTOP;
- 			img_i2c_write_fifo(i2c);
- 		}
-+	}
-+	if (int_status & INT_MASTER_HALTED) {
-+		/*
-+		 * Release and then enable transaction halt, to
-+		 * allow only a single byte to proceed.
-+		 */
-+		img_i2c_transaction_halt(i2c, false);
-+		img_i2c_transaction_halt(i2c, !i2c->last_msg);
- 	}
- 
- 	return 0;
+ 	ret = clk_prepare_enable(i2c->scb_clk);
 -- 
 1.7.9.5
