@@ -1,7 +1,7 @@
 From: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v2 6/7] i2c: img-scb: Clear line and interrupt status before starting a transfer
-Date: Fri, 14 Aug 2015 16:50:23 +0100
-Message-ID: <1439567424-8094-7-git-send-email-sifan.naeem@imgtec.com>
+Subject: [PATCH v2 2/7] i2c: img-scb: do dummy writes before fifo access
+Date: Fri, 14 Aug 2015 16:50:19 +0100
+Message-ID: <1439567424-8094-3-git-send-email-sifan.naeem@imgtec.com>
 References: <1439567424-8094-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,37 +12,51 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <jam
 Cc: Ionela Voinescu <Ionela.Voinescu-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Clear line status and all generated interrupts from the interrupt
-status register before starting a transfer, as we may have
-unserviced interrupts from previous transfers that might be
-handled in the context of the new transfer.
+Move scb_wr_rd_fence to before reading from fifo and writing to
+fifo to make sure the the first read/write is done after the required
+number of cycles.
 
 Fixes: commit 27bce457d588 ("i2c: img-scb: Add Imagination Technologies I2C SCB driver")
 Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Acked-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Reviewed-by: James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-img-scb.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/i2c/busses/i2c-img-scb.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 200108dbd194..6c21a7bd9a66 100644
+index 5c3c61586d4a..0368d91b6805 100644
 --- a/drivers/i2c/busses/i2c-img-scb.c
 +++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -1068,6 +1068,15 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 		i2c->last_msg = (i == num - 1);
- 		reinit_completion(&i2c->msg_complete);
+@@ -534,6 +534,7 @@ static void img_i2c_read_fifo(struct img_i2c *i2c)
+ 		u32 fifo_status;
+ 		u8 data;
  
-+		/*
-+		 * Clear line status and all interrupts before starting a
-+		 * transfer, as we may have unserviced interrupts from
-+		 * previous transfers that might be handled in the context
-+		 * of the new transfer.
-+		 */
-+		img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
-+		img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
-+
- 		if (atomic)
- 			img_i2c_atomic_start(i2c);
- 		else if (msg->flags & I2C_M_RD)
++		img_i2c_wr_rd_fence(i2c);
+ 		fifo_status = img_i2c_readl(i2c, SCB_FIFO_STATUS_REG);
+ 		if (fifo_status & FIFO_READ_EMPTY)
+ 			break;
+@@ -542,7 +543,6 @@ static void img_i2c_read_fifo(struct img_i2c *i2c)
+ 		*i2c->msg.buf = data;
+ 
+ 		img_i2c_writel(i2c, SCB_READ_FIFO_REG, 0xff);
+-		img_i2c_wr_rd_fence(i2c);
+ 		i2c->msg.len--;
+ 		i2c->msg.buf++;
+ 	}
+@@ -554,12 +554,12 @@ static void img_i2c_write_fifo(struct img_i2c *i2c)
+ 	while (i2c->msg.len) {
+ 		u32 fifo_status;
+ 
++		img_i2c_wr_rd_fence(i2c);
+ 		fifo_status = img_i2c_readl(i2c, SCB_FIFO_STATUS_REG);
+ 		if (fifo_status & FIFO_WRITE_FULL)
+ 			break;
+ 
+ 		img_i2c_writel(i2c, SCB_WRITE_DATA_REG, *i2c->msg.buf);
+-		img_i2c_wr_rd_fence(i2c);
+ 		i2c->msg.len--;
+ 		i2c->msg.buf++;
+ 	}
 -- 
 1.7.9.5
