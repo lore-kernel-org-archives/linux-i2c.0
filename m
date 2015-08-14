@@ -1,71 +1,81 @@
-From: Dustin Byford <dustin@cumulusnetworks.com>
-Subject: [RFC PATCH 1/1] i2c: acpi: scan ACPI enumerated I2C mux channels
-Date: Thu, 13 Aug 2015 16:59:18 -0700
-Message-ID: <1439510358-16664-2-git-send-email-dustin@cumulusnetworks.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [U-Boot] [PATCH v3 01/11] dm: serial: Update binding for PL01x
+ serial UART
+Date: Fri, 14 Aug 2015 12:22:31 +0200
+Message-ID: <CACRpkdY1G0zgQ0mw3VP_rA89+kcaipCfJqoPpieVDTBjbeDa1Q@mail.gmail.com>
+References: <1438954951-13329-1-git-send-email-sjg@chromium.org>
+	<1438954951-13329-2-git-send-email-sjg@chromium.org>
+	<CACRpkdZa2O1MqCVT8q2P0u0ciXK+6HFbQQGXB_-chimg=FbzQg@mail.gmail.com>
+	<CAPnjgZ3V1KS7POEhsvj63OSB29MUtyaZGBoFR8JGPnaN=-fXVw@mail.gmail.com>
+	<55CCBFB2.7050301@wwwdotorg.org>
+	<20150813181346.GS25532@bill-the-cat>
+	<1439492679.242.35.camel@freebsd.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1439492679.242.35.camel-h+KGxgPPiopAfugRpC6u6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ian Lepore <ian-h+KGxgPPiopAfugRpC6u6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Tom Rini <trini-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Joe Hershberger <joe.hershberger-acOepvfBmUk@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, U-Boot Mailing List <u-boot-0aAXYlwwYIKGBzrmiIFOJg@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Set an ACPI companion for I2C mux channels enumerated through ACPI and
-ensure they are scanned for devices.
+On Thu, Aug 13, 2015 at 9:04 PM, Ian Lepore <ian-h+KGxgPPiopAfugRpC6u6w@public.gmane.org> wrote:
 
-Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
----
- drivers/i2c/i2c-core.c | 10 ++++++++++
- drivers/i2c/i2c-mux.c  |  8 ++++++++
- 2 files changed, 18 insertions(+)
+> As the FreeBSD person who got our first SoC (imx6, only partially
+> supported) converted to use the Linux DT files rather than our own
+> homebrew mess we started with, I would say that my opinion of the
+> existing DT information is that it is an extension of Linux device
+> drivers written in a different language.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index c83e4d1..23cc8e9 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -171,8 +171,18 @@ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
- 	if (!adap->dev.parent)
- 		return;
- 
-+	/*
-+	 * Determine where to start walking the ACPI namespace.  The common
-+	 * case is to start at the adapter's parent device.  However, in
-+	 * the case of a "virtual" I2C adapter created to represent a mux
-+	 * channel the parent dev (pointing to the mux device) does not
-+	 * have an ACPI handle.  Walk starting at the adapter instead.
-+	 */
- 	handle = ACPI_HANDLE(adap->dev.parent);
- 	if (!handle)
-+		handle = ACPI_HANDLE(&adap->dev);
-+
-+	if (!handle)
- 		return;
- 
- 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 2ba7c0f..2731b99 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -25,6 +25,7 @@
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
- #include <linux/of.h>
-+#include <linux/acpi.h>
- 
- /* multiplexer per channel data */
- struct i2c_mux_priv {
-@@ -173,6 +174,13 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 		}
- 	}
- 
-+	/*
-+	 * Now try to populate the mux adapter's ACPI node.
-+	 */
-+	if (has_acpi_companion(mux_dev))
-+		acpi_preset_companion(&priv->adap.dev, ACPI_COMPANION(mux_dev),
-+				      chan_id);
-+
- 	if (force_nr) {
- 		priv->adap.nr = force_nr;
- 		ret = i2c_add_numbered_adapter(&priv->adap);
--- 
-2.1.4
+This is the first time I hear a story like this, tell us more!
+
+This is exactly the kind of stuff we want to see posted on
+devicetree-u79uwXL29TaiAVqoAR/hOA@public.gmane.org
+
+> The information available is in no way independent of the Linux device
+> drivers, it is exactly the information those drivers need.  It is often
+> not the information needed in another OS with independently written
+> drivers.  And especially it is not ordered and structured in a way that
+> works well with the device enumeration and instantiation models used by
+> another OS.
+
+I have complained before that since the bindings are often merged
+through the Linux kernel tree subsystem maintainers, they
+ultimately decide on bindings. Unsurprisingly, they are as unlikely
+to notice linuxisms as the Windows people designing ACPI
+are unlikely to notice Windowsisms. But atleast we know we
+are flawed and want to improve.
+
+The best way to improve is to have people from other OSes on
+the devicetree mailinglist and review the bindings there from
+other-OS point of view.
+
+> A great case in point would be i2c eeproms.  What a perfect opportunity
+> DT would be to describe everything about the eeprom parts (total
+> capacity, page read/write size, whether the page address bits extend
+> into the bus-slave address bits, etc).  It seems to me that anything
+> claiming to be an independent description of the hardware would have to
+> include such things.  Instead, all the bindings define is the compatible
+> string.  That's crazy.  Why?  Well, when I went and looked at the Linux
+> eeprom drivers it became clear why:  that's all they need to know,
+> because everything else is hard-coded in tables in the driver source.
+>
+> So if I want to write a FreeBSD i2c eeprom driver that uses DT data,
+> what are my choices?  I have exactly one:  make my driver essentially a
+> clone of the Linux driver, with all the same data hard-coded in source.
+
+I bet Wolfram and other I2C people can comment on this, state
+and future directions. Wolfram is known to care deeply about the
+problem with DT contracts.
+
+> All in all, it's not impossible for another OS to work with the DT
+> information that begins its life in Linux, but it's not really easy.
+
+Let's maker this better.
+
+Yours,
+Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
