@@ -1,11 +1,13 @@
-From: Dustin Byford <dustin-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: [RFC 0/1] i2c: acpi: revert setting a "stable" device name
-Date: Fri, 14 Aug 2015 12:37:13 -0700
-Message-ID: <1439581034-5972-1-git-send-email-dustin@cumulusnetworks.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Dustin Byford <dustin@cumulusnetworks.com>
+Subject: [RFC 1/1] i2c: acpi: revert setting a "stable" device name
+Date: Fri, 14 Aug 2015 12:37:14 -0700
+Message-ID: <1439581034-5972-2-git-send-email-dustin@cumulusnetworks.com>
+References: <1439581034-5972-1-git-send-email-dustin@cumulusnetworks.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1439581034-5972-1-git-send-email-dustin@cumulusnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, jarkko.nikula@linux.intel.com, jdelvare@suse.com, linux@roeck-us.net, lm-sensors@lm-sensors.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 70762ab from 11/2014 (i2c: Use stable dev_name for ACPI enumerated I2C
@@ -22,30 +24,30 @@ if ((!subsys || !strcmp(subsys, "i2c")) &&
            &entry.chip.addr) == 2) {
 ...
 
-Therefore, in theory, sensors that were previously visible by running
-'sensors' no longer show up.  On the other hand, there are probably few,
-if any, cases of this because ACPI enumerated I2C hwmon devices are not
-common.
+Fix 'sensors' by reverting the kernel change.
 
-I'm not defending the 'sensors' code, I'm sure there are better ways to
-discover a hwmon I2C device from userspace.  But, I'm also not sure
-70762ab achieved its stated goal in a meaningful way.  Won't
-"i2c-<acpi_dev_name>" also vary with ACPI scan order, BIOS settings,
-firmware upgrades, etc...?
-
-Hence the RFC patch.  To submit a change like this I would need to
-consider the fallout for ALSA SoC.  The other option is to see what can
-be done in 'sensors' to include the ACPI enumerated hwmon devices.
-
-Any opinions on which way to go?
-
-   --Dustin
-
-Dustin Byford (1):
-  i2c: acpi: revert setting a "stable" device name
-
+Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
+---
  drivers/i2c/i2c-core.c | 7 -------
  1 file changed, 7 deletions(-)
 
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index c83e4d1..fb77031 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -916,13 +916,6 @@ EXPORT_SYMBOL_GPL(i2c_unlock_adapter);
+ static void i2c_dev_set_name(struct i2c_adapter *adap,
+ 			     struct i2c_client *client)
+ {
+-	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
+-
+-	if (adev) {
+-		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
+-		return;
+-	}
+-
+ 	/* For 10-bit clients, add an arbitrary offset to avoid collisions */
+ 	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
+ 		     client->addr | ((client->flags & I2C_CLIENT_TEN)
 -- 
 2.1.4
