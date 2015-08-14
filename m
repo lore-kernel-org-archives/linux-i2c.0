@@ -1,80 +1,73 @@
-From: Dustin Byford <dustin-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: [RFC v2 0/1] i2c: acpi: scan ACPI enumerated I2C mux channels
-Date: Fri, 14 Aug 2015 12:31:32 -0700
-Message-ID: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1439510358-16664-1-git-send-email-dustin-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Dustin Byford <dustin@cumulusnetworks.com>
+Subject: [RFC v2 1/1] i2c: acpi: scan ACPI enumerated I2C mux channels
+Date: Fri, 14 Aug 2015 12:31:33 -0700
+Message-ID: <1439580693-5538-2-git-send-email-dustin@cumulusnetworks.com>
+References: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-(v2 corrects cc: list)
+Set an ACPI companion for I2C mux channels enumerated through ACPI and
+ensure they are scanned for devices.
 
-I would like to add support for scanning I2C devices connected to ACPI
-OF compatible muxes described in ASL like this:
-
-Device (MUX0)
-{
-    Name (_ADR, 0x70)
-    Name (_HID, "PRP0001")
-    Name (_CRS, ResourceTemplate()
-    {
-        I2cSerialBus (0x70, ControllerInitiated, I2C_SPEED,
-                      AddressingMode7Bit, "^^SMB2", 0x00,
-                      ResourceConsumer,,)
-    })
-    Name (_DSD, Package ()
-    {
-        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-        Package () {
-            Package (2) { "compatible", "nxp,pca9548" },
-        }
-    })
-
-    // MUX channels
-    Device (CH00) { Name (_ADR, 0x0) }
-}
-
-Scope(MUX0.CH00)
-{
-    Device (TMP0) {
-        /* Temp sensor ASL, for example. */
-    }
-}
-
-It seems like a reasonable way to describe a common I2C component and
-kernel support is almost there.
-
-I had to:
-
-1) Find and set an ACPI companion for the "virtual" I2C adapters created
-   for each mux channel.
-
-2) Make sure to scan adap.dev when registering devices under each mux
-   channel.
-
-At first, I was confused about why adap.dev->parent is used in
-acpi_i2c_register_devices().  I found b34bb1ee from 4/2013 (ACPI / I2C:
-Use parent's ACPI_HANDLE()), which offers an explanation.
-
-This patch works well, but I'm not sure about the code to just fall back
-to using adap.dev when adap.dev->parent doesn't have an ACPI companion.
-Is there a more explicit check I can make to determine if the adapter
-represents a mux channel?
-
-Any feedback would be welcome.  Thanks,
-
-   --Dustin
-
-Dustin Byford (1):
-  i2c: acpi: scan ACPI enumerated I2C mux channels
-
+Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
+---
  drivers/i2c/i2c-core.c | 10 ++++++++++
  drivers/i2c/i2c-mux.c  |  8 ++++++++
  2 files changed, 18 insertions(+)
 
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index c83e4d1..23cc8e9 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -171,8 +171,18 @@ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
+ 	if (!adap->dev.parent)
+ 		return;
+ 
++	/*
++	 * Determine where to start walking the ACPI namespace.  The common
++	 * case is to start at the adapter's parent device.  However, in
++	 * the case of a "virtual" I2C adapter created to represent a mux
++	 * channel the parent dev (pointing to the mux device) does not
++	 * have an ACPI handle.  Walk starting at the adapter instead.
++	 */
+ 	handle = ACPI_HANDLE(adap->dev.parent);
+ 	if (!handle)
++		handle = ACPI_HANDLE(&adap->dev);
++
++	if (!handle)
+ 		return;
+ 
+ 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 2ba7c0f..2731b99 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -25,6 +25,7 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
+ #include <linux/of.h>
++#include <linux/acpi.h>
+ 
+ /* multiplexer per channel data */
+ struct i2c_mux_priv {
+@@ -173,6 +174,13 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 		}
+ 	}
+ 
++	/*
++	 * Now try to populate the mux adapter's ACPI node.
++	 */
++	if (has_acpi_companion(mux_dev))
++		acpi_preset_companion(&priv->adap.dev, ACPI_COMPANION(mux_dev),
++				      chan_id);
++
+ 	if (force_nr) {
+ 		priv->adap.nr = force_nr;
+ 		ret = i2c_add_numbered_adapter(&priv->adap);
 -- 
 2.1.4
