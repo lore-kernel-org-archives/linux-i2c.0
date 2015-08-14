@@ -1,7 +1,7 @@
 From: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v2 5/5] i2c: img-scb: support repeated starts on IP v3.3
-Date: Fri, 14 Aug 2015 16:50:46 +0100
-Message-ID: <1439567447-8139-6-git-send-email-sifan.naeem@imgtec.com>
+Subject: [PATCH v2 4/5] i2c: img-scb: add handle for Master halt interrupt
+Date: Fri, 14 Aug 2015 16:50:45 +0100
+Message-ID: <1439567447-8139-5-git-send-email-sifan.naeem@imgtec.com>
 References: <1439567447-8139-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,107 +12,70 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <jam
 Cc: Ionela Voinescu <Ionela.Voinescu-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In version 3.3 of the IP when transaction halt is set, an interrupt
-will be generated after each byte of a transfer instead of after
-every transfer but before the stop bit.
-Due to this behaviour we have to be careful that every time we
-release the transaction halt we have to re-enable it straight away
-so that we only process a single byte, not doing so will result in
-all remaining bytes been processed and a stop bit being issued,
-which will prevent us having a repeated start.
+Master halt is issued after each byte of a transaction is processed in
+IP version 3.3.
+Master halt will stall the bus by holding the SCK line low until the
+halt bit in the scb_general_control is cleared.
 
-This change will have no effect on earlier versions of the IP.
+After the last byte of a transfer is processed we can use the Master
+Halt interrupt to facilitate a repeated start transfer without
+issuing a stop bit.
 
 Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Reviewed-by: James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-img-scb.c |   45 ++++++++++++++++++++++++++++++--------
- 1 file changed, 36 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-img-scb.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 837a73a43a6d..7a51f39528d7 100644
+index 17e13ff475bb..837a73a43a6d 100644
 --- a/drivers/i2c/busses/i2c-img-scb.c
 +++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -513,7 +513,17 @@ static void img_i2c_soft_reset(struct img_i2c *i2c)
- 		       SCB_CONTROL_CLK_ENABLE | SCB_CONTROL_SOFT_RESET);
- }
+@@ -151,6 +151,7 @@
+ #define INT_FIFO_EMPTYING		BIT(12)
+ #define INT_TRANSACTION_DONE		BIT(15)
+ #define INT_SLAVE_EVENT			BIT(16)
++#define INT_MASTER_HALTED		BIT(17)
+ #define INT_TIMING			BIT(18)
+ #define INT_STOP_DETECTED		BIT(19)
  
--/* enable or release transaction halt for control of repeated starts */
-+/*
-+ * Enable or release transaction halt for control of repeated starts.
-+ * In version 3.3 of the IP when transaction halt is set, an interrupt
-+ * will be generated after each byte of a transfer instead of after
-+ * every transfer but before the stop bit.
-+ * Due to this behaviour we have to be careful that every time we
-+ * release the transaction halt we have to re-enable it straight away
-+ * so that we only process a single byte, not doing so will result in
-+ * all remaining bytes been processed and a stop bit being issued,
-+ * which will prevent us having a repeated start.
-+ */
- static void img_i2c_transaction_halt(struct img_i2c *i2c, bool t_halt)
- {
- 	u32 val;
-@@ -582,7 +592,6 @@ static void img_i2c_read(struct img_i2c *i2c)
- 	img_i2c_writel(i2c, SCB_READ_ADDR_REG, i2c->msg.addr);
- 	img_i2c_writel(i2c, SCB_READ_COUNT_REG, i2c->msg.len);
+@@ -177,6 +178,7 @@
+ 					 INT_FIFO_FULL        | \
+ 					 INT_FIFO_FILLING     | \
+ 					 INT_FIFO_EMPTY       | \
++					 INT_MASTER_HALTED    | \
+ 					 INT_STOP_DETECTED)
  
--	img_i2c_transaction_halt(i2c, false);
- 	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
- }
+ #define INT_ENABLE_MASK_WAITSTOP	(INT_SLAVE_EVENT      | \
+@@ -883,17 +885,26 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
+ 	}
  
-@@ -596,7 +605,6 @@ static void img_i2c_write(struct img_i2c *i2c)
- 	img_i2c_writel(i2c, SCB_WRITE_ADDR_REG, i2c->msg.addr);
- 	img_i2c_writel(i2c, SCB_WRITE_COUNT_REG, i2c->msg.len);
- 
--	img_i2c_transaction_halt(i2c, false);
- 	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
- 	img_i2c_write_fifo(i2c);
- 
-@@ -863,7 +871,7 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
- 	/* Enable transaction halt on start bit */
- 	if (line_status & LINESTAT_START_BIT_DET) {
- 		if (!i2c->last_msg) {
--			img_i2c_transaction_halt(i2c, true);
-+			img_i2c_transaction_halt(i2c, !i2c->last_msg);
- 			/* we're no longer interested in the slave event */
- 			i2c->int_enable &= ~INT_SLAVE_EVENT;
+ 	if (i2c->msg.flags & I2C_M_RD) {
+-		if (int_status & INT_FIFO_FULL_FILLING) {
++		if (int_status & (INT_FIFO_FULL_FILLING | INT_MASTER_HALTED)) {
+ 			img_i2c_read_fifo(i2c);
+ 			if (i2c->msg.len == 0)
+ 				return ISR_WAITSTOP;
  		}
-@@ -1093,12 +1101,31 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 		img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
- 		img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
+ 	} else {
+-		if (int_status & INT_FIFO_EMPTY) {
+-			if (i2c->msg.len == 0)
++		if (int_status & (INT_FIFO_EMPTY | INT_MASTER_HALTED)) {
++			if ((int_status & INT_FIFO_EMPTY) &&
++			    i2c->msg.len == 0)
+ 				return ISR_WAITSTOP;
+ 			img_i2c_write_fifo(i2c);
+ 		}
++	}
++	if (int_status & INT_MASTER_HALTED) {
++		/*
++		 * Release and then enable transaction halt, to
++		 * allow only a single byte to proceed.
++		 */
++		img_i2c_transaction_halt(i2c, false);
++		img_i2c_transaction_halt(i2c, !i2c->last_msg);
+ 	}
  
--		if (atomic)
-+		if (atomic) {
- 			img_i2c_atomic_start(i2c);
--		else if (msg->flags & I2C_M_RD)
--			img_i2c_read(i2c);
--		else
--			img_i2c_write(i2c);
-+		} else {
-+			/*
-+			 * Enable transaction halt if not the last message in
-+			 * the queue so that we can control repeated starts.
-+			 */
-+			img_i2c_transaction_halt(i2c, !i2c->last_msg);
-+
-+			if (msg->flags & I2C_M_RD)
-+				img_i2c_read(i2c);
-+			else
-+				img_i2c_write(i2c);
-+
-+			/*
-+			 * Release and then enable transaction halt, to
-+			 * allow only a single byte to proceed.
-+			 * This doesn't have an effect on the initial transfer
-+			 * but will allow the following transfers to start
-+			 * processing if the previous transfer was marked as
-+			 * complete while the i2c block was halted.
-+			 */
-+			img_i2c_transaction_halt(i2c, false);
-+			img_i2c_transaction_halt(i2c, !i2c->last_msg);
-+		}
- 		spin_unlock_irqrestore(&i2c->lock, flags);
- 
- 		time_left = wait_for_completion_timeout(&i2c->msg_complete,
+ 	return 0;
 -- 
 1.7.9.5
