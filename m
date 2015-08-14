@@ -1,73 +1,51 @@
-From: Dustin Byford <dustin@cumulusnetworks.com>
-Subject: [RFC v2 1/1] i2c: acpi: scan ACPI enumerated I2C mux channels
-Date: Fri, 14 Aug 2015 12:31:33 -0700
-Message-ID: <1439580693-5538-2-git-send-email-dustin@cumulusnetworks.com>
-References: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
+From: Dustin Byford <dustin-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: [RFC 0/1] i2c: acpi: revert setting a "stable" device name
+Date: Fri, 14 Aug 2015 12:37:13 -0700
+Message-ID: <1439581034-5972-1-git-send-email-dustin@cumulusnetworks.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+70762ab from 11/2014 (i2c: Use stable dev_name for ACPI enumerated I2C
+slaves) modified the sysfs-visible dev_name() for ACPI enumerated I2C
+devices.  With that change, /sys/bus/i2c/devices/i2c-0-004a, for
+example, became /sys/bus/i2c/devices/i2c-PNPXXXX:xx
 
-Set an ACPI companion for I2C mux channels enumerated through ACPI and
-ensure they are scanned for devices.
+That causes problems for userspace code such as 'sensors' which does
+this:
 
-Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
----
- drivers/i2c/i2c-core.c | 10 ++++++++++
- drivers/i2c/i2c-mux.c  |  8 ++++++++
- 2 files changed, 18 insertions(+)
+lib/sysfs.c:665:
+if ((!subsys || !strcmp(subsys, "i2c")) &&
+    sscanf(dev_name, "%hd-%x", &entry.chip.bus.nr,
+           &entry.chip.addr) == 2) {
+...
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index c83e4d1..23cc8e9 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -171,8 +171,18 @@ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
- 	if (!adap->dev.parent)
- 		return;
- 
-+	/*
-+	 * Determine where to start walking the ACPI namespace.  The common
-+	 * case is to start at the adapter's parent device.  However, in
-+	 * the case of a "virtual" I2C adapter created to represent a mux
-+	 * channel the parent dev (pointing to the mux device) does not
-+	 * have an ACPI handle.  Walk starting at the adapter instead.
-+	 */
- 	handle = ACPI_HANDLE(adap->dev.parent);
- 	if (!handle)
-+		handle = ACPI_HANDLE(&adap->dev);
-+
-+	if (!handle)
- 		return;
- 
- 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 2ba7c0f..2731b99 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -25,6 +25,7 @@
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
- #include <linux/of.h>
-+#include <linux/acpi.h>
- 
- /* multiplexer per channel data */
- struct i2c_mux_priv {
-@@ -173,6 +174,13 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 		}
- 	}
- 
-+	/*
-+	 * Now try to populate the mux adapter's ACPI node.
-+	 */
-+	if (has_acpi_companion(mux_dev))
-+		acpi_preset_companion(&priv->adap.dev, ACPI_COMPANION(mux_dev),
-+				      chan_id);
-+
- 	if (force_nr) {
- 		priv->adap.nr = force_nr;
- 		ret = i2c_add_numbered_adapter(&priv->adap);
+Therefore, in theory, sensors that were previously visible by running
+'sensors' no longer show up.  On the other hand, there are probably few,
+if any, cases of this because ACPI enumerated I2C hwmon devices are not
+common.
+
+I'm not defending the 'sensors' code, I'm sure there are better ways to
+discover a hwmon I2C device from userspace.  But, I'm also not sure
+70762ab achieved its stated goal in a meaningful way.  Won't
+"i2c-<acpi_dev_name>" also vary with ACPI scan order, BIOS settings,
+firmware upgrades, etc...?
+
+Hence the RFC patch.  To submit a change like this I would need to
+consider the fallout for ALSA SoC.  The other option is to see what can
+be done in 'sensors' to include the ACPI enumerated hwmon devices.
+
+Any opinions on which way to go?
+
+   --Dustin
+
+Dustin Byford (1):
+  i2c: acpi: revert setting a "stable" device name
+
+ drivers/i2c/i2c-core.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
 -- 
 2.1.4
