@@ -1,58 +1,71 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] driver/i2c/mux: Add register based mux i2c-mux-reg
-Date: Sat, 15 Aug 2015 22:23:05 +0200
-Message-ID: <20150815202302.GB3463@katana>
-References: <1434475692-4611-1-git-send-email-yorksun@freescale.com>
+Subject: Re: [PATCH 1/2] i2c: add i2c-lpc2k driver
+Date: Sat, 15 Aug 2015 22:24:28 +0200
+Message-ID: <20150815202423.GD3463@katana>
+References: <1436741242-13489-1-git-send-email-manabian@gmail.com>
+ <1436741242-13489-2-git-send-email-manabian@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1434475692-4611-1-git-send-email-yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <1436741242-13489-2-git-send-email-manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+To: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 16, 2015 at 10:28:12AM -0700, York Sun wrote:
-> Based on i2c-mux-gpio driver, similarly the register based mux
-> switch from one bus to another by setting a single register.
-> The register can be on PCIe bus, local bus, or any memory-mapped
-> address.
+On Mon, Jul 13, 2015 at 12:47:21AM +0200, Joachim Eastwood wrote:
+> Add support for the I2C controller found on several NXP devices
+> including LPC2xxx, LPC178x/7x and LPC18xx/43xx. The controller
+> is implemented as a state machine and the driver act upon the
+> state changes when the bus is accessed.
 > 
-> Signed-off-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> CC: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+> The I2C controller supports master/slave operation, bus
+> arbitration, programmable clock rate, and speeds up to 1 Mbit/s.
+> 
+> Signed-off-by: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Mostly good.
+Thanks for the submission! Looking mostly good already.
 
-> +static int i2c_mux_reg_probe(struct platform_device *pdev)
+> +static void i2c_lpc2k_pump_msg(struct lpc2k_i2c *i2c)
 > +{
-> +	struct regmux *mux;
-> +	struct i2c_adapter *parent;
-> +	struct resource *res;
-> +	int (*deselect)(struct i2c_adapter *, void *, u32);
-> +	unsigned int initial_state, class;
+> +	unsigned char data;
+> +	u32 status;
+> +
+> +	/*
+> +	 * I2C in the LPC2xxx series is basically a state machine.
+> +	 * Just run through the steps based on the current status.
+> +	 */
+> +	status = readl(i2c->reg_base + LPC24XX_I2STAT);
+> +
+> +	switch (status) {
+> +	case M_START:
+> +	case M_REPSTART:
+> +		/* Start bit was just sent out, send out addr and dir */
+> +		data = (i2c->msg->addr << 1);
+> +		if (i2c->msg->flags & I2C_M_RD)
+> +			data |= 1;
+> +
+> +		writel(data, i2c->reg_base + LPC24XX_I2DAT);
+> +		writel(LPC24XX_STA, i2c->reg_base + LPC24XX_I2CONCLR);
+> +
+> +		dev_dbg(&i2c->adap.dev, "Start sent with addr 0x%02x\n", data);
 
-gcc says:
+I assume the driver is basically working. So, in my book, most of this
+debug output is useful when the driver was developed, not so much
+afterwards. Also, it is printed in interrupt context possibly causing
+latency. However, the information is useful for understanding the
+driver, so I'd suggest to convert them into comments?
 
-drivers/i2c/muxes/i2c-mux-reg.c:182:15: warning: variable 'initial_state' set but not used [-Wunused-but-set-variable]
+> +	i2c->adap.nr = pdev->id;
+> +
+> +	ret = i2c_add_numbered_adapter(&i2c->adap);
 
-It seens you prepared for setting the initial state but don't do the
-actual set?
+Intended? Most DT enabled drivers simply user i2c_add_adapter(). The
+core then takes care of aliases defined in DT.
 
-> +static struct platform_driver i2c_mux_reg_driver = {
-> +	.probe	= i2c_mux_reg_probe,
-> +	.remove	= i2c_mux_reg_remove,
-> +	.driver	= {
-> +		.owner	= THIS_MODULE,
-
-coccicheck says:
-
-drivers/i2c/muxes/i2c-mux-reg.c:288:3-8: No need to set .owner here. The core will do it.
-
-> +		.name	= "i2c-mux-reg",
-> +	},
-> +};
+And please have a look at Documentation/i2c/fault-codes. Arbitration
+Lost should be -EAGAIN, NACK should be -ENXIO, and so forth...
 
 Thanks,
 
