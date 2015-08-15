@@ -1,95 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC v2 0/1] i2c: acpi: scan ACPI enumerated I2C mux channels
-Date: Sat, 15 Aug 2015 22:22:32 +0200
-Message-ID: <20150815202229.GA3463@katana>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
- <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] driver/i2c/mux: Add register based mux i2c-mux-reg
+Date: Sat, 15 Aug 2015 22:23:05 +0200
+Message-ID: <20150815202302.GB3463@katana>
+References: <1434475692-4611-1-git-send-email-yorksun@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Dustin Byford <dustin@cumulusnetworks.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
+In-Reply-To: <1434475692-4611-1-git-send-email-yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 14, 2015 at 12:31:32PM -0700, Dustin Byford wrote:
+On Tue, Jun 16, 2015 at 10:28:12AM -0700, York Sun wrote:
+> Based on i2c-mux-gpio driver, similarly the register based mux
+> switch from one bus to another by setting a single register.
+> The register can be on PCIe bus, local bus, or any memory-mapped
+> address.
 > 
-> (v2 corrects cc: list)
+> Signed-off-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> CC: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 
-And adding Mika to the cc-list who is our I2C and ACPI expert.
-Mika can you have a look at this and the other patches Dustin sent
-recently to the i2c list?
+Mostly good.
+
+> +static int i2c_mux_reg_probe(struct platform_device *pdev)
+> +{
+> +	struct regmux *mux;
+> +	struct i2c_adapter *parent;
+> +	struct resource *res;
+> +	int (*deselect)(struct i2c_adapter *, void *, u32);
+> +	unsigned int initial_state, class;
+
+gcc says:
+
+drivers/i2c/muxes/i2c-mux-reg.c:182:15: warning: variable 'initial_state' set but not used [-Wunused-but-set-variable]
+
+It seens you prepared for setting the initial state but don't do the
+actual set?
+
+> +static struct platform_driver i2c_mux_reg_driver = {
+> +	.probe	= i2c_mux_reg_probe,
+> +	.remove	= i2c_mux_reg_remove,
+> +	.driver	= {
+> +		.owner	= THIS_MODULE,
+
+coccicheck says:
+
+drivers/i2c/muxes/i2c-mux-reg.c:288:3-8: No need to set .owner here. The core will do it.
+
+> +		.name	= "i2c-mux-reg",
+> +	},
+> +};
 
 Thanks,
 
    Wolfram
-
-> 
-> I would like to add support for scanning I2C devices connected to ACPI
-> OF compatible muxes described in ASL like this:
-> 
-> Device (MUX0)
-> {
->     Name (_ADR, 0x70)
->     Name (_HID, "PRP0001")
->     Name (_CRS, ResourceTemplate()
->     {
->         I2cSerialBus (0x70, ControllerInitiated, I2C_SPEED,
->                       AddressingMode7Bit, "^^SMB2", 0x00,
->                       ResourceConsumer,,)
->     })
->     Name (_DSD, Package ()
->     {
->         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
->         Package () {
->             Package (2) { "compatible", "nxp,pca9548" },
->         }
->     })
-> 
->     // MUX channels
->     Device (CH00) { Name (_ADR, 0x0) }
-> }
-> 
-> Scope(MUX0.CH00)
-> {
->     Device (TMP0) {
->         /* Temp sensor ASL, for example. */
->     }
-> }
-> 
-> It seems like a reasonable way to describe a common I2C component and
-> kernel support is almost there.
-> 
-> I had to:
-> 
-> 1) Find and set an ACPI companion for the "virtual" I2C adapters created
->    for each mux channel.
-> 
-> 2) Make sure to scan adap.dev when registering devices under each mux
->    channel.
-> 
-> At first, I was confused about why adap.dev->parent is used in
-> acpi_i2c_register_devices().  I found b34bb1ee from 4/2013 (ACPI / I2C:
-> Use parent's ACPI_HANDLE()), which offers an explanation.
-> 
-> This patch works well, but I'm not sure about the code to just fall back
-> to using adap.dev when adap.dev->parent doesn't have an ACPI companion.
-> Is there a more explicit check I can make to determine if the adapter
-> represents a mux channel?
-> 
-> Any feedback would be welcome.  Thanks,
-> 
->    --Dustin
-> 
-> Dustin Byford (1):
->   i2c: acpi: scan ACPI enumerated I2C mux channels
-> 
->  drivers/i2c/i2c-core.c | 10 ++++++++++
->  drivers/i2c/i2c-mux.c  |  8 ++++++++
->  2 files changed, 18 insertions(+)
-> 
-> -- 
-> 2.1.4
-> 
