@@ -1,85 +1,84 @@
-From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: Re: [PATCH RFC] eeprom: at24: extend driver to plug into the NVMEM
- framework
-Date: Sun, 16 Aug 2015 10:28:06 +0200 (CEST)
-Message-ID: <2080648987.23864.1439713686409.JavaMail.open-xchange@oxbsltgw04.schlund.de>
-References: <1439693649-10809-1-git-send-email-andrew@lunn.ch>
-Reply-To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v5 6/8] iio: gyro: bmg160: optimize i2c transfers in
+ trigger handler
+Date: Sun, 16 Aug 2015 10:24:47 +0100
+Message-ID: <55D056DF.5020201@kernel.org>
+References: <1439389900-10108-1-git-send-email-irina.tirdea@intel.com>
+ <1439389900-10108-7-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1439693649-10809-1-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1439389900-10108-7-git-send-email-irina.tirdea@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, Peter Meerwald <pmeerw@pmeerw.net>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andrew,
+On 12/08/15 15:31, Irina Tirdea wrote:
+> Some i2c busses (e.g.: Synopsys DesignWare I2C adapter) need to
+> enable/disable the bus at each i2c transfer and must wait for
+> the enable/disable to happen before sending the data.
+> 
+> When reading data in the trigger handler, the bmg160 driver does
+> one i2c transfer for each axis. This has an impact on the frequency
+> of the gyroscope at high sample rates due to additional delays
+> introduced by the i2c bus at each transfer.
+> 
+> Reading all axis values in one i2c transfer reduces the delays
+> introduced by the i2c bus. Uses i2c_smbus_read_i2c_block_data_or_emulated
+> that will fallback to reading each axis as a separate word in case i2c
+> block read is not supported.
+> 
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> Acked-by: Jonathan Cameron <jic23@kernel.org>
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Note, that in the meantime the bmg160 driver just went all regmap
+on us (as part of adding SPI support - though that step hasn't
+happened yet).  Hence we'll need a means of telling regmap about this
+possibility.
 
-> Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org> hat am 16. August 2015 um 04:54 geschrieben:
->
->
-> Add a read only regmap for accessing the EEPROM, and then use that
-> with the NVMEM framework.
->
-> Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
 > ---
-> drivers/misc/eeprom/at24.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++
-> 1 file changed, 65 insertions(+)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 2d3db81be099..0e80c0c09d4e 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -22,6 +22,8 @@
-> #include <linux/jiffies.h>
-> #include <linux/of.h>
-> #include <linux/i2c.h>
-> +#include <linux/nvmem-provider.h>
-> +#include <linux/regmap.h>
-
-shouldn't the dependancies in Kconfig updated (depends on REGMAP) too?
-
-> #include <linux/platform_data/at24.h>
->
-> /*
-> @@ -69,6 +71,10 @@ struct at24_data {
-> unsigned write_max;
-> unsigned num_addresses;
->
-> + struct regmap_config regmap_config;
-> + struct nvmem_config nvmem_config;
-> + struct nvmem_device *nvmem;
-> +
-> /*
-> * Some chips tie up multiple I2C addresses; dummy devices reserve
-> * them for us, and we'll use them with SMBus calls.
-> @@ -471,6 +477,34 @@ static ssize_t at24_macc_write(struct memory_accessor
-> *macc, const char *buf,
->
-> /*-------------------------------------------------------------------------*/
->
-> +/*
-> + * Provide a regmap interface, which is registered with the NVMEM
-> + * framework
-> +*/
-> +static int at24_regmap_read(void *context, const void *reg, size_t reg_size,
-> + void *val, size_t val_size)
-> +{
-> + struct at24_data *at24 = context;
-> + off_t offset = *(u32 *)reg;
-> +
-> + return at24_read(at24, val, offset, val_size);
-> +}
-> +
-> +static int at24_regmap_write(void *context, const void *data, size_t count)
-> +{
-> + struct at24_data *at24 = context;
-> +
-> + return at24_write(at24, data, 0, count);
-
-Since the patch only provides read only support this function could return 0.
-
-Regards
-Stefan
+>  drivers/iio/gyro/bmg160.c | 18 ++++++++----------
+>  1 file changed, 8 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/iio/gyro/bmg160.c b/drivers/iio/gyro/bmg160.c
+> index b2a6ccb..1ff306d 100644
+> --- a/drivers/iio/gyro/bmg160.c
+> +++ b/drivers/iio/gyro/bmg160.c
+> @@ -772,6 +772,7 @@ static const struct iio_event_spec bmg160_event = {
+>  		.sign = 's',						\
+>  		.realbits = 16,					\
+>  		.storagebits = 16,					\
+> +		.endianness = IIO_LE,					\
+>  	},								\
+>  	.event_spec = &bmg160_event,					\
+>  	.num_event_specs = 1						\
+> @@ -809,19 +810,16 @@ static irqreturn_t bmg160_trigger_handler(int irq, void *p)
+>  	struct iio_poll_func *pf = p;
+>  	struct iio_dev *indio_dev = pf->indio_dev;
+>  	struct bmg160_data *data = iio_priv(indio_dev);
+> -	int bit, ret, i = 0;
+> +	int ret = 0;
+>  
+>  	mutex_lock(&data->mutex);
+> -	for (bit = 0; bit < AXIS_MAX; bit++) {
+> -		ret = i2c_smbus_read_word_data(data->client,
+> -					       BMG160_AXIS_TO_REG(bit));
+> -		if (ret < 0) {
+> -			mutex_unlock(&data->mutex);
+> -			goto err;
+> -		}
+> -		data->buffer[i++] = ret;
+> -	}
+> +	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
+> +							BMG160_REG_XOUT_L,
+> +							AXIS_MAX * 2,
+> +							(u8 *)data->buffer);
+>  	mutex_unlock(&data->mutex);
+> +	if (ret < 0)
+> +		goto err;
+>  
+>  	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+>  					   pf->timestamp);
+> 
