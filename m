@@ -1,70 +1,151 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [RFC 0/1] i2c: acpi: revert setting a "stable" device name
-Date: Mon, 17 Aug 2015 11:00:12 +0300
-Message-ID: <55D1948C.6080501@linux.intel.com>
-References: <1439581034-5972-1-git-send-email-dustin@cumulusnetworks.com> <20150815151302.GA10020@roeck-us.net>
+From: Markus Pargmann <mpa@pengutronix.de>
+Subject: Re: [PATCH v5 6/8] iio: gyro: bmg160: optimize i2c transfers in
+ trigger handler
+Date: Mon, 17 Aug 2015 11:09:43 +0200
+Message-ID: <20150817090943.GO19600@pengutronix.de>
+References: <1439389900-10108-1-git-send-email-irina.tirdea@intel.com>
+ <1439389900-10108-7-git-send-email-irina.tirdea@intel.com>
+ <55D056DF.5020201@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20150815151302.GA10020@roeck-us.net>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>, Dustin Byford <dustin@cumulusnetworks.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jdelvare@suse.com, lm-sensors@lm-sensors.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LFcBmrHMV+//QdlE"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <55D056DF.5020201@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Irina Tirdea <irina.tirdea@intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>, Peter Meerwald <pmeerw@pmeerw.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On 15.08.2015 18:13, Guenter Roeck wrote:
-> On Fri, Aug 14, 2015 at 12:37:13PM -0700, Dustin Byford wrote:
->> 70762ab from 11/2014 (i2c: Use stable dev_name for ACPI enumerated I2C
->> slaves) modified the sysfs-visible dev_name() for ACPI enumerated I2C
->> devices.  With that change, /sys/bus/i2c/devices/i2c-0-004a, for
->> example, became /sys/bus/i2c/devices/i2c-PNPXXXX:xx
->>
->> That causes problems for userspace code such as 'sensors' which does
->> this:
->>
->> lib/sysfs.c:665:
->> if ((!subsys || !strcmp(subsys, "i2c")) &&
->>      sscanf(dev_name, "%hd-%x", &entry.chip.bus.nr,
->>             &entry.chip.addr) == 2) {
->> ...
->>
->> Therefore, in theory, sensors that were previously visible by running
->> 'sensors' no longer show up.  On the other hand, there are probably few,
->> if any, cases of this because ACPI enumerated I2C hwmon devices are not
->> common.
->>
->> I'm not defending the 'sensors' code, I'm sure there are better ways to
->> discover a hwmon I2C device from userspace.  But, I'm also not sure
->
-> Is it necessary to defend user space applications nowadays if a kernel change
-> breaks a well established ABI ? WHat happened to "Thou Shalt Not Break
-> Userspace" ?
->
-> I absolutely agree that i2c bus renumbering across reboots is a problem.
-> However, it seems to me that 70762ab doesn't solve that problem, it just
-> paints it over. And, as you have noticed, it introduces new problems along
-> the way.
->
-This indeed is unwanted and needs to be fixed. Looking at the 
-lib/sysfs.c also SPI chip detection breaks because of commit 
-e13ac47bec20 ("spi: Use stable dev_name for ACPI enumerated SPI slaves").
 
-However plain revert won't work as it breaks those ALSA SoC drivers that 
-depend on this. Good thing is that matching there is purely kernel space 
-and at quick look "git grep '"i2c-.*:[0-9]'" and "git grep 
-'"spi-.*:[0-9]'" don't find other in-kernel users.
+--LFcBmrHMV+//QdlE
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> 70762ab achieved its stated goal in a meaningful way.  Won't
->> "i2c-<acpi_dev_name>" also vary with ACPI scan order, BIOS settings,
->> firmware upgrades, etc...?
->>
-If I remember correctly ACPI ID should not ever change and instance id 
-:xy after INTABCD:xy should also be visible and keep the order even if 
-device is disabled or not plugged. But I'm not absolute sure about this.
+On Sun, Aug 16, 2015 at 10:24:47AM +0100, Jonathan Cameron wrote:
+> On 12/08/15 15:31, Irina Tirdea wrote:
+> > Some i2c busses (e.g.: Synopsys DesignWare I2C adapter) need to
+> > enable/disable the bus at each i2c transfer and must wait for
+> > the enable/disable to happen before sending the data.
+> >=20
+> > When reading data in the trigger handler, the bmg160 driver does
+> > one i2c transfer for each axis. This has an impact on the frequency
+> > of the gyroscope at high sample rates due to additional delays
+> > introduced by the i2c bus at each transfer.
+> >=20
+> > Reading all axis values in one i2c transfer reduces the delays
+> > introduced by the i2c bus. Uses i2c_smbus_read_i2c_block_data_or_emulat=
+ed
+> > that will fallback to reading each axis as a separate word in case i2c
+> > block read is not supported.
+> >=20
+> > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> > Acked-by: Jonathan Cameron <jic23@kernel.org>
+> > Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Note, that in the meantime the bmg160 driver just went all regmap
+> on us (as part of adding SPI support - though that step hasn't
+> happened yet).  Hence we'll need a means of telling regmap about this
+> possibility.
 
-At least on a test platform that allow disable devices will show those 
-devices off-line (/sys/bus/acpi/devices/INTABCD:xy/status == 0).
+Perhaps this is covered by a regmap_bulk_read()?
 
--- 
-Jarkko
+The series[1] I am working on implements a i2c smbus block data regmap
+bus driver. Regmap should then automatically do a block read in
+regmap_bulk_read.
+
+Patch 15 introduces the i2c block data regmap bus driver[2].
+I am only implementing this so I don't break bmc150 behavior. I do not
+have the hardware available to test this regmap driver so it would be great
+if someone else could test one of the next versions of this bus driver.
+
+Best regards,
+
+Markus
+
+[1] http://thread.gmane.org/gmane.linux.kernel/2018643
+[2] http://thread.gmane.org/gmane.linux.kernel/2018639
+
+>=20
+> > ---
+> >  drivers/iio/gyro/bmg160.c | 18 ++++++++----------
+> >  1 file changed, 8 insertions(+), 10 deletions(-)
+> >=20
+> > diff --git a/drivers/iio/gyro/bmg160.c b/drivers/iio/gyro/bmg160.c
+> > index b2a6ccb..1ff306d 100644
+> > --- a/drivers/iio/gyro/bmg160.c
+> > +++ b/drivers/iio/gyro/bmg160.c
+> > @@ -772,6 +772,7 @@ static const struct iio_event_spec bmg160_event =3D=
+ {
+> >  		.sign =3D 's',						\
+> >  		.realbits =3D 16,					\
+> >  		.storagebits =3D 16,					\
+> > +		.endianness =3D IIO_LE,					\
+> >  	},								\
+> >  	.event_spec =3D &bmg160_event,					\
+> >  	.num_event_specs =3D 1						\
+> > @@ -809,19 +810,16 @@ static irqreturn_t bmg160_trigger_handler(int irq=
+, void *p)
+> >  	struct iio_poll_func *pf =3D p;
+> >  	struct iio_dev *indio_dev =3D pf->indio_dev;
+> >  	struct bmg160_data *data =3D iio_priv(indio_dev);
+> > -	int bit, ret, i =3D 0;
+> > +	int ret =3D 0;
+> > =20
+> >  	mutex_lock(&data->mutex);
+> > -	for (bit =3D 0; bit < AXIS_MAX; bit++) {
+> > -		ret =3D i2c_smbus_read_word_data(data->client,
+> > -					       BMG160_AXIS_TO_REG(bit));
+> > -		if (ret < 0) {
+> > -			mutex_unlock(&data->mutex);
+> > -			goto err;
+> > -		}
+> > -		data->buffer[i++] =3D ret;
+> > -	}
+> > +	ret =3D i2c_smbus_read_i2c_block_data_or_emulated(data->client,
+> > +							BMG160_REG_XOUT_L,
+> > +							AXIS_MAX * 2,
+> > +							(u8 *)data->buffer);
+> >  	mutex_unlock(&data->mutex);
+> > +	if (ret < 0)
+> > +		goto err;
+> > =20
+> >  	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
+> >  					   pf->timestamp);
+> >=20
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>=20
+
+--=20
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+--LFcBmrHMV+//QdlE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJV0aTXAAoJEEpcgKtcEGQQKS4QAJE8VlnnJRdZGz44H+IDAGUx
+Bb8iJtbys0r/ituswkfHbo2WJqVSQA+z5hsKkfzJjvpBLjbrQhj62uhVk8IEqPig
+uJ+2QBmaDSTMVQTpoz7S39H8/msRd0xN23vmMA7G5t1koV1zAEJxQaP2p4WQb/cK
+uyM3NYsaBiOVNEM7ceQFRDIcQ+wOoioin61kxn4y31tC6gBc082q7EkYvXKC62Cu
+q79d9PvGz6pZ1ESNlSNBzul8VfU1JxUQmGa8qLko4ejtDnI5jVcUztZiEQ83eECs
+OWLJi4CZQWzhxCw/5SdRxO7hQ6TbFZOT83vRiLWn545HT4bNKdvxLkzJMnfCiye7
+2xopO9LYZRVU0cWoYpDV6kuTdHqpcUuGdPm0fYwmZUCz6fEeKIw1RhEmbKXcAF6p
+CegzSEF9KngQEQTK0vDXjIeK/xnRjmBzbSMVna9TdbY+YYte2k+gSollkhtoxtjh
+0b3F1YNjQKTUwim+WS/rmybapdb+rfZRusSYt8/ro1Nrls7aoBmr2RzcJMFCm+Zr
+q6H7kkLaFrc/zXgdc5XORjil5GKMw5d5yQUYwtz0Bkmc1gOhcm/xWCXrBSJlAFLV
+NNZgxpdN3tpzoJJ8CMMF9w+VfWRSI8KAepY38GwaiALsBr+LaJVW3XhAwwFvuOqe
+HumsJs3z3OEdagkC0EgP
+=2Ocl
+-----END PGP SIGNATURE-----
+
+--LFcBmrHMV+//QdlE--
