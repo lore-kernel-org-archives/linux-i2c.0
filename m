@@ -1,61 +1,47 @@
-From: Dustin Byford <dustin@cumulusnetworks.com>
-Subject: Re: [RFC v2 0/1] i2c: acpi: scan ACPI enumerated I2C mux channels
-Date: Mon, 17 Aug 2015 12:00:45 -0700
-Message-ID: <20150817190045.GA25318@cumulusnetworks.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
- <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
- <20150817120305.GB1552@lahna.fi.intel.com>
+From: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: add i2c-lpc2k driver
+Date: Mon, 17 Aug 2015 17:18:30 -0300
+Message-ID: <20150817201830.GA11033@laptop>
+References: <1439748617-7683-1-git-send-email-manabian@gmail.com>
+ <1439748617-7683-2-git-send-email-manabian@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150817120305.GB1552@lahna.fi.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
+In-Reply-To: <1439748617-7683-2-git-send-email-manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ariel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mika,
+On 16 Aug 08:10 PM, Joachim Eastwood wrote:
+[..]
+> +
+> +static int i2c_lpc2k_clear_arb(struct lpc2k_i2c *i2c)
+> +{
+> +	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+> +
+> +	/*
+> +	 * If the transfer needs to abort for some reason, we'll try to
+> +	 * force a stop condition to clear any pending bus conditions
+> +	 */
+> +	writel(LPC24XX_STO, i2c->base + LPC24XX_I2CONSET);
+> +
+> +	/* Wait for status change */
+> +	while (readl(i2c->base + LPC24XX_I2STAT) != M_I2C_IDLE) {
+> +		if (time_after(jiffies, timeout)) {
+> +			/* Bus was not idle, try to reset adapter */
+> +			i2c_lpc2k_reset(i2c);
+> +			return -EBUSY;
+> +		}
+> +
+> +		cpu_relax();
+> +	}
 
-Thanks for taking a look.
+I believe you can use readl_{relaxed}_poll_timeout_{atomic} here.
 
-On Mon Aug 17 15:03, Mika Westerberg wrote:
-> On Fri, Aug 14, 2015 at 12:31:32PM -0700, Dustin Byford wrote:
+Ccing Ariel, maybe he can help with a test.
 
-> >     Name (_DSD, Package ()
-> >     {
-> >         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-> >         Package () {
-> >             Package (2) { "compatible", "nxp,pca9548" },
-> >         }
-> 
-> Nice, you are using _DSD :-)
-
-Yes, and I've got some other patches related to that.  I'll keep
-sending, but the relative youth of _DSD does bring up a few higher level
-issues (for me at least).  One thing at a time though, stay tuned.
-
-> > I had to:
-> > 
-> > 1) Find and set an ACPI companion for the "virtual" I2C adapters created
-> >    for each mux channel.
-> > 
-> > 2) Make sure to scan adap.dev when registering devices under each mux
-> >    channel.
-
-> I think the current code in I2C core is not actually doing the right
-> thing according the ACPI spec at least. To my understanding you can have
-> device with I2cSerialBus resource _anywhere_ in the namespace, not just
-> directly below the host controller. It's the ResourceSource attribute
-> that tells the corresponding host controller.
-
-I think you're right.
-
-> I wonder if it helps if we scan the whole namespace for devices with
-> I2cSerialBus that matches the just registered adapter? Something like
-> the patch below.
-
-Looks reasonable to me.  Let me work with the patch for a bit and see if
-I can make it work in my system.
-
-		--Dustin
+-- 
+Ezequiel Garcia, VanguardiaSur
+www.vanguardiasur.com.ar
