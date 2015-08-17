@@ -1,155 +1,223 @@
-From: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH RFC] eeprom: at24: extend driver to plug into the NVMEM
- framework
-Date: Mon, 17 Aug 2015 10:48:54 +0100
-Message-ID: <55D1AE06.7050204@linaro.org>
-References: <1439693649-10809-1-git-send-email-andrew@lunn.ch>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [RFC v2 0/1] i2c: acpi: scan ACPI enumerated I2C mux channels
+Date: Mon, 17 Aug 2015 15:03:05 +0300
+Message-ID: <20150817120305.GB1552@lahna.fi.intel.com>
+References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
+ <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1439693649-10809-1-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dustin Byford <dustin@cumulusnetworks.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andrew,
+On Fri, Aug 14, 2015 at 12:31:32PM -0700, Dustin Byford wrote:
+> 
+> (v2 corrects cc: list)
+> 
+> I would like to add support for scanning I2C devices connected to ACPI
+> OF compatible muxes described in ASL like this:
+> 
+> Device (MUX0)
+> {
+>     Name (_ADR, 0x70)
+>     Name (_HID, "PRP0001")
+>     Name (_CRS, ResourceTemplate()
+>     {
+>         I2cSerialBus (0x70, ControllerInitiated, I2C_SPEED,
+>                       AddressingMode7Bit, "^^SMB2", 0x00,
+>                       ResourceConsumer,,)
+>     })
+>     Name (_DSD, Package ()
+>     {
+>         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>         Package () {
+>             Package (2) { "compatible", "nxp,pca9548" },
+>         }
 
-Thanks for the patch, few comments other than Stefan's comments.
+Nice, you are using _DSD :-)
 
-On 16/08/15 03:54, Andrew Lunn wrote:
-> Add a read only regmap for accessing the EEPROM, and then use that
-> with the NVMEM framework.
->
-> Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-> ---
->   drivers/misc/eeprom/at24.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 65 insertions(+)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 2d3db81be099..0e80c0c09d4e 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -22,6 +22,8 @@
->   #include <linux/jiffies.h>
->   #include <linux/of.h>
->   #include <linux/i2c.h>
-> +#include <linux/nvmem-provider.h>
-> +#include <linux/regmap.h>
->   #include <linux/platform_data/at24.h>
->
->   /*
-> @@ -69,6 +71,10 @@ struct at24_data {
->   	unsigned write_max;
->   	unsigned num_addresses;
->
-> +	struct regmap_config regmap_config;
-> +	struct nvmem_config nvmem_config;
-> +	struct nvmem_device *nvmem;
-> +
->   	/*
->   	 * Some chips tie up multiple I2C addresses; dummy devices reserve
->   	 * them for us, and we'll use them with SMBus calls.
-> @@ -471,6 +477,34 @@ static ssize_t at24_macc_write(struct memory_accessor *macc, const char *buf,
->
->   /*-------------------------------------------------------------------------*/
->
-> +/*
-> + * Provide a regmap interface, which is registered with the NVMEM
-> + * framework
-> +*/
-> +static int at24_regmap_read(void *context, const void *reg, size_t reg_size,
-> +			    void *val, size_t val_size)
-> +{
-> +	struct at24_data *at24 = context;
-> +	off_t offset = *(u32 *)reg;
-> +
-> +	return at24_read(at24, val, offset, val_size);
-> +}
-> +
-> +static int at24_regmap_write(void *context, const void *data, size_t count)
-> +{
-> +	struct at24_data *at24 = context;
-> +
-> +	return at24_write(at24, data, 0, count);
-> +}
-> +
-> +static const struct regmap_bus at24_regmap_bus = {
-> +	.read = at24_regmap_read,
-> +	.write = at24_regmap_write,
-> +	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
-> +};
-> +
-> +/*-------------------------------------------------------------------------*/
-> +
->   #ifdef CONFIG_OF
->   static void at24_get_ofdata(struct i2c_client *client,
->   		struct at24_platform_data *chip)
-> @@ -502,6 +536,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->   	int err;
->   	unsigned i, num_addresses;
->   	kernel_ulong_t magic;
-> +	struct regmap *regmap;
->
->   	if (client->dev.platform_data) {
->   		chip = *(struct at24_platform_data *)client->dev.platform_data;
-> @@ -644,6 +679,30 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->   	if (err)
->   		goto err_clients;
->
-> +	at24->regmap_config.reg_bits = 32;
-> +	at24->regmap_config.val_bits = 8;
-> +	at24->regmap_config.reg_stride = 1;
-> +	at24->regmap_config.max_register = at24->bin.size - 1;
-> +
-> +	regmap = devm_regmap_init(&client->dev, &at24_regmap_bus, at24,
-> +				  &at24->regmap_config);
-> +	if (IS_ERR(regmap)) {
-> +		dev_err(&client->dev, "regmap init failed\n");
-> +		err = PTR_ERR(regmap);
-> +		goto err_sysfs;
-> +	}
-> +
-> +	at24->nvmem_config.name = dev_name(&client->dev);
-> +	at24->nvmem_config.dev = &client->dev;
-> +	at24->nvmem_config.read_only = !writable;
-> +	at24->nvmem_config.owner = THIS_MODULE;
-> +
-> +	at24->nvmem = nvmem_register(&at24->nvmem_config);
-> +	if (IS_ERR(at24->nvmem)) {
-> +		err = PTR_ERR(at24->nvmem);
-> +		goto err_sysfs;
-> +	}
-> +
->   	i2c_set_clientdata(client, at24);
->
->   	dev_info(&client->dev, "%zu byte %s EEPROM, %s, %u bytes/write\n",
-> @@ -662,6 +721,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->
->   	return 0;
->
-> +err_sysfs:
-> +	sysfs_remove_bin_file(&client->dev.kobj, &at24->bin);
-> +
+>     })
+> 
+>     // MUX channels
+>     Device (CH00) { Name (_ADR, 0x0) }
+> }
+> 
+> Scope(MUX0.CH00)
+> {
+>     Device (TMP0) {
+>         /* Temp sensor ASL, for example. */
+>     }
+> }
+> 
+> It seems like a reasonable way to describe a common I2C component and
+> kernel support is almost there.
+> 
+> I had to:
+> 
+> 1) Find and set an ACPI companion for the "virtual" I2C adapters created
+>    for each mux channel.
+> 
+> 2) Make sure to scan adap.dev when registering devices under each mux
+>    channel.
+> 
+> At first, I was confused about why adap.dev->parent is used in
+> acpi_i2c_register_devices().  I found b34bb1ee from 4/2013 (ACPI / I2C:
+> Use parent's ACPI_HANDLE()), which offers an explanation.
+> 
+> This patch works well, but I'm not sure about the code to just fall back
+> to using adap.dev when adap.dev->parent doesn't have an ACPI companion.
+> Is there a more explicit check I can make to determine if the adapter
+> represents a mux channel?
 
-?? Not sure Why this code is still needed. Can't we remove it?
+I think the current code in I2C core is not actually doing the right
+thing according the ACPI spec at least. To my understanding you can have
+device with I2cSerialBus resource _anywhere_ in the namespace, not just
+directly below the host controller. It's the ResourceSource attribute
+that tells the corresponding host controller.
 
-Is this the the same binary file which is exposed by nvmem in 
-/sys/bus/nvmem too?
+I wonder if it helps if we scan the whole namespace for devices with
+I2cSerialBus that matches the just registered adapter? Something like
+the patch below.
 
---srini
->   err_clients:
->   	for (i = 1; i < num_addresses; i++)
->   		if (at24->client[i])
-> @@ -676,6 +738,9 @@ static int at24_remove(struct i2c_client *client)
->   	int i;
->
->   	at24 = i2c_get_clientdata(client);
-> +
-> +	nvmem_unregister(at24->nvmem);
-> +
->   	sysfs_remove_bin_file(&client->dev.kobj, &at24->bin);
->
->   	for (i = 1; i < at24->num_addresses; i++)
->
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index c83e4d13cfc5..2a309d27421a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -94,27 +94,40 @@ struct gsb_buffer {
+ 	};
+ } __packed;
+ 
+-static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
++struct acpi_i2c_lookup {
++	struct i2c_board_info *info;
++	acpi_handle adapter_handle;
++	acpi_handle device_handle;
++};
++
++static int acpi_i2c_find_address(struct acpi_resource *ares, void *data)
+ {
+-	struct i2c_board_info *info = data;
++	struct acpi_i2c_lookup *lookup = data;
++	struct i2c_board_info *info = lookup->info;
++	struct acpi_resource_i2c_serialbus *sb;
++	acpi_handle adapter_handle;
++	acpi_status status;
+ 
+-	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+-		struct acpi_resource_i2c_serialbus *sb;
++	if (info->addr || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
++		return 1;
+ 
+-		sb = &ares->data.i2c_serial_bus;
+-		if (!info->addr && sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+-			info->addr = sb->slave_address;
+-			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
+-				info->flags |= I2C_CLIENT_TEN;
+-		}
+-	} else if (!info->irq) {
+-		struct resource r;
++	sb = &ares->data.i2c_serial_bus;
++	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
++		return 1;
+ 
+-		if (acpi_dev_resource_interrupt(ares, 0, &r))
+-			info->irq = r.start;
++	/*
++	 * Extract the ResourceSource and make sure that the handle matches
++	 * with the I2C adapter handle.
++	 */
++	status = acpi_get_handle(lookup->device_handle,
++				 sb->resource_source.string_ptr,
++				 &adapter_handle);
++	if (ACPI_SUCCESS(status) && adapter_handle == lookup->adapter_handle) {
++		info->addr = sb->slave_address;
++		if (sb->access_mode == ACPI_I2C_10BIT_MODE)
++			info->flags |= I2C_CLIENT_TEN;
+ 	}
+ 
+-	/* Tell the ACPI core to skip this resource */
+ 	return 1;
+ }
+ 
+@@ -123,6 +136,8 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
+ {
+ 	struct i2c_adapter *adapter = data;
+ 	struct list_head resource_list;
++	struct acpi_i2c_lookup lookup;
++	struct resource_entry *entry;
+ 	struct i2c_board_info info;
+ 	struct acpi_device *adev;
+ 	int ret;
+@@ -135,14 +150,37 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
+ 	memset(&info, 0, sizeof(info));
+ 	info.fwnode = acpi_fwnode_handle(adev);
+ 
++	memset(&lookup, 0, sizeof(lookup));
++	lookup.adapter_handle = ACPI_HANDLE(adapter->dev.parent);
++	lookup.device_handle = handle;
++	lookup.info = &info;
++
++	/*
++	 * Look up for I2cSerialBus resource with ResourceSource that
++	 * matches with this adapter.
++	 */
+ 	INIT_LIST_HEAD(&resource_list);
+ 	ret = acpi_dev_get_resources(adev, &resource_list,
+-				     acpi_i2c_add_resource, &info);
++				     acpi_i2c_find_address, &lookup);
+ 	acpi_dev_free_resource_list(&resource_list);
+ 
+ 	if (ret < 0 || !info.addr)
+ 		return AE_OK;
+ 
++	/* Then fill IRQ number if any */
++	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
++	if (ret < 0)
++		return AE_OK;
++
++	resource_list_for_each_entry(entry, &resource_list) {
++		if (resource_type(entry->res) == IORESOURCE_IRQ) {
++			info.irq = entry->res->start;
++			break;
++		}
++	}
++
++	acpi_dev_free_resource_list(&resource_list);
++
+ 	adev->power.flags.ignore_parent = true;
+ 	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
+ 	if (!i2c_new_device(adapter, &info)) {
+@@ -155,6 +193,8 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
+ 	return AE_OK;
+ }
+ 
++#define ACPI_I2C_MAX_SCAN_DEPTH 32
++
+ /**
+  * acpi_i2c_register_devices - enumerate I2C slave devices behind adapter
+  * @adap: pointer to adapter
+@@ -165,17 +205,13 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
+  */
+ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
+ {
+-	acpi_handle handle;
+ 	acpi_status status;
+ 
+-	if (!adap->dev.parent)
+-		return;
+-
+-	handle = ACPI_HANDLE(adap->dev.parent);
+-	if (!handle)
++	if (!adap->dev.parent || !has_acpi_companion(adap->dev.parent))
+ 		return;
+ 
+-	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
++	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
++				     ACPI_I2C_MAX_SCAN_DEPTH,
+ 				     acpi_i2c_add_device, NULL,
+ 				     adap, NULL);
+ 	if (ACPI_FAILURE(status))
