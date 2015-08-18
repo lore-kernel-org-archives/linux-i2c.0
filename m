@@ -1,82 +1,55 @@
-From: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH repost] i2c: rcar: Fix order of restart and clear status
-Date: Wed, 19 Aug 2015 00:20:06 +0900
-Message-ID: <1439911206-8736-1-git-send-email-ykaneko0929@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] driver/i2c/mux: Add register based mux i2c-mux-reg
+Date: Tue, 18 Aug 2015 18:44:39 +0200
+Message-ID: <20150818164437.GA1750@katana>
+References: <1434475692-4611-1-git-send-email-yorksun@freescale.com>
+ <20150815202302.GB3463@katana>
+ <55D20DC9.2060304@freescale.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <55D20DC9.2060304-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 
-In case of repeated START condition, the restart has to be kicked
-before clear status (MSR register). If it is kicked after clear status,
-R-Car I2C may transfer data (TXD register) or receive data (RXD register)
-instead of transferring slave address (MAR register).
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
 
-This patch is based on i2c/for-next branch of Wolfram Sang's linux tree.
+> unused-but-set-variable by default. How did you enable this warning without
+> being flooded by the warnings? (I tried W=1)
 
- drivers/i2c/busses/i2c-rcar.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+I use W=1. To prevent flooding, I used to replace all -I with -isystem
+in the Kernel Makefile, but sadly this doesn't work anymore. And I had
+no time to investigate why.
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index d8361da..8cc7bd7 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -2,6 +2,7 @@
-  * Driver for the Renesas RCar I2C unit
-  *
-  * Copyright (C) 2014 Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-+ * Copyright (C) 2013-2014 Renesas Electronics Corporation
-  *
-  * Copyright (C) 2012-14 Renesas Solutions Corp.
-  * Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-@@ -99,6 +100,7 @@
- #define ID_DONE		(1 << 2)
- #define ID_ARBLOST	(1 << 3)
- #define ID_NACK		(1 << 4)
-+#define ID_FIRST_MSG	(1 << 5)
- 
- enum rcar_i2c_type {
- 	I2C_RCAR_GEN1,
-@@ -125,6 +127,7 @@ struct rcar_i2c_priv {
- #define rcar_i2c_is_recv(p)		((p)->msg->flags & I2C_M_RD)
- 
- #define rcar_i2c_flags_set(p, f)	((p)->flags |= (f))
-+#define rcar_i2c_flags_clr(p, f)	((p)->flags &= ~(f))
- #define rcar_i2c_flags_has(p, f)	((p)->flags & (f))
- 
- #define LOOP_TIMEOUT	1024
-@@ -257,8 +260,14 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
- 	int read = !!rcar_i2c_is_recv(priv);
- 
- 	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | read);
--	rcar_i2c_write(priv, ICMSR, 0);
--	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
-+	if (rcar_i2c_flags_has(priv, ID_FIRST_MSG)) {	/* start */
-+		rcar_i2c_write(priv, ICMSR, 0);
-+		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
-+		rcar_i2c_flags_clr(priv, ID_FIRST_MSG);
-+	} else {	/* restart */
-+		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
-+		rcar_i2c_write(priv, ICMSR, 0);
-+	}
- 	rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
- }
- 
-@@ -523,6 +532,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 		priv->msg	= &msgs[i];
- 		priv->pos	= 0;
- 		priv->flags	= 0;
-+		if (i == 0)
-+			rcar_i2c_flags_set(priv, ID_FIRST_MSG);
- 		if (i == num - 1)
- 			rcar_i2c_flags_set(priv, ID_LAST_MSG);
- 
--- 
-1.9.1
+
+--nFreZHaLTZJo0R7j
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJV02D1AAoJEBQN5MwUoCm2zaAQAJxjs1iK9xJs7U7qsng6x879
+WIKNKwgfOTnLVwZc7DNuMi1JmL3XWvWm22fHFZ8DNNuBBKF/EN3KBZCGhCvStq5M
+tCHXrwx7Y+luwfgvWyg6/eYob0cDqb2o3Bm2JPOpSetzLThWCcqcj7sLIsiJitEs
+yTfVirmKGidFqlT9704lSJ0VqeEXLiguvV8YuhSSjxrqIeEObTA2t3fGkM4tJvq8
+w+kSRJLcdjKu5PXUoS1uL6yhsMB0C/DHODISJkk+r3uJPPeXNFEB86+EQTw3IPmz
+izi9Ymc+rgN2DpL0tHGgbQ5Jfbe4+wC9BdXG4w+gtWlLQxizERbeK3t8J11HqAcV
+wRpnCPAQGyayaHSnlzVzXVupcX5ibo0jjq3DFkHhTqSokWjemeoJyEt9Dbbnn//f
+1DG2RIEwQnuuaRJtyexYImMt3HoOndJRQgnCjEnO1hvIsLstyeeKBC2ariAduiQ4
+Dbj1X1E0RDtVLxo/PmSr2gAg3Gb3RD9XgCuz35RP0FRbuZO/CxvC+HZ7Z0iban+6
+C/WOfcKG+K96P+IHe8yjNeOz6P4Ani+TDFPvm1summba4Muh8zxEvtLUMZLsdrh1
+1M+yWvkgtjE0FkYZUjC1WM5Ox2KaEu08G5nXO1SNe1N0J7OTYnnlVrwY8fK+XSEc
+W9bZjODMy75q5fYPsn/P
+=+Gcx
+-----END PGP SIGNATURE-----
+
+--nFreZHaLTZJo0R7j--
