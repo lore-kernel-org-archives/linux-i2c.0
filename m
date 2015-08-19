@@ -1,119 +1,106 @@
 From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v2 7/7] i2c: img-scb: verify support for requested bit
- rate
-Date: Wed, 19 Aug 2015 22:17:50 +0100
-Message-ID: <20150819211750.GD8443@jhogan-linux.le.imgtec.org>
+Subject: Re: [PATCH v2 5/7] i2c: img-scb: remove start bit detected status
+ after handling
+Date: Wed, 19 Aug 2015 22:46:04 +0100
+Message-ID: <20150819214604.GE8443@jhogan-linux.le.imgtec.org>
 References: <1439567424-8094-1-git-send-email-sifan.naeem@imgtec.com>
- <1439567424-8094-8-git-send-email-sifan.naeem@imgtec.com>
+ <1439567424-8094-6-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yudcn1FV7Hsu/q59"
+	protocol="application/pgp-signature"; boundary="h56sxpGKRmy85csR"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1439567424-8094-8-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1439567424-8094-6-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>, Ionela Voinescu <Ionela.Voinescu-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---yudcn1FV7Hsu/q59
+--h56sxpGKRmy85csR
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 14, 2015 at 04:50:24PM +0100, Sifan Naeem wrote:
-> The requested bit rate can be outside the range supported by the driver.
-> The maximum bit rate this driver supports at the moment is 400Khz.
->=20
-> If the requested bit rate is larger than the maximum supported by the
-> driver, set the bitrate to the maximum supported before bitrate_khz is
-> calculated.
->=20
-> Maximum speed supported by the driver can be increased to 1Mhz by
-> adding support for "fast plus mode" in the future.
+On Fri, Aug 14, 2015 at 04:50:22PM +0100, Sifan Naeem wrote:
+> Remove start bit detected status after it is handled,
+> doing so will prevent this condition being hit for
+> every interrupt on a particular transfer.
 >=20
 > Fixes: commit 27bce457d588 ("i2c: img-scb: Add Imagination Technologies I=
 2C SCB driver")
 > Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 > Reviewed-by: James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-img-scb.c |   14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
+>  drivers/i2c/busses/i2c-img-scb.c |   16 ++++++++++++----
+>  1 file changed, 12 insertions(+), 4 deletions(-)
 >=20
 > diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-im=
 g-scb.c
-> index 6c21a7bd9a66..c16caaccc363 100644
+> index e4daebcdf824..200108dbd194 100644
 > --- a/drivers/i2c/busses/i2c-img-scb.c
 > +++ b/drivers/i2c/busses/i2c-img-scb.c
-> @@ -1138,9 +1138,6 @@ static int img_i2c_init(struct img_i2c *i2c)
->  	/* Fencing enabled by default. */
->  	i2c->need_wr_rd_fence =3D true;
-> =20
-> -	bitrate_khz =3D i2c->bitrate / 1000;
-> -	clk_khz =3D clk_get_rate(i2c->scb_clk) / 1000;
-> -
->  	/* Determine what mode we're in from the bitrate */
->  	timing =3D timings[0];
->  	for (i =3D 0; i < ARRAY_SIZE(timings); i++) {
-> @@ -1149,6 +1146,17 @@ static int img_i2c_init(struct img_i2c *i2c)
->  			break;
->  		}
+> @@ -857,10 +857,18 @@ static unsigned int img_i2c_auto(struct img_i2c *i2=
+c,
 >  	}
-> +	if (i2c->bitrate > timings[ARRAY_SIZE(timings) - 1].max_bitrate) {
-> +		dev_warn(i2c->adap.dev.parent,
-> +			 "requested bitrate (%d) is higher than the max bitrate supported (%d=
-)\n",
+> =20
+>  	/* Enable transaction halt on start bit */
+> -	if (!i2c->last_msg && i2c->line_status & LINESTAT_START_BIT_DET) {
+> -		img_i2c_transaction_halt(i2c, true);
+> -		/* we're no longer interested in the slave event */
+> -		i2c->int_enable &=3D ~INT_SLAVE_EVENT;
+> +	if (line_status & LINESTAT_START_BIT_DET) {
+> +		if (!i2c->last_msg) {
+> +			img_i2c_transaction_halt(i2c, true);
+> +			/* we're no longer interested in the slave event */
+> +			i2c->int_enable &=3D ~INT_SLAVE_EVENT;
+> +		}
+> +		/*
+> +		 * Remove start bit detected status after it is handled,
+> +		 * doing so will prevent this condition being hit for
+> +		 * every interrupt on a particular transfer.
+> +		 */
+> +		i2c->line_status &=3D ~LINESTAT_START_BIT_DET;
 
-Technically both i2c->bitrate and timings[].max_bitrate are unsigned, so
-%u would be more correct for both.
+If we start checking line_status instead of i2c->line_status, this
+masking off of START_BIT_DET from i2c->line_status seems redundant as it
+won't have any effect on whether we hit this condition again on the next
+interrupt.
 
-Otherwise:
-Acked-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-
-Wolfram: are you happy to fix the %u thing when applying it, or would
-you prefer me to submit a fixed patch (Sifan is off for a few weeks I
-believe).
-
-(Still need to look at the other changes...)
+I think the one line patch with just s/i2c->line_status/line_status/ on
+the condition should be sufficient to prevent it handling the situation
+repeatedly (that line status bit is latched, and should have been
+already acked).
 
 Cheers
 James
 
-> +			 i2c->bitrate,
-> +			 timings[ARRAY_SIZE(timings) - 1].max_bitrate);
-> +		timing =3D timings[ARRAY_SIZE(timings) - 1];
-> +		i2c->bitrate =3D timing.max_bitrate;
-> +	}
-> +
-> +	bitrate_khz =3D i2c->bitrate / 1000;
-> +	clk_khz =3D clk_get_rate(i2c->scb_clk) / 1000;
+>  	}
 > =20
->  	/* Find the prescale that would give us that inc (approx delay =3D 0) */
->  	prescale =3D SCB_OPT_INC * clk_khz / (256 * 16 * bitrate_khz);
+>  	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
 > --=20
 > 1.7.9.5
 >=20
 
---yudcn1FV7Hsu/q59
+--h56sxpGKRmy85csR
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBAgAGBQJV1PJ+AAoJEGwLaZPeOHZ6kRcP/i/X1Mk8XDkW3l0C+9y2LcB9
-tFNxj369jkcMr7pjf//GVXjHJvx/ihOMFDGxqpjRJJ4rt9zViwz3gyu1xfbuJ/Ba
-Cs/2zzXWeJF6S8ZeT/lrpYXNXyamgu5HJa9EN5eePtl9agIaKzJSufSvrKi/tdDE
-uhuvXOdVw3jNemg2pwQoW8K1ZeRCsa5cSZExUFnFiquc1r+Kavtp2CsUCXR1zfby
-AEwVpUyKu8PrU4Yp2GUWpDQIHdCahnkH2r1Y06YJaN4gIKzyebtMb/55w2li+BiX
-nnagsmR8Tr8fFXz+zAIn3xsZ2ojdY1WEMsT0Pq1XUAswIYkL1AH6gwqqMYjDGvkd
-1HbcMK0nSfGrPjy6Mi75KG6WkPgA15Ul4fejHQNiv5GpbIg3kqT28VwnOy6dfdOv
-8kBgX2taOjpaUxBBuqnltZUDLeZeA64rjYPi+jNzzA8PHpJHXcJBWNTx/NHFDV1i
-8X2fm++YTvFbEnd118QkD9fZCXoQGOqMSMqKKcQalXhvq64zu+hypqVscZe5+vti
-VvUXcfKPBW2QbfVq5W0wAU+N2+fa6cUp5fQ4HNpbW6617/JNOVHAl0WBz1XGcEvB
-L68yGcbzuzXtx1Ku9SxOkv7YSRvqfU8j7O+ThCGZOe7szXhPXOHVe/90GKZkNvL+
-l8eo4XRwgme46oDEh4ST
-=WQH/
+iQIcBAEBAgAGBQJV1PkcAAoJEGwLaZPeOHZ6GJsP/i1xT9GpQ2GNXfQKNLC0YKrm
+PmCd/eRZt8wyxjAWkMYMxMd9we307jW3KStVDRDYqI0GOLLKqr3XO75QUeqfBF36
+lePS6VyA2HVNV6w4v+Fx7T8aMUH2YKc1EfvPubDY9+54fJKfDPXqCubEW//OxtvQ
+SNZ25l8GmDxAmr1aKvgtyfWpGnKPFnCPeegEUUp0leaayjz7r55FqXSaHZXSqxdK
+rqnHWMqEKRfC9PO1zQJK9dtm8iO4DspfWnSyFZbag19AoeE8WxebhZ0t2GHEXGLc
+BwNua5oPlruJ2x/TGA/ISE6HR+HA9wlTKk/eQJOlKCMBrkd4S3ja6jvtGeZmZF8J
+e7d3VV2zEJiCFZHUO4qnFDvDkEQY76Hgdm6kJKfLXmvYPEcPie4l/qDsTpLSZ5Ih
+tt2DyA/tYpqzqf5lEYRZW6fyzhidAVY+IlpmDCGhz3urYyMfEHW4Hs9IBP+IiMij
+s9qgljt1QzXvJsOG5OR+YBizWayAbp0OkMotCP4E80HTguX4n6w+HYECgn/OOSUe
+xhka0H9bEbG747n8jSkyuJA1GtMQmdVykNQOcwToMlDj221rsW5cwGc8hJF0By8O
+gAQHt7zyNwM3UcIkg8h+MgshwDl8H3X7uyBTBAhOGggxDqSAuunpLl9yujrSa1zY
+z/w4QSxFaIIX7S0yujxY
+=XIn2
 -----END PGP SIGNATURE-----
 
---yudcn1FV7Hsu/q59--
+--h56sxpGKRmy85csR--
