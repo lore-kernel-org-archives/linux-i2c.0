@@ -1,72 +1,71 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH RFC] eeprom: at24: extend driver to plug into the NVMEM
- framework
-Date: Thu, 20 Aug 2015 22:33:18 +0200
-Message-ID: <20150820203317.GB1635@katana>
-References: <1439693649-10809-1-git-send-email-andrew@lunn.ch>
- <2080648987.23864.1439713686409.JavaMail.open-xchange@oxbsltgw04.schlund.de>
- <20150816131130.GC10094@lunn.ch>
- <1511754934.28154.1439739426390.JavaMail.open-xchange@oxbsltgw00.schlund.de>
- <55D1DB24.8090602@linaro.org>
- <20150817130945.GE7537@lunn.ch>
- <55D1F6CB.2010606@linaro.org>
- <20150817152504.GI7537@lunn.ch>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jq0ap7NbKX2Kqbes"
+Subject: [PATCH] i2c: mux: reg: simplify register size checking
+Date: Thu, 20 Aug 2015 23:40:46 +0200
+Message-ID: <1440106846-4484-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150817152504.GI7537-g2DYL2Zd6BY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Checking was done at three different locations, just do it once and
+properly at probing time.
 
---jq0ap7NbKX2Kqbes
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
 
+York Sun: Can you test this patch? I can only build test.
 
-> Wolfram Sang has been maintaining the AT24 driver since 2008. We need
-> his ACK to this change, and since this is an i2c driver, he is also
-> probably the path into mainline for this change.
+ drivers/i2c/muxes/i2c-mux-reg.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-Yes, currently I pick up at24 patches. I am open to move it to some
-NVMEM framework in the future...
-
-> But we should also look at the bigger picture. The AT25, MAX6875 and
-> sunxi_sid drivers also have a binary file in /sys. It would be good to
-> have some sort of plan what to do with these drivers, even if at the
-> moment only AT24 is under discussion.
-
-... but this surely has to be solved first.
-
-Regards,
-
-   Wolfram
-
-
---jq0ap7NbKX2Kqbes
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJV1jmNAAoJEBQN5MwUoCm2VrAP/3K8TDFKX2e/J/VRheHP/G6E
-Lff+Gx5s4cYPgvhWGtxPto6qOTPBFD+S7DecK4Zyc4ZSAF+tHDVGW39XsZoZRysl
-vy+D5Np5gXl/C2yOiKtD3HmOsuRIwXjfHkIxNAnwlM7o3djQf2f66p4z9msV0CAX
-BYrleupxwWWL1BM5H4gsFrTq/Di2Xtize/1TWRJP0ENR4r/RZP9Vu9/PzlGXefzw
-BbZg+g8yMmq4tCxYfhH93inOoIF6aAsj8sspnXOCFuQBADyCjdANNyKdrKEefYEp
-o3GakYf0BBARXRwrjjYA4Cg4oVimLjSptNgo1vbL8LtWlP+8cvGC826DL5/X61/1
-M0L/zKcigUw2gZMcO8UB6YCc6n7hC5TPOThprEAk1NYMlP7Iv0fSrJ8HOguO2sm4
-B846hqJQy/fCKeHtcQwMEluEiWD2ZgFnwnpRLujPqnRVpbzeIeWa0/8EXKwe77mj
-2GiZjLpiGUu1GEMjFK91HX3uLM3A8A9eUNK0pN4Pn3s9aZCWAQC9D5sCioSTefOV
-fmOlzKUJcgEu/Ul9dcMlMYEFTO4bmxTUOXjW/HKAZtJch3atiF7wNe5VfhwRysKQ
-LwidRpDUCQ71fLO/5+IBpbC/6RNajw9PBlG1GN1Y2H81z72y9cXVukFV1SD1UAhM
-vsx7AGpGV+88F0l3STHb
-=KK1W
------END PGP SIGNATURE-----
-
---jq0ap7NbKX2Kqbes--
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index 86d41d36a78340..da8926d816c8cc 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -59,9 +59,6 @@ static int i2c_mux_reg_set(const struct regmux *mux, unsigned int chan_id)
+ 		if (!mux->data.write_only)
+ 			ioread8(mux->data.reg);
+ 		break;
+-	default:
+-		pr_err("Invalid register size\n");
+-		return -EINVAL;
+ 	}
+ 
+ 	return 0;
+@@ -154,10 +151,6 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
+ 	/* map address from "reg" if exists */
+ 	if (of_address_to_resource(np, 0, &res)) {
+ 		mux->data.reg_size = resource_size(&res);
+-		if (mux->data.reg_size > 4) {
+-			dev_err(&pdev->dev, "Invalid address size\n");
+-			return -EINVAL;
+-		}
+ 		mux->data.reg = devm_ioremap_resource(&pdev->dev, &res);
+ 		if (IS_ERR(mux->data.reg))
+ 			return PTR_ERR(mux->data.reg);
+@@ -210,15 +203,17 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
+ 			"Register not set, using platform resource\n");
+ 		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 		mux->data.reg_size = resource_size(res);
+-		if (mux->data.reg_size > 4) {
+-			dev_err(&pdev->dev, "Invalid resource size\n");
+-			return -EINVAL;
+-		}
+ 		mux->data.reg = devm_ioremap_resource(&pdev->dev, res);
+ 		if (IS_ERR(mux->data.reg))
+ 			return PTR_ERR(mux->data.reg);
+ 	}
+ 
++	if (mux->data.reg_size != 4 && mux->data.reg_size != 2 &&
++	    mux->data.reg_size != 1) {
++		dev_err(&pdev->dev, "Invalid register size\n");
++		return -EINVAL;
++	}
++
+ 	mux->adap = devm_kzalloc(&pdev->dev,
+ 				 sizeof(*mux->adap) * mux->data.n_values,
+ 				 GFP_KERNEL);
+-- 
+2.1.4
