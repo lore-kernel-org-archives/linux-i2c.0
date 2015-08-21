@@ -1,64 +1,55 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 6/8] iio: gyro: bmg160: optimize i2c transfers in
- trigger handler
-Date: Fri, 21 Aug 2015 15:59:05 +0000
-Message-ID: <1440172701.4081.1.camel@intel.com>
-References: <1439389900-10108-1-git-send-email-irina.tirdea@intel.com>
-	 <1439389900-10108-7-git-send-email-irina.tirdea@intel.com>
-	 <55D056DF.5020201@kernel.org> <20150817090943.GO19600@pengutronix.de>
-	 <20150821102125.GA1656@katana>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH 2/2] dts: keystone: Change "ti,davinci-i2c" compatible to
+ "ti,keystone-i2c"
+Date: Fri, 21 Aug 2015 19:25:16 +0100
+Message-ID: <20150821182500.GA2000@svinekod>
+References: <55D6F39A.2030402@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150821102125.GA1656@katana>
-Content-Language: en-US
-Content-ID: <310BDCFF0E3AEE4A9E99F9940D1ABDE7-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org" <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <55D6F39A.2030402-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gRnJpLCAyMDE1LTA4LTIxIGF0IDEyOjIxICswMjAwLCBXb2xmcmFtIFNhbmcgd3JvdGU6DQo+
-IE9uIE1vbiwgQXVnIDE3LCAyMDE1IGF0IDExOjA5OjQzQU0gKzAyMDAsIE1hcmt1cyBQYXJnbWFu
-biB3cm90ZToNCj4gPiBPbiBTdW4sIEF1ZyAxNiwgMjAxNSBhdCAxMDoyNDo0N0FNICswMTAwLCBK
-b25hdGhhbiBDYW1lcm9uIHdyb3RlOg0KPiA+ID4gT24gMTIvMDgvMTUgMTU6MzEsIElyaW5hIFRp
-cmRlYSB3cm90ZToNCj4gPiA+ID4gU29tZSBpMmMgYnVzc2VzIChlLmcuOiBTeW5vcHN5cyBEZXNp
-Z25XYXJlIEkyQyBhZGFwdGVyKSBuZWVkIHRvDQo+ID4gPiA+IGVuYWJsZS9kaXNhYmxlIHRoZSBi
-dXMgYXQgZWFjaCBpMmMgdHJhbnNmZXIgYW5kIG11c3Qgd2FpdCBmb3INCj4gPiA+ID4gdGhlIGVu
-YWJsZS9kaXNhYmxlIHRvIGhhcHBlbiBiZWZvcmUgc2VuZGluZyB0aGUgZGF0YS4NCj4gPiA+ID4g
-DQo+ID4gPiA+IFdoZW4gcmVhZGluZyBkYXRhIGluIHRoZSB0cmlnZ2VyIGhhbmRsZXIsIHRoZSBi
-bWcxNjAgZHJpdmVyIA0KPiA+ID4gPiBkb2VzDQo+ID4gPiA+IG9uZSBpMmMgdHJhbnNmZXIgZm9y
-IGVhY2ggYXhpcy4gVGhpcyBoYXMgYW4gaW1wYWN0IG9uIHRoZSANCj4gPiA+ID4gZnJlcXVlbmN5
-DQo+ID4gPiA+IG9mIHRoZSBneXJvc2NvcGUgYXQgaGlnaCBzYW1wbGUgcmF0ZXMgZHVlIHRvIGFk
-ZGl0aW9uYWwgZGVsYXlzDQo+ID4gPiA+IGludHJvZHVjZWQgYnkgdGhlIGkyYyBidXMgYXQgZWFj
-aCB0cmFuc2Zlci4NCj4gPiA+ID4gDQo+ID4gPiA+IFJlYWRpbmcgYWxsIGF4aXMgdmFsdWVzIGlu
-IG9uZSBpMmMgdHJhbnNmZXIgcmVkdWNlcyB0aGUgZGVsYXlzDQo+ID4gPiA+IGludHJvZHVjZWQg
-YnkgdGhlIGkyYyBidXMuIFVzZXMgDQo+ID4gPiA+IGkyY19zbWJ1c19yZWFkX2kyY19ibG9ja19k
-YXRhX29yX2VtdWxhdGVkDQo+ID4gPiA+IHRoYXQgd2lsbCBmYWxsYmFjayB0byByZWFkaW5nIGVh
-Y2ggYXhpcyBhcyBhIHNlcGFyYXRlIHdvcmQgaW4gDQo+ID4gPiA+IGNhc2UgaTJjDQo+ID4gPiA+
-IGJsb2NrIHJlYWQgaXMgbm90IHN1cHBvcnRlZC4NCj4gPiA+ID4gDQo+ID4gPiA+IFNpZ25lZC1v
-ZmYtYnk6IElyaW5hIFRpcmRlYSA8aXJpbmEudGlyZGVhQGludGVsLmNvbT4NCj4gPiA+ID4gQWNr
-ZWQtYnk6IEpvbmF0aGFuIENhbWVyb24gPGppYzIzQGtlcm5lbC5vcmc+DQo+ID4gPiA+IEFja2Vk
-LWJ5OiBTcmluaXZhcyBQYW5kcnV2YWRhIDwNCj4gPiA+ID4gc3Jpbml2YXMucGFuZHJ1dmFkYUBs
-aW51eC5pbnRlbC5jb20+DQo+ID4gPiBOb3RlLCB0aGF0IGluIHRoZSBtZWFudGltZSB0aGUgYm1n
-MTYwIGRyaXZlciBqdXN0IHdlbnQgYWxsIHJlZ21hcA0KPiA+ID4gb24gdXMgKGFzIHBhcnQgb2Yg
-YWRkaW5nIFNQSSBzdXBwb3J0IC0gdGhvdWdoIHRoYXQgc3RlcCBoYXNuJ3QNCj4gPiA+IGhhcHBl
-bmVkIHlldCkuICBIZW5jZSB3ZSdsbCBuZWVkIGEgbWVhbnMgb2YgdGVsbGluZyByZWdtYXAgYWJv
-dXQgDQo+ID4gPiB0aGlzDQo+ID4gPiBwb3NzaWJpbGl0eS4NCj4gPiANCj4gPiBQZXJoYXBzIHRo
-aXMgaXMgY292ZXJlZCBieSBhIHJlZ21hcF9idWxrX3JlYWQoKT8NCj4gPiANCj4gPiBUaGUgc2Vy
-aWVzWzFdIEkgYW0gd29ya2luZyBvbiBpbXBsZW1lbnRzIGEgaTJjIHNtYnVzIGJsb2NrIGRhdGEg
-DQo+ID4gcmVnbWFwDQo+ID4gYnVzIGRyaXZlci4gUmVnbWFwIHNob3VsZCB0aGVuIGF1dG9tYXRp
-Y2FsbHkgZG8gYSBibG9jayByZWFkIGluDQo+ID4gcmVnbWFwX2J1bGtfcmVhZC4NCj4gDQo+IEht
-bSwgc28gZG9lc24ndCB5b3VyIHNlcmllcyBtYWtlIElyaW5hJ3Mgc2VyaWVzIG9ic29sZXRlPyBJ
-dCANCj4gYWRkcmVzc2VzDQo+IHRoZSBzYW1lIHByb2JsZW0gb25seSBhdCBhIGRpZmZlcmVudCBs
-YXllciAoaTJjIGNvcmUgdnMuIHJlZ21hcCksIG9yPyANCj4gSXQNCj4gd291bGQgbWVhbiB0aGF0
-IGkyYyBjbGllbnQgZHJpdmVycyB3aGljaCB3YW50IHRvIHN1cHBvcnQgYnl0ZSwgd29yZCwgDQo+
-IG9yDQo+IGJsb2NrIHRyYW5zZmVycyBzaG91bGQgYmUgY29udmVydGVkIHRvIHJlZ21hcC4gSSBh
-c3N1bWUgbW9zdCBvZiB0aGUNCj4gcG90ZW50aWFsIGNhbmRpZGF0ZXMgYXJlIHJlZ2lzdGVyIGJh
-c2VkIGRldmljZXMgYW55aG93LiBUaGVuLCByZWdtYXANCj4gd291bGQgYmUgdGhlIHByb3BlciBh
-YnN0cmFjdGlvbiBsYXllci4gSGF2ZSBJIG92ZXJsb29rZWQgc29tZXRoaW5nPw0KPiANClRoaXMg
-aXMgdGhlIG9ubHkgZHJpdmVyIGNvbnZlcnRlZCB0byB1c2UgcmVnbWFwLCBiZWNhdXNlIG9mIFNQ
-SSBtb2RlDQpzdXBwb3J0LiBUaGUgb3RoZXIgZHJpdmVycyB3aWxsIHN0aWxsIHVzZSBJcmluYSdz
-IGNoYW5nZXMuDQoNClRoYW5rcw0KU3Jpbml2YXMNCg0KDQo+IFRoYW5rcywNCj4gDQo+ICAgIFdv
-bGZyYW0NCj4g
+On Fri, Aug 21, 2015 at 10:47:06AM +0100, Alexander Sverdlin wrote:
+> Now as "i2c-davinci" driver has special handling for Keystone it's time to switch
+> the device tree to use new "compatible" property.
+> 
+> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/keystone.dtsi |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/arm/boot/dts/keystone.dtsi b/arch/arm/boot/dts/keystone.dtsi
+> index 72816d6..a846597 100644
+> --- a/arch/arm/boot/dts/keystone.dtsi
+> +++ b/arch/arm/boot/dts/keystone.dtsi
+> @@ -106,7 +106,7 @@
+>  		};
+>  
+>  		i2c0: i2c@2530000 {
+> -			compatible = "ti,davinci-i2c";
+> +			compatible = "ti,keystone-i2c";
+
+>From what I understand of the previous patch, this is effectively an
+optimisation, and things worked to some extent with the "ti,davinci-i2c"
+string.
+
+So could you leave that as a fallback, i.e. have:
+
+	compatible = "ti,keystone-i2c", "ti,davinci-i2c";
+
+That way an old kernel still functions with this DT, which among other things
+makes debugging and bisecting far easier.
+
+Or are things actually broken with the "ti,davinci-i2c" string?
+
+Thanks,
+Mark
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
