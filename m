@@ -1,57 +1,93 @@
-From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] dts: keystone: Change "ti,davinci-i2c" compatible to
- "ti,keystone-i2c"
-Date: Fri, 21 Aug 2015 11:47:06 +0200
-Message-ID: <55D6F39A.2030402@nokia.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5 6/8] iio: gyro: bmg160: optimize i2c transfers in
+ trigger handler
+Date: Fri, 21 Aug 2015 12:21:25 +0200
+Message-ID: <20150821102125.GA1656@katana>
+References: <1439389900-10108-1-git-send-email-irina.tirdea@intel.com>
+ <1439389900-10108-7-git-send-email-irina.tirdea@intel.com>
+ <55D056DF.5020201@kernel.org>
+ <20150817090943.GO19600@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150817090943.GO19600-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Markus Pargmann <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Now as "i2c-davinci" driver has special handling for Keystone it's time to switch
-the device tree to use new "compatible" property.
 
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
----
- arch/arm/boot/dts/keystone.dtsi |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/arm/boot/dts/keystone.dtsi b/arch/arm/boot/dts/keystone.dtsi
-index 72816d6..a846597 100644
---- a/arch/arm/boot/dts/keystone.dtsi
-+++ b/arch/arm/boot/dts/keystone.dtsi
-@@ -106,7 +106,7 @@
- 		};
- 
- 		i2c0: i2c@2530000 {
--			compatible = "ti,davinci-i2c";
-+			compatible = "ti,keystone-i2c";
- 			reg = <0x02530000 0x400>;
- 			clock-frequency = <100000>;
- 			clocks = <&clki2c>;
-@@ -116,7 +116,7 @@
- 		};
- 
- 		i2c1: i2c@2530400 {
--			compatible = "ti,davinci-i2c";
-+			compatible = "ti,keystone-i2c";
- 			reg = <0x02530400 0x400>;
- 			clock-frequency = <100000>;
- 			clocks = <&clki2c>;
-@@ -126,7 +126,7 @@
- 		};
- 
- 		i2c2: i2c@2530800 {
--			compatible = "ti,davinci-i2c";
-+			compatible = "ti,keystone-i2c";
- 			reg = <0x02530800 0x400>;
- 			clock-frequency = <100000>;
- 			clocks = <&clki2c>;
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Mon, Aug 17, 2015 at 11:09:43AM +0200, Markus Pargmann wrote:
+> On Sun, Aug 16, 2015 at 10:24:47AM +0100, Jonathan Cameron wrote:
+> > On 12/08/15 15:31, Irina Tirdea wrote:
+> > > Some i2c busses (e.g.: Synopsys DesignWare I2C adapter) need to
+> > > enable/disable the bus at each i2c transfer and must wait for
+> > > the enable/disable to happen before sending the data.
+> > >=20
+> > > When reading data in the trigger handler, the bmg160 driver does
+> > > one i2c transfer for each axis. This has an impact on the frequency
+> > > of the gyroscope at high sample rates due to additional delays
+> > > introduced by the i2c bus at each transfer.
+> > >=20
+> > > Reading all axis values in one i2c transfer reduces the delays
+> > > introduced by the i2c bus. Uses i2c_smbus_read_i2c_block_data_or_emul=
+ated
+> > > that will fallback to reading each axis as a separate word in case i2c
+> > > block read is not supported.
+> > >=20
+> > > Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > > Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > > Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> > Note, that in the meantime the bmg160 driver just went all regmap
+> > on us (as part of adding SPI support - though that step hasn't
+> > happened yet).  Hence we'll need a means of telling regmap about this
+> > possibility.
+>=20
+> Perhaps this is covered by a regmap_bulk_read()?
+>=20
+> The series[1] I am working on implements a i2c smbus block data regmap
+> bus driver. Regmap should then automatically do a block read in
+> regmap_bulk_read.
+
+Hmm, so doesn't your series make Irina's series obsolete? It addresses
+the same problem only at a different layer (i2c core vs. regmap), or? It
+would mean that i2c client drivers which want to support byte, word, or
+block transfers should be converted to regmap. I assume most of the
+potential candidates are register based devices anyhow. Then, regmap
+would be the proper abstraction layer. Have I overlooked something?
+
+Thanks,
+
+   Wolfram
+
+
+--k1lZvvs/B4yU6o8G
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJV1vulAAoJEBQN5MwUoCm2xwgP/RFR33g5ljIF455p2gWLM0DM
+xAuO3AN6WEPymGCUztOI42kpoDH/vc37D6DVEbLH+K7o8gn+e51S0XS+kQqRpo/F
+5hZ60wp01SbmJ5R5i0uwyYL6yA4avXj6/5jSZeDvz01Jd70BLMdf3kNEezkcW0hm
+5yiVOxL/TpAEgXMDnpeYa8WTLuGE2HRfLwcF2iOwVHHOW+bHZK8dLB4foh+BXowp
+WgqlPHnZcWS6/iSQ5BZ/Il7lbcTRto6LfxTRmx3d9TvlvNGXAVGPYOUVDc82pN+l
+DYzykrZOQ1dlV7h8+gmpZwEkSg8+OkyHTziI7CkidMUtYPn1Lt51FunaTqmyUQDy
+za2hKW0hEdsLrhAUYoMbWUPZ7nJnSUMH4wnQiuGvucKzw7eGxvCDjInPZaMAkSV3
+fN1W00foAA1F0PEEb4+KPBYhnqeDh7QddmycKilIzEbpw14/9Z9UmXynZMc/bqfO
+TCNW/d/2Fm5sMMd32p6V6wrdpCqnoZCywHLVxvNJ5VIKIBuJa4UghOYqdzJnWtz7
+wbfebXYZY/kEJoa34g4s952SmUiBK1Bul0CNgXYQ0oFi6py8H+CFKfT6jBX5QQe6
+2GYpGktj8xzuQpS+pEa1ro9LhJdw3hzjMtH6/dZY3i0mlGZ/bjadyxG4fiNsR+6P
+fVVfkKaeieC8iSwdopUl
+=gEBN
+-----END PGP SIGNATURE-----
+
+--k1lZvvs/B4yU6o8G--
