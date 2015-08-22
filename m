@@ -1,55 +1,75 @@
-From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Subject: Re: [PATCH 2/2] dts: keystone: Change "ti,davinci-i2c" compatible to
- "ti,keystone-i2c"
-Date: Fri, 21 Aug 2015 19:25:16 +0100
-Message-ID: <20150821182500.GA2000@svinekod>
-References: <55D6F39A.2030402@nokia.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5 6/8] iio: gyro: bmg160: optimize i2c transfers in
+ trigger handler
+Date: Sat, 22 Aug 2015 06:02:59 +0200
+Message-ID: <20150822040258.GA1605@katana>
+References: <1439389900-10108-1-git-send-email-irina.tirdea@intel.com>
+ <1439389900-10108-7-git-send-email-irina.tirdea@intel.com>
+ <55D056DF.5020201@kernel.org>
+ <20150817090943.GO19600@pengutronix.de>
+ <20150821102125.GA1656@katana>
+ <1440172701.4081.1.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <55D6F39A.2030402-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1440172701.4081.1.camel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: "mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <mpa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org" <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 21, 2015 at 10:47:06AM +0100, Alexander Sverdlin wrote:
-> Now as "i2c-davinci" driver has special handling for Keystone it's time to switch
-> the device tree to use new "compatible" property.
-> 
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> ---
->  arch/arm/boot/dts/keystone.dtsi |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/keystone.dtsi b/arch/arm/boot/dts/keystone.dtsi
-> index 72816d6..a846597 100644
-> --- a/arch/arm/boot/dts/keystone.dtsi
-> +++ b/arch/arm/boot/dts/keystone.dtsi
-> @@ -106,7 +106,7 @@
->  		};
->  
->  		i2c0: i2c@2530000 {
-> -			compatible = "ti,davinci-i2c";
-> +			compatible = "ti,keystone-i2c";
 
->From what I understand of the previous patch, this is effectively an
-optimisation, and things worked to some extent with the "ti,davinci-i2c"
-string.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So could you leave that as a fallback, i.e. have:
 
-	compatible = "ti,keystone-i2c", "ti,davinci-i2c";
+> > > The series[1] I am working on implements a i2c smbus block data=20
+> > > regmap
+> > > bus driver. Regmap should then automatically do a block read in
+> > > regmap_bulk_read.
+> >=20
+> > Hmm, so doesn't your series make Irina's series obsolete? It=20
+> > addresses
+> > the same problem only at a different layer (i2c core vs. regmap), or?=
+=20
+> > It
+> > would mean that i2c client drivers which want to support byte, word,=20
+> > or
+> > block transfers should be converted to regmap. I assume most of the
+> > potential candidates are register based devices anyhow. Then, regmap
+> > would be the proper abstraction layer. Have I overlooked something?
+> >=20
+> This is the only driver converted to use regmap, because of SPI mode
+> support. The other drivers will still use Irina's changes.
 
-That way an old kernel still functions with this DT, which among other things
-makes debugging and bisecting far easier.
+The question is if they should. Or rather be converted to regmap. It is
+an open question and I am seeking for further input.
 
-Or are things actually broken with the "ti,davinci-i2c" string?
 
-Thanks,
-Mark
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJV1/RxAAoJEBQN5MwUoCm2Y28P/2AnnqIsvBK2u0QO/Y755hcx
+/gJeEsVQBqh9cAx5fr5jpV94IDpHvgsD8LNRBUV7KbtmZelawTS8t140ucaG7h17
+UdYimIJBByXT4b8/Zf+qlh2u/fjHFCHQDO2gaNCOvXzTZr8qJLnqv5N6EyTdVlUQ
+e2fZPvmBxdeUk3ndMqPr0kPo9pR+jB5Dfh556/0RjkVXXNZQNfryuV3Qia00H3o9
+hvxLN+TPx0hGo03MeeBCxDQ3iwNbqLyYvHHe7QEEfa/GmxEP8b8FHRuODNYbgBAB
+s/7coH0yY6UCyH1GGm1uRIXAUOXjdd5dg127OZexynLGEv7Pjwb0xv2XNYD9Jl4U
++2Dp5LaNVXaArRuwKlq6Y2LHiZU7BTd1fTfy8RkI+Jtecp9ZBCS+fpRAMYrJbtSu
+Ing2+mdqVqQ9BchoYyaLkUGqjeMbis4mSemFC/JdqQaqa9I6naLi/F6F8Nj7g9Gw
+KGRmNDcNS+G3NdGgLoq7yXvBRGx/rb2CTUAEy8Wh6reGtU9qUKWkWIHTUpD6YX/g
+2Im0CAt1byCMJ+jyawjlCD9CiMuCAN8gXrXJAsW0HVkMtoWdIrhcr01hpvQV3jOr
++BctbS8NsyP9vhCnXZKNPjQ6Qah/mDwzQMQNXD/JC+DaHSTd9780GhjX5hjogm3h
+bm23kO7ceqBMPL28uT/Q
+=XcGM
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--
