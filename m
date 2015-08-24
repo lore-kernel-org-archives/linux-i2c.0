@@ -1,138 +1,64 @@
-From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Subject: [PATCH-v5 RESEND 3/5] i2c: pxa: Add support for pxa910/988 & new configuration features
-Date: Mon, 24 Aug 2015 11:29:36 +0530
-Message-ID: <1440395978-9065-4-git-send-email-vaibhav.hiremath@linaro.org>
-References: <1440395978-9065-1-git-send-email-vaibhav.hiremath@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1440395978-9065-1-git-send-email-vaibhav.hiremath@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, robert.jarzmik@free.fr, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Vaibhav Hiremath <vaibhav.hiremath@linaro.org>, "Jett.Zhou" <jtzhou@marvell.com>, Yi Zhang <yizhang@marvell.com>
+From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] dts: keystone: Change "ti,davinci-i2c" compatible to
+ "ti,keystone-i2c"
+Date: Mon, 24 Aug 2015 09:17:15 +0200
+Message-ID: <55DAC4FB.9010201@nokia.com>
+References: <55D6F39A.2030402@nokia.com> <20150821182500.GA2000@svinekod>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150821182500.GA2000@svinekod>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ext Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Cc: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-TWSI_ILCR & TWSI_IWCR registers are used to adjust clock rate
-of standard & fast mode in pxa910/988; so this patch adds these two new
-entries to "struct pxa_reg_layout" and "struct pxa_i2c".
+Hello Mark,
 
-As discussed in the previous patch-series, the idea here is to add standard
-DT properties for ilcr and iwcr configuration fields.
-In case of Master ilcr is used for low/high time and in case of slave mode
-of operation iwcr is used for setup/hold time.
+On 21/08/15 20:25, ext Mark Rutland wrote:
+>> Now as "i2c-davinci" driver has special handling for Keystone it's time to switch
+>> > the device tree to use new "compatible" property.
+>> > 
+>> > Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+>> > ---
+>> >  arch/arm/boot/dts/keystone.dtsi |    6 +++---
+>> >  1 files changed, 3 insertions(+), 3 deletions(-)
+>> > 
+>> > diff --git a/arch/arm/boot/dts/keystone.dtsi b/arch/arm/boot/dts/keystone.dtsi
+>> > index 72816d6..a846597 100644
+>> > --- a/arch/arm/boot/dts/keystone.dtsi
+>> > +++ b/arch/arm/boot/dts/keystone.dtsi
+>> > @@ -106,7 +106,7 @@
+>> >  		};
+>> >  
+>> >  		i2c0: i2c@2530000 {
+>> > -			compatible = "ti,davinci-i2c";
+>> > +			compatible = "ti,keystone-i2c";
+>>From what I understand of the previous patch, this is effectively an
+> optimisation, and things worked to some extent with the "ti,davinci-i2c"
+> string.
 
-Signed-off-by: Jett.Zhou <jtzhou@marvell.com>
-Signed-off-by: Yi Zhang <yizhang@marvell.com>
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Tested-by: Robert Jarzmik <robert.jarzmik@free.fr>
----
- drivers/i2c/busses/i2c-pxa.c | 42 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 41 insertions(+), 1 deletion(-)
+Indeed this is an optimization.
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index abf04f2..8d76197 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -46,12 +46,15 @@ struct pxa_reg_layout {
- 	u32 icr;
- 	u32 isr;
- 	u32 isar;
-+	u32 ilcr;
-+	u32 iwcr;
- };
- 
- enum pxa_i2c_types {
- 	REGS_PXA2XX,
- 	REGS_PXA3XX,
- 	REGS_CE4100,
-+	REGS_PXA910,
- };
- 
- /*
-@@ -79,12 +82,22 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
- 		.isr =	0x04,
- 		/* no isar register */
- 	},
-+	[REGS_PXA910] = {
-+		.ibmr = 0x00,
-+		.idbr = 0x08,
-+		.icr =	0x10,
-+		.isr =	0x18,
-+		.isar = 0x20,
-+		.ilcr = 0x28,
-+		.iwcr = 0x30,
-+	},
- };
- 
- static const struct platform_device_id i2c_pxa_id_table[] = {
- 	{ "pxa2xx-i2c",		REGS_PXA2XX },
- 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
- 	{ "ce4100-i2c",		REGS_CE4100 },
-+	{ "pxa910-i2c",		REGS_PXA910 },
- 	{ },
- };
- MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
-@@ -124,6 +137,24 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
- #define ISR_SAD		(1 << 9)	   /* slave address detected */
- #define ISR_BED		(1 << 10)	   /* bus error no ACK/NAK */
- 
-+/* bit field shift & mask */
-+#define ILCR_SLV_SHIFT		0
-+#define ILCR_SLV_MASK		(0x1FF << ILCR_SLV_SHIFT)
-+#define ILCR_FLV_SHIFT		9
-+#define ILCR_FLV_MASK		(0x1FF << ILCR_FLV_SHIFT)
-+#define ILCR_HLVL_SHIFT		18
-+#define ILCR_HLVL_MASK		(0x1FF << ILCR_HLVL_SHIFT)
-+#define ILCR_HLVH_SHIFT		27
-+#define ILCR_HLVH_MASK		(0x1F << ILCR_HLVH_SHIFT)
-+
-+#define IWCR_CNT_SHIFT		0
-+#define IWCR_CNT_MASK		(0x1F << IWCR_CNT_SHIFT)
-+#define IWCR_HS_CNT1_SHIFT	5
-+#define IWCR_HS_CNT1_MASK	(0x1F << IWCR_HS_CNT1_SHIFT)
-+#define IWCR_HS_CNT2_SHIFT	10
-+#define IWCR_HS_CNT2_MASK	(0x1F << IWCR_HS_CNT2_SHIFT)
-+
-+
- struct pxa_i2c {
- 	spinlock_t		lock;
- 	wait_queue_head_t	wait;
-@@ -150,6 +181,8 @@ struct pxa_i2c {
- 	void __iomem		*reg_icr;
- 	void __iomem		*reg_isr;
- 	void __iomem		*reg_isar;
-+	void __iomem		*reg_ilcr;
-+	void __iomem		*reg_iwcr;
- 
- 	unsigned long		iobase;
- 	unsigned long		iosize;
-@@ -169,6 +202,8 @@ struct pxa_i2c {
- #define _ICR(i2c)	((i2c)->reg_icr)
- #define _ISR(i2c)	((i2c)->reg_isr)
- #define _ISAR(i2c)	((i2c)->reg_isar)
-+#define _ILCR(i2c)	((i2c)->reg_ilcr)
-+#define _IWCR(i2c)	((i2c)->reg_iwcr)
- 
- /*
-  * I2C Slave mode address
-@@ -1135,7 +1170,7 @@ static const struct i2c_algorithm i2c_pxa_pio_algorithm = {
- static const struct of_device_id i2c_pxa_dt_ids[] = {
- 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
- 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
--	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA2XX },
-+	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
-@@ -1243,6 +1278,11 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 	if (i2c_type != REGS_CE4100)
- 		i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
- 
-+	if (i2c_type == REGS_PXA910) {
-+		i2c->reg_ilcr = i2c->reg_base + pxa_reg_layout[i2c_type].ilcr;
-+		i2c->reg_iwcr = i2c->reg_base + pxa_reg_layout[i2c_type].iwcr;
-+	}
-+
- 	i2c->iobase = res->start;
- 	i2c->iosize = resource_size(res);
- 
+> So could you leave that as a fallback, i.e. have:
+> 
+> 	compatible = "ti,keystone-i2c", "ti,davinci-i2c";
+
+And I have no problem leaving fallback compatible.
+
+> That way an old kernel still functions with this DT, which among other things
+> makes debugging and bisecting far easier.
+
+I've just thought, that we do not care about backwards-compatibility for the DT in
+the kernel tree, because one always have the correct one linked to the kernel.
+And this evaluation module never has it flashed to some persistent storage outside
+of kernel image, so version mismatch is impossible.
+
+> Or are things actually broken with the "ti,davinci-i2c" string?
+
+No, not in this case.
+
 -- 
-1.9.1
+Best regards,
+Alexander Sverdlin.
