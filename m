@@ -1,35 +1,84 @@
-From: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: i2c imx: suspicious use of runtime PM calls
-Date: Mon, 24 Aug 2015 05:08:46 +0000
-Message-ID: <CY1PR0301MB0858E9E871CC1D399F45B1B3CF620@CY1PR0301MB0858.namprd03.prod.outlook.com>
-References: <55D8ECBA.6050505@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH-v5 RESEND 0/5] i2c: pxa: Add support for PXA910 family of device
+Date: Mon, 24 Aug 2015 11:29:33 +0530
+Message-ID: <1440395978-9065-1-git-send-email-vaibhav.hiremath@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55D8ECBA.6050505-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-RnJvbTogSGVpbmVyIEthbGx3ZWl0IDxtYWlsdG86aGthbGx3ZWl0MUBnbWFpbC5jb20+IFNlbnQ6
-IFN1bmRheSwgQXVndXN0IDIzLCAyMDE1IDU6NDIgQU0NCj4gVG86IEdhbyBQYW4tQjU0NjQyDQo+
-IENjOiBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBXb2xmcmFtIFNhbmcNCj4gU3ViamVjdDog
-aTJjIGlteDogc3VzcGljaW91cyB1c2Ugb2YgcnVudGltZSBQTSBjYWxscw0KPiANCj4gSnVzdCBi
-eSBjaGFuY2UgSSBzdHVtYmxlZCBhY3Jvc3MgdGhpcyBkcml2ZXIgYW5kIHRoZSByZWNlbnRseSBh
-ZGRlZA0KPiBydW50aW1lIFBNIGNvZGUuDQo+IFR3byB0aGluZ3MgaW4gaTJjX2lteF9wcm9iZSBs
-b29rIHN1c3BpY2lvdXMgdG8gbWU6DQo+IA0KPiAtIFlvdSBhY3RpdmF0ZSB0aGUgSTJDIGNsb2Nr
-IGFuZCB0aGVuIGluaXRpYWxpemUgcnVudGltZSBQTSB3aXRoDQo+IA0KPiAgICAgcG1fcnVudGlt
-ZV9lbmFibGUoJnBkZXYtPmRldik7DQo+ICAgICBwbV9ydW50aW1lX3NldF9hdXRvc3VzcGVuZF9k
-ZWxheSgmcGRldi0+ZGV2LCBJMkNfUE1fVElNRU9VVCk7DQo+ICAgICBwbV9ydW50aW1lX3VzZV9h
-dXRvc3VzcGVuZCgmcGRldi0+ZGV2KTsNCj4gDQo+ICAgU2VlbXMgbGlrZSBhIGNhbGwgdG8gcG1f
-cnVudGltZV9zZXRfYWN0aXZlIGlzIG1pc3NpbmcgdG8gdGVsbCBydW50aW1lDQo+IFBNIHRoYXQg
-dGhlIGRldmljZSBpcyBpbiBzdGF0dXMgImFjdGl2ZSIgbm93Lg0KIA0KVGhhbmtzLCB5b3UgYXJl
-IHJpZ2h0LiBJIHdpbGwgZml4IGl0IGluIG5leHQgcGF0Y2guDQoNCj4gLSBZb3UgdXNlIHBtX3J1
-bnRpbWVfcHV0X2F1dG9zdXNwZW5kICh3aGljaCBkZWNyZW1lbnRzIHRoZSByZWYgY291bnQpIGJ1
-dA0KPiB5b3UgZG9uJ3QNCj4gICBnZXQgYSByZWZlcmVuY2UgYmVmb3JlLiBJIHRoaW5rIHlvdSB3
-b3VsZCBoYXZlIHRvIHVzZSBwbV9ydW50aW1lX2dldF8uLi4NCj4gYmVmb3JlIG9yIHVzZSBwbV9y
-dW50aW1lX2F1dG9zdXNwZW5kLg0KDQpUaGFua3MgZm9yIHlvdXIgcHJlY2lzZSByZXZpZXcuIEkg
-d2lsbCBmaXggaXQgaW4gbmV4dCBwYXRjaC4NCg==
+Sorry for not following up on this aggressively, was quit busy with some
+other stuff. Resending this patch with Robert's Tested-By.
+
+
+This patch-series is subset of the original patch-series, submitted
+on 14 Jul 2015.
+Link to Original Patch-series - https://lkml.org/lkml/2015/7/14/80
+
+The first six patches have been already queued up for upstream. So this
+patch-series is respin of remaining 5 patches.
+
+Testing:
+  - Basic testing on PMIC device on I2C-0 interface
+  - Boot tested on platform based on PXA1928
+  - Read few registers of PMIC (RTC, ID, etc...) during boot
+
+V4 => V5
+=======
+Link to V3: https://lkml.org/lkml/2015/7/14/80
+  - Dropped First 6 patches as they are already accepted, queued for upstream
+  - Fixed a bug in PATCH [5/5], where for non PXA910 devices it as resulting into
+    NULL pointer dereference.
+
+
+For the record, pasting all the details from original patch-series -
+
+V3 => V4
+=======
+Link to V3: http://www.spinics.net/lists/devicetree/msg85904.html
+  - [PATCH 06/11] Removed unnecessary dev_err on devm_kzalloc() check
+  - [PATCH 06/11] Removed return check on platform_get_resource(), as 
+    devm_ioremap_resource() does it for us.
+    Also, brought up the devm_ioremap_resource() function call in the execution
+    sequence, as no point in delaying it if we do not have resource.
+    It make sense, after this change.
+  - [PATCH 04/11] Typecast changed to 'enum pxa_i2c_types'
+    Also updated the subject line "Removed ==> Fix"
+
+V2 => V3
+=======
+Link to V2: http://www.spinics.net/lists/linux-i2c/msg20059.html
+  - Removed PATCH [4/12] related to reset of I2C module.
+    Suggested by "Robert Jarzmik"
+  - Updated commit description for,
+      PATCH [11/12]: Mentioned reasoning about moment of clk_get code.
+      PATCH [12/12]: for DT property node.
+  - Added Acked by "Robert Jarzmik" to patched which he acked.
+
+V1 => V2:
+========
+Link to V1 - http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347012.html
+  - Fixed all comments from "Robert Jarzmik" and "Wolfram Sang"
+ - Dropped Patch
+     05/12: using core bus reset implementation - under work.
+     08/12: NAKed and dropped
+ - Separated DT binding patch from driver changes, for easy merge
+
+
+Vaibhav Hiremath (4):
+  Documentation: binding: add new property 'disable_after_xfer' to
+    i2c-pxa
+  i2c: pxa: Add support for pxa910/988 & new configuration features
+  Documentation: binding: add sclk adjustment properties to i2c-pxa
+  i2c: pxa: Add ILCR (tLow & tHigh) configuration support
+
+Yi Zhang (1):
+  i2c: pxa: enable/disable i2c module across msg xfer
+
+ Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  18 +++
+ drivers/i2c/busses/i2c-pxa.c                      | 154 ++++++++++++++++++++--
+ 2 files changed, 163 insertions(+), 9 deletions(-)
+
+-- 
+1.9.1
