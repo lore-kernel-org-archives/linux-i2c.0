@@ -1,70 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 6/8] iio: gyro: bmg160: optimize i2c transfers in
- trigger handler
-Date: Mon, 24 Aug 2015 13:49:19 +0200
-Message-ID: <20150824114919.GA3608@katana>
-References: <1439389900-10108-1-git-send-email-irina.tirdea@intel.com>
- <1439389900-10108-7-git-send-email-irina.tirdea@intel.com>
- <55D056DF.5020201@kernel.org>
- <20150817090943.GO19600@pengutronix.de>
- <20150821102125.GA1656@katana>
- <1440172701.4081.1.camel@intel.com>
- <20150822040258.GA1605@katana>
- <55D8B174.1010403@kernel.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: i2c imx: suspicious use of runtime PM calls
+Date: Mon, 24 Aug 2015 14:09:30 +0200
+Message-ID: <20150824120930.GB3608@katana>
+References: <55D8ECBA.6050505@gmail.com>
+ <CY1PR0301MB0858E9E871CC1D399F45B1B3CF620@CY1PR0301MB0858.namprd03.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <55D8B174.1010403@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, "mpa@pengutronix.de" <mpa@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "pmeerw@pmeerw.net" <pmeerw@pmeerw.net>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "Tirdea, Irina" <irina.tirdea@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+In-Reply-To: <CY1PR0301MB0858E9E871CC1D399F45B1B3CF620-YrwGdl+PljlUWoKpOwApjpwN6zqB+hSMnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---WIyZ46R2i8wDzkSu
+--rJwd6BRFiFCcLxzm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> Do we want to insist on a much larger change (conversion to regmap)
-> when if this in place, a simple single functional call change will do the
-> job?
+> > Just by chance I stumbled across this driver and the recently added
+> > runtime PM code.
+> > Two things in i2c_imx_probe look suspicious to me:
+> >=20
+> > - You activate the I2C clock and then initialize runtime PM with
+> >=20
+> >     pm_runtime_enable(&pdev->dev);
+> >     pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
+> >     pm_runtime_use_autosuspend(&pdev->dev);
+> >=20
+> >   Seems like a call to pm_runtime_set_active is missing to tell runtime
+> > PM that the device is in status "active" now.
+> =20
+> Thanks, you are right. I will fix it in next patch.
 
-I'd assume that regmap conversion will happen later quite likely anyhow.
-Most of those devices will have I2C/SPI dual interfaces; or people will
-find out that caching registers can reduce the bus load, etc...
-
-That being said, I'll keep Irina's patches for the next merge window.
-But we should keep an eye how/if the new function is used. Kernel
-growth is an issue at times...
-
-Thanks,
-
-   Wolfram
+Thanks Heiner for the report. I dropped this patch and will wait for a
+new version.
 
 
---WIyZ46R2i8wDzkSu
+--rJwd6BRFiFCcLxzm
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJV2wS/AAoJEBQN5MwUoCm21IMP/2VVCfq52tdyyknr0oNhIrjD
-redHw6gmXt2NATG6U3aF0AmJ6geHsd/Gmj6VhUqzfkNBGVk2ATr5BRSc4DMPMVhv
-m2AYPcJbJErHzNRAjo/pb/f7Kol33Uc25Cr7dbvjqJEgiz/zrW/3voidMQhlsSrv
-FnF/VpSO9h0NxGdY+NoOc8U+um2xezbhTNXpq4LAU5zvs0jBXW/kwSFKFkQV8n4X
-g5SrIkbY3hDty2OLR6PM6DuBHgkSSh39WHpGhNlQWfn7GCND/Er9zRB2Yx3qxUJk
-JGNXVaJ/fXUB1+T7Andmoy/AV2Jvd14JSi0C7Lf+695FHOwzcGduq4quUX4f5M2s
-E17cifEN1aZJpTCPCD59aNTM3DY0kXq0YD8GYVOVuwocpdbqRRJNU5peQjsMfA0o
-dxd24w31cr6/1P0CTV2iZj9Gp8TchCH8QPdqWlO1Vaq7AC/Zys/bbcYbpTVFSUGj
-24x/6RuYKXQFvcSEFAeGekL07y/Fl0wh/KcIwv0/62L5NFaJa8HtGfqXk7MKfT4Q
-ObFPW1F3wGd5TC9CRrFe+j66v/wROTphioaXndl970y06z9qTw5mCkUNF/wJ0dpt
-rWl72Oyr6KjQ51z6wtm3T13687QmtE+3XDjgKNUl1zffTaJUZ6l2R4U1qac3yquY
-PMJu5vq0pSqm3OebQ2xm
-=NjqQ
+iQIcBAEBAgAGBQJV2wl5AAoJEBQN5MwUoCm2bfQP/30JRnXwU41D16+kbdha0FPw
+5l8/1Iq+AkU6T6KfJK1AMcqLDj7cyDR2+y72QoJq4Qn+ib0uhdGfzpI0GJdC49qz
+FesJ9nDPe8phZR7q2XcC3931QH2Yra9GT08169kEM/MAcKIRNvXnndgGh7oZBr7f
++bBOzftXiUYj6NH61ZI8s67AJdjVs8qmrIc0U6xP6dd2p1PhynG5Q70wzKZXRGvS
+3bDD5gsIF+nwruuNe17otKzHYAP/b6MfvLZEIhNnsBU6258oqb7QV5sDUWuDrI1r
+0ku+/xkx9h7dINjP4+GAZRXMIt7LgCq0eRdNQ9VMAI7ZZMOfk8jMh6YP9tgcJupk
+27aGDN/hw4zRVOZoinjJeEmGpp8NEucY4av/Ml93/fyYqYmJYn/zy6AyLns4J+bs
+9Wt0Ex9CyWTapu1zdbtLX4C4HqELJmwXcxuYTWwIcr2BejpbZsBsv0oPuVs4jFp8
+o8o2x1Oq2h4yT4zr8WEbHXS1S07tk2Zs/RDlnDVZMVzW5M52Q4WnSbpXDhJ878zU
+T9fUzQN9nMuwovCszuZgd1BGpmAw9RcI0kTbVARVv5f/9ZZZlTsO6aA5bkiTAa4E
+64JzmWbNYUhw69QSSf/KU9qHUsEGgwlFjDDQxhyuwg5ixls1Q2uUWyLdO6waC6qI
+a9cVn2tPsh0lNYfODhsk
+=edKR
 -----END PGP SIGNATURE-----
 
---WIyZ46R2i8wDzkSu--
+--rJwd6BRFiFCcLxzm--
