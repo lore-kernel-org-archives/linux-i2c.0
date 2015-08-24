@@ -1,66 +1,63 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: i2c imx: suspicious use of runtime PM calls
-Date: Mon, 24 Aug 2015 14:09:30 +0200
-Message-ID: <20150824120930.GB3608@katana>
-References: <55D8ECBA.6050505@gmail.com>
- <CY1PR0301MB0858E9E871CC1D399F45B1B3CF620@CY1PR0301MB0858.namprd03.prod.outlook.com>
+Subject: Re: [PATCH 5/6] i2c: Replace I2C_CROS_EC_TUNNEL dependency
+Date: Mon, 24 Aug 2015 14:18:45 +0200
+Message-ID: <20150824121845.GC3608@katana>
+References: <1439983198-4696-1-git-send-email-javier@osg.samsung.com>
+ <1439983198-4696-6-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
+	protocol="application/pgp-signature"; boundary="jousvV0MzM2p6OtC"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CY1PR0301MB0858E9E871CC1D399F45B1B3CF620-YrwGdl+PljlUWoKpOwApjpwN6zqB+hSMnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+In-Reply-To: <1439983198-4696-6-git-send-email-javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gwendal Grignou <gwendal-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---rJwd6BRFiFCcLxzm
+--jousvV0MzM2p6OtC
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On Wed, Aug 19, 2015 at 01:19:57PM +0200, Javier Martinez Canillas wrote:
+> The ChromeOS EC tunnel I2C bus driver depend on CROS_EC_PROTO but
+> MFD_CROS_EC select CROS_EC_PROTO instead. Mixing select and depends
+> on is bad practice as it may lead to circular Kconfig dependencies.
+>=20
+> Since the platform device that is matched with the I2C bus driver
+> is registered by the ChromeOS EC mfd driver, I2C_CROS_EC_TUNNEL
+> really depends on MFD_CROS_EC. And because this config option
+> selects CROS_EC_PROTO, that dependency is met as well. So make the
+> driver to depend on MFD_CROS_EC instead of CROS_EC_PROTO.
+>=20
+> Signed-off-by: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+>=20
 
-> > Just by chance I stumbled across this driver and the recently added
-> > runtime PM code.
-> > Two things in i2c_imx_probe look suspicious to me:
-> >=20
-> > - You activate the I2C clock and then initialize runtime PM with
-> >=20
-> >     pm_runtime_enable(&pdev->dev);
-> >     pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
-> >     pm_runtime_use_autosuspend(&pdev->dev);
-> >=20
-> >   Seems like a call to pm_runtime_set_active is missing to tell runtime
-> > PM that the device is in status "active" now.
-> =20
-> Thanks, you are right. I will fix it in next patch.
-
-Thanks Heiner for the report. I dropped this patch and will wait for a
-new version.
+Applied to for-next, thanks!
 
 
---rJwd6BRFiFCcLxzm
+--jousvV0MzM2p6OtC
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJV2wl5AAoJEBQN5MwUoCm2bfQP/30JRnXwU41D16+kbdha0FPw
-5l8/1Iq+AkU6T6KfJK1AMcqLDj7cyDR2+y72QoJq4Qn+ib0uhdGfzpI0GJdC49qz
-FesJ9nDPe8phZR7q2XcC3931QH2Yra9GT08169kEM/MAcKIRNvXnndgGh7oZBr7f
-+bBOzftXiUYj6NH61ZI8s67AJdjVs8qmrIc0U6xP6dd2p1PhynG5Q70wzKZXRGvS
-3bDD5gsIF+nwruuNe17otKzHYAP/b6MfvLZEIhNnsBU6258oqb7QV5sDUWuDrI1r
-0ku+/xkx9h7dINjP4+GAZRXMIt7LgCq0eRdNQ9VMAI7ZZMOfk8jMh6YP9tgcJupk
-27aGDN/hw4zRVOZoinjJeEmGpp8NEucY4av/Ml93/fyYqYmJYn/zy6AyLns4J+bs
-9Wt0Ex9CyWTapu1zdbtLX4C4HqELJmwXcxuYTWwIcr2BejpbZsBsv0oPuVs4jFp8
-o8o2x1Oq2h4yT4zr8WEbHXS1S07tk2Zs/RDlnDVZMVzW5M52Q4WnSbpXDhJ878zU
-T9fUzQN9nMuwovCszuZgd1BGpmAw9RcI0kTbVARVv5f/9ZZZlTsO6aA5bkiTAa4E
-64JzmWbNYUhw69QSSf/KU9qHUsEGgwlFjDDQxhyuwg5ixls1Q2uUWyLdO6waC6qI
-a9cVn2tPsh0lNYfODhsk
-=edKR
+iQIcBAEBAgAGBQJV2wulAAoJEBQN5MwUoCm2XVgP/AqQ/TcRZhyyTcxvl03HBpIW
+HvBIU+MlBo5JzzcvedpGI10Z8oy5bsRUs1dT0cDbEJLtbqji/xXdqclIp/0QPOI/
+chhGFY8lHGAvNfiAuyh35nG27iS/OFmPLISsZNow6/8RdigJytPxmU6+bjqDtkf0
+njQc/y4W2Y3srX9t5G4rjxKBEsAlZ6Td3U8hVmilQi6TcvKXRj8DQjiUj4wLM40D
+VZYTT/4dfYx8X2KKiIiX9d5NvsI14fzZn+HZXoa5UXGK3b+0iuAE1IFDcCD5F0K+
+fJ+m4PnyGKSWvxNnQu7TOgXH2TWnOWAsDr3xsfwWBFxMFzjYWUOKMh9gH97dZMbD
+WeTNBWZWL+AK+hJgAXCvvMq99Aj268roT6Xtk34ZNodNBeqmF8Ai3nIRS2G73Be1
+4sh/qVDuCYSIUZSRSKY2D4tk+AUkg0tJgg/4jtE18UdKXY+stNGf5/dnJkOA9QJS
+26/vYI1TqNx6eKZdSEWB9Jz7g2ndPTyRgYY7zTEzSKrWr876PoRyABHgvROTtWQQ
+zZMtHTBdPheZvh0HbBBxQ3dTe5yOLbfRjvXHEv3Dbvu5UijhlYMQMGYQPXI7e7LD
+E0zwPc6wncVzvG0cOx8AW4zBeBF1Goaro2vOkBwnXwiVil/rk6lcoEiVS/FXj+e2
+FuvY/vTKTXDzVGr+rqcI
+=8bNo
 -----END PGP SIGNATURE-----
 
---rJwd6BRFiFCcLxzm--
+--jousvV0MzM2p6OtC--
