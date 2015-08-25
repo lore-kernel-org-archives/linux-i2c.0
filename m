@@ -1,131 +1,213 @@
-From: Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH] drivers: i2c: exynos5: irq spinlock rt-safe
-Date: Tue, 25 Aug 2015 09:52:05 +0200
-Message-ID: <1440489125-20082-1-git-send-email-anders.roxell@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: kgene@kernel.org, k.kozlowski@samsung.com, wsa@the-dreams.de
-Cc: khilman@linaro.org, Anders Roxell <anders.roxell@linaro.org>, linux-rt-users@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, ch.naveen@samsung.com, linux-arm-kernel@lists.infradead.org
+From: Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 3/4] i2c-piix4: Add support for multiplexed main adapter in SB800
+Date: Tue, 25 Aug 2015 13:05:04 +0200
+Message-ID: <1440500705-2288-4-git-send-email-fetzer.ch@gmail.com>
+References: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1440500705-2288-1-git-send-email-fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org, galandilias-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The exynos5_i2c_message_start enables interrupts while holding the i2c
-lock which is sought by the irq handler. If an IRQ is received before
-this lock is released then a deadlock occurs.
+The SB800 chipset supports a multiplexed main SMBus controller with
+four ports. The multiplexed ports share the same SMBus address and
+register set. The port is selected by bits 2:1 of the smb_en register
+(0x2C).
 
-This is only seen on an RT patched kernel, due to the transformation of
-spinlocks into sleeping locks. By using raw_spinlocks here the same code
-can run in mainline or an RT patched kernel. No change for !RT kenrels
+Only one port can be active at any point in time therefore a mutex is
+needed in order to synchronize access.
 
-[   10.992238] kernel BUG at ../kernel/locking/rtmutex.c:998!
-[   10.992243] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
-[   10.992250] Modules linked in:
-[   10.992258] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.1.5-rt5
-[   10.992263] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
-[   10.992268] task: ed880000 ti: ed888000 task.ti: ed888000
-[   10.992281] PC is at rt_spin_lock_slowlock+0xa4/0x2ec
-[   10.992288] LR is at rt_spin_lock_slowlock+0x54/0x2ec
-[   10.992296] pc : [<c099e1bc>]    lr : [<c099e16c>]    psr: 60000193
-[   10.992296] sp : ed889a28  ip : ed880001  fp : 00000089
-[   10.992300] r10: ed889a28  r9 : c0f55654  r8 : 00000060
-[   10.992305] r7 : ed880000  r6 : 00000000  r5 : 00000001  r4 : ed9f7288
-[   10.992310] r3 : ed880000  r2 : 00000000  r1 : ed880000  r0 : 00000000
-[   10.992316] Flags: nZCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM
-Segment kernel
-...
-...
-[   10.992662] [<c099e1bc>] (rt_spin_lock_slowlock) from [<c07bc794>]
-(exynos5_i2c_irq+0x20/0x2b0)
-[   10.992678] [<c07bc794>] (exynos5_i2c_irq) from [<c028c8b4>]
-(handle_irq_event_percpu+0x68/0x158)
-[   10.992690] [<c028c8b4>] (handle_irq_event_percpu) from [<c028ca0c>]
-(handle_irq_event+0x68/0xa8)
-[   10.992702] [<c028ca0c>] (handle_irq_event) from [<c028f9c4>]
-(handle_fasteoi_irq+0x11c/0x1d4)
-[   10.992713] [<c028f9c4>] (handle_fasteoi_irq) from [<c028c17c>]
-(generic_handle_irq+0x20/0x30)
-[   10.992724] [<c028c17c>] (generic_handle_irq) from [<c028c290>]
-(__handle_domain_irq+0x6c/0xe4)
-[   10.992734] [<c028c290>] (__handle_domain_irq) from [<c020a71c>]
-(gic_handle_irq+0x2c/0x68)
-[   10.992744] [<c020a71c>] (gic_handle_irq) from [<c0214140>]
-(__irq_svc+0x40/0x88)
-[   10.992749] Exception stack(0xed889b28 to 0xed889b70)
-...
-...
+Tested on HP ProLiant MicroServer G7 N54L (where this patch adds
+support to access sensor data from the w83795adg).
 
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Cc: Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
+Signed-off-by: Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-exynos5.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c | 114 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 107 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index b29c750..b12e77e 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -170,7 +170,7 @@ struct exynos5_i2c {
- 	struct device		*dev;
- 	int			state;
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 8934a32..e344abd 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -23,6 +23,9 @@
  
--	spinlock_t		lock;		/* IRQ synchronization */
-+	raw_spinlock_t		lock;		/* IRQ synchronization */
+    Note: we assume there can only be one device, with one or more
+    SMBus interfaces.
++   The device can register multiple i2c_adapters (up to PIIX4_MAX_ADAPTERS).
++   For devices supporting multiple ports the i2c_adapter should provide
++   an i2c_algorithm to access them.
+ */
  
- 	/*
- 	 * Since the TRANS_DONE bit is cleared on read, and we may read it
-@@ -433,7 +433,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+ #include <linux/module.h>
+@@ -37,6 +40,7 @@
+ #include <linux/dmi.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
++#include <linux/mutex.h>
  
- 	i2c->state = -EINVAL;
  
--	spin_lock(&i2c->lock);
-+	raw_spin_lock(&i2c->lock);
+ /* PIIX4 SMBus address offsets */
+@@ -125,8 +129,12 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+ 	{ },
+ };
  
- 	int_status = readl(i2c->regs + HSI2C_INT_STATUS);
- 	writel(int_status, i2c->regs + HSI2C_INT_STATUS);
-@@ -521,7 +521,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
- 		complete(&i2c->msg_complete);
- 	}
++/* SB800 globals */
++DEFINE_MUTEX(piix4_mutex_sb800);
++
+ struct i2c_piix4_adapdata {
+ 	unsigned short smba;
++	unsigned short port;
+ };
  
--	spin_unlock(&i2c->lock);
-+	raw_spin_unlock(&i2c->lock);
+ static int piix4_setup(struct pci_dev *PIIX4_dev,
+@@ -313,6 +321,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	else
+ 		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus\n");
  
- 	return IRQ_HANDLED;
++	mutex_init(&piix4_mutex_sb800);
++
+ 	dev_info(&PIIX4_dev->dev,
+ 		 "SMBus Host Controller at 0x%x, revision %d\n",
+ 		 piix4_smba, i2ccfg >> 4);
+@@ -527,6 +537,49 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
+ 	return 0;
  }
-@@ -610,7 +610,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 	 * Enable interrupts before starting the transfer so that we don't
- 	 * miss any INT_I2C interrupts.
- 	 */
--	spin_lock_irqsave(&i2c->lock, flags);
-+	raw_spin_lock_irqsave(&i2c->lock, flags);
- 	writel(int_en, i2c->regs + HSI2C_INT_ENABLE);
  
- 	if (stop == 1)
-@@ -618,7 +618,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 	i2c_auto_conf |= i2c->msg->len;
- 	i2c_auto_conf |= HSI2C_MASTER_RUN;
- 	writel(i2c_auto_conf, i2c->regs + HSI2C_AUTO_CONF);
--	spin_unlock_irqrestore(&i2c->lock, flags);
-+	raw_spin_unlock_irqrestore(&i2c->lock, flags);
++/* Handles access to multiple SMBus ports on the SB800.
++ * The port is selected by bits 2:1 of the smb_en register (0x2C).
++ * NOTE: The selected port must be returned to the initial selection to
++ * avoid problems on certain systems.
++ * Return negative errno on error.
++ */
++static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
++		 unsigned short flags, char read_write,
++		 u8 command, int size, union i2c_smbus_data *data)
++{
++	struct i2c_piix4_adapdata *adapdata = i2c_get_adapdata(adap);
++	unsigned short smba_idx = 0xcd6;
++	u8 smba_en_lo, smb_en = 0x2c;
++	u8 port;
++	int retval;
++
++	mutex_lock(&piix4_mutex_sb800);
++
++	if (!request_region(smba_idx, 2, "smba_idx")) {
++		dev_err(&adap->dev, "SMBus base address index region "
++				"0x%x already in use!\n", smba_idx);
++		retval = -EBUSY;
++		goto ERROR;
++	}
++	outb_p(smb_en, smba_idx);
++	smba_en_lo = inb_p(smba_idx + 1);
++
++	port = adapdata->port;
++	if ((smba_en_lo & 6) != (port << 1))
++		outb_p((smba_en_lo & ~6) | (port << 1), smba_idx + 1);
++
++	retval = piix4_access(adap, addr, flags, read_write,
++			      command, size, data);
++
++	outb_p(smba_en_lo, smba_idx + 1);
++	release_region(smba_idx, 2);
++
++ERROR:
++	mutex_unlock(&piix4_mutex_sb800);
++
++	return retval;
++}
++
+ static u32 piix4_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
+@@ -539,6 +592,11 @@ static const struct i2c_algorithm smbus_algorithm = {
+ 	.functionality	= piix4_func,
+ };
+ 
++static const struct i2c_algorithm piix4_smbus_algorithm_sb800 = {
++	.smbus_xfer	= piix4_access_sb800,
++	.functionality	= piix4_func,
++};
++
+ static const struct pci_device_id piix4_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82443MX_3) },
+@@ -614,6 +672,41 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+ 	return 0;
  }
  
- static int exynos5_i2c_xfer_msg(struct exynos5_i2c *i2c,
-@@ -763,7 +763,7 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
- 	/* Clear pending interrupts from u-boot or misc causes */
- 	exynos5_i2c_clr_pend_irq(i2c);
++static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba)
++{
++	unsigned short port;
++	int retval;
++	struct i2c_piix4_adapdata *adapdata;
++
++	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
++		retval = piix4_add_adapter(dev, smba, &piix4_main_adapters[port]);
++		if (retval < 0)
++			goto ERROR;
++
++		piix4_main_adapters[port]->algo = &piix4_smbus_algorithm_sb800;
++
++		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
++		adapdata->port = port;
++	}
++
++	return retval;
++
++ERROR:
++	dev_err(&dev->dev, "Error setting up SB800 adapters. "
++		"Unregistering all adapters!\n");
++	for (port--; port >= 0; port--) {
++		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
++		if (adapdata->smba) {
++			i2c_del_adapter(piix4_main_adapters[port]);
++			kfree(adapdata);
++			kfree(piix4_main_adapters[port]);
++			piix4_main_adapters[port] = NULL;
++		}
++	}
++
++	return retval;
++}
++
+ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	int retval;
+@@ -621,18 +714,25 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
+ 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+ 	     dev->revision >= 0x40) ||
+-	    dev->vendor == PCI_VENDOR_ID_AMD)
++	    dev->vendor == PCI_VENDOR_ID_AMD) {
+ 		/* base address location etc changed in SB800 */
+ 		retval = piix4_setup_sb800(dev, id, 0);
+-	else
++		if (retval < 0)
++			return retval;
++
++		/* Try to register multiplexed main SMBus adapter,
++		 * give up if we can't */
++		retval = piix4_add_adapters_sb800(dev, retval);
++	} else {
+ 		retval = piix4_setup(dev, id);
++		if (retval < 0)
++			return retval;
  
--	spin_lock_init(&i2c->lock);
-+	raw_spin_lock_init(&i2c->lock);
- 	init_completion(&i2c->msg_complete);
+-	/* If no main SMBus found, give up */
+-	if (retval < 0)
+-		return retval;
++		/* Try to register main SMBus adapter, give up if we can't */
++		retval = piix4_add_adapter(dev, retval, &piix4_main_adapters[0]);
++	}
  
- 	i2c->irq = ret = platform_get_irq(pdev, 0);
+-	/* Try to register main SMBus adapter, give up if we can't */
+-	retval = piix4_add_adapter(dev, retval, &piix4_main_adapters[0]);
++	/* If no main SMBus found, give up */
+ 	if (retval < 0)
+ 		return retval;
+ 
 -- 
-2.1.4
+1.9.1
