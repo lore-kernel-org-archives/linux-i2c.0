@@ -1,65 +1,42 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [Patch v2] i2c: imx: implement bus recovery
-Date: Tue, 25 Aug 2015 16:18:16 +0200
-Message-ID: <CACRpkdYy3xQ3N7199GcV83-HrgOERnffNLh=qak8K8hpcAHs1Q@mail.gmail.com>
-References: <1437100605-28047-1-git-send-email-b54642@freescale.com>
-	<20150813081528.GA9999@pengutronix.de>
-	<CY1PR0301MB0858E4EEEC54C81BC4E7A621CF670@CY1PR0301MB0858.namprd03.prod.outlook.com>
-	<20150819070218.GE9999@pengutronix.de>
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
+ I2C slaves
+Date: Tue, 25 Aug 2015 17:50:08 +0300
+Message-ID: <55DC80A0.6010506@linux.intel.com>
+References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com> <20150825050306.GB21569@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150819070218.GE9999-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20150825050306.GB21569-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Dustin Byford <dustin-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 19, 2015 at 9:02 AM, Uwe Kleine-K=C3=B6nig
-<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> On Wed, Aug 19, 2015 at 03:44:49AM +0000, Gao Pandy wrote:
->> From: Uwe Kleine-K=C3=B6nig <mailto:u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> =
-Sent: Thursday, August 13, 2015 4:15 PM
->> > > +static void i2c_imx_prepare_recovery(struct i2c_adapter *adap) =
-{
->> > > + struct imx_i2c_struct *i2c_imx;
->> > > +
->> > > + i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter)=
-;
->> > > + if (i2c_imx->pins.sda && i2c_imx->pins.scl) {
->> > > +         pinctrl_pm_select_sleep_state(&adap->dev);
->> >
->> > Your requirement that the sleep state should configure the pins as=
- gpio
->> > is strange. Maybe better introduce a dedicated state for recovery?=
- At
->> > least you should document this requirement.
->>
->> In general, pinctrl sleep mode is gpio function. I will add this in =
-binding doc. Thanks.
+On 08/25/2015 08:03 AM, Dustin Byford wrote:
+> On Mon Aug 24 13:52, Jarkko Nikula wrote:
 >
-> Linus, do you have to say something here? It might be right to have t=
-he
-> gpio function as configuration for sleep mode, but it doesn't look ri=
-ght
-> for me to use this for recovery purposes.
+>> I don't know how common ACPI enumerated I2C hwmon devices are but I guess
+>> they exists since Dustin notices this issue and wrote "With that change,
+>> /sys/bus/i2c/devices/i2c-0-004a, for example, became
+>> /sys/bus/i2c/devices/i2c-PNPXXXX:xx".
+>
+> I wouldn't take my particular use case as evidence they are common, or
+> even they really exist.  I got here because I loaded a hwmon driver
+> using the _DSD/PRP0001 mechanism in ACPI.  In that case, those devices
+> have never worked with 'sensors'  Therefore, in that context, this
+> change is just fixing a bug.
+>
+So does this then fall more into new use case rather than being a 
+regression as such?
 
-What it usually means is that the pin has a function mode such
-that an asynchronous edge detector is connected to it on the
-outer pad ring, maybe in tristate or some pull-up/down configuration.
-This makes is possible for the system to power
-off completely until an event occurs there with only some
-very peripheral electronics powered up.
+What I'm trying to understand what kind of regression we actually do 
+have here? Is it about listing the devices or does it also cease to show 
+for instance temperature sensor readings?
 
-I think the terminology depend on the use case. See the section
-"GPIO mode pitfalls" in Documentation/pinctrl.txt
+If it requires to add a match table to existing driver in order to 
+trigger this then at least stable tree is not worry here.
 
-If the use case is around the i2c traffic, it is a mode related to I2C,
-and if this mode is called "GPIO mode" in the data sheet
-is irrelevant, because it is obviously not used for the generic
-input/output but the specific I2C. The terminology should be
-made familiar to whoever needs to go in and read the code later.
-
-Yours,
-Linus Walleij
+-- 
+Jarkko
