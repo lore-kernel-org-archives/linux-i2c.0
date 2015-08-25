@@ -1,50 +1,295 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
- I2C slaves
-Date: Tue, 25 Aug 2015 10:12:24 -0700
-Message-ID: <55DCA1F8.3050008@roeck-us.net>
-References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com> <20150825052513.GI1654@sirena.org.uk> <20150825145756.GA4066@schokonusskuchen.bad> <55DC8746.1060809@roeck-us.net> <20150825161850.GA8118@katana>
+From: Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Patch V4] i2c: imx: add runtime pm support to improve the performance
+Date: Tue, 25 Aug 2015 21:53:20 +0200
+Message-ID: <55DCC7B0.3060807@gmail.com>
+References: <1440469235-2328-1-git-send-email-b54642@freescale.com> <55DC0D28.9050103@gmail.com> <CY1PR0301MB0858E8B7315F47CA533EAD64CF610@CY1PR0301MB0858.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20150825161850.GA8118@katana>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Brown <broonie@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, lm-sensors@lm-sensors.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jean Delvare <jdelvare@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Dustin Byford <dustin@cumulusnetworks.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CY1PR0301MB0858E8B7315F47CA533EAD64CF610-YrwGdl+PljlUWoKpOwApjpwN6zqB+hSMnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/25/2015 09:18 AM, Wolfram Sang wrote:
-> On Tue, Aug 25, 2015 at 08:18:30AM -0700, Guenter Roeck wrote:
->> On 08/25/2015 07:57 AM, Wolfram Sang wrote:
->>> On Tue, Aug 25, 2015 at 06:25:13AM +0100, Mark Brown wrote:
->>>> On Mon, Aug 24, 2015 at 01:52:02PM +0300, Jarkko Nikula wrote:
->>>>> Commit 70762abb9f89 ("i2c: Use stable dev_name for ACPI enumerated I2C
->>>>> slaves") broke the lm-sensors which relies on I2C hwmon slave devices under
->>>>> /sys/bus/i2c/devices/ to be named as "x-00yz". However if those hwmon
->>>>> devices are ACPI 5 enumerated their name became "i2c-INTABCD:ij" and sysfs
->>>>> code in lm-sensors does not find them anymore:
->>>>
->>>> Acked-by: Mark Brown <broonie@kernel.org>
->>>
->>> Don't you think there will be regressions given that the new naming
->>> scheme was around for 18 months?
->>>
+Am 25.08.2015 um 13:09 schrieb Gao Pandy:
+> From: Heiner Kallweit <mailto:hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> Sent: Tuesday, Au=
+gust 25, 2015 2:37 PM
+>> To: Gao Pan-B54642; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+>> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Li Frank-B20596; Duan Fugang-B38611;
+>> u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+>> Subject: Re: [Patch V4] i2c: imx: add runtime pm support to improve =
+the
+>> performance
 >>
->> acpi is pretty long term. New bindings don't show up quickly.
->
-> The key is, there might be userspace applications that got used to our
-> new "export" of ACPI bindings. The bindings were already existing, our
-> "export" did change.
->
->> So I am not surprised that this only shows up now.
->
-> I am, to be honest. It shows running lm-sensors with ACPI on a kernel
-> newer than 18 months. Not a rare scenario, so I thought.
->
-With i2c (sensor) devices enumerated in acpi ? Yes, I think that is quite rare.
-This is not about the kernel, it is about such device bindings showing up
-in acpi data.
+>> Am 25.08.2015 um 04:20 schrieb Gao Pan:
+>>> In our former i2c driver, i2c clk is enabled and disabled in xfer
+>>> function, which contributes to power saving. However, the clk enabl=
+e
+>>> process brings a busy wait delay until the core is stable. As a
+>>> result, the performance is sacrificed.
+>>>
+>>> To weigh the power consumption and i2c bus performance, runtime pm =
+is
+>>> the good solution for it. The clk is enabled when a i2c transfer
+>>> starts, and disabled after a specifically defined delay.
+>>>
+>>> Without the patch the test case (many eeprom reads) executes with
+>> approx:
+>>> real 1m7.735s
+>>> user 0m0.488s
+>>> sys 0m20.040s
+>>>
+>>> With the patch the same test case (many eeprom reads) executes with
+>> approx:
+>>> real 0m54.241s
+>>> user 0m0.440s
+>>> sys 0m5.920s
+>>>
+>>> Signed-off-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+>>> Signed-off-by: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+>>> [wsa: fixed some indentation]
+>>> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+>>> ---
+>>> V2:
+>>> As Uwe Kleine-K=C3=B6nig's suggestion, the version do below changes=
+:
+>>>  -call clk_prepare_enable in probe to avoid never enabling clock
+>>>   if CONFIG_PM is disabled
+>>>  -enable clock before request IRQ in probe  -remove the pm staff in
+>>> i2c_imx_isr
+>>>
+>>> V3:
+>>>  -pm_runtime_get_sync returns < 0 as error
+>>>
+>>> V4:
+>>>  -add pm_runtime_set_active before pm_runtime_enable  -replace
+>>> pm_runtime_put_autosuspend with pm_runtime_autosuspend
+>>>   in probe
+>>>  -add error disposal when i2c_add_numbered_adapter fails
+>>>
+>>>  drivers/i2c/busses/i2c-imx.c | 79
+>>> ++++++++++++++++++++++++++++++++++++++------
+>>>  1 file changed, 68 insertions(+), 11 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-imx.c
+>>> b/drivers/i2c/busses/i2c-imx.c index 785aa67..7c63047 100644
+>>> --- a/drivers/i2c/busses/i2c-imx.c
+>>> +++ b/drivers/i2c/busses/i2c-imx.c
+>>> @@ -53,6 +53,7 @@
+>>>  #include <linux/platform_device.h>
+>>>  #include <linux/sched.h>
+>>>  #include <linux/slab.h>
+>>> +#include <linux/pm_runtime.h>
+>>>
+>>>  /** Defines
+>>> *******************************************************************=
+*
+>>>
+>>> *******************************************************************=
+***
+>>> *********/
+>>> @@ -118,6 +119,8 @@
+>>>  #define I2CR_IEN_OPCODE_0	0x0
+>>>  #define I2CR_IEN_OPCODE_1	I2CR_IEN
+>>>
+>>> +#define I2C_PM_TIMEOUT		10 /* ms */
+>>> +
+>>>  /** Variables
+>>> ******************************************************************
+>>>
+>>> *******************************************************************=
+***
+>>> *********/
+>>>
+>>> @@ -520,9 +523,6 @@ static int i2c_imx_start(struct imx_i2c_struct
+>>> *i2c_imx)
+>>>
+>>>  	i2c_imx_set_clk(i2c_imx);
+>>>
+>>> -	result =3D clk_prepare_enable(i2c_imx->clk);
+>>> -	if (result)
+>>> -		return result;
+>>>  	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+>>>  	/* Enable I2C controller */
+>>>  	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx,
+>>> IMX_I2C_I2SR); @@ -575,7 +575,6 @@ static void i2c_imx_stop(struct
+>> imx_i2c_struct *i2c_imx)
+>>>  	/* Disable I2C controller */
+>>>  	temp =3D i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+>>>  	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+>>> -	clk_disable_unprepare(i2c_imx->clk);
+>>>  }
+>>>
+>>>  static irqreturn_t i2c_imx_isr(int irq, void *dev_id) @@ -894,6
+>>> +893,10 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+>>>
+>>>  	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+>>>
+>>> +	result =3D pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
+>>> +	if (result < 0)
+>>> +		goto out;
+>>> +
+>>>  	/* Start I2C transfer */
+>>>  	result =3D i2c_imx_start(i2c_imx);
+>>>  	if (result)
+>>> @@ -950,6 +953,10 @@ fail0:
+>>>  	/* Stop I2C transfer */
+>>>  	i2c_imx_stop(i2c_imx);
+>>>
+>>> +out:
+>>> +	pm_runtime_mark_last_busy(i2c_imx->adapter.dev.parent);
+>>> +	pm_runtime_put_autosuspend(i2c_imx->adapter.dev.parent);
+>>> +
+>>>  	dev_dbg(&i2c_imx->adapter.dev, "<%s> exit with: %s: %d\n", __func=
+__,
+>>>  		(result < 0) ? "error" : "success msg",
+>>>  			(result < 0) ? result : num);
+>>> @@ -1020,9 +1027,10 @@ static int i2c_imx_probe(struct platform_dev=
+ice
+>>> *pdev)
+>>>
+>>>  	ret =3D clk_prepare_enable(i2c_imx->clk);
+>>>  	if (ret) {
+>>> -		dev_err(&pdev->dev, "can't enable I2C clock\n");
+>>> +		dev_err(&pdev->dev, "can't enable I2C clock, ret=3D%d\n", ret);
+>>>  		return ret;
+>>>  	}
+>>> +
+>>>  	/* Request IRQ */
+>>>  	ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
+>>>  				pdev->name, i2c_imx);
+>>> @@ -1037,6 +1045,14 @@ static int i2c_imx_probe(struct platform_dev=
+ice
+>> *pdev)
+>>>  	/* Set up adapter data */
+>>>  	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
+>>>
+>>> +	/* Set up platform driver data */
+>>> +	platform_set_drvdata(pdev, i2c_imx);
+>>> +
+>>> +	pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
+>>> +	pm_runtime_use_autosuspend(&pdev->dev);
+>>> +	pm_runtime_set_active(&pdev->dev);
+>>> +	pm_runtime_enable(&pdev->dev);
+>>> +
+>>>  	/* Set up clock divider */
+>>>  	i2c_imx->bitrate =3D IMX_I2C_BIT_RATE;
+>>>  	ret =3D of_property_read_u32(pdev->dev.of_node,
+>>> @@ -1053,12 +1069,13 @@ static int i2c_imx_probe(struct platform_de=
+vice
+>> *pdev)
+>>>  	ret =3D i2c_add_numbered_adapter(&i2c_imx->adapter);
+>>>  	if (ret < 0) {
+>>>  		dev_err(&pdev->dev, "registration failed\n");
+>>> +		pm_runtime_mark_last_busy(&pdev->dev);
+>>> +		pm_runtime_autosuspend(&pdev->dev);
+>> It would be more consistent with the general practice not to clean u=
+p
+>> here but to define a new error label, goto there and do the clean-up
+>> there.
+>> And if adding the adapter fails most likely you don't want to autosu=
+spend
+>> but clean up and disable runtime PM.
+> =20
+> Thank you, will change it in next version.
+>=20
+>>>  		goto clk_disable;
+>>>  	}
+>>>
+>>> -	/* Set up platform driver data */
+>>> -	platform_set_drvdata(pdev, i2c_imx);
+>>> -	clk_disable_unprepare(i2c_imx->clk);
+>>> +	pm_runtime_mark_last_busy(&pdev->dev);
+>>> +	pm_runtime_autosuspend(&pdev->dev);
+>> >From enabling runtime PM to here you don't hold a reference so
+>>> theoretically
+>> it might happen that the device gets suspended in-between.
+>> I'm not able to say whether this is an actual potential issue here.
+>> However to be on the safe side it wouldn't hurt to do a pm_runtime_g=
+et_xx
+>> when enabling PM and use pm_runtime_put_autosuspend here.
+>=20
+> Thanks. If I use pm_runtime_get_xx when enabling PM, clk_prepare_enab=
+le will be called again.=20
+> However, it has been called before. It's kind of code redundancy to u=
+se pm_runtime_get_xx.
+No, it won't. This function checks whether the device is in state "acti=
+ve" and in this case
+it doesn't call the resume callback and returns 1.
+See also the source code of runtime PM in drivers/base/power/runtime.c
 
-Guenter
-
+Rgds, Heiner
+>=20
+>> Regards, Heiner
+>>>
+>>>  	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
+>>>  	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res); @=
+@
+>>> -1079,6 +1096,11 @@ clk_disable:
+>>>  static int i2c_imx_remove(struct platform_device *pdev)  {
+>>>  	struct imx_i2c_struct *i2c_imx =3D platform_get_drvdata(pdev);
+>>> +	int ret;
+>>> +
+>>> +	ret =3D pm_runtime_get_sync(&pdev->dev);
+>>> +	if (ret < 0)
+>>> +		return ret;
+>>>
+>>>  	/* remove adapter */
+>>>  	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n"); @@ -1093,17
+>>> +1115,52 @@ static int i2c_imx_remove(struct platform_device *pdev)
+>>>  	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
+>>>  	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
+>>>
+>>> +	pm_runtime_put_sync(&pdev->dev);
+>>> +	pm_runtime_disable(&pdev->dev);
+>>> +
+>>>  	return 0;
+>>>  }
+>>>
+>>> +#ifdef CONFIG_PM
+>>> +static int i2c_imx_runtime_suspend(struct device *dev) {
+>>> +	struct imx_i2c_struct *i2c_imx  =3D dev_get_drvdata(dev);
+>>> +
+>>> +	clk_disable_unprepare(i2c_imx->clk);
+>>> +
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int i2c_imx_runtime_resume(struct device *dev) {
+>>> +	struct imx_i2c_struct *i2c_imx  =3D dev_get_drvdata(dev);
+>>> +	int ret;
+>>> +
+>>> +	ret =3D clk_prepare_enable(i2c_imx->clk);
+>>> +	if (ret)
+>>> +		dev_err(dev, "can't enable I2C clock, ret=3D%d\n", ret);
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>> +static const struct dev_pm_ops i2c_imx_pm_ops =3D {
+>>> +	SET_RUNTIME_PM_OPS(i2c_imx_runtime_suspend,
+>>> +			   i2c_imx_runtime_resume, NULL)
+>>> +};
+>>> +#define I2C_IMX_PM_OPS (&i2c_imx_pm_ops) #else #define I2C_IMX_PM_=
+OPS
+>>> +NULL #endif /* CONFIG_PM */
+>>> +
+>>>  static struct platform_driver i2c_imx_driver =3D {
+>>>  	.probe =3D i2c_imx_probe,
+>>>  	.remove =3D i2c_imx_remove,
+>>> -	.driver	=3D {
+>>> -		.name	=3D DRIVER_NAME,
+>>> +	.driver =3D {
+>>> +		.name =3D DRIVER_NAME,
+>>> +		.pm =3D I2C_IMX_PM_OPS,
+>>>  		.of_match_table =3D i2c_imx_dt_ids,
+>>>  	},
+>>> -	.id_table	=3D imx_i2c_devtype,
+>>> +	.id_table =3D imx_i2c_devtype,
+>>>  };
+>>>
+>>>  static int __init i2c_adap_imx_init(void)
+>>>
+>=20
