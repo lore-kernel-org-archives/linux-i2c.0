@@ -1,48 +1,48 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
- I2C slaves
-Date: Tue, 25 Aug 2015 06:25:13 +0100
-Message-ID: <20150825052513.GI1654@sirena.org.uk>
-References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="r5lq+205vWdkqwtk"
+From: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+Subject: [RESEND PATCH 0/7] Export I2C and OF module aliases in missing drivers
+Date: Tue, 25 Aug 2015 08:31:10 +0200
+Message-ID: <1440484277-32675-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1440413522-7855-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dustin Byford <dustin-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Takashi Iwai <tiwai-IBi9RG/b67k@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jaroslav Kysela <perex-/Fr2/VpizcU@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello,
 
---r5lq+205vWdkqwtk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is a resend of the patches that were not picked from the series
+"[PATCH 00/27] Export I2C and OF module aliases in missing drivers" [0]
+posted about a month ago.
 
-On Mon, Aug 24, 2015 at 01:52:02PM +0300, Jarkko Nikula wrote:
-> Commit 70762abb9f89 ("i2c: Use stable dev_name for ACPI enumerated I2C
-> slaves") broke the lm-sensors which relies on I2C hwmon slave devices under
-> /sys/bus/i2c/devices/ to be named as "x-00yz". However if those hwmon
-> devices are ACPI 5 enumerated their name became "i2c-INTABCD:ij" and sysfs
-> code in lm-sensors does not find them anymore:
+The patches have no dependencies and can be picked individually by the
+relevant maintainer.
 
-Acked-by: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+I preferred to resend instead of sending a naked ping for each patch
+that I got no answer.
 
---r5lq+205vWdkqwtk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Best regards,
+Javier
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
 
-iQEcBAEBCAAGBQJV2/wxAAoJECTWi3JdVIfQqAEH/RzBrneVJ4mml8ks/Gr9hA+B
-Gy/2BLyESl/2wYICVZwduC6p07x1UH3mHPPLbt/F9YAOupj6KXDgBXPViiSQQsiv
-oTYuJLAiCnCxT8XrF1TDO3e4T16e6/mjk26mjgDBeHHpidwN16yofs070kAnK++Z
-7/KPVhjhOVwbo7BXXlFXrrmUJ0f7DGE6dUxkpVgabqgO8peCBOWgcPgAXlJ/Dlod
-p34VsGwiRO8oCNGKT12Mb+rhS/7jKdkoSH2khWDPOJSQQB4KHKHJ/FFlGcaolpKF
-EUhpxIm5nvafU9CuLEfLE/3GoMZxfZLmf+XOyF2zBPVVISdhtLv+fkCKpa7KmgM=
-=kKSL
------END PGP SIGNATURE-----
+Javier Martinez Canillas (7):
+  i2c: core: Export I2C module alias information in dummy driver
+  backlight: tosa: Export I2C module alias information
+  usb: phy: isp1301: Export I2C module alias information
+  ALSA: ppc: keywest: Export I2C module alias information
+  extcon: Export OF module alias information in missing drivers
+  leds: Export OF module alias information in missing drivers
+  regulator: isl9305: Export OF module alias information
 
---r5lq+205vWdkqwtk--
+ drivers/extcon/extcon-rt8973a.c   | 1 +
+ drivers/extcon/extcon-sm5502.c    | 1 +
+ drivers/i2c/i2c-core.c            | 1 +
+ drivers/leds/leds-pca963x.c       | 1 +
+ drivers/leds/leds-tca6507.c       | 1 +
+ drivers/regulator/isl9305.c       | 1 +
+ drivers/usb/phy/phy-isp1301.c     | 1 +
+ drivers/video/backlight/tosa_bl.c | 1 +
+ sound/ppc/keywest.c               | 1 +
+ 9 files changed, 9 insertions(+)
+
+-- 
+2.4.3
