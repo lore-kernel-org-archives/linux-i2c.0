@@ -1,32 +1,48 @@
-From: Dustin Byford <dustin-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: Re: [RFC 0/1] i2c: acpi: revert setting a "stable" device name
-Date: Mon, 24 Aug 2015 22:03:29 -0700
-Message-ID: <20150825050329.GC21569@cumulusnetworks.com>
-References: <1439581034-5972-1-git-send-email-dustin@cumulusnetworks.com>
- <20150815151302.GA10020@roeck-us.net>
- <55D1948C.6080501@linux.intel.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
+ I2C slaves
+Date: Tue, 25 Aug 2015 06:25:13 +0100
+Message-ID: <20150825052513.GI1654@sirena.org.uk>
+References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="r5lq+205vWdkqwtk"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <55D1948C.6080501-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <1440413522-7855-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dustin Byford <dustin-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon Aug 17 11:00, Jarkko Nikula wrote:
 
-> If I remember correctly ACPI ID should not ever change and instance id :xy
-> after INTABCD:xy should also be visible and keep the order even if device is
-> disabled or not plugged. But I'm not absolute sure about this.
-> 
-> At least on a test platform that allow disable devices will show those
-> devices off-line (/sys/bus/acpi/devices/INTABCD:xy/status == 0).
+--r5lq+205vWdkqwtk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I'm always surprised how hard it is to tell what *can't* happen in ACPI.
-How about a conditional call to LoadTable()?  Seems like that would mess
-up the :xy.  Moot point, I think you're on the right track in your RFC
-patch.
+On Mon, Aug 24, 2015 at 01:52:02PM +0300, Jarkko Nikula wrote:
+> Commit 70762abb9f89 ("i2c: Use stable dev_name for ACPI enumerated I2C
+> slaves") broke the lm-sensors which relies on I2C hwmon slave devices under
+> /sys/bus/i2c/devices/ to be named as "x-00yz". However if those hwmon
+> devices are ACPI 5 enumerated their name became "i2c-INTABCD:ij" and sysfs
+> code in lm-sensors does not find them anymore:
 
-		--Dustin
+Acked-by: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+
+--r5lq+205vWdkqwtk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJV2/wxAAoJECTWi3JdVIfQqAEH/RzBrneVJ4mml8ks/Gr9hA+B
+Gy/2BLyESl/2wYICVZwduC6p07x1UH3mHPPLbt/F9YAOupj6KXDgBXPViiSQQsiv
+oTYuJLAiCnCxT8XrF1TDO3e4T16e6/mjk26mjgDBeHHpidwN16yofs070kAnK++Z
+7/KPVhjhOVwbo7BXXlFXrrmUJ0f7DGE6dUxkpVgabqgO8peCBOWgcPgAXlJ/Dlod
+p34VsGwiRO8oCNGKT12Mb+rhS/7jKdkoSH2khWDPOJSQQB4KHKHJ/FFlGcaolpKF
+EUhpxIm5nvafU9CuLEfLE/3GoMZxfZLmf+XOyF2zBPVVISdhtLv+fkCKpa7KmgM=
+=kKSL
+-----END PGP SIGNATURE-----
+
+--r5lq+205vWdkqwtk--
