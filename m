@@ -1,49 +1,88 @@
 From: Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 0/4] Support multiplexed main SMBus interface on SB800
-Date: Tue, 25 Aug 2015 13:05:01 +0200
-Message-ID: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
+Subject: [PATCH 4/4] i2c-piix4: Add adapter port name support for SB800 chipset
+Date: Tue, 25 Aug 2015 13:05:05 +0200
+Message-ID: <1440500705-2288-5-git-send-email-fetzer.ch@gmail.com>
+References: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1440500705-2288-1-git-send-email-fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org, galandilias-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is an attempt to upstream the patches created by Thomas Brandon and
-Eddi De Pieri to support the multiplexed main SMBus interface on the SB800
-chipset. (https://www.mail-archive.com/linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg06757.html)
+This patch adds support for port names for the SB800 chipset.
+Since the chipset supports a multiplexed main SMBus controller, adding
+the channel name to the adapter name is necessary to differentiate the
+ports better (for example in sensors output).
 
-I have mainly rebased the latest patch version and tested the driver on a
-HP ProLiant MicroServer G7 N54L (where this patch allows to access sensor data
-from a w83795adg).
+Signed-off-by: Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-piix4.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-The patched driver is running stable on the machine, given that ic2_piix4 is
-loaded before jc42 and w83795. If jc42 is loaded before i2c_piix4 calling
-sensors triggers some errors:
-    ERROR: Can't get value of subfeature temp1_min_alarm: Can't read
-
-While the kernel log shows:
-    i2c i2c-1: Transaction (pre): CNT=0c, CMD=05, ADD=31, DAT0=03, DAT1=c0
-    i2c i2c-1: Error: no response!
-    i2c i2c-1: Transaction (post): CNT=0c, CMD=05, ADD=31, DAT0=ff, DAT1=ff
-Unfortunately I don't know how to tackle this specific issue.
-
-Please review and let me know required changes in order to get this upstream
-finally.
-
-Eddi, Thomas, it would be great if you could verify the changes on your
-machines.
-
-Regards,
-Christian
-
-Christian Fetzer (4):
-  i2c-piix4: Optionally release smba in piix4_adap_remove
-  i2c-piix4: Convert piix4_main_adapter to array
-  i2c-piix4: Add support for multiplexed main adapter in SB800
-  i2c-piix4: Add adapter port name support for SB800 chipset
-
- drivers/i2c/busses/i2c-piix4.c | 151 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 134 insertions(+), 17 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index e344abd..366878e 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -131,6 +131,10 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+ 
+ /* SB800 globals */
+ DEFINE_MUTEX(piix4_mutex_sb800);
++static const char *piix4_main_port_names_sb800[4] = {
++	"SDA0", "SDA2", "SDA3", "SDA4"
++};
++static const char *piix4_aux_port_name_sb800 = "SDA1";
+ 
+ struct i2c_piix4_adapdata {
+ 	unsigned short smba;
+@@ -626,7 +630,7 @@ static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
+ static struct i2c_adapter *piix4_aux_adapter;
+ 
+ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+-			     struct i2c_adapter **padap)
++			     const char *name, struct i2c_adapter **padap)
+ {
+ 	struct i2c_adapter *adap;
+ 	struct i2c_piix4_adapdata *adapdata;
+@@ -655,7 +659,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+ 	adap->dev.parent = &dev->dev;
+ 
+ 	snprintf(adap->name, sizeof(adap->name),
+-		"SMBus PIIX4 adapter at %04x", smba);
++		"SMBus PIIX4 adapter %s at %04x", name, smba);
+ 
+ 	i2c_set_adapdata(adap, adapdata);
+ 
+@@ -679,7 +683,9 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba)
+ 	struct i2c_piix4_adapdata *adapdata;
+ 
+ 	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
+-		retval = piix4_add_adapter(dev, smba, &piix4_main_adapters[port]);
++		retval = piix4_add_adapter(dev, smba,
++					   piix4_main_port_names_sb800[port],
++					   &piix4_main_adapters[port]);
+ 		if (retval < 0)
+ 			goto ERROR;
+ 
+@@ -729,7 +735,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 			return retval;
+ 
+ 		/* Try to register main SMBus adapter, give up if we can't */
+-		retval = piix4_add_adapter(dev, retval, &piix4_main_adapters[0]);
++		retval = piix4_add_adapter(dev, retval, "",
++					   &piix4_main_adapters[0]);
+ 	}
+ 
+ 	/* If no main SMBus found, give up */
+@@ -757,7 +764,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	if (retval > 0) {
+ 		/* Try to add the aux adapter if it exists,
+ 		 * piix4_add_adapter will clean up if this fails */
+-		piix4_add_adapter(dev, retval, &piix4_aux_adapter);
++		piix4_add_adapter(dev, retval, piix4_aux_port_name_sb800,
++				  &piix4_aux_adapter);
+ 	}
+ 
+ 	return 0;
 -- 
 1.9.1
