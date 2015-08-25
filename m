@@ -1,49 +1,83 @@
-From: "Fu, Zhonghui" <zhonghui.fu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c/designware: enable i2c controller to suspend/resume
- asynchronously
-Date: Mon, 24 Aug 2015 23:23:42 +0800
-Message-ID: <55DB36FE.10204@linux.intel.com>
-References: <55D20D79.3090308@linux.intel.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated I2C slaves
+Date: Tue, 25 Aug 2015 02:19:36 +0200
+Message-ID: <2688486.RKUY9k7hgx@vostro.rjw.lan>
+References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com> <20150824132612.GA10078@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55D20D79.3090308-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; boundary="nextPart1520531.O02NFJvkWi"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20150824132612.GA10078@katana>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@kernel.org>, Jean Delvare <jdelvare@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Dustin Byford <dustin@cumulusnetworks.com>, linux@roeck-us.net
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-Any comments are welcome.
+--nextPart1520531.O02NFJvkWi
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 
+On Monday, August 24, 2015 03:26:13 PM Wolfram Sang wrote:
+> On Mon, Aug 24, 2015 at 01:52:02PM +0300, Jarkko Nikula wrote:
+> > Commit 70762abb9f89 ("i2c: Use stable dev_name for ACPI enumerated I2C
+> > slaves") broke the lm-sensors which relies on I2C hwmon slave devices under
+> > /sys/bus/i2c/devices/ to be named as "x-00yz". However if those hwmon
+> > devices are ACPI 5 enumerated their name became "i2c-INTABCD:ij" and sysfs
+> > code in lm-sensors does not find them anymore:
+> > 
+> > lib/sysfs.c:665:
+> > if ((!subsys || !strcmp(subsys, "i2c")) &&
+> >     sscanf(dev_name, "%hd-%x", &entry.chip.bus.nr,
+> > 	   &entry.chip.addr) == 2) {
+> > 
+> > This patch fixes this by reverting back the old device naming in i2c-core
+> > but at the same avoids regression to ALSA SoC drivers that depend on stable
+> > device binding.
+> 
+> This way we fix some userspace by going back. However, this name change
+> was effective for 18 months, so enough time for some other userspace to
+> adapt. We would break the latter by reverting.
+
+Right.
+
+Generally, reverts of such things need to be made relatively quickly.
+
+> I tend to create the symlinks to prevent any further breakage. I am open
+> for other suggestions, though. This ugly situation has surely happened
+> before somewhere somewhen in the kernel :/
+
+It happens on a regular basis.
+
+In this particular case it looks like we need a mechanism to use the old
+naming scheme for hwmon and the new one for everything else or something
+similar.  I'm afraid I am not familiar enough with the i2c core to suggest
+anything specific ATM, though.
 
 Thanks,
-Zhonghui
+Rafael
 
+--nextPart1520531.O02NFJvkWi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-On 2015/8/18 0:36, Fu, Zhonghui wrote:
-> Enable i2c controller to suspend/resume asynchronously. This can improve
-> system suspend/resume speed.
->
-> Signed-off-by: Zhonghui Fu <zhonghui.fu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 3dd2de3..fec0fce 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -245,6 +245,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  
->  	adap = &dev->adapter;
->  	i2c_set_adapdata(adap, dev);
-> +	device_enable_async_suspend(&pdev->dev);
->  	adap->owner = THIS_MODULE;
->  	adap->class = I2C_CLASS_DEPRECATED;
->  	strlcpy(adap->name, "Synopsys DesignWare I2C adapter",
-> -- 1.7.1
->
+iQIcBAABCAAGBQJV27SfAAoJEILEb/54YlRxsD0P/3SvBX/qDUxkYNJ8pNg6xN7A
+/9pNIq+AgGNncYljkG4JWKrUod1Hfw3/lO6WXwx3E8b8zbBdq2B+R2DVJo/gnrb5
+zIx0PU83UlG5VgsgEUZKkGMhXGOJAWGpcDKpj6UL2E3XhqeIl42BOKu1DAxXX0ml
+BGmdHro8fwqykaUCKS9E4lBGerz/3/QE5nbA2XxDJSMx9N0dU+sDtgdHxIr5KmZ7
+E5BqkL/sDn7h6r1n+29tTyAM+z86HaHQGzNmQxmH1SBa0sEnZ7x+p8Td5XULvx80
+JtFFw6a/yPnD9CVMtI2XdgWxEmRo6Nr2RcicJAM8rUEuBKNveUKI1lwILnKfvTCF
+HCg00DLwhpEQMFwdI1o7hpLAFmBA1DRFkad6HyDveqlCFuryXlSXa7wlYJYwc6yt
+GaOuzqgcVSPioy/Jkgn+GJ7RbpmJMc31L+GceFN0iAxhn8cUZtAseIHSzqjChBam
+C6mg+hhDawvKqq/huukefmp9Ws/bv2FuiyetLi8Sv0xyjKu7rq2b/x5WGiqsYh9z
+WAtQsnGG9XfRiSKbt7yUg5TgEwpLuPs/IRxnV8FAk1JhMHqj4gKy6NPDKRw96opp
+id+EbCOWzr+zBljFt393D2NC0ATEgtqJ5G0PJ6MdKueIZDnSRjQH8EJkDbOEbUAf
+tJ6J5pPMBZxCj6W3oP65
+=Gw3G
+-----END PGP SIGNATURE-----
+
+--nextPart1520531.O02NFJvkWi--
+
