@@ -1,58 +1,59 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mux: reg: simplify register size checking
-Date: Mon, 31 Aug 2015 22:24:33 +0200
-Message-ID: <20150831202432.GA1544@katana>
-References: <1440106846-4484-1-git-send-email-wsa@the-dreams.de>
- <BLUPR03MB15192BDC38DC0DE8D28395FBE650@BLUPR03MB151.namprd03.prod.outlook.com>
+Subject: Re: [RESEND PATCH 1/7] i2c: core: Export I2C module alias
+ information in dummy driver
+Date: Mon, 31 Aug 2015 22:31:44 +0200
+Message-ID: <20150831203144.GC1544@katana>
+References: <1440484277-32675-1-git-send-email-javier@osg.samsung.com>
+ <1440484277-32675-2-git-send-email-javier@osg.samsung.com>
+ <20150826165532.GC1521@katana>
+ <55DE00F6.1070206@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+	protocol="application/pgp-signature"; boundary="bKyqfOwhbdpXa4YI"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <BLUPR03MB15192BDC38DC0DE8D28395FBE650-GeMU99GfrrutHeM+ReIpiOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+In-Reply-To: <55DE00F6.1070206-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Nq2Wo0NMKNjxTN9z
+--bKyqfOwhbdpXa4YI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 21, 2015 at 03:26:23AM +0000, York Sun wrote:
-> Sorry for top posting, I am out and replying using web access.
+
+> > The dummy driver is always loaded when the i2c core inits.
+> >=20
 >=20
-> This patch looks OK. I cannot test it until earliest next Friday.
+> Ok, I wondered if that was the case but I
+> was not sure so I posted it just in case.
 
-Did you have the chance to test it?
-
-Thanks,
-
-   Wolfram
+Check the source code, this part is pretty obvious...
 
 
---Nq2Wo0NMKNjxTN9z
+--bKyqfOwhbdpXa4YI
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJV5LgAAAoJEBQN5MwUoCm2G+UP/33xRfqjr7DqNlylZpHq7Cn9
-zOxEMUG1e/FvRGxar0Gmsy0KWAHf4KCdIMQ3YAMIKNMXWEMCgoCmnTGSdXc3UHVf
-SOJwlcW4h8mHfnNEOezAauCRkQ8VNHmu05xJdhnUs2Xe7NR+B6lzzoUMYi2a7hKg
-dgkgRiZscVFnNDknop5Yl8zA3zgoTRPwnVAoKAPo9oGAaeK94f/Mw2FXxLnLfdmg
-mIOpmf11HXJA2DJCytc/DTpMVJFwoocNl8VSR95zpysJ+oquNgYAyVwn8HS8pusK
-gKPAHh5KL49fkqMuovgGNC7EiozXIuKPOfyTHqnzs2tszKV7lVdepugnCJIIFVWG
-VIsdCjvq1d6wCbSz7UCmBwFKM8uuFqnG9/66nm0f/GA/to2dsH1Dtc2qJ5DnZOfo
-odi4hAx6fxROxffVJtl1q88jNNLnYIOVtmZZrATSI738yYUpWNJcrJ87u4/EryHK
-s+pXFquoZY/yxgKMQG3J/JVXCkTGjPMSeVwQCm3Wqwqm0SqkknJw/d9Wezpoxlh9
-y+ipoM1t3lABtzcNcgpufSqUT1+BtW94uanHhUucypjdk5HpApd4RYPY46Vr2nQ2
-d5eWckJ0lwuBKDIM8kNZIYb8YsYfvWL310DwmHF1iutlsREGWcTc2FhybOMnNoXf
-Bj/KWkwVTNZYUOJ1GZ4f
-=YPJE
+iQIcBAEBAgAGBQJV5LmwAAoJEBQN5MwUoCm2KhsQALWR02aoScDs5ggvdjhnMeBy
+jQF6F21NwMykPNb5dBdqJNDIE/0K2MraEvh3JvuhUAb1uhGAi3v6i/E5wUjeLiJK
+7TICKiExfAXbm8HTOQ53C6d5dKvn/PkvpKtRsxokwb+2vQiVI59WVFX0KypZfPYe
+xdIpv6KNUcufZr3cV+E+6WQO7O4l3WugtEt58Vo9/DZYgofy7ZUX26FG44GKDPSJ
+OM7rDb4QU5Qc9SPSr5EOull5VRPKWiMQRre9/XtgnflIHtq0fMySUkpxr8qRtEro
+mnd4Zfvc8ymWZ+yzcsbHcE+B7GkawBmLltLxbWnn8eIKPmBXs+EaMrN13t2y+rZe
+y4AHOPntIrXAt0eilDaQuzU3MwcYVYH4Pu6ygoRJ3YtR/4Xvq324Len2iqo3k2yq
+k3cuSBrp9knr8w31dGOfltNsvM5nrmJSzjj38BtkxCgMVq2KaB7spw0oGrZPiZrZ
+TrUzt/uBppV/reu6LBTEeY1LtlHHJITwpzU4iU3UdHCldm6TMzR69FDUHu6Z+KKt
+qTxRHu92Y2vM3CQrdTR9Nqm9Qsc125lgAM9V8YF/ipR2OQJ51ZyNglQv0rSQfdSp
+UtEqzaaMziLQHzp5r8kP1s7KKxPgz+LKZRrec7GEZlr0F+i3+DXgV0S0Rf27khdx
+jpLGf1hDh3JIlKjvwt+R
+=DaN8
 -----END PGP SIGNATURE-----
 
---Nq2Wo0NMKNjxTN9z--
+--bKyqfOwhbdpXa4YI--
