@@ -1,104 +1,49 @@
 From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 5/6] i2c: designware: Rename platform driver probe and PM functions
-Date: Mon, 31 Aug 2015 17:31:32 +0300
-Message-ID: <1441031493-18938-6-git-send-email-jarkko.nikula@linux.intel.com>
-References: <1441031493-18938-1-git-send-email-jarkko.nikula@linux.intel.com>
+Subject: [PATCH 0/6] i2c: designware: Code duplication removal and cleanups
+Date: Mon, 31 Aug 2015 17:31:27 +0300
+Message-ID: <1441031493-18938-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1441031493-18938-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Make it easier to distinguish between i2c-designware-platdrv and
-i2c-designware-core functions and to be consistent with
-i2c-designware-pcidrv.
+It bothered to me to see "static struct i2c_algorithm i2c_dw_algo {}"
+defined twice both in i2c-designware-pcidrv.c and
+i2c-designware-platdrv.c and so many exported i2c-designware-core
+functions.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+It turned out some of them became unused or are local and there were
+also duplicated probe code that I moved to new common i2c_dw_probe().
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 3dd2de31a2f8..17167cd4812d 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -133,7 +133,7 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
- static inline void dw_i2c_acpi_unconfigure(struct platform_device *pdev) { }
- #endif
- 
--static int dw_i2c_probe(struct platform_device *pdev)
-+static int dw_i2c_plat_probe(struct platform_device *pdev)
- {
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
-@@ -271,7 +271,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int dw_i2c_remove(struct platform_device *pdev)
-+static int dw_i2c_plat_remove(struct platform_device *pdev)
- {
- 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
- 
-@@ -300,12 +300,12 @@ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
- #endif
- 
- #ifdef CONFIG_PM_SLEEP
--static int dw_i2c_prepare(struct device *dev)
-+static int dw_i2c_plat_prepare(struct device *dev)
- {
- 	return pm_runtime_suspended(dev);
- }
- 
--static void dw_i2c_complete(struct device *dev)
-+static void dw_i2c_plat_complete(struct device *dev)
- {
- 	if (dev->power.direct_complete)
- 		pm_request_resume(dev);
-@@ -316,7 +316,7 @@ static void dw_i2c_complete(struct device *dev)
- #endif
- 
- #ifdef CONFIG_PM
--static int dw_i2c_suspend(struct device *dev)
-+static int dw_i2c_plat_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
-@@ -327,7 +327,7 @@ static int dw_i2c_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int dw_i2c_resume(struct device *dev)
-+static int dw_i2c_plat_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
-@@ -341,10 +341,10 @@ static int dw_i2c_resume(struct device *dev)
- }
- 
- static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
--	.prepare = dw_i2c_prepare,
--	.complete = dw_i2c_complete,
--	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_suspend, dw_i2c_resume)
--	SET_RUNTIME_PM_OPS(dw_i2c_suspend, dw_i2c_resume, NULL)
-+	.prepare = dw_i2c_plat_prepare,
-+	.complete = dw_i2c_plat_complete,
-+	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
-+	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
- };
- 
- #define DW_I2C_DEV_PMOPS (&dw_i2c_dev_pm_ops)
-@@ -356,8 +356,8 @@ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
- MODULE_ALIAS("platform:i2c_designware");
- 
- static struct platform_driver dw_i2c_driver = {
--	.probe = dw_i2c_probe,
--	.remove = dw_i2c_remove,
-+	.probe = dw_i2c_plat_probe,
-+	.remove = dw_i2c_plat_remove,
- 	.driver		= {
- 		.name	= "i2c_designware",
- 		.of_match_table = of_match_ptr(dw_i2c_of_match),
+Object sizes below before and after this set from CONFIG_X86_64=y build.
+
+   text	   data	    bss	    dec	    hex	filename
+   6439	   1096	      0	   7535	   1d6f	drivers/i2c/busses/i2c-designware-core.ko
+   5123	   1588	     16	   6727	   1a47	drivers/i2c/busses/i2c-designware-pci.ko
+   5274	   1096	     16	   6386	   18f2	drivers/i2c/busses/i2c-designware-platform.ko
+  16836	   3780	     32	  20648	   50a8	(TOTALS)
+
+   text	   data	    bss	    dec	    hex	filename
+   7225	   1120	     16	   8361	   20a9	drivers/i2c/busses/i2c-designware-core.ko
+   4281	   1524	      0	   5805	   16ad	drivers/i2c/busses/i2c-designware-pci.ko
+   4337	   1072	      0	   5409	   1521	drivers/i2c/busses/i2c-designware-platform.ko
+  15843	   3716	     16	  19575	   4c77	(TOTALS)
+
+Jarkko Nikula (6):
+  i2c: designware: Remove interrupt clearing from i2c_dw_pci_probe()
+  i2c: designware: Disable interrupts before requesting PCI device
+    interrupt
+  i2c: designware: Remove unused functions
+  i2c: designware: Make dw_readl() and dw_writel() static
+  i2c: designware: Rename platform driver probe and PM functions
+  i2c: designware: Move common probe code into i2c_dw_probe()
+
+ drivers/i2c/busses/i2c-designware-core.c    | 73 ++++++++++++++++++-----------
+ drivers/i2c/busses/i2c-designware-core.h    | 10 +---
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 31 ++----------
+ drivers/i2c/busses/i2c-designware-platdrv.c | 52 ++++++--------------
+ 4 files changed, 63 insertions(+), 103 deletions(-)
+
 -- 
 2.5.0
