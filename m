@@ -1,29 +1,39 @@
-From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] i2c: mux: reg: simplify register size checking
-Date: Mon, 31 Aug 2015 17:07:34 -0500
-Message-ID: <55E4D026.9000202@freescale.com>
-References: <1440106846-4484-1-git-send-email-wsa@the-dreams.de>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [RESEND PATCH 1/7] i2c: core: Export I2C module alias information
+ in dummy driver
+Date: Tue, 1 Sep 2015 00:30:22 +0200
+Message-ID: <55E4D57E.7050708@osg.samsung.com>
+References: <1440484277-32675-1-git-send-email-javier@osg.samsung.com>
+ <1440484277-32675-2-git-send-email-javier@osg.samsung.com>
+ <20150826165532.GC1521@katana> <55DE00F6.1070206@osg.samsung.com>
+ <20150831203144.GC1544@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1440106846-4484-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150831203144.GC1544@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Wolfram,
 
-
-On 08/20/2015 04:40 PM, Wolfram Sang wrote:
-> Checking was done at three different locations, just do it once and
-> properly at probing time.
+On 08/31/2015 10:31 PM, Wolfram Sang wrote:
 > 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
+>>> The dummy driver is always loaded when the i2c core inits.
+>>>
+>>
+>> Ok, I wondered if that was the case but I
+>> was not sure so I posted it just in case.
 > 
-> York Sun: Can you test this patch? I can only build test.
+> Check the source code, this part is pretty obvious...
+>
 
-Patch is OK. Verified on hardware with good and intentional bad values.
+Yes, sorry for missing that obvious detail...
 
-Acked-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
