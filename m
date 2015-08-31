@@ -1,30 +1,29 @@
-From: Anders Roxell <anders.roxell-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] drivers: i2c: exynos5: irq spinlock rt-safe
-Date: Mon, 31 Aug 2015 23:28:44 +0200
-Message-ID: <20150831212844.GI13774@localhost.localdomain>
-References: <1440489125-20082-1-git-send-email-anders.roxell@linaro.org>
- <alpine.DEB.2.11.1508252349070.15006@nanos>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] i2c: mux: reg: simplify register size checking
+Date: Mon, 31 Aug 2015 17:07:34 -0500
+Message-ID: <55E4D026.9000202@freescale.com>
+References: <1440106846-4484-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.11.1508252349070.15006@nanos>
+In-Reply-To: <1440106846-4484-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-rt-users-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2015-08-25 23:51, Thomas Gleixner wrote:
-> On Tue, 25 Aug 2015, Anders Roxell wrote:
-> 
-> > The exynos5_i2c_message_start enables interrupts while holding the i2c
-> > lock which is sought by the irq handler. If an IRQ is received before
-> > this lock is released then a deadlock occurs.
-> 
-> That's crap. The interrupt handler runs in an irq thread as RT forces
-> all normal interrupts to that.
 
-You are right, I will send a v2 with a better changelog.
 
-Cheers,
-Anders
+On 08/20/2015 04:40 PM, Wolfram Sang wrote:
+> Checking was done at three different locations, just do it once and
+> properly at probing time.
+> 
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> ---
+> 
+> York Sun: Can you test this patch? I can only build test.
+
+Patch is OK. Verified on hardware with good and intentional bad values.
+
+Acked-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
