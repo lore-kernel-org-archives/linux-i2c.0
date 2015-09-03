@@ -1,107 +1,87 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 9/9] i2c: rcar: clean up after refactoring
-Date: Thu,  3 Sep 2015 22:20:13 +0200
-Message-ID: <1441311613-2681-10-git-send-email-wsa@the-dreams.de>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
+Date: Thu, 03 Sep 2015 23:35:01 +0300
+Message-ID: <5464456.UnsMOS3MTx@avalon>
 References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Hi Wolfram,
 
-Update the comments to match current behaviour. Shorten some comments.
-Update copyrights.
+On Thursday 03 September 2015 22:20:04 Wolfram Sang wrote:
+> Hello RCar Fans!
+> 
+> Two issues people have seen with the i2c-rcar driver was:
+> 
+> a) immediately restarted messages after NACK from client
+> b) duplicated data bytes in messages
+> 
+> Some people already worked on those and had a tough time because it was hard
+> to reproduce these issues on non-customer setup. Luckily, I somewhen had a
+> state where the first transfer after boot would always show the above
+> issues on a plain Renesas Lager board. When measuring, I found a third
+> issue thanks to my new tool 'i2ctransfer' (and thanks to projects like
+> sigrok and OpenLogicSniffer, of course. Thank you very much!):
+> 
+> c) after read message, no repeated start was sent, but stop + start.
+> 
+> Due to some unlucky design choices in the IP core, it has some race windows
+> which can cause problems if interrupts get delayed. Also, for every new
+> message in one transfer, context switches between interrupt and process
+> were needed.
+> 
+> So I refactored the driver to setup new messages in interrupt context, too.
+> This avoids the race for b) because we are now setting up the new message
+> before we release the i2c bus clock (before we released the clock and set up
+> the message in process context).
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 32 +++++++++-----------------------
- 1 file changed, 9 insertions(+), 23 deletions(-)
+Could this fix the HDMI EDID read issue on Koelsch ?
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 2afa3683a3de4e..dbedbff48b594b 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -1,7 +1,8 @@
- /*
-  * Driver for the Renesas RCar I2C unit
-  *
-- * Copyright (C) 2014 Wolfram Sang <wsa@sang-engineering.com>
-+ * Copyright (C) 2014-15 Wolfram Sang <wsa@sang-engineering.com>
-+ * Copyright (C) 2011-2015 Renesas Electronics Corporation
-  *
-  * Copyright (C) 2012-14 Renesas Solutions Corp.
-  * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-@@ -9,9 +10,6 @@
-  * This file is based on the drivers/i2c/busses/i2c-sh7760.c
-  * (c) 2005-2008 MSC Vertriebsges.m.b.H, Manuel Lauss <mlau@msc-ge.com>
-  *
-- * This file used out-of-tree driver i2c-rcar.c
-- * Copyright (C) 2011-2012 Renesas Electronics Corporation
-- *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; version 2 of the License.
-@@ -244,9 +242,7 @@ scgd_find:
- 	dev_dbg(dev, "clk %d/%d(%lu), round %u, CDF:0x%x, SCGD: 0x%x\n",
- 		scl, bus_speed, clk_get_rate(priv->clk), round, cdf, scgd);
- 
--	/*
--	 * keep icccr value
--	 */
-+	/* keep icccr value */
- 	priv->icccr = scgd << cdf_width | cdf;
- 
- 	return 0;
-@@ -281,11 +277,7 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
- {
- 	struct i2c_msg *msg = priv->msg;
- 
--	/*
--	 * FIXME
--	 * sometimes, unknown interrupt happened.
--	 * Do nothing
--	 */
-+	/* FIXME: sometimes, unknown interrupt happened. Do nothing */
- 	if (!(msr & MDE))
- 		return 0;
- 
-@@ -331,28 +323,22 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- {
- 	struct i2c_msg *msg = priv->msg;
- 
--	/*
--	 * FIXME
--	 * sometimes, unknown interrupt happened.
--	 * Do nothing
--	 */
-+	/* FIXME: sometimes, unknown interrupt happened. Do nothing */
- 	if (!(msr & MDR))
- 		return 0;
- 
- 	if (msr & MAT) {
- 		/* Address transfer phase finished, but no data at this point. */
- 	} else if (priv->pos < msg->len) {
--		/*
--		 * get received data
--		 */
-+		/* get received data */
- 		msg->buf[priv->pos] = rcar_i2c_read(priv, ICRXTX);
- 		priv->pos++;
- 	}
- 
- 	/*
--	 * If next received data is the _LAST_,
--	 * go to STOP phase,
--	 * otherwise, go to DATA phase.
-+	 * If next received data is the _LAST_, go to STOP phase. Might be
-+	 * overwritten by REP START when setting up a new msg. Not elegant
-+	 * but the only stable sequence for REP START I have found so far.
- 	 */
- 	if (priv->pos + 1 >= msg->len)
- 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+> c) is also fixed, this was not a race but a bug in the state handling. a)
+> however is not fixed 100% :( We have the race window as small as possible
+> now when utilizing interrupts, so it is an improvement and worked for my
+> test cases well. There were experiments by me and Renesas engineers to use
+> polling to prevent the issue but this caused other side effects, sadly. So,
+> let's improve the situation now and let's see where we get.
+
+Does that mean that, due to hardware design, it's impossible to use I2C 
+interrupts in a race-free way ? It would be interesting to document why in a 
+commit log message, or possibly in the code itself.
+
+> I did quite some lab testing here and also verified that slave support does
+> not suffer from these changes. However, I'd really appreciate if people
+> could give this real-world-testing which is always different.
+> 
+> Please have a look, a test, etc...
+> 
+> Thanks,
+> 
+>    Wolfram
+> 
+> 
+> Wolfram Sang (9):
+>   i2c: rcar: rework hw init
+>   i2c: rcar: remove unused IOERROR state
+>   i2c: rcar: remove spinlock
+>   i2c: rcar: refactor setup of a msg
+>   i2c: rcar: init new messages in irq
+>   i2c: rcar: don't issue stop when HW does it automatically
+>   i2c: rcar: check master irqs before slave irqs
+>   i2c: rcar: revoke START request early
+>   i2c: rcar: clean up after refactoring
+> 
+>  drivers/i2c/busses/i2c-rcar.c | 193 +++++++++++++++------------------------
+>  1 file changed, 71 insertions(+), 122 deletions(-)
+
 -- 
-2.1.4
+Regards,
+
+Laurent Pinchart
 
