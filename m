@@ -1,55 +1,88 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] drivers/i2c/muxes/i2c-mux-reg: Change ioread endianness
- for readback
-Date: Thu, 3 Sep 2015 11:59:09 +0200
-Message-ID: <20150903095909.GC720@katana>
-References: <1441212046-2976-1-git-send-email-yorksun@freescale.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="96YOpH+ONegL0A3E"
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] i2c: Remove setting for 1 second timeout from adapter drivers
+Date: Thu,  3 Sep 2015 14:19:46 +0300
+Message-ID: <1441279186-12861-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1441212046-2976-1-git-send-email-yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+I2C adapter drivers that are using 1 second timeout can leave the timeout
+unset and let the i2c-core.c: i2c_register_adapter() to set it instead.
 
---96YOpH+ONegL0A3E
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-ibm_iic.c      | 1 -
+ drivers/i2c/busses/i2c-iop3xx.c       | 1 -
+ drivers/i2c/busses/i2c-mpc.c          | 1 -
+ drivers/i2c/busses/i2c-mv64xxx.c      | 5 -----
+ drivers/i2c/busses/i2c-pca-platform.c | 1 -
+ 5 files changed, 9 deletions(-)
 
-On Wed, Sep 02, 2015 at 11:40:46AM -0500, York Sun wrote:
-> Reading the register (if allowed) after writing is to ensure writing
-> is completed on a posted bus. The endianness of reading doesn't matter.
->=20
-> Signed-off-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-
-Applied to for-next, thanks!
-
-
---96YOpH+ONegL0A3E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJV6BnsAAoJEBQN5MwUoCm2PjoP/2gi4VIOtHl8sTAszrYLoXDI
-DJjy/AaRxHzHXMXfMD6FRfN1WQ+oev/9jwmGNZiwqcgUEr/aVC4Gq8RUD9eYfgYl
-lrguFytA2FJuc2TMhSX+8piwflgnEA+DCRFatawHicWhahKY1S5qsqfYJY0tlwir
-F/+v2fS4S72zcPcMviRJI9ypeaoGGklPCfaLEvdoAmoNIXn7VsHyMLC60OUBduV9
-VLXDNArF3HjFA/9EiY9O2w+v9kJC6Kqo8J1fvmuB7mjjEnOrevyjqSKylzQK0b87
-RVKZbJU6Tpn9KTR8kgt3bisDZwJPSqmbw378Xu4l0u9sEkwlC+1xuVotf+s9z6Mn
-wieToqktsEFxRJrBla9oYkyJNrVEZmITGEL1RBD4ZQ3G9ScgbD5EC2ANiOlL82cu
-wg5z5mAN/2l+QWdugGVxRcUPyN1oa55sbQrGcN2mt7VpxkHkoIXNwuaoqNsmgAcR
-9NeaDADz8DCQA2YUXwWG2r7U9cbYpdqNK/xwV4jbv2MF8Y4WMK4lsLI+GWbknWFz
-V6gq7zq3RQI/Ndz7dLjuYiEF7jMsFgYco+0l4PGutQBGoECEdomlB+yVcqkUI8zc
-/1DWS9nMae6KvREBsytT1VuPS68VCPGbEWWOYlHG7nDys9hkOAaR8gQ2TrNeVXNR
-hTk9ksVY3mZ9LEd/gSgy
-=Bvah
------END PGP SIGNATURE-----
-
---96YOpH+ONegL0A3E--
+diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+index 722f839cfa3c..13fda39acffe 100644
+--- a/drivers/i2c/busses/i2c-ibm_iic.c
++++ b/drivers/i2c/busses/i2c-ibm_iic.c
+@@ -748,7 +748,6 @@ static int iic_probe(struct platform_device *ofdev)
+ 	i2c_set_adapdata(adap, dev);
+ 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->algo = &iic_algo;
+-	adap->timeout = HZ;
+ 
+ 	ret = i2c_add_adapter(adap);
+ 	if (ret  < 0) {
+diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+index 72d6161cf77c..c4ed8281bec2 100644
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -479,7 +479,6 @@ iop3xx_i2c_probe(struct platform_device *pdev)
+ 	/*
+ 	 * Default values...should these come in from board code?
+ 	 */
+-	new_adapter->timeout = HZ;
+ 	new_adapter->algo = &iop3xx_i2c_algo;
+ 
+ 	init_waitqueue_head(&adapter_data->waitq);
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 48ecffecc0ed..b4bb64ffe3cd 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -640,7 +640,6 @@ static const struct i2c_algorithm mpc_algo = {
+ static struct i2c_adapter mpc_ops = {
+ 	.owner = THIS_MODULE,
+ 	.algo = &mpc_algo,
+-	.timeout = HZ,
+ };
+ 
+ static const struct of_device_id mpc_i2c_of_match[];
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 30059c1df2a3..2640390be5dd 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -832,11 +832,6 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 		reset_control_deassert(drv_data->rstc);
+ 	}
+ 
+-	/* Its not yet defined how timeouts will be specified in device tree.
+-	 * So hard code the value to 1 second.
+-	 */
+-	drv_data->adapter.timeout = HZ;
+-
+ 	device = of_match_device(mv64xxx_i2c_of_match_table, dev);
+ 	if (!device)
+ 		return -ENODEV;
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+index 3bd2e7d06e4b..2b930df0e6b5 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -183,7 +183,6 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+ 		i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
+ 		i2c->gpio = platform_data->gpio;
+ 	} else {
+-		i2c->adap.timeout = HZ;
+ 		i2c->algo_data.i2c_clock = 59000;
+ 		i2c->gpio = -1;
+ 	}
+-- 
+2.5.1
