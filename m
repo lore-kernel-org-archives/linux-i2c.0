@@ -1,69 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
-Date: Thu,  3 Sep 2015 22:20:04 +0200
-Message-ID: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 1/9] i2c: rcar: rework hw init
+Date: Thu,  3 Sep 2015 22:20:05 +0200
+Message-ID: <1441311613-2681-2-git-send-email-wsa@the-dreams.de>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello RCar Fans!
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Two issues people have seen with the i2c-rcar driver was:
+We don't need to init HW before every transfer since we know the HW
+state then. HW init at probe time is enough. While here, add setting the
+clock register which belongs to init HW. Also, set MDBS bit since not
+setting it is prohibited according to the manual.
 
-a) immediately restarted messages after NACK from client
-b) duplicated data bytes in messages
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
 
-Some people already worked on those and had a tough time because it was hard to
-reproduce these issues on non-customer setup. Luckily, I somewhen had a state
-where the first transfer after boot would always show the above issues on a
-plain Renesas Lager board. When measuring, I found a third issue thanks to my
-new tool 'i2ctransfer' (and thanks to projects like sigrok and OpenLogicSniffer,
-of course. Thank you very much!):
-
-c) after read message, no repeated start was sent, but stop + start.
-
-Due to some unlucky design choices in the IP core, it has some race windows
-which can cause problems if interrupts get delayed. Also, for every new message
-in one transfer, context switches between interrupt and process were needed.
-
-So I refactored the driver to setup new messages in interrupt context, too.
-This avoids the race for b) because we are now setting up the new message
-before we release the i2c bus clock (before we released the clock and set up
-the message in process context). c) is also fixed, this was not a race but a
-bug in the state handling. a) however is not fixed 100% :( We have the race
-window as small as possible now when utilizing interrupts, so it is an
-improvement and worked for my test cases well. There were experiments by me and
-Renesas engineers to use polling to prevent the issue but this caused other
-side effects, sadly. So, let's improve the situation now and let's see where we
-get.
-
-I did quite some lab testing here and also verified that slave support does not
-suffer from these changes. However, I'd really appreciate if people could give
-this real-world-testing which is always different.
-
-Please have a look, a test, etc...
-
-Thanks,
-
-   Wolfram
-
-
-Wolfram Sang (9):
-  i2c: rcar: rework hw init
-  i2c: rcar: remove unused IOERROR state
-  i2c: rcar: remove spinlock
-  i2c: rcar: refactor setup of a msg
-  i2c: rcar: init new messages in irq
-  i2c: rcar: don't issue stop when HW does it automatically
-  i2c: rcar: check master irqs before slave irqs
-  i2c: rcar: revoke START request early
-  i2c: rcar: clean up after refactoring
-
- drivers/i2c/busses/i2c-rcar.c | 193 ++++++++++++++++--------------------------
- 1 file changed, 71 insertions(+), 122 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index d8361dada58455..877ce97ac7a580 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -144,9 +144,10 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ {
+ 	/* reset master mode */
+ 	rcar_i2c_write(priv, ICMIER, 0);
+-	rcar_i2c_write(priv, ICMCR, 0);
++	rcar_i2c_write(priv, ICMCR, MDBS);
+ 	rcar_i2c_write(priv, ICMSR, 0);
+-	rcar_i2c_write(priv, ICMAR, 0);
++	/* start clock */
++	rcar_i2c_write(priv, ICCCR, priv->icccr);
+ }
+ 
+ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+@@ -495,16 +496,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 
+ 	pm_runtime_get_sync(dev);
+ 
+-	/*-------------- spin lock -----------------*/
+-	spin_lock_irqsave(&priv->lock, flags);
+-
+-	rcar_i2c_init(priv);
+-	/* start clock */
+-	rcar_i2c_write(priv, ICCCR, priv->icccr);
+-
+-	spin_unlock_irqrestore(&priv->lock, flags);
+-	/*-------------- spin unlock -----------------*/
+-
+ 	ret = rcar_i2c_bus_barrier(priv);
+ 	if (ret < 0)
+ 		goto out;
+@@ -669,6 +660,8 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->io))
+ 		return PTR_ERR(priv->io);
+ 
++	rcar_i2c_init(priv);
++
+ 	irq = platform_get_irq(pdev, 0);
+ 	init_waitqueue_head(&priv->wait);
+ 	spin_lock_init(&priv->lock);
 -- 
 2.1.4
 
