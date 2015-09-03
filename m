@@ -1,73 +1,53 @@
-From: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCHv2] drivers: i2c: exynos5: irq spinlock rt-safe
-Date: Thu, 3 Sep 2015 23:31:01 +0200 (CEST)
-Message-ID: <alpine.DEB.2.11.1509032319570.15006@nanos>
-References: <1440489125-20082-1-git-send-email-anders.roxell@linaro.org> <1441314363-9836-1-git-send-email-anders.roxell@linaro.org>
+From: Aaron Sierra <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 3/3] at24: Support 16-bit devices on SMBus
+Date: Thu, 3 Sep 2015 17:20:43 -0500 (CDT)
+Message-ID: <1314711793.101617.1441318843659.JavaMail.zimbra@xes-inc.com>
+References: <361739546.82254.1441310010061.JavaMail.zimbra@xes-inc.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1441314363-9836-1-git-send-email-anders.roxell-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <361739546.82254.1441310010061.JavaMail.zimbra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anders Roxell <anders.roxell-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-rt-users-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 3 Sep 2015, Anders Roxell wrote:
-
-> The current spin_lock_irqsave() protects the enabling of the device
-> interrupt.  In order to prevent recursion in the case of sleeping
-> spinlocks (e.g. with RT patch, stacktrace below), convert the spin lock
-> to a raw spin lock. No change for !RT kernels.
+----- Original Message -----
+> From: "Aaron Sierra" <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
+> Sent: Thursday, September 3, 2015 2:53:30 PM
 > 
-> [   10.992238] kernel BUG at ../kernel/locking/rtmutex.c:998!
-> [   10.992243] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP ARM
-> [   10.992250] Modules linked in:
-> [   10.992258] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.1.5-rt5
-> [   10.992263] Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
-> [   10.992268] task: ed880000 ti: ed888000 task.ti: ed888000
-> [   10.992281] PC is at rt_spin_lock_slowlock+0xa4/0x2ec
-> [   10.992288] LR is at rt_spin_lock_slowlock+0x54/0x2ec
-> [   10.992296] pc : [<c099e1bc>]    lr : [<c099e16c>]    psr: 60000193
-> [   10.992296] sp : ed889a28  ip : ed880001  fp : 00000089
-> [   10.992300] r10: ed889a28  r9 : c0f55654  r8 : 00000060
-> [   10.992305] r7 : ed880000  r6 : 00000000  r5 : 00000001  r4 : ed9f7288
-> [   10.992310] r3 : ed880000  r2 : 00000000  r1 : ed880000  r0 : 00000000
-> [   10.992316] Flags: nZCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM
-> Segment kernel
-> ...
-> ...
-> [   10.992662] [<c099e1bc>] (rt_spin_lock_slowlock) from [<c07bc794>]
-> (exynos5_i2c_irq+0x20/0x2b0)
-> [   10.992678] [<c07bc794>] (exynos5_i2c_irq) from [<c028c8b4>]
-> (handle_irq_event_percpu+0x68/0x158)
-> [   10.992690] [<c028c8b4>] (handle_irq_event_percpu) from [<c028ca0c>]
-> (handle_irq_event+0x68/0xa8)
-> [   10.992702] [<c028ca0c>] (handle_irq_event) from [<c028f9c4>]
-> (handle_fasteoi_irq+0x11c/0x1d4)
-> [   10.992713] [<c028f9c4>] (handle_fasteoi_irq) from [<c028c17c>]
-> (generic_handle_irq+0x20/0x30)
-> [   10.992724] [<c028c17c>] (generic_handle_irq) from [<c028c290>]
-> (__handle_domain_irq+0x6c/0xe4)
-> [   10.992734] [<c028c290>] (__handle_domain_irq) from [<c020a71c>]
-> (gic_handle_irq+0x2c/0x68)
-> [   10.992744] [<c020a71c>] (gic_handle_irq) from [<c0214140>]
-> (__irq_svc+0x40/0x88)
-> [   10.992749] Exception stack(0xed889b28 to 0xed889b70)
+> Previously, the at24 driver would bail out in the case of a 16-bit
+> addressable EEPROM attached to an SMBus controller. This is because
+> SMBus block reads and writes don't map to I2C multi-byte reads and
+> writes when the offset portion is 2 bytes.
+> 
+> Instead of bailing out, this patch settles for functioning with single
+> byte read SMBus cycles. Writes can be block or single-byte, depending on
+> SMBus controller features.
+> 
+> This patch introduces at24_smbus_read_byte_data to transparently handle
+> single-byte reads from 8-bit and 16-bit devices.
+> 
+> Functionality has been tested with the following devices:
+> 
+>     AT24CM01 attached to Intel ISCH SMBus (1.8 KB/s)
+>     AT24C512 attached to Intel I801 SMBus (1.4 KB/s)
+> 
+> Signed-off-by: Nate Case <ncase-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Aaron Sierra <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
+> ---
+>  drivers/misc/eeprom/Kconfig |  4 +++-
+>  drivers/misc/eeprom/at24.c  | 40 +++++++++++++++++++++++++++++++++++-----
+>  2 files changed, 38 insertions(+), 6 deletions(-)
 
-What you completely fail to explain how this can happen at all.
+All,
+Shortly after submitting, I found that there are conflicts between this
+patch and activity in i2c/for-next. Specifically with this patch:
+     eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
 
-On RT the interrupt of that device is force threaded, but the handler
-is called in hard interrupt context, which is wrong to begin with.
+Patches 1/3 and 2/3 don't have conflicts. I've reworked this patch (3/3)
+and retested on top of i2c/for-next. Should I submit all three patches
+as v2 or wait for the first two to be reviewed?
 
-While the interrupt request in this driver is bogus:
-
-        ret = devm_request_irq(&pdev->dev, i2c->irq, exynos5_i2c_irq,
-                                IRQF_NO_SUSPEND | IRQF_ONESHOT,
-                                dev_name(&pdev->dev), i2c);
-
-because it sets the ONESHOT flag for no reason, it does not set the
-NOTRHEAD flag which would prevent force threading.
-
-Hmm?
-
-	tglx
+-Aaron
