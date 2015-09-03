@@ -1,152 +1,100 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 5/9] i2c: rcar: init new messages in irq
-Date: Thu,  3 Sep 2015 22:20:09 +0200
-Message-ID: <1441311613-2681-6-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 8/9] i2c: rcar: revoke START request early
+Date: Thu,  3 Sep 2015 22:20:12 +0200
+Message-ID: <1441311613-2681-9-git-send-email-wsa@the-dreams.de>
 References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1441311613-2681-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Setting up new messages was done in process context while handling a
-message was in interrupt context. Because of the HW design, this IP core
-is sensitive to timing, so the context switches were too expensive. Move
-this setup to interrupt context as well.
+If we don't clear START generation as soon as possible, it may cause
+another message to be generated. To keep the race window as small as
+possible, we clear it right at the beginning of the interrupt. We don't
+need checking since we always want to stop START and STOP generation on
+the next occasion after we started it.
 
-In my test setup, this fixed the occasional 'data byte sent twice' issue
-which a number of people have seen. It also fixes to send REP_START
-after a read message which was wrongly send as a STOP + START sequence
-before.
+This patch improves the situation but sadly does not completely fix it.
+It is still to be researched if we can do better given this HW design.
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 74 +++++++++++++++++++++----------------------
- 1 file changed, 37 insertions(+), 37 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 23 +++++++----------------
+ 1 file changed, 7 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 6e459a338ccc75..36c79301044b71 100644
+index 06bd8c45c6af9d..2afa3683a3de4e 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -266,6 +266,13 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
- 	rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
- }
+@@ -84,6 +84,7 @@
  
-+static void rcar_i2c_next_msg(struct rcar_i2c_priv *priv)
-+{
-+	priv->msg++;
-+	priv->msgs_left--;
-+	rcar_i2c_prepare_msg(priv);
-+}
+ #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
+ #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
++#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
+ #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
+ 
+ #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
+@@ -288,13 +289,6 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+ 	if (!(msr & MDE))
+ 		return 0;
+ 
+-	/*
+-	 * If address transfer phase finished,
+-	 * goto data phase.
+-	 */
+-	if (msr & MAT)
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+-
+ 	if (priv->pos < msg->len) {
+ 		/*
+ 		 * Prepare next data to ICRXTX register.
+@@ -346,11 +340,7 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 		return 0;
+ 
+ 	if (msr & MAT) {
+-		/*
+-		 * Address transfer phase finished,
+-		 * but, there is no data at this point.
+-		 * Do nothing.
+-		 */
++		/* Address transfer phase finished, but no data at this point. */
+ 	} else if (priv->pos < msg->len) {
+ 		/*
+ 		 * get received data
+@@ -366,8 +356,6 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 	 */
+ 	if (priv->pos + 1 >= msg->len)
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+-	else
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	if (priv->pos == msg->len && !(priv->flags & ID_LAST_MSG))
+ 		rcar_i2c_next_msg(priv);
+@@ -435,7 +423,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
+-	u32 msr;
++	u32 msr, val;
 +
- /*
-  *		interrupt functions
-  */
-@@ -308,21 +315,17 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
- 		 * [ICRXTX] -> [SHIFT] -> [I2C bus]
- 		 */
++	/* Clear START or STOP as soon as we can */
++	val = rcar_i2c_read(priv, ICMCR);
++	rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
  
--		if (priv->flags & ID_LAST_MSG)
-+		if (priv->flags & ID_LAST_MSG) {
- 			/*
- 			 * If current msg is the _LAST_ msg,
- 			 * prepare stop condition here.
- 			 * ID_DONE will be set on STOP irq.
- 			 */
- 			rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
--		else
--			/*
--			 * If current msg is _NOT_ last msg,
--			 * it doesn't call stop phase.
--			 * thus, there is no STOP irq.
--			 * return ID_DONE here.
--			 */
--			return ID_DONE;
-+		} else {
-+			rcar_i2c_next_msg(priv);
-+			return 0;
-+		}
- 	}
+ 	msr = rcar_i2c_read(priv, ICMSR);
  
- 	rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_SEND);
-@@ -366,7 +369,10 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- 	else
- 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
- 
--	rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_RECV);
-+	if (priv->pos == msg->len && !(priv->flags & ID_LAST_MSG))
-+		rcar_i2c_next_msg(priv);
-+	else
-+		rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_RECV);
- 
- 	return 0;
- }
-@@ -461,6 +467,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 
- 	/* Stop */
- 	if (msr & MST) {
-+		priv->msgs_left--; /* The last message also made it */
- 		rcar_i2c_flags_set(priv, ID_DONE);
+@@ -457,7 +449,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 	/* Nack */
+ 	if (msr & MNR) {
+ 		/* HW automatically sends STOP after received NACK */
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
+ 		rcar_i2c_flags_set(priv, ID_NACK);
  		goto out;
- 	}
-@@ -500,35 +507,28 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 		/* This HW can't send STOP after address phase */
- 		if (msgs[i].len == 0) {
- 			ret = -EOPNOTSUPP;
--			break;
--		}
--
--		/* init each data */
--		priv->msg = &msgs[i];
--		priv->msgs_left = num - i;
--
--		rcar_i2c_prepare_msg(priv);
--
--		time_left = wait_event_timeout(priv->wait,
--					     rcar_i2c_flags_has(priv, ID_DONE),
--					     adap->timeout);
--		if (!time_left) {
--			rcar_i2c_init(priv);
--			ret = -ETIMEDOUT;
--			break;
--		}
--
--		if (rcar_i2c_flags_has(priv, ID_NACK)) {
--			ret = -ENXIO;
--			break;
--		}
--
--		if (rcar_i2c_flags_has(priv, ID_ARBLOST)) {
--			ret = -EAGAIN;
--			break;
-+			goto out;
- 		}
-+	}
- 
--		ret = i + 1; /* The number of transfer */
-+	/* init data */
-+	priv->msg = msgs;
-+	priv->msgs_left = num;
-+
-+	rcar_i2c_prepare_msg(priv);
-+
-+	time_left = wait_event_timeout(priv->wait,
-+				     rcar_i2c_flags_has(priv, ID_DONE),
-+				     num * adap->timeout);
-+	if (!time_left) {
-+		rcar_i2c_init(priv);
-+		ret = -ETIMEDOUT;
-+	} else if (rcar_i2c_flags_has(priv, ID_NACK)) {
-+		ret = -ENXIO;
-+	} else if (rcar_i2c_flags_has(priv, ID_ARBLOST)) {
-+		ret = -EAGAIN;
-+	} else {
-+		ret = num - priv->msgs_left; /* The number of transfer */
- 	}
- out:
- 	pm_runtime_put(dev);
 -- 
 2.1.4
+
