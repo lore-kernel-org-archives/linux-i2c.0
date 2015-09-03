@@ -1,88 +1,48 @@
-From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] i2c: Remove setting for 1 second timeout from adapter drivers
-Date: Thu,  3 Sep 2015 14:19:46 +0300
-Message-ID: <1441279186-12861-1-git-send-email-jarkko.nikula@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v3 2/2] drm: bridge/dw_hdmi: add dw hdmi i2c bus adapter
+ support
+Date: Thu, 3 Sep 2015 09:08:06 -0700
+Message-ID: <CAD=FV=UOSFeKPHSQE1Mrc_d4yCu54LOTj+TRZc_+kPs1mofLxg@mail.gmail.com>
+References: <1440970470-7155-1-git-send-email-vladimir_zapolskiy@mentor.com>
+ <CAD=FV=WvUp7xhsmXJgVzm1Awqej12hNF_QPJhrQq7z=Fa4Nnuw@mail.gmail.com>
+ <20150902225008.GQ21084@n2100.arm.linux.org.uk>
+ <CAD=FV=VuyQXNGt7dgF-YF7D7MDu31B-QuBdGpeC_+0b1F2=dKg@mail.gmail.com>
+ <20150903091900.GX21084@n2100.arm.linux.org.uk>
+ <20150903093910.GA4151@ulmo.nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20150903093910.GA4151@ulmo.nvidia.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Thierry Reding <treding@nvidia.com>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Wolfram Sang <wsa@the-dreams.de>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Yakir Yang <ykk@rock-chips.com>, Andy Yan <andy.yan@rock-chips.com>, Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-I2C adapter drivers that are using 1 second timeout can leave the timeout
-unset and let the i2c-core.c: i2c_register_adapter() to set it instead.
-
-Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-ibm_iic.c      | 1 -
- drivers/i2c/busses/i2c-iop3xx.c       | 1 -
- drivers/i2c/busses/i2c-mpc.c          | 1 -
- drivers/i2c/busses/i2c-mv64xxx.c      | 5 -----
- drivers/i2c/busses/i2c-pca-platform.c | 1 -
- 5 files changed, 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index 722f839cfa3c..13fda39acffe 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -748,7 +748,6 @@ static int iic_probe(struct platform_device *ofdev)
- 	i2c_set_adapdata(adap, dev);
- 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	adap->algo = &iic_algo;
--	adap->timeout = HZ;
- 
- 	ret = i2c_add_adapter(adap);
- 	if (ret  < 0) {
-diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
-index 72d6161cf77c..c4ed8281bec2 100644
---- a/drivers/i2c/busses/i2c-iop3xx.c
-+++ b/drivers/i2c/busses/i2c-iop3xx.c
-@@ -479,7 +479,6 @@ iop3xx_i2c_probe(struct platform_device *pdev)
- 	/*
- 	 * Default values...should these come in from board code?
- 	 */
--	new_adapter->timeout = HZ;
- 	new_adapter->algo = &iop3xx_i2c_algo;
- 
- 	init_waitqueue_head(&adapter_data->waitq);
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 48ecffecc0ed..b4bb64ffe3cd 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -640,7 +640,6 @@ static const struct i2c_algorithm mpc_algo = {
- static struct i2c_adapter mpc_ops = {
- 	.owner = THIS_MODULE,
- 	.algo = &mpc_algo,
--	.timeout = HZ,
- };
- 
- static const struct of_device_id mpc_i2c_of_match[];
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 30059c1df2a3..2640390be5dd 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -832,11 +832,6 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 		reset_control_deassert(drv_data->rstc);
- 	}
- 
--	/* Its not yet defined how timeouts will be specified in device tree.
--	 * So hard code the value to 1 second.
--	 */
--	drv_data->adapter.timeout = HZ;
--
- 	device = of_match_device(mv64xxx_i2c_of_match_table, dev);
- 	if (!device)
- 		return -ENODEV;
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index 3bd2e7d06e4b..2b930df0e6b5 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -183,7 +183,6 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 		i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
- 		i2c->gpio = platform_data->gpio;
- 	} else {
--		i2c->adap.timeout = HZ;
- 		i2c->algo_data.i2c_clock = 59000;
- 		i2c->gpio = -1;
- 	}
--- 
-2.5.1
+VGhpZXJyeSwKCk9uIFRodSwgU2VwIDMsIDIwMTUgYXQgMjozOSBBTSwgVGhpZXJyeSBSZWRpbmcg
+PHRyZWRpbmdAbnZpZGlhLmNvbT4gd3JvdGU6Cj4gUGVyaGFwcyB0aGUgSTJDIGNvcmUgbmVlZHMg
+dG8gYmUgdGF1Z2h0IHRvIGxvb2sgYXQgdGhlIGFkYXB0ZXIncwo+IC0+ZGV2LnBhcmVudC0+b2Zf
+bm9kZSBpbiBvZl9maW5kX2kyY19hZGFwdGVyX2J5X25vZGUoKS4gQXMgSSB1bmRlcnN0YW5kCj4g
+aXQgdGhlIHB1cnBvc2UgZm9yIHJlZ2lzdGVyaW5nIGEgc2VwYXJhdGUgc3RydWN0IGRldmljZSBm
+b3IgZWFjaCBJMkMKPiBjb250cm9sbGVyIGlzIHNvIHRoYXQgdGhlcmUncyBhbiBJMkMgcGFyZW50
+IGZvciBhbGwgc2xhdmVzLiBBdCB0aGUgc2FtZQo+IHRpbWUgZXZlcnkgY29udHJvbGxlciBzZXRz
+IHVwIC0+ZGV2LnBhcmVudCwgYW5kIHRoYXQgcGFyZW50J3MgT0Ygbm9kZSBpcwo+IHdoYXQgd2Ug
+cmVhbGx5IHdhbnQgd2hlbiB3ZSBsb29rIHVwIGFuIEkyQyBhZGFwdGVyIGJ5IE9GIG5vZGUuIElu
+IG90aGVyCj4gd29yZHMsIHRoZSBPRiBub2RlIGJ5IHdoaWNoIEkyQyBhZGFwdGVycyBhcmUgcmVm
+ZXJlbmNlZCBpcyBhbHdheXMgdGhhdAo+IG9mIGl0cyBwYXJlbnQgZGV2aWNlLCBhcyBmYXIgYXMg
+SSBjYW4gdGVsbC4KPgo+IFdvbGZyYW0sIGRvIHlvdSBrbm93IG9mIGFueSBjYXNlcyB3aGVyZSBh
+ZGFwdGVyLT5kZXYub2Zfbm9kZSB3b3VsZCBub3QKPiBiZSB0aGUgc2FtZSBhcyBhZGFwdGVyLT5k
+ZXYucGFyZW50LT5vZl9ub2RlPwoKVGhpcyBzb3VuZHMgcHJldHR5IHJlYXNvbmFibGUgdG8gbWUu
+ICBDZXJ0YWlubHkgaXQgd291bGQgYmUgYSBwcmV0dHkKcmVhc29uYWJsZSBmYWxsYmFjayBpZiBh
+ZGFwdGVyLT5kZXYub2Zfbm9kZSB3YXMgTlVMTC4KCi1Eb3VnCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRl
+dmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21h
+aWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
