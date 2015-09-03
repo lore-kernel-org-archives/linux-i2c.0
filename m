@@ -1,87 +1,66 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
-Date: Thu, 03 Sep 2015 23:35:01 +0300
-Message-ID: <5464456.UnsMOS3MTx@avalon>
-References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH repost] i2c: rcar: Fix order of restart and clear status
+Date: Thu, 3 Sep 2015 22:34:42 +0200
+Message-ID: <20150903203442.GA1574@katana>
+References: <1439911206-8736-1-git-send-email-ykaneko0929@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1439911206-8736-1-git-send-email-ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Thursday 03 September 2015 22:20:04 Wolfram Sang wrote:
-> Hello RCar Fans!
-> 
-> Two issues people have seen with the i2c-rcar driver was:
-> 
-> a) immediately restarted messages after NACK from client
-> b) duplicated data bytes in messages
-> 
-> Some people already worked on those and had a tough time because it was hard
-> to reproduce these issues on non-customer setup. Luckily, I somewhen had a
-> state where the first transfer after boot would always show the above
-> issues on a plain Renesas Lager board. When measuring, I found a third
-> issue thanks to my new tool 'i2ctransfer' (and thanks to projects like
-> sigrok and OpenLogicSniffer, of course. Thank you very much!):
-> 
-> c) after read message, no repeated start was sent, but stop + start.
-> 
-> Due to some unlucky design choices in the IP core, it has some race windows
-> which can cause problems if interrupts get delayed. Also, for every new
-> message in one transfer, context switches between interrupt and process
-> were needed.
-> 
-> So I refactored the driver to setup new messages in interrupt context, too.
-> This avoids the race for b) because we are now setting up the new message
-> before we release the i2c bus clock (before we released the clock and set up
-> the message in process context).
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Could this fix the HDMI EDID read issue on Koelsch ?
+On Wed, Aug 19, 2015 at 12:20:06AM +0900, Yoshihiro Kaneko wrote:
+> From: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+>=20
+> In case of repeated START condition, the restart has to be kicked
+> before clear status (MSR register). If it is kicked after clear status,
+> R-Car I2C may transfer data (TXD register) or receive data (RXD register)
+> instead of transferring slave address (MAR register).
+>=20
+> Signed-off-by: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-> c) is also fixed, this was not a race but a bug in the state handling. a)
-> however is not fixed 100% :( We have the race window as small as possible
-> now when utilizing interrupts, so it is an improvement and worked for my
-> test cases well. There were experiments by me and Renesas engineers to use
-> polling to prevent the issue but this caused other side effects, sadly. So,
-> let's improve the situation now and let's see where we get.
+I think I could reproduce the issue but changing the order of clearing
+and kicking did not change anything for me. I have CCed you in my new
+series regarding the i2c-rcar driver. That made the issue for me go
+away. Can you kindly check, too?
 
-Does that mean that, due to hardware design, it's impossible to use I2C 
-interrupts in a race-free way ? It would be interesting to document why in a 
-commit log message, or possibly in the code itself.
+Thanks,
 
-> I did quite some lab testing here and also verified that slave support does
-> not suffer from these changes. However, I'd really appreciate if people
-> could give this real-world-testing which is always different.
-> 
-> Please have a look, a test, etc...
-> 
-> Thanks,
-> 
->    Wolfram
-> 
-> 
-> Wolfram Sang (9):
->   i2c: rcar: rework hw init
->   i2c: rcar: remove unused IOERROR state
->   i2c: rcar: remove spinlock
->   i2c: rcar: refactor setup of a msg
->   i2c: rcar: init new messages in irq
->   i2c: rcar: don't issue stop when HW does it automatically
->   i2c: rcar: check master irqs before slave irqs
->   i2c: rcar: revoke START request early
->   i2c: rcar: clean up after refactoring
-> 
->  drivers/i2c/busses/i2c-rcar.c | 193 +++++++++++++++------------------------
->  1 file changed, 71 insertions(+), 122 deletions(-)
+   Wolfram
 
--- 
-Regards,
 
-Laurent Pinchart
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJV6K7iAAoJEBQN5MwUoCm2nSUP/1SLuI3WKxLk2SbAS+sVm04n
+I3bWM77Agy9FEOytwoPdOkP/XwUepeeUZ4jKdeZUn+4hvVyK8SUeYqnXP4/SbxwE
+6768VNbImGklrR6WIivPIpsvJ62WnTG6r0ROF5YeS+AH95gb7JvW62BOQ9MEfdlu
+DXN73bdloKH3PMhVTxJy5WwvyosDHToSdzPLVCD1JPfotAtCyl4IfyNJUH10gXQk
+4pxxvwgRze8BnsQvuVs3Urmi1ZhNIaCj5uRLYx02Sx0K7ewvojRIEgJR7pMYdIVy
+RBUOLZojPBGaO5ed3kPLyJD0mGH/mlEVL4YT/IIKBceHrSHjw03XOM98VBZdPuWW
+/VADHLrvc5SAGxkfU4rzMbfvdWpfypHoPyWmN4xaqMT4rCre5OizEsg63WUWu+QQ
+Y6DZVC6EPu1fuw3DU1jLTmjASrVK/y/uCTQUcBZ7FBrUM80qD+6gKphrQTCQIcaZ
+JcxukKCAsSyvf9VS9GQAWep7UtxXfNPXSvTyEG03INi7JMwkPRo7Ns13f7pDSJEh
+/uI86OsXuNa/9SSrw6eCY/fCle3NvDueGNZQvwJCsnxbIOdPqn9SeSTUl+5WZvWF
+jgQF19y5ew2Ez2FN8NjsQkhZ4ZSbCMy4m0IU86jw2xDh4RB0cWKGT0Pd3W4bSWpQ
+qQZMlIwN4gKAjfIEcxAw
+=K6N+
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--
