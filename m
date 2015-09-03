@@ -1,66 +1,81 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH repost] i2c: rcar: Fix order of restart and clear status
-Date: Thu, 3 Sep 2015 22:34:42 +0200
-Message-ID: <20150903203442.GA1574@katana>
-References: <1439911206-8736-1-git-send-email-ykaneko0929@gmail.com>
+Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
+Date: Thu, 3 Sep 2015 22:40:00 +0200
+Message-ID: <20150903204000.GB1574@katana>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+ <5464456.UnsMOS3MTx@avalon>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+	protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1439911206-8736-1-git-send-email-ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <5464456.UnsMOS3MTx@avalon>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---mYCpIKhGyMATD0i+
+--7ZAtKRhVyVSsbBD2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 19, 2015 at 12:20:06AM +0900, Yoshihiro Kaneko wrote:
-> From: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+
+> > So I refactored the driver to setup new messages in interrupt context, =
+too.
+> > This avoids the race for b) because we are now setting up the new messa=
+ge
+> > before we release the i2c bus clock (before we released the clock and s=
+et up
+> > the message in process context).
 >=20
-> In case of repeated START condition, the restart has to be kicked
-> before clear status (MSR register). If it is kicked after clear status,
-> R-Car I2C may transfer data (TXD register) or receive data (RXD register)
-> instead of transferring slave address (MAR register).
+> Could this fix the HDMI EDID read issue on Koelsch ?
+
+I surely hope so. I can't test because I don't have Koelsch.
+
+> > c) is also fixed, this was not a race but a bug in the state handling. =
+a)
+> > however is not fixed 100% :( We have the race window as small as possib=
+le
+> > now when utilizing interrupts, so it is an improvement and worked for my
+> > test cases well. There were experiments by me and Renesas engineers to =
+use
+> > polling to prevent the issue but this caused other side effects, sadly.=
+ So,
+> > let's improve the situation now and let's see where we get.
 >=20
-> Signed-off-by: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-> Signed-off-by: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Does that mean that, due to hardware design, it's impossible to use I2C=
+=20
+> interrupts in a race-free way ? It would be interesting to document why i=
+n a=20
+> commit log message, or possibly in the code itself.
 
-I think I could reproduce the issue but changing the order of clearing
-and kicking did not change anything for me. I have CCed you in my new
-series regarding the i2c-rcar driver. That made the issue for me go
-away. Can you kindly check, too?
-
-Thanks,
-
-   Wolfram
+It can maybe be done when polling. However, this might need busy looping
+for ~1us. Also, the repeated start handling needs to be rewritten and I
+am not sure this goes well with polling.
 
 
---mYCpIKhGyMATD0i+
+--7ZAtKRhVyVSsbBD2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJV6K7iAAoJEBQN5MwUoCm2nSUP/1SLuI3WKxLk2SbAS+sVm04n
-I3bWM77Agy9FEOytwoPdOkP/XwUepeeUZ4jKdeZUn+4hvVyK8SUeYqnXP4/SbxwE
-6768VNbImGklrR6WIivPIpsvJ62WnTG6r0ROF5YeS+AH95gb7JvW62BOQ9MEfdlu
-DXN73bdloKH3PMhVTxJy5WwvyosDHToSdzPLVCD1JPfotAtCyl4IfyNJUH10gXQk
-4pxxvwgRze8BnsQvuVs3Urmi1ZhNIaCj5uRLYx02Sx0K7ewvojRIEgJR7pMYdIVy
-RBUOLZojPBGaO5ed3kPLyJD0mGH/mlEVL4YT/IIKBceHrSHjw03XOM98VBZdPuWW
-/VADHLrvc5SAGxkfU4rzMbfvdWpfypHoPyWmN4xaqMT4rCre5OizEsg63WUWu+QQ
-Y6DZVC6EPu1fuw3DU1jLTmjASrVK/y/uCTQUcBZ7FBrUM80qD+6gKphrQTCQIcaZ
-JcxukKCAsSyvf9VS9GQAWep7UtxXfNPXSvTyEG03INi7JMwkPRo7Ns13f7pDSJEh
-/uI86OsXuNa/9SSrw6eCY/fCle3NvDueGNZQvwJCsnxbIOdPqn9SeSTUl+5WZvWF
-jgQF19y5ew2Ez2FN8NjsQkhZ4ZSbCMy4m0IU86jw2xDh4RB0cWKGT0Pd3W4bSWpQ
-qQZMlIwN4gKAjfIEcxAw
-=K6N+
+iQIcBAEBAgAGBQJV6LAgAAoJEBQN5MwUoCm2ftgQAKaxH3dDVFo5mbyEvWD+AO9c
+U6aw+syi1QV0K6mQ5jMvu1Bt139LYwyiCLEOvPNpSndDTi7Kudj9jNCNqvppS7dU
+QLphoMiWpdBONutX8UqvO4tyQymKv6afQGb1wwUA1cF652N1L8LHuQFLPyqe9eoP
+3F7kyzOnvg3Hmf/y7KjX/kZtEVrEZxtJzL0jqar14sMIfc8bXbl7saCsA9f7jMg+
+ASqUEqdQrqrp0FeIa7iLuHMCSn/rgtVURkF8FecjXj/XnyPWi3hOHBOGeDJJZrkK
+1GmOMsWAkvruTDqqRDKcq6Kju2iqSVncBWezUs4wWS29RmlkEBhXd4vKXflSPjVC
+NyZuLQy2qr8CEp/VX4wMmZPbTCJedcko0Nc2O7xQA6yFhQW+kSyFM3SHP/pMV3el
+PyLSRbnQpXJTMswuaFWgNkvCoDjBieyba8cumqDEPBZ1ecyoOyaBZPpOZwhN5Irf
+sJeLi1pcsDodSs6tupPkXERRut8JXkHjOc4DjDHV6E6ZG6Oc7uln0BSZTbztPZAU
+QA0F+Zyj0KvA4oIaXl5irOt6IM4jK6+46JShAjfFQHpEZ/ENZUGnuJ9TztKIVDcD
+h6x4UqKXaUt1NMqYtWvdiu9RIGZfTftcuXNqns0HGn0c+3dXDvsDHxRYNkD+z3TI
+Ln7UPJk2rt+39LPkyyIX
+=bfBW
 -----END PGP SIGNATURE-----
 
---mYCpIKhGyMATD0i+--
+--7ZAtKRhVyVSsbBD2--
