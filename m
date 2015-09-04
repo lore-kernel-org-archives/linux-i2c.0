@@ -1,53 +1,35 @@
-From: Aaron Sierra <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 3/3] at24: Support 16-bit devices on SMBus
-Date: Thu, 3 Sep 2015 17:20:43 -0500 (CDT)
-Message-ID: <1314711793.101617.1441318843659.JavaMail.zimbra@xes-inc.com>
-References: <361739546.82254.1441310010061.JavaMail.zimbra@xes-inc.com>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
+Date: Fri, 4 Sep 2015 13:33:39 +0900
+Message-ID: <CANqRtoRo7jemt52=mcmu=mf5dGsqwWKWA5aBYd7L=vFas6d+NQ@mail.gmail.com>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+	<5464456.UnsMOS3MTx@avalon>
+	<20150903204000.GB1574@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <361739546.82254.1441310010061.JavaMail.zimbra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20150903204000.GB1574@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linux-I2C <linux-i2c@vger.kernel.org>, SH-Linux <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
 
------ Original Message -----
-> From: "Aaron Sierra" <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
-> Sent: Thursday, September 3, 2015 2:53:30 PM
-> 
-> Previously, the at24 driver would bail out in the case of a 16-bit
-> addressable EEPROM attached to an SMBus controller. This is because
-> SMBus block reads and writes don't map to I2C multi-byte reads and
-> writes when the offset portion is 2 bytes.
-> 
-> Instead of bailing out, this patch settles for functioning with single
-> byte read SMBus cycles. Writes can be block or single-byte, depending on
-> SMBus controller features.
-> 
-> This patch introduces at24_smbus_read_byte_data to transparently handle
-> single-byte reads from 8-bit and 16-bit devices.
-> 
-> Functionality has been tested with the following devices:
-> 
->     AT24CM01 attached to Intel ISCH SMBus (1.8 KB/s)
->     AT24C512 attached to Intel I801 SMBus (1.4 KB/s)
-> 
-> Signed-off-by: Nate Case <ncase-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
-> Signed-off-by: Aaron Sierra <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
-> ---
->  drivers/misc/eeprom/Kconfig |  4 +++-
->  drivers/misc/eeprom/at24.c  | 40 +++++++++++++++++++++++++++++++++++-----
->  2 files changed, 38 insertions(+), 6 deletions(-)
+Hi Wolfram,
 
-All,
-Shortly after submitting, I found that there are conflicts between this
-patch and activity in i2c/for-next. Specifically with this patch:
-     eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
+On Fri, Sep 4, 2015 at 5:40 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> > So I refactored the driver to setup new messages in interrupt context, too.
+>> > This avoids the race for b) because we are now setting up the new message
+>> > before we release the i2c bus clock (before we released the clock and set up
+>> > the message in process context).
+>>
+>> Could this fix the HDMI EDID read issue on Koelsch ?
+>
+> I surely hope so. I can't test because I don't have Koelsch.
 
-Patches 1/3 and 2/3 don't have conflicts. I've reworked this patch (3/3)
-and retested on top of i2c/for-next. Should I submit all three patches
-as v2 or wait for the first two to be reviewed?
+FYI, I have enabled Koelsch remote access on port 8001 if you want to
+give it a shot!
 
--Aaron
+Cheers,
+
+/ magnus
