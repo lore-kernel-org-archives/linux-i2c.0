@@ -1,71 +1,33 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
-Date: Sat, 5 Sep 2015 09:31:43 +0200
-Message-ID: <20150905073143.GA1616@katana>
-References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
- <5464456.UnsMOS3MTx@avalon>
- <20150903204000.GB1574@katana>
- <CANqRtoRo7jemt52=mcmu=mf5dGsqwWKWA5aBYd7L=vFas6d+NQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CANqRtoRo7jemt52=mcmu=mf5dGsqwWKWA5aBYd7L=vFas6d+NQ@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linux-I2C <linux-i2c@vger.kernel.org>, SH-Linux <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+From: Michele Curti <michele.curti-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: mux: fix compiler warning
+Date: Sat,  5 Sep 2015 20:05:10 +0200
+Message-ID: <1441476310-11162-1-git-send-email-michele.curti@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org, alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michele Curti <michele.curti-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Fix compiler warning when CONFIG_OF is not defined by changing
+the 'mux' parameter type in the i2c_mux_reg_probe stub.
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Michele Curti <michele.curti-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/muxes/i2c-mux-reg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Fri, Sep 04, 2015 at 01:33:39PM +0900, Magnus Damm wrote:
-> Hi Wolfram,
->=20
-> On Fri, Sep 4, 2015 at 5:40 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >
-> >> > So I refactored the driver to setup new messages in interrupt contex=
-t, too.
-> >> > This avoids the race for b) because we are now setting up the new me=
-ssage
-> >> > before we release the i2c bus clock (before we released the clock an=
-d set up
-> >> > the message in process context).
-> >>
-> >> Could this fix the HDMI EDID read issue on Koelsch ?
-> >
-> > I surely hope so. I can't test because I don't have Koelsch.
->=20
-> FYI, I have enabled Koelsch remote access on port 8001 if you want to
-> give it a shot!
-
-Thanks! Is there a HDMI monitor connected?
-
-
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJV6ppfAAoJEBQN5MwUoCm2RsEP/jNcSgCMrG5jt+1cl/tQQ/l3
-9BhoxnZH/L84wY5lUf3YZcxGA/6llknAos8Fu0+tvEJl9rEtAukWG4uhkcK+aMvP
-+YAqSmpOyFw3c5JWIt+kUg4F08VFquwnQPKnRtd/ygIiE5o+MAuZN2rI9Vips4aJ
-DeepAAUU3TDQ4t51p16JSpOHvKxD7sv2I4sbX1XTd0IuaPNcN7nN2ZSO343DgpJT
-fBE+8XP5cwvfgXcbIiwiPt4vUbnjOl+X7EJQ4R0GYb0APKTabadIfERjHq/bLlyJ
-Ojpove0MfV8vbWWis1uWIQxmh06pCxxB/XhqgJKJK1Pje40F8KU4vLz9nwOLzdFZ
-R+7nZqEp/oyPeAk+nWD2RDlcr/Jm4Npw9ripMF42cAHlIxv6yNQ/EocgzakmkC92
-KxFJgkPoxBc4K4fbYXYRTB6KMsZOqXfQUYR2hs0ZzCTmWFwTZJC7D8+BncF88iCq
-L/LyVFnw9qjGHmcKsg9Qg4oCeAM4ARpS+HwhV3i4LSe7/LLXtdlD/qf5J6PKxetJ
-fFq29wBHBt2gVWNYpPqKL20UsIVFOvu0227K6bUN+7mpzft0kAc/qwjoCNOPcvHJ
-nwYym1SzAX1A756CweckmXeKNt7Fo5nd4+PcSdLV4We9LCOarElAF9aCKK+mkA5Z
-1B8nnKhlN8SW9u7rFDJa
-=je2l
------END PGP SIGNATURE-----
-
---FCuugMFkClbJLl1L--
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index 86d41d36..cff1519 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -166,7 +166,7 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
+ 	return 0;
+ }
+ #else
+-static int i2c_mux_reg_probe_dt(struct gpiomux *mux,
++static int i2c_mux_reg_probe_dt(struct regmux *mux,
+ 					struct platform_device *pdev)
+ {
+ 	return 0;
+-- 
+2.5.1
