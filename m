@@ -1,261 +1,178 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 4.3
-Date: Sun, 6 Sep 2015 19:20:03 +0200
-Message-ID: <20150906172000.GA1664@katana>
+From: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [Patch V7] i2c: imx: add runtime pm support to improve the
+ performance
+Date: Mon, 7 Sep 2015 02:01:53 +0000
+Message-ID: <CY1PR0301MB08587FC877437BD992EAE7FCCF540@CY1PR0301MB0858.namprd03.prod.outlook.com>
+References: <1441006353-874-1-git-send-email-b54642@freescale.com>
+ <55E54062.8030909@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <55E54062.8030909-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Heiner Kallweit <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Linus,
-
-here is the pull request for i2c. Features:
-
-* new drivers: Renesas EMEV2, register based MUX, NXP LPC2xxx
-* core: scans DT and assigns wakeup interrupts. no driver changes needed.
-* core: some refcouting issues fixed and better API for that
-* core: new helper function for best effort block read emulation
-* slave framework: proper DT bindings and userspace instantiation
-* some bigger work for xiic, pxa, omap drivers
-
-And quite a number of smaller driver fixes, cleanups, improvements.
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit f7644cbfcdf03528f0f450f3940c4985b2291f49:
-
-  Linux 4.2-rc6 (2015-08-09 15:54:30 -0400)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-4.3
-
-for you to fetch changes up to 5a73882fd2c3a86b502d54da532d373a1f2db15e:
-
-  i2c: mux: reg Change ioread endianness for readback (2015-09-03 11:58:42 +0200)
-
-----------------------------------------------------------------
-Andy Shevchenko (1):
-      i2c: designware-pci: use IRQF_COND_SUSPEND flag
-
-Anurag Kumar Vulisha (1):
-      i2c: removed work arounds in i2c driver for Zynq Ultrascale+ MPSoC
-
-Colin Ian King (1):
-      i2c: viperboard: clean up inconsistent indenting
-
-Dan Carpenter (1):
-      i2c: xgene-slimpro: dma_mapping_error() doesn't return an error code
-
-Denis Carikli (1):
-      DT: i2c: Add ADS7828 and ADS7830 to list of trivial devices
-
-Dmitry Torokhov (2):
-      of/irq: export of_get_irq_byname()
-      i2c: allow specifying separate wakeup interrupt in device tree
-
-Eddie Huang (2):
-      i2c: mediatek: Reset DMA engine in hardware init function
-      i2c: mediatek: Fixup i2c ack error interrupt handling
-
-Felipe Balbi (3):
-      i2c: omap: switch to dev_get_drvdata()
-      i2c: omap: abolish variable name confusion
-      i2c: omap: on ->remove() call pm_runtime_put_sync()
-
-Irina Tirdea (2):
-      i2c: core: Add support for best effort block read emulation
-      eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
-
-Jarkko Nikula (1):
-      i2c: designware: Make debug print in i2c_dw_isr() shorter
-
-Javier Martinez Canillas (2):
-      misc: eeprom: Export I2C module alias information in missing drivers
-      i2c: Replace I2C_CROS_EC_TUNNEL dependency
-
-Joachim Eastwood (1):
-      i2c: lpc2k: add driver
-
-Krzysztof Kozlowski (2):
-      i2c: Drop owner assignment from i2c_driver
-      misc: Drop owner assignment from i2c_driver
-
-Laxman Dewangan (2):
-      i2c: tegra: update CONFIG_LOAD for new conifiguration
-      i2c: tegra: add support for fast plus (FM+) mode clock rate
-
-Leilei Shang (1):
-      i2c: pxa: keep i2c irq ON in suspend
-
-Masahiro Yamada (1):
-      i2c: cadence: set THIS_MODULE to the owner of the adapter
-
-Mike Rapoport (1):
-      i2c: mux: reg: fix compilation warnings
-
-Ondrej Zary (1):
-      i2c: parport: Add VCT-jig adapter
-
-Shouming Wang (1):
-      i2c: pxa: Return I2C_RETRY when timeout in pio mode
-
-Shubhrajyoti Datta (8):
-      i2c: xiic: Remove the disabling of interrupts
-      i2c: xiic: move the xiic_process to thread context
-      i2c: xiic: Do not reset controller before every transfer
-      i2c: xiic: Remove the disabling of interrupts
-      i2c: xiic: Remove busy loop while waiting for bus busy
-      i2c: xiic: Remove the Addressed as slave interrupt
-      i2c: xiic: Service all interrupts in isr
-      i2c: xiic: Do not continue in case of errors in Rx
-
-Sudip Mukherjee (2):
-      i2c: parport: use dev_*
-      i2c: parport: start using pr_fmt
-
-Vaibhav Hiremath (3):
-      i2c: pxa: No need to set slave addr for i2c master mode reset
-      i2c: pxa: Update debug function to dump more info on error
-      i2c: pxa: Use devm_ variants in probe function
-
-Vladimir Zapolskiy (4):
-      i2c: core: manage i2c bus device refcount in i2c_[get|put]_adapter
-      i2c: core: add and export of_get_i2c_adapter_by_node() interface
-      i2c: arb-gpio-challenge: use of_get_i2c_adapter_by_node interface
-      i2c: muxes: fix leaked i2c adapter device node references
-
-Wolfram Sang (18):
-      clk: shmobile: emev2: deassert reset for IIC0/1
-      i2c: emev2: add driver
-      i2c: omap: fix cleanup regression
-      rtc: bq32k: move binding docs to proper place
-      hwmon: max6697: move binding docs to proper place
-      hwmon: ina2xx: move binding docs to proper place
-      hwmon: ina209: move binding docs to proper place
-      dt-bindings: add header for generic I2C flags in bindings
-      i2c: add a flag to mark clients as slaves
-      i2c: apply address offset for slaves, too
-      i2c: rename address check functions
-      i2c: make address check indpendent from client struct
-      i2c: apply DT flags when probing
-      i2c: take address space into account when checking for used addresses
-      i2c: support 10 bit and slave addresses in sysfs 'new_device'
-      i2c: slave: print warning if slave flag not set
-      i2c: dt: describe generic bindings
-      i2c: mux: reg: simplify register size checking
-
-Yipeng Yao (1):
-      i2c: pxa: Fix compile warning in 64bit mode
-
-York Sun (2):
-      i2c: mux: Add register-based mux i2c-mux-reg
-      i2c: mux: reg Change ioread endianness for readback
-
- .../devicetree/bindings/{i2c => hwmon}/ina209.txt  |   0
- .../devicetree/bindings/{i2c => hwmon}/ina2xx.txt  |   0
- .../devicetree/bindings/{i2c => hwmon}/max6697.txt |   0
- .../devicetree/bindings/i2c/i2c-cadence.txt        |   6 +-
- .../devicetree/bindings/i2c/i2c-emev2.txt          |  22 +
- .../devicetree/bindings/i2c/i2c-lpc2k.txt          |  33 ++
- .../devicetree/bindings/i2c/i2c-mux-reg.txt        |  74 +++
- Documentation/devicetree/bindings/i2c/i2c.txt      |  45 ++
- .../devicetree/bindings/i2c/trivial-devices.txt    |   2 +
- .../devicetree/bindings/{i2c => rtc}/ti,bq32k.txt  |   0
- Documentation/i2c/busses/i2c-parport               |   1 +
- Documentation/i2c/slave-interface                  |   9 +-
- Documentation/i2c/ten-bit-addresses                |   4 +
- drivers/clk/shmobile/clk-emev2.c                   |   6 +
- drivers/i2c/busses/Kconfig                         |  19 +-
- drivers/i2c/busses/Makefile                        |   2 +
- drivers/i2c/busses/i2c-cadence.c                   |  69 ++-
- drivers/i2c/busses/i2c-designware-core.c           |   3 +-
- drivers/i2c/busses/i2c-designware-pcidrv.c         |   4 +-
- drivers/i2c/busses/i2c-emev2.c                     | 332 ++++++++++++
- drivers/i2c/busses/i2c-lpc2k.c                     | 513 ++++++++++++++++++
- drivers/i2c/busses/i2c-mt65xx.c                    |  21 +-
- drivers/i2c/busses/i2c-omap.c                      | 600 ++++++++++-----------
- drivers/i2c/busses/i2c-parport.c                   |  25 +-
- drivers/i2c/busses/i2c-parport.h                   |   8 +
- drivers/i2c/busses/i2c-pxa.c                       | 112 ++--
- drivers/i2c/busses/i2c-tegra.c                     |  52 +-
- drivers/i2c/busses/i2c-viperboard.c                |  10 +-
- drivers/i2c/busses/i2c-xgene-slimpro.c             |   8 +-
- drivers/i2c/busses/i2c-xiic.c                      |  74 ++-
- drivers/i2c/i2c-core.c                             | 229 ++++++--
- drivers/i2c/i2c-slave-eeprom.c                     |   1 -
- drivers/i2c/muxes/Kconfig                          |  11 +
- drivers/i2c/muxes/Makefile                         |   1 +
- drivers/i2c/muxes/i2c-arb-gpio-challenge.c         |   3 +-
- drivers/i2c/muxes/i2c-mux-gpio.c                   |   1 +
- drivers/i2c/muxes/i2c-mux-pca9541.c                |   1 -
- drivers/i2c/muxes/i2c-mux-pca954x.c                |   1 -
- drivers/i2c/muxes/i2c-mux-pinctrl.c                |   1 +
- drivers/i2c/muxes/i2c-mux-reg.c                    | 290 ++++++++++
- drivers/misc/ad525x_dpot-i2c.c                     |   1 -
- drivers/misc/apds990x.c                            |   1 -
- drivers/misc/bh1770glc.c                           |   1 -
- drivers/misc/bmp085-i2c.c                          |   1 -
- drivers/misc/eeprom/at24.c                         |  38 +-
- drivers/misc/eeprom/max6875.c                      |   1 +
- drivers/misc/isl29003.c                            |   1 -
- drivers/misc/lis3lv02d/lis3lv02d_i2c.c             |   1 -
- drivers/misc/ti-st/st_kim.c                        |   1 -
- drivers/misc/tsl2550.c                             |   1 -
- drivers/of/irq.c                                   |   1 +
- include/dt-bindings/i2c/i2c.h                      |  18 +
- include/linux/i2c.h                                |  19 +-
- include/linux/platform_data/i2c-mux-reg.h          |  44 ++
- 54 files changed, 2189 insertions(+), 533 deletions(-)
- rename Documentation/devicetree/bindings/{i2c => hwmon}/ina209.txt (100%)
- rename Documentation/devicetree/bindings/{i2c => hwmon}/ina2xx.txt (100%)
- rename Documentation/devicetree/bindings/{i2c => hwmon}/max6697.txt (100%)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-emev2.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-lpc2k.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c.txt
- rename Documentation/devicetree/bindings/{i2c => rtc}/ti,bq32k.txt (100%)
- create mode 100644 drivers/i2c/busses/i2c-emev2.c
- create mode 100644 drivers/i2c/busses/i2c-lpc2k.c
- create mode 100644 drivers/i2c/muxes/i2c-mux-reg.c
- create mode 100644 include/dt-bindings/i2c/i2c.h
- create mode 100644 include/linux/platform_data/i2c-mux-reg.h
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJV7HW/AAoJEBQN5MwUoCm2oxIP/RRw2e0uG2YMecnSX6h8LgfY
-jrSwSsh3ue4kznXmW/tbkKBZ7afjqkh/CKNuKChn7v8HB24nsNkHRJRkR4RrLl6Z
-600/3THjPRc3mhLfzs0fmzQNLZxOIL5/r5dUK0+cfnNrYI+NwbgyAasVni1SC5EN
-s8bLybxR0ypZuvLiZilgxR+XzVVY4Dz02pf1wjZc3dek8yb4s4Sn8siAJMOGNOPH
-OqDluSXhUHD7VfKWjl2xyFoDm6nvGTggV8XF8MBw4iS5oQyXYBEpi8PIgyRJxW9W
-zpwQIRQoHtQX5q4klDE8xlg2aLq0NFw6rryC2s9LTc9Hh7GFT9wNQkZS9IeN9auv
-uK3OgjgFJwqa3f3Wd8HupU+20llGlCjD0TPpkW3abuOksG9doeA5maAKzQ4tB4iI
-eFAk+6C34zS1ISGJddLMFGDE9Es4Qb24whOzL67jLx9+W1aZrgshVD+2ayDDVT+O
-1mKSipgM2UTjyX5BmdcXcWWMoPedC2xUKQ9dpN3dnFTLBYnU249GD/RiEVSAAECW
-+0kTUIcHyCIcTMetNpOv52umubwLEA0sVxiqyus35r5bblkvazz5DNWXmvvU6/2j
-rhqZqJaNWxWPUU2pk55g6ziQea9HwFa2Zc2p6UAkjasNwNeVpgvfaWYOamecb34z
-XvBLtlFUcL0pXcK/LF4h
-=UkDH
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+UGluZy4uLg0KRnJvbTogSGVpbmVyIEthbGx3ZWl0IDxtYWlsdG86aGthbGx3ZWl0MUBnbWFpbC5j
+b20+IFNlbnQ6IFR1ZXNkYXksIFNlcHRlbWJlciAwMSwgMjAxNSAyOjA2IFBNDQo+IFRvOiBHYW8g
+UGFuLUI1NDY0Mjsgd3NhQHRoZS1kcmVhbXMuZGUNCj4gQ2M6IGxpbnV4LWkyY0B2Z2VyLmtlcm5l
+bC5vcmc7IExpIEZyYW5rLUIyMDU5NjsgRHVhbiBGdWdhbmctQjM4NjExOw0KPiB1LmtsZWluZS1r
+b2VuaWdAcGVuZ3V0cm9uaXguZGU7IGtlcm5lbEBwZW5ndXRyb25peC5kZQ0KPiBTdWJqZWN0OiBS
+ZTogW1BhdGNoIFY3XSBpMmM6IGlteDogYWRkIHJ1bnRpbWUgcG0gc3VwcG9ydCB0byBpbXByb3Zl
+IHRoZQ0KPiBwZXJmb3JtYW5jZQ0KPiANCj4gQW0gMzEuMDguMjAxNSB1bSAwOTozMiBzY2hyaWVi
+IEdhbyBQYW46DQo+ID4gSW4gb3VyIGZvcm1lciBpMmMgZHJpdmVyLCBpMmMgY2xrIGlzIGVuYWJs
+ZWQgYW5kIGRpc2FibGVkIGluIHhmZXINCj4gPiBmdW5jdGlvbiwgd2hpY2ggY29udHJpYnV0ZXMg
+dG8gcG93ZXIgc2F2aW5nLiBIb3dldmVyLCB0aGUgY2xrIGVuYWJsZQ0KPiA+IHByb2Nlc3MgYnJp
+bmdzIGEgYnVzeSB3YWl0IGRlbGF5IHVudGlsIHRoZSBjb3JlIGlzIHN0YWJsZS4gQXMgYQ0KPiA+
+IHJlc3VsdCwgdGhlIHBlcmZvcm1hbmNlIGlzIHNhY3JpZmljZWQuDQo+ID4NCj4gPiBUbyB3ZWln
+aCB0aGUgcG93ZXIgY29uc3VtcHRpb24gYW5kIGkyYyBidXMgcGVyZm9ybWFuY2UsIHJ1bnRpbWUg
+cG0gaXMNCj4gPiB0aGUgZ29vZCBzb2x1dGlvbiBmb3IgaXQuIFRoZSBjbGsgaXMgZW5hYmxlZCB3
+aGVuIGEgaTJjIHRyYW5zZmVyDQo+ID4gc3RhcnRzLCBhbmQgZGlzYWJsZWQgYWZ0ZXIgYSBzcGVj
+aWZpY2FsbHkgZGVmaW5lZCBkZWxheS4NCj4gPg0KPiA+IFdpdGhvdXQgdGhlIHBhdGNoIHRoZSB0
+ZXN0IGNhc2UgKG1hbnkgZWVwcm9tIHJlYWRzKSBleGVjdXRlcyB3aXRoDQo+IGFwcHJveDoNCj4g
+PiByZWFsIDFtNy43MzVzDQo+ID4gdXNlciAwbTAuNDg4cw0KPiA+IHN5cyAwbTIwLjA0MHMNCj4g
+Pg0KPiA+IFdpdGggdGhlIHBhdGNoIHRoZSBzYW1lIHRlc3QgY2FzZSAobWFueSBlZXByb20gcmVh
+ZHMpIGV4ZWN1dGVzIHdpdGgNCj4gYXBwcm94Og0KPiA+IHJlYWwgMG01NC4yNDFzDQo+ID4gdXNl
+ciAwbTAuNDQwcw0KPiA+IHN5cyAwbTUuOTIwcw0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogRnVn
+YW5nIER1YW4gPEIzODYxMUBmcmVlc2NhbGUuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEdhbyBQ
+YW4gPGI1NDY0MkBmcmVlc2NhbGUuY29tPg0KPiA+IFt3c2E6IGZpeGVkIHNvbWUgaW5kZW50YXRp
+b25dDQo+ID4gU2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4N
+Cj4gPiAtLS0NCj4gPiBWMjoNCj4gPiBBcyBVd2UgS2xlaW5lLUvDtm5pZydzIHN1Z2dlc3Rpb24s
+IHRoZSB2ZXJzaW9uIGRvIGJlbG93IGNoYW5nZXM6DQo+ID4gIC1jYWxsIGNsa19wcmVwYXJlX2Vu
+YWJsZSBpbiBwcm9iZSB0byBhdm9pZCBuZXZlciBlbmFibGluZyBjbG9jaw0KPiA+ICAgaWYgQ09O
+RklHX1BNIGlzIGRpc2FibGVkDQo+ID4gIC1lbmFibGUgY2xvY2sgYmVmb3JlIHJlcXVlc3QgSVJR
+IGluIHByb2JlICAtcmVtb3ZlIHRoZSBwbSBzdGFmZiBpbg0KPiA+IGkyY19pbXhfaXNyDQo+ID4N
+Cj4gPiBWMzoNCj4gPiAgLXBtX3J1bnRpbWVfZ2V0X3N5bmMgcmV0dXJucyA8IDAgYXMgZXJyb3IN
+Cj4gPg0KPiA+IFY0Og0KPiA+ICAtYWRkIHBtX3J1bnRpbWVfc2V0X2FjdGl2ZSBiZWZvcmUgcG1f
+cnVudGltZV9lbmFibGUgIC1yZXBsYWNlDQo+ID4gcG1fcnVudGltZV9wdXRfYXV0b3N1c3BlbmQg
+d2l0aCBwbV9ydW50aW1lX2F1dG9zdXNwZW5kDQo+ID4gICBpbiBwcm9iZQ0KPiA+ICAtYWRkIGVy
+cm9yIGRpc3Bvc2FsIHdoZW4gaTJjX2FkZF9udW1iZXJlZF9hZGFwdGVyIGZhaWxzDQo+ID4NCj4g
+PiBWNToNCj4gPiAgLWNsZWFuIHVwIGFuZCBkaXNhYmxlIHJ1bnRpbWUgUE0gd2hlbiBpMmNfYWRk
+X251bWJlcmVkX2FkYXB0ZXIgZmFpbHMNCj4gPiAtdXNlIHBtX3J1bnRpbWVfZ2V0IGFuZCBwbV9y
+dW50aW1lX3B1dF9hdXRvc3VzcGVuZCBpbiBwcm9iZQ0KPiA+DQo+ID4gVjY6DQo+ID4gIC1kaXNh
+YmxlIHRoZSBjbG9jayBtYW51YWxseSBhbmQgc2V0IHRoZSBzdGF0ZSB0byBzdXNwZW5kZWQgZXhw
+bGljaXRseQ0KPiB3aXRoDQo+ID4gICBwbV9ydW50aW1lX3NldF9zdXNwZW5kZWQNCj4gPg0KPiA+
+IFY3Og0KPiA+ICAtbWFudWFsbHkgZGlzYWJsaW5nIHRoZSBjbG9jayBhbmQgdXNlIHBtX3J1bnRp
+bWVfcHV0X25vaWRsZSBpbiB0aGUNCj4gPiByZW1vdmUgY2FsbGJhY2sNCj4gPg0KPiA+ICBkcml2
+ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jIHwgOTANCj4gPiArKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKy0tLS0tLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgNzggaW5zZXJ0aW9u
+cygrKSwgMTIgZGVsZXRpb25zKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMv
+YnVzc2VzL2kyYy1pbXguYw0KPiA+IGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYyBpbmRl
+eCA3ODVhYTY3Li5kN2M4MjNiIDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9p
+MmMtaW14LmMNCj4gPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jDQo+ID4gQEAg
+LTUzLDYgKzUzLDcgQEANCj4gPiAgI2luY2x1ZGUgPGxpbnV4L3BsYXRmb3JtX2RldmljZS5oPg0K
+PiA+ICAjaW5jbHVkZSA8bGludXgvc2NoZWQuaD4NCj4gPiAgI2luY2x1ZGUgPGxpbnV4L3NsYWIu
+aD4NCj4gPiArI2luY2x1ZGUgPGxpbnV4L3BtX3J1bnRpbWUuaD4NCj4gPg0KPiA+ICAvKiogRGVm
+aW5lcw0KPiA+ICoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqDQo+ID4NCj4gPiAqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqDQo+ID4gKioqKioq
+KioqLw0KPiA+IEBAIC0xMTgsNiArMTE5LDggQEANCj4gPiAgI2RlZmluZSBJMkNSX0lFTl9PUENP
+REVfMAkweDANCj4gPiAgI2RlZmluZSBJMkNSX0lFTl9PUENPREVfMQlJMkNSX0lFTg0KPiA+DQo+
+ID4gKyNkZWZpbmUgSTJDX1BNX1RJTUVPVVQJCTEwIC8qIG1zICovDQo+ID4gKw0KPiA+ICAvKiog
+VmFyaWFibGVzDQo+ID4gKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqDQo+ID4NCj4gPiAqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqDQo+ID4gKioq
+KioqKioqLw0KPiA+DQo+ID4gQEAgLTUyMCw5ICs1MjMsNiBAQCBzdGF0aWMgaW50IGkyY19pbXhf
+c3RhcnQoc3RydWN0IGlteF9pMmNfc3RydWN0DQo+ID4gKmkyY19pbXgpDQo+ID4NCj4gPiAgCWky
+Y19pbXhfc2V0X2NsayhpMmNfaW14KTsNCj4gPg0KPiA+IC0JcmVzdWx0ID0gY2xrX3ByZXBhcmVf
+ZW5hYmxlKGkyY19pbXgtPmNsayk7DQo+ID4gLQlpZiAocmVzdWx0KQ0KPiA+IC0JCXJldHVybiBy
+ZXN1bHQ7DQo+ID4gIAlpbXhfaTJjX3dyaXRlX3JlZyhpMmNfaW14LT5pZmRyLCBpMmNfaW14LCBJ
+TVhfSTJDX0lGRFIpOw0KPiA+ICAJLyogRW5hYmxlIEkyQyBjb250cm9sbGVyICovDQo+ID4gIAlp
+bXhfaTJjX3dyaXRlX3JlZyhpMmNfaW14LT5od2RhdGEtPmkyc3JfY2xyX29wY29kZSwgaTJjX2lt
+eCwNCj4gPiBJTVhfSTJDX0kyU1IpOyBAQCAtNTc1LDcgKzU3NSw2IEBAIHN0YXRpYyB2b2lkIGky
+Y19pbXhfc3RvcChzdHJ1Y3QNCj4gaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgpDQo+ID4gIAkvKiBE
+aXNhYmxlIEkyQyBjb250cm9sbGVyICovDQo+ID4gIAl0ZW1wID0gaTJjX2lteC0+aHdkYXRhLT5p
+MmNyX2llbl9vcGNvZGUgXiBJMkNSX0lFTiwNCj4gPiAgCWlteF9pMmNfd3JpdGVfcmVnKHRlbXAs
+IGkyY19pbXgsIElNWF9JMkNfSTJDUik7DQo+ID4gLQljbGtfZGlzYWJsZV91bnByZXBhcmUoaTJj
+X2lteC0+Y2xrKTsNCj4gPiAgfQ0KPiA+DQo+ID4gIHN0YXRpYyBpcnFyZXR1cm5fdCBpMmNfaW14
+X2lzcihpbnQgaXJxLCB2b2lkICpkZXZfaWQpIEBAIC04OTQsNg0KPiA+ICs4OTMsMTAgQEAgc3Rh
+dGljIGludCBpMmNfaW14X3hmZXIoc3RydWN0IGkyY19hZGFwdGVyICphZGFwdGVyLA0KPiA+DQo+
+ID4gIAlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIjwlcz5cbiIsIF9fZnVuY19fKTsN
+Cj4gPg0KPiA+ICsJcmVzdWx0ID0gcG1fcnVudGltZV9nZXRfc3luYyhpMmNfaW14LT5hZGFwdGVy
+LmRldi5wYXJlbnQpOw0KPiA+ICsJaWYgKHJlc3VsdCA8IDApDQo+ID4gKwkJZ290byBvdXQ7DQo+
+ID4gKw0KPiA+ICAJLyogU3RhcnQgSTJDIHRyYW5zZmVyICovDQo+ID4gIAlyZXN1bHQgPSBpMmNf
+aW14X3N0YXJ0KGkyY19pbXgpOw0KPiA+ICAJaWYgKHJlc3VsdCkNCj4gPiBAQCAtOTUwLDYgKzk1
+MywxMCBAQCBmYWlsMDoNCj4gPiAgCS8qIFN0b3AgSTJDIHRyYW5zZmVyICovDQo+ID4gIAlpMmNf
+aW14X3N0b3AoaTJjX2lteCk7DQo+ID4NCj4gPiArb3V0Og0KPiA+ICsJcG1fcnVudGltZV9tYXJr
+X2xhc3RfYnVzeShpMmNfaW14LT5hZGFwdGVyLmRldi5wYXJlbnQpOw0KPiA+ICsJcG1fcnVudGlt
+ZV9wdXRfYXV0b3N1c3BlbmQoaTJjX2lteC0+YWRhcHRlci5kZXYucGFyZW50KTsNCj4gPiArDQo+
+ID4gIAlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIjwlcz4gZXhpdCB3aXRoOiAlczog
+JWRcbiIsIF9fZnVuY19fLA0KPiA+ICAJCShyZXN1bHQgPCAwKSA/ICJlcnJvciIgOiAic3VjY2Vz
+cyBtc2ciLA0KPiA+ICAJCQkocmVzdWx0IDwgMCkgPyByZXN1bHQgOiBudW0pOw0KPiA+IEBAIC0x
+MDIwLDkgKzEwMjcsMTAgQEAgc3RhdGljIGludCBpMmNfaW14X3Byb2JlKHN0cnVjdCBwbGF0Zm9y
+bV9kZXZpY2UNCj4gPiAqcGRldikNCj4gPg0KPiA+ICAJcmV0ID0gY2xrX3ByZXBhcmVfZW5hYmxl
+KGkyY19pbXgtPmNsayk7DQo+ID4gIAlpZiAocmV0KSB7DQo+ID4gLQkJZGV2X2VycigmcGRldi0+
+ZGV2LCAiY2FuJ3QgZW5hYmxlIEkyQyBjbG9ja1xuIik7DQo+ID4gKwkJZGV2X2VycigmcGRldi0+
+ZGV2LCAiY2FuJ3QgZW5hYmxlIEkyQyBjbG9jaywgcmV0PSVkXG4iLCByZXQpOw0KPiA+ICAJCXJl
+dHVybiByZXQ7DQo+ID4gIAl9DQo+ID4gKw0KPiA+ICAJLyogUmVxdWVzdCBJUlEgKi8NCj4gPiAg
+CXJldCA9IGRldm1fcmVxdWVzdF9pcnEoJnBkZXYtPmRldiwgaXJxLCBpMmNfaW14X2lzciwgMCwN
+Cj4gPiAgCQkJCXBkZXYtPm5hbWUsIGkyY19pbXgpOw0KPiA+IEBAIC0xMDM3LDYgKzEwNDUsMTgg
+QEAgc3RhdGljIGludCBpMmNfaW14X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UNCj4gKnBk
+ZXYpDQo+ID4gIAkvKiBTZXQgdXAgYWRhcHRlciBkYXRhICovDQo+ID4gIAlpMmNfc2V0X2FkYXBk
+YXRhKCZpMmNfaW14LT5hZGFwdGVyLCBpMmNfaW14KTsNCj4gPg0KPiA+ICsJLyogU2V0IHVwIHBs
+YXRmb3JtIGRyaXZlciBkYXRhICovDQo+ID4gKwlwbGF0Zm9ybV9zZXRfZHJ2ZGF0YShwZGV2LCBp
+MmNfaW14KTsNCj4gPiArDQo+ID4gKwlwbV9ydW50aW1lX3NldF9hdXRvc3VzcGVuZF9kZWxheSgm
+cGRldi0+ZGV2LCBJMkNfUE1fVElNRU9VVCk7DQo+ID4gKwlwbV9ydW50aW1lX3VzZV9hdXRvc3Vz
+cGVuZCgmcGRldi0+ZGV2KTsNCj4gPiArCXBtX3J1bnRpbWVfc2V0X2FjdGl2ZSgmcGRldi0+ZGV2
+KTsNCj4gPiArCXBtX3J1bnRpbWVfZW5hYmxlKCZwZGV2LT5kZXYpOw0KPiA+ICsNCj4gPiArCXJl
+dCA9IHBtX3J1bnRpbWVfZ2V0X3N5bmMoJnBkZXYtPmRldik7DQo+ID4gKwlpZiAocmV0IDwgMCkN
+Cj4gPiArCQlnb3RvIHJwbV9kaXNhYmxlOw0KPiA+ICsNCj4gPiAgCS8qIFNldCB1cCBjbG9jayBk
+aXZpZGVyICovDQo+ID4gIAlpMmNfaW14LT5iaXRyYXRlID0gSU1YX0kyQ19CSVRfUkFURTsNCj4g
+PiAgCXJldCA9IG9mX3Byb3BlcnR5X3JlYWRfdTMyKHBkZXYtPmRldi5vZl9ub2RlLA0KPiA+IEBA
+IC0xMDUzLDEyICsxMDczLDExIEBAIHN0YXRpYyBpbnQgaTJjX2lteF9wcm9iZShzdHJ1Y3QgcGxh
+dGZvcm1fZGV2aWNlDQo+ICpwZGV2KQ0KPiA+ICAJcmV0ID0gaTJjX2FkZF9udW1iZXJlZF9hZGFw
+dGVyKCZpMmNfaW14LT5hZGFwdGVyKTsNCj4gPiAgCWlmIChyZXQgPCAwKSB7DQo+ID4gIAkJZGV2
+X2VycigmcGRldi0+ZGV2LCAicmVnaXN0cmF0aW9uIGZhaWxlZFxuIik7DQo+ID4gLQkJZ290byBj
+bGtfZGlzYWJsZTsNCj4gPiArCQlnb3RvIHJwbV9kaXNhYmxlOw0KPiA+ICAJfQ0KPiA+DQo+ID4g
+LQkvKiBTZXQgdXAgcGxhdGZvcm0gZHJpdmVyIGRhdGEgKi8NCj4gPiAtCXBsYXRmb3JtX3NldF9k
+cnZkYXRhKHBkZXYsIGkyY19pbXgpOw0KPiA+IC0JY2xrX2Rpc2FibGVfdW5wcmVwYXJlKGkyY19p
+bXgtPmNsayk7DQo+ID4gKwlwbV9ydW50aW1lX21hcmtfbGFzdF9idXN5KCZwZGV2LT5kZXYpOw0K
+PiA+ICsJcG1fcnVudGltZV9wdXRfYXV0b3N1c3BlbmQoJnBkZXYtPmRldik7DQo+ID4NCj4gPiAg
+CWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIuZGV2LCAiY2xhaW1lZCBpcnEgJWRcbiIsIGlycSk7
+DQo+ID4gIAlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgImRldmljZSByZXNvdXJjZXM6
+ICVwUlxuIiwgcmVzKTsgQEANCj4gPiAtMTA3MSw2ICsxMDkwLDExIEBAIHN0YXRpYyBpbnQgaTJj
+X2lteF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlDQo+ID4gKnBkZXYpDQo+ID4NCj4gPiAg
+CXJldHVybiAwOyAgIC8qIFJldHVybiBPSyAqLw0KPiA+DQo+ID4gK3JwbV9kaXNhYmxlOg0KPiA+
+ICsJcG1fcnVudGltZV9wdXRfbm9pZGxlKCZwZGV2LT5kZXYpOw0KPiA+ICsJcG1fcnVudGltZV9k
+aXNhYmxlKCZwZGV2LT5kZXYpOw0KPiA+ICsJcG1fcnVudGltZV9zZXRfc3VzcGVuZGVkKCZwZGV2
+LT5kZXYpOw0KPiA+ICsNCj4gPiAgY2xrX2Rpc2FibGU6DQo+ID4gIAljbGtfZGlzYWJsZV91bnBy
+ZXBhcmUoaTJjX2lteC0+Y2xrKTsNCj4gPiAgCXJldHVybiByZXQ7DQo+ID4gQEAgLTEwNzksNiAr
+MTEwMywxMSBAQCBjbGtfZGlzYWJsZToNCj4gPiAgc3RhdGljIGludCBpMmNfaW14X3JlbW92ZShz
+dHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KSAgew0KPiA+ICAJc3RydWN0IGlteF9pMmNfc3Ry
+dWN0ICppMmNfaW14ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+ID4gKwlpbnQgcmV0
+Ow0KPiA+ICsNCj4gPiArCXJldCA9IHBtX3J1bnRpbWVfZ2V0X3N5bmMoJnBkZXYtPmRldik7DQo+
+ID4gKwlpZiAocmV0IDwgMCkNCj4gPiArCQlyZXR1cm4gcmV0Ow0KPiA+DQo+ID4gIAkvKiByZW1v
+dmUgYWRhcHRlciAqLw0KPiA+ICAJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5kZXYsICJhZGFw
+dGVyIHJlbW92ZWRcbiIpOyBAQCAtMTA5MywxNw0KPiA+ICsxMTIyLDU0IEBAIHN0YXRpYyBpbnQg
+aTJjX2lteF9yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gPiAgCWlteF9p
+MmNfd3JpdGVfcmVnKDAsIGkyY19pbXgsIElNWF9JMkNfSTJDUik7DQo+ID4gIAlpbXhfaTJjX3dy
+aXRlX3JlZygwLCBpMmNfaW14LCBJTVhfSTJDX0kyU1IpOw0KPiA+DQo+ID4gKwljbGtfZGlzYWJs
+ZV91bnByZXBhcmUoaTJjX2lteC0+Y2xrKTsNCj4gPiArDQo+ID4gKwlwbV9ydW50aW1lX3B1dF9u
+b2lkbGUoJnBkZXYtPmRldik7DQo+ID4gKwlwbV9ydW50aW1lX2Rpc2FibGUoJnBkZXYtPmRldik7
+DQo+ID4gKw0KPiA+ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gKyNpZmRlZiBDT05G
+SUdfUE0NCj4gPiArc3RhdGljIGludCBpMmNfaW14X3J1bnRpbWVfc3VzcGVuZChzdHJ1Y3QgZGV2
+aWNlICpkZXYpIHsNCj4gPiArCXN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lteCAgPSBkZXZf
+Z2V0X2RydmRhdGEoZGV2KTsNCj4gPiArDQo+ID4gKwljbGtfZGlzYWJsZV91bnByZXBhcmUoaTJj
+X2lteC0+Y2xrKTsNCj4gPiArDQo+ID4gIAlyZXR1cm4gMDsNCj4gPiAgfQ0KPiA+DQo+ID4gK3N0
+YXRpYyBpbnQgaTJjX2lteF9ydW50aW1lX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpIHsNCj4g
+PiArCXN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lteCAgPSBkZXZfZ2V0X2RydmRhdGEoZGV2
+KTsNCj4gPiArCWludCByZXQ7DQo+ID4gKw0KPiA+ICsJcmV0ID0gY2xrX3ByZXBhcmVfZW5hYmxl
+KGkyY19pbXgtPmNsayk7DQo+ID4gKwlpZiAocmV0KQ0KPiA+ICsJCWRldl9lcnIoZGV2LCAiY2Fu
+J3QgZW5hYmxlIEkyQyBjbG9jaywgcmV0PSVkXG4iLCByZXQpOw0KPiA+ICsNCj4gPiArCXJldHVy
+biByZXQ7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgZGV2X3BtX29w
+cyBpMmNfaW14X3BtX29wcyA9IHsNCj4gPiArCVNFVF9SVU5USU1FX1BNX09QUyhpMmNfaW14X3J1
+bnRpbWVfc3VzcGVuZCwNCj4gPiArCQkJICAgaTJjX2lteF9ydW50aW1lX3Jlc3VtZSwgTlVMTCkN
+Cj4gPiArfTsNCj4gPiArI2RlZmluZSBJMkNfSU1YX1BNX09QUyAoJmkyY19pbXhfcG1fb3BzKSAj
+ZWxzZSAjZGVmaW5lIEkyQ19JTVhfUE1fT1BTDQo+ID4gK05VTEwgI2VuZGlmIC8qIENPTkZJR19Q
+TSAqLw0KPiA+ICsNCj4gPiAgc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgaTJjX2lteF9k
+cml2ZXIgPSB7DQo+ID4gIAkucHJvYmUgPSBpMmNfaW14X3Byb2JlLA0KPiA+ICAJLnJlbW92ZSA9
+IGkyY19pbXhfcmVtb3ZlLA0KPiA+IC0JLmRyaXZlcgk9IHsNCj4gPiAtCQkubmFtZQk9IERSSVZF
+Ul9OQU1FLA0KPiA+ICsJLmRyaXZlciA9IHsNCj4gPiArCQkubmFtZSA9IERSSVZFUl9OQU1FLA0K
+PiA+ICsJCS5wbSA9IEkyQ19JTVhfUE1fT1BTLA0KPiA+ICAJCS5vZl9tYXRjaF90YWJsZSA9IGky
+Y19pbXhfZHRfaWRzLA0KPiA+ICAJfSwNCj4gPiAtCS5pZF90YWJsZQk9IGlteF9pMmNfZGV2dHlw
+ZSwNCj4gPiArCS5pZF90YWJsZSA9IGlteF9pMmNfZGV2dHlwZSwNCj4gPiAgfTsNCj4gPg0KPiA+
+ICBzdGF0aWMgaW50IF9faW5pdCBpMmNfYWRhcF9pbXhfaW5pdCh2b2lkKQ0KPiA+DQo+IExvb2tz
+IGdvb2QgdG8gbWUgbm93Lg0KPiANCj4gUmVnYXJkcywgSGVpbmVyDQoNCg==
