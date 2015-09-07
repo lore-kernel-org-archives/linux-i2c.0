@@ -1,53 +1,52 @@
-From: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Subject: [PATCH v4 11/22] i2c: core: Probe i2c adapters and devices on demand
-Date: Mon,  7 Sep 2015 14:23:36 +0200
-Message-ID: <1441628627-5143-12-git-send-email-tomeu.vizoso@collabora.com>
-References: <1441628627-5143-1-git-send-email-tomeu.vizoso@collabora.com>
+From: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Subject: Re: [PATCH 0/8] i2c: img-scb: fixes to support i2c on pistachio
+Date: Mon, 7 Sep 2015 10:41:25 -0300
+Message-ID: <CAAEAJfCW9cEMDZwta5Q6VVEZfzxTDZ50Fx=YeW6bPMnrtKNcbw@mail.gmail.com>
+References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com>
+	<20150731111252.GL1522@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1441628627-5143-1-git-send-email-tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+In-Reply-To: <20150731111252.GL1522@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, jdelvare-l3A5Bk7waGM@public.gmane.org
+Cc: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-When looking up an i2c adapter or device through its OF node, probe it
-if it hasn't already.
+Wolfram, Jean:
 
-The goal is to reduce deferred probes to a minimum, as it makes it very
-cumbersome to find out why a device failed to probe, and can introduce
-very big delays in when a critical device is probed.
+On 31 July 2015 at 08:12, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Mon, Jul 27, 2015 at 12:47:13PM +0100, Sifan Naeem wrote:
+>> Following patches are required to fix the existing driver to
+>> support i2c on pistachio.
+>>
+>> Tested on Pistachio bub using an Adafruit I2C Non-Volatile FRAM Brea=
+kout
+>> (256Kbit / 32KByte) eeprom.
+>>
+>> Used i2c buildroot tools to test the eeprom and the other i2c blocks=
+=2E
+>> Also used dd commands to copy data to and then to dump data from the
+>> eeprom. i2ctransfer was used to test repeated starts and verified
+>> using a scope.
+>
+> That sounds like good testing \o/ If you are happy with i2ctransfer,
+> then please consider adding Tested-by tags to the i2ctransfer patches=
+,
+> so Jean gets a more cosy feeling to include them to i2ctools.
+>
+>>
 
-Signed-off-by: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
----
+Definitely! i2ctransfer was a HUGE help while developing this driver,
+specially when preparing involved transfers to test repeated starts.
 
-Changes in v4: None
-Changes in v3: None
-Changes in v2: None
+Any chance it gets merged in its current state? I think it'll be useful=
+, even
+if the usage cli API is still a moving target.
 
- drivers/i2c/i2c-core.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 5f89f1e3c2f2..02da3acbbd35 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1413,6 +1413,8 @@ struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
- 	struct device *dev;
- 	struct i2c_client *client;
- 
-+	of_device_probe(node);
-+
- 	dev = bus_find_device(&i2c_bus_type, NULL, node, of_dev_node_match);
- 	if (!dev)
- 		return NULL;
-@@ -1431,6 +1433,8 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
- 	struct device *dev;
- 	struct i2c_adapter *adapter;
- 
-+	of_device_probe(node);
-+
- 	dev = bus_find_device(&i2c_bus_type, NULL, node, of_dev_node_match);
- 	if (!dev)
- 		return NULL;
--- 
-2.4.3
+We could print some warning "i2ctransfer is experimental"
+or something like that.
+--=20
+Ezequiel Garc=C3=ADa, VanguardiaSur
+www.vanguardiasur.com.ar
