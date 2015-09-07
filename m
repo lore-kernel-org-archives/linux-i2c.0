@@ -1,49 +1,46 @@
-From: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Subject: Re: [PATCH 0/8] i2c: img-scb: fixes to support i2c on pistachio
-Date: Mon, 7 Sep 2015 11:22:23 -0300
-Message-ID: <CAAEAJfBj+qdv58gzOnqMrmN0486Enzbn3G1L0KhMctMkEkXfTw@mail.gmail.com>
-References: <1437997641-32575-1-git-send-email-sifan.naeem@imgtec.com>
-	<20150731111252.GL1522@katana>
-	<CAAEAJfCW9cEMDZwta5Q6VVEZfzxTDZ50Fx=YeW6bPMnrtKNcbw@mail.gmail.com>
-	<20150907135037.GA4986@katana>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
+Date: Tue, 8 Sep 2015 01:04:46 +0900
+Message-ID: <CANqRtoRs=f=07B=HSLCVg5G4rnhxj6Heod+spYwxHiKFLZqFWg@mail.gmail.com>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+	<5464456.UnsMOS3MTx@avalon>
+	<20150903204000.GB1574@katana>
+	<CANqRtoRo7jemt52=mcmu=mf5dGsqwWKWA5aBYd7L=vFas6d+NQ@mail.gmail.com>
+	<20150905073143.GA1616@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150907135037.GA4986@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20150905073143.GA1616@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linux-I2C <linux-i2c@vger.kernel.org>, SH-Linux <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 7 September 2015 at 10:50, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->
->> > That sounds like good testing \o/ If you are happy with i2ctransfe=
-r,
->> > then please consider adding Tested-by tags to the i2ctransfer patc=
-hes,
->> > so Jean gets a more cosy feeling to include them to i2ctools.
->> >
+Hi Wolfram,
+
+On Sat, Sep 5, 2015 at 4:31 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Fri, Sep 04, 2015 at 01:33:39PM +0900, Magnus Damm wrote:
+>> Hi Wolfram,
 >>
->> Definitely! i2ctransfer was a HUGE help while developing this driver=
-,
->> specially when preparing involved transfers to test repeated starts.
+>> On Fri, Sep 4, 2015 at 5:40 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>> >
+>> >> > So I refactored the driver to setup new messages in interrupt context, too.
+>> >> > This avoids the race for b) because we are now setting up the new message
+>> >> > before we release the i2c bus clock (before we released the clock and set up
+>> >> > the message in process context).
+>> >>
+>> >> Could this fix the HDMI EDID read issue on Koelsch ?
+>> >
+>> > I surely hope so. I can't test because I don't have Koelsch.
+>>
+>> FYI, I have enabled Koelsch remote access on port 8001 if you want to
+>> give it a shot!
 >
-> Glad to hear that! I also discovered and fixed a corner case in repea=
-ted
-> start handling recently in the i2c-rcar driver thanks to i2ctransfer.
->
->> Any chance it gets merged in its current state? I think it'll be use=
-ful, even
->> if the usage cli API is still a moving target.
->
-> I don't think it is anymore TBH. Not more than any other tool.
->
-> Waiving to Jean \o_ :)
->
+> Thanks! Is there a HDMI monitor connected?
 
-OK, let me wave as well \\O//
+Yes, now a HD-ready TV is hooked up. It should give you something over
+EDID. Let me know when you're done and I'll move things back.
 
---=20
-Ezequiel Garc=C3=ADa, VanguardiaSur
-www.vanguardiasur.com.ar
+Cheers,
+
+/ magnus
