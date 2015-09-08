@@ -1,82 +1,60 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: [PATCH] i2c-dev: Fix typo in ioctl name reference
-Date: Tue, 8 Sep 2015 11:05:49 +0200
-Message-ID: <20150908110549.411e99a8@endymion.delvare>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
+Date: Tue, 8 Sep 2015 12:53:56 +0200
+Message-ID: <20150908105356.GA15793@katana>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+ <5464456.UnsMOS3MTx@avalon>
+ <20150903204000.GB1574@katana>
+ <CANqRtoRo7jemt52=mcmu=mf5dGsqwWKWA5aBYd7L=vFas6d+NQ@mail.gmail.com>
+ <20150905073143.GA1616@katana>
+ <CANqRtoRs=f=07B=HSLCVg5G4rnhxj6Heod+spYwxHiKFLZqFWg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CANqRtoRs=f=07B=HSLCVg5G4rnhxj6Heod+spYwxHiKFLZqFWg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, SH-Linux <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The ioctl is named I2C_RDWR for "I2C read/write". But references to it
-were misspelled "rdrw". Fix them.
 
-Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- drivers/i2c/i2c-dev.c        |    6 +++---
- fs/compat_ioctl.c            |    2 +-
- include/uapi/linux/i2c-dev.h |    4 +++-
- 3 files changed, 7 insertions(+), 5 deletions(-)
-
---- linux-4.2.orig/drivers/i2c/i2c-dev.c	2015-09-08 09:40:43.287812694 +0200
-+++ linux-4.2/drivers/i2c/i2c-dev.c	2015-09-08 09:48:55.191927122 +0200
-@@ -235,7 +235,7 @@ static int i2cdev_check_addr(struct i2c_
- 	return result;
- }
- 
--static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
-+static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
- 		unsigned long arg)
- {
- 	struct i2c_rdwr_ioctl_data rdwr_arg;
-@@ -250,7 +250,7 @@ static noinline int i2cdev_ioctl_rdrw(st
- 
- 	/* Put an arbitrary limit on the number of messages that can
- 	 * be sent at once */
--	if (rdwr_arg.nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
-+	if (rdwr_arg.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
- 		return -EINVAL;
- 
- 	rdwr_pa = memdup_user(rdwr_arg.msgs,
-@@ -456,7 +456,7 @@ static long i2cdev_ioctl(struct file *fi
- 		return put_user(funcs, (unsigned long __user *)arg);
- 
- 	case I2C_RDWR:
--		return i2cdev_ioctl_rdrw(client, arg);
-+		return i2cdev_ioctl_rdwr(client, arg);
- 
- 	case I2C_SMBUS:
- 		return i2cdev_ioctl_smbus(client, arg);
---- linux-4.2.orig/fs/compat_ioctl.c	2015-09-08 09:40:43.287812694 +0200
-+++ linux-4.2/fs/compat_ioctl.c	2015-09-08 09:48:55.193927164 +0200
-@@ -686,7 +686,7 @@ static int do_i2c_rdwr_ioctl(unsigned in
- 
- 	if (get_user(nmsgs, &udata->nmsgs))
- 		return -EFAULT;
--	if (nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
-+	if (nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
- 		return -EINVAL;
- 
- 	if (get_user(datap, &udata->msgs))
---- linux-4.2.orig/include/uapi/linux/i2c-dev.h	2015-09-08 09:40:43.287812694 +0200
-+++ linux-4.2/include/uapi/linux/i2c-dev.h	2015-09-08 09:48:55.193927164 +0200
-@@ -66,7 +66,9 @@ struct i2c_rdwr_ioctl_data {
- 	__u32 nmsgs;			/* number of i2c_msgs */
- };
- 
--#define  I2C_RDRW_IOCTL_MAX_MSGS	42
-+#define  I2C_RDWR_IOCTL_MAX_MSGS	42
-+/* Originally defined with a typo, keep if for now for compatibility */
-+#define  I2C_RDRW_IOCTL_MAX_MSGS	I2C_RDWR_IOCTL_MAX_MSGS
- 
- 
- #endif /* _UAPI_LINUX_I2C_DEV_H */
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
--- 
-Jean Delvare
-SUSE L3 Support
+> Yes, now a HD-ready TV is hooked up. It should give you something over
+> EDID. Let me know when you're done and I'll move things back.
+
+'No EDID data' says bootlog. Also, all 0 when reading that i2c client
+address afterwards. I don't see or sense anything suspicious with the
+I2C transfers itself from remote.
+
+And could you maybe install a local TFTP server on your next images? :)
+
+
+--mP3DRpeJDSE+ciuQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJV7r5EAAoJEBQN5MwUoCm2fFgP/1WlG4AK5SOGWuqdqegmqW0r
+1ZdjhNz1NQjQBW1m+fmuUZOa+53ChxfqTQkMVZu9ZY0/cfmmPk/An+FLpBhb78xM
+GZrthu8tvdCA5ZrDbN27Y57pgnUGiKWokzZCyPvBtnsQFsTJotU3IvTqGMELWqm6
+oSdHq7vYIGUEiSfHUg4p+egamVXolIapKQt8ER+CvXlUAb4BENP7OIcQ9zuNndoO
+h+jYGGuh/8DSxDpdLrzpl0j1PzGF5TR/2tJRbzYUrg+TUdMM/mQUBpOeyhB7amSA
+LQTNc44Dkz2CeonPWlqX8SOqILzq36Ay3ZaWA3Hg33JJT+B592iCbkGwih9rVudg
+zilV8ethcVQmpVS77Z2sGXIZXoHqAOjWpo7E9mFZodS3OGpnfUa/E5ou2DOgVtQG
+Opca5AiJhk/NVSp265zKV0vXNTdL9cFq3XDXqYwbzMy5NxUadTD1MHJhn1f76zug
+LlrILf2nuAzPdHkzrz3koe9bbM+309PMFZ/5YjfjBP/9Ehi8XuH0sk+aPUH52kGN
+K5Ij+BESZop6gd53XV0nl1EhAP+9oC+xjq/LhvykESHsTsT0ik9hKaaZtCm21r7e
+a5Lt7pVPp0CG94gXDoL+mnLwK27ZnEFmHklp/XgkhRftKbAIDErnqxp8IMtG3aCK
+cxzHdtShCzaowuWnnZF4
+=wNn0
+-----END PGP SIGNATURE-----
+
+--mP3DRpeJDSE+ciuQ--
