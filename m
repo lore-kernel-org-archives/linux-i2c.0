@@ -1,67 +1,55 @@
-From: Andrey Danin <danindrey@mail.ru>
-Subject: Re: [PATCH v3 1/4] i2c: tegra: implement slave mode
-Date: Tue, 8 Sep 2015 15:31:39 +0300
-Message-ID: <55EED52B.8080701@mail.ru>
-References: <1437424546-30405-1-git-send-email-danindrey@mail.ru>
- <1437424546-30405-2-git-send-email-danindrey@mail.ru>
- <20150724092720.GA1597@katana> <55B210F4.6030700@mail.ru>
- <20150724105251.GA22787@katana> <55D5C4AA.2000307@mail.ru>
- <20150908114621.GB15793@katana>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [Patch v2] i2c: imx: implement bus recovery
+Date: Tue, 8 Sep 2015 16:18:41 +0200
+Message-ID: <CACRpkdaRu0jLJUddpjVvO9cBCRfHJpzAm0K1v825dCiSy0Zweg@mail.gmail.com>
+References: <1437100605-28047-1-git-send-email-b54642@freescale.com>
+	<20150813081528.GA9999@pengutronix.de>
+	<CY1PR0301MB0858E4EEEC54C81BC4E7A621CF670@CY1PR0301MB0858.namprd03.prod.outlook.com>
+	<20150819070218.GE9999@pengutronix.de>
+	<CACRpkdYy3xQ3N7199GcV83-HrgOERnffNLh=qak8K8hpcAHs1Q@mail.gmail.com>
+	<20150907080032.GO9999@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20150908114621.GB15793@katana>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, ac100@lists.launchpad.net, Russell King <linux@arm.linux.org.uk>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Julian Andres Klode <jak@jak-linux.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org, Kumar Gala <galak@codeaurora.org>, linux-tegra@vger.kernel.org, devel@linuxdriverproject.org, Alexandre Courbot <gnurou@gmail.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150907080032.GO9999-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram, thanks!
+On Mon, Sep 7, 2015 at 10:00 AM, Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> [Me]
 
-On 08.09.2015 14:46, Wolfram Sang wrote:
+>> If the use case is around the i2c traffic, it is a mode related to I=
+2C,
+>> and if this mode is called "GPIO mode" in the data sheet
+>> is irrelevant, because it is obviously not used for the generic
+>> input/output but the specific I2C. The terminology should be
+>> made familiar to whoever needs to go in and read the code later.
 >
->> Sorry for the long delay. I tried to analyze the issue. Attached patch works
->> on AC100 (Misha Komarovsky helped me with testing).
->>
->> Wolfram could you please try the patch with your environment?
->
-> No change, sadly. I don't get slave interrupts.
+> The background info that was obviously missing from the part of the
+> thread I sent to you is that pinctrl_pm_select_sleep_state is used to
+> prepare bitbanging on the i2c bus to do bus recovery. (The controller
+> doesn't implement this, so we have to resort to manually drive the
+> pins.)
 
-Slave ISR is called only if slave device is registered on a bus. Do you 
-get master interrupts ?
+I don't understand. What does "manually" mean in this context?
+Code examples for "manual" and "automatic"?
 
->> Init function is called multuple times. If I2C controller works
->> in slave mode, then driver must keep slave registers otherwise
->> slave configuration will be reseted.
->
-> This patch does not tackle the main issue, though. There should not be a
-> "slave mode" for the controller.
+Generally the word "manual" is so ambigous that we should
+refrain from using it, to me that means something like
+hammering on a keyboard to alter things through sysfs
+or debugfs but I hardly believe this is what you mean.
 
-Looks like my commit message is not clear enough :(
- >> If I2C controller works in slave mode, then ...
-I mean something like this:
-"If slave functionality is enabled, then ..."
+> Is this good enough? I'd like to see implemented a separate pinctrl s=
+et
+> for bitbanging instead of relying on the sleep state being the right
+> thing to enable gpio functionality.
 
-> It can be a master and slave
-> simultaneously and should do the right thing depending on what's
-> happening on the bus. The Tegra2 manual I have says "The Master can
-> address the internal slave (for basic testing) or an external 7-bit or
-> 10-bit addressed Slave device." So even a loopback should be possible
-> (if we trust the manual ;)).
+This sounds right but I need to see the two different code sets
+to understand. Now my head is all fuzzy...
 
-Slave logic is not enabled by default (we don't set up proper 
-configuration and slave address). We can enable it by default but it is 
-useless without driver that will handle requests.
-
-We used i2cdetect on the I2C bus where master NVEC controller is 
-connected. i2cdetect found devices on the bus. Also keyboard and mouse 
-was running fine after that (slave logic was not disabled).
+Yours,
+Linus Walleij
