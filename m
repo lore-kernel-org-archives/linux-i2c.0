@@ -1,60 +1,72 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
-Date: Tue, 8 Sep 2015 12:53:56 +0200
-Message-ID: <20150908105356.GA15793@katana>
-References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
- <5464456.UnsMOS3MTx@avalon>
- <20150903204000.GB1574@katana>
- <CANqRtoRo7jemt52=mcmu=mf5dGsqwWKWA5aBYd7L=vFas6d+NQ@mail.gmail.com>
- <20150905073143.GA1616@katana>
- <CANqRtoRs=f=07B=HSLCVg5G4rnhxj6Heod+spYwxHiKFLZqFWg@mail.gmail.com>
+Subject: Re: [PATCH v3 1/4] i2c: tegra: implement slave mode
+Date: Tue, 8 Sep 2015 13:46:21 +0200
+Message-ID: <20150908114621.GB15793@katana>
+References: <1437424546-30405-1-git-send-email-danindrey@mail.ru>
+ <1437424546-30405-2-git-send-email-danindrey@mail.ru>
+ <20150724092720.GA1597@katana>
+ <55B210F4.6030700@mail.ru>
+ <20150724105251.GA22787@katana>
+ <55D5C4AA.2000307@mail.ru>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+	protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CANqRtoRs=f=07B=HSLCVg5G4rnhxj6Heod+spYwxHiKFLZqFWg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <55D5C4AA.2000307-JGs/UdohzUI@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, SH-Linux <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+To: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ac100-oU9gvf+ajcQ97yFScArB1dHuzzzSOjJt@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---mP3DRpeJDSE+ciuQ
+--cvVnyQ+4j833TQvp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> Yes, now a HD-ready TV is hooked up. It should give you something over
-> EDID. Let me know when you're done and I'll move things back.
+> Sorry for the long delay. I tried to analyze the issue. Attached patch wo=
+rks
+> on AC100 (Misha Komarovsky helped me with testing).
+>=20
+> Wolfram could you please try the patch with your environment?
 
-'No EDID data' says bootlog. Also, all 0 when reading that i2c client
-address afterwards. I don't see or sense anything suspicious with the
-I2C transfers itself from remote.
+No change, sadly. I don't get slave interrupts.
 
-And could you maybe install a local TFTP server on your next images? :)
+> Init function is called multuple times. If I2C controller works
+> in slave mode, then driver must keep slave registers otherwise
+> slave configuration will be reseted.
+
+This patch does not tackle the main issue, though. There should not be a
+"slave mode" for the controller. It can be a master and slave
+simultaneously and should do the right thing depending on what's
+happening on the bus. The Tegra2 manual I have says "The Master can
+address the internal slave (for basic testing) or an external 7-bit or
+10-bit addressed Slave device." So even a loopback should be possible
+(if we trust the manual ;)).
 
 
---mP3DRpeJDSE+ciuQ
+--cvVnyQ+4j833TQvp
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJV7r5EAAoJEBQN5MwUoCm2fFgP/1WlG4AK5SOGWuqdqegmqW0r
-1ZdjhNz1NQjQBW1m+fmuUZOa+53ChxfqTQkMVZu9ZY0/cfmmPk/An+FLpBhb78xM
-GZrthu8tvdCA5ZrDbN27Y57pgnUGiKWokzZCyPvBtnsQFsTJotU3IvTqGMELWqm6
-oSdHq7vYIGUEiSfHUg4p+egamVXolIapKQt8ER+CvXlUAb4BENP7OIcQ9zuNndoO
-h+jYGGuh/8DSxDpdLrzpl0j1PzGF5TR/2tJRbzYUrg+TUdMM/mQUBpOeyhB7amSA
-LQTNc44Dkz2CeonPWlqX8SOqILzq36Ay3ZaWA3Hg33JJT+B592iCbkGwih9rVudg
-zilV8ethcVQmpVS77Z2sGXIZXoHqAOjWpo7E9mFZodS3OGpnfUa/E5ou2DOgVtQG
-Opca5AiJhk/NVSp265zKV0vXNTdL9cFq3XDXqYwbzMy5NxUadTD1MHJhn1f76zug
-LlrILf2nuAzPdHkzrz3koe9bbM+309PMFZ/5YjfjBP/9Ehi8XuH0sk+aPUH52kGN
-K5Ij+BESZop6gd53XV0nl1EhAP+9oC+xjq/LhvykESHsTsT0ik9hKaaZtCm21r7e
-a5Lt7pVPp0CG94gXDoL+mnLwK27ZnEFmHklp/XgkhRftKbAIDErnqxp8IMtG3aCK
-cxzHdtShCzaowuWnnZF4
-=wNn0
+iQIcBAEBAgAGBQJV7sqNAAoJEBQN5MwUoCm22lgQAIihxed7NaPXMqr7WKk5tFbr
+/NJOdJ78NZ05Leaf8hiCJs57LcHnQPOFa7E/wn2IISgZQou3azzFuQBPxdrvjyMF
+C7RDb3ktFhN3mWHoo0VLWCFTqyIVbYN28JjDo6nAhiU3U+2AF7I5iIrg116LKa90
+OCSJHS2/zUmaOrSoSGUQ7PgCRi8xR+0YoTMX6teuH1wWIkR0eAKt1RgNsErtB0oT
+qoS424Hf1PSA9nkbMe8CU/4ie7v2wRFs0N4dSMmNJ4Y5mUI5mHPyf5Hw0vu74wnY
+H/+nr5U3eldI1nGP48pEFBE/+TiDezxtMoB4J0kk8UFCjig9R8g0NGxOGKxtzDdL
+CnlQ0kBUYLPyg9eMCJKOQE2Nvy0s+C5/iy9c3XjTI8qcXWZMf9KYwXjNJCVe7ocW
+L/0RU/tyJQBVA9BDZctmv4heQNwPcQmmlwRD1E06qADKiSXMxBdOce9lKyWeN36+
+UPaWfPsqWoMyWpAfKRudwH1Erym3R6QAiRipaU1xbQg5L8sALRF9Ju6O+eaBdHTx
+JmdJnrCtnX1jUxMwb0xpjiN45DIbyHodBF2sC18MXJccW0N3j3zNj4uZhffxg4Ej
+4h73r9dJhz6dJOunGc336CwP8LQUr06IKG3fCdJ/cFhWO6oVqmlahows8vfLTae5
+U03YbnDd6tzEVNl9fO5A
+=OxLB
 -----END PGP SIGNATURE-----
 
---mP3DRpeJDSE+ciuQ--
+--cvVnyQ+4j833TQvp--
