@@ -1,69 +1,60 @@
 From: Kieran Bingham <kieranbingham@gmail.com>
-Subject: [PATCH v4 2/8] i2c: Add the ability to match device to compatible string without an of_node
-Date: Wed,  9 Sep 2015 19:33:41 +0100
-Message-ID: <1441823627-6227-3-git-send-email-kieranbingham@gmail.com>
+Subject: [PATCH v4 8/8] mfd: as3722: Rid driver of superfluous I2C device ID structure
+Date: Wed,  9 Sep 2015 19:33:47 +0100
+Message-ID: <1441823627-6227-9-git-send-email-kieranbingham@gmail.com>
 References: <1441823627-6227-1-git-send-email-kieranbingham@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1441823627-6227-1-git-send-email-kieranbingham@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linus.walleij@linaro.org, grant.likely@linaro.org, Kieran Bingham <kieranbingham@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linus.walleij@linaro.org, grant.likely@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Lee Jones <lee.jones@linaro.org>
 
-A great deal of I2C devices are currently matched via DT node name, and
-as such the compatible naming convention of '<vendor>,<device>' has gone
-somewhat awry - some nodes don't supply one, some supply an arbitrary
-string and others the correct device name with an arbitrary vendor prefix.
-
-In an effort to correct this problem we have to supply a mechanism to
-match a device by compatible string AND by simple device name.  This
-function strips off the '<vendor>,' part of a supplied compatible string
-and attempts to match without it.
-
-The plan is to remove this function once all of the compatible strings
-for each device have been brought into line.
+Also remove unused second probe() parameter 'i2c_device_id'.
 
 Acked-by: Grant Likely <grant.likely@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
-[Kieran: strnicmp to strncasecmp]
-Signed-off-by: Kieran Bingham <kieranbingham@gmail.com>
 ---
- drivers/i2c/i2c-core.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/mfd/as3722.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 30d8a77..0788c1f 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1373,6 +1373,27 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
- 	return adapter;
+diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
+index 924ea90..6ac4be3 100644
+--- a/drivers/mfd/as3722.c
++++ b/drivers/mfd/as3722.c
+@@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_client *i2c,
+ 	return 0;
  }
- EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
-+
-+static const struct of_device_id*
-+i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
-+				  struct i2c_client *client)
-+{
-+	const char *name;
-+
-+	for (; matches->compatible[0]; matches++) {
-+		name = strchr(matches->compatible, ',');
-+		if (!name)
-+			name = matches->compatible;
-+		else
-+			name++;
-+
-+		if (!strncasecmp(client->name, name, strlen(client->name)))
-+			return matches;
-+	}
-+
-+	return NULL;
-+}
-+
- #else
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
+ 
+-static int as3722_i2c_probe(struct i2c_client *i2c,
+-			const struct i2c_device_id *id)
++static int as3722_i2c_probe(struct i2c_client *i2c)
+ {
+ 	struct as3722 *as3722;
+ 	unsigned long irq_flags;
+@@ -428,20 +427,13 @@ static const struct of_device_id as3722_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, as3722_of_match);
+ 
+-static const struct i2c_device_id as3722_i2c_id[] = {
+-	{ "as3722", 0 },
+-	{},
+-};
+-MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
+-
+ static struct i2c_driver as3722_i2c_driver = {
+ 	.driver = {
+ 		.name = "as3722",
+ 		.of_match_table = as3722_of_match,
+ 	},
+-	.probe = as3722_i2c_probe,
++	.probe2 = as3722_i2c_probe,
+ 	.remove = as3722_i2c_remove,
+-	.id_table = as3722_i2c_id,
+ };
+ 
+ module_i2c_driver(as3722_i2c_driver);
 -- 
 2.1.4
