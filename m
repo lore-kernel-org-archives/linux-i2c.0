@@ -1,55 +1,73 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [Patch v2] i2c: imx: implement bus recovery
-Date: Wed, 9 Sep 2015 10:46:19 +0200
-Message-ID: <CACRpkdaj6EVMjyfVC05gvDm6LsyY9n9aP6K3X1PAKEcQLR4jTQ@mail.gmail.com>
-References: <1437100605-28047-1-git-send-email-b54642@freescale.com>
-	<20150813081528.GA9999@pengutronix.de>
-	<CY1PR0301MB0858E4EEEC54C81BC4E7A621CF670@CY1PR0301MB0858.namprd03.prod.outlook.com>
-	<20150819070218.GE9999@pengutronix.de>
-	<CACRpkdYy3xQ3N7199GcV83-HrgOERnffNLh=qak8K8hpcAHs1Q@mail.gmail.com>
-	<20150907080032.GO9999@pengutronix.de>
-	<CACRpkdaRu0jLJUddpjVvO9cBCRfHJpzAm0K1v825dCiSy0Zweg@mail.gmail.com>
-	<20150908202258.GY14598@pengutronix.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
+Date: Wed, 9 Sep 2015 10:54:28 +0200
+Message-ID: <20150909085428.GB1516@katana>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+ <5464456.UnsMOS3MTx@avalon>
+ <20150903204000.GB1574@katana>
+ <CANqRtoRo7jemt52=mcmu=mf5dGsqwWKWA5aBYd7L=vFas6d+NQ@mail.gmail.com>
+ <20150905073143.GA1616@katana>
+ <CANqRtoRs=f=07B=HSLCVg5G4rnhxj6Heod+spYwxHiKFLZqFWg@mail.gmail.com>
+ <20150908105356.GA15793@katana>
+ <CANqRtoQgVymDqv2c2jZEhrnWa4SHWxQgjiHcsVB59B8pBRrNUw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150908202258.GY14598-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Yylu36WmvOXNoKYn"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CANqRtoQgVymDqv2c2jZEhrnWa4SHWxQgjiHcsVB59B8pBRrNUw@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linux-I2C <linux-i2c@vger.kernel.org>, SH-Linux <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 8, 2015 at 10:22 PM, Uwe Kleine-K=C3=B6nig
-<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> [Me]
->> I don't understand. What does "manually" mean in this context?
->> Code examples for "manual" and "automatic"?
->
-> Normally i2c operations are done using the i2c core in the SoC and us=
-ing
-> the i2c function of the respective pins. Recovery
-> however must be done (manually) by configuring the lines as GPIO and
-> using a sequence of calls to gpio_[gs]et_value.
->
-> The sleep state of the i2c bus device (usually?) configures the i2c
-> lines as GPIO. Is it ok to (ab)use the sleep state to prepare for the
-> recovery procedure or should we better introduce a dedicated gpio mod=
-e
-> pinctrl?
 
-OK now I understand (I think).
+--Yylu36WmvOXNoKYn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think it's OK to use tyhe sleep state as long as there are comments
-in the code explaining what is going on. It is something extraordinary
-after all.
 
-I guess this means that you're using GPIO orthogonally to I2C,
-and thus the pin controller does not have the .strict property
-set. There should be a comment in the struct pinmux_ops of
-the driver saying that this pin controller cannot be used as
-strict. Need to keep the information there so people don't get
-confused.
+> > 'No EDID data' says bootlog. Also, all 0 when reading that i2c client
+> > address afterwards. I don't see or sense anything suspicious with the
+> > I2C transfers itself from remote.
+>=20
+> Did you use the DRM/KMS modetest program to display stuff on the HDMI
+> monitor? To trigger the error case you need to a couple of steps -
 
-Yours,
-Linus Walleij
+Nope, I have to admit I assumed when the kernel says that it has no EDID
+data that it would have triggered reading the data from the monitor.
+
+> HDMI monitor and the HDMI encoder chip works ok, but the bits between
+> the HDMI encoder chip and the I2C master on the SoCs may need some
+> more attention.
+
+I understood that the encoder needs a trigger to read the data. It then
+provides EDID data via a special I2C device address. That is read by a
+simple 64-byte I2C read transfer which I didn't have issues with here.
+And reading it byte-per-byte gave the same results.
+
+
+--Yylu36WmvOXNoKYn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJV7/PEAAoJEBQN5MwUoCm2s10P/RiCgN9bI8VLh+yinjAq0UIi
+4H5XN2hQxEP+Rj79lJ57mnCT9ceSmQyffRZkPsL2wjelwBZ/EmGspTssW034IFFc
+TwPFSUxvj3PrdLRjnX5SYU36CafHhNFTYdTVIIQbIfMqf4qEQpNvNueVlqaMlm5v
+/ZNRVsEDhT0mWZ2fToQwoKxFPbk1/QeSB0FGtHrt9M/72kMYUA1K+jw8Bg6g+IGU
+IxOqg6VEF5x4yWfYrZGrbv5wFaEXatJ7hCZ0E7zLktacdypPoCKJQXAAkH/FKyt+
+Wlfl+rK+VJ1k9sncYvX4Y/yS4POaEdp1hAHPqsijTKsStkS+xQ9/LkGpN57hXvh8
+m25v92BPtLD21Kg4c6gF+hhr8HkSRLZDH3g3vl2/QWLM2R3femqYmINrtbOQnKdb
+QJY6Vh9KLwDHQ1nbwxGVp3et70r/wlEveXV0gFWrScWN3cLqlkrlUWMRQVTpjgX7
+T/PQxGFdS7KtZEB8Xudg2jmtWBCdIYuqQc5e7RBdHmkqe5truGdVlLRwV5WU3vSB
+yL6izZu8nCIRBDWEEM1OIMl7qdK0N331BWUphuYh+Gz8hItFZcWoBg3FEOrg6KJC
+2fakN9EiAhoV41QpbG31VS3atbT0T0SN/FMgNPFBpXg6jqkGg8UbWu0m2u+dbwri
+Atj+CJfOqVQK7JKW/wLv
+=s/eZ
+-----END PGP SIGNATURE-----
+
+--Yylu36WmvOXNoKYn--
