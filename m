@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieranbingham@gmail.com>
-Subject: [PATCH v4 7/8] mfd: 88pm860x: Move over to new I2C device .probe() call
-Date: Wed,  9 Sep 2015 19:33:46 +0100
-Message-ID: <1441823627-6227-8-git-send-email-kieranbingham@gmail.com>
+Subject: [PATCH v4 3/8] i2c: Match using traditional OF methods, then by vendor-less compatible strings
+Date: Wed,  9 Sep 2015 19:33:42 +0100
+Message-ID: <1441823627-6227-4-git-send-email-kieranbingham@gmail.com>
 References: <1441823627-6227-1-git-send-email-kieranbingham@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1441823627-6227-1-git-send-email-kieranbingham@gmail.com>
@@ -12,38 +12,76 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Lee Jones <lee.jones@linaro.org>
 
-As part of an effort to rid the mostly unused second parameter for I2C
-related .probe() functions and to conform to other existing frameworks
-we're moving over to a temporary replacement .probe() call-back.
+This function provides a single call for all I2C devices which need to
+match firstly using traditional OF means i.e by of_node, then if that
+fails we attempt to match using the supplied I2C client name with a
+list of supplied compatible strings with the '<vendor>,' string
+removed.  The latter is required due to the unruly naming conventions
+used currently by I2C devices.
 
 Acked-by: Grant Likely <grant.likely@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/mfd/88pm860x-core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/i2c-core.c | 16 ++++++++++++++++
+ include/linux/i2c.h    | 12 ++++++++++++
+ 2 files changed, 28 insertions(+)
 
-diff --git a/drivers/mfd/88pm860x-core.c b/drivers/mfd/88pm860x-core.c
-index 3269a99..a499d70 100644
---- a/drivers/mfd/88pm860x-core.c
-+++ b/drivers/mfd/88pm860x-core.c
-@@ -1130,8 +1130,7 @@ static int pm860x_dt_init(struct device_node *np,
- 	return 0;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 0788c1f..94ca76e 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1394,6 +1394,22 @@ i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
+ 	return NULL;
  }
  
--static int pm860x_probe(struct i2c_client *client,
--				  const struct i2c_device_id *id)
-+static int pm860x_probe(struct i2c_client *client)
++const struct of_device_id
++*i2c_of_match_device(const struct of_device_id *matches,
++		     struct i2c_client *client)
++{
++	const struct of_device_id *match;
++
++	if (!(client && matches))
++		return NULL;
++
++	match = of_match_device(matches, &client->dev);
++	if (match)
++		return match;
++
++	return i2c_of_match_device_strip_vendor(matches, client);
++}
++EXPORT_SYMBOL_GPL(i2c_of_match_device);
+ #else
+ static void of_i2c_register_devices(struct i2c_adapter *adap) { }
+ #endif /* CONFIG_OF */
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index e83a738..48bbbab 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -638,6 +638,10 @@ extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
+ /* must call put_device() when done with returned i2c_adapter device */
+ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
+ 
++extern const struct of_device_id
++*i2c_of_match_device(const struct of_device_id *matches,
++		     struct i2c_client *client);
++
+ #else
+ 
+ static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+@@ -649,6 +653,14 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
  {
- 	struct pm860x_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct device_node *node = client->dev.of_node;
-@@ -1257,7 +1256,7 @@ static struct i2c_driver pm860x_driver = {
- 		.pm     = &pm860x_pm_ops,
- 		.of_match_table	= pm860x_dt_ids,
- 	},
--	.probe		= pm860x_probe,
-+	.probe2		= pm860x_probe,
- 	.remove		= pm860x_remove,
- 	.id_table	= pm860x_id_table,
- };
+ 	return NULL;
+ }
++
++const struct of_device_id
++*i2c_of_match_device(const struct of_device_id *matches,
++		     struct i2c_client *client)
++{
++	return NULL;
++}
++
+ #endif /* CONFIG_OF */
+ 
+ #endif /* _LINUX_I2C_H */
 -- 
 2.1.4
