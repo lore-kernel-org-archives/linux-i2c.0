@@ -1,58 +1,86 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] drm: bridge/dw_hdmi: add dw hdmi i2c bus adapter
- support
-Date: Wed, 9 Sep 2015 00:08:47 +0200
-Message-ID: <20150908220847.GA1529@katana>
-References: <1440970470-7155-1-git-send-email-vladimir_zapolskiy@mentor.com>
- <CAD=FV=WvUp7xhsmXJgVzm1Awqej12hNF_QPJhrQq7z=Fa4Nnuw@mail.gmail.com>
- <20150902225008.GQ21084@n2100.arm.linux.org.uk>
- <CAD=FV=VuyQXNGt7dgF-YF7D7MDu31B-QuBdGpeC_+0b1F2=dKg@mail.gmail.com>
- <20150903091900.GX21084@n2100.arm.linux.org.uk>
- <20150903093910.GA4151@ulmo.nvidia.com>
+From: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [Patch V7] i2c: imx: add runtime pm support to improve the
+ performance
+Date: Wed, 9 Sep 2015 02:04:21 +0000
+Message-ID: <DM2PR0301MB0863BC897E580DD128DEA821CF520@DM2PR0301MB0863.namprd03.prod.outlook.com>
+References: <1441006353-874-1-git-send-email-b54642@freescale.com>
+ <20150907211814.GI14598@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150903093910.GA4151-AwZRO8vwLAwmlAP/+Wk3EA@public.gmane.org>
+In-Reply-To: <20150907211814.GI14598-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org" <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Yakir Yang <ykk-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+=46rom: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org <mailto:linux-i2c-owner-fy+rA21nqHI@public.gmane.org=
+rnel.org> On Behalf Of Uwe Kleine-K?nig Sent: Tuesday, September 08, 20=
+15 5:18 AM
+> To: Gao Pan-B54642
+> Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Li Frank-B20596; Du=
+an
+> Fugang-B38611; kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; hkallweit1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+> Subject: Re: [Patch V7] i2c: imx: add runtime pm support to improve t=
+he
+> performance
+>=20
+> Hello,
+>=20
+> On Mon, Aug 31, 2015 at 03:32:33PM +0800, Gao Pan wrote:
+> > In our former i2c driver, i2c clk is enabled and disabled in xfer
+> > function, which contributes to power saving. However, the clk enabl=
+e
+> > process brings a busy wait delay until the core is stable. As a
+> > result, the performance is sacrificed.
+> >
+> > To weigh the power consumption and i2c bus performance, runtime pm =
+is
+> > the good solution for it. The clk is enabled when a i2c transfer
+> > starts, and disabled after a specifically defined delay.
+> >
+> > Without the patch the test case (many eeprom reads) executes with
+> approx:
+> > real 1m7.735s
+> > user 0m0.488s
+> > sys 0m20.040s
+> >
+> > With the patch the same test case (many eeprom reads) executes with
+> approx:
+> > real 0m54.241s
+> > user 0m0.440s
+> > sys 0m5.920s
+> >
+> > Signed-off-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > Signed-off-by: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > [wsa: fixed some indentation]
+> > Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Hmm, why does this already have a S-o-b from Wolfram?
+>=20
+> Other than that I don't have any caveats to enter any more, but given
+> that I don't have much clue about runtime pm this doesn't mean much.
+=20
+Thank you, I unintentionally added Wolfram to the S-o-b. This patch was=
+ accepted after Wolfram fixed some indentation by V3.
+Afterwards, Heiner Kallweit found some problems. So the following versi=
+ons mainly resolve the problems found by Heiner Kallweit.
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I will resend the this patch with S-o-b from Wolfram deleted.=20
 
-
-> Wolfram, do you know of any cases where adapter->dev.of_node would not
-> be the same as adapter->dev.parent->of_node?
-
-i2c-muxes, I'd say. dev.parent is the device of the parent I2C adapter,
-while the devices get populated from the of_node of the muxing device.
-
-
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJV71xuAAoJEBQN5MwUoCm2MGkP+wXYU9dhfuxjary/OvmkbAX7
-FXvPTXkxCsdMm0xW31Nnbnesci5Uftscl0/KnNxRL9XJs3AmhKfNkmoZ8rT+I7P+
-bm3k6DRRHdynwiUcD9NbZuuMZQkRYia1GHZwOJyQ/KzbIbko+UkhWXkQdWH8voCd
-L4qEDqmkwdM1xpwLcpe6xUf9PSL2ZQbsKwZjwCEr1q/RimI9F0n4TQDYI30Sgx8B
-Hgcj4NhzRzyb3NGcdD/m6MCErIDfg3iSrDYcD1k7dhG++JqU3Rp/9VmsHkX+TB4z
-OQ43LFPQgDJWwTUUgm3Yc/Nvmk5XmBfJJL9N7mpSNZWmUqPauyus8ENYEuIE/Mdu
-LmLtNZHSB057JZ5aOMInN5rsBNs+JkevFEv8Ps8+ex9BpnvCJqgUHqtDQaail3Os
-K2tAtPhLozpEXImMdlVk2XFWwppaL9oCwPptP8fy6SErKObxZXn20BeneW83WoMq
-TCDKBN+ePkCwzLknR2HLsy2nCXFK3u2uwU51tBkbUecldnHws/ZCnngoaJySlfAP
-RrYdT1ZxLT6OazmB086/uM6tG2TvkfONtuf+MEjFZwpi0NgNV1UQa5eu26CLEK2m
-JS7ty8FUIuVOntbrZxwwnDr2aQ38cWTzT9dKM2j2WNO9Wcl/VCwTt4TvIh9w62gM
-u7J5GyUVQ/HRG6XnhxXP
-=/MO5
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--
+> Best regards
+> Uwe
+>=20
+> --
+> Pengutronix e.K.                           | Uwe Kleine-K=F6nig
+> |
+> Industrial Linux Solutions                 | http://www.pengutronix.d=
+e/
+> |
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" =
+in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo inf=
+o at
+> http://vger.kernel.org/majordomo-info.html
