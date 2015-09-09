@@ -1,64 +1,69 @@
-From: Kieran Bingham <kieranbingham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4 1/8] i2c: Add pointer dereference protection to i2c_match_id()
-Date: Wed,  9 Sep 2015 19:33:40 +0100
-Message-ID: <1441823627-6227-2-git-send-email-kieranbingham@gmail.com>
+From: Kieran Bingham <kieranbingham@gmail.com>
+Subject: [PATCH v4 2/8] i2c: Add the ability to match device to compatible string without an of_node
+Date: Wed,  9 Sep 2015 19:33:41 +0100
+Message-ID: <1441823627-6227-3-git-send-email-kieranbingham@gmail.com>
 References: <1441823627-6227-1-git-send-email-kieranbingham@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1441823627-6227-1-git-send-email-kieranbingham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1441823627-6227-1-git-send-email-kieranbingham@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linus.walleij@linaro.org, grant.likely@linaro.org, Kieran Bingham <kieranbingham@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Lee Jones <lee.jones@linaro.org>
 
-Here we're providing dereference protection for i2c_match_id(), which
-saves us having to do it each time it's called.  We're also stripping
-out the (now) needless checks in i2c_device_match().  This patch paves
-the way for other, similar code trimming.
+A great deal of I2C devices are currently matched via DT node name, and
+as such the compatible naming convention of '<vendor>,<device>' has gone
+somewhat awry - some nodes don't supply one, some supply an arbitrary
+string and others the correct device name with an arbitrary vendor prefix.
 
-Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In an effort to correct this problem we have to supply a mechanism to
+match a device by compatible string AND by simple device name.  This
+function strips off the '<vendor>,' part of a supplied compatible string
+and attempts to match without it.
+
+The plan is to remove this function once all of the compatible strings
+for each device have been brought into line.
+
+Acked-by: Grant Likely <grant.likely@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+[Kieran: strnicmp to strncasecmp]
+Signed-off-by: Kieran Bingham <kieranbingham@gmail.com>
 ---
- drivers/i2c/i2c-core.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/i2c/i2c-core.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index c83e4d1..30d8a77 100644
+index 30d8a77..0788c1f 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -450,6 +450,9 @@ static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
- static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- 						const struct i2c_client *client)
- {
-+	if (!(id && client))
-+		return NULL;
-+
- 	while (id->name[0]) {
- 		if (strcmp(client->name, id->name) == 0)
- 			return id;
-@@ -463,8 +466,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
- 	struct i2c_client	*client = i2c_verify_client(dev);
- 	struct i2c_driver	*driver;
- 
--	if (!client)
--		return 0;
- 
- 	/* Attempt an OF style match */
- 	if (of_driver_match_device(dev, drv))
-@@ -475,9 +476,10 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
- 		return 1;
- 
- 	driver = to_i2c_driver(drv);
--	/* match on an id table if there is one */
--	if (driver->id_table)
--		return i2c_match_id(driver->id_table, client) != NULL;
-+
-+	/* Finally an I2C match */
-+	if (i2c_match_id(driver->id_table, client))
-+		return 1;
- 
- 	return 0;
+@@ -1373,6 +1373,27 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+ 	return adapter;
  }
+ EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
++
++static const struct of_device_id*
++i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
++				  struct i2c_client *client)
++{
++	const char *name;
++
++	for (; matches->compatible[0]; matches++) {
++		name = strchr(matches->compatible, ',');
++		if (!name)
++			name = matches->compatible;
++		else
++			name++;
++
++		if (!strncasecmp(client->name, name, strlen(client->name)))
++			return matches;
++	}
++
++	return NULL;
++}
++
+ #else
+ static void of_i2c_register_devices(struct i2c_adapter *adap) { }
+ #endif /* CONFIG_OF */
 -- 
 2.1.4
