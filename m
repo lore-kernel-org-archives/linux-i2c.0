@@ -1,7 +1,7 @@
 From: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 5/7] i2c: img-scb: use line_status instead of i2c->line_status
-Date: Thu, 10 Sep 2015 15:50:05 +0100
-Message-ID: <1441896607-16310-6-git-send-email-sifan.naeem@imgtec.com>
+Subject: [PATCH v3 3/7] i2c: img-scb: use DIV_ROUND_UP to round divisor values
+Date: Thu, 10 Sep 2015 15:50:03 +0100
+Message-ID: <1441896607-16310-4-git-send-email-sifan.naeem@imgtec.com>
 References: <1441896607-16310-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,29 +12,43 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <jam
 Cc: Ionela Voinescu <Ionela.Voinescu-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c->line_status accumulates the line status bits that have been seen
-with each interrupt. As we're only interested in that bit from the
-current interrupt, refer to line_status (the argument to img_i2c_auto)
-instead of i2c->line_status.
+Using % can be slow depending on the architecture.
 
+Using DIV_ROUND_UP is nicer and more efficient way to do it.
+
+Fixes: commit 27bce457d588 ("i2c: img-scb: Add Imagination Technologies I2C SCB driver")
 Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Acked-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Reviewed-by: James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-img-scb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-img-scb.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index e4daebcdf824..049d193d01ac 100644
+index 0368d91b6805..b4f59e1a5cac 100644
 --- a/drivers/i2c/busses/i2c-img-scb.c
 +++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -857,7 +857,7 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
- 	}
+@@ -1179,9 +1179,7 @@ static int img_i2c_init(struct img_i2c *i2c)
+ 		int_bitrate++;
  
- 	/* Enable transaction halt on start bit */
--	if (!i2c->last_msg && i2c->line_status & LINESTAT_START_BIT_DET) {
-+	if (!i2c->last_msg && line_status & LINESTAT_START_BIT_DET) {
- 		img_i2c_transaction_halt(i2c, true);
- 		/* we're no longer interested in the slave event */
- 		i2c->int_enable &= ~INT_SLAVE_EVENT;
+ 	/* Setup TCKH value */
+-	tckh = timing.tckh / clk_period;
+-	if (timing.tckh % clk_period)
+-		tckh++;
++	tckh = DIV_ROUND_UP(timing.tckh, clk_period);
+ 
+ 	if (tckh > 0)
+ 		data = tckh - 1;
+@@ -1201,9 +1199,7 @@ static int img_i2c_init(struct img_i2c *i2c)
+ 	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, data);
+ 
+ 	/* Setup TSDH value */
+-	tsdh = timing.tsdh / clk_period;
+-	if (timing.tsdh % clk_period)
+-		tsdh++;
++	tsdh = DIV_ROUND_UP(timing.tsdh, clk_period);
+ 
+ 	if (tsdh > 1)
+ 		data = tsdh - 1;
 -- 
 1.7.9.5
