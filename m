@@ -1,81 +1,67 @@
-From: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 4/7] i2c: img-scb: fix LOW and HIGH period values for the SCL clock
-Date: Thu, 10 Sep 2015 15:50:04 +0100
-Message-ID: <1441896607-16310-5-git-send-email-sifan.naeem@imgtec.com>
-References: <1441896607-16310-1-git-send-email-sifan.naeem@imgtec.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-dev: Fix typo in ioctl name reference
+Date: Thu, 10 Sep 2015 20:00:12 +0200
+Message-ID: <20150910180012.GA2893@katana>
+References: <20150908110549.411e99a8@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1441896607-16310-1-git-send-email-sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150908110549.411e99a8-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Cc: Ionela Voinescu <Ionela.Voinescu-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, after determining the minimum value for the High period
-(TCKH) the remainder of the internal clock pulses is set as the Low
-period (TCKL). This causes the i2c clock duty cycle to be much less
-than 50%.
 
-Modify the starting position to TCKH and TCKL at 50% of the internal
-clock, and adjusts the TCKH and TCKL values from there should the
-minimum value for TCKL not be met. This results in duty cycles closer
-to 50%.
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fixes: commit 27bce457d588 ("i2c: img-scb: Add Imagination Technologies I2C SCB driver")
-Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Acked-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Reviewed-by: James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-img-scb.c |   30 +++++++++++++++++-------------
- 1 file changed, 17 insertions(+), 13 deletions(-)
+On Tue, Sep 08, 2015 at 11:05:49AM +0200, Jean Delvare wrote:
+> The ioctl is named I2C_RDWR for "I2C read/write". But references to it
+> were misspelled "rdrw". Fix them.
+>=20
+> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index b4f59e1a5cac..e4daebcdf824 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -1178,25 +1178,29 @@ static int img_i2c_init(struct img_i2c *i2c)
- 	    ((bitrate_khz * clk_period) / 2))
- 		int_bitrate++;
- 
--	/* Setup TCKH value */
--	tckh = DIV_ROUND_UP(timing.tckh, clk_period);
-+	/*
-+	 * Setup clock duty cycle, start with 50% and adjust TCKH and TCKL
-+	 * values from there if they don't meet minimum timing requirements
-+	 */
-+	tckh = int_bitrate / 2;
-+	tckl = int_bitrate - tckh;
- 
--	if (tckh > 0)
--		data = tckh - 1;
--	else
--		data = 0;
-+	/* Adjust TCKH and TCKL values */
-+	data = DIV_ROUND_UP(timing.tckl, clk_period);
- 
--	img_i2c_writel(i2c, SCB_TIME_TCKH_REG, data);
-+	if (tckl < data) {
-+		tckl = data;
-+		tckh = int_bitrate - tckl;
-+	}
- 
--	/* Setup TCKL value */
--	tckl = int_bitrate - tckh;
-+	if (tckh > 0)
-+		--tckh;
- 
- 	if (tckl > 0)
--		data = tckl - 1;
--	else
--		data = 0;
-+		--tckl;
- 
--	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, data);
-+	img_i2c_writel(i2c, SCB_TIME_TCKH_REG, tckh);
-+	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, tckl);
- 
- 	/* Setup TSDH value */
- 	tsdh = DIV_ROUND_UP(timing.tsdh, clk_period);
--- 
-1.7.9.5
+Wow! Amazing how long this went unnoticed/unfixed.
+
+> -#define  I2C_RDRW_IOCTL_MAX_MSGS	42
+> +#define  I2C_RDWR_IOCTL_MAX_MSGS	42
+> +/* Originally defined with a typo, keep if for now for compatibility */
+
+I would drop the 'for now' and keep it forever. A define doesn't hurt
+and if it increases backwards compatibility, why not? I will also do
+s/if/it/. No need to resend.
+
+> +#define  I2C_RDRW_IOCTL_MAX_MSGS	I2C_RDWR_IOCTL_MAX_MSGS
+
+Thanks!
+
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJV8cUsAAoJEBQN5MwUoCm25bUP/iIpO6owEzvlOFro5vhWwfzc
+c/YkLi1i1E09nkW4bCMoTnpLesp0F2JH1rYIPXhNaRIRC9VLNOIfET9WmIn3WeBH
+ipYC7V5QMHBt4YGExXkYxM1vHyDfctu+vEIlbBEGfMNG1aD4HsUtcuvmTt4d5RR1
+Th0TrPv0g7Mc5/QeU7fQYeGuUNRqnkdvp17c+/qYJ2OXgcgGBXBvvqJVx/HIYp9p
+Udbive0w35TQ5qn7hnDHgAViqt7/Cs2nU6htPTQvzx4dZ1gkoQsthMrckSYP6iZN
+CToIqioLTn495zjEw1KySXxgOQ6OAHnjxTpV/9Wg/yObdUdaB9sg4mpRRKrwKnVH
+/kZvzEATPJS+wDv0oS5267tsyl1yazqPpBSoplFCaCxbSPiVpCP5xKvUzzpUnCYp
+UTiXVSDeQSPoa3GLAZlFOcFqnDOIlFwjyx79QZ/eXYEAKKYd75ziQ2eqFHBTT2oZ
+uKCYYmWNGwfKBq8OidpvEojDZI5joD/LhJxVfy0jHfzi9FZPNaL7+xgVUfqHP42B
+/cqWRowygxgzRvWc+x85OD/s5zCsA6kSg5lG8w0P+FBW6oPBXHI11WsWUuosNffp
+VN55EKH9HGxt2zkqQLKGEuNrMSD5P733cUawgbqTgxz+jYysWiZ8JKLQtOoYy9Q0
+E76sSIHPcxlPKxBJM4av
+=d4II
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--
