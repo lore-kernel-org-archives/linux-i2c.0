@@ -1,7 +1,7 @@
 From: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 3/7] i2c: img-scb: use DIV_ROUND_UP to round divisor values
-Date: Thu, 10 Sep 2015 15:50:03 +0100
-Message-ID: <1441896607-16310-4-git-send-email-sifan.naeem@imgtec.com>
+Subject: [PATCH v3 6/7] i2c: img-scb: Clear line and interrupt status before starting a transfer
+Date: Thu, 10 Sep 2015 15:50:06 +0100
+Message-ID: <1441896607-16310-7-git-send-email-sifan.naeem@imgtec.com>
 References: <1441896607-16310-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,43 +12,38 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <jam
 Cc: Ionela Voinescu <Ionela.Voinescu-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Using % can be slow depending on the architecture.
-
-Using DIV_ROUND_UP is nicer and more efficient way to do it.
+Clear line status and all generated interrupts from the interrupt
+status register before starting a transfer, as we may have
+unserviced interrupts from previous transfers that might be
+handled in the context of the new transfer.
 
 Fixes: commit 27bce457d588 ("i2c: img-scb: Add Imagination Technologies I2C SCB driver")
 Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Acked-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Reviewed-by: James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-img-scb.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-img-scb.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 0368d91b6805..b4f59e1a5cac 100644
+index 049d193d01ac..0fa47158dbe4 100644
 --- a/drivers/i2c/busses/i2c-img-scb.c
 +++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -1179,9 +1179,7 @@ static int img_i2c_init(struct img_i2c *i2c)
- 		int_bitrate++;
+@@ -1060,6 +1060,15 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		i2c->last_msg = (i == num - 1);
+ 		reinit_completion(&i2c->msg_complete);
  
- 	/* Setup TCKH value */
--	tckh = timing.tckh / clk_period;
--	if (timing.tckh % clk_period)
--		tckh++;
-+	tckh = DIV_ROUND_UP(timing.tckh, clk_period);
- 
- 	if (tckh > 0)
- 		data = tckh - 1;
-@@ -1201,9 +1199,7 @@ static int img_i2c_init(struct img_i2c *i2c)
- 	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, data);
- 
- 	/* Setup TSDH value */
--	tsdh = timing.tsdh / clk_period;
--	if (timing.tsdh % clk_period)
--		tsdh++;
-+	tsdh = DIV_ROUND_UP(timing.tsdh, clk_period);
- 
- 	if (tsdh > 1)
- 		data = tsdh - 1;
++		/*
++		 * Clear line status and all interrupts before starting a
++		 * transfer, as we may have unserviced interrupts from
++		 * previous transfers that might be handled in the context
++		 * of the new transfer.
++		 */
++		img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
++		img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
++
+ 		if (atomic)
+ 			img_i2c_atomic_start(i2c);
+ 		else if (msg->flags & I2C_M_RD)
 -- 
 1.7.9.5
