@@ -1,7 +1,7 @@
 From: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v3 7/7] i2c: img-scb: verify support for requested bit rate
-Date: Thu, 10 Sep 2015 15:50:07 +0100
-Message-ID: <1441896607-16310-8-git-send-email-sifan.naeem@imgtec.com>
+Subject: [PATCH v3 4/7] i2c: img-scb: fix LOW and HIGH period values for the SCL clock
+Date: Thu, 10 Sep 2015 15:50:04 +0100
+Message-ID: <1441896607-16310-5-git-send-email-sifan.naeem@imgtec.com>
 References: <1441896607-16310-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,55 +12,70 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <jam
 Cc: Ionela Voinescu <Ionela.Voinescu-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The requested bit rate can be outside the range supported by the driver.
-The maximum bit rate this driver supports at the moment is 400Khz.
+Currently, after determining the minimum value for the High period
+(TCKH) the remainder of the internal clock pulses is set as the Low
+period (TCKL). This causes the i2c clock duty cycle to be much less
+than 50%.
 
-If the requested bit rate is larger than the maximum supported by the
-driver, set the bitrate to the maximum supported before bitrate_khz is
-calculated.
-
-Maximum speed supported by the driver can be increased to 1Mhz by
-adding support for "fast plus mode" in the future.
+Modify the starting position to TCKH and TCKL at 50% of the internal
+clock, and adjusts the TCKH and TCKL values from there should the
+minimum value for TCKL not be met. This results in duty cycles closer
+to 50%.
 
 Fixes: commit 27bce457d588 ("i2c: img-scb: Add Imagination Technologies I2C SCB driver")
 Signed-off-by: Sifan Naeem <sifan.naeem-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Acked-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Reviewed-by: James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-img-scb.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-img-scb.c |   30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 0fa47158dbe4..3795fe130ef2 100644
+index b4f59e1a5cac..e4daebcdf824 100644
 --- a/drivers/i2c/busses/i2c-img-scb.c
 +++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -1130,9 +1130,6 @@ static int img_i2c_init(struct img_i2c *i2c)
- 	/* Fencing enabled by default. */
- 	i2c->need_wr_rd_fence = true;
+@@ -1178,25 +1178,29 @@ static int img_i2c_init(struct img_i2c *i2c)
+ 	    ((bitrate_khz * clk_period) / 2))
+ 		int_bitrate++;
  
--	bitrate_khz = i2c->bitrate / 1000;
--	clk_khz = clk_get_rate(i2c->scb_clk) / 1000;
--
- 	/* Determine what mode we're in from the bitrate */
- 	timing = timings[0];
- 	for (i = 0; i < ARRAY_SIZE(timings); i++) {
-@@ -1141,6 +1138,17 @@ static int img_i2c_init(struct img_i2c *i2c)
- 			break;
- 		}
- 	}
-+	if (i2c->bitrate > timings[ARRAY_SIZE(timings) - 1].max_bitrate) {
-+		dev_warn(i2c->adap.dev.parent,
-+			 "requested bitrate (%u) is higher than the max bitrate supported (%u)\n",
-+			 i2c->bitrate,
-+			 timings[ARRAY_SIZE(timings) - 1].max_bitrate);
-+		timing = timings[ARRAY_SIZE(timings) - 1];
-+		i2c->bitrate = timing.max_bitrate;
+-	/* Setup TCKH value */
+-	tckh = DIV_ROUND_UP(timing.tckh, clk_period);
++	/*
++	 * Setup clock duty cycle, start with 50% and adjust TCKH and TCKL
++	 * values from there if they don't meet minimum timing requirements
++	 */
++	tckh = int_bitrate / 2;
++	tckl = int_bitrate - tckh;
+ 
+-	if (tckh > 0)
+-		data = tckh - 1;
+-	else
+-		data = 0;
++	/* Adjust TCKH and TCKL values */
++	data = DIV_ROUND_UP(timing.tckl, clk_period);
+ 
+-	img_i2c_writel(i2c, SCB_TIME_TCKH_REG, data);
++	if (tckl < data) {
++		tckl = data;
++		tckh = int_bitrate - tckl;
 +	}
-+
-+	bitrate_khz = i2c->bitrate / 1000;
-+	clk_khz = clk_get_rate(i2c->scb_clk) / 1000;
  
- 	/* Find the prescale that would give us that inc (approx delay = 0) */
- 	prescale = SCB_OPT_INC * clk_khz / (256 * 16 * bitrate_khz);
+-	/* Setup TCKL value */
+-	tckl = int_bitrate - tckh;
++	if (tckh > 0)
++		--tckh;
+ 
+ 	if (tckl > 0)
+-		data = tckl - 1;
+-	else
+-		data = 0;
++		--tckl;
+ 
+-	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, data);
++	img_i2c_writel(i2c, SCB_TIME_TCKH_REG, tckh);
++	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, tckl);
+ 
+ 	/* Setup TSDH value */
+ 	tsdh = DIV_ROUND_UP(timing.tsdh, clk_period);
 -- 
 1.7.9.5
