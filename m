@@ -1,16 +1,16 @@
 From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 7/8] mfd: 88pm860x: Move over to new I2C device
- .probe() call
-Date: Fri, 11 Sep 2015 10:29:21 +0100
-Message-ID: <20150911092921.GM3260@x1>
+Subject: Re: [PATCH v4 5/8] i2c: Export i2c_match_id() for direct use by
+ device drivers
+Date: Fri, 11 Sep 2015 10:30:52 +0100
+Message-ID: <20150911093052.GN3260@x1>
 References: <1441823627-6227-1-git-send-email-kieranbingham@gmail.com>
- <1441823627-6227-8-git-send-email-kieranbingham@gmail.com>
+ <1441823627-6227-6-git-send-email-kieranbingham@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1441823627-6227-8-git-send-email-kieranbingham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1441823627-6227-6-git-send-email-kieranbingham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Kieran Bingham <kieranbingham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
@@ -20,11 +20,19 @@ On Wed, 09 Sep 2015, Kieran Bingham wrote:
 
 > From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 >=20
-> As part of an effort to rid the mostly unused second parameter for I2=
-C
-> related .probe() functions and to conform to other existing framework=
+> When there was no other way to match a I2C device to driver i2c_match=
+_id()
+> was exclusively used.  However, now there are other types of tables w=
+hich
+> are commonly supplied, matching on an i2c_device_id table is used les=
 s
-> we're moving over to a temporary replacement .probe() call-back.
+> frequently.  Instead of _always_ calling i2c_match_id() from within t=
+he
+> framework, we only need to do so from drivers which have no other way=
+ of
+> matching.  This patch makes i2c_match_id() available to the aforement=
+ioned
+> device drivers.
 >=20
 > Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
@@ -32,35 +40,52 @@ s
 SoB?
 
 > ---
->  drivers/mfd/88pm860x-core.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+>  drivers/i2c/i2c-core.c | 3 ++-
+>  include/linux/i2c.h    | 2 ++
+>  2 files changed, 4 insertions(+), 1 deletion(-)
 >=20
-> diff --git a/drivers/mfd/88pm860x-core.c b/drivers/mfd/88pm860x-core.=
-c
-> index 3269a99..a499d70 100644
-> --- a/drivers/mfd/88pm860x-core.c
-> +++ b/drivers/mfd/88pm860x-core.c
-> @@ -1130,8 +1130,7 @@ static int pm860x_dt_init(struct device_node *n=
-p,
->  	return 0;
->  }
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 2ebc64d..0e40136 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -447,7 +447,7 @@ static inline int acpi_i2c_install_space_handler(=
+struct i2c_adapter *adapter)
 > =20
-> -static int pm860x_probe(struct i2c_client *client,
-> -				  const struct i2c_device_id *id)
-> +static int pm860x_probe(struct i2c_client *client)
+>  /* -----------------------------------------------------------------=
+-------- */
+> =20
+> -static const struct i2c_device_id *i2c_match_id(const struct i2c_dev=
+ice_id *id,
+> +const struct i2c_device_id *i2c_match_id(const struct i2c_device_id =
+*id,
+>  						const struct i2c_client *client)
 >  {
->  	struct pm860x_platform_data *pdata =3D dev_get_platdata(&client->de=
-v);
->  	struct device_node *node =3D client->dev.of_node;
-> @@ -1257,7 +1256,7 @@ static struct i2c_driver pm860x_driver =3D {
->  		.pm     =3D &pm860x_pm_ops,
->  		.of_match_table	=3D pm860x_dt_ids,
->  	},
-> -	.probe		=3D pm860x_probe,
-> +	.probe2		=3D pm860x_probe,
->  	.remove		=3D pm860x_remove,
->  	.id_table	=3D pm860x_id_table,
->  };
+>  	if (!(id && client))
+> @@ -460,6 +460,7 @@ static const struct i2c_device_id *i2c_match_id(c=
+onst struct i2c_device_id *id,
+>  	}
+>  	return NULL;
+>  }
+> +EXPORT_SYMBOL_GPL(i2c_match_id);
+> =20
+>  static int i2c_device_match(struct device *dev, struct device_driver=
+ *drv)
+>  {
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 48bbbab..126585c 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -232,6 +232,8 @@ struct i2c_client {
+> =20
+>  extern struct i2c_client *i2c_verify_client(struct device *dev);
+>  extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
+> +extern const struct i2c_device_id *i2c_match_id(const struct i2c_dev=
+ice_id *id,
+> +					const struct i2c_client *client);
+> =20
+>  static inline struct i2c_client *kobj_to_i2c_client(struct kobject *=
+kobj)
+>  {
 
 --=20
 Lee Jones
