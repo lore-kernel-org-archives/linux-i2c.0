@@ -1,121 +1,47 @@
-From: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [Patch v4] i2c: imx: implement bus recovery
-Date: Fri, 11 Sep 2015 02:10:43 +0000
-Message-ID: <CY1PR0301MB0858AC48C32C8224ECFE0002CF500@CY1PR0301MB0858.namprd03.prod.outlook.com>
-References: <1439977931-5104-1-git-send-email-b54642@freescale.com>
- <20150907212712.GJ14598@pengutronix.de>
+From: Pavel Roskin <plroskin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Fix for Dell P57G touchpad found, need advice on patch
+Date: Thu, 10 Sep 2015 23:11:41 -0700
+Message-ID: <CAN_72e1BBk_s1BRBHJYuA7+2nbfYf1bCoD9fqatmTxRM_w=myg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150907212712.GJ14598-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-=46rom: Uwe Kleine-K=F6nig <mailto:u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> Sent=
-: Tuesday, September 08, 2015 5:27 AM
-> To: Gao Pan-B54642
-> Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Li Frank-B20596; Du=
-an
-> Fugang-B38611; kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-> Subject: Re: [Patch v4] i2c: imx: implement bus recovery
->=20
-> Hello,
->=20
-> On Wed, Aug 19, 2015 at 05:52:11PM +0800, Gao Pan wrote:
-> > @@ -963,6 +973,59 @@ out:
-> >  	return (result < 0) ? result : num;
-> >  }
-> >
-> > +static int i2c_imx_get_scl(struct i2c_adapter *adap) {
-> > +	struct imx_i2c_struct *i2c_imx;
-> > +
-> > +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> > +
-> > +	return gpiod_get_value(i2c_imx->pins.scl);
-> > +}
-> > +
-> > +static int i2c_imx_get_sda(struct i2c_adapter *adap) {
-> > +	struct imx_i2c_struct *i2c_imx;
-> > +
-> > +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> > +
-> > +	return gpiod_get_value(i2c_imx->pins.sda);
-> > +}
-> > +
-> > +static void i2c_imx_set_scl(struct i2c_adapter *adap, int val) {
-> > +	struct imx_i2c_struct *i2c_imx;
-> > +
-> > +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> > +	gpiod_set_value(i2c_imx->pins.scl, val); }
->=20
-> <nitpick>
-> These three functions are very similar (i.e. 1 line respectively for
-> variable declaration, driver data assignment and gpio operation), but=
- the
-> last has an empty line less.
-> </nitpick>
-=20
-Thanks.
+Hi!
 
-> > +static void i2c_imx_prepare_recovery(struct i2c_adapter *adap) {
-> > +	struct imx_i2c_struct *i2c_imx;
-> > +
-> > +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> > +	pinctrl_pm_select_sleep_state(&adap->dev);
->=20
-> I still think this is not nice, the v2 thread is still active with Li=
-nus
-> W. being involved.
-=20
-Thank you very much, will change it as Linus's suggestion in next versi=
-on.
+I'm using Dell Inspiron 13, model P57G. It has a problem with the
+touchpad under Linux. Approximately half of the time, the touchpad is
+not working at all - the mouse cursor is not moving. In this case,
+there are error messages written to the kernel log every second:
 
-> > +	gpiod_direction_input(i2c_imx->pins.sda);
-> > +	gpiod_direction_output(i2c_imx->pins.scl, 1); }
-> > [...]
-> > @@ -1011,12 +1074,13 @@ static int i2c_imx_probe(struct
-> > platform_device *pdev)
-> >
-> >  	/* Setup i2c_imx driver structure */
-> >  	strlcpy(i2c_imx->adapter.name, pdev->name, sizeof(i2c_imx-
-> >adapter.name));
-> > -	i2c_imx->adapter.owner		=3D THIS_MODULE;
-> > -	i2c_imx->adapter.algo		=3D &i2c_imx_algo;
-> > -	i2c_imx->adapter.dev.parent	=3D &pdev->dev;
-> > -	i2c_imx->adapter.nr		=3D pdev->id;
-> > -	i2c_imx->adapter.dev.of_node	=3D pdev->dev.of_node;
-> > -	i2c_imx->base			=3D base;
-> > +	i2c_imx->adapter.owner =3D THIS_MODULE;
-> > +	i2c_imx->adapter.algo =3D &i2c_imx_algo;
-> > +	i2c_imx->adapter.dev.parent =3D &pdev->dev;
-> > +	i2c_imx->adapter.nr =3D pdev->id;
-> > +	i2c_imx->adapter.dev.of_node =3D pdev->dev.of_node;
-> > +	i2c_imx->adapter.bus_recovery_info =3D &i2c_imx_bus_recovery_info=
-;
-> In a former review round I suggested to only do this assignment after=
- the
-> two gpios were aquired successfully. Then the above checks could be
->=20
-> 	if (i2c_imx->adapter.bus_recovery_info)
->=20
-> instead of
->=20
-> 	if (i2c_imx->pins.sda && i2c_imx->pins.scl)
->=20
-> which IMHO looks nicer and more robust.
-=20
-Thanks, will correct it in next version.
+[   53.127339] i2c_designware INT3433:00: controller timed out
+[   54.219336] i2c_designware INT3433:00: controller timed out
+[   55.311346] i2c_designware INT3433:00: controller timed out
+[   56.403326] i2c_designware INT3433:00: controller timed out
 
->=20
-> Best regards
-> Uwe
->=20
-> --
-> Pengutronix e.K.                           | Uwe Kleine-K=F6nig
-> |
-> Industrial Linux Solutions                 | http://www.pengutronix.d=
-e/
+There is a simple fix - blacklist the driver
+(i2c_designware_platform). In this case, the touchpad words as a mouse
+and used IRQ 12. Googling for "blackist i2c_designware_platform" shows
+that I'm not the one using that approach.
+
+I started looking at the driver in git. A patch by Romain Baeriswyl
+applied on 2014-08-20 adds support for the "standard" mode with the
+100kHz clock, as opposed to the 400kHz "fast" mode. Unfortunately,
+that patch only affects OpenFirmware systems, and I have ACPI. As soon
+as I set the clock to 100kHz, the touchpad started working every time.
+
+One fix would be to have a module parameter to force slower clock. It
+would still require users to deal with modprobe, so it's not optimal.
+
+I noticed that dev->get_clk_rate_khz(dev) returns 100000, but that
+would be 100000kHz = 100MHz. Not sure is somebody confused the units
+or it's the correct clock.
+
+Considering that I have no other systems to test, what would be the
+best approach? Set the clock to 100kHz for INT3433? Recognize Dell
+P57G system specifically? How? Preserve the original clock by reading
+the DW_IC_CON register and keeping some bits?
+
+Pavel
