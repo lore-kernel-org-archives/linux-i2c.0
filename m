@@ -1,59 +1,46 @@
-From: folkert <folkert-Beo89p9qyDM6GGFevw1D/A@public.gmane.org>
-Subject: read/write from/to an i2c device from linux
-Date: Sat, 12 Sep 2015 20:02:20 +0200
-Message-ID: <20150912180220.GH25041@belle.intranet.vanheusden.com>
+From: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
+Subject: Re: [PATCH-v5 RESEND 2/5] i2c: pxa: enable/disable i2c module across
+ msg xfer
+Date: Mon, 14 Sep 2015 10:37:08 +0530
+Message-ID: <55F655FC.8070308@linaro.org>
+References: <1440395978-9065-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1440395978-9065-3-git-send-email-vaibhav.hiremath@linaro.org>
+ <20150911185312.GA1516@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150911185312.GA1516@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org, robert.jarzmik@free.fr, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Yi Zhang <yizhang@marvell.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-
-For fun I'm trying to achieve communication between a linux master
-(raspberry pi) and an arduino slave over i2c.
-This somewhat works. Somewhat because for example I occasionally get a
--1 return value on read().
-
-What I'm doing is as follows:
-
-- i'm "sending messages" to the arduino using regular write() calls. I
-  do a write with in one go all data (so not sending 1 message with
-  multiple writes). commands are in size somewhere between 1
-  and 32 bytes
-
-- after I've send a message to the arduino, it'll collect some data
-  from an other source and put this in a send-buffer. Later on the
-  master will fetch this data.
-  The amount of data to be transmitted to the master is not always the
-  same. Sometimes 6 bytes, sometimes 1204 bytes. Not much more because
-  of RAM limits in the arduino.
-
-- After a while (after sending the command to the arduino) I do a read()
-  on the linux master to receive the data from the arduino. for this i
-  have a 2KB buffer. so I do read(fd, buffer, 2048)
-  Occasionally this read() returns a -1.
-
-My questions now are:
-
-- is what I'm doing here this supposed to work? e.g. sending messages
-  in random size of 1...32 bytes (there's a 32 byte limit in the
-  arduino for receiving), receiving data of random-size e.g. doing a
-  read of 2KB and expecting that or less data
-
-- how can I see if there's a device listening on an i2c address? should
-  I do a write and see if this write succeeds? wrap it in a
-  poll(POLLOUT) first?
-
-- how can I see when I do a read() from a device, if there is data? do
-  a poll(POLLIN) and then a read?
-
-- in what situations will the read() return a -1? if there are multiple
-  situations: how can I see which situation triggered it?
 
 
-regards
+On Saturday 12 September 2015 12:23 AM, Wolfram Sang wrote:
+> On Mon, Aug 24, 2015 at 11:29:35AM +0530, Vaibhav Hiremath wrote:
+>> From: Yi Zhang <yizhang@marvell.com>
+>>
+>> Enable i2c module/unit before transmission and disable when it
+>> finishes.
+>>
+>> why?
+>> It's because the i2c bus may be disturbed if the slave device,
+>> typically a touch, powers on.
+>
+> I am not convinced, "may disturb" is too weak for me. It would need a
+> way more detailed description of the problem which makes clear that
+> this mechanism is the only way to go forward.
+>
 
-Folkert van Heusden
+Hmm, Ok.
+Not sure what else I can bring up here.
+
+> Can't you use Runtime PM for that?
+>
+
+I haven't tried it though, I can give a try and check.
+
+Thanks,
+Vaibhav
