@@ -1,108 +1,58 @@
 From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] i2c: davinci: Optimize clock generation on Keystone SoC
-Date: Mon, 14 Sep 2015 11:03:50 +0200
-Message-ID: <55F68D76.1060207@nokia.com>
+Subject: [PATCH v2] dts: keystone: Use new "ti,keystone-i2c" compatible
+Date: Mon, 14 Sep 2015 11:07:02 +0200
+Message-ID: <55F68E36.2030609@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hemanth Guruva Reddy <hemanth.guruva_reddy-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Lukasz Gemborowski <lukasz.gemborowski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.orgMark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-According to "KeyStone Architecture Inter-IC Control Bus User Guide", fixed
-additive part of frequency divisors (referred as "d" in the code and datasheet)
-always equals to 6, independent of module clock prescaler.
-
-                         module clock frequency
-master clock frequency = ----------------------
-                         (ICCL + 6) + (ICCH + 6)
-
-It was not the case with original Davinci IP. Introduce new compatible property
-"ti,keystone-i2c", which triggers special handling in the driver.
-
-Without this change Keystone-based systems (having 204.8MHz input clock) choose
-prescaler 29 (PSC=28). Using d=5 in this case leads to bus bitrate ~353kHz
-instead of requested 400kHz. After correction, assuming d=6 bus rate is ~392kHz.
-This gives ~11% transfer rate increase.
+Now as "i2c-davinci" driver has special handling for Keystone it's time to switch
+the device tree to use new "compatible" property. Old one is left for backwards-
+compatibility.
 
 Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Reviewed-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Tested-by: Hemanth Guruva Reddy <hemanth.guruva_reddy-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Tested-by: Lukasz Gemborowski <lukasz.gemborowski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 ---
 
-There is no changes in this re-send. Patch is decoupled from the series, because
-is other one is now backwards-compatible. Re-based on the current Linus tree.
-
 Changes in v2:
-- Introducing new "compatible" property "ti,keystone-i2c" instead of guessing
-  silicon revision from ID registers
+- As suggested by Mark Rutland, kept the old "compatible" for backwards-
+  compatibility
 
- .../devicetree/bindings/i2c/i2c-davinci.txt        |    6 +++---
- drivers/i2c/busses/i2c-davinci.c                   |    8 ++++++++
- 2 files changed, 11 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/keystone.dtsi |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-index a4e1cbc..5b123e0 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-@@ -1,10 +1,10 @@
--* Texas Instruments Davinci I2C
-+* Texas Instruments Davinci/Keystone I2C
+diff --git a/arch/arm/boot/dts/keystone.dtsi b/arch/arm/boot/dts/keystone.dtsi
+index 72816d6..abd7455 100644
+--- a/arch/arm/boot/dts/keystone.dtsi
++++ b/arch/arm/boot/dts/keystone.dtsi
+@@ -106,7 +106,7 @@
+ 		};
  
- This file provides information, what the device node for the
--davinci i2c interface contain.
-+davinci/keystone i2c interface contains.
+ 		i2c0: i2c@2530000 {
+-			compatible = "ti,davinci-i2c";
++			compatible = "ti,keystone-i2c", "ti,davinci-i2c";
+ 			reg = <0x02530000 0x400>;
+ 			clock-frequency = <100000>;
+ 			clocks = <&clki2c>;
+@@ -116,7 +116,7 @@
+ 		};
  
- Required properties:
--- compatible: "ti,davinci-i2c";
-+- compatible: "ti,davinci-i2c" or "ti,keystone-i2c";
- - reg : Offset and length of the register set for the device
+ 		i2c1: i2c@2530400 {
+-			compatible = "ti,davinci-i2c";
++			compatible = "ti,keystone-i2c", "ti,davinci-i2c";
+ 			reg = <0x02530400 0x400>;
+ 			clock-frequency = <100000>;
+ 			clocks = <&clki2c>;
+@@ -126,7 +126,7 @@
+ 		};
  
- Recommended properties :
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 3fbb9a0..c5628a4 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -181,6 +181,7 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
- 	u32 clkh;
- 	u32 clkl;
- 	u32 input_clock = clk_get_rate(dev->clk);
-+	struct device_node *of_node = dev->dev->of_node;
- 
- 	/* NOTE: I2C Clock divider programming info
- 	 * As per I2C specs the following formulas provide prescaler
-@@ -196,6 +197,9 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
- 	 * where if PSC == 0, d = 7,
- 	 *       if PSC == 1, d = 6
- 	 *       if PSC > 1 , d = 5
-+	 *
-+	 * Note:
-+	 * d is always 6 on Keystone I2C controller
- 	 */
- 
- 	/* get minimum of 7 MHz clock, but max of 12 MHz */
-@@ -204,6 +208,9 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
- 		psc++;	/* better to run under spec than over */
- 	d = (psc >= 2) ? 5 : 7 - psc;
- 
-+	if (of_node && of_device_is_compatible(of_node, "ti,keystone-i2c"))
-+		d = 6;
-+
- 	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000));
- 	/* Avoid driving the bus too fast because of rounding errors above */
- 	if (input_clock / (psc + 1) / clk > pdata->bus_freq * 1000)
-@@ -726,6 +733,7 @@ static struct i2c_algorithm i2c_davinci_algo = {
- 
- static const struct of_device_id davinci_i2c_of_match[] = {
- 	{.compatible = "ti,davinci-i2c", },
-+	{.compatible = "ti,keystone-i2c", },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, davinci_i2c_of_match);
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ 		i2c2: i2c@2530800 {
+-			compatible = "ti,davinci-i2c";
++			compatible = "ti,keystone-i2c", "ti,davinci-i2c";
+ 			reg = <0x02530800 0x400>;
+ 			clock-frequency = <100000>;
+ 			clocks = <&clki2c>;
