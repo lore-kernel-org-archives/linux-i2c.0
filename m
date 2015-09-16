@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 2/6] i2c: ismt: PCI core handles power state for us
-Date: Wed, 16 Sep 2015 17:23:59 +0300
-Message-ID: <1442413443-123579-2-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 3/6] i2c: ismt: do not duplicate msi_enabled flag
+Date: Wed, 16 Sep 2015 17:24:00 +0300
+Message-ID: <1442413443-123579-3-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1442413443-123579-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1442413443-123579-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
@@ -10,68 +10,51 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4
 Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-There is no need to repeat the work that is already done in the PCI driver
-core. Remove suspend and resume callbacks.
-
-Note that there is no more calls performed to enable or disable a PCI
-device during suspend-resume cycle. Nowadays they seems to be
-superflous. Someone can read more in [1].
-
-[1] https://www.kernel.org/doc/ols/2009/ols2009-pages-319-330.pdf
+struct pci_dev already has a flag to track if MSI is enabled or not. Use it
+directly.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-ismt.c | 33 ---------------------------------
- 1 file changed, 33 deletions(-)
+ drivers/i2c/busses/i2c-ismt.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index b7a68b5..570b0a0 100644
+index 570b0a0..6c2058d 100644
 --- a/drivers/i2c/busses/i2c-ismt.c
 +++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -947,44 +947,11 @@ static void ismt_remove(struct pci_dev *pdev)
- 	i2c_del_adapter(&priv->adapter);
- }
- 
--/**
-- * ismt_suspend() - place the device in suspend
-- * @pdev: PCI-Express device
-- * @mesg: PM message
-- */
--#ifdef CONFIG_PM
--static int ismt_suspend(struct pci_dev *pdev, pm_message_t mesg)
--{
--	pci_save_state(pdev);
--	pci_set_power_state(pdev, pci_choose_state(pdev, mesg));
--	return 0;
--}
--
--/**
-- * ismt_resume() - PCI resume code
-- * @pdev: PCI-Express device
-- */
--static int ismt_resume(struct pci_dev *pdev)
--{
--	pci_set_power_state(pdev, PCI_D0);
--	pci_restore_state(pdev);
--	return pci_enable_device(pdev);
--}
--
--#else
--
--#define ismt_suspend NULL
--#define ismt_resume NULL
--
--#endif
--
- static struct pci_driver ismt_driver = {
- 	.name = "ismt_smbus",
- 	.id_table = ismt_ids,
- 	.probe = ismt_probe,
- 	.remove = ismt_remove,
--	.suspend = ismt_suspend,
--	.resume = ismt_resume,
+@@ -172,7 +172,6 @@ struct ismt_priv {
+ 	u8 head;				/* ring buffer head pointer */
+ 	struct completion cmp;			/* interrupt completion */
+ 	u8 dma_buffer[I2C_SMBUS_BLOCK_MAX + 1];	/* temp R/W data buffer */
+-	bool using_msi;				/* type of interrupt flag */
  };
  
- module_pci_driver(ismt_driver);
+ /**
+@@ -398,7 +397,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
+ 
+ 	/* Initialize common control bits */
+-	if (likely(priv->using_msi))
++	if (likely(pci_dev_msi_enabled(priv->pci_dev)))
+ 		desc->control = ISMT_DESC_INT | ISMT_DESC_FAIR;
+ 	else
+ 		desc->control = ISMT_DESC_FAIR;
+@@ -806,7 +805,6 @@ static int ismt_int_init(struct ismt_priv *priv)
+ 		goto intx;
+ 	}
+ 
+-	priv->using_msi = true;
+ 	goto done;
+ 
+ 	/* Try using legacy interrupts */
+@@ -822,8 +820,6 @@ intx:
+ 		return -ENODEV;
+ 	}
+ 
+-	priv->using_msi = false;
+-
+ done:
+ 	return 0;
+ }
 -- 
 2.5.1
