@@ -1,75 +1,188 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: Fix for Dell P57G touchpad found, need advice on patch
-Date: Wed, 16 Sep 2015 11:40:39 +0300
-Message-ID: <20150916084039.GC1536@lahna.fi.intel.com>
-References: <CAN_72e1BBk_s1BRBHJYuA7+2nbfYf1bCoD9fqatmTxRM_w=myg@mail.gmail.com>
- <20150915164214.GD1525@katana>
- <20150915171151.GF1525@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
+Subject: [PATCH v2 3/3] iio: humidity: si7020: added No Hold read mode
+Date: Wed, 16 Sep 2015 15:35:47 +0200
+Message-ID: <1442410547-9952-2-git-send-email-nicola@corna.info>
+References: <1442410547-9952-1-git-send-email-nicola@corna.info>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150915171151.GF1525@katana>
+In-Reply-To: <1442410547-9952-1-git-send-email-nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Pavel Roskin <plroskin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Adding Jarkko as well.
+The Si7013/20/21 modules support 2 read modes:
+ * Hold mode (blocking), where the device stretches the clock until the end
+of the measurement
+ * No Hold mode (non-blocking), where the device replies NACK for every I2C
+call during the measurement
+Here the No Hold mode is implemented, selectable with the blocking_io
+variable within si7020_platform_data. The default mode is Hold, unless the
+adapter does not support clock stretching, in which case the No Hold mode
+is used.
 
-On Tue, Sep 15, 2015 at 07:11:51PM +0200, Wolfram Sang wrote:
-> On Tue, Sep 15, 2015 at 06:42:14PM +0200, Wolfram Sang wrote:
-> > Hi Pavel,
-> > 
-> > On Thu, Sep 10, 2015 at 11:11:41PM -0700, Pavel Roskin wrote:
-> > > Hi!
-> > 
-> > Thanks for this detailed info. Adding Mika to CC who is an expert of
-> > this driver. Mika, maybe we should add you to MAINTAINERS, too?
-> > 
-> 
-> And forgot to add Mika :)
-> 
-> > > I'm using Dell Inspiron 13, model P57G. It has a problem with the
-> > > touchpad under Linux. Approximately half of the time, the touchpad is
-> > > not working at all - the mouse cursor is not moving. In this case,
-> > > there are error messages written to the kernel log every second:
-> > > 
-> > > [   53.127339] i2c_designware INT3433:00: controller timed out
-> > > [   54.219336] i2c_designware INT3433:00: controller timed out
-> > > [   55.311346] i2c_designware INT3433:00: controller timed out
-> > > [   56.403326] i2c_designware INT3433:00: controller timed out
-> > > 
-> > > There is a simple fix - blacklist the driver
-> > > (i2c_designware_platform). In this case, the touchpad words as a mouse
-> > > and used IRQ 12. Googling for "blackist i2c_designware_platform" shows
-> > > that I'm not the one using that approach.
-> > > 
-> > > I started looking at the driver in git. A patch by Romain Baeriswyl
-> > > applied on 2014-08-20 adds support for the "standard" mode with the
-> > > 100kHz clock, as opposed to the 400kHz "fast" mode. Unfortunately,
-> > > that patch only affects OpenFirmware systems, and I have ACPI. As soon
-> > > as I set the clock to 100kHz, the touchpad started working every time.
-> > > 
-> > > One fix would be to have a module parameter to force slower clock. It
-> > > would still require users to deal with modprobe, so it's not optimal.
-> > > 
-> > > I noticed that dev->get_clk_rate_khz(dev) returns 100000, but that
-> > > would be 100000kHz = 100MHz. Not sure is somebody confused the units
-> > > or it's the correct clock.
-> > > 
-> > > Considering that I have no other systems to test, what would be the
-> > > best approach? Set the clock to 100kHz for INT3433? Recognize Dell
-> > > P57G system specifically? How? Preserve the original clock by reading
-> > > the DW_IC_CON register and keeping some bits?
-> > 
-> > Note: The driver has been using 400kHz from its beginning. However,
-> > 100kHz is usually a better default for I2C busses. I wonder if we should
-> > take the risk of a performance regression in favour of a sane and
-> > working default?
+Signed-off-by: Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
+---
+This patch depends on patch "[PATCH v4 1/2] iio: humidity: si7020: replaced
+bitmask on humidity values with range check"
+ drivers/iio/humidity/si7020.c        | 76 ++++++++++++++++++++++++++++++++----
+ include/linux/platform_data/si7020.h | 21 ++++++++++
+ 2 files changed, 90 insertions(+), 7 deletions(-)
+ create mode 100644 include/linux/platform_data/si7020.h
 
-Pavel,
-
-Can you send me acpidump of that machine (or contents of
-/sys/firmware/acpi/tables/DSDT)? It may be that the ACPI I2cSerialBus
-connector actually has 100kHz there - we just don't use it currently.
+diff --git a/drivers/iio/humidity/si7020.c b/drivers/iio/humidity/si7020.c
+index 12128d1..9cf9527 100644
+--- a/drivers/iio/humidity/si7020.c
++++ b/drivers/iio/humidity/si7020.c
+@@ -2,6 +2,7 @@
+  * si7020.c - Silicon Labs Si7013/20/21 Relative Humidity and Temp Sensors
+  * Copyright (c) 2013,2014  Uplogix, Inc.
+  * David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org>
++ * Copyright (c) 2015 Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms and conditions of the GNU General Public License,
+@@ -30,33 +31,78 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/sysfs.h>
++#include <linux/jiffies.h>
+ 
+ #include <linux/iio/iio.h>
+ #include <linux/iio/sysfs.h>
++#include <linux/platform_data/si7020.h>
+ 
+ /* Measure Relative Humidity, Hold Master Mode */
+ #define SI7020CMD_RH_HOLD	0xE5
++/* Measure Relative Humidity, No Hold Master Mode */
++#define SI7020CMD_RH_NO_HOLD	0xF5
+ /* Measure Temperature, Hold Master Mode */
+ #define SI7020CMD_TEMP_HOLD	0xE3
++/* Measure Temperature, No Hold Master Mode */
++#define SI7020CMD_TEMP_NO_HOLD	0xF3
+ /* Software Reset */
+ #define SI7020CMD_RESET		0xFE
++/* Relative humidity measurement timeout (us) */
++#define SI7020_RH_TIMEOUT	22800
++/* Temperature measurement timeout (us) */
++#define SI7020_TEMP_TIMEOUT	10800
++/* Minimum delay between retries (No Hold Mode) in us */
++#define SI7020_NOHOLD_SLEEP_MIN	2000
++/* Maximum delay between retries (No Hold Mode) in us */
++#define SI7020_NOHOLD_SLEEP_MAX	6000
+ 
+ static int si7020_read_raw(struct iio_dev *indio_dev,
+ 			   struct iio_chan_spec const *chan, int *val,
+ 			   int *val2, long mask)
+ {
+ 	struct i2c_client **client = iio_priv(indio_dev);
++	struct si7020_platform_data *pdata;
+ 	int ret;
++	bool holdmode;
++	unsigned char buf[2];
++	unsigned long start;
+ 
+ 	switch (mask) {
+ 	case IIO_CHAN_INFO_RAW:
+-		ret = i2c_smbus_read_word_data(*client,
+-					       chan->type == IIO_TEMP ?
+-					       SI7020CMD_TEMP_HOLD :
+-					       SI7020CMD_RH_HOLD);
+-		if (ret < 0)
+-			return ret;
+-		*val = ret >> 2;
++		pdata = dev_get_platdata(&(*client)->dev);
++		if (pdata)
++			holdmode = pdata->blocking_io;
++		else
++			holdmode = !i2c_check_functionality((*client)->adapter,
++						I2C_FUNC_NO_CLK_STRETCH);
++		if (holdmode) {
++			ret = i2c_smbus_read_word_data(*client,
++						       chan->type == IIO_TEMP ?
++						       SI7020CMD_TEMP_HOLD :
++						       SI7020CMD_RH_HOLD);
++			if (ret < 0)
++				return ret;
++			*val = ret >> 2;
++		} else {
++			ret = i2c_smbus_write_byte(*client,
++						   chan->type == IIO_TEMP ?
++						   SI7020CMD_TEMP_NO_HOLD :
++						   SI7020CMD_RH_NO_HOLD);
++			if (ret < 0)
++				return ret;
++			start = jiffies;
++			while ((ret = i2c_master_recv(*client, buf, 2)) < 0) {
++				if (time_after(jiffies, start +
++					       usecs_to_jiffies(
++							chan->type == IIO_TEMP ?
++							SI7020_TEMP_TIMEOUT :
++							SI7020_RH_TIMEOUT)))
++					return ret;
++				usleep_range(SI7020_NOHOLD_SLEEP_MIN,
++					     SI7020_NOHOLD_SLEEP_MAX);
++			}
++			*val = ((buf[0] << 8) | buf[1]) >> 2;
++		}
+ 		/*
+ 		 * Humidity values can slightly exceed the 0-100%RH
+ 		 * range and should be corrected by software
+@@ -116,6 +162,7 @@ static int si7020_probe(struct i2c_client *client,
+ {
+ 	struct iio_dev *indio_dev;
+ 	struct i2c_client **data;
++	struct si7020_platform_data *pdata;
+ 	int ret;
+ 
+ 	if (!i2c_check_functionality(client->adapter,
+@@ -123,6 +170,21 @@ static int si7020_probe(struct i2c_client *client,
+ 				     I2C_FUNC_SMBUS_READ_WORD_DATA))
+ 		return -ENODEV;
+ 
++	pdata = dev_get_platdata(&client->dev);
++	if (pdata) {
++		if (pdata->blocking_io) {
++			if (i2c_check_functionality(client->adapter,
++						    I2C_FUNC_NO_CLK_STRETCH))
++				return -ENODEV;
++		} else if (!i2c_check_functionality(client->adapter,
++								I2C_FUNC_I2C))
++			return -ENODEV;
++	} else
++		if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
++		   i2c_check_functionality(client->adapter,
++					   I2C_FUNC_NO_CLK_STRETCH))
++			return -ENODEV;
++
+ 	/* Reset device, loads default settings. */
+ 	ret = i2c_smbus_write_byte(client, SI7020CMD_RESET);
+ 	if (ret < 0)
+diff --git a/include/linux/platform_data/si7020.h b/include/linux/platform_data/si7020.h
+new file mode 100644
+index 0000000..8bb5848
+--- /dev/null
++++ b/include/linux/platform_data/si7020.h
+@@ -0,0 +1,21 @@
++/*
++ * Copyright (C) 2015 Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#ifndef __SI7020_H_
++#define __SI7020_H_
++
++struct si7020_platform_data {
++	bool blocking_io;
++};
++#endif /* __SI7020_H_ */
+-- 
+2.5.1
