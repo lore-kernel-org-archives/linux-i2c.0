@@ -1,39 +1,34 @@
-From: Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
-Subject: [RESEND PATCH 2/3] i2c: added I2C_FUNC_NO_CLK_STRETCH to i2c-algo-bit.c
-Date: Wed, 16 Sep 2015 15:35:46 +0200
-Message-ID: <1442410547-9952-1-git-send-email-nicola@corna.info>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
+From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 4/6] i2c: ismt: propagate actual error code
+Date: Wed, 16 Sep 2015 17:24:01 +0300
+Message-ID: <1442413443-123579-4-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1442413443-123579-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1442413443-123579-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Added I2C_FUNC_NO_CLK_STRETCH to drivers/i2c/algos/i2c-algo-bit.c when
-getscl is not available.
+Propagate actual return code when requesting interrupt fails.
 
-Signed-off-by: Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/i2c/algos/i2c-algo-bit.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-ismt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
-index 899bede..82cad0b 100644
---- a/drivers/i2c/algos/i2c-algo-bit.c
-+++ b/drivers/i2c/algos/i2c-algo-bit.c
-@@ -602,10 +602,13 @@ bailout:
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 6c2058d..3bc4bad 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -817,7 +817,7 @@ intx:
+ 			       priv);
+ 	if (err) {
+ 		dev_err(&priv->pci_dev->dev, "no usable interrupts\n");
+-		return -ENODEV;
++		return err;
+ 	}
  
- static u32 bit_func(struct i2c_adapter *adap)
- {
-+	struct i2c_algo_bit_data *bit_adap = adap->algo_data;
-+
- 	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL |
- 	       I2C_FUNC_SMBUS_READ_BLOCK_DATA |
- 	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
--	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
-+	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING |
-+	       (bit_adap->getscl ? 0 : I2C_FUNC_NO_CLK_STRETCH);
- }
- 
- 
+ done:
 -- 
 2.5.1
