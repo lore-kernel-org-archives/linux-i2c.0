@@ -1,35 +1,35 @@
-From: Luis de Bethencourt <luis-HiykPkW1eAzzDCI4PIEvbQC/G2K4zDHf@public.gmane.org>
-Subject: [PATCH 3/4] i2c: rk3x: Fix module autoload for OF platform driver
-Date: Thu, 17 Sep 2015 18:36:11 +0200
-Message-ID: <20150917163611.GA26214@goodgumbo.baconseed.org>
+From: Luis de Bethencourt <luis@debethencourt.com>
+Subject: [PATCH 4/4] i2c: stu300: Fix module autoload for OF platform driver
+Date: Thu, 17 Sep 2015 18:36:47 +0200
+Message-ID: <20150917163647.GA26265@goodgumbo.baconseed.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 This platform driver has a OF device ID table but the OF module
 alias information is not created so module autoloading won't work.
 
-Signed-off-by: Luis de Bethencourt <luisbg-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+Signed-off-by: Luis de Bethencourt <luisbg@osg.samsung.com>
 ---
- drivers/i2c/busses/i2c-rk3x.c | 1 +
+ drivers/i2c/busses/i2c-stu300.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 72e97e30..c1935eb 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -858,6 +858,7 @@ static const struct of_device_id rk3x_i2c_match[] = {
- 	{ .compatible = "rockchip,rk3288-i2c", .data = (void *)&soc_data[2] },
+diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
+index 4885da9..460c134 100644
+--- a/drivers/i2c/busses/i2c-stu300.c
++++ b/drivers/i2c/busses/i2c-stu300.c
+@@ -977,6 +977,7 @@ static const struct of_device_id stu300_dt_match[] = {
+ 	{ .compatible = "st,ddci2c" },
  	{},
  };
-+MODULE_DEVICE_TABLE(of, rk3x_i2c_match);
++MODULE_DEVICE_TABLE(of, stu300_dt_match);
  
- static int rk3x_i2c_probe(struct platform_device *pdev)
- {
+ static struct platform_driver stu300_i2c_driver = {
+ 	.driver = {
 -- 
 2.4.6
