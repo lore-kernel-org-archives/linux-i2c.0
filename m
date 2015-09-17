@@ -1,496 +1,121 @@
-From: Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] i2c: nvmem: at24: Provide an EEPROM framework interface
-Date: Thu, 17 Sep 2015 16:58:07 +0200
-Message-ID: <CAMpxmJVC8uwz69QSPLooNWfOdf5SVt-EjWqCk9+xP=-iYJT1UA@mail.gmail.com>
-References: <1442419884-5060-1-git-send-email-pantelis.antoniou@konsulko.com>
-	<CAMpxmJXXoWZ+585ikSprLx-yyBp-rXxiQfP7Nr2kMV3eK3E0VQ@mail.gmail.com>
-	<8A1214E9-A452-4DDA-8CFE-6C6EC940FB81@konsulko.com>
+From: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+Subject: Re: [RESEND PATCH v4 0/8] i2c: Relax mandatory I2C ID table passing
+Date: Thu, 17 Sep 2015 17:46:32 +0200
+Message-ID: <55FAE058.7080504@osg.samsung.com>
+References: <1441972564-9621-1-git-send-email-kieranbingham@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8A1214E9-A452-4DDA-8CFE-6C6EC940FB81-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1441972564-9621-1-git-send-email-kieranbingham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Kieran Bingham <kieranbingham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-2015-09-17 16:55 GMT+02:00 Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>:
-> Hi Bartosz,
->
->> On Sep 17, 2015, at 17:42 , Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org> wrote:
->>
->> 2015-09-16 18:11 GMT+02:00 Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>:
->>> For DT and in-kernel users there is no interface to the
->>> at24 EEPROMs so provide an NVMEM framework interface.
->>>
->>> This allows us to use AT24 based EEPROMs and reference them
->>> from within the DT tree.
->>>
->>> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
->>> ---
->>> drivers/misc/eeprom/at24.c | 219 +++++++++++++++++++++++++++++++++++----------
->>> 1 file changed, 174 insertions(+), 45 deletions(-)
->>>
->>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
->>> index c6cb7f8..195a45e 100644
->>> --- a/drivers/misc/eeprom/at24.c
->>> +++ b/drivers/misc/eeprom/at24.c
->>> @@ -3,6 +3,7 @@
->>>  *
->>>  * Copyright (C) 2005-2007 David Brownell
->>>  * Copyright (C) 2008 Wolfram Sang, Pengutronix
->>> + * Copyright (C) 2015 Pantelis Antoniou, Konsulko Group
->>>  *
->>>  * This program is free software; you can redistribute it and/or modify
->>>  * it under the terms of the GNU General Public License as published by
->>> @@ -23,6 +24,9 @@
->>> #include <linux/of.h>
->>> #include <linux/i2c.h>
->>> #include <linux/platform_data/at24.h>
->>> +#include <linux/regmap.h>
->>> +#include <linux/nvmem-provider.h>
->>> +#include <linux/io.h>
->>>
->>> /*
->>>  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
->>> @@ -63,12 +67,16 @@ struct at24_data {
->>>         * but not from changes by other I2C masters.
->>>         */
->>>        struct mutex lock;
->>> -       struct bin_attribute bin;
->>>
->>>        u8 *writebuf;
->>>        unsigned write_max;
->>>        unsigned num_addresses;
->>>
->>> +       struct regmap_config *regmap_config;
->>> +       struct regmap *regmap;
->>> +       struct nvmem_config *nvmem_config;
->>> +       struct nvmem_device *nvmem_dev;
->>> +
->>>        /*
->>>         * Some chips tie up multiple I2C addresses; dummy devices reserve
->>>         * them for us, and we'll use them with SMBus calls.
->>> @@ -131,6 +139,8 @@ static const struct i2c_device_id at24_ids[] = {
->>> };
->>> MODULE_DEVICE_TABLE(i2c, at24_ids);
->>>
->>> +static DEFINE_IDA(at24_ida);
->>> +
->>> /*-------------------------------------------------------------------------*/
->>>
->>> /*
->>> @@ -276,17 +286,6 @@ static ssize_t at24_read(struct at24_data *at24,
->>>        return retval;
->>> }
->>>
->>> -static ssize_t at24_bin_read(struct file *filp, struct kobject *kobj,
->>> -               struct bin_attribute *attr,
->>> -               char *buf, loff_t off, size_t count)
->>> -{
->>> -       struct at24_data *at24;
->>> -
->>> -       at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
->>> -       return at24_read(at24, buf, off, count);
->>> -}
->>> -
->>> -
->>> /*
->>>  * Note that if the hardware write-protect pin is pulled high, the whole
->>>  * chip is normally write protected. But there are plenty of product
->>> @@ -407,18 +406,10 @@ static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
->>>        return retval;
->>> }
->>>
->>> -static ssize_t at24_bin_write(struct file *filp, struct kobject *kobj,
->>> -               struct bin_attribute *attr,
->>> -               char *buf, loff_t off, size_t count)
->>> -{
->>> -       struct at24_data *at24;
->>> -
->>> -       at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
->>> -       return at24_write(at24, buf, off, count);
->>> -}
->>> -
->>> /*-------------------------------------------------------------------------*/
->>>
->>> +/* panto: using the EEPROM framework macc is superfluous */
->>> +
->>> /*
->>>  * This lets other kernel code access the eeprom data. For example, it
->>>  * might hold a board's Ethernet address, or board-specific calibration
->>> @@ -464,6 +455,91 @@ static void at24_get_ofdata(struct i2c_client *client,
->>> { }
->>> #endif /* CONFIG_OF */
->>>
->>> +static int regmap_at24_read(void *context,
->>> +                           const void *reg, size_t reg_size,
->>> +                           void *val, size_t val_size)
->>> +{
->>> +       struct i2c_client *client = context;
->>> +       struct at24_data *at24;
->>> +       unsigned int offset;
->>> +       int ret;
->>> +
->>> +       /* reg bits is hardcoded to 32 bits */
->>> +       BUG_ON(reg_size != 4);
->>> +       offset = __raw_readl(reg);
->>> +
->>> +       at24 = i2c_get_clientdata(client);
->>> +       if (at24 == NULL)
->>> +               return -ENODEV;
->>> +
->>> +       /* val bytes is always 1 */
->>> +       BUG_ON(at24->regmap_config->val_bits != 8);
->>> +
->>> +       ret = at24_read(at24, val, offset, val_size);
->>> +       if (ret < 0)
->>> +               return ret;
->>> +       if (ret != val_size)
->>> +               return -EINVAL;
->>> +
->>> +       return 0;
->>> +}
->>> +
->>> +static int regmap_at24_gather_write(void *context,
->>> +                                   const void *reg, size_t reg_size,
->>> +                                   const void *val, size_t val_size)
->>> +{
->>> +       struct i2c_client *client = context;
->>> +       struct at24_data *at24;
->>> +       unsigned int offset;
->>> +       int ret;
->>> +
->>> +       at24 = i2c_get_clientdata(client);
->>> +       if (at24 == NULL)
->>> +               return -ENODEV;
->>> +
->>> +       BUG_ON(reg_size != 4);
->>> +       offset = __raw_readl(reg);
->>> +
->>> +       /* val bytes is always 1 */
->>> +       BUG_ON(at24->regmap_config->val_bits != 8);
->>> +
->>> +       ret = at24_write(at24, val, offset, val_size);
->>> +       if (ret < 0)
->>> +               return ret;
->>> +       if (ret != val_size)
->>> +               return -EINVAL;
->>> +
->>> +       return 0;
->>> +}
->>> +
->>> +static int regmap_at24_write(void *context, const void *data, size_t count)
->>> +{
->>> +       struct i2c_client *client = context;
->>> +       struct at24_data *at24;
->>> +       unsigned int reg_bytes, offset;
->>> +
->>> +       at24 = i2c_get_clientdata(client);
->>> +       if (at24 == NULL)
->>> +               return -ENODEV;
->>> +
->>> +       reg_bytes = at24->regmap_config->reg_bits / 8;
->>> +       offset = reg_bytes;
->>> +
->>> +       BUG_ON(reg_bytes != 4);
->>> +       BUG_ON(count <= offset);
->>> +
->>> +       return regmap_at24_gather_write(context, data, reg_bytes,
->>> +                       data + offset, count - offset);
->>> +}
->>> +
->>> +static struct regmap_bus regmap_at24_bus = {
->>> +       .read = regmap_at24_read,
->>> +       .write = regmap_at24_write,
->>> +       .gather_write = regmap_at24_gather_write,
->>> +       .reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
->>> +       .val_format_endian_default = REGMAP_ENDIAN_NATIVE,
->>> +};
->>> +
->>> static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>> {
->>>        struct at24_platform_data chip;
->>> @@ -474,6 +550,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>>        int err;
->>>        unsigned i, num_addresses;
->>>        kernel_ulong_t magic;
->>> +       struct regmap_config *regmap_config;
->>> +       struct regmap *regmap;
->>> +       struct nvmem_config *nvmem_config;
->>> +       struct nvmem_device *nvmem_dev;
->>>
->>>        if (client->dev.platform_data) {
->>>                chip = *(struct at24_platform_data *)client->dev.platform_data;
->>> @@ -541,16 +621,75 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>>                }
->>>        }
->>>
->>> +       regmap_config = devm_kzalloc(&client->dev, sizeof(*regmap_config),
->>> +                       GFP_KERNEL);
->>> +       if (IS_ERR(regmap_config)) {
->>> +               err = PTR_ERR(regmap_config);
->>> +               dev_err(&client->dev, "%s: regmap_config allocation failed (%d)\n",
->>> +                       __func__, err);
->>> +               return err;
->>> +       }
->>> +
->>> +       /* use 32 bits as registers, they don't appear on the wire anyway */
->>> +       regmap_config->reg_bits = 32;
->>> +       regmap_config->val_bits = 8;
->>> +       regmap_config->cache_type = REGCACHE_NONE;
->>> +       regmap_config->max_register = chip.byte_len;
->>> +
->>>        if (chip.flags & AT24_FLAG_TAKE8ADDR)
->>>                num_addresses = 8;
->>>        else
->>>                num_addresses = DIV_ROUND_UP(chip.byte_len,
->>>                        (chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
->>>
->>> +       /* we can't use devm_regmap_init_i2c due to the many i2c clients */
->>> +       regmap = devm_regmap_init(&client->dev, &regmap_at24_bus,
->>> +                       client, regmap_config);
->>> +       if (IS_ERR(regmap)) {
->>> +               err = PTR_ERR(regmap);
->>> +               dev_err(&client->dev, "%s: regmap allocation failed (%d)\n",
->>> +                       __func__, err);
->>> +               return err;
->>> +       }
->>> +
->>> +       nvmem_config = devm_kzalloc(&client->dev, sizeof(*nvmem_config),
->>> +                       GFP_KERNEL);
->>> +       if (IS_ERR(nvmem_config)) {
->>> +               err = PTR_ERR(nvmem_config);
->>> +               dev_err(&client->dev, "%s: nvmem_config allocation failed (%d)\n",
->>> +                       __func__, err);
->>> +               return err;
->>> +       }
->>> +       nvmem_config->dev = &client->dev;
->>> +       nvmem_config->name = "at24-";
->>> +       nvmem_config->id = ida_simple_get(&at24_ida, 0, 0, GFP_KERNEL);
->>> +       nvmem_config->owner = THIS_MODULE;
->>> +       if (nvmem_config->id < 0) {
->>> +               err = nvmem_config->id;
->>> +               dev_err(&client->dev, "%s: eeprom id allocation failed (%d)\n",
->>> +                       __func__, err);
->>> +               return err;
->>> +       }
->>> +
->>> +       nvmem_dev = nvmem_register(nvmem_config);
->>> +       if (IS_ERR(nvmem_dev)) {
->>> +               err = PTR_ERR(nvmem_dev);
->>> +               dev_err(&client->dev, "%s: nvmem_register failed (%d)\n",
->>> +                       __func__, err);
->>> +               goto err_out;
->>> +       }
->>> +
->>>        at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
->>>                num_addresses * sizeof(struct i2c_client *), GFP_KERNEL);
->>> -       if (!at24)
->>> -               return -ENOMEM;
->>> +       if (!at24) {
->>> +               err = -ENOMEM;
->>> +               goto err_out;
->>> +       }
->>> +
->>> +       at24->regmap = regmap;
->>> +       at24->regmap_config = regmap_config;
->>> +       at24->nvmem_config = nvmem_config;
->>> +       at24->nvmem_dev = nvmem_dev;
->>>
->>>        mutex_init(&at24->lock);
->>>        at24->use_smbus = use_smbus;
->>> @@ -558,16 +697,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>>        at24->chip = chip;
->>>        at24->num_addresses = num_addresses;
->>>
->>> -       /*
->>> -        * Export the EEPROM bytes through sysfs, since that's convenient.
->>> -        * By default, only root should see the data (maybe passwords etc)
->>> -        */
->>> -       sysfs_bin_attr_init(&at24->bin);
->>> -       at24->bin.attr.name = "eeprom";
->>> -       at24->bin.attr.mode = chip.flags & AT24_FLAG_IRUGO ? S_IRUGO : S_IRUSR;
->>> -       at24->bin.read = at24_bin_read;
->>> -       at24->bin.size = chip.byte_len;
->>
->> Hi Pantelis,
->>
->> this breaks the ABI.
->>
->> Additionally: the nvmem file is 0 in size with this patch and reading
->> it produces the following NULL pointer dereference on BeagleBone
->> Black:
->>
->> I'm using an at24cs02 chip, that works with mainline.
->>
->> [  147.023405] Unable to handle kernel NULL pointer dereference at
->> virtual address 00000002
->> [  147.041713] pgd = de6f8000
->> [  147.053787] [00000002] *pgd=9e6eb831, *pte=00000000, *ppte=00000000
->> [  147.070152] Internal error: Oops: 17 [#1] SMP ARM
->> [  147.084543] Modules linked in: gpio_pca953x ina2xx ipv6 omap_rng
->> rng_core rtc_omap omap_wdt at24 cpufreq_dt leds_gpio thermal_sys
->> led_class hwmon
->> [  147.109168] CPU: 0 PID: 177 Comm: dd Not tainted 4.3.0-rc1-acme+ #18
->> [  147.126126] Hardware name: Generic AM33XX (Flattened Device Tree)
->> [  147.142765] task: de68c380 ti: de672000 task.ti: de672000
->> [  147.158659] PC is at at24_read+0x1c4/0x200 [at24]
->> [  147.173739] LR is at at24_read+0x54/0x200 [at24]
->> [  147.188538] pc : [<bf02a20c>]    lr : [<bf02a09c>]    psr: 60080013
->> [  147.188538] sp : de673d88  ip : bf02b17c  fp : ffffc440
->> [  147.220290] r10: de673da4  r9 : c09c6100  r8 : de6f3300
->> [  147.235487] r7 : de77c1d0  r6 : 00000000  r5 : 00000000  r4 : 00000001
->> [  147.251957] r3 : 00000001  r2 : de673dc0  r1 : de673dc0  r0 : 00000001
->> [  147.268442] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
->> [  147.285639] Control: 10c5387d  Table: 9e6f8019  DAC: 00000051
->> [  147.301332] Process dd (pid: 177, stack limit = 0xde672218)
->> [  147.316864] Stack: (0xde673d88 to 0xde674000)
->> [  147.331094] 3d80:                   00000080 00000080 00000100
->> 00000000 00000100 de77c1f0
->> [  147.349553] 3da0: 00000001 00000000 00000000 00000000 00000000
->> 00000000 00000000 00000100
->> [  147.368085] 3dc0: de68c380 00000101 00000101 de6c2e00 c0a7f4ac
->> c0a7f4e4 00000101 00000000
->> [  147.386542] 3de0: de6f3200 bf02a290 00000001 c06b5d3c de617800
->> c04707a8 00000101 00000020
->> [  147.404852] 3e00: 00000000 00000000 60080013 c0a7d784 00000000
->> c0093c74 00000001 de617800
->> [  147.423274] 3e20: 00000000 00000001 00000101 de6f3200 00000101
->> 00000101 00000000 c04709c0
->> [  147.441694] 3e40: 00000001 c0093c74 00000001 00000101 00000000
->> 00000000 00000000 00000000
->> [  147.460163] 3e60: 00000000 dba5a94c 00000000 c05a15ac c0a6e5dc
->> de641980 00000000 de6f3200
->> [  147.478710] 3e80: 00000000 c01f0fb8 00000000 00000000 00000200
->> c008da64 dba5a940 de673f80
->> [  147.497227] 3ea0: 00000200 00000000 00000000 dba5a94c 00000000
->> c01f08ac 00000000 00000000
->> [  147.515693] 3ec0: 00000256 000af008 de673f04 de641980 c06d16bc
->> 00000200 000af008 de673f80
->> [  147.534153] 3ee0: 00000000 00000000 00000000 c0176af8 de641988
->> ddcf1868 de641980 00000000
->> [  147.552575] 3f00: 00000000 00000000 00000000 c0326588 00000000
->> 00000000 00000001 de641980
->> [  147.570949] 3f20: 00000200 00000000 00000000 c0176c04 60080013
->> de6afc00 de641980 00000200
->> [  147.589215] 3f40: 000af008 de673f80 00000000 00000000 00000000
->> c0177acc de6afc00 de6afe80
->> [  147.607452] 3f60: de641980 de641980 de641980 00000200 000af008
->> 00000000 00000000 c0177c00
->> [  147.625712] 3f80: 00000000 00000000 000aea10 000aea10 00000000
->> 000af008 00000003 c000ff44
->> [  147.643928] 3fa0: de672000 c000fda0 000aea10 00000000 00000000
->> 000af008 00000200 00000000
->> [  147.662047] 3fc0: 000aea10 00000000 000af008 00000003 000af008
->> 00000000 000af008 00000000
->> [  147.680078] 3fe0: 00000000 beec7aac 0000fc00 b6f2c07c 60080010
->> 00000000 00000000 00000000
->> [  147.698148] [<bf02a20c>] (at24_read [at24]) from [<bf02a290>]
->> (regmap_at24_read+0x48/0x78 [at24])
->> [  147.717080] [<bf02a290>] (regmap_at24_read [at24]) from
->> [<c04707a8>] (_regmap_raw_read+0xdc/0x1f4)
->> [  147.736127] [<c04707a8>] (_regmap_raw_read) from [<c04709c0>]
->> (regmap_raw_read+0x100/0x160)
->> [  147.754515] [<c04709c0>] (regmap_raw_read) from [<c05a15ac>]
->> (bin_attr_nvmem_read+0x54/0x8c)
->> [  147.773017] [<c05a15ac>] (bin_attr_nvmem_read) from [<c01f0fb8>]
->> (sysfs_kf_bin_read+0xa0/0xac)
->> [  147.791728] [<c01f0fb8>] (sysfs_kf_bin_read) from [<c01f08ac>]
->> (kernfs_fop_read+0xb8/0x180)
->> [  147.810159] [<c01f08ac>] (kernfs_fop_read) from [<c0176af8>]
->> (__vfs_read+0x2c/0xe0)
->> [  147.827787] [<c0176af8>] (__vfs_read) from [<c0177acc>] (vfs_read+0x90/0xf0)
->> [  147.844732] [<c0177acc>] (vfs_read) from [<c0177c00>] (SyS_read+0x44/0x88)
->> [  147.861535] [<c0177c00>] (SyS_read) from [<c000fda0>]
->> (ret_fast_syscall+0x0/0x1c)
->> [  147.878728] Code: e28d1038 e0812002 a3a03001 e5425004 (e1d620b2)
->> [  147.894527] ---[ end trace 4f2f3a675fee7446 ]---
->>
->> Best regards,
->> Bartosz Golaszewski
->>
->>>        at24->macc.read = at24_macc_read;
->>>
->>>        writable = !(chip.flags & AT24_FLAG_READONLY);
->>> @@ -578,9 +707,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>>
->>>                        at24->macc.write = at24_macc_write;
->>>
->>> -                       at24->bin.write = at24_bin_write;
->>> -                       at24->bin.attr.mode |= S_IWUSR;
->>> -
->>>                        if (write_max > io_limit)
->>>                                write_max = io_limit;
->>>                        if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
->>> @@ -590,8 +716,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>>                        /* buffer (data + address at the beginning) */
->>>                        at24->writebuf = devm_kzalloc(&client->dev,
->>>                                write_max + 2, GFP_KERNEL);
->>> -                       if (!at24->writebuf)
->>> -                               return -ENOMEM;
->>> +                       if (!at24->writebuf) {
->>> +                               err = -ENOMEM;
->>> +                               goto err_out;
->>> +                       }
->>>                } else {
->>>                        dev_warn(&client->dev,
->>>                                "cannot write due to controller restrictions.");
->>> @@ -612,14 +740,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>>                }
->>>        }
->>>
->>> -       err = sysfs_create_bin_file(&client->dev.kobj, &at24->bin);
->>> -       if (err)
->>> -               goto err_clients;
->>> -
->>>        i2c_set_clientdata(client, at24);
->>>
->>>        dev_info(&client->dev, "%zu byte %s EEPROM, %s, %u bytes/write\n",
->>> -               at24->bin.size, client->name,
->>> +               at24->chip.byte_len, client->name,
->>>                writable ? "writable" : "read-only", at24->write_max);
->>>        if (use_smbus == I2C_SMBUS_WORD_DATA ||
->>>            use_smbus == I2C_SMBUS_BYTE_DATA) {
->>> @@ -635,10 +759,14 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>>        return 0;
->>>
->>> err_clients:
->>> +
->>>        for (i = 1; i < num_addresses; i++)
->>>                if (at24->client[i])
->>>                        i2c_unregister_device(at24->client[i]);
->>>
->>> +err_out:
->>> +       ida_simple_remove(&at24_ida, nvmem_config->id);
->>> +
->>>        return err;
->>> }
->>>
->>> @@ -648,11 +776,12 @@ static int at24_remove(struct i2c_client *client)
->>>        int i;
->>>
->>>        at24 = i2c_get_clientdata(client);
->>> -       sysfs_remove_bin_file(&client->dev.kobj, &at24->bin);
->>>
->>>        for (i = 1; i < at24->num_addresses; i++)
->>>                i2c_unregister_device(at24->client[i]);
->>>
->>> +       nvmem_unregister(at24->nvmem_dev);
->>> +
->>>        return 0;
->>> }
->>>
->>>
->>> 1.7.12
->
-> Thanks for the bug report. Are you using the user-space API to read from the device?
+Hello,
 
-Yes, we have a working setup where the device is instantiated via
-/sys/class/i2c-adapter/.../new_device and the data is read from the
-'eeprom' attribute. Given the wide adoption of the at24 series I don't
-think we'll ever be able to remove this file - even after moving to
-nvmem.
+On 09/11/2015 01:55 PM, Kieran Bingham wrote:
+> Hi Wolfram,
+> 
+> I have picked this patchset [0] up from Lee to rebase it, with an aim to
+> get this series moving again.
+> 
+> This resend fixes up my SoB's as highlighted by Lee
+> 
+> A couple of minor issues were resolved in the rebase. As it stood, Javier
+> proposed [1] to merge this series, and use a follow up series to make sure
+> that all I2C drivers are using a MODLE_DEVICE_TABLE(of,...)
+> 
+> I have prepared a Coccinelle patch to work through the bulk of the changes
+> required for the conversion, which will assist the transition process.
+> 
+> Once this patch set is accepted, I will commence converting the other
+> drivers, and submitting with a per subsystem breakdown or simliar to
+> reduce traffic.
+> 
+> [0] https://lkml.org/lkml/2014/8/28/283
+> [1] https://lkml.org/lkml/2014/9/12/496
+> 
+> Lee's most recent cover-letter (from 12 months ago) follows:
+> 
+> Hi Wolfram,
+> 
+> Placing this firmly back on your plate.  I truly hope we don't miss
+> another merge-window.  This patch-set has the support of some pretty
+> senior kernel maintainers, so I hope acceptance shouldn't be too
+> difficult.
+> 
+> As previously discussed I believe it should be okay for an I2C device
+> driver _not_ supply an I2C ID table to match to.  The I2C subsystem
+> should be able to match via other means, such as via OF tables.  The
+> blocking factor during our previous conversation was to keep
+> registering via sysfs up and running.  This set does that.
+> 
+> After thinking more deeply about the problem, it occurred to me that
+> any I2C device driver which uses the sysfs method and issues an
+> of_match_device() would also fail their probe().  Bolted on to this
+> set is a new, more generic way for these devices to match against
+> either of the I2C/OF tables.
+> 
+
+I reviewed this series but wonder if we shouldn't take another approach.
+
+There are two reasons why a I2C device ID table is needed even when devices
+are registered via OF:
+
+1) Export the module aliases from the I2C device ID table so userspace
+   can auto-load the correct module. This is because i2c_device_uevent
+   always reports a MODALIAS of the form i2c:<client->name>.
+
+2) Match the I2C client with a I2C device ID so a struct i2c_device_id
+   is passed to the I2C driver probe() function.
+
+As Kieran mentioned I proposed a transition path to fix 1) and posted
+these patches: https://lkml.org/lkml/2015/7/30/519
+
+While this series are fixing 2) by changing the matching logic and adding
+a second probe callback for drivers that don't need to get a i2c_device_id.
+
+Now, the problem I see with this approach is that drivers will likely want
+to get the struct of_device_id .data field since that is the reason why
+the I2C core pass a pointer to the struct i2c_device_id in the first place.
+So drivers could get the .driver_data field and take decisions depending on
+which device was registered / matched.
+
+If the parameter is removed from probe, it means that drivers will have to
+to open code to get it. This is the same issue that exist with OF today, if
+a driver needs the .data field from the of_device_id table, is has to do:
+
+struct of_device_id *match of_match_node(of_match_table, i2c->dev.of_node);
+
+to get the match->data. And a similar helper will be needed to get the
+struct i2c_device_id since the core won't do it anymore.
+
+So what I propose is to change the probe callback signature instead to have
+a const void *data as the second parameter and the core can either lookup
+from the I2C device ID table or the OF device ID table depending on which
+mechanism was used to register the I2C device.
+
+That way legacy drivers will only need a I2C device ID table and DT drivers
+will only need a OF device ID table and drivers won't need to open code the
+matching logic to get the data stored in the tables.
+
+Drivers that support both legacy platform and OF based registration, will
+have both tables and the I2C core will lookup the data from the right table.
+
+An alternative is to keep this series but have a generic function that gets
+a pointer to a struct i2c_client as parameter and returns the data from the
+correct table so drivers that don't need that information won't get it at
+probe time but drivers that need it, can get it easily assisted by the core.
+
+Both options are similar, the question is if the I2C core should match and
+lookup the entry from the correct table on probe or let drivers do it later.
+
+Any thoughts?
 
 Best regards,
-Bartosz Golaszewski
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
