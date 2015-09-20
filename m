@@ -1,181 +1,205 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH v4 0/8] i2c: Relax mandatory I2C ID table passing
-Date: Sun, 20 Sep 2015 05:15:28 +0100
-Message-ID: <20150920041528.GA3039@x1>
-References: <1441972564-9621-1-git-send-email-kieranbingham@gmail.com>
- <55FAE058.7080504@osg.samsung.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v2 3/3] iio: humidity: si7020: added No Hold read mode
+Date: Sun, 20 Sep 2015 11:40:16 +0100
+Message-ID: <55FE8D10.6040902@kernel.org>
+References: <1442410547-9952-1-git-send-email-nicola@corna.info>
+ <1442410547-9952-2-git-send-email-nicola@corna.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:36703 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750721AbbITEPg (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 20 Sep 2015 00:15:36 -0400
-Received: by padhk3 with SMTP id hk3so85404946pad.3
-        for <linux-i2c@vger.kernel.org>; Sat, 19 Sep 2015 21:15:36 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <55FAE058.7080504@osg.samsung.com>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:49920 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755120AbbITKkS (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 20 Sep 2015 06:40:18 -0400
+In-Reply-To: <1442410547-9952-2-git-send-email-nicola@corna.info>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Kieran Bingham <kieranbingham@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org
+To: Nicola Corna <nicola@corna.info>, Wolfram Sang <wsa@the-dreams.de>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>
+Cc: linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org
 
-On Thu, 17 Sep 2015, Javier Martinez Canillas wrote:
+On 16/09/15 14:35, Nicola Corna wrote:
+> The Si7013/20/21 modules support 2 read modes:
+>  * Hold mode (blocking), where the device stretches the clock until the end
+> of the measurement
+>  * No Hold mode (non-blocking), where the device replies NACK for every I2C
+> call during the measurement
+> Here the No Hold mode is implemented, selectable with the blocking_io
+> variable within si7020_platform_data. The default mode is Hold, unless the
+> adapter does not support clock stretching, in which case the No Hold mode
+> is used.
+> 
+> Signed-off-by: Nicola Corna <nicola@corna.info>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
 
-> Hello,
->=20
-> On 09/11/2015 01:55 PM, Kieran Bingham wrote:
-> > Hi Wolfram,
-> >=20
-> > I have picked this patchset [0] up from Lee to rebase it, with an a=
-im to
-> > get this series moving again.
-> >=20
-> > This resend fixes up my SoB's as highlighted by Lee
-> >=20
-> > A couple of minor issues were resolved in the rebase. As it stood, =
-Javier
-> > proposed [1] to merge this series, and use a follow up series to ma=
-ke sure
-> > that all I2C drivers are using a MODLE_DEVICE_TABLE(of,...)
-> >=20
-> > I have prepared a Coccinelle patch to work through the bulk of the =
-changes
-> > required for the conversion, which will assist the transition proce=
-ss.
-> >=20
-> > Once this patch set is accepted, I will commence converting the oth=
-er
-> > drivers, and submitting with a per subsystem breakdown or simliar t=
-o
-> > reduce traffic.
-> >=20
-> > [0] https://lkml.org/lkml/2014/8/28/283
-> > [1] https://lkml.org/lkml/2014/9/12/496
-> >=20
-> > Lee's most recent cover-letter (from 12 months ago) follows:
-> >=20
-> > Hi Wolfram,
-> >=20
-> > Placing this firmly back on your plate.  I truly hope we don't miss
-> > another merge-window.  This patch-set has the support of some prett=
-y
-> > senior kernel maintainers, so I hope acceptance shouldn't be too
-> > difficult.
-> >=20
-> > As previously discussed I believe it should be okay for an I2C devi=
-ce
-> > driver _not_ supply an I2C ID table to match to.  The I2C subsystem
-> > should be able to match via other means, such as via OF tables.  Th=
-e
-> > blocking factor during our previous conversation was to keep
-> > registering via sysfs up and running.  This set does that.
-> >=20
-> > After thinking more deeply about the problem, it occurred to me tha=
-t
-> > any I2C device driver which uses the sysfs method and issues an
-> > of_match_device() would also fail their probe().  Bolted on to this
-> > set is a new, more generic way for these devices to match against
-> > either of the I2C/OF tables.
-> >=20
->=20
-> I reviewed this series but wonder if we shouldn't take another approa=
-ch.
->=20
-> There are two reasons why a I2C device ID table is needed even when d=
-evices
-> are registered via OF:
->=20
-> 1) Export the module aliases from the I2C device ID table so userspac=
-e
->    can auto-load the correct module. This is because i2c_device_ueven=
-t
->    always reports a MODALIAS of the form i2c:<client->name>.
->=20
-> 2) Match the I2C client with a I2C device ID so a struct i2c_device_i=
-d
->    is passed to the I2C driver probe() function.
->=20
-> As Kieran mentioned I proposed a transition path to fix 1) and posted
-> these patches: https://lkml.org/lkml/2015/7/30/519
->=20
-> While this series are fixing 2) by changing the matching logic and ad=
-ding
-> a second probe callback for drivers that don't need to get a i2c_devi=
-ce_id.
->=20
-> Now, the problem I see with this approach is that drivers will likely=
- want
-> to get the struct of_device_id .data field since that is the reason w=
-hy
-> the I2C core pass a pointer to the struct i2c_device_id in the first =
-place.
-> So drivers could get the .driver_data field and take decisions depend=
-ing on
-> which device was registered / matched.
->=20
-> If the parameter is removed from probe, it means that drivers will ha=
-ve to
-> to open code to get it. This is the same issue that exist with OF tod=
-ay, if
-> a driver needs the .data field from the of_device_id table, is has to=
- do:
->=20
-> struct of_device_id *match of_match_node(of_match_table, i2c->dev.of_=
-node);
->=20
-> to get the match->data. And a similar helper will be needed to get th=
-e
-> struct i2c_device_id since the core won't do it anymore.
->=20
-> So what I propose is to change the probe callback signature instead t=
-o have
-> a const void *data as the second parameter and the core can either lo=
-okup
-> from the I2C device ID table or the OF device ID table depending on w=
-hich
-> mechanism was used to register the I2C device.
->=20
-> That way legacy drivers will only need a I2C device ID table and DT d=
-rivers
-> will only need a OF device ID table and drivers won't need to open co=
-de the
-> matching logic to get the data stored in the tables.
->=20
-> Drivers that support both legacy platform and OF based registration, =
-will
-> have both tables and the I2C core will lookup the data from the right=
- table.
->=20
-> An alternative is to keep this series but have a generic function tha=
-t gets
-> a pointer to a struct i2c_client as parameter and returns the data fr=
-om the
-> correct table so drivers that don't need that information won't get i=
-t at
-> probe time but drivers that need it, can get it easily assisted by th=
-e core.
+Wolfram, I'm guessing you will pick these up via the i2c tree when
+he is happy with them.   If you want me to take the series through IIO
+let me know.
 
-You mean like i2c_match_id()? ;)
+Thanks,
 
-This patch already takes care of this issue.  Please see:
-
-  i2c: Export i2c_match_id() for direct use by device drivers
-
-Drivers will know if they either only supply an I2C or OF table, so
-they will know which call to use in order to obtain their
-=2Edriver_data|.data. attributes.  We can generify the call if you thin=
-k
-that makes things easier, but I don't see a need for it ATM.
-
-> Both options are similar, the question is if the I2C core should matc=
-h and
-> lookup the entry from the correct table on probe or let drivers do it=
- later.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Jonathan
+> ---
+> This patch depends on patch "[PATCH v4 1/2] iio: humidity: si7020: replaced
+> bitmask on humidity values with range check"
+>  drivers/iio/humidity/si7020.c        | 76 ++++++++++++++++++++++++++++++++----
+>  include/linux/platform_data/si7020.h | 21 ++++++++++
+>  2 files changed, 90 insertions(+), 7 deletions(-)
+>  create mode 100644 include/linux/platform_data/si7020.h
+> 
+> diff --git a/drivers/iio/humidity/si7020.c b/drivers/iio/humidity/si7020.c
+> index 12128d1..9cf9527 100644
+> --- a/drivers/iio/humidity/si7020.c
+> +++ b/drivers/iio/humidity/si7020.c
+> @@ -2,6 +2,7 @@
+>   * si7020.c - Silicon Labs Si7013/20/21 Relative Humidity and Temp Sensors
+>   * Copyright (c) 2013,2014  Uplogix, Inc.
+>   * David Barksdale <dbarksdale@uplogix.com>
+> + * Copyright (c) 2015 Nicola Corna <nicola@corna.info>
+>   *
+>   * This program is free software; you can redistribute it and/or modify it
+>   * under the terms and conditions of the GNU General Public License,
+> @@ -30,33 +31,78 @@
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+>  #include <linux/sysfs.h>
+> +#include <linux/jiffies.h>
+>  
+>  #include <linux/iio/iio.h>
+>  #include <linux/iio/sysfs.h>
+> +#include <linux/platform_data/si7020.h>
+>  
+>  /* Measure Relative Humidity, Hold Master Mode */
+>  #define SI7020CMD_RH_HOLD	0xE5
+> +/* Measure Relative Humidity, No Hold Master Mode */
+> +#define SI7020CMD_RH_NO_HOLD	0xF5
+>  /* Measure Temperature, Hold Master Mode */
+>  #define SI7020CMD_TEMP_HOLD	0xE3
+> +/* Measure Temperature, No Hold Master Mode */
+> +#define SI7020CMD_TEMP_NO_HOLD	0xF3
+>  /* Software Reset */
+>  #define SI7020CMD_RESET		0xFE
+> +/* Relative humidity measurement timeout (us) */
+> +#define SI7020_RH_TIMEOUT	22800
+> +/* Temperature measurement timeout (us) */
+> +#define SI7020_TEMP_TIMEOUT	10800
+> +/* Minimum delay between retries (No Hold Mode) in us */
+> +#define SI7020_NOHOLD_SLEEP_MIN	2000
+> +/* Maximum delay between retries (No Hold Mode) in us */
+> +#define SI7020_NOHOLD_SLEEP_MAX	6000
+>  
+>  static int si7020_read_raw(struct iio_dev *indio_dev,
+>  			   struct iio_chan_spec const *chan, int *val,
+>  			   int *val2, long mask)
+>  {
+>  	struct i2c_client **client = iio_priv(indio_dev);
+> +	struct si7020_platform_data *pdata;
+>  	int ret;
+> +	bool holdmode;
+> +	unsigned char buf[2];
+> +	unsigned long start;
+>  
+>  	switch (mask) {
+>  	case IIO_CHAN_INFO_RAW:
+> -		ret = i2c_smbus_read_word_data(*client,
+> -					       chan->type == IIO_TEMP ?
+> -					       SI7020CMD_TEMP_HOLD :
+> -					       SI7020CMD_RH_HOLD);
+> -		if (ret < 0)
+> -			return ret;
+> -		*val = ret >> 2;
+> +		pdata = dev_get_platdata(&(*client)->dev);
+> +		if (pdata)
+> +			holdmode = pdata->blocking_io;
+> +		else
+> +			holdmode = !i2c_check_functionality((*client)->adapter,
+> +						I2C_FUNC_NO_CLK_STRETCH);
+> +		if (holdmode) {
+> +			ret = i2c_smbus_read_word_data(*client,
+> +						       chan->type == IIO_TEMP ?
+> +						       SI7020CMD_TEMP_HOLD :
+> +						       SI7020CMD_RH_HOLD);
+> +			if (ret < 0)
+> +				return ret;
+> +			*val = ret >> 2;
+> +		} else {
+> +			ret = i2c_smbus_write_byte(*client,
+> +						   chan->type == IIO_TEMP ?
+> +						   SI7020CMD_TEMP_NO_HOLD :
+> +						   SI7020CMD_RH_NO_HOLD);
+> +			if (ret < 0)
+> +				return ret;
+> +			start = jiffies;
+> +			while ((ret = i2c_master_recv(*client, buf, 2)) < 0) {
+> +				if (time_after(jiffies, start +
+> +					       usecs_to_jiffies(
+> +							chan->type == IIO_TEMP ?
+> +							SI7020_TEMP_TIMEOUT :
+> +							SI7020_RH_TIMEOUT)))
+> +					return ret;
+> +				usleep_range(SI7020_NOHOLD_SLEEP_MIN,
+> +					     SI7020_NOHOLD_SLEEP_MAX);
+> +			}
+> +			*val = ((buf[0] << 8) | buf[1]) >> 2;
+> +		}
+>  		/*
+>  		 * Humidity values can slightly exceed the 0-100%RH
+>  		 * range and should be corrected by software
+> @@ -116,6 +162,7 @@ static int si7020_probe(struct i2c_client *client,
+>  {
+>  	struct iio_dev *indio_dev;
+>  	struct i2c_client **data;
+> +	struct si7020_platform_data *pdata;
+>  	int ret;
+>  
+>  	if (!i2c_check_functionality(client->adapter,
+> @@ -123,6 +170,21 @@ static int si7020_probe(struct i2c_client *client,
+>  				     I2C_FUNC_SMBUS_READ_WORD_DATA))
+>  		return -ENODEV;
+>  
+> +	pdata = dev_get_platdata(&client->dev);
+> +	if (pdata) {
+> +		if (pdata->blocking_io) {
+> +			if (i2c_check_functionality(client->adapter,
+> +						    I2C_FUNC_NO_CLK_STRETCH))
+> +				return -ENODEV;
+> +		} else if (!i2c_check_functionality(client->adapter,
+> +								I2C_FUNC_I2C))
+> +			return -ENODEV;
+> +	} else
+> +		if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
+> +		   i2c_check_functionality(client->adapter,
+> +					   I2C_FUNC_NO_CLK_STRETCH))
+> +			return -ENODEV;
+> +
+>  	/* Reset device, loads default settings. */
+>  	ret = i2c_smbus_write_byte(client, SI7020CMD_RESET);
+>  	if (ret < 0)
+> diff --git a/include/linux/platform_data/si7020.h b/include/linux/platform_data/si7020.h
+> new file mode 100644
+> index 0000000..8bb5848
+> --- /dev/null
+> +++ b/include/linux/platform_data/si7020.h
+> @@ -0,0 +1,21 @@
+> +/*
+> + * Copyright (C) 2015 Nicola Corna <nicola@corna.info>
+> + *
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation, and
+> + * may be copied, distributed, and modified under those terms.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + */
+> +
+> +#ifndef __SI7020_H_
+> +#define __SI7020_H_
+> +
+> +struct si7020_platform_data {
+> +	bool blocking_io;
+> +};
+> +#endif /* __SI7020_H_ */
+> 
