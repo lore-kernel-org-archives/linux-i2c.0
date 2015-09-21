@@ -1,55 +1,98 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH 2/6] watchdog: Add support for Freescale Layerscape
- platforms
-Date: Mon, 21 Sep 2015 08:04:29 -0700
-Message-ID: <56001C7D.4050408@roeck-us.net>
-References: <1442838158-2964-1-git-send-email-B48286@freescale.com>
- <1442838158-2964-3-git-send-email-B48286@freescale.com>
+From: Aaron Sierra <asierra@xes-inc.com>
+Subject: [PATCH 1/3 v2] at24: Support SMBus block writes to 16-bit devices
+Date: Mon, 21 Sep 2015 13:39:11 -0500 (CDT)
+Message-ID: <634653382.82806.1442860751404.JavaMail.zimbra@xes-inc.com>
+References: <1888937035.82162.1441309955075.JavaMail.zimbra@xes-inc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1442838158-2964-3-git-send-email-B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zhiqiang Hou <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, corbet-T1hC0tSOHrs@public.gmane.org, mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org, bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org, leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from xes-mad.com ([216.165.139.218]:37425 "EHLO xes-mad.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932140AbbIUSkS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 21 Sep 2015 14:40:18 -0400
+In-Reply-To: <1888937035.82162.1441309955075.JavaMail.zimbra@xes-inc.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Christian Gmeiner <christian.gmeiner@gmail.com>, Jean Delvare <jdelvare@suse.com>, Nate Case <ncase@xes-inc.com>
 
-On 09/21/2015 05:22 AM, Zhiqiang Hou wrote:
-> From: Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->
-> Modify watchdog/Kconfig file to support Layerscape platforms.
->
-"Enable IMX2+ watchdog for Layerscape platforms" would be a better
-description.
+Introduce at24_smbus_write_i2c_block_data() to allow very slow write
+access to 16-bit EEPROM devices attached to SMBus controllers like
+the Intel I801.
 
-Nitpick, so
+With an AT24C512 device:
+    248 B/s with 1-byte page (default)
+    3.9 KB/s with 128-byte* page (via platform data)
 
-Acked-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+*limited to 16-bytes by I2C_SMBUS_BLOCK_MAX / 2.
 
-> Signed-off-by: Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Signed-off-by: Wenbin Song <Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Signed-off-by: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
->   drivers/watchdog/Kconfig | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index c68edc1..2862219 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -446,7 +446,7 @@ config MAX63XX_WATCHDOG
->
->   config IMX2_WDT
->   	tristate "IMX2+ Watchdog"
-> -	depends on ARCH_MXC
-> +	depends on ARCH_MXC || ARCH_LAYERSCAPE
->   	select REGMAP_MMIO
->   	select WATCHDOG_CORE
->   	help
->
+Signed-off-by: Aaron Sierra <asierra@xes-inc.com>
+---
+ v2 - Unchanged from v1
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/misc/eeprom/at24.c | 35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index c6cb7f8..c3d3add 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -134,6 +134,34 @@ MODULE_DEVICE_TABLE(i2c, at24_ids);
+ /*-------------------------------------------------------------------------*/
+ 
+ /*
++ * Write block data to an AT24 device using SMBus cycles.
++ */
++static inline s32 at24_smbus_write_i2c_block_data(struct at24_data *at24,
++	const struct i2c_client *client, u16 off, u8 len, const u8 *vals)
++{
++	u8 *addr16;
++	s32 res;
++
++	if (!(at24->chip.flags & AT24_FLAG_ADDR16))
++		return i2c_smbus_write_i2c_block_data(client, off, len, vals);
++
++	addr16 = kzalloc(len + 1, GFP_KERNEL);
++	if (!addr16)
++		return -ENOMEM;
++
++	/* Insert extra address byte into data stream */
++	addr16[0] = off & 0xff;
++	memcpy(addr16 + 1, vals, len);
++
++	res = i2c_smbus_write_i2c_block_data(client,
++		(off >> 8) & 0xff, len + 1, addr16);
++
++	kfree(addr16);
++
++	return res;
++}
++
++/*
+  * This routine supports chips which consume multiple I2C addresses. It
+  * computes the addressing information to be used for a given r/w request.
+  * Assumes that sanity checks for offset happened at sysfs-layer.
+@@ -344,8 +372,8 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ 		if (at24->use_smbus_write) {
+ 			switch (at24->use_smbus_write) {
+ 			case I2C_SMBUS_I2C_BLOCK_DATA:
+-				status = i2c_smbus_write_i2c_block_data(client,
+-						offset, count, buf);
++				status = at24_smbus_write_i2c_block_data(at24,
++						client, offset, count, buf);
+ 				break;
+ 			case I2C_SMBUS_BYTE_DATA:
+ 				status = i2c_smbus_write_byte_data(client,
+@@ -584,7 +612,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 			if (write_max > io_limit)
+ 				write_max = io_limit;
+ 			if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
+-				write_max = I2C_SMBUS_BLOCK_MAX;
++				write_max = I2C_SMBUS_BLOCK_MAX >>
++					!!(chip.flags & AT24_FLAG_ADDR16);
+ 			at24->write_max = write_max;
+ 
+ 			/* buffer (data + address at the beginning) */
+-- 
+1.9.1
