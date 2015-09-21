@@ -1,205 +1,47 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v2 3/3] iio: humidity: si7020: added No Hold read mode
-Date: Sun, 20 Sep 2015 11:40:16 +0100
-Message-ID: <55FE8D10.6040902@kernel.org>
-References: <1442410547-9952-1-git-send-email-nicola@corna.info>
- <1442410547-9952-2-git-send-email-nicola@corna.info>
+From: Barry Song <21cnbao@gmail.com>
+Subject: Re: [PATCH] i2c: tegra: drop duplicated code for assigning algo
+Date: Mon, 21 Sep 2015 11:20:03 +0800
+Message-ID: <CAGsJ_4zT-AFOvvFPo3U9d4ijQsjTD++QS3KXsOhx+-mMPkJ1HA@mail.gmail.com>
+References: <1441595335-31672-1-git-send-email-21cnbao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:49920 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755120AbbITKkS (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 20 Sep 2015 06:40:18 -0400
-In-Reply-To: <1442410547-9952-2-git-send-email-nicola@corna.info>
+Received: from mail-la0-f46.google.com ([209.85.215.46]:34754 "EHLO
+	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755888AbbIUDUY (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 20 Sep 2015 23:20:24 -0400
+Received: by lahg1 with SMTP id g1so60388559lah.1
+        for <linux-i2c@vger.kernel.org>; Sun, 20 Sep 2015 20:20:22 -0700 (PDT)
+In-Reply-To: <1441595335-31672-1-git-send-email-21cnbao@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Nicola Corna <nicola@corna.info>, Wolfram Sang <wsa@the-dreams.de>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>
-Cc: linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Laxman Dewangan <ldewangan@nvidia.com>
+Cc: Barry Song <21cnbao@gmail.com>, Donglin Peng <pengdonglin137@163.com>
 
-On 16/09/15 14:35, Nicola Corna wrote:
-> The Si7013/20/21 modules support 2 read modes:
->  * Hold mode (blocking), where the device stretches the clock until the end
-> of the measurement
->  * No Hold mode (non-blocking), where the device replies NACK for every I2C
-> call during the measurement
-> Here the No Hold mode is implemented, selectable with the blocking_io
-> variable within si7020_platform_data. The default mode is Hold, unless the
-> adapter does not support clock stretching, in which case the No Hold mode
-> is used.
-> 
-> Signed-off-by: Nicola Corna <nicola@corna.info>
-Acked-by: Jonathan Cameron <jic23@kernel.org>
+ping...
 
-Wolfram, I'm guessing you will pick these up via the i2c tree when
-he is happy with them.   If you want me to take the series through IIO
-let me know.
-
-Thanks,
-
-Jonathan
+2015-09-07 11:08 GMT+08:00 Barry Song <21cnbao@gmail.com>:
+> This code is repeated in probe:
+> i2c_dev->adapter.algo = &tegra_i2c_algo;
+>
+> Cc: Donglin Peng <pengdonglin137@163.com>
+> Signed-off-by: Barry Song <21cnbao@gmail.com>
 > ---
-> This patch depends on patch "[PATCH v4 1/2] iio: humidity: si7020: replaced
-> bitmask on humidity values with range check"
->  drivers/iio/humidity/si7020.c        | 76 ++++++++++++++++++++++++++++++++----
->  include/linux/platform_data/si7020.h | 21 ++++++++++
->  2 files changed, 90 insertions(+), 7 deletions(-)
->  create mode 100644 include/linux/platform_data/si7020.h
-> 
-> diff --git a/drivers/iio/humidity/si7020.c b/drivers/iio/humidity/si7020.c
-> index 12128d1..9cf9527 100644
-> --- a/drivers/iio/humidity/si7020.c
-> +++ b/drivers/iio/humidity/si7020.c
-> @@ -2,6 +2,7 @@
->   * si7020.c - Silicon Labs Si7013/20/21 Relative Humidity and Temp Sensors
->   * Copyright (c) 2013,2014  Uplogix, Inc.
->   * David Barksdale <dbarksdale@uplogix.com>
-> + * Copyright (c) 2015 Nicola Corna <nicola@corna.info>
->   *
->   * This program is free software; you can redistribute it and/or modify it
->   * under the terms and conditions of the GNU General Public License,
-> @@ -30,33 +31,78 @@
->  #include <linux/module.h>
->  #include <linux/slab.h>
->  #include <linux/sysfs.h>
-> +#include <linux/jiffies.h>
->  
->  #include <linux/iio/iio.h>
->  #include <linux/iio/sysfs.h>
-> +#include <linux/platform_data/si7020.h>
->  
->  /* Measure Relative Humidity, Hold Master Mode */
->  #define SI7020CMD_RH_HOLD	0xE5
-> +/* Measure Relative Humidity, No Hold Master Mode */
-> +#define SI7020CMD_RH_NO_HOLD	0xF5
->  /* Measure Temperature, Hold Master Mode */
->  #define SI7020CMD_TEMP_HOLD	0xE3
-> +/* Measure Temperature, No Hold Master Mode */
-> +#define SI7020CMD_TEMP_NO_HOLD	0xF3
->  /* Software Reset */
->  #define SI7020CMD_RESET		0xFE
-> +/* Relative humidity measurement timeout (us) */
-> +#define SI7020_RH_TIMEOUT	22800
-> +/* Temperature measurement timeout (us) */
-> +#define SI7020_TEMP_TIMEOUT	10800
-> +/* Minimum delay between retries (No Hold Mode) in us */
-> +#define SI7020_NOHOLD_SLEEP_MIN	2000
-> +/* Maximum delay between retries (No Hold Mode) in us */
-> +#define SI7020_NOHOLD_SLEEP_MAX	6000
->  
->  static int si7020_read_raw(struct iio_dev *indio_dev,
->  			   struct iio_chan_spec const *chan, int *val,
->  			   int *val2, long mask)
->  {
->  	struct i2c_client **client = iio_priv(indio_dev);
-> +	struct si7020_platform_data *pdata;
->  	int ret;
-> +	bool holdmode;
-> +	unsigned char buf[2];
-> +	unsigned long start;
->  
->  	switch (mask) {
->  	case IIO_CHAN_INFO_RAW:
-> -		ret = i2c_smbus_read_word_data(*client,
-> -					       chan->type == IIO_TEMP ?
-> -					       SI7020CMD_TEMP_HOLD :
-> -					       SI7020CMD_RH_HOLD);
-> -		if (ret < 0)
-> -			return ret;
-> -		*val = ret >> 2;
-> +		pdata = dev_get_platdata(&(*client)->dev);
-> +		if (pdata)
-> +			holdmode = pdata->blocking_io;
-> +		else
-> +			holdmode = !i2c_check_functionality((*client)->adapter,
-> +						I2C_FUNC_NO_CLK_STRETCH);
-> +		if (holdmode) {
-> +			ret = i2c_smbus_read_word_data(*client,
-> +						       chan->type == IIO_TEMP ?
-> +						       SI7020CMD_TEMP_HOLD :
-> +						       SI7020CMD_RH_HOLD);
-> +			if (ret < 0)
-> +				return ret;
-> +			*val = ret >> 2;
-> +		} else {
-> +			ret = i2c_smbus_write_byte(*client,
-> +						   chan->type == IIO_TEMP ?
-> +						   SI7020CMD_TEMP_NO_HOLD :
-> +						   SI7020CMD_RH_NO_HOLD);
-> +			if (ret < 0)
-> +				return ret;
-> +			start = jiffies;
-> +			while ((ret = i2c_master_recv(*client, buf, 2)) < 0) {
-> +				if (time_after(jiffies, start +
-> +					       usecs_to_jiffies(
-> +							chan->type == IIO_TEMP ?
-> +							SI7020_TEMP_TIMEOUT :
-> +							SI7020_RH_TIMEOUT)))
-> +					return ret;
-> +				usleep_range(SI7020_NOHOLD_SLEEP_MIN,
-> +					     SI7020_NOHOLD_SLEEP_MAX);
-> +			}
-> +			*val = ((buf[0] << 8) | buf[1]) >> 2;
-> +		}
->  		/*
->  		 * Humidity values can slightly exceed the 0-100%RH
->  		 * range and should be corrected by software
-> @@ -116,6 +162,7 @@ static int si7020_probe(struct i2c_client *client,
->  {
->  	struct iio_dev *indio_dev;
->  	struct i2c_client **data;
-> +	struct si7020_platform_data *pdata;
->  	int ret;
->  
->  	if (!i2c_check_functionality(client->adapter,
-> @@ -123,6 +170,21 @@ static int si7020_probe(struct i2c_client *client,
->  				     I2C_FUNC_SMBUS_READ_WORD_DATA))
->  		return -ENODEV;
->  
-> +	pdata = dev_get_platdata(&client->dev);
-> +	if (pdata) {
-> +		if (pdata->blocking_io) {
-> +			if (i2c_check_functionality(client->adapter,
-> +						    I2C_FUNC_NO_CLK_STRETCH))
-> +				return -ENODEV;
-> +		} else if (!i2c_check_functionality(client->adapter,
-> +								I2C_FUNC_I2C))
-> +			return -ENODEV;
-> +	} else
-> +		if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
-> +		   i2c_check_functionality(client->adapter,
-> +					   I2C_FUNC_NO_CLK_STRETCH))
-> +			return -ENODEV;
-> +
->  	/* Reset device, loads default settings. */
->  	ret = i2c_smbus_write_byte(client, SI7020CMD_RESET);
->  	if (ret < 0)
-> diff --git a/include/linux/platform_data/si7020.h b/include/linux/platform_data/si7020.h
-> new file mode 100644
-> index 0000000..8bb5848
-> --- /dev/null
-> +++ b/include/linux/platform_data/si7020.h
-> @@ -0,0 +1,21 @@
-> +/*
-> + * Copyright (C) 2015 Nicola Corna <nicola@corna.info>
-> + *
-> + * This software is licensed under the terms of the GNU General Public
-> + * License version 2, as published by the Free Software Foundation, and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + */
-> +
-> +#ifndef __SI7020_H_
-> +#define __SI7020_H_
-> +
-> +struct si7020_platform_data {
-> +	bool blocking_io;
-> +};
-> +#endif /* __SI7020_H_ */
-> 
+>  drivers/i2c/busses/i2c-tegra.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 78a3668..9ab720b 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -825,7 +825,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+>         i2c_dev->adapter.class = I2C_CLASS_DEPRECATED;
+>         strlcpy(i2c_dev->adapter.name, "Tegra I2C adapter",
+>                 sizeof(i2c_dev->adapter.name));
+> -       i2c_dev->adapter.algo = &tegra_i2c_algo;
+>         i2c_dev->adapter.dev.parent = &pdev->dev;
+>         i2c_dev->adapter.nr = pdev->id;
+>         i2c_dev->adapter.dev.of_node = pdev->dev.of_node;
+> --
+> 1.9.1
+>
