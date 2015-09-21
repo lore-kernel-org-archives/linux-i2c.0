@@ -1,34 +1,49 @@
-From: Zhiqiang Hou <B48286@freescale.com>
-Subject: [PATCH 0/6] Add LS1043A SoC support
-Date: Mon, 21 Sep 2015 20:22:32 +0800
-Message-ID: <1442838158-2964-1-git-send-email-B48286@freescale.com>
+From: Zhiqiang Hou <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH 1/6] i2c: Add i2c support to Freescale Layerscape platforms
+Date: Mon, 21 Sep 2015 20:22:33 +0800
+Message-ID: <1442838158-2964-2-git-send-email-B48286@freescale.com>
+References: <1442838158-2964-1-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
-Cc: wsa@the-dreams.de, wim@iguana.be, corbet@lwn.net, mturquette@baylibre.com, sboyd@codeaurora.org, Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com, Wenbin.Song@freescale.com, scottwood@freescale.com, bhupesh.sharma@freescale.com, leoli@freescale.com
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1442838158-2964-1-git-send-email-B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, corbet-T1hC0tSOHrs@public.gmane.org, mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org, bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org, leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patchest adds support for Freescale's LS1043A SoC which is
-based on ARMv8 architecture.
+From: Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-Some pending patches are depended on:
-1. The LS1043A is belong to Freescale's ARMv8 Layerscape SoC family,
-so depends on the updating ARCH kconfig patch.
-https://patchwork.kernel.org/patch/7120101/
+Modify the I2C_IMX config to support to Layerscape platforms.
 
-2. The LS1043A use the new clockgen binding updated by Scott Wood,
-depends on the patchset:
-https://patchwork.kernel.org/patch/7225421/
-https://patchwork.kernel.org/patch/7225461/
-https://patchwork.kernel.org/patch/7225431/
-https://patchwork.kernel.org/patch/7225441/
-https://patchwork.kernel.org/patch/7225451/
+Signed-off-by: Mingkai Hu <Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Wenbin Song <Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-[PATCH 1/6] i2c: Add i2c support to Freescale Layerscape platforms
-[PATCH 2/6] watchdog: Add support for Freescale Layerscape platforms
-[PATCH 3/6] Documentation: DT: Add entry for FSL LS1043ARDB board
-[PATCH 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
-[PATCH 5/6] clk: qoriq: Add ls1043a support.
-[PATCH 6/6] dts/ls1043a: add LS1043ARDB board support
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 08b8617..14147ec 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -582,10 +582,10 @@ config I2C_IMG
+ 
+ config I2C_IMX
+ 	tristate "IMX I2C interface"
+-	depends on ARCH_MXC
++	depends on ARCH_MXC || ARCH_LAYERSCAPE
+ 	help
+ 	  Say Y here if you want to use the IIC bus controller on
+-	  the Freescale i.MX/MXC processors.
++	  the Freescale i.MX/MXC or Layerscape processors.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-imx.
+-- 
+2.1.0.27.g96db324
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
