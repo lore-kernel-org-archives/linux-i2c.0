@@ -1,566 +1,144 @@
-From: Zhiqiang Hou <B48286@freescale.com>
-Subject: [PATCH V2 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
-Date: Tue, 22 Sep 2015 20:34:03 +0800
-Message-ID: <1442925245-39246-4-git-send-email-B48286@freescale.com>
-References: <1442925245-39246-1-git-send-email-B48286@freescale.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v1 8/8] pwm-pca9685: enable ACPI device found on Galileo
+ Gen2
+Date: Tue, 22 Sep 2015 16:37:14 +0200
+Message-ID: <20150922143714.GA9235@ulmo.nvidia.com>
+References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1442916619-140607-9-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1442925245-39246-1-git-send-email-B48286@freescale.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, mark.rutland@arm.com
-Cc: Hou Zhiqiang <B48286@freescale.com>, Shaohui.Xie@freescale.com, corbet@lwn.net, bhupesh.sharma@freescale.com, mturquette@baylibre.com, wsa@the-dreams.de, sboyd@codeaurora.org, wim@iguana.be, Wenbin.Song@freescale.com, scottwood@freescale.com, Mingkai.Hu@freescale.com, leoli@freescale.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1442916619-140607-9-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mingkai Hu <Mingkai.Hu@freescale.com>
 
-LS1043a is an SoC with 4 ARMv8 A53 cores and most other IP blocks
-similar to LS1021a which complies to Chassis 2.1 spec.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Following levels of DTSI/DTS files have been created for the
-LS1043A SoC family:
+On Tue, Sep 22, 2015 at 01:10:19PM +0300, Andy Shevchenko wrote:
+> There is a chip connected to i2c bus on Intel Galileo Gen2 board. Enable =
+it via
+> ACPI ID INT3492.
+>=20
+> Cc: Thierry Reding <thierry.reding@gmail.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/pwm/Kconfig       |  2 +-
+>  drivers/pwm/pwm-pca9685.c | 14 +++++++++++---
+>  2 files changed, 12 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+> index 062630a..bb114ef 100644
+> --- a/drivers/pwm/Kconfig
+> +++ b/drivers/pwm/Kconfig
+> @@ -242,7 +242,7 @@ config PWM_MXS
+> =20
+>  config PWM_PCA9685
+>  	tristate "NXP PCA9685 PWM driver"
+> -	depends on OF && I2C
+> +	depends on I2C
+>  	select REGMAP_I2C
+>  	help
+>  	  Generic PWM framework driver for NXP PCA9685 LED controller.
+> diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
+> index 70448a6..38ea28b 100644
+> --- a/drivers/pwm/pwm-pca9685.c
+> +++ b/drivers/pwm/pwm-pca9685.c
+> @@ -26,6 +26,8 @@
+>  #include <linux/regmap.h>
+>  #include <linux/slab.h>
+>  #include <linux/delay.h>
+> +#include <linux/acpi.h>
+> +#include <linux/property.h>
 
-- fsl-ls1043a.dtsi:
-  DTS-Include file for FSL LS1043A SoC.
+These should be kept sorted. I know that delay.h isn't properly ordered
+either, I missed that during patch review. Please keep new ones ordered
+alphabetically and I'll sort out the delay.h via a separate patch.
 
-Signed-off-by: Li Yang <leoli@freescale.com>
-Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
-Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
-Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
----
-v2:
- - Add secondary core boot method.
- - Move out the sysclk node from the clockgen node.
- - Correct the reg size of GICC.
+> =20
+>  /*
+>   * Because the PCA9685 has only one prescaler per chip, changing the per=
+iod of
+> @@ -297,7 +299,6 @@ static const struct regmap_config pca9685_regmap_i2c_=
+config =3D {
+>  static int pca9685_pwm_probe(struct i2c_client *client,
+>  				const struct i2c_device_id *id)
+>  {
+> -	struct device_node *np =3D client->dev.of_node;
+>  	struct pca9685 *pca;
+>  	int ret;
+>  	int mode2;
+> @@ -320,12 +321,12 @@ static int pca9685_pwm_probe(struct i2c_client *cli=
+ent,
+> =20
+>  	regmap_read(pca->regmap, PCA9685_MODE2, &mode2);
+> =20
+> -	if (of_property_read_bool(np, "invert"))
+> +	if (device_property_read_bool(&client->dev, "invert"))
+>  		mode2 |=3D MODE2_INVRT;
+>  	else
+>  		mode2 &=3D ~MODE2_INVRT;
+> =20
+> -	if (of_property_read_bool(np, "open-drain"))
+> +	if (device_property_read_bool(&client->dev, "open-drain"))
+>  		mode2 &=3D ~MODE2_OUTDRV;
+>  	else
+>  		mode2 |=3D MODE2_OUTDRV;
+> @@ -363,6 +364,12 @@ static const struct i2c_device_id pca9685_id[] =3D {
+>  };
+>  MODULE_DEVICE_TABLE(i2c, pca9685_id);
+> =20
+> +static const struct acpi_device_id pca9685_acpi_ids[] =3D {
+> +	{ "INT3492", 0 },
+> +	{ /* sentinel */ },
+> +};
+> +MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
+> +
+>  static const struct of_device_id pca9685_dt_ids[] =3D {
+>  	{ .compatible =3D "nxp,pca9685-pwm", },
+>  	{ /* sentinel */ }
+> @@ -372,6 +379,7 @@ MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
+>  static struct i2c_driver pca9685_i2c_driver =3D {
+>  	.driver =3D {
+>  		.name =3D "pca9685-pwm",
+> +		.acpi_match_table =3D ACPI_PTR(pca9685_acpi_ids),
 
- arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi | 510 +++++++++++++++++++++++++
- 1 file changed, 510 insertions(+)
- create mode 100644 arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
+I think you now need #ifdef protection for the ACPI ID table, otherwise
+the compiler will warn that the table is unused for !ACPI.
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-new file mode 100644
-index 0000000..5bc5d13
---- /dev/null
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-@@ -0,0 +1,510 @@
-+/*
-+ * Device Tree Include file for Freescale Layerscape-1043A family SoC.
-+ *
-+ * Copyright 2014-2015, Freescale Semiconductor
-+ *
-+ * Mingkai Hu <Mingkai.hu@freescale.com>
-+ *
-+ * This file is dual-licensed: you can use it either under the terms
-+ * of the GPLv2 or the X11 license, at your option. Note that this dual
-+ * licensing only applies to this file, and not this project as a
-+ * whole.
-+ *
-+ *  a) This library is free software; you can redistribute it and/or
-+ *     modify it under the terms of the GNU General Public License as
-+ *     published by the Free Software Foundation; either version 2 of the
-+ *     License, or (at your option) any later version.
-+ *
-+ *     This library is distributed in the hope that it will be useful,
-+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *     GNU General Public License for more details.
-+ *
-+ * Or, alternatively,
-+ *
-+ *  b) Permission is hereby granted, free of charge, to any person
-+ *     obtaining a copy of this software and associated documentation
-+ *     files (the "Software"), to deal in the Software without
-+ *     restriction, including without limitation the rights to use,
-+ *     copy, modify, merge, publish, distribute, sublicense, and/or
-+ *     sell copies of the Software, and to permit persons to whom the
-+ *     Software is furnished to do so, subject to the following
-+ *     conditions:
-+ *
-+ *     The above copyright notice and this permission notice shall be
-+ *     included in all copies or substantial portions of the Software.
-+ *
-+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+ *     OTHER DEALINGS IN THE SOFTWARE.
-+ */
-+
-+/memreserve/ 0x80000000 0x00010000;
-+
-+/ {
-+	compatible = "fsl,ls1043a";
-+	interrupt-parent = <&gic>;
-+	#address-cells = <2>;
-+	#size-cells = <2>;
-+
-+	cpus {
-+		#address-cells = <2>;
-+		#size-cells = <0>;
-+
-+		cpu@0 {
-+			device_type = "cpu";
-+			compatible = "arm,cortex-a53";
-+			reg = <0x0 0x0>;
-+			clocks = <&clockgen 1 0>;
-+			enable-method = "spin-table";
-+			cpu-release-addr = <0x0 0x80000000>;
-+		};
-+
-+		cpu@1 {
-+			device_type = "cpu";
-+			compatible = "arm,cortex-a53";
-+			reg = <0x0 0x1>;
-+			clocks = <&clockgen 1 0>;
-+			enable-method = "spin-table";
-+			cpu-release-addr = <0x0 0x80000000>;
-+		};
-+
-+		cpu@2 {
-+			device_type = "cpu";
-+			compatible = "arm,cortex-a53";
-+			reg = <0x0 0x2>;
-+			clocks = <&clockgen 1 0>;
-+			enable-method = "spin-table";
-+			cpu-release-addr = <0x0 0x80000000>;
-+		};
-+
-+		cpu@3 {
-+			device_type = "cpu";
-+			compatible = "arm,cortex-a53";
-+			reg = <0x0 0x3>;
-+			clocks = <&clockgen 1 0>;
-+			enable-method = "spin-table";
-+			cpu-release-addr = <0x0 0x80000000>;
-+		};
-+	};
-+
-+	timer {
-+		compatible = "arm,armv8-timer";
-+		interrupts = <1 13 0x1>, /* Physical Secure PPI */
-+			     <1 14 0x1>, /* Physical Non-Secure PPI */
-+			     <1 11 0x1>, /* Virtual PPI */
-+			     <1 10 0x1>; /* Hypervisor PPI */
-+	};
-+
-+	pmu {
-+		compatible = "arm,armv8-pmuv3";
-+		interrupts = <0 106 0x4>,
-+			     <0 107 0x4>,
-+			     <0 95 0x4>,
-+			     <0 97 0x4>;
-+	};
-+
-+	gic: interrupt-controller@1400000 {
-+		compatible = "arm,gic-400";
-+		#interrupt-cells = <3>;
-+		interrupt-controller;
-+		reg = <0x0 0x1401000 0 0x1000>, /* GICD */
-+		      <0x0 0x1402000 0 0x2000>, /* GICC */
-+		      <0x0 0x1404000 0 0x2000>, /* GICH */
-+		      <0x0 0x1406000 0 0x2000>; /* GICV */
-+		interrupts = <1 9 0xf08>;
-+	};
-+
-+	msi1: msi-controller1@1571000 {
-+		compatible = "fsl,1s1043a-msi";
-+		reg = <0x0 0x1571000 0x0 0x4>,
-+		      <0x0 0x1571004 0x0 0x4>;
-+		reg-names = "msiir", "msir";
-+		msi-controller;
-+		interrupts = <0 116 0x4>;
-+	};
-+
-+	msi2: msi-controller2@1572000 {
-+		compatible = "fsl,1s1043a-msi";
-+		reg = <0x0 0x1572000 0x0 0x4>,
-+		      <0x0 0x1572004 0x0 0x4>;
-+		reg-names = "msiir", "msir";
-+		msi-controller;
-+		interrupts = <0 126 0x4>;
-+	};
-+
-+	msi3: msi-controller3@1573000 {
-+		compatible = "fsl,1s1043a-msi";
-+		reg = <0x0 0x1573000 0x0 0x4>,
-+		      <0x0 0x1573004 0x0 0x4>;
-+		reg-names = "msiir", "msir";
-+		msi-controller;
-+		interrupts = <0 160 0x4>;
-+	};
-+
-+	ifc: ifc@1530000 {
-+		compatible = "fsl,ifc", "simple-bus";
-+		reg = <0x0 0x1530000 0x0 0x10000>;
-+		interrupts = <0 43 0x4>;
-+	};
-+
-+	esdhc: esdhc@1560000 {
-+		compatible = "fsl,ls1043a-esdhc", "fsl,esdhc";
-+		reg = <0x0 0x1560000 0x0 0x10000>;
-+		interrupts = <0 62 0x4>;
-+		clock-frequency = <0>;
-+		voltage-ranges = <1800 1800 3300 3300>;
-+		sdhci,auto-cmd12;
-+		big-endian;
-+		bus-width = <4>;
-+	};
-+
-+	scfg: scfg@1570000 {
-+		compatible = "fsl,ls1043a-scfg", "syscon";
-+		reg = <0x0 0x1570000 0x0 0x10000>;
-+		big-endian;
-+	};
-+
-+	dcfg: dcfg@1ee0000 {
-+		compatible = "fsl,ls1043a-dcfg", "syscon";
-+		reg = <0x0 0x1ee0000 0x0 0x10000>;
-+	};
-+
-+	clockgen: clocking@1ee1000 {
-+		compatible = "fsl,ls1043a-clockgen";
-+		reg = <0x0 0x1ee1000 0x0 0x1000>;
-+		#clock-cells = <2>;
-+		clocks = <&sysclk>;
-+	};
-+
-+	sysclk: sysclk {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <100000000>;
-+		clock-output-names = "sysclk";
-+	};
-+
-+	dspi0: dspi@2100000 {
-+		compatible = "fsl,ls1043a-dspi", "fsl,ls1021a-v1.0-dspi";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x0 0x2100000 0x0 0x10000>;
-+		interrupts = <0 64 0x4>;
-+		clock-names = "dspi";
-+		clocks = <&clockgen 4 0>;
-+		spi-num-chipselects = <5>;
-+		big-endian;
-+		status = "disabled";
-+	};
-+
-+	dspi1: dspi@2110000 {
-+		compatible = "fsl,ls1043a-dspi", "fsl,ls1021a-v1.0-dspi";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x0 0x2110000 0x0 0x10000>;
-+		interrupts = <0 65 0x4>;
-+		clock-names = "dspi";
-+		clocks = <&clockgen 4 0>;
-+		spi-num-chipselects = <5>;
-+		big-endian;
-+		status = "disabled";
-+	};
-+
-+	i2c0: i2c@2180000 {
-+		compatible = "fsl,vf610-i2c";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x0 0x2180000 0x0 0x10000>;
-+		interrupts = <0 56 0x4>;
-+		clock-names = "i2c";
-+		clocks = <&clockgen 4 0>;
-+		dmas = <&edma0 1 39>,
-+		       <&edma0 1 38>;
-+		dma-names = "tx", "rx";
-+		status = "disabled";
-+	};
-+
-+	i2c1: i2c@2190000 {
-+		compatible = "fsl,vf610-i2c";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x0 0x2190000 0x0 0x10000>;
-+		interrupts = <0 57 0x4>;
-+		clock-names = "i2c";
-+		clocks = <&clockgen 4 0>;
-+		status = "disabled";
-+	};
-+
-+	i2c2: i2c@21a0000 {
-+		compatible = "fsl,vf610-i2c";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x0 0x21a0000 0x0 0x10000>;
-+		interrupts = <0 58 0x4>;
-+		clock-names = "i2c";
-+		clocks = <&clockgen 4 0>;
-+		status = "disabled";
-+	};
-+
-+	i2c3: i2c@21b0000 {
-+		compatible = "fsl,vf610-i2c";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x0 0x21b0000 0x0 0x10000>;
-+		interrupts = <0 59 0x4>;
-+		clock-names = "i2c";
-+		clocks = <&clockgen 4 0>;
-+		status = "disabled";
-+	};
-+
-+	duart0: serial@21c0500 {
-+		compatible = "fsl,ns16550", "ns16550a";
-+		reg = <0x00 0x21c0500 0x0 0x100>;
-+		interrupts = <0 54 0x4>;
-+		clocks = <&clockgen 4 0>;
-+	};
-+
-+	duart1: serial@21c0600 {
-+		compatible = "fsl,ns16550", "ns16550a";
-+		reg = <0x00 0x21c0600 0x0 0x100>;
-+		interrupts = <0 54 0x4>;
-+		clocks = <&clockgen 4 0>;
-+	};
-+
-+	duart2: serial@21d0500 {
-+		compatible = "fsl,ns16550", "ns16550a";
-+		reg = <0x0 0x21d0500 0x0 0x100>;
-+		interrupts = <0 55 0x4>;
-+		clocks = <&clockgen 4 0>;
-+	};
-+
-+	duart3: serial@21d0600 {
-+		compatible = "fsl,ns16550", "ns16550a";
-+		reg = <0x0 0x21d0600 0x0 0x100>;
-+		interrupts = <0 55 0x4>;
-+		clocks = <&clockgen 4 0>;
-+	};
-+
-+	gpio1: gpio@2300000 {
-+		compatible = "fsl,ls1043a-gpio";
-+		reg = <0x0 0x2300000 0x0 0x10000>;
-+		interrupts = <0 66 0x4>;
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+	};
-+
-+	gpio2: gpio@2310000 {
-+		compatible = "fsl,ls1043a-gpio";
-+		reg = <0x0 0x2310000 0x0 0x10000>;
-+		interrupts = <0 67 0x4>;
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+	};
-+
-+	gpio3: gpio@2320000 {
-+		compatible = "fsl,ls1043a-gpio";
-+		reg = <0x0 0x2320000 0x0 0x10000>;
-+		interrupts = <0 68 0x4>;
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+	};
-+
-+	gpio4: gpio@2330000 {
-+		compatible = "fsl,ls1043a-gpio";
-+		reg = <0x0 0x2330000 0x0 0x10000>;
-+		interrupts = <0 134 0x4>;
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+	};
-+
-+	lpuart0: serial@2950000 {
-+		compatible = "fsl,ls1021a-lpuart";
-+		reg = <0x0 0x2950000 0x0 0x1000>;
-+		interrupts = <0 48 0x4>;
-+		clocks = <&clockgen 0 0>;
-+		clock-names = "ipg";
-+		status = "disabled";
-+	};
-+
-+	lpuart1: serial@2960000 {
-+		compatible = "fsl,ls1021a-lpuart";
-+		reg = <0x0 0x2960000 0x0 0x1000>;
-+		interrupts = <0 49 0x4>;
-+		clocks = <&clockgen 4 0>;
-+		clock-names = "ipg";
-+		status = "disabled";
-+	};
-+
-+	lpuart2: serial@2970000 {
-+		compatible = "fsl,ls1021a-lpuart";
-+		reg = <0x0 0x2970000 0x0 0x1000>;
-+		interrupts = <0 50 0x4>;
-+		clocks = <&clockgen 4 0>;
-+		clock-names = "ipg";
-+		status = "disabled";
-+	};
-+
-+	lpuart3: serial@2980000 {
-+		compatible = "fsl,ls1021a-lpuart";
-+		reg = <0x0 0x2980000 0x0 0x1000>;
-+		interrupts = <0 51 0x4>;
-+		clocks = <&clockgen 4 0>;
-+		clock-names = "ipg";
-+		status = "disabled";
-+	};
-+
-+	lpuart4: serial@2990000 {
-+		compatible = "fsl,ls1021a-lpuart";
-+		reg = <0x0 0x2990000 0x0 0x1000>;
-+		interrupts = <0 52 0x4>;
-+		clocks = <&clockgen 4 0>;
-+		clock-names = "ipg";
-+		status = "disabled";
-+	};
-+
-+	lpuart5: serial@29a0000 {
-+		compatible = "fsl,ls1021a-lpuart";
-+		reg = <0x0 0x29a0000 0x0 0x1000>;
-+		interrupts = <0 53 0x4>;
-+		clocks = <&clockgen 4 0>;
-+		clock-names = "ipg";
-+		status = "disabled";
-+	};
-+
-+	wdog0: wdog@2ad0000 {
-+		compatible = "fsl,ls1043a-wdt", "fsl,imx21-wdt";
-+		reg = <0x0 0x2ad0000 0x0 0x10000>;
-+		interrupts = <0 83 0x4>;
-+		clocks = <&clockgen 4 0>;
-+		clock-names = "wdog";
-+		big-endian;
-+	};
-+
-+	edma0: edma@2c00000 {
-+		#dma-cells = <2>;
-+		compatible = "fsl,vf610-edma";
-+		reg = <0x0 0x2c00000 0x0 0x10000>,
-+		      <0x0 0x2c10000 0x0 0x10000>,
-+		      <0x0 0x2c20000 0x0 0x10000>;
-+		interrupts = <0 103 0x4>,
-+			     <0 103 0x4>;
-+		interrupt-names = "edma-tx", "edma-err";
-+		dma-channels = <32>;
-+		big-endian;
-+		clock-names = "dmamux0", "dmamux1";
-+		clocks = <&clockgen 4 0>,
-+			 <&clockgen 4 0>;
-+	};
-+
-+	usb0: usb3@2f00000 {
-+		compatible = "snps,dwc3";
-+		reg = <0x0 0x2f00000 0x0 0x10000>;
-+		interrupts = <0 60 0x4>;
-+		dr_mode = "host";
-+	};
-+
-+	usb1: usb3@3000000 {
-+		compatible = "snps,dwc3";
-+		reg = <0x0 0x3000000 0x0 0x10000>;
-+		interrupts = <0 61 0x4>;
-+		dr_mode = "host";
-+	};
-+	usb2: usb3@3100000 {
-+		compatible = "snps,dwc3";
-+		reg = <0x0 0x3100000 0x0 0x10000>;
-+		interrupts = <0 63 0x4>;
-+		dr_mode = "host";
-+	};
-+
-+	pcie@3400000 {
-+		compatible = "fsl,ls1043a-pcie", "snps,dw-pcie";
-+		reg = <0x00 0x03400000 0x0 0x00100000   /* controller registers */
-+		       0x40 0x00000000 0x0 0x00002000>; /* configuration space */
-+		reg-names = "regs", "config";
-+		interrupts = <0 118 0x4>, /* controller interrupt */
-+			     <0 117 0x4>; /* PME interrupt */
-+		interrupt-names = "intr", "pme";
-+		#address-cells = <3>;
-+		#size-cells = <2>;
-+		device_type = "pci";
-+		num-lanes = <4>;
-+		bus-range = <0x0 0xff>;
-+		ranges = <0x81000000 0x0 0x00000000 0x40 0x00010000 0x0 0x00010000   /* downstream I/O */
-+			  0x82000000 0x0 0x40000000 0x40 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
-+		msi-parent = <&msi1>;
-+		#interrupt-cells = <1>;
-+		interrupt-map-mask = <0 0 0 7>;
-+		interrupt-map = <0000 0 0 1 &gic 0 110 0x4>,
-+				<0000 0 0 2 &gic 0 111 0x4>,
-+				<0000 0 0 3 &gic 0 112 0x4>,
-+				<0000 0 0 4 &gic 0 113 0x4>;
-+	};
-+
-+	pcie@3500000 {
-+		compatible = "fsl,ls1043a-pcie", "snps,dw-pcie";
-+		reg = <0x00 0x03500000 0x0 0x00100000   /* controller registers */
-+		       0x48 0x00000000 0x0 0x00002000>; /* configuration space */
-+		reg-names = "regs", "config";
-+		interrupts = <0 128 0x4>,
-+			     <0 127 0x4>;
-+		interrupt-names = "intr", "pme";
-+		#address-cells = <3>;
-+		#size-cells = <2>;
-+		device_type = "pci";
-+		num-lanes = <2>;
-+		bus-range = <0x0 0xff>;
-+		ranges = <0x81000000 0x0 0x00000000 0x48 0x00010000 0x0 0x00010000   /* downstream I/O */
-+			  0x82000000 0x0 0x40000000 0x48 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
-+		msi-parent = <&msi2>;
-+		#interrupt-cells = <1>;
-+		interrupt-map-mask = <0 0 0 7>;
-+		interrupt-map = <0000 0 0 1 &gic 0 120  0x4>,
-+				<0000 0 0 2 &gic 0 121 0x4>,
-+				<0000 0 0 3 &gic 0 122 0x4>,
-+				<0000 0 0 4 &gic 0 123 0x4>;
-+	};
-+
-+	pcie@3600000 {
-+		compatible = "fsl,ls1043a-pcie", "snps,dw-pcie";
-+		reg = <0x00 0x03600000 0x0 0x00100000   /* controller registers */
-+		       0x50 0x00000000 0x0 0x00002000>; /* configuration space */
-+		reg-names = "regs", "config";
-+		interrupts = <0 162 0x4>,
-+			     <0 161 0x4>;
-+		interrupt-names = "intr", "pme";
-+		#address-cells = <3>;
-+		#size-cells = <2>;
-+		device_type = "pci";
-+		num-lanes = <2>;
-+		bus-range = <0x0 0xff>;
-+		ranges = <0x81000000 0x0 0x00000000 0x50 0x00010000 0x0 0x00010000   /* downstream I/O */
-+			  0x82000000 0x0 0x40000000 0x50 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
-+		msi-parent = <&msi3>;
-+		#interrupt-cells = <1>;
-+		interrupt-map-mask = <0 0 0 7>;
-+		interrupt-map = <0000 0 0 1 &gic 0 154 0x4>,
-+				<0000 0 0 2 &gic 0 155 0x4>,
-+				<0000 0 0 3 &gic 0 156 0x4>,
-+				<0000 0 0 4 &gic 0 157 0x4>;
-+	};
-+
-+	memory@80000000 {
-+		device_type = "memory";
-+		reg = <0x0 0x80000000 0 0x80000000>;
-+		      /* DRAM space 1 - 2 GB DRAM */
-+	};
-+
-+};
--- 
-2.1.0.27.g96db324
+>  		.of_match_table =3D pca9685_dt_ids,
+
+Similarly to the above, this should use of_match_ptr(), which in turn
+will require #ifdef protection for the table to avoid warnings.
+
+Thierry
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCAAGBQJWAWeYAAoJEN0jrNd/PrOhzPIQALBB2kf/SyQhjNRGoaZgx3U8
+QdU4SnBH4oEcIGVPbtNaEPV/3+w+pXQT6g5KmRtxm1ed15T63TyMSyyxerRMiAKe
+BZuVIC8HsLIUvvluLkc+gO0RdweFJzntLrm9xSY3RztfDTq9D6pTvMwlWwdftssw
+hCTfZONlfasotzXN17LV80ogPAd81G7z5meZxZhoLcpdlya9iDbBZeeLzajltDbH
+SleOxd9vDFpfSGVTNKHReVKCakpDBlgghbjm1WX5VsqgLARmFT7th9QilBA5GXEx
+kpKmsH//ekm1IstmJbSvnaRFsGWjCEuVMQ23v3tov4PyNXvwXPJ4ymqT4rEE2bP1
+RulazUnaJzb8jgq+lGophegjhdyX6ZmWpRVaqQqi8UeZ3JPTCUHXFvLnDS5iUN84
+iQ86MF2L9fq1L6pi7aHZpidqe/oc+Wyz+m8QOgyZsb68Z63megS7wo09hDcB/iLR
+t1EXzkB9MC6u9wQVN/9ktpVh59A0LEwP55NcPRQAOq84ks+mMLJUVPdGMhw8hWEK
+bqXzFcJceXV8kzpi0KaYlpWFJl9hxOUiyu9bEAkjLpWbwkMcesFRnfq7ZKmKW+iG
+VMin9ldm4eW6PEZeUltnxoCLRd3Jtq18IMoAnbyZm5G/o7wDC5enDbCbdj8psLl6
+doDO3iQC1ERP7DjxCS+H
+=GTCk
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--
