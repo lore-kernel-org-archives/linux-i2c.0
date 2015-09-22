@@ -1,173 +1,100 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/8] i2c / ACPI: Rework I2C device scanning
-Date: Tue, 22 Sep 2015 13:10:12 +0300
-Message-ID: <1442916619-140607-2-git-send-email-andriy.shevchenko@linux.intel.com>
-References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH] i2c-ocores: support big-endian register layout
+Date: Tue, 22 Sep 2015 14:29:22 +0300
+Message-ID: <1442921362-1146-1-git-send-email-jcmvbkbc@gmail.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-la0-f54.google.com ([209.85.215.54]:35490 "EHLO
+	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754520AbbIVL3p (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Sep 2015 07:29:45 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-The way we currently scan I2C devices behind an I2C host controller does not
-work in cases where the I2C device in question is not declared directly below
-the host controller ACPI node.
-
-This is perfectly legal according the ACPI 6.0 specification and some existing
-systems are doing this.
-
-To be able to enumerate all devices which are connected to a certain I2C host
-controller we need to rework the current I2C scanning routine a bit. Instead of
-scanning directly below the host controller we scan the whole ACPI namespace
-for present devices with valid I2cSerialBus() connection pointing to the host
-controller in question.
-
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 ---
- drivers/i2c/i2c-core.c | 82 ++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 59 insertions(+), 23 deletions(-)
+ drivers/i2c/busses/i2c-ocores.c | 31 +++++++++++++++++++++++++++----
+ include/linux/i2c-ocores.h      |  1 +
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index a732107..24e516e 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -99,27 +99,40 @@ struct gsb_buffer {
- 	};
- } __packed;
- 
--static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
-+struct acpi_i2c_lookup {
-+	struct i2c_board_info *info;
-+	acpi_handle adapter_handle;
-+	acpi_handle device_handle;
-+};
-+
-+static int acpi_i2c_find_address(struct acpi_resource *ares, void *data)
- {
--	struct i2c_board_info *info = data;
-+	struct acpi_i2c_lookup *lookup = data;
-+	struct i2c_board_info *info = lookup->info;
-+	struct acpi_resource_i2c_serialbus *sb;
-+	acpi_handle adapter_handle;
-+	acpi_status status;
- 
--	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
--		struct acpi_resource_i2c_serialbus *sb;
-+	if (info->addr || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
-+		return 1;
- 
--		sb = &ares->data.i2c_serial_bus;
--		if (!info->addr && sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
--			info->addr = sb->slave_address;
--			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
--				info->flags |= I2C_CLIENT_TEN;
--		}
--	} else if (!info->irq) {
--		struct resource r;
-+	sb = &ares->data.i2c_serial_bus;
-+	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
-+		return 1;
- 
--		if (acpi_dev_resource_interrupt(ares, 0, &r))
--			info->irq = r.start;
-+	/*
-+	 * Extract the ResourceSource and make sure that the handle matches
-+	 * with the I2C adapter handle.
-+	 */
-+	status = acpi_get_handle(lookup->device_handle,
-+				 sb->resource_source.string_ptr,
-+				 &adapter_handle);
-+	if (ACPI_SUCCESS(status) && adapter_handle == lookup->adapter_handle) {
-+		info->addr = sb->slave_address;
-+		if (sb->access_mode == ACPI_I2C_10BIT_MODE)
-+			info->flags |= I2C_CLIENT_TEN;
- 	}
- 
--	/* Tell the ACPI core to skip this resource */
- 	return 1;
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index abf5db7..11b7b87 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -92,6 +92,16 @@ static void oc_setreg_32(struct ocores_i2c *i2c, int reg, u8 value)
+ 	iowrite32(value, i2c->base + (reg << i2c->reg_shift));
  }
  
-@@ -128,6 +141,8 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
++static void oc_setreg_16be(struct ocores_i2c *i2c, int reg, u8 value)
++{
++	iowrite16be(value, i2c->base + (reg << i2c->reg_shift));
++}
++
++static void oc_setreg_32be(struct ocores_i2c *i2c, int reg, u8 value)
++{
++	iowrite32be(value, i2c->base + (reg << i2c->reg_shift));
++}
++
+ static inline u8 oc_getreg_8(struct ocores_i2c *i2c, int reg)
  {
- 	struct i2c_adapter *adapter = data;
- 	struct list_head resource_list;
-+	struct acpi_i2c_lookup lookup;
-+	struct resource_entry *entry;
- 	struct i2c_board_info info;
- 	struct acpi_device *adev;
- 	int ret;
-@@ -140,14 +155,37 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 	memset(&info, 0, sizeof(info));
- 	info.fwnode = acpi_fwnode_handle(adev);
- 
-+	memset(&lookup, 0, sizeof(lookup));
-+	lookup.adapter_handle = ACPI_HANDLE(adapter->dev.parent);
-+	lookup.device_handle = handle;
-+	lookup.info = &info;
-+
-+	/*
-+	 * Look up for I2cSerialBus resource with ResourceSource that
-+	 * matches with this adapter.
-+	 */
- 	INIT_LIST_HEAD(&resource_list);
- 	ret = acpi_dev_get_resources(adev, &resource_list,
--				     acpi_i2c_add_resource, &info);
-+				     acpi_i2c_find_address, &lookup);
- 	acpi_dev_free_resource_list(&resource_list);
- 
- 	if (ret < 0 || !info.addr)
- 		return AE_OK;
- 
-+	/* Then fill IRQ number if any */
-+	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
-+	if (ret < 0)
-+		return AE_OK;
-+
-+	resource_list_for_each_entry(entry, &resource_list) {
-+		if (resource_type(entry->res) == IORESOURCE_IRQ) {
-+			info.irq = entry->res->start;
-+			break;
-+		}
-+	}
-+
-+	acpi_dev_free_resource_list(&resource_list);
-+
- 	adev->power.flags.ignore_parent = true;
- 	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
- 	if (!i2c_new_device(adapter, &info)) {
-@@ -160,6 +198,8 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 	return AE_OK;
+ 	return ioread8(i2c->base + (reg << i2c->reg_shift));
+@@ -107,6 +117,16 @@ static inline u8 oc_getreg_32(struct ocores_i2c *i2c, int reg)
+ 	return ioread32(i2c->base + (reg << i2c->reg_shift));
  }
  
-+#define ACPI_I2C_MAX_SCAN_DEPTH 32
++static inline u8 oc_getreg_16be(struct ocores_i2c *i2c, int reg)
++{
++	return ioread16be(i2c->base + (reg << i2c->reg_shift));
++}
 +
- /**
-  * acpi_i2c_register_devices - enumerate I2C slave devices behind adapter
-  * @adap: pointer to adapter
-@@ -170,17 +210,13 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
-  */
- static void acpi_i2c_register_devices(struct i2c_adapter *adap)
++static inline u8 oc_getreg_32be(struct ocores_i2c *i2c, int reg)
++{
++	return ioread32be(i2c->base + (reg << i2c->reg_shift));
++}
++
+ static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
  {
--	acpi_handle handle;
- 	acpi_status status;
+ 	i2c->setreg(i2c, reg, value);
+@@ -428,6 +448,9 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ 		i2c->reg_io_width = 1; /* Set to default value */
  
--	if (!adap->dev.parent)
--		return;
--
--	handle = ACPI_HANDLE(adap->dev.parent);
--	if (!handle)
-+	if (!adap->dev.parent || !has_acpi_companion(adap->dev.parent))
- 		return;
+ 	if (!i2c->setreg || !i2c->getreg) {
++		bool be = pdata ? pdata->big_endian :
++			of_device_is_big_endian(pdev->dev.of_node);
++
+ 		switch (i2c->reg_io_width) {
+ 		case 1:
+ 			i2c->setreg = oc_setreg_8;
+@@ -435,13 +458,13 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ 			break;
  
--	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
-+	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
-+				     ACPI_I2C_MAX_SCAN_DEPTH,
- 				     acpi_i2c_add_device, NULL,
- 				     adap, NULL);
- 	if (ACPI_FAILURE(status))
+ 		case 2:
+-			i2c->setreg = oc_setreg_16;
+-			i2c->getreg = oc_getreg_16;
++			i2c->setreg = be ? oc_setreg_16be : oc_setreg_16;
++			i2c->getreg = be ? oc_getreg_16be : oc_getreg_16;
+ 			break;
+ 
+ 		case 4:
+-			i2c->setreg = oc_setreg_32;
+-			i2c->getreg = oc_getreg_32;
++			i2c->setreg = be ? oc_setreg_32be : oc_setreg_32;
++			i2c->getreg = be ? oc_getreg_32be : oc_getreg_32;
+ 			break;
+ 
+ 		default:
+diff --git a/include/linux/i2c-ocores.h b/include/linux/i2c-ocores.h
+index 1c06b5c..01edd96 100644
+--- a/include/linux/i2c-ocores.h
++++ b/include/linux/i2c-ocores.h
+@@ -15,6 +15,7 @@ struct ocores_i2c_platform_data {
+ 	u32 reg_shift; /* register offset shift value */
+ 	u32 reg_io_width; /* register io read/write width */
+ 	u32 clock_khz; /* input clock in kHz */
++	bool big_endian; /* registers are big endian */
+ 	u8 num_devices; /* number of devices in the devices list */
+ 	struct i2c_board_info const *devices; /* devices connected to the bus */
+ };
 -- 
-2.5.1
+1.8.1.4
