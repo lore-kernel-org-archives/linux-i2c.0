@@ -1,57 +1,82 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 0/8] enable I2C devices behind I2C bus on Gen2
-Date: Tue, 22 Sep 2015 13:10:11 +0300
-Message-ID: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 7/8] at24: enable ACPI device found on Galileo Gen2
+Date: Tue, 22 Sep 2015 13:10:18 +0300
+Message-ID: <1442916619-140607-8-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-There is a board in the wild, i.e. Intel Galileo Gen2, that has ACPI enumerated
-devices behind I2C bus.
+There is a 24c08 chip connected to i2c bus on Intel Galileo Gen2 board. Enable
+it via ACPI ID INT3499.
 
-This patch series dedicated to enable those devices. Meanwhile it also changes
-I2C core to cope with ACPI 6.0 specification (patch 1/8).
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/misc/eeprom/at24.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-The MFD framework is also updated to cope with interesting implementation of
-the cell descriptions under ACPI MFD (patch 2/8).
-
-The patches 7 and 8 are pretty independent, though they don't make much sense
-without previous ones applied.
-
-Srinivas, it would be nice to see your tag (ideally Tested-by) to be sure we
-don't break ISH stuff.
-
-Since it touches multiple subsystems someone needs to create an immutable
-branch. I don't actually know whose subsystem better here. Lee, Wolfram?
-
-Apparently we would like to get ACKs / comments from the rest.
-
-Tested on the actual Intel Galileo Gen2 by Ismo (gpio expanders) and me (at24).
-
-Andy Shevchenko (7):
-  mfd: core: redo ACPI matching of the children devices
-  mfd: intel_quark_i2c_gpio: load gpio driver first
-  mfd: intel_quark_i2c_gpio: support devices behind i2c bus
-  gpio: pca953x: store driver_data for future use
-  gpio: pca953x: support ACPI devices found on Galileo Gen2
-  at24: enable ACPI device found on Galileo Gen2
-  pwm-pca9685: enable ACPI device found on Galileo Gen2
-
-Mika Westerberg (1):
-  i2c / ACPI: Rework I2C device scanning
-
- Documentation/acpi/enumeration.txt | 11 +++--
- drivers/gpio/gpio-pca953x.c        | 36 +++++++++++++----
- drivers/i2c/i2c-core.c             | 82 +++++++++++++++++++++++++++-----------
- drivers/mfd/intel_quark_i2c_gpio.c | 62 ++++++++++++++++++----------
- drivers/mfd/mfd-core.c             | 52 ++++++++++++++++--------
- drivers/misc/eeprom/at24.c         | 22 ++++++++--
- drivers/pwm/Kconfig                |  2 +-
- drivers/pwm/pwm-pca9685.c          | 14 +++++--
- include/linux/mfd/core.h           | 10 ++++-
- 9 files changed, 212 insertions(+), 79 deletions(-)
-
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index c6cb7f8..ed009a3 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -21,6 +21,7 @@
+ #include <linux/bitops.h>
+ #include <linux/jiffies.h>
+ #include <linux/of.h>
++#include <linux/acpi.h>
+ #include <linux/i2c.h>
+ #include <linux/platform_data/at24.h>
+ 
+@@ -131,6 +132,12 @@ static const struct i2c_device_id at24_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, at24_ids);
+ 
++static const struct acpi_device_id at24_acpi_ids[] = {
++	{ "INT3499", AT24_DEVICE_MAGIC(8192 / 8, 0) },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
++
+ /*-------------------------------------------------------------------------*/
+ 
+ /*
+@@ -473,15 +480,23 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct at24_data *at24;
+ 	int err;
+ 	unsigned i, num_addresses;
+-	kernel_ulong_t magic;
++	kernel_ulong_t magic = 0;
+ 
+ 	if (client->dev.platform_data) {
+ 		chip = *(struct at24_platform_data *)client->dev.platform_data;
+ 	} else {
+-		if (!id->driver_data)
++		if (id) {
++			magic = id->driver_data;
++		} else {
++			const struct acpi_device_id *id;
++
++			id = acpi_match_device(at24_acpi_ids, &client->dev);
++			if (id)
++				magic = id->driver_data;
++		}
++		if (!magic)
+ 			return -ENODEV;
+ 
+-		magic = id->driver_data;
+ 		chip.byte_len = BIT(magic & AT24_BITMASK(AT24_SIZE_BYTELEN));
+ 		magic >>= AT24_SIZE_BYTELEN;
+ 		chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
+@@ -661,6 +676,7 @@ static int at24_remove(struct i2c_client *client)
+ static struct i2c_driver at24_driver = {
+ 	.driver = {
+ 		.name = "at24",
++		.acpi_match_table = ACPI_PTR(at24_acpi_ids),
+ 	},
+ 	.probe = at24_probe,
+ 	.remove = at24_remove,
 -- 
 2.5.1
