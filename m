@@ -1,76 +1,89 @@
-From: Sharma Bhupesh <bhupesh.sharma@freescale.com>
-Subject: RE: [PATCH 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
-Date: Tue, 22 Sep 2015 19:04:56 +0000
-Message-ID: <BY1PR0301MB1303F9A6F3B00F91C7B18C0682450@BY1PR0301MB1303.namprd03.prod.outlook.com>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
+Date: Tue, 22 Sep 2015 23:15:04 +0100
+Message-ID: <20150922221504.GA1497@svinekod>
 References: <1442838158-2964-1-git-send-email-B48286@freescale.com>
  <1442838158-2964-5-git-send-email-B48286@freescale.com>
  <20150922012403.GA1535@svinekod>
  <CY1PR0301MB078008B10188504C951076498B450@CY1PR0301MB0780.namprd03.prod.outlook.com>
- <DM2PR0301MB07342356008C1A50AB26FEFFBA450@DM2PR0301MB0734.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-clk-owner@vger.kernel.org>
-In-Reply-To: <DM2PR0301MB07342356008C1A50AB26FEFFBA450@DM2PR0301MB0734.namprd03.prod.outlook.com>
-Content-Language: en-US
-Sender: linux-clk-owner@vger.kernel.org
-To: Li Leo <LeoLi@freescale.com>, Hou Zhiqiang <B48286@freescale.com>, Mark Rutland <mark.rutland@arm.com>, "marc.zyngier@arm.com" <marc.zyngier@arm.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Catalin Marinas <Catalin.Marinas@arm.com>, Will Deacon <Will.Deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, Shaohui Xie <Shaohui.Xie@freescale.com>, "corbet@lwn.net" <corbet@lwn.net>, "mturquette@baylibre.com" <mturquette@baylibre.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "sboyd@codeaurora.org" <sboyd@codeaurora.org>, "wim@iguana.be" <wim@iguana.be>, Wenbin Song <Wenbin.Song@freescale.com>, Scott Wood <scottwood@freescale.com>, Hu Vincent <Mingkai.Hu@freescale.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CY1PR0301MB078008B10188504C951076498B450-YrwGdl+PljnwWZenWrSUgZwN6zqB+hSMnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Marc Zyngier <Marc.Zyngier-5wv7dgnIgG8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Catalin Marinas <Catalin.Marinas-5wv7dgnIgG8@public.gmane.org>, Will Deacon <Will.Deacon-5wv7dgnIgG8@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "corbet-T1hC0tSOHrs@public.gmane.org" <corbet-T1hC0tSOHrs@public.gmane.org>, Sharma Bhupesh <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org" <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org" <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Wenbin Song <Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Hu Vincent <Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Leo <LeoLi-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-> -----Original Message-----
-> From: Li Yang-Leo-R58472
-> Sent: Tuesday, September 22, 2015 10:53 PM
-> To: Hou Zhiqiang-B48286; Mark Rutland; marc.zyngier@arm.com
-> Cc: linux-arm-kernel@lists.infradead.org; Catalin Marinas; Will Deacon;
-> linux-i2c@vger.kernel.org; linux-watchdog@vger.kernel.org; linux-
-> doc@vger.kernel.org; linux-clk@vger.kernel.org; Xie Shaohui-B21989;
-> corbet@lwn.net; Sharma Bhupesh-B45370; mturquette@baylibre.com; wsa@the-
-> dreams.de; sboyd@codeaurora.org; wim@iguana.be; Song Wenbin-B53747; Wood
-> Scott-B07421; Hu Mingkai-B21284
-> Subject: RE: [PATCH 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
-> 
-> > >
-> > > Hi,
-> > >
-> > > > +/memreserve/ 0x80000000 0x00010000;
-> > >
-> > > Why is this necessary?
+On Tue, Sep 22, 2015 at 10:50:21AM +0100, Hou Zhiqiang wrote:
+> Hi Mark,
+>=20
+> > -----Original Message-----
+> > From: Mark Rutland [mailto:mark.rutland-5wv7dgnIgG8@public.gmane.org]
+> > Sent: 2015=E5=B9=B49=E6=9C=8822=E6=97=A5 9:24
+> > To: Hou Zhiqiang-B48286; marc.zyngier-5wv7dgnIgG8@public.gmane.org
+> > Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; Catalin Marinas; Will Dea=
+con;
+> > linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+> > doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Xie Shaohui-B21989;
+> > corbet-T1hC0tSOHrs@public.gmane.org; Sharma Bhupesh-B45370; mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org; wsa=
+@the-
+> > dreams.de; sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org; wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org; Song Wenbin-B53747;=
+ Wood
+> > Scott-B07421; Hu Mingkai-B21284; Li Yang-Leo-R58472
+> > Subject: Re: [PATCH 4/6] arm64/ls1043a: add DTS for Freescale LS104=
+3A SoC
 > >
-> > This memory region is pre-reserved for the spin-table/psci, although
-> > didn't add Enable method of secondary cores.
-> 
-> Can this be reserved by bootloader?
-
-No need to reserve this for PSCI based secondary bootup.
-
+> > Hi,
 > >
-> > > If this is necessary, please add a comment stating what this is for.
-> > >
-> > > > +               cpu@3 {
-> > > > +                       device_type = "cpu";
-> > > > +                       compatible = "arm,cortex-a53";
-> > > > +                       reg = <0x0 0x3>;
-> > > > +                       clocks = <&clockgen 1 0>;
-> > > > +               };
-> > >
-> > > Missing enable-method properties on all the secondary CPUs.
-> > >
+> > > +/memreserve/ 0x80000000 0x00010000;
 > >
-> > There are two methods (spin-table and psci) to bring up secondary
-> > cores, which one do you think is better?
-> 
-> Do we have the PSCI support ready in both UEFI and u-boot?  If not, we
-> should use spin-table for now.
+> > Why is this necessary?
+>=20
+> This memory region is pre-reserved for the spin-table/psci, although =
+didn't add
+> Enable method of secondary cores.
 
-UEFI has been using PSCI with Arm Trusted Firmware (ATF) since some time. U-boot can also work with ATF seamlessly.
+Your PSCI implementation isn't in secure memory?
 
-Spin-table method is deprecated and newer patches should support PSCI. If not, all intelligence should be left to the
-Bootloader and the Linux DTS should not mention the 'enable-method' and the 'memreserve' regions. 
+> > > +       ifc: ifc@1530000 {
+> > > +               compatible =3D "fsl,ifc", "simple-bus";
+> > > +               reg =3D <0x0 0x1530000 0x0 0x10000>;
+> > > +               interrupts =3D <0 43 0x4>;
+> > > +       };
+> >
+> > Why simple-bus?
+>=20
+> There are 3 child node located in dtsi file that should be created an=
+d added
+> to platform device list.
 
-For details please see the LS2085A Freescale DTS already present in mainline kernel.
+Are they usable even if the kernel knew nothing about the IFC node? If =
+not, the
+IFC driver should probe them, and simple-bus should go.
 
-Regards,
-Bhupesh
+> > > +       memory@80000000 {
+> > > +               device_type =3D "memory";
+> > > +               reg =3D <0x0 0x80000000 0 0x80000000>;
+> > > +                     /* DRAM space 1 - 2 GB DRAM */
+> >
+> > I don't understand the comment. This describes 2GB at 2GB.
+> >
+>=20
+> Yes, there is a 2GB space for DRAM from address 2G.
+> The DRAM address 0x0 will be remapped to SoC address 2G, this remap i=
+s done by hardware.
+
+I just realised my mistake -- I read this as "1 to 2 GB", when this is =
+actually
+"DRAM space 1". Sorry for the noise.
+
+Thanks,
+Mark.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
