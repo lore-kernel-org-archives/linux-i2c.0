@@ -1,40 +1,70 @@
-From: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH 6/6] dts/ls1043a: add LS1043ARDB board support
-Date: Tue, 22 Sep 2015 09:51:57 +0000
-Message-ID: <CY1PR0301MB0780643BCCE3A5C6BAEA22218B450@CY1PR0301MB0780.namprd03.prod.outlook.com>
-References: <1442838158-2964-1-git-send-email-B48286@freescale.com>
-	 <1442838158-2964-7-git-send-email-B48286@freescale.com>
- <1442877225.19102.207.camel@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1442877225.19102.207.camel-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Content-Language: en-US
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "catalin.marinas-5wv7dgnIgG8@public.gmane.org" <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, "will.deacon-5wv7dgnIgG8@public.gmane.org" <will.deacon-5wv7dgnIgG8@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org" <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, "corbet-T1hC0tSOHrs@public.gmane.org" <corbet-T1hC0tSOHrs@public.gmane.org>, "mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org" <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, "sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Hu Vincent <Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wenbin Song <Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Sharma Bhupesh <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Leo <LeoLi-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 4/8] mfd: intel_quark_i2c_gpio: support devices behind i2c bus
+Date: Tue, 22 Sep 2015 13:10:15 +0300
+Message-ID: <1442916619-140607-5-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgU2NvdHQsDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogV29vZCBT
-Y290dC1CMDc0MjENCj4gU2VudDogMjAxNeW5tDnmnIgyMuaXpSA3OjE0DQo+IFRvOiBIb3UgWmhp
-cWlhbmctQjQ4Mjg2DQo+IENjOiBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7
-IGNhdGFsaW4ubWFyaW5hc0Bhcm0uY29tOw0KPiB3aWxsLmRlYWNvbkBhcm0uY29tOyBsaW51eC1p
-MmNAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4gd2F0Y2hkb2dAdmdlci5rZXJuZWwub3JnOyBs
-aW51eC1kb2NAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4gY2xrQHZnZXIua2VybmVsLm9yZzsg
-d3NhQHRoZS1kcmVhbXMuZGU7IHdpbUBpZ3VhbmEuYmU7IGNvcmJldEBsd24ubmV0Ow0KPiBtdHVy
-cXVldHRlQGJheWxpYnJlLmNvbTsgc2JveWRAY29kZWF1cm9yYS5vcmc7IEh1IE1pbmdrYWktQjIx
-Mjg0OyBYaWUNCj4gU2hhb2h1aS1CMjE5ODk7IFNvbmcgV2VuYmluLUI1Mzc0NzsgU2hhcm1hIEJo
-dXBlc2gtQjQ1MzcwOyBMaSBZYW5nLUxlby0NCj4gUjU4NDcyDQo+IFN1YmplY3Q6IFJlOiBbUEFU
-Q0ggNi82XSBkdHMvbHMxMDQzYTogYWRkIExTMTA0M0FSREIgYm9hcmQgc3VwcG9ydA0KPiANCj4g
-T24gTW9uLCAyMDE1LTA5LTIxIGF0IDIwOjIyICswODAwLCBaaGlxaWFuZyBIb3Ugd3JvdGU6DQo+
-IA0KPiA+ICsgICAgICAgICAgICAgY3BsZDogYm9hcmQtY29udHJvbEAyLDAgew0KPiA+ICsgICAg
-ICAgICAgICAgICAgICAgICBjb21wYXRpYmxlID0gImZzbCxsczEwNDNhcmRiLWNwbGQiLCAic2lt
-cGxlLWJ1cyI7DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgIHJlZyA9IDwweDIgMHgwIDB4MDAw
-MDEwMD47DQo+ID4gKyAgICAgICAgICAgICB9Ow0KPiANCj4gQWdhaW4sIHdoeSAic2ltcGxlLWJ1
-cyI/DQoNClRoYW5rcyBhbmQgd2lsbCByZW1vdmUgaXQgaW4gdjIuDQoNClRoYW5rcywNClpoaXFp
-YW5nDQo=
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Intel Galileo Gen2 the GPIO expanders are connected to the i2c bus. For
+those devices the ACPI table has specific parameters that refer to an actual
+i2c host controller. Since MFD now copes with that specific configuration we
+have to provide a necessary information how to distinguish devices in ACPI
+namespace. Here the _ADR values are provided.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/mfd/intel_quark_i2c_gpio.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/drivers/mfd/intel_quark_i2c_gpio.c b/drivers/mfd/intel_quark_i2c_gpio.c
+index 89bd4bf..e9fd33b 100644
+--- a/drivers/mfd/intel_quark_i2c_gpio.c
++++ b/drivers/mfd/intel_quark_i2c_gpio.c
+@@ -31,6 +31,10 @@
+ #define MFD_I2C_BAR		0
+ #define MFD_GPIO_BAR		1
+ 
++/* ACPI _ADR value to match the child node */
++#define MFD_ACPI_MATCH_GPIO	0ULL
++#define MFD_ACPI_MATCH_I2C	1ULL
++
+ /* The base GPIO number under GPIOLIB framework */
+ #define INTEL_QUARK_MFD_GPIO_BASE	8
+ 
+@@ -82,9 +86,14 @@ static struct resource intel_quark_i2c_res[] = {
+ 	},
+ };
+ 
++static struct mfd_cell_acpi_match intel_quark_acpi_match_i2c = {
++	.adr = MFD_ACPI_MATCH_I2C,
++};
++
+ static struct mfd_cell intel_quark_mfd_i2c_cell = {
+ 	.id = MFD_I2C_BAR,
+ 	.name = "i2c_designware",
++	.acpi_match = &intel_quark_acpi_match_i2c,
+ 	.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
+ 	.resources = intel_quark_i2c_res,
+ 	.ignore_resource_conflicts = true,
+@@ -96,9 +105,14 @@ static struct resource intel_quark_gpio_res[] = {
+ 	},
+ };
+ 
++static struct mfd_cell_acpi_match intel_quark_acpi_match_gpio = {
++	.adr = MFD_ACPI_MATCH_GPIO,
++};
++
+ static struct mfd_cell intel_quark_mfd_gpio_cell = {
+ 	.id = MFD_GPIO_BAR,
+ 	.name = "gpio-dwapb",
++	.acpi_match = &intel_quark_acpi_match_gpio,
+ 	.num_resources = ARRAY_SIZE(intel_quark_gpio_res),
+ 	.resources = intel_quark_gpio_res,
+ 	.ignore_resource_conflicts = true,
+-- 
+2.5.1
