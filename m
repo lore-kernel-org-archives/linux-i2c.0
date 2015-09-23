@@ -1,107 +1,181 @@
-From: Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH v2] i2c-ocores: support big-endian register layout
-Date: Wed, 23 Sep 2015 09:35:03 +0300
-Message-ID: <1442990103-13456-1-git-send-email-jcmvbkbc@gmail.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-la0-f47.google.com ([209.85.215.47]:34389 "EHLO
-	mail-la0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751823AbbIWGfa (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Sep 2015 02:35:30 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 3/8] mfd: intel_quark_i2c_gpio: load gpio driver first
+Date: Wed, 23 Sep 2015 10:53:42 +0300
+Message-ID: <1442994822.8361.145.camel@linux.intel.com>
+References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	 <1442916619-140607-4-git-send-email-andriy.shevchenko@linux.intel.com>
+	 <20150922222340.GC9317@x1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20150922222340.GC9317@x1>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
 
-This allows using OpenCores I2C controller attached to its host in
-native-endian mode with bi-endian CPUs. Example of such system is Xtensa
-XTFPGA platform.
+On Tue, 2015-09-22 at 23:23 +0100, Lee Jones wrote:
+> On Tue, 22 Sep 2015, Andy Shevchenko wrote:
+> 
+> > On Intel Galileo boards the GPIO expander is connected to i2c bus. 
+> > Moreover it
+> > is able to generate interrupt, but interrupt line is connected to 
+> > GPIO. That's
+> > why we have to have GPIO driver in place when we will probe i2c 
+> > host with
+> > device connected to it.
+> > 
+> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > ---
+> >  drivers/mfd/intel_quark_i2c_gpio.c | 48 +++++++++++++++++++++-----
+> > ------------
+> >  1 file changed, 27 insertions(+), 21 deletions(-)
+> 
+> --- a/drivers/mfd/intel_quark_i2c_gpio.c
+> +++ b/drivers/mfd/intel_quark_i2c_gpio.c
+> @@ -28,8 +28,8 @@
+>  #include <linux/platform_data/i2c-designware.h>
+>  
+>  /* PCI BAR for register base address */
+> -#define MFD_I2C_BAR            0
+> -#define MFD_GPIO_BAR           1
+> +#define MFD_GPIO_BAR           0
+> +#define MFD_I2C_BAR            1
+>  
+>  /* The base GPIO number under GPIOLIB framework */
+>  #define INTEL_QUARK_MFD_GPIO_BASE      8
+> 
+> ?
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
----
-Changes v1->v2:
-- expand changelog with motivation for the change.
+No, PCI bars are left without changes, but _ADR values are different.
+Otherwise it will not work.
 
- drivers/i2c/busses/i2c-ocores.c | 31 +++++++++++++++++++++++++++----
- include/linux/i2c-ocores.h      |  1 +
- 2 files changed, 28 insertions(+), 4 deletions(-)
+Here is the excerpt from DSDT
+    Device (GIP0)
+    {   
+        Name (_ADR, 0x00150002)  // _ADR: Address
+        Name (_STA, 0x0F)  // _STA: Status
+        Name (_PRW, Package (0x02)  // _PRW: Power Resources for Wake
+          {   
+              0x0F, 
+              0x03
+          })
+        Device (GPO)
+        {   
+          Name (_ADR, Zero)  // _ADR: Address
+          Name (_STA, 0x0F)  // _STA: Status
+          Name (_PRW, Package (0x02)  // _PRW: Power Resources for Wake
+            {   
+                0x0F, 
+                0x03
+            })
+        }
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index abf5db7..11b7b87 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -92,6 +92,16 @@ static void oc_setreg_32(struct ocores_i2c *i2c, int reg, u8 value)
- 	iowrite32(value, i2c->base + (reg << i2c->reg_shift));
- }
- 
-+static void oc_setreg_16be(struct ocores_i2c *i2c, int reg, u8 value)
-+{
-+	iowrite16be(value, i2c->base + (reg << i2c->reg_shift));
-+}
-+
-+static void oc_setreg_32be(struct ocores_i2c *i2c, int reg, u8 value)
-+{
-+	iowrite32be(value, i2c->base + (reg << i2c->reg_shift));
-+}
-+
- static inline u8 oc_getreg_8(struct ocores_i2c *i2c, int reg)
- {
- 	return ioread8(i2c->base + (reg << i2c->reg_shift));
-@@ -107,6 +117,16 @@ static inline u8 oc_getreg_32(struct ocores_i2c *i2c, int reg)
- 	return ioread32(i2c->base + (reg << i2c->reg_shift));
- }
- 
-+static inline u8 oc_getreg_16be(struct ocores_i2c *i2c, int reg)
-+{
-+	return ioread16be(i2c->base + (reg << i2c->reg_shift));
-+}
-+
-+static inline u8 oc_getreg_32be(struct ocores_i2c *i2c, int reg)
-+{
-+	return ioread32be(i2c->base + (reg << i2c->reg_shift));
-+}
-+
- static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
- {
- 	i2c->setreg(i2c, reg, value);
-@@ -428,6 +448,9 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 		i2c->reg_io_width = 1; /* Set to default value */
- 
- 	if (!i2c->setreg || !i2c->getreg) {
-+		bool be = pdata ? pdata->big_endian :
-+			of_device_is_big_endian(pdev->dev.of_node);
-+
- 		switch (i2c->reg_io_width) {
- 		case 1:
- 			i2c->setreg = oc_setreg_8;
-@@ -435,13 +458,13 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 			break;
- 
- 		case 2:
--			i2c->setreg = oc_setreg_16;
--			i2c->getreg = oc_getreg_16;
-+			i2c->setreg = be ? oc_setreg_16be : oc_setreg_16;
-+			i2c->getreg = be ? oc_getreg_16be : oc_getreg_16;
- 			break;
- 
- 		case 4:
--			i2c->setreg = oc_setreg_32;
--			i2c->getreg = oc_getreg_32;
-+			i2c->setreg = be ? oc_setreg_32be : oc_setreg_32;
-+			i2c->getreg = be ? oc_getreg_32be : oc_getreg_32;
- 			break;
- 
- 		default:
-diff --git a/include/linux/i2c-ocores.h b/include/linux/i2c-ocores.h
-index 1c06b5c..01edd96 100644
---- a/include/linux/i2c-ocores.h
-+++ b/include/linux/i2c-ocores.h
-@@ -15,6 +15,7 @@ struct ocores_i2c_platform_data {
- 	u32 reg_shift; /* register offset shift value */
- 	u32 reg_io_width; /* register io read/write width */
- 	u32 clock_khz; /* input clock in kHz */
-+	bool big_endian; /* registers are big endian */
- 	u8 num_devices; /* number of devices in the devices list */
- 	struct i2c_board_info const *devices; /* devices connected to the bus */
- };
+        Device (I2C)
+        {   
+          Name (_ADR, One)  // _ADR: Address
+          Name (_STA, 0x0F)  // _STA: Status
+          Name (_PRW, Package (0x02)  // _PRW: Power Resources for Wake
+            {   
+                0x0F, 
+                0x03
+            })
+        }
+    }
+
+> 
+> > diff --git a/drivers/mfd/intel_quark_i2c_gpio.c 
+> > b/drivers/mfd/intel_quark_i2c_gpio.c
+> > index 1ce1603..89bd4bf 100644
+> > --- a/drivers/mfd/intel_quark_i2c_gpio.c
+> > +++ b/drivers/mfd/intel_quark_i2c_gpio.c
+> > @@ -82,27 +82,26 @@ static struct resource intel_quark_i2c_res[] = 
+> > {
+> >  	},
+> >  };
+> >  
+> > +static struct mfd_cell intel_quark_mfd_i2c_cell = {
+> > +	.id = MFD_I2C_BAR,
+> > +	.name = "i2c_designware",
+> > +	.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
+> > +	.resources = intel_quark_i2c_res,
+> > +	.ignore_resource_conflicts = true,
+> > +};
+> > +
+> >  static struct resource intel_quark_gpio_res[] = {
+> >  	[INTEL_QUARK_IORES_MEM] = {
+> >  		.flags = IORESOURCE_MEM,
+> >  	},
+> >  };
+> >  
+> > -static struct mfd_cell intel_quark_mfd_cells[] = {
+> > -	{
+> > -		.id = MFD_I2C_BAR,
+> > -		.name = "i2c_designware",
+> > -		.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
+> > -		.resources = intel_quark_i2c_res,
+> > -		.ignore_resource_conflicts = true,
+> > -	},
+> > -	{
+> > -		.id = MFD_GPIO_BAR,
+> > -		.name = "gpio-dwapb",
+> > -		.num_resources = ARRAY_SIZE(intel_quark_gpio_res),
+> > -		.resources = intel_quark_gpio_res,
+> > -		.ignore_resource_conflicts = true,
+> > -	},
+> > +static struct mfd_cell intel_quark_mfd_gpio_cell = {
+> > +	.id = MFD_GPIO_BAR,
+> > +	.name = "gpio-dwapb",
+> > +	.num_resources = ARRAY_SIZE(intel_quark_gpio_res),
+> > +	.resources = intel_quark_gpio_res,
+> > +	.ignore_resource_conflicts = true,
+> >  };
+> >  
+> >  static const struct pci_device_id intel_quark_mfd_ids[] = {
+> > @@ -248,18 +247,25 @@ static int intel_quark_mfd_probe(struct 
+> > pci_dev *pdev,
+> >  
+> >  	dev_set_drvdata(&pdev->dev, quark_mfd);
+> >  
+> > -	ret = intel_quark_i2c_setup(pdev, 
+> > &intel_quark_mfd_cells[MFD_I2C_BAR]);
+> > +	ret = intel_quark_i2c_setup(pdev, 
+> > &intel_quark_mfd_i2c_cell);
+> >  	if (ret)
+> >  		return ret;
+> >  
+> > -	ret = intel_quark_gpio_setup(pdev,
+> > -				    
+> >  &intel_quark_mfd_cells[MFD_GPIO_BAR]);
+> > +	ret = intel_quark_gpio_setup(pdev, 
+> > &intel_quark_mfd_gpio_cell);
+> >  	if (ret)
+> >  		return ret;
+> >  
+> > -	return mfd_add_devices(&pdev->dev, 0, 
+> > intel_quark_mfd_cells,
+> > -			       ARRAY_SIZE(intel_quark_mfd_cells), 
+> > NULL, 0,
+> > -			       NULL);
+> > +	ret = mfd_add_devices(&pdev->dev, 0, 
+> > &intel_quark_mfd_gpio_cell, 1,
+> > +			      NULL, 0, NULL);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	ret = mfd_add_devices(&pdev->dev, 0, 
+> > &intel_quark_mfd_i2c_cell, 1,
+> > +			      NULL, 0, NULL);
+> > +	if (ret)
+> > +		mfd_remove_devices(&pdev->dev);
+> > +
+> > +	return ret;
+> >  }
+> >  
+> >  static void intel_quark_mfd_remove(struct pci_dev *pdev)
+> 
+
 -- 
-1.8.1.4
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
