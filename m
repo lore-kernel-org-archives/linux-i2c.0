@@ -1,53 +1,48 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 8/8] pwm-pca9685: enable ACPI device found on Galileo
- Gen2
-Date: Wed, 23 Sep 2015 15:56:52 +0300
-Message-ID: <1443013012.8361.172.camel@linux.intel.com>
-References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <1442916619-140607-9-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <20150922143714.GA9235@ulmo.nvidia.com>
-	 <1442997686.8361.161.camel@linux.intel.com>
-	 <20150923124800.GA11187@ulmo.nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20150923124800.GA11187@ulmo.nvidia.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: [PATCH] i2c-core: allow either old or of_matching of devices
+Date: Wed, 23 Sep 2015 15:41:15 +0100
+Message-ID: <1443019275-12753-1-git-send-email-ben.dooks@codethink.co.uk>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ducie-dc1.codethink.co.uk ([185.25.241.215]:44356 "EHLO
+	ducie-dc1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754978AbbIWOlW (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Sep 2015 10:41:22 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org, wsa@the-dreams.de
+Cc: linux-kernel@lists.codethink.co.uk, Ben Dooks <ben.dooks@codethink.co.uk>
 
-On Wed, 2015-09-23 at 14:48 +0200, Thierry Reding wrote:
-> > > > 
+If an i2c-driver does not have an Linux specific id_table, but does
+have an of_match_table available then allow that to be probed by
+the i2c core code.
 
-> On Wed, Sep 23, 2015 at 11:41:26AM +0300, Andy Shevchenko wrote:
-> > On Tue, 2015-09-22 at 16:37 +0200, Thierry Reding wrote:
-> > > On Tue, Sep 22, 2015 at 01:10:19PM +0300, Andy Shevchenko wrote:
-> > 
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+---
+ drivers/i2c/i2c-core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-> > > 
-> > > >  		.of_match_table = pca9685_dt_ids,
-> > > 
-> > > Similarly to the above, this should use of_match_ptr(), which in 
-> > > turn
-> > > will require #ifdef protection for the table to avoid warnings.
-> > 
-> > Hmm... my patch do not touches that part. Perhaps another patch for
-> > this?
-> 
-> Your patch does touch that part by removing the dependency on OF. 
-> That
-> makes it possible to build this code with !OF, which in turn would 
-> make
-> the OF match table unused.
-
-Ah, you're right. Will amend this part as well.
-Thanks!
-
-> 
-> Thierry
-
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 5f89f1e..073c130 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -455,6 +455,9 @@ static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
+ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+ 						const struct i2c_client *client)
+ {
++	if (!id)
++		return NULL;
++
+ 	while (id->name[0]) {
+ 		if (strcmp(client->name, id->name) == 0)
+ 			return id;
+@@ -662,7 +665,7 @@ static int i2c_device_probe(struct device *dev)
+ 	}
+ 
+ 	driver = to_i2c_driver(dev->driver);
+-	if (!driver->probe || !driver->id_table)
++	if (!driver->probe || !(driver->id_table || dev->driver->of_match_table))
+ 		return -ENODEV;
+ 
+ 	if (client->flags & I2C_CLIENT_WAKE) {
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.5.1
