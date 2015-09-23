@@ -1,199 +1,130 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 2/8] mfd: core: redo ACPI matching of the children
- devices
-Date: Wed, 23 Sep 2015 14:06:59 +0300
-Message-ID: <1443006419.8361.169.camel@linux.intel.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v1 8/8] pwm-pca9685: enable ACPI device found on Galileo
+ Gen2
+Date: Wed, 23 Sep 2015 14:48:00 +0200
+Message-ID: <20150923124800.GA11187@ulmo.nvidia.com>
 References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <1442916619-140607-3-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <20150922221515.GB9317@x1>
+ <1442916619-140607-9-git-send-email-andriy.shevchenko@linux.intel.com>
+ <20150922143714.GA9235@ulmo.nvidia.com>
+ <1442997686.8361.161.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20150922221515.GB9317@x1>
+Content-Disposition: inline
+In-Reply-To: <1442997686.8361.161.camel@linux.intel.com>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2015-09-22 at 23:15 +0100, Lee Jones wrote:
-> On Tue, 22 Sep 2015, Andy Shevchenko wrote:
-> 
-> > There is at least one board on the market, i.e. Intel Galileo Gen2, 
-> > that uses
-> > _ADR to distinguish the devices under one actual device. Due to 
-> > this we have to
-> > improve the quirk in the MFD core to handle that board.
-> 
-> This will require an ACPI Ack.
 
-Rafael is Cc'ed, so, I hope he will comment on this.
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > ---
-> >  Documentation/acpi/enumeration.txt | 11 +++++---
-> >  drivers/mfd/mfd-core.c             | 52 ++++++++++++++++++++++++++
-> > ------------
-> >  include/linux/mfd/core.h           | 10 ++++++--
-> >  3 files changed, 52 insertions(+), 21 deletions(-)
-> > 
-> > diff --git a/Documentation/acpi/enumeration.txt 
-> > b/Documentation/acpi/enumeration.txt
-> > index b731b29..a91ec5a 100644
-> > --- a/Documentation/acpi/enumeration.txt
-> > +++ b/Documentation/acpi/enumeration.txt
-> > @@ -347,13 +347,18 @@ For the first case, the MFD drivers do not 
-> > need to do anything. The
-> >  resulting child platform device will have its ACPI_COMPANION() set 
-> > to point
-> >  to the parent device.
-> >  
-> > -If the ACPI namespace has a device that we can match using an ACPI 
-> > id,
-> > -the id should be set like:
-> > +If the ACPI namespace has a device that we can match using an ACPI 
-> > id or ACPI
-> > +adr, the cell should be set like:
-> > +
-> > +	static struct mfd_cell_acpi_match 
-> > my_subdevice_cell_acpi_match = {
-> > +		.pnpid = "XYZ0001",
-> > +		.adr = 0,
-> > +	};
-> >  
-> >  	static struct mfd_cell my_subdevice_cell = {
-> >  		.name = "my_subdevice",
-> >  		/* set the resources relative to the parent */
-> > -		.acpi_pnpid = "XYZ0001",
-> > +		.acpi_match = &my_subdevice_cell_acpi_match,
-> >  	};
-> >  
-> >  The ACPI id "XYZ0001" is then used to lookup an ACPI device 
-> > directly under
-> > diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-> > index c17635d..60b60dc 100644
-> > --- a/drivers/mfd/mfd-core.c
-> > +++ b/drivers/mfd/mfd-core.c
-> > @@ -82,29 +82,49 @@ static int mfd_platform_add_cell(struct 
-> > platform_device *pdev,
-> >  static void mfd_acpi_add_device(const struct mfd_cell *cell,
-> >  				struct platform_device *pdev)
-> >  {
-> > -	struct acpi_device *parent_adev;
-> > +	const struct mfd_cell_acpi_match *match = cell
-> > ->acpi_match;
-> > +	struct acpi_device *parent, *child;
-> >  	struct acpi_device *adev;
-> >  
-> > -	parent_adev = ACPI_COMPANION(pdev->dev.parent);
-> > -	if (!parent_adev)
-> > +	parent = ACPI_COMPANION(pdev->dev.parent);
-> > +	if (!parent)
-> >  		return;
-> >  
-> >  	/*
-> > -	 * MFD child device gets its ACPI handle either from the 
-> > ACPI
-> > -	 * device directly under the parent that matches the 
-> > acpi_pnpid or
-> > -	 * it will use the parent handle if is no acpi_pnpid is 
-> > given.
-> > +	 * MFD child device gets its ACPI handle either from the 
-> > ACPI device
-> > +	 * directly under the parent that matches the either _HID 
-> > or _CID, or
-> > +	 * _ADR or it will use the parent handle if is no ID is 
-> > given.
-> > +	 *
-> > +	 * Note that use of _ADR is a grey area in the ACPI 
-> > specification,
-> > +	 * though Intel Galileo Gen2 is using it to distinguish 
-> > the children
-> > +	 * devices.
-> >  	 */
-> > -	adev = parent_adev;
-> > -	if (cell->acpi_pnpid) {
-> > -		struct acpi_device_id ids[2] = {};
-> > -		struct acpi_device *child_adev;
-> > -
-> > -		strlcpy(ids[0].id, cell->acpi_pnpid, 
-> > sizeof(ids[0].id));
-> > -		list_for_each_entry(child_adev, &parent_adev
-> > ->children, node)
-> > -			if (acpi_match_device_ids(child_adev, 
-> > ids)) {
-> > -				adev = child_adev;
-> > -				break;
-> > +	adev = parent;
-> > +	if (match) {
-> > +		if (match->pnpid) {
-> > +			struct acpi_device_id ids[2] = {};
-> > +
-> > +			strlcpy(ids[0].id, match->pnpid, 
-> > sizeof(ids[0].id));
-> > +			list_for_each_entry(child, &parent
-> > ->children, node) {
-> > +				if (acpi_match_device_ids(child, 
-> > ids)) {
-> > +					adev = child;
-> > +					break;
-> > +				}
-> > +			}
-> > +		} else {
-> > +			unsigned long long adr;
-> > +			acpi_status status;
-> > +
-> > +			list_for_each_entry(child, &parent
-> > ->children, node) {
-> > +				status = 
-> > acpi_evaluate_integer(child->handle,
-> > +							      
-> >  "_ADR", NULL,
-> > +							      
-> >  &adr);
-> > +				if (ACPI_SUCCESS(status) && match
-> > ->adr == adr) {
-> > +					adev = child;
-> > +					break;
-> > +				}
-> >  			}
-> > +		}
-> >  	}
-> >  
-> >  	ACPI_COMPANION_SET(&pdev->dev, adev);
-> > diff --git a/include/linux/mfd/core.h b/include/linux/mfd/core.h
-> > index a76bc10..27dac3f 100644
-> > --- a/include/linux/mfd/core.h
-> > +++ b/include/linux/mfd/core.h
-> > @@ -18,6 +18,12 @@
-> >  
-> >  struct irq_domain;
-> >  
-> > +/* Matches ACPI PNP id, either _HID or _CID, or ACPI _ADR */
-> > +struct mfd_cell_acpi_match {
-> > +	const char			*pnpid;
-> > +	const unsigned long long	adr;
-> > +};
-> > +
-> >  /*
-> >   * This struct describes the MFD part ("cell").
-> >   * After registration the copy of this structure will become the 
-> > platform data
-> > @@ -44,8 +50,8 @@ struct mfd_cell {
-> >  	 */
-> >  	const char		*of_compatible;
-> >  
-> > -	/* Matches ACPI PNP id, either _HID or _CID */
-> > -	const char		*acpi_pnpid;
-> > +	/* Matches ACPI */
-> > +	const struct mfd_cell_acpi_match	*acpi_match;
-> >  
-> >  	/*
-> >  	 * These resources can be specified relative to the parent 
-> > device.
-> 
+On Wed, Sep 23, 2015 at 11:41:26AM +0300, Andy Shevchenko wrote:
+> On Tue, 2015-09-22 at 16:37 +0200, Thierry Reding wrote:
+> > On Tue, Sep 22, 2015 at 01:10:19PM +0300, Andy Shevchenko wrote:
+>=20
+> > > --- a/drivers/pwm/pwm-pca9685.c
+> > > +++ b/drivers/pwm/pwm-pca9685.c
+> > > @@ -26,6 +26,8 @@
+> > >  #include <linux/regmap.h>
+> > >  #include <linux/slab.h>
+> > >  #include <linux/delay.h>
+> > > +#include <linux/acpi.h>
+> > > +#include <linux/property.h>
+> >=20
+> > These should be kept sorted. I know that delay.h isn't properly=20
+> > ordered
+> > either, I missed that during patch review. Please keep new ones=20
+> > ordered
+> > alphabetically and I'll sort out the delay.h via a separate patch.
+>=20
+> Will do in next version.
+>=20
+> > @@ -363,6 +364,12 @@ static const struct i2c_device_id pca9685_id[]
+> > > =3D {
+> > >  };
+> > >  MODULE_DEVICE_TABLE(i2c, pca9685_id);
+> > > =20
+> > > +static const struct acpi_device_id pca9685_acpi_ids[] =3D {
+> > > +	{ "INT3492", 0 },
+> > > +	{ /* sentinel */ },
+> > > +};
+> > > +MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
+> > > +
+> > >  static const struct of_device_id pca9685_dt_ids[] =3D {
+> > >  	{ .compatible =3D "nxp,pca9685-pwm", },
+> > >  	{ /* sentinel */ }
+> > > @@ -372,6 +379,7 @@ MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
+> > >  static struct i2c_driver pca9685_i2c_driver =3D {
+> > >  	.driver =3D {
+> > >  		.name =3D "pca9685-pwm",
+> > > +		.acpi_match_table =3D ACPI_PTR(pca9685_acpi_ids),
+> >=20
+> > I think you now need #ifdef protection for the ACPI ID table,=20
+> > otherwise
+> > the compiler will warn that the table is unused for !ACPI.
+>=20
+> No, there is no warning, just checked a build with CONFIG_ACPI=3Dn.
+>=20
+> Tried even with C=3D1 W=3D2, and driver compiled in and a module.
+> In all variants no warning regarding the topic is issued.
+>=20
+> $ gcc --version
+> gcc (Debian 5.2.1-17) 5.2.1 20150911
+>=20
+> Perhaps this would explain what is happening there.
+> https://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D28901
+>=20
+> So, I will add #ifdef in the code as well, though I'm not a big fan of
+> conditional compilation.
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+I'm pretty sure I've seen warnings for this with 5.2.0, but I'll put
+this in my tree to check. Irrespective I think it should have the #ifdef
+protection because I'm very certain that the warning is there with some
+versions of GCC that people might still be using. And I don't much like
+conditional compilation either, but anything producing a warning will
+cause someone to write a patch to fix it, so I just want to be proactive
+in avoiding that kind of churn.
+
+> >=20
+> > >  		.of_match_table =3D pca9685_dt_ids,
+> >=20
+> > Similarly to the above, this should use of_match_ptr(), which in turn
+> > will require #ifdef protection for the table to avoid warnings.
+>=20
+> Hmm... my patch do not touches that part. Perhaps another patch for
+> this?
+
+Your patch does touch that part by removing the dependency on OF. That
+makes it possible to build this code with !OF, which in turn would make
+the OF match table unused.
+
+Thierry
+
+--tKW2IUtsqtDRztdT
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCAAGBQJWAp99AAoJEN0jrNd/PrOh6VgP/jrzM2VpT/mydiQedQVuj9ln
+4O4BUkTqxDEgclLfNnk2m4vLEnUGFtMgiSS4cgnctB33Ln7jDFarP6rcdq4LI9ou
+z0pKst5FslXVl1YuCqtYptNKiiVf4eopA+fwCZdKTY/OfL9mNcRei6C6HV5sKkU8
+a+z40Yd6t6GWzKS5AF7bGK3JeOG3YaqsAxCypfPykV24S+81p9DE8iRlrPKtB5Q2
++EWGIEFt9JDIHrrYyYmyty/qMtdCGU4Y2jJr7jOeP4FHEkOCi3Gma0zcvLQOv6aQ
+IJpk7FPCjH29hWhFqqHfR/FzYrNMwDt/Cy3DUzoNQFm8rDdTTpbepSTKdw88tipH
+131KnM5EwDGyE1jmeZbT/obc8oYPgjZDeZbCVHQISmtsN36BKQn3Ek2Gxd9rHoSb
+wCWuxdhfikqUXIZivwKoWDYUIt2kD/37btTpEZocM9UTJ3xDe+BCcmqBcmxW5CnU
+kem4uPiUOSvvfx5boBr8ZfthJCoXZ18bPJ7qsw3c6OW+zek8lZ+VkgMe4DTsIoCN
+o6f9Y9AKH4Y4T20vaDLVrVyDBSZBGicJU4gA4mqVACQmYBNzgtJuW9nChpdIpax+
+OvptRjHKFCaHLZLHOhC95jLjVI++G8XBdnAfqImUG0j+JJzEdGMZaujb8KVQ0sps
+bQIfuTn9qEF/Nfst58k4
+=RAQs
+-----END PGP SIGNATURE-----
+
+--tKW2IUtsqtDRztdT--
