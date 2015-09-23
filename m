@@ -1,88 +1,78 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 8/8] pwm-pca9685: enable ACPI device found on Galileo
- Gen2
-Date: Wed, 23 Sep 2015 11:41:26 +0300
-Message-ID: <1442997686.8361.161.camel@linux.intel.com>
-References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <1442916619-140607-9-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <20150922143714.GA9235@ulmo.nvidia.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/1] i2c: added FUNC flag for unsupported clock
+ stretching
+Date: Wed, 23 Sep 2015 11:04:28 +0200
+Message-ID: <20150923110428.4771845c@endymion.delvare>
+References: <1440758606-398-1-git-send-email-nicola@corna.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150922143714.GA9235@ulmo.nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1440758606-398-1-git-send-email-nicola@corna.info>
+Sender: linux-doc-owner@vger.kernel.org
+To: Nicola Corna <nicola@corna.info>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2015-09-22 at 16:37 +0200, Thierry Reding wrote:
-> On Tue, Sep 22, 2015 at 01:10:19PM +0300, Andy Shevchenko wrote:
-
-> > --- a/drivers/pwm/pwm-pca9685.c
-> > +++ b/drivers/pwm/pwm-pca9685.c
-> > @@ -26,6 +26,8 @@
-> >  #include <linux/regmap.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/delay.h>
-> > +#include <linux/acpi.h>
-> > +#include <linux/property.h>
+On Fri, 28 Aug 2015 12:43:26 +0200, Nicola Corna wrote:
+> Added I2C_FUNC_NO_CLK_STRETCH, to be used when clock stretching is not
+> supported.
+> Added this flag to drivers/i2c/algos/i2c-algo-bit.c when getscl is not
+> available.
 > 
-> These should be kept sorted. I know that delay.h isn't properly 
-> ordered
-> either, I missed that during patch review. Please keep new ones 
-> ordered
-> alphabetically and I'll sort out the delay.h via a separate patch.
-
-Will do in next version.
-
-> @@ -363,6 +364,12 @@ static const struct i2c_device_id pca9685_id[]
-> > = {
-> >  };
-> >  MODULE_DEVICE_TABLE(i2c, pca9685_id);
-> >  
-> > +static const struct acpi_device_id pca9685_acpi_ids[] = {
-> > +	{ "INT3492", 0 },
-> > +	{ /* sentinel */ },
-> > +};
-> > +MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
-> > +
-> >  static const struct of_device_id pca9685_dt_ids[] = {
-> >  	{ .compatible = "nxp,pca9685-pwm", },
-> >  	{ /* sentinel */ }
-> > @@ -372,6 +379,7 @@ MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
-> >  static struct i2c_driver pca9685_i2c_driver = {
-> >  	.driver = {
-> >  		.name = "pca9685-pwm",
-> > +		.acpi_match_table = ACPI_PTR(pca9685_acpi_ids),
+> Signed-off-by: Nicola Corna <nicola@corna.info>
+> ---
+>  Documentation/i2c/functionality  | 1 +
+>  drivers/i2c/algos/i2c-algo-bit.c | 5 ++++-
+>  include/uapi/linux/i2c.h         | 1 +
+>  3 files changed, 6 insertions(+), 1 deletion(-)
 > 
-> I think you now need #ifdef protection for the ACPI ID table, 
-> otherwise
-> the compiler will warn that the table is unused for !ACPI.
+> diff --git a/Documentation/i2c/functionality b/Documentation/i2c/functionality
+> index 4aae8ed..f53807e 100644
+> --- a/Documentation/i2c/functionality
+> +++ b/Documentation/i2c/functionality
+> @@ -21,6 +21,7 @@ For the most up-to-date list of functionality constants, please check
+>                                    I2C_M_REV_DIR_ADDR and I2C_M_NO_RD_ACK
+>                                    flags (which modify the I2C protocol!)
+>    I2C_FUNC_NOSTART                Can skip repeated start sequence
+> +  I2C_FUNC_NO_CLK_STRETCH         Does NOT support clock stretching
+>    I2C_FUNC_SMBUS_QUICK            Handles the SMBus write_quick command
+>    I2C_FUNC_SMBUS_READ_BYTE        Handles the SMBus read_byte command
+>    I2C_FUNC_SMBUS_WRITE_BYTE       Handles the SMBus write_byte command
+> diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+> index 899bede..82cad0b 100644
+> --- a/drivers/i2c/algos/i2c-algo-bit.c
+> +++ b/drivers/i2c/algos/i2c-algo-bit.c
+> @@ -602,10 +602,13 @@ bailout:
+>  
+>  static u32 bit_func(struct i2c_adapter *adap)
+>  {
+> +	struct i2c_algo_bit_data *bit_adap = adap->algo_data;
+> +
+>  	return I2C_FUNC_I2C | I2C_FUNC_NOSTART | I2C_FUNC_SMBUS_EMUL |
+>  	       I2C_FUNC_SMBUS_READ_BLOCK_DATA |
+>  	       I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
+> -	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
+> +	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING |
+> +	       (bit_adap->getscl ? 0 : I2C_FUNC_NO_CLK_STRETCH);
+>  }
+>  
+>  
+> diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+> index b0a7dd6..59e4b43 100644
+> --- a/include/uapi/linux/i2c.h
+> +++ b/include/uapi/linux/i2c.h
+> @@ -88,6 +88,7 @@ struct i2c_msg {
+>  #define I2C_FUNC_SMBUS_PEC		0x00000008
+>  #define I2C_FUNC_NOSTART		0x00000010 /* I2C_M_NOSTART */
+>  #define I2C_FUNC_SLAVE			0x00000020
+> +#define I2C_FUNC_NO_CLK_STRETCH		0x00000040 /* No check for SCL low */
+>  #define I2C_FUNC_SMBUS_BLOCK_PROC_CALL	0x00008000 /* SMBus 2.0 */
+>  #define I2C_FUNC_SMBUS_QUICK		0x00010000
+>  #define I2C_FUNC_SMBUS_READ_BYTE	0x00020000
 
-No, there is no warning, just checked a build with CONFIG_ACPI=n.
-
-Tried even with C=1 W=2, and driver compiled in and a module.
-In all variants no warning regarding the topic is issued.
-
-$ gcc --version
-gcc (Debian 5.2.1-17) 5.2.1 20150911
-
-Perhaps this would explain what is happening there.
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=28901
-
-So, I will add #ifdef in the code as well, though I'm not a big fan of
-conditional compilation.
-
-> 
-> >  		.of_match_table = pca9685_dt_ids,
-> 
-> Similarly to the above, this should use of_match_ptr(), which in turn
-> will require #ifdef protection for the table to avoid warnings.
-
-Hmm... my patch do not touches that part. Perhaps another patch for
-this?
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Jean Delvare
+SUSE L3 Support
