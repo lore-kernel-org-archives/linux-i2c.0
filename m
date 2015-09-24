@@ -1,259 +1,160 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH v4 0/8] i2c: Relax mandatory I2C ID table passing
-Date: Thu, 24 Sep 2015 17:58:07 +0100
-Message-ID: <20150924165807.GA27197@x1>
-References: <1441972564-9621-1-git-send-email-kieranbingham@gmail.com>
- <55FAE058.7080504@osg.samsung.com>
- <20150920041528.GA3039@x1>
- <5603A881.2010300@osg.samsung.com>
+Subject: Re: [PATCH v1 3/8] mfd: intel_quark_i2c_gpio: load gpio driver first
+Date: Thu, 24 Sep 2015 18:29:53 +0100
+Message-ID: <20150924172953.GD27197@x1>
+References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1442916619-140607-4-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:35772 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756150AbbIXQ6Q (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Sep 2015 12:58:16 -0400
-Received: by pacfv12 with SMTP id fv12so79309378pac.2
-        for <linux-i2c@vger.kernel.org>; Thu, 24 Sep 2015 09:58:15 -0700 (PDT)
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5603A881.2010300@osg.samsung.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1442916619-140607-4-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Kieran Bingham <kieranbingham@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org
 
-On Thu, 24 Sep 2015, Javier Martinez Canillas wrote:
-> On 09/20/2015 06:15 AM, Lee Jones wrote:
-> > On Thu, 17 Sep 2015, Javier Martinez Canillas wrote:
-> >=20
-> >> Hello,
-> >>
-> >> On 09/11/2015 01:55 PM, Kieran Bingham wrote:
-> >>> Hi Wolfram,
-> >>>
-> >>> I have picked this patchset [0] up from Lee to rebase it, with an=
- aim to
-> >>> get this series moving again.
-> >>>
-> >>> This resend fixes up my SoB's as highlighted by Lee
-> >>>
-> >>> A couple of minor issues were resolved in the rebase. As it stood=
-, Javier
-> >>> proposed [1] to merge this series, and use a follow up series to =
-make sure
-> >>> that all I2C drivers are using a MODLE_DEVICE_TABLE(of,...)
-> >>>
-> >>> I have prepared a Coccinelle patch to work through the bulk of th=
-e changes
-> >>> required for the conversion, which will assist the transition pro=
-cess.
-> >>>
-> >>> Once this patch set is accepted, I will commence converting the o=
-ther
-> >>> drivers, and submitting with a per subsystem breakdown or simliar=
- to
-> >>> reduce traffic.
-> >>>
-> >>> [0] https://lkml.org/lkml/2014/8/28/283
-> >>> [1] https://lkml.org/lkml/2014/9/12/496
-> >>>
-> >>> Lee's most recent cover-letter (from 12 months ago) follows:
-> >>>
-> >>> Hi Wolfram,
-> >>>
-> >>> Placing this firmly back on your plate.  I truly hope we don't mi=
-ss
-> >>> another merge-window.  This patch-set has the support of some pre=
-tty
-> >>> senior kernel maintainers, so I hope acceptance shouldn't be too
-> >>> difficult.
-> >>>
-> >>> As previously discussed I believe it should be okay for an I2C de=
-vice
-> >>> driver _not_ supply an I2C ID table to match to.  The I2C subsyst=
-em
-> >>> should be able to match via other means, such as via OF tables.  =
-The
-> >>> blocking factor during our previous conversation was to keep
-> >>> registering via sysfs up and running.  This set does that.
-> >>>
-> >>> After thinking more deeply about the problem, it occurred to me t=
-hat
-> >>> any I2C device driver which uses the sysfs method and issues an
-> >>> of_match_device() would also fail their probe().  Bolted on to th=
-is
-> >>> set is a new, more generic way for these devices to match against
-> >>> either of the I2C/OF tables.
-> >>>
-> >>
-> >> I reviewed this series but wonder if we shouldn't take another app=
-roach.
-> >>
-> >> There are two reasons why a I2C device ID table is needed even whe=
-n devices
-> >> are registered via OF:
-> >>
-> >> 1) Export the module aliases from the I2C device ID table so users=
-pace
-> >>    can auto-load the correct module. This is because i2c_device_ue=
-vent
-> >>    always reports a MODALIAS of the form i2c:<client->name>.
-> >>
-> >> 2) Match the I2C client with a I2C device ID so a struct i2c_devic=
-e_id
-> >>    is passed to the I2C driver probe() function.
-> >>
-> >> As Kieran mentioned I proposed a transition path to fix 1) and pos=
-ted
-> >> these patches: https://lkml.org/lkml/2015/7/30/519
-> >>
-> >> While this series are fixing 2) by changing the matching logic and=
- adding
-> >> a second probe callback for drivers that don't need to get a i2c_d=
-evice_id.
-> >>
-> >> Now, the problem I see with this approach is that drivers will lik=
-ely want
-> >> to get the struct of_device_id .data field since that is the reaso=
-n why
-> >> the I2C core pass a pointer to the struct i2c_device_id in the fir=
-st place.
-> >> So drivers could get the .driver_data field and take decisions dep=
-ending on
-> >> which device was registered / matched.
-> >>
-> >> If the parameter is removed from probe, it means that drivers will=
- have to
-> >> to open code to get it. This is the same issue that exist with OF =
-today, if
-> >> a driver needs the .data field from the of_device_id table, is has=
- to do:
-> >>
-> >> struct of_device_id *match of_match_node(of_match_table, i2c->dev.=
-of_node);
-> >>
-> >> to get the match->data. And a similar helper will be needed to get=
- the
-> >> struct i2c_device_id since the core won't do it anymore.
-> >>
-> >> So what I propose is to change the probe callback signature instea=
-d to have
-> >> a const void *data as the second parameter and the core can either=
- lookup
-> >> from the I2C device ID table or the OF device ID table depending o=
-n which
-> >> mechanism was used to register the I2C device.
-> >>
-> >> That way legacy drivers will only need a I2C device ID table and D=
-T drivers
-> >> will only need a OF device ID table and drivers won't need to open=
- code the
-> >> matching logic to get the data stored in the tables.
-> >>
-> >> Drivers that support both legacy platform and OF based registratio=
-n, will
-> >> have both tables and the I2C core will lookup the data from the ri=
-ght table.
-> >>
-> >> An alternative is to keep this series but have a generic function =
-that gets
-> >> a pointer to a struct i2c_client as parameter and returns the data=
- from the
-> >> correct table so drivers that don't need that information won't ge=
-t it at
-> >> probe time but drivers that need it, can get it easily assisted by=
- the core.
-> >=20
-> > You mean like i2c_match_id()? ;)
-> >=20
->=20
-> Well, I meant a more generic function that returns const void * or un=
-signed long
-> instead of a struct i2c_device_id *
->=20
-> > This patch already takes care of this issue.  Please see:
-> >=20
-> >   i2c: Export i2c_match_id() for direct use by device drivers
-> >
->=20
-> I know but as I said that is only used to get a struct i2c_device_id =
-*, a
-> driver has to call i2c_of_match_device() to get a struct of_device_id=
- *
->=20
-> > Drivers will know if they either only supply an I2C or OF table, so
-> > they will know which call to use in order to obtain their
->=20
-> Yes but that is not true for drivers that support both OF and legacy =
-board
-> files. For those drivers, there will be a lot of boiler plate code du=
-plicated
-> that would look something like:
->=20
->      unsigned long data;
->      struct of_device_id *match;
->      struct i2c_devicd_id *id;
->=20
->      if (i2c->dev.of_node) {
->             match =3D i2c_of_match_device(of_match_table, i2c);
-> 	    if (!match)
-> 	           return -EINVAL;
->=20
->             data =3D (unsigned long)match->data;
->      } else {
->             id =3D i2c_match_id(id_table, i2c);
-> 	    if (!id)
-> 	           return -EINVAL;
->=20
->             data =3D id->driver_data;
->      }
->=20
-> While it would be nice to have something like:
->=20
->     data =3D i2c_get_data(i2c);
->=20
-> and let the core handle which table should be looked up depending on
-> which mechanism was used to register the i2c device (legacy or OF).
+On Tue, 22 Sep 2015, Andy Shevchenko wrote:
 
-I'm fine with a new API for this stuff.  I'm even happy to go ahead
-and code it up, but it's important to note that this is work which
-should be based on this set and not a blocker for this set to be
-accepted.
+> On Intel Galileo boards the GPIO expander is connected to i2c bus. Mo=
+reover it
+> is able to generate interrupt, but interrupt line is connected to GPI=
+O. That's
+> why we have to have GPIO driver in place when we will probe i2c host =
+with
+> device connected to it.
+>=20
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/mfd/intel_quark_i2c_gpio.c | 48 +++++++++++++++++++++-------=
+----------
+>  1 file changed, 27 insertions(+), 21 deletions(-)
+>=20
+> diff --git a/drivers/mfd/intel_quark_i2c_gpio.c b/drivers/mfd/intel_q=
+uark_i2c_gpio.c
+> index 1ce1603..89bd4bf 100644
+> --- a/drivers/mfd/intel_quark_i2c_gpio.c
+> +++ b/drivers/mfd/intel_quark_i2c_gpio.c
+> @@ -82,27 +82,26 @@ static struct resource intel_quark_i2c_res[] =3D =
+{
+>  	},
+>  };
+> =20
+> +static struct mfd_cell intel_quark_mfd_i2c_cell =3D {
+> +	.id =3D MFD_I2C_BAR,
+> +	.name =3D "i2c_designware",
+> +	.num_resources =3D ARRAY_SIZE(intel_quark_i2c_res),
+> +	.resources =3D intel_quark_i2c_res,
+> +	.ignore_resource_conflicts =3D true,
+> +};
+> +
+>  static struct resource intel_quark_gpio_res[] =3D {
+>  	[INTEL_QUARK_IORES_MEM] =3D {
+>  		.flags =3D IORESOURCE_MEM,
+>  	},
+>  };
+> =20
+> -static struct mfd_cell intel_quark_mfd_cells[] =3D {
+> -	{
+> -		.id =3D MFD_I2C_BAR,
+> -		.name =3D "i2c_designware",
+> -		.num_resources =3D ARRAY_SIZE(intel_quark_i2c_res),
+> -		.resources =3D intel_quark_i2c_res,
+> -		.ignore_resource_conflicts =3D true,
+> -	},
+> -	{
+> -		.id =3D MFD_GPIO_BAR,
+> -		.name =3D "gpio-dwapb",
+> -		.num_resources =3D ARRAY_SIZE(intel_quark_gpio_res),
+> -		.resources =3D intel_quark_gpio_res,
+> -		.ignore_resource_conflicts =3D true,
+> -	},
+> +static struct mfd_cell intel_quark_mfd_gpio_cell =3D {
+> +	.id =3D MFD_GPIO_BAR,
+> +	.name =3D "gpio-dwapb",
+> +	.num_resources =3D ARRAY_SIZE(intel_quark_gpio_res),
+> +	.resources =3D intel_quark_gpio_res,
+> +	.ignore_resource_conflicts =3D true,
+>  };
+> =20
+>  static const struct pci_device_id intel_quark_mfd_ids[] =3D {
+> @@ -248,18 +247,25 @@ static int intel_quark_mfd_probe(struct pci_dev=
+ *pdev,
+> =20
+>  	dev_set_drvdata(&pdev->dev, quark_mfd);
+> =20
+> -	ret =3D intel_quark_i2c_setup(pdev, &intel_quark_mfd_cells[MFD_I2C_=
+BAR]);
+> +	ret =3D intel_quark_i2c_setup(pdev, &intel_quark_mfd_i2c_cell);
+>  	if (ret)
+>  		return ret;
+> =20
+> -	ret =3D intel_quark_gpio_setup(pdev,
+> -				     &intel_quark_mfd_cells[MFD_GPIO_BAR]);
+> +	ret =3D intel_quark_gpio_setup(pdev, &intel_quark_mfd_gpio_cell);
+>  	if (ret)
+>  		return ret;
+> =20
+> -	return mfd_add_devices(&pdev->dev, 0, intel_quark_mfd_cells,
+> -			       ARRAY_SIZE(intel_quark_mfd_cells), NULL, 0,
+> -			       NULL);
+> +	ret =3D mfd_add_devices(&pdev->dev, 0, &intel_quark_mfd_gpio_cell, =
+1,
+> +			      NULL, 0, NULL);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D mfd_add_devices(&pdev->dev, 0, &intel_quark_mfd_i2c_cell, 1=
+,
+> +			      NULL, 0, NULL);
+> +	if (ret)
+> +		mfd_remove_devices(&pdev->dev);
+> +
+> +	return ret;
+>  }
+> =20
+>  static void intel_quark_mfd_remove(struct pci_dev *pdev)
 
-> > .driver_data|.data. attributes.  We can generify the call if you th=
-ink
-> > that makes things easier, but I don't see a need for it ATM.
-> >
->=20
-> As I explained above, it will make easier for drivers but I raised th=
-e
-> point to discuss if the table data should be looked up by the driver
-> or if the core should get it and pass to the probe() function as it i=
-s
-> made right now for the I2C device ID table. i.e:
->=20
-> static int foo_i2c_probe(struct i2c_client *i2c, const void *data)
->=20
-> If the correct approach is the former, then this series is the right
-> direction and as you said a generic match function can be added later=
-=2E
->=20
-> But if the correct approach is the latter, then this series is not
-> the right direction and a different approach is needed. I don't have
-> a strong opinion but wanted to mention that we have two options here.
+--- a/drivers/mfd/intel_quark_i2c_gpio.c
++++ b/drivers/mfd/intel_quark_i2c_gpio.c
+@@ -90,19 +90,19 @@ static struct resource intel_quark_gpio_res[] =3D {
+=20
+ static struct mfd_cell intel_quark_mfd_cells[] =3D {
+        {
+-               .id =3D MFD_I2C_BAR,
+-               .name =3D "i2c_designware",
+-               .num_resources =3D ARRAY_SIZE(intel_quark_i2c_res),
+-               .resources =3D intel_quark_i2c_res,
+-               .ignore_resource_conflicts =3D true,
+-       },
+-       {
+                .id =3D MFD_GPIO_BAR,
+                .name =3D "gpio-dwapb",
+                .num_resources =3D ARRAY_SIZE(intel_quark_gpio_res),
+                .resources =3D intel_quark_gpio_res,
+                .ignore_resource_conflicts =3D true,
+        },
++       {
++               .id =3D MFD_I2C_BAR,
++               .name =3D "i2c_designware",
++               .num_resources =3D ARRAY_SIZE(intel_quark_i2c_res),
++               .resources =3D intel_quark_i2c_res,
++               .ignore_resource_conflicts =3D true,
++       },
+ };
+=20
+ static const struct pci_device_id intel_quark_mfd_ids[] =3D {
 
-The correct approach is the former.  One of the aims of this set was
-to bring the I2C .probe() call-back more into line with the majority
-of the other .probe() calls in the kernel i.e. with only a single
-parameter.  I'm really not a fan of passing some random void pointer
-in.  Using a look-up call to fetch ACPI/OF/I2C/etc data is the current
-norm and is a very viable option.
-
-Wolfram, please (finally :D) take this set.
+?
 
 --=20
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 =46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
