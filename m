@@ -1,84 +1,73 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix unmet dependency in select
-Date: Fri, 25 Sep 2015 16:02:29 +0200
-Message-ID: <1443189749.4919.2.camel@chaos.site>
-References: <20150925101045.06062b59@endymion.delvare>
-	 <56054C2E.9010703@roeck-us.net>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: randconfig build error with next-20150812, in
+ drivers/i2c/busses/i2c-i801.c
+Date: Fri, 25 Sep 2015 16:06:04 +0200
+Message-ID: <1443189964.4919.5.camel@chaos.site>
+References: <CA+r1ZhjyBKcWbNB3hkPxoEKatojYk9=VPqSurZHPk9nfNp_gSQ@mail.gmail.com>
+	 <20150925093610.64ed7f59@endymion.delvare>
+	 <20150925133757.GA2857@codeblueprint.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <56054C2E.9010703-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jim Davis <jim.epost-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Matt Fleming <matt.fleming-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:36671 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756355AbbIYOGH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 25 Sep 2015 10:06:07 -0400
+In-Reply-To: <20150925133757.GA2857@codeblueprint.co.uk>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Jim Davis <jim.epost@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Matt Fleming <matt.fleming@intel.com>, Guenter Roeck <linux@roeck-us.net>
 
-Hi Guenter,
-
-Le Friday 25 September 2015 =C3=A0 06:29 -0700, Guenter Roeck a =C3=A9c=
-rit :
-> On 09/25/2015 01:10 AM, Jean Delvare wrote:
-> > ITCO_WDT selects I2C_I801 but does not select its dependencies (I2C=
-=2E)
-> > This can result in link-time failures:
-> >
-> > drivers/built-in.o: In function `i801_remove':
-> > i2c-i801.c:(.text+0x1a6126): undefined reference to `i2c_del_adapte=
-r'
-> > drivers/built-in.o: In function `dmi_check_onboard_devices':
-> > i2c-i801.c:(.text+0x1a7531): undefined reference to `i2c_new_device=
-'
-> > drivers/built-in.o: In function `i801_probe':
-> > i2c-i801.c:(.text+0x1a7aa8): undefined reference to `i2c_add_adapte=
-r'
-> > i2c-i801.c:(.text+0x1a7e14): undefined reference to `i2c_new_device=
-'
-> >
-> > So we must select I2C as well.
-> >
-> > Reported-by: Jim Davis <jim.epost-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> > Fixes: 2a7a0e9bf7 ("watchdog: iTCO_wdt: Add support for TCO on Inte=
-l Sunrisepoint")
-> > Cc: Matt Fleming <matt.fleming-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-> > Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > Cc: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
-> > ---
-> >   drivers/watchdog/Kconfig |    2 +-
-> >   1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > --- linux-4.3-rc2.orig/drivers/watchdog/Kconfig	2015-09-24 11:43:29=
-=2E959432358 +0200
-> > +++ linux-4.3-rc2/drivers/watchdog/Kconfig	2015-09-25 09:56:20.5188=
-40112 +0200
-> > @@ -818,6 +818,7 @@ config ITCO_WDT
-> >   	depends on (X86 || IA64) && PCI
-> >   	select WATCHDOG_CORE
-> >   	select LPC_ICH if !EXPERT
-> > +	select I2C if !EXPERT
-> >   	select I2C_I801 if !EXPERT
-> >   	---help---
-> >   	  Hardware driver for the intel TCO timer based watchdog devices=
-=2E
-> >
-> >
+Le Friday 25 September 2015 =C3=A0 14:37 +0100, Matt Fleming a =C3=A9cr=
+it :
+> On Fri, 25 Sep, at 09:36:10AM, Jean Delvare wrote:
+> > On Wed, 12 Aug 2015 08:42:18 -0700, Jim Davis wrote:
+> > > Building with the attached random configuration file,
+> > >=20
+> > > drivers/built-in.o: In function `dmi_check_onboard_devices':
+> > > i2c-i801.c:(.text+0x126b36): undefined reference to `i2c_new_devi=
+ce'
+> > > drivers/built-in.o: In function `i801_remove':
+> > > i2c-i801.c:(.text+0x126b86): undefined reference to `i2c_del_adap=
+ter'
+> > > drivers/built-in.o: In function `i801_probe':
+> > > i2c-i801.c:(.text+0x127d08): undefined reference to `i2c_add_adap=
+ter'
+> > > i2c-i801.c:(.text+0x127d6e): undefined reference to `i2c_new_devi=
+ce'
+> >=20
+> > Sorry for the late reply. The error is caused by the following
+> > combination of options:
+> >=20
+> > CONFIG_I2C=3Dm
+> > CONFIG_I2C_I801=3Dy
+> >=20
+> > I can reproduce it even with mainline now. This is caused by
+> > CONFIG_ITCO_WDT=3Dy, which selects CONFIG_I2C_I801=3Dy without sele=
+cting
+> > its dependencies (CONFIG_I2C.)
+> >=20
+> > Thanks for reporting, I'll post a fix shortly.
 >=20
-> I had fixed the problem differently, similar to other drivers.
+> Sorry that you got caught up in this build error Jean.
+
+No big deal :)
+
+> Guenter (Cc'd) posted a fix here,
 >=20
-> http://patchwork.roeck-us.net/patch/239/
+>   https://lkml.kernel.org/r/1441978088-27288-1-git-send-email-linux@r=
+oeck-us.net
 
-404 Not Found?
+Actually I prefer Guenter's approach. I am never comfortable with
+drivers selecting subsystems. So you can add:
 
-> Waiting for Wim to apply it.
+Acked-by: Jean Delvare <jdelvare@suse.de>
 
+to Guenter's patch and drop mine.
+
+Thanks,
 --=20
 Jean Delvare
 SUSE L3 Support
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
