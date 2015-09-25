@@ -1,61 +1,64 @@
-From: Gao Pandy <gaopan@freescale.com>
-Subject: RE: [Patch V6] i2c: imx: implement bus recovery
-Date: Fri, 25 Sep 2015 10:38:11 +0000
-Message-ID: <CY1PR0301MB085850BA20A640FE5DA4CF82CF420@CY1PR0301MB0858.namprd03.prod.outlook.com>
-References: <1442824718-14564-1-git-send-email-b54642@freescale.com>
- <CY1PR0301MB0858BC8907E12F7AEAE3B2EDCF420@CY1PR0301MB0858.namprd03.prod.outlook.com>
- <20150925094106.GJ7858@pengutronix.de>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] watchdog: iTCO_wdt: Fix unmet dependency in select
+Date: Fri, 25 Sep 2015 06:29:18 -0700
+Message-ID: <56054C2E.9010703@roeck-us.net>
+References: <20150925101045.06062b59@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-by2on0113.outbound.protection.outlook.com ([207.46.100.113]:14591
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752442AbbIYKiO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Sep 2015 06:38:14 -0400
-In-Reply-To: <20150925094106.GJ7858@pengutronix.de>
-Content-Language: en-US
+Received: from bh-25.webhostbox.net ([208.91.199.152]:37275 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756574AbbIYN3X (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 25 Sep 2015 09:29:23 -0400
+In-Reply-To: <20150925101045.06062b59@endymion.delvare>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, Duan Andy <fugang.duan@freescale.com>, Li Frank <Frank.Li@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "hkallweit1@gmail.com" <hkallweit1@gmail.com>
+To: Jean Delvare <jdelvare@suse.de>, linux-watchdog@vger.kernel.org
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Jim Davis <jim.epost@gmail.com>, Matt Fleming <matt.fleming@intel.com>, Lee Jones <lee.jones@linaro.org>, Wim Van Sebroeck <wim@iguana.be>
 
-From: Sascha Hauer <mailto:s.hauer@pengutronix.de> Sent: Friday, September 25, 2015 5:41 PM
-> To: Gao Pan-B54642
-> Cc: wsa@the-dreams.de; u.kleine-koenig@pengutronix.de; Duan Fugang-B38611;
-> Li Frank-B20596; linux-i2c@vger.kernel.org; kernel@pengutronix.de;
-> hkallweit1@gmail.com
-> Subject: Re: [Patch V6] i2c: imx: implement bus recovery
-> 
-> On Fri, Sep 25, 2015 at 09:29:29AM +0000, Gao Pandy wrote:
-> > Ping...
-> 
-> No need to ping when there are outstanding reviews which by now I have
-> sent twice:
-> 
-> http://www.spinics.net/lists/arm-kernel/msg445986.html
-> http://comments.gmane.org/gmane.linux.drivers.i2c/24567
-> 
-> Anyway, as you haven't read the last two mails you probably won't read
-> this one either.
-> 
-> Could anyone tell Gao to have a look in his junk folder?
-> 
-> Sascha
+On 09/25/2015 01:10 AM, Jean Delvare wrote:
+> ITCO_WDT selects I2C_I801 but does not select its dependencies (I2C.)
+> This can result in link-time failures:
+>
+> drivers/built-in.o: In function `i801_remove':
+> i2c-i801.c:(.text+0x1a6126): undefined reference to `i2c_del_adapter'
+> drivers/built-in.o: In function `dmi_check_onboard_devices':
+> i2c-i801.c:(.text+0x1a7531): undefined reference to `i2c_new_device'
+> drivers/built-in.o: In function `i801_probe':
+> i2c-i801.c:(.text+0x1a7aa8): undefined reference to `i2c_add_adapter'
+> i2c-i801.c:(.text+0x1a7e14): undefined reference to `i2c_new_device'
+>
+> So we must select I2C as well.
+>
+> Reported-by: Jim Davis <jim.epost@gmail.com>
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Fixes: 2a7a0e9bf7 ("watchdog: iTCO_wdt: Add support for TCO on Intel Sunrisepoint")
+> Cc: Matt Fleming <matt.fleming@intel.com>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Cc: Wim Van Sebroeck <wim@iguana.be>
+> ---
+>   drivers/watchdog/Kconfig |    2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> --- linux-4.3-rc2.orig/drivers/watchdog/Kconfig	2015-09-24 11:43:29.959432358 +0200
+> +++ linux-4.3-rc2/drivers/watchdog/Kconfig	2015-09-25 09:56:20.518840112 +0200
+> @@ -818,6 +818,7 @@ config ITCO_WDT
+>   	depends on (X86 || IA64) && PCI
+>   	select WATCHDOG_CORE
+>   	select LPC_ICH if !EXPERT
+> +	select I2C if !EXPERT
+>   	select I2C_I801 if !EXPERT
+>   	---help---
+>   	  Hardware driver for the intel TCO timer based watchdog devices.
+>
+>
 
-Sorry for missing your reviews, I will read your reviews seriously. 
-Thank you very much.
+I had fixed the problem differently, similar to other drivers.
 
-Best Regards
-Gao Pan
+http://patchwork.roeck-us.net/patch/239/
 
-> --
-> Pengutronix e.K.                           |
-> |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/
-> |
-> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0
-> |
-> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555
-> |
+Waiting for Wim to apply it.
+
+Guenter
