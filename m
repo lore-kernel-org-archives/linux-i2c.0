@@ -1,41 +1,55 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: randconfig build error with next-20150812, in
- drivers/i2c/busses/i2c-i801.c
-Date: Fri, 25 Sep 2015 09:36:10 +0200
-Message-ID: <20150925093610.64ed7f59@endymion.delvare>
-References: <CA+r1ZhjyBKcWbNB3hkPxoEKatojYk9=VPqSurZHPk9nfNp_gSQ@mail.gmail.com>
+Subject: [PATCH] watchdog: iTCO_wdt: Fix unmet dependency in select
+Date: Fri, 25 Sep 2015 10:10:45 +0200
+Message-ID: <20150925101045.06062b59@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <CA+r1ZhjyBKcWbNB3hkPxoEKatojYk9=VPqSurZHPk9nfNp_gSQ@mail.gmail.com>
-Sender: linux-next-owner@vger.kernel.org
-To: Jim Davis <jim.epost@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, jdelvare@suse.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Matt Fleming <matt.fleming@intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:41461 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753483AbbIYIKu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 25 Sep 2015 04:10:50 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-watchdog@vger.kernel.org
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Jim Davis <jim.epost@gmail.com>, Matt Fleming <matt.fleming@intel.com>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, Wim Van Sebroeck <wim@iguana.be>
 
-On Wed, 12 Aug 2015 08:42:18 -0700, Jim Davis wrote:
-> Building with the attached random configuration file,
-> 
-> drivers/built-in.o: In function `dmi_check_onboard_devices':
-> i2c-i801.c:(.text+0x126b36): undefined reference to `i2c_new_device'
-> drivers/built-in.o: In function `i801_remove':
-> i2c-i801.c:(.text+0x126b86): undefined reference to `i2c_del_adapter'
-> drivers/built-in.o: In function `i801_probe':
-> i2c-i801.c:(.text+0x127d08): undefined reference to `i2c_add_adapter'
-> i2c-i801.c:(.text+0x127d6e): undefined reference to `i2c_new_device'
+ITCO_WDT selects I2C_I801 but does not select its dependencies (I2C.)
+This can result in link-time failures:
 
-Sorry for the late reply. The error is caused by the following
-combination of options:
+drivers/built-in.o: In function `i801_remove':
+i2c-i801.c:(.text+0x1a6126): undefined reference to `i2c_del_adapter'
+drivers/built-in.o: In function `dmi_check_onboard_devices':
+i2c-i801.c:(.text+0x1a7531): undefined reference to `i2c_new_device'
+drivers/built-in.o: In function `i801_probe':
+i2c-i801.c:(.text+0x1a7aa8): undefined reference to `i2c_add_adapter'
+i2c-i801.c:(.text+0x1a7e14): undefined reference to `i2c_new_device'
 
-CONFIG_I2C=m
-CONFIG_I2C_I801=y
+So we must select I2C as well.
 
-I can reproduce it even with mainline now. This is caused by
-CONFIG_ITCO_WDT=y, which selects CONFIG_I2C_I801=y without selecting
-its dependencies (CONFIG_I2C.)
+Reported-by: Jim Davis <jim.epost@gmail.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Fixes: 2a7a0e9bf7 ("watchdog: iTCO_wdt: Add support for TCO on Intel Sunrisepoint")
+Cc: Matt Fleming <matt.fleming@intel.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+---
+ drivers/watchdog/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks for reporting, I'll post a fix shortly.
+--- linux-4.3-rc2.orig/drivers/watchdog/Kconfig	2015-09-24 11:43:29.959432358 +0200
++++ linux-4.3-rc2/drivers/watchdog/Kconfig	2015-09-25 09:56:20.518840112 +0200
+@@ -818,6 +818,7 @@ config ITCO_WDT
+ 	depends on (X86 || IA64) && PCI
+ 	select WATCHDOG_CORE
+ 	select LPC_ICH if !EXPERT
++	select I2C if !EXPERT
+ 	select I2C_I801 if !EXPERT
+ 	---help---
+ 	  Hardware driver for the intel TCO timer based watchdog devices.
+
 
 -- 
 Jean Delvare
