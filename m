@@ -1,108 +1,45 @@
-From: Olliver Schinagl <oliver+list@schinagl.nl>
-Subject: Re: [linux-sunxi] [PATCH] i2c: mv64xxx: The n clockdiv factor is
- 0 based on sunxi SoCs
-Date: Sun, 27 Sep 2015 18:05:35 +0200
-Message-ID: <560813CF.4000807@schinagl.nl>
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: The n clockdiv factor is 0
+ based on sunxi SoCs
+Date: Sun, 27 Sep 2015 18:53:03 +0200
+Message-ID: <20150927165303.GI31209@lunn.ch>
 References: <1443365828-8956-1-git-send-email-hdegoede@redhat.com>
+ <560813CF.4000807@schinagl.nl>
+Reply-To: andrew-g2DYL2Zd6BY@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 7of9.schinagl.nl ([88.159.158.68]:35793 "EHLO 7of9.schinagl.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756224AbbI0QFm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 27 Sep 2015 12:05:42 -0400
-In-Reply-To: <1443365828-8956-1-git-send-email-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDJNHL5JSEOBBY6BUCYAKGQENZIRLRY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <560813CF.4000807-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Olliver Schinagl <oliver+list-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org>
+Cc: hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: hdegoede@redhat.com, Wolfram Sang <wsa@the-dreams.de>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com
 
-Hey Hans,
+On Sun, Sep 27, 2015 at 06:05:35PM +0200, Olliver Schinagl wrote:
+> Hey Hans,
+> 
+> On 27-09-15 16:57, Hans de Goede wrote:
+> >According to the datasheets to n factor for dividing the tclk is
+> >2 to the power n on Allwinner SoCs, not 2 to the power n + 1 as it is
+> >on other mv64xxx implementations.
+> Ah!
 
-On 27-09-15 16:57, Hans de Goede wrote:
-> According to the datasheets to n factor for dividing the tclk is
-> 2 to the power n on Allwinner SoCs, not 2 to the power n + 1 as it is
-> on other mv64xxx implementations.
-Ah!
->
-> I've contacted Allwinner about this and they have confirmed that the
-> datasheet is correct.
->
-> This commit fixes the clk-divider calculations for Allwinner SoCs
-> accordingly.
-So this explains why all my i2c frequenties are double of what I setup. 
-Thanks for taking the time of figuring it out! I'll give it a test 
-hopefully soon.
+Just to be sure, i checked Kirkwood, Armada XP and Armada 370
+datasheets. They all say n+1.
 
-Olliver
->
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->   drivers/i2c/busses/i2c-mv64xxx.c | 27 ++++++++++++++++++---------
->   1 file changed, 18 insertions(+), 9 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-> index 30059c1..e75cf6d 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -146,6 +146,8 @@ struct mv64xxx_i2c_data {
->   	bool			errata_delay;
->   	struct reset_control	*rstc;
->   	bool			irq_clear_inverted;
-> +	/* Clk div is 2 to the power n, not 2 to the power n + 1 */
-> +	bool			clk_n_base_0;
->   };
->   
->   static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
-> @@ -759,25 +761,29 @@ MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
->   #ifdef CONFIG_OF
->   #ifdef CONFIG_HAVE_CLK
->   static int
-> -mv64xxx_calc_freq(const int tclk, const int n, const int m)
-> +mv64xxx_calc_freq(struct mv64xxx_i2c_data *drv_data,
-> +		  const int tclk, const int n, const int m)
->   {
-> -	return tclk / (10 * (m + 1) * (2 << n));
-> +	if (drv_data->clk_n_base_0)
-> +		return tclk / (10 * (m + 1) * (1 << n));
-> +	else
-> +		return tclk / (10 * (m + 1) * (2 << n));
->   }
->   
->   static bool
-> -mv64xxx_find_baud_factors(const u32 req_freq, const u32 tclk, u32 *best_n,
-> -			  u32 *best_m)
-> +mv64xxx_find_baud_factors(struct mv64xxx_i2c_data *drv_data,
-> +			  const u32 req_freq, const u32 tclk)
->   {
->   	int freq, delta, best_delta = INT_MAX;
->   	int m, n;
->   
->   	for (n = 0; n <= 7; n++)
->   		for (m = 0; m <= 15; m++) {
-> -			freq = mv64xxx_calc_freq(tclk, n, m);
-> +			freq = mv64xxx_calc_freq(drv_data, tclk, n, m);
->   			delta = req_freq - freq;
->   			if (delta >= 0 && delta < best_delta) {
-> -				*best_m = m;
-> -				*best_n = n;
-> +				drv_data->freq_m = m;
-> +				drv_data->freq_n = n;
->   				best_delta = delta;
->   			}
->   			if (best_delta == 0)
-> @@ -815,8 +821,11 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
->   	if (of_property_read_u32(np, "clock-frequency", &bus_freq))
->   		bus_freq = 100000; /* 100kHz by default */
->   
-> -	if (!mv64xxx_find_baud_factors(bus_freq, tclk,
-> -				       &drv_data->freq_n, &drv_data->freq_m)) {
-> +	if (of_device_is_compatible(np, "allwinner,sun4i-a10-i2c") ||
-> +	    of_device_is_compatible(np, "allwinner,sun6i-a31-i2c"))
-> +		drv_data->clk_n_base_0 = true;
-> +
-> +	if (!mv64xxx_find_baud_factors(drv_data, bus_freq, tclk)) {
->   		rc = -EINVAL;
->   		goto out;
->   	}
+> >+	if (of_device_is_compatible(np, "allwinner,sun4i-a10-i2c") ||
+> >+	    of_device_is_compatible(np, "allwinner,sun6i-a31-i2c"))
+
+Rather than have to extend this list every so often, how about adding
+a helper of_device_is_compatible_vendor(), so you can just have:
+
+> >+	if (of_device_is_compatible_vendor(np, "allwinner")
+
+  Andrew
