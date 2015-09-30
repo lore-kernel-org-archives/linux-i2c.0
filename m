@@ -1,104 +1,155 @@
-From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Subject: Re: [PATCH 1/2] i2c: at91: add DT property for the HOLD field of
- TWIHS_CWGR
-Date: Wed, 30 Sep 2015 11:01:02 +0200
-Message-ID: <560BA4CE.70606@atmel.com>
-References: <1443602831-27069-1-git-send-email-ludovic.desroches@atmel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [RFC v2 0/1] i2c: acpi: scan ACPI enumerated I2C mux channels
+Date: Wed, 30 Sep 2015 12:43:36 +0300
+Message-ID: <20150930094336.GF1551@lahna.fi.intel.com>
+References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
+ <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
+ <20150817120305.GB1552@lahna.fi.intel.com>
+ <20150929231912.GA7913@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:35685 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752646AbbI3JBI (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Sep 2015 05:01:08 -0400
-In-Reply-To: <1443602831-27069-1-git-send-email-ludovic.desroches@atmel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150929231912.GA7913@cumulusnetworks.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dustin Byford <dustin@cumulusnetworks.com>
+Cc: rjw@rjwysocki.net, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@atmel.com>, wsa@the-dreams.de
-Cc: devicetree@vger.kernel.org, nicolas.ferre@atmel.com, linux-kernel@vger.kernel.org, Wenyou Yang <wenyou.yang@atmel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Hi all,
+On Tue, Sep 29, 2015 at 04:19:12PM -0700, Dustin Byford wrote:
+> Hi Mika,
+> 
+> On Mon Aug 17 15:03, Mika Westerberg wrote:
+> > I think the current code in I2C core is not actually doing the right
+> > thing according the ACPI spec at least. To my understanding you can have
+> > device with I2cSerialBus resource _anywhere_ in the namespace, not just
+> > directly below the host controller. It's the ResourceSource attribute
+> > that tells the corresponding host controller.
+> > 
+> > I wonder if it helps if we scan the whole namespace for devices with
+> > I2cSerialBus that matches the just registered adapter? Something like
+> > the patch below.
+> 
+> I've been working with the patch you suggested below.
+> 
+> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > index c83e4d13cfc5..2a309d27421a 100644
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> 
+> ...
+> 
+> >  static void acpi_i2c_register_devices(struct i2c_adapter *adap)
+> >  {
+> > -     acpi_handle handle;
+> >       acpi_status status;
+> >  
+> > -     if (!adap->dev.parent)
+> > -             return;
+> > -
+> > -     handle = ACPI_HANDLE(adap->dev.parent);
+> > -     if (!handle)
+> > +     if (!adap->dev.parent || !has_acpi_companion(adap->dev.parent))
+> >               return;
+> >  
+> > -     status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+> > +     status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+> > +                                  ACPI_I2C_MAX_SCAN_DEPTH,
+> >                                    acpi_i2c_add_device, NULL,
+> >                                    adap, NULL);
+> 
+> On my systems (which admittedly all define their i2c clients below the
+> controller) this works as expected, i.e. there's no change in behavior.
+> As far as I can tell it more accurately implements the spec.
+> 
+> 
+> However, it doesn't quite solve my problem.  When
+> acpi_i2c_register_devices(adap) is called on the "virtual" controller
+> that is created for an i2c mux channel, the adap->dev.parent (set to the
+> parent i2c bus for the mux) does not have an acpi companion.  That
+> ultimately causes acpi_i2c_add_device() to never find a match.
+> 
+> I'll recap a bit since it's been a while and I've learned a few things
+> that might affect the discussion.  For now, I'll focus on my proposed
+> ASL for an I2C mux using device properties.
+> 
+> Lets say we have i2c hardware attached like this:
+> 
+> i801 controller (PCI)
+>    pca9548 8-channel mux (address 0x70)
+>        lm75 temperature sensor (channel 0 on the mux with address 0x50)
+> 
+> I think this is a sensible way to represent it:
+> 
+> Device (MUX0) {
+>     Name (_ADR, 0x70)
 
-it looks good to me.
+This..
 
-Le 30/09/2015 10:47, Ludovic Desroches a =E9crit :
-> From: Wenyou Yang <wenyou.yang@atmel.com>
->=20
-> Add the HOLD field setting in order to support I2C slave devices whic=
-h need
-> a longer hold time of the data.
-> Since it depends on the slave devices connected to the bus, add a DT
-> property "atmel,twd-hold-cycles" to specify this HOLD field.
->=20
-> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
-> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+>     Name (_HID, "PRP0001")
+>     Name (_CRS, ResourceTemplate()
+>     {
+>         I2cSerialBus (0x70, ControllerInitiated, I2C_SPEED,
+>                       AddressingMode7Bit, "^^SMB2", 0x00,
+>                       ResourceConsumer,,)
+>     })
+>     Name (_DSD, Package ()
+>     {
+>         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>         Package () {
+>             Package (2) { "compatible", "nxp,pca9548" },
+>         }
+>     })
+> 
+>     // MUX channel 0
+>     Device (CH00) {
+>         Name (_ADR, 0x0)
+> 
+>         Device (TMP0) {
+>             Name (_ADR, 0x50)
 
-Acked-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+... and this are not needed. I2cSerialBus already contains the address.
 
-> ---
->  drivers/i2c/busses/i2c-at91.c | 16 +++++++++++++---
->  1 file changed, 13 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-a=
-t91.c
-> index 1c758cd..06e66ef 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -64,6 +64,7 @@
->  #define	AT91_TWI_IADR		0x000c	/* Internal Address Register */
-> =20
->  #define	AT91_TWI_CWGR		0x0010	/* Clock Waveform Generator Reg */
-> +#define	AT91_TWI_CWGR_HOLD(x)	(((x) & 0x1f) << 24)
-> =20
->  #define	AT91_TWI_SR		0x0020	/* Status Register */
->  #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
-> @@ -185,7 +186,8 @@ static void at91_init_twi_bus(struct at91_twi_dev=
- *dev)
->   * Calculate symmetric clock as stated in datasheet:
->   * twi_clk =3D F_MAIN / (2 * (cdiv * (1 << ckdiv) + offset))
->   */
-> -static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_cl=
-k)
-> +static void at91_calc_twi_clock(struct at91_twi_dev *dev,
-> +				int twi_clk, u32 twd_hold)
->  {
->  	int ckdiv, cdiv, div;
->  	struct at91_twi_pdata *pdata =3D dev->pdata;
-> @@ -204,7 +206,9 @@ static void at91_calc_twi_clock(struct at91_twi_d=
-ev *dev, int twi_clk)
->  		cdiv =3D 255;
->  	}
-> =20
-> -	dev->twi_cwgr_reg =3D (ckdiv << 16) | (cdiv << 8) | cdiv;
-> +	dev->twi_cwgr_reg =3D (ckdiv << 16) | (cdiv << 8) | cdiv
-> +			    | AT91_TWI_CWGR_HOLD(twd_hold);
-> +
->  	dev_dbg(dev->dev, "cdiv %d ckdiv %d\n", cdiv, ckdiv);
->  }
-> =20
-> @@ -936,6 +940,7 @@ static int at91_twi_probe(struct platform_device =
-*pdev)
->  	int rc;
->  	u32 phy_addr;
->  	u32 bus_clk_rate;
-> +	u32 twd_hold_cycles;
-> =20
->  	dev =3D devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
->  	if (!dev)
-> @@ -992,7 +997,12 @@ static int at91_twi_probe(struct platform_device=
- *pdev)
->  	if (rc)
->  		bus_clk_rate =3D DEFAULT_TWI_CLK_HZ;
-> =20
-> -	at91_calc_twi_clock(dev, bus_clk_rate);
-> +	rc =3D of_property_read_u32(dev->dev->of_node,
-> +				  "atmel,twd-hold-cycles", &twd_hold_cycles);
-> +	if (rc)
-> +		twd_hold_cycles =3D 0;
-> +
-> +	at91_calc_twi_clock(dev, bus_clk_rate, twd_hold_cycles);
->  	at91_init_twi_bus(dev);
-> =20
->  	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
->=20
+Also I think you need to have "PRP0001" here as well.
+
+>             Name (_CRS, ResourceTemplate()
+>             {
+>                 I2cSerialBus (0x60, ControllerInitiated, I2C_SPEED,
+>                               AddressingMode7Bit, "^CH00", 0x00,
+>                               ResourceConsumer,,)
+>             })
+>             Name (_DSD, Package ()
+>             {
+>                 ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>                 Package () {
+>                     Package (2) { "compatible", "national,lm75" },
+>                 }
+>             })
+>         }
+>     }
+> }
+> 
+> The new thing here is using _ADR to treat each mux channel as a device
+> and referencing those devices elsewhere (CH00).  I arrived at this
+> because it seems to fit the ACPI model reasonably well* and it's easy to
+> implement (just like in other callers to acpi_preset_companion())
+> 
+> * by reasonably well, I think it's clear and works naturally but this
+> use of _ADR isn't explicitly defined in the spec [ACPI 6, Table 6-168
+> (page 278)]
+> 
+> Hopefully the spec ambiguity isn't too much effort to clarify.  I think
+> it's a good change.  But, perhaps it's unnecessary.  Any feedback on
+> whether this ASL seem like the right way to go for device property i2c
+> muxes?
+
+Well to me your ASL looks reasonable. Usage of _ADR to specify mux
+channel seems natural and follows other buses which have an entry in
+that table. I don't know if it is forbidden to invent this kind of
+things that are not explicitly mentioned in the spec, though.
+
+> If not, is there an acceptable alternative?  I wonder how muxes are
+> handled otherwise?  Hopefully not ASL methods :)
+
+I cannot think of any better way. I have never seen ACPI DSDT/SSDT
+containing I2C mux before.
