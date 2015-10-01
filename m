@@ -1,79 +1,106 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 6/8] gpio: pca953x: support ACPI devices found on Galileo Gen2
-Date: Thu,  1 Oct 2015 14:20:28 +0300
-Message-ID: <1443698430-74415-7-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 8/8] pwm-pca9685: enable ACPI device found on Galileo Gen2
+Date: Thu,  1 Oct 2015 14:20:30 +0300
+Message-ID: <1443698430-74415-9-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1443698430-74415-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:63053 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756243AbbJALUk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 1 Oct 2015 07:20:40 -0400
+Return-path: <linux-acpi-owner@vger.kernel.org>
 In-Reply-To: <1443698430-74415-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-acpi-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thierry Reding <thierry.reding@gmail.com>
+List-Id: linux-i2c@vger.kernel.org
 
-This patch adds a support of the expandes found on Intel Galileo Gen2 board.
-The platform information comes from ACPI.
+There is a chip connected to i2c bus on Intel Galileo Gen2 board. Enable it via
+ACPI ID INT3492.
 
+Cc: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/gpio/gpio-pca953x.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/pwm/Kconfig       |  2 +-
+ drivers/pwm/pwm-pca9685.c | 20 ++++++++++++++++----
+ 2 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index 242e244..0220b38 100644
---- a/drivers/gpio/gpio-pca953x.c
-+++ b/drivers/gpio/gpio-pca953x.c
-@@ -21,6 +21,7 @@
- #ifdef CONFIG_OF_GPIO
- #include <linux/of_platform.h>
- #endif
+diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+index 062630a..bb114ef 100644
+--- a/drivers/pwm/Kconfig
++++ b/drivers/pwm/Kconfig
+@@ -242,7 +242,7 @@ config PWM_MXS
+ 
+ config PWM_PCA9685
+ 	tristate "NXP PCA9685 PWM driver"
+-	depends on OF && I2C
++	depends on I2C
+ 	select REGMAP_I2C
+ 	help
+ 	  Generic PWM framework driver for NXP PCA9685 LED controller.
+diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
+index 70448a6..117fccf 100644
+--- a/drivers/pwm/pwm-pca9685.c
++++ b/drivers/pwm/pwm-pca9685.c
+@@ -19,9 +19,11 @@
+  * this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
 +#include <linux/acpi.h>
+ #include <linux/i2c.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <linux/property.h>
+ #include <linux/pwm.h>
+ #include <linux/regmap.h>
+ #include <linux/slab.h>
+@@ -297,7 +299,6 @@ static const struct regmap_config pca9685_regmap_i2c_config = {
+ static int pca9685_pwm_probe(struct i2c_client *client,
+ 				const struct i2c_device_id *id)
+ {
+-	struct device_node *np = client->dev.of_node;
+ 	struct pca9685 *pca;
+ 	int ret;
+ 	int mode2;
+@@ -320,12 +321,12 @@ static int pca9685_pwm_probe(struct i2c_client *client,
  
- #define PCA953X_INPUT		0
- #define PCA953X_OUTPUT		1
-@@ -75,6 +76,12 @@ static const struct i2c_device_id pca953x_id[] = {
+ 	regmap_read(pca->regmap, PCA9685_MODE2, &mode2);
+ 
+-	if (of_property_read_bool(np, "invert"))
++	if (device_property_read_bool(&client->dev, "invert"))
+ 		mode2 |= MODE2_INVRT;
+ 	else
+ 		mode2 &= ~MODE2_INVRT;
+ 
+-	if (of_property_read_bool(np, "open-drain"))
++	if (device_property_read_bool(&client->dev, "open-drain"))
+ 		mode2 &= ~MODE2_OUTDRV;
+ 	else
+ 		mode2 |= MODE2_OUTDRV;
+@@ -363,16 +364,27 @@ static const struct i2c_device_id pca9685_id[] = {
  };
- MODULE_DEVICE_TABLE(i2c, pca953x_id);
+ MODULE_DEVICE_TABLE(i2c, pca9685_id);
  
-+static const struct acpi_device_id pca953x_acpi_ids[] = {
-+	{ "INT3491", 16 | PCA953X_TYPE | PCA_INT, },
-+	{ }
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id pca9685_acpi_ids[] = {
++	{ "INT3492", 0 },
++	{ /* sentinel */ },
 +};
-+MODULE_DEVICE_TABLE(acpi, pca953x_acpi_ids);
++MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
++#endif
 +
- #define MAX_BANK 5
- #define BANK_SZ 8
++#ifdef CONFIG_OF
+ static const struct of_device_id pca9685_dt_ids[] = {
+ 	{ .compatible = "nxp,pca9685-pwm", },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
++#endif
  
-@@ -675,7 +682,18 @@ static int pca953x_probe(struct i2c_client *client,
- 
- 	chip->client = client;
- 
--	chip->driver_data = id->driver_data;
-+	if (id) {
-+		chip->driver_data = id->driver_data;
-+	} else {
-+		const struct acpi_device_id *id;
-+
-+		id = acpi_match_device(pca953x_acpi_ids, &client->dev);
-+		if (!id)
-+			return -ENODEV;
-+
-+		chip->driver_data = id->driver_data;
-+	}
-+
- 	chip->chip_type = PCA_CHIP_TYPE(chip->driver_data);
- 
- 	mutex_init(&chip->i2c_lock);
-@@ -768,6 +786,7 @@ static struct i2c_driver pca953x_driver = {
+ static struct i2c_driver pca9685_i2c_driver = {
  	.driver = {
- 		.name	= "pca953x",
- 		.of_match_table = pca953x_dt_ids,
-+		.acpi_match_table = ACPI_PTR(pca953x_acpi_ids),
+ 		.name = "pca9685-pwm",
+-		.of_match_table = pca9685_dt_ids,
++		.acpi_match_table = ACPI_PTR(pca9685_acpi_ids),
++		.of_match_table = of_match_ptr(pca9685_dt_ids),
  	},
- 	.probe		= pca953x_probe,
- 	.remove		= pca953x_remove,
+ 	.probe = pca9685_pwm_probe,
+ 	.remove = pca9685_pwm_remove,
 -- 
 2.5.1
+
