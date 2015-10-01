@@ -1,59 +1,113 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
- I2C slaves
-Date: Thu, 1 Oct 2015 22:37:44 +0200
-Message-ID: <20151001203744.GA7514@katana>
-References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com>
+Subject: Re: [RESEND PATCH v4 0/8] i2c: Relax mandatory I2C ID table passing
+Date: Thu, 1 Oct 2015 22:50:35 +0200
+Message-ID: <20151001205035.GB7514@katana>
+References: <1441972564-9621-1-git-send-email-kieranbingham@gmail.com>
+ <55FAE058.7080504@osg.samsung.com>
+ <20150920041528.GA3039@x1>
+ <5603A881.2010300@osg.samsung.com>
+ <20150924165807.GA27197@x1>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47233 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:47319 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753401AbbJAUh5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 1 Oct 2015 16:37:57 -0400
+	id S1753537AbbJAUul (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 1 Oct 2015 16:50:41 -0400
 Content-Disposition: inline
-In-Reply-To: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com>
+In-Reply-To: <20150924165807.GA27197@x1>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jean Delvare <jdelvare@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Dustin Byford <dustin@cumulusnetworks.com>, linux@roeck-us.net
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Kieran Bingham <kieranbingham@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org
 
 
---Qxx1br4bt0+wmkIi
+--GRPZ8SYKNexpdSJ7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> This is for discussion so I didn't cc stable@vger.kernel.org yet. I was
-> thinking would it work if we'd keep the stable name but have an another
-> symlink in /sys/bus/i2c/devices/ that uses "x-00yz" name. However this
-> feels ill-use of devices directory and probably causes more troubles
-> elsewhere.
+> > Yes but that is not true for drivers that support both OF and legacy bo=
+ard
+> > files. For those drivers, there will be a lot of boiler plate code dupl=
+icated
+> > that would look something like:
+> >=20
+> >      unsigned long data;
+> >      struct of_device_id *match;
+> >      struct i2c_devicd_id *id;
+> >=20
+> >      if (i2c->dev.of_node) {
+> >             match =3D i2c_of_match_device(of_match_table, i2c);
+> > 	    if (!match)
+> > 	           return -EINVAL;
+> >=20
+> >             data =3D (unsigned long)match->data;
+> >      } else {
+> >             id =3D i2c_match_id(id_table, i2c);
+> > 	    if (!id)
+> > 	           return -EINVAL;
+> >=20
+> >             data =3D id->driver_data;
+> >      }
 
-Do you foresee troubles already? I am still in favour of a symlink.
+I said this before: It is not only the additional code, I think it is
+quite unelegant to to do the matching again which has already been done.
+(and DT boottime has already increased, partly due to the excessive
+string matching). Also, I wouldn't like to see an I2C specific solution;
+this problem exists for other subsystems, too.
+
+> I'm fine with a new API for this stuff.  I'm even happy to go ahead
+> and code it up, but it's important to note that this is work which
+> should be based on this set and not a blocker for this set to be
+> accepted.
+
+Is that a promise? :)
+
+> The correct approach is the former.  One of the aims of this set was
+> to bring the I2C .probe() call-back more into line with the majority
+> of the other .probe() calls in the kernel i.e. with only a single
+> parameter.  I'm really not a fan of passing some random void pointer
+
+Yes, I like this about this series.
+
+> in.  Using a look-up call to fetch ACPI/OF/I2C/etc data is the current
+> norm and is a very viable option.
+
+It is the status quo, but that doesn't make it better IMO.
+
+> Wolfram, please (finally :D) take this set.
+
+I tend to give in ;) Maybe we can talk in Dublin a bit about a possible
+next step after this series?
+
+Thanks,
+
+   Wolfram
 
 
---Qxx1br4bt0+wmkIi
+--GRPZ8SYKNexpdSJ7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWDZmYAAoJEBQN5MwUoCm25hkP/3+U2dMOIHZGya4yUggP8AYZ
-YF4qLzQtFL5l6FU6v+JJKBtS0eTKO7zTa32xF+ZoehMzBxZqLJY8bszneh3v1+ig
-NowxWNTgRHe4phdd0OWYEk25iL3AMfRFO5LMn9JkbsdIv7FGGwIzx7vqPJQS2n7j
-L7YW2uAs1RwjrGKBnhjID/+40fBT8c2U2GjXiQUt6YxndUIMD7O9IchfVgcN4AuM
-i3eDxnPtJSGb8icBTLJLKTHKftM+NtgO6VOuZz7TTQTyQPknjXK9srlCDjt57nGo
-9nY9FIjAnSVwwioWJvOrxNOu+nocidwyTf8wwqvFZmmKzzByklpq9AI18Y7sa1GX
-zWM7QK0dC9H+xjc1fuxfFNEp+/1q87ML3bbfiNSQWcrlU59RrsMouL47dnT3qS/t
-70Tb3o+GfmoCIy7Vb/t400mFPWBNjYwkQ8iNqjTqclMghMFkZgXInH6tvzeZB2sU
-IvfEy3gZL8qQ7YsZcyShkbzwL/JdTuob7B4AK+6nXUcrezCOvarJ/IS4iIojdwnh
-4huTEGy2MlQjxhKThnaxodHzhU6DIvGcQTmivMZm7KEHg3FA8I3v347Ym59jUydp
-9pzX7eA3j/vKgaloHbGmratapQwcQd7aTXeTBtZGllEDFZv68k/HV9EC4+10pp6v
-ZsK8vK0wvQCcTyG7SSpE
-=rE/C
+iQIcBAEBAgAGBQJWDZybAAoJEBQN5MwUoCm2C8AQAIKeipX+VkuSEhLuKtWqkg9n
++cDMoRACJgCdJ1I5PSGw73JkEcgYbbQskheNhQ0x17sLErWQYW4XzL2dB5KQDtCb
+L018MxYPPJa/kaE220yh58KNb8PhOjp7G760ywIPXTzfErSMj5+dhDp6u0/wBNf1
+5IxtDrukgyy4ZYPn+kbuutwrNeflEbBwQfFi0i1hB6DC+tuqlKNv/+k6hpj/0Xv7
+XeK8rDc6EHlN+EPok90kwhEJtEF4og+3Vvl4dcMr6JDLLFs4ZktsOltlRAKfOkCE
+KnjUREF7kfp4wPmuakhQGU+M6RdAMTK0ps5Wd4TXaPldvab8X3cOCB1Yw1bHj7aG
+DbhfhYBUsb62sLHoh8N+Zym9KbToPs/FEy97SrzfZmoUxkY7zejCbhji72KWs/en
+1OqTSzKMacxkpsR3LhQiMXNUtxNHRjVLaK6iZ64DIa8kalKvJca84JGELzankDi8
+BIyYM0UOzPhXrw4qsWiA/25cNs5FiU3X3cOg/IthKg1GpZXMQpPk0BCh3t9q1J/n
+D7OoelCdDgf0nvZAuGcRHOrpI11dko6ywsOXDYRWUL2Qd9ZlTHvVfKt/48i9bMQ3
+Wed9wVHXkXgM8hnKqsAOdgk/UoiHEkvNobu7H0QlQrQR+vZpVDw4KrquDyrAgata
+41jKkUdo7TBvzfs7yZEI
+=nwTO
 -----END PGP SIGNATURE-----
 
---Qxx1br4bt0+wmkIi--
+--GRPZ8SYKNexpdSJ7--
