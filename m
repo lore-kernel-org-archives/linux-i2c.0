@@ -1,100 +1,41 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 3/8] mfd: intel_quark_i2c_gpio: load gpio driver first
-Date: Fri, 02 Oct 2015 15:11:20 +0300
-Message-ID: <1443787880.8361.329.camel@linux.intel.com>
-References: <1443698430-74415-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <1443698430-74415-4-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <20151001145401.GC3214@x1>
+Subject: Re: [PATCH v1 5/8] gpio: pca953x: store driver_data for future use
+Date: Fri, 02 Oct 2015 15:16:01 +0300
+Message-ID: <1443788161.8361.331.camel@linux.intel.com>
+References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	 <1442916619-140607-6-git-send-email-andriy.shevchenko@linux.intel.com>
+	 <CACRpkdb88A4wP2_z_SsxOU_NoyGVVsA7TomgcKO6Qn+fguoJFA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20151001145401.GC3214@x1>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdb88A4wP2_z_SsxOU_NoyGVVsA7TomgcKO6Qn+fguoJFA@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, Gregory CLEMENT <gregory.clement@free-electrons.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Graeme Smecher <gsmecher@threespeedlogic.com>
+Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2015-10-01 at 15:54 +0100, Lee Jones wrote:
-> On Thu, 01 Oct 2015, Andy Shevchenko wrote:
+On Fri, 2015-10-02 at 03:53 -0700, Linus Walleij wrote:
+> On Tue, Sep 22, 2015 at 3:10 AM, Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
 > 
-> > On Intel Galileo boards the GPIO expander is connected to i2c bus. 
-> > Moreover it
-> > is able to generate interrupt, but interrupt line is connected to 
-> > GPIO. That's
-> > why we have to have GPIO driver in place when we will probe i2c 
-> > host with
-> > device connected to it.
+> > Instead of using id->driver_data directly we copied it to the 
+> > internal
+> > structure. This will help to adapt driver for ACPI use.
 > > 
 > > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > ---
-> >  drivers/mfd/intel_quark_i2c_gpio.c | 19 +++++++++----------
-> >  1 file changed, 9 insertions(+), 10 deletions(-)
 > 
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> 
-> Are there build dependancies in this set?  Or can all patches filter
-> through their own subsystems?
+> Gregory, Grygorii, Graeme: can I get some help in reviewing these
+> PCA patches for ACPI support?
 
-Practically patches 4-8 can go by their own, though it makes not much
-sense since it doesn't add a value (they will be not enumerated until
-patches 1-4 made an upstream).
+I would like to notice that there is v2 of the series (GPIO patches
+weren't changed AFAIR).
+
+http://www.spinics.net/lists/kernel/msg2087827.html
 
 > 
-> > diff --git a/drivers/mfd/intel_quark_i2c_gpio.c 
-> > b/drivers/mfd/intel_quark_i2c_gpio.c
-> > index 1ce1603..958c134 100644
-> > --- a/drivers/mfd/intel_quark_i2c_gpio.c
-> > +++ b/drivers/mfd/intel_quark_i2c_gpio.c
-> > @@ -90,19 +90,19 @@ static struct resource intel_quark_gpio_res[] = 
-> > {
-> >  
-> >  static struct mfd_cell intel_quark_mfd_cells[] = {
-> >  	{
-> > -		.id = MFD_I2C_BAR,
-> > -		.name = "i2c_designware",
-> > -		.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
-> > -		.resources = intel_quark_i2c_res,
-> > -		.ignore_resource_conflicts = true,
-> > -	},
-> > -	{
-> >  		.id = MFD_GPIO_BAR,
-> >  		.name = "gpio-dwapb",
-> >  		.num_resources = ARRAY_SIZE(intel_quark_gpio_res),
-> >  		.resources = intel_quark_gpio_res,
-> >  		.ignore_resource_conflicts = true,
-> >  	},
-> > +	{
-> > +		.id = MFD_I2C_BAR,
-> > +		.name = "i2c_designware",
-> > +		.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
-> > +		.resources = intel_quark_i2c_res,
-> > +		.ignore_resource_conflicts = true,
-> > +	},
-> >  };
-> >  
-> >  static const struct pci_device_id intel_quark_mfd_ids[] = {
-> > @@ -248,12 +248,11 @@ static int intel_quark_mfd_probe(struct 
-> > pci_dev *pdev,
-> >  
-> >  	dev_set_drvdata(&pdev->dev, quark_mfd);
-> >  
-> > -	ret = intel_quark_i2c_setup(pdev, 
-> > &intel_quark_mfd_cells[MFD_I2C_BAR]);
-> > +	ret = intel_quark_i2c_setup(pdev, 
-> > &intel_quark_mfd_cells[1]);
-> >  	if (ret)
-> >  		return ret;
-> >  
-> > -	ret = intel_quark_gpio_setup(pdev,
-> > -				    
-> >  &intel_quark_mfd_cells[MFD_GPIO_BAR]);
-> > +	ret = intel_quark_gpio_setup(pdev, 
-> > &intel_quark_mfd_cells[0]);
-> >  	if (ret)
-> >  		return ret;
-> >  
-> 
+> Yours,
+> Linus Walleij
 
 -- 
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
