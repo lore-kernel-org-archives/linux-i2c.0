@@ -1,42 +1,47 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 5/8] gpio: pca953x: store driver_data for future use
-Date: Fri, 02 Oct 2015 15:16:01 +0300
-Message-ID: <1443788161.8361.331.camel@linux.intel.com>
-References: <1442916619-140607-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <1442916619-140607-6-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <CACRpkdb88A4wP2_z_SsxOU_NoyGVVsA7TomgcKO6Qn+fguoJFA@mail.gmail.com>
+From: York Sun <yorksun@freescale.com>
+Subject: Re: multiple i2c-ocores adapters
+Date: Fri, 2 Oct 2015 12:11:15 -0700
+Message-ID: <560ED6D3.40901@freescale.com>
+References: <CY1PR03MB1469CBCC35D971A2F26773DBBE4B0@CY1PR03MB1469.namprd03.prod.outlook.com>
+ <874mi9x0w7.fsf@dell.be.48ers.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdb88A4wP2_z_SsxOU_NoyGVVsA7TomgcKO6Qn+fguoJFA@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Gregory CLEMENT <gregory.clement@free-electrons.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Graeme Smecher <gsmecher@threespeedlogic.com>
-Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-bl2on0110.outbound.protection.outlook.com ([65.55.169.110]:55712
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750923AbbJBTL0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 2 Oct 2015 15:11:26 -0400
+In-Reply-To: <874mi9x0w7.fsf@dell.be.48ers.dk>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Korsgaard <peter@korsgaard.com>
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On Fri, 2015-10-02 at 03:53 -0700, Linus Walleij wrote:
-> On Tue, Sep 22, 2015 at 3:10 AM, Andy Shevchenko
-> <andriy.shevchenko@linux.intel.com> wrote:
+Peter,
+
+On 10/01/2015 11:03 PM, Peter Korsgaard wrote:
+>>>>>> "York" == York Sun <yorksun@freescale.com> writes:
 > 
-> > Instead of using id->driver_data directly we copied it to the 
-> > internal
-> > structure. This will help to adapt driver for ACPI use.
-> > 
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>  > Peter,
 > 
-> Gregory, Grygorii, Graeme: can I get some help in reviewing these
-> PCA patches for ACPI support?
-
-I would like to notice that there is v2 of the series (GPIO patches
-weren't changed AFAIR).
-
-http://www.spinics.net/lists/kernel/msg2087827.html
-
+>  > I have a platform (FPGA) with multiple ocores i2c adapter. When I
+>  > register them using MFD framework, I got a message regarding
+>  > duplicating name for sysfs. I wonder if this driver (i2c-ocores.c)
+>  > only supports one adapter. I can try to fix it by adding a name string
+>  > into ocores_i2c_platform_data and allocate struct i2c_adapter on
+>  > demand. Am I on the right direction?
 > 
-> Yours,
-> Linus Walleij
+> I guess your problem is that the driver core is complaining about
+> duplicate names for your platform devices (generated from the
+> mfd_cell). Make sure you set the .id member to something unique.
+> 
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+What I got was
+
+sysfs: cannot create duplicate filename '/bus/platform/devices/ocores-i2c'
+
+I think it is caused by the i2c-ocores driver. Will dig deeper.
+
+York
