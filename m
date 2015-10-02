@@ -1,37 +1,109 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
- I2C slaves
-Date: Fri, 02 Oct 2015 12:27:16 +0300
-Message-ID: <560E4DF4.4000901@linux.intel.com>
-References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com> <20151001203744.GA7514@katana>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [RESEND PATCH v4 0/8] i2c: Relax mandatory I2C ID table passing
+Date: Fri, 2 Oct 2015 10:35:12 +0100
+Message-ID: <20151002093512.GB23213@x1>
+References: <1441972564-9621-1-git-send-email-kieranbingham@gmail.com>
+ <55FAE058.7080504@osg.samsung.com>
+ <20150920041528.GA3039@x1>
+ <5603A881.2010300@osg.samsung.com>
+ <20150924165807.GA27197@x1>
+ <20151001205035.GB7514@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:57246 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751425AbbJBJ1U (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 2 Oct 2015 05:27:20 -0400
-In-Reply-To: <20151001203744.GA7514@katana>
+Received: from mail-wi0-f170.google.com ([209.85.212.170]:35329 "EHLO
+	mail-wi0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751189AbbJBJfQ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 2 Oct 2015 05:35:16 -0400
+Received: by wicge5 with SMTP id ge5so24861310wic.0
+        for <linux-i2c@vger.kernel.org>; Fri, 02 Oct 2015 02:35:15 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20151001205035.GB7514@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jean Delvare <jdelvare@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Dustin Byford <dustin@cumulusnetworks.com>, linux@roeck-us.net
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Kieran Bingham <kieranbingham@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org
 
-On 10/01/2015 11:37 PM, Wolfram Sang wrote:
->
->> This is for discussion so I didn't cc stable@vger.kernel.org yet. I was
->> thinking would it work if we'd keep the stable name but have an another
->> symlink in /sys/bus/i2c/devices/ that uses "x-00yz" name. However this
->> feels ill-use of devices directory and probably causes more troubles
->> elsewhere.
->
-> Do you foresee troubles already? I am still in favour of a symlink.
->
-I haven't looked at this for a while but one problem was that devices/ 
-directory belongs to private structure of struct bus_type and in order 
-to create a symlink there it needs to done in drivers/base/bus.c: 
-bus_add_device() which felt quite hackish to me.
+On Thu, 01 Oct 2015, Wolfram Sang wrote:
 
--- 
-Jarkko
+>=20
+> > > Yes but that is not true for drivers that support both OF and leg=
+acy board
+> > > files. For those drivers, there will be a lot of boiler plate cod=
+e duplicated
+> > > that would look something like:
+> > >=20
+> > >      unsigned long data;
+> > >      struct of_device_id *match;
+> > >      struct i2c_devicd_id *id;
+> > >=20
+> > >      if (i2c->dev.of_node) {
+> > >             match =3D i2c_of_match_device(of_match_table, i2c);
+> > > 	    if (!match)
+> > > 	           return -EINVAL;
+> > >=20
+> > >             data =3D (unsigned long)match->data;
+> > >      } else {
+> > >             id =3D i2c_match_id(id_table, i2c);
+> > > 	    if (!id)
+> > > 	           return -EINVAL;
+> > >=20
+> > >             data =3D id->driver_data;
+> > >      }
+>=20
+> I said this before: It is not only the additional code, I think it is
+> quite unelegant to to do the matching again which has already been do=
+ne.
+> (and DT boottime has already increased, partly due to the excessive
+> string matching). Also, I wouldn't like to see an I2C specific soluti=
+on;
+> this problem exists for other subsystems, too.
+>=20
+> > I'm fine with a new API for this stuff.  I'm even happy to go ahead
+> > and code it up, but it's important to note that this is work which
+> > should be based on this set and not a blocker for this set to be
+> > accepted.
+>=20
+> Is that a promise? :)
+
+Yes.
+
+> > The correct approach is the former.  One of the aims of this set wa=
+s
+> > to bring the I2C .probe() call-back more into line with the majorit=
+y
+> > of the other .probe() calls in the kernel i.e. with only a single
+> > parameter.  I'm really not a fan of passing some random void pointe=
+r
+>=20
+> Yes, I like this about this series.
+>=20
+> > in.  Using a look-up call to fetch ACPI/OF/I2C/etc data is the curr=
+ent
+> > norm and is a very viable option.
+>=20
+> It is the status quo, but that doesn't make it better IMO.
+>=20
+> > Wolfram, please (finally :D) take this set.
+>=20
+> I tend to give in ;)
+
+Great.  Although, I don't see a "applied, thanks". :)
+
+Please just take it, so we can breathe a sigh of relief and move on to
+the next stage. :D
+
+> Maybe we can talk in Dublin a bit about a possible
+> next step after this series?
+
+I'm happy to chat, although I'm afraid I won't be in Dublin this
+time.  Kieran will be though, so feel free to so some lobby loitering
+and I'll discuss with him when he returns.  Failing that we can
+hook-up on Gtalk or IRC etc.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
