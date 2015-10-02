@@ -1,38 +1,37 @@
-From: Peter Korsgaard <peter@korsgaard.com>
-Subject: Re: multiple i2c-ocores adapters
-Date: Fri, 02 Oct 2015 08:03:36 +0200
-Message-ID: <874mi9x0w7.fsf@dell.be.48ers.dk>
-References: <CY1PR03MB1469CBCC35D971A2F26773DBBE4B0@CY1PR03MB1469.namprd03.prod.outlook.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
+ I2C slaves
+Date: Fri, 02 Oct 2015 12:27:16 +0300
+Message-ID: <560E4DF4.4000901@linux.intel.com>
+References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com> <20151001203744.GA7514@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:38393 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750952AbbJBGDk (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 2 Oct 2015 02:03:40 -0400
-Received: by wiclk2 with SMTP id lk2so16983568wic.1
-        for <linux-i2c@vger.kernel.org>; Thu, 01 Oct 2015 23:03:39 -0700 (PDT)
-In-Reply-To: <CY1PR03MB1469CBCC35D971A2F26773DBBE4B0@CY1PR03MB1469.namprd03.prod.outlook.com>
-	(York Sun's message of "Fri, 2 Oct 2015 05:47:37 +0000")
+Received: from mga02.intel.com ([134.134.136.20]:57246 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751425AbbJBJ1U (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 2 Oct 2015 05:27:20 -0400
+In-Reply-To: <20151001203744.GA7514@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: York Sun <yorksun@freescale.com>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jean Delvare <jdelvare@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Dustin Byford <dustin@cumulusnetworks.com>, linux@roeck-us.net
 
->>>>> "York" == York Sun <yorksun@freescale.com> writes:
-
- > Peter,
-
- > I have a platform (FPGA) with multiple ocores i2c adapter. When I
- > register them using MFD framework, I got a message regarding
- > duplicating name for sysfs. I wonder if this driver (i2c-ocores.c)
- > only supports one adapter. I can try to fix it by adding a name string
- > into ocores_i2c_platform_data and allocate struct i2c_adapter on
- > demand. Am I on the right direction?
-
-I guess your problem is that the driver core is complaining about
-duplicate names for your platform devices (generated from the
-mfd_cell). Make sure you set the .id member to something unique.
+On 10/01/2015 11:37 PM, Wolfram Sang wrote:
+>
+>> This is for discussion so I didn't cc stable@vger.kernel.org yet. I was
+>> thinking would it work if we'd keep the stable name but have an another
+>> symlink in /sys/bus/i2c/devices/ that uses "x-00yz" name. However this
+>> feels ill-use of devices directory and probably causes more troubles
+>> elsewhere.
+>
+> Do you foresee troubles already? I am still in favour of a symlink.
+>
+I haven't looked at this for a while but one problem was that devices/ 
+directory belongs to private structure of struct bus_type and in order 
+to create a symlink there it needs to done in drivers/base/bus.c: 
+bus_add_device() which felt quite hackish to me.
 
 -- 
-Bye, Peter Korsgaard
+Jarkko
