@@ -1,61 +1,104 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] misc: eeprom: at25: add Cypress FRAM functionality
-Date: Tue, 6 Oct 2015 15:40:48 +0100
-Message-ID: <20151006144048.GS12635@sirena.org.uk>
-References: <c7beacd629a47a0bd5023353378a3eda4d7d0f89.1444139729.git.jiri.prchal@aksignal.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="tCskcS2bjfK01Pum"
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <c7beacd629a47a0bd5023353378a3eda4d7d0f89.1444139729.git.jiri.prchal-cKCO0sOKHLPtwjQa/ONI9g@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Prchal <jiri.prchal-cKCO0sOKHLPtwjQa/ONI9g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+From: Max Filippov <jcmvbkbc@gmail.com>
+Subject: [REPOST PATCH v2] i2c-ocores: support big-endian register layout
+Date: Wed,  7 Oct 2015 02:45:11 +0300
+Message-ID: <1444175111-9529-1-git-send-email-jcmvbkbc@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Korsgaard <peter@korsgaard.com>, Max Filippov <jcmvbkbc@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This allows using OpenCores I2C controller attached to its host in
+native-endian mode with bi-endian CPUs. Example of such system is Xtensa
+XTFPGA platform.
 
---tCskcS2bjfK01Pum
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Acked-by: Peter Korsgaard <peter@korsgaard.com>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+---
+Changes v1->v2:
+- expand changelog with motivation for the change.
 
-On Tue, Oct 06, 2015 at 04:01:32PM +0200, Jiri Prchal wrote:
-> This patch adds functionality for Cypress FRAMs on SPI bus, such as FM25V05,
-> FM25V10 etc.
+ drivers/i2c/busses/i2c-ocores.c | 31 +++++++++++++++++++++++++++----
+ include/linux/i2c-ocores.h      |  1 +
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
-I'm not entirely sure why I got CCed on this?
-
-> +	mutex_lock(&at25->lock);
-> +
-> +	status = spi_sync(at25->spi, &m);
-> +	dev_dbg(&at25->spi->dev,
-> +		"read %Zd bytes of ID --> %d\n",
-> +	 FM25_ID_LEN, (int) status);
-> +
-> +	mutex_unlock(&at25->lock);
-
-There is no point in holding a lock around spi_sync(), the SPI framework
-has locking which will ensure spi_sync() and spi_async() calls will be
-serialised.
-
---tCskcS2bjfK01Pum
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWE91vAAoJECTWi3JdVIfQXWEIAIL3/C5ZmgcvCOMOkTiFLxfi
-o22iChNQrXLBrLKa1CYotn0KSIxPnQDR/xSaJMX+vg6i5VsOPa6UamqVsf6f4lJE
-tY7K7tKrqXp8InmUT5qyTrkDQUv8VhSOYVMbCtAIci0A/RPXXdI922slwMf27OcF
-zMSndF6krXKIur6W2EZ/tluBwOUuWnyHwNmrCK35A3AfU2Fm8Fa/GVw7JpT/h665
-/zJxcHG0X2KO61q8L7RXvI3O/yUptKJZChrSrXbRDxeSvJ4qj4XePKhUbvtEpYeh
-mUdDvAm3GRWAvP8Y/DNv6QJYP62/pPTuU96JV7gkhvjd/rrLIkyDeQTFQCVQMeE=
-=/8gr
------END PGP SIGNATURE-----
-
---tCskcS2bjfK01Pum--
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index abf5db7..11b7b87 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -92,6 +92,16 @@ static void oc_setreg_32(struct ocores_i2c *i2c, int reg, u8 value)
+ 	iowrite32(value, i2c->base + (reg << i2c->reg_shift));
+ }
+ 
++static void oc_setreg_16be(struct ocores_i2c *i2c, int reg, u8 value)
++{
++	iowrite16be(value, i2c->base + (reg << i2c->reg_shift));
++}
++
++static void oc_setreg_32be(struct ocores_i2c *i2c, int reg, u8 value)
++{
++	iowrite32be(value, i2c->base + (reg << i2c->reg_shift));
++}
++
+ static inline u8 oc_getreg_8(struct ocores_i2c *i2c, int reg)
+ {
+ 	return ioread8(i2c->base + (reg << i2c->reg_shift));
+@@ -107,6 +117,16 @@ static inline u8 oc_getreg_32(struct ocores_i2c *i2c, int reg)
+ 	return ioread32(i2c->base + (reg << i2c->reg_shift));
+ }
+ 
++static inline u8 oc_getreg_16be(struct ocores_i2c *i2c, int reg)
++{
++	return ioread16be(i2c->base + (reg << i2c->reg_shift));
++}
++
++static inline u8 oc_getreg_32be(struct ocores_i2c *i2c, int reg)
++{
++	return ioread32be(i2c->base + (reg << i2c->reg_shift));
++}
++
+ static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
+ {
+ 	i2c->setreg(i2c, reg, value);
+@@ -428,6 +448,9 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ 		i2c->reg_io_width = 1; /* Set to default value */
+ 
+ 	if (!i2c->setreg || !i2c->getreg) {
++		bool be = pdata ? pdata->big_endian :
++			of_device_is_big_endian(pdev->dev.of_node);
++
+ 		switch (i2c->reg_io_width) {
+ 		case 1:
+ 			i2c->setreg = oc_setreg_8;
+@@ -435,13 +458,13 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ 			break;
+ 
+ 		case 2:
+-			i2c->setreg = oc_setreg_16;
+-			i2c->getreg = oc_getreg_16;
++			i2c->setreg = be ? oc_setreg_16be : oc_setreg_16;
++			i2c->getreg = be ? oc_getreg_16be : oc_getreg_16;
+ 			break;
+ 
+ 		case 4:
+-			i2c->setreg = oc_setreg_32;
+-			i2c->getreg = oc_getreg_32;
++			i2c->setreg = be ? oc_setreg_32be : oc_setreg_32;
++			i2c->getreg = be ? oc_getreg_32be : oc_getreg_32;
+ 			break;
+ 
+ 		default:
+diff --git a/include/linux/i2c-ocores.h b/include/linux/i2c-ocores.h
+index 1c06b5c..01edd96 100644
+--- a/include/linux/i2c-ocores.h
++++ b/include/linux/i2c-ocores.h
+@@ -15,6 +15,7 @@ struct ocores_i2c_platform_data {
+ 	u32 reg_shift; /* register offset shift value */
+ 	u32 reg_io_width; /* register io read/write width */
+ 	u32 clock_khz; /* input clock in kHz */
++	bool big_endian; /* registers are big endian */
+ 	u8 num_devices; /* number of devices in the devices list */
+ 	struct i2c_board_info const *devices; /* devices connected to the bus */
+ };
+-- 
+1.8.1.4
