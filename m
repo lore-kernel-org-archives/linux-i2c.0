@@ -1,154 +1,102 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 2/6] mfd: core: redo ACPI matching of the children devices
-Date: Wed,  7 Oct 2015 13:18:45 +0300
-Message-ID: <1444213129-29793-3-git-send-email-andriy.shevchenko@linux.intel.com>
-References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:35508 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751306AbbJGKS5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 7 Oct 2015 06:18:57 -0400
-In-Reply-To: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH] i2c: rcar: Remove obsolete platform data support
+Date: Wed,  7 Oct 2015 10:16:31 +0200
+Message-ID: <1444205791-25480-1-git-send-email-geert+renesas@glider.be>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-There is at least one board on the market, i.e. Intel Galileo Gen2, that uses
-_ADR to distinguish the devices under one actual device. Due to this we have to
-improve the quirk in the MFD core to handle that board.
+Since commit 4baadb9e05c68962 ("ARM: shmobile: r8a7778: remove obsolete
+setup code"), Renesas R-Car SoCs are only supported in generic DT-only
+ARM multi-platform builds.  The driver doesn't need to use platform data
+anymore, hence remove platform data configuration.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- Documentation/acpi/enumeration.txt | 11 +++++---
- drivers/mfd/mfd-core.c             | 52 ++++++++++++++++++++++++++------------
- include/linux/mfd/core.h           | 10 ++++++--
- 3 files changed, 52 insertions(+), 21 deletions(-)
+Commit 4baadb9e05c68962 is now in arm-soc/for-next.
+---
+ drivers/i2c/busses/i2c-rcar.c | 19 +------------------
+ include/linux/i2c/i2c-rcar.h  | 10 ----------
+ 2 files changed, 1 insertion(+), 28 deletions(-)
+ delete mode 100644 include/linux/i2c/i2c-rcar.h
 
-diff --git a/Documentation/acpi/enumeration.txt b/Documentation/acpi/enumeration.txt
-index b731b29..a91ec5a 100644
---- a/Documentation/acpi/enumeration.txt
-+++ b/Documentation/acpi/enumeration.txt
-@@ -347,13 +347,18 @@ For the first case, the MFD drivers do not need to do anything. The
- resulting child platform device will have its ACPI_COMPANION() set to point
- to the parent device.
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 3e125654bb28..cd38406db074 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -27,7 +27,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/i2c.h>
+-#include <linux/i2c/i2c-rcar.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+@@ -634,7 +633,6 @@ MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
  
--If the ACPI namespace has a device that we can match using an ACPI id,
--the id should be set like:
-+If the ACPI namespace has a device that we can match using an ACPI id or ACPI
-+adr, the cell should be set like:
-+
-+	static struct mfd_cell_acpi_match my_subdevice_cell_acpi_match = {
-+		.pnpid = "XYZ0001",
-+		.adr = 0,
-+	};
- 
- 	static struct mfd_cell my_subdevice_cell = {
- 		.name = "my_subdevice",
- 		/* set the resources relative to the parent */
--		.acpi_pnpid = "XYZ0001",
-+		.acpi_match = &my_subdevice_cell_acpi_match,
- 	};
- 
- The ACPI id "XYZ0001" is then used to lookup an ACPI device directly under
-diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-index c17635d..60b60dc 100644
---- a/drivers/mfd/mfd-core.c
-+++ b/drivers/mfd/mfd-core.c
-@@ -82,29 +82,49 @@ static int mfd_platform_add_cell(struct platform_device *pdev,
- static void mfd_acpi_add_device(const struct mfd_cell *cell,
- 				struct platform_device *pdev)
+ static int rcar_i2c_probe(struct platform_device *pdev)
  {
--	struct acpi_device *parent_adev;
-+	const struct mfd_cell_acpi_match *match = cell->acpi_match;
-+	struct acpi_device *parent, *child;
- 	struct acpi_device *adev;
+-	struct i2c_rcar_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct rcar_i2c_priv *priv;
+ 	struct i2c_adapter *adap;
+ 	struct resource *res;
+@@ -654,14 +652,8 @@ static int rcar_i2c_probe(struct platform_device *pdev)
  
--	parent_adev = ACPI_COMPANION(pdev->dev.parent);
--	if (!parent_adev)
-+	parent = ACPI_COMPANION(pdev->dev.parent);
-+	if (!parent)
- 		return;
+ 	bus_speed = 100000; /* default 100 kHz */
+ 	ret = of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
+-	if (ret < 0 && pdata && pdata->bus_speed)
+-		bus_speed = pdata->bus_speed;
  
- 	/*
--	 * MFD child device gets its ACPI handle either from the ACPI
--	 * device directly under the parent that matches the acpi_pnpid or
--	 * it will use the parent handle if is no acpi_pnpid is given.
-+	 * MFD child device gets its ACPI handle either from the ACPI device
-+	 * directly under the parent that matches the either _HID or _CID, or
-+	 * _ADR or it will use the parent handle if is no ID is given.
-+	 *
-+	 * Note that use of _ADR is a grey area in the ACPI specification,
-+	 * though Intel Galileo Gen2 is using it to distinguish the children
-+	 * devices.
- 	 */
--	adev = parent_adev;
--	if (cell->acpi_pnpid) {
--		struct acpi_device_id ids[2] = {};
--		struct acpi_device *child_adev;
+-	if (pdev->dev.of_node)
+-		priv->devtype = (long)of_match_device(rcar_i2c_dt_ids,
+-						      dev)->data;
+-	else
+-		priv->devtype = platform_get_device_id(pdev)->driver_data;
++	priv->devtype = (long)of_match_device(rcar_i2c_dt_ids, dev)->data;
+ 
+ 	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
+ 	if (ret < 0)
+@@ -718,14 +710,6 @@ static int rcar_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static const struct platform_device_id rcar_i2c_id_table[] = {
+-	{ "i2c-rcar",		I2C_RCAR_GEN1 },
+-	{ "i2c-rcar_gen1",	I2C_RCAR_GEN1 },
+-	{ "i2c-rcar_gen2",	I2C_RCAR_GEN2 },
+-	{},
+-};
+-MODULE_DEVICE_TABLE(platform, rcar_i2c_id_table);
 -
--		strlcpy(ids[0].id, cell->acpi_pnpid, sizeof(ids[0].id));
--		list_for_each_entry(child_adev, &parent_adev->children, node)
--			if (acpi_match_device_ids(child_adev, ids)) {
--				adev = child_adev;
--				break;
-+	adev = parent;
-+	if (match) {
-+		if (match->pnpid) {
-+			struct acpi_device_id ids[2] = {};
-+
-+			strlcpy(ids[0].id, match->pnpid, sizeof(ids[0].id));
-+			list_for_each_entry(child, &parent->children, node) {
-+				if (acpi_match_device_ids(child, ids)) {
-+					adev = child;
-+					break;
-+				}
-+			}
-+		} else {
-+			unsigned long long adr;
-+			acpi_status status;
-+
-+			list_for_each_entry(child, &parent->children, node) {
-+				status = acpi_evaluate_integer(child->handle,
-+							       "_ADR", NULL,
-+							       &adr);
-+				if (ACPI_SUCCESS(status) && match->adr == adr) {
-+					adev = child;
-+					break;
-+				}
- 			}
-+		}
- 	}
+ static struct platform_driver rcar_i2c_driver = {
+ 	.driver	= {
+ 		.name	= "i2c-rcar",
+@@ -733,7 +717,6 @@ static struct platform_driver rcar_i2c_driver = {
+ 	},
+ 	.probe		= rcar_i2c_probe,
+ 	.remove		= rcar_i2c_remove,
+-	.id_table	= rcar_i2c_id_table,
+ };
  
- 	ACPI_COMPANION_SET(&pdev->dev, adev);
-diff --git a/include/linux/mfd/core.h b/include/linux/mfd/core.h
-index a76bc10..27dac3f 100644
---- a/include/linux/mfd/core.h
-+++ b/include/linux/mfd/core.h
-@@ -18,6 +18,12 @@
- 
- struct irq_domain;
- 
-+/* Matches ACPI PNP id, either _HID or _CID, or ACPI _ADR */
-+struct mfd_cell_acpi_match {
-+	const char			*pnpid;
-+	const unsigned long long	adr;
-+};
-+
- /*
-  * This struct describes the MFD part ("cell").
-  * After registration the copy of this structure will become the platform data
-@@ -44,8 +50,8 @@ struct mfd_cell {
- 	 */
- 	const char		*of_compatible;
- 
--	/* Matches ACPI PNP id, either _HID or _CID */
--	const char		*acpi_pnpid;
-+	/* Matches ACPI */
-+	const struct mfd_cell_acpi_match	*acpi_match;
- 
- 	/*
- 	 * These resources can be specified relative to the parent device.
+ module_platform_driver(rcar_i2c_driver);
+diff --git a/include/linux/i2c/i2c-rcar.h b/include/linux/i2c/i2c-rcar.h
+deleted file mode 100644
+index 496f5c2b23c9..000000000000
+--- a/include/linux/i2c/i2c-rcar.h
++++ /dev/null
+@@ -1,10 +0,0 @@
+-#ifndef __I2C_R_CAR_H__
+-#define __I2C_R_CAR_H__
+-
+-#include <linux/platform_device.h>
+-
+-struct i2c_rcar_platform_data {
+-	u32 bus_speed;
+-};
+-
+-#endif /* __I2C_R_CAR_H__ */
 -- 
-2.5.3
+1.9.1
+
