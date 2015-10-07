@@ -1,86 +1,105 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 5/6] at24: enable ACPI device found on Galileo Gen2
-Date: Wed,  7 Oct 2015 13:18:48 +0300
-Message-ID: <1444213129-29793-6-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 6/6] pwm-pca9685: enable ACPI device found on Galileo Gen2
+Date: Wed,  7 Oct 2015 13:18:49 +0300
+Message-ID: <1444213129-29793-7-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:41634 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752161AbbJGKTA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 7 Oct 2015 06:19:00 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thierry Reding <thierry.reding@gmail.com>
+List-Id: linux-i2c@vger.kernel.org
 
-There is a 24c08 chip connected to i2c bus on Intel Galileo Gen2 board. Enable
-it via ACPI ID INT3499.
+There is a chip connected to i2c bus on Intel Galileo Gen2 board. Enable it via
+ACPI ID INT3492.
 
+Cc: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/misc/eeprom/at24.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/pwm/Kconfig       |  2 +-
+ drivers/pwm/pwm-pca9685.c | 20 ++++++++++++++++----
+ 2 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index c6cb7f8..ed009a3 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -21,6 +21,7 @@
- #include <linux/bitops.h>
- #include <linux/jiffies.h>
- #include <linux/of.h>
+diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+index 0cfaf6b..2f4641a 100644
+--- a/drivers/pwm/Kconfig
++++ b/drivers/pwm/Kconfig
+@@ -272,7 +272,7 @@ config PWM_MXS
+ 
+ config PWM_PCA9685
+ 	tristate "NXP PCA9685 PWM driver"
+-	depends on OF && I2C
++	depends on I2C
+ 	select REGMAP_I2C
+ 	help
+ 	  Generic PWM framework driver for NXP PCA9685 LED controller.
+diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
+index 70448a6..117fccf 100644
+--- a/drivers/pwm/pwm-pca9685.c
++++ b/drivers/pwm/pwm-pca9685.c
+@@ -19,9 +19,11 @@
+  * this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
 +#include <linux/acpi.h>
  #include <linux/i2c.h>
- #include <linux/platform_data/at24.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <linux/property.h>
+ #include <linux/pwm.h>
+ #include <linux/regmap.h>
+ #include <linux/slab.h>
+@@ -297,7 +299,6 @@ static const struct regmap_config pca9685_regmap_i2c_config = {
+ static int pca9685_pwm_probe(struct i2c_client *client,
+ 				const struct i2c_device_id *id)
+ {
+-	struct device_node *np = client->dev.of_node;
+ 	struct pca9685 *pca;
+ 	int ret;
+ 	int mode2;
+@@ -320,12 +321,12 @@ static int pca9685_pwm_probe(struct i2c_client *client,
  
-@@ -131,6 +132,12 @@ static const struct i2c_device_id at24_ids[] = {
+ 	regmap_read(pca->regmap, PCA9685_MODE2, &mode2);
+ 
+-	if (of_property_read_bool(np, "invert"))
++	if (device_property_read_bool(&client->dev, "invert"))
+ 		mode2 |= MODE2_INVRT;
+ 	else
+ 		mode2 &= ~MODE2_INVRT;
+ 
+-	if (of_property_read_bool(np, "open-drain"))
++	if (device_property_read_bool(&client->dev, "open-drain"))
+ 		mode2 &= ~MODE2_OUTDRV;
+ 	else
+ 		mode2 |= MODE2_OUTDRV;
+@@ -363,16 +364,27 @@ static const struct i2c_device_id pca9685_id[] = {
  };
- MODULE_DEVICE_TABLE(i2c, at24_ids);
+ MODULE_DEVICE_TABLE(i2c, pca9685_id);
  
-+static const struct acpi_device_id at24_acpi_ids[] = {
-+	{ "INT3499", AT24_DEVICE_MAGIC(8192 / 8, 0) },
-+	{ }
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id pca9685_acpi_ids[] = {
++	{ "INT3492", 0 },
++	{ /* sentinel */ },
 +};
-+MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
++MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
++#endif
 +
- /*-------------------------------------------------------------------------*/
++#ifdef CONFIG_OF
+ static const struct of_device_id pca9685_dt_ids[] = {
+ 	{ .compatible = "nxp,pca9685-pwm", },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
++#endif
  
- /*
-@@ -473,15 +480,23 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	struct at24_data *at24;
- 	int err;
- 	unsigned i, num_addresses;
--	kernel_ulong_t magic;
-+	kernel_ulong_t magic = 0;
- 
- 	if (client->dev.platform_data) {
- 		chip = *(struct at24_platform_data *)client->dev.platform_data;
- 	} else {
--		if (!id->driver_data)
-+		if (id) {
-+			magic = id->driver_data;
-+		} else {
-+			const struct acpi_device_id *id;
-+
-+			id = acpi_match_device(at24_acpi_ids, &client->dev);
-+			if (id)
-+				magic = id->driver_data;
-+		}
-+		if (!magic)
- 			return -ENODEV;
- 
--		magic = id->driver_data;
- 		chip.byte_len = BIT(magic & AT24_BITMASK(AT24_SIZE_BYTELEN));
- 		magic >>= AT24_SIZE_BYTELEN;
- 		chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
-@@ -661,6 +676,7 @@ static int at24_remove(struct i2c_client *client)
- static struct i2c_driver at24_driver = {
+ static struct i2c_driver pca9685_i2c_driver = {
  	.driver = {
- 		.name = "at24",
-+		.acpi_match_table = ACPI_PTR(at24_acpi_ids),
+ 		.name = "pca9685-pwm",
+-		.of_match_table = pca9685_dt_ids,
++		.acpi_match_table = ACPI_PTR(pca9685_acpi_ids),
++		.of_match_table = of_match_ptr(pca9685_dt_ids),
  	},
- 	.probe = at24_probe,
- 	.remove = at24_remove,
+ 	.probe = pca9685_pwm_probe,
+ 	.remove = pca9685_pwm_remove,
 -- 
 2.5.3
