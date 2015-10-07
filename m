@@ -1,79 +1,61 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 4/6] mfd: intel_quark_i2c_gpio: support devices behind i2c bus
-Date: Wed,  7 Oct 2015 13:18:47 +0300
-Message-ID: <1444213129-29793-5-git-send-email-andriy.shevchenko@linux.intel.com>
-References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:52853 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750824AbbJGKSz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 7 Oct 2015 06:18:55 -0400
-In-Reply-To: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH v3 0/6] enable I2C devices behind I2C bus on Gen2
+Date: Wed,  7 Oct 2015 13:18:43 +0300
+Message-ID: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+List-Id: linux-i2c@vger.kernel.org
 
-On Intel Galileo Gen2 the GPIO expanders are connected to the i2c bus. For
-those devices the ACPI table has specific parameters that refer to an actual
-i2c host controller. Since MFD now copes with that specific configuration we
-have to provide a necessary information how to distinguish devices in ACPI
-namespace. Here the _ADR values are provided.
+There is a board in the wild, i.e. Intel Galileo Gen2, that has ACPI enumerated
+devices behind I2C bus.
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/mfd/intel_quark_i2c_gpio.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+This patch series dedicated to enable those devices. Meanwhile it also changes
+I2C core to cope with ACPI 6.0 specification (patch 1).
 
-diff --git a/drivers/mfd/intel_quark_i2c_gpio.c b/drivers/mfd/intel_quark_i2c_gpio.c
-index 958c134..0421374 100644
---- a/drivers/mfd/intel_quark_i2c_gpio.c
-+++ b/drivers/mfd/intel_quark_i2c_gpio.c
-@@ -31,6 +31,10 @@
- #define MFD_I2C_BAR		0
- #define MFD_GPIO_BAR		1
- 
-+/* ACPI _ADR value to match the child node */
-+#define MFD_ACPI_MATCH_GPIO	0ULL
-+#define MFD_ACPI_MATCH_I2C	1ULL
-+
- /* The base GPIO number under GPIOLIB framework */
- #define INTEL_QUARK_MFD_GPIO_BASE	8
- 
-@@ -82,16 +86,25 @@ static struct resource intel_quark_i2c_res[] = {
- 	},
- };
- 
-+static struct mfd_cell_acpi_match intel_quark_acpi_match_i2c = {
-+	.adr = MFD_ACPI_MATCH_I2C,
-+};
-+
- static struct resource intel_quark_gpio_res[] = {
- 	[INTEL_QUARK_IORES_MEM] = {
- 		.flags = IORESOURCE_MEM,
- 	},
- };
- 
-+static struct mfd_cell_acpi_match intel_quark_acpi_match_gpio = {
-+	.adr = MFD_ACPI_MATCH_GPIO,
-+};
-+
- static struct mfd_cell intel_quark_mfd_cells[] = {
- 	{
- 		.id = MFD_GPIO_BAR,
- 		.name = "gpio-dwapb",
-+		.acpi_match = &intel_quark_acpi_match_gpio,
- 		.num_resources = ARRAY_SIZE(intel_quark_gpio_res),
- 		.resources = intel_quark_gpio_res,
- 		.ignore_resource_conflicts = true,
-@@ -99,6 +112,7 @@ static struct mfd_cell intel_quark_mfd_cells[] = {
- 	{
- 		.id = MFD_I2C_BAR,
- 		.name = "i2c_designware",
-+		.acpi_match = &intel_quark_acpi_match_i2c,
- 		.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
- 		.resources = intel_quark_i2c_res,
- 		.ignore_resource_conflicts = true,
+The MFD framework is also updated to cope with interesting implementation of
+the cell descriptions under ACPI MFD (patch 2).
+
+The patches 5 and 6 are pretty independent and could be applied ahead, though
+they don't make much sense without previous ones.
+
+Srinivas, it would be nice to see your tag (ideally Tested-by) to be sure we
+don't break ISH stuff.
+
+Since it touches multiple subsystems someone needs to create an immutable
+branch. I don't actually know whose subsystem better here. Wolfram?
+
+Tested on the actual Intel Galileo Gen2 by Ismo (gpio expanders) and me (at24).
+
+Changelog v3:
+- append ACKs from Rafael (from ACPI angle)
+- drop upstreamed patches (GPIO pca953x)
+
+Changelog v2:
+- append tags
+- re-make patch 3 (suggested by Lee)
+- improve patch 8 (suggested by Thierry)
+
+Andy Shevchenko (5):
+  mfd: core: redo ACPI matching of the children devices
+  mfd: intel_quark_i2c_gpio: load gpio driver first
+  mfd: intel_quark_i2c_gpio: support devices behind i2c bus
+  at24: enable ACPI device found on Galileo Gen2
+  pwm-pca9685: enable ACPI device found on Galileo Gen2
+
+Mika Westerberg (1):
+  i2c / ACPI: Rework I2C device scanning
+
+ Documentation/acpi/enumeration.txt | 11 +++--
+ drivers/i2c/i2c-core.c             | 82 +++++++++++++++++++++++++++-----------
+ drivers/mfd/intel_quark_i2c_gpio.c | 33 ++++++++++-----
+ drivers/mfd/mfd-core.c             | 52 ++++++++++++++++--------
+ drivers/misc/eeprom/at24.c         | 22 ++++++++--
+ drivers/pwm/Kconfig                |  2 +-
+ drivers/pwm/pwm-pca9685.c          | 20 ++++++++--
+ include/linux/mfd/core.h           | 10 ++++-
+ 8 files changed, 170 insertions(+), 62 deletions(-)
+
 -- 
 2.5.3
