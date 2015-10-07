@@ -1,105 +1,71 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 6/6] pwm-pca9685: enable ACPI device found on Galileo Gen2
-Date: Wed,  7 Oct 2015 13:18:49 +0300
-Message-ID: <1444213129-29793-7-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 3/6] mfd: intel_quark_i2c_gpio: load gpio driver first
+Date: Wed,  7 Oct 2015 13:18:46 +0300
+Message-ID: <1444213129-29793-4-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thierry Reding <thierry.reding@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-There is a chip connected to i2c bus on Intel Galileo Gen2 board. Enable it via
-ACPI ID INT3492.
+On Intel Galileo boards the GPIO expander is connected to i2c bus. Moreover it
+is able to generate interrupt, but interrupt line is connected to GPIO. That's
+why we have to have GPIO driver in place when we will probe i2c host with
+device connected to it.
 
-Cc: Thierry Reding <thierry.reding@gmail.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/pwm/Kconfig       |  2 +-
- drivers/pwm/pwm-pca9685.c | 20 ++++++++++++++++----
- 2 files changed, 17 insertions(+), 5 deletions(-)
+ drivers/mfd/intel_quark_i2c_gpio.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-index 0cfaf6b..2f4641a 100644
---- a/drivers/pwm/Kconfig
-+++ b/drivers/pwm/Kconfig
-@@ -272,7 +272,7 @@ config PWM_MXS
+diff --git a/drivers/mfd/intel_quark_i2c_gpio.c b/drivers/mfd/intel_quark_i2c_gpio.c
+index 1ce1603..958c134 100644
+--- a/drivers/mfd/intel_quark_i2c_gpio.c
++++ b/drivers/mfd/intel_quark_i2c_gpio.c
+@@ -90,19 +90,19 @@ static struct resource intel_quark_gpio_res[] = {
  
- config PWM_PCA9685
- 	tristate "NXP PCA9685 PWM driver"
--	depends on OF && I2C
-+	depends on I2C
- 	select REGMAP_I2C
- 	help
- 	  Generic PWM framework driver for NXP PCA9685 LED controller.
-diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
-index 70448a6..117fccf 100644
---- a/drivers/pwm/pwm-pca9685.c
-+++ b/drivers/pwm/pwm-pca9685.c
-@@ -19,9 +19,11 @@
-  * this program.  If not, see <http://www.gnu.org/licenses/>.
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/pwm.h>
- #include <linux/regmap.h>
- #include <linux/slab.h>
-@@ -297,7 +299,6 @@ static const struct regmap_config pca9685_regmap_i2c_config = {
- static int pca9685_pwm_probe(struct i2c_client *client,
- 				const struct i2c_device_id *id)
- {
--	struct device_node *np = client->dev.of_node;
- 	struct pca9685 *pca;
- 	int ret;
- 	int mode2;
-@@ -320,12 +321,12 @@ static int pca9685_pwm_probe(struct i2c_client *client,
- 
- 	regmap_read(pca->regmap, PCA9685_MODE2, &mode2);
- 
--	if (of_property_read_bool(np, "invert"))
-+	if (device_property_read_bool(&client->dev, "invert"))
- 		mode2 |= MODE2_INVRT;
- 	else
- 		mode2 &= ~MODE2_INVRT;
- 
--	if (of_property_read_bool(np, "open-drain"))
-+	if (device_property_read_bool(&client->dev, "open-drain"))
- 		mode2 &= ~MODE2_OUTDRV;
- 	else
- 		mode2 |= MODE2_OUTDRV;
-@@ -363,16 +364,27 @@ static const struct i2c_device_id pca9685_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, pca9685_id);
- 
-+#ifdef CONFIG_ACPI
-+static const struct acpi_device_id pca9685_acpi_ids[] = {
-+	{ "INT3492", 0 },
-+	{ /* sentinel */ },
-+};
-+MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
-+#endif
-+
-+#ifdef CONFIG_OF
- static const struct of_device_id pca9685_dt_ids[] = {
- 	{ .compatible = "nxp,pca9685-pwm", },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
-+#endif
- 
- static struct i2c_driver pca9685_i2c_driver = {
- 	.driver = {
- 		.name = "pca9685-pwm",
--		.of_match_table = pca9685_dt_ids,
-+		.acpi_match_table = ACPI_PTR(pca9685_acpi_ids),
-+		.of_match_table = of_match_ptr(pca9685_dt_ids),
+ static struct mfd_cell intel_quark_mfd_cells[] = {
+ 	{
+-		.id = MFD_I2C_BAR,
+-		.name = "i2c_designware",
+-		.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
+-		.resources = intel_quark_i2c_res,
+-		.ignore_resource_conflicts = true,
+-	},
+-	{
+ 		.id = MFD_GPIO_BAR,
+ 		.name = "gpio-dwapb",
+ 		.num_resources = ARRAY_SIZE(intel_quark_gpio_res),
+ 		.resources = intel_quark_gpio_res,
+ 		.ignore_resource_conflicts = true,
  	},
- 	.probe = pca9685_pwm_probe,
- 	.remove = pca9685_pwm_remove,
++	{
++		.id = MFD_I2C_BAR,
++		.name = "i2c_designware",
++		.num_resources = ARRAY_SIZE(intel_quark_i2c_res),
++		.resources = intel_quark_i2c_res,
++		.ignore_resource_conflicts = true,
++	},
+ };
+ 
+ static const struct pci_device_id intel_quark_mfd_ids[] = {
+@@ -248,12 +248,11 @@ static int intel_quark_mfd_probe(struct pci_dev *pdev,
+ 
+ 	dev_set_drvdata(&pdev->dev, quark_mfd);
+ 
+-	ret = intel_quark_i2c_setup(pdev, &intel_quark_mfd_cells[MFD_I2C_BAR]);
++	ret = intel_quark_i2c_setup(pdev, &intel_quark_mfd_cells[1]);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = intel_quark_gpio_setup(pdev,
+-				     &intel_quark_mfd_cells[MFD_GPIO_BAR]);
++	ret = intel_quark_gpio_setup(pdev, &intel_quark_mfd_cells[0]);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.5.3
