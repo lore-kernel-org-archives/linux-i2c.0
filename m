@@ -1,61 +1,60 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 2/4] i2c: rcar: enable RuntimePM before registering to the core
-Date: Fri, 9 Oct 2015 10:45:56 +0200
-Message-ID: <CAMuHMdWaeuxxuWOvEUbyBC3QOEH4rFS9ah=WnZWJVv330gDGMw@mail.gmail.com>
-References: <1444373693-2372-1-git-send-email-wsa@the-dreams.de>
-	<1444373693-2372-2-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1444373693-2372-2-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: wangxfdu@gmail.com
+Subject: [PATCH 2/2] i2c: designware: enable High-speed mode for pcidrv
+Date: Fri,  9 Oct 2015 16:47:06 +0800
+Message-ID: <1444380426-17953-2-git-send-email-wangxfdu@gmail.com>
+References: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wangxfdu@gmail.com, xiang.a.wang@intel.com, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+From: Xiang Wang <xiang.a.wang@intel.com>
 
-On Fri, Oct 9, 2015 at 8:54 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> The core may register clients attached to this master which may use
-> funtionality from the master. So, RuntimePM must be enabled before, otherwise
-> this will fail. While here, move drvdata, too.
+1. Support setting hs_hcnt and hs_lcnt
+2. Get bus speed mode from ACPI companion of the
+i2c controller.
 
-Thanks for your patch!
+Signed-off-by: Xiang Wang <xiang.a.wang@intel.com>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  drivers/i2c/busses/i2c-rcar.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> index d8361dada58455..3d7536d78cb366 100644
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -690,15 +690,15 @@ static int rcar_i2c_probe(struct platform_device *pdev)
->                 return ret;
->         }
->
-> +       pm_runtime_enable(dev);
-> +       platform_set_drvdata(pdev, priv);
-> +
->         ret = i2c_add_numbered_adapter(adap);
->         if (ret < 0) {
->                 dev_err(dev, "reg adap failed: %d\n", ret);
-
-You forgot to call pm_runtime_disable() in the error path.
-I think some of your other patches suffer from the same issue.
-
->                 return ret;
->         }
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 6643d2d..0f4c0c4 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -54,8 +54,10 @@ enum dw_pci_ctl_id_t {
+ struct dw_scl_sda_cfg {
+ 	u32 ss_hcnt;
+ 	u32 fs_hcnt;
++	u32 hs_hcnt;
+ 	u32 ss_lcnt;
+ 	u32 fs_lcnt;
++	u32 hs_lcnt;
+ 	u32 sda_hold;
+ };
+ 
+@@ -237,8 +239,10 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 		cfg = controller->scl_sda_cfg;
+ 		dev->ss_hcnt = cfg->ss_hcnt;
+ 		dev->fs_hcnt = cfg->fs_hcnt;
++		dev->hs_hcnt = cfg->hs_hcnt;
+ 		dev->ss_lcnt = cfg->ss_lcnt;
+ 		dev->fs_lcnt = cfg->fs_lcnt;
++		dev->hs_lcnt = cfg->hs_lcnt;
+ 		dev->sda_hold_time = cfg->sda_hold;
+ 	}
+ 
+@@ -246,6 +250,9 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 
+ 	dev->tx_fifo_depth = controller->tx_fifo_depth;
+ 	dev->rx_fifo_depth = controller->rx_fifo_depth;
++
++	i2c_dw_acpi_setup_speed(&pdev->dev, dev);
++
+ 	r = i2c_dw_init(dev);
+ 	if (r)
+ 		return r;
+-- 
+2.5.3
