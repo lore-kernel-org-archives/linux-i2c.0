@@ -1,18 +1,14 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 3/4] i2c: s3c2410: enable RuntimePM before registering to the core
-Date: Fri,  9 Oct 2015 10:39:26 +0100
-Message-ID: <1444383567-18113-3-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v2 2/4] i2c: rcar: enable RuntimePM before registering to the core
+Date: Fri,  9 Oct 2015 10:39:25 +0100
+Message-ID: <1444383567-18113-2-git-send-email-wsa@the-dreams.de>
 References: <1444383567-18113-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49665 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756710AbbJIJkR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 9 Oct 2015 05:40:17 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1444383567-18113-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-sh@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
@@ -20,41 +16,35 @@ The core may register clients attached to this master which may use
 funtionality from the master. So, RuntimePM must be enabled before, otherwise
 this will fail. While here, move drvdata, too.
 
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-s3c2410.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 50bfd8cef5f224..336e34e1ca597d 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -1243,19 +1243,21 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	i2c->adap.nr = i2c->pdata->bus_num;
- 	i2c->adap.dev.of_node = pdev->dev.of_node;
- 
-+	platform_set_drvdata(pdev, i2c);
-+
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_enable(&i2c->adap.dev);
-+
- 	ret = i2c_add_numbered_adapter(&i2c->adap);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to add bus to i2c core\n");
-+		pm_runtime_disable(&i2c->adap.dev);
-+		pm_runtime_disable(&pdev->dev);
- 		s3c24xx_i2c_deregister_cpufreq(i2c);
- 		clk_unprepare(i2c->clk);
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index d8361dada58455..d8b5a8fee1e6c8 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -690,15 +690,16 @@ static int rcar_i2c_probe(struct platform_device *pdev)
  		return ret;
  	}
  
--	platform_set_drvdata(pdev, i2c);
++	pm_runtime_enable(dev);
++	platform_set_drvdata(pdev, priv);
++
+ 	ret = i2c_add_numbered_adapter(adap);
+ 	if (ret < 0) {
+ 		dev_err(dev, "reg adap failed: %d\n", ret);
++		pm_runtime_disable(dev);
+ 		return ret;
+ 	}
+ 
+-	pm_runtime_enable(dev);
+-	platform_set_drvdata(pdev, priv);
 -
--	pm_runtime_enable(&pdev->dev);
--	pm_runtime_enable(&i2c->adap.dev);
--
- 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
+ 	dev_info(dev, "probed\n");
+ 
  	return 0;
- }
 -- 
 2.1.4
