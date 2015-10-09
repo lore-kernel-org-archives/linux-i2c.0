@@ -1,115 +1,101 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC v2 1/1] i2c: acpi: scan ACPI enumerated I2C mux channels
-Date: Fri, 9 Oct 2015 22:42:44 +0100
-Message-ID: <20151009214241.GC1481@katana>
-References: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
- <1439580693-5538-2-git-send-email-dustin@cumulusnetworks.com>
+Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
+ I2C slaves
+Date: Fri, 9 Oct 2015 22:47:13 +0100
+Message-ID: <20151009214712.GD1481@katana>
+References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <20151001203744.GA7514@katana>
+ <560E4DF4.4000901@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="RhUH2Ysw6aD5utA4"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:53875 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932128AbbJIVr1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 9 Oct 2015 17:47:27 -0400
 Content-Disposition: inline
-In-Reply-To: <1439580693-5538-2-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Dustin Byford <dustin@cumulusnetworks.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
+In-Reply-To: <560E4DF4.4000901@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jean Delvare <jdelvare@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Dustin Byford <dustin@cumulusnetworks.com>, linux@roeck-us.net
 
 
---xesSdrSSBC0PokLI
+--RhUH2Ysw6aD5utA4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 14, 2015 at 12:31:33PM -0700, Dustin Byford wrote:
->=20
-> Set an ACPI companion for I2C mux channels enumerated through ACPI and
-> ensure they are scanned for devices.
->=20
-> Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
+On Fri, Oct 02, 2015 at 12:27:16PM +0300, Jarkko Nikula wrote:
+> On 10/01/2015 11:37 PM, Wolfram Sang wrote:
+> >
+> >>This is for discussion so I didn't cc stable@vger.kernel.org yet. I was
+> >>thinking would it work if we'd keep the stable name but have an another
+> >>symlink in /sys/bus/i2c/devices/ that uses "x-00yz" name. However this
+> >>feels ill-use of devices directory and probably causes more troubles
+> >>elsewhere.
+> >
+> >Do you foresee troubles already? I am still in favour of a symlink.
+> >
+> I haven't looked at this for a while but one problem was that devices/
+> directory belongs to private structure of struct bus_type and in order to
+> create a symlink there it needs to done in drivers/base/bus.c:
+> bus_add_device() which felt quite hackish to me.
 
-Mika, is this one okay with you?
+This is just a quick prototype and untested; but I did something similar
+in the i2c-mux code:
 
-> ---
->  drivers/i2c/i2c-core.c | 10 ++++++++++
->  drivers/i2c/i2c-mux.c  |  8 ++++++++
->  2 files changed, 18 insertions(+)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index c83e4d1..23cc8e9 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -171,8 +171,18 @@ static void acpi_i2c_register_devices(struct i2c_ada=
-pter *adap)
->  	if (!adap->dev.parent)
->  		return;
-> =20
-> +	/*
-> +	 * Determine where to start walking the ACPI namespace.  The common
-> +	 * case is to start at the adapter's parent device.  However, in
-> +	 * the case of a "virtual" I2C adapter created to represent a mux
-> +	 * channel the parent dev (pointing to the mux device) does not
-> +	 * have an ACPI handle.  Walk starting at the adapter instead.
-> +	 */
->  	handle =3D ACPI_HANDLE(adap->dev.parent);
->  	if (!handle)
-> +		handle =3D ACPI_HANDLE(&adap->dev);
-> +
-> +	if (!handle)
->  		return;
-> =20
->  	status =3D acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
-> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-> index 2ba7c0f..2731b99 100644
-> --- a/drivers/i2c/i2c-mux.c
-> +++ b/drivers/i2c/i2c-mux.c
-> @@ -25,6 +25,7 @@
->  #include <linux/i2c.h>
->  #include <linux/i2c-mux.h>
->  #include <linux/of.h>
-> +#include <linux/acpi.h>
-> =20
->  /* multiplexer per channel data */
->  struct i2c_mux_priv {
-> @@ -173,6 +174,13 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_a=
-dapter *parent,
->  		}
->  	}
-> =20
-> +	/*
-> +	 * Now try to populate the mux adapter's ACPI node.
-> +	 */
-> +	if (has_acpi_companion(mux_dev))
-> +		acpi_preset_companion(&priv->adap.dev, ACPI_COMPANION(mux_dev),
-> +				      chan_id);
-> +
->  	if (force_nr) {
->  		priv->adap.nr =3D force_nr;
->  		ret =3D i2c_add_numbered_adapter(&priv->adap);
-> --=20
-> 2.1.4
->=20
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 5f89f1e3c2f24f..715dca57ba68fd 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -970,13 +970,15 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
+ {
+ 	struct acpi_device *adev =3D ACPI_COMPANION(&client->dev);
+=20
+-	if (adev) {
+-		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
+-		return;
+-	}
+-
+ 	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
+ 		     i2c_encode_flags_to_addr(client));
++
++	if (adev) {
++		char symlink_name[256];
++
++		snprintf(symlink_name, sizeof(symlink_name), "i2c-%s", acpi_dev_name(ade=
+v));
++		sysfs_create_link(&client->dev.kobj, &adap->dev.kobj, symlink_name);
++	}
+ }
+=20
+ /**
 
---xesSdrSSBC0PokLI
+Shouldn't something like this be enough?
+
+
+--RhUH2Ysw6aD5utA4
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWGDTRAAoJEBQN5MwUoCm2N28P/1PNq0YOkNwADTqpZODeCxT3
-Siuvadh46y55XKvoUstievDDnLeTG/dqj5wkJQYsxGeAsOuuLucJtKbJyYUaqBzX
-7yW7yi/o0CjFamA+69o0mLn80VzvvfthHqpoJ5cPU2waN5IhrB6L3thrA8LSo4S/
-WlFmH0m1pzevtY4ib8QNnI7Xw6RiYj80bW9VC1096VLn56kfQ5N3tsgEKEH3GIM9
-maq9zMJqJPFMM6qT7G+v6zJWT6PEzeyWOeByJ7Atn5Qdcpd81XDAln19As735nrf
-UQT5f/45BQjjPra3HfvVCZfmMKiIPwbQUcUgNcj2If7Tv2osMTDC5895mN6c+2Zp
-zrCv+mcbd9b+9FlC862aaW477O4I5//H/1T6Ilu52se8vTXqKfAokDjYm5O/UM6y
-yR1gxULcZSaYmJnJqGRauOeulKxr4HlKKY09gzdKHC3Kb6Xue+GoaoK7dWgTHeBX
-bsyalZmFPZZlon4O6t/9ekDG2f1aVTKJxCKQJ3ZOU7FSZTua85r7z7kwQO6ioxDE
-HU/Xfbx70W/s+2A8GqYABog1LF5/+lzaztIy1y7BzqM9WdxOqoJ6VMcZNICVBRn1
-LlHdguDhn8RgdjegUhKbFWo/i9CikWVMPepUlp1Dut5vDdjcXVepqWDGO+wCd5AM
-ZOTgKyU1rjMzU21mPSo7
-=RfKE
+iQIcBAEBAgAGBQJWGDXgAAoJEBQN5MwUoCm2zF8P/AomW14UNxguuciGi/6UYf+F
+H6NFbvQ3JRADGuakdI++0Jx2Q4MiSe3yX1E6BOIfT48NddgSKQFbrOomBLxXQmPo
+0o044zbIWEeHY1R8olVGj6tO9TnEg/AR2flU9jcb9esuKvkLcO3NZPtnW/qwa0CM
+iuZlKyIP4+dk+teyBS6d/8B7eKsLNxMYMRGhKKmo8EVS2GbksBctzlFsl+OfIt7c
+BwqqkKvXDkdh837xzU7LLFYdyURI1Bpr+fow3hrH6AcU1OnnU5BazrNw80My+A7Y
+K9ienrYGle16jmdBP8Aycr0YEQTtb3JBnWxZZYf0QnTzXAxilA2a9y7U67HNR9Kz
+vTz+psQGC4lTdKrFAm3ZdF/7UvOaH/+riZd1ebpdhLCy/L4Qc9F0EBV+C4Wfk1B0
+YyT25tSgRpp81kcrls2ZLQOfWMEjBE/kA2SK/q8MCgaATcc0jUnbR5ZPckXwoZvy
+eDUQ37E70w10Fg+EAWUCwPB2OrPMCQErKDjA6CWO8RVuMVHGfpctm2ixLOCU2FUH
+9eJmpaj60VZuEzIpvjpYNKw/xfO65KAZSmX4e3nWhqfoH4LPUJcZb/5oXv6+XhKC
+aJD3enuBopvKiSiL6u/1RwLbOv0hByEyv4pXVQ39OTTb3N7h/IZNiVRVG9lOvTJo
+rzlB6Arn1uP/nBD/ACjF
+=g8tF
 -----END PGP SIGNATURE-----
 
---xesSdrSSBC0PokLI--
+--RhUH2Ysw6aD5utA4--
