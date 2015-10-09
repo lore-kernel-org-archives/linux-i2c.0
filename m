@@ -1,120 +1,115 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/9] i2c: rcar: tackle race conditions in the driver
-Date: Fri, 9 Oct 2015 22:34:01 +0100
-Message-ID: <20151009213359.GB1481@katana>
-References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [RFC v2 1/1] i2c: acpi: scan ACPI enumerated I2C mux channels
+Date: Fri, 9 Oct 2015 22:42:44 +0100
+Message-ID: <20151009214241.GC1481@katana>
+References: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
+ <1439580693-5538-2-git-send-email-dustin@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+In-Reply-To: <1439580693-5538-2-git-send-email-dustin@cumulusnetworks.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dustin Byford <dustin@cumulusnetworks.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---5/uDoXvLw7AC5HRs
+--xesSdrSSBC0PokLI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 03, 2015 at 10:20:04PM +0200, Wolfram Sang wrote:
-> Hello RCar Fans!
+On Fri, Aug 14, 2015 at 12:31:33PM -0700, Dustin Byford wrote:
 >=20
-> Two issues people have seen with the i2c-rcar driver was:
+> Set an ACPI companion for I2C mux channels enumerated through ACPI and
+> ensure they are scanned for devices.
 >=20
-> a) immediately restarted messages after NACK from client
-> b) duplicated data bytes in messages
+> Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
+
+Mika, is this one okay with you?
+
+> ---
+>  drivers/i2c/i2c-core.c | 10 ++++++++++
+>  drivers/i2c/i2c-mux.c  |  8 ++++++++
+>  2 files changed, 18 insertions(+)
 >=20
-> Some people already worked on those and had a tough time because it was h=
-ard to
-> reproduce these issues on non-customer setup. Luckily, I somewhen had a s=
-tate
-> where the first transfer after boot would always show the above issues on=
- a
-> plain Renesas Lager board. When measuring, I found a third issue thanks t=
-o my
-> new tool 'i2ctransfer' (and thanks to projects like sigrok and OpenLogicS=
-niffer,
-> of course. Thank you very much!):
->=20
-> c) after read message, no repeated start was sent, but stop + start.
->=20
-> Due to some unlucky design choices in the IP core, it has some race windo=
-ws
-> which can cause problems if interrupts get delayed. Also, for every new m=
-essage
-> in one transfer, context switches between interrupt and process were need=
-ed.
->=20
-> So I refactored the driver to setup new messages in interrupt context, to=
-o.
-> This avoids the race for b) because we are now setting up the new message
-> before we release the i2c bus clock (before we released the clock and set=
- up
-> the message in process context). c) is also fixed, this was not a race bu=
-t a
-> bug in the state handling. a) however is not fixed 100% :( We have the ra=
-ce
-> window as small as possible now when utilizing interrupts, so it is an
-> improvement and worked for my test cases well. There were experiments by =
-me and
-> Renesas engineers to use polling to prevent the issue but this caused oth=
-er
-> side effects, sadly. So, let's improve the situation now and let's see wh=
-ere we
-> get.
->=20
-> I did quite some lab testing here and also verified that slave support do=
-es not
-> suffer from these changes. However, I'd really appreciate if people could=
- give
-> this real-world-testing which is always different.
->=20
-> Please have a look, a test, etc...
->=20
-> Thanks,
->=20
->    Wolfram
->=20
->=20
-> Wolfram Sang (9):
->   i2c: rcar: rework hw init
->   i2c: rcar: remove unused IOERROR state
->   i2c: rcar: remove spinlock
->   i2c: rcar: refactor setup of a msg
->   i2c: rcar: init new messages in irq
->   i2c: rcar: don't issue stop when HW does it automatically
->   i2c: rcar: check master irqs before slave irqs
->   i2c: rcar: revoke START request early
->   i2c: rcar: clean up after refactoring
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index c83e4d1..23cc8e9 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -171,8 +171,18 @@ static void acpi_i2c_register_devices(struct i2c_ada=
+pter *adap)
+>  	if (!adap->dev.parent)
+>  		return;
+> =20
+> +	/*
+> +	 * Determine where to start walking the ACPI namespace.  The common
+> +	 * case is to start at the adapter's parent device.  However, in
+> +	 * the case of a "virtual" I2C adapter created to represent a mux
+> +	 * channel the parent dev (pointing to the mux device) does not
+> +	 * have an ACPI handle.  Walk starting at the adapter instead.
+> +	 */
+>  	handle =3D ACPI_HANDLE(adap->dev.parent);
+>  	if (!handle)
+> +		handle =3D ACPI_HANDLE(&adap->dev);
+> +
+> +	if (!handle)
+>  		return;
+> =20
+>  	status =3D acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+> index 2ba7c0f..2731b99 100644
+> --- a/drivers/i2c/i2c-mux.c
+> +++ b/drivers/i2c/i2c-mux.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-mux.h>
+>  #include <linux/of.h>
+> +#include <linux/acpi.h>
+> =20
+>  /* multiplexer per channel data */
+>  struct i2c_mux_priv {
+> @@ -173,6 +174,13 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_a=
+dapter *parent,
+>  		}
+>  	}
+> =20
+> +	/*
+> +	 * Now try to populate the mux adapter's ACPI node.
+> +	 */
+> +	if (has_acpi_companion(mux_dev))
+> +		acpi_preset_companion(&priv->adap.dev, ACPI_COMPANION(mux_dev),
+> +				      chan_id);
+> +
+>  	if (force_nr) {
+>  		priv->adap.nr =3D force_nr;
+>  		ret =3D i2c_add_numbered_adapter(&priv->adap);
+> --=20
+> 2.1.4
 >=20
 
-Applied to for-next, thanks!
-
-
---5/uDoXvLw7AC5HRs
+--xesSdrSSBC0PokLI
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWGDLHAAoJEBQN5MwUoCm2rKYQAIHHGHkbu5FFj8p0dr76Jrxd
-oz878wXBPLZaQHjjzul4/CnMvtP2jjvswJnr8EL2H7e9yq1h8dP7UTZTii33AAgr
-o+A0/J1mpIoMilYwudv7P+NzwVah8jiynhtAxfr2fWgzb5IVTZOzTO6+Hs6i5LCh
-Y3DraSLs4oRigTdJvqXY06S/FRRiSO1rNaL0uSRthiLhBishyfPsXP2QVTFCHaYh
-xHXgn3DKY8vP+SEYISvYyRzftce46KymREXCBp+CpHG5/m2Wbjdeiz0cYD4O5Wgp
-ONR3frr/TOtSpl1bomSPGnqg1zg74agjQWvlkXGMAs2z9c0jt3yRNXEJryFlMNtV
-atTZiy0YWSC4Qfv2PCIuvDVL+j8qlr4YCkL3wRIDp+LT0XMm4sy0wiUagf0AhgbU
-Fad1jKIe1iYLiV/HlDJYp4brukiK3TrK5qirHyeTarhYuH+WVG8vWEliMvR6XOVN
-HwIYc1Q7dcJ7y44eIVDXD+1f4+n5LTTnS+q3KkfNdB9AJtDussA6L5Sw7MEExqAA
-05tiF8dtRr7oi5kR+HJhgcKGy1+EcT/z6+2cWhO/jn9qILzEX1Ci+zrc9fgf+sQR
-4FzG7Ua+tih5JlJXXSUirwIHEJ9JjSjLtcTJ60/NSRQY5ZZWNPfrCItg131aaEwO
-MUhXzpTxLEQ5QPWFjg48
-=CC5P
+iQIcBAEBAgAGBQJWGDTRAAoJEBQN5MwUoCm2N28P/1PNq0YOkNwADTqpZODeCxT3
+Siuvadh46y55XKvoUstievDDnLeTG/dqj5wkJQYsxGeAsOuuLucJtKbJyYUaqBzX
+7yW7yi/o0CjFamA+69o0mLn80VzvvfthHqpoJ5cPU2waN5IhrB6L3thrA8LSo4S/
+WlFmH0m1pzevtY4ib8QNnI7Xw6RiYj80bW9VC1096VLn56kfQ5N3tsgEKEH3GIM9
+maq9zMJqJPFMM6qT7G+v6zJWT6PEzeyWOeByJ7Atn5Qdcpd81XDAln19As735nrf
+UQT5f/45BQjjPra3HfvVCZfmMKiIPwbQUcUgNcj2If7Tv2osMTDC5895mN6c+2Zp
+zrCv+mcbd9b+9FlC862aaW477O4I5//H/1T6Ilu52se8vTXqKfAokDjYm5O/UM6y
+yR1gxULcZSaYmJnJqGRauOeulKxr4HlKKY09gzdKHC3Kb6Xue+GoaoK7dWgTHeBX
+bsyalZmFPZZlon4O6t/9ekDG2f1aVTKJxCKQJ3ZOU7FSZTua85r7z7kwQO6ioxDE
+HU/Xfbx70W/s+2A8GqYABog1LF5/+lzaztIy1y7BzqM9WdxOqoJ6VMcZNICVBRn1
+LlHdguDhn8RgdjegUhKbFWo/i9CikWVMPepUlp1Dut5vDdjcXVepqWDGO+wCd5AM
+ZOTgKyU1rjMzU21mPSo7
+=RfKE
 -----END PGP SIGNATURE-----
 
---5/uDoXvLw7AC5HRs--
+--xesSdrSSBC0PokLI--
