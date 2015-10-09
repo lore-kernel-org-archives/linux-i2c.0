@@ -1,60 +1,54 @@
-From: wangxfdu@gmail.com
-Subject: [PATCH 2/2] i2c: designware: enable High-speed mode for pcidrv
-Date: Fri,  9 Oct 2015 16:47:06 +0800
-Message-ID: <1444380426-17953-2-git-send-email-wangxfdu@gmail.com>
-References: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wangxfdu@gmail.com, xiang.a.wang@intel.com, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/4] i2c: rcar: enable RuntimePM before registering to
+ the core
+Date: Fri, 9 Oct 2015 10:21:36 +0100
+Message-ID: <20151009092136.GB3834@katana>
+References: <1444373693-2372-1-git-send-email-wsa@the-dreams.de>
+ <1444373693-2372-2-git-send-email-wsa@the-dreams.de>
+ <CAMuHMdWaeuxxuWOvEUbyBC3QOEH4rFS9ah=WnZWJVv330gDGMw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdWaeuxxuWOvEUbyBC3QOEH4rFS9ah=WnZWJVv330gDGMw@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Xiang Wang <xiang.a.wang@intel.com>
 
-1. Support setting hs_hcnt and hs_lcnt
-2. Get bus speed mode from ACPI companion of the
-i2c controller.
+--FkmkrVfFsRoUs1wW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Xiang Wang <xiang.a.wang@intel.com>
----
- drivers/i2c/busses/i2c-designware-pcidrv.c | 7 +++++++
- 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 6643d2d..0f4c0c4 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -54,8 +54,10 @@ enum dw_pci_ctl_id_t {
- struct dw_scl_sda_cfg {
- 	u32 ss_hcnt;
- 	u32 fs_hcnt;
-+	u32 hs_hcnt;
- 	u32 ss_lcnt;
- 	u32 fs_lcnt;
-+	u32 hs_lcnt;
- 	u32 sda_hold;
- };
- 
-@@ -237,8 +239,10 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 		cfg = controller->scl_sda_cfg;
- 		dev->ss_hcnt = cfg->ss_hcnt;
- 		dev->fs_hcnt = cfg->fs_hcnt;
-+		dev->hs_hcnt = cfg->hs_hcnt;
- 		dev->ss_lcnt = cfg->ss_lcnt;
- 		dev->fs_lcnt = cfg->fs_lcnt;
-+		dev->hs_lcnt = cfg->hs_lcnt;
- 		dev->sda_hold_time = cfg->sda_hold;
- 	}
- 
-@@ -246,6 +250,9 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 
- 	dev->tx_fifo_depth = controller->tx_fifo_depth;
- 	dev->rx_fifo_depth = controller->rx_fifo_depth;
-+
-+	i2c_dw_acpi_setup_speed(&pdev->dev, dev);
-+
- 	r = i2c_dw_init(dev);
- 	if (r)
- 		return r;
--- 
-2.5.3
+> You forgot to call pm_runtime_disable() in the error path.
+> I think some of your other patches suffer from the same issue.
+
+Ouch! Thanks a lot, Geert!
+
+
+--FkmkrVfFsRoUs1wW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWF4cfAAoJEBQN5MwUoCm2LbMP/RI1Y62KD5EltjbpVrUzEl1N
+8rhmHngen2rjWvzl/k/gu6Tb+rvivUeYC6H2wMW0QPslvOL1rdIhT2ZQaX8kiSiK
+LS9hqP+yfuE8ifvZKG3UojYbvKA1iVrt8lKrnebBUTuZqMU75UZehaFKq4Gn3Cdq
+gjE4O28f+RFqQ+MYJhpE5ersgnp7py2/xJx2ufgRk4movecpdSuNkbfQHxiWjAhA
+cDogubX1ZM3NGOctaegMTDQvW9BJ9e3S8uz849S9W3Z1djHkjXisSCguKQs4BjzL
+roOjayacnh7/wd9ByS+dvaHpMZ2Cn0QmW32bAGyC48sTk44gby1um/Eu7Yxs6wpi
+cb4V2Ua0p8PJ7fCmxuy/hZnwmecytxGthguKjz7pqUwLin0Rp+VChROSmIW3WURE
+bGXrdBBMxRO2qI8By4iPGA18NSnaui9kbSLYN/OzlYDQrlyr9il9gd+hCmr8GVum
+dapR3FagkDY9UXh98hMuXhflg9LtlfYUHT4tv1uvTc0fjuyxybFre3G0tGVfrQKJ
+0rlLtSBAw5UVi6UY2QuHLZT4fOwigL3FFFEmB3wXcmoNixeIcidHV+AGEwV8UeCb
+dlu8djIKMBl4fCsOZGyd+G8wcSJy0fXNLH2SPwpYJ37Dg/13ZcLHxmOZBfB1PAoB
+kkD23kW+tZj2tMBGkZ18
+=q311
+-----END PGP SIGNATURE-----
+
+--FkmkrVfFsRoUs1wW--
