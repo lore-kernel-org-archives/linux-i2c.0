@@ -1,66 +1,60 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH] i2c: rcar: Remove obsolete platform data support
-Date: Wed, 7 Oct 2015 15:12:34 +0300
-Message-ID: <56150C32.5040700@cogentembedded.com>
-References: <1444205791-25480-1-git-send-email-geert+renesas@glider.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 1/4] i2c: designware-platdrv: enable RuntimePM before registering to the core
+Date: Fri,  9 Oct 2015 07:54:50 +0100
+Message-ID: <1444373693-2372-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:35917 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752112AbbJGMMg (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 7 Oct 2015 08:12:36 -0400
-Received: by laddr2 with SMTP id dr2so8916485lad.3
-        for <linux-i2c@vger.kernel.org>; Wed, 07 Oct 2015 05:12:35 -0700 (PDT)
-In-Reply-To: <1444205791-25480-1-git-send-email-geert+renesas@glider.be>
+Received: from sauhun.de ([89.238.76.85]:48863 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752429AbbJIGzu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 9 Oct 2015 02:55:50 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+To: linux-sh@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On 10/7/2015 11:16 AM, Geert Uytterhoeven wrote:
+The core may register clients attached to this master which may use
+funtionality from the master. So, RuntimePM must be enabled before, otherwise
+this will fail.
 
-> Since commit 4baadb9e05c68962 ("ARM: shmobile: r8a7778: remove obsolete
-> setup code"), Renesas R-Car SoCs are only supported in generic DT-only
-> ARM multi-platform builds.  The driver doesn't need to use platform data
-> anymore, hence remove platform data configuration.
->
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
-> Commit 4baadb9e05c68962 is now in arm-soc/for-next.
-> ---
->   drivers/i2c/busses/i2c-rcar.c | 19 +------------------
->   include/linux/i2c/i2c-rcar.h  | 10 ----------
->   2 files changed, 1 insertion(+), 28 deletions(-)
->   delete mode 100644 include/linux/i2c/i2c-rcar.h
->
-> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> index 3e125654bb28..cd38406db074 100644
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-[...]
-> @@ -654,14 +652,8 @@ static int rcar_i2c_probe(struct platform_device *pdev)
->
->   	bus_speed = 100000; /* default 100 kHz */
->   	ret = of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-    The result can be ignored now.
+Not tested on HW. Found by code review.
 
-> -	if (ret < 0 && pdata && pdata->bus_speed)
-> -		bus_speed = pdata->bus_speed;
->
-> -	if (pdev->dev.of_node)
-> -		priv->devtype = (long)of_match_device(rcar_i2c_dt_ids,
-> -						      dev)->data;
-> -	else
-> -		priv->devtype = platform_get_device_id(pdev)->driver_data;
-> +	priv->devtype = (long)of_match_device(rcar_i2c_dt_ids, dev)->data;
->
->   	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
->   	if (ret < 0)
-[...]
+ drivers/i2c/busses/i2c-designware-platdrv.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-MBR, Sergei
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 3dd2de31a2f8d3..920d35ab5cd5d1 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -253,12 +253,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 
+-	r = i2c_add_numbered_adapter(adap);
+-	if (r) {
+-		dev_err(&pdev->dev, "failure adding adapter\n");
+-		return r;
+-	}
+-
+ 	if (dev->pm_runtime_disabled) {
+ 		pm_runtime_forbid(&pdev->dev);
+ 	} else {
+@@ -268,6 +262,12 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 		pm_runtime_enable(&pdev->dev);
+ 	}
+ 
++	r = i2c_add_numbered_adapter(adap);
++	if (r) {
++		dev_err(&pdev->dev, "failure adding adapter\n");
++		return r;
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+2.1.4
