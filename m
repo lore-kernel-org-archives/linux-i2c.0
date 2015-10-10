@@ -1,61 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/6] i2c: designware: Remove interrupt clearing from
- i2c_dw_pci_probe()
-Date: Sat, 10 Oct 2015 08:53:38 +0100
-Message-ID: <20151010075337.GE1619@katana>
+Subject: Re: [PATCH 6/6] i2c: designware: Move common probe code into
+ i2c_dw_probe()
+Date: Sat, 10 Oct 2015 08:57:26 +0100
+Message-ID: <20151010075725.GF1619@katana>
 References: <1441031493-18938-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1441031493-18938-2-git-send-email-jarkko.nikula@linux.intel.com>
+ <1441031493-18938-7-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AjmyJqqohANyBN/e"
+	protocol="application/pgp-signature"; boundary="kbCYTQG2MZjuOjyn"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:57325 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:57346 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751240AbbJJHxu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 10 Oct 2015 03:53:50 -0400
+	id S1751029AbbJJH5i (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 10 Oct 2015 03:57:38 -0400
 Content-Disposition: inline
-In-Reply-To: <1441031493-18938-2-git-send-email-jarkko.nikula@linux.intel.com>
+In-Reply-To: <1441031493-18938-7-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Cc: linux-i2c@vger.kernel.org
 
 
---AjmyJqqohANyBN/e
+--kbCYTQG2MZjuOjyn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Aug 31, 2015 at 05:31:28PM +0300, Jarkko Nikula wrote:
-> There is no need to clear interrupts in i2c_dw_pci_probe() since only place
-> where interrupts are unmasked is i2c_dw_xfer_init() and there interrupts
-> are always cleared after commit 2a2d95e9d6d2 ("i2c: designware: always
-> clear interrupts before enabling them").
 
-Still, their status might be unclear when we init because firmware might
-have used it before. It should be easy to reintroduce this in patch 6,
-or?
+> - I2C Adapter name will be "i2c-designware". Previously adapter name was
+>   "Synopsys DesignWare I2C adapter" for platform and ACPI devices and
+>   "i2c-designware-pci" for PCI devices.
+
+I have a small tendency to make it "Synopsys DesignWare I2C adapter" for
+all cases. Not much, though.
+
+> - Interrupt name too will be "i2c-designware". Previous it was platform
+>   device name, ACPI device name or "i2c-designware-pci".
+
+The device name makes them easier to distinguish in case you have
+multiple instantiations.
+
+Rest of the series looks good to me, thanks!
 
 
---AjmyJqqohANyBN/e
+--kbCYTQG2MZjuOjyn
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWGMQBAAoJEBQN5MwUoCm2ts0P/RPUQeulIcpmg1f4tQ+7sMuK
-N+KiAV+nUYlFjzeKqqXjBTrMa2wKuC0vR4SFP9OiKJEfr70lIVM1SFpXnNPAhUZb
-sqJz1uzxc9dLRnZB+hxbEhyOBfIU2xzFBs8PZpAucKnTCeMfwNa8OWzKqyzTw+M3
-aw46a7/QB/44z+lIEfJuddMymDF4qYIJQqQNDG7qjvpvtqrJi5kAvfgK17TM/ivP
-JxNVaWU85giL58vRS74u6GfL9I+ieK2ic+w8vWnWy1sTp8QuxX13l4r6Vjj2+ZmN
-EPaVj9U3WV0yPvBYLTAlQlyVkZycrTEvSZg0eSX1Oz672e485F90KrFAi3JuZxXT
-NYmCoPhuLzDK31MalHtgHj8PGiG7H/+NJRvatcpZkMJpCbVx4Iz9McIBuOMGOetZ
-4Flo/ooSm3l0iZi2Mdp3mdMzBzy3xv7aXSsWEC25V2nv9jAOAHMnquL/iuQhlVBA
-Z8JveFkOPm8UIYN+LuOMkBlOwVC3K4+rQAvQ/YiBWahUtJfz/xaFGHyzwRPtY1EZ
-l6bROzNsvJAxnDirdB3q5N7hVvdb3rS4WAqthybhKr2t9rSH6FkZEgDViCj48JVl
-AUuCRlc79QI3AiICod4BEIAvSrB5f6ziANn9SiPCg4BJFS2Ne79kAHXxhOAD+HRD
-W0v56o00txPNPtSpr+WW
-=OyXK
+iQIcBAEBAgAGBQJWGMTlAAoJEBQN5MwUoCm2yj0P/Rw7x61ZhRG9oD5AaZ/liFR3
+7w4gUinqHs1sb7Cx3PpxFSMRCGTZ8WL10n4b4AxWGpDJucv2sME2n3UGMk6kH45g
+eD8UFmWSnFgJf8baQpidOECLDlksx0u4cIyrXXl9hG+ki8TY9OTXAKT2Qmcbxi9e
+VI0DewjNQM6AZ5W32n+NdgVTrk5ghPLkQ3GAco3ZfRPp4J3QrczjzUyi2OEc2Qop
+DJM+Q29GKlDKxUVAYQKKfJty5OV9YkLRZGrxAdwhmzFAjBY76VP3GxGtdZi/lS1C
+aRZew37ftIcBgMwP3xe0DnFo8tCrUuHtRrqwscTZHbBKeGQOW6VxTV0XUMZjtcZF
+Tty3RVg4r8qSSYefIavl3MX6nQITRxXcO+Bv8PL4HjOFViQmdmj5h3Tq76xKcmjc
+DG9yVilsyUz6CxQRONOKuXAs2Atk6xh5PXW+5D9HW5StlBLzaQ4J9N3t6wm8a5bg
+JNKoFC1y9DzQgbJvUwQ9egNjTEI6UM0Bp+SSLCxyz5hMR+4Pxg8BZBfB2OBnHJwT
+5yXUm20HcRBxePBfkZZa2TyK7OELikM/v3H4/lJx2xkde0yhU1T/8iXYrtWRO2IJ
+s+liJJSnBlNRP1GQa5jmmAJgyE67zYkTq/T4HXUIKQVw7+j6QEgmGhyrwugHzHWo
+MYAIhT43coz+ePm7jg8+
+=yjTE
 -----END PGP SIGNATURE-----
 
---AjmyJqqohANyBN/e--
+--kbCYTQG2MZjuOjyn--
