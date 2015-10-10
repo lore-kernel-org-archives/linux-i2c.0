@@ -1,77 +1,85 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V8] i2c: imx: add runtime pm support to improve the
- performance
-Date: Sat, 10 Oct 2015 08:30:21 +0100
-Message-ID: <20151010073020.GB1619@katana>
-References: <1442569869-10584-1-git-send-email-b54642@freescale.com>
+Subject: Re: [PATCH v3 0/7] i2c: img-scb: fixes to support i2c on pistachio
+Date: Sat, 10 Oct 2015 08:43:19 +0100
+Message-ID: <20151010074318.GC1619@katana>
+References: <1441896607-16310-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
+	protocol="application/pgp-signature"; boundary="yVhtmJPUSI46BTXb"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:57209 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:57269 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751260AbbJJHaf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 10 Oct 2015 03:30:35 -0400
+	id S1751218AbbJJHnf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 10 Oct 2015 03:43:35 -0400
 Content-Disposition: inline
-In-Reply-To: <1442569869-10584-1-git-send-email-b54642@freescale.com>
+In-Reply-To: <1441896607-16310-1-git-send-email-sifan.naeem@imgtec.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <b54642@freescale.com>
-Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, u.kleine-koenig@pengutronix.de, kernel@pengutronix.de, hkallweit1@gmail.com, s.hauer@pengutronix.de
+To: Sifan Naeem <sifan.naeem@imgtec.com>
+Cc: James Hogan <james.hogan@imgtec.com>, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Ionela Voinescu <Ionela.Voinescu@imgtec.com>
 
 
---aVD9QWMuhilNxW9f
+--yVhtmJPUSI46BTXb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 18, 2015 at 05:51:09PM +0800, Gao Pan wrote:
-> In our former i2c driver, i2c clk is enabled and disabled in
-> xfer function, which contributes to power saving. However,
-> the clk enable process brings a busy wait delay until the core
-> is stable. As a result, the performance is sacrificed.
+On Thu, Sep 10, 2015 at 03:50:00PM +0100, Sifan Naeem wrote:
+> The following patches are required to fix the existing driver to
+> support i2c on pistachio.
 >=20
-> To weigh the power consumption and i2c bus performance, runtime
-> pm is the good solution for it. The clk is enabled when a i2c
-> transfer starts, and disabled after a specifically defined delay.
+> Tested on Pistachio bub using an Adafruit I2C Non-Volatile FRAM Breakout
+> (256Kbit / 32KByte) eeprom.
 >=20
-> Without the patch the test case (many eeprom reads) executes with approx:
-> real 1m7.735s
-> user 0m0.488s
-> sys 0m20.040s
+> Used i2c buildroot tools to test the eeprom and the other i2c blocks.
+> Also used dd commands to copy data to and then to dump data from the
+> eeprom. i2ctransfer was used to test repeated starts and verified
+> using a scope.
 >=20
-> With the patch the same test case (many eeprom reads) executes with appro=
-x:
-> real 0m54.241s
-> user 0m0.440s
-> sys 0m5.920s
+> Odeally these fixes should go in to Stable kernel (v3.19+).
 >=20
-> Signed-off-by: Fugang Duan <B38611@freescale.com>
-> Signed-off-by: Gao Pan <b54642@freescale.com>
+> Changes from v2:
+> 	5/7: Remove start bit detected not required, use line_status instead of =
+i2c->line_status
+> 	7/7: use %u instead if %d for unsigned
+>=20
+> Sifan Naeem (7):
+>   i2c: img-scb: enable fencing for all versions of the ip
+>   i2c: img-scb: do dummy writes before fifo access
+>   i2c: img-scb: use DIV_ROUND_UP to round divisor values
+>   i2c: img-scb: fix LOW and HIGH period values for the SCL clock
+>   i2c: img-scb: use line_status instead of i2c->line_status
+>   i2c: img-scb: Clear line and interrupt status before starting a
+>     transfer
+>   i2c: img-scb: verify support for requested bit rate
+>=20
+>  drivers/i2c/busses/i2c-img-scb.c |   73 ++++++++++++++++++++++----------=
+------
+>  1 file changed, 43 insertions(+), 30 deletions(-)
 
-Uwe? Sascha?
+Series applied to for-next. Thanks to both James for the review!
 
 
---aVD9QWMuhilNxW9f
+--yVhtmJPUSI46BTXb
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWGL6MAAoJEBQN5MwUoCm2GyoP/RVOzpr58zMeS13tTHozORSi
-iJ9CRTPuSUa1hNvJ1HYakttd/mkxuGakHkVWvOMB1CKSDxH1c0+maRUngHLFCknk
-W+11N+5r+NHeHrD0UGhb40cMZ5knEeIENpvNl1uD91VxjMr5jP5sQVXuMfxgmyRz
-fZgRoA8WL55go2A5KYE6DW6dZDOzXR0fDPGHmWi4qw8b/tzIMrl07MMAZKH5E2sC
-HIPu+lESFWfM2y7/80OX9I8kLWlKbBhb9eo79WqHi7d0k6c+MC7rD6J0ZzRNTl20
-OLe4eqRubU81N2gDcfBzYuHg4klmOSrzXkVPVYWPd0kdsaT9sLl2/+RknOqg/hcQ
-MY2widpOcbUxlp6Te22LkW3BWXgwR5G/wKL79OBgnSVO/jefYmujyxabcHkYW1Yk
-jIUWj5334I2sai5UcARzLYKg65ne4KrwRqUqtP7rE1bKzt/Jf0/r1fFuZrOhVsK0
-LEQLERbQOqiSJvvd9fLeKyRLsUSII0uTadUPdnpD+KiOiue1lAlXvpSf1ZckauNz
-YR8gBYyTRxZRoQcD5jkObTJ9pO5qEwIy2Zkmjo91eq1X2U1HweBVu4f7W41f2Uoa
-wxgHydZQlqihZDKuy0+sIU4FF72U9yfcvl298ItowaoUkIzxuSZdAlZ87plMtTu9
-IqtUPTLQ2sGxaZmu4oub
-=cJID
+iQIcBAEBAgAGBQJWGMGWAAoJEBQN5MwUoCm27McP/1Knk4JWCtG7lz3DlQef8tVg
+549USbZ/hI1MoYBur/xMtNjVd/89cBK4pCz8IQUMyrBXe48LLoCtTZa7gu+rd0NX
+s2m4EnwM16IeZlp8QEiUOar1XttJy+mF6KjbWLNLfN5eY9pfdVYojr+JidO0U1yu
+owwl9dotGbb5Roevu8IWzNnm5oLofDHpNk2CXl597A3kjSjgEYXpyVdeW5o7z8Hy
+se6ewDBjAqSRvreNe0lO8G4YzXgOAITTIF2QTjrzXJ8sXiRD3WMu85E3pdA4uQky
+O4ywuG0TjvB8Y+kS1cFrzIRbcJ4j1yiB5LhTHiplk+KlbKDutkM3NTsd/8BpKzxs
+f/x1U6gTTGUy8KcPPp5/803BPvx7EorXrljaizfLnOXSy0R00hybXlbgeIKmpPsV
+LIHZ+pWCd11RD005+0B8/477jG5U5ZavdAxw9Pi5YdrHGu+Z/Y3/Aru151x3M3Rn
+1EAOdrZ+xafeJijmpJr3rocES3Kzv2R27seJ378WjCwHr38N4UEO5++B5Fh9stfb
+/TXhqUV0ve6lhAPnH306HrRDv8T6+ZrRpi+dbNXgSi7iabSzOWyeZ+1y1jfTk0Jt
+lXqvtTRULzJ8BrJq3qNhEEwkuc4QNmDK6O0RHmILVPcE1YKUM0I3uo5BV3C4CmI8
+hJ6yDoNe4My6V/vIF5lg
+=xiK5
 -----END PGP SIGNATURE-----
 
---aVD9QWMuhilNxW9f--
+--yVhtmJPUSI46BTXb--
