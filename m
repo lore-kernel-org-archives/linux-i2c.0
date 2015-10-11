@@ -1,67 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 6/6] i2c: designware: Move common probe code into
- i2c_dw_probe()
-Date: Sat, 10 Oct 2015 08:57:26 +0100
-Message-ID: <20151010075725.GF1619@katana>
-References: <1441031493-18938-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1441031493-18938-7-git-send-email-jarkko.nikula@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kbCYTQG2MZjuOjyn"
+From: Kieran Bingham <kieranbingham@gmail.com>
+Subject: [PATCH] i2c: return probe deferred status on dev_pm_domain_attach
+Date: Sun, 11 Oct 2015 12:39:31 +0100
+Message-ID: <1444563571-12247-1-git-send-email-kieranbingham@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:57346 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751029AbbJJH5i (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 10 Oct 2015 03:57:38 -0400
-Content-Disposition: inline
-In-Reply-To: <1441031493-18938-7-git-send-email-jarkko.nikula@linux.intel.com>
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:35265 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751141AbbJKLjk (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Oct 2015 07:39:40 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Kieran Bingham <kieranbingham@gmail.com>
 
+A change of return status was introduced in commit 3fffd1283927
+("i2c: allow specifying separate wakeup interrupt in device tree")
 
---kbCYTQG2MZjuOjyn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The commit prevents the defer status being passed up the call stack
+appropriately when dev_pm_domain_attach returns -EPROBE_DEFER.
 
+To fix we change this back to the original return status;
 
-> - I2C Adapter name will be "i2c-designware". Previously adapter name was
->   "Synopsys DesignWare I2C adapter" for platform and ACPI devices and
->   "i2c-designware-pci" for PCI devices.
+Signed-off-by: Kieran Bingham <kieranbingham@gmail.com>
+---
 
-I have a small tendency to make it "Synopsys DesignWare I2C adapter" for
-all cases. Not much, though.
+ drivers/i2c/i2c-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> - Interrupt name too will be "i2c-designware". Previous it was platform
->   device name, ACPI device name or "i2c-designware-pci".
-
-The device name makes them easier to distinguish in case you have
-multiple instantiations.
-
-Rest of the series looks good to me, thanks!
-
-
---kbCYTQG2MZjuOjyn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWGMTlAAoJEBQN5MwUoCm2yj0P/Rw7x61ZhRG9oD5AaZ/liFR3
-7w4gUinqHs1sb7Cx3PpxFSMRCGTZ8WL10n4b4AxWGpDJucv2sME2n3UGMk6kH45g
-eD8UFmWSnFgJf8baQpidOECLDlksx0u4cIyrXXl9hG+ki8TY9OTXAKT2Qmcbxi9e
-VI0DewjNQM6AZ5W32n+NdgVTrk5ghPLkQ3GAco3ZfRPp4J3QrczjzUyi2OEc2Qop
-DJM+Q29GKlDKxUVAYQKKfJty5OV9YkLRZGrxAdwhmzFAjBY76VP3GxGtdZi/lS1C
-aRZew37ftIcBgMwP3xe0DnFo8tCrUuHtRrqwscTZHbBKeGQOW6VxTV0XUMZjtcZF
-Tty3RVg4r8qSSYefIavl3MX6nQITRxXcO+Bv8PL4HjOFViQmdmj5h3Tq76xKcmjc
-DG9yVilsyUz6CxQRONOKuXAs2Atk6xh5PXW+5D9HW5StlBLzaQ4J9N3t6wm8a5bg
-JNKoFC1y9DzQgbJvUwQ9egNjTEI6UM0Bp+SSLCxyz5hMR+4Pxg8BZBfB2OBnHJwT
-5yXUm20HcRBxePBfkZZa2TyK7OELikM/v3H4/lJx2xkde0yhU1T/8iXYrtWRO2IJ
-s+liJJSnBlNRP1GQa5jmmAJgyE67zYkTq/T4HXUIKQVw7+j6QEgmGhyrwugHzHWo
-MYAIhT43coz+ePm7jg8+
-=yjTE
------END PGP SIGNATURE-----
-
---kbCYTQG2MZjuOjyn--
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 5f89f1e..df83015 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -701,7 +701,7 @@ static int i2c_device_probe(struct device *dev)
+ 			goto err_detach_pm_domain;
+ 	}
+ 
+-	return 0;
++	return status;
+ 
+ err_detach_pm_domain:
+ 	dev_pm_domain_detach(&client->dev, true);
+-- 
+2.1.4
