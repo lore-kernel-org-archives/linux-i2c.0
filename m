@@ -1,40 +1,56 @@
-From: Kukjin Kim <kgene@kernel.org>
-Subject: Re: [PATCH v3] i2c: s3c2410: enable RuntimePM before registering
- to the core
-Date: Tue, 13 Oct 2015 04:15:21 +0900
-Message-ID: <561C06C9.3090501@kernel.org>
-References: <1444461874-2841-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: return probe deferred status on dev_pm_domain_attach
+Date: Mon, 12 Oct 2015 20:40:43 +0100
+Message-ID: <20151012194042.GA1710@katana>
+References: <1444563571-12247-1-git-send-email-kieranbingham@gmail.com>
+ <20151012072312.GB1477@katana>
+ <20151012072422.GC1477@katana>
+ <CAB3z_RoFmMGQZKXnt3DTXaZSkZBVvGj59mB6pR+hAs2PxT8fLQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1444461874-2841-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAB3z_RoFmMGQZKXnt3DTXaZSkZBVvGj59mB6pR+hAs2PxT8fLQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kieran Bingham <kieranbingham@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/10/15 16:24, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
-> The core may register clients attached to this master which may use
-> funtionality from the master. So, RuntimePM must be enabled before, otherwise
-> this will fail. While here, move drvdata, too.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Looks good to me,
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Acked-by: Kukjin Kim <kgene@kernel.org>
 
-Thanks,
-Kukjin
+> Should I add Cc: stable? or are they notified from the Fixes: tag?
 
-> ---
-> 
-> Changes since v2: don't call runtime pm on adaper if it wasn't registered
-> 
-> Thanks to Krzysztof for testing!
-> 
->  drivers/i2c/busses/i2c-s3c2410.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+My preference is: I'll add stable when I commit to my tree. I am happy
+if people tell me when they think this should be done.
+
+In this case, it should :)
+
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWHAy6AAoJEBQN5MwUoCm2sg8QAIWwy330OvAWOq1dH9VQEx+e
+nlPdBhLEh7t4X8iPraTaz1H45137KlCOPgy5HGJLoNwb1s2Nv3TU9LPIoQfpCzSA
+1xGZSvnIijzGw94Tgz/9AlOLk7pZ5DZb3eh4ubTmOSjX3R8g1/0UDwHMs3SUv6Rl
+h2yE4rwgb3MisJVchx5Fn8PzU0Zq4g0hepuzCd9GD6H2tj0LMnqGHHmaqt43oNi1
+1HBte+vjQy5cIAux+IW2rewk9sfyVrFFrqIo3A01v7q9aMoYC/EQQw9Itzg86C+Q
+hkp9Agif8DyMihl47v2HQU9lbXGV0xucts1OOIVtwNSyM1vmINF5zuTuIhBqH5xq
+ROTBwrPAbS70ENBAOXRaVvMgXPpcWi3sab5O9M8HTShE1JSH8i/TZYgNFHOE1TIv
+UYzxeCbmPacrsj4IoAUVAqB2k3TZ8l9+cdxJhYMB4HYXH2wuNpOiEJXGQ7dr2nNl
+urvAG/qrh7yc3neTR775GxNu4uBeUNzeZLqSrX8pqfiLuEFV/0qDkZN75nX9VrVw
+0fhNer1hiC+s6RwY3dZYARGpV00LtqQkkp87V1LpKhx/YxJU4gkOL+Lyj8oUTY/C
+NDN9a4DTejvFAqOFLbSepcaTDGInlAicxAeuuGPYI8IUjkV4YkMyadGVVkJUQvwI
+zLCsTInQXw3nauQcHWHU
+=9d5j
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--
