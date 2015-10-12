@@ -1,54 +1,43 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 7/9] eeprom: at24: add the at24cs series to the list of supported devices
-Date: Mon, 12 Oct 2015 16:31:19 +0200
-Message-ID: <1444660281-19150-8-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 8/9] eeprom: at24: remove a reduntant if
+Date: Mon, 12 Oct 2015 16:31:20 +0200
+Message-ID: <1444660281-19150-9-git-send-email-bgolaszewski@baylibre.com>
 References: <1444660281-19150-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:35530 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752091AbbJLOcb (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Oct 2015 10:32:31 -0400
+Received: by wicge5 with SMTP id ge5so152910796wic.0
+        for <linux-i2c@vger.kernel.org>; Mon, 12 Oct 2015 07:32:30 -0700 (PDT)
 In-Reply-To: <1444660281-19150-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Patrick Titiano <ptitiano@baylibre.com>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
-List-Id: linux-i2c@vger.kernel.org
 
-The infrastructure for reading of the factory-programmed serial number
-for at24cs EEPROM series is now in place. Add the chips that are actually
-equipped with the serial number memory area to the list of supported
-devices.
+It seems as if the second check for I2C_FUNC_I2C functionality had been
+introduced accidentally during a merge. Tt's reduntant, so remove it.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/misc/eeprom/at24.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0d34b94..b5181a3 100644
+index b5181a3..52875f4 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -116,16 +116,25 @@ static const struct i2c_device_id at24_ids[] = {
- 	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
- 	/* old variants can't be handled with this generic entry! */
- 	{ "24c01",	AT24_DEVICE_MAGIC(1024 / 8,	0) },
-+	{ "24cs01",	AT24_DEVICE_MAGIC(1024 / 8,	AT24_FLAG_SERIAL) },
- 	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
-+	{ "24cs02",	AT24_DEVICE_MAGIC(2048 / 8,	AT24_FLAG_SERIAL) },
- 	/* spd is a 24c02 in memory DIMMs */
- 	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
- 				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
- 	{ "24c04",	AT24_DEVICE_MAGIC(4096 / 8,	0) },
-+	{ "24cs04",	AT24_DEVICE_MAGIC(4096 / 8,	AT24_FLAG_SERIAL) },
- 	/* 24rf08 quirk is handled at i2c-core */
- 	{ "24c08",	AT24_DEVICE_MAGIC(8192 / 8,	0) },
-+	{ "24cs08",	AT24_DEVICE_MAGIC(8192 / 8,	AT24_FLAG_SERIAL) },
- 	{ "24c16",	AT24_DEVICE_MAGIC(16384 / 8,	0) },
-+	{ "24cs16",	AT24_DEVICE_MAGIC(16384 / 8,	AT24_FLAG_SERIAL) },
- 	{ "24c32",	AT24_DEVICE_MAGIC(32768 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24cs32",	AT24_DEVICE_MAGIC(32768 / 8,
-+				AT24_FLAG_ADDR16 | AT24_FLAG_SERIAL) },
- 	{ "24c64",	AT24_DEVICE_MAGIC(65536 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24cs64",	AT24_DEVICE_MAGIC(65536 / 8,
-+				AT24_FLAG_ADDR16 | AT24_FLAG_SERIAL) },
- 	{ "24c128",	AT24_DEVICE_MAGIC(131072 / 8,	AT24_FLAG_ADDR16) },
- 	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
- 	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
+@@ -613,10 +613,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		} else {
+ 			return -EPFNOSUPPORT;
+ 		}
+-	}
+ 
+-	/* Use I2C operations unless we're stuck with SMBus extensions. */
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+ 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
 -- 
 2.1.4
