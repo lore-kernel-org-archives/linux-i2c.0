@@ -1,38 +1,51 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 1/6] i2c: designware: Remove interrupt clearing from i2c_dw_pci_probe()
-Date: Mon, 12 Oct 2015 14:14:18 +0300
-Message-ID: <561B960A.7060400@linux.intel.com>
-References: <1441031493-18938-1-git-send-email-jarkko.nikula@linux.intel.com> <1441031493-18938-2-git-send-email-jarkko.nikula@linux.intel.com> <20151010075337.GE1619@katana>
+From: Kieran Bingham <kieranbingham@gmail.com>
+Subject: Re: [PATCH] i2c: return probe deferred status on dev_pm_domain_attach
+Date: Mon, 12 Oct 2015 12:15:54 +0100
+Message-ID: <CAB3z_RpBxhuiCXO00g1zgNvHFZx+cn4Dx6RYhQHtkFjW4L0nwA@mail.gmail.com>
+References: <1444563571-12247-1-git-send-email-kieranbingham@gmail.com>
+	<20151012072312.GB1477@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:31586 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751067AbbJLLOV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 12 Oct 2015 07:14:21 -0400
-In-Reply-To: <20151010075337.GE1619@katana>
+Received: from mail-lb0-f180.google.com ([209.85.217.180]:35059 "EHLO
+	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751067AbbJLLP4 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Oct 2015 07:15:56 -0400
+In-Reply-To: <20151012072312.GB1477@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 10/10/2015 10:53 AM, Wolfram Sang wrote:
-> On Mon, Aug 31, 2015 at 05:31:28PM +0300, Jarkko Nikula wrote:
->> There is no need to clear interrupts in i2c_dw_pci_probe() since only place
->> where interrupts are unmasked is i2c_dw_xfer_init() and there interrupts
->> are always cleared after commit 2a2d95e9d6d2 ("i2c: designware: always
->> clear interrupts before enabling them").
->
-> Still, their status might be unclear when we init because firmware might
-> have used it before. It should be easy to reintroduce this in patch 6,
-> or?
->
-Yes and then it would be also uniform across different enumeration 
-methods if we ever need to add it. Now this clearing was done only for 
-PCI devices. Although I don't think there is any need to add clearing to 
-probe path as clearing happens beginning of transmit before enabling the 
-interrupts.
+Hi Wolfram,
 
--- 
-Jarkko
+On 12 October 2015 at 08:23, Wolfram Sang <wsa@the-dreams.de> wrote:
+> Hi Kiera,
+>
+> On Sun, Oct 11, 2015 at 12:39:31PM +0100, Kieran Bingham wrote:
+>> A change of return status was introduced in commit 3fffd1283927
+>> ("i2c: allow specifying separate wakeup interrupt in device tree")
+>
+> Thanks for catching this!
+
+NP : Saw it when re-basing my other series.
+
+>> The commit prevents the defer status being passed up the call stack
+>> appropriately when dev_pm_domain_attach returns -EPROBE_DEFER.
+>>
+>> To fix we change this back to the original return status;
+>
+> What about going to the error path?
+
+Sounds reasonable :D
+
+
+>> Signed-off-by: Kieran Bingham <kieranbingham@gmail.com>
+>
+> Please add a "Fixes: <sha1>" tag here.
+
+Sure.
+
+>
+>    Wolfram
+>
