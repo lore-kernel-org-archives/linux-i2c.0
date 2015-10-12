@@ -1,44 +1,286 @@
-From: Alexandre Daoud <alex.daoud@mac.com>
-Subject: i2c-hid: null input report
-Date: Mon, 12 Oct 2015 13:02:58 +0100
-Message-ID: <CA13886C-4161-4430-B234-7471773759FF@mac.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.0 \(1816\))
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCH v2 6/6] i2c: designware: Move common probe code into i2c_dw_probe()
+Date: Mon, 12 Oct 2015 16:55:35 +0300
+Message-ID: <1444658135-9281-1-git-send-email-jarkko.nikula@linux.intel.com>
+References: <20151010075725.GF1619@katana>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from st11p01im-asmtp001.me.com ([17.172.204.151]:32882 "EHLO
-	st11p01im-asmtp001.me.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751337AbbJLNGs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Oct 2015 09:06:48 -0400
-Received: from [10.213.145.251]
- (ip-31-205-85-157.ask4internet.com [31.205.85.157])
- by st11p01im-asmtp001.me.com
- (Oracle Communications Messaging Server 7.0.5.35.0 64bit (built Mar 31 2015))
- with ESMTPSA id <0NW3013WXWAC7K00@st11p01im-asmtp001.me.com> for
- linux-i2c@vger.kernel.org; Mon, 12 Oct 2015 12:06:40 +0000 (GMT)
+Received: from mga14.intel.com ([192.55.52.115]:28065 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751765AbbJLNzr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 12 Oct 2015 09:55:47 -0400
+In-Reply-To: <20151010075725.GF1619@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Hey guys,
+There is some code duplication in i2c-designware-platdrv and
+i2c-designware-pcidrv probe functions. What is even worse that duplication
+requires i2c_dw_xfer(), i2c_dw_func() and i2c_dw_isr() i2c-designware-core
+functions to be exported.
 
-I have a non-Linux i2c-hid related issue that I hope I could get some h=
-elp with. I have been porting the bus drivers for the Lynxpoint LPSS I2=
-C controllers and also the i2c-hid device drivers to OS X. Thanks to he=
-lp from this list earlier last year, the porting is almost finished. I =
-am having an issue with a synaptics touchscreen device though, in parti=
-cular: =93SYNA7500=94. Whenever I try to read from the device for an in=
-put report (whether by just issuing a read with i2c_master_recv or by r=
-eading from the input register), all I get is a null report (in other w=
-ords, just 0x00 * wMaxInputLength). Even while touching the screen with=
- both my finger and the stylus, the report stays null.
+Therefore move common code into new i2c_dw_probe() and make functions above
+local to i2c-designware-core.
 
-I am confident the driver is functional to at least a good level as som=
-eone with an =93ATML1000=94 gets the correct input reports (and we are =
-successfully able to pass them to OS X=92s HID manager).
+While merging the code patch does following functional changes:
 
-Has anyone here experienced something similar to this? Any help would b=
-e greatly appreciated.
+- I2C Adapter name will be "Synopsys DesignWare I2C adapter". Previously it
+  was used for platform and ACPI devices but PCI device used
+  "i2c-designware-pci".
+- Using device name for interrupt name. Previous it was platform device name,
+  ACPI device name or "i2c-designware-pci".
+- Error code from devm_request_irq() and i2c_add_numbered_adapter() will be
+  printed in case of error.
 
-Regards,
-Alexandre Daoud
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+v2:
+- Adapter name changed to "Synopsys DesignWare I2C adapter"
+- Using device name for interrupt name
+---
+ drivers/i2c/busses/i2c-designware-core.c    | 49 +++++++++++++++++++++++++----
+ drivers/i2c/busses/i2c-designware-core.h    |  5 +--
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 30 ++----------------
+ drivers/i2c/busses/i2c-designware-platdrv.c | 28 ++---------------
+ 4 files changed, 49 insertions(+), 63 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 52272a01c679..8c48b27ba059 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -618,7 +618,7 @@ static int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev)
+ /*
+  * Prepare controller for a transaction and call i2c_dw_xfer_msg
+  */
+-int
++static int
+ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ {
+ 	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+@@ -702,14 +702,17 @@ done_nolock:
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(i2c_dw_xfer);
+ 
+-u32 i2c_dw_func(struct i2c_adapter *adap)
++static u32 i2c_dw_func(struct i2c_adapter *adap)
+ {
+ 	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+ 	return dev->functionality;
+ }
+-EXPORT_SYMBOL_GPL(i2c_dw_func);
++
++static struct i2c_algorithm i2c_dw_algo = {
++	.master_xfer	= i2c_dw_xfer,
++	.functionality	= i2c_dw_func,
++};
+ 
+ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+ {
+@@ -770,7 +773,7 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+  * Interrupt service routine. This gets called whenever an I2C interrupt
+  * occurs.
+  */
+-irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
++static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ {
+ 	struct dw_i2c_dev *dev = dev_id;
+ 	u32 stat, enabled;
+@@ -813,7 +816,6 @@ tx_aborted:
+ 
+ 	return IRQ_HANDLED;
+ }
+-EXPORT_SYMBOL_GPL(i2c_dw_isr);
+ 
+ void i2c_dw_disable(struct dw_i2c_dev *dev)
+ {
+@@ -838,5 +840,40 @@ u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev)
+ }
+ EXPORT_SYMBOL_GPL(i2c_dw_read_comp_param);
+ 
++int i2c_dw_probe(struct dw_i2c_dev *dev)
++{
++	struct i2c_adapter *adap = &dev->adapter;
++	int r;
++
++	init_completion(&dev->cmd_complete);
++	mutex_init(&dev->lock);
++
++	r = i2c_dw_init(dev);
++	if (r)
++		return r;
++
++	snprintf(adap->name, sizeof(adap->name),
++		 "Synopsys DesignWare I2C adapter");
++	adap->algo = &i2c_dw_algo;
++	adap->dev.parent = dev->dev;
++	i2c_set_adapdata(adap, dev);
++
++	i2c_dw_disable_int(dev);
++	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, IRQF_SHARED,
++			     dev_name(dev->dev), dev);
++	if (r) {
++		dev_err(dev->dev, "failure requesting irq %i: %d\n",
++			dev->irq, r);
++		return r;
++	}
++
++	r = i2c_add_numbered_adapter(adap);
++	if (r)
++		dev_err(dev->dev, "failure adding adapter: %d\n", r);
++
++	return r;
++}
++EXPORT_SYMBOL_GPL(i2c_dw_probe);
++
+ MODULE_DESCRIPTION("Synopsys DesignWare I2C bus adapter core");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 0e73b8672402..1d50898e7b24 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -113,13 +113,10 @@ struct dw_i2c_dev {
+ #define ACCESS_16BIT		0x00000002
+ 
+ extern int i2c_dw_init(struct dw_i2c_dev *dev);
+-extern int i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+-		int num);
+-extern u32 i2c_dw_func(struct i2c_adapter *adap);
+-extern irqreturn_t i2c_dw_isr(int this_irq, void *dev_id);
+ extern void i2c_dw_disable(struct dw_i2c_dev *dev);
+ extern void i2c_dw_disable_int(struct dw_i2c_dev *dev);
+ extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
++extern int i2c_dw_probe(struct dw_i2c_dev *dev);
+ 
+ #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
+ extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index d9e8937f062f..169be1e26241 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -158,11 +158,6 @@ static struct dw_pci_controller dw_pci_controllers[] = {
+ 	},
+ };
+ 
+-static struct i2c_algorithm i2c_dw_algo = {
+-	.master_xfer	= i2c_dw_xfer,
+-	.functionality	= i2c_dw_func,
+-};
+-
+ #ifdef CONFIG_PM
+ static int i2c_dw_pci_suspend(struct device *dev)
+ {
+@@ -222,13 +217,12 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	if (!dev)
+ 		return -ENOMEM;
+ 
+-	init_completion(&dev->cmd_complete);
+-	mutex_init(&dev->lock);
+ 	dev->clk = NULL;
+ 	dev->controller = controller;
+ 	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+ 	dev->base = pcim_iomap_table(pdev)[0];
+ 	dev->dev = &pdev->dev;
++	dev->irq = pdev->irq;
+ 	dev->functionality = controller->functionality |
+ 				DW_DEFAULT_FUNCTIONALITY;
+ 
+@@ -246,33 +240,15 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 
+ 	dev->tx_fifo_depth = controller->tx_fifo_depth;
+ 	dev->rx_fifo_depth = controller->rx_fifo_depth;
+-	r = i2c_dw_init(dev);
+-	if (r)
+-		return r;
+ 
+ 	adap = &dev->adapter;
+-	i2c_set_adapdata(adap, dev);
+ 	adap->owner = THIS_MODULE;
+ 	adap->class = 0;
+-	adap->algo = &i2c_dw_algo;
+-	adap->dev.parent = &pdev->dev;
+ 	adap->nr = controller->bus_num;
+ 
+-	snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci");
+-
+-	i2c_dw_disable_int(dev);
+-	r = devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr,
+-			IRQF_SHARED | IRQF_COND_SUSPEND, adap->name, dev);
+-	if (r) {
+-		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+-		return r;
+-	}
+-
+-	r = i2c_add_numbered_adapter(adap);
+-	if (r) {
+-		dev_err(&pdev->dev, "failure adding adapter\n");
++	r = i2c_dw_probe(dev);
++	if (r)
+ 		return r;
+-	}
+ 
+ 	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 17167cd4812d..adcf4c3a81f0 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -41,10 +41,6 @@
+ #include <linux/platform_data/i2c-designware.h>
+ #include "i2c-designware-core.h"
+ 
+-static struct i2c_algorithm i2c_dw_algo = {
+-	.master_xfer	= i2c_dw_xfer,
+-	.functionality	= i2c_dw_func,
+-};
+ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ {
+ 	return clk_get_rate(dev->clk)/1000;
+@@ -155,8 +151,6 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	if (IS_ERR(dev->base))
+ 		return PTR_ERR(dev->base);
+ 
+-	init_completion(&dev->cmd_complete);
+-	mutex_init(&dev->lock);
+ 	dev->dev = &pdev->dev;
+ 	dev->irq = irq;
+ 	platform_set_drvdata(pdev, dev);
+@@ -231,33 +225,15 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
+ 		dev->adapter.nr = pdev->id;
+ 	}
+-	r = i2c_dw_init(dev);
+-	if (r)
+-		return r;
+-
+-	i2c_dw_disable_int(dev);
+-	r = devm_request_irq(&pdev->dev, dev->irq, i2c_dw_isr, IRQF_SHARED,
+-			pdev->name, dev);
+-	if (r) {
+-		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+-		return r;
+-	}
+ 
+ 	adap = &dev->adapter;
+-	i2c_set_adapdata(adap, dev);
+ 	adap->owner = THIS_MODULE;
+ 	adap->class = I2C_CLASS_DEPRECATED;
+-	strlcpy(adap->name, "Synopsys DesignWare I2C adapter",
+-			sizeof(adap->name));
+-	adap->algo = &i2c_dw_algo;
+-	adap->dev.parent = &pdev->dev;
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 
+-	r = i2c_add_numbered_adapter(adap);
+-	if (r) {
+-		dev_err(&pdev->dev, "failure adding adapter\n");
++	r = i2c_dw_probe(dev);
++	if (r)
+ 		return r;
+-	}
+ 
+ 	if (dev->pm_runtime_disabled) {
+ 		pm_runtime_forbid(&pdev->dev);
+-- 
+2.6.1
