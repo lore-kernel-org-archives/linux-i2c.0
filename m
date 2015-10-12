@@ -1,121 +1,92 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c: designware: enable High-speed mode for pcidrv
-Date: Mon, 12 Oct 2015 11:31:48 +0300
-Message-ID: <1444638708.8361.564.camel@linux.intel.com>
-References: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
-	 <1444380426-17953-2-git-send-email-wangxfdu@gmail.com>
-	 <1444383067.8361.517.camel@linux.intel.com>
-	 <CACDNBm3wkxAXbgQ4Z15uBFKUrsy9ngYKx3dGY20eV4RbSoJ5mg@mail.gmail.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [RFC] i2c: Revert back to old device naming for ACPI enumerated
+ I2C slaves
+Date: Mon, 12 Oct 2015 11:32:23 +0300
+Message-ID: <561B7017.8090004@linux.intel.com>
+References: <1440413522-7855-1-git-send-email-jarkko.nikula@linux.intel.com> <20151001203744.GA7514@katana> <560E4DF4.4000901@linux.intel.com> <20151009214712.GD1481@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:42350 "EHLO mga02.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:15345 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751606AbbJLIbx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 12 Oct 2015 04:31:53 -0400
-In-Reply-To: <CACDNBm3wkxAXbgQ4Z15uBFKUrsy9ngYKx3dGY20eV4RbSoJ5mg@mail.gmail.com>
+	id S1751330AbbJLIc1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 12 Oct 2015 04:32:27 -0400
+In-Reply-To: <20151009214712.GD1481@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Xiang Wang <wangxfdu@gmail.com>
-Cc: xiang.a.wang@intel.com, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jean Delvare <jdelvare@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Dustin Byford <dustin@cumulusnetworks.com>, linux@roeck-us.net
 
-On Mon, 2015-10-12 at 15:41 +0800, Xiang Wang wrote:
-> Hi, Andy
-> Thanks for your comments.
-> 
-> [Andy] Don't see a relationship between PCI driver and this ACPI 
-> stuff.
-> Although this is a pci driver, we may enumerate the i2c devices from
-> DSDT table while i2c controllers are enumerated via PCI. In this
-> scenario, in DSDT, there are descriptions of i2c devices as well as
-> i2c controllers. The ACPI node of i2c controllers are bond to i2c PCI
-> devices via pci-acpi glue.
-> So if we want to determine the i2c devices' settings (e.g. bus 
-> speed),
-> we should leverage ACPI.
-> 
-> Above is also the reason why the ACPI stuff is put in
-> i2c-designware-core: i2c_dw_acpi_setup_speed can be used by both plat
-> and pci driver. Thanks
+Hi
+On 10/10/2015 12:47 AM, Wolfram Sang wrote:
+> On Fri, Oct 02, 2015 at 12:27:16PM +0300, Jarkko Nikula wrote:
+>> On 10/01/2015 11:37 PM, Wolfram Sang wrote:
+>>> Do you foresee troubles already? I am still in favour of a symlink.
+>>>
+>> I haven't looked at this for a while but one problem was that devices/
+>> directory belongs to private structure of struct bus_type and in order to
+>> create a symlink there it needs to done in drivers/base/bus.c:
+>> bus_add_device() which felt quite hackish to me.
+>
+> This is just a quick prototype and untested; but I did something similar
+> in the i2c-mux code:
+>
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 5f89f1e3c2f24f..715dca57ba68fd 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -970,13 +970,15 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
+>   {
+>   	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
+>
+> -	if (adev) {
+> -		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
+> -		return;
+> -	}
+> -
+>   	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
+>   		     i2c_encode_flags_to_addr(client));
+> +
+> +	if (adev) {
+> +		char symlink_name[256];
+> +
+> +		snprintf(symlink_name, sizeof(symlink_name), "i2c-%s", acpi_dev_name(adev));
+> +		sysfs_create_link(&client->dev.kobj, &adap->dev.kobj, symlink_name);
+> +	}
+>   }
+>
+>   /**
+>
+> Shouldn't something like this be enough?
+>
+Not really. It would create the symlink under the device not under 
+/sys/bus/i2c/devices/. Please note the sysfs_create_link() must be 
+called after device_register(). I moved the symlink creation into 
+i2c_new_device() for the example below.
 
-Wait, first of all let's divide parameters to two groups: a) to be
-applied to host driver, and b) to be applied to slave devices.
+Now:
 
-The drivers/i2c/busses/i2c-designware* is about host driver parameters.
+/sys/bus/i2c/devices/i2c-ATML3432:00 -> 
+../../../devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-9/i2c-ATML3432:00
 
-Thus, PCI driver comes with hardcoded values since it's enumerated via
-PCI, and platform driver utilizes ACPI values.
+After modified patch:
 
-For slave devices everything is done in i2c-core.c.
+/sys/bus/i2c/devices/9-004c -> 
+../../../devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-9/9-004c
 
-So, what exactly you are trying to enhance?
+which has now the symlink pointing to adapter
 
-> 
-> 2015-10-09 17:31 GMT+08:00 Andy Shevchenko <
-> andriy.shevchenko@linux.intel.com>:
-> > On Fri, 2015-10-09 at 16:47 +0800, wangxfdu@gmail.com wrote:
-> > > From: Xiang Wang <xiang.a.wang@intel.com>
-> > > 
-> > > 1. Support setting hs_hcnt and hs_lcnt
-> > > 2. Get bus speed mode from ACPI companion of the
-> > > i2c controller.
-> > > 
-> > > Signed-off-by: Xiang Wang <xiang.a.wang@intel.com>
-> > > ---
-> > >  drivers/i2c/busses/i2c-designware-pcidrv.c | 7 +++++++
-> > >  1 file changed, 7 insertions(+)
-> > > 
-> > > diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > > b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > > index 6643d2d..0f4c0c4 100644
-> > > --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > > +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > > @@ -54,8 +54,10 @@ enum dw_pci_ctl_id_t {
-> > >  struct dw_scl_sda_cfg {
-> > >       u32 ss_hcnt;
-> > >       u32 fs_hcnt;
-> > > +     u32 hs_hcnt;
-> > >       u32 ss_lcnt;
-> > >       u32 fs_lcnt;
-> > > +     u32 hs_lcnt;
-> > >       u32 sda_hold;
-> > >  };
-> > > 
-> > > @@ -237,8 +239,10 @@ static int i2c_dw_pci_probe(struct pci_dev
-> > > *pdev,
-> > >               cfg = controller->scl_sda_cfg;
-> > >               dev->ss_hcnt = cfg->ss_hcnt;
-> > >               dev->fs_hcnt = cfg->fs_hcnt;
-> > > +             dev->hs_hcnt = cfg->hs_hcnt;
-> > >               dev->ss_lcnt = cfg->ss_lcnt;
-> > >               dev->fs_lcnt = cfg->fs_lcnt;
-> > > +             dev->hs_lcnt = cfg->hs_lcnt;
-> > >               dev->sda_hold_time = cfg->sda_hold;
-> > >       }
-> > > 
-> > > @@ -246,6 +250,9 @@ static int i2c_dw_pci_probe(struct pci_dev 
-> > > *pdev,
-> > > 
-> > >       dev->tx_fifo_depth = controller->tx_fifo_depth;
-> > >       dev->rx_fifo_depth = controller->rx_fifo_depth;
-> > > +
-> > > +     i2c_dw_acpi_setup_speed(&pdev->dev, dev);
-> > 
-> > Don't see a relationship between PCI driver and this ACPI stuff.
-> > 
-> > > +
-> > >       r = i2c_dw_init(dev);
-> > >       if (r)
-> > >               return r;
-> > 
-> > --
-> > Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Intel Finland Oy
-> 
-> 
-> 
+/sys/devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-9/9-004c/
+i2c-ATML3432:00 -> ../../i2c-9
+
+We would need a following symlink but I didn't figure out how to do it 
+without touching drivers/base/bus.c.
+
+/sys/bus/i2c/devices/i2c-ATML3432:00 -> 9-004c
+
+Symlinks there are added/removed by using &bus->p->devices_kset->kobj 
+where p is a private for driver core only.
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Jarkko
