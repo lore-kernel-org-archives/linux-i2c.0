@@ -1,44 +1,41 @@
 From: Kieran Bingham <kieranbingham@gmail.com>
-Subject: [PATCH v2] i2c: return probe deferred status on dev_pm_domain_attach
-Date: Mon, 12 Oct 2015 20:49:04 +0100
-Message-ID: <1444679344-27284-1-git-send-email-kieranbingham@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, Kieran Bingham <kieranbingham@gmail.com>
+Subject: Re: [PATCH] i2c: return probe deferred status on dev_pm_domain_attach
+Date: Mon, 12 Oct 2015 20:50:58 +0100
+Message-ID: <CAB3z_RqwBWddYYOkaFW2t5XxCV00n5yq9Dfz7str=sJvA0sn7w@mail.gmail.com>
+References: <1444563571-12247-1-git-send-email-kieranbingham@gmail.com>
+	<20151012072312.GB1477@katana>
+	<20151012072422.GC1477@katana>
+	<CAB3z_RoFmMGQZKXnt3DTXaZSkZBVvGj59mB6pR+hAs2PxT8fLQ@mail.gmail.com>
+	<20151012194042.GA1710@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lb0-f180.google.com ([209.85.217.180]:36058 "EHLO
+	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751861AbbJLTvA (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Oct 2015 15:51:00 -0400
+In-Reply-To: <20151012194042.GA1710@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-A change of return status was introduced in commit 3fffd1283927
-("i2c: allow specifying separate wakeup interrupt in device tree")
+On 12 October 2015 at 20:40, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> Should I add Cc: stable? or are they notified from the Fixes: tag?
+>
+> My preference is: I'll add stable when I commit to my tree. I am happy
+> if people tell me when they think this should be done.
+>
+> In this case, it should :)
+>
 
-The commit prevents the defer status being passed up the call stack
-appropriately when dev_pm_domain_attach returns -EPROBE_DEFER.
+Agreed :)
+I'm happy to follow your process and preference and let you add.
 
-Catch the PROBE_DEFER and clear up the IRQ wakeup status
+- Patch v2 posted.
 
-Signed-off-by: Kieran Bingham <kieranbingham@gmail.com>
-Fixes: 3fffd1283927 ("i2c: allow specifying separate wakeup
-interrupt in device tree")
+--
+Regards
 
----
-V2:
- Fall through the error path before returning -EPROBE_DEFER
-
- drivers/i2c/i2c-core.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 5f89f1e3c2f2..51f20cce1732 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -699,6 +699,8 @@ static int i2c_device_probe(struct device *dev)
- 					client));
- 		if (status)
- 			goto err_detach_pm_domain;
-+	} else {
-+		goto err_clear_wakeup_irq;
- 	}
- 
- 	return 0;
--- 
-2.1.4
+Kieran
