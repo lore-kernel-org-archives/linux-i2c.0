@@ -1,146 +1,77 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: [PATCH] i2c: at91: fix write transfers by clearing pending interrupt first
-Date: Tue, 13 Oct 2015 16:21:41 +0200
-Message-ID: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
+From: Peter Rosin <peda@lysator.liu.se>
+Subject: Re: [PATCH] i2c: at91: fix write transfers by clearing pending
+ interrupt first
+Date: Tue, 13 Oct 2015 17:19:03 +0200
+Message-ID: <561D20E7.5070405@lysator.liu.se>
+References: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:37838 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752295AbbJMOVs (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Oct 2015 10:21:48 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ludovic Desroches <ludovic.desroches@atmel.com>, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com, Cyrille Pitchen <cyrille.pitchen@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com, peda@lysator.liu.se, Cyrille Pitchen <cyrille.pitchen@atmel.com>, Ludovic Desroches <ludovic.desroches@atmel.com>
 
-From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+On 2015-10-13 16:21, Ludovic Desroches wrote:
+> From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+> 
+> In some cases a NACK interrupt may be pending in the Status Register (SR)
+> as a result of a previous transfer. However at91_do_twi_transfer() did not
+> read the SR to clear pending interruptions before starting a new transfer.
+> Hence a NACK interrupt rose as soon as it was enabled again at the I2C
+> controller level, resulting in a wrong sequence of operations and strange
+> patterns of behaviour on the I2C bus, such as a clock stretch followed by
+> a restart of the transfer.
+> 
+> This first issue occurred with both DMA and PIO write transfers.
+> 
+> Also when a NACK error was detected during a PIO write transfer, the
+> interrupt handler used to wrongly start a new transfer by writing into the
+> Transmit Holding Register (THR). Then the I2C slave was likely to reply
+> with a second NACK.
+> 
+> This second issue is fixed in atmel_twi_interrupt() by handling the TXRDY
+> status bit only if both the TXCOMP and NACK status bits are cleared.
+> 
+> Tested with a at24 eeprom on sama5d36ek board running a linux-4.1-at91
+> kernel image. Adapted to linux-next.
+> 
+> Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+> Fixes: 93563a6a71bb ("i2c: at91: fix a race condition when using the DMA controller")
+> Reported-by: Peter Rosin <peda@lysator.liu.se>
+> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+> Cc: stable@vger.kernel.org #4.1
 
-In some cases a NACK interrupt may be pending in the Status Register (SR)
-as a result of a previous transfer. However at91_do_twi_transfer() did not
-read the SR to clear pending interruptions before starting a new transfer.
-Hence a NACK interrupt rose as soon as it was enabled again at the I2C
-controller level, resulting in a wrong sequence of operations and strange
-patterns of behaviour on the I2C bus, such as a clock stretch followed by
-a restart of the transfer.
+The regression is gone with this patch (vanilla 4.2), thank you!
 
-This first issue occurred with both DMA and PIO write transfers.
+However, looking at the bus, there are two NACKs after each
+successful chunk of memory written by the eeprom driver.
 
-Also when a NACK error was detected during a PIO write transfer, the
-interrupt handler used to wrongly start a new transfer by writing into the
-Transmit Holding Register (THR). Then the I2C slave was likely to reply
-with a second NACK.
+Looking at the eeprom driver, I expect this on the bus:
 
-This second issue is fixed in atmel_twi_interrupt() by handling the TXRDY
-status bit only if both the TXCOMP and NACK status bits are cleared.
+S 0x50 0x00 "hello there guys" P
+S 0x50 NACK P
+delay for at least 1 ms (since the eeprom driver has a msleep(1) call).
+S 0x50 NACK P
+delay for at least 1 ms
+...
+...
+S 0x50 NACK P
+delay for at least 1 ms
+S 0x50 0x10 "and girls\n" P
 
-Tested with a at24 eeprom on sama5d36ek board running a linux-4.1-at91
-kernel image. Adapted to linux-next.
+This is not what I observe on the bus, most of the time there is a
+second NACK immediately following the first. I suspect that it is
+the i2c bus driver that somehow confuses itself and reissues the
+command for some reason?
 
-Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Fixes: 93563a6a71bb ("i2c: at91: fix a race condition when using the DMA controller")
-Reported-by: Peter Rosin <peda@lysator.liu.se>
-Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-Cc: stable@vger.kernel.org #4.1
----
- drivers/i2c/busses/i2c-at91.c | 58 +++++++++++++++++++++++++++++++++++++------
- 1 file changed, 50 insertions(+), 8 deletions(-)
+But this behavior has been there since the beginning, so it's probably
+orthogonal, and killing the data corrupting regression is much more
+important to me than fussing over a surplus failed transfer. Hence
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 1c758cd..94c087b 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -465,19 +465,57 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
- 
- 	if (!irqstatus)
- 		return IRQ_NONE;
--	else if (irqstatus & AT91_TWI_RXRDY)
--		at91_twi_read_next_byte(dev);
--	else if (irqstatus & AT91_TWI_TXRDY)
--		at91_twi_write_next_byte(dev);
--
--	/* catch error flags */
--	dev->transfer_status |= status;
- 
-+	/*
-+	 * When a NACK condition is detected, the I2C controller sets the NACK,
-+	 * TXCOMP and TXRDY bits all together in the Status Register (SR).
-+	 *
-+	 * 1 - Handling NACK errors with CPU write transfer.
-+	 *
-+	 * In such case, we should not write the next byte into the Transmit
-+	 * Holding Register (THR) otherwise the I2C controller would start a new
-+	 * transfer and the I2C slave is likely to reply by another NACK.
-+	 *
-+	 * 2 - Handling NACK errors with DMA write transfer.
-+	 *
-+	 * By setting the TXRDY bit in the SR, the I2C controller also triggers
-+	 * the DMA controller to write the next data into the THR. Then the
-+	 * result depends on the hardware version of the I2C controller.
-+	 *
-+	 * 2a - Without support of the Alternative Command mode.
-+	 *
-+	 * This is the worst case: the DMA controller is triggered to write the
-+	 * next data into the THR, hence starting a new transfer: the I2C slave
-+	 * is likely to reply by another NACK.
-+	 * Concurrently, this interrupt handler is likely to be called to manage
-+	 * the first NACK before the I2C controller detects the second NACK and
-+	 * sets once again the NACK bit into the SR.
-+	 * When handling the first NACK, this interrupt handler disables the I2C
-+	 * controller interruptions, especially the NACK interrupt.
-+	 * Hence, the NACK bit is pending into the SR. This is why we should
-+	 * read the SR to clear all pending interrupts at the beginning of
-+	 * at91_do_twi_transfer() before actually starting a new transfer.
-+	 *
-+	 * 2b - With support of the Alternative Command mode.
-+	 *
-+	 * When a NACK condition is detected, the I2C controller also locks the
-+	 * THR (and sets the LOCK bit in the SR): even though the DMA controller
-+	 * is triggered by the TXRDY bit to write the next data into the THR,
-+	 * this data actually won't go on the I2C bus hence a second NACK is not
-+	 * generated.
-+	 */
- 	if (irqstatus & (AT91_TWI_TXCOMP | AT91_TWI_NACK)) {
- 		at91_disable_twi_interrupts(dev);
- 		complete(&dev->cmd_complete);
-+	} else if (irqstatus & AT91_TWI_RXRDY) {
-+		at91_twi_read_next_byte(dev);
-+	} else if (irqstatus & AT91_TWI_TXRDY) {
-+		at91_twi_write_next_byte(dev);
- 	}
- 
-+	/* catch error flags */
-+	dev->transfer_status |= status;
-+
- 	return IRQ_HANDLED;
- }
- 
-@@ -487,6 +525,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 	unsigned long time_left;
- 	bool has_unre_flag = dev->pdata->has_unre_flag;
- 	bool has_alt_cmd = dev->pdata->has_alt_cmd;
-+	unsigned sr;
- 
- 	/*
- 	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
-@@ -537,6 +576,9 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 	reinit_completion(&dev->cmd_complete);
- 	dev->transfer_status = 0;
- 
-+	/* Clear pending interrupts, such as NACK. */
-+	sr = at91_twi_read(dev, AT91_TWI_SR);
-+
- 	if (dev->fifo_size) {
- 		unsigned fifo_mr = at91_twi_read(dev, AT91_TWI_FMR);
- 
-@@ -558,7 +600,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 	} else if (dev->msg->flags & I2C_M_RD) {
- 		unsigned start_flags = AT91_TWI_START;
- 
--		if (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY) {
-+		if (sr & AT91_TWI_RXRDY) {
- 			dev_err(dev->dev, "RXRDY still set!");
- 			at91_twi_read(dev, AT91_TWI_RHR);
- 		}
--- 
-2.5.0
+Tested-by: Peter Rosin <peda@lysator.liu.se>
+
+Cheers,
+Peter
