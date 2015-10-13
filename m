@@ -1,184 +1,54 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 2/8] mfd: core: redo ACPI matching of the children
- devices
-Date: Tue, 13 Oct 2015 10:21:04 +0100
-Message-ID: <20151013092104.GK32409@x1>
-References: <1443698430-74415-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1443698430-74415-3-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 2/2] i2c: add ACPI support for I2C mux ports
+Date: Tue, 13 Oct 2015 14:32:35 +0300
+Message-ID: <20151013113235.GK1492@lahna.fi.intel.com>
+References: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
+ <1444437707-19027-1-git-send-email-dustin@cumulusnetworks.com>
+ <1444437707-19027-3-git-send-email-dustin@cumulusnetworks.com>
+ <20151012105023.GX1506@lahna.fi.intel.com>
+ <20151012183231.GB5909@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:34309 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751101AbbJMJVJ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Oct 2015 05:21:09 -0400
-Received: by wicgb1 with SMTP id gb1so80690277wic.1
-        for <linux-i2c@vger.kernel.org>; Tue, 13 Oct 2015 02:21:08 -0700 (PDT)
+Received: from mga14.intel.com ([192.55.52.115]:65310 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752718AbbJMLer (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 13 Oct 2015 07:34:47 -0400
 Content-Disposition: inline
-In-Reply-To: <1443698430-74415-3-git-send-email-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20151012183231.GB5909@cumulusnetworks.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
+To: Dustin Byford <dustin@cumulusnetworks.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net
 
-On Thu, 01 Oct 2015, Andy Shevchenko wrote:
+On Mon, Oct 12, 2015 at 11:32:31AM -0700, Dustin Byford wrote:
+> I've been trying to consider the options, perhaps you can help my
+> understanding.  Using the i801 driver as an example, the device is PCI
+> and the companion is associated with the PCI dev.  The driver creates
+> another device for the I2C interface (parented by the PCI device) by
+> calling i2c_add_adapter().  The I2C dev has no ACPI companion.
+> 
+> In the case of an I2C mux port, I've used acpi_preset_companion() to
+> associate each mux port I2C device with a ACPI node.  Unlike the i801,
+> which has a single port, these companions are one per channel.  It's not
+> an option to associate them all with the I2C mux device.
+> 
+> It seems like the options are to:
+> 
+> a) Special case the I2C mux to use the per-port I2C companions as I've
+>    done here.
+> 
+> b) Move (or copy?) the companion from the i801 PCI dev to the i801 I2C
+>    dev.  Then we would always look in the same place for the companion.
+>    I think this approach has some advantages, at least it would make
+>    more sense if an I2C PCI controller had more than one I2C port, but
+>    I'm not sure that case exists.  I didn't pursue this approach because
+>    it was specifically avoided in change b34bb1ee.
+> 
+> 
+> What do you think?  I'd be happy to try out any ideas you have.
 
-> There is at least one board on the market, i.e. Intel Galileo Gen2, t=
-hat uses
-> _ADR to distinguish the devices under one actual device. Due to this =
-we have to
-> improve the quirk in the MFD core to handle that board.
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  Documentation/acpi/enumeration.txt | 11 +++++---
->  drivers/mfd/mfd-core.c             | 52 ++++++++++++++++++++++++++--=
-----------
->  include/linux/mfd/core.h           | 10 ++++++--
->  3 files changed, 52 insertions(+), 21 deletions(-)
-
-Acked-by: Lee Jones <lee.jones@linaro.org>
-
-> diff --git a/Documentation/acpi/enumeration.txt b/Documentation/acpi/=
-enumeration.txt
-> index b731b29..a91ec5a 100644
-> --- a/Documentation/acpi/enumeration.txt
-> +++ b/Documentation/acpi/enumeration.txt
-> @@ -347,13 +347,18 @@ For the first case, the MFD drivers do not need=
- to do anything. The
->  resulting child platform device will have its ACPI_COMPANION() set t=
-o point
->  to the parent device.
-> =20
-> -If the ACPI namespace has a device that we can match using an ACPI i=
-d,
-> -the id should be set like:
-> +If the ACPI namespace has a device that we can match using an ACPI i=
-d or ACPI
-> +adr, the cell should be set like:
-> +
-> +	static struct mfd_cell_acpi_match my_subdevice_cell_acpi_match =3D =
-{
-> +		.pnpid =3D "XYZ0001",
-> +		.adr =3D 0,
-> +	};
-> =20
->  	static struct mfd_cell my_subdevice_cell =3D {
->  		.name =3D "my_subdevice",
->  		/* set the resources relative to the parent */
-> -		.acpi_pnpid =3D "XYZ0001",
-> +		.acpi_match =3D &my_subdevice_cell_acpi_match,
->  	};
-> =20
->  The ACPI id "XYZ0001" is then used to lookup an ACPI device directly=
- under
-> diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-> index c17635d..60b60dc 100644
-> --- a/drivers/mfd/mfd-core.c
-> +++ b/drivers/mfd/mfd-core.c
-> @@ -82,29 +82,49 @@ static int mfd_platform_add_cell(struct platform_=
-device *pdev,
->  static void mfd_acpi_add_device(const struct mfd_cell *cell,
->  				struct platform_device *pdev)
->  {
-> -	struct acpi_device *parent_adev;
-> +	const struct mfd_cell_acpi_match *match =3D cell->acpi_match;
-> +	struct acpi_device *parent, *child;
->  	struct acpi_device *adev;
-> =20
-> -	parent_adev =3D ACPI_COMPANION(pdev->dev.parent);
-> -	if (!parent_adev)
-> +	parent =3D ACPI_COMPANION(pdev->dev.parent);
-> +	if (!parent)
->  		return;
-> =20
->  	/*
-> -	 * MFD child device gets its ACPI handle either from the ACPI
-> -	 * device directly under the parent that matches the acpi_pnpid or
-> -	 * it will use the parent handle if is no acpi_pnpid is given.
-> +	 * MFD child device gets its ACPI handle either from the ACPI devic=
-e
-> +	 * directly under the parent that matches the either _HID or _CID, =
-or
-> +	 * _ADR or it will use the parent handle if is no ID is given.
-> +	 *
-> +	 * Note that use of _ADR is a grey area in the ACPI specification,
-> +	 * though Intel Galileo Gen2 is using it to distinguish the childre=
-n
-> +	 * devices.
->  	 */
-> -	adev =3D parent_adev;
-> -	if (cell->acpi_pnpid) {
-> -		struct acpi_device_id ids[2] =3D {};
-> -		struct acpi_device *child_adev;
-> -
-> -		strlcpy(ids[0].id, cell->acpi_pnpid, sizeof(ids[0].id));
-> -		list_for_each_entry(child_adev, &parent_adev->children, node)
-> -			if (acpi_match_device_ids(child_adev, ids)) {
-> -				adev =3D child_adev;
-> -				break;
-> +	adev =3D parent;
-> +	if (match) {
-> +		if (match->pnpid) {
-> +			struct acpi_device_id ids[2] =3D {};
-> +
-> +			strlcpy(ids[0].id, match->pnpid, sizeof(ids[0].id));
-> +			list_for_each_entry(child, &parent->children, node) {
-> +				if (acpi_match_device_ids(child, ids)) {
-> +					adev =3D child;
-> +					break;
-> +				}
-> +			}
-> +		} else {
-> +			unsigned long long adr;
-> +			acpi_status status;
-> +
-> +			list_for_each_entry(child, &parent->children, node) {
-> +				status =3D acpi_evaluate_integer(child->handle,
-> +							       "_ADR", NULL,
-> +							       &adr);
-> +				if (ACPI_SUCCESS(status) && match->adr =3D=3D adr) {
-> +					adev =3D child;
-> +					break;
-> +				}
->  			}
-> +		}
->  	}
-> =20
->  	ACPI_COMPANION_SET(&pdev->dev, adev);
-> diff --git a/include/linux/mfd/core.h b/include/linux/mfd/core.h
-> index a76bc10..27dac3f 100644
-> --- a/include/linux/mfd/core.h
-> +++ b/include/linux/mfd/core.h
-> @@ -18,6 +18,12 @@
-> =20
->  struct irq_domain;
-> =20
-> +/* Matches ACPI PNP id, either _HID or _CID, or ACPI _ADR */
-> +struct mfd_cell_acpi_match {
-> +	const char			*pnpid;
-> +	const unsigned long long	adr;
-> +};
-> +
->  /*
->   * This struct describes the MFD part ("cell").
->   * After registration the copy of this structure will become the pla=
-tform data
-> @@ -44,8 +50,8 @@ struct mfd_cell {
->  	 */
->  	const char		*of_compatible;
-> =20
-> -	/* Matches ACPI PNP id, either _HID or _CID */
-> -	const char		*acpi_pnpid;
-> +	/* Matches ACPI */
-> +	const struct mfd_cell_acpi_match	*acpi_match;
-> =20
->  	/*
->  	 * These resources can be specified relative to the parent device.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+I would favour b) because that follows DT (the I2C host controller
+device and I2C adapter share the same DT node as far as I can tell).
+Neither of them have similar concept of I2C adapter as we have in Linux
+(which is the "virtual" device on top of the I2C host controller).
