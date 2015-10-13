@@ -1,62 +1,146 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH] i2c: i801: Add support for Intel DNV
-Date: Tue, 13 Oct 2015 15:41:39 +0300
-Message-ID: <1444740099-137792-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: [PATCH] i2c: at91: fix write transfers by clearing pending interrupt first
+Date: Tue, 13 Oct 2015 16:21:41 +0200
+Message-ID: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:2909 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752253AbbJMMlm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 13 Oct 2015 08:41:42 -0400
+Received: from eusmtp01.atmel.com ([212.144.249.242]:37838 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752295AbbJMOVs (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Oct 2015 10:21:48 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com, peda@lysator.liu.se, Cyrille Pitchen <cyrille.pitchen@atmel.com>, Ludovic Desroches <ludovic.desroches@atmel.com>
 
-Intel DNV SoC has the same legacy SMBus host controller than Intel
-Sunrisepoint PCH. It also has same iTCO watchdog on the bus.
+From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
 
-Add DNV PCI ID to the list of supported devices.
+In some cases a NACK interrupt may be pending in the Status Register (SR)
+as a result of a previous transfer. However at91_do_twi_transfer() did not
+read the SR to clear pending interruptions before starting a new transfer.
+Hence a NACK interrupt rose as soon as it was enabled again at the I2C
+controller level, resulting in a wrong sequence of operations and strange
+patterns of behaviour on the I2C bus, such as a clock stretch followed by
+a restart of the transfer.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+This first issue occurred with both DMA and PIO write transfers.
+
+Also when a NACK error was detected during a PIO write transfer, the
+interrupt handler used to wrongly start a new transfer by writing into the
+Transmit Holding Register (THR). Then the I2C slave was likely to reply
+with a second NACK.
+
+This second issue is fixed in atmel_twi_interrupt() by handling the TXRDY
+status bit only if both the TXCOMP and NACK status bits are cleared.
+
+Tested with a at24 eeprom on sama5d36ek board running a linux-4.1-at91
+kernel image. Adapted to linux-next.
+
+Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Fixes: 93563a6a71bb ("i2c: at91: fix a race condition when using the DMA controller")
+Reported-by: Peter Rosin <peda@lysator.liu.se>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+Cc: stable@vger.kernel.org #4.1
 ---
- drivers/i2c/busses/i2c-i801.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-at91.c | 58 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 50 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index eaef9bc9d88c..47c2ddf76264 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -60,6 +60,7 @@
-  * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
-  * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
-  * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
-+ * DNV (SOC)			0x19df	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -202,6 +203,7 @@
- #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
- #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
- #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
-+#define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 1c758cd..94c087b 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -465,19 +465,57 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
  
- struct i801_mux_config {
- 	char *gpio_chip;
-@@ -863,6 +865,7 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMBUS) },
- 	{ 0, }
- };
+ 	if (!irqstatus)
+ 		return IRQ_NONE;
+-	else if (irqstatus & AT91_TWI_RXRDY)
+-		at91_twi_read_next_byte(dev);
+-	else if (irqstatus & AT91_TWI_TXRDY)
+-		at91_twi_write_next_byte(dev);
+-
+-	/* catch error flags */
+-	dev->transfer_status |= status;
  
-@@ -1256,6 +1259,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	switch (dev->device) {
- 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
- 		priv->features |= FEATURE_I2C_BLOCK_READ;
- 		priv->features |= FEATURE_IRQ;
- 		priv->features |= FEATURE_SMBUS_PEC;
++	/*
++	 * When a NACK condition is detected, the I2C controller sets the NACK,
++	 * TXCOMP and TXRDY bits all together in the Status Register (SR).
++	 *
++	 * 1 - Handling NACK errors with CPU write transfer.
++	 *
++	 * In such case, we should not write the next byte into the Transmit
++	 * Holding Register (THR) otherwise the I2C controller would start a new
++	 * transfer and the I2C slave is likely to reply by another NACK.
++	 *
++	 * 2 - Handling NACK errors with DMA write transfer.
++	 *
++	 * By setting the TXRDY bit in the SR, the I2C controller also triggers
++	 * the DMA controller to write the next data into the THR. Then the
++	 * result depends on the hardware version of the I2C controller.
++	 *
++	 * 2a - Without support of the Alternative Command mode.
++	 *
++	 * This is the worst case: the DMA controller is triggered to write the
++	 * next data into the THR, hence starting a new transfer: the I2C slave
++	 * is likely to reply by another NACK.
++	 * Concurrently, this interrupt handler is likely to be called to manage
++	 * the first NACK before the I2C controller detects the second NACK and
++	 * sets once again the NACK bit into the SR.
++	 * When handling the first NACK, this interrupt handler disables the I2C
++	 * controller interruptions, especially the NACK interrupt.
++	 * Hence, the NACK bit is pending into the SR. This is why we should
++	 * read the SR to clear all pending interrupts at the beginning of
++	 * at91_do_twi_transfer() before actually starting a new transfer.
++	 *
++	 * 2b - With support of the Alternative Command mode.
++	 *
++	 * When a NACK condition is detected, the I2C controller also locks the
++	 * THR (and sets the LOCK bit in the SR): even though the DMA controller
++	 * is triggered by the TXRDY bit to write the next data into the THR,
++	 * this data actually won't go on the I2C bus hence a second NACK is not
++	 * generated.
++	 */
+ 	if (irqstatus & (AT91_TWI_TXCOMP | AT91_TWI_NACK)) {
+ 		at91_disable_twi_interrupts(dev);
+ 		complete(&dev->cmd_complete);
++	} else if (irqstatus & AT91_TWI_RXRDY) {
++		at91_twi_read_next_byte(dev);
++	} else if (irqstatus & AT91_TWI_TXRDY) {
++		at91_twi_write_next_byte(dev);
+ 	}
+ 
++	/* catch error flags */
++	dev->transfer_status |= status;
++
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -487,6 +525,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 	unsigned long time_left;
+ 	bool has_unre_flag = dev->pdata->has_unre_flag;
+ 	bool has_alt_cmd = dev->pdata->has_alt_cmd;
++	unsigned sr;
+ 
+ 	/*
+ 	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
+@@ -537,6 +576,9 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 	reinit_completion(&dev->cmd_complete);
+ 	dev->transfer_status = 0;
+ 
++	/* Clear pending interrupts, such as NACK. */
++	sr = at91_twi_read(dev, AT91_TWI_SR);
++
+ 	if (dev->fifo_size) {
+ 		unsigned fifo_mr = at91_twi_read(dev, AT91_TWI_FMR);
+ 
+@@ -558,7 +600,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 	} else if (dev->msg->flags & I2C_M_RD) {
+ 		unsigned start_flags = AT91_TWI_START;
+ 
+-		if (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY) {
++		if (sr & AT91_TWI_RXRDY) {
+ 			dev_err(dev->dev, "RXRDY still set!");
+ 			at91_twi_read(dev, AT91_TWI_RHR);
+ 		}
 -- 
-2.5.3
+2.5.0
