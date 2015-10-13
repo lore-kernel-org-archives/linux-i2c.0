@@ -1,54 +1,62 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c: add ACPI support for I2C mux ports
-Date: Tue, 13 Oct 2015 14:32:35 +0300
-Message-ID: <20151013113235.GK1492@lahna.fi.intel.com>
-References: <1439580693-5538-1-git-send-email-dustin@cumulusnetworks.com>
- <1444437707-19027-1-git-send-email-dustin@cumulusnetworks.com>
- <1444437707-19027-3-git-send-email-dustin@cumulusnetworks.com>
- <20151012105023.GX1506@lahna.fi.intel.com>
- <20151012183231.GB5909@cumulusnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH] i2c: i801: Add support for Intel DNV
+Date: Tue, 13 Oct 2015 15:41:39 +0300
+Message-ID: <1444740099-137792-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:65310 "EHLO mga14.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:2909 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752718AbbJMLer (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 13 Oct 2015 07:34:47 -0400
-Content-Disposition: inline
-In-Reply-To: <20151012183231.GB5909@cumulusnetworks.com>
+	id S1752253AbbJMMlm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 13 Oct 2015 08:41:42 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Dustin Byford <dustin@cumulusnetworks.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-On Mon, Oct 12, 2015 at 11:32:31AM -0700, Dustin Byford wrote:
-> I've been trying to consider the options, perhaps you can help my
-> understanding.  Using the i801 driver as an example, the device is PCI
-> and the companion is associated with the PCI dev.  The driver creates
-> another device for the I2C interface (parented by the PCI device) by
-> calling i2c_add_adapter().  The I2C dev has no ACPI companion.
-> 
-> In the case of an I2C mux port, I've used acpi_preset_companion() to
-> associate each mux port I2C device with a ACPI node.  Unlike the i801,
-> which has a single port, these companions are one per channel.  It's not
-> an option to associate them all with the I2C mux device.
-> 
-> It seems like the options are to:
-> 
-> a) Special case the I2C mux to use the per-port I2C companions as I've
->    done here.
-> 
-> b) Move (or copy?) the companion from the i801 PCI dev to the i801 I2C
->    dev.  Then we would always look in the same place for the companion.
->    I think this approach has some advantages, at least it would make
->    more sense if an I2C PCI controller had more than one I2C port, but
->    I'm not sure that case exists.  I didn't pursue this approach because
->    it was specifically avoided in change b34bb1ee.
-> 
-> 
-> What do you think?  I'd be happy to try out any ideas you have.
+Intel DNV SoC has the same legacy SMBus host controller than Intel
+Sunrisepoint PCH. It also has same iTCO watchdog on the bus.
 
-I would favour b) because that follows DT (the I2C host controller
-device and I2C adapter share the same DT node as far as I can tell).
-Neither of them have similar concept of I2C adapter as we have in Linux
-(which is the "virtual" device on top of the I2C host controller).
+Add DNV PCI ID to the list of supported devices.
+
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-i801.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index eaef9bc9d88c..47c2ddf76264 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -60,6 +60,7 @@
+  * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
+  * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
+  * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
++ * DNV (SOC)			0x19df	32	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -202,6 +203,7 @@
+ #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
+ #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
+ #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
++#define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
+ 
+ struct i801_mux_config {
+ 	char *gpio_chip;
+@@ -863,6 +865,7 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMBUS) },
+ 	{ 0, }
+ };
+ 
+@@ -1256,6 +1259,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	switch (dev->device) {
+ 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
+ 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
++	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
+ 		priv->features |= FEATURE_I2C_BLOCK_READ;
+ 		priv->features |= FEATURE_IRQ;
+ 		priv->features |= FEATURE_SMBUS_PEC;
+-- 
+2.5.3
