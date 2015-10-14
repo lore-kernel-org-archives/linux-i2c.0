@@ -1,45 +1,52 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Wed, 14 Oct 2015 10:26:44 +0100
-Message-ID: <20151014092644.GO14956@sirena.org.uk>
-References: <561E1378.6000906@collabora.com>
+From: Zhiqiang Hou <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH V3 1/6] i2c: Add i2c support to Freescale Layerscape platforms
+Date: Wed, 14 Oct 2015 19:34:53 +0800
+Message-ID: <1444822498-16477-2-git-send-email-B48286@freescale.com>
+References: <1444822498-16477-1-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="U+NfgObvpQT1Q9Yq"
-Return-path: <linux-clk-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <561E1378.6000906@collabora.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Felipe Balbi <balbi@ti.com>
+Content-Type: text/plain
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1444822498-16477-1-git-send-email-B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org, bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org, leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, corbet-T1hC0tSOHrs@public.gmane.org, mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
---U+NfgObvpQT1Q9Yq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Modify the I2C_IMX config to support to Layerscape platforms.
 
-On Wed, Oct 14, 2015 at 10:34:00AM +0200, Tomeu Vizoso wrote:
+Signed-off-by: Mingkai Hu <Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Wenbin Song <Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+V3:
+ - No change.
 
-> git+ssh://git.collabora.co.uk/git/user/tomeu/linux.git
-> on-demand-probes-for-next
+ drivers/i2c/busses/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-In don't think that's the URL you intended to use (also everything looks
-word wrapped here)?
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 08b8617..14147ec 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -582,10 +582,10 @@ config I2C_IMG
+ 
+ config I2C_IMX
+ 	tristate "IMX I2C interface"
+-	depends on ARCH_MXC
++	depends on ARCH_MXC || ARCH_LAYERSCAPE
+ 	help
+ 	  Say Y here if you want to use the IIC bus controller on
+-	  the Freescale i.MX/MXC processors.
++	  the Freescale i.MX/MXC or Layerscape processors.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-imx.
+-- 
+2.1.0.27.g96db324
 
---U+NfgObvpQT1Q9Yq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWHh/TAAoJECTWi3JdVIfQJFEH/0DtvMyMdmzM7wIicUyiA2lv
-r+3E+VS/zXtD4Nhw0+K6j9xyAsui8izhwzpvIVVa0O4srJiRWnK/MW3actKeVXW1
-vWsNueK1J9TV+6Aq+X29ZM3LIroJzP7cT19kR1v3lh5MOVhzGTkdypnogu4255fq
-sRHkOBWaajzKFCYOsP1iPJQpuyfpBkY7iNix+Kv6HVNWk0dFsQUGHk8+g7Lovu0F
-vJLUDU6V2xSDBI93RFW8llD18AbJuPSH+fsGqVmX59uugnvo+b8kcCp+sFdqRjT8
-BJIw83BYlou79hE+Z4SgLoXI++5w8PLFjXCmzejxxy3zvYyjyfb1FlQ1LKBDbRY=
-=k50d
------END PGP SIGNATURE-----
-
---U+NfgObvpQT1Q9Yq--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
