@@ -1,254 +1,260 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: Re: [PATCH] i2c: at91: fix write transfers by clearing pending
- interrupt first
-Date: Wed, 14 Oct 2015 07:43:21 +0200
-Message-ID: <20151014054321.GA20049@odux.rfo.atmel.com>
-References: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
- <561D20E7.5070405@lysator.liu.se>
- <561D359D.8000500@atmel.com>
- <561D46FE.4090801@lysator.liu.se>
+From: Gao Pan <b54642@freescale.com>
+Subject: [Patch V7] i2c: imx: implement bus recovery
+Date: Wed, 14 Oct 2015 16:00:43 +0800
+Message-ID: <1444809643-25329-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:7675 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750759AbbJNFnX (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2015 01:43:23 -0400
-Content-Disposition: inline
-In-Reply-To: <561D46FE.4090801@lysator.liu.se>
+Received: from mail-bl2on0116.outbound.protection.outlook.com ([65.55.169.116]:64896
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752130AbbJNIBb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 14 Oct 2015 04:01:31 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@lysator.liu.se>
-Cc: Cyrille Pitchen <cyrille.pitchen@atmel.com>, Ludovic Desroches <ludovic.desroches@atmel.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, b54642@freescale.com, u.kleine-koenig@pengutronix.de, kernel@pengutronix.de, hkallweit1@gmail.com, s.hauer@pengutronix.de
 
-On Tue, Oct 13, 2015 at 08:01:34PM +0200, Peter Rosin wrote:
-> On 2015-10-13 18:47, Cyrille Pitchen wrote:
-> > Le 13/10/2015 17:19, Peter Rosin a =E9crit :
-> >> On 2015-10-13 16:21, Ludovic Desroches wrote:
-> >>> From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
-> >>>
-> >>> In some cases a NACK interrupt may be pending in the Status Regis=
-ter (SR)
-> >>> as a result of a previous transfer. However at91_do_twi_transfer(=
-) did not
-> >>> read the SR to clear pending interruptions before starting a new =
-transfer.
-> >>> Hence a NACK interrupt rose as soon as it was enabled again at th=
-e I2C
-> >>> controller level, resulting in a wrong sequence of operations and=
- strange
-> >>> patterns of behaviour on the I2C bus, such as a clock stretch fol=
-lowed by
-> >>> a restart of the transfer.
-> >>>
-> >>> This first issue occurred with both DMA and PIO write transfers.
-> >>>
-> >>> Also when a NACK error was detected during a PIO write transfer, =
-the
-> >>> interrupt handler used to wrongly start a new transfer by writing=
- into the
-> >>> Transmit Holding Register (THR). Then the I2C slave was likely to=
- reply
-> >>> with a second NACK.
-> >>>
-> >>> This second issue is fixed in atmel_twi_interrupt() by handling t=
-he TXRDY
-> >>> status bit only if both the TXCOMP and NACK status bits are clear=
-ed.
-> >>>
-> >>> Tested with a at24 eeprom on sama5d36ek board running a linux-4.1=
--at91
-> >>> kernel image. Adapted to linux-next.
-> >>>
-> >>> Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
-> >>> Fixes: 93563a6a71bb ("i2c: at91: fix a race condition when using =
-the DMA controller")
-> >>> Reported-by: Peter Rosin <peda@lysator.liu.se>
-> >>> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-> >>> Cc: stable@vger.kernel.org #4.1
-> >>
-> >> The regression is gone with this patch (vanilla 4.2), thank you!
-> >>
-> >> However, looking at the bus, there are two NACKs after each
-> >> successful chunk of memory written by the eeprom driver.
-> >>
-> >> Looking at the eeprom driver, I expect this on the bus:
-> >>
-> >> S 0x50 0x00 "hello there guys" P
-> >> S 0x50 NACK P
-> >> delay for at least 1 ms (since the eeprom driver has a msleep(1) c=
-all).
-> >> S 0x50 NACK P
-> >> delay for at least 1 ms
-> >> ...
-> >> ...
-> >> S 0x50 NACK P
-> >> delay for at least 1 ms
-> >> S 0x50 0x10 "and girls\n" P
-> >>
-> >> This is not what I observe on the bus, most of the time there is a
-> >> second NACK immediately following the first. I suspect that it is
-> >> the i2c bus driver that somehow confuses itself and reissues the
-> >> command for some reason?
-> >>
-> >> But this behavior has been there since the beginning, so it's prob=
-ably
-> >> orthogonal, and killing the data corrupting regression is much mor=
-e
-> >> important to me than fussing over a surplus failed transfer. Hence
-> >>
-> >> Tested-by: Peter Rosin <peda@lysator.liu.se>
-> >>
-> >> Cheers,
-> >> Peter
-> >>
-> >=20
-> > Hi Peter,
-> >=20
-> > sama5d3x and sama5d4x don't support the so called "Alternative Comm=
-and mode"
-> > whereas sama5d2x do. The Alternative Command mode comes with a new =
-hardware
-> > mechanism inside the I2C controller which locks the transmission of=
- data on
-> > the I2C bus when a NACK is detected. It means that even if a data i=
-s written
-> > into the THR, the I2C controller doesn't push this data on the I2C =
-bus but
-> > retains the data in the THR (and its associated FIFO for sama5d2x a=
-nd future
-> > SoCs) until the driver unlocks the transmitter by writing the LOCKC=
-LR (Lock
-> > Clear) bit in the Control Register. Then and only then, the transmi=
-tter outputs
-> > pending data again.
-> > This new mechanism was introduced to cope with an unwanted DMA writ=
-e into the
-> > THR after a NACK. Indeed, as I've tried to explain in my patch, whe=
-n a first
-> > NACK is detected, the I2C controller sets the TXCOMP, NACK and TXRD=
-Y bits
-> > alltogether in the Status Register. However setting the TXRDY bit a=
-lso triggers
-> > the DMA controller to write the next data into the THR. Pitifully, =
-WITHOUT the
-> > new lock mechanism, writing into the THR starts a new I2C frame. Si=
-nce the
-> > eeprom is likely not to be ready yet, it replies by a second NACK. =
-So you
-> > see on the scope two consecutive NACKs.
-> >=20
-> > On sama5d3x and sama5d4x, which do not support this lock mechanism,=
- you are
-> > likely to see a successful write transfer followed by two NACKs the=
-n a delay
-> > and finally a new successful write transfer. This is the case 2b:
-> >=20
-> > 1 - A successfull write transfer is completed.
-> > 2 - The at24 driver immediately tries to perform the next write tra=
-nsfer...
-> > 3 - ... but the eeprom is not ready yet and replies with a first NA=
-CK.
-> > 4 - The I2C controller detects this NACK and sets the NACK, TXCOMP =
-and TXRDY
-> >     bits in its Status Register (and interrupts the CPU).
-> > 5 - The DMA controller is triggered by the TXRDY bit to write the n=
-ext data
-> >     into the THR.
-> > 6 - WITHTOUT the lock mechanism, the I2C controller starts a new fr=
-ame because
-> >    of the write into the THR by the DMA controller...
-> > 7 - ... but the eeprom is still not ready and replies with a second=
- NACK.
-> >=20
-> > 8 - starting from 4, the CPU handles the interrupt generated by the=
- first NACK.
-> >     Depending on the timing, it has already masked the interrupted =
-before the
-> >     second NACK. In such a case, the NACK bit is pending in the Sta=
-tus
-> >     Register. Then it reports the first NACK error to the at24 driv=
-er.
-> > 9 - The at24 driver handles the NACK error: it sleeps for a while b=
-efore
-> >     retrying to perform the write operation.
-> > 10 - With the new patch, the I2C controller reads the Status Regist=
-er to clear
-> >      pending (NACK) interrupts before actually starting this new (r=
-etried)
-> >      transfer.
-> >=20
-> >=20
-> > So if you are using DMA transfers on a sama5d3x board, you're are l=
-ikely to
-> > see, as I did see, a valid write transfer followed by 2 NACKs, then=
- a delay and
-> > finally a new write transfer.
-> > The 2nd NACK is not wanted but expected. Without the lock mechanism=
-, there is
-> > nothing we can do at the I2C controller level. However a workaround=
- may exist:
-> > inserting a small delay after a successful write transfer should gi=
-ve the
-> > eeprom enough time to be ready to process the next write so even th=
-e first NACK
-> > would disappear.
-> > This is what I saw while debugging with dev_info() traces. Those tr=
-aces had the
-> > side effect of inserting delays hence changing the timing.
-> >=20
-> > As you see, we have to deal with some known hardware design quirks,=
- which are
-> > fixed by the lock mechanism. Without the lock mechanism, the interr=
-upt handler
-> > and the CPU are likely to come too late to cancel the DMA transfer =
-before the
-> > DMA controller writes a new byte into the THR, hence generating an =
-unwanted
-> > frame.
->=20
-> Ok, now I get it, I should have been reading the source code comments=
- instead
-> of the commit message. My bad. That 2a) case from the atmel_twi_inter=
-rupt comment
-> seems very nasty indeed! Is it clear what will happen if the second f=
-rame after
-> the first NACKed frame isn't NACKed too? May that transfer be cancele=
-d half way
-> through at a later point, or will it be a complete transfer as specif=
-ied by the
-> issuing driver? What will be reported to the issuing driver for such =
-an i2c
-> transfer that was first NACKed but then wasn't in the second trailing=
- frame?
->=20
+Implement bus recovery methods for i2c-imx so we can recover from
+situations where SCL/SDA are stuck low.
 
-We were discussing about this case and we are worried that it simply
-hangs the transfer wihout sending a stop command. We never get this cas=
-e
-yet so we keep it in mind but we don't correct it since we are not sure
-of the behavior and on side effects it can introduce. I think the
-i2c-at91 driver will return a spurious error to the eeprom driver but i=
-t won't
-let the physical i2c bus in a proper state.
+Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
+pinctrl to gpio mode by calling pinctrl sleep set function, and then
+use GPIO to emulate the i2c protocol to send nine dummy clock to recove=
+r
+i2c device. After recovery, set i2c pinctrl to default group setting.
 
-> My guess is that the issuing driver will get the result of the first =
-NACK, and
-> that anything after that didn't really happen as far as the rest of t=
-he kernel
-> is concerned? And while that is OK for my eeprom case, it might not b=
-e for any
-> other i2c device, where a spurious access might destruct important st=
-ate such
-> as bits that are cleared on read, or something like that. Or am I mis=
-sing
-> something?
->=20
-> Some warning about using DMA for i2c on sama5d[34]x might be in place=
- if
-> I'm correct, no?
->=20
-> Cheers,
-> Peter
->=20
+Signed-off-by: Fugang Duan <B38611@freescale.com>
+Signed-off-by: Gao Pan <b54642@freescale.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+---
+V2:
+As Uwe Kleine-K=C3=B6nig's suggestion, the version do below changes:
+ -replace of_get_named_gpio() with devm_gpiod_get_optional()
+ -move gpio_direction_input() and gpio_direction_output() call to the
+  prepare callback
+ -use 0 and 1 as return value for the get_scl and get_sda callbacks
+
+V3:
+ -replace "...-gpio" with "...-gpios" in i2c binding doc
+ -document the requirement of using sleep state to configure
+  the pins as gpio in i2c binding doc
+ -remove i2c_recover_bus() in i2c_imx_trx_complete()
+ -use GPIOD_OUT_HIGH as the parameter of devm_gpiod_get_optional to
+  config the gpios as output high
+ -add error disposal as devm_gpiod_get_optional meets error
+
+V4:
+ -remove include <linux/of_gpio.h>
+ -call i2c_recover_bus under the condition of the existing of
+  both sda and scl. Drop the sda and scl check in i2c_imx_get_scl,
+  i2c_imx_get_sda, i2c_imx_set_scl, i2c_imx_prepare_recovery and
+  i2c_imx_prepare_recovery
+ -use GPIOD_OUT_IN as the parameter of devm_gpiod_get_optional
+ -remove documenting the requirement of using sleep state to configure
+  the pins as gpio in i2c binding doc
+
+V5:
+ -introduce a dedicated gpio state for bus recovery.
+ -assign adapter.bus_recovery_info after the two gpios were aquired suc=
+cessfully
+
+V6:
+ -assign adapter.bus_recovery_info under the condition that gpios are a=
+cquired successfully
+ -not try the recovery when pinctrl_lookup_state returns an error
+
+V7:
+ -execute the bus recovery once in a transfer, when the controller fail=
+s to start
+ -use i2c_generic_gpio_recovery() to handle the bus recovery with gpios
+
+ Documentation/devicetree/bindings/i2c/i2c-imx.txt |  9 +++
+ drivers/i2c/busses/i2c-imx.c                      | 84 +++++++++++++++=
+++++++--
+ 2 files changed, 87 insertions(+), 6 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Docume=
+ntation/devicetree/bindings/i2c/i2c-imx.txt
+index ce4311d..eab5836 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+@@ -14,6 +14,10 @@ Optional properties:
+   The absence of the propoerty indicates the default frequency 100 kHz=
+=2E
+ - dmas: A list of two dma specifiers, one for each entry in dma-names.
+ - dma-names: should contain "tx" and "rx".
++- scl-gpios: specify the gpio related to SCL pin
++- sda-gpios: specify the gpio related to SDA pin
++- pinctrl: add extra pinctrl to configure i2c pins to gpio function fo=
+r i2c
++  bus recovery, call it "gpio" state
+=20
+ Examples:
+=20
+@@ -37,4 +41,9 @@ i2c0: i2c@40066000 { /* i2c0 on vf610 */
+ 	dmas =3D <&edma0 0 50>,
+ 		<&edma0 0 51>;
+ 	dma-names =3D "rx","tx";
++	pinctrl-names =3D "default", "gpio";
++	pinctrl-0 =3D <&pinctrl_i2c1>;
++	pinctrl-1 =3D <&pinctrl_i2c1_gpio>;
++	scl-gpios =3D <&gpio5 26 GPIO_ACTIVE_HIGH>;
++	sda-gpios =3D <&gpio5 27 GPIO_ACTIVE_HIGH>;
+ };
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.=
+c
+index 91bdf28..c3a0d43 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -49,6 +49,7 @@
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/of_dma.h>
++#include <linux/of_gpio.h>
+ #include <linux/platform_data/i2c-imx.h>
+ #include <linux/platform_device.h>
+ #include <linux/sched.h>
+@@ -64,6 +65,8 @@
+ /* Default value */
+ #define IMX_I2C_BIT_RATE	100000	/* 100kHz */
+=20
++#define I2C_PINCTRL_STATE_GPIO	"gpio"
++
+ /*
+  * Enable DMA if transfer byte size is bigger than this threshold.
+  * As the hardware request, it must bigger than 4 bytes.\
+@@ -210,6 +213,11 @@ struct imx_i2c_struct {
+ 	unsigned int		cur_clk;
+ 	unsigned int		bitrate;
+ 	const struct imx_i2c_hwdata	*hwdata;
++	struct i2c_bus_recovery_info rinfo;
++
++	struct pinctrl *pinctrl;
++	struct pinctrl_state *pinctrl_pins_default;
++	struct pinctrl_state *pinctrl_pins_gpio;
+=20
+ 	struct imx_i2c_dma	*dma;
+ };
+@@ -899,6 +907,13 @@ static int i2c_imx_xfer(struct i2c_adapter *adapte=
+r,
+=20
+ 	/* Start I2C transfer */
+ 	result =3D i2c_imx_start(i2c_imx);
++	if (result) {
++		if (i2c_imx->adapter.bus_recovery_info) {
++			i2c_recover_bus(&i2c_imx->adapter);
++			result =3D i2c_imx_start(i2c_imx);
++		}
++	}
++
+ 	if (result)
+ 		goto fail0;
+=20
+@@ -963,6 +978,55 @@ out:
+ 	return (result < 0) ? result : num;
+ }
+=20
++static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
++{
++	struct imx_i2c_struct *i2c_imx;
++
++	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
++
++	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_gpio);
++}
++
++static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
++{
++	struct imx_i2c_struct *i2c_imx;
++
++	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
++
++	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_default)=
+;
++}
++
++static void i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
++		struct platform_device *pdev)
++{
++	struct i2c_bus_recovery_info *rinfo =3D &i2c_imx->rinfo;
++
++	i2c_imx->pinctrl_pins_default =3D pinctrl_lookup_state(i2c_imx->pinct=
+rl,
++			PINCTRL_STATE_DEFAULT);
++	i2c_imx->pinctrl_pins_gpio =3D pinctrl_lookup_state(i2c_imx->pinctrl,
++			"gpio");
++	rinfo->sda_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
++			"sda-gpios", 0, NULL);
++	rinfo->scl_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
++			"scl-gpios", 0, NULL);
++
++	if (!gpio_is_valid(rinfo->sda_gpio) ||
++	    !gpio_is_valid(rinfo->scl_gpio) ||
++	    IS_ERR(i2c_imx->pinctrl_pins_default) ||
++	    IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
++		dev_dbg(&pdev->dev, "recovery information incomplete\n");
++		return;
++	}
++
++	dev_dbg(&pdev->dev, "using scl-gpio %d and sda-gpio %d for recovery\n=
+",
++			rinfo->sda_gpio, rinfo->scl_gpio);
++
++	rinfo->prepare_recovery =3D i2c_imx_prepare_recovery;
++	rinfo->unprepare_recovery =3D i2c_imx_unprepare_recovery;
++	rinfo->recover_bus =3D i2c_generic_gpio_recovery;
++	i2c_imx->adapter.bus_recovery_info =3D rinfo;
++}
++
+ static u32 i2c_imx_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+@@ -1011,12 +1075,12 @@ static int i2c_imx_probe(struct platform_device=
+ *pdev)
+=20
+ 	/* Setup i2c_imx driver structure */
+ 	strlcpy(i2c_imx->adapter.name, pdev->name, sizeof(i2c_imx->adapter.na=
+me));
+-	i2c_imx->adapter.owner		=3D THIS_MODULE;
+-	i2c_imx->adapter.algo		=3D &i2c_imx_algo;
+-	i2c_imx->adapter.dev.parent	=3D &pdev->dev;
+-	i2c_imx->adapter.nr		=3D pdev->id;
+-	i2c_imx->adapter.dev.of_node	=3D pdev->dev.of_node;
+-	i2c_imx->base			=3D base;
++	i2c_imx->adapter.owner =3D THIS_MODULE;
++	i2c_imx->adapter.algo =3D &i2c_imx_algo;
++	i2c_imx->adapter.dev.parent =3D &pdev->dev;
++	i2c_imx->adapter.nr =3D pdev->id;
++	i2c_imx->adapter.dev.of_node =3D pdev->dev.of_node;
++	i2c_imx->base =3D base;
+=20
+ 	/* Get I2C clock */
+ 	i2c_imx->clk =3D devm_clk_get(&pdev->dev, NULL);
+@@ -1031,6 +1095,12 @@ static int i2c_imx_probe(struct platform_device =
+*pdev)
+ 		return ret;
+ 	}
+=20
++	i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
++	if (IS_ERR(i2c_imx->pinctrl)) {
++		ret =3D PTR_ERR(i2c_imx->pinctrl);
++		goto clk_disable;
++	}
++
+ 	/* Request IRQ */
+ 	ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
+ 				pdev->name, i2c_imx);
+@@ -1045,6 +1115,8 @@ static int i2c_imx_probe(struct platform_device *=
+pdev)
+ 	/* Set up adapter data */
+ 	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
+=20
++	i2c_imx_init_recovery_info(i2c_imx, pdev);
++
+ 	/* Set up platform driver data */
+ 	platform_set_drvdata(pdev, i2c_imx);
+=20
+--=20
+1.9.1
