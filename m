@@ -1,57 +1,37 @@
-From: Hou Zhiqiang <B48286@freescale.com>
-Subject: RE: [PATCH V3 0/6] Add LS1043A SoC support
-Date: Wed, 14 Oct 2015 12:02:07 +0000
-Message-ID: <CY1PR0301MB0780936EF3D2E04A1F7AF5718B3F0@CY1PR0301MB0780.namprd03.prod.outlook.com>
-References: <BN3PR0301MB1249C8F2305C3ED1723055B6843F0@BN3PR0301MB1249.namprd03.prod.outlook.com>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH V3 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
+Date: Wed, 14 Oct 2015 13:43:53 +0100
+Message-ID: <20151014124353.GC2150@leverpostej>
+References: <1444822498-16477-1-git-send-email-B48286@freescale.com>
+ <1444822498-16477-5-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <BN3PR0301MB1249C8F2305C3ED1723055B6843F0@BN3PR0301MB1249.namprd03.prod.outlook.com>
-Content-Language: en-US
-Sender: linux-doc-owner@vger.kernel.org
-To: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
-Cc: Hu Vincent <Mingkai.Hu@freescale.com>, Shaohui Xie <Shaohui.Xie@freescale.com>, Scott Wood <scottwood@freescale.com>, Sharma Bhupesh <bhupesh.sharma@freescale.com>, Li Leo <LeoLi@freescale.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "wim@iguana.be" <wim@iguana.be>, "corbet@lwn.net" <corbet@lwn.net>, "mturquette@baylibre.com" <mturquette@baylibre.com>, "sboyd@codeaurora.org" <sboyd@codeaurora.org>, Wenbin Song <Wenbin.Song@freescale.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1444822498-16477-5-git-send-email-B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Zhiqiang Hou <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org, bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org, leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, corbet-T1hC0tSOHrs@public.gmane.org, mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+Hi,
 
-Sorry for my late response due to Chinese National Day holidays.
+> +	pmu {
+> +		compatible = "arm,armv8-pmuv3";
+> +		interrupts = <0 106 0x4>,
+> +			     <0 107 0x4>,
+> +			     <0 95 0x4>,
+> +			     <0 97 0x4>;
+> +	};
 
-> From: Zhiqiang Hou [mailto:B48286@freescale.com]
-> Sent: Wednesday, October 14, 2015 7:35 PM
-> To: linux-arm-kernel@lists.infradead.org; catalin.marinas@arm.com;
-> will.deacon@arm.com; linux-i2c@vger.kernel.org; linux-
-> watchdog@vger.kernel.org; linux-doc@vger.kernel.org; linux-
-> clk@vger.kernel.org; mark.rutland@arm.com
-> Cc: Hu Mingkai-B21284; Xie Shaohui-B21989; Wood Scott-B07421; Sharma
-> Bhupesh-B45370; Li Yang-Leo-R58472; wsa@the-dreams.de; wim@iguana.be;
-> corbet@lwn.net; mturquette@baylibre.com; sboyd@codeaurora.org; Song
-> Wenbin-B53747
-> Subject: [PATCH V3 0/6] Add LS1043A SoC support
-> 
-> This patchest adds support for Freescale's LS1043A SoC which is based on
-> ARMv8 architecture.
-> 
-> Some pending patches are depended on:
-> 1. The LS1043A is belong to Freescale's ARMv8 Layerscape SoC family, so
-> depends on the updating ARCH kconfig patch.
-> https://patchwork.kernel.org/patch/7120101/
-> 
-> 2. The LS1043A use the new clockgen binding updated by Scott Wood,
-> depends on the patchset:
-> https://patchwork.kernel.org/patch/7225421/
-> https://patchwork.kernel.org/patch/7225461/
-> https://patchwork.kernel.org/patch/7225431/
-> https://patchwork.kernel.org/patch/7225441/
-> https://patchwork.kernel.org/patch/7225451/
-> 
-> [PATCH V3 1/6] i2c: Add i2c support to Freescale Layerscape platforms
-> [PATCH V3 2/6] watchdog: Add support for Freescale Layerscape [PATCH V3
-> 3/6] Documentation: DT: Add entry for FSL LS1043ARDB board [PATCH V3 4/6]
-> arm64/ls1043a: add DTS for Freescale LS1043A SoC [PATCH V3 5/6] clk:
-> qoriq: Add ls1043a support.
-> [PATCH V3 6/6] dts/ls1043a: add LS1043ARDB board support
+You should have interrupt-affinity here. See
+Documentation/devicetree/bindings/arm/pmu.txt
+
+Otherwise this looks ok.
 
 Thanks,
-Zhiqiang
+Mark.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
