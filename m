@@ -1,260 +1,87 @@
-From: Gao Pan <b54642@freescale.com>
-Subject: [Patch V7] i2c: imx: implement bus recovery
-Date: Wed, 14 Oct 2015 16:00:43 +0800
-Message-ID: <1444809643-25329-1-git-send-email-b54642@freescale.com>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: [GIT PULL] On-demand device probing
+Date: Wed, 14 Oct 2015 10:34:00 +0200
+Message-ID: <561E1378.6000906@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bl2on0116.outbound.protection.outlook.com ([65.55.169.116]:64896
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752130AbbJNIBb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 14 Oct 2015 04:01:31 -0400
+Received: from bhuna.collabora.co.uk ([93.93.135.160]:40008 "EHLO
+	bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750817AbbJNIeW (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Oct 2015 04:34:22 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, b54642@freescale.com, u.kleine-koenig@pengutronix.de, kernel@pengutronix.de, hkallweit1@gmail.com, s.hauer@pengutronix.de
+To: Rob Herring <robh+dt@kernel.org>
+Cc: Russell King <linux@arm.linux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=c3=b6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Felipe Balbi <balbi@ti.com>
 
-Implement bus recovery methods for i2c-imx so we can recover from
-situations where SCL/SDA are stuck low.
+Hi Rob,
 
-Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
-pinctrl to gpio mode by calling pinctrl sleep set function, and then
-use GPIO to emulate the i2c protocol to send nine dummy clock to recove=
-r
-i2c device. After recovery, set i2c pinctrl to default group setting.
+here is the pull request you asked for, with no changes from the version
+that I posted last to the list.
 
-Signed-off-by: Fugang Duan <B38611@freescale.com>
-Signed-off-by: Gao Pan <b54642@freescale.com>
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
----
-V2:
-As Uwe Kleine-K=C3=B6nig's suggestion, the version do below changes:
- -replace of_get_named_gpio() with devm_gpiod_get_optional()
- -move gpio_direction_input() and gpio_direction_output() call to the
-  prepare callback
- -use 0 and 1 as return value for the get_scl and get_sda callbacks
+The following changes since commit 6ff33f3902c3b1c5d0db6b1e2c70b6d76fba357f:
 
-V3:
- -replace "...-gpio" with "...-gpios" in i2c binding doc
- -document the requirement of using sleep state to configure
-  the pins as gpio in i2c binding doc
- -remove i2c_recover_bus() in i2c_imx_trx_complete()
- -use GPIOD_OUT_HIGH as the parameter of devm_gpiod_get_optional to
-  config the gpios as output high
- -add error disposal as devm_gpiod_get_optional meets error
+Linux 4.3-rc1 (2015-09-12 16:35:56 -0700)
 
-V4:
- -remove include <linux/of_gpio.h>
- -call i2c_recover_bus under the condition of the existing of
-  both sda and scl. Drop the sda and scl check in i2c_imx_get_scl,
-  i2c_imx_get_sda, i2c_imx_set_scl, i2c_imx_prepare_recovery and
-  i2c_imx_prepare_recovery
- -use GPIOD_OUT_IN as the parameter of devm_gpiod_get_optional
- -remove documenting the requirement of using sleep state to configure
-  the pins as gpio in i2c binding doc
+are available in the git repository at:
 
-V5:
- -introduce a dedicated gpio state for bus recovery.
- -assign adapter.bus_recovery_info after the two gpios were aquired suc=
-cessfully
+git+ssh://git.collabora.co.uk/git/user/tomeu/linux.git
+on-demand-probes-for-next
 
-V6:
- -assign adapter.bus_recovery_info under the condition that gpios are a=
-cquired successfully
- -not try the recovery when pinctrl_lookup_state returns an error
+for you to fetch changes up to 587402133fe433759d2d535e5d92ead87fd7f615:
 
-V7:
- -execute the bus recovery once in a transfer, when the controller fail=
-s to start
- -use i2c_generic_gpio_recovery() to handle the bus recovery with gpios
+of/platform: Defer probes of registered devices (2015-10-14 10:08:23 +0200)
 
- Documentation/devicetree/bindings/i2c/i2c-imx.txt |  9 +++
- drivers/i2c/busses/i2c-imx.c                      | 84 +++++++++++++++=
-++++++--
- 2 files changed, 87 insertions(+), 6 deletions(-)
+----------------------------------------------------------------
+Tomeu Vizoso (20):
+driver core: handle -EPROBE_DEFER from bus_type.match()
+ARM: amba: Move reading of periphid to amba_match()
+of/platform: Point to struct device from device node
+of: add function to allow probing a device from a OF node
+gpio: Probe GPIO drivers on demand
+pinctrl: Probe pinctrl devices on demand
+regulator: core: Probe regulators on demand
+drm: Probe panels on demand
+drm/tegra: Probe dpaux devices on demand
+i2c: core: Probe i2c adapters and devices on demand
+pwm: Probe PWM chip devices on demand
+backlight: Probe backlight devices on demand
+usb: phy: Probe phy devices on demand
+clk: Probe clk providers on demand
+pinctrl: Probe pinctrl devices on demand
+phy: core: Probe phy providers on demand
+dma: of: Probe DMA controllers on demand
+power-supply: Probe power supplies on demand
+driver core: Allow deferring probes until late init
+of/platform: Defer probes of registered devices
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Docume=
-ntation/devicetree/bindings/i2c/i2c-imx.txt
-index ce4311d..eab5836 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-@@ -14,6 +14,10 @@ Optional properties:
-   The absence of the propoerty indicates the default frequency 100 kHz=
-=2E
- - dmas: A list of two dma specifiers, one for each entry in dma-names.
- - dma-names: should contain "tx" and "rx".
-+- scl-gpios: specify the gpio related to SCL pin
-+- sda-gpios: specify the gpio related to SDA pin
-+- pinctrl: add extra pinctrl to configure i2c pins to gpio function fo=
-r i2c
-+  bus recovery, call it "gpio" state
-=20
- Examples:
-=20
-@@ -37,4 +41,9 @@ i2c0: i2c@40066000 { /* i2c0 on vf610 */
- 	dmas =3D <&edma0 0 50>,
- 		<&edma0 0 51>;
- 	dma-names =3D "rx","tx";
-+	pinctrl-names =3D "default", "gpio";
-+	pinctrl-0 =3D <&pinctrl_i2c1>;
-+	pinctrl-1 =3D <&pinctrl_i2c1_gpio>;
-+	scl-gpios =3D <&gpio5 26 GPIO_ACTIVE_HIGH>;
-+	sda-gpios =3D <&gpio5 27 GPIO_ACTIVE_HIGH>;
- };
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.=
-c
-index 91bdf28..c3a0d43 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -49,6 +49,7 @@
- #include <linux/of.h>
- #include <linux/of_device.h>
- #include <linux/of_dma.h>
-+#include <linux/of_gpio.h>
- #include <linux/platform_data/i2c-imx.h>
- #include <linux/platform_device.h>
- #include <linux/sched.h>
-@@ -64,6 +65,8 @@
- /* Default value */
- #define IMX_I2C_BIT_RATE	100000	/* 100kHz */
-=20
-+#define I2C_PINCTRL_STATE_GPIO	"gpio"
-+
- /*
-  * Enable DMA if transfer byte size is bigger than this threshold.
-  * As the hardware request, it must bigger than 4 bytes.\
-@@ -210,6 +213,11 @@ struct imx_i2c_struct {
- 	unsigned int		cur_clk;
- 	unsigned int		bitrate;
- 	const struct imx_i2c_hwdata	*hwdata;
-+	struct i2c_bus_recovery_info rinfo;
-+
-+	struct pinctrl *pinctrl;
-+	struct pinctrl_state *pinctrl_pins_default;
-+	struct pinctrl_state *pinctrl_pins_gpio;
-=20
- 	struct imx_i2c_dma	*dma;
- };
-@@ -899,6 +907,13 @@ static int i2c_imx_xfer(struct i2c_adapter *adapte=
-r,
-=20
- 	/* Start I2C transfer */
- 	result =3D i2c_imx_start(i2c_imx);
-+	if (result) {
-+		if (i2c_imx->adapter.bus_recovery_info) {
-+			i2c_recover_bus(&i2c_imx->adapter);
-+			result =3D i2c_imx_start(i2c_imx);
-+		}
-+	}
-+
- 	if (result)
- 		goto fail0;
-=20
-@@ -963,6 +978,55 @@ out:
- 	return (result < 0) ? result : num;
- }
-=20
-+static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct imx_i2c_struct *i2c_imx;
-+
-+	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-+
-+	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_gpio);
-+}
-+
-+static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct imx_i2c_struct *i2c_imx;
-+
-+	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-+
-+	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_default)=
-;
-+}
-+
-+static void i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
-+		struct platform_device *pdev)
-+{
-+	struct i2c_bus_recovery_info *rinfo =3D &i2c_imx->rinfo;
-+
-+	i2c_imx->pinctrl_pins_default =3D pinctrl_lookup_state(i2c_imx->pinct=
-rl,
-+			PINCTRL_STATE_DEFAULT);
-+	i2c_imx->pinctrl_pins_gpio =3D pinctrl_lookup_state(i2c_imx->pinctrl,
-+			"gpio");
-+	rinfo->sda_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
-+			"sda-gpios", 0, NULL);
-+	rinfo->scl_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
-+			"scl-gpios", 0, NULL);
-+
-+	if (!gpio_is_valid(rinfo->sda_gpio) ||
-+	    !gpio_is_valid(rinfo->scl_gpio) ||
-+	    IS_ERR(i2c_imx->pinctrl_pins_default) ||
-+	    IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
-+		dev_dbg(&pdev->dev, "recovery information incomplete\n");
-+		return;
-+	}
-+
-+	dev_dbg(&pdev->dev, "using scl-gpio %d and sda-gpio %d for recovery\n=
-",
-+			rinfo->sda_gpio, rinfo->scl_gpio);
-+
-+	rinfo->prepare_recovery =3D i2c_imx_prepare_recovery;
-+	rinfo->unprepare_recovery =3D i2c_imx_unprepare_recovery;
-+	rinfo->recover_bus =3D i2c_generic_gpio_recovery;
-+	i2c_imx->adapter.bus_recovery_info =3D rinfo;
-+}
-+
- static u32 i2c_imx_func(struct i2c_adapter *adapter)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-@@ -1011,12 +1075,12 @@ static int i2c_imx_probe(struct platform_device=
- *pdev)
-=20
- 	/* Setup i2c_imx driver structure */
- 	strlcpy(i2c_imx->adapter.name, pdev->name, sizeof(i2c_imx->adapter.na=
-me));
--	i2c_imx->adapter.owner		=3D THIS_MODULE;
--	i2c_imx->adapter.algo		=3D &i2c_imx_algo;
--	i2c_imx->adapter.dev.parent	=3D &pdev->dev;
--	i2c_imx->adapter.nr		=3D pdev->id;
--	i2c_imx->adapter.dev.of_node	=3D pdev->dev.of_node;
--	i2c_imx->base			=3D base;
-+	i2c_imx->adapter.owner =3D THIS_MODULE;
-+	i2c_imx->adapter.algo =3D &i2c_imx_algo;
-+	i2c_imx->adapter.dev.parent =3D &pdev->dev;
-+	i2c_imx->adapter.nr =3D pdev->id;
-+	i2c_imx->adapter.dev.of_node =3D pdev->dev.of_node;
-+	i2c_imx->base =3D base;
-=20
- 	/* Get I2C clock */
- 	i2c_imx->clk =3D devm_clk_get(&pdev->dev, NULL);
-@@ -1031,6 +1095,12 @@ static int i2c_imx_probe(struct platform_device =
-*pdev)
- 		return ret;
- 	}
-=20
-+	i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
-+	if (IS_ERR(i2c_imx->pinctrl)) {
-+		ret =3D PTR_ERR(i2c_imx->pinctrl);
-+		goto clk_disable;
-+	}
-+
- 	/* Request IRQ */
- 	ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
- 				pdev->name, i2c_imx);
-@@ -1045,6 +1115,8 @@ static int i2c_imx_probe(struct platform_device *=
-pdev)
- 	/* Set up adapter data */
- 	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
-=20
-+	i2c_imx_init_recovery_info(i2c_imx, pdev);
-+
- 	/* Set up platform driver data */
- 	platform_set_drvdata(pdev, i2c_imx);
-=20
---=20
-1.9.1
+drivers/amba/bus.c | 88
+++++++++++++++++++++++++++++++++++++++++++++++------------------------------------------
+drivers/base/Kconfig | 18 ++++++++++++++++++
+drivers/base/dd.c | 30 ++++++++++++++++++++++++++++--
+drivers/clk/clk.c | 3 +++
+drivers/dma/of-dma.c | 3 +++
+drivers/gpio/gpiolib-of.c | 5 +++++
+drivers/gpu/drm/drm_panel.c | 3 +++
+drivers/gpu/drm/tegra/dpaux.c | 3 +++
+drivers/i2c/i2c-core.c | 4 ++++
+drivers/of/device.c | 61
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+drivers/of/platform.c | 30 ++++++++++++++++++------------
+drivers/phy/phy-core.c | 3 +++
+drivers/pinctrl/devicetree.c | 3 +++
+drivers/power/power_supply_core.c | 3 +++
+drivers/pwm/core.c | 3 +++
+drivers/regulator/core.c | 2 ++
+drivers/usb/phy/phy.c | 3 +++
+drivers/video/backlight/backlight.c | 3 +++
+include/linux/device.h | 4 +++-
+include/linux/of.h | 1 +
+include/linux/of_device.h | 3 +++
+21 files changed, 219 insertions(+), 57 deletions(-)
+
+
+Thanks,
+
+Tomeu
