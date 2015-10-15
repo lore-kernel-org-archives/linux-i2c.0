@@ -1,51 +1,73 @@
-From: Zhiqiang Hou <B48286@freescale.com>
-Subject: [PATCH V4 3/6] Documentation: DT: Add entry for FSL LS1043ARDB board
-Date: Thu, 15 Oct 2015 20:12:58 +0800
-Message-ID: <1444911181-21696-3-git-send-email-B48286@freescale.com>
-References: <1444911181-21696-1-git-send-email-B48286@freescale.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2 1/4] i2c: designware-platdrv: enable RuntimePM before
+ registering to the core
+Date: Thu, 15 Oct 2015 15:27:37 +0300
+Message-ID: <20151015122737.GD25691@lahna.fi.intel.com>
+References: <1444383567-18113-1-git-send-email-wsa@the-dreams.de>
+ <20151015114925.GE1546@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1444911181-21696-1-git-send-email-B48286@freescale.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
-Cc: mark.rutland@arm.com, B48286@freescale.com, Shaohui.Xie@freescale.com, corbet@lwn.net, bhupesh.sharma@freescale.com, mturquette@baylibre.com, wsa@the-dreams.de, sboyd@codeaurora.org, wim@iguana.be, Wenbin.Song@freescale.com, scottwood@freescale.com, Mingkai.Hu@freescale.com, linux@roeck-us.net
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20151015114925.GE1546@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mingkai Hu <Mingkai.Hu@freescale.com>
+On Thu, Oct 15, 2015 at 01:49:25PM +0200, Wolfram Sang wrote:
+> On Fri, Oct 09, 2015 at 10:39:24AM +0100, Wolfram Sang wrote:
+> > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> > 
+> > The core may register clients attached to this master which may use
+> > funtionality from the master. So, RuntimePM must be enabled before, otherwise
+> > this will fail.
+> > 
+> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> No feedback here, but for the other two drivers the same principle was
+> acked. CCing Mika, just in case.
 
-Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
-Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
----
-V4: V3 V2
- - No change.
+Looks good to me :-)
 
- Documentation/devicetree/bindings/arm/fsl.txt | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/arm/fsl.txt b/Documentation/devicetree/bindings/arm/fsl.txt
-index 34c88b0..752a685 100644
---- a/Documentation/devicetree/bindings/arm/fsl.txt
-+++ b/Documentation/devicetree/bindings/arm/fsl.txt
-@@ -131,6 +131,10 @@ Example:
- Freescale ARMv8 based Layerscape SoC family Device Tree Bindings
- ----------------------------------------------------------------
- 
-+LS1043A ARMv8 based RDB Board
-+Required root node properties:
-+    - compatible = "fsl,ls1043a-rdb", "fsl,ls1043a";
-+
- LS2080A ARMv8 based Simulator model
- Required root node properties:
-     - compatible = "fsl,ls2080a-simu", "fsl,ls2080a";
--- 
-2.1.0.27.g96db324
+> 
+> Applied to for-current, thanks!
+> 
+> > ---
+> >  drivers/i2c/busses/i2c-designware-platdrv.c | 13 +++++++------
+> >  1 file changed, 7 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > index 3dd2de31a2f8d3..73d58415bbc100 100644
+> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > @@ -253,12 +253,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
+> >  	adap->dev.parent = &pdev->dev;
+> >  	adap->dev.of_node = pdev->dev.of_node;
+> >  
+> > -	r = i2c_add_numbered_adapter(adap);
+> > -	if (r) {
+> > -		dev_err(&pdev->dev, "failure adding adapter\n");
+> > -		return r;
+> > -	}
+> > -
+> >  	if (dev->pm_runtime_disabled) {
+> >  		pm_runtime_forbid(&pdev->dev);
+> >  	} else {
+> > @@ -268,6 +262,13 @@ static int dw_i2c_probe(struct platform_device *pdev)
+> >  		pm_runtime_enable(&pdev->dev);
+> >  	}
+> >  
+> > +	r = i2c_add_numbered_adapter(adap);
+> > +	if (r) {
+> > +		dev_err(&pdev->dev, "failure adding adapter\n");
+> > +		pm_runtime_disable(&pdev->dev);
+> > +		return r;
+> > +	}
+> > +
+> >  	return 0;
+> >  }
+> >  
+> > -- 
+> > 2.1.4
+> > 
