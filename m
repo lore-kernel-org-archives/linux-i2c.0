@@ -1,125 +1,67 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v3 6/6] pwm-pca9685: enable ACPI device found on Galileo
- Gen2
-Date: Thu, 15 Oct 2015 13:21:45 +0300
-Message-ID: <1444904505.8361.640.camel@linux.intel.com>
-References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <1444213129-29793-7-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3] i2c: return probe deferred status on
+ dev_pm_domain_attach
+Date: Thu, 15 Oct 2015 13:36:47 +0200
+Message-ID: <20151015113647.GA1546@katana>
+References: <1444683283-32460-1-git-send-email-kieranbingham@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:60774 "EHLO mga02.intel.com"
+Received: from sauhun.de ([89.238.76.85]:38143 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752019AbbJOKWE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 15 Oct 2015 06:22:04 -0400
-In-Reply-To: <1444213129-29793-7-git-send-email-andriy.shevchenko@linux.intel.com>
+	id S1752600AbbJOLgy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 15 Oct 2015 07:36:54 -0400
+Content-Disposition: inline
+In-Reply-To: <1444683283-32460-1-git-send-email-kieranbingham@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
-Cc: Thierry Reding <thierry.reding@gmail.com>
+To: Kieran Bingham <kieranbingham@gmail.com>
+Cc: linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Wed, 2015-10-07 at 13:18 +0300, Andy Shevchenko wrote:
-> There is a chip connected to i2c bus on Intel Galileo Gen2 board. 
-> Enable it via
-> ACPI ID INT3492.
 
-Thierry, can you Ack or take this one, please?
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Cc: Thierry Reding <thierry.reding@gmail.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  drivers/pwm/Kconfig       |  2 +-
->  drivers/pwm/pwm-pca9685.c | 20 ++++++++++++++++----
->  2 files changed, 17 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-> index 0cfaf6b..2f4641a 100644
-> --- a/drivers/pwm/Kconfig
-> +++ b/drivers/pwm/Kconfig
-> @@ -272,7 +272,7 @@ config PWM_MXS
->  
->  config PWM_PCA9685
->  	tristate "NXP PCA9685 PWM driver"
-> -	depends on OF && I2C
-> +	depends on I2C
->  	select REGMAP_I2C
->  	help
->  	  Generic PWM framework driver for NXP PCA9685 LED 
-> controller.
-> diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
-> index 70448a6..117fccf 100644
-> --- a/drivers/pwm/pwm-pca9685.c
-> +++ b/drivers/pwm/pwm-pca9685.c
-> @@ -19,9 +19,11 @@
->   * this program.  If not, see <http://www.gnu.org/licenses/>.
->   */
->  
-> +#include <linux/acpi.h>
->  #include <linux/i2c.h>
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
-> +#include <linux/property.h>
->  #include <linux/pwm.h>
->  #include <linux/regmap.h>
->  #include <linux/slab.h>
-> @@ -297,7 +299,6 @@ static const struct regmap_config 
-> pca9685_regmap_i2c_config = {
->  static int pca9685_pwm_probe(struct i2c_client *client,
->  				const struct i2c_device_id *id)
->  {
-> -	struct device_node *np = client->dev.of_node;
->  	struct pca9685 *pca;
->  	int ret;
->  	int mode2;
-> @@ -320,12 +321,12 @@ static int pca9685_pwm_probe(struct i2c_client 
-> *client,
->  
->  	regmap_read(pca->regmap, PCA9685_MODE2, &mode2);
->  
-> -	if (of_property_read_bool(np, "invert"))
-> +	if (device_property_read_bool(&client->dev, "invert"))
->  		mode2 |= MODE2_INVRT;
->  	else
->  		mode2 &= ~MODE2_INVRT;
->  
-> -	if (of_property_read_bool(np, "open-drain"))
-> +	if (device_property_read_bool(&client->dev, "open-drain"))
->  		mode2 &= ~MODE2_OUTDRV;
->  	else
->  		mode2 |= MODE2_OUTDRV;
-> @@ -363,16 +364,27 @@ static const struct i2c_device_id pca9685_id[] 
-> = {
->  };
->  MODULE_DEVICE_TABLE(i2c, pca9685_id);
->  
-> +#ifdef CONFIG_ACPI
-> +static const struct acpi_device_id pca9685_acpi_ids[] = {
-> +	{ "INT3492", 0 },
-> +	{ /* sentinel */ },
-> +};
-> +MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
-> +#endif
-> +
-> +#ifdef CONFIG_OF
->  static const struct of_device_id pca9685_dt_ids[] = {
->  	{ .compatible = "nxp,pca9685-pwm", },
->  	{ /* sentinel */ }
->  };
->  MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
-> +#endif
->  
->  static struct i2c_driver pca9685_i2c_driver = {
->  	.driver = {
->  		.name = "pca9685-pwm",
-> -		.of_match_table = pca9685_dt_ids,
-> +		.acpi_match_table = ACPI_PTR(pca9685_acpi_ids),
-> +		.of_match_table = of_match_ptr(pca9685_dt_ids),
->  	},
->  	.probe = pca9685_pwm_probe,
->  	.remove = pca9685_pwm_remove,
+On Mon, Oct 12, 2015 at 09:54:43PM +0100, Kieran Bingham wrote:
+> A change of return status was introduced in commit 3fffd1283927
+> ("i2c: allow specifying separate wakeup interrupt in device tree")
+>=20
+> The commit prevents the defer status being passed up the call stack
+> appropriately when dev_pm_domain_attach returns -EPROBE_DEFER.
+>=20
+> Catch the PROBE_DEFER and clear up the IRQ wakeup status
+>=20
+> Signed-off-by: Kieran Bingham <kieranbingham@gmail.com>
+> Fixes: 3fffd1283927 ("i2c: allow specifying separate wakeup
+> interrupt in device tree")
+>=20
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Applied to for-current, thanks!
+
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWH4/PAAoJEBQN5MwUoCm25qsP/iUgOY9ZNXRlUjLsQ4p/l0fL
+cdCK3XA2jkyXREyW6voKVByM3bKIf1snnfIqGrrESMF41iXoFzoB4I0AcW8l2Wtx
+cGbPl6VKwNGCgXArjXLYAlcQiG/sVsh+vZpInngoAivYG0xsNRtycS1ZPsMD0joP
+TApbqccRvWs2hIzv00hJhsar+3BhXwy8dUJ4V6Ad39YMHI9KmTA6Q0jWB+lfGPqE
+U8C01uxYua8iI4mishg5YkxVC3l/yh2x9flkr9P8ol69shxGwKYKXNwSyQyHcJPS
+wEAlgITcq2Cw25CvmNQb3KWyGZXs3XTl+UT+vT+Hyfvt2KxJHsDymXgeRkaB4w76
+3O4oDCsM3S+7dSMygzyN+ihtM/Y57JcDzEq6XP2JCAIDp3OZCeaI+f0vra9SF9yX
+noaHRSspswjqMtM45aOuSf1dEt9oF1d9XlQbno009CVDDqXdXEstmWpU8rcgq40g
+mea5BxLqvq597/v4fygLuRKLZkTom0nxy5p/2+g/85kFCJ2CMyXL1PTqrkYIfNWy
+VJi3kCCFKE6Wpvm6fi6BApYQuSKvWrGx7xC45Ji//qyVUldV7UZQGyjawhobR4nI
+QPpU+1G19aS+cOB8ja8+SygK6smSlagE86ka7IfcOeMePVSKf+p5qcFwpXBuIEe9
+ppYKf51rRyYj/2zLEsDj
+=6cz4
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--
