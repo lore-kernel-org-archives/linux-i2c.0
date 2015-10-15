@@ -1,79 +1,61 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [GIT PULL] On-demand device probing
-Date: Thu, 15 Oct 2015 13:42:08 +0200
-Message-ID: <1444909328-24761-1-git-send-email-tomeu.vizoso@collabora.com>
-References: <20151014092644.GO14956@sirena.org.uk>
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20151014092644.GO14956@sirena.org.uk>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Russell King <linux@arm.linux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?q?Terje=20Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Felipe Balbi <balbi@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/4] i2c: rcar: enable RuntimePM before registering to
+ the core
+Date: Thu, 15 Oct 2015 13:43:42 +0200
+Message-ID: <20151015114342.GC1546@katana>
+References: <1444383567-18113-1-git-send-email-wsa@the-dreams.de>
+ <1444383567-18113-2-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O3RTKUHj+75w1tg5"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1444383567-18113-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-sh@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-this second pull request replaces the last references to device_initcall_sync with late_initcall, as noticed by Frank Rowand.
+--O3RTKUHj+75w1tg5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also fixes the url of the git repo and the wrapping, as suggested by Mark Brown.
+On Fri, Oct 09, 2015 at 10:39:25AM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>=20
+> The core may register clients attached to this master which may use
+> funtionality from the master. So, RuntimePM must be enabled before, other=
+wise
+> this will fail. While here, move drvdata, too.
+>=20
+> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Thanks,
+Applied to for-current, thanks!
 
-Tomeu
 
-The following changes since commit 6ff33f3902c3b1c5d0db6b1e2c70b6d76fba357f:
+--O3RTKUHj+75w1tg5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-  Linux 4.3-rc1 (2015-09-12 16:35:56 -0700)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-are available in the git repository at:
+iQIcBAEBAgAGBQJWH5FuAAoJEBQN5MwUoCm229UQAINgTr2P1cwIz5BSwfgPrpjO
+/5l4uExWLafcXdvHvTwmKsCSOBev23aIiI0FdP9H7IRR9MWI23+Xcl+paI0EdSZ0
+AB1Tg/D2PoJxVbcLb8PS7rK5PvrsjXqm300gPLQcIJnXq/vE6BkrE96k8TuHm0bD
++RNwqXBuhTxWKzLBIlf8QItcMrXkDe6g2HhksbIAfnZiFayigqolB5zJh0dnpTIF
+zNI/1TTEmTaSTRciOTKz17x+GxsWIHexJCk1nXwMDtjQvTMrlUSFV7slX37PLWnf
+oyiAa8yDesZh3CLrU/H8UBbLVkJCxRncatGK/iv5Qx5DcBPNPKJZ8Wl+5AgmqW5n
+2foOs2D4oPR4glgVwd0FWNgvdmSsTvfgxwoXSRwMTBsKj5LQXIItyQ5BtYB7arM7
+UzrRVkejUSrlVkrQ2K+5Fuqp3ySwL9F+tFNuD6dRX+4OM760BPZ/1cc2ZQGBPjA0
+KUwk51ApQi0w9wA3ceIpjQ2/144XHVFx+EXBRaoj0o//U0lUp15wihpRrfacicWf
+kQU1CLY7GSYQJP8B4cHH8CUmWI9krGs+EbT9Nt1K9cjVfLki5Pt7/VcR054/zQSq
+20oKnelq7bD9tAnYG7Wpx6i7zeO+erw3lyGET9GOI8ziKTAu8d9Rd1s1oLk0/8r9
+sPxMdldIxsg8LFlx3ySG
+=qYs9
+-----END PGP SIGNATURE-----
 
-  git://git.collabora.com/git/user/tomeu/linux.git on-demand-probes-for-next
-
-for you to fetch changes up to c074fef5d36e1c27dfdf7474e23c01a1b044ff98:
-
-  of/platform: Defer probes of registered devices (2015-10-15 13:25:47 +0200)
-
-----------------------------------------------------------------
-Tomeu Vizoso (20):
-      driver core: handle -EPROBE_DEFER from bus_type.match()
-      ARM: amba: Move reading of periphid to amba_match()
-      of/platform: Point to struct device from device node
-      of: add function to allow probing a device from a OF node
-      gpio: Probe GPIO drivers on demand
-      pinctrl: Probe pinctrl devices on demand
-      regulator: core: Probe regulators on demand
-      drm: Probe panels on demand
-      drm/tegra: Probe dpaux devices on demand
-      i2c: core: Probe i2c adapters and devices on demand
-      pwm: Probe PWM chip devices on demand
-      backlight: Probe backlight devices on demand
-      usb: phy: Probe phy devices on demand
-      clk: Probe clk providers on demand
-      pinctrl: Probe pinctrl devices on demand
-      phy: core: Probe phy providers on demand
-      dma: of: Probe DMA controllers on demand
-      power-supply: Probe power supplies on demand
-      driver core: Allow deferring probes until late init
-      of/platform: Defer probes of registered devices
-
- drivers/amba/bus.c                  | 88 +++++++++++++++++++------------------
- drivers/base/Kconfig                | 18 ++++++++
- drivers/base/dd.c                   | 30 ++++++++++++-
- drivers/clk/clk.c                   |  3 ++
- drivers/dma/of-dma.c                |  3 ++
- drivers/gpio/gpiolib-of.c           |  5 +++
- drivers/gpu/drm/drm_panel.c         |  3 ++
- drivers/gpu/drm/tegra/dpaux.c       |  3 ++
- drivers/i2c/i2c-core.c              |  4 ++
- drivers/of/device.c                 | 61 +++++++++++++++++++++++++
- drivers/of/platform.c               | 30 ++++++++-----
- drivers/phy/phy-core.c              |  3 ++
- drivers/pinctrl/devicetree.c        |  3 ++
- drivers/power/power_supply_core.c   |  3 ++
- drivers/pwm/core.c                  |  3 ++
- drivers/regulator/core.c            |  2 +
- drivers/usb/phy/phy.c               |  3 ++
- drivers/video/backlight/backlight.c |  3 ++
- include/linux/device.h              |  4 +-
- include/linux/of.h                  |  1 +
- include/linux/of_device.h           |  3 ++
- 21 files changed, 219 insertions(+), 57 deletions(-)
+--O3RTKUHj+75w1tg5--
