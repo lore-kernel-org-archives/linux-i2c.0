@@ -1,63 +1,52 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] MAINTAINERS: add maintainers for Synopsis Designware
- I2C drivers
-Date: Thu, 15 Oct 2015 18:11:45 +0300
-Message-ID: <1444921905.8361.648.camel@linux.intel.com>
-References: <1444917533-1981-1-git-send-email-wsa@the-dreams.de>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [Patch V8] i2c: imx: add runtime pm support to improve the performance
+Date: Thu, 15 Oct 2015 22:33:31 +0530
+Message-ID: <CAKfKVtFYN0f1SWPjw8T7PVzjdSbgO2tqFBHgw9Uue4Hsg_em=g@mail.gmail.com>
+References: <1442569869-10584-1-git-send-email-b54642@freescale.com>
+	<20151013070711.GA3982@pengutronix.de>
+	<CY1PR0301MB0858AB5F33E75B6C12E1CAB5CF300@CY1PR0301MB0858.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:11976 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752140AbbJOPMz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 15 Oct 2015 11:12:55 -0400
-In-Reply-To: <1444917533-1981-1-git-send-email-wsa@the-dreams.de>
+Received: from mail-qg0-f52.google.com ([209.85.192.52]:33502 "EHLO
+	mail-qg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752860AbbJORDc (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Oct 2015 13:03:32 -0400
+Received: by qgeo38 with SMTP id o38so32629857qge.0
+        for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2015 10:03:32 -0700 (PDT)
+In-Reply-To: <CY1PR0301MB0858AB5F33E75B6C12E1CAB5CF300@CY1PR0301MB0858.namprd03.prod.outlook.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: Gao Pandy <gaopan@freescale.com>
+Cc: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Li Frank <Frank.Li@freescale.com>, Duan Andy <fugang.duan@freescale.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "hkallweit1@gmail.com" <hkallweit1@gmail.com>
 
-On Thu, 2015-10-15 at 15:58 +0200, Wolfram Sang wrote:
-> Those guys already have been helpful in the past and are actively
-> working on this driver, unlike me.
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
+clk_enable is called here.
+enables the clock here.
+>
+> The calling sequence is:
+> pm_runtime_use_autosuspend(&pdev->dev);
+> pm_runtime_set_active(&pdev->dev);
+> pm_runtime_enable(&pdev->dev);
+> pm_runtime_get_sync(&pdev->dev);
+are we not enabling it again?
 
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+there by effectively disabling pm.
 
-> 
-> As suggested by Jarkko here:
-> http://article.gmane.org/gmane.linux.drivers.i2c/24834
-> 
->  MAINTAINERS | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 5f467845ef725f..58d6b02d2dea78 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -9101,6 +9101,15 @@ S: Supported
->  F: Documentation/devicetree/bindings/net/snps,dwc-qos-ethernet.txt
->  F: drivers/net/ethernet/synopsys/dwc_eth_qos.c
->  
-> +SYNOPSYS DESIGNWARE I2C DRIVER
-> +M:	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> +M:	Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> +M:	Mika Westerberg <mika.westerberg@linux.intel.com>
-> +L:	linux-i2c@vger.kernel.org
-> +S:	Maintained
-> +F:	drivers/i2c/busses/i2c-designware-*
-> +F:	include/linux/platform_data/i2c-designware.h
-> +
->  SYNOPSYS DESIGNWARE MMC/SD/SDIO DRIVER
->  M:	Seungwon Jeon <tgih.jun@samsung.com>
->  M:	Jaehoon Chung <jh80.chung@samsung.com>
+Or did I missing something.
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+>
+> The cleanup order is:
+> pm_runtime_put_noidle(&pdev->dev);
+> pm_runtime_disable(&pdev->dev);
+> pm_runtime_set_suspended(&pdev->dev);
+>
+> Is it that I miss pm_runtime_dont_use_autosuspend(&pdev->dev);
+>
+> Thank you!
+>
+> Best Reguards
+> Gao Pan
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
