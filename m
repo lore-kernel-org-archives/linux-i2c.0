@@ -1,46 +1,50 @@
-From: Zhiqiang Hou <B48286@freescale.com>
-Subject: [PATCH V4 1/6] i2c: Add i2c support to Freescale Layerscape platforms
-Date: Thu, 15 Oct 2015 20:12:56 +0800
-Message-ID: <1444911181-21696-1-git-send-email-B48286@freescale.com>
+From: Zhiqiang Hou <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH V4 2/6] watchdog: Add support for Freescale Layerscape platforms
+Date: Thu, 15 Oct 2015 20:12:57 +0800
+Message-ID: <1444911181-21696-2-git-send-email-B48286@freescale.com>
+References: <1444911181-21696-1-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-clk-owner@vger.kernel.org>
-Sender: linux-clk-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
-Cc: mark.rutland@arm.com, linux@roeck-us.net, wsa@the-dreams.de, wim@iguana.be, corbet@lwn.net, mturquette@baylibre.com, sboyd@codeaurora.org, Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com, scottwood@freescale.com, bhupesh.sharma@freescale.com, Wenbin.Song@freescale.com, B48286@freescale.com
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1444911181-21696-1-git-send-email-B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, corbet-T1hC0tSOHrs@public.gmane.org, mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org, bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org, B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Shaohui Xie <Shaohui.Xie@freescale.com>
+From: Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-Modify the I2C_IMX config to support to Layerscape platforms.
+Modify watchdog/Kconfig file to support Layerscape platforms.
 
-Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
-Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
-Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+Signed-off-by: Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Wenbin Song <Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
+This patch has been acked in V3 by Guenter Roeck [linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org].
+
 V4: V3 V2
  - No change.
 
- drivers/i2c/busses/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 08b8617..14147ec 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -582,10 +582,10 @@ config I2C_IMG
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 79e1aa1..448dbaf 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -446,7 +446,7 @@ config MAX63XX_WATCHDOG
  
- config I2C_IMX
- 	tristate "IMX I2C interface"
+ config IMX2_WDT
+ 	tristate "IMX2+ Watchdog"
 -	depends on ARCH_MXC
 +	depends on ARCH_MXC || ARCH_LAYERSCAPE
+ 	select REGMAP_MMIO
+ 	select WATCHDOG_CORE
  	help
- 	  Say Y here if you want to use the IIC bus controller on
--	  the Freescale i.MX/MXC processors.
-+	  the Freescale i.MX/MXC or Layerscape processors.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-imx.
 -- 
 2.1.0.27.g96db324
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
