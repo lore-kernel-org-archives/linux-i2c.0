@@ -1,58 +1,55 @@
-From: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH V3 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
-Date: Thu, 15 Oct 2015 07:34:12 +0000
-Message-ID: <CY1PR0301MB0780F8F64723E9FE9EFEB0DD8B3E0@CY1PR0301MB0780.namprd03.prod.outlook.com>
-References: <1444822498-16477-1-git-send-email-B48286@freescale.com>
-	 <1444822498-16477-5-git-send-email-B48286@freescale.com>
- <1444881407.5185.232.camel@freescale.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 2/2] i2c: designware: enable High-speed mode for pcidrv
+Date: Thu, 15 Oct 2015 11:32:33 +0300
+Message-ID: <561F64A1.8030805@linux.intel.com>
+References: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>	<1444380426-17953-2-git-send-email-wangxfdu@gmail.com>	<1444383067.8361.517.camel@linux.intel.com>	<CACDNBm3wkxAXbgQ4Z15uBFKUrsy9ngYKx3dGY20eV4RbSoJ5mg@mail.gmail.com>	<1444638708.8361.564.camel@linux.intel.com> <CACDNBm38bC+tP2S3WgUJJVRUppYF3=aUXvRtWfqfpM=BHapN9A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1444881407.5185.232.camel-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Content-Language: en-US
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "catalin.marinas-5wv7dgnIgG8@public.gmane.org" <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, "will.deacon-5wv7dgnIgG8@public.gmane.org" <will.deacon-5wv7dgnIgG8@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hu Vincent <Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shaohui Xie <Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Sharma Bhupesh <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Leo <LeoLi-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org" <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, "corbet-T1hC0tSOHrs@public.gmane.org" <corbet-T1hC0tSOHrs@public.gmane.org>, "mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org" <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, "sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Wenbin Song <Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACDNBm38bC+tP2S3WgUJJVRUppYF3=aUXvRtWfqfpM=BHapN9A@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Xiang Wang <wangxfdu@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: xiang.a.wang@intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogV29vZCBTY290dC1CMDc0
-MjENCj4gU2VudDogMjAxNeW5tDEw5pyIMTXml6UgMTE6NTcNCj4gVG86IEhvdSBaaGlxaWFuZy1C
-NDgyODYNCj4gQ2M6IGxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZzsgY2F0YWxp
-bi5tYXJpbmFzQGFybS5jb207DQo+IHdpbGwuZGVhY29uQGFybS5jb207IGxpbnV4LWkyY0B2Z2Vy
-Lmtlcm5lbC5vcmc7IGxpbnV4LQ0KPiB3YXRjaGRvZ0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWRv
-Y0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LQ0KPiBjbGtAdmdlci5rZXJuZWwub3JnOyBtYXJrLnJ1
-dGxhbmRAYXJtLmNvbTsgSHUgTWluZ2thaS1CMjEyODQ7IFhpZQ0KPiBTaGFvaHVpLUIyMTk4OTsg
-U2hhcm1hIEJodXBlc2gtQjQ1MzcwOyBMaSBZYW5nLUxlby1SNTg0NzI7IHdzYUB0aGUtDQo+IGRy
-ZWFtcy5kZTsgd2ltQGlndWFuYS5iZTsgY29yYmV0QGx3bi5uZXQ7IG10dXJxdWV0dGVAYmF5bGli
-cmUuY29tOw0KPiBzYm95ZEBjb2RlYXVyb3JhLm9yZzsgU29uZyBXZW5iaW4tQjUzNzQ3DQo+IFN1
-YmplY3Q6IFJlOiBbUEFUQ0ggVjMgNC82XSBhcm02NC9sczEwNDNhOiBhZGQgRFRTIGZvciBGcmVl
-c2NhbGUgTFMxMDQzQQ0KPiBTb0MNCj4gDQo+IE9uIFdlZCwgMjAxNS0xMC0xNCBhdCAxOTozNCAr
-MDgwMCwgWmhpcWlhbmcgSG91IHdyb3RlOg0KPiA+IEZyb206IE1pbmdrYWkgSHUgPE1pbmdrYWku
-SHVAZnJlZXNjYWxlLmNvbT4NCj4gPg0KPiA+IExTMTA0M2EgaXMgYW4gU29DIHdpdGggNCBBUk12
-OCBBNTMgY29yZXMgYW5kIG1vc3Qgb3RoZXIgSVAgYmxvY2tzDQo+ID4gc2ltaWxhciB0byBMUzEw
-MjFhIHdoaWNoIGNvbXBsaWVzIHRvIENoYXNzaXMgMi4xIHNwZWMuDQo+ID4NCj4gPiBGb2xsb3dp
-bmcgbGV2ZWxzIG9mIERUU0kvRFRTIGZpbGVzIGhhdmUgYmVlbiBjcmVhdGVkIGZvciB0aGUgTFMx
-MDQzQQ0KPiA+IFNvQyBmYW1pbHk6DQo+ID4NCj4gPiAtIGZzbC1sczEwNDNhLmR0c2k6DQo+ID4g
-ICBEVFMtSW5jbHVkZSBmaWxlIGZvciBGU0wgTFMxMDQzQSBTb0MuDQo+ID4NCj4gPiBTaWduZWQt
-b2ZmLWJ5OiBMaSBZYW5nIDxsZW9saUBmcmVlc2NhbGUuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6
-IEhvdSBaaGlxaWFuZyA8QjQ4Mjg2QGZyZWVzY2FsZS5jb20+DQo+ID4gU2lnbmVkLW9mZi1ieTog
-TWluZ2thaSBIdSA8TWluZ2thaS5IdUBmcmVlc2NhbGUuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6
-IFdlbmJpbiBTb25nIDxXZW5iaW4uU29uZ0BmcmVlc2NhbGUuY29tPg0KPiA+IC0tLQ0KPiA+IFYz
-Og0KPiA+ICAtIEFkZCBkZXZpY2UgdHJlZSBub2RlIGZvciBTQVRBLg0KPiA+ICAtIFJlbW92ZSBw
-cm9wZXJpdHkgZW5hYmxlLW1ldGhvZCBmb3IgYWxsIGNwdSBub2RlLg0KPiA+ICAgIFJlbW92ZSBy
-ZXNlcnZlZCBtZW1vcnkgcmVnaW9uIGZvciBzcGluLXRhYmxlLg0KPiA+DQo+ID4gVjI6DQo+ID4g
-IC0gQWRkIHNlY29uZGFyeSBjb3JlIGJvb3QgbWV0aG9kLg0KPiA+ICAtIE1vdmUgb3V0IHRoZSBz
-eXNjbGsgbm9kZSBmcm9tIHRoZSBjbG9ja2dlbiBub2RlLg0KPiA+ICAtIENvcnJlY3QgdGhlIHJl
-ZyBzaXplIG9mIEdJQ0MuDQo+ID4NCj4gPiAgYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUv
-ZnNsLWxzMTA0M2EuZHRzaSB8IDUxMw0KPiA+ICsrKysrKysrKysrKysrKysrKysrKysrKysNCj4g
-PiAgMSBmaWxlIGNoYW5nZWQsIDUxMyBpbnNlcnRpb25zKCspDQo+ID4gIGNyZWF0ZSBtb2RlIDEw
-MDY0NCBhcmNoL2FybTY0L2Jvb3QvZHRzL2ZyZWVzY2FsZS9mc2wtbHMxMDQzYS5kdHNpDQo+IA0K
-PiBPbiB0aGUgbHMyMDh4IGRldmljZSB0cmVlIHdlIHdlcmUgYXNrZWQgdG8gcHV0IGRldmljZXMg
-dW5kZXIgYSBidXMgbm9kZSwNCj4gc3VjaCBhcyBhbiBzb2Mgbm9kZSB3aXRoIGEgc2ltcGxlLWJ1
-cyBjb21wYXRpYmxlLg0KPiANCg0KVGhhbmtzLCB3aWxsIHJlZm9ybS4NCg0KVGhhbmtzLA0KWmhp
-cWlhbmcNCg==
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On 10/15/2015 08:46 AM, Xiang Wang wrote:
+> 1. "bus speed mode" is a bit different from other parameters. Actually
+> it can be determined by the speed setting of "i2c devices" in ACPI
+> (I2CSerialBus). E.g. If i2c device uses 3MHz, we use High-speed mode
+> for this i2c bus.
+> 2. If we hardcode speed setting in pci driver, we lose the
+> flexibility. A high-speed device may be connected to this i2c bus on
+> this board, but may be connected to another i2c bus on another board
+> design.
+>
+> In this patch, we enumerate the i2c device in ACPI table to determine
+> the frequency setting. Then we set corresponding speed mode for this
+> i2c controller. The ACPI stuff is common for pci and plat driver. If
+> board design changes, we only change BIOS.
+>
+> In conclusion, we have 2 solutions to set the i2c controller speed
+> mode (pci driver):
+> 1) use hardcode value in pci driver
+> 2) use frequency setting of "i2c device" in ACPI table (more flexible,
+> but looks a bit strange)
+>
+> Do you have any preference/suggestions for above solutions? Thanks
+
+I don't think we can hard code especially the high-speed mode because 
+most typically buses are populated with slower devices.
+
+Things are a bit more clear when ACPI provides timing parameters for the 
+bus (for standard and fast speed modes at the moment in 
+i2c-designware-platdrv.c: dw_i2c_acpi_configure()) but still I think the 
+ACPI namespace walk may be needed against potential BIOS 
+misconfigurations. For instance if it provides timing parameters for all 
+speeds but there are devices with lower speed on the same bus.
+
+I'd take these timing parameters as configuration data for bus features 
+but actual speed (speed bits in IC_CON register) is defined separately. 
+To me it looks only way to achieve that is to pick slowest device from 
+I2cSerialBus resource descriptors.
+
+-- 
+Jarkko
