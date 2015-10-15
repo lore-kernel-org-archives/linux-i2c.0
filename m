@@ -1,67 +1,104 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: return probe deferred status on
- dev_pm_domain_attach
-Date: Thu, 15 Oct 2015 13:36:47 +0200
-Message-ID: <20151015113647.GA1546@katana>
-References: <1444683283-32460-1-git-send-email-kieranbingham@gmail.com>
+Subject: Re: [PATCH] i2c: designware: Do not use parameters from ACPI on Dell
+ Inspiron 7348
+Date: Thu, 15 Oct 2015 13:40:29 +0200
+Message-ID: <20151015114029.GB1546@katana>
+References: <1443085614-101362-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+	protocol="application/pgp-signature"; boundary="WYTEVAkct0FjGQmd"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:38143 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:38155 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752600AbbJOLgy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 15 Oct 2015 07:36:54 -0400
+	id S1752600AbbJOLkg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 15 Oct 2015 07:40:36 -0400
 Content-Disposition: inline
-In-Reply-To: <1444683283-32460-1-git-send-email-kieranbingham@gmail.com>
+In-Reply-To: <1443085614-101362-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kieran Bingham <kieranbingham@gmail.com>
-Cc: linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Christian Ruppert <christian.ruppert@alitech.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Pavel Roskin <plroskin@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---BXVAT5kNtrzKuDFl
+--WYTEVAkct0FjGQmd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 12, 2015 at 09:54:43PM +0100, Kieran Bingham wrote:
-> A change of return status was introduced in commit 3fffd1283927
-> ("i2c: allow specifying separate wakeup interrupt in device tree")
+On Thu, Sep 24, 2015 at 12:06:54PM +0300, Mika Westerberg wrote:
+> ACPI SSCN/FMCN methods were originally added because then the platform can
+> provide the most accurate HCNT/LCNT values to the driver. However, this
+> seems not to be true for Dell Inspiron 7348 where using these causes the
+> touchpad to fail in boot:
 >=20
-> The commit prevents the defer status being passed up the call stack
-> appropriately when dev_pm_domain_attach returns -EPROBE_DEFER.
+>   i2c_hid i2c-DLL0675:00: failed to retrieve report from device.
+>   i2c_designware INT3433:00: i2c_dw_handle_tx_abort: lost arbitration
+>   i2c_hid i2c-DLL0675:00: failed to retrieve report from device.
+>   i2c_designware INT3433:00: controller timed out
 >=20
-> Catch the PROBE_DEFER and clear up the IRQ wakeup status
+> The values received from ACPI are (in fast mode):
 >=20
-> Signed-off-by: Kieran Bingham <kieranbingham@gmail.com>
-> Fixes: 3fffd1283927 ("i2c: allow specifying separate wakeup
-> interrupt in device tree")
+>   HCNT: 72
+>   LCNT: 160
 >=20
+> this translates to following timings (input clock is 100MHz on Broadwell):
+>=20
+>   tHIGH: 720 ns (spec min 600 ns)
+>   tLOW: 1600 ns (spec min 1300 ns)
+>   Bus period: 2920 ns (assuming 300 ns tf and tr)
+>   Bus speed: 342.5 kHz
+>=20
+> Both tHIGH and tLOW are within the I2C specification.
+>=20
+> The calculated values when ACPI parameters are not used are (in fast mode=
+):
+>=20
+>   HCNT: 87
+>   LCNT: 159
+>=20
+> which translates to:
+>=20
+>   tHIGH: 870 ns (spec min 600 ns)
+>   tLOW: 1590 ns (spec min 1300 ns)
+>   Bus period 3060 ns (assuming 300 ns tf and tr)
+>   Bus speed 326.8 kHz
+>=20
+> These values are also within the I2C specification.
+>=20
+> Since both ACPI and calculated values meet the I2C specification timing
+> requirements it is hard to say why the touchpad does not function properly
+> with the ACPI values except that the bus speed is higher in this case (but
+> still well below the max 400kHz).
+>=20
+> Solve this by adding DMI quirk to the driver that disables using ACPI
+> parameters on this particulare machine.
+>=20
+> Reported-by: Pavel Roskin <plroskin@gmail.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Applied to for-current, thanks!
+Pavel, have you tested this patch?
 
 
---BXVAT5kNtrzKuDFl
+--WYTEVAkct0FjGQmd
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWH4/PAAoJEBQN5MwUoCm25qsP/iUgOY9ZNXRlUjLsQ4p/l0fL
-cdCK3XA2jkyXREyW6voKVByM3bKIf1snnfIqGrrESMF41iXoFzoB4I0AcW8l2Wtx
-cGbPl6VKwNGCgXArjXLYAlcQiG/sVsh+vZpInngoAivYG0xsNRtycS1ZPsMD0joP
-TApbqccRvWs2hIzv00hJhsar+3BhXwy8dUJ4V6Ad39YMHI9KmTA6Q0jWB+lfGPqE
-U8C01uxYua8iI4mishg5YkxVC3l/yh2x9flkr9P8ol69shxGwKYKXNwSyQyHcJPS
-wEAlgITcq2Cw25CvmNQb3KWyGZXs3XTl+UT+vT+Hyfvt2KxJHsDymXgeRkaB4w76
-3O4oDCsM3S+7dSMygzyN+ihtM/Y57JcDzEq6XP2JCAIDp3OZCeaI+f0vra9SF9yX
-noaHRSspswjqMtM45aOuSf1dEt9oF1d9XlQbno009CVDDqXdXEstmWpU8rcgq40g
-mea5BxLqvq597/v4fygLuRKLZkTom0nxy5p/2+g/85kFCJ2CMyXL1PTqrkYIfNWy
-VJi3kCCFKE6Wpvm6fi6BApYQuSKvWrGx7xC45Ji//qyVUldV7UZQGyjawhobR4nI
-QPpU+1G19aS+cOB8ja8+SygK6smSlagE86ka7IfcOeMePVSKf+p5qcFwpXBuIEe9
-ppYKf51rRyYj/2zLEsDj
-=6cz4
+iQIcBAEBAgAGBQJWH5CtAAoJEBQN5MwUoCm2wS4P/10psTf9cfhS4z6iI3HLQ72x
+E4tLWvWNlRt/sijg73U3K+T4j7qYiJnTNkpUogwch3Me2etP6e5qkzOvv0xX+pxH
+wR9aplNs0NmSPu23kJTD02kkTP4I9EhDqv4XWhtZQ8zBjRAvgW8A2oPBnv9pr+0A
+4Z/DQTXgzwCDbOnfNSg1Wcs3schCHfWPGDqZCJS2D2S3KohbpYeJc0ZMpixJUlGg
+/3HacoA3zAPhZ5TTOc8qdjAmfZ01zgkaOdittJgKZ//Ox2sbFcPzqY+pJ+f6yrQh
+DJ/aNBp7PR8VOspPLHGThBISyHRN4V3qAaRePqo+7WRK47x5iFgofnZYDn9bAR6P
+RDN+T7Ce8fgM+P92eaDI18RgDYS1Klp5NDYb7FI/9JlLfGgX/o1I5kBIqOHrBlUN
+EVTISEks+tI5t9CcUZcd4XFZsLgWWAvlb7AID8k7HvJae40FmHfo9c1Fmp0DAgu/
+vd1QYSaN/5qkYaEXGN/8dhkOb1sN3aJ1+gYJrrARboFoIV/DLYYKzRTqzufxNWfT
+pHfImPimeOdczSisiJaBq5HDa8hJZ6EfCBgyH2iZFAhKQWJGoKQFjIaOdtmyNo77
+OJY++b/fAnHMqiwBjvL/6mzBcLwU2BfxLtt7BTH4wv5oqF5qWL8NsoYLI9Cm+4qS
+gdpanfz0LO/BnoZbd4wI
+=wAX2
 -----END PGP SIGNATURE-----
 
---BXVAT5kNtrzKuDFl--
+--WYTEVAkct0FjGQmd--
