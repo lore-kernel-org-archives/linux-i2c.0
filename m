@@ -1,69 +1,124 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c: designware: enable High-speed mode for pcidrv
-Date: Thu, 15 Oct 2015 12:40:23 +0300
-Message-ID: <1444902023.8361.629.camel@linux.intel.com>
-References: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
-	 <1444380426-17953-2-git-send-email-wangxfdu@gmail.com>
-	 <1444383067.8361.517.camel@linux.intel.com>
-	 <CACDNBm3wkxAXbgQ4Z15uBFKUrsy9ngYKx3dGY20eV4RbSoJ5mg@mail.gmail.com>
-	 <1444638708.8361.564.camel@linux.intel.com>
-	 <CACDNBm38bC+tP2S3WgUJJVRUppYF3=aUXvRtWfqfpM=BHapN9A@mail.gmail.com>
-	 <561F64A1.8030805@linux.intel.com>
+Subject: Re: [PATCH v3 6/6] pwm-pca9685: enable ACPI device found on Galileo
+ Gen2
+Date: Thu, 15 Oct 2015 13:21:45 +0300
+Message-ID: <1444904505.8361.640.camel@linux.intel.com>
+References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	 <1444213129-29793-7-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:40940 "EHLO mga02.intel.com"
+Received: from mga02.intel.com ([134.134.136.20]:60774 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751098AbbJOJk3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 15 Oct 2015 05:40:29 -0400
-In-Reply-To: <561F64A1.8030805@linux.intel.com>
+	id S1752019AbbJOKWE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 15 Oct 2015 06:22:04 -0400
+In-Reply-To: <1444213129-29793-7-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Xiang Wang <wangxfdu@gmail.com>
-Cc: xiang.a.wang@intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
+Cc: Thierry Reding <thierry.reding@gmail.com>
 
-On Thu, 2015-10-15 at 11:32 +0300, Jarkko Nikula wrote:
-> On 10/15/2015 08:46 AM, Xiang Wang wrote:
-> > 
-> > In conclusion, we have 2 solutions to set the i2c controller speed
-> > mode (pci driver):
-> > 1) use hardcode value in pci driver
-> > 2) use frequency setting of "i2c device" in ACPI table (more 
-> > flexible,
-> > but looks a bit strange)
-> > 
-> > Do you have any preference/suggestions for above solutions? Thanks
-> 
-> I don't think we can hard code especially the high-speed mode because 
-> 
-> most typically buses are populated with slower devices.
-> 
-> Things are a bit more clear when ACPI provides timing parameters for 
-> the 
-> bus (for standard and fast speed modes at the moment in 
-> i2c-designware-platdrv.c: dw_i2c_acpi_configure()) but still I think 
-> the 
-> ACPI namespace walk may be needed against potential BIOS 
-> misconfigurations. For instance if it provides timing parameters for 
-> all 
-> speeds but there are devices with lower speed on the same bus.
-> 
-> I'd take these timing parameters as configuration data for bus 
-> features 
-> but actual speed (speed bits in IC_CON register) is defined 
-> separately. 
-> To me it looks only way to achieve that is to pick slowest device 
-> from 
-> I2cSerialBus resource descriptors.
+On Wed, 2015-10-07 at 13:18 +0300, Andy Shevchenko wrote:
+> There is a chip connected to i2c bus on Intel Galileo Gen2 board. 
+> Enable it via
+> ACPI ID INT3492.
 
-Should it (ACPI walk) be done in PCI case as well? If so, then it needs
-to be done up to i2c-core. There you may adjust the bus speed whenever
-slave device is enumerated.
+Thierry, can you Ack or take this one, please?
 
-For PCI case you have still to have hardcoded values and it should be
-maximum supported by the bus I think. When you have implemented above
-algorithm you may do this safely. Am I missing something?
+> 
+> Cc: Thierry Reding <thierry.reding@gmail.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/pwm/Kconfig       |  2 +-
+>  drivers/pwm/pwm-pca9685.c | 20 ++++++++++++++++----
+>  2 files changed, 17 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+> index 0cfaf6b..2f4641a 100644
+> --- a/drivers/pwm/Kconfig
+> +++ b/drivers/pwm/Kconfig
+> @@ -272,7 +272,7 @@ config PWM_MXS
+>  
+>  config PWM_PCA9685
+>  	tristate "NXP PCA9685 PWM driver"
+> -	depends on OF && I2C
+> +	depends on I2C
+>  	select REGMAP_I2C
+>  	help
+>  	  Generic PWM framework driver for NXP PCA9685 LED 
+> controller.
+> diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
+> index 70448a6..117fccf 100644
+> --- a/drivers/pwm/pwm-pca9685.c
+> +++ b/drivers/pwm/pwm-pca9685.c
+> @@ -19,9 +19,11 @@
+>   * this program.  If not, see <http://www.gnu.org/licenses/>.
+>   */
+>  
+> +#include <linux/acpi.h>
+>  #include <linux/i2c.h>
+>  #include <linux/module.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/property.h>
+>  #include <linux/pwm.h>
+>  #include <linux/regmap.h>
+>  #include <linux/slab.h>
+> @@ -297,7 +299,6 @@ static const struct regmap_config 
+> pca9685_regmap_i2c_config = {
+>  static int pca9685_pwm_probe(struct i2c_client *client,
+>  				const struct i2c_device_id *id)
+>  {
+> -	struct device_node *np = client->dev.of_node;
+>  	struct pca9685 *pca;
+>  	int ret;
+>  	int mode2;
+> @@ -320,12 +321,12 @@ static int pca9685_pwm_probe(struct i2c_client 
+> *client,
+>  
+>  	regmap_read(pca->regmap, PCA9685_MODE2, &mode2);
+>  
+> -	if (of_property_read_bool(np, "invert"))
+> +	if (device_property_read_bool(&client->dev, "invert"))
+>  		mode2 |= MODE2_INVRT;
+>  	else
+>  		mode2 &= ~MODE2_INVRT;
+>  
+> -	if (of_property_read_bool(np, "open-drain"))
+> +	if (device_property_read_bool(&client->dev, "open-drain"))
+>  		mode2 &= ~MODE2_OUTDRV;
+>  	else
+>  		mode2 |= MODE2_OUTDRV;
+> @@ -363,16 +364,27 @@ static const struct i2c_device_id pca9685_id[] 
+> = {
+>  };
+>  MODULE_DEVICE_TABLE(i2c, pca9685_id);
+>  
+> +#ifdef CONFIG_ACPI
+> +static const struct acpi_device_id pca9685_acpi_ids[] = {
+> +	{ "INT3492", 0 },
+> +	{ /* sentinel */ },
+> +};
+> +MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
+> +#endif
+> +
+> +#ifdef CONFIG_OF
+>  static const struct of_device_id pca9685_dt_ids[] = {
+>  	{ .compatible = "nxp,pca9685-pwm", },
+>  	{ /* sentinel */ }
+>  };
+>  MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
+> +#endif
+>  
+>  static struct i2c_driver pca9685_i2c_driver = {
+>  	.driver = {
+>  		.name = "pca9685-pwm",
+> -		.of_match_table = pca9685_dt_ids,
+> +		.acpi_match_table = ACPI_PTR(pca9685_acpi_ids),
+> +		.of_match_table = of_match_ptr(pca9685_dt_ids),
+>  	},
+>  	.probe = pca9685_pwm_probe,
+>  	.remove = pca9685_pwm_remove,
 
 -- 
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
