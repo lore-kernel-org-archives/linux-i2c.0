@@ -1,52 +1,33 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: [Patch V8] i2c: imx: add runtime pm support to improve the performance
-Date: Thu, 15 Oct 2015 22:33:31 +0530
-Message-ID: <CAKfKVtFYN0f1SWPjw8T7PVzjdSbgO2tqFBHgw9Uue4Hsg_em=g@mail.gmail.com>
-References: <1442569869-10584-1-git-send-email-b54642@freescale.com>
-	<20151013070711.GA3982@pengutronix.de>
-	<CY1PR0301MB0858AB5F33E75B6C12E1CAB5CF300@CY1PR0301MB0858.namprd03.prod.outlook.com>
+From: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: Re: [PATCH V4 5/6] clk: qoriq: Add ls1043a support.
+Date: Thu, 15 Oct 2015 11:01:48 -0700
+Message-ID: <20151015180148.GE4558@codeaurora.org>
+References: <1444911181-21696-1-git-send-email-B48286@freescale.com>
+ <1444911181-21696-5-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qg0-f52.google.com ([209.85.192.52]:33502 "EHLO
-	mail-qg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752860AbbJORDc (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Oct 2015 13:03:32 -0400
-Received: by qgeo38 with SMTP id o38so32629857qge.0
-        for <linux-i2c@vger.kernel.org>; Thu, 15 Oct 2015 10:03:32 -0700 (PDT)
-In-Reply-To: <CY1PR0301MB0858AB5F33E75B6C12E1CAB5CF300@CY1PR0301MB0858.namprd03.prod.outlook.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1444911181-21696-5-git-send-email-B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Zhiqiang Hou <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, corbet-T1hC0tSOHrs@public.gmane.org, mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, Mingkai.Hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Shaohui.Xie-KZfg59tc24xl57MIdRCFDg@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org, bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Wenbin.Song-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pandy <gaopan@freescale.com>
-Cc: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Li Frank <Frank.Li@freescale.com>, Duan Andy <fugang.duan@freescale.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "hkallweit1@gmail.com" <hkallweit1@gmail.com>
 
-clk_enable is called here.
-enables the clock here.
->
-> The calling sequence is:
-> pm_runtime_use_autosuspend(&pdev->dev);
-> pm_runtime_set_active(&pdev->dev);
-> pm_runtime_enable(&pdev->dev);
-> pm_runtime_get_sync(&pdev->dev);
-are we not enabling it again?
+On 10/15, Zhiqiang Hou wrote:
+> From: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> 
+> Signed-off-by: Hou Zhiqiang <B48286-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> ---
+> This patch has been acked in V3 by Stephen Boyd [sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org].
 
-there by effectively disabling pm.
+Yes, please add it into the patches that you send instead of
+putting it below the --- line.
 
-Or did I missing something.
-
->
-> The cleanup order is:
-> pm_runtime_put_noidle(&pdev->dev);
-> pm_runtime_disable(&pdev->dev);
-> pm_runtime_set_suspended(&pdev->dev);
->
-> Is it that I miss pm_runtime_dont_use_autosuspend(&pdev->dev);
->
-> Thank you!
->
-> Best Reguards
-> Gao Pan
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
