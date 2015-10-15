@@ -1,105 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/4] i2c: designware-platdrv: enable RuntimePM before
- registering to the core
-Date: Thu, 15 Oct 2015 13:49:25 +0200
-Message-ID: <20151015114925.GE1546@katana>
-References: <1444383567-18113-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH 1/6] i2c: designware: Remove interrupt clearing from
+ i2c_dw_pci_probe()
+Date: Thu, 15 Oct 2015 14:01:15 +0200
+Message-ID: <20151015120115.GF1546@katana>
+References: <1441031493-18938-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <1441031493-18938-2-git-send-email-jarkko.nikula@linux.intel.com>
+ <20151010075337.GE1619@katana>
+ <561B960A.7060400@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dFWYt1i2NyOo1oI9"
+	protocol="application/pgp-signature"; boundary="gdTfX7fkYsEEjebm"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:38186 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:38225 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752316AbbJOLt3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 15 Oct 2015 07:49:29 -0400
+	id S1753035AbbJOMBT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 15 Oct 2015 08:01:19 -0400
 Content-Disposition: inline
-In-Reply-To: <1444383567-18113-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <561B960A.7060400@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-sh@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org
 
 
---dFWYt1i2NyOo1oI9
+--gdTfX7fkYsEEjebm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 09, 2015 at 10:39:24AM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> The core may register clients attached to this master which may use
-> funtionality from the master. So, RuntimePM must be enabled before, other=
-wise
-> this will fail.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-No feedback here, but for the other two drivers the same principle was
-acked. CCing Mika, just in case.
+> Although I don't think there is any need to add clearing to probe path as
+> clearing happens beginning of transmit before enabling the interrupts.
 
-Applied to for-current, thanks!
+Well, in case the firmware left interrupts dangling, they would still be
+dangling unless someone starts some communication. Chances are small,
+but better safe than sorry? Could be an incremental patch on top of your
+V2 if you are up to it.
 
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 13 +++++++------
->  1 file changed, 7 insertions(+), 6 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/bu=
-sses/i2c-designware-platdrv.c
-> index 3dd2de31a2f8d3..73d58415bbc100 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -253,12 +253,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  	adap->dev.parent =3D &pdev->dev;
->  	adap->dev.of_node =3D pdev->dev.of_node;
-> =20
-> -	r =3D i2c_add_numbered_adapter(adap);
-> -	if (r) {
-> -		dev_err(&pdev->dev, "failure adding adapter\n");
-> -		return r;
-> -	}
-> -
->  	if (dev->pm_runtime_disabled) {
->  		pm_runtime_forbid(&pdev->dev);
->  	} else {
-> @@ -268,6 +262,13 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  		pm_runtime_enable(&pdev->dev);
->  	}
-> =20
-> +	r =3D i2c_add_numbered_adapter(adap);
-> +	if (r) {
-> +		dev_err(&pdev->dev, "failure adding adapter\n");
-> +		pm_runtime_disable(&pdev->dev);
-> +		return r;
-> +	}
-> +
->  	return 0;
->  }
-> =20
-> --=20
-> 2.1.4
->=20
+Thanks,
 
---dFWYt1i2NyOo1oI9
+   Wolfram
+
+
+--gdTfX7fkYsEEjebm
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWH5LFAAoJEBQN5MwUoCm2hycP/igWNlZvMbK/S4LCcmH2iOfK
-eNNxmHcfRufwD2Ap8ljL9gX485h36K8pegW8Y2JQa5jxaopEnYDuj+BzAl1eA1N4
-5poyjm3XVzMqP3ONYalc6bm/4gNHhl22ilOA8YHXRbXmBhP6898e3uyALy90XMTt
-P2B8yIID3jzl4M23GG7IAcFdamV+6kR32Z5ctS1FcUD8SseLU8L4PE130tvCSmQe
-O6Lkl8U5OMC+AJybg/mAyNRlMU2/W/rMlkUOFDQYxcQ8TblqClzmp6k/UuDspZ2L
-HjWnBox96Bfklz0LZoLytD8lYflqG84+epjeUV009Djj1aXYhoka9kieAoyw/Zkx
-fpw1Ur+VLdjTFceTio2QMZGJbp7S8PFEeAQkrg0u4uGgv1xf4MCO2KVEYT16iY7r
-a+NUNfrlZC2eUkX1UaqBWATKFVEYco0J1jOL+oxAM6X9k/vDOLpWa8zdhagHhwEr
-H/omkHCsHTNQ4euaNgCM+MauPrjILj5/d46awx+P5NQycFs0A1yvDsC39zV/ovYg
-J/574ZNf2NOr/7oVgFRTckUGjMt1YoMw1h7mwiaphMuCT1123O3weexntMDvQzl2
-+A3POki9FzIlJkXSmX0UfGemU9FOaotAgDF2X4jkx5cWDItbc2HAm+ymR7S7ENdz
-+WpHLsRE39n3eTA/ev9G
-=OO3h
+iQIcBAEBAgAGBQJWH5WLAAoJEBQN5MwUoCm2W2AQALT8A/oYSZCSAGqzE+VUdgoG
+L/4ZaCPiYD9kNxQ9bYLQ9vZdo3ozNm/15zWxN+buB3Z+CWxHx6o66FC/Y1GErQiY
+6H39UfmY2wvjkk1ShiwNiJJhPo3JpiNH+MRfoWlF1zX+8mRI7g/AJ5R/0vBbxmrs
+GI0W7ulMSdHqXapF/zoIB8OERV58bbZuoXFjyuvYn5jr//Km+s+tlkH8ltHqYBbQ
+gxmNv2IL3rkgQg54bZDIaBG9u7JDqC1f7Fh4kB1WPxKD1XNCWf8uvtFbwKsCuEou
+24GsxEI86sug5vQyiMWDL4WO2jivFGmDLuG18gTkKgYwRvq49hXVtFnHgkqioi/D
+WMim82EPcPrZRez0KPECdp/g9HsJ//wXvawpvRPv/dUiwMTAe3ln+86t20fZrCug
+3oLMmsEbyCIMSo4eNZu4TkL59NuOAsZxEYJZgXqrike1puxzh5eNmy219V+zQxBf
+P1iUIGqnBoWNQwYl2AFkOglglUIYRXS37V/LeWCmLC6MyQbzBmx648DH/CbfyMdv
+6k+rKlH/et5iohcGdnEqcEJv8Su29QXch13q3up3Hq7Pp4Im01a70f9iIRaYySpF
+oeUOkV5PviaRrjTwqbzW40qIo/641C6wcPUzbIcsgUaT8WEVT5zT3D5u1gZERI7N
+0v2N2Ois9EYBVP1AwZ80
+=AdO8
 -----END PGP SIGNATURE-----
 
---dFWYt1i2NyOo1oI9--
+--gdTfX7fkYsEEjebm--
