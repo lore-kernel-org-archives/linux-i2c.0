@@ -1,253 +1,53 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: Re: [PATCH] i2c: at91: fix write transfers by clearing pending
- interrupt first
-Date: Fri, 16 Oct 2015 01:47:26 +0200
-Message-ID: <56203B0E.1030104@lysator.liu.se>
-References: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
- <561D20E7.5070405@lysator.liu.se> <561D359D.8000500@atmel.com>
- <561D46FE.4090801@lysator.liu.se> <20151014054321.GA20049@odux.rfo.atmel.com>
+From: Hou Zhiqiang <B48286@freescale.com>
+Subject: RE: [PATCH V4 2/6] watchdog: Add support for Freescale Layerscape
+ platforms
+Date: Fri, 16 Oct 2015 02:44:25 +0000
+Message-ID: <CY1PR0301MB0780DF1B1E70E26836DD261A8B3D0@CY1PR0301MB0780.namprd03.prod.outlook.com>
+References: <1444911181-21696-1-git-send-email-B48286@freescale.com>
+ <1444911181-21696-2-git-send-email-B48286@freescale.com>
+ <561FB74F.5000302@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151014054321.GA20049@odux.rfo.atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Cyrille Pitchen <cyrille.pitchen@atmel.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <561FB74F.5000302@roeck-us.net>
+Content-Language: en-US
+Sender: linux-clk-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "wim@iguana.be" <wim@iguana.be>, "corbet@lwn.net" <corbet@lwn.net>, "mturquette@baylibre.com" <mturquette@baylibre.com>, "sboyd@codeaurora.org" <sboyd@codeaurora.org>, Hu Vincent <Mingkai.Hu@freescale.com>, Shaohui Xie <Shaohui.Xie@freescale.com>, Scott Wood <scottwood@freescale.com>, Sharma Bhupesh <bhupesh.sharma@freescale.com>, Wenbin Song <Wenbin.Song@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2015-10-14 07:43, Ludovic Desroches wrote:
-> On Tue, Oct 13, 2015 at 08:01:34PM +0200, Peter Rosin wrote:
->> On 2015-10-13 18:47, Cyrille Pitchen wrote:
->>> Le 13/10/2015 17:19, Peter Rosin a =E9crit :
->>>> On 2015-10-13 16:21, Ludovic Desroches wrote:
->>>>> From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
->>>>>
->>>>> In some cases a NACK interrupt may be pending in the Status Regis=
-ter (SR)
->>>>> as a result of a previous transfer. However at91_do_twi_transfer(=
-) did not
->>>>> read the SR to clear pending interruptions before starting a new =
-transfer.
->>>>> Hence a NACK interrupt rose as soon as it was enabled again at th=
-e I2C
->>>>> controller level, resulting in a wrong sequence of operations and=
- strange
->>>>> patterns of behaviour on the I2C bus, such as a clock stretch fol=
-lowed by
->>>>> a restart of the transfer.
->>>>>
->>>>> This first issue occurred with both DMA and PIO write transfers.
->>>>>
->>>>> Also when a NACK error was detected during a PIO write transfer, =
-the
->>>>> interrupt handler used to wrongly start a new transfer by writing=
- into the
->>>>> Transmit Holding Register (THR). Then the I2C slave was likely to=
- reply
->>>>> with a second NACK.
->>>>>
->>>>> This second issue is fixed in atmel_twi_interrupt() by handling t=
-he TXRDY
->>>>> status bit only if both the TXCOMP and NACK status bits are clear=
-ed.
->>>>>
->>>>> Tested with a at24 eeprom on sama5d36ek board running a linux-4.1=
--at91
->>>>> kernel image. Adapted to linux-next.
->>>>>
->>>>> Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
->>>>> Fixes: 93563a6a71bb ("i2c: at91: fix a race condition when using =
-the DMA controller")
->>>>> Reported-by: Peter Rosin <peda@lysator.liu.se>
->>>>> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
->>>>> Cc: stable@vger.kernel.org #4.1
->>>>
->>>> The regression is gone with this patch (vanilla 4.2), thank you!
->>>>
->>>> However, looking at the bus, there are two NACKs after each
->>>> successful chunk of memory written by the eeprom driver.
->>>>
->>>> Looking at the eeprom driver, I expect this on the bus:
->>>>
->>>> S 0x50 0x00 "hello there guys" P
->>>> S 0x50 NACK P
->>>> delay for at least 1 ms (since the eeprom driver has a msleep(1) c=
-all).
->>>> S 0x50 NACK P
->>>> delay for at least 1 ms
->>>> ...
->>>> ...
->>>> S 0x50 NACK P
->>>> delay for at least 1 ms
->>>> S 0x50 0x10 "and girls\n" P
->>>>
->>>> This is not what I observe on the bus, most of the time there is a
->>>> second NACK immediately following the first. I suspect that it is
->>>> the i2c bus driver that somehow confuses itself and reissues the
->>>> command for some reason?
->>>>
->>>> But this behavior has been there since the beginning, so it's prob=
-ably
->>>> orthogonal, and killing the data corrupting regression is much mor=
-e
->>>> important to me than fussing over a surplus failed transfer. Hence
->>>>
->>>> Tested-by: Peter Rosin <peda@lysator.liu.se>
->>>>
->>>> Cheers,
->>>> Peter
->>>>
->>>
->>> Hi Peter,
->>>
->>> sama5d3x and sama5d4x don't support the so called "Alternative Comm=
-and mode"
->>> whereas sama5d2x do. The Alternative Command mode comes with a new =
-hardware
->>> mechanism inside the I2C controller which locks the transmission of=
- data on
->>> the I2C bus when a NACK is detected. It means that even if a data i=
-s written
->>> into the THR, the I2C controller doesn't push this data on the I2C =
-bus but
->>> retains the data in the THR (and its associated FIFO for sama5d2x a=
-nd future
->>> SoCs) until the driver unlocks the transmitter by writing the LOCKC=
-LR (Lock
->>> Clear) bit in the Control Register. Then and only then, the transmi=
-tter outputs
->>> pending data again.
->>> This new mechanism was introduced to cope with an unwanted DMA writ=
-e into the
->>> THR after a NACK. Indeed, as I've tried to explain in my patch, whe=
-n a first
->>> NACK is detected, the I2C controller sets the TXCOMP, NACK and TXRD=
-Y bits
->>> alltogether in the Status Register. However setting the TXRDY bit a=
-lso triggers
->>> the DMA controller to write the next data into the THR. Pitifully, =
-WITHOUT the
->>> new lock mechanism, writing into the THR starts a new I2C frame. Si=
-nce the
->>> eeprom is likely not to be ready yet, it replies by a second NACK. =
-So you
->>> see on the scope two consecutive NACKs.
->>>
->>> On sama5d3x and sama5d4x, which do not support this lock mechanism,=
- you are
->>> likely to see a successful write transfer followed by two NACKs the=
-n a delay
->>> and finally a new successful write transfer. This is the case 2b:
->>>
->>> 1 - A successfull write transfer is completed.
->>> 2 - The at24 driver immediately tries to perform the next write tra=
-nsfer...
->>> 3 - ... but the eeprom is not ready yet and replies with a first NA=
-CK.
->>> 4 - The I2C controller detects this NACK and sets the NACK, TXCOMP =
-and TXRDY
->>>     bits in its Status Register (and interrupts the CPU).
->>> 5 - The DMA controller is triggered by the TXRDY bit to write the n=
-ext data
->>>     into the THR.
->>> 6 - WITHTOUT the lock mechanism, the I2C controller starts a new fr=
-ame because
->>>    of the write into the THR by the DMA controller...
->>> 7 - ... but the eeprom is still not ready and replies with a second=
- NACK.
->>>
->>> 8 - starting from 4, the CPU handles the interrupt generated by the=
- first NACK.
->>>     Depending on the timing, it has already masked the interrupted =
-before the
->>>     second NACK. In such a case, the NACK bit is pending in the Sta=
-tus
->>>     Register. Then it reports the first NACK error to the at24 driv=
-er.
->>> 9 - The at24 driver handles the NACK error: it sleeps for a while b=
-efore
->>>     retrying to perform the write operation.
->>> 10 - With the new patch, the I2C controller reads the Status Regist=
-er to clear
->>>      pending (NACK) interrupts before actually starting this new (r=
-etried)
->>>      transfer.
->>>
->>>
->>> So if you are using DMA transfers on a sama5d3x board, you're are l=
-ikely to
->>> see, as I did see, a valid write transfer followed by 2 NACKs, then=
- a delay and
->>> finally a new write transfer.
->>> The 2nd NACK is not wanted but expected. Without the lock mechanism=
-, there is
->>> nothing we can do at the I2C controller level. However a workaround=
- may exist:
->>> inserting a small delay after a successful write transfer should gi=
-ve the
->>> eeprom enough time to be ready to process the next write so even th=
-e first NACK
->>> would disappear.
->>> This is what I saw while debugging with dev_info() traces. Those tr=
-aces had the
->>> side effect of inserting delays hence changing the timing.
->>>
->>> As you see, we have to deal with some known hardware design quirks,=
- which are
->>> fixed by the lock mechanism. Without the lock mechanism, the interr=
-upt handler
->>> and the CPU are likely to come too late to cancel the DMA transfer =
-before the
->>> DMA controller writes a new byte into the THR, hence generating an =
-unwanted
->>> frame.
->>
->> Ok, now I get it, I should have been reading the source code comment=
-s instead
->> of the commit message. My bad. That 2a) case from the atmel_twi_inte=
-rrupt comment
->> seems very nasty indeed! Is it clear what will happen if the second =
-frame after
->> the first NACKed frame isn't NACKed too? May that transfer be cancel=
-ed half way
->> through at a later point, or will it be a complete transfer as speci=
-fied by the
->> issuing driver? What will be reported to the issuing driver for such=
- an i2c
->> transfer that was first NACKed but then wasn't in the second trailin=
-g frame?
->>
->=20
-> We were discussing about this case and we are worried that it simply
-> hangs the transfer wihout sending a stop command. We never get this c=
-ase
-> yet so we keep it in mind but we don't correct it since we are not su=
-re
-> of the behavior and on side effects it can introduce. I think the
-> i2c-at91 driver will return a spurious error to the eeprom driver but=
- it won't
-> let the physical i2c bus in a proper state.
-
-I have started to get this when I run with this patch:
-
-[   73.310000] at91_i2c f0014000.i2c: RXRDY still set!
-[  198.200000] at91_i2c f0014000.i2c: RXRDY still set!
-[  509.880000] at91_i2c f0014000.i2c: RXRDY still set!
-[  615.750000] at91_i2c f0014000.i2c: RXRDY still set!
-[  617.750000] at91_i2c f0014000.i2c: RXRDY still set!
-[ 1766.640000] at91_i2c f0014000.i2c: RXRDY still set!
-[ 2035.380000] at91_i2c f0014000.i2c: RXRDY still set!
-[ 2227.190000] at91_i2c f0014000.i2c: RXRDY still set!
-[ 2313.100000] at91_i2c f0014000.i2c: RXRDY still set!
-
-My USB serial dongle was hung which was why I didn't notice until just =
-now.
-
-This is probably not when communication with the eeprom though, and cer=
-tainly not
-writing to it, but perhpaps when polling the temperature (using the jc4=
-2 driver).
-I'll investigate further in the morning to see if I can pinpoint it.
-
-Cheers,
-Peter
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3VlbnRlciBSb2VjayBb
+bWFpbHRvOmxpbnV4QHJvZWNrLXVzLm5ldF0NCj4gU2VudDogMjAxNcTqMTDUwjE1yNUgMjI6MjUN
+Cj4gVG86IEhvdSBaaGlxaWFuZy1CNDgyODY7IGxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFk
+ZWFkLm9yZzsNCj4gY2F0YWxpbi5tYXJpbmFzQGFybS5jb207IHdpbGwuZGVhY29uQGFybS5jb207
+IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7DQo+IGxpbnV4LXdhdGNoZG9nQHZnZXIua2VybmVs
+Lm9yZzsgbGludXgtZG9jQHZnZXIua2VybmVsLm9yZzsgbGludXgtDQo+IGNsa0B2Z2VyLmtlcm5l
+bC5vcmcNCj4gQ2M6IG1hcmsucnV0bGFuZEBhcm0uY29tOyB3c2FAdGhlLWRyZWFtcy5kZTsgd2lt
+QGlndWFuYS5iZTsNCj4gY29yYmV0QGx3bi5uZXQ7IG10dXJxdWV0dGVAYmF5bGlicmUuY29tOyBz
+Ym95ZEBjb2RlYXVyb3JhLm9yZzsgSHUNCj4gTWluZ2thaS1CMjEyODQ7IFhpZSBTaGFvaHVpLUIy
+MTk4OTsgV29vZCBTY290dC1CMDc0MjE7IFNoYXJtYSBCaHVwZXNoLQ0KPiBCNDUzNzA7IFNvbmcg
+V2VuYmluLUI1Mzc0Nw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIFY0IDIvNl0gd2F0Y2hkb2c6IEFk
+ZCBzdXBwb3J0IGZvciBGcmVlc2NhbGUNCj4gTGF5ZXJzY2FwZSBwbGF0Zm9ybXMNCj4gDQo+IE9u
+IDEwLzE1LzIwMTUgMDU6MTIgQU0sIFpoaXFpYW5nIEhvdSB3cm90ZToNCj4gPiBGcm9tOiBTaGFv
+aHVpIFhpZSA8U2hhb2h1aS5YaWVAZnJlZXNjYWxlLmNvbT4NCj4gPg0KPiA+IE1vZGlmeSB3YXRj
+aGRvZy9LY29uZmlnIGZpbGUgdG8gc3VwcG9ydCBMYXllcnNjYXBlIHBsYXRmb3Jtcy4NCj4gPg0K
+PiA+IFNpZ25lZC1vZmYtYnk6IFNoYW9odWkgWGllIDxTaGFvaHVpLlhpZUBmcmVlc2NhbGUuY29t
+Pg0KPiA+IFNpZ25lZC1vZmYtYnk6IFdlbmJpbiBTb25nIDxXZW5iaW4uU29uZ0BmcmVlc2NhbGUu
+Y29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEhvdSBaaGlxaWFuZyA8QjQ4Mjg2QGZyZWVzY2FsZS5j
+b20+DQo+ID4gLS0tDQo+ID4gVGhpcyBwYXRjaCBoYXMgYmVlbiBhY2tlZCBpbiBWMyBieSBHdWVu
+dGVyIFJvZWNrIFtsaW51eEByb2Vjay11cy5uZXRdLg0KPiA+DQo+IEhlcmUgaXQgaXMgYWdhaW4s
+IGJ1dCBpZiB0aGVyZSBpcyBubyBjaGFuZ2UsIHBsZWFzZSBqdXN0IGFkZCB0aGUgQWNrIHRvDQo+
+IHN1YnNlcXVlbnQgdmVyc2lvbnMgb2YgdGhlIHBhdGNoLg0KPiANCg0KT2ssIHRoYW5rcy4NCg0K
+PiBBY2tlZC1ieTogR3VlbnRlciBSb2VjayA8bGludXhAcm9lY2stdXMubmV0Pg0KPiANCj4gDQo+
+ID4gVjQ6IFYzIFYyDQo+ID4gICAtIE5vIGNoYW5nZS4NCj4gPg0KPiA+ICAgZHJpdmVycy93YXRj
+aGRvZy9LY29uZmlnIHwgMiArLQ0KPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCsp
+LCAxIGRlbGV0aW9uKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9L
+Y29uZmlnIGIvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnIGluZGV4DQo+ID4gNzllMWFhMS4uNDQ4
+ZGJhZiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL3dhdGNoZG9nL0tjb25maWcNCj4gPiArKysg
+Yi9kcml2ZXJzL3dhdGNoZG9nL0tjb25maWcNCj4gPiBAQCAtNDQ2LDcgKzQ0Niw3IEBAIGNvbmZp
+ZyBNQVg2M1hYX1dBVENIRE9HDQo+ID4NCj4gPiAgIGNvbmZpZyBJTVgyX1dEVA0KPiA+ICAgCXRy
+aXN0YXRlICJJTVgyKyBXYXRjaGRvZyINCj4gPiAtCWRlcGVuZHMgb24gQVJDSF9NWEMNCj4gPiAr
+CWRlcGVuZHMgb24gQVJDSF9NWEMgfHwgQVJDSF9MQVlFUlNDQVBFDQo+ID4gICAJc2VsZWN0IFJF
+R01BUF9NTUlPDQo+ID4gICAJc2VsZWN0IFdBVENIRE9HX0NPUkUNCj4gPiAgIAloZWxwDQo+ID4N
+Cg0KVGhhbmtzLA0KWmhpcWlhbmcNCg==
