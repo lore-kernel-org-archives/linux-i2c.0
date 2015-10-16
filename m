@@ -1,298 +1,226 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: Re: [PATCH] i2c: at91: fix write transfers by clearing pending
- interrupt first
-Date: Fri, 16 Oct 2015 11:08:42 +0200
-Message-ID: <5620BE9A.10302@lysator.liu.se>
-References: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
- <561D20E7.5070405@lysator.liu.se> <561D359D.8000500@atmel.com>
- <561D46FE.4090801@lysator.liu.se> <20151014054321.GA20049@odux.rfo.atmel.com>
- <56203B0E.1030104@lysator.liu.se>
+From: Hou Zhiqiang <B48286@freescale.com>
+Subject: RE: [PATCH V4 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
+Date: Fri, 16 Oct 2015 09:58:48 +0000
+Message-ID: <CY1PR0301MB078029D5C145912C0138E0818B3D0@CY1PR0301MB0780.namprd03.prod.outlook.com>
+References: <1444911181-21696-1-git-send-email-B48286@freescale.com>
+	 <1444911181-21696-4-git-send-email-B48286@freescale.com>
+ <1444941949.5185.270.camel@freescale.com>
+ <CY1PR0301MB0780064260F5FC0CBB0795178B3D0@CY1PR0301MB0780.namprd03.prod.outlook.com>
+ <BY1PR0301MB1303A738E9B44EFB10AF775B823D0@BY1PR0301MB1303.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.lysator.liu.se ([130.236.254.3]:45659 "EHLO
-	mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751509AbbJPJIy (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Oct 2015 05:08:54 -0400
-In-Reply-To: <56203B0E.1030104@lysator.liu.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <BY1PR0301MB1303A738E9B44EFB10AF775B823D0@BY1PR0301MB1303.namprd03.prod.outlook.com>
+Content-Language: en-US
+Sender: linux-clk-owner@vger.kernel.org
+To: Sharma Bhupesh <bhupesh.sharma@freescale.com>, Scott Wood <scottwood@freescale.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux@roeck-us.net" <linux@roeck-us.net>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "wim@iguana.be" <wim@iguana.be>, "corbet@lwn.net" <corbet@lwn.net>, "mturquette@baylibre.com" <mturquette@baylibre.com>, "sboyd@codeaurora.org" <sboyd@codeaurora.org>, Hu Vincent <Mingkai.Hu@freescale.com>, Shaohui Xie <Shaohui.Xie@freescale.com>, Wenbin Song <Wenbin.Song@freescale.com>, Li Leo <LeoLi@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Cyrille Pitchen <cyrille.pitchen@atmel.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com
 
-On 2015-10-16 01:47, Peter Rosin wrote:
-> On 2015-10-14 07:43, Ludovic Desroches wrote:
->> On Tue, Oct 13, 2015 at 08:01:34PM +0200, Peter Rosin wrote:
->>> On 2015-10-13 18:47, Cyrille Pitchen wrote:
->>>> Le 13/10/2015 17:19, Peter Rosin a =E9crit :
->>>>> On 2015-10-13 16:21, Ludovic Desroches wrote:
->>>>>> From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
->>>>>>
->>>>>> In some cases a NACK interrupt may be pending in the Status Regi=
-ster (SR)
->>>>>> as a result of a previous transfer. However at91_do_twi_transfer=
-() did not
->>>>>> read the SR to clear pending interruptions before starting a new=
- transfer.
->>>>>> Hence a NACK interrupt rose as soon as it was enabled again at t=
-he I2C
->>>>>> controller level, resulting in a wrong sequence of operations an=
-d strange
->>>>>> patterns of behaviour on the I2C bus, such as a clock stretch fo=
-llowed by
->>>>>> a restart of the transfer.
->>>>>>
->>>>>> This first issue occurred with both DMA and PIO write transfers.
->>>>>>
->>>>>> Also when a NACK error was detected during a PIO write transfer,=
- the
->>>>>> interrupt handler used to wrongly start a new transfer by writin=
-g into the
->>>>>> Transmit Holding Register (THR). Then the I2C slave was likely t=
-o reply
->>>>>> with a second NACK.
->>>>>>
->>>>>> This second issue is fixed in atmel_twi_interrupt() by handling =
-the TXRDY
->>>>>> status bit only if both the TXCOMP and NACK status bits are clea=
-red.
->>>>>>
->>>>>> Tested with a at24 eeprom on sama5d36ek board running a linux-4.=
-1-at91
->>>>>> kernel image. Adapted to linux-next.
->>>>>>
->>>>>> Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
->>>>>> Fixes: 93563a6a71bb ("i2c: at91: fix a race condition when using=
- the DMA controller")
->>>>>> Reported-by: Peter Rosin <peda@lysator.liu.se>
->>>>>> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
->>>>>> Cc: stable@vger.kernel.org #4.1
->>>>>
->>>>> The regression is gone with this patch (vanilla 4.2), thank you!
->>>>>
->>>>> However, looking at the bus, there are two NACKs after each
->>>>> successful chunk of memory written by the eeprom driver.
->>>>>
->>>>> Looking at the eeprom driver, I expect this on the bus:
->>>>>
->>>>> S 0x50 0x00 "hello there guys" P
->>>>> S 0x50 NACK P
->>>>> delay for at least 1 ms (since the eeprom driver has a msleep(1) =
-call).
->>>>> S 0x50 NACK P
->>>>> delay for at least 1 ms
->>>>> ...
->>>>> ...
->>>>> S 0x50 NACK P
->>>>> delay for at least 1 ms
->>>>> S 0x50 0x10 "and girls\n" P
->>>>>
->>>>> This is not what I observe on the bus, most of the time there is =
-a
->>>>> second NACK immediately following the first. I suspect that it is
->>>>> the i2c bus driver that somehow confuses itself and reissues the
->>>>> command for some reason?
->>>>>
->>>>> But this behavior has been there since the beginning, so it's pro=
-bably
->>>>> orthogonal, and killing the data corrupting regression is much mo=
-re
->>>>> important to me than fussing over a surplus failed transfer. Henc=
-e
->>>>>
->>>>> Tested-by: Peter Rosin <peda@lysator.liu.se>
->>>>>
->>>>> Cheers,
->>>>> Peter
->>>>>
->>>>
->>>> Hi Peter,
->>>>
->>>> sama5d3x and sama5d4x don't support the so called "Alternative Com=
-mand mode"
->>>> whereas sama5d2x do. The Alternative Command mode comes with a new=
- hardware
->>>> mechanism inside the I2C controller which locks the transmission o=
-f data on
->>>> the I2C bus when a NACK is detected. It means that even if a data =
-is written
->>>> into the THR, the I2C controller doesn't push this data on the I2C=
- bus but
->>>> retains the data in the THR (and its associated FIFO for sama5d2x =
-and future
->>>> SoCs) until the driver unlocks the transmitter by writing the LOCK=
-CLR (Lock
->>>> Clear) bit in the Control Register. Then and only then, the transm=
-itter outputs
->>>> pending data again.
->>>> This new mechanism was introduced to cope with an unwanted DMA wri=
-te into the
->>>> THR after a NACK. Indeed, as I've tried to explain in my patch, wh=
-en a first
->>>> NACK is detected, the I2C controller sets the TXCOMP, NACK and TXR=
-DY bits
->>>> alltogether in the Status Register. However setting the TXRDY bit =
-also triggers
->>>> the DMA controller to write the next data into the THR. Pitifully,=
- WITHOUT the
->>>> new lock mechanism, writing into the THR starts a new I2C frame. S=
-ince the
->>>> eeprom is likely not to be ready yet, it replies by a second NACK.=
- So you
->>>> see on the scope two consecutive NACKs.
->>>>
->>>> On sama5d3x and sama5d4x, which do not support this lock mechanism=
-, you are
->>>> likely to see a successful write transfer followed by two NACKs th=
-en a delay
->>>> and finally a new successful write transfer. This is the case 2b:
->>>>
->>>> 1 - A successfull write transfer is completed.
->>>> 2 - The at24 driver immediately tries to perform the next write tr=
-ansfer...
->>>> 3 - ... but the eeprom is not ready yet and replies with a first N=
-ACK.
->>>> 4 - The I2C controller detects this NACK and sets the NACK, TXCOMP=
- and TXRDY
->>>>     bits in its Status Register (and interrupts the CPU).
->>>> 5 - The DMA controller is triggered by the TXRDY bit to write the =
-next data
->>>>     into the THR.
->>>> 6 - WITHTOUT the lock mechanism, the I2C controller starts a new f=
-rame because
->>>>    of the write into the THR by the DMA controller...
->>>> 7 - ... but the eeprom is still not ready and replies with a secon=
-d NACK.
->>>>
->>>> 8 - starting from 4, the CPU handles the interrupt generated by th=
-e first NACK.
->>>>     Depending on the timing, it has already masked the interrupted=
- before the
->>>>     second NACK. In such a case, the NACK bit is pending in the St=
-atus
->>>>     Register. Then it reports the first NACK error to the at24 dri=
-ver.
->>>> 9 - The at24 driver handles the NACK error: it sleeps for a while =
-before
->>>>     retrying to perform the write operation.
->>>> 10 - With the new patch, the I2C controller reads the Status Regis=
-ter to clear
->>>>      pending (NACK) interrupts before actually starting this new (=
-retried)
->>>>      transfer.
->>>>
->>>>
->>>> So if you are using DMA transfers on a sama5d3x board, you're are =
-likely to
->>>> see, as I did see, a valid write transfer followed by 2 NACKs, the=
-n a delay and
->>>> finally a new write transfer.
->>>> The 2nd NACK is not wanted but expected. Without the lock mechanis=
-m, there is
->>>> nothing we can do at the I2C controller level. However a workaroun=
-d may exist:
->>>> inserting a small delay after a successful write transfer should g=
-ive the
->>>> eeprom enough time to be ready to process the next write so even t=
-he first NACK
->>>> would disappear.
->>>> This is what I saw while debugging with dev_info() traces. Those t=
-races had the
->>>> side effect of inserting delays hence changing the timing.
->>>>
->>>> As you see, we have to deal with some known hardware design quirks=
-, which are
->>>> fixed by the lock mechanism. Without the lock mechanism, the inter=
-rupt handler
->>>> and the CPU are likely to come too late to cancel the DMA transfer=
- before the
->>>> DMA controller writes a new byte into the THR, hence generating an=
- unwanted
->>>> frame.
->>>
->>> Ok, now I get it, I should have been reading the source code commen=
-ts instead
->>> of the commit message. My bad. That 2a) case from the atmel_twi_int=
-errupt comment
->>> seems very nasty indeed! Is it clear what will happen if the second=
- frame after
->>> the first NACKed frame isn't NACKed too? May that transfer be cance=
-led half way
->>> through at a later point, or will it be a complete transfer as spec=
-ified by the
->>> issuing driver? What will be reported to the issuing driver for suc=
-h an i2c
->>> transfer that was first NACKed but then wasn't in the second traili=
-ng frame?
->>>
->>
->> We were discussing about this case and we are worried that it simply
->> hangs the transfer wihout sending a stop command. We never get this =
-case
->> yet so we keep it in mind but we don't correct it since we are not s=
-ure
->> of the behavior and on side effects it can introduce. I think the
->> i2c-at91 driver will return a spurious error to the eeprom driver bu=
-t it won't
->> let the physical i2c bus in a proper state.
->=20
-> I have started to get this when I run with this patch:
->=20
-> [   73.310000] at91_i2c f0014000.i2c: RXRDY still set!
-> [  198.200000] at91_i2c f0014000.i2c: RXRDY still set!
-> [  509.880000] at91_i2c f0014000.i2c: RXRDY still set!
-> [  615.750000] at91_i2c f0014000.i2c: RXRDY still set!
-> [  617.750000] at91_i2c f0014000.i2c: RXRDY still set!
-> [ 1766.640000] at91_i2c f0014000.i2c: RXRDY still set!
-> [ 2035.380000] at91_i2c f0014000.i2c: RXRDY still set!
-> [ 2227.190000] at91_i2c f0014000.i2c: RXRDY still set!
-> [ 2313.100000] at91_i2c f0014000.i2c: RXRDY still set!
->=20
-> My USB serial dongle was hung which was why I didn't notice until jus=
-t now.
->=20
-> This is probably not when communication with the eeprom though, and c=
-ertainly not
-> writing to it, but perhpaps when polling the temperature (using the j=
-c42 driver).
-> I'll investigate further in the morning to see if I can pinpoint it.
-
-Yep, it's the jc42 accesses that triggers this (to the same chip as the
-eeprom, but a different block of transistors I suppose).
-
-Looking at the i2c bus, the accesses normally go like this:
-
-[0.000000] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
-[0.000521] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
-[0.001024] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
-[0.001524] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
-[0.196991] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
-[0.197514] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
-[0.198019] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
-[0.198520] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
-
-I.e. chunks of four transfers every ~200 ms (I removed the 1Hz rate
-limiter in the jc42 driver to get more frequent incidents).
-
-But when the diagnostic (RXRDY still set!) is output it continues
-with this:
-
-[0.399755] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
-[0.404998] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
-[0.405508] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
-[0.406008] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
-
-Notice the ~5 ms delay (about the time it should take to output
-the diagnostic at 115200 baud) after the access to register 0x05
-at 0.399755.
-
-This is the only thing that I can observe on the bus, so it appears
-to be harmless.
-
-It appears that the i2c access at 0.399755 finds the TWI
-registers in an odd state, but nothing from the access at
-0.198520 appears to have gone wrong. Is this a race? Anyway,
-the diagnostic is pretty frequent and annoying. printk_once?
-
-Cheers,
-Peter
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2hhcm1hIEJodXBlc2gt
+QjQ1MzcwDQo+IFNlbnQ6IDIwMTXlubQxMOaciDE25pelIDEzOjEyDQo+IFRvOiBIb3UgWmhpcWlh
+bmctQjQ4Mjg2OyBXb29kIFNjb3R0LUIwNzQyMQ0KPiBDYzogbGludXgtYXJtLWtlcm5lbEBsaXN0
+cy5pbmZyYWRlYWQub3JnOyBjYXRhbGluLm1hcmluYXNAYXJtLmNvbTsNCj4gd2lsbC5kZWFjb25A
+YXJtLmNvbTsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgbGludXgtDQo+IHdhdGNoZG9nQHZn
+ZXIua2VybmVsLm9yZzsgbGludXgtZG9jQHZnZXIua2VybmVsLm9yZzsgbGludXgtDQo+IGNsa0B2
+Z2VyLmtlcm5lbC5vcmc7IG1hcmsucnV0bGFuZEBhcm0uY29tOyBsaW51eEByb2Vjay11cy5uZXQ7
+IHdzYUB0aGUtDQo+IGRyZWFtcy5kZTsgd2ltQGlndWFuYS5iZTsgY29yYmV0QGx3bi5uZXQ7IG10
+dXJxdWV0dGVAYmF5bGlicmUuY29tOw0KPiBzYm95ZEBjb2RlYXVyb3JhLm9yZzsgSHUgTWluZ2th
+aS1CMjEyODQ7IFhpZSBTaGFvaHVpLUIyMTk4OTsgU29uZyBXZW5iaW4tDQo+IEI1Mzc0NzsgTGkg
+WWFuZy1MZW8tUjU4NDcyDQo+IFN1YmplY3Q6IFJFOiBbUEFUQ0ggVjQgNC82XSBhcm02NC9sczEw
+NDNhOiBhZGQgRFRTIGZvciBGcmVlc2NhbGUgTFMxMDQzQQ0KPiBTb0MNCj4gDQo+ID4gRnJvbTog
+SG91IFpoaXFpYW5nLUI0ODI4Ng0KPiA+IFNlbnQ6IEZyaWRheSwgT2N0b2JlciAxNiwgMjAxNSA5
+OjA3IEFNDQo+ID4NCj4gPg0KPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPiA+
+IEZyb206IFdvb2QgU2NvdHQtQjA3NDIxDQo+ID4gPiBTZW50OiAyMDE15bm0MTDmnIgxNuaXpSA0
+OjQ2DQo+ID4gPiBUbzogSG91IFpoaXFpYW5nLUI0ODI4Ng0KPiA+ID4gQ2M6IGxpbnV4LWFybS1r
+ZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZzsgY2F0YWxpbi5tYXJpbmFzQGFybS5jb207DQo+ID4g
+PiB3aWxsLmRlYWNvbkBhcm0uY29tOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBsaW51eC0N
+Cj4gPiA+IHdhdGNoZG9nQHZnZXIua2VybmVsLm9yZzsgbGludXgtZG9jQHZnZXIua2VybmVsLm9y
+ZzsgbGludXgtDQo+ID4gPiBjbGtAdmdlci5rZXJuZWwub3JnOyBtYXJrLnJ1dGxhbmRAYXJtLmNv
+bTsgbGludXhAcm9lY2stdXMubmV0Ow0KPiA+ID4gd3NhQHRoZS0gZHJlYW1zLmRlOyB3aW1AaWd1
+YW5hLmJlOyBjb3JiZXRAbHduLm5ldDsNCj4gPiA+IG10dXJxdWV0dGVAYmF5bGlicmUuY29tOyBz
+Ym95ZEBjb2RlYXVyb3JhLm9yZzsgSHUgTWluZ2thaS1CMjEyODQ7DQo+ID4gPiBYaWUgU2hhb2h1
+aS1CMjE5ODk7IFNoYXJtYSBCaHVwZXNoLUI0NTM3MDsgU29uZyBXZW5iaW4tQjUzNzQ3OyBMaQ0K
+PiA+ID4gWWFuZy1MZW8tUjU4NDcyOyBTaGFybWEgQmh1cGVzaC0NCj4gPiA+IEI0NTM3MA0KPiA+
+ID4gU3ViamVjdDogUmU6IFtQQVRDSCBWNCA0LzZdIGFybTY0L2xzMTA0M2E6IGFkZCBEVFMgZm9y
+IEZyZWVzY2FsZQ0KPiA+ID4gTFMxMDQzQSBTb0MNCj4gPiA+DQo+ID4gPiBPbiBUaHUsIDIwMTUt
+MTAtMTUgYXQgMjA6MTIgKzA4MDAsIFpoaXFpYW5nIEhvdSB3cm90ZToNCj4gPiA+ID4gRnJvbTog
+TWluZ2thaSBIdSA8TWluZ2thaS5IdUBmcmVlc2NhbGUuY29tPg0KPiA+ID4gPg0KPiA+ID4gPiBM
+UzEwNDNhIGlzIGFuIFNvQyB3aXRoIDQgQVJNdjggQTUzIGNvcmVzIGFuZCBtb3N0IG90aGVyIElQ
+IGJsb2Nrcw0KPiA+ID4gPiBzaW1pbGFyIHRvIExTMTAyMWEgd2hpY2ggY29tcGxpZXMgdG8gQ2hh
+c3NpcyAyLjEgc3BlYy4NCj4gPiA+ID4NCj4gPiA+ID4gRm9sbG93aW5nIGxldmVscyBvZiBEVFNJ
+L0RUUyBmaWxlcyBoYXZlIGJlZW4gY3JlYXRlZCBmb3IgdGhlDQo+ID4gPiA+IExTMTA0M0EgU29D
+IGZhbWlseToNCj4gPiA+ID4NCj4gPiA+ID4gLSBmc2wtbHMxMDQzYS5kdHNpOg0KPiA+ID4gPiAg
+IERUUy1JbmNsdWRlIGZpbGUgZm9yIEZTTCBMUzEwNDNBIFNvQy4NCj4gPiA+ID4NCj4gPiA+ID4g
+U2lnbmVkLW9mZi1ieTogTGkgWWFuZyA8bGVvbGlAZnJlZXNjYWxlLmNvbT4NCj4gPiA+ID4gU2ln
+bmVkLW9mZi1ieTogSG91IFpoaXFpYW5nIDxCNDgyODZAZnJlZXNjYWxlLmNvbT4NCj4gPiA+ID4g
+U2lnbmVkLW9mZi1ieTogTWluZ2thaSBIdSA8TWluZ2thaS5IdUBmcmVlc2NhbGUuY29tPg0KPiA+
+ID4gPiBTaWduZWQtb2ZmLWJ5OiBXZW5iaW4gU29uZyA8V2VuYmluLlNvbmdAZnJlZXNjYWxlLmNv
+bT4NCj4gPiA+ID4gLS0tDQo+ID4gPiA+IFY0Og0KPiA+ID4gPiAgLSBBZGQgc29jIG5vZGUgd2l0
+aCBzaW1wbGUtYnVzIGNvbXBhdGlibGUuDQo+ID4gPiA+ICAtIEFkZCBwcm9wZXJ0eSBpbnRlcnJ1
+cHQtYWZmaW5pdHkgZm9yIGFybXY4IHBtdXYzIG5vZGUuDQo+ID4gPiA+DQo+ID4gPiA+IFYzOg0K
+PiA+ID4gPiAgLSBBZGQgZGV2aWNlIHRyZWUgbm9kZSBmb3IgU0FUQS4NCj4gPiA+ID4gIC0gUmVt
+b3ZlIHByb3Blcml0eSBlbmFibGUtbWV0aG9kIGZvciBhbGwgY3B1IG5vZGUuDQo+ID4gPiA+ICAg
+IFJlbW92ZSByZXNlcnZlZCBtZW1vcnkgcmVnaW9uIGZvciBzcGluLXRhYmxlLg0KPiA+ID4gPg0K
+PiA+ID4gPiBWMjoNCj4gPiA+ID4gIC0gQWRkIHNlY29uZGFyeSBjb3JlIGJvb3QgbWV0aG9kLg0K
+PiA+ID4gPiAgLSBNb3ZlIG91dCB0aGUgc3lzY2xrIG5vZGUgZnJvbSB0aGUgY2xvY2tnZW4gbm9k
+ZS4NCj4gPiA+ID4gIC0gQ29ycmVjdCB0aGUgcmVnIHNpemUgb2YgR0lDQy4NCj4gPiA+ID4NCj4g
+PiA+ID4gIGFyY2gvYXJtNjQvYm9vdC9kdHMvZnJlZXNjYWxlL2ZzbC1sczEwNDNhLmR0c2kgfCA1
+MjUNCj4gPiA+ID4gKysrKysrKysrKysrKysrKysrKysrKysrKw0KPiA+ID4gPiAgMSBmaWxlIGNo
+YW5nZWQsIDUyNSBpbnNlcnRpb25zKCspICBjcmVhdGUgbW9kZSAxMDA2NDQNCj4gPiA+ID4gYXJj
+aC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvZnNsLWxzMTA0M2EuZHRzaQ0KPiA+ID4gPg0KPiA+
+ID4gPiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvZnNsLWxzMTA0
+M2EuZHRzaQ0KPiA+ID4gPiBiL2FyY2gvYXJtNjQvYm9vdC9kdHMvZnJlZXNjYWxlL2ZzbC1sczEw
+NDNhLmR0c2kNCj4gPiA+ID4gbmV3IGZpbGUgbW9kZSAxMDA2NDQNCj4gPiA+ID4gaW5kZXggMDAw
+MDAwMC4uMWE1YmY3OQ0KPiA+ID4gPiAtLS0gL2Rldi9udWxsDQo+ID4gPiA+ICsrKyBiL2FyY2gv
+YXJtNjQvYm9vdC9kdHMvZnJlZXNjYWxlL2ZzbC1sczEwNDNhLmR0c2kNCj4gPiA+ID4gQEAgLTAs
+MCArMSw1MjUgQEANCj4gPiA+ID4gKy8qDQo+ID4gPiA+ICsgKiBEZXZpY2UgVHJlZSBJbmNsdWRl
+IGZpbGUgZm9yIEZyZWVzY2FsZSBMYXllcnNjYXBlLTEwNDNBIGZhbWlseQ0KPiA+IFNvQy4NCj4g
+PiA+ID4gKyAqDQo+ID4gPiA+ICsgKiBDb3B5cmlnaHQgMjAxNC0yMDE1LCBGcmVlc2NhbGUgU2Vt
+aWNvbmR1Y3Rvcg0KPiA+ID4gPiArICoNCj4gPiA+ID4gKyAqIE1pbmdrYWkgSHUgPE1pbmdrYWku
+aHVAZnJlZXNjYWxlLmNvbT4NCj4gPiA+ID4gKyAqDQo+ID4gPiA+ICsgKiBUaGlzIGZpbGUgaXMg
+ZHVhbC1saWNlbnNlZDogeW91IGNhbiB1c2UgaXQgZWl0aGVyIHVuZGVyIHRoZQ0KPiA+ID4gPiAr
+dGVybXMNCj4gPiA+ID4gKyAqIG9mIHRoZSBHUEx2MiBvciB0aGUgWDExIGxpY2Vuc2UsIGF0IHlv
+dXIgb3B0aW9uLiBOb3RlIHRoYXQNCj4gPiA+ID4gK3RoaXMgZHVhbA0KPiA+ID4gPiArICogbGlj
+ZW5zaW5nIG9ubHkgYXBwbGllcyB0byB0aGlzIGZpbGUsIGFuZCBub3QgdGhpcyBwcm9qZWN0IGFz
+IGENCj4gPiA+ID4gKyAqIHdob2xlLg0KPiA+ID4gPiArICoNCj4gPiA+ID4gKyAqICBhKSBUaGlz
+IGxpYnJhcnkgaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQNCj4gYW5k
+L29yDQo+ID4gPiA+ICsgKiAgICAgbW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05V
+IEdlbmVyYWwgUHVibGljIExpY2Vuc2UNCj4gPiBhcw0KPiA+ID4gPiArICogICAgIHB1Ymxpc2hl
+ZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyDQo+ID4g
+b2YNCj4gPiA+IHRoZQ0KPiA+ID4gPiArICogICAgIExpY2Vuc2UsIG9yIChhdCB5b3VyIG9wdGlv
+bikgYW55IGxhdGVyIHZlcnNpb24uDQo+ID4gPiA+ICsgKg0KPiA+ID4gPiArICogICAgIFRoaXMg
+bGlicmFyeSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUNCj4gPiB1
+c2VmdWwsDQo+ID4gPiA+ICsgKiAgICAgYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0
+IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkNCj4gPiBvZg0KPiA+ID4gPiArICogICAgIE1FUkNI
+QU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZQ0KPiB0
+aGUNCj4gPiA+ID4gKyAqICAgICBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBmb3IgbW9yZSBk
+ZXRhaWxzLg0KPiA+ID4gPiArICoNCj4gPiA+ID4gKyAqIE9yLCBhbHRlcm5hdGl2ZWx5LA0KPiA+
+ID4gPiArICoNCj4gPiA+ID4gKyAqICBiKSBQZXJtaXNzaW9uIGlzIGhlcmVieSBncmFudGVkLCBm
+cmVlIG9mIGNoYXJnZSwgdG8gYW55IHBlcnNvbg0KPiA+ID4gPiArICogICAgIG9idGFpbmluZyBh
+IGNvcHkgb2YgdGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZA0KPiA+IGRvY3VtZW50YXRpb24N
+Cj4gPiA+ID4gKyAqICAgICBmaWxlcyAodGhlICJTb2Z0d2FyZSIpLCB0byBkZWFsIGluIHRoZSBT
+b2Z0d2FyZSB3aXRob3V0DQo+ID4gPiA+ICsgKiAgICAgcmVzdHJpY3Rpb24sIGluY2x1ZGluZyB3
+aXRob3V0IGxpbWl0YXRpb24gdGhlIHJpZ2h0cyB0byB1c2UsDQo+ID4gPiA+ICsgKiAgICAgY29w
+eSwgbW9kaWZ5LCBtZXJnZSwgcHVibGlzaCwgZGlzdHJpYnV0ZSwgc3VibGljZW5zZSwNCj4gYW5k
+L29yDQo+ID4gPiA+ICsgKiAgICAgc2VsbCBjb3BpZXMgb2YgdGhlIFNvZnR3YXJlLCBhbmQgdG8g
+cGVybWl0IHBlcnNvbnMgdG8gd2hvbQ0KPiA+IHRoZQ0KPiA+ID4gPiArICogICAgIFNvZnR3YXJl
+IGlzIGZ1cm5pc2hlZCB0byBkbyBzbywgc3ViamVjdCB0byB0aGUgZm9sbG93aW5nDQo+ID4gPiA+
+ICsgKiAgICAgY29uZGl0aW9uczoNCj4gPiA+ID4gKyAqDQo+ID4gPiA+ICsgKiAgICAgVGhlIGFi
+b3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVybWlzc2lvbiBub3RpY2Ugc2hhbGwNCj4g
+PiBiZQ0KPiA+ID4gPiArICogICAgIGluY2x1ZGVkIGluIGFsbCBjb3BpZXMgb3Igc3Vic3RhbnRp
+YWwgcG9ydGlvbnMgb2YgdGhlDQo+ID4gU29mdHdhcmUuDQo+ID4gPiA+ICsgKg0KPiA+ID4gPiAr
+ICogICAgIFRIRSBTT0ZUV0FSRSBJUyBQUk9WSURFRCAiQVMgSVMiLCBXSVRIT1VUIFdBUlJBTlRZ
+IE9GIEFOWQ0KPiA+IEtJTkQsDQo+ID4gPiA+ICsgKiAgICAgRVhQUkVTUyBPUiBJTVBMSUVELCBJ
+TkNMVURJTkcgQlVUIE5PVCBMSU1JVEVEIFRPIFRIRQ0KPiA+IFdBUlJBTlRJRVMNCj4gPiA+ID4g
+KyAqICAgICBPRiBNRVJDSEFOVEFCSUxJVFksIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQ
+T1NFIEFORA0KPiA+ID4gPiArICogICAgIE5PTklORlJJTkdFTUVOVC4gSU4gTk8gRVZFTlQgU0hB
+TEwgVEhFIEFVVEhPUlMgT1IgQ09QWVJJR0hUDQo+ID4gPiA+ICsgKiAgICAgSE9MREVSUyBCRSBM
+SUFCTEUgRk9SIEFOWSBDTEFJTSwgREFNQUdFUyBPUiBPVEhFUiBMSUFCSUxJVFksDQo+ID4gPiA+
+ICsgKiAgICAgV0hFVEhFUiBJTiBBTiBBQ1RJT04gT0YgQ09OVFJBQ1QsIFRPUlQgT1IgT1RIRVJX
+SVNFLA0KPiBBUklTSU5HDQo+ID4gPiA+ICsgKiAgICAgRlJPTSwgT1VUIE9GIE9SIElOIENPTk5F
+Q1RJT04gV0lUSCBUSEUgU09GVFdBUkUgT1IgVEhFIFVTRQ0KPiBPUg0KPiA+ID4gPiArICogICAg
+IE9USEVSIERFQUxJTkdTIElOIFRIRSBTT0ZUV0FSRS4NCj4gPiA+ID4gKyAqLw0KPiA+ID4gPiAr
+DQo+ID4gPiA+ICsvIHsNCj4gPiA+ID4gKyAgICAgY29tcGF0aWJsZSA9ICJmc2wsbHMxMDQzYSI7
+DQo+ID4gPiA+ICsgICAgIGludGVycnVwdC1wYXJlbnQgPSA8JmdpYz47DQo+ID4gPiA+ICsgICAg
+ICNhZGRyZXNzLWNlbGxzID0gPDI+Ow0KPiA+ID4gPiArICAgICAjc2l6ZS1jZWxscyA9IDwyPjsN
+Cj4gPiA+ID4gKw0KPiA+ID4gPiArICAgICBjcHVzIHsNCj4gPiA+ID4gKyAgICAgICAgICAgICAj
+YWRkcmVzcy1jZWxscyA9IDwyPjsNCj4gPiA+ID4gKyAgICAgICAgICAgICAjc2l6ZS1jZWxscyA9
+IDwwPjsNCj4gPiA+ID4gKw0KPiA+ID4gPiArICAgICAgICAgICAgIC8qDQo+ID4gPiA+ICsgICAg
+ICAgICAgICAgICogV2UgZXhwZWN0IHRoZSBlbmFibGUtbWV0aG9kIGZvciBjcHUncyB0byBiZQ0K
+PiA+ID4gPiArICJwc2NpIiwNCj4gPiA+IGJ1dCB0aGlzDQo+ID4gPiA+ICsgICAgICAgICAgICAg
+ICogaXMgZGVwZW5kZW50IG9uIHRoZSBTb0MgRlcsIHdoaWNoIHdpbGwgZmlsbCB0aGlzDQo+IGlu
+Lg0KPiA+ID4gPiArICAgICAgICAgICAgICAqDQo+ID4gPiA+ICsgICAgICAgICAgICAgICogQ3Vy
+cmVudGx5IHN1cHBvcnRlZCBlbmFibGUtbWV0aG9kIGlzIHBzY2kgdjAuMg0KPiA+ID4gPiArICAg
+ICAgICAgICAgICAqLw0KPiA+ID4gPiArICAgICAgICAgICAgIGNwdTA6ICBjcHVAMHsNCj4gPiA+
+ID4gKyAgICAgICAgICAgICAgICAgICAgIGRldmljZV90eXBlID0gImNwdSI7DQo+ID4gPiA+ICsg
+ICAgICAgICAgICAgICAgICAgICBjb21wYXRpYmxlID0gImFybSxjb3J0ZXgtYTUzIjsNCj4gPiA+
+ID4gKyAgICAgICAgICAgICAgICAgICAgIHJlZyA9IDwweDAgMHgwPjsNCj4gPiA+ID4gKyAgICAg
+ICAgICAgICAgICAgICAgIGNsb2NrcyA9IDwmY2xvY2tnZW4gMSAwPjsNCj4gPiA+ID4gKyAgICAg
+ICAgICAgICB9Ow0KPiA+ID4gPiArDQo+ID4gPiA+ICsgICAgICAgICAgICAgY3B1MTogIGNwdUAx
+ew0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgZGV2aWNlX3R5cGUgPSAiY3B1IjsNCj4g
+PiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIGNvbXBhdGlibGUgPSAiYXJtLGNvcnRleC1hNTMi
+Ow0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgcmVnID0gPDB4MCAweDE+Ow0KPiA+ID4g
+PiArICAgICAgICAgICAgICAgICAgICAgY2xvY2tzID0gPCZjbG9ja2dlbiAxIDA+Ow0KPiA+ID4g
+PiArICAgICAgICAgICAgIH07DQo+ID4gPiA+ICsNCj4gPiA+ID4gKyAgICAgICAgICAgICBjcHUy
+OiAgY3B1QDJ7DQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBkZXZpY2VfdHlwZSA9ICJj
+cHUiOw0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgY29tcGF0aWJsZSA9ICJhcm0sY29y
+dGV4LWE1MyI7DQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICByZWcgPSA8MHgwIDB4Mj47
+DQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBjbG9ja3MgPSA8JmNsb2NrZ2VuIDEgMD47
+DQo+ID4gPiA+ICsgICAgICAgICAgICAgfTsNCj4gPiA+ID4gKw0KPiA+ID4gPiArICAgICAgICAg
+ICAgIGNwdTM6ICBjcHVAM3sNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIGRldmljZV90
+eXBlID0gImNwdSI7DQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBjb21wYXRpYmxlID0g
+ImFybSxjb3J0ZXgtYTUzIjsNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIHJlZyA9IDww
+eDAgMHgzPjsNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIGNsb2NrcyA9IDwmY2xvY2tn
+ZW4gMSAwPjsNCj4gPiA+ID4gKyAgICAgICAgICAgICB9Ow0KPiA+ID4gPiArICAgICB9Ow0KPiA+
+ID4gPiArDQo+ID4gPiA+ICsgICAgICBtZW1vcnlAODAwMDAwMDB7DQo+ID4gPiA+ICsgICAgICAg
+ICAgICAgZGV2aWNlX3R5cGUgPSAibWVtb3J5IjsNCj4gPiA+ID4gKyAgICAgICAgICAgICByZWcg
+PSA8MHgwIDB4ODAwMDAwMDAgMCAweDgwMDAwMDAwPjsNCj4gPiA+ID4gKyAgICAgICAgICAgICAg
+ICAgICAvKiBEUkFNIHNwYWNlIDEsIHNpemU6IDJHaUIgRFJBTSAqLw0KPiA+ID4gPiArICAgICB9
+Ow0KPiA+ID4gPiArDQo+ID4gPiA+ICsgICAgIHN5c2Nsazogc3lzY2xrIHsNCj4gPiA+ID4gKyAg
+ICAgICAgICAgICBjb21wYXRpYmxlID0gImZpeGVkLWNsb2NrIjsNCj4gPiA+ID4gKyAgICAgICAg
+ICAgICAjY2xvY2stY2VsbHMgPSA8MD47DQo+ID4gPiA+ICsgICAgICAgICAgICAgY2xvY2stZnJl
+cXVlbmN5ID0gPDEwMDAwMDAwMD47DQo+ID4gPiA+ICsgICAgICAgICAgICAgY2xvY2stb3V0cHV0
+LW5hbWVzID0gInN5c2NsayI7DQo+ID4gPiA+ICsgICAgIH07DQo+ID4gPiA+ICsNCj4gPiA+ID4g
+KyAgICAgc29jIHsNCj4gPiA+ID4gKyAgICAgICAgICAgICBjb21wYXRpYmxlID0gInNpbXBsZS1i
+dXMiOw0KPiA+ID4gPiArICAgICAgICAgICAgICNhZGRyZXNzLWNlbGxzID0gPDI+Ow0KPiA+ID4g
+PiArICAgICAgICAgICAgICNzaXplLWNlbGxzID0gPDI+Ow0KPiA+ID4gPiArICAgICAgICAgICAg
+IHJhbmdlczsNCj4gPiA+ID4gKw0KPiA+ID4gPiArICAgICAgICAgICAgIGNsb2NrZ2VuOiAgY2xv
+Y2tpbmdAMWVlMTAwMHsNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIGNvbXBhdGlibGUg
+PSAiZnNsLGxzMTA0M2EtY2xvY2tnZW4iOw0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAg
+cmVnID0gPDB4MCAweDFlZTEwMDAgMHgwIDB4MTAwMD47DQo+ID4gPiA+ICsgICAgICAgICAgICAg
+ICAgICAgICAjY2xvY2stY2VsbHMgPSA8Mj47DQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAg
+ICBjbG9ja3MgPSA8JnN5c2Nsaz47DQo+ID4gPiA+ICsgICAgICAgICAgICAgfTsNCj4gPiA+ID4g
+Kw0KPiA+ID4gPiArICAgICAgICAgICAgIHRpbWVyIHsNCj4gPiA+ID4gKyAgICAgICAgICAgICAg
+ICAgICAgIGNvbXBhdGlibGUgPSAiYXJtLGFybXY4LXRpbWVyIjsNCj4gPiA+ID4gKyAgICAgICAg
+ICAgICAgICAgICAgIGludGVycnVwdHMgPSA8MSAxMyAweDE+LCAvKiBQaHlzaWNhbCBTZWN1cmUN
+Cj4gPiA+ID4gKyBQUEkNCj4gPiA+ICovDQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgPDEgMTQgMHgxPiwgLyogUGh5c2ljYWwNCj4gPiA+ID4gKyBOb24tU2VjdXJl
+DQo+ID4gPiBQUEkgKi8NCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICA8MSAxMSAweDE+LCAvKiBWaXJ0dWFsIFBQSSAqLw0KPiA+ID4gPiArICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIDwxIDEwIDB4MT47IC8qIEh5cGVydmlzb3IgUFBJICovDQo+ID4g
+PiA+ICsgICAgICAgICAgICAgfTsNCj4gPiA+ID4gKw0KPiA+ID4gPiArICAgICAgICAgICAgIHBt
+dSB7DQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBjb21wYXRpYmxlID0gImFybSxhcm12
+OC1wbXV2MyI7DQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBpbnRlcnJ1cHRzID0gPDAg
+MTA2IDB4ND4sDQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPDAg
+MTA3IDB4ND4sDQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPDAg
+OTUgMHg0PiwNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8MCA5
+NyAweDQ+Ow0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgaW50ZXJydXB0LWFmZmluaXR5
+ID0gPCZjcHUwPiwNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIDwmY3B1MT4sDQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICA8JmNwdTI+LA0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgPCZjcHUzPjsNCj4gPiA+ID4gKyAgICAgICAgICAgICB9Ow0KPiA+ID4g
+PiArDQo+ID4gPiA+ICsgICAgICAgICAgICAgZ2ljOiAgaW50ZXJydXB0LWNvbnRyb2xsZXJAMTQw
+MDAwMHsNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIGNvbXBhdGlibGUgPSAiYXJtLGdp
+Yy00MDAiOw0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgI2ludGVycnVwdC1jZWxscyA9
+IDwzPjsNCj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIGludGVycnVwdC1jb250cm9sbGVy
+Ow0KPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgcmVnID0gPDB4MCAweDE0MDEwMDAgMCAw
+eDEwMDA+LCAvKiBHSUNEICovDQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICA8
+MHgwIDB4MTQwMjAwMCAwIDB4MjAwMD4sIC8qIEdJQ0MgKi8NCj4gPiA+ID4gKyAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIDwweDAgMHgxNDA0MDAwIDAgMHgyMDAwPiwgLyogR0lDSCAqLw0KPiA+
+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgPDB4MCAweDE0MDYwMDAgMCAweDIwMDA+
+OyAvKiBHSUNWICovDQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBpbnRlcnJ1cHRzID0g
+PDEgOSAweGYwOD47DQo+ID4gPiA+ICsgICAgICAgICAgICAgfTsNCj4gPiA+DQo+ID4gPiBUaGUg
+cmVjZW50bHkgcG9zdGVkIGxzMjA4MCBkZXZpY2UgdHJlZSBwYXRjaCBwdXRzIHBtdSwgZ2ljLCBl
+dGMuDQo+ID4gPiB1bmRlciB0aGUgcm9vdCBub2RlIHJhdGhlciB0aGFuIHRoZSBzb2Mgbm9kZS4g
+IFdoZXJlIHNob3VsZCB0aGV5IGdvPw0KPiA+ID4gQXQgbGVhc3QgaXQgc2hvdWxkIGJlIGNvbnNp
+c3RlbnQuLi4NCj4gPg0KPiA+IFdoeSB0cmVhdCBwbXUsIGdpYyBhbmQgdGltZXIgYXMgc3BlY2lh
+bD8gV2hvIGNhbiBleHBsYWluIGl0Pw0KPiA+IEkgZmluZCBzb21lIHZlbmRlcnMgcHV0IHRoZSBn
+aWMgYW5kL29yIHRpbWVyIG5vZGUgdW5kZXIgdGhlIHNvYyBub2RlLA0KPiA+IHN1Y2ggYXMgYXJj
+aC9hcm02NC9ib290L2R0cy9tYXJ2ZWxsL2JlcmxpbjRjdC5kdHNpLA0KPiA+IGFyY2gvYXJtNjQv
+Ym9vdC9kdHMvbWVkaWF0ZWsvbXQ4MTczLmR0c2kgYW5kDQo+ID4gYXJjaC9hcm02NC9ib290L2R0
+cy9xY29tL21zbTg5MTYuZHRzaS4NCj4gPiBTbyBJIHB1dCB0aGVtIHVuZGVybmVhdGggdGhlIHNv
+YyBub2RlLg0KPiANCj4gQXMgeW91IHNhaWQgaXQgZGVwZW5kcyBvbiB5b3VyIFNPQyBhcmNoaXRl
+Y3R1cmUgYW5kIGJ1cyBsYXlvdXQuDQo+IA0KPiAxLiBBUk12OCB0aW1lciBpcyBhIHBlci1jb3Jl
+IHRpbWVyIHdpdGggYSBnbG9iYWwgdGltZWJhc2UsIHNvIGl0IGRvZXNuJ3QNCj4gbWFrZSBtdWNo
+IHNlbnNlIHRvIHBsYWNlIGl0IHVuZGVyIC9zb2Mgbm9kZSBhcyB3ZSBkb24ndCBrZWVwIC9jcHVz
+IHVuZGVyDQo+IHRoZSAvc29jIG5vZGUgYXMgd2VsbA0KPiANCj4gMi4gU2ltaWxhcmx5IGZvciBH
+SUMgYW5kIFRpbWVyLg0KPiANCj4gSG93ZXZlciwgeW91ciBTb0MgYnVzIGxheW91dCBtaWdodCBi
+ZSBkaWZmZXJlbnQuIFNvIGlmIHlvdSBoYXZlIGV4YWN0DQo+IGlkZWEgb2YgdGhlIGJ1cyBsYXlv
+dXQgZm9yIHlvdXIgU29DLCBiZXR0ZXIgdG8gdXNlIGV4YWN0IG5hbWVzIGxpa2UgQUhCLA0KPiBB
+UEIgYW5kIEFYSS4NCj4gDQoNClRoYW5rcyBmb3IgeW91ciBjbGFyaWZ5Lg0KDQo+IFJlZmVyIHRv
+IElNWDI4IGJ1cyBvcmdhbml6YXRpb24gZXhhbXBsZSAoc2xpZGUgMjQvNDUpIGluICdkZXZpY2Ut
+dHJlZSBmb3INCj4gZHVtbWllcyBwZGYnIFsxXQ0KPiANCj4gWzFdDQo+IGh0dHBzOi8vZXZlbnRz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvc2l0ZXMvZXZlbnRzL2ZpbGVzL3NsaWRlcy9wZXRhenpvbmkt
+DQo+IGRldmljZS10cmVlLWR1bW1pZXMucGRmDQoNClRoYW5rcywNClpoaXFpYW5nDQo=
