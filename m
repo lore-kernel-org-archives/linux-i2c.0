@@ -1,249 +1,181 @@
-From: Hu Vincent <Mingkai.Hu@freescale.com>
+From: Hou Zhiqiang <B48286@freescale.com>
 Subject: RE: [PATCH V4 4/6] arm64/ls1043a: add DTS for Freescale LS1043A SoC
-Date: Fri, 16 Oct 2015 03:04:53 +0000
-Message-ID: <BN3PR0301MB124963B6511767567A4409BD843D0@BN3PR0301MB1249.namprd03.prod.outlook.com>
+Date: Fri, 16 Oct 2015 03:36:31 +0000
+Message-ID: <CY1PR0301MB0780064260F5FC0CBB0795178B3D0@CY1PR0301MB0780.namprd03.prod.outlook.com>
 References: <1444911181-21696-1-git-send-email-B48286@freescale.com>
- <1444911181-21696-4-git-send-email-B48286@freescale.com>
+	 <1444911181-21696-4-git-send-email-B48286@freescale.com>
  <1444941949.5185.270.camel@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <1444941949.5185.270.camel@freescale.com>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Scott Wood <scottwood@freescale.com>, Hou Zhiqiang <B48286@freescale.com>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "corbet@lwn.net" <corbet@lwn.net>, "sboyd@codeaurora.org" <sboyd@codeaurora.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "mturquette@baylibre.com" <mturquette@baylibre.com>, "linux@roeck-us.net" <linux@roeck-us.net>, "will.deacon@arm.com" <will.deacon@arm.com>, Sharma Bhupesh <bhupesh.sharma@freescale.com>, "wim@iguana.be" <wim@iguana.be>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wenbin Song <Wenbin.Song@freescale.com>, Li Leo <LeoLi@freescale.com>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Shaohui Xie <Shaohui.Xie@freescale.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Scott Wood <scottwood@freescale.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux@roeck-us.net" <linux@roeck-us.net>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "wim@iguana.be" <wim@iguana.be>, "corbet@lwn.net" <corbet@lwn.net>, "mturquette@baylibre.com" <mturquette@baylibre.com>, "sboyd@codeaurora.org" <sboyd@codeaurora.org>, Hu Vincent <Mingkai.Hu@freescale.com>, Shaohui Xie <Shaohui.Xie@freescale.com>, Sharma Bhupesh <bhupesh.sharma@freescale.com>, Wenbin Song <Wenbin.Song@freescale.co>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-> -----Original Message-----
-> From: Wood Scott-B07421
-> Sent: Friday, October 16, 2015 4:46 AM
-> To: Hou Zhiqiang-B48286
-> Cc: linux-arm-kernel@lists.infradead.org; catalin.marinas@arm.com;
-> will.deacon@arm.com; linux-i2c@vger.kernel.org; linux-
-> watchdog@vger.kernel.org; linux-doc@vger.kernel.org; linux-
-> clk@vger.kernel.org; mark.rutland@arm.com; linux@roeck-us.net; wsa@the-
-> dreams.de; wim@iguana.be; corbet@lwn.net; mturquette@baylibre.com;
-> sboyd@codeaurora.org; Hu Mingkai-B21284; Xie Shaohui-B21989; Sharma
-> Bhupesh-B45370; Song Wenbin-B53747; Li Yang-Leo-R58472; Sharma Bhupesh-
-> B45370
-> Subject: Re: [PATCH V4 4/6] arm64/ls1043a: add DTS for Freescale LS1043A
-> SoC
-> 
-> On Thu, 2015-10-15 at 20:12 +0800, Zhiqiang Hou wrote:
-> > From: Mingkai Hu <Mingkai.Hu@freescale.com>
-> >
-> > LS1043a is an SoC with 4 ARMv8 A53 cores and most other IP blocks
-> > similar to LS1021a which complies to Chassis 2.1 spec.
-> >
-> > Following levels of DTSI/DTS files have been created for the LS1043A
-> > SoC family:
-> >
-> > - fsl-ls1043a.dtsi:
-> >   DTS-Include file for FSL LS1043A SoC.
-> >
-> > Signed-off-by: Li Yang <leoli@freescale.com>
-> > Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
-> > Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
-> > Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
-> > ---
-> > V4:
-> >  - Add soc node with simple-bus compatible.
-> >  - Add property interrupt-affinity for armv8 pmuv3 node.
-> >
-> > V3:
-> >  - Add device tree node for SATA.
-> >  - Remove properity enable-method for all cpu node.
-> >    Remove reserved memory region for spin-table.
-> >
-> > V2:
-> >  - Add secondary core boot method.
-> >  - Move out the sysclk node from the clockgen node.
-> >  - Correct the reg size of GICC.
-> >
-> >  arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi | 525
-> > +++++++++++++++++++++++++
-> >  1 file changed, 525 insertions(+)
-> >  create mode 100644 arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-> >
-> > diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-> > b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-> > new file mode 100644
-> > index 0000000..1a5bf79
-> > --- /dev/null
-> > +++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-> > @@ -0,0 +1,525 @@
-> > +/*
-> > + * Device Tree Include file for Freescale Layerscape-1043A family SoC.
-> > + *
-> > + * Copyright 2014-2015, Freescale Semiconductor
-> > + *
-> > + * Mingkai Hu <Mingkai.hu@freescale.com>
-> > + *
-> > + * This file is dual-licensed: you can use it either under the terms
-> > + * of the GPLv2 or the X11 license, at your option. Note that this
-> > +dual
-> > + * licensing only applies to this file, and not this project as a
-> > + * whole.
-> > + *
-> > + *  a) This library is free software; you can redistribute it and/or
-> > + *     modify it under the terms of the GNU General Public License as
-> > + *     published by the Free Software Foundation; either version 2 of
-> the
-> > + *     License, or (at your option) any later version.
-> > + *
-> > + *     This library is distributed in the hope that it will be useful,
-> > + *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > + *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> > + *     GNU General Public License for more details.
-> > + *
-> > + * Or, alternatively,
-> > + *
-> > + *  b) Permission is hereby granted, free of charge, to any person
-> > + *     obtaining a copy of this software and associated documentation
-> > + *     files (the "Software"), to deal in the Software without
-> > + *     restriction, including without limitation the rights to use,
-> > + *     copy, modify, merge, publish, distribute, sublicense, and/or
-> > + *     sell copies of the Software, and to permit persons to whom the
-> > + *     Software is furnished to do so, subject to the following
-> > + *     conditions:
-> > + *
-> > + *     The above copyright notice and this permission notice shall be
-> > + *     included in all copies or substantial portions of the Software.
-> > + *
-> > + *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-> > + *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-> > + *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-> > + *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-> > + *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-> > + *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-> > + *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-> > + *     OTHER DEALINGS IN THE SOFTWARE.
-> > + */
-> > +
-> > +/ {
-> > +     compatible = "fsl,ls1043a";
-> > +     interrupt-parent = <&gic>;
-> > +     #address-cells = <2>;
-> > +     #size-cells = <2>;
-> > +
-> > +     cpus {
-> > +             #address-cells = <2>;
-> > +             #size-cells = <0>;
-> > +
-> > +             /*
-> > +              * We expect the enable-method for cpu's to be "psci",
-> but this
-> > +              * is dependent on the SoC FW, which will fill this in.
-> > +              *
-> > +              * Currently supported enable-method is psci v0.2
-> > +              */
-> > +             cpu0:  cpu@0{
-> > +                     device_type = "cpu";
-> > +                     compatible = "arm,cortex-a53";
-> > +                     reg = <0x0 0x0>;
-> > +                     clocks = <&clockgen 1 0>;
-> > +             };
-> > +
-> > +             cpu1:  cpu@1{
-> > +                     device_type = "cpu";
-> > +                     compatible = "arm,cortex-a53";
-> > +                     reg = <0x0 0x1>;
-> > +                     clocks = <&clockgen 1 0>;
-> > +             };
-> > +
-> > +             cpu2:  cpu@2{
-> > +                     device_type = "cpu";
-> > +                     compatible = "arm,cortex-a53";
-> > +                     reg = <0x0 0x2>;
-> > +                     clocks = <&clockgen 1 0>;
-> > +             };
-> > +
-> > +             cpu3:  cpu@3{
-> > +                     device_type = "cpu";
-> > +                     compatible = "arm,cortex-a53";
-> > +                     reg = <0x0 0x3>;
-> > +                     clocks = <&clockgen 1 0>;
-> > +             };
-> > +     };
-> > +
-> > +      memory@80000000{
-> > +             device_type = "memory";
-> > +             reg = <0x0 0x80000000 0 0x80000000>;
-> > +                   /* DRAM space 1, size: 2GiB DRAM */
-> > +     };
-> > +
-> > +     sysclk: sysclk {
-> > +             compatible = "fixed-clock";
-> > +             #clock-cells = <0>;
-> > +             clock-frequency = <100000000>;
-> > +             clock-output-names = "sysclk";
-> > +     };
-> > +
-> > +     soc {
-> > +             compatible = "simple-bus";
-> > +             #address-cells = <2>;
-> > +             #size-cells = <2>;
-> > +             ranges;
-> > +
-> > +             clockgen:  clocking@1ee1000{
-> > +                     compatible = "fsl,ls1043a-clockgen";
-> > +                     reg = <0x0 0x1ee1000 0x0 0x1000>;
-> > +                     #clock-cells = <2>;
-> > +                     clocks = <&sysclk>;
-> > +             };
-> > +
-> > +             timer {
-> > +                     compatible = "arm,armv8-timer";
-> > +                     interrupts = <1 13 0x1>, /* Physical Secure PPI
-> */
-> > +                                  <1 14 0x1>, /* Physical Non-Secure
-> PPI */
-> > +                                  <1 11 0x1>, /* Virtual PPI */
-> > +                                  <1 10 0x1>; /* Hypervisor PPI */
-> > +             };
-> > +
-> > +             pmu {
-> > +                     compatible = "arm,armv8-pmuv3";
-> > +                     interrupts = <0 106 0x4>,
-> > +                                  <0 107 0x4>,
-> > +                                  <0 95 0x4>,
-> > +                                  <0 97 0x4>;
-> > +                     interrupt-affinity = <&cpu0>,
-> > +                                          <&cpu1>,
-> > +                                          <&cpu2>,
-> > +                                          <&cpu3>;
-> > +             };
-> > +
-> > +             gic:  interrupt-controller@1400000{
-> > +                     compatible = "arm,gic-400";
-> > +                     #interrupt-cells = <3>;
-> > +                     interrupt-controller;
-> > +                     reg = <0x0 0x1401000 0 0x1000>, /* GICD */
-> > +                           <0x0 0x1402000 0 0x2000>, /* GICC */
-> > +                           <0x0 0x1404000 0 0x2000>, /* GICH */
-> > +                           <0x0 0x1406000 0 0x2000>; /* GICV */
-> > +                     interrupts = <1 9 0xf08>;
-> > +             };
-> 
-> The recently posted ls2080 device tree patch puts pmu, gic, etc. under
-> the root node rather than the soc node.  Where should they go?  At least
-> it should be consistent...
-> 
-
-There is also discussion between Ron and Stuart about this, but no conclusion about where to put pmu, gic node.
-Is there any specific reason to put them out of the SoC?
-
-Thanks,
-Mingkai
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogV29vZCBTY290dC1CMDc0
+MjENCj4gU2VudDogMjAxNeW5tDEw5pyIMTbml6UgNDo0Ng0KPiBUbzogSG91IFpoaXFpYW5nLUI0
+ODI4Ng0KPiBDYzogbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBjYXRhbGlu
+Lm1hcmluYXNAYXJtLmNvbTsNCj4gd2lsbC5kZWFjb25AYXJtLmNvbTsgbGludXgtaTJjQHZnZXIu
+a2VybmVsLm9yZzsgbGludXgtDQo+IHdhdGNoZG9nQHZnZXIua2VybmVsLm9yZzsgbGludXgtZG9j
+QHZnZXIua2VybmVsLm9yZzsgbGludXgtDQo+IGNsa0B2Z2VyLmtlcm5lbC5vcmc7IG1hcmsucnV0
+bGFuZEBhcm0uY29tOyBsaW51eEByb2Vjay11cy5uZXQ7IHdzYUB0aGUtDQo+IGRyZWFtcy5kZTsg
+d2ltQGlndWFuYS5iZTsgY29yYmV0QGx3bi5uZXQ7IG10dXJxdWV0dGVAYmF5bGlicmUuY29tOw0K
+PiBzYm95ZEBjb2RlYXVyb3JhLm9yZzsgSHUgTWluZ2thaS1CMjEyODQ7IFhpZSBTaGFvaHVpLUIy
+MTk4OTsgU2hhcm1hDQo+IEJodXBlc2gtQjQ1MzcwOyBTb25nIFdlbmJpbi1CNTM3NDc7IExpIFlh
+bmctTGVvLVI1ODQ3MjsgU2hhcm1hIEJodXBlc2gtDQo+IEI0NTM3MA0KPiBTdWJqZWN0OiBSZTog
+W1BBVENIIFY0IDQvNl0gYXJtNjQvbHMxMDQzYTogYWRkIERUUyBmb3IgRnJlZXNjYWxlIExTMTA0
+M0ENCj4gU29DDQo+IA0KPiBPbiBUaHUsIDIwMTUtMTAtMTUgYXQgMjA6MTIgKzA4MDAsIFpoaXFp
+YW5nIEhvdSB3cm90ZToNCj4gPiBGcm9tOiBNaW5na2FpIEh1IDxNaW5na2FpLkh1QGZyZWVzY2Fs
+ZS5jb20+DQo+ID4NCj4gPiBMUzEwNDNhIGlzIGFuIFNvQyB3aXRoIDQgQVJNdjggQTUzIGNvcmVz
+IGFuZCBtb3N0IG90aGVyIElQIGJsb2Nrcw0KPiA+IHNpbWlsYXIgdG8gTFMxMDIxYSB3aGljaCBj
+b21wbGllcyB0byBDaGFzc2lzIDIuMSBzcGVjLg0KPiA+DQo+ID4gRm9sbG93aW5nIGxldmVscyBv
+ZiBEVFNJL0RUUyBmaWxlcyBoYXZlIGJlZW4gY3JlYXRlZCBmb3IgdGhlIExTMTA0M0ENCj4gPiBT
+b0MgZmFtaWx5Og0KPiA+DQo+ID4gLSBmc2wtbHMxMDQzYS5kdHNpOg0KPiA+ICAgRFRTLUluY2x1
+ZGUgZmlsZSBmb3IgRlNMIExTMTA0M0EgU29DLg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogTGkg
+WWFuZyA8bGVvbGlAZnJlZXNjYWxlLmNvbT4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBIb3UgWmhpcWlh
+bmcgPEI0ODI4NkBmcmVlc2NhbGUuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6IE1pbmdrYWkgSHUg
+PE1pbmdrYWkuSHVAZnJlZXNjYWxlLmNvbT4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBXZW5iaW4gU29u
+ZyA8V2VuYmluLlNvbmdAZnJlZXNjYWxlLmNvbT4NCj4gPiAtLS0NCj4gPiBWNDoNCj4gPiAgLSBB
+ZGQgc29jIG5vZGUgd2l0aCBzaW1wbGUtYnVzIGNvbXBhdGlibGUuDQo+ID4gIC0gQWRkIHByb3Bl
+cnR5IGludGVycnVwdC1hZmZpbml0eSBmb3IgYXJtdjggcG11djMgbm9kZS4NCj4gPg0KPiA+IFYz
+Og0KPiA+ICAtIEFkZCBkZXZpY2UgdHJlZSBub2RlIGZvciBTQVRBLg0KPiA+ICAtIFJlbW92ZSBw
+cm9wZXJpdHkgZW5hYmxlLW1ldGhvZCBmb3IgYWxsIGNwdSBub2RlLg0KPiA+ICAgIFJlbW92ZSBy
+ZXNlcnZlZCBtZW1vcnkgcmVnaW9uIGZvciBzcGluLXRhYmxlLg0KPiA+DQo+ID4gVjI6DQo+ID4g
+IC0gQWRkIHNlY29uZGFyeSBjb3JlIGJvb3QgbWV0aG9kLg0KPiA+ICAtIE1vdmUgb3V0IHRoZSBz
+eXNjbGsgbm9kZSBmcm9tIHRoZSBjbG9ja2dlbiBub2RlLg0KPiA+ICAtIENvcnJlY3QgdGhlIHJl
+ZyBzaXplIG9mIEdJQ0MuDQo+ID4NCj4gPiAgYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUv
+ZnNsLWxzMTA0M2EuZHRzaSB8IDUyNQ0KPiA+ICsrKysrKysrKysrKysrKysrKysrKysrKysNCj4g
+PiAgMSBmaWxlIGNoYW5nZWQsIDUyNSBpbnNlcnRpb25zKCspDQo+ID4gIGNyZWF0ZSBtb2RlIDEw
+MDY0NCBhcmNoL2FybTY0L2Jvb3QvZHRzL2ZyZWVzY2FsZS9mc2wtbHMxMDQzYS5kdHNpDQo+ID4N
+Cj4gPiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvZnNsLWxzMTA0
+M2EuZHRzaQ0KPiA+IGIvYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvZnNsLWxzMTA0M2Eu
+ZHRzaQ0KPiA+IG5ldyBmaWxlIG1vZGUgMTAwNjQ0DQo+ID4gaW5kZXggMDAwMDAwMC4uMWE1YmY3
+OQ0KPiA+IC0tLSAvZGV2L251bGwNCj4gPiArKysgYi9hcmNoL2FybTY0L2Jvb3QvZHRzL2ZyZWVz
+Y2FsZS9mc2wtbHMxMDQzYS5kdHNpDQo+ID4gQEAgLTAsMCArMSw1MjUgQEANCj4gPiArLyoNCj4g
+PiArICogRGV2aWNlIFRyZWUgSW5jbHVkZSBmaWxlIGZvciBGcmVlc2NhbGUgTGF5ZXJzY2FwZS0x
+MDQzQSBmYW1pbHkgU29DLg0KPiA+ICsgKg0KPiA+ICsgKiBDb3B5cmlnaHQgMjAxNC0yMDE1LCBG
+cmVlc2NhbGUgU2VtaWNvbmR1Y3Rvcg0KPiA+ICsgKg0KPiA+ICsgKiBNaW5na2FpIEh1IDxNaW5n
+a2FpLmh1QGZyZWVzY2FsZS5jb20+DQo+ID4gKyAqDQo+ID4gKyAqIFRoaXMgZmlsZSBpcyBkdWFs
+LWxpY2Vuc2VkOiB5b3UgY2FuIHVzZSBpdCBlaXRoZXIgdW5kZXIgdGhlIHRlcm1zDQo+ID4gKyAq
+IG9mIHRoZSBHUEx2MiBvciB0aGUgWDExIGxpY2Vuc2UsIGF0IHlvdXIgb3B0aW9uLiBOb3RlIHRo
+YXQgdGhpcw0KPiA+ICtkdWFsDQo+ID4gKyAqIGxpY2Vuc2luZyBvbmx5IGFwcGxpZXMgdG8gdGhp
+cyBmaWxlLCBhbmQgbm90IHRoaXMgcHJvamVjdCBhcyBhDQo+ID4gKyAqIHdob2xlLg0KPiA+ICsg
+Kg0KPiA+ICsgKiAgYSkgVGhpcyBsaWJyYXJ5IGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVk
+aXN0cmlidXRlIGl0IGFuZC9vcg0KPiA+ICsgKiAgICAgbW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJt
+cyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMNCj4gPiArICogICAgIHB1Ymxp
+c2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9m
+DQo+IHRoZQ0KPiA+ICsgKiAgICAgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0
+ZXIgdmVyc2lvbi4NCj4gPiArICoNCj4gPiArICogICAgIFRoaXMgbGlicmFyeSBpcyBkaXN0cmli
+dXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLA0KPiA+ICsgKiAgICAgYnV0
+IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkg
+b2YNCj4gPiArICogICAgIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VM
+QVIgUFVSUE9TRS4gIFNlZSB0aGUNCj4gPiArICogICAgIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNl
+bnNlIGZvciBtb3JlIGRldGFpbHMuDQo+ID4gKyAqDQo+ID4gKyAqIE9yLCBhbHRlcm5hdGl2ZWx5
+LA0KPiA+ICsgKg0KPiA+ICsgKiAgYikgUGVybWlzc2lvbiBpcyBoZXJlYnkgZ3JhbnRlZCwgZnJl
+ZSBvZiBjaGFyZ2UsIHRvIGFueSBwZXJzb24NCj4gPiArICogICAgIG9idGFpbmluZyBhIGNvcHkg
+b2YgdGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVudGF0aW9uDQo+ID4gKyAqICAg
+ICBmaWxlcyAodGhlICJTb2Z0d2FyZSIpLCB0byBkZWFsIGluIHRoZSBTb2Z0d2FyZSB3aXRob3V0
+DQo+ID4gKyAqICAgICByZXN0cmljdGlvbiwgaW5jbHVkaW5nIHdpdGhvdXQgbGltaXRhdGlvbiB0
+aGUgcmlnaHRzIHRvIHVzZSwNCj4gPiArICogICAgIGNvcHksIG1vZGlmeSwgbWVyZ2UsIHB1Ymxp
+c2gsIGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsIGFuZC9vcg0KPiA+ICsgKiAgICAgc2VsbCBjb3Bp
+ZXMgb2YgdGhlIFNvZnR3YXJlLCBhbmQgdG8gcGVybWl0IHBlcnNvbnMgdG8gd2hvbSB0aGUNCj4g
+PiArICogICAgIFNvZnR3YXJlIGlzIGZ1cm5pc2hlZCB0byBkbyBzbywgc3ViamVjdCB0byB0aGUg
+Zm9sbG93aW5nDQo+ID4gKyAqICAgICBjb25kaXRpb25zOg0KPiA+ICsgKg0KPiA+ICsgKiAgICAg
+VGhlIGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVybWlzc2lvbiBub3RpY2Ugc2hh
+bGwgYmUNCj4gPiArICogICAgIGluY2x1ZGVkIGluIGFsbCBjb3BpZXMgb3Igc3Vic3RhbnRpYWwg
+cG9ydGlvbnMgb2YgdGhlIFNvZnR3YXJlLg0KPiA+ICsgKg0KPiA+ICsgKiAgICAgVEhFIFNPRlRX
+QVJFIElTIFBST1ZJREVEICJBUyBJUyIsIFdJVEhPVVQgV0FSUkFOVFkgT0YgQU5ZIEtJTkQsDQo+
+ID4gKyAqICAgICBFWFBSRVNTIE9SIElNUExJRUQsIElOQ0xVRElORyBCVVQgTk9UIExJTUlURUQg
+VE8gVEhFIFdBUlJBTlRJRVMNCj4gPiArICogICAgIE9GIE1FUkNIQU5UQUJJTElUWSwgRklUTkVT
+UyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UgQU5EDQo+ID4gKyAqICAgICBOT05JTkZSSU5HRU1F
+TlQuIElOIE5PIEVWRU5UIFNIQUxMIFRIRSBBVVRIT1JTIE9SIENPUFlSSUdIVA0KPiA+ICsgKiAg
+ICAgSE9MREVSUyBCRSBMSUFCTEUgRk9SIEFOWSBDTEFJTSwgREFNQUdFUyBPUiBPVEhFUiBMSUFC
+SUxJVFksDQo+ID4gKyAqICAgICBXSEVUSEVSIElOIEFOIEFDVElPTiBPRiBDT05UUkFDVCwgVE9S
+VCBPUiBPVEhFUldJU0UsIEFSSVNJTkcNCj4gPiArICogICAgIEZST00sIE9VVCBPRiBPUiBJTiBD
+T05ORUNUSU9OIFdJVEggVEhFIFNPRlRXQVJFIE9SIFRIRSBVU0UgT1INCj4gPiArICogICAgIE9U
+SEVSIERFQUxJTkdTIElOIFRIRSBTT0ZUV0FSRS4NCj4gPiArICovDQo+ID4gKw0KPiA+ICsvIHsN
+Cj4gPiArICAgICBjb21wYXRpYmxlID0gImZzbCxsczEwNDNhIjsNCj4gPiArICAgICBpbnRlcnJ1
+cHQtcGFyZW50ID0gPCZnaWM+Ow0KPiA+ICsgICAgICNhZGRyZXNzLWNlbGxzID0gPDI+Ow0KPiA+
+ICsgICAgICNzaXplLWNlbGxzID0gPDI+Ow0KPiA+ICsNCj4gPiArICAgICBjcHVzIHsNCj4gPiAr
+ICAgICAgICAgICAgICNhZGRyZXNzLWNlbGxzID0gPDI+Ow0KPiA+ICsgICAgICAgICAgICAgI3Np
+emUtY2VsbHMgPSA8MD47DQo+ID4gKw0KPiA+ICsgICAgICAgICAgICAgLyoNCj4gPiArICAgICAg
+ICAgICAgICAqIFdlIGV4cGVjdCB0aGUgZW5hYmxlLW1ldGhvZCBmb3IgY3B1J3MgdG8gYmUgInBz
+Y2kiLA0KPiBidXQgdGhpcw0KPiA+ICsgICAgICAgICAgICAgICogaXMgZGVwZW5kZW50IG9uIHRo
+ZSBTb0MgRlcsIHdoaWNoIHdpbGwgZmlsbCB0aGlzIGluLg0KPiA+ICsgICAgICAgICAgICAgICoN
+Cj4gPiArICAgICAgICAgICAgICAqIEN1cnJlbnRseSBzdXBwb3J0ZWQgZW5hYmxlLW1ldGhvZCBp
+cyBwc2NpIHYwLjINCj4gPiArICAgICAgICAgICAgICAqLw0KPiA+ICsgICAgICAgICAgICAgY3B1
+MDogIGNwdUAwew0KPiA+ICsgICAgICAgICAgICAgICAgICAgICBkZXZpY2VfdHlwZSA9ICJjcHUi
+Ow0KPiA+ICsgICAgICAgICAgICAgICAgICAgICBjb21wYXRpYmxlID0gImFybSxjb3J0ZXgtYTUz
+IjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgcmVnID0gPDB4MCAweDA+Ow0KPiA+ICsgICAg
+ICAgICAgICAgICAgICAgICBjbG9ja3MgPSA8JmNsb2NrZ2VuIDEgMD47DQo+ID4gKyAgICAgICAg
+ICAgICB9Ow0KPiA+ICsNCj4gPiArICAgICAgICAgICAgIGNwdTE6ICBjcHVAMXsNCj4gPiArICAg
+ICAgICAgICAgICAgICAgICAgZGV2aWNlX3R5cGUgPSAiY3B1IjsNCj4gPiArICAgICAgICAgICAg
+ICAgICAgICAgY29tcGF0aWJsZSA9ICJhcm0sY29ydGV4LWE1MyI7DQo+ID4gKyAgICAgICAgICAg
+ICAgICAgICAgIHJlZyA9IDwweDAgMHgxPjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgY2xv
+Y2tzID0gPCZjbG9ja2dlbiAxIDA+Ow0KPiA+ICsgICAgICAgICAgICAgfTsNCj4gPiArDQo+ID4g
+KyAgICAgICAgICAgICBjcHUyOiAgY3B1QDJ7DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgIGRl
+dmljZV90eXBlID0gImNwdSI7DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgIGNvbXBhdGlibGUg
+PSAiYXJtLGNvcnRleC1hNTMiOw0KPiA+ICsgICAgICAgICAgICAgICAgICAgICByZWcgPSA8MHgw
+IDB4Mj47DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgIGNsb2NrcyA9IDwmY2xvY2tnZW4gMSAw
+PjsNCj4gPiArICAgICAgICAgICAgIH07DQo+ID4gKw0KPiA+ICsgICAgICAgICAgICAgY3B1Mzog
+IGNwdUAzew0KPiA+ICsgICAgICAgICAgICAgICAgICAgICBkZXZpY2VfdHlwZSA9ICJjcHUiOw0K
+PiA+ICsgICAgICAgICAgICAgICAgICAgICBjb21wYXRpYmxlID0gImFybSxjb3J0ZXgtYTUzIjsN
+Cj4gPiArICAgICAgICAgICAgICAgICAgICAgcmVnID0gPDB4MCAweDM+Ow0KPiA+ICsgICAgICAg
+ICAgICAgICAgICAgICBjbG9ja3MgPSA8JmNsb2NrZ2VuIDEgMD47DQo+ID4gKyAgICAgICAgICAg
+ICB9Ow0KPiA+ICsgICAgIH07DQo+ID4gKw0KPiA+ICsgICAgICBtZW1vcnlAODAwMDAwMDB7DQo+
+ID4gKyAgICAgICAgICAgICBkZXZpY2VfdHlwZSA9ICJtZW1vcnkiOw0KPiA+ICsgICAgICAgICAg
+ICAgcmVnID0gPDB4MCAweDgwMDAwMDAwIDAgMHg4MDAwMDAwMD47DQo+ID4gKyAgICAgICAgICAg
+ICAgICAgICAvKiBEUkFNIHNwYWNlIDEsIHNpemU6IDJHaUIgRFJBTSAqLw0KPiA+ICsgICAgIH07
+DQo+ID4gKw0KPiA+ICsgICAgIHN5c2Nsazogc3lzY2xrIHsNCj4gPiArICAgICAgICAgICAgIGNv
+bXBhdGlibGUgPSAiZml4ZWQtY2xvY2siOw0KPiA+ICsgICAgICAgICAgICAgI2Nsb2NrLWNlbGxz
+ID0gPDA+Ow0KPiA+ICsgICAgICAgICAgICAgY2xvY2stZnJlcXVlbmN5ID0gPDEwMDAwMDAwMD47
+DQo+ID4gKyAgICAgICAgICAgICBjbG9jay1vdXRwdXQtbmFtZXMgPSAic3lzY2xrIjsNCj4gPiAr
+ICAgICB9Ow0KPiA+ICsNCj4gPiArICAgICBzb2Mgew0KPiA+ICsgICAgICAgICAgICAgY29tcGF0
+aWJsZSA9ICJzaW1wbGUtYnVzIjsNCj4gPiArICAgICAgICAgICAgICNhZGRyZXNzLWNlbGxzID0g
+PDI+Ow0KPiA+ICsgICAgICAgICAgICAgI3NpemUtY2VsbHMgPSA8Mj47DQo+ID4gKyAgICAgICAg
+ICAgICByYW5nZXM7DQo+ID4gKw0KPiA+ICsgICAgICAgICAgICAgY2xvY2tnZW46ICBjbG9ja2lu
+Z0AxZWUxMDAwew0KPiA+ICsgICAgICAgICAgICAgICAgICAgICBjb21wYXRpYmxlID0gImZzbCxs
+czEwNDNhLWNsb2NrZ2VuIjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgcmVnID0gPDB4MCAw
+eDFlZTEwMDAgMHgwIDB4MTAwMD47DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICNjbG9jay1j
+ZWxscyA9IDwyPjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgY2xvY2tzID0gPCZzeXNjbGs+
+Ow0KPiA+ICsgICAgICAgICAgICAgfTsNCj4gPiArDQo+ID4gKyAgICAgICAgICAgICB0aW1lciB7
+DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgIGNvbXBhdGlibGUgPSAiYXJtLGFybXY4LXRpbWVy
+IjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgaW50ZXJydXB0cyA9IDwxIDEzIDB4MT4sIC8q
+IFBoeXNpY2FsIFNlY3VyZSBQUEkNCj4gKi8NCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIDwxIDE0IDB4MT4sIC8qIFBoeXNpY2FsIE5vbi1TZWN1cmUNCj4gUFBJICovDQo+
+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8MSAxMSAweDE+LCAvKiBWaXJ0
+dWFsIFBQSSAqLw0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPDEgMTAg
+MHgxPjsgLyogSHlwZXJ2aXNvciBQUEkgKi8NCj4gPiArICAgICAgICAgICAgIH07DQo+ID4gKw0K
+PiA+ICsgICAgICAgICAgICAgcG11IHsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgY29tcGF0
+aWJsZSA9ICJhcm0sYXJtdjgtcG11djMiOw0KPiA+ICsgICAgICAgICAgICAgICAgICAgICBpbnRl
+cnJ1cHRzID0gPDAgMTA2IDB4ND4sDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICA8MCAxMDcgMHg0PiwNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IDwwIDk1IDB4ND4sDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8MCA5
+NyAweDQ+Ow0KPiA+ICsgICAgICAgICAgICAgICAgICAgICBpbnRlcnJ1cHQtYWZmaW5pdHkgPSA8
+JmNwdTA+LA0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8
+JmNwdTE+LA0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8
+JmNwdTI+LA0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8
+JmNwdTM+Ow0KPiA+ICsgICAgICAgICAgICAgfTsNCj4gPiArDQo+ID4gKyAgICAgICAgICAgICBn
+aWM6ICBpbnRlcnJ1cHQtY29udHJvbGxlckAxNDAwMDAwew0KPiA+ICsgICAgICAgICAgICAgICAg
+ICAgICBjb21wYXRpYmxlID0gImFybSxnaWMtNDAwIjsNCj4gPiArICAgICAgICAgICAgICAgICAg
+ICAgI2ludGVycnVwdC1jZWxscyA9IDwzPjsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgaW50
+ZXJydXB0LWNvbnRyb2xsZXI7DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgIHJlZyA9IDwweDAg
+MHgxNDAxMDAwIDAgMHgxMDAwPiwgLyogR0lDRCAqLw0KPiA+ICsgICAgICAgICAgICAgICAgICAg
+ICAgICAgICA8MHgwIDB4MTQwMjAwMCAwIDB4MjAwMD4sIC8qIEdJQ0MgKi8NCj4gPiArICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgPDB4MCAweDE0MDQwMDAgMCAweDIwMDA+LCAvKiBHSUNIICov
+DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgIDwweDAgMHgxNDA2MDAwIDAgMHgyMDAw
+PjsgLyogR0lDViAqLw0KPiA+ICsgICAgICAgICAgICAgICAgICAgICBpbnRlcnJ1cHRzID0gPDEg
+OSAweGYwOD47DQo+ID4gKyAgICAgICAgICAgICB9Ow0KPiANCj4gVGhlIHJlY2VudGx5IHBvc3Rl
+ZCBsczIwODAgZGV2aWNlIHRyZWUgcGF0Y2ggcHV0cyBwbXUsIGdpYywgZXRjLiB1bmRlcg0KPiB0
+aGUgcm9vdCBub2RlIHJhdGhlciB0aGFuIHRoZSBzb2Mgbm9kZS4gIFdoZXJlIHNob3VsZCB0aGV5
+IGdvPyAgQXQgbGVhc3QNCj4gaXQgc2hvdWxkIGJlIGNvbnNpc3RlbnQuLi4NCg0KV2h5IHRyZWF0
+IHBtdSwgZ2ljIGFuZCB0aW1lciBhcyBzcGVjaWFsPyBXaG8gY2FuIGV4cGxhaW4gaXQ/DQpJIGZp
+bmQgc29tZSB2ZW5kZXJzIHB1dCB0aGUgZ2ljIGFuZC9vciB0aW1lciBub2RlIHVuZGVyIHRoZSBz
+b2Mgbm9kZSwgc3VjaCBhcw0KYXJjaC9hcm02NC9ib290L2R0cy9tYXJ2ZWxsL2JlcmxpbjRjdC5k
+dHNpLA0KYXJjaC9hcm02NC9ib290L2R0cy9tZWRpYXRlay9tdDgxNzMuZHRzaSBhbmQNCmFyY2gv
+YXJtNjQvYm9vdC9kdHMvcWNvbS9tc204OTE2LmR0c2kuDQpTbyBJIHB1dCB0aGVtIHVuZGVybmVh
+dGggdGhlIHNvYyBub2RlLg0KDQpUaGFua3MsDQpaaGlxaWFuZw0K
