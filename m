@@ -1,79 +1,99 @@
-From: Rob Clark <robdclark@gmail.com>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Sat, 17 Oct 2015 14:45:34 -0400
-Message-ID: <CAF6AEGuvr6XMMufY0iDCSkp2BNcWa2=xUxjN66+FtQ6ygS-nyQ@mail.gmail.com>
-References: <561E1378.6000906@collabora.com>
-	<20151017065750.GA18607@kroah.com>
-	<CAL_Jsq+Due3CgV0Z_m4vYQsa+X30DSxgmqz_r=26OrBV7v+H2g@mail.gmail.com>
-	<20151017154709.GE4059@kroah.com>
-	<CAL_JsqJvtKt6FpZgnYcsEm_opr9gK_a013BVpZGvnB=51oSUXg@mail.gmail.com>
-	<20151017165617.GC25156@kroah.com>
-	<CAF6AEGvbYYeZx=YVCv9r5K0xjtLf3gN69gX5DyQ3j0S1qT0Yog@mail.gmail.com>
-	<20151017182755.GA28072@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-clk-owner@vger.kernel.org>
-In-Reply-To: <20151017182755.GA28072@kroah.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>F
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: [PATCH] i2c: pnx: fix warnings caused by enabling unprepared clock
+Date: Sat, 17 Oct 2015 21:52:27 +0300
+Message-ID: <1445107947-2888-1-git-send-email-vz@mleia.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from li271-223.members.linode.com ([178.79.152.223]:57941 "EHLO
+	mail.mleia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751967AbbJQSwa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 17 Oct 2015 14:52:30 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-On Sat, Oct 17, 2015 at 2:27 PM, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> On Sat, Oct 17, 2015 at 01:54:43PM -0400, Rob Clark wrote:
->> On Sat, Oct 17, 2015 at 12:56 PM, Greg Kroah-Hartman
->> <gregkh@linuxfoundation.org> wrote:
->> >> I'm guessing the time is a matter of probing and undoing the probes
->> >> rather than slow h/w. We could maybe improve things by making sure
->> >> drivers move what they defer on to the beginning of probe, but that
->> >> seems like a horrible, fragile hack.
->> >
->> > How can calling probe and failing cause 2 seconds?  How many different
->> > probe calls are failing here?  Again, a boot log graph would be great to
->> > see as it will show the root cause, not just guessing at this.
->>
->>
->> just fwiw, but when you have a driver that depends on several other
->> drivers (which in turn depend on other drivers and so on), the amount
->> of probe-defer we end up seeing is pretty comical.  Yeah, there
->> probably is some room to optimize by juggling around order drivers do
->> things in probe.  But that doesn't solve the fundamental problem with
->> the current state, about probe order having no clue about
->> dependencies..
->
-> I can imagine it is a lot of iterations, but how long does it really
-> take?  How many different devices are involved that it takes multiple
-> loops in order to finally work out the correct order?  Where is the time
-> delays here, just calling probe() and having it instantly return
-> shouldn't take all that long.
+If common clock framework is configured, the driver generates a warning,
+which is fixed by this change:
 
-offhand, I think the dependencies go at *least* three levels deep..
-I'd say, from memory, I see drm/msm taking at least 5 or 6 tries to
-get all the way through requesting it's various different
-regulators/clks/gpios.  I hadn't really paid attention to how many
-tries the drivers I depend on go through.  (Of those, I take clks from
-two different clk drivers (which have dependency on a 3rd clk driver),
-and regulators and gpio's come from at least two places, which in turn
-have dependencies on clks, etc.)  I don't have really good hard
-numbers handy (since my observations of this are w/ console over uart
-which effects timings, and so I see it taking much longer than 2sec)..
-but the 2sec figure that Tomeu mentioned seemed pretty plausible to
-me.
+    WARNING: CPU: 0 PID: 1 at drivers/clk/clk.c:727 clk_core_enable+0x2c/0xa4()
+    Modules linked in:
+    CPU: 0 PID: 1 Comm: swapper Not tainted 4.3.0-rc2+ #171
+    Hardware name: LPC32XX SoC (Flattened Device Tree)
+    Backtrace:
+    [<>] (dump_backtrace) from [<>] (show_stack+0x18/0x1c)
+    [<>] (show_stack) from [<>] (dump_stack+0x20/0x28)
+    [<>] (dump_stack) from [<>] (warn_slowpath_common+0x90/0xb8)
+    [<>] (warn_slowpath_common) from [<>] (warn_slowpath_null+0x24/0x2c)
+    [<>] (warn_slowpath_null) from [<>] (clk_core_enable+0x2c/0xa4)
+    [<>] (clk_core_enable) from [<>] (clk_enable+0x24/0x38)
+    [<>] (clk_enable) from [<>] (i2c_pnx_probe+0x108/0x2a8)
+    [<>] (i2c_pnx_probe) from [<>] (platform_drv_probe+0x50/0xa0)
+    [<>] (platform_drv_probe) from [<>] (driver_probe_device+0x18c/0x408)
+    [<>] (driver_probe_device) from [<>] (__driver_attach+0x70/0x94)
+    [<>] (__driver_attach) from [<>] (bus_for_each_dev+0x74/0x98)
+    [<>] (bus_for_each_dev) from [<>] (driver_attach+0x20/0x28)
+    [<>] (driver_attach) from [<>] (bus_add_driver+0x11c/0x248)
+    [<>] (bus_add_driver) from [<>] (driver_register+0xa4/0xe8)
+    [<>] (driver_register) from [<>] (__platform_driver_register+0x50/0x64)
+    [<>] (__platform_driver_register) from [<>] (i2c_adap_pnx_init+0x18/0x20)
+    [<>] (i2c_adap_pnx_init) from [<>] (do_one_initcall+0x11c/0x1dc)
+    [<>] (do_one_initcall) from [<>] (kernel_init_freeable+0x10c/0x1d4)
+    [<>] (kernel_init_freeable) from [<>] (kernel_init+0x10/0xec)
+    [<>] (kernel_init) from [<>] (ret_from_fork+0x14/0x24)
 
-I can try to get better #'s... I should have my kernel hat on at least
-some of the time next week.. but the 2sec figure didn't seem
-unrealistic to me.
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+---
+ drivers/i2c/busses/i2c-pnx.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Just as an aside, the amount of probe-defer adds quite a lot of noise
-when you are trying to debug why some driver doesn't probe
-successfully.  Which itself would be a nice reason to do something
-more clever..
-
-BR,
--R
-
-
-> thanks,
->
-> greg k-h
+diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+index e814a36..6f8b446 100644
+--- a/drivers/i2c/busses/i2c-pnx.c
++++ b/drivers/i2c/busses/i2c-pnx.c
+@@ -600,7 +600,7 @@ static int i2c_pnx_controller_suspend(struct device *dev)
+ {
+ 	struct i2c_pnx_algo_data *alg_data = dev_get_drvdata(dev);
+ 
+-	clk_disable(alg_data->clk);
++	clk_disable_unprepare(alg_data->clk);
+ 
+ 	return 0;
+ }
+@@ -609,7 +609,7 @@ static int i2c_pnx_controller_resume(struct device *dev)
+ {
+ 	struct i2c_pnx_algo_data *alg_data = dev_get_drvdata(dev);
+ 
+-	return clk_enable(alg_data->clk);
++	return clk_prepare_enable(alg_data->clk);
+ }
+ 
+ static SIMPLE_DEV_PM_OPS(i2c_pnx_pm,
+@@ -672,7 +672,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
+ 	if (IS_ERR(alg_data->ioaddr))
+ 		return PTR_ERR(alg_data->ioaddr);
+ 
+-	ret = clk_enable(alg_data->clk);
++	ret = clk_prepare_enable(alg_data->clk);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -726,7 +726,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ out_clock:
+-	clk_disable(alg_data->clk);
++	clk_disable_unprepare(alg_data->clk);
+ 	return ret;
+ }
+ 
+@@ -735,7 +735,7 @@ static int i2c_pnx_remove(struct platform_device *pdev)
+ 	struct i2c_pnx_algo_data *alg_data = platform_get_drvdata(pdev);
+ 
+ 	i2c_del_adapter(&alg_data->adapter);
+-	clk_disable(alg_data->clk);
++	clk_disable_unprepare(alg_data->clk);
+ 
+ 	return 0;
+ }
+-- 
+2.1.4
