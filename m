@@ -1,86 +1,233 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Sun, 18 Oct 2015 20:53:30 +0100
-Message-ID: <20151018195330.GB14956@sirena.org.uk>
-References: <561E1378.6000906@collabora.com>
- <20151017065750.GA18607@kroah.com>
- <20151018192931.GY14956@sirena.org.uk>
- <20151018193757.GA9147@kroah.com>
+From: Gao Pan <b54642@freescale.com>
+Subject: [Patch V8] i2c: imx: implement bus recovery
+Date: Mon, 19 Oct 2015 10:17:02 +0800
+Message-ID: <1445221022-6991-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="fJz81ohldq3XijGc"
-Return-path: <linux-clk-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151018193757.GA9147@kroah.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Felipe Balbi <balbi@ti.com>, Jin
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-by2on0136.outbound.protection.outlook.com ([207.46.100.136]:57120
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752565AbbJSCRt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 18 Oct 2015 22:17:49 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, b54642@freescale.com, u.kleine-koenig@pengutronix.de, kernel@pengutronix.de, hkallweit1@gmail.com, s.hauer@pengutronix.de
 
+Implement bus recovery methods for i2c-imx so we can recover from
+situations where SCL/SDA are stuck low.
 
---fJz81ohldq3XijGc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
+pinctrl to gpio mode by calling pinctrl sleep set function, and then
+use GPIO to emulate the i2c protocol to send nine dummy clock to recove=
+r
+i2c device. After recovery, set i2c pinctrl to default group setting.
 
-On Sun, Oct 18, 2015 at 12:37:57PM -0700, Greg Kroah-Hartman wrote:
-> On Sun, Oct 18, 2015 at 08:29:31PM +0100, Mark Brown wrote:
-> > On Fri, Oct 16, 2015 at 11:57:50PM -0700, Greg Kroah-Hartman wrote:
+Signed-off-by: Fugang Duan <B38611@freescale.com>
+Signed-off-by: Gao Pan <b54642@freescale.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+---
+V2:
+As Uwe Kleine-K=C3=B6nig's suggestion, the version do below changes:
+ -replace of_get_named_gpio() with devm_gpiod_get_optional()
+ -move gpio_direction_input() and gpio_direction_output() call to the
+  prepare callback
+ -use 0 and 1 as return value for the get_scl and get_sda callbacks
 
-> > > I can't see adding calls like this all over the tree just to solve a
-> > > bus-specific problem, you are adding of_* calls where they aren't
-> > > needed, or wanted, at all.
+V3:
+ -replace "...-gpio" with "...-gpios" in i2c binding doc
+ -document the requirement of using sleep state to configure
+  the pins as gpio in i2c binding doc
+ -remove i2c_recover_bus() in i2c_imx_trx_complete()
+ -use GPIOD_OUT_HIGH as the parameter of devm_gpiod_get_optional to
+  config the gpios as output high
+ -add error disposal as devm_gpiod_get_optional meets error
 
-> > This isn't bus specific, I'm not sure what makes you say that?
+V4:
+ -remove include <linux/of_gpio.h>
+ -call i2c_recover_bus under the condition of the existing of
+  both sda and scl. Drop the sda and scl check in i2c_imx_get_scl,
+  i2c_imx_get_sda, i2c_imx_set_scl, i2c_imx_prepare_recovery and
+  i2c_imx_prepare_recovery
+ -use GPIOD_OUT_IN as the parameter of devm_gpiod_get_optional
+ -remove documenting the requirement of using sleep state to configure
+  the pins as gpio in i2c binding doc
 
-> You are making it bus-specific by putting these calls all over the tree
-> in different bus subsystems semi-randomly for all I can determine.
+V5:
+ -introduce a dedicated gpio state for bus recovery.
+ -assign adapter.bus_recovery_info after the two gpios were aquired suc=
+cessfully
 
-Do you mean firmware rather than bus here?  I think that's the confusion
-I have...
+V6:
+ -assign adapter.bus_recovery_info under the condition that gpios are a=
+cquired successfully
+ -not try the recovery when pinctrl_lookup_state returns an error
 
-> > One is that regardless of the actual performance of the system when
-> > deferred probe goes off it splats errors all over the console which
-> > makes it look like something is going wrong even if everything is fine
-> > in the end.  If lots of deferred probing happens then the volume gets
-> > big too.  People find this distracting, noisy and ugly - it obscures
-> > actual issues and trains people to ignore errors.  I do think this is a
-> > reasonable concern and that it's worth trying to mitigate against
-> > deferral for this reason alone.  We don't want to just ignore the errors
-> > and not print anything either since if the resource doesn't appear the
-> > user needs to know what is preventing the driver from instantiating so
-> > they can try to fix it.
+V7:
+ -execute the bus recovery once in a transfer, when the controller fail=
+s to start
+ -use i2c_generic_gpio_recovery() to handle the bus recovery with gpios
 
-> This has come up many times, I have no objection to just turning that
-> message into a debug message that can be dynamically enabled for those
-> people wanting to debug their systems for boot time issues.
+V8:
+ -remove unused symbol and unrelated whitespace changes
 
-It's not just the driver core logging, it's also all the individual
-drivers logging that they failed to get whatever resource since silently
-failing is not a great user experience.  Many, hopefully most, of the
-drivers don't actually have special handling for probe deferral since
-half the beauty of probe deferral is that the subsystem supplying the
-resource can just return -EPROBE_DEFER when it notices something is
-missing but might appear and then the drivers will do the right thing so
-long as they have error handling code that they really should have
-anyway.
+ Documentation/devicetree/bindings/i2c/i2c-imx.txt |  9 +++
+ drivers/i2c/busses/i2c-imx.c                      | 70 +++++++++++++++=
+++++++++
+ 2 files changed, 79 insertions(+)
 
-We'd need to have a special dev_err() that handled probe deferral
-errors for drivers to use during probe or some other smarts in the
-logging infrastructure.  Which isn't a totally horrible idea.
-
---fJz81ohldq3XijGc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWI/i6AAoJECTWi3JdVIfQHiAH/j87ui2ZA7zZlEigIswdU9WD
-jRpEO3ZVBH3VylDoyoCIEtgolJwSqWV1Qk6c1EVn8vyhrP1+t5HYWvqrz+49KJrX
-AwCkkEKmXiNBtIAENaSsqVTWH3WmwLWYqbaZ3tTM47zN3gVzj/qnaQNs2GMhPQTs
-Y9pCzL1LUTMdviMwoMGtq7Fz9gUu+/pXpj1lT07whQmzfHaiMkcJ35VjHeTMKWnC
-r2moRf5uUgZj7gtylYcItS6hr/6P+X/tc7zY91KEMNo+Qrhdh1eC0H35Lsw8VwGA
-IqYTYWiz802CQiBCvtAXf3UYMrHZiW3MFWE7MD4dPqcl410M8ZscSxJH9Lsiz8k=
-=Y8XH
------END PGP SIGNATURE-----
-
---fJz81ohldq3XijGc--
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Docume=
+ntation/devicetree/bindings/i2c/i2c-imx.txt
+index ce4311d..eab5836 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+@@ -14,6 +14,10 @@ Optional properties:
+   The absence of the propoerty indicates the default frequency 100 kHz=
+=2E
+ - dmas: A list of two dma specifiers, one for each entry in dma-names.
+ - dma-names: should contain "tx" and "rx".
++- scl-gpios: specify the gpio related to SCL pin
++- sda-gpios: specify the gpio related to SDA pin
++- pinctrl: add extra pinctrl to configure i2c pins to gpio function fo=
+r i2c
++  bus recovery, call it "gpio" state
+=20
+ Examples:
+=20
+@@ -37,4 +41,9 @@ i2c0: i2c@40066000 { /* i2c0 on vf610 */
+ 	dmas =3D <&edma0 0 50>,
+ 		<&edma0 0 51>;
+ 	dma-names =3D "rx","tx";
++	pinctrl-names =3D "default", "gpio";
++	pinctrl-0 =3D <&pinctrl_i2c1>;
++	pinctrl-1 =3D <&pinctrl_i2c1_gpio>;
++	scl-gpios =3D <&gpio5 26 GPIO_ACTIVE_HIGH>;
++	sda-gpios =3D <&gpio5 27 GPIO_ACTIVE_HIGH>;
+ };
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.=
+c
+index 91bdf28..9afe107 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -49,6 +49,7 @@
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/of_dma.h>
++#include <linux/of_gpio.h>
+ #include <linux/platform_data/i2c-imx.h>
+ #include <linux/platform_device.h>
+ #include <linux/sched.h>
+@@ -210,6 +211,11 @@ struct imx_i2c_struct {
+ 	unsigned int		cur_clk;
+ 	unsigned int		bitrate;
+ 	const struct imx_i2c_hwdata	*hwdata;
++	struct i2c_bus_recovery_info rinfo;
++
++	struct pinctrl *pinctrl;
++	struct pinctrl_state *pinctrl_pins_default;
++	struct pinctrl_state *pinctrl_pins_gpio;
+=20
+ 	struct imx_i2c_dma	*dma;
+ };
+@@ -899,6 +905,13 @@ static int i2c_imx_xfer(struct i2c_adapter *adapte=
+r,
+=20
+ 	/* Start I2C transfer */
+ 	result =3D i2c_imx_start(i2c_imx);
++	if (result) {
++		if (i2c_imx->adapter.bus_recovery_info) {
++			i2c_recover_bus(&i2c_imx->adapter);
++			result =3D i2c_imx_start(i2c_imx);
++		}
++	}
++
+ 	if (result)
+ 		goto fail0;
+=20
+@@ -963,6 +976,55 @@ out:
+ 	return (result < 0) ? result : num;
+ }
+=20
++static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
++{
++	struct imx_i2c_struct *i2c_imx;
++
++	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
++
++	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_gpio);
++}
++
++static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
++{
++	struct imx_i2c_struct *i2c_imx;
++
++	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
++
++	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_default)=
+;
++}
++
++static void i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
++		struct platform_device *pdev)
++{
++	struct i2c_bus_recovery_info *rinfo =3D &i2c_imx->rinfo;
++
++	i2c_imx->pinctrl_pins_default =3D pinctrl_lookup_state(i2c_imx->pinct=
+rl,
++			PINCTRL_STATE_DEFAULT);
++	i2c_imx->pinctrl_pins_gpio =3D pinctrl_lookup_state(i2c_imx->pinctrl,
++			"gpio");
++	rinfo->sda_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
++			"sda-gpios", 0, NULL);
++	rinfo->scl_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
++			"scl-gpios", 0, NULL);
++
++	if (!gpio_is_valid(rinfo->sda_gpio) ||
++	    !gpio_is_valid(rinfo->scl_gpio) ||
++	    IS_ERR(i2c_imx->pinctrl_pins_default) ||
++	    IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
++		dev_dbg(&pdev->dev, "recovery information incomplete\n");
++		return;
++	}
++
++	dev_dbg(&pdev->dev, "using scl-gpio %d and sda-gpio %d for recovery\n=
+",
++			rinfo->sda_gpio, rinfo->scl_gpio);
++
++	rinfo->prepare_recovery =3D i2c_imx_prepare_recovery;
++	rinfo->unprepare_recovery =3D i2c_imx_unprepare_recovery;
++	rinfo->recover_bus =3D i2c_generic_gpio_recovery;
++	i2c_imx->adapter.bus_recovery_info =3D rinfo;
++}
++
+ static u32 i2c_imx_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+@@ -1031,6 +1093,12 @@ static int i2c_imx_probe(struct platform_device =
+*pdev)
+ 		return ret;
+ 	}
+=20
++	i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
++	if (IS_ERR(i2c_imx->pinctrl)) {
++		ret =3D PTR_ERR(i2c_imx->pinctrl);
++		goto clk_disable;
++	}
++
+ 	/* Request IRQ */
+ 	ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
+ 				pdev->name, i2c_imx);
+@@ -1045,6 +1113,8 @@ static int i2c_imx_probe(struct platform_device *=
+pdev)
+ 	/* Set up adapter data */
+ 	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
+=20
++	i2c_imx_init_recovery_info(i2c_imx, pdev);
++
+ 	/* Set up platform driver data */
+ 	platform_set_drvdata(pdev, i2c_imx);
+=20
+--=20
+1.9.1
