@@ -1,117 +1,68 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: Re: [PATCH] i2c: at91: fix write transfers by clearing pending
- interrupt first
-Date: Mon, 19 Oct 2015 12:49:03 +0200
-Message-ID: <5624CA9F.5080309@lysator.liu.se>
-References: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
- <561D20E7.5070405@lysator.liu.se> <561D359D.8000500@atmel.com>
- <561D46FE.4090801@lysator.liu.se> <20151014054321.GA20049@odux.rfo.atmel.com>
- <56203B0E.1030104@lysator.liu.se> <5620BE9A.10302@lysator.liu.se>
- <20151019085136.GK26893@odux.rfo.atmel.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Mon, 19 Oct 2015 12:02:38 +0100
+Message-ID: <20151019110238.GE14956@sirena.org.uk>
+References: <561E1378.6000906@collabora.com>
+ <20151017065750.GA18607@kroah.com>
+ <20151018192931.GY14956@sirena.org.uk>
+ <20151018193757.GA9147@kroah.com>
+ <20151018195330.GB14956@sirena.org.uk>
+ <1445247881.53393.146.camel@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.lysator.liu.se ([130.236.254.3]:44715 "EHLO
-	mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751206AbbJSKtM (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Oct 2015 06:49:12 -0400
-In-Reply-To: <20151019085136.GK26893@odux.rfo.atmel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="KwgAcZnBnwoMp5TU"
+Return-path: <linux-clk-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1445247881.53393.146.camel@infradead.org>
+Sender: linux-clk-owner@vger.kernel.org
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Felipe Balbi <balbi@ti>
 List-Id: linux-i2c@vger.kernel.org
-To: Cyrille Pitchen <cyrille.pitchen@atmel.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com
 
-On 2015-10-19 10:51, Ludovic Desroches wrote:
-> Hi Peter,
->=20
-> On Fri, Oct 16, 2015 at 11:08:42AM +0200, Peter Rosin wrote:
->> On 2015-10-16 01:47, Peter Rosin wrote:
->>> On 2015-10-14 07:43, Ludovic Desroches wrote:
->>>> On Tue, Oct 13, 2015 at 08:01:34PM +0200, Peter Rosin wrote:
->>>>> On 2015-10-13 18:47, Cyrille Pitchen wrote:
->>>>>> Le 13/10/2015 17:19, Peter Rosin a =E9crit :
->>>>>>> On 2015-10-13 16:21, Ludovic Desroches wrote:
->=20
-> [...]
->=20
->>> I have started to get this when I run with this patch:
->>>
->>> [   73.310000] at91_i2c f0014000.i2c: RXRDY still set!
->>> [  198.200000] at91_i2c f0014000.i2c: RXRDY still set!
->>> [  509.880000] at91_i2c f0014000.i2c: RXRDY still set!
->>> [  615.750000] at91_i2c f0014000.i2c: RXRDY still set!
->>> [  617.750000] at91_i2c f0014000.i2c: RXRDY still set!
->>> [ 1766.640000] at91_i2c f0014000.i2c: RXRDY still set!
->>> [ 2035.380000] at91_i2c f0014000.i2c: RXRDY still set!
->>> [ 2227.190000] at91_i2c f0014000.i2c: RXRDY still set!
->>> [ 2313.100000] at91_i2c f0014000.i2c: RXRDY still set!
->>>
->>> My USB serial dongle was hung which was why I didn't notice until j=
-ust now.
->>>
->>> This is probably not when communication with the eeprom though, and=
- certainly not
->>> writing to it, but perhpaps when polling the temperature (using the=
- jc42 driver).
->>> I'll investigate further in the morning to see if I can pinpoint it=
-=2E
->>
->> Yep, it's the jc42 accesses that triggers this (to the same chip as =
-the
->> eeprom, but a different block of transistors I suppose).
->>
->> Looking at the i2c bus, the accesses normally go like this:
->>
->> [0.000000] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
->> [0.000521] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
->> [0.001024] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
->> [0.001524] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
->> [0.196991] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
->> [0.197514] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
->> [0.198019] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
->> [0.198520] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
->>
->> I.e. chunks of four transfers every ~200 ms (I removed the 1Hz rate
->> limiter in the jc42 driver to get more frequent incidents).
->>
->> But when the diagnostic (RXRDY still set!) is output it continues
->> with this:
->>
->> [0.399755] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
->> [0.404998] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
->> [0.405508] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
->> [0.406008] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
->>
->> Notice the ~5 ms delay (about the time it should take to output
->> the diagnostic at 115200 baud) after the access to register 0x05
->> at 0.399755.
->>
->> This is the only thing that I can observe on the bus, so it appears
->> to be harmless.
->>
->> It appears that the i2c access at 0.399755 finds the TWI
->> registers in an odd state, but nothing from the access at
->> 0.198520 appears to have gone wrong. Is this a race? Anyway,
->> the diagnostic is pretty frequent and annoying. printk_once?
->=20
-> I'll try to reproduce it on my side. The only issue you have is havin=
-g
-> the message about RXRDY? I mean no issue with i2c transfers?
 
-Exactly, the only issue is the message, the bus looks good and transfer=
-s
-work as they should AFAICT.
+--KwgAcZnBnwoMp5TU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> It is not the possible bug we had in mind, this bug will prevent the
-> master device to release the i2c bus. It will stop the transfer but
-> without sending a stop on the bus.
+On Mon, Oct 19, 2015 at 10:44:41AM +0100, David Woodhouse wrote:
+> On Sun, 2015-10-18 at 20:53 +0100, Mark Brown wrote:
 
-Agreed, this is not about the extra frame caused by the spurious write
-to the THR register. This is something else.
+> > Do you mean firmware rather than bus here?  I think that's the confusion
+> > I have...
 
-One suspicion is that the driver gets an unexpected irq from its own
-NACK (the one that it puts out to end the read) and races with the
-expected interrupt at TXCOMP?
+> Certainly, if it literally is adding of_* calls then that would seem to
+> be gratuitously firmware-specific. Nothing should be using those these
+> days; any new code should be using the generic device property APIs
+> (except in special cases).
 
-Cheers,
-Peter
+It's not entirely clear to me that we should be moving to fwnode_
+wholesale yet - the last advice was to hold off for a little while which
+makes sense given that the ACPI community still doesn't seem to have
+worked out what it wants to do here and how.  The x86 embedded people
+are all gung ho but it's less clear that anyone else wants to use _DSD
+in quite the same way (I know of some efforts to use _DSD separately to
+the DT compatibility stuff) and there are some vendors who definitely do
+have completely different binding schemes for ACPI and DT and therefore
+specifically care which is in use.
+
+It would really help if ACPI could get their binding review process in
+place, and if we do want to actually start converting everything to
+fwnode_ we need to start communicating that actively since otherwise
+people can't really be expected to know.
+
+--KwgAcZnBnwoMp5TU
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJWJM3NAAoJECTWi3JdVIfQZWIH+wWlytIatZzb02megHs7cfkS
+XkfoBZZlTpwYYTLooWg9gc7XQ/Hx2qk/CTJwHZOudgYjrig+IWFuwOAU5Vw5YMm8
+7LN539ptj28jYJibjVxoIIX0bRAiQgrG9i3/5K5e6pmGzqnea/D2mu9sG5L2Fz//
+WLK/BYSFuVW6AzmoncTtGgYqECOFDXo8azymWx86d/NlXXMWKIvoEb0qVS+dJrgi
+6U7UQqhp46CwWEX3yk4Yf51Fi1wh6xAaLZcXeXqwvy+rYUXpBRNWKhG+0HR1d+Ep
+lOg6BbeD+4VpVvPL0yFpxmWEnjicr9mB6jVz/tkKq/tVq6aVat5SrbGTs5Tygjg=
+=TjUN
+-----END PGP SIGNATURE-----
+
+--KwgAcZnBnwoMp5TU--
