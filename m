@@ -1,258 +1,109 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [Patch V8] i2c: imx: implement bus recovery
-Date: Mon, 19 Oct 2015 08:31:41 +0200
-Message-ID: <20151019063141.GB14476@pengutronix.de>
-References: <1445221022-6991-1-git-send-email-b54642@freescale.com>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: Re: [PATCH] i2c: at91: fix write transfers by clearing pending
+ interrupt first
+Date: Mon, 19 Oct 2015 10:51:36 +0200
+Message-ID: <20151019085136.GK26893@odux.rfo.atmel.com>
+References: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
+ <561D20E7.5070405@lysator.liu.se>
+ <561D359D.8000500@atmel.com>
+ <561D46FE.4090801@lysator.liu.se>
+ <20151014054321.GA20049@odux.rfo.atmel.com>
+ <56203B0E.1030104@lysator.liu.se>
+ <5620BE9A.10302@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:39476 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750787AbbJSGbo (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Oct 2015 02:31:44 -0400
+Received: from eusmtp01.atmel.com ([212.144.249.243]:34585 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751209AbbJSIvk (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Oct 2015 04:51:40 -0400
 Content-Disposition: inline
-In-Reply-To: <1445221022-6991-1-git-send-email-b54642@freescale.com>
+In-Reply-To: <5620BE9A.10302@lysator.liu.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <b54642@freescale.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, u.kleine-koenig@pengutronix.de, kernel@pengutronix.de, hkallweit1@gmail.com
+To: Peter Rosin <peda@lysator.liu.se>
+Cc: Cyrille Pitchen <cyrille.pitchen@atmel.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com
 
-On Mon, Oct 19, 2015 at 10:17:02AM +0800, Gao Pan wrote:
-> Implement bus recovery methods for i2c-imx so we can recover from
-> situations where SCL/SDA are stuck low.
->=20
-> Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
-> pinctrl to gpio mode by calling pinctrl sleep set function, and then
-> use GPIO to emulate the i2c protocol to send nine dummy clock to reco=
-ver
-> i2c device. After recovery, set i2c pinctrl to default group setting.
->=20
-> Signed-off-by: Fugang Duan <B38611@freescale.com>
-> Signed-off-by: Gao Pan <b54642@freescale.com>
-> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Hi Peter,
 
-Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+On Fri, Oct 16, 2015 at 11:08:42AM +0200, Peter Rosin wrote:
+> On 2015-10-16 01:47, Peter Rosin wrote:
+> > On 2015-10-14 07:43, Ludovic Desroches wrote:
+> >> On Tue, Oct 13, 2015 at 08:01:34PM +0200, Peter Rosin wrote:
+> >>> On 2015-10-13 18:47, Cyrille Pitchen wrote:
+> >>>> Le 13/10/2015 17:19, Peter Rosin a =E9crit :
+> >>>>> On 2015-10-13 16:21, Ludovic Desroches wrote:
 
-Sascha
+[...]
 
-> ---
-> V2:
-> As Uwe Kleine-K=F6nig's suggestion, the version do below changes:
->  -replace of_get_named_gpio() with devm_gpiod_get_optional()
->  -move gpio_direction_input() and gpio_direction_output() call to the
->   prepare callback
->  -use 0 and 1 as return value for the get_scl and get_sda callbacks
+> > I have started to get this when I run with this patch:
+> >=20
+> > [   73.310000] at91_i2c f0014000.i2c: RXRDY still set!
+> > [  198.200000] at91_i2c f0014000.i2c: RXRDY still set!
+> > [  509.880000] at91_i2c f0014000.i2c: RXRDY still set!
+> > [  615.750000] at91_i2c f0014000.i2c: RXRDY still set!
+> > [  617.750000] at91_i2c f0014000.i2c: RXRDY still set!
+> > [ 1766.640000] at91_i2c f0014000.i2c: RXRDY still set!
+> > [ 2035.380000] at91_i2c f0014000.i2c: RXRDY still set!
+> > [ 2227.190000] at91_i2c f0014000.i2c: RXRDY still set!
+> > [ 2313.100000] at91_i2c f0014000.i2c: RXRDY still set!
+> >=20
+> > My USB serial dongle was hung which was why I didn't notice until j=
+ust now.
+> >=20
+> > This is probably not when communication with the eeprom though, and=
+ certainly not
+> > writing to it, but perhpaps when polling the temperature (using the=
+ jc42 driver).
+> > I'll investigate further in the morning to see if I can pinpoint it=
+=2E
 >=20
-> V3:
->  -replace "...-gpio" with "...-gpios" in i2c binding doc
->  -document the requirement of using sleep state to configure
->   the pins as gpio in i2c binding doc
->  -remove i2c_recover_bus() in i2c_imx_trx_complete()
->  -use GPIOD_OUT_HIGH as the parameter of devm_gpiod_get_optional to
->   config the gpios as output high
->  -add error disposal as devm_gpiod_get_optional meets error
+> Yep, it's the jc42 accesses that triggers this (to the same chip as t=
+he
+> eeprom, but a different block of transistors I suppose).
 >=20
-> V4:
->  -remove include <linux/of_gpio.h>
->  -call i2c_recover_bus under the condition of the existing of
->   both sda and scl. Drop the sda and scl check in i2c_imx_get_scl,
->   i2c_imx_get_sda, i2c_imx_set_scl, i2c_imx_prepare_recovery and
->   i2c_imx_prepare_recovery
->  -use GPIOD_OUT_IN as the parameter of devm_gpiod_get_optional
->  -remove documenting the requirement of using sleep state to configur=
-e
->   the pins as gpio in i2c binding doc
+> Looking at the i2c bus, the accesses normally go like this:
 >=20
-> V5:
->  -introduce a dedicated gpio state for bus recovery.
->  -assign adapter.bus_recovery_info after the two gpios were aquired s=
-uccessfully
+> [0.000000] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
+> [0.000521] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
+> [0.001024] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
+> [0.001524] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
+> [0.196991] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
+> [0.197514] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
+> [0.198019] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
+> [0.198520] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
 >=20
-> V6:
->  -assign adapter.bus_recovery_info under the condition that gpios are=
- acquired successfully
->  -not try the recovery when pinctrl_lookup_state returns an error
+> I.e. chunks of four transfers every ~200 ms (I removed the 1Hz rate
+> limiter in the jc42 driver to get more frequent incidents).
 >=20
-> V7:
->  -execute the bus recovery once in a transfer, when the controller fa=
-ils to start
->  -use i2c_generic_gpio_recovery() to handle the bus recovery with gpi=
-os
+> But when the diagnostic (RXRDY still set!) is output it continues
+> with this:
 >=20
-> V8:
->  -remove unused symbol and unrelated whitespace changes
+> [0.399755] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
+> [0.404998] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
+> [0.405508] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
+> [0.406008] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
 >=20
->  Documentation/devicetree/bindings/i2c/i2c-imx.txt |  9 +++
->  drivers/i2c/busses/i2c-imx.c                      | 70 +++++++++++++=
-++++++++++
->  2 files changed, 79 insertions(+)
+> Notice the ~5 ms delay (about the time it should take to output
+> the diagnostic at 115200 baud) after the access to register 0x05
+> at 0.399755.
 >=20
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Docu=
-mentation/devicetree/bindings/i2c/i2c-imx.txt
-> index ce4311d..eab5836 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> @@ -14,6 +14,10 @@ Optional properties:
->    The absence of the propoerty indicates the default frequency 100 k=
-Hz.
->  - dmas: A list of two dma specifiers, one for each entry in dma-name=
-s.
->  - dma-names: should contain "tx" and "rx".
-> +- scl-gpios: specify the gpio related to SCL pin
-> +- sda-gpios: specify the gpio related to SDA pin
-> +- pinctrl: add extra pinctrl to configure i2c pins to gpio function =
-for i2c
-> +  bus recovery, call it "gpio" state
-> =20
->  Examples:
-> =20
-> @@ -37,4 +41,9 @@ i2c0: i2c@40066000 { /* i2c0 on vf610 */
->  	dmas =3D <&edma0 0 50>,
->  		<&edma0 0 51>;
->  	dma-names =3D "rx","tx";
-> +	pinctrl-names =3D "default", "gpio";
-> +	pinctrl-0 =3D <&pinctrl_i2c1>;
-> +	pinctrl-1 =3D <&pinctrl_i2c1_gpio>;
-> +	scl-gpios =3D <&gpio5 26 GPIO_ACTIVE_HIGH>;
-> +	sda-gpios =3D <&gpio5 27 GPIO_ACTIVE_HIGH>;
->  };
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
-x.c
-> index 91bdf28..9afe107 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -49,6 +49,7 @@
->  #include <linux/of.h>
->  #include <linux/of_device.h>
->  #include <linux/of_dma.h>
-> +#include <linux/of_gpio.h>
->  #include <linux/platform_data/i2c-imx.h>
->  #include <linux/platform_device.h>
->  #include <linux/sched.h>
-> @@ -210,6 +211,11 @@ struct imx_i2c_struct {
->  	unsigned int		cur_clk;
->  	unsigned int		bitrate;
->  	const struct imx_i2c_hwdata	*hwdata;
-> +	struct i2c_bus_recovery_info rinfo;
-> +
-> +	struct pinctrl *pinctrl;
-> +	struct pinctrl_state *pinctrl_pins_default;
-> +	struct pinctrl_state *pinctrl_pins_gpio;
-> =20
->  	struct imx_i2c_dma	*dma;
->  };
-> @@ -899,6 +905,13 @@ static int i2c_imx_xfer(struct i2c_adapter *adap=
-ter,
-> =20
->  	/* Start I2C transfer */
->  	result =3D i2c_imx_start(i2c_imx);
-> +	if (result) {
-> +		if (i2c_imx->adapter.bus_recovery_info) {
-> +			i2c_recover_bus(&i2c_imx->adapter);
-> +			result =3D i2c_imx_start(i2c_imx);
-> +		}
-> +	}
-> +
->  	if (result)
->  		goto fail0;
-> =20
-> @@ -963,6 +976,55 @@ out:
->  	return (result < 0) ? result : num;
->  }
-> =20
-> +static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
-> +{
-> +	struct imx_i2c_struct *i2c_imx;
-> +
-> +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> +
-> +	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_gpio);
-> +}
-> +
-> +static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
-> +{
-> +	struct imx_i2c_struct *i2c_imx;
-> +
-> +	i2c_imx =3D container_of(adap, struct imx_i2c_struct, adapter);
-> +
-> +	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_defaul=
-t);
-> +}
-> +
-> +static void i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_im=
-x,
-> +		struct platform_device *pdev)
-> +{
-> +	struct i2c_bus_recovery_info *rinfo =3D &i2c_imx->rinfo;
-> +
-> +	i2c_imx->pinctrl_pins_default =3D pinctrl_lookup_state(i2c_imx->pin=
-ctrl,
-> +			PINCTRL_STATE_DEFAULT);
-> +	i2c_imx->pinctrl_pins_gpio =3D pinctrl_lookup_state(i2c_imx->pinctr=
-l,
-> +			"gpio");
-> +	rinfo->sda_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
-> +			"sda-gpios", 0, NULL);
-> +	rinfo->scl_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
-> +			"scl-gpios", 0, NULL);
-> +
-> +	if (!gpio_is_valid(rinfo->sda_gpio) ||
-> +	    !gpio_is_valid(rinfo->scl_gpio) ||
-> +	    IS_ERR(i2c_imx->pinctrl_pins_default) ||
-> +	    IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
-> +		dev_dbg(&pdev->dev, "recovery information incomplete\n");
-> +		return;
-> +	}
-> +
-> +	dev_dbg(&pdev->dev, "using scl-gpio %d and sda-gpio %d for recovery=
-\n",
-> +			rinfo->sda_gpio, rinfo->scl_gpio);
-> +
-> +	rinfo->prepare_recovery =3D i2c_imx_prepare_recovery;
-> +	rinfo->unprepare_recovery =3D i2c_imx_unprepare_recovery;
-> +	rinfo->recover_bus =3D i2c_generic_gpio_recovery;
-> +	i2c_imx->adapter.bus_recovery_info =3D rinfo;
-> +}
-> +
->  static u32 i2c_imx_func(struct i2c_adapter *adapter)
->  {
->  	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-> @@ -1031,6 +1093,12 @@ static int i2c_imx_probe(struct platform_devic=
-e *pdev)
->  		return ret;
->  	}
-> =20
-> +	i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
-> +	if (IS_ERR(i2c_imx->pinctrl)) {
-> +		ret =3D PTR_ERR(i2c_imx->pinctrl);
-> +		goto clk_disable;
-> +	}
-> +
->  	/* Request IRQ */
->  	ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
->  				pdev->name, i2c_imx);
-> @@ -1045,6 +1113,8 @@ static int i2c_imx_probe(struct platform_device=
- *pdev)
->  	/* Set up adapter data */
->  	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
-> =20
-> +	i2c_imx_init_recovery_info(i2c_imx, pdev);
-> +
->  	/* Set up platform driver data */
->  	platform_set_drvdata(pdev, i2c_imx);
-> =20
-> --=20
-> 1.9.1
+> This is the only thing that I can observe on the bus, so it appears
+> to be harmless.
 >=20
->=20
+> It appears that the i2c access at 0.399755 finds the TWI
+> registers in an odd state, but nothing from the access at
+> 0.198520 appears to have gone wrong. Is this a race? Anyway,
+> the diagnostic is pretty frequent and annoying. printk_once?
 
---=20
-Pengutronix e.K.                           |                           =
-  |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0  =
-  |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-555=
-5 |
+I'll try to reproduce it on my side. The only issue you have is having
+the message about RXRDY? I mean no issue with i2c transfers?
+
+It is not the possible bug we had in mind, this bug will prevent the
+master device to release the i2c bus. It will stop the transfer but
+without sending a stop on the bus.
+
+Regards
+
+Ludovic
