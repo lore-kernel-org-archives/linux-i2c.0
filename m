@@ -1,181 +1,151 @@
-From: Dustin Byford <dustin@cumulusnetworks.com>
-Subject: [PATCH v3 1/1] i2c: add ACPI support for I2C mux ports
-Date: Mon, 19 Oct 2015 15:29:00 -0700
-Message-ID: <1445293740-28537-2-git-send-email-dustin@cumulusnetworks.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
- <1445293740-28537-1-git-send-email-dustin@cumulusnetworks.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1445293740-28537-1-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, andriy.shevchenko@linux.intel.com
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Mon, 19 Oct 2015 17:58:40 -0500
+Message-ID: <CAL_JsqKa3MFJUWKV2KxPE_NmrP2g4dOD3zr+0Kyx4yBkDOg2HA@mail.gmail.com>
+References: <561E1378.6000906@collabora.com> <1445268580.53393.183.camel@infradead.org>
+ <CAL_JsqLwvc1H9kQnWs=mA8P4Mq4izmSSeFU6KRtkExBkzF9ABg@mail.gmail.com> <1603415.VWFZ8V0WMC@vostro.rjw.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-pwm-owner@vger.kernel.org>
+In-Reply-To: <1603415.VWFZ8V0WMC@vostro.rjw.lan>
+Sender: linux-pwm-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: David Woodhouse <dwmw2@infradead.org>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Liam Girdwood <lgirdwoo>
 List-Id: linux-i2c@vger.kernel.org
 
-Although I2C mux devices are easily enumerated using ACPI (_HID/_CID or
-device property compatible string match) enumerating I2C client devices
-connected through a I2C mux device requires a little extra work.
+On Mon, Oct 19, 2015 at 4:40 PM, Rafael J. Wysocki <rjw@rjwysocki.net> =
+wrote:
+> On Monday, October 19, 2015 10:58:25 AM Rob Herring wrote:
+>> On Mon, Oct 19, 2015 at 10:29 AM, David Woodhouse <dwmw2@infradead.o=
+rg> wrote:
+>> > On Mon, 2015-10-19 at 15:50 +0100, Mark Brown wrote:
+>> >> > But the point I'm making is that we are working towards *fixing=
+* that,
+>> >> > and *not* using DT-specific code in places where we should be u=
+sing the
+>> >> > generic APIs.
+>> >>
+>> >> What is the plan for fixing things here?  It's not obvious (at le=
+ast to
+>> >> me) that we don't want to have the subsystems having knowledge of=
+ how
+>> >> they are bound to a specific firmware which is what you seem to i=
+mply
+>> >> here.
+>> >
+>> > I don't know that there *is* a coherent plan here to address it al=
+l.
+>> >
+>> > Certainly, we *will* need subsystems to have firmware-specific
+>> > knowledge in some cases. Take GPIO as an example; ACPI *has* a way=
+ to
+>> > describe GPIO, and properties which reference GPIO pins are intend=
+ed to
+>> > work through that =E2=80=94 while in DT, properties which referenc=
+e GPIO pins
+>> > will have different contents. They'll be compatible at the driver
+>> > level, in the sense that there's a call to get a given GPIO given =
+the
+>> > property name, but the subsystems *will* be doing different things
+>> > behind the scenes.
+>> >
+>> > My plan, such as it is, is to go through the leaf-node drivers whi=
+ch
+>> > almost definitely *should* be firmware-agnostic, and convert those=
+=2E And
+>> > then take stock of what we have left, and work out what, if anythi=
+ng,
+>> > still needs to be done.
+>>
+>> Many cases are already agnostic in the drivers in terms of the *_get=
+()
+>> functions. Some are DT specific, but probably because those subsyste=
+ms
+>> are new and DT only. In any case, I don't think these 1 line changes
+>> do anything to make doing conversions here harder.
+>>
+>> >> It seems like we're going to have to refactor these bits of code =
+when
+>> >> they get generalised anyway so I'm not sure that the additional c=
+ost
+>> >> here is that big.
+>> >
+>> > That's an acceptable answer =E2=80=94 "we're adding legacy code he=
+re but we
+>> > know it's going to be refactored anyway". If that's true, all it t=
+akes
+>> > is a note in the commit comment to that effect. That's different f=
+rom
+>> > having not thought about it :)
+>>
+>> Considering at one point we did create a fwnode based API, we did
+>> think about it. Plus there was little input from ACPI folks as to
+>> whether the change was even useful for ACPI case.
+>
+> Well, sorry, but who was asking whom, specifically?
 
-This change implements a method for describing an I2C device hierarchy that
-includes mux devices by using an ACPI Device() for each mux channel along
-with an _ADR to set the channel number for the device.  See
-Documentation/acpi/i2c-muxes.txt for a simple example.
+You and linux-acpi have been copied on v2 and later of the entire
+series I think.
 
-Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
----
- Documentation/acpi/i2c-muxes.txt | 58 ++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/i2c-core.c           | 15 +++++++++--
- drivers/i2c/i2c-mux.c            |  8 ++++++
- include/linux/acpi.h             |  6 +++++
- 4 files changed, 85 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/acpi/i2c-muxes.txt
+> The underlying problem is present in ACPI too and we don't really hav=
+e a good
+> solution for it.  We might benefit from a common one if it existed.
 
-diff --git a/Documentation/acpi/i2c-muxes.txt b/Documentation/acpi/i2c-muxes.txt
-new file mode 100644
-index 0000000..9fcc4f0
---- /dev/null
-+++ b/Documentation/acpi/i2c-muxes.txt
-@@ -0,0 +1,58 @@
-+ACPI I2C Muxes
-+--------------
-+
-+Describing an I2C device hierarchy that includes I2C muxes requires an ACPI
-+Device () scope per mux channel.
-+
-+Consider this topology:
-+
-++------+   +------+
-+| SMB1 |-->| MUX0 |--CH00--> i2c client A (0x50)
-+|      |   | 0x70 |--CH01--> i2c client B (0x50)
-++------+   +------+
-+
-+which corresponds to the following ASL:
-+
-+Device (SMB1)
-+{
-+    Name (_HID, ...)
-+    Device (MUX0)
-+    {
-+        Name (_HID, ...)
-+        Name (_CRS, ResourceTemplate () {
-+            I2cSerialBus (0x70, ControllerInitiated, I2C_SPEED,
-+                          AddressingMode7Bit, "^SMB1", 0x00,
-+                          ResourceConsumer,,)
-+        }
-+
-+        Device (CH00)
-+        {
-+            Name (_ADR, 0)
-+
-+            Device (CLIA)
-+            {
-+                Name (_HID, ...)
-+                Name (_CRS, ResourceTemplate () {
-+                    I2cSerialBus (0x50, ControllerInitiated, I2C_SPEED,
-+                                  AddressingMode7Bit, "^CH00", 0x00,
-+                                  ResourceConsumer,,)
-+                }
-+            }
-+        }
-+
-+        Device (CH01)
-+        {
-+            Name (_ADR, 1)
-+
-+            Device (CLIB)
-+            {
-+                Name (_HID, ...)
-+                Name (_CRS, ResourceTemplate () {
-+                    I2cSerialBus (0x50, ControllerInitiated, I2C_SPEED,
-+                                  AddressingMode7Bit, "^CH01", 0x00,
-+                                  ResourceConsumer,,)
-+                }
-+            }
-+        }
-+    }
-+}
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 579b99d..af0811c 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -156,7 +156,7 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 	info.fwnode = acpi_fwnode_handle(adev);
- 
- 	memset(&lookup, 0, sizeof(lookup));
--	lookup.adapter_handle = ACPI_HANDLE(adapter->dev.parent);
-+	lookup.adapter_handle = ACPI_HANDLE(&adapter->dev);
- 	lookup.device_handle = handle;
- 	lookup.info = &info;
- 
-@@ -212,7 +212,7 @@ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
- {
- 	acpi_status status;
- 
--	if (!adap->dev.parent || !has_acpi_companion(adap->dev.parent))
-+	if (!has_acpi_companion(&adap->dev))
- 		return;
- 
- 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
-@@ -1667,6 +1667,17 @@ int i2c_add_adapter(struct i2c_adapter *adapter)
- 	struct device *dev = &adapter->dev;
- 	int id;
- 
-+	/*
-+	 * By default, associate I2C adapters with their parent device's ACPI
-+	 * node.
-+	 */
-+	if (!has_acpi_companion(dev)) {
-+		struct acpi_device *adev = ACPI_COMPANION(dev->parent);
-+
-+		if (adev)
-+			ACPI_COMPANION_SET(dev, adev);
-+	}
-+
- 	if (dev->of_node) {
- 		id = of_alias_get_id(dev->of_node, "i2c");
- 		if (id >= 0) {
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 2ba7c0f..00fc5b1 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -25,6 +25,7 @@
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
- #include <linux/of.h>
-+#include <linux/acpi.h>
- 
- /* multiplexer per channel data */
- struct i2c_mux_priv {
-@@ -173,6 +174,13 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 		}
- 	}
- 
-+	/*
-+	 * Associate the mux channel with an ACPI node.
-+	 */
-+	if (has_acpi_companion(mux_dev))
-+		acpi_preset_companion(&priv->adap.dev, ACPI_COMPANION(mux_dev),
-+				      chan_id);
-+
- 	if (force_nr) {
- 		priv->adap.nr = force_nr;
- 		ret = i2c_add_numbered_adapter(&priv->adap);
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 51a96a8..66564f8 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -505,6 +505,12 @@ static inline bool has_acpi_companion(struct device *dev)
- 	return false;
- }
- 
-+static inline void acpi_preset_companion(struct device *dev,
-+					 struct acpi_device *parent, u64 addr)
-+{
-+	return;
-+}
-+
- static inline const char *acpi_dev_name(struct acpi_device *adev)
- {
- 	return NULL;
--- 
-2.1.4
+The problem for DT is we don't generically know what are the
+dependencies at a core level. We could know some or most dependencies
+if phandles (links to other nodes) were typed, but they are not. If
+the core had this information, we could simply control the device
+creation to order probing. Instead, this information is encoded into
+the bindings and binding parsing resides in the subsystems. That
+parsing happens during probe of the client side and is done by the
+subsystems (for common bindings). Since we already do the parsing at
+this point, it is a convenient place to trigger the probe of the
+dependency. Is ACPI going to be similar in this regard?
 
+=46undamentally, it is a question of probe devices when their
+dependencies are present or drivers ensure their dependencies are
+ready. IIRC, init systems went thru a similar debate for service
+dependencies.
+
+>> In any case, we're talking about adding 1 line.
+>
+> But also about making the driver core slighly OF-centric.
+
+How so? The one line is in DT binding parsing code in subsystems, not
+driver core. The driver core change is we add every device (that
+happened to be created by DT) to the deferred probe list, so they
+don't probe right away.
+
+
+> Sure, we need OF-specific code and ACPI-specific code wherever differ=
+ent
+> handling is required, but doing that at the driver core level seems t=
+o be
+> a bit of a stretch to me.
+>
+> Please note that we don't really have ACPI-specific calls in the driv=
+er core,
+> although we might have added them long ago even before the OF stuff a=
+ppeared
+> in the kernel for the first time.  We didn't do that, (among other th=
+ings)
+> because we didn't want that particular firmware interface to appear s=
+pecial
+> in any way and I'm not really sure why it is now OK to make OF look s=
+pecial
+> instead.
+
+I don't think DT is special and we avoid DT specific core changes as
+much as possible. I think the difference is DT uses platform_device
+and ACPI does not. It used to be separate, but got merged together
+primarily to support the plethora of existing drivers. Anyway, that is
+all outside of anything in this series.
+
+> If it is trivial to avoid that (and you seem to be arguing that it is=
+), why
+> do we have to do it?
+
+Sorry, I don't follow what "that" or "it" is.
+
+Rob
