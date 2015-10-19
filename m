@@ -1,87 +1,116 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Mon, 19 Oct 2015 17:04:00 +0100
-Message-ID: <20151019160400.GD32054@sirena.org.uk>
-References: <561E1378.6000906@collabora.com>
- <20151017065750.GA18607@kroah.com>
- <20151018192931.GY14956@sirena.org.uk>
- <20151018193757.GA9147@kroah.com>
- <20151018195330.GB14956@sirena.org.uk>
- <1445247881.53393.146.camel@infradead.org>
- <CAL_JsqKehmSobpbdeXGo=-1pAbtrhCHovyyCWya_MNOhGCi8CQ@mail.gmail.com>
- <1445258870.53393.173.camel@infradead.org>
- <20151019145048.GI14956@sirena.org.uk>
- <1445268580.53393.183.camel@infradead.org>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [PATCH] i2c: pnx: fix warnings caused by enabling unprepared clock
+Date: Mon, 19 Oct 2015 21:51:01 +0530
+Message-ID: <CAKfKVtEEcVN6byknzFv1WgceN8kbZNJB2Q7pkeXe_PmJD3_DTw@mail.gmail.com>
+References: <1445107947-2888-1-git-send-email-vz@mleia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="7DO5AaGCk89r4vaK"
-Return-path: <linux-clk-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1445268580.53393.183.camel@infradead.org>
-Sender: linux-clk-owner@vger.kernel.org
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Felipe Balbi <balbi@ti>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qg0-f44.google.com ([209.85.192.44]:34873 "EHLO
+	mail-qg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751441AbbJSQVD (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Oct 2015 12:21:03 -0400
+Received: by qgbb65 with SMTP id b65so56726131qgb.2
+        for <linux-i2c@vger.kernel.org>; Mon, 19 Oct 2015 09:21:02 -0700 (PDT)
+In-Reply-To: <1445107947-2888-1-git-send-email-vz@mleia.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
+On Sun, Oct 18, 2015 at 12:22 AM, Vladimir Zapolskiy <vz@mleia.com> wrote:
+> If common clock framework is configured, the driver generates a warning,
+> which is fixed by this change:
+Maybe just describe the issue and the fix.
+Is it just a warning or  the clk enable doesn't work ?
 
---7DO5AaGCk89r4vaK
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I feel the crash log in the commit msg is not very informative.
 
-On Mon, Oct 19, 2015 at 04:29:40PM +0100, David Woodhouse wrote:
-> On Mon, 2015-10-19 at 15:50 +0100, Mark Brown wrote:
-> > > But the point I'm making is that we are working towards *fixing* that,
-> > > and *not* using DT-specific code in places where we should be using t=
-he
-> > > generic APIs.
-
-> > What is the plan for fixing things here?  It's not obvious (at least to
-> > me) that we don't want to have the subsystems having knowledge of how
-> > they are bound to a specific firmware which is what you seem to imply
-> > here.=20
-
-> I don't know that there *is* a coherent plan here to address it all.
-
-> Certainly, we *will* need subsystems to have firmware-specific
-> knowledge in some cases. Take GPIO as an example; ACPI *has* a way to
-> describe GPIO, and properties which reference GPIO pins are intended to
-> work through that =E2=80=94 while in DT, properties which reference GPIO =
-pins
-> will have different contents. They'll be compatible at the driver
-> level, in the sense that there's a call to get a given GPIO given the
-> property name, but the subsystems *will* be doing different things
-> behind the scenes.
-
-I'd expect that to be the norm rather than the exception.
-
-> > It seems like we're going to have to refactor these bits of code when
-> > they get generalised anyway so I'm not sure that the additional cost
-> > here is that big.
-
-> That's an acceptable answer =E2=80=94 "we're adding legacy code here but =
-we
-> know it's going to be refactored anyway". If that's true, all it takes
-> is a note in the commit comment to that effect. That's different from
-> having not thought about it :)
-
-Given the above I'm not even sure it's legacy code, it's just as likely
-we're going to get some parallel ACPI code added to the subsystems for
-parsing their bindings.
-
---7DO5AaGCk89r4vaK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJWJRRvAAoJECTWi3JdVIfQ94UH/3aeK5/TtlRVjiyNRBStuDIK
-YfKZ694j90Jc2zzqmDGj9oSxEhaJ/7TRVwTUiMOAhqWA0CSbf3cBs/DIs+g+Az8V
-3zxpk3/tyo8IAPXq1K5jH0JZ4CHE5ZYFB4m1svX16yAqq8zfcHY5EHj9wzBgxguX
-uch4SsAk/SXtkQLxcvQnGhoetpBixwvtRB2V9rjc1BfDL5Gg9+swKsJT7gO/ijcX
-hPLmFKwf7HJQ/7epPIr4b2wyN++CTrknboN0Mzkh+OaWgL8mMrbXhLLe+EqXshyc
-4EubfdtrFtdMq1Yu2UqgQzS/QjMU3pO7X1QZG02th+w09YzWFy7TlFOUpU9O2X4=
-=VsPa
------END PGP SIGNATURE-----
-
---7DO5AaGCk89r4vaK--
+>
+>     WARNING: CPU: 0 PID: 1 at drivers/clk/clk.c:727 clk_core_enable+0x2c/0xa4()
+>     Modules linked in:
+>     CPU: 0 PID: 1 Comm: swapper Not tainted 4.3.0-rc2+ #171
+>     Hardware name: LPC32XX SoC (Flattened Device Tree)
+>     Backtrace:
+>     [<>] (dump_backtrace) from [<>] (show_stack+0x18/0x1c)
+>     [<>] (show_stack) from [<>] (dump_stack+0x20/0x28)
+>     [<>] (dump_stack) from [<>] (warn_slowpath_common+0x90/0xb8)
+>     [<>] (warn_slowpath_common) from [<>] (warn_slowpath_null+0x24/0x2c)
+>     [<>] (warn_slowpath_null) from [<>] (clk_core_enable+0x2c/0xa4)
+>     [<>] (clk_core_enable) from [<>] (clk_enable+0x24/0x38)
+>     [<>] (clk_enable) from [<>] (i2c_pnx_probe+0x108/0x2a8)
+>     [<>] (i2c_pnx_probe) from [<>] (platform_drv_probe+0x50/0xa0)
+>     [<>] (platform_drv_probe) from [<>] (driver_probe_device+0x18c/0x408)
+>     [<>] (driver_probe_device) from [<>] (__driver_attach+0x70/0x94)
+>     [<>] (__driver_attach) from [<>] (bus_for_each_dev+0x74/0x98)
+>     [<>] (bus_for_each_dev) from [<>] (driver_attach+0x20/0x28)
+>     [<>] (driver_attach) from [<>] (bus_add_driver+0x11c/0x248)
+>     [<>] (bus_add_driver) from [<>] (driver_register+0xa4/0xe8)
+>     [<>] (driver_register) from [<>] (__platform_driver_register+0x50/0x64)
+>     [<>] (__platform_driver_register) from [<>] (i2c_adap_pnx_init+0x18/0x20)
+>     [<>] (i2c_adap_pnx_init) from [<>] (do_one_initcall+0x11c/0x1dc)
+>     [<>] (do_one_initcall) from [<>] (kernel_init_freeable+0x10c/0x1d4)
+>     [<>] (kernel_init_freeable) from [<>] (kernel_init+0x10/0xec)
+>     [<>] (kernel_init) from [<>] (ret_from_fork+0x14/0x24)
+>
+> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+> ---
+>  drivers/i2c/busses/i2c-pnx.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+> index e814a36..6f8b446 100644
+> --- a/drivers/i2c/busses/i2c-pnx.c
+> +++ b/drivers/i2c/busses/i2c-pnx.c
+> @@ -600,7 +600,7 @@ static int i2c_pnx_controller_suspend(struct device *dev)
+>  {
+>         struct i2c_pnx_algo_data *alg_data = dev_get_drvdata(dev);
+>
+> -       clk_disable(alg_data->clk);
+> +       clk_disable_unprepare(alg_data->clk);
+>
+>         return 0;
+>  }
+> @@ -609,7 +609,7 @@ static int i2c_pnx_controller_resume(struct device *dev)
+>  {
+>         struct i2c_pnx_algo_data *alg_data = dev_get_drvdata(dev);
+>
+> -       return clk_enable(alg_data->clk);
+> +       return clk_prepare_enable(alg_data->clk);
+>  }
+>
+>  static SIMPLE_DEV_PM_OPS(i2c_pnx_pm,
+> @@ -672,7 +672,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
+>         if (IS_ERR(alg_data->ioaddr))
+>                 return PTR_ERR(alg_data->ioaddr);
+>
+> -       ret = clk_enable(alg_data->clk);
+> +       ret = clk_prepare_enable(alg_data->clk);
+>         if (ret)
+>                 return ret;
+>
+> @@ -726,7 +726,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
+>         return 0;
+>
+>  out_clock:
+> -       clk_disable(alg_data->clk);
+> +       clk_disable_unprepare(alg_data->clk);
+>         return ret;
+>  }
+>
+> @@ -735,7 +735,7 @@ static int i2c_pnx_remove(struct platform_device *pdev)
+>         struct i2c_pnx_algo_data *alg_data = platform_get_drvdata(pdev);
+>
+>         i2c_del_adapter(&alg_data->adapter);
+> -       clk_disable(alg_data->clk);
+> +       clk_disable_unprepare(alg_data->clk);
+>
+>         return 0;
+>  }
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
