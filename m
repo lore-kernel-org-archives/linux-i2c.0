@@ -1,129 +1,117 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: slave: add 8 bit seconds counter backend
-Date: Mon, 19 Oct 2015 22:09:53 +0200
-Message-ID: <1445285393-3478-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36522 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754493AbbJSUKK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 19 Oct 2015 16:10:10 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Mon, 19 Oct 2015 23:40:39 +0200
+Message-ID: <1603415.VWFZ8V0WMC@vostro.rjw.lan>
+References: <561E1378.6000906@collabora.com> <1445268580.53393.183.camel@infradead.org> <CAL_JsqLwvc1H9kQnWs=mA8P4Mq4izmSSeFU6KRtkExBkzF9ABg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <CAL_JsqLwvc1H9kQnWs=mA8P4Mq4izmSSeFU6KRtkExBkzF9ABg@mail.gmail.com>
+Sender: linux-clk-owner@vger.kernel.org
+To: Rob Herring <robh+dt@kernel.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?ISO-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Liam Girdwood <lgirdw>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Monday, October 19, 2015 10:58:25 AM Rob Herring wrote:
+> On Mon, Oct 19, 2015 at 10:29 AM, David Woodhouse <dwmw2@infradead.or=
+g> wrote:
+> > On Mon, 2015-10-19 at 15:50 +0100, Mark Brown wrote:
+> >> > But the point I'm making is that we are working towards *fixing*=
+ that,
+> >> > and *not* using DT-specific code in places where we should be us=
+ing the
+> >> > generic APIs.
+> >>
+> >> What is the plan for fixing things here?  It's not obvious (at lea=
+st to
+> >> me) that we don't want to have the subsystems having knowledge of =
+how
+> >> they are bound to a specific firmware which is what you seem to im=
+ply
+> >> here.
+> >
+> > I don't know that there *is* a coherent plan here to address it all=
+=2E
+> >
+> > Certainly, we *will* need subsystems to have firmware-specific
+> > knowledge in some cases. Take GPIO as an example; ACPI *has* a way =
+to
+> > describe GPIO, and properties which reference GPIO pins are intende=
+d to
+> > work through that =E2=80=94 while in DT, properties which reference=
+ GPIO pins
+> > will have different contents. They'll be compatible at the driver
+> > level, in the sense that there's a call to get a given GPIO given t=
+he
+> > property name, but the subsystems *will* be doing different things
+> > behind the scenes.
+> >
+> > My plan, such as it is, is to go through the leaf-node drivers whic=
+h
+> > almost definitely *should* be firmware-agnostic, and convert those.=
+ And
+> > then take stock of what we have left, and work out what, if anythin=
+g,
+> > still needs to be done.
+>=20
+> Many cases are already agnostic in the drivers in terms of the *_get(=
+)
+> functions. Some are DT specific, but probably because those subsystem=
+s
+> are new and DT only. In any case, I don't think these 1 line changes
+> do anything to make doing conversions here harder.
+>=20
+> >> It seems like we're going to have to refactor these bits of code w=
+hen
+> >> they get generalised anyway so I'm not sure that the additional co=
+st
+> >> here is that big.
+> >
+> > That's an acceptable answer =E2=80=94 "we're adding legacy code her=
+e but we
+> > know it's going to be refactored anyway". If that's true, all it ta=
+kes
+> > is a note in the commit comment to that effect. That's different fr=
+om
+> > having not thought about it :)
+>=20
+> Considering at one point we did create a fwnode based API, we did
+> think about it. Plus there was little input from ACPI folks as to
+> whether the change was even useful for ACPI case.
 
-Something simple to show and explain at ELCE15. Not for inclusion!
+Well, sorry, but who was asking whom, specifically?
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+The underlying problem is present in ACPI too and we don't really have =
+a good
+solution for it.  We might benefit from a common one if it existed.
 
-As promised, here is the driver from my talk. Educational only!
+> In any case, we're talking about adding 1 line.
 
- drivers/i2c/Kconfig                |  3 ++
- drivers/i2c/Makefile               |  1 +
- drivers/i2c/i2c-slave-8bitseccnt.c | 66 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 70 insertions(+)
- create mode 100644 drivers/i2c/i2c-slave-8bitseccnt.c
+But also about making the driver core slighly OF-centric.
 
-diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-index 78fbee46362828..c43e00e88b86a3 100644
---- a/drivers/i2c/Kconfig
-+++ b/drivers/i2c/Kconfig
-@@ -118,6 +118,9 @@ if I2C_SLAVE
- config I2C_SLAVE_EEPROM
- 	tristate "I2C eeprom slave driver"
- 
-+config I2C_SLAVE_8BIT_SEC_CNT
-+	tristate "I2C 8 bit second counter slave driver"
-+
- endif
- 
- config I2C_DEBUG_CORE
-diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-index 45095b3d16a914..19e8be1020865a 100644
---- a/drivers/i2c/Makefile
-+++ b/drivers/i2c/Makefile
-@@ -9,6 +9,7 @@ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
- obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
- obj-y				+= algos/ busses/ muxes/
- obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
-+obj-$(CONFIG_I2C_SLAVE_8BIT_SEC_CNT)	+= i2c-slave-8bitseccnt.o
- obj-$(CONFIG_I2C_SLAVE_EEPROM)	+= i2c-slave-eeprom.o
- 
- ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
-diff --git a/drivers/i2c/i2c-slave-8bitseccnt.c b/drivers/i2c/i2c-slave-8bitseccnt.c
-new file mode 100644
-index 00000000000000..6049989523de6c
---- /dev/null
-+++ b/drivers/i2c/i2c-slave-8bitseccnt.c
-@@ -0,0 +1,66 @@
-+/*
-+ * I2C slave mode 8 bit seconds counter backend :)
-+ *
-+ * Copyright (C) 2015 by Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
-+ * Copyright (C) 2015 by Renesas Electronics Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; version 2 of the License.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/timekeeping.h>
-+
-+static int i2c_slave_8bit_seconds_slave_cb(struct i2c_client *client,
-+				     enum i2c_slave_event event, u8 *val)
-+{
-+	switch (event) {
-+	case I2C_SLAVE_READ_REQUESTED:
-+	case I2C_SLAVE_READ_PROCESSED:
-+		/* Always get the most recent value */
-+		*val = get_seconds() & 0xff;
-+		break;
-+
-+	case I2C_SLAVE_WRITE_REQUESTED:
-+	case I2C_SLAVE_WRITE_RECEIVED:
-+	case I2C_SLAVE_STOP:
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int i2c_slave_8bit_seconds_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+{
-+	return i2c_slave_register(client, i2c_slave_8bit_seconds_slave_cb);
-+};
-+
-+static int i2c_slave_8bit_seconds_remove(struct i2c_client *client)
-+{
-+	i2c_slave_unregister(client);
-+	return 0;
-+}
-+
-+static const struct i2c_device_id i2c_slave_8bit_seconds_id[] = {
-+	{ "slave-8bit_seconds", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, i2c_slave_8bit_seconds_id);
-+
-+static struct i2c_driver i2c_slave_8bit_seconds_driver = {
-+	.driver = {
-+		.name = "i2c-slave-8bit_seconds",
-+	},
-+	.probe = i2c_slave_8bit_seconds_probe,
-+	.remove = i2c_slave_8bit_seconds_remove,
-+	.id_table = i2c_slave_8bit_seconds_id,
-+};
-+module_i2c_driver(i2c_slave_8bit_seconds_driver);
-+
-+MODULE_AUTHOR("Wolfram Sang <wsa@sang-engineering.com>");
-+MODULE_DESCRIPTION("I2C slave mode 8 bit seconds counter backend");
-+MODULE_LICENSE("GPL v2");
--- 
-2.1.4
+Sure, we need OF-specific code and ACPI-specific code wherever differen=
+t
+handling is required, but doing that at the driver core level seems to =
+be
+a bit of a stretch to me.
+
+Please note that we don't really have ACPI-specific calls in the driver=
+ core,
+although we might have added them long ago even before the OF stuff app=
+eared
+in the kernel for the first time.  We didn't do that, (among other thin=
+gs)
+because we didn't want that particular firmware interface to appear spe=
+cial
+in any way and I'm not really sure why it is now OK to make OF look spe=
+cial
+instead.
+
+If it is trivial to avoid that (and you seem to be arguing that it is),=
+ why
+do we have to do it?
+
+Thanks,
+Rafael
+
