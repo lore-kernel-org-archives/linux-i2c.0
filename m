@@ -1,99 +1,129 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Mon, 19 Oct 2015 19:39:06 +0100
-Message-ID: <20151019183905.GS32532@n2100.arm.linux.org.uk>
-References: <20151018192931.GY14956@sirena.org.uk>
- <20151018193757.GA9147@kroah.com>
- <20151018195330.GB14956@sirena.org.uk>
- <1445247881.53393.146.camel@infradead.org>
- <CAL_JsqKehmSobpbdeXGo=-1pAbtrhCHovyyCWya_MNOhGCi8CQ@mail.gmail.com>
- <1445258870.53393.173.camel@infradead.org>
- <20151019145048.GI14956@sirena.org.uk>
- <1445268580.53393.183.camel@infradead.org>
- <20151019154324.GN32532@n2100.arm.linux.org.uk>
- <20151019182744.GD4931@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-clk-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151019182744.GD4931@pengutronix.de>
-Sender: linux-clk-owner@vger.kernel.org
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, Mark Brown <broonie@kernel.org>, Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Liam Girdwood <lgirdwood@g>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c: slave: add 8 bit seconds counter backend
+Date: Mon, 19 Oct 2015 22:09:53 +0200
+Message-ID: <1445285393-3478-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:36522 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754493AbbJSUKK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 19 Oct 2015 16:10:10 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org
 
-On Mon, Oct 19, 2015 at 08:27:44PM +0200, Uwe Kleine-K=F6nig wrote:
-> Hello,
->=20
-> On Mon, Oct 19, 2015 at 04:43:24PM +0100, Russell King - ARM Linux wr=
-ote:
-> > It's a bit ironic that you've chosen GPIO as an example there.  The
-> > "new" GPIO API (the gpiod_* stuff) only has a fwnode way to get the
-> > gpio descriptor.  There's no of_* method.
->=20
-> Without following all that fwnode discussion:
-> gpiod_get et al. should work for you here, doesn't it? It just takes =
-a
-> struct device * and I'm happy with it.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-What if you don't have a struct device?  I had that problem recently
-when modifying the mvebu PCIe code.  The 'struct device' node doesn't
-contain the GPIOs, it's the PCIe controller.  Individual ports on the
-controller are described in DT as sub-nodes, and the sub-nodes can
-have a GPIO for card reset purposes.  These sub-nodes don't have a
-struct device.
+Something simple to show and explain at ELCE15. Not for inclusion!
 
-Right now, I'm having to do this to work around this issue:
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-        reset_gpio =3D of_get_named_gpio_flags(child, "reset-gpios", 0,=
- &flags);
-        if (reset_gpio =3D=3D -EPROBE_DEFER) {
-                ret =3D reset_gpio;
-                goto err;
-        }
+As promised, here is the driver from my talk. Educational only!
 
-        if (gpio_is_valid(reset_gpio)) {
-                unsigned long gpio_flags;
+ drivers/i2c/Kconfig                |  3 ++
+ drivers/i2c/Makefile               |  1 +
+ drivers/i2c/i2c-slave-8bitseccnt.c | 66 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 70 insertions(+)
+ create mode 100644 drivers/i2c/i2c-slave-8bitseccnt.c
 
-                port->reset_name =3D devm_kasprintf(dev, GFP_KERNEL, "%=
-s-reset",
-                                                  port->name);
-                if (!port->reset_name) {
-                        ret =3D -ENOMEM;
-                        goto err;
-                }
-
-                if (flags & OF_GPIO_ACTIVE_LOW) {
-                        dev_info(dev, "%s: reset gpio is active low\n",
-                                 of_node_full_name(child));
-                        gpio_flags =3D GPIOF_ACTIVE_LOW |
-                                     GPIOF_OUT_INIT_LOW;
-                } else {
-                        gpio_flags =3D GPIOF_OUT_INIT_HIGH;
-                }
-
-                ret =3D devm_gpio_request_one(dev, reset_gpio, gpio_fla=
-gs,
-                                            port->reset_name);
-                if (ret) {
-                        if (ret =3D=3D -EPROBE_DEFER)
-                                goto err;
-                        goto skip;
-                }
-
-                port->reset_gpio =3D gpio_to_desc(reset_gpio);
-        }
-
-Not nice, is it?  Not nice to have that in lots of drivers either.
-
-However, switching to use any of_* or fwnode_* thing also carries with
-it another problem: you can't control the name appearing in the
-allocation, so you end up with a bunch of GPIOs requested with a "reset=
-"
-name - meaning you lose any identification of which port the GPIO was
-bound to.
-
---=20
-=46TTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index 78fbee46362828..c43e00e88b86a3 100644
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -118,6 +118,9 @@ if I2C_SLAVE
+ config I2C_SLAVE_EEPROM
+ 	tristate "I2C eeprom slave driver"
+ 
++config I2C_SLAVE_8BIT_SEC_CNT
++	tristate "I2C 8 bit second counter slave driver"
++
+ endif
+ 
+ config I2C_DEBUG_CORE
+diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+index 45095b3d16a914..19e8be1020865a 100644
+--- a/drivers/i2c/Makefile
++++ b/drivers/i2c/Makefile
+@@ -9,6 +9,7 @@ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+ obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
+ obj-y				+= algos/ busses/ muxes/
+ obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
++obj-$(CONFIG_I2C_SLAVE_8BIT_SEC_CNT)	+= i2c-slave-8bitseccnt.o
+ obj-$(CONFIG_I2C_SLAVE_EEPROM)	+= i2c-slave-eeprom.o
+ 
+ ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
+diff --git a/drivers/i2c/i2c-slave-8bitseccnt.c b/drivers/i2c/i2c-slave-8bitseccnt.c
+new file mode 100644
+index 00000000000000..6049989523de6c
+--- /dev/null
++++ b/drivers/i2c/i2c-slave-8bitseccnt.c
+@@ -0,0 +1,66 @@
++/*
++ * I2C slave mode 8 bit seconds counter backend :)
++ *
++ * Copyright (C) 2015 by Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
++ * Copyright (C) 2015 by Renesas Electronics Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; version 2 of the License.
++ */
++
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/timekeeping.h>
++
++static int i2c_slave_8bit_seconds_slave_cb(struct i2c_client *client,
++				     enum i2c_slave_event event, u8 *val)
++{
++	switch (event) {
++	case I2C_SLAVE_READ_REQUESTED:
++	case I2C_SLAVE_READ_PROCESSED:
++		/* Always get the most recent value */
++		*val = get_seconds() & 0xff;
++		break;
++
++	case I2C_SLAVE_WRITE_REQUESTED:
++	case I2C_SLAVE_WRITE_RECEIVED:
++	case I2C_SLAVE_STOP:
++	default:
++		break;
++	}
++
++	return 0;
++}
++
++static int i2c_slave_8bit_seconds_probe(struct i2c_client *client, const struct i2c_device_id *id)
++{
++	return i2c_slave_register(client, i2c_slave_8bit_seconds_slave_cb);
++};
++
++static int i2c_slave_8bit_seconds_remove(struct i2c_client *client)
++{
++	i2c_slave_unregister(client);
++	return 0;
++}
++
++static const struct i2c_device_id i2c_slave_8bit_seconds_id[] = {
++	{ "slave-8bit_seconds", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, i2c_slave_8bit_seconds_id);
++
++static struct i2c_driver i2c_slave_8bit_seconds_driver = {
++	.driver = {
++		.name = "i2c-slave-8bit_seconds",
++	},
++	.probe = i2c_slave_8bit_seconds_probe,
++	.remove = i2c_slave_8bit_seconds_remove,
++	.id_table = i2c_slave_8bit_seconds_id,
++};
++module_i2c_driver(i2c_slave_8bit_seconds_driver);
++
++MODULE_AUTHOR("Wolfram Sang <wsa@sang-engineering.com>");
++MODULE_DESCRIPTION("I2C slave mode 8 bit seconds counter backend");
++MODULE_LICENSE("GPL v2");
+-- 
+2.1.4
