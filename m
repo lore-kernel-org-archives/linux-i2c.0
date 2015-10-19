@@ -1,109 +1,95 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: Re: [PATCH] i2c: at91: fix write transfers by clearing pending
- interrupt first
-Date: Mon, 19 Oct 2015 10:51:36 +0200
-Message-ID: <20151019085136.GK26893@odux.rfo.atmel.com>
-References: <1444746104-20615-1-git-send-email-ludovic.desroches@atmel.com>
- <561D20E7.5070405@lysator.liu.se>
- <561D359D.8000500@atmel.com>
- <561D46FE.4090801@lysator.liu.se>
- <20151014054321.GA20049@odux.rfo.atmel.com>
- <56203B0E.1030104@lysator.liu.se>
- <5620BE9A.10302@lysator.liu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Dustin Byford <dustin@cumulusnetworks.com>
+Subject: [PATCH v2 0/1] i2c: acpi: scan ACPI enumerated I2C mux channels
+Date: Mon, 19 Oct 2015 02:01:51 -0700
+Message-ID: <1445245312-6816-1-git-send-email-dustin@cumulusnetworks.com>
+References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:34585 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751209AbbJSIvk (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Oct 2015 04:51:40 -0400
-Content-Disposition: inline
-In-Reply-To: <5620BE9A.10302@lysator.liu.se>
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:35977 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751819AbbJSJCN (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Oct 2015 05:02:13 -0400
+Received: by pacfv9 with SMTP id fv9so89561417pac.3
+        for <linux-i2c@vger.kernel.org>; Mon, 19 Oct 2015 02:02:12 -0700 (PDT)
+In-Reply-To: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@lysator.liu.se>
-Cc: Cyrille Pitchen <cyrille.pitchen@atmel.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com
+To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, andriy.shevchenko@linux.intel.com
 
-Hi Peter,
+The following patch adds support for describing ACPI enumerated I2C mux ports
+like this (added as Documentation/acpi/i2c-muxes.txt):
 
-On Fri, Oct 16, 2015 at 11:08:42AM +0200, Peter Rosin wrote:
-> On 2015-10-16 01:47, Peter Rosin wrote:
-> > On 2015-10-14 07:43, Ludovic Desroches wrote:
-> >> On Tue, Oct 13, 2015 at 08:01:34PM +0200, Peter Rosin wrote:
-> >>> On 2015-10-13 18:47, Cyrille Pitchen wrote:
-> >>>> Le 13/10/2015 17:19, Peter Rosin a =E9crit :
-> >>>>> On 2015-10-13 16:21, Ludovic Desroches wrote:
++------+   +------+
+| SMB1 |-->| MUX0 |--CH00--> i2c client A (0x50)
+|      |   | 0x70 |--CH01--> i2c client B (0x50)
++------+   +------+
 
-[...]
+Device (SMB1)
+{
+    Name (_HID, ...)
+    Device (MUX0)
+    {
+        Name (_HID, ...)
+        Name (_CRS, ResourceTemplate () {
+            I2cSerialBus (0x70, ControllerInitiated, I2C_SPEED,
+                          AddressingMode7Bit, "^SMB1", 0x00,
+                          ResourceConsumer,,)
+        }
 
-> > I have started to get this when I run with this patch:
-> >=20
-> > [   73.310000] at91_i2c f0014000.i2c: RXRDY still set!
-> > [  198.200000] at91_i2c f0014000.i2c: RXRDY still set!
-> > [  509.880000] at91_i2c f0014000.i2c: RXRDY still set!
-> > [  615.750000] at91_i2c f0014000.i2c: RXRDY still set!
-> > [  617.750000] at91_i2c f0014000.i2c: RXRDY still set!
-> > [ 1766.640000] at91_i2c f0014000.i2c: RXRDY still set!
-> > [ 2035.380000] at91_i2c f0014000.i2c: RXRDY still set!
-> > [ 2227.190000] at91_i2c f0014000.i2c: RXRDY still set!
-> > [ 2313.100000] at91_i2c f0014000.i2c: RXRDY still set!
-> >=20
-> > My USB serial dongle was hung which was why I didn't notice until j=
-ust now.
-> >=20
-> > This is probably not when communication with the eeprom though, and=
- certainly not
-> > writing to it, but perhpaps when polling the temperature (using the=
- jc42 driver).
-> > I'll investigate further in the morning to see if I can pinpoint it=
-=2E
->=20
-> Yep, it's the jc42 accesses that triggers this (to the same chip as t=
-he
-> eeprom, but a different block of transistors I suppose).
->=20
-> Looking at the i2c bus, the accesses normally go like this:
->=20
-> [0.000000] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
-> [0.000521] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
-> [0.001024] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
-> [0.001524] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
-> [0.196991] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
-> [0.197514] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
-> [0.198019] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
-> [0.198520] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
->=20
-> I.e. chunks of four transfers every ~200 ms (I removed the 1Hz rate
-> limiter in the jc42 driver to get more frequent incidents).
->=20
-> But when the diagnostic (RXRDY still set!) is output it continues
-> with this:
->=20
-> [0.399755] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
-> [0.404998] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
-> [0.405508] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
-> [0.406008] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
->=20
-> Notice the ~5 ms delay (about the time it should take to output
-> the diagnostic at 115200 baud) after the access to register 0x05
-> at 0.399755.
->=20
-> This is the only thing that I can observe on the bus, so it appears
-> to be harmless.
->=20
-> It appears that the i2c access at 0.399755 finds the TWI
-> registers in an odd state, but nothing from the access at
-> 0.198520 appears to have gone wrong. Is this a race? Anyway,
-> the diagnostic is pretty frequent and annoying. printk_once?
+        Device (CH00)
+        {
+            Name (_ADR, 0)
 
-I'll try to reproduce it on my side. The only issue you have is having
-the message about RXRDY? I mean no issue with i2c transfers?
+            Device (CLIA)
+            {
+                Name (_HID, ...)
+                Name (_CRS, ResourceTemplate () {
+                    I2cSerialBus (0x50, ControllerInitiated, I2C_SPEED,
+                                  AddressingMode7Bit, "^CH00", 0x00,
+                                  ResourceConsumer,,)
+                }
+            }
+        }
 
-It is not the possible bug we had in mind, this bug will prevent the
-master device to release the i2c bus. It will stop the transfer but
-without sending a stop on the bus.
+        Device (CH01)
+        {
+            Name (_ADR, 1)
 
-Regards
+            Device (CLIB)
+            {
+                Name (_HID, ...)
+                Name (_CRS, ResourceTemplate () {
+                    I2cSerialBus (0x50, ControllerInitiated, I2C_SPEED,
+                                  AddressingMode7Bit, "^CH01", 0x00,
+                                  ResourceConsumer,,)
+                }
+            }
+        }
+    }
+}
 
-Ludovic
+v2:
+- Drop duplicate patch already submitted by Andy Shevchenko (i2c / ACPI:
+  Rework I2C device scanning)
+- Whitespace cleanup suggested by Mika
+- Implement a acpi_preset_companion() stub for when CONFIG_ACPI is not set.
+- Instead of special casing I2C muxes with regards to enumerating client
+  devices, make sure adap->dev always has an ACPI companion.
+
+I based this on linux-pm/bleeding-edge, but now it depends on Andy's change
+(i2c / ACPI: Rework I2C device scanning) and I don't know where the rest of
+his patch set is going.  Let me know if there's a more appropriate branch
+and I'll be happy to rebase.
+
+Dustin Byford (1):
+  i2c: add ACPI support for I2C mux ports
+
+ Documentation/acpi/i2c-muxes.txt | 58 ++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-core.c           | 14 ++++++++--
+ drivers/i2c/i2c-mux.c            |  8 ++++++
+ include/linux/acpi.h             |  6 +++++
+ 4 files changed, 84 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/acpi/i2c-muxes.txt
+
+-- 
+2.1.4
