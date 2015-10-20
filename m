@@ -1,61 +1,108 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] dts: keystone: Use new "ti,keystone-i2c" compatible
-Date: Tue, 20 Oct 2015 17:06:14 +0200
-Message-ID: <20151020150614.GG5379@katana>
-References: <55F68E36.2030609@nokia.com>
+Subject: Re: [PATCH 0/4] Support multiplexed main SMBus interface on SB800
+Date: Tue, 20 Oct 2015 17:19:35 +0200
+Message-ID: <20151020151935.GH5379@katana>
+References: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rV8arf8D5Dod9UkK"
+	protocol="application/pgp-signature"; boundary="tT3UgwmDxwvOMqfu"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43287 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:43405 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751636AbbJTPGS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 20 Oct 2015 11:06:18 -0400
+	id S1752667AbbJTPTl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 20 Oct 2015 11:19:41 -0400
 Content-Disposition: inline
-In-Reply-To: <55F68E36.2030609@nokia.com>
+In-Reply-To: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org
+To: Christian Fetzer <fetzer.ch@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, tbrandonau@gmail.com, eddi@depieri.net, galandilias@gmail.com
 
 
---rV8arf8D5Dod9UkK
+--tT3UgwmDxwvOMqfu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 14, 2015 at 11:07:02AM +0200, Alexander Sverdlin wrote:
-> Now as "i2c-davinci" driver has special handling for Keystone it's time t=
-o switch
-> the device tree to use new "compatible" property. Old one is left for bac=
-kwards-
-> compatibility.
+On Tue, Aug 25, 2015 at 01:05:01PM +0200, Christian Fetzer wrote:
+> This is an attempt to upstream the patches created by Thomas Brandon and
+> Eddi De Pieri to support the multiplexed main SMBus interface on the SB800
+> chipset. (https://www.mail-archive.com/linux-i2c@vger.kernel.org/msg06757=
+=2Ehtml)
 >=20
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+> I have mainly rebased the latest patch version and tested the driver on a
+> HP ProLiant MicroServer G7 N54L (where this patch allows to access sensor=
+ data
+> from a w83795adg).
+>=20
+> The patched driver is running stable on the machine, given that ic2_piix4=
+ is
+> loaded before jc42 and w83795. If jc42 is loaded before i2c_piix4 calling
+> sensors triggers some errors:
+>     ERROR: Can't get value of subfeature temp1_min_alarm: Can't read
+>=20
+> While the kernel log shows:
+>     i2c i2c-1: Transaction (pre): CNT=3D0c, CMD=3D05, ADD=3D31, DAT0=3D03=
+, DAT1=3Dc0
+>     i2c i2c-1: Error: no response!
+>     i2c i2c-1: Transaction (post): CNT=3D0c, CMD=3D05, ADD=3D31, DAT0=3Df=
+f, DAT1=3Dff
+> Unfortunately I don't know how to tackle this specific issue.
+>=20
+> Please review and let me know required changes in order to get this upstr=
+eam
+> finally.
+>=20
+> Eddi, Thomas, it would be great if you could verify the changes on your
+> machines.
 
-Shall I take this one or shall it go via the davinci tree?
+Yes, additional tests are always good for a patch series
 
+Asking the Intel guys for help, I have not much expierence with x86
+platforms... Mika, Jarkko, Andy any chance to help?
 
---rV8arf8D5Dod9UkK
+>=20
+> Regards,
+> Christian
+>=20
+> Christian Fetzer (4):
+>   i2c-piix4: Optionally release smba in piix4_adap_remove
+>   i2c-piix4: Convert piix4_main_adapter to array
+>   i2c-piix4: Add support for multiplexed main adapter in SB800
+>   i2c-piix4: Add adapter port name support for SB800 chipset
+>=20
+>  drivers/i2c/busses/i2c-piix4.c | 151 +++++++++++++++++++++++++++++++++++=
++-----
+>  1 file changed, 134 insertions(+), 17 deletions(-)
+>=20
+> --=20
+> 1.9.1
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--tT3UgwmDxwvOMqfu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWJlhmAAoJEBQN5MwUoCm2kb4QAJHpPRi1KTJr7XjNNOhdN5dF
-DazesAIt3ApGzkoGsB1K22osyJnq/gSsmuBJTk397SAB++Lb6CGm9GArNSlf3iMk
-MPJcGTBj0DAC0MLj/bQr11xX7Cr+91mDB+G/t/3VaXMElBLz/ErTWw8bmD2FwcmO
-C9o5rhADptB6QQXvv7csYAmNSdkS/O/5WGMzKBXuW7H+nUy+xGlCgqwgi5eFC678
-Z5NS47KBWPQ04ytZsq13fN8cPNw6creT///8XBfAQ7anhBL5OdUZ0x1wDR9CV8Sj
-+inBm0Xk0bisA4lRFaYCsotRU7pTAl4sFa0Tu43L91ZC8SnrRquPeGxXZ05pvNDJ
-xY7+EJtN7aXR1SPNiTBPDO8DEH6T5MzVmNYlxZovZ0rsOsF1dn8pt5B0qoar3hXa
-hnfkNYxk2mmyTU0PXZkJ4uI0BVfWXsRs0Ph2nFju2R4scXov0Zdup0vs9tAKdfZJ
-tx/YnJeOL4LAnWqNvzoWs5eLzllQ7uhpcr+AiZCDvTawE8nbobG5aaA6UiMu4cOI
-ib/JCA/4Qp4EylwFOfRIOp7MAmMI5Ia/ORBOxgHQJ8Ah5Q6lnpSIri4buEAVsD6G
-xDbtXCwcxexKtLQewC/ZvHkj9MopREJkBpSCv5aZT1S3Pues2s6w2kIRtKnQowrC
-wwfsxLIQxgXSx8fn14GX
-=Uvjv
+iQIcBAEBAgAGBQJWJluHAAoJEBQN5MwUoCm2Dc4P/1S7qP04yaVGmk39iZJY8Mre
+vvZfHa8071l4N61aNw2VH7dRZaNK0Zc1yI139aRaPZNsLuylpO2VOXbk5fYAHlaE
+JtX/fthYLDI0ODMnnJ2i4k9BwnmmgHfyyTGSS4tjDA6T/3TDIK2VAgbyrQBNfcnM
+4YHtF0jOkITLi3OAeCiNfOpr54ERb2z9by2T5DpuzYCUSjpTsdJaqKjElxFgRXKr
+jZlweMbv21cn/gMQ4JM7kTN5jECy75npok4fYCv+NeWeJJXS8NiehT5+4Bx8M5sq
+pZDkkAMIT5zj898z8Ek6Wt1VGZgY8aZJp+WASYCPP91Kio3eFXsFeVRy5358NwO5
+KnWFFO3OnzyELgAiWQ/+R7qC/CJuhKNhFlRvCKZ5F9khBw/AaP4A6YrfTo06kS7v
+4i54wWsXMiY6iX1PL9s8297nUM2bXdLHpGsotN5d3c7+QeL6WK+9vw1sNw0aLzBZ
+abkAsmLFllz7rcc2rTx2IG4zDAmBAm0I37m/mNurjRYOd/Wz+TP11GXvhxkM1rhw
+FxHAQsCaPO/Nc4D0VhsxYvGZN5vjG514eXZYEt1TH/XxjtNDksW2V6kim9FpWsSi
+dLZY3gM0FMIDLC2GYUaWAhnvLaL1jhKcYXlhILM4TNp1di2M4cfBWQGWgE+lbRV5
+I0S531ipi5CuezdMkM55
+=N+yG
 -----END PGP SIGNATURE-----
 
---rV8arf8D5Dod9UkK--
+--tT3UgwmDxwvOMqfu--
