@@ -1,47 +1,80 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH 1/9] eeprom: at24: platform_data: use BIT() macro
-Date: Tue, 20 Oct 2015 10:43:19 +0200
-Message-ID: <1445330607-12470-2-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH 3/9] eeprom: at24: tie up an additional address for at24cs series
+Date: Tue, 20 Oct 2015 10:43:21 +0200
+Message-ID: <1445330607-12470-4-git-send-email-bgolaszewski@baylibre.com>
 References: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:35069 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753622AbbJTInm (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Oct 2015 04:43:42 -0400
-Received: by wicll6 with SMTP id ll6so34313251wic.0
-        for <linux-i2c@vger.kernel.org>; Tue, 20 Oct 2015 01:43:41 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Use BIT() macro to replace the 0xXX constants in platform_data flags
-definitions.
+The at24cs series EEPROM chips have an additional read-only memory area,
+that is visible on a different i2c slave address. Tie it up with a dummy
+device.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- include/linux/platform_data/at24.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/misc/eeprom/at24.c | 30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index c42aa89..8d90f52 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -43,10 +43,10 @@ struct at24_platform_data {
- 	u32		byte_len;		/* size (sum of all addr) */
- 	u16		page_size;		/* for writes */
- 	u8		flags;
--#define AT24_FLAG_ADDR16	0x80	/* address pointer is 16 bit */
--#define AT24_FLAG_READONLY	0x40	/* sysfs-entry will be read-only */
--#define AT24_FLAG_IRUGO		0x20	/* sysfs-entry will be world-readable */
--#define AT24_FLAG_TAKE8ADDR	0x10	/* take always 8 addresses (24c00) */
-+#define AT24_FLAG_ADDR16	BIT(7)	/* address pointer is 16 bit */
-+#define AT24_FLAG_READONLY	BIT(6)	/* sysfs-entry will be read-only */
-+#define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
-+#define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index c6cb7f8..3a75a52 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -102,6 +102,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
  
- 	void		(*setup)(struct memory_accessor *, void *context);
- 	void		*context;
+ #define AT24_BITMASK(x) (BIT(x) - 1)
+ 
++#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
++
+ /* create non-zero magic value for given eeprom parameters */
+ #define AT24_DEVICE_MAGIC(_len, _flags) 		\
+ 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
+@@ -543,6 +545,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
+ 		num_addresses = 8;
++	else if (chip.flags & AT24_FLAG_SERIAL)
++		num_addresses = 2;
+ 	else
+ 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
+ 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
+@@ -601,12 +605,30 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	at24->client[0] = client;
+ 
+ 	/* use dummy devices for multiple-address chips */
+-	for (i = 1; i < num_addresses; i++) {
+-		at24->client[i] = i2c_new_dummy(client->adapter,
++	if (at24->chip.flags & AT24_FLAG_TAKE8ADDR) {
++		for (i = 1; i < num_addresses; i++) {
++			at24->client[i] = i2c_new_dummy(client->adapter,
++							client->addr + i);
++			if (!at24->client[i]) {
++				dev_err(&client->dev,
++					"address 0x%02x unavailable\n",
+ 					client->addr + i);
+-		if (!at24->client[i]) {
++				err = -EADDRINUSE;
++				goto err_clients;
++			}
++		}
++	}
++
++	/*
++	 * at24cs series tie up an additional address for the memory area
++	 * contining the serial number
++	 */
++	if (at24->chip.flags & AT24_FLAG_SERIAL) {
++		at24->client[1] = i2c_new_dummy(client->adapter,
++					AT24CS_SERIAL_ADDR(client->addr));
++		if (!at24->client[1]) {
+ 			dev_err(&client->dev, "address 0x%02x unavailable\n",
+-					client->addr + i);
++				AT24CS_SERIAL_ADDR(client->addr));
+ 			err = -EADDRINUSE;
+ 			goto err_clients;
+ 		}
 -- 
 2.1.4
