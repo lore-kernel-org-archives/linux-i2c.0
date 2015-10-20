@@ -1,49 +1,36 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: [PATCH] i2c: mv64xxx: really allow I2C offloading
-Date: Tue, 20 Oct 2015 16:32:24 +0200
-Message-ID: <1445351544-26062-1-git-send-email-thomas.petazzoni@free-electrons.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Tawfik Bayouk <tawfik@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Lior Amsalem <alior@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Marcin Wojtas <mw@semihalf.com>, Hezi <hezi@marvell.com>, stable@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Tue, 20 Oct 2015 10:40:03 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1510201036290.1855-100000@iolanthe.rowland.org>
+References: <CAL_JsqJuu5_Osqi+X6M6UeRDZFQB+_8riYDF1gvsGayk5-4SFw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL_JsqJuu5_Osqi+X6M6UeRDZFQB+_8riYDF1gvsGayk5-4SFw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Kishon Vijay Abraham I <kishon-l0cyMroinI0@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Eremin-Solenikov <dbary>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Hezi <hezi@marvell.com>
+On Tue, 20 Oct 2015, Rob Herring wrote:
 
-Commit 00d8689b85a7 ("i2c: mv64xxx: rework offload support to fix
-several problems") completely reworked the offload support, but
-stupidly left a debugging-related "return false" at the beginning of
-the mv64xxx_i2c_can_offload() function. This has the unfortunate
-consequence that offloading is in fact never used, which wasn't really
-the intention.
+> > The probe ordering is not the entire picture, though.
+> >
+> > Even if you get the probe ordering right, the problem is going to show up in
+> > multiple other places: system suspend/resume, runtime PM, system shutdown,
+> > unbinding of drivers.  In all of those cases it is necessary to handle things
+> > in a specific order if there is a dependency.
+> 
+> My understanding was with deferred probe that it also solves suspend
+> ordering problems because things are suspended in reverse order of
+> probing.
 
-This commit fixes that problem by removing the stupid "return false".
+Devices are suspended in reverse order of _registration_.  Not of 
+probing.
 
-Fixes: 00d8689b85a7 ("i2c: mv64xxx: rework offload support to fix several problems")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hezi <hezi@marvell.com>
-[Thomas: reworked commit log and title.]
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
----
-Note: the original fix is from Hezi, but I rewrote the commit log,
-which is why I authorized myself to treat my own work as being
-"stupid". Which it really was.
----
- drivers/i2c/busses/i2c-mv64xxx.c | 2 --
- 1 file changed, 2 deletions(-)
+Furthermore, that applies only to devices that use synchronous suspend.  
+Async suspend is becoming common, and there the only restrictions are 
+parent-child relations plus whatever explicit requirements that drivers 
+impose by calling device_pm_wait_for_dev().
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 30059c1..5801227 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -669,8 +669,6 @@ mv64xxx_i2c_can_offload(struct mv64xxx_i2c_data *drv_data)
- 	struct i2c_msg *msgs = drv_data->msgs;
- 	int num = drv_data->num_msgs;
- 
--	return false;
--
- 	if (!drv_data->offload_enabled)
- 		return false;
- 
--- 
-2.6.2
+Alan Stern
