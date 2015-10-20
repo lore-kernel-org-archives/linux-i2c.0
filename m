@@ -1,108 +1,94 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/4] Support multiplexed main SMBus interface on SB800
-Date: Tue, 20 Oct 2015 17:19:35 +0200
-Message-ID: <20151020151935.GH5379@katana>
-References: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
+Subject: Re: [RESEND PATCH 1/3] i2c: added FUNC flag for unsupported clock
+ stretching
+Date: Tue, 20 Oct 2015 17:35:11 +0200
+Message-ID: <20151020153511.GI5379@katana>
+References: <1442410323-9833-1-git-send-email-nicola@corna.info>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tT3UgwmDxwvOMqfu"
+	protocol="application/pgp-signature"; boundary="YrQNB5Deg1WGKZi3"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43405 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:43496 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752667AbbJTPTl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 20 Oct 2015 11:19:41 -0400
+	id S1751549AbbJTPfV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 20 Oct 2015 11:35:21 -0400
 Content-Disposition: inline
-In-Reply-To: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
+In-Reply-To: <1442410323-9833-1-git-send-email-nicola@corna.info>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Christian Fetzer <fetzer.ch@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, tbrandonau@gmail.com, eddi@depieri.net, galandilias@gmail.com
+To: Nicola Corna <nicola@corna.info>
+Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-i2c@vger.kernel.org
 
 
---tT3UgwmDxwvOMqfu
+--YrQNB5Deg1WGKZi3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 25, 2015 at 01:05:01PM +0200, Christian Fetzer wrote:
-> This is an attempt to upstream the patches created by Thomas Brandon and
-> Eddi De Pieri to support the multiplexed main SMBus interface on the SB800
-> chipset. (https://www.mail-archive.com/linux-i2c@vger.kernel.org/msg06757=
-=2Ehtml)
+On Wed, Sep 16, 2015 at 03:32:01PM +0200, Nicola Corna wrote:
+> Added I2C_FUNC_NO_CLK_STRETCH, to be used when clock stretching is not
+> supported.
 >=20
-> I have mainly rebased the latest patch version and tested the driver on a
-> HP ProLiant MicroServer G7 N54L (where this patch allows to access sensor=
- data
-> from a w83795adg).
->=20
-> The patched driver is running stable on the machine, given that ic2_piix4=
- is
-> loaded before jc42 and w83795. If jc42 is loaded before i2c_piix4 calling
-> sensors triggers some errors:
->     ERROR: Can't get value of subfeature temp1_min_alarm: Can't read
->=20
-> While the kernel log shows:
->     i2c i2c-1: Transaction (pre): CNT=3D0c, CMD=3D05, ADD=3D31, DAT0=3D03=
-, DAT1=3Dc0
->     i2c i2c-1: Error: no response!
->     i2c i2c-1: Transaction (post): CNT=3D0c, CMD=3D05, ADD=3D31, DAT0=3Df=
-f, DAT1=3Dff
-> Unfortunately I don't know how to tackle this specific issue.
->=20
-> Please review and let me know required changes in order to get this upstr=
-eam
-> finally.
->=20
-> Eddi, Thomas, it would be great if you could verify the changes on your
-> machines.
+> Signed-off-by: Nicola Corna <nicola@corna.info>
 
-Yes, additional tests are always good for a patch series
+I think this should be rather a quirk than a functionality, i.e.
+I2C_AQ_NO_CLK_STRETCH. Agree?
 
-Asking the Intel guys for help, I have not much expierence with x86
-platforms... Mika, Jarkko, Andy any chance to help?
-
+> ---
+>  Documentation/i2c/functionality | 1 +
+>  include/uapi/linux/i2c.h        | 1 +
+>  2 files changed, 2 insertions(+)
 >=20
-> Regards,
-> Christian
->=20
-> Christian Fetzer (4):
->   i2c-piix4: Optionally release smba in piix4_adap_remove
->   i2c-piix4: Convert piix4_main_adapter to array
->   i2c-piix4: Add support for multiplexed main adapter in SB800
->   i2c-piix4: Add adapter port name support for SB800 chipset
->=20
->  drivers/i2c/busses/i2c-piix4.c | 151 +++++++++++++++++++++++++++++++++++=
-+-----
->  1 file changed, 134 insertions(+), 17 deletions(-)
->=20
+> diff --git a/Documentation/i2c/functionality b/Documentation/i2c/function=
+ality
+> index 4aae8ed..f53807e 100644
+> --- a/Documentation/i2c/functionality
+> +++ b/Documentation/i2c/functionality
+> @@ -21,6 +21,7 @@ For the most up-to-date list of functionality constants=
+, please check
+>                                    I2C_M_REV_DIR_ADDR and I2C_M_NO_RD_ACK
+>                                    flags (which modify the I2C protocol!)
+>    I2C_FUNC_NOSTART                Can skip repeated start sequence
+> +  I2C_FUNC_NO_CLK_STRETCH         Does NOT support clock stretching
+>    I2C_FUNC_SMBUS_QUICK            Handles the SMBus write_quick command
+>    I2C_FUNC_SMBUS_READ_BYTE        Handles the SMBus read_byte command
+>    I2C_FUNC_SMBUS_WRITE_BYTE       Handles the SMBus write_byte command
+> diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+> index b0a7dd6..59e4b43 100644
+> --- a/include/uapi/linux/i2c.h
+> +++ b/include/uapi/linux/i2c.h
+> @@ -88,6 +88,7 @@ struct i2c_msg {
+>  #define I2C_FUNC_SMBUS_PEC		0x00000008
+>  #define I2C_FUNC_NOSTART		0x00000010 /* I2C_M_NOSTART */
+>  #define I2C_FUNC_SLAVE			0x00000020
+> +#define I2C_FUNC_NO_CLK_STRETCH		0x00000040 /* No check for SCL low */
+>  #define I2C_FUNC_SMBUS_BLOCK_PROC_CALL	0x00008000 /* SMBus 2.0 */
+>  #define I2C_FUNC_SMBUS_QUICK		0x00010000
+>  #define I2C_FUNC_SMBUS_READ_BYTE	0x00020000
 > --=20
-> 1.9.1
+> 2.5.1
 >=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
---tT3UgwmDxwvOMqfu
+--YrQNB5Deg1WGKZi3
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWJluHAAoJEBQN5MwUoCm2Dc4P/1S7qP04yaVGmk39iZJY8Mre
-vvZfHa8071l4N61aNw2VH7dRZaNK0Zc1yI139aRaPZNsLuylpO2VOXbk5fYAHlaE
-JtX/fthYLDI0ODMnnJ2i4k9BwnmmgHfyyTGSS4tjDA6T/3TDIK2VAgbyrQBNfcnM
-4YHtF0jOkITLi3OAeCiNfOpr54ERb2z9by2T5DpuzYCUSjpTsdJaqKjElxFgRXKr
-jZlweMbv21cn/gMQ4JM7kTN5jECy75npok4fYCv+NeWeJJXS8NiehT5+4Bx8M5sq
-pZDkkAMIT5zj898z8Ek6Wt1VGZgY8aZJp+WASYCPP91Kio3eFXsFeVRy5358NwO5
-KnWFFO3OnzyELgAiWQ/+R7qC/CJuhKNhFlRvCKZ5F9khBw/AaP4A6YrfTo06kS7v
-4i54wWsXMiY6iX1PL9s8297nUM2bXdLHpGsotN5d3c7+QeL6WK+9vw1sNw0aLzBZ
-abkAsmLFllz7rcc2rTx2IG4zDAmBAm0I37m/mNurjRYOd/Wz+TP11GXvhxkM1rhw
-FxHAQsCaPO/Nc4D0VhsxYvGZN5vjG514eXZYEt1TH/XxjtNDksW2V6kim9FpWsSi
-dLZY3gM0FMIDLC2GYUaWAhnvLaL1jhKcYXlhILM4TNp1di2M4cfBWQGWgE+lbRV5
-I0S531ipi5CuezdMkM55
-=N+yG
+iQIcBAEBAgAGBQJWJl8vAAoJEBQN5MwUoCm2twkP/iOiPdKI1MJAZeFnV3PSacI8
+sMrvv4NfWf44AGTVhnDdKAZZ1BlwUqmmBqU5X5tz5C+d3llTNKlO1m1Nv5XPzWRR
+GV/4++yuOv6OVm3bg70qKYvdBDoEU8fGZjOjrXqBZ7iAoAQWuVVu98NT8pDfilMh
+j+u7BRqdoB9kMWjkduFuDKcL9epVFh4s19YwmS239S7mwKIphdw82rwf3F2j+nJz
+5+o4PxsCuXMi+CCqFZi3LLzGFQyzq1sCQ+K92dj3ZBLcljkt/8W4kCVKyr/e0jp4
+JfNL4dpwXjxK1Fll/rRvjWPaEVB6Uin7MnLyxIyvy63Vg/exd0wyd62mnyA0bxwF
+Xv0/rXfyr40lxflI1WZ9B3adNr/mzxNlDuT9rWgUebUBJ0dSKmJkLDr/rkh1P4mr
+z6EpyySgzA/dvejPvBNFL7lIA1ZvkZ9CFzRYdEXxpBey7ZTXFy2Jg6s7z775cmV8
+J8XCVrKDTczfx7ZFErBoqT+vYo4hXEq8qrVRNxqDP3hoRV9fPkxI760RzfT94duc
+z3ImQPO5XqFEoPCoWaEmIZAkr6G0wCPPxJSwDKaIeTWUuZLfs9w8T9XcZmpWS3xb
+MifjMWj1H0XCmzjPfPGhgSLosAR/UQT01/fv+Utorp00YSR9+QD2xQW5Dl3c9LMX
+dxPf0jRZwKtACE1e6hzK
+=aBbH
 -----END PGP SIGNATURE-----
 
---tT3UgwmDxwvOMqfu--
+--YrQNB5Deg1WGKZi3--
