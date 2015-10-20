@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH 4/9] eeprom: at24: support reading of the serial number
-Date: Tue, 20 Oct 2015 10:43:22 +0200
-Message-ID: <1445330607-12470-5-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH 2/9] eeprom: at24: new flag in platform_data
+Date: Tue, 20 Oct 2015 10:43:20 +0200
+Message-ID: <1445330607-12470-3-git-send-email-bgolaszewski@baylibre.com>
 References: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,93 +10,27 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The at24cs series EEPROM chips have an additional read-only memory area
-containing a factory pre-programmed serial number. In order to access
-it, one has to perform a dummy write before reading the serial number
-bytes.
-
-Add a function that allows to access the serial number.
+In preparation for supporting the at24cs EEPROM series add a new flag to
+platform data. When set, it should tell the driver that the chip has an
+additional read-only memory area that holds a factory pre-programmed serial
+number.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+ include/linux/platform_data/at24.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 3a75a52..4d4a793 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -156,6 +156,71 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
- 	return at24->client[i];
- }
+diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+index 8d90f52..5686f91 100644
+--- a/include/linux/platform_data/at24.h
++++ b/include/linux/platform_data/at24.h
+@@ -47,6 +47,7 @@ struct at24_platform_data {
+ #define AT24_FLAG_READONLY	BIT(6)	/* sysfs-entry will be read-only */
+ #define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
+ #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
++#define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
  
-+static int __attribute__((unused)) at24cs_eeprom_serial_read(
-+						struct at24_data *at24,
-+						char *buf, unsigned offset,
-+						size_t count)
-+{
-+	unsigned long timeout, read_time;
-+	struct i2c_client *client;
-+	struct i2c_msg msg[2];
-+	u8 addrbuf[2];
-+	int status;
-+
-+	client = at24->client[1];
-+
-+	memset(msg, 0, sizeof(msg));
-+	msg[0].addr = client->addr;
-+	msg[0].buf = addrbuf;
-+
-+	/*
-+	 * The address pointer of the device is shared between the regular
-+	 * EEPROM array and the serial number block. The dummy write (part of
-+	 * the sequential read protocol) ensures the address pointer is reset
-+	 * to the desired position.
-+	 */
-+	if (at24->chip.flags & AT24_FLAG_ADDR16) {
-+		/*
-+		 * For 16 bit address pointers, the word address must contain
-+		 * a '10' sequence in bits 11 and 10 regardless of the
-+		 * intended position of the address pointer.
-+		 */
-+		addrbuf[0] = 0x08;
-+		addrbuf[1] = offset;
-+		msg[0].len = 2;
-+	} else {
-+		/*
-+		 * Otherwise the word address must begin with a '10' sequence,
-+		 * regardless of the intended address.
-+		 */
-+		addrbuf[0] = 0x80 + offset;
-+		msg[0].len = 1;
-+	}
-+
-+	msg[1].addr = client->addr;
-+	msg[1].flags = I2C_M_RD;
-+	msg[1].buf = buf;
-+	msg[1].len = count;
-+
-+	/*
-+	 * Reads fail if the previous write didn't complete yet. We may
-+	 * loop a few times until this one succeeds, waiting at least
-+	 * long enough for one entire page write to work.
-+	 */
-+	timeout = jiffies + msecs_to_jiffies(write_timeout);
-+	do {
-+		read_time = jiffies;
-+		status = i2c_transfer(client->adapter, msg, 2);
-+		if (status == 2)
-+			return count;
-+
-+		/* REVISIT: at HZ=100, this is sloooow */
-+		msleep(1);
-+	} while (time_before(read_time, timeout));
-+
-+	return -ETIMEDOUT;
-+}
-+
- static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 		unsigned offset, size_t count)
- {
+ 	void		(*setup)(struct memory_accessor *, void *context);
+ 	void		*context;
 -- 
 2.1.4
