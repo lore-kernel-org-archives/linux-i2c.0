@@ -1,42 +1,35 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Tue, 20 Oct 2015 12:04:05 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1510201159400.1855-100000@iolanthe.rowland.org>
-References: <20151020153612.GB32054@sirena.org.uk>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH v2] dts: keystone: Use new "ti,keystone-i2c" compatible
+Date: Tue, 20 Oct 2015 19:10:57 +0300
+Message-ID: <56266791.5000805@ti.com>
+References: <55F68E36.2030609@nokia.com> <20151020150614.GG5379@katana>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-clk-owner@vger.kernel.org>
-In-Reply-To: <20151020153612.GB32054@sirena.org.uk>
-Sender: linux-clk-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, David Woodhouse <dwmw2@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbary>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:38211 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751609AbbJTQLU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 20 Oct 2015 12:11:20 -0400
+In-Reply-To: <20151020150614.GG5379@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Alexander Sverdlin <alexander.sverdlin@nokia.com>, Sekhar Nori <nsekhar@ti.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org
 
-On Tue, 20 Oct 2015, Mark Brown wrote:
+On 10/20/2015 06:06 PM, Wolfram Sang wrote:
+> On Mon, Sep 14, 2015 at 11:07:02AM +0200, Alexander Sverdlin wrote:
+>> Now as "i2c-davinci" driver has special handling for Keystone it's time to switch
+>> the device tree to use new "compatible" property. Old one is left for backwards-
+>> compatibility.
+>>
+>> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+>
+> Shall I take this one or shall it go via the davinci tree?
+>
 
-> On Tue, Oct 20, 2015 at 10:40:03AM -0400, Alan Stern wrote:
-> 
-> > Furthermore, that applies only to devices that use synchronous suspend.  
-> > Async suspend is becoming common, and there the only restrictions are 
-> > parent-child relations plus whatever explicit requirements that drivers 
-> > impose by calling device_pm_wait_for_dev().
-> 
-> Hrm, this is the first I'd noticed that feature though I see the initial
-> commit dates from January.
+To: Sekhar
 
-Async suspend and device_pm_wait_for_dev() were added in January 2010, 
-not 2015!
-
->  It looks like most of the users are PCs at
-> the minute but we should be using it more widely for embedded things,
-> there's definitely some cases I'm aware of where it will allow us to
-> remove some open coding.
-> 
-> It does seem like we want to be feeding dependency information we
-> discover for probing way into the suspend dependencies...
-
-Rafael has been thinking about a way to do this systematically.  
-Nothing concrete has emerged yet.
-
-Alan Stern
-
+-- 
+regards,
+-grygorii
