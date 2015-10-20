@@ -1,69 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/6] i2c: ismt: improve usage of devres API
-Date: Tue, 20 Oct 2015 16:47:30 +0200
-Message-ID: <20151020144730.GD5379@katana>
-References: <1442413443-123579-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1443437132.8361.237.camel@linux.intel.com>
- <20150928110154.GU1536@lahna.fi.intel.com>
+Subject: Re: [PATCH v2] i2c: enable i2c device to suspend/resume
+ asynchronously
+Date: Tue, 20 Oct 2015 17:02:00 +0200
+Message-ID: <20151020150200.GE5379@katana>
+References: <5603978F.8020403@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5p8PegU4iirBW1oA"
+	protocol="application/pgp-signature"; boundary="o0ZfoUVt4BxPQnbU"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43195 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:43255 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750996AbbJTOre (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 20 Oct 2015 10:47:34 -0400
+	id S1751142AbbJTPCH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 20 Oct 2015 11:02:07 -0400
 Content-Disposition: inline
-In-Reply-To: <20150928110154.GU1536@lahna.fi.intel.com>
+In-Reply-To: <5603978F.8020403@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>
+To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 
---5p8PegU4iirBW1oA
+--o0ZfoUVt4BxPQnbU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 28, 2015 at 02:01:54PM +0300, Mika Westerberg wrote:
-> On Mon, Sep 28, 2015 at 01:45:32PM +0300, Andy Shevchenko wrote:
-> > On Wed, 2015-09-16 at 17:23 +0300, Andy Shevchenko wrote:
-> > > pcim_release() will release any requested region. There is no need to=
-=20
-> > > duplicate
-> > > this effort in the driver.
-> >=20
-> > Any comments on that clean up series?
+On Thu, Sep 24, 2015 at 02:26:23PM +0800, Fu, Zhonghui wrote:
+> Now, PM core supports asynchronous suspend/resume mode for devices
+> during system suspend/resume, and the power state transition of one
+> device may be completed in separate kernel thread. PM core ensures
+> all power state transition timing dependency between devices. This
+> patch enables i2c device to suspend/resume asynchronously. This will
+> take advantage of multicore and improve system suspend/resume speed.
 >=20
-> FWIW the whole series looks good to me,
->=20
-> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
 
-Applied all to for-next, thanks!
-
+Does it always work when say a PMIC or clock controller is connected to
+the I2C bus?
 
 
---5p8PegU4iirBW1oA
+--o0ZfoUVt4BxPQnbU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWJlQCAAoJEBQN5MwUoCm2yuMP/jLRYFhRp535d9Ys1x3hw1gl
-5u5yOlr4kSzxji3EpAi/PuylaWRyedoEDsaWg5sgGqxn8hkYwIjsKkoT2dSD1kqG
-1l9ZjwgGiPE6sST2flWYjig4gkevWQ9zhZ/QaAKT3s7n+Lv295k2AvrTqJDhQVV7
-2qhxhvDNNdZrSEm2uZeHpVfhmmz+f/t8dffUICkV3NtDqEDlAMzv6YiiYrHjx6k+
-a6CLe1K5+HCEDwsS70QHP/9KHxqp20/vIbhX90CxocYKERhkQmCdhwqSX6p/gvQX
-cB3DsIyANeAle+edbuXwh7K+aOMd4Q52zq/SdnIbzg/9OsNcFnYuwKdbvBoIsXaH
-ICGB5ikwmzFVkQq71oWMNoIW78KwAAytvvcCDKYUn/WmWQ481It6ASs/gllBVUbT
-GAXYuj0B+ZIkwFrJWyKfJuOdTc3B7TNn3oAMaxQfwk96aay+Qxgqj5tPqaYQHBNu
-wbhDNkOVCQzlj8Pr6TrgXMElYDYwyFB6BwW6570HaLfZL+CBSi9/rB1nKqlBZGS7
-QT3rjKpa/gJZ1KKd+LJYqZrwbLnUcI//Eg2oxzj0zKlcAGw+wnp+J+28AsBsapj9
-GLnf8NV0ZC4pI0CN7qN3Zz5n+BKFtjmjTwyhrT50z6Jy930ewX6delCSmsjo0FUk
-IRpGAj7ypa9fXJWTU/3r
-=5v63
+iQIcBAEBAgAGBQJWJldoAAoJEBQN5MwUoCm26NwQALLbUlHLAC+G5XZ7wmETZj73
+tIlayE846j/T7HijGz/29uVfbLvS1ElqSAbnJ79RJDjpb6Mq5+URlNsmpY9MQbMi
+LhtbkTNWBJRf7u8A5nSaJeoi/jdLY0HFQyIKHKrjh4zht3IVJYTjfbGL+OgWLCad
+84GRn5lDSWxg2UAt33XsXx7bi7t6naFOGn5rS1jKW0AN261vvqn5wbmlHoRPFPbI
+K4hpqzMgJrgnx8DooFE/eEiP6gHpAAFH/xChNhXOxveYpz72F94e2eD/m9UyyRjl
+3rGGiZbyP8UdqDP7M/WPBJZQ2bnJoDjyLVEmqtcttcIgBdtFj89YzU7HsejeYHNe
+8oahqFwo8TsLxGd9aZMVKkg+zAoovjQ1E/R87BCXWo+NqREu9Da8mrbBG1e/qYc9
+MgbuJlLRGp2ioq0+uscKbD56Va7XC+pX29O+eHq+0LFbKmo3S0tuVGkfXuIn3mIU
+iyzDYOyjCd37rMnUQAZ5jPm06noj4OwxHdbecSnuS8B19RRUMU/3GsKWXZr2i2GJ
+ftwq/OXRT8xhX8WMsXYa8sMnCxLd2drNz/C/GmNRtIrhGih0lkrYjHmnTNvuuW2+
+GoQBCLmtsVDKaB4Y1FWvFreaiKeIA81PcSkSmVY7g8WCXsY25198a/AG7KtYGGeO
+uVcVY6TRYv6iGll90KlN
+=ZH6E
 -----END PGP SIGNATURE-----
 
---5p8PegU4iirBW1oA--
+--o0ZfoUVt4BxPQnbU--
