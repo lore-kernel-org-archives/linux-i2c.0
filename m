@@ -1,33 +1,36 @@
-From: Manuel Lauss <manuel.lauss@gmail.com>
-Subject: Re: [PATCH] i2c: i2c-au1550: relax bus timings a bit
-Date: Tue, 20 Oct 2015 19:54:07 +0200
-Message-ID: <CAOLZvyGWqTvxOJ=h0U8eN8wLzReDMEjYvD0nbdCx7vFFLTovmg@mail.gmail.com>
-References: <1441695383-87868-1-git-send-email-manuel.lauss@gmail.com> <20151020154443.GK5379@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:37277 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751855AbbJTRys (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Oct 2015 13:54:48 -0400
-Received: by wicfv8 with SMTP id fv8so40694360wic.0
-        for <linux-i2c@vger.kernel.org>; Tue, 20 Oct 2015 10:54:47 -0700 (PDT)
-In-Reply-To: <20151020154443.GK5379@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Muhammad Falak R Wani <falakreyaz@gmail.com>
+Subject: [PATCH] i2c: busses: Use setup_timer
+Date: Tue, 20 Oct 2015 23:47:19 +0530
+Message-ID: <1445365039-23695-1-git-send-email-falakreyaz@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Muhammad Falak R Wani <falakreyaz@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux-I2C <linux-i2c@vger.kernel.org>
 
-On Tue, Oct 20, 2015 at 5:44 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> Since you have access to these platforms, there is a pending devm
-> conversion patchneeding some testing:
->
-> http://patchwork.ozlabs.org/patch/482140/
->
-> Are you maybe interested in checking that one?
+Use timer API function setup_timer instead of init_timer to
+initialize the timer.
 
-Sure,  I've run-tested it now on the DB1300 board, no problems.
-Tested-by: Manuel Lauss <manuel.lauss@gmail.com>
+Signed-off-by: Muhammad Falak R Wani <falakreyaz@gmail.com>
+---
+ drivers/i2c/busses/i2c-pnx.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Thanks!
-        Manuel
+diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+index e814a36..cdbf632 100644
+--- a/drivers/i2c/busses/i2c-pnx.c
++++ b/drivers/i2c/busses/i2c-pnx.c
+@@ -659,9 +659,8 @@ static int i2c_pnx_probe(struct platform_device *pdev)
+ 	if (IS_ERR(alg_data->clk))
+ 		return PTR_ERR(alg_data->clk);
+ 
+-	init_timer(&alg_data->mif.timer);
+-	alg_data->mif.timer.function = i2c_pnx_timeout;
+-	alg_data->mif.timer.data = (unsigned long)alg_data;
++	setup_timer(&alg_data->mif.timer, i2c_pnx_timeout,
++			(unsigned long)alg_data);
+ 
+ 	snprintf(alg_data->adapter.name, sizeof(alg_data->adapter.name),
+ 		 "%s", pdev->name);
+-- 
+1.9.1
