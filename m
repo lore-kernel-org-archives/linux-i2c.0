@@ -1,53 +1,44 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Tue, 20 Oct 2015 13:14:46 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1510201311260.1855-100000@iolanthe.rowland.org>
-References: <CAAObsKChQN4gg91dCWJS_Co_MrYyBrB1J7gxgGo4hsPXNZRp3g@mail.gmail.com>
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: Re: [PATCH] i2c: mv64xxx: really allow I2C offloading
+Date: Tue, 20 Oct 2015 19:29:15 +0200
+Message-ID: <20151020192915.262abf5d@free-electrons.com>
+References: <1445351544-26062-1-git-send-email-thomas.petazzoni@free-electrons.com>
+	<20151020162223.GQ5379@katana>
+	<7cbd65dd28fe445db4e3b8f0ed13ce74@IL-EXCH01.marvell.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAAObsKChQN4gg91dCWJS_Co_MrYyBrB1J7gxgGo4hsPXNZRp3g@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, David Woodhouse <dwmw2@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.c>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from down.free-electrons.com ([37.187.137.238]:60334 "EHLO
+	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751457AbbJTR3S (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Oct 2015 13:29:18 -0400
+In-Reply-To: <7cbd65dd28fe445db4e3b8f0ed13ce74@IL-EXCH01.marvell.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hezi Shahmoon <hezi@marvell.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Tawfik Bayouk <tawfik@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Lior Amsalem <alior@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Marcin Wojtas <mw@semihalf.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 
-On Tue, 20 Oct 2015, Tomeu Vizoso wrote:
+Hello,
 
-> On 20 October 2015 at 18:04, Alan Stern <stern@rowland.harvard.edu> wrote:
-> > On Tue, 20 Oct 2015, Mark Brown wrote:
-> >
-> >> On Tue, Oct 20, 2015 at 10:40:03AM -0400, Alan Stern wrote:
-> >>
-> >> > Furthermore, that applies only to devices that use synchronous suspend.
-> >> > Async suspend is becoming common, and there the only restrictions are
-> >> > parent-child relations plus whatever explicit requirements that drivers
-> >> > impose by calling device_pm_wait_for_dev().
-> >>
-> >> Hrm, this is the first I'd noticed that feature though I see the initial
-> >> commit dates from January.
-> >
-> > Async suspend and device_pm_wait_for_dev() were added in January 2010,
-> > not 2015!
-> >
-> >>  It looks like most of the users are PCs at
-> >> the minute but we should be using it more widely for embedded things,
-> >> there's definitely some cases I'm aware of where it will allow us to
-> >> remove some open coding.
-> >>
-> >> It does seem like we want to be feeding dependency information we
-> >> discover for probing way into the suspend dependencies...
-> >
-> > Rafael has been thinking about a way to do this systematically.
-> > Nothing concrete has emerged yet.
+On Tue, 20 Oct 2015 16:56:21 +0000, Hezi Shahmoon wrote:
+> Hi.
 > 
-> This iteration of the series would make this quite easy, as
-> dependencies are calculated before probes are attempted:
+> It is:
+> Hezi Shahmoon
 > 
-> https://lkml.org/lkml/2015/6/17/311
+> Email:
+> hezi@marvell.com
 
-But what Rafael is proposing is quite general; it would apply to _all_
-dependencies as opposed to just those present in DT drivers or those 
-affecting platform_devices.
+Thanks Hezi.
 
-Alan Stern
+Wolfram, do you want me to send a v2 with Hezi's full name or will you
+fix that up when applying the patch ?
+
+Thanks,
+
+Thomas
+-- 
+Thomas Petazzoni, CTO, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
