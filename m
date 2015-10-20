@@ -1,7 +1,7 @@
 From: Luis de Bethencourt <luisbg@osg.samsung.com>
-Subject: [RESEND PATCH 2/4] i2c: meson: Fix module autoload for OF platform driver
-Date: Tue, 20 Oct 2015 15:16:28 +0100
-Message-ID: <1445350590-25911-3-git-send-email-luisbg@osg.samsung.com>
+Subject: [RESEND PATCH 1/4] i2c: ibm-iic: Fix module autoload for OF platform driver
+Date: Tue, 20 Oct 2015 15:16:27 +0100
+Message-ID: <1445350590-25911-2-git-send-email-luisbg@osg.samsung.com>
 References: <1445350590-25911-1-git-send-email-luisbg@osg.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1445350590-25911-1-git-send-email-luisbg@osg.samsung.com>
@@ -17,20 +17,20 @@ alias information is not created so module autoloading won't work.
 
 Signed-off-by: Luis de Bethencourt <luisbg@osg.samsung.com>
 ---
- drivers/i2c/busses/i2c-meson.c | 1 +
+ drivers/i2c/busses/i2c-ibm_iic.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 5e176ad..71d3929 100644
---- a/drivers/i2c/busses/i2c-meson.c
-+++ b/drivers/i2c/busses/i2c-meson.c
-@@ -475,6 +475,7 @@ static const struct of_device_id meson_i2c_match[] = {
- 	{ .compatible = "amlogic,meson6-i2c" },
- 	{ },
+diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+index 722f839..ab49230 100644
+--- a/drivers/i2c/busses/i2c-ibm_iic.c
++++ b/drivers/i2c/busses/i2c-ibm_iic.c
+@@ -798,6 +798,7 @@ static const struct of_device_id ibm_iic_match[] = {
+ 	{ .compatible = "ibm,iic", },
+ 	{}
  };
-+MODULE_DEVICE_TABLE(of, meson_i2c_match);
++MODULE_DEVICE_TABLE(of, ibm_iic_match);
  
- static struct platform_driver meson_i2c_driver = {
- 	.probe   = meson_i2c_probe,
+ static struct platform_driver ibm_iic_driver = {
+ 	.driver = {
 -- 
 2.5.3
