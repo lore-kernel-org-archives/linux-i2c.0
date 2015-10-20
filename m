@@ -1,109 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: Remove obsolete platform data support
-Date: Tue, 20 Oct 2015 18:11:55 +0200
-Message-ID: <20151020161155.GO5379@katana>
-References: <1444205791-25480-1-git-send-email-geert+renesas@glider.be>
- <56150C32.5040700@cogentembedded.com>
+Subject: Re: [RESEND PATCH 0/4] i2c: Fix module autoload for OF platform
+ drivers
+Date: Tue, 20 Oct 2015 18:18:04 +0200
+Message-ID: <20151020161802.GP5379@katana>
+References: <1445350590-25911-1-git-send-email-luisbg@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="da9oBGf5DLtF9ehv"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="cmVHo2jXx4bdYlgS"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43734 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752180AbbJTQSK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 20 Oct 2015 12:18:10 -0400
 Content-Disposition: inline
-In-Reply-To: <56150C32.5040700@cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+In-Reply-To: <1445350590-25911-1-git-send-email-luisbg@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Luis de Bethencourt <luisbg@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, linus.walleij@linaro.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, heiko@sntech.de, b.galvani@gmail.com
 
 
---da9oBGf5DLtF9ehv
+--cmVHo2jXx4bdYlgS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 07, 2015 at 03:12:34PM +0300, Sergei Shtylyov wrote:
-> Hello.
+On Tue, Oct 20, 2015 at 03:16:26PM +0100, Luis de Bethencourt wrote:
+> Hello,
 >=20
-> On 10/7/2015 11:16 AM, Geert Uytterhoeven wrote:
+> This is a resend of this patch series. It was posted on September 17. [0]
 >=20
-> >Since commit 4baadb9e05c68962 ("ARM: shmobile: r8a7778: remove obsolete
-> >setup code"), Renesas R-Car SoCs are only supported in generic DT-only
-> >ARM multi-platform builds.  The driver doesn't need to use platform data
-> >anymore, hence remove platform data configuration.
-> >
-> >Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> >---
-> >Commit 4baadb9e05c68962 is now in arm-soc/for-next.
-> >---
-> >  drivers/i2c/busses/i2c-rcar.c | 19 +------------------
-> >  include/linux/i2c/i2c-rcar.h  | 10 ----------
-> >  2 files changed, 1 insertion(+), 28 deletions(-)
-> >  delete mode 100644 include/linux/i2c/i2c-rcar.h
-> >
-> >diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar=
-=2Ec
-> >index 3e125654bb28..cd38406db074 100644
-> >--- a/drivers/i2c/busses/i2c-rcar.c
-> >+++ b/drivers/i2c/busses/i2c-rcar.c
-> [...]
-> >@@ -654,14 +652,8 @@ static int rcar_i2c_probe(struct platform_device *p=
-dev)
-> >
-> >  	bus_speed =3D 100000; /* default 100 kHz */
-> >  	ret =3D of_property_read_u32(dev->of_node, "clock-frequency", &bus_sp=
-eed);
+> These patches add the missing MODULE_DEVICE_TABLE() for OF to export
+> the information so modules have the correct aliases built-in and
+> autoloading works correctly.
 >=20
->    The result can be ignored now.
-
-Yup, my code checkers found this, too ;)
-
-Fixed it here.
-
+> A longer explanation by Javier Canillas can be found here:
+> https://lkml.org/lkml/2015/7/30/519
 >=20
-> >-	if (ret < 0 && pdata && pdata->bus_speed)
-> >-		bus_speed =3D pdata->bus_speed;
-> >
-> >-	if (pdev->dev.of_node)
-> >-		priv->devtype =3D (long)of_match_device(rcar_i2c_dt_ids,
-> >-						      dev)->data;
-> >-	else
-> >-		priv->devtype =3D platform_get_device_id(pdev)->driver_data;
-> >+	priv->devtype =3D (long)of_match_device(rcar_i2c_dt_ids, dev)->data;
-
-I changed this to the enum type of devtype
-
-Other than that:
+> The 4th patch of the series is Acked-by Linus Walleij.
 
 Applied to for-next, thanks!
 
-> >
-> >  	ret =3D rcar_i2c_clock_calculate(priv, bus_speed, dev);
-> >  	if (ret < 0)
-> [...]
->=20
-> MBR, Sergei
->=20
 
---da9oBGf5DLtF9ehv
+--cmVHo2jXx4bdYlgS
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWJmfLAAoJEBQN5MwUoCm2OhQP/1b5uScvQq56dj0236XHCBJz
-VWqcLPOHDIoWWEswbgZT2rArII/HEtoC8rxeI4vUKAlV12FBbrSpAFzmxzom8AkL
-aUxoWfnw2FKrb4eOsfu9NU1VHSKAHVWBns3JUi0iEFl+ShPL9jEAiNzesxTgaOin
-TzfKKX5l4vW9hCoeXDAd/EgQuTYil97RGULJzXJQI6lBijVgASxee51tbPDrrCkv
-54eT84YufZPWUgnHV9lHjD1PY/Ko8+AM32SaVdbuSHF4IsSleBy6GPT29D4FTgMy
-IwWllAZEHVwN2dE7kopnwSfAgUezREENSRjj4wMnBeXAMgQHcjC8x1+8SJeXKscw
-gfLQ8FU+MA/J5Jkr4dRMg4IzkE+SZ/9dCOERwYV2IN5nwwCkFgq50Av7pPdLCEVk
-xzXdS44d+KKIrzNtIa+2eD1i6OGxG6jsWlYNTF6uWr/IEIRG/o/dGPXQcsDMdKJA
-pcdt8WshTbakkZiXAsVWM7LVBWJv9EVRnh244837mMOK7lYHtLTdoYX6wXGz1qas
-iw2ZOylCT/rG/OExHyPid3cS36khSabCkWPzvCGCBQSVx3/ad5XMs/buUF1OtTmq
-LRxFD694rkCw0LOJ47L2Bu+YUwhQcsf5i3RFsvTfBIJQYac+g0TYIQiMTQj7vdC4
-OwZI58pxFpTLSQYBKi91
-=2iSX
+iQIcBAEBAgAGBQJWJmk6AAoJEBQN5MwUoCm2dp8P/jFpEok9p+gblmtTfRKd+NsA
+zWmr8kQPxRY0fKljYdUPumkf04Q7rrM7wLhqUSCPqKTIjTqNlHKgvzy35Y5HNaGB
+BeJ9Xbz89WkzSTQq/FKGvEUHc0r7EcYbUxkxmxUO9mz9nXZzzsQ0SBps9NiTIzAr
+1VGU/Wzdr2U5HxpzFrv4arQbfcqlkuOGEHZtbM1ajQ9QQhnBfXKWqqW6YtsJgnLh
+zVQmzqsKydBSapOfGPKwy3vMOpH2+q+02RfucY/6ceoxWSL6P2sEMH8+2q7QKc+S
+wRlkhuLIWlYZcRrc0pNwgtee3fe5dSe6TCBvuu4nzhZV1XyNw67yzySBBWx//NJw
+vywBZJZi1OL99VsTTo+V4ZQwSJMr39OyrcAJw4RBxHTt9g4YDG+GE3bfkoYT5L90
+nJDLahhkCbRwiabHobV8KMAOxO0drRysusEyr0/mY0M6IDer0cS36IbFU42N9b56
+V0gX5DX+5a+EisOtIY6Sw8YP8MR5EbNE9ABnzT0UWBZ0CHJqBCTSQrFDjUaXc2GU
+tSVFblkr1F9qzqR8PzAno0wIX+AR4U0CUahGxuagnzSmJWpJMq+QWLWZDKUa2OEO
+zVeDnAwpGdPUtt8uZavBiv6WYPTY3M9JO49S4UGZb2W8U/pw0mB5uP5fNWn5JuIg
+iBgLxW9vtviQafrZncPJ
+=Z2Ds
 -----END PGP SIGNATURE-----
 
---da9oBGf5DLtF9ehv--
+--cmVHo2jXx4bdYlgS--
