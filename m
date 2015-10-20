@@ -1,61 +1,96 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Tue, 20 Oct 2015 18:21:55 +0200
-Message-ID: <CAAObsKChQN4gg91dCWJS_Co_MrYyBrB1J7gxgGo4hsPXNZRp3g@mail.gmail.com>
-References: <20151020153612.GB32054@sirena.org.uk> <Pine.LNX.4.44L0.1510201159400.1855-100000@iolanthe.rowland.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: mv64xxx: really allow I2C offloading
+Date: Tue, 20 Oct 2015 18:22:23 +0200
+Message-ID: <20151020162223.GQ5379@katana>
+References: <1445351544-26062-1-git-send-email-thomas.petazzoni@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:38178 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752008AbbJTQWT (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Oct 2015 12:22:19 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1510201159400.1855-100000@iolanthe.rowland.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3wfpuDtTLg8/Vq6g"
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1445351544-26062-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Sender: stable-owner@vger.kernel.org
+To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Cc: linux-i2c@vger.kernel.org, Tawfik Bayouk <tawfik@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Lior Amsalem <alior@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Marcin Wojtas <mw@semihalf.com>, Hezi <hezi@marvell.com>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, David Woodhouse <dwmw2@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.c>
 
-On 20 October 2015 at 18:04, Alan Stern <stern@rowland.harvard.edu> wrote:
-> On Tue, 20 Oct 2015, Mark Brown wrote:
->
->> On Tue, Oct 20, 2015 at 10:40:03AM -0400, Alan Stern wrote:
->>
->> > Furthermore, that applies only to devices that use synchronous suspend.
->> > Async suspend is becoming common, and there the only restrictions are
->> > parent-child relations plus whatever explicit requirements that drivers
->> > impose by calling device_pm_wait_for_dev().
->>
->> Hrm, this is the first I'd noticed that feature though I see the initial
->> commit dates from January.
->
-> Async suspend and device_pm_wait_for_dev() were added in January 2010,
-> not 2015!
->
->>  It looks like most of the users are PCs at
->> the minute but we should be using it more widely for embedded things,
->> there's definitely some cases I'm aware of where it will allow us to
->> remove some open coding.
->>
->> It does seem like we want to be feeding dependency information we
->> discover for probing way into the suspend dependencies...
->
-> Rafael has been thinking about a way to do this systematically.
-> Nothing concrete has emerged yet.
 
-This iteration of the series would make this quite easy, as
-dependencies are calculated before probes are attempted:
+--3wfpuDtTLg8/Vq6g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-https://lkml.org/lkml/2015/6/17/311
+On Tue, Oct 20, 2015 at 04:32:24PM +0200, Thomas Petazzoni wrote:
+> From: Hezi <hezi@marvell.com>
 
-Regards,
+Is "Hezi" the full name?
 
-Tomeu
+>=20
+> Commit 00d8689b85a7 ("i2c: mv64xxx: rework offload support to fix
+> several problems") completely reworked the offload support, but
+> stupidly left a debugging-related "return false" at the beginning of
+> the mv64xxx_i2c_can_offload() function. This has the unfortunate
+> consequence that offloading is in fact never used, which wasn't really
+> the intention.
+>=20
+> This commit fixes that problem by removing the stupid "return false".
+>=20
+> Fixes: 00d8689b85a7 ("i2c: mv64xxx: rework offload support to fix several=
+ problems")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Hezi <hezi@marvell.com>
+> [Thomas: reworked commit log and title.]
+> Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+> ---
+> Note: the original fix is from Hezi, but I rewrote the commit log,
+> which is why I authorized myself to treat my own work as being
+> "stupid". Which it really was.
 
-> Alan Stern
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+:)
+
+> ---
+>  drivers/i2c/busses/i2c-mv64xxx.c | 2 --
+>  1 file changed, 2 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv=
+64xxx.c
+> index 30059c1..5801227 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -669,8 +669,6 @@ mv64xxx_i2c_can_offload(struct mv64xxx_i2c_data *drv_=
+data)
+>  	struct i2c_msg *msgs =3D drv_data->msgs;
+>  	int num =3D drv_data->num_msgs;
+> =20
+> -	return false;
+> -
+>  	if (!drv_data->offload_enabled)
+>  		return false;
+> =20
+> --=20
+> 2.6.2
+>=20
+
+--3wfpuDtTLg8/Vq6g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWJmo/AAoJEBQN5MwUoCm2oFkQAIHMxVA+jB+iCxJIpftMiycM
+6WLx08/wqp5N94JgH72BSiZHi9I+BdZT61ptfDBrfQarKVW5xkyyDVjeIAapoQe6
+ouWZkNxd7oV+BXmQpeHEZwayvt+s0Yratip4uRgrQfJoa48z3BsDBSFBDi0uewnf
+AZNkofN7khYlHhRMqXwOl5o2hNtqnKX7tHCdomQjpTiypCeRb/jHzr/OeiR1Px1G
+6yPgw01z9qxIEZ+VubAS9ZwkJQUPxLH0N3UebdwlKltYwgVdW65r2om5SpBqIpce
+LCE0sPmGVDhC5Qs6fJfID/FzedsVCwmxusHT0mGBzPRIPt2whN39wDLXOtU8HSYT
+QBKvsZPKue6nDQ2ySwnKVZYJ1IhsqDGKiZVrRGhZO6kPUJtImyUtmUBEqQdcCY4M
+K9ow9iG8swH9tZ2Q8Dt0jWkQvRYExooNzfsR3gtsgqJ4yePh91JLRREEUTv6ES72
+beZcDdpyASvRVCDlenL+k+TyPOHjbES4URuIxsYuO1nezzLNzIo6TzB2QPxvHfHN
+RL+kUx+NgWaJMloELew+/wf4WnaOzwGSGy1MqxviCa9rcffALuAFnZr6T6CRmQHp
+k2Nq9vJo6w/LJKTG9/a3C/RYFs7J5KbEgY5VJgoGOGDazF/0/VidGz7EPqo9iTAC
+WDf/JeOtN3OUNwMOZgCC
+=VVRa
+-----END PGP SIGNATURE-----
+
+--3wfpuDtTLg8/Vq6g--
