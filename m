@@ -1,86 +1,53 @@
-From: Hezi Shahmoon <hezi@marvell.com>
-Subject: RE: [PATCH] i2c: mv64xxx: really allow I2C offloading
-Date: Tue, 20 Oct 2015 16:56:21 +0000
-Message-ID: <7cbd65dd28fe445db4e3b8f0ed13ce74@IL-EXCH01.marvell.com>
-References: <1445351544-26062-1-git-send-email-thomas.petazzoni@free-electrons.com>
- <20151020162223.GQ5379@katana>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Tue, 20 Oct 2015 13:14:46 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1510201311260.1855-100000@iolanthe.rowland.org>
+References: <CAAObsKChQN4gg91dCWJS_Co_MrYyBrB1J7gxgGo4hsPXNZRp3g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20151020162223.GQ5379@katana>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Tawfik Bayouk <tawfik@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Lior Amsalem <alior@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Marcin Wojtas <mw@semihalf.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAAObsKChQN4gg91dCWJS_Co_MrYyBrB1J7gxgGo4hsPXNZRp3g@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Cc: Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, David Woodhouse <dwmw2@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.c>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi.
+On Tue, 20 Oct 2015, Tomeu Vizoso wrote:
 
-It is:
-Hezi Shahmoon
-
-Email:
-hezi@marvell.com
-
-I will fix this for future commits.
-
-Thanks,
-Hezi.
-
------Original Message-----
-From: Wolfram Sang [mailto:wsa@the-dreams.de] 
-Sent: Tuesday, October 20, 2015 7:22 PM
-To: Thomas Petazzoni
-Cc: linux-i2c@vger.kernel.org; Tawfik Bayouk; Nadav Haklai; Lior Amsalem; Jason Cooper; Andrew Lunn; Sebastian Hesselbarth; Gregory Clement; Marcin Wojtas; Hezi Shahmoon; stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: mv64xxx: really allow I2C offloading
-
-On Tue, Oct 20, 2015 at 04:32:24PM +0200, Thomas Petazzoni wrote:
-> From: Hezi <hezi@marvell.com>
-
-Is "Hezi" the full name?
-
+> On 20 October 2015 at 18:04, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > On Tue, 20 Oct 2015, Mark Brown wrote:
+> >
+> >> On Tue, Oct 20, 2015 at 10:40:03AM -0400, Alan Stern wrote:
+> >>
+> >> > Furthermore, that applies only to devices that use synchronous suspend.
+> >> > Async suspend is becoming common, and there the only restrictions are
+> >> > parent-child relations plus whatever explicit requirements that drivers
+> >> > impose by calling device_pm_wait_for_dev().
+> >>
+> >> Hrm, this is the first I'd noticed that feature though I see the initial
+> >> commit dates from January.
+> >
+> > Async suspend and device_pm_wait_for_dev() were added in January 2010,
+> > not 2015!
+> >
+> >>  It looks like most of the users are PCs at
+> >> the minute but we should be using it more widely for embedded things,
+> >> there's definitely some cases I'm aware of where it will allow us to
+> >> remove some open coding.
+> >>
+> >> It does seem like we want to be feeding dependency information we
+> >> discover for probing way into the suspend dependencies...
+> >
+> > Rafael has been thinking about a way to do this systematically.
+> > Nothing concrete has emerged yet.
 > 
-> Commit 00d8689b85a7 ("i2c: mv64xxx: rework offload support to fix 
-> several problems") completely reworked the offload support, but 
-> stupidly left a debugging-related "return false" at the beginning of 
-> the mv64xxx_i2c_can_offload() function. This has the unfortunate 
-> consequence that offloading is in fact never used, which wasn't really 
-> the intention.
+> This iteration of the series would make this quite easy, as
+> dependencies are calculated before probes are attempted:
 > 
-> This commit fixes that problem by removing the stupid "return false".
-> 
-> Fixes: 00d8689b85a7 ("i2c: mv64xxx: rework offload support to fix 
-> several problems")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Hezi <hezi@marvell.com>
-> [Thomas: reworked commit log and title.]
-> Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-> ---
-> Note: the original fix is from Hezi, but I rewrote the commit log, 
-> which is why I authorized myself to treat my own work as being 
-> "stupid". Which it really was.
+> https://lkml.org/lkml/2015/6/17/311
 
-:)
+But what Rafael is proposing is quite general; it would apply to _all_
+dependencies as opposed to just those present in DT drivers or those 
+affecting platform_devices.
 
-> ---
->  drivers/i2c/busses/i2c-mv64xxx.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c 
-> b/drivers/i2c/busses/i2c-mv64xxx.c
-> index 30059c1..5801227 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -669,8 +669,6 @@ mv64xxx_i2c_can_offload(struct mv64xxx_i2c_data *drv_data)
->  	struct i2c_msg *msgs = drv_data->msgs;
->  	int num = drv_data->num_msgs;
->  
-> -	return false;
-> -
->  	if (!drv_data->offload_enabled)
->  		return false;
->  
-> --
-> 2.6.2
-> 
+Alan Stern
