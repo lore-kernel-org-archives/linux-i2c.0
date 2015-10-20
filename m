@@ -1,73 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/6] i2c: ismt: PCI core handles power state for us
-Date: Tue, 20 Oct 2015 16:42:51 +0200
-Message-ID: <20151020144251.GC5379@katana>
+Subject: Re: [PATCH 1/6] i2c: ismt: improve usage of devres API
+Date: Tue, 20 Oct 2015 16:47:30 +0200
+Message-ID: <20151020144730.GD5379@katana>
 References: <1442413443-123579-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1442413443-123579-2-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1443437132.8361.237.camel@linux.intel.com>
+ <20150928110154.GU1536@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZmUaFz6apKcXQszQ"
+	protocol="application/pgp-signature"; boundary="5p8PegU4iirBW1oA"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43173 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:43195 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750991AbbJTOmz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 20 Oct 2015 10:42:55 -0400
+	id S1750996AbbJTOre (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 20 Oct 2015 10:47:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1442413443-123579-2-git-send-email-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20150928110154.GU1536@lahna.fi.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>
 
 
---ZmUaFz6apKcXQszQ
+--5p8PegU4iirBW1oA
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 16, 2015 at 05:23:59PM +0300, Andy Shevchenko wrote:
-> There is no need to repeat the work that is already done in the PCI driver
-> core. Remove suspend and resume callbacks.
+On Mon, Sep 28, 2015 at 02:01:54PM +0300, Mika Westerberg wrote:
+> On Mon, Sep 28, 2015 at 01:45:32PM +0300, Andy Shevchenko wrote:
+> > On Wed, 2015-09-16 at 17:23 +0300, Andy Shevchenko wrote:
+> > > pcim_release() will release any requested region. There is no need to=
+=20
+> > > duplicate
+> > > this effort in the driver.
+> >=20
+> > Any comments on that clean up series?
 >=20
-> Note that there is no more calls performed to enable or disable a PCI
-> device during suspend-resume cycle. Nowadays they seems to be
-> superflous. Someone can read more in [1].
+> FWIW the whole series looks good to me,
 >=20
-> [1] https://www.kernel.org/doc/ols/2009/ols2009-pages-319-330.pdf
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Checkpatch said:
-
-WARNING: 'superflous' may be misspelled - perhaps 'superfluous'?
-#6:=20
-superflous. Someone can read more in [1].
-
-total: 0 errors, 1 warnings, 0 checks, 44 lines checked
-
-Fixed it here.
+Applied all to for-next, thanks!
 
 
---ZmUaFz6apKcXQszQ
+
+--5p8PegU4iirBW1oA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWJlLrAAoJEBQN5MwUoCm20vsQAI+l1u9QyX5Kame3vSrkQPiz
-3UMIGPvqZ/2qt+MAtl8Lp+oryuZMxmDRSnTq7+jd/13MGq4Hm64UNl3uRttYxKod
-NIgfDrIAT8RvhdxtBQHGrStGv6T1An6aLlqbWQtIR/bkR6cof0OqV8fCuNs6XNQv
-0P6gDWWGcxWtHh4SCLtzbm60EsC9IhAday5LKAu0aJLkkgjy1exYDxN77Pcdlbk1
-ntsc4ICNL8TCMnQE4WGaJyELqaM00lu4UD9zR2ZrVAYiS8gI7e7DDcEv8iN1DQDN
-T4aEV0LpQGExOe/BsOnS6o8MgJLehXyqVJwPNUmeyf0Vd/edpi1iuNXD3SLEn6Om
-O6h+1LKHEdERoBexIf0k5PdBalHUNu4VNTKW7fz63K6NTCKCazszo7cjB2Rpku4u
-C/ZkoKYSBDoo+u1ne1iERZP3E363AsjebCAf73cXJVQk1KakSREiO//EgDKTim8U
-7hUrkQsUZ5GGMsHMELH1W0Luf9kOjI1VdLaimW7V9GGSKL3b7u4otJ+daY2+kocT
-yuyo9zuyGxP6AfrflyZWo2hmVCWhodhnPe4w009RKFcpwc0yzfHp8FLZvcbsV7oH
-D5/Pd8JggtCuPls+tlsqcfzoAD2mQgR3lRiGzsDfLVvbogzhmHV7/tkQ/Xj1LwsP
-hqJxzxt80vRpbI5ntt4g
-=JdbL
+iQIcBAEBAgAGBQJWJlQCAAoJEBQN5MwUoCm2yuMP/jLRYFhRp535d9Ys1x3hw1gl
+5u5yOlr4kSzxji3EpAi/PuylaWRyedoEDsaWg5sgGqxn8hkYwIjsKkoT2dSD1kqG
+1l9ZjwgGiPE6sST2flWYjig4gkevWQ9zhZ/QaAKT3s7n+Lv295k2AvrTqJDhQVV7
+2qhxhvDNNdZrSEm2uZeHpVfhmmz+f/t8dffUICkV3NtDqEDlAMzv6YiiYrHjx6k+
+a6CLe1K5+HCEDwsS70QHP/9KHxqp20/vIbhX90CxocYKERhkQmCdhwqSX6p/gvQX
+cB3DsIyANeAle+edbuXwh7K+aOMd4Q52zq/SdnIbzg/9OsNcFnYuwKdbvBoIsXaH
+ICGB5ikwmzFVkQq71oWMNoIW78KwAAytvvcCDKYUn/WmWQ481It6ASs/gllBVUbT
+GAXYuj0B+ZIkwFrJWyKfJuOdTc3B7TNn3oAMaxQfwk96aay+Qxgqj5tPqaYQHBNu
+wbhDNkOVCQzlj8Pr6TrgXMElYDYwyFB6BwW6570HaLfZL+CBSi9/rB1nKqlBZGS7
+QT3rjKpa/gJZ1KKd+LJYqZrwbLnUcI//Eg2oxzj0zKlcAGw+wnp+J+28AsBsapj9
+GLnf8NV0ZC4pI0CN7qN3Zz5n+BKFtjmjTwyhrT50z6Jy930ewX6delCSmsjo0FUk
+IRpGAj7ypa9fXJWTU/3r
+=5v63
 -----END PGP SIGNATURE-----
 
---ZmUaFz6apKcXQszQ--
+--5p8PegU4iirBW1oA--
