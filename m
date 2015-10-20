@@ -1,29 +1,66 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 1/2] i2c: designware: register clkdev during acpi device
- configuration
-Date: Tue, 20 Oct 2015 14:17:37 +0300
-Message-ID: <20151020111737.GF1526@lahna.fi.intel.com>
-References: <1445323081.3380.25.camel@kxue-X58A-UD3R>
+Subject: Re: [PATCH v3 1/1] i2c: add ACPI support for I2C mux ports
+Date: Tue, 20 Oct 2015 15:51:11 +0300
+Message-ID: <20151020125111.GJ1526@lahna.fi.intel.com>
+References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
+ <1445293740-28537-1-git-send-email-dustin@cumulusnetworks.com>
+ <1445293740-28537-2-git-send-email-dustin@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:54196 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752087AbbJTLRl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 20 Oct 2015 07:17:41 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1445323081.3380.25.camel@kxue-X58A-UD3R>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1445293740-28537-2-git-send-email-dustin@cumulusnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dustin Byford <dustin@cumulusnetworks.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, andriy.shevchenko@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: Ken Xue <Ken.Xue@amd.com>
-Cc: baruch@tkos.co.il, SPG_Linux_Kernel@amd.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 
-On Tue, Oct 20, 2015 at 02:38:01PM +0800, Ken Xue wrote:
-> DW I2C driver tries to register a clk from id->driver_data as an
-> alternative way besides intel lpss. But code doesn't register the
-> clk to clkdev. So, devm_clk_get will fail during probe.
+On Mon, Oct 19, 2015 at 03:29:00PM -0700, Dustin Byford wrote:
+> Although I2C mux devices are easily enumerated using ACPI (_HID/_CID or
+> device property compatible string match) enumerating I2C client devices
+> connected through a I2C mux device requires a little extra work.
 > 
-> The patch can fix this issue.
+> This change implements a method for describing an I2C device hierarchy that
+> includes mux devices by using an ACPI Device() for each mux channel along
+> with an _ADR to set the channel number for the device.  See
+> Documentation/acpi/i2c-muxes.txt for a simple example.
+> 
+> Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
 
-Since you now have drivers/acpi/acpi_apd.c for AMD ACPI stuff, can you
-create the clock there just like we do for Intel stuff?
+In general this looks good to me.
+
+> ---
+>  Documentation/acpi/i2c-muxes.txt | 58 ++++++++++++++++++++++++++++++++++++++++
+>  drivers/i2c/i2c-core.c           | 15 +++++++++--
+>  drivers/i2c/i2c-mux.c            |  8 ++++++
+>  include/linux/acpi.h             |  6 +++++
+>  4 files changed, 85 insertions(+), 2 deletions(-)
+>  create mode 100644 Documentation/acpi/i2c-muxes.txt
+> 
+
+[...]
+
+> +	/*
+> +	 * By default, associate I2C adapters with their parent device's ACPI
+> +	 * node.
+> +	 */
+> +	if (!has_acpi_companion(dev)) {
+> +		struct acpi_device *adev = ACPI_COMPANION(dev->parent);
+> +
+> +		if (adev)
+> +			ACPI_COMPANION_SET(dev, adev);
+
+Instead of always doing this in the I2C core, maybe we can make it
+dependent on the host controller driver. For example the I2C designware
+driver already did this for both DT and ACPI:
+
+	adap->dev.parent = &pdev->dev;
+	adap->dev.of_node = pdev->dev.of_node;
+	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
+
+Also I would like to ask what Rafael thinks about this since he authored
+b34bb1ee71158d5b ("ACPI / I2C: Use parent's ACPI_HANDLE() in
+acpi_i2c_register_devices()").
+
+I don't see a problem multiple Linux devices sharing a single ACPI
+companion device like in this patch but I may be forgetting something ;-)
