@@ -1,64 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 5/6] at24: enable ACPI device found on Galileo Gen2
-Date: Tue, 20 Oct 2015 16:28:51 +0200
-Message-ID: <20151020142851.GB5379@katana>
-References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1444213129-29793-6-git-send-email-andriy.shevchenko@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43103 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752150AbbJTO2z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 20 Oct 2015 10:28:55 -0400
-Content-Disposition: inline
-In-Reply-To: <1444213129-29793-6-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: [PATCH] i2c: mv64xxx: really allow I2C offloading
+Date: Tue, 20 Oct 2015 16:32:24 +0200
+Message-ID: <1445351544-26062-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Tawfik Bayouk <tawfik@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Lior Amsalem <alior@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Marcin Wojtas <mw@semihalf.com>, Hezi <hezi@marvell.com>, stable@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
 
+From: Hezi <hezi@marvell.com>
 
---hHWLQfXTYDoKhP50
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Commit 00d8689b85a7 ("i2c: mv64xxx: rework offload support to fix
+several problems") completely reworked the offload support, but
+stupidly left a debugging-related "return false" at the beginning of
+the mv64xxx_i2c_can_offload() function. This has the unfortunate
+consequence that offloading is in fact never used, which wasn't really
+the intention.
 
-On Wed, Oct 07, 2015 at 01:18:48PM +0300, Andy Shevchenko wrote:
-> There is a 24c08 chip connected to i2c bus on Intel Galileo Gen2 board. E=
-nable
-> it via ACPI ID INT3499.
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+This commit fixes that problem by removing the stupid "return false".
 
-Sparse rightfully says:
+Fixes: 00d8689b85a7 ("i2c: mv64xxx: rework offload support to fix several problems")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hezi <hezi@marvell.com>
+[Thomas: reworked commit log and title.]
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+Note: the original fix is from Hezi, but I rewrote the commit log,
+which is why I authorized myself to treat my own work as being
+"stupid". Which it really was.
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-drivers/misc/eeprom/at24.c:491:53: warning: symbol 'id' shadows an earlier =
-one
-drivers/misc/eeprom/at24.c:474:50: originally declared here
-
-
---hHWLQfXTYDoKhP50
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWJk+jAAoJEBQN5MwUoCm2FBwP+QGNIKvp9rhU8y+7Z8D+zqpe
-/oQ8/1/UD+DLUzWA+5gLixdD1rsBwpldKzjiIJ5S7I1ScXsGE3BiRLI5T54S7xvv
-BgRRNkPnWo3e4wSKFIKY+MWYlSIiZW9Bikvki6wFaP+yRk7Lg846dJSydxEc3XOg
-/VFGmroTyStxxLkNZmgafF3x26hHmQlGnKLa8IONee/XICxcjIDZ4QRZYB+COAzA
-iKSbUOkRR3Z6Jfu4Qgo0NzbM2rggLcRKkmHyiGEwy+ShR6NKur2sAxO3KKbmJY6h
-BQmDtVl6KAsr0i4p0zmKC2IZ28qhtBrxFdjSZg7P6rkzljAbZR+YxwDWGOR+mDGv
-omEBYSjxVOHHoB92H9kkdGhnCjzcaenWtRutml7GiEnR3aEt8ZrIp6isDeBHa2dU
-/kWZ0aWFzbZoUBV39Wdczog2X5LwQ5VR6+LTiZBse3Ydo3ANsM7gkx8UunOBZzVu
-ivklHIb0B7T1DP8fJ4onhBESyXxJQ2XH4E1bR4QOJJziHO767l6uNESroAgOOpER
-yvCuHfVeoU1lwUe5qt1xBDtVHpJ+GTq/OG3bGYRDvXyPjCejFUC5+tieuCb6Wb6q
-MwPM/010kEVXEbKWcJeB7zBN8/JsmDLr8E4KqgZ1SgQNsBcLvtM7O82YK1jZAH8N
-PklIg3GoxebdlTF14Pnf
-=vVZ7
------END PGP SIGNATURE-----
-
---hHWLQfXTYDoKhP50--
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 30059c1..5801227 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -669,8 +669,6 @@ mv64xxx_i2c_can_offload(struct mv64xxx_i2c_data *drv_data)
+ 	struct i2c_msg *msgs = drv_data->msgs;
+ 	int num = drv_data->num_msgs;
+ 
+-	return false;
+-
+ 	if (!drv_data->offload_enabled)
+ 		return false;
+ 
+-- 
+2.6.2
