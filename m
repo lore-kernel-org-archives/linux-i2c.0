@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH 3/9] eeprom: at24: tie up an additional address for at24cs series
-Date: Tue, 20 Oct 2015 10:43:21 +0200
-Message-ID: <1445330607-12470-4-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH 8/9] eeprom: at24: remove a reduntant if
+Date: Tue, 20 Oct 2015 10:43:26 +0200
+Message-ID: <1445330607-12470-9-git-send-email-bgolaszewski@baylibre.com>
 References: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,71 +10,28 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The at24cs series EEPROM chips have an additional read-only memory area,
-that is visible on a different i2c slave address. Tie it up with a dummy
-device.
+It seems as if the second check for I2C_FUNC_I2C functionality had been
+introduced accidentally during a merge. Tt's reduntant, so remove it.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+ drivers/misc/eeprom/at24.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index c6cb7f8..3a75a52 100644
+index b5181a3..52875f4 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -102,6 +102,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 
- #define AT24_BITMASK(x) (BIT(x) - 1)
- 
-+#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
-+
- /* create non-zero magic value for given eeprom parameters */
- #define AT24_DEVICE_MAGIC(_len, _flags) 		\
- 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
-@@ -543,6 +545,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
- 		num_addresses = 8;
-+	else if (chip.flags & AT24_FLAG_SERIAL)
-+		num_addresses = 2;
- 	else
- 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
- 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
-@@ -601,12 +605,30 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->client[0] = client;
- 
- 	/* use dummy devices for multiple-address chips */
--	for (i = 1; i < num_addresses; i++) {
--		at24->client[i] = i2c_new_dummy(client->adapter,
-+	if (at24->chip.flags & AT24_FLAG_TAKE8ADDR) {
-+		for (i = 1; i < num_addresses; i++) {
-+			at24->client[i] = i2c_new_dummy(client->adapter,
-+							client->addr + i);
-+			if (!at24->client[i]) {
-+				dev_err(&client->dev,
-+					"address 0x%02x unavailable\n",
- 					client->addr + i);
--		if (!at24->client[i]) {
-+				err = -EADDRINUSE;
-+				goto err_clients;
-+			}
-+		}
-+	}
-+
-+	/*
-+	 * at24cs series tie up an additional address for the memory area
-+	 * contining the serial number
-+	 */
-+	if (at24->chip.flags & AT24_FLAG_SERIAL) {
-+		at24->client[1] = i2c_new_dummy(client->adapter,
-+					AT24CS_SERIAL_ADDR(client->addr));
-+		if (!at24->client[1]) {
- 			dev_err(&client->dev, "address 0x%02x unavailable\n",
--					client->addr + i);
-+				AT24CS_SERIAL_ADDR(client->addr));
- 			err = -EADDRINUSE;
- 			goto err_clients;
+@@ -613,10 +613,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		} else {
+ 			return -EPFNOSUPPORT;
  		}
+-	}
+ 
+-	/* Use I2C operations unless we're stuck with SMBus extensions. */
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+ 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
 -- 
 2.1.4
