@@ -1,57 +1,62 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Tue, 20 Oct 2015 16:36:12 +0100
-Message-ID: <20151020153612.GB32054@sirena.org.uk>
-References: <CAL_JsqJuu5_Osqi+X6M6UeRDZFQB+_8riYDF1gvsGayk5-4SFw@mail.gmail.com>
- <Pine.LNX.4.44L0.1510201036290.1855-100000@iolanthe.rowland.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: tegra: drop duplicated code for assigning algo
+Date: Tue, 20 Oct 2015 17:40:46 +0200
+Message-ID: <20151020154046.GJ5379@katana>
+References: <1441595335-31672-1-git-send-email-21cnbao@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="yda//aIZIMrd7mir"
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yhze8HlyfmXt1APY"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43530 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751543AbbJTPkv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 20 Oct 2015 11:40:51 -0400
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1510201036290.1855-100000@iolanthe.rowland.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Rob Herring <robh@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, David Woodhouse <dwmw2@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbary>
+In-Reply-To: <1441595335-31672-1-git-send-email-21cnbao@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Barry Song <21cnbao@gmail.com>
+Cc: linux-i2c@vger.kernel.org, ldewangan@nvidia.com, Donglin Peng <pengdonglin137@163.com>
 
 
---yda//aIZIMrd7mir
+--yhze8HlyfmXt1APY
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 20, 2015 at 10:40:03AM -0400, Alan Stern wrote:
+> @@ -825,7 +825,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+>  	i2c_dev->adapter.class = I2C_CLASS_DEPRECATED;
+>  	strlcpy(i2c_dev->adapter.name, "Tegra I2C adapter",
+>  		sizeof(i2c_dev->adapter.name));
+> -	i2c_dev->adapter.algo = &tegra_i2c_algo;
+>  	i2c_dev->adapter.dev.parent = &pdev->dev;
+>  	i2c_dev->adapter.nr = pdev->id;
+>  	i2c_dev->adapter.dev.of_node = pdev->dev.of_node;
 
-> Furthermore, that applies only to devices that use synchronous suspend. =
-=20
-> Async suspend is becoming common, and there the only restrictions are=20
-> parent-child relations plus whatever explicit requirements that drivers=
-=20
-> impose by calling device_pm_wait_for_dev().
+I think it would be more consistent to keep this one and move the quirk
+assignment also down here; then all adapter assignments are in one
+place.
 
-Hrm, this is the first I'd noticed that feature though I see the initial
-commit dates from January.  It looks like most of the users are PCs at
-the minute but we should be using it more widely for embedded things,
-there's definitely some cases I'm aware of where it will allow us to
-remove some open coding.
 
-It does seem like we want to be feeding dependency information we
-discover for probing way into the suspend dependencies...
-
---yda//aIZIMrd7mir
+--yhze8HlyfmXt1APY
 Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v1
 
-iQEcBAEBCAAGBQJWJl9rAAoJECTWi3JdVIfQnkIH/2GzqyZNrVrsXXUVXs+4Shdt
-ktptYpVn9emNkSaj6aqYpyoVmHnvFpXnM5NLdQOURsDRCpkq5+b/yesGl7rqAqH/
-THvORSPwBV0dFdb9TpLYI6dfuOxDl8ufyiMUjxM5l17G636RfipKStJBK5UGHKBK
-8uGvTrUdX+9TpG5tNeC7BOjp/bGjrtKHaiyHbcBjrtUwO4kixDnVvD1qomuwIiIt
-RAHlPGdo4sO6IW0I5HurTI44EWxDxASqNYD4crMFdWgbo5J86QRgzkWJ7yh2d2wm
-P7eRo9qYZkqhKhMc2pKJdiZ7dTnM77cqd17uzOiNDfCRWsvCUP7+2QE2rcyDeZk=
-=XKiJ
+iQIcBAEBAgAGBQJWJmB+AAoJEBQN5MwUoCm2rkYP/39SYZMGL/ULRgtkH+pWZ24w
+z4uudiAmDzXo82atACQ9cZ9zBgex3XM4PmsVDhOxU2DDFd3CIuh/IOmAXmBfSAJW
+6iW9rDIbSPIlcc46qln9twlDO1OQk+bFtque3pEivhKfnelxsFlukdo6h/2t4AVN
+eemHBd77tqU6xBrrnvWOtYnJSc8CWG24c7oLIoE7mYhsxgAG03vecfFlkOO79U+D
+Nt4E3Jm224ns8tuXIX07zjgP1wmtjMrnhz9eZk0Hq2tVd7GK5kGX65XLYvKwG2c1
+zP0zVBnRN2gRz2DojM3WgSiwvIsVBqOvjyktzQLU9xXQEpgwelN/RBl6K2pIfBME
+S0fgOklHkQxKSY+fOGzUVm5wo3dJh9S/8zLRlaSjYiIqE8GhVSl+clIygJBk01rm
+6FYDPEPw90KD1d6D8nFPmw7WpB3mRXiKBgjlHG0aNOgTf0tUo6VPpHwg5zUq3qNx
+NVSeeLmWHK5MkdRQu58g0G6PY8008eBXypu1xEEs+jyRdXpAR79dTLLNaaXSBpHC
+YYPha6WshiAvvRYjp1t2j11a5RCMm5+e73PgXdbvRsT/NZM8cIXEQpM7Y9o2Dp4N
++hU942EAJnO4hDE4UxAL13LihIL7bTDd6440GnTvceOKf1Ql5dowQwsdpULjxOtN
+SLjtNxksFitx1pTpMrgK
+=cGVe
 -----END PGP SIGNATURE-----
 
---yda//aIZIMrd7mir--
+--yhze8HlyfmXt1APY--
