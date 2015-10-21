@@ -1,38 +1,46 @@
-From: Jaedon Shin <jaedon.shin@gmail.com>
-Subject: [PATCH 3/9] i2c: brcmstb: add missing parenthesis
-Date: Wed, 21 Oct 2015 11:36:55 +0900
-Message-ID: <1445395021-4204-4-git-send-email-jaedon.shin@gmail.com>
-References: <1445395021-4204-1-git-send-email-jaedon.shin@gmail.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:33243 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752909AbbJUCh7 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Oct 2015 22:37:59 -0400
-In-Reply-To: <1445395021-4204-1-git-send-email-jaedon.shin@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Jaedon Shin <jaedon.shin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 0/9] i2c: brcmstb: add support for BMIPS_GENERIC
+Date: Wed, 21 Oct 2015 11:36:52 +0900
+Message-ID: <1445395021-4204-1-git-send-email-jaedon.shin@gmail.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Cc: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Jaedon Shin <jaedon.shin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-mips@linux-mips.org, Jaedon Shin <jaedon.shin@gmail.com>
 
-Add the necessary parenthesis for NOACK condition.
+Hi all,
 
-Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
----
- drivers/i2c/busses/i2c-brcmstb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch series adds support for BMIPS_GENERIC, and fixes running conditions.
 
-diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-index 6b8bbf99880d..2d7d155029dc 100644
---- a/drivers/i2c/busses/i2c-brcmstb.c
-+++ b/drivers/i2c/busses/i2c-brcmstb.c
-@@ -305,7 +305,7 @@ static int brcmstb_send_i2c_cmd(struct brcmstb_i2c_dev *dev,
- 	}
- 
- 	if ((CMD_RD || CMD_WR) &&
--	    bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK) {
-+	    (bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK)) {
- 		rc = -EREMOTEIO;
- 		dev_dbg(dev->device, "controller received NOACK intr for %s\n",
- 			cmd_string[cmd]);
+Thanks.
+
+Jaedon Shin (9):
+  i2c: brcmstb: make the driver buildable on BMIPS_GENERIC
+  i2c: brcmstb: fix typo in i2c-brcmstb
+  i2c: brcmstb: add missing parenthesis
+  i2c: brcmstb: enable ACK condition
+  i2c: brcmstb: fix start and stop conditions
+  MIPS: BMIPS: brcmstb: add I2C node for bcm7346
+  MIPS: BMIPS: brcmstb: add I2C node for bcm7358
+  MIPS: BMIPS: brcmstb: add I2C node for bcm7360
+  MIPS: BMIPS: brcmstb: add I2C node for bcm7362
+
+ arch/mips/boot/dts/brcm/bcm7346.dtsi      | 72 ++++++++++++++++++++++++++++++-
+ arch/mips/boot/dts/brcm/bcm7358.dtsi      | 62 +++++++++++++++++++++++++-
+ arch/mips/boot/dts/brcm/bcm7360.dtsi      | 62 +++++++++++++++++++++++++-
+ arch/mips/boot/dts/brcm/bcm7362.dtsi      | 52 +++++++++++++++++++++-
+ arch/mips/boot/dts/brcm/bcm97346dbsmb.dts | 20 +++++++++
+ arch/mips/boot/dts/brcm/bcm97358svmb.dts  | 16 +++++++
+ arch/mips/boot/dts/brcm/bcm97360svmb.dts  | 16 +++++++
+ arch/mips/boot/dts/brcm/bcm97362svmb.dts  | 12 ++++++
+ drivers/i2c/busses/Kconfig                |  2 +-
+ drivers/i2c/busses/i2c-brcmstb.c          | 11 +++--
+ 10 files changed, 310 insertions(+), 15 deletions(-)
+
 -- 
 2.6.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
