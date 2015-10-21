@@ -1,42 +1,54 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v2 6/6] i2c: designware: Move common probe code into i2c_dw_probe()
-Date: Wed, 21 Oct 2015 17:10:26 +0300
-Message-ID: <56279CD2.80308@linux.intel.com>
-References: <20151010075725.GF1619@katana> <1444658135-9281-1-git-send-email-jarkko.nikula@linux.intel.com> <20151020163216.GA1014@katana>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [RESEND PATCH 0/9] eeprom: at24: at24cs series serial number read
+Date: Wed, 21 Oct 2015 16:15:49 +0200
+Message-ID: <CAMpxmJWX_20=X_zDqwz0H=_4s+bPVTi0qf8CT6y-4ABeCGfVRQ@mail.gmail.com>
+References: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
+	<87bnbsiiuv.fsf@dell.be.48ers.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:36414 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750733AbbJUOLR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 21 Oct 2015 10:11:17 -0400
-In-Reply-To: <20151020163216.GA1014@katana>
+Received: from mail-io0-f180.google.com ([209.85.223.180]:34294 "EHLO
+	mail-io0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753639AbbJUOPu (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 10:15:50 -0400
+Received: by iow1 with SMTP id 1so58617082iow.1
+        for <linux-i2c@vger.kernel.org>; Wed, 21 Oct 2015 07:15:49 -0700 (PDT)
+In-Reply-To: <87bnbsiiuv.fsf@dell.be.48ers.dk>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
+To: Peter Korsgaard <peter@korsgaard.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-Hi
-
-On 10/20/2015 07:32 PM, Wolfram Sang wrote:
-> There was a merge conflict with a bugfix from i2c/for-current. I think
-> it is okay, but you may want to double check my i2c/for-next.
+2015-10-21 13:03 GMT+02:00 Peter Korsgaard <peter@korsgaard.com>:
+>>>>>> "Bartosz" == Bartosz Golaszewski <bgolaszewski@baylibre.com> writes:
 >
-Looks like pm_runtime_disable() got dropped from your 36d48fb5766a 
-("i2c: designware-platdrv: enable RuntimePM before registering to the 
-core") while handling the merge conflict. I'll send a fix.
-
-> What about this irq-clearing-in-probe thingie on top of this series? :)
+>  > Chips from the at24cs EEPROM series have an additional read-only memory area
+>  > containing a factory pre-programmed serial number. In order to access it, a
+>  > dummy write must be executed before reading the serial number bytes.
 >
-I'll have a look at it. What's not entirely clear to me would it be 
-no-op or not. HW is actually disabled after i2c_dw_init() which is 
-called before requesting the interrupt but is not clear to me from the 
-spec does HW clear interrupts while it goes idle.
+>  > This series adds support for reading the serial number through a sysfs
+>  > attribute.
+>
+>  > While we're at it: some of the patches contain readability tweaks and code
+>  > organization fixes.
+>
+>  > Tested with at24cs64 and at24cs02 chips (for both 16 and 8 bit address
+>  > pointers).
+>
+> As the serial number is available on a separate i2c address, wouldn't
+> it be simpler to handle these as special (read only) device variants and
+> instantiate E.G. a 24c64 (for the normal data) and a 24cs64 (for the
+> serial)?
+>
 
-So as a result I'd expect either a explicit interrupt clearing patch (to 
-be more robust against potential unmasking changes) or a comment in 
-__i2c_dw_enable() :-)
+Hi Peter,
 
--- 
-Jarkko
+I wanted to respond that this way we would not be protected from
+concurrent accesses, but then I saw I didn't actually include any
+locks in the serial read function - my bad. It needs to be fixed as
+both memory blocks share the same address pointer.
+
+I'll resend the series.
+
+Best regards,
+Bartosz Golaszewski
