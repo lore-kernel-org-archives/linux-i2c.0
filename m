@@ -1,73 +1,45 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v3 1/1] i2c: add ACPI support for I2C mux ports
-Date: Wed, 21 Oct 2015 12:08:49 +0300
-Message-ID: <20151021090849.GW1526@lahna.fi.intel.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
- <1445293740-28537-1-git-send-email-dustin@cumulusnetworks.com>
- <1445293740-28537-2-git-send-email-dustin@cumulusnetworks.com>
- <20151020125111.GJ1526@lahna.fi.intel.com>
- <20151020174959.GA14829@cumulusnetworks.com>
- <20151021081231.GQ1526@lahna.fi.intel.com>
- <20151021082116.GA5635@cumulusnetworks.com>
- <20151021083406.GU1526@lahna.fi.intel.com>
- <20151021085241.GA5949@cumulusnetworks.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] i2c: designware: fix platform driver probe rename
+Date: Wed, 21 Oct 2015 11:16:46 +0200
+Message-ID: <4006973.dp9o3gm8C4@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151021085241.GA5949@cumulusnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dustin Byford <dustin@cumulusnetworks.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, andriy.shevchenko@linux.intel.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.17.10]:62296 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750898AbbJUJQx (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 05:16:53 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Wed, Oct 21, 2015 at 01:52:41AM -0700, Dustin Byford wrote:
-> On Wed Oct 21 11:34, Mika Westerberg wrote:
-> > On Wed, Oct 21, 2015 at 01:21:16AM -0700, Dustin Byford wrote:
-> > > On Wed Oct 21 11:12, Mika Westerberg wrote:
-> > > > On Tue, Oct 20, 2015 at 10:49:59AM -0700, Dustin Byford wrote:
-> > > > > I considered it, but I thought a default that fairly closely matches the
-> > > > > old behavior was more convenient.
-> > > > > 
-> > > > > On the other hand, leaving it up to the controllers makes it all very
-> > > > > explicit and perhaps simpler to reason about.
-> > > > > 
-> > > > > 
-> > > > > I could be convinced either way.  But, if we move it to the controller
-> > > > > drivers, which ones need the change?
-> > > > > 
-> > > > > grep -i acpi drivers/i2c/busses/i2c*
-> > > > > 
-> > > > > shows 18 drivers that might care.
-> > > > 
-> > > > I'm quite confident the designware I2C is enough for now. Intel uses it
-> > > > for all SoCs with LPSS and I think AMD has the same block for their I2C
-> > > > solution.
-> > > 
-> > > I certainly care about i801, ismt, and isch.  Doesn't this affect any
-> > > i2c controller with clients that may be enumerated through ACPI?
-> > 
-> > Yes, but so far I haven't seen any other devices being used for this
-> > than the I2C designware.
-> > 
-> > Which hardware you are testing this patch on?
-> 
-> I'm working with a number of x86-based network switch platforms.  Mostly
-> rangeley at the moment, but I'm sure others are in the works.  Have a
-> look at:
-> 
-> http://www.opencompute.org/wiki/Networking/SpecsAndDesigns
-> 
-> for examples.
+A function rename was incomplete and missed the !CONFIG_PM
+case:
 
-Cool :)
+i2c-designware-platdrv.c:340:13: error: 'dw_i2c_plat_prepare' undeclared here (not in a function)
+i2c-designware-platdrv.c:341:14: error: 'dw_i2c_plat_complete' undeclared here (not in a function)
 
-> My goal, hence the recent patches, is to help the network switch
-> industry move a lot of platform description into ACPI.  That means lots
-> of complicated I2C trees; switches are full of I2C devices.
+This renames the macros accordingly.
 
-I see.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 6ad6fde3970c ("i2c: designware: Rename platform driver probe and PM functions")
+---
+Found on ARM randconfig builds
 
-I don't really have strong feelings whether it should be the I2C core or
-individual drivers setting the ACPI companion. However, it would be nice
-to match DT here and they assign their of_node per driver.
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index f6b252a8ffd1..eb55760ccd9f 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -307,8 +307,8 @@ static void dw_i2c_plat_complete(struct device *dev)
+ 		pm_request_resume(dev);
+ }
+ #else
+-#define dw_i2c_prepare	NULL
+-#define dw_i2c_complete	NULL
++#define dw_i2c_plat_prepare	NULL
++#define dw_i2c_plat_complete	NULL
+ #endif
+ 
+ #ifdef CONFIG_PM
