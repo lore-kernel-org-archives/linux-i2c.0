@@ -1,98 +1,42 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: [PATCH v2 2/2] i2c: at91: manage unexpected RXRDY flag when starting a transfer
-Date: Wed, 21 Oct 2015 15:44:04 +0200
-Message-ID: <1445435048-25889-2-git-send-email-ludovic.desroches@atmel.com>
-References: <1445435048-25889-1-git-send-email-ludovic.desroches@atmel.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2 6/6] i2c: designware: Move common probe code into i2c_dw_probe()
+Date: Wed, 21 Oct 2015 17:10:26 +0300
+Message-ID: <56279CD2.80308@linux.intel.com>
+References: <20151010075725.GF1619@katana> <1444658135-9281-1-git-send-email-jarkko.nikula@linux.intel.com> <20151020163216.GA1014@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1445435048-25889-1-git-send-email-ludovic.desroches@atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com, peda@lysator.liu.se, cyrille.pitchen@atmel.com, Ludovic Desroches <ludovic.desroches@atmel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:36414 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750733AbbJUOLR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 21 Oct 2015 10:11:17 -0400
+In-Reply-To: <20151020163216.GA1014@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-In some cases, we could start a new i2c transfer with the RXRDY flag
-set. It is not a clean state and it leads to print annoying error
-messages even if there no real issue. The cause is only having garbage
-data in the Receive Holding Register because of a weird behavior of the
-RXRDY flag.
+Hi
 
-Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-Fixes: 93563a6a71bb ("i2c: at91: fix a race condition when using the DMA
-controller")
-Reported-by: Peter Rosin <peda@lysator.liu.se>
-Tested-by: Peter Rosin <peda@lysator.liu.se>
-Cc: stable@vger.kernel.org #4.1
----
- drivers/i2c/busses/i2c-at91.c | 33 +++++++++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 8 deletions(-)
+On 10/20/2015 07:32 PM, Wolfram Sang wrote:
+> There was a merge conflict with a bugfix from i2c/for-current. I think
+> it is okay, but you may want to double check my i2c/for-next.
+>
+Looks like pm_runtime_disable() got dropped from your 36d48fb5766a 
+("i2c: designware-platdrv: enable RuntimePM before registering to the 
+core") while handling the merge conflict. I'll send a fix.
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 94c087b..bac0016 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -347,8 +347,14 @@ error:
- 
- static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
- {
--	if (!dev->buf_len)
-+	/*
-+	 * If we are in this case, it means there is garbage data in RHR, so
-+	 * delete them.
-+	 */
-+	if (!dev->buf_len) {
-+		at91_twi_read(dev, AT91_TWI_RHR);
- 		return;
-+	}
- 
- 	/* 8bit read works with and without FIFO */
- 	*dev->buf = readb_relaxed(dev->base + AT91_TWI_RHR);
-@@ -465,6 +471,24 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
- 
- 	if (!irqstatus)
- 		return IRQ_NONE;
-+	/*
-+	 * In reception, the behavior of the twi device (before sama5d2) is
-+	 * weird. There is some magic about RXRDY flag! When a data has been
-+	 * almost received, the reception of a new one is anticipated if there
-+	 * is no stop command to send. That is the reason why ask for sending
-+	 * the stop command not on the last data but on the second last one.
-+	 *
-+	 * Unfortunately, we could still have the RXRDY flag set even if the
-+	 * transfer is done and we have read the last data. It might happen
-+	 * when the i2c slave device sends too quickly data after receiving the
-+	 * ack from the master. The data has been almost received before having
-+	 * the order to send stop. In this case, sending the stop command could
-+	 * cause a RXRDY interrupt with a TXCOMP one. It is better to manage
-+	 * the RXRDY interrupt first in order to not keep garbage data in the
-+	 * Receive Holding Register for the next transfer.
-+	 */
-+	if (irqstatus & AT91_TWI_RXRDY)
-+		at91_twi_read_next_byte(dev);
- 
- 	/*
- 	 * When a NACK condition is detected, the I2C controller sets the NACK,
-@@ -507,8 +531,6 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
- 	if (irqstatus & (AT91_TWI_TXCOMP | AT91_TWI_NACK)) {
- 		at91_disable_twi_interrupts(dev);
- 		complete(&dev->cmd_complete);
--	} else if (irqstatus & AT91_TWI_RXRDY) {
--		at91_twi_read_next_byte(dev);
- 	} else if (irqstatus & AT91_TWI_TXRDY) {
- 		at91_twi_write_next_byte(dev);
- 	}
-@@ -600,11 +622,6 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 	} else if (dev->msg->flags & I2C_M_RD) {
- 		unsigned start_flags = AT91_TWI_START;
- 
--		if (sr & AT91_TWI_RXRDY) {
--			dev_err(dev->dev, "RXRDY still set!");
--			at91_twi_read(dev, AT91_TWI_RHR);
--		}
--
- 		/* if only one byte is to be read, immediately stop transfer */
- 		if (!has_alt_cmd && dev->buf_len <= 1 &&
- 		    !(dev->msg->flags & I2C_M_RECV_LEN))
+> What about this irq-clearing-in-probe thingie on top of this series? :)
+>
+I'll have a look at it. What's not entirely clear to me would it be 
+no-op or not. HW is actually disabled after i2c_dw_init() which is 
+called before requesting the interrupt but is not clear to me from the 
+spec does HW clear interrupts while it goes idle.
+
+So as a result I'd expect either a explicit interrupt clearing patch (to 
+be more robust against potential unmasking changes) or a comment in 
+__i2c_dw_enable() :-)
+
 -- 
-2.5.0
+Jarkko
