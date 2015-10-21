@@ -1,59 +1,73 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Wed, 21 Oct 2015 10:55:14 +0200
-Message-ID: <CAMuHMdWoSdoT1p0e+Bc9ucrykxO7ESLKYHRzackpVjQAs_XaDg@mail.gmail.com>
-References: <561E1378.6000906@collabora.com>
-	<4025469.zmyipZqCsP@vostro.rjw.lan>
-	<CAL_JsqJuu5_Osqi+X6M6UeRDZFQB+_8riYDF1gvsGayk5-4SFw@mail.gmail.com>
-	<4903022.NtioyRkmbB@vostro.rjw.lan>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v3 1/1] i2c: add ACPI support for I2C mux ports
+Date: Wed, 21 Oct 2015 12:08:49 +0300
+Message-ID: <20151021090849.GW1526@lahna.fi.intel.com>
+References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
+ <1445293740-28537-1-git-send-email-dustin@cumulusnetworks.com>
+ <1445293740-28537-2-git-send-email-dustin@cumulusnetworks.com>
+ <20151020125111.GJ1526@lahna.fi.intel.com>
+ <20151020174959.GA14829@cumulusnetworks.com>
+ <20151021081231.GQ1526@lahna.fi.intel.com>
+ <20151021082116.GA5635@cumulusnetworks.com>
+ <20151021083406.GU1526@lahna.fi.intel.com>
+ <20151021085241.GA5949@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <4903022.NtioyRkmbB@vostro.rjw.lan>
-Sender: linux-gpio-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Rob Herring <robh@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmai>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20151021085241.GA5949@cumulusnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dustin Byford <dustin@cumulusnetworks.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, andriy.shevchenko@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rafael,
+On Wed, Oct 21, 2015 at 01:52:41AM -0700, Dustin Byford wrote:
+> On Wed Oct 21 11:34, Mika Westerberg wrote:
+> > On Wed, Oct 21, 2015 at 01:21:16AM -0700, Dustin Byford wrote:
+> > > On Wed Oct 21 11:12, Mika Westerberg wrote:
+> > > > On Tue, Oct 20, 2015 at 10:49:59AM -0700, Dustin Byford wrote:
+> > > > > I considered it, but I thought a default that fairly closely matches the
+> > > > > old behavior was more convenient.
+> > > > > 
+> > > > > On the other hand, leaving it up to the controllers makes it all very
+> > > > > explicit and perhaps simpler to reason about.
+> > > > > 
+> > > > > 
+> > > > > I could be convinced either way.  But, if we move it to the controller
+> > > > > drivers, which ones need the change?
+> > > > > 
+> > > > > grep -i acpi drivers/i2c/busses/i2c*
+> > > > > 
+> > > > > shows 18 drivers that might care.
+> > > > 
+> > > > I'm quite confident the designware I2C is enough for now. Intel uses it
+> > > > for all SoCs with LPSS and I think AMD has the same block for their I2C
+> > > > solution.
+> > > 
+> > > I certainly care about i801, ismt, and isch.  Doesn't this affect any
+> > > i2c controller with clients that may be enumerated through ACPI?
+> > 
+> > Yes, but so far I haven't seen any other devices being used for this
+> > than the I2C designware.
+> > 
+> > Which hardware you are testing this patch on?
+> 
+> I'm working with a number of x86-based network switch platforms.  Mostly
+> rangeley at the moment, but I'm sure others are in the works.  Have a
+> look at:
+> 
+> http://www.opencompute.org/wiki/Networking/SpecsAndDesigns
+> 
+> for examples.
 
-On Wed, Oct 21, 2015 at 1:34 AM, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> On Tuesday, October 20, 2015 09:15:01 AM Rob Herring wrote:
->> On Tue, Oct 20, 2015 at 2:56 AM, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
->> > ACPI uses platform devices too.  In fact, ACPI device objects are enumerated as
->> > platform devices by default now.
->>
->> Okay, I should have grepped for that:
->> drivers/base/platform.c:                ACPI_COMPANION_SET(&pdev->dev, NULL);
->> drivers/base/platform.c:        len = acpi_device_modalias(dev, buf,
->> PAGE_SIZE -1);
->> drivers/base/platform.c:        rc = acpi_device_uevent_modalias(dev, env);
->> drivers/base/platform.c:        /* Then try ACPI style match */
->> drivers/base/platform.c:        if (acpi_driver_match_device(dev, drv))
->>
->> These are all cases which have DT version as well, so we're not really
->> all that different here. There's a few more for DT, but that probably
->> means you have just not hit the problems we have yet. For example,
->> what happens if you have an interrupt line in which the controller is
->> probed after the device connected to the interrupt line? That required
->> resolving irqs in platform_get_irq rather than using static resources
->> to support deferred probe.
->
-> We don't have this particular problem, because the IRQ controllers are
-> enumerated in a special way.
+Cool :)
 
-What does "in a special way" mean? Can you please be more specific?
+> My goal, hence the recent patches, is to help the network switch
+> industry move a lot of platform description into ACPI.  That means lots
+> of complicated I2C trees; switches are full of I2C devices.
 
-Can you have interrupt controllers that depend on clocks, pin controllers,
-and PM domains?
+I see.
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+I don't really have strong feelings whether it should be the I2C core or
+individual drivers setting the ACPI companion. However, it would be nice
+to match DT here and they assign their of_node per driver.
