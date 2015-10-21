@@ -1,47 +1,48 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
 Subject: Re: [PATCH v3 1/1] i2c: add ACPI support for I2C mux ports
-Date: Wed, 21 Oct 2015 11:02:39 +0300
-Message-ID: <20151021080239.GP1526@lahna.fi.intel.com>
+Date: Wed, 21 Oct 2015 11:12:31 +0300
+Message-ID: <20151021081231.GQ1526@lahna.fi.intel.com>
 References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
+ <1445293740-28537-1-git-send-email-dustin@cumulusnetworks.com>
  <1445293740-28537-2-git-send-email-dustin@cumulusnetworks.com>
  <20151020125111.GJ1526@lahna.fi.intel.com>
- <1693922.rKkZ06EDTQ@vostro.rjw.lan>
+ <20151020174959.GA14829@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:58033 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753201AbbJUICp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 21 Oct 2015 04:02:45 -0400
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1693922.rKkZ06EDTQ@vostro.rjw.lan>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20151020174959.GA14829@cumulusnetworks.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dustin Byford <dustin@cumulusnetworks.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, andriy.shevchenko@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Dustin Byford <dustin@cumulusnetworks.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, andriy.shevchenko@linux.intel.com
 
-On Wed, Oct 21, 2015 at 01:12:01AM +0200, Rafael J. Wysocki wrote:
-> Well, we already have that in the MFD case, but in principle it may be
-> problematic for things like power management (say you want to put a
-> child device into D3, so you use _PS3 on its ACPI companion and then
-> the parent is powere down instead).
+On Tue, Oct 20, 2015 at 10:49:59AM -0700, Dustin Byford wrote:
+> I considered it, but I thought a default that fairly closely matches the
+> old behavior was more convenient.
+> 
+> On the other hand, leaving it up to the controllers makes it all very
+> explicit and perhaps simpler to reason about.
+> 
+> 
+> I could be convinced either way.  But, if we move it to the controller
+> drivers, which ones need the change?
+> 
+> grep -i acpi drivers/i2c/busses/i2c*
+> 
+> shows 18 drivers that might care.
 
-That case I understand and we should not allow that. However, here we
-have an I2C adapter which is purely Linux abstraction that does not have
-any representation either in DT nor ACPI. And we don't do any power
-management for that either.
+I'm quite confident the designware I2C is enough for now. Intel uses it
+for all SoCs with LPSS and I think AMD has the same block for their I2C
+solution.
 
-If I understand correctly, DT shares the same of_node for both the host
-controller device and the adapter which then makes it possible to
-enumerate devices behind by just looking adap->dev.of_node. In case of
-ACPI we need to know that it's the parent device that we should look for
-child devices which may not be true always (like what this patch is
-trying to resolve).
+> > 	adap->dev.parent = &pdev->dev;
+> > 	adap->dev.of_node = pdev->dev.of_node;
+> > 	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
+> 
+> Interesting, this code isn't in my tree.  I wonder why it was added,
+> what code looks at the acpi companion on the i2c dev?  Before my change
+> it was supposed to be NULL, and it is NULL on every other controller.
 
-> At least, devices in that setup should not be attached to the ACPI PM
-> domain.
-
-Agreed.
-
-Currently acpi_dev_pm_attach() only attaches the first physical device
-to the ACPI power domain so this should be taken care already.
+It is not in any tree. I meant that before b34bb1ee71158d5b it looked
+something like that :-)
