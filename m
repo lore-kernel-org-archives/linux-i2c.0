@@ -1,205 +1,45 @@
-From: Christophe Ricard <christophe.ricard@gmail.com>
-Subject: [MinnowBoard] Linux x86 I2C device probing with ACPI
-Date: Wed, 21 Oct 2015 21:19:24 +0200
-Message-ID: <1445455164-5566-1-git-send-email-christophe-h.ricard@st.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: linux-next: Tree for Oct 21
+ (drivers/i2c/busses/i2c-designware-platdrv.c)
+Date: Wed, 21 Oct 2015 13:28:14 -0700
+Message-ID: <5627F55E.1010009@infradead.org>
+References: <20151021171623.2d651735@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f175.google.com ([209.85.212.175]:33485 "EHLO
-	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754970AbbJUTTe (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 15:19:34 -0400
-Received: by wijp11 with SMTP id p11so110052129wij.0
-        for <linux-i2c@vger.kernel.org>; Wed, 21 Oct 2015 12:19:32 -0700 (PDT)
+Received: from bombadil.infradead.org ([198.137.202.9]:57953 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750767AbbJUU2R (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 16:28:17 -0400
+In-Reply-To: <20151021171623.2d651735@canb.auug.org.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com
-Cc: linux-i2c@vger.kernel.org, Christophe Ricard <christophe.ricard@gmail.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-From: Christophe Ricard <christophe.ricard@gmail.com>
+On 10/20/15 23:16, Stephen Rothwell wrote:
+> Hi all,
+> 
+> There will be no linux-next releases after tomorrow until Nov 2 (kernel
+> summit).
+> 
+> Changes since 20151020:
+> 
 
-Hi,
+on i386 or x86_64:
 
-I am trying to probe slave i2c devices with ACPI running Ubuntu 15.04 and kernel 4.3
-without success so far.
+when CONFIG_PM_SLEEP is not enabled:
 
-I've followed guidance here:
-http://elinux.org/Minnowboard:MinnowMaxLinuxKernel <http://elinux.org/Minnowboard:MinnowMaxLinuxKernel>
+../drivers/i2c/busses/i2c-designware-platdrv.c:340:13: error: 'dw_i2c_plat_prepare' undeclared here (not in a function)
+  .prepare = dw_i2c_plat_prepare,
+             ^
+../drivers/i2c/busses/i2c-designware-platdrv.c:341:14: error: 'dw_i2c_plat_complete' undeclared here (not in a function)
+  .complete = dw_i2c_plat_complete,
+              ^
 
-but i found no i2c device are probed at boot.
-
-For example, one default device available in the acpi table is never detected: RTEK node (with ID 10EC5640).
-
-When adding my own device to I2C7, my device is never detected as well .
-
-For example the complete modified I2C7 is at the end of the message.
-
-I am compiling the kernel with options:
-CONFIG_ACPI_CUSTOM_DSDT_FILE="dsdt.hex"
-CONFIG_ACPI_CUSTOM_DSDT=y
-CONFIG_ACPI_INITRD_TABLE_OVERRIDE=y
-
-I am running on Minnowboard firmware 0.83 with default options.
-
-Best Regards
-Christophe
-
-        Device (I2C7)
-        {
-            Name (_ADR, Zero)  // _ADR: Address
-            Name (_HID, "80860F41" /* Intel Baytrail I2C Host Controller */)  // _HID: Hardware ID
-            Name (_CID, "80860F41" /* Intel Baytrail I2C Host Controller */)  // _CID: Compatible ID
-            Name (_DDN, "Intel(R) I2C Controller #7 - 80860F47") // _DDN: DOS Device Name
-            Name (_UID, 0x07)  // _UID: Unique ID
-            Name (_DEP, Package (One)  // _DEP: Dependencies
-            {
-                PEPD
-            })
-            Name (RBUF, ResourceTemplate ()
-            {
-                Memory32Fixed (ReadWrite,
-                    0x00000000,         // Address Base
-                    0x00001000,         // Address Length
-                    _Y1F)
-                Interrupt (ResourceConsumer, Level, ActiveLow, Exclusive, ,, )
-                {
-                    0x00000026,
-                }
-                FixedDMA (0x001C, 0x0004, Width32bit, )
-                FixedDMA (0x001D, 0x0005, Width32bit, )
-            })
-            Method (SSCN, 0, NotSerialized)
-            {
-                Name (PKG, Package (0x03)
-                {
-                    0x0200,
-                    0x0200,
-                    0x06
-                })
-                Return (PKG) /* \_SB_.I2C7.SSCN.PKG_ */
-            }
-
-            Method (FMCN, 0, NotSerialized)
-            {
-                Name (PKG, Package (0x03)
-                {
-                    0x55,
-                    0x99,
-                    0x06
-                })
-                Return (PKG) /* \_SB_.I2C7.FMCN.PKG_ */
-            }
-
-            Method (FPCN, 0, NotSerialized)
-            {
-                Name (PKG, Package (0x03)
-                {
-                    0x1B,
-                    0x3A,
-                    0x06
-                })
-                Return (PKG) /* \_SB_.I2C7.FPCN.PKG_ */
-            }
-
-            Method (_HRV, 0, NotSerialized)  // _HRV: Hardware Revision
-            {
-                Return (SOCS) /* \SOCS */
-            }
-
-            Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-            {
-                CreateDWordField (RBUF, \_SB.I2C7._Y1F._BAS, B0BA)  // _BAS: Base Address
-                CreateDWordField (RBUF, \_SB.I2C7._Y1F._LEN, B0LN)  // _LEN: Length
-                B0BA = I70A /* \I70A */
-                B0LN = I70L /* \I70L */
-                Return (RBUF) /* \_SB_.I2C7.RBUF */
-            }
-
-            Method (_STA, 0, NotSerialized)  // _STA: Status
-            {
-                If ((PCIM == One))
-                {
-                    Return (Zero)
-                }
-
-                If (((I70A == Zero) || (L27D == One)))
-                {
-                    Return (Zero)
-                }
-
-                Return (0x0F)
-            }
-
-            Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
-            {
-                PSAT |= 0x03
-                PSAT |= Zero
-            }
-
-            Method (_PS0, 0, NotSerialized)  // _PS0: Power State 0
-            {
-                PSAT &= 0xFFFFFFFC
-                PSAT |= Zero
-            }
-
-            OperationRegion (KEYS, SystemMemory, I71A, 0x0100)
-            Field (KEYS, DWordAcc, NoLock, WriteAsZeros)
-            {
-                Offset (0x84),
-                PSAT,   32
-            }
-
-            Device (NFC1)
-            {
-                Name (_ADR, Zero)  // _ADR: Address
-                Name (_HID, "NXP5441")  // _HID: Hardware ID
-                Name (_CID, "NXP5441")  // _CID: Compatible ID
-                Name (_DDN, "NXP NFC")  // _DDN: DOS Device Name
-                Name (_UID, One)  // _UID: Unique ID
-                Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-                {
-                    Name (SBUF, ResourceTemplate ()
-                    {
-                        I2cSerialBus (0x0028, ControllerInitiated, 0x00061A80,
-                            AddressingMode7Bit, "\\_SB.I2C7",
-                            0x00, ResourceConsumer, ,
-                            )
-                        Interrupt (ResourceConsumer, Level, ActiveLow, Exclusive, ,, )
-                        {
-                            0x00000047,
-                        }
-                        GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
-                            "\\_SB.GPO2", 0x00, ResourceConsumer, ,
-                            )
-                            {   // Pin list
-				0x0009
-                            }
-                        GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
-                            "\\_SB.GPO2", 0x00, ResourceConsumer, ,
-                            )
-                            {   // Pin list
-				0x0008
-                            }
-                    })
-                    Return (SBUF) /* \_SB_.I2C7.NFC1._CRS.SBUF */
-                }
-
-                Method (_STA, 0, NotSerialized)  // _STA: Status
-                {
-                    If ((NFCS == One))
-                    {
-                        Return (0x0F)
-                    }
-
-                    Return (Zero)
-                }
-            }
-        }
-
-        Scope (I2C7)
-        {
-        }
-    }
 
 
 
 -- 
-2.1.4
+~Randy
