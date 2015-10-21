@@ -1,46 +1,197 @@
-From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] dts: keystone: Use new "ti,keystone-i2c" compatible
-Date: Wed, 21 Oct 2015 13:33:42 +0200
-Message-ID: <56277816.2080801@nokia.com>
-References: <55F68E36.2030609@nokia.com> <20151020150614.GG5379@katana>
- <56266791.5000805@ti.com> <56276565.4060505@ti.com>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: Re: [PATCH] i2c: at91: fix write transfers by clearing pending
+ interrupt first
+Date: Wed, 21 Oct 2015 14:37:40 +0200
+Message-ID: <20151021123740.GE25824@odux.rfo.atmel.com>
+References: <561D359D.8000500@atmel.com>
+ <561D46FE.4090801@lysator.liu.se>
+ <20151014054321.GA20049@odux.rfo.atmel.com>
+ <56203B0E.1030104@lysator.liu.se>
+ <5620BE9A.10302@lysator.liu.se>
+ <20151019085136.GK26893@odux.rfo.atmel.com>
+ <5624CA9F.5080309@lysator.liu.se>
+ <20151020132702.GA25824@odux.rfo.atmel.com>
+ <56273D06.4010600@lysator.liu.se>
+ <562741F0.7030506@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <56276565.4060505-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: EXT Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from eusmtp01.atmel.com ([212.144.249.243]:8432 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754522AbbJUMhi (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 08:37:38 -0400
+Content-Disposition: inline
+In-Reply-To: <562741F0.7030506@lysator.liu.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@lysator.liu.se>
+Cc: Cyrille Pitchen <cyrille.pitchen@atmel.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com
 
-Hi!
+On Wed, Oct 21, 2015 at 09:42:40AM +0200, Peter Rosin wrote:
+> On 2015-10-21 09:21, Peter Rosin wrote:
+> > On 2015-10-20 15:27, Ludovic Desroches wrote:
+> >> On Mon, Oct 19, 2015 at 12:49:03PM +0200, Peter Rosin wrote:
+> >>> On 2015-10-19 10:51, Ludovic Desroches wrote:
+> >>>> Hi Peter,
+> >>>>
+> >>>> On Fri, Oct 16, 2015 at 11:08:42AM +0200, Peter Rosin wrote:
+> >>>>> On 2015-10-16 01:47, Peter Rosin wrote:
+> >>>>>> On 2015-10-14 07:43, Ludovic Desroches wrote:
+> >>>>>>> On Tue, Oct 13, 2015 at 08:01:34PM +0200, Peter Rosin wrote:
+> >>>>>>>> On 2015-10-13 18:47, Cyrille Pitchen wrote:
+> >>>>>>>>> Le 13/10/2015 17:19, Peter Rosin a =E9crit :
+> >>>>>>>>>> On 2015-10-13 16:21, Ludovic Desroches wrote:
+> >>>>
+> >>>> [...]
+> >>>>
+> >>>>>> I have started to get this when I run with this patch:
+> >>>>>>
+> >>>>>> [   73.310000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>> [  198.200000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>> [  509.880000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>> [  615.750000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>> [  617.750000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>> [ 1766.640000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>> [ 2035.380000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>> [ 2227.190000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>> [ 2313.100000] at91_i2c f0014000.i2c: RXRDY still set!
+> >>>>>>
+> >>>>>> My USB serial dongle was hung which was why I didn't notice un=
+til just now.
+> >>>>>>
+> >>>>>> This is probably not when communication with the eeprom though=
+, and certainly not
+> >>>>>> writing to it, but perhpaps when polling the temperature (usin=
+g the jc42 driver).
+> >>>>>> I'll investigate further in the morning to see if I can pinpoi=
+nt it.
+> >>>>>
+> >>>>> Yep, it's the jc42 accesses that triggers this (to the same chi=
+p as the
+> >>>>> eeprom, but a different block of transistors I suppose).
+> >>>>>
+> >>>>> Looking at the i2c bus, the accesses normally go like this:
+> >>>>>
+> >>>>> [0.000000] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
+> >>>>> [0.000521] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
+> >>>>> [0.001024] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
+> >>>>> [0.001524] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
+> >>>>> [0.196991] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
+> >>>>> [0.197514] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
+> >>>>> [0.198019] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
+> >>>>> [0.198520] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
+> >>>>>
+> >>>>> I.e. chunks of four transfers every ~200 ms (I removed the 1Hz =
+rate
+> >>>>> limiter in the jc42 driver to get more frequent incidents).
+> >>>>>
+> >>>>> But when the diagnostic (RXRDY still set!) is output it continu=
+es
+> >>>>> with this:
+> >>>>>
+> >>>>> [0.399755] S 0x18 W 0x05 S 0x18 R 0xc1 0xbe NACK P
+> >>>>> [0.404998] S 0x18 W 0x04 S 0x18 R 0x00 0x00 NACK P
+> >>>>> [0.405508] S 0x18 W 0x03 S 0x18 R 0x00 0x00 NACK P
+> >>>>> [0.406008] S 0x18 W 0x02 S 0x18 R 0x00 0x00 NACK P
+> >>>>>
+> >>>>> Notice the ~5 ms delay (about the time it should take to output
+> >>>>> the diagnostic at 115200 baud) after the access to register 0x0=
+5
+> >>>>> at 0.399755.
+> >>>>>
+> >>>>> This is the only thing that I can observe on the bus, so it app=
+ears
+> >>>>> to be harmless.
+> >>>>>
+> >>>>> It appears that the i2c access at 0.399755 finds the TWI
+> >>>>> registers in an odd state, but nothing from the access at
+> >>>>> 0.198520 appears to have gone wrong. Is this a race? Anyway,
+> >>>>> the diagnostic is pretty frequent and annoying. printk_once?
+> >>>>
+> >>>> I'll try to reproduce it on my side. The only issue you have is =
+having
+> >>>> the message about RXRDY? I mean no issue with i2c transfers?
+> >>>
+> >>> Exactly, the only issue is the message, the bus looks good and tr=
+ansfers
+> >>> work as they should AFAICT.
+> >>>> It is not the possible bug we had in mind, this bug will prevent=
+ the
+> >>>> master device to release the i2c bus. It will stop the transfer =
+but
+> >>>> without sending a stop on the bus.
+> >>>
+> >>> Agreed, this is not about the extra frame caused by the spurious =
+write
+> >>> to the THR register. This is something else.
+> >>>
+> >>> One suspicion is that the driver gets an unexpected irq from its =
+own
+> >>> NACK (the one that it puts out to end the read) and races with th=
+e
+> >>> expected interrupt at TXCOMP?
+> >>>
+> >>
+> >> I have discussed with the designer of this IP. So the NACK flag is=
+ only
+> >> used for 'real' nack not protocol ones.
+> >>
+> >> Concerning the read issue, it have attached a patch (apply it on t=
+op of
+> >> Cyrille's patch). Could you have a try? I have reproduced your iss=
+ue only one
+> >> time so it's hard for me to tell if it works well or not.
+> >=20
+> > Since you removed the dev_err call, I don't really know if the unde=
+rlying
+> > issue is solved or not (if there ever was any).
+> >=20
+> > Reading RHR in the if at the top of at91_twi_read_next_byte() never=
+ happens
+> > for me (I added a witness and left it running overnight), so that
+> > seems like an unrelated change.
+>=20
+> Ahhh, now I see. Why is it that I have to hit send before I start to =
+realize
+> things? You have moved the RHR read from at91_do_twi_transfer()...
+>=20
+> > Checking RXRDY before TXCOMP|NACK seems about equal, but what do I =
+know?
+>=20
+> ...and there is no else before the TXCOMP|NACK, so I added a witness =
+inside the
+> if (...RXRDY) that triggers if TXCOM|NACK is also set. That witness f=
+ires at
+> about the same rate as the "RXRDY still set" message did before. For =
+thrills I
+> readded the if (sr & AT91_TWI_RXRDY) check in at91_do_twi_transfer() =
+but that
+> test is no longer firing.
+>=20
+> So, yes, this is a good fix...
+>=20
 
-On 21/10/15 12:13, EXT Sekhar Nori wrote:
->>>> Now as "i2c-davinci" driver has special handling for Keystone it's
->>>> >>> time to switch
->>>> >>> the device tree to use new "compatible" property. Old one is left for
->>>> >>> backwards-
->>>> >>> compatibility.
->>>> >>>
->>>> >>> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
->>> >>
->>> >> Shall I take this one or shall it go via the davinci tree?
-> I don't have the patch in my mailbox now. But as I remember this is a
+Great thanks for your feedback, I will send it with Cyrille's one.
 
-You can review it here:
-http://patchwork.ozlabs.org/patch/517321/
+> > But the "problem" is gone of course, no flood of messages, but I ca=
+n't tell
+> > if this is just papering over or a fix.
+>=20
+> ...and you can scratch that comment.
 
-> driver only patch and should go via i2c tree.
+The twi device has a weird behavior (solved on SAMA5D2) when it concern=
+s
+reception. It sounds as when I have almost received a byte, I will do
+internal stuff to prepare the reception of a new byte. If I have
+received the order to send a stop command, this internal stuff should
+not be done and everything goes well. But if the order is received too
+late, the twi device may think it's still receiving data and set the
+RXRDY flag. For that reason we don't set the stop order on the last dat=
+a
+but on the second last data. Unfortunately, it seems we still have bad
+timing in some cases.
 
-It's a DT change, because we agreed (with Grygorii) that new "compatible" is more
-future proof.
+Regards
 
--- 
-Best regards,
-Alexander Sverdlin.
-Sent from my pdp-11
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Ludovic
