@@ -1,41 +1,46 @@
-From: Peter Korsgaard <peter@korsgaard.com>
-Subject: Re: [RESEND PATCH 0/9] eeprom: at24: at24cs series serial number read
-Date: Wed, 21 Oct 2015 13:03:36 +0200
-Message-ID: <87bnbsiiuv.fsf@dell.be.48ers.dk>
-References: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
+From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] dts: keystone: Use new "ti,keystone-i2c" compatible
+Date: Wed, 21 Oct 2015 13:33:42 +0200
+Message-ID: <56277816.2080801@nokia.com>
+References: <55F68E36.2030609@nokia.com> <20151020150614.GG5379@katana>
+ <56266791.5000805@ti.com> <56276565.4060505@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f179.google.com ([209.85.212.179]:33795 "EHLO
-	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751301AbbJULDk (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 07:03:40 -0400
-In-Reply-To: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
-	(Bartosz Golaszewski's message of "Tue, 20 Oct 2015 10:43:18 +0200")
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <56276565.4060505-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: EXT Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
->>>>> "Bartosz" == Bartosz Golaszewski <bgolaszewski@baylibre.com> writes:
+Hi!
 
- > Chips from the at24cs EEPROM series have an additional read-only memory area
- > containing a factory pre-programmed serial number. In order to access it, a
- > dummy write must be executed before reading the serial number bytes.
+On 21/10/15 12:13, EXT Sekhar Nori wrote:
+>>>> Now as "i2c-davinci" driver has special handling for Keystone it's
+>>>> >>> time to switch
+>>>> >>> the device tree to use new "compatible" property. Old one is left for
+>>>> >>> backwards-
+>>>> >>> compatibility.
+>>>> >>>
+>>>> >>> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+>>> >>
+>>> >> Shall I take this one or shall it go via the davinci tree?
+> I don't have the patch in my mailbox now. But as I remember this is a
 
- > This series adds support for reading the serial number through a sysfs
- > attribute.
+You can review it here:
+http://patchwork.ozlabs.org/patch/517321/
 
- > While we're at it: some of the patches contain readability tweaks and code
- > organization fixes.
+> driver only patch and should go via i2c tree.
 
- > Tested with at24cs64 and at24cs02 chips (for both 16 and 8 bit address
- > pointers).
-
-As the serial number is available on a separate i2c address, wouldn't
-it be simpler to handle these as special (read only) device variants and
-instantiate E.G. a 24c64 (for the normal data) and a 24cs64 (for the
-serial)?
+It's a DT change, because we agreed (with Grygorii) that new "compatible" is more
+future proof.
 
 -- 
-Bye, Peter Korsgaard
+Best regards,
+Alexander Sverdlin.
+Sent from my pdp-11
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
