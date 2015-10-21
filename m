@@ -1,54 +1,42 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [RESEND PATCH 0/9] eeprom: at24: at24cs series serial number read
-Date: Wed, 21 Oct 2015 16:15:49 +0200
-Message-ID: <CAMpxmJWX_20=X_zDqwz0H=_4s+bPVTi0qf8CT6y-4ABeCGfVRQ@mail.gmail.com>
-References: <1445330607-12470-1-git-send-email-bgolaszewski@baylibre.com>
-	<87bnbsiiuv.fsf@dell.be.48ers.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCH] i2c: designware: Disable runtime PM in case i2c_dw_probe() fails
+Date: Wed, 21 Oct 2015 17:21:46 +0300
+Message-ID: <1445437306-9268-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f180.google.com ([209.85.223.180]:34294 "EHLO
-	mail-io0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753639AbbJUOPu (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 10:15:50 -0400
-Received: by iow1 with SMTP id 1so58617082iow.1
-        for <linux-i2c@vger.kernel.org>; Wed, 21 Oct 2015 07:15:49 -0700 (PDT)
-In-Reply-To: <87bnbsiiuv.fsf@dell.be.48ers.dk>
+Received: from mga03.intel.com ([134.134.136.65]:49684 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751706AbbJUOWZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 21 Oct 2015 10:22:25 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Korsgaard <peter@korsgaard.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-2015-10-21 13:03 GMT+02:00 Peter Korsgaard <peter@korsgaard.com>:
->>>>>> "Bartosz" == Bartosz Golaszewski <bgolaszewski@baylibre.com> writes:
->
->  > Chips from the at24cs EEPROM series have an additional read-only memory area
->  > containing a factory pre-programmed serial number. In order to access it, a
->  > dummy write must be executed before reading the serial number bytes.
->
->  > This series adds support for reading the serial number through a sysfs
->  > attribute.
->
->  > While we're at it: some of the patches contain readability tweaks and code
->  > organization fixes.
->
->  > Tested with at24cs64 and at24cs02 chips (for both 16 and 8 bit address
->  > pointers).
->
-> As the serial number is available on a separate i2c address, wouldn't
-> it be simpler to handle these as special (read only) device variants and
-> instantiate E.G. a 24c64 (for the normal data) and a 24cs64 (for the
-> serial)?
->
+Call to pm_runtime_disable() got dropped while handling the merge conflict
+between commit 36d48fb5766a ("i2c: designware-platdrv: enable RuntimePM
+before registering to the core") and commit d80d134182ba ("i2c: designware:
+Move common probe code into i2c_dw_probe()").
 
-Hi Peter,
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-I wanted to respond that this way we would not be protected from
-concurrent accesses, but then I saw I didn't actually include any
-locks in the serial read function - my bad. It needs to be fixed as
-both memory blocks share the same address pointer.
-
-I'll resend the series.
-
-Best regards,
-Bartosz Golaszewski
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index eb55760ccd9f..8fd9d4a18bd5 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -261,8 +261,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	r = i2c_dw_probe(dev);
+-	if (r)
++	if (r) {
++		pm_runtime_disable(&pdev->dev);
+ 		return r;
++	}
+ 
+ 	return 0;
+ }
+-- 
+2.6.1
