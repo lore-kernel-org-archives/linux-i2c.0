@@ -1,61 +1,51 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: fix platform driver probe rename
-Date: Wed, 21 Oct 2015 12:27:29 +0300
-Message-ID: <1445419649.22669.32.camel@linux.intel.com>
-References: <4006973.dp9o3gm8C4@wuerfel>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 1/2] i2c: designware: register clkdev during acpi device
+ configuration
+Date: Wed, 21 Oct 2015 12:25:53 +0300
+Message-ID: <20151021092553.GX1526@lahna.fi.intel.com>
+References: <1445323081.3380.25.camel@kxue-X58A-UD3R>
+ <20151020111737.GF1526@lahna.fi.intel.com>
+ <1445389893.2483.3.camel@kxue-X58A-UD3R>
+ <20151021072817.GM1526@lahna.fi.intel.com>
+ <1445416943.2977.8.camel@kxue-X58A-UD3R>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:32438 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751706AbbJUJaH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 21 Oct 2015 05:30:07 -0400
-In-Reply-To: <4006973.dp9o3gm8C4@wuerfel>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1445416943.2977.8.camel@kxue-X58A-UD3R>
+Sender: stable-owner@vger.kernel.org
+To: Ken Xue <Ken.Xue@amd.com>
+Cc: baruch@tkos.co.il, SPG_Linux_Kernel@amd.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Wed, 2015-10-21 at 11:16 +0200, Arnd Bergmann wrote:
-> A function rename was incomplete and missed the !CONFIG_PM
-> case:
->=20
-> i2c-designware-platdrv.c:340:13: error: 'dw_i2c_plat_prepare'
-> undeclared here (not in a function)
-> i2c-designware-platdrv.c:341:14: error: 'dw_i2c_plat_complete'
-> undeclared here (not in a function)
->=20
-> This renames the macros accordingly.
+On Wed, Oct 21, 2015 at 04:42:23PM +0800, Ken Xue wrote:
+> On Wed, 2015-10-21 at 10:28 +0300, Mika Westerberg wrote:
+> > On Wed, Oct 21, 2015 at 09:11:33AM +0800, Ken Xue wrote:
+> > > On Tue, 2015-10-20 at 14:17 +0300, Mika Westerberg wrote:
+> > > > On Tue, Oct 20, 2015 at 02:38:01PM +0800, Ken Xue wrote:
+> > > > > DW I2C driver tries to register a clk from id->driver_data as an
+> > > > > alternative way besides intel lpss. But code doesn't register the
+> > > > > clk to clkdev. So, devm_clk_get will fail during probe.
+> > > > > 
+> > > > > The patch can fix this issue.
+> > > > 
+> > > > Since you now have drivers/acpi/acpi_apd.c for AMD ACPI stuff, can you
+> > > > create the clock there just like we do for Intel stuff?
+> > > Sure. APD already creates the clock for AMD0010 as you expected. And the
+> > > next patch([PATCH 2/2] i2c: designware: remove freq definition for
+> > > "AMD0010" in acpi_device_id) is dropping the old way for getting freq.
+> > 
+> > So this patch is not necessary, right?
+> Even though there is no use case that getting freq from id->driver_data,
+> But if we want to keep this design, then we should use current patch for
+> fixing the potential issue. So, the patch is nice to have.
 
-Jarkko sent this already couple hours ago.
+What potential issue?
 
->=20
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: 6ad6fde3970c ("i2c: designware: Rename platform driver probe
-> and PM functions")
-> ---
-> Found on ARM randconfig builds
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index f6b252a8ffd1..eb55760ccd9f 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -307,8 +307,8 @@ static void dw_i2c_plat_complete(struct device
-> *dev)
-> =C2=A0		pm_request_resume(dev);
-> =C2=A0}
-> =C2=A0#else
-> -#define dw_i2c_prepare	NULL
-> -#define dw_i2c_complete	NULL
-> +#define dw_i2c_plat_prepare	NULL
-> +#define dw_i2c_plat_complete	NULL
-> =C2=A0#endif
-> =C2=A0
-> =C2=A0#ifdef CONFIG_PM
->=20
+If you pass clock from drivers/acpi/acpi_apd.c and drop the hard coded
+freq for AMD0010 in the I2C designware driver, the driver still works
+just fine.
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+> Otherwise, we have to revert whole old design(a445900c).
+
+Yes please :-)
