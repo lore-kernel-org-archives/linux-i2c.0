@@ -1,175 +1,41 @@
-From: Frank Rowand <frowand.list@gmail.com>
-Subject: Re: Alternative approach to solve the deferred probe
-Date: Tue, 20 Oct 2015 20:58:19 -0700
-Message-ID: <56270D5B.5010902@gmail.com>
-References: <20151018192931.GY14956@sirena.org.uk> <20151018193757.GA9147@kroah.com> <20151018195330.GB14956@sirena.org.uk> <CAAObsKB2BUZ-smid45wOdAQw6h2yNqCydk+azAFNk69ewHJtZQ@mail.gmail.com> <20151019131821.GA32532@n2100.arm.linux.org.uk> <CAAObsKDS_+AZ26P_fHc6pvAYrQotsuoO0DEGQUWC514t3DD_jQ@mail.gmail.com> <20151019143045.GE32532@n2100.arm.linux.org.uk> <CAAObsKDWM6A98tdKHqi4fe5DBf0BmB0JeghcZDWan_PYbyshag@mail.gmail.com> <20151019153548.GM32532@n2100.arm.linux.org.uk> <CAMuHMdVv=ieYM-Nehp0qV8CEggHEeJ22j-6i_N09rRA_U=2ePw@mail.gmail.com> <20151020154656.GY32532@n2100.arm.linux.org.uk>
-Reply-To: frowand.list@gmail.com
+From: Hou Zhiqiang <B48286@freescale.com>
+Subject: RE: [PATCH V5 1/6] i2c: Add i2c support to Freescale Layerscape
+ platforms
+Date: Wed, 21 Oct 2015 04:10:39 +0000
+Message-ID: <CY1PR0301MB078061870608C21CEA37B4288B380@CY1PR0301MB0780.namprd03.prod.outlook.com>
+References: <1445255774-32887-1-git-send-email-B48286@freescale.com>
+ <20151020155258.GM5379@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20151020154656.GY32532@n2100.arm.linux.org.uk>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh+dt@kernel.org>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?ISO-8859-1?Q?Terje_Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwo>
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20151020155258.GM5379@katana>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux@roeck-us.net" <linux@roeck-us.net>, "wim@iguana.be" <wim@iguana.be>, "corbet@lwn.net" <corbet@lwn.net>, "mturquette@baylibre.com" <mturquette@baylibre.com>, "sboyd@codeaurora.org" <sboyd@codeaurora.org>, Hu Vincent <Mingkai.Hu@freescale.com>, Shaohui Xie <Shaohui.Xie@freescale.com>, Scott Wood <scottwood@freescale.com>, Sharma Bhupesh <bhupesh.sharma@freescale.com>, Wenbin Song <Wenbin.Song@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/20/2015 8:46 AM, Russell King - ARM Linux wrote:
-> On Mon, Oct 19, 2015 at 06:21:40PM +0200, Geert Uytterhoeven wrote:
->> Hi Russell,
->>
->> On Mon, Oct 19, 2015 at 5:35 PM, Russell King - ARM Linux
->> <linux@arm.linux.org.uk> wrote:
->>>>> What you can do is print those devices which have failed to probe at
->>>>> late_initcall() time - possibly augmenting that with reports from
->>>>> subsystems showing what resources are not available, but that's only
->>>>> a guide, because of the "it might or might not be in a kernel module"
->>>>> problem.
->>>>
->>>> Well, adding those reports would give you a changelog similar to the
->>>> one in this series...
->>>
->>> I'm not sure about that, because what I was thinking of is adding
->>> a flag which would be set at late_initcall() time prior to running
->>> a final round of deferred device probing.
->>
->> Which round is the final round?
->> That's the one which didn't manage to bind any new devices to drivers,
->> which is something you only know _after_ the round has been run.
->>
->> So I think we need one extra round to handle this.
->>
->>> This flag would then be used in a deferred_warn() printk function
->>> which would normally be silent, but when this flag is set, it would
->>> print the reason for the deferral - and this would replace (or be
->>> added) to the subsystems and drivers which return -EPROBE_DEFER.
->>>
->>> That has the effect of hiding all the deferrals up until just before
->>> launching into userspace, which should then acomplish two things -
->>> firstly, getting rid of the rather useless deferred messages up to
->>> that point, and secondly printing the reason why the remaining
->>> deferrals are happening.
->>>
->>> That should be a small number of new lines plus a one-line change
->>> in subsystems and drivers.
->>
->> Apart from the extra round we probably can't get rid of, that sounds OK to me.
-> 
-> Something like this.  I haven't put a lot of effort into it to change all
-> the places which return an -EPROBE_DEFER, and it also looks like we need
-> some helpers to report when we have only an device_node (or should that
-> be fwnode?)  See the commented out of_warn_deferred() in
-> drivers/gpio/gpiolib-of.c.  Adding this stuff in the subsystems searching
-> for resources should make debugging why things are getting deferred easier.
-> 
-> We could make driver_deferred_probe_report something that can be
-> deactivated again after the last deferred probe run, and provide the
-> user with a knob that they can turn it back on again.
-> 
-> I've tried this out on two of my platforms, including forcing
-> driver_deferred_probe_report to be enabled, and I get exactly one
-> deferred probe, so not a particularly good test.
-> 
-> The patch won't apply as-is to mainline for all files; it's based on my
-> tree which has some 360 additional patches (which seems to be about
-> normal for my tree now.)
-
-I like the concept (I have been thinking along similar lines lately).
-But I think this might make the console messages more confusing than
-they are now.  The problem is that debug, warn, and error messages
-come from a somewhat random set of locations at the moment.  Some
-come from the driver probe routines and some come from the subsystems
-that the probe routines call.  So the patch is suppressing some
-messages, but not others.
-
-One thing that seemed pretty obvious from the patches is that the
-current probe routines are somewhat inconsistent in terms of messages,
-and that there is room for a set of best practices for messaging.  That
-is on my long term wish list, but I'm not sure I'll ever chase after
-those windmills.
-
-A couple of specific comments below.
-
-
-> 
->  drivers/base/dd.c                       | 29 +++++++++++++++++++++++++++++
->  drivers/base/power/domain.c             |  7 +++++--
->  drivers/clk/clkdev.c                    |  9 ++++++++-
->  drivers/gpio/gpiolib-of.c               |  5 +++++
->  drivers/gpu/drm/bridge/dw_hdmi.c        |  2 +-
->  drivers/gpu/drm/exynos/exynos_drm_dsi.c |  2 +-
->  drivers/gpu/drm/imx/imx-ldb.c           |  5 +++--
->  drivers/gpu/drm/msm/dsi/dsi.c           |  2 +-
->  drivers/gpu/drm/msm/msm_drv.c           |  3 ++-
->  drivers/gpu/drm/rcar-du/rcar_du_crtc.c  |  3 ++-
->  drivers/of/irq.c                        |  5 ++++-
->  drivers/pci/host/pci-mvebu.c            |  1 +
->  drivers/pinctrl/core.c                  |  5 +++--
->  drivers/pinctrl/devicetree.c            |  4 ++--
->  drivers/regulator/core.c                |  5 +++--
->  include/linux/device.h                  |  1 +
->  16 files changed, 71 insertions(+), 17 deletions(-)
-> 
-> diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-> index be0eb4639128..bb12224f2901 100644
-> --- a/drivers/base/dd.c
-> +++ b/drivers/base/dd.c
-> @@ -129,7 +129,29 @@ void driver_deferred_probe_del(struct device *dev)
->  	mutex_unlock(&deferred_probe_mutex);
->  }
->  
-> +static bool driver_deferred_probe_report;
-> +
-> +/**
-> + * dev_warn_deferred() - report why a probe has been deferred
-> + */
-> +void dev_warn_deferred(struct device *dev, const char *fmt, ...)
-> +{
-> +	if (driver_deferred_probe_report) {
-> +		struct va_format vaf;
-> +		va_list ap;
-> +
-> +		va_start(ap, fmt);
-> +		vaf.fmt = fmt;
-> +		vaf.va = &ap;
-> +
-> +		dev_warn(dev, "deferring probe: %pV", &vaf);
-> +		va_end(ap);
-> +	}
-> +}
-> +EXPORT_SYMBOL_GPL(dev_warn_deferred);
-
-The places where dev_warn_deferred() replaces dev_dbg(), we lose the
-ability to turn on debugging and observe the driver reporting the
-specific reason the deferral is occurring. So it would be useful to
-add an "else dev_dbg()" in dev_warn_deferred() to retain that capability.
-
-> +
->  static bool driver_deferred_probe_enable = false;
-> +
->  /**
->   * driver_deferred_probe_trigger() - Kick off re-probing deferred devices
->   *
-> @@ -188,6 +210,13 @@ static int deferred_probe_initcall(void)
->  	driver_deferred_probe_trigger();
-
-Couldn't you put the "driver_deferred_probe_report = true" here?  And then
-not add another round of probes.
-
-
->  	/* Sort as many dependencies as possible before exiting initcalls */
->  	flush_workqueue(deferred_wq);
-> +
-> +	/* Now one final round, reporting any devices that remain deferred */
-> +	driver_deferred_probe_report = true;
-> +	driver_deferred_probe_trigger();
-> +	/* Sort as many dependencies as possible before exiting initcalls */
-> +	flush_workqueue(deferred_wq);
-> +
->  	return 0;
->  }
-
-< snip >
-
--Frank
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogV29sZnJhbSBTYW5nIFtt
+YWlsdG86d3NhQHRoZS1kcmVhbXMuZGVdDQo+IFNlbnQ6IDIwMTXE6jEw1MIyMMjVIDIzOjUzDQo+
+IFRvOiBIb3UgWmhpcWlhbmctQjQ4Mjg2DQo+IENjOiBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmlu
+ZnJhZGVhZC5vcmc7IGNhdGFsaW4ubWFyaW5hc0Bhcm0uY29tOw0KPiB3aWxsLmRlYWNvbkBhcm0u
+Y29tOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4gd2F0Y2hkb2dAdmdlci5r
+ZXJuZWwub3JnOyBsaW51eC1kb2NAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4gY2xrQHZnZXIu
+a2VybmVsLm9yZzsgbWFyay5ydXRsYW5kQGFybS5jb207IGxpbnV4QHJvZWNrLXVzLm5ldDsNCj4g
+d2ltQGlndWFuYS5iZTsgY29yYmV0QGx3bi5uZXQ7IG10dXJxdWV0dGVAYmF5bGlicmUuY29tOw0K
+PiBzYm95ZEBjb2RlYXVyb3JhLm9yZzsgSHUgTWluZ2thaS1CMjEyODQ7IFhpZSBTaGFvaHVpLUIy
+MTk4OTsgV29vZCBTY290dC0NCj4gQjA3NDIxOyBTaGFybWEgQmh1cGVzaC1CNDUzNzA7IFNvbmcg
+V2VuYmluLUI1Mzc0Nw0KPiBTdWJqZWN0OiBSZTogW1BBVENIIFY1IDEvNl0gaTJjOiBBZGQgaTJj
+IHN1cHBvcnQgdG8gRnJlZXNjYWxlIExheWVyc2NhcGUNCj4gcGxhdGZvcm1zDQo+IA0KPiBPbiBN
+b24sIE9jdCAxOSwgMjAxNSBhdCAwNzo1NjowOVBNICswODAwLCBaaGlxaWFuZyBIb3Ugd3JvdGU6
+DQo+ID4gRnJvbTogU2hhb2h1aSBYaWUgPFNoYW9odWkuWGllQGZyZWVzY2FsZS5jb20+DQo+ID4N
+Cj4gPiBNb2RpZnkgdGhlIEkyQ19JTVggY29uZmlnIHRvIHN1cHBvcnQgdG8gTGF5ZXJzY2FwZSBw
+bGF0Zm9ybXMuDQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBNaW5na2FpIEh1IDxNaW5na2FpLkh1
+QGZyZWVzY2FsZS5jb20+DQo+ID4gU2lnbmVkLW9mZi1ieTogV2VuYmluIFNvbmcgPFdlbmJpbi5T
+b25nQGZyZWVzY2FsZS5jb20+DQo+ID4gU2lnbmVkLW9mZi1ieTogSG91IFpoaXFpYW5nIDxCNDgy
+ODZAZnJlZXNjYWxlLmNvbT4NCj4gDQo+IFRocmVlIHNpZ25lZCBvZmZzIGZvciBhIHNpbXBsZSBL
+Y29uZmlnIGNoYW5nZT8gQW5kIHRoZSBwZXJzb24gZG9pbmcgdGhlDQo+IHBhdGNoIGhhcyBubyBz
+aWduZWQgb2ZmPz8gVGhhdCBsb29rcyB3cm9uZy4gTWF5YmUgdGhlIGFib3ZlIHNpZ25lZCBvZmZz
+DQo+IHNob3VsZCBiZSBhY2tlZCBieT8NCj4gDQoNCldpbGwgYWRkIHRoZSBzaWduZWQtb2ZmIG9m
+IHRoZSBhdXRob3IuDQoNClRoYW5rcywNClpoaXFpYW5nDQo=
