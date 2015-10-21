@@ -1,174 +1,52 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH 5/9] i2c: rcar: init new messages in irq
-Date: Thu, 22 Oct 2015 02:10:52 +0300
-Message-ID: <131418014.1WnDGNUZcn@avalon>
-References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de> <1441311613-2681-6-git-send-email-wsa@the-dreams.de>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Thu, 22 Oct 2015 01:39:42 +0200
+Message-ID: <13395371.QJ0TvhYnx8@vostro.rjw.lan>
+References: <561E1378.6000906@collabora.com> <4903022.NtioyRkmbB@vostro.rjw.lan> <CAMuHMdWoSdoT1p0e+Bc9ucrykxO7ESLKYHRzackpVjQAs_XaDg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from galahad.ideasonboard.com ([185.26.127.97]:55079 "EHLO
-	galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932374AbbJUXKv (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 19:10:51 -0400
-In-Reply-To: <1441311613-2681-6-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdWoSdoT1p0e+Bc9ucrykxO7ESLKYHRzackpVjQAs_XaDg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Rob Herring <robh@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?ISO-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gm>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
-Hi Wolfram,
+On Wednesday, October 21, 2015 10:55:14 AM Geert Uytterhoeven wrote:
+> Hi Rafael,
+> 
+> On Wed, Oct 21, 2015 at 1:34 AM, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> > On Tuesday, October 20, 2015 09:15:01 AM Rob Herring wrote:
+> >> On Tue, Oct 20, 2015 at 2:56 AM, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> >> > ACPI uses platform devices too.  In fact, ACPI device objects are enumerated as
+> >> > platform devices by default now.
+> >>
+> >> Okay, I should have grepped for that:
+> >> drivers/base/platform.c:                ACPI_COMPANION_SET(&pdev->dev, NULL);
+> >> drivers/base/platform.c:        len = acpi_device_modalias(dev, buf,
+> >> PAGE_SIZE -1);
+> >> drivers/base/platform.c:        rc = acpi_device_uevent_modalias(dev, env);
+> >> drivers/base/platform.c:        /* Then try ACPI style match */
+> >> drivers/base/platform.c:        if (acpi_driver_match_device(dev, drv))
+> >>
+> >> These are all cases which have DT version as well, so we're not really
+> >> all that different here. There's a few more for DT, but that probably
+> >> means you have just not hit the problems we have yet. For example,
+> >> what happens if you have an interrupt line in which the controller is
+> >> probed after the device connected to the interrupt line? That required
+> >> resolving irqs in platform_get_irq rather than using static resources
+> >> to support deferred probe.
+> >
+> > We don't have this particular problem, because the IRQ controllers are
+> > enumerated in a special way.
+> 
+> What does "in a special way" mean? Can you please be more specific?
+> 
+> Can you have interrupt controllers that depend on clocks, pin controllers,
+> and PM domains?
 
-On Thursday 03 September 2015 22:20:09 Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
-> Setting up new messages was done in process context while handling a
-> message was in interrupt context. Because of the HW design, this IP core
-> is sensitive to timing, so the context switches were too expensive. Move
-> this setup to interrupt context as well.
-> 
-> In my test setup, this fixed the occasional 'data byte sent twice' issue
-> which a number of people have seen. It also fixes to send REP_START
-> after a read message which was wrongly send as a STOP + START sequence
-> before.
+Currently, there's no native way to represent those dependencies in ACPI.
 
-I'm afraid this patch has been found by git bisect to break HDMI on Koelsch 
-:-( 
-
-The regmap_read(adv7511->regmap, ADV7511_REG_CHIP_REVISION, &val) call in 
-drivers/gpu/drm/i2c/adv7511.c returns -ENXIO.
-
-Reverting the patch on top of Geert's current drivers master branch fixes the 
-problem.
-
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  drivers/i2c/busses/i2c-rcar.c | 74 +++++++++++++++++++---------------------
->  1 file changed, 37 insertions(+), 37 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> index 6e459a338ccc75..36c79301044b71 100644
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -266,6 +266,13 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv
-> *priv) rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
-> }
-> 
-> +static void rcar_i2c_next_msg(struct rcar_i2c_priv *priv)
-> +{
-> +	priv->msg++;
-> +	priv->msgs_left--;
-> +	rcar_i2c_prepare_msg(priv);
-> +}
-> +
->  /*
->   *		interrupt functions
->   */
-> @@ -308,21 +315,17 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv
-> *priv, u32 msr) * [ICRXTX] -> [SHIFT] -> [I2C bus]
->  		 */
-> 
-> -		if (priv->flags & ID_LAST_MSG)
-> +		if (priv->flags & ID_LAST_MSG) {
->  			/*
->  			 * If current msg is the _LAST_ msg,
->  			 * prepare stop condition here.
->  			 * ID_DONE will be set on STOP irq.
->  			 */
->  			rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
-> -		else
-> -			/*
-> -			 * If current msg is _NOT_ last msg,
-> -			 * it doesn't call stop phase.
-> -			 * thus, there is no STOP irq.
-> -			 * return ID_DONE here.
-> -			 */
-> -			return ID_DONE;
-> +		} else {
-> +			rcar_i2c_next_msg(priv);
-> +			return 0;
-> +		}
->  	}
-> 
->  	rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_SEND);
-> @@ -366,7 +369,10 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv
-> *priv, u32 msr) else
->  		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
-> 
-> -	rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_RECV);
-> +	if (priv->pos == msg->len && !(priv->flags & ID_LAST_MSG))
-> +		rcar_i2c_next_msg(priv);
-> +	else
-> +		rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_RECV);
-> 
->  	return 0;
->  }
-> @@ -461,6 +467,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
-> 
->  	/* Stop */
->  	if (msr & MST) {
-> +		priv->msgs_left--; /* The last message also made it */
->  		rcar_i2c_flags_set(priv, ID_DONE);
->  		goto out;
->  	}
-> @@ -500,35 +507,28 @@ static int rcar_i2c_master_xfer(struct i2c_adapter
-> *adap, /* This HW can't send STOP after address phase */
->  		if (msgs[i].len == 0) {
->  			ret = -EOPNOTSUPP;
-> -			break;
-> -		}
-> -
-> -		/* init each data */
-> -		priv->msg = &msgs[i];
-> -		priv->msgs_left = num - i;
-> -
-> -		rcar_i2c_prepare_msg(priv);
-> -
-> -		time_left = wait_event_timeout(priv->wait,
-> -					     rcar_i2c_flags_has(priv, ID_DONE),
-> -					     adap->timeout);
-> -		if (!time_left) {
-> -			rcar_i2c_init(priv);
-> -			ret = -ETIMEDOUT;
-> -			break;
-> -		}
-> -
-> -		if (rcar_i2c_flags_has(priv, ID_NACK)) {
-> -			ret = -ENXIO;
-> -			break;
-> -		}
-> -
-> -		if (rcar_i2c_flags_has(priv, ID_ARBLOST)) {
-> -			ret = -EAGAIN;
-> -			break;
-> +			goto out;
->  		}
-> +	}
-> 
-> -		ret = i + 1; /* The number of transfer */
-> +	/* init data */
-> +	priv->msg = msgs;
-> +	priv->msgs_left = num;
-> +
-> +	rcar_i2c_prepare_msg(priv);
-> +
-> +	time_left = wait_event_timeout(priv->wait,
-> +				     rcar_i2c_flags_has(priv, ID_DONE),
-> +				     num * adap->timeout);
-> +	if (!time_left) {
-> +		rcar_i2c_init(priv);
-> +		ret = -ETIMEDOUT;
-> +	} else if (rcar_i2c_flags_has(priv, ID_NACK)) {
-> +		ret = -ENXIO;
-> +	} else if (rcar_i2c_flags_has(priv, ID_ARBLOST)) {
-> +		ret = -EAGAIN;
-> +	} else {
-> +		ret = num - priv->msgs_left; /* The number of transfer */
->  	}
->  out:
->  	pm_runtime_put(dev);
-
--- 
-Regards,
-
-Laurent Pinchart
+Thanks,
+Rafael
