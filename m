@@ -1,45 +1,67 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: linux-next: Tree for Oct 21
- (drivers/i2c/busses/i2c-designware-platdrv.c)
-Date: Wed, 21 Oct 2015 13:28:14 -0700
-Message-ID: <5627F55E.1010009@infradead.org>
-References: <20151021171623.2d651735@canb.auug.org.au>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: Alternative approach to solve the deferred probe
+Date: Wed, 21 Oct 2015 21:35:19 +0100
+Message-ID: <20151021203519.GO32532@n2100.arm.linux.org.uk>
+References: <20151019131821.GA32532@n2100.arm.linux.org.uk>
+ <CAAObsKDS_+AZ26P_fHc6pvAYrQotsuoO0DEGQUWC514t3DD_jQ@mail.gmail.com>
+ <20151019143045.GE32532@n2100.arm.linux.org.uk>
+ <CAAObsKDWM6A98tdKHqi4fe5DBf0BmB0JeghcZDWan_PYbyshag@mail.gmail.com>
+ <20151019153548.GM32532@n2100.arm.linux.org.uk>
+ <CAMuHMdVv=ieYM-Nehp0qV8CEggHEeJ22j-6i_N09rRA_U=2ePw@mail.gmail.com>
+ <20151020154656.GY32532@n2100.arm.linux.org.uk>
+ <56270D5B.5010902@gmail.com>
+ <20151021081847.GB32532@n2100.arm.linux.org.uk>
+ <5627B0F7.7010600@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:57953 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750767AbbJUU2R (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 16:28:17 -0400
-In-Reply-To: <20151021171623.2d651735@canb.auug.org.au>
+Received: from pandora.arm.linux.org.uk ([78.32.30.218]:54183 "EHLO
+	pandora.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753337AbbJUUf7 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 16:35:59 -0400
+Content-Disposition: inline
+In-Reply-To: <5627B0F7.7010600@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Frank Rowand <frowand.list@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh+dt@kernel.org>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwo>
 
-On 10/20/15 23:16, Stephen Rothwell wrote:
-> Hi all,
+On Wed, Oct 21, 2015 at 08:36:23AM -0700, Frank Rowand wrote:
+> On 10/21/2015 1:18 AM, Russell King - ARM Linux wrote:
+> > On Tue, Oct 20, 2015 at 08:58:19PM -0700, Frank Rowand wrote:
+> >> On 10/20/2015 8:46 AM, Russell King - ARM Linux wrote:
 > 
-> There will be no linux-next releases after tomorrow until Nov 2 (kernel
-> summit).
+> < snip >
 > 
-> Changes since 20151020:
+> >>> +
+> >>>  static bool driver_deferred_probe_enable = false;
+> >>> +
+> >>>  /**
+> >>>   * driver_deferred_probe_trigger() - Kick off re-probing deferred devices
+> >>>   *
+> >>> @@ -188,6 +210,13 @@ static int deferred_probe_initcall(void)
+> >>>  	driver_deferred_probe_trigger();
+> >>
+> >> Couldn't you put the "driver_deferred_probe_report = true" here?  And then
+> >> not add another round of probes.
+> > 
+> > The idea is not to report anything for drivers that were deferred
+> > during the normal bootup.  The above is part of the normal bootup,
+> > and the deferred activity should not be warned about.
 > 
+> The above is currently the last point for probe to succeed or defer
+> (until possibly, as you mentioned, module loading resolves the defer).
+> If a probe defers above, it will defer again below.  The set of defers
+> should be exactly the same above and below.
 
-on i386 or x86_64:
+Why should it?  Isn't this late_initcall() the first opportunity that
+deferred devices get to be re-probed from their first set of attempts
+via the drivers having their initcalls called?
 
-when CONFIG_PM_SLEEP is not enabled:
+If what you're saying is true, what's the point of this late_initcall()?
 
-../drivers/i2c/busses/i2c-designware-platdrv.c:340:13: error: 'dw_i2c_plat_prepare' undeclared here (not in a function)
-  .prepare = dw_i2c_plat_prepare,
-             ^
-../drivers/i2c/busses/i2c-designware-platdrv.c:341:14: error: 'dw_i2c_plat_complete' undeclared here (not in a function)
-  .complete = dw_i2c_plat_complete,
-              ^
-
-
-
+<re-cut again, I've no idea why you keep adding it back>
 
 -- 
-~Randy
+FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
+according to speedtest.net.
