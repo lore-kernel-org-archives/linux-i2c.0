@@ -1,129 +1,205 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: Alternative approach to solve the deferred probe
-Date: Wed, 21 Oct 2015 21:29:53 +0300
-Message-ID: <5627D9A1.1050807@ti.com>
-References: <20151018195330.GB14956@sirena.org.uk>
- <CAAObsKB2BUZ-smid45wOdAQw6h2yNqCydk+azAFNk69ewHJtZQ@mail.gmail.com>
- <20151019131821.GA32532@n2100.arm.linux.org.uk>
- <CAAObsKDS_+AZ26P_fHc6pvAYrQotsuoO0DEGQUWC514t3DD_jQ@mail.gmail.com>
- <20151019143045.GE32532@n2100.arm.linux.org.uk>
- <CAAObsKDWM6A98tdKHqi4fe5DBf0BmB0JeghcZDWan_PYbyshag@mail.gmail.com>
- <20151019153548.GM32532@n2100.arm.linux.org.uk>
- <CAMuHMdVv=ieYM-Nehp0qV8CEggHEeJ22j-6i_N09rRA_U=2ePw@mail.gmail.com>
- <20151020154656.GY32532@n2100.arm.linux.org.uk> <56270D5B.5010902@gmail.com>
- <20151021081847.GB32532@n2100.arm.linux.org.uk> <5627B0F7.7010600@gmail.com>
- <5627C381.60602@ti.com> <5627D353.2040007@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <5627D353.2040007@gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: frowand.list@gmail.com
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Geert Uytterhoeven <geert@linux-m68k.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh+dt@kernel.org>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=c3=b6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>David
+From: Christophe Ricard <christophe.ricard@gmail.com>
+Subject: [MinnowBoard] Linux x86 I2C device probing with ACPI
+Date: Wed, 21 Oct 2015 21:19:24 +0200
+Message-ID: <1445455164-5566-1-git-send-email-christophe-h.ricard@st.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wi0-f175.google.com ([209.85.212.175]:33485 "EHLO
+	mail-wi0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754970AbbJUTTe (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 15:19:34 -0400
+Received: by wijp11 with SMTP id p11so110052129wij.0
+        for <linux-i2c@vger.kernel.org>; Wed, 21 Oct 2015 12:19:32 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com
+Cc: linux-i2c@vger.kernel.org, Christophe Ricard <christophe.ricard@gmail.com>
 
-On 10/21/2015 09:02 PM, Frank Rowand wrote:
-> On 10/21/2015 9:55 AM, Grygorii Strashko wrote:
->> On 10/21/2015 06:36 PM, Frank Rowand wrote:
->>> On 10/21/2015 1:18 AM, Russell King - ARM Linux wrote:
->>>> On Tue, Oct 20, 2015 at 08:58:19PM -0700, Frank Rowand wrote:
->>>>> On 10/20/2015 8:46 AM, Russell King - ARM Linux wrote:
->>>
->>> < snip >
->>>
->>>>>> +
->>>>>>    static bool driver_deferred_probe_enable = false;
->>>>>> +
->>>>>>    /**
->>>>>>     * driver_deferred_probe_trigger() - Kick off re-probing deferred devices
->>>>>>     *
->>>>>> @@ -188,6 +210,13 @@ static int deferred_probe_initcall(void)
->>>>>>    	driver_deferred_probe_trigger();
->>>>>
->>>>> Couldn't you put the "driver_deferred_probe_report = true" here?  And then
->>>>> not add another round of probes.
->>>>
->>>> The idea is not to report anything for drivers that were deferred
->>>> during the normal bootup.  The above is part of the normal bootup,
->>>> and the deferred activity should not be warned about.
->>>
->>> The above is currently the last point for probe to succeed or defer
->>> (until possibly, as you mentioned, module loading resolves the defer).
->>> If a probe defers above, it will defer again below.  The set of defers
->>> should be exactly the same above and below.
->>>
->>
->> Unfortunately this is not "the last point for probe to succeed or defer".
->> There are still a bunch of drivers in Kernel which will be probed at late_initcall() level.
->> (like ./drivers/net/ethernet/ti/cpsw.c => late_initcall(cpsw_init);
-> 
-> Yes, cpsw_init() should _not_ be a late_initcall.  This is yet another
-> example of playing games with ordering probes that we have been trying
-> to eliminate.
+From: Christophe Ricard <christophe.ricard@gmail.com>
 
-yes, we're trying to solve such issues and have all TI's drivers initialized
-from module_init() level, but as usual this process is not so fast. 
+Hi,
 
-You know, some times ago there was no other way to solve boot ordering issues,
-but only to play with init levels :) And, as result, right now in drivers/
-and sound/ folders there are >77 occurrences of late_initcall(). 
+I am trying to probe slave i2c devices with ACPI running Ubuntu 15.04 and kernel 4.3
+without success so far.
 
-> 
-> Thanks for pointing out one of the resulting problems this causes for the
-> deferred probe mechanism.
-> 
->> Yes - they probably need to be updated to use module_init(), but that's what
->> we have now). Those drivers will re-trigger deferred device probing if their
->> probe succeeded.
-> 
-> Yes, if cpsw_init() leads to a successful probe, then deferred device probing
-> will be re-triggered.  I do not know if cpsw_init() will be called before or
-> after deferred_probe_initcall().  The general initcall mechanism does not
-> provide any ordering guarantees between the two functions because they are
-> at the same initcall level.
+I've followed guidance here:
+http://elinux.org/Minnowboard:MinnowMaxLinuxKernel <http://elinux.org/Minnowboard:MinnowMaxLinuxKernel>
 
-It will be called after and it will re-triggered deferred device probing.
-Now ordering of init calls will be specified by drivers/Makefile
-which itself is funny thing.
+but i found no i2c device are probed at boot.
 
-> 
->>
->> As result, it is impossible to say when will it happen the
->> "final round of deferred device probing" :( and final list of drivers which
->> was "deferred forever" will be know only when kernel exits to User space
->> ("deferred forever" - before loading modules).
->>
->> May be, we also can consider adding debug_fs entry which can be used to display
->> actual state of deferred_probe_pending_list?
->>
->>>>
->>>> If we have any devices still deferring after _this_ round, that must
->>>> indicate that some resource they want is not available, and that
->>>> should be warned about.
->>>>
->>>> Of course, modules can defer too - and I made some suggestions in my
->>>> waffle above the patch about that.
->>>>
->>>
->>> < adding back trimmed, for fuller context >
->>>
->>>>>>    	/* Sort as many dependencies as possible before exiting initcalls */
->>>>>>    	flush_workqueue(deferred_wq);
->>>>>> +
->>>>>> +	/* Now one final round, reporting any devices that remain deferred */
->>>>>> +	driver_deferred_probe_report = true;
->>>>>> +	driver_deferred_probe_trigger();
->>>>>> +	/* Sort as many dependencies as possible before exiting initcalls */
->>>>>> +	flush_workqueue(deferred_wq);
->>>>>> +
->>>>>>    	return 0;
->>>>>>    }
->>
->>
-> 
+For example, one default device available in the acpi table is never detected: RTEK node (with ID 10EC5640).
+
+When adding my own device to I2C7, my device is never detected as well .
+
+For example the complete modified I2C7 is at the end of the message.
+
+I am compiling the kernel with options:
+CONFIG_ACPI_CUSTOM_DSDT_FILE="dsdt.hex"
+CONFIG_ACPI_CUSTOM_DSDT=y
+CONFIG_ACPI_INITRD_TABLE_OVERRIDE=y
+
+I am running on Minnowboard firmware 0.83 with default options.
+
+Best Regards
+Christophe
+
+        Device (I2C7)
+        {
+            Name (_ADR, Zero)  // _ADR: Address
+            Name (_HID, "80860F41" /* Intel Baytrail I2C Host Controller */)  // _HID: Hardware ID
+            Name (_CID, "80860F41" /* Intel Baytrail I2C Host Controller */)  // _CID: Compatible ID
+            Name (_DDN, "Intel(R) I2C Controller #7 - 80860F47") // _DDN: DOS Device Name
+            Name (_UID, 0x07)  // _UID: Unique ID
+            Name (_DEP, Package (One)  // _DEP: Dependencies
+            {
+                PEPD
+            })
+            Name (RBUF, ResourceTemplate ()
+            {
+                Memory32Fixed (ReadWrite,
+                    0x00000000,         // Address Base
+                    0x00001000,         // Address Length
+                    _Y1F)
+                Interrupt (ResourceConsumer, Level, ActiveLow, Exclusive, ,, )
+                {
+                    0x00000026,
+                }
+                FixedDMA (0x001C, 0x0004, Width32bit, )
+                FixedDMA (0x001D, 0x0005, Width32bit, )
+            })
+            Method (SSCN, 0, NotSerialized)
+            {
+                Name (PKG, Package (0x03)
+                {
+                    0x0200,
+                    0x0200,
+                    0x06
+                })
+                Return (PKG) /* \_SB_.I2C7.SSCN.PKG_ */
+            }
+
+            Method (FMCN, 0, NotSerialized)
+            {
+                Name (PKG, Package (0x03)
+                {
+                    0x55,
+                    0x99,
+                    0x06
+                })
+                Return (PKG) /* \_SB_.I2C7.FMCN.PKG_ */
+            }
+
+            Method (FPCN, 0, NotSerialized)
+            {
+                Name (PKG, Package (0x03)
+                {
+                    0x1B,
+                    0x3A,
+                    0x06
+                })
+                Return (PKG) /* \_SB_.I2C7.FPCN.PKG_ */
+            }
+
+            Method (_HRV, 0, NotSerialized)  // _HRV: Hardware Revision
+            {
+                Return (SOCS) /* \SOCS */
+            }
+
+            Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+            {
+                CreateDWordField (RBUF, \_SB.I2C7._Y1F._BAS, B0BA)  // _BAS: Base Address
+                CreateDWordField (RBUF, \_SB.I2C7._Y1F._LEN, B0LN)  // _LEN: Length
+                B0BA = I70A /* \I70A */
+                B0LN = I70L /* \I70L */
+                Return (RBUF) /* \_SB_.I2C7.RBUF */
+            }
+
+            Method (_STA, 0, NotSerialized)  // _STA: Status
+            {
+                If ((PCIM == One))
+                {
+                    Return (Zero)
+                }
+
+                If (((I70A == Zero) || (L27D == One)))
+                {
+                    Return (Zero)
+                }
+
+                Return (0x0F)
+            }
+
+            Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
+            {
+                PSAT |= 0x03
+                PSAT |= Zero
+            }
+
+            Method (_PS0, 0, NotSerialized)  // _PS0: Power State 0
+            {
+                PSAT &= 0xFFFFFFFC
+                PSAT |= Zero
+            }
+
+            OperationRegion (KEYS, SystemMemory, I71A, 0x0100)
+            Field (KEYS, DWordAcc, NoLock, WriteAsZeros)
+            {
+                Offset (0x84),
+                PSAT,   32
+            }
+
+            Device (NFC1)
+            {
+                Name (_ADR, Zero)  // _ADR: Address
+                Name (_HID, "NXP5441")  // _HID: Hardware ID
+                Name (_CID, "NXP5441")  // _CID: Compatible ID
+                Name (_DDN, "NXP NFC")  // _DDN: DOS Device Name
+                Name (_UID, One)  // _UID: Unique ID
+                Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+                {
+                    Name (SBUF, ResourceTemplate ()
+                    {
+                        I2cSerialBus (0x0028, ControllerInitiated, 0x00061A80,
+                            AddressingMode7Bit, "\\_SB.I2C7",
+                            0x00, ResourceConsumer, ,
+                            )
+                        Interrupt (ResourceConsumer, Level, ActiveLow, Exclusive, ,, )
+                        {
+                            0x00000047,
+                        }
+                        GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
+                            "\\_SB.GPO2", 0x00, ResourceConsumer, ,
+                            )
+                            {   // Pin list
+				0x0009
+                            }
+                        GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
+                            "\\_SB.GPO2", 0x00, ResourceConsumer, ,
+                            )
+                            {   // Pin list
+				0x0008
+                            }
+                    })
+                    Return (SBUF) /* \_SB_.I2C7.NFC1._CRS.SBUF */
+                }
+
+                Method (_STA, 0, NotSerialized)  // _STA: Status
+                {
+                    If ((NFCS == One))
+                    {
+                        Return (0x0F)
+                    }
+
+                    Return (Zero)
+                }
+            }
+        }
+
+        Scope (I2C7)
+        {
+        }
+    }
+
 
 
 -- 
-regards,
--grygorii
+2.1.4
