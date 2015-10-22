@@ -1,53 +1,62 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 1/1] i2c: core: fix a code to suppress a warning
-Date: Thu, 22 Oct 2015 14:48:03 +0300
-Message-ID: <1445514483.22669.47.camel@linux.intel.com>
-References: <1442574399-26131-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: designware: Disable runtime PM in case
+ i2c_dw_probe() fails
+Date: Thu, 22 Oct 2015 14:36:57 +0200
+Message-ID: <20151022123657.GA1517@katana>
+References: <1445437306-9268-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:54764 "EHLO mga14.intel.com"
+Received: from sauhun.de ([89.238.76.85]:58378 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753329AbbJVLsH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 22 Oct 2015 07:48:07 -0400
-In-Reply-To: <1442574399-26131-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	id S1756864AbbJVMiL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 22 Oct 2015 08:38:11 -0400
+Content-Disposition: inline
+In-Reply-To: <1445437306-9268-1-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Alexander Sverdlin <alexander.sverdlin@nokia.com>, Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Fri, 2015-09-18 at 14:06 +0300, Andy Shevchenko wrote:
-> There is a warning when compiling i2c-core.c
-> drivers/i2c/i2c-core.c:2561:36: warning: dubious: x | !y
+
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Oct 21, 2015 at 05:21:46PM +0300, Jarkko Nikula wrote:
+> Call to pm_runtime_disable() got dropped while handling the merge conflict
+> between commit 36d48fb5766a ("i2c: designware-platdrv: enable RuntimePM
+> before registering to the core") and commit d80d134182ba ("i2c: designwar=
+e:
+> Move common probe code into i2c_dw_probe()").
 >=20
-> Fix it by using a plain bitwise AND since I2C_M_RD is a bit 0 and
-> thus we are
-> on the safe side.
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Wolfram, as of today I didn't see this in linux-next. Should I amend
-this one somehow?
+Applied to for-next, thanks!
 
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
-> =C2=A0drivers/i2c/i2c-core.c | 2 +-
-> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 5f89f1e..a732107 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -2555,7 +2555,7 @@ static u8 i2c_smbus_pec(u8 crc, u8 *p, size_t
-> count)
-> =C2=A0static u8 i2c_smbus_msg_pec(u8 pec, struct i2c_msg *msg)
-> =C2=A0{
-> =C2=A0	/* The address will be sent first */
-> -	u8 addr =3D (msg->addr << 1) | !!(msg->flags & I2C_M_RD);
-> +	u8 addr =3D (msg->addr << 1) | (msg->flags & I2C_M_RD);
-> =C2=A0	pec =3D i2c_smbus_pec(pec, &addr, 1);
-> =C2=A0
-> =C2=A0	/* The data buffer follows */
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+--BOKacYhQ+x31HxR3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWKNhpAAoJEBQN5MwUoCm23ksP/1pImwdw1kj1Nau7iX7TzWef
+JhJKih/GlYYvkmX0WntAuShNAAqMdTK2q0gL8vVHMPSzoxgodVLeJOMuP/f5vt7E
+IExuliWqo2Do6bL7JndrqeQEZ/iRUyBjhEjnjKp6SfXSOp4jJO1Ny28shbwajiWK
+eAhzCsrcB5q0aalCFfeagcFuSk58reXiiRVL4mkHOQdkbB0zaeEzATZ5/0D5gt1x
+IGbDkVeCcFIdgbrmRVySXUE0huQskPbGrq/V0Nyuh3c4b/cdmWW5mutDCcD+OylJ
+6tID24qdFWnoAngDcazAVfro7rk7jpbp4fAvXDR/vxt6lNlxI9ICUaApvc+P+d8o
+zu7QnkSVIqxLjaxxb/f8hnEtudyFjAhq+WQAHfJic0+53sa1MvsS3G7Wi/AOehCG
+PfpTCuWRi7O9BFV4RWePiCNESKNq/rtjrYCTjcQ7zQGipqljCGiL1Etltzz5/V12
+fpAbZxqCL6tmmcx9NLFeJlcDh816zrqxb3ziOC6FLuOemanii9bkNfRurHi1ELdz
+qUKutIRbe5AcSsxGVhcfm1KgSmRay2Up404KlONbMFYhJF2HgFbt4ddaBdATCZyQ
+uC2DbdRQIN/fBxNPOpZk8ANt/RqnQptOXbyv/gdR2zp8Y+ZPNl4TOP9HnrAep/WW
+GnRmuEwA/hVyAUAESG2E
+=sOSt
+-----END PGP SIGNATURE-----
+
+--BOKacYhQ+x31HxR3--
