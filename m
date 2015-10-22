@@ -1,63 +1,67 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/3] i2c: uniphier_f: add UniPhier FIFO-builtin I2C driver
-Date: Thu, 22 Oct 2015 23:06:18 +0200
-Message-ID: <20151022210618.GC1516@katana>
-References: <1438243942-26401-1-git-send-email-yamada.masahiro@socionext.com>
- <1438243942-26401-3-git-send-email-yamada.masahiro@socionext.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Fri, 23 Oct 2015 08:33:10 +0900
+Message-ID: <20151022233310.GD29919@sirena.org.uk>
+References: <20151018195330.GB14956@sirena.org.uk>
+ <CAAObsKB2BUZ-smid45wOdAQw6h2yNqCydk+azAFNk69ewHJtZQ@mail.gmail.com>
+ <5627B677.5090109@gmail.com>
+ <20151021162758.GP32054@sirena.org.uk>
+ <5627D6E0.5020708@gmail.com>
+ <CAL_Jsq+FPtCuBnte2HTgbdpNYM=v_kLaCRcOC1kMaCQwVC=5Kw@mail.gmail.com>
+ <562808AF.7090406@gmail.com>
+ <CAAObsKAkyjdvNOS3+nuT0N9sudUFLsZXFtcm6Y038p+HSdsZsg@mail.gmail.com>
+ <20151022144405.GC21861@kroah.com>
+ <20151022150213.GT32532@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4ZLFUWh1odzi/v6L"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="J5MfuwkIyy7RmF4Q"
+Return-path: <linux-clk-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1438243942-26401-3-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Anders Berg <anders.berg@avagotech.com>, Xudong Chen <xudong.chen@mediatek.com>, Andrew Bresticker <abrestic@chromium.org>, David Box <david.e.box@linux.intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Kamal Dasu <kdasu.kdev@gmail.com>, linux-kernel@vger.kernel.org, Zhangfei Gao <zhangfei.gao@linaro.org>, Beniamino Galvani <b.galvani@gmail.com>, Lee Jones <lee.jones@linaro.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Sachin Kamat <sachin.kamat@samsung.com>, Ray Jui <rjui@broadcom.com>, Subhendu Sekhar Behera <sbehera@broadcom.com>
+In-Reply-To: <20151022150213.GT32532@n2100.arm.linux.org.uk>
+Sender: linux-clk-owner@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Frank Rowand <frowand.list@gmail.com>, Rob Herring <robh+dt@kernel.org>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Felipe Balbi <balbi@ti>
 List-Id: linux-i2c@vger.kernel.org
 
 
---4ZLFUWh1odzi/v6L
+--J5MfuwkIyy7RmF4Q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 30, 2015 at 05:12:21PM +0900, Masahiro Yamada wrote:
-> Add support for on-chip I2C controller used on newer UniPhier SoCs
-> such as PH1-Pro4, PH1-Pro5, etc.  This adapter is equipped with
-> 8-depth TX/RX FIFOs.
->=20
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+On Thu, Oct 22, 2015 at 04:02:13PM +0100, Russell King - ARM Linux wrote:
 
-Same comments as for the other driver.
+> If it was such a problem, then in the _eight_ days that this has been
+> discussed so far, _someone_ would have sent some data showing the
+> problem.  I think the fact is, there is no data.
 
-And quite some debug messages left. Could you check if you still want
-them or if they were mostly useful during development of the driver?
+> Someone prove me wrong.  Someone post the verifiable data showing that
+> there is a problem to be solved here.
 
-Thanks,
+> Someone show what the specific failure cases are that are hampering
+> vendors moving forwards.  Someone show the long boot times by way of
+> kernel message log.  Someone show some evidence of the problems that
+> have been alluded to.
 
-   Wolfram
+> If no one can show some evidence, there isn't a problem here. :)
 
+Yeah, I'm not convinced the timing is *such* a big deal either - I do
+think that the log spam is a real problem but I think something much
+less invasive like the interface you proposed is good for addressing
+that.
 
---4ZLFUWh1odzi/v6L
+--J5MfuwkIyy7RmF4Q
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v2
 
-iQIcBAEBAgAGBQJWKU/KAAoJEBQN5MwUoCm2m2gP/A+iuBv0Z3TZIFdYsQj8nvFD
-Z3QXPImDwxjHRQsS18sWx9QvLB42nAAXZ2OlKI7ZB5K1XVKS3DdBHGBY3HYXj5bF
-oe+vaxZdKP/l6lq7vTa1vIL5BaEZInhRnBcbdmz+8HeXYJKVZD/gY+8LsVY8Dhbq
-VAuJncmyPbOkeg2FqSq6puRteOgaq1Vlmu0fwZMAJOqAjvXLs5xJEt+d5BroRXg+
-tHkRMNWoDXbbb9d+H+nwJk73WvtAlZuCy+AY8b1En9fBBtyblb676bVC/3K36l3c
-HCYBJx0xeNJZuAJH8qLoKDvp/uwQadVOg6za2ofIlXt3L1Yg3ojuyAZlK1UjiLVQ
-MfzmyfzgNoEXg7XaB5IvoNKy849NuSIDnnIg6rfwTChFFfkWSx/5yJU/EB5y4Nt1
-2qMP5ekKi/IeHSMVpVbuynIE83jzK1mplbFl91C3WwReI4H5mJFqF7+4iD1SL3VP
-qbwfHFJ704vfWWotUO9Dszu+uAy9ZtR2YEcr93Gkae0zROoeQLpubWUMnfOCQAys
-GZsCSp7I4VBmy+mkOBX2tSIox8RPhqD/bCXngzhEk7jRbLMcGwFj30VbfjjT4H1Q
-AIKxPjL4AZ3IR8OaQzWTWPeC5SZseDOz26HdQ9Rr4TSigA2Wf4+No0wbIdw6u90c
-8M/GP3+JLBwgfknzLeeI
-=PVhA
+iQEcBAEBCAAGBQJWKXI1AAoJECTWi3JdVIfQz30H/RIVYugSpt5G4di2CHITc0BQ
+yoflpyMikyLfYkdFzjloKeyEodeVohF661x1e/XN7zhOOoZQD712sSW2D8yBDUT6
+yrEoEHZsxe6SlCqBTUpuev2KOXoQm11HOxNsYjop+0ZDBPfYrG6xIQfu2rRlQDXM
+bSYvTXMmgOb2rTVHhORTbtwgZMAXj3K9BdybHilOAyenxrbCx1uX28RgHYJQ+QDc
+bJvszKCOLJSBYYdn3QFCazwYtS3RtZ4PZtR+ZTfNmliT6dzi5rWcm14n+bIInG6+
+XROzzllUhwfN/h4TKFS5+6PJGCE5lu8AobnBVyoSzSqBHk4uMij6zH7YWdHyHOs=
+=HDzZ
 -----END PGP SIGNATURE-----
 
---4ZLFUWh1odzi/v6L--
+--J5MfuwkIyy7RmF4Q--
