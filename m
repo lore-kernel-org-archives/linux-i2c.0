@@ -1,47 +1,29 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: linux-next: Tree for Oct 21 (drivers/i2c/busses/i2c-designware-platdrv.c)
-Date: Thu, 22 Oct 2015 08:47:32 +0300
-Message-ID: <56287874.40102@linux.intel.com>
-References: <20151021171623.2d651735@canb.auug.org.au> <5627F55E.1010009@infradead.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Disable runtime PM in case
+ i2c_dw_probe() fails
+Date: Thu, 22 Oct 2015 10:41:04 +0300
+Message-ID: <20151022074104.GG1526@lahna.fi.intel.com>
+References: <1445437306-9268-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:28151 "EHLO mga09.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:7106 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751181AbbJVFt6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 22 Oct 2015 01:49:58 -0400
-In-Reply-To: <5627F55E.1010009@infradead.org>
+	id S1751967AbbJVHlI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 22 Oct 2015 03:41:08 -0400
+Content-Disposition: inline
+In-Reply-To: <1445437306-9268-1-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Hi
+On Wed, Oct 21, 2015 at 05:21:46PM +0300, Jarkko Nikula wrote:
+> Call to pm_runtime_disable() got dropped while handling the merge conflict
+> between commit 36d48fb5766a ("i2c: designware-platdrv: enable RuntimePM
+> before registering to the core") and commit d80d134182ba ("i2c: designware:
+> Move common probe code into i2c_dw_probe()").
+> 
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-On 10/21/2015 11:28 PM, Randy Dunlap wrote:
-> On 10/20/15 23:16, Stephen Rothwell wrote:
->> Hi all,
->>
->> There will be no linux-next releases after tomorrow until Nov 2 (kernel
->> summit).
->>
->> Changes since 20151020:
->>
->
-> on i386 or x86_64:
->
-> when CONFIG_PM_SLEEP is not enabled:
->
-> ../drivers/i2c/busses/i2c-designware-platdrv.c:340:13: error: 'dw_i2c_plat_prepare' undeclared here (not in a function)
->    .prepare = dw_i2c_plat_prepare,
->               ^
-> ../drivers/i2c/busses/i2c-designware-platdrv.c:341:14: error: 'dw_i2c_plat_complete' undeclared here (not in a function)
->    .complete = dw_i2c_plat_complete,
->                ^
-Here's the fix for this:
-
-http://marc.info/?l=linux-i2c&m=144541136917692&w=2
-
--- 
-Jarkko
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
