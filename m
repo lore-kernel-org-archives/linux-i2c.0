@@ -1,76 +1,95 @@
-From: Ben Gardner <gardner.ben@gmail.com>
-Subject: ACPI I2C device-driver matching issue
-Date: Thu, 22 Oct 2015 13:05:42 -0500
-Message-ID: <CAE7DoPbODXiUcsxMD1qRXCvX_o0evf6KsK2qu65g9uxnw5GNAw@mail.gmail.com>
+From: Frank Rowand <frowand.list@gmail.com>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Thu, 22 Oct 2015 11:53:31 -0700
+Message-ID: <562930AB.1070203@gmail.com>
+References: <20151018192931.GY14956@sirena.org.uk> <20151018193757.GA9147@kroah.com> <20151018195330.GB14956@sirena.org.uk> <CAAObsKB2BUZ-smid45wOdAQw6h2yNqCydk+azAFNk69ewHJtZQ@mail.gmail.com> <5627B677.5090109@gmail.com> <20151021162758.GP32054@sirena.org.uk> <5627D6E0.5020708@gmail.com> <CAL_Jsq+FPtCuBnte2HTgbdpNYM=v_kLaCRcOC1kMaCQwVC=5Kw@mail.gmail.com> <562808AF.7090406@gmail.com> <CAAObsKAkyjdvNOS3+nuT0N9sudUFLsZXFtcm6Y038p+HSdsZsg@mail.gmail.com> <20151022144405.GC21861@kroah.com>
+Reply-To: frowand.list@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f171.google.com ([209.85.223.171]:34740 "EHLO
-	mail-io0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754935AbbJVSFm (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Oct 2015 14:05:42 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <20151022144405.GC21861@kroah.com>
+Sender: linux-clk-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Rob Herring <robh+dt@kernel.org>, Mark Brown <broonie@kernel.org>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?ISO-8859-1?Q?Terje_Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Felipe Balbi <balbi@ti.com>, Jingoo
 List-Id: linux-i2c@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>
-Cc: linux-acpi@vger.kernel.org
 
-Hi all,
+On 10/22/2015 7:44 AM, Greg Kroah-Hartman wrote:
+> <oops, sent too early...>
+> 
+> On Thu, Oct 22, 2015 at 11:05:11AM +0200, Tomeu Vizoso wrote:
+>> But that's moot currently because Greg believes that the time spent
+>> probing devices at boot time could be reduced enough so that the order
+>> in which devices are probed becomes irrelevant. IME that would have to
+>> be under 200ms so that the user doesn't notice and that's unicorn-far
+>> from any bootlog I have ever seen.
+> 
+> But as no one has actually produced a bootlog, how do you know that?
+> Where exactly is your time being spent?  What driver is causing long
+> delays?  Why is the long-delay-drivers not being done in their own
+> thread?  And most importantly, why are you ignoring the work that people
+> did back in 2008 to solve the issue on other hardware platforms?
+> 
+>> Given that downstreams are already carrying as many hacks as they
+>> could think of to speed total boot up, I think this is effectively
+>> telling them to go away.
+> 
+> No I'm not, I'm asking for real data, not hand-wavy-this-is-going-to
+> solve-the-random-issue-i'm-having type patch by putting random calls in
+> semi-random subsystems all over the kernel.
+> 
+> And when I ask for real data, you respond with the fact that you aren't
+> trying to speed up boot time here at all, so what am I supposed to think
 
-I have a custom Baytrail board with a M24C02 EEPROM attached to I2C bus 3.
-I am using coreboot/SeaBIOS, so I have complete control over the ACPI tables.
-I am using Linux 4.2.3.
+I also had the understanding that this patch series was about improving
+boot time.  But I was kindly corrected that the behavior change was
+getting the panel displaying stuff at an earlier point in the boot sequence,
+_not_ completing the entire boot faster. 
 
-I have defined a EEPROM device on I2C3 using I2cSerialBus() and it
-shows up as expected.
+The claim for the current series, in patch 0 in v7 is:
 
-Scope (\_SB.PCI0.I2C3) {
-  Device (EEP0) {
-    Name (_CID, Package() { "24c02" })
-    Name (_CRS, ResourceTemplate () {
-      I2cSerialBus (0x0057, ControllerInitiated, 400000,
-        AddressingMode7Bit, "\\_SB.PCI0.I2C3", 0x00,
-        ResourceConsumer,,)
-    })
-  }
-}
+   With this series I get the kernel to output to the panel in 0.5s,
+   instead of 2.8s.
 
-Everything is nearly working, except that acpi_i2c_add_device() is
-using the ACPI name to match the driver, which is "24C02:00".
-The "at42" driver supports the device with the "24c02" alias.
-i2c_match_id() in i2c-core.c uses strcmp() to match the device.
-That obviously doesn't match, as "24c02" != "24C02:00".
+Just to get side-tracked, one other approach at ordering to reduce
+deferrals reported a modest boot time reduction for four boards and a
+very slight boot time increase for one other board.) The report of boot
+times with that approach was in:
 
-When I modified acpi_i2c_add_device() to truncate at the colon and
-convert it to lower case, it matches and works.
+  http://article.gmane.org/gmane.linux.drivers.devicetree/133010
 
+from Alexander Holler.
 
-What is the right way to declare a I2C device in ACPI so that it
-matches existing drivers?
+I have not searched further to see if there is more data of boot time
+reductions from any of the other attempts to change driver binding
+order to move dependencies before use of a resource.  But whether
+there is a performance improvement or not, there continues to be
+a stream of developers creatively impacting the binding order for
+their specific driver(s) or board.  So it seems that maybe there
+is an underlying problem, or we don't have adequate documentation
+explaining how to avoid a need to order bindings, or the
+documentation exists and is not being read.
 
+I have been defaulting to the position that has been asserted by
+the device tree maintainters, that probe deferrals work just fine
+for at least the majority of cases (and is the message I have been
+sharing in my conference presentations about device tree).  But I
+suspect that there is at least a small minority of cases that are not
+well served by probe deferral.  (Not to be read as an endorsement of
+this specific patch series, just a generic observation.)
 
-For reference only, I included the change I made to get it to work below.
-(Copy/pasted into gmail, so tabs are lost.)
+-Frank
 
-Thanks,
-Ben Gardner
+> other than that you don't care enough to do the real work and are trying
+> to hack the driver core up instead.
+> 
+>> Sorry for the rant,
+> 
+> No apologies needed, it's cathartic at times :)
+> 
+> thanks,
+> 
+> greg k-h
+> .
+> 
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index c83e4d1..64caddc 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -144,7 +144,13 @@ static acpi_status
-acpi_i2c_add_device(acpi_handle handle, u32 level,
-                return AE_OK;
-
-        adev->power.flags.ignore_parent = true;
--       strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
-+       {
-+               const char *dn = dev_name(&adev->dev);
-+               int idx;
-+               for (idx = 0; idx < sizeof(info.type) - 1 && dn[idx]
-&& dn[idx] != ':'; idx++)
-+                       info.type[idx] = tolower(dn[idx]);
-+       }
-        if (!i2c_new_device(adapter, &info)) {
-                adev->power.flags.ignore_parent = false;
-                dev_err(&adapter->dev,
