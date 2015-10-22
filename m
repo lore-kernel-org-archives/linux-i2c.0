@@ -1,57 +1,53 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 0/4] Support multiplexed main SMBus interface on SB800
-Date: Thu, 22 Oct 2015 14:43:35 +0300
-Message-ID: <20151022114335.GL1526@lahna.fi.intel.com>
-References: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
- <20151020151935.GH5379@katana>
- <20151022082755.GK1526@lahna.fi.intel.com>
- <20151022110325.GA1572@katana>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 1/1] i2c: core: fix a code to suppress a warning
+Date: Thu, 22 Oct 2015 14:48:03 +0300
+Message-ID: <1445514483.22669.47.camel@linux.intel.com>
+References: <1442574399-26131-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:37053 "EHLO mga01.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:54764 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750978AbbJVLnj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 22 Oct 2015 07:43:39 -0400
-Content-Disposition: inline
-In-Reply-To: <20151022110325.GA1572@katana>
+	id S1753329AbbJVLsH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 22 Oct 2015 07:48:07 -0400
+In-Reply-To: <1442574399-26131-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Christian Fetzer <fetzer.ch@gmail.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, tbrandonau@gmail.com, eddi@depieri.net, galandilias@gmail.com
+To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Alexander Sverdlin <alexander.sverdlin@nokia.com>, Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 
-On Thu, Oct 22, 2015 at 01:03:25PM +0200, Wolfram Sang wrote:
-> 
-> > > > Please review and let me know required changes in order to get this upstream
-> > > > finally.
-> > > > 
-> > > > Eddi, Thomas, it would be great if you could verify the changes on your
-> > > > machines.
-> > > 
-> > > Yes, additional tests are always good for a patch series
-> > > 
-> > > Asking the Intel guys for help, I have not much expierence with x86
-> > > platforms... Mika, Jarkko, Andy any chance to help?
-> > 
-> > Unfortunately I don't have hardware this old to test on :-/
-> 
-> And visual review? (That's what I need to do mostly, too)
+On Fri, 2015-09-18 at 14:06 +0300, Andy Shevchenko wrote:
+> There is a warning when compiling i2c-core.c
+> drivers/i2c/i2c-core.c:2561:36: warning: dubious: x | !y
+>=20
+> Fix it by using a plain bitwise AND since I2C_M_RD is a bit 0 and
+> thus we are
+> on the safe side.
 
-Sure.
+Wolfram, as of today I didn't see this in linux-next. Should I amend
+this one somehow?
 
-I don't have a copy of these patches but I went ahead and looked them up
-from archives. Christian can you Cc me on next iteration?
+>=20
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+> =C2=A0drivers/i2c/i2c-core.c | 2 +-
+> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 5f89f1e..a732107 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2555,7 +2555,7 @@ static u8 i2c_smbus_pec(u8 crc, u8 *p, size_t
+> count)
+> =C2=A0static u8 i2c_smbus_msg_pec(u8 pec, struct i2c_msg *msg)
+> =C2=A0{
+> =C2=A0	/* The address will be sent first */
+> -	u8 addr =3D (msg->addr << 1) | !!(msg->flags & I2C_M_RD);
+> +	u8 addr =3D (msg->addr << 1) | (msg->flags & I2C_M_RD);
+> =C2=A0	pec =3D i2c_smbus_pec(pec, &addr, 1);
+> =C2=A0
+> =C2=A0	/* The data buffer follows */
 
-Mostly they look good to me. Few comments though.
-
-Patch 2/4: should we remove adapter in reverse order?
-
-Patch 3/4: some stylistic issues, like:
-	- ERROR label should not be in capital letters actually it is
-	  not needed at all if you do unlock and return -EBUSY if
-	  request_region() fails.
-	- Block comment style
-
-In addition I'm not sure if requesting io region for each transfer is
-good idea. Can't we just request it once for this driver and handle the
-necessary serialization using the mutex?
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
