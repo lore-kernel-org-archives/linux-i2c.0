@@ -1,75 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: at91: manage unexpected RXRDY flag when
- starting a transfer
-Date: Thu, 22 Oct 2015 15:08:47 +0200
-Message-ID: <20151022130847.GE1517@katana>
-References: <1445435048-25889-1-git-send-email-ludovic.desroches@atmel.com>
- <1445435048-25889-2-git-send-email-ludovic.desroches@atmel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d8Lz2Tf5e5STOWUP"
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCH] i2c: i801: Add support for Intel Broxton
+Date: Thu, 22 Oct 2015 17:16:58 +0300
+Message-ID: <1445523418-5166-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:58516 "EHLO pokefinder.org"
+Received: from mga11.intel.com ([192.55.52.93]:60056 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751957AbbJVNIy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 22 Oct 2015 09:08:54 -0400
-Content-Disposition: inline
-In-Reply-To: <1445435048-25889-2-git-send-email-ludovic.desroches@atmel.com>
+	id S1757761AbbJVORH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 22 Oct 2015 10:17:07 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@atmel.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nicolas.ferre@atmel.com, peda@lysator.liu.se, cyrille.pitchen@atmel.com
+To: linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
+This patch adds the SMBUS PCI ID of Intel Broxton.
 
---d8Lz2Tf5e5STOWUP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+This goes on top of Mika's "[PATCH] i2c: i801: Add support for Intel DNV":
+http://marc.info/?l=linux-i2c&m=144474010421111&w=2
+---
+ drivers/i2c/busses/i2c-i801.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-On Wed, Oct 21, 2015 at 03:44:04PM +0200, Ludovic Desroches wrote:
-> In some cases, we could start a new i2c transfer with the RXRDY flag
-> set. It is not a clean state and it leads to print annoying error
-> messages even if there no real issue. The cause is only having garbage
-> data in the Receive Holding Register because of a weird behavior of the
-> RXRDY flag.
->=20
-> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-> Fixes: 93563a6a71bb ("i2c: at91: fix a race condition when using the DMA
-> controller")
-> Reported-by: Peter Rosin <peda@lysator.liu.se>
-> Tested-by: Peter Rosin <peda@lysator.liu.se>
-> Cc: stable@vger.kernel.org #4.1
-
-    SMATCH
-drivers/i2c/busses/i2c-at91.c:602 at91_do_twi_transfer warn: unused return:=
- sr =3D at91_twi_read()
-
-drivers/i2c/busses/i2c-at91.c: In function 'at91_do_twi_transfer':
-drivers/i2c/busses/i2c-at91.c:550:11: warning: variable 'sr' set but not us=
-ed [-Wunused-but-set-variable]
-  unsigned sr;
-           ^
-
---d8Lz2Tf5e5STOWUP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWKN/fAAoJEBQN5MwUoCm2qcsP/3xR/eLcoYMI49N8BReGCV4a
-FMUXvwHz2nTlwNE24628gjVLPj7Mwj5Vou0qobN2voCdsB+q3FU2OuArznmKnAxG
-Bb2b+H1bsPUrIgXa/wGGgBojm6tEovkkyl7KecFXZXMPGf5RDQQ2OzN25C3PK4JL
-jX9aS3+KbjWNh3hB3ba6U8QVAWbuPN2T+xHZ4pnmmOOMdwdYwEYG9KpbiPARSzcF
-UXT3hY8/1hzorjI64MrcfExxN1bOi+uFCmnsZG8KUB85UXGwdBRLIlig8aFtT9Gn
-EfpOGp6qNqCVSJe6E79PHr5ArCJq94Sr3ydc1piuBE26u9qqx7MD8Ve+INVonUvW
-RB4zefNwmCbtxU8W/1OSdVGrraJwCc/m63lcTtatMhRExxSQdzSPXdHot/zVWCA1
-bePyn+hFbP5qx1CgJlrTCVuNtHRqt5LHYRff5NinHmittnPiMLKApNndiuRKbrie
-v8LQA4ANv5YapGeOMSfNl8INVC0oGd2yqovvCCDh0F+s9YlBuOjZQJf1mU2o13Q4
-tVZG5Wce0g0yTkIF5ULLs8cYke5CB8YbJLVrAQOtPWMEIuk5GkwUjj9UDDejBsPm
-t/PijqxvFVxCM26ycpEz/3PwC3kldvDZOHQs3SglQcLtSuvIHuV8/ukMv1l9F/HP
-KUHZHhprGqHWPeqXW7CX
-=OYhx
------END PGP SIGNATURE-----
-
---d8Lz2Tf5e5STOWUP--
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 47c2ddf76264..d8219bc2ac4e 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -61,6 +61,7 @@
+  * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
+  * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
+  * DNV (SOC)			0x19df	32	hard	yes	yes	yes
++ * Broxton (SOC)		0x5ad4	32	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -204,6 +205,7 @@
+ #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
+ #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
+ #define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
++#define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
+ 
+ struct i801_mux_config {
+ 	char *gpio_chip;
+@@ -866,6 +868,7 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BROXTON_SMBUS) },
+ 	{ 0, }
+ };
+ 
+-- 
+2.6.1
