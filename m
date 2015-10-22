@@ -1,51 +1,29 @@
-From: Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 3/9] i2c: brcmstb: add missing parenthesis
-Date: Wed, 21 Oct 2015 18:56:44 -0700
-Message-ID: <5628425C.5080104@gmail.com>
+From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 6/9] MIPS: BMIPS: brcmstb: add I2C node for bcm7346
+Date: Wed, 21 Oct 2015 18:57:00 -0700
+Message-ID: <5628426C.1090605@gmail.com>
 References: <1445395021-4204-1-git-send-email-jaedon.shin@gmail.com>
- <1445395021-4204-4-git-send-email-jaedon.shin@gmail.com>
+ <1445395021-4204-7-git-send-email-jaedon.shin@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ob0-f182.google.com ([209.85.214.182]:36832 "EHLO
-	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755693AbbJVB4r (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 21:56:47 -0400
-In-Reply-To: <1445395021-4204-4-git-send-email-jaedon.shin@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1445395021-4204-7-git-send-email-jaedon.shin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jaedon Shin <jaedon.shin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jaedon Shin <jaedon.shin@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-mips@linux-mips.org
 
 Le 20/10/2015 19:36, Jaedon Shin a =C3=A9crit :
-> Add the necessary parenthesis for NOACK condition.
+> Add I2C device nodes to BMIPS based BCM7346 platform.
 >=20
-> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+> Signed-off-by: Jaedon Shin <jaedon.shin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-
-> ---
->  drivers/i2c/busses/i2c-brcmstb.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2=
-c-brcmstb.c
-> index 6b8bbf99880d..2d7d155029dc 100644
-> --- a/drivers/i2c/busses/i2c-brcmstb.c
-> +++ b/drivers/i2c/busses/i2c-brcmstb.c
-> @@ -305,7 +305,7 @@ static int brcmstb_send_i2c_cmd(struct brcmstb_i2=
-c_dev *dev,
->  	}
-> =20
->  	if ((CMD_RD || CMD_WR) &&
-> -	    bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK) {
-> +	    (bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK)) {
->  		rc =3D -EREMOTEIO;
->  		dev_dbg(dev->device, "controller received NOACK intr for %s\n",
->  			cmd_string[cmd]);
->=20
-
-
+Acked-by: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 --=20
 =46lorian
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
