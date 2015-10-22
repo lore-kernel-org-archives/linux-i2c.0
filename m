@@ -1,237 +1,70 @@
-From: Dustin Byford <dustin@cumulusnetworks.com>
-Subject: [PATCH v4 2/2] i2c: add ACPI support for I2C mux ports
-Date: Thu, 22 Oct 2015 02:17:42 -0700
-Message-ID: <1445505462-27915-3-git-send-email-dustin@cumulusnetworks.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
- <1445505462-27915-1-git-send-email-dustin@cumulusnetworks.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1445505462-27915-1-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, "Puustinen, Ismo" <ismo.puustinen@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/4] Support multiplexed main SMBus interface on SB800
+Date: Thu, 22 Oct 2015 13:03:25 +0200
+Message-ID: <20151022110325.GA1572@katana>
+References: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
+ <20151020151935.GH5379@katana>
+ <20151022082755.GK1526@lahna.fi.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:58084 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757204AbbJVLDd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 22 Oct 2015 07:03:33 -0400
+Content-Disposition: inline
+In-Reply-To: <20151022082755.GK1526@lahna.fi.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Christian Fetzer <fetzer.ch@gmail.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, tbrandonau@gmail.com, eddi@depieri.net, galandilias@gmail.com
 
-Although I2C mux devices are easily enumerated using ACPI (_HID/_CID or
-device property compatible string match), enumerating I2C client devices
-connected through an I2C mux needs a little extra work.
 
-This change implements a method for describing an I2C device hierarchy that
-includes mux devices by using an ACPI Device() for each mux channel along
-with an _ADR to set the channel number for the device.  See
-Documentation/acpi/i2c-muxes.txt for a simple example.
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-To make this work the ismt, i801, and designware pci/platform devs now
-share an ACPI companion with their I2C adapter dev similar to how it's done
-in OF.  This is done on the assumption that power management functions will
-not be called directly on the I2C dev that is sharing the ACPI node.
 
-Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
----
- Documentation/acpi/i2c-muxes.txt            | 58 +++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-designware-pcidrv.c  |  1 +
- drivers/i2c/busses/i2c-designware-platdrv.c |  6 ++-
- drivers/i2c/busses/i2c-i801.c               |  9 ++---
- drivers/i2c/busses/i2c-ismt.c               |  8 +---
- drivers/i2c/i2c-core.c                      |  4 +-
- drivers/i2c/i2c-mux.c                       |  8 ++++
- 7 files changed, 78 insertions(+), 16 deletions(-)
- create mode 100644 Documentation/acpi/i2c-muxes.txt
+> > > Please review and let me know required changes in order to get this u=
+pstream
+> > > finally.
+> > >=20
+> > > Eddi, Thomas, it would be great if you could verify the changes on yo=
+ur
+> > > machines.
+> >=20
+> > Yes, additional tests are always good for a patch series
+> >=20
+> > Asking the Intel guys for help, I have not much expierence with x86
+> > platforms... Mika, Jarkko, Andy any chance to help?
+>=20
+> Unfortunately I don't have hardware this old to test on :-/
 
-diff --git a/Documentation/acpi/i2c-muxes.txt b/Documentation/acpi/i2c-muxes.txt
-new file mode 100644
-index 0000000..9fcc4f0
---- /dev/null
-+++ b/Documentation/acpi/i2c-muxes.txt
-@@ -0,0 +1,58 @@
-+ACPI I2C Muxes
-+--------------
-+
-+Describing an I2C device hierarchy that includes I2C muxes requires an ACPI
-+Device () scope per mux channel.
-+
-+Consider this topology:
-+
-++------+   +------+
-+| SMB1 |-->| MUX0 |--CH00--> i2c client A (0x50)
-+|      |   | 0x70 |--CH01--> i2c client B (0x50)
-++------+   +------+
-+
-+which corresponds to the following ASL:
-+
-+Device (SMB1)
-+{
-+    Name (_HID, ...)
-+    Device (MUX0)
-+    {
-+        Name (_HID, ...)
-+        Name (_CRS, ResourceTemplate () {
-+            I2cSerialBus (0x70, ControllerInitiated, I2C_SPEED,
-+                          AddressingMode7Bit, "^SMB1", 0x00,
-+                          ResourceConsumer,,)
-+        }
-+
-+        Device (CH00)
-+        {
-+            Name (_ADR, 0)
-+
-+            Device (CLIA)
-+            {
-+                Name (_HID, ...)
-+                Name (_CRS, ResourceTemplate () {
-+                    I2cSerialBus (0x50, ControllerInitiated, I2C_SPEED,
-+                                  AddressingMode7Bit, "^CH00", 0x00,
-+                                  ResourceConsumer,,)
-+                }
-+            }
-+        }
-+
-+        Device (CH01)
-+        {
-+            Name (_ADR, 1)
-+
-+            Device (CLIB)
-+            {
-+                Name (_HID, ...)
-+                Name (_CRS, ResourceTemplate () {
-+                    I2cSerialBus (0x50, ControllerInitiated, I2C_SPEED,
-+                                  AddressingMode7Bit, "^CH01", 0x00,
-+                                  ResourceConsumer,,)
-+                }
-+            }
-+        }
-+    }
-+}
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index df23e8c..5b9dcdb 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -256,6 +256,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	adap->class = 0;
- 	adap->algo = &i2c_dw_algo;
- 	adap->dev.parent = &pdev->dev;
-+	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
- 	adap->nr = controller->bus_num;
- 
- 	snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci");
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 472b882..9efeac6 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -267,12 +267,14 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(adap, dev);
- 	adap->owner = THIS_MODULE;
- 	adap->class = I2C_CLASS_DEPRECATED;
--	strlcpy(adap->name, "Synopsys DesignWare I2C adapter",
--			sizeof(adap->name));
- 	adap->algo = &i2c_dw_algo;
- 	adap->dev.parent = &pdev->dev;
-+	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
- 	adap->dev.of_node = pdev->dev.of_node;
- 
-+	strlcpy(adap->name, "Synopsys DesignWare I2C adapter",
-+			sizeof(adap->name));
-+
- 	if (dev->pm_runtime_disabled) {
- 		pm_runtime_forbid(&pdev->dev);
- 	} else {
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index eaef9bc..d4a6e77 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1251,6 +1251,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	priv->adapter.owner = THIS_MODULE;
- 	priv->adapter.class = i801_get_adapter_class(priv);
- 	priv->adapter.algo = &smbus_algorithm;
-+	priv->adapter.dev.parent = &dev->dev;
-+	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&dev->dev));
-+	priv->adapter.retries = 3;
- 
- 	priv->pci_dev = dev;
- 	switch (dev->device) {
-@@ -1381,12 +1384,6 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- 	i801_add_tco(priv);
- 
--	/* set up the sysfs linkage to our parent device */
--	priv->adapter.dev.parent = &dev->dev;
--
--	/* Retry up to 3 times on lost arbitration */
--	priv->adapter.retries = 3;
--
- 	snprintf(priv->adapter.name, sizeof(priv->adapter.name),
- 		"SMBus I801 adapter at %04lx", priv->smba);
- 	err = i2c_add_adapter(&priv->adapter);
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index f994712..2ec2bb6 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -847,17 +847,13 @@ ismt_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		return -ENOMEM;
- 
- 	pci_set_drvdata(pdev, priv);
-+
- 	i2c_set_adapdata(&priv->adapter, priv);
- 	priv->adapter.owner = THIS_MODULE;
--
- 	priv->adapter.class = I2C_CLASS_HWMON;
--
- 	priv->adapter.algo = &smbus_algorithm;
--
--	/* set up the sysfs linkage to our parent device */
- 	priv->adapter.dev.parent = &pdev->dev;
--
--	/* number of retries on lost arbitration */
-+	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&pdev->dev));
- 	priv->adapter.retries = ISMT_MAX_RETRIES;
- 
- 	priv->pci_dev = pdev;
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 579b99d..040af5c 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -156,7 +156,7 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 	info.fwnode = acpi_fwnode_handle(adev);
- 
- 	memset(&lookup, 0, sizeof(lookup));
--	lookup.adapter_handle = ACPI_HANDLE(adapter->dev.parent);
-+	lookup.adapter_handle = ACPI_HANDLE(&adapter->dev);
- 	lookup.device_handle = handle;
- 	lookup.info = &info;
- 
-@@ -212,7 +212,7 @@ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
- {
- 	acpi_status status;
- 
--	if (!adap->dev.parent || !has_acpi_companion(adap->dev.parent))
-+	if (!has_acpi_companion(&adap->dev))
- 		return;
- 
- 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 2ba7c0f..00fc5b1 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -25,6 +25,7 @@
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
- #include <linux/of.h>
-+#include <linux/acpi.h>
- 
- /* multiplexer per channel data */
- struct i2c_mux_priv {
-@@ -173,6 +174,13 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 		}
- 	}
- 
-+	/*
-+	 * Associate the mux channel with an ACPI node.
-+	 */
-+	if (has_acpi_companion(mux_dev))
-+		acpi_preset_companion(&priv->adap.dev, ACPI_COMPANION(mux_dev),
-+				      chan_id);
-+
- 	if (force_nr) {
- 		priv->adap.nr = force_nr;
- 		ret = i2c_add_numbered_adapter(&priv->adap);
--- 
-2.1.4
+And visual review? (That's what I need to do mostly, too)
+
+
+--ZPt4rx8FFjLCG7dd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWKMJ9AAoJEBQN5MwUoCm2oA8P/1lt4u9aoUwUtfh5rW2WF762
+kIrWWEPjXoVnJdtGul60VHCtMxK6TcYaPj78pKkS9mA23uSggOuZqwTfULcaWVxZ
+O50onDmaxXdHPwfxMq9nNN+G85Cbsgg4Ek+0u4fqZQ4j3cx8RF4Tzz49NjP/iMvo
+MDG1pmx9tErgmTyO/hN45gRt02PEM0wpQlaEV+EHhZW+0SulCIIZ1hLTaxwusqRn
+sRtOVeA3BUgShYwHFQ93Q0Ja0IKNpWgbvvVc9tV/r1hqlnG311ec6Ai0zSZAFYHK
+I8m8C3c8vwtGE3lV7OiZ268Awbl6J8Y9CEySoXlYTxL3QvsQtYMTxMjWksXepSXt
+dE1Gcyml+rWrJAM8wRU2gyXSb84Z20jdQdIFRycNfW1zIk8TtvlVxYhfIx6atSBg
+swrUN6Y9xAiCz6ht6iLdXyYK+BX9y+8MRWX0ojYnGZyjhVclmTl9R5mvORCqptLg
+kFU8J5sEkp+AQNxe1zBm/VVsx72nUBfV5GIlwhPEs/L7k5GDSKgBymUuK6XuNIyF
+u2uxKK2nKd2+A4CFvOn0+zUXiG4tUt2z7sbLYC3z6Rfh2bZ42rAZbiTjWBBsJVMi
+U331Yn21Uum0N78yWm4+LqcHUR01loNAJrMxyo6Vk7fRsexJQPodUTMWL4jWsQsH
+tEihPfnfebMLSeYaR57C
+=O1b7
+-----END PGP SIGNATURE-----
+
+--ZPt4rx8FFjLCG7dd--
