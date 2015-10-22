@@ -1,70 +1,78 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/4] Support multiplexed main SMBus interface on SB800
-Date: Thu, 22 Oct 2015 13:03:25 +0200
-Message-ID: <20151022110325.GA1572@katana>
-References: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
- <20151020151935.GH5379@katana>
- <20151022082755.GK1526@lahna.fi.intel.com>
+Subject: Re: [PATCH 5/9] i2c: rcar: init new messages in irq
+Date: Thu, 22 Oct 2015 13:05:05 +0200
+Message-ID: <20151022110505.GB1572@katana>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+ <1441311613-2681-6-git-send-email-wsa@the-dreams.de>
+ <131418014.1WnDGNUZcn@avalon>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:58084 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757204AbbJVLDd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 22 Oct 2015 07:03:33 -0400
+	protocol="application/pgp-signature"; boundary="uQr8t48UFsdbeI+V"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20151022082755.GK1526@lahna.fi.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <131418014.1WnDGNUZcn@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Christian Fetzer <fetzer.ch@gmail.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, tbrandonau@gmail.com, eddi@depieri.net, galandilias@gmail.com
 
 
---ZPt4rx8FFjLCG7dd
+--uQr8t48UFsdbeI+V
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > > Please review and let me know required changes in order to get this u=
-pstream
-> > > finally.
-> > >=20
-> > > Eddi, Thomas, it would be great if you could verify the changes on yo=
-ur
-> > > machines.
-> >=20
-> > Yes, additional tests are always good for a patch series
-> >=20
-> > Asking the Intel guys for help, I have not much expierence with x86
-> > platforms... Mika, Jarkko, Andy any chance to help?
+On Thu, Oct 22, 2015 at 02:10:52AM +0300, Laurent Pinchart wrote:
+> Hi Wolfram,
 >=20
-> Unfortunately I don't have hardware this old to test on :-/
+> On Thursday 03 September 2015 22:20:09 Wolfram Sang wrote:
+> > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> >=20
+> > Setting up new messages was done in process context while handling a
+> > message was in interrupt context. Because of the HW design, this IP core
+> > is sensitive to timing, so the context switches were too expensive. Move
+> > this setup to interrupt context as well.
+> >=20
+> > In my test setup, this fixed the occasional 'data byte sent twice' issue
+> > which a number of people have seen. It also fixes to send REP_START
+> > after a read message which was wrongly send as a STOP + START sequence
+> > before.
+>=20
+> I'm afraid this patch has been found by git bisect to break HDMI on Koels=
+ch=20
+> :-(=20
+>=20
+> The regmap_read(adv7511->regmap, ADV7511_REG_CHIP_REVISION, &val) call in=
+=20
+> drivers/gpu/drm/i2c/adv7511.c returns -ENXIO.
+>=20
+> Reverting the patch on top of Geert's current drivers master branch fixes=
+ the=20
+> problem.
 
-And visual review? (That's what I need to do mostly, too)
+But HDMI worked on Koelsch in Dublin??
 
 
---ZPt4rx8FFjLCG7dd
+--uQr8t48UFsdbeI+V
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWKMJ9AAoJEBQN5MwUoCm2oA8P/1lt4u9aoUwUtfh5rW2WF762
-kIrWWEPjXoVnJdtGul60VHCtMxK6TcYaPj78pKkS9mA23uSggOuZqwTfULcaWVxZ
-O50onDmaxXdHPwfxMq9nNN+G85Cbsgg4Ek+0u4fqZQ4j3cx8RF4Tzz49NjP/iMvo
-MDG1pmx9tErgmTyO/hN45gRt02PEM0wpQlaEV+EHhZW+0SulCIIZ1hLTaxwusqRn
-sRtOVeA3BUgShYwHFQ93Q0Ja0IKNpWgbvvVc9tV/r1hqlnG311ec6Ai0zSZAFYHK
-I8m8C3c8vwtGE3lV7OiZ268Awbl6J8Y9CEySoXlYTxL3QvsQtYMTxMjWksXepSXt
-dE1Gcyml+rWrJAM8wRU2gyXSb84Z20jdQdIFRycNfW1zIk8TtvlVxYhfIx6atSBg
-swrUN6Y9xAiCz6ht6iLdXyYK+BX9y+8MRWX0ojYnGZyjhVclmTl9R5mvORCqptLg
-kFU8J5sEkp+AQNxe1zBm/VVsx72nUBfV5GIlwhPEs/L7k5GDSKgBymUuK6XuNIyF
-u2uxKK2nKd2+A4CFvOn0+zUXiG4tUt2z7sbLYC3z6Rfh2bZ42rAZbiTjWBBsJVMi
-U331Yn21Uum0N78yWm4+LqcHUR01loNAJrMxyo6Vk7fRsexJQPodUTMWL4jWsQsH
-tEihPfnfebMLSeYaR57C
-=O1b7
+iQIcBAEBAgAGBQJWKMLgAAoJEBQN5MwUoCm2vrEP/iCOmhvwK1fcHkLNk/dQAL/9
+Q9tvVtL2CCOPIZEBIxZHENCuJVUTxhOqx5AJtf1Nu5ZSMXkL9fajmzjZrMyN6aXA
+aYORWvmqb97WXfZSzOOiQO5/0/cexnzx0eSaiNHp82jxfYP7wmgJeEjTzytg66oC
+/mIdXnXeVSPlyZRw1P2RhAoHUBBcZQnD4v/sPlMy/7dUiMcyy65OsIQOqxEAJhZ8
+RNLnvNufG13OQgGM9PXYKz5NZfhaKfJM+S+7/5GuMTvzO1XV/7550qEYGTv0mEMo
+x5kwQBCfZTJyCUGGak0Bj++tm/x2QrwWzLe2wvy5bDrJqIeA3RP6PxDqoXXHaTcG
+naxvauDppUjEWcXP54v39IXkDZr60C4cEEW56vHBHtMhJC5g0kpCf7eE7BYLaAHS
+3VtWMIQSwDs3hxzc8lT1ANCWxWOk5eq5ZtO6/Z0Az1t0tOtZpcIZw7fphyXlKr1z
+CMcXR1EKkEBbO8emnco279BVKRDk+tiH1HAsPWROSael5/unGzTl7CpQ/6+qPYLS
+eWEDdJXCYhO9fVf3U8Oq4cxOpnCOdAHr0gC4bnscZ/tco7sSmCbhUO9fatUPasI3
+f09lzUAj01SS9bRdUsxOcEFIrMnxm8bPRpATh24/m2TZddeVPMmItnVyveN6kPrm
+FtmZihCii7+eicjroB2Q
+=4Lcw
 -----END PGP SIGNATURE-----
 
---ZPt4rx8FFjLCG7dd--
+--uQr8t48UFsdbeI+V--
