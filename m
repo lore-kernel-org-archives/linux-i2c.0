@@ -1,55 +1,89 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Thu, 22 Oct 2015 02:54:33 +0200
-Message-ID: <1757126.NgBN1ISfc9@vostro.rjw.lan>
-References: <20151020153612.GB32054@sirena.org.uk> <Pine.LNX.4.44L0.1510201159400.1855-100000@iolanthe.rowland.org> <CAAObsKChQN4gg91dCWJS_Co_MrYyBrB1J7gxgGo4hsPXNZRp3g@mail.gmail.com>
+From: Xiang Wang <wangxfdu@gmail.com>
+Subject: Re: [PATCH 2/2] i2c: designware: enable High-speed mode for pcidrv
+Date: Thu, 22 Oct 2015 09:44:53 +0800
+Message-ID: <CACDNBm2BkrjFHV2tcZmC+xH4kLQ724diEucRN53xEPaMrV6Jxg@mail.gmail.com>
+References: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
+	<1444380426-17953-2-git-send-email-wangxfdu@gmail.com>
+	<1444383067.8361.517.camel@linux.intel.com>
+	<CACDNBm3wkxAXbgQ4Z15uBFKUrsy9ngYKx3dGY20eV4RbSoJ5mg@mail.gmail.com>
+	<1444638708.8361.564.camel@linux.intel.com>
+	<CACDNBm38bC+tP2S3WgUJJVRUppYF3=aUXvRtWfqfpM=BHapN9A@mail.gmail.com>
+	<561F64A1.8030805@linux.intel.com>
+	<1444902023.8361.629.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAAObsKChQN4gg91dCWJS_Co_MrYyBrB1J7gxgGo4hsPXNZRp3g@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?ISO-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-yk0-f182.google.com ([209.85.160.182]:36195 "EHLO
+	mail-yk0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755662AbbJVBox (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 21:44:53 -0400
+In-Reply-To: <1444902023.8361.629.camel@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, xiang.a.wang@intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tuesday, October 20, 2015 06:21:55 PM Tomeu Vizoso wrote:
-> On 20 October 2015 at 18:04, Alan Stern <stern@rowland.harvard.edu> wrote:
-> > On Tue, 20 Oct 2015, Mark Brown wrote:
-> >
-> >> On Tue, Oct 20, 2015 at 10:40:03AM -0400, Alan Stern wrote:
-> >>
-> >> > Furthermore, that applies only to devices that use synchronous suspend.
-> >> > Async suspend is becoming common, and there the only restrictions are
-> >> > parent-child relations plus whatever explicit requirements that drivers
-> >> > impose by calling device_pm_wait_for_dev().
-> >>
-> >> Hrm, this is the first I'd noticed that feature though I see the initial
-> >> commit dates from January.
-> >
-> > Async suspend and device_pm_wait_for_dev() were added in January 2010,
-> > not 2015!
-> >
-> >>  It looks like most of the users are PCs at
-> >> the minute but we should be using it more widely for embedded things,
-> >> there's definitely some cases I'm aware of where it will allow us to
-> >> remove some open coding.
-> >>
-> >> It does seem like we want to be feeding dependency information we
-> >> discover for probing way into the suspend dependencies...
-> >
-> > Rafael has been thinking about a way to do this systematically.
-> > Nothing concrete has emerged yet.
-> 
-> This iteration of the series would make this quite easy, as
-> dependencies are calculated before probes are attempted:
-> 
-> https://lkml.org/lkml/2015/6/17/311
+2015-10-15 17:40 GMT+08:00 Andy Shevchenko <andriy.shevchenko@linux.intel.com>:
+> On Thu, 2015-10-15 at 11:32 +0300, Jarkko Nikula wrote:
+>> On 10/15/2015 08:46 AM, Xiang Wang wrote:
+>> >
+>> > In conclusion, we have 2 solutions to set the i2c controller speed
+>> > mode (pci driver):
+>> > 1) use hardcode value in pci driver
+>> > 2) use frequency setting of "i2c device" in ACPI table (more
+>> > flexible,
+>> > but looks a bit strange)
+>> >
+>> > Do you have any preference/suggestions for above solutions? Thanks
+>>
+>> I don't think we can hard code especially the high-speed mode because
+>>
+>> most typically buses are populated with slower devices.
+>>
+>> Things are a bit more clear when ACPI provides timing parameters for
+>> the
+>> bus (for standard and fast speed modes at the moment in
+>> i2c-designware-platdrv.c: dw_i2c_acpi_configure()) but still I think
+>> the
+>> ACPI namespace walk may be needed against potential BIOS
+>> misconfigurations. For instance if it provides timing parameters for
+>> all
+>> speeds but there are devices with lower speed on the same bus.
+>>
+>> I'd take these timing parameters as configuration data for bus
+>> features
+>> but actual speed (speed bits in IC_CON register) is defined
+>> separately.
+>> To me it looks only way to achieve that is to pick slowest device
+>> from
+>> I2cSerialBus resource descriptors.
+>
+> Should it (ACPI walk) be done in PCI case as well? If so, then it needs
+> to be done up to i2c-core. There you may adjust the bus speed whenever
+> slave device is enumerated.
+>
+I think the "ACPI walk for bus speed" also works for PCI case. It'll
+be good to do this in i2c-core.
+By doing this we can get a minimum device speed for this bus. I2C bus
+drivers can use this speed to set corresponding mode into i2c
+controller.
+Waiting for comments from others.
 
-Well, if you know how to represent "links" between devices, the mechanism
-introduced here doesn't really add much value, because in that case the
-core knows what the dependencies are in the first place and can only
-defer the probes that have to be deferred.
+> For PCI case you have still to have hardcoded values and it should be
+> maximum supported by the bus I think. When you have implemented above
+> algorithm you may do this safely. Am I missing something?
+Agree. It'll be safer to set a hardcoded maximum supported speed of
+the bus for PCI case.
+I2C bus driver can use MIN(speed_get_by_ACPI_walk,
+hardcoded_max_supported_speed) for bus speed.
 
-Thanks,
-Rafael
+>
+> --
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Intel Finland Oy
+
+
+
+-- 
+Regards,
+Xiang
