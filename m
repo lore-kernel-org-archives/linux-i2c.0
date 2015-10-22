@@ -1,40 +1,45 @@
 From: Dustin Byford <dustin@cumulusnetworks.com>
-Subject: [PATCH v4 1/2] acpi: add acpi_preset_companion() stub
-Date: Thu, 22 Oct 2015 02:17:41 -0700
-Message-ID: <1445505462-27915-2-git-send-email-dustin@cumulusnetworks.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
- <1445505462-27915-1-git-send-email-dustin@cumulusnetworks.com>
+Subject: Re: [PATCH v3 1/1] i2c: add ACPI support for I2C mux ports
+Date: Thu, 22 Oct 2015 02:27:40 -0700
+Message-ID: <20151022092740.GA28031@cumulusnetworks.com>
+References: <1445293740-28537-2-git-send-email-dustin@cumulusnetworks.com>
+ <20151020125111.GJ1526@lahna.fi.intel.com>
+ <20151020174959.GA14829@cumulusnetworks.com>
+ <20151021081231.GQ1526@lahna.fi.intel.com>
+ <20151021082116.GA5635@cumulusnetworks.com>
+ <20151021083406.GU1526@lahna.fi.intel.com>
+ <20151021085241.GA5949@cumulusnetworks.com>
+ <20151021090849.GW1526@lahna.fi.intel.com>
+ <20151021092508.GB5949@cumulusnetworks.com>
+ <CAJZ5v0js30rwaDrROaUsuyw+95YNqjfqR+kj4AvGRw8FfGXDEQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1445505462-27915-1-git-send-email-dustin@cumulusnetworks.com>
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0js30rwaDrROaUsuyw+95YNqjfqR+kj4AvGRw8FfGXDEQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, "Puustinen, Ismo" <ismo.puustinen@intel.com>
+To: "Rafael J. Wysocki" <rafael@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add a stub for acpi_preset_companion().  Fixes build failures when
-acpi_preset_companion() is used and CONFIG_ACPI is not set.
+On Thu Oct 22 00:39, Rafael J. Wysocki wrote:
+> Hi,
+> 
+> On Wed, Oct 21, 2015 at 11:25 AM, Dustin Byford
+> <dustin@cumulusnetworks.com> wrote:
+> > On Wed Oct 21 12:08, Mika Westerberg wrote:
+> >> I don't really have strong feelings whether it should be the I2C core or
+> >> individual drivers setting the ACPI companion. However, it would be nice
+> >> to match DT here and they assign their of_node per driver.
+> >
+> > OK with me, if we can convince Rafael this is a good idea, I'll send a
+> > new revision with drivers setting the companion.
+> 
+> If you can guarantee that ACPI PM or anything like _DS or _SRS will
+> never be invoked for the device objects that "inherit" the ACPI
+> companion from their parent, it at least is not outright dangerous.
 
-Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
----
- include/linux/acpi.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+I'm hoping an ack from Mika will suffice, but please let me know if
+there's something I can do to verify or help ensure this.
 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 51a96a8..66564f8 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -505,6 +505,12 @@ static inline bool has_acpi_companion(struct device *dev)
- 	return false;
- }
- 
-+static inline void acpi_preset_companion(struct device *dev,
-+					 struct acpi_device *parent, u64 addr)
-+{
-+	return;
-+}
-+
- static inline const char *acpi_dev_name(struct acpi_device *adev)
- {
- 	return NULL;
--- 
-2.1.4
+		--Dustin
