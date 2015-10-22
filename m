@@ -1,89 +1,51 @@
-From: Xiang Wang <wangxfdu@gmail.com>
-Subject: Re: [PATCH 2/2] i2c: designware: enable High-speed mode for pcidrv
-Date: Thu, 22 Oct 2015 09:44:53 +0800
-Message-ID: <CACDNBm2BkrjFHV2tcZmC+xH4kLQ724diEucRN53xEPaMrV6Jxg@mail.gmail.com>
-References: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
-	<1444380426-17953-2-git-send-email-wangxfdu@gmail.com>
-	<1444383067.8361.517.camel@linux.intel.com>
-	<CACDNBm3wkxAXbgQ4Z15uBFKUrsy9ngYKx3dGY20eV4RbSoJ5mg@mail.gmail.com>
-	<1444638708.8361.564.camel@linux.intel.com>
-	<CACDNBm38bC+tP2S3WgUJJVRUppYF3=aUXvRtWfqfpM=BHapN9A@mail.gmail.com>
-	<561F64A1.8030805@linux.intel.com>
-	<1444902023.8361.629.camel@linux.intel.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH 1/9] i2c: brcmstb: make the driver buildable on
+ BMIPS_GENERIC
+Date: Wed, 21 Oct 2015 18:56:16 -0700
+Message-ID: <56284240.90405@gmail.com>
+References: <1445395021-4204-1-git-send-email-jaedon.shin@gmail.com>
+ <1445395021-4204-2-git-send-email-jaedon.shin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yk0-f182.google.com ([209.85.160.182]:36195 "EHLO
-	mail-yk0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755662AbbJVBox (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 21:44:53 -0400
-In-Reply-To: <1444902023.8361.629.camel@linux.intel.com>
+Received: from mail-oi0-f43.google.com ([209.85.218.43]:34754 "EHLO
+	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755693AbbJVB4U (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 21:56:20 -0400
+In-Reply-To: <1445395021-4204-2-git-send-email-jaedon.shin@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, xiang.a.wang@intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jaedon Shin <jaedon.shin@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-mips@linux-mips.org
 
-2015-10-15 17:40 GMT+08:00 Andy Shevchenko <andriy.shevchenko@linux.intel.com>:
-> On Thu, 2015-10-15 at 11:32 +0300, Jarkko Nikula wrote:
->> On 10/15/2015 08:46 AM, Xiang Wang wrote:
->> >
->> > In conclusion, we have 2 solutions to set the i2c controller speed
->> > mode (pci driver):
->> > 1) use hardcode value in pci driver
->> > 2) use frequency setting of "i2c device" in ACPI table (more
->> > flexible,
->> > but looks a bit strange)
->> >
->> > Do you have any preference/suggestions for above solutions? Thanks
->>
->> I don't think we can hard code especially the high-speed mode because
->>
->> most typically buses are populated with slower devices.
->>
->> Things are a bit more clear when ACPI provides timing parameters for
->> the
->> bus (for standard and fast speed modes at the moment in
->> i2c-designware-platdrv.c: dw_i2c_acpi_configure()) but still I think
->> the
->> ACPI namespace walk may be needed against potential BIOS
->> misconfigurations. For instance if it provides timing parameters for
->> all
->> speeds but there are devices with lower speed on the same bus.
->>
->> I'd take these timing parameters as configuration data for bus
->> features
->> but actual speed (speed bits in IC_CON register) is defined
->> separately.
->> To me it looks only way to achieve that is to pick slowest device
->> from
->> I2cSerialBus resource descriptors.
->
-> Should it (ACPI walk) be done in PCI case as well? If so, then it needs
-> to be done up to i2c-core. There you may adjust the bus speed whenever
-> slave device is enumerated.
->
-I think the "ACPI walk for bus speed" also works for PCI case. It'll
-be good to do this in i2c-core.
-By doing this we can get a minimum device speed for this bus. I2C bus
-drivers can use this speed to set corresponding mode into i2c
-controller.
-Waiting for comments from others.
+Le 20/10/2015 19:36, Jaedon Shin a =C3=A9crit :
+> The BCM7xxx ARM and MIPS platforms share a similar hardware block for
+> I2C.
+>=20
+> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
 
-> For PCI case you have still to have hardcoded values and it should be
-> maximum supported by the bus I think. When you have implemented above
-> algorithm you may do this safely. Am I missing something?
-Agree. It'll be safer to set a hardcoded maximum supported speed of
-the bus for PCI case.
-I2C bus driver can use MIN(speed_get_by_ACPI_walk,
-hardcoded_max_supported_speed) for bus speed.
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 
->
-> --
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Intel Finland Oy
+> ---
+>  drivers/i2c/busses/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 08b86178e8fb..fd983c5b36f2 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -394,7 +394,7 @@ config I2C_BCM_KONA
+> =20
+>  config I2C_BRCMSTB
+>  	tristate "BRCM Settop I2C controller"
+> -	depends on ARCH_BRCMSTB || COMPILE_TEST
+> +	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
+>  	default y
+>  	help
+>  	  If you say yes to this option, support will be included for the
+>=20
 
 
-
--- 
-Regards,
-Xiang
+--=20
+=46lorian
