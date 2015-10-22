@@ -1,29 +1,153 @@
-From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 6/9] MIPS: BMIPS: brcmstb: add I2C node for bcm7346
-Date: Wed, 21 Oct 2015 18:57:00 -0700
-Message-ID: <5628426C.1090605@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH 7/9] MIPS: BMIPS: brcmstb: add I2C node for bcm7358
+Date: Wed, 21 Oct 2015 18:57:11 -0700
+Message-ID: <56284277.4020502@gmail.com>
 References: <1445395021-4204-1-git-send-email-jaedon.shin@gmail.com>
- <1445395021-4204-7-git-send-email-jaedon.shin@gmail.com>
+ <1445395021-4204-8-git-send-email-jaedon.shin@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1445395021-4204-7-git-send-email-jaedon.shin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jaedon Shin <jaedon.shin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ob0-f171.google.com ([209.85.214.171]:34671 "EHLO
+	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756476AbbJVB5N (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Oct 2015 21:57:13 -0400
+In-Reply-To: <1445395021-4204-8-git-send-email-jaedon.shin@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jaedon Shin <jaedon.shin@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-mips@linux-mips.org
 
 Le 20/10/2015 19:36, Jaedon Shin a =C3=A9crit :
-> Add I2C device nodes to BMIPS based BCM7346 platform.
+> Add I2C device nodes to BMIPS based BCM7358 platform.
 >=20
-> Signed-off-by: Jaedon Shin <jaedon.shin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
 
-Acked-by: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+
+> ---
+>  arch/mips/boot/dts/brcm/bcm7358.dtsi     | 62 ++++++++++++++++++++++=
+++++++++--
+>  arch/mips/boot/dts/brcm/bcm97358svmb.dts | 16 +++++++++
+>  2 files changed, 76 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/arch/mips/boot/dts/brcm/bcm7358.dtsi b/arch/mips/boot/dt=
+s/brcm/bcm7358.dtsi
+> index 277a90adc1a7..8e2501694d03 100644
+> --- a/arch/mips/boot/dts/brcm/bcm7358.dtsi
+> +++ b/arch/mips/boot/dts/brcm/bcm7358.dtsi
+> @@ -81,14 +81,32 @@
+>  			compatible =3D "brcm,bcm7120-l2-intc";
+>  			reg =3D <0x406600 0x8>;
+> =20
+> -			brcm,int-map-mask =3D <0x44>;
+> +			brcm,int-map-mask =3D <0x44>, <0x7000000>;
+>  			brcm,int-fwd-mask =3D <0x70000>;
+> =20
+>  			interrupt-controller;
+>  			#interrupt-cells =3D <1>;
+> =20
+>  			interrupt-parent =3D <&periph_intc>;
+> -			interrupts =3D <56>;
+> +			interrupts =3D <56>, <54>;
+> +			interrupt-names =3D "upg_main", "upg_bsc";
+> +		};
+> +
+> +		upg_aon_irq0_intc: upg_aon_irq0_intc@408b80 {
+> +			compatible =3D "brcm,bcm7120-l2-intc";
+> +			reg =3D <0x408b80 0x8>;
+> +
+> +			brcm,int-map-mask =3D <0x40>, <0x8000000>, <0x100000>;
+> +			brcm,int-fwd-mask =3D <0>;
+> +			brcm,irq-can-wake;
+> +
+> +			interrupt-controller;
+> +			#interrupt-cells =3D <1>;
+> +
+> +			interrupt-parent =3D <&periph_intc>;
+> +			interrupts =3D <57>, <55>, <59>;
+> +			interrupt-names =3D "upg_main_aon", "upg_bsc_aon",
+> +					  "upg_spi";
+>  		};
+> =20
+>  		sun_top_ctrl: syscon@404000 {
+> @@ -138,6 +156,46 @@
+>  			status =3D "disabled";
+>  		};
+> =20
+> +		bsca: i2c@406200 {
+> +		      clock-frequency =3D <390000>;
+> +		      compatible =3D "brcm,brcmstb-i2c";
+> +		      interrupt-parent =3D <&upg_irq0_intc>;
+> +		      reg =3D <0x406200 0x58>;
+> +		      interrupts =3D <24>;
+> +		      interrupt-names =3D "upg_bsca";
+> +		      status =3D "disabled";
+> +		};
+> +
+> +		bscb: i2c@406280 {
+> +		      clock-frequency =3D <390000>;
+> +		      compatible =3D "brcm,brcmstb-i2c";
+> +		      interrupt-parent =3D <&upg_irq0_intc>;
+> +		      reg =3D <0x406280 0x58>;
+> +		      interrupts =3D <25>;
+> +		      interrupt-names =3D "upg_bscb";
+> +		      status =3D "disabled";
+> +		};
+> +
+> +		bscc: i2c@406300 {
+> +		      clock-frequency =3D <390000>;
+> +		      compatible =3D "brcm,brcmstb-i2c";
+> +		      interrupt-parent =3D <&upg_irq0_intc>;
+> +		      reg =3D <0x406300 0x58>;
+> +		      interrupts =3D <26>;
+> +		      interrupt-names =3D "upg_bscc";
+> +		      status =3D "disabled";
+> +		};
+> +
+> +		bscd: i2c@408980 {
+> +		      clock-frequency =3D <390000>;
+> +		      compatible =3D "brcm,brcmstb-i2c";
+> +		      interrupt-parent =3D <&upg_aon_irq0_intc>;
+> +		      reg =3D <0x408980 0x58>;
+> +		      interrupts =3D <27>;
+> +		      interrupt-names =3D "upg_bscd";
+> +		      status =3D "disabled";
+> +		};
+> +
+>  		enet0: ethernet@430000 {
+>  			phy-mode =3D "internal";
+>  			phy-handle =3D <&phy1>;
+> diff --git a/arch/mips/boot/dts/brcm/bcm97358svmb.dts b/arch/mips/boo=
+t/dts/brcm/bcm97358svmb.dts
+> index a8dc01e30313..02ce6b429dc4 100644
+> --- a/arch/mips/boot/dts/brcm/bcm97358svmb.dts
+> +++ b/arch/mips/boot/dts/brcm/bcm97358svmb.dts
+> @@ -29,6 +29,22 @@
+>  	status =3D "okay";
+>  };
+> =20
+> +&bsca {
+> +	status =3D "okay";
+> +};
+> +
+> +&bscb {
+> +	status =3D "okay";
+> +};
+> +
+> +&bscc {
+> +	status =3D "okay";
+> +};
+> +
+> +&bscd {
+> +	status =3D "okay";
+> +};
+> +
+>  &enet0 {
+>  	status =3D "okay";
+>  };
+>=20
+
+
 --=20
 =46lorian
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
