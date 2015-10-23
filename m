@@ -1,244 +1,40 @@
 From: Dustin Byford <dustin@cumulusnetworks.com>
-Subject: [PATCH v5 2/2] i2c: add ACPI support for I2C mux ports
-Date: Fri, 23 Oct 2015 12:27:07 -0700
-Message-ID: <1445628427-29244-3-git-send-email-dustin@cumulusnetworks.com>
+Subject: [PATCH v5 1/2] acpi: add acpi_preset_companion() stub
+Date: Fri, 23 Oct 2015 12:27:06 -0700
+Message-ID: <1445628427-29244-2-git-send-email-dustin@cumulusnetworks.com>
 References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
  <1445628427-29244-1-git-send-email-dustin@cumulusnetworks.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:36722 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753128AbbJWT1X (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Oct 2015 15:27:23 -0400
-Received: by pacfv9 with SMTP id fv9so131628682pac.3
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Oct 2015 12:27:22 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1445628427-29244-1-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, rjw@rjwysocki.net
 Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, "Puustinen, Ismo" <ismo.puustinen@intel.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Although I2C mux devices are easily enumerated using ACPI (_HID/_CID or
-device property compatible string match), enumerating I2C client devices
-connected through an I2C mux needs a little extra work.
-
-This change implements a method for describing an I2C device hierarchy that
-includes mux devices by using an ACPI Device() for each mux channel along
-with an _ADR to set the channel number for the device.  See
-Documentation/acpi/i2c-muxes.txt for a simple example.
-
-To make this work the ismt, i801, and designware pci/platform devs now
-share an ACPI companion with their I2C adapter dev similar to how it's done
-in OF.  This is done on the assumption that power management functions will
-not be called directly on the I2C dev that is sharing the ACPI node.
+Add a stub for acpi_preset_companion().  Fixes build failures when
+acpi_preset_companion() is used and CONFIG_ACPI is not set.
 
 Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
 ---
- Documentation/acpi/i2c-muxes.txt            | 58 +++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-designware-pcidrv.c  |  2 +
- drivers/i2c/busses/i2c-designware-platdrv.c |  1 +
- drivers/i2c/busses/i2c-i801.c               |  9 ++---
- drivers/i2c/busses/i2c-ismt.c               |  8 +---
- drivers/i2c/i2c-core.c                      |  4 +-
- drivers/i2c/i2c-mux.c                       |  8 ++++
- 7 files changed, 76 insertions(+), 14 deletions(-)
- create mode 100644 Documentation/acpi/i2c-muxes.txt
+ include/linux/acpi.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/acpi/i2c-muxes.txt b/Documentation/acpi/i2c-muxes.txt
-new file mode 100644
-index 0000000..9fcc4f0
---- /dev/null
-+++ b/Documentation/acpi/i2c-muxes.txt
-@@ -0,0 +1,58 @@
-+ACPI I2C Muxes
-+--------------
-+
-+Describing an I2C device hierarchy that includes I2C muxes requires an ACPI
-+Device () scope per mux channel.
-+
-+Consider this topology:
-+
-++------+   +------+
-+| SMB1 |-->| MUX0 |--CH00--> i2c client A (0x50)
-+|      |   | 0x70 |--CH01--> i2c client B (0x50)
-++------+   +------+
-+
-+which corresponds to the following ASL:
-+
-+Device (SMB1)
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 43856d1..43b55e7 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -477,6 +477,11 @@ static inline bool has_acpi_companion(struct device *dev)
+ 	return false;
+ }
+ 
++static inline void acpi_preset_companion(struct device *dev,
++					 struct acpi_device *parent, u64 addr)
 +{
-+    Name (_HID, ...)
-+    Device (MUX0)
-+    {
-+        Name (_HID, ...)
-+        Name (_CRS, ResourceTemplate () {
-+            I2cSerialBus (0x70, ControllerInitiated, I2C_SPEED,
-+                          AddressingMode7Bit, "^SMB1", 0x00,
-+                          ResourceConsumer,,)
-+        }
-+
-+        Device (CH00)
-+        {
-+            Name (_ADR, 0)
-+
-+            Device (CLIA)
-+            {
-+                Name (_HID, ...)
-+                Name (_CRS, ResourceTemplate () {
-+                    I2cSerialBus (0x50, ControllerInitiated, I2C_SPEED,
-+                                  AddressingMode7Bit, "^CH00", 0x00,
-+                                  ResourceConsumer,,)
-+                }
-+            }
-+        }
-+
-+        Device (CH01)
-+        {
-+            Name (_ADR, 1)
-+
-+            Device (CLIB)
-+            {
-+                Name (_HID, ...)
-+                Name (_CRS, ResourceTemplate () {
-+                    I2cSerialBus (0x50, ControllerInitiated, I2C_SPEED,
-+                                  AddressingMode7Bit, "^CH01", 0x00,
-+                                  ResourceConsumer,,)
-+                }
-+            }
-+        }
-+    }
 +}
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 169be1e..1543d35d 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -35,6 +35,7 @@
- #include <linux/slab.h>
- #include <linux/pci.h>
- #include <linux/pm_runtime.h>
-+#include <linux/acpi.h>
- #include "i2c-designware-core.h"
- 
- #define DRIVER_NAME "i2c-designware-pci"
-@@ -244,6 +245,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	adap = &dev->adapter;
- 	adap->owner = THIS_MODULE;
- 	adap->class = 0;
-+	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
- 	adap->nr = controller->bus_num;
- 
- 	r = i2c_dw_probe(dev);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index c9dc31a..809579e 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -227,6 +227,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	adap = &dev->adapter;
- 	adap->owner = THIS_MODULE;
- 	adap->class = I2C_CLASS_DEPRECATED;
-+	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
- 	adap->dev.of_node = pdev->dev.of_node;
- 
- 	if (dev->pm_runtime_disabled) {
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index eaef9bc..d4a6e77 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1251,6 +1251,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	priv->adapter.owner = THIS_MODULE;
- 	priv->adapter.class = i801_get_adapter_class(priv);
- 	priv->adapter.algo = &smbus_algorithm;
-+	priv->adapter.dev.parent = &dev->dev;
-+	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&dev->dev));
-+	priv->adapter.retries = 3;
- 
- 	priv->pci_dev = dev;
- 	switch (dev->device) {
-@@ -1381,12 +1384,6 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- 	i801_add_tco(priv);
- 
--	/* set up the sysfs linkage to our parent device */
--	priv->adapter.dev.parent = &dev->dev;
--
--	/* Retry up to 3 times on lost arbitration */
--	priv->adapter.retries = 3;
--
- 	snprintf(priv->adapter.name, sizeof(priv->adapter.name),
- 		"SMBus I801 adapter at %04lx", priv->smba);
- 	err = i2c_add_adapter(&priv->adapter);
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index 80648be..ebff820 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -842,17 +842,13 @@ ismt_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		return -ENOMEM;
- 
- 	pci_set_drvdata(pdev, priv);
 +
- 	i2c_set_adapdata(&priv->adapter, priv);
- 	priv->adapter.owner = THIS_MODULE;
--
- 	priv->adapter.class = I2C_CLASS_HWMON;
--
- 	priv->adapter.algo = &smbus_algorithm;
--
--	/* set up the sysfs linkage to our parent device */
- 	priv->adapter.dev.parent = &pdev->dev;
--
--	/* number of retries on lost arbitration */
-+	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&pdev->dev));
- 	priv->adapter.retries = ISMT_MAX_RETRIES;
- 
- 	priv->pci_dev = pdev;
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 579b99d..040af5c 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -156,7 +156,7 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 	info.fwnode = acpi_fwnode_handle(adev);
- 
- 	memset(&lookup, 0, sizeof(lookup));
--	lookup.adapter_handle = ACPI_HANDLE(adapter->dev.parent);
-+	lookup.adapter_handle = ACPI_HANDLE(&adapter->dev);
- 	lookup.device_handle = handle;
- 	lookup.info = &info;
- 
-@@ -212,7 +212,7 @@ static void acpi_i2c_register_devices(struct i2c_adapter *adap)
+ static inline const char *acpi_dev_name(struct acpi_device *adev)
  {
- 	acpi_status status;
- 
--	if (!adap->dev.parent || !has_acpi_companion(adap->dev.parent))
-+	if (!has_acpi_companion(&adap->dev))
- 		return;
- 
- 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 2ba7c0f..00fc5b1 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -25,6 +25,7 @@
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
- #include <linux/of.h>
-+#include <linux/acpi.h>
- 
- /* multiplexer per channel data */
- struct i2c_mux_priv {
-@@ -173,6 +174,13 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 		}
- 	}
- 
-+	/*
-+	 * Associate the mux channel with an ACPI node.
-+	 */
-+	if (has_acpi_companion(mux_dev))
-+		acpi_preset_companion(&priv->adap.dev, ACPI_COMPANION(mux_dev),
-+				      chan_id);
-+
- 	if (force_nr) {
- 		priv->adap.nr = force_nr;
- 		ret = i2c_add_numbered_adapter(&priv->adap);
+ 	return NULL;
 -- 
 2.1.4
