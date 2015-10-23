@@ -1,65 +1,97 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V8] i2c: imx: implement bus recovery
-Date: Fri, 23 Oct 2015 11:22:14 +0200
-Message-ID: <20151023092213.GC13380@katana>
-References: <1445221022-6991-1-git-send-email-b54642@freescale.com>
+Subject: Re: [PATCH 5/9] i2c: rcar: init new messages in irq
+Date: Fri, 23 Oct 2015 11:45:00 +0200
+Message-ID: <20151023094500.GD13380@katana>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+ <1917001.aD8sIkvx7f@avalon>
+ <20151023080601.GC1642@katana>
+ <2048622.tkxROUAu7P@avalon>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OBd5C1Lgu00Gd/Tn"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34335 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751327AbbJWJWS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 23 Oct 2015 05:22:18 -0400
+	protocol="application/pgp-signature"; boundary="NklN7DEeGtkPCoo3"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1445221022-6991-1-git-send-email-b54642@freescale.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <2048622.tkxROUAu7P@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <b54642@freescale.com>
-Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, u.kleine-koenig@pengutronix.de, kernel@pengutronix.de, hkallweit1@gmail.com, s.hauer@pengutronix.de
 
 
---OBd5C1Lgu00Gd/Tn
+--NklN7DEeGtkPCoo3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 19, 2015 at 10:17:02AM +0800, Gao Pan wrote:
-> Implement bus recovery methods for i2c-imx so we can recover from
-> situations where SCL/SDA are stuck low.
+
+> I had CONFIG_DRM_FBDEV_EMULATION disabled. I've then enabled it but also=
+=20
+> merged git://people.freedesktop.org/~airlied/linux next in my branch, whi=
+ch=20
+> probably fixes the problem.
+
+So, your tree is not strictly renesas-drivers-2015-10-13-v4.3-rc5?
+
+> > I fixed it locally and will see if I see ADV7511 problems. I cannot
+> > fully test HDMI probably, because it seems that this HDMI->DVI chain I
+> > have does not work.
 >=20
-> Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
-> pinctrl to gpio mode by calling pinctrl sleep set function, and then
-> use GPIO to emulate the i2c protocol to send nine dummy clock to recover
-> i2c device. After recovery, set i2c pinctrl to default group setting.
+> It's supposed to be supported, so that might be something we need to fix.=
+ More=20
+> work for me \o/ :-)
+
+:/ Let me know if I can send you debug output.
+
+> > Okay, so before any 'modetest' activity. Which kernelconfig?
+> > shmobile_defconfig?
 >=20
-> Signed-off-by: Fugang Duan <B38611@freescale.com>
-> Signed-off-by: Gao Pan <b54642@freescale.com>
-> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+> .config attached.
 
-Can't apply this one. Which one is this against? Should be at least 4.2.
+That one also probes for me... I only disabled DHCP and added my
+initramfs. I patched the fbdev build error out and changed Lager dts to
+use i2c-rcar (instead of i2c-sh_mobile).
+
+Can you enable CONFIG_I2C_DEBUG_CORE in the config, apply this patch,
+and send me the trace output and bootlog?
+
+Thanks,
+
+   Wolfram
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 1921294afc87ce..cd56f77550cac1 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -418,6 +418,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 	rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
+=20
+ 	msr =3D rcar_i2c_read(priv, ICMSR);
++trace_printk("msr %08x\n", msr);
+=20
+ 	/* Only handle interrupts that are currently enabled */
+ 	msr &=3D rcar_i2c_read(priv, ICMIER);
 
 
---OBd5C1Lgu00Gd/Tn
+--NklN7DEeGtkPCoo3
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWKfxFAAoJEBQN5MwUoCm2C10P/1S9VvCys+pAYg9ztH0m6Ee0
-4LcVnSsv/XpFjoSeeZYF5zCYObYm3jFkxOB/5q64eHSirJ57wFR9HSGKEVfrDlb1
-1X2MK2WmX6A7LLn+Udmp9D++X09chrUmoledkoN9ZQOFEi2FIuFLxrt8euyjj0M9
-VwTZ6UQA1nGOsproScVtcRi/Zh1yuspWkDdxtwlLylWmhQ0yRzJPPNF7IAW571IU
-yuCLbwC8tHB6BqqY6ywrg8tAKJ4HiupW7MBMWI0aOYw/xDZuiTCzcvb1tDOfwv0+
-r1yunAy/HSmSJlqx5t0aaL8I7UlAN/KD/gBwNGuLXAJWxRVp/uPJo6lOQ58HvzLP
-dx+2fw7yiJKPZPtJltv0oKq90AvA4/wuQPlOIy0o7QLEfaAIzB3FdOWaK7NyHZbD
-9iDmjpoKXOAhXmkSdnUeIKtX9tL0B3jHZQ/KcHvOVu60yUc98yix26ADt4yJoORq
-6lG3/8p/qR0B/a9nv3CGp4vxIAV3i7T7z/b2u/gRcWlK6i+rULc/syQE1UpiM9sT
-l1MxsUGpJVK2IGhZMHWIbyEVloMA/cRYgeNrz5Zm4k+I/M+UiA0KOvlLJW7hgFq2
-aTUstWQg9bH99Gyi+Ytgvjo3yJk4v6XxOemBKcJJKnZqOnn84bynJSuDqTXI0XVI
-vScV0UYBvQNNU0/WhF6W
-=28eF
+iQIcBAEBAgAGBQJWKgGcAAoJEBQN5MwUoCm24MgQAIWgg5KLZWW2sql/4owbaYRm
+Lv71sZ8kEFz+qo3ZmdZx1rIYXJUbTLlhe8IJsTbOfbzn7Yg6EE3M+qWuFG4lMBzu
+sE8NDRV0PE/mA/oFQoZ1yp5X5Wkq0p6U1VygTd3Gc/lHKFJN4bO7GX3YHSbe1UZo
++hsZF43BRDj+V870bx8D38PMIY4nQ6UsiRveXVh+qBZuDaZe6fwfYHAiqLKMEetg
+TuDJdu5U7wTmz3XQifalLTqNOLJo5skCdq1IWhzeuAhZq2wy4K906afeYaXDe/R2
+8XLVjAUi9TkuCbKZEhkx4ViJGYYoltqGpNGL2y8ilKi24hiz9QZFBOEF2pRPqVyk
++wdA/khRVBC9y+hMiFeYrfOgSNvxpkmvftGnGJIKIlABptGvhh92a35PPCg2abSf
+05n3TBerR5y3UuhZN2XUoKAwDoExl9L4edRdgCKwJ9+9Ve/7xqLpnGWW3tcNIepB
+kopRYJ6fCiMbBVJNBvyj2vlnaIDdQfRAa6YpzJJJ1Xruik2qaPhcJr1rhaHwWwAM
+oTOmvEWblWRxO4dAzL4h5xU+aIy5MkTl4XT6517GUs7s5gUhOq+itXPlahI1ok3W
+hBLckTSwyOQ7LXCzmBlZuodK++7vvNyy2npb0Z6+AzNa8Wae1a56cnh24d45ZYzT
+ewIdY421MgNSgO4LzeWt
+=ulWa
 -----END PGP SIGNATURE-----
 
---OBd5C1Lgu00Gd/Tn--
+--NklN7DEeGtkPCoo3--
