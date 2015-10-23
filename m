@@ -1,50 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 0/5] enable I2C devices behind I2C bus on Gen2
-Date: Fri, 23 Oct 2015 14:38:35 +0200
-Message-ID: <20151023123835.GN13380@katana>
-References: <1445591805-28886-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: Re: [Patch V8] i2c: imx: implement bus recovery
+Date: Fri, 23 Oct 2015 14:43:51 +0200
+Message-ID: <20151023124351.GO13380@katana>
+References: <1445603334-7661-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qi3SIpffvxS/TM8d"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="S0GG+JvAI2G0KxBG"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:35253 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750862AbbJWMn6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 23 Oct 2015 08:43:58 -0400
 Content-Disposition: inline
-In-Reply-To: <1445591805-28886-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, linux-kernel@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>
+In-Reply-To: <1445603334-7661-1-git-send-email-b54642@freescale.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Gao Pan <b54642@freescale.com>
+Cc: u.kleine-koenig@pengutronix.de, linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, kernel@pengutronix.de, hkallweit1@gmail.com
 
 
---qi3SIpffvxS/TM8d
+--S0GG+JvAI2G0KxBG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Oct 23, 2015 at 08:28:54PM +0800, Gao Pan wrote:
+> Implement bus recovery methods for i2c-imx so we can recover from
+> situations where SCL/SDA are stuck low.
+>=20
+> Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
+> pinctrl to gpio mode by calling pinctrl sleep set function, and then
+> use GPIO to emulate the i2c protocol to send nine dummy clock to recover
+> i2c device. After recovery, set i2c pinctrl to default group setting.
+>=20
+> Signed-off-by: Fugang Duan <B38611@freescale.com>
+> Signed-off-by: Gao Pan <b54642@freescale.com>
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+
+Applied to for-next, thanks!
 
 
-> Wolfram, since Lee acknowledged patches 1-3, can you pull them to your tree?
-
-So, I picked patches 1-4 to my for-next. Patch 5 is missing an ACK.
-
-
---qi3SIpffvxS/TM8d
+--S0GG+JvAI2G0KxBG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWKipLAAoJEBQN5MwUoCm2zfsP+wWii3/v3rhMOXwP5IMTKXZo
-sRevMcP6+pVMT0do9FbjETMDrpjENsfuJEmmuJQFtejo9X+++QLCofWVL+RUktGg
-+gQJOK3TFrr/vbM/YfnUUEHC+jXnfeyoe8YQl36kG4jjodOJ5Q0o3yPj4/V4vezJ
-OJUIP0JrSwRTjY30h/Zys1YXjiDImUU6bURTDloh2fX/0ZuBBJowstQye5bXidg0
-FNXUNRXeVyedAwS8Ss15wjSWCZ1Pf235JtI+t2om1qAto1nqrvsro58pVriQZJ+0
-YxYo7vK6YHeGDfQtRLd0nIVjOoAkKuF/OHFdr0gHL6b5y5T7r9uPMsFPRPJOaaYy
-7WLu0j50JwgIcEwk6g8XeKqNX2/1P/05vAauORh2vvklKSw75MZ08tgaZmrjPvUM
-o4R9ACiAh3eEj/syO7eY8utWzET4eAOibdo+o8hKUY3ixIUMuGjDWUHCUXcgpaLC
-M2OQt0rVg4lkgKa6sjcMyHW8sq57uTxs5KqCrnpwDDFXzvueDRrcshRKjQjoEwAa
-K2gVC5xPkifHQot6Mxr6fE5dx0EoGcbqBjOrN+YeX4/f+NL5ZRaNTviEk/Lb2KIC
-XZ+8HZqfqR2aBwOOReqo2fmTy4ocXQdwLISaagu3+zSV4haFGgR3ylvLsK6X7ghL
-AOBAFPjaGDX0+ki2AmSx
-=bHpy
+iQIcBAEBAgAGBQJWKiuHAAoJEBQN5MwUoCm25GQP/0wVYHKwsI8U04iG7hrGNfIi
+96MhCczXuqp+SIbvu8FcVlsavhqc7bOCaRMS0mDkYzyYtwf9b6t2DnASEkzYeOpd
+C8D/VCGlKIXOQ9WS701wjrrZ1robG0P3g3EKRZbQgAcO5Hgc16CeypoUxSUtSOSA
+xu13bv//90loF3v/aQoZMAA8FsSBvnYRDfEkVRtand1VAv7fxmjB2jHQwkYFyeMY
+DPrJdkNvDWubXm9OPpCIKV7ZtECwKu7tZjZ5xE0CaZHIiA9jlx6UVaXOBFogfBQG
+SOxRrKbuUF5GTF8ZggsX6d5YjgLa/SGtXvXehux5mjPS9Q20jThY+/wUO1s6XMGE
+LJyiY5eWOH7giWCdqoxcF8s8F+LJDOVmSZi4LbbyRBXEKh2P0Pzrq5r3MXd2KbRL
+heV26JlKck834Ybt74Y2Kweqi7QlbusZDIK5KdOQ5A/xzS3DWW6DJepJV+nSuADb
+/E3i+znMqsErs/jNqJJBek9Qx/A9df9giSmsNwJwpsqKGo38TpjuPX2gHrZhj00h
+EHxIsOQa4mSmv+WoxkDgKvqKUFdsWMxEiKLNqkOBJ3ykeVDKDlRpwNRgN+IJohEb
+gfAfq8k0p/WHOWXfSScvtlAy4BR3y7QWKRkV66Yny+6k9RkILZ8VqzsxkGrnKrbn
+0iXWhY0QwPmfdoFUKX6K
+=HARB
 -----END PGP SIGNATURE-----
 
---qi3SIpffvxS/TM8d--
+--S0GG+JvAI2G0KxBG--
