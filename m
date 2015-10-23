@@ -1,85 +1,52 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 5/9] i2c: rcar: init new messages in irq
-Date: Fri, 23 Oct 2015 10:06:02 +0200
-Message-ID: <20151023080601.GC1642@katana>
-References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
- <131418014.1WnDGNUZcn@avalon>
- <20151022110505.GB1572@katana>
- <1917001.aD8sIkvx7f@avalon>
+From: Zhiqiang Hou <B48286@freescale.com>
+Subject: [PATCH V6 1/6] i2c: Add i2c support to Freescale Layerscape platforms
+Date: Fri, 23 Oct 2015 16:01:17 +0800
+Message-ID: <1445587282-29529-1-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iVCmgExH7+hIHJ1A"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34031 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751721AbbJWIGG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 23 Oct 2015 04:06:06 -0400
-Content-Disposition: inline
-In-Reply-To: <1917001.aD8sIkvx7f@avalon>
+Received: from mail-bl2on0121.outbound.protection.outlook.com ([65.55.169.121]:47568
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752414AbbJWIII (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 23 Oct 2015 04:08:08 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+To: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
+Cc: mark.rutland@arm.com, linux@roeck-us.net, wsa@the-dreams.de, wim@iguana.be, corbet@lwn.net, mturquette@baylibre.com, sboyd@codeaurora.org, Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com, scottwood@freescale.com, bhupesh.sharma@freescale.com, Wenbin.Song@freescale.com, B48286@freescale.com
 
+From: Shaohui Xie <Shaohui.Xie@freescale.com>
 
---iVCmgExH7+hIHJ1A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Modify the I2C_IMX config to support to Layerscape platforms.
 
+Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+---
+V6:
+ - Remove some Signed-off and add the author's.
 
-> Do you have a Koelsch board now ? Could you try=20
+V5: V4 V3 V2
+ - No change.
 
-Nope, I only have Lager. I'd be surprised if it really was a Koelsch
-only issue, though...
+ drivers/i2c/busses/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> b9653e9c000dc2ebd9c8712442c659ccd1586e22 from Geert's drivers tree ? On m=
-y=20
-
-Does that build for you?
-
-drivers/gpu/drm/drm_fb_helper.c: In function 'restore_fbdev_mode':
-drivers/gpu/drm/drm_fb_helper.c:448:5: error: 'error' undeclared (first use=
- in this function)
-
-??
-
-I fixed it locally and will see if I see ADV7511 problems. I cannot
-fully test HDMI probably, because it seems that this HDMI->DVI chain I
-have does not work. Tested that with a kernel which used to work in
-Dublin. Need to get another HDMI device.
-
-> board the adv7511 fails to probe completely due to the regmap_read() fail=
-ure.
-
-Okay, so before any 'modetest' activity. Which kernelconfig?
-shmobile_defconfig?
-
-Thanks,
-
-   Wolfram
-
-
---iVCmgExH7+hIHJ1A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWKeppAAoJEBQN5MwUoCm2UqwP+gPFo1x8R8dVwyQeZ/iCP6q5
-0S7xpBKtjHWL7Xzhsw5sRhjZKIHF4UBjdOVCUHFlXCrRsSfEdv2/Vjx1AgVm0SQg
-EBl+4PhnrSk0QI257AZx9Kx73u/tNgmu4ctf5mBwaRDQhENVa2do6Q0NgJu7oOPN
-zamHAS2Ct/oWHTQPfJfs0vzKSE/IO8sCS7wjC0Beym40Rzw3Yedt+LaQryxfLeWn
-IH5+lkiJpcHJU66TsVDkNrqpvcvGPbFV+RDNFhcZdFnSFvmSoZ2vN6behZ02Ga/l
-yds6Uja4ZwMs0Ss67L6WhQlLJ6XLF3DQxIg6/hTmY8bv6Zdh4Cv6L94wiFgoCJQK
-qw9OJCXwcVtQWW10pbcVMCKmGU83VCtptMeYFiPtRk5L0Gaegdd7A3IWz8t9oMoz
-cuCFONC70UMtvM3tN3BZe17mUfydI+5WfqlgsqrThlWJ/inIR7OV+6z++INZSl2B
-IC/B34klBeG/mmrUD0ZJdlSQ6RXfKVaGerKmLm17rxoQDTzlIYNO3dGvs8lXALbW
-tVuRkWQ1530bFBzhQ9ZnUux9gAbEAB/2fmsozoq1NU8NZC+Oagv4PNRBfZSefXcJ
-/XenkDv9Ol+ntBSUb+NYXtUkGo3zcYtO+Al+qVIZHSdnsyUpuF2bivhfhyeN/Ho4
-HxTpuHydbu9DD3s5W9vC
-=9kB6
------END PGP SIGNATURE-----
-
---iVCmgExH7+hIHJ1A--
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 08b8617..14147ec 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -582,10 +582,10 @@ config I2C_IMG
+ 
+ config I2C_IMX
+ 	tristate "IMX I2C interface"
+-	depends on ARCH_MXC
++	depends on ARCH_MXC || ARCH_LAYERSCAPE
+ 	help
+ 	  Say Y here if you want to use the IIC bus controller on
+-	  the Freescale i.MX/MXC processors.
++	  the Freescale i.MX/MXC or Layerscape processors.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-imx.
+-- 
+2.1.0.27.g96db324
