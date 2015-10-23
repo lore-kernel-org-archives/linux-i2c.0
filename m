@@ -1,57 +1,65 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v4 0/5] enable I2C devices behind I2C bus on Gen2
-Date: Fri, 23 Oct 2015 12:16:40 +0300
-Message-ID: <1445591805-28886-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thierry Reding <thierry.reding@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [Patch V8] i2c: imx: implement bus recovery
+Date: Fri, 23 Oct 2015 11:22:14 +0200
+Message-ID: <20151023092213.GC13380@katana>
+References: <1445221022-6991-1-git-send-email-b54642@freescale.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OBd5C1Lgu00Gd/Tn"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:34335 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751327AbbJWJWS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 23 Oct 2015 05:22:18 -0400
+Content-Disposition: inline
+In-Reply-To: <1445221022-6991-1-git-send-email-b54642@freescale.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
-There is a board in the wild, i.e. Intel Galileo Gen2, that has ACPI enumerated
-devices behind I2C bus. This patch series dedicated to enable those devices.
-
-The MFD framework is also updated to cope with interesting implementation of
-the cell descriptions under ACPI MFD (patch 1).
-
-The patches 5 and 6 are pretty independent and could be applied ahead, though
-they don't make much sense without previous ones.
-
-Wolfram, since Lee acknowledged patches 1-3, can you pull them to your tree?
-
-Tested on the actual Intel Galileo Gen2 by Ismo (gpio expanders) and me (at24).
-
-Cc: Thierry Reding <thierry.reding@gmail.com>
-
-Changelog v4:
-- amend at24 patch to satisfy sparse (Wolfram)
-- drop applied patches
-
-Changelog v3:
-- append ACKs from Rafael (from ACPI angle)
-- drop upstreamed patches (GPIO pca953x)
-
-Changelog v2:
-- append tags
-- re-make patch 3 (suggested by Lee)
-- improve patch 8 (suggested by Thierry)
+To: Gao Pan <b54642@freescale.com>
+Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, u.kleine-koenig@pengutronix.de, kernel@pengutronix.de, hkallweit1@gmail.com, s.hauer@pengutronix.de
 
 
-Andy Shevchenko (5):
-  mfd: core: redo ACPI matching of the children devices
-  mfd: intel_quark_i2c_gpio: load gpio driver first
-  mfd: intel_quark_i2c_gpio: support devices behind i2c bus
-  at24: enable ACPI device found on Galileo Gen2
-  pwm-pca9685: enable ACPI device found on Galileo Gen2
+--OBd5C1Lgu00Gd/Tn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- Documentation/acpi/enumeration.txt | 11 +++++---
- drivers/mfd/intel_quark_i2c_gpio.c | 33 ++++++++++++++++--------
- drivers/mfd/mfd-core.c             | 52 ++++++++++++++++++++++++++------------
- drivers/misc/eeprom/at24.c         | 22 +++++++++++++---
- drivers/pwm/Kconfig                |  2 +-
- drivers/pwm/pwm-pca9685.c          | 20 ++++++++++++---
- include/linux/mfd/core.h           | 10 ++++++--
- 7 files changed, 111 insertions(+), 39 deletions(-)
+On Mon, Oct 19, 2015 at 10:17:02AM +0800, Gao Pan wrote:
+> Implement bus recovery methods for i2c-imx so we can recover from
+> situations where SCL/SDA are stuck low.
+>=20
+> Once i2c bus SCL/SDA are stuck low during transfer, config the i2c
+> pinctrl to gpio mode by calling pinctrl sleep set function, and then
+> use GPIO to emulate the i2c protocol to send nine dummy clock to recover
+> i2c device. After recovery, set i2c pinctrl to default group setting.
+>=20
+> Signed-off-by: Fugang Duan <B38611@freescale.com>
+> Signed-off-by: Gao Pan <b54642@freescale.com>
+> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
 
--- 
-2.6.1
+Can't apply this one. Which one is this against? Should be at least 4.2.
+
+
+--OBd5C1Lgu00Gd/Tn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWKfxFAAoJEBQN5MwUoCm2C10P/1S9VvCys+pAYg9ztH0m6Ee0
+4LcVnSsv/XpFjoSeeZYF5zCYObYm3jFkxOB/5q64eHSirJ57wFR9HSGKEVfrDlb1
+1X2MK2WmX6A7LLn+Udmp9D++X09chrUmoledkoN9ZQOFEi2FIuFLxrt8euyjj0M9
+VwTZ6UQA1nGOsproScVtcRi/Zh1yuspWkDdxtwlLylWmhQ0yRzJPPNF7IAW571IU
+yuCLbwC8tHB6BqqY6ywrg8tAKJ4HiupW7MBMWI0aOYw/xDZuiTCzcvb1tDOfwv0+
+r1yunAy/HSmSJlqx5t0aaL8I7UlAN/KD/gBwNGuLXAJWxRVp/uPJo6lOQ58HvzLP
+dx+2fw7yiJKPZPtJltv0oKq90AvA4/wuQPlOIy0o7QLEfaAIzB3FdOWaK7NyHZbD
+9iDmjpoKXOAhXmkSdnUeIKtX9tL0B3jHZQ/KcHvOVu60yUc98yix26ADt4yJoORq
+6lG3/8p/qR0B/a9nv3CGp4vxIAV3i7T7z/b2u/gRcWlK6i+rULc/syQE1UpiM9sT
+l1MxsUGpJVK2IGhZMHWIbyEVloMA/cRYgeNrz5Zm4k+I/M+UiA0KOvlLJW7hgFq2
+aTUstWQg9bH99Gyi+Ytgvjo3yJk4v6XxOemBKcJJKnZqOnn84bynJSuDqTXI0XVI
+vScV0UYBvQNNU0/WhF6W
+=28eF
+-----END PGP SIGNATURE-----
+
+--OBd5C1Lgu00Gd/Tn--
