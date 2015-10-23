@@ -1,81 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-dev: Fix typo in ioctl name reference
-Date: Fri, 23 Oct 2015 23:25:07 +0200
-Message-ID: <20151023212506.GK1520@katana>
-References: <20150908110549.411e99a8@endymion.delvare>
- <20150910180012.GA2893@katana>
- <20150910233036.0d2c9f35@endymion.delvare>
+Subject: Re: [PATCH] i2c-dev: Fix I2C_SLAVE ioctl comment
+Date: Fri, 23 Oct 2015 23:26:11 +0200
+Message-ID: <20151023212611.GL1520@katana>
+References: <20150911112718.7f9effb2@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gBYU9MM4gf8jKg2V"
+	protocol="application/pgp-signature"; boundary="sCNd3Ivk/oijKKf1"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36979 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:36989 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751380AbbJWVZK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 23 Oct 2015 17:25:10 -0400
+	id S1752085AbbJWV0N (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 23 Oct 2015 17:26:13 -0400
 Content-Disposition: inline
-In-Reply-To: <20150910233036.0d2c9f35@endymion.delvare>
+In-Reply-To: <20150911112718.7f9effb2@endymion.delvare>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jean Delvare <jdelvare@suse.de>
 Cc: Linux I2C <linux-i2c@vger.kernel.org>
 
 
---gBYU9MM4gf8jKg2V
+--sCNd3Ivk/oijKKf1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> > > -#define  I2C_RDRW_IOCTL_MAX_MSGS	42
-> > > +#define  I2C_RDWR_IOCTL_MAX_MSGS	42
-> > > +/* Originally defined with a typo, keep if for now for compatibility=
- */
-> >=20
-> > I would drop the 'for now' and keep it forever. A define doesn't hurt
-> > and if it increases backwards compatibility, why not? I will also do
-> > s/if/it/. No need to resend.
+On Fri, Sep 11, 2015 at 11:27:18AM +0200, Jean Delvare wrote:
+> The first part of the comment is wrong since November 2007, delete it.
 >=20
-> Sorry for the typo and thanks for catching it. "for now" or not is up
-> to you, my idea was that it probably wasn't used in user-space yet so
-> getting rid of it shouldn't hurt, while keeping it would encourage
-> people to use the wrong one instead of the good one. So on second
-> thought a better strategy may be to NOT keep the compatibility in the
-> first place.
-
-I really don't want to break userspace. And since this #define is in the
-uapi headers, I rather be safe than sorry. There might be programs using
-it we don't know about.
-
-So:
+> The second part of the comment is related to I2C_PEC, not I2C_SLAVE, so
+> move it where it belongs.
+>=20
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
 
 Applied to for-next, thanks!
 
-> can be reported to the user just the same. IMHO I2C_RDWR_IOCTL_MAX_MSGS
-> should not have been made visible from user-space in the first place.
 
-Yes.
-
-
---gBYU9MM4gf8jKg2V
+--sCNd3Ivk/oijKKf1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWKqWyAAoJEBQN5MwUoCm2L4gP/i5oG9kt7sLGv7Y2xZppxEd8
-kFCmuEqp1f5+46YoWxeghiP+1M4vBtwViDU1tg+TFQJeoGq6+trZ5niHnNwc4nsW
-A2CqTCwuflmUtZYBngIjjR8iMAzNl0NAz2h/SYpzhq/JAbfOHUaswFNaab9t/9la
-tsKrPWmPUOTRmLdKGYcqovAtLhouBG7m2PjDsJPlRln4obyZi1kCSM5MKc4w+kE0
-1eV/ElJI6MrB8Ulqlm2CYY0G94I45DD/MjE7Dyk5BGQYUm84dpbN92dxeopvAJgk
-B+/Dp1YxCPr+tIUGHPuJyXzhUGxh8oHwwBqrSoBA/5keLjTCo0kfcl16WZN3bmer
-3v/Wnq3ks9ohg4nN4/KRIl71dIZKg1iDJz09+XsfSs7pW1O2A1fb+n5rnjdRCviW
-3kTzKqwdjPalQM65cPCFKfut7IgLEK4Y6B3V3d2s9srbgtCkFu6UeS6T3sCxgOC4
-X6hoyRxDSSAmHCLHSq+qCzGrtEbDKi09/uB8DRTEtOeb3JfdHWLfjUOb2KYejl4T
-IUcS5WLkX0xydtxYT8AX/v6zcYhFFQ0djEEckOq3DV3L7fSkYN/UoqfJFDljaS3t
-13btnAlnWMZGCUF+xevuzouOB9rpDBy8RLUr1v83UzbBWupqJHEhnka5BVdi626q
-BZ5ygymD/kgk6b1qSxyL
-=Q/D5
+iQIcBAEBAgAGBQJWKqXzAAoJEBQN5MwUoCm2LNAP/2BZ96W6CbTs6r5jwI6Zw53L
+wmS1KxcrOagf/r+QxeizQ7IQG8nGJ+k7RIVTd2Wv4uaZtfAnXP5bn7MPDCtWIyyQ
+xy1YqMGyqqyUlTpgJ94j4AHFQcH4mVImmBNgXYNtZL8RgZjOPxIcl0d9ryxAltG3
++RaRxb+nLvjwz0jwUM2KOH5585v6DWQPW+e2MRn6qMC4MUQ9W2hLSnpLI+zbrPAs
+eqQ9xrUQRJuCCDRPiQAL26LuPCZFPd+hKG04GgotYQhqsaXhTRzwfKlIgnnv/iiD
+ND4GtbpKJ0BUp1qv7xTz42wT2f02xOx1lvf29qIQp2KY219EmeX76IyRS1+XqeIn
+/BoAPh2Hzs21o4llDel9fif1MPNAtNzHDrWeDisl9C0/HLC8o4lrJFUctmLXLDum
+Q1O2uxq7HbIw12+0XCU+WqtUN/0OrDbt6xrZos6eWsJm1bZNpgtsku0A1kEFxj91
+Cff6Aoj2EJbTrWgaKegGjIkQWP519iRobN4fiz4n6c1LRkIwpvRvKOd08wHmGQs6
+lNG2rLxpdrXlzd9i2Thm3JmBJS5OIxPFQpaX/GUWo1kbI5F5iQPMD3jUFcmWgraB
+f5EQJ0Bc6x3aKilyaGJKTqQUGRJQIcK66oJf2U8dP+91NMDwlnAriqvghZucoNIH
+LzA1bvwrpGnRaNs2o8nL
+=TLjT
 -----END PGP SIGNATURE-----
 
---gBYU9MM4gf8jKg2V--
+--sCNd3Ivk/oijKKf1--
