@@ -1,61 +1,83 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: uniphier_f: add UniPhier FIFO-builtin I2C
- driver
-Date: Fri, 23 Oct 2015 13:49:15 +0200
-Message-ID: <20151023114915.GJ13380@katana>
-References: <1445597520-6299-1-git-send-email-yamada.masahiro@socionext.com>
- <1445597520-6299-3-git-send-email-yamada.masahiro@socionext.com>
+Subject: Re: [PATCH 5/9] i2c: rcar: init new messages in irq
+Date: Fri, 23 Oct 2015 14:14:39 +0200
+Message-ID: <20151023121439.GK13380@katana>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+ <2048622.tkxROUAu7P@avalon>
+ <20151023094500.GD13380@katana>
+ <36149610.Eic43bQLgJ@avalon>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcccYpVZDxQ8hzPO"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34881 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752629AbbJWLtU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 23 Oct 2015 07:49:20 -0400
+	protocol="application/pgp-signature"; boundary="W2ydbIOJmkm74tJ2"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1445597520-6299-3-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <36149610.Eic43bQLgJ@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: linux-i2c@vger.kernel.org, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>, Kamal Dasu <kdasu.kdev@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Ray Jui <rjui@broadcom.com>, David Box <david.e.box@linux.intel.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Pawel Moll <pawel.moll@arm.com>, devicetree@vger.kernel.org, Beniamino Galvani <b.galvani@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, Max Schwarz <max.schwarz@online.de>, Laurentiu Palcu <laurentiu.palcu@intel.com>, Andrew Bresticker <abrestic@chromium.org>, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Subhendu Sekhar Behera <sbehera@broadcom.com>
 
 
---HcccYpVZDxQ8hzPO
+--W2ydbIOJmkm74tJ2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 23, 2015 at 07:52:00PM +0900, Masahiro Yamada wrote:
-> Add support for on-chip I2C controller used on newer UniPhier SoCs
-> such as PH1-Pro4, PH1-Pro5, etc.  This adapter is equipped with
-> 8-depth TX/RX FIFOs.
+> > :/ Let me know if I can send you debug output.
 >=20
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> What's the exact issue ?
 
-Applied to for-next, thanks!
+Best report ever: I simply don't get a picture :) No warnings, no
+messages. I think we want to make sure my HDMI->DVI converter is proper,
+though.
+
+> > > .config attached.
+> >=20
+> > That one also probes for me... I only disabled DHCP and added my initra=
+mfs.
+> > I patched the fbdev build error out and changed Lager dts to use i2c-rc=
+ar
+> > (instead of i2c-sh_mobile).
+
+I made the ADV7180 and AK4642 built-in and this kernel still probes
+rcar-du on my Lager and Magnus' Koelsch...
+
+>           <idle>-0     [000] d.h1     1.498063: rcar_i2c_irq: msr 09090909
+>           <idle>-0     [000] d.h1     1.498075: rcar_i2c_irq: msr 08080808
+>           <idle>-0     [000] d.h1     1.498266: rcar_i2c_irq: msr 07070707
+>           <idle>-0     [000] d.h1     1.498348: rcar_i2c_irq: msr 06060606
+>           <idle>-0     [000] d.h1     1.498465: rcar_i2c_irq: msr 49494949
+
+So, here is the NACK bit set. Which does not happen on my Lager and
+Magnus' Koelsch. I am starting to wonder if you have a board with HW
+issues? Could it be another I2C device interfering? Do you happen to
+know if you have an earlier revision of Koelsch?
+
+Thanks,
+
+   Wolfram
 
 
---HcccYpVZDxQ8hzPO
+--W2ydbIOJmkm74tJ2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWKh67AAoJEBQN5MwUoCm2AcEQAK1G4AiCdmua6Sk2+r2hsQHH
-7/yHqS58TOzUItJ4FwP0zvMVf6UuNabOivF35eiwPJgVOGqNAI2Q3Twg2Yltrz3G
-Fua38ArehrJiL7qOMa22bHFmGYjq8DlCpNyQsAdkmf0FK/gNd660McF6BXrmOJ7k
-l76MOvOz+4cjB4pA0k/xwgqmY4ibOMAwlsX+Yd/iSnXwj64u9emxcBR8nYR5DRRL
-OsnAHuqecmN0GVQAuSqcsalONdRrDe9rXzexe5wOUF80KXmtR4ESPQP3m8OpC5Tw
-QDqK3IC/IbNu0FpAk0GP1eGyZtrCqj7FO6imNBmH47YSc9HA0HepLo+Zf9CRh3Io
-16j3iTVuolYQqDbipxgnT1fGqpUvNlk/9yL8Us5WjPWO5DfI2RZuSlxJjqqFi7g+
-CkqIm/SVOX689uFYsR+saZ3gNTTWdnloI28PxR1nZNqathLWXw0RYLmKKNErp7H2
-HaUrfaqUMWWB/KuepDxFiDwSVBDy6gc3N6VLCxHg1/3WQMgaMqO4HdZYJbo0DaM9
-OC1ttuo2Hx1sdicA52lBLW3zefUGxINs8/jpu+MUWhXsj6wH06MDHJ+3xmvcNFAa
-lUIaTse/yPj2tiI8M5BhaIaH9KuWDszGGijqZdkcgdkU/Hgn99ysxXyUUClmUGYM
-iIWk/GJXToqRyRaB0cat
-=tzko
+iQIcBAEBAgAGBQJWKiSvAAoJEBQN5MwUoCm2bdUQAIq1ZRAlZBs6jYSv11i9F1yO
+cp82aYXyuXXPGQDZLBncDc9aWyFpG7uHTDe8L+/7fgtAvnRwIlY+vzOh1M8/6eS4
+IjtAtk1o0XMhv8YE/7qRcOUBT64zQvpapYWcWCleih8CT0+EeuGNnyUWGKJXeyoM
+JPT6vdlNU2fUdNf7qdhMwqqR5TjVDK+BQaovOD4IO+vRlrM1wPWypGPueFRm99xm
+VyR9EqaYfBnx4W7Ip/K7ujOW2aejvM5+cAo/BCm+uLT5qbEOIaOsevy5GAJPw2p4
+d9O/DjyhYczlum6tzDNo+8FfhRyDNft2qeLcjwuY2sfv0slpSjhLMguyOwcNHbL1
+ibwxDrdxDrBqUXnD7XkKcJBWO+dvufWA+TGANBnOQ3qQiLxGtICMeGSbOdtSSaId
+EVA/oEwK6KLmy5AbXUwnPCEREeRTG1mHSEUpEXyMp1Gi16UkSOQvCOIW2NJDwPa9
+XFfez1BL7YyPnQtH3W0bxDs7v7nu6WHrmCDgRUuw2Jgs2J8x3jpAkdWQMVb7KzQo
+OtY5coX4A7BsF2OUzSoTSg1sdC7GnbY/UtdPwAw/nxKNv7ZXKN/u06rwkE/6gESz
+IwvEIhGsBGqvqHWpn/Ihn6En9bams9p1iQmLPNFu1UJCW12I4GZBKAqGJp6Vm5r0
+Rc6gkD2WbhlHXMlGhYaz
+=Yg2e
 -----END PGP SIGNATURE-----
 
---HcccYpVZDxQ8hzPO--
+--W2ydbIOJmkm74tJ2--
