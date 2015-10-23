@@ -1,59 +1,91 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 5/9] i2c: rcar: init new messages in irq
-Date: Fri, 23 Oct 2015 12:07:49 +0200
-Message-ID: <20151023100749.GG13380@katana>
-References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
- <131418014.1WnDGNUZcn@avalon>
- <20151022110505.GB1572@katana>
- <1917001.aD8sIkvx7f@avalon>
- <20151023080601.GC1642@katana>
- <CAMuHMdUQCBUyFWO1Jm7BqEVb2kC4v6pKpSrwdGytCuS=d-oZDQ@mail.gmail.com>
+Subject: Re: [PATCH v4 2/2] i2c: add ACPI support for I2C mux ports
+Date: Fri, 23 Oct 2015 12:16:11 +0200
+Message-ID: <20151023101611.GH13380@katana>
+References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
+ <1445505462-27915-1-git-send-email-dustin@cumulusnetworks.com>
+ <1445505462-27915-3-git-send-email-dustin@cumulusnetworks.com>
+ <20151023084013.GS1526@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gvF4niNJ+uBMJnEh"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34523 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751074AbbJWKHx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 23 Oct 2015 06:07:53 -0400
+	protocol="application/pgp-signature"; boundary="CNfT9TXqV7nd4cfk"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdUQCBUyFWO1Jm7BqEVb2kC4v6pKpSrwdGytCuS=d-oZDQ@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20151023084013.GS1526@lahna.fi.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Dustin Byford <dustin@cumulusnetworks.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, "Puustinen, Ismo" <ismo.puustinen@intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
 
---gvF4niNJ+uBMJnEh
+--CNfT9TXqV7nd4cfk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> -                               error = true;
-> +                               return ret;
+On Fri, Oct 23, 2015 at 11:40:13AM +0300, Mika Westerberg wrote:
+> On Thu, Oct 22, 2015 at 02:17:42AM -0700, Dustin Byford wrote:
+> > Although I2C mux devices are easily enumerated using ACPI (_HID/_CID or
+> > device property compatible string match), enumerating I2C client devices
+> > connected through an I2C mux needs a little extra work.
+> >=20
+> > This change implements a method for describing an I2C device hierarchy =
+that
+> > includes mux devices by using an ACPI Device() for each mux channel alo=
+ng
+> > with an _ADR to set the channel number for the device.  See
+> > Documentation/acpi/i2c-muxes.txt for a simple example.
+> >=20
+> > To make this work the ismt, i801, and designware pci/platform devs now
+> > share an ACPI companion with their I2C adapter dev similar to how it's =
+done
+> > in OF.  This is done on the assumption that power management functions =
+will
+> > not be called directly on the I2C dev that is sharing the ACPI node.
+> >=20
+> > Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
+>=20
+> This looks good to me.
+>=20
+> You did also some stylistic changes to the drivers in question which I
+> think should be placed to a separate patches.
 
-Yup, did that, too :)
+I am fine with those.
+
+> Regardless of that,
+>=20
+> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+
+I would love to get a Tested-by for the designware part. Then, I could
+queue it for 4.4 already.
+
+> I'll leave this up to Rafael and Wolfram to decide how to go forward
+> with this patch.
+
+I'd think I pick both when Rafael acks patch 1 (with the unneded 'return'
+removed).
 
 
---gvF4niNJ+uBMJnEh
+--CNfT9TXqV7nd4cfk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWKgb1AAoJEBQN5MwUoCm2go8QAKGVL3GePRft33KGRwxV+LZx
-NmQkqo4Je02IdlzLQJIVtc7wBf/7uSXHxir6CUOCCg28oW7+VHallfI+N8RKBYMz
-vMPRzkrl7bXaPZROFPmo9VWnIDNhJxJ6sTFvQylEifkrMna7yUNhQiHjb8aU0cNO
-KkcnGDue3yGfwY7l276yRxv1ZmUhbnlkEZfIO+c6r4b49fppjIPSEUh/3lMjvGE7
-iYSXXkz1opig3VqTlk5vsSCQlvIgQXpnDb1lVPx9w3SOejzX+IixzzTq3+E9PZUu
-gW7xDOyWZitgsnxPIX+e8Bm0nogxVIlxudMiCm3QcwzKDSaMqRbMGhNW4n+Jknuc
-ARvG6omNQ1EHzPUPy4f8ckZKQmFqnkp62x4Go4RY9tsHsAlzYIGJGmIONsIreeI6
-wfyE77dbcnDkbuLlNJDushFg8lvf6mUhr3Gp/YS9O0U2wqMGh6ksObY6/jSK7KkU
-Xy3aRUEcNQl1ZC8lYMOJ7k18yuTc5gmUNXEPO4MIN8SbFiw1Dqz5MwRAMY8UI/PB
-XLhhUyQOgT4Z6yfWQ1NcN7YC18bjGmpCGATeNfh4Fju/bWdDxgEoFZoIC2u8nxRg
-6i/pVULlVehU3/2y9n/3kVBEViqW1hsT+lrHF604La93Rzm0Ci7ELRN6S8tCoOob
-n3L3BTP5rt9Rbnsq9nhH
-=ylsU
+iQIcBAEBAgAGBQJWKgjrAAoJEBQN5MwUoCm2lPsQAJoDz+5sU/F4Kszvx06sTq6f
+MHkS1QigX9fqsfMJ+EgaFOrq0fRVX1xpsYeHUPdHidVInf6it2iy8q//JFoBBiN9
+iuCbEWt42OunLrA4oBDZgHB9S/fBbomNdNjKGTo4DJ+6E5OIiryKUc6AtX8mTORy
+miLMhQngrSNpbo7ximlQ6LR48xypwOHZ4NZlO0I9Sfa842b3rYcWKkGLwzXs1Gbz
+HcIegyvp4B3uHG+QlB5Bp7ljmfNf9Wt1ziDNyA7HzvrQjMd4HMGWMPHMgP6n1+wG
+jX4U2izqpUOl+WMgezkeM2Jvuz3VqeLeXfGCv4sirXq7T/5sj2KBKs4XLOrS4pxu
+BanPTkBn80boojCfec7u+6OVkyt+hHsPMkL1TcA/Ha8+Gu8yOMzDQF/vf1S/K9Q7
+SyAms6QKVfoW8gq01wNU9cEoxu3JOeUh2TC/ZxTiAgsdM/TgOw757Q5tVDmKqlmI
+qYCRje3HybebVmDi85C3YEWk64zMr6ez3VHo2ttUWbWk3JZVCykE5+NitY+2TaJB
+Zv93JsulqbWP+0OBVi8XIZYtI9Qj//ECTU27hMS1ERiNckNDBZPlU9QRXelK+hNY
+mdzpnGVTNxfRhForcY3SXkIF38iR+VydHX96lcXzwTnoh2F6k5hJdMmh478KG799
+wbtx6Lm0nAFd3HTKChrx
+=B/b3
 -----END PGP SIGNATURE-----
 
---gvF4niNJ+uBMJnEh--
+--CNfT9TXqV7nd4cfk--
