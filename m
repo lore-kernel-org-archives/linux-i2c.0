@@ -1,52 +1,43 @@
 From: Zhiqiang Hou <B48286@freescale.com>
-Subject: [PATCH V6 1/6] i2c: Add i2c support to Freescale Layerscape platforms
-Date: Fri, 23 Oct 2015 16:01:17 +0800
-Message-ID: <1445587282-29529-1-git-send-email-B48286@freescale.com>
+Subject: [PATCH V6 3/6] Documentation: DT: Add entry for FSL LS1043ARDB board
+Date: Fri, 23 Oct 2015 16:01:19 +0800
+Message-ID: <1445587282-29529-3-git-send-email-B48286@freescale.com>
+References: <1445587282-29529-1-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bl2on0121.outbound.protection.outlook.com ([65.55.169.121]:47568
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752414AbbJWIII (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 23 Oct 2015 04:08:08 -0400
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1445587282-29529-1-git-send-email-B48286@freescale.com>
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
 Cc: mark.rutland@arm.com, linux@roeck-us.net, wsa@the-dreams.de, wim@iguana.be, corbet@lwn.net, mturquette@baylibre.com, sboyd@codeaurora.org, Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com, scottwood@freescale.com, bhupesh.sharma@freescale.com, Wenbin.Song@freescale.com, B48286@freescale.com
+List-Id: linux-i2c@vger.kernel.org
 
-From: Shaohui Xie <Shaohui.Xie@freescale.com>
+From: Mingkai Hu <Mingkai.Hu@freescale.com>
 
-Modify the I2C_IMX config to support to Layerscape platforms.
-
-Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
 Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
 ---
-V6:
- - Remove some Signed-off and add the author's.
-
-V5: V4 V3 V2
+V6: V5 V4 V3 V2
  - No change.
 
- drivers/i2c/busses/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/arm/fsl.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 08b8617..14147ec 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -582,10 +582,10 @@ config I2C_IMG
+diff --git a/Documentation/devicetree/bindings/arm/fsl.txt b/Documentation/devicetree/bindings/arm/fsl.txt
+index 34c88b0..752a685 100644
+--- a/Documentation/devicetree/bindings/arm/fsl.txt
++++ b/Documentation/devicetree/bindings/arm/fsl.txt
+@@ -131,6 +131,10 @@ Example:
+ Freescale ARMv8 based Layerscape SoC family Device Tree Bindings
+ ----------------------------------------------------------------
  
- config I2C_IMX
- 	tristate "IMX I2C interface"
--	depends on ARCH_MXC
-+	depends on ARCH_MXC || ARCH_LAYERSCAPE
- 	help
- 	  Say Y here if you want to use the IIC bus controller on
--	  the Freescale i.MX/MXC processors.
-+	  the Freescale i.MX/MXC or Layerscape processors.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-imx.
++LS1043A ARMv8 based RDB Board
++Required root node properties:
++    - compatible = "fsl,ls1043a-rdb", "fsl,ls1043a";
++
+ LS2080A ARMv8 based Simulator model
+ Required root node properties:
+     - compatible = "fsl,ls2080a-simu", "fsl,ls2080a";
 -- 
 2.1.0.27.g96db324
+
