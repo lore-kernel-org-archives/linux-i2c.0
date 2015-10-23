@@ -1,45 +1,61 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v4 2/2] i2c: add ACPI support for I2C mux ports
-Date: Fri, 23 Oct 2015 11:40:13 +0300
-Message-ID: <20151023084013.GS1526@lahna.fi.intel.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
- <1445505462-27915-1-git-send-email-dustin@cumulusnetworks.com>
- <1445505462-27915-3-git-send-email-dustin@cumulusnetworks.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V6 1/6] i2c: Add i2c support to Freescale Layerscape
+ platforms
+Date: Fri, 23 Oct 2015 10:43:25 +0200
+Message-ID: <20151023084325.GA13380@katana>
+References: <1445587282-29529-1-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:34195 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751624AbbJWInk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 23 Oct 2015 04:43:40 -0400
 Content-Disposition: inline
-In-Reply-To: <1445505462-27915-3-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dustin Byford <dustin@cumulusnetworks.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, "Puustinen, Ismo" <ismo.puustinen@intel.com>
+In-Reply-To: <1445587282-29529-1-git-send-email-B48286@freescale.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Zhiqiang Hou <B48286@freescale.com>
+Cc: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, mark.rutland@arm.com, linux@roeck-us.net, wim@iguana.be, corbet@lwn.net, mturquette@baylibre.com, sboyd@codeaurora.org, Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com, scottwood@freescale.com, bhupesh.sharma@freescale.com, Wenbin.Song@freescale.com
 
-On Thu, Oct 22, 2015 at 02:17:42AM -0700, Dustin Byford wrote:
-> Although I2C mux devices are easily enumerated using ACPI (_HID/_CID or
-> device property compatible string match), enumerating I2C client devices
-> connected through an I2C mux needs a little extra work.
-> 
-> This change implements a method for describing an I2C device hierarchy that
-> includes mux devices by using an ACPI Device() for each mux channel along
-> with an _ADR to set the channel number for the device.  See
-> Documentation/acpi/i2c-muxes.txt for a simple example.
-> 
-> To make this work the ismt, i801, and designware pci/platform devs now
-> share an ACPI companion with their I2C adapter dev similar to how it's done
-> in OF.  This is done on the assumption that power management functions will
-> not be called directly on the I2C dev that is sharing the ACPI node.
-> 
-> Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
 
-This looks good to me.
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You did also some stylistic changes to the drivers in question which I
-think should be placed to a separate patches.
+On Fri, Oct 23, 2015 at 04:01:17PM +0800, Zhiqiang Hou wrote:
+> From: Shaohui Xie <Shaohui.Xie@freescale.com>
+>=20
+> Modify the I2C_IMX config to support to Layerscape platforms.
+>=20
+> Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+> Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
 
-Regardless of that,
+Added COMPILE_TEST and applied to for-next, thanks!
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-I'll leave this up to Rafael and Wolfram to decide how to go forward
-with this patch.
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWKfMtAAoJEBQN5MwUoCm2Y6MP/AlcVfAGRZO4gVAJlVoLeBIp
+kln/ZisN9qzfPLj9OcnYzlCKbPY13Tu/5YYCT5/V2aIGOLs30HqPCr8nb9KN7dPu
+scVCHtaqiX/0WP0lYulYFfac4kv7835XOU96mHUNDYjj9ne2bpGhqRWVzdiTCHQc
+66g8qX2lcvrJs0159Zp2DWpymfa4hDVUx0aZExdaHJI9ArCxOf1NHNA3G4k9UQUZ
+Dcd+i4zqDyfd0E87fu3NdFAHvS8TL7VvgQNw3tnoS+G3CeLvz3jzdbKBG8At/7ov
+jBOi3X06mSNCT/Xe7VYTfwquwUC2XIplxynhd67PEy2G8DQLMYfWZJYthpwODCel
+sh0RNG4AbULWPdP7+W8Xqqs5PM+FTlAixZ4FW021t+yel5FaVnzjvD0BWxej4Dlr
+mpyJoIm9WWpHyMNjigwPPRhPUEGoisikG4UxqklykbZv542/RG65aImcLaBegUcX
+aD9upwOUoJH9VTCbY9BjGW5h0iYuThMjuu3r/hH8KAhp8iviDZFWuOgM1WD+hsoC
+iRGZ92l+E9lAXfiDliDNpsSoTM+YVVDsFYXI5ANNzsxTutk30qLrJysXCYJdfs7p
+lg5o0lEoVHra9Oc06mJPO2COnOXIUCJ8qKXkF4jqIuKMX/qFEK2q/G9Y/Dnx4wpR
+izvQXLsRvnVqztNhWnd2
+=6yF3
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
