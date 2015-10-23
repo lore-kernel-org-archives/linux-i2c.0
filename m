@@ -1,77 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: designware: enable High-speed mode for pcidrv
-Date: Fri, 23 Oct 2015 22:04:07 +0200
-Message-ID: <20151023200407.GC1520@katana>
-References: <1444380426-17953-1-git-send-email-wangxfdu@gmail.com>
- <1444380426-17953-2-git-send-email-wangxfdu@gmail.com>
- <1444383067.8361.517.camel@linux.intel.com>
- <CACDNBm3wkxAXbgQ4Z15uBFKUrsy9ngYKx3dGY20eV4RbSoJ5mg@mail.gmail.com>
- <1444638708.8361.564.camel@linux.intel.com>
- <CACDNBm38bC+tP2S3WgUJJVRUppYF3=aUXvRtWfqfpM=BHapN9A@mail.gmail.com>
- <561F64A1.8030805@linux.intel.com>
- <1444902023.8361.629.camel@linux.intel.com>
- <CACDNBm2BkrjFHV2tcZmC+xH4kLQ724diEucRN53xEPaMrV6Jxg@mail.gmail.com>
+Subject: Re: [PATCH] i2c: i801: Add support for Intel DNV
+Date: Fri, 23 Oct 2015 22:11:14 +0200
+Message-ID: <20151023201114.GD1520@katana>
+References: <1444740099-137792-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="3Pql8miugIZX0722"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:36697 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751138AbbJWULT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 23 Oct 2015 16:11:19 -0400
 Content-Disposition: inline
-In-Reply-To: <CACDNBm2BkrjFHV2tcZmC+xH4kLQ724diEucRN53xEPaMrV6Jxg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Xiang Wang <wangxfdu@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, xiang.a.wang@intel.com, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1444740099-137792-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
 
---XMCwj5IQnwKtuyBG
+--3Pql8miugIZX0722
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > Should it (ACPI walk) be done in PCI case as well? If so, then it needs
-> > to be done up to i2c-core. There you may adjust the bus speed whenever
-> > slave device is enumerated.
-> >
-> I think the "ACPI walk for bus speed" also works for PCI case. It'll
-> be good to do this in i2c-core.
-> By doing this we can get a minimum device speed for this bus. I2C bus
-> drivers can use this speed to set corresponding mode into i2c
-> controller.
-> Waiting for comments from others.
+On Tue, Oct 13, 2015 at 03:41:39PM +0300, Mika Westerberg wrote:
+> Intel DNV SoC has the same legacy SMBus host controller than Intel
+> Sunrisepoint PCH. It also has same iTCO watchdog on the bus.
 >=20
-> > For PCI case you have still to have hardcoded values and it should be
-> > maximum supported by the bus I think. When you have implemented above
-> > algorithm you may do this safely. Am I missing something?
-> Agree. It'll be safer to set a hardcoded maximum supported speed of
-> the bus for PCI case.
-> I2C bus driver can use MIN(speed_get_by_ACPI_walk,
-> hardcoded_max_supported_speed) for bus speed.
+> Add DNV PCI ID to the list of supported devices.
+>=20
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Do I read this correctly that you agreed on an alternative path so this
-series can be discarded?
+Applied to for-next, thanks!
 
 
---XMCwj5IQnwKtuyBG
+--3Pql8miugIZX0722
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWKpK3AAoJEBQN5MwUoCm2CAYP/1aFyD3gxxNJPyDHQpuGAIio
-8Lcpo14XgsXSy0WDswSHaCPwQzUxIhhArtoZkWyQx2n4WC86K2uY0Dh2LngQe5sI
-MbbdvTRD+AFNq9TDg9s0JwFGFz5sTE/TWh5EkkAobQpCg4Kwlgu0jxFG4737nKvo
-Keok5gbBqBuSoss7dbEHWj1uidb3J/6oc7m9nQN5sG6j1v9WTZTT998+ZurvVfA2
-fNSrj9Qa7ibW4BAeQoNzzlKo/t+FV53ulcbjkG7cx69Xun0GmxDjWPJBYj92eYLy
-SAXlx33RKbth6McBUkBG2jvd/cfz1jGRNAh7YzHt+/tx2BUbdbGepSFLAEhgMhmE
-us4DKtyzfQr97YGso8HHAPk/uOmGybI/z2HM976pjZT0JV3t4gLrQiFHgwqgu1Jl
-2iXNcd/wPs4ZabeHGkrQDVO5lIaf1STGYgjlSXPyV2DD9aNjlkZmEF2RFyI3Xler
-UxgNI+UXx3lDcdscyP4t66wQIkjBj9jHxJmKhHLZDLxdmTRjar0lTQc/80aQDjji
-pPvDIFLVREDnkHXaXX0nuKmxfgDGYvBOAkSD+JA914s+0N00isb5bZEM5PfXMn59
-c1V9uftPSGl5wtQ9lQHXgpx/7U1GqL8XCe0rvgtr3AZ8n3NCDK2JY4Iy6PkAXvWc
-9LtcY1lqBLDORj8b2SH+
-=L3/H
+iQIcBAEBAgAGBQJWKpRiAAoJEBQN5MwUoCm2ucUQALT3yrM7NqxDu1pPRVMPqsev
+aE4ierjIyu6OWdE47ZB4q3QkjxXqCjzC+gTZj0Tro6JaLBBHU8ni5eBMkH8MVIBO
+lXnp+OgJx+pdf4dP04kvjHMxIpWQ4tZ87S2/eXokC1CRZcXgSjkdUTqWpcDUMjM0
+lGk2zDK5G/eNHMCfFLdE7YS8ZvDRfalDqsOpmbkAcmERdQWDKuy0JgeLWIYDpVdb
+THF3JLgK5YuiRR6yfOh4vy88KB1JL198qA8xbT32Q7yCOcWlBLsjd2DD47y5BgrB
+SkDKhPwCQms+9ujkvqJHzP7xRqyKBazfEt1e2S3Tkc0+5D52ebs6hmWZIwJ6yfin
+6wimsRBtDfMt2bixHvaqjKWV7oB8QR5TGN6YhcHQ/2KLb4ZJ7tr59sPjWpBqshdf
+3vLdvfXuO9ljGU3kkIXK+REA8YCDs1Oysb8X+a/kAHIAUkv5w41wLX4p8abDdJyE
+6y4TXW3BBnrt+R7yMLg0DxVqnWtvbpKibwNUBA9Vupnk1vMu/0Adt6JxqsUEYDQ9
+QDL/RkOXnkpakPtpAu/PKdGNpIUnumhMdsui12ba2dpr8IRmMT6/YJwNuI0V2IQH
+Sx90LHDbIAQAg9hou45b3V0aVw1/9E7dc1euOfJqHKW2saBGBdi2zonAptj73ZlT
++3ROygpOD7KXfoun3UCl
+=bIon
 -----END PGP SIGNATURE-----
 
---XMCwj5IQnwKtuyBG--
+--3Pql8miugIZX0722--
