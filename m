@@ -1,105 +1,57 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v4 5/5] pwm-pca9685: enable ACPI device found on Galileo Gen2
-Date: Fri, 23 Oct 2015 12:16:45 +0300
-Message-ID: <1445591805-28886-6-git-send-email-andriy.shevchenko@linux.intel.com>
-References: <1445591805-28886-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 0/5] enable I2C devices behind I2C bus on Gen2
+Date: Fri, 23 Oct 2015 12:16:40 +0300
+Message-ID: <1445591805-28886-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1445591805-28886-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-There is a chip connected to i2c bus on Intel Galileo Gen2 board. Enable it via
-ACPI ID INT3492.
+There is a board in the wild, i.e. Intel Galileo Gen2, that has ACPI enumerated
+devices behind I2C bus. This patch series dedicated to enable those devices.
+
+The MFD framework is also updated to cope with interesting implementation of
+the cell descriptions under ACPI MFD (patch 1).
+
+The patches 5 and 6 are pretty independent and could be applied ahead, though
+they don't make much sense without previous ones.
+
+Wolfram, since Lee acknowledged patches 1-3, can you pull them to your tree?
+
+Tested on the actual Intel Galileo Gen2 by Ismo (gpio expanders) and me (at24).
 
 Cc: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/pwm/Kconfig       |  2 +-
- drivers/pwm/pwm-pca9685.c | 20 ++++++++++++++++----
- 2 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-index 062630a..bb114ef 100644
---- a/drivers/pwm/Kconfig
-+++ b/drivers/pwm/Kconfig
-@@ -242,7 +242,7 @@ config PWM_MXS
- 
- config PWM_PCA9685
- 	tristate "NXP PCA9685 PWM driver"
--	depends on OF && I2C
-+	depends on I2C
- 	select REGMAP_I2C
- 	help
- 	  Generic PWM framework driver for NXP PCA9685 LED controller.
-diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
-index 70448a6..117fccf 100644
---- a/drivers/pwm/pwm-pca9685.c
-+++ b/drivers/pwm/pwm-pca9685.c
-@@ -19,9 +19,11 @@
-  * this program.  If not, see <http://www.gnu.org/licenses/>.
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/pwm.h>
- #include <linux/regmap.h>
- #include <linux/slab.h>
-@@ -297,7 +299,6 @@ static const struct regmap_config pca9685_regmap_i2c_config = {
- static int pca9685_pwm_probe(struct i2c_client *client,
- 				const struct i2c_device_id *id)
- {
--	struct device_node *np = client->dev.of_node;
- 	struct pca9685 *pca;
- 	int ret;
- 	int mode2;
-@@ -320,12 +321,12 @@ static int pca9685_pwm_probe(struct i2c_client *client,
- 
- 	regmap_read(pca->regmap, PCA9685_MODE2, &mode2);
- 
--	if (of_property_read_bool(np, "invert"))
-+	if (device_property_read_bool(&client->dev, "invert"))
- 		mode2 |= MODE2_INVRT;
- 	else
- 		mode2 &= ~MODE2_INVRT;
- 
--	if (of_property_read_bool(np, "open-drain"))
-+	if (device_property_read_bool(&client->dev, "open-drain"))
- 		mode2 &= ~MODE2_OUTDRV;
- 	else
- 		mode2 |= MODE2_OUTDRV;
-@@ -363,16 +364,27 @@ static const struct i2c_device_id pca9685_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, pca9685_id);
- 
-+#ifdef CONFIG_ACPI
-+static const struct acpi_device_id pca9685_acpi_ids[] = {
-+	{ "INT3492", 0 },
-+	{ /* sentinel */ },
-+};
-+MODULE_DEVICE_TABLE(acpi, pca9685_acpi_ids);
-+#endif
-+
-+#ifdef CONFIG_OF
- static const struct of_device_id pca9685_dt_ids[] = {
- 	{ .compatible = "nxp,pca9685-pwm", },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, pca9685_dt_ids);
-+#endif
- 
- static struct i2c_driver pca9685_i2c_driver = {
- 	.driver = {
- 		.name = "pca9685-pwm",
--		.of_match_table = pca9685_dt_ids,
-+		.acpi_match_table = ACPI_PTR(pca9685_acpi_ids),
-+		.of_match_table = of_match_ptr(pca9685_dt_ids),
- 	},
- 	.probe = pca9685_pwm_probe,
- 	.remove = pca9685_pwm_remove,
+Changelog v4:
+- amend at24 patch to satisfy sparse (Wolfram)
+- drop applied patches
+
+Changelog v3:
+- append ACKs from Rafael (from ACPI angle)
+- drop upstreamed patches (GPIO pca953x)
+
+Changelog v2:
+- append tags
+- re-make patch 3 (suggested by Lee)
+- improve patch 8 (suggested by Thierry)
+
+
+Andy Shevchenko (5):
+  mfd: core: redo ACPI matching of the children devices
+  mfd: intel_quark_i2c_gpio: load gpio driver first
+  mfd: intel_quark_i2c_gpio: support devices behind i2c bus
+  at24: enable ACPI device found on Galileo Gen2
+  pwm-pca9685: enable ACPI device found on Galileo Gen2
+
+ Documentation/acpi/enumeration.txt | 11 +++++---
+ drivers/mfd/intel_quark_i2c_gpio.c | 33 ++++++++++++++++--------
+ drivers/mfd/mfd-core.c             | 52 ++++++++++++++++++++++++++------------
+ drivers/misc/eeprom/at24.c         | 22 +++++++++++++---
+ drivers/pwm/Kconfig                |  2 +-
+ drivers/pwm/pwm-pca9685.c          | 20 ++++++++++++---
+ include/linux/mfd/core.h           | 10 ++++++--
+ 7 files changed, 111 insertions(+), 39 deletions(-)
+
 -- 
 2.6.1
