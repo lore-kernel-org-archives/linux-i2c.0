@@ -1,61 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-dev: Fix I2C_SLAVE ioctl comment
-Date: Fri, 23 Oct 2015 23:26:11 +0200
-Message-ID: <20151023212611.GL1520@katana>
-References: <20150911112718.7f9effb2@endymion.delvare>
+Subject: Re: [PATCH RFT] i2c: au1550: Convert to devm_kzalloc and
+ devm_ioremap_resource
+Date: Fri, 23 Oct 2015 23:32:28 +0200
+Message-ID: <20151023213228.GM1520@katana>
+References: <1433836369.27915.1.camel@ingics.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sCNd3Ivk/oijKKf1"
+	protocol="application/pgp-signature"; boundary="7vLGWvOrvbSM0Ba8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36989 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:37025 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752085AbbJWV0N (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 23 Oct 2015 17:26:13 -0400
+	id S1751028AbbJWVcd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 23 Oct 2015 17:32:33 -0400
 Content-Disposition: inline
-In-Reply-To: <20150911112718.7f9effb2@endymion.delvare>
+In-Reply-To: <1433836369.27915.1.camel@ingics.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>
+To: Axel Lin <axel.lin@ingics.com>
+Cc: Domen Puncer <domen.puncer@ultra.si>, Ralf Baechle <ralf@linux-mips.org>, Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org
 
 
---sCNd3Ivk/oijKKf1
+--7vLGWvOrvbSM0Ba8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 11, 2015 at 11:27:18AM +0200, Jean Delvare wrote:
-> The first part of the comment is wrong since November 2007, delete it.
+On Tue, Jun 09, 2015 at 03:52:49PM +0800, Axel Lin wrote:
+> Use devm_* APIs to simplify the code.
 >=20
-> The second part of the comment is related to I2C_PEC, not I2C_SLAVE, so
-> move it where it belongs.
->=20
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Axel Lin <axel.lin@ingics.com>
 
-Applied to for-next, thanks!
+Applied to for-next with Manuel's Tested-by, thanks!
 
 
---sCNd3Ivk/oijKKf1
+--7vLGWvOrvbSM0Ba8
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWKqXzAAoJEBQN5MwUoCm2LNAP/2BZ96W6CbTs6r5jwI6Zw53L
-wmS1KxcrOagf/r+QxeizQ7IQG8nGJ+k7RIVTd2Wv4uaZtfAnXP5bn7MPDCtWIyyQ
-xy1YqMGyqqyUlTpgJ94j4AHFQcH4mVImmBNgXYNtZL8RgZjOPxIcl0d9ryxAltG3
-+RaRxb+nLvjwz0jwUM2KOH5585v6DWQPW+e2MRn6qMC4MUQ9W2hLSnpLI+zbrPAs
-eqQ9xrUQRJuCCDRPiQAL26LuPCZFPd+hKG04GgotYQhqsaXhTRzwfKlIgnnv/iiD
-ND4GtbpKJ0BUp1qv7xTz42wT2f02xOx1lvf29qIQp2KY219EmeX76IyRS1+XqeIn
-/BoAPh2Hzs21o4llDel9fif1MPNAtNzHDrWeDisl9C0/HLC8o4lrJFUctmLXLDum
-Q1O2uxq7HbIw12+0XCU+WqtUN/0OrDbt6xrZos6eWsJm1bZNpgtsku0A1kEFxj91
-Cff6Aoj2EJbTrWgaKegGjIkQWP519iRobN4fiz4n6c1LRkIwpvRvKOd08wHmGQs6
-lNG2rLxpdrXlzd9i2Thm3JmBJS5OIxPFQpaX/GUWo1kbI5F5iQPMD3jUFcmWgraB
-f5EQJ0Bc6x3aKilyaGJKTqQUGRJQIcK66oJf2U8dP+91NMDwlnAriqvghZucoNIH
-LzA1bvwrpGnRaNs2o8nL
-=TLjT
+iQIcBAEBAgAGBQJWKqdsAAoJEBQN5MwUoCm2vtUQAKot99jxDw2AKhwq/YYREuL5
+g0PunxrpsUbs9/7vDErSGxsD+dSGoVkBTCZ16sLLO9TiUKNstaMuFWP5tZYV8bYt
+C35VViLEwcsnzDij3pma04KZycsyaNXMw8Fsg6QHaOsK3pJ8HEAIkhbhD9FFmAYR
+yqNGp7n+tL+OV8Zwp759FUddiIU4Oey8SQ620M4CRI9gY0cGzPSSAGLfqbQd5Uin
+63FU6eX+teL9KxTHKiWZ72Ran/vDTKzr1Higrho1gIiAE0CWj00excO+faFgQRL/
+lFs5Kf8lZA8uQ3SkxVlo9dm7/ErFeP+BZzSKurdFjvRlkvCOz9pl8u/7TmhGDYup
+nv1UQ/18nJCuPSpbUzzWs7wIzCveL9pQfLRm6QGkvxrMOsP6okPpYuyuMSivNxUV
+t2YXBVMzWIoXHsPatIx/4zeem6WLAejaT0MWrJiEnmyfRv/MOysX7XY5qXY1Cgx1
+5T0XnoWGqbuEhY5ho85y9ziecnrHUeijw6QtZ0lGEgmKzASqdhmyeuWPcN/Bvvhw
+tK2l3cxXbK9wV6foAYHXBzVff3y2MnTfiDBtSEO1hJt2FhdW+iPvJ3yYQVNlUTRc
+rulzz2GaifKiGG8DB0X/l2hM2CDBuz8fZRWW0Q72YaS0cezB09tmheXAu1C8EeTe
+WStCpJB2W0LLx2PBxg/S
+=8P2T
 -----END PGP SIGNATURE-----
 
---sCNd3Ivk/oijKKf1--
+--7vLGWvOrvbSM0Ba8--
