@@ -1,69 +1,80 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH-RESEND 0/3] i2c: core/pxa: Add support for hardware lock
-Date: Sun, 25 Oct 2015 10:52:00 +0100
-Message-ID: <20151025095200.GE2159@katana>
-References: <vaibhav.hiremath@linaro.org>
- <1433270731-23790-1-git-send-email-vaibhav.hiremath@linaro.org>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: i801: Add support for Intel DNV
+Date: Sun, 25 Oct 2015 11:45:18 +0100
+Message-ID: <20151025114518.338272cf@endymion.delvare>
+References: <1444740099-137792-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Rgf3q3z9SdmXC6oT"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:44978 "EHLO pokefinder.org"
+Received: from mx2.suse.de ([195.135.220.15]:40755 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751099AbbJYJwF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 25 Oct 2015 05:52:05 -0400
-Content-Disposition: inline
-In-Reply-To: <1433270731-23790-1-git-send-email-vaibhav.hiremath@linaro.org>
+	id S1750998AbbJYKpW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 25 Oct 2015 06:45:22 -0400
+In-Reply-To: <1444740099-137792-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
+Hi Mika,
 
---Rgf3q3z9SdmXC6oT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 13 Oct 2015 15:41:39 +0300, Mika Westerberg wrote:
+> Intel DNV SoC has the same legacy SMBus host controller than Intel
+> Sunrisepoint PCH. It also has same iTCO watchdog on the bus.
+> 
+> Add DNV PCI ID to the list of supported devices.
+> 
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
+>  drivers/i2c/busses/i2c-i801.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index eaef9bc9d88c..47c2ddf76264 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -60,6 +60,7 @@
+>   * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
+>   * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
+>   * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
+> + * DNV (SOC)			0x19df	32	hard	yes	yes	yes
+>   *
+>   * Features supported by this driver:
+>   * Software PEC				no
+> @@ -202,6 +203,7 @@
+>  #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
+>  #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
+>  #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
+> +#define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
 
-On Wed, Jun 03, 2015 at 12:15:28AM +0530, Vaibhav Hiremath wrote:
-> To justify the need for hardware lock, lets take a real usecase scenario -
->    =20
-> In case of Marvell SoC, PXA910 silicon, both AP and CP are present and
-> these two ARM cores are sharing one pair of I2C pins.
->    =20
-> In order to keep I2C transaction operated with atomic, hardware lock
-> (RIPC) is required.
->    =20
-> This patch extends support for atomic operation by adding hardware lock s=
-upport
-> to the i2c-core.
->=20
-> PATCH[1/3] : Core changes for hardware lock
-> PATCH[2/3 & 3/3] : hardware lock support to i2c-pxa bus driver.
+Can you please get this added to pci.ids?
 
-Why don't you use the hwspinlock subsystem?
+http://pci-ids.ucw.cz/read/PC/8086
 
+>  
+>  struct i801_mux_config {
+>  	char *gpio_chip;
+> @@ -863,6 +865,7 @@ static const struct pci_device_id i801_ids[] = {
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMBUS) },
+>  	{ 0, }
+>  };
+>  
+> @@ -1256,6 +1259,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  	switch (dev->device) {
+>  	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
+>  	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
+> +	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
+>  		priv->features |= FEATURE_I2C_BLOCK_READ;
+>  		priv->features |= FEATURE_IRQ;
+>  		priv->features |= FEATURE_SMBUS_PEC;
 
---Rgf3q3z9SdmXC6oT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Looks good, but please also update Documentation/i2c/busses/i2c-i801
+and drivers/i2c/busses/Kconfig.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWLKZAAAoJEBQN5MwUoCm25GIP/2nS9QDrJS3uHfepXy7kTOx/
-D4ExtjhULSy6lSdBA0DzsHrVta5buAEEFnFyJBSmBWrENE29C6YD43oPdrvZaREg
-kHXVZMrAp0mooknTgP8FiVvnMwQC7Gru2jVl4WiHNAZGDNyG5iYQ/aKWXqwc7Jww
-GkSQO/oaWwQVae+Zx+F5ec5c/z++mYx6/sbyA1x6TmaTopbpGbA968D1EU1fNKgj
-lfUhI3jX+1WRS4YyPB33/vDSus04ygMkVDNWNhq5S2OTsPjSLDqiV0V1bdbEcJJe
-d5l/O5kF9at0pe4RbqZvFBSM+ANHgJ31X9eCpcARwjKyfONt+F60wUZdPFh7f3gA
-ctrOQTi5UM6T2BVQ3QfCym49LCO53nXBhNrXWOf+j6zQaPCorWEF8inbfxD6ZpwG
-NNACjJhM6Bvd+fT+vv98ZccOSruCPtjWf6k7RJgkyKz3oa7VvsMvkuTDC4INnfQF
-FOdlaXPoDhNShWpg8+zB3mtiSbNHXhfQ1QY93ob3kFC4n1inMMi53ab4QxhZ5gfS
-rFO83QBlsbb77ltukyMYBWzq5QxxCsfmKqu6Y5fTdbPTrthndc6RA3LZb8KKJm/h
-9c+PgatHbHEZ8YhlEZNmjFwBgTbNTAIqtMj9yz2MIsiuKXkSAu9BsJENeXRtp49x
-d5D3JOZ+v3I8eRmHZrhD
-=8w5p
------END PGP SIGNATURE-----
-
---Rgf3q3z9SdmXC6oT--
+-- 
+Jean Delvare
+SUSE L3 Support
