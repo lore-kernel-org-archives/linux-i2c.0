@@ -1,56 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: busses: Use setup_timer
-Date: Sun, 25 Oct 2015 15:58:26 +0100
-Message-ID: <20151025145826.GB9701@katana>
-References: <1445365039-23695-1-git-send-email-falakreyaz@gmail.com>
+Subject: Re: [PATCH v5 0/2] i2c: acpi: scan ACPI enumerated I2C mux channels
+Date: Sun, 25 Oct 2015 15:53:07 +0100
+Message-ID: <20151025145307.GA9701@katana>
+References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
+ <1445628427-29244-1-git-send-email-dustin@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1445365039-23695-1-git-send-email-falakreyaz@gmail.com>
+In-Reply-To: <1445628427-29244-1-git-send-email-dustin@cumulusnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Muhammad Falak R Wani <falakreyaz@gmail.com>
-Cc: Vitaly Wool <vitalywool@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dustin Byford <dustin@cumulusnetworks.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, rjw@rjwysocki.net, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, "Puustinen, Ismo" <ismo.puustinen@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---GID0FwUMdk1T2AWN
+--xHFwDpU9dbj6ez1V
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 20, 2015 at 11:47:19PM +0530, Muhammad Falak R Wani wrote:
-> Use timer API function setup_timer instead of init_timer to
-> initialize the timer.
->=20
-> Signed-off-by: Muhammad Falak R Wani <falakreyaz@gmail.com>
+On Fri, Oct 23, 2015 at 12:27:05PM -0700, Dustin Byford wrote:
+> v5:
+> - rebased on i2c/for-next (Jarkko, Wolfram)
+> - include acpi.h in designware drivers (Mika)
+> - remove return from void stub function (Mika)
+> - add acks and tested-by from Mika
 
-Please note that the proper prefix in the subject would be "i2c: pnx: "
+Applied to for-next, thanks!
 
-Fixed this and applied to for-next, thanks!
+In the future, when you send new versions, please don't set In-Reply-To
+to the old version, just leave it empty. I (and most maintainers I know)
+find it easier to work when patches arrive chronologically.
 
 
---GID0FwUMdk1T2AWN
+--xHFwDpU9dbj6ez1V
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWLO4SAAoJEBQN5MwUoCm2As0QAJ41CvMKtktTcGHov/z3OLQk
-ezPnNV6MxTKOhV2b+uzlUoI3Qoyn85FDuVEAQhFuRAfNHKunREBRECm+EKfOldFu
-9bjoPgMWyxKnRHskRNuTOdil0jE0QP306O6UK0eAIPx8QbXS9DNFjHBYSDyM1Zdd
-MuXrBKMfzVRac9BTzB7Lh4sMH0ak0Z7MkKIgFsH0yF3nk773Bt7NNYHBrr5QIY6u
-MtEiSkIx39dik76iKJthDcC5GxIWx2wX4YjuiZJHKt6AbA35wetvDADTiVwq0OgW
-Fi+FTtQmV2HisSvw+mCansa1/WZFRt7/oyEIh0/ayXqZuRPR9XHYYZHgLSVCBxBL
-0fNS5a8cY6CHPkq/2eHZ22qG5RKAQx710UWbJhuv+RDbGTuoWO0lwmOhiEdm4I1f
-lcUF40C5fd3jwit3xPEHjraZfeFusZkOp4Byb/Wo0L+6DFwQlGhEo+XupLmI2YbT
-Vfm2NxAlhW1oPVCvnHdNOfCdt5IgKzkr62Ti0hIpZ2ECHPKt4rwIUXk69EhpaCaE
-XJauFjbHb7iQz5zo8IUeEu+8RVBa548O0tZaRbY3/8tY+mk24vQV5pMYrH2c8LAH
-W/73+nQWgmlMBqDqbAcj+Mfqu/9jqxpjpKghKFJq3+10JYIJQD/or3HNN9SQhozS
-W5l4PGdLkdJ+kye3ms2X
-=0YMb
+iQIcBAEBAgAGBQJWLOzTAAoJEBQN5MwUoCm2bMsP/27pnVIRqQfPe0e2hCD9yIMW
+eYI3OeznsoDVaUpB9Nqqf4ZoyDRWLznEcth7lXrDCsnevmYNgIpvRXIWPL1Ck2Yq
+94M/AT1qxmRzi6N91imjGVUBnLa2SZ+B8LK4VwBoQ18bYTOFq2EuSZsTETudEwZU
+b8HJHopznSg1j3Jy+WW0poPb9KL265VP5IyIQsbC/Fyjad2cgLGT0Re5AB6UYMHT
+hXD5LOrte0599j0sSGCqFtoWuiqVn+HwtvIoTE4DYn3auySzsZE/LQRZIKbhiR3/
+H7/8sn/LZAuJTrXCyrv7HhYqbgPv0KKOSJ3GjPZ78SzZ/5Kxky4vxWkYw823J2iw
+sP49lciFpToB+sL6Eay/9mOQh04aa3jEcoyOHYdA8z/dFa+Z5PidqVdDE4X4q91e
+7G21FqAcLwRKTP65d6kQS9OT5GHFA770JCuC+zPuoTXHQCGZo1WqUURlwEEglbZi
+ZjsInH1AKsDgO2xa/JrUUP+BvOXJh37hyJVyGnf0wGh5dH9QVb+Twa6NRs8c3sMp
+/mZ6dy8L+cL3umBhmNk4R9m8dMbPxd4Dgxam2zbXl1T6k7N3Phao9d3ilfNmUO/x
+sv58tKDFunj6HD9BFJ0GuyGjp+y/3AX8I2/FsUot1rdOQdxS7353YxdPspAClkfD
+HX8VGEayn3hKw0uI1XEW
+=VI4G
 -----END PGP SIGNATURE-----
 
---GID0FwUMdk1T2AWN--
+--xHFwDpU9dbj6ez1V--
