@@ -1,53 +1,47 @@
 From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH v4 1/2] acpi: add acpi_preset_companion() stub
-Date: Sun, 25 Oct 2015 14:40:10 +0100
-Message-ID: <CAJZ5v0h_u0F_9vXHDT458+qvU0J8jwi0tXWfbLcOtYhDJPQJ_Q@mail.gmail.com>
-References: <1439510358-16664-1-git-send-email-dustin@cumulusnetworks.com>
-	<1445505462-27915-1-git-send-email-dustin@cumulusnetworks.com>
-	<1445505462-27915-2-git-send-email-dustin@cumulusnetworks.com>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Sun, 25 Oct 2015 14:54:39 +0100
+Message-ID: <CAJZ5v0hPVu7AL8zBdU4Kb7+MVfYv0mTa43RhnCyyPR+RKDbhLA@mail.gmail.com>
+References: <20151018192931.GY14956@sirena.org.uk>
+	<562A5602.7000208@sonymobile.com>
+	<CAL_JsqLNSM=+j2r9HPcbSzsZrgnGEY3=kv21EXxisKwP5+57ag@mail.gmail.com>
+	<24100858.2KIS8Y2npV@vostro.rjw.lan>
+	<20151024220648.GR29919@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1445505462-27915-2-git-send-email-dustin@cumulusnetworks.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Dustin Byford <dustin@cumulusnetworks.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "Puustinen, Ismo" <ismo.puustinen@intel.com>
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <20151024220648.GR29919@sirena.org.uk>
+Sender: linux-clk-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tim Bird <tim.bird@sonymobile.com>, "frowand.list@gmail.com" <frowand.list@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 22, 2015 at 11:17 AM, Dustin Byford
-<dustin@cumulusnetworks.com> wrote:
-> Add a stub for acpi_preset_companion().  Fixes build failures when
-> acpi_preset_companion() is used and CONFIG_ACPI is not set.
+On Sun, Oct 25, 2015 at 12:06 AM, Mark Brown <broonie@kernel.org> wrote:
+> On Sat, Oct 24, 2015 at 04:17:12PM +0200, Rafael J. Wysocki wrote:
 >
-> Signed-off-by: Dustin Byford <dustin@cumulusnetworks.com>
+>> Well, I'm not quite sure why exactly everyone is so focused on probing here.
+>
+> Probe deferral is really noisy even if it's working fine on a given
+> system so it's constantly being highlighted to people in a way that
+> other issues aren't if you're not directly having problems.
+>
+> There's also the understanding people had that the order things get
+> bound changes the ordering for some of the other cases (perhaps it's a
+> good idea to do that, it seems likely to be sensible?).
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+But it really doesn't do that.  Also making it do so doesn't help much
+in the cases where things can happen asynchronously (system
+suspend/resume, runtime PM).
 
-> ---
->  include/linux/acpi.h | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index 51a96a8..66564f8 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -505,6 +505,12 @@ static inline bool has_acpi_companion(struct device *dev)
->         return false;
->  }
->
-> +static inline void acpi_preset_companion(struct device *dev,
-> +                                        struct acpi_device *parent, u64 addr)
-> +{
-> +       return;
-> +}
-> +
->  static inline const char *acpi_dev_name(struct acpi_device *adev)
->  {
->         return NULL;
-> --
-> 2.1.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If, instead, there was a way to specify a functional dependency at the
+device registration time, it might be used to change the order of
+everything relevant, including probe.  That should help to reduce the
+noise you're referring to.
+
+If the dependency could only be discovered at the probe time, the
+order of things might be changed in response to letting the driver
+core know about it rather than "just in case", which should be more
+efficient.
+
+Thanks,
+Rafael
