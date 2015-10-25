@@ -1,77 +1,99 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH-v5 RESEND 3/5] i2c: pxa: Add support for pxa910/988 & new
- configuration features
-Date: Sun, 25 Oct 2015 09:25:02 +0100
-Message-ID: <20151025082502.GB2159@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH-v5 RESEND 4/5] Documentation: binding: add sclk
+ adjustment properties to i2c-pxa
+Date: Sun, 25 Oct 2015 09:37:48 +0100
+Message-ID: <20151025083748.GC2159@katana>
 References: <1440395978-9065-1-git-send-email-vaibhav.hiremath@linaro.org>
- <1440395978-9065-4-git-send-email-vaibhav.hiremath@linaro.org>
+ <1440395978-9065-5-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:44695 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750740AbbJYIZ3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 25 Oct 2015 04:25:29 -0400
+	protocol="application/pgp-signature"; boundary="DSayHWYpDlRfCAAQ"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1440395978-9065-4-git-send-email-vaibhav.hiremath@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1440395978-9065-5-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org, robert.jarzmik@free.fr, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, "Jett.Zhou" <jtzhou@marvell.com>, Yi Zhang <yizhang@marvell.com>
 
 
---rS8CxjVDS/+yyDmU
+--DSayHWYpDlRfCAAQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 24, 2015 at 11:29:36AM +0530, Vaibhav Hiremath wrote:
-> TWSI_ILCR & TWSI_IWCR registers are used to adjust clock rate
-> of standard & fast mode in pxa910/988; so this patch adds these two new
-> entries to "struct pxa_reg_layout" and "struct pxa_i2c".
+On Mon, Aug 24, 2015 at 11:29:37AM +0530, Vaibhav Hiremath wrote:
+> With addition of PXA910 family of devices, the TWSI module supports
+> new feature which allows us to adjust SCLK. i2c-pxa driver takes input
+> configuration in nsec and converts it to respective bit-fields,
 >=20
-> As discussed in the previous patch-series, the idea here is to add standa=
-rd
-> DT properties for ilcr and iwcr configuration fields.
-> In case of Master ilcr is used for low/high time and in case of slave mode
-> of operation iwcr is used for setup/hold time.
+>  - i2c-sclk-low-time-ns : SCLK low time (tlow)
+>    This property is used along with mode selection.
+>  - i2c-sclk-high-time-ns : SCLK high time (thigh)
+>  - i2c-start-hold-time-ns : Used in case of high speed mode for start bit
+>    hold/setup wait counter.
+>  - i2c-stop-hold-time-ns : Used in case of high speed mode for stop bit
+>    hold/setup wait counter.
+>  - i2c-sda-hold-time-ns : Used to calculate hold/setup wait counter for
+>    standard and fast mode.
 >=20
-> Signed-off-by: Jett.Zhou <jtzhou@marvell.com>
-> Signed-off-by: Yi Zhang <yizhang@marvell.com>
-> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath@linaro.org>
-> Tested-by: Robert Jarzmik <robert.jarzmik@free.fr>
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Fixed this checkpatch warning:
+Ooookay, after checking some datasheets, I finally stumbled over the
+fact that this driver is not using "clock-frequency" to determine the
+bus speed. However, this is the standard way of defining that in DT, so
+this driver should adhere to that, too, and not invent something new.
+Previously, I was under the impression that the above parameters were
+needed for fine-tuning and couldn't fully grasp why. But this is for
+defining the bus speed which is a no-go.
 
-CHECK: Please don't use multiple blank lines
-#82: FILE: drivers/i2c/busses/i2c-pxa.c:157:
-+
-+
+It looks to me that older PXA only have a bit to select between 100 and
+400kHz while this newer one can have arbitrary frequencies. Correct?
 
-and applied to for-next, thanks!
+So, what the driver should do:
+
+- Keep support for the old "mrvl,i2c-fast-mode" binding which should be
+  marked as deprecated
+
+- get the value of the standard property "clock-frequency"
+
+- for old PXAs, complain if not 100 or 400kHz, otherwise set the bit
+  accordingly
+
+- for new PXAs, calculate the ilcr and iwcr values from
+  "clock-frequency"
+
+Makes sense?
+
+Regards,
+
+   Wolfram
 
 
---rS8CxjVDS/+yyDmU
+--DSayHWYpDlRfCAAQ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWLJHeAAoJEBQN5MwUoCm2jLwQAIjGLtit/jD/Db2pStrceMpg
-4SrNvH0g93opUupaOQtT6/gXT+67/R6QCiJWtC07u6V+P4CRtzGPi9fllHCrL5ww
-Y23TRF9ki0LSjCZ5iwJ47ZVZDvj4xfmZtYhPyTLg6yaFwHj4gNrSFi587WsO/BQy
-1eBp60f4qTHk73xunKTzBKB1SMvnnVgECwoTeiuUqoe6ufuLjACHymY41J7OSoTl
-Dey5sznnDzoyt3dS+kwzap4HGZjUX7/uLq1q0rxqnsgqH4lVcrvtlJ2RRFlsIQTd
-KCv7akhVm/Log1nLHLBMmlG4Qa2AiALnx/tnlegS9jijMsrelmoI8qbUBm3XNpdl
-zd6zFWCJDcqLOFLpbxPq9lhPvn4BN4N7lDzqfTUT4gFXh6ZiD2W8ErHb7GDMOyWC
-uRS486mRy0244Jn5S82r59USnM87InLyaEuHxifeDslq9QFVgEtl4TjCgSUt5Wrt
-wUVgbsEaBITw3GmkiF1zUrmbfOnTSNW7KpXiJ1t+uZiQ/2x9EoUgtCttQrusB04q
-cGcKVr+JVDVnu/k3ChN+4LagkR3JixlDZyR83PGxWehhi1tVJN2O/NlFkfWOm6RL
-GN8RS15YvTYfeiXaXce8BZpz3cFNwUzoUSPwOfYvx7cTfKnNXmMxcCsxHRFNUBGw
-Rc8BrUBaswp7OKfP62E/
-=AJmD
+iQIcBAEBAgAGBQJWLJTcAAoJEBQN5MwUoCm2bKQQAI86+iqOqYdyg9wvn5p5j3AS
+qm4C78K+60FlPbuJ08IqNwUasWNgOzuMbFczu7pJACkIYCj5ZQvlTh+WUWYXIQ68
+vQGs7x4A4Hjvd5C4DTvOWuroa/Kx/unBbaDTLdOpiaFeA1KXTD/TIlTlwfoLFWgL
+2mFf8hSdv3dU3a9XXTcMXQbc6EEX1gxO36AT8H1f5UrfKpcQzYCE3pUXEvPjQBdp
+g7WumB5LwtmPL22/d7Y8Yofk5v6QrAHjQY57ElYx45xZhHAlu9rbuEuOX7Qccbhb
+EleZDa+Un6Wgd6qTaEW004FdCVn/XRyNXYYWvExavWSwmOE9ZmYBA8coDMBXxRmg
+8aDs1kVhvWi340+SB/8JCJXJTQ9vadakbtf7Z/nhPceHdRQhXxx/r198Z6fZFxZI
+mfUhn/Fm7eM7FT/n/a8bzq6gBQxkChbGX5zzBIBUX4pzpHhj0HFo+1nD8ukocJY9
+Fa5PMMnfVmU/eSwefk5A+9hd3duZyeInvHk8ShGdVzd36Tehdqd+fgjiNmbo3ilv
+kIH+zPEbrpEQG1Ihiu/si+/ZnCPtZ4GAc16eYI1K/Sfcw15dLCZsuXU4CG9yubcx
+uO0eqR6mlHu5zD4xpDMiPU8qvuIhZWuZqqk6c618zCGDZPUrsnadlKS8psFAUysP
+DQCFwFBIXD8hdSWR6SzV
+=/J2e
 -----END PGP SIGNATURE-----
 
---rS8CxjVDS/+yyDmU--
+--DSayHWYpDlRfCAAQ--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
