@@ -1,54 +1,82 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] i2c: Enable Cadence driver for ARM64
-Date: Mon, 26 Oct 2015 14:32:36 +0000
-Message-ID: <20151026143236.GK597@x1>
-References: <893f828f3ac665d80746589af3617dc462315329.1445868589.git.michal.simek@xilinx.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for mfd for 4.4
+Date: Mon, 26 Oct 2015 15:38:06 +0100
+Message-ID: <20151026143802.GA6946@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:36118 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753563AbbJZOcl (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Oct 2015 10:32:41 -0400
-Received: by wicfx6 with SMTP id fx6so116998932wic.1
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2015 07:32:40 -0700 (PDT)
+Received: from sauhun.de ([89.238.76.85]:51821 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753640AbbJZOiQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 26 Oct 2015 10:38:16 -0400
 Content-Disposition: inline
-In-Reply-To: <893f828f3ac665d80746589af3617dc462315329.1445868589.git.michal.simek@xilinx.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, Andrew Bresticker <abrestic@chromium.org>, David Box <david.e.box@linux.intel.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Javier Martinez Canillas <javier@osg.samsung.com>, Joachim Eastwood <manabian@gmail.com>, Zhangfei Gao <zhangfei.gao@linaro.org>, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Subhendu Sekhar Behera <sbehera@broadcom.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Regarding your address list -- it's too big.  Most of your addressees
-don't care about this patch.  Please be more selective when sending
-patches to people, most of us have enough (relevant) mail as it is.
 
-> This IP is available on Xilinx ZynqMP.
->=20
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> ---
->=20
->  drivers/i2c/busses/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 08b86178e8fb..d54c0e6d65d8 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -422,7 +422,7 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
-> =20
->  config I2C_CADENCE
->  	tristate "Cadence I2C Controller"
-> -	depends on ARCH_ZYNQ
-> +	depends on ARCH_ZYNQ || ARM64
->  	help
->  	  Say yes here to select Cadence I2C Host Controller. This controll=
-er is
->  	  e.g. used by Xilinx Zynq.
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Lee,
+
+these are the MFD patches I picked up via I2C. Tagged as
+quark-for-mfd-151026.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 049e6dde7e57f0054fdc49102e7ef4830c698b46:
+
+  Linux 4.3-rc4 (2015-10-04 16:57:17 +0100)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/quark-for-mfd
+
+for you to fetch changes up to 40d8edc9bf056ea83e50152a4ccd33048d26ccde:
+
+  at24: enable ACPI device found on Galileo Gen2 (2015-10-26 15:25:56 +0100)
+
+----------------------------------------------------------------
+Andy Shevchenko (4):
+      mfd: core: redo ACPI matching of the children devices
+      mfd: intel_quark_i2c_gpio: load gpio driver first
+      mfd: intel_quark_i2c_gpio: support devices behind i2c bus
+      at24: enable ACPI device found on Galileo Gen2
+
+ Documentation/acpi/enumeration.txt | 11 +++++---
+ drivers/mfd/intel_quark_i2c_gpio.c | 33 ++++++++++++++++--------
+ drivers/mfd/mfd-core.c             | 52 ++++++++++++++++++++++++++------------
+ drivers/misc/eeprom/at24.c         | 22 +++++++++++++---
+ include/linux/mfd/core.h           | 10 ++++++--
+ 5 files changed, 94 insertions(+), 34 deletions(-)
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWLjrKAAoJEBQN5MwUoCm2s08QAKNmxr3+MdxkJedRGqP4f8q2
+zqZ2Xnsc6QmrpwfUqF+xqlIp6jVyLWEeMohtxolm06uQhXEANdXq2ZqVzYKhR+VG
+niulFKn8JP0nQPy54MX0pNUdVXIfPQx7zULHUxF+uUveigavNmzAM2ZlN8XZM0DC
+pVxK1Xfrc18kDUzHxjNXArWHfDCHKVaJBUBrX3e5y5DYKpSI7ziK5EAp5zV8pSGU
+gm+wH44Px5Yb/4DlrjJc/i81UOIFSeTE03gLqlgcT1Wbt7QtDmDoqZUp2VFs+A9u
+RsWYokCWEDoqvwnGHNikMLUOWBOfuyGVW9IZt8hiOl97HiJFSrWNxNUBMi58+WT+
+6LintSVhkdqjkGOoAZ0gXUsj3mzC5UL3wON0AORSSN5tAkklf8Ol3SQptzhx1iGm
+/IQhpMvD/Xn1NIqS7RMBT88/ZMq5Fmcdr3TQ1A6OSpB/WuDQqeSydFhmnKculd2Z
+dVY8zYD8nhAGDciu+KwPddFJuFnkT3/RRQLSNw1EybT2z/CNiseEJFrCt/6b8B1W
+6GLwX6sFGvDr6t10+E/7t333ybLwLTJDS072ayFRT4BAhrOunMpFz+uhwGvMLp8W
+HgCLT8qnng12bo0WHiIhXQ2rOaWkJOUjLq0sIpxs7nMFt1xg8BnXsO62NUHCu6H7
+71pL9kX8rqRhBj0pbYaa
+=9yPt
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--
