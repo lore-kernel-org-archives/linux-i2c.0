@@ -1,61 +1,58 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 0/2] i2c: uniphier: add two I2C controller drivers for
- UniPhier SoC platform
-Date: Mon, 26 Oct 2015 10:47:32 +0000
-Message-ID: <20151026104732.GG597@x1>
-References: <1445597520-6299-1-git-send-email-yamada.masahiro@socionext.com>
- <20151026081746.GC597@x1>
- <CAK7LNATVmVi=4ugv0MgoCUzusphNeAXTC_K-PsXDiTLoCkV4-Q@mail.gmail.com>
- <CAMuHMdXLMRji80Ma9hbUJg_PChS1s2JaGy00L3M3rmyOnYKqHQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: i801: Add support for Intel DNV
+Date: Mon, 26 Oct 2015 11:49:32 +0100
+Message-ID: <20151026104932.GA4213@katana>
+References: <1444740099-137792-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20151025114518.338272cf@endymion.delvare>
+ <20151026092459.GD1526@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:50559 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753456AbbJZKtk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 26 Oct 2015 06:49:40 -0400
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdXLMRji80Ma9hbUJg_PChS1s2JaGy00L3M3rmyOnYKqHQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, Linux I2C <linux-i2c@vger.kernel.org>, Jiri Slaby <jslaby@suse.com>, Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>, James Hogan <james.hogan@imgtec.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Ray Jui <rjui@broadcom.com>, Tejun Heo <tj@kernel.org>, Andrew Bresticker <abrestic@chromium.org>, Scott Branden <sbranden@broadcom.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Pawel Moll <pawel.moll@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Xudong Chen <xudong.chen@mediatek.com>, Mauro
+In-Reply-To: <20151026092459.GD1526@lahna.fi.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jean Delvare <jdelvare@suse.de>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-On Mon, 26 Oct 2015, Geert Uytterhoeven wrote:
-> On Mon, Oct 26, 2015 at 9:27 AM, Masahiro Yamada
-> <yamada.masahiro@socionext.com> wrote:
-> > 2015-10-26 17:17 GMT+09:00 Lee Jones <lee.jones@linaro.org>:
-> >>> This series adds two I2C controller drivers.
-> >>> (they are completely different IPs.)
-> >>>
-> >>> The first one is a very simple FIFO-less I2C controller,
-> >>> which is used on some older UniPhier SoCs.
-> >>>
-> >>> The other one is higher-performance I2C controller with TX/RX FIF=
-O,
-> >>> used on newer UniPhier SoCs.
-> >>
-> >> And you have sent this to me because ... ?
-> >
-> >
-> > No special reason.
-> >
-> >
-> > I sent this series to linux-i2c@vger.kernel.org.
-> >
-> > I guess you were automatically CC'ed by scripts/get_maintainer.pl.
-> >
-> > Using get_maintainer.pl is a normal process when sending patches, I=
- think.
->=20
-> Please use common sense. It doesn't make much sense to CC everybody w=
-ho
-> ever made a minor edit to an affected file.
->=20
-> If checkpatch comes up with more than 5 names, this should ring a bel=
-l.
 
-+1
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+
+> Wolfram, do you want followup patch on top of this or do you prefer
+> updated patch?
+
+I'd prefer the seperate patch Jarkko mentioned which fixes all the
+previously forgotten ones.
+
+
+--y0ulUmNC+osPPQO6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWLgU8AAoJEBQN5MwUoCm2t0EQAITDuKBJeZRoH3MXXE4XxA+d
+a0LX3DlezFZpPJ2JdEKOV7YGMuuc/xc2+iP0wIBTKCvhhpHMA2+OBPj9kQE0qluB
+BDSwnss4hhvX3sAnwyBoy5ogDL/4NzFzBkQgvX1/yHcuA/WqdrxIEog3wpT4NpHO
+hW67L2LjEcqUlnIUlJobuhmNfsSBx7U0ids2P5FZlyDY6RgBTGN2H5QSjR0dMrhL
+kQCDbBgr4GcLV0xJrtuFfjeIFDzUahc39D6HE4z7uERj11C+18201XdcF/aUzHWy
+G3hiBN/vfwNobbiegc/Yypoj28SKQtRUBk9ms3uBJoVLuuBva5hWSJsSUKWOYhlw
+GCU6FSQth7dKHxidl+66TdyO+2lBDEa6WOsp06war4YlHIlci1M51XRovHBdjYW8
+NsiyzCi7apVXFvcrv5PeDmZp0MgdYCMYQpT5DsbS1NeIrZEdVntHcyl8R5sruN/k
+uYVoFqByb/aBpXd6ozPe8Day3lE/zZ8+F2YrWdFhdCMlJnLEE6myDaLB9qBNud6z
+P42EgZE5FhnHm3CIn1jmWbbLoF2Ht8vs1wyvlQgQlM0A3ybOAstIQZra03uvS3Ma
+Ga498+tkqTHp8JMmM30twHgbUM2Qtk5csst9MKHGFdugFXxUM3DLPx6fpJU+8YCH
+Hr7o2j+MWHiVhx+AFjSh
+=fu18
+-----END PGP SIGNATURE-----
+
+--y0ulUmNC+osPPQO6--
