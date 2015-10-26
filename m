@@ -1,53 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH] i2c: Enable Cadence driver for ARM64
-Date: Mon, 26 Oct 2015 15:50:10 +0100
-Message-ID: <20151026145010.GD5588@katana>
+Date: Mon, 26 Oct 2015 15:00:09 +0000
+Message-ID: <20151026150009.GN597@x1>
 References: <893f828f3ac665d80746589af3617dc462315329.1445868589.git.michal.simek@xilinx.com>
+ <20151026143236.GK597@x1>
+ <562E3C20.10902@xilinx.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cYtjc4pxslFTELvY"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wi0-f179.google.com ([209.85.212.179]:38636 "EHLO
+	mail-wi0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753826AbbJZPAO (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Oct 2015 11:00:14 -0400
+Received: by wicll6 with SMTP id ll6so118607918wic.1
+        for <linux-i2c@vger.kernel.org>; Mon, 26 Oct 2015 08:00:13 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <893f828f3ac665d80746589af3617dc462315329.1445868589.git.michal.simek@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, Andrew Bresticker <abrestic@chromium.org>, David Box <david.e.box@linux.intel.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Joachim Eastwood <manabian@gmail.com>, Zhangfei Gao <zhangfei.gao@linaro.org>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Subhendu Sekhar Behera <sbehera@broadcom.com>
+In-Reply-To: <562E3C20.10902@xilinx.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, Andrew Bresticker <abrestic@chromium.org>, David Box <david.e.box@linux.intel.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Javier Martinez Canillas <javier@osg.samsung.com>, Joachim Eastwood <manabian@gmail.com>, Zhangfei Gao <zhangfei.gao@linaro.org>, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Subhendu Sekhar Behera <sbehera@broadcom.com>
 
-
---cYtjc4pxslFTELvY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Oct 26, 2015 at 03:09:53PM +0100, Michal Simek wrote:
-> This IP is available on Xilinx ZynqMP.
+On Mon, 26 Oct 2015, Michal Simek wrote:
+> On 10/26/2015 03:32 PM, Lee Jones wrote:
+> > Regarding your address list -- it's too big.  Most of your addresse=
+es
+> > don't care about this patch.  Please be more selective when sending
+> > patches to people, most of us have enough (relevant) mail as it is.
 >=20
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> This is just what get_maintainer.pl is returning you. And I do use
+> patman (uboot tools) for ages and none has any problem with it. That'=
+s
+> why I am curious why you have the problem with it.
 
-Applied to for-next, thanks!
+git_maintainer.pl is best used with the --no-git-fallback flag.  If
+you don't it tells you about everyone who adapted, looked at, opened,
+and/or breathed on the file.  The only people that are likely to care
+about your change is either the original author of the specific hunk
+you are changing and the Maintainers/Supporters.  To everyone else
+these emails are spam.
 
-
---cYtjc4pxslFTELvY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWLj2hAAoJEBQN5MwUoCm2Mm0QAJTryoBpAwFXlNE/CthrvTAS
-hhLXxdd+QHTggcJwhOFj02HpZGqcRhZrtqY7wfCXz3p2cIpuH6w95Z6TN9ixG7An
-UUc515skKvLOJbQ3UqAI7WzJ4ty0G50c2rg7x0A206qeJvlCWSd+wiLiyhfzUMVZ
-De26QThuY36eXDVmCZnjKDHpbwBZWNIQGVb+2XVQOvPXPl9tncgga0hl3MLCRHMG
-FwNaoIalPnvj/sPAJemYSdrhKxtXMqU/j41czybO64R+VcgTGKi7DcCGuY0mQGxN
-24T6VUL1E5KzB0hf7rH1vqe1kKjP19G2ehHQBJMh7lrSiIdD0vq9LuY2QvyO+WWT
-EAujQQlvU+u/cJcVADHr3OdZybHviq98TFBd1pUZnGEvasg/5bSMRjWEp8+rEcJb
-FfJaNF3s691eUqa/bOKN649Y2IshdOYdkLI5cRO41bRwSIhXDrXTGFsLSoUUDzSy
-74xuPqoEHUiUshYsDiS+T7RKGDzSQJ3sgyEck+QXY8rt4aOWTa8KSa+LBTQSVy22
-8k5HxeUqQSmYZFwMddRIpyxtbEPXJODdmwpwM919mirzPZ2Ji8rRKDXdi+F/XZaM
-ldu9HF7VhOffoQ29/Bk2BWQ6NSFE+phlttE3dMjhslpmZXCYG9i4rL83aX+erTvG
-/DgRDIlWXp8cCe61IAPY
-=4InA
------END PGP SIGNATURE-----
-
---cYtjc4pxslFTELvY--
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
