@@ -1,41 +1,33 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: i801: Document Intel DNV and Broxton
-Date: Mon, 26 Oct 2015 14:26:50 +0100
-Message-ID: <1445866010.4659.1018.camel@chaos.site>
-References: <1445858816-19359-1-git-send-email-jarkko.nikula@linux.intel.com>
-	 <20151026113142.GA1548@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:58857 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753394AbbJZN0x (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 26 Oct 2015 09:26:53 -0400
-In-Reply-To: <20151026113142.GA1548@lahna.fi.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH] i2c: Enable Cadence driver for ARM64
+Date: Mon, 26 Oct 2015 15:09:53 +0100
+Message-ID: <893f828f3ac665d80746589af3617dc462315329.1445868589.git.michal.simek@xilinx.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, monstr@monstr.eu
+Cc: Andrew Bresticker <abrestic@chromium.org>, David Box <david.e.box@linux.intel.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Javier Martinez Canillas <javier@osg.samsung.com>, Joachim Eastwood <manabian@gmail.com>, Zhangfei Gao <zhangfei.gao@linaro.org>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Subhendu Sekhar Behera <sbehera@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-Le Monday 26 October 2015 =C3=A0 13:31 +0200, Mika Westerberg a =C3=A9c=
-rit :
-> On Mon, Oct 26, 2015 at 01:26:56PM +0200, Jarkko Nikula wrote:
-> > Add missing entries into i2c-i801 documentation and Kconfig about r=
-ecently
-> > added Intel DNV and Broxton.
-> >=20
-> > Suggested-by: Jean Delvare <jdelvare@suse.de>
-> > Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
->=20
-> Thanks Jarkko!
->=20
-> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+This IP is available on Xilinx ZynqMP.
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
 
-Thanks,
---=20
-Jean Delvare
-SUSE L3 Support
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 08b86178e8fb..d54c0e6d65d8 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -422,7 +422,7 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
+ 
+ config I2C_CADENCE
+ 	tristate "Cadence I2C Controller"
+-	depends on ARCH_ZYNQ
++	depends on ARCH_ZYNQ || ARM64
+ 	help
+ 	  Say yes here to select Cadence I2C Host Controller. This controller is
+ 	  e.g. used by Xilinx Zynq.
+-- 
+2.5.0
