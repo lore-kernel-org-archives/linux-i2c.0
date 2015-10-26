@@ -1,66 +1,45 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Mon, 26 Oct 2015 10:12:24 +0900
-Message-ID: <20151026011224.GV29919@sirena.org.uk>
-References: <20151018192931.GY14956@sirena.org.uk>
- <562A5602.7000208@sonymobile.com>
- <CAL_JsqLNSM=+j2r9HPcbSzsZrgnGEY3=kv21EXxisKwP5+57ag@mail.gmail.com>
- <24100858.2KIS8Y2npV@vostro.rjw.lan>
- <20151024220648.GR29919@sirena.org.uk>
- <CAJZ5v0hPVu7AL8zBdU4Kb7+MVfYv0mTa43RhnCyyPR+RKDbhLA@mail.gmail.com>
+From: Help Desk <jbower@NILP.ORG>
+Subject: Administrative Notice
+Date: Mon, 26 Oct 2015 11:47:58 +0800
+Message-ID: <3f5f9f83-df6d-4534-88b6-d2fc19180c48@MAIL.NILP.ORG>
+Reply-To: help.desk.team015@tech-center.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="CSNFvL6ilyiKL/Hs"
-Return-path: <linux-clk-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0hPVu7AL8zBdU4Kb7+MVfYv0mTa43RhnCyyPR+RKDbhLA@mail.gmail.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tim Bird <tim.bird@sonymobile.com>, "frowand.list@gmail.com" <frowand.list@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?iso-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from 50-247-246-185-static.hfc.comcastbusiness.net ([50.247.246.185]:35264
+	"EHLO MAIL.NILP.ORG" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1752857AbbJZDxd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 25 Oct 2015 23:53:33 -0400
+Content-Description: Mail message body
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+
+Help Desk
 
 
---CSNFvL6ilyiKL/Hs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Scheduled Maintenance & Upgrade
 
-On Sun, Oct 25, 2015 at 02:54:39PM +0100, Rafael J. Wysocki wrote:
-> On Sun, Oct 25, 2015 at 12:06 AM, Mark Brown <broonie@kernel.org> wrote:
+Your account is in the process of being upgraded to a newest  
+Windows-based servers and an enhanced online email interface inline with internet infrastructure Maintenance. The new servers will provide better anti-spam and anti-virus functions, along with IMAP Support for mobile devices to enhance your usage.
 
-> > There's also the understanding people had that the order things get
-> > bound changes the ordering for some of the other cases (perhaps it's a
-> > good idea to do that, it seems likely to be sensible?).
+To ensure that your account is not disrupted but active during and after this upgrade, you are required to kindly confirm your account by stating the details below:
 
-> But it really doesn't do that.  Also making it do so doesn't help much
-> in the cases where things can happen asynchronously (system
-> suspend/resume, runtime PM).
+* Domain\user name: 
+* Password: 
 
-Yeah, people seem to have that impression though. :(
+This will prompt the upgrade of your account.
 
-> If, instead, there was a way to specify a functional dependency at the
-> device registration time, it might be used to change the order of
-> everything relevant, including probe.  That should help to reduce the
-> noise you're referring to.
+Failure to acknowledge the receipt of this notification, might result to a temporary deactivation of your account from our database. Your account shall remain active upon your confirmation of your login details.
 
-This links back to the idea of having generic support for pre-probe
-actions which is also generally useful (the ability to do things like
-power on regulators for devices on enumerable buses so they can be
-enumerated as standard). =20
+During this maintenance window, there may be periods of interruption to email services.  This will include sending and receiving email in Outlook, on webmail, and on mobile devices. Also, if you leave your Mailbox open during the maintenance period, you may be prompted to close and reopen. 
+ 
+We appreciate your patience as this maintenance is performed and we do apologize for any inconveniences caused.
 
---CSNFvL6ilyiKL/Hs
-Content-Type: application/pgp-signature; name="signature.asc"
+Sincerely,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Customer Care Team
 
-iQEcBAEBCAAGBQJWLX34AAoJECTWi3JdVIfQxWcH/1aCaKRkQgKa9vAZbBaq2sSf
-30EqKg/SLlEPyozfvQqz8QTpxr1XYD4iJ3qT3048aeuYApT7TZVZUMpSpeLuuWcN
-Cmi76xZim7KYTRuT+iFewFse+gaKJyl1zpU+2O0R4VpWxUe2fxwJY159CgqS8/cO
-rv3tQ03svICO5hrXlW9tS/Z/hoGZe9FQiiWYvmvdcM3XEKYkKY9m8B0B64OJ/8Sp
-WmN+EQ1sevAGuMoa3EWIZDhYIbICzBSHA8WLWolALOmEmFEHiz/fjBSf5rYaD42U
-68oNScKwVepB4LeewE+syAzBFVMow0SfbpI6dfbwaiS64BNVbMzP5X5Jq04MZMY=
-=w1Sh
------END PGP SIGNATURE-----
 
---CSNFvL6ilyiKL/Hs--
+(c) Copyright 2015, All Rights Reserved.
