@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v2 5/9] eeprom: at24: export the serial number through sysfs
-Date: Tue, 27 Oct 2015 12:43:49 +0100
-Message-ID: <1445946233-6071-6-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH v2 4/9] eeprom: at24: support reading of the serial number
+Date: Tue, 27 Oct 2015 12:43:48 +0100
+Message-ID: <1445946233-6071-5-git-send-email-bgolaszewski@baylibre.com>
 References: <1445946233-6071-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1445946233-6071-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,103 +10,99 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The at24 driver is now capable of reading the serial number from at24cs
-EEPROM chips. Export the serial number through sysfs.
+The at24cs series EEPROM chips have an additional read-only memory area
+containing a factory pre-programmed serial number. In order to access
+it, one has to perform a dummy write before reading the serial number
+bytes.
+
+Add a function that allows to access the serial number.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 44 ++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 40 insertions(+), 4 deletions(-)
+ drivers/misc/eeprom/at24.c | 71 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 71 insertions(+)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 442aac7..dfc7b55 100644
+index 3a75a52..442aac7 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -64,6 +64,7 @@ struct at24_data {
- 	 */
- 	struct mutex lock;
- 	struct bin_attribute bin;
-+	struct bin_attribute *bin_serial;
- 
- 	u8 *writebuf;
- 	unsigned write_max;
-@@ -102,6 +103,7 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 
- #define AT24_BITMASK(x) (BIT(x) - 1)
- 
-+#define AT24CS_SERIAL_SIZE 16
- #define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
- 
- /* create non-zero magic value for given eeprom parameters */
-@@ -156,10 +158,8 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
+@@ -156,6 +156,77 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
  	return at24->client[i];
  }
  
--static int __attribute__((unused)) at24cs_eeprom_serial_read(
--						struct at24_data *at24,
--						char *buf, unsigned offset,
--						size_t count)
-+static int at24cs_eeprom_serial_read(struct at24_data *at24, char *buf,
-+				     unsigned offset, size_t count)
- {
- 	unsigned long timeout, read_time;
- 	struct i2c_client *client;
-@@ -227,6 +227,16 @@ static int __attribute__((unused)) at24cs_eeprom_serial_read(
- 	return -ETIMEDOUT;
- }
- 
-+static ssize_t at24cs_bin_serial_read(struct file *filp, struct kobject *kobj,
-+				      struct bin_attribute *attr,
-+				      char *buf, loff_t off, size_t count)
++static int __attribute__((unused)) at24cs_eeprom_serial_read(
++						struct at24_data *at24,
++						char *buf, unsigned offset,
++						size_t count)
 +{
-+	struct at24_data *at24;
++	unsigned long timeout, read_time;
++	struct i2c_client *client;
++	struct i2c_msg msg[2];
++	u8 addrbuf[2];
++	int status;
 +
-+	at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
-+	return at24cs_eeprom_serial_read(at24, buf, off, count);
++	mutex_lock(&at24->lock);
++
++	client = at24->client[1];
++
++	memset(msg, 0, sizeof(msg));
++	msg[0].addr = client->addr;
++	msg[0].buf = addrbuf;
++
++	/*
++	 * The address pointer of the device is shared between the regular
++	 * EEPROM array and the serial number block. The dummy write (part of
++	 * the sequential read protocol) ensures the address pointer is reset
++	 * to the desired position.
++	 */
++	if (at24->chip.flags & AT24_FLAG_ADDR16) {
++		/*
++		 * For 16 bit address pointers, the word address must contain
++		 * a '10' sequence in bits 11 and 10 regardless of the
++		 * intended position of the address pointer.
++		 */
++		addrbuf[0] = 0x08;
++		addrbuf[1] = offset;
++		msg[0].len = 2;
++	} else {
++		/*
++		 * Otherwise the word address must begin with a '10' sequence,
++		 * regardless of the intended address.
++		 */
++		addrbuf[0] = 0x80 + offset;
++		msg[0].len = 1;
++	}
++
++	msg[1].addr = client->addr;
++	msg[1].flags = I2C_M_RD;
++	msg[1].buf = buf;
++	msg[1].len = count;
++
++	/*
++	 * Reads fail if the previous write didn't complete yet. We may
++	 * loop a few times until this one succeeds, waiting at least
++	 * long enough for one entire page write to work.
++	 */
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		read_time = jiffies;
++		status = i2c_transfer(client->adapter, msg, 2);
++		if (status == 2) {
++			mutex_unlock(&at24->lock);
++			return count;
++		}
++
++		/* REVISIT: at HZ=100, this is sloooow */
++		msleep(1);
++	} while (time_before(read_time, timeout));
++
++	mutex_unlock(&at24->lock);
++
++	return -ETIMEDOUT;
 +}
 +
  static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
  		unsigned offset, size_t count)
  {
-@@ -643,6 +653,30 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->bin.read = at24_bin_read;
- 	at24->bin.size = chip.byte_len;
- 
-+	if (at24->chip.flags & AT24_FLAG_SERIAL) {
-+		/*
-+		 * For EEPROMs containing the serial number export an
-+		 * additional file allowing allowing convenvient access
-+		 * to it from user-space.
-+		 */
-+		at24->bin_serial = devm_kzalloc(&client->dev,
-+						sizeof(struct bin_attribute),
-+						GFP_KERNEL);
-+		if (!at24->bin_serial)
-+			return -ENOMEM;
-+
-+		sysfs_bin_attr_init(at24->bin_serial);
-+		at24->bin_serial->attr.name = "serial";
-+		at24->bin_serial->attr.mode = S_IRUSR;
-+		at24->bin_serial->read = at24cs_bin_serial_read;
-+		at24->bin_serial->size = AT24CS_SERIAL_SIZE;
-+
-+		err = sysfs_create_bin_file(&client->dev.kobj,
-+					    at24->bin_serial);
-+		if (err)
-+			goto err_clients;
-+	}
-+
- 	at24->macc.read = at24_macc_read;
- 
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
-@@ -742,6 +776,8 @@ static int at24_remove(struct i2c_client *client)
- 
- 	at24 = i2c_get_clientdata(client);
- 	sysfs_remove_bin_file(&client->dev.kobj, &at24->bin);
-+	if (at24->bin_serial)
-+		sysfs_remove_bin_file(&client->dev.kobj, at24->bin_serial);
- 
- 	for (i = 1; i < at24->num_addresses; i++)
- 		i2c_unregister_device(at24->client[i]);
 -- 
 2.1.4
