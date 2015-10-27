@@ -1,65 +1,42 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [GIT PULL] On-demand device probing
-Date: Tue, 27 Oct 2015 00:37:28 +0100
-Message-ID: <CAJZ5v0imLPyq8nxZrqvjXopzD=aBUCp+weBPuJ7Emk9=EQBEnw@mail.gmail.com>
-References: <20151018192931.GY14956@sirena.org.uk>
-	<562A5602.7000208@sonymobile.com>
-	<CAL_JsqLNSM=+j2r9HPcbSzsZrgnGEY3=kv21EXxisKwP5+57ag@mail.gmail.com>
-	<24100858.2KIS8Y2npV@vostro.rjw.lan>
-	<20151024220648.GR29919@sirena.org.uk>
-	<CAJZ5v0hPVu7AL8zBdU4Kb7+MVfYv0mTa43RhnCyyPR+RKDbhLA@mail.gmail.com>
-	<20151026105138.20687.13546@quantum>
+From: Scott Wood <scottwood@freescale.com>
+Subject: Re: [PATCH V6 5/6] clk: qoriq: Add ls1043a support.
+Date: Mon, 26 Oct 2015 20:34:26 -0500
+Message-ID: <1445909666.701.289.camel@freescale.com>
+References: <1445587282-29529-1-git-send-email-B48286@freescale.com>
+	 <1445587282-29529-5-git-send-email-B48286@freescale.com>
+	 <CADRPPNSS62G3D8ghNjd1kJMSjXkQJ9bfqeTP_ZqMk2ehRN5iyw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20151026105138.20687.13546@quantum>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Michael Turquette <mturquette@baylibre.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tim Bird <tim.bird@sonymobile.com>, "frowand.list@gmail.com" <frowand.list@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, =?UTF-8?Q?Terje_Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kern>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <CADRPPNSS62G3D8ghNjd1kJMSjXkQJ9bfqeTP_ZqMk2ehRN5iyw@mail.gmail.com>
+Sender: linux-clk-owner@vger.kernel.org
+To: Leo Li <pku.leo@gmail.com>
+Cc: Zhiqiang Hou <B48286@freescale.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Shaohui Xie <Shaohui.Xie@freescale.com>, corbet@lwn.net, Bhupesh Sharma <bhupesh.sharma@freescale.com>, mturquette@baylibre.com, wsa@the-dreams.de, sboyd@codeaurora.org, wim@iguana.be, Wenbin Song <Wenbin.Song@freescale.com>, Hu Vincent <Mingkai.Hu@freescale.com>, linux@roeck-us.net
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 26, 2015 at 11:51 AM, Michael Turquette
-<mturquette@baylibre.com> wrote:
-> Quoting Rafael J. Wysocki (2015-10-25 06:54:39)
->> On Sun, Oct 25, 2015 at 12:06 AM, Mark Brown <broonie@kernel.org> wrote:
->> > On Sat, Oct 24, 2015 at 04:17:12PM +0200, Rafael J. Wysocki wrote:
->> >
->> >> Well, I'm not quite sure why exactly everyone is so focused on probing here.
->> >
->> > Probe deferral is really noisy even if it's working fine on a given
->> > system so it's constantly being highlighted to people in a way that
->> > other issues aren't if you're not directly having problems.
->> >
->> > There's also the understanding people had that the order things get
->> > bound changes the ordering for some of the other cases (perhaps it's a
->> > good idea to do that, it seems likely to be sensible?).
->>
->> But it really doesn't do that.  Also making it do so doesn't help much
->> in the cases where things can happen asynchronously (system
->> suspend/resume, runtime PM).
->>
->> If, instead, there was a way to specify a functional dependency at the
->> device registration time, it might be used to change the order of
->> everything relevant, including probe.  That should help to reduce the
->> noise you're referring to.
->
-> Taking it a step further, if functional dependencies were understood at
-> link-time then we could optimize link order as well. There are probably
-> lots of optimizations if we only made the effort to understand these
-> dependencies earlier.
+On Mon, 2015-10-26 at 17:20 -0500, Leo Li wrote:
+> On Fri, Oct 23, 2015 at 3:01 AM, Zhiqiang Hou <B48286@freescale.com> wrote:
+> > From: Hou Zhiqiang <B48286@freescale.com>
+> > 
+> > Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+> > Acked-by: Stephen Boyd <sboyd@codeaurora.org>
+> > ---
+> > V6: V5 V4 V3 V2
+> >  - No change.
+> 
+> I know you mentioned the dependency in the summary of the patch
+> series.  But it's not likely these dependencies will be merged through
+> the ARM sub-maintainers tree and be resolved in this merge window.  So
+> it will be better to mention these dependencies here so that this
+> patch will go through the same tree as these dependency patches.
+> 
+> Scott,
+> 
+> What is your plan to merge the clock patches?  This patch need to go
+> together with it.
 
-Do you mean the kernel link time or something else?
+See https://lists.ozlabs.org/pipermail/linuxppc-dev/2015-October/135565.html
 
-At least in some cases the dependency information won't be known at
-that time, so we need a way to record a dependency at the time it
-becomes visible to us anyway.
+-Scott
 
-> Constructing the device/resource dependency graph before the device ever
-> boots sounds interesting to me.
-
-That's only practical if you build the kernel for a specific device.
-If you want a generic binary that can work with multiple different
-devices, that graph may very well be different for each of them.
-
-Thanks,
-Rafael
