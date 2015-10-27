@@ -1,42 +1,51 @@
-From: Scott Wood <scottwood@freescale.com>
-Subject: Re: [PATCH V6 5/6] clk: qoriq: Add ls1043a support.
-Date: Mon, 26 Oct 2015 20:34:26 -0500
-Message-ID: <1445909666.701.289.camel@freescale.com>
-References: <1445587282-29529-1-git-send-email-B48286@freescale.com>
-	 <1445587282-29529-5-git-send-email-B48286@freescale.com>
-	 <CADRPPNSS62G3D8ghNjd1kJMSjXkQJ9bfqeTP_ZqMk2ehRN5iyw@mail.gmail.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [GIT PULL] On-demand device probing
+Date: Tue, 27 Oct 2015 06:03:43 +0100
+Message-ID: <10275162.nPuKaJCcTU@vostro.rjw.lan>
+References: <Pine.LNX.4.44L0.1510201159400.1855-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-clk-owner@vger.kernel.org>
-In-Reply-To: <CADRPPNSS62G3D8ghNjd1kJMSjXkQJ9bfqeTP_ZqMk2ehRN5iyw@mail.gmail.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Leo Li <pku.leo@gmail.com>
-Cc: Zhiqiang Hou <B48286@freescale.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Shaohui Xie <Shaohui.Xie@freescale.com>, corbet@lwn.net, Bhupesh Sharma <bhupesh.sharma@freescale.com>, mturquette@baylibre.com, wsa@the-dreams.de, sboyd@codeaurora.org, wim@iguana.be, Wenbin Song <Wenbin.Song@freescale.com>, Hu Vincent <Mingkai.Hu@freescale.com>, linux@roeck-us.net
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.1510201159400.1855-100000@iolanthe.rowland.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Russell King <linux@arm.linux.org.uk>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Vinod Koul <vinod.koul@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Terje =?ISO-8859-1?Q?Bergstr=F6m?= <tbergstrom@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Kishon Vijay Abraham I <kishon@ti.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gma>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 2015-10-26 at 17:20 -0500, Leo Li wrote:
-> On Fri, Oct 23, 2015 at 3:01 AM, Zhiqiang Hou <B48286@freescale.com> wrote:
-> > From: Hou Zhiqiang <B48286@freescale.com>
+On Tuesday, October 20, 2015 12:04:05 PM Alan Stern wrote:
+> On Tue, 20 Oct 2015, Mark Brown wrote:
+> 
+> > On Tue, Oct 20, 2015 at 10:40:03AM -0400, Alan Stern wrote:
 > > 
-> > Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
-> > Acked-by: Stephen Boyd <sboyd@codeaurora.org>
-> > ---
-> > V6: V5 V4 V3 V2
-> >  - No change.
+> > > Furthermore, that applies only to devices that use synchronous suspend.  
+> > > Async suspend is becoming common, and there the only restrictions are 
+> > > parent-child relations plus whatever explicit requirements that drivers 
+> > > impose by calling device_pm_wait_for_dev().
+> > 
+> > Hrm, this is the first I'd noticed that feature though I see the initial
+> > commit dates from January.
 > 
-> I know you mentioned the dependency in the summary of the patch
-> series.  But it's not likely these dependencies will be merged through
-> the ARM sub-maintainers tree and be resolved in this merge window.  So
-> it will be better to mention these dependencies here so that this
-> patch will go through the same tree as these dependency patches.
+> Async suspend and device_pm_wait_for_dev() were added in January 2010, 
+> not 2015!
 > 
-> Scott,
+> >  It looks like most of the users are PCs at
+> > the minute but we should be using it more widely for embedded things,
+> > there's definitely some cases I'm aware of where it will allow us to
+> > remove some open coding.
+> > 
+> > It does seem like we want to be feeding dependency information we
+> > discover for probing way into the suspend dependencies...
 > 
-> What is your plan to merge the clock patches?  This patch need to go
-> together with it.
+> Rafael has been thinking about a way to do this systematically.  
+> Nothing concrete has emerged yet.
 
-See https://lists.ozlabs.org/pipermail/linuxppc-dev/2015-October/135565.html
+Well, good point. :-)
 
--Scott
+I've been kind of struggling with finding time to work on the patches lately
+and some aspects of the design are still not finalized.  It seems, though, that
+it can be beneficial to discuss the approach in general, so let me start a new
+thread for that.
 
+Thanks,
+Rafael
