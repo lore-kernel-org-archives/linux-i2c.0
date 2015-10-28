@@ -1,34 +1,26 @@
-From: "Nicola Corna" <nicola@corna.info>
+From: "Nicola Corna" <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
 Subject: Re: [PATCH v4 4/4] iio: humidity: si7020: added No Hold read mode
-Date: Wed, 28 Oct 2015 20:17:33 +0000
-Message-ID: <2701e4d285e40b03220edbfc284832ff@rainloop.corna.info>
+Date: Wed, 28 Oct 2015 20:19:07 +0000
+Message-ID: <ba63445a2f9af32bcbad698039041cbf@rainloop.corna.info>
 References: <563117FB.5030506@metafoo.de> <5630977D.2020102@metafoo.de>
  <f113de76b2369d404909cfc5158feca4@rainloop.corna.info>
  <1446015506-21371-1-git-send-email-nicola@corna.info>
  <aa9c6c7ffdd5083c110cb35723081dbf@rainloop.corna.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <563117FB.5030506@metafoo.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>
-Cc: linux-iio@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <563117FB.5030506-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-October 28 2015 7:46 PM, "Lars-Peter Clausen" <lars@metafoo.de> wrote:
+October 28 2015 7:46 PM, "Lars-Peter Clausen" <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org> wrote:
 
 > On 10/28/2015 07:35 PM, Nicola Corna wrote:
 > 
->> October 28 2015 10:38 AM, "Lars-Peter Clausen" <lars@metafoo.de> wrote:
+>> October 28 2015 10:38 AM, "Lars-Peter Clausen" <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org> wrote:
 >> 
 >>> On 10/28/2015 07:58 AM, Nicola Corna wrote:
 >>> [...]
