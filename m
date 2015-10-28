@@ -1,92 +1,64 @@
-From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
-Subject: Re: [PATCH v2] i2c: cadence: Move to sensible power management
-Date: Wed, 28 Oct 2015 09:18:10 -0700
-Message-ID: <20151028161810.GB6436@xsjsorenbubuntu>
-References: <1446017200-30373-1-git-send-email-shubhraj@xilinx.com>
+From: "Nicola Corna" <nicola@corna.info>
+Subject: Re: [PATCH v4 4/4] iio: humidity: si7020: added No Hold read mode
+Date: Wed, 28 Oct 2015 18:35:17 +0000
+Message-ID: <aa9c6c7ffdd5083c110cb35723081dbf@rainloop.corna.info>
+References: <5630977D.2020102@metafoo.de>
+ <f113de76b2369d404909cfc5158feca4@rainloop.corna.info>
+ <1446015506-21371-1-git-send-email-nicola@corna.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1446017200-30373-1-git-send-email-shubhraj@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Cc: linux-i2c@vger.kernel.org, wsa@the-dreams.de, anirudh@xilinx.com, michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhraj@xilinx.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from 1.mo2.mail-out.ovh.net ([46.105.63.121]:53691 "EHLO
+	1.mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752821AbbJ1Sfq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Oct 2015 14:35:46 -0400
+Received: from mail435.ha.ovh.net (b6.ovh.net [213.186.33.56])
+	by mo2.mail-out.ovh.net (Postfix) with SMTP id 952E1FFCA5E
+	for <linux-i2c@vger.kernel.org>; Wed, 28 Oct 2015 19:35:40 +0100 (CET)
+In-Reply-To: <5630977D.2020102@metafoo.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org
 
-Hi Shubhrajyoti,
+October 28 2015 10:38 AM, "Lars-Peter Clausen" <lars@metafoo.de> wrote:
 
+> On 10/28/2015 07:58 AM, Nicola Corna wrote:
+> [...]
+> 
+>> + holdmode = !((*client)->adapter->quirks &&
+>> + (*client)->adapter->quirks->flags &
+> 
+> [...]
+> 
+>> + client->adapter->quirks &&
+>> + client->adapter->quirks->flags & I2C_AQ_NO_CLK_STRETCH)
+> 
+> This is rather ugly, can we get a helper in the I2C core something along the
+> lines of
+> 
+> i2c_check_quirks(client->adapter, I2C_AQ_NO_CLK_STRETCH)
+> 
+> - Lars
 
-On Wed, 2015-10-28 at 12:56PM +0530, Shubhrajyoti Datta wrote:
-> Currently the clocks are enabled at probe and disabled at remove.
-> Which keeps the clocks enabled even if no transaction is going on.
-> This patch enables the clocks at the start of transfer and disables
-> after it.
->=20
-> Also adapts to runtime pm.
-> Remove xi2c->suspended and use pm runtime status instead.
->=20
-> converts dev pm to const to silence a checkpatch warning.
->=20
-> Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
+Something like this?
 
-To me, this looks all good. Just one small concern below.
+---
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index a69a9a0..a06ffc0 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -613,6 +613,12 @@ static inline int i2c_check_functionality(struct i2c_adapter *adap, u32 func)
+return (func & i2c_get_functionality(adap)) == func;
+}
 
-> ---
-> changes since v2
-> update the cc list
->=20
->  drivers/i2c/busses/i2c-cadence.c |   73 ++++++++++++++++++++++++----=
-----------
->  1 files changed, 46 insertions(+), 27 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2=
-c-cadence.c
-> index 84deed6..6b08d16 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -18,6 +18,7 @@
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
->  #include <linux/of.h>
-> +#include <linux/pm_runtime.h>
-> =20
->  /* Register offsets for the I2C device. */
->  #define CDNS_I2C_CR_OFFSET		0x00 /* Control Register, RW */
-> @@ -96,6 +97,8 @@
->  					 CDNS_I2C_IXR_COMP)
-> =20
->  #define CDNS_I2C_TIMEOUT		msecs_to_jiffies(1000)
-> +/* timeout for pm runtime autosuspend */
-> +#define CNDS_I2C_PM_TIMEOUT		1000	/* ms */
-> =20
->  #define CDNS_I2C_FIFO_DEPTH		16
->  /* FIFO depth at which the DATA interrupt occurs */
-> @@ -128,7 +131,6 @@
->   * @xfer_done:		Transfer complete status
->   * @p_send_buf:		Pointer to transmit buffer
->   * @p_recv_buf:		Pointer to receive buffer
-> - * @suspended:		Flag holding the device's PM status
->   * @send_count:		Number of bytes still expected to send
->   * @recv_count:		Number of bytes still expected to receive
->   * @curr_recv_count:	Number of bytes to be received in current trans=
-fer
-> @@ -141,6 +143,7 @@
->   * @quirks:		flag for broken hold bit usage in r1p10
->   */
->  struct cdns_i2c {
-> +	struct device		*dev;
->  	void __iomem *membase;
->  	struct i2c_adapter adap;
->  	struct i2c_msg *p_msg;
-> @@ -148,7 +151,6 @@ struct cdns_i2c {
->  	struct completion xfer_done;
->  	unsigned char *p_send_buf;
->  	unsigned char *p_recv_buf;
-> -	u8 suspended;
-
-There might have been a reason to store this flag here. Did you test
-this with lockdep and CONFIG_DEBUG_ATOMIC_SLEEP? Just to make sure that
-nothing that can sleep is called from atomic context.
-
-	S=C3=B6ren
++/* Return 1 if adapter has the specified quirks, 0 if not. */
++static inline int i2c_check_quirks(struct i2c_adapter *adap, u64 quirks)
++{
++ return (quirks & (adap->quirks ? adap->quirks->flags : 0)) == quirks;
++}
++
+/* Return the adapter number for a specific adapter */
+static inline int i2c_adapter_id(struct i2c_adapter *adap)
+{
