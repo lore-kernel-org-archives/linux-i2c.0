@@ -1,201 +1,245 @@
-From: Nicola Corna <nicola@corna.info>
-Subject: [PATCH v4 4/4] iio: humidity: si7020: added No Hold read mode
-Date: Wed, 28 Oct 2015 07:58:26 +0100
-Message-ID: <1446015506-21371-1-git-send-email-nicola@corna.info>
-References: <f113de76b2369d404909cfc5158feca4@rainloop.corna.info>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Subject: [PATCH v2] i2c: cadence: Move to sensible power management
+Date: Wed, 28 Oct 2015 12:56:40 +0530
+Message-ID: <1446017200-30373-1-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <f113de76b2369d404909cfc5158feca4@rainloop.corna.info>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>
-Cc: Nicola Corna <nicola@corna.info>, Lars-Peter Clausen <lars@metafoo.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-bl2on0071.outbound.protection.outlook.com ([65.55.169.71]:20346
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752101AbbJ1H1B (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 28 Oct 2015 03:27:01 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: wsa@the-dreams.de, soren.brinkmann@xilinx.com, anirudh@xilinx.com, michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-The Si7013/20/21 modules support 2 read modes:
- * Hold mode (blocking), where the device stretches the clock until the end
-of the measurement
- * No Hold mode (non-blocking), where the device replies NACK for every I2C
-call during the measurement
-Here the No Hold mode is implemented, selectable with the blocking_io
-variable within si7020_platform_data. The default mode is Hold, unless the
-adapter does not support clock stretching, in which case the No Hold mode
-is used.
+Currently the clocks are enabled at probe and disabled at remove.
+Which keeps the clocks enabled even if no transaction is going on.
+This patch enables the clocks at the start of transfer and disables
+after it.
 
-Signed-off-by: Nicola Corna <nicola@corna.info>
+Also adapts to runtime pm.
+Remove xi2c->suspended and use pm runtime status instead.
+
+converts dev pm to const to silence a checkpatch warning.
+
+Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
 ---
-This patch depends on patch "[PATCH v4 1/2] iio: humidity: si7020: replaced
-bitmask on humidity values with range check"
- drivers/iio/humidity/si7020.c        | 78 ++++++++++++++++++++++++++++++++----
- include/linux/platform_data/si7020.h | 21 ++++++++++
- 2 files changed, 92 insertions(+), 7 deletions(-)
- create mode 100644 include/linux/platform_data/si7020.h
+changes since v2
+update the cc list
 
-diff --git a/drivers/iio/humidity/si7020.c b/drivers/iio/humidity/si7020.c
-index 12128d1..c728681 100644
---- a/drivers/iio/humidity/si7020.c
-+++ b/drivers/iio/humidity/si7020.c
-@@ -2,6 +2,7 @@
-  * si7020.c - Silicon Labs Si7013/20/21 Relative Humidity and Temp Sensors
-  * Copyright (c) 2013,2014  Uplogix, Inc.
-  * David Barksdale <dbarksdale@uplogix.com>
-+ * Copyright (c) 2015 Nicola Corna <nicola@corna.info>
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms and conditions of the GNU General Public License,
-@@ -30,33 +31,79 @@
+ drivers/i2c/busses/i2c-cadence.c |   73 ++++++++++++++++++++++++--------------
+ 1 files changed, 46 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 84deed6..6b08d16 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -18,6 +18,7 @@
  #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/sysfs.h>
-+#include <linux/jiffies.h>
+ #include <linux/platform_device.h>
+ #include <linux/of.h>
++#include <linux/pm_runtime.h>
  
- #include <linux/iio/iio.h>
- #include <linux/iio/sysfs.h>
-+#include <linux/platform_data/si7020.h>
+ /* Register offsets for the I2C device. */
+ #define CDNS_I2C_CR_OFFSET		0x00 /* Control Register, RW */
+@@ -96,6 +97,8 @@
+ 					 CDNS_I2C_IXR_COMP)
  
- /* Measure Relative Humidity, Hold Master Mode */
- #define SI7020CMD_RH_HOLD	0xE5
-+/* Measure Relative Humidity, No Hold Master Mode */
-+#define SI7020CMD_RH_NO_HOLD	0xF5
- /* Measure Temperature, Hold Master Mode */
- #define SI7020CMD_TEMP_HOLD	0xE3
-+/* Measure Temperature, No Hold Master Mode */
-+#define SI7020CMD_TEMP_NO_HOLD	0xF3
- /* Software Reset */
- #define SI7020CMD_RESET		0xFE
-+/* Relative humidity measurement timeout (us) */
-+#define SI7020_RH_TIMEOUT	22800
-+/* Temperature measurement timeout (us) */
-+#define SI7020_TEMP_TIMEOUT	10800
-+/* Minimum delay between retries (No Hold Mode) in us */
-+#define SI7020_NOHOLD_SLEEP_MIN	2000
-+/* Maximum delay between retries (No Hold Mode) in us */
-+#define SI7020_NOHOLD_SLEEP_MAX	6000
+ #define CDNS_I2C_TIMEOUT		msecs_to_jiffies(1000)
++/* timeout for pm runtime autosuspend */
++#define CNDS_I2C_PM_TIMEOUT		1000	/* ms */
  
- static int si7020_read_raw(struct iio_dev *indio_dev,
- 			   struct iio_chan_spec const *chan, int *val,
- 			   int *val2, long mask)
- {
- 	struct i2c_client **client = iio_priv(indio_dev);
-+	struct si7020_platform_data *pdata;
- 	int ret;
-+	bool holdmode;
-+	unsigned char buf[2];
-+	unsigned long start;
+ #define CDNS_I2C_FIFO_DEPTH		16
+ /* FIFO depth at which the DATA interrupt occurs */
+@@ -128,7 +131,6 @@
+  * @xfer_done:		Transfer complete status
+  * @p_send_buf:		Pointer to transmit buffer
+  * @p_recv_buf:		Pointer to receive buffer
+- * @suspended:		Flag holding the device's PM status
+  * @send_count:		Number of bytes still expected to send
+  * @recv_count:		Number of bytes still expected to receive
+  * @curr_recv_count:	Number of bytes to be received in current transfer
+@@ -141,6 +143,7 @@
+  * @quirks:		flag for broken hold bit usage in r1p10
+  */
+ struct cdns_i2c {
++	struct device		*dev;
+ 	void __iomem *membase;
+ 	struct i2c_adapter adap;
+ 	struct i2c_msg *p_msg;
+@@ -148,7 +151,6 @@ struct cdns_i2c {
+ 	struct completion xfer_done;
+ 	unsigned char *p_send_buf;
+ 	unsigned char *p_recv_buf;
+-	u8 suspended;
+ 	unsigned int send_count;
+ 	unsigned int recv_count;
+ 	unsigned int curr_recv_count;
+@@ -569,9 +571,14 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	struct cdns_i2c *id = adap->algo_data;
+ 	bool hold_quirk;
  
- 	switch (mask) {
- 	case IIO_CHAN_INFO_RAW:
--		ret = i2c_smbus_read_word_data(*client,
--					       chan->type == IIO_TEMP ?
--					       SI7020CMD_TEMP_HOLD :
--					       SI7020CMD_RH_HOLD);
--		if (ret < 0)
++	ret = pm_runtime_get_sync(id->dev);
++	if (ret < 0)
++		return ret;
+ 	/* Check if the bus is free */
+-	if (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) & CDNS_I2C_SR_BA)
+-		return -EAGAIN;
++	if (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) & CDNS_I2C_SR_BA) {
++		ret = -EAGAIN;
++		goto out;
++	}
+ 
+ 	hold_quirk = !!(id->quirks & CDNS_I2C_BROKEN_HOLD_BIT);
+ 	/*
+@@ -590,7 +597,8 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			if (msgs[count].flags & I2C_M_RD) {
+ 				dev_warn(adap->dev.parent,
+ 					 "Can't do repeated start after a receive message\n");
+-				return -EOPNOTSUPP;
++				ret = -EOPNOTSUPP;
++				goto out;
+ 			}
+ 		}
+ 		id->bus_hold_flag = 1;
+@@ -608,20 +616,26 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 
+ 		ret = cdns_i2c_process_msg(id, msgs, adap);
+ 		if (ret)
 -			return ret;
--		*val = ret >> 2;
-+		pdata = dev_get_platdata(&(*client)->dev);
-+		if (pdata)
-+			holdmode = pdata->blocking_io;
-+		else
-+			holdmode = !((*client)->adapter->quirks &&
-+					(*client)->adapter->quirks->flags &
-+					I2C_AQ_NO_CLK_STRETCH);
-+		if (holdmode) {
-+			ret = i2c_smbus_read_word_data(*client,
-+						       chan->type == IIO_TEMP ?
-+						       SI7020CMD_TEMP_HOLD :
-+						       SI7020CMD_RH_HOLD);
-+			if (ret < 0)
-+				return ret;
-+			*val = ret >> 2;
-+		} else {
-+			ret = i2c_smbus_write_byte(*client,
-+						   chan->type == IIO_TEMP ?
-+						   SI7020CMD_TEMP_NO_HOLD :
-+						   SI7020CMD_RH_NO_HOLD);
-+			if (ret < 0)
-+				return ret;
-+			start = jiffies;
-+			while ((ret = i2c_master_recv(*client, buf, 2)) < 0) {
-+				if (time_after(jiffies, start +
-+					       usecs_to_jiffies(
-+							chan->type == IIO_TEMP ?
-+							SI7020_TEMP_TIMEOUT :
-+							SI7020_RH_TIMEOUT)))
-+					return ret;
-+				usleep_range(SI7020_NOHOLD_SLEEP_MIN,
-+					     SI7020_NOHOLD_SLEEP_MAX);
++			goto out;
+ 
+ 		/* Report the other error interrupts to application */
+ 		if (id->err_status) {
+ 			cdns_i2c_master_reset(adap);
+ 
+-			if (id->err_status & CDNS_I2C_IXR_NACK)
+-				return -ENXIO;
+-
+-			return -EIO;
++			if (id->err_status & CDNS_I2C_IXR_NACK) {
++				ret = -ENXIO;
++				goto out;
 +			}
-+			*val = ((buf[0] << 8) | buf[1]) >> 2;
-+		}
- 		/*
- 		 * Humidity values can slightly exceed the 0-100%RH
- 		 * range and should be corrected by software
-@@ -116,6 +163,7 @@ static int si7020_probe(struct i2c_client *client,
++			ret = -EIO;
++			goto out;
+ 		}
+ 	}
+ 
+-	return num;
++	ret = num;
++out:
++	pm_runtime_mark_last_busy(id->dev);
++	pm_runtime_put_autosuspend(id->dev);
++	return ret;
+ }
+ 
+ /**
+@@ -760,7 +774,7 @@ static int cdns_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+ 	struct clk_notifier_data *ndata = data;
+ 	struct cdns_i2c *id = to_cdns_i2c(nb);
+ 
+-	if (id->suspended)
++	if (pm_runtime_suspended(id->dev))
+ 		return NOTIFY_OK;
+ 
+ 	switch (event) {
+@@ -808,14 +822,12 @@ static int cdns_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+  *
+  * Return: 0 always
+  */
+-static int __maybe_unused cdns_i2c_suspend(struct device *_dev)
++static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
  {
- 	struct iio_dev *indio_dev;
- 	struct i2c_client **data;
-+	struct si7020_platform_data *pdata;
+-	struct platform_device *pdev = container_of(_dev,
+-			struct platform_device, dev);
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct cdns_i2c *xi2c = platform_get_drvdata(pdev);
+ 
+ 	clk_disable(xi2c->clk);
+-	xi2c->suspended = 1;
+ 
+ 	return 0;
+ }
+@@ -828,26 +840,25 @@ static int __maybe_unused cdns_i2c_suspend(struct device *_dev)
+  *
+  * Return: 0 on success and error value on error
+  */
+-static int __maybe_unused cdns_i2c_resume(struct device *_dev)
++static int __maybe_unused cdns_i2c_runtime_resume(struct device *dev)
+ {
+-	struct platform_device *pdev = container_of(_dev,
+-			struct platform_device, dev);
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct cdns_i2c *xi2c = platform_get_drvdata(pdev);
  	int ret;
  
- 	if (!i2c_check_functionality(client->adapter,
-@@ -123,6 +171,22 @@ static int si7020_probe(struct i2c_client *client,
- 				     I2C_FUNC_SMBUS_READ_WORD_DATA))
- 		return -ENODEV;
+ 	ret = clk_enable(xi2c->clk);
+ 	if (ret) {
+-		dev_err(_dev, "Cannot enable clock.\n");
++		dev_err(dev, "Cannot enable clock.\n");
+ 		return ret;
+ 	}
  
-+	pdata = dev_get_platdata(&client->dev);
-+	if (pdata) {
-+		if (pdata->blocking_io) {
-+			if (client->adapter->quirks &&
-+			   client->adapter->quirks->flags &
-+			   I2C_AQ_NO_CLK_STRETCH)
-+				return -ENODEV;
-+		} else if (!i2c_check_functionality(client->adapter,
-+			  I2C_FUNC_I2C))
-+			return -ENODEV;
-+	} else
-+		if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
-+		   client->adapter->quirks &&
-+		   client->adapter->quirks->flags & I2C_AQ_NO_CLK_STRETCH)
-+			return -ENODEV;
-+
- 	/* Reset device, loads default settings. */
- 	ret = i2c_smbus_write_byte(client, SI7020CMD_RESET);
- 	if (ret < 0)
-diff --git a/include/linux/platform_data/si7020.h b/include/linux/platform_data/si7020.h
-new file mode 100644
-index 0000000..8bb5848
---- /dev/null
-+++ b/include/linux/platform_data/si7020.h
-@@ -0,0 +1,21 @@
-+/*
-+ * Copyright (C) 2015 Nicola Corna <nicola@corna.info>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#ifndef __SI7020_H_
-+#define __SI7020_H_
-+
-+struct si7020_platform_data {
-+	bool blocking_io;
+-	xi2c->suspended = 0;
+-
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(cdns_i2c_dev_pm_ops, cdns_i2c_suspend,
+-			 cdns_i2c_resume);
++static const struct dev_pm_ops cdns_i2c_dev_pm_ops = {
++	SET_RUNTIME_PM_OPS(cdns_i2c_runtime_suspend,
++			   cdns_i2c_runtime_resume, NULL)
 +};
-+#endif /* __SI7020_H_ */
+ 
+ static const struct cdns_platform_data r1p10_i2c_def = {
+ 	.quirks = CDNS_I2C_BROKEN_HOLD_BIT,
+@@ -881,6 +892,7 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+ 	if (!id)
+ 		return -ENOMEM;
+ 
++	id->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, id);
+ 
+ 	match = of_match_node(cdns_i2c_of_match, pdev->dev.of_node);
+@@ -913,10 +925,14 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(id->clk);
+ 	}
+ 	ret = clk_prepare_enable(id->clk);
+-	if (ret) {
++	if (ret)
+ 		dev_err(&pdev->dev, "Unable to enable clock.\n");
+-		return ret;
+-	}
++
++	pm_runtime_enable(id->dev);
++	pm_runtime_set_autosuspend_delay(id->dev, CNDS_I2C_PM_TIMEOUT);
++	pm_runtime_use_autosuspend(id->dev);
++	pm_runtime_set_active(id->dev);
++
+ 	id->clk_rate_change_nb.notifier_call = cdns_i2c_clk_notifier_cb;
+ 	if (clk_notifier_register(id->clk, &id->clk_rate_change_nb))
+ 		dev_warn(&pdev->dev, "Unable to register clock notifier.\n");
+@@ -966,6 +982,8 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+ 
+ err_clk_dis:
+ 	clk_disable_unprepare(id->clk);
++	pm_runtime_set_suspended(&pdev->dev);
++	pm_runtime_disable(&pdev->dev);
+ 	return ret;
+ }
+ 
+@@ -984,6 +1002,7 @@ static int cdns_i2c_remove(struct platform_device *pdev)
+ 	i2c_del_adapter(&id->adap);
+ 	clk_notifier_unregister(id->clk, &id->clk_rate_change_nb);
+ 	clk_disable_unprepare(id->clk);
++	pm_runtime_disable(&pdev->dev);
+ 
+ 	return 0;
+ }
 -- 
-2.6.1
+1.7.1
