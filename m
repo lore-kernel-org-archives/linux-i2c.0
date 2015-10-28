@@ -1,69 +1,90 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH v4 4/4] iio: humidity: si7020: added No Hold read mode
-Date: Wed, 28 Oct 2015 19:46:19 +0100
-Message-ID: <563117FB.5030506@metafoo.de>
-References: <5630977D.2020102@metafoo.de> <f113de76b2369d404909cfc5158feca4@rainloop.corna.info> <1446015506-21371-1-git-send-email-nicola@corna.info> <aa9c6c7ffdd5083c110cb35723081dbf@rainloop.corna.info>
+From: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH 3/4] i2c: added I2C_AQ_NO_CLK_STRETCH to i2c-bcm2835.c
+Date: Wed, 28 Oct 2015 12:16:51 -0700
+Message-ID: <8737wu9524.fsf@eliezer.anholt.net>
+References: <1445976718-7449-1-git-send-email-nicola@corna.info> <1445976718-7449-3-git-send-email-nicola@corna.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp-out-193.synserver.de ([212.40.185.193]:1123 "EHLO
-	smtp-out-188.synserver.de" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752467AbbJ1SqZ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Oct 2015 14:46:25 -0400
-In-Reply-To: <aa9c6c7ffdd5083c110cb35723081dbf@rainloop.corna.info>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1445976718-7449-3-git-send-email-nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Nicola Corna <nicola@corna.info>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org
 
-On 10/28/2015 07:35 PM, Nicola Corna wrote:
-> October 28 2015 10:38 AM, "Lars-Peter Clausen" <lars@metafoo.de> wrote:
-> 
->> On 10/28/2015 07:58 AM, Nicola Corna wrote:
->> [...]
->>
->>> + holdmode = !((*client)->adapter->quirks &&
->>> + (*client)->adapter->quirks->flags &
->>
->> [...]
->>
->>> + client->adapter->quirks &&
->>> + client->adapter->quirks->flags & I2C_AQ_NO_CLK_STRETCH)
->>
->> This is rather ugly, can we get a helper in the I2C core something along the
->> lines of
->>
->> i2c_check_quirks(client->adapter, I2C_AQ_NO_CLK_STRETCH)
->>
->> - Lars
-> 
-> Something like this?
-> 
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org> writes:
+> As reported here
+> http://www.advamation.com/knowhow/raspberrypi/rpi-i2c-bug.html
+> the BCM2835 has a bug in its i2c implementation which prevents a correct
+> clock stretching.
+>
+> Signed-off-by: Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
 > ---
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index a69a9a0..a06ffc0 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -613,6 +613,12 @@ static inline int i2c_check_functionality(struct i2c_adapter *adap, u32 func)
-> return (func & i2c_get_functionality(adap)) == func;
-> }
-> 
-> +/* Return 1 if adapter has the specified quirks, 0 if not. */
-> +static inline int i2c_check_quirks(struct i2c_adapter *adap, u64 quirks)
-> +{
-> + return (quirks & (adap->quirks ? adap->quirks->flags : 0)) == quirks;
-> +}
+>  drivers/i2c/busses/i2c-bcm2835.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bc=
+m2835.c
+> index 3032b89..38d7102 100644
+> --- a/drivers/i2c/busses/i2c-bcm2835.c
+> +++ b/drivers/i2c/busses/i2c-bcm2835.c
+> @@ -222,6 +222,10 @@ static const struct i2c_algorithm bcm2835_i2c_algo =
+=3D {
+>  	.functionality	=3D bcm2835_i2c_func,
+>  };
+>=20=20
+> +static const struct i2c_adapter_quirks bcm2835_i2c_quirks =3D {
+> +	.flags =3D I2C_AQ_NO_CLK_STRETCH,
+> +};
+> +
+>  static int bcm2835_i2c_probe(struct platform_device *pdev)
+>  {
+>  	struct bcm2835_i2c_dev *i2c_dev;
+> @@ -293,6 +297,7 @@ static int bcm2835_i2c_probe(struct platform_device *=
+pdev)
+>  	adap->algo =3D &bcm2835_i2c_algo;
+>  	adap->dev.parent =3D &pdev->dev;
+>  	adap->dev.of_node =3D pdev->dev.of_node;
+> +	adap->quirks =3D &bcm2835_i2c_quirks;
+>=20=20
+>  	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
 
-This is not a code obfuscation contest ;)
+Looking at the driver, we're not setting the REDL/FEDL fields, which are
+involved in the delays following clock stretching.  Looks like I2C_DEL's
+low 16 bits (rising edge delay) should be I2C_DIV / 4 (wait half the
+period for the slave to update its data before we sample it), and the
+high 16 bits (falling edge delay) should be I2C_DIV / 16 (put our data
+out before we expet the slave to sample the value).
 
-So maybe more like this:
+Note: this is not a detailed analysis, nor am I asserting that this is
+the bug, just something that we seem to be missing in the Linux driver.
 
-static inline bool i2c_check_quirks(struct i2c_adapter *adap, u64 quirks)
-{
-	if (!adap->quirks)
-		return false;
-	return (adap->quirks->flags & quirks) == quirks;
-}
+(Added cc to linux-rpi-kernel, in case anyone on that list is interested
+in I2C issues on the platform)
 
-And please use kernel-doc for the documentation.
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJWMR8kAAoJELXWKTbR/J7oeHEP/1Arwiu8x21hRZ3oaiD+6FgX
+zZM5LSypH3TFbje8iFUfZGre0Rejg8ERtQ28TiQFk8UFhxl7h1Yic5Bz92rgQkeT
+zIsg2wZ6QOMZ9PtIsLyTaySSNxsthbxQoLIECPVwAt9/m9RuducsGyA+SKiGSKJW
+jJDulznCWY/wIrqakb2USPShIDRapGueiffqrwRnXdK6eVEnimrBGVtoDXv9xX+2
+zd3+1bTi1M7x7G/3UBbqnX2X3y5E1gQhrxTVvV64KtJz8dPGdh6rcUHfMMq5p329
+PfgRIiJIr84xJBt+16Z8Kb34gIin3+O5w9PloZcIMzQxyhUNknkfZp440cVJU76k
+It+EqNSUs/umEvzl3C99d+mwoF78Sb41rvyWkLNn7WTLi2BlE4SNvOCI+Zc0PIUw
+OxLkG/eZ0W0xaQXSMiArLitTyh/9PzFy4Sx0eVUCWEBR33OSiBDJ7WuAmAKCMCqX
+/MlH2YI64S6fE92gryUvUdUx2hJmBY0FnjoJES4s9tP7OtZpa2LRnL92bAARqy5X
+PeV/0OS0xs7NcoZjwgByw7W0T4uOV0x+yNSo7hchgAostMMS/SXeLSNWdU5iDFfJ
+ytHIUpHpwcHE9smVlEgGdExR/ZtyJNKsmxlJJi+euURP8+QoVa8D5QdmhFFZ7Qtr
+IHkais9R5jM3eWwB5PT7
+=iG/+
+-----END PGP SIGNATURE-----
+--=-=-=--
