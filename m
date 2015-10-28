@@ -1,30 +1,201 @@
-From: "Nicola Corna" <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
-Subject: Re: [PATCH v3 4/4] iio: humidity: si7020: added No Hold read mode
-Date: Wed, 28 Oct 2015 06:46:28 +0000
-Message-ID: <f113de76b2369d404909cfc5158feca4@rainloop.corna.info>
-References: <20151027233000.GB1572@katana>
- <1445976718-7449-1-git-send-email-nicola@corna.info>
- <1445976718-7449-4-git-send-email-nicola@corna.info>
+From: Nicola Corna <nicola@corna.info>
+Subject: [PATCH v4 4/4] iio: humidity: si7020: added No Hold read mode
+Date: Wed, 28 Oct 2015 07:58:26 +0100
+Message-ID: <1446015506-21371-1-git-send-email-nicola@corna.info>
+References: <f113de76b2369d404909cfc5158feca4@rainloop.corna.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20151027233000.GB1572@katana>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <f113de76b2369d404909cfc5158feca4@rainloop.corna.info>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>
+Cc: Nicola Corna <nicola@corna.info>, Lars-Peter Clausen <lars@metafoo.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-October 28 2015 12:30 AM, "Wolfram Sang" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> Not a complete review, I just stumbled over this one:
-> 
->> + if (client->adapter->quirks &&
->> + client->adapter->quirks->flags |
-> 
-> '|' should be '&', or?
-> 
-Yes, sorry. I'll update the patch.
+The Si7013/20/21 modules support 2 read modes:
+ * Hold mode (blocking), where the device stretches the clock until the end
+of the measurement
+ * No Hold mode (non-blocking), where the device replies NACK for every I2C
+call during the measurement
+Here the No Hold mode is implemented, selectable with the blocking_io
+variable within si7020_platform_data. The default mode is Hold, unless the
+adapter does not support clock stretching, in which case the No Hold mode
+is used.
 
-Nicola Corna
->> + I2C_AQ_NO_CLK_STRETCH)
->> + return -ENODEV;
+Signed-off-by: Nicola Corna <nicola@corna.info>
+---
+This patch depends on patch "[PATCH v4 1/2] iio: humidity: si7020: replaced
+bitmask on humidity values with range check"
+ drivers/iio/humidity/si7020.c        | 78 ++++++++++++++++++++++++++++++++----
+ include/linux/platform_data/si7020.h | 21 ++++++++++
+ 2 files changed, 92 insertions(+), 7 deletions(-)
+ create mode 100644 include/linux/platform_data/si7020.h
+
+diff --git a/drivers/iio/humidity/si7020.c b/drivers/iio/humidity/si7020.c
+index 12128d1..c728681 100644
+--- a/drivers/iio/humidity/si7020.c
++++ b/drivers/iio/humidity/si7020.c
+@@ -2,6 +2,7 @@
+  * si7020.c - Silicon Labs Si7013/20/21 Relative Humidity and Temp Sensors
+  * Copyright (c) 2013,2014  Uplogix, Inc.
+  * David Barksdale <dbarksdale@uplogix.com>
++ * Copyright (c) 2015 Nicola Corna <nicola@corna.info>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms and conditions of the GNU General Public License,
+@@ -30,33 +31,79 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/sysfs.h>
++#include <linux/jiffies.h>
+ 
+ #include <linux/iio/iio.h>
+ #include <linux/iio/sysfs.h>
++#include <linux/platform_data/si7020.h>
+ 
+ /* Measure Relative Humidity, Hold Master Mode */
+ #define SI7020CMD_RH_HOLD	0xE5
++/* Measure Relative Humidity, No Hold Master Mode */
++#define SI7020CMD_RH_NO_HOLD	0xF5
+ /* Measure Temperature, Hold Master Mode */
+ #define SI7020CMD_TEMP_HOLD	0xE3
++/* Measure Temperature, No Hold Master Mode */
++#define SI7020CMD_TEMP_NO_HOLD	0xF3
+ /* Software Reset */
+ #define SI7020CMD_RESET		0xFE
++/* Relative humidity measurement timeout (us) */
++#define SI7020_RH_TIMEOUT	22800
++/* Temperature measurement timeout (us) */
++#define SI7020_TEMP_TIMEOUT	10800
++/* Minimum delay between retries (No Hold Mode) in us */
++#define SI7020_NOHOLD_SLEEP_MIN	2000
++/* Maximum delay between retries (No Hold Mode) in us */
++#define SI7020_NOHOLD_SLEEP_MAX	6000
+ 
+ static int si7020_read_raw(struct iio_dev *indio_dev,
+ 			   struct iio_chan_spec const *chan, int *val,
+ 			   int *val2, long mask)
+ {
+ 	struct i2c_client **client = iio_priv(indio_dev);
++	struct si7020_platform_data *pdata;
+ 	int ret;
++	bool holdmode;
++	unsigned char buf[2];
++	unsigned long start;
+ 
+ 	switch (mask) {
+ 	case IIO_CHAN_INFO_RAW:
+-		ret = i2c_smbus_read_word_data(*client,
+-					       chan->type == IIO_TEMP ?
+-					       SI7020CMD_TEMP_HOLD :
+-					       SI7020CMD_RH_HOLD);
+-		if (ret < 0)
+-			return ret;
+-		*val = ret >> 2;
++		pdata = dev_get_platdata(&(*client)->dev);
++		if (pdata)
++			holdmode = pdata->blocking_io;
++		else
++			holdmode = !((*client)->adapter->quirks &&
++					(*client)->adapter->quirks->flags &
++					I2C_AQ_NO_CLK_STRETCH);
++		if (holdmode) {
++			ret = i2c_smbus_read_word_data(*client,
++						       chan->type == IIO_TEMP ?
++						       SI7020CMD_TEMP_HOLD :
++						       SI7020CMD_RH_HOLD);
++			if (ret < 0)
++				return ret;
++			*val = ret >> 2;
++		} else {
++			ret = i2c_smbus_write_byte(*client,
++						   chan->type == IIO_TEMP ?
++						   SI7020CMD_TEMP_NO_HOLD :
++						   SI7020CMD_RH_NO_HOLD);
++			if (ret < 0)
++				return ret;
++			start = jiffies;
++			while ((ret = i2c_master_recv(*client, buf, 2)) < 0) {
++				if (time_after(jiffies, start +
++					       usecs_to_jiffies(
++							chan->type == IIO_TEMP ?
++							SI7020_TEMP_TIMEOUT :
++							SI7020_RH_TIMEOUT)))
++					return ret;
++				usleep_range(SI7020_NOHOLD_SLEEP_MIN,
++					     SI7020_NOHOLD_SLEEP_MAX);
++			}
++			*val = ((buf[0] << 8) | buf[1]) >> 2;
++		}
+ 		/*
+ 		 * Humidity values can slightly exceed the 0-100%RH
+ 		 * range and should be corrected by software
+@@ -116,6 +163,7 @@ static int si7020_probe(struct i2c_client *client,
+ {
+ 	struct iio_dev *indio_dev;
+ 	struct i2c_client **data;
++	struct si7020_platform_data *pdata;
+ 	int ret;
+ 
+ 	if (!i2c_check_functionality(client->adapter,
+@@ -123,6 +171,22 @@ static int si7020_probe(struct i2c_client *client,
+ 				     I2C_FUNC_SMBUS_READ_WORD_DATA))
+ 		return -ENODEV;
+ 
++	pdata = dev_get_platdata(&client->dev);
++	if (pdata) {
++		if (pdata->blocking_io) {
++			if (client->adapter->quirks &&
++			   client->adapter->quirks->flags &
++			   I2C_AQ_NO_CLK_STRETCH)
++				return -ENODEV;
++		} else if (!i2c_check_functionality(client->adapter,
++			  I2C_FUNC_I2C))
++			return -ENODEV;
++	} else
++		if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
++		   client->adapter->quirks &&
++		   client->adapter->quirks->flags & I2C_AQ_NO_CLK_STRETCH)
++			return -ENODEV;
++
+ 	/* Reset device, loads default settings. */
+ 	ret = i2c_smbus_write_byte(client, SI7020CMD_RESET);
+ 	if (ret < 0)
+diff --git a/include/linux/platform_data/si7020.h b/include/linux/platform_data/si7020.h
+new file mode 100644
+index 0000000..8bb5848
+--- /dev/null
++++ b/include/linux/platform_data/si7020.h
+@@ -0,0 +1,21 @@
++/*
++ * Copyright (C) 2015 Nicola Corna <nicola@corna.info>
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#ifndef __SI7020_H_
++#define __SI7020_H_
++
++struct si7020_platform_data {
++	bool blocking_io;
++};
++#endif /* __SI7020_H_ */
+-- 
+2.6.1
