@@ -1,59 +1,117 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] MAINTAINERS: i2c: mark also subdirectories as maintained
-Date: Thu, 29 Oct 2015 07:11:43 -0700
-Message-ID: <1446127903.2757.163.camel@perches.com>
-References: <1446103548-2217-1-git-send-email-wsa@the-dreams.de>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [PATCH v2] i2c: cadence: Move to sensible power management
+Date: Thu, 29 Oct 2015 20:27:43 +0530
+Message-ID: <CAKfKVtHbKrYK-JkQRWO3hEyOkGEW8q9zc6r90PNP8uEm3VXc4Q@mail.gmail.com>
+References: <1446017200-30373-1-git-send-email-shubhraj@xilinx.com>
+	<20151028161810.GB6436@xsjsorenbubuntu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1446103548-2217-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qg0-f65.google.com ([209.85.192.65]:36328 "EHLO
+	mail-qg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751438AbbJ2O5o convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Oct 2015 10:57:44 -0400
+In-Reply-To: <20151028161810.GB6436@xsjsorenbubuntu>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, anirudh@xilinx.com, Michal Simek <michal.simek@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-On Thu, 2015-10-29 at 08:25 +0100, Wolfram Sang wrote:
-> Otherwise get_maintainer.pl will fall back to git history and CC
-> more people than needed.
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 2f23aab10398bb..c3f01dc36b26b4 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -5090,6 +5090,7 @@ S:	Maintained
->  F:	Documentation/devicetree/bindings/i2c/
->  F:	Documentation/i2c/
->  F:	drivers/i2c/
-> +F:	drivers/i2c/*/
->  F:	include/linux/i2c.h
->  F:	include/linux/i2c-*.h
->  F:	include/uapi/linux/i2c.h
+On Wed, Oct 28, 2015 at 9:48 PM, S=C3=B6ren Brinkmann
+<soren.brinkmann@xilinx.com> wrote:
+> Hi Shubhrajyoti,
+>
+>
+> On Wed, 2015-10-28 at 12:56PM +0530, Shubhrajyoti Datta wrote:
+>> Currently the clocks are enabled at probe and disabled at remove.
+>> Which keeps the clocks enabled even if no transaction is going on.
+>> This patch enables the clocks at the start of transfer and disables
+>> after it.
+>>
+>> Also adapts to runtime pm.
+>> Remove xi2c->suspended and use pm runtime status instead.
+>>
+>> converts dev pm to const to silence a checkpatch warning.
+>>
+>> Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
+>
+> To me, this looks all good. Just one small concern below.
 
-Maybe something like this too:
+Thanks for the review.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a2d50fe..ff0ca88 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -93,6 +93,14 @@ Descriptions of section entries:
- 	   F:	drivers/net/*	all files in drivers/net, but not below
- 	   F:	*/net/*		all files in "any top level directory"/net
- 	   One pattern per line.  Multiple F: lines acceptable.
-+	   The scripts/get_maintainer.pl tool has a quirk about subdirectories.
-+	   If the file pattern is for a directory, then any subdirectories of
-+	   the parent directory should also be specified.  For instance:
-+		F:	drivers/i2c/
-+		F:	drivers/i2c/*/
-+	   Otherwise, the scripts/get_maintainer.pl tool by default will use
-+	   git history to add additional people that have "Signed-off-by:"
-+	   style signatures on commits to files in those subdirectories.
- 	N: Files and directories with regex patterns.
- 	   N:	[^a-z]tegra	all files whose path contains the word tegra
- 	   One pattern per line.  Multiple N: lines acceptable.
+>
+>> ---
+>> changes since v2
+>> update the cc list
+>>
+>>  drivers/i2c/busses/i2c-cadence.c |   73 ++++++++++++++++++++++++---=
+-----------
+>>  1 files changed, 46 insertions(+), 27 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i=
+2c-cadence.c
+>> index 84deed6..6b08d16 100644
+>> --- a/drivers/i2c/busses/i2c-cadence.c
+>> +++ b/drivers/i2c/busses/i2c-cadence.c
+>> @@ -18,6 +18,7 @@
+>>  #include <linux/module.h>
+>>  #include <linux/platform_device.h>
+>>  #include <linux/of.h>
+>> +#include <linux/pm_runtime.h>
+>>
+>>  /* Register offsets for the I2C device. */
+>>  #define CDNS_I2C_CR_OFFSET           0x00 /* Control Register, RW *=
+/
+>> @@ -96,6 +97,8 @@
+>>                                        CDNS_I2C_IXR_COMP)
+>>
+>>  #define CDNS_I2C_TIMEOUT             msecs_to_jiffies(1000)
+>> +/* timeout for pm runtime autosuspend */
+>> +#define CNDS_I2C_PM_TIMEOUT          1000    /* ms */
+>>
+>>  #define CDNS_I2C_FIFO_DEPTH          16
+>>  /* FIFO depth at which the DATA interrupt occurs */
+>> @@ -128,7 +131,6 @@
+>>   * @xfer_done:               Transfer complete status
+>>   * @p_send_buf:              Pointer to transmit buffer
+>>   * @p_recv_buf:              Pointer to receive buffer
+>> - * @suspended:               Flag holding the device's PM status
+>>   * @send_count:              Number of bytes still expected to send
+>>   * @recv_count:              Number of bytes still expected to rece=
+ive
+>>   * @curr_recv_count: Number of bytes to be received in current tran=
+sfer
+>> @@ -141,6 +143,7 @@
+>>   * @quirks:          flag for broken hold bit usage in r1p10
+>>   */
+>>  struct cdns_i2c {
+>> +     struct device           *dev;
+>>       void __iomem *membase;
+>>       struct i2c_adapter adap;
+>>       struct i2c_msg *p_msg;
+>> @@ -148,7 +151,6 @@ struct cdns_i2c {
+>>       struct completion xfer_done;
+>>       unsigned char *p_send_buf;
+>>       unsigned char *p_recv_buf;
+>> -     u8 suspended;
+>
+> There might have been a reason to store this flag here. Did you test
+> this with lockdep and CONFIG_DEBUG_ATOMIC_SLEEP? Just to make sure th=
+at
+> nothing that can sleep is called from atomic context.
+Done now.
+
+
+Essentially this is a flag is set in suspend routine. and checked in
+the isr I use
+pm_runtime_suspended(id->dev) instead.
+
+>
+>         S=C3=B6ren
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
+l" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
