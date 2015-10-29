@@ -1,44 +1,68 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: rcar: make sure clocks are on when doing hw init
-Date: Thu, 29 Oct 2015 20:19:16 +0100
-Message-ID: <1446146356-26166-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Subject: Re: [PATCH 5/9] i2c: rcar: init new messages in irq
+Date: Thu, 29 Oct 2015 20:23:14 +0100
+Message-ID: <20151029192314.GD8992@katana>
+References: <1441311613-2681-1-git-send-email-wsa@the-dreams.de>
+ <36149610.Eic43bQLgJ@avalon>
+ <20151023121439.GK13380@katana>
+ <3725918.YSMPQz70Zm@avalon>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="veXX9dWIonWZEC6h"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:52462 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757517AbbJ2TXS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 29 Oct 2015 15:23:18 -0400
+Content-Disposition: inline
+In-Reply-To: <3725918.YSMPQz70Zm@avalon>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Kaneko <ykaneko0929@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Reported-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+--veXX9dWIonWZEC6h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 616433d387cdb2..ef26e933b1e9cb 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -612,7 +612,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->io))
- 		return PTR_ERR(priv->io);
- 
-+	pm_runtime_enable(dev);
-+	pm_runtime_get_sync(dev);
- 	rcar_i2c_init(priv);
-+	pm_runtime_put(dev);
- 
- 	irq = platform_get_irq(pdev, 0);
- 	init_waitqueue_head(&priv->wait);
-@@ -634,7 +637,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	pm_runtime_enable(dev);
- 	platform_set_drvdata(pdev, priv);
- 
- 	ret = i2c_add_numbered_adapter(adap);
--- 
-2.1.4
+Laurent,
 
+> RTPORC7791SEB00010S
+> KOELSCH SN.057
+>=20
+> I'm not sure if that tells anything about the board revision.
+
+Can you try this patch I just sent out?
+
+"i2c: rcar: make sure clocks are on when doing hw init"
+
+We know that Koelsch boards have different bootloaders leaving the
+clocks in different states. What you see could be the result of a
+disabled clock.
+
+
+--veXX9dWIonWZEC6h
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWMnIiAAoJEBQN5MwUoCm2WIIP/235pQyuj/HWFETG+kB9z6lx
++d6Rz83ezgT4a5VV1Wbgm8n9nSxSB2lCVz2GnOnjvhB95dX4P+NRYAD9QjeLvEsx
+YJiTCmMBEoMgT5lf2qxswSMKcrrf/4jN3Q7zqwZrNkgHGnciKaYIkW+x35HGBygm
+AIUDh4xJjm16jcvxKhKgnnlAYQevx6A4iYyWTzv1iamXAk+2bDc5EKku1yIRjxn9
+3hLRAlCqOOj3dFa6VliSyQbVJFRDC0dt5qIkh2vCaHJdJ57ElC6ifE8vZiAVEyWV
+NBrzxjgWQusxJ9PoNlHXE+rIRaNkEoJzXB0zmgRcX8FaFuLBeASViz8XYRGT6S/t
+s+ly4y0jRAkNkxLJg43DUYDnuo/LMHPlx6EqKtB4ixkhJvVqp/aEFE+iZyBu5Qqe
+Aqjqxj9lLyB1LVTT3v6MbzalbXZmw36ID+SY38IIYgTzX4WmKs+PfyomMOrWOMYK
+QU5LhpTt8tPB2Ffniq1YNBCgQmQol8bHJWGk2x4CM2ugSW58kkr+DI8JVa79cO9M
+01anquxxVcw0I3ij8iWbTCFNw8GwJ3ZKBhA1IfTgKP9g9NTalyG4tPihyK32Sm3F
+RE6KV9QZU3u+FbZ96+jQMGk+ci11pOrjmx5EzFASKLi4qxDzaE0WuRcvmEqztL5c
+MKQXZJ8LgVbaQa/PiOM/
+=L2NW
+-----END PGP SIGNATURE-----
+
+--veXX9dWIonWZEC6h--
