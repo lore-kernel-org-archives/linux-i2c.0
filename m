@@ -1,68 +1,48 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] i2c: rcar: make sure clocks are on when doing hw init
-Date: Thu, 29 Oct 2015 20:38:29 +0100
-Message-ID: <CAMuHMdUvgfs=sS3TN8BvBktjaZAaE21YJ06xah45p8NgDY8vkA@mail.gmail.com>
-References: <1446146356-26166-1-git-send-email-wsa@the-dreams.de>
+From: Li Yang <leoli@freescale.com>
+Subject: Re: [PATCH V6 6/6] dts/ls1043a: add LS1043ARDB board support
+Date: Thu, 29 Oct 2015 15:33:06 -0500
+Message-ID: <CADRPPNRKXDAQHijZtJOYo9wMPaciJnoQYhR1UWRgFGUXY=iAMg@mail.gmail.com>
+References: <1445587282-29529-1-git-send-email-B48286@freescale.com>
+	<1445587282-29529-6-git-send-email-B48286@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f43.google.com ([209.85.218.43]:35292 "EHLO
-	mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753927AbbJ2Ti3 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Oct 2015 15:38:29 -0400
-In-Reply-To: <1446146356-26166-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1445587282-29529-6-git-send-email-B48286@freescale.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Zhiqiang Hou <B48286@freescale.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Shaohui Xie <Shaohui.Xie@freescale.com>, Jonathan Corbet <corbet@lwn.net>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Michael Turquette <mturquette@baylibre.com>, wsa@the-dreams.de, sboyd@codeaurora.org, wim@iguana.be, Wenbin Song <Wenbin.Song@freescale.com>, Scott Wood <scottwood@freescale.com>, Hu Vincent <Mingkai.Hu@freescale.com>, linux@roeck-us.net
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-Hi Wolfram,
-
-On Thu, Oct 29, 2015 at 8:19 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Fri, Oct 23, 2015 at 3:01 AM, Zhiqiang Hou <B48286@freescale.com> wrote:
+> From: Shaohui Xie <Shaohui.Xie@freescale.com>
 >
-> Reported-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Thanks for your patch!
-
-I suspect this bug was also the cause of the spurious failures of the R-Car
-Gen2 regulator quirk code I experienced sometimes during the last few
-days.
-
+> Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+> Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
+> Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
+> Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
 > ---
->  drivers/i2c/busses/i2c-rcar.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> V6: V5 V4 V3
+>  - No change.
 >
-> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> index 616433d387cdb2..ef26e933b1e9cb 100644
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -612,7 +612,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
->         if (IS_ERR(priv->io))
->                 return PTR_ERR(priv->io);
+> V2:
+>  - Remove the useless compatible "simple-bus" from cpld node.
 >
-> +       pm_runtime_enable(dev);
-> +       pm_runtime_get_sync(dev);
->         rcar_i2c_init(priv);
-> +       pm_runtime_put(dev);
+>  arch/arm64/boot/dts/freescale/Makefile            |   2 +-
+>  arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts | 116 ++++++++++++++++++++++
+>  2 files changed, 117 insertions(+), 1 deletion(-)
+>  create mode 100644 arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
 >
->         irq = platform_get_irq(pdev, 0);
->         init_waitqueue_head(&priv->wait);
-> @@ -634,7 +637,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
->                 return ret;
+> diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+> index 57b41c7..33b1e57 100644
+> --- a/arch/arm64/boot/dts/freescale/Makefile
+> +++ b/arch/arm64/boot/dts/freescale/Makefile
+> @@ -1,4 +1,4 @@
+> -dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-qds.dtb fsl-ls2080a-rdb.dtb fsl-ls2080a-simu.dtb
+> +dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-qds.dtb fsl-ls2080a-rdb.dtb fsl-ls2080a-simu.dtb fsl-ls1043a-rdb.dtb
 
-pm_runtime_disable() in error path?
+I tried to apply the patch, but it can not be applied due to the
+change from a depending ls2080 patch.  I will help to respin this
+patch and resend the three device tree related patches.
 
->         }
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Regards,
+Leo
