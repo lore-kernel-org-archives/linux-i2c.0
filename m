@@ -1,37 +1,32 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] MAINTAINERS: i2c: mark also subdirectories as maintained
-Date: Thu, 29 Oct 2015 08:25:48 +0100
-Message-ID: <1446103548-2217-1-git-send-email-wsa@the-dreams.de>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH v4 4/4] iio: humidity: si7020: added No Hold read mode
+Date: Thu, 29 Oct 2015 10:17:53 +0100
+Message-ID: <5631E441.6030600@metafoo.de>
+References: <563117FB.5030506@metafoo.de> <5630977D.2020102@metafoo.de> <f113de76b2369d404909cfc5158feca4@rainloop.corna.info> <1446015506-21371-1-git-send-email-nicola@corna.info> <aa9c6c7ffdd5083c110cb35723081dbf@rainloop.corna.info> <ba63445a2f9af32bcbad698039041cbf@rainloop.corna.info>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:48479 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751182AbbJ2H0D (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 29 Oct 2015 03:26:03 -0400
+Received: from smtp-out-198.synserver.de ([212.40.185.198]:1061 "EHLO
+	smtp-out-188.synserver.de" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1756246AbbJ2JSB (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Oct 2015 05:18:01 -0400
+In-Reply-To: <ba63445a2f9af32bcbad698039041cbf@rainloop.corna.info>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Joe Perches <joe@perches.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
+To: Nicola Corna <nicola@corna.info>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org
 
-Otherwise get_maintainer.pl will fall back to git history and CC
-more people than needed.
+>> So maybe more like this:
+>>
+>> static inline bool i2c_check_quirks(struct i2c_adapter *adap, u64 quirks)
+>> {
+>> if (!adap->quirks)
+>> return false;
+>> return (adap->quirks->flags & quirks) == quirks;
+>> }
+> 
+> Should I use bool (like in your snippet) or int (like i2c_check_functionality) as return type?
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Acked-by: Lee Jones <lee.jones@linaro.org>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2f23aab10398bb..c3f01dc36b26b4 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5090,6 +5090,7 @@ S:	Maintained
- F:	Documentation/devicetree/bindings/i2c/
- F:	Documentation/i2c/
- F:	drivers/i2c/
-+F:	drivers/i2c/*/
- F:	include/linux/i2c.h
- F:	include/linux/i2c-*.h
- F:	include/uapi/linux/i2c.h
--- 
-2.1.4
+I'd use bool, given that the result is a boolean value. It's semantically
+more clear this way.
