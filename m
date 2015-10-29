@@ -1,58 +1,44 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: call rcar_i2c_init() after
- pm_runtime_get_sync()
-Date: Thu, 29 Oct 2015 20:17:40 +0100
-Message-ID: <20151029191740.GC8992@katana>
-References: <87oafiyq8y.wl%kuninori.morimoto.gx@renesas.com>
- <CAMuHMdXnMFh5umv=wJdvrcMip+DOn8rYP_3eUTufFw4q2Sr8Jw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w7PDEPdKQumQfZlR"
+Subject: [PATCH] i2c: rcar: make sure clocks are on when doing hw init
+Date: Thu, 29 Oct 2015 20:19:16 +0100
+Message-ID: <1446146356-26166-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdXnMFh5umv=wJdvrcMip+DOn8rYP_3eUTufFw4q2Sr8Jw@mail.gmail.com>
 Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, Simon <horms@verge.net.au>, Linux I2C <linux-i2c@vger.kernel.org>, Magnus <magnus.damm@gmail.com>, Linux-sh list <linux-sh@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---w7PDEPdKQumQfZlR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reported-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 616433d387cdb2..ef26e933b1e9cb 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -612,7 +612,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->io))
+ 		return PTR_ERR(priv->io);
+ 
++	pm_runtime_enable(dev);
++	pm_runtime_get_sync(dev);
+ 	rcar_i2c_init(priv);
++	pm_runtime_put(dev);
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	init_waitqueue_head(&priv->wait);
+@@ -634,7 +637,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	pm_runtime_enable(dev);
+ 	platform_set_drvdata(pdev, priv);
+ 
+ 	ret = i2c_add_numbered_adapter(adap);
+-- 
+2.1.4
 
-> Hence now it's done again for every transfer?
->=20
-> What about moving it just before the call to i2c_add_numbered_adapter(),
-> and wrapping it inside pm_runtime_get_sync(dev)/pm_runtime_put()?
->=20
-> Wolfram, what do you think?
-
-I'd prefer the latter. Sending a tested patch in a second...
-
-
---w7PDEPdKQumQfZlR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWMnDUAAoJEBQN5MwUoCm2vboP/116uPGS0lb2dF4qicnIBAUe
-i5X3XxFG/AZU36aglT6e/UyueyT+SwxPeub78TeXnLg9kWENFShE9DdLdP+A/5zI
-CcwbFoVt6OgCiMGfFQz1QnZcoZYb/hUMHdX+qhRUpkTxwRMl4fCjbsEnYfRkw52g
-+3GP3gqqbqXlfVc7myrPssm7OEio2sifJOKe1HJKOdF47dbO0OcS3YDl7BpG2fH1
-cYWf073/FM0Nr3EypvpagfUblhuoN8nW57EqSiB5cS/ojbrvEsIMrtTRcmQWXPO8
-zqJJvSPSc+7fLJ+D3HWgH8jHeaJtiR4G5wkJvJ7RFJE9gyxXQILiwDUWMExUvnFS
-OQy0f1ovLhfk+VGp3k28FpmXE8KoiQWExCAtJS4+CVbF3ki/QcZn80imPs2qCbZk
-S6/lL3bSvhqY7iS5I9UVadwkTHvXEmi9X+7r7wgxmGEmJlUlX3+dYxcggbujLAN/
-0Qxyh6ayycZZ8sRzrGNWlQw4wWxVgZYibA5d8M+jzNm39gw3g9nGozRHFnWFVErH
-56aCPFnEgOoYxOA4dzFkuH2hWhslowWTlmK3EVu/diHL75UNCPEs+7ytvJK+Okpy
-EFivBKowd7BVUTw5suzVotaCYUTiWiYPzzzoGWVzyTTLzWDlEHlMU/2/EASysvtm
-5HEEOL7SLuhFhlgeY0j5
-=Ve6o
------END PGP SIGNATURE-----
-
---w7PDEPdKQumQfZlR--
