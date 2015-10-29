@@ -1,69 +1,47 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] i2c: rcar: call rcar_i2c_init() after pm_runtime_get_sync()
-Date: Thu, 29 Oct 2015 12:32:17 +0100
-Message-ID: <CAMuHMdXnMFh5umv=wJdvrcMip+DOn8rYP_3eUTufFw4q2Sr8Jw@mail.gmail.com>
-References: <87oafiyq8y.wl%kuninori.morimoto.gx@renesas.com>
+From: Nicola Corna <nicola@corna.info>
+Subject: [PATCH v2 1/5] i2c: add i2c quirk flag for unsupported clock
+ stretching
+Date: Thu, 29 Oct 2015 12:34:23 +0100
+Message-ID: <1446118467-26453-1-git-send-email-nicola@corna.info>
+References: <1445976718-7449-1-git-send-email-nicola@corna.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <87oafiyq8y.wl%kuninori.morimoto.gx@renesas.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Cc: Simon <horms@verge.net.au>, Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Magnus <magnus.damm@gmail.com>, Linux-sh list <linux-sh@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1445976718-7449-1-git-send-email-nicola@corna.info>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>
+Cc: Nicola Corna <nicola@corna.info>, Lars-Peter Clausen <lars@metafoo.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 29, 2015 at 10:37 AM, Kuninori Morimoto
-<kuninori.morimoto.gx@renesas.com> wrote:
-> From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
->
-> rcar_i2c_init() initializes I2C device, but it should be called
-> *after* pm_runtime_get_sync(). Otherwise it outputs very hi speed
-> clock. This patch solved this issue,
-> This patch also removes pointless rcar_i2c_init()
-> from rcar_i2c_probe()
->
-> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-> ---
->  drivers/i2c/busses/i2c-rcar.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> index 616433d..edbfefc 100644
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -474,6 +474,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
->
->         pm_runtime_get_sync(dev);
->
-> +       rcar_i2c_init(priv);
+Add I2C_AQ_NO_CLK_STRETCH quirk flag, to be used when clock stretching is
+not supported.
 
-Hence now it's done again for every transfer?
+Signed-off-by: Nicola Corna <nicola@corna.info>
+---
+ include/linux/i2c.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-What about moving it just before the call to i2c_add_numbered_adapter(),
-and wrapping it inside pm_runtime_get_sync(dev)/pm_runtime_put()?
-
-Wolfram, what do you think?
-
-> +
->         ret = rcar_i2c_bus_barrier(priv);
->         if (ret < 0)
->                 goto out;
-> @@ -612,8 +614,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
->         if (IS_ERR(priv->io))
->                 return PTR_ERR(priv->io);
->
-> -       rcar_i2c_init(priv);
-> -
->         irq = platform_get_irq(pdev, 0);
->         init_waitqueue_head(&priv->wait);
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 768063b..9697002 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -493,6 +493,8 @@ struct i2c_adapter_quirks {
+ /* convenience macro for typical write-then read case */
+ #define I2C_AQ_COMB_WRITE_THEN_READ	(I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST | \
+ 					 I2C_AQ_COMB_READ_SECOND | I2C_AQ_COMB_SAME_ADDR)
++/* clock stretching is not supported */
++#define I2C_AQ_NO_CLK_STRETCH		BIT(4)
+ 
+ /*
+  * i2c_adapter is the structure used to identify a physical i2c bus along
+-- 
+2.6.1
