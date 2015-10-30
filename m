@@ -1,55 +1,57 @@
-From: Jisheng Zhang <jszhang@marvell.com>
-Subject: [PATCH] i2c: designware: Don't mask TX_EMPTY if write is in progress
-Date: Fri, 30 Oct 2015 15:37:29 +0800
-Message-ID: <1446190649-1318-1-git-send-email-jszhang@marvell.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: Issues with touchpad / touchscreen on yoga 900
+Date: Fri, 30 Oct 2015 09:58:14 +0200
+Message-ID: <56332316.90506@linux.intel.com>
+References: <20151029112913.1036f00b@voldemort.scrye.com> <20151029183032.GA8992@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
-Cc: Jisheng Zhang <jszhang@marvell.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:60864 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758878AbbJ3H6R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 30 Oct 2015 03:58:17 -0400
+In-Reply-To: <20151029183032.GA8992@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Kevin Fenzi <kevin@scrye.com>
+Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Currently when i2c_msg index search is completed, TX_EMPTY interrupt
-will be masked. But if the size of i2c_msg data is longer than the size
-of the tx buffer, we still need TX_EMPTY interrupt, otherwise we will
-get "controller timed out" error.
+Hi
 
-This patch fixes this issue by only masking TX_EMPTY if i2c_msg index
-search is completed and write is not in progress.
+On 10/29/2015 08:30 PM, Wolfram Sang wrote:
+> On Thu, Oct 29, 2015 at 11:29:13AM -0600, Kevin Fenzi wrote:
+>> Greetings.
+>>
+>> I'm having problems with a lenovo yoga 900 not seeing it's touchscreen
+>> or touchpad.
+>>
+>> Downstream bug:
+>> https://bugzilla.redhat.com/show_bug.cgi?id=1275718
+>>
+>> The problem parts of dmesg seem to be:
+>>
+>> Oct 26 15:20:08 localhost kernel: i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
+>> Oct 26 15:20:08 localhost kernel: i2c_hid i2c-SYNA2B29:00: hid_descr_cmd failed
+>> Oct 26 15:20:08 localhost kernel: i2c_designware i2c_designware.2: i2c_dw_handle_tx_abort: lost arbitration
+>> Oct 26 15:20:08 localhost kernel: i2c_hid i2c-ELAN21EF:00:
+>> hid_descr_cmd failed
+>>
+>> This is with 4.3.0-0.rc7.git1.1.fc24.x86_64 (post rc7 4.3.0).
+>>
+>> Happy to gather further info or try patches. ;)
+>
+Could you try this test patch from Mika that prints the parameters it 
+gets from ACPI and forces using calculated ones (your quirk was supposed 
+to be doing the same):
 
-Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
----
- drivers/i2c/busses/i2c-designware-core.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+http://www.spinics.net/lists/linux-i2c/msg21239.html
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 7441cdc..a2eb212 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -542,10 +542,11 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 	}
- 
- 	/*
--	 * If i2c_msg index search is completed, we don't need TX_EMPTY
--	 * interrupt any more.
-+	 * If i2c_msg index search is completed and writing is not in progress,
-+	 * we don't need TX_EMPTY interrupt any more.
- 	 */
--	if (dev->msg_write_idx == dev->msgs_num)
-+	if (dev->msg_write_idx == dev->msgs_num &&
-+			!(dev->status & STATUS_WRITE_IN_PROGRESS))
- 		intr_mask &= ~DW_IC_INTR_TX_EMPTY;
- 
- 	if (dev->msg_err)
+Another fix from Mika that comes to my mind is "HID: multitouch: Fetch 
+feature reports on demand for Win8 devices" which is sitting in 
+linux-next. Not sure is it related but probably worth to try.
+
+https://lkml.org/lkml/2015/9/28/404
+
 -- 
-2.6.2
+Jarkko
