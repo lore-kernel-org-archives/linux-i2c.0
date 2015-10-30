@@ -1,51 +1,45 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH v2] i2c: rcar: make sure clocks are on when doing hw init
-Date: Fri, 30 Oct 2015 16:19:49 +0200
-Message-ID: <2651660.Ax9kPbc9xQ@avalon>
-References: <1446158791-29682-1-git-send-email-wsa@the-dreams.de> <1726774.W1OrN54TP1@avalon> <CAMuHMdV0_ej3z1EQ=1Q+XRc53CX5H=8Oa3sNjUwkfO62KfTpHA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from galahad.ideasonboard.com ([185.26.127.97]:58624 "EHLO
-	galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031340AbbJ3OTr (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Oct 2015 10:19:47 -0400
-In-Reply-To: <CAMuHMdV0_ej3z1EQ=1Q+XRc53CX5H=8Oa3sNjUwkfO62KfTpHA@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: [PATCH] i2c: exynos5: register driver early in subsys initcall to
+ avoid probe defer
+Date: Fri, 30 Oct 2015 15:23:28 +0100
+Message-ID: <1446215008-30506-1-git-send-email-m.szyprowski@samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-Hi Geert,
+i2c bus drivers should be registered earlier than typical drivers to let
+important i2c devices (like PMICs/regulators) get registered early
+enough to avoid probe defer of all devices in typical embedded system.
 
-On Friday 30 October 2015 09:16:40 Geert Uytterhoeven wrote:
-> On Fri, Oct 30, 2015 at 5:35 AM, Laurent Pinchart wrote:
-> > [    9.641533] Unable to handle kernel paging request at virtual address
-> > ffffffff
-> > [    9.648927] pgd = eb2adf40
-> > [    9.651695] [ffffffff] *pgd=80000040007003, *pmd=6bfde003,
-> > *pte=00000000
-> > [    9.658579] Internal error: Oops: a07 [#1] SMP ARM
-> > [    9.663475] Modules linked in: rcar_thermal adv7180(+) phy_rcar_gen2
-> > soundcore udc_core
-> > [    9.671719] CPU: 0 PID: 552 Comm: udevd Not tainted 4.3.0-rc7-07332-
-> > gfb990fd3ff96 #114
-> > [    9.679811] Hardware name: Generic R8A7791 (Flattened Device Tree)
-> > [    9.686125] task: eb11f400 ti: ea92e000 task.ti: ea92e000
-> > [    9.691653] PC is at rcar_i2c_irq+0xd4/0x3e4
-> > [    9.696018] LR is at rcar_i2c_write+0x28/0x38
-> > [    9.700471] pc : [<c0324588>]    lr : [<c0323cf0>]    psr: 80000193
-> > 
-> > This only occurred once, I don't know how to reproduce it.
-> 
-> Do you still have the kernel binary, so you can see where exactly the crash
-> happened?
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+---
+ drivers/i2c/busses/i2c-exynos5.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-I haven't kept it, but I'm pretty sure I was using renesas-devel-20151026-
-v4.3-rc7 without any additional patch applied.
-
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index b29c7500461a..934a5cbcbdd3 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -867,7 +867,17 @@ static struct platform_driver exynos5_i2c_driver = {
+ 	},
+ };
+ 
+-module_platform_driver(exynos5_i2c_driver);
++static int __init i2c_adap_exynos5_i2c_init(void)
++{
++	return platform_driver_register(&exynos5_i2c_driver);
++}
++subsys_initcall(i2c_adap_exynos5_i2c_init);
++
++static void __exit i2c_adap_exynos5_i2c_exit(void)
++{
++	platform_driver_unregister(&exynos5_i2c_driver);
++}
++module_exit(i2c_adap_exynos5_i2c_exit);
+ 
+ MODULE_DESCRIPTION("Exynos5 HS-I2C Bus driver");
+ MODULE_AUTHOR("Naveen Krishna Chatradhi, <ch.naveen@samsung.com>");
 -- 
-Regards,
-
-Laurent Pinchart
+1.9.2
