@@ -1,57 +1,77 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: Issues with touchpad / touchscreen on yoga 900
-Date: Fri, 30 Oct 2015 09:58:14 +0200
-Message-ID: <56332316.90506@linux.intel.com>
-References: <20151029112913.1036f00b@voldemort.scrye.com> <20151029183032.GA8992@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: rcar: make sure clocks are on when doing hw init
+Date: Fri, 30 Oct 2015 09:02:10 +0100
+Message-ID: <20151030080210.GA1589@katana>
+References: <1446158791-29682-1-git-send-email-wsa@the-dreams.de>
+ <1726774.W1OrN54TP1@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:60864 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758878AbbJ3H6R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 30 Oct 2015 03:58:17 -0400
-In-Reply-To: <20151029183032.GA8992@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1726774.W1OrN54TP1@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Kevin Fenzi <kevin@scrye.com>
-Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Hi
 
-On 10/29/2015 08:30 PM, Wolfram Sang wrote:
-> On Thu, Oct 29, 2015 at 11:29:13AM -0600, Kevin Fenzi wrote:
->> Greetings.
->>
->> I'm having problems with a lenovo yoga 900 not seeing it's touchscreen
->> or touchpad.
->>
->> Downstream bug:
->> https://bugzilla.redhat.com/show_bug.cgi?id=1275718
->>
->> The problem parts of dmesg seem to be:
->>
->> Oct 26 15:20:08 localhost kernel: i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
->> Oct 26 15:20:08 localhost kernel: i2c_hid i2c-SYNA2B29:00: hid_descr_cmd failed
->> Oct 26 15:20:08 localhost kernel: i2c_designware i2c_designware.2: i2c_dw_handle_tx_abort: lost arbitration
->> Oct 26 15:20:08 localhost kernel: i2c_hid i2c-ELAN21EF:00:
->> hid_descr_cmd failed
->>
->> This is with 4.3.0-0.rc7.git1.1.fc24.x86_64 (post rc7 4.3.0).
->>
->> Happy to gather further info or try patches. ;)
->
-Could you try this test patch from Mika that prints the parameters it 
-gets from ACPI and forces using calculated ones (your quirk was supposed 
-to be doing the same):
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-http://www.spinics.net/lists/linux-i2c/msg21239.html
 
-Another fix from Mika that comes to my mind is "HID: multitouch: Fetch 
-feature reports on demand for Win8 devices" which is sitting in 
-linux-next. Not sure is it related but probably worth to try.
+> First of all, I got one kernel panic.
 
-https://lkml.org/lkml/2015/9/28/404
+:( I am starting to think i should revert my last i2c-rcar series until
+these issues are gone...
 
--- 
-Jarkko
+> I have also seen different errors:
+>=20
+> [    1.177690] i2c-rcar e6530000.i2c: error -16 : 0
+> [    1.182534] adv7511: probe of 2-0039 failed with error -16
+> [    1.188293] i2c-rcar e6530000.i2c: probed
+>=20
+> -110 occurred as well.
+
+I'd think you always get a -110 somewhere and all later accesses to
+the bus will return -16. The bus is stalled.
+
+> This occurred when rebooting the board by pressing the reset button, and =
+if I=20
+
+I use the reset button quite frequently, too.
+
+> remember correctly moving from renesas-devel-20151013v2-v4.3-rc5 to renes=
+as-
+> devel-20151026-v4.3-rc7. Even though it occurred several times in a row I=
+=20
+> can't seem to reproduce this issue now I'm afraid.
+
+Darn...
+
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWMyQCAAoJEBQN5MwUoCm2GLkQAIo1fYg5TewQg6Q9CZf/l7Sn
+v158KyS2EyX3ssmraZM+FVTToEgOgAiUnKPQD7cPrqFBUakKd+WqfmtS+aOAJwzI
+69dLyUgwxudeJ63MSl2y4ToCjtUWNuNCsAVbB1kuaobBXx0MBDo1jfD6uNyjxNtc
+MEPDgt8wFXuOjyhBY1VB8mJKlJm1vrcnRrNUW5bSDLWGJKwP711rKhW6OjsDjs7T
+lYE/gg/w7c5iyF2qUhGTCE2ghdzVjoV1rq/PRSDvRPOVZ4YKNiV1JbgjCktF7fdP
+C+s0O0Do8WaVrPk6e/4bQSqLWRkHdvXxQ2tmYpdBgVJkC2E5+sPm5kH0SGThN4G4
+W15MLNdDpUpuVCwXznr5FXPbxWdhcVwlJrpj18pNjJuce763MtCQwmpPQCUH7HL0
+NKyg/PXp0a5EO9Q6fl4q4oHuUJlGJoPc2EwXbhAwy/CILJvxOTwXUOpbkbikJN0M
+k/W0tRGNzpxtJbhLzex1UFpj2FKSk3BLaSjS0cj8NX+kCEEkfrGmvtp9Yiw7w+7P
+zhwAlkLiyshKkLN0PPwZE7q8mF9fnW+smeacTe/pgoZ+KkMzNJ33cwZSr9hCWRd/
+s5RhvaRsyHceDUM6Mfm4LJXWmB6A18h77Xrd9GDg2qSBnGQaRLf1x5p2XWHkOIvq
+fCP9mFURM1eNgu+BI5EG
+=SEQF
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--
