@@ -1,63 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: pnx: remove superfluous assignment
-Date: Fri, 30 Oct 2015 12:36:21 +0100
-Message-ID: <20151030113621.GC25117@katana>
-References: <1445786459-22690-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: rcar: Revert the latest refactoring series
+Date: Fri, 30 Oct 2015 12:41:45 +0100
+Message-ID: <20151030114145.GD25117@katana>
+References: <1446204606-25541-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LwW0XdcUbUexiWVK"
+	protocol="application/pgp-signature"; boundary="rz+pwK2yUstbofK6"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:57908 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:57939 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030377AbbJ3Lg0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 30 Oct 2015 07:36:26 -0400
+	id S1030732AbbJ3Llu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 30 Oct 2015 07:41:50 -0400
 Content-Disposition: inline
-In-Reply-To: <1445786459-22690-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1446204606-25541-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Vladimir Zapolskiy <vz@mleia.com>, Muhammad Falak R Wani <falakreyaz@gmail.com>, Vitaly Wool <vitalywool@gmail.com>
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 
 
---LwW0XdcUbUexiWVK
+--rz+pwK2yUstbofK6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Oct 25, 2015 at 04:20:59PM +0100, Wolfram Sang wrote:
-> smatch rightfully says:
+On Fri, Oct 30, 2015 at 12:30:06PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> drivers/i2c/busses/i2c-pnx.c:499 i2c_pnx_xfer warn: unused return: stat =
-=3D ioread32()
+> This whole series caused sometimes timeouts and even OOPSes on some
+> r8a7791 Koelsch boards. We need to understand and fix those first.
 >=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Vladimir Zapolskiy <vz@mleia.com>
-> Cc: Muhammad Falak R Wani <falakreyaz@gmail.com>
-> Cc: Vitaly Wool <vitalywool@gmail.com>
+> Revert "i2c: rcar: clean up after refactoring"
+> Revert "i2c: rcar: revoke START request early"
+> Revert "i2c: rcar: check master irqs before slave irqs"
+> Revert "i2c: rcar: don't issue stop when HW does it automatically"
+> Revert "i2c: rcar: init new messages in irq"
+> Revert "i2c: rcar: refactor setup of a msg"
+> Revert "i2c: rcar: remove spinlock"
+> Revert "i2c: rcar: remove unused IOERROR state"
+> Revert "i2c: rcar: rework hw init"
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Applied to for-next, thanks!
 
 
---LwW0XdcUbUexiWVK
+--rz+pwK2yUstbofK6
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWM1Y1AAoJEBQN5MwUoCm2c8cP/1E5M627R64zMc/M/xpx3EWr
-pQG6b73ExNCl8TFqwauL1vvH/UcsqbmUfjtq+f8eQKSXHCWCj0fbU5KSV/RJsZ1u
-JyIGgtaovZIAd775jkrxMIDSfjCMzmMFQRMZF3gjTlnEvD8J4T7c4KP3MSR+UfNn
-3qAvIGgaDYYxP99lHkqJVhWch+7/MWEgBe9bzCiO7nb/eW170O7pXLJHmMo9B6yS
-QJOrPQ1DmgmVk2uieWkpHQHrWnErxev4QC3pQq7zZC1h5QNjqRC+GSVLgUhXGNLo
-JbCzvg7rICIOVF5aFv6sWgNjGRAgx9XDW7zEHcBU+arebw4LaQdJQXGf4qv6b7rZ
-wJ4rV+3CP4riZYo8kG7q4O5JuOv+ADXwXRdx90jvyqVSu7iNKe9fNg4DEMdSDQSd
-UY5g4dItJWpVqTqvvoaX1I5WoonwXmlLiXUSdF3pr8A+BSYs2YhNXX/XaPEYpVhd
-dvZ1WpXvP7KR63BOq8X4H3j1g6RjvZ1U8wNDiB1AsMYcwoFhE9S1pQL/ITC0dyfv
-aNFTh7yUMk4DmJkDimPteuwNFL7vi7yGhvGOz7I2IByVxVqOH9YNNBbbfSwV5K72
-OtirWB5lhGTaERkX4gY9dThxSpCLnr06xKXyploH0vc41R+CJs33TsUnbgobFX/g
-z42BoSc1TnDzuCAvKjIn
-=BL0W
+iQIcBAEBAgAGBQJWM1d5AAoJEBQN5MwUoCm2WpQP/3yEg4ATxkoAMk5Bb4UB2byz
+02bYwxBVjr5LeuRXDNmilncRbBRF7TB7YUtjIulotb/fg7mJs5bmjrQiwN92rnqP
+/GL/qmp1gpXU9AaeCH8TOHqYoeJIJ7DNBH+RutVhsV2STvRJduOZfY4ZLZEZ4n5I
+QfcX8wPva8OfaZuiHiKQ0CvfDkYap3WDcw5fl9J678woQacmiSm+lUz4vS3S0Eol
+oNkVduk8hiyLOEGOQM4GONmYyY3UXgxmTqwdQce+7gitwZa4yJ0ug2wDOPRoBUx3
+f8oQeGouuTfRFeZt2URs6eP9/mf+XQkXH0mh3VmnlpHyDUvy8TzeNnpNrBocJJlP
+1v28nwTWFMdh3GK4kd3lofehTPtlBui4VpmszGoWAfvXQsrlzQ6qtE0pS0WhTTVQ
+V6RYIGZ08iK4tjM362M1ioisxzniH9HYTPgt/HXem68iMfdehVym7/7hDpzal+pR
+8h2V+rb05vmrbocJpeGwYSLI1m4/cZRuqy2RXUsFVJn9drptdLoTAvKCDHi23laj
++8FCKVn+FezG3O3UuTfus+NWSshg+v/MVj34aj1BC+GkhC8y/vOnCg1Xgh2/gbHD
+735rGRClLz2xIROcFzHZMkM5eZ4vwyjM4kyKhoPw8lE9dT3OSBnuP4mS5S+YnWHM
+2m2dI1PVn0O87/EHibpz
+=3U3t
 -----END PGP SIGNATURE-----
 
---LwW0XdcUbUexiWVK--
+--rz+pwK2yUstbofK6--
