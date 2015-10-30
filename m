@@ -1,77 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: rcar: make sure clocks are on when doing hw init
-Date: Fri, 30 Oct 2015 09:02:10 +0100
-Message-ID: <20151030080210.GA1589@katana>
-References: <1446158791-29682-1-git-send-email-wsa@the-dreams.de>
- <1726774.W1OrN54TP1@avalon>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] i2c: rcar: call rcar_i2c_init() after pm_runtime_get_sync()
+Date: Fri, 30 Oct 2015 09:04:03 +0100
+Message-ID: <CAMuHMdW7s3j97sdhgUC5hU++FvOn1U5627e3+RouEAKNUAZsDQ@mail.gmail.com>
+References: <87oafiyq8y.wl%kuninori.morimoto.gx@renesas.com>
+	<CAMuHMdXnMFh5umv=wJdvrcMip+DOn8rYP_3eUTufFw4q2Sr8Jw@mail.gmail.com>
+	<87h9l9gquz.wl%kuninori.morimoto.gx@renesas.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1726774.W1OrN54TP1@avalon>
+In-Reply-To: <87h9l9gquz.wl%kuninori.morimoto.gx@renesas.com>
 Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+To: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Simon <horms@verge.net.au>, Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Magnus <magnus.damm@gmail.com>, Linux-sh list <linux-sh@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Morimoto-san,
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Oct 30, 2015 at 1:13 AM, Kuninori Morimoto
+<kuninori.morimoto.gx@renesas.com> wrote:
+>> > From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+>> >
+>> > rcar_i2c_init() initializes I2C device, but it should be called
+>> > *after* pm_runtime_get_sync(). Otherwise it outputs very hi speed
+>> > clock. This patch solved this issue,
+>> > This patch also removes pointless rcar_i2c_init()
+>> > from rcar_i2c_probe()
+>> >
+>> > Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+>> > ---
+>> >  drivers/i2c/busses/i2c-rcar.c | 4 ++--
+>> >  1 file changed, 2 insertions(+), 2 deletions(-)
+>> >
+>> > diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+>> > index 616433d..edbfefc 100644
+>> > --- a/drivers/i2c/busses/i2c-rcar.c
+>> > +++ b/drivers/i2c/busses/i2c-rcar.c
+>> > @@ -474,6 +474,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+>> >
+>> >         pm_runtime_get_sync(dev);
+>> >
+>> > +       rcar_i2c_init(priv);
+>>
+>> Hence now it's done again for every transfer?
+>>
+>> What about moving it just before the call to i2c_add_numbered_adapter(),
+>> and wrapping it inside pm_runtime_get_sync(dev)/pm_runtime_put()?
+>
+> In my experience, it should be called again for every transfer.
+> Because SoC/IP might doesn't keep register setting value if you call pm_runtime_put()
+> (I fought with this behavior when sh_mobile IP :P )
 
+At least for R-Car Gen1 and Gen2, the datasheet states that register values
+are retained during sleep or module standby. I can't seem to find information
+about this for Gen3.
 
-> First of all, I got one kernel panic.
+Gr{oetje,eeting}s,
 
-:( I am starting to think i should revert my last i2c-rcar series until
-these issues are gone...
+                        Geert
 
-> I have also seen different errors:
->=20
-> [    1.177690] i2c-rcar e6530000.i2c: error -16 : 0
-> [    1.182534] adv7511: probe of 2-0039 failed with error -16
-> [    1.188293] i2c-rcar e6530000.i2c: probed
->=20
-> -110 occurred as well.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-I'd think you always get a -110 somewhere and all later accesses to
-the bus will return -16. The bus is stalled.
-
-> This occurred when rebooting the board by pressing the reset button, and =
-if I=20
-
-I use the reset button quite frequently, too.
-
-> remember correctly moving from renesas-devel-20151013v2-v4.3-rc5 to renes=
-as-
-> devel-20151026-v4.3-rc7. Even though it occurred several times in a row I=
-=20
-> can't seem to reproduce this issue now I'm afraid.
-
-Darn...
-
-
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWMyQCAAoJEBQN5MwUoCm2GLkQAIo1fYg5TewQg6Q9CZf/l7Sn
-v158KyS2EyX3ssmraZM+FVTToEgOgAiUnKPQD7cPrqFBUakKd+WqfmtS+aOAJwzI
-69dLyUgwxudeJ63MSl2y4ToCjtUWNuNCsAVbB1kuaobBXx0MBDo1jfD6uNyjxNtc
-MEPDgt8wFXuOjyhBY1VB8mJKlJm1vrcnRrNUW5bSDLWGJKwP711rKhW6OjsDjs7T
-lYE/gg/w7c5iyF2qUhGTCE2ghdzVjoV1rq/PRSDvRPOVZ4YKNiV1JbgjCktF7fdP
-C+s0O0Do8WaVrPk6e/4bQSqLWRkHdvXxQ2tmYpdBgVJkC2E5+sPm5kH0SGThN4G4
-W15MLNdDpUpuVCwXznr5FXPbxWdhcVwlJrpj18pNjJuce763MtCQwmpPQCUH7HL0
-NKyg/PXp0a5EO9Q6fl4q4oHuUJlGJoPc2EwXbhAwy/CILJvxOTwXUOpbkbikJN0M
-k/W0tRGNzpxtJbhLzex1UFpj2FKSk3BLaSjS0cj8NX+kCEEkfrGmvtp9Yiw7w+7P
-zhwAlkLiyshKkLN0PPwZE7q8mF9fnW+smeacTe/pgoZ+KkMzNJ33cwZSr9hCWRd/
-s5RhvaRsyHceDUM6Mfm4LJXWmB6A18h77Xrd9GDg2qSBnGQaRLf1x5p2XWHkOIvq
-fCP9mFURM1eNgu+BI5EG
-=SEQF
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
