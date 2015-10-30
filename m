@@ -1,70 +1,63 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: Revert the latest refactoring series
-Date: Fri, 30 Oct 2015 12:41:45 +0100
-Message-ID: <20151030114145.GD25117@katana>
-References: <1446204606-25541-1-git-send-email-wsa@the-dreams.de>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Don't mask TX_EMPTY if write is in progress
+Date: Fri, 30 Oct 2015 14:03:53 +0200
+Message-ID: <56335CA9.7080105@linux.intel.com>
+References: <1446190649-1318-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rz+pwK2yUstbofK6"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:57939 "EHLO pokefinder.org"
+Received: from mga03.intel.com ([134.134.136.65]:24900 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030732AbbJ3Llu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 30 Oct 2015 07:41:50 -0400
-Content-Disposition: inline
-In-Reply-To: <1446204606-25541-1-git-send-email-wsa@the-dreams.de>
+	id S1758909AbbJ3MD4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 30 Oct 2015 08:03:56 -0400
+In-Reply-To: <1446190649-1318-1-git-send-email-jszhang@marvell.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jisheng Zhang <jszhang@marvell.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
+Hi
 
---rz+pwK2yUstbofK6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 10/30/2015 09:37 AM, Jisheng Zhang wrote:
+> Currently when i2c_msg index search is completed, TX_EMPTY interrupt
+> will be masked. But if the size of i2c_msg data is longer than the size
+> of the tx buffer, we still need TX_EMPTY interrupt, otherwise we will
+> get "controller timed out" error.
+>
+> This patch fixes this issue by only masking TX_EMPTY if i2c_msg index
+> search is completed and write is not in progress.
+>
+> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+> ---
+>   drivers/i2c/busses/i2c-designware-core.c | 7 ++++---
+>   1 file changed, 4 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+> index 7441cdc..a2eb212 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -542,10 +542,11 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+>   	}
+>
+>   	/*
+> -	 * If i2c_msg index search is completed, we don't need TX_EMPTY
+> -	 * interrupt any more.
+> +	 * If i2c_msg index search is completed and writing is not in progress,
+> +	 * we don't need TX_EMPTY interrupt any more.
+>   	 */
+> -	if (dev->msg_write_idx == dev->msgs_num)
+> +	if (dev->msg_write_idx == dev->msgs_num &&
+> +			!(dev->status & STATUS_WRITE_IN_PROGRESS))
+>   		intr_mask &= ~DW_IC_INTR_TX_EMPTY;
+>
+This looks a possible scenario here. What I'm wondering how is the 
+transfer ending and what condition in i2c_dw_isr() causes the complete() 
+call?
 
-On Fri, Oct 30, 2015 at 12:30:06PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> This whole series caused sometimes timeouts and even OOPSes on some
-> r8a7791 Koelsch boards. We need to understand and fix those first.
->=20
-> Revert "i2c: rcar: clean up after refactoring"
-> Revert "i2c: rcar: revoke START request early"
-> Revert "i2c: rcar: check master irqs before slave irqs"
-> Revert "i2c: rcar: don't issue stop when HW does it automatically"
-> Revert "i2c: rcar: init new messages in irq"
-> Revert "i2c: rcar: refactor setup of a msg"
-> Revert "i2c: rcar: remove spinlock"
-> Revert "i2c: rcar: remove unused IOERROR state"
-> Revert "i2c: rcar: rework hw init"
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Assuming we break the for loop in i2c_dw_xfer_msg() with buf_len > 0 and 
+dev->msg_write_idx == dev->msgs_num how we get back inside the for loop 
+for writing the remaining bytes and stop command?
 
-Applied to for-next, thanks!
-
-
---rz+pwK2yUstbofK6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWM1d5AAoJEBQN5MwUoCm2WpQP/3yEg4ATxkoAMk5Bb4UB2byz
-02bYwxBVjr5LeuRXDNmilncRbBRF7TB7YUtjIulotb/fg7mJs5bmjrQiwN92rnqP
-/GL/qmp1gpXU9AaeCH8TOHqYoeJIJ7DNBH+RutVhsV2STvRJduOZfY4ZLZEZ4n5I
-QfcX8wPva8OfaZuiHiKQ0CvfDkYap3WDcw5fl9J678woQacmiSm+lUz4vS3S0Eol
-oNkVduk8hiyLOEGOQM4GONmYyY3UXgxmTqwdQce+7gitwZa4yJ0ug2wDOPRoBUx3
-f8oQeGouuTfRFeZt2URs6eP9/mf+XQkXH0mh3VmnlpHyDUvy8TzeNnpNrBocJJlP
-1v28nwTWFMdh3GK4kd3lofehTPtlBui4VpmszGoWAfvXQsrlzQ6qtE0pS0WhTTVQ
-V6RYIGZ08iK4tjM362M1ioisxzniH9HYTPgt/HXem68iMfdehVym7/7hDpzal+pR
-8h2V+rb05vmrbocJpeGwYSLI1m4/cZRuqy2RXUsFVJn9drptdLoTAvKCDHi23laj
-+8FCKVn+FezG3O3UuTfus+NWSshg+v/MVj34aj1BC+GkhC8y/vOnCg1Xgh2/gbHD
-735rGRClLz2xIROcFzHZMkM5eZ4vwyjM4kyKhoPw8lE9dT3OSBnuP4mS5S+YnWHM
-2m2dI1PVn0O87/EHibpz
-=3U3t
------END PGP SIGNATURE-----
-
---rz+pwK2yUstbofK6--
+-- 
+Jarkko
