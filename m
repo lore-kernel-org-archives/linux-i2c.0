@@ -1,63 +1,51 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Don't mask TX_EMPTY if write is in progress
-Date: Fri, 30 Oct 2015 14:03:53 +0200
-Message-ID: <56335CA9.7080105@linux.intel.com>
-References: <1446190649-1318-1-git-send-email-jszhang@marvell.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH v2] i2c: rcar: make sure clocks are on when doing hw init
+Date: Fri, 30 Oct 2015 16:19:49 +0200
+Message-ID: <2651660.Ax9kPbc9xQ@avalon>
+References: <1446158791-29682-1-git-send-email-wsa@the-dreams.de> <1726774.W1OrN54TP1@avalon> <CAMuHMdV0_ej3z1EQ=1Q+XRc53CX5H=8Oa3sNjUwkfO62KfTpHA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:24900 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758909AbbJ3MD4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 30 Oct 2015 08:03:56 -0400
-In-Reply-To: <1446190649-1318-1-git-send-email-jszhang@marvell.com>
+Received: from galahad.ideasonboard.com ([185.26.127.97]:58624 "EHLO
+	galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031340AbbJ3OTr (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Oct 2015 10:19:47 -0400
+In-Reply-To: <CAMuHMdV0_ej3z1EQ=1Q+XRc53CX5H=8Oa3sNjUwkfO62KfTpHA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jisheng Zhang <jszhang@marvell.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-Hi
+Hi Geert,
 
-On 10/30/2015 09:37 AM, Jisheng Zhang wrote:
-> Currently when i2c_msg index search is completed, TX_EMPTY interrupt
-> will be masked. But if the size of i2c_msg data is longer than the size
-> of the tx buffer, we still need TX_EMPTY interrupt, otherwise we will
-> get "controller timed out" error.
->
-> This patch fixes this issue by only masking TX_EMPTY if i2c_msg index
-> search is completed and write is not in progress.
->
-> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
-> ---
->   drivers/i2c/busses/i2c-designware-core.c | 7 ++++---
->   1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index 7441cdc..a2eb212 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -542,10 +542,11 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
->   	}
->
->   	/*
-> -	 * If i2c_msg index search is completed, we don't need TX_EMPTY
-> -	 * interrupt any more.
-> +	 * If i2c_msg index search is completed and writing is not in progress,
-> +	 * we don't need TX_EMPTY interrupt any more.
->   	 */
-> -	if (dev->msg_write_idx == dev->msgs_num)
-> +	if (dev->msg_write_idx == dev->msgs_num &&
-> +			!(dev->status & STATUS_WRITE_IN_PROGRESS))
->   		intr_mask &= ~DW_IC_INTR_TX_EMPTY;
->
-This looks a possible scenario here. What I'm wondering how is the 
-transfer ending and what condition in i2c_dw_isr() causes the complete() 
-call?
+On Friday 30 October 2015 09:16:40 Geert Uytterhoeven wrote:
+> On Fri, Oct 30, 2015 at 5:35 AM, Laurent Pinchart wrote:
+> > [    9.641533] Unable to handle kernel paging request at virtual address
+> > ffffffff
+> > [    9.648927] pgd = eb2adf40
+> > [    9.651695] [ffffffff] *pgd=80000040007003, *pmd=6bfde003,
+> > *pte=00000000
+> > [    9.658579] Internal error: Oops: a07 [#1] SMP ARM
+> > [    9.663475] Modules linked in: rcar_thermal adv7180(+) phy_rcar_gen2
+> > soundcore udc_core
+> > [    9.671719] CPU: 0 PID: 552 Comm: udevd Not tainted 4.3.0-rc7-07332-
+> > gfb990fd3ff96 #114
+> > [    9.679811] Hardware name: Generic R8A7791 (Flattened Device Tree)
+> > [    9.686125] task: eb11f400 ti: ea92e000 task.ti: ea92e000
+> > [    9.691653] PC is at rcar_i2c_irq+0xd4/0x3e4
+> > [    9.696018] LR is at rcar_i2c_write+0x28/0x38
+> > [    9.700471] pc : [<c0324588>]    lr : [<c0323cf0>]    psr: 80000193
+> > 
+> > This only occurred once, I don't know how to reproduce it.
+> 
+> Do you still have the kernel binary, so you can see where exactly the crash
+> happened?
 
-Assuming we break the for loop in i2c_dw_xfer_msg() with buf_len > 0 and 
-dev->msg_write_idx == dev->msgs_num how we get back inside the for loop 
-for writing the remaining bytes and stop command?
+I haven't kept it, but I'm pretty sure I was using renesas-devel-20151026-
+v4.3-rc7 without any additional patch applied.
 
 -- 
-Jarkko
+Regards,
+
+Laurent Pinchart
