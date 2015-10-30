@@ -1,223 +1,186 @@
-From: Kevin Fenzi <kevin@scrye.com>
-Subject: Re: Issues with touchpad / touchscreen on yoga 900
-Date: Fri, 30 Oct 2015 10:04:42 -0600
-Message-ID: <20151030100442.50ac07bd@voldemort.scrye.com>
-References: <20151029112913.1036f00b@voldemort.scrye.com>
-	<20151029183032.GA8992@katana>
-	<56332316.90506@linux.intel.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v3 2/6] mfd: core: redo ACPI matching of the children
+ devices
+Date: Fri, 30 Oct 2015 18:54:04 +0000
+Message-ID: <20151030185404.GL4058@x1>
+References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1444213129-29793-3-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- boundary="Sig_//jVsaws6w1QQxIKgMxhtoVk"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from scrye.com ([75.148.32.185]:54642 "EHLO mail.scrye.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751255AbbJ3QEt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 30 Oct 2015 12:04:49 -0400
-In-Reply-To: <56332316.90506@linux.intel.com>
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:33799 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759350AbbJ3SyM (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Oct 2015 14:54:12 -0400
+Received: by wikq8 with SMTP id q8so17065871wik.1
+        for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2015 11:54:11 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1444213129-29793-3-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
 
---Sig_//jVsaws6w1QQxIKgMxhtoVk
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Wed, 07 Oct 2015, Andy Shevchenko wrote:
 
-On Fri, 30 Oct 2015 09:58:14 +0200
-Jarkko Nikula <jarkko.nikula@linux.intel.com> wrote:
-
-> Hi
+> There is at least one board on the market, i.e. Intel Galileo Gen2, t=
+hat uses
+> _ADR to distinguish the devices under one actual device. Due to this =
+we have to
+> improve the quirk in the MFD core to handle that board.
 >=20
-> On 10/29/2015 08:30 PM, Wolfram Sang wrote:
-> > On Thu, Oct 29, 2015 at 11:29:13AM -0600, Kevin Fenzi wrote: =20
-> >> Greetings.
-> >>
-> >> I'm having problems with a lenovo yoga 900 not seeing it's
-> >> touchscreen or touchpad.
-> >>
-> >> Downstream bug:
-> >> https://bugzilla.redhat.com/show_bug.cgi?id=3D1275718
-> >>
-> >> The problem parts of dmesg seem to be:
-> >>
-> >> Oct 26 15:20:08 localhost kernel: i2c_designware i2c_designware.1:
-> >> i2c_dw_handle_tx_abort: lost arbitration Oct 26 15:20:08 localhost
-> >> kernel: i2c_hid i2c-SYNA2B29:00: hid_descr_cmd failed Oct 26
-> >> 15:20:08 localhost kernel: i2c_designware i2c_designware.2:
-> >> i2c_dw_handle_tx_abort: lost arbitration Oct 26 15:20:08 localhost
-> >> kernel: i2c_hid i2c-ELAN21EF:00: hid_descr_cmd failed
-> >>
-> >> This is with 4.3.0-0.rc7.git1.1.fc24.x86_64 (post rc7 4.3.0).
-> >>
-> >> Happy to gather further info or try patches. ;) =20
-> > =20
-> Could you try this test patch from Mika that prints the parameters it=20
-> gets from ACPI and forces using calculated ones (your quirk was
-> supposed to be doing the same):
->=20
-> http://www.spinics.net/lists/linux-i2c/msg21239.html
+> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  Documentation/acpi/enumeration.txt | 11 +++++---
+>  drivers/mfd/mfd-core.c             | 52 ++++++++++++++++++++++++++--=
+----------
+>  include/linux/mfd/core.h           | 10 ++++++--
+>  3 files changed, 52 insertions(+), 21 deletions(-)
 
-ok. That gives me:=20
+=46or my own reference:
+  Acked-by: Lee Jones <lee.jones@linaro.org>
 
-[157408.224530] i2c_designware i2c_designware.1: ACPI SSCN 0:0
-[157408.224534] i2c_designware i2c_designware.1: ACPI FMCN 0:0
-[157408.224536] i2c_designware i2c_designware.1: ACPI SDA hold 0
-[157408.228054] i2c_designware i2c_designware.1:
-i2c_dw_handle_tx_abort: lost arbitration [157408.228061] i2c_hid
-i2c-SYNA2B29:00: hid_descr_cmd failed [157408.235275]
-[157408.250399] i2c_designware i2c_designware.2: ACPI SSCN 0:0
-[157408.250403] i2c_designware i2c_designware.2: ACPI FMCN 0:0
-[157408.250405] i2c_designware i2c_designware.2: ACPI SDA hold 0
-[157408.261255] idma64 idma64.2: idma64_irq: status=3D0x0 [157408.261284]
-idma64 idma64.2: idma64_irq: status=3D0x0 [157408.261319] i2c_designware
-i2c_designware.2: i2c_dw_handle_tx_abort: lost arbitration
-[157408.261325] i2c_hid i2c-ELAN21EF:00: hid_descr_cmd failed
+> diff --git a/Documentation/acpi/enumeration.txt b/Documentation/acpi/=
+enumeration.txt
+> index b731b29..a91ec5a 100644
+> --- a/Documentation/acpi/enumeration.txt
+> +++ b/Documentation/acpi/enumeration.txt
+> @@ -347,13 +347,18 @@ For the first case, the MFD drivers do not need=
+ to do anything. The
+>  resulting child platform device will have its ACPI_COMPANION() set t=
+o point
+>  to the parent device.
+> =20
+> -If the ACPI namespace has a device that we can match using an ACPI i=
+d,
+> -the id should be set like:
+> +If the ACPI namespace has a device that we can match using an ACPI i=
+d or ACPI
+> +adr, the cell should be set like:
+> +
+> +	static struct mfd_cell_acpi_match my_subdevice_cell_acpi_match =3D =
+{
+> +		.pnpid =3D "XYZ0001",
+> +		.adr =3D 0,
+> +	};
+> =20
+>  	static struct mfd_cell my_subdevice_cell =3D {
+>  		.name =3D "my_subdevice",
+>  		/* set the resources relative to the parent */
+> -		.acpi_pnpid =3D "XYZ0001",
+> +		.acpi_match =3D &my_subdevice_cell_acpi_match,
+>  	};
+> =20
+>  The ACPI id "XYZ0001" is then used to lookup an ACPI device directly=
+ under
+> diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+> index c17635d..60b60dc 100644
+> --- a/drivers/mfd/mfd-core.c
+> +++ b/drivers/mfd/mfd-core.c
+> @@ -82,29 +82,49 @@ static int mfd_platform_add_cell(struct platform_=
+device *pdev,
+>  static void mfd_acpi_add_device(const struct mfd_cell *cell,
+>  				struct platform_device *pdev)
+>  {
+> -	struct acpi_device *parent_adev;
+> +	const struct mfd_cell_acpi_match *match =3D cell->acpi_match;
+> +	struct acpi_device *parent, *child;
+>  	struct acpi_device *adev;
+> =20
+> -	parent_adev =3D ACPI_COMPANION(pdev->dev.parent);
+> -	if (!parent_adev)
+> +	parent =3D ACPI_COMPANION(pdev->dev.parent);
+> +	if (!parent)
+>  		return;
+> =20
+>  	/*
+> -	 * MFD child device gets its ACPI handle either from the ACPI
+> -	 * device directly under the parent that matches the acpi_pnpid or
+> -	 * it will use the parent handle if is no acpi_pnpid is given.
+> +	 * MFD child device gets its ACPI handle either from the ACPI devic=
+e
+> +	 * directly under the parent that matches the either _HID or _CID, =
+or
+> +	 * _ADR or it will use the parent handle if is no ID is given.
+> +	 *
+> +	 * Note that use of _ADR is a grey area in the ACPI specification,
+> +	 * though Intel Galileo Gen2 is using it to distinguish the childre=
+n
+> +	 * devices.
+>  	 */
+> -	adev =3D parent_adev;
+> -	if (cell->acpi_pnpid) {
+> -		struct acpi_device_id ids[2] =3D {};
+> -		struct acpi_device *child_adev;
+> -
+> -		strlcpy(ids[0].id, cell->acpi_pnpid, sizeof(ids[0].id));
+> -		list_for_each_entry(child_adev, &parent_adev->children, node)
+> -			if (acpi_match_device_ids(child_adev, ids)) {
+> -				adev =3D child_adev;
+> -				break;
+> +	adev =3D parent;
+> +	if (match) {
+> +		if (match->pnpid) {
+> +			struct acpi_device_id ids[2] =3D {};
+> +
+> +			strlcpy(ids[0].id, match->pnpid, sizeof(ids[0].id));
+> +			list_for_each_entry(child, &parent->children, node) {
+> +				if (acpi_match_device_ids(child, ids)) {
+> +					adev =3D child;
+> +					break;
+> +				}
+> +			}
+> +		} else {
+> +			unsigned long long adr;
+> +			acpi_status status;
+> +
+> +			list_for_each_entry(child, &parent->children, node) {
+> +				status =3D acpi_evaluate_integer(child->handle,
+> +							       "_ADR", NULL,
+> +							       &adr);
+> +				if (ACPI_SUCCESS(status) && match->adr =3D=3D adr) {
+> +					adev =3D child;
+> +					break;
+> +				}
+>  			}
+> +		}
+>  	}
+> =20
+>  	ACPI_COMPANION_SET(&pdev->dev, adev);
+> diff --git a/include/linux/mfd/core.h b/include/linux/mfd/core.h
+> index a76bc10..27dac3f 100644
+> --- a/include/linux/mfd/core.h
+> +++ b/include/linux/mfd/core.h
+> @@ -18,6 +18,12 @@
+> =20
+>  struct irq_domain;
+> =20
+> +/* Matches ACPI PNP id, either _HID or _CID, or ACPI _ADR */
+> +struct mfd_cell_acpi_match {
+> +	const char			*pnpid;
+> +	const unsigned long long	adr;
+> +};
+> +
+>  /*
+>   * This struct describes the MFD part ("cell").
+>   * After registration the copy of this structure will become the pla=
+tform data
+> @@ -44,8 +50,8 @@ struct mfd_cell {
+>  	 */
+>  	const char		*of_compatible;
+> =20
+> -	/* Matches ACPI PNP id, either _HID or _CID */
+> -	const char		*acpi_pnpid;
+> +	/* Matches ACPI */
+> +	const struct mfd_cell_acpi_match	*acpi_match;
+> =20
+>  	/*
+>  	 * These resources can be specified relative to the parent device.
 
-Also, if it helps with i2c-hid debug=3D1:
-
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: Fetching the HID =
-descriptor
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D01 00
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: HID Descriptor: 1=
-e 00 00 01 dc 0a 02 00 03 00 16 00 04 00 00 00 05 00 06 00 8d 04 96 83 17 1=
-0 00 00 00 00
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: entering i2c_hid_=
-parse
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_hwreset
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_set_power
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 00 08
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: input: 0c 00 01 0=
-2 02 ed ff 82 fc 89 fe 00
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: resetting...
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 00 01
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: waiting...
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: finished.
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: asking HID report=
- descriptor
-Oct 30 12:02:10 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D02 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: Report Descriptor=
-: 06 83 ff 09 80 a1 01 85 5a 09 01 15 00 26 ff 00 75 08 95 10 b1 00 c0 05 2=
-0 09 01 a1 01 85 01 05 20 09 73 a1 00 05 20 0a 09 03 15 00 25 02 75 08 95 0=
-1 a1 02 0a 30 08 0a 31 08 0a 32 08 b1 00 c0
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: input: 11 00 02 0=
-2 02 00 00 00 00 00 00 00 00 00 00 00 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: input: 14 00 03 0=
-2 02 9b 06 5e b5 fb ff c3 32 f4 ff c3 71 14 00 03
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_get_report
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 3f 02 5a 06 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: report (len=3D19)=
-: 12 00 5a ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: error in i2c_hid_=
-init_report size:19 / ret_size:18
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_get_report
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 31 02 06 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: report (len=3D21)=
-: 15 00 01 01 02 02 02 c8 00 00 00 02 00 02 00 32 00 a0 0f 60 f0
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_get_report
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 32 02 06 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: report (len=3D31)=
-: 1f 00 02 01 01 06 02 64 00 00 00 58 1b 00 00 e0 70 72 00 50 c3 00 00 00 c=
-2 eb 0b 00 3e 14 f4
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_get_report
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 33 02 06 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: report (len=3D41)=
-: 29 00 03 01 01 06 02 64 00 00 00 01 00 64 00 02 00 10 0e 00 00 28 06 00 0=
-0 28 06 00 00 10 27 00 00 00 2d 31 01 00 d3 ce fe
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_get_report
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 34 02 06 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: report (len=3D21)=
-: 15 00 04 01 02 02 02 64 00 00 00 01 00 32 00 05 00 42 0e be f1
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_get_report
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 35 02 06 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: report (len=3D31)=
-: 1f 00 05 01 01 06 02 64 00 00 00 01 00 00 00 a0 86 01 00 10 27 00 00 80 9=
-6 98 00 80 69 67 ff
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_get_report
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 36 02 06 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: report (len=3D41)=
-: 29 00 06 01 01 06 02 dc 05 00 00 19 00 ff ff 00 00 53 00 01 00 64 00 20 0=
-0 73 00 3c 01 7d 00 e8 03 87 00 5a 0c 95 00 10 27
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_get_report
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 37 02 06 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: report (len=3D35)=
-: 23 00 07 01 02 02 02 50 00 00 00 0a 00 4c 00 65 00 6e 00 6f 00 76 00 6f 0=
-0 20 00 59 00 6f 00 67 00 61 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: input: 0c 00 04 0=
-2 02 63 fd 08 00 70 06 03
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: input: 16 00 05 0=
-2 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 03
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: input: 09 00 06 0=
-2 02 64 00 00 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: input: 11 00 07 0=
-2 02 00 00 d9 ff 47 fc fc 0d 6a 04 74 04
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-SYNA2B29:00: Fetching the HID=
- descriptor
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-SYNA2B29:00: __i2c_hid_comman=
-d: cmd=3D20 00
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: i2c_hid_set_power
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ITE8396:00: __i2c_hid_command=
-: cmd=3D05 00 01 08
-Oct 30 12:02:11 localhost kernel: i2c_designware i2c_designware.1: i2c_dw_h=
-andle_tx_abort: lost arbitration
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-SYNA2B29:00: hid_descr_cmd fa=
-iled
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ELAN21EF:00: Fetching the HID=
- descriptor
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ELAN21EF:00: __i2c_hid_comman=
-d: cmd=3D01 00
-Oct 30 12:02:11 localhost kernel: i2c_designware i2c_designware.2: i2c_dw_h=
-andle_tx_abort: lost arbitration
-Oct 30 12:02:11 localhost kernel: i2c_hid i2c-ELAN21EF:00:
-hid_descr_cmd failed
-
-
-> Another fix from Mika that comes to my mind is "HID: multitouch:
-> Fetch feature reports on demand for Win8 devices" which is sitting in=20
-> linux-next. Not sure is it related but probably worth to try.
->=20
-> https://lkml.org/lkml/2015/9/28/404
-
-I was able to patch that, but got confused... that was in
-hid-multitouch... but I don't even have that loaded normally. Does that
-need hid-i2c rebuilt against that hid-multitouch or something?
-Sorry for the dumb questions.. I'm not really a kernel hacker ;)=20
-
-kevin
-
---Sig_//jVsaws6w1QQxIKgMxhtoVk
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCgAGBQJWM5UbAAoJEEs3sNgP+7tekhcP/j+uKGEB7a2LmF0veDbWFNOO
-DUsYfBH0KMAIeSoRSMDX21AvHRtnb2PnngZ+xAdKAFlAl6Ubi+f3k28Dfne0vxxC
-aJJwL5UUSbAFrD6GhPXr+2Uyw6Poi1/mrhU01/UJHxUQJ9RvHa+0Vgp/2Z9Rc1Si
-zW5jTGPRILv9W327pH7ZwJBP5Z+RQN+ZakoIu1LLWIfYZdu6g96NNc/5J9iEsetg
-b6f+AxCIa00LZzjb0TwH3u5a5QcqH+LAV5Lo0VxuewRG1nbJAyTbyks7LK52bFtR
-OagzGoZUUN5T94se0uSVSVa0FKpLeiR5PWWkXX7iz+otpkcItLJM03CVHHNuidwS
-aDebXX3EgfanI/3uwrCZjIExnUh33oz+W90N0VbtI4f8SfOqNZeEpU3msvAixOSO
-pkSE3lcZlbRq8VGdYXr5jO9CCWjMoc7TUG+ld5gchsbr/g8w+XLLX/CcfASo9KqD
-GT/9Gk+6U5DJ6kcGaGWv3oJr7klNNHjFNMiQ67Iaff1N8lOZKhsUwzi2od18b9aU
-tWEYSAkO4x51oly1EoHAzs1mQmHJhleCfDzfIMoaX1cfTidpSov3J43u9QyO4ldh
-GS7rm8KOG2HAMIBjG+8gl4sfawJu/T3/Z69I2UV78rGy9+9GaTmwYaQENavP7Up1
-2vImgyd01UwRuMagxbjz
-=UBp/
------END PGP SIGNATURE-----
-
---Sig_//jVsaws6w1QQxIKgMxhtoVk--
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
