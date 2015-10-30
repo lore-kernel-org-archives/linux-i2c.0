@@ -1,183 +1,98 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 2/6] mfd: core: redo ACPI matching of the children
- devices
-Date: Fri, 30 Oct 2015 18:54:04 +0000
-Message-ID: <20151030185404.GL4058@x1>
+Subject: Re: [PATCH v3 0/6] enable I2C devices behind I2C bus on Gen2
+Date: Fri, 30 Oct 2015 18:54:50 +0000
+Message-ID: <20151030185450.GM4058@x1>
 References: <1444213129-29793-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1444213129-29793-3-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1445439954.22669.38.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f172.google.com ([209.85.212.172]:33799 "EHLO
-	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759350AbbJ3SyM (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Oct 2015 14:54:12 -0400
-Received: by wikq8 with SMTP id q8so17065871wik.1
-        for <linux-i2c@vger.kernel.org>; Fri, 30 Oct 2015 11:54:11 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1444213129-29793-3-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <1445439954.22669.38.camel@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 07 Oct 2015, Andy Shevchenko wrote:
+On Wed, 21 Oct 2015, Andy Shevchenko wrote:
 
-> There is at least one board on the market, i.e. Intel Galileo Gen2, t=
-hat uses
-> _ADR to distinguish the devices under one actual device. Due to this =
-we have to
-> improve the quirk in the MFD core to handle that board.
+> On Wed, 2015-10-07 at 13:18 +0300, Andy Shevchenko wrote:
+> > There is a board in the wild, i.e. Intel Galileo Gen2, that has ACP=
+I
+> > enumerated
+> > devices behind I2C bus.
 >=20
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  Documentation/acpi/enumeration.txt | 11 +++++---
->  drivers/mfd/mfd-core.c             | 52 ++++++++++++++++++++++++++--=
-----------
->  include/linux/mfd/core.h           | 10 ++++++--
->  3 files changed, 52 insertions(+), 21 deletions(-)
+> Lee, since Wolfram is going to apply patches 1 and 5, how could we
+> proceed with the rest? Patches are indeed build independent, though
+> they are unified by enabling logically piece-by-piece. It would be
+> great if you think you may apply them to your v4.4 queue.
 
-=46or my own reference:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+So we're just waiting for Thierry's Ack now, right?
 
-> diff --git a/Documentation/acpi/enumeration.txt b/Documentation/acpi/=
-enumeration.txt
-> index b731b29..a91ec5a 100644
-> --- a/Documentation/acpi/enumeration.txt
-> +++ b/Documentation/acpi/enumeration.txt
-> @@ -347,13 +347,18 @@ For the first case, the MFD drivers do not need=
- to do anything. The
->  resulting child platform device will have its ACPI_COMPANION() set t=
-o point
->  to the parent device.
-> =20
-> -If the ACPI namespace has a device that we can match using an ACPI i=
-d,
-> -the id should be set like:
-> +If the ACPI namespace has a device that we can match using an ACPI i=
-d or ACPI
-> +adr, the cell should be set like:
-> +
-> +	static struct mfd_cell_acpi_match my_subdevice_cell_acpi_match =3D =
-{
-> +		.pnpid =3D "XYZ0001",
-> +		.adr =3D 0,
-> +	};
-> =20
->  	static struct mfd_cell my_subdevice_cell =3D {
->  		.name =3D "my_subdevice",
->  		/* set the resources relative to the parent */
-> -		.acpi_pnpid =3D "XYZ0001",
-> +		.acpi_match =3D &my_subdevice_cell_acpi_match,
->  	};
-> =20
->  The ACPI id "XYZ0001" is then used to lookup an ACPI device directly=
- under
-> diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-> index c17635d..60b60dc 100644
-> --- a/drivers/mfd/mfd-core.c
-> +++ b/drivers/mfd/mfd-core.c
-> @@ -82,29 +82,49 @@ static int mfd_platform_add_cell(struct platform_=
-device *pdev,
->  static void mfd_acpi_add_device(const struct mfd_cell *cell,
->  				struct platform_device *pdev)
->  {
-> -	struct acpi_device *parent_adev;
-> +	const struct mfd_cell_acpi_match *match =3D cell->acpi_match;
-> +	struct acpi_device *parent, *child;
->  	struct acpi_device *adev;
-> =20
-> -	parent_adev =3D ACPI_COMPANION(pdev->dev.parent);
-> -	if (!parent_adev)
-> +	parent =3D ACPI_COMPANION(pdev->dev.parent);
-> +	if (!parent)
->  		return;
-> =20
->  	/*
-> -	 * MFD child device gets its ACPI handle either from the ACPI
-> -	 * device directly under the parent that matches the acpi_pnpid or
-> -	 * it will use the parent handle if is no acpi_pnpid is given.
-> +	 * MFD child device gets its ACPI handle either from the ACPI devic=
+> > This patch series dedicated to enable those devices. Meanwhile it
+> > also changes
+> > I2C core to cope with ACPI 6.0 specification (patch 1).
+> >=20
+> > The MFD framework is also updated to cope with interesting
+> > implementation of
+> > the cell descriptions under ACPI MFD (patch 2).
+> >=20
+> > The patches 5 and 6 are pretty independent and could be applied
+> > ahead, though
+> > they don't make much sense without previous ones.
+> >=20
+> > Srinivas, it would be nice to see your tag (ideally Tested-by) to b=
 e
-> +	 * directly under the parent that matches the either _HID or _CID, =
-or
-> +	 * _ADR or it will use the parent handle if is no ID is given.
-> +	 *
-> +	 * Note that use of _ADR is a grey area in the ACPI specification,
-> +	 * though Intel Galileo Gen2 is using it to distinguish the childre=
-n
-> +	 * devices.
->  	 */
-> -	adev =3D parent_adev;
-> -	if (cell->acpi_pnpid) {
-> -		struct acpi_device_id ids[2] =3D {};
-> -		struct acpi_device *child_adev;
-> -
-> -		strlcpy(ids[0].id, cell->acpi_pnpid, sizeof(ids[0].id));
-> -		list_for_each_entry(child_adev, &parent_adev->children, node)
-> -			if (acpi_match_device_ids(child_adev, ids)) {
-> -				adev =3D child_adev;
-> -				break;
-> +	adev =3D parent;
-> +	if (match) {
-> +		if (match->pnpid) {
-> +			struct acpi_device_id ids[2] =3D {};
-> +
-> +			strlcpy(ids[0].id, match->pnpid, sizeof(ids[0].id));
-> +			list_for_each_entry(child, &parent->children, node) {
-> +				if (acpi_match_device_ids(child, ids)) {
-> +					adev =3D child;
-> +					break;
-> +				}
-> +			}
-> +		} else {
-> +			unsigned long long adr;
-> +			acpi_status status;
-> +
-> +			list_for_each_entry(child, &parent->children, node) {
-> +				status =3D acpi_evaluate_integer(child->handle,
-> +							       "_ADR", NULL,
-> +							       &adr);
-> +				if (ACPI_SUCCESS(status) && match->adr =3D=3D adr) {
-> +					adev =3D child;
-> +					break;
-> +				}
->  			}
-> +		}
->  	}
-> =20
->  	ACPI_COMPANION_SET(&pdev->dev, adev);
-> diff --git a/include/linux/mfd/core.h b/include/linux/mfd/core.h
-> index a76bc10..27dac3f 100644
-> --- a/include/linux/mfd/core.h
-> +++ b/include/linux/mfd/core.h
-> @@ -18,6 +18,12 @@
-> =20
->  struct irq_domain;
-> =20
-> +/* Matches ACPI PNP id, either _HID or _CID, or ACPI _ADR */
-> +struct mfd_cell_acpi_match {
-> +	const char			*pnpid;
-> +	const unsigned long long	adr;
-> +};
-> +
->  /*
->   * This struct describes the MFD part ("cell").
->   * After registration the copy of this structure will become the pla=
-tform data
-> @@ -44,8 +50,8 @@ struct mfd_cell {
->  	 */
->  	const char		*of_compatible;
-> =20
-> -	/* Matches ACPI PNP id, either _HID or _CID */
-> -	const char		*acpi_pnpid;
-> +	/* Matches ACPI */
-> +	const struct mfd_cell_acpi_match	*acpi_match;
-> =20
->  	/*
->  	 * These resources can be specified relative to the parent device.
+> > sure we
+> > don't break ISH stuff.
+> >=20
+> > Since it touches multiple subsystems someone needs to create an
+> > immutable
+> > branch. I don't actually know whose subsystem better here. Wolfram?
+> >=20
+> > Tested on the actual Intel Galileo Gen2 by Ismo (gpio expanders) an=
+d
+> > me (at24).
+> >=20
+> > Changelog v3:
+> > - append ACKs from Rafael (from ACPI angle)
+> > - drop upstreamed patches (GPIO pca953x)
+> >=20
+> > Changelog v2:
+> > - append tags
+> > - re-make patch 3 (suggested by Lee)
+> > - improve patch 8 (suggested by Thierry)
+> >=20
+> > Andy Shevchenko (5):
+> > =C2=A0 mfd: core: redo ACPI matching of the children devices
+> > =C2=A0 mfd: intel_quark_i2c_gpio: load gpio driver first
+> > =C2=A0 mfd: intel_quark_i2c_gpio: support devices behind i2c bus
+> > =C2=A0 at24: enable ACPI device found on Galileo Gen2
+> > =C2=A0 pwm-pca9685: enable ACPI device found on Galileo Gen2
+> >=20
+> > Mika Westerberg (1):
+> > =C2=A0 i2c / ACPI: Rework I2C device scanning
+> >=20
+> > =C2=A0Documentation/acpi/enumeration.txt | 11 +++--
+> > =C2=A0drivers/i2c/i2c-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0| 82 +++++++++++++++++++++++++++=
+-
+> > ----------
+> > =C2=A0drivers/mfd/intel_quark_i2c_gpio.c | 33 ++++++++++-----
+> > =C2=A0drivers/mfd/mfd-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0| 52 ++++++++++++++++--------
+> > =C2=A0drivers/misc/eeprom/at24.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0| 22 ++++++++--
+> > =C2=A0drivers/pwm/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A02 +-
+> > =C2=A0drivers/pwm/pwm-pca9685.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0| 20 ++++++++--
+> > =C2=A0include/linux/mfd/core.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0| 10 ++++-
+> > =C2=A08 files changed, 170 insertions(+), 62 deletions(-)
+> >=20
+>=20
 
 --=20
 Lee Jones
