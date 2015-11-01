@@ -1,62 +1,67 @@
 From: Christian Fetzer <fetzer.ch@gmail.com>
-Subject: [PATCH v2 0/5] Support multiplexed main SMBus interface on SB80
-Date: Sun,  1 Nov 2015 17:32:04 +0100
-Message-ID: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
+Subject: [PATCH v2 1/5] i2c-piix4: Optionally release smba in piix4_adap_remove
+Date: Sun,  1 Nov 2015 17:32:05 +0100
+Message-ID: <1446395529-9987-2-git-send-email-fetzer.ch@gmail.com>
+References: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:34661 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752015AbbKAQcr (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 1 Nov 2015 11:32:47 -0500
-Received: by wikq8 with SMTP id q8so37833943wik.1
-        for <linux-i2c@vger.kernel.org>; Sun, 01 Nov 2015 08:32:46 -0800 (PST)
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:33091 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752015AbbKAQcv (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 1 Nov 2015 11:32:51 -0500
+Received: by wijp11 with SMTP id p11so37912079wij.0
+        for <linux-i2c@vger.kernel.org>; Sun, 01 Nov 2015 08:32:50 -0800 (PST)
+In-Reply-To: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com, Christian Fetzer <fetzer.ch@gmail.com>
 
-This is an attempt to upstream the patches created by Thomas Brandon and
-Eddi De Pieri to support the multiplexed main SMBus interface on the SB800
-chipset. (https://www.mail-archive.com/linux-i2c@vger.kernel.org/msg06757.html)
+This is in preparation to support the multiplexed SMBus main controller
+in the SB800 chipset where the controller address is shared among
+the four multiplexed ports. As such the address region should be
+only freed for the first multiplexed adapter to avoid double free
+warnings.
 
-I have mainly rebased the latest patch version and tested the driver on a
-HP ProLiant MicroServer G7 N54L (where this patch allows to access sensor data
-from a w83795adg).
+Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
+---
+ drivers/i2c/busses/i2c-piix4.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-The patched driver is running stable on the machine, given that ic2_piix4 is
-loaded before jc42 and w83795. If jc42 is loaded before i2c_piix4 calling
-sensors triggers some errors:
-    ERROR: Can't get value of subfeature temp1_min_alarm: Can't read
-
-While the kernel log shows:
-    i2c i2c-1: Transaction (pre): CNT=0c, CMD=05, ADD=31, DAT0=03, DAT1=c0
-    i2c i2c-1: Error: no response!
-    i2c i2c-1: Transaction (post): CNT=0c, CMD=05, ADD=31, DAT0=ff, DAT1=ff
-Unfortunately I don't know how to tackle this specific issue.
-
-Please review and let me know required changes in order to get this upstream
-finally.
-
-Eddi, Thomas, it would be great if you could verify the changes on your
-machines.
-
-Regards,
-Christian
-
-v2:
-- Incorporated changes requested by Mika
-    - remove adapter in reverse order
-    - ERROR label
-    - request base address index region only once
-
-Christian Fetzer (5):
-  i2c-piix4: Optionally release smba in piix4_adap_remove
-  i2c-piix4: Convert piix4_main_adapter to array
-  i2c-piix4: Request base address index region once for SB800
-  i2c-piix4: Add support for multiplexed main adapter in SB800
-  i2c-piix4: Add adapter port name support for SB800 chipset
-
- drivers/i2c/busses/i2c-piix4.c | 172 ++++++++++++++++++++++++++++++++++-------
- 1 file changed, 144 insertions(+), 28 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 630bce6..97d2165 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -660,13 +660,14 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	return 0;
+ }
+ 
+-static void piix4_adap_remove(struct i2c_adapter *adap)
++static void piix4_adap_remove(struct i2c_adapter *adap, int free_smba)
+ {
+ 	struct i2c_piix4_adapdata *adapdata = i2c_get_adapdata(adap);
+ 
+ 	if (adapdata->smba) {
+ 		i2c_del_adapter(adap);
+-		release_region(adapdata->smba, SMBIOSIZE);
++		if (free_smba)
++			release_region(adapdata->smba, SMBIOSIZE);
+ 		kfree(adapdata);
+ 		kfree(adap);
+ 	}
+@@ -675,12 +676,12 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+ static void piix4_remove(struct pci_dev *dev)
+ {
+ 	if (piix4_main_adapter) {
+-		piix4_adap_remove(piix4_main_adapter);
++		piix4_adap_remove(piix4_main_adapter, 1);
+ 		piix4_main_adapter = NULL;
+ 	}
+ 
+ 	if (piix4_aux_adapter) {
+-		piix4_adap_remove(piix4_aux_adapter);
++		piix4_adap_remove(piix4_aux_adapter, 1);
+ 		piix4_aux_adapter = NULL;
+ 	}
+ }
 -- 
 1.9.1
