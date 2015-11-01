@@ -1,90 +1,246 @@
-From: Christian Fetzer <fetzer.ch@gmail.com>
-Subject: [PATCH v2 5/5] i2c-piix4: Add adapter port name support for SB800 chipset
-Date: Sun,  1 Nov 2015 17:32:09 +0100
-Message-ID: <1446395529-9987-6-git-send-email-fetzer.ch@gmail.com>
-References: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
+From: Christophe Ricard <christophe.ricard@gmail.com>
+Subject: Re: [MinnowBoard] Linux x86 I2C device probing with ACPI
+Date: Sun, 1 Nov 2015 22:37:48 +0100
+Message-ID: <5636862C.40000@gmail.com>
+References: <1445455164-5566-1-git-send-email-christophe-h.ricard@st.com>
+ <20151022081806.GJ1526@lahna.fi.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:35548 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751615AbbKAQvL (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 1 Nov 2015 11:51:11 -0500
-Received: by wmll128 with SMTP id l128so5985396wml.2
-        for <linux-i2c@vger.kernel.org>; Sun, 01 Nov 2015 08:51:10 -0800 (PST)
-In-Reply-To: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:33723 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751615AbbKAVhw (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 1 Nov 2015 16:37:52 -0500
+Received: by wijp11 with SMTP id p11so40389201wij.0
+        for <linux-i2c@vger.kernel.org>; Sun, 01 Nov 2015 13:37:51 -0800 (PST)
+In-Reply-To: <20151022081806.GJ1526@lahna.fi.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com, Christian Fetzer <fetzer.ch@gmail.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org
 
-This patch adds support for port names for the SB800 chipset.
-Since the chipset supports a multiplexed main SMBus controller, adding
-the channel name to the adapter name is necessary to differentiate the
-ports better (for example in sensors output).
+Hi Mika,
 
-Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
----
- drivers/i2c/busses/i2c-piix4.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+Sorry for the delay.
+After forcing _STA method to return 0xF and moving NFC1 node into 
+Scope(I2C7) node the probing went through.
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 54f8af5..18ea5d7 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -132,6 +132,10 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
- /* SB800 globals */
- DEFINE_MUTEX(piix4_mutex_sb800);
- static unsigned short piix4_smb_idx_sb800;
-+static const char *piix4_main_port_names_sb800[4] = {
-+	"SDA0", "SDA2", "SDA3", "SDA4"
-+};
-+static const char *piix4_aux_port_name_sb800 = "SDA1";
- 
- struct i2c_piix4_adapdata {
- 	unsigned short smba;
-@@ -613,7 +617,7 @@ static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
- static struct i2c_adapter *piix4_aux_adapter;
- 
- static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
--			     struct i2c_adapter **padap)
-+			     const char *name, struct i2c_adapter **padap)
- {
- 	struct i2c_adapter *adap;
- 	struct i2c_piix4_adapdata *adapdata;
-@@ -642,7 +646,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 	adap->dev.parent = &dev->dev;
- 
- 	snprintf(adap->name, sizeof(adap->name),
--		"SMBus PIIX4 adapter at %04x", smba);
-+		"SMBus PIIX4 adapter %s at %04x", name, smba);
- 
- 	i2c_set_adapdata(adap, adapdata);
- 
-@@ -667,6 +671,7 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba)
- 
- 	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
- 		retval = piix4_add_adapter(dev, smba,
-+					   piix4_main_port_names_sb800[port],
- 					   &piix4_main_adapters[port]);
- 		if (retval < 0)
- 			goto error;
-@@ -726,7 +731,7 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 			return retval;
- 
- 		/* Try to register main SMBus adapter, give up if we can't */
--		retval = piix4_add_adapter(dev, retval,
-+		retval = piix4_add_adapter(dev, retval, "",
- 					   &piix4_main_adapters[0]);
- 	}
- 
-@@ -755,7 +760,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	if (retval > 0) {
- 		/* Try to add the aux adapter if it exists,
- 		 * piix4_add_adapter will clean up if this fails */
--		piix4_add_adapter(dev, retval, &piix4_aux_adapter);
-+		piix4_add_adapter(dev, retval, piix4_aux_port_name_sb800,
-+				  &piix4_aux_adapter);
- 	}
- 
- 	return 0;
--- 
-1.9.1
+Thanks !
+Christophe
+
+On 22/10/2015 10:18, Mika Westerberg wrote:
+> On Wed, Oct 21, 2015 at 09:19:24PM +0200, Christophe Ricard wrote:
+>> From: Christophe Ricard <christophe.ricard@gmail.com>
+>>
+>> Hi,
+>>
+>> I am trying to probe slave i2c devices with ACPI running Ubuntu 15.04 and kernel 4.3
+>> without success so far.
+>>
+>> I've followed guidance here:
+>> http://elinux.org/Minnowboard:MinnowMaxLinuxKernel <http://elinux.org/Minnowboard:MinnowMaxLinuxKernel>
+>>
+>> but i found no i2c device are probed at boot.
+> By probed do you mean that they are not listed under
+> /sys/bus/i2c/devices/ or that a driver is not probed against an existing
+> device?
+>
+>> For example, one default device available in the acpi table is never detected: RTEK node (with ID 10EC5640).
+> If the device _STA() method returns 0 then we do not enumerate it. You
+> can check this by looking for the corresponding ACPI device node. For
+> example I have here I2C connected touch screen:
+>
+> # cat /sys/bus/acpi/devices/NTRG0001\:00/status
+> 15
+>
+> 15 means that it is there (among other things). Also the device is then
+> available as I2C device here:
+>
+> # ls -1 /sys/bus/i2c/devices/
+> i2c-0
+> i2c-1
+> i2c-2
+> i2c-NTRG0001:00
+>
+>> When adding my own device to I2C7, my device is never detected as well .
+>>
+>> For example the complete modified I2C7 is at the end of the message.
+>>
+>> I am compiling the kernel with options:
+>> CONFIG_ACPI_CUSTOM_DSDT_FILE="dsdt.hex"
+>> CONFIG_ACPI_CUSTOM_DSDT=y
+>> CONFIG_ACPI_INITRD_TABLE_OVERRIDE=y
+> You don't need the last one.
+>
+>> I am running on Minnowboard firmware 0.83 with default options.
+>>
+>> Best Regards
+>> Christophe
+>>
+>>          Device (I2C7)
+>>          {
+>>              Name (_ADR, Zero)  // _ADR: Address
+>>              Name (_HID, "80860F41" /* Intel Baytrail I2C Host Controller */)  // _HID: Hardware ID
+>>              Name (_CID, "80860F41" /* Intel Baytrail I2C Host Controller */)  // _CID: Compatible ID
+>>              Name (_DDN, "Intel(R) I2C Controller #7 - 80860F47") // _DDN: DOS Device Name
+>>              Name (_UID, 0x07)  // _UID: Unique ID
+>>              Name (_DEP, Package (One)  // _DEP: Dependencies
+>>              {
+>>                  PEPD
+>>              })
+>>              Name (RBUF, ResourceTemplate ()
+>>              {
+>>                  Memory32Fixed (ReadWrite,
+>>                      0x00000000,         // Address Base
+>>                      0x00001000,         // Address Length
+>>                      _Y1F)
+>>                  Interrupt (ResourceConsumer, Level, ActiveLow, Exclusive, ,, )
+>>                  {
+>>                      0x00000026,
+>>                  }
+>>                  FixedDMA (0x001C, 0x0004, Width32bit, )
+>>                  FixedDMA (0x001D, 0x0005, Width32bit, )
+>>              })
+>>              Method (SSCN, 0, NotSerialized)
+>>              {
+>>                  Name (PKG, Package (0x03)
+>>                  {
+>>                      0x0200,
+>>                      0x0200,
+>>                      0x06
+>>                  })
+>>                  Return (PKG) /* \_SB_.I2C7.SSCN.PKG_ */
+>>              }
+>>
+>>              Method (FMCN, 0, NotSerialized)
+>>              {
+>>                  Name (PKG, Package (0x03)
+>>                  {
+>>                      0x55,
+>>                      0x99,
+>>                      0x06
+>>                  })
+>>                  Return (PKG) /* \_SB_.I2C7.FMCN.PKG_ */
+>>              }
+>>
+>>              Method (FPCN, 0, NotSerialized)
+>>              {
+>>                  Name (PKG, Package (0x03)
+>>                  {
+>>                      0x1B,
+>>                      0x3A,
+>>                      0x06
+>>                  })
+>>                  Return (PKG) /* \_SB_.I2C7.FPCN.PKG_ */
+>>              }
+>>
+>>              Method (_HRV, 0, NotSerialized)  // _HRV: Hardware Revision
+>>              {
+>>                  Return (SOCS) /* \SOCS */
+>>              }
+>>
+>>              Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+>>              {
+>>                  CreateDWordField (RBUF, \_SB.I2C7._Y1F._BAS, B0BA)  // _BAS: Base Address
+>>                  CreateDWordField (RBUF, \_SB.I2C7._Y1F._LEN, B0LN)  // _LEN: Length
+>>                  B0BA = I70A /* \I70A */
+>>                  B0LN = I70L /* \I70L */
+>>                  Return (RBUF) /* \_SB_.I2C7.RBUF */
+>>              }
+>>
+>>              Method (_STA, 0, NotSerialized)  // _STA: Status
+>>              {
+>>                  If ((PCIM == One))
+>>                  {
+>>                      Return (Zero)
+>>                  }
+>>
+>>                  If (((I70A == Zero) || (L27D == One)))
+>>                  {
+>>                      Return (Zero)
+>>                  }
+>>
+>>                  Return (0x0F)
+>>              }
+>>
+>>              Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
+>>              {
+>>                  PSAT |= 0x03
+>>                  PSAT |= Zero
+>>              }
+>>
+>>              Method (_PS0, 0, NotSerialized)  // _PS0: Power State 0
+>>              {
+>>                  PSAT &= 0xFFFFFFFC
+>>                  PSAT |= Zero
+>>              }
+>>
+>>              OperationRegion (KEYS, SystemMemory, I71A, 0x0100)
+>>              Field (KEYS, DWordAcc, NoLock, WriteAsZeros)
+>>              {
+>>                  Offset (0x84),
+>>                  PSAT,   32
+>>              }
+>>
+>>              Device (NFC1)
+>>              {
+>>                  Name (_ADR, Zero)  // _ADR: Address
+>>                  Name (_HID, "NXP5441")  // _HID: Hardware ID
+>>                  Name (_CID, "NXP5441")  // _CID: Compatible ID
+>>                  Name (_DDN, "NXP NFC")  // _DDN: DOS Device Name
+>>                  Name (_UID, One)  // _UID: Unique ID
+>>                  Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+>>                  {
+>>                      Name (SBUF, ResourceTemplate ()
+>>                      {
+>>                          I2cSerialBus (0x0028, ControllerInitiated, 0x00061A80,
+>>                              AddressingMode7Bit, "\\_SB.I2C7",
+>>                              0x00, ResourceConsumer, ,
+>>                              )
+>>                          Interrupt (ResourceConsumer, Level, ActiveLow, Exclusive, ,, )
+>>                          {
+>>                              0x00000047,
+>>                          }
+>>                          GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
+>>                              "\\_SB.GPO2", 0x00, ResourceConsumer, ,
+>>                              )
+>>                              {   // Pin list
+>> 				0x0009
+>>                              }
+>>                          GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestrictionOutputOnly,
+>>                              "\\_SB.GPO2", 0x00, ResourceConsumer, ,
+>>                              )
+>>                              {   // Pin list
+>> 				0x0008
+>>                              }
+>>                      })
+>>                      Return (SBUF) /* \_SB_.I2C7.NFC1._CRS.SBUF */
+>>                  }
+>>
+>>                  Method (_STA, 0, NotSerialized)  // _STA: Status
+>>                  {
+>>                      If ((NFCS == One))
+>>                      {
+>>                          Return (0x0F)
+>>                      }
+>>
+>>                      Return (Zero)
+> Can you check what following returns?
+>
+> # cat /sys/bus/acpi/devices/NXP5441:00/status
+>
+>
+>>                  }
+>>              }
+>>          }
+>>
+>>          Scope (I2C7)
+>>          {
+>>          }
+>>      }
+>>
+>>
+>>
+>> -- 
+>> 2.1.4
