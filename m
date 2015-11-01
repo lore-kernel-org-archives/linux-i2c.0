@@ -1,65 +1,83 @@
-From: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/2] devicetree: i2c: add binding for Sigma Designs
- SMP8642 I2C master
-Date: Sat, 31 Oct 2015 13:38:43 -0500
-Message-ID: <CAL_JsqJ3DGnrTV=HqdQCpgrfwY_vCBrQTivyhJ6iY_JaYcjt2g@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] i2c: add driver for Sigma Designs SMP8642 I2C master
+Date: Sun, 1 Nov 2015 07:42:29 +0100
+Message-ID: <20151101064228.GA2010@katana>
 References: <1446312957-18744-1-git-send-email-mans@mansr.com>
+ <1446312957-18744-2-git-send-email-mans@mansr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1446312957-18744-1-git-send-email-mans-2StjZFpD7GcAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mans Rullgard <mans-2StjZFpD7GcAvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43919 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750830AbbKAGml (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 1 Nov 2015 01:42:41 -0500
+Content-Disposition: inline
+In-Reply-To: <1446312957-18744-2-git-send-email-mans@mansr.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mans Rullgard <mans@mansr.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Sat, Oct 31, 2015 at 12:35 PM, Mans Rullgard <mans-2StjZFpD7GcAvxtiuMwx3w@public.gmane.org> wrote:
-> This adds a binding for the Sigma Designs SMP8642 built-in I2C master
-> controller.
->
-> Signed-off-by: Mans Rullgard <mans-2StjZFpD7GcAvxtiuMwx3w@public.gmane.org>
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
->  .../devicetree/bindings/i2c/sigma,smp8642-i2c.txt  | 24 ++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/sigma,smp8642-i2c.txt
->
-> diff --git a/Documentation/devicetree/bindings/i2c/sigma,smp8642-i2c.txt b/Documentation/devicetree/bindings/i2c/sigma,smp8642-i2c.txt
-> new file mode 100644
-> index 0000000..117fc8b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/sigma,smp8642-i2c.txt
-> @@ -0,0 +1,24 @@
-> +Sigma Designs SMP8642 I2C master
-> +
-> +Required properties:
-> +- compatible: should be "sigma,smp8642-i2c"
-> +- reg: physical address space of the device
-> +- interrupts: the interrupt of the device
-> +- clocks: phandle of the clock for the device
-> +- #address-cells: should be <1>
-> +- #size-cells: should be <0>
-> +
-> +Optional properties:
-> +- clock-frequency: frequency of bus clock in Hz, default 100kHz
-> +
-> +Example:
-> +
-> +i2c@10480 {
-> +       compatible = "sigma,smp8642-i2c";
-> +       reg = <0x10480 0x2c>;
-> +       interrupts = <22 IRQ_TYPE_LEVEL_HIGH>;
-> +       clocks = <&sys_clk>;
-> +       clock-frequency = <100000>;
-> +       #address-cells = <1>;
-> +       #size-cells = <0>;
-> +};
-> --
-> 2.6.2
->
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Sat, Oct 31, 2015 at 05:35:57PM +0000, Mans Rullgard wrote:
+> This adds a driver for the Sigma Designs SMP8642 built-in I2C master
+> controller.  The hardware is very similar to the I2C controller in the
+> Ralink RT3050 chip with the addition of interrupt generation and an
+> inverted busy/idle status bit.  There are typically two controllers with
+> a shared IRQ.
+>=20
+> Signed-off-by: Mans Rullgard <mans@mansr.com>
+
+Thanks for the driver. Same answer as here, though:
+
+http://www.spinics.net/lists/linux-i2c/msg17001.html
+
+> +#define TANGOX_I2C_CONFIG		0x00
+> +#define TANGOX_I2C_CLKDIV		0x04
+> +#define TANGOX_I2C_DEVADDR		0x08
+> +#define TANGOX_I2C_ADDR			0x0c
+> +#define TANGOX_I2C_DATAOUT		0x10
+> +#define TANGOX_I2C_DATAIN		0x14
+> +#define TANGOX_I2C_STATUS		0x18
+> +#define TANGOX_I2C_STARTXFER		0x1c
+> +#define TANGOX_I2C_BYTECNT		0x20
+> +#define TANGOX_I2C_INT_EN		0x24
+> +#define TANGOX_I2C_INT_STAT		0x28
+
+The register set looks like the one from i2c-xlr.c, only that they are
+32 bit apart instead of 8. Can you check if you can reuse that driver?
+
+Thanks,
+
+   Wolfram
+
+
+--nFreZHaLTZJo0R7j
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWNbRUAAoJEBQN5MwUoCm22LQP/0G8c9gE5D9qLRFm0bukiUBu
+j59p3o1vsUFE8f1toRp7xIDTeBPHKdRKf19bYC5WglH5tpooumZF9SWxTToHKDZ8
+d4d5tq0n7nls7v4UXIklsHjjd7nLjvq/cvpHWcAY/4Xnqo8ZMwOebALxC46VSl3R
+NTZB3lqFh6pvg5ryP/3Gwv+xJXZ3nMyxP/5aMr9EVfoeLJ62ye5YjVKMwVr86g2u
+tGzjw6bvJg1h3qegO/Ak/8/j2Tf6Jw8nP3gCSBL9tESRqcsMTApsLhJ4YUApvIzz
+nWHHySuph4LuQ7miAG5ByQlARlJVDkDhAh6eMbthWnXgw3lV6UPQKsvB915n6c5+
+p6wWbSSV07B9DTJQEyFjdLx6NyGtL33xaBBfBGKp+02kcTO78oIOlQyK5jR69xO7
+aG9eNi616IfIMN6ltmOdIcV2i79JOfx3X6r5FGA+IQCUmu7/HEyCRVjXqf4bgd/M
+Zea45JQwvk1Ykgq3BI6wsopkDuHyTTC3cGlyXww84bpSJfqgPzx7lYnh3Vpirf9t
+VVfJ3C464xZe1YX81gqDrOtnIBai0BlIzgk933+YdYxWGZCfUR5U1YsQWmzlpxjy
+UE+fGBQK6/MWbXoPKwr56dcXZM31rbS5SU48VLOMnBpYqa8i1doJ4IRFZ/U0xj+2
+FabQZyG/MWO7rJKcr1qd
+=P5KV
+-----END PGP SIGNATURE-----
+
+--nFreZHaLTZJo0R7j--
