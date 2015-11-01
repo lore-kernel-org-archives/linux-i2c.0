@@ -1,212 +1,63 @@
-From: Christian Fetzer <fetzer.ch@gmail.com>
-Subject: [PATCH v2 4/5] i2c-piix4: Add support for multiplexed main adapter in SB800
-Date: Sun,  1 Nov 2015 17:32:08 +0100
-Message-ID: <1446395529-9987-5-git-send-email-fetzer.ch@gmail.com>
-References: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
+From: fetzerch <fetzer.ch@gmail.com>
+Subject: Re: [PATCH 0/4] Support multiplexed main SMBus interface on SB800
+Date: Sun, 1 Nov 2015 17:38:03 +0100
+Message-ID: <56363FEB.3080209@googlemail.com>
+References: <1440500705-2288-1-git-send-email-fetzer.ch@gmail.com>
+ <20151020151935.GH5379@katana> <20151022082755.GK1526@lahna.fi.intel.com>
+ <20151022110325.GA1572@katana> <20151022114335.GL1526@lahna.fi.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f195.google.com ([209.85.212.195]:34894 "EHLO
-	mail-wi0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752134AbbKAQdC (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 1 Nov 2015 11:33:02 -0500
-Received: by wicuv6 with SMTP id uv6so7818901wic.2
-        for <linux-i2c@vger.kernel.org>; Sun, 01 Nov 2015 08:33:00 -0800 (PST)
-In-Reply-To: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:37380 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752015AbbKAQiH (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 1 Nov 2015 11:38:07 -0500
+Received: by wmff134 with SMTP id f134so43297221wmf.0
+        for <linux-i2c@vger.kernel.org>; Sun, 01 Nov 2015 08:38:05 -0800 (PST)
+In-Reply-To: <20151022114335.GL1526@lahna.fi.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com, Christian Fetzer <fetzer.ch@gmail.com>, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Christian Fetzer <fetzer.ch@gmail.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, tbrandonau@gmail.com, eddi@depieri.net, galandilias@gmail.com
 
-The SB800 chipset supports a multiplexed main SMBus controller with
-four ports. The multiplexed ports share the same SMBus address and
-register set. The port is selected by bits 2:1 of the smb_en register
-(0x2C).
+Hi Mika,
 
-Only one port can be active at any point in time therefore a mutex is
-needed in order to synchronize access.
+On 22.10.2015 13:43, Mika Westerberg wrote:
+> On Thu, Oct 22, 2015 at 01:03:25PM +0200, Wolfram Sang wrote:
+>>>>> Please review and let me know required changes in order to get this upstream
+>>>>> finally.
+>>>>>
+>>>>> Eddi, Thomas, it would be great if you could verify the changes on your
+>>>>> machines.
+>>>> Yes, additional tests are always good for a patch series
+>>>>
+>>>> Asking the Intel guys for help, I have not much expierence with x86
+>>>> platforms... Mika, Jarkko, Andy any chance to help?
+>>> Unfortunately I don't have hardware this old to test on :-/
+>> And visual review? (That's what I need to do mostly, too)
+> Sure.
+>
+> I don't have a copy of these patches but I went ahead and looked them up
+> from archives. Christian can you Cc me on next iteration?
+>
+> Mostly they look good to me. Few comments though.
+>
+> Patch 2/4: should we remove adapter in reverse order?
+>
+> Patch 3/4: some stylistic issues, like:
+> 	- ERROR label should not be in capital letters actually it is
+> 	  not needed at all if you do unlock and return -EBUSY if
+> 	  request_region() fails.
+> 	- Block comment style
+>
+> In addition I'm not sure if requesting io region for each transfer is
+> good idea. Can't we just request it once for this driver and handle the
+> necessary serialization using the mutex?
+Thanks for the review. I've just sent patchset v2 where I tried to 
+incorporate the requested changes.
+I'm not sure though what you mean with 'block comment style'.
+I've tried to apply the same style that is used throughout the file.
 
-Tested on HP ProLiant MicroServer G7 N54L (where this patch adds
-support to access sensor data from the w83795adg).
-
-Cc: Thomas Brandon <tbrandonau@gmail.com>
-Cc: Eddi De Pieri <eddi@depieri.net>
-Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
----
- drivers/i2c/busses/i2c-piix4.c | 102 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 97 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index d866b58..54f8af5 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -23,6 +23,9 @@
- 
-    Note: we assume there can only be one device, with one or more
-    SMBus interfaces.
-+   The device can register multiple i2c_adapters (up to PIIX4_MAX_ADAPTERS).
-+   For devices supporting multiple ports the i2c_adapter should provide
-+   an i2c_algorithm to access them.
- */
- 
- #include <linux/module.h>
-@@ -37,6 +40,7 @@
- #include <linux/dmi.h>
- #include <linux/acpi.h>
- #include <linux/io.h>
-+#include <linux/mutex.h>
- 
- 
- /* PIIX4 SMBus address offsets */
-@@ -126,10 +130,12 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
- };
- 
- /* SB800 globals */
-+DEFINE_MUTEX(piix4_mutex_sb800);
- static unsigned short piix4_smb_idx_sb800;
- 
- struct i2c_piix4_adapdata {
- 	unsigned short smba;
-+	unsigned short port;
- };
- 
- static int piix4_setup(struct pci_dev *PIIX4_dev,
-@@ -309,6 +315,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	else
- 		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus\n");
- 
-+	mutex_init(&piix4_mutex_sb800);
-+
- 	dev_info(&PIIX4_dev->dev,
- 		 "SMBus Host Controller at 0x%x, revision %d\n",
- 		 piix4_smba, i2ccfg >> 4);
-@@ -523,6 +531,42 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
- 	return 0;
- }
- 
-+/* Handles access to multiple SMBus ports on the SB800.
-+ * The port is selected by bits 2:1 of the smb_en register (0x2C).
-+ * Returns negative errno on error.
-+ *
-+ * Note: The selected port must be returned to the initial selection to avoid
-+ * problems on certain systems.
-+ */
-+static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
-+		 unsigned short flags, char read_write,
-+		 u8 command, int size, union i2c_smbus_data *data)
-+{
-+	struct i2c_piix4_adapdata *adapdata = i2c_get_adapdata(adap);
-+	u8 smba_en_lo, smb_en = 0x2c;
-+	u8 port;
-+	int retval;
-+
-+	mutex_lock(&piix4_mutex_sb800);
-+
-+	outb_p(smb_en, piix4_smb_idx_sb800);
-+	smba_en_lo = inb_p(piix4_smb_idx_sb800 + 1);
-+
-+	port = adapdata->port;
-+	if ((smba_en_lo & 6) != (port << 1))
-+		outb_p((smba_en_lo & ~6) | (port << 1),
-+		       piix4_smb_idx_sb800 + 1);
-+
-+	retval = piix4_access(adap, addr, flags, read_write,
-+			      command, size, data);
-+
-+	outb_p(smba_en_lo, piix4_smb_idx_sb800 + 1);
-+
-+	mutex_unlock(&piix4_mutex_sb800);
-+
-+	return retval;
-+}
-+
- static u32 piix4_func(struct i2c_adapter *adapter)
- {
- 	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-@@ -535,6 +579,11 @@ static const struct i2c_algorithm smbus_algorithm = {
- 	.functionality	= piix4_func,
- };
- 
-+static const struct i2c_algorithm piix4_smbus_algorithm_sb800 = {
-+	.smbus_xfer	= piix4_access_sb800,
-+	.functionality	= piix4_func,
-+};
-+
- static const struct pci_device_id piix4_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82443MX_3) },
-@@ -610,6 +659,42 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 	return 0;
- }
- 
-+static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba)
-+{
-+	unsigned short port;
-+	int retval;
-+	struct i2c_piix4_adapdata *adapdata;
-+
-+	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
-+		retval = piix4_add_adapter(dev, smba,
-+					   &piix4_main_adapters[port]);
-+		if (retval < 0)
-+			goto error;
-+
-+		piix4_main_adapters[port]->algo = &piix4_smbus_algorithm_sb800;
-+
-+		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
-+		adapdata->port = port;
-+	}
-+
-+	return retval;
-+
-+error:
-+	dev_err(&dev->dev, "Error setting up SB800 adapters. "
-+		"Unregistering all adapters!\n");
-+	for (port--; port >= 0; port--) {
-+		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
-+		if (adapdata->smba) {
-+			i2c_del_adapter(piix4_main_adapters[port]);
-+			kfree(adapdata);
-+			kfree(piix4_main_adapters[port]);
-+			piix4_main_adapters[port] = NULL;
-+		}
-+	}
-+
-+	return retval;
-+}
-+
- static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	unsigned short smba_idx = 0xcd6;
-@@ -629,19 +714,26 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- 		/* base address location etc changed in SB800 */
- 		retval = piix4_setup_sb800(dev, id, 0);
-+		if (retval < 0)
-+			return retval;
-+
-+		/* Try to register multiplexed main SMBus adapter,
-+		 * give up if we can't */
-+		retval = piix4_add_adapters_sb800(dev, retval);
- 	} else {
- 		retval = piix4_setup(dev, id);
-+		if (retval < 0)
-+			return retval;
-+
-+		/* Try to register main SMBus adapter, give up if we can't */
-+		retval = piix4_add_adapter(dev, retval,
-+					   &piix4_main_adapters[0]);
- 	}
- 
- 	/* If no main SMBus found, give up */
- 	if (retval < 0)
- 		return retval;
- 
--	/* Try to register main SMBus adapter, give up if we can't */
--	retval = piix4_add_adapter(dev, retval, &piix4_main_adapters[0]);
--	if (retval < 0)
--		return retval;
--
- 	/* Check for auxiliary SMBus on some AMD chipsets */
- 	retval = -ENODEV;
- 
--- 
-1.9.1
+Thanks,
+Christian
