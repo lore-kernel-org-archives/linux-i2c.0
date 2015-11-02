@@ -1,62 +1,73 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 2/5] i2c-piix4: Convert piix4_main_adapter to array
-Date: Mon, 02 Nov 2015 13:55:52 +0200
-Message-ID: <1446465352.6332.85.camel@linux.intel.com>
+Subject: Re: [PATCH v2 3/5] i2c-piix4: Request base address index region
+ once for SB800
+Date: Mon, 02 Nov 2015 14:02:40 +0200
+Message-ID: <1446465760.6332.88.camel@linux.intel.com>
 References: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
-	 <1446395529-9987-3-git-send-email-fetzer.ch@gmail.com>
+	 <1446395529-9987-4-git-send-email-fetzer.ch@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:7856 "EHLO mga09.intel.com"
+Received: from mga02.intel.com ([134.134.136.20]:21142 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753576AbbKBLzy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 2 Nov 2015 06:55:54 -0500
-In-Reply-To: <1446395529-9987-3-git-send-email-fetzer.ch@gmail.com>
+	id S1751723AbbKBMCs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 2 Nov 2015 07:02:48 -0500
+In-Reply-To: <1446395529-9987-4-git-send-email-fetzer.ch@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Christian Fetzer <fetzer.ch@gmail.com>, linux-i2c@vger.kernel.org
 Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com
 
 On Sun, 2015-11-01 at 17:32 +0100, Christian Fetzer wrote:
-> The SB800 chipset supports a multiplexed main SMBus controller with
-> four ports. Therefore the static variable piix4_main_adapter is
-> converted into a piix4_main_adapters array that can hold one
-> i2c_adapter for each multiplexed port.
->=20
-> The auxiliary adapter remains unchanged since it represents the
-> second
-> (not multiplexed) SMBus controller on the SB800 chipset.
+> Request the SMBus base address index region once in piix4_probe. This
+> is particularly useful when using the multiplexed adapter in SB800 as
+> it avoids requesting and releasing the region on every transfer.
 
 
-> @@ -675,9 +678,14 @@ static void piix4_adap_remove(struct i2c_adapter
-> *adap, int free_smba)
+> @@ -616,16 +612,26 @@ static int piix4_add_adapter(struct pci_dev
+> *dev, unsigned short smba,
 > =C2=A0
-> =C2=A0static void piix4_remove(struct pci_dev *dev)
+> =C2=A0static int piix4_probe(struct pci_dev *dev, const struct
+> pci_device_id *id)
 > =C2=A0{
-> -	if (piix4_main_adapter) {
-> -		piix4_adap_remove(piix4_main_adapter, 1);
-> -		piix4_main_adapter =3D NULL;
-> +	int port;
+> +	unsigned short smba_idx =3D 0xcd6;
+> =C2=A0	int retval;
+> =C2=A0
+> =C2=A0	if ((dev->vendor =3D=3D PCI_VENDOR_ID_ATI &&
+> =C2=A0	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0dev->device =3D=3D PCI_DEVICE_ID=
+_ATI_SBX00_SMBUS &&
+> =C2=A0	=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0dev->revision >=3D 0x40) ||
+> -	=C2=A0=C2=A0=C2=A0=C2=A0dev->vendor =3D=3D PCI_VENDOR_ID_AMD)
+> +	=C2=A0=C2=A0=C2=A0=C2=A0dev->vendor =3D=3D PCI_VENDOR_ID_AMD) {
 > +
-> +	for (port =3D PIIX4_MAX_ADAPTERS - 1; port >=3D 0; port--) {
-> +		if (piix4_main_adapters[port]) {
-> +			piix4_adap_remove(piix4_main_adapters[port],
-> +					=C2=A0=C2=A0port =3D=3D 0);
-> +			piix4_main_adapters[port] =3D NULL;
+
+Redundant empty line.
+
+> +		if (!request_region(smba_idx, 2, "smba_idx")) {
+> +			dev_err(&dev->dev, "SMBus base address index
+> region "
+> +				"0x%x already in use!\n", smba_idx);
+
+Do not split string literals, something like following will be okay.
+
+dev_err(&dev->dev,
+=C2=A0 "SMBus base address index region 0x%x already in use!\n",
+=C2=A0 =C2=A0smba_idx);
+
+
+> +			return -EBUSY;
 > +		}
-> =C2=A0	}
+> +		piix4_smb_idx_sb800 =3D smba_idx;
+> +
+> =C2=A0		/* base address location etc changed in SB800 */
+> =C2=A0		retval =3D piix4_setup_sb800(dev, id, 0);
+> -	else
+> +	} else {
+> =C2=A0		retval =3D piix4_setup(dev, id);
+> +	}
 
-Would it be
 
-int port =3D PIIX4_MAX_ADAPTERS;
-
-while (--port) {
-=C2=A0if (=E2=80=A6) {=E2=80=A6}
-}
-
-?
-
---=C2=A0
+--=20
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Intel Finland Oy
