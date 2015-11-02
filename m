@@ -1,38 +1,63 @@
-From: Eddie Huang <eddie.huang@mediatek.com>
-Subject: Re: [PATCH 0/2] Mediatek I2C driver fixup
-Date: Mon, 2 Nov 2015 14:35:06 +0800
-Message-ID: <1446446106.12497.6.camel@mtksdaap41>
-References: <1445936367-30141-1-git-send-email-liguo.zhang@mediatek.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [Patch V1] i2c: imx: improve code readability
+Date: Mon, 2 Nov 2015 10:29:50 +0100
+Message-ID: <20151102092950.GQ4931@pengutronix.de>
+References: <1446455130-4704-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:46002 "EHLO
-	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751529AbbKBGfL (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 2 Nov 2015 01:35:11 -0500
-In-Reply-To: <1445936367-30141-1-git-send-email-liguo.zhang@mediatek.com>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:37236 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752029AbbKBJ3v (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 2 Nov 2015 04:29:51 -0500
+Content-Disposition: inline
+In-Reply-To: <1446455130-4704-1-git-send-email-b54642@freescale.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Liguo Zhang <liguo.zhang@mediatek.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Xudong Chen =?UTF-8?Q?=28=E9=99=88=E6=97=AD=E4=B8=9C=29?= <Xudong.Chen@mediatek.com>, srv_heupstream <srv_heupstream@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mediatek@lists.infradead.org" <linux-mediatek@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Gao Pan <b54642@freescale.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com
 
-On Tue, 2015-10-27 at 16:59 +0800, Liguo Zhang wrote:
-> This series contain two patches, first is to optimize Mediatek I2C driver to use WRRD
-> if hardware support auto restart. Because auto restart will issue auto restart
-> interrupt, change to use WRRD can reduce interrupt latency. The second is to fix
-> multi transfer error in high speed mode. If hardware support auto restart, need driver
-> to send master code first.
+Hello,
 
-Please fix checkpatch warning in 2/2, then you get my reviewed-by for
-this series:
+On Mon, Nov 02, 2015 at 05:05:30PM +0800, Gao Pan wrote:
+> Replace of_get_named_gpio_flags with of_get_named_gpio because
+> the latter has less parameters, which improves code readability.
+>=20
+> Signed-off-by: Fugang Duan <B38611@freescale.com>
+> Signed-off-by: Gao Pan <b54642@freescale.com>
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
+x.c
+> index 1e4d99d..b0fe090 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -996,10 +996,8 @@ static void i2c_imx_init_recovery_info(struct im=
+x_i2c_struct *i2c_imx,
+>  			PINCTRL_STATE_DEFAULT);
+>  	i2c_imx->pinctrl_pins_gpio =3D pinctrl_lookup_state(i2c_imx->pinctr=
+l,
+>  			"gpio");
+> -	rinfo->sda_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
+> -			"sda-gpios", 0, NULL);
+> -	rinfo->scl_gpio =3D of_get_named_gpio_flags(pdev->dev.of_node,
+> -			"scl-gpios", 0, NULL);
+> +	rinfo->sda_gpio =3D of_get_named_gpio(pdev->dev.of_node, "sda-gpios=
+", 0);
+> +	rinfo->scl_gpio =3D of_get_named_gpio(pdev->dev.of_node, "scl-gpios=
+", 0);
 
-Reviewed-by:Eddie Huang <eddie.huang@mediatek.com>
+Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
 
-> 
-> Liguo Zhang (2):
->   i2c: mediatek: add i2c first write then read optimization
->   i2c: mediatek: fix i2c multi transfer issue in high speed mode
-> 
->  drivers/i2c/busses/i2c-mt65xx.c | 77 +++++++++++++++++++++++++++++++++++++----
->  1 file changed, 71 insertions(+), 6 deletions(-)
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
