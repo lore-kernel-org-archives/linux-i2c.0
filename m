@@ -1,42 +1,26 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [MinnowBoard] Linux x86 I2C device probing with ACPI
-Date: Mon, 02 Nov 2015 12:11:18 +0200
-Message-ID: <1446459078.6332.75.camel@linux.intel.com>
-References: <1445455164-5566-1-git-send-email-christophe-h.ricard@st.com>
-	 <20151022081806.GJ1526@lahna.fi.intel.com> <5636862C.40000@gmail.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2 1/5] i2c-piix4: Optionally release smba in
+ piix4_adap_remove
+Date: Mon, 2 Nov 2015 12:46:52 +0200
+Message-ID: <20151102104652.GE1509@lahna.fi.intel.com>
+References: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
+ <1446395529-9987-2-git-send-email-fetzer.ch@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:37250 "EHLO mga09.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:51453 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751226AbbKBKLT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 2 Nov 2015 05:11:19 -0500
-In-Reply-To: <5636862C.40000@gmail.com>
+	id S1752855AbbKBKq4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 2 Nov 2015 05:46:56 -0500
+Content-Disposition: inline
+In-Reply-To: <1446395529-9987-2-git-send-email-fetzer.ch@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Christophe Ricard <christophe.ricard@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org
+To: Christian Fetzer <fetzer.ch@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com
 
-On Sun, 2015-11-01 at 22:37 +0100, Christophe Ricard wrote:
-> Hi Mika,
->=20
-> Sorry for the delay.
-> After forcing _STA method to return 0xF
+On Sun, Nov 01, 2015 at 05:32:05PM +0100, Christian Fetzer wrote:
+> -static void piix4_adap_remove(struct i2c_adapter *adap)
+> +static void piix4_adap_remove(struct i2c_adapter *adap, int free_smba)
 
-You mean you able to fix firmware? Great!
-
->  and moving NFC1 node into=20
-> Scope(I2C7) node the probing went through.
-
-This one is not required anymore since
-
-commit 166c2ba398640278ae6037be4aa5562c03cf3d24
-Author: Mika Westerberg <mika.westerberg@linux.intel.com>
-Date:=C2=A0=C2=A0=C2=A0Wed Oct 7 13:18:44 2015 +0300
-
-=C2=A0=C2=A0=C2=A0=C2=A0i2c / ACPI: Rework I2C device scanning
-
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+How about bool instead?
