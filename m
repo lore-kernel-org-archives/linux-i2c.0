@@ -1,102 +1,73 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2 5/5] i2c-piix4: Add adapter port name support for
- SB800 chipset
-Date: Mon, 2 Nov 2015 13:03:56 +0200
-Message-ID: <20151102110356.GI1509@lahna.fi.intel.com>
-References: <1446395529-9987-1-git-send-email-fetzer.ch@gmail.com>
- <1446395529-9987-6-git-send-email-fetzer.ch@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] i2c: rcar: Revert the latest refactoring series
+Date: Mon, 2 Nov 2015 12:06:51 +0100
+Message-ID: <CAMuHMdU9ozDLRvTKOHgA8tKJeLnbd9aMWmPFrjO7pWEgDursTA@mail.gmail.com>
+References: <1446204606-25541-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:47193 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751571AbbKBLEB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 2 Nov 2015 06:04:01 -0500
-Content-Disposition: inline
-In-Reply-To: <1446395529-9987-6-git-send-email-fetzer.ch@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1446204606-25541-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Christian Fetzer <fetzer.ch@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com
 
-On Sun, Nov 01, 2015 at 05:32:09PM +0100, Christian Fetzer wrote:
-> This patch adds support for port names for the SB800 chipset.
-> Since the chipset supports a multiplexed main SMBus controller, adding
-> the channel name to the adapter name is necessary to differentiate the
-> ports better (for example in sensors output).
-> 
-> Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-piix4.c | 14 ++++++++++----
->  1 file changed, 10 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 54f8af5..18ea5d7 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -132,6 +132,10 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
->  /* SB800 globals */
->  DEFINE_MUTEX(piix4_mutex_sb800);
->  static unsigned short piix4_smb_idx_sb800;
-> +static const char *piix4_main_port_names_sb800[4] = {
-> +	"SDA0", "SDA2", "SDA3", "SDA4"
-> +};
-> +static const char *piix4_aux_port_name_sb800 = "SDA1";
->  
->  struct i2c_piix4_adapdata {
->  	unsigned short smba;
-> @@ -613,7 +617,7 @@ static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
->  static struct i2c_adapter *piix4_aux_adapter;
->  
->  static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
-> -			     struct i2c_adapter **padap)
-> +			     const char *name, struct i2c_adapter **padap)
->  {
->  	struct i2c_adapter *adap;
->  	struct i2c_piix4_adapdata *adapdata;
-> @@ -642,7 +646,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
->  	adap->dev.parent = &dev->dev;
->  
->  	snprintf(adap->name, sizeof(adap->name),
-> -		"SMBus PIIX4 adapter at %04x", smba);
-> +		"SMBus PIIX4 adapter %s at %04x", name, smba);
->  
->  	i2c_set_adapdata(adap, adapdata);
->  
-> @@ -667,6 +671,7 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba)
->  
->  	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
->  		retval = piix4_add_adapter(dev, smba,
-> +					   piix4_main_port_names_sb800[port],
->  					   &piix4_main_adapters[port]);
->  		if (retval < 0)
->  			goto error;
-> @@ -726,7 +731,7 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  			return retval;
->  
->  		/* Try to register main SMBus adapter, give up if we can't */
-> -		retval = piix4_add_adapter(dev, retval,
-> +		retval = piix4_add_adapter(dev, retval, "",
+On Fri, Oct 30, 2015 at 12:30 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> This whole series caused sometimes timeouts and even OOPSes on some
+> r8a7791 Koelsch boards. We need to understand and fix those first.
+>
+> Revert "i2c: rcar: clean up after refactoring"
+> Revert "i2c: rcar: revoke START request early"
+> Revert "i2c: rcar: check master irqs before slave irqs"
+> Revert "i2c: rcar: don't issue stop when HW does it automatically"
+> Revert "i2c: rcar: init new messages in irq"
+> Revert "i2c: rcar: refactor setup of a msg"
+> Revert "i2c: rcar: remove spinlock"
+> Revert "i2c: rcar: remove unused IOERROR state"
+> Revert "i2c: rcar: rework hw init"
 
-Why not use some useful name here instead of "" ?
+I can confirm this gets rid of the following error messages on koelsch:
 
-Otherwise looks good,
+-i2c-rcar e6530000.i2c: error -16 : 0
+-adv7511: probe of 2-0039 failed with error -16
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+(2-0039 = adv7511)
 
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: pm_clk_suspend()
+-i2c-rcar e6530000.i2c: pm_clk_resume()
+-i2c-rcar e6530000.i2c: error -16 : 0
+-adv7180: probe of 2-0020 failed with error -16
 
->  					   &piix4_main_adapters[0]);
->  	}
->  
-> @@ -755,7 +760,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  	if (retval > 0) {
->  		/* Try to add the aux adapter if it exists,
->  		 * piix4_add_adapter will clean up if this fails */
-> -		piix4_add_adapter(dev, retval, &piix4_aux_adapter);
-> +		piix4_add_adapter(dev, retval, piix4_aux_port_name_sb800,
-> +				  &piix4_aux_adapter);
->  	}
->  
->  	return 0;
-> -- 
-> 1.9.1
+(2-0020 = adv7180)
+
+-i2c-rcar e6530000.i2c: pm_clk_resume()
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+-i2c-rcar e6530000.i2c: error -16 : 0
+
+(related to ak4642, I think)
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
