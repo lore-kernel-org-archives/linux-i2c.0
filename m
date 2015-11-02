@@ -1,81 +1,67 @@
-From: Jisheng Zhang <jszhang@marvell.com>
-Subject: Re: [PATCH] i2c: designware: Don't mask TX_EMPTY if write is in
- progress
-Date: Mon, 2 Nov 2015 11:33:47 +0800
-Message-ID: <20151102113347.34d20434@xhacker>
-References: <1446190649-1318-1-git-send-email-jszhang@marvell.com>
- <56335CA9.7080105@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: Double commits in i2c/for-next branch?
+Date: Mon, 2 Nov 2015 06:50:52 +0100
+Message-ID: <20151102055051.GA1065@tetsubishi>
+References: <CAK7LNATkMPJOBABg9TH69Z2gEfudvk_jQHkE-j5QZLevdzBW9A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <56335CA9.7080105@linux.intel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: wsa@the-dreams.de, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:52354 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751356AbbKBFvB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 2 Nov 2015 00:51:01 -0500
+Content-Disposition: inline
+In-Reply-To: <CAK7LNATkMPJOBABg9TH69Z2gEfudvk_jQHkE-j5QZLevdzBW9A@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-i2c@vger.kernel.org
 
-Dear Jarkko,
 
-On Fri, 30 Oct 2015 14:03:53 +0200
-Jarkko Nikula wrote:
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Hi
-> 
-> On 10/30/2015 09:37 AM, Jisheng Zhang wrote:
-> > Currently when i2c_msg index search is completed, TX_EMPTY interrupt
-> > will be masked. But if the size of i2c_msg data is longer than the size
-> > of the tx buffer, we still need TX_EMPTY interrupt, otherwise we will
-> > get "controller timed out" error.
-> >
-> > This patch fixes this issue by only masking TX_EMPTY if i2c_msg index
-> > search is completed and write is not in progress.
-> >
-> > Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
-> > ---
-> >   drivers/i2c/busses/i2c-designware-core.c | 7 ++++---
-> >   1 file changed, 4 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> > index 7441cdc..a2eb212 100644
-> > --- a/drivers/i2c/busses/i2c-designware-core.c
-> > +++ b/drivers/i2c/busses/i2c-designware-core.c
-> > @@ -542,10 +542,11 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
-> >   	}
-> >
-> >   	/*
-> > -	 * If i2c_msg index search is completed, we don't need TX_EMPTY
-> > -	 * interrupt any more.
-> > +	 * If i2c_msg index search is completed and writing is not in progress,
-> > +	 * we don't need TX_EMPTY interrupt any more.
-> >   	 */
-> > -	if (dev->msg_write_idx == dev->msgs_num)
-> > +	if (dev->msg_write_idx == dev->msgs_num &&
-> > +			!(dev->status & STATUS_WRITE_IN_PROGRESS))
-> >   		intr_mask &= ~DW_IC_INTR_TX_EMPTY;
-> >  
-> This looks a possible scenario here. What I'm wondering how is the 
-> transfer ending and what condition in i2c_dw_isr() causes the complete() 
-> call?
-> 
-> Assuming we break the for loop in i2c_dw_xfer_msg() with buf_len > 0 and 
-> dev->msg_write_idx == dev->msgs_num how we get back inside the for loop 
-> for writing the remaining bytes and stop command?
 
-This is a good question. After more consideration, I think the following
-condition can't exist:
+> [1] was applied to i2c/for-4.4 and then merged
+> into i2c/for-next.   It is supposed to be pulled
+> into the mainline in this merge window.
 
-  (msg_write_idx == dev->msgs_num) && (dev->status & STATUS_WRITE_IN_PROGRESS)
+Yes.
 
-so this patch isn't necessary.
+> [2] was directly applied to i2c/for-next and
+> won't be pulled into the mainline.  It will only
+> remain in linux-next.
 
-Thanks for your review,
-Jisheng
+Unfortunately, I had to rebase for-4.4 this time :( I try to avoid it,
+but sometimes this happens. When I merge that rebased version into
+for-next, double commits happen. Linus will get the pull request for
+for-4.4 only.
+
+Hope that helps,
+
+   Wolfram
+
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWNvm7AAoJEBQN5MwUoCm2CtgQAIgfr6mUZKKDKmF3n8038sDZ
+bH1opavhdCqBsjF1ugbLkYeAPYV2bhqQ2rsCsISGHJWcMW65CyN2GjxXWXRUxLt+
+zxSRA2t6EVi2CLGs74xqG4kbL+rwGcDHOLttPv1KeC5UBuHp/IybYnV2SxR0HMbC
+G27MClQ95h3ANkupCEcH606EtyFoUg97gGhSrJbBMGD1V8rklVdb+umW/lCWuNXo
+lcY3i39pjwZpZwfr7xIqvgSFZT+f+oFugWT+bBRX+v5O+Vxqetaygokoos7pBpQV
+OiBGrEtHz9LrlPyFcpt5Oyse6GgSCXCHHHgZPfZeo10cGUBi+XSOh3Ak/Vb5rz7a
+i9RmEgsCp0q1rN0mIa/doq7D4EMnoUx0zSxOYHwuQs1qy8bm+00tkSw6qJABE53o
+oNPRSyrR/O2atiJisUJv3ia6+8fH3jtOJyL2fCVxkav5vxpoDjxf1TlLfhU9vw0w
+mq+qywbEaLFArNMnGL00rE2LPvsVMFApzIst3iXu8r2IoEi+cXsqmxefyt7VWAD7
+IfQX9RUQ9Ly7pdcD0VAm+GCfW5S1LZKgXlmXzOFi+UACP6UkYJEBgvYtiWImLU4S
+jFLLbRfms1GkYdWEzD5s7Bap9rRilW3wY10grE74yhjROsYOycSPqqVmwFQqIQaJ
+A3Z+j8Fu79D5BGAggunA
+=eLnu
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--
