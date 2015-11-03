@@ -1,82 +1,65 @@
-From: Alexandra Yates <alexandra.yates@linux.intel.com>
-Subject: [PATCH] Intel LBG device IDs for SMBus
-Date: Tue,  3 Nov 2015 10:52:34 -0800
-Message-ID: <1446576754-19683-1-git-send-email-alexandra.yates@linux.intel.com>
-References: <Intel LBG device IDs for SMBus>
+From: Jeremiah Mahler <jmmahler@gmail.com>
+Subject: Re: [PATCH] platform/chrome: Fix i2c-designware adapter name
+Date: Tue, 3 Nov 2015 10:49:59 -0800
+Message-ID: <20151103184959.GA4215@newt.localdomain>
+References: <1446548940-19739-1-git-send-email-jarkko.nikula@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:6427 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751593AbbKCStv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 3 Nov 2015 13:49:51 -0500
-In-Reply-To: <Intel LBG device IDs for SMBus>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:36526 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751593AbbKCSuD (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 3 Nov 2015 13:50:03 -0500
+Content-Disposition: inline
+In-Reply-To: <1446548940-19739-1-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, jdelvare@suse.com, wsa@the-dreams.de, corbet@lwn.net, lee.jones@linaro.org
-Cc: Alexandra Yates <alexandra.yates@linux.intel.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dudley Du <dudl@cypress.com>, linux-i2c@vger.kernel.org
 
-Adding Intel codename Lewisburg platform device IDs for SMBus.
+Jarkko,
 
-Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
----
- Documentation/i2c/busses/i2c-i801 | 1 +
- drivers/i2c/busses/Kconfig        | 1 +
- drivers/i2c/busses/i2c-i801.c     | 6 ++++++
- 3 files changed, 8 insertions(+)
+On Tue, Nov 03, 2015 at 01:09:00PM +0200, Jarkko Nikula wrote:
+> Commit d80d134182ba ("i2c: designware: Move common probe code into
+> i2c_dw_probe()") caused the I2C adapter lookup code here to fail for PCI
+> enumerated i2c-designware because commit changed the adapter name but
+> didn't update it here.
+> 
+> Fix the I2C adapter lookup by using the "Synopsys DesignWare I2C adapter"
+> name.
+> 
+> Reported-by: Jeremiah Mahler <jmmahler@gmail.com>
+> Fixes: d80d134182ba ("i2c: designware: Move common probe code into i2c_dw_probe()")
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+> Hi Jeremiah. This is the same diff I had in a reply to your bug report.
+> Can you test does this fix work for you as I don't have the HW.
+> ---
+>  drivers/platform/chrome/chromeos_laptop.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
+> index 02072749fff3..2b441e9ae593 100644
+> --- a/drivers/platform/chrome/chromeos_laptop.c
+> +++ b/drivers/platform/chrome/chromeos_laptop.c
+> @@ -47,8 +47,8 @@ static const char *i2c_adapter_names[] = {
+>  	"SMBus I801 adapter",
+>  	"i915 gmbus vga",
+>  	"i915 gmbus panel",
+> -	"i2c-designware-pci",
+> -	"i2c-designware-pci",
+> +	"Synopsys DesignWare I2C adapter",
+> +	"Synopsys DesignWare I2C adapter",
+>  };
+>  
+>  /* Keep this enum consistent with i2c_adapter_names */
+> -- 
+> 2.6.2
+> 
 
-diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-index 82f48f7..2ccde60 100644
---- a/Documentation/i2c/busses/i2c-i801
-+++ b/Documentation/i2c/busses/i2c-i801
-@@ -30,6 +30,7 @@ Supported adapters:
-   * Intel BayTrail (SOC)
-   * Intel Sunrise Point-H (PCH)
-   * Intel Sunrise Point-LP (PCH)
-+  * Intel Lewisburg (PCH) (LBG)
-    Datasheets: Publicly available at the Intel website
- 
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 08b8617..3adc2b7 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -124,6 +124,7 @@ config I2C_I801
- 	    BayTrail (SOC)
- 	    Sunrise Point-H (PCH)
- 	    Sunrise Point-LP (PCH)
-+	    Lewisburg (PCH)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index eaef9bc..34da07b 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -60,6 +60,8 @@
-  * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
-  * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
-  * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
-+ * Lewisburg (PCH)		0xA1A3	32	hard	yes	yes	yes
-+ * Lewisburg Supersku (PCH)	0xA223	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -179,6 +181,8 @@
- 				 STATUS_ERROR_FLAGS)
- 
- /* Older devices have their ID defined in <linux/pci_ids.h> */
-+#define PCI_DEVICE_ID_INTEL_LBG_SMBUS			0xA1A3
-+#define PCI_DEVICE_ID_INTEL_LBG_SSKU_SMBUS		0xA223
- #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
- #define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
- #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
-@@ -860,6 +864,8 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LBG_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LBG_SSKU_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
+Yes, this patch fixes the problem.
+
+Tested-by: Jeremiah Mahler <jmmahler@gmail.com>
+
 -- 
-1.9.1
+- Jeremiah Mahler
