@@ -1,65 +1,135 @@
-From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH] platform/chrome: Fix i2c-designware adapter name
-Date: Tue, 3 Nov 2015 10:49:59 -0800
-Message-ID: <20151103184959.GA4215@newt.localdomain>
-References: <1446548940-19739-1-git-send-email-jarkko.nikula@linux.intel.com>
+From: Aaron Sierra <asierra@xes-inc.com>
+Subject: Re: [PATCH 3/3] at24: Support 16-bit devices on SMBus
+Date: Tue, 3 Nov 2015 14:20:22 -0600 (CST)
+Message-ID: <2035807412.321205.1446582022235.JavaMail.zimbra@xes-inc.com>
+References: <1001500768.63909.1441302107931.JavaMail.zimbra@xes-inc.com> <361739546.82254.1441310010061.JavaMail.zimbra@xes-inc.com> <20151103113353.0b62c5e1@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:36526 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751593AbbKCSuD (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 3 Nov 2015 13:50:03 -0500
-Content-Disposition: inline
-In-Reply-To: <1446548940-19739-1-git-send-email-jarkko.nikula@linux.intel.com>
+Received: from xes-mad.com ([216.165.139.218]:34002 "EHLO xes-mad.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932499AbbKCUV3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 3 Nov 2015 15:21:29 -0500
+In-Reply-To: <20151103113353.0b62c5e1@endymion.delvare>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dudley Du <dudl@cypress.com>, linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Christian Gmeiner <christian.gmeiner@gmail.com>
 
-Jarkko,
-
-On Tue, Nov 03, 2015 at 01:09:00PM +0200, Jarkko Nikula wrote:
-> Commit d80d134182ba ("i2c: designware: Move common probe code into
-> i2c_dw_probe()") caused the I2C adapter lookup code here to fail for PCI
-> enumerated i2c-designware because commit changed the adapter name but
-> didn't update it here.
+----- Original Message -----
+> From: "Jean Delvare" <jdelvare@suse.de>
+> Sent: Tuesday, November 3, 2015 4:33:53 AM
 > 
-> Fix the I2C adapter lookup by using the "Synopsys DesignWare I2C adapter"
-> name.
+> Hi Aaron,
 > 
-> Reported-by: Jeremiah Mahler <jmmahler@gmail.com>
-> Fixes: d80d134182ba ("i2c: designware: Move common probe code into i2c_dw_probe()")
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> Hi Jeremiah. This is the same diff I had in a reply to your bug report.
-> Can you test does this fix work for you as I don't have the HW.
-> ---
->  drivers/platform/chrome/chromeos_laptop.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> On Thu, 3 Sep 2015 14:53:30 -0500 (CDT), Aaron Sierra wrote:
+> > Previously, the at24 driver would bail out in the case of a 16-bit
+> > addressable EEPROM attached to an SMBus controller. This is because
+> > SMBus block reads and writes don't map to I2C multi-byte reads and
+> > writes when the offset portion is 2 bytes.
+> > 
+> > Instead of bailing out, this patch settles for functioning with single
+> > byte read SMBus cycles. Writes can be block or single-byte, depending on
+> > SMBus controller features.
+> > 
+> > This patch introduces at24_smbus_read_byte_data to transparently handle
+> > single-byte reads from 8-bit and 16-bit devices.
+> > 
+> > Functionality has been tested with the following devices:
+> > 
+> >     AT24CM01 attached to Intel ISCH SMBus (1.8 KB/s)
+> >     AT24C512 attached to Intel I801 SMBus (1.4 KB/s)
+> > 
+> > Signed-off-by: Nate Case <ncase@xes-inc.com>
+> > Signed-off-by: Aaron Sierra <asierra@xes-inc.com>
+> > ---
+> >  drivers/misc/eeprom/Kconfig |  4 +++-
+> >  drivers/misc/eeprom/at24.c  | 40 +++++++++++++++++++++++++++++++++++-----
+> >  2 files changed, 38 insertions(+), 6 deletions(-)
+
+[ snip ]
+
+> > diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> > index b92ee6e..457f49c 100644
+> > --- a/drivers/misc/eeprom/at24.c
+> > +++ b/drivers/misc/eeprom/at24.c
+> > @@ -134,6 +134,32 @@ MODULE_DEVICE_TABLE(i2c, at24_ids);
+> >  /*-------------------------------------------------------------------------*/
+> >  
+> >  /*
+> > + * Read a byte from an AT24 device using SMBus cycles.
+> > + */
+> > +static inline s32 at24_smbus_read_byte_data(struct at24_data *at24,
+> > +	struct i2c_client *client, u16 offset)
+> > +{
+> > +	s32 res;
+> > +
+> > +	if (!(at24->chip.flags & AT24_FLAG_ADDR16))
+> > +		return i2c_smbus_read_byte_data(client, offset);
+> > +
+> > +	/*
+> > +	 * Emulate I2C multi-byte read by using SMBus "write byte" and
+> > +	 * "receive byte".  This isn't optimal since there is an
+> > +	 * unnecessary STOP involved, but it's the only way to
 > 
-> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
-> index 02072749fff3..2b441e9ae593 100644
-> --- a/drivers/platform/chrome/chromeos_laptop.c
-> +++ b/drivers/platform/chrome/chromeos_laptop.c
-> @@ -47,8 +47,8 @@ static const char *i2c_adapter_names[] = {
->  	"SMBus I801 adapter",
->  	"i915 gmbus vga",
->  	"i915 gmbus panel",
-> -	"i2c-designware-pci",
-> -	"i2c-designware-pci",
-> +	"Synopsys DesignWare I2C adapter",
-> +	"Synopsys DesignWare I2C adapter",
->  };
->  
->  /* Keep this enum consistent with i2c_adapter_names */
-> -- 
-> 2.6.2
+> It's not just non-optimal, it's also slightly unsafe. You do not hold
+> any lock on the I2C bus, so it is possible that another I2C transaction
+> happens between setting the EEPROM internal pointer and reading the
+> value from the register. I would hope that all AT24-compliant EEPROMs
+> handle this case gracefully, but you would better check. Also, on
+> multi-master I2C buses, it is possible that another master initiates a
+> transaction in between, possibly to the same EEPROM, in which case you
+> are screwed because the internal pointer will be changed by that
+> third-party transaction.
 > 
+> This limitation is the key reason why I'm not thrilled by this patch
+> set. If it is accepted then the risk above should be clearly documented.
 
-Yes, this patch fixes the problem.
+Jean,
+I looked up datasheets for AT24 compatible 512 Kb EEPROMs from several
+manufacturers (Atmel, Freemont Micro Devices, Microchip Technology,
+OnSemi, Renesas, Rohm, and STMicro) and they all support current
+address read functionality, which makes the STOP only a concern for
+busses with multiple masters. Our embedded x86 products are single
+master.
 
-Tested-by: Jeremiah Mahler <jmmahler@gmail.com>
+I will expand this comment to address the safety issue.
 
--- 
-- Jeremiah Mahler
+> > +	 * work on many SMBus controllers when talking to EEPROMs
+> 
+> s/many SMBus/SMBus-only/
+> 
+> This is really a design limitation of SMBus itself.
+
+OK, I'll clarify.
+
+> > +	 * with multi-byte addresses.
+> > +	 */
+> > +	res = i2c_smbus_write_byte_data(client,
+> > +		((offset >> 8) & 0xff), (offset & 0xff));
+> 
+> Useless masking.
+
+OK
+
+> > +	if (res)
+> > +		return res;
+> > +
+> > +	return i2c_smbus_read_byte(client);
+> 
+> If you go that route then you may be able to get less slow reads by not
+> issuing the SMBus "write byte" for every byte you want to read. All
+> AT24-like EEPROMs I've seen so far implement internal pointer
+> auto-increment, so consecutive SMBus "receive byte" will return the
+> data bytes from the following offsets. This is i2cdump's "c" mode. As
+> you are already on the unsafe side, it makes no difference on that
+> front, but it should more than double your read rate.
+> 
+> I'm just not sure it this is part of the AT24 "specification" or if it
+> works by accident.
+
+That's a good point. I'll try this out. Based on the datasheets I
+mentioned above, it appears to be a respected "standard".
+
+-Aaron S.
