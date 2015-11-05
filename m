@@ -1,65 +1,83 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: taos-evm: replace simple_strtoul by kstrtou8
-Date: Thu, 5 Nov 2015 18:24:51 +0100
-Message-ID: <20151105182451.6a6eea07@endymion.delvare>
-References: <1446715969-11727-1-git-send-email-clabbe.montjoie@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1446715969-11727-1-git-send-email-clabbe.montjoie@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: LABBE Corentin <clabbe.montjoie@gmail.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Alexandra Yates <alexandra.yates@linux.intel.com>
+Subject: [PATCH V3] Intel Lewisburg device IDs for SMBus
+Date: Thu,  5 Nov 2015 11:40:25 -0800
+Message-ID: <1446752425-14476-1-git-send-email-alexandra.yates@linux.intel.com>
+References: <[PATCH V3] Intel Lewisburg device IDs for SMBus>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:13542 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753688AbbKEThj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 5 Nov 2015 14:37:39 -0500
+In-Reply-To: <[PATCH V3] Intel Lewisburg device IDs for SMBus>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jdelvare@suse.com, wsa@the-dreams.de, corbet@lwn.net, linux-i2c@vger.kernel.org
+Cc: Alexandra Yates <alexandra.yates@linux.intel.com>
 
-Hi Corentin,
+Adding Intel codename Lewisburg platform device IDs for SMBus.
 
-On Thu,  5 Nov 2015 10:32:48 +0100, LABBE Corentin wrote:
-> The simple_strtoul function is marked as obsolete.
-> This patch replace it by kstrtou8.
-> 
-> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-taos-evm.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+---
+ Documentation/i2c/busses/i2c-i801 | 1 +
+ drivers/i2c/busses/Kconfig        | 1 +
+ drivers/i2c/busses/i2c-i801.c     | 6 ++++++
+ 3 files changed, 8 insertions(+)
 
-Thanks for the cleanup. I tested it on the hardware I have, no problem.
-One comment below.
-
-> 
-> diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
-> index 4c7fc2d..9dc6cff 100644
-> --- a/drivers/i2c/busses/i2c-taos-evm.c
-> +++ b/drivers/i2c/busses/i2c-taos-evm.c
-> @@ -70,6 +70,7 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
->  	struct serio *serio = adapter->algo_data;
->  	struct taos_data *taos = serio_get_drvdata(serio);
->  	char *p;
-> +	int err;
->  
->  	/* Encode our transaction. "@" is for the device address, "$" for the
->  	   SMBus command and "#" for the data. */
-> @@ -130,7 +131,9 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
->  			return 0;
->  	} else {
->  		if (p[0] == 'x') {
-> -			data->byte = simple_strtol(p + 1, NULL, 16);
-> +			err = kstrtou8(p + 1, 16, &data->byte);
-> +			if (err)
-> +				return err;
-
-While in general I am in favor of passing error values down the stack,
-here I'm not sure. kstrtou8 could return -ERANGE or -EINVAL which makes
-no sense as an i2c adapter fault code. According to
-Documentation/i2c/fault-codes, -EPROTO or -EIO would be more
-appropriate.
-
->  			return 0;
->  		}
->  	}
-
-
+diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+index 6a4b1af..1bba38d 100644
+--- a/Documentation/i2c/busses/i2c-i801
++++ b/Documentation/i2c/busses/i2c-i801
+@@ -32,6 +32,7 @@ Supported adapters:
+   * Intel Sunrise Point-LP (PCH)
+   * Intel DNV (SOC)
+   * Intel Broxton (SOC)
++  * Intel Lewisburg (PCH)
+    Datasheets: Publicly available at the Intel website
+ 
+ On Intel Patsburg and later chipsets, both the normal host SMBus controller
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index e24c2b6..7b0aa82 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -126,6 +126,7 @@ config I2C_I801
+ 	    Sunrise Point-LP (PCH)
+ 	    DNV (SOC)
+ 	    Broxton (SOC)
++	    Lewisburg (PCH)
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index c306751..f62d697 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -62,6 +62,8 @@
+  * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
+  * DNV (SOC)			0x19df	32	hard	yes	yes	yes
+  * Broxton (SOC)		0x5ad4	32	hard	yes	yes	yes
++ * Lewisburg (PCH)		0xa1a3	32	hard	yes	yes	yes
++ * Lewisburg Supersku (PCH)	0xa223	32	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -206,6 +208,8 @@
+ #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
+ #define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
+ #define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
++#define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xa1a3
++#define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
+ 
+ struct i801_mux_config {
+ 	char *gpio_chip;
+@@ -869,6 +873,8 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BROXTON_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS) },
+ 	{ 0, }
+ };
+ 
 -- 
-Jean Delvare
-SUSE L3 Support
+1.9.1
