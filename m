@@ -1,118 +1,89 @@
-From: Alexandra Yates <alexandra.yates@linux.intel.com>
-Subject: Re: [PATCH] Intel LBG device IDs for SMBus
-Date: Wed, 4 Nov 2015 11:16:05 -0800
-Message-ID: <563A5975.3000905@linux.intel.com>
-References: <Intel LBG device IDs for SMBus>
- <1446576754-19683-1-git-send-email-alexandra.yates@linux.intel.com>
- <20151104114510.6b650ebd@endymion.delvare>
+From: Xiangliang Yu <Xiangliang.Yu@amd.com>
+Subject: [PATCH 1/1] I2C: designware: fix IO timeout issue for AMD controller
+Date: Thu, 5 Nov 2015 20:34:44 +0800
+Message-ID: <1446726884-30558-1-git-send-email-Xiangliang.Yu@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:14122 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750916AbbKDTNT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 4 Nov 2015 14:13:19 -0500
-In-Reply-To: <20151104114510.6b650ebd@endymion.delvare>
+Received: from mail-bn1on0094.outbound.protection.outlook.com ([157.56.110.94]:42030
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1031161AbbKEHuv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 5 Nov 2015 02:50:51 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org, wsa@the-dreams.de, corbet@lwn.net, lee.jones@linaro.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ken.Xue@amd.com, Vincent.Wan@amd.com, Ray.Huang@amd.com, Annie.Wang@amd.com, Tony.Li@amd.com, Xiangliang Yu <Xiangliang.Yu@amd.com>
 
-Hi Jean,
+Because of some hardware limitation, AMD I2C controller can't
+trigger next interrupt if interrupt status has been changed
+after clearing interrupt status bits. Then, I2C will lost
+interrupt and IO timeout.
 
-On 11/04/2015 02:45 AM, Jean Delvare wrote:
-> Hi Alexandra,
->
-> On Tue,  3 Nov 2015 10:52:34 -0800, Alexandra Yates wrote:
->> Adding Intel codename Lewisburg platform device IDs for SMBus.
->>
->> Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
->> ---
->>   Documentation/i2c/busses/i2c-i801 | 1 +
->>   drivers/i2c/busses/Kconfig        | 1 +
->>   drivers/i2c/busses/i2c-i801.c     | 6 ++++++
->>   3 files changed, 8 insertions(+)
->
-> This patch doesn't apply because it ignores recent changes made to the
-> same files: "i2c: i801: Add support for Intel DNV" by Mika Westerberg,
-> "i2c: i801: Add support for Intel Broxton" by Jarkko Nikula and "i2c:
-> i801: Document Intel DNV and Broxton" by Jarkko Nikula.
->
-> All of these patches are in Wolfram's i2c tree:
-> http://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/log/?h=i2c/for-next
->
-> So please rebase your patch on that tree. Also see my comments below.
->
->>
->> diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
->> index 82f48f7..2ccde60 100644
->> --- a/Documentation/i2c/busses/i2c-i801
->> +++ b/Documentation/i2c/busses/i2c-i801
->> @@ -30,6 +30,7 @@ Supported adapters:
->>     * Intel BayTrail (SOC)
->>     * Intel Sunrise Point-H (PCH)
->>     * Intel Sunrise Point-LP (PCH)
->> +  * Intel Lewisburg (PCH) (LBG)
->
-> "(LBG)" doesn't need to be mentioned.
->
->>      Datasheets: Publicly available at the Intel website
->>
->>   On Intel Patsburg and later chipsets, both the normal host SMBus controller
->> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
->> index 08b8617..3adc2b7 100644
->> --- a/drivers/i2c/busses/Kconfig
->> +++ b/drivers/i2c/busses/Kconfig
->> @@ -124,6 +124,7 @@ config I2C_I801
->>   	    BayTrail (SOC)
->>   	    Sunrise Point-H (PCH)
->>   	    Sunrise Point-LP (PCH)
->> +	    Lewisburg (PCH)
->>
->>   	  This driver can also be built as a module.  If so, the module
->>   	  will be called i2c-i801.
->> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
->> index eaef9bc..34da07b 100644
->> --- a/drivers/i2c/busses/i2c-i801.c
->> +++ b/drivers/i2c/busses/i2c-i801.c
->> @@ -60,6 +60,8 @@
->>    * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
->>    * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
->>    * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
->> + * Lewisburg (PCH)		0xA1A3	32	hard	yes	yes	yes
->> + * Lewisburg Supersku (PCH)	0xA223	32	hard	yes	yes	yes
->>    *
->>    * Features supported by this driver:
->>    * Software PEC				no
->> @@ -179,6 +181,8 @@
->>   				 STATUS_ERROR_FLAGS)
->>
->>   /* Older devices have their ID defined in <linux/pci_ids.h> */
->> +#define PCI_DEVICE_ID_INTEL_LBG_SMBUS			0xA1A3
->> +#define PCI_DEVICE_ID_INTEL_LBG_SSKU_SMBUS		0xA223
->
-> Please spell out LEWISBURG here. 3-letter shortcuts everywhere hurt
-> readability considerably over time.
->
->>   #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
->>   #define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
->>   #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
->> @@ -860,6 +864,8 @@ static const struct pci_device_id i801_ids[] = {
->>   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS) },
->>   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
->>   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
->> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LBG_SMBUS) },
->> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LBG_SSKU_SMBUS) },
->>   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
->>   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
->>   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
->
->
+According to hardware design, this patch implements a workaround
+to disable i2c controller interrupt after clearing interrupt bits
+when entering ISR and to enable i2c interrupt before exiting ISR.
 
-Thank you for reviewing the patch.  I added your suggested changes. 
-Please see version 2.
+To reduce the performance impacts on other vendors, use unlikely
+function to check flag in ISR.
 
+Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
+---
+ drivers/i2c/busses/i2c-designware-core.c    | 6 ++++++
+ drivers/i2c/busses/i2c-designware-core.h    | 1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c | 4 ++++
+ 3 files changed, 11 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 7441cdc..04e7b65 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -783,6 +783,9 @@ irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 
+ 	stat = i2c_dw_read_clear_intrbits(dev);
+ 
++	if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK))
++		i2c_dw_disable_int(dev);
++
+ 	if (stat & DW_IC_INTR_TX_ABRT) {
+ 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
+ 		dev->status = STATUS_IDLE;
+@@ -811,6 +814,9 @@ tx_aborted:
+ 	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
+ 		complete(&dev->cmd_complete);
+ 
++	if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK))
++		dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
++
+ 	return IRQ_HANDLED;
+ }
+ EXPORT_SYMBOL_GPL(i2c_dw_isr);
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9630222..808ef6a 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -111,6 +111,7 @@ struct dw_i2c_dev {
+ 
+ #define ACCESS_SWAP		0x00000001
+ #define ACCESS_16BIT		0x00000002
++#define ACCESS_INTR_MASK	0x00000004
+ 
+ extern u32 dw_readl(struct dw_i2c_dev *dev, int offset);
+ extern void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 472b882..0c59357 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -251,6 +251,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
+ 		dev->adapter.nr = pdev->id;
+ 	}
++
++	if (!strncmp(pdev->name, "AMD0010", 7))
++		dev->accessor_flags |= ACCESS_INTR_MASK;
++
+ 	r = i2c_dw_init(dev);
+ 	if (r)
+ 		return r;
 -- 
-Thank you,
-<Alexandra>
+1.9.1
