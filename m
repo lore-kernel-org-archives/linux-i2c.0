@@ -1,107 +1,47 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH V2] Intel Lewisburg device IDs for SMBus
-Date: Thu, 5 Nov 2015 09:45:18 +0100
-Message-ID: <20151105094518.62e76627@endymion.delvare>
-References: <Intel Lewisburg device IDs for SMBus>
-	<1446664156-9873-1-git-send-email-alexandra.yates@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+Subject: [PATCH] i2c: taos-evm: replace simple_strtoul by kstrtou8
+Date: Thu,  5 Nov 2015 10:32:48 +0100
+Message-ID: <1446715969-11727-1-git-send-email-clabbe.montjoie@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:35092 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030329AbbKEIpX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 5 Nov 2015 03:45:23 -0500
-In-Reply-To: <1446664156-9873-1-git-send-email-alexandra.yates@linux.intel.com>
+Received: from mail-wm0-f42.google.com ([74.125.82.42]:36976 "EHLO
+	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754977AbbKEJdD (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Nov 2015 04:33:03 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Alexandra Yates <alexandra.yates@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, wsa@the-dreams.de, corbet@lwn.net
+To: jdelvare@suse.com, wsa@the-dreams.de
+Cc: LABBE Corentin <clabbe.montjoie@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Alexandra,
+The simple_strtoul function is marked as obsolete.
+This patch replace it by kstrtou8.
 
-On Wed,  4 Nov 2015 11:09:16 -0800, Alexandra Yates wrote:
-> Adding Intel codename Lewisburg platform device IDs for SMBus.
-> 
-> Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
-> ---
->  Documentation/i2c/busses/i2c-i801 | 1 +
->  drivers/i2c/busses/Kconfig        | 1 +
->  drivers/i2c/busses/i2c-i801.c     | 6 ++++++
->  3 files changed, 8 insertions(+)
-> 
-> diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-> index 6a4b1af..1bba38d 100644
-> --- a/Documentation/i2c/busses/i2c-i801
-> +++ b/Documentation/i2c/busses/i2c-i801
-> @@ -32,6 +32,7 @@ Supported adapters:
->    * Intel Sunrise Point-LP (PCH)
->    * Intel DNV (SOC)
->    * Intel Broxton (SOC)
-> +  * Intel Lewisburg (PCH)
->     Datasheets: Publicly available at the Intel website
->  
->  On Intel Patsburg and later chipsets, both the normal host SMBus controller
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index e24c2b6..7b0aa82 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -126,6 +126,7 @@ config I2C_I801
->  	    Sunrise Point-LP (PCH)
->  	    DNV (SOC)
->  	    Broxton (SOC)
-> +	    Lewisburg (PCH)
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-i801.
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index c306751..76fcef4 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -62,6 +62,8 @@
->   * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
->   * DNV (SOC)			0x19df	32	hard	yes	yes	yes
->   * Broxton (SOC)		0x5ad4	32	hard	yes	yes	yes
-> + * Lewisburg (PCH)		0xA1A3	32	hard	yes	yes	yes
-> + * Lewisburg Supersku (PCH)	0xA223	32	hard	yes	yes	yes
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+---
+ drivers/i2c/busses/i2c-taos-evm.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-It's a bit unfortunate that you used upper-case letters for the
-hexadecimal numbers when all other entries used lower-case letters.
-
->   *
->   * Features supported by this driver:
->   * Software PEC				no
-> @@ -181,6 +183,8 @@
->  				 STATUS_ERROR_FLAGS)
->  
->  /* Older devices have their ID defined in <linux/pci_ids.h> */
-> +#define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xA1A3
-> +#define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xA223
-
-Same here. Plus, why are you adding the IDs at the top of the list here
-while you added them at the bottom of the first list...
-
->  #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
->  #define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
->  #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
-> @@ -864,6 +868,8 @@ static const struct pci_device_id i801_ids[] = {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
-
-... and now in the middle of the last list? I would appreciate more
-consistency.
-
-These are all details of course, overall the changes look good, so you
-can add:
-
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-
+diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
+index 4c7fc2d..9dc6cff 100644
+--- a/drivers/i2c/busses/i2c-taos-evm.c
++++ b/drivers/i2c/busses/i2c-taos-evm.c
+@@ -70,6 +70,7 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ 	struct serio *serio = adapter->algo_data;
+ 	struct taos_data *taos = serio_get_drvdata(serio);
+ 	char *p;
++	int err;
+ 
+ 	/* Encode our transaction. "@" is for the device address, "$" for the
+ 	   SMBus command and "#" for the data. */
+@@ -130,7 +131,9 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ 			return 0;
+ 	} else {
+ 		if (p[0] == 'x') {
+-			data->byte = simple_strtol(p + 1, NULL, 16);
++			err = kstrtou8(p + 1, 16, &data->byte);
++			if (err)
++				return err;
+ 			return 0;
+ 		}
+ 	}
 -- 
-Jean Delvare
-SUSE L3 Support
+2.4.10
