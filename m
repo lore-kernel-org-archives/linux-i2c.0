@@ -1,102 +1,65 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 1/1] I2C: designware: fix IO timeout issue for AMD
- controller
-Date: Thu, 5 Nov 2015 15:52:16 +0200
-Message-ID: <20151105135216.GN1509@lahna.fi.intel.com>
-References: <1446726884-30558-1-git-send-email-Xiangliang.Yu@amd.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: taos-evm: replace simple_strtoul by kstrtou8
+Date: Thu, 5 Nov 2015 18:24:51 +0100
+Message-ID: <20151105182451.6a6eea07@endymion.delvare>
+References: <1446715969-11727-1-git-send-email-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1446726884-30558-1-git-send-email-Xiangliang.Yu@amd.com>
+In-Reply-To: <1446715969-11727-1-git-send-email-clabbe.montjoie@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Xiangliang Yu <Xiangliang.Yu@amd.com>
-Cc: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Ken.Xue@amd.com, Vincent.Wan@amd.com, Ray.Huang@amd.com, Annie.Wang@amd.com, Tony.Li@amd.com
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 05, 2015 at 08:34:44PM +0800, Xiangliang Yu wrote:
-> Because of some hardware limitation, AMD I2C controller can't
-> trigger next interrupt if interrupt status has been changed
-> after clearing interrupt status bits. Then, I2C will lost
-> interrupt and IO timeout.
+Hi Corentin,
+
+On Thu,  5 Nov 2015 10:32:48 +0100, LABBE Corentin wrote:
+> The simple_strtoul function is marked as obsolete.
+> This patch replace it by kstrtou8.
 > 
-> According to hardware design, this patch implements a workaround
-> to disable i2c controller interrupt after clearing interrupt bits
-> when entering ISR and to enable i2c interrupt before exiting ISR.
-> 
-> To reduce the performance impacts on other vendors, use unlikely
-> function to check flag in ISR.
-> 
-> Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
 > ---
->  drivers/i2c/busses/i2c-designware-core.c    | 6 ++++++
->  drivers/i2c/busses/i2c-designware-core.h    | 1 +
->  drivers/i2c/busses/i2c-designware-platdrv.c | 4 ++++
->  3 files changed, 11 insertions(+)
+>  drivers/i2c/busses/i2c-taos-evm.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+
+Thanks for the cleanup. I tested it on the hardware I have, no problem.
+One comment below.
+
 > 
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index 7441cdc..04e7b65 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -783,6 +783,9 @@ irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+> diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
+> index 4c7fc2d..9dc6cff 100644
+> --- a/drivers/i2c/busses/i2c-taos-evm.c
+> +++ b/drivers/i2c/busses/i2c-taos-evm.c
+> @@ -70,6 +70,7 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+>  	struct serio *serio = adapter->algo_data;
+>  	struct taos_data *taos = serio_get_drvdata(serio);
+>  	char *p;
+> +	int err;
 >  
->  	stat = i2c_dw_read_clear_intrbits(dev);
+>  	/* Encode our transaction. "@" is for the device address, "$" for the
+>  	   SMBus command and "#" for the data. */
+> @@ -130,7 +131,9 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+>  			return 0;
+>  	} else {
+>  		if (p[0] == 'x') {
+> -			data->byte = simple_strtol(p + 1, NULL, 16);
+> +			err = kstrtou8(p + 1, 16, &data->byte);
+> +			if (err)
+> +				return err;
 
-What if the status changes right here, before you go and mask the
-interrupt?
+While in general I am in favor of passing error values down the stack,
+here I'm not sure. kstrtou8 could return -ERANGE or -EINVAL which makes
+no sense as an i2c adapter fault code. According to
+Documentation/i2c/fault-codes, -EPROTO or -EIO would be more
+appropriate.
 
->  
-> +	if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK))
-> +		i2c_dw_disable_int(dev);
-> +
->  	if (stat & DW_IC_INTR_TX_ABRT) {
->  		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
->  		dev->status = STATUS_IDLE;
-> @@ -811,6 +814,9 @@ tx_aborted:
->  	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
->  		complete(&dev->cmd_complete);
->  
-> +	if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK))
-> +		dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
-
-The driver disables TX interrupt when it is not needed anymore or when
-TX gets aborted but the above will re-enable all interrupts regardless.
-Is that the intention?
-
-> +
->  	return IRQ_HANDLED;
->  }
->  EXPORT_SYMBOL_GPL(i2c_dw_isr);
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> index 9630222..808ef6a 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -111,6 +111,7 @@ struct dw_i2c_dev {
->  
->  #define ACCESS_SWAP		0x00000001
->  #define ACCESS_16BIT		0x00000002
-> +#define ACCESS_INTR_MASK	0x00000004
->  
->  extern u32 dw_readl(struct dw_i2c_dev *dev, int offset);
->  extern void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset);
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 472b882..0c59357 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -251,6 +251,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
->  		dev->adapter.nr = pdev->id;
+>  			return 0;
+>  		}
 >  	}
-> +
-> +	if (!strncmp(pdev->name, "AMD0010", 7))
-> +		dev->accessor_flags |= ACCESS_INTR_MASK;
-> +
 
-Can't you put this to ->driver_data? For example it could refer to a
-configuration structure that then contains quirk flags.
 
->  	r = i2c_dw_init(dev);
->  	if (r)
->  		return r;
-> -- 
-> 1.9.1
+-- 
+Jean Delvare
+SUSE L3 Support
