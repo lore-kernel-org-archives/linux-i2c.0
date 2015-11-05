@@ -1,89 +1,107 @@
-From: Xiangliang Yu <Xiangliang.Yu@amd.com>
-Subject: [PATCH 1/1] I2C: designware: fix IO timeout issue for AMD controller
-Date: Thu, 5 Nov 2015 20:34:44 +0800
-Message-ID: <1446726884-30558-1-git-send-email-Xiangliang.Yu@amd.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH V2] Intel Lewisburg device IDs for SMBus
+Date: Thu, 5 Nov 2015 09:45:18 +0100
+Message-ID: <20151105094518.62e76627@endymion.delvare>
+References: <Intel Lewisburg device IDs for SMBus>
+	<1446664156-9873-1-git-send-email-alexandra.yates@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bn1on0094.outbound.protection.outlook.com ([157.56.110.94]:42030
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1031161AbbKEHuv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 5 Nov 2015 02:50:51 -0500
+Received: from mx2.suse.de ([195.135.220.15]:35092 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030329AbbKEIpX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 5 Nov 2015 03:45:23 -0500
+In-Reply-To: <1446664156-9873-1-git-send-email-alexandra.yates@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ken.Xue@amd.com, Vincent.Wan@amd.com, Ray.Huang@amd.com, Annie.Wang@amd.com, Tony.Li@amd.com, Xiangliang Yu <Xiangliang.Yu@amd.com>
+To: Alexandra Yates <alexandra.yates@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, wsa@the-dreams.de, corbet@lwn.net
 
-Because of some hardware limitation, AMD I2C controller can't
-trigger next interrupt if interrupt status has been changed
-after clearing interrupt status bits. Then, I2C will lost
-interrupt and IO timeout.
+Hi Alexandra,
 
-According to hardware design, this patch implements a workaround
-to disable i2c controller interrupt after clearing interrupt bits
-when entering ISR and to enable i2c interrupt before exiting ISR.
+On Wed,  4 Nov 2015 11:09:16 -0800, Alexandra Yates wrote:
+> Adding Intel codename Lewisburg platform device IDs for SMBus.
+> 
+> Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
+> ---
+>  Documentation/i2c/busses/i2c-i801 | 1 +
+>  drivers/i2c/busses/Kconfig        | 1 +
+>  drivers/i2c/busses/i2c-i801.c     | 6 ++++++
+>  3 files changed, 8 insertions(+)
+> 
+> diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+> index 6a4b1af..1bba38d 100644
+> --- a/Documentation/i2c/busses/i2c-i801
+> +++ b/Documentation/i2c/busses/i2c-i801
+> @@ -32,6 +32,7 @@ Supported adapters:
+>    * Intel Sunrise Point-LP (PCH)
+>    * Intel DNV (SOC)
+>    * Intel Broxton (SOC)
+> +  * Intel Lewisburg (PCH)
+>     Datasheets: Publicly available at the Intel website
+>  
+>  On Intel Patsburg and later chipsets, both the normal host SMBus controller
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index e24c2b6..7b0aa82 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -126,6 +126,7 @@ config I2C_I801
+>  	    Sunrise Point-LP (PCH)
+>  	    DNV (SOC)
+>  	    Broxton (SOC)
+> +	    Lewisburg (PCH)
+>  
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-i801.
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index c306751..76fcef4 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -62,6 +62,8 @@
+>   * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
+>   * DNV (SOC)			0x19df	32	hard	yes	yes	yes
+>   * Broxton (SOC)		0x5ad4	32	hard	yes	yes	yes
+> + * Lewisburg (PCH)		0xA1A3	32	hard	yes	yes	yes
+> + * Lewisburg Supersku (PCH)	0xA223	32	hard	yes	yes	yes
 
-To reduce the performance impacts on other vendors, use unlikely
-function to check flag in ISR.
+It's a bit unfortunate that you used upper-case letters for the
+hexadecimal numbers when all other entries used lower-case letters.
 
-Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
----
- drivers/i2c/busses/i2c-designware-core.c    | 6 ++++++
- drivers/i2c/busses/i2c-designware-core.h    | 1 +
- drivers/i2c/busses/i2c-designware-platdrv.c | 4 ++++
- 3 files changed, 11 insertions(+)
+>   *
+>   * Features supported by this driver:
+>   * Software PEC				no
+> @@ -181,6 +183,8 @@
+>  				 STATUS_ERROR_FLAGS)
+>  
+>  /* Older devices have their ID defined in <linux/pci_ids.h> */
+> +#define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xA1A3
+> +#define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xA223
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 7441cdc..04e7b65 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -783,6 +783,9 @@ irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 
- 	stat = i2c_dw_read_clear_intrbits(dev);
- 
-+	if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK))
-+		i2c_dw_disable_int(dev);
-+
- 	if (stat & DW_IC_INTR_TX_ABRT) {
- 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
- 		dev->status = STATUS_IDLE;
-@@ -811,6 +814,9 @@ tx_aborted:
- 	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
- 		complete(&dev->cmd_complete);
- 
-+	if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK))
-+		dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
-+
- 	return IRQ_HANDLED;
- }
- EXPORT_SYMBOL_GPL(i2c_dw_isr);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 9630222..808ef6a 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -111,6 +111,7 @@ struct dw_i2c_dev {
- 
- #define ACCESS_SWAP		0x00000001
- #define ACCESS_16BIT		0x00000002
-+#define ACCESS_INTR_MASK	0x00000004
- 
- extern u32 dw_readl(struct dw_i2c_dev *dev, int offset);
- extern void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 472b882..0c59357 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -251,6 +251,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
- 		dev->adapter.nr = pdev->id;
- 	}
-+
-+	if (!strncmp(pdev->name, "AMD0010", 7))
-+		dev->accessor_flags |= ACCESS_INTR_MASK;
-+
- 	r = i2c_dw_init(dev);
- 	if (r)
- 		return r;
+Same here. Plus, why are you adding the IDs at the top of the list here
+while you added them at the bottom of the first list...
+
+>  #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
+>  #define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
+>  #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
+> @@ -864,6 +868,8 @@ static const struct pci_device_id i801_ids[] = {
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
+
+... and now in the middle of the last list? I would appreciate more
+consistency.
+
+These are all details of course, overall the changes look good, so you
+can add:
+
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
 -- 
-1.9.1
+Jean Delvare
+SUSE L3 Support
