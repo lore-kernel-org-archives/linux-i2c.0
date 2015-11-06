@@ -1,65 +1,92 @@
-From: "Yu, Xiangliang" <Xiangliang.Yu@amd.com>
-Subject: RE: [PATCH 1/1] I2C: designware: fix IO timeout issue for AMD
- controller
-Date: Fri, 6 Nov 2015 09:11:35 +0000
-Message-ID: <1C99EED8F51BBC41A8F1E645B51245F41AE8AAF2@scybexdag03.amd.com>
-References: <1446726884-30558-1-git-send-email-Xiangliang.Yu@amd.com>
- <20151105135216.GN1509@lahna.fi.intel.com>
- <1C99EED8F51BBC41A8F1E645B51245F41AE8AA50@scybexdag03.amd.com>
- <563C6BF7.3080406@linux.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH V3] Intel Lewisburg device IDs for SMBus
+Date: Fri, 6 Nov 2015 11:47:32 +0100
+Message-ID: <20151106114732.0b6d6ab2@endymion.delvare>
+References: <[PATCH V3] Intel Lewisburg device IDs for SMBus>
+	<1446752425-14476-1-git-send-email-alexandra.yates@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <563C6BF7.3080406@linux.intel.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Xue, Ken" <Ken.Xue@amd.com>, "Wan, Vincent" <Vincent.Wan@amd.com>, "Huang, Ray" <Ray.Huang@amd.com>, "Wang, Annie" <Annie.Wang@amd.com>, "Li, Tony" <Tony.Li@amd.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:42085 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1032934AbbKFKrg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 6 Nov 2015 05:47:36 -0500
+In-Reply-To: <1446752425-14476-1-git-send-email-alexandra.yates@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Alexandra Yates <alexandra.yates@linux.intel.com>
+Cc: wsa@the-dreams.de, corbet@lwn.net, linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Jarkko Nikula [mailto:jarkko.nikula@linux.intel.com]
-> Sent: Friday, November 06, 2015 5:00 PM
-> To: Yu, Xiangliang; Mika Westerberg
-> Cc: andriy.shevchenko@linux.intel.com; wsa@the-dreams.de; linux-
-> i2c@vger.kernel.org; linux-kernel@vger.kernel.org; Xue, Ken; Wan, Vincent;
-> Huang, Ray; Wang, Annie; Li, Tony
-> Subject: Re: [PATCH 1/1] I2C: designware: fix IO timeout issue for AMD
-> controller
+On Thu,  5 Nov 2015 11:40:25 -0800, Alexandra Yates wrote:
+> Adding Intel codename Lewisburg platform device IDs for SMBus.
 > 
-> On 06.11.2015 06:34, Yu, Xiangliang wrote:
-> >> -----Original Message-----
-> >> From: Mika Westerberg [mailto:mika.westerberg@linux.intel.com]
-> >>> --- a/drivers/i2c/busses/i2c-designware-core.c
-> >>> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> >>> @@ -783,6 +783,9 @@ irqreturn_t i2c_dw_isr(int this_irq, void
-> >>> *dev_id)
-> >>>
-> >>>   	stat = i2c_dw_read_clear_intrbits(dev);
-> >>
-> >> What if the status changes right here, before you go and mask the
-> interrupt?
-> > Have no effect, because i2c controller can't trigger next interrupt.
-> >
-> Does it mean possible lost interrupt too? I guess it can be debugged by
-> placing a few ms long mdelay() between clearing and masking.
+> Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> ---
+>  Documentation/i2c/busses/i2c-i801 | 1 +
+>  drivers/i2c/busses/Kconfig        | 1 +
+>  drivers/i2c/busses/i2c-i801.c     | 6 ++++++
+>  3 files changed, 8 insertions(+)
 > 
+> diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+> index 6a4b1af..1bba38d 100644
+> --- a/Documentation/i2c/busses/i2c-i801
+> +++ b/Documentation/i2c/busses/i2c-i801
+> @@ -32,6 +32,7 @@ Supported adapters:
+>    * Intel Sunrise Point-LP (PCH)
+>    * Intel DNV (SOC)
+>    * Intel Broxton (SOC)
+> +  * Intel Lewisburg (PCH)
+>     Datasheets: Publicly available at the Intel website
+>  
+>  On Intel Patsburg and later chipsets, both the normal host SMBus controller
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index e24c2b6..7b0aa82 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -126,6 +126,7 @@ config I2C_I801
+>  	    Sunrise Point-LP (PCH)
+>  	    DNV (SOC)
+>  	    Broxton (SOC)
+> +	    Lewisburg (PCH)
+>  
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-i801.
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index c306751..f62d697 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -62,6 +62,8 @@
+>   * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
+>   * DNV (SOC)			0x19df	32	hard	yes	yes	yes
+>   * Broxton (SOC)		0x5ad4	32	hard	yes	yes	yes
+> + * Lewisburg (PCH)		0xa1a3	32	hard	yes	yes	yes
+> + * Lewisburg Supersku (PCH)	0xa223	32	hard	yes	yes	yes
+>   *
+>   * Features supported by this driver:
+>   * Software PEC				no
+> @@ -206,6 +208,8 @@
+>  #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
+>  #define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
+>  #define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
+> +#define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xa1a3
+> +#define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
+>  
+>  struct i801_mux_config {
+>  	char *gpio_chip;
+> @@ -869,6 +873,8 @@ static const struct pci_device_id i801_ids[] = {
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BROXTON_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS) },
+>  	{ 0, }
+>  };
+>  
 
-The interrupt will not be lost if status bits change before masking interrupt.
+Perfect, thanks.
 
-> How frequent is this timeout? I guess lost interrupt is somehow nearly
-> related to clearing, masking and unmasking if that cycle helps. One thing that
-> comes to my mind is masking needed and could plain unmasking be also a
-> working workaround?
-
-Quite frequently.
-
-> 
-> Have you tried to print DW_IC_INTR_STAT, DW_IC_INTR_MASK and
-> DW_IC_RAW_INTR_STAT when timeout occurs? E.g. just after printing the
-> timeout out error in i2c_dw_xfer(). Probably good in i2c_dw_isr() too if if
-> doesn't produce too much data and make debugging impossible.
-> 
-
-Yes, I have tried to print these status. I have confirmed the issue with hardware engineer. 
+-- 
+Jean Delvare
+SUSE L3 Support
