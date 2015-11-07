@@ -1,92 +1,69 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH V3] Intel Lewisburg device IDs for SMBus
-Date: Fri, 6 Nov 2015 11:47:32 +0100
-Message-ID: <20151106114732.0b6d6ab2@endymion.delvare>
-References: <[PATCH V3] Intel Lewisburg device IDs for SMBus>
-	<1446752425-14476-1-git-send-email-alexandra.yates@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Christian Fetzer <fetzer.ch@gmail.com>
+Subject: [PATCH v3 0/5] Support multiplexed main SMBus interface on SB800
+Date: Sat,  7 Nov 2015 12:35:21 +0100
+Message-ID: <1446896126-13369-1-git-send-email-fetzer.ch@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:42085 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032934AbbKFKrg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 6 Nov 2015 05:47:36 -0500
-In-Reply-To: <1446752425-14476-1-git-send-email-alexandra.yates@linux.intel.com>
+Received: from mail-wm0-f43.google.com ([74.125.82.43]:38760 "EHLO
+	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751520AbbKGLfh (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 7 Nov 2015 06:35:37 -0500
+Received: by wmec201 with SMTP id c201so36792166wme.1
+        for <linux-i2c@vger.kernel.org>; Sat, 07 Nov 2015 03:35:36 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Alexandra Yates <alexandra.yates@linux.intel.com>
-Cc: wsa@the-dreams.de, corbet@lwn.net, linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com, Christian Fetzer <fetzer.ch@gmail.com>
 
-On Thu,  5 Nov 2015 11:40:25 -0800, Alexandra Yates wrote:
-> Adding Intel codename Lewisburg platform device IDs for SMBus.
-> 
-> Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
-> ---
->  Documentation/i2c/busses/i2c-i801 | 1 +
->  drivers/i2c/busses/Kconfig        | 1 +
->  drivers/i2c/busses/i2c-i801.c     | 6 ++++++
->  3 files changed, 8 insertions(+)
-> 
-> diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-> index 6a4b1af..1bba38d 100644
-> --- a/Documentation/i2c/busses/i2c-i801
-> +++ b/Documentation/i2c/busses/i2c-i801
-> @@ -32,6 +32,7 @@ Supported adapters:
->    * Intel Sunrise Point-LP (PCH)
->    * Intel DNV (SOC)
->    * Intel Broxton (SOC)
-> +  * Intel Lewisburg (PCH)
->     Datasheets: Publicly available at the Intel website
->  
->  On Intel Patsburg and later chipsets, both the normal host SMBus controller
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index e24c2b6..7b0aa82 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -126,6 +126,7 @@ config I2C_I801
->  	    Sunrise Point-LP (PCH)
->  	    DNV (SOC)
->  	    Broxton (SOC)
-> +	    Lewisburg (PCH)
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-i801.
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index c306751..f62d697 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -62,6 +62,8 @@
->   * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
->   * DNV (SOC)			0x19df	32	hard	yes	yes	yes
->   * Broxton (SOC)		0x5ad4	32	hard	yes	yes	yes
-> + * Lewisburg (PCH)		0xa1a3	32	hard	yes	yes	yes
-> + * Lewisburg Supersku (PCH)	0xa223	32	hard	yes	yes	yes
->   *
->   * Features supported by this driver:
->   * Software PEC				no
-> @@ -206,6 +208,8 @@
->  #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
->  #define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
->  #define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
-> +#define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xa1a3
-> +#define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
->  
->  struct i801_mux_config {
->  	char *gpio_chip;
-> @@ -869,6 +873,8 @@ static const struct pci_device_id i801_ids[] = {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BROXTON_SMBUS) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS) },
->  	{ 0, }
->  };
->  
+This is an attempt to upstream the patches created by Thomas Brandon and
+Eddi De Pieri to support the multiplexed main SMBus interface on the SB800
+chipset. (https://www.mail-archive.com/linux-i2c@vger.kernel.org/msg06757.html)
 
-Perfect, thanks.
+I have mainly rebased the latest patch version and tested the driver on a
+HP ProLiant MicroServer G7 N54L (where this patch allows to access sensor data
+from a w83795adg).
+
+The patched driver is running stable on the machine, given that ic2_piix4 is
+loaded before jc42 and w83795. If jc42 is loaded before i2c_piix4 calling
+sensors triggers some errors:
+    ERROR: Can't get value of subfeature temp1_min_alarm: Can't read
+
+While the kernel log shows:
+    i2c i2c-1: Transaction (pre): CNT=0c, CMD=05, ADD=31, DAT0=03, DAT1=c0
+    i2c i2c-1: Error: no response!
+    i2c i2c-1: Transaction (post): CNT=0c, CMD=05, ADD=31, DAT0=ff, DAT1=ff
+Unfortunately I don't know how to tackle this specific issue.
+
+Please review and let me know required changes in order to get this upstream
+finally.
+
+Eddi, Thomas, it would be great if you could verify the changes on your
+machines.
+
+Regards,
+Christian
+
+v3:
+- Incorporated changes requested by Mika and Andy
+    - main adapter name set to 'main'
+    - defined constant idx address
+    - block comment style, joined string literals, reworked for loops
+      into while loops
+
+v2:
+- Incorporated changes requested by Mika
+    - remove adapter in reverse order
+    - ERROR label
+    - request base address index region only once
+
+Christian Fetzer (5):
+  i2c-piix4: Optionally release smba in piix4_adap_remove
+  i2c-piix4: Convert piix4_main_adapter to array
+  i2c-piix4: Request base address index region once for SB800
+  i2c-piix4: Add support for multiplexed main adapter in SB800
+  i2c-piix4: Add adapter port name support for SB800 chipset
+
+ drivers/i2c/busses/i2c-piix4.c | 177 ++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 149 insertions(+), 28 deletions(-)
 
 -- 
-Jean Delvare
-SUSE L3 Support
+1.9.1
