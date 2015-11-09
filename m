@@ -1,61 +1,58 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v4 5/5] pwm-pca9685: enable ACPI device found on Galileo
- Gen2
-Date: Mon, 9 Nov 2015 18:10:55 +0100
-Message-ID: <20151109171055.GA5713@ulmo.nvidia.com>
-References: <1445591805-28886-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1445591805-28886-6-git-send-email-andriy.shevchenko@linux.intel.com>
- <1447077216.31665.73.camel@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] power: bq27xxx_battery: Revert "Remove unneeded
+ dependency in Kconfig"
+Date: Mon, 09 Nov 2015 21:51:12 +0100
+Message-ID: <10870776.N30IekZOBt@wuerfel>
+References: <3819790.E2ziFviWmU@wuerfel> <5640D02D.6040601@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1447077216.31665.73.camel@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <5640D02D.6040601@ti.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "Andrew F. Davis" <afd@ti.com>
+Cc: Xiong Zhou <jencce.kernel@gmail.com>, linux-pm@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Sebastian Reichel <sre@kernel.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Pali Rohar <pali.rohar@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Monday 09 November 2015 10:56:13 Andrew F. Davis wrote:
+> On 11/09/2015 07:50 AM, Arnd Bergmann wrote:
+> Nothing enabled by BATTERY_BQ27XXX depends on I2C, this workaround is not
+> correct as it prevents BATTERY_BQ27XXX from being built-in when I2C is a
+> module, there is no reason for this limitation.
+> 
+> The undefined references are caused by BATTERY_BQ27XXX being built-in AND
+> its I2C functionality being enabled (BATTERY_BQ27XXX_I2C) while I2C is a
+> module. Reorganizing this driver is being discussed anyway, but in the
+> meantime a more correct fix would be along the lines of:
+> 
+> diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+> index 6de6ec2..d1d32f9 100644
+> --- a/drivers/power/Kconfig
+> +++ b/drivers/power/Kconfig
+> @@ -167,6 +167,7 @@ config BATTERY_BQ27XXX_I2C
+>          bool "BQ27xxx I2C support"
+>          depends on BATTERY_BQ27XXX
+>          depends on I2C
+> +       depends on !(I2C=m && BATTERY_BQ27XXX=y)
+>          default y
+>          help
+>            Say Y here to enable support for batteries with BQ27xxx (I2C) chips.
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That works too, there is just very little difference in the end here,
+and it's easier to revert an patch that only introduces a regression
+than to do a different hack, especially if it's going to be reworked
+soon anyway.
 
-On Mon, Nov 09, 2015 at 03:53:36PM +0200, Andy Shevchenko wrote:
-> On Fri, 2015-10-23 at 12:16 +0300, Andy Shevchenko wrote:
-> > There is a chip connected to i2c bus on Intel Galileo Gen2 board.
-> > Enable it via
-> > ACPI ID INT3492.
->=20
-> Thierry, ping?
+Do you want to submit the above as a fixup to your other patch or
+should we just do the revert? It would be good to get one of the two
+into -rc1.
 
-This should've been in linux-next for a couple of days now. I see that I
-didn't confirm via email, though, so:
-
-Applied, thanks.
-Thierry
-
---pf9I7BMVVzbSWLtt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJWQNOdAAoJEN0jrNd/PrOhyB4P/01B535dOhV596Vjj3MSX0BX
-+gI5i8Ppk6HMKwpJTzozX0irQ4FoIesjyoV+xzkbD8EQvsCtAsrcKG5MgN6NJRhm
-HCpQ5sfhBlBEy11JxwXjcJb8rPnab2w0d0Ty6XZNXegCA6ZbVnCWeDsY0dJ6R6Nz
-2WReRKXaTI0RMPFRfwQpHqmzKaT9TXW1eJeT8+mM2OA+C7vcbgOc/AFy4VqPiGXR
-O93BfIAr9vuB+kw3KZD0rtEXwveupR8xyPVmcSHgu4l88D/T3ieg5rnqoFRpWp8/
-32JhlpznHijrqYC1CeOhJn0exzey2I2HkRt3gSij7q51awyc7Y+0gFhr1mzIsqZQ
-xva66S96YPstX7U1EmEJsuWe09D+BDqE+hRkBONNB9xrNPXio3dgPybMkp6VgRvg
-5R3mz5V8TkTpKicbwxRo256ehVZgVXXg/+9cvCi+5ASXL4tCx9o9I2LTMljSTt5B
-a95eI5wykgFqz86k+hJUt8EdrC1qTrkQ2yNbvRH2YHOpHC4/YoXbyJ2rzbZNxWHO
-cfVKpVDPVLhO92WZv17LPD5QU/k4gclaZkdJbxcziXVoxj0wSDvH69Vl+rqr+MaA
-+sPaa2UFkTt1JsYfWx3SeXCYgviyZWi7mH6jzRYGRY+x2XkjGpgm53cZUs4GDexL
-2LG12JtYGTaTJSpi9uC6
-=STDH
------END PGP SIGNATURE-----
-
---pf9I7BMVVzbSWLtt--
+	Arnd
