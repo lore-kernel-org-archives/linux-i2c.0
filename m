@@ -1,75 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: designware platdrv and runtime pm?
-Date: Mon, 9 Nov 2015 22:15:04 +0100
-Message-ID: <20151109211503.GA3793@katana>
+From: "Andrew F. Davis" <afd@ti.com>
+Subject: Re: [PATCH] power: bq27xxx_battery: Revert "Remove unneeded
+ dependency in Kconfig"
+Date: Mon, 9 Nov 2015 15:23:22 -0600
+Message-ID: <56410ECA.7050109@ti.com>
+References: <3819790.E2ziFviWmU@wuerfel> <5640D02D.6040601@ti.com>
+ <10870776.N30IekZOBt@wuerfel>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60543 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751033AbbKIVPJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 9 Nov 2015 16:15:09 -0500
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <10870776.N30IekZOBt@wuerfel>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org, Pali Rohar <pali.rohar@gmail.com>, Xiong Zhou <jencce.kernel@gmail.com>, linux-i2c@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+On 11/09/2015 02:51 PM, Arnd Bergmann wrote:
+> On Monday 09 November 2015 10:56:13 Andrew F. Davis wrote:
+>> On 11/09/2015 07:50 AM, Arnd Bergmann wrote:
+>> Nothing enabled by BATTERY_BQ27XXX depends on I2C, this workaround is not
+>> correct as it prevents BATTERY_BQ27XXX from being built-in when I2C is a
+>> module, there is no reason for this limitation.
+>>
+>> The undefined references are caused by BATTERY_BQ27XXX being built-in AND
+>> its I2C functionality being enabled (BATTERY_BQ27XXX_I2C) while I2C is a
+>> module. Reorganizing this driver is being discussed anyway, but in the
+>> meantime a more correct fix would be along the lines of:
+>>
+>> diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+>> index 6de6ec2..d1d32f9 100644
+>> --- a/drivers/power/Kconfig
+>> +++ b/drivers/power/Kconfig
+>> @@ -167,6 +167,7 @@ config BATTERY_BQ27XXX_I2C
+>>           bool "BQ27xxx I2C support"
+>>           depends on BATTERY_BQ27XXX
+>>           depends on I2C
+>> +       depends on !(I2C=m && BATTERY_BQ27XXX=y)
+>>           default y
+>>           help
+>>             Say Y here to enable support for batteries with BQ27xxx (I2C) chips.
+>
+> That works too, there is just very little difference in the end here,
+> and it's easier to revert an patch that only introduces a regression
+> than to do a different hack, especially if it's going to be reworked
+> soon anyway.
+>
+> Do you want to submit the above as a fixup to your other patch or
+> should we just do the revert? It would be good to get one of the two
+> into -rc1.
+>
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I can just submit this fix, it would probably be better for the short term
+until the rework is done.
 
-Hi guys,
-
-while handling the merge conflict for the designware-platdrv, I noticed
-an asymmetry in the runtime PM handling. Currently, code looks like
-this:
-
-	if (dev->pm_runtime_disabled) {
-		pm_runtime_forbid(&pdev->dev);
-	} else {
-		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
-		pm_runtime_use_autosuspend(&pdev->dev);
-		pm_runtime_set_active(&pdev->dev);
-		pm_runtime_enable(&pdev->dev);
-	}
-
-	r = i2c_dw_probe(dev);
-	if (r) {
-		pm_runtime_disable(&pdev->dev);
-		return r;
-	}
-
-But shouldn't the above error path (and the remove path) also take
-dev->pm_runtime_disabled into account and act accordingly?
-
-Thanks,
-
-   Wolfram
-
-
---KsGdsel6WgEHnImy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWQQzXAAoJEBQN5MwUoCm2qkoP/iy4FUhZVDJNmnAguh7L+kFt
-wHXEX+sh906a2GS47r/LvhGTuBWR/PlOejvR/Mbvcq5htq0l8kwiCC2rJmZ8vBi6
-d8OZ0VXVGNnOrkQGk0o+nuR8S+tKTbYVmCncRFHSUiuFXQ0yxkB2/wcqpFgcLayr
-GTZnmHiLH/FWAJEh06Rc/YucoLl6lhzFekeo+dX+CoijIA4EJGbRY7FLkWN1vGmC
-s9F7m/KseZHUqJ3HzTp386N3H2GQmcrFHHnaSAbyg2C1qbGmntailHDjbXE/Q4SL
-SPcNdYLh2UjRjEP1h+hWEOp3SHQaEnAUmbPb7Lht/ve7//41N+sBK4z+q75SFoAL
-5r2tmblT46z4unblAbBTSsDzvSp+ZwQTzaaqefNZ9sdPvyh9+rrlLX2/7Sp4wAy2
-QBIKeANNjPNLa0/ElKdmUgOtgc21JeW6bZDyzzmGf/ltKQOQOWx/5bAq4lmQse2w
-pUV6YS+2PFPLd/aphCNJmRgjpjve0gnCvopuLaYS2EW1q7IWZftPcBpp0AIWL7vf
-jXFUPi7eux2iN6bbSBs/OqjA+47oVF6My+jS66jOBnYsqHEZPiavlQVFDc78Fohg
-48PpM/sWxss5/E69GPFr6kvZqdRZlVEbZ1IO0o5opim2/YbMY4TpPwwDgsCd++Tt
-M3CGtYpDEf6YJZ/OsAid
-=0JR3
------END PGP SIGNATURE-----
-
---KsGdsel6WgEHnImy--
+Andrew
