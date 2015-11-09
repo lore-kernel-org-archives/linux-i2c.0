@@ -1,91 +1,146 @@
-From: Christian Fetzer <fetzer.ch@gmail.com>
-Subject: [PATCH v3 5/5] i2c-piix4: Add adapter port name support for SB800 chipset
-Date: Sat,  7 Nov 2015 12:35:26 +0100
-Message-ID: <1446896126-13369-6-git-send-email-fetzer.ch@gmail.com>
-References: <1446896126-13369-1-git-send-email-fetzer.ch@gmail.com>
+From: Liguo Zhang <liguo.zhang@mediatek.com>
+Subject: [PATCH v2 1/2] i2c: mediatek: add i2c first write then read optimization
+Date: Mon, 9 Nov 2015 13:43:58 +0800
+Message-ID: <1447047839-5223-2-git-send-email-liguo.zhang@mediatek.com>
+References: <1447047839-5223-1-git-send-email-liguo.zhang@mediatek.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wi0-f173.google.com ([209.85.212.173]:35674 "EHLO
-	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753014AbbKGLfx (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 7 Nov 2015 06:35:53 -0500
-Received: by wicll6 with SMTP id ll6so44348861wic.0
-        for <linux-i2c@vger.kernel.org>; Sat, 07 Nov 2015 03:35:51 -0800 (PST)
-In-Reply-To: <1446896126-13369-1-git-send-email-fetzer.ch@gmail.com>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:38479 "EHLO
+	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751864AbbKIFoP (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Nov 2015 00:44:15 -0500
+In-Reply-To: <1447047839-5223-1-git-send-email-liguo.zhang@mediatek.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com, Christian Fetzer <fetzer.ch@gmail.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, Liguo Zhang <liguo.zhang@mediatek.com>
 
-This patch adds support for port names for the SB800 chipset.
-Since the chipset supports a multiplexed main SMBus controller, adding
-the channel name to the adapter name is necessary to differentiate the
-ports better (for example in sensors output).
+For platform with auto restart support, between every transfer,
+i2c controller will trigger an interrupt and SW need to handle
+it to start new transfer. When doing write-then-read transfer,
+instead of restart mechanism, using WRRD mode to have controller
+send both transfer in one request to reduce latency.
 
-Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+Reviewed-by: Eddie Huang <eddie.huang@mediatek.com>
 ---
- drivers/i2c/busses/i2c-piix4.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 33 +++++++++++++++++++++++++++------
+ 1 file changed, 27 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 4beaa3d..47a221d 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -135,6 +135,10 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
- /* SB800 globals */
- DEFINE_MUTEX(piix4_mutex_sb800);
- static bool piix4_smb_idx_sb800;
-+static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
-+	"SDA0", "SDA2", "SDA3", "SDA4"
-+};
-+static const char *piix4_aux_port_name_sb800 = "SDA1";
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 9b86716..dc4aac6 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -132,6 +132,7 @@ struct mtk_i2c_compatible {
+ 	unsigned char pmic_i2c: 1;
+ 	unsigned char dcm: 1;
+ 	unsigned char auto_restart: 1;
++	unsigned char aux_len_reg: 1;
+ };
  
- struct i2c_piix4_adapdata {
- 	unsigned short smba;
-@@ -617,7 +621,7 @@ static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
- static struct i2c_adapter *piix4_aux_adapter;
+ struct mtk_i2c {
+@@ -153,6 +154,7 @@ struct mtk_i2c {
+ 	enum mtk_trans_op op;
+ 	u16 timing_reg;
+ 	u16 high_speed_reg;
++	unsigned char auto_restart;
+ 	const struct mtk_i2c_compatible *dev_comp;
+ };
  
- static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
--			     struct i2c_adapter **padap)
-+			     const char *name, struct i2c_adapter **padap)
- {
- 	struct i2c_adapter *adap;
- 	struct i2c_piix4_adapdata *adapdata;
-@@ -646,7 +650,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 	adap->dev.parent = &dev->dev;
+@@ -178,6 +180,7 @@ static const struct mtk_i2c_compatible mt6577_compat = {
+ 	.pmic_i2c = 0,
+ 	.dcm = 1,
+ 	.auto_restart = 0,
++	.aux_len_reg = 0,
+ };
  
- 	snprintf(adap->name, sizeof(adap->name),
--		"SMBus PIIX4 adapter at %04x", smba);
-+		"SMBus PIIX4 adapter %s at %04x", name, smba);
+ static const struct mtk_i2c_compatible mt6589_compat = {
+@@ -185,6 +188,7 @@ static const struct mtk_i2c_compatible mt6589_compat = {
+ 	.pmic_i2c = 1,
+ 	.dcm = 0,
+ 	.auto_restart = 0,
++	.aux_len_reg = 0,
+ };
  
- 	i2c_set_adapdata(adap, adapdata);
+ static const struct mtk_i2c_compatible mt8173_compat = {
+@@ -192,6 +196,7 @@ static const struct mtk_i2c_compatible mt8173_compat = {
+ 	.pmic_i2c = 0,
+ 	.dcm = 1,
+ 	.auto_restart = 1,
++	.aux_len_reg = 1,
+ };
  
-@@ -671,6 +675,7 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba)
+ static const struct of_device_id mtk_i2c_of_match[] = {
+@@ -373,7 +378,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
  
- 	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
- 		retval = piix4_add_adapter(dev, smba,
-+					   piix4_main_port_names_sb800[port],
- 					   &piix4_main_adapters[port]);
- 		if (retval < 0)
- 			goto error;
-@@ -731,7 +736,7 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 			return retval;
+ 	i2c->irq_stat = 0;
  
- 		/* Try to register main SMBus adapter, give up if we can't */
--		retval = piix4_add_adapter(dev, retval,
-+		retval = piix4_add_adapter(dev, retval, "main",
- 					   &piix4_main_adapters[0]);
- 	}
+-	if (i2c->dev_comp->auto_restart)
++	if (i2c->auto_restart)
+ 		restart_flag = I2C_RS_TRANSFER;
  
-@@ -760,7 +765,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	if (retval > 0) {
- 		/* Try to add the aux adapter if it exists,
- 		 * piix4_add_adapter will clean up if this fails */
--		piix4_add_adapter(dev, retval, &piix4_aux_adapter);
-+		piix4_add_adapter(dev, retval, piix4_aux_port_name_sb800,
-+				  &piix4_aux_adapter);
- 	}
+ 	reinit_completion(&i2c->msg_complete);
+@@ -411,8 +416,14 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
  
- 	return 0;
+ 	/* Set transfer and transaction len */
+ 	if (i2c->op == I2C_MASTER_WRRD) {
+-		writew(msgs->len | ((msgs + 1)->len) << 8,
+-		       i2c->base + OFFSET_TRANSFER_LEN);
++		if (i2c->dev_comp->aux_len_reg) {
++			writew(msgs->len, i2c->base + OFFSET_TRANSFER_LEN);
++			writew((msgs + 1)->len, i2c->base +
++			       OFFSET_TRANSFER_LEN_AUX);
++		} else {
++			writew(msgs->len | ((msgs + 1)->len) << 8,
++			       i2c->base + OFFSET_TRANSFER_LEN);
++		}
+ 		writew(I2C_WRRD_TRANAC_VALUE, i2c->base + OFFSET_TRANSAC_LEN);
+ 	} else {
+ 		writew(msgs->len, i2c->base + OFFSET_TRANSFER_LEN);
+@@ -461,7 +472,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 
+ 	writel(I2C_DMA_START_EN, i2c->pdmabase + OFFSET_EN);
+ 
+-	if (!i2c->dev_comp->auto_restart) {
++	if (!i2c->auto_restart) {
+ 		start_reg = I2C_TRANSAC_START;
+ 	} else {
+ 		start_reg = I2C_TRANSAC_START | I2C_RS_MUL_TRIG;
+@@ -518,6 +529,16 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
+ 	if (ret)
+ 		return ret;
+ 
++	i2c->auto_restart = i2c->dev_comp->auto_restart;
++
++	/* checking if we can skip restart and optimize using WRRD mode */
++	if (i2c->auto_restart && num == 2) {
++		if (!(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
++		    msgs[0].addr == msgs[1].addr) {
++			i2c->auto_restart = 0;
++		}
++	}
++
+ 	while (left_num--) {
+ 		if (!msgs->buf) {
+ 			dev_dbg(i2c->dev, "data buffer is NULL.\n");
+@@ -530,7 +551,7 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
+ 		else
+ 			i2c->op = I2C_MASTER_WR;
+ 
+-		if (!i2c->dev_comp->auto_restart) {
++		if (!i2c->auto_restart) {
+ 			if (num > 1) {
+ 				/* combined two messages into one transaction */
+ 				i2c->op = I2C_MASTER_WRRD;
+@@ -559,7 +580,7 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
+ 	u16 restart_flag = 0;
+ 	u16 intr_stat;
+ 
+-	if (i2c->dev_comp->auto_restart)
++	if (i2c->auto_restart)
+ 		restart_flag = I2C_RS_TRANSFER;
+ 
+ 	intr_stat = readw(i2c->base + OFFSET_INTR_STAT);
 -- 
-1.9.1
+1.8.1.1.dirty
