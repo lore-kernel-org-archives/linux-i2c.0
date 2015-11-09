@@ -1,31 +1,53 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v3 1/5] i2c-piix4: Optionally release smba in
- piix4_adap_remove
-Date: Mon, 9 Nov 2015 13:24:48 +0200
-Message-ID: <20151109112448.GA1509@lahna.fi.intel.com>
-References: <1446896126-13369-1-git-send-email-fetzer.ch@gmail.com>
- <1446896126-13369-2-git-send-email-fetzer.ch@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] power: bq27xxx_battery: Revert "Remove unneeded dependency in
+ Kconfig"
+Date: Mon, 09 Nov 2015 14:50:47 +0100
+Message-ID: <3819790.E2ziFviWmU@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:42181 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753295AbbKILYx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 9 Nov 2015 06:24:53 -0500
-Content-Disposition: inline
-In-Reply-To: <1446896126-13369-2-git-send-email-fetzer.ch@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
+Cc: Xiong Zhou <jencce.kernel@gmail.com>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, linux-kernel@vger.kernel.org, "Andrew F. Davis" <afd@ti.com>, linux-i2c@vger.kernel.org, Pali Rohar <pali.rohar@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Christian Fetzer <fetzer.ch@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com
 
-On Sat, Nov 07, 2015 at 12:35:22PM +0100, Christian Fetzer wrote:
-> This is in preparation to support the multiplexed SMBus main controller
-> in the SB800 chipset where the controller address is shared among
-> the four multiplexed ports. As such the address region should be
-> only freed for the first multiplexed adapter to avoid double free
-> warnings.
-> 
-> Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
+The dependency was clearly needed, without it it is possible to
+build the core i2c driver as a loadable module and the bq27xxx
+driver built-in, which results in link errors:
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+drivers/built-in.o: In function `bq27xxx_battery_i2c_read':
+binder.c:(.text+0x360bf0): undefined reference to `i2c_transfer'
+binder.c:(.text+0x360c10): undefined reference to `i2c_transfer'
+drivers/built-in.o: In function `bq27xxx_battery_init':
+binder.c:(.init.text+0xe668): undefined reference to `i2c_register_driver'
+drivers/built-in.o: In function `bq27xxx_battery_exit':
+binder.c:(.exit.text+0x1a0c): undefined reference to `i2c_del_driver'
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 6bd03ce3c12a ("power: bq27xxx_battery: Remove unneeded dependency in Kconfig")
+---
+The bug was originally found and fixed by Xiong Zhou, but Andrew Davis
+broke it again by reverting the fix.
+
+I found it today on my ARM randconfig builds.
+
+diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+index 237d7aa73e8c..9f53fb74ae6f 100644
+--- a/drivers/power/Kconfig
++++ b/drivers/power/Kconfig
+@@ -159,6 +159,7 @@ config BATTERY_SBS
+ 
+ config BATTERY_BQ27XXX
+ 	tristate "BQ27xxx battery driver"
++	depends on I2C || I2C=n
+ 	help
+ 	  Say Y here to enable support for batteries with BQ27xxx (I2C/HDQ) chips.
