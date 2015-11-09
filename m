@@ -1,76 +1,61 @@
-From: "Andrew F. Davis" <afd@ti.com>
-Subject: Re: [PATCH] power: bq27xxx_battery: Revert "Remove unneeded
- dependency in Kconfig"
-Date: Mon, 9 Nov 2015 10:56:13 -0600
-Message-ID: <5640D02D.6040601@ti.com>
-References: <3819790.E2ziFviWmU@wuerfel>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v4 5/5] pwm-pca9685: enable ACPI device found on Galileo
+ Gen2
+Date: Mon, 9 Nov 2015 18:10:55 +0100
+Message-ID: <20151109171055.GA5713@ulmo.nvidia.com>
+References: <1445591805-28886-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1445591805-28886-6-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1447077216.31665.73.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:56047 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752256AbbKIQ5M (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 9 Nov 2015 11:57:12 -0500
-In-Reply-To: <3819790.E2ziFviWmU@wuerfel>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1447077216.31665.73.camel@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@intel.com>, "Puustinen, Ismo" <ismo.puustinen@intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
-Cc: Pali Rohar <pali.rohar@gmail.com>, Xiong Zhou <jencce.kernel@gmail.com>, linux-i2c@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On 11/09/2015 07:50 AM, Arnd Bergmann wrote:
-> The dependency was clearly needed, without it it is possible to
-> build the core i2c driver as a loadable module and the bq27xxx
-> driver built-in, which results in link errors:
->
-> drivers/built-in.o: In function `bq27xxx_battery_i2c_read':
-> binder.c:(.text+0x360bf0): undefined reference to `i2c_transfer'
-> binder.c:(.text+0x360c10): undefined reference to `i2c_transfer'
-> drivers/built-in.o: In function `bq27xxx_battery_init':
-> binder.c:(.init.text+0xe668): undefined reference to `i2c_register_driver'
-> drivers/built-in.o: In function `bq27xxx_battery_exit':
-> binder.c:(.exit.text+0x1a0c): undefined reference to `i2c_del_driver'
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Fixes: 6bd03ce3c12a ("power: bq27xxx_battery: Remove unneeded dependency in Kconfig")
-> ---
-> The bug was originally found and fixed by Xiong Zhou, but Andrew Davis
-> broke it again by reverting the fix.
->
-> I found it today on my ARM randconfig builds.
->
-> diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
-> index 237d7aa73e8c..9f53fb74ae6f 100644
-> --- a/drivers/power/Kconfig
-> +++ b/drivers/power/Kconfig
-> @@ -159,6 +159,7 @@ config BATTERY_SBS
->
->   config BATTERY_BQ27XXX
->   	tristate "BQ27xxx battery driver"
-> +	depends on I2C || I2C=n
->   	help
->   	  Say Y here to enable support for batteries with BQ27xxx (I2C/HDQ) chips.
->
->
 
-Nothing enabled by BATTERY_BQ27XXX depends on I2C, this workaround is not
-correct as it prevents BATTERY_BQ27XXX from being built-in when I2C is a
-module, there is no reason for this limitation.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The undefined references are caused by BATTERY_BQ27XXX being built-in AND
-its I2C functionality being enabled (BATTERY_BQ27XXX_I2C) while I2C is a
-module. Reorganizing this driver is being discussed anyway, but in the
-meantime a more correct fix would be along the lines of:
+On Mon, Nov 09, 2015 at 03:53:36PM +0200, Andy Shevchenko wrote:
+> On Fri, 2015-10-23 at 12:16 +0300, Andy Shevchenko wrote:
+> > There is a chip connected to i2c bus on Intel Galileo Gen2 board.
+> > Enable it via
+> > ACPI ID INT3492.
+>=20
+> Thierry, ping?
 
-diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
-index 6de6ec2..d1d32f9 100644
---- a/drivers/power/Kconfig
-+++ b/drivers/power/Kconfig
-@@ -167,6 +167,7 @@ config BATTERY_BQ27XXX_I2C
-         bool "BQ27xxx I2C support"
-         depends on BATTERY_BQ27XXX
-         depends on I2C
-+       depends on !(I2C=m && BATTERY_BQ27XXX=y)
-         default y
-         help
-           Say Y here to enable support for batteries with BQ27xxx (I2C) chips.
+This should've been in linux-next for a couple of days now. I see that I
+didn't confirm via email, though, so:
+
+Applied, thanks.
+Thierry
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCAAGBQJWQNOdAAoJEN0jrNd/PrOhyB4P/01B535dOhV596Vjj3MSX0BX
++gI5i8Ppk6HMKwpJTzozX0irQ4FoIesjyoV+xzkbD8EQvsCtAsrcKG5MgN6NJRhm
+HCpQ5sfhBlBEy11JxwXjcJb8rPnab2w0d0Ty6XZNXegCA6ZbVnCWeDsY0dJ6R6Nz
+2WReRKXaTI0RMPFRfwQpHqmzKaT9TXW1eJeT8+mM2OA+C7vcbgOc/AFy4VqPiGXR
+O93BfIAr9vuB+kw3KZD0rtEXwveupR8xyPVmcSHgu4l88D/T3ieg5rnqoFRpWp8/
+32JhlpznHijrqYC1CeOhJn0exzey2I2HkRt3gSij7q51awyc7Y+0gFhr1mzIsqZQ
+xva66S96YPstX7U1EmEJsuWe09D+BDqE+hRkBONNB9xrNPXio3dgPybMkp6VgRvg
+5R3mz5V8TkTpKicbwxRo256ehVZgVXXg/+9cvCi+5ASXL4tCx9o9I2LTMljSTt5B
+a95eI5wykgFqz86k+hJUt8EdrC1qTrkQ2yNbvRH2YHOpHC4/YoXbyJ2rzbZNxWHO
+cfVKpVDPVLhO92WZv17LPD5QU/k4gclaZkdJbxcziXVoxj0wSDvH69Vl+rqr+MaA
++sPaa2UFkTt1JsYfWx3SeXCYgviyZWi7mH6jzRYGRY+x2XkjGpgm53cZUs4GDexL
+2LG12JtYGTaTJSpi9uC6
+=STDH
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--
