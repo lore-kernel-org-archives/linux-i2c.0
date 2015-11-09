@@ -1,50 +1,76 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v2 1/2] i2c: mediatek: add i2c first write then read optimization
-Date: Mon, 9 Nov 2015 16:25:09 +0200
-Message-ID: <CAHp75VfutRR0N0bGDYMjFr+nQGFnmuoiA2afvYfuZ2aOy=2qbQ@mail.gmail.com>
-References: <1447047839-5223-1-git-send-email-liguo.zhang@mediatek.com>
-	<1447047839-5223-2-git-send-email-liguo.zhang@mediatek.com>
+From: "Andrew F. Davis" <afd@ti.com>
+Subject: Re: [PATCH] power: bq27xxx_battery: Revert "Remove unneeded
+ dependency in Kconfig"
+Date: Mon, 9 Nov 2015 10:56:13 -0600
+Message-ID: <5640D02D.6040601@ti.com>
+References: <3819790.E2ziFviWmU@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yk0-f178.google.com ([209.85.160.178]:36473 "EHLO
-	mail-yk0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751168AbbKIOZK (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Nov 2015 09:25:10 -0500
-In-Reply-To: <1447047839-5223-2-git-send-email-liguo.zhang@mediatek.com>
+Received: from comal.ext.ti.com ([198.47.26.152]:56047 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752256AbbKIQ5M (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 9 Nov 2015 11:57:12 -0500
+In-Reply-To: <3819790.E2ziFviWmU@wuerfel>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Liguo Zhang <liguo.zhang@mediatek.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, linux-mediatek@lists.infradead.org
+To: Arnd Bergmann <arnd@arndb.de>, Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
+Cc: Pali Rohar <pali.rohar@gmail.com>, Xiong Zhou <jencce.kernel@gmail.com>, linux-i2c@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Mon, Nov 9, 2015 at 7:43 AM, Liguo Zhang <liguo.zhang@mediatek.com> wrote:
-> For platform with auto restart support, between every transfer,
-> i2c controller will trigger an interrupt and SW need to handle
-> it to start new transfer. When doing write-then-read transfer,
-> instead of restart mechanism, using WRRD mode to have controller
-> send both transfer in one request to reduce latency.
-
-
-> @@ -518,6 +529,16 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
->         if (ret)
->                 return ret;
+On 11/09/2015 07:50 AM, Arnd Bergmann wrote:
+> The dependency was clearly needed, without it it is possible to
+> build the core i2c driver as a loadable module and the bq27xxx
+> driver built-in, which results in link errors:
 >
-> +       i2c->auto_restart = i2c->dev_comp->auto_restart;
-> +
-> +       /* checking if we can skip restart and optimize using WRRD mode */
-> +       if (i2c->auto_restart && num == 2) {
-> +               if (!(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
-> +                   msgs[0].addr == msgs[1].addr) {
+> drivers/built-in.o: In function `bq27xxx_battery_i2c_read':
+> binder.c:(.text+0x360bf0): undefined reference to `i2c_transfer'
+> binder.c:(.text+0x360c10): undefined reference to `i2c_transfer'
+> drivers/built-in.o: In function `bq27xxx_battery_init':
+> binder.c:(.init.text+0xe668): undefined reference to `i2c_register_driver'
+> drivers/built-in.o: In function `bq27xxx_battery_exit':
+> binder.c:(.exit.text+0x1a0c): undefined reference to `i2c_del_driver'
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Fixes: 6bd03ce3c12a ("power: bq27xxx_battery: Remove unneeded dependency in Kconfig")
+> ---
+> The bug was originally found and fixed by Xiong Zhou, but Andrew Davis
+> broke it again by reverting the fix.
+>
+> I found it today on my ARM randconfig builds.
+>
+> diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+> index 237d7aa73e8c..9f53fb74ae6f 100644
+> --- a/drivers/power/Kconfig
+> +++ b/drivers/power/Kconfig
+> @@ -159,6 +159,7 @@ config BATTERY_SBS
+>
+>   config BATTERY_BQ27XXX
+>   	tristate "BQ27xxx battery driver"
+> +	depends on I2C || I2C=n
+>   	help
+>   	  Say Y here to enable support for batteries with BQ27xxx (I2C/HDQ) chips.
+>
+>
 
-Nitpick (optional):
+Nothing enabled by BATTERY_BQ27XXX depends on I2C, this workaround is not
+correct as it prevents BATTERY_BQ27XXX from being built-in when I2C is a
+module, there is no reason for this limitation.
 
-((msgs[0].flags & msgs[1].flags) & I2C_M_RD)
-?
+The undefined references are caused by BATTERY_BQ27XXX being built-in AND
+its I2C functionality being enabled (BATTERY_BQ27XXX_I2C) while I2C is a
+module. Reorganizing this driver is being discussed anyway, but in the
+meantime a more correct fix would be along the lines of:
 
-> +                       i2c->auto_restart = 0;
-> +               }
-> +       }
-
--- 
-With Best Regards,
-Andy Shevchenko
+diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
+index 6de6ec2..d1d32f9 100644
+--- a/drivers/power/Kconfig
++++ b/drivers/power/Kconfig
+@@ -167,6 +167,7 @@ config BATTERY_BQ27XXX_I2C
+         bool "BQ27xxx I2C support"
+         depends on BATTERY_BQ27XXX
+         depends on I2C
++       depends on !(I2C=m && BATTERY_BQ27XXX=y)
+         default y
+         help
+           Say Y here to enable support for batteries with BQ27xxx (I2C) chips.
