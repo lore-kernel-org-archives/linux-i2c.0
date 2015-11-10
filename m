@@ -1,60 +1,44 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH] power: bq27xxx_battery: Add I2C module check dependency
- in Kconfig
-Date: Tue, 10 Nov 2015 04:50:02 +0100
-Message-ID: <20151110035002.GB2712@earth>
-References: <1447104183-13556-1-git-send-email-afd@ti.com>
+From: Michael Bachmeier <michael.bachmeier.linux@gmail.com>
+Subject: =?UTF-8?Q?i2c_slave_support_f=C3=BCr_i=2Emx6?=
+Date: Tue, 10 Nov 2015 09:06:27 +0100
+Message-ID: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="4SFOXa2GPu3tIq4H"
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1447104183-13556-1-git-send-email-afd@ti.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Andrew F. Davis" <afd@ti.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Pali Rohar <pali.rohar@gmail.com>, Xiong Zhou <jencce.kernel@gmail.com>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ig0-f195.google.com ([209.85.213.195]:33970 "EHLO
+	mail-ig0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750893AbbKJIGa (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Nov 2015 03:06:30 -0500
+Received: by igbxf8 with SMTP id xf8so13542725igb.1
+        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2015 00:06:30 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
+I am currently working with a I.mx6 quad-core-processor on Linux 3.19.
+I would like to implement the "I2C slave support", by Wolfram Sang, In
+this processor.
 
---4SFOXa2GPu3tIq4H
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+For this purpose, I would have some comprehension questions.
 
-Hi,
+Do I understand it right, I can set the Master in slave mode and the
+new slave get his own i2c-adresse?
+Say that, I can connect a Master from the outside, without this
+leading to problems?
+If the master switch to slave, then stops SCL? Or how does it work?
 
-On Mon, Nov 09, 2015 at 03:23:03PM -0600, Andrew F. Davis wrote:
-> Check if I2C core has been built as a module when BATTERY_BQ27XXX
-> is built-in. If so disable I2C functionality.
->=20
-> Fixes: 6bd03ce3c12a ("power: bq27xxx_battery: Remove unneeded dependency =
-in Kconfig")
-> Reported-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Andrew F. Davis <afd@ti.com>
+Is the EEPROM simulator only available if I rewrote "i2c-IMX" drivers
+to the slave support?
 
-Thanks, queued.
+Does anyone know if anyone is working on this driver?
 
--- Sebastian
+In the "i.MX 6Dual/6Quad Applications Processor Reference Manual",
+from freescale, on the page 1895 the "Hardware"-Slave Mode will be
+described.
 
---4SFOXa2GPu3tIq4H
-Content-Type: application/pgp-signature; name="signature.asc"
+Would it theoretically be enough to write 0x80 in the "I2Cx_I2CR"
+register to set MSTA Bit to
+slave mode. "Changing MSTA from 1 to 0 generates a Stop and selects Slave mode."
+Or then disturbs the old driver?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBCgAGBQJWQWlnAAoJENju1/PIO/qao1oP+gKOKjch1kEcSW/T+/waLEER
-7Fd47X/miI2+gDWAuu6aD1TMk10guKYwDzHrOYNqlM3+KIdS7j6vox3exNuvLzho
-GrXc4+dp8l/ejiyJfal/SCyJYu45QXJZUV7qWOIzXUCrJQnC/vXTEpS7M8XGSYZt
-hS5xJpwi+WfdtNerhdGmh3Zj/ZMsAjDyOGTF9teJH/UD2AtXNzIA4bKh73huKJ8N
-OwJo5h8SoMar9+q0E2D+B6gZcpI0l0Q8hzo+K9tKW0Hne752vwglDMDCswDtGIHw
-89lW3xh0vG6XOqcbiRVqM6qTGBZ1e2vTuIvO687tKNclVaw9IkDt2WEwrcDRt+B9
-ojmQyVZbVsdVjc8XUweuLu9fbsCobjiRiQRNY6F548UwbVTyqg7iC3JX0QTzmOOl
-JLou/2XmcrZaDftr3IoBsEn88qR0uirhtjoXwKPyTQCJC8Z5uxlyo3wZ3qJGu/a9
-AegKCUMtuMHd0EJNGF+GbjmTD7UudA1H+N4lgaU+3A9GHLJykJOeD4ZnAENYNASI
-dZtkaANwDMmJYpR+TAwwv2Z9B9nTWqOaol1scqVUTmCKb6ZJavGJ9nrNR22yyild
-N0ypHWCgpXCtsI/1C1qIXK2NqDUwrNDOsi9dvT1jh7K/HX326SdOPZMB6WuQYFIO
-LS7Y+hp74No94X6G3A1J
-=jjdh
------END PGP SIGNATURE-----
-
---4SFOXa2GPu3tIq4H--
+best regards
