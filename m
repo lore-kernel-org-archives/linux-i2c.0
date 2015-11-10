@@ -1,52 +1,60 @@
-From: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Subject: Re: [PATCH v2 1/2] i2c: mediatek: add i2c first write then read
- optimization
-Date: Tue, 10 Nov 2015 08:50:53 +0800
-Message-ID: <1447116653.24760.1.camel@mtksdaap41>
-References: <1447047839-5223-1-git-send-email-liguo.zhang@mediatek.com>
-	 <1447047839-5223-2-git-send-email-liguo.zhang@mediatek.com>
-	 <CAHp75VfutRR0N0bGDYMjFr+nQGFnmuoiA2afvYfuZ2aOy=2qbQ@mail.gmail.com>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH] power: bq27xxx_battery: Add I2C module check dependency
+ in Kconfig
+Date: Tue, 10 Nov 2015 04:50:02 +0100
+Message-ID: <20151110035002.GB2712@earth>
+References: <1447104183-13556-1-git-send-email-afd@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:47719 "EHLO
-	mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750850AbbKJAvE (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Nov 2015 19:51:04 -0500
-In-Reply-To: <CAHp75VfutRR0N0bGDYMjFr+nQGFnmuoiA2afvYfuZ2aOy=2qbQ@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="4SFOXa2GPu3tIq4H"
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1447104183-13556-1-git-send-email-afd@ti.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Andrew F. Davis" <afd@ti.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Pali Rohar <pali.rohar@gmail.com>, Xiong Zhou <jencce.kernel@gmail.com>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Liguo Zhang <liguo.zhang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, srv_heupstream@mediatek.com, Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
 
-On Mon, 2015-11-09 at 16:25 +0200, Andy Shevchenko wrote:
-> On Mon, Nov 9, 2015 at 7:43 AM, Liguo Zhang <liguo.zhang@mediatek.com> wrote:
-> > For platform with auto restart support, between every transfer,
-> > i2c controller will trigger an interrupt and SW need to handle
-> > it to start new transfer. When doing write-then-read transfer,
-> > instead of restart mechanism, using WRRD mode to have controller
-> > send both transfer in one request to reduce latency.
-> 
-> 
-> > @@ -518,6 +529,16 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
-> >         if (ret)
-> >                 return ret;
-> >
-> > +       i2c->auto_restart = i2c->dev_comp->auto_restart;
-> > +
-> > +       /* checking if we can skip restart and optimize using WRRD mode */
-> > +       if (i2c->auto_restart && num == 2) {
-> > +               if (!(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
-> > +                   msgs[0].addr == msgs[1].addr) {
-> 
-> Nitpick (optional):
-> 
-> ((msgs[0].flags & msgs[1].flags) & I2C_M_RD)
-> ?
 
-These 2 check for different conditions.
-The original one check the first one must NOT set I2C_M_RD, but second
-one must set I2C_M_RD.
+--4SFOXa2GPu3tIq4H
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Joe.C
+Hi,
+
+On Mon, Nov 09, 2015 at 03:23:03PM -0600, Andrew F. Davis wrote:
+> Check if I2C core has been built as a module when BATTERY_BQ27XXX
+> is built-in. If so disable I2C functionality.
+>=20
+> Fixes: 6bd03ce3c12a ("power: bq27xxx_battery: Remove unneeded dependency =
+in Kconfig")
+> Reported-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Andrew F. Davis <afd@ti.com>
+
+Thanks, queued.
+
+-- Sebastian
+
+--4SFOXa2GPu3tIq4H
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJWQWlnAAoJENju1/PIO/qao1oP+gKOKjch1kEcSW/T+/waLEER
+7Fd47X/miI2+gDWAuu6aD1TMk10guKYwDzHrOYNqlM3+KIdS7j6vox3exNuvLzho
+GrXc4+dp8l/ejiyJfal/SCyJYu45QXJZUV7qWOIzXUCrJQnC/vXTEpS7M8XGSYZt
+hS5xJpwi+WfdtNerhdGmh3Zj/ZMsAjDyOGTF9teJH/UD2AtXNzIA4bKh73huKJ8N
+OwJo5h8SoMar9+q0E2D+B6gZcpI0l0Q8hzo+K9tKW0Hne752vwglDMDCswDtGIHw
+89lW3xh0vG6XOqcbiRVqM6qTGBZ1e2vTuIvO687tKNclVaw9IkDt2WEwrcDRt+B9
+ojmQyVZbVsdVjc8XUweuLu9fbsCobjiRiQRNY6F548UwbVTyqg7iC3JX0QTzmOOl
+JLou/2XmcrZaDftr3IoBsEn88qR0uirhtjoXwKPyTQCJC8Z5uxlyo3wZ3qJGu/a9
+AegKCUMtuMHd0EJNGF+GbjmTD7UudA1H+N4lgaU+3A9GHLJykJOeD4ZnAENYNASI
+dZtkaANwDMmJYpR+TAwwv2Z9B9nTWqOaol1scqVUTmCKb6ZJavGJ9nrNR22yyild
+N0ypHWCgpXCtsI/1C1qIXK2NqDUwrNDOsi9dvT1jh7K/HX326SdOPZMB6WuQYFIO
+LS7Y+hp74No94X6G3A1J
+=jjdh
+-----END PGP SIGNATURE-----
+
+--4SFOXa2GPu3tIq4H--
