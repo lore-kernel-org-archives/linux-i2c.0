@@ -1,96 +1,153 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: i2c slave support =?utf-8?B?ZsO8?= =?utf-8?Q?r?= i.mx6
-Date: Tue, 10 Nov 2015 09:59:55 +0100
-Message-ID: <20151110085955.GA1532@katana>
-References: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v4] at24: Support SMBus read/write of 16-bit devices
+Date: Tue, 10 Nov 2015 10:39:20 +0100
+Message-ID: <20151110103920.3762f682@endymion.delvare>
+References: <780683105.92691.1447114576924.JavaMail.zimbra@xes-inc.com>
+	<1982054415.93139.1447115111901.JavaMail.zimbra@xes-inc.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36276 "EHLO pokefinder.org"
+Received: from mx2.suse.de ([195.135.220.15]:54024 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751080AbbKJJAC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 10 Nov 2015 04:00:02 -0500
-Content-Disposition: inline
-In-Reply-To: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
+	id S1751861AbbKJJjX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 10 Nov 2015 04:39:23 -0500
+In-Reply-To: <1982054415.93139.1447115111901.JavaMail.zimbra@xes-inc.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Michael Bachmeier <michael.bachmeier.linux@gmail.com>
-Cc: linux-i2c@vger.kernel.org, kernel@pengutronix.de, Shawn Guo <shawn.guo@linaro.org>
+To: Aaron Sierra <asierra@xes-inc.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Christian Gmeiner <christian.gmeiner@gmail.com>, Nate Case <ncase@xes-inc.com>
 
+Hi Aaron,
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Mon, 9 Nov 2015 18:25:11 -0600 (CST), Aaron Sierra wrote:
+> Previously, the at24 driver would bail out in the case of a 16-bit
+> addressable EEPROM attached to an SMBus controller. This is because
+> SMBus block reads and writes don't map to I2C multi-byte reads and
+> writes when the offset portion is 2 bytes.
+> 
+> Instead of bailing out, this patch settles for functioning with single
+> byte read SMBus cycles. Writes can be block or single-byte, depending
+> on SMBus controller features.
+> 
+> Read access is not without some risk. Multiple SMBus cycles are
+> required to read even one byte. If the SMBus has multiple masters and
+> one accesses this EEPROM between the dummy address write and the
+> subsequent current-address-read cycle(s), this driver will receive
+> data from the wrong address.
+> 
+> Functionality has been tested with the following devices:
+> 
+>     AT24CM01 attached to Intel ISCH SMBus
+>     AT24C512 attached to Intel I801 SMBus
+> 
+> Read performance:
+>     3.6 KB/s with 32-byte* access
+> 
+>     *limited to 32-bytes by I2C_SMBUS_BLOCK_MAX.
+> 
+> Write performance:
+>     248 B/s with 1-byte page (default)
+>     3.9 KB/s with 128-byte* page (via platform data)
+> 
+>     *limited to 31-bytes by I2C_SMBUS_BLOCK_MAX - 1.
+> 
+> Signed-off-by: Nate Case <ncase@xes-inc.com>
+> Signed-off-by: Aaron Sierra <asierra@xes-inc.com>
+> ---
+>  v2 - Account for changes related to introduction of
+>       i2c_smbus_read_i2c_block_data_or_emulated()
+>  v3 - Consolidate three patches into one
+>     - Expand comments regarding SMBus multi-master read risks.
+>     - Rely on current-address-read for improved read performance (i.e. one
+>       dummy address write followed by multiple individual byte reads).
+>       This improves performance from 1.4 KiB/s to 3.6 KiB/s.
+>     - Use struct at24_data's writebuf instead of kzalloc-ing
+>     - Only limit write_max by 1-byte when accessing a 16-bit device with
+>       block writes instead of attempting to preserve a power-of-two.
+>     - Style fixes (indentation, parentheses, unnecessary masking, etc.)
+>  v4 - Address 16-bit safety in Kconfig
+>     - Set "count" to zero later in at24_smbus_read_block_data()
+>     - Fix over-80-columns issues in at24_eeprom_read()
+>     - Fix write_max off-by-one in at24_probe()
+>     - Check SMBus functionality needed for 16-bit device reads
+>     - Homogenize indentation of SMBus functionality checks for SMBus write
+>
+>  drivers/misc/eeprom/Kconfig |   5 +-
+>  drivers/misc/eeprom/at24.c  | 129 +++++++++++++++++++++++++++++++++++++++-----
+>  2 files changed, 119 insertions(+), 15 deletions(-)
 
-Hi Michael,
+This is a significant addition of code so feel free to add your name at
+the top of at24.c.
 
-> Do I understand it right, I can set the Master in slave mode and the
-> new slave get his own i2c-adresse?
+We're almost there:
 
-Yes, you can have your own address then. Note that I recently gave a
-talk about the slave framework. You can find the slides here:
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 5d7c090..3dfd2ed 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> (...)
+> @@ -527,10 +608,19 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  
+>  	/* Use I2C operations unless we're stuck with SMBus extensions. */
+>  	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+> -		if (chip.flags & AT24_FLAG_ADDR16)
+> -			return -EPFNOSUPPORT;
+> -
+> -		if (i2c_check_functionality(client->adapter,
+> +		if ((chip.flags & AT24_FLAG_ADDR16) &&
+> +		    i2c_check_functionality(client->adapter,
+> +				I2C_FUNC_SMBUS_READ_BYTE_DATA |
+> +				I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
 
-http://elinux.org/ELCE_2015_Presentations
+It is I2C_FUNC_SMBUS_READ_BYTE that you use, not
+I2C_FUNC_SMBUS_READ_BYTE_DATA.
 
-Search for my name there. And if you wait some more, the video will be
-there, too, which will be much more helpful than the slides only. And
-there is the regular documentation:
+> +			/*
+> +			 * We need SMBUS_WRITE_BYTE_DATA and
+> +			 * SMBUS_READ_BYTE_DATA to implement byte reads for
+> +			 * 16-bit address devices. This will be slow, but
+> +			 * better than nothing (e.g. read @ 3.6 KiB/s). It is
+> +			 * also unsafe in a multi-master topology.
+> +			 */
+> +			use_smbus = I2C_SMBUS_BYTE_DATA;
+> +		} else if (i2c_check_functionality(client->adapter,
+>  				I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+>  			use_smbus = I2C_SMBUS_I2C_BLOCK_DATA;
+>  		} else if (i2c_check_functionality(client->adapter,
+> (...)
+> @@ -598,8 +698,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  
+>  			if (write_max > io_limit)
+>  				write_max = io_limit;
+> -			if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
+> -				write_max = I2C_SMBUS_BLOCK_MAX;
+> +			if (use_smbus && write_max >= I2C_SMBUS_BLOCK_MAX)
+> +				write_max = I2C_SMBUS_BLOCK_MAX -
+> +					!!(chip.flags & AT24_FLAG_ADDR16);
 
-Documentation/i2c/slave-interface
+Beh. OK, it works, I will admit it's even kind of clever, but it also
+looks fragile and confusing to some degree. What is wrong with just
+spelling out the condition explicitly?
 
-> Say that, I can connect a Master from the outside, without this
-> leading to problems?
-> If the master switch to slave, then stops SCL? Or how does it work?
+			unsigned smbus_limit = (chip.flags & AT24_FLAG_ADDR16) ?
+					       I2C_SMBUS_BLOCK_MAX - 1 :
+					       I2C_SMBUS_BLOCK_MAX;
 
-I suggest getting the I2C specifications from the web and read about
-"multi master" and "bus arbitration" to understand how it works. Please
-note that true multi-master busses can in practice be tricky. Shall your
-mx6 also be master, or slave only?
+			if (use_smbus && write_max > smbus_limit)
+				write_max = smbus_limit;
 
-> Is the EEPROM simulator only available if I rewrote "i2c-IMX" drivers
-> to the slave support?
+This might not even be slower, and IMHO it is easier to understand.
 
-Yes.
+>  			at24->write_max = write_max;
+>  
+>  			/* buffer (data + address at the beginning) */
 
-> Does anyone know if anyone is working on this driver?
+I have no objection to this patch being merged into the upstream
+kernel, but ultimately this is Wolfram's call.
 
-I don't know of; but I put some more people on CC who regularly work on
-Freescale SoCs.
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-> Would it theoretically be enough to write 0x80 in the "I2Cx_I2CR"
-> register to set MSTA Bit to
-> slave mode. "Changing MSTA from 1 to 0 generates a Stop and selects Slave mode."
-> Or then disturbs the old driver?
-
-You need more to do this. You need to handle slave interrupts. See the
-documentation.
-
-Good luck,
-
-   Wolfram
-
-
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWQbILAAoJEBQN5MwUoCm2swIQALEHue4W14J5WnQUWwv8Q1gX
-7+2tCD49oQTiOv6OddZn1wgD/z2a+YVrMXmCFdC4ZVFysi32lJPLEvuEwGZU5fBO
-M/hdZh3x6Ppt96kDe24jNgctWxGma7z92P7PjySBoo8HRwvydn6j3iOIa5y2SXEN
-6StYEacph9K2WJZvApekKfrUvLLhXUUzyBPFyk7kaW5gIEcZ31on5K2bX67A2D9H
-gi3fvXoFsyGzb0h4ZcfXOt9OD/nPNiDqZNEJ10N8japZ0tRW6oTyBgzfVZo+uqk0
-Furz4+X7JOcfQKagjpCcZNquL6LSaz+YN+z2B32dKedvAPfIJjGP0/+XLi0DT7sL
-xHnnmzLb3yMENffYhGDYfBDL598MrRJC4KQA0rr4+b5uUQKjlgVnLp5eOyOLBz15
-QXNMSjYLRKRe2E0EAgpfedDRSiLrR64EKJ3zQgG7VlAX1RPnx5EkgcWHw0AQ86bq
-rMS64PeSjptIMpszgetLQaRwQpN7Mk8Av9OQ/VaOlPWZrw0NHSDzKEqBXCLou5Ub
-Ua1i7jSIDlWAOTTxytEzS9ZmMMcyZ6i4oTszv353ArIq0wrPhOvo8aIz+omK7J23
-Lh3/nMjvKly0fTEGeCypPlPdtIugy7SsGgmXdwR1SqnniJ94+pRcV6rkaHlEEHqW
-ohEcnGky4ZpKQFIk5gZJ
-=MCZz
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--
+-- 
+Jean Delvare
+SUSE L3 Support
