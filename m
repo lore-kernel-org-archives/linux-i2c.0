@@ -1,77 +1,70 @@
-From: "Interfax Online" <incoming@interfax.net>
-Subject: You have received fax, document 00000694254
-Date: Fri, 13 Nov 2015 14:51:04 +0530
-Message-ID: <d20c3744edc03334823ac07245932403@ozonepharma.com>
-Reply-To: "Interfax Online" <incoming@interfax.net>
+From: Olof Johansson <olof@lixom.net>
+Subject: Re: [PATCH] platform/chrome: Fix i2c-designware adapter name
+Date: Mon, 9 Nov 2015 19:43:59 -0800
+Message-ID: <20151110034359.GA11607@localhost>
+References: <1446548940-19739-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <20151103184959.GA4215@newt.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="b1_c371cf6c5982984c6e139d61bcdb7135"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from [198.15.101.122] ([198.15.101.122]:51936 "EHLO
-	9.04c7.securedservers.com" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1753056AbbKML7M (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Nov 2015 06:59:12 -0500
-Received: from ozonepharma by 9.04c7.securedservers.com with local (Exim 4.85)
-	(envelope-from <ozonepharma@9.04c7.securedservers.com>)
-	id 1ZxAXY-0006jA-Nb
-	for linux-i2c@vger.kernel.org; Fri, 13 Nov 2015 14:51:04 +0530
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:35725 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750854AbbKNFQQ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 14 Nov 2015 00:16:16 -0500
+Received: by pacej9 with SMTP id ej9so13310012pac.2
+        for <linux-i2c@vger.kernel.org>; Fri, 13 Nov 2015 21:16:15 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20151103184959.GA4215@newt.localdomain>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Jeremiah Mahler <jmmahler@gmail.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Dudley Du <dudl@cypress.com>, linux-i2c@vger.kernel.org
 
---b1_c371cf6c5982984c6e139d61bcdb7135
-Content-Type: text/plain; charset=us-ascii
+On Tue, Nov 03, 2015 at 10:49:59AM -0800, Jeremiah Mahler wrote:
+> Jarkko,
+> 
+> On Tue, Nov 03, 2015 at 01:09:00PM +0200, Jarkko Nikula wrote:
+> > Commit d80d134182ba ("i2c: designware: Move common probe code into
+> > i2c_dw_probe()") caused the I2C adapter lookup code here to fail for PCI
+> > enumerated i2c-designware because commit changed the adapter name but
+> > didn't update it here.
+> > 
+> > Fix the I2C adapter lookup by using the "Synopsys DesignWare I2C adapter"
+> > name.
+> > 
+> > Reported-by: Jeremiah Mahler <jmmahler@gmail.com>
+> > Fixes: d80d134182ba ("i2c: designware: Move common probe code into i2c_dw_probe()")
+> > Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> > ---
+> > Hi Jeremiah. This is the same diff I had in a reply to your bug report.
+> > Can you test does this fix work for you as I don't have the HW.
+> > ---
+> >  drivers/platform/chrome/chromeos_laptop.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
+> > index 02072749fff3..2b441e9ae593 100644
+> > --- a/drivers/platform/chrome/chromeos_laptop.c
+> > +++ b/drivers/platform/chrome/chromeos_laptop.c
+> > @@ -47,8 +47,8 @@ static const char *i2c_adapter_names[] = {
+> >  	"SMBus I801 adapter",
+> >  	"i915 gmbus vga",
+> >  	"i915 gmbus panel",
+> > -	"i2c-designware-pci",
+> > -	"i2c-designware-pci",
+> > +	"Synopsys DesignWare I2C adapter",
+> > +	"Synopsys DesignWare I2C adapter",
+> >  };
+> >  
+> >  /* Keep this enum consistent with i2c_adapter_names */
+> > -- 
+> > 2.6.2
+> > 
+> 
+> Yes, this patch fixes the problem.
+> 
+> Tested-by: Jeremiah Mahler <jmmahler@gmail.com>
 
-New incoming fax document.
-
-Please, download fax document attached to this email.
-
-Scanned in:            31 seconds
-Pages:                 7
-Scan quality:          500 DPI
-Scan date:             Thu, 12 Nov 2015 15:32:32 +0300
-From:                  Marshall Rush
-File name:             scanned00000694254.doc
-Filesize:              124 Kb
-
-Thanks for choosing Interfax!
-
-
---b1_c371cf6c5982984c6e139d61bcdb7135
-Content-Type: application/zip; name="scanned00000694254.zip"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=scanned00000694254.zip
-
-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
+Thanks, applied!
 
 
---b1_c371cf6c5982984c6e139d61bcdb7135--
+-Olof
