@@ -1,277 +1,65 @@
-From: Aaron Sierra <asierra@xes-inc.com>
-Subject: [PATCH v4] at24: Support SMBus read/write of 16-bit devices
-Date: Mon, 9 Nov 2015 18:25:11 -0600 (CST)
-Message-ID: <1982054415.93139.1447115111901.JavaMail.zimbra@xes-inc.com>
-References: <780683105.92691.1447114576924.JavaMail.zimbra@xes-inc.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH v2 1/2] i2c: mediatek: add i2c first write then read optimization
+Date: Tue, 10 Nov 2015 08:34:16 +0800
+Message-ID: <CAGS+omD08HPGz1-zRWArLWrrN0AMmh2T2dnoTfpZfo+s4u9P=Q@mail.gmail.com>
+References: <1447047839-5223-1-git-send-email-liguo.zhang@mediatek.com>
+ <1447047839-5223-2-git-send-email-liguo.zhang@mediatek.com> <CAHp75VfutRR0N0bGDYMjFr+nQGFnmuoiA2afvYfuZ2aOy=2qbQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from xes-mad.com ([216.165.139.218]:1041 "EHLO xes-mad.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750850AbbKJA0S (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 9 Nov 2015 19:26:18 -0500
-In-Reply-To: <780683105.92691.1447114576924.JavaMail.zimbra@xes-inc.com>
+Received: from mail-vk0-f50.google.com ([209.85.213.50]:35019 "EHLO
+	mail-vk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751062AbbKJAeg (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Nov 2015 19:34:36 -0500
+Received: by vkgy188 with SMTP id y188so4003863vkg.2
+        for <linux-i2c@vger.kernel.org>; Mon, 09 Nov 2015 16:34:36 -0800 (PST)
+In-Reply-To: <CAHp75VfutRR0N0bGDYMjFr+nQGFnmuoiA2afvYfuZ2aOy=2qbQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Christian Gmeiner <christian.gmeiner@gmail.com>, Nate Case <ncase@xes-inc.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Liguo Zhang <liguo.zhang@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, srv_heupstream <srv_heupstream@mediatek.com>, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, linux-mediatek@lists.infradead.org
 
-Previously, the at24 driver would bail out in the case of a 16-bit
-addressable EEPROM attached to an SMBus controller. This is because
-SMBus block reads and writes don't map to I2C multi-byte reads and
-writes when the offset portion is 2 bytes.
+On Mon, Nov 9, 2015 at 10:25 PM, Andy Shevchenko
+<andy.shevchenko@gmail.com> wrote:
+> On Mon, Nov 9, 2015 at 7:43 AM, Liguo Zhang <liguo.zhang@mediatek.com> wrote:
+>> For platform with auto restart support, between every transfer,
+>> i2c controller will trigger an interrupt and SW need to handle
+>> it to start new transfer. When doing write-then-read transfer,
+>> instead of restart mechanism, using WRRD mode to have controller
+>> send both transfer in one request to reduce latency.
+>
+>
+>> @@ -518,6 +529,16 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
+>>         if (ret)
+>>                 return ret;
+>>
+>> +       i2c->auto_restart = i2c->dev_comp->auto_restart;
+>> +
+>> +       /* checking if we can skip restart and optimize using WRRD mode */
+>> +       if (i2c->auto_restart && num == 2) {
+>> +               if (!(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
+>> +                   msgs[0].addr == msgs[1].addr) {
+>
+> Nitpick (optional):
+>
+> ((msgs[0].flags & msgs[1].flags) & I2C_M_RD)
+> ?
 
-Instead of bailing out, this patch settles for functioning with single
-byte read SMBus cycles. Writes can be block or single-byte, depending
-on SMBus controller features.
+IMHO, this makes the code less readable.
+Leave this to the compiler's optimizer.
 
-Read access is not without some risk. Multiple SMBus cycles are
-required to read even one byte. If the SMBus has multiple masters and
-one accesses this EEPROM between the dummy address write and the
-subsequent current-address-read cycle(s), this driver will receive
-data from the wrong address.
+-Dan
 
-Functionality has been tested with the following devices:
-
-    AT24CM01 attached to Intel ISCH SMBus
-    AT24C512 attached to Intel I801 SMBus
-
-Read performance:
-    3.6 KB/s with 32-byte* access
-
-    *limited to 32-bytes by I2C_SMBUS_BLOCK_MAX.
-
-Write performance:
-    248 B/s with 1-byte page (default)
-    3.9 KB/s with 128-byte* page (via platform data)
-
-    *limited to 31-bytes by I2C_SMBUS_BLOCK_MAX - 1.
-
-Signed-off-by: Nate Case <ncase@xes-inc.com>
-Signed-off-by: Aaron Sierra <asierra@xes-inc.com>
----
- v2 - Account for changes related to introduction of
-      i2c_smbus_read_i2c_block_data_or_emulated()
- v3 - Consolidate three patches into one
-    - Expand comments regarding SMBus multi-master read risks.
-    - Rely on current-address-read for improved read performance (i.e. one
-      dummy address write followed by multiple individual byte reads).
-      This improves performance from 1.4 KiB/s to 3.6 KiB/s.
-    - Use struct at24_data's writebuf instead of kzalloc-ing
-    - Only limit write_max by 1-byte when accessing a 16-bit device with
-      block writes instead of attempting to preserve a power-of-two.
-    - Style fixes (indentation, parentheses, unnecessary masking, etc.)
- v4 - Address 16-bit safety in Kconfig
-    - Set "count" to zero later in at24_smbus_read_block_data()
-    - Fix over-80-columns issues in at24_eeprom_read()
-    - Fix write_max off-by-one in at24_probe()
-    - Check SMBus functionality needed for 16-bit device reads
-    - Homogenize indentation of SMBus functionality checks for SMBus write
-
- drivers/misc/eeprom/Kconfig |   5 +-
- drivers/misc/eeprom/at24.c  | 129 +++++++++++++++++++++++++++++++++++++++-----
- 2 files changed, 119 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
-index 04f2e1f..cc0f86c 100644
---- a/drivers/misc/eeprom/Kconfig
-+++ b/drivers/misc/eeprom/Kconfig
-@@ -22,7 +22,10 @@ config EEPROM_AT24
- 
- 	  If you use this with an SMBus adapter instead of an I2C adapter,
- 	  full functionality is not available.  Only smaller devices are
--	  supported (24c16 and below, max 4 kByte).
-+	  supported via block reads (24c16 and below, max 4 kByte).
-+	  Larger devices that use 16-bit addresses will only work with
-+	  individual byte reads, which is very slow in general and is unsafe
-+	  in multi-master SMBus topologies.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called at24.
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 5d7c090..3dfd2ed 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -50,7 +50,7 @@
-  * Other than binding model, current differences from "eeprom" driver are
-  * that this one handles write access and isn't restricted to 24c02 devices.
-  * It also handles larger devices (32 kbit and up) with two-byte addresses,
-- * which won't work on pure SMBus systems.
-+ * which don't work without risks on pure SMBus systems.
-  */
- 
- struct at24_data {
-@@ -141,6 +141,87 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
- /*-------------------------------------------------------------------------*/
- 
- /*
-+ * Write a byte to an AT24 device using SMBus cycles.
-+ */
-+static inline s32 at24_smbus_write_byte_data(struct at24_data *at24,
-+	struct i2c_client *client, u16 offset, u8 value)
-+{
-+	if (!(at24->chip.flags & AT24_FLAG_ADDR16))
-+		return i2c_smbus_write_byte_data(client, offset, value);
-+
-+	/*
-+	 * Emulate I2C multi-byte write by using SMBus "write word"
-+	 * cycle.  We split up the 16-bit offset among the "command"
-+	 * byte and the first data byte.
-+	 */
-+	return i2c_smbus_write_word_data(client,
-+		offset >> 8, (value << 8) | (offset & 0xff));
-+}
-+
-+/*
-+ * Write block data to an AT24 device using SMBus cycles.
-+ */
-+static inline s32 at24_smbus_write_i2c_block_data(struct at24_data *at24,
-+	const struct i2c_client *client, u16 off, u8 len, const u8 *vals)
-+{
-+	s32 res;
-+
-+	if (!(at24->chip.flags & AT24_FLAG_ADDR16))
-+		return i2c_smbus_write_i2c_block_data(client, off, len, vals);
-+
-+	/* Insert extra address byte into data stream */
-+	at24->writebuf[0] = off & 0xff;
-+	memcpy(&at24->writebuf[1], vals, len);
-+
-+	res = i2c_smbus_write_i2c_block_data(client,
-+		off >> 8, len + 1, at24->writebuf);
-+
-+	return res;
-+}
-+
-+/*
-+ * Read block data from an AT24 device using SMBus cycles.
-+ */
-+static inline s32 at24_smbus_read_block_data(struct at24_data *at24,
-+	const struct i2c_client *client, u16 off, u8 len, u8 *vals)
-+{
-+	int count;
-+	s32 res;
-+
-+	if (!(at24->chip.flags & AT24_FLAG_ADDR16))
-+		return i2c_smbus_read_i2c_block_data_or_emulated(client,
-+				off, len, vals);
-+
-+	/*
-+	 * Emulate I2C multi-byte read by using SMBus "write byte" and
-+	 * "receive byte".  This is slightly unsafe since there is an
-+	 * additional STOP involved, which exposes the SMBus and (this
-+	 * device!) to takeover by another bus master. However, it's the
-+	 * only way to work on SMBus-only controllers when talking to
-+	 * EEPROMs with multi-byte addresses.
-+	 */
-+
-+	/* Address "dummy" write */
-+	res = i2c_smbus_write_byte_data(client, off >> 8, off & 0xff);
-+	if (res < 0)
-+		return res;
-+
-+	count = 0;
-+	do {
-+		/* Current Address Read */
-+		res = i2c_smbus_read_byte(client);
-+		if (res < 0)
-+			break;
-+
-+		*(vals++) = res;
-+		count++;
-+		len--;
-+	} while (len > 0);
-+
-+	return count;
-+}
-+
-+/*
-  * This routine supports chips which consume multiple I2C addresses. It
-  * computes the addressing information to be used for a given r/w request.
-  * Assumes that sanity checks for offset happened at sysfs-layer.
-@@ -229,8 +310,8 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	do {
- 		read_time = jiffies;
- 		if (at24->use_smbus) {
--			status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
--									   count, buf);
-+			status = at24_smbus_read_block_data(at24, client,
-+							    offset, count, buf);
- 		} else {
- 			status = i2c_transfer(client->adapter, msg, 2);
- 			if (status == 2)
-@@ -351,12 +432,12 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 		if (at24->use_smbus_write) {
- 			switch (at24->use_smbus_write) {
- 			case I2C_SMBUS_I2C_BLOCK_DATA:
--				status = i2c_smbus_write_i2c_block_data(client,
--						offset, count, buf);
-+				status = at24_smbus_write_i2c_block_data(at24,
-+						client, offset, count, buf);
- 				break;
- 			case I2C_SMBUS_BYTE_DATA:
--				status = i2c_smbus_write_byte_data(client,
--						offset, buf[0]);
-+				status = at24_smbus_write_byte_data(at24,
-+						client, offset, buf[0]);
- 				break;
- 			}
- 
-@@ -527,10 +608,19 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	/* Use I2C operations unless we're stuck with SMBus extensions. */
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
--		if (chip.flags & AT24_FLAG_ADDR16)
--			return -EPFNOSUPPORT;
--
--		if (i2c_check_functionality(client->adapter,
-+		if ((chip.flags & AT24_FLAG_ADDR16) &&
-+		    i2c_check_functionality(client->adapter,
-+				I2C_FUNC_SMBUS_READ_BYTE_DATA |
-+				I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
-+			/*
-+			 * We need SMBUS_WRITE_BYTE_DATA and
-+			 * SMBUS_READ_BYTE_DATA to implement byte reads for
-+			 * 16-bit address devices. This will be slow, but
-+			 * better than nothing (e.g. read @ 3.6 KiB/s). It is
-+			 * also unsafe in a multi-master topology.
-+			 */
-+			use_smbus = I2C_SMBUS_BYTE_DATA;
-+		} else if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
- 			use_smbus = I2C_SMBUS_I2C_BLOCK_DATA;
- 		} else if (i2c_check_functionality(client->adapter,
-@@ -549,7 +639,17 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
- 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
--		} else if (i2c_check_functionality(client->adapter,
-+		} else if ((chip.flags & AT24_FLAG_ADDR16) &&
-+			   i2c_check_functionality(client->adapter,
-+				I2C_FUNC_SMBUS_WRITE_WORD_DATA)) {
-+			/*
-+			 * We need SMBUS_WRITE_WORD_DATA to implement
-+			 * byte writes for 16-bit address devices.
-+			 */
-+			use_smbus_write = I2C_SMBUS_BYTE_DATA;
-+			chip.page_size = 1;
-+		} else if (!(chip.flags & AT24_FLAG_ADDR16) &&
-+			   i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
- 			use_smbus_write = I2C_SMBUS_BYTE_DATA;
- 			chip.page_size = 1;
-@@ -598,8 +698,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 			if (write_max > io_limit)
- 				write_max = io_limit;
--			if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
--				write_max = I2C_SMBUS_BLOCK_MAX;
-+			if (use_smbus && write_max >= I2C_SMBUS_BLOCK_MAX)
-+				write_max = I2C_SMBUS_BLOCK_MAX -
-+					!!(chip.flags & AT24_FLAG_ADDR16);
- 			at24->write_max = write_max;
- 
- 			/* buffer (data + address at the beginning) */
--- 
-1.9.1
+>
+>> +                       i2c->auto_restart = 0;
+>> +               }
+>> +       }
+>
+> --
+> With Best Regards,
+> Andy Shevchenko
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
