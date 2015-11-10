@@ -1,44 +1,55 @@
-From: Michael Bachmeier <michael.bachmeier.linux@gmail.com>
-Subject: =?UTF-8?Q?i2c_slave_support_f=C3=BCr_i=2Emx6?=
-Date: Tue, 10 Nov 2015 09:06:27 +0100
-Message-ID: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: designware platdrv and runtime pm?
+Date: Tue, 10 Nov 2015 10:42:11 +0200
+Message-ID: <5641ADE3.6060704@linux.intel.com>
+References: <20151109211503.GA3793@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ig0-f195.google.com ([209.85.213.195]:33970 "EHLO
-	mail-ig0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750893AbbKJIGa (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Nov 2015 03:06:30 -0500
-Received: by igbxf8 with SMTP id xf8so13542725igb.1
-        for <linux-i2c@vger.kernel.org>; Tue, 10 Nov 2015 00:06:30 -0800 (PST)
+Received: from mga11.intel.com ([192.55.52.93]:31468 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750899AbbKJImP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 10 Nov 2015 03:42:15 -0500
+In-Reply-To: <20151109211503.GA3793@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "David E. Box" <david.e.box@linux.intel.com>
 
-I am currently working with a I.mx6 quad-core-processor on Linux 3.19.
-I would like to implement the "I2C slave support", by Wolfram Sang, In
-this processor.
+On 09.11.2015 23:15, Wolfram Sang wrote:
+> Hi guys,
+>
+> while handling the merge conflict for the designware-platdrv, I noticed
+> an asymmetry in the runtime PM handling. Currently, code looks like
+> this:
+>
+> 	if (dev->pm_runtime_disabled) {
+> 		pm_runtime_forbid(&pdev->dev);
+> 	} else {
+> 		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+> 		pm_runtime_use_autosuspend(&pdev->dev);
+> 		pm_runtime_set_active(&pdev->dev);
+> 		pm_runtime_enable(&pdev->dev);
+> 	}
+>
+> 	r = i2c_dw_probe(dev);
+> 	if (r) {
+> 		pm_runtime_disable(&pdev->dev);
+> 		return r;
+> 	}
+>
+> But shouldn't the above error path (and the remove path) also take
+> dev->pm_runtime_disabled into account and act accordingly?
+>
+I think you are right. Which brings another question to my mind do we 
+need to have a patch to linux-stable too?
 
-For this purpose, I would have some comprehension questions.
+David: Your original commit 894acb2f823b ("i2c: designware: Add Intel 
+Baytrail PMIC I2C bus support") doesn't add pm_runtime_disabled test to 
+dw_i2c_remove(). I guess there is possibility power down the shared 
+controller by having CONFIG_I2C_DESIGNWARE_PLATFORM=m and then unloading 
+the driver?
 
-Do I understand it right, I can set the Master in slave mode and the
-new slave get his own i2c-adresse?
-Say that, I can connect a Master from the outside, without this
-leading to problems?
-If the master switch to slave, then stops SCL? Or how does it work?
-
-Is the EEPROM simulator only available if I rewrote "i2c-IMX" drivers
-to the slave support?
-
-Does anyone know if anyone is working on this driver?
-
-In the "i.MX 6Dual/6Quad Applications Processor Reference Manual",
-from freescale, on the page 1895 the "Hardware"-Slave Mode will be
-described.
-
-Would it theoretically be enough to write 0x80 in the "I2Cx_I2CR"
-register to set MSTA Bit to
-slave mode. "Changing MSTA from 1 to 0 generates a Stop and selects Slave mode."
-Or then disturbs the old driver?
-
-best regards
+-- 
+Jarkko
