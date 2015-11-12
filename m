@@ -1,77 +1,88 @@
-From: "Interfax Online" <incoming@interfax.net>
-Subject: You have received a new fax, document 00590081
-Date: Thu, 12 Nov 2015 10:26:09 +0400
-Message-ID: <779d169dec13236cbc20bd5bcc06f2ee@derevo-t.ru>
-Reply-To: "Interfax Online" <incoming@interfax.net>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH] i2c: tegra: fix a possible NULL dereference
+Date: Thu, 12 Nov 2015 13:29:23 +0100
+Message-ID: <20151112122923.GA31671@ulmo>
+References: <1447313163-23848-1-git-send-email-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="b1_55f1e09e34219fdd9a6470ad15bc4902"
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 134-0-115-157.ovz.vps.regruhosting.ru ([134.0.115.157]:50619
-	"EHLO 134-0-115-157.ovz.vps.regruhosting.ru" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753788AbbKLKkj (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Nov 2015 05:40:39 -0500
-Received: from admin by 134-0-115-157.ovz.vps.regruhosting.ru with local (Exim 4.76)
-	(envelope-from <mail@dialweb.ru>)
-	id 1ZwlKj-0005L6-2g
-	for linux-i2c@vger.kernel.org; Thu, 12 Nov 2015 10:26:09 +0400
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:33085 "EHLO
+	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752487AbbKLM30 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Nov 2015 07:29:26 -0500
+Content-Disposition: inline
+In-Reply-To: <1447313163-23848-1-git-send-email-clabbe.montjoie@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: gnurou@gmail.com, ldewangan@nvidia.com, swarren@wwwdotorg.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org
 
---b1_55f1e09e34219fdd9a6470ad15bc4902
+
+--WIyZ46R2i8wDzkSu
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-New incoming fax document.
+On Thu, Nov 12, 2015 at 08:26:03AM +0100, LABBE Corentin wrote:
+> of_match_device could return NULL, and so cause a NULL pointer
 
-Scanned fax document is attached to this email.
+No. There is no way that of_match_device() can ever fail. The driver
+core uses the same table to match the OF device to the driver, so the
+only case where of_match_device() would return NULL is if no match was
+found, in which case the tegra_i2c_probe() function would never have
+been called in the first place.
 
-Scan quality:          200 DPI
-Filesize:              185 Kb
-Sender:                Johnnie Durham
-Number of pages:       8
-Document name:         fax-00590081.doc
-Scanned:               Wed, 11 Nov 2015 16:47:07 +0300
-Scan duration:         13 seconds
+Thierry
 
-Thanks for using Interfax service!
+> dereference later at line 809:
+> i2c_dev->hw =3D match->data;
+>=20
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegr=
+a.c
+> index a0522fc..c803551 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -806,7 +806,10 @@ static int tegra_i2c_probe(struct platform_device *p=
+dev)
+> =20
+>  	if (pdev->dev.of_node) {
+>  		const struct of_device_id *match;
+> +
+>  		match =3D of_match_device(tegra_i2c_of_match, &pdev->dev);
+> +		if (!match)
+> +			return -ENODEV;
+>  		i2c_dev->hw =3D match->data;
+>  		i2c_dev->is_dvc =3D of_device_is_compatible(pdev->dev.of_node,
+>  						"nvidia,tegra20-i2c-dvc");
+> --=20
+> 2.4.10
+>=20
 
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
 
---b1_55f1e09e34219fdd9a6470ad15bc4902
-Content-Type: application/zip; name="fax-00590081.zip"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=fax-00590081.zip
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-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
-Yy5qc1BLBQYAAAAAAQABAEEAAAD/BQAAAAA=
+iQIcBAABCAAGBQJWRIYjAAoJEN0jrNd/PrOhbQcQAL0jAQVQhVwTtPNeHxdbsbqk
+m4Z9EyUE8C/J+l/mHTKnxiRFEww+EM7azrVS4ywMjuLxZxJJfBDdFf1rbCG96byl
+DKrGEi5r16dX8FJ3yD1mcLQxX75LNqK8T0QnZroN9HMHfivX81hejOsU8HMBfFwb
+PC3xQFHH0Kd54qmWwUz9O2bSBPeiNf+lucVSxyCpYGjbXCCY9jbloYYV0dwjIu4H
+8HliRYtAOknnl7UaDnq1Osei0JFggidA5SLg4+CFqsSPPKf5Rhm3ZzAGyK/5EbQv
+cv+OfjTzMNhKG9T8PL9g6Z1z+CGYDbht+gXPEG8rFOgA7aTNv8MyK2BYPsomsVnW
+j24Udl5rzMg8Lh2o7Epgaa5dOWj/n6ltIH5TidkpUjI3SJYGdmDPZ9kb3EDcqC2k
+ZK12+3elYRT1ZnnPy4DYqUAlZvpCpbpTBVZQYlrwvuZAS7yj8JmmRt/OL1vY8Ok+
+oJs+eIut4Dmy0xqeZ5yFBkwzggj64+jZLf16ERb6ZqzUQttt/FzEpu1JStgBVoSz
+JrLfgHi3iPTcungHRM5xEfgshtAfwGdGF/jhBlhg0bEzk5BZaZyXtaMbA6Zmre4F
+SlG8PtdI9OYr6E9iXyP05ShR518aIuqZ0whD0jW2fubhoCyP0Y/cqJ7gdkwaTQjW
+Aaxp0a72O21wrORE65G1
+=45KG
+-----END PGP SIGNATURE-----
 
-
---b1_55f1e09e34219fdd9a6470ad15bc4902--
+--WIyZ46R2i8wDzkSu--
