@@ -1,91 +1,92 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH] i2c: tegra: fix a possible NULL dereference
-Date: Thu, 12 Nov 2015 14:55:49 +0100
-Message-ID: <20151112135549.GB1131@ulmo>
-References: <1447313163-23848-1-git-send-email-clabbe.montjoie@gmail.com>
- <20151112122923.GA31671@ulmo>
- <564496E8.60106@nvidia.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH v2 00/10] i2c: rcar: tackle race conditions in the driver
+Date: Thu, 12 Nov 2015 15:31:45 +0100
+Message-ID: <1447338715-9955-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:35987 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752791AbbKLNzw (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Nov 2015 08:55:52 -0500
-Content-Disposition: inline
-In-Reply-To: <564496E8.60106@nvidia.com>
+Received: from sauhun.de ([89.238.76.85]:55543 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751048AbbKLOl2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 12 Nov 2015 09:41:28 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: LABBE Corentin <clabbe.montjoie@gmail.com>, gnurou@gmail.com, ldewangan@nvidia.com, swarren@wwwdotorg.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 
+Hello RCar Fans!
 
---Pd0ReVV5GZGQvF3a
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+So, here is V2 of this series. Thanks to Geert's MSTP clock manipulation
+series, I could finally reproduce something which looks like the issues Laurent
+was seeing with his Koelsch board. The outcome is Patch 1/10 which fixes also
+issues reported by Morimoto-san using a Salvator board. I tested these patches
+with my Lager and Salvator board (latter one with scope) and Magnus' Koelsch
+via remote connection. A branch for testing can be found here:
 
-On Thu, Nov 12, 2015 at 01:40:56PM +0000, Jon Hunter wrote:
->=20
-> On 12/11/15 12:29, Thierry Reding wrote:
-> > * PGP Signed by an unknown key
-> >=20
-> > On Thu, Nov 12, 2015 at 08:26:03AM +0100, LABBE Corentin wrote:
-> >> of_match_device could return NULL, and so cause a NULL pointer
-> >=20
-> > No. There is no way that of_match_device() can ever fail. The driver
-> > core uses the same table to match the OF device to the driver, so the
-> > only case where of_match_device() would return NULL is if no match was
-> > found, in which case the tegra_i2c_probe() function would never have
-> > been called in the first place.
->=20
-> Right and so ...
->=20
-> >> dereference later at line 809:
-> >> i2c_dev->hw =3D match->data;
-> >>
-> >> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
-> >> ---
-> >>  drivers/i2c/busses/i2c-tegra.c | 3 +++
-> >>  1 file changed, 3 insertions(+)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-t=
-egra.c
-> >> index a0522fc..c803551 100644
-> >> --- a/drivers/i2c/busses/i2c-tegra.c
-> >> +++ b/drivers/i2c/busses/i2c-tegra.c
-> >> @@ -806,7 +806,10 @@ static int tegra_i2c_probe(struct platform_device=
- *pdev)
-> >> =20
-> >>  	if (pdev->dev.of_node) {
->=20
-> Can we get rid of this if-statement?
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/rcar-i2c-rework-v2
 
-Yeah, I guess we can drop that, too. It's been a long time since Tegra
-was converted to OF only.
+Changes since V1:
+* new patch 1/10 to ensure clock is always on
+* rebased patch 2/10 to the new patch
+* some patch descriptions slightly reworded
 
-Thierry
+Please test, test, test :)
 
---Pd0ReVV5GZGQvF3a
-Content-Type: application/pgp-signature; name="signature.asc"
+   Wolfram
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Here is the description of the V1 series for those who missed it:
 
-iQIcBAABCAAGBQJWRJplAAoJEN0jrNd/PrOhpU4P/2xzfOSylcOH06AHmnFOPyx6
-a5IvlC9pouSGClWVftpfcgERauzCJOqaM+Rp6OGCvj7e3ox3iXgP6Iq08GrGYdJH
-fU3qV2j8N3MOIo5hoYJlncrNS+cTeql9766fBRd1BbdTiT23EC50jShZzJb0pgRc
-kxTynQ+zHjrX/CqX9cp1aRKUMmRFopG8VLNLzGJ9ktdHhmxYLCJoVzY4pM+Qz8BS
-VZzU3/0z/ump3LQ/sB3YH8AB7Rj96wSOR4Z6J2mU/9ZW10ekHsROtbIixqPvtcU8
-IokAhm7DzetVeCBZJZU9OgAOn8tTWFd0vLcC+YrXfRmUv4gXdOSYlQzpsRWOOiVW
-3Y8QVUFM9q2gw8+6i8mWqLNc24XlLm7koqJlDrxsVgDRYdSeJs6UzssGjjZyJAt6
-vXezyu/7jPgASz9ZJ8Hryz9diWTc6/LM7L5RGledARbYnWSTde8Ytf6B72L68R7X
-QV5n4TyoJkeH4JQb/Cj5cjlF3ac2ZbVXJut+pOdoK1bTi+26Z+Tb/Rddk+Szn73S
-HGbZ3XR2FTJS6pCRu8P3Glj30hYtLDSr6d17YrKMnaujfRsfjjjubwb8YXqA3Rvn
-PqLTY7yDepQvKqebr4jHEAq+RiUXCeUXwCrVgrQvp/iMuuMqtsL22M/iPAI3tgIX
-GQxfMA9pt5ItAnhDwDjl
-=ytq8
------END PGP SIGNATURE-----
+Two issues people have seen with the i2c-rcar driver was:
 
---Pd0ReVV5GZGQvF3a--
+a) immediately restarted messages after NACK from client
+b) duplicated data bytes in messages
+
+Some people already worked on those and had a tough time because it was hard to
+reproduce these issues on non-customer setup. Luckily, I somewhen had a state
+where the first transfer after boot would always show the above issues on a
+plain Renesas Lager board. When measuring, I found a third issue thanks to my
+new tool 'i2ctransfer' (and thanks to projects like sigrok and OpenLogicSniffer,
+of course. Thank you very much!):
+
+c) after read message, no repeated start was sent, but stop + start.
+
+Due to some unlucky design choices in the IP core, it has some race windows
+which can cause problems if interrupts get delayed. Also, for every new message
+in one transfer, context switches between interrupt and process were needed.
+
+So I refactored the driver to setup new messages in interrupt context, too.
+This avoids the race for b) because we are now setting up the new message
+before we release the i2c bus clock (before we released the clock and set up
+the message in process context). c) is also fixed, this was not a race but a
+bug in the state handling. a) however is not fixed 100% :( We have the race
+window as small as possible now when utilizing interrupts, so it is an
+improvement and worked for my test cases well. There were experiments by me and
+Renesas engineers to use polling to prevent the issue but this caused other
+side effects, sadly. So, let's improve the situation now and let's see where we
+get.
+
+I did quite some lab testing here and also verified that slave support does not
+suffer from these changes. However, I'd really appreciate if people could give
+this real-world-testing which is always different.
+
+Please have a look, a test, etc...
+
+Thanks,
+
+   Wolfram
+
+Wolfram Sang (10):
+  i2c: rcar: make sure clocks are on when doing clock calculation
+  i2c: rcar: rework hw init
+  i2c: rcar: remove unused IOERROR state
+  i2c: rcar: remove spinlock
+  i2c: rcar: refactor setup of a msg
+  i2c: rcar: init new messages in irq
+  i2c: rcar: don't issue stop when HW does it automatically
+  i2c: rcar: check master irqs before slave irqs
+  i2c: rcar: revoke START request early
+  i2c: rcar: clean up after refactoring
+
+ drivers/i2c/busses/i2c-rcar.c | 218 +++++++++++++++++-------------------------
+ 1 file changed, 87 insertions(+), 131 deletions(-)
+
+-- 
+2.1.4
