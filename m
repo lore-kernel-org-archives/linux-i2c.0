@@ -1,132 +1,79 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: fix a possible NULL dereference
-Date: Thu, 12 Nov 2015 17:14:13 +0100
-Message-ID: <20151112161413.GB3913@ulmo>
-References: <1447313163-23848-1-git-send-email-clabbe.montjoie@gmail.com>
- <20151112122923.GA31671@ulmo>
- <20151112125422.GA3758@Red>
- <20151112132837.GF31671@ulmo>
- <20151112134519.GJ24008@pengutronix.de>
- <20151112135500.GA1131@ulmo>
- <20151112145458.GB3758@Red>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20151112145458.GB3758@Red>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: LABBE Corentin <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, LABBE Corentin <montjoie.mailing-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c: rcar: handle difference in setting up non-first message
+Date: Thu, 12 Nov 2015 18:36:29 +0100
+Message-ID: <1447349789-24252-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Signed-off-by: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
+Signed-off-by: Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/i2c-rcar.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---CdrF4e02JqNVZeln
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index ef963d195a4eb9..b1aea21755f84d 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -92,6 +92,7 @@
+ #define RCAR_IRQ_ACK_RECV	(~(MAT | MDR) & 0xFF)
+ 
+ #define ID_LAST_MSG	(1 << 0)
++#define ID_FIRST_MSG	(1 << 1)
+ #define ID_DONE		(1 << 2)
+ #define ID_ARBLOST	(1 << 3)
+ #define ID_NACK		(1 << 4)
+@@ -254,13 +255,22 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+ 	int read = !!rcar_i2c_is_recv(priv);
+ 
+ 	priv->pos = 0;
+-	priv->flags = 0;
+ 	if (priv->msgs_left == 1)
+ 		rcar_i2c_flags_set(priv, ID_LAST_MSG);
+ 
+ 	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | read);
+-	rcar_i2c_write(priv, ICMSR, 0);
+-	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++	/*
++	 * We don't have a testcase but the HW engineers say that the write order
++	 * of ICMSR and ICMCR depends on whether we issue START or REP_START. Since
++	 * it didn't cause a drawback for me, let's rather be safe than sorry.
++	 */
++	if (rcar_i2c_flags_has(priv, ID_FIRST_MSG)) {
++		rcar_i2c_write(priv, ICMSR, 0);
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++	} else {
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++		rcar_i2c_write(priv, ICMSR, 0);
++	}
+ 	rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
+ }
+ 
+@@ -268,6 +278,7 @@ static void rcar_i2c_next_msg(struct rcar_i2c_priv *priv)
+ {
+ 	priv->msg++;
+ 	priv->msgs_left--;
++	priv->flags = 0;
+ 	rcar_i2c_prepare_msg(priv);
+ }
+ 
+@@ -486,10 +497,10 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 		}
+ 	}
+ 
+-	/* init data */
++	/* init first message */
+ 	priv->msg = msgs;
+ 	priv->msgs_left = num;
+-
++	priv->flags = ID_FIRST_MSG;
+ 	rcar_i2c_prepare_msg(priv);
+ 
+ 	time_left = wait_event_timeout(priv->wait,
+-- 
+2.1.4
 
-On Thu, Nov 12, 2015 at 03:54:58PM +0100, LABBE Corentin wrote:
-> On Thu, Nov 12, 2015 at 02:55:00PM +0100, Thierry Reding wrote:
-> > On Thu, Nov 12, 2015 at 02:45:20PM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> > > On Thu, Nov 12, 2015 at 02:28:37PM +0100, Thierry Reding wrote:
-> > > > On Thu, Nov 12, 2015 at 01:54:22PM +0100, LABBE Corentin wrote:
-> > > > > On Thu, Nov 12, 2015 at 01:29:23PM +0100, Thierry Reding wrote:
-> > > > > > On Thu, Nov 12, 2015 at 08:26:03AM +0100, LABBE Corentin wrote:
-> > > > > > > of_match_device could return NULL, and so cause a NULL pointer
-> > > > > >=20
-> > > > > > No. There is no way that of_match_device() can ever fail. The d=
-river
-> > > > > > core uses the same table to match the OF device to the driver, =
-so the
-> > > > > > only case where of_match_device() would return NULL is if no ma=
-tch was
-> > > > > > found, in which case the tegra_i2c_probe() function would never=
- have
-> > > > > > been called in the first place.
-> > > > > >=20
-> > > > > > Thierry
-> > > > > >=20
-> > > > >=20
-> > > > > In a parallel thread for i2c-rcar, the conclusion was different.
-> > > > > https://lkml.org/lkml/2015/11/12/83
-> > > >=20
-> > > > The conclusion was the same: there should be no case where this hap=
-pens.
-> > > > The example that Uwe gave is hypothetical and not valid DT in the f=
-irst
-> > > > place. So instead of chickening out I think it'd be better to just =
-crash
-> > > > to make sure people fix the DT.
-> > >=20
-> > > It depends in your trust in the DT. Just because it's not advisable to
-> > > do something that is not documented usually isn't a good excuse to not
-> > > handle broken input. That't the case for webserver requests, arguments
-> > > to system calls and several more. I admit DT is a bit special because
-> > > you have to assume it's trusted, but still handling errors in a sane =
-way
-> > > is IMHO nice.
-> >=20
-> > Given that it's supposed to be provided by firmware and possibly from a
-> > ROM, crashing might be a better motivation for fixing it than erroring
-> > out, which people might just ignore or not notice until it's too late.
-> >=20
-> > > > On a side-note I think that platform_match() should be stricter and=
- do
-> > > > something like this instead:
-> > > >=20
-> > > > 	if (dev->of_node) {
-> > > > 		if (of_driver_match_device(dev, drv))
-> > > > 			return 1;
-> > > >=20
-> > > > 		return 0;
-> > > > 	}
-> > > That's equivalent to
-> > >=20
-> > > 	if (dev->of_node)
-> > > 		return of_driver_match_device(dev, drv);
-> > >=20
-> > > and was already suggested in the thread referenced from my reply to
-> > > http://article.gmane.org/gmane.linux.kernel/2083641 :-)
-> >=20
-> > Ah, too many cross-reference =3D) FWIW:
-> >=20
-> > Acked-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> >=20
->=20
-> Just for be sure, since the thread goes in lot of direction, you ack my p=
-atch ?
-> Perhaps is it better that I resent a version which use of_device_get_matc=
-h_data() ?
-
-No, the Acked-by was for Uwe's proposal to modify platform_match(). I
-think if we want to gracefully handle these cases, then the right way to
-do so is by having the driver core not fallback to name matches for
-devices instantiated from device tree.
-
-Sorry for being unclear.
-
-Thierry
-
---CdrF4e02JqNVZeln
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJWRLrVAAoJEN0jrNd/PrOhnKMQAK4FzhwxJK3DO+49HUnpy1vf
-kjgKdztiDwSDr6aCVHgxwmwqcP8DN8Bo3uK4/MZDH40bwUEqsOIZckHemU9D9Awg
-7v5MpKlH5ein3rl+x77m9xRHkzWs8rArC9ro5M/2JhnQ/isRzLdtY8+umOMquFDw
-RsKN/i68OA+FnyFxiuaczayRQoSnPOqyv2qsmA7kahJGcPzitYSimPTRiTyCF7Ov
-yewbK79rfo2jMvh4mF7K9aH29Uo7BxibzOWaHEb4As8wKNogIehRiYdUmQoHs+DS
-yDrNiM3Cfn93CQ9rpznWpm3lQcnjrtcjt3OcLjqHso5B1I5Y0I0tJhmp+Vd8Ygvn
-wYjPiPHrJXG3HzoZ2s3qyvFeIjMtl1XnvbbsrzUFyB4dcs/sJlCOuErllVFRASqM
-WncMMdSX/jt8pCUSNEE9XBOlzrQCmUVBWIGwqplN2SFDAazJk2q/S6sQMikDwCR8
-KRIWW3XwnEx+Onqa9iDDG+I9ZqiK8icXh2YLveiozHIxCCccYOjW4nCtVSevLd53
-GNCTdCILDlX1qwLnVzSC3UoFtL9E7gKn+dxyiaY5/CztoVFxB+RHmkL81LwkobzI
-e4W6HDcXhyyZFigPVTOcnYH0AzBt9KO0xg1s6i8YDsU3aEq0uSJkjSYRD0UoZAZc
-bb/tBXLSZx8I4nDczyJA
-=BC+q
------END PGP SIGNATURE-----
-
---CdrF4e02JqNVZeln--
