@@ -1,105 +1,108 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 10/10] i2c: rcar: clean up after refactoring
-Date: Thu, 12 Nov 2015 15:43:19 +0100
-Message-ID: <1447339399-10125-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+Subject: Re: [PATCH] i2c: tegra: fix a possible NULL dereference
+Date: Thu, 12 Nov 2015 15:54:58 +0100
+Message-ID: <20151112145458.GB3758@Red>
+References: <1447313163-23848-1-git-send-email-clabbe.montjoie@gmail.com>
+ <20151112122923.GA31671@ulmo>
+ <20151112125422.GA3758@Red>
+ <20151112132837.GF31671@ulmo>
+ <20151112134519.GJ24008@pengutronix.de>
+ <20151112135500.GA1131@ulmo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f48.google.com ([74.125.82.48]:38071 "EHLO
+	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753364AbbKLOzD (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Nov 2015 09:55:03 -0500
+Content-Disposition: inline
+In-Reply-To: <20151112135500.GA1131@ulmo>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, LABBE Corentin <montjoie.mailing@gmail.com>, gnurou@gmail.com, ldewangan@nvidia.com, swarren@wwwdotorg.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Thu, Nov 12, 2015 at 02:55:00PM +0100, Thierry Reding wrote:
+> On Thu, Nov 12, 2015 at 02:45:20PM +0100, Uwe Kleine-K=F6nig wrote:
+> > On Thu, Nov 12, 2015 at 02:28:37PM +0100, Thierry Reding wrote:
+> > > On Thu, Nov 12, 2015 at 01:54:22PM +0100, LABBE Corentin wrote:
+> > > > On Thu, Nov 12, 2015 at 01:29:23PM +0100, Thierry Reding wrote:
+> > > > > On Thu, Nov 12, 2015 at 08:26:03AM +0100, LABBE Corentin wrot=
+e:
+> > > > > > of_match_device could return NULL, and so cause a NULL poin=
+ter
+> > > > >=20
+> > > > > No. There is no way that of_match_device() can ever fail. The=
+ driver
+> > > > > core uses the same table to match the OF device to the driver=
+, so the
+> > > > > only case where of_match_device() would return NULL is if no =
+match was
+> > > > > found, in which case the tegra_i2c_probe() function would nev=
+er have
+> > > > > been called in the first place.
+> > > > >=20
+> > > > > Thierry
+> > > > >=20
+> > > >=20
+> > > > In a parallel thread for i2c-rcar, the conclusion was different=
+=2E
+> > > > https://lkml.org/lkml/2015/11/12/83
+> > >=20
+> > > The conclusion was the same: there should be no case where this h=
+appens.
+> > > The example that Uwe gave is hypothetical and not valid DT in the=
+ first
+> > > place. So instead of chickening out I think it'd be better to jus=
+t crash
+> > > to make sure people fix the DT.
+> >=20
+> > It depends in your trust in the DT. Just because it's not advisable=
+ to
+> > do something that is not documented usually isn't a good excuse to =
+not
+> > handle broken input. That't the case for webserver requests, argume=
+nts
+> > to system calls and several more. I admit DT is a bit special becau=
+se
+> > you have to assume it's trusted, but still handling errors in a san=
+e way
+> > is IMHO nice.
+>=20
+> Given that it's supposed to be provided by firmware and possibly from=
+ a
+> ROM, crashing might be a better motivation for fixing it than errorin=
+g
+> out, which people might just ignore or not notice until it's too late=
+=2E
+>=20
+> > > On a side-note I think that platform_match() should be stricter a=
+nd do
+> > > something like this instead:
+> > >=20
+> > > 	if (dev->of_node) {
+> > > 		if (of_driver_match_device(dev, drv))
+> > > 			return 1;
+> > >=20
+> > > 		return 0;
+> > > 	}
+> > That's equivalent to
+> >=20
+> > 	if (dev->of_node)
+> > 		return of_driver_match_device(dev, drv);
+> >=20
+> > and was already suggested in the thread referenced from my reply to
+> > http://article.gmane.org/gmane.linux.kernel/2083641 :-)
+>=20
+> Ah, too many cross-reference =3D) FWIW:
+>=20
+> Acked-by: Thierry Reding <treding@nvidia.com>
+>=20
 
-Update the comments to match current behaviour. Shorten some comments.
-Update copyrights.
+Just for be sure, since the thread goes in lot of direction, you ack my=
+ patch ?
+Perhaps is it better that I resent a version which use of_device_get_ma=
+tch_data() ?
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 32 +++++++++-----------------------
- 1 file changed, 9 insertions(+), 23 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 64a01c0177463a..ef963d195a4eb9 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -1,7 +1,8 @@
- /*
-  * Driver for the Renesas RCar I2C unit
-  *
-- * Copyright (C) 2014 Wolfram Sang <wsa@sang-engineering.com>
-+ * Copyright (C) 2014-15 Wolfram Sang <wsa@sang-engineering.com>
-+ * Copyright (C) 2011-2015 Renesas Electronics Corporation
-  *
-  * Copyright (C) 2012-14 Renesas Solutions Corp.
-  * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-@@ -9,9 +10,6 @@
-  * This file is based on the drivers/i2c/busses/i2c-sh7760.c
-  * (c) 2005-2008 MSC Vertriebsges.m.b.H, Manuel Lauss <mlau@msc-ge.com>
-  *
-- * This file used out-of-tree driver i2c-rcar.c
-- * Copyright (C) 2011-2012 Renesas Electronics Corporation
-- *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; version 2 of the License.
-@@ -245,9 +243,7 @@ scgd_find:
- 	dev_dbg(dev, "clk %d/%d(%lu), round %u, CDF:0x%x, SCGD: 0x%x\n",
- 		scl, bus_speed, clk_get_rate(priv->clk), round, cdf, scgd);
- 
--	/*
--	 * keep icccr value
--	 */
-+	/* keep icccr value */
- 	priv->icccr = scgd << cdf_width | cdf;
- 
- 	return 0;
-@@ -282,11 +278,7 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
- {
- 	struct i2c_msg *msg = priv->msg;
- 
--	/*
--	 * FIXME
--	 * sometimes, unknown interrupt happened.
--	 * Do nothing
--	 */
-+	/* FIXME: sometimes, unknown interrupt happened. Do nothing */
- 	if (!(msr & MDE))
- 		return 0;
- 
-@@ -332,28 +324,22 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- {
- 	struct i2c_msg *msg = priv->msg;
- 
--	/*
--	 * FIXME
--	 * sometimes, unknown interrupt happened.
--	 * Do nothing
--	 */
-+	/* FIXME: sometimes, unknown interrupt happened. Do nothing */
- 	if (!(msr & MDR))
- 		return 0;
- 
- 	if (msr & MAT) {
- 		/* Address transfer phase finished, but no data at this point. */
- 	} else if (priv->pos < msg->len) {
--		/*
--		 * get received data
--		 */
-+		/* get received data */
- 		msg->buf[priv->pos] = rcar_i2c_read(priv, ICRXTX);
- 		priv->pos++;
- 	}
- 
- 	/*
--	 * If next received data is the _LAST_,
--	 * go to STOP phase,
--	 * otherwise, go to DATA phase.
-+	 * If next received data is the _LAST_, go to STOP phase. Might be
-+	 * overwritten by REP START when setting up a new msg. Not elegant
-+	 * but the only stable sequence for REP START I have found so far.
- 	 */
- 	if (priv->pos + 1 >= msg->len)
- 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
--- 
-2.1.4
-
+Regards
