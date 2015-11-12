@@ -1,71 +1,132 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 04/10] i2c: rcar: remove spinlock
-Date: Thu, 12 Nov 2015 16:52:36 +0100
-Message-ID: <20151112155235.GA11070@katana>
-References: <1447338715-9955-1-git-send-email-wsa@the-dreams.de>
- <1447338715-9955-5-git-send-email-wsa@the-dreams.de>
- <5644AA7B.6090802@cogentembedded.com>
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: fix a possible NULL dereference
+Date: Thu, 12 Nov 2015 17:14:13 +0100
+Message-ID: <20151112161413.GB3913@ulmo>
+References: <1447313163-23848-1-git-send-email-clabbe.montjoie@gmail.com>
+ <20151112122923.GA31671@ulmo>
+ <20151112125422.GA3758@Red>
+ <20151112132837.GF31671@ulmo>
+ <20151112134519.GJ24008@pengutronix.de>
+ <20151112135500.GA1131@ulmo>
+ <20151112145458.GB3758@Red>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:56179 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752324AbbKLPwm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 12 Nov 2015 10:52:42 -0500
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5644AA7B.6090802@cogentembedded.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20151112145458.GB3758@Red>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: LABBE Corentin <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, LABBE Corentin <montjoie.mailing-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=us-ascii
+--CdrF4e02JqNVZeln
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 12, 2015 at 06:04:27PM +0300, Sergei Shtylyov wrote:
-> Hello.
+On Thu, Nov 12, 2015 at 03:54:58PM +0100, LABBE Corentin wrote:
+> On Thu, Nov 12, 2015 at 02:55:00PM +0100, Thierry Reding wrote:
+> > On Thu, Nov 12, 2015 at 02:45:20PM +0100, Uwe Kleine-K=C3=B6nig wrote:
+> > > On Thu, Nov 12, 2015 at 02:28:37PM +0100, Thierry Reding wrote:
+> > > > On Thu, Nov 12, 2015 at 01:54:22PM +0100, LABBE Corentin wrote:
+> > > > > On Thu, Nov 12, 2015 at 01:29:23PM +0100, Thierry Reding wrote:
+> > > > > > On Thu, Nov 12, 2015 at 08:26:03AM +0100, LABBE Corentin wrote:
+> > > > > > > of_match_device could return NULL, and so cause a NULL pointer
+> > > > > >=20
+> > > > > > No. There is no way that of_match_device() can ever fail. The d=
+river
+> > > > > > core uses the same table to match the OF device to the driver, =
+so the
+> > > > > > only case where of_match_device() would return NULL is if no ma=
+tch was
+> > > > > > found, in which case the tegra_i2c_probe() function would never=
+ have
+> > > > > > been called in the first place.
+> > > > > >=20
+> > > > > > Thierry
+> > > > > >=20
+> > > > >=20
+> > > > > In a parallel thread for i2c-rcar, the conclusion was different.
+> > > > > https://lkml.org/lkml/2015/11/12/83
+> > > >=20
+> > > > The conclusion was the same: there should be no case where this hap=
+pens.
+> > > > The example that Uwe gave is hypothetical and not valid DT in the f=
+irst
+> > > > place. So instead of chickening out I think it'd be better to just =
+crash
+> > > > to make sure people fix the DT.
+> > >=20
+> > > It depends in your trust in the DT. Just because it's not advisable to
+> > > do something that is not documented usually isn't a good excuse to not
+> > > handle broken input. That't the case for webserver requests, arguments
+> > > to system calls and several more. I admit DT is a bit special because
+> > > you have to assume it's trusted, but still handling errors in a sane =
+way
+> > > is IMHO nice.
+> >=20
+> > Given that it's supposed to be provided by firmware and possibly from a
+> > ROM, crashing might be a better motivation for fixing it than erroring
+> > out, which people might just ignore or not notice until it's too late.
+> >=20
+> > > > On a side-note I think that platform_match() should be stricter and=
+ do
+> > > > something like this instead:
+> > > >=20
+> > > > 	if (dev->of_node) {
+> > > > 		if (of_driver_match_device(dev, drv))
+> > > > 			return 1;
+> > > >=20
+> > > > 		return 0;
+> > > > 	}
+> > > That's equivalent to
+> > >=20
+> > > 	if (dev->of_node)
+> > > 		return of_driver_match_device(dev, drv);
+> > >=20
+> > > and was already suggested in the thread referenced from my reply to
+> > > http://article.gmane.org/gmane.linux.kernel/2083641 :-)
+> >=20
+> > Ah, too many cross-reference =3D) FWIW:
+> >=20
+> > Acked-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> >=20
 >=20
-> On 11/12/2015 5:31 PM, Wolfram Sang wrote:
->=20
-> >From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> >
-> >After making sure to reinit the HW and clear interrupts in the timeout
-> >case, we know that interrupts are always disabled in the sections
-> >protected by the spinlock.
->=20
->    What about SMP? Spinlocks are mostly necessary for the SMP support, th=
-eir
-> tole isn't limited to disabling interrupts...
+> Just for be sure, since the thread goes in lot of direction, you ack my p=
+atch ?
+> Perhaps is it better that I resent a version which use of_device_get_matc=
+h_data() ?
 
-We have per-adapter locks in the core. Once a transfer is started, you
-can't access the adapter unless the transfer is finished. But then, all
-interrupts are off again.
+No, the Acked-by was for Uwe's proposal to modify platform_match(). I
+think if we want to gracefully handle these cases, then the right way to
+do so is by having the driver core not fallback to name matches for
+devices instantiated from device tree.
 
+Sorry for being unclear.
 
---9jxsPFA5p3P2qPhR
+Thierry
+
+--CdrF4e02JqNVZeln
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v2
 
-iQIcBAEBAgAGBQJWRLXDAAoJEBQN5MwUoCm2rNYP/0ofl+0WTTl0ZBlpiRmSopKY
-6g0RYZnhsGTfHa9uGgdLwZicp4za9bwkai8KnirHOJUOFpLSuUQ7kcf0Tv6YJB9g
-6Vvav47Awn2KXfhIazCK+2RktKdzd/4gqrGVUTXmwKOdQYG7mz5HKvowtuOQAf7m
-TQ2YG9aEfnhyHkZzGgfewpPuFVtbrnxISlWQLIQWGTmT0TdvcpJXyDQZH/3lHs/3
-xgfS9P8dYwxs1mwONbTRoKorgnJ5aZCiioBlq7LJNC2RJJufrS7junXYF4Vu2gbg
-uvUKVciqsa+kBgWBsHE7vVd45YGW1scb99d8c26InMhpltDsG5g8E89AI0yqrHNx
-gqfRyd9Mkz3EgY7Sk7SWR9hqTt+ZouPEXt0sJsJ7mluIfNT4lM5SnFnQu7OFkwTQ
-QUsNnCSoxXittZRG+QLaRgHmHDkPPkAfzqQS5M7YSKPvx2I1HZPw0gZHqWIl2Ef4
-ZxRZ2hrWmdmlsbXGIuBu16Ww6lJFhkXFW/UpOqqi6Nf/eR/xmtzaP6aOp6AaOed8
-xj6ThlNyMBKYAZ5CFqP+4aykwLX+vzr1kqM/LBQxnThHZTUwKtFZqc65VVz2AnxY
-5HS2cvzZCIX9wULdnDp1WdP3wWLPxnc7b7cY1rsUuMuH6/Y6LRcs1UmWyn3eZFLs
-0l9IebLruTSCGuiW2GqX
-=ZaKk
+iQIcBAABCAAGBQJWRLrVAAoJEN0jrNd/PrOhnKMQAK4FzhwxJK3DO+49HUnpy1vf
+kjgKdztiDwSDr6aCVHgxwmwqcP8DN8Bo3uK4/MZDH40bwUEqsOIZckHemU9D9Awg
+7v5MpKlH5ein3rl+x77m9xRHkzWs8rArC9ro5M/2JhnQ/isRzLdtY8+umOMquFDw
+RsKN/i68OA+FnyFxiuaczayRQoSnPOqyv2qsmA7kahJGcPzitYSimPTRiTyCF7Ov
+yewbK79rfo2jMvh4mF7K9aH29Uo7BxibzOWaHEb4As8wKNogIehRiYdUmQoHs+DS
+yDrNiM3Cfn93CQ9rpznWpm3lQcnjrtcjt3OcLjqHso5B1I5Y0I0tJhmp+Vd8Ygvn
+wYjPiPHrJXG3HzoZ2s3qyvFeIjMtl1XnvbbsrzUFyB4dcs/sJlCOuErllVFRASqM
+WncMMdSX/jt8pCUSNEE9XBOlzrQCmUVBWIGwqplN2SFDAazJk2q/S6sQMikDwCR8
+KRIWW3XwnEx+Onqa9iDDG+I9ZqiK8icXh2YLveiozHIxCCccYOjW4nCtVSevLd53
+GNCTdCILDlX1qwLnVzSC3UoFtL9E7gKn+dxyiaY5/CztoVFxB+RHmkL81LwkobzI
+e4W6HDcXhyyZFigPVTOcnYH0AzBt9KO0xg1s6i8YDsU3aEq0uSJkjSYRD0UoZAZc
+bb/tBXLSZx8I4nDczyJA
+=BC+q
 -----END PGP SIGNATURE-----
 
---9jxsPFA5p3P2qPhR--
+--CdrF4e02JqNVZeln--
