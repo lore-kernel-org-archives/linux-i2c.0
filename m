@@ -1,50 +1,45 @@
-From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: fix a possible NULL dereference
-Date: Thu, 12 Nov 2015 13:40:56 +0000
-Message-ID: <564496E8.60106@nvidia.com>
-References: <1447313163-23848-1-git-send-email-clabbe.montjoie@gmail.com>
- <20151112122923.GA31671@ulmo>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: [PATCH] i2c: core: fix wakeup irq parsing
+Date: Thu, 12 Nov 2015 15:42:26 +0200
+Message-ID: <1447335746-11114-1-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20151112122923.GA31671@ulmo>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LABBE Corentin <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from devils.ext.ti.com ([198.47.26.153]:57931 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751322AbbKLNme (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Nov 2015 08:42:34 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, "# v4 . 3" <stable@vger.kernel.org>
 
+This patch fixes obvious copy-past error in wake up irq parsing
+code which leads to the fact that dev_pm_set_wake_irq() will
+be called with wrong IRQ number when "wakeup" IRQ is not
+defined in DT.
 
-On 12/11/15 12:29, Thierry Reding wrote:
-> * PGP Signed by an unknown key
-> 
-> On Thu, Nov 12, 2015 at 08:26:03AM +0100, LABBE Corentin wrote:
->> of_match_device could return NULL, and so cause a NULL pointer
-> 
-> No. There is no way that of_match_device() can ever fail. The driver
-> core uses the same table to match the OF device to the driver, so the
-> only case where of_match_device() would return NULL is if no match was
-> found, in which case the tegra_i2c_probe() function would never have
-> been called in the first place.
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Felipe Balbi <balbi@ti.com>
+Cc: <stable@vger.kernel.org> # v4.3
+Fixes: 3fffd1283927 ("i2c: allow specifying separate wakeup interrupt in device tree")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+---
+ drivers/i2c/i2c-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Right and so ...
-
->> dereference later at line 809:
->> i2c_dev->hw = match->data;
->>
->> Signed-off-by: LABBE Corentin <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->>  drivers/i2c/busses/i2c-tegra.c | 3 +++
->>  1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
->> index a0522fc..c803551 100644
->> --- a/drivers/i2c/busses/i2c-tegra.c
->> +++ b/drivers/i2c/busses/i2c-tegra.c
->> @@ -806,7 +806,10 @@ static int tegra_i2c_probe(struct platform_device *pdev)
->>  
->>  	if (pdev->dev.of_node) {
-
-Can we get rid of this if-statement?
-
-Jon
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 040af5c..ba8eb08 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -715,7 +715,7 @@ static int i2c_device_probe(struct device *dev)
+ 		if (wakeirq > 0 && wakeirq != client->irq)
+ 			status = dev_pm_set_dedicated_wake_irq(dev, wakeirq);
+ 		else if (client->irq > 0)
+-			status = dev_pm_set_wake_irq(dev, wakeirq);
++			status = dev_pm_set_wake_irq(dev, client->irq);
+ 		else
+ 			status = 0;
+ 
+-- 
+2.6.3
