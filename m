@@ -1,55 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] i2c: core: fix wakeup irq parsing
-Date: Thu, 12 Nov 2015 10:16:25 -0800
-Message-ID: <20151112181625.GA8494@dtor-ws>
-References: <1447335746-11114-1-git-send-email-grygorii.strashko@ti.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH v2 01/10] i2c: rcar: make sure clocks are on when doing
+ clock calculation
+Date: Thu, 12 Nov 2015 22:16:48 +0300
+Message-ID: <5644E5A0.9040504@cogentembedded.com>
+References: <1447338715-9955-1-git-send-email-wsa@the-dreams.de>
+ <1447338715-9955-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1447335746-11114-1-git-send-email-grygorii.strashko@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, "# v4 . 3" <stable@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1447338715-9955-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 12, 2015 at 03:42:26PM +0200, Grygorii Strashko wrote:
-> This patch fixes obvious copy-past error in wake up irq parsing
-> code which leads to the fact that dev_pm_set_wake_irq() will
-> be called with wrong IRQ number when "wakeup" IRQ is not
-> defined in DT.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Felipe Balbi <balbi@ti.com>
-> Cc: <stable@vger.kernel.org> # v4.3
-> Fixes: 3fffd1283927 ("i2c: allow specifying separate wakeup interrupt in device tree")
-> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Hello.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On 11/12/2015 05:31 PM, Wolfram Sang wrote:
 
-I wonder if we should change dev_pm_set_wake_irq and
-dev_pm_set_dedicated_wake_irq to check if passed in IRQ is valid.
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> When calculating the bus speed, the clock should be on, of course. Most
+> bootloaders left them on, so this went unnoticed so far.
 
-> ---
->  drivers/i2c/i2c-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 040af5c..ba8eb08 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -715,7 +715,7 @@ static int i2c_device_probe(struct device *dev)
->  		if (wakeirq > 0 && wakeirq != client->irq)
->  			status = dev_pm_set_dedicated_wake_irq(dev, wakeirq);
->  		else if (client->irq > 0)
-> -			status = dev_pm_set_wake_irq(dev, wakeirq);
-> +			status = dev_pm_set_wake_irq(dev, client->irq);
->  		else
->  			status = 0;
->  
-> -- 
-> 2.6.3
-> 
+    s/them/it/.
 
--- 
-Dmitry
+> Move the ioremapping out of this clock-enabled-block and prepare for
+> adding hw initialization there, too.
+>
+> Reported-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Reported-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+[...]
+
+MBR, Sergei
+
