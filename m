@@ -1,38 +1,104 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 07/10] i2c: rcar: don't issue stop when HW does it automatically
-Date: Thu, 12 Nov 2015 15:42:50 +0100
-Message-ID: <1447339372-10060-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
+Subject: [PATCH v2 09/10] i2c: rcar: revoke START request early
+Date: Thu, 12 Nov 2015 15:42:52 +0100
+Message-ID: <1447339372-10060-3-git-send-email-wsa@the-dreams.de>
+References: <1447339372-10060-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:55603 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752394AbbKLOnO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 12 Nov 2015 09:43:14 -0500
+In-Reply-To: <1447339372-10060-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
-List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-The manual says (55.4.8.6) that HW does automatically send STOP after
-NACK was received. My measuerments confirm that.
+If we don't clear START generation as soon as possible, it may cause
+another message to be generated, e.g. when receiving NACK in address
+phase. To keep the race window as small as possible, we clear it right
+at the beginning of the interrupt. We don't need any checks since we
+always want to stop START and STOP generation on the next occasion after
+we started it.
+
+This patch improves the situation but sadly does not completely fix it.
+It is still to be researched if we can do better given this HW design.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 23 +++++++----------------
+ 1 file changed, 7 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 316de40fa4dc69..3880293edc3c72 100644
+index 8ad4c7d1ad8654..64a01c0177463a 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -459,8 +459,8 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+@@ -83,6 +83,7 @@
  
+ #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
+ #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
++#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
+ #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
+ 
+ #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
+@@ -289,13 +290,6 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+ 	if (!(msr & MDE))
+ 		return 0;
+ 
+-	/*
+-	 * If address transfer phase finished,
+-	 * goto data phase.
+-	 */
+-	if (msr & MAT)
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+-
+ 	if (priv->pos < msg->len) {
+ 		/*
+ 		 * Prepare next data to ICRXTX register.
+@@ -347,11 +341,7 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 		return 0;
+ 
+ 	if (msr & MAT) {
+-		/*
+-		 * Address transfer phase finished,
+-		 * but, there is no data at this point.
+-		 * Do nothing.
+-		 */
++		/* Address transfer phase finished, but no data at this point. */
+ 	} else if (priv->pos < msg->len) {
+ 		/*
+ 		 * get received data
+@@ -367,8 +357,6 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 	 */
+ 	if (priv->pos + 1 >= msg->len)
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+-	else
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	if (priv->pos == msg->len && !(priv->flags & ID_LAST_MSG))
+ 		rcar_i2c_next_msg(priv);
+@@ -436,7 +424,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
+-	u32 msr;
++	u32 msr, val;
++
++	/* Clear START or STOP as soon as we can */
++	val = rcar_i2c_read(priv, ICMCR);
++	rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
+ 
+ 	msr = rcar_i2c_read(priv, ICMSR);
+ 
+@@ -458,7 +450,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
  	/* Nack */
  	if (msr & MNR) {
--		/* go to stop phase */
--		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
-+		/* HW automatically sends STOP after received NACK */
-+		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 		/* HW automatically sends STOP after received NACK */
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
  		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
  		rcar_i2c_flags_set(priv, ID_NACK);
  		goto out;
 -- 
 2.1.4
-
