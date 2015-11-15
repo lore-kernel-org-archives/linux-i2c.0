@@ -1,153 +1,83 @@
-From: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: mediatek: fix i2c multi transfer issue in
- high speed mode
-Date: Sat, 14 Nov 2015 22:38:42 +0800
-Message-ID: <CAGS+omAixwqw2QwR5_4VffHN66aAYNXP1ZJPxsq2WKcgzVxOZw@mail.gmail.com>
-References: <1447047839-5223-1-git-send-email-liguo.zhang@mediatek.com>
- <1447047839-5223-3-git-send-email-liguo.zhang@mediatek.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1447047839-5223-3-git-send-email-liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+From: Christian Fetzer <fetzer.ch@gmail.com>
+Subject: [PATCH v4 1/3] i2c-piix4: Convert piix4_main_adapter to array
+Date: Sun, 15 Nov 2015 12:33:02 +0100
+Message-ID: <1447587184-21965-2-git-send-email-fetzer.ch@gmail.com>
+References: <1447587184-21965-1-git-send-email-fetzer.ch@gmail.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f42.google.com ([74.125.82.42]:38688 "EHLO
+	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751068AbbKOLdL (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 15 Nov 2015 06:33:11 -0500
+Received: by wmec201 with SMTP id c201so84543661wme.1
+        for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2015 03:33:10 -0800 (PST)
+In-Reply-To: <1447587184-21965-1-git-send-email-fetzer.ch@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, galandilias@gmail.com, fetzer.ch@gmail.com
 
-On Mon, Nov 9, 2015 at 1:43 PM, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> wrote:
-> For platform with auto restart support, when doing i2c multi transfer
-> in high speed, for example, doing write-then-read transfer, the master
-> code will occupy the first transfer, and the second transfer will be
-> the read transfer, the write transfer will be discarded. So we should
-> first send the master code, and then start i2c multi transfer.
->
-> Signed-off-by: Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> Reviewed-by: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-mt65xx.c | 45 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 45 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-> index dc4aac6..249df86 100644
-> --- a/drivers/i2c/busses/i2c-mt65xx.c
-> +++ b/drivers/i2c/busses/i2c-mt65xx.c
-> @@ -53,6 +53,8 @@
->  #define I2C_FS_TIME_INIT_VALUE         0x1303
->  #define I2C_WRRD_TRANAC_VALUE          0x0002
->  #define I2C_RD_TRANAC_VALUE            0x0001
-> +#define I2C_TRAN_DEFAULT_VALUE         0x0001
-> +#define I2C_TRANAC_DEFAULT_VALUE       0x0001
+The SB800 chipset supports a multiplexed main SMBus controller with
+four ports. Therefore the static variable piix4_main_adapter is
+converted into a piix4_main_adapters array that can hold one
+i2c_adapter for each multiplexed port.
 
-"TRAN" and "TRANAC" are not good names; this should be "TRANSFER_LEN"
-and "TRANSAC", based on the names of the registers to which you write
-these constants.
+The auxiliary adapter remains unchanged since it represents the second
+(not multiplexed) SMBus controller on the SB800 chipset.
 
-Furthermore, these are not "default" values, they are the transfer
-length and number of transactions for sending the "master code", so:
+Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-piix4.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-#define I2C_TRANSFER_LEN_MASTER_CODE         0x0001
-#define I2C_TRANSAC_LEN_MASTER_CODE       0x0001
-
-Similarly, I think the "TRANAC" in I2C_WRRD_TRANAC_VALUE and
-I2C_RD_TRANAC_VALUE should also be TRANSAC.
-
->
->  #define I2C_DMA_CON_TX                 0x0000
->  #define I2C_DMA_CON_RX                 0x0001
-> @@ -365,6 +367,43 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk,
->         return 0;
->  }
->
-> +static int mtk_i2c_send_master_code(struct mtk_i2c *i2c)
-> +{
-> +       int ret = 0;
-> +
-> +       reinit_completion(&i2c->msg_complete);
-> +
-> +       writew(I2C_CONTROL_RS | I2C_CONTROL_ACKERR_DET_EN |
-> +              I2C_CONTROL_CLK_EXT_EN | I2C_CONTROL_DMA_EN,
-> +              i2c->base + OFFSET_CONTROL);
-> +
-> +       /* Clear interrupt status */
-> +       writew(I2C_RS_TRANSFER | I2C_TRANSAC_COMP | I2C_HS_NACKERR | I2C_ACKERR,
-> +              i2c->base + OFFSET_INTR_STAT);
-> +
-> +       /* Enable interrupt */
-> +       writew(I2C_RS_TRANSFER | I2C_TRANSAC_COMP, i2c->base +
-> +              OFFSET_INTR_MASK);
-> +
-> +       writew(I2C_TRAN_DEFAULT_VALUE, i2c->base + OFFSET_TRANSFER_LEN);
-> +       writew(I2C_TRANAC_DEFAULT_VALUE, i2c->base + OFFSET_TRANSAC_LEN);
-> +
-> +       writew(I2C_TRANSAC_START | I2C_RS_MUL_CNFG, i2c->base + OFFSET_START);
-> +
-> +       ret = wait_for_completion_timeout(&i2c->msg_complete,
-> +                                         i2c->adap.timeout);
-
-How does the hardware know that this transaction should be a "master code"?
-Do you have to tell the hardware what value ('00001XXX') to use as the
-master code?
-The Master Code must be sent at <= 400 kHz, not the target clock.  How
-does the hardware know what rate to use?
-When sending the master code, arbitration is supposed to occur, such
-that only one winning master can proceed with the following high speed
-transaction.
-Where do you check that you won this arbitration?
-If this is not implemented, adding a "TODO" would be helpful.
-
-> +
-> +       completion_done(&i2c->msg_complete);
-
-This completion_done() is only useful if you check the return value.
-You should check it too, since we should only check for timeout if the
-message hasn't completed.
-
-> +
-> +       if (ret == 0) {
-> +               dev_dbg(i2c->dev, "send master code timeout.\n");
-> +               mtk_i2c_init_hw(i2c);
-> +               return -ETIMEDOUT;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
->  static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
->                                int num, int left_num)
->  {
-> @@ -539,6 +578,12 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
->                 }
->         }
->
-> +       if (i2c->auto_restart && i2c->speed_hz > 400000) {
-
-Don't we need to send the master code for *every* HS transaction, not
-just "auto_restart"?
-
-"400000" => You already have a macro for this: MAX_FS_MODE_SPEED
-
-> +               ret = mtk_i2c_send_master_code(i2c);
-> +               if (ret)
-> +                       return ret;
-> +       }
-> +
->         while (left_num--) {
->                 if (!msgs->buf) {
->                         dev_dbg(i2c->dev, "data buffer is NULL.\n");
-> --
-> 1.8.1.1.dirty
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 630bce6..9c32eb1 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -75,6 +75,9 @@
+ #define PIIX4_WORD_DATA		0x0C
+ #define PIIX4_BLOCK_DATA	0x14
+ 
++/* Multi-port constants */
++#define PIIX4_MAX_ADAPTERS 4
++
+ /* insmod parameters */
+ 
+ /* If force is set to anything different from 0, we forcibly enable the
+@@ -561,7 +564,7 @@ static const struct pci_device_id piix4_ids[] = {
+ 
+ MODULE_DEVICE_TABLE (pci, piix4_ids);
+ 
+-static struct i2c_adapter *piix4_main_adapter;
++static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
+ static struct i2c_adapter *piix4_aux_adapter;
+ 
+ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+@@ -629,7 +632,7 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		return retval;
+ 
+ 	/* Try to register main SMBus adapter, give up if we can't */
+-	retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
++	retval = piix4_add_adapter(dev, retval, &piix4_main_adapters[0]);
+ 	if (retval < 0)
+ 		return retval;
+ 
+@@ -674,9 +677,13 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+ 
+ static void piix4_remove(struct pci_dev *dev)
+ {
+-	if (piix4_main_adapter) {
+-		piix4_adap_remove(piix4_main_adapter);
+-		piix4_main_adapter = NULL;
++	int port = PIIX4_MAX_ADAPTERS;
++
++	while (--port >= 0) {
++		if (piix4_main_adapters[port]) {
++			piix4_adap_remove(piix4_main_adapters[port]);
++			piix4_main_adapters[port] = NULL;
++		}
+ 	}
+ 
+ 	if (piix4_aux_adapter) {
+-- 
+1.9.1
