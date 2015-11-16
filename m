@@ -1,84 +1,119 @@
-From: Michael Bachmeier <michael.bachmeier.linux@gmail.com>
-Subject: =?UTF-8?Q?Re=3A_i2c_slave_support_f=C3=BCr_i=2Emx6?=
-Date: Mon, 16 Nov 2015 07:47:55 +0100
-Message-ID: <CAH-Fpeouz=DKaNxegRkc5X4VB5y4r0kT3EnqNdB+_MqdPUs16w@mail.gmail.com>
-References: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
-	<20151110085955.GA1532@katana>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v4 0/3] Support multiplexed main SMBus interface on SB800
+Date: Mon, 16 Nov 2015 11:26:48 +0200
+Message-ID: <1447666008.31665.140.camel@linux.intel.com>
+References: <1447587184-21965-1-git-send-email-fetzer.ch@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ig0-f178.google.com ([209.85.213.178]:35472 "EHLO
-	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750889AbbKPGrz (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Nov 2015 01:47:55 -0500
-Received: by igl9 with SMTP id 9so51406255igl.0
-        for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2015 22:47:55 -0800 (PST)
-In-Reply-To: <20151110085955.GA1532@katana>
+Received: from mga02.intel.com ([134.134.136.20]:14478 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750911AbbKPJ1A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 16 Nov 2015 04:27:00 -0500
+In-Reply-To: <1447587184-21965-1-git-send-email-fetzer.ch@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, kernel@pengutronix.de, Shawn Guo <shawn.guo@linaro.org>
+To: Christian Fetzer <fetzer.ch@gmail.com>, linux-i2c@vger.kernel.org
+Cc: jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, galandilias@gmail.com
 
-Hi,
+On Sun, 2015-11-15 at 12:33 +0100, Christian Fetzer wrote:
+> This is an attempt to upstream the patches created by Thomas Brandon
+> and
+> Eddi De Pieri to support the multiplexed main SMBus interface on the
+> SB800
+> chipset. (https://www.mail-archive.com/linux-i2c@vger.kernel.org/msg0
+> 6757.html)
+>=20
+> I have mainly rebased the latest patch version and tested the driver
+> on a
+> HP ProLiant MicroServer G7 N54L (where this patch allows to access
+> sensor data
+> from a w83795adg).
+>=20
+> The patched driver is running stable on the machine, given that
+> ic2_piix4 is
+> loaded before jc42 and w83795. If jc42 is loaded before i2c_piix4
+> calling
+> sensors triggers some errors:
+> =C2=A0=C2=A0=C2=A0=C2=A0ERROR: Can't get value of subfeature temp1_mi=
+n_alarm: Can't read
+>=20
+> While the kernel log shows:
+> =C2=A0=C2=A0=C2=A0=C2=A0i2c i2c-1: Transaction (pre): CNT=3D0c, CMD=3D=
+05, ADD=3D31, DAT0=3D03,
+> DAT1=3Dc0
+> =C2=A0=C2=A0=C2=A0=C2=A0i2c i2c-1: Error: no response!
+> =C2=A0=C2=A0=C2=A0=C2=A0i2c i2c-1: Transaction (post): CNT=3D0c, CMD=3D=
+05, ADD=3D31, DAT0=3Dff,
+> DAT1=3Dff
+> Unfortunately I don't know how to tackle this specific issue.
+>=20
+> Please review and let me know required changes in order to get this
+> upstream
+> finally.
 
-I'm just going to rewrite your rcar driver for the i.mx6 processor.
+One nitpick in one patch, though it looks okay for me:
 
-thanks to your comments in the rcar driver, I understand the function
-of each register. But I'd like a manual of this board. Where is
-accurately entered into the individual registers.
-The product spectrum from Renesas is very large and actually very
-confusing for me.
-Had someone for me a manual by the individual registers are explained.
-So that I can understand the rcar driver better.
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+>=20
+> Eddi, Thomas, it would be great if you could verify the changes on
+> your
+> machines.
+>=20
+> Regards,
+> Christian
+>=20
+> v4:
+> - Incorporated changes requested by Andy
+> =C2=A0=C2=A0=C2=A0=C2=A0- added mutex to struct i2c_piix4_adapdata
+> =C2=A0=C2=A0=C2=A0=C2=A0- added flag for releasing SMBus index region=
+ to struct
+> i2c_piix4_adapdata
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0- this flag now indic=
+ates that the adapter is a sb800 main
+> adapter
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0- together with the p=
+ort number it simplifies the adapter
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0releasing=
+ and the first patch in v3 is no more needed
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0- unfortunately patch=
+ 3 and 4 in v3 had to be combined as
+> only
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0the patch=
+ introducing multiplexing adds a separate
+> add_adapters_sb800
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0method th=
+at can be used to set the flag.
+> =C2=A0=C2=A0=C2=A0=C2=A0- fixed releasing the SMBus index region in c=
+ase setting up the
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0adapter fails
+>=20
+> v3:
+> - Incorporated changes requested by Mika and Andy
+> =C2=A0=C2=A0=C2=A0=C2=A0- main adapter name set to 'main'
+> =C2=A0=C2=A0=C2=A0=C2=A0- defined constant idx address
+> =C2=A0=C2=A0=C2=A0=C2=A0- block comment style, joined string literals=
+, reworked for loops
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0into while loops
+>=20
+> v2:
+> - Incorporated changes requested by Mika
+> =C2=A0=C2=A0=C2=A0=C2=A0- remove adapter in reverse order
+> =C2=A0=C2=A0=C2=A0=C2=A0- ERROR label
+> =C2=A0=C2=A0=C2=A0=C2=A0- request base address index region only once
+>=20
+> Christian Fetzer (3):
+> =C2=A0 i2c-piix4: Convert piix4_main_adapter to array
+> =C2=A0 i2c-piix4: Add support for multiplexed main adapter in SB800
+> =C2=A0 i2c-piix4: Add adapter port name support for SB800 chipset
+>=20
+> =C2=A0drivers/i2c/busses/i2c-piix4.c | 194
+> +++++++++++++++++++++++++++++++++++------
+> =C2=A01 file changed, 165 insertions(+), 29 deletions(-)
+>=20
 
-thanks
-
-2015-11-10 9:59 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
-> Hi Michael,
->
->> Do I understand it right, I can set the Master in slave mode and the
->> new slave get his own i2c-adresse?
->
-> Yes, you can have your own address then. Note that I recently gave a
-> talk about the slave framework. You can find the slides here:
->
-> http://elinux.org/ELCE_2015_Presentations
->
-> Search for my name there. And if you wait some more, the video will be
-> there, too, which will be much more helpful than the slides only. And
-> there is the regular documentation:
->
-> Documentation/i2c/slave-interface
->
->> Say that, I can connect a Master from the outside, without this
->> leading to problems?
->> If the master switch to slave, then stops SCL? Or how does it work?
->
-> I suggest getting the I2C specifications from the web and read about
-> "multi master" and "bus arbitration" to understand how it works. Please
-> note that true multi-master busses can in practice be tricky. Shall your
-> mx6 also be master, or slave only?
->
->> Is the EEPROM simulator only available if I rewrote "i2c-IMX" drivers
->> to the slave support?
->
-> Yes.
->
->> Does anyone know if anyone is working on this driver?
->
-> I don't know of; but I put some more people on CC who regularly work on
-> Freescale SoCs.
->
->> Would it theoretically be enough to write 0x80 in the "I2Cx_I2CR"
->> register to set MSTA Bit to
->> slave mode. "Changing MSTA from 1 to 0 generates a Stop and selects Slave mode."
->> Or then disturbs the old driver?
->
-> You need more to do this. You need to handle slave interrupts. See the
-> documentation.
->
-> Good luck,
->
->    Wolfram
->
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
