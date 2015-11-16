@@ -1,70 +1,103 @@
 From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 1/3] i2c: Revert "i2c: xiic: Do not reset controller before every transfer"
-Date: Mon, 16 Nov 2015 14:42:03 +0100
-Message-ID: <1447681325-30914-1-git-send-email-lars@metafoo.de>
+Subject: [PATCH 2/3] i2c: xiic: Prevent concurrent running of the IRQ handler and __xiic_start_xfer()
+Date: Mon, 16 Nov 2015 14:42:04 +0100
+Message-ID: <1447681325-30914-2-git-send-email-lars@metafoo.de>
+References: <1447681325-30914-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-by2on0096.outbound.protection.outlook.com ([207.46.100.96]:37051
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+Received: from mail-bl2on0057.outbound.protection.outlook.com ([65.55.169.57]:46254
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752728AbbKPOON (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 16 Nov 2015 09:14:13 -0500
+	id S1752402AbbKPOOZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 16 Nov 2015 09:14:25 -0500
+In-Reply-To: <1447681325-30914-1-git-send-email-lars@metafoo.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Shubhrajyoti Datta <shubhraj@xilinx.com>, linux-i2c@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
 
-Commit d701667bb331 ("i2c: xiic: Do not reset controller before every
-transfer") removed the reinitialization of the controller before the start
-of each transfer. Apparently this change is not safe to make and the commit
-results in random I2C bus failures.
+Prior to commit e6c9a037bc8a ("i2c: xiic: Remove the disabling of
+interrupts") IRQs where disabled when the initial __xiic_start_xfer() was
+called. After the commit the interrupt is enabled while the function is
+running, this means it is possible for the interrupt to be triggered while
+the function is still running. When this happens the internal data
+structures get corrupted and undefined behavior can occur like the
+following crash:
 
-An easy way to trigger the issue is to run i2cdetect.
+	Internal error: Oops: 17 [#1] PREEMPT SMP ARM
+	Modules linked in:
+	CPU: 0 PID: 2040 Comm: i2cdetect Not tainted 4.0.0-02856-g047a308 #10956
+	Hardware name: Xilinx Zynq Platform
+	task: ee0c9500 ti: e99a2000 task.ti: e99a2000
+	PC is at __xiic_start_xfer+0x6c4/0x7c8
+	LR is at __xiic_start_xfer+0x690/0x7c8
+	pc : [<c02bbffc>]    lr : [<c02bbfc8>]    psr: 800f0013
+	sp : e99a3da8  ip : 00000000  fp : 00000000
+	r10: 00000001  r9 : 600f0013  r8 : f0180000
+	r7 : f0180000  r6 : c064e444  r5 : 00000017  r4 : ee031010
+	r3 : 00000000  r2 : 00000000  r1 : 600f0013  r0 : 0000000f
+	Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+	Control: 18c5387d  Table: 29a5404a  DAC: 00000015
+	Process i2cdetect (pid: 2040, stack limit = 0xe99a2210)
+	Stack: (0xe99a3da8 to 0xe99a4000)
+	3da0:                   ee031010 00000000 00000001 ee031020 ee031224 c02bc5ec
+	3dc0: ee34c604 00000000 ee0c9500 e99a3dcc e99a3dd0 e99a3dd0 e99a3dd8 c069f0e8
+	3de0: 00000000 ee031020 c064e100 ffff90bb e99a3e48 c02b6590 ee031020 00000001
+	3e00: e99a3e48 ee031020 00000000 e99a3e63 00000001 c02b6ec4 00000000 00000000
+	3e20: 00000000 c02b7320 e99a3ef0 00000000 00000000 e99e3df0 00000000 00000000
+	3e40: 00000103 2814575f 0000003e c00a0000 e99a3e85 0001003e ee0c0000 e99a3e63
+	3e60: eefd3578 c064e61c ee0c9500 c0041e04 0000056c e9a56db8 00006e5a b6f5c000
+	3e80: ee0c9548 eefd0040 00000001 eefd3540 ee0c9500 eefd39a0 c064b540 ee0c9500
+	3ea0: 00000000 ee92b000 00000000 bef4862c ee34c600 e99ecdc0 00000720 00000003
+	3ec0: e99a2000 00000000 00000000 c02b8b30 00000000 00000000 00000000 e99a3f24
+	3ee0: b6e80000 00000000 00000000 c04257e8 00000000 e99a3f24 c02b8f08 00000703
+	3f00: 00000003 c02116bc ee935300 00000000 bef4862c ee34c600 e99ecdc0 c02b91f0
+	3f20: e99ecdc0 00000720 bef4862c eeb725f8 e99ecdc0 c00c9e2c 00000003 00000003
+	3f40: ee248dc0 00000000 ee248dc8 00000002 eeb7c1a8 00000000 00000000 c00bb360
+	3f60: 00000000 00000000 00000003 ee248dc0 bef4862c e99ecdc0 e99ecdc0 00000720
+	3f80: 00000003 e99a2000 00000000 c00c9f68 00000000 00000000 b6f22000 00000036
+	3fa0: c000dfa4 c000de20 00000000 00000000 00000003 00000720 bef4862c bef4862c
+	3fc0: 00000000 00000000 b6f22000 00000036 00000000 00000000 b6f60000 00000000
+	3fe0: 00013040 bef48614 00008cab b6ecdbe6 400f0030 00000003 2f7fd821 2f7fdc21
+	[<c02bbffc>] (__xiic_start_xfer) from [<c02bc5ec>] (xiic_xfer+0x94/0x168)
+	[<c02bc5ec>] (xiic_xfer) from [<c02b6590>] (__i2c_transfer+0x4c/0x7c)
+	[<c02b6590>] (__i2c_transfer) from [<c02b6ec4>] (i2c_transfer+0x9c/0xc4)
+	[<c02b6ec4>] (i2c_transfer) from [<c02b7320>] (i2c_smbus_xfer+0x3a0/0x4ec)
+	[<c02b7320>] (i2c_smbus_xfer) from [<c02b8b30>] (i2cdev_ioctl_smbus+0xb0/0x214)
+	[<c02b8b30>] (i2cdev_ioctl_smbus) from [<c02b91f0>] (i2cdev_ioctl+0xa0/0x1d4)
+	[<c02b91f0>] (i2cdev_ioctl) from [<c00c9e2c>] (do_vfs_ioctl+0x4b0/0x5b8)
+	[<c00c9e2c>] (do_vfs_ioctl) from [<c00c9f68>] (SyS_ioctl+0x34/0x5c)
+	[<c00c9f68>] (SyS_ioctl) from [<c000de20>] (ret_fast_syscall+0x0/0x34)
+	Code: e283300c e5843210 eafffe64 e5943210 (e1d320b4)
 
-Without the patch applied:
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-	 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
-	 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-	 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-	 30: -- -- -- -- -- -- -- -- UU UU -- UU 3c -- -- UU
-	 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-	 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-	 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-	 70: -- -- -- -- -- -- -- --
+The issue can easily be reproduced by performing I2C access under high
+system load or IO load.
 
-With the patch applied every other or so invocation:
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-	 00:          03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
-	 10: 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f
-	 20: 20 21 22 23 24 25 26 27 28 29 2a 2b 2c 2d 2e 2f
-	 30: -- -- -- -- -- -- -- -- UU UU -- UU 3c -- -- UU
-	 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-	 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-	 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-	 70: -- -- -- -- -- -- -- --
+To fix the issue protect the invocation to __xiic_start_xfer() form
+xiic_start_xfer() with the same lock that is used to protect the interrupt
+handler.
 
-So revert the commit for now.
-
-Fixes: d701667bb331 ("i2c: xiic: Do not reset controller before every transfer")
+Fixes: e6c9a037bc8a ("i2c: xiic: Remove the disabling of interrupts")
 Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
 ---
- drivers/i2c/busses/i2c-xiic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/busses/i2c-xiic.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index e23a7b0..705cf69 100644
+index 705cf69..0b20449 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -662,6 +662,9 @@ static void __xiic_start_xfer(struct xiic_i2c *i2c)
- 
- static void xiic_start_xfer(struct xiic_i2c *i2c)
+@@ -664,9 +664,8 @@ static void xiic_start_xfer(struct xiic_i2c *i2c)
  {
-+	spin_lock(&i2c->lock);
-+	xiic_reinit(i2c);
-+	spin_unlock(&i2c->lock);
- 
+ 	spin_lock(&i2c->lock);
+ 	xiic_reinit(i2c);
+-	spin_unlock(&i2c->lock);
+-
  	__xiic_start_xfer(i2c);
++	spin_unlock(&i2c->lock);
  }
+ 
+ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 -- 
 2.1.4
