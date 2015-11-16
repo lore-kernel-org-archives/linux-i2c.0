@@ -1,42 +1,82 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v4 2/3] i2c-piix4: Add support for multiplexed main
- adapter in SB800
-Date: Mon, 16 Nov 2015 14:31:54 +0200
-Message-ID: <20151116123154.GC1604@lahna.fi.intel.com>
-References: <1447587184-21965-1-git-send-email-fetzer.ch@gmail.com>
- <1447587184-21965-3-git-send-email-fetzer.ch@gmail.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: [PATCH 3/3] i2c: xiic: Replace spinlock with mutex
+Date: Mon, 16 Nov 2015 14:42:05 +0100
+Message-ID: <1447681325-30914-3-git-send-email-lars@metafoo.de>
+References: <1447681325-30914-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:7431 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751223AbbKPMeI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 16 Nov 2015 07:34:08 -0500
-Content-Disposition: inline
-In-Reply-To: <1447587184-21965-3-git-send-email-fetzer.ch@gmail.com>
+Received: from mail-bl2on0071.outbound.protection.outlook.com ([65.55.169.71]:37216
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752724AbbKPNmO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 16 Nov 2015 08:42:14 -0500
+In-Reply-To: <1447681325-30914-1-git-send-email-lars@metafoo.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Christian Fetzer <fetzer.ch@gmail.com>
-Cc: linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, wsa@the-dreams.de, galandilias@gmail.com, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Shubhrajyoti Datta <shubhraj@xilinx.com>, linux-i2c@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
 
-On Sun, Nov 15, 2015 at 12:33:03PM +0100, Christian Fetzer wrote:
-> The SB800 chipset supports a multiplexed main SMBus controller with
-> four ports. The multiplexed ports share the same SMBus address and
-> register set. The port is selected by bits 2:1 of the smb_en register
-> (0x2C).
-> 
-> Only one port can be active at any point in time therefore a mutex is
-> needed in order to synchronize access.
-> 
-> Additionally, the commit avoids requesting and releasing the SMBus base
-> address index region on every multiplexed transfer by moving the
-> request_region call into piix4_probe.
-> 
-> Tested on HP ProLiant MicroServer G7 N54L (where this patch adds
-> support to access sensor data from the w83795adg).
-> 
-> Cc: Thomas Brandon <tbrandonau@gmail.com>
-> Cc: Eddi De Pieri <eddi@depieri.net>
-> Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
+All protected sections are only called from sleep-able context, so there is
+no need to use a spinlock.
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+---
+ drivers/i2c/busses/i2c-xiic.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 0b20449..6efd200 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -70,7 +70,7 @@ struct xiic_i2c {
+ 	wait_queue_head_t	wait;
+ 	struct i2c_adapter	adap;
+ 	struct i2c_msg		*tx_msg;
+-	spinlock_t		lock;
++	struct mutex		lock;
+ 	unsigned int		tx_pos;
+ 	unsigned int		nmsgs;
+ 	enum xilinx_i2c_state	state;
+@@ -369,7 +369,7 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
+ 	 * To find which interrupts are pending; AND interrupts pending with
+ 	 * interrupts masked.
+ 	 */
+-	spin_lock(&i2c->lock);
++	mutex_lock(&i2c->lock);
+ 	isr = xiic_getreg32(i2c, XIIC_IISR_OFFSET);
+ 	ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
+ 	pend = isr & ier;
+@@ -497,7 +497,7 @@ out:
+ 	dev_dbg(i2c->adap.dev.parent, "%s clr: 0x%x\n", __func__, clr);
+ 
+ 	xiic_setreg32(i2c, XIIC_IISR_OFFSET, clr);
+-	spin_unlock(&i2c->lock);
++	mutex_unlock(&i2c->lock);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -662,10 +662,10 @@ static void __xiic_start_xfer(struct xiic_i2c *i2c)
+ 
+ static void xiic_start_xfer(struct xiic_i2c *i2c)
+ {
+-	spin_lock(&i2c->lock);
++	mutex_lock(&i2c->lock);
+ 	xiic_reinit(i2c);
+ 	__xiic_start_xfer(i2c);
+-	spin_unlock(&i2c->lock);
++	mutex_unlock(&i2c->lock);
+ }
+ 
+ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+@@ -745,7 +745,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
+ 
+-	spin_lock_init(&i2c->lock);
++	mutex_init(&i2c->lock);
+ 	init_waitqueue_head(&i2c->wait);
+ 
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq, xiic_isr,
+-- 
+2.1.4
