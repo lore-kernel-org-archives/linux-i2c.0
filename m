@@ -1,292 +1,84 @@
-From: Christian Fetzer <fetzer.ch@gmail.com>
-Subject: [PATCH v4 2/3] i2c-piix4: Add support for multiplexed main adapter in SB800
-Date: Sun, 15 Nov 2015 12:33:03 +0100
-Message-ID: <1447587184-21965-3-git-send-email-fetzer.ch@gmail.com>
-References: <1447587184-21965-1-git-send-email-fetzer.ch@gmail.com>
+From: Michael Bachmeier <michael.bachmeier.linux@gmail.com>
+Subject: =?UTF-8?Q?Re=3A_i2c_slave_support_f=C3=BCr_i=2Emx6?=
+Date: Mon, 16 Nov 2015 07:47:55 +0100
+Message-ID: <CAH-Fpeouz=DKaNxegRkc5X4VB5y4r0kT3EnqNdB+_MqdPUs16w@mail.gmail.com>
+References: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
+	<20151110085955.GA1532@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f50.google.com ([74.125.82.50]:35977 "EHLO
-	mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751068AbbKOLdO (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 15 Nov 2015 06:33:14 -0500
-Received: by wmww144 with SMTP id w144so77840245wmw.1
-        for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2015 03:33:13 -0800 (PST)
-In-Reply-To: <1447587184-21965-1-git-send-email-fetzer.ch@gmail.com>
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:35472 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750889AbbKPGrz (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Nov 2015 01:47:55 -0500
+Received: by igl9 with SMTP id 9so51406255igl.0
+        for <linux-i2c@vger.kernel.org>; Sun, 15 Nov 2015 22:47:55 -0800 (PST)
+In-Reply-To: <20151110085955.GA1532@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, galandilias@gmail.com, fetzer.ch@gmail.com, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, kernel@pengutronix.de, Shawn Guo <shawn.guo@linaro.org>
 
-The SB800 chipset supports a multiplexed main SMBus controller with
-four ports. The multiplexed ports share the same SMBus address and
-register set. The port is selected by bits 2:1 of the smb_en register
-(0x2C).
+Hi,
 
-Only one port can be active at any point in time therefore a mutex is
-needed in order to synchronize access.
+I'm just going to rewrite your rcar driver for the i.mx6 processor.
 
-Additionally, the commit avoids requesting and releasing the SMBus base
-address index region on every multiplexed transfer by moving the
-request_region call into piix4_probe.
+thanks to your comments in the rcar driver, I understand the function
+of each register. But I'd like a manual of this board. Where is
+accurately entered into the individual registers.
+The product spectrum from Renesas is very large and actually very
+confusing for me.
+Had someone for me a manual by the individual registers are explained.
+So that I can understand the rcar driver better.
 
-Tested on HP ProLiant MicroServer G7 N54L (where this patch adds
-support to access sensor data from the w83795adg).
 
-Cc: Thomas Brandon <tbrandonau@gmail.com>
-Cc: Eddi De Pieri <eddi@depieri.net>
-Signed-off-by: Christian Fetzer <fetzer.ch@gmail.com>
----
- drivers/i2c/busses/i2c-piix4.c | 165 +++++++++++++++++++++++++++++++++++------
- 1 file changed, 143 insertions(+), 22 deletions(-)
+thanks
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 9c32eb1..780f2b9 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -23,6 +23,9 @@
- 
-    Note: we assume there can only be one device, with one or more
-    SMBus interfaces.
-+   The device can register multiple i2c_adapters (up to PIIX4_MAX_ADAPTERS).
-+   For devices supporting multiple ports the i2c_adapter should provide
-+   an i2c_algorithm to access them.
- */
- 
- #include <linux/module.h>
-@@ -37,6 +40,7 @@
- #include <linux/dmi.h>
- #include <linux/acpi.h>
- #include <linux/io.h>
-+#include <linux/mutex.h>
- 
- 
- /* PIIX4 SMBus address offsets */
-@@ -78,6 +82,9 @@
- /* Multi-port constants */
- #define PIIX4_MAX_ADAPTERS 4
- 
-+/* SB800 constants */
-+#define SB800_PIIX4_SMB_IDX 0xcd6
-+
- /* insmod parameters */
- 
- /* If force is set to anything different from 0, we forcibly enable the
-@@ -127,6 +134,11 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
- 
- struct i2c_piix4_adapdata {
- 	unsigned short smba;
-+
-+	/* SB800 */
-+	bool sb800_main;
-+	unsigned short port;
-+	struct mutex *mutex;
- };
- 
- static int piix4_setup(struct pci_dev *PIIX4_dev,
-@@ -232,7 +244,6 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 			     const struct pci_device_id *id, u8 aux)
- {
- 	unsigned short piix4_smba;
--	unsigned short smba_idx = 0xcd6;
- 	u8 smba_en_lo, smba_en_hi, smb_en, smb_en_status;
- 	u8 i2ccfg, i2ccfg_offset = 0x10;
- 
-@@ -254,16 +265,10 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	else
- 		smb_en = (aux) ? 0x28 : 0x2c;
- 
--	if (!request_region(smba_idx, 2, "smba_idx")) {
--		dev_err(&PIIX4_dev->dev, "SMBus base address index region "
--			"0x%x already in use!\n", smba_idx);
--		return -EBUSY;
--	}
--	outb_p(smb_en, smba_idx);
--	smba_en_lo = inb_p(smba_idx + 1);
--	outb_p(smb_en + 1, smba_idx);
--	smba_en_hi = inb_p(smba_idx + 1);
--	release_region(smba_idx, 2);
-+	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
-+	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
-+	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
-+	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
- 
- 	if (!smb_en) {
- 		smb_en_status = smba_en_lo & 0x10;
-@@ -527,6 +532,43 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
- 	return 0;
- }
- 
-+/*
-+ * Handles access to multiple SMBus ports on the SB800.
-+ * The port is selected by bits 2:1 of the smb_en register (0x2C).
-+ * Returns negative errno on error.
-+ *
-+ * Note: The selected port must be returned to the initial selection to avoid
-+ * problems on certain systems.
-+ */
-+static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
-+		 unsigned short flags, char read_write,
-+		 u8 command, int size, union i2c_smbus_data *data)
-+{
-+	struct i2c_piix4_adapdata *adapdata = i2c_get_adapdata(adap);
-+	u8 smba_en_lo, smb_en = 0x2c;
-+	u8 port;
-+	int retval;
-+
-+	mutex_lock(adapdata->mutex);
-+
-+	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
-+	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
-+
-+	port = adapdata->port;
-+	if ((smba_en_lo & 6) != (port << 1))
-+		outb_p((smba_en_lo & ~6) | (port << 1),
-+		       SB800_PIIX4_SMB_IDX + 1);
-+
-+	retval = piix4_access(adap, addr, flags, read_write,
-+			      command, size, data);
-+
-+	outb_p(smba_en_lo, SB800_PIIX4_SMB_IDX + 1);
-+
-+	mutex_unlock(adapdata->mutex);
-+
-+	return retval;
-+}
-+
- static u32 piix4_func(struct i2c_adapter *adapter)
- {
- 	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-@@ -539,6 +581,11 @@ static const struct i2c_algorithm smbus_algorithm = {
- 	.functionality	= piix4_func,
- };
- 
-+static const struct i2c_algorithm piix4_smbus_algorithm_sb800 = {
-+	.smbus_xfer	= piix4_access_sb800,
-+	.functionality	= piix4_func,
-+};
-+
- static const struct pci_device_id piix4_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82443MX_3) },
-@@ -614,6 +661,53 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 	return 0;
- }
- 
-+static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba)
-+{
-+	struct mutex *mutex;
-+	struct i2c_piix4_adapdata *adapdata;
-+	int port;
-+	int retval;
-+
-+	mutex = kzalloc(sizeof(*mutex), GFP_KERNEL);
-+	if (mutex == NULL)
-+		return -ENOMEM;
-+
-+	mutex_init(mutex);
-+
-+	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
-+		retval = piix4_add_adapter(dev, smba,
-+					   &piix4_main_adapters[port]);
-+		if (retval < 0)
-+			goto error;
-+
-+		piix4_main_adapters[port]->algo = &piix4_smbus_algorithm_sb800;
-+
-+		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
-+		adapdata->sb800_main = true;
-+		adapdata->port = port;
-+		adapdata->mutex = mutex;
-+	}
-+
-+	return retval;
-+
-+error:
-+	dev_err(&dev->dev,
-+		"Error setting up SB800 adapters. Unregistering!\n");
-+	while (--port >= 0) {
-+		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
-+		if (adapdata->smba) {
-+			i2c_del_adapter(piix4_main_adapters[port]);
-+			kfree(adapdata);
-+			kfree(piix4_main_adapters[port]);
-+			piix4_main_adapters[port] = NULL;
-+		}
-+	}
-+
-+	kfree(mutex);
-+
-+	return retval;
-+}
-+
- static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	int retval;
-@@ -621,20 +715,41 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
- 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
- 	     dev->revision >= 0x40) ||
--	    dev->vendor == PCI_VENDOR_ID_AMD)
-+	    dev->vendor == PCI_VENDOR_ID_AMD) {
-+		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
-+			dev_err(&dev->dev,
-+			"SMBus base address index region 0x%x already in use!\n",
-+			SB800_PIIX4_SMB_IDX);
-+			return -EBUSY;
-+		}
-+
- 		/* base address location etc changed in SB800 */
- 		retval = piix4_setup_sb800(dev, id, 0);
--	else
--		retval = piix4_setup(dev, id);
-+		if (retval < 0) {
-+			release_region(SB800_PIIX4_SMB_IDX, 2);
-+			return retval;
-+		}
- 
--	/* If no main SMBus found, give up */
--	if (retval < 0)
--		return retval;
-+		/*
-+		 * Try to register multiplexed main SMBus adapter,
-+		 * give up if we can't
-+		 */
-+		retval = piix4_add_adapters_sb800(dev, retval);
-+		if (retval < 0) {
-+			release_region(SB800_PIIX4_SMB_IDX, 2);
-+			return retval;
-+		}
-+	} else {
-+		retval = piix4_setup(dev, id);
-+		if (retval < 0)
-+			return retval;
- 
--	/* Try to register main SMBus adapter, give up if we can't */
--	retval = piix4_add_adapter(dev, retval, &piix4_main_adapters[0]);
--	if (retval < 0)
--		return retval;
-+		/* Try to register main SMBus adapter, give up if we can't */
-+		retval = piix4_add_adapter(dev, retval,
-+					   &piix4_main_adapters[0]);
-+		if (retval < 0)
-+			return retval;
-+	}
- 
- 	/* Check for auxiliary SMBus on some AMD chipsets */
- 	retval = -ENODEV;
-@@ -669,7 +784,13 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
- 
- 	if (adapdata->smba) {
- 		i2c_del_adapter(adap);
--		release_region(adapdata->smba, SMBIOSIZE);
-+		if (adapdata->port == 0) {
-+			release_region(adapdata->smba, SMBIOSIZE);
-+			if (adapdata->sb800_main) {
-+				kfree(adapdata->mutex);
-+				release_region(SB800_PIIX4_SMB_IDX, 2);
-+			}
-+		}
- 		kfree(adapdata);
- 		kfree(adap);
- 	}
--- 
-1.9.1
+2015-11-10 9:59 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
+> Hi Michael,
+>
+>> Do I understand it right, I can set the Master in slave mode and the
+>> new slave get his own i2c-adresse?
+>
+> Yes, you can have your own address then. Note that I recently gave a
+> talk about the slave framework. You can find the slides here:
+>
+> http://elinux.org/ELCE_2015_Presentations
+>
+> Search for my name there. And if you wait some more, the video will be
+> there, too, which will be much more helpful than the slides only. And
+> there is the regular documentation:
+>
+> Documentation/i2c/slave-interface
+>
+>> Say that, I can connect a Master from the outside, without this
+>> leading to problems?
+>> If the master switch to slave, then stops SCL? Or how does it work?
+>
+> I suggest getting the I2C specifications from the web and read about
+> "multi master" and "bus arbitration" to understand how it works. Please
+> note that true multi-master busses can in practice be tricky. Shall your
+> mx6 also be master, or slave only?
+>
+>> Is the EEPROM simulator only available if I rewrote "i2c-IMX" drivers
+>> to the slave support?
+>
+> Yes.
+>
+>> Does anyone know if anyone is working on this driver?
+>
+> I don't know of; but I put some more people on CC who regularly work on
+> Freescale SoCs.
+>
+>> Would it theoretically be enough to write 0x80 in the "I2Cx_I2CR"
+>> register to set MSTA Bit to
+>> slave mode. "Changing MSTA from 1 to 0 generates a Stop and selects Slave mode."
+>> Or then disturbs the old driver?
+>
+> You need more to do this. You need to handle slave interrupts. See the
+> documentation.
+>
+> Good luck,
+>
+>    Wolfram
+>
