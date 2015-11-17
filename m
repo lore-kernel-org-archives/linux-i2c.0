@@ -1,97 +1,73 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: [PATCH 1/3] i2c: Revert "i2c: xiic: Do not reset controller
- before every transfer"
-Date: Tue, 17 Nov 2015 11:26:48 +0530
-Message-ID: <CAKfKVtEPWskKxHr5HAWfcGPreQ5EqGwKnLHY0VU=C+sQkM3w6w@mail.gmail.com>
-References: <1447681325-30914-1-git-send-email-lars@metafoo.de>
-	<CAKfKVtGqPPP=bnWH4dPLT1=gjrvZe=0zmix58SKBT79MsR+CXg@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 05/10] i2c: rcar: refactor setup of a msg
+Date: Tue, 17 Nov 2015 08:00:53 +0100
+Message-ID: <20151117070053.GA952@tetsubishi>
+References: <1447338715-9955-1-git-send-email-wsa@the-dreams.de>
+ <1447338715-9955-6-git-send-email-wsa@the-dreams.de>
+ <2420286.JI0i0lloO0@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qg0-f67.google.com ([209.85.192.67]:36083 "EHLO
-	mail-qg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751151AbbKQF4t (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Nov 2015 00:56:49 -0500
-Received: by qgcc31 with SMTP id c31so7297662qgc.3
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Nov 2015 21:56:48 -0800 (PST)
-In-Reply-To: <CAKfKVtGqPPP=bnWH4dPLT1=gjrvZe=0zmix58SKBT79MsR+CXg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <2420286.JI0i0lloO0@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Shubhrajyoti Datta <shubhraj@xilinx.com>, linux-i2c@vger.kernel.org
 
-On Tue, Nov 17, 2015 at 10:47 AM, Shubhrajyoti Datta
-<shubhrajyoti.datta@gmail.com> wrote:
-> On Mon, Nov 16, 2015 at 7:12 PM, Lars-Peter Clausen <lars@metafoo.de> wrote:
->> Commit d701667bb331 ("i2c: xiic: Do not reset controller before every
->> transfer") removed the reinitialization of the controller before the start
->> of each transfer. Apparently this change is not safe to make and the commit
->> results in random I2C bus failures.
->
-> Which is the platform and the ip version that you  saw the issue.
-> Did you see the issue with read and write as  well?
 
-Also having a closer look, if we reinit the status registers and bus
-busy will be
-cleared.
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> .
->
->>
->> An easy way to trigger the issue is to run i2cdetect.
->>
->> Without the patch applied:
->>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
->>          00:          -- -- -- -- -- -- -- -- -- -- -- -- --
->>          10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
->>          20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
->>          30: -- -- -- -- -- -- -- -- UU UU -- UU 3c -- -- UU
->>          40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
->>          50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
->>          60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
->>          70: -- -- -- -- -- -- -- --
->>
->> With the patch applied every other or so invocation:
->>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
->>          00:          03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
->>          10: 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f
->>          20: 20 21 22 23 24 25 26 27 28 29 2a 2b 2c 2d 2e 2f
->>          30: -- -- -- -- -- -- -- -- UU UU -- UU 3c -- -- UU
->>          40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
->>          50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
->>          60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
->>          70: -- -- -- -- -- -- -- --
->>
-> I assume that you have these many peripherals.
-> on the bus am I right?
->
->
->> So revert the commit for now.
->>
->> Fixes: d701667bb331 ("i2c: xiic: Do not reset controller before every transfer")
->> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
->> ---
->>  drivers/i2c/busses/i2c-xiic.c | 3 +++
->>  1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
->> index e23a7b0..705cf69 100644
->> --- a/drivers/i2c/busses/i2c-xiic.c
->> +++ b/drivers/i2c/busses/i2c-xiic.c
->> @@ -662,6 +662,9 @@ static void __xiic_start_xfer(struct xiic_i2c *i2c)
->>
->>  static void xiic_start_xfer(struct xiic_i2c *i2c)
->>  {
->> +       spin_lock(&i2c->lock);
->> +       xiic_reinit(i2c);
->> +       spin_unlock(&i2c->lock);
->>
->>         __xiic_start_xfer(i2c);
->>  }
->> --
->> 2.1.4
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi Laurent,
+
+> Sorry for bringing bad news, but as with v1, this patch breaks ADV7511=20
+> detection on my Koelsch board. Reverting it on top of the series fixes th=
+e=20
+> problem.
+
+In v1, patch 5/9 was breaking. I hope in v2, it is 6/10 and not 5/10 as
+you replied to (patch 1/10 is the new one)? This bug is strange enough,
+but 5/10 breaking would be extremly crazy.
+
+> You'll find the dmesg and trace logs with your debugging patch applied=20
+> attached to this e-mail in two versions, one with the whole series applie=
+d (-
+> bad) and one with this patch additionally reverted on top of the series (-
+> good).
+
+Thanks for doing this. I'll think about it some more, but it may be that
+I am running out of ideas without being able to connect a scope. Would
+it be possible to exchange our Koelsch and Lager boards for a while? Or
+is your multimedia work Koelsch dependant?
+
+Thanks,
+
+   Wolfram
+
+
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWStClAAoJEBQN5MwUoCm2cnEP/2sK6kl6m1emqXVKunzAlLmY
+vg3hO4znNd8h4zcVAVRz1w38WD4E1ujjwvkMamVI0Z8VitJWYeT9MoFs5XFfzjZa
+PJ7sSRb6DWO32qETv6IV/aSzgzqzJI9WTrpMFCQqirEvkFES3Sate2ULpqMzp6PM
+0cm0TTTNrQD6pzotuFd1EUVSdGZfVmQARJ6irtQJ5qzqVkZR/VzlcGtK/aldHrtX
+rbPRdQlyLbdhguaw4wIuUHoHeTK137nLEvSNJ8N09S9boOYfbOGof9Yez8uYCn78
+8hRYaVSSKwhNVilG/tAsMIqrQ5A5XLdLfKYZzlYQMS1Fzo+WEHRcWq5sh+y+pAYA
+vYZBZyFEI84fqQeS307IBm7WZc3N1xo8sBauFQt3bHBVmLehKE0Yzo4k/5pIbAKY
+atQ38j+F6DUr+eKTH4bM8qHbAAUy3kxeL2EauD4RW/rNokJQf45ms9D20D2E3bRW
+dO50jAcd6sRVY7Xyb84jko2BaDe2lPeG2uB3+at2UOVQ2tZ6MFPV1vAx9Wcx8hS2
+lBOhbqwOMvwcEAn0wRpO1AB4QCGOjq6zoXEYdL+pSvqbPJPKrGvQWScu87iCWoln
+V2uao23C1Nr+nUE7AgUsqYH8S+XSP8avnV8WSBEs45DLu9Ai/xcICHA41odCcvJ1
+HiBbw/2Tkdfoe9iU+vgw
+=Iat5
+-----END PGP SIGNATURE-----
+
+--M9NhX3UHpAaciwkO--
