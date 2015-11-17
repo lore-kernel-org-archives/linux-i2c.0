@@ -1,111 +1,129 @@
 From: Li Yang <leoli@freescale.com>
-Subject: [PATCH] i2c: imx: fix build issue for platforms without pinctrl
-Date: Tue, 17 Nov 2015 15:11:15 -0600
-Message-ID: <1447794675-19411-1-git-send-email-leoli@freescale.com>
+Subject: Re: [PATCH] i2c: imx: fix build issue for platforms without pinctrl
+Date: Tue, 17 Nov 2015 17:00:00 -0600
+Message-ID: <CADRPPNRXgR9D7=tE66zBU6rFPatrZsmpUnU-yoOp1unOa6bB=w@mail.gmail.com>
+References: <1447794675-19411-1-git-send-email-leoli@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1447794675-19411-1-git-send-email-leoli@freescale.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Gao Pan <b54642@freescale.com>, Li Yang <leoli@freescale.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Gao Pan <b54642@freescale.com>, Li Yang <leoli@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, lkml <linux-kernel@vger.kernel.org>, Hou Zhiqiang <B48286@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
-With commit 1c4b6c3b (i2c: imx: implement bus recovery) the driver
-starts to use pinctrl to do i2c bus recovery.  But this breaks build
-for platforms that don't implement pinctrl, such as ls1021a and
-ls1043a.
+On Tue, Nov 17, 2015 at 3:11 PM, Li Yang <leoli@freescale.com> wrote:
+> With commit 1c4b6c3b (i2c: imx: implement bus recovery) the driver
+> starts to use pinctrl to do i2c bus recovery.  But this breaks build
+> for platforms that don't implement pinctrl, such as ls1021a and
+> ls1043a.
+>
+> This patch fix the problem by only compiling the bus recovery code
+> when CONFIG_PINCTRL is enabled.
 
-This patch fix the problem by only compiling the bus recovery code
-when CONFIG_PINCTRL is enabled.
+Please ignore this patch.  I missed the patch from Zhiqiang
+(https://patchwork.ozlabs.org/patch/545494/) to fix the same build
+issue.  Although the driver can build correctly when CONFIG_PINCTRL is
+enabled by having <linux/pinctrl/consumer.h> included though
+<linux/device.h>.  Including the <linux/pinctrl/consumer.h> explicitly
+seems to be a better fix for the build issue itself.
 
-Reported-by: Ren Xiaofeng <xiaofeng.ren@freescale.com>
-Signed-off-by: Li Yang <leoli@freescale.com>
-Cc: Gao Pan <b54642@freescale.com>
----
- drivers/i2c/busses/i2c-imx.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+On the other hand, the driver shouldn't fail to probe or try to
+register recovery routine when there is actually no pinctrl support as
+the recovery is just an optional function.  I can submit another patch
+for this.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 1e4d99d..614253a 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -208,11 +208,13 @@ struct imx_i2c_struct {
- 	unsigned int		cur_clk;
- 	unsigned int		bitrate;
- 	const struct imx_i2c_hwdata	*hwdata;
-+#ifdef CONFIG_PINCTRL
- 	struct i2c_bus_recovery_info rinfo;
- 
- 	struct pinctrl *pinctrl;
- 	struct pinctrl_state *pinctrl_pins_default;
- 	struct pinctrl_state *pinctrl_pins_gpio;
-+#endif
- 
- 	struct imx_i2c_dma	*dma;
- };
-@@ -902,12 +904,14 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
- 
- 	/* Start I2C transfer */
- 	result = i2c_imx_start(i2c_imx);
-+#ifdef CONFIG_PINCTRL
- 	if (result) {
- 		if (i2c_imx->adapter.bus_recovery_info) {
- 			i2c_recover_bus(&i2c_imx->adapter);
- 			result = i2c_imx_start(i2c_imx);
- 		}
- 	}
-+#endif
- 
- 	if (result)
- 		goto fail0;
-@@ -969,6 +973,7 @@ fail0:
- 	return (result < 0) ? result : num;
- }
- 
-+#ifdef CONFIG_PINCTRL
- static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
- {
- 	struct imx_i2c_struct *i2c_imx;
-@@ -1017,6 +1022,7 @@ static void i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
- 	rinfo->recover_bus = i2c_generic_gpio_recovery;
- 	i2c_imx->adapter.bus_recovery_info = rinfo;
- }
-+#endif
- 
- static u32 i2c_imx_func(struct i2c_adapter *adapter)
- {
-@@ -1086,11 +1092,13 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+#ifdef CONFIG_PINCTRL
- 	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
- 	if (IS_ERR(i2c_imx->pinctrl)) {
- 		ret = PTR_ERR(i2c_imx->pinctrl);
- 		goto clk_disable;
- 	}
-+#endif
- 
- 	/* Request IRQ */
- 	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
-@@ -1125,7 +1133,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 		goto clk_disable;
- 	}
- 
-+#ifdef CONFIG_PINCTRL
- 	i2c_imx_init_recovery_info(i2c_imx, pdev);
-+#endif
- 
- 	/* Set up platform driver data */
- 	platform_set_drvdata(pdev, i2c_imx);
+>
+> Reported-by: Ren Xiaofeng <xiaofeng.ren@freescale.com>
+> Signed-off-by: Li Yang <leoli@freescale.com>
+> Cc: Gao Pan <b54642@freescale.com>
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 1e4d99d..614253a 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -208,11 +208,13 @@ struct imx_i2c_struct {
+>         unsigned int            cur_clk;
+>         unsigned int            bitrate;
+>         const struct imx_i2c_hwdata     *hwdata;
+> +#ifdef CONFIG_PINCTRL
+>         struct i2c_bus_recovery_info rinfo;
+>
+>         struct pinctrl *pinctrl;
+>         struct pinctrl_state *pinctrl_pins_default;
+>         struct pinctrl_state *pinctrl_pins_gpio;
+> +#endif
+>
+>         struct imx_i2c_dma      *dma;
+>  };
+> @@ -902,12 +904,14 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+>
+>         /* Start I2C transfer */
+>         result = i2c_imx_start(i2c_imx);
+> +#ifdef CONFIG_PINCTRL
+>         if (result) {
+>                 if (i2c_imx->adapter.bus_recovery_info) {
+>                         i2c_recover_bus(&i2c_imx->adapter);
+>                         result = i2c_imx_start(i2c_imx);
+>                 }
+>         }
+> +#endif
+>
+>         if (result)
+>                 goto fail0;
+> @@ -969,6 +973,7 @@ fail0:
+>         return (result < 0) ? result : num;
+>  }
+>
+> +#ifdef CONFIG_PINCTRL
+>  static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
+>  {
+>         struct imx_i2c_struct *i2c_imx;
+> @@ -1017,6 +1022,7 @@ static void i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+>         rinfo->recover_bus = i2c_generic_gpio_recovery;
+>         i2c_imx->adapter.bus_recovery_info = rinfo;
+>  }
+> +#endif
+>
+>  static u32 i2c_imx_func(struct i2c_adapter *adapter)
+>  {
+> @@ -1086,11 +1092,13 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>                 return ret;
+>         }
+>
+> +#ifdef CONFIG_PINCTRL
+>         i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+>         if (IS_ERR(i2c_imx->pinctrl)) {
+>                 ret = PTR_ERR(i2c_imx->pinctrl);
+>                 goto clk_disable;
+>         }
+> +#endif
+>
+>         /* Request IRQ */
+>         ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
+> @@ -1125,7 +1133,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>                 goto clk_disable;
+>         }
+>
+> +#ifdef CONFIG_PINCTRL
+>         i2c_imx_init_recovery_info(i2c_imx, pdev);
+> +#endif
+>
+>         /* Set up platform driver data */
+>         platform_set_drvdata(pdev, i2c_imx);
+> --
+> 2.3.3
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+
+
 -- 
-2.3.3
+- Leo
