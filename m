@@ -1,56 +1,43 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 9/9] eeprom: at24: readability tweaks
-Date: Tue, 17 Nov 2015 10:52:30 +0100
-Message-ID: <1447753950-17213-10-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH v2 8/9] eeprom: at24: remove a reduntant if
+Date: Tue, 17 Nov 2015 10:52:29 +0100
+Message-ID: <1447753950-17213-9-git-send-email-bgolaszewski@baylibre.com>
 References: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f46.google.com ([74.125.82.46]:33365 "EHLO
+	mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753476AbbKQJwo (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Nov 2015 04:52:44 -0500
+Received: by wmec201 with SMTP id c201so218308435wme.0
+        for <linux-i2c@vger.kernel.org>; Tue, 17 Nov 2015 01:52:43 -0800 (PST)
 In-Reply-To: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
-List-Id: linux-i2c@vger.kernel.org
 
-Move the macro definitions above the struct definitions and add some
-tabs for better readability.
+It seems as if the second check for I2C_FUNC_I2C functionality had been
+introduced accidentally during a merge. Tt's reduntant, so remove it.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/misc/eeprom/at24.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 1288193..3238bf6 100644
+index 6e28b02..1288193 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -53,6 +53,14 @@
-  * which won't work on pure SMBus systems.
-  */
+@@ -634,10 +634,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		} else {
+ 			return -EPFNOSUPPORT;
+ 		}
+-	}
  
-+#define AT24_SIZE_BYTELEN		5
-+#define AT24_SIZE_FLAGS			8
-+
-+#define AT24_BITMASK(x)			(BIT(x) - 1)
-+
-+#define AT24CS_SERIAL_SIZE		16
-+#define AT24CS_SERIAL_ADDR(addr)	(addr + 0x08)
-+
- struct at24_data {
- 	struct at24_platform_data chip;
- 	struct memory_accessor macc;
-@@ -99,14 +107,6 @@ static unsigned write_timeout = 25;
- module_param(write_timeout, uint, 0);
- MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 
--#define AT24_SIZE_BYTELEN 5
--#define AT24_SIZE_FLAGS 8
--
--#define AT24_BITMASK(x) (BIT(x) - 1)
--
--#define AT24CS_SERIAL_SIZE 16
--#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
--
- /* create non-zero magic value for given eeprom parameters */
- #define AT24_DEVICE_MAGIC(_len, _flags) 		\
- 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
+-	/* Use I2C operations unless we're stuck with SMBus extensions. */
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+ 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
 -- 
 2.1.4
