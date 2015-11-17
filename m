@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 2/9] eeprom: at24: new flag in platform_data
-Date: Tue, 17 Nov 2015 10:52:23 +0100
-Message-ID: <1447753950-17213-3-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH v2 3/9] eeprom: at24: tie up an additional address for at24cs series
+Date: Tue, 17 Nov 2015 10:52:24 +0100
+Message-ID: <1447753950-17213-4-git-send-email-bgolaszewski@baylibre.com>
 References: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,27 +10,71 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-In preparation for supporting the at24cs EEPROM series add a new flag to
-platform data. When set, it should tell the driver that the chip has an
-additional read-only memory area that holds a factory pre-programmed serial
-number.
+The at24cs series EEPROM chips have an additional read-only memory area,
+that is visible on a different i2c slave address. Tie it up with a dummy
+device.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- include/linux/platform_data/at24.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/eeprom/at24.c | 30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index 8d90f52..5686f91 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -47,6 +47,7 @@ struct at24_platform_data {
- #define AT24_FLAG_READONLY	BIT(6)	/* sysfs-entry will be read-only */
- #define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
- #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
-+#define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 5d7c090..08cc327 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -103,6 +103,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
  
- 	void		(*setup)(struct memory_accessor *, void *context);
- 	void		*context;
+ #define AT24_BITMASK(x) (BIT(x) - 1)
+ 
++#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
++
+ /* create non-zero magic value for given eeprom parameters */
+ #define AT24_DEVICE_MAGIC(_len, _flags) 		\
+ 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
+@@ -558,6 +560,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
+ 		num_addresses = 8;
++	else if (chip.flags & AT24_FLAG_SERIAL)
++		num_addresses = 2;
+ 	else
+ 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
+ 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
+@@ -616,12 +620,30 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	at24->client[0] = client;
+ 
+ 	/* use dummy devices for multiple-address chips */
+-	for (i = 1; i < num_addresses; i++) {
+-		at24->client[i] = i2c_new_dummy(client->adapter,
++	if (at24->chip.flags & AT24_FLAG_TAKE8ADDR) {
++		for (i = 1; i < num_addresses; i++) {
++			at24->client[i] = i2c_new_dummy(client->adapter,
++							client->addr + i);
++			if (!at24->client[i]) {
++				dev_err(&client->dev,
++					"address 0x%02x unavailable\n",
+ 					client->addr + i);
+-		if (!at24->client[i]) {
++				err = -EADDRINUSE;
++				goto err_clients;
++			}
++		}
++	}
++
++	/*
++	 * at24cs series tie up an additional address for the memory area
++	 * contining the serial number
++	 */
++	if (at24->chip.flags & AT24_FLAG_SERIAL) {
++		at24->client[1] = i2c_new_dummy(client->adapter,
++					AT24CS_SERIAL_ADDR(client->addr));
++		if (!at24->client[1]) {
+ 			dev_err(&client->dev, "address 0x%02x unavailable\n",
+-					client->addr + i);
++				AT24CS_SERIAL_ADDR(client->addr));
+ 			err = -EADDRINUSE;
+ 			goto err_clients;
+ 		}
 -- 
 2.1.4
