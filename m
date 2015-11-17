@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 1/9] eeprom: at24: platform_data: use BIT() macro
-Date: Tue, 17 Nov 2015 10:52:22 +0100
-Message-ID: <1447753950-17213-2-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH v2 9/9] eeprom: at24: readability tweaks
+Date: Tue, 17 Nov 2015 10:52:30 +0100
+Message-ID: <1447753950-17213-10-git-send-email-bgolaszewski@baylibre.com>
 References: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,32 +10,47 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Use BIT() macro to replace the 0xXX constants in platform_data flags
-definitions.
+Move the macro definitions above the struct definitions and add some
+tabs for better readability.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- include/linux/platform_data/at24.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/misc/eeprom/at24.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index c42aa89..8d90f52 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -43,10 +43,10 @@ struct at24_platform_data {
- 	u32		byte_len;		/* size (sum of all addr) */
- 	u16		page_size;		/* for writes */
- 	u8		flags;
--#define AT24_FLAG_ADDR16	0x80	/* address pointer is 16 bit */
--#define AT24_FLAG_READONLY	0x40	/* sysfs-entry will be read-only */
--#define AT24_FLAG_IRUGO		0x20	/* sysfs-entry will be world-readable */
--#define AT24_FLAG_TAKE8ADDR	0x10	/* take always 8 addresses (24c00) */
-+#define AT24_FLAG_ADDR16	BIT(7)	/* address pointer is 16 bit */
-+#define AT24_FLAG_READONLY	BIT(6)	/* sysfs-entry will be read-only */
-+#define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
-+#define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 1288193..3238bf6 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -53,6 +53,14 @@
+  * which won't work on pure SMBus systems.
+  */
  
- 	void		(*setup)(struct memory_accessor *, void *context);
- 	void		*context;
++#define AT24_SIZE_BYTELEN		5
++#define AT24_SIZE_FLAGS			8
++
++#define AT24_BITMASK(x)			(BIT(x) - 1)
++
++#define AT24CS_SERIAL_SIZE		16
++#define AT24CS_SERIAL_ADDR(addr)	(addr + 0x08)
++
+ struct at24_data {
+ 	struct at24_platform_data chip;
+ 	struct memory_accessor macc;
+@@ -99,14 +107,6 @@ static unsigned write_timeout = 25;
+ module_param(write_timeout, uint, 0);
+ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+ 
+-#define AT24_SIZE_BYTELEN 5
+-#define AT24_SIZE_FLAGS 8
+-
+-#define AT24_BITMASK(x) (BIT(x) - 1)
+-
+-#define AT24CS_SERIAL_SIZE 16
+-#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
+-
+ /* create non-zero magic value for given eeprom parameters */
+ #define AT24_DEVICE_MAGIC(_len, _flags) 		\
+ 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
 -- 
 2.1.4
