@@ -1,159 +1,32 @@
 From: Sricharan R <sricharan@codeaurora.org>
-Subject: [PATCH V5 3/6] i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
-Date: Tue, 17 Nov 2015 17:15:24 +0530
-Message-ID: <1447760727-4897-4-git-send-email-sricharan@codeaurora.org>
+Subject: [PATCH V5 6/6] dts: msm8974: Add dma channels for blsp2_i2c1 node
+Date: Tue, 17 Nov 2015 17:15:27 +0530
+Message-ID: <1447760727-4897-7-git-send-email-sricharan@codeaurora.org>
 References: <1447760727-4897-1-git-send-email-sricharan@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 In-Reply-To: <1447760727-4897-1-git-send-email-sricharan@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: iivanov@mm-sol.com, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc: sricharan@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
 
-The definition of i2c_msg says that
-
-"If this is the last message in a group, it is followed by a STOP.
-Otherwise it is followed by the next @i2c_msg transaction segment,
-beginning with a (repeated) START"
-
-So the expectation is that there is no 'STOP' bit inbetween individual
-i2c_msg segments with repeated 'START'. The QUP i2c hardware has no way
-to inform that there should not be a 'STOP' at the end of transaction.
-The only way to implement this is to coalesce all the i2c_msg in i2c_msgs
-in to one transaction and transfer them. Adding the support for the same.
-
-This is required for some clients like touchscreen which keeps
-incrementing counts across individual transfers and 'STOP' bit inbetween
-resets the counter, which is not required.
-
-This patch adds the support in non-dma mode.
-
 Signed-off-by: Sricharan R <sricharan@codeaurora.org>
 ---
- drivers/i2c/busses/i2c-qup.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/qcom-msm8974.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 715d4d7..f9009d6 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -112,6 +112,7 @@
- #define SET_BIT				0x1
- #define RESET_BIT			0x0
- #define ONE_BYTE			0x1
-+#define QUP_I2C_MX_CONFIG_DURING_RUN   BIT(31)
+diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
+index 7786408..bd1be53 100644
+--- a/arch/arm/boot/dts/qcom-msm8974.dtsi
++++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
+@@ -328,6 +328,8 @@
+ 			clock-names = "core", "iface";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
++			dmas = <&blsp2_dma 20>, <&blsp2_dma 21>;
++			dma-names = "tx", "rx";
+ 		};
  
- struct qup_i2c_block {
- 	int	count;
-@@ -147,6 +148,12 @@ struct qup_i2c_dev {
- 	/* QUP core errors */
- 	u32			qup_err;
- 
-+	/* To check if this is the last msg */
-+	bool			is_last;
-+
-+	/* To configure when bus is in run state */
-+	int			config_run;
-+
- 	struct completion	xfer;
- };
- 
-@@ -269,7 +276,7 @@ static int qup_i2c_wait_ready(struct qup_i2c_dev *qup, int op, bool val,
- 		status = readl(qup->base + QUP_I2C_STATUS);
- 
- 		if (((opflags & op) >> shift) == val) {
--			if (op == QUP_OUT_NOT_EMPTY) {
-+			if ((op == QUP_OUT_NOT_EMPTY) && qup->is_last) {
- 				if (!(status & I2C_STATUS_BUS_ACTIVE))
- 					return 0;
- 			} else {
-@@ -290,6 +297,8 @@ static void qup_i2c_set_write_mode_v2(struct qup_i2c_dev *qup,
- 	/* Number of entries to shift out, including the tags */
- 	int total = msg->len + qup->blk.tx_tag_len;
- 
-+	total |= qup->config_run;
-+
- 	if (total < qup->out_fifo_sz) {
- 		/* FIFO mode */
- 		writel(QUP_REPACK_EN, qup->base + QUP_IO_MODE);
-@@ -443,7 +452,7 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 	}
- 
- 	/* Send _STOP commands for the last block */
--	if (qup->blk.pos == (qup->blk.count - 1)) {
-+	if ((qup->blk.pos == (qup->blk.count - 1)) && qup->is_last) {
- 		if (msg->flags & I2C_M_RD)
- 			tags[len++] = QUP_TAG_V2_DATARD_STOP;
- 		else
-@@ -581,7 +590,6 @@ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 
- 	/* Wait for the outstanding data in the fifo to drain */
- 	ret = qup_i2c_wait_ready(qup, QUP_OUT_NOT_EMPTY, RESET_BIT, ONE_BYTE);
--
- err:
- 	disable_irq(qup->irq);
- 	qup->msg = NULL;
-@@ -608,18 +616,20 @@ static void qup_i2c_set_read_mode_v2(struct qup_i2c_dev *qup, int len)
- 	int tx_len = qup->blk.tx_tag_len;
- 
- 	len += qup->blk.rx_tag_len;
-+	len |= qup->config_run;
-+	tx_len |= qup->config_run;
- 
- 	if (len < qup->in_fifo_sz) {
- 		/* FIFO mode */
- 		writel(QUP_REPACK_EN, qup->base + QUP_IO_MODE);
--		writel(len, qup->base + QUP_MX_READ_CNT);
- 		writel(tx_len, qup->base + QUP_MX_WRITE_CNT);
-+		writel(len, qup->base + QUP_MX_READ_CNT);
- 	} else {
- 		/* BLOCK mode (transfer data on chunks) */
- 		writel(QUP_INPUT_BLK_MODE | QUP_REPACK_EN,
- 		       qup->base + QUP_IO_MODE);
--		writel(len, qup->base + QUP_MX_INPUT_CNT);
- 		writel(tx_len, qup->base + QUP_MX_OUTPUT_CNT);
-+		writel(len, qup->base + QUP_MX_INPUT_CNT);
- 	}
- }
- 
-@@ -866,6 +876,12 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
- 			goto out;
- 		}
- 
-+		qup->is_last = (idx == (num - 1));
-+		if (idx)
-+			qup->config_run = QUP_I2C_MX_CONFIG_DURING_RUN;
-+		else
-+			qup->config_run = 0;
-+
- 		reinit_completion(&qup->xfer);
- 
- 		if (msgs[idx].flags & I2C_M_RD)
-@@ -873,13 +889,13 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
- 		else
- 			ret = qup_i2c_write_one_v2(qup, &msgs[idx]);
- 
--		if (!ret)
--			ret = qup_i2c_change_state(qup, QUP_RESET_STATE);
--
- 		if (ret)
- 			break;
- 	}
- 
-+	if (!ret)
-+		ret = qup_i2c_change_state(qup, QUP_RESET_STATE);
-+
- 	if (ret == 0)
- 		ret = num;
- out:
-@@ -1057,6 +1073,8 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(&qup->adap, qup);
- 	qup->adap.dev.parent = qup->dev;
- 	qup->adap.dev.of_node = pdev->dev.of_node;
-+	qup->is_last = 1;
-+
- 	strlcpy(qup->adap.name, "QUP I2C adapter", sizeof(qup->adap.name));
- 
- 	pm_runtime_set_autosuspend_delay(qup->dev, MSEC_PER_SEC);
+ 		spmi_bus: spmi@fc4cf000 {
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
