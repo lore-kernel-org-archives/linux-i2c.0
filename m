@@ -1,54 +1,47 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 7/9] eeprom: at24: add the at24cs series to the list of supported devices
-Date: Tue, 17 Nov 2015 10:52:28 +0100
-Message-ID: <1447753950-17213-8-git-send-email-bgolaszewski@baylibre.com>
-References: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH v2 0/9] eeprom: at24: at24cs series serial number read
+Date: Tue, 17 Nov 2015 10:52:21 +0100
+Message-ID: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The infrastructure for reading of the factory-programmed serial number
-for at24cs EEPROM series is now in place. Add the chips that are actually
-equipped with the serial number memory area to the list of supported
-devices.
+Chips from the at24cs EEPROM series have an additional read-only memory area
+containing a factory pre-programmed serial number. In order to access it, a
+dummy write must be executed before reading the serial number bytes.
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/misc/eeprom/at24.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+This series adds support for reading the serial number through a sysfs
+attribute.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index d474b6d..6e28b02 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -117,16 +117,25 @@ static const struct i2c_device_id at24_ids[] = {
- 	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
- 	/* old variants can't be handled with this generic entry! */
- 	{ "24c01",	AT24_DEVICE_MAGIC(1024 / 8,	0) },
-+	{ "24cs01",	AT24_DEVICE_MAGIC(1024 / 8,	AT24_FLAG_SERIAL) },
- 	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
-+	{ "24cs02",	AT24_DEVICE_MAGIC(2048 / 8,	AT24_FLAG_SERIAL) },
- 	/* spd is a 24c02 in memory DIMMs */
- 	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
- 				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
- 	{ "24c04",	AT24_DEVICE_MAGIC(4096 / 8,	0) },
-+	{ "24cs04",	AT24_DEVICE_MAGIC(4096 / 8,	AT24_FLAG_SERIAL) },
- 	/* 24rf08 quirk is handled at i2c-core */
- 	{ "24c08",	AT24_DEVICE_MAGIC(8192 / 8,	0) },
-+	{ "24cs08",	AT24_DEVICE_MAGIC(8192 / 8,	AT24_FLAG_SERIAL) },
- 	{ "24c16",	AT24_DEVICE_MAGIC(16384 / 8,	0) },
-+	{ "24cs16",	AT24_DEVICE_MAGIC(16384 / 8,	AT24_FLAG_SERIAL) },
- 	{ "24c32",	AT24_DEVICE_MAGIC(32768 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24cs32",	AT24_DEVICE_MAGIC(32768 / 8,
-+				AT24_FLAG_ADDR16 | AT24_FLAG_SERIAL) },
- 	{ "24c64",	AT24_DEVICE_MAGIC(65536 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24cs64",	AT24_DEVICE_MAGIC(65536 / 8,
-+				AT24_FLAG_ADDR16 | AT24_FLAG_SERIAL) },
- 	{ "24c128",	AT24_DEVICE_MAGIC(131072 / 8,	AT24_FLAG_ADDR16) },
- 	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
- 	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
+While we're at it: some of the patches contain readability tweaks and code
+organization fixes.
+
+Tested with at24cs64 and at24cs02 chips (for both 16 and 8 bit address
+pointers).
+
+(rebased against 4.4-rc1)
+
+v2:
+- protect the serial number read with a mutex
+
+v1: https://lkml.org/lkml/2015/10/20/162
+
+Bartosz Golaszewski (9):
+  eeprom: at24: platform_data: use BIT() macro
+  eeprom: at24: new flag in platform_data
+  eeprom: at24: tie up an additional address for at24cs series
+  eeprom: at24: support reading of the serial number
+  eeprom: at24: export the serial number through sysfs
+  eeprom: at24: improve the device_id table readability
+  eeprom: at24: add the at24cs series to the list of supported devices
+  eeprom: at24: remove a reduntant if
+  eeprom: at24: readability tweaks
+
+ drivers/misc/eeprom/at24.c         | 187 +++++++++++++++++++++++++++++++------
+ include/linux/platform_data/at24.h |   9 +-
+ 2 files changed, 166 insertions(+), 30 deletions(-)
+
 -- 
 2.1.4
