@@ -1,91 +1,111 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v6] at24: Support SMBus read/write of 16-bit devices
-Date: Tue, 17 Nov 2015 17:52:14 +0100
-Message-ID: <20151117175214.73a8cf68@endymion.delvare>
-References: <1914980865.104978.1447718293775.JavaMail.zimbra@xes-inc.com>
-	<1637462042.105214.1447718539047.JavaMail.zimbra@xes-inc.com>
+From: Li Yang <leoli@freescale.com>
+Subject: [PATCH] i2c: imx: fix build issue for platforms without pinctrl
+Date: Tue, 17 Nov 2015 15:11:15 -0600
+Message-ID: <1447794675-19411-1-git-send-email-leoli@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59279 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932163AbbKQQwR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 17 Nov 2015 11:52:17 -0500
-In-Reply-To: <1637462042.105214.1447718539047.JavaMail.zimbra@xes-inc.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Gao Pan <b54642@freescale.com>, Li Yang <leoli@freescale.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Aaron Sierra <asierra@xes-inc.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Christian Gmeiner <christian.gmeiner@gmail.com>, Nate Case <ncase@xes-inc.com>
 
-On Mon, 16 Nov 2015 18:02:19 -0600 (CST), Aaron Sierra wrote:
-> Previously, the at24 driver would bail out in the case of a 16-bit
-> addressable EEPROM attached to an SMBus controller. This is because
-> SMBus block reads and writes don't map to I2C multi-byte reads and
-> writes when the offset portion is 2 bytes.
-> 
-> Instead of bailing out, this patch settles for functioning with single
-> byte read SMBus cycles. Writes can be block or single-byte, depending
-> on SMBus controller features.
-> 
-> Read access is not without some risk. Multiple SMBus cycles are
-> required to read even one byte. If the SMBus has multiple masters and
-> one accesses this EEPROM between the dummy address write and the
-> subsequent current-address-read cycle(s), this driver will receive
-> data from the wrong address.
-> 
-> Functionality has been tested with the following devices:
-> 
->     AT24CM01 attached to Intel ISCH SMBus
->     AT24C512 attached to Intel I801 SMBus
-> 
-> Read performance:
->     3.6 KB/s with 32-byte* access
-> 
->     *limited to 32-bytes by I2C_SMBUS_BLOCK_MAX.
-> 
-> Write performance:
->     248 B/s with 1-byte page (default)
->     3.9 KB/s with 128-byte* page (via platform data)
-> 
->     *limited to 31-bytes by I2C_SMBUS_BLOCK_MAX - 1.
-> 
-> Signed-off-by: Nate Case <ncase@xes-inc.com>
-> Signed-off-by: Aaron Sierra <asierra@xes-inc.com>
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
-> ---
->  v2 - Account for changes related to introduction of
->       i2c_smbus_read_i2c_block_data_or_emulated()
->  v3 - Consolidate three patches into one
->     - Expand comments regarding SMBus multi-master read risks.
->     - Rely on current-address-read for improved read performance (i.e. one
->       dummy address write followed by multiple individual byte reads).
->       This improves performance from 1.4 KiB/s to 3.6 KiB/s.
->     - Use struct at24_data's writebuf instead of kzalloc-ing
->     - Only limit write_max by 1-byte when accessing a 16-bit device with
->       block writes instead of attempting to preserve a power-of-two.
->     - Style fixes (indentation, parentheses, unnecessary masking, etc.)
->  v4 - Address 16-bit safety in Kconfig
->     - Set "count" to zero later in at24_smbus_read_block_data()
->     - Fix over-80-columns issues in at24_eeprom_read()
->     - Fix write_max off-by-one in at24_probe()
->     - Check SMBus functionality needed for 16-bit device reads
->     - Homogenize indentation of SMBus functionality checks for SMBus write
->  v5 - 16-bit device read needs READ_BYTE not READ_BYTE_DATA
->     - Clarify write_max limiting with smbus_max
->     - Add X-ES copyright
->  v6 - Update comment associated with SMBus functionality testing for 16-bit
->       device read (READ_BYTE not READ_BYTE_DATA)
-> 
->  drivers/misc/eeprom/Kconfig |   5 +-
->  drivers/misc/eeprom/at24.c  | 132 +++++++++++++++++++++++++++++++++++++++-----
->  2 files changed, 122 insertions(+), 15 deletions(-)
-> (...)
+With commit 1c4b6c3b (i2c: imx: implement bus recovery) the driver
+starts to use pinctrl to do i2c bus recovery.  But this breaks build
+for platforms that don't implement pinctrl, such as ls1021a and
+ls1043a.
 
-Sweet, thanks for your patience.
+This patch fix the problem by only compiling the bus recovery code
+when CONFIG_PINCTRL is enabled.
 
-Now it's up to Wolfram.
+Reported-by: Ren Xiaofeng <xiaofeng.ren@freescale.com>
+Signed-off-by: Li Yang <leoli@freescale.com>
+Cc: Gao Pan <b54642@freescale.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 1e4d99d..614253a 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -208,11 +208,13 @@ struct imx_i2c_struct {
+ 	unsigned int		cur_clk;
+ 	unsigned int		bitrate;
+ 	const struct imx_i2c_hwdata	*hwdata;
++#ifdef CONFIG_PINCTRL
+ 	struct i2c_bus_recovery_info rinfo;
+ 
+ 	struct pinctrl *pinctrl;
+ 	struct pinctrl_state *pinctrl_pins_default;
+ 	struct pinctrl_state *pinctrl_pins_gpio;
++#endif
+ 
+ 	struct imx_i2c_dma	*dma;
+ };
+@@ -902,12 +904,14 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+ 
+ 	/* Start I2C transfer */
+ 	result = i2c_imx_start(i2c_imx);
++#ifdef CONFIG_PINCTRL
+ 	if (result) {
+ 		if (i2c_imx->adapter.bus_recovery_info) {
+ 			i2c_recover_bus(&i2c_imx->adapter);
+ 			result = i2c_imx_start(i2c_imx);
+ 		}
+ 	}
++#endif
+ 
+ 	if (result)
+ 		goto fail0;
+@@ -969,6 +973,7 @@ fail0:
+ 	return (result < 0) ? result : num;
+ }
+ 
++#ifdef CONFIG_PINCTRL
+ static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
+ {
+ 	struct imx_i2c_struct *i2c_imx;
+@@ -1017,6 +1022,7 @@ static void i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+ 	rinfo->recover_bus = i2c_generic_gpio_recovery;
+ 	i2c_imx->adapter.bus_recovery_info = rinfo;
+ }
++#endif
+ 
+ static u32 i2c_imx_func(struct i2c_adapter *adapter)
+ {
+@@ -1086,11 +1092,13 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++#ifdef CONFIG_PINCTRL
+ 	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+ 	if (IS_ERR(i2c_imx->pinctrl)) {
+ 		ret = PTR_ERR(i2c_imx->pinctrl);
+ 		goto clk_disable;
+ 	}
++#endif
+ 
+ 	/* Request IRQ */
+ 	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
+@@ -1125,7 +1133,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 		goto clk_disable;
+ 	}
+ 
++#ifdef CONFIG_PINCTRL
+ 	i2c_imx_init_recovery_info(i2c_imx, pdev);
++#endif
+ 
+ 	/* Set up platform driver data */
+ 	platform_set_drvdata(pdev, i2c_imx);
 -- 
-Jean Delvare
-SUSE L3 Support
+2.3.3
