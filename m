@@ -1,80 +1,50 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 3/9] eeprom: at24: tie up an additional address for at24cs series
-Date: Tue, 17 Nov 2015 10:52:24 +0100
-Message-ID: <1447753950-17213-4-git-send-email-bgolaszewski@baylibre.com>
-References: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1447753950-17213-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Zhiqiang Hou <Zhiqiang.Hou@freescale.com>
+Subject: [PATCHv8 2/5] watchdog: Add support for Freescale Layerscape platforms
+Date: Tue, 17 Nov 2015 17:53:19 +0800
+Message-ID: <1447754002-40555-2-git-send-email-Zhiqiang.Hou@freescale.com>
+References: <1447754002-40555-1-git-send-email-Zhiqiang.Hou@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <1447754002-40555-1-git-send-email-Zhiqiang.Hou@freescale.com>
+Sender: linux-clk-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
+Cc: mark.rutland@arm.com, linux@roeck-us.net, wsa@the-dreams.de, wim@iguana.be, corbet@lwn.net, mturquette@baylibre.com, sboyd@codeaurora.org, Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com, scottwood@freescale.com, bhupesh.sharma@freescale.com, Wenbin.Song@freescale.com, B48286@freescale.com
 List-Id: linux-i2c@vger.kernel.org
 
-The at24cs series EEPROM chips have an additional read-only memory area,
-that is visible on a different i2c slave address. Tie it up with a dummy
-device.
+From: Shaohui Xie <Shaohui.Xie@freescale.com>
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Modify watchdog/Kconfig file to support Layerscape platforms.
+
+Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
+Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/misc/eeprom/at24.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+V8:
+ - No change.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 5d7c090..08cc327 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -103,6 +103,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+V6:
+ - Remove a Signed-off.
+
+V5: V4 V3 V2
+ - No change.
+
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 7a8a6c6..1c427be 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -446,7 +446,7 @@ config MAX63XX_WATCHDOG
  
- #define AT24_BITMASK(x) (BIT(x) - 1)
- 
-+#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
-+
- /* create non-zero magic value for given eeprom parameters */
- #define AT24_DEVICE_MAGIC(_len, _flags) 		\
- 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
-@@ -558,6 +560,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
- 		num_addresses = 8;
-+	else if (chip.flags & AT24_FLAG_SERIAL)
-+		num_addresses = 2;
- 	else
- 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
- 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
-@@ -616,12 +620,30 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->client[0] = client;
- 
- 	/* use dummy devices for multiple-address chips */
--	for (i = 1; i < num_addresses; i++) {
--		at24->client[i] = i2c_new_dummy(client->adapter,
-+	if (at24->chip.flags & AT24_FLAG_TAKE8ADDR) {
-+		for (i = 1; i < num_addresses; i++) {
-+			at24->client[i] = i2c_new_dummy(client->adapter,
-+							client->addr + i);
-+			if (!at24->client[i]) {
-+				dev_err(&client->dev,
-+					"address 0x%02x unavailable\n",
- 					client->addr + i);
--		if (!at24->client[i]) {
-+				err = -EADDRINUSE;
-+				goto err_clients;
-+			}
-+		}
-+	}
-+
-+	/*
-+	 * at24cs series tie up an additional address for the memory area
-+	 * contining the serial number
-+	 */
-+	if (at24->chip.flags & AT24_FLAG_SERIAL) {
-+		at24->client[1] = i2c_new_dummy(client->adapter,
-+					AT24CS_SERIAL_ADDR(client->addr));
-+		if (!at24->client[1]) {
- 			dev_err(&client->dev, "address 0x%02x unavailable\n",
--					client->addr + i);
-+				AT24CS_SERIAL_ADDR(client->addr));
- 			err = -EADDRINUSE;
- 			goto err_clients;
- 		}
+ config IMX2_WDT
+ 	tristate "IMX2+ Watchdog"
+-	depends on ARCH_MXC
++	depends on ARCH_MXC || ARCH_LAYERSCAPE
+ 	select REGMAP_MMIO
+ 	select WATCHDOG_CORE
+ 	help
 -- 
-2.1.4
+2.1.0.27.g96db324
+
