@@ -1,172 +1,191 @@
-From: Zhiqiang Hou <Zhiqiang.Hou@freescale.com>
-Subject: [PATCHv8 5/5] ARM64: dts: add LS1043a-RDB board support
-Date: Tue, 17 Nov 2015 17:53:22 +0800
-Message-ID: <1447754002-40555-5-git-send-email-Zhiqiang.Hou@freescale.com>
-References: <1447754002-40555-1-git-send-email-Zhiqiang.Hou@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-clk-owner@vger.kernel.org>
-In-Reply-To: <1447754002-40555-1-git-send-email-Zhiqiang.Hou@freescale.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org
-Cc: mark.rutland@arm.com, linux@roeck-us.net, wsa@the-dreams.de, wim@iguana.be, corbet@lwn.net, mturquette@baylibre.com, sboyd@codeaurora.org, Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com, scottwood@freescale.com, bhupesh.sharma@freescale.com, Wenbin.Song@freescale.com, B48286@freescale.com
+From: Sricharan R <sricharan@codeaurora.org>
+Subject: [PATCH V5 1/6] i2c: qup: Change qup_wait_writeready function to use for all timeouts
+Date: Tue, 17 Nov 2015 17:15:22 +0530
+Message-ID: <1447760727-4897-2-git-send-email-sricharan@codeaurora.org>
+References: <1447760727-4897-1-git-send-email-sricharan@codeaurora.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1447760727-4897-1-git-send-email-sricharan@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: iivanov@mm-sol.com, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: sricharan@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Shaohui Xie <Shaohui.Xie@freescale.com>
+qup_wait_writeready waits only on a output fifo empty event.
+Change the same function to accept the event and data length
+to wait as parameters. This way the same function can be used for
+timeouts in other places as well.
 
-Signed-off-by: Shaohui Xie <Shaohui.Xie@freescale.com>
-Signed-off-by: Mingkai Hu <Mingkai.Hu@freescale.com>
-Signed-off-by: Wenbin Song <Wenbin.Song@freescale.com>
-Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+Signed-off-by: Sricharan R <sricharan@codeaurora.org>
 ---
-V8 - V7:
- - Rebased on latest LS2080 patches.
+ drivers/i2c/busses/i2c-qup.c | 67 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 48 insertions(+), 19 deletions(-)
 
-V6: V5 V4 V3
- - No change.
-
-V2:
- - Remove the useless compatible "simple-bus" from cpld node.
-
- arch/arm64/boot/dts/freescale/Makefile            |   1 +
- arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts | 116 ++++++++++++++++++++++
- 2 files changed, 117 insertions(+)
- create mode 100644 arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-
-diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
-index c4957a4..f3c2516 100644
---- a/arch/arm64/boot/dts/freescale/Makefile
-+++ b/arch/arm64/boot/dts/freescale/Makefile
-@@ -1,6 +1,7 @@
- dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-qds.dtb
- dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-rdb.dtb
- dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls2080a-simu.dtb
-+dtb-$(CONFIG_ARCH_LAYERSCAPE) += fsl-ls1043a-rdb.dtb
-  
- always		:= $(dtb-y)
- subdir-y	:= $(dts-dirs)
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-new file mode 100644
-index 0000000..ce23557
---- /dev/null
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-@@ -0,0 +1,116 @@
-+/*
-+ * Device Tree Include file for Freescale Layerscape-1043A family SoC.
-+ *
-+ * Copyright 2014-2015, Freescale Semiconductor
-+ *
-+ * Mingkai Hu <Mingkai.hu@freescale.com>
-+ *
-+ * This file is dual-licensed: you can use it either under the terms
-+ * of the GPLv2 or the X11 license, at your option. Note that this dual
-+ * licensing only applies to this file, and not this project as a
-+ * whole.
-+ *
-+ *  a) This library is free software; you can redistribute it and/or
-+ *     modify it under the terms of the GNU General Public License as
-+ *     published by the Free Software Foundation; either version 2 of the
-+ *     License, or (at your option) any later version.
-+ *
-+ *     This library is distributed in the hope that it will be useful,
-+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *     GNU General Public License for more details.
-+ *
-+ * Or, alternatively,
-+ *
-+ *  b) Permission is hereby granted, free of charge, to any person
-+ *     obtaining a copy of this software and associated documentation
-+ *     files (the "Software"), to deal in the Software without
-+ *     restriction, including without limitation the rights to use,
-+ *     copy, modify, merge, publish, distribute, sublicense, and/or
-+ *     sell copies of the Software, and to permit persons to whom the
-+ *     Software is furnished to do so, subject to the following
-+ *     conditions:
-+ *
-+ *     The above copyright notice and this permission notice shall be
-+ *     included in all copies or substantial portions of the Software.
-+ *
-+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-+ *     OTHER DEALINGS IN THE SOFTWARE.
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index fdcbdab..81ed120 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -98,6 +98,9 @@
+ #define QUP_STATUS_ERROR_FLAGS		0x7c
+ 
+ #define QUP_READ_LIMIT			256
++#define SET_BIT				0x1
++#define RESET_BIT			0x0
++#define ONE_BYTE			0x1
+ 
+ struct qup_i2c_dev {
+ 	struct device		*dev;
+@@ -221,26 +224,42 @@ static int qup_i2c_change_state(struct qup_i2c_dev *qup, u32 state)
+ 	return 0;
+ }
+ 
+-static int qup_i2c_wait_writeready(struct qup_i2c_dev *qup)
++/**
++ * qup_i2c_wait_ready - wait for a give number of bytes in tx/rx path
++ * @qup: The qup_i2c_dev device
++ * @op: The bit/event to wait on
++ * @val: value of the bit to wait on, 0 or 1
++ * @len: The length the bytes to be transferred
 + */
++static int qup_i2c_wait_ready(struct qup_i2c_dev *qup, int op, bool val,
++			      int len)
+ {
+ 	unsigned long timeout;
+ 	u32 opflags;
+ 	u32 status;
++	u32 shift = __ffs(op);
+ 
+-	timeout = jiffies + HZ;
++	len *= qup->one_byte_t;
++	/* timeout after a wait of twice the max time */
++	timeout = jiffies + len * 4;
+ 
+ 	for (;;) {
+ 		opflags = readl(qup->base + QUP_OPERATIONAL);
+ 		status = readl(qup->base + QUP_I2C_STATUS);
+ 
+-		if (!(opflags & QUP_OUT_NOT_EMPTY) &&
+-		    !(status & I2C_STATUS_BUS_ACTIVE))
+-			return 0;
++		if (((opflags & op) >> shift) == val) {
++			if (op == QUP_OUT_NOT_EMPTY) {
++				if (!(status & I2C_STATUS_BUS_ACTIVE))
++					return 0;
++			} else {
++				return 0;
++			}
++		}
+ 
+ 		if (time_after(jiffies, timeout))
+ 			return -ETIMEDOUT;
+ 
+-		usleep_range(qup->one_byte_t, qup->one_byte_t * 2);
++		usleep_range(len, len * 2);
+ 	}
+ }
+ 
+@@ -261,13 +280,13 @@ static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 	}
+ }
+ 
+-static void qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
++static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ {
+ 	u32 addr = msg->addr << 1;
+ 	u32 qup_tag;
+-	u32 opflags;
+ 	int idx;
+ 	u32 val;
++	int ret = 0;
+ 
+ 	if (qup->pos == 0) {
+ 		val = QUP_TAG_START | addr;
+@@ -279,9 +298,10 @@ static void qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 
+ 	while (qup->pos < msg->len) {
+ 		/* Check that there's space in the FIFO for our pair */
+-		opflags = readl(qup->base + QUP_OPERATIONAL);
+-		if (opflags & QUP_OUT_FULL)
+-			break;
++		ret = qup_i2c_wait_ready(qup, QUP_OUT_FULL, RESET_BIT,
++					 4 * ONE_BYTE);
++		if (ret)
++			return ret;
+ 
+ 		if (qup->pos == msg->len - 1)
+ 			qup_tag = QUP_TAG_STOP;
+@@ -300,6 +320,8 @@ static void qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 		qup->pos++;
+ 		idx++;
+ 	}
 +
-+/dts-v1/;
-+/include/ "fsl-ls1043a.dtsi"
++	return ret;
+ }
+ 
+ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+@@ -325,7 +347,9 @@ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 		if (ret)
+ 			goto err;
+ 
+-		qup_i2c_issue_write(qup, msg);
++		ret = qup_i2c_issue_write(qup, msg);
++		if (ret)
++			goto err;
+ 
+ 		ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+ 		if (ret)
+@@ -347,7 +371,7 @@ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 	} while (qup->pos < msg->len);
+ 
+ 	/* Wait for the outstanding data in the fifo to drain */
+-	ret = qup_i2c_wait_writeready(qup);
++	ret = qup_i2c_wait_ready(qup, QUP_OUT_NOT_EMPTY, RESET_BIT, ONE_BYTE);
+ 
+ err:
+ 	disable_irq(qup->irq);
+@@ -384,18 +408,19 @@ static void qup_i2c_issue_read(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ }
+ 
+ 
+-static void qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
++static int qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ {
+-	u32 opflags;
+ 	u32 val = 0;
+ 	int idx;
++	int ret = 0;
+ 
+ 	for (idx = 0; qup->pos < msg->len; idx++) {
+ 		if ((idx & 1) == 0) {
+ 			/* Check that FIFO have data */
+-			opflags = readl(qup->base + QUP_OPERATIONAL);
+-			if (!(opflags & QUP_IN_NOT_EMPTY))
+-				break;
++			ret = qup_i2c_wait_ready(qup, QUP_IN_NOT_EMPTY,
++						 SET_BIT, 4 * ONE_BYTE);
++			if (ret)
++				return ret;
+ 
+ 			/* Reading 2 words at time */
+ 			val = readl(qup->base + QUP_IN_FIFO_BASE);
+@@ -405,6 +430,8 @@ static void qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 			msg->buf[qup->pos++] = val >> QUP_MSW_SHIFT;
+ 		}
+ 	}
 +
-+/ {
-+	model = "LS1043A RDB Board";
-+};
-+
-+&i2c0 {
-+	status = "okay";
-+	ina220@40 {
-+		compatible = "ti,ina220";
-+		reg = <0x40>;
-+		shunt-resistor = <1000>;
-+	};
-+	adt7461a@4c {
-+		compatible = "adi,adt7461";
-+		reg = <0x4c>;
-+	};
-+	eeprom@52 {
-+		compatible = "at24,24c512";
-+		reg = <0x52>;
-+	};
-+	eeprom@53 {
-+		compatible = "at24,24c512";
-+		reg = <0x53>;
-+	};
-+	rtc@68 {
-+		compatible = "pericom,pt7c4338";
-+		reg = <0x68>;
-+	};
-+};
-+
-+&ifc {
-+	status = "okay";
-+	#address-cells = <2>;
-+	#size-cells = <1>;
-+	/* NOR, NAND Flashes and FPGA on board */
-+	ranges = <0x0 0x0 0x0 0x60000000 0x08000000
-+		  0x1 0x0 0x0 0x7e800000 0x00010000
-+		  0x2 0x0 0x0 0x7fb00000 0x00000100>;
-+
-+		nor@0,0 {
-+			compatible = "cfi-flash";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			reg = <0x0 0x0 0x8000000>;
-+			bank-width = <2>;
-+			device-width = <1>;
-+		};
-+
-+		nand@1,0 {
-+			compatible = "fsl,ifc-nand";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			reg = <0x1 0x0 0x10000>;
-+		};
-+
-+		cpld: board-control@2,0 {
-+			compatible = "fsl,ls1043ardb-cpld";
-+			reg = <0x2 0x0 0x0000100>;
-+		};
-+};
-+
-+&duart0 {
-+	status = "okay";
-+};
-+
-+&duart1 {
-+	status = "okay";
-+};
++	return ret;
+ }
+ 
+ static int qup_i2c_read_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+@@ -450,7 +477,9 @@ static int qup_i2c_read_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 			goto err;
+ 		}
+ 
+-		qup_i2c_read_fifo(qup, msg);
++		ret = qup_i2c_read_fifo(qup, msg);
++		if (ret)
++			goto err;
+ 	} while (qup->pos < msg->len);
+ 
+ err:
 -- 
-2.1.0.27.g96db324
-
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
