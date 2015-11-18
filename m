@@ -1,49 +1,70 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH 1/3] i2c: Revert "i2c: xiic: Do not reset controller before
- every transfer"
-Date: Wed, 18 Nov 2015 11:01:56 +0100
-Message-ID: <564C4C94.6020406@metafoo.de>
-References: <1447681325-30914-1-git-send-email-lars@metafoo.de>	<CAKfKVtGqPPP=bnWH4dPLT1=gjrvZe=0zmix58SKBT79MsR+CXg@mail.gmail.com>	<564AD886.3060108@metafoo.de> <CAKfKVtGFfKw8nJO5RobMtBrtS7dX-m4i+tuYHkNJd0+j2w80Lg@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: i2c slave support =?utf-8?B?ZsO8?= =?utf-8?Q?r?= i.mx6
+Date: Wed, 18 Nov 2015 12:11:42 +0100
+Message-ID: <20151118111142.GC11028@katana>
+References: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
+ <20151110085955.GA1532@katana>
+ <CAH-Fpeouz=DKaNxegRkc5X4VB5y4r0kT3EnqNdB+_MqdPUs16w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="69pVuxX8awAiJ7fD"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp-out-064.synserver.de ([212.40.185.64]:1252 "EHLO
-	smtp-out-188.synserver.de" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932087AbbKRKCE (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Nov 2015 05:02:04 -0500
-In-Reply-To: <CAKfKVtGFfKw8nJO5RobMtBrtS7dX-m4i+tuYHkNJd0+j2w80Lg@mail.gmail.com>
+Received: from sauhun.de ([89.238.76.85]:33440 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755703AbbKRLLq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 18 Nov 2015 06:11:46 -0500
+Content-Disposition: inline
+In-Reply-To: <CAH-Fpeouz=DKaNxegRkc5X4VB5y4r0kT3EnqNdB+_MqdPUs16w@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Shubhrajyoti Datta <shubhraj@xilinx.com>, linux-i2c@vger.kernel.org
+To: Michael Bachmeier <michael.bachmeier.linux@gmail.com>
+Cc: linux-i2c@vger.kernel.org, kernel@pengutronix.de, Shawn Guo <shawn.guo@linaro.org>
 
-On 11/17/2015 03:28 PM, Shubhrajyoti Datta wrote:
-> On Tue, Nov 17, 2015 at 1:04 PM, Lars-Peter Clausen <lars@metafoo.de> wrote:
->> On 11/17/2015 06:17 AM, Shubhrajyoti Datta wrote:
->>> On Mon, Nov 16, 2015 at 7:12 PM, Lars-Peter Clausen <lars@metafoo.de> wrote:
->>>> Commit d701667bb331 ("i2c: xiic: Do not reset controller before every
->>>> transfer") removed the reinitialization of the controller before the start
->>>> of each transfer. Apparently this change is not safe to make and the commit
->>>> results in random I2C bus failures.
->>>
->>> Which is the platform and the ip version that you  saw the issue.
->>> Did you see the issue with read and write as  well?
->>
->> The IP version is the axi-iic v2.0 Revision 8. I've tested this on a few
->> platforms, custom ones and standard ones and I could reproduce it on most.
->> One of them was on the ZED board. The one where I couldn't reproduce it was
->> the ZC706. But that doesn't necessarily mean it doesn't happen there, just
->> that it is not triggered by the testcase.
-> All the boards having the same version of the ip is what I have understood.
-> 
-> Thanks for the info I will try to  reproduce the issue.
-> 
->>
->> The problem is that it is random corruption,
-> Of registers?
 
-To be honest I don't know if there is corruption during I2C write transfers,
-but there is definitely corruption during read transactions.
+--69pVuxX8awAiJ7fD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-- Lars
+Hi,
+
+> thanks to your comments in the rcar driver, I understand the function
+> of each register. But I'd like a manual of this board. Where is
+> accurately entered into the individual registers.
+
+As far as I know, there is no public user manual for RCar SoCs. I can
+ask, though.
+
+> Had someone for me a manual by the individual registers are explained.
+> So that I can understand the rcar driver better.
+
+However, if you have a specific question, you could ask and I could try
+improving the driver's documentation :)
+
+Regards,
+
+   Wolfram
+
+
+--69pVuxX8awAiJ7fD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWTFzuAAoJEBQN5MwUoCm28e4QAKql9QsdzwBRSh8ZEOEndBuv
+K/cLgcJSeVBMBrH6GgCYNvwPJthE7E5HWMvZfb0AAlj1jElDFRKsWWGlGtAr2pWS
+AZXAl3rM6kavuUAj1MO63F9rUBwuG/5mC/knZ3yxChybqzQPjEH5nAwS/XgvN3L/
+VhfwaYiTnGSYmjpZsQ7YeaDKogswOlP5ZJYBG6E71DoG5x3LrKRL4iHStiY0kf7I
+2uvOlrOMJIBPEaPzNzsU6C1PCvBOj+2FYAEVlFpN1Rs/nmxo3ufqITGU4UXcf2+Z
+fikRFkHnShgcmWrthuA0Y0+X6+zlstX5mYx4d6GQieqDC5/bjkd3TpNaqHlSJCpH
+AEFnDW0t6FFYoBtKmD2AL5GjW+uQZbFSN2W04EApm3wsnptCynp9DSNlSoCnlfWr
+3GFu6/rHWsLHggullfNVyQFHY87xtn/Se++EzCbhEzV/3eS4G/L5w8mEJjUBHR2r
+nIKLx+CM9N6eOuYAbOBqswd/yppbprWwwE2aWwoGMoaVELxn0iW8HOdvQ8RJV1m7
+pGBZ2MlzYYBAARlGgbol37q3nfgfT4DsU8FWYLjPJg5jXR2ROb795gKjhKg4N+av
+Vbe5Sap7dFYooJVoFa+SG5FQ9hiHtl3zM6QnALVgqYxDverloZwXsPg5I2+R5pnL
+Ya7cvDCKFNd8/EF8fbpS
+=6JTF
+-----END PGP SIGNATURE-----
+
+--69pVuxX8awAiJ7fD--
