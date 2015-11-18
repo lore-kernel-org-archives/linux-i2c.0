@@ -1,50 +1,92 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v3 1/1] i2c: taos-evm: replace simple_strtoul by kstrtou8
-Date: Wed, 18 Nov 2015 18:26:25 +0200
-Message-ID: <CAHp75Vepu9=DjsV2JdR2pRMQw+0GJTJktudg44GnCgbms0B7mw@mail.gmail.com>
-References: <1447851356-6248-1-git-send-email-clabbe.montjoie@gmail.com>
-	<1447851356-6248-2-git-send-email-clabbe.montjoie@gmail.com>
+From: Li Yang <leoli@freescale.com>
+Subject: Re: [PATCH] i2c: imx: make bus recovery through pinctrl optional
+Date: Wed, 18 Nov 2015 16:59:11 -0600
+Message-ID: <CADRPPNQZye7t2biS2Z8p3y7O6=xw4UcOLRC5ngs2Qvuh0UHXGg@mail.gmail.com>
+References: <1447804979-29550-1-git-send-email-leoli@freescale.com>
+	<20151118072437.GS22022@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1447851356-6248-2-git-send-email-clabbe.montjoie@gmail.com>
+In-Reply-To: <20151118072437.GS22022@pengutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: LABBE Corentin <clabbe.montjoie@gmail.com>
-Cc: jdelvare@suse.com, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Gao Pan <b54642@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 18, 2015 at 2:55 PM, LABBE Corentin
-<clabbe.montjoie@gmail.com> wrote:
-> The simple_strtoul function is marked as obsolete.
-> This patch replace it by kstrtou8.
+On Wed, Nov 18, 2015 at 1:24 AM, Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig@pengutronix.de> wrote:
+> Hello,
 >
+> On Tue, Nov 17, 2015 at 06:02:59PM -0600, Li Yang wrote:
+>> Since commit 1c4b6c3bcf30 ("i2c: imx: implement bus recovery") the d=
+river
+>> starts to use gpio/pinctrl to do i2c bus recovery.  But pinctrl is n=
+ot
+>> always available for platforms using this driver such as ls1021a and
+>> ls1043a, and the device tree binding also mentioned this gpio based
+>> recovery mechanism as optional.  The patch make it really optional t=
+hat
+>> the probe function won't bailout when pinctrl is not available and i=
+t
+>> won't try to register recovery functions if pinctrl is NULL when the
+>> PINCTRL is not enabled at all.
+>>
+>> Signed-off-by: Li Yang <leoli@freescale.com>
+>> Cc: Gao Pan <b54642@freescale.com>
+>> ---
+>>  drivers/i2c/busses/i2c-imx.c | 13 ++++++-------
+>>  1 file changed, 6 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-i=
+mx.c
+>> index 1e4d99d..7813153 100644
+>> --- a/drivers/i2c/busses/i2c-imx.c
+>> +++ b/drivers/i2c/busses/i2c-imx.c
+>> @@ -1086,12 +1086,6 @@ static int i2c_imx_probe(struct platform_devi=
+ce *pdev)
+>>               return ret;
+>>       }
+>>
+>> -     i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
+>> -     if (IS_ERR(i2c_imx->pinctrl)) {
+>> -             ret =3D PTR_ERR(i2c_imx->pinctrl);
+>> -             goto clk_disable;
+>> -     }
+>> -
+>>       /* Request IRQ */
+>>       ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
+>>                               pdev->name, i2c_imx);
+>> @@ -1125,7 +1119,12 @@ static int i2c_imx_probe(struct platform_devi=
+ce *pdev)
+>>               goto clk_disable;
+>>       }
+>>
+>> -     i2c_imx_init_recovery_info(i2c_imx, pdev);
+>> +     /* optional bus recovery feature through pinctrl */
+>> +     i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
+>> +     if (IS_ERR_OR_NULL(i2c_imx->pinctrl))
+>> +             dev_info(&pdev->dev, "can't get pinctrl, bus recovery =
+feature disabled\n");
+>> +     else
+>> +             i2c_imx_init_recovery_info(i2c_imx, pdev);
+>
+> I'm pretty sure this is wrong. If pinctrl isn't available
+> devm_pinctrl_get returns NULL? But AFAIK you must not ignore an error=
+,
+> so the better thing to do is:
 
-Only one concern. simple_strto* goes through the string until it has
-an invalid character or \0. In your case kstrtou8 will fail the
-transfer. So, is there possible cases when HW returns such data?
+If CONFIG_PINCTRL is not enabled, the devm_pinctrl_get() will return
+NULL directly as defined in the include/linux/pinctrl/consumer.h.
 
-And just a style nitpicks below.
+If CONFIG_PINCTRL is enabled because we are using a multi-platform
+image but the actual hardware used doesn't have a pinctrl driver or
+pinctrl device tree nodes.  It is expected that the devm_pinctrl_get()
+will return error.  But as the pinctrl is only used for bus recovery
+which is just an optional function of this driver.  We shouldn't
+bailout the probe but keep the driver working without the bus recovery
+function.  As for generic errors like (!dev) or out-of-memory, the
+probe will fail elsewhere anyway.
 
->                 if (p[0] =3D=3D 'x') {
-> -                       data->byte =3D simple_strtol(p + 1, NULL, 16)=
-;
-> +                       /*
-> +                        * voluntarily dropping error code of kstrtou=
-8 since all
-
--> Voluntarily=E2=80=A6
-
-> +                        * error code that it could return are invali=
-d according
-> +                        * to Documentation/i2c/fault-codes
-
--> =E2=80=A6codes.
-
-> +                        */
-> +                       if (kstrtou8(p + 1, 16, &data->byte))
-> +                               return -EPROTO;
-
---=20
-With Best Regards,
-Andy Shevchenko
+Regards,
+Leo
