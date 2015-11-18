@@ -1,50 +1,59 @@
-From: LABBE Corentin <clabbe.montjoie@gmail.com>
-Subject: [PATCH v2 1/1] i2c: taos-evm: replace simple_strtoul by kstrtou8
-Date: Wed, 18 Nov 2015 09:00:53 +0100
-Message-ID: <1447833653-28387-2-git-send-email-clabbe.montjoie@gmail.com>
-References: <1447833653-28387-1-git-send-email-clabbe.montjoie@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1447833653-28387-1-git-send-email-clabbe.montjoie@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jdelvare@suse.com, wsa@the-dreams.de
-Cc: LABBE Corentin <clabbe.montjoie@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 05/10] i2c: rcar: refactor setup of a msg
+Date: Wed, 18 Nov 2015 09:07:36 +0100
+Message-ID: <20151118080736.GA1528@katana>
+References: <1447338715-9955-1-git-send-email-wsa@the-dreams.de>
+ <1447338715-9955-6-git-send-email-wsa@the-dreams.de>
+ <2420286.JI0i0lloO0@avalon>
+ <20151117070053.GA952@tetsubishi>
+ <CANqRtoS0tFtjNcB=gP5xKNzMW2_41rxAydOcZM1+fOSjfCaM7w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CANqRtoS0tFtjNcB=gP5xKNzMW2_41rxAydOcZM1+fOSjfCaM7w@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linux-I2C <linux-i2c@vger.kernel.org>, SH-Linux <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The simple_strtoul function is marked as obsolete.
-This patch replace it by kstrtou8.
 
-Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
----
- drivers/i2c/busses/i2c-taos-evm.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
-index 4c7fc2d..552f127 100644
---- a/drivers/i2c/busses/i2c-taos-evm.c
-+++ b/drivers/i2c/busses/i2c-taos-evm.c
-@@ -70,6 +70,7 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- 	struct serio *serio = adapter->algo_data;
- 	struct taos_data *taos = serio_get_drvdata(serio);
- 	char *p;
-+	int err;
- 
- 	/* Encode our transaction. "@" is for the device address, "$" for the
- 	   SMBus command and "#" for the data. */
-@@ -130,7 +131,14 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- 			return 0;
- 	} else {
- 		if (p[0] == 'x') {
--			data->byte = simple_strtol(p + 1, NULL, 16);
-+			/*
-+			 * voluntary dropping error code of kstrtou8 since all
-+			 * error code that it could return are invalid according
-+			 * to Documentation/i2c/fault-codes
-+			 */
-+			err = kstrtou8(p + 1, 16, &data->byte);
-+			if (err)
-+				return -EPROTO;
- 			return 0;
- 		}
- 	}
--- 
-2.4.10
+
+> On Lager it seems that the GP5_5/GP_6 pins with the I2C2 bus for the
+> ADV7511 chip has more flexible configuration, so using either IIC or
+> I2C should be possible. You can sample those pins on EXIO_A with the
+> ZEBAX break out adapter.
+
+Yes, that's what I basically did here for developing the whole patch
+series and for the recent testing. A simple 's/iic2/i2c2/g' on the Lager
+DTS does the trick.
+
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWTDHIAAoJEBQN5MwUoCm2zs8P/iCy437lwf9/JoQDBvWsNmiL
+Cx7/RWC6XG504FVzrhGdgzDsmLhDXKZsi2+Tntnjja9Zhl6AlGEDjVpyiAU8xbNi
+2nglKMtiOEkrJtbGhXyJksH05A62zVrb4VBXfBA0KHtQvfPULJxqm/UMraq/2N0P
+yaLC184IeS/Ti0ewP6nuM4fqCIQRJupQKmnbnrJ3NnY4TUxG3Vyceaon+VyTk8O7
+GnxNK683UHpYUahsaNPtRylVw9WsxJV2EXvJd83OlGx/meHRbaSSRxrbbgFoFDmg
+lOzVxuHpk01bvS2n8gbRhUUxjVXBDFN8W7HonQC0XkWVazXl2Xd0FCFroBB59U1i
+IN6y+7aTVzFi79V6HYcZC+NoA0fNJvVSaUmQe5SYeMZbJEalIUAY1RvFbGfQYJIg
+annsY5n7IYeUvMTcCaY5BVx83A1gFtSvtldB2QYq3UTsZrwO2DDxOd9Auof6X2FQ
+jMkuG3EkhIeFQeK692R1Rd4lAj6Q5NP2hE04t5qf5QMYJ8yKtgzEExVOvS56wPPm
+WiN2PSfySJfdrLyhGpvLd8FVw+aiVCtNZiMIHUZ8CBmAG/UtBqM59z0sED+uenTc
+yAAn4+z65VKr+P4sI7uOyGLu9FNWT1Gxr5YfikGKRngB28XznDFuVSxAOgBUs1Dn
+UVDt3xCebqZsPyDG0pz1
+=ISsI
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--
