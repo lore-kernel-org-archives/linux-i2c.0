@@ -1,97 +1,63 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] i2c: imx: make bus recovery through pinctrl optional
-Date: Wed, 18 Nov 2015 08:24:37 +0100
-Message-ID: <20151118072437.GS22022@pengutronix.de>
-References: <1447804979-29550-1-git-send-email-leoli@freescale.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 05/10] i2c: rcar: refactor setup of a msg
+Date: Wed, 18 Nov 2015 08:31:07 +0100
+Message-ID: <20151118073107.GB1047@tetsubishi>
+References: <1447338715-9955-1-git-send-email-wsa@the-dreams.de>
+ <2420286.JI0i0lloO0@avalon>
+ <20151117070053.GA952@tetsubishi>
+ <2998465.01LOgISn2O@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:54221 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751465AbbKRHbQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 18 Nov 2015 02:31:16 -0500
 Content-Disposition: inline
-In-Reply-To: <1447804979-29550-1-git-send-email-leoli@freescale.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Li Yang <leoli@freescale.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Gao Pan <b54642@freescale.com>
+In-Reply-To: <2998465.01LOgISn2O@avalon>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
-Hello,
-
-On Tue, Nov 17, 2015 at 06:02:59PM -0600, Li Yang wrote:
-> Since commit 1c4b6c3bcf30 ("i2c: imx: implement bus recovery") the dr=
-iver
-> starts to use gpio/pinctrl to do i2c bus recovery.  But pinctrl is no=
-t
-> always available for platforms using this driver such as ls1021a and
-> ls1043a, and the device tree binding also mentioned this gpio based
-> recovery mechanism as optional.  The patch make it really optional th=
-at
-> the probe function won't bailout when pinctrl is not available and it
-> won't try to register recovery functions if pinctrl is NULL when the
-> PINCTRL is not enabled at all.
->=20
-> Signed-off-by: Li Yang <leoli@freescale.com>
-> Cc: Gao Pan <b54642@freescale.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 13 ++++++-------
->  1 file changed, 6 insertions(+), 7 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
-x.c
-> index 1e4d99d..7813153 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1086,12 +1086,6 @@ static int i2c_imx_probe(struct platform_devic=
-e *pdev)
->  		return ret;
->  	}
-> =20
-> -	i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
-> -	if (IS_ERR(i2c_imx->pinctrl)) {
-> -		ret =3D PTR_ERR(i2c_imx->pinctrl);
-> -		goto clk_disable;
-> -	}
-> -
->  	/* Request IRQ */
->  	ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
->  				pdev->name, i2c_imx);
-> @@ -1125,7 +1119,12 @@ static int i2c_imx_probe(struct platform_devic=
-e *pdev)
->  		goto clk_disable;
->  	}
-> =20
-> -	i2c_imx_init_recovery_info(i2c_imx, pdev);
-> +	/* optional bus recovery feature through pinctrl */
-> +	i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
-> +	if (IS_ERR_OR_NULL(i2c_imx->pinctrl))
-> +		dev_info(&pdev->dev, "can't get pinctrl, bus recovery feature disa=
-bled\n");
-> +	else
-> +		i2c_imx_init_recovery_info(i2c_imx, pdev);
-
-I'm pretty sure this is wrong. If pinctrl isn't available
-devm_pinctrl_get returns NULL? But AFAIK you must not ignore an error,
-so the better thing to do is:
-
-	i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
-	if (IS_ERR(i2c_imx->pinctrl)) {
-		ret =3D PTR_ERR(i2c_imx->pinctrl);
-		goto errorhandling;
-	}
-
-	if (i2c_imx->pinctrl)
-		i2c_imx_init_recovery_info(i2c_imx, pdev);
-	else
-		dev_info(&pdev->dev, "can't get pinctrl, bus recovery feature disable=
-d\n");
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 
 
-right?
+--TRYliJ5NKNqkz5bu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Uwe Kleine-K=F6nig
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+> can continue that on Lager. In the meantime I could also capture I2C trac=
+es=20
+> using a scope and send them to you.
+
+Cool, thanks! I think I'll start with sending you another trace-printk
+patch soon.
+
+And can you push the branch you were using somewhere? With the config as
+an additional commit?
+
+
+--TRYliJ5NKNqkz5bu
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWTCk7AAoJEBQN5MwUoCm2vcwP/1SVZglEhr/Ic+YcIamkOEQY
+Od93G2zCrCEIXl0RpPjgBdWK9cxido3lmConWyTqO37+/16xdpRD6zjJYmgpX1sl
+sp+Sbj5lVDGhvJEoeTQU18gvgpxxKdkWNU6YP3Bym9Qsj/vETVCB/mFB7Ul3kATX
+flSpYGtn5H1ABcdstNAuvfxaYFDKABBwYR60UteJznGB+4ByIx1i+m7UglWqO+dF
+IR2ikvNrJkJI8Xl0n4VvylY0t2YyhI5BHYLsbOWxRH2OKZJO1U2YiTztlxFubRDe
+BZlrvXmKe18Ju03dkiHfLXrITpeRij8mhBhE1rZdaKVE/3MEXrx7gR2+dhn6Qy6Z
+y+3ADrN/zrzCKhd+epPiI9ASUH/NLqJ5gpOOLdvb9DxOtH3W6Wep1GrB00toao9C
+IpIEuEPvj6jll0mLEagYPk5zfaOvNdj+YuS27MwyoZ2MXvcibYU1/j/pwrRqbrRc
+s9cwbaPGiyAtEUa1MUYdqKEOv0lsboZP2UUDqxdw7+wlL7T4pfd49wm3r+Gg26EP
+64M3EBebL6Xa+wJFmBlUUlH+p56WSB6/uAD5d50X7Uy4OMYZ4QiwTTD9yGwlnklO
+Kc/AmI4wsgMPhzlU8LSOKlAf1/MWvUApT/dCCewzC4anbvL6skrsd78+Ze3QqNUh
+MxmPyjRxCrO03ftYpDX+
+=VE6K
+-----END PGP SIGNATURE-----
+
+--TRYliJ5NKNqkz5bu--
