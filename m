@@ -1,39 +1,69 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH v2 05/10] i2c: rcar: refactor setup of a msg
-Date: Wed, 18 Nov 2015 17:17:16 +0900
-Message-ID: <CANqRtoQXeZQX2LNw6w1-7w+F6K985TK=m+RVYc-fLGrFPZDT8Q@mail.gmail.com>
-References: <1447338715-9955-1-git-send-email-wsa@the-dreams.de>
-	<1447338715-9955-6-git-send-email-wsa@the-dreams.de>
-	<2420286.JI0i0lloO0@avalon>
-	<20151117070053.GA952@tetsubishi>
-	<CANqRtoS0tFtjNcB=gP5xKNzMW2_41rxAydOcZM1+fOSjfCaM7w@mail.gmail.com>
-	<20151118080736.GA1528@katana>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2 1/1] i2c: taos-evm: replace simple_strtoul by
+ kstrtou8
+Date: Wed, 18 Nov 2015 10:29:54 +0100
+Message-ID: <20151118102954.5c3b0121@endymion.delvare>
+References: <1447833653-28387-1-git-send-email-clabbe.montjoie@gmail.com>
+	<1447833653-28387-2-git-send-email-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yk0-f181.google.com ([209.85.160.181]:34629 "EHLO
-	mail-yk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754699AbbKRIRR (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Nov 2015 03:17:17 -0500
-In-Reply-To: <20151118080736.GA1528@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1447833653-28387-2-git-send-email-clabbe.montjoie@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linux-I2C <linux-i2c@vger.kernel.org>, SH-Linux <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 
-Hi Wolfram,
+Hi Corentin,
 
-On Wed, Nov 18, 2015 at 5:07 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> On Lager it seems that the GP5_5/GP_6 pins with the I2C2 bus for the
->> ADV7511 chip has more flexible configuration, so using either IIC or
->> I2C should be possible. You can sample those pins on EXIO_A with the
->> ZEBAX break out adapter.
->
-> Yes, that's what I basically did here for developing the whole patch
-> series and for the recent testing. A simple 's/iic2/i2c2/g' on the Lager
-> DTS does the trick.
+On Wed, 18 Nov 2015 09:00:53 +0100, LABBE Corentin wrote:
+> The simple_strtoul function is marked as obsolete.
+> This patch replace it by kstrtou8.
+> 
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-taos-evm.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
+> index 4c7fc2d..552f127 100644
+> --- a/drivers/i2c/busses/i2c-taos-evm.c
+> +++ b/drivers/i2c/busses/i2c-taos-evm.c
+> @@ -70,6 +70,7 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+>  	struct serio *serio = adapter->algo_data;
+>  	struct taos_data *taos = serio_get_drvdata(serio);
+>  	char *p;
+> +	int err;
+>  
+>  	/* Encode our transaction. "@" is for the device address, "$" for the
+>  	   SMBus command and "#" for the data. */
+> @@ -130,7 +131,14 @@ static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+>  			return 0;
+>  	} else {
+>  		if (p[0] == 'x') {
+> -			data->byte = simple_strtol(p + 1, NULL, 16);
+> +			/*
+> +			 * voluntary dropping error code of kstrtou8 since all
 
-Great, thanks! Lager seems to work well, but I wonder why Koelsch is unstable...
+"Voluntarily" or "Willingly" would be more correct.
 
-/ magnus
+> +			 * error code that it could return are invalid according
+> +			 * to Documentation/i2c/fault-codes
+> +			 */
+> +			err = kstrtou8(p + 1, 16, &data->byte);
+> +			if (err)
+> +				return -EPROTO;
+>  			return 0;
+>  		}
+>  	}
+
+Thanks for the patch. Note that you don't strictly need the "err"
+variable as you never use its value.
+
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Tested-by: Jean Delvare <jdelvare@suse.de>
+
+-- 
+Jean Delvare
+SUSE L3 Support
