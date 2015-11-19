@@ -1,73 +1,86 @@
 From: Sifan Naeem <sifan.naeem@imgtec.com>
-Subject: [PATCH v3 2/5] i2c: img-scb: remove fifo EMPTYING interrupts handle
-Date: Thu, 19 Nov 2015 09:35:14 +0000
-Message-ID: <1447925717-25297-3-git-send-email-sifan.naeem@imgtec.com>
+Subject: [PATCH v3 4/5] i2c: img-scb: add handle for Master halt interrupt
+Date: Thu, 19 Nov 2015 09:35:16 +0000
+Message-ID: <1447925717-25297-5-git-send-email-sifan.naeem@imgtec.com>
 References: <1447925717-25297-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:29362 "EHLO
+Received: from mailapp01.imgtec.com ([195.59.15.196]:30952 "EHLO
 	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755680AbbKSJfV (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 04:35:21 -0500
+	with ESMTP id S1758076AbbKSJfX (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 04:35:23 -0500
 In-Reply-To: <1447925717-25297-1-git-send-email-sifan.naeem@imgtec.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, James Hogan <James.Hogan@imgtec.com>, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 Cc: Sifan Naeem <sifan.naeem@imgtec.com>
 
-Now that we are using the transaction halt interrupt to safely control
-repeated start transfers, we no longer need to handle the fifo
-emptying interrupts.
+Master halt is issued after each byte of a transaction is processed in
+IP version 3.3.
+Master halt will stall the bus by holding the SCK line low until the
+halt bit in the scb_general_control is cleared.
 
-Handling this interrupt along with Transaction Halt interrupt can
-cause erratic behaviour.
+After the last byte of a transfer is processed we can use the Master
+Halt interrupt to facilitate a repeated start transfer without
+issuing a stop bit.
 
 Signed-off-by: Sifan Naeem <sifan.naeem@imgtec.com>
+Reviewed-by: James Hartley <james.hartley@imgtec.com>
 ---
- drivers/i2c/busses/i2c-img-scb.c |   16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-img-scb.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index c92bcf7c204f..0af554a16ae5 100644
+index f416010a0b49..991118f837be 100644
 --- a/drivers/i2c/busses/i2c-img-scb.c
 +++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -154,7 +154,6 @@
+@@ -151,6 +151,7 @@
+ #define INT_FIFO_EMPTYING		BIT(12)
+ #define INT_TRANSACTION_DONE		BIT(15)
+ #define INT_SLAVE_EVENT			BIT(16)
++#define INT_MASTER_HALTED		BIT(17)
  #define INT_TIMING			BIT(18)
+ #define INT_STOP_DETECTED		BIT(19)
  
- #define INT_FIFO_FULL_FILLING	(INT_FIFO_FULL  | INT_FIFO_FILLING)
--#define INT_FIFO_EMPTY_EMPTYING	(INT_FIFO_EMPTY | INT_FIFO_EMPTYING)
- 
- /* Level interrupts need clearing after handling instead of before */
- #define INT_LEVEL			0x01e00
-@@ -176,8 +175,7 @@
- 					 INT_WRITE_ACK_ERR    | \
+@@ -177,6 +178,7 @@
  					 INT_FIFO_FULL        | \
  					 INT_FIFO_FILLING     | \
--					 INT_FIFO_EMPTY       | \
--					 INT_FIFO_EMPTYING)
-+					 INT_FIFO_EMPTY)
+ 					 INT_FIFO_EMPTY       | \
++					 INT_MASTER_HALTED    | \
+ 					 INT_STOP_DETECTED)
  
  #define INT_ENABLE_MASK_WAITSTOP	(INT_SLAVE_EVENT      | \
- 					 INT_ADDR_ACK_ERR     | \
-@@ -874,16 +872,8 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
+@@ -875,18 +877,27 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
+ 	}
+ 
+ 	if (i2c->msg.flags & I2C_M_RD) {
+-		if (int_status & INT_FIFO_FULL_FILLING) {
++		if (int_status & (INT_FIFO_FULL_FILLING | INT_MASTER_HALTED)) {
+ 			img_i2c_read_fifo(i2c);
+ 			if (i2c->msg.len == 0)
  				return ISR_WAITSTOP;
  		}
  	} else {
--		if (int_status & INT_FIFO_EMPTY_EMPTYING) {
--			/*
--			 * The write fifo empty indicates that we're in the
--			 * last byte so it's safe to start a new write
--			 * transaction without losing any bytes from the
--			 * previous one.
--			 * see 2.3.7 Repeated Start Transactions.
--			 */
--			if ((int_status & INT_FIFO_EMPTY) &&
--			    i2c->msg.len == 0)
-+		if (int_status & INT_FIFO_EMPTY) {
-+			if (i2c->msg.len == 0)
+-		if (int_status & INT_FIFO_EMPTY) {
+-			if (i2c->msg.len == 0)
++		if (int_status & (INT_FIFO_EMPTY | INT_MASTER_HALTED)) {
++			if ((int_status & INT_FIFO_EMPTY) &&
++			    i2c->msg.len == 0)
  				return ISR_WAITSTOP;
  			img_i2c_write_fifo(i2c);
  		}
+ 	}
++	if (int_status & INT_MASTER_HALTED) {
++		/*
++		 * Release and then enable transaction halt, to
++		 * allow only a single byte to proceed.
++		 */
++		img_i2c_transaction_halt(i2c, false);
++		img_i2c_transaction_halt(i2c, !i2c->last_msg);
++	}
+ 
+ 	return 0;
+ }
 -- 
 1.7.9.5
