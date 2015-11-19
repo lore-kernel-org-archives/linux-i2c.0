@@ -1,82 +1,96 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: exynos5: register driver early in subsys initcall
- to avoid probe defer
-Date: Thu, 19 Nov 2015 14:46:28 +0100
-Message-ID: <20151119134627.GA1567@katana>
-References: <1446215008-30506-1-git-send-email-m.szyprowski@samsung.com>
- <20151101160203.GB2295@katana>
- <564DCCA9.3050604@samsung.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Subject: [PATCH v3 01/11] i2c: rcar: make sure clocks are on when doing clock calculation
+Date: Thu, 19 Nov 2015 16:56:41 +0100
+Message-ID: <1447948611-2615-2-git-send-email-wsa@the-dreams.de>
+References: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59837 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:36901 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757783AbbKSNqk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 19 Nov 2015 08:46:40 -0500
-Content-Disposition: inline
-In-Reply-To: <564DCCA9.3050604@samsung.com>
+	id S934103AbbKSP44 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 19 Nov 2015 10:56:56 -0500
+In-Reply-To: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Robert Baldyga <r.baldyga@samsung.com>, "balbi@ti.com" <balbi@ti.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+When calculating the bus speed, the clock should be on, of course. Most
+bootloaders left them on, so this went unnoticed so far.
 
-Hi Marek,
+Move the ioremapping out of this clock-enabled-block and prepare for
+adding hw initialization there, too.
 
-> This problem is known for ages, there were number of attempts to add
+Reported-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-Yes, I heard of it, too.
-
-> support for deferred probe or solve the problem of deferred UDC driver
-> probe, but none got accepted so far:
-
-Then they need to be worked on. AFAIK the rejection is based on
-implementation details, not because the feature itself is not wanted,
-or?
-
-> Till now it worked somehow for boards with older i2c bus drivers, which
-> were registered in subsys initcall. Boards, which use newer i2c bus drivers
-> cannot be used with usb gadgets compiled-in.
-
-Yes, because the above issue needs to be *fixed*, not workarounded. You
-still have the option to carry your patch out-of-tree if fixing the
-issue is not an option for you.
-
-We already had problems here when someone tried to revert
-subsys_initcall to module_init because of other dependency issues on
-another particular board. So, the pain should really go where the fixing
-is needed.
-
-I hope you understand,
-
-   Wolfram
-
-
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWTdKzAAoJEBQN5MwUoCm2d/wP/A4SldgSNorls0otiPkAubpA
-tTradDpB7PdU1ajFgmlZTk3nkcj6OWceDLmxass3ZksaDz5en5U2IkGYNjsQVTuv
-6BhxSkWnGCxXozEkodVnHEKE/yDLTvaMB4zKc9Vy9rd/UJKNWns4DdxPL1bNRNRh
-b8uK41jft0kTL0phZ7oFmpLstW33C8V0MY0XzLssyinDqSlsbKkRJZZiZRNBqafz
-wD6HW1laP1H01rhubnR8246rh2MJlSm/Odv+NUBxLlwFWsKRpdu+OhdFHK5jomCo
-srZ9XMdqT05kKpLs4iVmHsd/6H5O4ZeOOdoyXCxS5MgvJfQpxgMPcYtH8MZk5oxE
-he90tXEI9PiQfLCHbWWT1BbsyDiL2aOcLj5TQcZVxGh3TJXIl5ZmcH+B42tJmpON
-/i2Q9zdHdtq7N7EoGpYD3hLi818lj+WHHProf33DTxXp1Tkvkemt+o8d7iRREeD/
-35SEC39iMqqQzVyM/ipcR2PVhwGK4UM6y2OpucI88pJmQMpcehz5kqEedEBetqsK
-kdvo+aNoGLEmoUrCXeA1kS6xZu6Yxdd5TeLNRkmz+MKguvog98Q8lBCEhcKoYz6M
-Umol5SougZzmF5UZ0xaHMocdeOB3/xnJDt0+N+Wny9fDD84TbzsxeSKybNnfpviU
-fXzs3QALjbRKXAFCPpeg
-=0B5l
------END PGP SIGNATURE-----
-
---mYCpIKhGyMATD0i+--
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index b0ae560b38c308..dac0f5d1945341 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -650,19 +650,23 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(priv->clk);
+ 	}
+ 
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	priv->io = devm_ioremap_resource(dev, res);
++	if (IS_ERR(priv->io))
++		return PTR_ERR(priv->io);
++
+ 	bus_speed = 100000; /* default 100 kHz */
+ 	of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
+ 
+ 	priv->devtype = (enum rcar_i2c_type)of_match_device(rcar_i2c_dt_ids, dev)->data;
+ 
++	pm_runtime_enable(dev);
++	pm_runtime_get_sync(dev);
+ 	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
+ 	if (ret < 0)
+-		return ret;
++		goto out_pm_put;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	priv->io = devm_ioremap_resource(dev, res);
+-	if (IS_ERR(priv->io))
+-		return PTR_ERR(priv->io);
++	pm_runtime_put(dev);
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	init_waitqueue_head(&priv->wait);
+@@ -682,22 +686,26 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 			       dev_name(dev), priv);
+ 	if (ret < 0) {
+ 		dev_err(dev, "cannot get irq %d\n", irq);
+-		return ret;
++		goto out_pm_disable;
+ 	}
+ 
+-	pm_runtime_enable(dev);
+ 	platform_set_drvdata(pdev, priv);
+ 
+ 	ret = i2c_add_numbered_adapter(adap);
+ 	if (ret < 0) {
+ 		dev_err(dev, "reg adap failed: %d\n", ret);
+-		pm_runtime_disable(dev);
+-		return ret;
++		goto out_pm_disable;
+ 	}
+ 
+ 	dev_info(dev, "probed\n");
+ 
+ 	return 0;
++
++ out_pm_put:
++	pm_runtime_put(dev);
++ out_pm_disable:
++	pm_runtime_disable(dev);
++	return ret;
+ }
+ 
+ static int rcar_i2c_remove(struct platform_device *pdev)
+-- 
+2.1.4
