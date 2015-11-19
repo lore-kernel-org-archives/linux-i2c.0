@@ -1,67 +1,123 @@
 From: Sifan Naeem <sifan.naeem@imgtec.com>
-Subject: [PATCH v3 3/5] i2c: img-scb: add handle for stop detected interrupt
-Date: Thu, 19 Nov 2015 09:35:15 +0000
-Message-ID: <1447925717-25297-4-git-send-email-sifan.naeem@imgtec.com>
+Subject: [PATCH v3 5/5] i2c: img-scb: support repeated starts on IP v3.3
+Date: Thu, 19 Nov 2015 09:35:17 +0000
+Message-ID: <1447925717-25297-6-git-send-email-sifan.naeem@imgtec.com>
 References: <1447925717-25297-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:42999 "EHLO
+Received: from mailapp01.imgtec.com ([195.59.15.196]:29580 "EHLO
 	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757770AbbKSJfW (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 04:35:22 -0500
+	with ESMTP id S1758079AbbKSJfY (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 04:35:24 -0500
 In-Reply-To: <1447925717-25297-1-git-send-email-sifan.naeem@imgtec.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, James Hogan <James.Hogan@imgtec.com>, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 Cc: Sifan Naeem <sifan.naeem@imgtec.com>
 
-Stop Detected interrupt is triggered when a Stop bit is detected on
-the bus, which indicates the end of the current transfer.
+In version 3.3 of the IP when transaction halt is set, an interrupt
+will be generated after each byte of a transfer instead of after
+every transfer but before the stop bit.
+Due to this behaviour we have to be careful that every time we
+release the transaction halt we have to re-enable it straight away
+so that we only process a single byte, not doing so will result in
+all remaining bytes been processed and a stop bit being issued,
+which will prevent us having a repeated start.
 
-When the end of a transfer is indicated by the Stop Detected interrupt,
-drain the FIFO and signal completion for the transaction.
+This change will have no effect on earlier versions of the IP.
 
 Signed-off-by: Sifan Naeem <sifan.naeem@imgtec.com>
+Acked-by: James Hogan <james.hogan@imgtec.com>
+Reviewed-by: James Hartley <james.hartley@imgtec.com>
 ---
- drivers/i2c/busses/i2c-img-scb.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-img-scb.c |   45 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 36 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 0af554a16ae5..f416010a0b49 100644
+index 991118f837be..379ef9c31664 100644
 --- a/drivers/i2c/busses/i2c-img-scb.c
 +++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -152,6 +152,7 @@
- #define INT_TRANSACTION_DONE		BIT(15)
- #define INT_SLAVE_EVENT			BIT(16)
- #define INT_TIMING			BIT(18)
-+#define INT_STOP_DETECTED		BIT(19)
+@@ -513,7 +513,17 @@ static void img_i2c_soft_reset(struct img_i2c *i2c)
+ 		       SCB_CONTROL_CLK_ENABLE | SCB_CONTROL_SOFT_RESET);
+ }
  
- #define INT_FIFO_FULL_FILLING	(INT_FIFO_FULL  | INT_FIFO_FILLING)
+-/* enable or release transaction halt for control of repeated starts */
++/*
++ * Enable or release transaction halt for control of repeated starts.
++ * In version 3.3 of the IP when transaction halt is set, an interrupt
++ * will be generated after each byte of a transfer instead of after
++ * every transfer but before the stop bit.
++ * Due to this behaviour we have to be careful that every time we
++ * release the transaction halt we have to re-enable it straight away
++ * so that we only process a single byte, not doing so will result in
++ * all remaining bytes been processed and a stop bit being issued,
++ * which will prevent us having a repeated start.
++ */
+ static void img_i2c_transaction_halt(struct img_i2c *i2c, bool t_halt)
+ {
+ 	u32 val;
+@@ -582,7 +592,6 @@ static void img_i2c_read(struct img_i2c *i2c)
+ 	img_i2c_writel(i2c, SCB_READ_ADDR_REG, i2c->msg.addr);
+ 	img_i2c_writel(i2c, SCB_READ_COUNT_REG, i2c->msg.len);
  
-@@ -175,7 +176,8 @@
- 					 INT_WRITE_ACK_ERR    | \
- 					 INT_FIFO_FULL        | \
- 					 INT_FIFO_FILLING     | \
--					 INT_FIFO_EMPTY)
-+					 INT_FIFO_EMPTY       | \
-+					 INT_STOP_DETECTED)
- 
- #define INT_ENABLE_MASK_WAITSTOP	(INT_SLAVE_EVENT      | \
- 					 INT_ADDR_ACK_ERR     | \
-@@ -865,6 +867,13 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
- 
+-	img_i2c_transaction_halt(i2c, false);
  	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
+ }
  
-+	if (int_status & INT_STOP_DETECTED) {
-+		/* Drain remaining data in FIFO and complete transaction */
-+		if (i2c->msg.flags & I2C_M_RD)
-+			img_i2c_read_fifo(i2c);
-+		return ISR_COMPLETE(0);
-+	}
+@@ -596,7 +605,6 @@ static void img_i2c_write(struct img_i2c *i2c)
+ 	img_i2c_writel(i2c, SCB_WRITE_ADDR_REG, i2c->msg.addr);
+ 	img_i2c_writel(i2c, SCB_WRITE_COUNT_REG, i2c->msg.len);
+ 
+-	img_i2c_transaction_halt(i2c, false);
+ 	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
+ 	img_i2c_write_fifo(i2c);
+ 
+@@ -862,7 +870,7 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
+ 
+ 	/* Enable transaction halt on start bit */
+ 	if (!i2c->last_msg && line_status & LINESTAT_START_BIT_DET) {
+-		img_i2c_transaction_halt(i2c, true);
++		img_i2c_transaction_halt(i2c, !i2c->last_msg);
+ 		/* we're no longer interested in the slave event */
+ 		i2c->int_enable &= ~INT_SLAVE_EVENT;
+ 	}
+@@ -1084,12 +1092,31 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
+ 		img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
+ 
+-		if (atomic)
++		if (atomic) {
+ 			img_i2c_atomic_start(i2c);
+-		else if (msg->flags & I2C_M_RD)
+-			img_i2c_read(i2c);
+-		else
+-			img_i2c_write(i2c);
++		} else {
++			/*
++			 * Enable transaction halt if not the last message in
++			 * the queue so that we can control repeated starts.
++			 */
++			img_i2c_transaction_halt(i2c, !i2c->last_msg);
 +
- 	if (i2c->msg.flags & I2C_M_RD) {
- 		if (int_status & INT_FIFO_FULL_FILLING) {
- 			img_i2c_read_fifo(i2c);
++			if (msg->flags & I2C_M_RD)
++				img_i2c_read(i2c);
++			else
++				img_i2c_write(i2c);
++
++			/*
++			 * Release and then enable transaction halt, to
++			 * allow only a single byte to proceed.
++			 * This doesn't have an effect on the initial transfer
++			 * but will allow the following transfers to start
++			 * processing if the previous transfer was marked as
++			 * complete while the i2c block was halted.
++			 */
++			img_i2c_transaction_halt(i2c, false);
++			img_i2c_transaction_halt(i2c, !i2c->last_msg);
++		}
+ 		spin_unlock_irqrestore(&i2c->lock, flags);
+ 
+ 		time_left = wait_for_completion_timeout(&i2c->msg_complete,
 -- 
 1.7.9.5
