@@ -1,117 +1,131 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v3 04/11] i2c: rcar: remove spinlock
-Date: Thu, 19 Nov 2015 16:56:44 +0100
-Message-ID: <1447948611-2615-5-git-send-email-wsa@the-dreams.de>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH v3 00/11] i2c: rcar: tackle race conditions in the driver
+Date: Thu, 19 Nov 2015 18:01:50 +0200
+Message-ID: <5862854.ojJ1sDI4ap@avalon>
 References: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36910 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934262AbbKSP45 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 19 Nov 2015 10:56:57 -0500
+Received: from galahad.ideasonboard.com ([185.26.127.97]:60893 "EHLO
+	galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754101AbbKSQBm (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 11:01:42 -0500
 In-Reply-To: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Hi Wolfram,
 
-After making sure to reinit the HW and clear interrupts in the timeout
-case, we know that interrupts are always disabled in the sections
-protected by the spinlock. Thus, we can simply remove it which is a
-preparation for further refactoring. While here, rename the timeout
-variable to time_left which is way more readable.
+Thank you for the patches.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 23 ++++-------------------
- 1 file changed, 4 insertions(+), 19 deletions(-)
+For the whole series,
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 746406923a5825..0f2dc74ab8bcc1 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -33,7 +33,6 @@
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
--#include <linux/spinlock.h>
- 
- /* register offsets */
- #define ICSCR	0x00	/* slave ctrl */
-@@ -110,7 +109,6 @@ struct rcar_i2c_priv {
- 	struct i2c_msg	*msg;
- 	struct clk *clk;
- 
--	spinlock_t lock;
- 	wait_queue_head_t wait;
- 
- 	int pos;
-@@ -429,9 +427,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 	irqreturn_t result = IRQ_HANDLED;
- 	u32 msr;
- 
--	/*-------------- spin lock -----------------*/
--	spin_lock(&priv->lock);
--
- 	if (rcar_i2c_slave_irq(priv))
- 		goto exit;
- 
-@@ -478,9 +473,6 @@ out:
- 	}
- 
- exit:
--	spin_unlock(&priv->lock);
--	/*-------------- spin unlock -----------------*/
--
- 	return result;
- }
- 
-@@ -490,9 +482,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- {
- 	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
- 	struct device *dev = rcar_i2c_priv_to_dev(priv);
--	unsigned long flags;
- 	int i, ret;
--	long timeout;
-+	long time_left;
- 
- 	pm_runtime_get_sync(dev);
- 
-@@ -507,9 +498,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 			break;
- 		}
- 
--		/*-------------- spin lock -----------------*/
--		spin_lock_irqsave(&priv->lock, flags);
--
- 		/* init each data */
- 		priv->msg	= &msgs[i];
- 		priv->pos	= 0;
-@@ -519,13 +507,11 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 
- 		rcar_i2c_prepare_msg(priv);
- 
--		spin_unlock_irqrestore(&priv->lock, flags);
--		/*-------------- spin unlock -----------------*/
--
--		timeout = wait_event_timeout(priv->wait,
-+		time_left = wait_event_timeout(priv->wait,
- 					     rcar_i2c_flags_has(priv, ID_DONE),
- 					     adap->timeout);
--		if (!timeout) {
-+		if (!time_left) {
-+			rcar_i2c_init(priv);
- 			ret = -ETIMEDOUT;
- 			break;
- 		}
-@@ -656,7 +642,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 
- 	irq = platform_get_irq(pdev, 0);
- 	init_waitqueue_head(&priv->wait);
--	spin_lock_init(&priv->lock);
- 
- 	adap = &priv->adap;
- 	adap->nr = pdev->id;
+Tested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+On Thursday 19 November 2015 16:56:40 Wolfram Sang wrote:
+> Hello RCar Fans!
+> 
+> So, here is V3 of this series. After a debugging session with Laurent, we
+> finally fixed his issue for good. It was not board dependent as we thought,
+> but toolchain dependent! Hidden by a macro, the driver used a compound
+> assignemt with a function call as the rvalue. After patch 6, this function
+> also changed the flags which were to be changed by the compound assignment.
+> Basically (after macro):
+> 
+> 	priv->flags |= i_change_priv_flags(priv);
+> 
+> Which is undefined behaviour, I guess. However, after my refactoring, the
+> called functions always returned 0, so we can simply do:
+> 
+> 	i_change_priv_flags(priv);
+> 
+> Nasty one, but finally issue gone, for all toolchains and optimization
+> settings. Furthermore, patch 11 has been added because HW engineers wanted
+> it.
+> 
+> The branch can be found here:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
+> renesas/rcar-i2c-rework-v3
+> 
+> Please test, test, test :)
+> 
+>    Wolfram
+> 
+> 
+> Changes since V2:
+> * patch 6/11 was cleaned up to not use the compund assignment
+> * patch 11/11 introduced as requested by HW engineers
+> 
+> Changes since V1:
+> * new patch 1/10 to ensure clock is always on
+> * rebased patch 2/10 to the new patch
+> * some patch descriptions slightly reworded
+> 
+> 
+> Here is the description of the V1 series for those who missed it:
+> 
+> Two issues people have seen with the i2c-rcar driver was:
+> 
+> a) immediately restarted messages after NACK from client
+> b) duplicated data bytes in messages
+> 
+> Some people already worked on those and had a tough time because it was hard
+> to reproduce these issues on non-customer setup. Luckily, I somewhen had a
+> state where the first transfer after boot would always show the above
+> issues on a plain Renesas Lager board. When measuring, I found a third
+> issue thanks to my new tool 'i2ctransfer' (and thanks to projects like
+> sigrok and OpenLogicSniffer, of course. Thank you very much!):
+> 
+> c) after read message, no repeated start was sent, but stop + start.
+> 
+> Due to some unlucky design choices in the IP core, it has some race windows
+> which can cause problems if interrupts get delayed. Also, for every new
+> message in one transfer, context switches between interrupt and process
+> were needed.
+> 
+> So I refactored the driver to setup new messages in interrupt context, too.
+> This avoids the race for b) because we are now setting up the new message
+> before we release the i2c bus clock (before we released the clock and set up
+> the message in process context). c) is also fixed, this was not a race but
+> a bug in the state handling. a) however is not fixed 100% :( We have the
+> race window as small as possible now when utilizing interrupts, so it is an
+> improvement and worked for my test cases well. There were experiments by me
+> and Renesas engineers to use polling to prevent the issue but this caused
+> other side effects, sadly. So, let's improve the situation now and let's
+> see where we get.
+> 
+> I did quite some lab testing here and also verified that slave support does
+> not suffer from these changes. However, I'd really appreciate if people
+> could give this real-world-testing which is always different.
+> 
+> Please have a look, a test, etc...
+> 
+> Thanks,
+> 
+>    Wolfram
+> 
+> 
+> Wolfram Sang (11):
+>   i2c: rcar: make sure clocks are on when doing clock calculation
+>   i2c: rcar: rework hw init
+>   i2c: rcar: remove unused IOERROR state
+>   i2c: rcar: remove spinlock
+>   i2c: rcar: refactor setup of a msg
+>   i2c: rcar: init new messages in irq
+>   i2c: rcar: don't issue stop when HW does it automatically
+>   i2c: rcar: check master irqs before slave irqs
+>   i2c: rcar: revoke START request early
+>   i2c: rcar: clean up after refactoring
+>   i2c: rcar: handle difference in setting up non-first message
+> 
+>  drivers/i2c/busses/i2c-rcar.c | 249 +++++++++++++++++----------------------
+>  1 file changed, 106 insertions(+), 143 deletions(-)
+
 -- 
-2.1.4
+Regards,
+
+Laurent Pinchart
