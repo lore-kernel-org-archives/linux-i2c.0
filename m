@@ -1,78 +1,54 @@
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Subject: [PATCH] i2c: davinci: Increase module clock frequency
-Date: Thu, 19 Nov 2015 13:21:55 +0100
-Message-ID: <564DBEE3.4030508@nokia.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: register driver early in subsys initcall to
+ avoid probe defer
+Date: Thu, 19 Nov 2015 14:20:41 +0100
+Message-ID: <564DCCA9.3050604@samsung.com>
+References: <1446215008-30506-1-git-send-email-m.szyprowski@samsung.com>
+ <20151101160203.GB2295@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from demumfd002.nsn-inter.net ([93.183.12.31]:54251 "EHLO
-	demumfd002.nsn-inter.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750775AbbKSMWH (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 07:22:07 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <20151101160203.GB2295@katana>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Robert Baldyga <r.baldyga@samsung.com>, "balbi@ti.com" <balbi@ti.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-i2c@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, Santosh Shilimkar <ssantosh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>
 
-I2C controller used in Keystone SoC has an undocumented peculiarity which
-results in SDA-SCL margins being dependent on module clock. Driving high
-capacity bus near its limits can result in STOP condition sometimes being
-understood as REPEATED-START by slaves (or NACK instead of ACK, etc...).
-Driving the module with higher clocks increases the margin between SDA and SCL
-transitions, making the operations with higher bus rates more robust. Therefore,
-target the module clock to 12MHz instead of 7MHz, still staying within
-the specification limits.
+Hello,
 
-Before the change STOP timing looked like this on 400kHz:
+On 2015-11-01 17:02, Wolfram Sang wrote:
+> On Fri, Oct 30, 2015 at 03:23:28PM +0100, Marek Szyprowski wrote:
+>> i2c bus drivers should be registered earlier than typical drivers to let
+>> important i2c devices (like PMICs/regulators) get registered early
+>> enough to avoid probe defer of all devices in typical embedded system.
+>>
+>> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> I don't accept such patches anymore. Some more background:
+>
+> http://www.spinics.net/lists/linux-i2c/msg13102.html
+> http://www.spinics.net/lists/linux-i2c/msg16644.html
 
-SDA   ----------+          +----
-                 \        /
-                  \      /
-                   +----+
-                       (1)
-SCL   --+          +------------
-         \        /
-          \      /
-           +----+
-               (2)
+Well, then how can we get Exynos5xxx-based boards working with USB gadget
+driver compiled-in? USB Device controller driver (UDC) needs regulator to
+probe successfully. On the other hand USB gadget subsystem doesn't wait
+until all UDC drivers gets probed and fails to bind compiled-in gadget
+drivers if no UDC is available on probe time.
 
-While only point (1) signals STOP, point (2) could be incorrectly recognized as
-repeated-START (almost no margin between SDA and SCL transitions).
+This problem is known for ages, there were number of attempts to add
+support for deferred probe or solve the problem of deferred UDC driver
+probe, but none got accepted so far:
 
-After the change there is at least 600ns margin measured between SCL fall and
-SDA fall during STOP generation:
+http://www.spinics.net/lists/linux-usb/msg102795.html (20 Feb 2014)
+http://www.spinics.net/lists/linux-usb/msg105279.html (2 Apr 2014)
+http://thread.gmane.org/gmane.linux.usb.general/109745 (10 Jun 2014)
+https://lkml.org/lkml/2015/6/22/554 (23 Jun 2015)
 
-SDA   ------+          +----
-             \        /
-              \      /
-               +----+
+Till now it worked somehow for boards with older i2c bus drivers, which
+were registered in subsys initcall. Boards, which use newer i2c bus drivers
+cannot be used with usb gadgets compiled-in.
 
-SCL   --+          +--------
-         \        /
-          \      /
-           +----+
-           ->|    |<- 600ns
-                ->|   |<- tSUSTO
-
-So called tSUSTO (setup time for STOP condition) is still slightly higher than
-600ns, so no problem here.
-
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
----
- drivers/i2c/busses/i2c-davinci.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index c5628a4..87c46a4 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -203,7 +203,7 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
- 	 */
- 
- 	/* get minimum of 7 MHz clock, but max of 12 MHz */
--	psc = (input_clock / 7000000) - 1;
-+	psc = (input_clock / 12000000) - 1;
- 	if ((input_clock / (psc + 1)) > 12000000)
- 		psc++;	/* better to run under spec than over */
- 	d = (psc >= 2) ? 5 : 7 - psc;
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
