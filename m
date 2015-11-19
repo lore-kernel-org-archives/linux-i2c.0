@@ -1,78 +1,55 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] i2c: imx: make bus recovery through pinctrl optional
-Date: Thu, 19 Nov 2015 09:08:22 +0100
-Message-ID: <20151119080822.GY22022@pengutronix.de>
-References: <1447804979-29550-1-git-send-email-leoli@freescale.com>
- <20151118072437.GS22022@pengutronix.de>
- <CADRPPNQZye7t2biS2Z8p3y7O6=xw4UcOLRC5ngs2Qvuh0UHXGg@mail.gmail.com>
+From: Sifan Naeem <sifan.naeem@imgtec.com>
+Subject: [PATCH v3 0/5] i2c: img-scb: enchancements to support i2c on pistachio
+Date: Thu, 19 Nov 2015 09:35:12 +0000
+Message-ID: <1447925717-25297-1-git-send-email-sifan.naeem@imgtec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CADRPPNQZye7t2biS2Z8p3y7O6=xw4UcOLRC5ngs2Qvuh0UHXGg@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Li Yang <leoli@freescale.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Gao Pan <b54642@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailapp01.imgtec.com ([195.59.15.196]:30497 "EHLO
+	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750977AbbKSJfU (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 04:35:20 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, James Hogan <James.Hogan@imgtec.com>, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Cc: Sifan Naeem <sifan.naeem@imgtec.com>
 
-Hello,
+The following patches are required to enchance the existing driver to
+support i2c on pistachio.
 
-Cc +=3D Linus Walleij, linux-gpio
+This patch series depends on the series of fixes posted earlier[1].
+The features added in this series were tested with the earlier fixes
+in place.
 
-On Wed, Nov 18, 2015 at 04:59:11PM -0600, Li Yang wrote:
-> On Wed, Nov 18, 2015 at 1:24 AM, Uwe Kleine-K=F6nig
-> <u.kleine-koenig@pengutronix.de> wrote:
-> > On Tue, Nov 17, 2015 at 06:02:59PM -0600, Li Yang wrote:
-> >> @@ -1125,7 +1119,12 @@ static int i2c_imx_probe(struct platform_de=
-vice *pdev)
-> >>               goto clk_disable;
-> >>       }
-> >>
-> >> -     i2c_imx_init_recovery_info(i2c_imx, pdev);
-> >> +     /* optional bus recovery feature through pinctrl */
-> >> +     i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
-> >> +     if (IS_ERR_OR_NULL(i2c_imx->pinctrl))
-> >> +             dev_info(&pdev->dev, "can't get pinctrl, bus recover=
-y feature disabled\n");
-> >> +     else
-> >> +             i2c_imx_init_recovery_info(i2c_imx, pdev);
-> >
-> > I'm pretty sure this is wrong. If pinctrl isn't available
-> > devm_pinctrl_get returns NULL? But AFAIK you must not ignore an err=
-or,
-> > so the better thing to do is:
->=20
-> If CONFIG_PINCTRL is not enabled, the devm_pinctrl_get() will return
-> NULL directly as defined in the include/linux/pinctrl/consumer.h.
->=20
-> If CONFIG_PINCTRL is enabled because we are using a multi-platform
-> image but the actual hardware used doesn't have a pinctrl driver or
-> pinctrl device tree nodes.  It is expected that the devm_pinctrl_get(=
-)
-> will return error.  But as the pinctrl is only used for bus recovery
-> which is just an optional function of this driver.  We shouldn't
-> bailout the probe but keep the driver working without the bus recover=
-y
-> function.  As for generic errors like (!dev) or out-of-memory, the
-> probe will fail elsewhere anyway.
+Tested on Pistachio bub and on tz1090 using an Adafruit I2C
+Non-Volatile FRAM Breakout (256Kbit / 32KByte) eeprom.
 
-IMHO you shouldn't ignore -ENOMEM from devm_pinctrl_get but just the
-case for "there was no pinctrl specified in dt". Also consider the i2c
-driver is loaded before the pinctrl driver and devm_pinctrl_get returns
--EPROBE_DEFER (I assume it does, didn't check), this should be handled.
+Used i2c buildroot tools to test the eeprom and the other i2c blocks.
+Also used dd commands to copy data to and then to dump data from the
+eeprom. i2ctransfer was used to test repeated starts and verified
+using a scope.
 
-Best regards
-Uwe
+[1]:
+http://marc.info/?l=linux-i2c&m=144189643306030&w=2
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
---
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Changes from v1:
+	removed v1 3/7: "mark transaction as complete when all data is read"
+	removed v1 4/7: "mark transaction as complete when no more data to write"
+	1/5: Acked-by added.
+	2/5 reworked with J Hogan suggestions.
+	3/5 reworked with J Hogan suggestions.
+	4/5 reworked with J Hogan suggestions.
+	5/5 moved v1 2/7: "support repeated starts on IP v3.3 to" the end
+
+Sifan Naeem (5):
+  i2c: img-scb: support I2C_M_IGNORE_NAK
+  i2c: img-scb: remove fifo EMPTYING interrupts handle
+  i2c: img-scb: add handle for stop detected interrupt
+  i2c: img-scb: add handle for Master halt interrupt
+  i2c: img-scb: support repeated starts on IP v3.3
+
+ drivers/i2c/busses/i2c-img-scb.c |   92 +++++++++++++++++++++++++++-----------
+ 1 file changed, 67 insertions(+), 25 deletions(-)
+
+-- 
+1.7.9.5
