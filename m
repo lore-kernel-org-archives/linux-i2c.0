@@ -1,104 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v3 09/11] i2c: rcar: revoke START request early
-Date: Thu, 19 Nov 2015 16:56:49 +0100
-Message-ID: <1447948611-2615-10-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v3 11/11] i2c: rcar: handle difference in setting up non-first message
+Date: Thu, 19 Nov 2015 16:56:51 +0100
+Message-ID: <1447948611-2615-12-git-send-email-wsa@the-dreams.de>
 References: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36950 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933930AbbKSP5C (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 19 Nov 2015 10:57:02 -0500
+Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-If we don't clear START generation as soon as possible, it may cause
-another message to be generated, e.g. when receiving NACK in address
-phase. To keep the race window as small as possible, we clear it right
-at the beginning of the interrupt. We don't need any checks since we
-always want to stop START and STOP generation on the next occasion after
-we started it.
-
-This patch improves the situation but sadly does not completely fix it.
-It is still to be researched if we can do better given this HW design.
-
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
+Signed-off-by: Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-rcar.c | 23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index f237b4fc5b5e55..40979130200935 100644
+index e71fd4090247aa..3ed1f0aa5eeb16 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -83,6 +83,7 @@
+@@ -92,6 +92,7 @@
+ #define RCAR_IRQ_ACK_RECV	(~(MAT | MDR) & 0xFF)
  
- #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
- #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
-+#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
- #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
+ #define ID_LAST_MSG	(1 << 0)
++#define ID_FIRST_MSG	(1 << 1)
+ #define ID_DONE		(1 << 2)
+ #define ID_ARBLOST	(1 << 3)
+ #define ID_NACK		(1 << 4)
+@@ -254,13 +255,22 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+ 	int read = !!rcar_i2c_is_recv(priv);
  
- #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
-@@ -289,13 +290,6 @@ static void rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
- 	if (!(msr & MDE))
- 		return;
+ 	priv->pos = 0;
+-	priv->flags = 0;
+ 	if (priv->msgs_left == 1)
+ 		rcar_i2c_flags_set(priv, ID_LAST_MSG);
  
--	/*
--	 * If address transfer phase finished,
--	 * goto data phase.
--	 */
--	if (msr & MAT)
--		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
--
- 	if (priv->pos < msg->len) {
- 		/*
- 		 * Prepare next data to ICRXTX register.
-@@ -345,11 +339,7 @@ static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- 		return;
+ 	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | read);
+-	rcar_i2c_write(priv, ICMSR, 0);
+-	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++	/*
++	 * We don't have a testcase but the HW engineers say that the write order
++	 * of ICMSR and ICMCR depends on whether we issue START or REP_START. Since
++	 * it didn't cause a drawback for me, let's rather be safe than sorry.
++	 */
++	if (rcar_i2c_flags_has(priv, ID_FIRST_MSG)) {
++		rcar_i2c_write(priv, ICMSR, 0);
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++	} else {
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++		rcar_i2c_write(priv, ICMSR, 0);
++	}
+ 	rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
+ }
  
- 	if (msr & MAT) {
--		/*
--		 * Address transfer phase finished,
--		 * but, there is no data at this point.
--		 * Do nothing.
--		 */
-+		/* Address transfer phase finished, but no data at this point. */
- 	} else if (priv->pos < msg->len) {
- 		/*
- 		 * get received data
-@@ -365,8 +355,6 @@ static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- 	 */
- 	if (priv->pos + 1 >= msg->len)
- 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
--	else
--		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
- 
- 	if (priv->pos == msg->len && !(priv->flags & ID_LAST_MSG))
- 		rcar_i2c_next_msg(priv);
-@@ -432,7 +420,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+@@ -268,6 +278,7 @@ static void rcar_i2c_next_msg(struct rcar_i2c_priv *priv)
  {
- 	struct rcar_i2c_priv *priv = ptr;
--	u32 msr;
-+	u32 msr, val;
-+
-+	/* Clear START or STOP as soon as we can */
-+	val = rcar_i2c_read(priv, ICMCR);
-+	rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
+ 	priv->msg++;
+ 	priv->msgs_left--;
++	priv->flags = 0;
+ 	rcar_i2c_prepare_msg(priv);
+ }
  
- 	msr = rcar_i2c_read(priv, ICMSR);
+@@ -482,10 +493,10 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 		}
+ 	}
  
-@@ -454,7 +446,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 	/* Nack */
- 	if (msr & MNR) {
- 		/* HW automatically sends STOP after received NACK */
--		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
- 		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
- 		rcar_i2c_flags_set(priv, ID_NACK);
- 		goto out;
+-	/* init data */
++	/* init first message */
+ 	priv->msg = msgs;
+ 	priv->msgs_left = num;
+-
++	priv->flags = ID_FIRST_MSG;
+ 	rcar_i2c_prepare_msg(priv);
+ 
+ 	time_left = wait_event_timeout(priv->wait,
 -- 
 2.1.4
+
