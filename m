@@ -1,92 +1,75 @@
-From: Li Yang <leoli@freescale.com>
-Subject: Re: [PATCH] i2c: imx: make bus recovery through pinctrl optional
-Date: Wed, 18 Nov 2015 16:59:11 -0600
-Message-ID: <CADRPPNQZye7t2biS2Z8p3y7O6=xw4UcOLRC5ngs2Qvuh0UHXGg@mail.gmail.com>
-References: <1447804979-29550-1-git-send-email-leoli@freescale.com>
-	<20151118072437.GS22022@pengutronix.de>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [PATCH 1/3] i2c: Revert "i2c: xiic: Do not reset controller
+ before every transfer"
+Date: Thu, 19 Nov 2015 12:50:21 +0530
+Message-ID: <CAKfKVtEYaKxC7P=MW7Dh=dOQOwEjmJLQLH_fKy9NGq0OQSktKA@mail.gmail.com>
+References: <1447681325-30914-1-git-send-email-lars@metafoo.de>
+	<CAKfKVtGqPPP=bnWH4dPLT1=gjrvZe=0zmix58SKBT79MsR+CXg@mail.gmail.com>
+	<564AD886.3060108@metafoo.de>
+	<CAKfKVtGFfKw8nJO5RobMtBrtS7dX-m4i+tuYHkNJd0+j2w80Lg@mail.gmail.com>
+	<564C4C94.6020406@metafoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151118072437.GS22022@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Gao Pan <b54642@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qk0-f171.google.com ([209.85.220.171]:33907 "EHLO
+	mail-qk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752599AbbKSHUW (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 02:20:22 -0500
+Received: by qkfo3 with SMTP id o3so22826896qkf.1
+        for <linux-i2c@vger.kernel.org>; Wed, 18 Nov 2015 23:20:21 -0800 (PST)
+In-Reply-To: <564C4C94.6020406@metafoo.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Shubhrajyoti Datta <shubhraj@xilinx.com>, linux-i2c@vger.kernel.org
 
-On Wed, Nov 18, 2015 at 1:24 AM, Uwe Kleine-K=C3=B6nig
-<u.kleine-koenig@pengutronix.de> wrote:
-> Hello,
+On Wed, Nov 18, 2015 at 3:31 PM, Lars-Peter Clausen <lars@metafoo.de> wrote:
+> On 11/17/2015 03:28 PM, Shubhrajyoti Datta wrote:
+>> On Tue, Nov 17, 2015 at 1:04 PM, Lars-Peter Clausen <lars@metafoo.de> wrote:
+>>> On 11/17/2015 06:17 AM, Shubhrajyoti Datta wrote:
+>>>> On Mon, Nov 16, 2015 at 7:12 PM, Lars-Peter Clausen <lars@metafoo.de> wrote:
+>>>>> Commit d701667bb331 ("i2c: xiic: Do not reset controller before every
+>>>>> transfer") removed the reinitialization of the controller before the start
+>>>>> of each transfer. Apparently this change is not safe to make and the commit
+>>>>> results in random I2C bus failures.
+>>>>
+>>>> Which is the platform and the ip version that you  saw the issue.
+>>>> Did you see the issue with read and write as  well?
+>>>
+>>> The IP version is the axi-iic v2.0 Revision 8. I've tested this on a few
+>>> platforms, custom ones and standard ones and I could reproduce it on most.
+>>> One of them was on the ZED board. The one where I couldn't reproduce it was
+>>> the ZC706. But that doesn't necessarily mean it doesn't happen there, just
+>>> that it is not triggered by the testcase.
+>> All the boards having the same version of the ip is what I have understood.
+>>
+>> Thanks for the info I will try to  reproduce the issue.
+>>
+>>>
+>>> The problem is that it is random corruption,
+>> Of registers?
 >
-> On Tue, Nov 17, 2015 at 06:02:59PM -0600, Li Yang wrote:
->> Since commit 1c4b6c3bcf30 ("i2c: imx: implement bus recovery") the d=
-river
->> starts to use gpio/pinctrl to do i2c bus recovery.  But pinctrl is n=
-ot
->> always available for platforms using this driver such as ls1021a and
->> ls1043a, and the device tree binding also mentioned this gpio based
->> recovery mechanism as optional.  The patch make it really optional t=
-hat
->> the probe function won't bailout when pinctrl is not available and i=
-t
->> won't try to register recovery functions if pinctrl is NULL when the
->> PINCTRL is not enabled at all.
->>
->> Signed-off-by: Li Yang <leoli@freescale.com>
->> Cc: Gao Pan <b54642@freescale.com>
->> ---
->>  drivers/i2c/busses/i2c-imx.c | 13 ++++++-------
->>  1 file changed, 6 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-i=
-mx.c
->> index 1e4d99d..7813153 100644
->> --- a/drivers/i2c/busses/i2c-imx.c
->> +++ b/drivers/i2c/busses/i2c-imx.c
->> @@ -1086,12 +1086,6 @@ static int i2c_imx_probe(struct platform_devi=
-ce *pdev)
->>               return ret;
->>       }
->>
->> -     i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
->> -     if (IS_ERR(i2c_imx->pinctrl)) {
->> -             ret =3D PTR_ERR(i2c_imx->pinctrl);
->> -             goto clk_disable;
->> -     }
->> -
->>       /* Request IRQ */
->>       ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
->>                               pdev->name, i2c_imx);
->> @@ -1125,7 +1119,12 @@ static int i2c_imx_probe(struct platform_devi=
-ce *pdev)
->>               goto clk_disable;
->>       }
->>
->> -     i2c_imx_init_recovery_info(i2c_imx, pdev);
->> +     /* optional bus recovery feature through pinctrl */
->> +     i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
->> +     if (IS_ERR_OR_NULL(i2c_imx->pinctrl))
->> +             dev_info(&pdev->dev, "can't get pinctrl, bus recovery =
-feature disabled\n");
->> +     else
->> +             i2c_imx_init_recovery_info(i2c_imx, pdev);
+> To be honest I don't know if there is corruption during I2C write transfers,
+> but there is definitely corruption during read transactions.
+Ok
+
+Actually  I was thinking it is only an issue with
+
+
+<quote>
+/* dynamic mode seem to suffer from problems if we just flushes
+* fifos and the next message is a TX with len 0 (only addr)
+* reset the IP instead of just flush fifos
+*/
+xiic_reinit(i2c);
+<\quote>
+
+I think as of now since read is also impacted we can revert it.
+
+
+> - Lars
 >
-> I'm pretty sure this is wrong. If pinctrl isn't available
-> devm_pinctrl_get returns NULL? But AFAIK you must not ignore an error=
-,
-> so the better thing to do is:
-
-If CONFIG_PINCTRL is not enabled, the devm_pinctrl_get() will return
-NULL directly as defined in the include/linux/pinctrl/consumer.h.
-
-If CONFIG_PINCTRL is enabled because we are using a multi-platform
-image but the actual hardware used doesn't have a pinctrl driver or
-pinctrl device tree nodes.  It is expected that the devm_pinctrl_get()
-will return error.  But as the pinctrl is only used for bus recovery
-which is just an optional function of this driver.  We shouldn't
-bailout the probe but keep the driver working without the bus recovery
-function.  As for generic errors like (!dev) or out-of-memory, the
-probe will fail elsewhere anyway.
-
-Regards,
-Leo
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
