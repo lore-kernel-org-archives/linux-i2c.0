@@ -1,86 +1,78 @@
-From: Sifan Naeem <sifan.naeem@imgtec.com>
-Subject: [PATCH v3 4/5] i2c: img-scb: add handle for Master halt interrupt
-Date: Thu, 19 Nov 2015 09:35:16 +0000
-Message-ID: <1447925717-25297-5-git-send-email-sifan.naeem@imgtec.com>
-References: <1447925717-25297-1-git-send-email-sifan.naeem@imgtec.com>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Subject: [PATCH] i2c: davinci: Increase module clock frequency
+Date: Thu, 19 Nov 2015 13:21:55 +0100
+Message-ID: <564DBEE3.4030508@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:30952 "EHLO
-	mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758076AbbKSJfX (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 04:35:23 -0500
-In-Reply-To: <1447925717-25297-1-git-send-email-sifan.naeem@imgtec.com>
+Received: from demumfd002.nsn-inter.net ([93.183.12.31]:54251 "EHLO
+	demumfd002.nsn-inter.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750775AbbKSMWH (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Nov 2015 07:22:07 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, James Hogan <James.Hogan@imgtec.com>, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Cc: Sifan Naeem <sifan.naeem@imgtec.com>
+To: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-i2c@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, Santosh Shilimkar <ssantosh@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 
-Master halt is issued after each byte of a transaction is processed in
-IP version 3.3.
-Master halt will stall the bus by holding the SCK line low until the
-halt bit in the scb_general_control is cleared.
+I2C controller used in Keystone SoC has an undocumented peculiarity which
+results in SDA-SCL margins being dependent on module clock. Driving high
+capacity bus near its limits can result in STOP condition sometimes being
+understood as REPEATED-START by slaves (or NACK instead of ACK, etc...).
+Driving the module with higher clocks increases the margin between SDA and SCL
+transitions, making the operations with higher bus rates more robust. Therefore,
+target the module clock to 12MHz instead of 7MHz, still staying within
+the specification limits.
 
-After the last byte of a transfer is processed we can use the Master
-Halt interrupt to facilitate a repeated start transfer without
-issuing a stop bit.
+Before the change STOP timing looked like this on 400kHz:
 
-Signed-off-by: Sifan Naeem <sifan.naeem@imgtec.com>
-Reviewed-by: James Hartley <james.hartley@imgtec.com>
+SDA   ----------+          +----
+                 \        /
+                  \      /
+                   +----+
+                       (1)
+SCL   --+          +------------
+         \        /
+          \      /
+           +----+
+               (2)
+
+While only point (1) signals STOP, point (2) could be incorrectly recognized as
+repeated-START (almost no margin between SDA and SCL transitions).
+
+After the change there is at least 600ns margin measured between SCL fall and
+SDA fall during STOP generation:
+
+SDA   ------+          +----
+             \        /
+              \      /
+               +----+
+
+SCL   --+          +--------
+         \        /
+          \      /
+           +----+
+           ->|    |<- 600ns
+                ->|   |<- tSUSTO
+
+So called tSUSTO (setup time for STOP condition) is still slightly higher than
+600ns, so no problem here.
+
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 ---
- drivers/i2c/busses/i2c-img-scb.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-davinci.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index f416010a0b49..991118f837be 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -151,6 +151,7 @@
- #define INT_FIFO_EMPTYING		BIT(12)
- #define INT_TRANSACTION_DONE		BIT(15)
- #define INT_SLAVE_EVENT			BIT(16)
-+#define INT_MASTER_HALTED		BIT(17)
- #define INT_TIMING			BIT(18)
- #define INT_STOP_DETECTED		BIT(19)
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index c5628a4..87c46a4 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -203,7 +203,7 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
+ 	 */
  
-@@ -177,6 +178,7 @@
- 					 INT_FIFO_FULL        | \
- 					 INT_FIFO_FILLING     | \
- 					 INT_FIFO_EMPTY       | \
-+					 INT_MASTER_HALTED    | \
- 					 INT_STOP_DETECTED)
- 
- #define INT_ENABLE_MASK_WAITSTOP	(INT_SLAVE_EVENT      | \
-@@ -875,18 +877,27 @@ static unsigned int img_i2c_auto(struct img_i2c *i2c,
- 	}
- 
- 	if (i2c->msg.flags & I2C_M_RD) {
--		if (int_status & INT_FIFO_FULL_FILLING) {
-+		if (int_status & (INT_FIFO_FULL_FILLING | INT_MASTER_HALTED)) {
- 			img_i2c_read_fifo(i2c);
- 			if (i2c->msg.len == 0)
- 				return ISR_WAITSTOP;
- 		}
- 	} else {
--		if (int_status & INT_FIFO_EMPTY) {
--			if (i2c->msg.len == 0)
-+		if (int_status & (INT_FIFO_EMPTY | INT_MASTER_HALTED)) {
-+			if ((int_status & INT_FIFO_EMPTY) &&
-+			    i2c->msg.len == 0)
- 				return ISR_WAITSTOP;
- 			img_i2c_write_fifo(i2c);
- 		}
- 	}
-+	if (int_status & INT_MASTER_HALTED) {
-+		/*
-+		 * Release and then enable transaction halt, to
-+		 * allow only a single byte to proceed.
-+		 */
-+		img_i2c_transaction_halt(i2c, false);
-+		img_i2c_transaction_halt(i2c, !i2c->last_msg);
-+	}
- 
- 	return 0;
- }
--- 
-1.7.9.5
+ 	/* get minimum of 7 MHz clock, but max of 12 MHz */
+-	psc = (input_clock / 7000000) - 1;
++	psc = (input_clock / 12000000) - 1;
+ 	if ((input_clock / (psc + 1)) > 12000000)
+ 		psc++;	/* better to run under spec than over */
+ 	d = (psc >= 2) ? 5 : 7 - psc;
