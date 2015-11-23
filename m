@@ -1,43 +1,58 @@
-From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Subject: Re: [PATCH v2] i2c: enable i2c device to suspend/resume asynchronously
-Date: Mon, 23 Nov 2015 14:25:02 +0800
-Message-ID: <5652B13E.6010706@linux.intel.com>
-References: <5603978F.8020403@linux.intel.com> <20151020150200.GE5379@katana>
+From: Michael Bachmeier <michael.bachmeier.linux@gmail.com>
+Subject: =?UTF-8?Q?Re=3A_i2c_slave_support_f=C3=BCr_i=2Emx6?=
+Date: Mon, 23 Nov 2015 10:11:24 +0100
+Message-ID: <CAH-Fpeo6R1haEb0qdw5merP5tpAhaEL7FKJ3HV6WFLfiB_B0Cg@mail.gmail.com>
+References: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
+	<20151110085955.GA1532@katana>
+	<CAH-Fpeouz=DKaNxegRkc5X4VB5y4r0kT3EnqNdB+_MqdPUs16w@mail.gmail.com>
+	<20151118111142.GC11028@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:37160 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752822AbbKWGZG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 23 Nov 2015 01:25:06 -0500
-In-Reply-To: <20151020150200.GE5379@katana>
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:33172 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754116AbbKWJLY (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Nov 2015 04:11:24 -0500
+Received: by igcmv3 with SMTP id mv3so24682748igc.0
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2015 01:11:24 -0800 (PST)
+In-Reply-To: <20151118111142.GC11028@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: linux-i2c@vger.kernel.org, kernel@pengutronix.de, Shawn Guo <shawn.guo@linaro.org>
 
+Hi,
 
+Is the recognition of IAAS a hardware interrupt (according to manual,
+yes)? I set IEN (I2C enable) and IIEN (Interrupt Enable).
+I set the slave address to 0x1c (chosen at random). The IMX bus driver
+is unchanged. With my external Master I ask for the address on the
+bus. But the IAAS bit is never set.
+In this test, I want to see if the hardware interrupt work.
+Should i modified the bus driver (IRQ handler???) or is this a real
+hardware interrupt?
 
-On 10/20/2015 11:02 PM, Wolfram Sang wrote:
-> On Thu, Sep 24, 2015 at 02:26:23PM +0800, Fu, Zhonghui wrote:
->> Now, PM core supports asynchronous suspend/resume mode for devices
->> during system suspend/resume, and the power state transition of one
->> device may be completed in separate kernel thread. PM core ensures
->> all power state transition timing dependency between devices. This
->> patch enables i2c device to suspend/resume asynchronously. This will
->> take advantage of multicore and improve system suspend/resume speed.
->>
->> Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
-> Does it always work when say a PMIC or clock controller is connected to
-> the I2C bus?
-Sorry for missing this mail.
+Where is my misconception?
 
-Yes, it does not care about what device. The sole difference of asynchronous suspend/resume mode is that the suspend/resume operation of one device is carried out in a separate kernel thread, and PM core ensures all related dependency.
+Best regards
 
-
-Thanks,
-Zhonghui
-
-
+2015-11-18 12:11 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
+> Hi,
+>
+>> thanks to your comments in the rcar driver, I understand the function
+>> of each register. But I'd like a manual of this board. Where is
+>> accurately entered into the individual registers.
+>
+> As far as I know, there is no public user manual for RCar SoCs. I can
+> ask, though.
+>
+>> Had someone for me a manual by the individual registers are explained.
+>> So that I can understand the rcar driver better.
+>
+> However, if you have a specific question, you could ask and I could try
+> improving the driver's documentation :)
+>
+> Regards,
+>
+>    Wolfram
 >
