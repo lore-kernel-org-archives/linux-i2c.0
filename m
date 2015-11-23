@@ -1,58 +1,53 @@
-From: Michael Bachmeier <michael.bachmeier.linux@gmail.com>
-Subject: =?UTF-8?Q?Re=3A_i2c_slave_support_f=C3=BCr_i=2Emx6?=
-Date: Mon, 23 Nov 2015 10:11:24 +0100
-Message-ID: <CAH-Fpeo6R1haEb0qdw5merP5tpAhaEL7FKJ3HV6WFLfiB_B0Cg@mail.gmail.com>
-References: <CAH-Fpeogk6kFAX9NtE3kJvi97ag9utMhUe+S0-mSJBm3eQCpxw@mail.gmail.com>
-	<20151110085955.GA1532@katana>
-	<CAH-Fpeouz=DKaNxegRkc5X4VB5y4r0kT3EnqNdB+_MqdPUs16w@mail.gmail.com>
-	<20151118111142.GC11028@katana>
+From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
+Subject: Re: [PATCH v2] i2c: cadence: Move to sensible power management
+Date: Mon, 23 Nov 2015 10:47:10 -0800
+Message-ID: <20151123184710.GH32017@xsjsorenbubuntu>
+References: <1446017200-30373-1-git-send-email-shubhraj@xilinx.com>
+ <20151028161810.GB6436@xsjsorenbubuntu>
+ <CAKfKVtHbKrYK-JkQRWO3hEyOkGEW8q9zc6r90PNP8uEm3VXc4Q@mail.gmail.com>
+ <CAKfKVtHHKcs1UAM4pb4Qbtn5TEOboZf1SrL4qFuFZYSCUundHw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ig0-f172.google.com ([209.85.213.172]:33172 "EHLO
-	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754116AbbKWJLY (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Nov 2015 04:11:24 -0500
-Received: by igcmv3 with SMTP id mv3so24682748igc.0
-        for <linux-i2c@vger.kernel.org>; Mon, 23 Nov 2015 01:11:24 -0800 (PST)
-In-Reply-To: <20151118111142.GC11028@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAKfKVtHHKcs1UAM4pb4Qbtn5TEOboZf1SrL4qFuFZYSCUundHw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, anirudh@xilinx.com, Michal Simek <michal.simek@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhraj@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, kernel@pengutronix.de, Shawn Guo <shawn.guo@linaro.org>
 
-Hi,
+On Sat, 2015-11-21 at 07:00PM +0530, Shubhrajyoti Datta wrote:
+> On Thu, Oct 29, 2015 at 8:27 PM, Shubhrajyoti Datta
+> <shubhrajyoti.datta@gmail.com> wrote:
+> > On Wed, Oct 28, 2015 at 9:48 PM, S=C3=B6ren Brinkmann
+> > <soren.brinkmann@xilinx.com> wrote:
+> >> Hi Shubhrajyoti,
+> >>
+> >>
+> >> On Wed, 2015-10-28 at 12:56PM +0530, Shubhrajyoti Datta wrote:
+> >>> Currently the clocks are enabled at probe and disabled at remove.
+> >>> Which keeps the clocks enabled even if no transaction is going on=
+=2E
+> >>> This patch enables the clocks at the start of transfer and disabl=
+es
+> >>> after it.
+> >>>
+> >>> Also adapts to runtime pm.
+> >>> Remove xi2c->suspended and use pm runtime status instead.
+> >>>
+> >>> converts dev pm to const to silence a checkpatch warning.
+> >>>
+> >>> Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
+> >>
+> >> To me, this looks all good. Just one small concern below.
+> >
+> > Thanks for the review.
+> Soren ,
+> Do are you ok with the change or do you want me to resend without the
+> suspended flag change.
 
-Is the recognition of IAAS a hardware interrupt (according to manual,
-yes)? I set IEN (I2C enable) and IIEN (Interrupt Enable).
-I set the slave address to 0x1c (chosen at random). The IMX bus driver
-is unchanged. With my external Master I ask for the address on the
-bus. But the IAAS bit is never set.
-In this test, I want to see if the hardware interrupt work.
-Should i modified the bus driver (IRQ handler???) or is this a real
-hardware interrupt?
+I'm always for removing code that is not needed. If things are tested
+and well and work without throwing any warnings I'm OK with it.
 
-Where is my misconception?
-
-Best regards
-
-2015-11-18 12:11 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
-> Hi,
->
->> thanks to your comments in the rcar driver, I understand the function
->> of each register. But I'd like a manual of this board. Where is
->> accurately entered into the individual registers.
->
-> As far as I know, there is no public user manual for RCar SoCs. I can
-> ask, though.
->
->> Had someone for me a manual by the individual registers are explained.
->> So that I can understand the rcar driver better.
->
-> However, if you have a specific question, you could ask and I could try
-> improving the driver's documentation :)
->
-> Regards,
->
->    Wolfram
->
+	S=C3=B6ren
