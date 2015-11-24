@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 12/13] mfd: intel-lpss: Pass SDA hold time to I2C host controller driver
-Date: Tue, 24 Nov 2015 12:22:58 +0200
-Message-ID: <1448360579-79260-13-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 06/13] device property: improve readability of macros
+Date: Tue, 24 Nov 2015 12:22:52 +0200
+Message-ID: <1448360579-79260-7-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
@@ -10,119 +10,76 @@ To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfou
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+There is no functional change.
 
-Intel Skylake the LPSS I2C pad circuit has internal delays that require
-programming non-zero SDA hold time for the I2C host controller. If this is
-not done communication to slave devices may fail with arbitration lost
-errors like the one seen below taken from Lenovo Yoga 900:
-
-  i2c_hid i2c-SYNA2B29:00: Fetching the HID descriptor
-  i2c_hid i2c-SYNA2B29:00: __i2c_hid_command: cmd=20 00
-  i2c_designware i2c_designware.1: i2c_dw_handle_tx_abort: lost arbitration
-
-To fix this we follow what the Windows driver is doing and pass the default
-SDA hold time of 230 ns to all Intel Skylake host controllers. This still
-allows the platform to override these values by passing special ACPI
-methods SSCN and FMCN.
-
-Reported-by: Kevin Fenzi <kevin@scrye.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/mfd/intel-lpss-acpi.c | 18 ++++++++++++++++--
- drivers/mfd/intel-lpss-pci.c  | 30 ++++++++++++++++++++++--------
- 2 files changed, 38 insertions(+), 10 deletions(-)
+ drivers/base/property.c  | 28 ++++++++++++++--------------
+ include/linux/property.h |  4 ++--
+ 2 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/mfd/intel-lpss-acpi.c b/drivers/mfd/intel-lpss-acpi.c
-index b6fd904..6c5bbda 100644
---- a/drivers/mfd/intel-lpss-acpi.c
-+++ b/drivers/mfd/intel-lpss-acpi.c
-@@ -25,6 +25,20 @@ static const struct intel_lpss_platform_info spt_info = {
- 	.clk_rate = 120000000,
- };
+diff --git a/drivers/base/property.c b/drivers/base/property.c
+index 3e603c0..c8e9722 100644
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -398,29 +398,29 @@ int device_property_match_string(struct device *dev, const char *propname,
+ }
+ EXPORT_SYMBOL_GPL(device_property_match_string);
  
-+static struct property_entry spt_i2c_properties[] = {
-+	PROPERTY_ENTRY_U32("i2c-sda-hold-time-ns", 230),
-+	{ },
-+};
-+
-+static struct property_set spt_i2c_pset = {
-+	.properties = spt_i2c_properties,
-+};
-+
-+static const struct intel_lpss_platform_info spt_i2c_info = {
-+	.clk_rate = 120000000,
-+	.pset = &spt_i2c_pset,
-+};
-+
- static const struct intel_lpss_platform_info bxt_info = {
- 	.clk_rate = 100000000,
- };
-@@ -35,8 +49,8 @@ static const struct intel_lpss_platform_info bxt_i2c_info = {
+-#define OF_DEV_PROP_READ_ARRAY(node, propname, type, val, nval) \
+-	(val) ? of_property_read_##type##_array((node), (propname), (val), (nval)) \
++#define OF_DEV_PROP_READ_ARRAY(node, propname, type, val, nval)				\
++	(val) ? of_property_read_##type##_array((node), (propname), (val), (nval))	\
+ 	      : of_property_count_elems_of_size((node), (propname), sizeof(type))
  
- static const struct acpi_device_id intel_lpss_acpi_ids[] = {
- 	/* SPT */
--	{ "INT3446", (kernel_ulong_t)&spt_info },
--	{ "INT3447", (kernel_ulong_t)&spt_info },
-+	{ "INT3446", (kernel_ulong_t)&spt_i2c_info },
-+	{ "INT3447", (kernel_ulong_t)&spt_i2c_info },
- 	/* BXT */
- 	{ "80860AAC", (kernel_ulong_t)&bxt_i2c_info },
- 	{ "80860ABC", (kernel_ulong_t)&bxt_info },
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index 74f0d6d..3c84ceb 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -65,6 +65,20 @@ static const struct intel_lpss_platform_info spt_info = {
- 	.clk_rate = 120000000,
- };
+ #define PSET_PROP_READ_ARRAY(node, propname, type, val, nval)				\
+ 	(val) ? pset_prop_read_##type##_array((node), (propname), (val), (nval))	\
+ 	      : pset_prop_count_elems_of_size((node), (propname), sizeof(type))
  
-+static struct property_entry spt_i2c_properties[] = {
-+	PROPERTY_ENTRY_U32("i2c-sda-hold-time-ns", 230),
-+	{ },
-+};
-+
-+static struct property_set spt_i2c_pset = {
-+	.properties = spt_i2c_properties,
-+};
-+
-+static const struct intel_lpss_platform_info spt_i2c_info = {
-+	.clk_rate = 120000000,
-+	.pset = &spt_i2c_pset,
-+};
-+
- static struct property_entry uart_properties[] = {
- 	PROPERTY_ENTRY_U32("reg-io-width", 4),
- 	PROPERTY_ENTRY_U32("reg-shift", 2),
-@@ -134,20 +148,20 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x9d28), (kernel_ulong_t)&spt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0x9d29), (kernel_ulong_t)&spt_info },
- 	{ PCI_VDEVICE(INTEL, 0x9d2a), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0x9d60), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0x9d61), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0x9d62), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0x9d63), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0x9d64), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0x9d65), (kernel_ulong_t)&spt_info },
-+	{ PCI_VDEVICE(INTEL, 0x9d60), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9d61), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9d62), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9d63), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9d64), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9d65), (kernel_ulong_t)&spt_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x9d66), (kernel_ulong_t)&spt_uart_info },
- 	/* SPT-H */
- 	{ PCI_VDEVICE(INTEL, 0xa127), (kernel_ulong_t)&spt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0xa128), (kernel_ulong_t)&spt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0xa129), (kernel_ulong_t)&spt_info },
- 	{ PCI_VDEVICE(INTEL, 0xa12a), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0xa160), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0xa161), (kernel_ulong_t)&spt_info },
-+	{ PCI_VDEVICE(INTEL, 0xa160), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0xa161), (kernel_ulong_t)&spt_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0xa166), (kernel_ulong_t)&spt_uart_info },
- 	{ }
- };
+-#define FWNODE_PROP_READ_ARRAY(_fwnode_, _propname_, _type_, _proptype_, _val_, _nval_) \
+-({ \
+-	int _ret_; \
+-	if (is_of_node(_fwnode_)) \
+-		_ret_ = OF_DEV_PROP_READ_ARRAY(to_of_node(_fwnode_), _propname_, \
+-					       _type_, _val_, _nval_); \
+-	else if (is_acpi_node(_fwnode_)) \
+-		_ret_ = acpi_node_prop_read(_fwnode_, _propname_, _proptype_, \
+-					    _val_, _nval_); \
++#define FWNODE_PROP_READ_ARRAY(_fwnode_, _propname_, _type_, _proptype_, _val_, _nval_)	\
++({											\
++	int _ret_;									\
++	if (is_of_node(_fwnode_))							\
++		_ret_ = OF_DEV_PROP_READ_ARRAY(to_of_node(_fwnode_), _propname_,	\
++					       _type_, _val_, _nval_);			\
++	else if (is_acpi_node(_fwnode_))						\
++		_ret_ = acpi_node_prop_read(_fwnode_, _propname_, _proptype_,		\
++					    _val_, _nval_);				\
+ 	else if (is_pset_node(_fwnode_)) 						\
+ 		_ret_ = PSET_PROP_READ_ARRAY(to_pset_node(_fwnode_), _propname_,	\
+ 					     _type_, _val_, _nval_);			\
+-	else \
+-		_ret_ = -ENXIO; \
+-	_ret_; \
++	else										\
++		_ret_ = -ENXIO;								\
++	_ret_;										\
+ })
+ 
+ /**
+diff --git a/include/linux/property.h b/include/linux/property.h
+index 2528a000..e947403 100644
+--- a/include/linux/property.h
++++ b/include/linux/property.h
+@@ -73,8 +73,8 @@ int fwnode_property_match_string(struct fwnode_handle *fwnode,
+ struct fwnode_handle *device_get_next_child_node(struct device *dev,
+ 						 struct fwnode_handle *child);
+ 
+-#define device_for_each_child_node(dev, child) \
+-	for (child = device_get_next_child_node(dev, NULL); child; \
++#define device_for_each_child_node(dev, child)				\
++	for (child = device_get_next_child_node(dev, NULL); child;	\
+ 	     child = device_get_next_child_node(dev, child))
+ 
+ void fwnode_handle_put(struct fwnode_handle *fwnode);
 -- 
 2.6.2
