@@ -1,48 +1,37 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 0/9] eeprom: at24: at24cs series serial number read
-Date: Tue, 24 Nov 2015 10:44:36 +0100
-Message-ID: <1448358285-25016-1-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH v2 8/9] eeprom: at24: remove a reduntant if
+Date: Tue, 24 Nov 2015 10:44:44 +0100
+Message-ID: <1448358285-25016-9-git-send-email-bgolaszewski@baylibre.com>
+References: <1448358285-25016-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1448358285-25016-1-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Chips from the at24cs EEPROM series have an additional read-only memory area
-containing a factory pre-programmed serial number. In order to access it, a
-dummy write must be executed before reading the serial number bytes.
+It seems as if the second check for I2C_FUNC_I2C functionality had been
+introduced accidentally during a merge. Tt's reduntant, so remove it.
 
-This series adds support for reading the serial number through a sysfs
-attribute.
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/misc/eeprom/at24.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-While we're at it: some of the patches contain readability tweaks and code
-organization fixes.
-
-Tested with at24cs64 and at24cs02 chips (for both 16 and 8 bit address
-pointers).
-
-(rebased against 4.4-rc2)
-
-v2:
-- protect the serial number read with a mutex
-
-v1: https://lkml.org/lkml/2015/10/20/162
-
-
-Bartosz Golaszewski (9):
-  eeprom: at24: platform_data: use BIT() macro
-  eeprom: at24: new flag in platform_data
-  eeprom: at24: tie up an additional address for at24cs series
-  eeprom: at24: support reading of the serial number
-  eeprom: at24: export the serial number through sysfs
-  eeprom: at24: improve the device_id table readability
-  eeprom: at24: add the at24cs series to the list of supported devices
-  eeprom: at24: remove a reduntant if
-  eeprom: at24: readability tweaks
-
- drivers/misc/eeprom/at24.c         | 187 +++++++++++++++++++++++++++++++------
- include/linux/platform_data/at24.h |   9 +-
- 2 files changed, 166 insertions(+), 30 deletions(-)
-
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 6e28b02..1288193 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -634,10 +634,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		} else {
+ 			return -EPFNOSUPPORT;
+ 		}
+-	}
+ 
+-	/* Use I2C operations unless we're stuck with SMBus extensions. */
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+ 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
 -- 
 2.1.4
