@@ -1,64 +1,86 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 6/9] eeprom: at24: improve the device_id table readability
-Date: Tue, 24 Nov 2015 10:44:42 +0100
-Message-ID: <1448358285-25016-7-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH v2 3/9] eeprom: at24: tie up an additional address for at24cs series
+Date: Tue, 24 Nov 2015 10:44:39 +0100
+Message-ID: <1448358285-25016-4-git-send-email-bgolaszewski@baylibre.com>
 References: <1448358285-25016-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f46.google.com ([74.125.82.46]:34843 "EHLO
+	mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754002AbbKXJov (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 24 Nov 2015 04:44:51 -0500
+Received: by wmuu63 with SMTP id u63so88219276wmu.0
+        for <linux-i2c@vger.kernel.org>; Tue, 24 Nov 2015 01:44:50 -0800 (PST)
 In-Reply-To: <1448358285-25016-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
-List-Id: linux-i2c@vger.kernel.org
 
-Improve the readability of the device table by separating columns with
-tabs.
+The at24cs series EEPROM chips have an additional read-only memory area,
+that is visible on a different i2c slave address. Tie it up with a dummy
+device.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/misc/eeprom/at24.c | 30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 65fca1e..d474b6d 100644
+index 5d7c090..08cc327 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -114,23 +114,23 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+@@ -103,6 +103,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
  
- static const struct i2c_device_id at24_ids[] = {
- 	/* needs 8 addresses as A0-A2 are ignored */
--	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
-+	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
- 	/* old variants can't be handled with this generic entry! */
--	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
--	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
-+	{ "24c01",	AT24_DEVICE_MAGIC(1024 / 8,	0) },
-+	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
- 	/* spd is a 24c02 in memory DIMMs */
--	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
--		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
--	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
-+	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
-+				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
-+	{ "24c04",	AT24_DEVICE_MAGIC(4096 / 8,	0) },
- 	/* 24rf08 quirk is handled at i2c-core */
--	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
--	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
--	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
--	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
--	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
--	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
--	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
--	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
-+	{ "24c08",	AT24_DEVICE_MAGIC(8192 / 8,	0) },
-+	{ "24c16",	AT24_DEVICE_MAGIC(16384 / 8,	0) },
-+	{ "24c32",	AT24_DEVICE_MAGIC(32768 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c64",	AT24_DEVICE_MAGIC(65536 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c128",	AT24_DEVICE_MAGIC(131072 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c1024",	AT24_DEVICE_MAGIC(1048576 / 8,	AT24_FLAG_ADDR16) },
- 	{ "at24", 0 },
- 	{ /* END OF LIST */ }
- };
+ #define AT24_BITMASK(x) (BIT(x) - 1)
+ 
++#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
++
+ /* create non-zero magic value for given eeprom parameters */
+ #define AT24_DEVICE_MAGIC(_len, _flags) 		\
+ 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
+@@ -558,6 +560,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
+ 		num_addresses = 8;
++	else if (chip.flags & AT24_FLAG_SERIAL)
++		num_addresses = 2;
+ 	else
+ 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
+ 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
+@@ -616,12 +620,30 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	at24->client[0] = client;
+ 
+ 	/* use dummy devices for multiple-address chips */
+-	for (i = 1; i < num_addresses; i++) {
+-		at24->client[i] = i2c_new_dummy(client->adapter,
++	if (at24->chip.flags & AT24_FLAG_TAKE8ADDR) {
++		for (i = 1; i < num_addresses; i++) {
++			at24->client[i] = i2c_new_dummy(client->adapter,
++							client->addr + i);
++			if (!at24->client[i]) {
++				dev_err(&client->dev,
++					"address 0x%02x unavailable\n",
+ 					client->addr + i);
+-		if (!at24->client[i]) {
++				err = -EADDRINUSE;
++				goto err_clients;
++			}
++		}
++	}
++
++	/*
++	 * at24cs series tie up an additional address for the memory area
++	 * contining the serial number
++	 */
++	if (at24->chip.flags & AT24_FLAG_SERIAL) {
++		at24->client[1] = i2c_new_dummy(client->adapter,
++					AT24CS_SERIAL_ADDR(client->addr));
++		if (!at24->client[1]) {
+ 			dev_err(&client->dev, "address 0x%02x unavailable\n",
+-					client->addr + i);
++				AT24CS_SERIAL_ADDR(client->addr));
+ 			err = -EADDRINUSE;
+ 			goto err_clients;
+ 		}
 -- 
 2.1.4
