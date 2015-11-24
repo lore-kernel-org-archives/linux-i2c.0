@@ -1,69 +1,80 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/1] x86/platform/iosf_mbi: Remove duplicate
- definitions
-Date: Tue, 24 Nov 2015 14:26:34 +0100
-Message-ID: <20151124132634.GA21070@katana>
-References: <1447264769-21981-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: [PATCH 1/3] i2c: at91: add setting HOLD field of TWIHS_CWGR via DT
+Date: Tue, 24 Nov 2015 14:47:40 +0100
+Message-ID: <1448372862-11912-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1447264769-21981-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Peter Anvin <hpa@zytor.com>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Hock Leong Kweh <hock.leong.kweh@intel.com>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com, plagnioj@jcrosoft.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, cyrille.pichen@atmel.com, Wenyou Yang <wenyou.yang@atmel.com>, Ludovic Desroches <ludovic.desroches@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wenyou Yang <wenyou.yang@atmel.com>
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add the HOLD field management. Some i2c devices need a longer data hold
+time than the one given in the i2c bus specification. Since this value
+depends on the i2c device connected to the bus, add a DT property to
+configure it: "atmel,twd-hold-cycles".
 
-On Wed, Nov 11, 2015 at 07:59:29PM +0200, Andy Shevchenko wrote:
-> The read and write opcodes are global for all units on SoC and even across
-> Intel SoCs. Remove duplication of corresponding constants. At the same ti=
-me
-> convert all current users.
->=20
-> No functional change.
->=20
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Peter Anvin <hpa@zytor.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Zhang Rui <rui.zhang@intel.com>
-> Cc: Eduardo Valentin <edubezval@gmail.com>
-> Cc: Hock Leong Kweh <hock.leong.kweh@intel.com>
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+---
+ drivers/i2c/busses/i2c-at91.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-For the I2C part:
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-
---7AUc2qLy4jB3hD7Z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWVGWKAAoJEBQN5MwUoCm26woP/0+KF8jCJNSgwkJ1CG8nhzrF
-rar+5x4MleyaaCWi2jXcRy5Bk1IoZeqyTUjutlks5seJaYkeZ/hIdaBD9YGFi45L
-/+knUXKfD9D6CW6Zn+Bu4h6EqgnmTwXNrs8kRRwjnbhxQgAQ+yEXWMTv+0Ks3kZg
-BY3jLzKJEJr41UkGDmrhxOXK2bFPmoO0xtKyf3DFm5kkPK0/OJhvXfk3OSuDU0VE
-NQwgCxXJd6x4UR8YCuq+EDSO3OQNRUx/kxvj2WJAvOOjuSUqr0TMFU+E/O7pOAb4
-sKkwz5dGJyjKEkqvf2rv8vvHoevfRL0pMYfyQ8YI3maR+cCy9ZlXoeT6isSnFJR1
-YwXBlR04G/vxrIAaYkeHFgXBGpQghpYUbMyHvNiae/TFwoW/1Ex7sM6ZSC+WCaqW
-o/3IffOf4vWBdIch01sU83TdfZvXsw6GPvaJtpEnpHkyZ8QSd7xV0O1JzY/llzQM
-AUsPY+gfFjqly0AjOEo1EGP6pwtY47LMsLh6R0iyViEZYPo8d+0DJWpOoV9mV5PM
-6vKFHwOqOItciuWrTJno5sZb7OD6Sc9AwpNeMASE/Ddvox9z/T/A3fBEE+BJNqqp
-ZsNDKrxb6HPxcTylevTS6GznHRI2nz4dM1FB86BUJQPaW3na6PCIh7n2J1LSjduM
-WIcv8Opp/H1UDtLyx2rQ
-=JXJS
------END PGP SIGNATURE-----
-
---7AUc2qLy4jB3hD7Z--
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 10835d1..b3595ea 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -64,6 +64,7 @@
+ #define	AT91_TWI_IADR		0x000c	/* Internal Address Register */
+ 
+ #define	AT91_TWI_CWGR		0x0010	/* Clock Waveform Generator Reg */
++#define	AT91_TWI_CWGR_HOLD(x)	(((x) & 0x1f) << 24)
+ 
+ #define	AT91_TWI_SR		0x0020	/* Status Register */
+ #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
+@@ -185,7 +186,8 @@ static void at91_init_twi_bus(struct at91_twi_dev *dev)
+  * Calculate symmetric clock as stated in datasheet:
+  * twi_clk = F_MAIN / (2 * (cdiv * (1 << ckdiv) + offset))
+  */
+-static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
++static void at91_calc_twi_clock(struct at91_twi_dev *dev,
++				int twi_clk, u32 twd_hold)
+ {
+ 	int ckdiv, cdiv, div;
+ 	struct at91_twi_pdata *pdata = dev->pdata;
+@@ -204,7 +206,9 @@ static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
+ 		cdiv = 255;
+ 	}
+ 
+-	dev->twi_cwgr_reg = (ckdiv << 16) | (cdiv << 8) | cdiv;
++	dev->twi_cwgr_reg = (ckdiv << 16) | (cdiv << 8) | cdiv
++			    | AT91_TWI_CWGR_HOLD(twd_hold);
++
+ 	dev_dbg(dev->dev, "cdiv %d ckdiv %d\n", cdiv, ckdiv);
+ }
+ 
+@@ -994,6 +998,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	int rc;
+ 	u32 phy_addr;
+ 	u32 bus_clk_rate;
++	u32 twd_hold_cycles = 0;
+ 
+ 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+ 	if (!dev)
+@@ -1050,7 +1055,10 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	if (rc)
+ 		bus_clk_rate = DEFAULT_TWI_CLK_HZ;
+ 
+-	at91_calc_twi_clock(dev, bus_clk_rate);
++	of_property_read_u32(dev->dev->of_node, "atmel,twd-hold-cycles",
++			     &twd_hold_cycles);
++
++	at91_calc_twi_clock(dev, bus_clk_rate, twd_hold_cycles);
+ 	at91_init_twi_bus(dev);
+ 
+ 	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+-- 
+2.5.0
