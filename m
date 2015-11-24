@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 8/9] eeprom: at24: remove a reduntant if
-Date: Tue, 24 Nov 2015 10:44:44 +0100
-Message-ID: <1448358285-25016-9-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH v2 9/9] eeprom: at24: readability tweaks
+Date: Tue, 24 Nov 2015 10:44:45 +0100
+Message-ID: <1448358285-25016-10-git-send-email-bgolaszewski@baylibre.com>
 References: <1448358285-25016-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448358285-25016-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,28 +10,47 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-It seems as if the second check for I2C_FUNC_I2C functionality had been
-introduced accidentally during a merge. Tt's reduntant, so remove it.
+Move the macro definitions above the struct definitions and add some
+tabs for better readability.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/misc/eeprom/at24.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 6e28b02..1288193 100644
+index 1288193..3238bf6 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -634,10 +634,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		} else {
- 			return -EPFNOSUPPORT;
- 		}
--	}
+@@ -53,6 +53,14 @@
+  * which won't work on pure SMBus systems.
+  */
  
--	/* Use I2C operations unless we're stuck with SMBus extensions. */
--	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
- 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
++#define AT24_SIZE_BYTELEN		5
++#define AT24_SIZE_FLAGS			8
++
++#define AT24_BITMASK(x)			(BIT(x) - 1)
++
++#define AT24CS_SERIAL_SIZE		16
++#define AT24CS_SERIAL_ADDR(addr)	(addr + 0x08)
++
+ struct at24_data {
+ 	struct at24_platform_data chip;
+ 	struct memory_accessor macc;
+@@ -99,14 +107,6 @@ static unsigned write_timeout = 25;
+ module_param(write_timeout, uint, 0);
+ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+ 
+-#define AT24_SIZE_BYTELEN 5
+-#define AT24_SIZE_FLAGS 8
+-
+-#define AT24_BITMASK(x) (BIT(x) - 1)
+-
+-#define AT24CS_SERIAL_SIZE 16
+-#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
+-
+ /* create non-zero magic value for given eeprom parameters */
+ #define AT24_DEVICE_MAGIC(_len, _flags) 		\
+ 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
 -- 
 2.1.4
