@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 08/13] device property: Fallback to secondary fwnode if primary misses the property
-Date: Tue, 24 Nov 2015 12:22:54 +0200
-Message-ID: <1448360579-79260-9-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 10/13] mfd: intel-lpss: Add support for passing device properties
+Date: Tue, 24 Nov 2015 12:22:56 +0200
+Message-ID: <1448360579-79260-11-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
@@ -10,183 +10,109 @@ To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfou
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The struct fwnode has notion of secondary fwnode. This is supposed to used
-as fallback if the primary firmware interface (DT, ACPI) does not have the
-property in question.
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-However, the current implementation never checks the secondary node which
-prevents one to add default "built-in" properties to devices.
+If the boot firmware does not support ACPI we need a way to pass device
+configuration information to the drivers. The unified device properties API
+already supports passing platform data via properties so let's take
+advantage of that and allow probe drivers to pass set of properties to the
+host controller driver.
 
-This patch adds fallback to the secondary fwnode if the primary fwnode
-returns that the property does not exists.
+In order to do that we need to be able to modify the MFD cell corresponding
+the host controller, so make the core driver to take copy of the cell
+instead of using it directly. Then we can assign info->pset to the
+resulting copy of a cell and let the MFD core to assign that to the
+resulting device.
 
 Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/base/property.c | 109 ++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 78 insertions(+), 31 deletions(-)
+ drivers/mfd/intel-lpss.c | 16 ++++++++++++----
+ drivers/mfd/intel-lpss.h |  2 ++
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/base/property.c b/drivers/base/property.c
-index c8e9722..1768e61 100644
---- a/drivers/base/property.c
-+++ b/drivers/base/property.c
-@@ -212,12 +212,8 @@ bool device_property_present(struct device *dev, const char *propname)
- }
- EXPORT_SYMBOL_GPL(device_property_present);
+diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
+index 6255513..1743788 100644
+--- a/drivers/mfd/intel-lpss.c
++++ b/drivers/mfd/intel-lpss.c
+@@ -24,6 +24,7 @@
+ #include <linux/mfd/core.h>
+ #include <linux/pm_qos.h>
+ #include <linux/pm_runtime.h>
++#include <linux/property.h>
+ #include <linux/seq_file.h>
+ #include <linux/io-64-nonatomic-lo-hi.h>
  
--/**
-- * fwnode_property_present - check if a property of a firmware node is present
-- * @fwnode: Firmware node whose property to check
-- * @propname: Name of the property
-- */
--bool fwnode_property_present(struct fwnode_handle *fwnode, const char *propname)
-+static bool __fwnode_property_present(struct fwnode_handle *fwnode,
-+				      const char *propname)
+@@ -72,7 +73,7 @@ struct intel_lpss {
+ 	enum intel_lpss_dev_type type;
+ 	struct clk *clk;
+ 	struct clk_lookup *clock;
+-	const struct mfd_cell *cell;
++	struct mfd_cell *cell;
+ 	struct device *dev;
+ 	void __iomem *priv;
+ 	int devid;
+@@ -217,6 +218,7 @@ static void intel_lpss_ltr_hide(struct intel_lpss *lpss)
+ 
+ static int intel_lpss_assign_devs(struct intel_lpss *lpss)
  {
- 	if (is_of_node(fwnode))
- 		return of_property_read_bool(to_of_node(fwnode), propname);
-@@ -227,6 +223,21 @@ bool fwnode_property_present(struct fwnode_handle *fwnode, const char *propname)
- 		return !!pset_prop_get(to_pset_node(fwnode), propname);
- 	return false;
- }
-+
-+/**
-+ * fwnode_property_present - check if a property of a firmware node is present
-+ * @fwnode: Firmware node whose property to check
-+ * @propname: Name of the property
-+ */
-+bool fwnode_property_present(struct fwnode_handle *fwnode, const char *propname)
-+{
-+	bool ret;
-+
-+	ret = __fwnode_property_present(fwnode, propname);
-+	if (ret == false && fwnode->secondary)
-+		ret = __fwnode_property_present(fwnode->secondary, propname);
-+	return ret;
-+}
- EXPORT_SYMBOL_GPL(fwnode_property_present);
++	const struct mfd_cell *cell;
+ 	unsigned int type;
  
- /**
-@@ -406,7 +417,7 @@ EXPORT_SYMBOL_GPL(device_property_match_string);
- 	(val) ? pset_prop_read_##type##_array((node), (propname), (val), (nval))	\
- 	      : pset_prop_count_elems_of_size((node), (propname), sizeof(type))
+ 	type = lpss->caps & LPSS_PRIV_CAPS_TYPE_MASK;
+@@ -224,18 +226,22 @@ static int intel_lpss_assign_devs(struct intel_lpss *lpss)
  
--#define FWNODE_PROP_READ_ARRAY(_fwnode_, _propname_, _type_, _proptype_, _val_, _nval_)	\
-+#define FWNODE_PROP_READ(_fwnode_, _propname_, _type_, _proptype_, _val_, _nval_)	\
- ({											\
- 	int _ret_;									\
- 	if (is_of_node(_fwnode_))							\
-@@ -423,6 +434,17 @@ EXPORT_SYMBOL_GPL(device_property_match_string);
- 	_ret_;										\
- })
+ 	switch (type) {
+ 	case LPSS_DEV_I2C:
+-		lpss->cell = &intel_lpss_i2c_cell;
++		cell = &intel_lpss_i2c_cell;
+ 		break;
+ 	case LPSS_DEV_UART:
+-		lpss->cell = &intel_lpss_uart_cell;
++		cell = &intel_lpss_uart_cell;
+ 		break;
+ 	case LPSS_DEV_SPI:
+-		lpss->cell = &intel_lpss_spi_cell;
++		cell = &intel_lpss_spi_cell;
+ 		break;
+ 	default:
+ 		return -ENODEV;
+ 	}
  
-+#define FWNODE_PROP_READ_ARRAY(_fwnode_, _propname_, _type_, _proptype_, _val_, _nval_)	\
-+({											\
-+	int _ret_;									\
-+	_ret_ = FWNODE_PROP_READ(_fwnode_, _propname_, _type_, _proptype_,		\
-+				 _val_, _nval_);					\
-+	if (_ret_ == -EINVAL && _fwnode_->secondary)					\
-+		_ret_ = FWNODE_PROP_READ(_fwnode_->secondary, _propname_, _type_,	\
-+				_proptype_, _val_, _nval_);				\
-+	_ret_;										\
-+})
++	lpss->cell = devm_kmemdup(lpss->dev, cell, sizeof(*cell), GFP_KERNEL);
++	if (!lpss->cell)
++		return -ENOMEM;
 +
- /**
-  * fwnode_property_read_u8_array - return a u8 array property of firmware node
-  * @fwnode: Firmware node to get the property of
-@@ -527,6 +549,41 @@ int fwnode_property_read_u64_array(struct fwnode_handle *fwnode,
- }
- EXPORT_SYMBOL_GPL(fwnode_property_read_u64_array);
+ 	lpss->type = type;
  
-+static int __fwnode_property_read_string_array(struct fwnode_handle *fwnode,
-+					       const char *propname,
-+					       const char **val, size_t nval)
-+{
-+	if (is_of_node(fwnode))
-+		return val ?
-+			of_property_read_string_array(to_of_node(fwnode),
-+						      propname, val, nval) :
-+			of_property_count_strings(to_of_node(fwnode), propname);
-+	else if (is_acpi_node(fwnode))
-+		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
-+					   val, nval);
-+	else if (is_pset_node(fwnode))
-+		return val ?
-+			pset_prop_read_string_array(to_pset_node(fwnode),
-+						    propname, val, nval) :
-+			pset_prop_count_elems_of_size(to_pset_node(fwnode),
-+						      propname,
-+						      sizeof(const char *));
-+	return -ENXIO;
-+}
-+
-+static int __fwnode_property_read_string(struct fwnode_handle *fwnode,
-+					 const char *propname, const char **val)
-+{
-+	if (is_of_node(fwnode))
-+		return of_property_read_string(to_of_node(fwnode), propname, val);
-+	else if (is_acpi_node(fwnode))
-+		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
-+					   val, 1);
-+	else if (is_pset_node(fwnode))
-+		return pset_prop_read_string(to_pset_node(fwnode), propname, val);
-+	return -ENXIO;
-+}
-+
- /**
-  * fwnode_property_read_string_array - return string array property of a node
-  * @fwnode: Firmware node to get the property of
-@@ -549,22 +606,13 @@ int fwnode_property_read_string_array(struct fwnode_handle *fwnode,
- 				      const char *propname, const char **val,
- 				      size_t nval)
- {
--	if (is_of_node(fwnode))
--		return val ?
--			of_property_read_string_array(to_of_node(fwnode),
--						      propname, val, nval) :
--			of_property_count_strings(to_of_node(fwnode), propname);
--	else if (is_acpi_node(fwnode))
--		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
--					   val, nval);
--	else if (is_pset_node(fwnode))
--		return val ?
--			pset_prop_read_string_array(to_pset_node(fwnode),
--						    propname, val, nval) :
--			pset_prop_count_elems_of_size(to_pset_node(fwnode),
--						      propname,
--						      sizeof(const char *));
--	return -ENXIO;
-+	int ret;
-+
-+	ret = __fwnode_property_read_string_array(fwnode, propname, val, nval);
-+	if (ret == -EINVAL && fwnode->secondary)
-+		ret = __fwnode_property_read_string_array(fwnode->secondary,
-+							  propname, val, nval);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(fwnode_property_read_string_array);
+ 	return 0;
+@@ -401,6 +407,8 @@ int intel_lpss_probe(struct device *dev,
+ 	if (ret)
+ 		return ret;
  
-@@ -586,14 +634,13 @@ EXPORT_SYMBOL_GPL(fwnode_property_read_string_array);
- int fwnode_property_read_string(struct fwnode_handle *fwnode,
- 				const char *propname, const char **val)
- {
--	if (is_of_node(fwnode))
--		return of_property_read_string(to_of_node(fwnode), propname, val);
--	else if (is_acpi_node(fwnode))
--		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
--					   val, 1);
--	else if (is_pset_node(fwnode))
--		return pset_prop_read_string(to_pset_node(fwnode), propname, val);
--	return -ENXIO;
-+	int ret;
++	lpss->cell->pset = info->pset;
 +
-+	ret = __fwnode_property_read_string(fwnode, propname, val);
-+	if (ret == -EINVAL && fwnode->secondary)
-+		ret = __fwnode_property_read_string(fwnode->secondary,
-+						    propname, val);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(fwnode_property_read_string);
+ 	intel_lpss_init_dev(lpss);
  
+ 	lpss->devid = ida_simple_get(&intel_lpss_devid_ida, 0, 0, GFP_KERNEL);
+diff --git a/drivers/mfd/intel-lpss.h b/drivers/mfd/intel-lpss.h
+index 2c7f8d7..0dcea9e 100644
+--- a/drivers/mfd/intel-lpss.h
++++ b/drivers/mfd/intel-lpss.h
+@@ -16,12 +16,14 @@
+ 
+ struct device;
+ struct resource;
++struct property_set;
+ 
+ struct intel_lpss_platform_info {
+ 	struct resource *mem;
+ 	int irq;
+ 	unsigned long clk_rate;
+ 	const char *clk_con_id;
++	struct property_set *pset;
+ };
+ 
+ int intel_lpss_probe(struct device *dev,
 -- 
 2.6.2
