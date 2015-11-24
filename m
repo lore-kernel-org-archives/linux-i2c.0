@@ -1,20 +1,24 @@
 From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v1 11/13] mfd: intel-lpss: Pass HSUART configuration via
- properties
-Date: Tue, 24 Nov 2015 18:44:53 +0800
-Message-ID: <201511241832.3nOM8ymb%fengguang.wu@intel.com>
-References: <1448360579-79260-12-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 12/13] mfd: intel-lpss: Pass SDA hold time to I2C host
+ controller driver
+Date: Tue, 24 Nov 2015 18:50:04 +0800
+Message-ID: <201511241819.FkCORgwe%fengguang.wu@intel.com>
+References: <1448360579-79260-13-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="OXfL5xGRrasGEqWY"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="EeQfGwPcQSOJBaQU"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:62831 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754054AbbKXKtU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 24 Nov 2015 05:49:20 -0500
 Content-Disposition: inline
-In-Reply-To: <1448360579-79260-12-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: kbuild-all@01.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+In-Reply-To: <1448360579-79260-13-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+Cc: kbuild-all@01.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 
---OXfL5xGRrasGEqWY
+--EeQfGwPcQSOJBaQU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -32,31 +36,47 @@ reproduce:
 
 All error/warnings (new ones prefixed by >>):
 
->> drivers/mfd/intel-lpss-pci.c:68:30: error: array type has incomplete element type 'struct property_entry'
+   drivers/mfd/intel-lpss-pci.c:68:30: error: array type has incomplete element type 'struct property_entry'
+    static struct property_entry spt_i2c_properties[] = {
+                                 ^
+   drivers/mfd/intel-lpss-pci.c:69:2: error: implicit declaration of function 'PROPERTY_ENTRY_U32' [-Werror=implicit-function-declaration]
+     PROPERTY_ENTRY_U32("i2c-sda-hold-time-ns", 230),
+     ^
+>> drivers/mfd/intel-lpss-pci.c:73:15: error: variable 'spt_i2c_pset' has initializer but incomplete type
+    static struct property_set spt_i2c_pset = {
+                  ^
+   drivers/mfd/intel-lpss-pci.c:74:2: error: unknown field 'properties' specified in initializer
+     .properties = spt_i2c_properties,
+     ^
+   drivers/mfd/intel-lpss-pci.c:74:16: warning: excess elements in struct initializer
+     .properties = spt_i2c_properties,
+                   ^
+   drivers/mfd/intel-lpss-pci.c:74:16: note: (near initialization for 'spt_i2c_pset')
+   drivers/mfd/intel-lpss-pci.c:82:30: error: array type has incomplete element type 'struct property_entry'
     static struct property_entry uart_properties[] = {
                                  ^
->> drivers/mfd/intel-lpss-pci.c:69:2: error: implicit declaration of function 'PROPERTY_ENTRY_U32' [-Werror=implicit-function-declaration]
-     PROPERTY_ENTRY_U32("reg-io-width", 4),
-     ^
->> drivers/mfd/intel-lpss-pci.c:71:2: error: implicit declaration of function 'PROPERTY_ENTRY_U8' [-Werror=implicit-function-declaration]
+   drivers/mfd/intel-lpss-pci.c:85:2: error: implicit declaration of function 'PROPERTY_ENTRY_U8' [-Werror=implicit-function-declaration]
      PROPERTY_ENTRY_U8("snps,uart-16550-compatible", 1),
      ^
->> drivers/mfd/intel-lpss-pci.c:75:15: error: variable 'uart_pset' has initializer but incomplete type
+   drivers/mfd/intel-lpss-pci.c:89:15: error: variable 'uart_pset' has initializer but incomplete type
     static struct property_set uart_pset = {
                   ^
->> drivers/mfd/intel-lpss-pci.c:76:2: error: unknown field 'properties' specified in initializer
+   drivers/mfd/intel-lpss-pci.c:90:2: error: unknown field 'properties' specified in initializer
      .properties = uart_properties,
      ^
->> drivers/mfd/intel-lpss-pci.c:76:16: warning: excess elements in struct initializer
+   drivers/mfd/intel-lpss-pci.c:90:16: warning: excess elements in struct initializer
      .properties = uart_properties,
                    ^
-   drivers/mfd/intel-lpss-pci.c:76:16: note: (near initialization for 'uart_pset')
->> drivers/mfd/intel-lpss-pci.c:68:30: warning: 'uart_properties' defined but not used [-Wunused-variable]
+   drivers/mfd/intel-lpss-pci.c:90:16: note: (near initialization for 'uart_pset')
+>> drivers/mfd/intel-lpss-pci.c:68:30: warning: 'spt_i2c_properties' defined but not used [-Wunused-variable]
+    static struct property_entry spt_i2c_properties[] = {
+                                 ^
+   drivers/mfd/intel-lpss-pci.c:82:30: warning: 'uart_properties' defined but not used [-Wunused-variable]
     static struct property_entry uart_properties[] = {
                                  ^
    cc1: some warnings being treated as errors
 
-vim +68 drivers/mfd/intel-lpss-pci.c
+vim +/spt_i2c_pset +73 drivers/mfd/intel-lpss-pci.c
 
     62	static INTEL_LPSS_PM_OPS(intel_lpss_pci_pm_ops);
     63	
@@ -64,29 +84,43 @@ vim +68 drivers/mfd/intel-lpss-pci.c
     65		.clk_rate = 120000000,
     66	};
     67	
-  > 68	static struct property_entry uart_properties[] = {
-  > 69		PROPERTY_ENTRY_U32("reg-io-width", 4),
-    70		PROPERTY_ENTRY_U32("reg-shift", 2),
-  > 71		PROPERTY_ENTRY_U8("snps,uart-16550-compatible", 1),
-    72		{ },
-    73	};
-    74	
-  > 75	static struct property_set uart_pset = {
-  > 76		.properties = uart_properties,
-    77	};
-    78	
-    79	static const struct intel_lpss_platform_info spt_uart_info = {
+  > 68	static struct property_entry spt_i2c_properties[] = {
+    69		PROPERTY_ENTRY_U32("i2c-sda-hold-time-ns", 230),
+    70		{ },
+    71	};
+    72	
+  > 73	static struct property_set spt_i2c_pset = {
+    74		.properties = spt_i2c_properties,
+    75	};
+    76	
+    77	static const struct intel_lpss_platform_info spt_i2c_info = {
+    78		.clk_rate = 120000000,
+    79		.pset = &spt_i2c_pset,
+    80	};
+    81	
+    82	static struct property_entry uart_properties[] = {
+    83		PROPERTY_ENTRY_U32("reg-io-width", 4),
+    84		PROPERTY_ENTRY_U32("reg-shift", 2),
+    85		PROPERTY_ENTRY_U8("snps,uart-16550-compatible", 1),
+    86		{ },
+    87	};
+    88	
+    89	static struct property_set uart_pset = {
+  > 90		.properties = uart_properties,
+    91	};
+    92	
+    93	static const struct intel_lpss_platform_info spt_uart_info = {
 
 ---
 0-DAY kernel test infrastructure                Open Source Technology Center
 https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
---OXfL5xGRrasGEqWY
+--EeQfGwPcQSOJBaQU
 Content-Type: application/octet-stream
 Content-Disposition: attachment; filename=".config.gz"
 Content-Transfer-Encoding: base64
 
-H4sICLU+VFYAAy5jb25maWcAlFxbc+M2sn7fX6GanIfdh8nYHo/j1Ck/QCQoISIJDkFKsl9Y
+H4sICFBAVFYAAy5jb25maWcAlFxbc+M2sn7fX6GanIfdh8nYHo/j1Ck/QCQoISIJDkFKsl9Y
 iq3JuOLLrCUnM//+dDd4AcCmd0+qkpS6GyAuffm6Afinf/w0E6/H58fd8f529/DwY/bH/mn/
 sjvu72Zf7h/2/zuL9SzX1UzGqvoZhNP7p9fvH75fXjQX57Pzn89/Pnn/cns2W+1fnvYPs+j5
 6cv9H6/Q/v756R8//SPSeaIWIDpX1dWP7ueWWnu/hx8qN1VZR5XSeRPLSMeyHJi6roq6ahJd
@@ -506,4 +540,4 @@ Re2kvLKhWOrcmgPnats+8to6yYEVSp4pmOMH1CLPsa83FUg+V+/wIumXZY9A0vQlazcYFSx9
 NRzMINxQ4BuLB1cFxhoS/Gq8XpcrJpNxi9hqq+TiFpNdW4BapG4kfJpSBtyyyR3BmLhgqPEN
 Xr7KW3UPNZ3E6M1YkPfpY8uBRloPiU41+ASVY/kfUfIZJXndCcj/ARv+LNQYUAEA
 
---OXfL5xGRrasGEqWY--
+--EeQfGwPcQSOJBaQU--
