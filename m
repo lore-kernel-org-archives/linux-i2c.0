@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 04/13] device property: keep single value inplace
-Date: Tue, 24 Nov 2015 12:22:50 +0200
-Message-ID: <1448360579-79260-5-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 02/13] device property: rename helper functions
+Date: Tue, 24 Nov 2015 12:22:48 +0200
+Message-ID: <1448360579-79260-3-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
@@ -10,115 +10,83 @@ To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfou
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-We may save a lot of lines of code and space by keeping single values inside
-the struct property_entry. Refactor the implementation to do so.
+To be in align with the rest of fwnode types we rename the built-in property
+set ones, i.e.
+	is_pset() -> is_pset_node()
+	to_pset() -> to_pset_node()
+
+There is no functional change.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/base/property.c  | 31 ++++++++++++++++++++++++++++---
- include/linux/property.h | 29 +++++++++++++++++++++--------
- 2 files changed, 49 insertions(+), 11 deletions(-)
+ drivers/base/property.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/base/property.c b/drivers/base/property.c
-index 86834bd..3e603c0 100644
+index 09e488d..2e01f3f 100644
 --- a/drivers/base/property.c
 +++ b/drivers/base/property.c
-@@ -72,7 +72,10 @@ static void *pset_prop_find(struct property_set *pset, const char *propname,
- 	prop = pset_prop_get(pset, propname);
- 	if (!prop)
- 		return ERR_PTR(-EINVAL);
--	pointer = prop->value.raw_data;
-+	if (prop->is_array)
-+		pointer = prop->pointer.raw_data;
-+	else
-+		pointer = &prop->value.raw_data;
- 	if (!pointer)
- 		return ERR_PTR(-ENODATA);
- 	if (length > prop->length)
-@@ -167,6 +170,29 @@ static int pset_prop_read_string_array(struct property_set *pset,
- 	return 0;
+@@ -37,14 +37,14 @@ void device_add_property_set(struct device *dev, struct property_set *pset)
+ }
+ EXPORT_SYMBOL_GPL(device_add_property_set);
+ 
+-static inline bool is_pset(struct fwnode_handle *fwnode)
++static inline bool is_pset_node(struct fwnode_handle *fwnode)
+ {
+ 	return fwnode && fwnode->type == FWNODE_PDATA;
  }
  
-+static int pset_prop_read_string(struct property_set *pset,
-+				 const char *propname, const char **strings)
-+{
-+	struct property_entry *prop;
-+	const char **pointer;
-+
-+	prop = pset_prop_get(pset, propname);
-+	if (!prop)
-+		return -EINVAL;
-+	if (prop->is_array) {
-+		pointer = prop->pointer.str;
-+		if (!pointer)
-+			return -ENODATA;
-+	} else {
-+		pointer = &prop->value.str;
-+		if (strnlen(*pointer, prop->length) >= prop->length)
-+			return -EILSEQ;
-+	}
-+
-+	*strings = *pointer;
-+	return 0;
-+}
-+
- static inline struct fwnode_handle *dev_fwnode(struct device *dev)
+-static inline struct property_set *to_pset(struct fwnode_handle *fwnode)
++static inline struct property_set *to_pset_node(struct fwnode_handle *fwnode)
  {
- 	return IS_ENABLED(CONFIG_OF) && dev->of_node ?
-@@ -566,8 +592,7 @@ int fwnode_property_read_string(struct fwnode_handle *fwnode,
+-	return is_pset(fwnode) ?
++	return is_pset_node(fwnode) ?
+ 		container_of(fwnode, struct property_set, fwnode) : NULL;
+ }
+ 
+@@ -135,8 +135,8 @@ bool fwnode_property_present(struct fwnode_handle *fwnode, const char *propname)
+ 		return of_property_read_bool(to_of_node(fwnode), propname);
+ 	else if (is_acpi_node(fwnode))
+ 		return !acpi_node_prop_get(fwnode, propname, NULL);
+-	else if (is_pset(fwnode))
+-		return !!pset_prop_get(to_pset(fwnode), propname);
++	else if (is_pset_node(fwnode))
++		return !!pset_prop_get(to_pset_node(fwnode), propname);
+ 	return false;
+ }
+ EXPORT_SYMBOL_GPL(fwnode_property_present);
+@@ -323,8 +323,8 @@ EXPORT_SYMBOL_GPL(device_property_match_string);
+ 	else if (is_acpi_node(_fwnode_)) \
+ 		_ret_ = acpi_node_prop_read(_fwnode_, _propname_, _proptype_, \
+ 					    _val_, _nval_); \
+-	else if (is_pset(_fwnode_)) \
+-		_ret_ = pset_prop_read_array(to_pset(_fwnode_), _propname_, \
++	else if (is_pset_node(_fwnode_)) 						\
++		_ret_ = pset_prop_read_array(to_pset_node(_fwnode_), _propname_,	\
+ 					     _proptype_, _val_, _nval_); \
+ 	else \
+ 		_ret_ = -ENXIO; \
+@@ -465,8 +465,8 @@ int fwnode_property_read_string_array(struct fwnode_handle *fwnode,
+ 	else if (is_acpi_node(fwnode))
  		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
- 					   val, 1);
- 	else if (is_pset_node(fwnode))
--		return pset_prop_read_string_array(to_pset_node(fwnode),
--						   propname, val, 1);
-+		return pset_prop_read_string(to_pset_node(fwnode), propname, val);
+ 					   val, nval);
+-	else if (is_pset(fwnode))
+-		return pset_prop_read_array(to_pset(fwnode), propname,
++	else if (is_pset_node(fwnode))
++		return pset_prop_read_array(to_pset_node(fwnode), propname,
+ 					    DEV_PROP_STRING, val, nval);
  	return -ENXIO;
  }
- EXPORT_SYMBOL_GPL(fwnode_property_read_string);
-diff --git a/include/linux/property.h b/include/linux/property.h
-index c29460a..5d0b9b6 100644
---- a/include/linux/property.h
-+++ b/include/linux/property.h
-@@ -145,19 +145,32 @@ static inline int fwnode_property_read_u64(struct fwnode_handle *fwnode,
-  * struct property_entry - "Built-in" device property representation.
-  * @name: Name of the property.
-  * @length: Length of data making up the value.
-- * @value: Value of the property (an array of items of the given type).
-+ * @is_array: True when the property is an array.
-+ * @pointer: Pointer to the property (an array of items of the given type).
-+ * @value: Value of the property (when it is a single item of the given type).
-  */
- struct property_entry {
- 	const char *name;
- 	size_t length;
-+	bool is_array;
- 	union {
--		void *raw_data;
--		u8 *u8_data;
--		u16 *u16_data;
--		u32 *u32_data;
--		u64 *u64_data;
--		const char **str;
--	} value;
-+		union {
-+			void *raw_data;
-+			u8 *u8_data;
-+			u16 *u16_data;
-+			u32 *u32_data;
-+			u64 *u64_data;
-+			const char **str;
-+		} pointer;
-+		union {
-+			unsigned long long raw_data;
-+			u8 u8_data;
-+			u16 u16_data;
-+			u32 u32_data;
-+			u64 u64_data;
-+			const char *str;
-+		} value;
-+	};
- };
- 
- /**
+@@ -495,8 +495,8 @@ int fwnode_property_read_string(struct fwnode_handle *fwnode,
+ 	else if (is_acpi_node(fwnode))
+ 		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
+ 					   val, 1);
+-	else if (is_pset(fwnode))
+-		return pset_prop_read_array(to_pset(fwnode), propname,
++	else if (is_pset_node(fwnode))
++		return pset_prop_read_array(to_pset_node(fwnode), propname,
+ 					    DEV_PROP_STRING, val, 1);
+ 	return -ENXIO;
+ }
 -- 
 2.6.2
