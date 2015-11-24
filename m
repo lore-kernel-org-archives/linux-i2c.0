@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 10/13] mfd: intel-lpss: Add support for passing device properties
-Date: Tue, 24 Nov 2015 12:22:56 +0200
-Message-ID: <1448360579-79260-11-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 13/13] i2c: designware: Convert to use unified device property API
+Date: Tue, 24 Nov 2015 12:22:59 +0200
+Message-ID: <1448360579-79260-14-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
@@ -12,107 +12,87 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-If the boot firmware does not support ACPI we need a way to pass device
-configuration information to the drivers. The unified device properties API
-already supports passing platform data via properties so let's take
-advantage of that and allow probe drivers to pass set of properties to the
-host controller driver.
+With ACPI _DSD (introduced in ACPI v5.1) it is now possible to pass device
+configuration information from ACPI in addition to DT. In order to support
+this, convert the driver to use the unified device property accessors
+instead of DT specific.
 
-In order to do that we need to be able to modify the MFD cell corresponding
-the host controller, so make the core driver to take copy of the cell
-instead of using it directly. Then we can assign info->pset to the
-resulting copy of a cell and let the MFD core to assign that to the
-resulting device.
+Change to ordering a bit so that we first try platform data and if that's
+not available look from device properties. ACPI *CNT methods are then used
+as last resort to override everything else.
 
 Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/mfd/intel-lpss.c | 16 ++++++++++++----
- drivers/mfd/intel-lpss.h |  2 ++
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 48 +++++++++++++----------------
+ 1 file changed, 22 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
-index 6255513..1743788 100644
---- a/drivers/mfd/intel-lpss.c
-+++ b/drivers/mfd/intel-lpss.c
-@@ -24,6 +24,7 @@
- #include <linux/mfd/core.h>
- #include <linux/pm_qos.h>
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 809579e..e9062be 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -36,6 +36,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm.h>
  #include <linux/pm_runtime.h>
 +#include <linux/property.h>
- #include <linux/seq_file.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
+@@ -156,33 +157,28 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	/* fast mode by default because of legacy reasons */
+ 	clk_freq = 400000;
  
-@@ -72,7 +73,7 @@ struct intel_lpss {
- 	enum intel_lpss_dev_type type;
- 	struct clk *clk;
- 	struct clk_lookup *clock;
--	const struct mfd_cell *cell;
-+	struct mfd_cell *cell;
- 	struct device *dev;
- 	void __iomem *priv;
- 	int devid;
-@@ -217,6 +218,7 @@ static void intel_lpss_ltr_hide(struct intel_lpss *lpss)
- 
- static int intel_lpss_assign_devs(struct intel_lpss *lpss)
- {
-+	const struct mfd_cell *cell;
- 	unsigned int type;
- 
- 	type = lpss->caps & LPSS_PRIV_CAPS_TYPE_MASK;
-@@ -224,18 +226,22 @@ static int intel_lpss_assign_devs(struct intel_lpss *lpss)
- 
- 	switch (type) {
- 	case LPSS_DEV_I2C:
--		lpss->cell = &intel_lpss_i2c_cell;
-+		cell = &intel_lpss_i2c_cell;
- 		break;
- 	case LPSS_DEV_UART:
--		lpss->cell = &intel_lpss_uart_cell;
-+		cell = &intel_lpss_uart_cell;
- 		break;
- 	case LPSS_DEV_SPI:
--		lpss->cell = &intel_lpss_spi_cell;
-+		cell = &intel_lpss_spi_cell;
- 		break;
- 	default:
- 		return -ENODEV;
+-	if (has_acpi_companion(&pdev->dev)) {
+-		dw_i2c_acpi_configure(pdev);
+-	} else if (pdev->dev.of_node) {
+-		of_property_read_u32(pdev->dev.of_node,
+-					"i2c-sda-hold-time-ns", &ht);
+-
+-		of_property_read_u32(pdev->dev.of_node,
+-				     "i2c-sda-falling-time-ns",
+-				     &dev->sda_falling_time);
+-		of_property_read_u32(pdev->dev.of_node,
+-				     "i2c-scl-falling-time-ns",
+-				     &dev->scl_falling_time);
+-
+-		of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+-				     &clk_freq);
+-
+-		/* Only standard mode at 100kHz and fast mode at 400kHz
+-		 * are supported.
+-		 */
+-		if (clk_freq != 100000 && clk_freq != 400000) {
+-			dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
+-			return -EINVAL;
+-		}
++	if ((pdata = dev_get_platdata(&pdev->dev))) {
++		clk_freq = pdata->i2c_scl_freq;
+ 	} else {
+-		pdata = dev_get_platdata(&pdev->dev);
+-		if (pdata)
+-			clk_freq = pdata->i2c_scl_freq;
++		device_property_read_u32(&pdev->dev, "i2c-sda-hold-time-ns",
++					 &ht);
++		device_property_read_u32(&pdev->dev, "i2c-sda-falling-time-ns",
++					 &dev->sda_falling_time);
++		device_property_read_u32(&pdev->dev, "i2c-scl-falling-time-ns",
++					 &dev->scl_falling_time);
++		device_property_read_u32(&pdev->dev, "clock-frequency",
++					 &clk_freq);
++	}
++
++	if (has_acpi_companion(&pdev->dev))
++		dw_i2c_acpi_configure(pdev);
++
++	/* Only standard mode at 100kHz and fast mode at 400kHz
++	 * are supported.
++	 */
++	if (clk_freq != 100000 && clk_freq != 400000) {
++		dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
++		return -EINVAL;
  	}
  
-+	lpss->cell = devm_kmemdup(lpss->dev, cell, sizeof(*cell), GFP_KERNEL);
-+	if (!lpss->cell)
-+		return -ENOMEM;
-+
- 	lpss->type = type;
- 
- 	return 0;
-@@ -401,6 +407,8 @@ int intel_lpss_probe(struct device *dev,
- 	if (ret)
- 		return ret;
- 
-+	lpss->cell->pset = info->pset;
-+
- 	intel_lpss_init_dev(lpss);
- 
- 	lpss->devid = ida_simple_get(&intel_lpss_devid_ida, 0, 0, GFP_KERNEL);
-diff --git a/drivers/mfd/intel-lpss.h b/drivers/mfd/intel-lpss.h
-index 2c7f8d7..0dcea9e 100644
---- a/drivers/mfd/intel-lpss.h
-+++ b/drivers/mfd/intel-lpss.h
-@@ -16,12 +16,14 @@
- 
- struct device;
- struct resource;
-+struct property_set;
- 
- struct intel_lpss_platform_info {
- 	struct resource *mem;
- 	int irq;
- 	unsigned long clk_rate;
- 	const char *clk_con_id;
-+	struct property_set *pset;
- };
- 
- int intel_lpss_probe(struct device *dev,
+ 	r = i2c_dw_eval_lock_support(dev);
 -- 
 2.6.2
