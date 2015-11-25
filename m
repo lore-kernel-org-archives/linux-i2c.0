@@ -1,48 +1,65 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH] i2c: rk3x: populate correct variable for sda_falling_time
-Date: Wed, 25 Nov 2015 08:08:06 -0800
-Message-ID: <CAD=FV=UoW1UBtXEW1n5hSs1g_dC-pfZWWbr9xgumdhJAxbhXqA@mail.gmail.com>
-References: <1448467098-10198-1-git-send-email-wsa@the-dreams.de>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 2/3] i2c: at91: add DT property "atmel,twd-hold-cycles"
+ to binding
+Date: Wed, 25 Nov 2015 16:46:27 -0600
+Message-ID: <20151125224627.GA16821@rob-hp-laptop>
+References: <1448372862-11912-1-git-send-email-ludovic.desroches@atmel.com>
+ <1448372862-11912-2-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yk0-f169.google.com ([209.85.160.169]:36337 "EHLO
-	mail-yk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751432AbbKYQIH (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Nov 2015 11:08:07 -0500
-Received: by ykdr82 with SMTP id r82so60397108ykd.3
-        for <linux-i2c@vger.kernel.org>; Wed, 25 Nov 2015 08:08:07 -0800 (PST)
-In-Reply-To: <1448467098-10198-1-git-send-email-wsa@the-dreams.de>
+Received: from mail.kernel.org ([198.145.29.136]:48725 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750967AbbKYWqb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 25 Nov 2015 17:46:31 -0500
+Content-Disposition: inline
+In-Reply-To: <1448372862-11912-2-git-send-email-ludovic.desroches@atmel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>
+To: Ludovic Desroches <ludovic.desroches@atmel.com>
+Cc: wsa@the-dreams.de, nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com, plagnioj@jcrosoft.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, cyrille.pichen@atmel.com, Wenyou Yang <wenyou.yang@atmel.com>
 
-Wolfram,
+On Tue, Nov 24, 2015 at 02:47:41PM +0100, Ludovic Desroches wrote:
+> From: Wenyou Yang <wenyou.yang@atmel.com>
+> 
+> Add a DT property "atmel,twd-hold-cycles" to specify the HOLD
+> filed of TWIHS_CWGR register to increase the TWD hold time.
+> 
+> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
 
-On Wed, Nov 25, 2015 at 7:58 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Rob Herring <robh@kernel.org>
+
 > ---
->  drivers/i2c/busses/i2c-rk3x.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-> index c1935ebd6a9c38..9096d17beb5bb0 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -908,7 +908,7 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
->                                  &i2c->scl_fall_ns))
->                 i2c->scl_fall_ns = 300;
->         if (of_property_read_u32(pdev->dev.of_node, "i2c-sda-falling-time-ns",
-> -                                &i2c->scl_fall_ns))
-> +                                &i2c->sda_fall_ns))
->                 i2c->sda_fall_ns = i2c->scl_fall_ns;
->
->         strlcpy(i2c->adap.name, "rk3x-i2c", sizeof(i2c->adap.name));
-
-Thanks for the fix!  In my dts files I never specified
-"i2c-sda-falling-time-ns" (since realistically SDA and SCL nearly
-always fall with the same rate) so I never saw the issue.  ...but it's
-definitely a good idea to fix.
-
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+>  Documentation/devicetree/bindings/i2c/i2c-at91.txt | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> index 6e81dc1..c81a0cb 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> @@ -17,6 +17,9 @@ Optional properties:
+>  - dma-names: should contain "tx" and "rx".
+>  - atmel,fifo-size: maximum number of data the RX and TX FIFOs can store for FIFO
+>    capable I2C controllers.
+> +- atmel,twd-hold-cycles: number of cycles for TWD hold time whose value is
+> +  determinated by (atmel,twd-hold-cycles + 3) x t_peripheral_clock,
+> +  maximum value is 0x1f.
+>  - Child nodes conforming to i2c bus binding
+>  
+>  Examples :
+> @@ -29,6 +32,7 @@ i2c0: i2c@fff84000 {
+>  	#size-cells = <0>;
+>  	clocks = <&twi0_clk>;
+>  	clock-frequency = <400000>;
+> +	atmel,twd-hold-cycles = <2>;
+>  
+>  	24c512@50 {
+>  		compatible = "24c512";
+> -- 
+> 2.5.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
