@@ -1,34 +1,61 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v1 11/13] mfd: intel-lpss: Pass HSUART configuration via
- properties
-Date: Wed, 25 Nov 2015 14:12:52 +0200
-Message-ID: <20151125121252.GY1587@lahna.fi.intel.com>
-References: <1448360579-79260-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1448360579-79260-12-git-send-email-andriy.shevchenko@linux.intel.com>
- <6720400.mTdslW7yXO@wuerfel>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v2 1/1] x86/platform/iosf_mbi: Remove duplicate
+ definitions
+Date: Wed, 25 Nov 2015 15:20:18 +0100 (CET)
+Message-ID: <alpine.DEB.2.11.1511251514580.12555@nanos>
+References: <1447264769-21981-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6720400.mTdslW7yXO@wuerfel>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Kevin Fenzi <kevin@scrye.com>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.linutronix.de ([62.245.132.108]:59061 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750811AbbKYOVH (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Nov 2015 09:21:07 -0500
+In-Reply-To: <1447264769-21981-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Peter Anvin <hpa@zytor.com>, Wolfram Sang <wsa@the-dreams.de>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Hock Leong Kweh <hock.leong.kweh@intel.com>
 
-On Tue, Nov 24, 2015 at 08:53:04PM +0100, Arnd Bergmann wrote:
-> On Tuesday 24 November 2015 12:22:57 Andy Shevchenko wrote:
-> > +static struct property_entry uart_properties[] = {
-> > +       PROPERTY_ENTRY_U32("reg-io-width", 4),
-> > +       PROPERTY_ENTRY_U32("reg-shift", 2),
-> > +       PROPERTY_ENTRY_U8("snps,uart-16550-compatible", 1),
-> > +       { },
-> > 
-> 
-> If I read the binding correctly, the "snps,uart-16550-compatible" property
-> is meant to be boolean, meaning true if present and zero-length or false
-> if absent. Using a u8 propert instead feels wrong.
-> 
-> Maybe we can have a PROPERTY_ENTRY_BOOL() for that?
+On Wed, 11 Nov 2015, Andy Shevchenko wrote:
 
-That's a good idea. We'll add it to the next revision of the series.
+> The read and write opcodes are global for all units on SoC and even across
+> Intel SoCs. Remove duplication of corresponding constants. At the same time
+> convert all current users.
+> 
+> No functional change.
+> 
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Peter Anvin <hpa@zytor.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Zhang Rui <rui.zhang@intel.com>
+> Cc: Eduardo Valentin <edubezval@gmail.com>
+> Cc: Hock Leong Kweh <hock.leong.kweh@intel.com>
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+> Since v1:
+> - satisfy kbuild robot
+> 
+>  arch/x86/include/asm/iosf_mbi.h              | 49 +++++-----------------
+>  arch/x86/platform/atom/punit_atom_debug.c    |  7 +---
+>  arch/x86/platform/intel-quark/imr.c          | 28 +++++--------
+>  drivers/i2c/busses/i2c-designware-baytrail.c | 17 +++-----
+>  drivers/powercap/intel_rapl.c                | 10 ++---
+>  drivers/thermal/intel_quark_dts_thermal.c    | 61 ++++++++++++++--------------
+>  drivers/thermal/intel_soc_dts_iosf.c         | 43 ++++++++++----------
+
+Hmm. Either we get acks of all maintainers and merge it through
+tip/x86/... or we do the following:
+
+Add the new constants w/o using them in a seperate patch and ship that
+linuswards now. Then the subsystem maintainers can pick the individual
+patches up and after the merge window closes we remove the old
+constants in one go.
+
+Either way works for me.
+
+Thanks,
+
+	tglx
