@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 9/9] arm64: renesas: r8a7795: add internal delay for i2c IPs
-Date: Thu, 26 Nov 2015 23:59:17 +0100
-Message-ID: <1448578757-12613-10-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 8/9] ARM: shmobile: r8a7794: dtsi: add internal delay for i2c IPs
+Date: Thu, 26 Nov 2015 23:59:16 +0100
+Message-ID: <1448578757-12613-9-git-send-email-wsa@the-dreams.de>
 References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
@@ -14,69 +14,61 @@ From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- arch/arm64/boot/dts/renesas/r8a7795.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/boot/dts/r8a7794.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index e786343d97e709..08262402fe606f 100644
---- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -429,6 +429,7 @@
- 			clocks = <&cpg CPG_MOD 931>;
- 			power-domains = <&cpg>;
- 			status = "disabled";
-+			i2c-scl-internal-delay-ns = <110>;
- 		};
+diff --git a/arch/arm/boot/dts/r8a7794.dtsi b/arch/arm/boot/dts/r8a7794.dtsi
+index 018ff56470b6da..a6a97c2197c814 100644
+--- a/arch/arm/boot/dts/r8a7794.dtsi
++++ b/arch/arm/boot/dts/r8a7794.dtsi
+@@ -520,6 +520,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		status = "disabled";
++		i2c-scl-internal-delay-ns = <6>;
+ 	};
  
- 		i2c1: i2c@e6508000 {
-@@ -440,6 +441,7 @@
- 			clocks = <&cpg CPG_MOD 930>;
- 			power-domains = <&cpg>;
- 			status = "disabled";
-+			i2c-scl-internal-delay-ns = <6>;
- 		};
+ 	i2c1: i2c@e6518000 {
+@@ -531,6 +532,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		status = "disabled";
++		i2c-scl-internal-delay-ns = <6>;
+ 	};
  
- 		i2c2: i2c@e6510000 {
-@@ -451,6 +453,7 @@
- 			clocks = <&cpg CPG_MOD 929>;
- 			power-domains = <&cpg>;
- 			status = "disabled";
-+			i2c-scl-internal-delay-ns = <6>;
- 		};
+ 	i2c2: i2c@e6530000 {
+@@ -542,6 +544,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		status = "disabled";
++		i2c-scl-internal-delay-ns = <6>;
+ 	};
  
- 		i2c3: i2c@e66d0000 {
-@@ -462,6 +465,7 @@
- 			clocks = <&cpg CPG_MOD 928>;
- 			power-domains = <&cpg>;
- 			status = "disabled";
-+			i2c-scl-internal-delay-ns = <110>;
- 		};
+ 	i2c3: i2c@e6540000 {
+@@ -553,6 +556,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		status = "disabled";
++		i2c-scl-internal-delay-ns = <6>;
+ 	};
  
- 		i2c4: i2c@e66d8000 {
-@@ -473,6 +477,7 @@
- 			clocks = <&cpg CPG_MOD 927>;
- 			power-domains = <&cpg>;
- 			status = "disabled";
-+			i2c-scl-internal-delay-ns = <110>;
- 		};
+ 	i2c4: i2c@e6520000 {
+@@ -564,6 +568,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		status = "disabled";
++		i2c-scl-internal-delay-ns = <6>;
+ 	};
  
- 		i2c5: i2c@e66e0000 {
-@@ -484,6 +489,7 @@
- 			clocks = <&cpg CPG_MOD 919>;
- 			power-domains = <&cpg>;
- 			status = "disabled";
-+			i2c-scl-internal-delay-ns = <110>;
- 		};
+ 	i2c5: i2c@e6528000 {
+@@ -575,6 +580,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		status = "disabled";
++		i2c-scl-internal-delay-ns = <6>;
+ 	};
  
- 		i2c6: i2c@e66e8000 {
-@@ -495,6 +501,7 @@
- 			clocks = <&cpg CPG_MOD 918>;
- 			power-domains = <&cpg>;
- 			status = "disabled";
-+			i2c-scl-internal-delay-ns = <6>;
- 		};
- 
- 		rcar_sound: sound@ec500000 {
+ 	mmcif0: mmc@ee200000 {
 -- 
 2.1.4
 
