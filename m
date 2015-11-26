@@ -1,65 +1,73 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 2/3] i2c: at91: add DT property "atmel,twd-hold-cycles"
- to binding
-Date: Wed, 25 Nov 2015 16:46:27 -0600
-Message-ID: <20151125224627.GA16821@rob-hp-laptop>
-References: <1448372862-11912-1-git-send-email-ludovic.desroches@atmel.com>
- <1448372862-11912-2-git-send-email-ludovic.desroches@atmel.com>
+From: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Subject: [PATCH v2] arm64: dts: add all hi6220 i2c nodes
+Date: Thu, 26 Nov 2015 15:57:03 +0800
+Message-ID: <1448524623-10320-1-git-send-email-kong.kongxinwei@hisilicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:48725 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750967AbbKYWqb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 25 Nov 2015 17:46:31 -0500
-Content-Disposition: inline
-In-Reply-To: <1448372862-11912-2-git-send-email-ludovic.desroches@atmel.com>
+Received: from szxga03-in.huawei.com ([119.145.14.66]:30030 "EHLO
+	szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752506AbbKZH5I (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Nov 2015 02:57:08 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@atmel.com>
-Cc: wsa@the-dreams.de, nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com, plagnioj@jcrosoft.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, cyrille.pichen@atmel.com, Wenyou Yang <wenyou.yang@atmel.com>
+To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, galak@codeaurora.org, catalin.marinas@arm.com, will.deacon@arm.com, tyler.baker@linaro.org, arnd@arndb.de, bintian.wang@huawei.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, shawnguo@kernel.org
+Cc: puck.chen@hisilicon.com, liguozhu@hisilicon.com, w.f@huawei.com, kong.kongxinwei@hisilicon.com
 
-On Tue, Nov 24, 2015 at 02:47:41PM +0100, Ludovic Desroches wrote:
-> From: Wenyou Yang <wenyou.yang@atmel.com>
-> 
-> Add a DT property "atmel,twd-hold-cycles" to specify the HOLD
-> filed of TWIHS_CWGR register to increase the TWD hold time.
-> 
-> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
-> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+This patch adds all I2C nodes for the Hi6220 SoC. This hi6220 Soc
+use this I2C IP of Synopsys Designware for HiKey board.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+---
+ arch/arm64/boot/dts/hisilicon/hi6220.dtsi | 37 +++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-at91.txt | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-> index 6e81dc1..c81a0cb 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-> @@ -17,6 +17,9 @@ Optional properties:
->  - dma-names: should contain "tx" and "rx".
->  - atmel,fifo-size: maximum number of data the RX and TX FIFOs can store for FIFO
->    capable I2C controllers.
-> +- atmel,twd-hold-cycles: number of cycles for TWD hold time whose value is
-> +  determinated by (atmel,twd-hold-cycles + 3) x t_peripheral_clock,
-> +  maximum value is 0x1f.
->  - Child nodes conforming to i2c bus binding
->  
->  Examples :
-> @@ -29,6 +32,7 @@ i2c0: i2c@fff84000 {
->  	#size-cells = <0>;
->  	clocks = <&twi0_clk>;
->  	clock-frequency = <400000>;
-> +	atmel,twd-hold-cycles = <2>;
->  
->  	24c512@50 {
->  		compatible = "24c512";
-> -- 
-> 2.5.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+index 82d2488..85d4a8b 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
++++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+@@ -208,5 +208,42 @@
+ 			clock-names = "uartclk", "apb_pclk";
+ 			status = "disabled";
+ 		};
++
++		i2c0: i2c@f7100000 {
++			compatible = "snps,designware-i2c";
++			reg = <0x0 0xf7100000 0x0 0x1000>;
++			interrupts = <0 44 4>;
++			clocks = <&sys_ctrl HI6220_I2C0_CLK>;
++			clock-names = "clk_i2c0";
++			i2c-sda-hold-time-ns = <300>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c0_pmx_func &i2c0_cfg_func>;
++			status = "disabled";
++		};
++
++		i2c1: i2c@f7101000 {
++			compatible = "snps,designware-i2c";
++			reg = <0x0 0xf7101000 0x0 0x1000>;
++			interrupts = <0 45 4>;
++			clocks = <&sys_ctrl HI6220_I2C1_CLK>;
++			clock-names = "clk_i2c1";
++			i2c-sda-hold-time-ns = <300>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c1_pmx_func &i2c1_cfg_func>;
++			status = "disabled";
++		};
++
++		i2c2: i2c@f7102000 {
++			compatible = "snps,designware-i2c";
++			reg = <0x0 0xf7102000 0x0 0x1000>;
++			interrupts = <0 46 4>;
++			clocks = <&sys_ctrl HI6220_I2C2_CLK>;
++			clock-names = "clk_i2c2";
++			i2c-sda-hold-time-ns = <300>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c2_pmx_func &i2c2_cfg_func>;
++			status = "disabled";
++		};
++
+ 	};
+ };
+-- 
+1.9.1
