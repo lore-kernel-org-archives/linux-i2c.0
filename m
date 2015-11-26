@@ -1,112 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 2/9] i2c: add generic routine to parse DT timing information
-Date: Thu, 26 Nov 2015 23:59:10 +0100
-Message-ID: <1448578757-12613-3-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 1/9] i2c: document generic DT bindings for timing parameters
+Date: Thu, 26 Nov 2015 23:59:09 +0100
+Message-ID: <1448578757-12613-2-git-send-email-wsa@the-dreams.de>
 References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:36516 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752850AbbKZW7X (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 26 Nov 2015 17:59:23 -0500
 In-Reply-To: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Inspired from the i2c-rk3x driver, thanks guys!
+Also, sort the properties alphabetically and make indentation
+consistent. Wording largely taken from i2c-rk3x.txt, thanks guys!
 
-FIXME: add documentation
+Only "i2c-scl-internal-delay-ns" is new, the rest is used by two drivers
+already and was documented in their driver binding documentation.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core.c | 34 ++++++++++++++++++++++++++++++++++
- include/linux/i2c.h    | 15 +++++++++++++++
- 2 files changed, 49 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c.txt | 31 ++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 040af5cc8143f1..7543fec4f65b61 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1438,6 +1438,40 @@ static void of_i2c_register_devices(struct i2c_adapter *adap)
- 	}
- }
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+index 8a99150ac3a7fd..a00219f5ee0733 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -29,12 +29,33 @@ Optional properties
+ These properties may not be supported by all drivers. However, if a driver
+ wants to support one of the below features, it should adapt the bindings below.
  
-+void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults)
-+{
-+	memset(t, 0, sizeof(*t));
-+
-+	if (of_property_read_u32(node, "clock-frequency", &t->bus_freq) && use_defaults)
-+		t->bus_freq = 100000;
-+
-+	/*
-+	 * Read rise and fall time from device tree. If not available, use
-+	 * the default maximum timing from the specification.
-+	 */
-+	if (of_property_read_u32(node, "i2c-scl-rising-time-ns", &t->scl_rise_ns) && use_defaults) {
-+		if (t->bus_freq <= 100000)
-+			t->scl_rise_ns = 1000;
-+		else if (t->bus_freq <= 400000)
-+			t->scl_rise_ns = 300;
-+		else
-+			t->scl_rise_ns = 120;
-+	}
-+
-+	if (of_property_read_u32(node, "i2c-scl-falling-time-ns", &t->scl_fall_ns) && use_defaults) {
-+		if (t->bus_freq <= 400000)
-+			t->scl_fall_ns = 300;
-+		else
-+			t->scl_fall_ns = 120;
-+	}
-+
-+	of_property_read_u32(node, "i2c-scl-internal-delay-ns", &t->scl_int_delay_ns);
-+
-+	if (of_property_read_u32(node, "i2c-sda-falling-time-ns", &t->sda_fall_ns) && use_defaults)
-+		t->sda_fall_ns = t->scl_fall_ns;
-+}
-+EXPORT_SYMBOL_GPL(of_i2c_parse_timings);
-+
- static int of_dev_node_match(struct device *dev, void *data)
- {
- 	return dev->of_node == data;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 768063baafbf5e..ca28c104ac5fb6 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -413,6 +413,15 @@ struct i2c_algorithm {
- #endif
- };
+-- clock-frequency	- frequency of bus clock in Hz.
+-- wakeup-source		- device can be used as a wakeup source.
++- clock-frequency
++	frequency of bus clock in Hz.
  
-+/* FIXME: Add docs */
-+struct i2c_timings {
-+	u32 bus_freq;
-+	u32 scl_rise_ns;
-+	u32 scl_fall_ns;
-+	u32 scl_int_delay_ns;
-+	u32 sda_fall_ns;
-+};
+-- interrupts		- interrupts used by the device.
+-- interrupt-names	- "irq" and "wakeup" names are recognized by I2C core,
+-			  other names are left to individual drivers.
++- i2c-scl-falling-time-ns
++	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
++	specification.
 +
- /**
-  * struct i2c_bus_recovery_info - I2C bus recovery information
-  * @recover_bus: Recover routine. Either pass driver's recover_bus() routine, or
-@@ -644,6 +653,8 @@ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
- 
- /* must call i2c_put_adapter() when done with returned i2c_adapter device */
- struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node);
++- i2c-scl-internal-delay-ns
++	Number of nanoseconds the IP core additionally needs to setup SCL.
 +
-+void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults);
- #else
- 
- static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
-@@ -660,6 +671,10 @@ static inline struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node
- {
- 	return NULL;
- }
++- i2c-scl-rising-time-ns
++	Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
++	specification.
 +
-+static inline void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults)
-+{
-+}
- #endif /* CONFIG_OF */
++- i2c-sda-falling-time-ns
++	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
++	specification.
++
++- interrupts
++	interrupts used by the device.
++
++- interrupt-names
++	"irq" and "wakeup" names are recognized by I2C core, other names are
++	left to individual drivers.
++
++- wakeup-source
++	device can be used as a wakeup source.
  
- #endif /* _LINUX_I2C_H */
+ Binding may contain optional "interrupts" property, describing interrupts
+ used by the device. I2C core will assign "irq" interrupt (or the very first
 -- 
 2.1.4
-
