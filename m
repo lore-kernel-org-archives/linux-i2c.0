@@ -1,73 +1,112 @@
-From: Xinwei Kong <kong.kongxinwei@hisilicon.com>
-Subject: [PATCH v2] arm64: dts: add all hi6220 i2c nodes
-Date: Thu, 26 Nov 2015 15:57:03 +0800
-Message-ID: <1448524623-10320-1-git-send-email-kong.kongxinwei@hisilicon.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from szxga03-in.huawei.com ([119.145.14.66]:30030 "EHLO
-	szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752506AbbKZH5I (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Nov 2015 02:57:08 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFC 2/9] i2c: add generic routine to parse DT timing information
+Date: Thu, 26 Nov 2015 23:59:10 +0100
+Message-ID: <1448578757-12613-3-git-send-email-wsa@the-dreams.de>
+References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
-To: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, galak@codeaurora.org, catalin.marinas@arm.com, will.deacon@arm.com, tyler.baker@linaro.org, arnd@arndb.de, bintian.wang@huawei.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, shawnguo@kernel.org
-Cc: puck.chen@hisilicon.com, liguozhu@hisilicon.com, w.f@huawei.com, kong.kongxinwei@hisilicon.com
 
-This patch adds all I2C nodes for the Hi6220 SoC. This hi6220 Soc
-use this I2C IP of Synopsys Designware for HiKey board.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Inspired from the i2c-rk3x driver, thanks guys!
+
+FIXME: add documentation
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- arch/arm64/boot/dts/hisilicon/hi6220.dtsi | 37 +++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ drivers/i2c/i2c-core.c | 34 ++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    | 15 +++++++++++++++
+ 2 files changed, 49 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
-index 82d2488..85d4a8b 100644
---- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
-+++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
-@@ -208,5 +208,42 @@
- 			clock-names = "uartclk", "apb_pclk";
- 			status = "disabled";
- 		};
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 040af5cc8143f1..7543fec4f65b61 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1438,6 +1438,40 @@ static void of_i2c_register_devices(struct i2c_adapter *adap)
+ 	}
+ }
+ 
++void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults)
++{
++	memset(t, 0, sizeof(*t));
 +
-+		i2c0: i2c@f7100000 {
-+			compatible = "snps,designware-i2c";
-+			reg = <0x0 0xf7100000 0x0 0x1000>;
-+			interrupts = <0 44 4>;
-+			clocks = <&sys_ctrl HI6220_I2C0_CLK>;
-+			clock-names = "clk_i2c0";
-+			i2c-sda-hold-time-ns = <300>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c0_pmx_func &i2c0_cfg_func>;
-+			status = "disabled";
-+		};
++	if (of_property_read_u32(node, "clock-frequency", &t->bus_freq) && use_defaults)
++		t->bus_freq = 100000;
 +
-+		i2c1: i2c@f7101000 {
-+			compatible = "snps,designware-i2c";
-+			reg = <0x0 0xf7101000 0x0 0x1000>;
-+			interrupts = <0 45 4>;
-+			clocks = <&sys_ctrl HI6220_I2C1_CLK>;
-+			clock-names = "clk_i2c1";
-+			i2c-sda-hold-time-ns = <300>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c1_pmx_func &i2c1_cfg_func>;
-+			status = "disabled";
-+		};
++	/*
++	 * Read rise and fall time from device tree. If not available, use
++	 * the default maximum timing from the specification.
++	 */
++	if (of_property_read_u32(node, "i2c-scl-rising-time-ns", &t->scl_rise_ns) && use_defaults) {
++		if (t->bus_freq <= 100000)
++			t->scl_rise_ns = 1000;
++		else if (t->bus_freq <= 400000)
++			t->scl_rise_ns = 300;
++		else
++			t->scl_rise_ns = 120;
++	}
 +
-+		i2c2: i2c@f7102000 {
-+			compatible = "snps,designware-i2c";
-+			reg = <0x0 0xf7102000 0x0 0x1000>;
-+			interrupts = <0 46 4>;
-+			clocks = <&sys_ctrl HI6220_I2C2_CLK>;
-+			clock-names = "clk_i2c2";
-+			i2c-sda-hold-time-ns = <300>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c2_pmx_func &i2c2_cfg_func>;
-+			status = "disabled";
-+		};
++	if (of_property_read_u32(node, "i2c-scl-falling-time-ns", &t->scl_fall_ns) && use_defaults) {
++		if (t->bus_freq <= 400000)
++			t->scl_fall_ns = 300;
++		else
++			t->scl_fall_ns = 120;
++	}
 +
- 	};
++	of_property_read_u32(node, "i2c-scl-internal-delay-ns", &t->scl_int_delay_ns);
++
++	if (of_property_read_u32(node, "i2c-sda-falling-time-ns", &t->sda_fall_ns) && use_defaults)
++		t->sda_fall_ns = t->scl_fall_ns;
++}
++EXPORT_SYMBOL_GPL(of_i2c_parse_timings);
++
+ static int of_dev_node_match(struct device *dev, void *data)
+ {
+ 	return dev->of_node == data;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 768063baafbf5e..ca28c104ac5fb6 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -413,6 +413,15 @@ struct i2c_algorithm {
+ #endif
  };
+ 
++/* FIXME: Add docs */
++struct i2c_timings {
++	u32 bus_freq;
++	u32 scl_rise_ns;
++	u32 scl_fall_ns;
++	u32 scl_int_delay_ns;
++	u32 sda_fall_ns;
++};
++
+ /**
+  * struct i2c_bus_recovery_info - I2C bus recovery information
+  * @recover_bus: Recover routine. Either pass driver's recover_bus() routine, or
+@@ -644,6 +653,8 @@ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+ 
+ /* must call i2c_put_adapter() when done with returned i2c_adapter device */
+ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node);
++
++void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults);
+ #else
+ 
+ static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+@@ -660,6 +671,10 @@ static inline struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node
+ {
+ 	return NULL;
+ }
++
++static inline void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults)
++{
++}
+ #endif /* CONFIG_OF */
+ 
+ #endif /* _LINUX_I2C_H */
 -- 
-1.9.1
+2.1.4
+
