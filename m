@@ -1,74 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 1/9] i2c: document generic DT bindings for timing parameters
-Date: Thu, 26 Nov 2015 23:59:09 +0100
-Message-ID: <1448578757-12613-2-git-send-email-wsa@the-dreams.de>
-References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 0/9] i2c: add generic support for timing parameters
+Date: Thu, 26 Nov 2015 23:59:08 +0100
+Message-ID: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36516 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:36517 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752850AbbKZW7X (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	id S1753161AbbKZW7X (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
 	Thu, 26 Nov 2015 17:59:23 -0500
-In-Reply-To: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Here is a patch series adding DT support for timing parameters like raise-time
+or falling-time. There is a core function for parsing and an implementation for
+the RCar driver how to use it.
 
-Also, sort the properties alphabetically and make indentation
-consistent. Wording largely taken from i2c-rk3x.txt, thanks guys!
+This series is still RFC because some documentation is missing. It worked fine
+on my Lager board this afternoon. However, since then my Lager board refuses to
+boot new kernels, even known working branches with known working configs, so I
+assume the current failure is unrelated. Anyway, this is to let you know what I
+am up to. Please have a look and comment.
 
-Only "i2c-scl-internal-delay-ns" is new, the rest is used by two drivers
-already and was documented in their driver binding documentation.
+Cheers,
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- Documentation/devicetree/bindings/i2c/i2c.txt | 31 ++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+   Wolfram
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-index 8a99150ac3a7fd..a00219f5ee0733 100644
---- a/Documentation/devicetree/bindings/i2c/i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-@@ -29,12 +29,33 @@ Optional properties
- These properties may not be supported by all drivers. However, if a driver
- wants to support one of the below features, it should adapt the bindings below.
- 
--- clock-frequency	- frequency of bus clock in Hz.
--- wakeup-source		- device can be used as a wakeup source.
-+- clock-frequency
-+	frequency of bus clock in Hz.
- 
--- interrupts		- interrupts used by the device.
--- interrupt-names	- "irq" and "wakeup" names are recognized by I2C core,
--			  other names are left to individual drivers.
-+- i2c-scl-falling-time-ns
-+	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
-+	specification.
-+
-+- i2c-scl-internal-delay-ns
-+	Number of nanoseconds the IP core additionally needs to setup SCL.
-+
-+- i2c-scl-rising-time-ns
-+	Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
-+	specification.
-+
-+- i2c-sda-falling-time-ns
-+	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
-+	specification.
-+
-+- interrupts
-+	interrupts used by the device.
-+
-+- interrupt-names
-+	"irq" and "wakeup" names are recognized by I2C core, other names are
-+	left to individual drivers.
-+
-+- wakeup-source
-+	device can be used as a wakeup source.
- 
- Binding may contain optional "interrupts" property, describing interrupts
- used by the device. I2C core will assign "irq" interrupt (or the very first
+
+Wolfram Sang (9):
+  i2c: document generic DT bindings for timing parameters
+  i2c: add generic routine to parse DT timing information
+  i2c: rcar: refactor probe function a little
+  i2c: rcar: switch to i2c generic dt parsing
+  i2c: rcar: honor additional i2c timings from DT
+  ARM: shmobile: r8a7790: dtsi: add internal delay for i2c IPs
+  ARM: shmobile: r8a7791: dtsi: add internal delay for i2c IPs
+  ARM: shmobile: r8a7794: dtsi: add internal delay for i2c IPs
+  arm64: renesas: r8a7795: add internal delay for i2c IPs
+
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt |  4 ++
+ Documentation/devicetree/bindings/i2c/i2c.txt      | 31 ++++++++--
+ arch/arm/boot/dts/r8a7790.dtsi                     |  4 ++
+ arch/arm/boot/dts/r8a7791.dtsi                     |  6 ++
+ arch/arm/boot/dts/r8a7794.dtsi                     |  6 ++
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi           |  7 +++
+ drivers/i2c/busses/i2c-rcar.c                      | 67 +++++++++++-----------
+ drivers/i2c/i2c-core.c                             | 34 +++++++++++
+ include/linux/i2c.h                                | 15 +++++
+ 9 files changed, 135 insertions(+), 39 deletions(-)
+
 -- 
 2.1.4
