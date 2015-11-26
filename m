@@ -1,61 +1,90 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 6/9] ARM: shmobile: r8a7790: dtsi: add internal delay for i2c IPs
-Date: Thu, 26 Nov 2015 23:59:14 +0100
-Message-ID: <1448578757-12613-7-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 5/9] i2c: rcar: honor additional i2c timings from DT
+Date: Thu, 26 Nov 2015 23:59:13 +0100
+Message-ID: <1448578757-12613-6-git-send-email-wsa@the-dreams.de>
 References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36549 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753447AbbKZW72 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 26 Nov 2015 17:59:28 -0500
+Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- arch/arm/boot/dts/r8a7790.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt |  4 ++++
+ drivers/i2c/busses/i2c-rcar.c                      | 21 ++++++++++++---------
+ 2 files changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm/boot/dts/r8a7790.dtsi b/arch/arm/boot/dts/r8a7790.dtsi
-index 0612502b4a6d67..cdbebc329cff9a 100644
---- a/arch/arm/boot/dts/r8a7790.dtsi
-+++ b/arch/arm/boot/dts/r8a7790.dtsi
-@@ -418,6 +418,7 @@
- 		clocks = <&mstp9_clks R8A7790_CLK_I2C0>;
- 		power-domains = <&cpg_clocks>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <110>;
- 	};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+index ea406eb20fa5ad..95e97223a71c83 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -20,6 +20,10 @@ Optional properties:
+   propoerty indicates the default frequency 100 kHz.
+ - clocks: clock specifier.
  
- 	i2c1: i2c@e6518000 {
-@@ -429,6 +430,7 @@
- 		clocks = <&mstp9_clks R8A7790_CLK_I2C1>;
- 		power-domains = <&cpg_clocks>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <6>;
- 	};
++- i2c-scl-falling-time-ns: see i2c.txt
++- i2c-scl-internal-delay-ns: see i2c.txt
++- i2c-scl-rising-time-ns: see i2c.txt
++
+ Examples :
  
- 	i2c2: i2c@e6530000 {
-@@ -440,6 +442,7 @@
- 		clocks = <&mstp9_clks R8A7790_CLK_I2C2>;
- 		power-domains = <&cpg_clocks>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <6>;
- 	};
+ i2c0: i2c@e6508000 {
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 453ce10132025d..9465a23bcc91a5 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -164,12 +164,15 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
  
- 	i2c3: i2c@e6540000 {
-@@ -451,6 +454,7 @@
- 		clocks = <&mstp9_clks R8A7790_CLK_I2C3>;
- 		power-domains = <&cpg_clocks>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <110>;
- 	};
+ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
+ {
+-	u32 scgd, cdf, round, ick, scl, cdf_width;
++	u32 scgd, cdf, round, ick, sum, scl, cdf_width;
+ 	unsigned long rate;
+ 	struct device *dev = rcar_i2c_priv_to_dev(priv);
  
- 	iic0: i2c@e6500000 {
+ 	/* Fall back to previously used values if not supplied */
+ 	t->bus_freq = t->bus_freq ?: 100000;
++	t->scl_fall_ns = t->scl_fall_ns ?: 35;
++	t->scl_rise_ns = t->scl_rise_ns ?: 200;
++	t->scl_int_delay_ns = t->scl_int_delay_ns ?: 50;
+ 
+ 	switch (priv->devtype) {
+ 	case I2C_RCAR_GEN1:
+@@ -193,9 +196,9 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
+ 	 * SCL	= ick / (20 + SCGD * 8 + F[(ticf + tr + intd) * ick])
+ 	 *
+ 	 * ick  : I2C internal clock < 20 MHz
+-	 * ticf : I2C SCL falling time  =  35 ns here
+-	 * tr   : I2C SCL rising  time  = 200 ns here
+-	 * intd : LSI internal delay    =  50 ns here
++	 * ticf : I2C SCL falling time
++	 * tr   : I2C SCL rising  time
++	 * intd : LSI internal delay
+ 	 * clkp : peripheral_clk
+ 	 * F[]  : integer up-valuation
+ 	 */
+@@ -211,12 +214,12 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
+ 	 * it is impossible to calculate large scale
+ 	 * number on u32. separate it
+ 	 *
+-	 * F[(ticf + tr + intd) * ick]
+-	 *  = F[(35 + 200 + 50)ns * ick]
+-	 *  = F[285 * ick / 1000000000]
+-	 *  = F[(ick / 1000000) * 285 / 1000]
++	 * F[(ticf + tr + intd) * ick] with sum = (ticf + tr + intd)
++	 *  = F[sum * ick / 1000000000]
++	 *  = F[(ick / 1000000) * sum / 1000]
+ 	 */
+-	round = (ick + 500000) / 1000000 * 285;
++	sum = t->scl_fall_ns + t->scl_rise_ns + t->scl_int_delay_ns;
++	round = (ick + 500000) / 1000000 * sum;
+ 	round = (round + 500) / 1000;
+ 
+ 	/*
 -- 
 2.1.4
+
