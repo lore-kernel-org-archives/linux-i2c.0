@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 5/9] i2c: rcar: honor additional i2c timings from DT
-Date: Thu, 26 Nov 2015 23:59:13 +0100
-Message-ID: <1448578757-12613-6-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 4/9] i2c: rcar: switch to i2c generic dt parsing
+Date: Thu, 26 Nov 2015 23:59:12 +0100
+Message-ID: <1448578757-12613-5-git-send-email-wsa@the-dreams.de>
 References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
@@ -12,79 +12,77 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+Switch to the new generic functions. Plain convert, no functionality
+added yet.
+
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-rcar.txt |  4 ++++
- drivers/i2c/busses/i2c-rcar.c                      | 21 ++++++++++++---------
- 2 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-index ea406eb20fa5ad..95e97223a71c83 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-@@ -20,6 +20,10 @@ Optional properties:
-   propoerty indicates the default frequency 100 kHz.
- - clocks: clock specifier.
- 
-+- i2c-scl-falling-time-ns: see i2c.txt
-+- i2c-scl-internal-delay-ns: see i2c.txt
-+- i2c-scl-rising-time-ns: see i2c.txt
-+
- Examples :
- 
- i2c0: i2c@e6508000 {
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 453ce10132025d..9465a23bcc91a5 100644
+index d4322a9096786f..453ce10132025d 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -164,12 +164,15 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+@@ -162,12 +162,15 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ 	return -EBUSY;
+ }
  
- static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
+-static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, u32 bus_speed)
++static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
  {
--	u32 scgd, cdf, round, ick, scl, cdf_width;
-+	u32 scgd, cdf, round, ick, sum, scl, cdf_width;
+ 	u32 scgd, cdf, round, ick, scl, cdf_width;
  	unsigned long rate;
  	struct device *dev = rcar_i2c_priv_to_dev(priv);
  
- 	/* Fall back to previously used values if not supplied */
- 	t->bus_freq = t->bus_freq ?: 100000;
-+	t->scl_fall_ns = t->scl_fall_ns ?: 35;
-+	t->scl_rise_ns = t->scl_rise_ns ?: 200;
-+	t->scl_int_delay_ns = t->scl_int_delay_ns ?: 50;
- 
++	/* Fall back to previously used values if not supplied */
++	t->bus_freq = t->bus_freq ?: 100000;
++
  	switch (priv->devtype) {
  	case I2C_RCAR_GEN1:
-@@ -193,9 +196,9 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
- 	 * SCL	= ick / (20 + SCGD * 8 + F[(ticf + tr + intd) * ick])
- 	 *
- 	 * ick  : I2C internal clock < 20 MHz
--	 * ticf : I2C SCL falling time  =  35 ns here
--	 * tr   : I2C SCL rising  time  = 200 ns here
--	 * intd : LSI internal delay    =  50 ns here
-+	 * ticf : I2C SCL falling time
-+	 * tr   : I2C SCL rising  time
-+	 * intd : LSI internal delay
- 	 * clkp : peripheral_clk
- 	 * F[]  : integer up-valuation
+ 		cdf_width = 2;
+@@ -230,7 +233,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, u32 bus_speed)
  	 */
-@@ -211,12 +214,12 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
- 	 * it is impossible to calculate large scale
- 	 * number on u32. separate it
- 	 *
--	 * F[(ticf + tr + intd) * ick]
--	 *  = F[(35 + 200 + 50)ns * ick]
--	 *  = F[285 * ick / 1000000000]
--	 *  = F[(ick / 1000000) * 285 / 1000]
-+	 * F[(ticf + tr + intd) * ick] with sum = (ticf + tr + intd)
-+	 *  = F[sum * ick / 1000000000]
-+	 *  = F[(ick / 1000000) * sum / 1000]
- 	 */
--	round = (ick + 500000) / 1000000 * 285;
-+	sum = t->scl_fall_ns + t->scl_rise_ns + t->scl_int_delay_ns;
-+	round = (ick + 500000) / 1000000 * sum;
- 	round = (round + 500) / 1000;
+ 	for (scgd = 0; scgd < 0x40; scgd++) {
+ 		scl = ick / (20 + (scgd * 8) + round);
+-		if (scl <= bus_speed)
++		if (scl <= t->bus_freq)
+ 			goto scgd_find;
+ 	}
+ 	dev_err(dev, "it is impossible to calculate best SCL\n");
+@@ -238,7 +241,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, u32 bus_speed)
  
- 	/*
+ scgd_find:
+ 	dev_dbg(dev, "clk %d/%d(%lu), round %u, CDF:0x%x, SCGD: 0x%x\n",
+-		scl, bus_speed, clk_get_rate(priv->clk), round, cdf, scgd);
++		scl, t->bus_freq, clk_get_rate(priv->clk), round, cdf, scgd);
+ 
+ 	/* keep icccr value */
+ 	priv->icccr = scgd << cdf_width | cdf;
+@@ -588,7 +591,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	struct i2c_adapter *adap;
+ 	struct resource *res;
+ 	struct device *dev = &pdev->dev;
+-	u32 bus_speed;
++	struct i2c_timings i2c_t;
+ 	int irq, ret;
+ 
+ 	priv = devm_kzalloc(dev, sizeof(struct rcar_i2c_priv), GFP_KERNEL);
+@@ -619,12 +622,11 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
+ 
+-	bus_speed = 100000; /* default 100 kHz */
+-	of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
++	of_i2c_parse_timings(dev->of_node, &i2c_t, false);
+ 
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_get_sync(dev);
+-	ret = rcar_i2c_clock_calculate(priv, bus_speed);
++	ret = rcar_i2c_clock_calculate(priv, &i2c_t);
+ 	if (ret < 0)
+ 		goto out_pm_put;
+ 
 -- 
 2.1.4
 
