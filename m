@@ -1,74 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 8/9] ARM: shmobile: r8a7794: dtsi: add internal delay for i2c IPs
-Date: Thu, 26 Nov 2015 23:59:16 +0100
-Message-ID: <1448578757-12613-9-git-send-email-wsa@the-dreams.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [RFC 5/9] i2c: rcar: honor additional i2c timings from DT
+Date: Fri, 27 Nov 2015 09:04:07 +0100
+Message-ID: <CAMuHMdU1fWjH2Lv00W2uxRW7-XGp1YaEoA4Ftq5o6yk6WamCBQ@mail.gmail.com>
 References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
+	<1448578757-12613-6-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1448578757-12613-6-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Thu, Nov 26, 2015 at 11:59 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -211,12 +214,12 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
+>          * it is impossible to calculate large scale
+>          * number on u32. separate it
+>          *
+> -        * F[(ticf + tr + intd) * ick]
+> -        *  = F[(35 + 200 + 50)ns * ick]
+> -        *  = F[285 * ick / 1000000000]
+> -        *  = F[(ick / 1000000) * 285 / 1000]
+> +        * F[(ticf + tr + intd) * ick] with sum = (ticf + tr + intd)
+> +        *  = F[sum * ick / 1000000000]
+> +        *  = F[(ick / 1000000) * sum / 1000]
+>          */
+> -       round = (ick + 500000) / 1000000 * 285;
+> +       sum = t->scl_fall_ns + t->scl_rise_ns + t->scl_int_delay_ns;
+> +       round = (ick + 500000) / 1000000 * sum;
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- arch/arm/boot/dts/r8a7794.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+If you're sure it cannot overflow, doing the "* sum" before the division
+improves accuracy.
 
-diff --git a/arch/arm/boot/dts/r8a7794.dtsi b/arch/arm/boot/dts/r8a7794.dtsi
-index 018ff56470b6da..a6a97c2197c814 100644
---- a/arch/arm/boot/dts/r8a7794.dtsi
-+++ b/arch/arm/boot/dts/r8a7794.dtsi
-@@ -520,6 +520,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <6>;
- 	};
- 
- 	i2c1: i2c@e6518000 {
-@@ -531,6 +532,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <6>;
- 	};
- 
- 	i2c2: i2c@e6530000 {
-@@ -542,6 +544,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <6>;
- 	};
- 
- 	i2c3: i2c@e6540000 {
-@@ -553,6 +556,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <6>;
- 	};
- 
- 	i2c4: i2c@e6520000 {
-@@ -564,6 +568,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <6>;
- 	};
- 
- 	i2c5: i2c@e6528000 {
-@@ -575,6 +580,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		status = "disabled";
-+		i2c-scl-internal-delay-ns = <6>;
- 	};
- 
- 	mmcif0: mmc@ee200000 {
--- 
-2.1.4
+>         round = (round + 500) / 1000;
 
+You can use DIV_ROUND_CLOSEST everywhere, e.g.
+
+    round = DIV_ROUND_CLOSEST(round, 1000)
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
