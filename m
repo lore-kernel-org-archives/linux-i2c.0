@@ -1,53 +1,47 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC 5/9] i2c: rcar: honor additional i2c timings from DT
-Date: Fri, 27 Nov 2015 09:04:07 +0100
-Message-ID: <CAMuHMdU1fWjH2Lv00W2uxRW7-XGp1YaEoA4Ftq5o6yk6WamCBQ@mail.gmail.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [RFC 7/9] ARM: shmobile: r8a7791: dtsi: add internal delay for
+ i2c IPs
+Date: Fri, 27 Nov 2015 14:58:38 +0300
+Message-ID: <5658456E.60509@cogentembedded.com>
 References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
-	<1448578757-12613-6-git-send-email-wsa@the-dreams.de>
+ <1448578757-12613-8-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1448578757-12613-6-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f42.google.com ([209.85.215.42]:34597 "EHLO
+	mail-lf0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753045AbbK0L6l (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 27 Nov 2015 06:58:41 -0500
+Received: by lffu14 with SMTP id u14so127316024lff.1
+        for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2015 03:58:40 -0800 (PST)
+In-Reply-To: <1448578757-12613-8-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-On Thu, Nov 26, 2015 at 11:59 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -211,12 +214,12 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
->          * it is impossible to calculate large scale
->          * number on u32. separate it
->          *
-> -        * F[(ticf + tr + intd) * ick]
-> -        *  = F[(35 + 200 + 50)ns * ick]
-> -        *  = F[285 * ick / 1000000000]
-> -        *  = F[(ick / 1000000) * 285 / 1000]
-> +        * F[(ticf + tr + intd) * ick] with sum = (ticf + tr + intd)
-> +        *  = F[sum * ick / 1000000000]
-> +        *  = F[(ick / 1000000) * sum / 1000]
->          */
-> -       round = (ick + 500000) / 1000000 * 285;
-> +       sum = t->scl_fall_ns + t->scl_rise_ns + t->scl_int_delay_ns;
-> +       round = (ick + 500000) / 1000000 * sum;
+Hello.
 
-If you're sure it cannot overflow, doing the "* sum" before the division
-improves accuracy.
+On 11/27/2015 1:59 AM, Wolfram Sang wrote:
 
->         round = (round + 500) / 1000;
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>   arch/arm/boot/dts/r8a7791.dtsi | 6 ++++++
+>   1 file changed, 6 insertions(+)
+>
+> diff --git a/arch/arm/boot/dts/r8a7791.dtsi b/arch/arm/boot/dts/r8a7791.dtsi
+> index d79102c0e7d346..57b806f8c28fad 100644
+> --- a/arch/arm/boot/dts/r8a7791.dtsi
+> +++ b/arch/arm/boot/dts/r8a7791.dtsi
+> @@ -408,6 +408,7 @@
+>   		clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
+>   		power-domains = <&cpg_clocks>;
+>   		status = "disabled";
+> +		i2c-scl-internal-delay-ns = <6>;
 
-You can use DIV_ROUND_CLOSEST everywhere, e.g.
+    I suggest that you add the new props before "status".
 
-    round = DIV_ROUND_CLOSEST(round, 1000)
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+MBR, Sergei
