@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 11/16] driver core: Do not overwrite secondary fwnode with NULL if it is set
-Date: Mon, 30 Nov 2015 17:11:39 +0200
-Message-ID: <1448896304-87928-12-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 12/16] mfd: core: propagate device properties to sub devices drivers
+Date: Mon, 30 Nov 2015 17:11:40 +0200
+Message-ID: <1448896304-87928-13-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
@@ -10,44 +10,64 @@ To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfo
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+In the similar way like we do for the platform data we propagate the device
+properties. For example, in case of Intel LPSS drivers we may provide a
+specific property to tell the actual device driver an additional information
+such as platform name.
 
-If multiple devices share single firmware node like it is case with MFD
-devices, the same firmware node (ACPI) is assigned to all of them. The
-function also modifies the shared firmware node in order to preserve
-secondary firmware node of the device in question.
-
-If the new device which is sharing the firmware node does not have
-secondary node it will be NULL which will be assigned to the secondary node
-of the shared firmware node losing all built-in properties.
-
-Prevent this by setting the secondary firmware node only if the replacement
-is non-NULL.
-
-Print also warning if someone tries to overwrite secondary node that has
-already been assigned.
-
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/base/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mfd/mfd-core.c   | 7 +++++++
+ include/linux/mfd/core.h | 5 +++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index b7d56c5..0a8bdad 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -2261,7 +2261,10 @@ void set_primary_fwnode(struct device *dev, struct fwnode_handle *fwnode)
- 		if (fwnode_is_primary(fn))
- 			fn = fn->secondary;
+diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+index 60b60dc..88bd1b1 100644
+--- a/drivers/mfd/mfd-core.c
++++ b/drivers/mfd/mfd-core.c
+@@ -14,6 +14,7 @@
+ #include <linux/kernel.h>
+ #include <linux/platform_device.h>
+ #include <linux/acpi.h>
++#include <linux/property.h>
+ #include <linux/mfd/core.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+@@ -192,6 +193,12 @@ static int mfd_add_device(struct device *parent, int id,
+ 			goto fail_alias;
+ 	}
  
--		fwnode->secondary = fn;
-+		if (fn) {
-+			WARN_ON(fwnode->secondary);
-+			fwnode->secondary = fn;
-+		}
- 		dev->fwnode = fwnode;
- 	} else {
- 		dev->fwnode = fwnode_is_primary(dev->fwnode) ?
++	if (cell->pset) {
++		ret = platform_device_add_properties(pdev, cell->pset);
++		if (ret)
++			goto fail_alias;
++	}
++
+ 	ret = mfd_platform_add_cell(pdev, cell, usage_count);
+ 	if (ret)
+ 		goto fail_alias;
+diff --git a/include/linux/mfd/core.h b/include/linux/mfd/core.h
+index 27dac3f..bc6f7e0 100644
+--- a/include/linux/mfd/core.h
++++ b/include/linux/mfd/core.h
+@@ -17,6 +17,7 @@
+ #include <linux/platform_device.h>
+ 
+ struct irq_domain;
++struct property_set;
+ 
+ /* Matches ACPI PNP id, either _HID or _CID, or ACPI _ADR */
+ struct mfd_cell_acpi_match {
+@@ -44,6 +45,10 @@ struct mfd_cell {
+ 	/* platform data passed to the sub devices drivers */
+ 	void			*platform_data;
+ 	size_t			pdata_size;
++
++	/* device properties passed to the sub devices drivers */
++	const struct property_set *pset;
++
+ 	/*
+ 	 * Device Tree compatible string
+ 	 * See: Documentation/devicetree/usage-model.txt Chapter 2.2 for details
 -- 
 2.6.2
