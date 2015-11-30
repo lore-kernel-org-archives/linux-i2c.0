@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 02/16] device property: rename helper functions
-Date: Mon, 30 Nov 2015 17:11:30 +0200
-Message-ID: <1448896304-87928-3-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 07/16] device property: return -EINVAL when property isn't found in ACPI
+Date: Mon, 30 Nov 2015 17:11:35 +0200
+Message-ID: <1448896304-87928-8-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
@@ -10,83 +10,60 @@ To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfo
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-To be in align with the rest of fwnode types we rename the built-in property
-set ones, i.e.
-	is_pset() -> is_pset_node()
-	to_pset() -> to_pset_node()
-
-There is no functional change.
+Change return code to be in align with OF and built-in device properties error
+codes. In particular -EINVAL means property is not found.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/base/property.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/acpi/property.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/base/property.c b/drivers/base/property.c
-index 09e488d..2e01f3f 100644
---- a/drivers/base/property.c
-+++ b/drivers/base/property.c
-@@ -37,14 +37,14 @@ void device_add_property_set(struct device *dev, struct property_set *pset)
- }
- EXPORT_SYMBOL_GPL(device_add_property_set);
+diff --git a/drivers/acpi/property.c b/drivers/acpi/property.c
+index 88f4306..2aee416 100644
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -346,7 +346,7 @@ void acpi_free_properties(struct acpi_device *adev)
+  *
+  * Return: %0 if property with @name has been found (success),
+  *         %-EINVAL if the arguments are invalid,
+- *         %-ENODATA if the property doesn't exist,
++ *         %-EINVAL if the property doesn't exist,
+  *         %-EPROTO if the property value type doesn't match @type.
+  */
+ static int acpi_data_get_property(struct acpi_device_data *data,
+@@ -360,7 +360,7 @@ static int acpi_data_get_property(struct acpi_device_data *data,
+ 		return -EINVAL;
  
--static inline bool is_pset(struct fwnode_handle *fwnode)
-+static inline bool is_pset_node(struct fwnode_handle *fwnode)
- {
- 	return fwnode && fwnode->type == FWNODE_PDATA;
+ 	if (!data->pointer || !data->properties)
+-		return -ENODATA;
++		return -EINVAL;
+ 
+ 	properties = data->properties;
+ 	for (i = 0; i < properties->package.count; i++) {
+@@ -375,13 +375,13 @@ static int acpi_data_get_property(struct acpi_device_data *data,
+ 		if (!strcmp(name, propname->string.pointer)) {
+ 			if (type != ACPI_TYPE_ANY && propvalue->type != type)
+ 				return -EPROTO;
+-			else if (obj)
++			if (obj)
+ 				*obj = propvalue;
+ 
+ 			return 0;
+ 		}
+ 	}
+-	return -ENODATA;
++	return -EINVAL;
  }
  
--static inline struct property_set *to_pset(struct fwnode_handle *fwnode)
-+static inline struct property_set *to_pset_node(struct fwnode_handle *fwnode)
- {
--	return is_pset(fwnode) ?
-+	return is_pset_node(fwnode) ?
- 		container_of(fwnode, struct property_set, fwnode) : NULL;
- }
- 
-@@ -135,8 +135,8 @@ bool fwnode_property_present(struct fwnode_handle *fwnode, const char *propname)
- 		return of_property_read_bool(to_of_node(fwnode), propname);
- 	else if (is_acpi_node(fwnode))
- 		return !acpi_node_prop_get(fwnode, propname, NULL);
--	else if (is_pset(fwnode))
--		return !!pset_prop_get(to_pset(fwnode), propname);
-+	else if (is_pset_node(fwnode))
-+		return !!pset_prop_get(to_pset_node(fwnode), propname);
- 	return false;
- }
- EXPORT_SYMBOL_GPL(fwnode_property_present);
-@@ -323,8 +323,8 @@ EXPORT_SYMBOL_GPL(device_property_match_string);
- 	else if (is_acpi_node(_fwnode_)) \
- 		_ret_ = acpi_node_prop_read(_fwnode_, _propname_, _proptype_, \
- 					    _val_, _nval_); \
--	else if (is_pset(_fwnode_)) \
--		_ret_ = pset_prop_read_array(to_pset(_fwnode_), _propname_, \
-+	else if (is_pset_node(_fwnode_)) 						\
-+		_ret_ = pset_prop_read_array(to_pset_node(_fwnode_), _propname_,	\
- 					     _proptype_, _val_, _nval_); \
- 	else \
- 		_ret_ = -ENXIO; \
-@@ -465,8 +465,8 @@ int fwnode_property_read_string_array(struct fwnode_handle *fwnode,
- 	else if (is_acpi_node(fwnode))
- 		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
- 					   val, nval);
--	else if (is_pset(fwnode))
--		return pset_prop_read_array(to_pset(fwnode), propname,
-+	else if (is_pset_node(fwnode))
-+		return pset_prop_read_array(to_pset_node(fwnode), propname,
- 					    DEV_PROP_STRING, val, nval);
- 	return -ENXIO;
- }
-@@ -495,8 +495,8 @@ int fwnode_property_read_string(struct fwnode_handle *fwnode,
- 	else if (is_acpi_node(fwnode))
- 		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
- 					   val, 1);
--	else if (is_pset(fwnode))
--		return pset_prop_read_array(to_pset(fwnode), propname,
-+	else if (is_pset_node(fwnode))
-+		return pset_prop_read_array(to_pset_node(fwnode), propname,
- 					    DEV_PROP_STRING, val, 1);
- 	return -ENXIO;
- }
+ /**
+@@ -439,7 +439,7 @@ int acpi_node_prop_get(struct fwnode_handle *fwnode, const char *propname,
+  *
+  * Return: %0 if array property (package) with @name has been found (success),
+  *         %-EINVAL if the arguments are invalid,
+- *         %-ENODATA if the property doesn't exist,
++ *         %-EINVAL if the property doesn't exist,
+  *         %-EPROTO if the property is not a package or the type of its elements
+  *           doesn't match @type.
+  */
 -- 
 2.6.2
