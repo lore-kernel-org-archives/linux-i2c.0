@@ -1,118 +1,58 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 13/16] mfd: intel-lpss: Add support for passing device properties
-Date: Mon, 30 Nov 2015 17:11:41 +0200
-Message-ID: <1448896304-87928-14-git-send-email-andriy.shevchenko@linux.intel.com>
-References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/3] i2c: at91: add setting HOLD field of TWIHS_CWGR via
+ DT
+Date: Mon, 30 Nov 2015 16:13:20 +0100
+Message-ID: <20151130151319.GM1513@katana>
+References: <1448372862-11912-1-git-send-email-ludovic.desroches@atmel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FxlYARId5dseejUu"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <1448372862-11912-1-git-send-email-ludovic.desroches@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Ludovic Desroches <ludovic.desroches@atmel.com>
+Cc: nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com, plagnioj@jcrosoft.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, cyrille.pichen@atmel.com, Wenyou Yang <wenyou.yang@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-If the boot firmware does not support ACPI we need a way to pass device
-configuration information to the drivers. The unified device properties API
-already supports passing platform data via properties so let's take
-advantage of that and allow probe drivers to pass set of properties to the
-host controller driver.
+--FxlYARId5dseejUu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In order to do that we need to be able to modify the MFD cell corresponding
-the host controller, so make the core driver to take copy of the cell
-instead of using it directly. Then we can assign info->pset to the
-resulting copy of a cell and let the MFD core to assign that to the
-resulting device.
+On Tue, Nov 24, 2015 at 02:47:40PM +0100, Ludovic Desroches wrote:
+> From: Wenyou Yang <wenyou.yang@atmel.com>
+>=20
+> Add the HOLD field management. Some i2c devices need a longer data hold
+> time than the one given in the i2c bus specification. Since this value
+> depends on the i2c device connected to the bus, add a DT property to
+> configure it: "atmel,twd-hold-cycles".
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/mfd/intel-lpss.c | 16 ++++++++++++----
- drivers/mfd/intel-lpss.h |  2 ++
- 2 files changed, 14 insertions(+), 4 deletions(-)
+We already have "i2c-sda-hold-time-ns". Can you use that one? Sorry that
+this is not obviously documented, I am working on it...
 
-diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
-index 6255513..1743788 100644
---- a/drivers/mfd/intel-lpss.c
-+++ b/drivers/mfd/intel-lpss.c
-@@ -24,6 +24,7 @@
- #include <linux/mfd/core.h>
- #include <linux/pm_qos.h>
- #include <linux/pm_runtime.h>
-+#include <linux/property.h>
- #include <linux/seq_file.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
- 
-@@ -72,7 +73,7 @@ struct intel_lpss {
- 	enum intel_lpss_dev_type type;
- 	struct clk *clk;
- 	struct clk_lookup *clock;
--	const struct mfd_cell *cell;
-+	struct mfd_cell *cell;
- 	struct device *dev;
- 	void __iomem *priv;
- 	int devid;
-@@ -217,6 +218,7 @@ static void intel_lpss_ltr_hide(struct intel_lpss *lpss)
- 
- static int intel_lpss_assign_devs(struct intel_lpss *lpss)
- {
-+	const struct mfd_cell *cell;
- 	unsigned int type;
- 
- 	type = lpss->caps & LPSS_PRIV_CAPS_TYPE_MASK;
-@@ -224,18 +226,22 @@ static int intel_lpss_assign_devs(struct intel_lpss *lpss)
- 
- 	switch (type) {
- 	case LPSS_DEV_I2C:
--		lpss->cell = &intel_lpss_i2c_cell;
-+		cell = &intel_lpss_i2c_cell;
- 		break;
- 	case LPSS_DEV_UART:
--		lpss->cell = &intel_lpss_uart_cell;
-+		cell = &intel_lpss_uart_cell;
- 		break;
- 	case LPSS_DEV_SPI:
--		lpss->cell = &intel_lpss_spi_cell;
-+		cell = &intel_lpss_spi_cell;
- 		break;
- 	default:
- 		return -ENODEV;
- 	}
- 
-+	lpss->cell = devm_kmemdup(lpss->dev, cell, sizeof(*cell), GFP_KERNEL);
-+	if (!lpss->cell)
-+		return -ENOMEM;
-+
- 	lpss->type = type;
- 
- 	return 0;
-@@ -401,6 +407,8 @@ int intel_lpss_probe(struct device *dev,
- 	if (ret)
- 		return ret;
- 
-+	lpss->cell->pset = info->pset;
-+
- 	intel_lpss_init_dev(lpss);
- 
- 	lpss->devid = ida_simple_get(&intel_lpss_devid_ida, 0, 0, GFP_KERNEL);
-diff --git a/drivers/mfd/intel-lpss.h b/drivers/mfd/intel-lpss.h
-index 2c7f8d7..0dcea9e 100644
---- a/drivers/mfd/intel-lpss.h
-+++ b/drivers/mfd/intel-lpss.h
-@@ -16,12 +16,14 @@
- 
- struct device;
- struct resource;
-+struct property_set;
- 
- struct intel_lpss_platform_info {
- 	struct resource *mem;
- 	int irq;
- 	unsigned long clk_rate;
- 	const char *clk_con_id;
-+	struct property_set *pset;
- };
- 
- int intel_lpss_probe(struct device *dev,
--- 
-2.6.2
+
+--FxlYARId5dseejUu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWXGePAAoJEBQN5MwUoCm20IkQAIUT+8p9jBSDz5FuJ6ODvovU
+Z1LsU1sZ/tJLbVtsMArkPmMwm1KUrxrReQWzqRkq9FbhOuHM7oCzgsim+sDjDGIV
+diS6CX+B3FH9DDeACv+shppfO7Ng3Jx3qrvd+6P/sSxhrOXL+waRYo1DNhgAEG68
+aoMQmiukrJ2cRYTk8cyaVgwUBlSFtyfA3v6hwrDaQI2N5jOdhS0kPRCHD1GzqmSh
+9xz86d+39HNUXMZfa92OTJJGoVTTCkFyRLIXT1shfF7wPxocvtEGvSFNJ0wkbffF
+QSm2BxYxS/Pw9qY26Vu2s8Yr1UlSOId4g86qhKvG8XRWYnGJZS4NJ+O1ladEYabx
+mkWJccfY2Wr1E3AF6rhaDws3qlhxgfy289y5W3l5Pq+EfaxvHWpDTgLOYoFLNxx4
+ffo04SxihJSn0uQP+17noYMjZG3/AIydi9yliPN6aN2PL1GyYXzrbkpz1oME/yFg
+Y0HlZLHkX1JkAIGezznifsMrT3FW5l37amjnTXyhOmCZZFD0ZQbUV0gsl0J1ugvm
+13kjCWYTNo50nkzyD54vSiRfj8TUerVRqGz8lLxxUjAma4lBmQFiUCBHM3nIxood
+1vO9ICXSiGiFwEnIsnvVvMfiT2Ah8FMnrPwteeNoDuK9zTGKmAbAyPM7K1Ur8pno
+TPwOsuzA4c+kPuGbsz1b
+=aJlr
+-----END PGP SIGNATURE-----
+
+--FxlYARId5dseejUu--
