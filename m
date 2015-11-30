@@ -1,95 +1,79 @@
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Subject: [PATCH v2] i2c: davinci: Increase module clock frequency
-Date: Mon, 30 Nov 2015 15:51:00 +0100
-Message-ID: <565C6254.6080602@nokia.com>
-References: <564DBEE3.4030508@nokia.com> <20151130135504.GE1513@katana>
- <565C566C.7000809@nokia.com> <20151130141054.GG1513@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: The n clockdiv factor is 0
+ based on sunxi SoCs
+Date: Mon, 30 Nov 2015 15:54:15 +0100
+Message-ID: <20151130145415.GJ1513@katana>
+References: <1443365828-8956-1-git-send-email-hdegoede@redhat.com>
+ <20151130135140.GD1513@katana>
+Reply-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from demumfd001.nsn-inter.net ([93.183.12.32]:33034 "EHLO
-	demumfd001.nsn-inter.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754044AbbK3Ou7 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2015 09:50:59 -0500
-In-Reply-To: <20151130141054.GG1513@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6J7GEvtanOfV9oXA"
+Return-path: <linux-sunxi+bncBDP47C6LHEIJZRXRWICRUBG2I5FCA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20151130135140.GD1513@katana>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: EXT Wolfram Sang <wsa@the-dreams.de>
-Cc: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-i2c@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, Santosh Shilimkar <ssantosh@kernel.org>
 
-I2C controller used in Keystone SoC has an undocumented peculiarity which
-results in SDA-SCL margins being dependent on module clock. Driving high
-capacity bus near its limits can result in STOP condition sometimes being
-understood as REPEATED-START by slaves (or NACK instead of ACK, etc...).
-Driving the module with higher clocks increases the margin between SDA and SCL
-transitions, making the operations with higher bus rates more robust. Therefore,
-target the module clock to 12MHz instead of 7MHz, still staying within
-the specification limits.
+--6J7GEvtanOfV9oXA
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Before the change STOP timing looked like this on 400kHz:
+On Mon, Nov 30, 2015 at 02:51:41PM +0100, Wolfram Sang wrote:
+> On Sun, Sep 27, 2015 at 04:57:08PM +0200, Hans de Goede wrote:
+> > According to the datasheets to n factor for dividing the tclk is
+> > 2 to the power n on Allwinner=C2=A0SoCs, not 2 to the power n + 1 as it=
+ is
+> > on other mv64xxx implementations.
+> >=20
+> > I've contacted Allwinner about this and they have confirmed that the
+> > datasheet is correct.
+> >=20
+> > This commit fixes the clk-divider calculations for Allwinner SoCs
+> > accordingly.
+> >=20
+> > Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>=20
+> Applied to for-current, thanks!
 
-SDA   ----------+          +----
-                 \        /
-                  \      /
-                   +----+
-                       (1)
-SCL   --+          +------------
-         \        /
-          \      /
-           +----+
-               (2)
+And added stable...
 
-While only point (1) signals STOP, point (2) could be incorrectly recognized as
-repeated-START (almost no margin between SDA and SCL transitions).
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.
 
-After the change there is at least 600ns margin measured between SCL fall and
-SDA fall during STOP generation:
+--6J7GEvtanOfV9oXA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-SDA   ------+          +----
-             \        /
-              \      /
-               +----+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-SCL   --+          +--------
-         \        /
-          \      /
-           +----+
-           ->|    |<- 600ns
-                ->|   |<- tSUSTO
+iQIcBAEBAgAGBQJWXGMXAAoJEBQN5MwUoCm2bhMP/A3leER++nhh8bi7dPWejKNL
+fFlB1lkFRV8Nfqw6Kc6QCnC+dQvl8EX8sGP7DTGfYcdZdnV0XfMoZ20uI90Xvnmc
+6r+hGkYd0hVGFkr0wNBrACHY52rN/bIy7bldTSA1RTUy0PE/meyaCakPN7e8wInQ
+mTCsR/CxbaAQmpwg58nNxAxJfDHSOZeXVIe2L1+ywH4uQ2ZeOTQ7EWTlwbs+Q8GR
+Igo3D1ZeKBdp6MwYjtbJV4UpRfI9uupEH6Meq//tYK7NpcigFeBPAROQzL4iCZqz
+vXh1gVT+D6iQOyfqyvZwGnqCkP/u4r2tn5WJrGZMVoMnN2f04uMRkojJ/rduC7ah
+mYbMZ+ezeVnbRjMar1/XftybdLQzRKPlniKxl68K+5liqR3+fm/taq1YBdTCu9G1
+F3TnPtfkpLObYwwfD7cMl7JH85lgGKmYu/JsYiigejCYZgZX0lsvXeQmhMsiLnhA
+pRaWmmf5QkaeytXRHHfnOPmFUMYxmWylcW7jx/pdRIEGS1H67iGfn9RrYMXPA1c4
+jGo+5zSsnt5XTSdAO99fwMiYuYyRmqGPIkcxw0Dylf6H8bWkrL0cPFSl44HZuxaZ
+Mr3oDQQNVx1S9ydz/AOxeaA4u5DgRJNt6jaEEmupYW7y3sWqjWnTwwowUqNcfF+u
+2oJE7poOTW8/zbPvpLc9
+=ovaY
+-----END PGP SIGNATURE-----
 
-So called tSUSTO (setup time for STOP condition) is still slightly higher than
-600ns, so no problem here.
-
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
----
-
-Changes in v2:
-- Replaced old comment referencing to datasheet.
-
- drivers/i2c/busses/i2c-davinci.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index c5628a4..a8bdcb5 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -202,8 +202,15 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
- 	 * d is always 6 on Keystone I2C controller
- 	 */
- 
--	/* get minimum of 7 MHz clock, but max of 12 MHz */
--	psc = (input_clock / 7000000) - 1;
-+	/*
-+	 * Both Davinci and current Keystone User Guides recommend a value
-+	 * between 7MHz and 12MHz. In reality 7MHz module clock doesn't
-+	 * always produce enough margin between SDA and SCL transitions.
-+	 * Measurements show that the higher the module clock is, the
-+	 * bigger is the margin, providing more reliable communication.
-+	 * So we better target for 12MHz.
-+	 */
-+	psc = (input_clock / 12000000) - 1;
- 	if ((input_clock / (psc + 1)) > 12000000)
- 		psc++;	/* better to run under spec than over */
- 	d = (psc >= 2) ? 5 : 7 - psc;
+--6J7GEvtanOfV9oXA--
