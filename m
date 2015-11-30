@@ -1,79 +1,71 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: The n clockdiv factor is 0
- based on sunxi SoCs
-Date: Mon, 30 Nov 2015 15:54:15 +0100
-Message-ID: <20151130145415.GJ1513@katana>
-References: <1443365828-8956-1-git-send-email-hdegoede@redhat.com>
- <20151130135140.GD1513@katana>
-Reply-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: davinci: Increase module clock frequency
+Date: Mon, 30 Nov 2015 15:56:04 +0100
+Message-ID: <20151130145604.GK1513@katana>
+References: <564DBEE3.4030508@nokia.com>
+ <20151130135504.GE1513@katana>
+ <565C566C.7000809@nokia.com>
+ <20151130141054.GG1513@katana>
+ <565C6254.6080602@nokia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6J7GEvtanOfV9oXA"
-Return-path: <linux-sunxi+bncBDP47C6LHEIJZRXRWICRUBG2I5FCA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="qDymnuGqqhW10CwH"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:33192 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754071AbbK3O4I (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 30 Nov 2015 09:56:08 -0500
 Content-Disposition: inline
-In-Reply-To: <20151130135140.GD1513@katana>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <565C6254.6080602@nokia.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Cc: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-i2c@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, Santosh Shilimkar <ssantosh@kernel.org>
 
---6J7GEvtanOfV9oXA
-Content-Type: text/plain; charset=UTF-8
+
+--qDymnuGqqhW10CwH
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 30, 2015 at 02:51:41PM +0100, Wolfram Sang wrote:
-> On Sun, Sep 27, 2015 at 04:57:08PM +0200, Hans de Goede wrote:
-> > According to the datasheets to n factor for dividing the tclk is
-> > 2 to the power n on Allwinner=C2=A0SoCs, not 2 to the power n + 1 as it=
- is
-> > on other mv64xxx implementations.
-> >=20
-> > I've contacted Allwinner about this and they have confirmed that the
-> > datasheet is correct.
-> >=20
-> > This commit fixes the clk-divider calculations for Allwinner SoCs
-> > accordingly.
-> >=20
-> > Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+On Mon, Nov 30, 2015 at 03:51:00PM +0100, Alexander Sverdlin wrote:
+> I2C controller used in Keystone SoC has an undocumented peculiarity which
+> results in SDA-SCL margins being dependent on module clock. Driving high
+> capacity bus near its limits can result in STOP condition sometimes being
+> understood as REPEATED-START by slaves (or NACK instead of ACK, etc...).
+> Driving the module with higher clocks increases the margin between SDA an=
+d SCL
+> transitions, making the operations with higher bus rates more robust. The=
+refore,
+> target the module clock to 12MHz instead of 7MHz, still staying within
+> the specification limits.
 >=20
-> Applied to for-current, thanks!
+> Before the change STOP timing looked like this on 400kHz:
+>=20
 
-And added stable...
+Applied to for-current, thanks!
 
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
 
---6J7GEvtanOfV9oXA
+--qDymnuGqqhW10CwH
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWXGMXAAoJEBQN5MwUoCm2bhMP/A3leER++nhh8bi7dPWejKNL
-fFlB1lkFRV8Nfqw6Kc6QCnC+dQvl8EX8sGP7DTGfYcdZdnV0XfMoZ20uI90Xvnmc
-6r+hGkYd0hVGFkr0wNBrACHY52rN/bIy7bldTSA1RTUy0PE/meyaCakPN7e8wInQ
-mTCsR/CxbaAQmpwg58nNxAxJfDHSOZeXVIe2L1+ywH4uQ2ZeOTQ7EWTlwbs+Q8GR
-Igo3D1ZeKBdp6MwYjtbJV4UpRfI9uupEH6Meq//tYK7NpcigFeBPAROQzL4iCZqz
-vXh1gVT+D6iQOyfqyvZwGnqCkP/u4r2tn5WJrGZMVoMnN2f04uMRkojJ/rduC7ah
-mYbMZ+ezeVnbRjMar1/XftybdLQzRKPlniKxl68K+5liqR3+fm/taq1YBdTCu9G1
-F3TnPtfkpLObYwwfD7cMl7JH85lgGKmYu/JsYiigejCYZgZX0lsvXeQmhMsiLnhA
-pRaWmmf5QkaeytXRHHfnOPmFUMYxmWylcW7jx/pdRIEGS1H67iGfn9RrYMXPA1c4
-jGo+5zSsnt5XTSdAO99fwMiYuYyRmqGPIkcxw0Dylf6H8bWkrL0cPFSl44HZuxaZ
-Mr3oDQQNVx1S9ydz/AOxeaA4u5DgRJNt6jaEEmupYW7y3sWqjWnTwwowUqNcfF+u
-2oJE7poOTW8/zbPvpLc9
-=ovaY
+iQIcBAEBAgAGBQJWXGOEAAoJEBQN5MwUoCm2r74P/1OuYz/KQaiHJPPuu0NrSXym
+pBJV0FJeLFa8tQN4Gi2R0cccA9rDMw3hXqWvA7/MvzJYg0VS1eak25xCRhQei0KK
+sVkQkhoy4dXrADdpwshLSEd0vAL/xzVWTzVyipKe5GpRgiJQoqmRecoCmZaLbyRv
+7JbK4us9PDP4lJ7iAX/7GJ+9WDbOUxlimkxs4JObIGCtkw+fbDH744fsG0kv/YMb
+/+IDwhGuvOvZCqkU7MuircA+e894uMO38QkD0Hfev0BHnQXT6yhMl9Sakqq8f0/N
+e0OY2J0LBlQlRXei5kUYjmSnJiZSnaRYIpykQkDPUE8J0i69iNeLt4LoYOtVQriO
+3Awv0qeA/pgsVN6ZO5hOJgOuosGiOIKFvGWUlcHOBgGmbIey75PwlAaZBieSv+Tb
+MWcVSseexlmy/B8YtVyl5bkfhAdj9VHu//xcY2n0NxdYRFCyLL1DU0ymCVB2VU0I
+cjAYmGbxlMatc387n6pE81rOLSXXtyPIjBzyC4RECF/3xrtn/HovgdDvrRlwXl4c
+j7SDidEM0Js2zizBfzXNU6F3viF2u8WKrmvq1vX+1s3kMKOD8xOwu8zZGDuW+tgR
+Ts9UgTu2NtlTOjPaqG6fs5vbOsnFmFx38Xp/6rA79XU3dzzwBxdM6QFRN6ArHKag
+9v2ogBei1Anc/AeDxNjb
+=EfRI
 -----END PGP SIGNATURE-----
 
---6J7GEvtanOfV9oXA--
+--qDymnuGqqhW10CwH--
