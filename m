@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v2] i2c: davinci: Increase module clock frequency
-Date: Mon, 30 Nov 2015 15:56:04 +0100
-Message-ID: <20151130145604.GK1513@katana>
+Date: Mon, 30 Nov 2015 16:02:37 +0100
+Message-ID: <20151130150236.GL1513@katana>
 References: <564DBEE3.4030508@nokia.com>
  <20151130135504.GE1513@katana>
  <565C566C.7000809@nokia.com>
@@ -9,12 +9,12 @@ References: <564DBEE3.4030508@nokia.com>
  <565C6254.6080602@nokia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qDymnuGqqhW10CwH"
+	protocol="application/pgp-signature"; boundary="2EnvhqpWJq810sZn"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:33192 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:33234 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754071AbbK3O4I (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 30 Nov 2015 09:56:08 -0500
+	id S1754135AbbK3PCm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 30 Nov 2015 10:02:42 -0500
 Content-Disposition: inline
 In-Reply-To: <565C6254.6080602@nokia.com>
 Sender: linux-i2c-owner@vger.kernel.org
@@ -23,7 +23,7 @@ To: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 Cc: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-i2c@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, Santosh Shilimkar <ssantosh@kernel.org>
 
 
---qDymnuGqqhW10CwH
+--2EnvhqpWJq810sZn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -43,29 +43,29 @@ refore,
 > Before the change STOP timing looked like this on 400kHz:
 >=20
 
-Applied to for-current, thanks!
+Applied to for-current and added stable, thanks!
 
 
---qDymnuGqqhW10CwH
+--2EnvhqpWJq810sZn
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWXGOEAAoJEBQN5MwUoCm2r74P/1OuYz/KQaiHJPPuu0NrSXym
-pBJV0FJeLFa8tQN4Gi2R0cccA9rDMw3hXqWvA7/MvzJYg0VS1eak25xCRhQei0KK
-sVkQkhoy4dXrADdpwshLSEd0vAL/xzVWTzVyipKe5GpRgiJQoqmRecoCmZaLbyRv
-7JbK4us9PDP4lJ7iAX/7GJ+9WDbOUxlimkxs4JObIGCtkw+fbDH744fsG0kv/YMb
-/+IDwhGuvOvZCqkU7MuircA+e894uMO38QkD0Hfev0BHnQXT6yhMl9Sakqq8f0/N
-e0OY2J0LBlQlRXei5kUYjmSnJiZSnaRYIpykQkDPUE8J0i69iNeLt4LoYOtVQriO
-3Awv0qeA/pgsVN6ZO5hOJgOuosGiOIKFvGWUlcHOBgGmbIey75PwlAaZBieSv+Tb
-MWcVSseexlmy/B8YtVyl5bkfhAdj9VHu//xcY2n0NxdYRFCyLL1DU0ymCVB2VU0I
-cjAYmGbxlMatc387n6pE81rOLSXXtyPIjBzyC4RECF/3xrtn/HovgdDvrRlwXl4c
-j7SDidEM0Js2zizBfzXNU6F3viF2u8WKrmvq1vX+1s3kMKOD8xOwu8zZGDuW+tgR
-Ts9UgTu2NtlTOjPaqG6fs5vbOsnFmFx38Xp/6rA79XU3dzzwBxdM6QFRN6ArHKag
-9v2ogBei1Anc/AeDxNjb
-=EfRI
+iQIcBAEBAgAGBQJWXGUMAAoJEBQN5MwUoCm2b5cP/3llZ1XddAG7S/56WqnFwIcs
+74cfYtCZOLJABBVLPMIBS4L42BEe/Qh5mdG/LNv8rYbKeI0axRYDrVXzfonsRzf6
+TebO5+zCbX4tJ4u2+Arc6nk+ao9NgqE3zHcLP+aBjIpMckI8DQ6+Iyd+t3FMRxc3
+99Pp8+PyGLwxc8qapuqGHRDBADDb1GVasVDpwRAA1yljvoxMn0rtwRw62JcyhVzQ
+cAIUUcM41fpnupQp3vstlTWkiGEgdLXBiI6QJ+oRjSYNSs/idmO2dkZwLpku45yW
+AMJoDHadeK8MaZFns637J+0zXltDzX5DGRCMISt5Es73E6g1b6Zw0Ag/T8FYalSQ
+sIQA9OJyrclsoHvPicziixX7GrLJiryzCLCJWuNiyGPElBQuwTbeQI3PPKCvEV6l
+haIN6WfCULpx/9nyEP/gEecFnxGn4LTV6Yg5frmNDoHmqXC9gZyAj5G2OAWCSeo/
+pCJOZEMRKj5rPjPXXsVB79lNxzOX4PwhgTnlmM0n/eMJGOS59b7ZFkqlODlKQB1o
+ipxgX5ecciOIb4zp/NrHnwmpBG0YtEivqT6E4OMM9DMc7mQbIFuRWQWZvmFnfL8Q
+Z6FXlwRHLum/2NtPVMW/SaqCgdvjeDQSEsOeC4zey5MGnNt0Mfu0V8VeGLqvFi2m
+a8pBiOezvuPdBXVaeUsz
+=5pEU
 -----END PGP SIGNATURE-----
 
---qDymnuGqqhW10CwH--
+--2EnvhqpWJq810sZn--
