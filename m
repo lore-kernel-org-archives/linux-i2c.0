@@ -1,61 +1,73 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 4/5] i2c: add i2c_check_quirks helper function
-Date: Mon, 30 Nov 2015 18:30:10 +0100
-Message-ID: <20151130173010.GF9554@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5 5/5] iio: humidity: si7020: add No Hold read mode
+Date: Mon, 30 Nov 2015 18:33:24 +0100
+Message-ID: <20151130173324.GG9554@katana>
 References: <1445976718-7449-1-git-send-email-nicola@corna.info>
  <1446118467-26453-1-git-send-email-nicola@corna.info>
- <1446118467-26453-4-git-send-email-nicola@corna.info>
+ <1446118467-26453-5-git-send-email-nicola@corna.info>
+ <56349644.2060308@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fwqqG+mf3f7vyBCB"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34265 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752311AbbK3RaS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 30 Nov 2015 12:30:18 -0500
+	protocol="application/pgp-signature"; boundary="f5QefDQHtn8hx44O"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1446118467-26453-4-git-send-email-nicola@corna.info>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <56349644.2060308-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Nicola Corna <nicola@corna.info>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, linux-rpi-kernel@lists.infradead.org
 
 
---fwqqG+mf3f7vyBCB
+--f5QefDQHtn8hx44O
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Oct 29, 2015 at 12:34:26PM +0100, Nicola Corna wrote:
-> This patch adds a i2c_check_quirks helper function to check the quirk fla=
-gs
-> of an i2c adapter, in a similar way to i2c_check_functionality.
+On Sat, Oct 31, 2015 at 10:21:56AM +0000, Jonathan Cameron wrote:
+> On 29/10/15 11:34, Nicola Corna wrote:
+> > The Si7013/20/21 modules support 2 read modes:
+> >  * Hold mode (blocking), where the device stretches the clock until the=
+ end
+> > of the measurement
+> >  * No Hold mode (non-blocking), where the device replies NACK for every=
+ I2C
+> > call during the measurement
+> > Here the No Hold mode is implemented, selectable with the blocking_io
+> > variable within si7020_platform_data. The default mode is Hold, unless =
+the
+> > adapter does not support clock stretching, in which case the No Hold mo=
+de
+> > is used.
+> >=20
+> > Signed-off-by: Nicola Corna <nicola-V0pQiMyom5mh6J55Ss3d3w@public.gmane.org>
+> I'm fine with this.  The dependency below should I think show up in the
+> coming merge window, so this lot might as well go via Wolfram.
 >=20
-> Signed-off-by: Nicola Corna <nicola@corna.info>
+> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-Applied to for-next, thanks!
+Not sure, will think about it...
 
 
---fwqqG+mf3f7vyBCB
+--f5QefDQHtn8hx44O
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWXIeiAAoJEBQN5MwUoCm2g6cP/3XU7YdtJOWLUeX0UwFBuAnh
-KSHnjV60jYwhGYroyr1J9NmPzWrKKXhal9P5UYb4aBgxjm1/Lu6vIoHc9bQLbn90
-Nv5wsJOsQsqyIgtu7tRuPj/Qd1PbjJVpbHpohhdUrVvd/gkRmMLGLZbuUIpO6SKt
-tbokNnWu1w46W44YRGoLlFDcJW9H4I0m6vZGmMuNfbIs70aWYWRONRCsUsINBq+v
-rJLHz3+pi4GKVEhhSAyqLGx+n1pw0ECboCfPjtKhF8v3TDpEJrmzX3fvaHB4j0a1
-H9cNRl+sziJuSSVq0GFGZMviZFRLaKwSzICBX8fT05sCmlxPXCIrSMvjCa4qKL3d
-ihBc5qLTh0twA6FBAGTViHc0bPGDtCqMiz8JPpIKHeA8rRCtMdzNJ1saZwk/Znpb
-bVQ28oK3B2CYW5lcCZABayfsokiMWoPNP3rGpj26Mgjcngd5Q8Kw5eqmkpuzfzMo
-f+V6+fAUjHt4C/Qrrf75887JKtoYR8RpLsr5OvlW8E2Aem+cYrxf4AFJdNMYbMUx
-u0gVufnq+/o5GO9fk/cDJYdnHEOWu8dGR38F/u5s6qXFdO3RGSHNaGnqLonn0v7Q
-Kt5VBrOvfDTPCIDp9aZGzLZkXsMciYzGJQIVnZeEP1LrucccjAIgDJv4m8rP0/DO
-QtoHdMsiY1UmiLZ780WU
-=e7Hd
+iQIcBAEBAgAGBQJWXIhkAAoJEBQN5MwUoCm2b3gP/A9z8+qAvT5LFoWQCeeHd5/S
+m+v5NNmT/7GiqkP8RwvdC01NEzJRzv4D+ovCHFI6olU4pPzsPTYIKEUppOALF1Gh
+8tRi+a0fJ0GaFxab5kMbWnd5Vl1ycsuvRxFYxgZukKaUvtnLsl3dEDDXkgiJDTGJ
+RCZwyFxWsT3KpatEFmT6u+++HYkN9QdqKl1N0cPLlaBqWZpUqTaC5w8waIXsJrC1
+SsJf9m+4AC6mysUv/3N5k1GCPRIAF3BImfr3DBnM+3kRwjeF0a2sPOwvoxHB9fgi
+4JuLMxSazSafo1KCrVtIVVS3gkO+Lo5diIegDoNO4gbsZpQ8xyECdHENSzY7fbjm
+cxWyoN6f03HbUI2sQfKwaI/Styk5kXYRSXDj+E1Cb877NFo4nIuRHjEo8/Suhb7x
+xT/Ar4P5KR5FWsyXrZLgsj+ZZB8Smmz/gRyNa1xW0zQ0ESrO6iWQgcQPv51dV+2j
+1AW8SeCJjq5WaMcn5Fy1KIwydHQ1E8HhKAs9vQ79BrAV36ovangrAL5n3nFf3YOa
+xJKxY7nLzLeP4Vrd25uUeKkJZrikN93eooc37+8csD/O08pUm0WTCUD+Xmbehxcb
+AeD0eS3zzv0ih9J9xEnAGCtU70kdX3IJFLGCsAq06H2flzb3jg4QgvyFgKAd7p2m
+1gwIooh1nlVYgfm+P+fn
+=COCH
 -----END PGP SIGNATURE-----
 
---fwqqG+mf3f7vyBCB--
+--f5QefDQHtn8hx44O--
