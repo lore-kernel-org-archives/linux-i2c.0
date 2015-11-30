@@ -1,122 +1,254 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 10/16] driver core: platform: Add support for built-in device properties
-Date: Mon, 30 Nov 2015 17:11:38 +0200
-Message-ID: <1448896304-87928-11-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 09/16] device property: Take a copy of the property set
+Date: Mon, 30 Nov 2015 17:11:37 +0200
+Message-ID: <1448896304-87928-10-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:28094 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754680AbbK3PMF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 30 Nov 2015 10:12:05 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+List-Id: linux-i2c@vger.kernel.org
 
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Make it possible to pass built-in device properties to platform device
-drivers. This is useful if the system does not have any firmware interface
-like Device Tree or ACPI which provides these.
+It is convenient if the property set associated with the device secondary
+firmware node is a copy of the original. This allows passing property set
+from a stack for example for devices created dynamically. This also ties
+the property set lifetime to the associated device.
 
-Properties associated with the platform device will be automatically
-released when the corresponding device is removed.
+Because of that we provide new function device_remove_property_set() that
+is used to disassociate and release memory allocated for the property set.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/base/platform.c         | 25 +++++++++++++++++++++++++
- include/linux/platform_device.h |  5 +++++
- 2 files changed, 30 insertions(+)
+ drivers/base/property.c  | 191 ++++++++++++++++++++++++++++++++++++++++++-----
+ include/linux/property.h |   3 +-
+ 2 files changed, 175 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 1dd6d3b..d77ed0c 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -26,6 +26,7 @@
- #include <linux/acpi.h>
- #include <linux/clk/clk-conf.h>
- #include <linux/limits.h>
-+#include <linux/property.h>
+diff --git a/drivers/base/property.c b/drivers/base/property.c
+index ebcbe34..0b22c8a 100644
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -19,24 +19,6 @@
+ #include <linux/etherdevice.h>
+ #include <linux/phy.h>
  
- #include "base.h"
- #include "power/power.h"
-@@ -299,6 +300,22 @@ int platform_device_add_data(struct platform_device *pdev, const void *data,
- EXPORT_SYMBOL_GPL(platform_device_add_data);
+-/**
+- * device_add_property_set - Add a collection of properties to a device object.
+- * @dev: Device to add properties to.
+- * @pset: Collection of properties to add.
+- *
+- * Associate a collection of device properties represented by @pset with @dev
+- * as its secondary firmware node.
+- */
+-void device_add_property_set(struct device *dev, struct property_set *pset)
+-{
+-	if (!pset)
+-		return;
+-
+-	pset->fwnode.type = FWNODE_PDATA;
+-	set_secondary_fwnode(dev, &pset->fwnode);
+-}
+-EXPORT_SYMBOL_GPL(device_add_property_set);
+-
+ static inline bool is_pset_node(struct fwnode_handle *fwnode)
+ {
+ 	return fwnode && fwnode->type == FWNODE_PDATA;
+@@ -693,6 +675,179 @@ out:
+ EXPORT_SYMBOL_GPL(fwnode_property_match_string);
  
  /**
-+ * platform_device_add_properties - add built-in properties to a platform device
-+ * @pdev: platform device to add properties to
-+ * @pset: properties to add
++ * pset_free_set - releases memory allocated for copied property set
++ * @pset: Property set to release
 + *
-+ * The function will take deep copy of the properties in @pset and attach
-+ * the copy to the platform device. The memory associated with properties
-+ * will be freed when the platform device is released.
++ * Function takes previously copied property set and releases all the
++ * memory allocated to it.
 + */
-+int platform_device_add_properties(struct platform_device *pdev,
-+				   const struct property_set *pset)
++static void pset_free_set(struct property_set *pset)
 +{
-+	return device_add_property_set(&pdev->dev, pset);
-+}
-+EXPORT_SYMBOL_GPL(platform_device_add_properties);
++	const struct property_entry *prop;
++	size_t i, nval;
 +
-+/**
-  * platform_device_add - add a platform device to device hierarchy
-  * @pdev: platform device we're adding
-  *
-@@ -409,6 +426,8 @@ void platform_device_del(struct platform_device *pdev)
- 			if (r->parent)
- 				release_resource(r);
- 		}
++	if (!pset)
++		return;
 +
-+		device_remove_property_set(&pdev->dev);
- 	}
- }
- EXPORT_SYMBOL_GPL(platform_device_del);
-@@ -487,6 +506,12 @@ struct platform_device *platform_device_register_full(
- 	if (ret)
- 		goto err;
- 
-+	if (pdevinfo->pset) {
-+		ret = platform_device_add_properties(pdev, pdevinfo->pset);
-+		if (ret)
-+			goto err;
++	for (prop = pset->properties; prop->name; prop++) {
++		if (prop->is_array) {
++			if (prop->is_string && prop->pointer.str) {
++				nval = prop->length / sizeof(const char *);
++				for (i = 0; i < nval; i++)
++					kfree(prop->pointer.str[i]);
++			}
++			kfree(prop->pointer.raw_data);
++		} else if (prop->is_string) {
++			kfree(prop->value.str);
++		}
++		kfree(prop->name);
 +	}
 +
- 	ret = platform_device_add(pdev);
- 	if (ret) {
- err:
-diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
-index dc777be..dba40b1 100644
---- a/include/linux/platform_device.h
-+++ b/include/linux/platform_device.h
-@@ -18,6 +18,7 @@
- #define PLATFORM_DEVID_AUTO	(-2)
- 
- struct mfd_cell;
-+struct property_set;
- 
- struct platform_device {
- 	const char	*name;
-@@ -70,6 +71,8 @@ struct platform_device_info {
- 		const void *data;
- 		size_t size_data;
- 		u64 dma_mask;
++	kfree(pset->properties);
++	kfree(pset);
++}
 +
-+		const struct property_set *pset;
++static int pset_copy_entry(struct property_entry *dst,
++			   const struct property_entry *src)
++{
++	const char **d, **s;
++	size_t i, nval;
++
++	dst->name = kstrdup(src->name, GFP_KERNEL);
++	if (!dst->name)
++		return -ENOMEM;
++
++	if (src->is_array) {
++		if (src->is_string) {
++			nval = src->length / sizeof(const char *);
++			dst->pointer.str = kcalloc(nval, sizeof(const char *),
++						   GFP_KERNEL);
++			if (!dst->pointer.str)
++				return -ENOMEM;
++
++			d = dst->pointer.str;
++			s = src->pointer.str;
++			for (i = 0; i < nval; i++) {
++				d[i] = kstrdup(s[i], GFP_KERNEL);
++				if (!d[i] && s[i])
++					return -ENOMEM;
++			}
++		} else {
++			dst->pointer.raw_data = kmemdup(src->pointer.raw_data,
++							src->length, GFP_KERNEL);
++			if (!dst->pointer.raw_data)
++				return -ENOMEM;
++		}
++	} else if (src->is_string) {
++		dst->value.str = kstrdup(src->value.str, GFP_KERNEL);
++		if (!dst->value.str && src->value.str)
++			return -ENOMEM;
++	} else {
++		dst->value.raw_data = src->value.raw_data;
++	}
++
++	dst->length = src->length;
++	dst->is_array = src->is_array;
++	dst->is_string = src->is_string;
++
++	return 0;
++}
++
++/**
++ * pset_copy_set - copies property set
++ * @pset: Property set to copy
++ *
++ * This function takes a deep copy of the given property set and returns
++ * pointer to the copy. Call device_free_property_set() to free resources
++ * allocated in this function.
++ *
++ * Return: Pointer to the new property set or error pointer.
++ */
++static struct property_set *pset_copy_set(const struct property_set *pset)
++{
++	const struct property_entry *entry;
++	struct property_set *p;
++	size_t i, n = 0;
++
++	p = kzalloc(sizeof(*p), GFP_KERNEL);
++	if (!p)
++		return ERR_PTR(-ENOMEM);
++
++	while (pset->properties[n].name)
++		n++;
++
++	p->properties = kcalloc(n + 1, sizeof(*entry), GFP_KERNEL);
++	if (!p->properties) {
++		kfree(p);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	for (i = 0; i < n; i++) {
++		int ret = pset_copy_entry(&p->properties[i],
++					  &pset->properties[i]);
++		if (ret) {
++			pset_free_set(p);
++			return ERR_PTR(ret);
++		}
++	}
++
++	return p;
++}
++
++/**
++ * device_remove_property_set - Remove properties from a device object.
++ * @dev: Device whose properties to remove.
++ *
++ * The function removes properties previously associated to the device
++ * secondary firmware node with device_add_property_set(). Memory allocated
++ * to the properties will also be released.
++ */
++void device_remove_property_set(struct device *dev)
++{
++	struct fwnode_handle *fwnode;
++
++	fwnode = dev_fwnode(dev);
++	if (!fwnode)
++		return;
++	/*
++	 * Pick either primary or secondary node depending which one holds
++	 * the pset. If there is no real firmware node (ACPI/DT) primary
++	 * will hold the pset.
++	 */
++	if (!is_pset_node(fwnode))
++		fwnode = fwnode->secondary;
++	if (!IS_ERR(fwnode) && is_pset_node(fwnode))
++		pset_free_set(to_pset_node(fwnode));
++	set_secondary_fwnode(dev, NULL);
++}
++EXPORT_SYMBOL_GPL(device_remove_property_set);
++
++/**
++ * device_add_property_set - Add a collection of properties to a device object.
++ * @dev: Device to add properties to.
++ * @pset: Collection of properties to add.
++ *
++ * Associate a collection of device properties represented by @pset with @dev
++ * as its secondary firmware node. The function takes a copy of @pset.
++ */
++int device_add_property_set(struct device *dev, const struct property_set *pset)
++{
++	struct property_set *p;
++
++	if (!pset)
++		return -EINVAL;
++
++	p = pset_copy_set(pset);
++	if (IS_ERR(p))
++		return PTR_ERR(p);
++
++	p->fwnode.type = FWNODE_PDATA;
++	set_secondary_fwnode(dev, &p->fwnode);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(device_add_property_set);
++
++/**
+  * device_get_next_child_node - Return the next child node handle for a device
+  * @dev: Device to find the next child node for.
+  * @child: Handle to one of the device's child nodes or a null handle.
+diff --git a/include/linux/property.h b/include/linux/property.h
+index d1cf208..3a8c7d7 100644
+--- a/include/linux/property.h
++++ b/include/linux/property.h
+@@ -240,7 +240,8 @@ struct property_set {
+ 	struct property_entry *properties;
  };
- extern struct platform_device *platform_device_register_full(
- 		const struct platform_device_info *pdevinfo);
-@@ -167,6 +170,8 @@ extern int platform_device_add_resources(struct platform_device *pdev,
- 					 unsigned int num);
- extern int platform_device_add_data(struct platform_device *pdev,
- 				    const void *data, size_t size);
-+extern int platform_device_add_properties(struct platform_device *pdev,
-+					  const struct property_set *pset);
- extern int platform_device_add(struct platform_device *pdev);
- extern void platform_device_del(struct platform_device *pdev);
- extern void platform_device_put(struct platform_device *pdev);
+ 
+-void device_add_property_set(struct device *dev, struct property_set *pset);
++int device_add_property_set(struct device *dev, const struct property_set *pset);
++void device_remove_property_set(struct device *dev);
+ 
+ bool device_dma_supported(struct device *dev);
+ 
 -- 
 2.6.2
