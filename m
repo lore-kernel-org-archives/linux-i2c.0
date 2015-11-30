@@ -1,62 +1,60 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 00/28] MIPS Boston board support
-Date: Mon, 30 Nov 2015 16:34:13 +0000
-Message-ID: <20151130163413.GB1929@sirena.org.uk>
-References: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 1/5] i2c: add i2c quirk flag for unsupported clock
+ stretching
+Date: Mon, 30 Nov 2015 18:24:44 +0100
+Message-ID: <20151130172444.GB9554@katana>
+References: <1445976718-7449-1-git-send-email-nicola@corna.info>
+ <1446118467-26453-1-git-send-email-nicola@corna.info>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="pI6hLdwVzam1XFuA"
-Return-path: <linux-mips-bounce@linux-mips.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VrqPEDrXMn8OVzN4"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:34189 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753877AbbK3RYz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 30 Nov 2015 12:24:55 -0500
 Content-Disposition: inline
-In-Reply-To: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Paul Burton <paul.burton@imgtec.com>
-Cc: linux-mips@linux-mips.org, Arnd Bergmann <arnd@arndb.de>, Joshua Kinard <kumba@gentoo.org>, Alessandro Zummo <a.zummo@towertech.it>, Jiri Slaby <jslaby@suse.com>, Bjorn Helgaas <bhelgaas@google.com>, Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Linus Walleij <linus.walleij@linaro.org>, Kumar Gala <galak@codeaurora.org>, Yijing Wang <wangyijing@huawei.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>, John Crispin <blogic@openwrt.org>, Jayachandran C <jchandra@broadcom.com>, linux-spi@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, Ray Jui <rjui@broadcom.com>, Richard Cochran <richardcochran@gmail.com>, Tejun Heo <tj@kernel.org>, Michal Simek <michal.simek@xilinx.com>, Andrew
+In-Reply-To: <1446118467-26453-1-git-send-email-nicola@corna.info>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Nicola Corna <nicola@corna.info>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Jonathan Cameron <jic23@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, linux-rpi-kernel@lists.infradead.org
 
 
---pI6hLdwVzam1XFuA
+--VrqPEDrXMn8OVzN4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 30, 2015 at 04:21:25PM +0000, Paul Burton wrote:
-> This series introduces support for the Imagination Technologies MIPS
-> Boston development board. Boston is an FPGA-based development board
-> akin to the much older Malta board, built around a Xilinx FPGA running
-> a MIPS CPU & other logic including a PCIe root port connected to an
-> Intel EG20T Platform Controller Hub. This provides a base set of
-> peripherals including SATA, USB, SD/MMC, ethernet, I2C & GPIOs. PCIe
-> slots are also present for expansion.
+On Thu, Oct 29, 2015 at 12:34:23PM +0100, Nicola Corna wrote:
+> Add I2C_AQ_NO_CLK_STRETCH quirk flag, to be used when clock stretching is
+> not supported.
+>=20
+> Signed-off-by: Nicola Corna <nicola@corna.info>
 
-This is an insanely big CC list :(
+Applied to for-next, thanks!
 
-What are the interdependencies here - does this really need to be one
-patch series or can the individual driver changes go in separately?  The
-latter is more normal, usually rather than a single patch series we just
-have each driver sent by itself since that's usually easier to handle
-and avoids the massive CC lists.
 
---pI6hLdwVzam1XFuA
+--VrqPEDrXMn8OVzN4
 Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v1
 
-iQEcBAEBCAAGBQJWXHqEAAoJECTWi3JdVIfQJSUH/iIgPfd2b5fhUdpCuloKrkzo
-ez7mkxbm3A2j3pKg0G57M4IEOD1UHHBQdACn9Gn38+UCLVdK2VoDpY+xxpf0bUbB
-aWm0a1vnjxwyTW5lSEkeR0i6EzMuFliUJnIsdv9yrmwUdm8Z0zJTYaLRm2rKsgR3
-kQLDe+kzzuf3qKW0mVcOL8y4rb/keG79c35wSXn4heWbFL7FCAUmVZ0bhcOkeLP+
-O9T7D/fqnlT4+gOvBBlglzHBjWY8JUYJiccHFfccRZJ3hOO973bHQi8QcGhS06C3
-LFww/Secx7tTiUXfdXo5sD0dAJwN7mG8sBrYAmZPBcW1TYn6wzCxFMK9XkLVA9k=
-=7ym9
+iQIcBAEBAgAGBQJWXIZcAAoJEBQN5MwUoCm2NxsP/jgtu4WoXF4M607QBQTVnN2y
+HZ/zuWYN7jbqOAIOP9uvaurj/IcMHtJnOio/FHJ4eFykSLGpAMHc3qs29+eCO7Or
+4TYvArLnkTlMiV93Ov8LmOh/iukpQ3HkQ4e67jdh/LAj47zgF0cjRJ5xKWr9EolN
+BP1gpz0sCl8bGq3OtyTMShiFVJ7UOFauX6PTkKAh2xRCm1hti+wEuI67TfdvwUjm
+bnv7omKdhlifeZ1JmkAH1maa/7keTVpjKBH4YTYn3T9PVFGhDmR+odi8Sd6scUNM
+8Sg8EKTAHeI/wZbI+GoKx9v8bdiKd/lQ3TxX/+6XkQdx+i1SzlWT5gb9f2CVngSe
+nNfp3xJHy0WuJDaONUJ8UI3ZbUbGBRsFPsk6GfwHgwTkm3fXf/8wZpdyo1hrVG5F
+Zo0d7An9hvhKToaMLKiHvVkQUoLvVZhj80M8xjjmi0TzBDQb95iDQDK5xP0bDiC+
+6fgEPSIf2+QPFFqWRWuyeId9r8xgJPfT2YgDxuDx9mV1spr68Btc9mclGQfP15Bo
+JGdsrArQe1nFe0ZDG33/3LFb2cUasA1C/Wnd5sMOZCw6a2aQOySvZhxfuKlmudBl
+JxeSUIypFPGSmG6m2EMJ/wArofkj/L9hBUxKn8YZcRIZaEOAoJctUkASihNj4rY/
+bULwnZQAg7K1KSzngqi9
+=vxHD
 -----END PGP SIGNATURE-----
 
---pI6hLdwVzam1XFuA--
+--VrqPEDrXMn8OVzN4--
