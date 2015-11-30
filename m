@@ -1,44 +1,49 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 4/4] i2c: uniphier_f: error out if bus speed is zero
-Date: Mon, 30 Nov 2015 18:53:36 +0900
-Message-ID: <1448877216-32286-5-git-send-email-yamada.masahiro@socionext.com>
+Subject: [PATCH 1/4] i2c: uniphier: error out if clock rate is zero
+Date: Mon, 30 Nov 2015 18:53:33 +0900
+Message-ID: <1448877216-32286-2-git-send-email-yamada.masahiro@socionext.com>
 References: <1448877216-32286-1-git-send-email-yamada.masahiro@socionext.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from conuserg011.nifty.com ([202.248.44.37]:31259 "EHLO
-	conuserg011-v.nifty.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751816AbbK3Jxn (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Nov 2015 04:53:43 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1448877216-32286-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+List-Id: linux-i2c@vger.kernel.org
 
-There is code to divide by "bus_speed" some lines below.
-To eliminate the possibility of division by zero, bail out if
-"clock-frequency" is specified as zero.
+This input clock is used to generate the sampling clock for I2C bus.
+If the clock rate is zero, there is something wrong with the clock
+driver.  Bail out with the appropriate error message in such a case.
+It would make it easier to find the root cause of failure.
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
- drivers/i2c/busses/i2c-uniphier-f.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/i2c/busses/i2c-uniphier.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index 67109e1..f3e5ff8 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -466,6 +466,11 @@ static int uniphier_fi2c_clk_init(struct device *dev,
- 	if (of_property_read_u32(np, "clock-frequency", &bus_speed))
- 		bus_speed = UNIPHIER_FI2C_DEFAULT_SPEED;
+diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
+index e3c3861..2b2c20b 100644
+--- a/drivers/i2c/busses/i2c-uniphier.c
++++ b/drivers/i2c/busses/i2c-uniphier.c
+@@ -342,6 +342,10 @@ static int uniphier_i2c_clk_init(struct device *dev,
+ 		return ret;
  
-+	if (!bus_speed) {
-+		dev_err(dev, "clock-freqyency should not be zero\n");
+ 	clk_rate = clk_get_rate(priv->clk);
++	if (!clk_rate) {
++		dev_err(dev, "input clock rate should not be zero\n");
 +		return -EINVAL;
 +	}
-+
- 	if (bus_speed > UNIPHIER_FI2C_MAX_SPEED)
- 		bus_speed = UNIPHIER_FI2C_MAX_SPEED;
  
+ 	uniphier_i2c_reset(priv, true);
+ 
+@@ -388,7 +392,7 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = uniphier_i2c_clk_init(dev, priv);
+ 	if (ret)
+-		return ret;
++		goto err;
+ 
+ 	ret = devm_request_irq(dev, irq, uniphier_i2c_interrupt, 0, pdev->name,
+ 			       priv);
 -- 
 1.9.1
