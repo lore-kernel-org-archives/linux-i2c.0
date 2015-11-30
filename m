@@ -1,87 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/9] i2c: brcmstb: add missing parenthesis
-Date: Mon, 30 Nov 2015 16:36:04 +0100
-Message-ID: <20151130153604.GN1513@katana>
+Subject: Re: [PATCH 4/9] i2c: brcmstb: enable ACK condition
+Date: Mon, 30 Nov 2015 16:37:12 +0100
+Message-ID: <20151130153712.GO1513@katana>
 References: <1445395021-4204-1-git-send-email-jaedon.shin@gmail.com>
- <1445395021-4204-4-git-send-email-jaedon.shin@gmail.com>
- <5628425C.5080104@gmail.com>
+ <1445395021-4204-5-git-send-email-jaedon.shin@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dPW7zu3hTOhZvCDO"
+	protocol="application/pgp-signature"; boundary="lCFQJunhLz1tFGpX"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:33419 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:33427 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754061AbbK3PgJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 30 Nov 2015 10:36:09 -0500
+	id S1753990AbbK3PhP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 30 Nov 2015 10:37:15 -0500
 Content-Disposition: inline
-In-Reply-To: <5628425C.5080104@gmail.com>
+In-Reply-To: <1445395021-4204-5-git-send-email-jaedon.shin@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Jaedon Shin <jaedon.shin@gmail.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-mips@linux-mips.org
+To: Jaedon Shin <jaedon.shin@gmail.com>
+Cc: Kamal Dasu <kdasu.kdev@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Florian Fainelli <f.fainelli@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-mips@linux-mips.org
 
 
---dPW7zu3hTOhZvCDO
-Content-Type: text/plain; charset=utf-8
+--lCFQJunhLz1tFGpX
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 21, 2015 at 06:56:44PM -0700, Florian Fainelli wrote:
-> Le 20/10/2015 19:36, Jaedon Shin a =C3=A9crit :
-> > Add the necessary parenthesis for NOACK condition.
-> >=20
-> > Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
->=20
-> Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+On Wed, Oct 21, 2015 at 11:36:56AM +0900, Jaedon Shin wrote:
+> Removes the condition of a message with under 32 bytes in length. The
+> messages that do not require an ACK are I2C_M_IGNORE_NAK flag.
 
-I wouldn't call them necessary?
+Makes me wonder why it worked before? Kamal?
 
 >=20
-> > ---
-> >  drivers/i2c/busses/i2c-brcmstb.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >=20
-> > diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-=
-brcmstb.c
-> > index 6b8bbf99880d..2d7d155029dc 100644
-> > --- a/drivers/i2c/busses/i2c-brcmstb.c
-> > +++ b/drivers/i2c/busses/i2c-brcmstb.c
-> > @@ -305,7 +305,7 @@ static int brcmstb_send_i2c_cmd(struct brcmstb_i2c_=
-dev *dev,
-> >  	}
-> > =20
-> >  	if ((CMD_RD || CMD_WR) &&
-> > -	    bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK) {
-> > +	    (bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK)) {
-> >  		rc =3D -EREMOTEIO;
-> >  		dev_dbg(dev->device, "controller received NOACK intr for %s\n",
-> >  			cmd_string[cmd]);
-> >=20
+> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-brcmstb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >=20
->=20
+> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-br=
+cmstb.c
+> index 2d7d155029dc..53eb8b0c9bad 100644
+> --- a/drivers/i2c/busses/i2c-brcmstb.c
+> +++ b/drivers/i2c/busses/i2c-brcmstb.c
+> @@ -330,7 +330,7 @@ static int brcmstb_i2c_xfer_bsc_data(struct brcmstb_i=
+2c_dev *dev,
+>  	int no_ack =3D pmsg->flags & I2C_M_IGNORE_NAK;
+> =20
+>  	/* see if the transaction needs to check NACK conditions */
+> -	if (no_ack || len <=3D N_DATA_BYTES) {
+> +	if (no_ack) {
+>  		cmd =3D (pmsg->flags & I2C_M_RD) ? CMD_RD_NOACK
+>  			: CMD_WR_NOACK;
+>  		pi2creg->ctlhi_reg |=3D BSC_CTLHI_REG_IGNORE_ACK_MASK;
 > --=20
-> Florian
+> 2.6.1
+>=20
 
---dPW7zu3hTOhZvCDO
+--lCFQJunhLz1tFGpX
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWXGzkAAoJEBQN5MwUoCm2BRQP/3Jp7MtRO1DcmUk+TOVQ49y3
-kvJgqGzocRCKPZzKr3a2MRRqvsRxODIjOWbM7tptNGMZVDbqBquhZB5tHfQFp7Ux
-95MjyBV6pU0jMIWnR14LwKknrUXjBN7YPrr9hbUmjKm7QAxI8LZLc5cAdE+fqza6
-uZ9qybujqnTO2eFlnXquFXPG3cnbZDx1zY9PkWmjF7sbEr7GdtcQSiq/S3tC+hJD
-XuQIMI47sp0sdBE+BefiCLPp8cF8ly67fmQ7yHtBh2D5gLE8m7MPAT9u/wKStKYX
-COCKmsyiW8jlbI5qksUq9+k8Xm3XNYaaFjXgqRWI/TSPuIC9DdSj2ZebI2AN/LCg
-t9n2QqwZcPU15hpxsm8FITtkSlhY3w3ldtGwL0GfS12HfsG0iKRFW6faYUJ2jLkM
-pQgAkD0bFcOEQN2y+O6cGw19AqU8kHjl66OpkIM+UNDBwVJxB7XHtlWJPq/7v5wO
-pfILsiO1rm59aX05Kh3FJyDkMixv3tBGJogfIYOLcHNRDfih9qBX2U6dtAchEhlN
-W4ZoDiHQdKKL6xGQch7nq2ap0WFXj693dCF0gCcXJYp4kzmoqaAesoG9el6Q2a1M
-nNwlO6osnPgwmdmkD1uCRDjPxSXOJu20hzlPRpms7Wstafu5H4rJAoCtL9NI8brU
-qnWOoBDAihktR/EOXG7V
-=4IwD
+iQIcBAEBAgAGBQJWXG0oAAoJEBQN5MwUoCm2YUcQAINvkVvLKN1gK978wqwFcCdN
+NGSnXk4xAPLUZt/UdUl/90Ieib1GzJlhy7gDFQ/U4XJ/zrjLc4nSsCyAr6ze4wRT
+z/GrM7OxMUmIORoVkYnTAu/opN3zfFcLw7tajmGRwTiN7U7RdJ0DLEX406VxpJqj
+jupXzOEKkNl5Pa+KU1mKKp201o9eOEkCS5m3fxxrz9HwkydGaWvAXjBpJ7kMRDrY
+Uro+lxy6zrD3xLwuPhwla9huCyww9mNiPrTSHbkvPMmqjVsVWTXopfTVBnzGRz3N
+5GFuY9QD/NL21x00j3QoRA7sQr9lr+RxkcsregIhLIdjdYpsc5jHoApdTj3E31wW
+m2H+0uGRsoBDlzC+XLhCaWRq8x0rVSMzFI9PKNlX3rEZrw4Mo5CJGuzgXzQcNM1v
+lALwa3xqil1QJoSf4/PT+eSccOOHSjZ4I3gymQ7K/kNl61lKy5i7NbTNzctiI/HV
+7nlrihZ85lMyLQ0jSouL/YBhUlLMG3AeASuo+InhFZc0A6ZwJxEGM+YM9FArPmEX
+afe+xcZwErjZV9cRH3JAgDc6aPR9cyd2YB8wHOB4ZAPvqz/5kILizTwGOnM6yOm+
+VJ2m837tIijYzA3F+gSrcWxwz2rV0mVbNQ/CbXQbiq6rwjqfHmulwKnauIJ322bQ
+9XCSGVMv+FzmPcyBjXvJ
+=MUjC
 -----END PGP SIGNATURE-----
 
---dPW7zu3hTOhZvCDO--
+--lCFQJunhLz1tFGpX--
