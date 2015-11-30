@@ -1,51 +1,30 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 2/4] i2c: uniphier: error out if bus speed is zero
-Date: Mon, 30 Nov 2015 18:53:34 +0900
-Message-ID: <1448877216-32286-3-git-send-email-yamada.masahiro@socionext.com>
-References: <1448877216-32286-1-git-send-email-yamada.masahiro@socionext.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2] i2c: imx: make bus recovery through pinctrl optional
+Date: Mon, 30 Nov 2015 13:55:19 +0100
+Message-ID: <CACRpkdbb-GFJSVvxOLda6CVG_fB2zAPPC2MMzQ6P1mAfvsrkPw@mail.gmail.com>
+References: <1448055950-21190-1-git-send-email-leoli@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1448877216-32286-1-git-send-email-yamada.masahiro@socionext.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1448055950-21190-1-git-send-email-leoli@freescale.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Li Yang <leoli@freescale.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Gao Pan <b54642@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
-There is code to divide by "bus_speed" some lines below.
-To eliminate the possibility of division by zero, bail out if
-"clock-frequency" is specified as zero.
+On Fri, Nov 20, 2015 at 10:45 PM, Li Yang <leoli@freescale.com> wrote:
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+> -       if (IS_ERR(i2c_imx->pinctrl)) {
+> +       /* bailout on -ENOMEM or -EPROBE_DEFER, continue for other errors */
+> +       if (PTR_ERR(i2c_imx->pinctrl) == -ENOMEM ||
+> +                       PTR_ERR(i2c_imx->pinctrl) == -EPROBE_DEFER) {
 
- drivers/i2c/busses/i2c-uniphier.c | 5 +++++
- 1 file changed, 5 insertions(+)
+This is one of the evils of deferred probe: you never know if
+something will eventually turn up. It feels wrong to bail out
+on deferred probe...
 
-diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-index 2b2c20b..1f4f3f5 100644
---- a/drivers/i2c/busses/i2c-uniphier.c
-+++ b/drivers/i2c/busses/i2c-uniphier.c
-@@ -327,6 +327,11 @@ static int uniphier_i2c_clk_init(struct device *dev,
- 	if (of_property_read_u32(np, "clock-frequency", &bus_speed))
- 		bus_speed = UNIPHIER_I2C_DEFAULT_SPEED;
- 
-+	if (!bus_speed) {
-+		dev_err(dev, "clock-freqyency should not be zero\n");
-+		return -EINVAL;
-+	}
-+
- 	if (bus_speed > UNIPHIER_I2C_MAX_SPEED)
- 		bus_speed = UNIPHIER_I2C_MAX_SPEED;
- 
--- 
-1.9.1
+I have no better idea though.
+Acked-by
+
+Yours,
+Linus Walleij
