@@ -1,55 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: davinci: Increase module clock frequency
-Date: Mon, 30 Nov 2015 14:55:04 +0100
-Message-ID: <20151130135504.GE1513@katana>
-References: <564DBEE3.4030508@nokia.com>
+Subject: Re: [PATCH v4] i2c: taos-evm: replace simple_strtoul by kstrtou8
+Date: Mon, 30 Nov 2015 14:58:49 +0100
+Message-ID: <20151130135848.GF1513@katana>
+References: <1448351007-4067-1-git-send-email-clabbe.montjoie@gmail.com>
+ <1448351007-4067-2-git-send-email-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wchHw8dVAp53YPj8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:32785 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752962AbbK3NzK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 30 Nov 2015 08:55:10 -0500
+	protocol="application/pgp-signature"; boundary="z0eOaCaDLjvTGF2l"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <564DBEE3.4030508@nokia.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1448351007-4067-2-git-send-email-clabbe.montjoie@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LABBE Corentin <clabbe.montjoie@gmail.com>
+Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Cc: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-i2c@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, Santosh Shilimkar <ssantosh@kernel.org>
 
 
---wchHw8dVAp53YPj8
+--z0eOaCaDLjvTGF2l
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  	/* get minimum of 7 MHz clock, but max of 12 MHz */
-> -	psc = (input_clock / 7000000) - 1;
-> +	psc = (input_clock / 12000000) - 1;
+On Tue, Nov 24, 2015 at 08:43:27AM +0100, LABBE Corentin wrote:
+> The simple_strtoul function is marked as obsolete.
+> This patch replace it by kstrtou8.
+>=20
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> Tested-by: Jean Delvare <jdelvare@suse.de>
+> Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
 
-Doesn't make this the above comment invalid?
+Applied to for-next, thanks!
 
 
---wchHw8dVAp53YPj8
+--z0eOaCaDLjvTGF2l
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWXFU4AAoJEBQN5MwUoCm2y7cP/AzgkewC4hqtLQ9voXBLommT
-4/ltO2Je4SH8C2pteO/gJUjFv9CE/sI2IWUx6ky7t+q66ejCOmfs8uRl3oAYxNH3
-KoNPcPJRgN5maUbP4sBRC09zV5w2IcOUxxljkcXwIay87JgPS11RWmetQ/HcVfVr
-uZPAaD6OXFkwBbcw1svvk1s/4C+UgO0N7Xipaz0wPXiyar0vabbkxpt2RefHxGKA
-5Pj44SzHoGZuoijABIbPkb7aEojtH0qRkiZCfRZiM7oLCUFBMkgSTIjW812Nnu+M
-ZB8fVVucDOHB4DuZpTRQarAjW7BNoe0HHjJxeNq7XWKTjnhW3ugO9+mI/oodjiR7
-My9R4llSz4WfIzerb2RLI1Fg7JwEQHelnGVpIGMD861nmrsoyoaezk/mKWd/MHuG
-9npKbg+M1XzvM1XaqLCqqc/Gva5gWfVnAE/98ZlVkKfZ1fdBPnftFX+VcYX8qkKb
-R+qdV1OQVfKnISazGbKqC0NcIqCkTGavxtCXfTijWkR35GhSjcT9/2UCw7EEA5km
-1Grmh/R9NSgzkK5ZH8EItMdRYIx09mkvH3oa3C4efd9wR+ZC1YeVTgbgoKv0Z886
-JUZ3e/DLrPbLz5zINM0W7w1thlhJ1Ma4t1Mptokr4enQ6L4JW7jrLUYVnj6HNJ1s
-Pn5/mMeIRAEARFhuFXR8
-=6VbR
+iQIcBAEBAgAGBQJWXFYYAAoJEBQN5MwUoCm2xpwP/0+Mp+HrsXWpR6sa/O3j/YNa
+9+0FRhnSmgJqsOawkJkzoNKI7igYOlmQCTbrM8/foOEOOaM3xz01v0+0mJLcs+ZX
+4hDH8nePNgCbdxwnSAv/VeljvYS+SxsRHgeZFWCgHt1QpX70a9ywSWcnq2O8Kx4A
+2vLcv7NxqoVEiktMGq87rb/6tPjqZw4UqTatgZKG0tyB9CmFjvdIHxuZZc/Xiu2v
+WHgcqCPwaRRc3HNodoNf4IdZCmiCI+xQM3Bia5qp2Yfqp65IH1C93nbK7REht7Bq
+Ch8PVPcy4Ih8U/HUbPqqBQxVFg5qszPJleS06D6X1DQqPdrlOswriBToa1v+oTT2
+IzxGdTP2D8dKmklDOhXtulyUYf1wcCEA770FF3tGcchcAp0/BW2LPj8c7sEK1aCy
+zkWRWJv4E4CsQcJic3hhxKEyTbFCB+4Cyr1zQVuHFOrHKi+glwPxr2BWXu56xoWH
+dVs2ZJ9zt/3GNMv6SRrc3jdXT79otPGu6kTC4dXGrU3ArsCB03RmHDp5M7MBkzFB
+WrUJW74wpQdg0uuTfQ784kY6CZyrBM37YNvT1rcjEcl+M37Eul6UprPe2tQ0TuZW
+2rCPxACAN1g4swteu6JgGazVeGI4D0dcURzueuD5Z3c2qS3u7qBJwg7w4uf8Q68Z
+Pw3FMRdvk/J67hpbatXL
+=n4s8
 -----END PGP SIGNATURE-----
 
---wchHw8dVAp53YPj8--
+--z0eOaCaDLjvTGF2l--
