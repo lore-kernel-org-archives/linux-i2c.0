@@ -1,50 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: piix4: remove unneeded assignments
-Date: Mon, 30 Nov 2015 14:43:09 +0100
-Message-ID: <1448890989-32733-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: mv64xxx: The n clockdiv factor is 0 based on sunxi
+ SoCs
+Date: Mon, 30 Nov 2015 14:51:41 +0100
+Message-ID: <20151130135140.GD1513@katana>
+References: <1443365828-8956-1-git-send-email-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BRE3mIcgqKzpedwo"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60949 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:60990 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753557AbbK3NnO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 30 Nov 2015 08:43:14 -0500
+	id S1754063AbbK3Nvq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 30 Nov 2015 08:51:46 -0500
+Content-Disposition: inline
+In-Reply-To: <1443365828-8956-1-git-send-email-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Christian Fetzer <fetzer.ch@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com
 
-smatch rightfully says:
-drivers/i2c/busses/i2c-piix4.c:504 piix4_access warn: unused return: i = inb_p()
-drivers/i2c/busses/i2c-piix4.c:537 piix4_access warn: unused return: i = inb_p()
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
+--BRE3mIcgqKzpedwo
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Christian, can you please check on HW? I could only compile-test.
+On Sun, Sep 27, 2015 at 04:57:08PM +0200, Hans de Goede wrote:
+> According to the datasheets to n factor for dividing the tclk is
+> 2 to the power n on Allwinner=C2=A0SoCs, not 2 to the power n + 1 as it is
+> on other mv64xxx implementations.
+>=20
+> I've contacted Allwinner about this and they have confirmed that the
+> datasheet is correct.
+>=20
+> This commit fixes the clk-divider calculations for Allwinner SoCs
+> accordingly.
+>=20
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
- drivers/i2c/busses/i2c-piix4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Applied to for-current, thanks!
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index af4e606f8886bd..e045985950737c 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -501,7 +501,7 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
- 			if (len == 0 || len > I2C_SMBUS_BLOCK_MAX)
- 				return -EINVAL;
- 			outb_p(len, SMBHSTDAT0);
--			i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
-+			inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
- 			for (i = 1; i <= len; i++)
- 				outb_p(data->block[i], SMBBLKDAT);
- 		}
-@@ -534,7 +534,7 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
- 		data->block[0] = inb_p(SMBHSTDAT0);
- 		if (data->block[0] == 0 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
- 			return -EPROTO;
--		i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
-+		inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
- 		for (i = 1; i <= data->block[0]; i++)
- 			data->block[i] = inb_p(SMBBLKDAT);
- 		break;
--- 
-2.1.4
+
+--BRE3mIcgqKzpedwo
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWXFRsAAoJEBQN5MwUoCm2Ld0QAIQrc3IvMAMhhmFibZDthGiJ
+ymQI11DLX+D3W07L5K5KOafHa2w6i0Cfh3YFKQqydtQbjqn8j/QL/Xvq0jKohT+3
+mUTq5Dt6aG/r0JcdUMLK/FILMkTY48Hx2KzCs+YjVDTrwdSEnRZ8Lrki7hJwnaHH
+y/rxmG80KBgKzonc4jXDQ3qmLwhAukNNLfAZQiywpLJJrfYuU3qwkRyOLQbE3HCk
+Ce8mjY++bqTbJETuCEQ94vk73DvUqdO2L5itSfDaASaoaKcQzLE/5t3ZufmnzEfE
+Cz5kYNXbqgcAGVWt5UiLfxKTBU3yrxCHD3768wB5WVuCAcJ428djcxvIGrkSNEzB
+mGP2J5f+GKE0SMJTGN9TrBrWTENN4RdXWtO646sDYU5KaxSnX7D7fdxu0yYF5zg9
+ufWUAg+1ScNK6eefUOvMsoMMLVXh3c/lGFKfFKWtNdgUMDlJtU2MvY3Ed/1OosxP
+MjNbY1cWvbzu4tQ9VcJ1GQlZN3TzhL8qRQzls1a6c39YA45k6r8lad5OXXMN42Px
+SEzCn1M2EKuo/b8sXnUdHCdTN7Gziz01bKI5OkJaLNMa+r09onD2oBPH7Mg9b21A
+ik99LwxleyIdXrFmmcgPF0WskqCagToSFTIiY3KT2vDgAkc3rjoIY6yTtofD7585
+PwqFzHDMylwrDTizKJbh
+=manE
+-----END PGP SIGNATURE-----
+
+--BRE3mIcgqKzpedwo--
