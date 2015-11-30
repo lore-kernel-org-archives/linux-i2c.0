@@ -1,47 +1,32 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [RFC 7/9] ARM: shmobile: r8a7791: dtsi: add internal delay for
- i2c IPs
-Date: Fri, 27 Nov 2015 14:58:38 +0300
-Message-ID: <5658456E.60509@cogentembedded.com>
-References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
- <1448578757-12613-8-git-send-email-wsa@the-dreams.de>
+From: =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
+Subject: [PATCH] i2c: emev2: add slave support
+Date: Mon, 30 Nov 2015 01:15:57 +0100
+Message-ID: <1448842558-18654-1-git-send-email-niklas.soderlund@ragnatech.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f42.google.com ([209.85.215.42]:34597 "EHLO
-	mail-lf0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753045AbbK0L6l (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 27 Nov 2015 06:58:41 -0500
-Received: by lffu14 with SMTP id u14so127316024lff.1
-        for <linux-i2c@vger.kernel.org>; Fri, 27 Nov 2015 03:58:40 -0800 (PST)
-In-Reply-To: <1448578757-12613-8-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: ian.molton@codethink.co.uk, laurent.pinchart@ideasonboard.com, magnus.damm@gmail.com, linux-sh@vger.kernel.org, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-Hello.
+Add i2c slave support to EMEV2.
 
-On 11/27/2015 1:59 AM, Wolfram Sang wrote:
+Tested using a EMEV2, BeagleBone Black and a 24c02 eeprom. While the
+EMEV2 provided a emulated eeprom on iic0 using slave-24c02 iic0 the Bon=
+e
+could talk to both the physical and the emulated eeprom. The EMEV2 coul=
+d
+talk to the physical eeprom while still provide the emulated eeprom.
 
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->   arch/arm/boot/dts/r8a7791.dtsi | 6 ++++++
->   1 file changed, 6 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/r8a7791.dtsi b/arch/arm/boot/dts/r8a7791.dtsi
-> index d79102c0e7d346..57b806f8c28fad 100644
-> --- a/arch/arm/boot/dts/r8a7791.dtsi
-> +++ b/arch/arm/boot/dts/r8a7791.dtsi
-> @@ -408,6 +408,7 @@
->   		clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
->   		power-domains = <&cpg_clocks>;
->   		status = "disabled";
-> +		i2c-scl-internal-delay-ns = <6>;
+Niklas S=C3=B6derlund (1):
+  i2c: emev2: add slave support
 
-    I suggest that you add the new props before "status".
+ drivers/i2c/busses/i2c-emev2.c | 110 +++++++++++++++++++++++++++++++++=
++++++++-
+ 1 file changed, 109 insertions(+), 1 deletion(-)
 
-MBR, Sergei
+--
+2.6.2
+
