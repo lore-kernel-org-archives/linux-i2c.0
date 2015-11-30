@@ -1,112 +1,132 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 16/16] i2c: designware: Convert to use unified device property API
-Date: Mon, 30 Nov 2015 17:11:44 +0200
-Message-ID: <1448896304-87928-17-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 04/16] device property: keep single value inplace
+Date: Mon, 30 Nov 2015 17:11:32 +0200
+Message-ID: <1448896304-87928-5-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:44811 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754647AbbK3PLw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 30 Nov 2015 10:11:52 -0500
 In-Reply-To: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-List-Id: linux-i2c@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+We may save a lot of lines of code and space by keeping single values inside
+the struct property_entry. Refactor the implementation to do so.
 
-With ACPI _DSD (introduced in ACPI v5.1) it is now possible to pass device
-configuration information from ACPI in addition to DT. In order to support
-this, convert the driver to use the unified device property accessors
-instead of DT specific.
-
-Change to ordering a bit so that we first try platform data and if that's
-not available look from device properties. ACPI *CNT methods are then used
-as last resort to override everything else.
-
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 50 +++++++++++++----------------
- 1 file changed, 23 insertions(+), 27 deletions(-)
+ drivers/base/property.c  | 33 ++++++++++++++++++++++++++++++---
+ include/linux/property.h | 31 +++++++++++++++++++++++--------
+ 2 files changed, 53 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 809579e..06061b5 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -36,6 +36,7 @@
- #include <linux/platform_device.h>
- #include <linux/pm.h>
- #include <linux/pm_runtime.h>
-+#include <linux/property.h>
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
-@@ -129,10 +130,10 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+diff --git a/drivers/base/property.c b/drivers/base/property.c
+index 86834bd..ad3cb09 100644
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -72,7 +72,10 @@ static void *pset_prop_find(struct property_set *pset, const char *propname,
+ 	prop = pset_prop_get(pset, propname);
+ 	if (!prop)
+ 		return ERR_PTR(-EINVAL);
+-	pointer = prop->value.raw_data;
++	if (prop->is_array)
++		pointer = prop->pointer.raw_data;
++	else
++		pointer = &prop->value.raw_data;
+ 	if (!pointer)
+ 		return ERR_PTR(-ENODATA);
+ 	if (length > prop->length)
+@@ -167,6 +170,31 @@ static int pset_prop_read_string_array(struct property_set *pset,
+ 	return 0;
+ }
  
- static int dw_i2c_plat_probe(struct platform_device *pdev)
- {
-+	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
- 	struct resource *mem;
--	struct dw_i2c_platform_data *pdata;
- 	int irq, r;
- 	u32 clk_freq, ht = 0;
- 
-@@ -156,33 +157,28 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	/* fast mode by default because of legacy reasons */
- 	clk_freq = 400000;
- 
--	if (has_acpi_companion(&pdev->dev)) {
--		dw_i2c_acpi_configure(pdev);
--	} else if (pdev->dev.of_node) {
--		of_property_read_u32(pdev->dev.of_node,
--					"i2c-sda-hold-time-ns", &ht);
--
--		of_property_read_u32(pdev->dev.of_node,
--				     "i2c-sda-falling-time-ns",
--				     &dev->sda_falling_time);
--		of_property_read_u32(pdev->dev.of_node,
--				     "i2c-scl-falling-time-ns",
--				     &dev->scl_falling_time);
--
--		of_property_read_u32(pdev->dev.of_node, "clock-frequency",
--				     &clk_freq);
--
--		/* Only standard mode at 100kHz and fast mode at 400kHz
--		 * are supported.
--		 */
--		if (clk_freq != 100000 && clk_freq != 400000) {
--			dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
--			return -EINVAL;
--		}
-+	if (pdata) {
-+		clk_freq = pdata->i2c_scl_freq;
- 	} else {
--		pdata = dev_get_platdata(&pdev->dev);
--		if (pdata)
--			clk_freq = pdata->i2c_scl_freq;
-+		device_property_read_u32(&pdev->dev, "i2c-sda-hold-time-ns",
-+					 &ht);
-+		device_property_read_u32(&pdev->dev, "i2c-sda-falling-time-ns",
-+					 &dev->sda_falling_time);
-+		device_property_read_u32(&pdev->dev, "i2c-scl-falling-time-ns",
-+					 &dev->scl_falling_time);
-+		device_property_read_u32(&pdev->dev, "clock-frequency",
-+					 &clk_freq);
++static int pset_prop_read_string(struct property_set *pset,
++				 const char *propname, const char **strings)
++{
++	struct property_entry *prop;
++	const char **pointer;
++
++	prop = pset_prop_get(pset, propname);
++	if (!prop)
++		return -EINVAL;
++	if (!prop->is_string)
++		return -EILSEQ;
++	if (prop->is_array) {
++		pointer = prop->pointer.str;
++		if (!pointer)
++			return -ENODATA;
++	} else {
++		pointer = &prop->value.str;
++		if (*pointer && strnlen(*pointer, prop->length) >= prop->length)
++			return -EILSEQ;
 +	}
 +
-+	if (has_acpi_companion(&pdev->dev))
-+		dw_i2c_acpi_configure(pdev);
++	*strings = *pointer;
++	return 0;
++}
 +
-+	/*
-+	 * Only standard mode at 100kHz and fast mode at 400kHz are supported.
-+	 */
-+	if (clk_freq != 100000 && clk_freq != 400000) {
-+		dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
-+		return -EINVAL;
- 	}
+ static inline struct fwnode_handle *dev_fwnode(struct device *dev)
+ {
+ 	return IS_ENABLED(CONFIG_OF) && dev->of_node ?
+@@ -566,8 +594,7 @@ int fwnode_property_read_string(struct fwnode_handle *fwnode,
+ 		return acpi_node_prop_read(fwnode, propname, DEV_PROP_STRING,
+ 					   val, 1);
+ 	else if (is_pset_node(fwnode))
+-		return pset_prop_read_string_array(to_pset_node(fwnode),
+-						   propname, val, 1);
++		return pset_prop_read_string(to_pset_node(fwnode), propname, val);
+ 	return -ENXIO;
+ }
+ EXPORT_SYMBOL_GPL(fwnode_property_read_string);
+diff --git a/include/linux/property.h b/include/linux/property.h
+index c29460a..69a8a08 100644
+--- a/include/linux/property.h
++++ b/include/linux/property.h
+@@ -145,19 +145,34 @@ static inline int fwnode_property_read_u64(struct fwnode_handle *fwnode,
+  * struct property_entry - "Built-in" device property representation.
+  * @name: Name of the property.
+  * @length: Length of data making up the value.
+- * @value: Value of the property (an array of items of the given type).
++ * @is_array: True when the property is an array.
++ * @is_string: True when property is a string.
++ * @pointer: Pointer to the property (an array of items of the given type).
++ * @value: Value of the property (when it is a single item of the given type).
+  */
+ struct property_entry {
+ 	const char *name;
+ 	size_t length;
++	bool is_array;
++	bool is_string;
+ 	union {
+-		void *raw_data;
+-		u8 *u8_data;
+-		u16 *u16_data;
+-		u32 *u32_data;
+-		u64 *u64_data;
+-		const char **str;
+-	} value;
++		union {
++			void *raw_data;
++			u8 *u8_data;
++			u16 *u16_data;
++			u32 *u32_data;
++			u64 *u64_data;
++			const char **str;
++		} pointer;
++		union {
++			unsigned long long raw_data;
++			u8 u8_data;
++			u16 u16_data;
++			u32 u32_data;
++			u64 u64_data;
++			const char *str;
++		} value;
++	};
+ };
  
- 	r = i2c_dw_eval_lock_support(dev);
+ /**
 -- 
 2.6.2
-
