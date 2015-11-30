@@ -1,85 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 00/11] i2c: rcar: tackle race conditions in the driver
-Date: Mon, 30 Nov 2015 14:27:21 +0100
-Message-ID: <20151130132721.GA1513@katana>
-References: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: rk3x: populate correct variable for sda_falling_time
+Date: Mon, 30 Nov 2015 14:27:38 +0100
+Message-ID: <20151130132738.GB1513@katana>
+References: <1448467098-10198-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+	protocol="application/pgp-signature"; boundary="pvezYHf7grwyp3Bc"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60843 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:60853 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752943AbbK3N1c (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 30 Nov 2015 08:27:32 -0500
+	id S1752943AbbK3N1l (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 30 Nov 2015 08:27:41 -0500
 Content-Disposition: inline
-In-Reply-To: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1448467098-10198-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc: linux-rockchip@lists.infradead.org
 
 
---UugvWAfsgieZRqgk
+--pvezYHf7grwyp3Bc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 19, 2015 at 04:56:40PM +0100, Wolfram Sang wrote:
-> Hello RCar Fans!
->=20
-> So, here is V3 of this series. After a debugging session with Laurent, we
-> finally fixed his issue for good. It was not board dependent as we though=
-t, but
-> toolchain dependent! Hidden by a macro, the driver used a compound assign=
-emt
-> with a function call as the rvalue. After patch 6, this function also cha=
-nged the
-> flags which were to be changed by the compound assignment. Basically (aft=
-er macro):
->=20
-> 	priv->flags |=3D i_change_priv_flags(priv);
->=20
-> Which is undefined behaviour, I guess. However, after my refactoring, the
-> called functions always returned 0, so we can simply do:
->=20
-> 	i_change_priv_flags(priv);
->=20
-> Nasty one, but finally issue gone, for all toolchains and optimization se=
-ttings.
-> Furthermore, patch 11 has been added because HW engineers wanted it.
->=20
-> The branch can be found here:
->=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/rcar-=
-i2c-rework-v3
->=20
-> Please test, test, test :)
->=20
->    Wolfram
+On Wed, Nov 25, 2015 at 04:58:18PM +0100, Wolfram Sang wrote:
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-Applied to for-next, thanks!
+Applied to for-current, thanks!
 
 
---UugvWAfsgieZRqgk
+--pvezYHf7grwyp3Bc
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWXE65AAoJEBQN5MwUoCm2jBEP/R1XjnMHlhQTgtMDrW7MDdeX
-cel8qmh6kiwIWIweLKWi3r2SgY94fFEQ7R6XGxzQGcs9m+kemQhPdlmqc9pB08JQ
-+7VIn81ypDD9HOgx8iLsjsSxK3dxer/vLDkmBuYKIkCFWDTK6+09wwpvCMA9gPCD
-pnQvnXFxPc9tzXTd5SlF+/5HRkjpMv3QZCViSGqlYGIP571CErSoT8BgbPqM/DL0
-x/33SvNMmK+g/3APi79aFAO0Aht5X1I24rYhWCGHkLPUvYSRxlr66V335LgbRstE
-daUJVLw1ZePAmBBCiuvqJEZ2vaSxcasCa5ky6nQKOjYRjF/XPDlK2IYo4tuRHsrp
-vDKKArNQHX4cksxPwcDeJw38YY4JhgQeuN+8X7MQLHaFxC3uHcNHhALyl12vIbtG
-4tDSqp2HoB4ktMi+3zTrUmflm+oaC9YCqnA8NNi1mRmx1g71ygHMgak9qunKuZBu
-kU68mUQpJTZ9xhdniSJ2YsQBWl1/gDzM7vp3du5PctjVX77SSopm5s6Q+YTSIGIz
-OBH0LTRUbZieZpi9yH2URduxwshF0NPpqPfI5TkSTvYvCl128MVYN6BxCR/vA5xh
-ImdUWLl5LxY2KaV+xEdo7YoGLJ1y2aF7Q3UHhxqVQgdPnUgczpbMcX+E0p6OcNQ+
-zmKO4/YLGSJwV9Ebuwsi
-=TiV7
+iQIcBAEBAgAGBQJWXE7KAAoJEBQN5MwUoCm23o4QAJainjeDIRyDFFCTyYl+09Hg
+xZxYIfWnqyo/z3xviIh4Y1UDWfRpPNzu+CIvN1XJGRFNwGAi3MifEockiNTo0ZfE
+H4JJqXvNgqRQtE57oJa9pEW/RrNzxlhKnq5WHdn2Ws0V2NP31E1E1PkO+D6GmuLJ
+kG7RaGK/bVf41ZVRrzySbJEUo5psd52iYji31EP6D1SV6k+R+N664k3w6UCqhUGf
+JopmnrcTEbBvW4CcwBNKjjVJfPgQgCjySBetL7qFJGONMb5giCyxQs/zP/EpXCyQ
+e0ohXu1y1nUP2bnQjM/LQUBbPFjdmuKPpuc8p18DsUNvXPQPgYTwt/Eb69AtcuRE
+tYFSKKbIhliy6zR0ZG7erKwPzYw+pfcQOCNrZIiWRJ0onP+Vjn+UG54noarS87xL
+dGbKQQDb6VgOjEa2f+X5bmjg/eN+I6ESpESZfcJzsWtABn044HuusSY7roMyFo6g
+5aRT6wVCSbH6duyiB2ijBWOMi2Pyy3mXCi4iSaoCPTOdqS+mcldD6vMkBLI/CsgD
+0K3ZqGdnpjN+tmEgvrBxf+6JReDYixKCHetW3o2ue2ZVmtuCYjSFU9LTXETKpSZt
+we4OTrKjIERzU29C4nq6d4iFqfA9DDkt16Xa4YoM4gnCLqODJdnZywyYOEZS4bUq
+R8YFXd+DKMTDkKi8wDSF
+=nFQr
 -----END PGP SIGNATURE-----
 
---UugvWAfsgieZRqgk--
+--pvezYHf7grwyp3Bc--
