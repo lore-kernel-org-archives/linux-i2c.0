@@ -1,52 +1,65 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v3 0/2] ACPI: Add irq_type to gpio interrupt
-Date: Tue, 1 Dec 2015 15:03:24 +0200
-Message-ID: <20151201130324.GE1593@lahna.fi.intel.com>
-References: <1448923673-2582-1-git-send-email-christophe-h.ricard@st.com>
- <20151201112127.GA1593@lahna.fi.intel.com>
- <CALD+uuxJw5tQ2XY99nHigXdNkcXGnng+r9NZ8H9TqUF9GbgW=A@mail.gmail.com>
+From: fetzerch <fetzer.ch@gmail.com>
+Subject: Re: [PATCH] i2c: piix4: remove unneeded assignments
+Date: Tue, 1 Dec 2015 21:31:52 +0100
+Message-ID: <565E03B8.6030807@googlemail.com>
+References: <1448890989-32733-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CALD+uuxJw5tQ2XY99nHigXdNkcXGnng+r9NZ8H9TqUF9GbgW=A@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Christophe Ricard <christophe.ricard@gmail.com>
-Cc: rjw@rjwysocki.net, Len Brown <lenb@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org, Christophe Ricard <christophe-h.ricard@st.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:35223 "EHLO
+	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754356AbbLAUbz (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Dec 2015 15:31:55 -0500
+Received: by wmuu63 with SMTP id u63so189012345wmu.0
+        for <linux-i2c@vger.kernel.org>; Tue, 01 Dec 2015 12:31:54 -0800 (PST)
+In-Reply-To: <1448890989-32733-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Christian Fetzer <fetzer.ch@gmail.com>
 
-On Tue, Dec 01, 2015 at 01:25:50PM +0100, Christophe Ricard wrote:
->    For example during an i2c_device_probe where an i2c slave device
->    describe in devicetree has an interrupts property.
->    i2c_device_probe (drivers/i2c/i2c-core.c), retrieves irq property from
->    of_irq_get which will looks for an "interrupts" property in
->    of_irq_parse_of (drivers/of/irq.c).
->    of_irq_get will then call irq_create_mapping (kernel/irq/irqdomain.c)
->    which will set the irq_type retrieved during the interrupts node
->    parsing.
+Hi Wolfram,
 
-Found it now thanks.
+On 30.11.2015 14:43, Wolfram Sang wrote:
+> smatch rightfully says:
+> drivers/i2c/busses/i2c-piix4.c:504 piix4_access warn: unused return: i = inb_p()
+> drivers/i2c/busses/i2c-piix4.c:537 piix4_access warn: unused return: i = inb_p()
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+> 
+> Christian, can you please check on HW? I could only compile-test.
 
->    This will allow from an i2c slave drivers to configure an interrupt
->    handler matching the exact devicetree data for the interrupts property
->    of the i2c slave node.
+Your patch works fine on my machine!
 
-Makes sense.
+Thanks for merging my patchset btw.
+Christian
 
->    Now for the same kind of i2c driver using acpi description, the GpioInt
->    polarity/type is at the moment never kept in the irq property.
->    It is possible to check that following about the same path...
->    i2c_device_probe (drivers/i2c/i2c-core.c), retrieves irq property from
->    acpi_dev_gpio_irq_get but does not save the irq_type.
->    This would allow not to have to use an additional gpio field and all
->    the configuration step to configure the gpio interrupt correctly in a
->    device driver and taking a real benefit of the GpioInt acpi keyword
->    compare to GpioIo keyword.
->    Most the of the drivers based on acpi description retrieve gpio number
->    to assign an interrupt and a fix polarity. I believe my patchset
->    proposal would improve this and allow to
->    be much closer with devicetree.
->    Do you see any issue with this ?
-
-No, but I wonder if it would be better to do this in acpi_dev_gpio_irq_get()
-instead of acpi_find_gpio() which gets called everytime a GPIO is looked up?
+> 
+>  drivers/i2c/busses/i2c-piix4.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index af4e606f8886bd..e045985950737c 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -501,7 +501,7 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
+>  			if (len == 0 || len > I2C_SMBUS_BLOCK_MAX)
+>  				return -EINVAL;
+>  			outb_p(len, SMBHSTDAT0);
+> -			i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
+> +			inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
+>  			for (i = 1; i <= len; i++)
+>  				outb_p(data->block[i], SMBBLKDAT);
+>  		}
+> @@ -534,7 +534,7 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
+>  		data->block[0] = inb_p(SMBHSTDAT0);
+>  		if (data->block[0] == 0 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
+>  			return -EPROTO;
+> -		i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
+> +		inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
+>  		for (i = 1; i <= data->block[0]; i++)
+>  			data->block[i] = inb_p(SMBBLKDAT);
+>  		break;
+> 
