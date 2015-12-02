@@ -1,53 +1,85 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2 16/16] i2c: designware: Convert to use unified device property API
-Date: Wed, 02 Dec 2015 02:28:29 +0100
-Message-ID: <3465575.VLD33ozkzD@vostro.rjw.lan>
-References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com> <20151130195858.GB16446@katana> <1448966031.15393.131.camel@linux.intel.com>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH v2] arm64: dts: add all hi6220 i2c nodes
+Date: Wed, 2 Dec 2015 10:05:24 +0800
+Message-ID: <20151202020524.GC692@tiger>
+References: <1448524623-10320-1-git-send-email-kong.kongxinwei@hisilicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1448966031.15393.131.camel@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1448524623-10320-1-git-send-email-kong.kongxinwei@hisilicon.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Cc: robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, galak@codeaurora.org, catalin.marinas@arm.com, will.deacon@arm.com, tyler.baker@linaro.org, arnd@arndb.de, bintian.wang@huawei.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, puck.chen@hisilicon.com, liguozhu@hisilicon.com, w.f@huawei.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, December 01, 2015 12:33:51 PM Andy Shevchenko wrote:
-> On Mon, 2015-11-30 at 20:58 +0100, Wolfram Sang wrote:
-> > On Mon, Nov 30, 2015 at 05:11:44PM +0200, Andy Shevchenko wrote:
-> > > From: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > > 
-> > > With ACPI _DSD (introduced in ACPI v5.1) it is now possible to pass
-> > > device
-> > > configuration information from ACPI in addition to DT. In order to
-> > > support
-> > > this, convert the driver to use the unified device property
-> > > accessors
-> > > instead of DT specific.
-> > > 
-> > > Change to ordering a bit so that we first try platform data and if
-> > > that's
-> > > not available look from device properties. ACPI *CNT methods are
-> > > then used
-> > > as last resort to override everything else.
-> > > 
-> > > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > > Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> > 
-> > What is the bug fix here described in the cover letter?
+On Thu, Nov 26, 2015 at 03:57:03PM +0800, Xinwei Kong wrote:
+> This patch adds all I2C nodes for the Hi6220 SoC. This hi6220 Soc
+> use this I2C IP of Synopsys Designware for HiKey board.
 > 
-> The cover letter mentioned 'last part' which I refer to as patches 14,
-> 15 (though this is for UART), and 16.
+> Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+> ---
+>  arch/arm64/boot/dts/hisilicon/hi6220.dtsi | 37 +++++++++++++++++++++++++++++++
+>  1 file changed, 37 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+> index 82d2488..85d4a8b 100644
+> --- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+> +++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+> @@ -208,5 +208,42 @@
+>  			clock-names = "uartclk", "apb_pclk";
+>  			status = "disabled";
+>  		};
+> +
+> +		i2c0: i2c@f7100000 {
+> +			compatible = "snps,designware-i2c";
+> +			reg = <0x0 0xf7100000 0x0 0x1000>;
+> +			interrupts = <0 44 4>;
+> +			clocks = <&sys_ctrl HI6220_I2C0_CLK>;
+> +			clock-names = "clk_i2c0";
 
-Hmm.
+Neither bindings doc i2c-designware.txt defines this property, nor
+kernel i2c-designware driver uses this property.  So I think this
+clock-names property can just be dropped.
 
-So may I assume that patches [1-13/16] are for me and the rest is to be applied
-by the other respective maintainers?
+Otherwise, the patch looks good to me.
 
-That should be easiest logistically IMHO.
+Shawn
 
-Thanks,
-Rafael
-
+> +			i2c-sda-hold-time-ns = <300>;
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&i2c0_pmx_func &i2c0_cfg_func>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c1: i2c@f7101000 {
+> +			compatible = "snps,designware-i2c";
+> +			reg = <0x0 0xf7101000 0x0 0x1000>;
+> +			interrupts = <0 45 4>;
+> +			clocks = <&sys_ctrl HI6220_I2C1_CLK>;
+> +			clock-names = "clk_i2c1";
+> +			i2c-sda-hold-time-ns = <300>;
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&i2c1_pmx_func &i2c1_cfg_func>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c2: i2c@f7102000 {
+> +			compatible = "snps,designware-i2c";
+> +			reg = <0x0 0xf7102000 0x0 0x1000>;
+> +			interrupts = <0 46 4>;
+> +			clocks = <&sys_ctrl HI6220_I2C2_CLK>;
+> +			clock-names = "clk_i2c2";
+> +			i2c-sda-hold-time-ns = <300>;
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&i2c2_pmx_func &i2c2_cfg_func>;
+> +			status = "disabled";
+> +		};
+> +
+>  	};
+>  };
+> -- 
+> 1.9.1
+> 
+> 
+> 
