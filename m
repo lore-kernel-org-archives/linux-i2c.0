@@ -1,63 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: emev2: add slave support
-Date: Wed, 2 Dec 2015 11:02:38 +0100
-Message-ID: <20151202100238.GE1555@katana>
-References: <1448842558-18654-1-git-send-email-niklas.soderlund@ragnatech.se>
+From: Gao Pan <b54642@freescale.com>
+Subject: [Patch V1] imx: i2c: fix i2c resource leak with dma transfer
+Date: Wed, 2 Dec 2015 17:52:38 +0800
+Message-ID: <1449049958-6820-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KuLpqunXa7jZSBt+"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1448842558-18654-1-git-send-email-niklas.soderlund@ragnatech.se>
-Sender: linux-sh-owner@vger.kernel.org
-To: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
-Cc: linux-i2c@vger.kernel.org, ian.molton@codethink.co.uk, laurent.pinchart@ideasonboard.com, magnus.damm@gmail.com, linux-sh@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-bn1bon0135.outbound.protection.outlook.com ([157.56.111.135]:46442
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S932561AbbLBKJA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 2 Dec 2015 05:09:00 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de
+Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, b54642@freescale.com, kernel@pengutronix.de, s.hauer@pengutronix.de, p.zabel@pengutronix.de, yao.yuan@freescale.com
 
+In i2c_imx_dma_xfer(), when dmaengine_prep_slave_single() returns
+NULL, the context goto label err_desc and then return. However,
+the memory allocated by dmaengine_prep_slave_single() has not been
+freed yet, which leads to resource leak.
 
---KuLpqunXa7jZSBt+
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+(reported by coverity check)
 
-On Mon, Nov 30, 2015 at 01:15:57AM +0100, Niklas S=C3=B6derlund wrote:
-> Add i2c slave support to EMEV2.
->=20
-> Tested using a EMEV2, BeagleBone Black and a 24c02 eeprom. While the
-> EMEV2 provided a emulated eeprom on iic0 using slave-24c02 iic0 the Bone
-> could talk to both the physical and the emulated eeprom. The EMEV2 could
-> talk to the physical eeprom while still provide the emulated eeprom.
+Signed-off-by: Gao Pan <b54642@freescale.com>
+Signed-off-by: Fugang Duan <B38611@freescale.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Yay, good testing here.
-
-Which board did you use? KZM9D? Do you have pin descriptions for the
-connectors, if so? I am looking for these for quite some time.
-
-Thanks,
-
-   Wolfram
-
-
---KuLpqunXa7jZSBt+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWXsG+AAoJEBQN5MwUoCm2Mn0P/jScuSHBbUvYv56zuyIgutJu
-/obWSCGRW+spywrQv7ErQsDnYj0Dbp0EV2YOARIJBzDmZbEhM/xw1hCScGhNOWzm
-TVnvm3jxITwhgm5x4Q7BAMNWeC5A/hN3dDPo+kcr6D9CrNXzQ4ldq/TVneJt8i8n
-HeAbeim5ceNl0YpNwnKONIplo1/98HzYJwEUuphZPKmKKQX3BT2OltKAv0idYncL
-Bjm4hYf+XPJb3j+yPlYAox3wt2vT4expC3G5i0SKht8mh8v4wDQ2iXFZ7bMU+Ge7
-PNdCq4XfeUNWKLabgPxpG4EByYb7XlLwgLmaRYpesWoexa+JlFLeDaRyOvRoLWd5
-ijF51IeBIDS6uyIssfVHy4OXk0Dxlu3+gmzlZOUK9TqJOFnI27VIlya2q5AAfrS3
-nEf1P2V+rZ5WbmM+v/xuwtBRGfmxlivVmTEKSrhg5MY2MiH0r49Di2OAUv/Jx5KD
-dqAwcdpihkD7sfdB0EWGpF/RDk6mWHoXSKg1oQRrrj5PUJd+ApqA3eIeCxuwNreR
-4RFyY/qfozs+0swFWW3jZ+mP10nlknt3qT5e7RWIiyNqZO8Sg0TbZifYCXrc6703
-5mADdg5vYnKTiiGel434MH0U9e0nJWaaaSYrqlXGIO0dWhTJuAqv4NAN9MkRzPwp
-U4NmdjhEW8Z/hR6bBEnv
-=FfcG
------END PGP SIGNATURE-----
-
---KuLpqunXa7jZSBt+--
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 0ab8424..6dcfff5 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -397,6 +397,7 @@ static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
+ 
+ err_submit:
+ err_desc:
++	dmaengine_terminate_all(dma->chan_using);
+ 	dma_unmap_single(chan_dev, dma->dma_buf,
+ 			dma->dma_len, dma->dma_data_dir);
+ err_map:
+-- 
+1.9.1
