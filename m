@@ -1,44 +1,76 @@
-From: Gao Pan <b54642@freescale.com>
-Subject: [Patch V1] imx: i2c: fix i2c resource leak with dma transfer
-Date: Wed, 2 Dec 2015 17:52:38 +0800
-Message-ID: <1449049958-6820-1-git-send-email-b54642@freescale.com>
+From: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Subject: [PATCH v4] arm64: dts: add all hi6220 i2c nodes
+Date: Wed, 2 Dec 2015 18:13:21 +0800
+Message-ID: <1449051201-7288-1-git-send-email-kong.kongxinwei@hisilicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bn1bon0135.outbound.protection.outlook.com ([157.56.111.135]:46442
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S932561AbbLBKJA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 2 Dec 2015 05:09:00 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: shawnguo@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: pawel.moll@arm.com, puck.chen@hisilicon.com, galak@codeaurora.org, w.f@huawei.com, kong.kongxinwei@hisilicon.com, catalin.marinas@arm.com, liguozhu@hisilicon.com
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de
-Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, b54642@freescale.com, kernel@pengutronix.de, s.hauer@pengutronix.de, p.zabel@pengutronix.de, yao.yuan@freescale.com
 
-In i2c_imx_dma_xfer(), when dmaengine_prep_slave_single() returns
-NULL, the context goto label err_desc and then return. However,
-the memory allocated by dmaengine_prep_slave_single() has not been
-freed yet, which leads to resource leak.
+This patch adds all I2C nodes for the Hi6220 SoC. This hi6220 Soc
+use this I2C IP of Synopsys Designware for HiKey board.
 
-(reported by coverity check)
-
-Signed-off-by: Gao Pan <b54642@freescale.com>
-Signed-off-by: Fugang Duan <B38611@freescale.com>
+Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Signed-off-by: Chen Feng <puck.chen@hisilicon.com>
 ---
- drivers/i2c/busses/i2c-imx.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/hisilicon/hi6220.dtsi | 34 +++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 0ab8424..6dcfff5 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -397,6 +397,7 @@ static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
- 
- err_submit:
- err_desc:
-+	dmaengine_terminate_all(dma->chan_using);
- 	dma_unmap_single(chan_dev, dma->dma_buf,
- 			dma->dma_len, dma->dma_data_dir);
- err_map:
+diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+index 82d2488..8cec56a 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
++++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+@@ -208,5 +208,39 @@
+ 			clock-names = "uartclk", "apb_pclk";
+ 			status = "disabled";
+ 		};
++
++		i2c0: i2c@f7100000 {
++			compatible = "snps,designware-i2c";
++			reg = <0x0 0xf7100000 0x0 0x1000>;
++			interrupts = <0 44 4>;
++			clocks = <&sys_ctrl HI6220_I2C0_CLK>;
++			i2c-sda-hold-time-ns = <300>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c0_pmx_func &i2c0_cfg_func>;
++			status = "disabled";
++		};
++
++		i2c1: i2c@f7101000 {
++			compatible = "snps,designware-i2c";
++			reg = <0x0 0xf7101000 0x0 0x1000>;
++			clocks = <&sys_ctrl HI6220_I2C1_CLK>;
++			interrupts = <0 45 4>;
++			i2c-sda-hold-time-ns = <300>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c1_pmx_func &i2c1_cfg_func>;
++			status = "disabled";
++		};
++
++		i2c2: i2c@f7102000 {
++			compatible = "snps,designware-i2c";
++			reg = <0x0 0xf7102000 0x0 0x1000>;
++			clocks = <&sys_ctrl HI6220_I2C2_CLK>;
++			interrupts = <0 46 4>;
++			i2c-sda-hold-time-ns = <300>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c2_pmx_func &i2c2_cfg_func>;
++			status = "disabled";
++		};
++
+ 	};
+ };
 -- 
 1.9.1
