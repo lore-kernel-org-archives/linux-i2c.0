@@ -1,53 +1,64 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 0/9] eeprom: at24: at24cs series serial number read
-Date: Wed,  2 Dec 2015 11:25:17 +0100
-Message-ID: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f42.google.com ([74.125.82.42]:36449 "EHLO
-	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751416AbbLBKZg (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Dec 2015 05:25:36 -0500
-Received: by wmww144 with SMTP id w144so208437730wmw.1
-        for <linux-i2c@vger.kernel.org>; Wed, 02 Dec 2015 02:25:35 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [RESEND PATCH v2 6/9] eeprom: at24: improve the device_id table readability
+Date: Wed,  2 Dec 2015 11:25:23 +0100
+Message-ID: <1449051926-21918-7-git-send-email-bgolaszewski@baylibre.com>
+References: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Chips from the at24cs EEPROM series have an additional read-only memory area
-containing a factory pre-programmed serial number. In order to access it, a
-dummy write must be executed before reading the serial number bytes.
+Improve the readability of the device table by separating columns with
+tabs.
 
-This series adds support for reading the serial number through a sysfs
-attribute.
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/misc/eeprom/at24.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-While we're at it: some of the patches contain readability tweaks and code
-organization fixes.
-
-Tested with at24cs64 and at24cs02 chips (for both 16 and 8 bit address
-pointers).
-
-(rebased against 4.4-rc3)
-
-v2:
-- protect the serial number read with a mutex
-
-v1: https://lkml.org/lkml/2015/10/20/162
-
-Bartosz Golaszewski (9):
-  eeprom: at24: platform_data: use BIT() macro
-  eeprom: at24: new flag in platform_data
-  eeprom: at24: tie up an additional address for at24cs series
-  eeprom: at24: support reading of the serial number
-  eeprom: at24: export the serial number through sysfs
-  eeprom: at24: improve the device_id table readability
-  eeprom: at24: add the at24cs series to the list of supported devices
-  eeprom: at24: remove a reduntant if
-  eeprom: at24: readability tweaks
-
- drivers/misc/eeprom/at24.c         | 187 +++++++++++++++++++++++++++++++------
- include/linux/platform_data/at24.h |   9 +-
- 2 files changed, 166 insertions(+), 30 deletions(-)
-
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 65fca1e..d474b6d 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -114,23 +114,23 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+ 
+ static const struct i2c_device_id at24_ids[] = {
+ 	/* needs 8 addresses as A0-A2 are ignored */
+-	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
++	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
+ 	/* old variants can't be handled with this generic entry! */
+-	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
+-	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
++	{ "24c01",	AT24_DEVICE_MAGIC(1024 / 8,	0) },
++	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
+ 	/* spd is a 24c02 in memory DIMMs */
+-	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
+-		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
+-	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
++	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
++				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
++	{ "24c04",	AT24_DEVICE_MAGIC(4096 / 8,	0) },
+ 	/* 24rf08 quirk is handled at i2c-core */
+-	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
+-	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
+-	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
++	{ "24c08",	AT24_DEVICE_MAGIC(8192 / 8,	0) },
++	{ "24c16",	AT24_DEVICE_MAGIC(16384 / 8,	0) },
++	{ "24c32",	AT24_DEVICE_MAGIC(32768 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c64",	AT24_DEVICE_MAGIC(65536 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c128",	AT24_DEVICE_MAGIC(131072 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c1024",	AT24_DEVICE_MAGIC(1048576 / 8,	AT24_FLAG_ADDR16) },
+ 	{ "at24", 0 },
+ 	{ /* END OF LIST */ }
+ };
 -- 
 2.1.4
