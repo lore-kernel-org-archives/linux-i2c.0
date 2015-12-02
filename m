@@ -1,92 +1,78 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH RESEND] i2c: Remove setting for 1 second timeout from adapter drivers
-Date: Wed,  2 Dec 2015 13:02:34 +0200
-Message-ID: <1449054154-32273-1-git-send-email-jarkko.nikula@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:58898 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757860AbbLBLCk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 2 Dec 2015 06:02:40 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/4] i2c: at91: update bindings documention
+Date: Wed, 2 Dec 2015 12:04:18 +0100
+Message-ID: <565ED032.5040306@atmel.com>
+References: <1449052747-20991-1-git-send-email-ludovic.desroches@atmel.com>
+ <1449052747-20991-2-git-send-email-ludovic.desroches@atmel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1449052747-20991-2-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-I2C adapter drivers that are using 1 second timeout can leave the timeout
-unset and let the i2c-core.c: i2c_register_adapter() to set it instead.
+Le 02/12/2015 11:39, Ludovic Desroches a =E9crit :
+> The i2c-sda-hold-time-ns property is supported from atmel,sama5d4-i2c=
+=2E
+>=20
+> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-at91.txt | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Doc=
+umentation/devicetree/bindings/i2c/i2c-at91.txt
+> index 6e81dc1..67c6f2e 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> @@ -3,7 +3,7 @@ I2C for Atmel platforms
+>  Required properties :
+>  - compatible : Must be "atmel,at91rm9200-i2c", "atmel,at91sam9261-i2=
+c",
+>       "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sa=
+m9g10-i2c",
+> -     "atmel,at91sam9x5-i2c" or "atmel,sama5d2-i2c"
+> +     "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c" or "atmel,sama5d2-i=
+2c"
+>  - reg: physical base address of the controller and length of memory =
+mapped
+>       region.
+>  - interrupts: interrupt number to the cpu.
+> @@ -17,6 +17,7 @@ Optional properties:
+>  - dma-names: should contain "tx" and "rx".
+>  - atmel,fifo-size: maximum number of data the RX and TX FIFOs can st=
+ore for FIFO
+>    capable I2C controllers.
+> +- i2c-sda-hold-time-ns: TWD hold time, only available from "atmel,sa=
+ma5d4-i2c".
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
- drivers/i2c/busses/i2c-ibm_iic.c      | 1 -
- drivers/i2c/busses/i2c-iop3xx.c       | 1 -
- drivers/i2c/busses/i2c-mpc.c          | 1 -
- drivers/i2c/busses/i2c-mv64xxx.c      | 5 -----
- drivers/i2c/busses/i2c-pca-platform.c | 1 -
- 5 files changed, 9 deletions(-)
+Yep, but you must make it clearer that sama5d2 also has this property
+available: people usually don't know that sama5d2 comes after sama5d4
+over time...
 
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index ab492301581a..5dc0bb7e5dbc 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -748,7 +748,6 @@ static int iic_probe(struct platform_device *ofdev)
- 	i2c_set_adapdata(adap, dev);
- 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	adap->algo = &iic_algo;
--	adap->timeout = HZ;
- 
- 	ret = i2c_add_adapter(adap);
- 	if (ret  < 0) {
-diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
-index 72d6161cf77c..c4ed8281bec2 100644
---- a/drivers/i2c/busses/i2c-iop3xx.c
-+++ b/drivers/i2c/busses/i2c-iop3xx.c
-@@ -479,7 +479,6 @@ iop3xx_i2c_probe(struct platform_device *pdev)
- 	/*
- 	 * Default values...should these come in from board code?
- 	 */
--	new_adapter->timeout = HZ;
- 	new_adapter->algo = &iop3xx_i2c_algo;
- 
- 	init_waitqueue_head(&adapter_data->waitq);
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 48ecffecc0ed..b4bb64ffe3cd 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -640,7 +640,6 @@ static const struct i2c_algorithm mpc_algo = {
- static struct i2c_adapter mpc_ops = {
- 	.owner = THIS_MODULE,
- 	.algo = &mpc_algo,
--	.timeout = HZ,
- };
- 
- static const struct of_device_id mpc_i2c_of_match[];
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 43207f52e5a3..eaef7763f5fc 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -839,11 +839,6 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 		reset_control_deassert(drv_data->rstc);
- 	}
- 
--	/* Its not yet defined how timeouts will be specified in device tree.
--	 * So hard code the value to 1 second.
--	 */
--	drv_data->adapter.timeout = HZ;
--
- 	device = of_match_device(mv64xxx_i2c_of_match_table, dev);
- 	if (!device)
- 		return -ENODEV;
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index 3bd2e7d06e4b..2b930df0e6b5 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -183,7 +183,6 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 		i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
- 		i2c->gpio = platform_data->gpio;
- 	} else {
--		i2c->adap.timeout = HZ;
- 		i2c->algo_data.i2c_clock = 59000;
- 		i2c->gpio = -1;
- 	}
--- 
-2.6.2
+Bye,
+
+>  - Child nodes conforming to i2c bus binding
+> =20
+>  Examples :
+> @@ -52,6 +53,7 @@ i2c0: i2c@f8034600 {
+>  	#size-cells =3D <0>;
+>  	clocks =3D <&flx0>;
+>  	atmel,fifo-size =3D <16>;
+> +	i2c-sda-hold-time-ns =3D <336>;
+> =20
+>  	wm8731: wm8731@1a {
+>  		compatible =3D "wm8731";
+>=20
+
+
+--=20
+Nicolas Ferre
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
