@@ -1,27 +1,59 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH v4] arm64: dts: add all hi6220 i2c nodes
-Date: Wed, 2 Dec 2015 20:57:39 +0800
-Message-ID: <20151202125739.GU692@tiger>
-References: <1449051201-7288-1-git-send-email-kong.kongxinwei@hisilicon.com>
+From: Charles Keepax <ckeepax-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: Handling clocks on external busses
+Date: Wed, 2 Dec 2015 12:58:55 +0000
+Message-ID: <20151202125855.GB6058@localhost.localdomain>
+References: <20151124173718.GK18889@ck-lbox>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:41274 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756218AbbLBM55 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 2 Dec 2015 07:57:57 -0500
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1449051201-7288-1-git-send-email-kong.kongxinwei@hisilicon.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20151124173718.GK18889@ck-lbox>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Xinwei Kong <kong.kongxinwei@hisilicon.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, pawel.moll@arm.com, galak@codeaurora.org, catalin.marinas@arm.com, w.f@huawei.com, liguozhu@hisilicon.com, puck.chen@hisilicon.com
 
-On Wed, Dec 02, 2015 at 06:13:21PM +0800, Xinwei Kong wrote:
-> This patch adds all I2C nodes for the Hi6220 SoC. This hi6220 Soc
-> use this I2C IP of Synopsys Designware for HiKey board.
+On Tue, Nov 24, 2015 at 05:37:18PM +0000, Charles Keepax wrote:
+> Hi,
 > 
-> Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
-> Signed-off-by: Chen Feng <puck.chen@hisilicon.com>
+> When a clock driver is controlling a clock that is controlled
+> over I2C / SPI, we need to perform a write on that bus to enable
+> the clock. However, such busses often have their own clocks that
+> must be enabled. Since all clock prepares are controlled under
+> one large mutex this easily causes deadlock. The device is
+> waiting for the I2C / SPI write to complete and the I2C / SPI
+> driver is waiting for the clock prepare lock to be released so it
+> can enable its own clock.
+> 
+> I have had a bit of a search and it seems the only really advice
+> kicking about is that all I2C / SPI drivers should leave the
+> clock prepared all the time. Is that intended to be the long term
+> solution, should I treat not leaving the clock prepared as a bug?
+> 
+> Thanks,
+> Charles
 
-Reviewed-by: Shawn Guo <shawnguo@kernel.org>
+Adding a few more people for visibility.
+
+So after a bit more digging it seems this has been mitigated slightly
+as a lot of SPI driver have been updated to execute transfers in
+thread rather than from a worker thread and it seems the clock
+framework lets you re-enter the locked sections if called from the
+same thread.
+
+I am looking at moving some (in mainline) clocking code into an actual
+clocking driver (for a SPI/I2C audio CODEC) but I am rather nervous
+about this causing problems for customers with random deadlocks.
+
+I guess the naive solution looks like individual locks per clock, but
+from what I have been able to google it looks like there are some
+challenges with that approach, does anyone have any links to previous
+discussions on that? And any suggestions on how I might approach
+this?
+
+Thanks,
+Charles
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
