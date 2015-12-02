@@ -1,59 +1,56 @@
-From: Charles Keepax <ckeepax-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+From: Mark Brown <broonie@kernel.org>
 Subject: Re: Handling clocks on external busses
-Date: Wed, 2 Dec 2015 12:58:55 +0000
-Message-ID: <20151202125855.GB6058@localhost.localdomain>
+Date: Wed, 2 Dec 2015 13:30:10 +0000
+Message-ID: <20151202133010.GJ1929@sirena.org.uk>
 References: <20151124173718.GK18889@ck-lbox>
+ <20151202125855.GB6058@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="r7YfqnGwAF7PgTLe"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:57684 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755302AbbLBNaY (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Dec 2015 08:30:24 -0500
 Content-Disposition: inline
-In-Reply-To: <20151124173718.GK18889@ck-lbox>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+In-Reply-To: <20151202125855.GB6058@localhost.localdomain>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Cc: linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux@arm.linux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, wsa@the-dreams.de
 
-On Tue, Nov 24, 2015 at 05:37:18PM +0000, Charles Keepax wrote:
-> Hi,
-> 
-> When a clock driver is controlling a clock that is controlled
-> over I2C / SPI, we need to perform a write on that bus to enable
-> the clock. However, such busses often have their own clocks that
-> must be enabled. Since all clock prepares are controlled under
-> one large mutex this easily causes deadlock. The device is
-> waiting for the I2C / SPI write to complete and the I2C / SPI
-> driver is waiting for the clock prepare lock to be released so it
-> can enable its own clock.
-> 
-> I have had a bit of a search and it seems the only really advice
-> kicking about is that all I2C / SPI drivers should leave the
-> clock prepared all the time. Is that intended to be the long term
-> solution, should I treat not leaving the clock prepared as a bug?
-> 
-> Thanks,
-> Charles
 
-Adding a few more people for visibility.
+--r7YfqnGwAF7PgTLe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-So after a bit more digging it seems this has been mitigated slightly
-as a lot of SPI driver have been updated to execute transfers in
-thread rather than from a worker thread and it seems the clock
-framework lets you re-enter the locked sections if called from the
-same thread.
+On Wed, Dec 02, 2015 at 12:58:55PM +0000, Charles Keepax wrote:
 
-I am looking at moving some (in mainline) clocking code into an actual
-clocking driver (for a SPI/I2C audio CODEC) but I am rather nervous
-about this causing problems for customers with random deadlocks.
+> So after a bit more digging it seems this has been mitigated slightly
+> as a lot of SPI driver have been updated to execute transfers in
+> thread rather than from a worker thread and it seems the clock
+> framework lets you re-enter the locked sections if called from the
+> same thread.
 
-I guess the naive solution looks like individual locks per clock, but
-from what I have been able to google it looks like there are some
-challenges with that approach, does anyone have any links to previous
-discussions on that? And any suggestions on how I might approach
-this?
+No, this isn't something the drivers support (it's a framework feature)
+and it isn't something that we're guaranteed to do, if the bus is busy
+we defer to the thread and it's possible the drivers might do something
+multi-threaded themselves.  It might work a lot of the time but it's
+never going to be guaranteed to work.
 
-Thanks,
-Charles
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--r7YfqnGwAF7PgTLe
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJWXvJhAAoJECTWi3JdVIfQA+AH/Rj5XoHAusUguUDYc4NViJGW
+evlxnShud6Y4PKjbRvsJMb2sjO9REmwxXjKMSMrR3fBaGRDlCUWybrK5bu4YXW1U
+RkoykLwpbwEqqQ6RSGN9bvh9xuaQoRKTNHJfyFcVw8puFFHooo9c5RHN+UnaeavR
+o1rSdWyah01z2SS8hnKMKvs6FclOnpku02STFVZxRaH9vtiBPkBLS1uGMX/54yE1
+c3yhW3PGcllG4ieJlcfcJHH4QB0sVKvxbQ+DVxzy0/J6LxrEjhPbOpyjq4DvdrCQ
+hPQqCSmQS89dLW1aaqLT7TI1b2p11CxukcOy99ZFHt0lhlAi6BeM+TRyP+iYT5o=
+=1wIb
+-----END PGP SIGNATURE-----
+
+--r7YfqnGwAF7PgTLe--
