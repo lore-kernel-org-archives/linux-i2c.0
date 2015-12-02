@@ -1,52 +1,27 @@
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [PATCH 4/4] ARM: at91/dt: sama5d2 Xplained: pmic needs a specific
- sda hold time
-Date: Wed, 2 Dec 2015 12:08:16 +0100
-Message-ID: <565ED120.3090603@atmel.com>
-References: <1449052747-20991-1-git-send-email-ludovic.desroches@atmel.com>
- <1449052747-20991-4-git-send-email-ludovic.desroches@atmel.com>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH v4] arm64: dts: add all hi6220 i2c nodes
+Date: Wed, 2 Dec 2015 20:57:39 +0800
+Message-ID: <20151202125739.GU692@tiger>
+References: <1449051201-7288-1-git-send-email-kong.kongxinwei@hisilicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:17431 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757170AbbLBLH6 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Dec 2015 06:07:58 -0500
-In-Reply-To: <1449052747-20991-4-git-send-email-ludovic.desroches@atmel.com>
+Received: from mail.kernel.org ([198.145.29.136]:41274 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756218AbbLBM55 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 2 Dec 2015 07:57:57 -0500
+Content-Disposition: inline
+In-Reply-To: <1449051201-7288-1-git-send-email-kong.kongxinwei@hisilicon.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@atmel.com>, wsa@the-dreams.de, alexandre.belloni@free-electrons.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+To: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, pawel.moll@arm.com, galak@codeaurora.org, catalin.marinas@arm.com, w.f@huawei.com, liguozhu@hisilicon.com, puck.chen@hisilicon.com
 
-Le 02/12/2015 11:39, Ludovic Desroches a =E9crit :
-> Data have to been hold longer for the PMIC device.
+On Wed, Dec 02, 2015 at 06:13:21PM +0800, Xinwei Kong wrote:
+> This patch adds all I2C nodes for the Hi6220 SoC. This hi6220 Soc
+> use this I2C IP of Synopsys Designware for HiKey board.
+> 
+> Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+> Signed-off-by: Chen Feng <puck.chen@hisilicon.com>
 
-s/been/be/
-
-It can also be interesting to know where the value comes from...
-
-
-> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-> ---
->  arch/arm/boot/dts/at91-sama5d2_xplained.dts | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/b=
-oot/dts/at91-sama5d2_xplained.dts
-> index ad6de73..9bced00 100644
-> --- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-> +++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-> @@ -129,6 +129,7 @@
->  				dmas =3D <0>, <0>;
->  				pinctrl-names =3D "default";
->  				pinctrl-0 =3D <&pinctrl_i2c0_default>;
-> +				i2c-sda-hold-time-ns =3D <350>;
->  				status =3D "okay";
-> =20
->  				pmic: act8865@5b {
->=20
-
-
---=20
-Nicolas Ferre
+Reviewed-by: Shawn Guo <shawnguo@kernel.org>
