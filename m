@@ -1,36 +1,172 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 2/9] eeprom: at24: new flag in platform_data
-Date: Wed,  2 Dec 2015 11:25:19 +0100
-Message-ID: <1449051926-21918-3-git-send-email-bgolaszewski@baylibre.com>
-References: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: [PATCH 1/4] i2c: at91: add upport for the HOLD field
+Date: Wed, 2 Dec 2015 11:39:04 +0100
+Message-ID: <1449052747-20991-1-git-send-email-ludovic.desroches@atmel.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from eusmtp01.atmel.com ([212.144.249.243]:11357 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754886AbbLBKis (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Dec 2015 05:38:48 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>
 
-In preparation for supporting the at24cs EEPROM series add a new flag to
-platform data. When set, it should tell the driver that the chip has an
-additional read-only memory area that holds a factory pre-programmed serial
-number.
+The hold field allows to configure the data hold time which can be set
+with the help of the generic binding 'i2c-sda-hold-time-ns'. This
+feature has been introduced with SAMA5D4 SoC family.
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
 ---
- include/linux/platform_data/at24.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-at91.c | 54 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 51 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index 8d90f52..5686f91 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -47,6 +47,7 @@ struct at24_platform_data {
- #define AT24_FLAG_READONLY	BIT(6)	/* sysfs-entry will be read-only */
- #define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
- #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
-+#define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 10835d1..09e1690 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -64,6 +64,7 @@
+ #define	AT91_TWI_IADR		0x000c	/* Internal Address Register */
  
- 	void		(*setup)(struct memory_accessor *, void *context);
- 	void		*context;
+ #define	AT91_TWI_CWGR		0x0010	/* Clock Waveform Generator Reg */
++#define	AT91_TWI_CWGR_HOLD(x)	(((x) & 0x1f) << 24)
+ 
+ #define	AT91_TWI_SR		0x0020	/* Status Register */
+ #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
+@@ -110,6 +111,7 @@ struct at91_twi_pdata {
+ 	unsigned clk_offset;
+ 	bool has_unre_flag;
+ 	bool has_alt_cmd;
++	bool has_hold_field;
+ 	struct at_dma_slave dma_slave;
+ };
+ 
+@@ -187,10 +189,13 @@ static void at91_init_twi_bus(struct at91_twi_dev *dev)
+  */
+ static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
+ {
+-	int ckdiv, cdiv, div;
++	int ckdiv, cdiv, div, hold = 0;
+ 	struct at91_twi_pdata *pdata = dev->pdata;
+ 	int offset = pdata->clk_offset;
+ 	int max_ckdiv = pdata->clk_max_div;
++	u32 twd_hold_time_ns = 0;
++
++#define MAX_HOLD 31
+ 
+ 	div = max(0, (int)DIV_ROUND_UP(clk_get_rate(dev->clk),
+ 				       2 * twi_clk) - offset);
+@@ -204,8 +209,33 @@ static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
+ 		cdiv = 255;
+ 	}
+ 
+-	dev->twi_cwgr_reg = (ckdiv << 16) | (cdiv << 8) | cdiv;
+-	dev_dbg(dev->dev, "cdiv %d ckdiv %d\n", cdiv, ckdiv);
++	if (pdata->has_hold_field) {
++		of_property_read_u32(dev->dev->of_node, "i2c-sda-hold-time-ns",
++				     &twd_hold_time_ns);
++
++		/*
++		 * hold time = HOLD + 3 x T_peripheral_clock
++		 * Use clk rate in kHz to prevent overflows when computing
++		 * hold.
++		 */
++		hold = DIV_ROUND_UP(twd_hold_time_ns
++				    * (clk_get_rate(dev->clk) / 1000), 1000000);
++		hold -= 3;
++		if (hold < 0)
++			hold = 0;
++		if (hold > MAX_HOLD) {
++			dev_warn(dev->dev,
++				 "HOLD field set to its maximum value (%d instead of %d)\n",
++				 MAX_HOLD, hold);
++			hold = MAX_HOLD;
++		}
++	}
++
++	dev->twi_cwgr_reg = (ckdiv << 16) | (cdiv << 8) | cdiv
++			    | AT91_TWI_CWGR_HOLD(hold);
++
++	dev_dbg(dev->dev, "cdiv %d ckdiv %d hold %d (%d ns)\n",
++		cdiv, ckdiv, hold, twd_hold_time_ns);
+ }
+ 
+ static void at91_twi_dma_cleanup(struct at91_twi_dev *dev)
+@@ -797,6 +827,7 @@ static struct at91_twi_pdata at91rm9200_config = {
+ 	.clk_offset = 3,
+ 	.has_unre_flag = true,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9261_config = {
+@@ -804,6 +835,7 @@ static struct at91_twi_pdata at91sam9261_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9260_config = {
+@@ -811,6 +843,7 @@ static struct at91_twi_pdata at91sam9260_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g20_config = {
+@@ -818,6 +851,7 @@ static struct at91_twi_pdata at91sam9g20_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g10_config = {
+@@ -825,6 +859,7 @@ static struct at91_twi_pdata at91sam9g10_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static const struct platform_device_id at91_twi_devtypes[] = {
+@@ -854,6 +889,15 @@ static struct at91_twi_pdata at91sam9x5_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
++};
++
++static struct at91_twi_pdata sama5d4_config = {
++	.clk_max_div = 7,
++	.clk_offset = 4,
++	.has_unre_flag = false,
++	.has_alt_cmd = false,
++	.has_hold_field = true,
+ };
+ 
+ static struct at91_twi_pdata sama5d2_config = {
+@@ -861,6 +905,7 @@ static struct at91_twi_pdata sama5d2_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = true,
+ 	.has_alt_cmd = true,
++	.has_hold_field = true,
+ };
+ 
+ static const struct of_device_id atmel_twi_dt_ids[] = {
+@@ -883,6 +928,9 @@ static const struct of_device_id atmel_twi_dt_ids[] = {
+ 		.compatible = "atmel,at91sam9x5-i2c",
+ 		.data = &at91sam9x5_config,
+ 	}, {
++		.compatible = "atmel,sama5d4-i2c",
++		.data = &sama5d4_config,
++	}, {
+ 		.compatible = "atmel,sama5d2-i2c",
+ 		.data = &sama5d2_config,
+ 	}, {
 -- 
-2.1.4
+2.5.0
