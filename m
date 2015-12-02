@@ -1,86 +1,108 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 3/9] eeprom: at24: tie up an additional address for at24cs series
-Date: Wed,  2 Dec 2015 11:25:20 +0100
-Message-ID: <1449051926-21918-4-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH v2 4/9] eeprom: at24: support reading of the serial number
+Date: Wed,  2 Dec 2015 11:25:21 +0100
+Message-ID: <1449051926-21918-5-git-send-email-bgolaszewski@baylibre.com>
 References: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f50.google.com ([74.125.82.50]:36501 "EHLO
-	mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754049AbbLBKZj (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Dec 2015 05:25:39 -0500
-Received: by wmww144 with SMTP id w144so208439453wmw.1
-        for <linux-i2c@vger.kernel.org>; Wed, 02 Dec 2015 02:25:37 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+List-Id: linux-i2c@vger.kernel.org
 
-The at24cs series EEPROM chips have an additional read-only memory area,
-that is visible on a different i2c slave address. Tie it up with a dummy
-device.
+The at24cs series EEPROM chips have an additional read-only memory area
+containing a factory pre-programmed serial number. In order to access
+it, one has to perform a dummy write before reading the serial number
+bytes.
+
+Add a function that allows to access the serial number.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+ drivers/misc/eeprom/at24.c | 71 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 71 insertions(+)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 5d7c090..08cc327 100644
+index 08cc327..6182f47 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -103,6 +103,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+@@ -163,6 +163,77 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
+ 	return at24->client[i];
+ }
  
- #define AT24_BITMASK(x) (BIT(x) - 1)
- 
-+#define AT24CS_SERIAL_ADDR(addr) (addr + 0x08)
++static int __attribute__((unused)) at24cs_eeprom_serial_read(
++						struct at24_data *at24,
++						char *buf, unsigned offset,
++						size_t count)
++{
++	unsigned long timeout, read_time;
++	struct i2c_client *client;
++	struct i2c_msg msg[2];
++	u8 addrbuf[2];
++	int status;
 +
- /* create non-zero magic value for given eeprom parameters */
- #define AT24_DEVICE_MAGIC(_len, _flags) 		\
- 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
-@@ -558,6 +560,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
- 		num_addresses = 8;
-+	else if (chip.flags & AT24_FLAG_SERIAL)
-+		num_addresses = 2;
- 	else
- 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
- 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
-@@ -616,12 +620,30 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->client[0] = client;
- 
- 	/* use dummy devices for multiple-address chips */
--	for (i = 1; i < num_addresses; i++) {
--		at24->client[i] = i2c_new_dummy(client->adapter,
-+	if (at24->chip.flags & AT24_FLAG_TAKE8ADDR) {
-+		for (i = 1; i < num_addresses; i++) {
-+			at24->client[i] = i2c_new_dummy(client->adapter,
-+							client->addr + i);
-+			if (!at24->client[i]) {
-+				dev_err(&client->dev,
-+					"address 0x%02x unavailable\n",
- 					client->addr + i);
--		if (!at24->client[i]) {
-+				err = -EADDRINUSE;
-+				goto err_clients;
-+			}
-+		}
-+	}
++	mutex_lock(&at24->lock);
++
++	client = at24->client[1];
++
++	memset(msg, 0, sizeof(msg));
++	msg[0].addr = client->addr;
++	msg[0].buf = addrbuf;
 +
 +	/*
-+	 * at24cs series tie up an additional address for the memory area
-+	 * contining the serial number
++	 * The address pointer of the device is shared between the regular
++	 * EEPROM array and the serial number block. The dummy write (part of
++	 * the sequential read protocol) ensures the address pointer is reset
++	 * to the desired position.
 +	 */
-+	if (at24->chip.flags & AT24_FLAG_SERIAL) {
-+		at24->client[1] = i2c_new_dummy(client->adapter,
-+					AT24CS_SERIAL_ADDR(client->addr));
-+		if (!at24->client[1]) {
- 			dev_err(&client->dev, "address 0x%02x unavailable\n",
--					client->addr + i);
-+				AT24CS_SERIAL_ADDR(client->addr));
- 			err = -EADDRINUSE;
- 			goto err_clients;
- 		}
++	if (at24->chip.flags & AT24_FLAG_ADDR16) {
++		/*
++		 * For 16 bit address pointers, the word address must contain
++		 * a '10' sequence in bits 11 and 10 regardless of the
++		 * intended position of the address pointer.
++		 */
++		addrbuf[0] = 0x08;
++		addrbuf[1] = offset;
++		msg[0].len = 2;
++	} else {
++		/*
++		 * Otherwise the word address must begin with a '10' sequence,
++		 * regardless of the intended address.
++		 */
++		addrbuf[0] = 0x80 + offset;
++		msg[0].len = 1;
++	}
++
++	msg[1].addr = client->addr;
++	msg[1].flags = I2C_M_RD;
++	msg[1].buf = buf;
++	msg[1].len = count;
++
++	/*
++	 * Reads fail if the previous write didn't complete yet. We may
++	 * loop a few times until this one succeeds, waiting at least
++	 * long enough for one entire page write to work.
++	 */
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		read_time = jiffies;
++		status = i2c_transfer(client->adapter, msg, 2);
++		if (status == 2) {
++			mutex_unlock(&at24->lock);
++			return count;
++		}
++
++		/* REVISIT: at HZ=100, this is sloooow */
++		msleep(1);
++	} while (time_before(read_time, timeout));
++
++	mutex_unlock(&at24->lock);
++
++	return -ETIMEDOUT;
++}
++
+ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+ 		unsigned offset, size_t count)
+ {
 -- 
 2.1.4
