@@ -1,65 +1,53 @@
-From: fetzerch <fetzer.ch@gmail.com>
-Subject: Re: [PATCH] i2c: piix4: remove unneeded assignments
-Date: Tue, 1 Dec 2015 21:31:52 +0100
-Message-ID: <565E03B8.6030807@googlemail.com>
-References: <1448890989-32733-1-git-send-email-wsa@the-dreams.de>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v2 16/16] i2c: designware: Convert to use unified device property API
+Date: Wed, 02 Dec 2015 02:28:29 +0100
+Message-ID: <3465575.VLD33ozkzD@vostro.rjw.lan>
+References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com> <20151130195858.GB16446@katana> <1448966031.15393.131.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:35223 "EHLO
-	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754356AbbLAUbz (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 1 Dec 2015 15:31:55 -0500
-Received: by wmuu63 with SMTP id u63so189012345wmu.0
-        for <linux-i2c@vger.kernel.org>; Tue, 01 Dec 2015 12:31:54 -0800 (PST)
-In-Reply-To: <1448890989-32733-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1448966031.15393.131.camel@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Christian Fetzer <fetzer.ch@gmail.com>
 
-Hi Wolfram,
+On Tuesday, December 01, 2015 12:33:51 PM Andy Shevchenko wrote:
+> On Mon, 2015-11-30 at 20:58 +0100, Wolfram Sang wrote:
+> > On Mon, Nov 30, 2015 at 05:11:44PM +0200, Andy Shevchenko wrote:
+> > > From: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > > 
+> > > With ACPI _DSD (introduced in ACPI v5.1) it is now possible to pass
+> > > device
+> > > configuration information from ACPI in addition to DT. In order to
+> > > support
+> > > this, convert the driver to use the unified device property
+> > > accessors
+> > > instead of DT specific.
+> > > 
+> > > Change to ordering a bit so that we first try platform data and if
+> > > that's
+> > > not available look from device properties. ACPI *CNT methods are
+> > > then used
+> > > as last resort to override everything else.
+> > > 
+> > > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > > Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> > 
+> > What is the bug fix here described in the cover letter?
+> 
+> The cover letter mentioned 'last part' which I refer to as patches 14,
+> 15 (though this is for UART), and 16.
 
-On 30.11.2015 14:43, Wolfram Sang wrote:
-> smatch rightfully says:
-> drivers/i2c/busses/i2c-piix4.c:504 piix4_access warn: unused return: i = inb_p()
-> drivers/i2c/busses/i2c-piix4.c:537 piix4_access warn: unused return: i = inb_p()
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
-> 
-> Christian, can you please check on HW? I could only compile-test.
+Hmm.
 
-Your patch works fine on my machine!
+So may I assume that patches [1-13/16] are for me and the rest is to be applied
+by the other respective maintainers?
 
-Thanks for merging my patchset btw.
-Christian
+That should be easiest logistically IMHO.
 
-> 
->  drivers/i2c/busses/i2c-piix4.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index af4e606f8886bd..e045985950737c 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -501,7 +501,7 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
->  			if (len == 0 || len > I2C_SMBUS_BLOCK_MAX)
->  				return -EINVAL;
->  			outb_p(len, SMBHSTDAT0);
-> -			i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
-> +			inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
->  			for (i = 1; i <= len; i++)
->  				outb_p(data->block[i], SMBBLKDAT);
->  		}
-> @@ -534,7 +534,7 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
->  		data->block[0] = inb_p(SMBHSTDAT0);
->  		if (data->block[0] == 0 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
->  			return -EPROTO;
-> -		i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
-> +		inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
->  		for (i = 1; i <= data->block[0]; i++)
->  			data->block[i] = inb_p(SMBBLKDAT);
->  		break;
-> 
+Thanks,
+Rafael
+
