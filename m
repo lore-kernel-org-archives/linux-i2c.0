@@ -1,22 +1,22 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2 1/4] i2c: at91: add support for the HOLD field
-Date: Thu, 3 Dec 2015 10:53:50 +0100
-Message-ID: <1449136434-27619-2-git-send-email-ludovic.desroches@atmel.com>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: [PATCH v2 1/4] i2c: at91: add upport for the HOLD field
+Date: Thu, 3 Dec 2015 10:53:51 +0100
+Message-ID: <1449136434-27619-3-git-send-email-ludovic.desroches@atmel.com>
 References: <1449136434-27619-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1449136434-27619-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1449136434-27619-1-git-send-email-ludovic.desroches@atmel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
 
 The hold field allows to configure the data hold time which can be set
 with the help of the generic binding 'i2c-sda-hold-time-ns'. This
 feature has been introduced with SAMA5D4 SoC family.
 
-Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
 ---
  drivers/i2c/busses/i2c-at91.c | 53 ++++++++++++++++++++++++++++++++++++++++---
  1 file changed, 50 insertions(+), 3 deletions(-)
@@ -167,8 +167,3 @@ index 10835d1..921d32b 100644
  	}, {
 -- 
 2.5.0
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
