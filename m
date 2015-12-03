@@ -1,85 +1,67 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/9] i2c: document generic DT bindings for timing
- parameters
-Date: Thu, 3 Dec 2015 14:39:08 -0600
-Message-ID: <20151203203908.GA29831@rob-hp-laptop>
-References: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
- <1449157899-6572-2-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 3/4] ARM: at91/dt: sama5d4: update i2c compatible
+ string
+Date: Thu, 3 Dec 2015 21:45:32 +0100
+Message-ID: <20151203204532.GB8509@katana>
+References: <1449136434-27619-1-git-send-email-ludovic.desroches@atmel.com>
+ <1449136434-27619-5-git-send-email-ludovic.desroches@atmel.com>
+ <56601A74.3040507@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:36011 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752369AbbLCUpj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 3 Dec 2015 15:45:39 -0500
 Content-Disposition: inline
-In-Reply-To: <1449157899-6572-2-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, devicetree@vger.kernel.org
+In-Reply-To: <56601A74.3040507@atmel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: Ludovic Desroches <ludovic.desroches@atmel.com>, alexandre.belloni@free-electrons.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
 
-On Thu, Dec 03, 2015 at 04:51:31PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
-> Also, sort the properties alphabetically and make indentation
-> consistent. Wording largely taken from i2c-rk3x.txt, thanks guys!
-> 
-> Only "i2c-scl-internal-delay-ns" is new, the rest is used by two drivers
-> already and was documented in their driver binding documentation.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Cc: devicetree@vger.kernel.org
 
-Acked-by: Rob Herring <robh@kernel.org>
+--7iMSBzlTiPOCCT2k
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
->  Documentation/devicetree/bindings/i2c/i2c.txt | 31 ++++++++++++++++++++++-----
->  1 file changed, 26 insertions(+), 5 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-> index 8a99150ac3a7fd..a00219f5ee0733 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-> @@ -29,12 +29,33 @@ Optional properties
->  These properties may not be supported by all drivers. However, if a driver
->  wants to support one of the below features, it should adapt the bindings below.
->  
-> -- clock-frequency	- frequency of bus clock in Hz.
-> -- wakeup-source		- device can be used as a wakeup source.
-> +- clock-frequency
-> +	frequency of bus clock in Hz.
->  
-> -- interrupts		- interrupts used by the device.
-> -- interrupt-names	- "irq" and "wakeup" names are recognized by I2C core,
-> -			  other names are left to individual drivers.
-> +- i2c-scl-falling-time-ns
-> +	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
-> +	specification.
-> +
-> +- i2c-scl-internal-delay-ns
-> +	Number of nanoseconds the IP core additionally needs to setup SCL.
-> +
-> +- i2c-scl-rising-time-ns
-> +	Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
-> +	specification.
-> +
-> +- i2c-sda-falling-time-ns
-> +	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
-> +	specification.
-> +
-> +- interrupts
-> +	interrupts used by the device.
-> +
-> +- interrupt-names
-> +	"irq" and "wakeup" names are recognized by I2C core, other names are
-> +	left to individual drivers.
-> +
-> +- wakeup-source
-> +	device can be used as a wakeup source.
->  
->  Binding may contain optional "interrupts" property, describing interrupts
->  used by the device. I2C core will assign "irq" interrupt (or the very first
-> -- 
-> 2.1.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Thu, Dec 03, 2015 at 11:33:24AM +0100, Nicolas Ferre wrote:
+> Le 03/12/2015 10:53, Ludovic Desroches a =C3=A9crit :
+> > A new compatible string has been introduced: atmel,sama5d4-i2c. It
+> > allows to use the i2c-sda-hold-time-ns property if needed.
+> >=20
+> > Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+>=20
+> Wolfram, we'll take this one with us in the at91 branches that will go
+> into arm-soc. It'll be queued in at91-4.5-dt branch soon.
+>=20
+> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+
+I squashed patch 1+2 now and applied them to for-next, thanks!
+
+
+--7iMSBzlTiPOCCT2k
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWYKnsAAoJEBQN5MwUoCm2hY8P/AnNOkbYa0c15rrENCh5lI+g
+B6QqmGT/N0VGfYk68u6RqafygOHwhMy2fwEkH/UhlYXpkOshsnVWdvO+pWf5thIX
+viWI34a5e6vO4ES85sHuAVu1S9RFYtjZuCGfC+oH1fd9uD1YR/nGsB8T4LWg02mk
+NbUMtmRUeq/72qowmM0uVKRUEU6C/UyQKD/zaJ93wrxYchxAOVpJ3u+3E5m16rxa
+f6bi7MvP+WZjArGUcz2q6iRK7zBUnEOE8kmP6nseD6txC67Gu48eawHQ7voIT6/w
+fut6LpwCigoZc3HGA/vbTiZEBtHlgEJAxA1kfWBoT8Qh7l1I8KLpbkNf9/DFY8EO
+7ahivSYZ4GbML1XzyzXggy1AcXLcuJWoAdtVZA8hRhiRVNzbzlxT5MnLbPQiUNo2
+UlqkZeq0Tdr3mcDZbE8pec5YihwL60ItOygGADxUDjhf5xJC0Mr6MDlSuLrl2mfL
+Kb9ivfeqsQ3XPTDe2hezA2q/F9BTxuNuWt9bjVAzMCjR5F4eawxvChO3eXY9V9u7
+qotkal8xWu1F0DN0uvmnI4WfV4u4OR2Cc7KiZjW/jrRQQdtEaAmoG9B7Cupe/vJp
+69rNwiTy3uHe6vtdOz4r8axRqspGW3QDpEOeb5vuH+ByuGIGrmaEk2t61l7QuEAw
++rPcklkEN/nlHVFpbatS
+=JHI/
+-----END PGP SIGNATURE-----
+
+--7iMSBzlTiPOCCT2k--
