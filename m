@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 9/9] arm64: renesas: r8a7795: add internal delay for i2c IPs
-Date: Thu,  3 Dec 2015 16:51:39 +0100
-Message-ID: <1449157899-6572-10-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 3/9] i2c: rcar: refactor probe function a little
+Date: Thu,  3 Dec 2015 16:51:33 +0100
+Message-ID: <1449157899-6572-4-git-send-email-wsa@the-dreams.de>
 References: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
@@ -12,71 +12,86 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+The probe function is a little bit messy, something here, something
+there. Rework it so that there is some order: first init the private
+structure, then the adapter, then do HW init. This also allows us to
+remove the device argument of the clock calculation function, because it
+now can be deduced from the private structure. Also, shorten some lines
+where possible. This is a preparation for further refactoring.
+
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- arch/arm64/boot/dts/renesas/r8a7795.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/i2c/busses/i2c-rcar.c | 40 +++++++++++++++++-----------------------
+ 1 file changed, 17 insertions(+), 23 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-index 56d6a5b23a4e38..b02a7ad1583933 100644
---- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
-@@ -519,6 +519,7 @@
- 			interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 931>;
- 			power-domains = <&cpg>;
-+			i2c-scl-internal-delay-ns = <110>;
- 			status = "disabled";
- 		};
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 3ed1f0aa5eeb16..d4322a9096786f 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -162,15 +162,11 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ 	return -EBUSY;
+ }
  
-@@ -530,6 +531,7 @@
- 			interrupts = <GIC_SPI 288 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 930>;
- 			power-domains = <&cpg>;
-+			i2c-scl-internal-delay-ns = <6>;
- 			status = "disabled";
- 		};
+-static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+-				    u32 bus_speed,
+-				    struct device *dev)
++static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, u32 bus_speed)
+ {
+-	u32 scgd, cdf;
+-	u32 round, ick;
+-	u32 scl;
+-	u32 cdf_width;
++	u32 scgd, cdf, round, ick, scl, cdf_width;
+ 	unsigned long rate;
++	struct device *dev = rcar_i2c_priv_to_dev(priv);
  
-@@ -541,6 +543,7 @@
- 			interrupts = <GIC_SPI 286 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 929>;
- 			power-domains = <&cpg>;
-+			i2c-scl-internal-delay-ns = <6>;
- 			status = "disabled";
- 		};
+ 	switch (priv->devtype) {
+ 	case I2C_RCAR_GEN1:
+@@ -610,21 +606,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->io))
+ 		return PTR_ERR(priv->io);
  
-@@ -552,6 +555,7 @@
- 			interrupts = <GIC_SPI 290 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 928>;
- 			power-domains = <&cpg>;
-+			i2c-scl-internal-delay-ns = <110>;
- 			status = "disabled";
- 		};
+-	bus_speed = 100000; /* default 100 kHz */
+-	of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
+-
+ 	priv->devtype = (enum rcar_i2c_type)of_match_device(rcar_i2c_dt_ids, dev)->data;
+-
+-	pm_runtime_enable(dev);
+-	pm_runtime_get_sync(dev);
+-	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
+-	if (ret < 0)
+-		goto out_pm_put;
+-
+-	rcar_i2c_init(priv);
+-	pm_runtime_put(dev);
+-
+-	irq = platform_get_irq(pdev, 0);
+ 	init_waitqueue_head(&priv->wait);
  
-@@ -563,6 +567,7 @@
- 			interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 927>;
- 			power-domains = <&cpg>;
-+			i2c-scl-internal-delay-ns = <110>;
- 			status = "disabled";
- 		};
+ 	adap = &priv->adap;
+@@ -637,8 +619,20 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
  
-@@ -574,6 +579,7 @@
- 			interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 919>;
- 			power-domains = <&cpg>;
-+			i2c-scl-internal-delay-ns = <110>;
- 			status = "disabled";
- 		};
- 
-@@ -585,6 +591,7 @@
- 			interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&cpg CPG_MOD 918>;
- 			power-domains = <&cpg>;
-+			i2c-scl-internal-delay-ns = <6>;
- 			status = "disabled";
- 		};
- 
+-	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0,
+-			       dev_name(dev), priv);
++	bus_speed = 100000; /* default 100 kHz */
++	of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
++
++	pm_runtime_enable(dev);
++	pm_runtime_get_sync(dev);
++	ret = rcar_i2c_clock_calculate(priv, bus_speed);
++	if (ret < 0)
++		goto out_pm_put;
++
++	rcar_i2c_init(priv);
++	pm_runtime_put(dev);
++
++	irq = platform_get_irq(pdev, 0);
++	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
+ 	if (ret < 0) {
+ 		dev_err(dev, "cannot get irq %d\n", irq);
+ 		goto out_pm_disable;
 -- 
 2.1.4
 
