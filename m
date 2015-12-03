@@ -1,52 +1,61 @@
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [PATCH v2 4/4] ARM: at91/dt: sama5d2 Xplained: pmic needs a
- specific sda hold time
-Date: Thu, 3 Dec 2015 11:34:08 +0100
-Message-ID: <56601AA0.5020201@atmel.com>
-References: <1449136434-27619-1-git-send-email-ludovic.desroches@atmel.com>
- <1449136434-27619-6-git-send-email-ludovic.desroches@atmel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC 5/9] i2c: rcar: honor additional i2c timings from DT
+Date: Thu, 3 Dec 2015 11:59:00 +0100
+Message-ID: <20151203105900.GC1545@katana>
+References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
+ <1448578757-12613-6-git-send-email-wsa@the-dreams.de>
+ <CAMuHMdU1fWjH2Lv00W2uxRW7-XGp1YaEoA4Ftq5o6yk6WamCBQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1449136434-27619-6-git-send-email-ludovic.desroches@atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@atmel.com>, wsa@the-dreams.de, alexandre.belloni@free-electrons.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="E13BgyNx05feLLmH"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdU1fWjH2Lv00W2uxRW7-XGp1YaEoA4Ftq5o6yk6WamCBQ@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Le 03/12/2015 10:53, Ludovic Desroches a =E9crit :
-> Data have to be held longer for the PMIC device. The ACT8945A
-> datasheet claims that minimum SDA data hold time is about 300 ns.
+
+--E13BgyNx05feLLmH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Geert,
+
+> > -       round =3D (ick + 500000) / 1000000 * 285;
+> > +       sum =3D t->scl_fall_ns + t->scl_rise_ns + t->scl_int_delay_ns;
+> > +       round =3D (ick + 500000) / 1000000 * sum;
 >=20
-> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+> If you're sure it cannot overflow, doing the "* sum" before the division
+> improves accuracy.
 
-Same here, we'll take this one with at91 material in at91-4.5-dt branch
-soon.
-
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-
-Thanks, bye.
-
-> ---
->  arch/arm/boot/dts/at91-sama5d2_xplained.dts | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/b=
-oot/dts/at91-sama5d2_xplained.dts
-> index ad6de73..9bced00 100644
-> --- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-> +++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-> @@ -129,6 +129,7 @@
->  				dmas =3D <0>, <0>;
->  				pinctrl-names =3D "default";
->  				pinctrl-0 =3D <&pinctrl_i2c0_default>;
-> +				i2c-sda-hold-time-ns =3D <350>;
->  				status =3D "okay";
-> =20
->  				pmic: act8865@5b {
->=20
+Thanks for the input. In this patch, however, I intentionally did not
+change the formula but only replaced the constants with the now user
+supplied values. Everything else should be a separate patch IMO.
 
 
---=20
-Nicolas Ferre
+--E13BgyNx05feLLmH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWYCB0AAoJEBQN5MwUoCm2OmMP/ixyleN7YiG/VR8YM0b6fCrs
+goF09EwDh/QR7ylG0S4AVY4VHeZWM7djiei86VuxRjH86LmwU5RhiyklcRNrrtKV
+OpnDRbPn3CcZDG6xev1FY8A7tvQFI6NT11ZEliVibuWPFd+7CcY3ZDuMEUAgGyt6
+FGnR1lLo91umSmqIyTss9G0EypJyKu9A/aFxGoWYaa6EzsZlNEHtRCndeyK2lGQl
+RqtSsjgOBxs4WTe0nbFm+0nmW6HAb3oOxuV86egCnZlRfaT4acLzlP1jaTHZm+4i
+67SbTmqKT40Z31CfpQljjCeb4jiQkpVXzUcWLGT5Oq0LvAJ1uQ0Qb63tgQfO99XD
+TwWLjMPCE12SKXQfu9JOLqP2d3aRW5IflGAOvr6gq3CsfdTcvB56YN1meD/n4D84
+5phhHym2GqVW45VihDe1r6xBRD6TmmnCNPd6+JucXXhfTJRoWEZvq/HZ9aeCWQjS
+hl49LSIinUCDABUWq1SAx9n3fVS26DOSXDgLeby0Ta2cbmweTjXFfw/9S3dBXF9a
+PU85o1Ct3ujZW3b3pwC519lErPBwmAfZmApRStdAD1v1xlcb8uv9WXS1uPlbu/42
+2YE+O9HUMSI7xdhMqevPSD/RhSfX1H07d3kmJ599rV2UUB43uUVcB9QiyHQ9yiLI
+zvA9BeeTWCzZvnRrU23U
+=s73a
+-----END PGP SIGNATURE-----
+
+--E13BgyNx05feLLmH--
