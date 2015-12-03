@@ -1,64 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: emev2: add slave support
-Date: Thu, 3 Dec 2015 22:03:39 +0100
-Message-ID: <20151203210339.GD8509@katana>
-References: <1448842558-18654-1-git-send-email-niklas.soderlund@ragnatech.se>
- <1448842558-18654-2-git-send-email-niklas.soderlund@ragnatech.se>
+Subject: Re: [PATCH 14/28] i2c: eg20t: allow build on MIPS platforms
+Date: Thu, 3 Dec 2015 22:05:54 +0100
+Message-ID: <20151203210554.GE8509@katana>
+References: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
+ <1448900513-20856-15-git-send-email-paul.burton@imgtec.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SFyWQ0h3ruR435lw"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36124 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753839AbbLCVDn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 3 Dec 2015 16:03:43 -0500
+        protocol="application/pgp-signature"; boundary="hwvH6HDNit2nSK4j"
+Return-path: <linux-mips-bounce@linux-mips.org>
 Content-Disposition: inline
-In-Reply-To: <1448842558-18654-2-git-send-email-niklas.soderlund@ragnatech.se>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1448900513-20856-15-git-send-email-paul.burton@imgtec.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Paul Burton <paul.burton@imgtec.com>
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
-Cc: linux-i2c@vger.kernel.org, ian.molton@codethink.co.uk, laurent.pinchart@ideasonboard.com, magnus.damm@gmail.com, linux-sh@vger.kernel.org
 
 
---SFyWQ0h3ruR435lw
-Content-Type: text/plain; charset=utf-8
+--hwvH6HDNit2nSK4j
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 30, 2015 at 01:15:58AM +0100, Niklas S=C3=B6derlund wrote:
-> Add I2C slave provider using the generic slave interface.
+On Mon, Nov 30, 2015 at 04:21:39PM +0000, Paul Burton wrote:
+> Allow the eg20t I2C driver to be built for MIPS platforms, in
+> preparation for use on the MIPS Boston board.
 >=20
-> Signed-off-by: Niklas S=C3=B6derlund <niklas.soderlund@ragnatech.se>
+> Signed-off-by: Paul Burton <paul.burton@imgtec.com>
 
-Looks mostly fine. Sparse says:
-
-    SPARSE
-drivers/i2c/busses/i2c-emev2.c:267:25: warning: mixing declarations and code
-drivers/i2c/busses/i2c-emev2.c:289:25: warning: mixing declarations and code
-
-Please fix.
+Applied to for-next, thanks!
 
 
---SFyWQ0h3ruR435lw
+--hwvH6HDNit2nSK4j
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWYK4rAAoJEBQN5MwUoCm2+DUP/jdV2s72ywTC2UgciPonA5d8
-9LBPPq9p2Guh8rowfTTH+E6//whz1CvIGWRZCzMD+Va5OqSzys2+Uo2vsyzhW3cy
-E49T/H25fsz9VMUMMKHFX95FHnJqhow36B2T9lFi4Abqh322Du7kmtaNPNIpzqSW
-VvvHaYGjMQQ8NWUHpzEpSTQtxk2JOIm3fl5tIe7ckIAI7YUb+Q9NF75BDNyQhRZ1
-+UYc/nGuv2E/KWyLB2Cu6hYboW41QhKCdn2YA34+lffUDNbDb994M5mh0zJZq8ke
-0sLT2VCrK+M8NfIFiefchT5hDRk9UXl21JuGvz7NhDNT6+ptRb+wiKsU8NEM6Y8M
-qdb7sxQsCsVqC5t7hQqCcdUCjp4d2W+K1EdwQNi2WpQqNnkHxYwR3Tsa+EiYxpNw
-9omh9/bBZ5au3m+fWaQ2PCkq2mJaYhIIVxbvTYrNm/VWHdbzPdLMtnP9dtcPKQUF
-t+7N9K7BWIv+7hYURlFRmwTqLbuMR85sXdSTMvbFzIB2PPz+LUrJ28hTtqL2u2gY
-0PpAJQoucY6df1J8+zt612skbYH4sQ0pMKwa6D4Vvg1tbWNNG3ivjtvMJo8Vdsf6
-ik4dUUFYQf6VJu1adeHRYiXczDK5BXb4RFt5bTFnd4RJjPX7PUWOVlNeRcd2CHRu
-jsJqCWc+tncEcVhrtikp
-=GltJ
+iQIcBAEBAgAGBQJWYK6yAAoJEBQN5MwUoCm2QAIQAJD9Ov4gGYRg5xXYol7lYiKd
+jmJTxDQnIn3hI9QuRt2+06vrpTwsAZxmm/f022gnnnYUb3IFih5ZOfVIlbAHoS2n
+PfDAPyTT+IlWJpHoKnmW6Asb9SXRwW2B035oTYEIVbX1BC7NH8ZIqKcr5X3ovtyH
+6nX3ba0rL3uG7rcYWLsvyb/fK8D/pt0G9V/s3NF0cZaymgabUi81hH4aKiJDBkts
+F43vVoW7FdnJXx5HPEVjrnE3Tv+w18sYVBAuXDazfzUwz4Ht47UYDjEFCWSE+zps
+Nf7GpPYKQpZO9eTnX4AKByuo7kX9vvH/GmcUpgGPwzbo+zIqyWU/mviY/qv+lC1N
+wrNqOROZfB3OZpjzwBZ+VOeaaryjD2VepemTyycVK59AWEFZwPviikeYuhBQJygR
+EhdgLyV0qbRadlYte6lkfpVOhYw9zBXVzjiI5ZyYzIyFWEQ/kPv8JlppVOowGeyH
+ima6NPLd1PZau81mUDoET7FsFwAPiejb/O2d2MZV8T95mbHaxySYnoFyXARNp5wR
+Mt/Vw+0N4uCmXO+BpAXOla6o+roiLsSSY7kDLOC06fJ7aEFcSG92h5ItrprGjeoI
+6Lf2c4iaObsRu0vqaSk+VHlCY1XErWh60tSAHlmXHxOQEwkyqKv0mkY0y1E+pe5p
++KVCzY3HNTb1NaozS2vC
+=5nrn
 -----END PGP SIGNATURE-----
 
---SFyWQ0h3ruR435lw--
+--hwvH6HDNit2nSK4j--
