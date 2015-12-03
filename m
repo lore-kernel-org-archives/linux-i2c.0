@@ -1,67 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 3/4] ARM: at91/dt: sama5d4: update i2c compatible
- string
-Date: Thu, 3 Dec 2015 21:45:32 +0100
-Message-ID: <20151203204532.GB8509@katana>
-References: <1449136434-27619-1-git-send-email-ludovic.desroches@atmel.com>
- <1449136434-27619-5-git-send-email-ludovic.desroches@atmel.com>
- <56601A74.3040507@atmel.com>
+Subject: Re: [PATCH RESEND] i2c: Remove setting for 1 second timeout from
+ adapter drivers
+Date: Thu, 3 Dec 2015 21:52:28 +0100
+Message-ID: <20151203205228.GC8509@katana>
+References: <1449054154-32273-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+	protocol="application/pgp-signature"; boundary="TiqCXmo5T1hvSQQg"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:36011 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:36058 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752369AbbLCUpj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 3 Dec 2015 15:45:39 -0500
+	id S1754315AbbLCUwc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 3 Dec 2015 15:52:32 -0500
 Content-Disposition: inline
-In-Reply-To: <56601A74.3040507@atmel.com>
+In-Reply-To: <1449054154-32273-1-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: Ludovic Desroches <ludovic.desroches@atmel.com>, alexandre.belloni@free-electrons.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org
 
 
---7iMSBzlTiPOCCT2k
-Content-Type: text/plain; charset=utf-8
+--TiqCXmo5T1hvSQQg
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 03, 2015 at 11:33:24AM +0100, Nicolas Ferre wrote:
-> Le 03/12/2015 10:53, Ludovic Desroches a =C3=A9crit :
-> > A new compatible string has been introduced: atmel,sama5d4-i2c. It
-> > allows to use the i2c-sda-hold-time-ns property if needed.
-> >=20
-> > Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+On Wed, Dec 02, 2015 at 01:02:34PM +0200, Jarkko Nikula wrote:
+> I2C adapter drivers that are using 1 second timeout can leave the timeout
+> unset and let the i2c-core.c: i2c_register_adapter() to set it instead.
 >=20
-> Wolfram, we'll take this one with us in the at91 branches that will go
-> into arm-soc. It'll be queued in at91-4.5-dt branch soon.
->=20
-> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-I squashed patch 1+2 now and applied them to for-next, thanks!
+My take on this is that I prefer the explicit (and thus visible)
+assignment. What the core does was intended as a fallback to prevent
+strange things happening with a 0 value.
 
 
---7iMSBzlTiPOCCT2k
+--TiqCXmo5T1hvSQQg
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWYKnsAAoJEBQN5MwUoCm2hY8P/AnNOkbYa0c15rrENCh5lI+g
-B6QqmGT/N0VGfYk68u6RqafygOHwhMy2fwEkH/UhlYXpkOshsnVWdvO+pWf5thIX
-viWI34a5e6vO4ES85sHuAVu1S9RFYtjZuCGfC+oH1fd9uD1YR/nGsB8T4LWg02mk
-NbUMtmRUeq/72qowmM0uVKRUEU6C/UyQKD/zaJ93wrxYchxAOVpJ3u+3E5m16rxa
-f6bi7MvP+WZjArGUcz2q6iRK7zBUnEOE8kmP6nseD6txC67Gu48eawHQ7voIT6/w
-fut6LpwCigoZc3HGA/vbTiZEBtHlgEJAxA1kfWBoT8Qh7l1I8KLpbkNf9/DFY8EO
-7ahivSYZ4GbML1XzyzXggy1AcXLcuJWoAdtVZA8hRhiRVNzbzlxT5MnLbPQiUNo2
-UlqkZeq0Tdr3mcDZbE8pec5YihwL60ItOygGADxUDjhf5xJC0Mr6MDlSuLrl2mfL
-Kb9ivfeqsQ3XPTDe2hezA2q/F9BTxuNuWt9bjVAzMCjR5F4eawxvChO3eXY9V9u7
-qotkal8xWu1F0DN0uvmnI4WfV4u4OR2Cc7KiZjW/jrRQQdtEaAmoG9B7Cupe/vJp
-69rNwiTy3uHe6vtdOz4r8axRqspGW3QDpEOeb5vuH+ByuGIGrmaEk2t61l7QuEAw
-+rPcklkEN/nlHVFpbatS
-=JHI/
+iQIcBAEBAgAGBQJWYKuMAAoJEBQN5MwUoCm2eF8P/2v86758tuZNs9tlES410kY0
+PY0j/nPQCR+DmG/W/78lolfcxuKx86mpXOQRKB6Dlx9mc2kVFfjwEtVo8D2dum9h
+VMxjY3gPLirgUgLMzdB3R4DnmTBKXMm+Y6HkimiSq2rxV1rojuQyow7HqPl90hV7
+NLg2MfGv/0Mbk7lRQNe3wd++MJmDAIGV7J796STg3+pJLsCC9uLxR38IuWsR/STV
+bAbZIJAQ6pUYTs/BrZCOs1SOc0FLoEsQW0IDD7upGdlDX1FTf+ndZIUzQCU1iEsM
+Sj37haqKjw4d3CFcrSywRNs3I5x6oaOKtpiqV8zf2Gz16BXNle5/lld1kxoKZi8Y
+d07de60S/96TpRZVHM0Klz/IO81UmUBNcG+TD56fgiWVR9P9KS/r9FxiBK0XN1ha
+xjjz/UUmfl6IkMNj8vg72v4TxmQpRSh2269oM789JMs/pZt9xNabK2nmUSb0l38p
+hYE6flvdyzGSC3P9w7LzYK8cS0HplL7i4wd69oAMaFakq0luCa93JvNNdxe88fJK
+KUVJy3Fmf5JLZ38R88u8XR4y+XHSwnOt1roTXRSt/YhrFDASopSL3HFNnDepLXyA
+T16vBril5frMckbW3E0xChHi6BO9YvSs8ubtWdeo6wjWEG9rxIM/5chtB9XkiwSH
+bnofwayL6OS9UESADkpb
+=6MHA
 -----END PGP SIGNATURE-----
 
---7iMSBzlTiPOCCT2k--
+--TiqCXmo5T1hvSQQg--
