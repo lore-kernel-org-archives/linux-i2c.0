@@ -1,90 +1,76 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5/9] i2c: rcar: honor additional i2c timings from DT
-Date: Thu,  3 Dec 2015 16:51:35 +0100
-Message-ID: <1449157899-6572-6-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 1/9] i2c: document generic DT bindings for timing parameters
+Date: Thu,  3 Dec 2015 16:51:31 +0100
+Message-ID: <1449157899-6572-2-git-send-email-wsa@the-dreams.de>
 References: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1449157899-6572-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Also, sort the properties alphabetically and make indentation
+consistent. Wording largely taken from i2c-rk3x.txt, thanks guys!
+
+Only "i2c-scl-internal-delay-ns" is new, the rest is used by two drivers
+already and was documented in their driver binding documentation.
+
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 ---
- Documentation/devicetree/bindings/i2c/i2c-rcar.txt |  4 ++++
- drivers/i2c/busses/i2c-rcar.c                      | 21 ++++++++++++---------
- 2 files changed, 16 insertions(+), 9 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c.txt | 31 ++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-index ea406eb20fa5ad..95e97223a71c83 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-@@ -20,6 +20,10 @@ Optional properties:
-   propoerty indicates the default frequency 100 kHz.
- - clocks: clock specifier.
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+index 8a99150ac3a7fd..a00219f5ee0733 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -29,12 +29,33 @@ Optional properties
+ These properties may not be supported by all drivers. However, if a driver
+ wants to support one of the below features, it should adapt the bindings below.
  
-+- i2c-scl-falling-time-ns: see i2c.txt
-+- i2c-scl-internal-delay-ns: see i2c.txt
-+- i2c-scl-rising-time-ns: see i2c.txt
+-- clock-frequency	- frequency of bus clock in Hz.
+-- wakeup-source		- device can be used as a wakeup source.
++- clock-frequency
++	frequency of bus clock in Hz.
+ 
+-- interrupts		- interrupts used by the device.
+-- interrupt-names	- "irq" and "wakeup" names are recognized by I2C core,
+-			  other names are left to individual drivers.
++- i2c-scl-falling-time-ns
++	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
++	specification.
 +
- Examples :
++- i2c-scl-internal-delay-ns
++	Number of nanoseconds the IP core additionally needs to setup SCL.
++
++- i2c-scl-rising-time-ns
++	Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
++	specification.
++
++- i2c-sda-falling-time-ns
++	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
++	specification.
++
++- interrupts
++	interrupts used by the device.
++
++- interrupt-names
++	"irq" and "wakeup" names are recognized by I2C core, other names are
++	left to individual drivers.
++
++- wakeup-source
++	device can be used as a wakeup source.
  
- i2c0: i2c@e6508000 {
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 05274fda57eb08..cd1796e51764ee 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -164,12 +164,15 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
- 
- static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
- {
--	u32 scgd, cdf, round, ick, scl, cdf_width;
-+	u32 scgd, cdf, round, ick, sum, scl, cdf_width;
- 	unsigned long rate;
- 	struct device *dev = rcar_i2c_priv_to_dev(priv);
- 
- 	/* Fall back to previously used values if not supplied */
- 	t->bus_freq_hz = t->bus_freq_hz ?: 100000;
-+	t->scl_fall_ns = t->scl_fall_ns ?: 35;
-+	t->scl_rise_ns = t->scl_rise_ns ?: 200;
-+	t->scl_int_delay_ns = t->scl_int_delay_ns ?: 50;
- 
- 	switch (priv->devtype) {
- 	case I2C_RCAR_GEN1:
-@@ -193,9 +196,9 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
- 	 * SCL	= ick / (20 + SCGD * 8 + F[(ticf + tr + intd) * ick])
- 	 *
- 	 * ick  : I2C internal clock < 20 MHz
--	 * ticf : I2C SCL falling time  =  35 ns here
--	 * tr   : I2C SCL rising  time  = 200 ns here
--	 * intd : LSI internal delay    =  50 ns here
-+	 * ticf : I2C SCL falling time
-+	 * tr   : I2C SCL rising  time
-+	 * intd : LSI internal delay
- 	 * clkp : peripheral_clk
- 	 * F[]  : integer up-valuation
- 	 */
-@@ -211,12 +214,12 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
- 	 * it is impossible to calculate large scale
- 	 * number on u32. separate it
- 	 *
--	 * F[(ticf + tr + intd) * ick]
--	 *  = F[(35 + 200 + 50)ns * ick]
--	 *  = F[285 * ick / 1000000000]
--	 *  = F[(ick / 1000000) * 285 / 1000]
-+	 * F[(ticf + tr + intd) * ick] with sum = (ticf + tr + intd)
-+	 *  = F[sum * ick / 1000000000]
-+	 *  = F[(ick / 1000000) * sum / 1000]
- 	 */
--	round = (ick + 500000) / 1000000 * 285;
-+	sum = t->scl_fall_ns + t->scl_rise_ns + t->scl_int_delay_ns;
-+	round = (ick + 500000) / 1000000 * sum;
- 	round = (round + 500) / 1000;
- 
- 	/*
+ Binding may contain optional "interrupts" property, describing interrupts
+ used by the device. I2C core will assign "irq" interrupt (or the very first
 -- 
 2.1.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
