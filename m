@@ -1,61 +1,134 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 5/9] i2c: rcar: honor additional i2c timings from DT
-Date: Thu, 3 Dec 2015 11:59:00 +0100
-Message-ID: <20151203105900.GC1545@katana>
-References: <1448578757-12613-1-git-send-email-wsa@the-dreams.de>
- <1448578757-12613-6-git-send-email-wsa@the-dreams.de>
- <CAMuHMdU1fWjH2Lv00W2uxRW7-XGp1YaEoA4Ftq5o6yk6WamCBQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="E13BgyNx05feLLmH"
+Subject: [PATCH 2/9] i2c: add generic routine to parse DT for timing information
+Date: Thu,  3 Dec 2015 16:51:32 +0100
+Message-ID: <1449157899-6572-3-git-send-email-wsa@the-dreams.de>
+References: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdU1fWjH2Lv00W2uxRW7-XGp1YaEoA4Ftq5o6yk6WamCBQ@mail.gmail.com>
+In-Reply-To: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---E13BgyNx05feLLmH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Inspired from the i2c-rk3x driver (thanks guys!) but refactored and
+extended. See built-in docs for further information.
 
-Hi Geert,
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/i2c-core.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    | 22 ++++++++++++++++++++++
+ 2 files changed, 72 insertions(+)
 
-> > -       round =3D (ick + 500000) / 1000000 * 285;
-> > +       sum =3D t->scl_fall_ns + t->scl_rise_ns + t->scl_int_delay_ns;
-> > +       round =3D (ick + 500000) / 1000000 * sum;
->=20
-> If you're sure it cannot overflow, doing the "* sum" before the division
-> improves accuracy.
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index ba8eb087f22465..5c269dd51b2de7 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1438,6 +1438,56 @@ static void of_i2c_register_devices(struct i2c_adapter *adap)
+ 	}
+ }
+ 
++/**
++ * of_i2c_parse_timings - get I2C related timing parameters from DT
++ * @node: The DT node to scan for I2C timing properties
++ * @t: the i2c_timings struct to be filled with values
++ * @use_defaults: bool to use sane defaults derived from the I2C specification
++ * 		  when properties are not found, otherwise use 0
++ *
++ * Scan the node pointer for the generic I2C DT properties describing timing
++ * parameters for the signal and fill the given struct with the results. If a
++ * property was not found and use_defaults was true, then maximum timings are
++ * assumed which are derived from the I2C specification. If use_defaults is not
++ * used, the result will be 0, so drivers can apply their own defaults later.
++ * The latter is mainly intended for avoiding regressions of existing drivers
++ * which want to switch to this function. New drivers almost always should use
++ * the defaults.
++ */
++void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults)
++{
++	memset(t, 0, sizeof(*t));
++
++	if (of_property_read_u32(node, "clock-frequency", &t->bus_freq_hz) && use_defaults)
++		t->bus_freq_hz = 100000;
++
++	/*
++	 * Read rise and fall time from device tree. If not available, use
++	 * the default maximum timing from the specification.
++	 */
++	if (of_property_read_u32(node, "i2c-scl-rising-time-ns", &t->scl_rise_ns) && use_defaults) {
++		if (t->bus_freq_hz <= 100000)
++			t->scl_rise_ns = 1000;
++		else if (t->bus_freq_hz <= 400000)
++			t->scl_rise_ns = 300;
++		else
++			t->scl_rise_ns = 120;
++	}
++
++	if (of_property_read_u32(node, "i2c-scl-falling-time-ns", &t->scl_fall_ns) && use_defaults) {
++		if (t->bus_freq_hz <= 400000)
++			t->scl_fall_ns = 300;
++		else
++			t->scl_fall_ns = 120;
++	}
++
++	of_property_read_u32(node, "i2c-scl-internal-delay-ns", &t->scl_int_delay_ns);
++
++	if (of_property_read_u32(node, "i2c-sda-falling-time-ns", &t->sda_fall_ns) && use_defaults)
++		t->sda_fall_ns = t->scl_fall_ns;
++}
++EXPORT_SYMBOL_GPL(of_i2c_parse_timings);
++
+ static int of_dev_node_match(struct device *dev, void *data)
+ {
+ 	return dev->of_node == data;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 768063baafbf5e..c3f53666df117e 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -414,6 +414,22 @@ struct i2c_algorithm {
+ };
+ 
+ /**
++ * struct i2c_timings - I2C timing information
++ * @bus_freq_hz: the bus frequency in Hz
++ * @scl_rise_ns: time SCL signal takes to rise in ns; t(r) in the I2C specification
++ * @scl_fall_ns: time SCL signal takes to fall in ns; t(f) in the I2C specification
++ * @scl_int_delay_ns: time IP core additionally needs to setup SCL in ns
++ * @sda_fall_ns: time SDA signal takes to fall in ns; t(f) in the I2C specification
++ */
++struct i2c_timings {
++	u32 bus_freq_hz;
++	u32 scl_rise_ns;
++	u32 scl_fall_ns;
++	u32 scl_int_delay_ns;
++	u32 sda_fall_ns;
++};
++
++/**
+  * struct i2c_bus_recovery_info - I2C bus recovery information
+  * @recover_bus: Recover routine. Either pass driver's recover_bus() routine, or
+  *	i2c_generic_scl_recovery() or i2c_generic_gpio_recovery().
+@@ -644,6 +660,8 @@ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+ 
+ /* must call i2c_put_adapter() when done with returned i2c_adapter device */
+ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node);
++
++void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults);
+ #else
+ 
+ static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+@@ -660,6 +678,10 @@ static inline struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node
+ {
+ 	return NULL;
+ }
++
++static inline void of_i2c_parse_timings(struct device_node *node, struct i2c_timings *t, bool use_defaults)
++{
++}
+ #endif /* CONFIG_OF */
+ 
+ #endif /* _LINUX_I2C_H */
+-- 
+2.1.4
 
-Thanks for the input. In this patch, however, I intentionally did not
-change the formula but only replaced the constants with the now user
-supplied values. Everything else should be a separate patch IMO.
-
-
---E13BgyNx05feLLmH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWYCB0AAoJEBQN5MwUoCm2OmMP/ixyleN7YiG/VR8YM0b6fCrs
-goF09EwDh/QR7ylG0S4AVY4VHeZWM7djiei86VuxRjH86LmwU5RhiyklcRNrrtKV
-OpnDRbPn3CcZDG6xev1FY8A7tvQFI6NT11ZEliVibuWPFd+7CcY3ZDuMEUAgGyt6
-FGnR1lLo91umSmqIyTss9G0EypJyKu9A/aFxGoWYaa6EzsZlNEHtRCndeyK2lGQl
-RqtSsjgOBxs4WTe0nbFm+0nmW6HAb3oOxuV86egCnZlRfaT4acLzlP1jaTHZm+4i
-67SbTmqKT40Z31CfpQljjCeb4jiQkpVXzUcWLGT5Oq0LvAJ1uQ0Qb63tgQfO99XD
-TwWLjMPCE12SKXQfu9JOLqP2d3aRW5IflGAOvr6gq3CsfdTcvB56YN1meD/n4D84
-5phhHym2GqVW45VihDe1r6xBRD6TmmnCNPd6+JucXXhfTJRoWEZvq/HZ9aeCWQjS
-hl49LSIinUCDABUWq1SAx9n3fVS26DOSXDgLeby0Ta2cbmweTjXFfw/9S3dBXF9a
-PU85o1Ct3ujZW3b3pwC519lErPBwmAfZmApRStdAD1v1xlcb8uv9WXS1uPlbu/42
-2YE+O9HUMSI7xdhMqevPSD/RhSfX1H07d3kmJ599rV2UUB43uUVcB9QiyHQ9yiLI
-zvA9BeeTWCzZvnRrU23U
-=s73a
------END PGP SIGNATURE-----
-
---E13BgyNx05feLLmH--
