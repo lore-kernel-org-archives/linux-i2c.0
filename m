@@ -1,76 +1,82 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 1/9] i2c: document generic DT bindings for timing parameters
-Date: Thu,  3 Dec 2015 16:51:31 +0100
-Message-ID: <1449157899-6572-2-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 9/9] arm64: renesas: r8a7795: add internal delay for i2c IPs
+Date: Thu,  3 Dec 2015 16:51:39 +0100
+Message-ID: <1449157899-6572-10-git-send-email-wsa@the-dreams.de>
 References: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1449157899-6572-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Also, sort the properties alphabetically and make indentation
-consistent. Wording largely taken from i2c-rk3x.txt, thanks guys!
-
-Only "i2c-scl-internal-delay-ns" is new, the rest is used by two drivers
-already and was documented in their driver binding documentation.
-
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c.txt | 31 ++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-index 8a99150ac3a7fd..a00219f5ee0733 100644
---- a/Documentation/devicetree/bindings/i2c/i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-@@ -29,12 +29,33 @@ Optional properties
- These properties may not be supported by all drivers. However, if a driver
- wants to support one of the below features, it should adapt the bindings below.
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+index 56d6a5b23a4e38..b02a7ad1583933 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+@@ -519,6 +519,7 @@
+ 			interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 931>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <110>;
+ 			status = "disabled";
+ 		};
  
--- clock-frequency	- frequency of bus clock in Hz.
--- wakeup-source		- device can be used as a wakeup source.
-+- clock-frequency
-+	frequency of bus clock in Hz.
+@@ -530,6 +531,7 @@
+ 			interrupts = <GIC_SPI 288 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 930>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <6>;
+ 			status = "disabled";
+ 		};
  
--- interrupts		- interrupts used by the device.
--- interrupt-names	- "irq" and "wakeup" names are recognized by I2C core,
--			  other names are left to individual drivers.
-+- i2c-scl-falling-time-ns
-+	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
-+	specification.
-+
-+- i2c-scl-internal-delay-ns
-+	Number of nanoseconds the IP core additionally needs to setup SCL.
-+
-+- i2c-scl-rising-time-ns
-+	Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
-+	specification.
-+
-+- i2c-sda-falling-time-ns
-+	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
-+	specification.
-+
-+- interrupts
-+	interrupts used by the device.
-+
-+- interrupt-names
-+	"irq" and "wakeup" names are recognized by I2C core, other names are
-+	left to individual drivers.
-+
-+- wakeup-source
-+	device can be used as a wakeup source.
+@@ -541,6 +543,7 @@
+ 			interrupts = <GIC_SPI 286 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 929>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <6>;
+ 			status = "disabled";
+ 		};
  
- Binding may contain optional "interrupts" property, describing interrupts
- used by the device. I2C core will assign "irq" interrupt (or the very first
+@@ -552,6 +555,7 @@
+ 			interrupts = <GIC_SPI 290 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 928>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <110>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -563,6 +567,7 @@
+ 			interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 927>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <110>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -574,6 +579,7 @@
+ 			interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 919>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <110>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -585,6 +591,7 @@
+ 			interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 918>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <6>;
+ 			status = "disabled";
+ 		};
+ 
 -- 
 2.1.4
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
