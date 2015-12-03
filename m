@@ -1,61 +1,85 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: piix4: remove unneeded assignments
-Date: Thu, 3 Dec 2015 21:37:34 +0100
-Message-ID: <20151203203734.GA8509@katana>
-References: <1448890989-32733-1-git-send-email-wsa@the-dreams.de>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/9] i2c: document generic DT bindings for timing
+ parameters
+Date: Thu, 3 Dec 2015 14:39:08 -0600
+Message-ID: <20151203203908.GA29831@rob-hp-laptop>
+References: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
+ <1449157899-6572-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35947 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753639AbbLCUhk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 3 Dec 2015 15:37:40 -0500
-Content-Disposition: inline
-In-Reply-To: <1448890989-32733-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Christian Fetzer <fetzer.ch@gmail.com>
-
-
---FCuugMFkClbJLl1L
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1449157899-6572-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, devicetree@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 30, 2015 at 02:43:09PM +0100, Wolfram Sang wrote:
-> smatch rightfully says:
-> drivers/i2c/busses/i2c-piix4.c:504 piix4_access warn: unused return: i =
-=3D inb_p()
-> drivers/i2c/busses/i2c-piix4.c:537 piix4_access warn: unused return: i =
-=3D inb_p()
->=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+On Thu, Dec 03, 2015 at 04:51:31PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> Also, sort the properties alphabetically and make indentation
+> consistent. Wording largely taken from i2c-rk3x.txt, thanks guys!
+> 
+> Only "i2c-scl-internal-delay-ns" is new, the rest is used by two drivers
+> already and was documented in their driver binding documentation.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Cc: devicetree@vger.kernel.org
 
-Applied to for-next, thanks!
+Acked-by: Rob Herring <robh@kernel.org>
 
-
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWYKgOAAoJEBQN5MwUoCm2tegQAJNnATz0p9xUbdui9fP3bGO0
-tlL9qbZiyudT5O+tcUzFhoktPuRtOXXmrJNjDyyvSIwNvNozepGVkeHzvlDQGVOn
-tG3zv35hu3Gh2COEv7vB/XkAQxbVrv6ziSv3N3sOO0bByKdezY8jBFG62YWiioQn
-F/W2x5JhqnCvB83w2iXqRBzszM7Cc1CW/oPiG0jlbf60I50aFC5iDHEdD9FYFZj0
-Fom2vNAHjh8KSsAZ0VleRCiu+ZAi8S26bAGulSPRUKGreE5JL8hfeEI0OedA/4iP
-Bw5zlQC2xd9tDGpx0A8Ut9wvqzlX1WN4IAOifKSHeCtrRsy9Kaa8TLCfFNTcNMe+
-uoJKaW3mU4P/Ha60fYdE2hQAXJ2Zvny6T+RuRdguvq1yNa+8HAbL5Q7Fn5yRBO3B
-e02qHlKlvl6Lc+5tj724mnSs0rEuf5J+Fo9/I5OYuhYMMyrmJFT6n/IsgTShdRoB
-IE9MyuNOk+OEDawdQ8FkpaYdONV5NW2+qoO62LRP4dJoftkgKZxipzgUp3F8+JQD
-jJzrbbOnmsUinV9Z8bp2UKZ93NrtcGsyy/TsdAtEVlVgFuMXZ+Mb/NIOuAz/k+oI
-k2EClqg/BOTuqvwXsr1Q+mp1sfuuK7V8EqnYNYSbPc1PkELRVB+xcQKXWwlrWqOl
-RUygStty/FrCSDzBF6QV
-=+dJe
------END PGP SIGNATURE-----
-
---FCuugMFkClbJLl1L--
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c.txt | 31 ++++++++++++++++++++++-----
+>  1 file changed, 26 insertions(+), 5 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+> index 8a99150ac3a7fd..a00219f5ee0733 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> @@ -29,12 +29,33 @@ Optional properties
+>  These properties may not be supported by all drivers. However, if a driver
+>  wants to support one of the below features, it should adapt the bindings below.
+>  
+> -- clock-frequency	- frequency of bus clock in Hz.
+> -- wakeup-source		- device can be used as a wakeup source.
+> +- clock-frequency
+> +	frequency of bus clock in Hz.
+>  
+> -- interrupts		- interrupts used by the device.
+> -- interrupt-names	- "irq" and "wakeup" names are recognized by I2C core,
+> -			  other names are left to individual drivers.
+> +- i2c-scl-falling-time-ns
+> +	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
+> +	specification.
+> +
+> +- i2c-scl-internal-delay-ns
+> +	Number of nanoseconds the IP core additionally needs to setup SCL.
+> +
+> +- i2c-scl-rising-time-ns
+> +	Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
+> +	specification.
+> +
+> +- i2c-sda-falling-time-ns
+> +	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
+> +	specification.
+> +
+> +- interrupts
+> +	interrupts used by the device.
+> +
+> +- interrupt-names
+> +	"irq" and "wakeup" names are recognized by I2C core, other names are
+> +	left to individual drivers.
+> +
+> +- wakeup-source
+> +	device can be used as a wakeup source.
+>  
+>  Binding may contain optional "interrupts" property, describing interrupts
+>  used by the device. I2C core will assign "irq" interrupt (or the very first
+> -- 
+> 2.1.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
