@@ -1,75 +1,84 @@
 From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [PATCH v2 2/4] i2c: at91: update bindings documention
-Date: Thu, 3 Dec 2015 11:32:01 +0100
-Message-ID: <56601A21.4030900@atmel.com>
+Subject: Re: [PATCH v2 3/4] ARM: at91/dt: sama5d4: update i2c compatible string
+Date: Thu, 3 Dec 2015 11:33:24 +0100
+Message-ID: <56601A74.3040507@atmel.com>
 References: <1449136434-27619-1-git-send-email-ludovic.desroches@atmel.com>
- <1449136434-27619-4-git-send-email-ludovic.desroches@atmel.com>
+ <1449136434-27619-5-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:30839 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759618AbbLCKbn (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Dec 2015 05:31:43 -0500
-In-Reply-To: <1449136434-27619-4-git-send-email-ludovic.desroches@atmel.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1449136434-27619-5-git-send-email-ludovic.desroches@atmel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Ludovic Desroches <ludovic.desroches@atmel.com>, wsa@the-dreams.de, alexandre.belloni@free-electrons.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Cc: devicetree@vger.kernel.org, plagnioj@jcrosoft.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 Le 03/12/2015 10:53, Ludovic Desroches a =E9crit :
-> The i2c-sda-hold-time-ns property is supported from atmel,sama5d4-i2c=
-=2E
->=20
+> A new compatible string has been introduced: atmel,sama5d4-i2c. It
+> allows to use the i2c-sda-hold-time-ns property if needed.
+> =
+
 > Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-> Acked-by: Rob Herring <robh@kernel.org>
+
+Wolfram, we'll take this one with us in the at91 branches that will go
+into arm-soc. It'll be queued in at91-4.5-dt branch soon.
 
 Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
 
+
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-at91.txt | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
->=20
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Doc=
-umentation/devicetree/bindings/i2c/i2c-at91.txt
-> index 6e81dc1..ef973a0 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-> @@ -3,7 +3,7 @@ I2C for Atmel platforms
->  Required properties :
->  - compatible : Must be "atmel,at91rm9200-i2c", "atmel,at91sam9261-i2=
-c",
->       "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sa=
-m9g10-i2c",
-> -     "atmel,at91sam9x5-i2c" or "atmel,sama5d2-i2c"
-> +     "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c" or "atmel,sama5d2-i=
-2c"
->  - reg: physical base address of the controller and length of memory =
-mapped
->       region.
->  - interrupts: interrupt number to the cpu.
-> @@ -17,6 +17,8 @@ Optional properties:
->  - dma-names: should contain "tx" and "rx".
->  - atmel,fifo-size: maximum number of data the RX and TX FIFOs can st=
-ore for FIFO
->    capable I2C controllers.
-> +- i2c-sda-hold-time-ns: TWD hold time, only available for "atmel,sam=
-a5d4-i2c"
-> +  and "atmel,sama5d2-i2c".
->  - Child nodes conforming to i2c bus binding
-> =20
->  Examples :
-> @@ -52,6 +54,7 @@ i2c0: i2c@f8034600 {
->  	#size-cells =3D <0>;
->  	clocks =3D <&flx0>;
->  	atmel,fifo-size =3D <16>;
-> +	i2c-sda-hold-time-ns =3D <336>;
-> =20
->  	wm8731: wm8731@1a {
->  		compatible =3D "wm8731";
->=20
+>  arch/arm/boot/dts/sama5d4.dtsi | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> =
+
+> diff --git a/arch/arm/boot/dts/sama5d4.dtsi b/arch/arm/boot/dts/sama5d4.d=
+tsi
+> index 2193637..83d7e7c 100644
+> --- a/arch/arm/boot/dts/sama5d4.dtsi
+> +++ b/arch/arm/boot/dts/sama5d4.dtsi
+> @@ -916,7 +916,7 @@
+>  			};
+>  =
+
+>  			i2c0: i2c@f8014000 {
+> -				compatible =3D "atmel,at91sam9x5-i2c";
+> +				compatible =3D "atmel,sama5d4-i2c";
+>  				reg =3D <0xf8014000 0x4000>;
+>  				interrupts =3D <32 IRQ_TYPE_LEVEL_HIGH 6>;
+>  				dmas =3D <&dma1
+> @@ -935,7 +935,7 @@
+>  			};
+>  =
+
+>  			i2c1: i2c@f8018000 {
+> -				compatible =3D "atmel,at91sam9x5-i2c";
+> +				compatible =3D "atmel,sama5d4-i2c";
+>  				reg =3D <0xf8018000 0x4000>;
+>  				interrupts =3D <33 IRQ_TYPE_LEVEL_HIGH 6>;
+>  				dmas =3D <&dma1
+> @@ -975,7 +975,7 @@
+>  			};
+>  =
+
+>  			i2c2: i2c@f8024000 {
+> -				compatible =3D "atmel,at91sam9x5-i2c";
+> +				compatible =3D "atmel,sama5d4-i2c";
+>  				reg =3D <0xf8024000 0x4000>;
+>  				interrupts =3D <34 IRQ_TYPE_LEVEL_HIGH 6>;
+>  				dmas =3D <&dma1
+> =
 
 
---=20
+
+-- =
+
 Nicolas Ferre
