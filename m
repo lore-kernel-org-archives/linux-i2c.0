@@ -1,36 +1,174 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: [PATCH v2 0/4] i2c: at91: add support for SDA HOLD
-Date: Thu, 3 Dec 2015 10:53:49 +0100
-Message-ID: <1449136434-27619-1-git-send-email-ludovic.desroches@atmel.com>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2 1/4] i2c: at91: add support for the HOLD field
+Date: Thu, 3 Dec 2015 10:53:50 +0100
+Message-ID: <1449136434-27619-2-git-send-email-ludovic.desroches@atmel.com>
+References: <1449136434-27619-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:23315 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932468AbbLCJxe (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Dec 2015 04:53:34 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1449136434-27619-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, nicolas.ferre@atmel.com, alexandre.belloni@free-electrons.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>
 
-Changes:
-- from v1:
-  - fix typos,
-  - change MAX_HOLD macro to follow Nicolas' advice,
-  - make it clear that sama5d2 also support i2c-sda-hold-time-ns.
+The hold field allows to configure the data hold time which can be set
+with the help of the generic binding 'i2c-sda-hold-time-ns'. This
+feature has been introduced with SAMA5D4 SoC family.
 
-Ludovic Desroches (4):
-  i2c: at91: add support for the HOLD field
-  i2c: at91: update bindings documention
-  ARM: at91/dt: sama5d4: update i2c compatible string
-  ARM: at91/dt: sama5d2 Xplained: pmic needs a specific sda hold time
+Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-at91.c | 53 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 50 insertions(+), 3 deletions(-)
 
- Documentation/devicetree/bindings/i2c/i2c-at91.txt |  5 +-
- arch/arm/boot/dts/at91-sama5d2_xplained.dts        |  1 +
- arch/arm/boot/dts/sama5d4.dtsi                     |  6 +--
- drivers/i2c/busses/i2c-at91.c                      | 53 ++++++++++++++++++++--
- 4 files changed, 58 insertions(+), 7 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 10835d1..921d32b 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -64,6 +64,8 @@
+ #define	AT91_TWI_IADR		0x000c	/* Internal Address Register */
+ 
+ #define	AT91_TWI_CWGR		0x0010	/* Clock Waveform Generator Reg */
++#define	AT91_TWI_CWGR_HOLD_MAX	0x1f
++#define	AT91_TWI_CWGR_HOLD(x)	(((x) & AT91_TWI_CWGR_HOLD_MAX) << 24)
+ 
+ #define	AT91_TWI_SR		0x0020	/* Status Register */
+ #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
+@@ -110,6 +112,7 @@ struct at91_twi_pdata {
+ 	unsigned clk_offset;
+ 	bool has_unre_flag;
+ 	bool has_alt_cmd;
++	bool has_hold_field;
+ 	struct at_dma_slave dma_slave;
+ };
+ 
+@@ -187,10 +190,11 @@ static void at91_init_twi_bus(struct at91_twi_dev *dev)
+  */
+ static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
+ {
+-	int ckdiv, cdiv, div;
++	int ckdiv, cdiv, div, hold = 0;
+ 	struct at91_twi_pdata *pdata = dev->pdata;
+ 	int offset = pdata->clk_offset;
+ 	int max_ckdiv = pdata->clk_max_div;
++	u32 twd_hold_time_ns = 0;
+ 
+ 	div = max(0, (int)DIV_ROUND_UP(clk_get_rate(dev->clk),
+ 				       2 * twi_clk) - offset);
+@@ -204,8 +208,33 @@ static void at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
+ 		cdiv = 255;
+ 	}
+ 
+-	dev->twi_cwgr_reg = (ckdiv << 16) | (cdiv << 8) | cdiv;
+-	dev_dbg(dev->dev, "cdiv %d ckdiv %d\n", cdiv, ckdiv);
++	if (pdata->has_hold_field) {
++		of_property_read_u32(dev->dev->of_node, "i2c-sda-hold-time-ns",
++				     &twd_hold_time_ns);
++
++		/*
++		 * hold time = HOLD + 3 x T_peripheral_clock
++		 * Use clk rate in kHz to prevent overflows when computing
++		 * hold.
++		 */
++		hold = DIV_ROUND_UP(twd_hold_time_ns
++				    * (clk_get_rate(dev->clk) / 1000), 1000000);
++		hold -= 3;
++		if (hold < 0)
++			hold = 0;
++		if (hold > AT91_TWI_CWGR_HOLD_MAX) {
++			dev_warn(dev->dev,
++				 "HOLD field set to its maximum value (%d instead of %d)\n",
++				 AT91_TWI_CWGR_HOLD_MAX, hold);
++			hold = AT91_TWI_CWGR_HOLD_MAX;
++		}
++	}
++
++	dev->twi_cwgr_reg = (ckdiv << 16) | (cdiv << 8) | cdiv
++			    | AT91_TWI_CWGR_HOLD(hold);
++
++	dev_dbg(dev->dev, "cdiv %d ckdiv %d hold %d (%d ns)\n",
++		cdiv, ckdiv, hold, twd_hold_time_ns);
+ }
+ 
+ static void at91_twi_dma_cleanup(struct at91_twi_dev *dev)
+@@ -797,6 +826,7 @@ static struct at91_twi_pdata at91rm9200_config = {
+ 	.clk_offset = 3,
+ 	.has_unre_flag = true,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9261_config = {
+@@ -804,6 +834,7 @@ static struct at91_twi_pdata at91sam9261_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9260_config = {
+@@ -811,6 +842,7 @@ static struct at91_twi_pdata at91sam9260_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g20_config = {
+@@ -818,6 +850,7 @@ static struct at91_twi_pdata at91sam9g20_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g10_config = {
+@@ -825,6 +858,7 @@ static struct at91_twi_pdata at91sam9g10_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
+ };
+ 
+ static const struct platform_device_id at91_twi_devtypes[] = {
+@@ -854,6 +888,15 @@ static struct at91_twi_pdata at91sam9x5_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
++	.has_hold_field = false,
++};
++
++static struct at91_twi_pdata sama5d4_config = {
++	.clk_max_div = 7,
++	.clk_offset = 4,
++	.has_unre_flag = false,
++	.has_alt_cmd = false,
++	.has_hold_field = true,
+ };
+ 
+ static struct at91_twi_pdata sama5d2_config = {
+@@ -861,6 +904,7 @@ static struct at91_twi_pdata sama5d2_config = {
+ 	.clk_offset = 4,
+ 	.has_unre_flag = true,
+ 	.has_alt_cmd = true,
++	.has_hold_field = true,
+ };
+ 
+ static const struct of_device_id atmel_twi_dt_ids[] = {
+@@ -883,6 +927,9 @@ static const struct of_device_id atmel_twi_dt_ids[] = {
+ 		.compatible = "atmel,at91sam9x5-i2c",
+ 		.data = &at91sam9x5_config,
+ 	}, {
++		.compatible = "atmel,sama5d4-i2c",
++		.data = &sama5d4_config,
++	}, {
+ 		.compatible = "atmel,sama5d2-i2c",
+ 		.data = &sama5d2_config,
+ 	}, {
 -- 
 2.5.0
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
