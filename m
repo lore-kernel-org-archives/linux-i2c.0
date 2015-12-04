@@ -1,63 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/9] i2c: add generic routine to parse DT for timing
- information
-Date: Fri, 4 Dec 2015 09:41:40 +0100
-Message-ID: <20151204084140.GD1526@katana>
-References: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
- <1449157899-6572-3-git-send-email-wsa@the-dreams.de>
- <20151204083428.GC1593@lahna.fi.intel.com>
+From: Gao Pan <b54642@freescale.com>
+Subject: [Patch V1] i2c: imx: init bus recovery info before adding i2c adapter
+Date: Fri, 4 Dec 2015 17:33:14 +0800
+Message-ID: <1449221594-29603-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tEFtbjk+mNEviIIX"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151204083428.GC1593@lahna.fi.intel.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-bl2on0116.outbound.protection.outlook.com ([65.55.169.116]:24650
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755471AbbLDJeO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 4 Dec 2015 04:34:14 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de
+Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, b54642@freescale.com, kernel@pengutronix.de
 
+During driver probe, i2c_imx_init_recovery_info() must come before
+i2c_add_numbered_adapter(), because the get/set_scl() functions
+are assigned in i2c_register_adapter() under the conditon that bus
+recover_info are initialized. Otherwise, get/set_scl() function
+pointers never get assigned.
 
---tEFtbjk+mNEviIIX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In such case, when i2c_generic_gpio_recovery() is used for bus recovery,
+there will be kernel crash because bri->set_scl is NULL.
 
-> > +void of_i2c_parse_timings(struct device_node *node, struct i2c_timings=
- *t, bool use_defaults)
-> > +{
-> > +	memset(t, 0, sizeof(*t));
-> > +
-> > +	if (of_property_read_u32(node, "clock-frequency", &t->bus_freq_hz) &&=
- use_defaults)
-> > +		t->bus_freq_hz =3D 100000;
->=20
-> Why not create device_i2c_parse_timings() instead and use unified device
-> properties API?
+The solution to this bug is moving i2c_imx_init_recovery_info() before
+i2c_register_adapter().
 
-Sure, just missed it.
+Signed-off-by: Gao Pan <b54642@freescale.com>
+Signed-off-by: Fugang Duan <B38611@freescale.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
---tEFtbjk+mNEviIIX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWYVHDAAoJEBQN5MwUoCm2ubwP/2bS6k18AIBEpg9z550wPBNf
-riLNEudioyjnxEpkidwWeV0nYaa7efLAxjagYqTDvXytRSTxvO3b+S2Z125kh0t1
-7cspDpfcuSTrLHJGabQmTUmd/HB7j9QZSyIaJUXgLF+5C7P0Iz8NRHIyTTJS0xCO
-DETYHvm5J9nNkeef88Fp/eBfTY26ev5gZzk1HaoY89+UfEIRDJGExN97v29Y0yIr
-Kv7s7HYVw5pZKf3kN2XZC4c1MM2YBMBKOJ3yqjpdD+5URME2HrFppdQTYdp+Vrlm
-IhecvpCD1VZxVJSBIkaMc38oYSCoq6VfEr0HFJPr9E88BzQQcWq56Ut1zsiOxNRv
-IDoQymkpw02QqaaQyjkoYTc2AhH5v6zdGxnOSIZXQC9WILBOOeu0Pr0D2PRauJZa
-m5bL6wF6IrQ6iolclHn1bRAmPMIZuqSCvM1nDwZyNHrlRmnfMLgsYRS/nR837kAR
-fItnAynX3U8JDHtmd+IbtvdGQ+C3w3JSEZ98vpo/iKYncyR9KphNMKoB82fCRwNk
-S4/igFaU29seVvYR7Ku2kJWEekTOkneQflnaNQEC4BJpLbIaH2Iw3S3rD0MASXV8
-LgwdG0jClcSJ3GVSoY2uIkiCoUfZn7crZ8nnzY/GLwFut3xo04WdRj72/Xvb956m
-6gzRrchtKp4xY8riNOSJ
-=fSXZ
------END PGP SIGNATURE-----
-
---tEFtbjk+mNEviIIX--
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 6dcfff5..0f41408 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1139,6 +1139,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 			i2c_imx, IMX_I2C_I2CR);
+ 	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+ 
++	i2c_imx_init_recovery_info(i2c_imx, pdev);
++
+ 	/* Add I2C adapter */
+ 	ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
+ 	if (ret < 0) {
+@@ -1146,8 +1148,6 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 		goto rpm_disable;
+ 	}
+ 
+-	i2c_imx_init_recovery_info(i2c_imx, pdev);
+-
+ 	pm_runtime_mark_last_busy(&pdev->dev);
+ 	pm_runtime_put_autosuspend(&pdev->dev);
+ 
+-- 
+1.9.1
