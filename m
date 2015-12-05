@@ -1,180 +1,35 @@
 From: "=?UTF-8?q?Niklas=20S=C3=B6derlund?=" <niklas.soderlund@ragnatech.se>
-Subject: [PATCH v2] i2c: emev2: add slave support
-Date: Sat,  5 Dec 2015 18:51:31 +0100
-Message-ID: <1449337891-3880-2-git-send-email-niklas.soderlund+renesas@ragnatech.se>
-References: <1449337891-3880-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+Subject: [PATCH v2] emev2: add slave support
+Date: Sat,  5 Dec 2015 18:51:30 +0100
+Message-ID: <1449337891-3880-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f68.google.com ([209.85.215.68]:35441 "EHLO
-	mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753106AbbLERvs (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Dec 2015 12:51:48 -0500
-Received: by lffu14 with SMTP id u14so13016730lff.2
-        for <linux-i2c@vger.kernel.org>; Sat, 05 Dec 2015 09:51:46 -0800 (PST)
-In-Reply-To: <1449337891-3880-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
 To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
 Cc: ian.molton@codethink.co.uk, laurent.pinchart@ideasonboard.com, magnus.damm@gmail.com, linux-sh@vger.kernel.org, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>
+List-Id: linux-i2c@vger.kernel.org
 
-Add I2C slave provider using the generic slave interface.
+Add i2c slave support to EMEV2.
 
-Signed-off-by: Niklas S=C3=B6derlund <niklas.soderlund+renesas@ragnatec=
-h.se>
----
+Tested using a EMEV2, BeagleBone Black and a 24c02 eeprom. While the
+EMEV2 provided a emulated eeprom on iic0 using slave-24c02 the Bone
+could talk to both the physical and the emulated eeprom. The EMEV2 coul=
+d
+talk to the physical eeprom while still provide the emulated eeprom.
+
+Changes since v1:
+- Fixed sparse errors, thanks Wolfram
+- Updated email to contain +renesas
+
+Niklas S=C3=B6derlund (1):
+  i2c: emev2: add slave support
+
  drivers/i2c/busses/i2c-emev2.c | 112 +++++++++++++++++++++++++++++++++=
 +++++++-
  1 file changed, 111 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-em=
-ev2.c
-index 192ef6b..96bb4e7 100644
---- a/drivers/i2c/busses/i2c-emev2.c
-+++ b/drivers/i2c/busses/i2c-emev2.c
-@@ -71,6 +71,7 @@ struct em_i2c_device {
- 	struct i2c_adapter adap;
- 	struct completion msg_done;
- 	struct clk *sclk;
-+	struct i2c_client *slave;
- };
-=20
- static inline void em_clear_set_bit(struct em_i2c_device *priv, u8 cle=
-ar, u8 set, u8 reg)
-@@ -226,22 +227,131 @@ static int em_i2c_xfer(struct i2c_adapter *adap,=
- struct i2c_msg *msgs,
- 	return num;
- }
-=20
-+static bool em_i2c_slave_irq(struct em_i2c_device *priv)
-+{
-+	u8 status, value;
-+	enum i2c_slave_event event;
-+	int ret;
-+
-+	if (!priv->slave)
-+		return false;
-+
-+	status =3D readb(priv->base + I2C_OFS_IICSE0);
-+
-+	/* Extension code, do not participate */
-+	if (status & I2C_BIT_EXC0) {
-+		em_clear_set_bit(priv, 0, I2C_BIT_LREL0, I2C_OFS_IICC0);
-+		return true;
-+	}
-+
-+	/* Stop detected, we don't know if it's for slave or master */
-+	if (status & I2C_BIT_SPD0) {
-+		/* Notify slave device */
-+		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
-+		/* Pretend we did not handle the interrupt */
-+		return false;
-+	}
-+
-+	/* Only handle interrupts addressed to us */
-+	if (!(status & I2C_BIT_COI0))
-+		return false;
-+
-+	/* Enable stop interrupts */
-+	em_clear_set_bit(priv, 0, I2C_BIT_SPIE0, I2C_OFS_IICC0);
-+
-+	/* Transmission or Reception */
-+	if (status & I2C_BIT_TRC0) {
-+		if (status & I2C_BIT_ACKD0) {
-+			/* 9 bit interrupt mode */
-+			em_clear_set_bit(priv, 0, I2C_BIT_WTIM0, I2C_OFS_IICC0);
-+
-+			/* Send data */
-+			event =3D status & I2C_BIT_STD0 ?
-+				I2C_SLAVE_READ_REQUESTED :
-+				I2C_SLAVE_READ_PROCESSED;
-+			i2c_slave_event(priv->slave, event, &value);
-+			writeb(value, priv->base + I2C_OFS_IIC0);
-+		} else {
-+			/* NACK, stop transmitting */
-+			em_clear_set_bit(priv, 0, I2C_BIT_LREL0, I2C_OFS_IICC0);
-+		}
-+	} else {
-+		/* 8 bit interrupt mode */
-+		em_clear_set_bit(priv, I2C_BIT_WTIM0, I2C_BIT_ACKE0,
-+				I2C_OFS_IICC0);
-+		em_clear_set_bit(priv, I2C_BIT_WTIM0, I2C_BIT_WREL0,
-+				I2C_OFS_IICC0);
-+
-+		if (status & I2C_BIT_STD0) {
-+			i2c_slave_event(priv->slave, I2C_SLAVE_WRITE_REQUESTED,
-+					&value);
-+		} else {
-+			/* Recv data */
-+			value =3D readb(priv->base + I2C_OFS_IIC0);
-+			ret =3D i2c_slave_event(priv->slave,
-+					I2C_SLAVE_WRITE_RECEIVED, &value);
-+			if (ret < 0)
-+				em_clear_set_bit(priv, I2C_BIT_ACKE0, 0,
-+						I2C_OFS_IICC0);
-+		}
-+	}
-+
-+	return true;
-+}
-+
- static irqreturn_t em_i2c_irq_handler(int this_irq, void *dev_id)
- {
- 	struct em_i2c_device *priv =3D dev_id;
-=20
-+	if (em_i2c_slave_irq(priv))
-+		return IRQ_HANDLED;
-+
- 	complete(&priv->msg_done);
-+
- 	return IRQ_HANDLED;
- }
-=20
- static u32 em_i2c_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SLAVE;
-+}
-+
-+static int em_i2c_reg_slave(struct i2c_client *slave)
-+{
-+	struct em_i2c_device *priv =3D i2c_get_adapdata(slave->adapter);
-+
-+	if (priv->slave)
-+		return -EBUSY;
-+
-+	if (slave->flags & I2C_CLIENT_TEN)
-+		return -EAFNOSUPPORT;
-+
-+	priv->slave =3D slave;
-+
-+	/* Set slave address */
-+	writeb(slave->addr << 1, priv->base + I2C_OFS_SVA0);
-+
-+	return 0;
-+}
-+
-+static int em_i2c_unreg_slave(struct i2c_client *slave)
-+{
-+	struct em_i2c_device *priv =3D i2c_get_adapdata(slave->adapter);
-+
-+	WARN_ON(!priv->slave);
-+
-+	writeb(0, priv->base + I2C_OFS_SVA0);
-+
-+	priv->slave =3D NULL;
-+
-+	return 0;
- }
-=20
- static struct i2c_algorithm em_i2c_algo =3D {
- 	.master_xfer =3D em_i2c_xfer,
- 	.functionality =3D em_i2c_func,
-+	.reg_slave      =3D em_i2c_reg_slave,
-+	.unreg_slave    =3D em_i2c_unreg_slave,
- };
-=20
- static int em_i2c_probe(struct platform_device *pdev)
---=20
+--
 2.6.3
+
