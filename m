@@ -1,50 +1,59 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v5 5/5] iio: humidity: si7020: add No Hold read mode
-Date: Sat, 5 Dec 2015 18:24:39 +0000
-Message-ID: <56632BE7.2050000@kernel.org>
-References: <1445976718-7449-1-git-send-email-nicola@corna.info>
- <1446118467-26453-1-git-send-email-nicola@corna.info>
- <1446118467-26453-5-git-send-email-nicola@corna.info>
- <56349644.2060308@kernel.org> <20151130173324.GG9554@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: emev2: add slave support
+Date: Sat, 5 Dec 2015 19:56:17 +0100
+Message-ID: <20151205185616.GA1597@katana>
+References: <1449337891-3880-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+ <1449337891-3880-2-git-send-email-niklas.soderlund+renesas@ragnatech.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:34036 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750813AbbLESYl (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 5 Dec 2015 13:24:41 -0500
-In-Reply-To: <20151130173324.GG9554@katana>
+Received: from sauhun.de ([89.238.76.85]:37198 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751539AbbLES4Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 5 Dec 2015 13:56:24 -0500
+Content-Disposition: inline
+In-Reply-To: <1449337891-3880-2-git-send-email-niklas.soderlund+renesas@ragnatech.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Nicola Corna <nicola@corna.info>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, linux-rpi-kernel@lists.infradead.org
+To: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
+Cc: linux-i2c@vger.kernel.org, ian.molton@codethink.co.uk, laurent.pinchart@ideasonboard.com, magnus.damm@gmail.com, linux-sh@vger.kernel.org, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>
 
-On 30/11/15 17:33, Wolfram Sang wrote:
-> On Sat, Oct 31, 2015 at 10:21:56AM +0000, Jonathan Cameron wrote:
->> On 29/10/15 11:34, Nicola Corna wrote:
->>> The Si7013/20/21 modules support 2 read modes:
->>>  * Hold mode (blocking), where the device stretches the clock until the end
->>> of the measurement
->>>  * No Hold mode (non-blocking), where the device replies NACK for every I2C
->>> call during the measurement
->>> Here the No Hold mode is implemented, selectable with the blocking_io
->>> variable within si7020_platform_data. The default mode is Hold, unless the
->>> adapter does not support clock stretching, in which case the No Hold mode
->>> is used.
->>>
->>> Signed-off-by: Nicola Corna <nicola@corna.info>
->> I'm fine with this.  The dependency below should I think show up in the
->> coming merge window, so this lot might as well go via Wolfram.
->>
->> Acked-by: Jonathan Cameron <jic23@kernel.org>
-> 
-> Not sure, will think about it...
-> 
-Nicola,
 
-If Wolfram doesn't pick this up, please ping me after the next merge window.
-Whilst I'll still have it in my queue, it'll be so long ago by then I'll probably
-miss it!
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Jonathan
+On Sat, Dec 05, 2015 at 06:51:31PM +0100, Niklas S=C3=B6derlund wrote:
+> Add I2C slave provider using the generic slave interface.
+>=20
+> Signed-off-by: Niklas S=C3=B6derlund <niklas.soderlund+renesas@ragnatech.=
+se>
+
+Applied to for-next, thanks!
+
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWYzNQAAoJEBQN5MwUoCm2beUP/RnDy42G9ZGHN1HcsMhvdtM1
+ry7XzrPf15zG4QIbFelsY10KAWlrfojUYv0xuvpiiJFS8JHxoxaIVQ3YB7s5rzdb
+sPfcoGiSUk/o/I0IN8zoaenTLHTmBmtbyIUUtxHfjcCXqRLiPo80ODfhmthODyRs
+Vyj4+damPS30B1hHCbN6f6Ajkhv2uQGIKF6lqR7fZqly4ng0trpI0CafosMMyrDl
+mUn4WDEi0yy2c60AuOseQ6oPeGMw306QUTCo96ka6+IvTVqRREeQct74Hmyk2+JJ
+02yVsfuZoYaVHve9AAHdWG98EwlKgFx8bsFfWj7vubcPmSDfpfo5iZZmirR8h8ZZ
+lSSGv4856M6CLc0N87X0xjoMkkpspCEtApjqBPwe77yDJaxVpQbbVED89c/VTsYB
+qkKNeKQjLw+vZSpFdXohrrlLJJu653fU/QeUEIz85pBZmP74XwaO8aWusO8KiLnF
+yGWI/jl6Py28fapsOBalGHxPTE0SbI/XVhBh8LdeIfGOF9DB8Bxi42wlRYmZRt23
+U/Ha+viR9iHs3+8yBz7AjWo0sPwT7/uPtiJeGJkUS95UHLobrVH5y8nQiqRFWCLo
+6jE1lTLZ/ja04EUud+inalmAPzGuwYcKWEPZhAO3z6Loenu4UsXT5JO6of3McsiP
+jZ0K3Y0BE/NFKvQuyeZb
+=cVSx
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--
