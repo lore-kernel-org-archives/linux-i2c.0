@@ -1,83 +1,146 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2 00/16] intel-lpss: support non-ACPI platforms
-Date: Mon, 07 Dec 2015 02:44:03 +0100
-Message-ID: <1488447.PO5a3v7KWa@vostro.rjw.lan>
-References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Gao Pandy <gaopan@freescale.com>
+Subject: RE: [Patch V1] i2c: imx: init bus recovery info before adding i2c
+ adapter
+Date: Mon, 7 Dec 2015 02:45:13 +0000
+Message-ID: <CY1PR0301MB0858B65C8F06804400B791F4CF090@CY1PR0301MB0858.namprd03.prod.outlook.com>
+References: <1449221594-29603-1-git-send-email-b54642@freescale.com>
+ <20151205190736.GD1597@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+Content-Type: multipart/mixed;
+	boundary="_002_CY1PR0301MB0858B65C8F06804400B791F4CF090CY1PR0301MB0858_"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from v094114.home.net.pl ([79.96.170.134]:48106 "HELO
-	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753026AbbLGBOH (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Dec 2015 20:14:07 -0500
-In-Reply-To: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Received: from mail-bl2on0130.outbound.protection.outlook.com ([65.55.169.130]:58039
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754998AbbLGCpY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 6 Dec 2015 21:45:24 -0500
+In-Reply-To: <20151205190736.GD1597@katana>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Li Frank <Frank.Li@freescale.com>, Duan Andy <fugang.duan@freescale.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>
 
-On Monday, November 30, 2015 05:11:28 PM Andy Shevchenko wrote:
-> This series includes few logical sets that bring a support of non-ACPI
-> platforms for Intel Skylake.
-> 
-> First part is a refactoring of built-in device properties support:
-> - keep single value inside the structure
-> - provide helper macros to define built-in properties
-> - fall back to secondary fwnode if primary has no asked property
-> 
-> Second is a propagating built-in device properties in platform core.
-> 
-> Third one is modifications to MFD code and intel-lpss.c driver in particular
-> to define and pass built-in properties to the individual drivers.
-> 
-> And last part is a fix for I2C bug found on Lenovo Yoga hardware and a first
-> converted user.
-> 
-> Built-in device properties is an alternative to platform data. It provides a
-> unified API that drivers can use to cover all cases at once: DT, ACPI, and
-> built-in properties.
-> 
-> With this series applied a platform data can be considered obsolete. Moreover,
-> built-in device properties allow to adjust the existing configuration, for
-> example, in cases when ACPI values are wrong on some platforms.
-> 
-> The series has been tested on available hardware and doesn't break current
-> behaviour. But we ask people who have the affected hardware to apply the series
-> on your side and check with Lenovo hardware.
-> 
-> Changelog v2:
-> - fix isuues found by kbuild bot (kbuild)
-> - append a patch to propagate device properties in polatform code (Arnd)
-> - update few existing and add couple of new patches due to above
-> - check with kmemleak
-> 
-> Andy Shevchenko (9):
->   device property: always check for fwnode type
->   device property: rename helper functions
->   device property: refactor built-in properties support
->   device property: keep single value inplace
->   device property: improve readability of macros
->   device property: return -EINVAL when property isn't found in ACPI
->   device property: Fallback to secondary fwnode if primary misses the
->     property
->   mfd: core: propagate device properties to sub devices drivers
->   mfd: intel-lpss: Pass HSUART configuration via properties
-> 
-> Heikki Krogerus (1):
->   device property: helper macros for property entry creation
-> 
-> Mika Westerberg (6):
->   device property: Take a copy of the property set
->   driver core: platform: Add support for built-in device properties
->   driver core: Do not overwrite secondary fwnode with NULL if it is set
->   mfd: intel-lpss: Add support for passing device properties
->   mfd: intel-lpss: Pass SDA hold time to I2C host controller driver
->   i2c: designware: Convert to use unified device property API
+--_002_CY1PR0301MB0858B65C8F06804400B791F4CF090CY1PR0301MB0858_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-I'm going to queue up this series for v4.5.
+Hi Wolfram,=20
 
-If there are any problems with it or objections from anyone, please let me know.
+	Sorry for it.=20
+=09
+	I have sent out an i2c runtime patch which was acked by Uwe Kleine. I thou=
+ght it would be accepted, so I sent out this one based on that one.=20
 
-Thanks,
-Rafael
+
+Best Regards
+Gao Pan =20
+
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa@the-dreams.de]
+> Sent: Sunday, December 06, 2015 3:08 AM
+> To: Gao Pan-B54642
+> Cc: u.kleine-koenig@pengutronix.de; linux-i2c@vger.kernel.org; Li Frank-B=
+20596;
+> Duan Fugang-B38611; kernel@pengutronix.de
+> Subject: Re: [Patch V1] i2c: imx: init bus recovery info before adding i2=
+c
+> adapter
+>=20
+> On Fri, Dec 04, 2015 at 05:33:14PM +0800, Gao Pan wrote:
+> > During driver probe, i2c_imx_init_recovery_info() must come before
+> > i2c_add_numbered_adapter(), because the get/set_scl() functions are
+> > assigned in i2c_register_adapter() under the conditon that bus
+> > recover_info are initialized. Otherwise, get/set_scl() function
+> > pointers never get assigned.
+> >
+> > In such case, when i2c_generic_gpio_recovery() is used for bus
+> > recovery, there will be kernel crash because bri->set_scl is NULL.
+> >
+> > The solution to this bug is moving i2c_imx_init_recovery_info() before
+> > i2c_register_adapter().
+> >
+> > Signed-off-by: Gao Pan <b54642@freescale.com>
+> > Signed-off-by: Fugang Duan <B38611@freescale.com>
+>=20
+> Makes sense, but I can't apply this one. What is it based on?
+
+
+--_002_CY1PR0301MB0858B65C8F06804400B791F4CF090CY1PR0301MB0858_
+Content-Type: message/rfc822
+Content-Disposition: attachment;
+	creation-date="Mon, 07 Dec 2015 02:45:09 GMT";
+	modification-date="Mon, 07 Dec 2015 02:45:09 GMT"
+
+Received: from BY1PR0301MB0855.namprd03.prod.outlook.com (10.160.193.149) by
+ DM2PR0301MB0863.namprd03.prod.outlook.com (10.160.215.149) with Microsoft
+ SMTP Server (TLS) id 15.1.331.20 via Mailbox Transport; Mon, 30 Nov 2015
+ 08:06:39 +0000
+Received: from BLUPR03CA008.namprd03.prod.outlook.com (10.255.124.25) by
+ BY1PR0301MB0855.namprd03.prod.outlook.com (10.160.193.149) with Microsoft
+ SMTP Server (TLS) id 15.1.331.20; Mon, 30 Nov 2015 08:06:37 +0000
+Received: from BY2FFO11OLC005.protection.gbl (10.255.124.4) by
+ BLUPR03CA008.outlook.office365.com (10.255.124.25) with Microsoft SMTP Server
+ (TLS) id 15.1.331.20 via Frontend Transport; Mon, 30 Nov 2015 08:06:36 +0000
+Received: from metis.ext.pengutronix.de (92.198.50.35) by
+ BY2FFO11OLC005.mail.protection.outlook.com (10.1.14.145) with Microsoft SMTP
+ Server (TLS) id 15.1.331.11 via Frontend Transport; Mon, 30 Nov 2015 08:06:34
+ +0000
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0] ident=Debian-exim)
+	by metis.ext.pengutronix.de with esmtps (TLS1.2:RSA_AES_128_CBC_SHA1:128)
+	(Exim 4.80)
+	(envelope-from <ukl@pengutronix.de>)
+	id 1a3JTj-0001Um-Tw; Mon, 30 Nov 2015 09:06:31 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.84)
+	(envelope-from <ukl@pengutronix.de>)
+	id 1a3JTi-00059o-Qt; Mon, 30 Nov 2015 09:06:30 +0100
+From: =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+To: Gao Pandy <gaopan@freescale.com>
+CC: "wsa@the-dreams.de" <wsa@the-dreams.de>, Li Frank
+	<Frank.Li@freescale.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"kernel@pengutronix.de" <kernel@pengutronix.de>, Duan Andy
+	<fugang.duan@freescale.com>, "hkallweit1@gmail.com" <hkallweit1@gmail.com>
+Subject: Re: [Patch V9] i2c: imx: add runtime pm support to improve the
+ performance
+Thread-Topic: [Patch V9] i2c: imx: add runtime pm support to improve the
+ performance
+Thread-Index: AQHRD7tqeq2V6i7sA0aeuOgo6ktGtp6LIKGQgCkCDJCAAEnlAA==
+Date: Mon, 30 Nov 2015 08:06:30 +0000
+Message-ID: <20151130080630.GG10431@pengutronix.de>
+References: <1445842521-26222-1-git-send-email-b54642@freescale.com>
+ <DM2PR0301MB08630A714625556EE4D3F773CF000@DM2PR0301MB0863.namprd03.prod.outlook.com>
+In-Reply-To: <DM2PR0301MB08630A714625556EE4D3F773CF000@DM2PR0301MB0863.namprd03.prod.outlook.com>
+Content-Language: en-US
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Exchange-Organization-AuthSource: BY2FFO11OLC005.protection.gbl
+X-MS-Has-Attach: 
+X-MS-Exchange-Organization-Network-Message-Id: 37bd55a3-5783-4b9a-ce4c-08d2f95d2a50
+X-MS-TNEF-Correlator: 
+received-spf: None (protection.outlook.com: pengutronix.de does not designate
+ permitted sender hosts)
+Content-Type: text/plain; charset="iso-8859-1"
+Content-ID: <98953856E73E934AAA25489062B34446@namprd03.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Hello,
+
+On Mon, Nov 30, 2015 at 03:42:15AM +0000, Gao Pandy wrote:
+> Ping...
+
+The things I pointed out were fixed. I didn't test it, but the patch
+looks reasonable. I'd say it's ready to cook in next until the merge
+window opens next time.
+
+If you want to interpret this as an Ack, feel free to do this.
+
+Best regards
+Uwe
+
+--
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            =
+|
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--_002_CY1PR0301MB0858B65C8F06804400B791F4CF090CY1PR0301MB0858_--
