@@ -1,69 +1,43 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 0/9] i2c: add generic support for timing parameters in DT
-Date: Mon, 7 Dec 2015 15:39:46 +0900
-Message-ID: <20151207063946.GI22834@verge.net.au>
-References: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v3 0/2] ACPI: Add irq_type to gpio interrupt
+Date: Mon, 7 Dec 2015 12:52:21 +0200
+Message-ID: <20151207105221.GI16813@lahna.fi.intel.com>
+References: <1448923673-2582-1-git-send-email-christophe-h.ricard@st.com>
+ <20151201112127.GA1593@lahna.fi.intel.com>
+ <CALD+uuxJw5tQ2XY99nHigXdNkcXGnng+r9NZ8H9TqUF9GbgW=A@mail.gmail.com>
+ <20151201130324.GE1593@lahna.fi.intel.com>
+ <56622373.7020406@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1449157899-6572-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <56622373.7020406@gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Christophe Ricard <christophe.ricard@gmail.com>
+Cc: rjw@rjwysocki.net, Len Brown <lenb@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org, Christophe Ricard <christophe-h.ricard@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 03, 2015 at 04:51:30PM +0100, Wolfram Sang wrote:
-> Here is a patch series adding better DT support for timing parameters like the
-> raise time or the fall time which are generic for the I2C subsystem. There is a
-> core function for parsing and an implementation for the RCar driver how to use
-> it.
+On Sat, Dec 05, 2015 at 12:36:19AM +0100, Christophe Ricard wrote:
+> >No, but I wonder if it would be better to do this in acpi_dev_gpio_irq_get()
+> >instead of acpi_find_gpio() which gets called everytime a GPIO is looked up?
+> I believe, setting the irq type requires triggering and polarity data stored
+> into a struct acpi_resource_gpio.
 > 
-> I added people of the designware and rk3x driver to CC because they might be
-> interested in this new function. They provided the basis for this series, so it
-> should be easy to convert them.
+> acpi_dev_gpio_irq_get call acpi_get_gpiod_by_index which run acpi_find_gpio.
 > 
-> Please have a look, test, comment...
+> Actually acpi_dev_gpio_irq_get is called everytime an i2c device slave is
+> probed, acpi_find_gpio will get called to "register" gpios.
+> If done correctly, i think this will be done only once...
 > 
-> Thanks,
+> The only improvement i may see would be to add an extra field in the
+> acpi_gpio_info structure in drivers/gpio/gpiolib.h (for example int
+> irq_type).
+> And call irq_set_irq_type in acpi_dev_gpio_irq_get if the gpio is an
+> interrupt.
 > 
->     Wolfram
+> I guess the current proposal and this one are equivalent...
 > 
-> 
-> Changes since RFC:
-> * better tested
-> * added documentation for the new function and the new struct
-> * reworded some commit messages slightly
-> * moved the new property in the dtsi above the "status" property
-> 
-> 
-> Wolfram Sang (9):
->   i2c: document generic DT bindings for timing parameters
->   i2c: add generic routine to parse DT for timing information
->   i2c: rcar: refactor probe function a little
->   i2c: rcar: switch to i2c generic dt parsing
->   i2c: rcar: honor additional i2c timings from DT
+> What do you think ?
 
-I have marked the integration patches (below) as deferred pending
-acceptance of the driver changes (above). Please repost the former
-once the latter have been accepted (by you :).
-
->   ARM: shmobile: r8a7790: dtsi: add internal delay for i2c IPs
->   ARM: shmobile: r8a7791: dtsi: add internal delay for i2c IPs
->   ARM: shmobile: r8a7794: dtsi: add internal delay for i2c IPs
->   arm64: renesas: r8a7795: add internal delay for i2c IPs
-> 
->  Documentation/devicetree/bindings/i2c/i2c-rcar.txt |  4 ++
->  Documentation/devicetree/bindings/i2c/i2c.txt      | 31 ++++++++--
->  arch/arm/boot/dts/r8a7790.dtsi                     |  4 ++
->  arch/arm/boot/dts/r8a7791.dtsi                     |  6 ++
->  arch/arm/boot/dts/r8a7794.dtsi                     |  6 ++
->  arch/arm64/boot/dts/renesas/r8a7795.dtsi           |  7 +++
->  drivers/i2c/busses/i2c-rcar.c                      | 67 +++++++++++-----------
->  drivers/i2c/i2c-core.c                             | 50 ++++++++++++++++
->  include/linux/i2c.h                                | 22 +++++++
->  9 files changed, 158 insertions(+), 39 deletions(-)
-> 
-> -- 
-> 2.1.4
-> 
+Actually I think it may be useful to add triggering flags to
+acpi_gpio_info.
