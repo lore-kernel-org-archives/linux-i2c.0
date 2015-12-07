@@ -1,69 +1,83 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V1] i2c: imx: init bus recovery info before adding i2c
- adapter
-Date: Sat, 5 Dec 2015 20:07:36 +0100
-Message-ID: <20151205190736.GD1597@katana>
-References: <1449221594-29603-1-git-send-email-b54642@freescale.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v2 00/16] intel-lpss: support non-ACPI platforms
+Date: Mon, 07 Dec 2015 02:44:03 +0100
+Message-ID: <1488447.PO5a3v7KWa@vostro.rjw.lan>
+References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IMjqdzrDRly81ofr"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:37306 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750813AbbLETHn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 5 Dec 2015 14:07:43 -0500
-Content-Disposition: inline
-In-Reply-To: <1449221594-29603-1-git-send-email-b54642@freescale.com>
+Received: from v094114.home.net.pl ([79.96.170.134]:48106 "HELO
+	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753026AbbLGBOH (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 6 Dec 2015 20:14:07 -0500
+In-Reply-To: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <b54642@freescale.com>
-Cc: u.kleine-koenig@pengutronix.de, linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, kernel@pengutronix.de
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
 
+On Monday, November 30, 2015 05:11:28 PM Andy Shevchenko wrote:
+> This series includes few logical sets that bring a support of non-ACPI
+> platforms for Intel Skylake.
+> 
+> First part is a refactoring of built-in device properties support:
+> - keep single value inside the structure
+> - provide helper macros to define built-in properties
+> - fall back to secondary fwnode if primary has no asked property
+> 
+> Second is a propagating built-in device properties in platform core.
+> 
+> Third one is modifications to MFD code and intel-lpss.c driver in particular
+> to define and pass built-in properties to the individual drivers.
+> 
+> And last part is a fix for I2C bug found on Lenovo Yoga hardware and a first
+> converted user.
+> 
+> Built-in device properties is an alternative to platform data. It provides a
+> unified API that drivers can use to cover all cases at once: DT, ACPI, and
+> built-in properties.
+> 
+> With this series applied a platform data can be considered obsolete. Moreover,
+> built-in device properties allow to adjust the existing configuration, for
+> example, in cases when ACPI values are wrong on some platforms.
+> 
+> The series has been tested on available hardware and doesn't break current
+> behaviour. But we ask people who have the affected hardware to apply the series
+> on your side and check with Lenovo hardware.
+> 
+> Changelog v2:
+> - fix isuues found by kbuild bot (kbuild)
+> - append a patch to propagate device properties in polatform code (Arnd)
+> - update few existing and add couple of new patches due to above
+> - check with kmemleak
+> 
+> Andy Shevchenko (9):
+>   device property: always check for fwnode type
+>   device property: rename helper functions
+>   device property: refactor built-in properties support
+>   device property: keep single value inplace
+>   device property: improve readability of macros
+>   device property: return -EINVAL when property isn't found in ACPI
+>   device property: Fallback to secondary fwnode if primary misses the
+>     property
+>   mfd: core: propagate device properties to sub devices drivers
+>   mfd: intel-lpss: Pass HSUART configuration via properties
+> 
+> Heikki Krogerus (1):
+>   device property: helper macros for property entry creation
+> 
+> Mika Westerberg (6):
+>   device property: Take a copy of the property set
+>   driver core: platform: Add support for built-in device properties
+>   driver core: Do not overwrite secondary fwnode with NULL if it is set
+>   mfd: intel-lpss: Add support for passing device properties
+>   mfd: intel-lpss: Pass SDA hold time to I2C host controller driver
+>   i2c: designware: Convert to use unified device property API
 
---IMjqdzrDRly81ofr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm going to queue up this series for v4.5.
 
-On Fri, Dec 04, 2015 at 05:33:14PM +0800, Gao Pan wrote:
-> During driver probe, i2c_imx_init_recovery_info() must come before
-> i2c_add_numbered_adapter(), because the get/set_scl() functions
-> are assigned in i2c_register_adapter() under the conditon that bus
-> recover_info are initialized. Otherwise, get/set_scl() function
-> pointers never get assigned.
->=20
-> In such case, when i2c_generic_gpio_recovery() is used for bus recovery,
-> there will be kernel crash because bri->set_scl is NULL.
->=20
-> The solution to this bug is moving i2c_imx_init_recovery_info() before
-> i2c_register_adapter().
->=20
-> Signed-off-by: Gao Pan <b54642@freescale.com>
-> Signed-off-by: Fugang Duan <B38611@freescale.com>
+If there are any problems with it or objections from anyone, please let me know.
 
-Makes sense, but I can't apply this one. What is it based on?
-
-
---IMjqdzrDRly81ofr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWYzX4AAoJEBQN5MwUoCm2ucMP/RAWbKzY0LB3AvLfY+G4vpgh
-nKa9cim7RKN5TQABYE9t6hoHedjH+yl5uAf4Mri1IhHEuZh9deGGQcj7qr2VYk3d
-cgoZLMtZFtccF2yDmjt/oN7TM6Tvx55h278qZSmXYqAPULuKMa00FmvRCPkXyOR3
-t755Q8oqtCg5NgAD3Av2KW1Gv+v3yalE+Fn8mLc8mMhztdLThKY1HGHZBiGpud2k
-rEd1qnma/ZEuHKYx3fKuUYvPEs+AptgmknjZ+1upthWRoviEwztIDtG7bHXTUR1f
-i3kSUYUo0rjq+hOJqE/ROY6hu4FJ4+X+d3ojcxaFbXjasVd3vOi8F74PAcHRGOsq
-1/3qop4NnaS4zWm6FmjZY/1ihV8MuBtYY6MukO64fOKoOqjTL3mPIkMds0ynzTAi
-n75E+/2/A2bLFUE826No/vq+xM0A48SDwgf/qsAzx8ZFYSAuYzaW5vXpqgoOJAwp
-CtP6jubjsT26QOY+5CSyiyvrzYVICeNux6rzRpuEEqscdDE3CSM1eJukZXa+yNzr
-WT/cn5yRBgN6rnBwh33KmTf+UlyMlgIdmOMLjGb3r04FQy+VutgJmjVzZmSillVq
-fZcZ4glyeAT5Kxc38tgovbvN1RLa9hyP5cYvBQI2RgOgQTlrx1hYwR5AnBGrfMct
-P9S+ESodAwkG8Yx4fhlF
-=PpIs
------END PGP SIGNATURE-----
-
---IMjqdzrDRly81ofr--
+Thanks,
+Rafael
