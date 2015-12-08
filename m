@@ -1,58 +1,33 @@
-From: "Shevchenko, Andriy" <andriy.shevchenko@intel.com>
-Subject: Re: [PATCH v2 4/9] i2c: rcar: switch to i2c generic dt parsing
-Date: Tue, 8 Dec 2015 11:00:29 +0000
-Message-ID: <1449572444.30729.32.camel@intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing
+ information
+Date: Tue, 8 Dec 2015 13:09:44 +0200
+Message-ID: <20151208110944.GH1766@lahna.fi.intel.com>
 References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
-	 <1449567473-2084-5-git-send-email-wsa@the-dreams.de>
-	 <1449572360.30729.31.camel@linux.intel.com>
+ <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1449572360.30729.31.camel@linux.intel.com>
-Content-Language: en-US
-Content-ID: <BB714AAB6BAE764DB227364896E0B213@intel.com>
+Content-Disposition: inline
+In-Reply-To: <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
-To: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "yoshihiro.shimoda.uh@renesas.com" <yoshihiro.shimoda.uh@renesas.com>, "horms@verge.net.au" <horms@verge.net.au>, "magnus.damm@gmail.com" <magnus.damm@gmail.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "linux-rockchip@lists.infradead.org" <linux-rockchip@lists.infradead.org>, "laurent.pinchart@ideasonboard.com" <laurent.pinchart@ideasonboard.com>, "geert@linux-m68k.org" <geert@linux-m68k.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVHVlLCAyMDE1LTEyLTA4IGF0IDEyOjU5ICswMjAwLCBBbmR5IFNoZXZjaGVua28gd3JvdGU6
-DQo+IE9uIFR1ZSwgMjAxNS0xMi0wOCBhdCAxMDozNyArMDEwMCwgV29sZnJhbSBTYW5nIHdyb3Rl
-Og0KPiA+IEZyb206IFdvbGZyYW0gU2FuZyA8d3NhK3JlbmVzYXNAc2FuZy1lbmdpbmVlcmluZy5j
-b20+DQo+ID4gDQo+ID4gU3dpdGNoIHRvIHRoZSBuZXcgZ2VuZXJpYyBmdW5jdGlvbnMuIFBsYWlu
-IGNvbnZlcnQsIG5vDQo+ID4gZnVuY3Rpb25hbGl0eQ0KPiA+IGFkZGVkIHlldC4NCj4gDQo+IE9u
-ZSBzdHlsZSBuaXRwaWNrLg0KDQpBaCwganVzdCBzZWVuIG5leHQgcGF0Y2guIFllYWgsIGN1cnJl
-bnQgbWFrZSBzZW5zZS4NCk5ldmVyIG1pbmQgYmVsb3cgY29tbWVudC4NCg0KPiANCj4gPiANCj4g
-PiBTaWduZWQtb2ZmLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYStyZW5lc2FzQHNhbmctZW5naW5lZXJp
-bmcuY29tPg0KPiA+IC0tLQ0KPiA+IMKgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yY2FyLmMgfCAx
-NiArKysrKysrKystLS0tLS0tDQo+ID4gwqAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCsp
-LCA3IGRlbGV0aW9ucygtKQ0KPiA+IA0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLXJjYXIuYw0KPiA+IGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy0NCj4gPiByY2FyLmMN
-Cj4gPiBpbmRleCBkNDMyMmE5MDk2Nzg2Zi4uYzY2M2Y0Mzg5YmY4OTggMTAwNjQ0DQo+ID4gLS0t
-IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yY2FyLmMNCj4gPiArKysgYi9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLXJjYXIuYw0KPiA+IEBAIC0xNjIsMTIgKzE2MiwxNSBAQCBzdGF0aWMgaW50IHJj
-YXJfaTJjX2J1c19iYXJyaWVyKHN0cnVjdA0KPiA+IHJjYXJfaTJjX3ByaXYgKnByaXYpDQo+ID4g
-wqAJcmV0dXJuIC1FQlVTWTsNCj4gPiDCoH0NCj4gPiDCoA0KPiA+IC1zdGF0aWMgaW50IHJjYXJf
-aTJjX2Nsb2NrX2NhbGN1bGF0ZShzdHJ1Y3QgcmNhcl9pMmNfcHJpdiAqcHJpdiwNCj4gPiB1MzIN
-Cj4gPiBidXNfc3BlZWQpDQo+ID4gK3N0YXRpYyBpbnQgcmNhcl9pMmNfY2xvY2tfY2FsY3VsYXRl
-KHN0cnVjdCByY2FyX2kyY19wcml2ICpwcml2LA0KPiA+IHN0cnVjdCBpMmNfdGltaW5ncyAqdCkN
-Cj4gPiDCoHsNCj4gPiDCoAl1MzIgc2NnZCwgY2RmLCByb3VuZCwgaWNrLCBzY2wsIGNkZl93aWR0
-aDsNCj4gPiDCoAl1bnNpZ25lZCBsb25nIHJhdGU7DQo+ID4gwqAJc3RydWN0IGRldmljZSAqZGV2
-ID0gcmNhcl9pMmNfcHJpdl90b19kZXYocHJpdik7DQo+ID4gwqANCj4gPiArCS8qIEZhbGwgYmFj
-ayB0byBwcmV2aW91c2x5IHVzZWQgdmFsdWVzIGlmIG5vdCBzdXBwbGllZCAqLw0KPiA+ICsJdC0+
-YnVzX2ZyZXFfaHogPSB0LT5idXNfZnJlcV9oeiA/OiAxMDAwMDA7DQo+IA0KPiBPbiBvbmUgaGFu
-ZCBpdCBzZWVtcyBlbm91Z2ggc3BhY2UgdG8gcHV0IG9uZSBtb3JlIHQtPmJ1c19mcmVxX2h6LCBv
-bg0KPiB0aGUgb3RoZXIgd2h5IG5vdA0KPiANCj4gaWYgKCF0LT5idXNfZnJlcV9oeikNCj4gwqAg
-PSAxMDAwMDA7DQo+IA0KPiBJIHRoaW5rIGEgYml0IGJldHRlciB0byBtYWludGFpbiBsYXR0ZXIu
-DQo+IA0KDQotLSANCkFuZHkgU2hldmNoZW5rbyA8YW5kcml5LnNoZXZjaGVua29AaW50ZWwuY29t
-Pg0KSW50ZWwgRmlubGFuZCBPeQ0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCkludGVsIEZpbmxhbmQgT3kKUmVnaXN0
-ZXJlZCBBZGRyZXNzOiBQTCAyODEsIDAwMTgxIEhlbHNpbmtpIApCdXNpbmVzcyBJZGVudGl0eSBD
-b2RlOiAwMzU3NjA2IC0gNCAKRG9taWNpbGVkIGluIEhlbHNpbmtpIAoKVGhpcyBlLW1haWwgYW5k
-IGFueSBhdHRhY2htZW50cyBtYXkgY29udGFpbiBjb25maWRlbnRpYWwgbWF0ZXJpYWwgZm9yCnRo
-ZSBzb2xlIHVzZSBvZiB0aGUgaW50ZW5kZWQgcmVjaXBpZW50KHMpLiBBbnkgcmV2aWV3IG9yIGRp
-c3RyaWJ1dGlvbgpieSBvdGhlcnMgaXMgc3RyaWN0bHkgcHJvaGliaXRlZC4gSWYgeW91IGFyZSBu
-b3QgdGhlIGludGVuZGVkCnJlY2lwaWVudCwgcGxlYXNlIGNvbnRhY3QgdGhlIHNlbmRlciBhbmQg
-ZGVsZXRlIGFsbCBjb3BpZXMuCg==
+On Tue, Dec 08, 2015 at 10:37:46AM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> Inspired from the i2c-rk3x driver (thanks guys!) but refactored and
+> extended. See built-in docs for further information.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+Looks good. I think we can take advantage of this in the designware
+driver as well.
+
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+
+I wonder if it makes sense to add "i2c-sda-hold-time-ns" (taken from the
+designware driver DT binding) to the timings structure? It is tHD;DAT
+parameter in the I2C bus specification.
