@@ -1,65 +1,72 @@
-From: Ken Xue <ken.xue@amd.com>
-Subject: Re: [PATCH 1/2] acpi:apd: Add APM X-Gene ACPI I2C device support
-Date: Tue, 8 Dec 2015 10:49:08 +0800
-Message-ID: <1449542948.2175.41.camel@kxue-X58A-UD3R>
-References: <1449533774-22672-1-git-send-email-lho@apm.com>
-	 <1449533774-22672-2-git-send-email-lho@apm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1449533774-22672-2-git-send-email-lho@apm.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Loc Ho <lho@apm.com>
-Cc: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com, Annie.Wang@amd.com
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH v2 1/9] i2c: document generic DT bindings for timing parameters
+Date: Tue,  8 Dec 2015 10:37:45 +0100
+Message-ID: <1449567473-2084-2-git-send-email-wsa@the-dreams.de>
+References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Rob Herring <robh@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 2015-12-07 at 17:16 -0700, Loc Ho wrote:
-> Add APM X-Gene ACPI I2C device support by hooks into existent
-> ACPI apd driver. To fully enable support, require another
-> patch to add the X-Gene ACPI node into the DW I2C driver.
-> 
-> Signed-off-by: Loc Ho <lho@apm.com>
-> ---
->  drivers/acpi/acpi_apd.c |    8 +++++++-
->  1 files changed, 7 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> index a450e7a..6a9cb8d 100644
-> --- a/drivers/acpi/acpi_apd.c
-> +++ b/drivers/acpi/acpi_apd.c
-> @@ -51,7 +51,7 @@ struct apd_private_data {
->  	const struct apd_device_desc *dev_desc;
->  };
->  
-> -#ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
-> +#if defined(CONFIG_X86_AMD_PLATFORM_DEVICE) || defined(CONFIG_ARM64)
->  #define APD_ADDR(desc)	((unsigned long)&desc)
->  
->  static int acpi_apd_setup(struct apd_private_data *pdata)
-> @@ -76,6 +76,11 @@ static struct apd_device_desc cz_i2c_desc = {
->  	.fixed_clk_rate = 133000000,
->  };
->  
-> +static struct apd_device_desc xgene_i2c_desc = {
-> +	.setup = acpi_apd_setup,
-> +	.fixed_clk_rate = 100000000,
-> +};
-> +
->  static struct apd_device_desc cz_uart_desc = {
->  	.setup = acpi_apd_setup,
->  	.fixed_clk_rate = 48000000,
-> @@ -135,6 +140,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
->  	{ "AMD0010", APD_ADDR(cz_i2c_desc) },
->  	{ "AMD0020", APD_ADDR(cz_uart_desc) },
->  	{ "AMD0030", },
-> +	{ "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
-It is better to split AMD devices and ARM devices with macros:
-CONFIG_X86_AMD_PLATFORM_DEVICE and CONFIG_ARM64.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+Also, sort the properties alphabetically and make indentation
+consistent. Wording largely taken from i2c-rk3x.txt, thanks guys!
 
->  	{ }
->  };
->  
+Only "i2c-scl-internal-delay-ns" is new, the rest is used by two drivers
+already and was documented in their driver binding documentation.
 
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c.txt | 31 ++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+index 8a99150ac3a7fd..a00219f5ee0733 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -29,12 +29,33 @@ Optional properties
+ These properties may not be supported by all drivers. However, if a driver
+ wants to support one of the below features, it should adapt the bindings below.
+ 
+-- clock-frequency	- frequency of bus clock in Hz.
+-- wakeup-source		- device can be used as a wakeup source.
++- clock-frequency
++	frequency of bus clock in Hz.
+ 
+-- interrupts		- interrupts used by the device.
+-- interrupt-names	- "irq" and "wakeup" names are recognized by I2C core,
+-			  other names are left to individual drivers.
++- i2c-scl-falling-time-ns
++	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
++	specification.
++
++- i2c-scl-internal-delay-ns
++	Number of nanoseconds the IP core additionally needs to setup SCL.
++
++- i2c-scl-rising-time-ns
++	Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
++	specification.
++
++- i2c-sda-falling-time-ns
++	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
++	specification.
++
++- interrupts
++	interrupts used by the device.
++
++- interrupt-names
++	"irq" and "wakeup" names are recognized by I2C core, other names are
++	left to individual drivers.
++
++- wakeup-source
++	device can be used as a wakeup source.
+ 
+ Binding may contain optional "interrupts" property, describing interrupts
+ used by the device. I2C core will assign "irq" interrupt (or the very first
+-- 
+2.1.4
 
