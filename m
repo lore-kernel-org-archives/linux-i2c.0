@@ -1,28 +1,64 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c:dw: Add APM X-Gene ACPI I2C device support
-Date: Tue, 8 Dec 2015 13:36:02 +0200
-Message-ID: <20151208113602.GL1766@lahna.fi.intel.com>
-References: <1449533774-22672-1-git-send-email-lho@apm.com>
- <1449533774-22672-3-git-send-email-lho@apm.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing
+ information
+Date: Tue, 8 Dec 2015 13:53:07 +0100
+Message-ID: <20151208125307.GA3359@katana>
+References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
+ <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
+ <20151208110944.GH1766@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:64091 "EHLO mga09.intel.com"
+Received: from sauhun.de ([89.238.76.85]:42778 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932345AbbLHLiO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 8 Dec 2015 06:38:14 -0500
+	id S1751854AbbLHMxP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 8 Dec 2015 07:53:15 -0500
 Content-Disposition: inline
-In-Reply-To: <1449533774-22672-3-git-send-email-lho@apm.com>
+In-Reply-To: <20151208110944.GH1766@lahna.fi.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Loc Ho <lho@apm.com>
-Cc: wsa@the-dreams.de, Ken.Xue@amd.com, Jeff.Wu@amd.com, rjw@rjwysocki.net, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-On Mon, Dec 07, 2015 at 05:16:14PM -0700, Loc Ho wrote:
-> Enable APM X-Gene ACPI I2C device support by adding the
-> corresponding ACPI ID. The platform ACPI APD corresponding
-> change is required to provide the proper clock frequency input.
-> 
-> Signed-off-by: Loc Ho <lho@apm.com>
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> I wonder if it makes sense to add "i2c-sda-hold-time-ns" (taken from the
+> designware driver DT binding) to the timings structure? It is tHD;DAT
+> parameter in the I2C bus specification.
+
+It totally makes sense. I just didn't need it for the RCar driver and
+didn't want to implement something which isn't actually used. So feel
+free to add it, or ask me to do it, if you promise to use it in the
+designware driver :)
+
+Thanks for the review!
+
+
+--IS0zKkzwUGydFO0o
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWZtKyAAoJEBQN5MwUoCm2dqQP/34nxInrnYQSTVxE+dBiUae2
+qnqUJhDn6r9S4RB3QeOMVmSACBg7rY5XfYkjJS9f40GTgr3Bf2LJW9wuLxXY3Pal
+Y5dTIWDBQGaVq/DUlixw9KMEO0fsw8i4bKWwYqV3+wbd50ANmsBT91aTc9WksRQV
+mBwHBv8YgDAgBzlPlVFOFfGTvoHkHxX11uJedegOELWO5X5mID9wpILp0ix3v2mW
+tqFq4SiPGxJqiIi5l+HREbJpqCGvW+up8AUsRAig68hhlLXmdH/xsf5Yl1tpSMCF
+nvpdLK21jv1VvJPon1jgCLaunr4KIokaOBT57I7NDDpPTlLAicPxOOm50TUcLrMi
+ErRhnNeerFmR9nMlG/1oygwVZEjKVGv6NMntQXQ+/rnNrOVXp31OulqjMeVWW0HX
+t861X56RRPRFhHlh3sbFqiZUw+hGQQjsAf30WGkcgllm39cueB+tZ3SDXOLTgdG3
+th5D+9Ox4Dw8mKSmNud+lJESncptk7cJBqZQIV2WgGH+hqNljvHRvLc14vikD6XK
+XAXk47uXTL+nq8EB81lASxyo7gOmtmDp9ozkfYO0u3f5hSUghxQdE0VfU7ZNSM3c
+I4JeRubpF912nFkvJXeOPyKjN9rXhQUyDLOxRQ+rWVH+tGPR5bbFzRiBv7HQIoZA
+SXFpDHXsrnsHnKFjXHI2
+=/Rha
+-----END PGP SIGNATURE-----
+
+--IS0zKkzwUGydFO0o--
