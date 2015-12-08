@@ -1,93 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 5/9] i2c: rcar: honor additional i2c timings from DT
-Date: Tue,  8 Dec 2015 10:37:49 +0100
-Message-ID: <1449567473-2084-6-git-send-email-wsa@the-dreams.de>
-References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v2 0/9] i2c: add generic support for timing parameters in DT
+Date: Tue,  8 Dec 2015 10:37:44 +0100
+Message-ID: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:39750 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:39736 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756000AbbLHJiF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 8 Dec 2015 04:38:05 -0500
-In-Reply-To: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
+	id S1755743AbbLHJiE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 8 Dec 2015 04:38:04 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Here is a patch series adding better DT support for timing parameters like the
+raise time or the fall time which are generic for the I2C subsystem. There is a
+core function for parsing and an implementation for the RCar driver how to use
+it.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- Documentation/devicetree/bindings/i2c/i2c-rcar.txt |  4 ++++
- drivers/i2c/busses/i2c-rcar.c                      | 21 ++++++++++++---------
- 2 files changed, 16 insertions(+), 9 deletions(-)
+I added people of the designware and rk3x driver to CC because they might be
+interested in this new function. They provided the basis for this series, so it
+should be easy to convert them.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-index ea406eb20fa5ad..95e97223a71c83 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-@@ -20,6 +20,10 @@ Optional properties:
-   propoerty indicates the default frequency 100 kHz.
- - clocks: clock specifier.
- 
-+- i2c-scl-falling-time-ns: see i2c.txt
-+- i2c-scl-internal-delay-ns: see i2c.txt
-+- i2c-scl-rising-time-ns: see i2c.txt
-+
- Examples :
- 
- i2c0: i2c@e6508000 {
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index c663f4389bf898..b2389c492579cf 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -164,12 +164,15 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
- 
- static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
- {
--	u32 scgd, cdf, round, ick, scl, cdf_width;
-+	u32 scgd, cdf, round, ick, sum, scl, cdf_width;
- 	unsigned long rate;
- 	struct device *dev = rcar_i2c_priv_to_dev(priv);
- 
- 	/* Fall back to previously used values if not supplied */
- 	t->bus_freq_hz = t->bus_freq_hz ?: 100000;
-+	t->scl_fall_ns = t->scl_fall_ns ?: 35;
-+	t->scl_rise_ns = t->scl_rise_ns ?: 200;
-+	t->scl_int_delay_ns = t->scl_int_delay_ns ?: 50;
- 
- 	switch (priv->devtype) {
- 	case I2C_RCAR_GEN1:
-@@ -193,9 +196,9 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
- 	 * SCL	= ick / (20 + SCGD * 8 + F[(ticf + tr + intd) * ick])
- 	 *
- 	 * ick  : I2C internal clock < 20 MHz
--	 * ticf : I2C SCL falling time  =  35 ns here
--	 * tr   : I2C SCL rising  time  = 200 ns here
--	 * intd : LSI internal delay    =  50 ns here
-+	 * ticf : I2C SCL falling time
-+	 * tr   : I2C SCL rising  time
-+	 * intd : LSI internal delay
- 	 * clkp : peripheral_clk
- 	 * F[]  : integer up-valuation
- 	 */
-@@ -211,12 +214,12 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timin
- 	 * it is impossible to calculate large scale
- 	 * number on u32. separate it
- 	 *
--	 * F[(ticf + tr + intd) * ick]
--	 *  = F[(35 + 200 + 50)ns * ick]
--	 *  = F[285 * ick / 1000000000]
--	 *  = F[(ick / 1000000) * 285 / 1000]
-+	 * F[(ticf + tr + intd) * ick] with sum = (ticf + tr + intd)
-+	 *  = F[sum * ick / 1000000000]
-+	 *  = F[(ick / 1000000) * sum / 1000]
- 	 */
--	round = (ick + 500000) / 1000000 * 285;
-+	sum = t->scl_fall_ns + t->scl_rise_ns + t->scl_int_delay_ns;
-+	round = (ick + 500000) / 1000000 * sum;
- 	round = (round + 500) / 1000;
- 
- 	/*
+Please have a look, test, comment...
+
+Thanks,
+
+    Wolfram
+
+Changes since V1:
+* switched from DT properties to device properties
+* that means no dependency on OF and rename of the parsing function
+* removed a superfluous comment
+* adapted the RCar driver to the changes
+* added Rob's ack
+
+Changes since RFC:
+* better tested
+* added documentation for the new function and the new struct
+* reworded some commit messages slightly
+* moved the new property in the dtsi above the "status" property
+
+Wolfram Sang (9):
+  i2c: document generic DT bindings for timing parameters
+  i2c: add generic routine to parse DT for timing information
+  i2c: rcar: refactor probe function a little
+  i2c: rcar: switch to i2c generic dt parsing
+  i2c: rcar: honor additional i2c timings from DT
+  ARM: shmobile: r8a7790: dtsi: add internal delay for i2c IPs
+  ARM: shmobile: r8a7791: dtsi: add internal delay for i2c IPs
+  ARM: shmobile: r8a7794: dtsi: add internal delay for i2c IPs
+  arm64: renesas: r8a7795: add internal delay for i2c IPs
+
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt |  4 ++
+ Documentation/devicetree/bindings/i2c/i2c.txt      | 31 ++++++++--
+ arch/arm/boot/dts/r8a7790.dtsi                     |  4 ++
+ arch/arm/boot/dts/r8a7791.dtsi                     |  6 ++
+ arch/arm/boot/dts/r8a7794.dtsi                     |  6 ++
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi           |  7 +++
+ drivers/i2c/busses/i2c-rcar.c                      | 67 +++++++++++-----------
+ drivers/i2c/i2c-core.c                             | 47 +++++++++++++++
+ include/linux/i2c.h                                | 18 ++++++
+ 9 files changed, 151 insertions(+), 39 deletions(-)
+
 -- 
 2.1.4
