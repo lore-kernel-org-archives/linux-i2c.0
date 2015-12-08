@@ -1,62 +1,41 @@
 From: Loc Ho <lho@apm.com>
-Subject: [PATCH 1/2] acpi:apd: Add APM X-Gene ACPI I2C device support
-Date: Mon,  7 Dec 2015 17:16:13 -0700
-Message-ID: <1449533774-22672-2-git-send-email-lho@apm.com>
+Subject: [PATCH 2/2] i2c:dw: Add APM X-Gene ACPI I2C device support
+Date: Mon,  7 Dec 2015 17:16:14 -0700
+Message-ID: <1449533774-22672-3-git-send-email-lho@apm.com>
 References: <1449533774-22672-1-git-send-email-lho@apm.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:34161 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754999AbbLHAQ1 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Dec 2015 19:16:27 -0500
-Received: by pacwq6 with SMTP id wq6so2056754pac.1
-        for <linux-i2c@vger.kernel.org>; Mon, 07 Dec 2015 16:16:27 -0800 (PST)
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:34176 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755335AbbLHAQ3 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Dec 2015 19:16:29 -0500
+Received: by pacwq6 with SMTP id wq6so2057152pac.1
+        for <linux-i2c@vger.kernel.org>; Mon, 07 Dec 2015 16:16:29 -0800 (PST)
 In-Reply-To: <1449533774-22672-1-git-send-email-lho@apm.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: wsa@the-dreams.de, Ken.Xue@amd.com, Jeff.Wu@amd.com, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, lenb@kernel.org
 Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com, Loc Ho <lho@apm.com>
 
-Add APM X-Gene ACPI I2C device support by hooks into existent
-ACPI apd driver. To fully enable support, require another
-patch to add the X-Gene ACPI node into the DW I2C driver.
+Enable APM X-Gene ACPI I2C device support by adding the
+corresponding ACPI ID. The platform ACPI APD corresponding
+change is required to provide the proper clock frequency input.
 
 Signed-off-by: Loc Ho <lho@apm.com>
 ---
- drivers/acpi/acpi_apd.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-index a450e7a..6a9cb8d 100644
---- a/drivers/acpi/acpi_apd.c
-+++ b/drivers/acpi/acpi_apd.c
-@@ -51,7 +51,7 @@ struct apd_private_data {
- 	const struct apd_device_desc *dev_desc;
- };
- 
--#ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
-+#if defined(CONFIG_X86_AMD_PLATFORM_DEVICE) || defined(CONFIG_ARM64)
- #define APD_ADDR(desc)	((unsigned long)&desc)
- 
- static int acpi_apd_setup(struct apd_private_data *pdata)
-@@ -76,6 +76,11 @@ static struct apd_device_desc cz_i2c_desc = {
- 	.fixed_clk_rate = 133000000,
- };
- 
-+static struct apd_device_desc xgene_i2c_desc = {
-+	.setup = acpi_apd_setup,
-+	.fixed_clk_rate = 100000000,
-+};
-+
- static struct apd_device_desc cz_uart_desc = {
- 	.setup = acpi_apd_setup,
- 	.fixed_clk_rate = 48000000,
-@@ -135,6 +140,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
- 	{ "AMD0010", APD_ADDR(cz_i2c_desc) },
- 	{ "AMD0020", APD_ADDR(cz_uart_desc) },
- 	{ "AMD0030", },
-+	{ "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 809579e..423371d 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -117,6 +117,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "80860F41", 0 },
+ 	{ "808622C1", 0 },
+ 	{ "AMD0010", 0 },
++	{ "APMC0D0F", 0 },
  	{ }
  };
- 
+ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
 -- 
 1.7.1
