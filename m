@@ -1,61 +1,127 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 6/9] ARM: shmobile: r8a7790: dtsi: add internal delay for i2c IPs
-Date: Tue,  8 Dec 2015 10:37:50 +0100
-Message-ID: <1449567473-2084-7-git-send-email-wsa@the-dreams.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing
+ information
+Date: Tue, 08 Dec 2015 12:54:45 +0200
+Message-ID: <1449572085.30729.28.camel@linux.intel.com>
 References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:39753 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756029AbbLHJiG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 8 Dec 2015 04:38:06 -0500
-In-Reply-To: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+	 <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Tue, 2015-12-08 at 10:37 +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>=20
+> Inspired from the i2c-rk3x driver (thanks guys!) but refactored and
+> extended. See built-in docs for further information.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- arch/arm/boot/dts/r8a7790.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+One style comment.
 
-diff --git a/arch/arm/boot/dts/r8a7790.dtsi b/arch/arm/boot/dts/r8a7790.dtsi
-index 6cfd0dc79bbec0..64a3f4a05f36d0 100644
---- a/arch/arm/boot/dts/r8a7790.dtsi
-+++ b/arch/arm/boot/dts/r8a7790.dtsi
-@@ -417,6 +417,7 @@
- 		interrupts = <0 287 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7790_CLK_I2C0>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <110>;
- 		status = "disabled";
- 	};
- 
-@@ -428,6 +429,7 @@
- 		interrupts = <0 288 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7790_CLK_I2C1>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <6>;
- 		status = "disabled";
- 	};
- 
-@@ -439,6 +441,7 @@
- 		interrupts = <0 286 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7790_CLK_I2C2>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <6>;
- 		status = "disabled";
- 	};
- 
-@@ -450,6 +453,7 @@
- 		interrupts = <0 290 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7790_CLK_I2C3>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <110>;
- 		status = "disabled";
- 	};
- 
--- 
-2.1.4
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+> =C2=A0drivers/i2c/i2c-core.c | 47
+> +++++++++++++++++++++++++++++++++++++++++++++++
+> =C2=A0include/linux/i2c.h=C2=A0=C2=A0=C2=A0=C2=A0| 18 +++++++++++++++=
++++
+> =C2=A02 files changed, 65 insertions(+)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index ba8eb087f22465..e94d2ca2aab4aa 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -53,6 +53,7 @@
+> =C2=A0#include <linux/jump_label.h>
+> =C2=A0#include <asm/uaccess.h>
+> =C2=A0#include <linux/err.h>
+> +#include <linux/property.h>
+> =C2=A0
+> =C2=A0#include "i2c-core.h"
+> =C2=A0
+> @@ -1438,6 +1439,52 @@ static void of_i2c_register_devices(struct
+> i2c_adapter *adap)
+> =C2=A0	}
+> =C2=A0}
+> =C2=A0
+> +/**
+> + * i2c_parse_fw_timings - get I2C related timing parameters from
+> firmware
+> + * @dev: The device to scan for I2C timing properties
+> + * @t: the i2c_timings struct to be filled with values
+> + * @use_defaults: bool to use sane defaults derived from the I2C
+> specification
+> + *=C2=A0		=C2=A0=C2=A0when properties are not found, otherwise use 0
+> + *
+> + * Scan the device for the generic I2C properties describing timing
+> parameters
+> + * for the signal and fill the given struct with the results. If a
+> property was
+> + * not found and use_defaults was true, then maximum timings are
+> assumed which
+> + * are derived from the I2C specification. If use_defaults is not
+> used, the
+> + * results will be 0, so drivers can apply their own defaults later.
+> The latter
+> + * is mainly intended for avoiding regressions of existing drivers
+> which want
+> + * to switch to this function. New drivers almost always should use
+> the defaults.
+> + */
+> +
+> +void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t,
+> bool use_defaults)
+> +{
+> +	memset(t, 0, sizeof(*t));
+> +
+> +	if (device_property_read_u32(dev, "clock-frequency", &t-
+> >bus_freq_hz) && use_defaults)
+> +		t->bus_freq_hz =3D 100000;
+> +
+> +	if (device_property_read_u32(dev, "i2c-scl-rising-time-ns",
+> &t->scl_rise_ns) && use_defaults) {
+> +		if (t->bus_freq_hz <=3D 100000)
+> +			t->scl_rise_ns =3D 1000;
+> +		else if (t->bus_freq_hz <=3D 400000)
+> +			t->scl_rise_ns =3D 300;
+> +		else
+> +			t->scl_rise_ns =3D 120;
+> +	}
+> +
+> +	if (device_property_read_u32(dev, "i2c-scl-falling-time-ns",=20
+> &t->scl_fall_ns) && use_defaults) {
+> +		if (t->bus_freq_hz <=3D 400000)
+> +			t->scl_fall_ns =3D 300;
+> +		else
+> +			t->scl_fall_ns =3D 120;
+> +	}
+> +
+> +	device_property_read_u32(dev, "i2c-scl-internal-delay-ns",
+> &t->scl_int_delay_ns);
+> +
+> +	if (device_property_read_u32(dev, "i2c-sda-falling-time-ns",=20
+> &t->sda_fall_ns) && use_defaults)
+> +		t->sda_fall_ns =3D t->scl_fall_ns;
+
+Too many && use_defaults. What about
+
+memset(t, 0, sizeof(*t));
+
+device_property_read_u32(dev, "i2c-scl-internal-delay-ns", &t-
+>scl_int_delay_ns);
+
+if (!use_defaults)
+=C2=A0return;
+
+=2E..
+
+
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
+
