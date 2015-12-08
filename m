@@ -1,33 +1,29 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2 1/1] x86/platform/iosf_mbi: Remove duplicate definitions
-Date: Mon, 07 Dec 2015 23:56:22 +0100
-Message-ID: <5624963.0RW57CLWha@vostro.rjw.lan>
-References: <1447264769-21981-1-git-send-email-andriy.shevchenko@linux.intel.com> <1448461984.15393.53.camel@linux.intel.com> <alpine.DEB.2.11.1511251537170.12555@nanos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Loc Ho <lho@apm.com>
+Subject: [PATCH 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
+Date: Mon,  7 Dec 2015 17:16:12 -0700
+Message-ID: <1449533774-22672-1-git-send-email-lho@apm.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from v094114.home.net.pl ([79.96.170.134]:54175 "HELO
-	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755646AbbLGW0Z convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Dec 2015 17:26:25 -0500
-In-Reply-To: <alpine.DEB.2.11.1511251537170.12555@nanos>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:33085 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754685AbbLHAQZ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Dec 2015 19:16:25 -0500
+Received: by pabur14 with SMTP id ur14so2094993pab.0
+        for <linux-i2c@vger.kernel.org>; Mon, 07 Dec 2015 16:16:25 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Peter Anvin <hpa@zytor.com>, Wolfram Sang <wsa@the-dreams.de>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Hock Leong Kweh <hock.leong.kweh@intel.com>
+To: wsa@the-dreams.de, Ken.Xue@amd.com, Jeff.Wu@amd.com, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, lenb@kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com, Loc Ho <lho@apm.com>
 
-On Wednesday, November 25, 2015 03:37:54 PM Thomas Gleixner wrote:
-> On Wed, 25 Nov 2015, Andy Shevchenko wrote:
-> > =E2=80=A6we are working on another fix which is based also on this =
-patch. Can
-> > you provide your ACK if you are okay with the changes to arch/x86 ?
->=20
-> I'm fine with the patch. Once I have acks, I'll pick it up.
+Add APM X-Gene ACPI I2C device support. These patches follow
+the same implementation as AMD I2C driver - changes in ACPI APD 
+and Designware I2C drivers.
 
-Well, it turns out that some material to go into my tree depends on thi=
-s
-one.  Would you mind if I took it?
+Signed-off-by: Loc Ho <lho@apm.com>
+---
+Loc Ho (2):
+  acpi:apd: Add APM X-Gene ACPI I2C device support
+  i2c:dw: Add APM X-Gene ACPI I2C device support
 
-Thanks,
-Rafael
+ drivers/acpi/acpi_apd.c                     |    8 +++++++-
+ drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+ 2 files changed, 8 insertions(+), 1 deletions(-)
