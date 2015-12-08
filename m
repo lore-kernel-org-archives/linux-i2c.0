@@ -1,72 +1,100 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 1/9] i2c: document generic DT bindings for timing parameters
-Date: Tue,  8 Dec 2015 10:37:45 +0100
-Message-ID: <1449567473-2084-2-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v2 3/9] i2c: rcar: refactor probe function a little
+Date: Tue,  8 Dec 2015 10:37:47 +0100
+Message-ID: <1449567473-2084-4-git-send-email-wsa@the-dreams.de>
 References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:39739 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755766AbbLHJiE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 8 Dec 2015 04:38:04 -0500
 In-Reply-To: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Rob Herring <robh@kernel.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Also, sort the properties alphabetically and make indentation
-consistent. Wording largely taken from i2c-rk3x.txt, thanks guys!
-
-Only "i2c-scl-internal-delay-ns" is new, the rest is used by two drivers
-already and was documented in their driver binding documentation.
+The probe function is a little bit messy, something here, something
+there. Rework it so that there is some order: first init the private
+structure, then the adapter, then do HW init. This also allows us to
+remove the device argument of the clock calculation function, because it
+now can be deduced from the private structure. Also, shorten some lines
+where possible. This is a preparation for further refactoring.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c.txt | 31 ++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 40 +++++++++++++++++-----------------------
+ 1 file changed, 17 insertions(+), 23 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-index 8a99150ac3a7fd..a00219f5ee0733 100644
---- a/Documentation/devicetree/bindings/i2c/i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-@@ -29,12 +29,33 @@ Optional properties
- These properties may not be supported by all drivers. However, if a driver
- wants to support one of the below features, it should adapt the bindings below.
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 3ed1f0aa5eeb16..d4322a9096786f 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -162,15 +162,11 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ 	return -EBUSY;
+ }
  
--- clock-frequency	- frequency of bus clock in Hz.
--- wakeup-source		- device can be used as a wakeup source.
-+- clock-frequency
-+	frequency of bus clock in Hz.
+-static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+-				    u32 bus_speed,
+-				    struct device *dev)
++static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, u32 bus_speed)
+ {
+-	u32 scgd, cdf;
+-	u32 round, ick;
+-	u32 scl;
+-	u32 cdf_width;
++	u32 scgd, cdf, round, ick, scl, cdf_width;
+ 	unsigned long rate;
++	struct device *dev = rcar_i2c_priv_to_dev(priv);
  
--- interrupts		- interrupts used by the device.
--- interrupt-names	- "irq" and "wakeup" names are recognized by I2C core,
--			  other names are left to individual drivers.
-+- i2c-scl-falling-time-ns
-+	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
-+	specification.
-+
-+- i2c-scl-internal-delay-ns
-+	Number of nanoseconds the IP core additionally needs to setup SCL.
-+
-+- i2c-scl-rising-time-ns
-+	Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
-+	specification.
-+
-+- i2c-sda-falling-time-ns
-+	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
-+	specification.
-+
-+- interrupts
-+	interrupts used by the device.
-+
-+- interrupt-names
-+	"irq" and "wakeup" names are recognized by I2C core, other names are
-+	left to individual drivers.
-+
-+- wakeup-source
-+	device can be used as a wakeup source.
+ 	switch (priv->devtype) {
+ 	case I2C_RCAR_GEN1:
+@@ -610,21 +606,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->io))
+ 		return PTR_ERR(priv->io);
  
- Binding may contain optional "interrupts" property, describing interrupts
- used by the device. I2C core will assign "irq" interrupt (or the very first
+-	bus_speed = 100000; /* default 100 kHz */
+-	of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
+-
+ 	priv->devtype = (enum rcar_i2c_type)of_match_device(rcar_i2c_dt_ids, dev)->data;
+-
+-	pm_runtime_enable(dev);
+-	pm_runtime_get_sync(dev);
+-	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
+-	if (ret < 0)
+-		goto out_pm_put;
+-
+-	rcar_i2c_init(priv);
+-	pm_runtime_put(dev);
+-
+-	irq = platform_get_irq(pdev, 0);
+ 	init_waitqueue_head(&priv->wait);
+ 
+ 	adap = &priv->adap;
+@@ -637,8 +619,20 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
+ 
+-	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0,
+-			       dev_name(dev), priv);
++	bus_speed = 100000; /* default 100 kHz */
++	of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
++
++	pm_runtime_enable(dev);
++	pm_runtime_get_sync(dev);
++	ret = rcar_i2c_clock_calculate(priv, bus_speed);
++	if (ret < 0)
++		goto out_pm_put;
++
++	rcar_i2c_init(priv);
++	pm_runtime_put(dev);
++
++	irq = platform_get_irq(pdev, 0);
++	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
+ 	if (ret < 0) {
+ 		dev_err(dev, "cannot get irq %d\n", irq);
+ 		goto out_pm_disable;
 -- 
 2.1.4
-
