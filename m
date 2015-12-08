@@ -1,13 +1,13 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 7/9] ARM: shmobile: r8a7791: dtsi: add internal delay for i2c IPs
-Date: Tue,  8 Dec 2015 10:37:51 +0100
-Message-ID: <1449567473-2084-8-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v2 9/9] arm64: renesas: r8a7795: add internal delay for i2c IPs
+Date: Tue,  8 Dec 2015 10:37:53 +0100
+Message-ID: <1449567473-2084-10-git-send-email-wsa@the-dreams.de>
 References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:39756 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:39777 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756173AbbLHJiH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 8 Dec 2015 04:38:07 -0500
+	id S1756197AbbLHJiI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 8 Dec 2015 04:38:08 -0500
 In-Reply-To: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -18,60 +18,68 @@ From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- arch/arm/boot/dts/r8a7791.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/boot/dts/renesas/r8a7795.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/boot/dts/r8a7791.dtsi b/arch/arm/boot/dts/r8a7791.dtsi
-index 76b33e895513c1..3161dfcdd002dd 100644
---- a/arch/arm/boot/dts/r8a7791.dtsi
-+++ b/arch/arm/boot/dts/r8a7791.dtsi
-@@ -407,6 +407,7 @@
- 		interrupts = <0 287 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <6>;
- 		status = "disabled";
- 	};
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795.dtsi b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+index 56d6a5b23a4e38..b02a7ad1583933 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a7795.dtsi
+@@ -519,6 +519,7 @@
+ 			interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 931>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <110>;
+ 			status = "disabled";
+ 		};
  
-@@ -418,6 +419,7 @@
- 		interrupts = <0 288 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7791_CLK_I2C1>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <6>;
- 		status = "disabled";
- 	};
+@@ -530,6 +531,7 @@
+ 			interrupts = <GIC_SPI 288 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 930>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <6>;
+ 			status = "disabled";
+ 		};
  
-@@ -429,6 +431,7 @@
- 		interrupts = <0 286 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7791_CLK_I2C2>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <6>;
- 		status = "disabled";
- 	};
+@@ -541,6 +543,7 @@
+ 			interrupts = <GIC_SPI 286 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 929>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <6>;
+ 			status = "disabled";
+ 		};
  
-@@ -440,6 +443,7 @@
- 		interrupts = <0 290 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7791_CLK_I2C3>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <6>;
- 		status = "disabled";
- 	};
+@@ -552,6 +555,7 @@
+ 			interrupts = <GIC_SPI 290 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 928>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <110>;
+ 			status = "disabled";
+ 		};
  
-@@ -451,6 +455,7 @@
- 		interrupts = <0 19 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7791_CLK_I2C4>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <6>;
- 		status = "disabled";
- 	};
+@@ -563,6 +567,7 @@
+ 			interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 927>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <110>;
+ 			status = "disabled";
+ 		};
  
-@@ -463,6 +468,7 @@
- 		interrupts = <0 20 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp9_clks R8A7791_CLK_I2C5>;
- 		power-domains = <&cpg_clocks>;
-+		i2c-scl-internal-delay-ns = <110>;
- 		status = "disabled";
- 	};
+@@ -574,6 +579,7 @@
+ 			interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 919>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <110>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -585,6 +591,7 @@
+ 			interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&cpg CPG_MOD 918>;
+ 			power-domains = <&cpg>;
++			i2c-scl-internal-delay-ns = <6>;
+ 			status = "disabled";
+ 		};
  
 -- 
 2.1.4
