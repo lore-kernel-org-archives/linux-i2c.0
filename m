@@ -1,62 +1,35 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 Subject: Re: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing
  information
-Date: Tue, 8 Dec 2015 14:03:23 +0100
-Message-ID: <20151208130323.GB3359@katana>
+Date: Tue, 8 Dec 2015 15:03:46 +0200
+Message-ID: <20151208130346.GO1766@lahna.fi.intel.com>
 References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
  <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
- <1449572085.30729.28.camel@linux.intel.com>
+ <20151208110944.GH1766@lahna.fi.intel.com>
+ <20151208125307.GA3359@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dTy3Mrz/UPE2dbVg"
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:1905 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750901AbbLHNGI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 8 Dec 2015 08:06:08 -0500
 Content-Disposition: inline
-In-Reply-To: <1449572085.30729.28.camel@linux.intel.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <20151208125307.GA3359@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
+On Tue, Dec 08, 2015 at 01:53:07PM +0100, Wolfram Sang wrote:
+> 
+> > I wonder if it makes sense to add "i2c-sda-hold-time-ns" (taken from the
+> > designware driver DT binding) to the timings structure? It is tHD;DAT
+> > parameter in the I2C bus specification.
+> 
+> It totally makes sense. I just didn't need it for the RCar driver and
+> didn't want to implement something which isn't actually used. So feel
+> free to add it, or ask me to do it, if you promise to use it in the
+> designware driver :)
 
---dTy3Mrz/UPE2dbVg
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> Too many && use_defaults. What about
->=20
-> memset(t, 0, sizeof(*t));
->=20
-> device_property_read_u32(dev, "i2c-scl-internal-delay-ns", &t-
-> >scl_int_delay_ns);
->=20
-> if (!use_defaults)
-> =C2=A0return;
-
-I like this! Thanks for the input.
-
-
---dTy3Mrz/UPE2dbVg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWZtUbAAoJEBQN5MwUoCm2zeYP/1eVl5nexcSPAmPVD+Lvmc21
-xUafI5/pUKIX4QU8PhFfsLdZWEX4cEs8bHEyHCCQoM+aDc9aSkdZMHhcyW03p0Gi
-JAiRZdyvqpt8e1aUqkHmXudfi2UbLD8iUPNnfA4ZMz7ifHyuZa39l4I26xOzWuqP
-+nQCQph6oaD4+JBrElQh4BHL6ygb4ph/zoHd4Y/1kwviTmnhvjlzk6gqeXWIgRod
-efnxVfra6qVVRCkbsYawbHZy4Cl0RYZr3D9Hi9wVAJDQKN2fFUF7Jfe0/l99xKMf
-5kbqwkvyjAuX9ELkAmiOChL75hT9OpyrTtguXFOTj0aTzt2ZhxCzzMwIxQhw5plv
-oGwV9LvSshU/yxpUpb4+ua9BYFYIts93CJgbS+FMS8zkbCnQEUU/msEhHpNDBWWT
-nXwSbvuqKP2cLUqcpcSJnzGeY0A60q2Nt+lTwJA2NYtHLXqq9lddOmRlsFsvBEmm
-XyasrHUdV7LCOfWVRhf9QzfiemTHWQhYfqcjtknyuKy/O+AA1kWg/FIJYzULvO1z
-goyrXimwB+xF/VIfVrSsYVuJ0j9UGwE72kpMWL1407gd9HLRiJ0WeSU2EufwXHfR
-MRTDi+XeKGrONt7L+96Ei6t13C8I63ky70WOwDTpYpziT/tfsxStiWKTpPMAyyCx
-wPputZH/H4ebJKKDPWkg
-=tYZ7
------END PGP SIGNATURE-----
-
---dTy3Mrz/UPE2dbVg--
+I can add it in a separate patch later on. Thanks!
