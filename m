@@ -1,12 +1,12 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 3/9] i2c: rcar: refactor probe function a little
-Date: Tue,  8 Dec 2015 10:37:47 +0100
-Message-ID: <1449567473-2084-4-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing information
+Date: Tue,  8 Dec 2015 10:37:46 +0100
+Message-ID: <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
 References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:39739 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:39735 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755766AbbLHJiE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	id S1755129AbbLHJiE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
 	Tue, 8 Dec 2015 04:38:04 -0500
 In-Reply-To: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
@@ -16,85 +16,122 @@ Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman 
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-The probe function is a little bit messy, something here, something
-there. Rework it so that there is some order: first init the private
-structure, then the adapter, then do HW init. This also allows us to
-remove the device argument of the clock calculation function, because it
-now can be deduced from the private structure. Also, shorten some lines
-where possible. This is a preparation for further refactoring.
+Inspired from the i2c-rk3x driver (thanks guys!) but refactored and
+extended. See built-in docs for further information.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 40 +++++++++++++++++-----------------------
- 1 file changed, 17 insertions(+), 23 deletions(-)
+ drivers/i2c/i2c-core.c | 47 +++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    | 18 ++++++++++++++++++
+ 2 files changed, 65 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 3ed1f0aa5eeb16..d4322a9096786f 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -162,15 +162,11 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
- 	return -EBUSY;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index ba8eb087f22465..e94d2ca2aab4aa 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -53,6 +53,7 @@
+ #include <linux/jump_label.h>
+ #include <asm/uaccess.h>
+ #include <linux/err.h>
++#include <linux/property.h>
+ 
+ #include "i2c-core.h"
+ 
+@@ -1438,6 +1439,52 @@ static void of_i2c_register_devices(struct i2c_adapter *adap)
+ 	}
  }
  
--static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
--				    u32 bus_speed,
--				    struct device *dev)
-+static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, u32 bus_speed)
++/**
++ * i2c_parse_fw_timings - get I2C related timing parameters from firmware
++ * @dev: The device to scan for I2C timing properties
++ * @t: the i2c_timings struct to be filled with values
++ * @use_defaults: bool to use sane defaults derived from the I2C specification
++ * 		  when properties are not found, otherwise use 0
++ *
++ * Scan the device for the generic I2C properties describing timing parameters
++ * for the signal and fill the given struct with the results. If a property was
++ * not found and use_defaults was true, then maximum timings are assumed which
++ * are derived from the I2C specification. If use_defaults is not used, the
++ * results will be 0, so drivers can apply their own defaults later. The latter
++ * is mainly intended for avoiding regressions of existing drivers which want
++ * to switch to this function. New drivers almost always should use the defaults.
++ */
++
++void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_defaults)
++{
++	memset(t, 0, sizeof(*t));
++
++	if (device_property_read_u32(dev, "clock-frequency", &t->bus_freq_hz) && use_defaults)
++		t->bus_freq_hz = 100000;
++
++	if (device_property_read_u32(dev, "i2c-scl-rising-time-ns", &t->scl_rise_ns) && use_defaults) {
++		if (t->bus_freq_hz <= 100000)
++			t->scl_rise_ns = 1000;
++		else if (t->bus_freq_hz <= 400000)
++			t->scl_rise_ns = 300;
++		else
++			t->scl_rise_ns = 120;
++	}
++
++	if (device_property_read_u32(dev, "i2c-scl-falling-time-ns", &t->scl_fall_ns) && use_defaults) {
++		if (t->bus_freq_hz <= 400000)
++			t->scl_fall_ns = 300;
++		else
++			t->scl_fall_ns = 120;
++	}
++
++	device_property_read_u32(dev, "i2c-scl-internal-delay-ns", &t->scl_int_delay_ns);
++
++	if (device_property_read_u32(dev, "i2c-sda-falling-time-ns", &t->sda_fall_ns) && use_defaults)
++		t->sda_fall_ns = t->scl_fall_ns;
++}
++EXPORT_SYMBOL_GPL(i2c_parse_fw_timings);
++
+ static int of_dev_node_match(struct device *dev, void *data)
  {
--	u32 scgd, cdf;
--	u32 round, ick;
--	u32 scl;
--	u32 cdf_width;
-+	u32 scgd, cdf, round, ick, scl, cdf_width;
- 	unsigned long rate;
-+	struct device *dev = rcar_i2c_priv_to_dev(priv);
+ 	return dev->of_node == data;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 768063baafbf5e..7c45181f41ab7d 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -414,6 +414,22 @@ struct i2c_algorithm {
+ };
  
- 	switch (priv->devtype) {
- 	case I2C_RCAR_GEN1:
-@@ -610,21 +606,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->io))
- 		return PTR_ERR(priv->io);
- 
--	bus_speed = 100000; /* default 100 kHz */
--	of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
--
- 	priv->devtype = (enum rcar_i2c_type)of_match_device(rcar_i2c_dt_ids, dev)->data;
--
--	pm_runtime_enable(dev);
--	pm_runtime_get_sync(dev);
--	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
--	if (ret < 0)
--		goto out_pm_put;
--
--	rcar_i2c_init(priv);
--	pm_runtime_put(dev);
--
--	irq = platform_get_irq(pdev, 0);
- 	init_waitqueue_head(&priv->wait);
- 
- 	adap = &priv->adap;
-@@ -637,8 +619,20 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(adap, priv);
- 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
- 
--	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0,
--			       dev_name(dev), priv);
-+	bus_speed = 100000; /* default 100 kHz */
-+	of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
+ /**
++ * struct i2c_timings - I2C timing information
++ * @bus_freq_hz: the bus frequency in Hz
++ * @scl_rise_ns: time SCL signal takes to rise in ns; t(r) in the I2C specification
++ * @scl_fall_ns: time SCL signal takes to fall in ns; t(f) in the I2C specification
++ * @scl_int_delay_ns: time IP core additionally needs to setup SCL in ns
++ * @sda_fall_ns: time SDA signal takes to fall in ns; t(f) in the I2C specification
++ */
++struct i2c_timings {
++	u32 bus_freq_hz;
++	u32 scl_rise_ns;
++	u32 scl_fall_ns;
++	u32 scl_int_delay_ns;
++	u32 sda_fall_ns;
++};
 +
-+	pm_runtime_enable(dev);
-+	pm_runtime_get_sync(dev);
-+	ret = rcar_i2c_clock_calculate(priv, bus_speed);
-+	if (ret < 0)
-+		goto out_pm_put;
++/**
+  * struct i2c_bus_recovery_info - I2C bus recovery information
+  * @recover_bus: Recover routine. Either pass driver's recover_bus() routine, or
+  *	i2c_generic_scl_recovery() or i2c_generic_gpio_recovery().
+@@ -602,6 +618,7 @@ extern void i2c_clients_command(struct i2c_adapter *adap,
+ extern struct i2c_adapter *i2c_get_adapter(int nr);
+ extern void i2c_put_adapter(struct i2c_adapter *adap);
+ 
++void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_defaults);
+ 
+ /* Return the functionality mask */
+ static inline u32 i2c_get_functionality(struct i2c_adapter *adap)
+@@ -644,6 +661,7 @@ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+ 
+ /* must call i2c_put_adapter() when done with returned i2c_adapter device */
+ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node);
 +
-+	rcar_i2c_init(priv);
-+	pm_runtime_put(dev);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
- 	if (ret < 0) {
- 		dev_err(dev, "cannot get irq %d\n", irq);
- 		goto out_pm_disable;
+ #else
+ 
+ static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
 -- 
 2.1.4
