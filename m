@@ -1,33 +1,28 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing
- information
-Date: Tue, 8 Dec 2015 13:09:44 +0200
-Message-ID: <20151208110944.GH1766@lahna.fi.intel.com>
-References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
- <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] i2c:dw: Add APM X-Gene ACPI I2C device support
+Date: Tue, 8 Dec 2015 13:36:02 +0200
+Message-ID: <20151208113602.GL1766@lahna.fi.intel.com>
+References: <1449533774-22672-1-git-send-email-lho@apm.com>
+ <1449533774-22672-3-git-send-email-lho@apm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:64091 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932345AbbLHLiO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 8 Dec 2015 06:38:14 -0500
 Content-Disposition: inline
-In-Reply-To: <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <1449533774-22672-3-git-send-email-lho@apm.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Loc Ho <lho@apm.com>
+Cc: wsa@the-dreams.de, Ken.Xue@amd.com, Jeff.Wu@amd.com, rjw@rjwysocki.net, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com
 
-On Tue, Dec 08, 2015 at 10:37:46AM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Mon, Dec 07, 2015 at 05:16:14PM -0700, Loc Ho wrote:
+> Enable APM X-Gene ACPI I2C device support by adding the
+> corresponding ACPI ID. The platform ACPI APD corresponding
+> change is required to provide the proper clock frequency input.
 > 
-> Inspired from the i2c-rk3x driver (thanks guys!) but refactored and
-> extended. See built-in docs for further information.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Loc Ho <lho@apm.com>
 
-Looks good. I think we can take advantage of this in the designware
-driver as well.
-
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-I wonder if it makes sense to add "i2c-sda-hold-time-ns" (taken from the
-designware driver DT binding) to the timings structure? It is tHD;DAT
-parameter in the I2C bus specification.
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
