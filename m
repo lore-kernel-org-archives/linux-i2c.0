@@ -1,15 +1,14 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing
- information
-Date: Tue, 08 Dec 2015 12:54:45 +0200
-Message-ID: <1449572085.30729.28.camel@linux.intel.com>
+Subject: Re: [PATCH v2 4/9] i2c: rcar: switch to i2c generic dt parsing
+Date: Tue, 08 Dec 2015 12:59:20 +0200
+Message-ID: <1449572360.30729.31.camel@linux.intel.com>
 References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
-	 <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
+	 <1449567473-2084-5-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1449567473-2084-5-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
@@ -18,108 +17,46 @@ List-Id: linux-i2c@vger.kernel.org
 On Tue, 2015-12-08 at 10:37 +0100, Wolfram Sang wrote:
 > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Inspired from the i2c-rk3x driver (thanks guys!) but refactored and
-> extended. See built-in docs for further information.
+> Switch to the new generic functions. Plain convert, no functionality
+> added yet.
 
-One style comment.
+One style nitpick.
 
 >=20
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > ---
-> =C2=A0drivers/i2c/i2c-core.c | 47
-> +++++++++++++++++++++++++++++++++++++++++++++++
-> =C2=A0include/linux/i2c.h=C2=A0=C2=A0=C2=A0=C2=A0| 18 +++++++++++++++=
-+++
-> =C2=A02 files changed, 65 insertions(+)
+> =C2=A0drivers/i2c/busses/i2c-rcar.c | 16 +++++++++-------
+> =C2=A01 file changed, 9 insertions(+), 7 deletions(-)
 >=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index ba8eb087f22465..e94d2ca2aab4aa 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -53,6 +53,7 @@
-> =C2=A0#include <linux/jump_label.h>
-> =C2=A0#include <asm/uaccess.h>
-> =C2=A0#include <linux/err.h>
-> +#include <linux/property.h>
-> =C2=A0
-> =C2=A0#include "i2c-core.h"
-> =C2=A0
-> @@ -1438,6 +1439,52 @@ static void of_i2c_register_devices(struct
-> i2c_adapter *adap)
-> =C2=A0	}
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-
+> rcar.c
+> index d4322a9096786f..c663f4389bf898 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -162,12 +162,15 @@ static int rcar_i2c_bus_barrier(struct
+> rcar_i2c_priv *priv)
+> =C2=A0	return -EBUSY;
 > =C2=A0}
 > =C2=A0
-> +/**
-> + * i2c_parse_fw_timings - get I2C related timing parameters from
-> firmware
-> + * @dev: The device to scan for I2C timing properties
-> + * @t: the i2c_timings struct to be filled with values
-> + * @use_defaults: bool to use sane defaults derived from the I2C
-> specification
-> + *=C2=A0		=C2=A0=C2=A0when properties are not found, otherwise use 0
-> + *
-> + * Scan the device for the generic I2C properties describing timing
-> parameters
-> + * for the signal and fill the given struct with the results. If a
-> property was
-> + * not found and use_defaults was true, then maximum timings are
-> assumed which
-> + * are derived from the I2C specification. If use_defaults is not
-> used, the
-> + * results will be 0, so drivers can apply their own defaults later.
-> The latter
-> + * is mainly intended for avoiding regressions of existing drivers
-> which want
-> + * to switch to this function. New drivers almost always should use
-> the defaults.
-> + */
-> +
-> +void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t,
-> bool use_defaults)
-> +{
-> +	memset(t, 0, sizeof(*t));
-> +
-> +	if (device_property_read_u32(dev, "clock-frequency", &t-
-> >bus_freq_hz) && use_defaults)
-> +		t->bus_freq_hz =3D 100000;
-> +
-> +	if (device_property_read_u32(dev, "i2c-scl-rising-time-ns",
-> &t->scl_rise_ns) && use_defaults) {
-> +		if (t->bus_freq_hz <=3D 100000)
-> +			t->scl_rise_ns =3D 1000;
-> +		else if (t->bus_freq_hz <=3D 400000)
-> +			t->scl_rise_ns =3D 300;
-> +		else
-> +			t->scl_rise_ns =3D 120;
-> +	}
-> +
-> +	if (device_property_read_u32(dev, "i2c-scl-falling-time-ns",=20
-> &t->scl_fall_ns) && use_defaults) {
-> +		if (t->bus_freq_hz <=3D 400000)
-> +			t->scl_fall_ns =3D 300;
-> +		else
-> +			t->scl_fall_ns =3D 120;
-> +	}
-> +
-> +	device_property_read_u32(dev, "i2c-scl-internal-delay-ns",
-> &t->scl_int_delay_ns);
-> +
-> +	if (device_property_read_u32(dev, "i2c-sda-falling-time-ns",=20
-> &t->sda_fall_ns) && use_defaults)
-> +		t->sda_fall_ns =3D t->scl_fall_ns;
+> -static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, u32
+> bus_speed)
+> +static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+> struct i2c_timings *t)
+> =C2=A0{
+> =C2=A0	u32 scgd, cdf, round, ick, scl, cdf_width;
+> =C2=A0	unsigned long rate;
+> =C2=A0	struct device *dev =3D rcar_i2c_priv_to_dev(priv);
+> =C2=A0
+> +	/* Fall back to previously used values if not supplied */
+> +	t->bus_freq_hz =3D t->bus_freq_hz ?: 100000;
 
-Too many && use_defaults. What about
+On one hand it seems enough space to put one more t->bus_freq_hz, on
+the other why not
 
-memset(t, 0, sizeof(*t));
+if (!t->bus_freq_hz)
+=C2=A0 =3D 100000;
 
-device_property_read_u32(dev, "i2c-scl-internal-delay-ns", &t-
->scl_int_delay_ns);
-
-if (!use_defaults)
-=C2=A0return;
-
-=2E..
-
+I think a bit better to maintain latter.
 
 --=20
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
