@@ -1,62 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V1] i2c: imx: init bus recovery info before adding i2c
- adapter
-Date: Wed, 9 Dec 2015 11:18:09 +0100
-Message-ID: <20151209101809.GB2305@katana>
-References: <1449221594-29603-1-git-send-email-b54642@freescale.com>
- <20151205190736.GD1597@katana>
- <CY1PR0301MB0858B65C8F06804400B791F4CF090@CY1PR0301MB0858.namprd03.prod.outlook.com>
+From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing
+ information
+Date: Wed, 09 Dec 2015 14:12:36 +0200
+Message-ID: <1449663156.30729.63.camel@linux.intel.com>
+References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
+ <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
+ <1449572085.30729.28.camel@linux.intel.com> <20151208130323.GB3359@katana>
+ <20151208215103.GA1601@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34606 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754434AbbLIKSN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 9 Dec 2015 05:18:13 -0500
-Content-Disposition: inline
-In-Reply-To: <CY1PR0301MB0858B65C8F06804400B791F4CF090@CY1PR0301MB0858.namprd03.prod.outlook.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <20151208215103.GA1601@katana>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pandy <gaopan@freescale.com>
-Cc: "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Li Frank <Frank.Li@freescale.com>, Duan Andy <fugang.duan@freescale.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>
 
-
---ADZbWkCsHQ7r3kzd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> 	I have sent out an i2c runtime patch which was acked by Uwe Kleine. I th=
-ought it would be accepted, so I sent out this one based on that one.=20
-
-Ah, I see. That is okay to assume. However, this patch is 4.4 material,
-while the other patch is 4.5 material, so I needed that rebase.
-
-Thanks,
-
-   Wolfram
-
---ADZbWkCsHQ7r3kzd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWZ//hAAoJEBQN5MwUoCm2KjQQALGAAGr+H/a/GDqVN/4JZxgE
-OzkMs3bzWL/bysWX9JIqkMAJuDSeSscn80eJe2oByPoz5Ni2XNAMhSI6jrI6CIKa
-cE92nR6YjwugZD0CLfyOva/TeodxkoGmMKuhJQDwxwnXn4awbQyCUeUdVwH2PJYN
-xGZTBtb6m2rHsYSMOmHip5oPnhvupZE4Ar8RQPAM9YHBXF/YdwJZGzGYjvdd3TaS
-2lSwefOZA4OkRpkshnMKFynHmFDgyOtfYXQJ/IA1MwV3byjpNzdieP3YTxBYOXCi
-eu+2qyHZUpAb83KkRzH9eT4XngnGr16hUaXO36vGVRJ95pGtfZITmjjEDyhKnlfI
-bZBF1OWONTnF1JyvnPzkEICfm5hlijA+Pze0WrGwn0b1IUYyhv0hFWdncB2fWwz7
-tfuA4FsFR7NqffJDF8Rb9jXPDXMAMsslnfVr8v+0TWzuc7CqQlfw+ccJmhc2d6a7
-fSZzTOd9vMMr8r8FTt3mxZZP3STDT4uDK55PX17Kf6vJLGXy7PSMH1xvsAXyvyUI
-I/D4QlzsL7cWyOzQQs7EUaMW31qfRKEXsBYto/lrf95JYTflESrAiirsGImgJd9P
-5h0HzjpLWmKBForpvvc02YiB5aI+Tth2zYvhCk58Kofys+xwhqc0g1DESbUCE6bD
-E94iidJhUf/WZNQUoRTE
-=ibVr
------END PGP SIGNATURE-----
-
---ADZbWkCsHQ7r3kzd--
+T24gVHVlLCAyMDE1LTEyLTA4IGF0IDIyOjUxICswMTAwLCBXb2xmcmFtIFNhbmcgd3JvdGU6Cj4g
+T24gVHVlLCBEZWMgMDgsIDIwMTUgYXQgMDI6MDM6MjNQTSArMDEwMCwgV29sZnJhbSBTYW5nIHdy
+b3RlOgo+ID4gCj4gPiA+IFRvbyBtYW55ICYmIHVzZV9kZWZhdWx0cy4gV2hhdCBhYm91dAo+ID4g
+PiAKPiA+ID4gbWVtc2V0KHQsIDAsIHNpemVvZigqdCkpOwo+ID4gPiAKPiA+ID4gZGV2aWNlX3By
+b3BlcnR5X3JlYWRfdTMyKGRldiwgImkyYy1zY2wtaW50ZXJuYWwtZGVsYXktbnMiLCAmdC0KPiA+
+ID4gPiBzY2xfaW50X2RlbGF5X25zKTsKPiA+ID4gCj4gPiA+IGlmICghdXNlX2RlZmF1bHRzKQo+
+ID4gPiDCoHJldHVybjsKPiA+IAo+ID4gSSBsaWtlIHRoaXMhIFRoYW5rcyBmb3IgdGhlIGlucHV0
+Lgo+IAo+IE9vcHMsIHRvbyBlbnRodXNpYXN0aWMuIFRoaXMgc2tpcHMgcGFyc2luZyBhbGwgdGhl
+IG90aGVyCj4gcHJvcGVydGllcy4uLgo+IFRoZSBkZWZhdWx0cyBzaG91bGQgb25seSBiZSBhcHBs
+aWVkIGlmIHJlYWRpbmcgdGhlIHByb3BlcnRpZXMgZmFpbHMuCgpMb29rcyBsaWtlIHByb3BlcnR5
+IHN0dWZmIGlzIG5vdCBkZXN0cnVjdGl2ZSBpbiBjYXNlIG9mIGVycm9yLCBzbywgd2hhdAphYm91
+dAoKcGFyYW1YID0gdXNlX2RlZmF1bHRzID8gZGVmYXVsdFggOiAwOwpkZXZpY2VfcHJvcGVydHlf
+cmVhZOKApijigKYsICZwYXJhbVgpOwoKT3IgbWF5YmUganVzdCBiZSBhIGJpdCB2ZXJib3NlIGxp
+a2UgdGhlIG9yaWdpbmFsIHZhcmlhbnQKaW50IHJldDsKCnJldCA9IGRldmljZV9wcm9wZXJ0eV9y
+ZWFk4oCmKOKApik7CmlmIChyZXQgJiYgdXNlX2RlZmF1bHRzKSB7CuKApgp9CgpBbW9uZyBhbGwg
+dmFyaWFudHMgSSBsaWtlIHRoZSBsYXR0ZXIgb25lIGhlcmUuIFdoYXQgZG8geW91IHRoaW5rPwoK
+LS0gCkFuZHkgU2hldmNoZW5rbyA8YW5kcml5LnNoZXZjaGVua29AbGludXguaW50ZWwuY29tPgpJ
+bnRlbCBGaW5sYW5kIE95CgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KTGludXgtcm9ja2NoaXAgbWFpbGluZyBsaXN0CkxpbnV4LXJvY2tjaGlwQGxpc3Rz
+LmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5m
+by9saW51eC1yb2NrY2hpcAo=
