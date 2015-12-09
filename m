@@ -1,48 +1,115 @@
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2 2/9] i2c: add generic routine to parse DT for timing
- information
-Date: Wed, 09 Dec 2015 14:12:36 +0200
-Message-ID: <1449663156.30729.63.camel@linux.intel.com>
-References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
- <1449567473-2084-3-git-send-email-wsa@the-dreams.de>
- <1449572085.30729.28.camel@linux.intel.com> <20151208130323.GB3359@katana>
- <20151208215103.GA1601@katana>
+From: Loc Ho <lho@apm.com>
+Subject: Re: [PATCH 1/2] acpi:apd: Add APM X-Gene ACPI I2C device support
+Date: Wed, 9 Dec 2015 14:03:59 -0800
+Message-ID: <CAPw-ZTkxhdEmOP_DN=Cv1MmPw5UsZHcd-kLVbqYFJU8-6=sc+A@mail.gmail.com>
+References: <1449533774-22672-1-git-send-email-lho@apm.com>
+	<1449533774-22672-2-git-send-email-lho@apm.com>
+	<1449542948.2175.41.camel@kxue-X58A-UD3R>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <20151208215103.GA1601@katana>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f50.google.com ([209.85.215.50]:35725 "EHLO
+	mail-lf0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751979AbbLIWEB (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Dec 2015 17:04:01 -0500
+Received: by lfdl133 with SMTP id l133so44124967lfd.2
+        for <linux-i2c@vger.kernel.org>; Wed, 09 Dec 2015 14:04:00 -0800 (PST)
+In-Reply-To: <1449542948.2175.41.camel@kxue-X58A-UD3R>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ken Xue <ken.xue@amd.com>
+Cc: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Jon Masters <jcm@redhat.com>, "patches@apm.com" <patches@apm.com>, Annie.Wang@amd.com
 
-T24gVHVlLCAyMDE1LTEyLTA4IGF0IDIyOjUxICswMTAwLCBXb2xmcmFtIFNhbmcgd3JvdGU6Cj4g
-T24gVHVlLCBEZWMgMDgsIDIwMTUgYXQgMDI6MDM6MjNQTSArMDEwMCwgV29sZnJhbSBTYW5nIHdy
-b3RlOgo+ID4gCj4gPiA+IFRvbyBtYW55ICYmIHVzZV9kZWZhdWx0cy4gV2hhdCBhYm91dAo+ID4g
-PiAKPiA+ID4gbWVtc2V0KHQsIDAsIHNpemVvZigqdCkpOwo+ID4gPiAKPiA+ID4gZGV2aWNlX3By
-b3BlcnR5X3JlYWRfdTMyKGRldiwgImkyYy1zY2wtaW50ZXJuYWwtZGVsYXktbnMiLCAmdC0KPiA+
-ID4gPiBzY2xfaW50X2RlbGF5X25zKTsKPiA+ID4gCj4gPiA+IGlmICghdXNlX2RlZmF1bHRzKQo+
-ID4gPiDCoHJldHVybjsKPiA+IAo+ID4gSSBsaWtlIHRoaXMhIFRoYW5rcyBmb3IgdGhlIGlucHV0
-Lgo+IAo+IE9vcHMsIHRvbyBlbnRodXNpYXN0aWMuIFRoaXMgc2tpcHMgcGFyc2luZyBhbGwgdGhl
-IG90aGVyCj4gcHJvcGVydGllcy4uLgo+IFRoZSBkZWZhdWx0cyBzaG91bGQgb25seSBiZSBhcHBs
-aWVkIGlmIHJlYWRpbmcgdGhlIHByb3BlcnRpZXMgZmFpbHMuCgpMb29rcyBsaWtlIHByb3BlcnR5
-IHN0dWZmIGlzIG5vdCBkZXN0cnVjdGl2ZSBpbiBjYXNlIG9mIGVycm9yLCBzbywgd2hhdAphYm91
-dAoKcGFyYW1YID0gdXNlX2RlZmF1bHRzID8gZGVmYXVsdFggOiAwOwpkZXZpY2VfcHJvcGVydHlf
-cmVhZOKApijigKYsICZwYXJhbVgpOwoKT3IgbWF5YmUganVzdCBiZSBhIGJpdCB2ZXJib3NlIGxp
-a2UgdGhlIG9yaWdpbmFsIHZhcmlhbnQKaW50IHJldDsKCnJldCA9IGRldmljZV9wcm9wZXJ0eV9y
-ZWFk4oCmKOKApik7CmlmIChyZXQgJiYgdXNlX2RlZmF1bHRzKSB7CuKApgp9CgpBbW9uZyBhbGwg
-dmFyaWFudHMgSSBsaWtlIHRoZSBsYXR0ZXIgb25lIGhlcmUuIFdoYXQgZG8geW91IHRoaW5rPwoK
-LS0gCkFuZHkgU2hldmNoZW5rbyA8YW5kcml5LnNoZXZjaGVua29AbGludXguaW50ZWwuY29tPgpJ
-bnRlbCBGaW5sYW5kIE95CgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18KTGludXgtcm9ja2NoaXAgbWFpbGluZyBsaXN0CkxpbnV4LXJvY2tjaGlwQGxpc3Rz
-LmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5m
-by9saW51eC1yb2NrY2hpcAo=
+Hi Ken,
+
+On Mon, Dec 7, 2015 at 6:49 PM, Ken Xue <ken.xue@amd.com> wrote:
+>
+> On Mon, 2015-12-07 at 17:16 -0700, Loc Ho wrote:
+> > Add APM X-Gene ACPI I2C device support by hooks into existent
+> > ACPI apd driver. To fully enable support, require another
+> > patch to add the X-Gene ACPI node into the DW I2C driver.
+> >
+> > Signed-off-by: Loc Ho <lho@apm.com>
+> > ---
+> >  drivers/acpi/acpi_apd.c |    8 +++++++-
+> >  1 files changed, 7 insertions(+), 1 deletions(-)
+> >
+> > diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+> > index a450e7a..6a9cb8d 100644
+> > --- a/drivers/acpi/acpi_apd.c
+> > +++ b/drivers/acpi/acpi_apd.c
+> > @@ -51,7 +51,7 @@ struct apd_private_data {
+> >       const struct apd_device_desc *dev_desc;
+> >  };
+> >
+> > -#ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+> > +#if defined(CONFIG_X86_AMD_PLATFORM_DEVICE) || defined(CONFIG_ARM64)
+> >  #define APD_ADDR(desc)       ((unsigned long)&desc)
+> >
+> >  static int acpi_apd_setup(struct apd_private_data *pdata)
+> > @@ -76,6 +76,11 @@ static struct apd_device_desc cz_i2c_desc = {
+> >       .fixed_clk_rate = 133000000,
+> >  };
+> >
+> > +static struct apd_device_desc xgene_i2c_desc = {
+> > +     .setup = acpi_apd_setup,
+> > +     .fixed_clk_rate = 100000000,
+> > +};
+> > +
+> >  static struct apd_device_desc cz_uart_desc = {
+> >       .setup = acpi_apd_setup,
+> >       .fixed_clk_rate = 48000000,
+> > @@ -135,6 +140,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+> >       { "AMD0010", APD_ADDR(cz_i2c_desc) },
+> >       { "AMD0020", APD_ADDR(cz_uart_desc) },
+> >       { "AMD0030", },
+> > +     { "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+> It is better to split AMD devices and ARM devices with macros:
+> CONFIG_X86_AMD_PLATFORM_DEVICE and CONFIG_ARM64.
+
+This gets pretty ugly to me with define as it would look like this:
+
+#if defined(CONFIG_X86_AMD_PLATFORM_DEVICE) || defined(CONFIG_ARM64)
+#define APD_ADDR(desc) ((unsigned long)&desc)
+
+static int acpi_apd_setup(struct apd_private_data *pdata)
+{
+   .....
+}
+
+#ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+static struct apd_device_desc cz_i2c_desc = {
+    ....
+};
+
+static struct apd_device_desc xgene_i2c_desc = {
+    ...
+};
+#endif
+
+#ifdef CONFIG_ARM64
+static struct apd_device_desc cz_uart_desc = {
+    ....
+};
+#endif
+
+#else
+
+#define APD_ADDR(desc) (0UL)
+
+#endif /* CONFIG_X86_AMD_PLATFORM_DEVICE */
+
+And...
+
+#ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+{ "AMD0010", APD_ADDR(cz_i2c_desc) },
+{ "AMD0020", APD_ADDR(cz_uart_desc) },
+{ "AMD0030", },
+#endif
+#ifdef CONFIG_ARM64
+{ "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+#endif
+
+Sure you want this?
+
+-Loc
