@@ -1,55 +1,42 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: allow building emev2 without slave mode again
-Date: Thu, 10 Dec 2015 16:17:41 +0100
-Message-ID: <20151210151741.GE1573@katana>
-References: <201512102224.cVm7Hcp0%fengguang.wu@intel.com>
- <2592093.cGKEcKVqLU@wuerfel>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 00/28] MIPS Boston board support
+Date: Thu, 10 Dec 2015 17:26:31 +0100
+Message-ID: <CACRpkdb2YhSbaYUXh4Dz7juObHxmWLc8Gj6UmkJ=Nv69UNfaPA@mail.gmail.com>
+References: <1448900513-20856-1-git-send-email-paul.burton@imgtec.com>
+        <20151130163413.GB1929@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pY3vCvL1qV+PayAL"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:32881 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752974AbbLJPRt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 10 Dec 2015 10:17:49 -0500
-Content-Disposition: inline
-In-Reply-To: <2592093.cGKEcKVqLU@wuerfel>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20151130163413.GB1929@sirena.org.uk>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Mark Brown <broonie@kernel.org>
+Cc: Paul Burton <paul.burton@imgtec.com>, Linux MIPS <linux-mips@linux-mips.org>, Arnd Bergmann <arnd@arndb.de>, Joshua Kinard <kumba@gentoo.org>, Alessandro Zummo <a.zummo@towertech.it>, Jiri Slaby <jslaby@suse.com>, Bjorn Helgaas <bhelgaas@google.com>, Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Kumar Gala <galak@codeaurora.org>, Yijing Wang <wangyijing@huawei.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>, John Crispin <blogic@openwrt.org>, Jayachandran C <jchandra@broadcom.com>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Ray Jui <rjui@broadcom.com>, Richard Cochran <richardcochran@gmail.com>, Tejun Heo <tj@kernel.org>, Michal
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org, linux-i2c@vger.kernel.org, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
+On Mon, Nov 30, 2015 at 5:34 PM, Mark Brown <broonie@kernel.org> wrote:
+> On Mon, Nov 30, 2015 at 04:21:25PM +0000, Paul Burton wrote:
+>> This series introduces support for the Imagination Technologies MIPS
+>> Boston development board. Boston is an FPGA-based development board
+>> akin to the much older Malta board, built around a Xilinx FPGA running
+>> a MIPS CPU & other logic including a PCIe root port connected to an
+>> Intel EG20T Platform Controller Hub. This provides a base set of
+>> peripherals including SATA, USB, SD/MMC, ethernet, I2C & GPIOs. PCIe
+>> slots are also present for expansion.
+>
+> This is an insanely big CC list :(
+>
+> What are the interdependencies here - does this really need to be one
+> patch series or can the individual driver changes go in separately?
 
---pY3vCvL1qV+PayAL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I took the two GPIO patches and ran off with them at least.
 
-> Alternatively, the  inline could return an error, and both bus
-> drivers check for the error before using 'value'.
-
-I'll try to check these options tomorrow.
-
-
---pY3vCvL1qV+PayAL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWaZeVAAoJEBQN5MwUoCm24/IP/AqRzOe/mC1ip6rf6i1QwnUu
-0x+1fjbJVOZmanGJN7TfB9/pn4VBtcv5auYNPNy83aMfF9oDOOW1gZkMF3609Zco
-2IIK6qWunqM0Hw8QSbsR8Rk3ayBjjO8Q93u6VGU4/LTjMLCOQYFcWHU+CKRoCGPM
-EEi4DctTMNxzc41YMBljO9Iqs8LeddDe39k7pJIHpA0SgEdmA2Ps6A/fxlYUlYTQ
-2pYH049Nrfpxccxco2HUJYkB/QpjyqX9YoRUiIB61VnLj0laO9KS/OWnDyBmO7Av
-bc7fJQVsRqP8E8RRjU3epAqJI6kVSzG/SmEhL1jw4zMdT3ORaDsxN6BRDq6yJ+SU
-6g8XelP+y+Zr3wDx3zocAz+TYrqPsAGCbbihbNiLtTJTHXYVBAZeT6Fl9xBXcyUR
-MRQ5DIbvzbmE1Qu0vgYowwkxJwKhec3pQisM8iDBogLRCz+bij0TUWi/D78TBdAH
-d2R/Ao9NtTXswxAwkoNEPVth98LhY0PIyz30qIhlxil0TWQAD9VCH9PEh9fIcPpr
-+8hHwHMuV8Onn2ARQLB5cpeb2DkrDF7dZD6goKbPpmYlwxubfSmrcystfSHz82kN
-o8/8X1As0xeb8sif0/DwRvpZWKOkd6DmhZbcgadWQe9/m97HKajhC5cyBsFOJDnk
-opNmqP0Q4JmkebRVnP+S
-=Nk7R
------END PGP SIGNATURE-----
-
---pY3vCvL1qV+PayAL--
+Yours,
+Linus Walleij
