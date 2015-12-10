@@ -1,62 +1,120 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH v2 0/9] i2c: add generic support for timing parameters in
- DT
-Date: Thu, 10 Dec 2015 14:00:10 +0900
-Message-ID: <20151210050009.GE6964@verge.net.au>
-References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
+From: Ken Xue <ken.xue@amd.com>
+Subject: Re: [PATCH 1/2] acpi:apd: Add APM X-Gene ACPI I2C device support
+Date: Thu, 10 Dec 2015 14:14:32 +0800
+Message-ID: <1449728072.4557.22.camel@kxue-X58A-UD3R>
+References: <1449533774-22672-1-git-send-email-lho@apm.com>
+	 <1449533774-22672-2-git-send-email-lho@apm.com>
+	 <1449542948.2175.41.camel@kxue-X58A-UD3R>
+	 <CAPw-ZTkxhdEmOP_DN=Cv1MmPw5UsZHcd-kLVbqYFJU8-6=sc+A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from kirsty.vergenet.net ([202.4.237.240]:53726 "EHLO
-	kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750717AbbLJFAN (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Dec 2015 00:00:13 -0500
-Content-Disposition: inline
-In-Reply-To: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CAPw-ZTkxhdEmOP_DN=Cv1MmPw5UsZHcd-kLVbqYFJU8-6=sc+A@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Loc Ho <lho@apm.com>
+Cc: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Jon Masters <jcm@redhat.com>, "patches@apm.com" <patches@apm.com>, Annie.Wang@amd.com
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-On Tue, Dec 08, 2015 at 10:37:44AM +0100, Wolfram Sang wrote:
-> Here is a patch series adding better DT support for timing parameters like the
-> raise time or the fall time which are generic for the I2C subsystem. There is a
-> core function for parsing and an implementation for the RCar driver how to use
-> it.
+On Wed, 2015-12-09 at 14:03 -0800, Loc Ho wrote:
+> Hi Ken,
 > 
-> I added people of the designware and rk3x driver to CC because they might be
-> interested in this new function. They provided the basis for this series, so it
-> should be easy to convert them.
+> On Mon, Dec 7, 2015 at 6:49 PM, Ken Xue <ken.xue@amd.com> wrote:
+> >
+> > On Mon, 2015-12-07 at 17:16 -0700, Loc Ho wrote:
+> > > Add APM X-Gene ACPI I2C device support by hooks into existent
+> > > ACPI apd driver. To fully enable support, require another
+> > > patch to add the X-Gene ACPI node into the DW I2C driver.
+> > >
+> > > Signed-off-by: Loc Ho <lho@apm.com>
+> > > ---
+> > >  drivers/acpi/acpi_apd.c |    8 +++++++-
+> > >  1 files changed, 7 insertions(+), 1 deletions(-)
+> > >
+> > > diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+> > > index a450e7a..6a9cb8d 100644
+> > > --- a/drivers/acpi/acpi_apd.c
+> > > +++ b/drivers/acpi/acpi_apd.c
+> > > @@ -51,7 +51,7 @@ struct apd_private_data {
+> > >       const struct apd_device_desc *dev_desc;
+> > >  };
+> > >
+> > > -#ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+> > > +#if defined(CONFIG_X86_AMD_PLATFORM_DEVICE) || defined(CONFIG_ARM64)
+> > >  #define APD_ADDR(desc)       ((unsigned long)&desc)
+> > >
+> > >  static int acpi_apd_setup(struct apd_private_data *pdata)
+> > > @@ -76,6 +76,11 @@ static struct apd_device_desc cz_i2c_desc = {
+> > >       .fixed_clk_rate = 133000000,
+> > >  };
+> > >
+> > > +static struct apd_device_desc xgene_i2c_desc = {
+> > > +     .setup = acpi_apd_setup,
+> > > +     .fixed_clk_rate = 100000000,
+> > > +};
+> > > +
+> > >  static struct apd_device_desc cz_uart_desc = {
+> > >       .setup = acpi_apd_setup,
+> > >       .fixed_clk_rate = 48000000,
+> > > @@ -135,6 +140,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+> > >       { "AMD0010", APD_ADDR(cz_i2c_desc) },
+> > >       { "AMD0020", APD_ADDR(cz_uart_desc) },
+> > >       { "AMD0030", },
+> > > +     { "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+> > It is better to split AMD devices and ARM devices with macros:
+> > CONFIG_X86_AMD_PLATFORM_DEVICE and CONFIG_ARM64.
 > 
-> Please have a look, test, comment...
+> This gets pretty ugly to me with define as it would look like this:
 > 
-> Thanks,
+> #if defined(CONFIG_X86_AMD_PLATFORM_DEVICE) || defined(CONFIG_ARM64)
+> #define APD_ADDR(desc) ((unsigned long)&desc)
 > 
->     Wolfram
+> static int acpi_apd_setup(struct apd_private_data *pdata)
+> {
+>    .....
+> }
 > 
-> Changes since V1:
-> * switched from DT properties to device properties
-> * that means no dependency on OF and rename of the parsing function
-> * removed a superfluous comment
-> * adapted the RCar driver to the changes
-> * added Rob's ack
+> #ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+> static struct apd_device_desc cz_i2c_desc = {
+>     ....
+> };
 > 
-> Changes since RFC:
-> * better tested
-> * added documentation for the new function and the new struct
-> * reworded some commit messages slightly
-> * moved the new property in the dtsi above the "status" property
+> static struct apd_device_desc xgene_i2c_desc = {
+>     ...
+> };
+> #endif
 > 
-> Wolfram Sang (9):
->   i2c: document generic DT bindings for timing parameters
->   i2c: add generic routine to parse DT for timing information
->   i2c: rcar: refactor probe function a little
->   i2c: rcar: switch to i2c generic dt parsing
->   i2c: rcar: honor additional i2c timings from DT
->   ARM: shmobile: r8a7790: dtsi: add internal delay for i2c IPs
->   ARM: shmobile: r8a7791: dtsi: add internal delay for i2c IPs
->   ARM: shmobile: r8a7794: dtsi: add internal delay for i2c IPs
->   arm64: renesas: r8a7795: add internal delay for i2c IPs
+> #ifdef CONFIG_ARM64
+> static struct apd_device_desc cz_uart_desc = {
+>     ....
+> };
+> #endif
+> 
+> #else
+> 
+> #define APD_ADDR(desc) (0UL)
+> 
+> #endif /* CONFIG_X86_AMD_PLATFORM_DEVICE */
+> 
+> And...
+> 
+> #ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+> { "AMD0010", APD_ADDR(cz_i2c_desc) },
+> { "AMD0020", APD_ADDR(cz_uart_desc) },
+> { "AMD0030", },
+> #endif
+> #ifdef CONFIG_ARM64
+> { "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+> #endif
+> 
+> Sure you want this?
+Yes. Even though it may look like too much macros for just several
+devices now. But I think AMD and other ARM socs may also try to leverage
+APD for more and more ACPI devices.
+It is a good direction that 1)improve efficiency of matching ACPI
+handler 2) split devices and potential hook routines into different
+classes clearly
 
-I have marked the ARM and arm64 patches as deferred pending
-acceptance of the driver patches.
+It also will be more convenient to move ARM devices out of APD if there
+is a new design for ARM ACPI device.
+
