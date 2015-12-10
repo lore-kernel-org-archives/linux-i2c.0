@@ -1,80 +1,155 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c: designware: Allow build Baytrail semaphore
- support when IOSF_MBI=m
-Date: Thu, 10 Dec 2015 14:59:38 +0200
-Message-ID: <1449752378.30729.89.camel@linux.intel.com>
-References: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
-	 <1449748124-20744-2-git-send-email-jarkko.nikula@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] i2c: allow building emev2 without slave mode again
+Date: Thu, 10 Dec 2015 14:14:49 +0100
+Message-ID: <2144222.LfzPx9mJ0p@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:21965 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750923AbbLJNBd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 10 Dec 2015 08:01:33 -0500
-In-Reply-To: <1449748124-20744-2-git-send-email-jarkko.nikula@linux.intel.com>
+Received: from mout.kundenserver.de ([212.227.17.13]:57807 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750977AbbLJNPR (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Dec 2015 08:15:17 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, David Box <david.e.box@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Niklas =?ISO-8859-1?Q?S=F6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-On Thu, 2015-12-10 at 13:48 +0200, Jarkko Nikula wrote:
-> I believe i2c-designware-baytrail.c doesn't have strict dependency
-> that
-> Intel SoC IOSF Sideband support must be always built-in in order to
-> be
-> able to compile support for Intel Baytrail I2C bus sharing HW
-> semaphore.
->=20
-> Redefine build dependencies so that CONFIG_IOSF_MBI=3Dy is required
-> only
-> when CONFIG_I2C_DESIGNWARE_PLATFORM is built-in.
->=20
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> Hi David. Can you ack/nak this patch as I'm not fully familiar with
-> this
-> HW semaphore can there be problems when IOSF_MBI is built as a
-> module.
+The emev2 driver stopped compiling in today's linux-next kernel:
 
+drivers/i2c/busses/i2c-emev2.c: In function 'em_i2c_slave_irq':
+drivers/i2c/busses/i2c-emev2.c:233:23: error: storage size of 'event' isn't known
+drivers/i2c/busses/i2c-emev2.c:250:3: error: implicit declaration of function 'i2c_slave_event' [-Werror=implicit-function-declaration]
+drivers/i2c/busses/i2c-emev2.c:250:32: error: 'I2C_SLAVE_STOP' undeclared (first use in this function)
 
-> At least I'm getting similar sensible looking "punit semaphore
-> acquired/held for x ms" debug messages when I modprobe/rmmod
-> i2c_designware_platform independently is the CONFIG_IOSF_MBI=3Dy or =3D=
-m.
-> ---
-> =C2=A0drivers/i2c/busses/Kconfig | 4 +++-
-> =C2=A01 file changed, 3 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 69c46fe13777..76f4d024def0 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -490,7 +490,9 @@ config I2C_DESIGNWARE_PCI
-> =C2=A0
-> =C2=A0config I2C_DESIGNWARE_BAYTRAIL
-> =C2=A0	bool "Intel Baytrail I2C semaphore support"
-> -	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=3Dy && ACPI
-> +	depends on ACPI
-> +	depends on (I2C_DESIGNWARE_PLATFORM=3Dm && IOSF_MBI) || \
-> +		=C2=A0=C2=A0=C2=A0(I2C_DESIGNWARE_PLATFORM=3Dy && IOSF_MBI=3Dy)
+It works again if we enable CONFIG_I2C_SLAVE, but it seems wrong
+to add a dependency on that symbol:
 
-Would it be more readable in the following way
+* The symbol is user-selectable, but only one or two (including this
+  one) bus drivers actually implement it, and it makes no sense
+  if you don't have one of them.
 
-depends on ACPI
-depends on I2C_DESIGNWARE_PLATFORM
-depends on IOSF_MBI if=C2=A0I2C_DESIGNWARE_PLATFORM=3Dm
-depends on IOSF_MBI=3Dy if=C2=A0I2C_DESIGNWARE_PLATFORM=3Dy
+* The other driver (R-Car) uses 'select I2C_SLAVE', which seems
+  reasonable in principle, but we should not do that on user
+  visible symbols.
 
-> =C2=A0	help
-> =C2=A0	=C2=A0=C2=A0This driver enables managed host access to the PMI=
-C I2C
-> bus on select
-> =C2=A0	=C2=A0=C2=A0Intel BayTrail platforms using the X-Powers AXP288=
- PMIC.
-> It allows
+* I2C slave mode could be implemented in a lot of other drivers
+  as an optional feature, but we shouldn't require enabling it
+  if we don't use it.
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+This changes the two drivers that provide I2C slave mode so they
+can again build if the slave mode being disabled. To do this, I
+move the definition of i2c_slave_event() and enum i2c_slave_event
+out of the #ifdef and instead make the assignment of the reg_slave
+and unreg_slave pointers optional in the bus drivers. The functions
+implementing the feature are unused in that case, so they get
+marked as __maybe_unused in order to still give compile-time
+coverage.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: c31d0a00021d ("i2c: emev2: add slave support")
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 69c46fe13777..1c8d53f34dd3 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -985,7 +985,6 @@ config I2C_XLP9XX
+ config I2C_RCAR
+ 	tristate "Renesas R-Car I2C Controller"
+ 	depends on ARCH_SHMOBILE || COMPILE_TEST
+-	select I2C_SLAVE
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  R-Car I2C controller.
+diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
+index 96bb4e749012..75d6095c5fe1 100644
+--- a/drivers/i2c/busses/i2c-emev2.c
++++ b/drivers/i2c/busses/i2c-emev2.c
+@@ -316,7 +316,7 @@ static u32 em_i2c_func(struct i2c_adapter *adap)
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SLAVE;
+ }
+ 
+-static int em_i2c_reg_slave(struct i2c_client *slave)
++static int __maybe_unused em_i2c_reg_slave(struct i2c_client *slave)
+ {
+ 	struct em_i2c_device *priv = i2c_get_adapdata(slave->adapter);
+ 
+@@ -334,7 +334,7 @@ static int em_i2c_reg_slave(struct i2c_client *slave)
+ 	return 0;
+ }
+ 
+-static int em_i2c_unreg_slave(struct i2c_client *slave)
++static int __maybe_unused em_i2c_unreg_slave(struct i2c_client *slave)
+ {
+ 	struct em_i2c_device *priv = i2c_get_adapdata(slave->adapter);
+ 
+@@ -350,8 +350,10 @@ static int em_i2c_unreg_slave(struct i2c_client *slave)
+ static struct i2c_algorithm em_i2c_algo = {
+ 	.master_xfer = em_i2c_xfer,
+ 	.functionality = em_i2c_func,
++#ifdef CONFIG_I2C_SLAVE
+ 	.reg_slave      = em_i2c_reg_slave,
+ 	.unreg_slave    = em_i2c_unreg_slave,
++#endif
+ };
+ 
+ static int em_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 3ed1f0aa5eeb..e67824adeba0 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -521,7 +521,7 @@ out:
+ 	return ret;
+ }
+ 
+-static int rcar_reg_slave(struct i2c_client *slave)
++static int __maybe_unused rcar_reg_slave(struct i2c_client *slave)
+ {
+ 	struct rcar_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
+ 
+@@ -542,7 +542,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
+ 	return 0;
+ }
+ 
+-static int rcar_unreg_slave(struct i2c_client *slave)
++static int __maybe_unused rcar_unreg_slave(struct i2c_client *slave)
+ {
+ 	struct rcar_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
+ 
+@@ -568,8 +568,10 @@ static u32 rcar_i2c_func(struct i2c_adapter *adap)
+ static const struct i2c_algorithm rcar_i2c_algo = {
+ 	.master_xfer	= rcar_i2c_master_xfer,
+ 	.functionality	= rcar_i2c_func,
++#ifdef CONFIG_I2C_SLAVE
+ 	.reg_slave	= rcar_reg_slave,
+ 	.unreg_slave	= rcar_unreg_slave,
++#endif
+ };
+ 
+ static const struct of_device_id rcar_i2c_dt_ids[] = {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 51028f351d13..69871e5ee44a 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -254,7 +254,6 @@ static inline void i2c_set_clientdata(struct i2c_client *dev, void *data)
+ 
+ /* I2C slave support */
+ 
+-#if IS_ENABLED(CONFIG_I2C_SLAVE)
+ enum i2c_slave_event {
+ 	I2C_SLAVE_READ_REQUESTED,
+ 	I2C_SLAVE_WRITE_REQUESTED,
+@@ -269,9 +268,12 @@ extern int i2c_slave_unregister(struct i2c_client *client);
+ static inline int i2c_slave_event(struct i2c_client *client,
+ 				  enum i2c_slave_event event, u8 *val)
+ {
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
+ 	return client->slave_cb(client, event, val);
+-}
++#else
++	return 0;
+ #endif
++}
+ 
+ /**
+  * struct i2c_board_info - template for device creation
