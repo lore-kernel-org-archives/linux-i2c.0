@@ -1,95 +1,76 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] i2c: allow building emev2 without slave mode again
-Date: Thu, 10 Dec 2015 14:51 +0100
-Message-ID: <2319149.G7spjXxTsa@wuerfel>
-References: <2144222.LfzPx9mJ0p@wuerfel> <20151210133446.GC1573@katana>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 2/2] i2c: designware: Allow build Baytrail semaphore
+ support when IOSF_MBI=m
+Date: Thu, 10 Dec 2015 15:56:27 +0200
+Message-ID: <5669848B.2090502@linux.intel.com>
+References: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <1449748124-20744-2-git-send-email-jarkko.nikula@linux.intel.com>
+ <1449752378.30729.89.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20151210133446.GC1573@katana>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Niklas =?ISO-8859-1?Q?S=F6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-sh@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:35536 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751312AbbLJN7E (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 10 Dec 2015 08:59:04 -0500
+In-Reply-To: <1449752378.30729.89.camel@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, David Box <david.e.box@linux.intel.com>
 
-On Thursday 10 December 2015 14:34:46 Wolfram Sang wrote:
-> On Thu, Dec 10, 2015 at 02:14:49PM +0100, Arnd Bergmann wrote:
-> > The emev2 driver stopped compiling in today's linux-next kernel:
-> > 
-> > drivers/i2c/busses/i2c-emev2.c: In function 'em_i2c_slave_irq':
-> > drivers/i2c/busses/i2c-emev2.c:233:23: error: storage size of 'event' isn't known
-> > drivers/i2c/busses/i2c-emev2.c:250:3: error: implicit declaration of function 'i2c_slave_event' [-Werror=implicit-function-declaration]
-> > drivers/i2c/busses/i2c-emev2.c:250:32: error: 'I2C_SLAVE_STOP' undeclared (first use in this function)
-> > 
-> > It works again if we enable CONFIG_I2C_SLAVE, but it seems wrong
-> > to add a dependency on that symbol:
-> > 
-> > * The symbol is user-selectable, but only one or two (including this
-> >   one) bus drivers actually implement it, and it makes no sense
-> >   if you don't have one of them.
-> > 
-> > * The other driver (R-Car) uses 'select I2C_SLAVE', which seems
-> >   reasonable in principle, but we should not do that on user
-> >   visible symbols.
-> > 
-> > * I2C slave mode could be implemented in a lot of other drivers
-> >   as an optional feature, but we shouldn't require enabling it
-> >   if we don't use it.
-> > 
-> > This changes the two drivers that provide I2C slave mode so they
-> > can again build if the slave mode being disabled. To do this, I
-> > move the definition of i2c_slave_event() and enum i2c_slave_event
-> > out of the #ifdef and instead make the assignment of the reg_slave
-> > and unreg_slave pointers optional in the bus drivers. The functions
-> > implementing the feature are unused in that case, so they get
-> > marked as __maybe_unused in order to still give compile-time
-> > coverage.
-> 
-> Thanks a lot! Making this clear and consistent was on my todo-list,
-> unfortunately below some other items.
-> 
-> Both drivers have quite orthogonal slave_irq routines. What do you think
-> about grouping this and the reg/unreg-calls together and compile them
-> conditionally on I2C_SLAVE? I think the code savings are worth it.
+On 12/10/2015 02:59 PM, Andy Shevchenko wrote:
+> On Thu, 2015-12-10 at 13:48 +0200, Jarkko Nikula wrote:
+>> I believe i2c-designware-baytrail.c doesn't have strict dependency
+>> that
+>> Intel SoC IOSF Sideband support must be always built-in in order to
+>> be
+>> able to compile support for Intel Baytrail I2C bus sharing HW
+>> semaphore.
+>>
+>> Redefine build dependencies so that CONFIG_IOSF_MBI=y is required
+>> only
+>> when CONFIG_I2C_DESIGNWARE_PLATFORM is built-in.
+>>
+>> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>> ---
+>> Hi David. Can you ack/nak this patch as I'm not fully familiar with
+>> this
+>> HW semaphore can there be problems when IOSF_MBI is built as a
+>> module.
+>
+>
+>> At least I'm getting similar sensible looking "punit semaphore
+>> acquired/held for x ms" debug messages when I modprobe/rmmod
+>> i2c_designware_platform independently is the CONFIG_IOSF_MBI=y or =m.
+>> ---
+>>   drivers/i2c/busses/Kconfig | 4 +++-
+>>   1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index 69c46fe13777..76f4d024def0 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -490,7 +490,9 @@ config I2C_DESIGNWARE_PCI
+>>
+>>   config I2C_DESIGNWARE_BAYTRAIL
+>>   	bool "Intel Baytrail I2C semaphore support"
+>> -	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=y && ACPI
+>> +	depends on ACPI
+>> +	depends on (I2C_DESIGNWARE_PLATFORM=m && IOSF_MBI) || \
+>> +		   (I2C_DESIGNWARE_PLATFORM=y && IOSF_MBI=y)
+>
+> Would it be more readable in the following way
+>
+> depends on ACPI
+> depends on I2C_DESIGNWARE_PLATFORM
+> depends on IOSF_MBI if I2C_DESIGNWARE_PLATFORM=m
+> depends on IOSF_MBI=y if I2C_DESIGNWARE_PLATFORM=y
+>
+For my eyes it looks a bit more complex but I think it's matter of 
+taste. However, the syntax you are proposing is not supported for 
+"depends on" like it is for "select" statements.
 
-Ah, I had missed that part, good point. The change below should take
-care of leaving out the extra code here. Do you want to just fold that
-in?
-
-	Arnd
-
-diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
-index 75d6095c5fe1..b01c9f30c545 100644
---- a/drivers/i2c/busses/i2c-emev2.c
-+++ b/drivers/i2c/busses/i2c-emev2.c
-@@ -303,7 +303,7 @@ static irqreturn_t em_i2c_irq_handler(int this_irq, void *dev_id)
- {
- 	struct em_i2c_device *priv = dev_id;
- 
--	if (em_i2c_slave_irq(priv))
-+	if (IS_ENABLED(CONFIG_I2C_SLAVE) && em_i2c_slave_irq(priv))
- 		return IRQ_HANDLED;
- 
- 	complete(&priv->msg_done);
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index e67824adeba0..a1ea66d6267e 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -428,7 +428,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 	/* Only handle interrupts that are currently enabled */
- 	msr &= rcar_i2c_read(priv, ICMIER);
- 	if (!msr) {
--		if (rcar_i2c_slave_irq(priv))
-+		if (IS_ENABLED(CONFIG_I2C_SLAVE) && rcar_i2c_slave_irq(priv))
- 			return IRQ_HANDLED;
- 
- 		return IRQ_NONE;
+-- 
+Jarkko
