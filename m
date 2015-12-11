@@ -1,62 +1,55 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v2] I2C: designware: fix IO timeout issue for AMD
- controller
-Date: Fri, 11 Dec 2015 10:42:30 +0200
-Message-ID: <566A8C76.9080104@linux.intel.com>
-References: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RESEND PATCH v2 0/9] eeprom: at24: at24cs series serial number
+ read
+Date: Fri, 11 Dec 2015 13:08:32 +0100
+Message-ID: <20151211120831.GA2742@katana>
+References: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:40799 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753053AbbLKIme (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 11 Dec 2015 03:42:34 -0500
-In-Reply-To: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1449051926-21918-1-git-send-email-bgolaszewski@baylibre.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Xiangliang Yu <Xiangliang.Yu@amd.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: SPG_Linux_Kernel@amd.com
 
-On 12/11/2015 02:02 PM, Xiangliang Yu wrote:
-> Because of some hardware limitation, AMD I2C controller can't
-> trigger pending interrupt if interrupt status has been changed
-> after clearing interrupt status bits. Then, I2C will lost
-> interrupt and IO timeout.
->
-> According to hardware design, this patch implements a workaround
-> to disable i2c controller interrupt and re-enable i2c interrupt
-> before exiting ISR.
->
-> To reduce the performance impacts on other vendors, use unlikely
-> function to check flag in ISR.
-> ---
-> Changes in v2:
->      - pass flags with ->driver_data
->      - unmask interrupt right after masking
->
-> Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
-> ---
->   drivers/i2c/busses/i2c-designware-core.c    | 6 ++++++
->   drivers/i2c/busses/i2c-designware-core.h    | 1 +
->   drivers/i2c/busses/i2c-designware-platdrv.c | 7 ++++++-
->   3 files changed, 13 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index 8c48b27..de7fbbb 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -813,6 +813,12 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
->   tx_aborted:
->   	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
->   		complete(&dev->cmd_complete);
-> +	else if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK)) {
-> +		/* workaround to trigger pending interrupt */
-> +		stat = dw_readl(dev, DW_IC_INTR_MASK);
-> +		i2c_dw_disable_int(dev);
-> +		dw_writel(dev, stat, DW_IC_INTR_MASK);
-> +	}
->
-Looks ok to me.
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Dec 02, 2015 at 11:25:17AM +0100, Bartosz Golaszewski wrote:
+> Chips from the at24cs EEPROM series have an additional read-only memory area
+> containing a factory pre-programmed serial number. In order to access it, a
+> dummy write must be executed before reading the serial number bytes.
+
+Can't you instantiate a read-only EEPROM on this second address? Or a
+seperate driver attaching to this address? What is the advantage of
+having this in at24?
+
+
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWary/AAoJEBQN5MwUoCm2MvcP/3NEKZJb7+rXxYbK1nej7OY0
+gC1zNsJ9XGwrKoDz74/qzPNnasPKiKMxXdRTFcjs5Ydi1YvR+qEglm0lcnDQwUg6
+pzhDgjRzTiJC0ilULTHhrRXJ8MjaYF+3fCSSI5dlIKWP49HR/5PbEWnnp33jpGDp
+VDbBoYW/naTKHbUTaneG0BzcCIapRw7MRRYVx/wHyXKyx9kpDHvebA4uceScllcS
+dghcd7RmBGvj2+So0eRX8DvsrYvlL14TSDkWuLPOcVrk/vzjbj6cYvi6o+kCV4zK
+K1apOJc5x37V6umk80GL3w58L7Gol4g0k53svZBcVPhNhQrXWwAPSMTa07to5tuZ
+gopL6nv5Qd86a6k0T+0L2g+QFdX+F4DWRhBm34csO/V/SjLCT72pV8hCgO4+u3dU
+NbruiX4QPjlsNbkCerZWMS5zGIWC5u9eMu/DQiqvVuK5Dy+RT5nFQLmwSGZs5/CV
+/d93H3ZYYzre2wy7/3wqibRDd1i7Kh8n8cL6HzCgeDTzYh6FbMN+x+KJzK/CP9u8
+rRSkyrs4P4Ux1nBK3IWqaBWtESMoiEpDPqLaab3lNkzXrVpuehHnaaAyvgs9QyDW
++3QGpJwoC03hOOE2zMb+p9zrzNjkzTR5v+MOKGGKDB93zcploEaCGzqsVYpjFgwC
+YA0q41s3Jp4sOw5E36Qs
+=Og6a
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--
