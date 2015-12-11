@@ -1,293 +1,103 @@
-From: Gao Pan <b54642@freescale.com>
-Subject: [Patch V10] i2c: imx: add runtime pm support to improve the performance
-Date: Fri, 11 Dec 2015 10:24:09 +0800
-Message-ID: <1449800649-32763-1-git-send-email-b54642@freescale.com>
+From: Xiangliang Yu <Xiangliang.Yu@amd.com>
+Subject: [PATCH v2] I2C: designware: fix IO timeout issue for AMD controller
+Date: Fri, 11 Dec 2015 20:02:53 +0800
+Message-ID: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-by2on0103.outbound.protection.outlook.com ([207.46.100.103]:12544
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+Received: from mail-bl2on0053.outbound.protection.outlook.com ([65.55.169.53]:3808
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752089AbbLKCja (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 10 Dec 2015 21:39:30 -0500
+	id S1753587AbbLKHEY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 11 Dec 2015 02:04:24 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de
-Cc: linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, b54642@freescale.com, kernel@pengutronix.de
+To: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: SPG_Linux_Kernel@amd.com, Xiangliang Yu <Xiangliang.Yu@amd.com>
 
-In our former i2c driver, i2c clk is enabled and disabled in
-xfer function, which contributes to power saving. However,
-the clk enable process brings a busy wait delay until the core
-is stable. As a result, the performance is sacrificed.
+Because of some hardware limitation, AMD I2C controller can't
+trigger pending interrupt if interrupt status has been changed
+after clearing interrupt status bits. Then, I2C will lost
+interrupt and IO timeout.
 
-To weigh the power consumption and i2c bus performance, runtime
-pm is the good solution for it. The clk is enabled when a i2c
-transfer starts, and disabled after a specifically defined delay.
+According to hardware design, this patch implements a workaround
+to disable i2c controller interrupt and re-enable i2c interrupt
+before exiting ISR.
 
-If CONFIG_PM is disabled the net result of this patch is that the
-clock is never disabled.
-
-Without the patch the test case (many eeprom reads) executes with appro=
-x:
-real 1m7.735s
-user 0m0.488s
-sys 0m20.040s
-
-With the patch the same test case (many eeprom reads) executes with app=
-rox:
-real 0m54.241s
-user 0m0.440s
-sys 0m5.920s
-
-Signed-off-by: Fugang Duan <B38611@freescale.com>
-Signed-off-by: Gao Pan <b54642@freescale.com>
-Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+To reduce the performance impacts on other vendors, use unlikely
+function to check flag in ISR.
 ---
-V2:
-As Uwe Kleine-K=C3=B6nig's suggestion, the version do below changes:
- -call clk_prepare_enable in probe to avoid never enabling clock
-  if CONFIG_PM is disabled
- -enable clock before request IRQ in probe
- -remove the pm staff in i2c_imx_isr
+Changes in v2:
+    - pass flags with ->driver_data
+    - unmask interrupt right after masking
 
-V3:
- -pm_runtime_get_sync returns < 0 as error
+Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
+---
+ drivers/i2c/busses/i2c-designware-core.c    | 6 ++++++
+ drivers/i2c/busses/i2c-designware-core.h    | 1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c | 7 ++++++-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
-V4:
- -add pm_runtime_set_active before pm_runtime_enable
- -replace pm_runtime_put_autosuspend with pm_runtime_autosuspend
-  in probe
- -add error disposal when i2c_add_numbered_adapter fails
-
-V5:
- -clean up and disable runtime PM when i2c_add_numbered_adapter fails
- -use pm_runtime_get and pm_runtime_put_autosuspend in probe
-
-V6:
- -disable the clock manually and set the state to suspended explicitly =
-with
-  pm_runtime_set_suspended
-
-V7:
- -manually disabling the clock and use pm_runtime_put_noidle in the rem=
-ove callback
-
-V8:
- -move out label after the two runtime pm calls in i2c_imx_xfer
-
-V9:
- -add comment in the log what is the result when CONFIG_PM is disabled
- -do the rpm_disable cleanup in reverse order
-
-V10:
- -based on for-next, commit b31f032e9bd738dbaa07c157c354597007dc5ab4
-
- drivers/i2c/busses/i2c-imx.c | 90 ++++++++++++++++++++++++++++++++++++=
-++------
- 1 file changed, 78 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.=
-c
-index d4d8536..baae9cc 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -55,6 +55,7 @@
- #include <linux/platform_device.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-+#include <linux/pm_runtime.h>
-=20
- /** Defines **********************************************************=
-**********
- **********************************************************************=
-*********/
-@@ -120,6 +121,8 @@
- #define I2CR_IEN_OPCODE_0	0x0
- #define I2CR_IEN_OPCODE_1	I2CR_IEN
-=20
-+#define I2C_PM_TIMEOUT		10 /* ms */
-+
- /** Variables ********************************************************=
-**********
- **********************************************************************=
-*********/
-=20
-@@ -527,9 +530,6 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c=
-_imx)
-=20
- 	i2c_imx_set_clk(i2c_imx);
-=20
--	result =3D clk_prepare_enable(i2c_imx->clk);
--	if (result)
--		return result;
- 	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
- 	/* Enable I2C controller */
- 	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_=
-I2SR);
-@@ -582,7 +582,6 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c=
-_imx)
- 	/* Disable I2C controller */
- 	temp =3D i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
- 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--	clk_disable_unprepare(i2c_imx->clk);
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 8c48b27..de7fbbb 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -813,6 +813,12 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ tx_aborted:
+ 	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
+ 		complete(&dev->cmd_complete);
++	else if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK)) {
++		/* workaround to trigger pending interrupt */
++		stat = dw_readl(dev, DW_IC_INTR_MASK);
++		i2c_dw_disable_int(dev);
++		dw_writel(dev, stat, DW_IC_INTR_MASK);
++	}
+ 
+ 	return IRQ_HANDLED;
  }
-=20
- static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
-@@ -901,6 +900,10 @@ static int i2c_imx_xfer(struct i2c_adapter *adapte=
-r,
-=20
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-=20
-+	result =3D pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
-+	if (result < 0)
-+		goto out;
-+
- 	/* Start I2C transfer */
- 	result =3D i2c_imx_start(i2c_imx);
- 	if (result) {
-@@ -964,6 +967,10 @@ fail0:
- 	/* Stop I2C transfer */
- 	i2c_imx_stop(i2c_imx);
-=20
-+	pm_runtime_mark_last_busy(i2c_imx->adapter.dev.parent);
-+	pm_runtime_put_autosuspend(i2c_imx->adapter.dev.parent);
-+
-+out:
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> exit with: %s: %d\n", __func__,
- 		(result < 0) ? "error" : "success msg",
- 			(result < 0) ? result : num);
-@@ -1083,7 +1090,7 @@ static int i2c_imx_probe(struct platform_device *=
-pdev)
-=20
- 	ret =3D clk_prepare_enable(i2c_imx->clk);
- 	if (ret) {
--		dev_err(&pdev->dev, "can't enable I2C clock\n");
-+		dev_err(&pdev->dev, "can't enable I2C clock, ret=3D%d\n", ret);
- 		return ret;
- 	}
-=20
-@@ -1107,6 +1114,18 @@ static int i2c_imx_probe(struct platform_device =
-*pdev)
- 	/* Set up adapter data */
- 	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
-=20
-+	/* Set up platform driver data */
-+	platform_set_drvdata(pdev, i2c_imx);
-+
-+	pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
-+	pm_runtime_use_autosuspend(&pdev->dev);
-+	pm_runtime_set_active(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
-+
-+	ret =3D pm_runtime_get_sync(&pdev->dev);
-+	if (ret < 0)
-+		goto rpm_disable;
-+
- 	/* Set up clock divider */
- 	i2c_imx->bitrate =3D IMX_I2C_BIT_RATE;
- 	ret =3D of_property_read_u32(pdev->dev.of_node,
-@@ -1125,12 +1144,11 @@ static int i2c_imx_probe(struct platform_device=
- *pdev)
- 	ret =3D i2c_add_numbered_adapter(&i2c_imx->adapter);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "registration failed\n");
--		goto clk_disable;
-+		goto rpm_disable;
- 	}
-=20
--	/* Set up platform driver data */
--	platform_set_drvdata(pdev, i2c_imx);
--	clk_disable_unprepare(i2c_imx->clk);
-+	pm_runtime_mark_last_busy(&pdev->dev);
-+	pm_runtime_put_autosuspend(&pdev->dev);
-=20
- 	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
- 	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
-@@ -1143,6 +1161,12 @@ static int i2c_imx_probe(struct platform_device =
-*pdev)
-=20
- 	return 0;   /* Return OK */
-=20
-+rpm_disable:
-+	pm_runtime_put_noidle(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
-+
- clk_disable:
- 	clk_disable_unprepare(i2c_imx->clk);
- 	return ret;
-@@ -1151,6 +1175,11 @@ clk_disable:
- static int i2c_imx_remove(struct platform_device *pdev)
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 1d50898..9ffb63a 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -111,6 +111,7 @@ struct dw_i2c_dev {
+ 
+ #define ACCESS_SWAP		0x00000001
+ #define ACCESS_16BIT		0x00000002
++#define ACCESS_INTR_MASK	0x00000004
+ 
+ extern int i2c_dw_init(struct dw_i2c_dev *dev);
+ extern void i2c_dw_disable(struct dw_i2c_dev *dev);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 809579e..f03ea71 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -93,6 +93,7 @@ static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+ static int dw_i2c_acpi_configure(struct platform_device *pdev)
  {
- 	struct imx_i2c_struct *i2c_imx =3D platform_get_drvdata(pdev);
-+	int ret;
-+
-+	ret =3D pm_runtime_get_sync(&pdev->dev);
-+	if (ret < 0)
-+		return ret;
-=20
- 	/* remove adapter */
- 	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
-@@ -1165,17 +1194,54 @@ static int i2c_imx_remove(struct platform_devic=
-e *pdev)
- 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
- 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
-=20
-+	clk_disable_unprepare(i2c_imx->clk);
-+
-+	pm_runtime_put_noidle(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int i2c_imx_runtime_suspend(struct device *dev)
-+{
-+	struct imx_i2c_struct *i2c_imx  =3D dev_get_drvdata(dev);
-+
-+	clk_disable_unprepare(i2c_imx->clk);
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++	const struct acpi_device_id *id;
+ 
+ 	dev->adapter.nr = -1;
+ 	dev->tx_fifo_depth = 32;
+@@ -106,6 +107,10 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
+ 			   &dev->sda_hold_time);
+ 
++	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
++	if (id && id->driver_data)
++		dev->accessor_flags |= (u32)id->driver_data;
 +
  	return 0;
  }
-=20
-+static int i2c_imx_runtime_resume(struct device *dev)
-+{
-+	struct imx_i2c_struct *i2c_imx  =3D dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret =3D clk_prepare_enable(i2c_imx->clk);
-+	if (ret)
-+		dev_err(dev, "can't enable I2C clock, ret=3D%d\n", ret);
-+
-+	return ret;
-+}
-+
-+static const struct dev_pm_ops i2c_imx_pm_ops =3D {
-+	SET_RUNTIME_PM_OPS(i2c_imx_runtime_suspend,
-+			   i2c_imx_runtime_resume, NULL)
-+};
-+#define I2C_IMX_PM_OPS (&i2c_imx_pm_ops)
-+#else
-+#define I2C_IMX_PM_OPS NULL
-+#endif /* CONFIG_PM */
-+
- static struct platform_driver i2c_imx_driver =3D {
- 	.probe =3D i2c_imx_probe,
- 	.remove =3D i2c_imx_remove,
--	.driver	=3D {
--		.name	=3D DRIVER_NAME,
-+	.driver =3D {
-+		.name =3D DRIVER_NAME,
-+		.pm =3D I2C_IMX_PM_OPS,
- 		.of_match_table =3D i2c_imx_dt_ids,
- 	},
--	.id_table	=3D imx_i2c_devtype,
-+	.id_table =3D imx_i2c_devtype,
+ 
+@@ -116,7 +121,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "INT3433", 0 },
+ 	{ "80860F41", 0 },
+ 	{ "808622C1", 0 },
+-	{ "AMD0010", 0 },
++	{ "AMD0010", ACCESS_INTR_MASK },
+ 	{ }
  };
-=20
- static int __init i2c_adap_imx_init(void)
---=20
+ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+-- 
 1.9.1
