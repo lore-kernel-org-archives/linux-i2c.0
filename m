@@ -1,89 +1,82 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: allow building emev2 without slave mode again
-Date: Sat, 12 Dec 2015 17:20:57 +0100
-Message-ID: <20151212162057.GA1530@katana>
-References: <201512102224.cVm7Hcp0%fengguang.wu@intel.com>
- <2592093.cGKEcKVqLU@wuerfel>
+Subject: Re: [PATCH v2] I2C: designware: fix IO timeout issue for AMD
+ controller
+Date: Sat, 12 Dec 2015 18:03:22 +0100
+Message-ID: <20151212170322.GB1530@katana>
+References: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:56409 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:56749 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751229AbbLLQVJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 12 Dec 2015 11:21:09 -0500
+	id S1752293AbbLLRDe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 12 Dec 2015 12:03:34 -0500
 Content-Disposition: inline
-In-Reply-To: <2592093.cGKEcKVqLU@wuerfel>
+In-Reply-To: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org, linux-i2c@vger.kernel.org, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Xiangliang Yu <Xiangliang.Yu@amd.com>
+Cc: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, SPG_Linux_Kernel@amd.com
 
 
---bg08WKrSYDhXBjb5
+--RASg3xLB4tUQ4RcS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Arnd,
+On Fri, Dec 11, 2015 at 08:02:53PM +0800, Xiangliang Yu wrote:
+> Because of some hardware limitation, AMD I2C controller can't
+> trigger pending interrupt if interrupt status has been changed
+> after clearing interrupt status bits. Then, I2C will lost
+> interrupt and IO timeout.
+>=20
+> According to hardware design, this patch implements a workaround
+> to disable i2c controller interrupt and re-enable i2c interrupt
+> before exiting ISR.
+>=20
+> To reduce the performance impacts on other vendors, use unlikely
+> function to check flag in ISR.
+> ---
 
-thanks for looking into this, but I don't get your point yet.
+Don't manually add "---". This breaks a lot of workflow scripts.
+"Patchwork" missed your Signed-off, for example!
 
-> The slave_cb callback function is supposed to set the 'value'
-> here,
+> Changes in v2:
+>     - pass flags with ->driver_data
+>     - unmask interrupt right after masking
 
-Only if a master wants to READ from us.
+This paragraph...
 
-> but it might return an error not assign the pointer,
+>=20
+> Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
+> ---
 
-An error is only returned if a WRITE from a master was not accepted by
-the slave backend.
+=2E.. needs to go here.
 
-> It might be best to change the callback to return 'void' and not
-> allow it to fail.
-
-We need that because in case of an errno, the slave should send NACK to
-the master instead of ACK.
-
-> At least the eeprom slave cannot fail anyway, and it is the only
-> implementation we have at the moment.
-
-True. But giving a slave the possibility to NACK a write should be
-present IMO.
-
-> Alternatively, the  inline could return an error, and both bus
-> drivers check for the error before using 'value'.
-
-Hum, it does return an error?
-
-	return client->slave_cb(client, event, val);
-
-You probably mean something else?
-
-Regards,
-
-   Wolfram
+However, I fixed it this time and applied to for-current, thanks!
 
 
---bg08WKrSYDhXBjb5
+--RASg3xLB4tUQ4RcS
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWbElpAAoJEBQN5MwUoCm2krMQAI0nNyDHSSGT8QjrPwaJIU2H
-s2UEXp3np8CNek2xWRWB2UmSe8LO9YJEr2Zx0ojBQmxaL7v+NAkiC+FSMndMsS1b
-fy5OC83UQqFdqUt/sUPJlGm4uua/Ebbrlxwl0AlSwJQXzGxp8xn8wVe8asdfjPf2
-riVvUX619uenEpjL/uAanZOd5oDwmTRF80rVwGe6aKmE/pBd6jVbUEfoGMuf0U+m
-WofdJgqAt7Ef3s5Ll1xWW6HTXem7jQSw/5lfyE2GkAukFCJNh0ZgGjbYaBnqJ6l9
-FL6ySoleBBV6iPll28zJcr/hcCILYcmRCXw/EyUopv1oE69baAwjXhUdHz4uIqRy
-FeSS32bWmnB66EH8LrJWEZn9AyrUe2n4TzQ/V+X2IfgNVvro6NM1j3EGGAIcPq29
-vJOh5dGi2tdRBal+QF6HBsP8ANZ2dyOkn8ng0XiNwdLdLZ1k7KPbgr6bXi0KarPb
-ky5xO6uhe7Uyq3AsZpqiOpGq5vKmonq8KJGDnc3rUlJlV9nI4i+uU22cw+YpHFHS
-BWIoK2iw9b3Rtj8MdG5Mq3inbjfp+dvEqov6TXbUK21/G0XaP7lwc70cg6XVwQIl
-+CVmjOfYcAgAa7TT/WvteCEck4UMGSbpC2zLv71djSgeCeek9G2Ff6RYILMFKh11
-pi9kGwkm3RBVPZc/TI/T
-=YMMR
+iQIcBAEBAgAGBQJWbFNaAAoJEBQN5MwUoCm2u50P+gPcfoUv1GdjK6bFMHFWfnuE
+stErUWfP8vq2V1SFGUulRd9crvVqm7JWqx3GlUnXgIot9haNGp83RKvhQTnpASN8
+r4hA7p8CUN+li/8NkfAS+QNsTZ1M7HBDtoWazEhjM/EV/N8zdT5Lbk+bJw7ScB7K
+sVAzy8XQB14LBPEHotoM3zGkXYQOf9NKxhTAerqRXKi5LE7ae7dlNSVWLo1QEGUH
+HqTiRgVw/DWPcTywDdMq34GmCxbUmA3+ALtGsDNvnKT/0wxB2PKmfvW+3HX2JAST
+LR8nn6mwj/hvfh8thL1V2btDV0+4MPkLnJpxkxd5H0infJ3auKjjXPrBXZusIQBU
+4YYt+swhXY51HfTFmeE9PGHLkzbzTFOLX30LqxllEgsXET/lg4LVYCEUA+sTJvc8
+KCoq4UHPxgqBpJF8VOusfXSe6EJAhtxs3+lvkK251aJfbQXQUmwZn/mONLI32zM7
+6xaezdd3vd3NqHzJt6mtffAEF2LkEbdkgExnYw2C/sdF7fGGkgucJLH39/MkesQn
+qm4+8IbBQ1ciDch74nHxoRwA6LSRUZxuzGa3+mV7VBYFjinu/1R+E4XabXyKEVOb
+cVnKqn9IH8LW2tc7CXYM+rStUGfh9rDgwQnb708GbxXMila9ugdCKWY3ky3/cxxE
+md/NnprEilTlUZTRvJYB
+=8GGs
 -----END PGP SIGNATURE-----
 
---bg08WKrSYDhXBjb5--
+--RASg3xLB4tUQ4RcS--
