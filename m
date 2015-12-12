@@ -1,82 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] I2C: designware: fix IO timeout issue for AMD
- controller
-Date: Sat, 12 Dec 2015 18:03:22 +0100
-Message-ID: <20151212170322.GB1530@katana>
-References: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
+Subject: Re: [PATCH 1/2] i2c: designware: Keep pm_runtime_enable/_disable
+ calls in sync
+Date: Sat, 12 Dec 2015 18:06:06 +0100
+Message-ID: <20151212170606.GC1530@katana>
+References: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
+	protocol="application/pgp-signature"; boundary="pAwQNkOnpTn9IO2O"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:56749 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:56772 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752293AbbLLRDe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 12 Dec 2015 12:03:34 -0500
+	id S1751611AbbLLRGJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 12 Dec 2015 12:06:09 -0500
 Content-Disposition: inline
-In-Reply-To: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
+In-Reply-To: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Xiangliang Yu <Xiangliang.Yu@amd.com>
-Cc: andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, SPG_Linux_Kernel@amd.com
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, David Box <david.e.box@linux.intel.com>
 
 
---RASg3xLB4tUQ4RcS
+--pAwQNkOnpTn9IO2O
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 11, 2015 at 08:02:53PM +0800, Xiangliang Yu wrote:
-> Because of some hardware limitation, AMD I2C controller can't
-> trigger pending interrupt if interrupt status has been changed
-> after clearing interrupt status bits. Then, I2C will lost
-> interrupt and IO timeout.
+On Thu, Dec 10, 2015 at 01:48:43PM +0200, Jarkko Nikula wrote:
+> On an hardware shared I2C bus (certain Intel Baytrail SoC platforms) the
+> runtime PM disable depth keeps increasing over repeated modprobe/rmmod
+> cycle because pm_runtime_disable() is called without checking should it
+> be disabled already because of bus sharing.
 >=20
-> According to hardware design, this patch implements a workaround
-> to disable i2c controller interrupt and re-enable i2c interrupt
-> before exiting ISR.
+> This hasn't made any other harm than dev->power.disable_depth keeps
+> increasing but keep it sync by calling pm_runtime_disable() only when
+> runtime PM is not disabled.
 >=20
-> To reduce the performance impacts on other vendors, use unlikely
-> function to check flag in ISR.
-> ---
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Don't manually add "---". This breaks a lot of workflow scripts.
-"Patchwork" missed your Signed-off, for example!
-
-> Changes in v2:
->     - pass flags with ->driver_data
->     - unmask interrupt right after masking
-
-This paragraph...
-
->=20
-> Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
-> ---
-
-=2E.. needs to go here.
-
-However, I fixed it this time and applied to for-current, thanks!
+Applied to for-current, thanks!
 
 
---RASg3xLB4tUQ4RcS
+--pAwQNkOnpTn9IO2O
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWbFNaAAoJEBQN5MwUoCm2u50P+gPcfoUv1GdjK6bFMHFWfnuE
-stErUWfP8vq2V1SFGUulRd9crvVqm7JWqx3GlUnXgIot9haNGp83RKvhQTnpASN8
-r4hA7p8CUN+li/8NkfAS+QNsTZ1M7HBDtoWazEhjM/EV/N8zdT5Lbk+bJw7ScB7K
-sVAzy8XQB14LBPEHotoM3zGkXYQOf9NKxhTAerqRXKi5LE7ae7dlNSVWLo1QEGUH
-HqTiRgVw/DWPcTywDdMq34GmCxbUmA3+ALtGsDNvnKT/0wxB2PKmfvW+3HX2JAST
-LR8nn6mwj/hvfh8thL1V2btDV0+4MPkLnJpxkxd5H0infJ3auKjjXPrBXZusIQBU
-4YYt+swhXY51HfTFmeE9PGHLkzbzTFOLX30LqxllEgsXET/lg4LVYCEUA+sTJvc8
-KCoq4UHPxgqBpJF8VOusfXSe6EJAhtxs3+lvkK251aJfbQXQUmwZn/mONLI32zM7
-6xaezdd3vd3NqHzJt6mtffAEF2LkEbdkgExnYw2C/sdF7fGGkgucJLH39/MkesQn
-qm4+8IbBQ1ciDch74nHxoRwA6LSRUZxuzGa3+mV7VBYFjinu/1R+E4XabXyKEVOb
-cVnKqn9IH8LW2tc7CXYM+rStUGfh9rDgwQnb708GbxXMila9ugdCKWY3ky3/cxxE
-md/NnprEilTlUZTRvJYB
-=8GGs
+iQIcBAEBAgAGBQJWbFP+AAoJEBQN5MwUoCm2/fEP/jTTsPBxC/nL08dNSRPARAO+
+yBb1ihQ3F7kM2iUNl2QJqYsPbh1k3eLC6Pgzb1yWaye/YLt4BZRZ77MgyhXG5lqH
+RTo/hVLDM6FUG4R+/v9mliBs9ZKocV9YymLfCgYXiz6nqHTeguGgScj4DY6OnmB1
+2A8WayHnHf8AP3tCss/eX0FJHwU/9H2Dl85IZG8O4ZqmmEVBf5Kux+/kJxarAoNS
+NtHq2TYMaP0b8bBgpTOm7l1bVGPlm4+sywM2kPZTBZt31RyScCRk7cVFq4IxvrWk
+TRFqCse9V2shh6IYvBAK3OcPHBxnl7rK8ummkHtjNRJ+aIki8Y+I8DFdh/m++OPS
+xYtRPIc4OKTbzv456zWZl8ga4HXG5IzrcqPidXSIVNHtNwAaqCT98We/I+C95eDg
+HWUptJqtoA9McDrphkxn3ZqBzQ3RRA8FLXusnIVV0EXcxoVKzm7HYGzfp4m+he/d
+9jOz73YVfqRqEoGIbVWD7GJ2w4XLJ4Mlp6cMAKSfEptC3p0uC81HWcU9QlyESvKp
+GI6wZHkRM5c6P7voG703fdsBgye7DgnOND9DQYrY/nodYyMiPLaPEThMDNchrjsO
+XzTSSxZaYPzKbD0gBazNltAFqREzIrRbMb+qDWvBATZV4PYNKxrKgBlMm7NLQRSz
+QaFDl7FLlJ/I1Rp6UlB3
+=N7Ik
 -----END PGP SIGNATURE-----
 
---RASg3xLB4tUQ4RcS--
+--pAwQNkOnpTn9IO2O--
