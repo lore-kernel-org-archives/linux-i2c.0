@@ -1,61 +1,89 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: touchscreen: edt-ft5x06: Prevent DMA driver from mapping an area
- on stack
-Date: Sat, 12 Dec 2015 18:13:55 +0100
-Message-ID: <20151212171355.GA7362@katana>
-References: <e0311a5e79a315814e8678c9ef4a32563c01d1e0.1449913392.git.maitysanchayan@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] i2c: allow building emev2 without slave mode again
+Date: Sat, 12 Dec 2015 22:05:29 +0100
+Message-ID: <2157023.1Ftpc9ZciN@wuerfel>
+References: <201512102224.cVm7Hcp0%fengguang.wu@intel.com>
+ <2592093.cGKEcKVqLU@wuerfel> <20151212162057.GA1530@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:56830 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751635AbbLLROP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 12 Dec 2015 12:14:15 -0500
-Content-Disposition: inline
-In-Reply-To: <e0311a5e79a315814e8678c9ef4a32563c01d1e0.1449913392.git.maitysanchayan@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20151212162057.GA1530@katana>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Niklas =?ISO-8859-1?Q?S=F6derlund?= <niklas.soderlund+renesas@ragnatech.se>, kbuild test robot <lkp@intel.com>, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kbuild-all@01.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sanchayan Maity <maitysanchayan@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, maxime.ripard@free-electrons.com, stefan@agner.ch
+
+On Saturday 12 December 2015 17:20:57 Wolfram Sang wrote:
+> Hi Arnd,
+> 
+> thanks for looking into this, but I don't get your point yet.
+> 
+> > The slave_cb callback function is supposed to set the 'value'
+> > here,
+> 
+> Only if a master wants to READ from us.
+
+Right, and can this never fail?
+
+> > but it might return an error not assign the pointer,
+> 
+> An error is only returned if a WRITE from a master was not accepted by
+> the slave backend.
+>
+> > It might be best to change the callback to return 'void' and not
+> > allow it to fail.
+> 
+> We need that because in case of an errno, the slave should send NACK to
+> the master instead of ACK.
+> 
+> > At least the eeprom slave cannot fail anyway, and it is the only
+> > implementation we have at the moment.
+> 
+> True. But giving a slave the possibility to NACK a write should be
+> present IMO.
+
+Ok, fair enough.
+ 
+> > Alternatively, the  inline could return an error, and both bus
+> > drivers check for the error before using 'value'.
+> 
+> Hum, it does return an error?
+> 
+> 	return client->slave_cb(client, event, val);
+> 
+> You probably mean something else?
+
+I mean specifically this code in em_i2c_slave_irq():
+
+                        /* Send data */
+                        event = status & I2C_BIT_STD0 ?
+                                I2C_SLAVE_READ_REQUESTED :
+                                I2C_SLAVE_READ_PROCESSED;
+                        i2c_slave_event(priv->slave, event, &value);
+                        writeb(value, priv->base + I2C_OFS_IIC0);
+
+With my current code to turn i2c_slave_event() into an empty inline function
+in case of !CONFIG_I2C_SLAVE, the compiler knows that "value" is uninitialized
+at the point where we write it to the register, and warns about it.
+
+The code will of course never run if slave mode is not allowed, but we should
+still shut up the warning, either by making the inline i2c_slave_event
+set 'value' to zero or 0xff, or by adding an error check:
+
+			ret = i2c_slave_event(priv->slave, event, &value);
+			if (!ret)
+				 writeb(value, priv->base + I2C_OFS_IIC0);
+
+and making the empty i2c_slave_event() function return -ENOSYS or -ENOTSUPP.
 
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> Frankly speaking I do not know where the fix should actually be. I2C IMX
-> driver somehow taking care of this or the users of I2C, touchscreen drivers
-> in this case. In my opinion, the fix should be with the touchscreen driver
-> however I did like to have feedback or hear opinions on what is the accepted
-> solution to this.
-
-There is no accepted solution to this yet :( DMA is/was still too rare for
-a serious discussion about this. There is also [1] and probably more...
-
-[1]  http://patchwork.ozlabs.org/patch/220137/
-
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWbFXTAAoJEBQN5MwUoCm2JCcP/jyAd6I4vbr4U52qIUYv+VRM
-4Qx7hd9oVfWCnUpiVHkJDmKIdD8vanwPsWhpOBAPhzftIHGAxUzFL6bcb2t5+CEk
-w+vTMeO7HDad2r/1134do7/sr896U3iyqaXrar4hHxh+nvo7lmXnnebw7R5o2DJ9
-7uz0IorL/6NTEhzGF+Gsco7DvmKwnEbuZQTQnF1gkCdN9nZE7Nxiih8g35Sz92E5
-sGVPA6ZOeW0vv4iP+RdfG0XDv6OnPWnGP4rxZKsUIGPMlbm21Ba4SiT0v/y+fbc4
-n/R7A+nvUBholzvvkhxUS8f23wIZ+hhSsD7eeS4l3bfTnJcXszoZR9HXvS644Lmu
-3m6tOKV43SW7IQXWH5+EH4ii+wqWVswT7vMp1g9LyTN76fQYypTcbqIA3XXELXOe
-nQlrK/yHVbSR5xw/+6YaLKpP+tfzF0MhXvXnG2hIRxqFNKVToq3gFRV5iPcDkgd8
-mMo0ZELnQMcJuNzNR4ENDS+1gIBlpssb9cxNdwpnaFlwnWXs5DSaj8NOlQ9fIcpv
-MIEJ/YCCirSWuDz4eZwPNgX8mgaHHQ31/fp4n/KWcauQ8ezdBxkdW0uSxZtmOiYd
-9kHsGrX70T2mFMHa+VhdfHZADYvOWU5oy0IR0C9qNNFVw0m3UpThy0FmUlMmjaGa
-viFaqunGmWvbmEBWLE1H
-=ca9L
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--
+	Arnd
