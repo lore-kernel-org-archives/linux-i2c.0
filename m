@@ -1,65 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: designware: Keep pm_runtime_enable/_disable
- calls in sync
-Date: Sat, 12 Dec 2015 18:06:06 +0100
-Message-ID: <20151212170606.GC1530@katana>
-References: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
+Subject: Re: touchscreen: edt-ft5x06: Prevent DMA driver from mapping an area
+ on stack
+Date: Sat, 12 Dec 2015 18:13:55 +0100
+Message-ID: <20151212171355.GA7362@katana>
+References: <e0311a5e79a315814e8678c9ef4a32563c01d1e0.1449913392.git.maitysanchayan@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pAwQNkOnpTn9IO2O"
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:56772 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:56830 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751611AbbLLRGJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 12 Dec 2015 12:06:09 -0500
+	id S1751635AbbLLROP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 12 Dec 2015 12:14:15 -0500
 Content-Disposition: inline
-In-Reply-To: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
+In-Reply-To: <e0311a5e79a315814e8678c9ef4a32563c01d1e0.1449913392.git.maitysanchayan@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, David Box <david.e.box@linux.intel.com>
+To: Sanchayan Maity <maitysanchayan@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, maxime.ripard@free-electrons.com, stefan@agner.ch
 
 
---pAwQNkOnpTn9IO2O
+--SLDf9lqlvOQaIe6s
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Dec 10, 2015 at 01:48:43PM +0200, Jarkko Nikula wrote:
-> On an hardware shared I2C bus (certain Intel Baytrail SoC platforms) the
-> runtime PM disable depth keeps increasing over repeated modprobe/rmmod
-> cycle because pm_runtime_disable() is called without checking should it
-> be disabled already because of bus sharing.
->=20
-> This hasn't made any other harm than dev->power.disable_depth keeps
-> increasing but keep it sync by calling pm_runtime_disable() only when
-> runtime PM is not disabled.
->=20
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-
-Applied to for-current, thanks!
 
 
---pAwQNkOnpTn9IO2O
+> Frankly speaking I do not know where the fix should actually be. I2C IMX
+> driver somehow taking care of this or the users of I2C, touchscreen drivers
+> in this case. In my opinion, the fix should be with the touchscreen driver
+> however I did like to have feedback or hear opinions on what is the accepted
+> solution to this.
+
+There is no accepted solution to this yet :( DMA is/was still too rare for
+a serious discussion about this. There is also [1] and probably more...
+
+[1]  http://patchwork.ozlabs.org/patch/220137/
+
+--SLDf9lqlvOQaIe6s
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWbFP+AAoJEBQN5MwUoCm2/fEP/jTTsPBxC/nL08dNSRPARAO+
-yBb1ihQ3F7kM2iUNl2QJqYsPbh1k3eLC6Pgzb1yWaye/YLt4BZRZ77MgyhXG5lqH
-RTo/hVLDM6FUG4R+/v9mliBs9ZKocV9YymLfCgYXiz6nqHTeguGgScj4DY6OnmB1
-2A8WayHnHf8AP3tCss/eX0FJHwU/9H2Dl85IZG8O4ZqmmEVBf5Kux+/kJxarAoNS
-NtHq2TYMaP0b8bBgpTOm7l1bVGPlm4+sywM2kPZTBZt31RyScCRk7cVFq4IxvrWk
-TRFqCse9V2shh6IYvBAK3OcPHBxnl7rK8ummkHtjNRJ+aIki8Y+I8DFdh/m++OPS
-xYtRPIc4OKTbzv456zWZl8ga4HXG5IzrcqPidXSIVNHtNwAaqCT98We/I+C95eDg
-HWUptJqtoA9McDrphkxn3ZqBzQ3RRA8FLXusnIVV0EXcxoVKzm7HYGzfp4m+he/d
-9jOz73YVfqRqEoGIbVWD7GJ2w4XLJ4Mlp6cMAKSfEptC3p0uC81HWcU9QlyESvKp
-GI6wZHkRM5c6P7voG703fdsBgye7DgnOND9DQYrY/nodYyMiPLaPEThMDNchrjsO
-XzTSSxZaYPzKbD0gBazNltAFqREzIrRbMb+qDWvBATZV4PYNKxrKgBlMm7NLQRSz
-QaFDl7FLlJ/I1Rp6UlB3
-=N7Ik
+iQIcBAEBAgAGBQJWbFXTAAoJEBQN5MwUoCm2JCcP/jyAd6I4vbr4U52qIUYv+VRM
+4Qx7hd9oVfWCnUpiVHkJDmKIdD8vanwPsWhpOBAPhzftIHGAxUzFL6bcb2t5+CEk
+w+vTMeO7HDad2r/1134do7/sr896U3iyqaXrar4hHxh+nvo7lmXnnebw7R5o2DJ9
+7uz0IorL/6NTEhzGF+Gsco7DvmKwnEbuZQTQnF1gkCdN9nZE7Nxiih8g35Sz92E5
+sGVPA6ZOeW0vv4iP+RdfG0XDv6OnPWnGP4rxZKsUIGPMlbm21Ba4SiT0v/y+fbc4
+n/R7A+nvUBholzvvkhxUS8f23wIZ+hhSsD7eeS4l3bfTnJcXszoZR9HXvS644Lmu
+3m6tOKV43SW7IQXWH5+EH4ii+wqWVswT7vMp1g9LyTN76fQYypTcbqIA3XXELXOe
+nQlrK/yHVbSR5xw/+6YaLKpP+tfzF0MhXvXnG2hIRxqFNKVToq3gFRV5iPcDkgd8
+mMo0ZELnQMcJuNzNR4ENDS+1gIBlpssb9cxNdwpnaFlwnWXs5DSaj8NOlQ9fIcpv
+MIEJ/YCCirSWuDz4eZwPNgX8mgaHHQ31/fp4n/KWcauQ8ezdBxkdW0uSxZtmOiYd
+9kHsGrX70T2mFMHa+VhdfHZADYvOWU5oy0IR0C9qNNFVw0m3UpThy0FmUlMmjaGa
+viFaqunGmWvbmEBWLE1H
+=ca9L
 -----END PGP SIGNATURE-----
 
---pAwQNkOnpTn9IO2O--
+--SLDf9lqlvOQaIe6s--
