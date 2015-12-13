@@ -1,89 +1,45 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] i2c: allow building emev2 without slave mode again
-Date: Sat, 12 Dec 2015 22:05:29 +0100
-Message-ID: <2157023.1Ftpc9ZciN@wuerfel>
-References: <201512102224.cVm7Hcp0%fengguang.wu@intel.com>
- <2592093.cGKEcKVqLU@wuerfel> <20151212162057.GA1530@katana>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: touchscreen: edt-ft5x06: Prevent DMA driver from mapping an area
+ on stack
+Date: Sat, 12 Dec 2015 20:42:37 -0800
+Message-ID: <20151213044237.GA22780@dtor-ws>
+References: <e0311a5e79a315814e8678c9ef4a32563c01d1e0.1449913392.git.maitysanchayan@gmail.com>
+ <20151212171355.GA7362@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20151212162057.GA1530@katana>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Niklas =?ISO-8859-1?Q?S=F6derlund?= <niklas.soderlund+renesas@ragnatech.se>, kbuild test robot <lkp@intel.com>, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kbuild-all@01.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pf0-f170.google.com ([209.85.192.170]:34450 "EHLO
+	mail-pf0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751324AbbLMEml (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 12 Dec 2015 23:42:41 -0500
+Content-Disposition: inline
+In-Reply-To: <20151212171355.GA7362@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sanchayan Maity <maitysanchayan@gmail.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, maxime.ripard@free-electrons.com, stefan@agner.ch
 
-On Saturday 12 December 2015 17:20:57 Wolfram Sang wrote:
-> Hi Arnd,
+On Sat, Dec 12, 2015 at 06:13:55PM +0100, Wolfram Sang wrote:
 > 
-> thanks for looking into this, but I don't get your point yet.
+> > Frankly speaking I do not know where the fix should actually be. I2C IMX
+> > driver somehow taking care of this or the users of I2C, touchscreen drivers
+> > in this case. In my opinion, the fix should be with the touchscreen driver
+> > however I did like to have feedback or hear opinions on what is the accepted
+> > solution to this.
 > 
-> > The slave_cb callback function is supposed to set the 'value'
-> > here,
+> There is no accepted solution to this yet :( DMA is/was still too rare for
+> a serious discussion about this. There is also [1] and probably more...
 > 
-> Only if a master wants to READ from us.
+> [1]  http://patchwork.ozlabs.org/patch/220137/
 
-Right, and can this never fail?
+I believe vast majority of i2c client drivers do not expect that the
+transfer buffer they supply in i2c messages are supposed to be DMAable
+(unlike USB and SPI buses that had that requirement from the beginning).
 
-> > but it might return an error not assign the pointer,
-> 
-> An error is only returned if a WRITE from a master was not accepted by
-> the slave backend.
->
-> > It might be best to change the callback to return 'void' and not
-> > allow it to fail.
-> 
-> We need that because in case of an errno, the slave should send NACK to
-> the master instead of ACK.
-> 
-> > At least the eeprom slave cannot fail anyway, and it is the only
-> > implementation we have at the moment.
-> 
-> True. But giving a slave the possibility to NACK a write should be
-> present IMO.
+I won't be applying this patch unless we decide that I2C changes the
+rules.
 
-Ok, fair enough.
- 
-> > Alternatively, the  inline could return an error, and both bus
-> > drivers check for the error before using 'value'.
-> 
-> Hum, it does return an error?
-> 
-> 	return client->slave_cb(client, event, val);
-> 
-> You probably mean something else?
+Thanks.
 
-I mean specifically this code in em_i2c_slave_irq():
-
-                        /* Send data */
-                        event = status & I2C_BIT_STD0 ?
-                                I2C_SLAVE_READ_REQUESTED :
-                                I2C_SLAVE_READ_PROCESSED;
-                        i2c_slave_event(priv->slave, event, &value);
-                        writeb(value, priv->base + I2C_OFS_IIC0);
-
-With my current code to turn i2c_slave_event() into an empty inline function
-in case of !CONFIG_I2C_SLAVE, the compiler knows that "value" is uninitialized
-at the point where we write it to the register, and warns about it.
-
-The code will of course never run if slave mode is not allowed, but we should
-still shut up the warning, either by making the inline i2c_slave_event
-set 'value' to zero or 0xff, or by adding an error check:
-
-			ret = i2c_slave_event(priv->slave, event, &value);
-			if (!ret)
-				 writeb(value, priv->base + I2C_OFS_IIC0);
-
-and making the empty i2c_slave_event() function return -ENOSYS or -ENOTSUPP.
-
-
-	Arnd
+-- 
+Dmitry
