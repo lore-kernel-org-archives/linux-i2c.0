@@ -1,65 +1,81 @@
-From: "Yu, Xiangliang" <Xiangliang.Yu@amd.com>
-Subject: RE: [PATCH v2] I2C: designware: fix IO timeout issue for AMD
- controller
-Date: Sun, 13 Dec 2015 12:01:57 +0000
-Message-ID: <BLUPR12MB042075472454F9F15D40FFC2EBEC0@BLUPR12MB0420.namprd12.prod.outlook.com>
-References: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
- <20151212170322.GB1530@katana>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH] i2c: create builtin_i2c_driver to avoid registration boilerplate
+Date: Sun, 13 Dec 2015 15:33:19 -0500
+Message-ID: <1450038799-27995-1-git-send-email-paul.gortmaker@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bl2on0064.outbound.protection.outlook.com ([65.55.169.64]:34582
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751273AbbLMMRS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 13 Dec 2015 07:17:18 -0500
-In-Reply-To: <20151212170322.GB1530@katana>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, SPG_Linux_Kernel <SPG_Linux_Kernel@amd.com>
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa@the-dreams.de]
-> Sent: Sunday, December 13, 2015 1:03 AM
-> To: Yu, Xiangliang
-> Cc: andriy.shevchenko@linux.intel.com; jarkko.nikula@linux.intel.com;
-> mika.westerberg@linux.intel.com; linux-i2c@vger.kernel.org; linux-
-> kernel@vger.kernel.org; SPG_Linux_Kernel
-> Subject: Re: [PATCH v2] I2C: designware: fix IO timeout issue for AMD
-> controller
-> 
-> On Fri, Dec 11, 2015 at 08:02:53PM +0800, Xiangliang Yu wrote:
-> > Because of some hardware limitation, AMD I2C controller can't trigger
-> > pending interrupt if interrupt status has been changed after clearing
-> > interrupt status bits. Then, I2C will lost interrupt and IO timeout.
-> >
-> > According to hardware design, this patch implements a workaround to
-> > disable i2c controller interrupt and re-enable i2c interrupt before
-> > exiting ISR.
-> >
-> > To reduce the performance impacts on other vendors, use unlikely
-> > function to check flag in ISR.
-> > ---
-> 
-> Don't manually add "---". This breaks a lot of workflow scripts.
-> "Patchwork" missed your Signed-off, for example!
-Sorry for my mistake. 
+In commit f309d4443130bf814e991f836e919dca22df37ae ("platform_device:
+better support builtin boilerplate avoidance") we introduced the
+builtin_driver macro.
 
-> > Changes in v2:
-> >     - pass flags with ->driver_data
-> >     - unmask interrupt right after masking
-> 
-> This paragraph...
->
-> >
-> > Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
-> > ---
-> 
-> ... needs to go here.
-> 
-> However, I fixed it this time and applied to for-current, thanks!
+Here we use that support and extend it to I2C driver registration,
+so where a driver is clearly non-modular and builtin-only, we can
+register it in a similar fashion.  And existing code that is clearly
+non-modular can be updated with the simple mapping of
 
-Thank you very much!
+     module_i2c_driver(...)  ---> builtin_i2c_driver(...)
+
+We've essentially cloned the former to make the latter, and taken
+out the remove/module_exit parts since those never get used in a
+non-modular build of the code.
+
+A similar thing was done in commit b4eb6cdbbd13698704863f680c643c569909e1c2
+("PCI: Add builtin_pci_driver() to avoid registration boilerplate").
+
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alexandre Courbot <gnurou@gmail.com>
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+---
+
+[I've about 10 drivers/mfd and one drivers/gpio users of this in
+ my personal testing queue, but obviously I can't submit those
+ until builtin_i2c_driver makes it to mainline.  Since there are
+ no drivers/i2c users yet this change is sent to i2c on its own.]
+
+ include/linux/i2c.h | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 768063baafbf..d3ca750bfcdf 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -622,7 +622,7 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
+ }
+ 
+ /**
+- * module_i2c_driver() - Helper macro for registering a I2C driver
++ * module_i2c_driver() - Helper macro for registering a modular I2C driver
+  * @__i2c_driver: i2c_driver struct
+  *
+  * Helper macro for I2C drivers which do not do anything special in module
+@@ -633,6 +633,17 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
+ 	module_driver(__i2c_driver, i2c_add_driver, \
+ 			i2c_del_driver)
+ 
++/**
++ * builtin_i2c_driver() - Helper macro for registering a builtin I2C driver
++ * @__i2c_driver: i2c_driver struct
++ *
++ * Helper macro for I2C drivers which do not do anything special in their
++ * init. This eliminates a lot of boilerplate. Each driver may only
++ * use this macro once, and calling it replaces device_initcall().
++ */
++#define builtin_i2c_driver(__i2c_driver) \
++	builtin_driver(__i2c_driver, i2c_add_driver)
++
+ #endif /* I2C */
+ 
+ #if IS_ENABLED(CONFIG_OF)
+-- 
+2.5.0
+
