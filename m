@@ -1,61 +1,65 @@
-From: linux-i2c-owner@vger.kernel.org
-Subject: URGENT MAIL FOR YOU...
-Date: Sun, 13 Dec 2015 05:02:43 -0500
-Message-ID: <DB4PR06MB0942C3041FEDF86613DE03D9B8EC0@DB4PR06MB0942.eurprd06.prod.outlook.com>
-Reply-To: <imfonlinedepartmen@qq.com>
+From: "Yu, Xiangliang" <Xiangliang.Yu@amd.com>
+Subject: RE: [PATCH v2] I2C: designware: fix IO timeout issue for AMD
+ controller
+Date: Sun, 13 Dec 2015 12:01:57 +0000
+Message-ID: <BLUPR12MB042075472454F9F15D40FFC2EBEC0@BLUPR12MB0420.namprd12.prod.outlook.com>
+References: <1449835373-4669-1-git-send-email-Xiangliang.Yu@amd.com>
+ <20151212170322.GB1530@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db3hn0254.outbound.protection.outlook.com ([157.55.234.254]:61664
-	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
+Received: from mail-bl2on0064.outbound.protection.outlook.com ([65.55.169.64]:34582
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751496AbbLMKDB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 13 Dec 2015 05:03:01 -0500
-Content-Description: Mail message body
+	id S1751273AbbLMMRS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 13 Dec 2015 07:17:18 -0500
+In-Reply-To: <20151212170322.GB1530@katana>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Recipients@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, SPG_Linux_Kernel <SPG_Linux_Kernel@amd.com>
 
-Dear ,
-=20
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa@the-dreams.de]
+> Sent: Sunday, December 13, 2015 1:03 AM
+> To: Yu, Xiangliang
+> Cc: andriy.shevchenko@linux.intel.com; jarkko.nikula@linux.intel.com;
+> mika.westerberg@linux.intel.com; linux-i2c@vger.kernel.org; linux-
+> kernel@vger.kernel.org; SPG_Linux_Kernel
+> Subject: Re: [PATCH v2] I2C: designware: fix IO timeout issue for AMD
+> controller
+> 
+> On Fri, Dec 11, 2015 at 08:02:53PM +0800, Xiangliang Yu wrote:
+> > Because of some hardware limitation, AMD I2C controller can't trigger
+> > pending interrupt if interrupt status has been changed after clearing
+> > interrupt status bits. Then, I2C will lost interrupt and IO timeout.
+> >
+> > According to hardware design, this patch implements a workaround to
+> > disable i2c controller interrupt and re-enable i2c interrupt before
+> > exiting ISR.
+> >
+> > To reduce the performance impacts on other vendors, use unlikely
+> > function to check flag in ISR.
+> > ---
+> 
+> Don't manually add "---". This breaks a lot of workflow scripts.
+> "Patchwork" missed your Signed-off, for example!
+Sorry for my mistake. 
 
-My name is Mrs. Bella Holbrook and I work with the International Moneta=
-ry Fund (IMF), I am writing you to let you know that finally your ATM C=
-ard worth $650,000.00 USD has been delivered through UPS to Mr. Hart Le=
-roy, who works with the IMF where it is going to be activated before fi=
-nal delivery to your home address. You can use the tracking number with=
- the tracking site below to track the ATM Card to be sure it has been d=
-elivered to Mr. Hart, for activation.
-=20
+> > Changes in v2:
+> >     - pass flags with ->driver_data
+> >     - unmask interrupt right after masking
+> 
+> This paragraph...
+>
+> >
+> > Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
+> > ---
+> 
+> ... needs to go here.
+> 
+> However, I fixed it this time and applied to for-current, thanks!
 
-UPS Tracking number: 1z2876490390947593
-UPS tracking site: http://www.ups.com/index.html
-=20
-
-Below is the contact information to Mr. Hart Leroy
-=20
-
-Contact Name: Mr. Hart Leroy
-Contact E-mail: imfonlinedepartmen@qq.com
-Contact Number: +1505-240-6112
-=20
-
-You are to contact Mr. Hart with his email address above then he will g=
-uide you on how your Card will be activated and delivered to your home =
-address.
-=20
-=20
-
-Note: The only fee you are to send for the activation fee is just $250 =
-USD so make sure you don=E2=80=99t send him more than $250 USD. Your ca=
-rd is already with him and you can track it with the tracking details g=
-iven to you above for confirmation.
-=20
-
-Congratulations once more.
-=20
-
-Best Regards,
-Mrs. Bella Holbrook
-International Monetary Fund (IMF)
+Thank you very much!
