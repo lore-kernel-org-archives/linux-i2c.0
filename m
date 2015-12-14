@@ -1,81 +1,44 @@
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH] i2c: create builtin_i2c_driver to avoid registration boilerplate
-Date: Sun, 13 Dec 2015 15:33:19 -0500
-Message-ID: <1450038799-27995-1-git-send-email-paul.gortmaker@windriver.com>
+From: maitysanchayan@gmail.com
+Subject: Re: touchscreen: edt-ft5x06: Prevent DMA driver from mapping an area
+ on stack
+Date: Mon, 14 Dec 2015 13:23:39 +0530
+Message-ID: <20151214075339.GA28733@Sanchayan-Arch.toradex.int>
+References: <e0311a5e79a315814e8678c9ef4a32563c01d1e0.1449913392.git.maitysanchayan@gmail.com>
+ <20151212171355.GA7362@katana>
+ <20151213044237.GA22780@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20151213044237.GA22780@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, maxime.ripard@free-electrons.com, stefan@agner.ch
 List-Id: linux-i2c@vger.kernel.org
 
-In commit f309d4443130bf814e991f836e919dca22df37ae ("platform_device:
-better support builtin boilerplate avoidance") we introduced the
-builtin_driver macro.
+Hello,
 
-Here we use that support and extend it to I2C driver registration,
-so where a driver is clearly non-modular and builtin-only, we can
-register it in a similar fashion.  And existing code that is clearly
-non-modular can be updated with the simple mapping of
+On 15-12-12 20:42:37, Dmitry Torokhov wrote:
+> On Sat, Dec 12, 2015 at 06:13:55PM +0100, Wolfram Sang wrote:
+> > 
+> > > Frankly speaking I do not know where the fix should actually be. I2C IMX
+> > > driver somehow taking care of this or the users of I2C, touchscreen drivers
+> > > in this case. In my opinion, the fix should be with the touchscreen driver
+> > > however I did like to have feedback or hear opinions on what is the accepted
+> > > solution to this.
+> > 
+> > There is no accepted solution to this yet :( DMA is/was still too rare for
+> > a serious discussion about this. There is also [1] and probably more...
+> > 
+> > [1]  http://patchwork.ozlabs.org/patch/220137/
+> 
+> I believe vast majority of i2c client drivers do not expect that the
+> transfer buffer they supply in i2c messages are supposed to be DMAable
+> (unlike USB and SPI buses that had that requirement from the beginning).
+> 
+> I won't be applying this patch unless we decide that I2C changes the
+> rules.
 
-     module_i2c_driver(...)  ---> builtin_i2c_driver(...)
+Understood. Thanks for the clarifications Dmitry and Wolfram.
 
-We've essentially cloned the former to make the latter, and taken
-out the remove/module_exit parts since those never get used in a
-non-modular build of the code.
-
-A similar thing was done in commit b4eb6cdbbd13698704863f680c643c569909e1c2
-("PCI: Add builtin_pci_driver() to avoid registration boilerplate").
-
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alexandre Courbot <gnurou@gmail.com>
-Cc: linux-gpio@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
----
-
-[I've about 10 drivers/mfd and one drivers/gpio users of this in
- my personal testing queue, but obviously I can't submit those
- until builtin_i2c_driver makes it to mainline.  Since there are
- no drivers/i2c users yet this change is sent to i2c on its own.]
-
- include/linux/i2c.h | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 768063baafbf..d3ca750bfcdf 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -622,7 +622,7 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
- }
- 
- /**
-- * module_i2c_driver() - Helper macro for registering a I2C driver
-+ * module_i2c_driver() - Helper macro for registering a modular I2C driver
-  * @__i2c_driver: i2c_driver struct
-  *
-  * Helper macro for I2C drivers which do not do anything special in module
-@@ -633,6 +633,17 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
- 	module_driver(__i2c_driver, i2c_add_driver, \
- 			i2c_del_driver)
- 
-+/**
-+ * builtin_i2c_driver() - Helper macro for registering a builtin I2C driver
-+ * @__i2c_driver: i2c_driver struct
-+ *
-+ * Helper macro for I2C drivers which do not do anything special in their
-+ * init. This eliminates a lot of boilerplate. Each driver may only
-+ * use this macro once, and calling it replaces device_initcall().
-+ */
-+#define builtin_i2c_driver(__i2c_driver) \
-+	builtin_driver(__i2c_driver, i2c_add_driver)
-+
- #endif /* I2C */
- 
- #if IS_ENABLED(CONFIG_OF)
--- 
-2.5.0
-
+- Sanchayan.
