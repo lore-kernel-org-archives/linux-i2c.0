@@ -1,69 +1,53 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] i2c: allow building emev2 without slave mode again
-Date: Mon, 14 Dec 2015 23:27:22 +0100
-Message-ID: <13702087.6o87OAVdIx@wuerfel>
-References: <201512102224.cVm7Hcp0%fengguang.wu@intel.com> <15285750.UWXWiNJ6YU@wuerfel> <20151214135206.GA1520@katana>
+From: Scott Wood <scottwood@freescale.com>
+Subject: Re: [PATCH V3 5/6] clk: qoriq: Add ls1043a support.
+Date: Mon, 14 Dec 2015 17:32:59 -0600
+Message-ID: <1450135979.15946.406.camel@freescale.com>
+References: <1444822498-16477-1-git-send-email-B48286@freescale.com>
+	 <1444822498-16477-6-git-send-email-B48286@freescale.com>
+	 <20151014183113.GE26883@codeaurora.org>
+	 <1444870621.5185.223.camel@freescale.com>
+	 <20151015195456.GT4558@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([217.72.192.74]:63259 "EHLO
-	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753567AbbLNW2B (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Dec 2015 17:28:01 -0500
-In-Reply-To: <20151214135206.GA1520@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-clk-owner@vger.kernel.org>
+In-Reply-To: <20151015195456.GT4558@codeaurora.org>
+Sender: linux-clk-owner@vger.kernel.org
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Zhiqiang Hou <B48286@freescale.com>, linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com, will.deacon@arm.com, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-doc@vger.kernel.org, linux-clk@vger.kernel.org, mark.rutland@arm.com, Mingkai.Hu@freescale.com, Shaohui.Xie@freescale.com, bhupesh.sharma@freescale.com, leoli@freescale.com, wsa@the-dreams.de, wim@iguana.be, corbet@lwn.net, mturquette@baylibre.com, Wenbin.Song@freescale.com, Russell King <linux@arm.linux.org.uk>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org, linux-i2c@vger.kernel.org, Niklas =?ISO-8859-1?Q?S=F6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-On Monday 14 December 2015 14:52:06 Wolfram Sang wrote:
-> > > What about not ifdeffing the inline function and keep the build error
-> > > whenever someone uses it without I2C_SLAVE being selected?
+On Thu, 2015-10-15 at 12:54 -0700, Stephen Boyd wrote:
+> On 10/14, Scott Wood wrote:
+> > On Wed, 2015-10-14 at 11:31 -0700, Stephen Boyd wrote:
+> > > On 10/14, Zhiqiang Hou wrote:
+> > > > From: Hou Zhiqiang <B48286@freescale.com>
+> > > > 
+> > > > Signed-off-by: Hou Zhiqiang <B48286@freescale.com>
+> > > > ---
+> > > 
+> > > Acked-by: Stephen Boyd <sboyd@codeaurora.org>
+> > > 
 > > 
-> > The inline function is only added there for the case that I2C_SLAVE is
-> > disabled, so that would be pointless.
+> > Could you ack my clock patchset that this depends on (if there are no 
 > > 
-> > However, what we could do is move the extern declaration outside of
-> > the #ifdef to make it always visible. The if(IS_ENABLED(CONFIG_I2C_SLAVE))
-> > check should then ensure that it never actually gets called, and we
-> > get a link error if some driver gets it wrong.
+> > objections)?  Mike Turquette acked the RFC version a while back, but it's 
+> > 
+> > changed a bit since then (including the new clk_get_num_parents() and 
+> > 
+> > clk_get_parent_by_index() -- I CCed Russell King on that but got no 
+> > 
+> > response), and got no response when I asked whether the ack was still good
+> > 
+> > for v3.
+> > 
+> > 
 > 
-> Yes, that's what I meant: move the whole function (as it was before your
-> patch) out of the CONFIG_I2C_SLAVE block. We should get a compiler error
-> even, because for !I2C_SLAVE, the client struct will not have the
-> slave_cb member.
-> 
+> Done. The consumer APIs look ok too, but I'd like to see if
+> Russell has any comments.
 
-But we don't want a compile-error for randconfig builds, and we don't
-want unnecessary #ifdef in the driver. 
+I've pinged Russell several times and gotten no response -- how should we
+proceed?
 
-This change on top of my earlier patch should do what I meant:
+-Scott
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 0236e5f2b5be..536641bad92d 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -265,15 +265,15 @@ enum i2c_slave_event {
- extern int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb);
- extern int i2c_slave_unregister(struct i2c_client *client);
- 
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
- static inline int i2c_slave_event(struct i2c_client *client,
- 				  enum i2c_slave_event event, u8 *val)
- {
--#if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	return client->slave_cb(client, event, val);
-+}
- #else
--	return 0;
-+extern int i2c_slave_event(struct i2c_client *client, enum i2c_slave_event event, u8 *val);
- #endif
--}
- 
- /**
-  * struct i2c_board_info - template for device creation
-
-
-
-	Arnd
