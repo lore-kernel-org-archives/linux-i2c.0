@@ -1,63 +1,33 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/4] i2c: uniphier: add minor sanity checks to
- i2c-uniphier/i2c-uniphier-f
-Date: Mon, 14 Dec 2015 11:01:12 +0100
-Message-ID: <20151214100112.GE1733@katana>
-References: <1448877216-32286-1-git-send-email-yamada.masahiro@socionext.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] i2c: allow building emev2 without slave mode again
+Date: Mon, 14 Dec 2015 13:02:27 +0100
+Message-ID: <15285750.UWXWiNJ6YU@wuerfel>
+References: <201512102224.cVm7Hcp0%fengguang.wu@intel.com> <2157023.1Ftpc9ZciN@wuerfel> <20151213090959.GB1570@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UnaWdueM1EBWVRzC"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:33940 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752691AbbLNKBQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 14 Dec 2015 05:01:16 -0500
-Content-Disposition: inline
-In-Reply-To: <1448877216-32286-1-git-send-email-yamada.masahiro@socionext.com>
+Received: from mout.kundenserver.de ([212.227.17.24]:64467 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752740AbbLNMDF (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Dec 2015 07:03:05 -0500
+In-Reply-To: <20151213090959.GB1570@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org, linux-i2c@vger.kernel.org, Niklas =?ISO-8859-1?Q?S=F6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
+On Sunday 13 December 2015 10:09:59 Wolfram Sang wrote:
+> 
+> What about not ifdeffing the inline function and keep the build error
+> whenever someone uses it without I2C_SLAVE being selected?
 
---UnaWdueM1EBWVRzC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The inline function is only added there for the case that I2C_SLAVE is
+disabled, so that would be pointless.
 
-On Mon, Nov 30, 2015 at 06:53:32PM +0900, Masahiro Yamada wrote:
->=20
->=20
->=20
-> Masahiro Yamada (4):
->   i2c: uniphier: error out if clock rate is zero
->   i2c: uniphier: error out if bus speed is zero
->   i2c: uniphier_f: error out if clock rate is zero
->   i2c: uniphier_f: error out if bus speed is zero
+However, what we could do is move the extern declaration outside of
+the #ifdef to make it always visible. The if(IS_ENABLED(CONFIG_I2C_SLAVE))
+check should then ensure that it never actually gets called, and we
+get a link error if some driver gets it wrong.
 
-Applied to for-next, thanks!
-
-
---UnaWdueM1EBWVRzC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWbpNoAAoJEBQN5MwUoCm27CMP/37aJNFSHflkFB8bS3JprPjy
-w9+d+RanZouZatUrf1Om7K30vsf4vKzIrfBwFhJ0fz0U6VfIsL8lVKKIAzuZ0NZo
-QqrYNc/ZfF+sXbXs0nuMeGtM/9kkQzEmua2u1aqrdpLDGTBou7DTUQBx0UCVpHsq
-PE8PiMzOQZD+jH3JMM1KSJ/4OfLHdLh6niUiBR6sN30wVhprbTahPYDTYajLVxQj
-7JM2Kaf576TqJ6Rhsyab5+h98lR5aFf5gGwVDd0qycWFkyDGBBICbRw8lXr1HkVM
-ene6UDamPWNR6ZRPdPd9UF8J3nklYXZRvrDECaMC71LqZwVhvpJTr1XTwpIRvMFv
-7Wxsl6fKFjA55t/4D+Rh7nX3dIJ7NyLJwWLVuCpS+gnV2coFjLljUsRSHy4TB27D
-+ltyjWbLOQj0E7czAWPh4B/9sUgVBwLqfMIBTxdnCy5cv8zJxb+h03JMx/aISRLf
-f6dBuEFH7c8g9zLZZfn9/qVger9+J9Z5CzLmU5xzBHoFFIuAP3+5ybC+DrvEYCxG
-elnM9Zxp5SB3stgasjHEqbyisQslRoZBr/UKg7RY4nw+fUuNW76knbLBu8lMwbG8
-/5lovaQl+XGu+lh64Sexc0JIfpwLSuQ44JJGHosqErciZivX9X6IUOAB6+6e282Z
-0C3PBRhYtqErk+lIqT91
-=eMxp
------END PGP SIGNATURE-----
-
---UnaWdueM1EBWVRzC--
+	Arnd
