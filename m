@@ -1,61 +1,53 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
 Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
-Date: Tue, 15 Dec 2015 15:27:21 +0200
-Message-ID: <20151215132721.GJ1762@lahna.fi.intel.com>
+Date: Tue, 15 Dec 2015 08:52:19 -0600
+Message-ID: <56702923.9010305@amd.com>
 References: <1449782357-22982-1-git-send-email-lho@apm.com>
- <566F6485.2000508@amd.com>
+ <566F6485.2000508@amd.com> <20151215132721.GJ1762@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:15624 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932770AbbLONba (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 15 Dec 2015 08:31:30 -0500
-Content-Disposition: inline
-In-Reply-To: <566F6485.2000508@amd.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20151215132721.GJ1762@lahna.fi.intel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-arm-kernel@lists.infradead.org, Al Stone <al.stone@linaro.org>, Jeff.Wu@amd.com, jcm@redhat.com, wsa@the-dreams.de, rjw@rjwysocki.net, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, patches@apm.com, "Duran,
+ Leo" <leo.duran@amd.com>, Loc Ho <lho@apm.com>, "Hurwitz,
+ Sherry" <sherry.hurwitz@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, Ken.Xue@amd.com, lenb@kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Suravee Suthikulanit <suravee.suthikulpanit@amd.com>
-Cc: Loc Ho <lho@apm.com>, wsa@the-dreams.de, Ken.Xue@amd.com, Jeff.Wu@amd.com, rjw@rjwysocki.net, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, "Duran, Leo" <leo.duran@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>
 
-On Mon, Dec 14, 2015 at 06:53:25PM -0600, Suravee Suthikulanit wrote:
-> I'm not sure if this has been discussed earlier. But after looking at the
-> the acpi_apd driver, all we need is just the platform-specific input clock
-> frequency value used by the drivers/i2c/busses/i2c-designware-core.c:
-> i2c_dw_init() to calculate the values to program into the DW_IC_SS_SCL_HCNT
-> and DW_IC_SS_SCL_LCNT registers.
 
-There is a way to pass *CNT values already from ACPI to the driver -- It
-looks for method called FMCN (or SSCN) and retrieves the values from
-there if found.
 
-The driver could be modified not to require clock if it already knows
-*CNT values.
+On 12/15/2015 07:27 AM, Mika Westerberg wrote:
+> On Mon, Dec 14, 2015 at 06:53:25PM -0600, Suravee Suthikulanit wrote:
+>> >I'm not sure if this has been discussed earlier. But after looking at the
+>> >the acpi_apd driver, all we need is just the platform-specific input clock
+>> >frequency value used by the drivers/i2c/busses/i2c-designware-core.c:
+>> >i2c_dw_init() to calculate the values to program into the DW_IC_SS_SCL_HCNT
+>> >and DW_IC_SS_SCL_LCNT registers.
+> There is a way to pass *CNT values already from ACPI to the driver -- It
+> looks for method called FMCN (or SSCN) and retrieves the values from
+> there if found.
 
-> So, instead of hard-coding this value into the driver/acpi/acpi_apd.c (which
-> really has nothing to do with the I2C driver), what if we introduce a new
-> ACPI key-value pair in the ACPI DSDT such as:
-> 
->     Device(I2C0)    // I2C controller
->     {
->       Name(_HID, "AMDI0510")
->       Name(_UID, 0)
->       Name(_CRS, ResourceTemplate() {
->         Memory32Fixed (ReadWrite, 0xE1000000, 0x1000)
->         Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive,,,) { 389
-> } // GSIV
->       })
->       Name (_DSD, Package () {
->         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
->         Package () {
->           Package (2) {"clock-source-frequency", 100000000 }
+Right, I also noticed this afterward. By the way, are FMCN and SSCN 
+documented anywhere in the ACPI spec?  I am trying to figure out how to 
+update the ACPI table to add this information for the AMD Seattle 
+(ARM64) platform, and I will also submit a patch to add the new HID for 
+this driver.
 
-If this is to be done then I think it is better to use Linux clk
-framework to provide the clock (with corresponding properties in place).
+> The driver could be modified not to require clock if it already knows
+> *CNT values.
+>
 
-But ACPI specification wants clocks as PowerResources and those do not
-have support for reading rate of the clock.
+Sounds good.
 
->         }
->       }) // _DSD()
->     }
+Thanks,
+Suravee
