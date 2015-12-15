@@ -1,34 +1,105 @@
 From: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
-Subject: [PATCH] i2c: designware: Add support for AMD Seattle I2C
-Date: Tue, 15 Dec 2015 15:55:53 -0600
-Message-ID: <1450216553-5641-1-git-send-email-Suravee.Suthikulpanit@amd.com>
+Subject: [PATCH] i2c: designware: Do not require clock when SSCN and FFCN are provided
+Date: Tue, 15 Dec 2015 16:38:58 -0600
+Message-ID: <1450219138-5868-1-git-send-email-Suravee.Suthikulpanit@amd.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-acpi-owner@vger.kernel.org>
 Sender: linux-acpi-owner@vger.kernel.org
 To: mika.westerberg@linux.intel.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Cc: lho@apm.com, Ken.Xue@amd.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add device HID AMDI0510 to match the I2C controlers on AMD Seattle platform
+The current driver uses input clock source frequency to calculate
+values for [SS|FS]_[HC|LC] registers. However, when booting ACPI, we do not
+currently have a good way to provide the frequency information.
+Instead, we can leverage the SSCN and FFCN ACPI methods, which can be used
+to directly provide these values.
+
+So, this patch removes the clock requirement when SSCN and FFCN
+are provided.
 
 Signed-off-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
- 1 file changed, 1 insertion(+)
 
+Note: This has been tested on AMD Seattle RevB for both DT and ACPI.
+
+ drivers/i2c/busses/i2c-designware-core.c    |  5 +++--
+ drivers/i2c/busses/i2c-designware-platdrv.c | 30 +++++++++++++++++++++++------
+ 2 files changed, 27 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 8c48b27..ec458ec 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -281,7 +281,7 @@ static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
+  */
+ int i2c_dw_init(struct dw_i2c_dev *dev)
+ {
+-	u32 input_clock_khz;
++	u32 input_clock_khz = 0;
+ 	u32 hcnt, lcnt;
+ 	u32 reg;
+ 	u32 sda_falling_time, scl_falling_time;
+@@ -295,7 +295,8 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 		}
+ 	}
+ 
+-	input_clock_khz = dev->get_clk_rate_khz(dev);
++	if (dev->get_clk_rate_khz)
++		input_clock_khz = dev->get_clk_rate_khz(dev);
+ 
+ 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+ 	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
 diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 57f623b..a027154 100644
+index 809579e..57f623b 100644
 --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -117,6 +117,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "80860F41", 0 },
- 	{ "808622C1", 0 },
- 	{ "AMD0010", 0 },
-+	{ "AMDI0510", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+@@ -127,6 +127,26 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+ }
+ #endif
+ 
++static int dw_i2c_configure_clk(struct platform_device *pdev,
++				struct dw_i2c_dev *dev)
++{
++	/* For ACPI, if SSCN and FMCN is provided, we should not
++	 * need the clock value.
++	 */
++	if (has_acpi_companion(&pdev->dev) &&
++	    dev->ss_hcnt && dev->ss_lcnt &&
++	    dev->fs_hcnt && dev->fs_lcnt)
++		return 0;
++
++	dev->clk = devm_clk_get(&pdev->dev, NULL);
++	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
++	if (IS_ERR(dev->clk))
++		return PTR_ERR(dev->clk);
++	clk_prepare_enable(dev->clk);
++
++	return 0;
++}
++
+ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_dev *dev;
+@@ -203,13 +223,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 			DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+ 
+-	dev->clk = devm_clk_get(&pdev->dev, NULL);
+-	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+-	if (IS_ERR(dev->clk))
+-		return PTR_ERR(dev->clk);
+-	clk_prepare_enable(dev->clk);
++	r = dw_i2c_configure_clk(pdev, dev);
++	if (r)
++		return r;
+ 
+-	if (!dev->sda_hold_time && ht) {
++	if (!dev->sda_hold_time && ht && dev->get_clk_rate_khz) {
+ 		u32 ic_clk = dev->get_clk_rate_khz(dev);
+ 
+ 		dev->sda_hold_time = div_u64((u64)ic_clk * ht + 500000,
 -- 
 2.5.0
 
