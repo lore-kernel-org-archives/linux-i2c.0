@@ -1,92 +1,70 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [RFC] i2c: Prevent runtime suspend of parent during adapter registration
-Date: Tue, 15 Dec 2015 14:12:56 +0200
-Message-ID: <1450181576-878-1-git-send-email-jarkko.nikula@linux.intel.com>
-Return-path: <linux-pm-owner@vger.kernel.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/3] i2c: xlr: add support for Sigma Designs controller
+ variant
+Date: Tue, 15 Dec 2015 13:14:18 +0100
+Message-ID: <20151215121417.GA1521@katana>
+References: <1446429818-24155-1-git-send-email-mans@mansr.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:37711 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965217AbbLOMOX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 15 Dec 2015 07:14:23 -0500
+Content-Disposition: inline
+In-Reply-To: <1446429818-24155-1-git-send-email-mans@mansr.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mans Rullgard <mans@mansr.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-If runtime PM of parent device is enabled before it registers the I2C
-adapter there can be unnecessary runtime suspend during adapter device
-registration. This can happen when adapter is registered from parent's
-probe and if parent device is initially active platform device.
 
-In that case power.usage_count of parent device is zero and
-pm_runtime_get()/pm_runtime_put() cycle during probe could put the
-parent into runtime suspend. This happens when the i2c_register_adapter()
-calls the device_register():
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-i2c_register_adapter
-  device_register
-    device_add
-      bus_probe_device
-        device_initial_probe
-          __device_attach
-            if (dev->parent) pm_runtime_get_sync(dev->parent)
-            ...
-            if (dev->parent) pm_runtime_put(dev->parent)
+On Mon, Nov 02, 2015 at 02:03:36AM +0000, Mans Rullgard wrote:
+> Sigma Designs chips use a variant of this controller with the following
+> differences:
+>=20
+> - The BUSY bit in the STATUS register is inverted
+> - Bit 8 of the CONFIG register must be set
+> - The controller can generate interrupts
+>=20
+> This patch adds support for the first two of these.  It also calculates
+> and sets the correct clock divisor if a clk is provided.  The bus
+> frequency is optionally speficied in the device tree node.
 
-After that i2c_register_adapter() continues registering I2C slave
-devices. In case slave device probe does I2C transfers the parent will
-resume again and thus get a needless runtime suspend/resume cycle during
-adapter registration.
+Fixed the "speficied" typo and...
 
-Prevent this while retaining the runtime PM status of parent by only
-incrementing/decrementing parent device power usage count during I2C
-adapter registration. That makes sure there won't be spurious runtime PM
-status changes for parent's probe and lets the driver core to idle the
-device after probe finishes.
+>=20
+> Signed-off-by: Mans Rullgard <mans@mansr.com>
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-I noticed this with i2c-designware-platdrv.c which started to do so
-after commit 36d48fb5766a ("i2c: designware-platdrv: enable RuntimePM
-before registering to the core"). I guess the same could happen also
-with a few other I2C drivers that enable runtime PM similar way. For
-instance i2c-at91.c, i2c-cadence.c, i2c-hix5hd2.c and i2c-qup.c.
-That made me thinking if issue might be best to handle in i2c-core.c.
+=2E.. applied to for-next, thanks!
 
-Device core drivers/base/dd.c: driver_probe_device() or
-drivers/base/platform.c: platform_drv_probe() could be other
-alternatives but that would cause a regression to a driver that
-purposively tries to suspend the device in its probe().
----
- drivers/i2c/i2c-core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index ba8eb087f224..4f8b5c80cf1e 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1556,6 +1556,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	dev_set_name(&adap->dev, "i2c-%d", adap->nr);
- 	adap->dev.bus = &i2c_bus_type;
- 	adap->dev.type = &i2c_adapter_type;
-+	if (adap->dev.parent)
-+		pm_runtime_get_noresume(adap->dev.parent);
- 	res = device_register(&adap->dev);
- 	if (res)
- 		goto out_list;
-@@ -1617,6 +1619,8 @@ exit_recovery:
- 	mutex_lock(&core_lock);
- 	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
- 	mutex_unlock(&core_lock);
-+	if (adap->dev.parent)
-+		pm_runtime_put_noidle(adap->dev.parent);
- 
- 	return 0;
- 
-@@ -1624,6 +1628,8 @@ out_list:
- 	mutex_lock(&core_lock);
- 	idr_remove(&i2c_adapter_idr, adap->nr);
- 	mutex_unlock(&core_lock);
-+	if (adap->dev.parent)
-+		pm_runtime_put_noidle(adap->dev.parent);
- 	return res;
- }
- 
--- 
-2.6.2
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWcAQZAAoJEBQN5MwUoCm2rhEP+gNIs0Hm6xcEsZUVKTxjTuZZ
+3Ui14i7kqnpVQvrw6FNOWRaH11GpeEH2wni7Dl9NDtcAGc4cIY0FcpYGRFiW7ztO
+LSiFJhcRGNuIvY05DgSIsIYUfO1Wf2Q7welyDxZ9fDnNB2OxohwMmCCH+cI2bV55
+ohEUeOKZXTBNbhnw5h+uc9kLea/bV1n37TJtEtr/xaZpy+w+tCqGx2/n59rSPeiW
+9HkNR0gqcblhgdhXDC/o4fOyNlvSVGrIWnS6JZZy8M0zpJsXRzLkjpFKtZAt1KW2
++mSeQJNQb9i3+cQbfg0hh5Z7OImjWQ1YKwjXc2EZbwJdEmEXaaogZlzYAF1d1GOY
+TbI5UaFweXkiFVdNePsngO225ZM/EPGwPCZXgThLPJyYR+zKZSqKbogwNvxiYbYL
+j+ZAqQX2e2Eg1iNPNAAvJxrtvUYPI7DGWk6K5J2pcjVhfzywLK2AOebKu8R09jJ0
+4WAAdcMb0JDm9WbYR+pzZ8vSRqiTbUfrYcf3bnBQ4YaQZY2sfaOAGRen3oEUIgdr
+DHylqpuOJyX+Y8TGe+WEb5hipXP44uyefVJTkbRKxp8TyuZWtAzCKIN1h5HYC0DB
+RBlaaRK4H6WaYAm+HmNoZC8GNLVMy4qDrvj5Nr0ev6ZNuLF0+eEGYjfWV3Sj+Onx
+BtL7JGYBt896UzE2CcEW
+=Wqv6
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--
