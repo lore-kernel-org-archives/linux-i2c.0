@@ -1,77 +1,70 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [RFC] i2c: Prevent runtime suspend of parent during adapter
- registration
-Date: Tue, 15 Dec 2015 10:21:06 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1512151016130.1891-100000@iolanthe.rowland.org>
-References: <1450181576-878-1-git-send-email-jarkko.nikula@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c: s3c2410: remove superfluous runtime PM calls
+Date: Tue, 15 Dec 2015 19:14:09 +0100
+Message-ID: <1450203249-4873-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:59470 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754086AbbLOPVH (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Dec 2015 10:21:07 -0500
-In-Reply-To: <1450181576-878-1-git-send-email-jarkko.nikula@linux.intel.com>
+Received: from sauhun.de ([89.238.76.85]:47457 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754059AbbLOSOa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 15 Dec 2015 13:14:30 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-pm@vger.kernel.org, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>
 
-On Tue, 15 Dec 2015, Jarkko Nikula wrote:
+Since commit 6ada5c1e1b077a ("i2c: Mark adapter devices with
+pm_runtime_no_callbacks"), runtime PM on adapters turned into a no-op.
+So, we can remove these calls.
 
-> If runtime PM of parent device is enabled before it registers the I2C
-> adapter there can be unnecessary runtime suspend during adapter device
-> registration. This can happen when adapter is registered from parent's
-> probe and if parent device is initially active platform device.
-> 
-> In that case power.usage_count of parent device is zero and
-> pm_runtime_get()/pm_runtime_put() cycle during probe could put the
-> parent into runtime suspend. This happens when the i2c_register_adapter()
-> calls the device_register():
-> 
-> i2c_register_adapter
->   device_register
->     device_add
->       bus_probe_device
->         device_initial_probe
->           __device_attach
->             if (dev->parent) pm_runtime_get_sync(dev->parent)
->             ...
->             if (dev->parent) pm_runtime_put(dev->parent)
-> 
-> After that i2c_register_adapter() continues registering I2C slave
-> devices. In case slave device probe does I2C transfers the parent will
-> resume again and thus get a needless runtime suspend/resume cycle during
-> adapter registration.
-> 
-> Prevent this while retaining the runtime PM status of parent by only
-> incrementing/decrementing parent device power usage count during I2C
-> adapter registration. That makes sure there won't be spurious runtime PM
-> status changes for parent's probe and lets the driver core to idle the
-> device after probe finishes.
-> 
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> I noticed this with i2c-designware-platdrv.c which started to do so
-> after commit 36d48fb5766a ("i2c: designware-platdrv: enable RuntimePM
-> before registering to the core"). I guess the same could happen also
-> with a few other I2C drivers that enable runtime PM similar way. For
-> instance i2c-at91.c, i2c-cadence.c, i2c-hix5hd2.c and i2c-qup.c.
-> That made me thinking if issue might be best to handle in i2c-core.c.
-> 
-> Device core drivers/base/dd.c: driver_probe_device() or
-> drivers/base/platform.c: platform_drv_probe() could be other
-> alternatives but that would cause a regression to a driver that
-> purposively tries to suspend the device in its probe().
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/i2c-s3c2410.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-This isn't how the problem is handled in other places.  In all the 
-cases I know about, the parent's subsystem or driver makes sure that 
-the parent will not go into runtime suspend while it is being probed.  
-At the very least, it should insure that the parent will not go into 
-runtime suspend while it is registering a child device (which 
-typically happens within a probe routine).
-
-In general, it's bad form to do pm_runtime_get/put calls on your parent 
--- you should make changes only to the device you're responsible for.
-
-Alan Stern
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 5df819610d5280..362a6de548336b 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -784,7 +784,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 	int retry;
+ 	int ret;
+ 
+-	pm_runtime_get_sync(&adap->dev);
+ 	ret = clk_enable(i2c->clk);
+ 	if (ret)
+ 		return ret;
+@@ -795,7 +794,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 
+ 		if (ret != -EAGAIN) {
+ 			clk_disable(i2c->clk);
+-			pm_runtime_put(&adap->dev);
+ 			return ret;
+ 		}
+ 
+@@ -805,7 +803,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 	}
+ 
+ 	clk_disable(i2c->clk);
+-	pm_runtime_put(&adap->dev);
+ 	return -EREMOTEIO;
+ }
+ 
+@@ -1256,8 +1253,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	pm_runtime_enable(&i2c->adap.dev);
+-
+ 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
+ 	return 0;
+ }
+@@ -1273,7 +1268,6 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ 
+ 	clk_unprepare(i2c->clk);
+ 
+-	pm_runtime_disable(&i2c->adap.dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
+ 	s3c24xx_i2c_deregister_cpufreq(i2c);
+-- 
+2.1.4
