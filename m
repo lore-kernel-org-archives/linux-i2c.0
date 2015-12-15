@@ -1,39 +1,82 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH v2 0/9] i2c: add generic support for timing parameters in
- DT
-Date: Tue, 15 Dec 2015 13:14:49 +0900
-Message-ID: <20151215041448.GA32397@verge.net.au>
-References: <1449567473-2084-1-git-send-email-wsa@the-dreams.de>
- <20151214100026.GD1733@katana>
+From: Liguo Zhang <liguo.zhang@mediatek.com>
+Subject: [PATCH v3] i2c: mediatek: fix i2c multi transfer issue in high speed mode
+Date: Tue, 15 Dec 2015 15:22:26 +0800
+Message-ID: <1450164146-28995-1-git-send-email-liguo.zhang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151214100026.GD1733@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, linux-rockchip@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:56923 "EHLO
+	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753064AbbLOHWh (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Dec 2015 02:22:37 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, Liguo Zhang <liguo.zhang@mediatek.com>
 
-On Mon, Dec 14, 2015 at 11:00:26AM +0100, Wolfram Sang wrote:
-> On Tue, Dec 08, 2015 at 10:37:44AM +0100, Wolfram Sang wrote:
-> > Here is a patch series adding better DT support for timing parameters like the
-> > raise time or the fall time which are generic for the I2C subsystem. There is a
-> > core function for parsing and an implementation for the RCar driver how to use
-> > it.
-> > 
-> > I added people of the designware and rk3x driver to CC because they might be
-> > interested in this new function. They provided the basis for this series, so it
-> > should be easy to convert them.
-> > 
-> > Please have a look, test, comment...
-> > 
-> > Thanks,
-> > 
-> >     Wolfram
-> 
-> Applied patches 1-5 to for-next with the change Andy suggested, thanks!
-> 
-> Simon, you can pick up patches 6-9 now, I'd think.
+For mt8173 platform with auto restart support, when doing i2c multi
+transfer in high speed, we should ignore the first restart irq after
+the master code, otherwise the first transfer will be discarded.
 
-Thanks for letting me know, I have done so.
+Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+Reviewed-by: Eddie Huang <eddie.huang@mediatek.com>
+---
+Change in v3:
+ignore the first restart irq after the master code when doing
+i2c multi transfer in high speed.
+
+change in v2:
+fix i2c checkpatch error.
+
+---
+ drivers/i2c/busses/i2c-mt65xx.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index dc4aac6..aec8e6c 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -155,6 +155,7 @@ struct mtk_i2c {
+ 	u16 timing_reg;
+ 	u16 high_speed_reg;
+ 	unsigned char auto_restart;
++	bool ignore_restart_irq;
+ 	const struct mtk_i2c_compatible *dev_comp;
+ };
+ 
+@@ -539,6 +540,14 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
+ 		}
+ 	}
+ 
++	if (i2c->auto_restart && num >= 2 && i2c->speed_hz > MAX_FS_MODE_SPEED)
++		/* ignore the first restart irq after the master code,
++		 * otherwise the first transfer will be discarded.
++		 */
++		i2c->ignore_restart_irq = true;
++	else
++		i2c->ignore_restart_irq = false;
++
+ 	while (left_num--) {
+ 		if (!msgs->buf) {
+ 			dev_dbg(i2c->dev, "data buffer is NULL.\n");
+@@ -592,8 +601,16 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
+ 	 * i2c->irq_stat need keep the two interrupt value.
+ 	 */
+ 	i2c->irq_stat |= intr_stat;
+-	if (i2c->irq_stat & (I2C_TRANSAC_COMP | restart_flag))
+-		complete(&i2c->msg_complete);
++
++	if (i2c->ignore_restart_irq && (i2c->irq_stat & restart_flag)) {
++		i2c->ignore_restart_irq = false;
++		i2c->irq_stat = 0;
++		writew(I2C_RS_MUL_CNFG | I2C_RS_MUL_TRIG | I2C_TRANSAC_START,
++		       i2c->base + OFFSET_START);
++	} else {
++		if (i2c->irq_stat & (I2C_TRANSAC_COMP | restart_flag))
++			complete(&i2c->msg_complete);
++	}
+ 
+ 	return IRQ_HANDLED;
+ }
+-- 
+1.8.1.1.dirty
