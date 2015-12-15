@@ -1,59 +1,61 @@
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mans@mansr.com>
-Subject: Re: [PATCH 2/3] i2c: xlr: fix extra read/write at end of rx transfer
-Date: Tue, 15 Dec 2015 12:48:06 +0000
-Message-ID: <yw1x4mfjho8p.fsf@unicorn.mansr.com>
-References: <1446429818-24155-1-git-send-email-mans@mansr.com>
-	<1446429818-24155-2-git-send-email-mans@mansr.com>
-	<20151215122119.GB1521@katana>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
+Date: Tue, 15 Dec 2015 15:27:21 +0200
+Message-ID: <20151215132721.GJ1762@lahna.fi.intel.com>
+References: <1449782357-22982-1-git-send-email-lho@apm.com>
+ <566F6485.2000508@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151215122119.GB1521@katana> (Wolfram Sang's message of "Tue,
-	15 Dec 2015 13:21:19 +0100")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:15624 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932770AbbLONba (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 15 Dec 2015 08:31:30 -0500
+Content-Disposition: inline
+In-Reply-To: <566F6485.2000508@amd.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Suravee Suthikulanit <suravee.suthikulpanit@amd.com>
+Cc: Loc Ho <lho@apm.com>, wsa@the-dreams.de, Ken.Xue@amd.com, Jeff.Wu@amd.com, rjw@rjwysocki.net, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, "Duran, Leo" <leo.duran@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>
 
-Wolfram Sang <wsa@the-dreams.de> writes:
+On Mon, Dec 14, 2015 at 06:53:25PM -0600, Suravee Suthikulanit wrote:
+> I'm not sure if this has been discussed earlier. But after looking at the
+> the acpi_apd driver, all we need is just the platform-specific input clock
+> frequency value used by the drivers/i2c/busses/i2c-designware-core.c:
+> i2c_dw_init() to calculate the values to program into the DW_IC_SS_SCL_HCNT
+> and DW_IC_SS_SCL_LCNT registers.
 
-> On Mon, Nov 02, 2015 at 02:03:37AM +0000, Mans Rullgard wrote:
->> The BYTECNT register holds the transfer size minus one.  Setting it
->> to the correct value requires a dummy read/write only for zero-lengt=
-h
->> transfers as it is impossible to request one from the hardware.  If =
-a
->> zero-length transfer is requested, changing the length to 1 and sett=
-ing
->> "buf" to a dummy location allows making the main loops less convolut=
-ed.
->>=20
->> In other words, this patch makes the driver transfer the number of b=
-ytes
->> requested unless this is zero, which is not supported by the hardwar=
-e,
->> in which case one byte is transferred instead.
->
-> Uh, this is wrong, zero byte should really not transfer anything. We
-> need to fix that and bail out, so probably something like
->
-> 	if (!len)
-> 		return -EOPNOTSUPP;
+There is a way to pass *CNT values already from ACPI to the driver -- It
+looks for method called FMCN (or SSCN) and retrieves the values from
+there if found.
 
-So the existing driver is wrong to allow it.  Makes sense to drop that.
+The driver could be modified not to require clock if it already knows
+*CNT values.
 
-> Also, the xlr_func() should mask out I2C_FUNC_SMBUS_QUICK.
+> So, instead of hard-coding this value into the driver/acpi/acpi_apd.c (which
+> really has nothing to do with the I2C driver), what if we introduce a new
+> ACPI key-value pair in the ACPI DSDT such as:
+> 
+>     Device(I2C0)    // I2C controller
+>     {
+>       Name(_HID, "AMDI0510")
+>       Name(_UID, 0)
+>       Name(_CRS, ResourceTemplate() {
+>         Memory32Fixed (ReadWrite, 0xE1000000, 0x1000)
+>         Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive,,,) { 389
+> } // GSIV
+>       })
+>       Name (_DSD, Package () {
+>         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>         Package () {
+>           Package (2) {"clock-source-frequency", 100000000 }
 
-OK.
+If this is to be done then I think it is better to use Linux clk
+framework to provide the clock (with corresponding properties in place).
 
-> Other than that, the patch looks good to me.
->
-> Out of curiosity, your first driver had the registers 32bit apart. No=
-w
-> you can deal with 8bit. Is this configurable on this SoC?
+But ACPI specification wants clocks as PowerResources and those do not
+have support for reading rate of the clock.
 
-It's all 32 bits.  The XLR driver uses a u32 * to access the registers.
-
---=20
-M=E5ns Rullg=E5rd
+>         }
+>       }) // _DSD()
+>     }
