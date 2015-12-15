@@ -1,70 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: s3c2410: remove superfluous runtime PM calls
-Date: Tue, 15 Dec 2015 19:14:09 +0100
-Message-ID: <1450203249-4873-1-git-send-email-wsa@the-dreams.de>
+From: Loc Ho <lho@apm.com>
+Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
+Date: Tue, 15 Dec 2015 11:20:03 -0800
+Message-ID: <CAPw-ZT=TcvneyS69GjWe8sFR2hBTpHUUabu8Y5Feup89MwQWQQ@mail.gmail.com>
+References: <1449782357-22982-1-git-send-email-lho@apm.com>
+	<566F6485.2000508@amd.com>
+	<20151215132721.GJ1762@lahna.fi.intel.com>
+	<56702923.9010305@amd.com>
+	<20151215145953.GK1762@lahna.fi.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47457 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754059AbbLOSOa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 15 Dec 2015 13:14:30 -0500
+Received: from mail-lb0-f172.google.com ([209.85.217.172]:33298 "EHLO
+	mail-lb0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754073AbbLOTUF (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Dec 2015 14:20:05 -0500
+Received: by mail-lb0-f172.google.com with SMTP id kw15so12233603lbb.0
+        for <linux-i2c@vger.kernel.org>; Tue, 15 Dec 2015 11:20:04 -0800 (PST)
+In-Reply-To: <20151215145953.GK1762@lahna.fi.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-pm@vger.kernel.org, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, wsa@the-dreams.de, Ken Xue <Ken.Xue@amd.com>, Jeff.Wu@amd.com, rjw@rjwysocki.net, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Jon Masters <jcm@redhat.com>, "patches@apm.com" <patches@apm.com>, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, "Duran, Leo" <leo.duran@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>
 
-Since commit 6ada5c1e1b077a ("i2c: Mark adapter devices with
-pm_runtime_no_callbacks"), runtime PM on adapters turned into a no-op.
-So, we can remove these calls.
+Hi,
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/i2c/busses/i2c-s3c2410.c | 6 ------
- 1 file changed, 6 deletions(-)
+>>
+>> On 12/15/2015 07:27 AM, Mika Westerberg wrote:
+>> >On Mon, Dec 14, 2015 at 06:53:25PM -0600, Suravee Suthikulanit wrote:
+>> >>>I'm not sure if this has been discussed earlier. But after looking at the
+>> >>>the acpi_apd driver, all we need is just the platform-specific input clock
+>> >>>frequency value used by the drivers/i2c/busses/i2c-designware-core.c:
+>> >>>i2c_dw_init() to calculate the values to program into the DW_IC_SS_SCL_HCNT
+>> >>>and DW_IC_SS_SCL_LCNT registers.
+>> >There is a way to pass *CNT values already from ACPI to the driver -- It
+>> >looks for method called FMCN (or SSCN) and retrieves the values from
+>> >there if found.
+>>
+>> Right, I also noticed this afterward. By the way, are FMCN and SSCN
+>> documented anywhere in the ACPI spec?  I am trying to figure out how to
+>> update the ACPI table to add this information for the AMD Seattle (ARM64)
+>> platform, and I will also submit a patch to add the new HID for this driver.
+>
+> No, they are Intel inventions for the Windows I2C driver.
+>
+> Here is what I know about it:
+>   SSCN - Standard Mode CNTs
+>   FMCN - Fast Mode CNTs
+>
+> They both return a package:
+>
+>   Package() {
+>     HCNT,
+>     LCNT,
+>     SDA_hold_time,
+>   }
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 5df819610d5280..362a6de548336b 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -784,7 +784,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
- 	int retry;
- 	int ret;
- 
--	pm_runtime_get_sync(&adap->dev);
- 	ret = clk_enable(i2c->clk);
- 	if (ret)
- 		return ret;
-@@ -795,7 +794,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
- 
- 		if (ret != -EAGAIN) {
- 			clk_disable(i2c->clk);
--			pm_runtime_put(&adap->dev);
- 			return ret;
- 		}
- 
-@@ -805,7 +803,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
- 	}
- 
- 	clk_disable(i2c->clk);
--	pm_runtime_put(&adap->dev);
- 	return -EREMOTEIO;
- }
- 
-@@ -1256,8 +1253,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	pm_runtime_enable(&i2c->adap.dev);
--
- 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
- 	return 0;
- }
-@@ -1273,7 +1268,6 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
- 
- 	clk_unprepare(i2c->clk);
- 
--	pm_runtime_disable(&i2c->adap.dev);
- 	pm_runtime_disable(&pdev->dev);
- 
- 	s3c24xx_i2c_deregister_cpufreq(i2c);
--- 
-2.1.4
+Can we not just add an AML method that will return the operation clock
+frequency that the I2C driver can use? If the method doesn't existed,
+we will just bail and do nothing or assume what ever default behavior?
+
+-Loc
