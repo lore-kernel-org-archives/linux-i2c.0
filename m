@@ -1,137 +1,251 @@
 From: Mans Rullgard <mans@mansr.com>
-Subject: [PATCH v2 1/2] i2c: xlr: fix extra read/write at end of rx transfer
-Date: Tue, 15 Dec 2015 23:15:05 +0000
-Message-ID: <1450221306-5289-1-git-send-email-mans@mansr.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from unicorn.mansr.com ([81.2.72.234]:41842 "EHLO unicorn.mansr.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754331AbbLOXPR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 15 Dec 2015 18:15:17 -0500
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH v2 2/2] i2c: xlr: add interrupt support for Sigma Designs chips
+Date: Tue, 15 Dec 2015 23:15:06 +0000
+Message-ID: <1450221306-5289-2-git-send-email-mans@mansr.com>
+References: <1450221306-5289-1-git-send-email-mans@mansr.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1450221306-5289-1-git-send-email-mans@mansr.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-The BYTECNT register holds the transfer size minus one.  Setting it to
-the correct value removes the need for a dummy read/write at the end of
-each transfer.  As zero-length transfers are not supported, do not
-advertise I2C_FUNC_SMBUS_QUICK.
+The Sigma Designs variant of this controller has the ability to generate
+interrupts.  This is controlled using two additional registers, oddly
+enough overlapping with the defined but unused HDSTATIM.
 
-In other words, this patch makes the driver transfer the number of bytes
-requested unless this is zero, which is not supported by the hardware
-and is thus refused.
+This patch adds support for using this feature instead of busy-looping
+if an IRQ is specified.
 
 Signed-off-by: Mans Rullgard <mans@mansr.com>
 ---
 Changes:
-- refuse zero-length transfers and stop advertising I2C_FUNC_SMBUS_QUICK
+- rebase onto v2 of previous patch
 ---
- drivers/i2c/busses/i2c-xlr.c | 50 ++++++++++++++++++++++++--------------------
- 1 file changed, 27 insertions(+), 23 deletions(-)
+ drivers/i2c/busses/i2c-xlr.c | 119 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 119 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
-index 10fb916..2cfaba7 100644
+index 2cfaba7..613c3a4 100644
 --- a/drivers/i2c/busses/i2c-xlr.c
 +++ b/drivers/i2c/busses/i2c-xlr.c
-@@ -89,38 +89,43 @@ static int xlr_i2c_tx(struct xlr_i2c_private *priv,  u16 len,
- 	unsigned long timeout, stoptime, checktime;
- 	u32 i2c_status;
- 	int pos, timedout;
--	u8 offset, byte;
-+	u8 offset;
-+	u32 xfer;
-+
-+	if (!len)
-+		return -EOPNOTSUPP;
+@@ -19,6 +19,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/of_device.h>
+ #include <linux/clk.h>
++#include <linux/interrupt.h>
++#include <linux/wait.h>
  
- 	offset = buf[0];
- 	xlr_i2c_wreg(priv->iobase, XLR_I2C_ADDR, offset);
- 	xlr_i2c_wreg(priv->iobase, XLR_I2C_DEVADDR, addr);
- 	xlr_i2c_wreg(priv->iobase, XLR_I2C_CFG,
- 			XLR_I2C_CFG_ADDR | priv->cfg->cfg_extra);
--	xlr_i2c_wreg(priv->iobase, XLR_I2C_BYTECNT, len - 1);
+ /* XLR I2C REGISTERS */
+ #define XLR_I2C_CFG		0x00
+@@ -32,6 +34,10 @@
+ #define XLR_I2C_BYTECNT		0x08
+ #define XLR_I2C_HDSTATIM	0x09
  
- 	timeout = msecs_to_jiffies(XLR_I2C_TIMEOUT);
- 	stoptime = jiffies + timeout;
- 	timedout = 0;
--	pos = 1;
--retry:
++/* Sigma Designs additional registers */
++#define XLR_I2C_INT_EN		0x09
++#define XLR_I2C_INT_STAT	0x0a
 +
- 	if (len == 1) {
--		xlr_i2c_wreg(priv->iobase, XLR_I2C_STARTXFR,
--				XLR_I2C_STARTXFR_ND);
-+		xlr_i2c_wreg(priv->iobase, XLR_I2C_BYTECNT, len - 1);
-+		xfer = XLR_I2C_STARTXFR_ND;
-+		pos = 1;
- 	} else {
--		xlr_i2c_wreg(priv->iobase, XLR_I2C_DATAOUT, buf[pos]);
--		xlr_i2c_wreg(priv->iobase, XLR_I2C_STARTXFR,
--				XLR_I2C_STARTXFR_WR);
-+		xlr_i2c_wreg(priv->iobase, XLR_I2C_BYTECNT, len - 2);
-+		xlr_i2c_wreg(priv->iobase, XLR_I2C_DATAOUT, buf[1]);
-+		xfer = XLR_I2C_STARTXFR_WR;
-+		pos = 2;
+ /* XLR I2C REGISTERS FLAGS */
+ #define XLR_I2C_BUS_BUSY	0x01
+ #define XLR_I2C_SDOEMPTY	0x02
+@@ -65,7 +71,10 @@ static inline u32 xlr_i2c_rdreg(u32 __iomem *base, unsigned int reg)
+ 	return __raw_readl(base + reg);
+ }
+ 
++#define XLR_I2C_FLAG_IRQ	1
++
+ struct xlr_i2c_config {
++	u32 flags;		/* optional feature support */
+ 	u32 status_busy;	/* value of STATUS[0] when busy */
+ 	u32 cfg_extra;		/* extra CFG bits to set */
+ };
+@@ -73,7 +82,11 @@ struct xlr_i2c_config {
+ struct xlr_i2c_private {
+ 	struct i2c_adapter adap;
+ 	u32 __iomem *iobase;
++	int irq;
++	int pos;
++	struct i2c_msg *msg;
+ 	const struct xlr_i2c_config *cfg;
++	wait_queue_head_t wait;
+ 	struct clk *clk;
+ };
+ 
+@@ -82,6 +95,74 @@ static int xlr_i2c_busy(struct xlr_i2c_private *priv, u32 status)
+ 	return (status & XLR_I2C_BUS_BUSY) == priv->cfg->status_busy;
+ }
+ 
++static int xlr_i2c_idle(struct xlr_i2c_private *priv)
++{
++	return !xlr_i2c_busy(priv, xlr_i2c_rdreg(priv->iobase, XLR_I2C_STATUS));
++}
++
++static int xlr_i2c_wait(struct xlr_i2c_private *priv, unsigned long timeout)
++{
++	int status;
++	int t;
++
++	t = wait_event_timeout(priv->wait, xlr_i2c_idle(priv),
++				msecs_to_jiffies(timeout));
++	if (!t)
++		return -ETIMEDOUT;
++
++	status = xlr_i2c_rdreg(priv->iobase, XLR_I2C_STATUS);
++
++	return status & XLR_I2C_ACK_ERR ? -EIO : 0;
++}
++
++static void xlr_i2c_tx_irq(struct xlr_i2c_private *priv, u32 status)
++{
++	struct i2c_msg *msg = priv->msg;
++
++	if (status & XLR_I2C_SDOEMPTY)
++		xlr_i2c_wreg(priv->iobase, XLR_I2C_DATAOUT,
++				msg->buf[priv->pos++]);
++}
++
++static void xlr_i2c_rx_irq(struct xlr_i2c_private *priv, u32 status)
++{
++	struct i2c_msg *msg = priv->msg;
++
++	if (status & XLR_I2C_RXRDY)
++		msg->buf[priv->pos++] =
++			xlr_i2c_rdreg(priv->iobase, XLR_I2C_DATAIN);
++}
++
++static irqreturn_t xlr_i2c_irq(int irq, void *dev_id)
++{
++	struct xlr_i2c_private *priv = dev_id;
++	struct i2c_msg *msg = priv->msg;
++	u32 int_stat, status;
++
++	int_stat = xlr_i2c_rdreg(priv->iobase, XLR_I2C_INT_STAT);
++	if (!int_stat)
++		return IRQ_NONE;
++
++	xlr_i2c_wreg(priv->iobase, XLR_I2C_INT_STAT, int_stat);
++
++	if (!msg)
++		return IRQ_HANDLED;
++
++	status = xlr_i2c_rdreg(priv->iobase, XLR_I2C_STATUS);
++
++	if (priv->pos < msg->len) {
++		if (msg->flags & I2C_M_RD)
++			xlr_i2c_rx_irq(priv, status);
++		else
++			xlr_i2c_tx_irq(priv, status);
++	}
++
++	if (!xlr_i2c_busy(priv, status))
++		wake_up(&priv->wait);
++
++	return IRQ_HANDLED;
++}
++
+ static int xlr_i2c_tx(struct xlr_i2c_private *priv,  u16 len,
+ 	u8 *buf, u16 addr)
+ {
+@@ -116,10 +197,15 @@ static int xlr_i2c_tx(struct xlr_i2c_private *priv,  u16 len,
+ 		pos = 2;
  	}
  
-+retry:
-+	/* retry can only happen on the first byte */
-+	xlr_i2c_wreg(priv->iobase, XLR_I2C_STARTXFR, xfer);
++	priv->pos = pos;
++
+ retry:
+ 	/* retry can only happen on the first byte */
+ 	xlr_i2c_wreg(priv->iobase, XLR_I2C_STARTXFR, xfer);
+ 
++	if (priv->irq > 0)
++		return xlr_i2c_wait(priv, XLR_I2C_TIMEOUT * len);
 +
  	while (!timedout) {
  		checktime = jiffies;
  		i2c_status = xlr_i2c_rdreg(priv->iobase, XLR_I2C_STATUS);
- 
--		if (i2c_status & XLR_I2C_SDOEMPTY) {
--			pos++;
--			/* need to do a empty dataout after the last byte */
--			byte = (pos < len) ? buf[pos] : 0;
--			xlr_i2c_wreg(priv->iobase, XLR_I2C_DATAOUT, byte);
-+		if ((i2c_status & XLR_I2C_SDOEMPTY) && pos < len) {
-+			xlr_i2c_wreg(priv->iobase, XLR_I2C_DATAOUT, buf[pos++]);
- 
- 			/* reset timeout on successful xmit */
- 			stoptime = jiffies + timeout;
-@@ -149,11 +154,13 @@ static int xlr_i2c_rx(struct xlr_i2c_private *priv, u16 len, u8 *buf, u16 addr)
- 	u32 i2c_status;
- 	unsigned long timeout, stoptime, checktime;
- 	int nbytes, timedout;
--	u8 byte;
-+
-+	if (!len)
-+		return -EOPNOTSUPP;
- 
- 	xlr_i2c_wreg(priv->iobase, XLR_I2C_CFG,
- 			XLR_I2C_CFG_NOADDR | priv->cfg->cfg_extra);
--	xlr_i2c_wreg(priv->iobase, XLR_I2C_BYTECNT, len);
-+	xlr_i2c_wreg(priv->iobase, XLR_I2C_BYTECNT, len - 1);
+@@ -163,6 +249,8 @@ static int xlr_i2c_rx(struct xlr_i2c_private *priv, u16 len, u8 *buf, u16 addr)
+ 	xlr_i2c_wreg(priv->iobase, XLR_I2C_BYTECNT, len - 1);
  	xlr_i2c_wreg(priv->iobase, XLR_I2C_DEVADDR, addr);
  
++	priv->pos = 0;
++
  	timeout = msecs_to_jiffies(XLR_I2C_TIMEOUT);
-@@ -167,14 +174,11 @@ retry:
+ 	stoptime = jiffies + timeout;
+ 	timedout = 0;
+@@ -170,6 +258,9 @@ static int xlr_i2c_rx(struct xlr_i2c_private *priv, u16 len, u8 *buf, u16 addr)
+ retry:
+ 	xlr_i2c_wreg(priv->iobase, XLR_I2C_STARTXFR, XLR_I2C_STARTXFR_RD);
+ 
++	if (priv->irq > 0)
++		return xlr_i2c_wait(priv, XLR_I2C_TIMEOUT * len);
++
+ 	while (!timedout) {
  		checktime = jiffies;
  		i2c_status = xlr_i2c_rdreg(priv->iobase, XLR_I2C_STATUS);
- 		if (i2c_status & XLR_I2C_RXRDY) {
--			if (nbytes > len)
-+			if (nbytes >= len)
- 				return -EIO;	/* should not happen */
+@@ -214,8 +305,13 @@ static int xlr_i2c_xfer(struct i2c_adapter *adap,
+ 	if (ret)
+ 		return ret;
  
--			/* we need to do a dummy datain when nbytes == len */
--			byte = xlr_i2c_rdreg(priv->iobase, XLR_I2C_DATAIN);
--			if (nbytes < len)
--				buf[nbytes] = byte;
--			nbytes++;
-+			buf[nbytes++] =
-+				xlr_i2c_rdreg(priv->iobase, XLR_I2C_DATAIN);
++	if (priv->irq)
++		xlr_i2c_wreg(priv->iobase, XLR_I2C_INT_EN, 0xf);
++
++
+ 	for (i = 0; ret == 0 && i < num; i++) {
+ 		msg = &msgs[i];
++		priv->msg = msg;
+ 		if (msg->flags & I2C_M_RD)
+ 			ret = xlr_i2c_rx(priv, msg->len, &msg->buf[0],
+ 					msg->addr);
+@@ -224,7 +320,11 @@ static int xlr_i2c_xfer(struct i2c_adapter *adap,
+ 					msg->addr);
+ 	}
  
- 			/* reset timeout on successful read */
- 			stoptime = jiffies + timeout;
-@@ -228,7 +232,7 @@ static int xlr_i2c_xfer(struct i2c_adapter *adap,
- static u32 xlr_func(struct i2c_adapter *adap)
- {
- 	/* Emulate SMBUS over I2C */
--	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_I2C;
-+	return (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) | I2C_FUNC_I2C;
++	if (priv->irq)
++		xlr_i2c_wreg(priv->iobase, XLR_I2C_INT_EN, 0);
++
+ 	clk_disable(priv->clk);
++	priv->msg = NULL;
+ 
+ 	return (ret != 0) ? ret : num;
  }
+@@ -246,6 +346,7 @@ static const struct xlr_i2c_config xlr_i2c_config_default = {
+ };
  
- static struct i2c_algorithm xlr_i2c_algo = {
+ static const struct xlr_i2c_config xlr_i2c_config_tangox = {
++	.flags		= XLR_I2C_FLAG_IRQ,
+ 	.status_busy	= 0,
+ 	.cfg_extra	= 1 << 8,
+ };
+@@ -267,6 +368,7 @@ static int xlr_i2c_probe(struct platform_device *pdev)
+ 	unsigned long clk_rate;
+ 	unsigned long clk_div;
+ 	u32 busfreq;
++	int irq;
+ 	int ret;
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+@@ -284,6 +386,23 @@ static int xlr_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->iobase))
+ 		return PTR_ERR(priv->iobase);
+ 
++	irq = platform_get_irq(pdev, 0);
++
++	if (irq > 0 && (priv->cfg->flags & XLR_I2C_FLAG_IRQ)) {
++		priv->irq = irq;
++
++		xlr_i2c_wreg(priv->iobase, XLR_I2C_INT_EN, 0);
++		xlr_i2c_wreg(priv->iobase, XLR_I2C_INT_STAT, 0xf);
++
++		ret = devm_request_irq(&pdev->dev, priv->irq, xlr_i2c_irq,
++					IRQF_SHARED, dev_name(&pdev->dev),
++					priv);
++		if (ret)
++			return ret;
++
++		init_waitqueue_head(&priv->wait);
++	}
++
+ 	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+ 				 &busfreq))
+ 		busfreq = 100000;
 -- 
 2.6.3
