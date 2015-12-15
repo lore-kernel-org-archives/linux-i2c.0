@@ -1,62 +1,34 @@
-From: Loc Ho <lho@apm.com>
-Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
-Date: Tue, 15 Dec 2015 11:20:03 -0800
-Message-ID: <CAPw-ZT=TcvneyS69GjWe8sFR2hBTpHUUabu8Y5Feup89MwQWQQ@mail.gmail.com>
-References: <1449782357-22982-1-git-send-email-lho@apm.com>
-	<566F6485.2000508@amd.com>
-	<20151215132721.GJ1762@lahna.fi.intel.com>
-	<56702923.9010305@amd.com>
-	<20151215145953.GK1762@lahna.fi.intel.com>
+From: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Subject: [PATCH] i2c: designware: Add support for AMD Seattle I2C
+Date: Tue, 15 Dec 2015 15:55:53 -0600
+Message-ID: <1450216553-5641-1-git-send-email-Suravee.Suthikulpanit@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lb0-f172.google.com ([209.85.217.172]:33298 "EHLO
-	mail-lb0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754073AbbLOTUF (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Dec 2015 14:20:05 -0500
-Received: by mail-lb0-f172.google.com with SMTP id kw15so12233603lbb.0
-        for <linux-i2c@vger.kernel.org>; Tue, 15 Dec 2015 11:20:04 -0800 (PST)
-In-Reply-To: <20151215145953.GK1762@lahna.fi.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, wsa@the-dreams.de, Ken Xue <Ken.Xue@amd.com>, Jeff.Wu@amd.com, rjw@rjwysocki.net, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Jon Masters <jcm@redhat.com>, "patches@apm.com" <patches@apm.com>, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, "Duran, Leo" <leo.duran@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>
 
-Hi,
+Add device HID AMDI0510 to match the I2C controlers on AMD Seattle platform
 
->>
->> On 12/15/2015 07:27 AM, Mika Westerberg wrote:
->> >On Mon, Dec 14, 2015 at 06:53:25PM -0600, Suravee Suthikulanit wrote:
->> >>>I'm not sure if this has been discussed earlier. But after looking at the
->> >>>the acpi_apd driver, all we need is just the platform-specific input clock
->> >>>frequency value used by the drivers/i2c/busses/i2c-designware-core.c:
->> >>>i2c_dw_init() to calculate the values to program into the DW_IC_SS_SCL_HCNT
->> >>>and DW_IC_SS_SCL_LCNT registers.
->> >There is a way to pass *CNT values already from ACPI to the driver -- It
->> >looks for method called FMCN (or SSCN) and retrieves the values from
->> >there if found.
->>
->> Right, I also noticed this afterward. By the way, are FMCN and SSCN
->> documented anywhere in the ACPI spec?  I am trying to figure out how to
->> update the ACPI table to add this information for the AMD Seattle (ARM64)
->> platform, and I will also submit a patch to add the new HID for this driver.
->
-> No, they are Intel inventions for the Windows I2C driver.
->
-> Here is what I know about it:
->   SSCN - Standard Mode CNTs
->   FMCN - Fast Mode CNTs
->
-> They both return a package:
->
->   Package() {
->     HCNT,
->     LCNT,
->     SDA_hold_time,
->   }
+Signed-off-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Can we not just add an AML method that will return the operation clock
-frequency that the I2C driver can use? If the method doesn't existed,
-we will just bail and do nothing or assume what ever default behavior?
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 57f623b..a027154 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -117,6 +117,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "80860F41", 0 },
+ 	{ "808622C1", 0 },
+ 	{ "AMD0010", 0 },
++	{ "AMDI0510", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+-- 
+2.5.0
 
--Loc
