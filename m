@@ -1,64 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: xlr: add interrupt support for Sigma Designs
- chips
-Date: Wed, 16 Dec 2015 11:43:34 +0100
-Message-ID: <20151216104334.GD1523@katana>
-References: <1450221306-5289-1-git-send-email-mans@mansr.com>
- <1450221306-5289-2-git-send-email-mans@mansr.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4zI0WCX1RcnW9Hbu"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46218 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965528AbbLPKnh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 16 Dec 2015 05:43:37 -0500
-Content-Disposition: inline
-In-Reply-To: <1450221306-5289-2-git-send-email-mans@mansr.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Subject: [PATCH] i2c: rcar: disable runtime PM correctly in slave mode
+Date: Wed, 16 Dec 2015 12:02:36 +0100
+Message-ID: <1450263756-12013-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mans Rullgard <mans@mansr.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---4zI0WCX1RcnW9Hbu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+When we also are I2C slave, we need to disable runtime PM because the
+address detection mechanism needs to be active all the time. However, we
+can reenable runtime PM once the slave instance was unregistered. So,
+use pm_runtime_disable/enable to achieve this, since it has proper
+refcounting. pm_runtime_allow/forbid is like a global switch which is
+unsuitable here.
 
-On Tue, Dec 15, 2015 at 11:15:06PM +0000, Mans Rullgard wrote:
-> The Sigma Designs variant of this controller has the ability to generate
-> interrupts.  This is controlled using two additional registers, oddly
-> enough overlapping with the defined but unused HDSTATIM.
->=20
-> This patch adds support for using this feature instead of busy-looping
-> if an IRQ is specified.
->=20
-> Signed-off-by: Mans Rullgard <mans@mansr.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-Applied to for-next, thanks!
+I'd be grateful to get an ACK from a runtime PM expert to verify that my
+assumptions match reality :)
 
+ drivers/i2c/busses/i2c-rcar.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---4zI0WCX1RcnW9Hbu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index b2389c492579cf..dc3343291e7497 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -533,7 +533,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
+ 	if (slave->flags & I2C_CLIENT_TEN)
+ 		return -EAFNOSUPPORT;
+ 
+-	pm_runtime_forbid(rcar_i2c_priv_to_dev(priv));
++	pm_runtime_disable(rcar_i2c_priv_to_dev(priv));
+ 
+ 	priv->slave = slave;
+ 	rcar_i2c_write(priv, ICSAR, slave->addr);
+@@ -555,7 +555,7 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+ 
+ 	priv->slave = NULL;
+ 
+-	pm_runtime_allow(rcar_i2c_priv_to_dev(priv));
++	pm_runtime_enable(rcar_i2c_priv_to_dev(priv));
+ 
+ 	return 0;
+ }
+-- 
+2.1.4
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWcUBWAAoJEBQN5MwUoCm23coQAJuqsd+QVXC4fapuyDqJD2qa
-z5jNIoiiK/ni4oiw6O2y1vC1wcrvzi+l3q+2+6fRDl3n/eOlUEyY7UojEXFOHGoG
-SNUsEem8Z52635J16KFlL/1mRT3GGlECbRzCt+oyigQPUBHLKzkN4y/PHfLjVLnl
-Qosi19A3E0Llx1clCmhReE+vJQHh2nNsFYgM2H133knxDTTMb/vjqds3s8vwnwek
-bJko0a3ihv/iR0h030pyAaOU9yxd6eN+lbEYr2XSLifYi9RaHBOw5qInc7nGSO0E
-RHa8n1XRipkIvXoaCB61fD3wTiqPnHUxc17aVjE8EfA8rEL8u6kG1aIdFX8Kow1M
-icsQlw3ROIUZ831Uox8CNjZuYGc51+vKGEtpCS5PS2o23Lrrq3hqnssdcY7IQ8+v
-G0y1YapIWGyud20wIXJuz6Q4IxFo+NdmumLIZR20GIU4ZSEiplHFUQBt9oil6dXy
-PRk4MJeztzfHCDTlppywwDu5TNLH71wx6uwrygKoeScBDTg5aPj9CL/8Ny5gFCWC
-Tnz1+t1tyCSE+db2CFVTZjHQM0UmZ4bUPugWfBwP/jIfhfCHg0SBhsMdSUsp3epK
-vR6wsp4relzfz3AnnTMuiWTdhoCOZS5iXf8QCYQ/K9q0L0klaKE0ArDoSwe4mWzP
-TtMkdiuN/Q8wtFIQTYUj
-=4mlQ
------END PGP SIGNATURE-----
-
---4zI0WCX1RcnW9Hbu--
