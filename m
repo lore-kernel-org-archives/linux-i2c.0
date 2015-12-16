@@ -1,45 +1,76 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Do not require clock when SSCN and FFCN
- are provided
-Date: Wed, 16 Dec 2015 16:28:10 +0200
-Message-ID: <20151216142810.GW1762@lahna.fi.intel.com>
-References: <1450219138-5868-1-git-send-email-Suravee.Suthikulpanit@amd.com>
- <20151216094202.GR1762@lahna.fi.intel.com>
- <56717100.3020602@amd.com>
+From: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Subject: Re: [PATCH] i2c: designware: Add support for AMD Seattle I2C
+Date: Wed, 16 Dec 2015 08:29:38 -0600
+Message-ID: <56717552.4060203@amd.com>
+References: <1450216553-5641-1-git-send-email-Suravee.Suthikulpanit@amd.com>
+ <5670C90A.5020305@amd.com> <20151216091652.GN1762@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <56717100.3020602@amd.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
-Cc: wsa@the-dreams.de, lho@apm.com, Ken.Xue@amd.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-bn1on0064.outbound.protection.outlook.com ([157.56.110.64]:27280
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S933796AbbLPO3t (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 16 Dec 2015 09:29:49 -0500
+In-Reply-To: <20151216091652.GN1762@lahna.fi.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Dec 16, 2015 at 08:11:12AM -0600, Suravee Suthikulpanit wrote:
-> >The clk framework should work fine if the returned clock is NULL (which
-> >I think is your case).
-> >
-> >The driver gates clocks when the device is suspended and on Intel LPSS
-> >there actually is a clock that gets gated.
-> >
-> >>[..]
-> >>@@ -203,13 +223,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
-> >>  		dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-> >>  			DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
-> >>
-> >>-	dev->clk = devm_clk_get(&pdev->dev, NULL);
-> >>-	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
-> >>-	if (IS_ERR(dev->clk))
-> >>-		return PTR_ERR(dev->clk);
-> 
-> Actually, if we don't provide the clock (which is the case for ACPI), this
-> would also return and cause the probing to fail.
 
-Indeed it seems that when you have CONFIG_COMMON_CLK selected the clock
-framework starts returning errors if the clock is not found.
 
-Since we need the clock for Intel LPSS I2C host controllers (and they
-may have *CNT methods), I think you just need to provide the clock for
-AMD I2C host controller in similar way than we do in
-drivers/acpi/acpi_lpss.c.
+On 12/16/2015 03:16 AM, Mika Westerberg wrote:
+> On Tue, Dec 15, 2015 at 08:14:34PM -0600, Suravee Suthikulpanit wrote:
+>> Hi Mika,
+>>
+>> On 12/15/15 15:55, Suravee Suthikulpanit wrote:
+>>> Add device HID AMDI0510 to match the I2C controlers on AMD Seattle platform
+>>>
+>>> Signed-off-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+>>> ---
+>>>   drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
+>>>   1 file changed, 1 insertion(+)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>> index 57f623b..a027154 100644
+>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>> @@ -117,6 +117,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+>>>   	{ "80860F41", 0 },
+>>>   	{ "808622C1", 0 },
+>>>   	{ "AMD0010", 0 },
+>>> +	{ "AMDI0510", 0 },
+>>>   	{ }
+>>
+>> Since this driver seems to be used by several SOCs, and we have been adding
+>> the HID from various SOC vendors. Do you think it would be better to assign
+>> a CID so that each SOC vendor can specify in their ACPI DSDT and we can
+>> match them here?
+>
+> Sure _CID would work here.
+
+Do you know if Synopsys has already provided a CID that we can use for 
+this? If not, who do you think should provide this?  Also, do you think 
+the FMCN and SSCN should be documented somewhere in the spec so that FW 
+and OSes can agree upon going forward?
+
+>
+>> Then, we can also associate the FMCN and SSCN along with the CID, and
+>> guarantee compatibility.
+>
+> Well, the driver checks those everytime it finds that the device has
+> ACPI companion regardless of _HID/_CID.
+
+Not sure what you mean by "device has ACPI companion". Do you mean the 
+driver check those for every matched devices here?
+
+Thanks,
+Suravee
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
