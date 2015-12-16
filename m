@@ -1,53 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: rcar: disable runtime PM correctly in slave mode
-Date: Wed, 16 Dec 2015 12:02:36 +0100
-Message-ID: <1450263756-12013-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-pm-owner@vger.kernel.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, linux-pm@vger.kernel.org
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
+Date: Wed, 16 Dec 2015 14:53:02 +0200
+Message-ID: <56715EAE.4080006@linux.intel.com>
+References: <1449782357-22982-1-git-send-email-lho@apm.com>
+ <566F6485.2000508@amd.com> <20151215132721.GJ1762@lahna.fi.intel.com>
+ <56702923.9010305@amd.com> <20151215145953.GK1762@lahna.fi.intel.com>
+ <CAPw-ZT=TcvneyS69GjWe8sFR2hBTpHUUabu8Y5Feup89MwQWQQ@mail.gmail.com>
+ <20151216090454.GL1762@lahna.fi.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:56950 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752922AbbLPMzP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 16 Dec 2015 07:55:15 -0500
+In-Reply-To: <20151216090454.GL1762@lahna.fi.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Loc Ho <lho@apm.com>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, wsa@the-dreams.de, Ken Xue <Ken.Xue@amd.com>, Jeff.Wu@amd.com, rjw@rjwysocki.net, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Jon Masters <jcm@redhat.com>, "patches@apm.com" <patches@apm.com>, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, "Duran, Leo" <leo.duran@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On 12/16/2015 11:04 AM, Mika Westerberg wrote:
+> On Tue, Dec 15, 2015 at 11:20:03AM -0800, Loc Ho wrote:
+>> Can we not just add an AML method that will return the operation clock
+>> frequency that the I2C driver can use? If the method doesn't existed,
+>> we will just bail and do nothing or assume what ever default behavior?
+>
+> Why would you add yet another method? There already are existing ACPI
+> *CNT methods that you can use, and are used in systems out there.
 
-When we also are I2C slave, we need to disable runtime PM because the
-address detection mechanism needs to be active all the time. However, we
-can reenable runtime PM once the slave instance was unregistered. So,
-use pm_runtime_disable/enable to achieve this, since it has proper
-refcounting. pm_runtime_allow/forbid is like a global switch which is
-unsuitable here.
+One thing to remember that *CNT methods allow more precise machine and 
+per bus specific tunings against different HW characteristics like 
+pull-up resistance, line load, propagation delay, etc.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
-
-I'd be grateful to get an ACK from a runtime PM expert to verify that my
-assumptions match reality :)
-
- drivers/i2c/busses/i2c-rcar.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index b2389c492579cf..dc3343291e7497 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -533,7 +533,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
- 	if (slave->flags & I2C_CLIENT_TEN)
- 		return -EAFNOSUPPORT;
- 
--	pm_runtime_forbid(rcar_i2c_priv_to_dev(priv));
-+	pm_runtime_disable(rcar_i2c_priv_to_dev(priv));
- 
- 	priv->slave = slave;
- 	rcar_i2c_write(priv, ICSAR, slave->addr);
-@@ -555,7 +555,7 @@ static int rcar_unreg_slave(struct i2c_client *slave)
- 
- 	priv->slave = NULL;
- 
--	pm_runtime_allow(rcar_i2c_priv_to_dev(priv));
-+	pm_runtime_enable(rcar_i2c_priv_to_dev(priv));
- 
- 	return 0;
- }
 -- 
-2.1.4
-
+Jarkko
