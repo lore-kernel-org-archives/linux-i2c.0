@@ -1,66 +1,37 @@
-From: Suravee Suthikulanit <suravee.suthikulpanit@amd.com>
-Subject: Re: [PATCH] i2c: designware: Add support for AMD Seattle I2C
-Date: Wed, 16 Dec 2015 18:49:59 -0600
-Message-ID: <567206B7.1050405@amd.com>
-References: <1450216553-5641-1-git-send-email-Suravee.Suthikulpanit@amd.com>
- <5670C90A.5020305@amd.com> <20151216091652.GN1762@lahna.fi.intel.com>
- <56717552.4060203@amd.com> <20151216145401.GX1762@lahna.fi.intel.com>
+From: Loc Ho <lho@apm.com>
+Subject: Re: [PATCH] i2c: designware: Do not require clock when SSCN and FFCN
+ are provided
+Date: Wed, 16 Dec 2015 16:55:34 -0800
+Message-ID: <CAPw-ZTm062Ouoh2K4kWLFcuQWsCjqaSC6u95a3d_1Fd4xWZU5w@mail.gmail.com>
+References: <1450219138-5868-1-git-send-email-Suravee.Suthikulpanit@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20151216145401.GX1762@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lb0-f170.google.com ([209.85.217.170]:35418 "EHLO
+	mail-lb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755604AbbLQAzg (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Dec 2015 19:55:36 -0500
+Received: by mail-lb0-f170.google.com with SMTP id u9so36015427lbp.2
+        for <linux-i2c@vger.kernel.org>; Wed, 16 Dec 2015 16:55:35 -0800 (PST)
+In-Reply-To: <1450219138-5868-1-git-send-email-Suravee.Suthikulpanit@amd.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, wsa@the-dreams.de, Ken Xue <Ken.Xue@amd.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Mika,
+Hi,
 
-On 12/16/2015 8:54 AM, Mika Westerberg wrote:
-> On Wed, Dec 16, 2015 at 08:29:38AM -0600, Suravee Suthikulpanit wrote:
->> >
->> >
->> >On 12/16/2015 03:16 AM, Mika Westerberg wrote:
->>> > >On Tue, Dec 15, 2015 at 08:14:34PM -0600, Suravee Suthikulpanit wrote:
->>>> > >>Hi Mika,
->>>> > >>
->>>> > >>On 12/15/15 15:55, Suravee Suthikulpanit wrote:
->>>>> > >>>Add device HID AMDI0510 to match the I2C controlers on AMD Seattle platform
->>>>> > >>>
->>>>> > >>>Signed-off-by: Suravee Suthikulpanit<Suravee.Suthikulpanit@amd.com>
->>>>> > >>>---
->>>>> > >>>  drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
->>>>> > >>>  1 file changed, 1 insertion(+)
->>>>> > >>>
->>>>> > >>>diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>> > >>>index 57f623b..a027154 100644
->>>>> > >>>--- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>> > >>>+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>> > >>>@@ -117,6 +117,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
->>>>> > >>>  	{ "80860F41", 0 },
->>>>> > >>>  	{ "808622C1", 0 },
->>>>> > >>>  	{ "AMD0010", 0 },
->>>>> > >>>+	{ "AMDI0510", 0 },
->>>>> > >>>  	{ }
->>>> > >>
->>>> > >>Since this driver seems to be used by several SOCs, and we have been adding
->>>> > >>the HID from various SOC vendors. Do you think it would be better to assign
->>>> > >>a CID so that each SOC vendor can specify in their ACPI DSDT and we can
->>>> > >>match them here?
->>> > >
->>> > >Sure _CID would work here.
->> >
->> >Do you know if Synopsys has already provided a CID that we can use for this?
-> No.
+> The current driver uses input clock source frequency to calculate
+> values for [SS|FS]_[HC|LC] registers. However, when booting ACPI, we do not
+> currently have a good way to provide the frequency information.
+> Instead, we can leverage the SSCN and FFCN ACPI methods, which can be used
+> to directly provide these values.
 >
->> >If not, who do you think should provide this?
-> Why can't you make _CID for AMD part only? For Intel we are going to get
-> new IDs for every major SoC release no matter what.
+> So, this patch removes the clock requirement when SSCN and FFCN
+> are provided.
 >
-Actually, after discussed with the team. We have decided to go with the 
-AMDI0510 at this point, and we will reuse this as CID in future SOC if 
-it contains compatible I2C controller.
+> Signed-off-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
 
-Thanks,
-Suravee
+Tested on X-Gene ACPI boot with updated FW and work just fine.
+
+-Loc
