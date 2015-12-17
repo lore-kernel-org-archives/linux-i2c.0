@@ -1,42 +1,24 @@
-From: Suravee Suthikulanit <suravee.suthikulpanit@amd.com>
-Subject: Re: [PATCH v2] i2c: designware: Do not require clock when SSCN and
- FFCN are provided
-Date: Wed, 16 Dec 2015 21:01:53 -0600
-Message-ID: <567225A1.7020001@amd.com>
-References: <1450319025-19120-1-git-send-email-Suravee.Suthikulpanit@amd.com>
- <CAPw-ZTkMm1c6tLkEMiDrE=TENeUe3bm+U+CFHw231ngzWMqPuQ@mail.gmail.com>
+From: Michael@mail.microamerica.com.pe,
+	"J.Tynan <f.digeronimo"@federconsumatori.abruzzo.it
+Subject: Review & Reply
+Date: Thu, 17 Dec 2015 07:55:35 +0700
+Message-ID: <20151217005626.6562389D5DD8__44618.8972484835$1450341819$gmane$org@mail.microamerica.com.pe>
+Reply-To: michaeljtynan8@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <CAPw-ZTkMm1c6tLkEMiDrE=TENeUe3bm+U+CFHw231ngzWMqPuQ@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Loc Ho <lho@apm.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, Ken Xue <Ken.Xue@amd.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.microamerica.com.pe ([200.37.170.69]:49279 "EHLO
+	mail.microamerica.com.pe" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932092AbbLQIkP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Dec 2015 03:40:15 -0500
+Content-Description: Mail message body
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Recipients <f.digeronimo@federconsumatori.abruzzo.it>
 
-On 12/16/2015 8:56 PM, Loc Ho wrote:
-> Hi,
->
->> The current driver uses input clock source frequency to calculate
->> values for [SS|FS]_[HC|LC] registers. However, when booting ACPI, we do not
->> currently have a good way to provide the frequency information.
->> Instead, we can leverage the SSCN and FFCN ACPI methods, which can be used
->> to directly provide these values. So, the clock information should
->> no longer be required during probing.
->>
->> However, since clk can be invalid, additional checks must be done where
->> we are making use of it.
->>
->> Signed-off-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
->> ---
->>
->> Note: This has been tested on AMD Seattle RevB for both DT and ACPI.
->
-> Tested on X-Gene hardware also.
->
-> -Loc
->
-
-Thanks for quick response.
-Suravee
+Greetings,
+My name is Mr.Michael J. Tynan, I am a banker with Bank Of America. It is true that we have not meet each other in person, but I strongly believe in trust and friendship in every business. I have a Lebanese deceased customer's abandoned fund, which I am his personal financial adviser before his accidental death, that being the main reason why I alone working in the bank here, know much about the existence of this fund and the secrets surrounding this money. But before I disclose the full details to you, I will like to know your interest and willingness to assist me. You can call me as soon you receive my message, so that i will send to you full details about the transaction.
+My best regards,
+Mr.Michael J. Tynan
+MOBILE: +1 347 269 3740
