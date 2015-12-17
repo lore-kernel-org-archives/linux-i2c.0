@@ -1,64 +1,73 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: rcar: disable runtime PM correctly in slave mode
-Date: Thu, 17 Dec 2015 20:39:07 +0100
-Message-ID: <20151217193907.GC1530@katana>
-References: <1450292718-11951-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: allow building emev2 without slave mode again
+Date: Thu, 17 Dec 2015 20:40:17 +0100
+Message-ID: <20151217194016.GD1530@katana>
+References: <201512102224.cVm7Hcp0%fengguang.wu@intel.com>
+ <13702087.6o87OAVdIx@wuerfel>
+ <20151217120157.GC3958@katana>
+ <7947081.psvz6dklxq@wuerfel>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lCAWRPmW1mITcIfM"
+	protocol="application/pgp-signature"; boundary="FFoLq8A0u+X9iRU8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:37856 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:37904 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753716AbbLQTjL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 17 Dec 2015 14:39:11 -0500
+	id S1753716AbbLQTkY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 17 Dec 2015 14:40:24 -0500
 Content-Disposition: inline
-In-Reply-To: <1450292718-11951-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <7947081.psvz6dklxq@wuerfel>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-pm@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org, linux-i2c@vger.kernel.org, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
 
---lCAWRPmW1mITcIfM
+--FFoLq8A0u+X9iRU8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 16, 2015 at 08:05:18PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+> > My conclusion for now is:
+> >=20
+> > There needs something to be done surely, but currently I don't have the
+> > bandwidth to do it or even play around with it. I am not fully happy
+> > with your patches as well because __maybe_unused has some kind of "last
+> > resort" feeling to me.
 >=20
-> When we also are I2C slave, we need to disable runtime PM because the
-> address detection mechanism needs to be active all the time. However, we
-> can reenable runtime PM once the slave instance was unregistered. So,
-> use pm_runtime_get_sync/put to achieve this, since it has proper
-> refcounting. pm_runtime_allow/forbid is like a global knob controllable
-> from userspace which is unsuitable here.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> I generally like __maybe_unused, but it's a matter of personal preference.
+> We could avoid the __maybe_unused if the reg_slave/unreg_slave callback
+> pointers are always available in struct i2c_algorithm.
 
-Applied to for-current, thanks!
+Yes, I was thinking in this direction, looking at how PM does it. Needs
+some playing around, though.
+
+> Just for reference, see below for my combined patch, in case you decide
+> to use that at a later point.
+
+Thanks a lot!
 
 
---lCAWRPmW1mITcIfM
+--FFoLq8A0u+X9iRU8
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWcw9aAAoJEBQN5MwUoCm2AVcP+wdMLl83gMeg0K6RDiCYm817
-71luAhK+f5L9xAq0sjs67m24F+G3igkE4UuDHtKWDKnc6j4oSpj8BoYbIGJikFLh
-oqDCwK0dOuXPjnVok6Rp+XF0/VFrD34uhudvbZBP9e3aKygBtZY2C9hDbQdTP5gS
-/p6mCLaCKQwAcFhfmHUW2PuUeeoy7r9Pt2fE5tnUV+AB2aTd2IEfJOkI9phDgUO4
-92ddu2j8il1YM2RFxjt6Z7QzlcTu/+NCuShzng+PUXj0aHHT9EsrRPzyO0ZEEcuT
-C95NkOhYnNdOQnHesDE8APb4fkMpM48ODKppch9u1ePPS+VijZBSmlw/PffrW5yW
-fTxXJJlXz81qvDB3sI+RT+9NNT02IRAfUG6Vh3BTsopvxBzHSo21mRDkWtzx3Kw0
-heRVMi+uBK7uktwWteXOvXszrz2UKpBUDpANP6hnZpZQLwDcApNapDbZR+f7FIQd
-0D4r8/VWNOfKr/gQMZE8pclvkcbN4oV1bG5B0+hNAvRSVVVl+gxHU0jBwqKs0WO6
-bvKyHVT36O0kOsKE0KO13ARvnwosk8CE2MqMKLQjkSDqGwvQ8TVxpNFMkS5knI1p
-3TvQUtzHi/h2USam1m7haGAQ5PxUggNwte0Rk4pgcdIW8UNuO1hxMTrmMI6nOJm7
-ytkmdGlo8ShCRkCwPxq3
-=Mssd
+iQIcBAEBAgAGBQJWcw+gAAoJEBQN5MwUoCm2DzkP/3FxqV7RYin8IozaADCVRcx+
+0WIFzLdEFbEx3YV0mQ9uKYnleRvoQYG/Xfbw5rzwEb5iYW8A+6xEsZoJYCc9PtLc
+ZBRcfOcMchIIQhQruwVxDq9LlEC92VpYIcbAa9dXt04en+6zn20GvXbDV9duB/Jw
+z35v0k+VgakofHZ3/3C9PKNrd6AV0uwt29sUq2w40LimW1+nzYHJsXy8OBIxoJWs
+WTj5RTEgF6QmSzzsV7NccA3Xrc2fvowUUjF/4n8QwASC6bGisGiZxsFOLQ+WyjqU
+Fq5TT8ZGglK2W9cNqmbAoL1dYiA2upJAruD+uoGHG3XVnWiO7U24sLX1GMJBWAEK
+NR0YdNepKNEY8rQ87A6VSYZjiCrjEwF0B47szGlQa3vctePG4/NiopR+sUXTiwqe
+6qj2QhEmkQQcylvQ7v/9qJ1TMs7yoAU0PWsA3OzZX7dYaRFp1RWEW4FXoSfDgIrs
+SRoKcRkK6rCyKbbkFYXj/8NKPeR1SvZtEVLMkVHJgr7iQCKbFRrQPBnaWKpdzqzi
+c2pzSXOckqvIhTVbdCyTav2yt7OC3EOhS7TkP7UNtRYgsaCCEFNpoQRbIPVLJV9J
+zUXbv/dSOyPjjcq5vv3XnbwN/pBIgmxLu80PkGJjhouKWkLvxN8sLxdZ/e4UDyOk
+Ti8UfmkfoS9EoTPcnNsh
+=kw/d
 -----END PGP SIGNATURE-----
 
---lCAWRPmW1mITcIfM--
+--FFoLq8A0u+X9iRU8--
