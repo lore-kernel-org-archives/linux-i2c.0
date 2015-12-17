@@ -1,60 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: emev: select I2C slave support
-Date: Thu, 17 Dec 2015 20:38:29 +0100
-Message-ID: <20151217193829.GA1530@katana>
-References: <1450354172-5656-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: make i2c_parse_fw_timings() always visible
+Date: Thu, 17 Dec 2015 20:38:39 +0100
+Message-ID: <20151217193839.GB1530@katana>
+References: <1450355556-19875-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:37834 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753716AbbLQTig (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 17 Dec 2015 14:38:36 -0500
+	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1450354172-5656-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <1450355556-19875-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-sh@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jim Davis <jim.epost@gmail.com>
+List-Id: linux-i2c@vger.kernel.org
 
 
---YiEDa0DAkWCtVeE4
+--tjCHc7DPkfUGtrlw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 17, 2015 at 01:09:32PM +0100, Wolfram Sang wrote:
+On Thu, Dec 17, 2015 at 01:32:36PM +0100, Wolfram Sang wrote:
 > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Until we have proper support to make I2C slave support fully optional,
-> select it to prevent build errors on randconfigs.
+> This function used to be DT only, so it lived inside a CONFIG_OF block.
+> Now it uses device attributes and must be moved outside of it. No
+> further code changes.
 >=20
+> Reported-by: Jim Davis <jim.epost@gmail.com>
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Applied to for-next, thanks!
 
 
---YiEDa0DAkWCtVeE4
+--tjCHc7DPkfUGtrlw
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWcw81AAoJEBQN5MwUoCm2up8P/1C132hDfifM5Tth6yJjAY5m
-MNffILzaAs1SJDE39nQV2gaVFJgsiOSzABkYYqWXfoAQp9GJTk5AKRbu1gdDN6SG
-bIZcJPIQCnEg6/nt84sEpshik2x66xbhx1uOwWOnnlAH2RalTNbyXL0thEJY6r7Q
-aEjLEVSScFhEABAEu5XhGZfOX0QC25LksMw0I1hX4ewKgLwQEqqtnZRQkqAsdRrx
-3c9spAcMBK+ZVC9/pAnv1ME3h1YkDsEtdFT3xGEsthm9AKBIJflI3ytmpamn2iWs
-Gl+kL7DtXp5N1EhLHBDbcYG6SfIMwD9YVI+BaI+QbrNrpadLy5sKOftY+vjl6knJ
-P91Sk+JaKuv/sb4vaIvWVvgPL83fTjfqdMnA0dcU+2Llfcf81e/6ssCNJyDW/gJ+
-s7f/xZ+QyZ8VSp6VpE7HDxXcYHi07c5HWOrIs2cud7ktIGKW7/yVUqf9hJltBAYa
-CYW50TFamplzq6qA7Cq3u4y46y0k+3uyuqr9yCoeNhbUHS3bJTxaok16DtmRFQXb
-XmorzsmSxgrKGCXaLF/xccIKnXkX75vJt/FvtWeO5Q0RjgxjntAAlZr5oLHCHHiA
-L3fId7h1ytmyzGWd4Vh6PjJD7QU9XxaPpoRSGJWTbjEeYQEZ3h65OfU0udQTjSk7
-YBk5An6d1S1CUdcx6G2i
-=IqC2
+iQIcBAEBAgAGBQJWcw8/AAoJEBQN5MwUoCm2ee8QAIQpiX0luieSfSMeIjwZiZao
+nnIBydPuoimY5U7+5Fx4k1epHSZ7qQLxfrofUegK3sNFqIzThgfiyQqBz0BDLLi0
+pIHGRUottc0Pox2jUZ86sG6Evzp2/5eTJxqexwLmmnsd2Nvj4zWZ7tJs7MHiwSpn
++xUrslkolvzSbpwwF+hyS0VEI9SBfEQ47B0kLenlFJ1zQVcdeCEuDsVuUZVBzFH6
+KxQMRNIOw5KRFTCkAuBm4lIP0DZtob2bETHFMZJbWFhLJBvI6QqdATLuJ2WJFXSz
+2ZIKDfUJ6wqCCXZA9fAsUhUu5Ix31BHvWaBSGh0bGz0jMtu4kp06zc/TT/xXpE8T
+aXHnJRJXh0qX9wgHOSHZAn646qzsoxA/npzBeCaMkT27v7p4j38R5NXZ35J6t9iB
+A/PHG8Ng9/SeE1wbkDu7NdzjXZifrlo6wBUXelxTM8ZfsClreytJ9pRz1Ne7KKJS
+k5KjmJlNhACTdDHyHhzB0xgHKGigXUl/iXPfPwqskfwtIiatEiBHOEq7bWdRg9er
+qye94I9EktcHh3J0d6TnKoWCM4NCpuLCJKzbsOEv4iug3SWJmAezECkMyFQJdxan
+yG8giOuUQMVeeV1sYHAvtcj7TCFuBQ0D038z2lj+Hx/XG/HK4IwbEla94wuwf7Oa
+EMC8SFpU/auJpPRzdA5w
+=LRnF
 -----END PGP SIGNATURE-----
 
---YiEDa0DAkWCtVeE4--
+--tjCHc7DPkfUGtrlw--
