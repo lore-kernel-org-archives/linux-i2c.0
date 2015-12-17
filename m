@@ -1,31 +1,60 @@
-From: SKY@vger.kernel.org, GROUP@vger.kernel.org
-Subject: Darlehen bieten
-Date: Thu, 17 Dec 2015 23:00:05 -0800
-Message-ID: <MAXPR01MB0473C5CF901738B30B501E28B8E00__14913.0286103629$1450373515$gmane$org@MAXPR01MB0473.INDPRD01.PROD.OUTLOOK.COM>
-Reply-To: <skygroup.financia211@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: emev: select I2C slave support
+Date: Thu, 17 Dec 2015 20:38:29 +0100
+Message-ID: <20151217193829.GA1530@katana>
+References: <1450354172-5656-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ma1ind01hn0211.outbound.protection.outlook.com ([104.47.100.211]:52677
-	"EHLO IND01-MA1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751215AbbLQRbb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Dec 2015 12:31:31 -0500
-Content-Description: Mail message body
+Received: from sauhun.de ([89.238.76.85]:37834 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753716AbbLQTig (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 17 Dec 2015 14:38:36 -0500
+Content-Disposition: inline
+In-Reply-To: <1450354172-5656-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Recipients@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Brauchen Sie jede Art von Darlehen? Haben Sie eine Weihnachts-Darlehen =
-m=FCssen bei 1% Wenn ja, f=FCllen Sie bitte das Anmeldeformular below.R=
-eply-To: skygroup.financia211@gmail.com
 
-(1) Name:
-(2) Der Kreditbetrag erforderlich:
-(3) Laufzeit der Darlehen:
-(4) Land:
-(5) Telefon:
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-=46reundliche Gr=FC=DFe
-Herr Kelly Williams
+On Thu, Dec 17, 2015 at 01:09:32PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>=20
+> Until we have proper support to make I2C slave support fully optional,
+> select it to prevent build errors on randconfigs.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Applied to for-next, thanks!
+
+
+--YiEDa0DAkWCtVeE4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWcw81AAoJEBQN5MwUoCm2up8P/1C132hDfifM5Tth6yJjAY5m
+MNffILzaAs1SJDE39nQV2gaVFJgsiOSzABkYYqWXfoAQp9GJTk5AKRbu1gdDN6SG
+bIZcJPIQCnEg6/nt84sEpshik2x66xbhx1uOwWOnnlAH2RalTNbyXL0thEJY6r7Q
+aEjLEVSScFhEABAEu5XhGZfOX0QC25LksMw0I1hX4ewKgLwQEqqtnZRQkqAsdRrx
+3c9spAcMBK+ZVC9/pAnv1ME3h1YkDsEtdFT3xGEsthm9AKBIJflI3ytmpamn2iWs
+Gl+kL7DtXp5N1EhLHBDbcYG6SfIMwD9YVI+BaI+QbrNrpadLy5sKOftY+vjl6knJ
+P91Sk+JaKuv/sb4vaIvWVvgPL83fTjfqdMnA0dcU+2Llfcf81e/6ssCNJyDW/gJ+
+s7f/xZ+QyZ8VSp6VpE7HDxXcYHi07c5HWOrIs2cud7ktIGKW7/yVUqf9hJltBAYa
+CYW50TFamplzq6qA7Cq3u4y46y0k+3uyuqr9yCoeNhbUHS3bJTxaok16DtmRFQXb
+XmorzsmSxgrKGCXaLF/xccIKnXkX75vJt/FvtWeO5Q0RjgxjntAAlZr5oLHCHHiA
+L3fId7h1ytmyzGWd4Vh6PjJD7QU9XxaPpoRSGJWTbjEeYQEZ3h65OfU0udQTjSk7
+YBk5An6d1S1CUdcx6G2i
+=IqC2
+-----END PGP SIGNATURE-----
+
+--YiEDa0DAkWCtVeE4--
