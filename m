@@ -1,54 +1,112 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: retry transfer on transient failure
-Date: Wed, 23 Dec 2015 18:51:47 +0200
-Message-ID: <1450889507.30729.311.camel@linux.intel.com>
-References: <a34c8973420a179cb195ddcfbb29ef1728f32ba3.1450889004.git.baruch@tkos.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:65384 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751517AbbLWQxh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 23 Dec 2015 11:53:37 -0500
-In-Reply-To: <a34c8973420a179cb195ddcfbb29ef1728f32ba3.1450889004.git.baruch@tkos.co.il>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 2/3] i2c: rcar: remove macros dealing with flags
+Date: Wed, 23 Dec 2015 17:56:33 +0100
+Message-ID: <1450889794-9509-3-git-send-email-wsa@the-dreams.de>
+References: <1450889794-9509-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1450889794-9509-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
-To: Baruch Siach <baruch@tkos.co.il>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Rolland Chau <zourongrong@gmail.com>
 
-On Wed, 2015-12-23 at 18:43 +0200, Baruch Siach wrote:
-> Set the i2c_adapter retries field to a sensible value. This allows
-> the i2c core
-> to retry master_xfer() when it returns -EAGAIN. Currently the i2c-
-> designware
-> driver returns -EAGAIN only on Tx arbitration failure
-> (DW_IC_TX_ARB_LOST).
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-While this patch looks okay I have another proposal.
-Let me time I'm going to mock up the idea.
+These macros don't really hide complexity, but C idioms. Removing them
+makes the code easier to read IMO and make a planned extension easier.
 
->=20
-> Reported-by: Rolland Chau <zourongrong@gmail.com>
-> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-> ---
-> =C2=A0drivers/i2c/busses/i2c-designware-core.c | 1 +
-> =C2=A01 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c
-> b/drivers/i2c/busses/i2c-designware-core.c
-> index de7fbbb374cd..f7b34b360dc9 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -860,6 +860,7 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
-> =C2=A0
-> =C2=A0	snprintf(adap->name, sizeof(adap->name),
-> =C2=A0		=C2=A0"Synopsys DesignWare I2C adapter");
-> +	adap->retries =3D 3;
-> =C2=A0	adap->algo =3D &i2c_dw_algo;
-> =C2=A0	adap->dev.parent =3D dev->dev;
-> =C2=A0	i2c_set_adapdata(adap, dev);
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 74077e9ab8cad6..fab841899e65f2 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -122,9 +122,6 @@ struct rcar_i2c_priv {
+ #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
+ #define rcar_i2c_is_recv(p)		((p)->msg->flags & I2C_M_RD)
+ 
+-#define rcar_i2c_flags_set(p, f)	((p)->flags |= (f))
+-#define rcar_i2c_flags_has(p, f)	((p)->flags & (f))
+-
+ #define LOOP_TIMEOUT	1024
+ 
+ 
+@@ -258,7 +255,7 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+ 
+ 	priv->pos = 0;
+ 	if (priv->msgs_left == 1)
+-		rcar_i2c_flags_set(priv, ID_LAST_MSG);
++		priv->flags |= ID_LAST_MSG;
+ 
+ 	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | read);
+ 	/*
+@@ -266,7 +263,7 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+ 	 * of ICMSR and ICMCR depends on whether we issue START or REP_START. Since
+ 	 * it didn't cause a drawback for me, let's rather be safe than sorry.
+ 	 */
+-	if (rcar_i2c_flags_has(priv, ID_FIRST_MSG)) {
++	if (priv->flags & ID_FIRST_MSG) {
+ 		rcar_i2c_write(priv, ICMSR, 0);
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
+ 	} else {
+@@ -438,7 +435,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 
+ 	/* Arbitration lost */
+ 	if (msr & MAL) {
+-		rcar_i2c_flags_set(priv, (ID_DONE | ID_ARBLOST));
++		priv->flags |= ID_DONE | ID_ARBLOST;
+ 		goto out;
+ 	}
+ 
+@@ -446,14 +443,14 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 	if (msr & MNR) {
+ 		/* HW automatically sends STOP after received NACK */
+ 		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
+-		rcar_i2c_flags_set(priv, ID_NACK);
++		priv->flags |= ID_NACK;
+ 		goto out;
+ 	}
+ 
+ 	/* Stop */
+ 	if (msr & MST) {
+ 		priv->msgs_left--; /* The last message also made it */
+-		rcar_i2c_flags_set(priv, ID_DONE);
++		priv->flags |= ID_DONE;
+ 		goto out;
+ 	}
+ 
+@@ -463,7 +460,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 		rcar_i2c_irq_send(priv, msr);
+ 
+ out:
+-	if (rcar_i2c_flags_has(priv, ID_DONE)) {
++	if (priv->flags & ID_DONE) {
+ 		rcar_i2c_write(priv, ICMIER, 0);
+ 		rcar_i2c_write(priv, ICMSR, 0);
+ 		wake_up(&priv->wait);
+@@ -501,15 +498,14 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 	priv->flags = ID_FIRST_MSG;
+ 	rcar_i2c_prepare_msg(priv);
+ 
+-	time_left = wait_event_timeout(priv->wait,
+-				     rcar_i2c_flags_has(priv, ID_DONE),
++	time_left = wait_event_timeout(priv->wait, priv->flags & ID_DONE,
+ 				     num * adap->timeout);
+ 	if (!time_left) {
+ 		rcar_i2c_init(priv);
+ 		ret = -ETIMEDOUT;
+-	} else if (rcar_i2c_flags_has(priv, ID_NACK)) {
++	} else if (priv->flags & ID_NACK) {
+ 		ret = -ENXIO;
+-	} else if (rcar_i2c_flags_has(priv, ID_ARBLOST)) {
++	} else if (priv->flags & ID_ARBLOST) {
+ 		ret = -EAGAIN;
+ 	} else {
+ 		ret = num - priv->msgs_left; /* The number of transfer */
+-- 
+2.1.4
+
