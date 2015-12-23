@@ -1,52 +1,55 @@
-From: Baruch Siach <baruch@tkos.co.il>
-Subject: Re: designware i2c bus driver
-Date: Wed, 23 Dec 2015 12:29:33 +0200
-Message-ID: <20151223102933.GL1548@tarshish>
-References: <CABTftiTOHfs_h9Kkb4=aA-bDKhWPxCaCZ2fRxAjHeitmz9pvsA@mail.gmail.com>
- <20151223074554.GH1548@tarshish>
- <CABTftiRXHG-1aJN9wE39-KGLw50sdo6FMjk2c7VVwG2BWNF33A@mail.gmail.com>
+From: "Zheng, Ivan" <Ivan.Zheng@amd.com>
+Subject: RE: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
+Date: Wed, 23 Dec 2015 11:24:44 +0000
+Message-ID: <BLUPR12MB0451852E89B0848DA16067609DE60@BLUPR12MB0451.namprd12.prod.outlook.com>
+References: <1449782357-22982-1-git-send-email-lho@apm.com>
+ <566F6485.2000508@amd.com> <20151215132721.GJ1762@lahna.fi.intel.com>
+ <56702923.9010305@amd.com> <20151215145953.GK1762@lahna.fi.intel.com>
+ <1450863241.7740.30.camel@kxue-X58A-UD3R>
+ <20151223095237.GJ1758@lahna.fi.intel.com>
+ <BLUPR12MB0451770284D7788418640F699DE60@BLUPR12MB0451.namprd12.prod.outlook.com>
+ <20151223100959.GK1758@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:50516 "EHLO
-	mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934123AbbLWK3h (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 23 Dec 2015 05:29:37 -0500
-Content-Disposition: inline
-In-Reply-To: <CABTftiRXHG-1aJN9wE39-KGLw50sdo6FMjk2c7VVwG2BWNF33A@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20151223100959.GK1758@lahna.fi.intel.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Al Stone <al.stone@linaro.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "jcm@redhat.com" <jcm@redhat.com>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "patches@apm.com" <patches@apm.com>, "Duran, Leo" <leo.duran@amd.com>, Loc Ho <lho@apm.com>, "Suthikulpanit, Suravee" <Suravee.Suthikulpanit@amd.com>, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, "Yu,
+ Xiangliang" <Xiangliang.Yu@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, "Xue,
+ Ken" <Ken.Xue@amd.com>, "lenb@kernel.org" <lenb@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Rolland Chau <zourongrong@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Hi Rolland,
+Thanks Mika for the background.
 
-On Wed, Dec 23, 2015 at 05:12:47PM +0800, Rolland Chau wrote:
-> 2015-12-23 15:45 GMT+08:00 Baruch Siach <baruch@tkos.co.il>:
-> > On Wed, Dec 23, 2015 at 02:56:20PM +0800, Rolland Chau wrote:
-> > > I found in i2c-designware-platdrv.c , the i2c retry time is not set,
-> > > and the default value is 0, so if I use in kernel mode, I can't set
-> > > the retry time. I want to konw why you don't initialize the value in
-> > > probe()?
-> >
-> > I don't see any retry handling in current driver code. What kernel version
-> > are
-> > you using? What retry value do you refer to?
->
-> I2c_adapter.retries. It means retry times when i2c transfer failed.
+I'm a BIOS engineer and my point is that such non-ACPI defined methods rely on BIOS implementation, so how the generic I2C driver works on a platform without such methods? Should the vendor implement their own driver in such case?
 
-Right. Makes sense. As far as I can see current code retries the transfer only 
-on Tx arbitration loss. I'll send a patch later if you don't beat me to it.
+I think Windows driver use ConnectionSpeed field in I2CSerialBus declaration for a certain device and it's defined in ACPI 5.0.
 
-> > Adding linux-i2c mailing list to Cc.
->
-> I subscribe to linux-i2c, but there is no response.
+Thanks,
+Ivan
 
-Adding i2c-designware-* maintainers to Cc as well.
+-----Original Message-----
+From: Mika Westerberg [mailto:mika.westerberg@linux.intel.com] 
+Sent: Wednesday, December 23, 2015 18:10
+To: Zheng, Ivan
+Cc: Xue, Ken; wsa@the-dreams.de; Suthikulpanit, Suravee; Loc Ho; rjw@rjwysocki.net; lenb@kernel.org; linux-i2c@vger.kernel.org; linux-acpi@vger.kernel.org; linux-arm-kernel@lists.infradead.org; jcm@redhat.com; patches@apm.com; Hurwitz, Sherry; Duran, Leo; Hanjun Guo; Al Stone; Yu, Xiangliang
+Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
 
-baruch
+On Wed, Dec 23, 2015 at 10:02:04AM +0000, Zheng, Ivan wrote:
+> Why/how can Linux driver make use of such non-ACPI defined methods?
 
--- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
+What do you mean exactly?
+
+I added support for these (well, SSCN and FMCN) because I found out that some vendors include such methods with their BIOS implementation.
+Windows driver uses these if present and so do we.
