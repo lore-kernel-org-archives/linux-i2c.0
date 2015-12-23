@@ -1,27 +1,76 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] i2c: designware: Do not require clock when SSCN and
- FFCN are provided
-Date: Wed, 23 Dec 2015 10:44:10 +0200
-Message-ID: <20151223084410.GH1758@lahna.fi.intel.com>
-References: <1450319025-19120-1-git-send-email-Suravee.Suthikulpanit@amd.com>
- <20151218101348.GG1762@lahna.fi.intel.com>
- <5679B7C1.6010408@amd.com>
+From: Ken Xue <ken.xue@amd.com>
+Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
+Date: Wed, 23 Dec 2015 17:34:01 +0800
+Message-ID: <1450863241.7740.30.camel@kxue-X58A-UD3R>
+References: <1449782357-22982-1-git-send-email-lho@apm.com>
+	 <566F6485.2000508@amd.com> <20151215132721.GJ1762@lahna.fi.intel.com>
+	 <56702923.9010305@amd.com> <20151215145953.GK1762@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:32077 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754971AbbLWIqW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 23 Dec 2015 03:46:22 -0500
-Content-Disposition: inline
-In-Reply-To: <5679B7C1.6010408@amd.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20151215145953.GK1762@lahna.fi.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, wsa@the-dreams.de
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, Loc Ho <lho@apm.com>, rjw@rjwysocki.net, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, "Duran, Leo" <leo.duran@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>, Ivan.Zheng@amd.com, Xiangliang.Yu@amd.com
 List-Id: linux-i2c@vger.kernel.org
-To: Suravee Suthikulanit <suravee.suthikulpanit@amd.com>
-Cc: wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, lho@apm.com, Ken.Xue@amd.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Dec 22, 2015 at 02:51:13PM -0600, Suravee Suthikulanit wrote:
-> So, at this point, I can re-submit the V3 and combine these changes, and we
-> both can sign-off. How does that sound?
+On Tue, 2015-12-15 at 16:59 +0200, Mika Westerberg wrote:
+> On Tue, Dec 15, 2015 at 08:52:19AM -0600, Suravee Suthikulpanit wrote:
+> > 
+> > 
+> > On 12/15/2015 07:27 AM, Mika Westerberg wrote:
+> > >On Mon, Dec 14, 2015 at 06:53:25PM -0600, Suravee Suthikulanit wrote:
+> > >>>I'm not sure if this has been discussed earlier. But after looking at the
+> > >>>the acpi_apd driver, all we need is just the platform-specific input clock
+> > >>>frequency value used by the drivers/i2c/busses/i2c-designware-core.c:
+> > >>>i2c_dw_init() to calculate the values to program into the DW_IC_SS_SCL_HCNT
+> > >>>and DW_IC_SS_SCL_LCNT registers.
+> > >There is a way to pass *CNT values already from ACPI to the driver -- It
+> > >looks for method called FMCN (or SSCN) and retrieves the values from
+> > >there if found.
+> > 
+> > Right, I also noticed this afterward. By the way, are FMCN and SSCN
+> > documented anywhere in the ACPI spec?  I am trying to figure out how to
+> > update the ACPI table to add this information for the AMD Seattle (ARM64)
+> > platform, and I will also submit a patch to add the new HID for this driver.
+> 
+> No, they are Intel inventions for the Windows I2C driver.
+> 
+> Here is what I know about it:
+>   SSCN - Standard Mode CNTs
+>   FMCN - Fast Mode CNTs
+> 
+> They both return a package:
+> 
+>   Package() {
+>     HCNT,
+>     LCNT,
+>     SDA_hold_time,
+>   }
 
-Sounds good to me :)
+1) Regarding
+https://msdn.microsoft.com/en-us/library/windows/hardware/dn919852(v=vs.85).aspx
+, Window I2C driver should pass MITT test. There are 5 I2C devices
+connect to one I2C bus for test. And those devices defined different
+"ConnectionSpeed" over the I2C bus by ACPI resource "I2CSerialBus".
+
+During test, I2C bus should run in different "ConnectionSpeed" of
+device.
+
+That means windows driver can modify I2C bus speed to match the
+"ConnectionSpeed" of device on-the-fly. Static value from SSCN and FMCN
+can not work for WITT test cases.
+
+It sounds like odd that multi-speed can be applied over one I2C bus, But
+everything goes well.
+Does this behavior(multi-speed) violate the I2C spec?
+
+2) In theory, I2C core driver also can get ACPI resource
+"ConnectionSpeed" of device during creating new I2C device. 
+Is it worth to add a new feature for parsing and using "ConnectionSpeed"
+of device for determining bus speed?
+
+3) For ACPI DW adapter, current driver only support Fast mode. I would
+like to support other modes after previous 2 questions are clear.
+
