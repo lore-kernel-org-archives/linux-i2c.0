@@ -1,86 +1,73 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 3/3] i2c: rcar: disable PM in multi-master mode
-Date: Wed, 23 Dec 2015 17:56:34 +0100
-Message-ID: <1450889794-9509-4-git-send-email-wsa@the-dreams.de>
-References: <1450889794-9509-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 2/2] i2c: s3c2410: remove superfluous runtime PM calls
+Date: Wed, 23 Dec 2015 18:19:29 +0100
+Message-ID: <1450891169-13708-3-git-send-email-wsa@the-dreams.de>
+References: <1450891169-13708-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:58283 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:59320 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752274AbbLWQ5R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 23 Dec 2015 11:57:17 -0500
-In-Reply-To: <1450889794-9509-1-git-send-email-wsa@the-dreams.de>
+	id S1753504AbbLWRTm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 23 Dec 2015 12:19:42 -0500
+In-Reply-To: <1450891169-13708-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, linux-pm@vger.kernel.org, Sylwester Nawrocki <s.nawrocki@samsung.com>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-In multi master mode, the IP core needs to be always active for
-arbitration reasons. Get the config from DT and set up PM depending on
-the config.
+RuntimePM of the adapter device is now taken care of by the core. So, we
+can remove these calls.
 
-Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index fab841899e65f2..1abeadc8ab7959 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -96,6 +96,9 @@
- #define ID_DONE		(1 << 2)
- #define ID_ARBLOST	(1 << 3)
- #define ID_NACK		(1 << 4)
-+/* persistent flags */
-+#define ID_P_PM_BLOCKED	(1 << 31)
-+#define ID_P_MASK	ID_P_PM_BLOCKED
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 5df819610d5280..362a6de548336b 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -784,7 +784,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 	int retry;
+ 	int ret;
  
- enum rcar_i2c_type {
- 	I2C_RCAR_GEN1,
-@@ -277,7 +280,7 @@ static void rcar_i2c_next_msg(struct rcar_i2c_priv *priv)
- {
- 	priv->msg++;
- 	priv->msgs_left--;
--	priv->flags = 0;
-+	priv->flags &= ID_P_MASK;
- 	rcar_i2c_prepare_msg(priv);
+-	pm_runtime_get_sync(&adap->dev);
+ 	ret = clk_enable(i2c->clk);
+ 	if (ret)
+ 		return ret;
+@@ -795,7 +794,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 
+ 		if (ret != -EAGAIN) {
+ 			clk_disable(i2c->clk);
+-			pm_runtime_put(&adap->dev);
+ 			return ret;
+ 		}
+ 
+@@ -805,7 +803,6 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 	}
+ 
+ 	clk_disable(i2c->clk);
+-	pm_runtime_put(&adap->dev);
+ 	return -EREMOTEIO;
  }
  
-@@ -495,7 +498,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 	/* init first message */
- 	priv->msg = msgs;
- 	priv->msgs_left = num;
--	priv->flags = ID_FIRST_MSG;
-+	priv->flags = (priv->flags & ID_P_MASK) | ID_FIRST_MSG;
- 	rcar_i2c_prepare_msg(priv);
+@@ -1256,8 +1253,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- 	time_left = wait_event_timeout(priv->wait, priv->flags & ID_DONE,
-@@ -630,7 +633,13 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 		goto out_pm_put;
- 
- 	rcar_i2c_init(priv);
--	pm_runtime_put(dev);
-+
-+	/* Don't suspend when multi-master to keep arbitration working */
-+	if (of_property_read_bool(dev->of_node, "multi-master"))
-+		priv->flags |= ID_P_PM_BLOCKED;
-+	else
-+		pm_runtime_put(dev);
-+
- 
- 	irq = platform_get_irq(pdev, 0);
- 	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
-@@ -664,6 +673,8 @@ static int rcar_i2c_remove(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 
- 	i2c_del_adapter(&priv->adap);
-+	if (priv->flags & ID_P_PM_BLOCKED)
-+		pm_runtime_put(dev);
- 	pm_runtime_disable(dev);
- 
+-	pm_runtime_enable(&i2c->adap.dev);
+-
+ 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
  	return 0;
+ }
+@@ -1273,7 +1268,6 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ 
+ 	clk_unprepare(i2c->clk);
+ 
+-	pm_runtime_disable(&i2c->adap.dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
+ 	s3c24xx_i2c_deregister_cpufreq(i2c);
 -- 
 2.1.4
