@@ -1,59 +1,52 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
-Date: Wed, 23 Dec 2015 12:17:28 +0200
-Message-ID: <20151223101728.GL1758@lahna.fi.intel.com>
-References: <1449782357-22982-1-git-send-email-lho@apm.com>
- <566F6485.2000508@amd.com>
- <20151215132721.GJ1762@lahna.fi.intel.com>
- <56702923.9010305@amd.com>
- <20151215145953.GK1762@lahna.fi.intel.com>
- <1450863241.7740.30.camel@kxue-X58A-UD3R>
- <20151223095237.GJ1758@lahna.fi.intel.com>
- <1450864789.7740.35.camel@kxue-X58A-UD3R>
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: Re: designware i2c bus driver
+Date: Wed, 23 Dec 2015 12:29:33 +0200
+Message-ID: <20151223102933.GL1548@tarshish>
+References: <CABTftiTOHfs_h9Kkb4=aA-bDKhWPxCaCZ2fRxAjHeitmz9pvsA@mail.gmail.com>
+ <20151223074554.GH1548@tarshish>
+ <CABTftiRXHG-1aJN9wE39-KGLw50sdo6FMjk2c7VVwG2BWNF33A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from guitar.tcltek.co.il ([192.115.133.116]:50516 "EHLO
+	mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934123AbbLWK3h (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 23 Dec 2015 05:29:37 -0500
 Content-Disposition: inline
-In-Reply-To: <1450864789.7740.35.camel@kxue-X58A-UD3R>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Ken Xue <ken.xue@amd.com>
-Cc: wsa@the-dreams.de, Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, Loc Ho <lho@apm.com>, rjw@rjwysocki.net, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, "Duran, Leo" <leo.duran@amd.com>, Hanjun Guo <hanjun.guo@linaro.org>, Al Stone <al.stone@linaro.org>, Ivan.Zheng@amd.com, Xiangliang.Yu@amd.com
+In-Reply-To: <CABTftiRXHG-1aJN9wE39-KGLw50sdo6FMjk2c7VVwG2BWNF33A@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Rolland Chau <zourongrong@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Wed, Dec 23, 2015 at 05:59:49PM +0800, Ken Xue wrote:
-> On Wed, 2015-12-23 at 11:52 +0200, Mika Westerberg wrote:
-> > On Wed, Dec 23, 2015 at 05:34:01PM +0800, Ken Xue wrote:
-> > > 1) Regarding
-> > > https://msdn.microsoft.com/en-us/library/windows/hardware/dn919852(v=vs.85).aspx
-> > > , Window I2C driver should pass MITT test. There are 5 I2C devices
-> > > connect to one I2C bus for test. And those devices defined different
-> > > "ConnectionSpeed" over the I2C bus by ACPI resource "I2CSerialBus".
-> > > 
-> > > During test, I2C bus should run in different "ConnectionSpeed" of
-> > > device.
-> > > 
-> > > That means windows driver can modify I2C bus speed to match the
-> > > "ConnectionSpeed" of device on-the-fly. Static value from SSCN and FMCN
-> > > can not work for WITT test cases.
-> > 
-> > That is why there are *CNT methods for all supported I2C modes:
-> > 
-> >   - SSCN() - returns for standard mode (100kHz)
-> >   - FMCN() - returns for fast mode (400kHz)
-> >   - FPCN() - returns for fast mode+ (1MHz)
-> >  
-> > for High-speed mode I'm not sure what the method name is ;-)
-> > 
-> > Then the Windows driver switches between those based on what the
-> > ConnectionSpeed is in the ACPI I2C connector.
-> 
-> Window driver can set Bus speed based on "ConnectionSpeed". But Current
-> Linux driver only sets Bus speed during probe. How can Linux diver
-> determine which Bus speed should be applied, if all *CNT methods return
-> non-zero? 
+Hi Rolland,
 
-By default Linux driver uses 400kHz so it picks values returned from
-FMCN(). You can hack clk_freq in the driver to use 100kHz which then
-picks SSCN().
+On Wed, Dec 23, 2015 at 05:12:47PM +0800, Rolland Chau wrote:
+> 2015-12-23 15:45 GMT+08:00 Baruch Siach <baruch@tkos.co.il>:
+> > On Wed, Dec 23, 2015 at 02:56:20PM +0800, Rolland Chau wrote:
+> > > I found in i2c-designware-platdrv.c , the i2c retry time is not set,
+> > > and the default value is 0, so if I use in kernel mode, I can't set
+> > > the retry time. I want to konw why you don't initialize the value in
+> > > probe()?
+> >
+> > I don't see any retry handling in current driver code. What kernel version
+> > are
+> > you using? What retry value do you refer to?
+>
+> I2c_adapter.retries. It means retry times when i2c transfer failed.
 
-There is no support for reading ConnectionSpeed in Linux yet.
+Right. Makes sense. As far as I can see current code retries the transfer only 
+on Tx arbitration loss. I'll send a patch later if you don't beat me to it.
+
+> > Adding linux-i2c mailing list to Cc.
+>
+> I subscribe to linux-i2c, but there is no response.
+
+Adding i2c-designware-* maintainers to Cc as well.
+
+baruch
+
+-- 
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
