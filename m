@@ -1,43 +1,41 @@
-From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Subject: [PATCH 2/2] i2c: enable i2c adapter to suspend/resume asynchronously
-Date: Thu, 24 Dec 2015 22:44:23 +0800
-Message-ID: <567C04C7.6020300@linux.intel.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [PATCH 0/2] i2c: proper RuntimePM for the adapter device
+Date: Thu, 24 Dec 2015 22:34:23 +0530
+Message-ID: <CAKfKVtEmsrQT6x2p=Knz836iNXw3vwQyx1M_WJ=GJjVDgBjWFA@mail.gmail.com>
+References: <1450891169-13708-1-git-send-email-wsa@the-dreams.de>
+	<CAKfKVtHt8BpakkffRp=_2GUxqK5JO0WCsizCrjtwH5hv+TWvWg@mail.gmail.com>
+	<20151224084105.GA1548@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: srinivas.kowtal@intel.com, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qg0-f43.google.com ([209.85.192.43]:34931 "EHLO
+	mail-qg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751615AbbLXREY (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Dec 2015 12:04:24 -0500
+In-Reply-To: <20151224084105.GA1548@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-pm@vger.kernel.org, Sylwester Nawrocki <s.nawrocki@samsung.com>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 
-Now, PM core supports asynchronous suspend/resume mode for devices
-during system suspend/resume, and the power state transition of one
-device may be completed in separate kernel thread. PM core ensures
-all power state transition dependency between devices. This patch
-enables i2c adapters to suspend/resume asynchronously. This will take
-advantage of multicore and improve system suspend/resume speed. After
-enabling all i2c devices, i2c adapters and i2c controllers on ASUS
-T100TA tablet, the system suspend-to-idle time is reduced to about
-510ms from 750ms, and the system resume time is reduced to about 790ms
-from 900ms.
+>
+>> Also maybe we can add a flag that the driver enables.
+>> that way for a short period till the driver removes the call
+>> the double call is not there.
+>
+> The only driver I found was the s3c2410 and I fixed it. Is there another
+> one? Then, I'd update my series because I want a consistent state in one
+> go.
+>
+I think the below drivers
 
-Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
----
- drivers/i2c/i2c-core.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index ba8eb08..72d5466 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1564,6 +1564,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 
- 	pm_runtime_no_callbacks(&adap->dev);
- 
-+	device_enable_async_suspend(&adap->dev);
-+
- #ifdef CONFIG_I2C_COMPAT
- 	res = class_compat_create_link(i2c_adapter_compat_class, &adap->dev,
- 				       adap->dev.parent);
--- 1.7.1
+drivers/i2c/busses/i2c-at91.c
+drivers/i2c/busses/i2c-designware-core.c
+drivers/i2c/busses/i2c-designware-platdrv.c
+drivers/i2c/busses/i2c-rcar.c
+drivers/i2c/busses/i2c-sh_mobile.c
+drivers/i2c/busses/i2c-hix5hd2.c
+drivers/i2c/busses/i2c-nomadik.c
+drivers/i2c/busses/i2c-omap.c
+drivers/i2c/busses/i2c-qup.c
+drivers/i2c/busses/i2c-s3c2410.c
