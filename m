@@ -1,64 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] i2c: proper RuntimePM for the adapter device
-Date: Thu, 24 Dec 2015 09:41:06 +0100
-Message-ID: <20151224084105.GA1548@katana>
-References: <1450891169-13708-1-git-send-email-wsa@the-dreams.de>
- <CAKfKVtHt8BpakkffRp=_2GUxqK5JO0WCsizCrjtwH5hv+TWvWg@mail.gmail.com>
+From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
+Subject: [PATCH] i2c/designware: enable i2c controller to suspend/resume
+ asynchronously
+Date: Thu, 24 Dec 2015 22:30:42 +0800
+Message-ID: <567C0192.2050601@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAKfKVtHt8BpakkffRp=_2GUxqK5JO0WCsizCrjtwH5hv+TWvWg@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-pm@vger.kernel.org, Sylwester Nawrocki <s.nawrocki@samsung.com>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jarkko.nikula@linux.intel.com, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, srinivas.kowtal@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
+Now, PM core supports asynchronous suspend/resume mode for devices
+during system suspend/resume, and the power state transition of one
+device may be completed in separate kernel thread. PM core ensures
+all power state transition dependency between devices. This patch
+enables designware i2c controllers to suspend/resume asynchronously.
+This will take advantage of multicore and improve system suspend/resume
+speed. After enabling all i2c devices, i2c adapters and i2c controllers
+on ASUS T100TA tablet, the system suspend-to-idle time is reduced to
+about 510ms from 750ms, and the system resume time is reduced to about
+790ms from 900ms.
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-
-> > RuntimePM for the logical adapter device should be handled in a central=
- place
-> > by the core, and not by drivers. This series does exactly that.
->=20
-> This is good idea.
-
-Thanks!
-
-> Also maybe we can add a flag that the driver enables.
-> that way for a short period till the driver removes the call
-> the double call is not there.
-
-The only driver I found was the s3c2410 and I fixed it. Is there another
-one? Then, I'd update my series because I want a consistent state in one
-go.
-
-
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWe6+hAAoJEBQN5MwUoCm2WoEP/39mpSOXPE8EUvE5e2ac3SQK
-PLmwn5EB6X+WUuMFTH9879xLI9XEfzoxzXIL9UqRshnd/ZCqUEoxBhXhr+oe+9Ha
-02O1xZG9taTqhUESZVS50ItyC+9eerT2r0AG2EUrinzlblo0E/hfrzfIFMROWN4f
-XwhU/kThu85h1ZHy7tRj01LZhxi7DyiMNt0kaRHu+/Dgruv4vzy8Ft82OLz4Nv1m
-uBw8k4TBcuhGnYGC+IA1hbcwC0me/mU+xx/OwQlzHyn8m7/Dkr2xOLW5ov0GrZSF
-p0pfDWIKf0APRl2j5aBxuI6MqfZYBDS4WEc6jGcG7jfEtVywuSPSyAKtPek/3b+b
-B1TqepkYLzvomRoQzM8GLE1sMbGmH8rgcLxg2FBdtM8jXSkf4uXPGBx23gmrzAXE
-FIgslggCixRW58+nZt8OTctls5jJK7wyjK7tg0163ujgik7yefj0Nooc0U8U9PZu
-3to6fjw9DI0auUhIx0h7qPF+6resmloRAITzGy4FtYxgpMb/+k/yoR9trkwEIA4w
-cBX+MZeVUJR8xo8hGzbLzBBd2+PCCcnOvnCKHbiRn8hOBaSdUQ/9lIhssEL1CjLW
-DbIlUhBnMMedauV0kJGlBAsxo63TZ0jxegTQh3UyQ8NK5hTiBurlwPS+dVtr/tjr
-RZJU+LQJ75oYpdiIECkl
-=qGZ+
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 6b00061..395130b 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -230,6 +230,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	adap = &dev->adapter;
++	device_enable_async_suspend(&pdev->dev);
+ 	adap->owner = THIS_MODULE;
+ 	adap->class = I2C_CLASS_DEPRECATED;
+ 	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
+-- 1.7.1
