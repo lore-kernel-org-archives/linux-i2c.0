@@ -1,61 +1,93 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: i2c-core: One function call less in acpi_i2c_space_handler()
- after error detection
-Date: Sat, 26 Dec 2015 20:30:29 +0100
-Message-ID: <567EEAD5.4060108@users.sourceforge.net>
-References: <201512261449.pmBxYtq3%fengguang.wu@intel.com>
- <567E3CF3.10606@users.sourceforge.net> <20151226074859.GA905@tetsubishi>
- <567E553B.5080005@users.sourceforge.net> <20151226184152.GA882@tetsubishi>
+From: Julia Lawall <julia.lawall@lip6.fr>
+Subject: [PATCH v2] coccinelle: api: check for propagation of error from
+ platform_get_irq
+Date: Sat, 26 Dec 2015 21:58:58 +0100 (CET)
+Message-ID: <alpine.DEB.2.02.1512262156580.2070@localhost6.localdomain6>
+References: <1451157891-24881-1-git-send-email-Julia.Lawall@lip6.fr> <567EF188.7020203@cogentembedded.com> <alpine.DEB.2.02.1512262107340.2070@localhost6.localdomain6> <alpine.DEB.2.02.1512262123500.2070@localhost6.localdomain6>
+ <567EF895.6080702@cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.17.11]:64262 "EHLO mout.web.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751078AbbLZTag (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 26 Dec 2015 14:30:36 -0500
-In-Reply-To: <20151226184152.GA882@tetsubishi>
+Received: from mail2-relais-roc.national.inria.fr ([192.134.164.83]:42888 "EHLO
+	mail2-relais-roc.national.inria.fr" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751601AbbLZU7B (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 26 Dec 2015 15:59:01 -0500
+In-Reply-To: <567EF895.6080702@cogentembedded.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+To: Gilles Muller <Gilles.Muller@lip6.fr>, Nicolas Palix <nicolas.palix@imag.fr>, Michal Marek <mmarek@suse.com>, cocci@systeme.lip6.fr, linux-kernel@vger.kernel.org, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, dri-devel@lists.freedesktop.org
+Cc: kernel-janitors@vger.kernel.org
 
->> I would appreciate if an unnecessary function call can be avoided here
->> so that the affected exception handling can become also a bit more efficient.
-> 
-> Simpler code is easier to maintain.
+The error return value of platform_get_irq seems to often get dropped.
 
-There are different opinions available around the desired simplicity.
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
+---
 
-> See your patch, you didn't get it correctly at your first try.
+v2: Check for the direct return case also.  Added some mailing lists of
+common offenders.
 
-I wonder myself about the circumstances on how my incomplete update suggestion
-did happen.
-
-
-> Also, this is not a hot path,
-
-I'm curious if approaches around better exception handling can eventually become
-a "hot topic".
-
-
-> so I see it as a micro-optimization
-
-I can agree to this view for this function implementation.
-
- 
-> also adding complexity.
-
-There are the usual software development trade-offs.
-
-
-> I don't favor that.
-
-Thanks for your constructive feedback.
-
-Is an identifier like "free_client" a bit nicer (according to the Linux coding
-style recommendations) than the short jump label "err" in the discussed use case?
-
-Regards,
-Markus
+diff --git a/scripts/coccinelle/api/platform_get_irq_return.cocci b/scripts/coccinelle/api/platform_get_irq_return.cocci
+new file mode 100644
+index 0000000..44680d0
+--- /dev/null
++++ b/scripts/coccinelle/api/platform_get_irq_return.cocci
+@@ -0,0 +1,58 @@
++/// Propagate the return value of platform_get_irq.
++//# Sometimes the return value of platform_get_irq is tested using <= 0, but 0
++//# might not be an appropriate return value in an error case.
++///
++// Confidence: Moderate
++// Copyright: (C) 2015 Julia Lawall, Inria. GPLv2.
++// URL: http://coccinelle.lip6.fr/
++// Options: --no-includes --include-headers
++
++virtual context
++virtual org
++virtual report
++
++// ----------------------------------------------------------------------------
++
++@r depends on context || org || report@
++constant C;
++statement S;
++expression e, ret;
++position j0, j1;
++@@
++
++* e@j0 = platform_get_irq(...);
++(
++if@j1 (...) {
++  ...
++  return -C;
++} else S
++|
++if@j1 (...) {
++  ...
++  ret = -C;
++  ...
++  return ret;
++} else S
++)
++
++// ----------------------------------------------------------------------------
++
++@script:python r_org depends on org@
++j0 << r.j0;
++j1 << r.j1;
++@@
++
++msg = "Propagate return value of platform_get_irq."
++coccilib.org.print_todo(j0[0], msg)
++coccilib.org.print_link(j1[0], "")
++
++// ----------------------------------------------------------------------------
++
++@script:python r_report depends on report@
++j0 << r.j0;
++j1 << r.j1;
++@@
++
++msg = "Propagate return value of platform_get_irq around line %s." % (j1[0].line)
++coccilib.report.print_report(j0[0], msg)
++
