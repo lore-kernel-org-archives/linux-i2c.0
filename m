@@ -1,79 +1,53 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH v2] i2c-core: One function call less in
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c-core: One function call less in
  acpi_i2c_space_handler() after error detection
-Date: Sat, 26 Dec 2015 08:08:35 +0100
-Message-ID: <567E3CF3.10606@users.sourceforge.net>
+Date: Sat, 26 Dec 2015 08:48:59 +0100
+Message-ID: <20151226074859.GA905@tetsubishi>
 References: <201512261449.pmBxYtq3%fengguang.wu@intel.com>
+ <567E3CF3.10606@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
 Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <201512261449.pmBxYtq3%fengguang.wu@intel.com>
+Content-Disposition: inline
+In-Reply-To: <567E3CF3.10606@users.sourceforge.net>
 Sender: kernel-janitors-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: kbuild-all@01.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-i2c@vger.kernel.org, kbuild-all@01.org, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 26 Dec 2015 08:00:52 +0100
 
-The kfree() function was called in one case by the
-acpi_i2c_space_handler() function during error handling
-even if the passed variable "client" contained a null pointer.
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Implementation details could be improved by the adjustment of jump targets
-according to the Linux coding style convention.
+> The kfree() function was called in one case by the
+> acpi_i2c_space_handler() function during error handling
+> even if the passed variable "client" contained a null pointer.
 
-This issue was detected by using the Coccinelle software.
+This is OK. kfree() is known to be NULL-tolerant and we rely on it in
+various places to keep the code simpler.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/i2c/i2c-core.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 7349b00..9996531 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -313,18 +313,18 @@ acpi_i2c_space_handler(u32 function, acpi_physical_address command,
- 	client = kzalloc(sizeof(*client), GFP_KERNEL);
- 	if (!client) {
- 		ret = AE_NO_MEMORY;
--		goto err;
-+		goto free_ares;
- 	}
- 
- 	if (!value64 || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS) {
- 		ret = AE_BAD_PARAMETER;
--		goto err;
-+		goto free_client;
- 	}
- 
- 	sb = &ares->data.i2c_serial_bus;
- 	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C) {
- 		ret = AE_BAD_PARAMETER;
--		goto err;
-+		goto free_client;
- 	}
- 
- 	client->adapter = adapter;
-@@ -401,13 +401,13 @@ acpi_i2c_space_handler(u32 function, acpi_physical_address command,
- 	default:
- 		pr_info("protocol(0x%02x) is not supported.\n", accessor_type);
- 		ret = AE_BAD_PARAMETER;
--		goto err;
-+		goto free_client;
- 	}
- 
- 	gsb->status = status;
--
-- err:
-+free_client:
- 	kfree(client);
-+free_ares:
- 	ACPI_FREE(ares);
- 	return ret;
- }
--- 
-2.6.3
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWfkZrAAoJEBQN5MwUoCm2NXkP/3T9Btt307u289g31NAzHAZJ
+R58vKBGLhZBdAhOZRtfCFMQ5kB0TfrKDdalObUvU3QnjGJgJO92iueIUIRCkYxLi
+tf/ORn6ZBOmrb412c8lQNZv96lG8/mBvaqUoQQVwojAJaW8R9xDhyqcutz26Uthb
+VkjM6tEfVD9G/qzeoQ9per5CR3WrZbde4iX0mJNMfUWkqH5sK/4jpdKoDXtBQ3Lq
+bfsGCZZI67EBbCJxNfhCv5iAUkZt1INQ1TGE93mIf4XPYmGeXm1oh7GXyTZf1k3H
+xFCTD5bFezbLIHlrcS3SfgnTsOmMAIu2uXiuE38WV3eyjIVcwrCzhQM15kW8Rw1T
+WaLkCzkkrO8q3v74ugfEHBbTpTwJVQHw/Tzb50tQG6Y5s225ebcn6j7NVMpa/lAs
+VTEZlhQwaswcsFKPp7fwmmwiX6kz/6ZpfpQ0MVaqyFDcg3M7pZz0ioyNWaxdwpWV
+sW6E3XLvnBEsYHIplAcdw+sXMEocVCnUySgmpDoHOK7SCyzV7GwfuGPpcJBrh99A
+jOhmHAGpwTMleUG2pEsYNiuJ4Mk0fueOlBxwvDOPA6f0Pwc5PyhRcJR/gqMsvr4D
+/HuGviOmH2rPKpU7dk/7DmbPZqbLioiT7QDRVHm1aTF1HRWMwqbCNao8pJOIfvXC
+VfElt6PDuzAaxZgUHKL3
+=olSG
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--
