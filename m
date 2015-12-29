@@ -1,34 +1,79 @@
-From: "Jeff Skoll" <verna.viajar@icdd.uni-kassel.de>
-Subject: Charity/Donation
-Date: Mon, 28 Dec 2015 19:53:08 -0500
-Message-ID: <auto-000005538735@mailadmin.uni-kassel.de>
-Reply-To: jeff.skoll@skollcharity.org
+From: Bintian <bintian.wang-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v4] arm64: dts: add all hi6220 i2c nodes
+Date: Tue, 29 Dec 2015 21:15:02 +0800
+Message-ID: <56828756.2040500@huawei.com>
+References: <1449051201-7288-1-git-send-email-kong.kongxinwei@hisilicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx3.its.uni-kassel.de ([141.51.12.64]:35006 "EHLO
-	mx3.its.uni-kassel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751301AbbL2CY1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 28 Dec 2015 21:24:27 -0500
-Content-Description: Mail message body
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1449051201-7288-1-git-send-email-kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Xinwei Kong <kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>
+Cc: shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, w.f-hv44wF8Li93QT0dZR+AlfA@public.gmane.org, liguozhu-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Me <verna.viajar@icdd.uni-kassel.de>
 
-Hi,
-My name is Jeffrey Skoll, a philanthropist and the founder of one of th=
-e largest private foundations in the world. I believe strongly in =E2=80=
-=98giving while living.=E2=80=99 I had one idea that never changed in m=
-y mind =E2=80=94 that you should use your wealth to help people and I h=
-ave decided to secretly give USD2.498 Million to a randomly selected in=
-dividual. On receipt of this email, you should count yourself as the in=
-dividual. Kindly get back to me at your earliest convenience, so I know=
- your email address is valid.
+On 2015/12/2 18:13, Xinwei Kong wrote:
+> This patch adds all I2C nodes for the Hi6220 SoC. This hi6220 Soc
+> use this I2C IP of Synopsys Designware for HiKey board.
+>
+> Signed-off-by: Xinwei Kong <kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>
+> Signed-off-by: Chen Feng <puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>
+> ---
+>   arch/arm64/boot/dts/hisilicon/hi6220.dtsi | 34 +++++++++++++++++++++++++++++++
+>   1 file changed, 34 insertions(+)
+>
+> diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+> index 82d2488..8cec56a 100644
+> --- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+> +++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+> @@ -208,5 +208,39 @@
+>   			clock-names = "uartclk", "apb_pclk";
+>   			status = "disabled";
+>   		};
+> +
+> +		i2c0: i2c@f7100000 {
+> +			compatible = "snps,designware-i2c";
+> +			reg = <0x0 0xf7100000 0x0 0x1000>;
+> +			interrupts = <0 44 4>;
+> +			clocks = <&sys_ctrl HI6220_I2C0_CLK>;
+> +			i2c-sda-hold-time-ns = <300>;
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&i2c0_pmx_func &i2c0_cfg_func>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c1: i2c@f7101000 {
+> +			compatible = "snps,designware-i2c";
+> +			reg = <0x0 0xf7101000 0x0 0x1000>;
+> +			clocks = <&sys_ctrl HI6220_I2C1_CLK>;
+> +			interrupts = <0 45 4>;
+> +			i2c-sda-hold-time-ns = <300>;
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&i2c1_pmx_func &i2c1_cfg_func>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c2: i2c@f7102000 {
+> +			compatible = "snps,designware-i2c";
+> +			reg = <0x0 0xf7102000 0x0 0x1000>;
+> +			clocks = <&sys_ctrl HI6220_I2C2_CLK>;
+> +			interrupts = <0 46 4>;
+> +			i2c-sda-hold-time-ns = <300>;
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&i2c2_pmx_func &i2c2_cfg_func>;
+> +			status = "disabled";
+> +		};
+> +
+>   	};
+>   };
 
-Visit the web page to know more about me: http://www.theglobeandmail.co=
-m/news/national/meet-the-canadian-billionaire-whos-giving-it-all-away/a=
-rticle4209888/ or you can read an article of me on Wikipedia.
+Looks good to me!
 
-Regards,
-Jeffrey Skoll.
+Reviewed-by: Bintian Wang<bintian.wang-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
