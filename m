@@ -1,62 +1,87 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] DT: i2c: Add Freescale MPL3115 to trivial devices list
-Date: Wed, 30 Dec 2015 07:28:15 +0100
-Message-ID: <20151230062814.GA2295@tetsubishi>
-References: <1450897147-22370-1-git-send-email-akshay.bhat@timesys.com>
- <20151229183516.GK12450@rob-hp-laptop>
+From: Xinwei Kong <kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>
+Subject: Re: [PATCH v4] arm64: dts: add all hi6220 i2c nodes
+Date: Thu, 31 Dec 2015 09:27:06 +0800
+Message-ID: <5684846A.2050305@hisilicon.com>
+References: <1449051201-7288-1-git-send-email-kong.kongxinwei@hisilicon.com> <56828756.2040500@huawei.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151229183516.GK12450@rob-hp-laptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Akshay Bhat <akshay.bhat@timesys.com>, ktsai@capellamicro.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, trivial@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, justin.waters@timesys.com
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <56828756.2040500-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bintian <bintian.wang-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, "xuwei5-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org" <xuwei5-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>
+Cc: shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, w.f-hv44wF8Li93QT0dZR+AlfA@public.gmane.org, liguozhu-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
++to xuwei
 
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 2015/12/29 21:15, Bintian wrote:
+> On 2015/12/2 18:13, Xinwei Kong wrote:
+>> This patch adds all I2C nodes for the Hi6220 SoC. This hi6220 Soc
+>> use this I2C IP of Synopsys Designware for HiKey board.
+>>
+>> Signed-off-by: Xinwei Kong <kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>
+>> Signed-off-by: Chen Feng <puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>
+   Reviewed-by: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>> ---
+>>   arch/arm64/boot/dts/hisilicon/hi6220.dtsi | 34 +++++++++++++++++++++++++++++++
+>>   1 file changed, 34 insertions(+)
+>>
+>> diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+>> index 82d2488..8cec56a 100644
+>> --- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+>> +++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
+>> @@ -208,5 +208,39 @@
+>>               clock-names = "uartclk", "apb_pclk";
+>>               status = "disabled";
+>>           };
+>> +
+>> +        i2c0: i2c@f7100000 {
+>> +            compatible = "snps,designware-i2c";
+>> +            reg = <0x0 0xf7100000 0x0 0x1000>;
+>> +            interrupts = <0 44 4>;
+>> +            clocks = <&sys_ctrl HI6220_I2C0_CLK>;
+>> +            i2c-sda-hold-time-ns = <300>;
+>> +            pinctrl-names = "default";
+>> +            pinctrl-0 = <&i2c0_pmx_func &i2c0_cfg_func>;
+>> +            status = "disabled";
+>> +        };
+>> +
+>> +        i2c1: i2c@f7101000 {
+>> +            compatible = "snps,designware-i2c";
+>> +            reg = <0x0 0xf7101000 0x0 0x1000>;
+>> +            clocks = <&sys_ctrl HI6220_I2C1_CLK>;
+>> +            interrupts = <0 45 4>;
+>> +            i2c-sda-hold-time-ns = <300>;
+>> +            pinctrl-names = "default";
+>> +            pinctrl-0 = <&i2c1_pmx_func &i2c1_cfg_func>;
+>> +            status = "disabled";
+>> +        };
+>> +
+>> +        i2c2: i2c@f7102000 {
+>> +            compatible = "snps,designware-i2c";
+>> +            reg = <0x0 0xf7102000 0x0 0x1000>;
+>> +            clocks = <&sys_ctrl HI6220_I2C2_CLK>;
+>> +            interrupts = <0 46 4>;
+>> +            i2c-sda-hold-time-ns = <300>;
+>> +            pinctrl-names = "default";
+>> +            pinctrl-0 = <&i2c2_pmx_func &i2c2_cfg_func>;
+>> +            status = "disabled";
+>> +        };
+>> +
+>>       };
+>>   };
+> 
+> Looks good to me!
+> 
+> Reviewed-by: Bintian Wang<bintian.wang-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+> 
+> 
+> 
+> .
+> 
 
-On Tue, Dec 29, 2015 at 12:35:16PM -0600, Rob Herring wrote:
-> On Wed, Dec 23, 2015 at 01:59:07PM -0500, Akshay Bhat wrote:
-> > This adds devicetree documentation for the bindings of mpl3115 driver.
-> >=20
-> > Signed-off-by: Akshay Bhat <akshay.bhat@timesys.com>
-> > ---
-> >  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 1 +
-> >  1 file changed, 1 insertion(+)
->=20
-> Acked-by: Rob Herring <robh@kernel.org>
->=20
-> Who did you want to apply this? Send patches TO that person which I=20
-> would expect to be Wolfram or me.
-
-I usually take these. Will do again :)
-
-
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIbBAEBAgAGBQJWg3l+AAoJEBQN5MwUoCm2FYIP+Is7KOGsodIxTp4ZkPy+ztZK
-pI2kdpY6Bsz/mKxXbgdOf91RJqImvmuw2HvwpSlguflMGPit7R+ERTb45o7YtkKc
-QACimfRn+5VwcFoQxSgtEOo2JPL0j1bjoRnOydO1UwAes5hNBqJ8M5x/ft3Knir/
-GGTBaPeRNXyuIPQrLOTMAKcYjXp3hVnReHROE6TPUzWhbPVmcKqR3hsddEt4T/Mu
-3lq2kbcn/052l9P0ofu983QJuMV7m7qA0Wx0HglIurQQj2NXZU6Hbnf5+W0b+okB
-DPQONVB647d+zztt1KosZdci778/phtiXb6HJqGF0r3Ju5riNauPUvJNqxFrRHKL
-fTQKOo4tn6Nlg7Wz4nEscPN8qHPtRNSUGV5LQmVCSNtu7bdjeI1SNuKu1l0XxiTg
-L7Uk+AIomT1Ah/cj9hTU4i17HS4Ts6brVrrDG+pPT3COnuiQ/AnJtCWDi8fzsznB
-0FmTMoeUhd8Ld84XbRTeq+o7OT2PICFhmpkK7ovLa1XxWB9PJ6k9hMrBVU4ch/eP
-TNgt/YVJpSvNOs9c/PykHuTRe67L/6ahrcQq9GxOIxemZ7Vy5vcqI+AEK6H6tgyX
-nzaSjrymAqM9a8jW5c7Eec3rgBLsrastYv06XwZTSZIR5KJiX+xuL0YPOAQd7a/M
-NvQXXka2WwvbIt1e4Dg=
-=i7/Z
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
