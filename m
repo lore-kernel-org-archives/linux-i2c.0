@@ -1,34 +1,34 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
-Date: Sun, 03 Jan 2016 01:54:31 +0100
-Message-ID: <4133541.hlxbdmvYbG@vostro.rjw.lan>
-References: <1449782357-22982-1-git-send-email-lho@apm.com>
+From: "Jeff Skoll" <s_w9gc9x@uni-kassel.de>
+Subject: Charity Donation
+Date: Sat, 02 Jan 2016 19:08:06 -0500
+Message-ID: <auto-000000544307@mailadmin.uni-kassel.de>
+Reply-To: jeff.skoll@skollcharity.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from v094114.home.net.pl ([79.96.170.134]:56473 "HELO
-	v094114.home.net.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751047AbcACAXz (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jan 2016 19:23:55 -0500
-In-Reply-To: <1449782357-22982-1-git-send-email-lho@apm.com>
+Received: from mx4.its.uni-kassel.de ([141.51.12.63]:31393 "EHLO
+	mx4.its.uni-kassel.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751037AbcACAcn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jan 2016 19:32:43 -0500
+Content-Description: Mail message body
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Loc Ho <lho@apm.com>
-Cc: wsa@the-dreams.de, Ken.Xue@amd.com, Jeff.Wu@amd.com, mika.westerberg@linux.intel.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jcm@redhat.com, patches@apm.com
+To: Me <s_w9gc9x@uni-kassel.de>
 
-On Thursday, December 10, 2015 02:19:15 PM Loc Ho wrote:
-> Add APM X-Gene ACPI I2C device support. These patches follow
-> the same implementation as AMD I2C driver - changes in ACPI APD
-> and Designware I2C drivers.
-> 
-> v2:
-> * Spilt the acpi_apd change with defines for AMD and X-Gene I2C's
-> 
-> Signed-off-by: Loc Ho <lho@apm.com>
-> ---
-> Loc Ho (2):
->   acpi:apd: Add APM X-Gene ACPI I2C device support
->   i2c:dw: Add APM X-Gene ACPI I2C device support
+Hi,
+My name is Jeffrey Skoll, a philanthropist and the founder of one of th=
+e largest private foundations in the world. I believe strongly in =E2=80=
+=98giving while living.=E2=80=99 I had one idea that never changed in m=
+y mind =E2=80=94 that you should use your wealth to help people and I h=
+ave decided to secretly give USD2.498 Million to a randomly selected in=
+dividual. On receipt of this email, you should count yourself as the in=
+dividual. Kindly get back to me at your earliest convenience, so I know=
+ your email address is valid.
 
-Both patches applied, thanks!
+Visit the web page to know more about me: http://www.theglobeandmail.co=
+m/news/national/meet-the-canadian-billionaire-whos-giving-it-all-away/a=
+rticle4209888/ or you can read an article of me on Wikipedia.
+
+Regards,
+Jeffrey Skoll.
