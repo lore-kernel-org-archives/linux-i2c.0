@@ -1,62 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: imx: Remove unneeded comments
-Date: Sun, 3 Jan 2016 19:28:15 +0100
-Message-ID: <20160103182815.GD1522@katana>
-References: <1446394972-19463-1-git-send-email-festevam@gmail.com>
- <1446394972-19463-2-git-send-email-festevam@gmail.com>
+Subject: Re: [PATCH v2] i2c: imx: make bus recovery through pinctrl optional
+Date: Sun, 3 Jan 2016 19:30:12 +0100
+Message-ID: <20160103183012.GE1522@katana>
+References: <1448055950-21190-1-git-send-email-leoli@freescale.com>
+ <CACRpkdbb-GFJSVvxOLda6CVG_fB2zAPPC2MMzQ6P1mAfvsrkPw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LTeJQqWS0MN7I/qa"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:55947 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751554AbcACS2T (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 3 Jan 2016 13:28:19 -0500
+	protocol="application/pgp-signature"; boundary="6e7ZaeXHKrTJCxdu"
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1446394972-19463-2-git-send-email-festevam@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <CACRpkdbb-GFJSVvxOLda6CVG_fB2zAPPC2MMzQ6P1mAfvsrkPw@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Li Yang <leoli@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Gao Pan <b54642@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
 
---LTeJQqWS0MN7I/qa
+--6e7ZaeXHKrTJCxdu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Nov 01, 2015 at 02:22:52PM -0200, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@freescale.com>
+On Mon, Nov 30, 2015 at 01:55:19PM +0100, Linus Walleij wrote:
+> On Fri, Nov 20, 2015 at 10:45 PM, Li Yang <leoli@freescale.com> wrote:
 >=20
-> These multi-lines comments do not follow the standard kernel coding
-> style. In fact, they are not useful comments, so get rid of them.
+> > -       if (IS_ERR(i2c_imx->pinctrl)) {
+> > +       /* bailout on -ENOMEM or -EPROBE_DEFER, continue for other erro=
+rs */
+> > +       if (PTR_ERR(i2c_imx->pinctrl) =3D=3D -ENOMEM ||
+> > +                       PTR_ERR(i2c_imx->pinctrl) =3D=3D -EPROBE_DEFER)=
+ {
 >=20
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+> This is one of the evils of deferred probe: you never know if
+> something will eventually turn up. It feels wrong to bail out
+> on deferred probe...
+>=20
+> I have no better idea though.
+> Acked-by
 
-There have been some other changes to the imx driver. Could you rebase
-against my for-next or for-4.5? Thanks!
+Linus, proper ack next time please, so patchwork will pick it up
+automatically.
+
+Li Yang: There have been some other changes to the imx driver. Could you
+rebase against my for-next or for-4.5 and add Linus' ack? Thanks!
 
 
---LTeJQqWS0MN7I/qa
+--6e7ZaeXHKrTJCxdu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWiWg/AAoJEBQN5MwUoCm2dGEQAJZchGbof9DUGt1yTU0VdxGu
-Cyw5QquSq4M9esMLjKEXWylFvBFnMIuK/mzgTR27Y5cyuJ+NEy7mT/fdTN84P0JJ
-anSbCcvnyesrdJ7zu9FsFenyxo3to+1naTQcHA0pGML6ydmbqdB6luYjmgsBnCi8
-vtICAUdM45mqonLXtQyqq/wmwrEtqCzLAiT28jrPh71YGwwiDZn+6vEjRKpDCbg+
-ZK+SlYqz+lAwdGGliuU9o4YhwcPHe++FcvEEtVs9QlltQZ4s0XPwqheVIC6Marrn
-XmtLQRS3bzZaJUlVNOHKB4RFWFA+IeY4EznhmE5VNDbKsxfkrbhYEgnQ2yeoyoEg
-IKNAbJKJXwtYBL82g9hPIRS3b0umUfIKba4QFDu0NL/fnRB1maIkfMetbbJaoApm
-mZRrDweeo+1LLL6e7kFK4720labqc7HiMEdMin3Fu5qaiH/eP5cZStCSpHgu6mc5
-0VAqIzDzFybovsvqhhFcyDXU7jZ4R7muOPS1vem2jwQSaAwudMNkDLu7KfsU8cB8
-zbWC/32hzqbceU9ej11HxzxPYYKeFqYDuhfzc9UlIbiyjH66pbU7NPFkkynpqr1g
-ng0Vs2wJShf+1v7qR+CbgFsrzFIUw3MErDPNA3bUrTMQ4pMlfWmFuAKCYX2+bsmy
-Zk/aZPovOVHeqeORu4Xi
-=E6nf
+iQIcBAEBAgAGBQJWiWizAAoJEBQN5MwUoCm2O1gP/3ugwGZqeMECR7j68401jLvW
+YH78WTFzXwGIppJ+RhaCWp5CdNZK5n6oKnSVoVonIGBcy1MKt5lc09PaJo7FTNC6
+xBxJ5S4hgpLcr0BJ376+sUPHbRHr6pnFjAg8XoutHjifmcaH89KwN+yWDGHq+NXB
+Dv2O96p2Gcsqf+tlLMa462OvCLpHGMqtyUThTYXKHkM4GzAc4PedRTuO9zbhEPCb
+syrLMGy/eRGGKZicJK+bn6eXxIwI0Xg/z5hesIvD/g3dQFnAjcywQZD0mv9EkkFh
+DO+Htr8Eu3wyKtftCuUqhRqLm0u4dSD5a1yP2yV2snIsbghl07LEFHsp3yAo3kfC
+kFr46ngwlXH0DGpU4P2rf4AI2IIhqPUr6Xa5yJ5z92BVoPgQtnStV9WSZLXSk1ro
+5Cx7WMOfZUlPqwTd5xQeRbePvGKhETqc1xPifZhUG1yDLpbQHGXtW+bgSo+bmJr8
+VRrR4uhJKgL0R3nbxSfumGZLVZp0AORE0yXyTrnh4yQQdN3O8AowKUN++rwkt+1/
+uijny0P4xkGBVAc+xv7dJWoi0Kb/2+ul/bT3NnLUO9ObVzr+KWGMrCHwuNfpeH4B
+Sz7trNf9M0AUXbjRqEJaVWUA3jHKqGXytDSblKGpERXxPDh1R0gsqBj/J+690Uvb
+xbXfSSV3jys/1UAQWZWd
+=oeyQ
 -----END PGP SIGNATURE-----
 
---LTeJQqWS0MN7I/qa--
+--6e7ZaeXHKrTJCxdu--
