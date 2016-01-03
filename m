@@ -1,82 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V10] i2c: imx: add runtime pm support to improve the
- performance
-Date: Sun, 3 Jan 2016 19:10:10 +0100
-Message-ID: <20160103181009.GA1522@katana>
-References: <1449800649-32763-1-git-send-email-b54642@freescale.com>
+Subject: Re: [Patch V1] i2c: imx: improve code readability
+Date: Sun, 3 Jan 2016 19:17:53 +0100
+Message-ID: <20160103181753.GB1522@katana>
+References: <1446455130-4704-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:55760 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:55821 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751221AbcACSKR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 3 Jan 2016 13:10:17 -0500
+	id S1751522AbcACSR5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 3 Jan 2016 13:17:57 -0500
 Content-Disposition: inline
-In-Reply-To: <1449800649-32763-1-git-send-email-b54642@freescale.com>
+In-Reply-To: <1446455130-4704-1-git-send-email-b54642@freescale.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Gao Pan <b54642@freescale.com>
-Cc: u.kleine-koenig@pengutronix.de, linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, kernel@pengutronix.de, Heiner Kallweit <hkallweit1@gmail.com>
+Cc: u.kleine-koenig@pengutronix.de, linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com
 
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=utf-8
+--zx4FCpZtqtKETZ7O
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 11, 2015 at 10:24:09AM +0800, Gao Pan wrote:
-> In our former i2c driver, i2c clk is enabled and disabled in
-> xfer function, which contributes to power saving. However,
-> the clk enable process brings a busy wait delay until the core
-> is stable. As a result, the performance is sacrificed.
->=20
-> To weigh the power consumption and i2c bus performance, runtime
-> pm is the good solution for it. The clk is enabled when a i2c
-> transfer starts, and disabled after a specifically defined delay.
->=20
-> If CONFIG_PM is disabled the net result of this patch is that the
-> clock is never disabled.
->=20
-> Without the patch the test case (many eeprom reads) executes with approx:
-> real 1m7.735s
-> user 0m0.488s
-> sys 0m20.040s
->=20
-> With the patch the same test case (many eeprom reads) executes with appro=
-x:
-> real 0m54.241s
-> user 0m0.440s
-> sys 0m5.920s
+On Mon, Nov 02, 2015 at 05:05:30PM +0800, Gao Pan wrote:
+> Replace of_get_named_gpio_flags with of_get_named_gpio because
+> the latter has less parameters, which improves code readability.
 >=20
 > Signed-off-by: Fugang Duan <B38611@freescale.com>
 > Signed-off-by: Gao Pan <b54642@freescale.com>
-> Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 
-Applied to for-next, thanks! Also much thanks to Uwe and Heiner for the
-reviews of all these versions!
+Applied to for-next, thanks!
 
 
---ew6BAiZeqk4r7MaW
+--zx4FCpZtqtKETZ7O
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWiWQBAAoJEBQN5MwUoCm2B9sP/0smOXR5RH9/T0ZcgVb/PPvI
-69du33GEnDdXvCfDlNO/MTaEmuwiqhrtTNO+IuDNPmpXVTymFb1uIwdarMAS+tA9
-Zz4flC5ZhC/svUQkMOXbLDdKwPTMKtwe0r6/rjnRsVRpD+0/0vSPp/nbemvFVqEy
-zBiz09XP1wXlSboN2BimCUSM4OD1Pjpt+PoaeBuHD/FL++657HAKDlM2OU/Lie2r
-iW+lWSaYk5bsqOiWlTZRQ9rOjYilmSGGjx9rivvlG5ivyWSx8u4IzmZnMNtBWei6
-Rj26BI6jnSmxruLL2iDq1wRFfC7m3or58amuFsHv+VKRdfzYI1MKbAUo30dsQkrI
-s2zY3WCYc5kEyCB8JphjLJse0Wc3BCOKaDxqz4In1oePCGLOrdJSQfd52hH/0qOz
-l2rgS8CWVKkZfkOrpqQkq5T3BjLXDh3Jhpc+Y4pMjoiTnOfNTpEDlBd6Wx0TDKT3
-7oMQeBuOBRn6c1/JOGcxuE3Qp+4lbA6tDMiTlslyBOR893DAFEdNyYMIAahxWIJ7
-PiYwcVdYYlOkQAqs2g4npg1KKlgtrOrOU3fnaUy2MSoU/DBm8PYwIocEBTz1W8JW
-JwPtMGooeVgrrCATv3kItgc1AsmlesSwzb3rb1psfWixFzLYWPWgF0+4i788jLsv
-teLkfVV6syB1RcO7rMUl
-=Uy8+
+iQIcBAEBAgAGBQJWiWXRAAoJEBQN5MwUoCm2uY8P/A0Tu0PKDXqmYejBUYWRPrvP
+f0KeTBt6BJMj+vxGf7juAmd99WabI5QP136tBp4q8VCePayzhSQiTpjkZMTlSNyF
+B71MYtex6C4xKGSFFdld1XDl2sP0Xcxni2m3CxM3VVO4fU1Q7VV4w6aAmj4wTwwO
+zbuZTs8aRltwNRYdFT4k4DA01HHfVERVLKkhqtAfx+wMNePTerBgYocSa+BL0csp
+wyHNRU/yeHaRqvAMJBvtVyLqJZYCyfjPWP/zt7ADlWRJt3XT4PoNA9ij3MUGnxSF
+yhImVawLfDYQ3SO20Qn1axCuyCCAtY8acXF2+fNhsirpb2+/jXbPgK5whDfYf/de
+azny+z0oGMFQNtF7ZEioTuMZ6RgEJXHH2QkXzDld3g9e2Ccp0dDWRF6G/TIHr5r6
+MzIEukQyyW3Smj6J4+5AadJeDBTHZVLj8raCUhF7D56V2kOPVmZMweUoDkdxQheh
+PrA6wgU78Wf/KNHbHf20tyayqf7L5vdJQmvRc/TPafGCmZndwim1pwLtdZKjJ0PH
+SnThPOH7J2UmmkvsvTCB0TL6JxMObnl0X78Sy65H0qLG4JCBDSqTFTu52fxMmFBV
+AdvniRMyirxv20K2HrZgzq4BohABjebr21ygMi6CE71MK0xAWXpvX/xx2jJ9r+Fc
+XusL+4RaVrA4+WHuUAmr
+=OQMn
 -----END PGP SIGNATURE-----
 
---ew6BAiZeqk4r7MaW--
+--zx4FCpZtqtKETZ7O--
