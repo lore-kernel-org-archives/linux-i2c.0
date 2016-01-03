@@ -1,58 +1,76 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 04/10] i2c: st: use to_platform_device()
-Date: Sun, 3 Jan 2016 19:55:19 +0100
-Message-ID: <20160103185519.GJ1522@katana>
-References: <a554e6af3a3528c2206c94dab62b7800f96caa4b.1451221174.git.geliangtang@163.com>
- <18b3804a2b8d7c682f3f25951309e1503d8ab6d0.1451221174.git.geliangtang@163.com>
+From: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Subject: Re: [PATCH] i2c: designware: Add support for AMD Seattle I2C
+Date: Sun, 3 Jan 2016 16:54:47 -0600
+Message-ID: <5689A6B7.7010401@amd.com>
+References: <1450216553-5641-1-git-send-email-Suravee.Suthikulpanit@amd.com>
+ <5670C90A.5020305@amd.com> <20151216091652.GN1762@lahna.fi.intel.com>
+ <56717552.4060203@amd.com> <20151216145401.GX1762@lahna.fi.intel.com>
+ <567206B7.1050405@amd.com> <20160103184555.GG1522@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ELVYuRnMxQ5nnKRy"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:56579 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751966AbcACSz1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 3 Jan 2016 13:55:27 -0500
-Content-Disposition: inline
-In-Reply-To: <18b3804a2b8d7c682f3f25951309e1503d8ab6d0.1451221174.git.geliangtang@163.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160103184555.GG1522@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Geliang Tang <geliangtang@163.com>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@gmail.com>, Maxime Coquelin <maxime.coquelin@st.com>, Patrice Chotard <patrice.chotard@st.com>, linux-arm-kernel@lists.infradead.org, kernel@stlinux.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Hi Wolfram,
 
---ELVYuRnMxQ5nnKRy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 01/03/2016 12:45 PM, Wolfram Sang wrote:
+> On Wed, Dec 16, 2015 at 06:49:59PM -0600, Suravee Suthikulanit wrote:
+>> Mika,
+>>
+>> On 12/16/2015 8:54 AM, Mika Westerberg wrote:
+>>> On Wed, Dec 16, 2015 at 08:29:38AM -0600, Suravee Suthikulpanit wrote:
+>>>>>
+>>>>>
+>>>>> On 12/16/2015 03:16 AM, Mika Westerberg wrote:
+>>>>>>> On Tue, Dec 15, 2015 at 08:14:34PM -0600, Suravee Suthikulpanit wrote:
+>>>>>>>>> Hi Mika,
+>>>>>>>>>
+>>>>>>>>> On 12/15/15 15:55, Suravee Suthikulpanit wrote:
+>>>>>>>>>>> Add device HID AMDI0510 to match the I2C controlers on AMD Seattle platform
+>>>>>>>>>>>
+>>>>>>>>>>> Signed-off-by: Suravee Suthikulpanit<Suravee.Suthikulpanit@amd.com>
+>>>>>>>>>>> ---
+>>>>>>>>>>>   drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
+>>>>>>>>>>>   1 file changed, 1 insertion(+)
+>>>>>>>>>>>
+>>>>>>>>>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>>>>>>>>> index 57f623b..a027154 100644
+>>>>>>>>>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>>>>>>>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>>>>>>>>> @@ -117,6 +117,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+>>>>>>>>>>>   	{ "80860F41", 0 },
+>>>>>>>>>>>   	{ "808622C1", 0 },
+>>>>>>>>>>>   	{ "AMD0010", 0 },
+>>>>>>>>>>> +	{ "AMDI0510", 0 },
+>>>>>>>>>>>   	{ }
+>>>>>>>>>
+>>>>>>>>> Since this driver seems to be used by several SOCs, and we have been adding
+>>>>>>>>> the HID from various SOC vendors. Do you think it would be better to assign
+>>>>>>>>> a CID so that each SOC vendor can specify in their ACPI DSDT and we can
+>>>>>>>>> match them here?
+>>>>>>>
+>>>>>>> Sure _CID would work here.
+>>>>>
+>>>>> Do you know if Synopsys has already provided a CID that we can use for this?
+>>> No.
+>>>
+>>>>> If not, who do you think should provide this?
+>>> Why can't you make _CID for AMD part only? For Intel we are going to get
+>>> new IDs for every major SoC release no matter what.
+>>>
+>> Actually, after discussed with the team. We have decided to go with the
+>> AMDI0510 at this point, and we will reuse this as CID in future SOC if it
+>> contains compatible I2C controller.
+>
+> So, can I take the patch as is?
+>
 
-On Sun, Dec 27, 2015 at 09:15:42PM +0800, Geliang Tang wrote:
-> Use to_platform_device() instead of open-coding it.
->=20
-> Signed-off-by: Geliang Tang <geliangtang@163.com>
+Yes, please pull this as is.
 
-Applied to for-next, thanks!
-
-
---ELVYuRnMxQ5nnKRy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWiW6XAAoJEBQN5MwUoCm2z6UP/3CxcQQFpwWumHEyC1LKv+Zt
-uv5m0OiHWrECtarzJyyL0eHuK7EIolHG6kh3ZhlMh4YSBQ4fdtsjpPw0laQ2RWC5
-q7qAh4zfrRC+uV4Jj3dugZ5ppd/FvzLDz8pPDyQoNjRUdLvaVekrIV3OT8KShPW2
-zf/I1zL0lxsNO5E2z4xVz6N2W5Emz/GTge/inqqbPBvgveEk+zpjGdDeyXjpqB7C
-o8nageTp1/bj26L0Vu+I8nwdKvmULxFj40y8MsBsYKRxe72UVow71doBNmaXLpZ6
-k8IlItmBmZh13vsMwZcRPStWmoShEkRC4+UJ8pTNCL7zVxzh+lrBnbINbarTA0mq
-oh6VaYW1Z1sVbNnrZ/kiUM6cPSwMY2u/fnhiRYn4j5D6PtN1bi5N2caBAiZcecqe
-DQndODQMWBPQALuiIjZ+F8hSRF8GlvqSZKJBnBvbgkJtguhkhNmfH41YL5P6ooAO
-W4F3AXPaS4JPJJbBGcxVf61A2KFUqOuU4IyR9dkdlOOcL48kTFKryYtp9+VSZve1
-6uVQLJX5NPmBYWLDUh1DMKvN0/N1f+/H5PYG1ddovf5Cem10Ah8+s40iIZ9/PhHG
-6ph+dRNx7BUi3TcNcONhoxC8iAPrr/wrXGhlIc1vJuIA7J+1KGIToujIx8HCimVn
-xVt+73eZV5BT3oLkR92G
-=ZZDj
------END PGP SIGNATURE-----
-
---ELVYuRnMxQ5nnKRy--
+Thank you,
+Suravee
