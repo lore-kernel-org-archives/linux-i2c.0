@@ -1,76 +1,52 @@
-From: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
-Subject: Re: [PATCH] i2c: designware: Add support for AMD Seattle I2C
-Date: Sun, 3 Jan 2016 16:54:47 -0600
-Message-ID: <5689A6B7.7010401@amd.com>
-References: <1450216553-5641-1-git-send-email-Suravee.Suthikulpanit@amd.com>
- <5670C90A.5020305@amd.com> <20151216091652.GN1762@lahna.fi.intel.com>
- <56717552.4060203@amd.com> <20151216145401.GX1762@lahna.fi.intel.com>
- <567206B7.1050405@amd.com> <20160103184555.GG1522@katana>
+From: Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH 1/2] Document: i2c: Add a dt binding for mediatek MT2701 soc
+Date: Mon, 4 Jan 2016 14:15:37 +0800
+Message-ID: <1451888138-11471-1-git-send-email-liguo.zhang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160103184555.GG1522@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
+ <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
+List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
+ <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Add a dt binding for the MT2701 soc.
 
-On 01/03/2016 12:45 PM, Wolfram Sang wrote:
-> On Wed, Dec 16, 2015 at 06:49:59PM -0600, Suravee Suthikulanit wrote:
->> Mika,
->>
->> On 12/16/2015 8:54 AM, Mika Westerberg wrote:
->>> On Wed, Dec 16, 2015 at 08:29:38AM -0600, Suravee Suthikulpanit wrote:
->>>>>
->>>>>
->>>>> On 12/16/2015 03:16 AM, Mika Westerberg wrote:
->>>>>>> On Tue, Dec 15, 2015 at 08:14:34PM -0600, Suravee Suthikulpanit wrote:
->>>>>>>>> Hi Mika,
->>>>>>>>>
->>>>>>>>> On 12/15/15 15:55, Suravee Suthikulpanit wrote:
->>>>>>>>>>> Add device HID AMDI0510 to match the I2C controlers on AMD Seattle platform
->>>>>>>>>>>
->>>>>>>>>>> Signed-off-by: Suravee Suthikulpanit<Suravee.Suthikulpanit@amd.com>
->>>>>>>>>>> ---
->>>>>>>>>>>   drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
->>>>>>>>>>>   1 file changed, 1 insertion(+)
->>>>>>>>>>>
->>>>>>>>>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>>>>>>>> index 57f623b..a027154 100644
->>>>>>>>>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>>>>>>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>>>>>>>> @@ -117,6 +117,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
->>>>>>>>>>>   	{ "80860F41", 0 },
->>>>>>>>>>>   	{ "808622C1", 0 },
->>>>>>>>>>>   	{ "AMD0010", 0 },
->>>>>>>>>>> +	{ "AMDI0510", 0 },
->>>>>>>>>>>   	{ }
->>>>>>>>>
->>>>>>>>> Since this driver seems to be used by several SOCs, and we have been adding
->>>>>>>>> the HID from various SOC vendors. Do you think it would be better to assign
->>>>>>>>> a CID so that each SOC vendor can specify in their ACPI DSDT and we can
->>>>>>>>> match them here?
->>>>>>>
->>>>>>> Sure _CID would work here.
->>>>>
->>>>> Do you know if Synopsys has already provided a CID that we can use for this?
->>> No.
->>>
->>>>> If not, who do you think should provide this?
->>> Why can't you make _CID for AMD part only? For Intel we are going to get
->>> new IDs for every major SoC release no matter what.
->>>
->> Actually, after discussed with the team. We have decided to go with the
->> AMDI0510 at this point, and we will reuse this as CID in future SOC if it
->> contains compatible I2C controller.
->
-> So, can I take the patch as is?
->
+Signed-off-by: Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mt6577.txt | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-Yes, please pull this as is.
-
-Thank you,
-Suravee
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+index 0ce6fa3..ef22ecf 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+@@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+ 
+ Required properties:
+   - compatible: value should be either of the following.
+-      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+-      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+-      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+-      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+-      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
++	"mediatek,mt2701-i2c", for i2c compatible with mt2701 i2c.
++	"mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
++	"mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
++	"mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
++	"mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
++	"mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+   - reg: physical base address of the controller and dma base, length of memory
+     mapped region.
+   - interrupts: interrupt number to the cpu.
+-- 
+1.8.1.1.dirty
