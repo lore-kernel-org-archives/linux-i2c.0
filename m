@@ -1,45 +1,58 @@
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: Re: [PATCH v2 0/2] i2c:dw: Add APM X-Gene ACPI I2C device support
-Date: Mon, 4 Jan 2016 09:09:37 +0000
-Message-ID: <568A36D1.8070808@codethink.co.uk>
-References: <1449782357-22982-1-git-send-email-lho@apm.com>
- <566F6485.2000508@amd.com> <20151215132721.GJ1762@lahna.fi.intel.com>
- <56702923.9010305@amd.com> <20151215145953.GK1762@lahna.fi.intel.com>
- <1450863241.7740.30.camel@kxue-X58A-UD3R>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] Document: i2c: Add a dt binding for mediatek MT2701
+ soc
+Date: Mon, 4 Jan 2016 10:55:12 +0100
+Message-ID: <20160104095511.GB1524@katana>
+References: <1451888138-11471-1-git-send-email-liguo.zhang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ducie-dc1.codethink.co.uk ([185.25.241.215]:54831 "EHLO
-	ducie-dc1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751308AbcADJJp (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 4 Jan 2016 04:09:45 -0500
-In-Reply-To: <1450863241.7740.30.camel@kxue-X58A-UD3R>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i0/AhcQY5QxfSsSZ"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1451888138-11471-1-git-send-email-liguo.zhang@mediatek.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Liguo Zhang <liguo.zhang@mediatek.com>
+Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ken Xue <ken.xue@amd.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, wsa@the-dreams.de
-Cc: Ivan.Zheng@amd.com, Al Stone <al.stone@linaro.org>, Hanjun Guo <hanjun.guo@linaro.org>, jcm@redhat.com, rjw@rjwysocki.net, linux-acpi@vger.kernel.org, patches@apm.com, "Duran, Leo" <leo.duran@amd.com>, linux-i2c@vger.kernel.org, Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, Xiangliang.Yu@amd.com, lenb@kernel.org, linux-arm-kernel@lists.infradead.org, Loc Ho <lho@apm.com>
 
-On 23/12/15 09:34, Ken Xue wrote:
-> On Tue, 2015-12-15 at 16:59 +0200, Mika Westerberg wrote:
->> On Tue, Dec 15, 2015 at 08:52:19AM -0600, Suravee Suthikulpanit wrote:
 
-> During test, I2C bus should run in different "ConnectionSpeed" of
-> device.
-> 
-> That means windows driver can modify I2C bus speed to match the
-> "ConnectionSpeed" of device on-the-fly. Static value from SSCN and FMCN
-> can not work for WITT test cases.
-> 
-> It sounds like odd that multi-speed can be applied over one I2C bus, But
-> everything goes well.
-> Does this behavior(multi-speed) violate the I2C spec?
+--i0/AhcQY5QxfSsSZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I can't remember if the spec says it, but I would say the bus should
-run at the speed of the slowest attached peripheral as they all have
-to listen for the address-byte being sent at the start of each i2c
-transaction.
+On Mon, Jan 04, 2016 at 02:15:37PM +0800, Liguo Zhang wrote:
+> Add a dt binding for the MT2701 soc.
+>=20
+> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
 
--- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+This should probably go with the other patch via arm-soc, or?
+
+In that case:
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--i0/AhcQY5QxfSsSZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWikF/AAoJEBQN5MwUoCm2bSEQAJ3ZUcDCMDa8atZpUBYyE2dq
+gmyjjg6u1XZlvIjdH4no/y0XVilUVo+zjvESmUzXeejRWmF07qMRazW8cCGO/nIf
+hGS+ABfjaeHNrrT6bsPdq7B2i3/ppMBMcWkt0txotmlQ5BQgSqtkHwjJ1GCbPGqh
+w3cOuk7PFMW5hdICzh44I6Hg4i0oTAu1IKTsCK9kdiqxlKe+hWGc4Vc9cKsuCUht
+tsnk/YkC5icKO7rSYjPG1T90QN2ZGlRbzRJrSzbyzcWfp016OOegi+jG/SbJV0Lp
+wzhXgN6f/ixrCsyKFL9WYPblbYp/hY6MuYtUAk/kdB3l2eC59ENa/RzDBT2RAUrS
+1pKsbBd6zglhChL+J3GdJvxjYGCdZ/Ohdm1GOWZVdmqLUNkrkPEdAgl/GF5cQsVS
+zLMCSuNgWJmlg3ZMpsuYMEP57AcpGtbhzYDeML6E8R0dNhykvJUMti19hrPvDLk8
+0A9FfLUumegzErTvaKxrpWf2ZF9J5HJk9/YT4ozDIJRBZEs9B28u+MKbeJpsafHB
+OHErn0a5hGXflFNApp2G4bCup2S+c7/ZHfYBldWYrdYGQ+/6gTmj/2UjocmF4Rr3
+Jg7YM/5DaGh3530xCFaASg5R58iunkHdgzx45Kj7qEMj1byrHM21m9ux0VqMZQcI
+MqVYCBmimir0bTIg+FDy
+=j85a
+-----END PGP SIGNATURE-----
+
+--i0/AhcQY5QxfSsSZ--
