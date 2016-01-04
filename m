@@ -1,58 +1,74 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] Document: i2c: Add a dt binding for mediatek MT2701
- soc
-Date: Mon, 4 Jan 2016 10:55:12 +0100
-Message-ID: <20160104095511.GB1524@katana>
-References: <1451888138-11471-1-git-send-email-liguo.zhang@mediatek.com>
+From: Fabio Estevam <fabio.estevam@nxp.com>
+Subject: [PATCH v2] i2c: imx: Remove unneeded comments
+Date: Mon, 4 Jan 2016 09:15:37 -0200
+Message-ID: <1451906137-5594-1-git-send-email-fabio.estevam@nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i0/AhcQY5QxfSsSZ"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1451888138-11471-1-git-send-email-liguo.zhang@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Liguo Zhang <liguo.zhang@mediatek.com>
-Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-by2on0089.outbound.protection.outlook.com ([207.46.100.89]:8766
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751455AbcADMuj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 4 Jan 2016 07:50:39 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
 
+These multi-lines comments do not follow the standard kernel coding
+style. In fact, they are not useful comments, so get rid of them.
 
---i0/AhcQY5QxfSsSZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+---
+Changes since v1:
+- Rebased against latest tree
 
-On Mon, Jan 04, 2016 at 02:15:37PM +0800, Liguo Zhang wrote:
-> Add a dt binding for the MT2701 soc.
->=20
-> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+ drivers/i2c/busses/i2c-imx.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-This should probably go with the other patch via arm-soc, or?
-
-In that case:
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-
---i0/AhcQY5QxfSsSZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWikF/AAoJEBQN5MwUoCm2bSEQAJ3ZUcDCMDa8atZpUBYyE2dq
-gmyjjg6u1XZlvIjdH4no/y0XVilUVo+zjvESmUzXeejRWmF07qMRazW8cCGO/nIf
-hGS+ABfjaeHNrrT6bsPdq7B2i3/ppMBMcWkt0txotmlQ5BQgSqtkHwjJ1GCbPGqh
-w3cOuk7PFMW5hdICzh44I6Hg4i0oTAu1IKTsCK9kdiqxlKe+hWGc4Vc9cKsuCUht
-tsnk/YkC5icKO7rSYjPG1T90QN2ZGlRbzRJrSzbyzcWfp016OOegi+jG/SbJV0Lp
-wzhXgN6f/ixrCsyKFL9WYPblbYp/hY6MuYtUAk/kdB3l2eC59ENa/RzDBT2RAUrS
-1pKsbBd6zglhChL+J3GdJvxjYGCdZ/Ohdm1GOWZVdmqLUNkrkPEdAgl/GF5cQsVS
-zLMCSuNgWJmlg3ZMpsuYMEP57AcpGtbhzYDeML6E8R0dNhykvJUMti19hrPvDLk8
-0A9FfLUumegzErTvaKxrpWf2ZF9J5HJk9/YT4ozDIJRBZEs9B28u+MKbeJpsafHB
-OHErn0a5hGXflFNApp2G4bCup2S+c7/ZHfYBldWYrdYGQ+/6gTmj/2UjocmF4Rr3
-Jg7YM/5DaGh3530xCFaASg5R58iunkHdgzx45Kj7qEMj1byrHM21m9ux0VqMZQcI
-MqVYCBmimir0bTIg+FDy
-=j85a
------END PGP SIGNATURE-----
-
---i0/AhcQY5QxfSsSZ--
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index dcea8d2..8b68dbf 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -29,9 +29,6 @@
+  *
+  */
+ 
+-/** Includes *******************************************************************
+-*******************************************************************************/
+-
+ #include <linux/clk.h>
+ #include <linux/completion.h>
+ #include <linux/delay.h>
+@@ -57,9 +54,6 @@
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ 
+-/** Defines ********************************************************************
+-*******************************************************************************/
+-
+ /* This will be the driver name the kernel reports */
+ #define DRIVER_NAME "imx-i2c"
+ 
+@@ -123,9 +117,6 @@
+ 
+ #define I2C_PM_TIMEOUT		10 /* ms */
+ 
+-/** Variables ******************************************************************
+-*******************************************************************************/
+-
+ /*
+  * sorted list of clock divider, register value pairs
+  * taken from table 26-5, p.26-9, Freescale i.MX
+@@ -419,9 +410,6 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+ 	dma->chan_using = NULL;
+ }
+ 
+-/** Functions for IMX I2C adapter driver ***************************************
+-*******************************************************************************/
+-
+ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+ {
+ 	unsigned long orig_jiffies = jiffies;
+-- 
+1.9.1
