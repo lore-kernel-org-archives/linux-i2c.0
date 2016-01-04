@@ -1,84 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V1] imx: i2c: fix i2c resource leak with dma transfer
-Date: Mon, 4 Jan 2016 20:32:34 +0100
-Message-ID: <20160104193234.GC1522@katana>
-References: <1449049958-6820-1-git-send-email-b54642@freescale.com>
+Subject: Re: [PATCH v1 1/3] i2c: rk3x: add calc_divs ops for new version
+Date: Mon, 4 Jan 2016 20:40:42 +0100
+Message-ID: <20160104194042.GD1522@katana>
+References: <1449844384-6236-1-git-send-email-wdc@rock-chips.com>
+ <566F5FAC.3080404@rock-chips.com>
+ <CAHp75VfkteDvC0KUXOXDik9rQeanTXLn9Qq3wux-0rxk5ZotNA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="B4IIlcmfBL/1gGOG"
+	protocol="application/pgp-signature"; boundary="AbQceqfdZEv+FvjW"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:52822 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:52863 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751523AbcADTcj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 4 Jan 2016 14:32:39 -0500
+	id S1751523AbcADTks (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 4 Jan 2016 14:40:48 -0500
 Content-Disposition: inline
-In-Reply-To: <1449049958-6820-1-git-send-email-b54642@freescale.com>
+In-Reply-To: <CAHp75VfkteDvC0KUXOXDik9rQeanTXLn9Qq3wux-0rxk5ZotNA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <b54642@freescale.com>
-Cc: u.kleine-koenig@pengutronix.de, linux-i2c@vger.kernel.org, B20596@freescale.com, b38611@freescale.com, kernel@pengutronix.de, s.hauer@pengutronix.de, p.zabel@pengutronix.de, yao.yuan@freescale.com
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Jianqun Xu <jay.xu@rock-chips.com>, David Wu <wdc@rock-chips.com>, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>, dianders@chromium.org, huangtao@rock-chips.com, zyw@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Wu <david.wu@rock-chips.com>
 
 
---B4IIlcmfBL/1gGOG
+--AbQceqfdZEv+FvjW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 02, 2015 at 05:52:38PM +0800, Gao Pan wrote:
-> In i2c_imx_dma_xfer(), when dmaengine_prep_slave_single() returns
-> NULL, the context goto label err_desc and then return. However,
-> the memory allocated by dmaengine_prep_slave_single() has not been
-> freed yet, which leads to resource leak.
+> >> +static int rk3x_i2c_v0_calc_divs(unsigned long clk_rate, unsigned long
+> >> scl_rate,
+> >> +                                unsigned long scl_rise_ns,
+> >> +                                unsigned long scl_fall_ns,
+> >> +                                unsigned long sda_fall_ns,
+>=20
+> Wolfram did some sturct to assign the parameters from device properties.
+> It might be re-used here.
 
-dmaengine_prep_slave_single() still owns allocated memory although it
-returns NULL? Isn't this a bug?
+Yes, I think it makes sense to convert the driver first to use
+the new i2c_parse_fw_timings() function and see if it fits (or if we need
+to extend it perhaps).
 
->=20
-> (reported by coverity check)
->=20
-> Signed-off-by: Gao Pan <b54642@freescale.com>
-> Signed-off-by: Fugang Duan <B38611@freescale.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 0ab8424..6dcfff5 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -397,6 +397,7 @@ static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2=
-c_imx,
-> =20
->  err_submit:
->  err_desc:
-> +	dmaengine_terminate_all(dma->chan_using);
->  	dma_unmap_single(chan_dev, dma->dma_buf,
->  			dma->dma_len, dma->dma_data_dir);
->  err_map:
-> --=20
-> 1.9.1
->=20
+David, does this make sense to you?
 
---B4IIlcmfBL/1gGOG
+
+--AbQceqfdZEv+FvjW
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWisjSAAoJEBQN5MwUoCm2GucQALEKM9+hisM/dmh0/DEe1nul
-GlCGTK9SUbktYVjIqXKKlhghnEgnC0LwvVynM7uZL/KP1CZehGySb1BF4HDeYbNB
-YEAmJVP2wj/JyhcbZX6rh1eFQrg/iLKZ2jk3SgCStqLpufAZLHpkirBhZgOXnju+
-SugmarV5Dz61/Pv48dIWYFCGy5lJ06TgGbxlEG6gOtg+CMMFG4RVfHyaRIstqXnU
-ffmCYzUF8z9Jhs4vJ2DO5xKUpXJ9OUqhfv8EANEAIvcqW9VJMIdB5ikVt0GxAfF4
-eITvL6Su1aWLpUO3011Cj4Z2QhWB/jqADbVqeisU6ruoioWRSR+Vf5ut9Ik9eTNV
-ku++9oz4uIZFcpjqJmx1+JqxCufoGK4L8aovB0Jqwsjky5GcFqbt6oS+cUnONzSp
-nN/L7oBsUqa9zsHnbqpYi3jCa5e+cPIL7UFzquoSsYzp+kSEkH7ix2+O2UcGzCOQ
-gumASjCqbZGaUArDxgh+P4te6WCLK7Kr71R8sK6JBDGyI6+Ca23nmTveNW+/o109
-YKkyDp/+SH7axrPJv0XkEDva8LSF5Rn2ZF1p4/1qA8KtQELH5cIQHsLisDwnzukf
-e1j617mVBFJB7XCuXQvVRvQ0sxB7BGo/Q4dTUEhPeJu5fwJ9ANL11A1OAnjPbEMJ
-4Wfqmd3uVmTJa8XV1MXq
-=Xj3F
+iQIcBAEBAgAGBQJWisq6AAoJEBQN5MwUoCm2SKwP/RmDlLqJwqYjBwHWSn30Rh04
+oYA9z0RQ7Bzdcj5Eq+6bcdfTqsVx4AyxyNZSTPsGcU0/QthiPy5Eu9j8tZza2cT/
+tYiKrbK9Lf0qj1qX9kgdiDK0JdY3e7fLxdmfacM9H616BdBwunmhKOGp4WOJyJkK
+xYaPrWBRZQsAx74u5Nv+2bwaBsKEIpOJ6CUu1CeYk9IB4sk9+DZ/GrosSEp1z6tR
++fqRPwhNuyIFI1utO95DtkOoaxT+pFmlRN4olrBw5jitXuJofqTcqnPi6FIvY7hZ
+nE1I3GvgfazMJeVCr6zWweMLFbNx4BInsHN9/vicXWZX3Jz5MPJkarNT9SxnYOEi
+VD2XUqsHsvkiacYAraL84hJBWf3e4FKcg00mA76LiiqPwYVaT1rsDG7TCEOicgGa
+BzRtj7WqtmRAznCOvaaJ0PWHJHdaZtCOH4xVp/2bywIlg37XVKxAHtXNpIryn2xH
+pHoDKyTBhEBMmpkRaO4iO+/tKk17ofsOFWVeOV8z8/uL/90vsM1Fw671vDldD0mu
+4sSO52pBVh+gFgDXU+e9MIdtGqu0tdPa7deEVeQSOu4lZnk9XWMHcL4BAIU+fJnt
+/j4fWsttxW1bqlMjZn2yei4efvZrY+0pUk9swXQVKz9r1BrzNuBQPsZBYwdjJuEP
+7iL0PeOG+LIfbQNwgMW0
+=i3gV
 -----END PGP SIGNATURE-----
 
---B4IIlcmfBL/1gGOG--
+--AbQceqfdZEv+FvjW--
