@@ -1,157 +1,93 @@
-From: Heiko Stuebner <heiko@sntech.de>
+From: "Huang, Tao" <huangtao@rock-chips.com>
 Subject: Re: [PATCH] i2c: rk3x: init module as subsys call
-Date: Tue, 05 Jan 2016 09:00:20 +0100
-Message-ID: <7893052.zgDX0r4i77@phil>
-References: <1451962938-17398-1-git-send-email-jay.xu@rock-chips.com> <2513923.8oltbpbAin@phil> <568B73E8.3010901@rock-chips.com>
+Date: Tue, 5 Jan 2016 16:48:59 +0800
+Message-ID: <568B837B.50607@rock-chips.com>
+References: <1451962938-17398-1-git-send-email-jay.xu@rock-chips.com>
+ <2513923.8oltbpbAin@phil> <568B73E8.3010901@rock-chips.com>
+ <7893052.zgDX0r4i77@phil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:56181 "EHLO gloria.sntech.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750730AbcAEIA3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Jan 2016 03:00:29 -0500
-In-Reply-To: <568B73E8.3010901@rock-chips.com>
+Received: from regular1.263xmail.com ([211.150.99.134]:46670 "EHLO
+	regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751104AbcAEItS (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Jan 2016 03:49:18 -0500
+In-Reply-To: <7893052.zgDX0r4i77@phil>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Huang, Tao" <huangtao@rock-chips.com>
+To: Heiko Stuebner <heiko@sntech.de>
 Cc: "jianqun.xu" <jay.xu@rock-chips.com>, wsa@the-dreams.de, wdc@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Tao,
+Hi, Heiko:
 
-Am Dienstag, 5. Januar 2016, 15:42:32 schrieb Huang, Tao:
-> On 2016=E5=B9=B401=E6=9C=8805=E6=97=A5 15:02, Heiko Stuebner wrote:
-> > Hi Jianqun,
-> >=20
-> > Am Dienstag, 5. Januar 2016, 11:02:18 schrieb jianqun.xu:
-> >> From: Xu Jianqun <jay.xu@rock-chips.com>
-> >>=20
-> >> There is a requirement from pmic device, which is on the i2c bus,
-> >> that the pmic needs to be called earlier then devices powered by
-> >> the outputs of the pmic, if not, the devices maybe fail to probe.
-> >>=20
-> >> For example, a pmic on i2c0, and touchscreen device on i2c2,
-> >> i2c0: - pmic(rk818)
-> >> i2c2: - ts(gt911), powered by rk818 on i2c0
-> >>=20
-> >> The problem will happen if the i2c2 node in dts file is ordered
-> >> before i2c0 node, then ts(gt911) will be probed before pmic(rk818)=
+On 2016=E5=B9=B401=E6=9C=8805=E6=97=A5 16:00, Heiko Stuebner wrote:
+> Hi Tao,
+>=20
+> Am Dienstag, 5. Januar 2016, 15:42:32 schrieb Huang, Tao:
+
+>> I don't think this is a good idea. This will trigger a lots of init =
+call
+>> failed. Before pmic init, all i2c device driver transmit will failed=
 ,
-> >> since the power from the pmic(rk818) for ts(gt911) hasn't enabled,
-> >> so ts(gt911) will fail to probe due to the failure of i2c test.
-> >>=20
-> >> But if we set the i2c0 node before i2c2, there is no this issue.
-> >>=20
-> >> The stable way to make sure that pmic can be intalized before othe=
+>> and because i2c is slow bus, and i2c transmit may failed by other
+>> reasons, so the i2c driver and i2c device driver will try many times=
+ to
+>> make sure the transmit completion. These unnecessary transmission wi=
+ll
+>> make Linux boot very slow.
+>=20
+> In general, the slowdown won't be _this_ much if touchscreen drivers =
+need=20
+> one deferral-round before i2c is available. I'm also only pointing ou=
+t=20
+> things I remember from the last time this came up.=20
+>=20
+> rk3x-i2c even was here already:
+> http://www.spinics.net/lists/linux-i2c/msg16680.html
+
+OK. I don't agree with the rule, but we will follow it.
+
+>=20
+>=20
+>> I2C bus should be subsys, and we can easy resolve this problem, why =
+we
+>> depends on a complicated and slow implementation?
+>=20
+> because it's the only safe way to do that. Because now you need i2c-i=
+nit at=20
+> subsys-init time, some months later some other soc may need some othe=
+r=20
+> ordering, especially needing i2c-init later/earlier.
+>=20
+> Going through the deferral mechanism is the only way currently availa=
+ble to=20
+> actually make this work on all socs.
+>=20
+> Tomeu from Collabora is working on some better scheme to optimize dev=
+ice=20
+> probing order but it looks like this may be a bit off still.
+>=20
+>=20
+>>> Your touchscreen will have a "xyz-supply" property and I think the
+>>> regulator-framework should already emit a -EPROBE_DEFER at
+>>> regulator_get,
+>>> when the regulator is specified but not available yet.
+>>
+>> Unfortunately, mostly driver do not support regulator api. They are
+>> suppose power is on.
+>=20
+> Having touchscreen drivers support its proper supply-regulators is no=
+t=20
+> rocket science ;-) [0] , so I would consider this a bug in the touchs=
+creen=20
+> driver itself.
+
+I don't just talk about touch screen driver, most i2c device driver suc=
+h
+as input sensor/camera/rtc/battery will suffer. So people will see thei=
 r
-> >> peripher devices is to make the pmic module be subsys call, the i2=
-c
-> >> module need to be subsys call firstly.
-> >=20
-> > I do believe that came up in the past already and the direction fro=
-m
-> > then
-> > was (and most likely still is) that drivers should make use of the
-> > probe-
-> > deferral mechanism instead of wiggling with the initcall ordering.
->=20
-> I don't think this is a good idea. This will trigger a lots of init c=
-all
-> failed. Before pmic init, all i2c device driver transmit will failed,
-> and because i2c is slow bus, and i2c transmit may failed by other
-> reasons, so the i2c driver and i2c device driver will try many times =
-to
-> make sure the transmit completion. These unnecessary transmission wil=
-l
-> make Linux boot very slow.
+drivers do not work or slow down on rk3368 platform :(
 
-In general, the slowdown won't be _this_ much if touchscreen drivers ne=
-ed=20
-one deferral-round before i2c is available. I'm also only pointing out=20
-things I remember from the last time this came up.=20
-
-rk3x-i2c even was here already:
-http://www.spinics.net/lists/linux-i2c/msg16680.html
-
-
-> I2C bus should be subsys, and we can easy resolve this problem, why w=
-e
-> depends on a complicated and slow implementation?
-
-because it's the only safe way to do that. Because now you need i2c-ini=
-t at=20
-subsys-init time, some months later some other soc may need some other=20
-ordering, especially needing i2c-init later/earlier.
-
-Going through the deferral mechanism is the only way currently availabl=
-e to=20
-actually make this work on all socs.
-
-Tomeu from Collabora is working on some better scheme to optimize devic=
-e=20
-probing order but it looks like this may be a bit off still.
-
-
-> > Your touchscreen will have a "xyz-supply" property and I think the
-> > regulator-framework should already emit a -EPROBE_DEFER at
-> > regulator_get,
-> > when the regulator is specified but not available yet.
->=20
-> Unfortunately, mostly driver do not support regulator api. They are
-> suppose power is on.
-
-Having touchscreen drivers support its proper supply-regulators is not=20
-rocket science ;-) [0] , so I would consider this a bug in the touchscr=
-een=20
-driver itself.
-
-Just look into the datasheet and add the appropriate supplies to the dr=
-ivers=20
-in question.
-
-
-Heiko
-
-[0] citiing my own work:=20
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/dr=
-ivers/input/touchscreen/zforce_ts.c#n806
-
->=20
-> Thanks.
-> Huang, Tao
->=20
-> > Heiko
-> >=20
-> >> Signed-off-by: Xu Jianqun <jay.xu@rock-chips.com>
-> >> ---
-> >>=20
-> >>  drivers/i2c/busses/i2c-rk3x.c | 12 +++++++++++-
-> >>  1 file changed, 11 insertions(+), 1 deletion(-)
-> >>=20
-> >> diff --git a/drivers/i2c/busses/i2c-rk3x.c
-> >> b/drivers/i2c/busses/i2c-rk3x.c index c1935eb..00e5959 100644
-> >> --- a/drivers/i2c/busses/i2c-rk3x.c
-> >> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> >> @@ -1037,7 +1037,17 @@ static struct platform_driver rk3x_i2c_driv=
-er =3D
-> >> {
-> >>=20
-> >>  	},
-> >> =20
-> >>  };
-> >>=20
-> >> -module_platform_driver(rk3x_i2c_driver);
-> >> +static int __init rk3x_i2c_init(void)
-> >> +{
-> >> +	return platform_driver_register(&rk3x_i2c_driver);
-> >> +}
-> >> +subsys_initcall(rk3x_i2c_init);
-> >> +
-> >> +static void __exit rk3x_i2c_exit(void)
-> >> +{
-> >> +	platform_driver_unregister(&rk3x_i2c_driver);
-> >> +}
-> >> +module_exit(rk3x_i2c_exit);
-> >>=20
-> >>  MODULE_DESCRIPTION("Rockchip RK3xxx I2C Bus driver");
-> >>  MODULE_AUTHOR("Max Schwarz <max.schwarz@online.de>");
+Thanks!
+Huang, Tao
