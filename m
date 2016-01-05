@@ -1,95 +1,46 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: Re: [PATCH v2 3/8] i2c-mux: move the slave side adapter management
- to i2c_mux_core
-Date: Tue, 05 Jan 2016 20:16:19 +0100
-Message-ID: <568C1683.3080108@lysator.liu.se>
-References: <201601060037.nR1VtA8Y%fengguang.wu@intel.com>
+From: Loc Ho <lho@apm.com>
+Subject: Re: [PATCH v4] i2c: designware: Do not require clock when SSCN and
+ FFCN are provided
+Date: Tue, 5 Jan 2016 11:58:01 -0800
+Message-ID: <CAPw-ZTkE-K0HXK4Aivm6GMS7CYcN7CZUgk-yjY6_V+uN7+qKHw@mail.gmail.com>
+References: <1451920655-10798-1-git-send-email-Suravee.Suthikulpanit@amd.com>
+	<20160104161525.GC1599@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.lysator.liu.se ([130.236.254.3]:45854 "EHLO
-	mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751498AbcAETQ3 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Jan 2016 14:16:29 -0500
-In-Reply-To: <201601060037.nR1VtA8Y%fengguang.wu@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160104161525.GC1599@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, Ken Xue <Ken.Xue@amd.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: kbuild-all@01.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Adriana Reus <adriana.reus@intel.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>, Nicholas Mc Guire <hofrat@osadl.org>
 
 Hi,
 
-This should fix it (I'm not sending a v3 right away).
+>> The current driver uses input clock source frequency to calculate
+>> values for [SS|FS]_[HC|LC] registers. However, when booting ACPI, we do not
+>> currently have a good way to provide the frequency information.
+>> Instead, we can leverage the SSCN and FFCN ACPI methods, which can be used
+>> to directly provide these values. So, the clock information should
+>> no longer be required during probing.
+>>
+>> However, since clk can be invalid, additional checks must be done where
+>> we are making use of it.
+>>
+>> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>> Signed-off-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+>> Tested-by: Loc Ho <lho@apm.com>
+>> ---
+>>
+>> Note: This has been tested on AMD Seattle RevB for both DT and ACPI.
+>>
+>> Changes from V3 (https://lkml.org/lkml/2015/12/22/596):
+>>     * Add i2c_dw_plat_prepare_clk() per Andy's suggestion
+>>     * Add tested-by Loc Ho.
+>
+> The changes from V3 are big enough that I'd appreciate a new Tested-by
+> tag.
+>
 
-Cheers,
-Peter
+Will let you know when I have moment to give this a try on X-Gene.
 
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-index 1c982a56acd5..5de993deca7e 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-@@ -16,6 +16,7 @@
- 
- #include <linux/kernel.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-mux.h>
- #include <linux/dmi.h>
- #include <linux/acpi.h>
- #include "inv_mpu_iio.h"
-@@ -182,7 +183,7 @@ int inv_mpu_acpi_create_mux_client(struct inv_mpu6050_state *st)
- 			} else
- 				return 0; /* no secondary addr, which is OK */
- 		}
--		st->mux_client = i2c_new_device(st->mux_adapter, &info);
-+		st->mux_client = i2c_new_device(st->muxc->adapter[0], &info);
- 		if (!st->mux_client)
- 			return -ENODEV;
- 
--- 
-
-
-On 2016-01-05 17:49, kbuild test robot wrote:
-> Hi Peter,
-> 
-> [auto build test ERROR on wsa/i2c/for-next]
-> [also build test ERROR on v4.4-rc8 next-20160105]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Peter-Rosin/i2c-mux-cleanup-and-locking-update/20160106-000205
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux i2c/for-next
-> config: i386-randconfig-s1-201601 (attached as .config)
-> reproduce:
->         # save the attached .config to linux build tree
->         make ARCH=i386 
-> 
-> All errors (new ones prefixed by >>):
-> 
->    drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c: In function 'inv_mpu_acpi_create_mux_client':
->>> drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c:185:37: error: 'struct inv_mpu6050_state' has no member named 'mux_adapter'
->       st->mux_client = i2c_new_device(st->mux_adapter, &info);
->                                         ^
-> 
-> vim +185 drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-> 
-> a35c5d1a Srinivas Pandruvada 2015-01-30  179  					*name = '\0';
-> a35c5d1a Srinivas Pandruvada 2015-01-30  180  				strlcat(info.type, "-client",
-> a35c5d1a Srinivas Pandruvada 2015-01-30  181  					sizeof(info.type));
-> a35c5d1a Srinivas Pandruvada 2015-01-30  182  			} else
-> a35c5d1a Srinivas Pandruvada 2015-01-30  183  				return 0; /* no secondary addr, which is OK */
-> a35c5d1a Srinivas Pandruvada 2015-01-30  184  		}
-> a35c5d1a Srinivas Pandruvada 2015-01-30 @185  		st->mux_client = i2c_new_device(st->mux_adapter, &info);
-> a35c5d1a Srinivas Pandruvada 2015-01-30  186  		if (!st->mux_client)
-> a35c5d1a Srinivas Pandruvada 2015-01-30  187  			return -ENODEV;
-> a35c5d1a Srinivas Pandruvada 2015-01-30  188  
-> 
-> :::::: The code at line 185 was first introduced by commit
-> :::::: a35c5d1aa96aa6cc70e91786cbe9be4db23f8f4a iio: imu: inv_mpu6050: Create mux clients for ACPI
-> 
-> :::::: TO: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> :::::: CC: Jonathan Cameron <jic23@kernel.org>
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
-> 
+-Loc
