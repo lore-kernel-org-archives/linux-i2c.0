@@ -1,93 +1,55 @@
-From: "Huang, Tao" <huangtao@rock-chips.com>
-Subject: Re: [PATCH] i2c: rk3x: init module as subsys call
-Date: Tue, 5 Jan 2016 16:48:59 +0800
-Message-ID: <568B837B.50607@rock-chips.com>
-References: <1451962938-17398-1-git-send-email-jay.xu@rock-chips.com>
- <2513923.8oltbpbAin@phil> <568B73E8.3010901@rock-chips.com>
- <7893052.zgDX0r4i77@phil>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c/designware: enable i2c controller to suspend/resume
+ asynchronously
+Date: Tue, 5 Jan 2016 10:53:35 +0200
+Message-ID: <568B848F.1070801@linux.intel.com>
+References: <567C0192.2050601@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.134]:46670 "EHLO
-	regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751104AbcAEItS (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Jan 2016 03:49:18 -0500
-In-Reply-To: <7893052.zgDX0r4i77@phil>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <567C0192.2050601@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, srinivas.kowtal@intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: Heiko Stuebner <heiko@sntech.de>
-Cc: "jianqun.xu" <jay.xu@rock-chips.com>, wsa@the-dreams.de, wdc@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi, Heiko:
+Hi
 
-On 2016=E5=B9=B401=E6=9C=8805=E6=97=A5 16:00, Heiko Stuebner wrote:
-> Hi Tao,
->=20
-> Am Dienstag, 5. Januar 2016, 15:42:32 schrieb Huang, Tao:
+On 12/24/2015 04:30 PM, Fu, Zhonghui wrote:
+> Now, PM core supports asynchronous suspend/resume mode for devices
+> during system suspend/resume, and the power state transition of one
+> device may be completed in separate kernel thread. PM core ensures
+> all power state transition dependency between devices. This patch
+> enables designware i2c controllers to suspend/resume asynchronously.
+> This will take advantage of multicore and improve system suspend/resume
+> speed. After enabling all i2c devices, i2c adapters and i2c controllers
+> on ASUS T100TA tablet, the system suspend-to-idle time is reduced to
+> about 510ms from 750ms, and the system resume time is reduced to about
+> 790ms from 900ms.
+>
+Nice reduction :-)
 
->> I don't think this is a good idea. This will trigger a lots of init =
-call
->> failed. Before pmic init, all i2c device driver transmit will failed=
-,
->> and because i2c is slow bus, and i2c transmit may failed by other
->> reasons, so the i2c driver and i2c device driver will try many times=
- to
->> make sure the transmit completion. These unnecessary transmission wi=
-ll
->> make Linux boot very slow.
->=20
-> In general, the slowdown won't be _this_ much if touchscreen drivers =
-need=20
-> one deferral-round before i2c is available. I'm also only pointing ou=
-t=20
-> things I remember from the last time this came up.=20
->=20
-> rk3x-i2c even was here already:
-> http://www.spinics.net/lists/linux-i2c/msg16680.html
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 6b00061..395130b 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -230,6 +230,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>   	}
+>
+>   	adap = &dev->adapter;
+> +	device_enable_async_suspend(&pdev->dev);
+>   	adap->owner = THIS_MODULE;
+>   	adap->class = I2C_CLASS_DEPRECATED;
+>   	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
 
-OK. I don't agree with the rule, but we will follow it.
+Does device_enable_async_suspend() need to be called before enabling 
+runtime PM? I suppose not since there appears to have also related sysfs 
+node for toggling it runtime.
 
->=20
->=20
->> I2C bus should be subsys, and we can easy resolve this problem, why =
-we
->> depends on a complicated and slow implementation?
->=20
-> because it's the only safe way to do that. Because now you need i2c-i=
-nit at=20
-> subsys-init time, some months later some other soc may need some othe=
-r=20
-> ordering, especially needing i2c-init later/earlier.
->=20
-> Going through the deferral mechanism is the only way currently availa=
-ble to=20
-> actually make this work on all socs.
->=20
-> Tomeu from Collabora is working on some better scheme to optimize dev=
-ice=20
-> probing order but it looks like this may be a bit off still.
->=20
->=20
->>> Your touchscreen will have a "xyz-supply" property and I think the
->>> regulator-framework should already emit a -EPROBE_DEFER at
->>> regulator_get,
->>> when the regulator is specified but not available yet.
->>
->> Unfortunately, mostly driver do not support regulator api. They are
->> suppose power is on.
->=20
-> Having touchscreen drivers support its proper supply-regulators is no=
-t=20
-> rocket science ;-) [0] , so I would consider this a bug in the touchs=
-creen=20
-> driver itself.
+I'm thinking if you could move the device_enable_async_suspend() call 
+into drivers/i2c/busses/i2c-designware-core.c: i2c_dw_probe() and then 
+also PCI enumerated adapter could take advantage of it.
 
-I don't just talk about touch screen driver, most i2c device driver suc=
-h
-as input sensor/camera/rtc/battery will suffer. So people will see thei=
-r
-drivers do not work or slow down on rk3368 platform :(
-
-Thanks!
-Huang, Tao
+-- 
+Jarkko
