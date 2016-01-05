@@ -1,81 +1,98 @@
-From: "Huang, Tao" <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+From: Jianqun Xu <jay.xu@rock-chips.com>
 Subject: Re: [PATCH] i2c: rk3x: init module as subsys call
-Date: Tue, 5 Jan 2016 15:42:32 +0800
-Message-ID: <568B73E8.3010901@rock-chips.com>
+Date: Tue, 5 Jan 2016 15:42:55 +0800
+Message-ID: <568B73FF.9090508@rock-chips.com>
 References: <1451962938-17398-1-git-send-email-jay.xu@rock-chips.com>
  <2513923.8oltbpbAin@phil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=gbk;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from regular1.263xmail.com ([211.150.99.132]:35624 "EHLO
+	regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751978AbcAEHnE (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Jan 2016 02:43:04 -0500
 In-Reply-To: <2513923.8oltbpbAin@phil>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, "jianqun.xu" <jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wdc-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Heiko Stuebner <heiko@sntech.de>
+Cc: wsa@the-dreams.de, wdc@rock-chips.com, huangtao@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-SGksIEhlaWtvOgoKT24gMjAxNuW5tDAx5pyIMDXml6UgMTU6MDIsIEhlaWtvIFN0dWVibmVyIHdy
-b3RlOgo+IEhpIEppYW5xdW4sCj4gCj4gQW0gRGllbnN0YWcsIDUuIEphbnVhciAyMDE2LCAxMTow
-MjoxOCBzY2hyaWViIGppYW5xdW4ueHU6Cj4+IEZyb206IFh1IEppYW5xdW4gPGpheS54dUByb2Nr
-LWNoaXBzLmNvbT4KPj4KPj4gVGhlcmUgaXMgYSByZXF1aXJlbWVudCBmcm9tIHBtaWMgZGV2aWNl
-LCB3aGljaCBpcyBvbiB0aGUgaTJjIGJ1cywKPj4gdGhhdCB0aGUgcG1pYyBuZWVkcyB0byBiZSBj
-YWxsZWQgZWFybGllciB0aGVuIGRldmljZXMgcG93ZXJlZCBieQo+PiB0aGUgb3V0cHV0cyBvZiB0
-aGUgcG1pYywgaWYgbm90LCB0aGUgZGV2aWNlcyBtYXliZSBmYWlsIHRvIHByb2JlLgo+Pgo+PiBG
-b3IgZXhhbXBsZSwgYSBwbWljIG9uIGkyYzAsIGFuZCB0b3VjaHNjcmVlbiBkZXZpY2Ugb24gaTJj
-MiwKPj4gaTJjMDogLSBwbWljKHJrODE4KQo+PiBpMmMyOiAtIHRzKGd0OTExKSwgcG93ZXJlZCBi
-eSByazgxOCBvbiBpMmMwCj4+Cj4+IFRoZSBwcm9ibGVtIHdpbGwgaGFwcGVuIGlmIHRoZSBpMmMy
-IG5vZGUgaW4gZHRzIGZpbGUgaXMgb3JkZXJlZAo+PiBiZWZvcmUgaTJjMCBub2RlLCB0aGVuIHRz
-KGd0OTExKSB3aWxsIGJlIHByb2JlZCBiZWZvcmUgcG1pYyhyazgxOCksCj4+IHNpbmNlIHRoZSBw
-b3dlciBmcm9tIHRoZSBwbWljKHJrODE4KSBmb3IgdHMoZ3Q5MTEpIGhhc24ndCBlbmFibGVkLAo+
-PiBzbyB0cyhndDkxMSkgd2lsbCBmYWlsIHRvIHByb2JlIGR1ZSB0byB0aGUgZmFpbHVyZSBvZiBp
-MmMgdGVzdC4KPj4KPj4gQnV0IGlmIHdlIHNldCB0aGUgaTJjMCBub2RlIGJlZm9yZSBpMmMyLCB0
-aGVyZSBpcyBubyB0aGlzIGlzc3VlLgo+Pgo+PiBUaGUgc3RhYmxlIHdheSB0byBtYWtlIHN1cmUg
-dGhhdCBwbWljIGNhbiBiZSBpbnRhbGl6ZWQgYmVmb3JlIG90aGVyCj4+IHBlcmlwaGVyIGRldmlj
-ZXMgaXMgdG8gbWFrZSB0aGUgcG1pYyBtb2R1bGUgYmUgc3Vic3lzIGNhbGwsIHRoZSBpMmMKPj4g
-bW9kdWxlIG5lZWQgdG8gYmUgc3Vic3lzIGNhbGwgZmlyc3RseS4KPiAKPiBJIGRvIGJlbGlldmUg
-dGhhdCBjYW1lIHVwIGluIHRoZSBwYXN0IGFscmVhZHkgYW5kIHRoZSBkaXJlY3Rpb24gZnJvbSB0
-aGVuIAo+IHdhcyAoYW5kIG1vc3QgbGlrZWx5IHN0aWxsIGlzKSB0aGF0IGRyaXZlcnMgc2hvdWxk
-IG1ha2UgdXNlIG9mIHRoZSBwcm9iZS0KPiBkZWZlcnJhbCBtZWNoYW5pc20gaW5zdGVhZCBvZiB3
-aWdnbGluZyB3aXRoIHRoZSBpbml0Y2FsbCBvcmRlcmluZy4KCgpJIGRvbid0IHRoaW5rIHRoaXMg
-aXMgYSBnb29kIGlkZWEuIFRoaXMgd2lsbCB0cmlnZ2VyIGEgbG90cyBvZiBpbml0IGNhbGwKZmFp
-bGVkLiBCZWZvcmUgcG1pYyBpbml0LCBhbGwgaTJjIGRldmljZSBkcml2ZXIgdHJhbnNtaXQgd2ls
-bCBmYWlsZWQsCmFuZCBiZWNhdXNlIGkyYyBpcyBzbG93IGJ1cywgYW5kIGkyYyB0cmFuc21pdCBt
-YXkgZmFpbGVkIGJ5IG90aGVyCnJlYXNvbnMsIHNvIHRoZSBpMmMgZHJpdmVyIGFuZCBpMmMgZGV2
-aWNlIGRyaXZlciB3aWxsIHRyeSBtYW55IHRpbWVzIHRvCm1ha2Ugc3VyZSB0aGUgdHJhbnNtaXQg
-Y29tcGxldGlvbi4gVGhlc2UgdW5uZWNlc3NhcnkgdHJhbnNtaXNzaW9uIHdpbGwKbWFrZSBMaW51
-eCBib290IHZlcnkgc2xvdy4KCkkyQyBidXMgc2hvdWxkIGJlIHN1YnN5cywgYW5kIHdlIGNhbiBl
-YXN5IHJlc29sdmUgdGhpcyBwcm9ibGVtLCB3aHkgd2UKZGVwZW5kcyBvbiBhIGNvbXBsaWNhdGVk
-IGFuZCBzbG93IGltcGxlbWVudGF0aW9uPwoKPiAKPiBZb3VyIHRvdWNoc2NyZWVuIHdpbGwgaGF2
-ZSBhICJ4eXotc3VwcGx5IiBwcm9wZXJ0eSBhbmQgSSB0aGluayB0aGUgCj4gcmVndWxhdG9yLWZy
-YW1ld29yayBzaG91bGQgYWxyZWFkeSBlbWl0IGEgLUVQUk9CRV9ERUZFUiBhdCByZWd1bGF0b3Jf
-Z2V0LCAKPiB3aGVuIHRoZSByZWd1bGF0b3IgaXMgc3BlY2lmaWVkIGJ1dCBub3QgYXZhaWxhYmxl
-IHlldC4KClVuZm9ydHVuYXRlbHksIG1vc3RseSBkcml2ZXIgZG8gbm90IHN1cHBvcnQgcmVndWxh
-dG9yIGFwaS4gVGhleSBhcmUKc3VwcG9zZSBwb3dlciBpcyBvbi4KClRoYW5rcy4KSHVhbmcsIFRh
-bwoKPiAKPiAKPiBIZWlrbwo+IAo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBYdSBKaWFucXVuIDxqYXku
-eHVAcm9jay1jaGlwcy5jb20+Cj4+IC0tLQo+PiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yazN4
-LmMgfCAxMiArKysrKysrKysrKy0KPj4gIDEgZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCsp
-LCAxIGRlbGV0aW9uKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
-LXJrM3guYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcmszeC5jCj4+IGluZGV4IGMxOTM1ZWIu
-LjAwZTU5NTkgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcmszeC5jCj4+
-ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcmszeC5jCj4+IEBAIC0xMDM3LDcgKzEwMzcs
-MTcgQEAgc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgcmszeF9pMmNfZHJpdmVyID0gewo+
-PiAgCX0sCj4+ICB9Owo+Pgo+PiAtbW9kdWxlX3BsYXRmb3JtX2RyaXZlcihyazN4X2kyY19kcml2
-ZXIpOwo+PiArc3RhdGljIGludCBfX2luaXQgcmszeF9pMmNfaW5pdCh2b2lkKQo+PiArewo+PiAr
-CXJldHVybiBwbGF0Zm9ybV9kcml2ZXJfcmVnaXN0ZXIoJnJrM3hfaTJjX2RyaXZlcik7Cj4+ICt9
-Cj4+ICtzdWJzeXNfaW5pdGNhbGwocmszeF9pMmNfaW5pdCk7Cj4+ICsKPj4gK3N0YXRpYyB2b2lk
-IF9fZXhpdCByazN4X2kyY19leGl0KHZvaWQpCj4+ICt7Cj4+ICsJcGxhdGZvcm1fZHJpdmVyX3Vu
-cmVnaXN0ZXIoJnJrM3hfaTJjX2RyaXZlcik7Cj4+ICt9Cj4+ICttb2R1bGVfZXhpdChyazN4X2ky
-Y19leGl0KTsKPj4KPj4gIE1PRFVMRV9ERVNDUklQVElPTigiUm9ja2NoaXAgUkszeHh4IEkyQyBC
-dXMgZHJpdmVyIik7Cj4+ICBNT0RVTEVfQVVUSE9SKCJNYXggU2Nod2FyeiA8bWF4LnNjaHdhcnpA
-b25saW5lLmRlPiIpOwo+IAo+IAo+IAo+IAoKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpMaW51eC1yb2NrY2hpcCBtYWlsaW5nIGxpc3QKTGludXgtcm9j
-a2NoaXBAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL2xpbnV4LXJvY2tjaGlwCg==
+Hi Heiko:
+
+=D4=DA 05/01/2016 15:02, Heiko Stuebner =D0=B4=B5=C0:
+> Hi Jianqun,
+>
+> Am Dienstag, 5. Januar 2016, 11:02:18 schrieb jianqun.xu:
+>> From: Xu Jianqun <jay.xu@rock-chips.com>
+>>
+>> There is a requirement from pmic device, which is on the i2c bus,
+>> that the pmic needs to be called earlier then devices powered by
+>> the outputs of the pmic, if not, the devices maybe fail to probe.
+>>
+>> For example, a pmic on i2c0, and touchscreen device on i2c2,
+>> i2c0: - pmic(rk818)
+>> i2c2: - ts(gt911), powered by rk818 on i2c0
+>>
+>> The problem will happen if the i2c2 node in dts file is ordered
+>> before i2c0 node, then ts(gt911) will be probed before pmic(rk818),
+>> since the power from the pmic(rk818) for ts(gt911) hasn't enabled,
+>> so ts(gt911) will fail to probe due to the failure of i2c test.
+>>
+>> But if we set the i2c0 node before i2c2, there is no this issue.
+>>
+>> The stable way to make sure that pmic can be intalized before other
+>> peripher devices is to make the pmic module be subsys call, the i2c
+>> module need to be subsys call firstly.
+>
+> I do believe that came up in the past already and the direction from =
+then
+> was (and most likely still is) that drivers should make use of the pr=
+obe-
+> deferral mechanism instead of wiggling with the initcall ordering.
+>
+> Your touchscreen will have a "xyz-supply" property and I think the
+> regulator-framework should already emit a -EPROBE_DEFER at regulator_=
+get,
+> when the regulator is specified but not available yet.
+>
+It seems more reasonable, thanks for advice, I will have a try.
+>
+> Heiko
+>
+>>
+>> Signed-off-by: Xu Jianqun <jay.xu@rock-chips.com>
+>> ---
+>>   drivers/i2c/busses/i2c-rk3x.c | 12 +++++++++++-
+>>   1 file changed, 11 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-=
+rk3x.c
+>> index c1935eb..00e5959 100644
+>> --- a/drivers/i2c/busses/i2c-rk3x.c
+>> +++ b/drivers/i2c/busses/i2c-rk3x.c
+>> @@ -1037,7 +1037,17 @@ static struct platform_driver rk3x_i2c_driver=
+ =3D {
+>>   	},
+>>   };
+>>
+>> -module_platform_driver(rk3x_i2c_driver);
+>> +static int __init rk3x_i2c_init(void)
+>> +{
+>> +	return platform_driver_register(&rk3x_i2c_driver);
+>> +}
+>> +subsys_initcall(rk3x_i2c_init);
+>> +
+>> +static void __exit rk3x_i2c_exit(void)
+>> +{
+>> +	platform_driver_unregister(&rk3x_i2c_driver);
+>> +}
+>> +module_exit(rk3x_i2c_exit);
+>>
+>>   MODULE_DESCRIPTION("Rockchip RK3xxx I2C Bus driver");
+>>   MODULE_AUTHOR("Max Schwarz <max.schwarz@online.de>");
+>
+>
+>
+>
