@@ -1,81 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: linux-next: build failure after merge of the i2c tree
-Date: Tue, 5 Jan 2016 02:04:30 +0100
-Message-ID: <20160105010430.GA6567@katana>
-References: <20151216154813.2566a655@canb.auug.org.au>
- <20160105105507.335a4fae@canb.auug.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59959 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753688AbcAEBEo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 4 Jan 2016 20:04:44 -0500
-Content-Disposition: inline
-In-Reply-To: <20160105105507.335a4fae@canb.auug.org.au>
-Sender: linux-i2c-owner@vger.kernel.org
+From: "jianqun.xu" <jay.xu@rock-chips.com>
+Subject: [PATCH] i2c: rk3x: init module as subsys call
+Date: Tue,  5 Jan 2016 11:02:18 +0800
+Message-ID: <1451962938-17398-1-git-send-email-jay.xu@rock-chips.com>
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: heiko@sntech.de, wsa@the-dreams.de, wdc@rock-chips.com
+Cc: huangtao@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Xu Jianqun <jay.xu@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org
 
+From: Xu Jianqun <jay.xu@rock-chips.com>
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There is a requirement from pmic device, which is on the i2c bus,
+that the pmic needs to be called earlier then devices powered by
+the outputs of the pmic, if not, the devices maybe fail to probe.
 
-Stephen,
+For example, a pmic on i2c0, and touchscreen device on i2c2,
+i2c0: - pmic(rk818)
+i2c2: - ts(gt911), powered by rk818 on i2c0
 
-> > After merging the i2c tree, today's linux-next build (powerpc
-> > ppc44x_defconfig) failed like this:
+The problem will happen if the i2c2 node in dts file is ordered
+before i2c0 node, then ts(gt911) will be probed before pmic(rk818),
+since the power from the pmic(rk818) for ts(gt911) hasn't enabled,
+so ts(gt911) will fail to probe due to the failure of i2c test.
 
-Oops, yes.
+But if we set the i2c0 node before i2c2, there is no this issue.
 
-> >  /* Bus timings (in ns) for bit-banging */
-> > -static struct i2c_timings {
-> > +static struct ibm_i2c_timings {
+The stable way to make sure that pmic can be intalized before other
+peripher devices is to make the pmic module be subsys call, the i2c
+module need to be subsys call firstly.
 
-I changed it to ibm_iic_timings for consistency reasons...
+Signed-off-by: Xu Jianqun <jay.xu@rock-chips.com>
+---
+ drivers/i2c/busses/i2c-rk3x.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-> >  	volatile struct iic_regs __iomem *iic =3D dev->vaddr;
-> > -	const struct i2c_timings* t =3D &timings[dev->fast_mode ? 1 : 0];
-> > +	const struct ibm_i2c_timings* t =3D &timings[dev->fast_mode ? 1 : 0];
-
-=2E.. and fixed the placement of the * operator ...
-
-> >  	u8 mask, v, sda;
-> >  	int i, res;
-> > =20
-> > --=20
-> > 2.6.2
->=20
-> Ping?
-
-=2E.. and applied to for-next, thanks! The patch got lost because the
-i2c-list was not on CC and thus patchwork couldn't catch it.
-
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWixaeAAoJEBQN5MwUoCm2JJcQAIHL1wGYdv0YSZYrASekCKlH
-Fs6K62FFjRcnY2wg9vpqDjkWYSC8yhzMly4ThT1edZ9nY9zS+bgGunXgQ1tW1oVH
-J1hUfEas5WJsec8+ptDROMu8+mVtoE8UQ2o41jtiUYJ1sxpoG/cT/dpBZuCcn0Vb
-Enpsz4BKlDtTEcLT3+YaLpncTA7eTz0USZ+wZozG0YrWIbI6UrL1gT7gSEb6HWII
-VFvigjVpB7RppfyCgdRpZyE3PI2VQbDFsY3eko/RonX54pQZ7mw9BTengBjFI6Pe
-/33RQfW2FKCEQ8xELGIKFSd7Hk96P2+KutCbsN+MWsGjAHFVimtd3J+qnktgXJZu
-HHSr2aQXoRZtfH8hTQRi6I73Q9ZGuNF3gUX0rXeSR/jbLKmfjXM/twRb8K2a3KS1
-VJM0EQWtprtSlYUsZ/9X3rV5075noqnx77yy4CeCMB49gzxUOJuGV9IJ0zwfc0pb
-ujniyBWYYYAd8DDZ/5FmfyyEBZtG821YkEOC0BsSXYZK11Vf6y6s1NI8Rs2z1Z37
-QImxm3OKPjgg2IlRIkmSr0IalyN92JCokmcIMWF8X/4D/8qII027l6KbG4dvbN+v
-SehH7fEpa45oo+qvLpyY2xIYJjEoGAXXWz1WWlwxVwbZB5ln01jg1l4a/YJUX7wr
-JRHJ5fiPwNiJZYd23fiq
-=XSmr
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index c1935eb..00e5959 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -1037,7 +1037,17 @@ static struct platform_driver rk3x_i2c_driver = {
+ 	},
+ };
+ 
+-module_platform_driver(rk3x_i2c_driver);
++static int __init rk3x_i2c_init(void)
++{
++	return platform_driver_register(&rk3x_i2c_driver);
++}
++subsys_initcall(rk3x_i2c_init);
++
++static void __exit rk3x_i2c_exit(void)
++{
++	platform_driver_unregister(&rk3x_i2c_driver);
++}
++module_exit(rk3x_i2c_exit);
+ 
+ MODULE_DESCRIPTION("Rockchip RK3xxx I2C Bus driver");
+ MODULE_AUTHOR("Max Schwarz <max.schwarz@online.de>");
+-- 
+1.9.1
