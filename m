@@ -1,94 +1,66 @@
-From: Laura Abbott <labbott@redhat.com>
-Subject: Re: [PATCH v2 00/16] intel-lpss: support non-ACPI platforms
-Date: Tue, 5 Jan 2016 09:57:35 -0800
-Message-ID: <568C040F.2070000@redhat.com>
-References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1488447.PO5a3v7KWa@vostro.rjw.lan>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 0/8] i2c mux cleanup and locking update
+Date: Tue, 5 Jan 2016 19:48:19 +0100
+Message-ID: <20160105184819.GA1743@katana>
+References: <1452009438-27347-1-git-send-email-peda@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45833 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753338AbcAER5j (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 5 Jan 2016 12:57:39 -0500
-In-Reply-To: <1488447.PO5a3v7KWa@vostro.rjw.lan>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1452009438-27347-1-git-send-email-peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, Olli Salonen <olli.salonen-X3B1VOXEql0@public.gmane.org>, linux-i2c@vger.k
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
-
-On 12/06/2015 05:44 PM, Rafael J. Wysocki wrote:
-> On Monday, November 30, 2015 05:11:28 PM Andy Shevchenko wrote:
->> This series includes few logical sets that bring a support of non-ACPI
->> platforms for Intel Skylake.
->>
->> First part is a refactoring of built-in device properties support:
->> - keep single value inside the structure
->> - provide helper macros to define built-in properties
->> - fall back to secondary fwnode if primary has no asked property
->>
->> Second is a propagating built-in device properties in platform core.
->>
->> Third one is modifications to MFD code and intel-lpss.c driver in particular
->> to define and pass built-in properties to the individual drivers.
->>
->> And last part is a fix for I2C bug found on Lenovo Yoga hardware and a first
->> converted user.
->>
->> Built-in device properties is an alternative to platform data. It provides a
->> unified API that drivers can use to cover all cases at once: DT, ACPI, and
->> built-in properties.
->>
->> With this series applied a platform data can be considered obsolete. Moreover,
->> built-in device properties allow to adjust the existing configuration, for
->> example, in cases when ACPI values are wrong on some platforms.
->>
->> The series has been tested on available hardware and doesn't break current
->> behaviour. But we ask people who have the affected hardware to apply the series
->> on your side and check with Lenovo hardware.
->>
->> Changelog v2:
->> - fix isuues found by kbuild bot (kbuild)
->> - append a patch to propagate device properties in polatform code (Arnd)
->> - update few existing and add couple of new patches due to above
->> - check with kmemleak
->>
->> Andy Shevchenko (9):
->>    device property: always check for fwnode type
->>    device property: rename helper functions
->>    device property: refactor built-in properties support
->>    device property: keep single value inplace
->>    device property: improve readability of macros
->>    device property: return -EINVAL when property isn't found in ACPI
->>    device property: Fallback to secondary fwnode if primary misses the
->>      property
->>    mfd: core: propagate device properties to sub devices drivers
->>    mfd: intel-lpss: Pass HSUART configuration via properties
->>
->> Heikki Krogerus (1):
->>    device property: helper macros for property entry creation
->>
->> Mika Westerberg (6):
->>    device property: Take a copy of the property set
->>    driver core: platform: Add support for built-in device properties
->>    driver core: Do not overwrite secondary fwnode with NULL if it is set
->>    mfd: intel-lpss: Add support for passing device properties
->>    mfd: intel-lpss: Pass SDA hold time to I2C host controller driver
->>    i2c: designware: Convert to use unified device property API
->
-> I'm going to queue up this series for v4.5.
->
-> If there are any problems with it or objections from anyone, please let me know.
->
 
 
-Raising an old thread, I pulled this series into Fedora rawhide and
-while it worked for Lenovo Yoga we received a report that it caused
-a regression on the Dell Inspiron 7559 (see
-https://bugzilla.redhat.com/show_bug.cgi?id=1275718#c27) . I haven't
-asked the reporter about bisecting to see which patch broke it.
-Were there any known follow up patches?
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Peter,
+
+> PS. needs a bunch of testing, I do not have access to all the involved hw
+
+First of all, thanks for diving into this topic and the huge effort you
+apparently have put into it.
+
+It is obviously a quite intrusive series, so it needs careful review.
+TBH, I can't really tell when I have the bandwidth to do that, so I hope
+other people will step up. And yes, it needs serious testing.
+
+To all: Although I appreciate any review support, I'd think the first
+thing to be done should be a very high level review - is this series
+worth the huge update? Is the path chosen proper? Stuff like this. I'd
+appreciate Acks or Revs for that. Stuff like fixing checkpatch warnings
+and other minor stuff should come later.
 
 Thanks,
-Laura
+
+   Wolfram
+
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWjA/zAAoJEBQN5MwUoCm2ClEQAJsS3qEeMVIXykMeWdJGf1r7
+b3UDxZ1cQcPK9iXu9hh5v8YEHocbdK3Lma0fMTJzJqLlpvU5BItsx4OfboCyP2d+
+OGdF7tq+Rxyq1VC/l8MM72h1qbHFervipIFzhkxy/AqrRwqSc/n1f30AtIEu2Wf/
+gtNNsb9nasFOLLlfYFLM+R3trkkD/7zGe99CgtY7JcliiuIU59TCoi7dNtb/1Z5p
+d4lotXyweW8tomVss0LZlvvjpC0HAIHolZFURFIeG1wk8q0scqQlSfZTA4MCagUy
+9I5g5zPnA3RJXcUtKUd3GybufUdrbZgGs6m0uRRJoK3oY55G7mbu8jnRFgS0TJA5
+4X6eeegye4yg2uscHFTEzaVKF7yfqTH7S9eqVMTFcrgzXwUpqcp8nlBDG10xuYod
+xbYoles3VIeb8ZDUiNXDphNKbJX4GkdScVu91h5vKrYfOyE86Zva9l7GQ2heAM/F
+o3b+Rare0hPQYBfdwEIez9zku0IExh6DK3JT9GRe0Ef0zeRL1nTtBs4rlDUI1REU
+bIDu1nrUEBzHTZRZF4XwhpFWwWrlx1Swb9mEbyXseSpw9fbVNuhir6szOHlds1XD
+gPLQTP1/6AWWpbWuhlleCAqtOeTGwVb54/FH2Wvubg27rj47h1Vm+0JgsedTpQs0
+MTC5diFZPV05T7Rwu17u
+=Nlv6
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--
