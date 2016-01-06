@@ -1,69 +1,51 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC v2 0/4] i2c/of: switch I2C IP cores at runtime via OF_DYNAMIC
-Date: Wed,  6 Jan 2016 14:51:21 +0100
-Message-ID: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47636 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751140AbcAFNvt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 6 Jan 2016 08:51:49 -0500
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [RFC v2 1/4] of: make of_mutex public
+Date: Wed,  6 Jan 2016 14:51:22 +0100
+Message-ID: <1452088285-6427-2-git-send-email-wsa@the-dreams.de>
+References: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
+List-Id: linux-i2c@vger.kernel.org
 
-I know this is gonna be a controversial series, but we have a usecase for this :)
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-This series allows an I2C bus to switch between multiple masters, i.e. a
-n-to-1-demuxer. This is not hot-switching because connected I2C slaves will be
-re-instantiated. It is meant to select the best I2C core at runtime once the
-task is known. Example: Prefer i2c-gpio over another I2C core because of HW
-errata affecting your current runtime configuration.
+If we want to use OF_DYNAMIC features outside the of framework, we need
+to access this lock.
 
-It works by using OF_DYNAMIC and en-/disabling the i2c parent as needed. See
-the binding docs for more details. Because this is largely using OF_DYNAMIC, I
-decided to post the whole series to the dt list.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/of/of_private.h | 1 -
+ include/linux/of.h      | 2 ++
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-Changes since RFC v1:
-
-* gracefully handle if i2c adapters are not present at runtime
-  (driver not loaded yet)
-* added more documentation and examples
-* properly put the i2c adapters after use
-* respect PAGE_SIZE in sysfs_show
-
-This has been tested on a Renesas Lager board switching between i2c-gpio and
-two different IP cores (i2c-rcar and i2c-sh_mobile). The rebinding seems to be
-working as expected. However, in practice, I couldn't use the HDMI i2c slaves
-with another controller yet, because the rcar-du driver OOPSes when unbinding.
-This seems unrelated to this series because it can also be triggered via
-sysfs-unbind. soc-camera also had problems properly cleaning up on unbind, a
-patch for this already has been sent. So, this series is for sure a good test
-for the unbind path of drivers.
-
-Let me know what you think.
-
-Thanks,
-
-   Wolfram
-
-
-Wolfram Sang (4):
-  of: make of_mutex public
-  dt-bindings: i2c: mux: demux-pinctrl: add bindings
-  i2c: mux: demux-pinctrl: add driver
-  ARM: shmobile: r8a7790: rework dts to use i2c demuxer
-
- .../devicetree/bindings/i2c/i2c-demux-pinctrl.txt  | 155 ++++++++++++
- arch/arm/boot/dts/r8a7790-lager.dts                | 141 +++++++----
- drivers/i2c/muxes/Kconfig                          |   9 +
- drivers/i2c/muxes/Makefile                         |   2 +
- drivers/i2c/muxes/i2c-demux-pinctrl.c              | 276 +++++++++++++++++++++
- drivers/of/of_private.h                            |   1 -
- include/linux/of.h                                 |   2 +
- 7 files changed, 532 insertions(+), 54 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
- create mode 100644 drivers/i2c/muxes/i2c-demux-pinctrl.c
-
+diff --git a/drivers/of/of_private.h b/drivers/of/of_private.h
+index 8e882e706cd8c6..f92ec41efb5dfd 100644
+--- a/drivers/of/of_private.h
++++ b/drivers/of/of_private.h
+@@ -31,7 +31,6 @@ struct alias_prop {
+ 	char stem[0];
+ };
+ 
+-extern struct mutex of_mutex;
+ extern struct list_head aliases_lookup;
+ extern struct kset *of_kset;
+ 
+diff --git a/include/linux/of.h b/include/linux/of.h
+index dd10626a615fb1..acac979063f067 100644
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -32,6 +32,8 @@
+ typedef u32 phandle;
+ typedef u32 ihandle;
+ 
++extern struct mutex of_mutex;
++
+ struct property {
+ 	char	*name;
+ 	int	length;
 -- 
 2.1.4
+
