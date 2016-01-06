@@ -1,50 +1,69 @@
-From: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v2 0/8] i2c mux cleanup and locking update
-Date: Wed, 6 Jan 2016 14:23:02 +0100
-Message-ID: <CAKv63uvvdjmQj3J73UJZFLJ=U0c+Z=dmknm3UH=3MvYU0oqNNg@mail.gmail.com>
-References: <1452009438-27347-1-git-send-email-peda@lysator.liu.se> <20160105184819.GA1743@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160105184819.GA1743@katana>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>Olli Salonen <ol>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFC v2 0/4] i2c/of: switch I2C IP cores at runtime via OF_DYNAMIC
+Date: Wed,  6 Jan 2016 14:51:21 +0100
+Message-ID: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:47636 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751140AbcAFNvt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 6 Jan 2016 08:51:49 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
 
-Hi Wolfram and Peter,
-I will give my opinion about the path chosen although it should be
-taken lightly.
+I know this is gonna be a controversial series, but we have a usecase for this :)
 
-I can see that hardware guys missed the software guys again on the
-development path, but since this happens more often than not, I would
-say it seems OK to have support for this as long as it does not make
-more complex (longer) standard i2c transfers. I would support to have
-additional mutex before mux as that will make less chance that someone
-forgets to lock mutex before mux and proposed solution seems valid.
+This series allows an I2C bus to switch between multiple masters, i.e. a
+n-to-1-demuxer. This is not hot-switching because connected I2C slaves will be
+re-instantiated. It is meant to select the best I2C core at runtime once the
+task is known. Example: Prefer i2c-gpio over another I2C core because of HW
+errata affecting your current runtime configuration.
 
-Regards,
-Crt
+It works by using OF_DYNAMIC and en-/disabling the i2c parent as needed. See
+the binding docs for more details. Because this is largely using OF_DYNAMIC, I
+decided to post the whole series to the dt list.
 
-On 5 January 2016 at 19:48, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> Peter,
->
->> PS. needs a bunch of testing, I do not have access to all the involved hw
->
-> First of all, thanks for diving into this topic and the huge effort you
-> apparently have put into it.
->
-> It is obviously a quite intrusive series, so it needs careful review.
-> TBH, I can't really tell when I have the bandwidth to do that, so I hope
-> other people will step up. And yes, it needs serious testing.
->
-> To all: Although I appreciate any review support, I'd think the first
-> thing to be done should be a very high level review - is this series
-> worth the huge update? Is the path chosen proper? Stuff like this. I'd
-> appreciate Acks or Revs for that. Stuff like fixing checkpatch warnings
-> and other minor stuff should come later.
->
-> Thanks,
->
->    Wolfram
->
+Changes since RFC v1:
+
+* gracefully handle if i2c adapters are not present at runtime
+  (driver not loaded yet)
+* added more documentation and examples
+* properly put the i2c adapters after use
+* respect PAGE_SIZE in sysfs_show
+
+This has been tested on a Renesas Lager board switching between i2c-gpio and
+two different IP cores (i2c-rcar and i2c-sh_mobile). The rebinding seems to be
+working as expected. However, in practice, I couldn't use the HDMI i2c slaves
+with another controller yet, because the rcar-du driver OOPSes when unbinding.
+This seems unrelated to this series because it can also be triggered via
+sysfs-unbind. soc-camera also had problems properly cleaning up on unbind, a
+patch for this already has been sent. So, this series is for sure a good test
+for the unbind path of drivers.
+
+Let me know what you think.
+
+Thanks,
+
+   Wolfram
+
+
+Wolfram Sang (4):
+  of: make of_mutex public
+  dt-bindings: i2c: mux: demux-pinctrl: add bindings
+  i2c: mux: demux-pinctrl: add driver
+  ARM: shmobile: r8a7790: rework dts to use i2c demuxer
+
+ .../devicetree/bindings/i2c/i2c-demux-pinctrl.txt  | 155 ++++++++++++
+ arch/arm/boot/dts/r8a7790-lager.dts                | 141 +++++++----
+ drivers/i2c/muxes/Kconfig                          |   9 +
+ drivers/i2c/muxes/Makefile                         |   2 +
+ drivers/i2c/muxes/i2c-demux-pinctrl.c              | 276 +++++++++++++++++++++
+ drivers/of/of_private.h                            |   1 -
+ include/linux/of.h                                 |   2 +
+ 7 files changed, 532 insertions(+), 54 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+ create mode 100644 drivers/i2c/muxes/i2c-demux-pinctrl.c
+
+-- 
+2.1.4
