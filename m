@@ -1,34 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 2/2] dt-bindings: i2c: eeprom: add another EEPROM device
-Date: Thu,  7 Jan 2016 21:51:00 +0100
-Message-ID: <1452199860-3601-3-git-send-email-wsa@the-dreams.de>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/2] dt-bindings: move I2C eeprom descriptions to the
+ proper file
+Date: Thu, 7 Jan 2016 17:00:12 -0600
+Message-ID: <20160107230012.GA15023@rob-hp-laptop>
 References: <1452199860-3601-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1452199860-3601-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: devicetree@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Simon Horman <horms@verge.net.au>, linux-kernel@vger.kernel.org
+ <1452199860-3601-2-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:58918 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752189AbcAGXAR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 7 Jan 2016 18:00:17 -0500
+Content-Disposition: inline
+In-Reply-To: <1452199860-3601-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Simon Horman <horms@verge.net.au>, linux-kernel@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Thu, Jan 07, 2016 at 09:50:59PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> EEPROMs can have additional properties, so they are not suitable for
+> trivial-devices.txt. Move most bindings to the designated eeprom.txt.
+> Add the missing "atmel,24c08" while doing that. Note that the remaining
+> ones in trivial-devices need to be dealt with seperately because of
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 ++
- 1 file changed, 2 insertions(+)
+s/seperately/separately/
 
-diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-index acb600399c3d94..735bc94444bbd7 100644
---- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
-+++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-@@ -12,6 +12,8 @@ Required properties:
- 
- 	"ramtron,24c64"
- 
-+	"renesas,r1ex24002"
-+
- 	 If there is no specific driver for <manufacturer>, a generic
- 	 driver based on <type> is selected. Possible types are:
- 	 "24c00", "24c01", "24c02", "24c04", "24c08", "24c16", "24c32", "24c64",
--- 
-2.1.4
+> improper manufacturer names.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  Documentation/devicetree/bindings/eeprom/eeprom.txt   | 19 ++++++++++++++-----
+>  .../devicetree/bindings/i2c/trivial-devices.txt       | 13 -------------
+>  2 files changed, 14 insertions(+), 18 deletions(-)
+
+Acked-by: Rob Herring <robh@kernel.org>
+
+Fine to take these thru your tree.
+
+Rob
