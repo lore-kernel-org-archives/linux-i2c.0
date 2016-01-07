@@ -1,44 +1,25 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/2] dt-bindings: move I2C eeprom descriptions to the
- proper file
-Date: Thu, 7 Jan 2016 17:00:12 -0600
-Message-ID: <20160107230012.GA15023@rob-hp-laptop>
+Subject: Re: [PATCH 2/2] dt-bindings: i2c: eeprom: add another EEPROM device
+Date: Thu, 7 Jan 2016 17:01:10 -0600
+Message-ID: <20160107230110.GA17026@rob-hp-laptop>
 References: <1452199860-3601-1-git-send-email-wsa@the-dreams.de>
- <1452199860-3601-2-git-send-email-wsa@the-dreams.de>
+ <1452199860-3601-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:58918 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752189AbcAGXAR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 7 Jan 2016 18:00:17 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1452199860-3601-2-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <1452199860-3601-3-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Simon Horman <horms@verge.net.au>, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 07, 2016 at 09:50:59PM +0100, Wolfram Sang wrote:
+On Thu, Jan 07, 2016 at 09:51:00PM +0100, Wolfram Sang wrote:
 > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
-> EEPROMs can have additional properties, so they are not suitable for
-> trivial-devices.txt. Move most bindings to the designated eeprom.txt.
-> Add the missing "atmel,24c08" while doing that. Note that the remaining
-> ones in trivial-devices need to be dealt with seperately because of
-
-s/seperately/separately/
-
-> improper manufacturer names.
 > 
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > ---
->  Documentation/devicetree/bindings/eeprom/eeprom.txt   | 19 ++++++++++++++-----
->  .../devicetree/bindings/i2c/trivial-devices.txt       | 13 -------------
->  2 files changed, 14 insertions(+), 18 deletions(-)
+>  Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 ++
+>  1 file changed, 2 insertions(+)
 
 Acked-by: Rob Herring <robh@kernel.org>
-
-Fine to take these thru your tree.
-
-Rob
