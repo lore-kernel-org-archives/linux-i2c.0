@@ -1,8 +1,10 @@
 From: richard.dorsch@gmail.com
-Subject: [PATCH 0/6] Add Advantech iManager EC driver set
-Date: Fri,  8 Jan 2016 14:29:20 -0800
-Message-ID: <1452292166-20118-1-git-send-email-richard.dorsch@gmail.com>
+Subject: [PATCH 2/6] Add Advantech iManager GPIO driver
+Date: Fri,  8 Jan 2016 14:29:22 -0800
+Message-ID: <1452292166-20118-3-git-send-email-richard.dorsch@gmail.com>
+References: <1452292166-20118-1-git-send-email-richard.dorsch@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1452292166-20118-1-git-send-email-richard.dorsch@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com, Richard Vidal-Dorsch <richard.dorsch@gmail.com>
@@ -10,80 +12,373 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
-The Advantech iManager is an embedded controller (depending on board type,
-ITE it8518/it8528) on which a custom firmware runs. All drivers (GPIO, I2C,
-HWmon, Watchdog, and backlight) are being managed by the imanager mfd driver.
-The imanager mfd driver acts as a 'gateway' and handles all communications
-between the EC and sub-drivers (GPIO, I2C, ...). The feature specific
-communication portions are split up into core files such as
-imanager-ec-[gpio, i2c, ...].
-
-Richard Vidal-Dorsch (6):
-  Add Advantech iManager MFD core driver
-  Add Advantech iManager GPIO driver
-  Add Advantech iManager HWmon driver
-  Add Advantech iManager I2C driver
-  Add Advantech iManager Backlight driver
-  Add Advantech iManager Watchdog driver
-
- Documentation/devicetree/bindings/mfd/imanager.txt |   33 +
- Documentation/hwmon/imanager                       |   59 +
- Documentation/i2c/busses/i2c-imanager              |   48 +
- MAINTAINERS                                        |   13 +
- drivers/gpio/Kconfig                               |    8 +
- drivers/gpio/Makefile                              |    2 +
- drivers/gpio/imanager-ec-gpio.c                    |   98 ++
- drivers/gpio/imanager-gpio.c                       |  182 +++
- drivers/hwmon/Kconfig                              |   12 +
- drivers/hwmon/Makefile                             |    2 +
- drivers/hwmon/imanager-ec-hwmon.c                  |  606 +++++++++
- drivers/hwmon/imanager-hwmon.c                     | 1058 +++++++++++++++
- drivers/i2c/busses/Kconfig                         |   11 +
- drivers/i2c/busses/Makefile                        |    2 +
- drivers/i2c/busses/imanager-ec-i2c.c               |  466 +++++++
- drivers/i2c/busses/imanager-i2c.c                  |  240 ++++
- drivers/mfd/Kconfig                                |   20 +
- drivers/mfd/Makefile                               |    2 +
- drivers/mfd/imanager-core.c                        |  288 +++++
- drivers/mfd/imanager-ec.c                          | 1345 ++++++++++++++++++++
- drivers/video/backlight/Kconfig                    |   12 +
- drivers/video/backlight/Makefile                   |    2 +
- drivers/video/backlight/imanager-bl.c              |  199 +++
- drivers/video/backlight/imanager-ec-bl.c           |  118 ++
- drivers/watchdog/Kconfig                           |   12 +
- drivers/watchdog/Makefile                          |    2 +
- drivers/watchdog/imanager-ec-wdt.c                 |  170 +++
- drivers/watchdog/imanager-wdt.c                    |  334 +++++
- include/linux/mfd/imanager/backlight.h             |   37 +
- include/linux/mfd/imanager/core.h                  |   31 +
- include/linux/mfd/imanager/ec.h                    |  210 +++
- include/linux/mfd/imanager/gpio.h                  |   27 +
- include/linux/mfd/imanager/hwmon.h                 |  120 ++
- include/linux/mfd/imanager/i2c.h                   |   55 +
- include/linux/mfd/imanager/wdt.h                   |   37 +
- 35 files changed, 5861 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/imanager.txt
- create mode 100644 Documentation/hwmon/imanager
- create mode 100644 Documentation/i2c/busses/i2c-imanager
+---
+ drivers/gpio/Kconfig              |   8 ++
+ drivers/gpio/Makefile             |   2 +
+ drivers/gpio/imanager-ec-gpio.c   |  98 ++++++++++++++++++++
+ drivers/gpio/imanager-gpio.c      | 182 ++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/imanager/gpio.h |  27 ++++++
+ 5 files changed, 317 insertions(+)
  create mode 100644 drivers/gpio/imanager-ec-gpio.c
  create mode 100644 drivers/gpio/imanager-gpio.c
- create mode 100644 drivers/hwmon/imanager-ec-hwmon.c
- create mode 100644 drivers/hwmon/imanager-hwmon.c
- create mode 100644 drivers/i2c/busses/imanager-ec-i2c.c
- create mode 100644 drivers/i2c/busses/imanager-i2c.c
- create mode 100644 drivers/mfd/imanager-core.c
- create mode 100644 drivers/mfd/imanager-ec.c
- create mode 100644 drivers/video/backlight/imanager-bl.c
- create mode 100644 drivers/video/backlight/imanager-ec-bl.c
- create mode 100644 drivers/watchdog/imanager-ec-wdt.c
- create mode 100644 drivers/watchdog/imanager-wdt.c
- create mode 100644 include/linux/mfd/imanager/backlight.h
- create mode 100644 include/linux/mfd/imanager/core.h
- create mode 100644 include/linux/mfd/imanager/ec.h
  create mode 100644 include/linux/mfd/imanager/gpio.h
- create mode 100644 include/linux/mfd/imanager/hwmon.h
- create mode 100644 include/linux/mfd/imanager/i2c.h
- create mode 100644 include/linux/mfd/imanager/wdt.h
 
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index b18bea0..0f80947 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -765,6 +765,14 @@ config GPIO_DLN2
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called gpio-dln2.
+ 
++config GPIO_IMANAGER
++	tristate "Advantech iManager GPIO support"
++	depends on MFD_IMANAGER
++	help
++	  Say yes here to support Advantech iManager GPIO functionality
++	  of some Advantech SOM, MIO, AIMB, and PCM modules/boards.
++	  Requires mfd-core and imanager-core to function properly.
++
+ config GPIO_JANZ_TTL
+ 	tristate "Janz VMOD-TTL Digital IO Module"
+ 	depends on MFD_JANZ_CMODIO
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 986dbd8..0df55e4 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -41,6 +41,8 @@ obj-$(CONFIG_GPIO_F7188X)	+= gpio-f7188x.o
+ obj-$(CONFIG_GPIO_GE_FPGA)	+= gpio-ge.o
+ obj-$(CONFIG_GPIO_GRGPIO)	+= gpio-grgpio.o
+ obj-$(CONFIG_GPIO_ICH)		+= gpio-ich.o
++gpio-imanager-objs		:= imanager-gpio.o imanager-ec-gpio.o
++obj-$(CONFIG_GPIO_IMANAGER)	+= gpio-imanager.o
+ obj-$(CONFIG_GPIO_IOP)		+= gpio-iop.o
+ obj-$(CONFIG_GPIO_IT87)		+= gpio-it87.o
+ obj-$(CONFIG_GPIO_JANZ_TTL)	+= gpio-janz-ttl.o
+diff --git a/drivers/gpio/imanager-ec-gpio.c b/drivers/gpio/imanager-ec-gpio.c
+new file mode 100644
+index 0000000..cefc44d
+--- /dev/null
++++ b/drivers/gpio/imanager-ec-gpio.c
+@@ -0,0 +1,98 @@
++/*
++ * Advantech iManager GPIO core
++ *
++ * Copyright (C) 2015 Advantech Co., Ltd., Irvine, CA, USA
++ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/types.h>
++#include <linux/errno.h>
++#include <linux/bug.h>
++#include <linux/io.h>
++#include <linux/delay.h>
++#include <linux/string.h>
++#include <linux/byteorder/generic.h>
++#include <linux/mfd/imanager/ec.h>
++#include <linux/mfd/imanager/gpio.h>
++
++#define EC_GPIOF_DIR_OUT	(1 << 6)
++#define EC_GPIOF_DIR_IN		(1 << 7)
++#define EC_GPIOF_LOW		(0 << 0)
++#define EC_GPIOF_HIGH		(1 << 0)
++
++/*
++ * Power-on default:
++ * GPIO[7..4] := Input
++ * GPIO[3..0] := Output
++ */
++
++static const struct imanager_gpio_device *gpio;
++
++int gpio_core_get_state(u32 num)
++{
++	int ret;
++
++	if (WARN_ON(num >= gpio->num))
++		return -EINVAL;
++
++	ret = imanager_read_byte(EC_CMD_HWP_RD, gpio->attr[num].did);
++	if (ret < 0)
++		pr_err("Failed to get GPIO pin state (%x)\n", num);
++
++	return ret;
++}
++
++int gpio_core_set_state(u32 num, bool state)
++{
++	int ret;
++
++	if (WARN_ON(num >= gpio->num))
++		return -EINVAL;
++
++	ret = imanager_write_byte(EC_CMD_HWP_WR, gpio->attr[num].did,
++			    state ? EC_GPIOF_HIGH : EC_GPIOF_LOW);
++	if (ret) {
++		pr_err("Failed to set GPIO pin state (%x)\n", num);
++		return ret;
++	}
++
++	return 0;
++}
++
++int gpio_core_set_direction(u32 num, int dir)
++{
++	int ret;
++
++	if (WARN_ON(num >= gpio->num))
++		return -EINVAL;
++
++	ret = imanager_write_byte(EC_CMD_GPIO_DIR_WR, gpio->attr[num].did,
++			    dir ? EC_GPIOF_DIR_IN : EC_GPIOF_DIR_OUT);
++	if (ret) {
++		pr_err("Failed to set GPIO direction (%x, '%s')\n", num,
++			dir == GPIOF_DIR_OUT ? "OUT" : "IN");
++		return ret;
++	}
++
++	return 0;
++}
++
++int gpio_core_get_max_count(void)
++{
++	return gpio->num;
++}
++
++int gpio_core_init(void)
++{
++	gpio = imanager_get_gpio_device();
++	if (!gpio)
++		return -ENODEV;
++
++	return 0;
++}
++
+diff --git a/drivers/gpio/imanager-gpio.c b/drivers/gpio/imanager-gpio.c
+new file mode 100644
+index 0000000..3939c0f
+--- /dev/null
++++ b/drivers/gpio/imanager-gpio.c
+@@ -0,0 +1,182 @@
++/*
++ * Advantech iManager GPIO driver
++ *
++ * Copyright (C) 2015 Advantech Co., Ltd., Irvine, CA, USA
++ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/platform_device.h>
++#include <linux/gpio.h>
++#include <linux/mfd/imanager/core.h>
++#include <linux/mfd/imanager/gpio.h>
++
++struct imanager_gpio_data {
++	struct imanager_device_data *idev;
++	struct gpio_chip chip;
++};
++
++static inline struct imanager_gpio_data *
++to_imanager_gpio_data(struct gpio_chip *chip)
++{
++	return container_of(chip, struct imanager_gpio_data, chip);
++}
++
++static int imanager_direction_in(struct gpio_chip *chip, u32 gpio_num)
++{
++	struct imanager_gpio_data *data = to_imanager_gpio_data(chip);
++	int ret;
++
++	mutex_lock(&data->idev->lock);
++
++	ret = gpio_core_set_direction(gpio_num, GPIOF_DIR_IN);
++	if (ret) {
++		dev_err(chip->dev, "Failed to set direction to 'in' (%d)\n",
++			gpio_num);
++		ret = -EIO;
++	}
++
++	mutex_unlock(&data->idev->lock);
++
++	return ret;
++}
++
++static int
++imanager_direction_out(struct gpio_chip *chip, u32 gpio_num, int val)
++{
++	struct imanager_gpio_data *data = to_imanager_gpio_data(chip);
++	int ret;
++
++	mutex_lock(&data->idev->lock);
++
++	ret = gpio_core_set_direction(gpio_num, GPIOF_DIR_OUT);
++	if (ret) {
++		dev_err(chip->dev, "Failed to set direction to 'out' (%d)\n",
++			gpio_num);
++		ret = -EIO;
++	}
++
++	mutex_unlock(&data->idev->lock);
++
++	return ret;
++}
++
++static int imanager_get(struct gpio_chip *chip, u32 gpio_num)
++{
++	struct imanager_gpio_data *data = to_imanager_gpio_data(chip);
++	int ret;
++
++	mutex_lock(&data->idev->lock);
++
++	ret = gpio_core_get_state(gpio_num);
++	if (ret < 0) {
++		dev_err(chip->dev, "Failed to get status (%d)\n", gpio_num);
++		ret = -EIO;
++	}
++
++	mutex_unlock(&data->idev->lock);
++
++	return ret;
++}
++
++static void imanager_set(struct gpio_chip *chip, u32 gpio_num,
++			 int val)
++{
++	struct imanager_gpio_data *data = to_imanager_gpio_data(chip);
++	int ret;
++
++	mutex_lock(&data->idev->lock);
++
++	ret = gpio_core_set_state(gpio_num, val);
++	if (ret < 0)
++		dev_err(chip->dev, "Failed to set status (%d)\n", gpio_num);
++
++	mutex_unlock(&data->idev->lock);
++}
++
++static int imanager_gpio_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct imanager_device_data *idev = dev_get_drvdata(dev->parent);
++	struct imanager_gpio_data *data;
++	struct gpio_chip *chip;
++	int ret;
++
++	if (!idev) {
++		dev_err(dev, "Invalid platform data\n");
++		return -EINVAL;
++	}
++
++	ret = gpio_core_init();
++	if (ret) {
++		dev_err(dev, "Failed initializing GPIO core\n");
++		return ret;
++	}
++
++	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	data->idev = idev;
++
++	platform_set_drvdata(pdev, data);
++
++	chip = &data->chip;
++
++	chip->owner	= THIS_MODULE;
++	chip->dev	= dev;
++	chip->label	= "imanager_gpio";
++
++	chip->base	= -1;
++	chip->ngpio	= gpio_core_get_max_count();
++
++	chip->get	= imanager_get;
++	chip->set	= imanager_set;
++
++	chip->can_sleep	= 1;
++
++	chip->direction_input  = imanager_direction_in;
++	chip->direction_output = imanager_direction_out;
++
++	ret = gpiochip_add(chip);
++	if (ret < 0) {
++		dev_err(dev, "Failed to register driver\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static int imanager_remove(struct platform_device *pdev)
++{
++	struct imanager_gpio_data *data = platform_get_drvdata(pdev);
++
++	gpiochip_remove(&data->chip);
++
++	return 0;
++}
++
++static struct platform_driver imanager_gpio_driver = {
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "imanager_gpio",
++	},
++	.probe	= imanager_gpio_probe,
++	.remove	= imanager_remove,
++};
++
++module_platform_driver(imanager_gpio_driver);
++
++MODULE_DESCRIPTION("Advantech iManager GPIO Driver");
++MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:imanager_gpio");
+diff --git a/include/linux/mfd/imanager/gpio.h b/include/linux/mfd/imanager/gpio.h
+new file mode 100644
+index 0000000..7b76727
+--- /dev/null
++++ b/include/linux/mfd/imanager/gpio.h
+@@ -0,0 +1,27 @@
++/*
++ * Advantech iManager GPIO core
++ *
++ * Copyright (C) 2015 Advantech Co., Ltd., Irvine, CA, USA
++ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#ifndef __GPIO_H__
++#define __GPIO_H__
++
++#include <linux/gpio.h>
++#include <linux/types.h>
++
++int gpio_core_init(void);
++
++int gpio_core_get_max_count(void);
++
++int gpio_core_get_state(u32 num);
++int gpio_core_set_state(u32 num, bool state);
++int gpio_core_set_direction(u32 num, int dir);
++
++#endif
 -- 
 2.6.4
