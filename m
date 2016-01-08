@@ -1,105 +1,41 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2 00/16] intel-lpss: support non-ACPI platforms
-Date: Fri, 08 Jan 2016 01:03:52 +0100
-Message-ID: <6535017.eZvpZdlbGL@vostro.rjw.lan>
-References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com> <1855560.2DW9QAnCKL@vostro.rjw.lan> <568D3EA5.7040207@redhat.com>
+From: liguo zhang <liguo.zhang@mediatek.com>
+Subject: Re: [PATCH 1/2] Document: i2c: Add a dt binding for mediatek MT2701
+ soc
+Date: Fri, 8 Jan 2016 09:12:53 +0800
+Message-ID: <1452215573.2088.1.camel@mhfsdcap03>
+References: <1451888138-11471-1-git-send-email-liguo.zhang@mediatek.com>
+	 <20160104095511.GB1524@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <568D3EA5.7040207@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Laura Abbott <labbott@redhat.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Hans de Goede <hdegoede@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailgw01.mediatek.com ([218.249.47.110]:40673 "EHLO
+	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752189AbcAHBND (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Jan 2016 20:13:03 -0500
+In-Reply-To: <20160104095511.GB1524@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 
-On Wednesday, January 06, 2016 08:19:49 AM Laura Abbott wrote:
-> On 01/05/2016 03:59 PM, Rafael J. Wysocki wrote:
-> > On Tuesday, January 05, 2016 09:57:35 AM Laura Abbott wrote:
-> >> On 12/06/2015 05:44 PM, Rafael J. Wysocki wrote:
-> >>> On Monday, November 30, 2015 05:11:28 PM Andy Shevchenko wrote:
-> >>>> This series includes few logical sets that bring a support of non-ACPI
-> >>>> platforms for Intel Skylake.
-> >>>>
-> >>>> First part is a refactoring of built-in device properties support:
-> >>>> - keep single value inside the structure
-> >>>> - provide helper macros to define built-in properties
-> >>>> - fall back to secondary fwnode if primary has no asked property
-> >>>>
-> >>>> Second is a propagating built-in device properties in platform core.
-> >>>>
-> >>>> Third one is modifications to MFD code and intel-lpss.c driver in particular
-> >>>> to define and pass built-in properties to the individual drivers.
-> >>>>
-> >>>> And last part is a fix for I2C bug found on Lenovo Yoga hardware and a first
-> >>>> converted user.
-> >>>>
-> >>>> Built-in device properties is an alternative to platform data. It provides a
-> >>>> unified API that drivers can use to cover all cases at once: DT, ACPI, and
-> >>>> built-in properties.
-> >>>>
-> >>>> With this series applied a platform data can be considered obsolete. Moreover,
-> >>>> built-in device properties allow to adjust the existing configuration, for
-> >>>> example, in cases when ACPI values are wrong on some platforms.
-> >>>>
-> >>>> The series has been tested on available hardware and doesn't break current
-> >>>> behaviour. But we ask people who have the affected hardware to apply the series
-> >>>> on your side and check with Lenovo hardware.
-> >>>>
-> >>>> Changelog v2:
-> >>>> - fix isuues found by kbuild bot (kbuild)
-> >>>> - append a patch to propagate device properties in polatform code (Arnd)
-> >>>> - update few existing and add couple of new patches due to above
-> >>>> - check with kmemleak
-> >>>>
-> >>>> Andy Shevchenko (9):
-> >>>>     device property: always check for fwnode type
-> >>>>     device property: rename helper functions
-> >>>>     device property: refactor built-in properties support
-> >>>>     device property: keep single value inplace
-> >>>>     device property: improve readability of macros
-> >>>>     device property: return -EINVAL when property isn't found in ACPI
-> >>>>     device property: Fallback to secondary fwnode if primary misses the
-> >>>>       property
-> >>>>     mfd: core: propagate device properties to sub devices drivers
-> >>>>     mfd: intel-lpss: Pass HSUART configuration via properties
-> >>>>
-> >>>> Heikki Krogerus (1):
-> >>>>     device property: helper macros for property entry creation
-> >>>>
-> >>>> Mika Westerberg (6):
-> >>>>     device property: Take a copy of the property set
-> >>>>     driver core: platform: Add support for built-in device properties
-> >>>>     driver core: Do not overwrite secondary fwnode with NULL if it is set
-> >>>>     mfd: intel-lpss: Add support for passing device properties
-> >>>>     mfd: intel-lpss: Pass SDA hold time to I2C host controller driver
-> >>>>     i2c: designware: Convert to use unified device property API
-> >>>
-> >>> I'm going to queue up this series for v4.5.
-> >>>
-> >>> If there are any problems with it or objections from anyone, please let me know.
-> >>>
-> >>
-> >>
-> >> Raising an old thread, I pulled this series into Fedora rawhide and
-> >> while it worked for Lenovo Yoga we received a report that it caused
-> >> a regression on the Dell Inspiron 7559 (see
-> >> https://bugzilla.redhat.com/show_bug.cgi?id=1275718#c27) . I haven't
-> >> asked the reporter about bisecting to see which patch broke it.
-> >> Were there any known follow up patches?
-> >
-> > There were a few.
-> >
-> > All of them are in my linux-next branch if you can try this one.
-> >
-> > Alternatively, I can expose a branch with these to you to test.
-> >
+On Mon, 2016-01-04 at 10:55 +0100, Wolfram Sang wrote:
+> On Mon, Jan 04, 2016 at 02:15:37PM +0800, Liguo Zhang wrote:
+> > Add a dt binding for the MT2701 soc.
+> > 
+> > Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
 > 
-> I picked up all the patches from the device-properties merge but the
-> problem still shows up. Are there others I should pick up? Hardware
-> details about the touchpad are at https://bugzilla.redhat.com/show_bug.cgi?id=1275718#c34
+> This should probably go with the other patch via arm-soc, or?
 
-Well, in that case can you please ask the reporter to bisect?
+The patch about i2c dts info for MT2701 depends on the MT2701 clock
+patch. After the MT2701 clock patch is accepted, the i2c patch for
+MT2701 may be accepted.
 
-Rafael
+The MT2701 clock patch:
+http://lists.infradead.org/pipermail/linux-mediatek/2016-January/003489.html
 
+> 
+> In that case:
+> 
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> 
