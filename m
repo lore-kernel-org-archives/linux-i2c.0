@@ -1,132 +1,89 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 00/16] intel-lpss: support non-ACPI platforms
-Date: Fri, 8 Jan 2016 20:22:15 +0100
-Message-ID: <56900C67.7050700@redhat.com>
-References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1855560.2DW9QAnCKL@vostro.rjw.lan> <568D3EA5.7040207@redhat.com>
- <6535017.eZvpZdlbGL@vostro.rjw.lan> <568FECF8.8070507@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <568FECF8.8070507@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Laura Abbott <labbott@redhat.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Tissoires <btissoir@redhat.com>
+From: richard.dorsch@gmail.com
+Subject: [PATCH 0/6] Add Advantech iManager EC driver set
+Date: Fri,  8 Jan 2016 14:29:20 -0800
+Message-ID: <1452292166-20118-1-git-send-email-richard.dorsch@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com, Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
-On 08-01-16 18:08, Laura Abbott wrote:
-> On 01/07/2016 04:03 PM, Rafael J. Wysocki wrote:
->> On Wednesday, January 06, 2016 08:19:49 AM Laura Abbott wrote:
->>> On 01/05/2016 03:59 PM, Rafael J. Wysocki wrote:
->>>> On Tuesday, January 05, 2016 09:57:35 AM Laura Abbott wrote:
->>>>> On 12/06/2015 05:44 PM, Rafael J. Wysocki wrote:
->>>>>> On Monday, November 30, 2015 05:11:28 PM Andy Shevchenko wrote:
->>>>>>> This series includes few logical sets that bring a support of non-ACPI
->>>>>>> platforms for Intel Skylake.
->>>>>>>
->>>>>>> First part is a refactoring of built-in device properties support:
->>>>>>> - keep single value inside the structure
->>>>>>> - provide helper macros to define built-in properties
->>>>>>> - fall back to secondary fwnode if primary has no asked property
->>>>>>>
->>>>>>> Second is a propagating built-in device properties in platform core.
->>>>>>>
->>>>>>> Third one is modifications to MFD code and intel-lpss.c driver in particular
->>>>>>> to define and pass built-in properties to the individual drivers.
->>>>>>>
->>>>>>> And last part is a fix for I2C bug found on Lenovo Yoga hardware and a first
->>>>>>> converted user.
->>>>>>>
->>>>>>> Built-in device properties is an alternative to platform data. It provides a
->>>>>>> unified API that drivers can use to cover all cases at once: DT, ACPI, and
->>>>>>> built-in properties.
->>>>>>>
->>>>>>> With this series applied a platform data can be considered obsolete. Moreover,
->>>>>>> built-in device properties allow to adjust the existing configuration, for
->>>>>>> example, in cases when ACPI values are wrong on some platforms.
->>>>>>>
->>>>>>> The series has been tested on available hardware and doesn't break current
->>>>>>> behaviour. But we ask people who have the affected hardware to apply the series
->>>>>>> on your side and check with Lenovo hardware.
->>>>>>>
->>>>>>> Changelog v2:
->>>>>>> - fix isuues found by kbuild bot (kbuild)
->>>>>>> - append a patch to propagate device properties in polatform code (Arnd)
->>>>>>> - update few existing and add couple of new patches due to above
->>>>>>> - check with kmemleak
->>>>>>>
->>>>>>> Andy Shevchenko (9):
->>>>>>>      device property: always check for fwnode type
->>>>>>>      device property: rename helper functions
->>>>>>>      device property: refactor built-in properties support
->>>>>>>      device property: keep single value inplace
->>>>>>>      device property: improve readability of macros
->>>>>>>      device property: return -EINVAL when property isn't found in ACPI
->>>>>>>      device property: Fallback to secondary fwnode if primary misses the
->>>>>>>        property
->>>>>>>      mfd: core: propagate device properties to sub devices drivers
->>>>>>>      mfd: intel-lpss: Pass HSUART configuration via properties
->>>>>>>
->>>>>>> Heikki Krogerus (1):
->>>>>>>      device property: helper macros for property entry creation
->>>>>>>
->>>>>>> Mika Westerberg (6):
->>>>>>>      device property: Take a copy of the property set
->>>>>>>      driver core: platform: Add support for built-in device properties
->>>>>>>      driver core: Do not overwrite secondary fwnode with NULL if it is set
->>>>>>>      mfd: intel-lpss: Add support for passing device properties
->>>>>>>      mfd: intel-lpss: Pass SDA hold time to I2C host controller driver
->>>>>>>      i2c: designware: Convert to use unified device property API
->>>>>>
->>>>>> I'm going to queue up this series for v4.5.
->>>>>>
->>>>>> If there are any problems with it or objections from anyone, please let me know.
->>>>>>
->>>>>
->>>>>
->>>>> Raising an old thread, I pulled this series into Fedora rawhide and
->>>>> while it worked for Lenovo Yoga we received a report that it caused
->>>>> a regression on the Dell Inspiron 7559 (see
->>>>> https://bugzilla.redhat.com/show_bug.cgi?id=1275718#c27) . I haven't
->>>>> asked the reporter about bisecting to see which patch broke it.
->>>>> Were there any known follow up patches?
->>>>
->>>> There were a few.
->>>>
->>>> All of them are in my linux-next branch if you can try this one.
->>>>
->>>> Alternatively, I can expose a branch with these to you to test.
->>>>
->>>
->>> I picked up all the patches from the device-properties merge but the
->>> problem still shows up. Are there others I should pick up? Hardware
->>> details about the touchpad are at https://bugzilla.redhat.com/show_bug.cgi?id=1275718#c34
->>
->> Well, in that case can you please ask the reporter to bisect?
->>
->> Rafael
->>
->
-> I'll see if I can help the reporter bisect although it looks like Hans
-> has an idea about what might be failing.
+The Advantech iManager is an embedded controller (depending on board type,
+ITE it8518/it8528) on which a custom firmware runs. All drivers (GPIO, I2C,
+HWmon, Watchdog, and backlight) are being managed by the imanager mfd driver.
+The imanager mfd driver acts as a 'gateway' and handles all communications
+between the EC and sub-drivers (GPIO, I2C, ...). The feature specific
+communication portions are split up into core files such as
+imanager-ec-[gpio, i2c, ...].
 
-Nope, sorry if I left the impression that I have an idea where things are failing.
+Richard Vidal-Dorsch (6):
+  Add Advantech iManager MFD core driver
+  Add Advantech iManager GPIO driver
+  Add Advantech iManager HWmon driver
+  Add Advantech iManager I2C driver
+  Add Advantech iManager Backlight driver
+  Add Advantech iManager Watchdog driver
 
-Benjamin Tissoires latest reply in this thread (or was it in bugzilla ?) however
-seems to point in the right direction, as with this patch-set the i2c controller
-on the laptop in question starts working (as intended by this patch-set) and then
-i2c-hid tries to talk to the touchpad, but fails too. However it gets far enough
-for the touchpad to drop of the ps/2 bus.
+ Documentation/devicetree/bindings/mfd/imanager.txt |   33 +
+ Documentation/hwmon/imanager                       |   59 +
+ Documentation/i2c/busses/i2c-imanager              |   48 +
+ MAINTAINERS                                        |   13 +
+ drivers/gpio/Kconfig                               |    8 +
+ drivers/gpio/Makefile                              |    2 +
+ drivers/gpio/imanager-ec-gpio.c                    |   98 ++
+ drivers/gpio/imanager-gpio.c                       |  182 +++
+ drivers/hwmon/Kconfig                              |   12 +
+ drivers/hwmon/Makefile                             |    2 +
+ drivers/hwmon/imanager-ec-hwmon.c                  |  606 +++++++++
+ drivers/hwmon/imanager-hwmon.c                     | 1058 +++++++++++++++
+ drivers/i2c/busses/Kconfig                         |   11 +
+ drivers/i2c/busses/Makefile                        |    2 +
+ drivers/i2c/busses/imanager-ec-i2c.c               |  466 +++++++
+ drivers/i2c/busses/imanager-i2c.c                  |  240 ++++
+ drivers/mfd/Kconfig                                |   20 +
+ drivers/mfd/Makefile                               |    2 +
+ drivers/mfd/imanager-core.c                        |  288 +++++
+ drivers/mfd/imanager-ec.c                          | 1345 ++++++++++++++++++++
+ drivers/video/backlight/Kconfig                    |   12 +
+ drivers/video/backlight/Makefile                   |    2 +
+ drivers/video/backlight/imanager-bl.c              |  199 +++
+ drivers/video/backlight/imanager-ec-bl.c           |  118 ++
+ drivers/watchdog/Kconfig                           |   12 +
+ drivers/watchdog/Makefile                          |    2 +
+ drivers/watchdog/imanager-ec-wdt.c                 |  170 +++
+ drivers/watchdog/imanager-wdt.c                    |  334 +++++
+ include/linux/mfd/imanager/backlight.h             |   37 +
+ include/linux/mfd/imanager/core.h                  |   31 +
+ include/linux/mfd/imanager/ec.h                    |  210 +++
+ include/linux/mfd/imanager/gpio.h                  |   27 +
+ include/linux/mfd/imanager/hwmon.h                 |  120 ++
+ include/linux/mfd/imanager/i2c.h                   |   55 +
+ include/linux/mfd/imanager/wdt.h                   |   37 +
+ 35 files changed, 5861 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/imanager.txt
+ create mode 100644 Documentation/hwmon/imanager
+ create mode 100644 Documentation/i2c/busses/i2c-imanager
+ create mode 100644 drivers/gpio/imanager-ec-gpio.c
+ create mode 100644 drivers/gpio/imanager-gpio.c
+ create mode 100644 drivers/hwmon/imanager-ec-hwmon.c
+ create mode 100644 drivers/hwmon/imanager-hwmon.c
+ create mode 100644 drivers/i2c/busses/imanager-ec-i2c.c
+ create mode 100644 drivers/i2c/busses/imanager-i2c.c
+ create mode 100644 drivers/mfd/imanager-core.c
+ create mode 100644 drivers/mfd/imanager-ec.c
+ create mode 100644 drivers/video/backlight/imanager-bl.c
+ create mode 100644 drivers/video/backlight/imanager-ec-bl.c
+ create mode 100644 drivers/watchdog/imanager-ec-wdt.c
+ create mode 100644 drivers/watchdog/imanager-wdt.c
+ create mode 100644 include/linux/mfd/imanager/backlight.h
+ create mode 100644 include/linux/mfd/imanager/core.h
+ create mode 100644 include/linux/mfd/imanager/ec.h
+ create mode 100644 include/linux/mfd/imanager/gpio.h
+ create mode 100644 include/linux/mfd/imanager/hwmon.h
+ create mode 100644 include/linux/mfd/imanager/i2c.h
+ create mode 100644 include/linux/mfd/imanager/wdt.h
 
-So what seems to be happening is that this is a dual protocol / bus (ps2 / i2c)
-touchpad (not that uncommon actually) and now that we've the i2c bus working due
-to this patchset, we start talking i2c to the touchpad, kicking it from ps2 mode
-to i2c mode, but our i2c driver then fails to work properly with the touchpad
-leaving it non functional.
-
-Regards,
-
-Hans
+-- 
+2.6.4
