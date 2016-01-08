@@ -1,41 +1,42 @@
-From: liguo zhang <liguo.zhang@mediatek.com>
-Subject: Re: [PATCH 1/2] Document: i2c: Add a dt binding for mediatek MT2701
- soc
-Date: Fri, 8 Jan 2016 09:12:53 +0800
-Message-ID: <1452215573.2088.1.camel@mhfsdcap03>
-References: <1451888138-11471-1-git-send-email-liguo.zhang@mediatek.com>
-	 <20160104095511.GB1524@katana>
+From: Gao Pan <pandy.gao@nxp.com>
+Subject: [Patch v1] imx: i2c: fix i2c resource leak with dma transfer
+Date: Fri, 8 Jan 2016 13:33:15 +0800
+Message-ID: <1452231195-18425-1-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([218.249.47.110]:40673 "EHLO
-	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752189AbcAHBND (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Jan 2016 20:13:03 -0500
-In-Reply-To: <20160104095511.GB1524@katana>
+Received: from mail-am1on0095.outbound.protection.outlook.com ([157.56.112.95]:61152
+	"EHLO emea01-am1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751074AbcAHHHh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 8 Jan 2016 02:07:37 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de
+Cc: linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com, pandy.gao@nxp.com, kernel@pengutronix.de
 
-On Mon, 2016-01-04 at 10:55 +0100, Wolfram Sang wrote:
-> On Mon, Jan 04, 2016 at 02:15:37PM +0800, Liguo Zhang wrote:
-> > Add a dt binding for the MT2701 soc.
-> > 
-> > Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
-> 
-> This should probably go with the other patch via arm-soc, or?
+In i2c_imx_dma_xfer(), when dmaengine_submit() returns error,
+the context goto label err_submit and then return. However, the
+memory allocated for txdesc has not been freed yet, which
+leads to resource leak.
 
-The patch about i2c dts info for MT2701 depends on the MT2701 clock
-patch. After the MT2701 clock patch is accepted, the i2c patch for
-MT2701 may be accepted.
+Signed-off-by: Gao Pan <b54642@freescale.com>
+Signed-off-by: Fugang Duan <B38611@freescale.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-The MT2701 clock patch:
-http://lists.infradead.org/pipermail/linux-mediatek/2016-January/003489.html
-
-> 
-> In that case:
-> 
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> 
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 8b68dbf..a2b132c 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -387,6 +387,7 @@ static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
+ 	return 0;
+ 
+ err_submit:
++	dmaengine_terminate_all(dma->chan_using);
+ err_desc:
+ 	dma_unmap_single(chan_dev, dma->dma_buf,
+ 			dma->dma_len, dma->dma_data_dir);
+-- 
+1.9.1
