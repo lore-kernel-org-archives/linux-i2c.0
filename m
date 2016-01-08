@@ -1,117 +1,115 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: [PATCH v3 7/8] i2c: muxes always lock the parent adapter
-Date: Fri,  8 Jan 2016 16:04:55 +0100
-Message-ID: <1452265496-22475-8-git-send-email-peda@lysator.liu.se>
-References: <1452265496-22475-1-git-send-email-peda@lysator.liu.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1452265496-22475-1-git-send-email-peda@lysator.liu.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Adriana Reus <adriana.reus@intel.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>, Nicholas Mc Guire <hofrat@osadl.org>, Olli Salonen <olli.salonen@iki.fi>, Peter Rosin <peda@lysator.liu.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org, devicetree@vger.ker
+From: Laura Abbott <labbott@redhat.com>
+Subject: Re: [PATCH v2 00/16] intel-lpss: support non-ACPI platforms
+Date: Fri, 8 Jan 2016 09:08:08 -0800
+Message-ID: <568FECF8.8070507@redhat.com>
+References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1855560.2DW9QAnCKL@vostro.rjw.lan> <568D3EA5.7040207@redhat.com>
+ <6535017.eZvpZdlbGL@vostro.rjw.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <6535017.eZvpZdlbGL@vostro.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Peter Rosin <peda@axentia.se>
+On 01/07/2016 04:03 PM, Rafael J. Wysocki wrote:
+> On Wednesday, January 06, 2016 08:19:49 AM Laura Abbott wrote:
+>> On 01/05/2016 03:59 PM, Rafael J. Wysocki wrote:
+>>> On Tuesday, January 05, 2016 09:57:35 AM Laura Abbott wrote:
+>>>> On 12/06/2015 05:44 PM, Rafael J. Wysocki wrote:
+>>>>> On Monday, November 30, 2015 05:11:28 PM Andy Shevchenko wrote:
+>>>>>> This series includes few logical sets that bring a support of non-ACPI
+>>>>>> platforms for Intel Skylake.
+>>>>>>
+>>>>>> First part is a refactoring of built-in device properties support:
+>>>>>> - keep single value inside the structure
+>>>>>> - provide helper macros to define built-in properties
+>>>>>> - fall back to secondary fwnode if primary has no asked property
+>>>>>>
+>>>>>> Second is a propagating built-in device properties in platform core.
+>>>>>>
+>>>>>> Third one is modifications to MFD code and intel-lpss.c driver in particular
+>>>>>> to define and pass built-in properties to the individual drivers.
+>>>>>>
+>>>>>> And last part is a fix for I2C bug found on Lenovo Yoga hardware and a first
+>>>>>> converted user.
+>>>>>>
+>>>>>> Built-in device properties is an alternative to platform data. It provides a
+>>>>>> unified API that drivers can use to cover all cases at once: DT, ACPI, and
+>>>>>> built-in properties.
+>>>>>>
+>>>>>> With this series applied a platform data can be considered obsolete. Moreover,
+>>>>>> built-in device properties allow to adjust the existing configuration, for
+>>>>>> example, in cases when ACPI values are wrong on some platforms.
+>>>>>>
+>>>>>> The series has been tested on available hardware and doesn't break current
+>>>>>> behaviour. But we ask people who have the affected hardware to apply the series
+>>>>>> on your side and check with Lenovo hardware.
+>>>>>>
+>>>>>> Changelog v2:
+>>>>>> - fix isuues found by kbuild bot (kbuild)
+>>>>>> - append a patch to propagate device properties in polatform code (Arnd)
+>>>>>> - update few existing and add couple of new patches due to above
+>>>>>> - check with kmemleak
+>>>>>>
+>>>>>> Andy Shevchenko (9):
+>>>>>>      device property: always check for fwnode type
+>>>>>>      device property: rename helper functions
+>>>>>>      device property: refactor built-in properties support
+>>>>>>      device property: keep single value inplace
+>>>>>>      device property: improve readability of macros
+>>>>>>      device property: return -EINVAL when property isn't found in ACPI
+>>>>>>      device property: Fallback to secondary fwnode if primary misses the
+>>>>>>        property
+>>>>>>      mfd: core: propagate device properties to sub devices drivers
+>>>>>>      mfd: intel-lpss: Pass HSUART configuration via properties
+>>>>>>
+>>>>>> Heikki Krogerus (1):
+>>>>>>      device property: helper macros for property entry creation
+>>>>>>
+>>>>>> Mika Westerberg (6):
+>>>>>>      device property: Take a copy of the property set
+>>>>>>      driver core: platform: Add support for built-in device properties
+>>>>>>      driver core: Do not overwrite secondary fwnode with NULL if it is set
+>>>>>>      mfd: intel-lpss: Add support for passing device properties
+>>>>>>      mfd: intel-lpss: Pass SDA hold time to I2C host controller driver
+>>>>>>      i2c: designware: Convert to use unified device property API
+>>>>>
+>>>>> I'm going to queue up this series for v4.5.
+>>>>>
+>>>>> If there are any problems with it or objections from anyone, please let me know.
+>>>>>
+>>>>
+>>>>
+>>>> Raising an old thread, I pulled this series into Fedora rawhide and
+>>>> while it worked for Lenovo Yoga we received a report that it caused
+>>>> a regression on the Dell Inspiron 7559 (see
+>>>> https://bugzilla.redhat.com/show_bug.cgi?id=1275718#c27) . I haven't
+>>>> asked the reporter about bisecting to see which patch broke it.
+>>>> Were there any known follow up patches?
+>>>
+>>> There were a few.
+>>>
+>>> All of them are in my linux-next branch if you can try this one.
+>>>
+>>> Alternatively, I can expose a branch with these to you to test.
+>>>
+>>
+>> I picked up all the patches from the device-properties merge but the
+>> problem still shows up. Are there others I should pick up? Hardware
+>> details about the touchpad are at https://bugzilla.redhat.com/show_bug.cgi?id=1275718#c34
+>
+> Well, in that case can you please ask the reporter to bisect?
+>
+> Rafael
+>
 
-Instead of checking for i2c parent adapters for every lock/unlock, simply
-override the locking for muxes to always lock/unlock the parent adapter
-directly.
+I'll see if I can help the reporter bisect although it looks like Hans
+has an idea about what might be failing.
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/i2c-core.c | 21 +++------------------
- drivers/i2c/i2c-mux.c  | 27 +++++++++++++++++++++++++++
- 2 files changed, 30 insertions(+), 18 deletions(-)
+Thanks,
+Laura
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 34a7748b4652..4683777f81ca 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -963,12 +963,7 @@ static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
-  */
- static void i2c_adapter_lock_bus(struct i2c_adapter *adapter, int flags)
- {
--	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
--
--	if (parent)
--		i2c_lock_adapter(parent);
--	else
--		rt_mutex_lock(&adapter->bus_lock);
-+	rt_mutex_lock(&adapter->bus_lock);
- }
- 
- /**
-@@ -977,12 +972,7 @@ static void i2c_adapter_lock_bus(struct i2c_adapter *adapter, int flags)
-  */
- static int i2c_adapter_trylock_bus(struct i2c_adapter *adapter, int flags)
- {
--	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
--
--	if (parent)
--		return parent->trylock_bus(parent, flags);
--	else
--		return rt_mutex_trylock(&adapter->bus_lock);
-+	return rt_mutex_trylock(&adapter->bus_lock);
- }
- 
- /**
-@@ -991,12 +981,7 @@ static int i2c_adapter_trylock_bus(struct i2c_adapter *adapter, int flags)
-  */
- static void i2c_adapter_unlock_bus(struct i2c_adapter *adapter, int flags)
- {
--	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
--
--	if (parent)
--		i2c_unlock_adapter(parent);
--	else
--		rt_mutex_unlock(&adapter->bus_lock);
-+	rt_mutex_unlock(&adapter->bus_lock);
- }
- 
- static void i2c_dev_set_name(struct i2c_adapter *adap,
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 9bdebbdcbc61..fcfe51b023c0 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -98,6 +98,30 @@ static unsigned int i2c_mux_parent_classes(struct i2c_adapter *parent)
- 	return class;
- }
- 
-+static void i2c_parent_lock_bus(struct i2c_adapter *adapter, int flags)
-+{
-+	struct i2c_mux_priv *priv = adapter->algo_data;
-+	struct i2c_adapter *parent = priv->muxc->parent;
-+
-+	parent->lock_bus(parent, flags);
-+}
-+
-+static int i2c_parent_trylock_bus(struct i2c_adapter *adapter, int flags)
-+{
-+	struct i2c_mux_priv *priv = adapter->algo_data;
-+	struct i2c_adapter *parent = priv->muxc->parent;
-+
-+	return parent->trylock_bus(parent, flags);
-+}
-+
-+static void i2c_parent_unlock_bus(struct i2c_adapter *adapter, int flags)
-+{
-+	struct i2c_mux_priv *priv = adapter->algo_data;
-+	struct i2c_adapter *parent = priv->muxc->parent;
-+
-+	parent->unlock_bus(parent, flags);
-+}
-+
- int i2c_mux_reserve_adapters(struct i2c_mux_core *muxc, int adapters)
- {
- 	struct i2c_adapter **adapter;
-@@ -183,6 +207,9 @@ int i2c_add_mux_adapter(struct i2c_mux_core *muxc,
- 	priv->adap.retries = parent->retries;
- 	priv->adap.timeout = parent->timeout;
- 	priv->adap.quirks = parent->quirks;
-+	priv->adap.lock_bus = i2c_parent_lock_bus;
-+	priv->adap.trylock_bus = i2c_parent_trylock_bus;
-+	priv->adap.unlock_bus = i2c_parent_unlock_bus;
- 
- 	/* Sanity check on class */
- 	if (i2c_mux_parent_classes(parent) & class)
--- 
-2.1.4
