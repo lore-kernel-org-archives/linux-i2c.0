@@ -1,33 +1,44 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH 6/6] Add Advantech iManager Watchdog driver
-Date: Sat, 9 Jan 2016 10:02:21 +0800
-Message-ID: <201601091012.XHk6Lh1F%fengguang.wu@intel.com>
-References: <1452292166-20118-7-git-send-email-richard.dorsch@gmail.com>
+From: Andy Gross <andy.gross@linaro.org>
+Subject: Re: [V5, 3/6] i2c: qup: Transfer each i2c_msg in i2c_msgs without a
+ stop bit
+Date: Fri, 8 Jan 2016 22:36:11 -0600
+Message-ID: <20160109043611.GB4616@hector.attlocal.net>
+References: <1447760727-4897-4-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ob0-f182.google.com ([209.85.214.182]:34947 "EHLO
+	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750791AbcAIEgO (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 8 Jan 2016 23:36:14 -0500
+Received: by mail-ob0-f182.google.com with SMTP id xn1so96115393obc.2
+        for <linux-i2c@vger.kernel.org>; Fri, 08 Jan 2016 20:36:14 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1452292166-20118-7-git-send-email-richard.dorsch@gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com, Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+In-Reply-To: <1447760727-4897-4-git-send-email-sricharan@codeaurora.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sricharan R <sricharan@codeaurora.org>
+Cc: iivanov@mm-sol.com, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Hi Richard,
+On Tue, Nov 17, 2015 at 05:15:24PM +0530, Sricharan R wrote:
+> The definition of i2c_msg says that
+> 
+> "If this is the last message in a group, it is followed by a STOP.
+> Otherwise it is followed by the next @i2c_msg transaction segment,
+> beginning with a (repeated) START"
+> 
+> So the expectation is that there is no 'STOP' bit inbetween individual
+> i2c_msg segments with repeated 'START'. The QUP i2c hardware has no way
+> to inform that there should not be a 'STOP' at the end of transaction.
+> The only way to implement this is to coalesce all the i2c_msg in i2c_msgs
+> in to one transaction and transfer them. Adding the support for the same.
+> 
+> This is required for some clients like touchscreen which keeps
+> incrementing counts across individual transfers and 'STOP' bit inbetween
+> resets the counter, which is not required.
+> 
+> This patch adds the support in non-dma mode.
+> 
+> Signed-off-by: Sricharan R <sricharan@codeaurora.org>
 
-[auto build test WARNING on hwmon/hwmon-next]
-[also build test WARNING on v4.4-rc8 next-20160108]
-[if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
-
-url:    https://github.com/0day-ci/linux/commits/richard-dorsch-gmail-com/Add-Advantech-iManager-EC-driver-set/20160109-063329
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git hwmon-next
-
-
-coccinelle warnings: (new ones prefixed by >>)
-
->> drivers/watchdog/imanager-wdt.c:322:3-8: No need to set .owner here. The core will do it.
-
-Please review and possibly fold the followup patch.
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+Reviewed-by: Andy Gross <andy.gross@linaro.org>
