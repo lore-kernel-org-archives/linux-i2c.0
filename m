@@ -1,134 +1,82 @@
-From: richard.dorsch@gmail.com
-Subject: [PATCH v2 4/6] Add Advantech iManager I2C driver
-Date: Sun, 10 Jan 2016 01:11:26 -0800
-Message-ID: <1452417086-28600-1-git-send-email-richard.dorsch@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com, Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+From: richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: [PATCH v2 6/6] Add Advantech iManager Watchdog driver
+Date: Sun, 10 Jan 2016 01:11:52 -0800
+Message-ID: <1452417112-28728-1-git-send-email-richard.dorsch@gmail.com>
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, jo.sunga-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org, Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+From: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+Signed-off-by: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- Documentation/i2c/busses/i2c-imanager |  48 ++++
- drivers/i2c/busses/Kconfig            |  11 +
- drivers/i2c/busses/Makefile           |   2 +
- drivers/i2c/busses/imanager-ec-i2c.c  | 466 ++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/imanager-i2c.c     | 240 +++++++++++++++++
- include/linux/mfd/imanager/i2c.h      |  55 ++++
- 6 files changed, 822 insertions(+)
- create mode 100644 Documentation/i2c/busses/i2c-imanager
- create mode 100644 drivers/i2c/busses/imanager-ec-i2c.c
- create mode 100644 drivers/i2c/busses/imanager-i2c.c
- create mode 100644 include/linux/mfd/imanager/i2c.h
+ drivers/watchdog/Kconfig           |  12 ++
+ drivers/watchdog/Makefile          |   2 +
+ drivers/watchdog/imanager-ec-wdt.c | 170 +++++++++++++++++++
+ drivers/watchdog/imanager-wdt.c    | 333 +++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/imanager/wdt.h   |  37 +++++
+ 5 files changed, 554 insertions(+)
+ create mode 100644 drivers/watchdog/imanager-ec-wdt.c
+ create mode 100644 drivers/watchdog/imanager-wdt.c
+ create mode 100644 include/linux/mfd/imanager/wdt.h
 
-diff --git a/Documentation/i2c/busses/i2c-imanager b/Documentation/i2c/busses/i2c-imanager
-new file mode 100644
-index 0000000..d149fbf
---- /dev/null
-+++ b/Documentation/i2c/busses/i2c-imanager
-@@ -0,0 +1,48 @@
-+Kernel driver imanager_i2c
-+==========================
-+
-+This platform driver provides support for iManager I2C/SMBus.
-+
-+This driver depends on imanager (mfd).
-+
-+Module Parameters
-+-----------------
-+
-+* bus_frequency (unsigned short)
-+Set desired bus frequency. Valid values (kHz) are:
-+  50  Slow
-+ 100  Standard (default)
-+ 400  Fast
-+
-+
-+Description
-+-----------
-+
-+The Advantech iManager provides up to four SMBus controllers. One of them
-+is configured for I2C compatibility.
-+
-+
-+Process Call Support
-+--------------------
-+
-+Not supported.
-+
-+
-+I2C Block Read Support
-+----------------------
-+
-+I2C block read is supported.
-+
-+
-+SMBus 2.0 Support
-+-----------------
-+
-+Several SMBus 2.0 features are supported.
-+No PEC support.
-+
-+
-+Interrupt Support
-+-----------------
-+
-+No interrupt support available
-+
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 7b0aa82..4c401a4 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -42,6 +42,17 @@ config I2C_ALI15X3
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-ali15x3.
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 1c427be..e555127 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -846,6 +846,18 @@ config ITCO_VENDOR_SUPPORT
+ 	  devices. At this moment we only have additional support for some
+ 	  SuperMicro Inc. motherboards.
  
-+config I2C_IMANAGER
-+	tristate "Advantech iManager I2C Interface"
++config IMANAGER_WDT
++	tristate "Advantech iManager Watchdog"
 +	depends on MFD_IMANAGER
++	select WATCHDOG_CORE
 +	help
-+	  This enables support for Advantech iManager I2C of some
-+	  Advantech SOM, MIO, AIMB, and PCM modules/boards.
++	  This driver provides support for Advantech iManager watchdog
++	  of Advantech SOM, MIO, AIMB, and PCM modules/boards.
 +	  Requires mfd-core and imanager-core to function properly.
 +
-+	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-imanager.
++	  This driver can also be built as a module.  If so, the module
++	  will be called imanager_wdt.
 +
- config I2C_AMD756
- 	tristate "AMD 756/766/768/8111 and nVidia nForce"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 37f2819..da76404 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -15,6 +15,8 @@ obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
- obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
- obj-$(CONFIG_I2C_ISCH)		+= i2c-isch.o
- obj-$(CONFIG_I2C_ISMT)		+= i2c-ismt.o
-+i2c-imanager-objs		:= imanager-i2c.o imanager-ec-i2c.o
-+obj-$(CONFIG_I2C_IMANAGER)	+= i2c-imanager.o
- obj-$(CONFIG_I2C_NFORCE2)	+= i2c-nforce2.o
- obj-$(CONFIG_I2C_NFORCE2_S4985)	+= i2c-nforce2-s4985.o
- obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
-diff --git a/drivers/i2c/busses/imanager-ec-i2c.c b/drivers/i2c/busses/imanager-ec-i2c.c
+ config IT8712F_WDT
+ 	tristate "IT8712F (Smart Guardian) Watchdog Timer"
+ 	depends on X86
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 53d4827..647eca87 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -100,6 +100,8 @@ obj-$(CONFIG_ITCO_WDT) += iTCO_wdt.o
+ ifeq ($(CONFIG_ITCO_VENDOR_SUPPORT),y)
+ obj-$(CONFIG_ITCO_WDT) += iTCO_vendor_support.o
+ endif
++imanager_wdt-objs := imanager-wdt.o imanager-ec-wdt.o
++obj-$(CONFIG_IMANAGER_WDT) += imanager_wdt.o
+ obj-$(CONFIG_IT8712F_WDT) += it8712f_wdt.o
+ obj-$(CONFIG_IT87_WDT) += it87_wdt.o
+ obj-$(CONFIG_HP_WATCHDOG) += hpwdt.o
+diff --git a/drivers/watchdog/imanager-ec-wdt.c b/drivers/watchdog/imanager-ec-wdt.c
 new file mode 100644
-index 0000000..f8839dc
+index 0000000..9c94b21
 --- /dev/null
-+++ b/drivers/i2c/busses/imanager-ec-i2c.c
-@@ -0,0 +1,466 @@
++++ b/drivers/watchdog/imanager-ec-wdt.c
+@@ -0,0 +1,170 @@
 +/*
-+ * Advantech iManager I2C bus core
++ * Advantech iManager Watchdog core
 + *
 + * Copyright (C) 2016 Advantech Co., Ltd., Irvine, CA, USA
-+ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
++ * Author: Richard Vidal-Dorsch <richard.dorsch-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org>
 + *
 + * This program is free software; you can redistribute  it and/or modify it
 + * under  the terms of  the GNU General  Public License as published by the
 + * Free Software Foundation;  either version 2 of the  License, or (at your
 + * option) any later version.
++ *
++ * Note: Current release only implements RESET of the EC WDT.
++ *       In other words, no PWR button, NMI, SCI, IRQ, or WDPin support yet!
 + */
 +
 +#include <linux/types.h>
@@ -138,464 +86,165 @@ index 0000000..f8839dc
 +#include <linux/delay.h>
 +#include <linux/string.h>
 +#include <linux/byteorder/generic.h>
++#include <linux/swab.h>
 +#include <linux/mfd/imanager/ec.h>
-+#include <linux/mfd/imanager/i2c.h>
++#include <linux/mfd/imanager/wdt.h>
 +
-+#define I2C_SMBUS_BLOCK_SIZE	32
++/* Timer resolution */
++#define WDT_FREQ	10 /* Hz */
 +
-+#define EVAL_WR_SIZE(x)	\
-+		(x < I2C_SMBUS_BLOCK_SIZE ? x : I2C_SMBUS_BLOCK_SIZE - 1)
-+#define EVAL_RD_SIZE(x) \
-+		(x && (x <= I2C_SMBUS_BLOCK_SIZE) ? x : I2C_SMBUS_BLOCK_SIZE)
-+
-+#define EC_HWRAM_OFFSET_STATUS	0UL
-+
-+#define I2C_ERR_PROTO		0x19UL
-+#define I2C_ERR_TIMEOUT		0x18UL
-+#define I2C_ERR_ACCESS		0x17UL
-+#define I2C_ERR_UNKNOWN		0x13UL
-+#define I2C_ERR_ADDR_NACK	0x10UL
-+
-+#define EC_SMB_DID(N)		(0x28 + N)
-+
-+struct ec_i2c_status {
-+	u32 error	: 7;
-+	u32 complete	: 1;
++enum wdt_ctrl {
++	START = 1,
++	STOP,
++	RST,
++	GET_TIMEOUT,
++	SET_TIMEOUT,
++	STOPBOOT = 8,
 +};
 +
-+static const struct imanager_i2c_device *i2c;
++struct wdt_event_delay {
++	u16	delay,
++		pwrbtn,
++		nmi,
++		reset,
++		wdpin,
++		sci,
++		dummy;
++};
 +
-+static int i2c_core_eval_status(u8 _status)
++static const struct imanager_watchdog_device *wd;
++
++static inline int set_timer(enum wdt_ctrl ctrl)
 +{
-+	struct ec_i2c_status *status = (struct ec_i2c_status *)&_status;
-+	int err = 0;
-+
-+	switch (status->error) {
-+	case 0:
-+		break;
-+	case I2C_ERR_ADDR_NACK:
-+		err = -ENODEV;
-+		break;
-+	case I2C_ERR_ACCESS:
-+	case I2C_ERR_UNKNOWN:
-+		err = -EAGAIN;
-+		break;
-+	case I2C_ERR_TIMEOUT:
-+		err = -ETIME;
-+		break;
-+	case I2C_ERR_PROTO:
-+		err = -EPROTO;
-+		break;
-+	default:
-+		pr_err("Undefined status code 0x%02X\n", status->error);
-+		err = -EIO;
-+		break;
-+	}
-+
-+	return err;
-+}
-+
-+static inline int i2c_send_message(u8 cmd, u8 param, struct ec_message *msg)
-+{
-+	int err;
-+
-+	err = imanager_msg_write(cmd, param, msg);
-+	if (err)
-+		return i2c_core_eval_status(err);
-+
-+	return 0;
-+}
-+
-+static int i2c_core_blk_wr_rw_combined(u8 proto, struct ec_message *msg)
-+{
-+	int err;
-+
-+	if (WARN_ON(!msg))
++	if (WARN_ON(ctrl == SET_TIMEOUT))
 +		return -EINVAL;
 +
-+	err = imanager_wait_proc_complete(EC_HWRAM_OFFSET_STATUS, 0);
-+	if (err)
-+		return err;
-+
-+	err = i2c_send_message(proto, i2c->i2coem->did, msg);
-+	if (err)
-+		return err;
-+
-+	if (msg->rlen) {
-+		if (msg->rlen == 1)
-+			return msg->u.data[0];
-+		else if (msg->rlen == 2)
-+			return (msg->u.data[1] << 8) | msg->u.data[0];
-+		else
-+			return msg->rlen;
-+	}
-+
-+	return 0;
++	return imanager_msg_write(EC_CMD_WDT_CTRL, ctrl, NULL);
 +}
 +
-+/* Write-Read and Read-Write wrappers */
-+static inline int i2c_core_wr_combined(struct ec_message *msg)
++static int
++wdt_ctrl(enum wdt_ctrl ctrl, enum wdt_event type, unsigned int timeout)
 +{
-+	return i2c_core_blk_wr_rw_combined(EC_CMD_I2C_WR, msg);
-+}
-+
-+static inline int i2c_core_rw_combined(struct ec_message *msg)
-+{
-+	return i2c_core_blk_wr_rw_combined(EC_CMD_I2C_RW, msg);
-+}
-+
-+/*
-+ * iManager I2C core API
-+ */
-+int i2c_core_write_quick(u16 addr)
-+{
++	u16 val;
++	int ret;
 +	struct ec_message msg = {
 +		.rlen = 0,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 0,
-+				.wlen = 1,
-+			},
-+		},
++		.wlen = 0,
 +	};
++	u8 *fevent = &msg.u.data[0];
++	struct wdt_event_delay *event =
++				(struct wdt_event_delay *)&msg.u.data[1];
 +
-+	return i2c_core_wr_combined(&msg);
-+}
++	switch (ctrl) {
++	case SET_TIMEOUT:
++		memset(event, 0xff, sizeof(*event));
++		msg.wlen = sizeof(*event);
++		*fevent = 0;
++		val = (!timeout) ? 0xffff : swab16(timeout * WDT_FREQ);
 +
-+int i2c_core_read_byte(u16 addr)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 1,
-+				.wlen = 0,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_rw_combined(&msg);
-+}
-+
-+int i2c_core_write_byte(u16 addr, u8 cmd)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 1,
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_read_byte_data(u16 addr, u8 cmd)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 1,
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_write_byte_data(u16 addr, u8 cmd, u8 value)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header) + 1,
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 0,
-+				.wlen = 2,
-+				.cmd  = cmd,
-+			},
-+			.smb.data[0] = value,
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_read_word_data(u16 addr, u8 cmd)
-+{
-+	struct ec_message msg = {
-+		.rlen = 2,
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 2,
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_write_word_data(u16 addr, u8 cmd, u16 value)
-+{
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header) + 2,
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 0,
-+				.wlen = 3,
-+				.cmd  = cmd,
-+			},
-+			.smb.data[0] = LOBYTE16(value),
-+			.smb.data[1] = HIBYTE16(value),
-+		},
-+	};
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_write_block_data(u16 addr, u8 cmd, u8 *buf)
-+{
-+	int i;
-+	struct ec_message msg = {
-+		.rlen = 1,
-+		.wlen = sizeof(struct ec_message_header) +
-+			EVAL_WR_SIZE(buf[0]),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = 0,
-+				.wlen = 1 + EVAL_WR_SIZE(buf[0]),
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	if ((buf[0] == 0) || (buf[0] >= I2C_MAX_WRITE_BYTES)) {
-+		pr_err("Invalid I2C write length %d\n", buf[0]);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < EVAL_WR_SIZE(buf[0]); i++)
-+		msg.u.data[i + sizeof(struct ec_message_header)] = buf[i + 1];
-+
-+	return i2c_core_wr_combined(&msg);
-+}
-+
-+int i2c_core_read_block_data(u16 addr, u8 cmd, u8 *buf)
-+{
-+	int i;
-+	int ret;
-+	struct ec_message msg = {
-+		.rlen = EVAL_RD_SIZE(buf[0]),
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = EVAL_RD_SIZE(buf[0]),
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	/*
-+	 * If buf[0] == 0 EC will read I2C_MAX_READ_BYTES
-+	 */
-+	ret = i2c_core_wr_combined(&msg);
-+	if (ret < 0) {
-+		pr_err("I2C transaction failed\n");
-+		return ret;
-+	}
-+
-+	buf[0] = ret;
-+	for (i = 0; i < ret; i++)
-+		buf[i + 1] = msg.u.data[i];
-+
-+	return 0;
-+}
-+
-+int i2c_core_read_i2c_block_data(u16 addr, u8 cmd, u8 *buf)
-+{
-+	int i;
-+	int ret;
-+	struct ec_message msg = {
-+		.rlen = EVAL_RD_SIZE(buf[0]),
-+		.wlen = sizeof(struct ec_message_header),
-+		.u = {
-+			.smb.hdr = {
-+				.addr_low  = LOADDR16(addr),
-+				.addr_high = HIADDR16(addr),
-+				.rlen = EVAL_RD_SIZE(buf[0]),
-+				.wlen = 1,
-+				.cmd  = cmd,
-+			},
-+		},
-+	};
-+
-+	if ((buf[0] == 0) || (buf[0] > I2C_MAX_READ_BYTES)) {
-+		pr_err("Invalid I2C read length\n");
-+		return -EINVAL;
-+	}
-+
-+	ret = i2c_core_wr_combined(&msg);
-+	if (ret < 0) {
-+		pr_err("I2C transaction failed\n");
-+		return ret;
-+	}
-+
-+	buf[0] = ret;
-+	for (i = 0; i < ret; i++)
-+		buf[i + 1] = msg.u.data[i];
-+
-+	return 0;
-+}
-+
-+int i2c_core_write_i2c_block_data(u16 addr, u8 cmd, u8 *buf)
-+{
-+	if (WARN_ON(!buf))
-+		return -EINVAL;
-+
-+	return i2c_core_write_block_data(addr, cmd, buf);
-+}
-+
-+int i2c_core_smb_get_freq(u32 bus_id)
-+{
-+	int ret = 0, f;
-+	int freq_id, freq;
-+
-+	if (WARN_ON(bus_id > I2C_OEM_1))
-+		return -EINVAL;
-+
-+	switch (i2c->ecdev->id) {
-+	case IT8518:
-+	case IT8528:
-+		ret = imanager_read_word(EC_CMD_SMB_FREQ_RD,
-+					 EC_SMB_DID(bus_id));
-+		if (ret < 0) {
-+			pr_err("Failed to get bus frequency\n");
-+			return ret;
-+		}
-+
-+		freq_id = HIBYTE16(ret);
-+		f = LOBYTE16(ret);
-+		switch (freq_id) {
-+		case 0:
-+			freq = f;
++		switch (type) {
++		case DELAY:
++			event->delay = val;
 +			break;
-+		case 1:
-+			freq = 50;
++		case PWRBTN:
++			event->pwrbtn = val;
 +			break;
-+		case 2:
-+			freq = 100;
++		case NMI:
++			event->nmi = val;
 +			break;
-+		case 3:
-+			freq = 400;
++		case RESET:
++			event->reset = val;
++			break;
++		case WDPIN:
++			event->wdpin = val;
++			break;
++		case SCI:
++			event->sci = val;
 +			break;
 +		default:
 +			return -EINVAL;
 +		}
++
++		ret = imanager_msg_write(EC_CMD_WDT_CTRL, SET_TIMEOUT, &msg);
++		if (ret < 0) {
++			pr_err("Failed to set timeout\n");
++			return ret;
++		}
 +		break;
++	case START:
++	case STOP:
++	case RST:
++	case STOPBOOT:
++		/* simple command, no data */
++		return imanager_msg_write(EC_CMD_WDT_CTRL, ctrl, NULL);
 +	default:
-+		pr_err("EC version not supported!\n");
-+		return -ENODEV;
-+	}
-+
-+	return freq;
-+}
-+
-+int i2c_core_smb_set_freq(u32 bus_id, u32 freq)
-+{
-+	int err;
-+	u16 val;
-+
-+	if (WARN_ON(bus_id > I2C_OEM_1))
 +		return -EINVAL;
-+
-+	switch (i2c->ecdev->id) {
-+	case IT8518:
-+	case IT8528:
-+		switch (freq) {
-+		case 50:
-+			val = 0x0100;
-+			break;
-+		case 100:
-+			val = 0x0200;
-+			break;
-+		case 400:
-+			val = 0x0300;
-+			break;
-+		default:
-+			if (freq < 50)
-+				val = freq;
-+			else
-+				return -EINVAL;
-+		}
-+
-+		err = imanager_write_word(EC_CMD_SMB_FREQ_WR,
-+					  EC_SMB_DID(bus_id), val);
-+		if (err) {
-+			pr_err("Failed to set I2C bus frequency\n");
-+			return err;
-+		}
-+		break;
-+	default:
-+		pr_err("EC version not supported!\n");
-+		return -ENODEV;
 +	}
 +
-+	return 0;
++	return timeout;
 +}
 +
-+int i2c_core_init(void)
++int wdt_core_start_timer(void)
 +{
-+	i2c = imanager_get_i2c_device();
-+	if (!i2c)
++	return set_timer(START);
++}
++
++int wdt_core_stop_timer(void)
++{
++	return set_timer(STOP);
++}
++
++int wdt_core_reset_timer(void)
++{
++	return set_timer(RST);
++}
++
++int wdt_core_stop_boot_timer(void)
++{
++	return set_timer(STOPBOOT);
++}
++
++inline int wdt_core_set_timeout(enum wdt_event type, u32 timeout)
++{
++	return wdt_ctrl(SET_TIMEOUT, type, timeout);
++}
++
++int wdt_core_disable_all(void)
++{
++	struct ec_message msg = {
++		.rlen = 0,
++		.wlen = sizeof(struct wdt_event_delay),
++	};
++	struct wdt_event_delay *event =
++				(struct wdt_event_delay *)&msg.u.data[1];
++
++	memset(event, 0xff, sizeof(*event));
++
++	return  (wdt_core_stop_timer() ||
++		 wdt_core_stop_boot_timer() ||
++		 imanager_msg_write(EC_CMD_WDT_CTRL, SET_TIMEOUT, &msg));
++}
++
++int wdt_core_init(void)
++{
++	wd = imanager_get_watchdog_device();
++	if (!wd)
 +		return -ENODEV;
 +
 +	return 0;
 +}
 +
-diff --git a/drivers/i2c/busses/imanager-i2c.c b/drivers/i2c/busses/imanager-i2c.c
+diff --git a/drivers/watchdog/imanager-wdt.c b/drivers/watchdog/imanager-wdt.c
 new file mode 100644
-index 0000000..bbfd453
+index 0000000..10f8e22
 --- /dev/null
-+++ b/drivers/i2c/busses/imanager-i2c.c
-@@ -0,0 +1,240 @@
++++ b/drivers/watchdog/imanager-wdt.c
+@@ -0,0 +1,333 @@
 +/*
-+ * Advantech iManager I2C bus driver
++ * Advantech iManager Watchdog driver
 + *
 + * Copyright (C) 2016 Advantech Co., Ltd., Irvine, CA, USA
-+ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
++ * Author: Richard Vidal-Dorsch <richard.dorsch-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org>
 + *
 + * This program is free software; you can redistribute  it and/or modify it
 + * under  the terms of  the GNU General  Public License as published by the
@@ -605,140 +254,264 @@ index 0000000..bbfd453
 +
 +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 +
-+#include <linux/kernel.h>
 +#include <linux/module.h>
-+#include <linux/slab.h>
++#include <linux/moduleparam.h>
++#include <linux/types.h>
++#include <linux/watchdog.h>
++#include <linux/notifier.h>
++#include <linux/reboot.h>
++#include <linux/uaccess.h>
 +#include <linux/platform_device.h>
-+#include <linux/i2c.h>
 +#include <linux/mfd/imanager/core.h>
-+#include <linux/mfd/imanager/i2c.h>
++#include <linux/mfd/imanager/wdt.h>
 +
-+static uint bus_frequency = 100;
-+module_param(bus_frequency, uint, 0);
-+MODULE_PARM_DESC(bus_frequency,
-+	"I2C bus frequency [50, 100, 400]kHz (defaults to 100kHz)");
++#define WATCHDOG_TIMEOUT 30 /* in seconds */
 +
-+struct imanager_i2c_data {
-+	struct imanager_device_data *idev;
-+	struct i2c_adapter adapter;
-+};
++static unsigned long last_updated = -1;
 +
-+static int imanager_smb_access(struct i2c_adapter *adap, u16 addr,
-+	unsigned short flags, char read_write, u8 command,
-+	int size, union i2c_smbus_data *smb_data)
++static uint timeout = WATCHDOG_TIMEOUT;
++module_param(timeout, uint, 0);
++MODULE_PARM_DESC(timeout,
++	"Watchdog timeout in seconds. 1 <= timeout <= 65534, default="
++	__MODULE_STRING(WATCHDOG_TIMEOUT) ".");
++
++static bool nowayout = WATCHDOG_NOWAYOUT;
++module_param(nowayout, bool, 0);
++MODULE_PARM_DESC(nowayout,
++	"Watchdog cannot be stopped once started (default="
++	__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
++
++static int wdt_start_timer(void)
 +{
-+	struct imanager_i2c_data *data = i2c_get_adapdata(adap);
-+	struct device *dev = data->adapter.dev.parent;
-+	int ret = 0;
-+	int val = 0;
++	int ret;
 +
-+	if (!data)
-+		return -ENODEV;
++	ret = wdt_core_start_timer();
++	if (ret < 0)
++		return ret;
 +
-+	addr <<= 1;
-+
-+	mutex_lock(&data->idev->lock);
-+
-+	switch (size) {
-+	case I2C_SMBUS_QUICK:
-+		ret = i2c_core_write_quick(addr);
-+		break;
-+	case I2C_SMBUS_BYTE:
-+		if (read_write == I2C_SMBUS_WRITE) /* NOT tested */
-+			val = i2c_core_write_byte(addr, command);
-+		else
-+			val = i2c_core_read_byte(addr);
-+
-+		if (val < 0)
-+			ret = val;
-+		else
-+			smb_data->byte = val;
-+		break;
-+	case I2C_SMBUS_BYTE_DATA:
-+		if (read_write == I2C_SMBUS_WRITE)
-+			val = i2c_core_write_byte_data(addr, command,
-+				smb_data->byte);
-+		else
-+			val = i2c_core_read_byte_data(addr, command);
-+
-+		if (val < 0)
-+			ret = val;
-+		else
-+			smb_data->byte = val;
-+		break;
-+	case I2C_SMBUS_WORD_DATA:
-+		if (read_write == I2C_SMBUS_WRITE)
-+			val = i2c_core_write_word_data(addr, command,
-+				smb_data->word);
-+		else
-+			val = i2c_core_read_word_data(addr, command);
-+
-+		if (val < 0)
-+			ret = val;
-+		else
-+			smb_data->word = val;
-+		break;
-+	case I2C_SMBUS_BLOCK_DATA:
-+		if (read_write == I2C_SMBUS_WRITE)
-+			ret = i2c_core_write_block_data(addr, command,
-+				smb_data->block);
-+		else
-+			ret = i2c_core_read_block_data(addr, command,
-+				smb_data->block);
-+		break;
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		if (read_write == I2C_SMBUS_WRITE)
-+			ret = i2c_core_write_i2c_block_data(addr, command,
-+				smb_data->block);
-+		else
-+			ret = i2c_core_read_i2c_block_data(addr, command,
-+				smb_data->block);
-+		break;
-+	default:
-+		dev_err(dev, "Unsupported SMB transaction %d\n", size);
-+		ret = -EOPNOTSUPP;
-+	}
-+
-+	mutex_unlock(&data->idev->lock);
-+
-+	return ret;
-+}
-+
-+static int imanager_i2c_access(struct i2c_adapter *adap, struct i2c_msg *msg,
-+			int num)
-+{
-+	struct imanager_i2c_data *data = i2c_get_adapdata(adap);
-+	struct device *dev = data->adapter.dev.parent;
-+
-+	/*
-+	 * To be implemented
-+	 */
-+
-+	dev_info(dev, "i2c_access() is not yet implemented. msg=%p, num=%d\n",
-+		 msg, num);
++	last_updated = jiffies;
 +
 +	return 0;
 +}
 +
-+static u32 imanager_smb_i2c_func(struct i2c_adapter *adapter)
++static int wdt_stop_timer(void)
 +{
-+	return	I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-+		I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+		I2C_FUNC_SMBUS_BLOCK_DATA |
-+		I2C_FUNC_SMBUS_I2C_BLOCK | I2C_FUNC_I2C;
++	int ret;
++
++	ret = wdt_core_stop_timer();
++	if (ret < 0)
++		return ret;
++
++	last_updated = 0;
++
++	return 0;
 +}
 +
-+static const struct i2c_algorithm imanager_algorithm = {
-+	.smbus_xfer     = imanager_smb_access,
-+	.master_xfer    = imanager_i2c_access,
-+	.functionality  = imanager_smb_i2c_func,
++static int wdt_ping(void)
++{
++	int ret;
++
++	ret = wdt_core_reset_timer();
++	if (ret < 0)
++		return ret;
++
++	last_updated = jiffies;
++
++	return 0;
++}
++
++static int imanager_wdt_set(unsigned int _timeout)
++{
++	int ret;
++
++	if (timeout != _timeout)
++		timeout = _timeout;
++
++	ret = wdt_core_set_timeout(PWRBTN, timeout);
++	if (ret < 0)
++		return ret;
++
++	if (last_updated != 0)
++		last_updated = jiffies;
++
++	return 0;
++}
++
++static int imanager_wdt_set_timeout(struct watchdog_device *wdt_dev,
++				    unsigned int timeout)
++{
++	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
++	int ret = 0;
++
++	mutex_lock(&idev->lock);
++
++	ret = imanager_wdt_set(timeout);
++	if (ret < 0)
++		dev_err(wdt_dev->dev, "Failed to set timeout\n");
++	mutex_unlock(&idev->lock);
++
++	return ret;
++}
++
++static unsigned int imanager_wdt_get_timeleft(struct watchdog_device *wdt_dev)
++{
++	unsigned int timeleft = 0;
++	unsigned long time_diff = ((jiffies - last_updated) / HZ);
++
++	if (last_updated && (timeout > time_diff))
++		timeleft = timeout - time_diff;
++
++	return timeleft;
++}
++
++static int imanager_wdt_start(struct watchdog_device *wdt_dev)
++{
++	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
++	int ret = 0;
++
++	mutex_lock(&idev->lock);
++
++	ret = wdt_start_timer();
++	if (ret < 0)
++		dev_err(wdt_dev->dev, "Failed to start timer\n");
++
++	mutex_unlock(&idev->lock);
++
++	return ret;
++}
++
++static int imanager_wdt_stop(struct watchdog_device *wdt_dev)
++{
++	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
++	int ret = 0;
++
++	mutex_lock(&idev->lock);
++
++	ret = wdt_stop_timer();
++	if (ret < 0)
++		dev_err(wdt_dev->dev, "Failed to stop timer\n");
++
++	mutex_unlock(&idev->lock);
++
++	return ret;
++}
++
++static int imanager_wdt_ping(struct watchdog_device *wdt_dev)
++{
++	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
++	int ret = 0;
++
++	mutex_lock(&idev->lock);
++
++	ret = wdt_ping();
++	if (ret < 0)
++		dev_err(wdt_dev->dev, "Failed to reset timer\n");
++
++	mutex_unlock(&idev->lock);
++
++	return ret;
++}
++
++static long imanager_wdt_ioctl(struct watchdog_device *wdt_dev,
++			       unsigned int cmd, unsigned long arg)
++{
++	struct imanager_device_data *idev = watchdog_get_drvdata(wdt_dev);
++	void __user *argp = (void __user *)arg;
++	int __user *p = argp;
++	int ret = 0;
++	int timeval, options;
++	static const struct watchdog_info ident = {
++		.options = WDIOF_KEEPALIVEPING |
++			   WDIOF_SETTIMEOUT |
++			   WDIOF_MAGICCLOSE,
++		.firmware_version = 0,
++		.identity = "imanager_wdt",
++	};
++
++	mutex_lock(&idev->lock);
++
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		if (copy_to_user(argp, &ident, sizeof(ident)))
++			ret = -EFAULT;
++		break;
++	case WDIOC_GETSTATUS:
++	case WDIOC_GETBOOTSTATUS:
++		ret = put_user(0, p);
++		break;
++	case WDIOC_SETOPTIONS:
++		if (get_user(options, p)) {
++			ret = -EFAULT;
++			goto out;
++		}
++		if (options & WDIOS_DISABLECARD)
++			wdt_stop_timer();
++		if (options & WDIOS_ENABLECARD) {
++			wdt_ping();
++			wdt_start_timer();
++		}
++		break;
++	case WDIOC_KEEPALIVE:
++		wdt_ping();
++		break;
++	case WDIOC_SETTIMEOUT:
++		if (get_user(timeval, p)) {
++			ret = -EFAULT;
++			goto out;
++		}
++		if (imanager_wdt_set(timeval)) {
++			ret = -EINVAL;
++			goto out;
++		}
++		wdt_ping();
++		/* Fall through */
++	case WDIOC_GETTIMEOUT:
++		ret = put_user(timeout, p);
++		break;
++	case WDIOC_GETTIMELEFT:
++		timeval = imanager_wdt_get_timeleft(wdt_dev);
++		ret = put_user(timeval, p);
++		break;
++	default:
++		ret = -ENOTTY;
++	}
++
++out:
++	mutex_unlock(&idev->lock);
++
++	return ret;
++}
++
++static const struct watchdog_info imanager_wdt_info = {
++	.options		= WDIOF_SETTIMEOUT |
++				  WDIOF_KEEPALIVEPING |
++				  WDIOF_MAGICCLOSE,
++	.identity		= "imanager_wdt",
++	.firmware_version	= 0,
 +};
 +
-+static int imanager_i2c_probe(struct platform_device *pdev)
++static const struct watchdog_ops imanager_wdt_ops = {
++	.owner		= THIS_MODULE,
++	.start		= imanager_wdt_start,
++	.stop		= imanager_wdt_stop,
++	.ping		= imanager_wdt_ping,
++	.set_timeout	= imanager_wdt_set_timeout,
++	.get_timeleft	= imanager_wdt_get_timeleft,
++	.ioctl		= imanager_wdt_ioctl,
++};
++
++static struct watchdog_device imanager_wdt_dev = {
++	.info		= &imanager_wdt_info,
++	.ops		= &imanager_wdt_ops,
++	.timeout	= WATCHDOG_TIMEOUT,
++	.min_timeout	= 1,
++	.max_timeout	= 0xfffe,
++};
++
++static int imanager_wdt_probe(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
 +	struct imanager_device_data *idev = dev_get_drvdata(dev->parent);
-+	struct imanager_i2c_data *i2c;
 +	int ret;
 +
 +	if (!idev) {
@@ -746,102 +519,71 @@ index 0000000..bbfd453
 +		return -EINVAL;
 +	}
 +
-+	ret = i2c_core_init();
++	watchdog_set_nowayout(&imanager_wdt_dev, nowayout);
++	watchdog_set_drvdata(&imanager_wdt_dev, idev);
++
++	ret = watchdog_register_device(&imanager_wdt_dev);
 +	if (ret) {
-+		dev_err(dev, "Failed to initialize I2C core\n");
-+		return -EIO;
-+	}
-+
-+	if (bus_frequency > 100)
-+		bus_frequency = 400;
-+	else if (bus_frequency < 50)
-+		bus_frequency = 50;
-+	else
-+		bus_frequency = 100;
-+
-+	ret = i2c_core_smb_set_freq(I2C_OEM_1, bus_frequency);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to set I2C bus frequency to %d kHz\n",
-+				bus_frequency);
++		dev_err(dev, "Failed to register watchdog device\n");
 +		return ret;
 +	}
 +
-+	ret = i2c_core_smb_get_freq(I2C_OEM_1);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to get I2C bus frequency\n");
-+		return ret;
-+	}
-+	bus_frequency = ret;
-+	dev_info(dev, "Bus frequency: %d kHz\n", bus_frequency);
-+
-+	i2c = devm_kzalloc(dev, sizeof(struct imanager_i2c_data), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, i2c);
-+	i2c_set_adapdata(&i2c->adapter, i2c);
-+
-+	i2c->idev = idev;
-+
-+	i2c->adapter.owner	= THIS_MODULE;
-+	i2c->adapter.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
-+	i2c->adapter.algo	= &imanager_algorithm;
-+
-+	/* set up the sysfs linkage to our parent device */
-+	i2c->adapter.dev.parent = dev;
-+
-+	/* Retry up to 3 times on lost arbitration */
-+	i2c->adapter.retries = 3;
-+
-+	snprintf(i2c->adapter.name, sizeof(i2c->adapter.name),
-+		"iManager I2C driver");
-+
-+	ret = i2c_add_adapter(&i2c->adapter);
++	ret = wdt_core_init();
 +	if (ret) {
-+		dev_err(dev, "Failed to add SMBus adapter\n");
-+		return ret;
++		dev_err(dev, "Failed to initialize watchdog core\n");
++		goto unregister_driver;
 +	}
++
++	wdt_core_disable_all();
++
++	imanager_wdt_set_timeout(&imanager_wdt_dev, timeout);
++
++	dev_info(dev, "Driver loaded (timeout=%d seconds)\n", timeout);
 +
 +	return 0;
++
++unregister_driver:
++	watchdog_unregister_device(&imanager_wdt_dev);
++	platform_set_drvdata(pdev, NULL);
++
++	return ret;
 +}
 +
-+static int imanager_i2c_remove(struct platform_device *pdev)
++static int imanager_wdt_remove(struct platform_device *pdev)
 +{
-+	struct device *dev = &pdev->dev;
-+	struct imanager_i2c_data *i2c = dev_get_drvdata(dev);
++	wdt_core_disable_all();
 +
-+	i2c_del_adapter(&i2c->adapter);
-+	i2c_set_adapdata(&i2c->adapter, NULL);
++	watchdog_unregister_device(&imanager_wdt_dev);
++	platform_set_drvdata(pdev, NULL);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver imanager_i2c_driver = {
++static struct platform_driver imanager_wdt_driver = {
 +	.driver = {
-+		.owner = THIS_MODULE,
-+		.name  = "imanager_i2c",
++		.name	= "imanager_wdt",
 +	},
-+	.probe	= imanager_i2c_probe,
-+	.remove	= imanager_i2c_remove,
++	.probe	= imanager_wdt_probe,
++	.remove	= imanager_wdt_remove,
 +};
 +
-+module_platform_driver(imanager_i2c_driver);
++module_platform_driver(imanager_wdt_driver);
 +
-+MODULE_DESCRIPTION("Advantech iManager I2C Driver");
++MODULE_DESCRIPTION("Advantech iManager Watchdog Driver");
 +MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:imanager_i2c");
-diff --git a/include/linux/mfd/imanager/i2c.h b/include/linux/mfd/imanager/i2c.h
++MODULE_ALIAS("platform:imanager_wdt");
+diff --git a/include/linux/mfd/imanager/wdt.h b/include/linux/mfd/imanager/wdt.h
 new file mode 100644
-index 0000000..a8ef6c2
+index 0000000..eb709b7
 --- /dev/null
-+++ b/include/linux/mfd/imanager/i2c.h
-@@ -0,0 +1,55 @@
++++ b/include/linux/mfd/imanager/wdt.h
+@@ -0,0 +1,37 @@
 +/*
-+ * Advantech iManager I2C bus core
++ * Advantech iManager Watchdog core
 + *
 + * Copyright (C) 2016 Advantech Co., Ltd., Irvine, CA, USA
-+ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
++ * Author: Richard Vidal-Dorsch <richard.dorsch-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org>
 + *
 + * This program is free software; you can redistribute  it and/or modify it
 + * under  the terms of  the GNU General  Public License as published by the
@@ -849,48 +591,35 @@ index 0000000..a8ef6c2
 + * option) any later version.
 + */
 +
-+#ifndef __I2C_H__
-+#define __I2C_H__
++#ifndef __WDT_H__
++#define __WDT_H__
 +
 +#include <linux/types.h>
 +
-+#define I2C_MAX_READ_BYTES	32
-+#define I2C_MAX_WRITE_BYTES	32
-+
-+/* Only for setting SMBus frequency */
-+enum smb_bus_id {
-+	SMB_OEM_0,
-+	SMB_OEM_1,
-+	SMB_OEM_2,
-+	SMB_EEPROM,
-+	SMB_TH_0,
-+	SMB_TH_1,
-+	SMB_SECURITY_EEPROM,
-+	I2C_OEM_1,
++enum wdt_event {
++	DELAY,
++	PWRBTN,
++	NMI,
++	RESET,
++	WDPIN,
++	SCI,
 +};
 +
-+int i2c_core_init(void);
++int wdt_core_init(void);
 +
-+int i2c_core_write_quick(u16 addr);
++int wdt_core_set_timeout(enum wdt_event type, u32 timeout);
 +
-+int i2c_core_read_byte(u16 addr);
-+int i2c_core_write_byte(u16 addr, u8 cmd);
-+
-+int i2c_core_write_byte_data(u16 addr, u8 cmd, u8 value);
-+int i2c_core_read_byte_data(u16 addr, u8 cmd);
-+
-+int i2c_core_write_word_data(u16 addr, u8 cmd, u16 value);
-+int i2c_core_read_word_data(u16 addr, u8 cmd);
-+
-+int i2c_core_write_block_data(u16 addr, u8 cmd, u8 *buf);
-+int i2c_core_read_block_data(u16 addr, u8 cmd, u8 *buf);
-+
-+int i2c_core_write_i2c_block_data(u16 addr, u8 cmd, u8 *buf);
-+int i2c_core_read_i2c_block_data(u16 addr, u8 cmd, u8 *buf);
-+
-+int i2c_core_smb_get_freq(u32 bus_id);
-+int i2c_core_smb_set_freq(u32 bus_id, u32 freq);
++int wdt_core_disable_all(void);
++int wdt_core_start_timer(void);
++int wdt_core_stop_timer(void);
++int wdt_core_reset_timer(void);
++int wdt_core_stop_boot_timer(void);
 +
 +#endif
 -- 
 2.6.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
