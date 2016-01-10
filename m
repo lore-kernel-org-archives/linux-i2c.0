@@ -1,14 +1,14 @@
 From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v2 4/6] Add Advantech iManager I2C driver
-Date: Sun, 10 Jan 2016 18:34:42 +0800
-Message-ID: <201601101840.Rv2FSoXk%fengguang.wu@intel.com>
-References: <1452417086-28600-1-git-send-email-richard.dorsch@gmail.com>
+Subject: Re: [PATCH v2 5/6] Add Advantech iManager Backlight driver
+Date: Sun, 10 Jan 2016 18:44:28 +0800
+Message-ID: <201601101831.qbLbrfkr%fengguang.wu@intel.com>
+References: <1452417098-28667-1-git-send-email-richard.dorsch@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1452417086-28600-1-git-send-email-richard.dorsch@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1452417098-28667-1-git-send-email-richard.dorsch@gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
 Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com, Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
@@ -24,7 +24,7 @@ base:   https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git
 
 coccinelle warnings: (new ones prefixed by >>)
 
->> drivers/i2c/busses/imanager-i2c.c:228:3-8: No need to set .owner here. The core will do it.
+>> drivers/video/backlight/imanager-bl.c:187:3-8: No need to set .owner here. The core will do it.
 
 Please review and possibly fold the followup patch.
 
