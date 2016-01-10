@@ -1,18 +1,22 @@
 From: kbuild test robot <lkp@intel.com>
 Subject: [PATCH] fix platform_no_drv_owner.cocci warnings
-Date: Sun, 10 Jan 2016 18:25:06 +0800
-Message-ID: <20160110102506.GA241211@lkp-ib04>
-References: <201601101813.yf6Gealk%fengguang.wu@intel.com>
+Date: Sun, 10 Jan 2016 18:34:42 +0800
+Message-ID: <20160110103442.GA153018@lkp-ib04>
+References: <201601101840.Rv2FSoXk%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:31199 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756864AbcAJKgV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 10 Jan 2016 05:36:21 -0500
 Content-Disposition: inline
-In-Reply-To: <1452417074-28546-1-git-send-email-richard.dorsch@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com, Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+In-Reply-To: <1452417086-28600-1-git-send-email-richard.dorsch@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com, Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
-drivers/hwmon/imanager-hwmon.c:1047:3-8: No need to set .owner here. The core will do it.
+drivers/i2c/busses/imanager-i2c.c:228:3-8: No need to set .owner here. The core will do it.
 
  Remove .owner field if calls are used which set it automatically
 
@@ -22,16 +26,16 @@ CC: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
 ---
 
- imanager-hwmon.c |    1 -
+ imanager-i2c.c |    1 -
  1 file changed, 1 deletion(-)
 
---- a/drivers/hwmon/imanager-hwmon.c
-+++ b/drivers/hwmon/imanager-hwmon.c
-@@ -1044,7 +1044,6 @@ static int imanager_hwmon_probe(struct p
+--- a/drivers/i2c/busses/imanager-i2c.c
++++ b/drivers/i2c/busses/imanager-i2c.c
+@@ -225,7 +225,6 @@ static int imanager_i2c_remove(struct pl
  
- static struct platform_driver imanager_hwmon_driver = {
+ static struct platform_driver imanager_i2c_driver = {
  	.driver = {
 -		.owner = THIS_MODULE,
- 		.name  = "imanager_hwmon",
+ 		.name  = "imanager_i2c",
  	},
- 	.probe	= imanager_hwmon_probe,
+ 	.probe	= imanager_i2c_probe,
