@@ -1,61 +1,98 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch v1] imx: i2c: fix i2c resource leak with dma transfer
-Date: Sun, 10 Jan 2016 10:07:42 +0100
-Message-ID: <20160110090742.GG1526@katana>
-References: <1452231195-18425-1-git-send-email-pandy.gao@nxp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zGQnqpIoxlsbsOfg"
+From: richard.dorsch@gmail.com
+Subject: [PATCH v2 0/6] Add Advantech iManager EC driver set
+Date: Sun, 10 Jan 2016 01:09:33 -0800
+Message-ID: <1452416973-28289-1-git-send-email-richard.dorsch@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60998 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751887AbcAJJHr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 10 Jan 2016 04:07:47 -0500
-Content-Disposition: inline
-In-Reply-To: <1452231195-18425-1-git-send-email-pandy.gao@nxp.com>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34443 "EHLO
+	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752368AbcAJJJi (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 10 Jan 2016 04:09:38 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <pandy.gao@nxp.com>
-Cc: u.kleine-koenig@pengutronix.de, linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com, kernel@pengutronix.de
+To: linux-kernel@vger.kernel.org
+Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com, Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
+From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
---zGQnqpIoxlsbsOfg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The Advantech iManager is an embedded controller (depending on board type,
+ITE it8518/it8528) on which a custom firmware runs. All drivers (GPIO, I2C,
+HWmon, Watchdog, and backlight) are being managed by the imanager mfd driver.
+The imanager mfd driver acts as a 'gateway' and handles all communications
+between the EC and sub-drivers (GPIO, I2C, ...). The feature specific
+communication portions are split up into core files such as
+imanager-ec-[gpio, i2c, ...].
 
-On Fri, Jan 08, 2016 at 01:33:15PM +0800, Gao Pan wrote:
-> In i2c_imx_dma_xfer(), when dmaengine_submit() returns error,
-> the context goto label err_submit and then return. However, the
-> memory allocated for txdesc has not been freed yet, which
-> leads to resource leak.
->=20
-> Signed-off-by: Gao Pan <b54642@freescale.com>
-> Signed-off-by: Fugang Duan <B38611@freescale.com>
+Changes from v1:
+- Remove .owner from platform_driver in drivers/gpio/imanager-gpio.c
+- Remove .owner from platform_driver in drivers/gpio/imanager-wdt.c
+- Replace 2015 by 2016 in all files
 
-Applied to for-next, thanks!
+Richard Vidal-Dorsch (6):
+  Add Advantech iManager MFD core driver
+  Add Advantech iManager GPIO driver
+  Add Advantech iManager HWmon driver
+  Add Advantech iManager I2C driver
+  Add Advantech iManager Backlight driver
+  Add Advantech iManager Watchdog driver
 
+ Documentation/devicetree/bindings/mfd/imanager.txt |   33 +
+ Documentation/hwmon/imanager                       |   59 +
+ Documentation/i2c/busses/i2c-imanager              |   48 +
+ MAINTAINERS                                        |   13 +
+ drivers/gpio/Kconfig                               |    8 +
+ drivers/gpio/Makefile                              |    2 +
+ drivers/gpio/imanager-ec-gpio.c                    |   98 ++
+ drivers/gpio/imanager-gpio.c                       |  181 +++
+ drivers/hwmon/Kconfig                              |   12 +
+ drivers/hwmon/Makefile                             |    2 +
+ drivers/hwmon/imanager-ec-hwmon.c                  |  606 +++++++++
+ drivers/hwmon/imanager-hwmon.c                     | 1058 +++++++++++++++
+ drivers/i2c/busses/Kconfig                         |   11 +
+ drivers/i2c/busses/Makefile                        |    2 +
+ drivers/i2c/busses/imanager-ec-i2c.c               |  466 +++++++
+ drivers/i2c/busses/imanager-i2c.c                  |  240 ++++
+ drivers/mfd/Kconfig                                |   20 +
+ drivers/mfd/Makefile                               |    2 +
+ drivers/mfd/imanager-core.c                        |  288 +++++
+ drivers/mfd/imanager-ec.c                          | 1345 ++++++++++++++++++++
+ drivers/video/backlight/Kconfig                    |   12 +
+ drivers/video/backlight/Makefile                   |    2 +
+ drivers/video/backlight/imanager-bl.c              |  199 +++
+ drivers/video/backlight/imanager-ec-bl.c           |  118 ++
+ drivers/watchdog/Kconfig                           |   12 +
+ drivers/watchdog/Makefile                          |    2 +
+ drivers/watchdog/imanager-ec-wdt.c                 |  170 +++
+ drivers/watchdog/imanager-wdt.c                    |  333 +++++
+ include/linux/mfd/imanager/backlight.h             |   37 +
+ include/linux/mfd/imanager/core.h                  |   31 +
+ include/linux/mfd/imanager/ec.h                    |  210 +++
+ include/linux/mfd/imanager/gpio.h                  |   27 +
+ include/linux/mfd/imanager/hwmon.h                 |  120 ++
+ include/linux/mfd/imanager/i2c.h                   |   55 +
+ include/linux/mfd/imanager/wdt.h                   |   37 +
+ 35 files changed, 5859 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/imanager.txt
+ create mode 100644 Documentation/hwmon/imanager
+ create mode 100644 Documentation/i2c/busses/i2c-imanager
+ create mode 100644 drivers/gpio/imanager-ec-gpio.c
+ create mode 100644 drivers/gpio/imanager-gpio.c
+ create mode 100644 drivers/hwmon/imanager-ec-hwmon.c
+ create mode 100644 drivers/hwmon/imanager-hwmon.c
+ create mode 100644 drivers/i2c/busses/imanager-ec-i2c.c
+ create mode 100644 drivers/i2c/busses/imanager-i2c.c
+ create mode 100644 drivers/mfd/imanager-core.c
+ create mode 100644 drivers/mfd/imanager-ec.c
+ create mode 100644 drivers/video/backlight/imanager-bl.c
+ create mode 100644 drivers/video/backlight/imanager-ec-bl.c
+ create mode 100644 drivers/watchdog/imanager-ec-wdt.c
+ create mode 100644 drivers/watchdog/imanager-wdt.c
+ create mode 100644 include/linux/mfd/imanager/backlight.h
+ create mode 100644 include/linux/mfd/imanager/core.h
+ create mode 100644 include/linux/mfd/imanager/ec.h
+ create mode 100644 include/linux/mfd/imanager/gpio.h
+ create mode 100644 include/linux/mfd/imanager/hwmon.h
+ create mode 100644 include/linux/mfd/imanager/i2c.h
+ create mode 100644 include/linux/mfd/imanager/wdt.h
 
---zGQnqpIoxlsbsOfg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWkh9eAAoJEBQN5MwUoCm2wgIP/2NAnEbAHxWzrrQusmw8jrJ8
-CNPa1VYP/G/Sxqs46WUzyt6ZrtZcxcMRwQph83Sp+kocl8hnZ2/Xvd/bvOLBPUn8
-SeNiNGlgtSlVlRnK1Q9HFu4dEO77Bv+l1Ero1P5/x23Gyy0XnEoX+ytp8beOkdO6
-JauNWz3G22oELKfVw5XeaUwaNc7szw6wISVTg4fMGHdpQC+Eb+2BQ6ioGmUUmVTK
-rRdwn/HusMVj7ATTUaBIICUxQMDK6W/X9tcZ4jC609oT6l/I59Fl1Sd2K+gknpRq
-dNvePFKRDlkCYRx2ExVl5su/cF52XwI6PVhTwfTSZmXsHJIHs16877AxmdIwUTuh
-IZuj+rsPPgC+o/MMP5gfsfJtF9osYaR72PeBQel7wMmSsl+99VALQdJGR+Xj5hFK
-1w+IJVgbVcUofmHDrnREUi42d6S+Vw8OZO3GJOKODqtLN38tMFMiTWRJ4r8kCYsS
-vciG6q1rIZoopRF9GoLvzb7NnZbzrsyO5TQFuH0T+NQWgGApnbTTz0vPiUj1IkE7
-MPYapzuWHpNULvyz5HMSG7eUip5DExaCvmdEXzlpYDgd5iewU77gXHaolmGnH8IN
-yFZGtYKZ6dM8v9r1m1Sitd8KpLmEN/+RPE5JiLzBWYLtlIN2XOQj7XuWTzTGGnnX
-9rsWS8M2ZvMPUporLam/
-=Xyiv
------END PGP SIGNATURE-----
-
---zGQnqpIoxlsbsOfg--
+-- 
+2.6.4
