@@ -1,50 +1,35 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 5/6] Add Advantech iManager Backlight driver
-Date: Mon, 11 Jan 2016 10:23:02 +0000
-Message-ID: <20160111102302.GV14104@x1>
-References: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
- <1452468675-5827-6-git-send-email-richard.dorsch@gmail.com>
+From: Rongrong Zou <zourongrong@gmail.com>
+Subject: mutex_lock in designware-i2c
+Date: Mon, 11 Jan 2016 19:12:10 +0800
+Message-ID: <56938E0A.5080303@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f53.google.com ([74.125.82.53]:35484 "EHLO
-	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758869AbcAKKXG (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Jan 2016 05:23:06 -0500
-Received: by mail-wm0-f53.google.com with SMTP id f206so205116214wmf.0
-        for <linux-i2c@vger.kernel.org>; Mon, 11 Jan 2016 02:23:06 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1452468675-5827-6-git-send-email-richard.dorsch@gmail.com>
+Received: from mail-pf0-f172.google.com ([209.85.192.172]:36532 "EHLO
+	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932467AbcAKLMQ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Jan 2016 06:12:16 -0500
+Received: by mail-pf0-f172.google.com with SMTP id n128so43407351pfn.3
+        for <linux-i2c@vger.kernel.org>; Mon, 11 Jan 2016 03:12:16 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: richard.dorsch@gmail.com
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com
+To: baruch@tkos.co.il
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Sun, 10 Jan 2016, richard.dorsch@gmail.com wrote:
+Hi, baruch
 
-> From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
->=20
-> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-> ---
->  drivers/video/backlight/Kconfig          |  12 ++
->  drivers/video/backlight/Makefile         |   2 +
->  drivers/video/backlight/imanager-bl.c    | 198 +++++++++++++++++++++=
-++++++++++
->  drivers/video/backlight/imanager-ec-bl.c | 118 ++++++++++++++++++
->  include/linux/mfd/imanager/backlight.h   |  37 ++++++
->  5 files changed, 367 insertions(+)
->  create mode 100644 drivers/video/backlight/imanager-bl.c
->  create mode 100644 drivers/video/backlight/imanager-ec-bl.c
->  create mode 100644 include/linux/mfd/imanager/backlight.h
+I found a mutex lock in dw_i2c_dev for each adapter,
+struct dw_i2c_dev {
+         struct device           *dev;
+         void __iomem            *base;
+         struct completion       cmd_complete;
+         struct mutex            lock;
+         struct clk              *clk;
 
-How do you expect this to be reviewed if you don't send it to the
-reviewer?
+but there is another lock: adapter->bus_lock, this lock is also
+for each adapter, why we need both of them ?
 
-[...]
+Regards,
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Rongrong
