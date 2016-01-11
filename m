@@ -1,35 +1,44 @@
-From: Rongrong Zou <zourongrong@gmail.com>
-Subject: mutex_lock in designware-i2c
-Date: Mon, 11 Jan 2016 19:12:10 +0800
-Message-ID: <56938E0A.5080303@gmail.com>
+From: Andreas Werner <andreas.werner@men.de>
+Subject: [PATCH v2 0/4] remove auto exit of production and added sysfs
+ interface
+Date: Mon, 11 Jan 2016 13:20:59 +0100
+Message-ID: <cover.1452514293.git.andreas.werner@men.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f172.google.com ([209.85.192.172]:36532 "EHLO
-	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932467AbcAKLMQ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Jan 2016 06:12:16 -0500
-Received: by mail-pf0-f172.google.com with SMTP id n128so43407351pfn.3
-        for <linux-i2c@vger.kernel.org>; Mon, 11 Jan 2016 03:12:16 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, sameo@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: baruch@tkos.co.il
-Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Hi, baruch
+This patch set introduces new sysfs entries for BMC status information
+as well as the ABI documention.
 
-I found a mutex lock in dw_i2c_dev for each adapter,
-struct dw_i2c_dev {
-         struct device           *dev;
-         void __iomem            *base;
-         struct completion       cmd_complete;
-         struct mutex            lock;
-         struct clk              *clk;
+The mfd core driver now does not exit the production mode automatically.
+The new sysfs entry allows the userland to exit the production mode
+if required.
 
-but there is another lock: adapter->bus_lock, this lock is also
-for each adapter, why we need both of them ?
+Changes in v2:
+	- added I2C maintainer in CC because this patches
+	  are also I2C related.
+	- fixed irrelevant changes (alignments) in the mfd driver
+	- update subject lines 
+	  that they match the format of the subsystem
 
-Regards,
+Andreas Werner (4):
+  mfd: menf21bmc: Remove auto exiting of production mode and add sysfs
+    interface
+  doc: ABI: Added sysfs description for the menf21bmc MFD driver
+  mfd: menf21bmc: Add additional sysfs entries for BMC status
+    information
+  doc: ABI: Add documentation for the additional sysfs status
+    information
 
-Rongrong
+ .../ABI/testing/sysfs-bus-i2c-devices-menf21bmc    |  40 ++++++
+ drivers/mfd/menf21bmc.c                            | 158 ++++++++++++++++++---
+ 2 files changed, 177 insertions(+), 21 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-menf21bmc
+
+-- 
+2.6.2
