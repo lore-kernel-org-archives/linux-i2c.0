@@ -1,48 +1,55 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v3 0/6] Add Advantech iManager EC driver set
-Date: Sun, 10 Jan 2016 16:54:40 -0800
-Message-ID: <5692FD50.5010407@roeck-us.net>
-References: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [RFC v2 2/4] dt-bindings: i2c: mux: demux-pinctrl: add bindings
+Date: Sun, 10 Jan 2016 20:52:00 -0600
+Message-ID: <20160111025200.GA5993@rob-hp-laptop>
+References: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
+ <1452088285-6427-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1452088285-6427-3-git-send-email-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: richard.dorsch@gmail.com, linux-kernel@vger.kernel.org
-Cc: lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, lee.jones@linaro.org, jdelvare@suse.com, wim@iguana.be, jo.sunga@advantech.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On 01/10/2016 03:31 PM, richard.dorsch@gmail.com wrote:
-> From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
->
-> The Advantech iManager is an embedded controller (depending on board type,
-> ITE it8518/it8528) on which a custom firmware runs. All drivers (GPIO, I2C,
-> HWmon, Watchdog, and backlight) are being managed by the imanager mfd driver.
-> The imanager mfd driver acts as a 'gateway' and handles all communications
-> between the EC and sub-drivers (GPIO, I2C, ...). The feature specific
-> communication portions are split up into core files such as
-> imanager-ec-[gpio, i2c, ...].
->
-> Changes from v2:
-> I forgot to remove .owner from other drivers too... silly me!
-> - Remove .owner from platform_driver in:
->    drivers/gpio/imanager-bl
->    drivers/gpio/imanager-core.c
->    drivers/gpio/imanager-i2c.c
->    drivers/gpio/imanager-hwmon.c
->
+On Wed, Jan 06, 2016 at 02:51:23PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> These bindings allow an I2C bus to switch between multiple masters. This
+> is not hot-swichting because connected I2C slaves will be
 
-Hi Richard,
+s/swichting/switching/
 
-in case there are more alerts from the 0day build system, or minor feedback
-from others, please give us time to actually review the code before
-resending the series. I have not even had time to look into v1 (and I bet
-no one else had either), and you already sent v3, just to remove various
-.owner fields.
+> re-instantiated. It is meant to select the best I2C core at runtime once
+> the task is known. Example: Prefer i2c-gpio over another I2C core
+> because of HW errata affetcing your use case.
 
-Also, please be a bit patient. The commit window just opened, meaning
-all maintainers will be busy preparing to send pull requests to Linus.
+This seems okay to me. I don't like not having the i2c devices under the 
+i2c controller, but not really much we can do about that.
 
-Thanks,
-Guenter
+I have another usecase which might end up needing a similar structure 
+as this. That is the whole question of how to deal with capes, hats, 
+shields and various daughterboards. For I2C devices on a daughterboard, 
+we need to be able to have a DT overlay for the daughterboard described 
+in terms of the connector(s) and independent of the host. Then the 
+base DT needs to define the mapping from the connector to the host 
+controller. A complicating factor would be having devices on the same 
+bus but split across the main and daughter boards. I don't see anything 
+specific to change here, but just want to throw that out.
+
+[...]
+
+> +
+> +Changing I2C controllers:
+> +
+> +The created mux-device will have a file "cur_master" in its sysfs-entry. Write
+> +0 there for the first master listed in the "i2c-parent" property, 1 for the
+> +second etc. Reading the file will give you a list with the active master
+> +marked. Example from a Renesas Lager board:
+
+This is Linux specific and should not be in the binding. You also need 
+sysfs docs for these sysfs files.
+
+Rob
