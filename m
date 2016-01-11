@@ -1,61 +1,50 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC v2 2/4] dt-bindings: i2c: mux: demux-pinctrl: add bindings
-Date: Mon, 11 Jan 2016 09:01:15 +0100
-Message-ID: <CAMuHMdUFdXxGv9wa66WQsX97EVgQYwhhhz+iduZdKSny_ZQT6g@mail.gmail.com>
-References: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
-	<1452088285-6427-3-git-send-email-wsa@the-dreams.de>
-	<20160111025200.GA5993@rob-hp-laptop>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v3 5/6] Add Advantech iManager Backlight driver
+Date: Mon, 11 Jan 2016 10:23:02 +0000
+Message-ID: <20160111102302.GV14104@x1>
+References: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
+ <1452468675-5827-6-git-send-email-richard.dorsch@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20160111025200.GA5993@rob-hp-laptop>
-Sender: linux-sh-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:35484 "EHLO
+	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758869AbcAKKXG (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Jan 2016 05:23:06 -0500
+Received: by mail-wm0-f53.google.com with SMTP id f206so205116214wmf.0
+        for <linux-i2c@vger.kernel.org>; Mon, 11 Jan 2016 02:23:06 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1452468675-5827-6-git-send-email-richard.dorsch@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: richard.dorsch@gmail.com
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com
 
-Hi Rob,
+On Sun, 10 Jan 2016, richard.dorsch@gmail.com wrote:
 
-On Mon, Jan 11, 2016 at 3:52 AM, Rob Herring <robh@kernel.org> wrote:
-> On Wed, Jan 06, 2016 at 02:51:23PM +0100, Wolfram Sang wrote:
->> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
->>
->> These bindings allow an I2C bus to switch between multiple masters. This
->> is not hot-swichting because connected I2C slaves will be
->
-> s/swichting/switching/
->
->> re-instantiated. It is meant to select the best I2C core at runtime once
->> the task is known. Example: Prefer i2c-gpio over another I2C core
->> because of HW errata affetcing your use case.
->
-> This seems okay to me. I don't like not having the i2c devices under the
-> i2c controller, but not really much we can do about that.
->
-> I have another usecase which might end up needing a similar structure
-> as this. That is the whole question of how to deal with capes, hats,
-> shields and various daughterboards. For I2C devices on a daughterboard,
-> we need to be able to have a DT overlay for the daughterboard described
-> in terms of the connector(s) and independent of the host. Then the
-> base DT needs to define the mapping from the connector to the host
+> From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+>=20
+> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+> ---
+>  drivers/video/backlight/Kconfig          |  12 ++
+>  drivers/video/backlight/Makefile         |   2 +
+>  drivers/video/backlight/imanager-bl.c    | 198 +++++++++++++++++++++=
+++++++++++
+>  drivers/video/backlight/imanager-ec-bl.c | 118 ++++++++++++++++++
+>  include/linux/mfd/imanager/backlight.h   |  37 ++++++
+>  5 files changed, 367 insertions(+)
+>  create mode 100644 drivers/video/backlight/imanager-bl.c
+>  create mode 100644 drivers/video/backlight/imanager-ec-bl.c
+>  create mode 100644 include/linux/mfd/imanager/backlight.h
 
-Indeed. Currently an i2c bus is described in DT as tied to an i2c controller,
-while physically it's tied to a bunch of pins. Tying the bus to a controller
-is done through pinctrl.
+How do you expect this to be reviewed if you don't send it to the
+reviewer?
 
-> controller. A complicating factor would be having devices on the same
-> bus but split across the main and daughter boards. I don't see anything
-> specific to change here, but just want to throw that out.
+[...]
 
-Can't the daughter board DTS just add more child devices to the mainboard bus?
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
