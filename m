@@ -1,97 +1,94 @@
-From: Baruch Siach <baruch@tkos.co.il>
-Subject: [PATCH] i2c: designware: remove redundant lock
-Date: Tue, 12 Jan 2016 15:16:35 +0200
-Message-ID: <f7d81178a0e65a19872a9e5207ccd8553e15c07d.1452604595.git.baruch@tkos.co.il>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:57292 "EHLO
-	mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934137AbcALNSe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 12 Jan 2016 08:18:34 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: Re: [PATCH] i2c: create builtin_i2c_driver to avoid registration
+ boilerplate
+Date: Tue, 12 Jan 2016 10:45:41 -0500
+Message-ID: <56951FA5.1070206@windriver.com>
+References: <1450038799-27995-1-git-send-email-paul.gortmaker@windriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1450038799-27995-1-git-send-email-paul.gortmaker@windriver.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Rongrong Zou <zourongrong@gmail.com>, Baruch Siach <baruch@tkos.co.il>
 
-The per adapter bus_lock already projects from concurrent calls to the
-master_xfer callback. No need to add a driver internal lock.
+On 2015-12-13 03:33 PM, Paul Gortmaker wrote:
+> In commit f309d4443130bf814e991f836e919dca22df37ae ("platform_device:
+> better support builtin boilerplate avoidance") we introduced the
+> builtin_driver macro.
+> 
+> Here we use that support and extend it to I2C driver registration,
+> so where a driver is clearly non-modular and builtin-only, we can
+> register it in a similar fashion.  And existing code that is clearly
+> non-modular can be updated with the simple mapping of
+> 
+>      module_i2c_driver(...)  ---> builtin_i2c_driver(...)
+> 
+> We've essentially cloned the former to make the latter, and taken
+> out the remove/module_exit parts since those never get used in a
+> non-modular build of the code.
+> 
+> A similar thing was done in commit b4eb6cdbbd13698704863f680c643c569909e1c2
+> ("PCI: Add builtin_pci_driver() to avoid registration boilerplate").
+> 
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Alexandre Courbot <gnurou@gmail.com>
+> Cc: linux-gpio@vger.kernel.org
+> Cc: linux-i2c@vger.kernel.org
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> ---
+> 
+> [I've about 10 drivers/mfd and one drivers/gpio users of this in
+>  my personal testing queue, but obviously I can't submit those
+>  until builtin_i2c_driver makes it to mainline.  Since there are
+>  no drivers/i2c users yet this change is sent to i2c on its own.]
 
-Also, rephrase a comment to drop mention of this lock.
+Hi Wolfram,
 
-Reported-by: Rongrong Zou <zourongrong@gmail.com>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
----
-Based on i2c/for-next.
-Build tested only.
----
- drivers/i2c/busses/i2c-designware-core.c | 14 ++++++--------
- drivers/i2c/busses/i2c-designware-core.h |  2 --
- 2 files changed, 6 insertions(+), 10 deletions(-)
+Was wondering if this is still in consideration for 4.5, so as per
+the above info, I can make use of it in MFD in 4.6 without worrying
+about cross maintainer dependencies.
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index ba9732c236c5..99bc950f5d9d 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -634,7 +634,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
- 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
- 
--	mutex_lock(&dev->lock);
- 	pm_runtime_get_sync(dev->dev);
- 
- 	reinit_completion(&dev->cmd_complete);
-@@ -673,11 +672,12 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	}
- 
- 	/*
--	 * We must disable the adapter before unlocking the &dev->lock mutex
--	 * below. Otherwise the hardware might continue generating interrupts
--	 * which in turn causes a race condition with the following transfer.
--	 * Needs some more investigation if the additional interrupts are
--	 * a hardware bug or this driver doesn't handle them correctly yet.
-+	 * We must disable the adapter before returning and signaling the end
-+	 * of the current transfer. Otherwise the hardware might continue
-+	 * generating interrupts which in turn causes a race condition with
-+	 * the following transfer.  Needs some more investigation if the
-+	 * additional interrupts are a hardware bug or this driver doesn't
-+	 * handle them correctly yet.
- 	 */
- 	__i2c_dw_enable(dev, false);
- 
-@@ -706,7 +706,6 @@ done:
- done_nolock:
- 	pm_runtime_mark_last_busy(dev->dev);
- 	pm_runtime_put_autosuspend(dev->dev);
--	mutex_unlock(&dev->lock);
- 
- 	return ret;
- }
-@@ -860,7 +859,6 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
- 	int r;
- 
- 	init_completion(&dev->cmd_complete);
--	mutex_init(&dev->lock);
- 
- 	r = i2c_dw_init(dev);
- 	if (r)
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 9ffb63a60f95..cd409e7fbc71 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -36,7 +36,6 @@
-  * @dev: driver model device node
-  * @base: IO registers pointer
-  * @cmd_complete: tx completion indicator
-- * @lock: protect this struct and IO registers
-  * @clk: input reference clock
-  * @cmd_err: run time hadware error code
-  * @msgs: points to an array of messages currently being transfered
-@@ -73,7 +72,6 @@ struct dw_i2c_dev {
- 	struct device		*dev;
- 	void __iomem		*base;
- 	struct completion	cmd_complete;
--	struct mutex		lock;
- 	struct clk		*clk;
- 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
- 	struct dw_pci_controller *controller;
--- 
-2.6.4
+Thanks,
+Paul.
+--
+> 
+>  include/linux/i2c.h | 13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 768063baafbf..d3ca750bfcdf 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -622,7 +622,7 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
+>  }
+>  
+>  /**
+> - * module_i2c_driver() - Helper macro for registering a I2C driver
+> + * module_i2c_driver() - Helper macro for registering a modular I2C driver
+>   * @__i2c_driver: i2c_driver struct
+>   *
+>   * Helper macro for I2C drivers which do not do anything special in module
+> @@ -633,6 +633,17 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
+>  	module_driver(__i2c_driver, i2c_add_driver, \
+>  			i2c_del_driver)
+>  
+> +/**
+> + * builtin_i2c_driver() - Helper macro for registering a builtin I2C driver
+> + * @__i2c_driver: i2c_driver struct
+> + *
+> + * Helper macro for I2C drivers which do not do anything special in their
+> + * init. This eliminates a lot of boilerplate. Each driver may only
+> + * use this macro once, and calling it replaces device_initcall().
+> + */
+> +#define builtin_i2c_driver(__i2c_driver) \
+> +	builtin_driver(__i2c_driver, i2c_add_driver)
+> +
+>  #endif /* I2C */
+>  
+>  #if IS_ENABLED(CONFIG_OF)
+> 
