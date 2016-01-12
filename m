@@ -1,43 +1,44 @@
-From: Baruch Siach <baruch@tkos.co.il>
-Subject: Re: mutex_lock in designware-i2c
-Date: Mon, 11 Jan 2016 23:39:17 +0200
-Message-ID: <20160111213917.GB2957@tarshish>
-References: <56938E0A.5080303@gmail.com>
+From: <ying.zhang22455@nxp.com>
+Subject: [PATCH] drivers : i2c: Allow i2c devices share an interrupt
+Date: Tue, 12 Jan 2016 16:01:47 +0800
+Message-ID: <1452585707-20294-1-git-send-email-ying.zhang22455@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:57068 "EHLO
-	mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933790AbcAKVjX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 11 Jan 2016 16:39:23 -0500
-Content-Disposition: inline
-In-Reply-To: <56938E0A.5080303@gmail.com>
+Received: from mail-bl2on0087.outbound.protection.outlook.com ([65.55.169.87]:60698
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753119AbcALIm2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 12 Jan 2016 03:42:28 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rongrong Zou <zourongrong@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: linux-i2c@vger.kernel.org
+Cc: X.Xie@freescale.com, Ying Zhang <b40530@freescale.com>, Ying Zhang <ying.zhang22455@nxp.com>
 
-Hi Rongrong Zou,
+From: Ying Zhang <b40530@freescale.com>
 
-On Mon, Jan 11, 2016 at 07:12:10PM +0800, Rongrong Zou wrote:
-> I found a mutex lock in dw_i2c_dev for each adapter,
-> struct dw_i2c_dev {
->         struct device           *dev;
->         void __iomem            *base;
->         struct completion       cmd_complete;
->         struct mutex            lock;
->         struct clk              *clk;
-> 
-> but there is another lock: adapter->bus_lock, this lock is also
-> for each adapter, why we need both of them ?
+The I2C devices on I2C1, I2C2, I2C3, I2C4 share interrupts,
+but the flag is not set when requesting IRQ.
 
-As far as I can see from the code the master_xfer callback is never called 
-concurrently for the same adaptor. So indeed the internal lock looks 
-redundant. I can't remember why I put it there.
+This patch set the flag to IRQF_SHARED.
 
-baruch
+Signed-off-by: Ying Zhang <ying.zhang22455@nxp.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d4d8536..611b269 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1094,7 +1094,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Request IRQ */
+-	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
++	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
+ 				pdev->name, i2c_imx);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
 -- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
+2.1.0.27.g96db324
