@@ -1,73 +1,97 @@
-From: Archit Taneja <architt@codeaurora.org>
-Subject: Re: [PATCH V6 0/6] i2c: qup: Add support for v2 tags and bam dma
-Date: Tue, 12 Jan 2016 15:49:43 +0530
-Message-ID: <5694D33F.7040205@codeaurora.org>
-References: <1452588233-1803-1-git-send-email-sricharan@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1452588233-1803-1-git-send-email-sricharan@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sricharan R <sricharan@codeaurora.org>, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, wsa@the-dreams.de
-Cc: srichara@codeaurora.org
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: [PATCH] i2c: designware: remove redundant lock
+Date: Tue, 12 Jan 2016 15:16:35 +0200
+Message-ID: <f7d81178a0e65a19872a9e5207ccd8553e15c07d.1452604595.git.baruch@tkos.co.il>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from guitar.tcltek.co.il ([192.115.133.116]:57292 "EHLO
+	mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934137AbcALNSe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 12 Jan 2016 08:18:34 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Rongrong Zou <zourongrong@gmail.com>, Baruch Siach <baruch@tkos.co.il>
 
+The per adapter bus_lock already projects from concurrent calls to the
+master_xfer callback. No need to add a driver internal lock.
 
+Also, rephrase a comment to drop mention of this lock.
 
-On 01/12/2016 02:13 PM, Sricharan R wrote:
-> i2c: qup: Add support for v2 tags and bam dma
->
-> QUP from version 2.1.1 onwards, supports a new format of i2c command tags.
-> Tag codes instructs the controller to perform a operation like read/write.
-> This new tagging version supports and is required for adding bam dma
-> capabilities. V2 tags supports transfer of more than 256 bytes in a single i2c
-> transaction. Also adding bam dma support facilitates transferring each i2c_msg
-> in i2c_msgs without a 'stop' bit in between which is required for some of
-> the clients.
->
-> Tested this series on apq8074 dragon board eeprom client on i2c bus1
->
-> [V6] Added review tags and fixed a checkpatch warning in patch 4/6.
->
-> [V5] Addressed few more comments from Ivan T. Ivanov.
->       Squashed patch 2 and 3 as no point in having only few lines of
->       common code between v1 and v2 tags for increased complexity.
->       Couple of non functional review comments fixes in patch 3, 4.
->       Added a change in patch 4 to have proper transfer completion in
->       a corner case. patch 5, 6 unchanged.
->
-> [V4] Added a patch to factor out some common code.
->       Removed support for freq > 400KHZ as per comments.
->       Addressed comments from Ivan T. Ivanov to keep the code for
->       V2 support in a separate path.
->       Changed the authorship of V2 tags support patch.
->
-> [V3] Added support to coalesce each i2c_msg in i2c_msgs for fifo and
->       block mode in Patch 2. Also addressed further code comments.
->
->       http://comments.gmane.org/gmane.linux.drivers.i2c/22497
->
-> [V2] Addressed comments from Ivan T. Ivanov, Andy Gross [v1] Initial Version
+Reported-by: Rongrong Zou <zourongrong@gmail.com>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+---
+Based on i2c/for-next.
+Build tested only.
+---
+ drivers/i2c/busses/i2c-designware-core.c | 14 ++++++--------
+ drivers/i2c/busses/i2c-designware-core.h |  2 --
+ 2 files changed, 6 insertions(+), 10 deletions(-)
 
-For the series:
-
-Tested-by: Archit Taneja <architt@codeaurora.org>
-
->
-> Sricharan R (6):
->    i2c: qup: Change qup_wait_writeready function to use for all timeouts
->    i2c: qup: Add V2 tags support
->    i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
->    i2c: qup: Add bam dma capabilities
->    dts: msm8974: Add blsp2_bam dma node
->    dts: msm8974: Add dma channels for blsp2_i2c1 node
->
->   arch/arm/boot/dts/qcom-msm8974.dtsi |  14 +-
->   drivers/i2c/busses/i2c-qup.c        | 922 ++++++++++++++++++++++++++++++++++--
->   2 files changed, 887 insertions(+), 49 deletions(-)
->
-
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index ba9732c236c5..99bc950f5d9d 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -634,7 +634,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
+ 
+-	mutex_lock(&dev->lock);
+ 	pm_runtime_get_sync(dev->dev);
+ 
+ 	reinit_completion(&dev->cmd_complete);
+@@ -673,11 +672,12 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	}
+ 
+ 	/*
+-	 * We must disable the adapter before unlocking the &dev->lock mutex
+-	 * below. Otherwise the hardware might continue generating interrupts
+-	 * which in turn causes a race condition with the following transfer.
+-	 * Needs some more investigation if the additional interrupts are
+-	 * a hardware bug or this driver doesn't handle them correctly yet.
++	 * We must disable the adapter before returning and signaling the end
++	 * of the current transfer. Otherwise the hardware might continue
++	 * generating interrupts which in turn causes a race condition with
++	 * the following transfer.  Needs some more investigation if the
++	 * additional interrupts are a hardware bug or this driver doesn't
++	 * handle them correctly yet.
+ 	 */
+ 	__i2c_dw_enable(dev, false);
+ 
+@@ -706,7 +706,6 @@ done:
+ done_nolock:
+ 	pm_runtime_mark_last_busy(dev->dev);
+ 	pm_runtime_put_autosuspend(dev->dev);
+-	mutex_unlock(&dev->lock);
+ 
+ 	return ret;
+ }
+@@ -860,7 +859,6 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+ 	int r;
+ 
+ 	init_completion(&dev->cmd_complete);
+-	mutex_init(&dev->lock);
+ 
+ 	r = i2c_dw_init(dev);
+ 	if (r)
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9ffb63a60f95..cd409e7fbc71 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -36,7 +36,6 @@
+  * @dev: driver model device node
+  * @base: IO registers pointer
+  * @cmd_complete: tx completion indicator
+- * @lock: protect this struct and IO registers
+  * @clk: input reference clock
+  * @cmd_err: run time hadware error code
+  * @msgs: points to an array of messages currently being transfered
+@@ -73,7 +72,6 @@ struct dw_i2c_dev {
+ 	struct device		*dev;
+ 	void __iomem		*base;
+ 	struct completion	cmd_complete;
+-	struct mutex		lock;
+ 	struct clk		*clk;
+ 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
+ 	struct dw_pci_controller *controller;
 -- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora 
-Forum, hosted by The Linux Foundation
+2.6.4
