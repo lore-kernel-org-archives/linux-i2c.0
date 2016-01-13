@@ -1,50 +1,68 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [RFC v2 3/4] i2c: mux: demux-pinctrl: add driver
-Date: Wed, 13 Jan 2016 17:16:07 +0100
-Message-ID: <CAMuHMdVnYMmrt3PPb-cg4C889RB5pwKN+LX6O-1VSX1oaKY1ww@mail.gmail.com>
-References: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
-	<1452088285-6427-4-git-send-email-wsa@the-dreams.de>
-	<CAMuHMdUuiuXPFJQpUB+Y3xF34KnqhzdZ+x-E7zL1ywp=sAQWXg@mail.gmail.com>
-	<20160113125514.GE1540@katana>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 3/3] ARM: shmobile: r8a7790: rework dts to use i2c demuxer
+Date: Wed, 13 Jan 2016 20:19:08 +0300
+Message-ID: <5696870C.102@cogentembedded.com>
+References: <1452695369-29413-1-git-send-email-wsa@the-dreams.de>
+ <1452695369-29413-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160113125514.GE1540@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Jan Luebbe <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1452695369-29413-4-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: devicetree@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On 01/13/2016 05:29 PM, Wolfram Sang wrote:
 
-On Wed, Jan 13, 2016 at 1:55 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->> > +struct i2c_demux_pinctrl_priv {
->> > +       int cur_chan;
->> > +       int num_chan;
->>
->> This is always positive, so you can make num_chan and a few loop counters
->> unsigned.
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >
-> Nope, sadly not. cur_chan can get a -ERRNO, and the type of num_chan is
+> Create a seperate bus for HDMI related I2C slaves and assign it
 
-Sorry for the bad quoting, my comment applied to num_chan only.
+    Separate.
 
-> defined by the return type of of_count_phandle_with_args().
+> to a i2c-gpio master. It can be switched to the i2c-rcar or
+> i2c-sh_mobile core at runtime.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>
+> After the technical details of the underlying driver seem to be more or less
+> sorted out, I would appreciate some discussion here about changing the Lager
+> DTS e.g. if we really want GPIO to be the default?
+>
+>   arch/arm/boot/dts/r8a7790-lager.dts | 141 ++++++++++++++++++++++--------------
+>   1 file changed, 88 insertions(+), 53 deletions(-)
+>
+> diff --git a/arch/arm/boot/dts/r8a7790-lager.dts b/arch/arm/boot/dts/r8a7790-lager.dts
+> index c553abd711eeb3..d8f0ca8e094dad 100644
+> --- a/arch/arm/boot/dts/r8a7790-lager.dts
+> +++ b/arch/arm/boot/dts/r8a7790-lager.dts
+[...]
+> @@ -252,6 +254,79 @@
+>   		#clock-cells = <0>;
+>   		clock-frequency = <148500000>;
+>   	};
+> +
+> +
+> +	gpioi2c: i2c@9 {
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		compatible = "i2c-gpio";
 
-But you will never store negative error codes returned by that function, as you
-won't get to the storing part...
+    I think this prop should go first.
 
-Gr{oetje,eeting}s,
+> +		status = "disabled";
 
-                        Geert
+    In a board file? When do you intend to enable it?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+> +		gpios = <&gpio5 6 GPIO_ACTIVE_HIGH /* sda */
+> +			 &gpio5 5 GPIO_ACTIVE_HIGH /* scl */
+> +			>;
+> +		i2c-gpio,delay-us = <5>;
+> +	};
+[...]
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+MBR, Sergei
+
