@@ -1,77 +1,96 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: create builtin_i2c_driver to avoid registration
- boilerplate
-Date: Wed, 13 Jan 2016 11:06:42 +0100
-Message-ID: <20160113100642.GB1540@katana>
-References: <1450038799-27995-1-git-send-email-paul.gortmaker@windriver.com>
+Subject: Re: [RFC v2 2/4] dt-bindings: i2c: mux: demux-pinctrl: add bindings
+Date: Wed, 13 Jan 2016 13:52:27 +0100
+Message-ID: <20160113125227.GD1540@katana>
+References: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
+ <1452088285-6427-3-git-send-email-wsa@the-dreams.de>
+ <CAMuHMdUdxk6yjYAr3i7sjdMa-WJxrbOhsEz3JidY9aZVhaoURw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MW5yreqqjyrRcusr"
-Return-path: <linux-gpio-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="k4f25fnPtRuIRUb3"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:49303 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754362AbcAMMwc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 13 Jan 2016 07:52:32 -0500
 Content-Disposition: inline
-In-Reply-To: <1450038799-27995-1-git-send-email-paul.gortmaker@windriver.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <CAMuHMdUdxk6yjYAr3i7sjdMa-WJxrbOhsEz3JidY9aZVhaoURw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
 
---MW5yreqqjyrRcusr
+--k4f25fnPtRuIRUb3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Dec 13, 2015 at 03:33:19PM -0500, Paul Gortmaker wrote:
-> In commit f309d4443130bf814e991f836e919dca22df37ae ("platform_device:
-> better support builtin boilerplate avoidance") we introduced the
-> builtin_driver macro.
+On Wed, Jan 06, 2016 at 03:30:39PM +0100, Geert Uytterhoeven wrote:
+> Hi Wolfram,
 >=20
-> Here we use that support and extend it to I2C driver registration,
-> so where a driver is clearly non-modular and builtin-only, we can
-> register it in a similar fashion.  And existing code that is clearly
-> non-modular can be updated with the simple mapping of
+> On Wed, Jan 6, 2016 at 2:51 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> > These bindings allow an I2C bus to switch between multiple masters. This
+> > is not hot-swichting because connected I2C slaves will be
+> > re-instantiated. It is meant to select the best I2C core at runtime once
+> > the task is known. Example: Prefer i2c-gpio over another I2C core
+> > because of HW errata affetcing your use case.
 >=20
->      module_i2c_driver(...)  ---> builtin_i2c_driver(...)
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+> > @@ -0,0 +1,155 @@
 >=20
-> We've essentially cloned the former to make the latter, and taken
-> out the remove/module_exit parts since those never get used in a
-> non-modular build of the code.
+> > +Here is a snipplet for a bus to be demuxed. It contains various i2c cl=
+ients for
 >=20
-> A similar thing was done in commit b4eb6cdbbd13698704863f680c643c569909e1=
-c2
-> ("PCI: Add builtin_pci_driver() to avoid registration boilerplate").
+> snippet
 >=20
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Alexandre Courbot <gnurou@gmail.com>
-> Cc: linux-gpio@vger.kernel.org
-> Cc: linux-i2c@vger.kernel.org
-> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+> > +HDMI, so the bus is named "i2c-hdmi":
+> > +
+> > +       i2chdmi: i2c@8 {
+>=20
+> Would it make sense to call the node "i2c-bus@8"?
 
-Applied to for-next (i.e. v4.5), thanks!
+That sounds like a question for our EPapr expert Sergei (CCed) :)
 
+> > +
+> > +               compatible =3D "i2c-demux-pinctrl";
+> > +               i2c-parent =3D <&gpioi2c>, <&iic2>, <&i2c2>;
+>=20
+> Gr{oetje,eeting}s,
+>=20
+>                         Geert
+>=20
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
+8k.org
+>=20
+> In personal conversations with technical people, I call myself a hacker. =
+But
+> when I'm talking to journalists I just say "programmer" or something like=
+ that.
+>                                 -- Linus Torvalds
 
---MW5yreqqjyrRcusr
+--k4f25fnPtRuIRUb3
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWliGxAAoJEBQN5MwUoCm2vyoP/3RVGltW4OnQ7b0R2esgyrKe
-2nXXk0wTAH0Nr6hWplbMrWqe2MbAkRmnGdtupBjeIuBAm8NSA4/MKBfz7UIR2OUW
-lMKd/ZK/PfDKDgi6IwD9w+jGmp4zOh7kNXZW6JCcdnPNY1zla0HNH4c7uqDhUbgS
-UoQ2XIral7UrXajrSN09fWYNAq+v+jN2OZ24rRUHkXVCj8HXgs8QkOaLFDzaKQbO
-So6fHGCUEtiU8idr/7tvHYuQFZz0yQJgqhDync8E366nQkHpvH6OnDoy6hi0BTI1
-b8HnKof32sbr1iFDqVYM6BXw+GQQCUOOpSunGjc/+h+gsp2QkfRMvIdeowZCwXVu
-jUmWc44jHhlRy01eQZLZUYZ1unnE0K+s/i691K5ujwoNOhbs3MNlpOm2JR28dAQ5
-6jRKO3WLs/8AdfA/LVkE7jVq9VzqW9rSoOlMy6PgrR0MoYnlIucjB2nafND0HZ/x
-aMeyVPPYkpcwwnwv2rKAOT32UTYezGW/tCNyLR9ElaRKNeDYKTyBNX85b9unx7ig
-qx2WPY24DnNG5GnZeYHy6cwTRp1uF/9AWp1Q4zV9+G0ZdEpKsyd8faoVFG+I35ir
-WLp+xlPcXaEn/89Q1wEIuSXHFkNoLlApP4HfFLEyq9BwwSroBusaMTFh8/g8a5TB
-HFOYR0dEyb0la7zXesdt
-=nVhQ
+iQIcBAEBAgAGBQJWlkiKAAoJEBQN5MwUoCm2QFwP/iVzEihmrsB535lLhpSJDpUX
+HsPFGkVYGrwwLEWnNh6das/1/E6p21FvxL1SJdTqvw2+PGvQBrxUeZ2cYgQuchlq
+Y2TvnL/df6kqHanaFVjwopx6as+i+4iodWDfqzYR4uVeTLFzuuRrIgs9fcdIu6DL
+j6MuDyNViyykPGtvlNEWfOLvD3+VRBPmSu0oBOmDxXfjIrQVl7vPgWaRTZA71WK+
+neTGNgP4JCFPL68towtD8SwsyzWDjDUREuBlSeM+mx0bne0qIKRINxk1NIi1KnxL
+njdYiNajMajg0OZpmGTAmXQ/ODdgABWKbdlkUePbsMkpXyQWCKdNyW/DfCYpfZ+X
+Z2YBMABrU79Kyp6wmpeKFK8gRx8wZ2SfrK66N9WRC25kPpxobXvNh8vJdBqvwXuD
+Z07NGAZnSNysJppWUJ3wkcAduDCStUvSJXgLIzSqqp1j79eU0pfZs1Ffbkbn5krA
+DuBaq8HTjJyWb/gZj0kbKSIIL8b4Ow/ZRhYmpIB7vUJCTk4ZqEuMV9J1af766A69
+HiLQEV0abiXpiQV3zW1wfykleoQWrX5YX0Xo+OIZhSXlWihxBl0EUZtIes9g3+vV
+XnmUTzW9s42S4gdrWBt+UmWls87aGAiblokELFLErQxQwYrx55y8aHvLqq39R0r+
+5ZusL+Tfj83SH8V8iveK
+=0WWz
 -----END PGP SIGNATURE-----
 
---MW5yreqqjyrRcusr--
+--k4f25fnPtRuIRUb3--
