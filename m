@@ -1,96 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC v2 2/4] dt-bindings: i2c: mux: demux-pinctrl: add bindings
-Date: Wed, 13 Jan 2016 13:52:27 +0100
-Message-ID: <20160113125227.GD1540@katana>
+Subject: Re: [RFC v2 3/4] i2c: mux: demux-pinctrl: add driver
+Date: Wed, 13 Jan 2016 13:55:14 +0100
+Message-ID: <20160113125514.GE1540@katana>
 References: <1452088285-6427-1-git-send-email-wsa@the-dreams.de>
- <1452088285-6427-3-git-send-email-wsa@the-dreams.de>
- <CAMuHMdUdxk6yjYAr3i7sjdMa-WJxrbOhsEz3JidY9aZVhaoURw@mail.gmail.com>
+ <1452088285-6427-4-git-send-email-wsa@the-dreams.de>
+ <CAMuHMdUuiuXPFJQpUB+Y3xF34KnqhzdZ+x-E7zL1ywp=sAQWXg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k4f25fnPtRuIRUb3"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49303 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754362AbcAMMwc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 13 Jan 2016 07:52:32 -0500
+	protocol="application/pgp-signature"; boundary="TD8GDToEDw0WLGOL"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdUdxk6yjYAr3i7sjdMa-WJxrbOhsEz3JidY9aZVhaoURw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <CAMuHMdUuiuXPFJQpUB+Y3xF34KnqhzdZ+x-E7zL1ywp=sAQWXg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
+List-Id: linux-i2c@vger.kernel.org
 
 
---k4f25fnPtRuIRUb3
+--TD8GDToEDw0WLGOL
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 06, 2016 at 03:30:39PM +0100, Geert Uytterhoeven wrote:
-> Hi Wolfram,
->=20
-> On Wed, Jan 6, 2016 at 2:51 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> > These bindings allow an I2C bus to switch between multiple masters. This
-> > is not hot-swichting because connected I2C slaves will be
-> > re-instantiated. It is meant to select the best I2C core at runtime once
-> > the task is known. Example: Prefer i2c-gpio over another I2C core
-> > because of HW errata affetcing your use case.
->=20
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
-> > @@ -0,0 +1,155 @@
->=20
-> > +Here is a snipplet for a bus to be demuxed. It contains various i2c cl=
-ients for
->=20
-> snippet
->=20
-> > +HDMI, so the bus is named "i2c-hdmi":
-> > +
-> > +       i2chdmi: i2c@8 {
->=20
-> Would it make sense to call the node "i2c-bus@8"?
 
-That sounds like a question for our EPapr expert Sergei (CCed) :)
+> > +struct i2c_demux_pinctrl_priv {
+> > +       int cur_chan;
+> > +       int num_chan;
+>=20
+> This is always positive, so you can make num_chan and a few loop counters
+> unsigned.
 
-> > +
-> > +               compatible =3D "i2c-demux-pinctrl";
-> > +               i2c-parent =3D <&gpioi2c>, <&iic2>, <&i2c2>;
->=20
-> Gr{oetje,eeting}s,
->=20
->                         Geert
->=20
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m6=
-8k.org
->=20
-> In personal conversations with technical people, I call myself a hacker. =
-But
-> when I'm talking to journalists I just say "programmer" or something like=
- that.
->                                 -- Linus Torvalds
+Nope, sadly not. cur_chan can get a -ERRNO, and the type of num_chan is
+defined by the return type of of_count_phandle_with_args().
 
---k4f25fnPtRuIRUb3
+
+--TD8GDToEDw0WLGOL
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWlkiKAAoJEBQN5MwUoCm2QFwP/iVzEihmrsB535lLhpSJDpUX
-HsPFGkVYGrwwLEWnNh6das/1/E6p21FvxL1SJdTqvw2+PGvQBrxUeZ2cYgQuchlq
-Y2TvnL/df6kqHanaFVjwopx6as+i+4iodWDfqzYR4uVeTLFzuuRrIgs9fcdIu6DL
-j6MuDyNViyykPGtvlNEWfOLvD3+VRBPmSu0oBOmDxXfjIrQVl7vPgWaRTZA71WK+
-neTGNgP4JCFPL68towtD8SwsyzWDjDUREuBlSeM+mx0bne0qIKRINxk1NIi1KnxL
-njdYiNajMajg0OZpmGTAmXQ/ODdgABWKbdlkUePbsMkpXyQWCKdNyW/DfCYpfZ+X
-Z2YBMABrU79Kyp6wmpeKFK8gRx8wZ2SfrK66N9WRC25kPpxobXvNh8vJdBqvwXuD
-Z07NGAZnSNysJppWUJ3wkcAduDCStUvSJXgLIzSqqp1j79eU0pfZs1Ffbkbn5krA
-DuBaq8HTjJyWb/gZj0kbKSIIL8b4Ow/ZRhYmpIB7vUJCTk4ZqEuMV9J1af766A69
-HiLQEV0abiXpiQV3zW1wfykleoQWrX5YX0Xo+OIZhSXlWihxBl0EUZtIes9g3+vV
-XnmUTzW9s42S4gdrWBt+UmWls87aGAiblokELFLErQxQwYrx55y8aHvLqq39R0r+
-5ZusL+Tfj83SH8V8iveK
-=0WWz
+iQIcBAEBAgAGBQJWlkkyAAoJEBQN5MwUoCm2hO0P/i2kkTTF0JhMYJiGLSVxsjTc
+7p6IP4eF0m5P3sOo9gXMBRnIX4KnItDkHB6UG26qmrX4NWQOcL41/eVoN5ViCqgE
+RhzX687owEW2Wq2SeFnIfF4CxFxEdscdVFqWIZHfbE4Tk90V1n4ON/pyO5CIz3bT
+bdbPT4YK3oaxzp9dY3DLdauoPPMmBQRzv+jlqz8AMwRTYfrYIHZF7Qdn62XCxfg/
+qKkXjoqQz28OZZU0VYSea/34HUBdQCtKbYqnogzjMCRsczy7IDFB1KMenm3IOz1R
+7JYrZyu7HpT4SwFQ47EZ8kIzhh/vMRVJZ/mHxt1Dd7XQ/Rdlb7v3O7wTeV52OQSS
+TZgjoAHkQI7radPr0fK05tp2KB7ii8fOB2jaJyX9STICacUhULovkgqzYBLX0JVc
+jsow9DyrVE+MWEhAi91FFZ1zRQiyrD9yq8LP0SpFAwBPoRnmQ+CaKGlWsbAhivD4
+SzUINhazD9QBpnS3U4GrqUHwD6iq+f5rWSuTkZGoNFIGeaLJXxzpHikQbW1E5GJD
+y/OU7/TToyLTJZ3f6knFAbVurvFTASm1PUrEmjgU4/drJpn0gQSK9HHoPmQC/ycj
+UerlsqWifabDscrvHP/bMn41z3LjqyMgagGVEhWihnpeoL1gXz/TD0bs9chEEMlQ
+SmePXnocnwoxfFRRrUgx
+=dqtc
 -----END PGP SIGNATURE-----
 
---k4f25fnPtRuIRUb3--
+--TD8GDToEDw0WLGOL--
