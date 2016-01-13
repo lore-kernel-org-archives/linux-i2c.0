@@ -1,208 +1,105 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 3/3] ARM: shmobile: r8a7790: rework dts to use i2c demuxer
-Date: Wed, 13 Jan 2016 15:29:29 +0100
-Message-ID: <1452695369-29413-4-git-send-email-wsa@the-dreams.de>
-References: <1452695369-29413-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1452695369-29413-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
+From: Geliang Tang <geliangtang@163.com>
+Subject: [PATCH 4/5] misc: eeprom: use kobj_to_dev()
+Date: Wed, 13 Jan 2016 23:30:11 +0800
+Message-ID: <f0996c29468c9bb2561b09cf368cf1f0a4c69a43.1452698603.git.geliangtang@163.com>
+References: <286d4d5f873437fbc91c07369b4b57038c4667ce.1452698603.git.geliangtang@163.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <286d4d5f873437fbc91c07369b4b57038c4667ce.1452698603.git.geliangtang@163.com>
+In-Reply-To: <286d4d5f873437fbc91c07369b4b57038c4667ce.1452698603.git.geliangtang@163.com>
+References: <286d4d5f873437fbc91c07369b4b57038c4667ce.1452698603.git.geliangtang@163.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Geliang Tang <geliangtang@163.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Use kobj_to_dev() instead of open-coding it.
 
-Create a seperate bus for HDMI related I2C slaves and assign it
-to a i2c-gpio master. It can be switched to the i2c-rcar or
-i2c-sh_mobile core at runtime.
-
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Geliang Tang <geliangtang@163.com>
 ---
+ drivers/misc/eeprom/at24.c          | 4 ++--
+ drivers/misc/eeprom/at25.c          | 4 ++--
+ drivers/misc/eeprom/eeprom.c        | 2 +-
+ drivers/misc/eeprom/eeprom_93xx46.c | 4 ++--
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-After the technical details of the underlying driver seem to be more or less
-sorted out, I would appreciate some discussion here about changing the Lager
-DTS e.g. if we really want GPIO to be the default?
-
- arch/arm/boot/dts/r8a7790-lager.dts | 141 ++++++++++++++++++++++--------------
- 1 file changed, 88 insertions(+), 53 deletions(-)
-
-diff --git a/arch/arm/boot/dts/r8a7790-lager.dts b/arch/arm/boot/dts/r8a7790-lager.dts
-index c553abd711eeb3..d8f0ca8e094dad 100644
---- a/arch/arm/boot/dts/r8a7790-lager.dts
-+++ b/arch/arm/boot/dts/r8a7790-lager.dts
-@@ -49,6 +49,8 @@
- 	aliases {
- 		serial0 = &scifa0;
- 		serial1 = &scifa1;
-+		i2c8 = &i2chdmi;
-+		i2c9 = &gpioi2c;
- 	};
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 5d7c090..d105c25 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -289,7 +289,7 @@ static ssize_t at24_bin_read(struct file *filp, struct kobject *kobj,
+ {
+ 	struct at24_data *at24;
  
- 	chosen {
-@@ -252,6 +254,79 @@
- 		#clock-cells = <0>;
- 		clock-frequency = <148500000>;
- 	};
-+
-+
-+	gpioi2c: i2c@9 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "i2c-gpio";
-+		status = "disabled";
-+		gpios = <&gpio5 6 GPIO_ACTIVE_HIGH /* sda */
-+			 &gpio5 5 GPIO_ACTIVE_HIGH /* scl */
-+			>;
-+		i2c-gpio,delay-us = <5>;
-+	};
-+
-+	i2chdmi: i2c@8 {
-+
-+		compatible = "i2c-demux-pinctrl";
-+		i2c-parent = <&gpioi2c>, <&iic2>, <&i2c2>;
-+		i2c-bus-name = "i2c-hdmi";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		ak4643: sound-codec@12 {
-+			compatible = "asahi-kasei,ak4643";
-+
-+			#sound-dai-cells = <0>;
-+			reg = <0x12>;
-+		};
-+
-+		composite-in@20 {
-+			compatible = "adi,adv7180";
-+			reg = <0x20>;
-+			remote = <&vin1>;
-+
-+			port {
-+				adv7180: endpoint {
-+					bus-width = <8>;
-+					remote-endpoint = <&vin1ep0>;
-+				};
-+			};
-+		};
-+
-+		hdmi@39 {
-+			compatible = "adi,adv7511w";
-+			reg = <0x39>;
-+			interrupt-parent = <&gpio1>;
-+			interrupts = <15 IRQ_TYPE_LEVEL_LOW>;
-+
-+			adi,input-depth = <8>;
-+			adi,input-colorspace = "rgb";
-+			adi,input-clock = "1x";
-+			adi,input-style = <1>;
-+			adi,input-justification = "evenly";
-+
-+			ports {
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				port@0 {
-+					reg = <0>;
-+					adv7511_in: endpoint {
-+						remote-endpoint = <&du_out_lvds0>;
-+					};
-+				};
-+
-+				port@1 {
-+					reg = <1>;
-+					adv7511_out: endpoint {
-+						remote-endpoint = <&hdmi_con>;
-+					};
-+				};
-+			};
-+		};
-+	};
- };
+-	at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
++	at24 = dev_get_drvdata(kobj_to_dev(kobj));
+ 	return at24_read(at24, buf, off, count);
+ }
  
- &du {
-@@ -352,6 +427,11 @@
- 		renesas,function = "iic1";
- 	};
+@@ -420,7 +420,7 @@ static ssize_t at24_bin_write(struct file *filp, struct kobject *kobj,
+ {
+ 	struct at24_data *at24;
  
-+	i2c2_pins: i2c2 {
-+		renesas,groups = "i2c2";
-+		renesas,function = "i2c2";
-+	};
-+
- 	iic2_pins: iic2 {
- 		renesas,groups = "iic2";
- 		renesas,function = "iic2";
-@@ -532,63 +612,18 @@
- 	pinctrl-names = "default";
- };
+-	at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
++	at24 = dev_get_drvdata(kobj_to_dev(kobj));
+ 	return at24_write(at24, buf, off, count);
+ }
  
--&iic2	{
--	status = "okay";
--	pinctrl-0 = <&iic2_pins>;
--	pinctrl-names = "default";
-+&i2c2	{
-+	pinctrl-0 = <&i2c2_pins>;
-+	pinctrl-names = "i2c-hdmi";
+diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
+index f850ef5..3e9e5a2 100644
+--- a/drivers/misc/eeprom/at25.c
++++ b/drivers/misc/eeprom/at25.c
+@@ -139,7 +139,7 @@ at25_bin_read(struct file *filp, struct kobject *kobj,
+ 	struct device		*dev;
+ 	struct at25_data	*at25;
  
- 	clock-frequency = <100000>;
-+};
+-	dev = container_of(kobj, struct device, kobj);
++	dev = kobj_to_dev(kobj);
+ 	at25 = dev_get_drvdata(dev);
  
--	ak4643: codec@12 {
--		compatible = "asahi-kasei,ak4643";
--		#sound-dai-cells = <0>;
--		reg = <0x12>;
--	};
--
--	composite-in@20 {
--		compatible = "adi,adv7180";
--		reg = <0x20>;
--		remote = <&vin1>;
--
--		port {
--			adv7180: endpoint {
--				bus-width = <8>;
--				remote-endpoint = <&vin1ep0>;
--			};
--		};
--	};
--
--	hdmi@39 {
--		compatible = "adi,adv7511w";
--		reg = <0x39>;
--		interrupt-parent = <&gpio1>;
--		interrupts = <15 IRQ_TYPE_LEVEL_LOW>;
--
--		adi,input-depth = <8>;
--		adi,input-colorspace = "rgb";
--		adi,input-clock = "1x";
--		adi,input-style = <1>;
--		adi,input-justification = "evenly";
--
--		ports {
--			#address-cells = <1>;
--			#size-cells = <0>;
--
--			port@0 {
--				reg = <0>;
--				adv7511_in: endpoint {
--					remote-endpoint = <&du_out_lvds0>;
--				};
--			};
-+&iic2	{
-+	pinctrl-0 = <&iic2_pins>;
-+	pinctrl-names = "i2c-hdmi";
+ 	return at25_ee_read(at25, buf, off, count);
+@@ -273,7 +273,7 @@ at25_bin_write(struct file *filp, struct kobject *kobj,
+ 	struct device		*dev;
+ 	struct at25_data	*at25;
  
--			port@1 {
--				reg = <1>;
--				adv7511_out: endpoint {
--					remote-endpoint = <&hdmi_con>;
--				};
--			};
--		};
--	};
-+	clock-frequency = <100000>;
- };
+-	dev = container_of(kobj, struct device, kobj);
++	dev = kobj_to_dev(kobj);
+ 	at25 = dev_get_drvdata(dev);
  
- &iic3 {
+ 	return at25_ee_write(at25, buf, off, count);
+diff --git a/drivers/misc/eeprom/eeprom.c b/drivers/misc/eeprom/eeprom.c
+index 7342fd6..3d1d551 100644
+--- a/drivers/misc/eeprom/eeprom.c
++++ b/drivers/misc/eeprom/eeprom.c
+@@ -84,7 +84,7 @@ static ssize_t eeprom_read(struct file *filp, struct kobject *kobj,
+ 			   struct bin_attribute *bin_attr,
+ 			   char *buf, loff_t off, size_t count)
+ {
+-	struct i2c_client *client = to_i2c_client(container_of(kobj, struct device, kobj));
++	struct i2c_client *client = to_i2c_client(kobj_to_dev(kobj));
+ 	struct eeprom_data *data = i2c_get_clientdata(client);
+ 	u8 slice;
+ 
+diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
+index ff63f05..473aa0a 100644
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -45,7 +45,7 @@ eeprom_93xx46_bin_read(struct file *filp, struct kobject *kobj,
+ 	int bits, ret;
+ 	u16 cmd_addr;
+ 
+-	dev = container_of(kobj, struct device, kobj);
++	dev = kobj_to_dev(kobj);
+ 	edev = dev_get_drvdata(dev);
+ 
+ 	cmd_addr = OP_READ << edev->addrlen;
+@@ -190,7 +190,7 @@ eeprom_93xx46_bin_write(struct file *filp, struct kobject *kobj,
+ 	struct device *dev;
+ 	int i, ret, step = 1;
+ 
+-	dev = container_of(kobj, struct device, kobj);
++	dev = kobj_to_dev(kobj);
+ 	edev = dev_get_drvdata(dev);
+ 
+ 	/* only write even number of bytes on 16-bit devices */
 -- 
-2.1.4
-
+2.5.0
