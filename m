@@ -1,42 +1,22 @@
-From: Suravee Suthikulanit <suravee.suthikulpanit@amd.com>
-Subject: Re: [PATCH v4] i2c: designware: Do not require clock when SSCN and
- FFCN are provided
-Date: Wed, 13 Jan 2016 16:46:41 -0600
-Message-ID: <5696D3D1.2010509@amd.com>
-References: <1451920655-10798-1-git-send-email-Suravee.Suthikulpanit@amd.com>
- <20160110083812.GE1526@katana>
+From: "G.E" <tomas.domik@partnersgroup.sk>
+Subject: Request
+Date: Thu, 14 Jan 2016 22:58:49 +0530
+Message-ID: <20160114172853.2515768E368C@mail.partnersgroup.sk>
+Reply-To: gol1011@qq.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-by2on0061.outbound.protection.outlook.com ([207.46.100.61]:3140
-	"EHLO na01-by2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750744AbcAMWqv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 13 Jan 2016 17:46:51 -0500
-In-Reply-To: <20160110083812.GE1526@katana>
+Received: from mail.partnersgroup.sk ([195.168.124.21]:44445 "EHLO
+	mail.partnersgroup.sk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755385AbcANStb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Jan 2016 13:49:31 -0500
+Content-Description: Mail message body
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, lho@apm.com, Ken.Xue@amd.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, "Hurwitz, Sherry" <sherry.hurwitz@amd.com>, Tom Lendacky <thomas.lendacky@amd.com>
+To: Recipients <tomas.domik@partnersgroup.sk>
 
-On 1/10/2016 2:38 AM, Wolfram Sang wrote:
-> On Mon, Jan 04, 2016 at 09:17:35AM -0600, Suravee Suthikulpanit wrote:
->> The current driver uses input clock source frequency to calculate
->> values for [SS|FS]_[HC|LC] registers. However, when booting ACPI, we do not
->> currently have a good way to provide the frequency information.
->> Instead, we can leverage the SSCN and FFCN ACPI methods, which can be used
->> to directly provide these values. So, the clock information should
->> no longer be required during probing.
->>
->> However, since clk can be invalid, additional checks must be done where
->> we are making use of it.
->>
->> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
->> Signed-off-by: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
->> Tested-by: Loc Ho <lho@apm.com>
->
-> Applied to for-next, thanks! Also thanks to all reviewers and testers.
->
-Thank you,
-Suravee
+ I am Ms.Golan I am getting in touch with you regarding an extremely important and urgent matter.If you would oblige me the opportunity,shall provide you with details upon your response to my private Email: eg13133@qq.com
+
+Faithfully,
+Ms. Golan
