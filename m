@@ -1,81 +1,73 @@
-From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Subject: Re: [PATCH] i2c/designware: enable i2c controller to suspend/resume
- asynchronously
-Date: Fri, 15 Jan 2016 15:01:48 +0800
-Message-ID: <5698995C.3070002@linux.intel.com>
-References: <567C0192.2050601@linux.intel.com>
- <568B848F.1070801@linux.intel.com>
- <1451996056.30729.394.camel@linux.intel.com>
+From: Li Yang <leoyang.li@nxp.com>
+Subject: [PATCH v3] i2c: imx: make bus recovery through pinctrl optional
+Date: Fri, 15 Jan 2016 01:27:24 -0600
+Message-ID: <1452842844-16256-1-git-send-email-leoyang.li@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1451996056.30729.394.camel@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, srinivas.kowtal@intel.com
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Gao Pan <pandy.gao@nxp.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Li Yang <leoyang.li@nxp.com>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+Since commit 1c4b6c3bcf30 ("i2c: imx: implement bus recovery") the driver
+starts to use gpio/pinctrl to do i2c bus recovery.  But pinctrl is not
+always available for platforms using this driver such as ls1021a and
+ls1043a, and the device tree binding also mentioned this gpio based
+recovery mechanism as optional.  The patch make it really optional that
+the probe function won't bailout when pinctrl is not available and it
+won't try to register recovery functions if pinctrl is NULL when the
+PINCTRL is not enabled at all.
 
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Cc: Gao Pan <pandy.gao@nxp.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+---
+v3:
+Rebased to Wolfram's for-next branch
+Added acked-by from Linus Walleij
+Update to use new nxp email addresses due to company merge
 
-On 1/5/2016 8:14 PM, Andy Shevchenko wrote:
-> On Tue, 2016-01-05 at 10:53 +0200, Jarkko Nikula wrote:
->> Hi
->>
->> On 12/24/2015 04:30 PM, Fu, Zhonghui wrote:
->>> Now, PM core supports asynchronous suspend/resume mode for devices
->>> during system suspend/resume, and the power state transition of one
->>> device may be completed in separate kernel thread. PM core ensures
->>> all power state transition dependency between devices. This patch
->>> enables designware i2c controllers to suspend/resume
->>> asynchronously.
->>> This will take advantage of multicore and improve system
->>> suspend/resume
->>> speed. After enabling all i2c devices, i2c adapters and i2c
->>> controllers
->>> on ASUS T100TA tablet, the system suspend-to-idle time is reduced
->>> to
->>> about 510ms from 750ms, and the system resume time is reduced to
->>> about
->>> 790ms from 900ms.
->>>
->> Nice reduction :-)
->>
->>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> index 6b00061..395130b 100644
->>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> @@ -230,6 +230,7 @@ static int dw_i2c_plat_probe(struct
->>> platform_device *pdev)
->>>   	}
->>>
->>>   	adap = &dev->adapter;
->>> +	device_enable_async_suspend(&pdev->dev);
->>>   	adap->owner = THIS_MODULE;
->>>   	adap->class = I2C_CLASS_DEPRECATED;
->>>   	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev-
->>>> dev));
->> Does device_enable_async_suspend() need to be called before enabling 
->> runtime PM? I suppose not since there appears to have also related
->> sysfs 
->> node for toggling it runtime.
->>
->> I'm thinking if you could move the device_enable_async_suspend() call
->> into drivers/i2c/busses/i2c-designware-core.c: i2c_dw_probe() and
->> then 
->> also PCI enumerated adapter could take advantage of it.
-> I concern about Intel BayTrail-T / Braswell / CherryTrail cases, since
-> we have non-trivial PM for LPSS there. Zhonghui, have you a chance to
-> stress test this on platforms based on mentioned SoCs?
-Because of long leave, so sorry for late reply.
+ drivers/i2c/busses/i2c-imx.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-I understand what you said, if enable all LPSS devices suspend/resume asynchronously, the system can't resume sometimes on ASUS T100TA(BayTrail-T SoC). But, I have verified that the system can resume normally every time if enable only i2c controller async mode and let other LPSS devices in sync mode on ASUS T100TA.  I have no Braswell and cherryTrail platforms, so no verification test on them.
-
-I have submitted a new version of this patch to move the device_enable_async_suspend() call into i2c_dw_proble() function - "[PATCH v2] i2c/designware: enable i2c controller to suspend/resume asynchronously".
-
-
-Thanks,
-Zhonghui
->
->
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index a2b132c..1239bfa 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1081,8 +1081,11 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	/* optional bus recovery feature through pinctrl */
+ 	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+-	if (IS_ERR(i2c_imx->pinctrl)) {
++	/* bailout on -ENOMEM or -EPROBE_DEFER, continue for other errors */
++	if (PTR_ERR(i2c_imx->pinctrl) == -ENOMEM ||
++			PTR_ERR(i2c_imx->pinctrl) == -EPROBE_DEFER) {
+ 		ret = PTR_ERR(i2c_imx->pinctrl);
+ 		goto clk_disable;
+ 	}
+@@ -1125,7 +1128,10 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 			i2c_imx, IMX_I2C_I2CR);
+ 	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+ 
+-	i2c_imx_init_recovery_info(i2c_imx, pdev);
++	if (IS_ERR_OR_NULL(i2c_imx->pinctrl))
++		dev_info(&pdev->dev, "can't get pinctrl, bus recovery feature disabled\n");
++	else
++		i2c_imx_init_recovery_info(i2c_imx, pdev);
+ 
+ 	/* Add I2C adapter */
+ 	ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
+-- 
+1.7.9.5
