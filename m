@@ -1,38 +1,50 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/3] dt-bindings: i2c: mux: demux-pinctrl: add bindings
-Date: Thu, 14 Jan 2016 20:03:33 -0600
-Message-ID: <20160115020333.GA3139@rob-hp-laptop>
-References: <1452695369-29413-1-git-send-email-wsa@the-dreams.de>
- <1452695369-29413-2-git-send-email-wsa@the-dreams.de>
+From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
+Subject: [PATCH v2] i2c/designware: enable i2c controller to suspend/resume
+ asynchronously
+Date: Fri, 15 Jan 2016 14:38:09 +0800
+Message-ID: <569893D1.5050403@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:42787 "EHLO mail.kernel.org"
+Received: from mga04.intel.com ([192.55.52.120]:56995 "EHLO mga04.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751154AbcAOCDi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 14 Jan 2016 21:03:38 -0500
-Content-Disposition: inline
-In-Reply-To: <1452695369-29413-2-git-send-email-wsa@the-dreams.de>
+	id S1750929AbcAOGiQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 15 Jan 2016 01:38:16 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jarkko.nikula@linux.intel.com, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, Jan 13, 2016 at 03:29:27PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
-> These bindings allow an I2C bus to switch between multiple masters. This
-> is not hot-switching because connected I2C slaves will be
-> re-instantiated. It is meant to select the best I2C core at runtime once
-> the task is known. Example: Prefer i2c-gpio over another I2C core
-> because of HW errata affecting your use case.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  .../ABI/testing/sysfs-platform-i2c-demux-pinctrl   |  23 ++++
->  .../devicetree/bindings/i2c/i2c-demux-pinctrl.txt  | 136 +++++++++++++++++++++
->  2 files changed, 159 insertions(+)
->  create mode 100644 Documentation/ABI/testing/sysfs-platform-i2c-demux-pinctrl
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+Now, PM core supports asynchronous suspend/resume mode for devices
+during system suspend/resume, and the power state transition of one
+device may be completed in separate kernel thread. PM core ensures
+all power state transition dependency between devices. This patch
+enables designware i2c controllers to suspend/resume asynchronously.
+This will take advantage of multicore and improve system suspend/resume
+speed. After enabling all i2c devices, i2c adapters and i2c controllers
+on ASUS T100TA tablet, the system suspend-to-idle time is reduced to
+about 510ms from 750ms, and the system resume time is reduced to about
+790ms from 900ms.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
+---
+Changes in v2:
+- Move the device_enable_async_suspend() call into i2c_dw_proble()
+
+ drivers/i2c/busses/i2c-designware-core.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index ba9732c..5d6ad27 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -861,6 +861,7 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+ 
+ 	init_completion(&dev->cmd_complete);
+ 	mutex_init(&dev->lock);
++	device_enable_async_suspend(dev->dev);
+ 
+ 	r = i2c_dw_init(dev);
+ 	if (r)
+-- 1.7.1
