@@ -1,69 +1,239 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v3] i2c: imx: make bus recovery through pinctrl optional
-Date: Fri, 15 Jan 2016 08:53:56 +0100
-Message-ID: <20160115075356.GI24441@pengutronix.de>
-References: <1452842844-16256-1-git-send-email-leoyang.li@nxp.com>
+From: "David.Wu" <wdc@rock-chips.com>
+Subject: Re: [PATCH v3 2/4] i2c: rk3x: add ops to caculate i2c clocks
+Date: Fri, 15 Jan 2016 16:34:44 +0800
+Message-ID: <5698AF24.2030202@rock-chips.com>
+References: <1452774699-57455-1-git-send-email-david.wu@rock-chips.com>
+ <1452774699-57455-3-git-send-email-david.wu@rock-chips.com>
+ <CAHp75VdR01_suo3nTWuuT2OEusy6z6KGSg29LKD8T3kY9eGMPA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:40744 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751105AbcAOHyA (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Jan 2016 02:54:00 -0500
-Content-Disposition: inline
-In-Reply-To: <1452842844-16256-1-git-send-email-leoyang.li@nxp.com>
+Received: from lucky1.263xmail.com ([211.157.147.133]:51735 "EHLO
+	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752397AbcAOIep (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Jan 2016 03:34:45 -0500
+In-Reply-To: <CAHp75VdR01_suo3nTWuuT2OEusy6z6KGSg29LKD8T3kY9eGMPA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Li Yang <leoyang.li@nxp.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Gao Pan <pandy.gao@nxp.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>, David Wu <david.wu@rock-chips.com>
+Cc: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Douglas Anderson <dianders@chromium.org>, Tao Huang <huangtao@rock-chips.com>, Chris Zhong <zyw@rock-chips.com>, cf@rock-chips.com, Jianqun Xu <xjq@rock-chips.com>, Lin Huang <hl@rock-chips.com>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hello,
 
-On Fri, Jan 15, 2016 at 01:27:24AM -0600, Li Yang wrote:
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
-x.c
-> index a2b132c..1239bfa 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1081,8 +1081,11 @@ static int i2c_imx_probe(struct platform_devic=
-e *pdev)
->  		return ret;
->  	}
-> =20
-> +	/* optional bus recovery feature through pinctrl */
->  	i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
-> -	if (IS_ERR(i2c_imx->pinctrl)) {
-> +	/* bailout on -ENOMEM or -EPROBE_DEFER, continue for other errors *=
-/
-> +	if (PTR_ERR(i2c_imx->pinctrl) =3D=3D -ENOMEM ||
-> +			PTR_ERR(i2c_imx->pinctrl) =3D=3D -EPROBE_DEFER) {
->  		ret =3D PTR_ERR(i2c_imx->pinctrl);
->  		goto clk_disable;
->  	}
-> @@ -1125,7 +1128,10 @@ static int i2c_imx_probe(struct platform_devic=
-e *pdev)
->  			i2c_imx, IMX_I2C_I2CR);
->  	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2=
-C_I2SR);
-> =20
-> -	i2c_imx_init_recovery_info(i2c_imx, pdev);
-> +	if (IS_ERR_OR_NULL(i2c_imx->pinctrl))
+Hi Andy,
 
-I'd prefer to set i2c_imx->pinctrl to NULL if it's not used and then us=
-e
+=E5=9C=A8 2016/1/14 21:19, Andy Shevchenko =E5=86=99=E9=81=93:
+> On Thu, Jan 14, 2016 at 2:31 PM, David Wu <david.wu@rock-chips.com> w=
+rote:
+>> From: David Wu <wdc@rock-chips.com>
+>>
+>> I2c Controller of rk3x is updated for the rules to caculate clocks.
+>> So it need a new method to caculate i2c clock timing information
+>> for new version. The current method is defined as v0, and new is
+>> v1, next maybe v2......
+> Thanks for an update. My comments below.
+>
+>> --- a/drivers/i2c/busses/i2c-rk3x.c
+>> +++ b/drivers/i2c/busses/i2c-rk3x.c
+>> @@ -90,10 +95,27 @@ struct rk3x_i2c_soc_data {
+>>          int grf_offset;
+>>   };
+>>
+>> +/**
+>> + * struct rk3x_priv_i2c_timings - rk3x I2C timing information
+>> + * @div_low: Divider output for low
+>> + * @div_high: Divider output for high
+>> + */
+>> +struct rk3x_priv_i2c_timings {
+>> +       unsigned long div_low;
+>> +       unsigned long div_high;
+>> +};
+>> +
+>> +struct rk3x_i2c_ops {
+>> +       int (*calc_clock)(unsigned long,
+>> +                         struct i2c_timings *,
+>> +                         struct rk3x_priv_i2c_timings *);
+>> +};
+>> +
+>>   struct rk3x_i2c {
+>>          struct i2c_adapter adap;
+>>          struct device *dev;
+>>          struct rk3x_i2c_soc_data *soc_data;
+>> +       struct rk3x_i2c_ops ops;
+> Not much sense for now to have a struct for one member.
 
-	if (!i2c_imx->pinctrl)
+Yes, it looks ok not to do change here.
 
-here. (Or maybe make i2c_imx_init_recovery_info aware of this situation
-to keep the caller simple?)
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+>>          /* Hardware resources */
+>>          void __iomem *regs;
+>> @@ -102,6 +124,7 @@ struct rk3x_i2c {
+>>
+> What about
+>        /* I2C timing settings */
+>        struct i2c_timings t;
+>
+>        /* Divider settings */
+>        int (*calc_divs)(unsigned long,
+>                          struct i2c_timings *,
+>                          unsigned long *div_low,
+>                          unsigned long *div_high);
+>        unsigned long div_low;
+>        unsigned long div_high;
+> ?
+>
+> As far as I understand you still calculate divider values.
+>
+>>          /* Synchronization & notification */
+>>          spinlock_t lock;
+>> @@ -431,21 +454,20 @@ out:
+>>   }
+>>
+>>   /**
+>> - * Calculate divider values for desired SCL frequency
+>> + * Calculate timing clock info values for desired SCL frequency
+>>    *
+>>    * @clk_rate: I2C input clock rate
+>> - * @t_input: Known I2C timing information.
+>> - * @div_low: Divider output for low
+>> - * @div_high: Divider output for high
+> For now seems better to leave this prototype.
+>
+>> + * @t_input: Known I2C timing information
+>> + * @t_output: Caculated rk3x private timing information that would
+>> + * be written into regs
+>>    *
+>>    * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow=
+=2E In that case
+>>    * a best-effort divider value is returned in divs. If the target =
+rate is
+>>    * too high, we silently use the highest possible rate.
+>>    */
+>> -static int rk3x_i2c_calc_divs(unsigned long clk_rate,
+>> -                             struct i2c_timings *t_input,
+>> -                             unsigned long *div_low,
+>> -                             unsigned long *div_high)
+>> +static int rk3x_i2c_v0_calc_clock(unsigned long clk_rate,
+>> +                                 struct i2c_timings *t_input,
+>> +                                 struct rk3x_priv_i2c_timings *t_ou=
+tput)
+>>   {
+>>          unsigned long spec_min_low_ns, spec_min_high_ns;
+>>          unsigned long spec_setup_start, spec_max_data_hold_ns;
+>
+>> @@ -583,25 +605,25 @@ static int rk3x_i2c_calc_divs(unsigned long cl=
+k_rate,
+>>
+>>                  /* Give low the "ideal" and give high whatever extr=
+a is left */
+>>                  extra_low_div =3D ideal_low_div - min_low_div;
+>> -               *div_low =3D ideal_low_div;
+>> -               *div_high =3D min_high_div + (extra_div - extra_low_=
+div);
+>> +               t_output->div_low =3D ideal_low_div;
+>> +               t_output->div_high =3D min_high_div + (extra_div - e=
+xtra_low_div);
+>>          }
+>>
+>>          /*
+>>           * Adjust to the fact that the hardware has an implicit "+1=
+".
+>>           * NOTE: Above calculations always produce div_low > 0 and =
+div_high > 0.
+>>           */
+>> -       *div_low =3D *div_low - 1;
+>> -       *div_high =3D *div_high - 1;
+>> +       t_output->div_low =3D t_output->div_low - 1;
+> -=3D 1
+>
+>> +       t_output->div_high =3D t_output->div_high - 1;
+> Ditto.
+>
+> But without change of prototype those no needed.
+>
+>>          /* Maximum divider supported by hw is 0xffff */
+>> -       if (*div_low > 0xffff) {
+>> -               *div_low =3D 0xffff;
+>> +       if (t_output->div_low > 0xffff) {
+>> +               t_output->div_low =3D 0xffff;
+>>                  ret =3D -EINVAL;
+>>          }
+>>
+>> -       if (*div_high > 0xffff) {
+>> -               *div_high =3D 0xffff;
+>> +       if (t_output->div_high > 0xffff) {
+>> +               t_output->div_high =3D 0xffff;
+>>                  ret =3D -EINVAL;
+>>          }
+>>
+>> @@ -610,19 +632,21 @@ static int rk3x_i2c_calc_divs(unsigned long cl=
+k_rate,
+>>
+>>   static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long=
+ clk_rate)
+>>   {
+>> -       unsigned long div_low, div_high;
+>>          u64 t_low_ns, t_high_ns;
+>>          int ret;
+>>
+>> -       ret =3D rk3x_i2c_calc_divs(clk_rate, &i2c->t, &div_low, &div=
+_high);
+>> +       ret =3D i2c->ops.calc_clock(clk_rate, &i2c->t, &i2c->t_priv)=
+;
+>>          WARN_ONCE(ret !=3D 0, "Could not reach SCL freq %u", i2c->t=
+=2Ebus_freq_hz);
+>>
+>>          clk_enable(i2c->clk);
+>> -       i2c_writel(i2c, (div_high << 16) | (div_low & 0xffff), REG_C=
+LKDIV);
+>> +       i2c_writel(i2c, (i2c->t_priv.div_high << 16) |
+>> +                 (i2c->t_priv.div_low & 0xffff), REG_CLKDIV);
+>>          clk_disable(i2c->clk);
+>>
+>> -       t_low_ns =3D div_u64(((u64)div_low + 1) * 8 * 1000000000, cl=
+k_rate);
+>> -       t_high_ns =3D div_u64(((u64)div_high + 1) * 8 * 1000000000, =
+clk_rate);
+>> +       t_low_ns =3D div_u64(((u64)i2c->t_priv.div_low + 1) * 8 * 10=
+00000000,
+>> +                          clk_rate);
+>> +       t_high_ns =3D div_u64(((u64)i2c->t_priv.div_high + 1) * 8 * =
+1000000000,
+>> +                           clk_rate);
+>>          dev_dbg(i2c->dev,
+>>                  "CLK %lukhz, Req %uns, Act low %lluns high %lluns\n=
+",
+>>                  clk_rate / 1000,
+>> @@ -652,12 +676,11 @@ static int rk3x_i2c_clk_notifier_cb(struct not=
+ifier_block *nb, unsigned long
+>>   {
+>>          struct clk_notifier_data *ndata =3D data;
+>>          struct rk3x_i2c *i2c =3D container_of(nb, struct rk3x_i2c, =
+clk_rate_nb);
+>> -       unsigned long div_low, div_high;
+>>
+>>          switch (event) {
+>>          case PRE_RATE_CHANGE:
+>> -               if (rk3x_i2c_calc_divs(ndata->new_rate, &i2c->t,
+>> -                                      &div_low, &div_high) !=3D 0)
+>> +               if (i2c->ops.calc_clock(ndata->new_rate, &i2c->t,
+>> +                                       &i2c->t_priv) !=3D 0)
+>>                          return NOTIFY_STOP;
+>>
+>>                  /* scale up */
+>> @@ -861,6 +884,7 @@ static int rk3x_i2c_probe(struct platform_device=
+ *pdev)
+>>          u32 value;
+>>          int irq;
+>>          unsigned long clk_rate;
+>> +       unsigned int version;
+> No need to have a separate variable=E2=80=A6
+>
+>> +       version =3D (readl(i2c->regs + REG_CON) & VERSION_MASK) >> V=
+ERSION_SHIFT;
+>> +       if (version =3D=3D RK3X_I2C_V0)
+>> +               i2c->ops.calc_clock =3D rk3x_i2c_v0_calc_clock;
+> value =3D readl(i2c->regs + REG_CON);
+> if ((value & VERSION_MASK) >> VERSION_SHIFT) =3D=3D RK3X_I2C_V0)
+>    i2c->ops.calc_clock =3D rk3x_i2c_v0_calc_clock;
+>
