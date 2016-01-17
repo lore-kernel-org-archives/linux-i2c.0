@@ -1,43 +1,26 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/1] i2c: designware-pci: use IRQF_COND_SUSPEND flag
-Date: Fri, 15 Jan 2016 22:02:12 +0200
-Message-ID: <1452888132-134446-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Ms Donna Kwok <info@vet.bg.ac.rs>
+Subject: Greetings
+Date: Sun, 17 Jan 2016 01:06:18 +0100
+Message-ID: <e8db96d6affc2ef0c0223a6f2c27317a__46887.4160237194$1452990992$gmane$org@vet.bg.ac.rs>
+Reply-To: Ms.DonnaKwok1@qq.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:13270 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750907AbcAOUDT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 15 Jan 2016 15:03:19 -0500
+Received: from mailserver.vet.bg.ac.rs ([147.91.250.8]:35725 "EHLO
+	mailserver.vet.bg.ac.rs" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753041AbcAQAfo (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Jan 2016 19:35:44 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-This is effectively reapplies the commit b0898fdaffb2 (i2c: designware-pci: use
-IRQF_COND_SUSPEND flag) after the commit d80d134182ba (i2c: designware: Move
-common probe code into i2c_dw_probe()). Original message as follows.
+I am Ms Donna Kwok, HSBC Hong Kong, head of corporate sustainability 
+Asia pacific region. A sum of USD$21,300,000.00 Million was deposited by 
+our Late customer who died without declaring any next of kin before his 
+death in 2006.My suggestion to you is to stand as the next of kin to 
+Fadel Ahmed.We shall share in the ratio of 50% for me, 50% for you.if 
+interested please email: Ms.DonnaKwok1@qq.com
 
-The mentioned flag fixes a warning on Intel Edison board since one of the I2C
-controller shares IRQ line with watchdog timer.
-
-Fixes: d80d134182ba (i2c: designware: Move common probe code into i2c_dw_probe())
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index ba9732c..10fbd6d 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -874,7 +874,8 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
- 	i2c_set_adapdata(adap, dev);
- 
- 	i2c_dw_disable_int(dev);
--	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, IRQF_SHARED,
-+	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr,
-+			     IRQF_SHARED | IRQF_COND_SUSPEND,
- 			     dev_name(dev->dev), dev);
- 	if (r) {
- 		dev_err(dev->dev, "failure requesting irq %i: %d\n",
--- 
-2.7.0.rc3
+Thanks,
+Donna Kwok.
