@@ -1,195 +1,51 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 3/6] Add Advantech iManager HWmon driver
-Date: Mon, 18 Jan 2016 07:40:38 +0000
-Message-ID: <20160118074038.GH28745@x1>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 4/6] Add Advantech iManager I2C driver
+Date: Mon, 18 Jan 2016 07:41:46 +0000
+Message-ID: <20160118074146.GI28745@x1>
 References: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
- <1452468675-5827-4-git-send-email-richard.dorsch@gmail.com>
- <569BE312.4010609@roeck-us.net>
+ <1452468675-5827-5-git-send-email-richard.dorsch@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:35319 "EHLO
-	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753822AbcARHkm (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Jan 2016 02:40:42 -0500
-Received: by mail-wm0-f45.google.com with SMTP id r129so39484429wmr.0
-        for <linux-i2c@vger.kernel.org>; Sun, 17 Jan 2016 23:40:42 -0800 (PST)
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <569BE312.4010609@roeck-us.net>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1452468675-5827-5-git-send-email-richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, jo.sunga-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: richard.dorsch@gmail.com, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, jdelvare@suse.com, wim@iguana.be, jo.sunga@advantech.com
 
-On Sun, 17 Jan 2016, Guenter Roeck wrote:
+On Sun, 10 Jan 2016, richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
 
-> On 01/10/2016 03:31 PM, richard.dorsch@gmail.com wrote:
-> >From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+> From: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>=20
+> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  Documentation/i2c/busses/i2c-imanager |  48 ++++
+>  drivers/i2c/busses/Kconfig            |  11 +
+>  drivers/i2c/busses/Makefile           |   2 +
+>  drivers/i2c/busses/imanager-ec-i2c.c  | 466 ++++++++++++++++++++++++=
+++++++++++
+>  drivers/i2c/busses/imanager-i2c.c     | 239 +++++++++++++++++
+>  include/linux/mfd/imanager/i2c.h      |  55 ++++
 
-Tell us about the device.
+Same comments as Watchdog and HWMON.
 
-> >Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-> >---
-> >  Documentation/hwmon/imanager       |   59 ++
-> >  drivers/hwmon/Kconfig              |   12 +
-> >  drivers/hwmon/Makefile             |    2 +
-> >  drivers/hwmon/imanager-ec-hwmon.c  |  606 +++++++++++++++++++++
-> >  drivers/hwmon/imanager-hwmon.c     | 1057 ++++++++++++++++++++++++=
-++++++++++++
-> >  include/linux/mfd/imanager/hwmon.h |  120 ++++
-
-I'm not keen on stuffing header files in /include/linux/mfd/.  Please
-re-locate them to somewhere specific to hwmon.
-
+>  6 files changed, 821 insertions(+)
+>  create mode 100644 Documentation/i2c/busses/i2c-imanager
+>  create mode 100644 drivers/i2c/busses/imanager-ec-i2c.c
+>  create mode 100644 drivers/i2c/busses/imanager-i2c.c
+>  create mode 100644 include/linux/mfd/imanager/i2c.h
 
 [...]
-
-> >diff --git a/include/linux/mfd/imanager/hwmon.h b/include/linux/mfd/=
-imanager/hwmon.h
-> >new file mode 100644
-> >index 0000000..2a7e191
-> >--- /dev/null
-> >+++ b/include/linux/mfd/imanager/hwmon.h
-> >@@ -0,0 +1,120 @@
-> >+/*
-> >+ * Advantech iManager Hardware Monitoring core
-> >+ *
-> >+ * Copyright (C) 2016 Advantech Co., Ltd., Irvine, CA, USA
-> >+ * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
-> >+ *
-> >+ * This program is free software; you can redistribute  it and/or m=
-odify it
-> >+ * under  the terms of  the GNU General  Public License as publishe=
-d by the
-> >+ * Free Software Foundation;  either version 2 of the  License, or =
-(at your
-> >+ * option) any later version.
-> >+ */
-> >+
-> >+#ifndef __HWMON_H__
-> >+#define __HWMON_H__
-
-Less generic.
-
-> >+#include <linux/types.h>
-> >+
-> >+#define HWM_MAX_ADC	5
-> >+#define HWM_MAX_FAN	3
-> >+
-> >+/* Voltage computation (10-bit ADC, 0..3V input) */
-> >+#define SCALE_IN	2933	/* (3000mV / (2^10 - 1)) * 1000 */
-> >+
-> >+/* Default Voltage Sensors */
-> >+struct hwm_voltage {
-> >+	bool valid;	/* if set, below values are valid */
-> >+
-> >+	int value;
-> >+	int min;
-> >+	int max;
-> >+	int average;
-> >+	int lowest;
-> >+	int highest;
-> >+
-> >+};
-> >+
-> >+struct hwm_fan_temp_limit {
-> >+	int stop;
-> >+	int min;
-> >+	int max;
-> >+};
-> >+
-> >+struct hwm_fan_limit {
-> >+	int min;
-> >+	int max;
-> >+};
-> >+
-> >+struct hwm_fan_alert {
-> >+	int min;
-> >+	int max;
-> >+	int min_alarm;
-> >+	int max_alarm;
-> >+};
-> >+
-> >+struct hwm_sensors_limit {
-> >+	struct hwm_fan_temp_limit temp;
-> >+	struct hwm_fan_limit	  pwm;
-> >+	struct hwm_fan_limit	  rpm;
-> >+};
-> >+
-> >+struct hwm_smartfan {
-> >+	bool valid;	/* if set, below values are valid */
-> >+
-> >+	int mode;
-> >+	int type;
-> >+	int pwm;
-> >+	int speed;
-> >+	int pulse;
-> >+	int alarm;
-> >+	int temp;
-> >+
-> >+	struct hwm_sensors_limit limit;
-> >+	struct hwm_fan_alert	 alert;
-> >+};
-> >+
-> >+struct hwm_data {
-> >+	struct hwm_voltage	volt[HWM_MAX_ADC];
-> >+	struct hwm_smartfan	fan[HWM_MAX_FAN];
-> >+};
-> >+
-> >+enum fan_unit {
-> >+	FAN_CPU,
-> >+	FAN_SYS1,
-> >+	FAN_SYS2,
-> >+};
-> >+
-> >+enum fan_ctrl_type {
-> >+	CTRL_PWM,
-> >+	CTRL_RPM,
-> >+};
-> >+
-> >+enum fan_mode {
-> >+	MODE_OFF,
-> >+	MODE_FULL,
-> >+	MODE_MANUAL,
-> >+	MODE_AUTO,
-> >+};
-
-Are these used outside of the driver?
-
-If not, consider moving them into the *.c file.
-
-> >+int hwm_core_init(void);
-> >+
-> >+int hwm_core_adc_is_available(int num);
-> >+int hwm_core_adc_get_max_count(void);
-> >+int hwm_core_adc_get_value(int num, struct hwm_voltage *volt);
-> >+const char *hwm_core_adc_get_label(int num);
-> >+
-> >+int hwm_core_fan_is_available(int num);
-> >+int hwm_core_fan_get_max_count(void);
-> >+int hwm_core_fan_get_ctrl(int num, struct hwm_smartfan *fan);
-> >+int hwm_core_fan_set_ctrl(int num, int fmode, int ftype, int pwm, i=
-nt pulse,
-> >+			  struct hwm_sensors_limit *limit,
-> >+			  struct hwm_fan_alert *alert);
-> >+
-> >+int hwm_core_fan_set_rpm_limit(int num, int min, int max);
-> >+int hwm_core_fan_set_pwm_limit(int num, int min, int max);
-> >+int hwm_core_fan_set_temp_limit(int num, int stop, int min, int max=
-);
-> >+
-> >+const char *hwm_core_fan_get_label(int num);
-> >+const char *hwm_core_fan_get_temp_label(int num);
-
-Are all of these exported somewhere?
-
-> >+#endif
-> >
->=20
 
 --=20
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 =46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
+g" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
