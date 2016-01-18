@@ -1,47 +1,58 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 2/6] Add Advantech iManager GPIO driver
-Date: Mon, 18 Jan 2016 07:42:15 +0000
-Message-ID: <20160118074215.GJ28745@x1>
-References: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
- <1452468675-5827-3-git-send-email-richard.dorsch@gmail.com>
+From: Li Yang <leoli@freescale.com>
+Subject: Re: [PATCH v3] i2c: imx: make bus recovery through pinctrl optional
+Date: Mon, 18 Jan 2016 16:22:51 +0800
+Message-ID: <CADRPPNR2YDj43XjJUQszEUkKDj256L6p=N2QYteFG8uAfBYdMw@mail.gmail.com>
+References: <1452842844-16256-1-git-send-email-leoyang.li@nxp.com>
+	<20160115075356.GI24441@pengutronix.de>
+	<CADRPPNT=+amxRcea=N7m96=wKgdbRmU8R5cBACvTn7XffKofzQ@mail.gmail.com>
+	<20160115090343.GK24441@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1452468675-5827-3-git-send-email-richard.dorsch@gmail.com>
+In-Reply-To: <20160115090343.GK24441@pengutronix.de>
 Sender: linux-gpio-owner@vger.kernel.org
-To: richard.dorsch@gmail.com
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Gao Pan <pandy.gao@nxp.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, lkml <linux-kernel@vger.kernel.org>, Li Yang <leoyang.li@nxp.com>, linux-gpio@vger.kernel.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 10 Jan 2016, richard.dorsch@gmail.com wrote:
+On Fri, Jan 15, 2016 at 5:03 PM, Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig@pengutronix.de> wrote:
+> Hello Li,
+>
+> On Fri, Jan 15, 2016 at 04:46:06PM +0800, Li Yang wrote:
+>> On Fri, Jan 15, 2016 at 3:53 PM, Uwe Kleine-K=C3=B6nig
+>> <u.kleine-koenig@pengutronix.de> wrote:
+>> >> -     i2c_imx_init_recovery_info(i2c_imx, pdev);
+>> >> +     if (IS_ERR_OR_NULL(i2c_imx->pinctrl))
+>> >
+>> > I'd prefer to set i2c_imx->pinctrl to NULL if it's not used and th=
+en use
+>> >
+>> >         if (!i2c_imx->pinctrl)
+>> >
+>> > here. (Or maybe make i2c_imx_init_recovery_info aware of this situ=
+ation
+>> > to keep the caller simple?)
+>>
+>> Setting not used pointer to NULL might be a good coding practice
+>> generally.  But in this case neither the driver nor gpio framework
+>> checks if the pinctrl is NULL before accessing it.  We still need th=
+e
+>> driver to make sure pinctrl is not used in this situation.  The
+>> benefit of the proposed change seems to be pretty limited.  :)
+>
+> At least it gets rid of IS_ERR_OR_NULL which is used wrongly more oft=
+en
+> than not.
 
-> From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
->=20
-> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-> ---
->  drivers/gpio/Kconfig              |   8 ++
->  drivers/gpio/Makefile             |   2 +
->  drivers/gpio/imanager-ec-gpio.c   |  98 +++++++++++++++++++++
->  drivers/gpio/imanager-gpio.c      | 181 ++++++++++++++++++++++++++++=
-++++++++++
->  include/linux/mfd/imanager/gpio.h |  27 ++++++
+It's true that this API is not used a lot.  Are you suggesting that it
+is poorly designed and probably should be removed?  But I still don't
+quite get the point why it tends to be wrongly used.  Do you consider
+the use in this patch a wrongly used case?
 
-Same comments as Watchdog and HWMON.
-
->  5 files changed, 316 insertions(+)
->  create mode 100644 drivers/gpio/imanager-ec-gpio.c
->  create mode 100644 drivers/gpio/imanager-gpio.c
->  create mode 100644 include/linux/mfd/imanager/gpio.h
-
-[...]
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Regards,
+Leo
 --
 To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
 n
