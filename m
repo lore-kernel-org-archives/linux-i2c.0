@@ -1,41 +1,39 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 4/6] Add Advantech iManager I2C driver
-Date: Mon, 18 Jan 2016 07:41:46 +0000
-Message-ID: <20160118074146.GI28745@x1>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v3 2/6] Add Advantech iManager GPIO driver
+Date: Mon, 18 Jan 2016 07:42:15 +0000
+Message-ID: <20160118074215.GJ28745@x1>
 References: <1452468675-5827-1-git-send-email-richard.dorsch@gmail.com>
- <1452468675-5827-5-git-send-email-richard.dorsch@gmail.com>
+ <1452468675-5827-3-git-send-email-richard.dorsch@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1452468675-5827-5-git-send-email-richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, jo.sunga-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org
+In-Reply-To: <1452468675-5827-3-git-send-email-richard.dorsch@gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: richard.dorsch@gmail.com
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, jdelvare@suse.com, linux@roeck-us.net, wim@iguana.be, jo.sunga@advantech.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 10 Jan 2016, richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+On Sun, 10 Jan 2016, richard.dorsch@gmail.com wrote:
 
-> From: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 >=20
-> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 > ---
->  Documentation/i2c/busses/i2c-imanager |  48 ++++
->  drivers/i2c/busses/Kconfig            |  11 +
->  drivers/i2c/busses/Makefile           |   2 +
->  drivers/i2c/busses/imanager-ec-i2c.c  | 466 ++++++++++++++++++++++++=
+>  drivers/gpio/Kconfig              |   8 ++
+>  drivers/gpio/Makefile             |   2 +
+>  drivers/gpio/imanager-ec-gpio.c   |  98 +++++++++++++++++++++
+>  drivers/gpio/imanager-gpio.c      | 181 ++++++++++++++++++++++++++++=
 ++++++++++
->  drivers/i2c/busses/imanager-i2c.c     | 239 +++++++++++++++++
->  include/linux/mfd/imanager/i2c.h      |  55 ++++
+>  include/linux/mfd/imanager/gpio.h |  27 ++++++
 
 Same comments as Watchdog and HWMON.
 
->  6 files changed, 821 insertions(+)
->  create mode 100644 Documentation/i2c/busses/i2c-imanager
->  create mode 100644 drivers/i2c/busses/imanager-ec-i2c.c
->  create mode 100644 drivers/i2c/busses/imanager-i2c.c
->  create mode 100644 include/linux/mfd/imanager/i2c.h
+>  5 files changed, 316 insertions(+)
+>  create mode 100644 drivers/gpio/imanager-ec-gpio.c
+>  create mode 100644 drivers/gpio/imanager-gpio.c
+>  create mode 100644 include/linux/mfd/imanager/gpio.h
 
 [...]
 
@@ -45,7 +43,7 @@ Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 =46ollow Linaro: Facebook | Twitter | Blog
 --
-To unsubscribe from this list: send the line "unsubscribe linux-watchdo=
-g" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
+n
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
