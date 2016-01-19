@@ -1,72 +1,78 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v3] i2c: imx: make bus recovery through pinctrl optional
-Date: Mon, 18 Jan 2016 09:37:04 +0100
-Message-ID: <20160118083704.GQ24441@pengutronix.de>
-References: <1452842844-16256-1-git-send-email-leoyang.li@nxp.com>
- <20160115075356.GI24441@pengutronix.de>
- <CADRPPNT=+amxRcea=N7m96=wKgdbRmU8R5cBACvTn7XffKofzQ@mail.gmail.com>
- <20160115090343.GK24441@pengutronix.de>
- <CADRPPNR2YDj43XjJUQszEUkKDj256L6p=N2QYteFG8uAfBYdMw@mail.gmail.com>
+From: ntelkar@codeaurora.org
+Subject: Re: [PATCH V6 0/6] i2c: qup: Add support for v2 tags and bam dma
+Date: Tue, 19 Jan 2016 07:48:49 -0000
+Message-ID: <e45ba8b5efc13a4eda4b5c1b2282facc.squirrel@www.codeaurora.org>
+References: <1452588233-1803-1-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CADRPPNR2YDj43XjJUQszEUkKDj256L6p=N2QYteFG8uAfBYdMw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Li Yang <leoli@freescale.com>
-Cc: Gao Pan <pandy.gao@nxp.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, lkml <linux-kernel@vger.kernel.org>, Li Yang <leoyang.li@nxp.com>, linux-gpio@vger.kernel.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.29.96]:54470 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757259AbcASHsv (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jan 2016 02:48:51 -0500
+In-Reply-To: <1452588233-1803-1-git-send-email-sricharan@codeaurora.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sricharan R <sricharan@codeaurora.org>
+Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, wsa@the-dreams.de, srichara@codeaurora.org
 
-Hello Leo,
+Added SMB support on top of these patches and tested  i2c with ipmitool.
+It works as expected.
+Tested-by: ntelkar@codeaurora.org
 
-On Mon, Jan 18, 2016 at 04:22:51PM +0800, Li Yang wrote:
-> On Fri, Jan 15, 2016 at 5:03 PM, Uwe Kleine-K=F6nig
-> <u.kleine-koenig@pengutronix.de> wrote:
-> > On Fri, Jan 15, 2016 at 04:46:06PM +0800, Li Yang wrote:
-> >> On Fri, Jan 15, 2016 at 3:53 PM, Uwe Kleine-K=F6nig
-> >> <u.kleine-koenig@pengutronix.de> wrote:
-> >> >> -     i2c_imx_init_recovery_info(i2c_imx, pdev);
-> >> >> +     if (IS_ERR_OR_NULL(i2c_imx->pinctrl))
-> >> >
-> >> > I'd prefer to set i2c_imx->pinctrl to NULL if it's not used and =
-then use
-> >> >
-> >> >         if (!i2c_imx->pinctrl)
-> >> >
-> >> > here. (Or maybe make i2c_imx_init_recovery_info aware of this si=
-tuation
-> >> > to keep the caller simple?)
-> >>
-> >> Setting not used pointer to NULL might be a good coding practice
-> >> generally.  But in this case neither the driver nor gpio framework
-> >> checks if the pinctrl is NULL before accessing it.  We still need =
-the
-> >> driver to make sure pinctrl is not used in this situation.  The
-> >> benefit of the proposed change seems to be pretty limited.  :)
-> >
-> > At least it gets rid of IS_ERR_OR_NULL which is used wrongly more o=
-ften
-> > than not.
->=20
-> It's true that this API is not used a lot.  Are you suggesting that i=
-t
-> is poorly designed and probably should be removed?  But I still don't
-> quite get the point why it tends to be wrongly used.  Do you consider
-> the use in this patch a wrongly used case?
-
-See http://permalink.gmane.org/gmane.linux.ports.arm.omap/97874 for an
-earlier discussion. Having said that, I think at the moment there is no
-such bug in this case, still I agree with Russell that IS_ERR_OR_NULL
-isn't nice and so would prefer not to add new instances.
-
-Best regards
-Uwe
-
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+> i2c: qup: Add support for v2 tags and bam dma
+>
+> QUP from version 2.1.1 onwards, supports a new format of i2c command tags.
+> Tag codes instructs the controller to perform a operation like read/write.
+> This new tagging version supports and is required for adding bam dma
+> capabilities. V2 tags supports transfer of more than 256 bytes in a single
+> i2c
+> transaction. Also adding bam dma support facilitates transferring each
+> i2c_msg
+> in i2c_msgs without a 'stop' bit in between which is required for some of
+> the clients.
+>
+> Tested this series on apq8074 dragon board eeprom client on i2c bus1
+>
+> [V6] Added review tags and fixed a checkpatch warning in patch 4/6.
+>
+> [V5] Addressed few more comments from Ivan T. Ivanov.
+>      Squashed patch 2 and 3 as no point in having only few lines of
+>      common code between v1 and v2 tags for increased complexity.
+>      Couple of non functional review comments fixes in patch 3, 4.
+>      Added a change in patch 4 to have proper transfer completion in
+>      a corner case. patch 5, 6 unchanged.
+>
+> [V4] Added a patch to factor out some common code.
+>      Removed support for freq > 400KHZ as per comments.
+>      Addressed comments from Ivan T. Ivanov to keep the code for
+>      V2 support in a separate path.
+>      Changed the authorship of V2 tags support patch.
+>
+> [V3] Added support to coalesce each i2c_msg in i2c_msgs for fifo and
+>      block mode in Patch 2. Also addressed further code comments.
+>
+>      http://comments.gmane.org/gmane.linux.drivers.i2c/22497
+>
+> [V2] Addressed comments from Ivan T. Ivanov, Andy Gross [v1] Initial
+> Version
+>
+> Sricharan R (6):
+>   i2c: qup: Change qup_wait_writeready function to use for all timeouts
+>   i2c: qup: Add V2 tags support
+>   i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
+>   i2c: qup: Add bam dma capabilities
+>   dts: msm8974: Add blsp2_bam dma node
+>   dts: msm8974: Add dma channels for blsp2_i2c1 node
+>
+>  arch/arm/boot/dts/qcom-msm8974.dtsi |  14 +-
+>  drivers/i2c/busses/i2c-qup.c        | 922
+> ++++++++++++++++++++++++++++++++++--
+>  2 files changed, 887 insertions(+), 49 deletions(-)
+>
+> --
+> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+> of Code Aurora Forum, hosted by The Linux Foundation
+>
+>
