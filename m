@@ -1,78 +1,69 @@
-From: ntelkar@codeaurora.org
-Subject: Re: [PATCH V6 0/6] i2c: qup: Add support for v2 tags and bam dma
-Date: Tue, 19 Jan 2016 07:48:49 -0000
-Message-ID: <e45ba8b5efc13a4eda4b5c1b2282facc.squirrel@www.codeaurora.org>
-References: <1452588233-1803-1-git-send-email-sricharan@codeaurora.org>
+From: <ying.zhang22455@nxp.com>
+Subject: [PATCH] power/mpc85xx: Add delay after enabling I2C master
+Date: Tue, 19 Jan 2016 15:57:05 +0800
+Message-ID: <1453190225-37736-1-git-send-email-ying.zhang22455@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:54470 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757259AbcASHsv (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jan 2016 02:48:51 -0500
-In-Reply-To: <1452588233-1803-1-git-send-email-sricharan@codeaurora.org>
+Received: from mail-by2on0090.outbound.protection.outlook.com ([207.46.100.90]:39744
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752191AbcASIUM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 19 Jan 2016 03:20:12 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sricharan R <sricharan@codeaurora.org>
-Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, wsa@the-dreams.de, srichara@codeaurora.org
+To: linux-i2c@vger.kernel.org
+Cc: xiaobo.xie@nxp.com, york.sun@nxp.com, Ying Zhang <b40530@freescale.com>
 
-Added SMB support on top of these patches and tested  i2c with ipmitool.
-It works as expected.
-Tested-by: ntelkar@codeaurora.org
+From: Ying Zhang <b40530@freescale.com>
 
-> i2c: qup: Add support for v2 tags and bam dma
->
-> QUP from version 2.1.1 onwards, supports a new format of i2c command tags.
-> Tag codes instructs the controller to perform a operation like read/write.
-> This new tagging version supports and is required for adding bam dma
-> capabilities. V2 tags supports transfer of more than 256 bytes in a single
-> i2c
-> transaction. Also adding bam dma support facilitates transferring each
-> i2c_msg
-> in i2c_msgs without a 'stop' bit in between which is required for some of
-> the clients.
->
-> Tested this series on apq8074 dragon board eeprom client on i2c bus1
->
-> [V6] Added review tags and fixed a checkpatch warning in patch 4/6.
->
-> [V5] Addressed few more comments from Ivan T. Ivanov.
->      Squashed patch 2 and 3 as no point in having only few lines of
->      common code between v1 and v2 tags for increased complexity.
->      Couple of non functional review comments fixes in patch 3, 4.
->      Added a change in patch 4 to have proper transfer completion in
->      a corner case. patch 5, 6 unchanged.
->
-> [V4] Added a patch to factor out some common code.
->      Removed support for freq > 400KHZ as per comments.
->      Addressed comments from Ivan T. Ivanov to keep the code for
->      V2 support in a separate path.
->      Changed the authorship of V2 tags support patch.
->
-> [V3] Added support to coalesce each i2c_msg in i2c_msgs for fifo and
->      block mode in Patch 2. Also addressed further code comments.
->
->      http://comments.gmane.org/gmane.linux.drivers.i2c/22497
->
-> [V2] Addressed comments from Ivan T. Ivanov, Andy Gross [v1] Initial
-> Version
->
-> Sricharan R (6):
->   i2c: qup: Change qup_wait_writeready function to use for all timeouts
->   i2c: qup: Add V2 tags support
->   i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
->   i2c: qup: Add bam dma capabilities
->   dts: msm8974: Add blsp2_bam dma node
->   dts: msm8974: Add dma channels for blsp2_i2c1 node
->
->  arch/arm/boot/dts/qcom-msm8974.dtsi |  14 +-
->  drivers/i2c/busses/i2c-qup.c        | 922
-> ++++++++++++++++++++++++++++++++++--
->  2 files changed, 887 insertions(+), 49 deletions(-)
->
-> --
-> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
-> of Code Aurora Forum, hosted by The Linux Foundation
->
->
+Erratum A-006037 indicates I2C controller executes the write to I2CCR only
+after it sees SCL idle for 64K cycle of internal I2C controller clocks. If
+during this waiting period, I2C controller is disabled (I2CCR[MEN] set to
+0), then the controller could end in bad state, and hang the future access
+to I2C register.
+The mpc_i2c_fixup() function tries to recover the bus from a stalled state
+where the 9th clock pulse wasn't generated. However, this workaround
+disables and enables I2C controller without meeting waiting requirement of
+this erratum.
+This erratum applies to some 85xx SoCs. It is safe to apply to all of them
+for mpc_i2c_fixup().
+
+Signed-off-by: york.sun@nxp.com
+---
+ drivers/i2c/busses/i2c-mpc.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 48ecffe..85c1f5c 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -109,7 +109,13 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ {
+ 	int k;
+-	u32 delay_val = 1000000 / i2c->real_clk + 1;
++	u32 delay_val;
++
++#ifdef CONFIG_PPC_85xx
++	delay_val = 65536 / (fsl_get_sys_freq() / 2000000);
++#else
++	delay_val = 1000000 / i2c->real_clk + 1;
++#endif
+ 
+ 	if (delay_val < 2)
+ 		delay_val = 2;
+@@ -119,7 +125,11 @@ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ 		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
+ 		readb(i2c->base + MPC_I2C_DR);
+ 		writeccr(i2c, CCR_MEN);
++#ifdef CONFIG_PPC_85xx
++		udelay(delay_val);
++#else
+ 		udelay(delay_val << 1);
++#endif
+ 	}
+ }
+ 
+-- 
+2.1.0.27.g96db324
