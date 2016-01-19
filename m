@@ -1,206 +1,49 @@
 From: Sricharan R <sricharan@codeaurora.org>
-Subject: [PATCH V7 1/6] i2c: qup: Change qup_wait_writeready function to use
- for all timeouts
-Date: Tue, 19 Jan 2016 15:32:41 +0530
-Message-ID: <1453197766-18976-2-git-send-email-sricharan@codeaurora.org>
+Subject: [PATCH V7 5/6] dts: msm8974: Add blsp2_bam dma node
+Date: Tue, 19 Jan 2016 15:32:45 +0530
+Message-ID: <1453197766-18976-6-git-send-email-sricharan@codeaurora.org>
 References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 In-Reply-To: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: wsa@the-dreams.de
-Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, sricharan@codeaurora.org, linux-arm-kernel@lists.infradead.org
+Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, sricharan@codeaurora.org, architt@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
-
-qup_wait_writeready waits only on a output fifo empty event.
-Change the same function to accept the event and data length
-to wait as parameters. This way the same function can be used for
-timeouts in other places as well.
 
 Signed-off-by: Sricharan R <sricharan@codeaurora.org>
 Reviewed-by: Andy Gross <andy.gross@linaro.org>
-Tested-by: Archit Taneja <architt@codeaurora.org>
-Tested-by: Telkar Nagender <ntelkar@codeaurora.org>
 ---
- drivers/i2c/busses/i2c-qup.c | 67 +++++++++++++++++++++++++++++++-------------
- 1 file changed, 48 insertions(+), 19 deletions(-)
+ arch/arm/boot/dts/qcom-msm8974.dtsi | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index fdcbdab..81ed120 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -98,6 +98,9 @@
- #define QUP_STATUS_ERROR_FLAGS		0x7c
+diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
+index 753bdfd..7786408 100644
+--- a/arch/arm/boot/dts/qcom-msm8974.dtsi
++++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
+@@ -1,6 +1,6 @@
+ /dts-v1/;
  
- #define QUP_READ_LIMIT			256
-+#define SET_BIT				0x1
-+#define RESET_BIT			0x0
-+#define ONE_BYTE			0x1
+-#include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/interrupt-controller/arm-gic.h>
+ #include <dt-bindings/clock/qcom,gcc-msm8974.h>
+ #include "skeleton.dtsi"
  
- struct qup_i2c_dev {
- 	struct device		*dev;
-@@ -221,26 +224,42 @@ static int qup_i2c_change_state(struct qup_i2c_dev *qup, u32 state)
- 	return 0;
- }
- 
--static int qup_i2c_wait_writeready(struct qup_i2c_dev *qup)
-+/**
-+ * qup_i2c_wait_ready - wait for a give number of bytes in tx/rx path
-+ * @qup: The qup_i2c_dev device
-+ * @op: The bit/event to wait on
-+ * @val: value of the bit to wait on, 0 or 1
-+ * @len: The length the bytes to be transferred
-+ */
-+static int qup_i2c_wait_ready(struct qup_i2c_dev *qup, int op, bool val,
-+			      int len)
- {
- 	unsigned long timeout;
- 	u32 opflags;
- 	u32 status;
-+	u32 shift = __ffs(op);
- 
--	timeout = jiffies + HZ;
-+	len *= qup->one_byte_t;
-+	/* timeout after a wait of twice the max time */
-+	timeout = jiffies + len * 4;
- 
- 	for (;;) {
- 		opflags = readl(qup->base + QUP_OPERATIONAL);
- 		status = readl(qup->base + QUP_I2C_STATUS);
- 
--		if (!(opflags & QUP_OUT_NOT_EMPTY) &&
--		    !(status & I2C_STATUS_BUS_ACTIVE))
--			return 0;
-+		if (((opflags & op) >> shift) == val) {
-+			if (op == QUP_OUT_NOT_EMPTY) {
-+				if (!(status & I2C_STATUS_BUS_ACTIVE))
-+					return 0;
-+			} else {
-+				return 0;
-+			}
-+		}
- 
- 		if (time_after(jiffies, timeout))
- 			return -ETIMEDOUT;
- 
--		usleep_range(qup->one_byte_t, qup->one_byte_t * 2);
-+		usleep_range(len, len * 2);
- 	}
- }
- 
-@@ -261,13 +280,13 @@ static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 	}
- }
- 
--static void qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
-+static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- {
- 	u32 addr = msg->addr << 1;
- 	u32 qup_tag;
--	u32 opflags;
- 	int idx;
- 	u32 val;
-+	int ret = 0;
- 
- 	if (qup->pos == 0) {
- 		val = QUP_TAG_START | addr;
-@@ -279,9 +298,10 @@ static void qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 
- 	while (qup->pos < msg->len) {
- 		/* Check that there's space in the FIFO for our pair */
--		opflags = readl(qup->base + QUP_OPERATIONAL);
--		if (opflags & QUP_OUT_FULL)
--			break;
-+		ret = qup_i2c_wait_ready(qup, QUP_OUT_FULL, RESET_BIT,
-+					 4 * ONE_BYTE);
-+		if (ret)
-+			return ret;
- 
- 		if (qup->pos == msg->len - 1)
- 			qup_tag = QUP_TAG_STOP;
-@@ -300,6 +320,8 @@ static void qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 		qup->pos++;
- 		idx++;
- 	}
+@@ -345,6 +345,16 @@
+ 			interrupt-controller;
+ 			#interrupt-cells = <4>;
+ 		};
 +
-+	return ret;
- }
++		blsp2_dma: dma-controller@f9944000 {
++			compatible = "qcom,bam-v1.4.0";
++			reg = <0xf9944000 0x19000>;
++			interrupts = <GIC_SPI 239 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&gcc GCC_BLSP2_AHB_CLK>;
++			clock-names = "bam_clk";
++			#dma-cells = <1>;
++			qcom,ee = <0>;
++		};
+ 	};
  
- static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
-@@ -325,7 +347,9 @@ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 		if (ret)
- 			goto err;
- 
--		qup_i2c_issue_write(qup, msg);
-+		ret = qup_i2c_issue_write(qup, msg);
-+		if (ret)
-+			goto err;
- 
- 		ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
- 		if (ret)
-@@ -347,7 +371,7 @@ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 	} while (qup->pos < msg->len);
- 
- 	/* Wait for the outstanding data in the fifo to drain */
--	ret = qup_i2c_wait_writeready(qup);
-+	ret = qup_i2c_wait_ready(qup, QUP_OUT_NOT_EMPTY, RESET_BIT, ONE_BYTE);
- 
- err:
- 	disable_irq(qup->irq);
-@@ -384,18 +408,19 @@ static void qup_i2c_issue_read(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- }
- 
- 
--static void qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
-+static int qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- {
--	u32 opflags;
- 	u32 val = 0;
- 	int idx;
-+	int ret = 0;
- 
- 	for (idx = 0; qup->pos < msg->len; idx++) {
- 		if ((idx & 1) == 0) {
- 			/* Check that FIFO have data */
--			opflags = readl(qup->base + QUP_OPERATIONAL);
--			if (!(opflags & QUP_IN_NOT_EMPTY))
--				break;
-+			ret = qup_i2c_wait_ready(qup, QUP_IN_NOT_EMPTY,
-+						 SET_BIT, 4 * ONE_BYTE);
-+			if (ret)
-+				return ret;
- 
- 			/* Reading 2 words at time */
- 			val = readl(qup->base + QUP_IN_FIFO_BASE);
-@@ -405,6 +430,8 @@ static void qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 			msg->buf[qup->pos++] = val >> QUP_MSW_SHIFT;
- 		}
- 	}
-+
-+	return ret;
- }
- 
- static int qup_i2c_read_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
-@@ -450,7 +477,9 @@ static int qup_i2c_read_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 			goto err;
- 		}
- 
--		qup_i2c_read_fifo(qup, msg);
-+		ret = qup_i2c_read_fifo(qup, msg);
-+		if (ret)
-+			goto err;
- 	} while (qup->pos < msg->len);
- 
- err:
+ 	smd {
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
