@@ -1,32 +1,27 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: [PATCH 2/2] bindings: i2c: Add clock entries for i2c-xiic
-Date: Wed, 20 Jan 2016 14:37:42 +0530
-Message-ID: <CAKfKVtEM8AKWaNpX78c8Cqq7=HW7cJwHyem2t7=sRH+ehYtvNA@mail.gmail.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: xiic: Implement Power management
+Date: Wed, 20 Jan 2016 14:41:48 +0530
+Message-ID: <CAKfKVtHxgwuKO6sKTWMQv+M=kDwpdMdY72WNm22so_eYB2cFuw@mail.gmail.com>
 References: <1451893834-1066-1-git-send-email-shubhraj@xilinx.com>
-	<1451893834-1066-2-git-send-email-shubhraj@xilinx.com>
-	<20160104141843.GA26927@rob-hp-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qg0-f66.google.com ([209.85.192.66]:35141 "EHLO
-	mail-qg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933453AbcATJHn (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Jan 2016 04:07:43 -0500
-In-Reply-To: <20160104141843.GA26927@rob-hp-laptop>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1451893834-1066-1-git-send-email-shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-On Mon, Jan 4, 2016 at 7:48 PM, Rob Herring <robh@kernel.org> wrote:
-> On Mon, Jan 04, 2016 at 01:20:34PM +0530, Shubhrajyoti Datta wrote:
->> Add clock description for i2c-xiic
->>
->> Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
->> ---
->>  Documentation/devicetree/bindings/i2c/i2c-xiic.txt |    3 +++
->>  1 files changed, 3 insertions(+), 0 deletions(-)
+On Mon, Jan 4, 2016 at 1:20 PM, Shubhrajyoti Datta
+<shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org> wrote:
+> Enable power management. This patch enables the clocks
+> before transfer and disables after the transfer.
 >
-> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> ---
 
-Thanks.
+If there are no further comments can this be considered for merge?
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
