@@ -1,57 +1,136 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v5 0/3] Support multiplexed main SMBus interface on
- SB800
-Date: Fri, 22 Jan 2016 13:50:40 +0100
-Message-ID: <20160122135040.6db7b66b@endymion.delvare>
-References: <1447960429-19256-1-git-send-email-fetzer.ch@gmail.com>
+Subject: [PATCH] i2c-piix4: Fix SB800 locking
+Date: Fri, 22 Jan 2016 14:12:02 +0100
+Message-ID: <20160122141202.09c94802@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:45613 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:48848 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753369AbcAVMuo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 22 Jan 2016 07:50:44 -0500
-In-Reply-To: <1447960429-19256-1-git-send-email-fetzer.ch@gmail.com>
+	id S1753369AbcAVNMG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 22 Jan 2016 08:12:06 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Christian Fetzer <fetzer.ch@gmail.com>
-Cc: linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, galandilias@gmail.com
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Christian Fetzer <fetzer.ch@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Hi Christian,
+We need a single mutex for all 4 shared SMBus ports on the SB800. A
+per-port mutex doesn't protect us from concurrent access.
 
-On Thu, 19 Nov 2015 20:13:46 +0100, Christian Fetzer wrote:
-> This is an attempt to upstream the patches created by Thomas Brandon and
-> Eddi De Pieri to support the multiplexed main SMBus interface on the SB800
-> chipset. (https://www.mail-archive.com/linux-i2c@vger.kernel.org/msg06757.html)
-> 
-> I have mainly rebased the latest patch version and tested the driver on a
-> HP ProLiant MicroServer G7 N54L (where this patch allows to access sensor data
-> from a w83795adg).
-> 
-> The patched driver is running stable on the machine, given that ic2_piix4 is
-> loaded before jc42 and w83795. If jc42 is loaded before i2c_piix4 calling
-> sensors triggers some errors:
->     ERROR: Can't get value of subfeature temp1_min_alarm: Can't read
-> 
-> While the kernel log shows:
->     i2c i2c-1: Transaction (pre): CNT=0c, CMD=05, ADD=31, DAT0=03, DAT1=c0
->     i2c i2c-1: Error: no response!
->     i2c i2c-1: Transaction (post): CNT=0c, CMD=05, ADD=31, DAT0=ff, DAT1=ff
-> Unfortunately I don't know how to tackle this specific issue.
+In theory the mutex should be per PCI device, however in practice we
+know that there's only ever a single instance of the device in a given
+system so we can use a global.
 
-I think I can explain it. In piix4_setup_sb800() you touch the
-SB800_PIIX4_SMB_IDX port without first taking the mutex that protects
-it. You only take the mutex on transactions (in piix4_access_sb800) not
-during initialization. If self-probing I2C device drivers such as jc42
-are already loaded before you load i2c-piix4, then as soon as the first
-SMBus port is registered, i2c-core will try to attach I2C devices to
-it, while at the same time i2c-piix4 is registering the second SMBus
-port. So SB800_PIIX4_SMB_IDX is changed while piix4_access_sb800
-accesses it and chaos happens.
+Also take the mutex during initialization, as first port may be already
+in use when second port is initialized.
 
-I think if we had proper locking in piix4_setup_sb800() then you should
-be able to load jc42 first and then i2c-piix4 and it should work fine.
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: Christian Fetzer <fetzer.ch@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/i2c-piix4.c |   22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
+
+--- linux-4.5-rc0.orig/drivers/i2c/busses/i2c-piix4.c	2016-01-22 13:51:27.500458587 +0100
++++ linux-4.5-rc0/drivers/i2c/busses/i2c-piix4.c	2016-01-22 13:56:13.210960522 +0100
+@@ -137,6 +137,7 @@ static const struct dmi_system_id piix4_
+ };
+ 
+ /* SB800 globals */
++DEFINE_MUTEX(piix4_mutex_sb800);
+ static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
+ 	"SDA0", "SDA2", "SDA3", "SDA4"
+ };
+@@ -148,7 +149,6 @@ struct i2c_piix4_adapdata {
+ 	/* SB800 */
+ 	bool sb800_main;
+ 	unsigned short port;
+-	struct mutex *mutex;
+ };
+ 
+ static int piix4_setup(struct pci_dev *PIIX4_dev,
+@@ -275,10 +275,12 @@ static int piix4_setup_sb800(struct pci_
+ 	else
+ 		smb_en = (aux) ? 0x28 : 0x2c;
+ 
++	mutex_lock(&piix4_mutex_sb800);
+ 	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+ 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+ 	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+ 	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
++	mutex_unlock(&piix4_mutex_sb800);
+ 
+ 	if (!smb_en) {
+ 		smb_en_status = smba_en_lo & 0x10;
+@@ -559,7 +561,7 @@ static s32 piix4_access_sb800(struct i2c
+ 	u8 port;
+ 	int retval;
+ 
+-	mutex_lock(adapdata->mutex);
++	mutex_lock(&piix4_mutex_sb800);
+ 
+ 	outb_p(SB800_PIIX4_PORT_IDX, SB800_PIIX4_SMB_IDX);
+ 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+@@ -574,7 +576,7 @@ static s32 piix4_access_sb800(struct i2c
+ 
+ 	outb_p(smba_en_lo, SB800_PIIX4_SMB_IDX + 1);
+ 
+-	mutex_unlock(adapdata->mutex);
++	mutex_unlock(&piix4_mutex_sb800);
+ 
+ 	return retval;
+ }
+@@ -673,17 +675,10 @@ static int piix4_add_adapter(struct pci_
+ 
+ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba)
+ {
+-	struct mutex *mutex;
+ 	struct i2c_piix4_adapdata *adapdata;
+ 	int port;
+ 	int retval;
+ 
+-	mutex = kzalloc(sizeof(*mutex), GFP_KERNEL);
+-	if (mutex == NULL)
+-		return -ENOMEM;
+-
+-	mutex_init(mutex);
+-
+ 	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
+ 		retval = piix4_add_adapter(dev, smba,
+ 					   piix4_main_port_names_sb800[port],
+@@ -696,7 +691,6 @@ static int piix4_add_adapters_sb800(stru
+ 		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
+ 		adapdata->sb800_main = true;
+ 		adapdata->port = port;
+-		adapdata->mutex = mutex;
+ 	}
+ 
+ 	return retval;
+@@ -714,8 +708,6 @@ error:
+ 		}
+ 	}
+ 
+-	kfree(mutex);
+-
+ 	return retval;
+ }
+ 
+@@ -798,10 +790,8 @@ static void piix4_adap_remove(struct i2c
+ 		i2c_del_adapter(adap);
+ 		if (adapdata->port == 0) {
+ 			release_region(adapdata->smba, SMBIOSIZE);
+-			if (adapdata->sb800_main) {
+-				kfree(adapdata->mutex);
++			if (adapdata->sb800_main)
+ 				release_region(SB800_PIIX4_SMB_IDX, 2);
+-			}
+ 		}
+ 		kfree(adapdata);
+ 		kfree(adap);
+
 
 -- 
 Jean Delvare
