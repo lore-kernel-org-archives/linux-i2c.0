@@ -1,48 +1,48 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v3 4/5] i2c-piix4: Add support for multiplexed main
- adapter in SB800
-Date: Fri, 22 Jan 2016 15:20:39 +0200
-Message-ID: <1453468839.2521.193.camel@linux.intel.com>
-References: <1446896126-13369-1-git-send-email-fetzer.ch@gmail.com>
-	 <1446896126-13369-5-git-send-email-fetzer.ch@gmail.com>
-	 <1447065942.31665.29.camel@linux.intel.com>
-	 <20160122133953.1945e36e@endymion.delvare>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v5 3/3] i2c-piix4: Add adapter port name support for
+ SB800 chipset
+Date: Fri, 22 Jan 2016 14:20:54 +0100
+Message-ID: <20160122142054.38d2d06f@endymion.delvare>
+References: <1447960429-19256-1-git-send-email-fetzer.ch@gmail.com>
+	<1447960429-19256-4-git-send-email-fetzer.ch@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:23752 "EHLO mga09.intel.com"
+Received: from mx2.suse.de ([195.135.220.15]:49816 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753756AbcAVNUT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 22 Jan 2016 08:20:19 -0500
-In-Reply-To: <20160122133953.1945e36e@endymion.delvare>
+	id S1753623AbcAVNU5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 22 Jan 2016 08:20:57 -0500
+In-Reply-To: <1447960429-19256-4-git-send-email-fetzer.ch@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Christian Fetzer <fetzer.ch@gmail.com>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, galandilias@gmail.com, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>
+To: Christian Fetzer <fetzer.ch@gmail.com>
+Cc: linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, galandilias@gmail.com
 
-On Fri, 2016-01-22 at 13:39 +0100, Jean Delvare wrote:
-> Sorry for the late reaction, but...
->=20
-> On Mon, 09 Nov 2015 12:45:42 +0200, Andy Shevchenko wrote:
-> > On Sat, 2015-11-07 at 12:35 +0100, Christian Fetzer wrote:
-> > (...)
-> > > @@ -129,10 +133,12 @@ static const struct dmi_system_id
-> > > piix4_dmi_ibm[] =3D {
-> > > =C2=A0};
-> > > =C2=A0
-> > > =C2=A0/* SB800 globals */
-> > > +DEFINE_MUTEX(piix4_mutex_sb800);
-> >=20
-> > Same question as for patch 3.
->=20
-> Noooooo!
+On Thu, 19 Nov 2015 20:13:49 +0100, Christian Fetzer wrote:
+> This patch adds support for port names for the SB800 chipset.
+> Since the chipset supports a multiplexed main SMBus controller, adding
+> the channel name to the adapter name is necessary to differentiate the
+> ports better (for example in sensors output).
+> (...)
 
-Calm down, it was only a question. I don't know why the author chose
-the way that is in upstream.
+Note that I'm not too happy with this change. I understand the need for
+unique I2C bus names, however changing names for legacy devices which
+have a single bus is bad. The name can be used in sensors.conf or in
+scripts to uniquely reference a specific I2C bus, and changing it will
+break that.
 
-Good you have explained this here.
+So I'd rather only change the names for the mux'd SB800 ports where
+this is needed, and leave the rest untouched.
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Also I don't much like "SDA0"... in bus names. SDA0 standard for
+"serial data 0" is the name of one of the pins for SMBus channel 0. The
+other one is SCL0 ("serial clock 0".) There's no reason to include a
+pin name in the I2C adapter name string, just the channel number
+matters.
+
+I'll submit a patch later today that implements things the way I would
+like, and you can comment on it.
+-- 
+Jean Delvare
+SUSE L3 Support
