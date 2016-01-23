@@ -1,107 +1,68 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] i2c: mt8173: add 4GB mode support in i2c driver.
-Date: Fri, 22 Jan 2016 11:36:41 -0800
-Message-ID: <CAGS+omAwHd2icDYW5444QS7XRX5aR_2K=+jQRgxkLuz133tgdw@mail.gmail.com>
-References: <1453455482-3218-1-git-send-email-liguo.zhang@mediatek.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: fix a possible NULL dereference
+Date: Sat, 23 Jan 2016 11:56:46 +0100
+Message-ID: <20160123105645.GA2036@katana>
+References: <1447313163-23848-1-git-send-email-clabbe.montjoie@gmail.com>
+ <20151112122923.GA31671@ulmo>
+ <20151112125422.GA3758@Red>
+ <20151112132837.GF31671@ulmo>
+ <20151112134519.GJ24008@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-vk0-f42.google.com ([209.85.213.42]:32917 "EHLO
-	mail-vk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753954AbcAVThC (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Jan 2016 14:37:02 -0500
-Received: by mail-vk0-f42.google.com with SMTP id e64so47192971vkg.0
-        for <linux-i2c@vger.kernel.org>; Fri, 22 Jan 2016 11:37:01 -0800 (PST)
-In-Reply-To: <1453455482-3218-1-git-send-email-liguo.zhang@mediatek.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20151112134519.GJ24008-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LABBE Corentin <montjoie.mailing-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LABBE Corentin <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Liguo Zhang <liguo.zhang@mediatek.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Xudong Chen <xudong.chen@mediatek.com>, srv_heupstream <srv_heupstream@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>, Linux I2C <linux-i2c@vger.kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-Hi Liguo,
 
-Thanks for the patch.
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 22, 2016 at 1:38 AM, Liguo Zhang <liguo.zhang@mediatek.com> wrote:
-> If 4GB mode is enable, we should add 4gb mode support in i2c driver.
-> Set 4GB mode register to support 4GB mode.
->
-> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
-> ---
->  drivers/i2c/busses/i2c-mt65xx.c |   41 +++++++++++++++++++++++++++++++++++++++
->  1 file changed, 41 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-> index aec8e6c..80d3c79 100644
-> --- a/drivers/i2c/busses/i2c-mt65xx.c
-> +++ b/drivers/i2c/busses/i2c-mt65xx.c
-> @@ -60,6 +60,7 @@
->  #define I2C_DMA_INT_FLAG_NONE          0x0000
->  #define I2C_DMA_CLR_FLAG               0x0000
->  #define I2C_DMA_HARD_RST               0x0002
-> +#define I2C_DMA_4G_MODE                        0x0001
->
->  #define I2C_DEFAULT_SPEED              100000  /* hz */
->  #define MAX_FS_MODE_SPEED              400000
-> @@ -88,6 +89,8 @@ enum DMA_REGS_OFFSET {
->         OFFSET_RX_MEM_ADDR = 0x20,
->         OFFSET_TX_LEN = 0x24,
->         OFFSET_RX_LEN = 0x28,
-> +       OFFSET_TX_4G_MODE = 0x54,
-> +       OFFSET_RX_4G_MODE = 0x58,
->  };
->
->  enum i2c_trans_st_rs {
-> @@ -133,6 +136,7 @@ struct mtk_i2c_compatible {
->         unsigned char dcm: 1;
->         unsigned char auto_restart: 1;
->         unsigned char aux_len_reg: 1;
-> +       unsigned char support_33bits: 1;
->  };
->
->  struct mtk_i2c {
-> @@ -182,6 +186,7 @@ static const struct mtk_i2c_compatible mt6577_compat = {
->         .dcm = 1,
->         .auto_restart = 0,
->         .aux_len_reg = 0,
-> +       .support_33bits = 0,
->  };
->
->  static const struct mtk_i2c_compatible mt6589_compat = {
-> @@ -190,6 +195,7 @@ static const struct mtk_i2c_compatible mt6589_compat = {
->         .dcm = 0,
->         .auto_restart = 0,
->         .aux_len_reg = 0,
-> +       .support_33bits = 0,
->  };
->
->  static const struct mtk_i2c_compatible mt8173_compat = {
-> @@ -198,6 +204,7 @@ static const struct mtk_i2c_compatible mt8173_compat = {
->         .dcm = 1,
->         .auto_restart = 1,
->         .aux_len_reg = 1,
-> +       .support_33bits = 1,
->  };
->
->  static const struct of_device_id mtk_i2c_of_match[] = {
-> @@ -373,6 +380,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
->         u16 start_reg;
->         u16 control_reg;
->         u16 restart_flag = 0;
-> +       u32 reg_4g_mode = 0;
->         dma_addr_t rpaddr = 0;
->         dma_addr_t wpaddr = 0;
->         int ret;
-> @@ -439,6 +447,13 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
->                                         msgs->len, DMA_FROM_DEVICE);
->                 if (dma_mapping_error(i2c->dev, rpaddr))
->                         return -ENOMEM;
-> +
-> +               if (i2c->dev_comp->support_33bits) {
-> +                       reg_4g_mode = (rpaddr & 0x100000000ULL) ?
-> +                                      I2C_DMA_4G_MODE : I2C_DMA_CLR_FLAG;
+Hi Uwe,
 
-We do this same check in four places.
-Please write it as a static inline helper function, instead.
+> That's equivalent to
+>=20
+> 	if (dev->of_node)
+> 		return of_driver_match_device(dev, drv);
+>=20
+> and was already suggested in the thread referenced from my reply to
+> http://article.gmane.org/gmane.linux.kernel/2083641 :-)
 
--Dan
+Did you make a proper patch out of it? Can't find it, though I also
+think this would be useful.
+
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+
+All the best,
+
+   Wolfram
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWo1xtAAoJEBQN5MwUoCm203MP/1gwlaJN6AIs1LNdTdvJwDvW
+aLwpbldiGIaBM4BOsvt7JF43OquRt8poHsQyaz8wml5WJcIXv/yiBorM9YV/QOVT
+WmcOsajBH81MPQiF98NaPFahNBbJl2dvp08kHjRbiCk+QcZ4lQtiLLdivJ6eI0Tk
+d1/QcdeBYILsSIjb7xNnBV6Otj0wbsGFrSYLzNv9RZ+OM25sSd6UB0WnNqb/sEUB
+qsIBrY2/WJb62JZ5r3UXcdEPf9280yLMdFrHXMUS5bvzZ9qxSXOeQj6335cb+aQd
++jc98kC1KWI4Xn7Fs4+v9Dg6/HccrFor/NyUiEJMJQM/UmNU/2kK8kJRPsrtNgOd
+HdYSm/wZgadUQEkwpOgigcQTOYfyKoVdhO9AYi8j+VmwQsM9qOHwf/5NjJ6lICi6
+W86Hxv2AaIWiRbx/eX9WZT5oeqrhQS9jseE+1r/AAmbImXFG+iZthMckqpVrLs8I
+sgc2AqOcyu4An8X9n0y/b65K/O89ipG9KBV2pdMHaRsoxNRPS9+AUL82e+yz97li
+IGWLFYRVN8Y+nrta7fb9rh8A/mPKnQXG6Jx+6RSkx1/GN14nE4441o4rbodCFUxj
+uz86qDiTJ19eoohcLwdNrt6wFQv2uiyW8DUmVabpfyng+Y1p6O9QtF/k3dGZWt4l
+mE/ZinGMl3MT2HbOdHsN
+=wmTp
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--
