@@ -1,78 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V7 3/6] i2c: qup: Transfer each i2c_msg in i2c_msgs
- without a stop bit
-Date: Sun, 24 Jan 2016 12:29:16 +0100
-Message-ID: <20160124112915.GA1775@katana>
+Subject: Re: [PATCH V7 0/6] i2c: qup: Add support for v2 tags and bam dma
+Date: Sun, 24 Jan 2016 12:33:18 +0100
+Message-ID: <20160124113318.GB1775@katana>
 References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org>
- <1453197766-18976-4-git-send-email-sricharan@codeaurora.org>
+ <000101d152a2$23bb1da0$6b3158e0$@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:44882 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751380AbcAXL3Z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 24 Jan 2016 06:29:25 -0500
+	protocol="application/pgp-signature"; boundary="ZfOjI3PrQbgiZnxM"
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1453197766-18976-4-git-send-email-sricharan@codeaurora.org>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <000101d152a2$23bb1da0$6b3158e0$@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Sricharan <sricharan@codeaurora.org>
+Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sricharan R <sricharan@codeaurora.org>
-Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, architt@codeaurora.org
 
 
---EeQfGwPcQSOJBaQU
+--ZfOjI3PrQbgiZnxM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+> > Sricharan R (6):
+> >   i2c: qup: Change qup_wait_writeready function to use for all timeouts
+> >   i2c: qup: Add V2 tags support
+> >   i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
+> >   i2c: qup: Add bam dma capabilities
+> >   dts: msm8974: Add blsp2_bam dma node
+> >   dts: msm8974: Add dma channels for blsp2_i2c1 node
+> >=20
+>  Wolfram,  Does the first 4 patches looks good to be picked up  ?
 
-> "If this is the last message in a group, it is followed by a STOP.
-> Otherwise it is followed by the next @i2c_msg transaction segment,
-> beginning with a (repeated) START"
-
-This is correct.
-
-> So the expectation is that there is no 'STOP' bit inbetween individual
-> i2c_msg segments with repeated 'START'. The QUP i2c hardware has no way
-> to inform that there should not be a 'STOP' at the end of transaction.
-> The only way to implement this is to coalesce all the i2c_msg in i2c_msgs
-> in to one transaction and transfer them. Adding the support for the same.
-
-So, there will not be a REP_START condition on the bus? I am sorry to
-say that I can't accept this. A REP_START is a REP_START and nothing
-else. There are devices which will get confused if there is no real
-REP_START condition.
-
-Without knowing the HW in detail, can't you implement I2C_M_NOSTART and
-let the touchscreen driver use it via regmap? That would be the proper
-way (from what I understand).
-
-Regards,
-
-   Wolfram
+Except for patch 3 (I replied seperately), the rest looks okay to me. I
+wondered a little if it would make sense to make a new driver for v2 +
+DMA, because the additions were quite massive. But I'll leave it up to
+you if there is enough shared code between the two versions, so that a
+single driver will be better.
 
 
---EeQfGwPcQSOJBaQU
+--ZfOjI3PrQbgiZnxM
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWpLWLAAoJEBQN5MwUoCm2l+AQAIgY4+l/7rEBOcC6kUTlPoJo
-5hpuGyigAoiJfHir9TaO6LkjKnM4ouhbVjV1AOfHVhwR7q3CvHcpKV2tWxJ6ymJr
-snrzRr2akAoB0pVssZLxyE4OOJjEBx+ZVt9/cE+UhWYdWIlEI8JlbELcVFxKGMZv
-4+b3Ee52k3SJRX5XQODDlZqoDxF5mBjBASZtjmTlI7IMFY12kqRZIdE8I9m7yGRO
-KL+rkl9ZfZPHiSRfdwTRDyVr0iU88t72+FSo7a2qk0/1YOyRkdtXaOo3YRMlCWxq
-Bdjl18aGchequPsvRbTlP3RV9jinrmx4E3P6DSmqapwTnA8rZl+SrFRbcnqvq01y
-4lQe8J/2vJCnCXTCzhF8o4zm1GD5eBLwdHGIUumOXH85LvZspU0nMgKOkRhgHtW+
-+XGoy4d9MxjoyM/1aqa3SPsa+Aew1FKJT32vchlxwUAdiMIPyupqP6tK5778HfKY
-QG78Eb/jJEtLZkJCU8XwkH68kgOGeY/6e6mPcBPbFt7ek5L3SMr30Nk2KXz3RFYN
-OIRj+TUYLwIjoPUs01bmgBMMEJx9BwAzlkM/SxT1Jv8tw+nGD/AJmyIDDhX0sYz/
-KJAcaiX6txLgEkUmQSr7HvuMkQShG70lzt631wlI3NwzgehN9CYHyZtKpeK7hBpg
-NYojpudFdMxXS+tj3vGT
-=+daC
+iQIcBAEBAgAGBQJWpLZ9AAoJEBQN5MwUoCm20/IQAKSFLox/xoAz33+OYp5woz/a
+bjQlyYoIhC03MTtVy6v7wDZkgxkhfYLxLMgh5hz6Dl8w50jbsPrv7842v67ZarVD
+9mruQCq4hBH89ZyJjx2i5bOkEYexQMQp3LubKiVA3/YiW/Fih0sWzTWjkvPjMUCG
+wtMtWznWmg+6mImj4LRrPPQjlRQouDrX90IybBWG93egc82OmSxnFsWaxXQNCYvX
+FBIC5YienjipVGIbkGQVJcl8ac32q9on0xUmDIvnH/ElR64ks4z3FsdNy1KWjj81
+HrDrR2F1TkDN4Zm71DNn7+xPxN3dHv8d14Pu+Kv1BPUdg7I7KyrQcNaFaGo9sXVE
+JB7X+NSyq362k2A05CkBiH5yJAwUHb5rDXz7jSRnM4DNQol0nAVLWaBZAKpzCGEU
+933nS8u+XtMEBQnzq9uNQSKWSRM5TxP+nPWm5vCeoSX8hqZa7mbHZtfXxMmOHsdD
+y1bcCMN4/n2VrlLfZ4J+yRxbArlVbBYwDjhOX6SRpWfiFmOJkdouHyrEVEQSIxiz
+HppeD1dKDyAhlheKtYisVVtK6UIDbtqejfmbFgPdmBZBjbAa/a6zGW65QzzpHVys
+k0EKzUnjAZdPGtXjaopK2b8KPxck5OjhQO9y5O/vcOo9FDZMpHqVKoGXjsBC1GSm
+2yLZNQj6w8sjTlV4+3ZC
+=/aeP
 -----END PGP SIGNATURE-----
 
---EeQfGwPcQSOJBaQU--
+--ZfOjI3PrQbgiZnxM--
