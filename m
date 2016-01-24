@@ -1,63 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V7 0/6] i2c: qup: Add support for v2 tags and bam dma
-Date: Sun, 24 Jan 2016 12:33:18 +0100
-Message-ID: <20160124113318.GB1775@katana>
-References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org>
- <000101d152a2$23bb1da0$6b3158e0$@codeaurora.org>
+From: Rudolf Marek <r.marek@assembler.cz>
+Subject: Re: [PATCH v5 0/3] Support multiplexed main SMBus interface on SB800
+Date: Sun, 24 Jan 2016 13:07:03 +0100
+Message-ID: <56A4BE67.2090308@assembler.cz>
+References: <1447960429-19256-1-git-send-email-fetzer.ch@gmail.com>
+ <20160122135040.6db7b66b@endymion.delvare> <56A3846F.9000908@googlemail.com>
+ <20160124101657.7aa42eb9@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZfOjI3PrQbgiZnxM"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <000101d152a2$23bb1da0$6b3158e0$@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Sricharan <sricharan@codeaurora.org>
-Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ms.trustica.cz ([82.208.32.68]:51481 "EHLO ms.trustica.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751517AbcAXMNo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 24 Jan 2016 07:13:44 -0500
+In-Reply-To: <20160124101657.7aa42eb9@endymion.delvare>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>, fetzerch <fetzer.ch@gmail.com>
+Cc: linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, galandilias@gmail.com
 
+Hi Jean,
 
---ZfOjI3PrQbgiZnxM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> One thing that bothers me is that pins for SMBus ports may be shared
+> with other functions. The "AMD SB810/850 Southbridge Databook" document
+> shows that all SMBus ports are shared with at least GPIOs and port 4
+> also with PS/2 function. Unfortunately I can't find any document
+> explaining how to check which function is assigned to each pin.
 
-> > Sricharan R (6):
-> >   i2c: qup: Change qup_wait_writeready function to use for all timeouts
-> >   i2c: qup: Add V2 tags support
-> >   i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
-> >   i2c: qup: Add bam dma capabilities
-> >   dts: msm8974: Add blsp2_bam dma node
-> >   dts: msm8974: Add dma channels for blsp2_i2c1 node
-> >=20
->  Wolfram,  Does the first 4 patches looks good to be picked up  ?
+Well it is quite easy, you need to check IOMUX register for specific pin.
 
-Except for patch 3 (I replied seperately), the rest looks okay to me. I
-wondered a little if it would make sense to make a new driver for v2 +
-DMA, because the additions were quite massive. But I'll leave it up to
-you if there is enough shared code between the two versions, so that a
-single driver will be better.
+The base address "AcpiMMioAddr" is defined in PM_reg x24, with the default base
+address at "FED8_0000"
 
+See 2.3.7 IoMux Registers
 
---ZfOjI3PrQbgiZnxM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+PS2_CLK/SCL4/ GPIO188
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+The function 0 is PS2_CLIK function1 is SCL4 and GPIO188 is fun2, so all you
+need is to check it at "AcpiMMioAddr" + 0xd00 + 188 (8 bit register)
+bits 1:0 encode it. 00 - function 0 etc...
 
-iQIcBAEBAgAGBQJWpLZ9AAoJEBQN5MwUoCm20/IQAKSFLox/xoAz33+OYp5woz/a
-bjQlyYoIhC03MTtVy6v7wDZkgxkhfYLxLMgh5hz6Dl8w50jbsPrv7842v67ZarVD
-9mruQCq4hBH89ZyJjx2i5bOkEYexQMQp3LubKiVA3/YiW/Fih0sWzTWjkvPjMUCG
-wtMtWznWmg+6mImj4LRrPPQjlRQouDrX90IybBWG93egc82OmSxnFsWaxXQNCYvX
-FBIC5YienjipVGIbkGQVJcl8ac32q9on0xUmDIvnH/ElR64ks4z3FsdNy1KWjj81
-HrDrR2F1TkDN4Zm71DNn7+xPxN3dHv8d14Pu+Kv1BPUdg7I7KyrQcNaFaGo9sXVE
-JB7X+NSyq362k2A05CkBiH5yJAwUHb5rDXz7jSRnM4DNQol0nAVLWaBZAKpzCGEU
-933nS8u+XtMEBQnzq9uNQSKWSRM5TxP+nPWm5vCeoSX8hqZa7mbHZtfXxMmOHsdD
-y1bcCMN4/n2VrlLfZ4J+yRxbArlVbBYwDjhOX6SRpWfiFmOJkdouHyrEVEQSIxiz
-HppeD1dKDyAhlheKtYisVVtK6UIDbtqejfmbFgPdmBZBjbAa/a6zGW65QzzpHVys
-k0EKzUnjAZdPGtXjaopK2b8KPxck5OjhQO9y5O/vcOo9FDZMpHqVKoGXjsBC1GSm
-2yLZNQj6w8sjTlV4+3ZC
-=/aeP
------END PGP SIGNATURE-----
+Btw similar functionality is also on later SBs of AMD, I have an hudson system,
+so we can add the support for it later, when SB800 is done. I think it follows
+same patern, maybe the GPIOs will be different.
 
---ZfOjI3PrQbgiZnxM--
+Thanks
+Rudolf
