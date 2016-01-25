@@ -1,101 +1,79 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH] i2c-piix4: Fully initialize SB800 before it is registered
-Date: Mon, 25 Jan 2016 12:17:07 +0100
-Message-ID: <20160125121707.7109c0d3@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Dmitriy Baranov <dbaranov@dev.rtsoft.ru>
+Subject: [PATCH] Remove extra spaces.
+Date: Mon, 25 Jan 2016 15:48:32 +0300
+Message-ID: <1453726112-7049-1-git-send-email-dbaranov@dev.rtsoft.ru>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59079 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755674AbcAYLRL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 25 Jan 2016 06:17:11 -0500
+Received: from mail.dev.rtsoft.ru ([213.79.90.226]:44439 "EHLO
+	mail.dev.rtsoft.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932294AbcAYNVr (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Jan 2016 08:21:47 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Christian Fetzer <fetzer.ch@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitriy Baranov <dbaranov@dev.rtsoft.ru>
 
-This closes a race window where I2C device drivers attempt to access
-I2C buses which aren't fully initialized yet.
-
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Christian Fetzer <fetzer.ch@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Dmitriy Baranov <dbaranov@dev.rtsoft.ru>
 ---
- drivers/i2c/busses/i2c-piix4.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- linux-4.5-rc0.orig/drivers/i2c/busses/i2c-piix4.c	2016-01-22 14:06:31.336751852 +0100
-+++ linux-4.5-rc0/drivers/i2c/busses/i2c-piix4.c	2016-01-25 12:08:07.812116538 +0100
-@@ -627,6 +627,7 @@ static struct i2c_adapter *piix4_main_ad
- static struct i2c_adapter *piix4_aux_adapter;
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index a2b132c..1ca7ef2 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -212,7 +212,7 @@ struct imx_i2c_struct {
+ 	struct imx_i2c_dma	*dma;
+ };
  
- static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
-+			     bool sb800_main, unsigned short port,
- 			     const char *name, struct i2c_adapter **padap)
+-static const struct imx_i2c_hwdata imx1_i2c_hwdata  = {
++static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+ 	.devtype		= IMX1_I2C,
+ 	.regshift		= IMX_I2C_REGSHIFT,
+ 	.clk_div		= imx_i2c_clk_div,
+@@ -222,7 +222,7 @@ static const struct imx_i2c_hwdata imx1_i2c_hwdata  = {
+ 
+ };
+ 
+-static const struct imx_i2c_hwdata imx21_i2c_hwdata  = {
++static const struct imx_i2c_hwdata imx21_i2c_hwdata = {
+ 	.devtype		= IMX21_I2C,
+ 	.regshift		= IMX_I2C_REGSHIFT,
+ 	.clk_div		= imx_i2c_clk_div,
+@@ -871,7 +871,7 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
+ 		if ((!i) && block_data)
+ 			msgs->buf[0] = len;
+ 		else
+-			msgs->buf[i] =  imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
++			msgs->buf[i] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+ 		dev_dbg(&i2c_imx->adapter.dev,
+ 			"<%s> read byte: B%d=0x%X\n",
+ 			__func__, i, msgs->buf[i]);
+@@ -916,7 +916,7 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+ 			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+ 			temp |= I2CR_RSTA;
+ 			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+-			result =  i2c_imx_bus_busy(i2c_imx, 1);
++			result = i2c_imx_bus_busy(i2c_imx, 1);
+ 			if (result)
+ 				goto fail0;
+ 		}
+@@ -1192,7 +1192,7 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int i2c_imx_runtime_suspend(struct device *dev)
  {
- 	struct i2c_adapter *adap;
-@@ -641,7 +642,8 @@ static int piix4_add_adapter(struct pci_
+-	struct imx_i2c_struct *i2c_imx  = dev_get_drvdata(dev);
++	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
  
- 	adap->owner = THIS_MODULE;
- 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
--	adap->algo = &smbus_algorithm;
-+	adap->algo = sb800_main ? &piix4_smbus_algorithm_sb800
-+				: &smbus_algorithm;
+ 	clk_disable_unprepare(i2c_imx->clk);
  
- 	adapdata = kzalloc(sizeof(*adapdata), GFP_KERNEL);
- 	if (adapdata == NULL) {
-@@ -651,6 +653,8 @@ static int piix4_add_adapter(struct pci_
- 	}
+@@ -1201,7 +1201,7 @@ static int i2c_imx_runtime_suspend(struct device *dev)
  
- 	adapdata->smba = smba;
-+	adapdata->sb800_main = sb800_main;
-+	adapdata->port = port;
+ static int i2c_imx_runtime_resume(struct device *dev)
+ {
+-	struct imx_i2c_struct *i2c_imx  = dev_get_drvdata(dev);
++	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 	int ret;
  
- 	/* set up the sysfs linkage to our parent device */
- 	adap->dev.parent = &dev->dev;
-@@ -680,17 +684,11 @@ static int piix4_add_adapters_sb800(stru
- 	int retval;
- 
- 	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
--		retval = piix4_add_adapter(dev, smba,
-+		retval = piix4_add_adapter(dev, smba, true, port,
- 					   piix4_main_port_names_sb800[port],
- 					   &piix4_main_adapters[port]);
- 		if (retval < 0)
- 			goto error;
--
--		piix4_main_adapters[port]->algo = &piix4_smbus_algorithm_sb800;
--
--		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
--		adapdata->sb800_main = true;
--		adapdata->port = port;
- 	}
- 
- 	return retval;
-@@ -748,7 +746,7 @@ static int piix4_probe(struct pci_dev *d
- 			return retval;
- 
- 		/* Try to register main SMBus adapter, give up if we can't */
--		retval = piix4_add_adapter(dev, retval, "main",
-+		retval = piix4_add_adapter(dev, retval, false, 0, "main",
- 					   &piix4_main_adapters[0]);
- 		if (retval < 0)
- 			return retval;
-@@ -775,7 +773,8 @@ static int piix4_probe(struct pci_dev *d
- 	if (retval > 0) {
- 		/* Try to add the aux adapter if it exists,
- 		 * piix4_add_adapter will clean up if this fails */
--		piix4_add_adapter(dev, retval, piix4_aux_port_name_sb800,
-+		piix4_add_adapter(dev, retval, false, 0,
-+				  piix4_aux_port_name_sb800,
- 				  &piix4_aux_adapter);
- 	}
- 
-
-
+ 	ret = clk_prepare_enable(i2c_imx->clk);
 -- 
-Jean Delvare
-SUSE L3 Support
+2.5.0
