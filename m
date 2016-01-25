@@ -1,57 +1,39 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v3 1/1] i2c: core: replace boolean variable by integer
-Date: Mon, 25 Jan 2016 10:55:44 +0200
-Message-ID: <1453712144.2521.213.camel@linux.intel.com>
-References: <1447949516-107966-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] i2c-piix4: Fix SB800 locking
+Date: Mon, 25 Jan 2016 11:29:13 +0200
+Message-ID: <20160125092913.GP2410@lahna.fi.intel.com>
+References: <20160122141202.09c94802@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:65062 "EHLO mga03.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:1859 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751403AbcAYIzN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 25 Jan 2016 03:55:13 -0500
-In-Reply-To: <1447949516-107966-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	id S1752163AbcAYJbZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 25 Jan 2016 04:31:25 -0500
+Content-Disposition: inline
+In-Reply-To: <20160122141202.09c94802@endymion.delvare>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Alexander Sverdlin <alexander.sverdlin@nokia.com>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Christian Fetzer <fetzer.ch@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-On Thu, 2015-11-19 at 18:11 +0200, Andy Shevchenko wrote:
-> There is a warning when compiling i2c-core.c
-> drivers/i2c/i2c-core.c:2561:36: warning: dubious: x | !y
->=20
-> Replace boolean exdpression by a plain bitwise AND since I2C_M_RD is
-> a bit 0
-> and thus we are on the safe side.
+On Fri, Jan 22, 2016 at 02:12:02PM +0100, Jean Delvare wrote:
+> We need a single mutex for all 4 shared SMBus ports on the SB800. A
+> per-port mutex doesn't protect us from concurrent access.
+> 
+> In theory the mutex should be per PCI device, however in practice we
+> know that there's only ever a single instance of the device in a given
+> system so we can use a global.
+> 
+> Also take the mutex during initialization, as first port may be already
+> in use when second port is initialized.
+> 
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: Christian Fetzer <fetzer.ch@gmail.com>
+> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Wolfram, any news about this change? Last time I remember you talked
-about your series which makes this change obsolete.
+The patch looks correct to me,
 
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Reviewed-by: Alexander Sverdlin <aleaxander.sverdlin@nokia.com>
-> ---
-> Changelog v3:
-> - add tag
-> - rephrase commit message
-> =C2=A0drivers/i2c/i2c-core.c | 2 +-
-> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 040af5c..873ca1c 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -2591,7 +2591,7 @@ static u8 i2c_smbus_pec(u8 crc, u8 *p, size_t
-> count)
-> =C2=A0static u8 i2c_smbus_msg_pec(u8 pec, struct i2c_msg *msg)
-> =C2=A0{
-> =C2=A0	/* The address will be sent first */
-> -	u8 addr =3D (msg->addr << 1) | !!(msg->flags & I2C_M_RD);
-> +	u8 addr =3D (msg->addr << 1) | (msg->flags & I2C_M_RD);
-> =C2=A0	pec =3D i2c_smbus_pec(pec, &addr, 1);
-> =C2=A0
-> =C2=A0	/* The data buffer follows */
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Thanks Jean for looking into this.
