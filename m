@@ -1,81 +1,57 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: drivers : i2c: Allow i2c devices share an interrupt
-Date: Tue, 26 Jan 2016 07:08:03 +0100
-Message-ID: <20160126060803.GA16383@katana>
-References: <1452585707-20294-1-git-send-email-ying.zhang22455@nxp.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c-piix4: Fix SB800 locking
+Date: Tue, 26 Jan 2016 08:04:39 +0100
+Message-ID: <1453791879.4772.2.camel@chaos.site>
+References: <20160122141202.09c94802@endymion.delvare>
+	 <20160126054212.GB1533@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:51488 "EHLO pokefinder.org"
+Received: from mx2.suse.de ([195.135.220.15]:49750 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751040AbcAZGIJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Jan 2016 01:08:09 -0500
-Content-Disposition: inline
-In-Reply-To: <1452585707-20294-1-git-send-email-ying.zhang22455@nxp.com>
+	id S1752280AbcAZHEn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 26 Jan 2016 02:04:43 -0500
+In-Reply-To: <20160126054212.GB1533@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: ying.zhang22455@nxp.com
-Cc: linux-i2c@vger.kernel.org, X.Xie@freescale.com, Ying Zhang <b40530@freescale.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Christian Fetzer <fetzer.ch@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-
---8t9RHnE3ZwKMSgU+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jan 12, 2016 at 04:01:47PM +0800, ying.zhang22455@nxp.com wrote:
-> From: Ying Zhang <b40530@freescale.com>
+Le Tuesday 26 January 2016 =C3=A0 06:42 +0100, Wolfram Sang a =C3=A9cri=
+t :
+> On Fri, Jan 22, 2016 at 02:12:02PM +0100, Jean Delvare wrote:
+> > We need a single mutex for all 4 shared SMBus ports on the SB800. A
+> > per-port mutex doesn't protect us from concurrent access.
+> >=20
+> > In theory the mutex should be per PCI device, however in practice w=
+e
+> > know that there's only ever a single instance of the device in a gi=
+ven
+> > system so we can use a global.
+> >=20
+> > Also take the mutex during initialization, as first port may be alr=
+eady
+> > in use when second port is initialized.
+> >=20
+> > Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> > Cc: Christian Fetzer <fetzer.ch@gmail.com>
+> > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Cc: Wolfram Sang <wsa@the-dreams.de>
 >=20
-> The I2C devices on I2C1, I2C2, I2C3, I2C4 share interrupts,
-> but the flag is not set when requesting IRQ.
+> Fixed a sparse warning by making the mutex static, took the freedom t=
+o
+> read Christian's mail as Tested-by and applied to for-current, thanks=
+!
 
-For which SoC is that information? And with which devices is it shared?
-Please update the commit message.
+Oh, I thought I had fixed that before submitting but clearly I forgot.
+Thanks for doing it :)
 
->=20
-> This patch set the flag to IRQF_SHARED.
->=20
-> Signed-off-by: Ying Zhang <ying.zhang22455@nxp.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index d4d8536..611b269 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1094,7 +1094,7 @@ static int i2c_imx_probe(struct platform_device *pd=
-ev)
->  	}
-> =20
->  	/* Request IRQ */
-> -	ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
-> +	ret =3D devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
->  				pdev->name, i2c_imx);
->  	if (ret) {
->  		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+I'll send a patch restoring I2C bus names for older devices later today=
+=2E
+I have a few other fixups in mind but the rest isn't as urgent.
 
---8t9RHnE3ZwKMSgU+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWpw1DAAoJEBQN5MwUoCm2KTwQAIjBoiUTjUAla1u2QkW5Vj8V
-kacZexzGAWGmEIWfgepNJkFn8BmEBZCNc2PxYWTfCF5/oxSCmzTtLnPYn1375hr+
-2jGT4ip6ZFPCX7FIrnq3koX8aAxifVP82wR9gHHiBEK0STwqJJB4/fYkFqDZg4ds
-o962NQMua1GfDzX1toCx/PniFWL3buAnOPomL0SZO3YdmfeoAd2FLhHqWUg5MN1M
-92+WsN3HLa9jo3oY5ex9x6AMU1mzyxzvUZwaL30OBp3kq6vyUVvdI11y8LSDpM8O
-cSVWk8OfdxiXJVAMRuwAOui+VKaXxBIacbBM1T5OIiIN9MVLZln1zHwQtroNDnI9
-azfaKmm8+WVpHUuJMauwOEJIKdl9cFDvxVVmRLy1jSId5FeSxRGp5hsO3BEIw1/f
-vgC+ZObWB9NVHB68tklXc5boJhKYzxJuXzxI5tPybtQBEuMAZBe8RqUyHzzoZCR5
-vl5YwvPBcPMYIqyMp6MR+oQqhMDO4/zJ8oQjclJv65/DmCSFsZtw3MihDoYmfpcN
-xC3InAz0WoCMObIfodsUjCk9qZpLjW9Nb7dO8wtquNRLqERP6drxBcIObBxA48tE
-vN5qwDZeN+M5ieU3cMFE5XNQ2WrjGoNCNuJ8IhYtFApxdqTJy5cB7Utvw/ey5olf
-MeHo2RtEcKlbt7ji+BgG
-=uuOO
------END PGP SIGNATURE-----
-
---8t9RHnE3ZwKMSgU+--
+--=20
+Jean Delvare
+SUSE L3 Support
