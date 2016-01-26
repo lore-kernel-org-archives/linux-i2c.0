@@ -1,73 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1 1/1] i2c: designware-pci: use IRQF_COND_SUSPEND flag
-Date: Tue, 26 Jan 2016 07:01:59 +0100
-Message-ID: <20160126060159.GE1533@katana>
-References: <1452888132-134446-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v3 1/1] i2c: core: replace boolean variable by integer
+Date: Tue, 26 Jan 2016 07:04:01 +0100
+Message-ID: <20160126060401.GF1533@katana>
+References: <1447949516-107966-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1453712144.2521.213.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CGDBiGfvSTbxKZlW"
+	protocol="application/pgp-signature"; boundary="FeAIMMcddNRN4P4/"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:51278 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:51348 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751040AbcAZGCD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Jan 2016 01:02:03 -0500
+	id S1752080AbcAZGEI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 26 Jan 2016 01:04:08 -0500
 Content-Disposition: inline
-In-Reply-To: <1452888132-134446-1-git-send-email-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <1453712144.2521.213.camel@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
 
---CGDBiGfvSTbxKZlW
+--FeAIMMcddNRN4P4/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 15, 2016 at 10:02:12PM +0200, Andy Shevchenko wrote:
-> This is effectively reapplies the commit b0898fdaffb2 (i2c: designware-pc=
-i: use
-> IRQF_COND_SUSPEND flag) after the commit d80d134182ba (i2c: designware: M=
-ove
-> common probe code into i2c_dw_probe()). Original message as follows.
+On Mon, Jan 25, 2016 at 10:55:44AM +0200, Andy Shevchenko wrote:
+> On Thu, 2015-11-19 at 18:11 +0200, Andy Shevchenko wrote:
+> > There is a warning when compiling i2c-core.c
+> > drivers/i2c/i2c-core.c:2561:36: warning: dubious: x | !y
+> >=20
+> > Replace boolean exdpression by a plain bitwise AND since I2C_M_RD is
+> > a bit 0
+> > and thus we are on the safe side.
 >=20
-> The mentioned flag fixes a warning on Intel Edison board since one of the=
- I2C
-> controller shares IRQ line with watchdog timer.
->=20
-> Fixes: d80d134182ba (i2c: designware: Move common probe code into i2c_dw_=
-probe())
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Wolfram, any news about this change? Last time I remember you talked
+> about your series which makes this change obsolete.
 
-Fixed this checkpatch error:
+-EBUSY :/
 
-ERROR: Please use git commit description style 'commit <12+ chars of sha1> =
-("<title line>")' - ie: 'commit d80d134182ba ("i2c: designware: Move common=
- probe code into i2c_dw_probe()")'
-
-and applied to for-current, thanks!
+I hope to tackle it on the train to FOSDEM later this week...
 
 
---CGDBiGfvSTbxKZlW
+--FeAIMMcddNRN4P4/
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWpwvXAAoJEBQN5MwUoCm20IMQAK/N4kilKzdabNxgigEDHkir
-CHGs3ToCFWTNpPyWOLo56/zAPuZaY5HT6KdpqjnTepZ/bQ+ZlC+oiziYRGcN5yae
-jY2Tf5w2WRHn9cm8KgN2RYJ5DttWxtDWCEs8/9WyObzT77JFHFu4WEayu8w9fMog
-HNsSz5WVBdXVpt+7SsovB8GnKTNXEwO847eyJOk764hyXg2niyMcymT8NW+GzNb5
-IbBnDPt48rfJKJIG7jzR10GQk+O7Dr6cG8u1SbBQEQWRbuXGp15QXWbm02+CkrAm
-tYr2An9X8jNClkHccj76V2kHm1Jsj4VxaNthAUAE+C7AJ8Ib1bp/hCchIeZkYzx6
-styDfllAOQYxUjFyaql34ed0sB0+NuFYDm9K6XJCu0McxUuy3P6UXZWp/mOB8fOH
-Vq75/Aa82RnpqgKJ0W1f+tPfYksrF/4u1/7EPHJh2OGS4ZkvCQpQl7YzjItxRg8p
-B+ZEyNpJxKADzhoLTkqit6dT33EAjD1GSaZyg8ODEh6FLliL3dJ0SpMz+6ZxYScP
-m4lWT2eVeMKXgfyygVTwEIh5FAXhWuLjmLOAbJMvtJYewI+3UY1Lpq3GrEZUsW1W
-RiAB2uRPE1I2jkzD2SQepZWpf01J+AD9h9tv4c2jkJbj7efkL0rWfgq9sL05b4HV
-RXsXPz6C++DDkHCXD8dy
-=fyGQ
+iQIcBAEBAgAGBQJWpwxRAAoJEBQN5MwUoCm2RpMP/iEN8e5HvdDe70MZ6vX9+k5g
+bXBSJEOB54OYnKNOpE9+KgfImBA718Zld9NiTinlFEMHcT1fCn6+u2HfvnFBuDyR
+p0KYp1io3hsfLtF6XH86liclZJaTqa8V5OsauuOnG+U0aiLaPI3ZwLWL3EeglhFj
+oOvQ4yCzBWXJXJxvM3QYcMai/S4dl9DAgYG7dvs7sSYC48GiDHdI5tlaxdrQdt9f
+zdIQDPrijK8EgH0mM01xCMD1jCF7LqLMM9+3gUvMnHsuz9oPru2PjifVw8pR9aIq
+TvnSQmzr3yvWhX/76RAKL6R4mJjNL9uVZvkYZAvXO6zvS3VuzeuRmsTZp7NnQcDi
+Jo+eDVvTuPcJvrW/7Gq8AIT17bJ6PbKMKr1Y5BBxJExcoBqmQXBhLmB7SXcLBjkX
+XbUKRVLB0lu3GqMQhU6HpOeVv8ddNPCb8++Sk0XuNSbCJ3fEb9LrSTgZVQ5jRmke
+uJP4ejoPriMaLlarGNEk1+yYm14Cqi0zdqDh6cFw4eTUF4dxbzDRQaLee+G6gWuU
+/PcHk+Hp7Kfxc2N5FpmFDvc7w28bgY5rYcNQItco5ATVmemECSIhzZTQsqKoMhCD
+1u9Ul4iQlr0+gO0ZGGrS6izX6hJOEhmu0ibKfAtH+2ZgmIvwCw2WbOCw+4gsnMtS
+Sp/77nnDChMNdduwMgbg
+=k21s
 -----END PGP SIGNATURE-----
 
---CGDBiGfvSTbxKZlW--
+--FeAIMMcddNRN4P4/--
