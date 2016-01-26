@@ -1,64 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-piix4: Fully initialize SB800 before it is registered
-Date: Tue, 26 Jan 2016 06:24:57 +0100
-Message-ID: <20160126052457.GA1533@katana>
-References: <20160125121707.7109c0d3@endymion.delvare>
- <D0A90A2F-108F-4E70-8B7E-32FABFCD917E@gmail.com>
+Subject: Re: [PATCH] i2c-piix4: Fix SB800 locking
+Date: Tue, 26 Jan 2016 06:42:18 +0100
+Message-ID: <20160126054212.GB1533@katana>
+References: <20160122141202.09c94802@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+	protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50204 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:50822 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750797AbcAZFZH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Jan 2016 00:25:07 -0500
+	id S1750794AbcAZFpA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 26 Jan 2016 00:45:00 -0500
 Content-Disposition: inline
-In-Reply-To: <D0A90A2F-108F-4E70-8B7E-32FABFCD917E@gmail.com>
+In-Reply-To: <20160122141202.09c94802@endymion.delvare>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Christian Fetzer <fetzer.ch@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Christian Fetzer <fetzer.ch@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=utf-8
+--7ZAtKRhVyVSsbBD2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On Fri, Jan 22, 2016 at 02:12:02PM +0100, Jean Delvare wrote:
+> We need a single mutex for all 4 shared SMBus ports on the SB800. A
+> per-port mutex doesn't protect us from concurrent access.
+>=20
+> In theory the mutex should be per PCI device, however in practice we
+> know that there's only ever a single instance of the device in a given
+> system so we can use a global.
+>=20
+> Also take the mutex during initialization, as first port may be already
+> in use when second port is initialized.
+>=20
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: Christian Fetzer <fetzer.ch@gmail.com>
+> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
 
-> I=E2=80=99m not sure if it=E2=80=99s common to offer tags as first-time c=
-ontributor, but feel free to add
-
-Sure, it is! It is extremly helpful for me as a maintainer if someone
-who reported a problem confirms that the problem is gone now.
-
-> Tested-by: Christian Fetzer <fetzer.ch@gmail.com>
-
-Thanks a lot!
-
-   Wolfram
+Fixed a sparse warning by making the mutex static, took the freedom to
+read Christian's mail as Tested-by and applied to for-current, thanks!
 
 
---mYCpIKhGyMATD0i+
+--7ZAtKRhVyVSsbBD2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWpwMpAAoJEBQN5MwUoCm2W8IQAKYAeXyLoIuOyAlw82YOi23T
-/0TmJT3x98TPh4jWRpOXENnmeWpx6NeW7z+q8B4EnyKv4KtzCjBvM8oKVN6UamUw
-rJJB0Hg9e5b7vgrm2WJZvOmBirT5ejTil9H8Z6lRs0KbAsfjw1ieacPggMa73VHG
-mDLn2IuYjEjK2ImWAT53A8vvD2KqgAfpwfNIAbnktjrx/Pyc+i4RrOF8kFoVxU84
-Yeunh77CgSmuOX0mzBKkjv8WkvayD/xnM8oEvYBLuMdkgLP5Tt/6lzKvANXj9RTn
-KAj3UpUzAFVkHlpdUZzpxPmlubtRHFDuY5gR8f+kx3byp4pmPCT7o4d/0Gnt2N4g
-5xeIEp4HB5lBaEx1OAVHF4P0sKeN88lZmq6djVtIMZ3d+aI2LNAeCDdsjg2OXFWm
-JwC9c0q5yKUMRBjBHn8vC5tGU9mB2iZrS18+Q/IQfAX8elFlvllsBe9gMxyEb166
-O8AfStpwtYpA3xQV0N5G+mqfRAOvScV8HAeUmFBqJSxh7GCUl/dCWl7I6zPB5Tkz
-VTNJQ6DlnmDZpNgvBl2xBYD7Wg4WTaANyujbyM7Pmu27+uKa/+hggpnpc8XwbsYN
-k5M/yD9m7v5hWXXQL7NVpIKV8jFyItTmAitNsFcVeXVkWAmJBJinQoPbIRf15UiV
-RGD9wJBS3q7YcrT6Peug
-=qD/1
+iQIcBAEBAgAGBQJWpwc0AAoJEBQN5MwUoCm2uBsP/2lPve3wiONfzApfSVikDVUl
+q9ck0Ho3GFQbsSCOtv3jrxfYFatGzNhNiiQLvAwip2AI4UkdXtX2OoE00NR9f7D2
+2710eg4sIED5ZnbXpCrlO4tL4qVqsZeBeTyBZxu6U0m69GfL2FY4bYuQCec922S+
+3BqYNx/+43aZ1OkuXzupPhUD8LeUBFMD2t19yL9zL0K3vayvwR3tDbbBgRwue7pQ
+aDdIWsdD9LaYYfYhxv/GIWTILKgK9gQfeCoToBbZTAqd9aI6+AQpY71NOZwRQ0q9
+6ha0W8rHv8DdnFQMrqQwiYwwShafM1CB4wqJ562MRjJGtIaDS4iSCHap3ykQ2nwm
+OHqaoVMCnOsr1soJHPbW1ICAdz2ML6C8gzT6awk7QlTUdBcVEULftDf2X4D5EaJC
+tg6qz4oKm2Pdn4/agRhkkmoTWJ99LynaPFppVoFO4QbYMHIQEBIXBss17OdQITIV
++sD4j/45LzUj6Bupz/ndX6u2Ub4xbQoZ+hufF8WHT9E20I2uvghszBxqQXdMWQkq
+7R5UZC2Pp9O++z7HzoiaUZ9Ou8dyUxx18e28Pj6RMgTCbRsMZ70ljQ+RiML0Mk8k
+aUyACX2glSwYKJQEXA+ZkNReraEnKBCqCCJyzkQHS8PdHIvtpWeZoK0dUBHI47cY
+YDmimUgzhZfvM+a9Jjuj
+=FOS1
 -----END PGP SIGNATURE-----
 
---mYCpIKhGyMATD0i+--
+--7ZAtKRhVyVSsbBD2--
