@@ -1,62 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-piix4: Fully initialize SB800 before it is registered
-Date: Tue, 26 Jan 2016 06:50:31 +0100
-Message-ID: <20160126055030.GC1533@katana>
-References: <20160125121707.7109c0d3@endymion.delvare>
+Subject: Re: [PATCH] power/mpc85xx: Add delay after enabling I2C master
+Date: Tue, 26 Jan 2016 06:58:27 +0100
+Message-ID: <20160126055826.GD1533@katana>
+References: <1453190225-37736-1-git-send-email-ying.zhang22455@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z4+8/lEcDcG5Ke9S"
+	protocol="application/pgp-signature"; boundary="T7mxYSe680VjQnyC"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50975 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:51163 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750785AbcAZFue (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Jan 2016 00:50:34 -0500
+	id S1750785AbcAZF6b (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 26 Jan 2016 00:58:31 -0500
 Content-Disposition: inline
-In-Reply-To: <20160125121707.7109c0d3@endymion.delvare>
+In-Reply-To: <1453190225-37736-1-git-send-email-ying.zhang22455@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Christian Fetzer <fetzer.ch@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: ying.zhang22455@nxp.com
+Cc: linux-i2c@vger.kernel.org, xiaobo.xie@nxp.com, york.sun@nxp.com, Ying Zhang <b40530@freescale.com>
 
 
---z4+8/lEcDcG5Ke9S
+--T7mxYSe680VjQnyC
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 25, 2016 at 12:17:07PM +0100, Jean Delvare wrote:
-> This closes a race window where I2C device drivers attempt to access
-> I2C buses which aren't fully initialized yet.
->=20
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Christian Fetzer <fetzer.ch@gmail.com>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
+> +#ifdef CONFIG_PPC_85xx
+> +	delay_val = 65536 / (fsl_get_sys_freq() / 2000000);
+> +#else
+> +	delay_val = 1000000 / i2c->real_clk + 1;
+> +#endif
 
-Applied to for-current, thanks!
+Please don't add #ifdef for such things. You can make use of
+struct mpc_i2c_data and put a flag there.
 
 
---z4+8/lEcDcG5Ke9S
+--T7mxYSe680VjQnyC
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWpwkmAAoJEBQN5MwUoCm2IiIP/RFQZgY8LqMAhr/i56WioHvL
-LuvfHK9Wxi1BcGGgYi22j8Itq37Dda/HIJmYcWqohhD+rsSFQaa31V9t4PmYJr7w
-9AtUbsqiYoDSDKmE3C5b3RYSzG9mECJ53aA8WAML8OCfs76tyZLRUV0KDIsYL2Nr
-um7bsgMd/Z+nCe9qW0API4s1epjJXt/DaChFr9Xt3ZQpaIufBx7foDvb3lHNLPs0
-+A7n2fPvZm/2ma2HpClDaOLuQ4bfeB2yd8d15nM0tqIILud0XmceNzmYVIUrP4JE
-FxJNfVl84rdBcbzpJ33bohdScx57o5rzc6ialM3DWDcfySYTtK7HRzdSFQm8exP5
-WJmlQfC0/G3Y+3MK/iDubE9SeA9e+r/KDbr2Q+ZmgLQfBK04IWHuvwD3WxKIuQSj
-eMcQD3cVHjtOxTCkqPZMJBin6CScmDqSGzbdFLOeekP/emFr/pY3u2y3Mkzpg5xk
-LdPTvnN62TbDZLTpVGC3DiPu7GkytjXrU75IzvY+iI7sEAbyIsmlv+H01chM1e4y
-OkkUuCeLwHsC8lXTw/vpTmNsCqoAOZk3AWkdJBgssa4vzZDYWgy0zLFZyIAu4MO4
-hqOW7zESqdC2rIo8cQcXVGgPv4Jlj/xWMYvBETFOQMG4q+Qu06HNGz1rD5tfmjTz
-xYr93rS4KuDsTjSftCCK
-=lbZa
+iQIcBAEBAgAGBQJWpwsCAAoJEBQN5MwUoCm2vjUP/1Hx4tG0KMFB/CA/Gg+FwNWX
+rRq2KH6nCtkDZnAFA1jnnRT0ClezqymysJRo9cinNJoRhBndLEJDz61I+Dr1EaRY
+e3YH+/IPAf3VPlEf3+9V4NKdQg31tgap0Qt3iTUPPi+mrsl7uAtmzhZJQErdll9s
++VFdNJG/0fYAsrc3+gSd/dSD53OVaBAaB9c2eveXoGI9QJQyyOeyiFIUi7bI4OPO
+NdGxhZmIZOIjuj48xd8dv6vYZLgMq8Mmb5/nBUSnWDmjst/Eod/FnnQF42GmAzSK
+e3Euz8YP5E8DFHZlGcNSsCPQHVcjaAXRevt4FVt5Hr6tqgNJdSfK4Su10ZurOHc6
+UAZQ4pPevwVO5X+Igu3liNFDv55W1RWVFsCoZrY22KzxoPEdLJOX2LeRGM8YwTs1
+hdSCrMqLY5v7V4Dsockm0eWq0reeyMnIATCZFun+gyzdTYw9RcETmO/C8JULf9Ia
+d8L4aM3+ask2mN1etVtvSktSQkZ8TjeCEcIk/KGC9lTFSj1SeKIkKkB1YE1REK/j
+r/jvPfTcvMeUTEs9iinTnbR2AvjhuHyYsPHw43xKrz1T9OXkpD6q33ytnVP9a4Ax
+RLgi8GkhnGsVVFw3oPTlCNNZ6Keas14ePMfE/C4WIlrYO7cv7DimxGTKZiK7+O+4
+FduW8lvwjYE0wTAN0S6S
+=Zhxl
 -----END PGP SIGNATURE-----
 
---z4+8/lEcDcG5Ke9S--
+--T7mxYSe680VjQnyC--
