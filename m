@@ -1,56 +1,61 @@
-From: Stefan Wahren <info@lategoodbye.de>
-Subject: i2c-bcm2835: Unable to read from i2c0
-Date: Thu, 28 Jan 2016 22:43:17 +0100
-Message-ID: <56AA8B75.9060801@lategoodbye.de>
+From: Phil <phil-FnsA7b+Nu9XbIbC87yuRow@public.gmane.org>
+Subject: Re: i2c-bcm2835: Unable to read from i2c0
+Date: Thu, 28 Jan 2016 22:49:56 +0000
+Message-ID: <7de3fd0b-7973-476c-a009-e9a1fb032a80@email.android.com>
+References: <56AA8B75.9060801@lategoodbye.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.augenpunkt.de ([213.239.207.9]:40910 "EHLO
-	www.augenpunkt.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755816AbcA1Vni (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Jan 2016 16:43:38 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <56AA8B75.9060801-saaNCTdWVBT7BZbvpMY5sg@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
+List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Stefan Wahren <info-saaNCTdWVBT7BZbvpMY5sg@public.gmane.org>
+Cc: linux-rpi-kernel <linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-rpi-kernel <linux-rpi-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 
-Hi,
-
-i'm using a Raspberry Pi B (rev 1) and Linux kernel 4.5rc-1. I have 
-connected a PiGlow (SN3218 at address 0x54) to the P1 Header. The I2C 
-bus clock is set to 100 kHz.  Every time i want to read data from i2c0 
-the following error appear:
-
-[   94.343612] i2c-bcm2835 20205000.i2c: i2c transfer failed: 100
-
-According to the BCM2835 datasheet this should be an ERR ACK (Slave has 
-not acknowledged its address).
-
- > i2cdetect -y 0
-0 1 2 3 4 5 6 7 8 9 a b c d e f
-00: -- -- -- -- -- -- -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-70: -- -- -- -- -- -- -- --
-
- > i2cdetect -q -y 0
-      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- -- -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-50: -- -- -- -- 54 -- -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-70: -- -- -- -- -- -- -- --
-
-Strangly writing data to the SN3218 works.
-
-Does anyone have an explanation for this error?
-
-Regards
-Stefan
+QSBmZXcgcXVlc3Rpb25zOgoKMSkgV2hhdCBoYXMgY2hhbmdlZCBpbiB5b3VyIHN5c3RlbT8gSGF2
+ZSB5b3UgZXZlciBiZWVuIGFibGUgdG8gdXNlIHRoZSBQaUdsb3c/CgoyKSBXaGF0IGlzIHRoZSBz
+dGF0ZSBvZiB0aGUgR1BJT3M/CgpQaGlsCgpPbiAyOCBKYW4gMjAxNiA5OjQzIHAubS4sIFN0ZWZh
+biBXYWhyZW4gPGluZm9AbGF0ZWdvb2RieWUuZGU+IHdyb3RlOgo+Cj4gSGksIAo+Cj4gaSdtIHVz
+aW5nIGEgUmFzcGJlcnJ5IFBpIEIgKHJldiAxKSBhbmQgTGludXgga2VybmVsIDQuNXJjLTEuIEkg
+aGF2ZSAKPiBjb25uZWN0ZWQgYSBQaUdsb3cgKFNOMzIxOCBhdCBhZGRyZXNzIDB4NTQpIHRvIHRo
+ZSBQMSBIZWFkZXIuIFRoZSBJMkMgCj4gYnVzIGNsb2NrIGlzIHNldCB0byAxMDAga0h6LsKgIEV2
+ZXJ5IHRpbWUgaSB3YW50IHRvIHJlYWQgZGF0YSBmcm9tIGkyYzAgCj4gdGhlIGZvbGxvd2luZyBl
+cnJvciBhcHBlYXI6IAo+Cj4gW8KgwqAgOTQuMzQzNjEyXSBpMmMtYmNtMjgzNSAyMDIwNTAwMC5p
+MmM6IGkyYyB0cmFuc2ZlciBmYWlsZWQ6IDEwMCAKPgo+IEFjY29yZGluZyB0byB0aGUgQkNNMjgz
+NSBkYXRhc2hlZXQgdGhpcyBzaG91bGQgYmUgYW4gRVJSIEFDSyAoU2xhdmUgaGFzIAo+IG5vdCBh
+Y2tub3dsZWRnZWQgaXRzIGFkZHJlc3MpLiAKPgo+ID4gaTJjZGV0ZWN0IC15IDAgCj4gMCAxIDIg
+MyA0IDUgNiA3IDggOSBhIGIgYyBkIGUgZiAKPiAwMDogLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
+LS0gLS0gLS0gLS0gLS0gCj4gMTA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0t
+IC0tIC0tIC0tIC0tIAo+IDIwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAt
+LSAtLSAtLSAtLSAKPiAzMDogLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
+LS0gLS0gLS0gCj4gNDA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0t
+IC0tIC0tIAo+IDUwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAt
+LSAtLSAKPiA2MDogLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
+LS0gCj4gNzA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIAo+Cj4gPiBpMmNkZXRlY3QgLXEgLXkg
+MCAKPiDCoMKgwqDCoMKgIDDCoCAxwqAgMsKgIDPCoCA0wqAgNcKgIDbCoCA3wqAgOMKgIDnCoCBh
+wqAgYsKgIGPCoCBkwqAgZcKgIGYgCj4gMDA6wqDCoMKgwqDCoMKgwqDCoMKgIC0tIC0tIC0tIC0t
+IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIAo+IDEwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAt
+LSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAKPiAyMDogLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
+LS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gCj4gMzA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0t
+IC0tIC0tIC0tIC0tIC0tIC0tIC0tIAo+IDQwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAt
+LSAtLSAtLSAtLSAtLSAtLSAtLSAKPiA1MDogLS0gLS0gLS0gLS0gNTQgLS0gLS0gLS0gLS0gLS0g
+LS0gLS0gLS0gLS0gLS0gLS0gCj4gNjA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0t
+IC0tIC0tIC0tIC0tIC0tIAo+IDcwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAKPgo+IFN0cmFu
+Z2x5IHdyaXRpbmcgZGF0YSB0byB0aGUgU04zMjE4IHdvcmtzLiAKPgo+IERvZXMgYW55b25lIGhh
+dmUgYW4gZXhwbGFuYXRpb24gZm9yIHRoaXMgZXJyb3I/IAo+Cj4gUmVnYXJkcyAKPiBTdGVmYW4g
+Cj4KPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXyAKPiBs
+aW51eC1ycGkta2VybmVsIG1haWxpbmcgbGlzdCAKPiBsaW51eC1ycGkta2VybmVsQGxpc3RzLmlu
+ZnJhZGVhZC5vcmcgCj4gaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5m
+by9saW51eC1ycGkta2VybmVsIApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpsaW51eC1ycGkta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1ycGkta2VybmVs
+QGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9s
+aXN0aW5mby9saW51eC1ycGkta2VybmVsCg==
