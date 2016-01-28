@@ -1,56 +1,56 @@
-From: "Sricharan" <sricharan@codeaurora.org>
-Subject: RE: [PATCH V7 0/6] i2c: qup: Add support for v2 tags and bam dma
-Date: Thu, 28 Jan 2016 10:57:51 +0530
-Message-ID: <001d01d1598c$a6dc1630$f4944290$@codeaurora.org>
-References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org> <000101d152a2$23bb1da0$6b3158e0$@codeaurora.org> <20160124113318.GB1775@katana>
+From: Stefan Wahren <info@lategoodbye.de>
+Subject: i2c-bcm2835: Unable to read from i2c0
+Date: Thu, 28 Jan 2016 22:43:17 +0100
+Message-ID: <56AA8B75.9060801@lategoodbye.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160124113318.GB1775@katana>
-Content-Language: en-us
-Sender: linux-kernel-owner@vger.kernel.org
-To: 'Wolfram Sang' <wsa@the-dreams.de>
-Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, andy.gross@linaro.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.augenpunkt.de ([213.239.207.9]:40910 "EHLO
+	www.augenpunkt.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755816AbcA1Vni (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Jan 2016 16:43:38 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-rpi-kernel <linux-rpi-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi,
 
-> -----Original Message-----
-> From: linux-arm-kernel [mailto:linux-arm-kernel-
-> bounces@lists.infradead.org] On Behalf Of Wolfram Sang
-> Sent: Sunday, January 24, 2016 5:03 PM
-> To: Sricharan
-> Cc: devicetree@vger.kernel.org; architt@codeaurora.org; linux-arm-
-> msm@vger.kernel.org; ntelkar@codeaurora.org; agross@codeaurora.org;
-> linux-kernel@vger.kernel.org; dmaengine@vger.kernel.org; linux-
-> i2c@vger.kernel.org; iivanov@mm-sol.com; galak@codeaurora.org;
-> andy.gross@linaro.org; linux-arm-kernel@lists.infradead.org
-> Subject: Re: [PATCH V7 0/6] i2c: qup: Add support for v2 tags and bam dma
-> 
-> > > Sricharan R (6):
-> > >   i2c: qup: Change qup_wait_writeready function to use for all
-timeouts
-> > >   i2c: qup: Add V2 tags support
-> > >   i2c: qup: Transfer each i2c_msg in i2c_msgs without a stop bit
-> > >   i2c: qup: Add bam dma capabilities
-> > >   dts: msm8974: Add blsp2_bam dma node
-> > >   dts: msm8974: Add dma channels for blsp2_i2c1 node
-> > >
-> >  Wolfram,  Does the first 4 patches looks good to be picked up  ?
-> 
-> Except for patch 3 (I replied seperately), the rest looks okay to me. I
-> wondered a little if it would make sense to make a new driver for v2 +
-DMA,
-> because the additions were quite massive. But I'll leave it up to you if
-there is
-> enough shared code between the two versions, so that a single driver will
-be
-> better.
-     Hmm,  addition of V2 reused code, more than 50% addition of new loc in
-this series, lot of it from DMA,
-     but at this point it feels ok to have it in a single driver. 
+i'm using a Raspberry Pi B (rev 1) and Linux kernel 4.5rc-1. I have 
+connected a PiGlow (SN3218 at address 0x54) to the P1 Header. The I2C 
+bus clock is set to 100 kHz.  Every time i want to read data from i2c0 
+the following error appear:
 
-Regards,
- Sricharan
+[   94.343612] i2c-bcm2835 20205000.i2c: i2c transfer failed: 100
+
+According to the BCM2835 datasheet this should be an ERR ACK (Slave has 
+not acknowledged its address).
+
+ > i2cdetect -y 0
+0 1 2 3 4 5 6 7 8 9 a b c d e f
+00: -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+ > i2cdetect -q -y 0
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- 54 -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+Strangly writing data to the SN3218 works.
+
+Does anyone have an explanation for this error?
+
+Regards
+Stefan
