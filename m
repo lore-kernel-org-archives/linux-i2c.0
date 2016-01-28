@@ -1,61 +1,161 @@
-From: Phil <phil-FnsA7b+Nu9XbIbC87yuRow@public.gmane.org>
-Subject: Re: i2c-bcm2835: Unable to read from i2c0
-Date: Thu, 28 Jan 2016 22:49:56 +0000
-Message-ID: <7de3fd0b-7973-476c-a009-e9a1fb032a80@email.android.com>
-References: <56AA8B75.9060801@lategoodbye.de>
+From: Liguo Zhang <liguo.zhang@mediatek.com>
+Subject: [PATCH v2] i2c: mt8173: add 4GB mode support in i2c driver.
+Date: Fri, 29 Jan 2016 07:06:24 +0800
+Message-ID: <1454022384-7955-1-git-send-email-liguo.zhang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <56AA8B75.9060801-saaNCTdWVBT7BZbvpMY5sg@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
- <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
-List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
- <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Stefan Wahren <info-saaNCTdWVBT7BZbvpMY5sg@public.gmane.org>
-Cc: linux-rpi-kernel <linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailgw02.mediatek.com ([210.61.82.184]:63299 "EHLO
+	mailgw02.hq.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1750914AbcA2HGu (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 29 Jan 2016 02:06:50 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, Liguo Zhang <liguo.zhang@mediatek.com>
 
-QSBmZXcgcXVlc3Rpb25zOgoKMSkgV2hhdCBoYXMgY2hhbmdlZCBpbiB5b3VyIHN5c3RlbT8gSGF2
-ZSB5b3UgZXZlciBiZWVuIGFibGUgdG8gdXNlIHRoZSBQaUdsb3c/CgoyKSBXaGF0IGlzIHRoZSBz
-dGF0ZSBvZiB0aGUgR1BJT3M/CgpQaGlsCgpPbiAyOCBKYW4gMjAxNiA5OjQzIHAubS4sIFN0ZWZh
-biBXYWhyZW4gPGluZm9AbGF0ZWdvb2RieWUuZGU+IHdyb3RlOgo+Cj4gSGksIAo+Cj4gaSdtIHVz
-aW5nIGEgUmFzcGJlcnJ5IFBpIEIgKHJldiAxKSBhbmQgTGludXgga2VybmVsIDQuNXJjLTEuIEkg
-aGF2ZSAKPiBjb25uZWN0ZWQgYSBQaUdsb3cgKFNOMzIxOCBhdCBhZGRyZXNzIDB4NTQpIHRvIHRo
-ZSBQMSBIZWFkZXIuIFRoZSBJMkMgCj4gYnVzIGNsb2NrIGlzIHNldCB0byAxMDAga0h6LsKgIEV2
-ZXJ5IHRpbWUgaSB3YW50IHRvIHJlYWQgZGF0YSBmcm9tIGkyYzAgCj4gdGhlIGZvbGxvd2luZyBl
-cnJvciBhcHBlYXI6IAo+Cj4gW8KgwqAgOTQuMzQzNjEyXSBpMmMtYmNtMjgzNSAyMDIwNTAwMC5p
-MmM6IGkyYyB0cmFuc2ZlciBmYWlsZWQ6IDEwMCAKPgo+IEFjY29yZGluZyB0byB0aGUgQkNNMjgz
-NSBkYXRhc2hlZXQgdGhpcyBzaG91bGQgYmUgYW4gRVJSIEFDSyAoU2xhdmUgaGFzIAo+IG5vdCBh
-Y2tub3dsZWRnZWQgaXRzIGFkZHJlc3MpLiAKPgo+ID4gaTJjZGV0ZWN0IC15IDAgCj4gMCAxIDIg
-MyA0IDUgNiA3IDggOSBhIGIgYyBkIGUgZiAKPiAwMDogLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
-LS0gLS0gLS0gLS0gLS0gCj4gMTA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0t
-IC0tIC0tIC0tIC0tIAo+IDIwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAt
-LSAtLSAtLSAtLSAKPiAzMDogLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
-LS0gLS0gLS0gCj4gNDA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0t
-IC0tIC0tIAo+IDUwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAt
-LSAtLSAKPiA2MDogLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
-LS0gCj4gNzA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIAo+Cj4gPiBpMmNkZXRlY3QgLXEgLXkg
-MCAKPiDCoMKgwqDCoMKgIDDCoCAxwqAgMsKgIDPCoCA0wqAgNcKgIDbCoCA3wqAgOMKgIDnCoCBh
-wqAgYsKgIGPCoCBkwqAgZcKgIGYgCj4gMDA6wqDCoMKgwqDCoMKgwqDCoMKgIC0tIC0tIC0tIC0t
-IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIAo+IDEwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAt
-LSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAKPiAyMDogLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
-LS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0gCj4gMzA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0t
-IC0tIC0tIC0tIC0tIC0tIC0tIC0tIAo+IDQwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAt
-LSAtLSAtLSAtLSAtLSAtLSAtLSAKPiA1MDogLS0gLS0gLS0gLS0gNTQgLS0gLS0gLS0gLS0gLS0g
-LS0gLS0gLS0gLS0gLS0gLS0gCj4gNjA6IC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0t
-IC0tIC0tIC0tIC0tIC0tIAo+IDcwOiAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAKPgo+IFN0cmFu
-Z2x5IHdyaXRpbmcgZGF0YSB0byB0aGUgU04zMjE4IHdvcmtzLiAKPgo+IERvZXMgYW55b25lIGhh
-dmUgYW4gZXhwbGFuYXRpb24gZm9yIHRoaXMgZXJyb3I/IAo+Cj4gUmVnYXJkcyAKPiBTdGVmYW4g
-Cj4KPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXyAKPiBs
-aW51eC1ycGkta2VybmVsIG1haWxpbmcgbGlzdCAKPiBsaW51eC1ycGkta2VybmVsQGxpc3RzLmlu
-ZnJhZGVhZC5vcmcgCj4gaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5m
-by9saW51eC1ycGkta2VybmVsIApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpsaW51eC1ycGkta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1ycGkta2VybmVs
-QGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9s
-aXN0aW5mby9saW51eC1ycGkta2VybmVsCg==
+If 4GB mode is enable, we should add 4gb mode support in i2c driver.
+Set 4GB mode register to support 4GB mode.
+
+Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+---
+change in v2:
+Define a static inline funtion mtk_i2c_set_4g_mode() for support 4g mode.
+---
+ drivers/i2c/busses/i2c-mt65xx.c | 51 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 51 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index aec8e6c..f5734e6 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -60,6 +60,7 @@
+ #define I2C_DMA_INT_FLAG_NONE		0x0000
+ #define I2C_DMA_CLR_FLAG		0x0000
+ #define I2C_DMA_HARD_RST		0x0002
++#define I2C_DMA_4G_MODE			0x0001
+ 
+ #define I2C_DEFAULT_SPEED		100000	/* hz */
+ #define MAX_FS_MODE_SPEED		400000
+@@ -88,6 +89,8 @@ enum DMA_REGS_OFFSET {
+ 	OFFSET_RX_MEM_ADDR = 0x20,
+ 	OFFSET_TX_LEN = 0x24,
+ 	OFFSET_RX_LEN = 0x28,
++	OFFSET_TX_4G_MODE = 0x54,
++	OFFSET_RX_4G_MODE = 0x58,
+ };
+ 
+ enum i2c_trans_st_rs {
+@@ -133,6 +136,7 @@ struct mtk_i2c_compatible {
+ 	unsigned char dcm: 1;
+ 	unsigned char auto_restart: 1;
+ 	unsigned char aux_len_reg: 1;
++	unsigned char support_33bits: 1;
+ };
+ 
+ struct mtk_i2c {
+@@ -182,6 +186,7 @@ static const struct mtk_i2c_compatible mt6577_compat = {
+ 	.dcm = 1,
+ 	.auto_restart = 0,
+ 	.aux_len_reg = 0,
++	.support_33bits = 0,
+ };
+ 
+ static const struct mtk_i2c_compatible mt6589_compat = {
+@@ -190,6 +195,7 @@ static const struct mtk_i2c_compatible mt6589_compat = {
+ 	.dcm = 0,
+ 	.auto_restart = 0,
+ 	.aux_len_reg = 0,
++	.support_33bits = 0,
+ };
+ 
+ static const struct mtk_i2c_compatible mt8173_compat = {
+@@ -198,6 +204,7 @@ static const struct mtk_i2c_compatible mt8173_compat = {
+ 	.dcm = 1,
+ 	.auto_restart = 1,
+ 	.aux_len_reg = 1,
++	.support_33bits = 1,
+ };
+ 
+ static const struct of_device_id mtk_i2c_of_match[] = {
+@@ -366,6 +373,30 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk,
+ 	return 0;
+ }
+ 
++static inline void mtk_i2c_set_4g_mode(struct mtk_i2c *i2c, dma_addr_t wpaddr,
++				       dma_addr_t rpaddr)
++{
++	u32 reg_4g_mode;
++
++	if (i2c->op == I2C_MASTER_RD) {
++		reg_4g_mode = (rpaddr & 0x100000000ULL) ? I2C_DMA_4G_MODE :
++			       I2C_DMA_CLR_FLAG;
++		writel(reg_4g_mode, i2c->pdmabase + OFFSET_RX_4G_MODE);
++	} else if (i2c->op == I2C_MASTER_WR) {
++		reg_4g_mode = (wpaddr & 0x100000000ULL) ? I2C_DMA_4G_MODE :
++			       I2C_DMA_CLR_FLAG;
++		writel(reg_4g_mode, i2c->pdmabase + OFFSET_TX_4G_MODE);
++	} else {
++		reg_4g_mode = (wpaddr & 0x100000000ULL) ? I2C_DMA_4G_MODE :
++			       I2C_DMA_CLR_FLAG;
++		writel(reg_4g_mode, i2c->pdmabase + OFFSET_TX_4G_MODE);
++
++		reg_4g_mode = (rpaddr & 0x100000000ULL) ? I2C_DMA_4G_MODE :
++			       I2C_DMA_CLR_FLAG;
++		writel(reg_4g_mode, i2c->pdmabase + OFFSET_RX_4G_MODE);
++	}
++}
++
+ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 			       int num, int left_num)
+ {
+@@ -439,6 +470,10 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 					msgs->len, DMA_FROM_DEVICE);
+ 		if (dma_mapping_error(i2c->dev, rpaddr))
+ 			return -ENOMEM;
++
++		if (i2c->dev_comp->support_33bits)
++			mtk_i2c_set_4g_mode(i2c, 0, rpaddr);
++
+ 		writel((u32)rpaddr, i2c->pdmabase + OFFSET_RX_MEM_ADDR);
+ 		writel(msgs->len, i2c->pdmabase + OFFSET_RX_LEN);
+ 	} else if (i2c->op == I2C_MASTER_WR) {
+@@ -448,6 +483,10 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 					msgs->len, DMA_TO_DEVICE);
+ 		if (dma_mapping_error(i2c->dev, wpaddr))
+ 			return -ENOMEM;
++
++		if (i2c->dev_comp->support_33bits)
++			mtk_i2c_set_4g_mode(i2c, wpaddr, 0);
++
+ 		writel((u32)wpaddr, i2c->pdmabase + OFFSET_TX_MEM_ADDR);
+ 		writel(msgs->len, i2c->pdmabase + OFFSET_TX_LEN);
+ 	} else {
+@@ -465,6 +504,10 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 					 msgs->len, DMA_TO_DEVICE);
+ 			return -ENOMEM;
+ 		}
++
++		if (i2c->dev_comp->support_33bits)
++			mtk_i2c_set_4g_mode(i2c, wpaddr, rpaddr);
++
+ 		writel((u32)wpaddr, i2c->pdmabase + OFFSET_TX_MEM_ADDR);
+ 		writel((u32)rpaddr, i2c->pdmabase + OFFSET_RX_MEM_ADDR);
+ 		writel(msgs->len, i2c->pdmabase + OFFSET_TX_LEN);
+@@ -729,6 +772,14 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
++	if (i2c->dev_comp->support_33bits) {
++		ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(33));
++		if (ret) {
++			dev_err(&pdev->dev, "dma_set_mask return error.\n");
++			return ret;
++		}
++	}
++
+ 	ret = mtk_i2c_clock_enable(i2c);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "clock enable failed!\n");
+-- 
+1.8.1.1.dirty
