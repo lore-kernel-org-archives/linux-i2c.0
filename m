@@ -1,114 +1,58 @@
-From: Christian Fetzer <fetzer.ch@gmail.com>
-Subject: Re: [PATCH] i2c-piix4: Better bus names
-Date: Wed, 27 Jan 2016 19:49:26 +0100
-Message-ID: <D68E43F7-E3C4-4623-A1EB-EF033974FC80@gmail.com>
-References: <20160127144033.749e3652@endymion.delvare>
-Mime-Version: 1.0 (Mac OS X Mail 8.2 \(2104\))
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Ray Jui <rjui@broadcom.com>
+Subject: [PATCH 1/3] i2c: iproc: Add recovery mechanism in error case
+Date: Wed, 27 Jan 2016 16:27:20 -0800
+Message-ID: <1453940842-9658-2-git-send-email-rjui@broadcom.com>
+References: <1453940842-9658-1-git-send-email-rjui@broadcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:37983 "EHLO
-	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934590AbcA0Sta convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Jan 2016 13:49:30 -0500
-Received: by mail-wm0-f43.google.com with SMTP id p63so40699197wmp.1
-        for <linux-i2c@vger.kernel.org>; Wed, 27 Jan 2016 10:49:30 -0800 (PST)
-In-Reply-To: <20160127144033.749e3652@endymion.delvare>
+Received: from mail-gw3-out.broadcom.com ([216.31.210.64]:15196 "EHLO
+	mail-gw3-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934437AbcA1A1a (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Jan 2016 19:27:30 -0500
+In-Reply-To: <1453940842-9658-1-git-send-email-rjui@broadcom.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Icarus Chau <ichau@broadcom.com>, Ray Jui <rjui@broadcom.com>
 
+Add proper recovery mechanism to the iProc I2C driver in error cases
 
-> Am 27.01.2016 um 14:40 schrieb Jean Delvare <jdelvare@suse.de>:
->=20
-> The I2C bus names are supposed to be stable as they can be used by
-> userspace to uniquely identify a specific I2C bus. So restore the
-> original names for all legacy (pre-SB800) devices.
->=20
-> For SB800 devices and later, improve the names. "SDA" refers to the
-> serial data pin of each SMBus port, it's an implementation detail the
-> user doesn't need to know. Use "port" instead, which is easier to
-> understand.
+Signed-off-by: Icarus Chau <ichau@broadcom.com>
+Signed-off-by: Ray Jui <rjui@broadcom.com>
+Tested-by: Icarus Chau <ichau@broadcom.com>
+Reviewed-by: Scott Branden <sbranden@broadcom.com>
+---
+ drivers/i2c/busses/i2c-bcm-iproc.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-That=E2=80=99s indeed more readable now. Works on my N54L,
-I don=E2=80=99t have non-SB800 hardware to verify that part of the patc=
-h though.
-
-Tested-by: Christian Fetzer <fetzer.ch@gmail.com>
-
->=20
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Christian Fetzer <fetzer.ch@gmail.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> ---
-> drivers/i2c/busses/i2c-piix4.c |   13 ++++++++-----
-> 1 file changed, 8 insertions(+), 5 deletions(-)
->=20
-> --- linux-4.5-rc0.orig/drivers/i2c/busses/i2c-piix4.c	2016-01-26 18:1=
-8:45.324952783 +0100
-> +++ linux-4.5-rc0/drivers/i2c/busses/i2c-piix4.c	2016-01-26 18:25:38.=
-487310421 +0100
-> @@ -139,9 +139,9 @@ static const struct dmi_system_id piix4_
-> /* SB800 globals */
-> static DEFINE_MUTEX(piix4_mutex_sb800);
-> static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] =3D=
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index 0419f52..99261cc 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -102,6 +102,10 @@ struct bcm_iproc_i2c_dev {
+  */
+ #define ISR_MASK (1 << IS_M_START_BUSY_SHIFT)
+ 
++static int bcm_iproc_i2c_init(struct bcm_iproc_i2c_dev *iproc_i2c);
++static void bcm_iproc_i2c_enable_disable(struct bcm_iproc_i2c_dev *iproc_i2c,
++					 bool enable);
++
+ static irqreturn_t bcm_iproc_i2c_isr(int irq, void *data)
  {
-> -	"SDA0", "SDA2", "SDA3", "SDA4"
-> +	" port 0", " port 2", " port 3", " port 4"
-> };
-> -static const char *piix4_aux_port_name_sb800 =3D "SDA1";
-> +static const char *piix4_aux_port_name_sb800 =3D " port 1";
->=20
-> struct i2c_piix4_adapdata {
-> 	unsigned short smba;
-> @@ -660,7 +660,7 @@ static int piix4_add_adapter(struct pci_
-> 	adap->dev.parent =3D &dev->dev;
->=20
-> 	snprintf(adap->name, sizeof(adap->name),
-> -		"SMBus PIIX4 adapter %s at %04x", name, smba);
-> +		"SMBus PIIX4 adapter%s at %04x", name, smba);
->=20
-> 	i2c_set_adapdata(adap, adapdata);
->=20
-> @@ -712,11 +712,14 @@ error:
-> static int piix4_probe(struct pci_dev *dev, const struct pci_device_i=
-d *id)
-> {
-> 	int retval;
-> +	bool is_sb800 =3D false;
->=20
-> 	if ((dev->vendor =3D=3D PCI_VENDOR_ID_ATI &&
-> 	     dev->device =3D=3D PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
-> 	     dev->revision >=3D 0x40) ||
-> 	    dev->vendor =3D=3D PCI_VENDOR_ID_AMD) {
-> +		is_sb800 =3D true;
-> +
-> 		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
-> 			dev_err(&dev->dev,
-> 			"SMBus base address index region 0x%x already in use!\n",
-> @@ -746,7 +749,7 @@ static int piix4_probe(struct pci_dev *d
-> 			return retval;
->=20
-> 		/* Try to register main SMBus adapter, give up if we can't */
-> -		retval =3D piix4_add_adapter(dev, retval, false, 0, "main",
-> +		retval =3D piix4_add_adapter(dev, retval, false, 0, "",
-> 					   &piix4_main_adapters[0]);
-> 		if (retval < 0)
-> 			return retval;
-> @@ -774,7 +777,7 @@ static int piix4_probe(struct pci_dev *d
-> 		/* Try to add the aux adapter if it exists,
-> 		 * piix4_add_adapter will clean up if this fails */
-> 		piix4_add_adapter(dev, retval, false, 0,
-> -				  piix4_aux_port_name_sb800,
-> +				  is_sb800 ? piix4_aux_port_name_sb800 : "",
-> 				  &piix4_aux_adapter);
-> 	}
->=20
->=20
->=20
-> --=20
-> Jean Delvare
-> SUSE L3 Support
+ 	struct bcm_iproc_i2c_dev *iproc_i2c = data;
+@@ -149,6 +153,12 @@ static int bcm_iproc_i2c_check_status(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 
+ 	default:
+ 		dev_dbg(iproc_i2c->device, "unknown error code=%d\n", val);
++
++		/* re-initialize i2c for recovery */
++		bcm_iproc_i2c_enable_disable(iproc_i2c, false);
++		bcm_iproc_i2c_init(iproc_i2c);
++		bcm_iproc_i2c_enable_disable(iproc_i2c, true);
++
+ 		return -EIO;
+ 	}
+ }
+-- 
+1.9.1
