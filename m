@@ -1,157 +1,30 @@
-From: Liguo Zhang <liguo.zhang@mediatek.com>
-Subject: [PATCH v3] i2c: mt8173: add 4GB mode support in i2c driver.
-Date: Fri, 29 Jan 2016 09:35:31 +0800
-Message-ID: <1454031331-9107-1-git-send-email-liguo.zhang@mediatek.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH 0/3] Improvements to the i2c-piix4 driver
+Date: Fri, 29 Jan 2016 10:41:46 +0100
+Message-ID: <20160129104146.50f06562@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, Liguo Zhang <liguo.zhang@mediatek.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:59131 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751475AbcA2Jlu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 29 Jan 2016 04:41:50 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Christian Fetzer <fetzer.ch@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
 
-If 4GB mode is enable, we should add 4gb mode support in i2c driver.
-Set 4GB mode register to support 4GB mode.
+Hi all,
 
-Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
----
-change in v3:
-Only inline the computation of reg_4g_mode in mtk_i2c_set_4g_mode().
-change in v2:
-Define a static inline funtion mtk_i2c_set_4g_mode() for support 4g mode.
----
- drivers/i2c/busses/i2c-mt65xx.c | 42 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+Here are 3 proposed improvements to the i2c-piix4 driver, on top of the
+3 patches I sent recently. Christian, I would appreciate if you can
+test them and confirm that they do not cause any regression for you.
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index aec8e6c..3c484f0 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -60,6 +60,7 @@
- #define I2C_DMA_INT_FLAG_NONE		0x0000
- #define I2C_DMA_CLR_FLAG		0x0000
- #define I2C_DMA_HARD_RST		0x0002
-+#define I2C_DMA_4G_MODE			0x0001
- 
- #define I2C_DEFAULT_SPEED		100000	/* hz */
- #define MAX_FS_MODE_SPEED		400000
-@@ -88,6 +89,8 @@ enum DMA_REGS_OFFSET {
- 	OFFSET_RX_MEM_ADDR = 0x20,
- 	OFFSET_TX_LEN = 0x24,
- 	OFFSET_RX_LEN = 0x28,
-+	OFFSET_TX_4G_MODE = 0x54,
-+	OFFSET_RX_4G_MODE = 0x58,
- };
- 
- enum i2c_trans_st_rs {
-@@ -133,6 +136,7 @@ struct mtk_i2c_compatible {
- 	unsigned char dcm: 1;
- 	unsigned char auto_restart: 1;
- 	unsigned char aux_len_reg: 1;
-+	unsigned char support_33bits: 1;
- };
- 
- struct mtk_i2c {
-@@ -182,6 +186,7 @@ static const struct mtk_i2c_compatible mt6577_compat = {
- 	.dcm = 1,
- 	.auto_restart = 0,
- 	.aux_len_reg = 0,
-+	.support_33bits = 0,
- };
- 
- static const struct mtk_i2c_compatible mt6589_compat = {
-@@ -190,6 +195,7 @@ static const struct mtk_i2c_compatible mt6589_compat = {
- 	.dcm = 0,
- 	.auto_restart = 0,
- 	.aux_len_reg = 0,
-+	.support_33bits = 0,
- };
- 
- static const struct mtk_i2c_compatible mt8173_compat = {
-@@ -198,6 +204,7 @@ static const struct mtk_i2c_compatible mt8173_compat = {
- 	.dcm = 1,
- 	.auto_restart = 1,
- 	.aux_len_reg = 1,
-+	.support_33bits = 1,
- };
- 
- static const struct of_device_id mtk_i2c_of_match[] = {
-@@ -366,6 +373,11 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk,
- 	return 0;
- }
- 
-+static inline u32 mtk_i2c_set_4g_mode(dma_addr_t addr)
-+{
-+	return (addr & BIT(32)) ? I2C_DMA_4G_MODE : I2C_DMA_CLR_FLAG;
-+}
-+
- static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 			       int num, int left_num)
- {
-@@ -373,6 +385,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	u16 start_reg;
- 	u16 control_reg;
- 	u16 restart_flag = 0;
-+	u32 reg_4g_mode = 0;
- 	dma_addr_t rpaddr = 0;
- 	dma_addr_t wpaddr = 0;
- 	int ret;
-@@ -439,6 +452,12 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 					msgs->len, DMA_FROM_DEVICE);
- 		if (dma_mapping_error(i2c->dev, rpaddr))
- 			return -ENOMEM;
-+
-+		if (i2c->dev_comp->support_33bits) {
-+			reg_4g_mode = mtk_i2c_set_4g_mode(rpaddr);
-+			writel(reg_4g_mode, i2c->pdmabase + OFFSET_RX_4G_MODE);
-+		}
-+
- 		writel((u32)rpaddr, i2c->pdmabase + OFFSET_RX_MEM_ADDR);
- 		writel(msgs->len, i2c->pdmabase + OFFSET_RX_LEN);
- 	} else if (i2c->op == I2C_MASTER_WR) {
-@@ -448,6 +467,12 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 					msgs->len, DMA_TO_DEVICE);
- 		if (dma_mapping_error(i2c->dev, wpaddr))
- 			return -ENOMEM;
-+
-+		if (i2c->dev_comp->support_33bits) {
-+			reg_4g_mode = mtk_i2c_set_4g_mode(wpaddr);
-+			writel(reg_4g_mode, i2c->pdmabase + OFFSET_TX_4G_MODE);
-+		}
-+
- 		writel((u32)wpaddr, i2c->pdmabase + OFFSET_TX_MEM_ADDR);
- 		writel(msgs->len, i2c->pdmabase + OFFSET_TX_LEN);
- 	} else {
-@@ -465,6 +490,15 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 					 msgs->len, DMA_TO_DEVICE);
- 			return -ENOMEM;
- 		}
-+
-+		if (i2c->dev_comp->support_33bits) {
-+			reg_4g_mode = mtk_i2c_set_4g_mode(wpaddr);
-+			writel(reg_4g_mode, i2c->pdmabase + OFFSET_TX_4G_MODE);
-+
-+			reg_4g_mode = mtk_i2c_set_4g_mode(rpaddr);
-+			writel(reg_4g_mode, i2c->pdmabase + OFFSET_RX_4G_MODE);
-+		}
-+
- 		writel((u32)wpaddr, i2c->pdmabase + OFFSET_TX_MEM_ADDR);
- 		writel((u32)rpaddr, i2c->pdmabase + OFFSET_RX_MEM_ADDR);
- 		writel(msgs->len, i2c->pdmabase + OFFSET_TX_LEN);
-@@ -729,6 +763,14 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
-+	if (i2c->dev_comp->support_33bits) {
-+		ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(33));
-+		if (ret) {
-+			dev_err(&pdev->dev, "dma_set_mask return error.\n");
-+			return ret;
-+		}
-+	}
-+
- 	ret = mtk_i2c_clock_enable(i2c);
- 	if (ret) {
- 		dev_err(&pdev->dev, "clock enable failed!\n");
+[PATCH 1/3] i2c-piix4: Support alternative port selection register
+[PATCH 2/3] i2c-piix4: Always use the same type for port
+[PATCH 3/3] i2c-piix4: Pre-shift the port number
+
 -- 
-1.8.1.1.dirty
+Jean Delvare
+SUSE L3 Support
