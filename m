@@ -1,38 +1,58 @@
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH] i2c: designware: balance clk enable/disable on removal
-Date: Sat, 30 Jan 2016 01:31:36 +0300
-Message-ID: <1454106696-5867-1-git-send-email-khoroshilov@ispras.ru>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.5
+Date: Sun, 31 Jan 2016 01:06:02 +0100
+Message-ID: <5b17b3b98683edd10719f474b68041b6@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.ispras.ru ([83.149.199.45]:58389 "EHLO mail.ispras.ru"
+Received: from sauhun.de ([89.238.76.85]:59600 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753570AbcA2Wbp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 29 Jan 2016 17:31:45 -0500
+	id S1757162AbcAaAGF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 30 Jan 2016 19:06:05 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org, Alexey Khoroshilov <khoroshilov@ispras.ru>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-It seems clk_disable_unprepare() is missed in dw_i2c_plat_remove(),
-so the patch adds it.
+Linus,
 
-Found by Linux Driver Verification project (linuxtesting.org).
+here are two I2C driver regression fixes. piix4 gets a larger overhaul
+fixing the latest refactoring and also an older known issue as well.
+designware-pci gets a fix for a bad merge conflict resolution. Please
+pull.
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
- 1 file changed, 1 insertion(+)
+Thanks,
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 438f1b4964c0..8f19b7b81fe0 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -267,6 +267,7 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
- 	i2c_del_adapter(&dev->adapter);
- 
- 	i2c_dw_disable(dev);
-+	i2c_dw_plat_prepare_clk(dev, false);
- 
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 	pm_runtime_put_sync(&pdev->dev);
--- 
-1.9.1
+    Wolfram
+
+
+The following changes since commit 
+92e963f50fc74041b5e9e744c330dca48e04f08d:
+
+   Linux 4.5-rc1 (2016-01-24 13:06:47 -0800)
+
+are available in the git repository at:
+
+   git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git 
+i2c/for-current
+
+for you to fetch changes up to 
+52795f6fdeb8a2b98373108ac2838c674bb2cbc4:
+
+   i2c: piix4: don't regress on bus names (2016-01-29 11:13:52 +0100)
+
+----------------------------------------------------------------
+Andy Shevchenko (1):
+       i2c: designware-pci: use IRQF_COND_SUSPEND flag
+
+Jean Delvare (3):
+       i2c: piix4: Fix SB800 locking
+       i2c: piix4: Fully initialize SB800 before it is registered
+       i2c: piix4: don't regress on bus names
+
+  drivers/i2c/busses/i2c-designware-core.c |  3 +-
+  drivers/i2c/busses/i2c-piix4.c           | 50 
+++++++++++++++------------------
+  2 files changed, 23 insertions(+), 30 deletions(-)
