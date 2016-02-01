@@ -1,65 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c/designware: enable i2c controller to
- suspend/resume asynchronously
-Date: Mon, 1 Feb 2016 16:54:22 +0100
-Message-ID: <20160201155422.GC10607@tetsubishi>
-References: <569893D1.5050403@linux.intel.com>
- <56AF73E1.7080501@linux.intel.com>
- <1454339763.32507.26.camel@linux.intel.com>
+From: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: =?utf-8?Q?=D0=9A=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D1=81=D0?=
+	=?utf-8?Q?=BA=D0=B8=D0=B5_=D0=B1=D0=B0=D0=B7=D1=8B!!!_=D0?=
+	=?utf-8?Q?=A2=D0=B5=D0=BB=5CViber=5CWhatsapp=3A+791339138?=
+	=?utf-8?Q?37_Skype=3Aprodawez389_Email=3Anonen22pp=40gmai?=
+	=?utf-8?Q?l=2Ecom_=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9=D1=82=D0?=
+	=?utf-8?Q?=B5_=D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD?=
+	=?utf-8?Q?=D0=B5=D0=B5!!!?=
+Date: Mon, 1 Feb 2016 18:32:57 +0600
+Message-ID: <936960F831E5CA09D5D09926D28D30D4@vger.kernel.org>
+Reply-To: "linux-i2c@vger.kernel.org" <gorskova32@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Izn7cH1Com+I3R9J"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:44758 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751630AbcBAPy0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 1 Feb 2016 10:54:26 -0500
-Content-Disposition: inline
-In-Reply-To: <1454339763.32507.26.camel@linux.intel.com>
+Received: from static-200-94-75-212.alestra.net.mx ([200.94.75.212]:50619 "EHLO
+	localhost.localdomain" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751975AbcBAT7H (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Feb 2016 14:59:07 -0500
+Received: from 200.94.75.212 (localhost [IPv6:::1])
+	by localhost.localdomain (Postfix) with SMTP id 5ACBF904D109
+	for <linux-i2c@vger.kernel.org>; Mon,  1 Feb 2016 06:32:58 -0600 (CST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
 
-
---Izn7cH1Com+I3R9J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> > > device may be completed in separate kernel thread. PM core ensures
-> > > all power state transition dependency between devices. This patch
-
-I'd like an Ack on that from a PM maintainer, because I think chips like
-PMICs are special and might not be covered by the generic case...
-
-> Besides that we have to be really aware about DMA power related fix
-> introduced in v4.5-rc1 in acpi_lpss.c [1]. So, I would like to see a
-> wide testing especially on Intel Baytrail / Braswell platforms before
-> enabling it.
-
-And this one, too.
-
-
---Izn7cH1Com+I3R9J
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWr3+uAAoJEBQN5MwUoCm2fa0P/jEODTIy2iv8lH0cifhgIk6h
-JTQ9BlCP2PtfeCwfwIO1d3SWdMECghj1GTyNoAWjgKtfhuCQhDdTljHQUURcDtsN
-rbIcc0Uh/cYVKMN12vWsK5GR2MeLs9UTSWDcUTkNVeyS/4ZoZcdHlJdllM8bZyut
-qnvqa1LtEwe1F3tkeEdq+lhGvMOVu7khjL5hH7Hb0duhriTbP3ZzibzGW/cxvB6f
-XBv/B8D/hdh1YDAjAvOL1xNwVXyqSx2+T97CeMisbj17XYhAsX/CTyl4sKBNUKKa
-5o/sSknGB/MYUfrklCXoWcrLL01yPTlGdY/TLGA46OSYjiZi+/onO88GuRp5SPIA
-fWuiECsWqOozmnijzMXYnOwrYm9SNnSiZx+rrItqlhaVvSBkw2seEzZOcGJyUc3R
-dmqeBKFiKCsy5qQwCp3HJeiKLXZu3wehlGljV1UOgqbd8SEz21gRDxVjUQ0NY2aT
-A5L8xY2jZr7TqYIvld8wX9Lv5qFCpR9+zx6rOC8t8+M9oQEIZQQqWfhG76KGdH1Q
-dyRl4aCmDryA++15vHx2I9bZRDIDT/TTcsx2gXs+aPHaJYWdkAZ/Liz9gap97POh
-TyprIzVT08c52+tLCMQNZ9Yvwr5dsSH8EBj3Jc7CKnFNMx6TafRgbZj8jF8WFoXV
-HE/Bly+kwfb2qRG2JTxH
-=rRmw
------END PGP SIGNATURE-----
-
---Izn7cH1Com+I3R9J--
+=D0=A1=D0=BE=D0=B1=D0=B5=D1=80=D0=B5=D0=BC =D0=B4=D0=BB=D1=8F =D0=92=D0=
+=B0=D1=81 =D0=BF=D0=BE =D0=B8=D0=BD=D1=82=D0=B5=D1=80=D0=BD=D0=B5=D1=82=
+ =D0=B1=D0=B0=D0=B7=D1=83 =D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D1=85 =D0=BF=D0=
+=BE=D1=82=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=D1=85 =D0=
+=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D0=BE=D0=B2 =D0=B4=D0=BB=D1=8F =D0=92=
+=D0=B0=D1=88=D0=B5=D0=B3=D0=BE =D0=91=D0=B8=D0=B7=D0=BD=D0=B5=D1=81=D0=B0=
+!!! =D0=9C=D0=BD=D0=BE=D0=B3=D0=BE! =D0=91=D1=8B=D1=81=D1=82=D1=80=D0=BE=
+! =D0=9D=D0=B5 =D0=B4=D0=BE=D1=80=D0=BE=D0=B3=D0=BE! =D0=A3=D0=B7=D0=BD=
+=D0=B0=D0=B9=D1=82=D0=B5 =D0=BE=D0=B1 =D1=8D=D1=82=D0=BE=D0=BC =D0=BF=D0=
+=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=D0=B5=D0=B5 =D0=BF=D0=BE =D0=A2=D0=B5=
+=D0=BB\Viber\Whatsapp:+79133913837 Skype:prodawez389 Email:gdrozdova37@=
+gmail.com =20
