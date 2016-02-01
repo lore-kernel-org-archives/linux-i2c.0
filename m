@@ -1,54 +1,68 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
- addresses
-Date: Mon, 1 Feb 2016 08:46:08 -0600
-Message-ID: <20160201144608.GA26606@rob-hp-laptop>
-References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2] i2c/designware: enable i2c controller to
+ suspend/resume asynchronously
+Date: Mon, 1 Feb 2016 17:04:01 +0200
+Message-ID: <56AF73E1.7080501@linux.intel.com>
+References: <569893D1.5050403@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:32886 "EHLO mail.kernel.org"
+Received: from mga03.intel.com ([134.134.136.65]:49721 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932418AbcBAOqO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 1 Feb 2016 09:46:14 -0500
-Content-Disposition: inline
-In-Reply-To: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+	id S932715AbcBAPES (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 1 Feb 2016 10:04:18 -0500
+In-Reply-To: <569893D1.5050403@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean-Michel Hautbois <jhautbois@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, wsa@the-dreams.de, laurent.pinchart@ideasonboard.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+To: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
-> Some I2C devices have multiple addresses assigned, for example each address
-> corresponding to a different internal register map page of the device.
-> So far drivers which need support for this have handled this with a driver
-> specific and non-generic implementation, e.g. passing the additional address
-> via platform data.
-> 
-> This patch provides a new helper function called i2c_new_secondary_device()
-> which is intended to provide a generic way to get the secondary address
-> as well as instantiate a struct i2c_client for the secondary address.
-> 
-> The function expects a pointer to the primary i2c_client, a name
-> for the secondary address and an optional default address. The name is used
-> as a handle to specify which secondary address to get.
-> 
-> The default address is used as a fallback in case no secondary address
-> was explicitly specified. In case no secondary address and no default
-> address were specified the function returns NULL.
-> 
-> For now the function only supports look-up of the secondary address
-> from devicetree, but it can be extended in the future
-> to for example support board files and/or ACPI.
-> 
-> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+On 01/15/2016 08:38 AM, Fu, Zhonghui wrote:
+> Now, PM core supports asynchronous suspend/resume mode for devices
+> during system suspend/resume, and the power state transition of one
+> device may be completed in separate kernel thread. PM core ensures
+> all power state transition dependency between devices. This patch
+> enables designware i2c controllers to suspend/resume asynchronously.
+> This will take advantage of multicore and improve system suspend/resume
+> speed. After enabling all i2c devices, i2c adapters and i2c controllers
+> on ASUS T100TA tablet, the system suspend-to-idle time is reduced to
+> about 510ms from 750ms, and the system resume time is reduced to about
+> 790ms from 900ms.
+>
+> Signed-off-by: Zhonghui Fu <zhonghui.fu@linux.intel.com>
 > ---
-> v2: adding some DT bindings documentation (more than one year later...)
-> 
->  Documentation/devicetree/bindings/i2c/i2c.txt |  7 +++++
+> Changes in v2:
+> - Move the device_enable_async_suspend() call into i2c_dw_proble()
+>
+>   drivers/i2c/busses/i2c-designware-core.c |    1 +
+>   1 files changed, 1 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+> index ba9732c..5d6ad27 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -861,6 +861,7 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>
+>   	init_completion(&dev->cmd_complete);
+>   	mutex_init(&dev->lock);
+> +	device_enable_async_suspend(dev->dev);
+>
+I'm aware Andy had concerns about about stability and you also mention 
+in another thread:
 
-Acked-by: Rob Herring <robh@kernel.org>
+"if enable all LPSS devices suspend/resume asynchronously, the system 
+can't resume sometimes on ASUS T100TA(BayTrail-T SoC). But, I have 
+verified that the system can resume normally every time if enable only 
+i2c controller async mode and let other LPSS devices in sync mode on 
+ASUS T100TA.".
 
->  drivers/i2c/i2c-core.c                        | 42 +++++++++++++++++++++++++++
->  include/linux/i2c.h                           |  5 ++++
->  3 files changed, 54 insertions(+)
+What I'm thinking would this change move things forward and help to find 
+out what potential underlying issues there are in LPSS code.
+
+I'm fine with this I2C side change but can we assure we don't 
+accidentally enable the same on other LPSS devices before finding the 
+root cause for the crash?
+
+-- 
+Jarkko
