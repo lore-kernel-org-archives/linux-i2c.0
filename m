@@ -1,54 +1,54 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: balance clk enable/disable on removal
-Date: Mon, 01 Feb 2016 16:44:05 +0200
-Message-ID: <1454337845.32507.20.camel@linux.intel.com>
-References: <1454106696-5867-1-git-send-email-khoroshilov@ispras.ru>
-	 <56AF69D3.4070300@linux.intel.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
+ addresses
+Date: Mon, 1 Feb 2016 08:46:08 -0600
+Message-ID: <20160201144608.GA26606@rob-hp-laptop>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <56AF69D3.4070300@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Alexey Khoroshilov <khoroshilov@ispras.ru>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:32886 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932418AbcBAOqO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 1 Feb 2016 09:46:14 -0500
+Content-Disposition: inline
+In-Reply-To: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean-Michel Hautbois <jhautbois@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, wsa@the-dreams.de, laurent.pinchart@ideasonboard.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 
-On Mon, 2016-02-01 at 16:21 +0200, Jarkko Nikula wrote:
-> On 01/30/2016 12:31 AM, Alexey Khoroshilov wrote:
-> > It seems clk_disable_unprepare() is missed in dw_i2c_plat_remove(),
-> > so the patch adds it.
-> >=20
-> > Found by Linux Driver Verification project (linuxtesting.org).
-> >=20
-> > Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-> > ---
-> > =C2=A0 drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
-> > =C2=A0 1 file changed, 1 insertion(+)
-> >=20
-> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > index 438f1b4964c0..8f19b7b81fe0 100644
-> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > @@ -267,6 +267,7 @@ static int dw_i2c_plat_remove(struct
-> > platform_device *pdev)
-> > =C2=A0=C2=A0	i2c_del_adapter(&dev->adapter);
-> >=20
-> > =C2=A0=C2=A0	i2c_dw_disable(dev);
-> > +	i2c_dw_plat_prepare_clk(dev, false);
-> >=20
-> I tried this quickly and it appears more work is needed. When=C2=A0
-> CONFIG_PM_SLEEP is set then autosuspending will do the unprepare and=C2=
-=A0
-> this patch causes double unprepare at remove. But when
-> CONFIG_PM_SLEEP=C2=A0
-> is not set then indeed those clk calls are out of sync.
+On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
+> Some I2C devices have multiple addresses assigned, for example each address
+> corresponding to a different internal register map page of the device.
+> So far drivers which need support for this have handled this with a driver
+> specific and non-generic implementation, e.g. passing the additional address
+> via platform data.
+> 
+> This patch provides a new helper function called i2c_new_secondary_device()
+> which is intended to provide a generic way to get the secondary address
+> as well as instantiate a struct i2c_client for the secondary address.
+> 
+> The function expects a pointer to the primary i2c_client, a name
+> for the secondary address and an optional default address. The name is used
+> as a handle to specify which secondary address to get.
+> 
+> The default address is used as a fallback in case no secondary address
+> was explicitly specified. In case no secondary address and no default
+> address were specified the function returns NULL.
+> 
+> For now the function only supports look-up of the secondary address
+> from devicetree, but it can be extended in the future
+> to for example support board files and/or ACPI.
+> 
+> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+> ---
+> v2: adding some DT bindings documentation (more than one year later...)
+> 
+>  Documentation/devicetree/bindings/i2c/i2c.txt |  7 +++++
 
-Besides that I would suggest to check carefully error patch in the
-probe(), i.e. handling error from i2c_dw_probe(). There maybe similar
-issue is hidden.
+Acked-by: Rob Herring <robh@kernel.org>
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+>  drivers/i2c/i2c-core.c                        | 42 +++++++++++++++++++++++++++
+>  include/linux/i2c.h                           |  5 ++++
+>  3 files changed, 54 insertions(+)
