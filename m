@@ -1,47 +1,48 @@
-From: Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [PATCH 1/2] Document: i2c: Add a dt binding for mediatek MT2701
- soc
-Date: Tue, 2 Feb 2016 11:50:03 +0100
-Message-ID: <56B089DB.5060806@gmail.com>
-References: <1451888138-11471-1-git-send-email-liguo.zhang@mediatek.com>
- <20160104095511.GB1524@katana> <1452215573.2088.1.camel@mhfsdcap03>
- <20160108074523.GA1523@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:35569 "EHLO
-	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754442AbcBBKuH (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 2 Feb 2016 05:50:07 -0500
-In-Reply-To: <20160108074523.GA1523@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Masanari Iida <standby24x7@gmail.com>
+Subject: [PATCH] Doc: i2c: Fix typo in Documentation/i2c
+Date: Tue,  2 Feb 2016 20:41:25 +0900
+Message-ID: <1454413285-3499-1-git-send-email-standby24x7@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: corbet@lwn.net, wsa@the-dreams.de, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Masanari Iida <standby24x7@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, liguo zhang <liguo.zhang@mediatek.com>
-Cc: srv_heupstream@mediatek.com, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 
+This path fix spelling typos found in Documentation/i2c.
 
+Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+---
+ Documentation/i2c/dev-interface        | 2 +-
+ Documentation/i2c/slave-eeprom-backend | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-On 08/01/16 08:45, Wolfram Sang wrote:
-> On Fri, Jan 08, 2016 at 09:12:53AM +0800, liguo zhang wrote:
->> On Mon, 2016-01-04 at 10:55 +0100, Wolfram Sang wrote:
->>> On Mon, Jan 04, 2016 at 02:15:37PM +0800, Liguo Zhang wrote:
->>>> Add a dt binding for the MT2701 soc.
->>>>
->>>> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
->>>
->>> This should probably go with the other patch via arm-soc, or?
->>
->> The patch about i2c dts info for MT2701 depends on the MT2701 clock
->> patch. After the MT2701 clock patch is accepted, the i2c patch for
->> MT2701 may be accepted.
->
-> OK. Still, dts changes go via arm-soc 99% of the cases if there is no
-> specific need to go via i2c.
->
-
-No specific need here. I will take it through my branch as soon as the 
-clock driver is accepted.
-
-Liguo, please poke me on this, when this has happened and you have the 
-feeling, I forgot about.
+diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
+index 2ac78ae..bcf919d 100644
+--- a/Documentation/i2c/dev-interface
++++ b/Documentation/i2c/dev-interface
+@@ -4,7 +4,7 @@ the /dev interface. You need to load module i2c-dev for this.
+ 
+ Each registered i2c adapter gets a number, counting from 0. You can
+ examine /sys/class/i2c-dev/ to see what number corresponds to which adapter.
+-Alternatively, you can run "i2cdetect -l" to obtain a formated list of all
++Alternatively, you can run "i2cdetect -l" to obtain a formatted list of all
+ i2c adapters present on your system at a given time. i2cdetect is part of
+ the i2c-tools package.
+ 
+diff --git a/Documentation/i2c/slave-eeprom-backend b/Documentation/i2c/slave-eeprom-backend
+index c8444ef..04f8d8a 100644
+--- a/Documentation/i2c/slave-eeprom-backend
++++ b/Documentation/i2c/slave-eeprom-backend
+@@ -7,8 +7,8 @@ This is a proof-of-concept backend which acts like an EEPROM on the connected
+ I2C bus. The memory contents can be modified from userspace via this file
+ located in sysfs:
+ 
+-	/sys/bus/i2c/devices/<device-direcory>/slave-eeprom
++	/sys/bus/i2c/devices/<device-directory>/slave-eeprom
+ 
+ As of 2015, Linux doesn't support poll on binary sysfs files, so there is no
+-notfication when another master changed the content.
++notification when another master changed the content.
+ 
+-- 
+2.7.0.229.g701fa7f
