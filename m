@@ -1,48 +1,54 @@
-From: Masanari Iida <standby24x7@gmail.com>
-Subject: [PATCH] Doc: i2c: Fix typo in Documentation/i2c
-Date: Tue,  2 Feb 2016 20:41:25 +0900
-Message-ID: <1454413285-3499-1-git-send-email-standby24x7@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: corbet@lwn.net, wsa@the-dreams.de, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: Masanari Iida <standby24x7@gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH] i2c: designware-platform: Drop duplicate module information
+Date: Tue, 2 Feb 2016 14:31:38 +0100
+Message-ID: <20160202143138.60adac87@endymion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:33983 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754351AbcBBNbm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 2 Feb 2016 08:31:42 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: "David E. Box" <david.e.box@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-This path fix spelling typos found in Documentation/i2c.
+The i2c-designware-platform module has duplicate module information
+when CONFIG_I2C_DESIGNWARE_BAYTRAIL is set. It gets the information
+from both i2c-designware-platdrv and i2c-designware-baytrail. The
+latter is optional extra code which ends up in the same module so it
+should not export module information.
 
-Signed-off-by: Masanari Iida <standby24x7@gmail.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: David E. Box <david.e.box@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 ---
- Documentation/i2c/dev-interface        | 2 +-
- Documentation/i2c/slave-eeprom-backend | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-designware-baytrail.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
-index 2ac78ae..bcf919d 100644
---- a/Documentation/i2c/dev-interface
-+++ b/Documentation/i2c/dev-interface
-@@ -4,7 +4,7 @@ the /dev interface. You need to load module i2c-dev for this.
+--- linux-4.5-rc2.orig/drivers/i2c/busses/i2c-designware-baytrail.c	2016-02-02 09:02:08.098923894 +0100
++++ linux-4.5-rc2/drivers/i2c/busses/i2c-designware-baytrail.c	2016-02-02 13:37:34.418855732 +0100
+@@ -11,7 +11,6 @@
+  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+  * more details.
+  */
+-#include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/acpi.h>
+@@ -151,7 +150,3 @@ int i2c_dw_eval_lock_support(struct dw_i
  
- Each registered i2c adapter gets a number, counting from 0. You can
- examine /sys/class/i2c-dev/ to see what number corresponds to which adapter.
--Alternatively, you can run "i2cdetect -l" to obtain a formated list of all
-+Alternatively, you can run "i2cdetect -l" to obtain a formatted list of all
- i2c adapters present on your system at a given time. i2cdetect is part of
- the i2c-tools package.
- 
-diff --git a/Documentation/i2c/slave-eeprom-backend b/Documentation/i2c/slave-eeprom-backend
-index c8444ef..04f8d8a 100644
---- a/Documentation/i2c/slave-eeprom-backend
-+++ b/Documentation/i2c/slave-eeprom-backend
-@@ -7,8 +7,8 @@ This is a proof-of-concept backend which acts like an EEPROM on the connected
- I2C bus. The memory contents can be modified from userspace via this file
- located in sysfs:
- 
--	/sys/bus/i2c/devices/<device-direcory>/slave-eeprom
-+	/sys/bus/i2c/devices/<device-directory>/slave-eeprom
- 
- As of 2015, Linux doesn't support poll on binary sysfs files, so there is no
--notfication when another master changed the content.
-+notification when another master changed the content.
- 
+ 	return 0;
+ }
+-
+-MODULE_AUTHOR("David E. Box <david.e.box@linux.intel.com>");
+-MODULE_DESCRIPTION("Baytrail I2C Semaphore driver");
+-MODULE_LICENSE("GPL v2");
+
+
 -- 
-2.7.0.229.g701fa7f
+Jean Delvare
+SUSE L3 Support
