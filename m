@@ -1,51 +1,65 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: tvp5150 regression after commit 9f924169c035
-Date: Wed, 3 Feb 2016 10:46:51 -0300
-Message-ID: <56B204CB.60602@osg.samsung.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: tvp5150 regression after commit 9f924169c035
+Date: Wed, 3 Feb 2016 15:23:24 +0100
+Message-ID: <20160203142323.GA8620@tetsubishi>
+References: <56B204CB.60602@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:53437 "EHLO lists.s-osg.org"
+Received: from sauhun.de ([89.238.76.85]:59047 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751944AbcBCNq4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 3 Feb 2016 08:46:56 -0500
+	id S1752167AbcBCOXa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 3 Feb 2016 09:23:30 -0500
+Content-Disposition: inline
+In-Reply-To: <56B204CB.60602@osg.samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
 Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-Hello Wolfram,
 
-I've a issue with a I2C video decoder driver (drivers/media/i2c/tvp5150.c).
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In v4.5-rc1, the driver gets I2C read / writes timeouts when accessing the
-device I2C registers:
+Hi,
 
-tvp5150 1-005c: i2c i/o error: rc == -110
-tvp5150: probe of 1-005c failed with error -110
+thanks for reporting the issue!
 
-The driver used to work up to v4.4 so this is a regression in v4.5-rc1:
+> Not filling the OMAP I2C driver's runtime PM callbacks does not help eith=
+er.
+>=20
+> Any hints about the proper way to fix this issue?
 
-tvp5150 1-005c: tvp5151 (1.0) chip found @ 0xb8 (OMAP I2C adapter)
-tvp5150 1-005c: tvp5151 detected.
+Can the I2C device be en-/disabled in some way? Which board is this
+happening with? Any specs for it publicly available?
 
-I tracked down to commit 9f924169c035 ("i2c: always enable RuntimePM for
-the adapter device") and reverting that commit makes things to work again.
+Regards,
 
-The tvp5150 driver doesn't have runtime PM support but the I2C controller
-driver does (drivers/i2c/busses/i2c-omap.c) FWIW.
+   Wolfram
 
-I tried adding runtime PM support to tvp5150 (basically calling pm_runtime
-enable/get on probe before the first I2C read to resume the controller) but
-that it did not work.
 
-Not filling the OMAP I2C driver's runtime PM callbacks does not help either.
+--0OAP2g/MAC+5xKAE
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Any hints about the proper way to fix this issue?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+iQIcBAEBAgAGBQJWsg1bAAoJEBQN5MwUoCm2X6kQAImG58xwqBPFOCNd0o+b1AND
+I6ACswtwwqQJjaHk5QQjLTX+Q6jCFPGLeNG8W+i5znhJ94V6/fQLhN5sGTuIuHGW
+jjJNdk1w6+8HczL5X6/ieNZ7LdNT9bJCA0FLU7lWSQIqwdR1ufSWpZsqthDNFfSZ
+xF7Za4qOSdux7L89FjGN3rqFcT5T6bkCjxnjC0u6Zzer5ZYbwZ7k34yUjYyyakll
+aZP1dtDi5CPTSiry8Auez7Gdww7v3dw0aKwAOADpov2SLeGhtaLCZdZg4OPdET2Y
+8kJFR8iSbECeNh+4v9QxN/XYYAcL0j/CLI0ZEuL9ApF1X+kaLcxuHHTemXdQ50lB
+Ulrw54ADoZdInCDChvIeyrMzX4xZRPsy7DxoQWDPGc1KJeEWPtSNPVxbew45y7Ai
+zxWMbdLL08lxzryzfQqYdfjiK/xBNNuyOFNpuQk2WwKLtnt+cPtgY1aXwC7DD13S
+ma/uusQ9Y/Mbwqspl8apVWH9Cc/mIpQZ1Lt5ubQgWcs1tyEuOhXGEcwTA5eDQvlb
+fT6PCLoLnsy9sIOJGQFsU9rZIlgsyRNQDDJqzEu8ie4iS/2xv35Szb8RI1BZD2jE
+/Z8HsX+2F5ORXWMzXpqw56/XY6/ci3iiU7wPG1vd7ICVLEUvKYWIyeqntTF95qDu
+D7/K7b8iRSdpp+PVIDHC
+=jbFB
+-----END PGP SIGNATURE-----
+
+--0OAP2g/MAC+5xKAE--
