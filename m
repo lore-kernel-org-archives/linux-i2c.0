@@ -1,18 +1,14 @@
 From: Alexandra Yates <alexandra.yates@linux.intel.com>
-Subject: [PATCH] Adding Intel Lewisburg support for iTCO
-Date: Thu,  4 Feb 2016 14:37:27 -0800
-Message-ID: <1454625447-27563-1-git-send-email-alexandra.yates@linux.intel.com>
-References: <Adding Intel Lewisburg support for iTCO>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:50261 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933251AbcBDWdf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 4 Feb 2016 17:33:35 -0500
-In-Reply-To: <Adding Intel Lewisburg support for iTCO>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH V2] i2c: i801: Adding Intel Lewisburg support for iTCO
+Date: Thu,  4 Feb 2016 15:06:55 -0800
+Message-ID: <1454627215-2418-1-git-send-email-alexandra.yates@linux.intel.com>
+References: <[PATCH V2] i2c: i801: Adding Intel Lewisburg support for iTCO>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <[PATCH V2] i2c: i801: Adding Intel Lewisburg support for iTCO>
+Sender: linux-kernel-owner@vger.kernel.org
 To: jdelvare@suse.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Alexandra Yates <alexandra.yates@linux.intel.com>
+List-Id: linux-i2c@vger.kernel.org
 
 Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog
 resources have been moved to reside under the i801 SMBus host
