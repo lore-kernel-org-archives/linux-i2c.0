@@ -1,52 +1,56 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] Adding Intel Lewisburg support for iTCO
-Date: Fri, 5 Feb 2016 01:07:57 +0200
-Message-ID: <CAHp75VeuLzpqPm-vDeeMHJ1HgcBFVQknM7qpy3o10-nHjr5RsA@mail.gmail.com>
-References: <1454625447-27563-1-git-send-email-alexandra.yates@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V2] i2c: i801: Adding Intel Lewisburg support for iTCO
+Date: Fri, 5 Feb 2016 00:27:46 +0100
+Message-ID: <20160204232746.GA2421@tetsubishi>
+References: <1454627215-2418-1-git-send-email-alexandra.yates@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1454625447-27563-1-git-send-email-alexandra.yates@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <1454627215-2418-1-git-send-email-alexandra.yates@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Alexandra Yates <alexandra.yates@linux.intel.com>
-Cc: jdelvare@suse.com, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 5, 2016 at 12:37 AM, Alexandra Yates
-<alexandra.yates@linux.intel.com> wrote:
+
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Feb 04, 2016 at 03:06:55PM -0800, Alexandra Yates wrote:
 > Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog
 > resources have been moved to reside under the i801 SMBus host
 > controller whereas previously they were under the LPC device.
->
+>=20
 > This patch adds Intel lewisburg SMBus support for iTCO device.
->
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
+>=20
 > Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
-> ---
->  drivers/i2c/busses/i2c-i801.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index f62d697..27fa0cb 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -1271,6 +1271,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->         switch (dev->device) {
->         case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
->         case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
-> +       case PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS:
-> +       case PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS:
->         case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
->                 priv->features |= FEATURE_I2C_BLOCK_READ;
->                 priv->features |= FEATURE_IRQ;
-> --
-> 1.9.1
->
+
+Please state what has changed in v2 of this patch?
 
 
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-With Best Regards,
-Andy Shevchenko
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWs95xAAoJEBQN5MwUoCm2mp0P+gLg6+/HWl+mfvFS4XilAcO1
+CpQe+xowg+XTrwo9qL1eRRiTwzZ4yVv2x994+tIGLS6Hm7GDQFuNV5fHJmHeub/0
+iD8L3PJiwfCcEfHeBh2s3JWddqvbRMjLmOXSi1GTHw1H2r/cXIZ6J7+bEo6dYZAV
+VqS2yqb8+iMXFahTRIR0BNaGxAyCJ2uX+fQGo7O1JZiOqHoYdaFE34qp6qOoltxe
+pVCjk/6I8IXnv+TZRcXEjHTfGoF2nXTz1hJwdqYC/F0YOnhZP/kiWbotkN79mtUA
+vbW50teRNKA9oZvG7C5F4ns2zW0DCwFdsw+2HvzhBClgesDGyVkk6/iF7tFKWsR3
+lkKKtai44ZwkPx/bOYg/W/S7MQndo+3TAcJpInWS7l/VQppX0rOJ2Z4anFCRK2sr
+BXzKBtnNYv/ewJ3z5ZuDJfsVmvDZEjs/QhdY2LGHg8WPd4ebWQlgV1wcxHUkn2+R
+5/GEaXP7Glb8lAx74Km+ohBQ1x2D44k650IS1D2rjLKruVTI15QR2TOPq8TpkGhK
+EC16R2loe3xlZXgWD6ZDzEgXtknPodh3t++Sv8hH5iaG3r22ab1HsAT3L6oGlqIm
+AM3Tt55Scuu7UJOmJTfOrUstubwX8GSMlPOjySuhvF3cWoLagCaAbURnu964/adE
+5w12/B2mR7sn09ZtiY57
+=a830
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--
