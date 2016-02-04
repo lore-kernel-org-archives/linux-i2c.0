@@ -1,45 +1,55 @@
-From: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Subject: Re: [PATCH v6] i2c: mt8173: add 4GB mode support in i2c driver.
-Date: Thu, 4 Feb 2016 14:54:03 +0800
-Message-ID: <1454568843.15541.1.camel@mtksdaap41>
-References: <1454347143-31461-1-git-send-email-liguo.zhang@mediatek.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware-platform: Drop duplicate module
+ information
+Date: Thu, 4 Feb 2016 13:36:58 +0200
+Message-ID: <56B337DA.7080603@linux.intel.com>
+References: <20160202143138.60adac87@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:11593 "EHLO
-	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751755AbcBDGyJ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Feb 2016 01:54:09 -0500
-In-Reply-To: <1454347143-31461-1-git-send-email-liguo.zhang@mediatek.com>
+Received: from mga04.intel.com ([192.55.52.120]:54803 "EHLO mga04.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758139AbcBDLjI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 4 Feb 2016 06:39:08 -0500
+In-Reply-To: <20160202143138.60adac87@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Liguo Zhang <liguo.zhang@mediatek.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Xudong Chen <xudong.chen@mediatek.com>, srv_heupstream@mediatek.com, Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, linux-arm-kernel@lists.infradead.org
+To: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
+Cc: "David E. Box" <david.e.box@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-On Tue, 2016-02-02 at 01:19 +0800, Liguo Zhang wrote:
-> If 4GB mode is enable, we should add 4gb mode support in i2c driver.
-> Set 4GB mode register to support 4GB mode.
-> 
-> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+On 02/02/2016 03:31 PM, Jean Delvare wrote:
+> The i2c-designware-platform module has duplicate module information
+> when CONFIG_I2C_DESIGNWARE_BAYTRAIL is set. It gets the information
+> from both i2c-designware-platdrv and i2c-designware-baytrail. The
+> latter is optional extra code which ends up in the same module so it
+> should not export module information.
+>
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: David E. Box <david.e.box@linux.intel.com>
+> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
 > ---
-> change in v6:
-> Remove unnecessary init for reg_4g_mode.
-> change in v5:
-> Use BIT_ULL() to fix kernel building warning.
-> change in v4:
-> Use BIT_ULL() to fix kernel building warning.
-> change in v3:
-> Only inline the computation of reg_4g_mode in mtk_i2c_set_4g_mode().
-> change in v2:
-> Define a static inline function mtk_i2c_set_4g_mode() for support 4g mode.
-> ---
->  drivers/i2c/busses/i2c-mt65xx.c | 42 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 42 insertions(+)
-
-
-Looks good to me, Thanks.
-
-Reviewed-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
-
-Joe.C
+>   drivers/i2c/busses/i2c-designware-baytrail.c |    5 -----
+>   1 file changed, 5 deletions(-)
+>
+> --- linux-4.5-rc2.orig/drivers/i2c/busses/i2c-designware-baytrail.c	2016-02-02 09:02:08.098923894 +0100
+> +++ linux-4.5-rc2/drivers/i2c/busses/i2c-designware-baytrail.c	2016-02-02 13:37:34.418855732 +0100
+> @@ -11,7 +11,6 @@
+>    * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+>    * more details.
+>    */
+> -#include <linux/module.h>
+>   #include <linux/delay.h>
+>   #include <linux/device.h>
+>   #include <linux/acpi.h>
+> @@ -151,7 +150,3 @@ int i2c_dw_eval_lock_support(struct dw_i
+>
+>   	return 0;
+>   }
+> -
+> -MODULE_AUTHOR("David E. Box <david.e.box@linux.intel.com>");
+> -MODULE_DESCRIPTION("Baytrail I2C Semaphore driver");
+> -MODULE_LICENSE("GPL v2");
+>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
