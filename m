@@ -1,64 +1,45 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: tvp5150 regression after commit 9f924169c035
-Date: Wed, 3 Feb 2016 11:42:19 -0300
-Message-ID: <56B211CB.7060900@osg.samsung.com>
-References: <56B204CB.60602@osg.samsung.com>
- <20160203142323.GA8620@tetsubishi>
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Subject: Re: [PATCH v6] i2c: mt8173: add 4GB mode support in i2c driver.
+Date: Thu, 4 Feb 2016 14:54:03 +0800
+Message-ID: <1454568843.15541.1.camel@mtksdaap41>
+References: <1454347143-31461-1-git-send-email-liguo.zhang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20160203142323.GA8620@tetsubishi>
-Sender: linux-media-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:11593 "EHLO
+	mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751755AbcBDGyJ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Feb 2016 01:54:09 -0500
+In-Reply-To: <1454347143-31461-1-git-send-email-liguo.zhang@mediatek.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Liguo Zhang <liguo.zhang@mediatek.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Xudong Chen <xudong.chen@mediatek.com>, srv_heupstream@mediatek.com, Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, linux-arm-kernel@lists.infradead.org
 
-Hello Wolfram,
+On Tue, 2016-02-02 at 01:19 +0800, Liguo Zhang wrote:
+> If 4GB mode is enable, we should add 4gb mode support in i2c driver.
+> Set 4GB mode register to support 4GB mode.
+> 
+> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+> ---
+> change in v6:
+> Remove unnecessary init for reg_4g_mode.
+> change in v5:
+> Use BIT_ULL() to fix kernel building warning.
+> change in v4:
+> Use BIT_ULL() to fix kernel building warning.
+> change in v3:
+> Only inline the computation of reg_4g_mode in mtk_i2c_set_4g_mode().
+> change in v2:
+> Define a static inline function mtk_i2c_set_4g_mode() for support 4g mode.
+> ---
+>  drivers/i2c/busses/i2c-mt65xx.c | 42 +++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 42 insertions(+)
 
-On 02/03/2016 11:23 AM, Wolfram Sang wrote:
-> Hi,
->
-> thanks for reporting the issue!
->
 
-Thanks for the quick response.
-  
->> Not filling the OMAP I2C driver's runtime PM callbacks does not help either.
->>
->> Any hints about the proper way to fix this issue?
->
-> Can the I2C device be en-/disabled in some way? Which board is this
-> happening with? Any specs for it publicly available?
->
+Looks good to me, Thanks.
 
-Yes, the device has a PDN (Power-Down) pin that puts the device in stand by
-mode but it is not used by the driver. The only thing that the driver does
-is to toggle the PDN and RESET pins to put the device in normal operation.
+Reviewed-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
 
-In fact, the behavior after commit 9f924169c035 is the same as when the power
-sequence does not happen. That confused me at the beginning and I was chasing
-a red herring by looking at the OMAP GPIO driver and GPIO core.
-
-The datasheet of the tvp5151 is public in case you need more info [0].
-
-This is happening on an OMAP3 DM3730 IGEPv2 board [1] using an expansion
-board [2] that has the tvp5151 video decoder among other peripherals.
-
-I don't think the schematics for these boards are public but I've them in
-case you need me to look at something.
-  
-> Regards,
->
->     Wolfram
->
-
-[0]: http://www.ti.com/lit/ds/symlink/tvp5151.pdf
-[1]: https://isee.biz/products/igep-processor-boards/igepv2-dm3730
-[2]: https://isee.biz/products/igep-expansion-boards/igepv2-expansion
-
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Joe.C
