@@ -1,55 +1,63 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware-platform: Drop duplicate module
- information
-Date: Thu, 4 Feb 2016 13:36:58 +0200
-Message-ID: <56B337DA.7080603@linux.intel.com>
-References: <20160202143138.60adac87@endymion>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: mux: demux-pinctrl: add bindings
+Date: Thu, 4 Feb 2016 20:45:06 +0100
+Message-ID: <20160204194506.GB1958@tetsubishi>
+References: <1452695369-29413-1-git-send-email-wsa@the-dreams.de>
+ <1452695369-29413-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:54803 "EHLO mga04.intel.com"
+Received: from sauhun.de ([89.238.76.85]:60185 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758139AbcBDLjI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 4 Feb 2016 06:39:08 -0500
-In-Reply-To: <20160202143138.60adac87@endymion>
+	id S965090AbcBDTpL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 4 Feb 2016 14:45:11 -0500
+Content-Disposition: inline
+In-Reply-To: <1452695369-29413-2-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
-Cc: "David E. Box" <david.e.box@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+To: linux-i2c@vger.kernel.org
+Cc: devicetree@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
 
-On 02/02/2016 03:31 PM, Jean Delvare wrote:
-> The i2c-designware-platform module has duplicate module information
-> when CONFIG_I2C_DESIGNWARE_BAYTRAIL is set. It gets the information
-> from both i2c-designware-platdrv and i2c-designware-baytrail. The
-> latter is optional extra code which ends up in the same module so it
-> should not export module information.
->
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: David E. Box <david.e.box@linux.intel.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> ---
->   drivers/i2c/busses/i2c-designware-baytrail.c |    5 -----
->   1 file changed, 5 deletions(-)
->
-> --- linux-4.5-rc2.orig/drivers/i2c/busses/i2c-designware-baytrail.c	2016-02-02 09:02:08.098923894 +0100
-> +++ linux-4.5-rc2/drivers/i2c/busses/i2c-designware-baytrail.c	2016-02-02 13:37:34.418855732 +0100
-> @@ -11,7 +11,6 @@
->    * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
->    * more details.
->    */
-> -#include <linux/module.h>
->   #include <linux/delay.h>
->   #include <linux/device.h>
->   #include <linux/acpi.h>
-> @@ -151,7 +150,3 @@ int i2c_dw_eval_lock_support(struct dw_i
->
->   	return 0;
->   }
-> -
-> -MODULE_AUTHOR("David E. Box <david.e.box@linux.intel.com>");
-> -MODULE_DESCRIPTION("Baytrail I2C Semaphore driver");
-> -MODULE_LICENSE("GPL v2");
->
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+
+--LpQ9ahxlCli8rRTG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jan 13, 2016 at 03:29:27PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>=20
+> These bindings allow an I2C bus to switch between multiple masters. This
+> is not hot-switching because connected I2C slaves will be
+> re-instantiated. It is meant to select the best I2C core at runtime once
+> the task is known. Example: Prefer i2c-gpio over another I2C core
+> because of HW errata affecting your use case.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Squashed with patch 2 and applied to for-next, thanks!
+
+
+--LpQ9ahxlCli8rRTG
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWs6pCAAoJEBQN5MwUoCm2gaQP/0H01Jd0MmAhBoAs1Trn+62N
+es/Ml8+PUEqCAZoxi+NvyfqIGnpr8JROTqmdQkMCzCIYePyENH7p6p5q9Qeq0e7J
+VGGfSXl1Oljdgu9b77m/wqvOI0K5KqIxG2i2O6f3mwyqlbv1pA/FVCNWfDIRXfIJ
+WZFEz54mVfPPs9L9EUKkiQgdO0yQszOI/APkuud5iW3IWCYmG2ofkyy5YalaAuTp
+tbOOHRdK2SWL0iuF8clEYJzbzIXqQ2tlPqhsSx1yOfCLomtkodHm9d2oSH6DmYQ/
+0G2oYe/JHci1gnFEc+0DioNRJZo0Mk1XeJ5j0svVgL2I4qVJs9LvklPmDRQg+ODv
+0c6jwE/0m4NADk8a4bJK8+HvuqF+UvYxvLU4KJwQwfjmDRcfz2TvPtfE/ujgxt7c
+bJzbKgIfDkukLLhUU2ucpgjdFRmCEz2gd0zXjGdKBdrvQEXQ3nBeLVid4hfnyRi/
+Y5spucBC5YsJd+jnY0RmTRGMSNqx3Ek8Sgjg+X8E4mdK3nhOJh6tT6DFwsEC3g4a
+BZvrNABY5qe4BpHP8EoKWuA/v0sPNJBNNNqs9/i6a18DN+5MrP4tA7fJVWvl6KFV
+/dc6FMVEEiuJYvVkOu8BKu0TJJnFKaNz65JKe1edBmVwwmQ+WS4zW0q9z2QFOCiD
+WbSQw59bnhy69p2FcFzk
+=fr29
+-----END PGP SIGNATURE-----
+
+--LpQ9ahxlCli8rRTG--
