@@ -1,58 +1,71 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/3] ARM: shmobile: r8a7790: rework dts to use i2c demuxer
-Date: Thu, 4 Feb 2016 20:47:54 +0100
-Message-ID: <20160204194754.GD1958@tetsubishi>
-References: <1452695369-29413-1-git-send-email-wsa@the-dreams.de>
- <1452695369-29413-4-git-send-email-wsa@the-dreams.de>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: designware-baytrail: Fix the Kconfig dependency
+ fix
+Date: Thu, 4 Feb 2016 20:51:16 +0100
+Message-ID: <20160204205116.1cc08fb8@endymion>
+References: <20160202143324.780986be@endymion>
+	<56B33A34.7000400@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jL2BoiuKMElzg3CS"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1452695369-29413-4-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: devicetree@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Jan Luebbe <jlu@pengutronix.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:44492 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750936AbcBDTvU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 4 Feb 2016 14:51:20 -0500
+In-Reply-To: <56B33A34.7000400@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Randy Dunlap <rdunlap@infradead.org>, "David E. Box" <david.e.box@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
+On Thu, 4 Feb 2016 13:47:00 +0200, Jarkko Nikula wrote:
+> On 02/02/2016 03:33 PM, Jean Delvare wrote:
+> > Commit b4ad0510f5d9 ("i2c: designware-baytrail: another fixup for
+> > proper Kconfig dependencies") claims that the "Baytrail driver" isn't
+> > tristate. But in fact there is no such thing as a "Baytrail driver",
+> > i2c-designware-baytrail is not a stand-alone driver but an optional
+> > addition to the i2c-designware-platform driver, and that driver *is*
+> > tristate. So there is no reason why I2C_DESIGNWARE_BAYTRAIL couldn't
+> > be enabled when IOSF_MBI=m, as long as I2C_DESIGNWARE_PLATFORM=m too.
+> >
+> I had a similar patch waiting for David's ack because I didn't know are 
+> there any problems when IOSF_MBI is module but I forgot to ping again.
+> 
+> David: can you ack this in case IOSF_MBI=m is ok.
+> 
+> > Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> > Fixes: b4ad0510f5d9 ("i2c: designware-baytrail: another fixup for proper Kconfig dependencies")
+> > Cc: Randy Dunlap <rdunlap@infradead.org>
+> > Cc: David E. Box <david.e.box@linux.intel.com>
+> > Cc: Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
---jL2BoiuKMElzg3CS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wow, I messed up big time :( For clarity, this patch is not (yet)
+signed-off by Wolfram, it's a copy-and-paste mistake on my side.
 
-On Wed, Jan 13, 2016 at 03:29:29PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> Create a seperate bus for HDMI related I2C slaves and assign it
-> to a i2c-gpio master. It can be switched to the i2c-rcar or
-> i2c-sh_mobile core at runtime.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> > ---
+> >   drivers/i2c/busses/Kconfig |    2 +-
+> >   1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > --- linux-4.5-rc2.orig/drivers/i2c/busses/Kconfig	2016-02-02 13:36:02.621152859 +0100
+> > +++ linux-4.5-rc2/drivers/i2c/busses/Kconfig	2016-02-02 14:06:07.185912775 +0100
+> > @@ -490,7 +490,7 @@ config I2C_DESIGNWARE_PCI
+> >
+> >   config I2C_DESIGNWARE_BAYTRAIL
+> >   	bool "Intel Baytrail I2C semaphore support"
+> > -	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=y && ACPI
+> > +	depends on I2C_DESIGNWARE_PLATFORM && (IOSF_MBI=y || IOSF_MBI=I2C_DESIGNWARE_PLATFORM) && ACPI
+> 
+> One minor comment: could you split this into two depends on lines in 
+> order to avoid long lines?
 
-After some discussion with Simon (thanks!), I will replace this patch
-with one which is not only simpler but also more useful ;) Stay tuned.
+Certainly. I'll resend the patch with this change after David approves
+it.
 
+> Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
---jL2BoiuKMElzg3CS
-Content-Type: application/pgp-signature; name="signature.asc"
+Thanks for the reviews!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWs6rpAAoJEBQN5MwUoCm29q0P/1MDlCEN0Lo9oRItp4xMqcat
-xa/wYnq+R/K+i1p7LCvzcRRGVBLDLakDNA5/XH9o5maem9S0DxRB5bu7A79bbowA
-dvb+XaIRv4WS2qRJPDBJyt4kORSeCSOcJ7aaSrgwyHr58C4gV58x0rEBk9lNC5O5
-B9l72H50kE1D5o+seWcf7xxXT9D81raAs4sP6d/7ATOrFz3FRR82XGcgqY5xHCS6
-sSSPXIQ0Zsn+AK4+U+Qn8I4rZvk4J93OLeGHSHiJrmckFJoNJFJjPuTb6+qPAxWN
-v033xl8CywXEzMEy7YIYRr99PwCkYzdCXGtNUKnCv0NKRHIyluFgKl0FqhH9jGRl
-pcHEXfSoK0+8SV0tJyGH/wi7YBj0bGHtnhIoik5U2S/CJE2mB16CPhzNXTWrtYdu
-qat3M4gOxPDojwSk2EQc7PcSgpEkhQ1moCXcLeoGQB6V8p4zThZEGkTilnOsZ++S
-djTLjaOiVsXRIS+6rbpYXAuLECY08nH/yYX1xvRfYE6JA/t+MLAhrN4cbIS4LyO8
-HcuJPBr3MaWatzw94xZXZh1839RpenXBDBJ/eC/VNDkg+R+DvsS1g7M52aLHJG5H
-spWXpGiooptR3al+mtUQnUKyHysdvX3RqPNBOgr7V+EnFvNdxrsT5q7Cv3wCrR9A
-VRM1N/++VCIwKaDoQRSC
-=hLWU
------END PGP SIGNATURE-----
-
---jL2BoiuKMElzg3CS--
+-- 
+Jean Delvare
+SUSE L3 Support
