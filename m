@@ -1,61 +1,48 @@
 From: Alexandra Yates <alexandra.yates@linux.intel.com>
-Subject: Re: [PATCH V2] i2c: i801: Adding Intel Lewisburg support for iTCO
-Date: Fri, 5 Feb 2016 14:09:17 -0800
-Message-ID: <56B51D8D.9070003@linux.intel.com>
-References: <1454627215-2418-1-git-send-email-alexandra.yates@linux.intel.com>
- <20160204232746.GA2421@tetsubishi> <20160205104855.5ec3432c@endymion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160205104855.5ec3432c@endymion>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH V3] i2c: i801: Adding Intel Lewisburg support for iTCO
+Date: Fri,  5 Feb 2016 15:22:44 -0800
+Message-ID: <1454714564-8632-1-git-send-email-alexandra.yates@linux.intel.com>
+References: <[PATCH V3] i2c: i801: Adding Intel Lewisburg support for iTCO>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:20251 "EHLO mga04.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750935AbcBEXSs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 5 Feb 2016 18:18:48 -0500
+In-Reply-To: <[PATCH V3] i2c: i801: Adding Intel Lewisburg support for iTCO>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jdelvare@suse.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Alexandra Yates <alexandra.yates@linux.intel.com>
 
-Hi Jean,
+Changes log v2 to v3: Clarified commit message. No changes in code.
 
-Thank you for your review and feedback.
+Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog
+resources have been moved to reside under the i801 SMBus host
+controller whereas previously they were under the LPC device.
 
-On 02/05/2016 01:48 AM, Jean Delvare wrote:
-> On Fri, 5 Feb 2016 00:27:46 +0100, Wolfram Sang wrote:
->> On Thu, Feb 04, 2016 at 03:06:55PM -0800, Alexandra Yates wrote:
->>> Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog
->>> resources have been moved to reside under the i801 SMBus host
->>> controller whereas previously they were under the LPC device.
->>>
->>> This patch adds Intel lewisburg SMBus support for iTCO device.
->>>
->>> Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
->>
->> Please state what has changed in v2 of this patch?
->
-> Yes, Alexandra, please always include a changelog (between the ---
-> separator and the diffstat) when posting patch updates.
->
-> In this case there is no code change, the only change is the subject.
+This patch adds Intel lewisburg SMBus support for iTCO device.
+It allows to load watchdog dynamically when the hardware is
+present.  This patch is an addition
+to cdc5a3110e7c3ae793f367285789a6bc39c962dc i2c: i801: "add
+Intel Lewisburg device IDs".
 
-correct
->
-> If I understand correctly, this is a fixup for commit
-> cdc5a3110e7c3ae793f367285789a6bc39c962dc ("i2c: i801: add Intel
-> Lewisburg device IDs") which should have included these changes. If so,
-> please mention it in the commit message. It may also make sense to tag
-> the patch for stable [v4.4].
+Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-i801.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-It is an addition to that commit, at the time I submitted the commit I 
-wasn't aware that this portion was needed to load dynamically since this 
-part of the code was in flux as well.  As it is the driver loads using 
-modprobe. I'll add that to the commit message to make it clear and 
-resend the patch.
-
->
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
->
-> Thanks,
->
-
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index f62d697..27fa0cb 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1271,6 +1271,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	switch (dev->device) {
+ 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
+ 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
++	case PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS:
++	case PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS:
+ 	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
+ 		priv->features |= FEATURE_I2C_BLOCK_READ;
+ 		priv->features |= FEATURE_IRQ;
 -- 
-Thank you,
-<Alexandra>
+1.9.1
