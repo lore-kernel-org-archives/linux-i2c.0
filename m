@@ -1,50 +1,92 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v2 14/16] mfd: intel-lpss: Pass SDA hold time to I2C host
- controller driver
-Date: Mon, 8 Feb 2016 12:45:39 +0200
-Message-ID: <CAHp75VdtpBm4ZHjf44=Y9Ty9zwDVwmBLi0nBXRS6ww=BVq9nRw@mail.gmail.com>
-References: <1448896304-87928-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	<1448896304-87928-15-git-send-email-andriy.shevchenko@linux.intel.com>
-	<20160208100942.GA2220@tetsubishi>
-	<20160208102911.GC1794@lahna.fi.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: tvp5150 regression after commit 9f924169c035
+Date: Mon, 8 Feb 2016 11:54:17 +0100
+Message-ID: <20160208105417.GD2220@tetsubishi>
+References: <56B204CB.60602@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160208102911.GC1794@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Kevin Fenzi <kevin@scrye.com>, Arnd Bergmann <arnd@arndb.de>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <56B204CB.60602@osg.samsung.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 8, 2016 at 12:29 PM, Mika Westerberg
-<mika.westerberg@linux.intel.com> wrote:
-> On Mon, Feb 08, 2016 at 11:09:43AM +0100, Wolfram Sang wrote:
->> On Mon, Nov 30, 2015 at 05:11:42PM +0200, Andy Shevchenko wrote:
 
->> There has been a request to get this into stable:
->>
->> https://bugzilla.kernel.org/show_bug.cgi?id=108581
->>
->> Since we probably don't want to backport the whole device_property
->> series, is there a simpler fix to backport for stable?
->
-> Basically all it needs is to have:
->
->         dev->sda_hold_time = 28
->
-> in dw_i2c_acpi_configure(). However, we cannot just unconditionally set
-> it as it will break existing non-SKL systems so there should be some way
-> to check if this is SKL or not. Perhaps we could look for DMI entries of
-> the affected machines?
->
-> BTW, this is not a regression in a sense as SKL I2C never worked before
-> this series.
+--i7F3eY7HS/tUJxUd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I could add that "backporting" something which is drastically
-different to the original mainstream may probably prevent a smooth
-backporting the fixes come later if any. Thus, I would try to port as
-much closer as we can to the existing upstream code.
+On Wed, Feb 03, 2016 at 10:46:51AM -0300, Javier Martinez Canillas wrote:
+> Hello Wolfram,
+>=20
+> I've a issue with a I2C video decoder driver (drivers/media/i2c/tvp5150.c=
+).
+>=20
+> In v4.5-rc1, the driver gets I2C read / writes timeouts when accessing the
+> device I2C registers:
+>=20
+> tvp5150 1-005c: i2c i/o error: rc =3D=3D -110
+> tvp5150: probe of 1-005c failed with error -110
+>=20
+> The driver used to work up to v4.4 so this is a regression in v4.5-rc1:
+>=20
+> tvp5150 1-005c: tvp5151 (1.0) chip found @ 0xb8 (OMAP I2C adapter)
+> tvp5150 1-005c: tvp5151 detected.
+>=20
+> I tracked down to commit 9f924169c035 ("i2c: always enable RuntimePM for
+> the adapter device") and reverting that commit makes things to work again.
+>=20
+> The tvp5150 driver doesn't have runtime PM support but the I2C controller
+> driver does (drivers/i2c/busses/i2c-omap.c) FWIW.
+>=20
+> I tried adding runtime PM support to tvp5150 (basically calling pm_runtime
+> enable/get on probe before the first I2C read to resume the controller) b=
+ut
+> that it did not work.
+>=20
+> Not filling the OMAP I2C driver's runtime PM callbacks does not help eith=
+er.
+>=20
+> Any hints about the proper way to fix this issue?
 
--- 
-With Best Regards,
-Andy Shevchenko
+Asking linux-pm for help:
+
+The commit in question enables RuntimePM for the logical adapter device
+which sits between the HW I2C controller and the I2C client device. This
+adapter device has been used with pm_runtime_no_callbacks before
+enabling RPM. Now, Alan explained to me that "suspend events will
+propagate from the I2C clients all the way up to the adapter's parent."
+with RPM enabled for the adapter device. Which should be a no-op if the
+client doesn't do any PM at all? What do I miss?
+
+Thanks,
+
+   Wolfram
+
+
+--i7F3eY7HS/tUJxUd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWuHPZAAoJEBQN5MwUoCm2YTgP/Rf7A5fE0r5RO35C+SzKhqxf
+OfWaBW14ZyhelbuRFhGKc2MhnnSQ+5ndfb4hPmSY6pE/nxUsNsDNQWTKKrWOM41f
+5JiNeC+Mub1ybSXukWm58+l00WyIM79/30XeoO+mZWw1oeh3E0janTpbatCnZl7m
+n3kyOF1lfI7C/tlF3Q4CjKpQHjn2p237x9dzSBWKbvshx+Nc0eUpLgP1Ct0PgAdT
+MuGSY24gPDcQeKXTE8d1IcN+yh5NJkgX2cBpcjwpuIvC4TFfYLh8ElDt1Q5XmCZm
+k5eh41F92koZOY0Z1GN1uFd75fit2lmaee8O3/RS/FPEnr2y9GgEwQRYwavmfHaF
+RWjciIBz8hlLXO2zTo1Y6bayVP82/8nBLOw7bhitMt9s4qwyQgo1R8dNai2PzTVq
+hKFBzpIeRkyt30KP1KhSTWk+gQoc7kDOaUkNmqcAvGASSbUsPAhNScx15LT7d0KI
+w06IlsnrqsVIzPxjf8Xb+BgRi6zyDNFgOnjopS365fReM5WoiYEhvTnBWzRS9d8g
+lhBxUTcatOWmRHid5vJxaLfj2nftWCckRJajHkQHQJpYt6JQ2MA55pc1sfjQPONa
+docCUOZ7VwvVejTDCUo4ug1T0HZIYpTSsC/r+tqqXLsxGHjQ5fYi148wOcFLwq87
+Vsfe9nfyLQX8LhJ8lLoI
+=tpVa
+-----END PGP SIGNATURE-----
+
+--i7F3eY7HS/tUJxUd--
