@@ -1,57 +1,39 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Prevent runtime suspend during adapter
- registration
-Date: Thu, 11 Feb 2016 16:47:05 +0200
-Message-ID: <20160211144705.GW16826@lahna.fi.intel.com>
-References: <1455201363-3278-1-git-send-email-jarkko.nikula@linux.intel.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 1/7] mmc: omap_hsmmc: Fix PM regression with deferred
+ probe for pm_runtime_reinit
+Date: Thu, 11 Feb 2016 07:02:41 -0800
+Message-ID: <20160211150240.GR19432@atomide.com>
+References: <1455145370-20301-1-git-send-email-tony@atomide.com>
+ <1455145370-20301-2-git-send-email-tony@atomide.com>
+ <CAPDyKFpAcsfLgtu93P45fTEg11MjdGwREcyeGSS7vt6GWbNu_w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:3685 "EHLO mga02.intel.com"
+Received: from muru.com ([72.249.23.125]:33619 "EHLO muru.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751759AbcBKOvY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 11 Feb 2016 09:51:24 -0500
+	id S1750932AbcBKPCo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 11 Feb 2016 10:02:44 -0500
 Content-Disposition: inline
-In-Reply-To: <1455201363-3278-1-git-send-email-jarkko.nikula@linux.intel.com>
+In-Reply-To: <CAPDyKFpAcsfLgtu93P45fTEg11MjdGwREcyeGSS7vt6GWbNu_w@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: linux-omap <linux-omap@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-mmc <linux-mmc@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Kevin Hilman <khilman@baylibre.com>, Nishanth Menon <nm@ti.com>, "Rafael J . Wysocki" <rafael@kernel.org>, Tero Kristo <t-kristo@ti.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-serial@vger.kernel.org, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Peter Hurley <peter@hurleysoftware.com>, Wolfram Sang <wsa@the-dreams.de>
 
-On Thu, Feb 11, 2016 at 04:36:03PM +0200, Jarkko Nikula wrote:
-> There can be unnecessary runtime suspend-resume cycle during
-> i2c-designware-platdrv probe when it registers the I2C adapter device. This
-> happens because i2c-designware-platdrv is set to initially active platform
-> device in its probe function and is a parent of I2C adapter.
+* Ulf Hansson <ulf.hansson@linaro.org> [160211 02:19]:
+> On 11 February 2016 at 00:02, Tony Lindgren <tony@atomide.com> wrote:
+> >
+> > Ulf, I'd like to merge this along with other related fixes via the
+> > ARM SoC tree if no objections, please review and ack if this look OK
+> > to you.
 > 
-> In that case power.usage_count of i2c-designware device is zero and
-> pm_runtime_get()/pm_runtime_put() cycle during probe could put it into
-> runtime suspend. This happens when the i2c_register_adapter() calls the
-> device_register():
+> I have some other omap_hsmmc patches queued for 4.6, so I prefer to
+> send this via my mmc tree.
 > 
-> i2c_register_adapter
->   device_register
->     device_add
->       bus_probe_device
->         device_initial_probe
->           __device_attach
->             if (dev->parent) pm_runtime_get_sync(dev->parent)
->             ...
->             if (dev->parent) pm_runtime_put(dev->parent)
-> 
-> After that the i2c_register_adapter() continues registering I2C slave
-> devices. In case slave device probe does I2C transfers the parent will
-> resume again and thus get a needless runtime suspend/resume cycle during
-> adapter registration.
-> 
-> Prevent this while retaining the runtime PM status of i2c-designware by
-> only incrementing/decrementing device power usage count during I2C
-> adapter registration. That makes sure there won't be spurious runtime PM
-> status changes and lets the driver core to idle the device after probe
-> finishes.
-> 
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> I guess that's okay as well!?
 
-I don't know any better way to fix this,
+Naturally yes, please go ahead thanks!
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Regards,
+
+Tony
