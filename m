@@ -1,22 +1,22 @@
 From: LAURENT@srv-zimbra1.globalinformatica.com.br,
 	"EYADEMA <berndmenker"@versanet.de
 Subject: Business Partnership
-Date: Thu, 11 Feb 2016 08:02:24 +0700
-Message-ID: <20160211010610.34D2DF89AD4__33578.2863935039$1455154831$gmane$org@srv-zimbra1.globalinformatica.com.br>
+Date: Thu, 11 Feb 2016 08:30:51 +0700
+Message-ID: <20160211013437.3D869F8AF63__14972.6642332555$1455157324$gmane$org@srv-zimbra1.globalinformatica.com.br>
 Reply-To: lau.eya66@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1713564094=="
+Content-Type: multipart/mixed; boundary="===============0321652040=="
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from globalinformatica.com.br ([186.249.1.145]:59756 "EHLO
+Received: from globalinformatica.com.br ([186.249.1.145]:43261 "EHLO
 	srv-zimbra1.globalinformatica.com.br" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752115AbcBKBjs (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 10 Feb 2016 20:39:48 -0500
+	by vger.kernel.org with ESMTP id S1750813AbcBKCVV (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 10 Feb 2016 21:21:21 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Recipients <berndmenker@versanet.de>
 
 You will not see this in a MIME-aware mail reader.
---===============1713564094==
+--===============0321652040==
 Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -30,7 +30,7 @@ Thanks in anticipation of your urgent response,
 
 
 LAURENT EYADEMA
---===============1713564094==
+--===============0321652040==
 Content-Type: application/octet-stream
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -92,4 +92,4 @@ AAATCAAAd29yZC9udW1iZXJpbmcueG1sUEsBAi0AFAAIAAgAVShLSK9TyEF5AAAAigAAAA8AAAAA
 AAAAAAAAAAAAzwgAAHdvcmQvc3R5bGVzLnhtbFBLAQItABQACAAIAFUoS0i17ehY5AAAAEgCAAAT
 AAAAAAAAAAAAAAAAAIUJAABbQ29udGVudF9UeXBlc10ueG1sUEsFBgAAAAAGAAYAgAEAAKoKAAAA
 AA==
---===============1713564094==--
+--===============0321652040==--
