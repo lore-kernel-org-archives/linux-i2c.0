@@ -1,128 +1,92 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 1/7] mmc: omap_hsmmc: Fix PM regression with deferred
- probe for pm_runtime_reinit
-Date: Fri, 12 Feb 2016 13:59:07 +0100
-Message-ID: <CAPDyKFpwGcCW_Vwz07cgh8LxGmxu9=GVch0MVJEpNJ19zoLZ7g@mail.gmail.com>
-References: <1455145370-20301-1-git-send-email-tony@atomide.com>
-	<1455145370-20301-2-git-send-email-tony@atomide.com>
-	<CAPDyKFpAcsfLgtu93P45fTEg11MjdGwREcyeGSS7vt6GWbNu_w@mail.gmail.com>
-	<20160211150240.GR19432@atomide.com>
-	<CAPDyKFo4Jyjwyvr3P5VHfDhQ87K9mnR01N-NtKz-yx2ycnfOLg@mail.gmail.com>
-	<20160211172632.GT19432@atomide.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
+Date: Fri, 12 Feb 2016 19:37:38 +0100
+Message-ID: <20160212183737.GA1520@katana>
+References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org>
+ <1453197766-18976-5-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f170.google.com ([209.85.161.170]:34961 "EHLO
-	mail-yw0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752548AbcBLM7I (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 12 Feb 2016 07:59:08 -0500
-Received: by mail-yw0-f170.google.com with SMTP id g127so63517636ywf.2
-        for <linux-i2c@vger.kernel.org>; Fri, 12 Feb 2016 04:59:08 -0800 (PST)
-In-Reply-To: <20160211172632.GT19432@atomide.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1453197766-18976-5-git-send-email-sricharan@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sricharan R <sricharan@codeaurora.org>
+Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, architt@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-omap <linux-omap@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-mmc <linux-mmc@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Kevin Hilman <khilman@baylibre.com>, Nishanth Menon <nm@ti.com>, "Rafael J . Wysocki" <rafael@kernel.org>, Tero Kristo <t-kristo@ti.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-serial@vger.kernel.org, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Peter Hurley <peter@hurleysoftware.com>, Wolfram Sang <wsa@the-dreams.de>
 
-On 11 February 2016 at 18:26, Tony Lindgren <tony@atomide.com> wrote:
-> * Ulf Hansson <ulf.hansson@linaro.org> [160211 07:14]:
->> On 11 February 2016 at 16:02, Tony Lindgren <tony@atomide.com> wrote:
->> > * Ulf Hansson <ulf.hansson@linaro.org> [160211 02:19]:
->> >> On 11 February 2016 at 00:02, Tony Lindgren <tony@atomide.com> wrote:
->> >> >
->> >> > Ulf, I'd like to merge this along with other related fixes via the
->> >> > ARM SoC tree if no objections, please review and ack if this look OK
->> >> > to you.
->> >>
->> >> I have some other omap_hsmmc patches queued for 4.6, so I prefer to
->> >> send this via my mmc tree.
->> >>
->> >> I guess that's okay as well!?
->> >
->> > Naturally yes, please go ahead thanks!
->>
->> Okay!
->>
->> BTW, did you notice my other comments to the patch?
->>
->> I can fix them before applying, unless you want to send a v2?
->
-> Oh sorry, no I missed the rest of your comments again, I really
-> need to recalibrate my reading habits obviously if I keep
-> missing comments on regular basis..
->
-> You comments make sense to me. Below is the patch with only
-> minimal changes. Seems to work just fine and hit off mode for
-> suspend too.
->
-> Regards,
->
-> Tony
->
-> 8< -------------------
-> From eb3c93421f01fb6198f76127262a92b527dd214c Mon Sep 17 00:00:00 2001
-> From: Tony Lindgren <tony@atomide.com>
-> Date: Tue, 9 Feb 2016 09:31:10 -0800
-> Subject: [PATCH] mmc: omap_hsmmc: Fix PM regression with deferred probe for
->  pm_runtime_reinit
->
-> Commit 5de85b9d57ab ("PM / runtime: Re-init runtime PM states at probe
-> error and driver unbind") introduced pm_runtime_reinit() that is used
-> to reinitialize PM runtime after -EPROBE_DEFER. This allows shutting
-> down the device after a failed probe.
->
-> However, for drivers using pm_runtime_use_autosuspend() this can cause
-> a state where suspend callback is never called after -EPROBE_DEFER.
-> On the following device driver probe, hardware state is different from
-> the PM runtime state causing omap_device to produce the following
-> error:
->
-> omap_device_enable() called from invalid state 1
->
-> And with omap_device and omap hardware being picky for PM, this will
-> block any deeper idle states in hardware.
->
-> The solution is to fix the drivers to follow the PM runtime documentation:
->
-> 1. For sections of code that needs the device disabled, use
->    pm_runtime_put_sync_suspend() if pm_runtime_set_autosuspend() has
->    been set.
->
-> 2. For driver exit code, use pm_runtime_dont_use_autosuspend() before
->    pm_runtime_put_sync() if pm_runtime_use_autosuspend() has been
->    set.
->
-> Fixes: 5de85b9d57ab ("PM / runtime: Re-init runtime PM states at probe
-> error and driver unbind")
-> Cc: linux-mmc@vger.kernel.org
-> Cc: Alan Stern <stern@rowland.harvard.edu>
-> Cc: Kevin Hilman <khilman@baylibre.com>
-> Cc: Nishanth Menon <nm@ti.com>
-> Cc: Rafael J. Wysocki <rafael@kernel.org>
-> Cc: Ulf Hansson <ulf.hansson@linaro.org>
-> Cc: Tero Kristo <t-kristo@ti.com>
-> Signed-off-by: Tony Lindgren <tony@atomide.com>
->
-> --- a/drivers/mmc/host/omap_hsmmc.c
-> +++ b/drivers/mmc/host/omap_hsmmc.c
-> @@ -2232,6 +2232,7 @@ err_irq:
->                 dma_release_channel(host->tx_chan);
->         if (host->rx_chan)
->                 dma_release_channel(host->rx_chan);
-> +       pm_runtime_dont_use_autosuspend(host->dev);
->         pm_runtime_put_sync(host->dev);
->         pm_runtime_disable(host->dev);
->         if (host->dbclk)
-> @@ -2253,6 +2254,7 @@ static int omap_hsmmc_remove(struct platform_device *pdev)
->         dma_release_channel(host->tx_chan);
->         dma_release_channel(host->rx_chan);
->
-> +       pm_runtime_dont_use_autosuspend(host->dev);
->         pm_runtime_put_sync(host->dev);
->         pm_runtime_disable(host->dev);
->         device_init_wakeup(&pdev->dev, false);
 
-Thanks, applied for fixes!
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Kind regards
-Uffe
+On Tue, Jan 19, 2016 at 03:32:44PM +0530, Sricharan R wrote:
+> QUP cores can be attached to a BAM module, which acts as
+> a dma engine for the QUP core. When DMA with BAM is enabled,
+> the BAM consumer pipe transmitted data is written to the
+> output FIFO and the BAM producer pipe received data is read
+> from the input FIFO.
+>=20
+> With BAM capabilities, qup-i2c core can transfer more than
+> 256 bytes, without a 'stop' which is not possible otherwise.
+>=20
+> Signed-off-by: Sricharan R <sricharan@codeaurora.org>
+> Reviewed-by: Andy Gross <andy.gross@linaro.org>
+> Tested-by: Archit Taneja <architt@codeaurora.org>
+> Tested-by: Telkar Nagender <ntelkar@codeaurora.org>
+
+My code checkers found some issues:
+
+    SPARSE
+drivers/i2c/busses/i2c-qup.c:555:6: warning: symbol 'qup_sg_set_buf' was no=
+t declared. Should it be static?
+drivers/i2c/busses/i2c-qup.c:1243:50: warning: dubious: !x & !y
+    SMATCH
+drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s =3D =
+sg_next()
+drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s =3D =
+sg_next()
+drivers/i2c/busses/i2c-qup.c:1243 qup_i2c_xfer_v2() warn: add some parenthe=
+sis here?
+    CPPCHECK
+drivers/i2c/busses/i2c-qup.c:1243: style: Boolean result is used in bitwise=
+ operation. Clarify expression with parentheses.
+    SPATCH
+drivers/i2c/busses/i2c-qup.c:1380:2-13: WARNING: Assignment of bool to 0/1
+drivers/i2c/busses/i2c-qup.c:1481:1-13: WARNING: Assignment of bool to 0/1
+  CC      drivers/i2c/busses/i2c-qup.o
+drivers/i2c/busses/i2c-qup.c:555:6: warning: no previous prototype for 'qup=
+_sg_set_buf' [-Wmissing-prototypes]
+ void qup_sg_set_buf(struct scatterlist *sg, void *buf, struct qup_i2c_tag =
+*tg,
+
+Can you fix them and resend??
+
+Thanks,
+
+   Wolfram
+
+--cWoXeonUoKmBZSoM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWviZxAAoJEBQN5MwUoCm2jLcP+gK0k2Rj4CigmQ423Q913qyG
+ZbVBN0TUcIqhU3qxz+ruxL0DGYwTJjzB+0AZJ/EOOTqadDyTfjsy2lLpSAtCpWpK
+mupRrCFTYmC5VBRkJwKpZeMZaoDT5vPaWRzjU7mwcpwc4+U4lc1FDLPkHwjrWmXd
+8YGGH5HzO8NprITAwx9xC0ldfxwobv1mQPZ3wpKorafiHwVY0Wvmcle9P9JSIh0f
+OYHWs6zgAW1RQnGjNs1/Ee/q1XG4TsVJCo1U6qaV53rcaLRiZ11N/4U5ovK9cZQT
+enEYjXxz+5fGhVkL7xPxwqdH5lKpCDhBtYy9Rosi85qL/+y2eEHev7toaSLDm8GR
+rDgC2LBZU/DVLP50y1kAhe41m+XCusVCUJv/BhfeIdx0ZXsWPwYnU4mxKRiZV3hk
+pYnksuMwS8XVkgTZevdH9S4tNqO2470772bsv0zvLGoV8Diiep6HzXXTDsOJEa60
+zEszKuO091xtK/Ogs2RvOMd/toZNNCANjtT0uTSfesj35QcpCrTAOBeU2LSVxpZ6
+tDvs5cjoBFfbkHihTqLpvFqK9QpAtvlS9Ma/icCQ/1eUHD7p3fPwusCIiBby43QS
+RQpEmTkIuyl80iKtGI/uPdfs+XL1udh671/nAH76LQhWvWuioe21HKbyIz/Q2XJ9
+ShJ2z0uoJr8m+XTSp2Fx
+=6kIE
+-----END PGP SIGNATURE-----
+
+--cWoXeonUoKmBZSoM--
