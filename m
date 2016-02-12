@@ -1,93 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/7] i2c: omap: Fix PM regression with deferred probe for
- pm_runtime_reinit
-Date: Fri, 12 Feb 2016 19:43:36 +0100
-Message-ID: <20160212184335.GF1520@katana>
-References: <1455145370-20301-1-git-send-email-tony@atomide.com>
- <1455145370-20301-3-git-send-email-tony@atomide.com>
+Subject: Re: [PATCH] i2c: designware: remove redundant lock
+Date: Fri, 12 Feb 2016 19:52:24 +0100
+Message-ID: <20160212185224.GG1520@katana>
+References: <f7d81178a0e65a19872a9e5207ccd8553e15c07d.1452604595.git.baruch@tkos.co.il>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7cm2iqirTL37Ot+N"
+	protocol="application/pgp-signature"; boundary="7lMq7vMTJT4tNk0a"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 85.76.238.89.in-addr.arpa.manitu.net ([89.238.76.85]:58776 "EHLO
+Received: from 85.76.238.89.in-addr.arpa.manitu.net ([89.238.76.85]:58870 "EHLO
 	pokefinder.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751242AbcBLSnm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Feb 2016 13:43:42 -0500
+	id S1752442AbcBLSwd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 12 Feb 2016 13:52:33 -0500
 Content-Disposition: inline
-In-Reply-To: <1455145370-20301-3-git-send-email-tony@atomide.com>
+In-Reply-To: <f7d81178a0e65a19872a9e5207ccd8553e15c07d.1452604595.git.baruch@tkos.co.il>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Kevin Hilman <khilman@baylibre.com>, Nishanth Menon <nm@ti.com>, "Rafael J . Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Tero Kristo <t-kristo@ti.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-mmc@vger.kernel.org, linux-serial@vger.kernel.org, linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>, Peter Hurley <peter@hurleysoftware.com>
+To: Baruch Siach <baruch@tkos.co.il>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Rongrong Zou <zourongrong@gmail.com>
 
 
---7cm2iqirTL37Ot+N
+--7lMq7vMTJT4tNk0a
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 10, 2016 at 03:02:45PM -0800, Tony Lindgren wrote:
-> Commit 5de85b9d57ab ("PM / runtime: Re-init runtime PM states at probe
-> error and driver unbind") introduced pm_runtime_reinit() that is used
-> to reinitialize PM runtime after -EPROBE_DEFER. This allows shutting
-> down the device after a failed probe.
+On Tue, Jan 12, 2016 at 03:16:35PM +0200, Baruch Siach wrote:
+> The per adapter bus_lock already projects from concurrent calls to the
+> master_xfer callback. No need to add a driver internal lock.
 >=20
-> However, for drivers using pm_runtime_use_autosuspend() this can cause
-> a state where suspend callback is never called after -EPROBE_DEFER.
-> On the following device driver probe, hardware state is different from
-> the PM runtime state causing omap_device to produce the following
-> error:
+> Also, rephrase a comment to drop mention of this lock.
 >=20
-> omap_device_enable() called from invalid state 1
->=20
-> And with omap_device and omap hardware being picky for PM, this will
-> block any deeper idle states in hardware.
->=20
-> The solution is to fix the drivers to follow the PM runtime documentation:
->=20
-> 1. For sections of code that needs the device disabled, use
->    pm_runtime_put_sync_suspend() if pm_runtime_set_autosuspend() has
->    been set.
->=20
-> 2. For driver exit code, use pm_runtime_dont_use_autosuspend() before
->    pm_runtime_put_sync() if pm_runtime_use_autosuspend() has been
->    set.
->=20
-> Fixes: 5de85b9d57ab ("PM / runtime: Re-init runtime PM states at probe
-> error and driver unbind")
-> Cc: linux-i2c@vger.kernel.org
-> Cc: Alan Stern <stern@rowland.harvard.edu>
-> Cc: Kevin Hilman <khilman@baylibre.com>
-> Cc: Nishanth Menon <nm@ti.com>
-> Cc: Rafael J. Wysocki <rafael@kernel.org>
-> Cc: Ulf Hansson <ulf.hansson@linaro.org>
-> Cc: Tero Kristo <t-kristo@ti.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> Reported-by: Rongrong Zou <zourongrong@gmail.com>
+> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---7cm2iqirTL37Ot+N
+--7lMq7vMTJT4tNk0a
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWvifXAAoJEBQN5MwUoCm2u3gP/0siHYGbBX7efB637S6GialN
-ufvgD31ukWw1xebwQy02EEi2d4/JU/Th2XkhulqC435TEbC2KaDKurauJ++iXIeC
-qJX8tYaiZDT2w+OEzRAheoUsGBeF6bVbSUX1kLNJwXRDKBh2OOm4apr363F2xp/F
-l3asdMzvthXLw38oxB/YpC5baHKNcIz59aWJKtdMmTreobvZ9ygU40iNtJsaGjdE
-8UbAXFt2Ncf3vNAzVLwGfcMfxl/zbnSdSgj0VInmNe3Akt3MLo6bZZcseaky7u8q
-AU6SqCrk/xr1mWi9pJBKCEqYzCMspqYOapHpa6f8uLaaTQCpUDUzWgxrbN95CTSb
-FkWW4kDrc2GSHAACs7cv5uNNqbAuLmmUarej82V96VIqATPpIHYJq4bpot5EjH8K
-99/2rsVAgZuHGw4j7/AuuV64FmAnTUwsVGA59VGKQIpi8Ew/Xyl3+8HFECYhl7Y/
-dnxyEI4TGnAwbhgmcw/Zt4idlw9YBtuFAELAkqcFU0qMyFDm7Pm3Bz+8KaW2Dx5J
-ZBX99K1zStqVS+sBoRN1bmZgDcdAh4qAxrwgnivJlxG9I+I4WqumcqsQDbnpRqE2
-5M+noBKtdByQKdEgcSVmUv4LQVPFan5Jqh4kQ6FDkc+gAA4KBOLN5fyC20mWmZoV
-hQkZTE6ZbbccnGLlhkX3
-=Jr//
+iQIcBAEBAgAGBQJWvinoAAoJEBQN5MwUoCm2ppAQAJFLrbeHIjNkJ3Q1bpxh1nuh
+Xfu1ux8pourqgeYfJ4AelToUOCXn/MNCzipdF+Knxg1xJpALmqJxap/726w/KVu4
+fzLHXf9obDOx1TsHBASxlw36EeZrt2t1v64EkQGu+9jkhUnFA7mWNY7utXt2FzUA
+1qql8xob087p4lDghFkaFHQ1WNVH2335uY5goCXNROhBMF7hYRHTVFw3XjGEB1Qy
+IpsH3B0GE7QwoyLzOq+haO258owdHbuOudR1HzB19d9o+JUY8N78w8P8ROVqKbnX
+8oAvQtW7mK5OfU+O9+fE6u99sl4FRrIuOFpO3YX2NqBYkLxKi6ubOgFqG8WeD3jS
+Kek2S3gjr32rP0kypZsS5f0cWXlfsQ1AUPacXzjKIpOtSQm0A1Bt70HGStDSiz0P
+gryTMo+yekWan+ReC+zFUjGhWZb/VLxi3CgFABGG54l7Ao6F/jOs+9EONRwSQVxk
+wFI0jgS6TXVtENtUsXKV0w8Q/G0kIpFh3VWBvFTFippIwezRqHtwExTzA8T60mu3
+chgXchCctnpx+U/SNPSQ7CV2jIiFdyIeC6IYqcJmXJH/BzTw3AiLIJEDopNOwByE
+XuYRYqXPQwEVH29EQgNOTe18oJFK6qqVB8avrqbho5M0gqXmCAFpOX1w6VVEogiV
+0BqcUnPP67QMTL8V9fh+
+=NcBB
 -----END PGP SIGNATURE-----
 
---7cm2iqirTL37Ot+N--
+--7lMq7vMTJT4tNk0a--
