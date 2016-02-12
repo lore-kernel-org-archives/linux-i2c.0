@@ -1,92 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
-Date: Fri, 12 Feb 2016 19:37:38 +0100
-Message-ID: <20160212183737.GA1520@katana>
+Subject: Re: [PATCH V7 1/6] i2c: qup: Change qup_wait_writeready function to
+ use for all timeouts
+Date: Fri, 12 Feb 2016 19:37:47 +0100
+Message-ID: <20160212183747.GB1520@katana>
 References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org>
- <1453197766-18976-5-git-send-email-sricharan@codeaurora.org>
+ <1453197766-18976-2-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
+	protocol="application/pgp-signature"; boundary="xXmbgvnjoT4axfJE"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1453197766-18976-5-git-send-email-sricharan@codeaurora.org>
+In-Reply-To: <1453197766-18976-2-git-send-email-sricharan@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Sricharan R <sricharan@codeaurora.org>
 Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, architt@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---cWoXeonUoKmBZSoM
+--xXmbgvnjoT4axfJE
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 19, 2016 at 03:32:44PM +0530, Sricharan R wrote:
-> QUP cores can be attached to a BAM module, which acts as
-> a dma engine for the QUP core. When DMA with BAM is enabled,
-> the BAM consumer pipe transmitted data is written to the
-> output FIFO and the BAM producer pipe received data is read
-> from the input FIFO.
->=20
-> With BAM capabilities, qup-i2c core can transfer more than
-> 256 bytes, without a 'stop' which is not possible otherwise.
+On Tue, Jan 19, 2016 at 03:32:41PM +0530, Sricharan R wrote:
+> qup_wait_writeready waits only on a output fifo empty event.
+> Change the same function to accept the event and data length
+> to wait as parameters. This way the same function can be used for
+> timeouts in other places as well.
 >=20
 > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
 > Reviewed-by: Andy Gross <andy.gross@linaro.org>
 > Tested-by: Archit Taneja <architt@codeaurora.org>
 > Tested-by: Telkar Nagender <ntelkar@codeaurora.org>
 
-My code checkers found some issues:
+Applied to for-next, thanks!
 
-    SPARSE
-drivers/i2c/busses/i2c-qup.c:555:6: warning: symbol 'qup_sg_set_buf' was no=
-t declared. Should it be static?
-drivers/i2c/busses/i2c-qup.c:1243:50: warning: dubious: !x & !y
-    SMATCH
-drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s =3D =
-sg_next()
-drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s =3D =
-sg_next()
-drivers/i2c/busses/i2c-qup.c:1243 qup_i2c_xfer_v2() warn: add some parenthe=
-sis here?
-    CPPCHECK
-drivers/i2c/busses/i2c-qup.c:1243: style: Boolean result is used in bitwise=
- operation. Clarify expression with parentheses.
-    SPATCH
-drivers/i2c/busses/i2c-qup.c:1380:2-13: WARNING: Assignment of bool to 0/1
-drivers/i2c/busses/i2c-qup.c:1481:1-13: WARNING: Assignment of bool to 0/1
-  CC      drivers/i2c/busses/i2c-qup.o
-drivers/i2c/busses/i2c-qup.c:555:6: warning: no previous prototype for 'qup=
-_sg_set_buf' [-Wmissing-prototypes]
- void qup_sg_set_buf(struct scatterlist *sg, void *buf, struct qup_i2c_tag =
-*tg,
 
-Can you fix them and resend??
-
-Thanks,
-
-   Wolfram
-
---cWoXeonUoKmBZSoM
+--xXmbgvnjoT4axfJE
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWviZxAAoJEBQN5MwUoCm2jLcP+gK0k2Rj4CigmQ423Q913qyG
-ZbVBN0TUcIqhU3qxz+ruxL0DGYwTJjzB+0AZJ/EOOTqadDyTfjsy2lLpSAtCpWpK
-mupRrCFTYmC5VBRkJwKpZeMZaoDT5vPaWRzjU7mwcpwc4+U4lc1FDLPkHwjrWmXd
-8YGGH5HzO8NprITAwx9xC0ldfxwobv1mQPZ3wpKorafiHwVY0Wvmcle9P9JSIh0f
-OYHWs6zgAW1RQnGjNs1/Ee/q1XG4TsVJCo1U6qaV53rcaLRiZ11N/4U5ovK9cZQT
-enEYjXxz+5fGhVkL7xPxwqdH5lKpCDhBtYy9Rosi85qL/+y2eEHev7toaSLDm8GR
-rDgC2LBZU/DVLP50y1kAhe41m+XCusVCUJv/BhfeIdx0ZXsWPwYnU4mxKRiZV3hk
-pYnksuMwS8XVkgTZevdH9S4tNqO2470772bsv0zvLGoV8Diiep6HzXXTDsOJEa60
-zEszKuO091xtK/Ogs2RvOMd/toZNNCANjtT0uTSfesj35QcpCrTAOBeU2LSVxpZ6
-tDvs5cjoBFfbkHihTqLpvFqK9QpAtvlS9Ma/icCQ/1eUHD7p3fPwusCIiBby43QS
-RQpEmTkIuyl80iKtGI/uPdfs+XL1udh671/nAH76LQhWvWuioe21HKbyIz/Q2XJ9
-ShJ2z0uoJr8m+XTSp2Fx
-=6kIE
+iQIcBAEBAgAGBQJWviZ7AAoJEBQN5MwUoCm2zf0P/RHoxESQOoaGZa0m4mEZZ7Ft
+9Jgxig6CdLKrljQNVzLs+Ej74YfZRhIwgm+LK/aIegi+iT7PcKQDypzs5/Ae1+cY
++9ceOPLmuD0yuXX2sQ/xSROG1xycnh+Cnbt6HSjZ8HqtKv7HhNC9TCLtcns0L0WC
+B4cLBnlGWxLstIPmHVTQQ5hCNTmNsNpfwKwE3jT0g05apVw/NKnhxp26V9UPnIsy
+W+rTUuN9p9pyQ8taEXtHAutBM2pXHQqlJTdc44M4mnoQxcUSMUsxcKcIno4mpYki
+O9iaPwQo0QnV3R+VBt6cPNjVwH1ldzOVbJKV15BDxewRFQsJxiOrlYnE7bBXPJ11
+pG1vEKTBI4QFHzMKL2+ZHT4LKsnxqhtkI+8lexcumQ/neyEEs7ZHMy7iC03oJasI
+4Xsc/53dF8mmSlg664ObM/sFzFL8Qw0ZpSq5g+tfPWwU/R9HfAB1hLQF1NvH4ME0
+FCVPstoNdQt1VzxN4rRfvyWEnyszXgkAfL+rbZ+TctzOkGLksKje1h5wc9ToVIGN
+1xRJd2haxhaAxh5L4lG6cdqPqqyH9X2+y8kzPkCkXZJrzild/hCE9kML0DPteroL
+RKDWjVIy1vV7CIcmYdZI7WwQreV3mc84A6aD9TDwmGIlVWm0fq+827+UXQ6+iVv4
+LhAvnOh4hOG3xT/B+ToY
+=V8Q2
 -----END PGP SIGNATURE-----
 
---cWoXeonUoKmBZSoM--
+--xXmbgvnjoT4axfJE--
