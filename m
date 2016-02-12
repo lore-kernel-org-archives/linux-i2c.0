@@ -1,60 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/3] i2c-piix4: Support alternative port selection
- register
-Date: Fri, 12 Feb 2016 20:27:20 +0100
-Message-ID: <20160212192720.GQ1520@katana>
-References: <20160129104146.50f06562@endymion.delvare>
- <20160129104452.05e94c08@endymion.delvare>
+Subject: Re: [PATCH 1/3] i2c: iproc: Add recovery mechanism in error case
+Date: Fri, 12 Feb 2016 20:31:19 +0100
+Message-ID: <20160212193119.GR1520@katana>
+References: <1453940842-9658-1-git-send-email-rjui@broadcom.com>
+ <1453940842-9658-2-git-send-email-rjui@broadcom.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HAv5+T9jbwMPl6Kw"
+	protocol="application/pgp-signature"; boundary="FNX2SHge3qdlDajY"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 85.76.238.89.in-addr.arpa.manitu.net ([89.238.76.85]:59271 "EHLO
+Received: from 85.76.238.89.in-addr.arpa.manitu.net ([89.238.76.85]:59316 "EHLO
 	pokefinder.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750735AbcBLT1Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Feb 2016 14:27:24 -0500
+	id S1750735AbcBLTbX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 12 Feb 2016 14:31:23 -0500
 Content-Disposition: inline
-In-Reply-To: <20160129104452.05e94c08@endymion.delvare>
+In-Reply-To: <1453940842-9658-2-git-send-email-rjui@broadcom.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Christian Fetzer <fetzer.ch@gmail.com>
+To: Ray Jui <rjui@broadcom.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Icarus Chau <ichau@broadcom.com>
 
 
---HAv5+T9jbwMPl6Kw
+--FNX2SHge3qdlDajY
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Jan 29, 2016 at 10:44:52AM +0100, Jean Delvare wrote:
-> The SB800 register reference guide says that the SMBus port selection
-> bits may not always be in register Smbus0En (0x2c) but could
-> alternatively be found in register Smbus0Sel (0x2e) depending on the
-> settings in register Smbus0SelEn (0x2f.) Add support for this
-> configuration.
+> +static int bcm_iproc_i2c_init(struct bcm_iproc_i2c_dev *iproc_i2c);
+> +static void bcm_iproc_i2c_enable_disable(struct bcm_iproc_i2c_dev *iproc_i2c,
+> +					 bool enable);
 
-Were you able to test both cases?
+Can't we move these functions instead of having the extra declarations?
 
 
---HAv5+T9jbwMPl6Kw
+--FNX2SHge3qdlDajY
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWvjIYAAoJEBQN5MwUoCm2GNYQAIPZ9pMypKzwinl5+vmboW04
-4cSdBlJIAcUwaEGLc8vT81dPXyWeG+bi+ryR7Tsj+z38ubzW0MvOTCQCrUI113A0
-D36IGB2L5zKAVUYvs1RU/oB2JJODRSSCGrBvhUSEzRQfJavNq2fB+Qb1vTN03ZMt
-HfYUGekVBIDZAmz8Q4XqXuKis4k1m1FMhRt9RM+nHxE0z1Hm1+G5GB7h3oxQ7Jak
-KFRYjZ9jitN+rzMHdrSbvitmUXJJdowA8fYU1TIpHX09bqwsEMt6DgzEoyDyqXwS
-FDLB3tA3erHtQNkhDDYy2JO4Mm7WRiWBRd7TLiCETMKDMPTkKYC8DhW6DqI3UgIK
-AFuof7s1ZUYx5wqfhelZSx4yXJ4KywpRDElGx17cowLzRl/uzrlyC9zTvhSSvjg1
-01nDiGIjmXHddCcXc0RUB4wlZ0mDGPNxpFXl+diYYR1rOOKJ8aHl68ttNqk/RUdZ
-P+N137Ts3Z8XrjDW0wdWv8j13QCVgzO9A5CiXYJqEijw5xQqQmELagxZWSEcq04H
-rqxTgCizwJnc+oo+wik0pNdqy9v1iTMCPpanFM9kUbOo4qiMEPDBJNTZd6a+v5cf
-sYtKXz6sSHIkYQjYcex4TL6T2rFyDdpQYiFX/zfywjd7QGUMQENlNzTUrj0ZPE95
-Ig/L9Z8ZGA2ht76GAWZ4
-=BTi4
+iQIcBAEBAgAGBQJWvjMHAAoJEBQN5MwUoCm2W1EP/0QEw4aaEXQmpFMMEITpHn+O
+ycTY7fIQLgxO6ShQX2gEtWPP1svqyI6HYOyOWobZNBbntK4b2FqLv4ynkn6xkBYd
+f2OKa0nhmiI/nK2j/xiLxya8ELH9KJ95vTJx0S5aQWLWbHm+SHCoIHxUr4hdPmFd
+Ejsizhl1N3uk17p6QNUB3/tTAyafkfZL50DWi1xj5fWMgM1fx1iAqc5Odiu0nXnv
+GEd+nNfSUmHw549fr2w39zaV5FTfxLDaAysUvSWOyh7Tw5v1PAQTfe5G/YaIJFpB
+umK06nRe1pJ9o+FOvQ+ZFIan9kol5kVePr/dCK0/X8HCVWabe9wOR22KcRWLh2sj
+8xqpt7L3fSh7rnkpCSGJK2PqspVt2Y1sXYKZLOBPqIDGuN/c2oK/FL9c834v22aT
+0SQQ2s+Bp3ZYY3fnCvuQCgK6an3hvQyGT512Sz217RsqNbEgm+Az8/JvVx450Bv+
+c5Y/ie9AwWeLXKVR5pDrNdo4E4/J2ifOwhLVVD/JjKlSyzpHrKbzlxhQrTuNAewr
+sdVh8ylVRNM05w0hQSZM+XN/QzlUNtDVVSMVlOnKh5Nu8MFs9SGETJcwBwEWDT2b
+N8oeCYOelSwVkk1w6TawTjfjjglqqQisQL0QxhRAIEqZVy/1ZwYMACdoKZnfPqKA
+4P2yfWwCd1FRPio6I8l3
+=LoKT
 -----END PGP SIGNATURE-----
 
---HAv5+T9jbwMPl6Kw--
+--FNX2SHge3qdlDajY--
