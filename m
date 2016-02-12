@@ -1,54 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: uniphier: fix typos in error messages
-Date: Fri, 12 Feb 2016 20:23:34 +0100
-Message-ID: <20160212192334.GO1520@katana>
-References: <1453799361-21910-1-git-send-email-yamada.masahiro@socionext.com>
+Subject: Re: [PATCH] i2c: uniphier: add COMPILE_TEST option
+Date: Fri, 12 Feb 2016 20:24:21 +0100
+Message-ID: <20160212192421.GP1520@katana>
+References: <1454247242-25167-1-git-send-email-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tqN4RWvJTb9VNux/"
+	protocol="application/pgp-signature"; boundary="s2lX4GznBIrto1wi"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 85.76.238.89.in-addr.arpa.manitu.net ([89.238.76.85]:59237 "EHLO
+Received: from 85.76.238.89.in-addr.arpa.manitu.net ([89.238.76.85]:59245 "EHLO
 	pokefinder.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750707AbcBLTXn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Feb 2016 14:23:43 -0500
+	id S1751164AbcBLTYZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 12 Feb 2016 14:24:25 -0500
 Content-Disposition: inline
-In-Reply-To: <1453799361-21910-1-git-send-email-yamada.masahiro@socionext.com>
+In-Reply-To: <1454247242-25167-1-git-send-email-yamada.masahiro@socionext.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---tqN4RWvJTb9VNux/
+--s2lX4GznBIrto1wi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 26, 2016 at 06:09:21PM +0900, Masahiro Yamada wrote:
+On Sun, Jan 31, 2016 at 10:34:02PM +0900, Masahiro Yamada wrote:
+> Add COMPILE_TEST for the compilation test coverage.
+>=20
 > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---tqN4RWvJTb9VNux/
+--s2lX4GznBIrto1wi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWvjE1AAoJEBQN5MwUoCm29TcP/3vOT0Qjnl3qVzTRyWq3eDUA
-tbzSYh3sPcvCenNz8vs1ugZ7Xp9WkfxjafP5ASHFQk0fP9fPrAuX0pwelYbMR/uK
-M8MT2pAqDc/sXGF3tVG10/ri3lb5VzX/7QGVmRmIHPRHSAXwU6SsPg4RMAZeMwp0
-hV22ljclS+rNHdt9mHTE7Af9CIw4uXaZQ81QJTbD0WTzbc7rX11thfHrEWsi867F
-mPuQxuBmP2KIm9FLBviBo1COfEluyZzlw+AhFawlJfeFUXJyRYTDjqSIXah3crBB
-6wncCu6fF0fZSooNRdsn2zOuPZDQOA4JgPxlHIl+gVj8QO8zxV02/Ur/slaj/ZFY
-GFoVEPO6AmwF2495dTLW4g0SIqhSi6uBc1F8+f80QRdC67LSXkCbaOfiT/dWDfj1
-u7bhwntsHcj1OLASn8+2AhkShUl2zZEU9w0saLRsXUuHabfDBCETNR4r9uFKAWs5
-qXLJK/FWzat/aG335XtUIRskqUee/4aJAAaXSac63rKbrBoJkCT6Dk4iX1Ut1evz
-8O8GklTUBsm6MOutMfGoNVExb7qNqHBbEsxIn3JbYLkwIZLfwaC5yoNobptXzmif
-rZ6jgbCDP2hHfN3zpg4dOJrrUqxBu2NUeIlwK01A39f48yKnH2xlZmXli5rJbao3
-mLupGH3pAwJlN1Kpul5C
-=wIRB
+iQIcBAEBAgAGBQJWvjFlAAoJEBQN5MwUoCm2iO0P/1rm56YlaJa7BbzCe4DeDuVw
+P39bHztKuimW+pqbCGD/QbrPX/kqQmhwQ2NtHPKUz+rq0VqKol/1TzvzlpUTVuD9
+IpI13aruxXfNljXpWqS/6RKsgjMf43oQwXsptkWGKbmEBESMbGtBJqctM097FDs0
+4rzIuuE8BpWSHlEtpuTLjsHhilZad6WHMriMFTqekg6ysvnCPpfKUsBOTEfTyk3X
+1RPupTZ1vuAuw0a3X4qauqgdDvcrqwF54oLx4KQFXhD4ecljKk7nueq3eIZTo3hq
+Cm7hSjnmbziwckOG70qvJEFx6d5LBo34UYYdL4NVPipBYmg4JAf9h1coCLE9bzi7
+Gtk4usEVAfgBAniTB3uyYwAVro6c7e6kv+UIU28bPj+dHNWjH11vv4Opr+J1ltYQ
+G0lffrH/DllO0R1k+dTGF2NqE6n6+VMZzqVDobJisunTnl0bNjAaId5Z4j4GYP7z
+DylB/kgdpjpS9ivt4M+fklS2Up67j9IEd00Rx/a0KGQbYbAZ3nTnndcdAOoAElAE
+x7XZNh84rn5c3LrY3IXqoPphKsnmjeO7qdLhQIEFeiIUAzJW1TOsq4tZ6qItyGKg
+L84R6GYms3kOf4l68wV3z9oAS+vge7M1PEB1LvsGIvEnTnaDmSIu3IA1lJHC+mpX
+GuanACxbNofV8zLQ/ZN+
+=uZRs
 -----END PGP SIGNATURE-----
 
---tqN4RWvJTb9VNux/--
+--s2lX4GznBIrto1wi--
