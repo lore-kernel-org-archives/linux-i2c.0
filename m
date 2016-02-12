@@ -1,88 +1,106 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Prevent runtime suspend during adapter
- registration
-Date: Fri, 12 Feb 2016 20:04:10 +0100
-Message-ID: <20160212190410.GK1520@katana>
-References: <1455201363-3278-1-git-send-email-jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH V3] i2c: i801: Adding Intel Lewisburg support for iTCO
+Date: Fri, 12 Feb 2016 20:09:56 +0100
+Message-ID: <20160212190956.GL1520@katana>
+References: <1454714564-8632-1-git-send-email-alexandra.yates@linux.intel.com>
+ <20160210104231.3fa07523@endymion>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yr6OvWOSyJed8q4v"
+	protocol="application/pgp-signature"; boundary="+svXpSx+RSEd8UhP"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 85.76.238.89.in-addr.arpa.manitu.net ([89.238.76.85]:58982 "EHLO
+Received: from 85.76.238.89.in-addr.arpa.manitu.net ([89.238.76.85]:59092 "EHLO
 	pokefinder.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751279AbcBLTEO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Feb 2016 14:04:14 -0500
+	id S1750707AbcBLTKA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 12 Feb 2016 14:10:00 -0500
 Content-Disposition: inline
-In-Reply-To: <1455201363-3278-1-git-send-email-jarkko.nikula@linux.intel.com>
+In-Reply-To: <20160210104231.3fa07523@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Alexandra Yates <alexandra.yates@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---yr6OvWOSyJed8q4v
+--+svXpSx+RSEd8UhP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 11, 2016 at 04:36:03PM +0200, Jarkko Nikula wrote:
-> There can be unnecessary runtime suspend-resume cycle during
-> i2c-designware-platdrv probe when it registers the I2C adapter device. Th=
-is
-> happens because i2c-designware-platdrv is set to initially active platform
-> device in its probe function and is a parent of I2C adapter.
+On Wed, Feb 10, 2016 at 10:42:31AM +0100, Jean Delvare wrote:
+> Hi Alexandra,
 >=20
-> In that case power.usage_count of i2c-designware device is zero and
-> pm_runtime_get()/pm_runtime_put() cycle during probe could put it into
-> runtime suspend. This happens when the i2c_register_adapter() calls the
-> device_register():
->=20
-> i2c_register_adapter
->   device_register
->     device_add
->       bus_probe_device
->         device_initial_probe
->           __device_attach
->             if (dev->parent) pm_runtime_get_sync(dev->parent)
->             ...
->             if (dev->parent) pm_runtime_put(dev->parent)
->=20
-> After that the i2c_register_adapter() continues registering I2C slave
-> devices. In case slave device probe does I2C transfers the parent will
-> resume again and thus get a needless runtime suspend/resume cycle during
-> adapter registration.
->=20
-> Prevent this while retaining the runtime PM status of i2c-designware by
-> only incrementing/decrementing device power usage count during I2C
-> adapter registration. That makes sure there won't be spurious runtime PM
-> status changes and lets the driver core to idle the device after probe
-> finishes.
->=20
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> On Fri,  5 Feb 2016 15:22:44 -0800, Alexandra Yates wrote:
+> > Changes log v2 to v3: Clarified commit message. No changes in code.
 
-Applied to for-next, thanks!
+This line should be below the "---".
+
+> >=20
+> > Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog
+> > resources have been moved to reside under the i801 SMBus host
+> > controller whereas previously they were under the LPC device.
+> >=20
+> > This patch adds Intel lewisburg SMBus support for iTCO device.
+> > It allows to load watchdog dynamically when the hardware is
+> > present.  This patch is an addition
+> > to cdc5a3110e7c3ae793f367285789a6bc39c962dc i2c: i801: "add
+> > Intel Lewisburg device IDs".
+> >=20
+> > Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
+> > ---
+> >  drivers/i2c/busses/i2c-i801.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i80=
+1.c
+> > index f62d697..27fa0cb 100644
+> > --- a/drivers/i2c/busses/i2c-i801.c
+> > +++ b/drivers/i2c/busses/i2c-i801.c
+> > @@ -1271,6 +1271,8 @@ static int i801_probe(struct pci_dev *dev, const =
+struct pci_device_id *id)
+> >  	switch (dev->device) {
+> >  	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
+> >  	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
+> > +	case PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS:
+> > +	case PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS:
+> >  	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
+> >  		priv->features |=3D FEATURE_I2C_BLOCK_READ;
+> >  		priv->features |=3D FEATURE_IRQ;
+>=20
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+>=20
+> Note this checkpatch warning though:
+>=20
+> ERROR: Please use git commit description style 'commit <12+ chars of sha1=
+> ("<title line>")' - ie: 'commit 0123456789ab ("commit description")'
+> #40:=20
+> to cdc5a3110e7c3ae793f367285789a6bc39c962dc i2c: i801: "add
+>=20
+> It is also common to add a "Fixes:" line with that information so that
+> patch backporting can be automated. And as I said before I would tag
+> the patch for stable as well.
+
+Can you do this and resend?
 
 
---yr6OvWOSyJed8q4v
+--+svXpSx+RSEd8UhP
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWviyqAAoJEBQN5MwUoCm23KsP/AvtJLHZ52nbF4FlCEdO6Bre
-YA2plkN2t/UQ7EbetcLbeWRQyIF1xdW5tnzefUJaABIzwoOK2noiTYm5cpD5ULp/
-ysyJAvjO68+YyRkweiQ1vwiYmILcbCPyKid7Kz8imbnlKHLIKN1qynMZn+I5j6kt
-ef24YmVz8nEdLNsO1TR8TYWrft0ebDSfnfS1m21Td67gSYvCFkNhC2Hnw79ZV8Um
-vACoYKd5LNiSmC0nd+bozkaTKesXaEf2SGUDxbGWhNxs8X1o8qDcRuqPPRv93iVM
-g6ZHKBLp1/R0i0clB8nKvdIxTgayKOPzSfDcpx6RgmVXEKqKE2tc/SILVsXhBev2
-MQPy4etQDvNhpy4WFIwGltcPsqflBuMOyt9A3RivLTiX0JF/G3RMdBsHp2DYHJHs
-EL/6iWTnT/4oCB482rGGHf/ruFE1gi23zY3ZaBDVfGtg8rxEed4OmUYJPBelNy3t
-6yqdATR8jfNVR+nkTdrDwSGmDhmSLbO6jVQJv0ge9gbF/mzYBSCxrwsCy99b3Scz
-8Pxu38+5/lexfZqGi2TwTKDTCPRvbjc8/lhRX3VuHGvXwtY2VvNOamMnGghIV1CW
-GOkYUZmSDOLpJ5MV4ThHjmQcPrijRmWPojpM2itKfKdmVByB8RfVBy0k90Uj1nWr
-hYmCKymJT6TErUC1zSpY
-=rYki
+iQIcBAEBAgAGBQJWvi4EAAoJEBQN5MwUoCm2do4P/0U0SiZQcgQBp0Rtt4CJT6BI
+Ti3z8NQl0uld8vOEU96GuNJArnY5JigL4f31Nj22Zm6dZ4OMwKwyhWz8FMXzgAUS
+Sh/r796rWD0RGYDMNk7R1/9ZEc5FRDq0MpcdVf1sfcn2ZrIwcSzAEGVEn1wiGIP+
+yobTbgPRYFMWJGnCwrk/mRj+SMio5MDnBZiX6y7jimxD0vf2y3j7gie8kOoL4Wd5
+SdGd8s9IBmGNgOIq06r/70EUYKJhsdNhvwAxSk0tBJgYOOUPlOeGBwMhLzzhDFbl
+35hAxI+rrxmLPr9xGPMlOI7n646ymcNz09zOpUOpzh5PUFejhruZAN0jyPri5ckk
+EOleXqknRov4zXNvc2bPslmqboCadpJ9Z5osa7A/qaix5Qs4tMbsfqrGiIwadaVr
+o9qxo2L5edB7yT3CXk617Ej6HemGwH9u0YWmhHHeUxmfI4OMU13i+OiWcy1tua9W
+OeMpclyHeMkYeVV0LqKsvNI5UHRBTY9Pv78Qovdu0TLUDICIimiW10uR0UAh0s73
+362C6ulUAb3ZtkOWbVjuBVWcCiyprQoIfnGnMPLa0IrWK1E+WcU1OWMmGey2mOER
+I7ygDuVneS1/QGlV/5pdEGYp+uF8e9iiPU6pvPMGHI3krSbVGLVr711a7+d7JN/v
+1Dx9eWCmoLuk9JViqlmI
+=UpmR
 -----END PGP SIGNATURE-----
 
---yr6OvWOSyJed8q4v--
+--+svXpSx+RSEd8UhP--
