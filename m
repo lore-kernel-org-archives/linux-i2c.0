@@ -1,65 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V7 2/6] i2c: qup: Add V2 tags support
-Date: Fri, 12 Feb 2016 19:37:55 +0100
-Message-ID: <20160212183755.GC1520@katana>
+Subject: Re: [PATCH V7 3/6] i2c: qup: Transfer each i2c_msg in i2c_msgs
+ without a stop bit
+Date: Fri, 12 Feb 2016 19:38:15 +0100
+Message-ID: <20160212183815.GD1520@katana>
 References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org>
- <1453197766-18976-3-git-send-email-sricharan@codeaurora.org>
+ <1453197766-18976-4-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="p2kqVDKq5asng8Dg"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="J5MfuwkIyy7RmF4Q"
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1453197766-18976-3-git-send-email-sricharan@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1453197766-18976-4-git-send-email-sricharan@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: Sricharan R <sricharan@codeaurora.org>
 Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, architt@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---p2kqVDKq5asng8Dg
+--J5MfuwkIyy7RmF4Q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 19, 2016 at 03:32:42PM +0530, Sricharan R wrote:
-> QUP from version 2.1.1 onwards, supports a new format of
-> i2c command tags. Tag codes instructs the controller to
-> perform a operation like read/write. This new tagging version
-> supports bam dma and transfers of more than 256 bytes without 'stop'
-> in between. Adding the support for the same.
+On Tue, Jan 19, 2016 at 03:32:43PM +0530, Sricharan R wrote:
+> The definition of i2c_msg says that
 >=20
-> For each block a data_write/read tag and data_len tag is added to
-> the output fifo. For the final block of data write_stop/read_stop
-> tag is used.
+> "If this is the last message in a group, it is followed by a STOP.
+> Otherwise it is followed by the next @i2c_msg transaction segment,
+> beginning with a (repeated) START"
 >=20
-> Signed-off-by: Andy Gross <andy.gross@linaro.org>
+> So the expectation is that there is no 'STOP' bit inbetween individual
+> i2c_msg segments with repeated 'START'. The QUP i2c hardware has no way
+> to inform that there should not be a 'STOP' at the end of transaction.
+> The only way to implement this is to coalesce all the i2c_msg in i2c_msgs
+> in to one transaction and transfer them. Adding the support for the same.
+>=20
+> This is required for some clients like touchscreen which keeps
+> incrementing counts across individual transfers and 'STOP' bit inbetween
+> resets the counter, which is not required.
+>=20
+> This patch adds the support in non-dma mode.
+>=20
 > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
+> Reviewed-by: Andy Gross <andy.gross@linaro.org>
 > Tested-by: Archit Taneja <architt@codeaurora.org>
 > Tested-by: Telkar Nagender <ntelkar@codeaurora.org>
 
-Applied to for-next, thanks!
+Shortened the commit message and applied to for-next, thanks!
 
 
---p2kqVDKq5asng8Dg
+--J5MfuwkIyy7RmF4Q
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWviaDAAoJEBQN5MwUoCm20DYP/jmwlHhTRltp90VA6TJCRjA8
-EVjopxiIxszvzfFuX8II0LHwve5O64GkFUN1B474WkO5rwJry5uEK7HiqfDv8dEx
-ppxvbLcsCBYW1k8vlo6rrCatVzlZD0yhVzX82sRg6eXrLTaQU20cn9iOrBAe20PS
-Ld2+z5OqYu1EDrKFaMcXOzzQqY5nyx490Chit+Muv4e3csF5bF9RRr0vVwbhTum6
-xSsy3f9HiKj5Qe64qfX9mnPoIvk1N0zz8ih3LchWz5WRXyFjaAi8+0SqICcHBwiS
-vCI5x+Z+6S9d69tp/7NxWLWouR6/bFFipq+wEb9mn95pNvbCl5S5cl9H9JyuFYRW
-i6mdY/goSjF2c/u1g6qctBa6401YyslwJfX7riMCo97FTg2jia5Vjh1VJnyYi5Wm
-/x9ixZ4miUKNvpjGwEMq9n2pnhNSpVUv1szpXmgyS2m1HcLgsIghNk3SX68WLHUN
-iTN7OBx20iJAH8+lp2NR9UUv1szBpicpnEjmf2TywbrLff9iwMHiqy5zLhxJpnOw
-LLtlVATxGBcMNFxNZH/LyDRLevPvQKUu79Ao3gDN2zR5isBVlf89r/BTTsWpPq+d
-GMgOfcmQU7hs73P0wORoQ4ZPm+2AsGY0OUrRp2W5Fmx0GyC3JoIb+hBQFnPnaeb9
-6EJ80DA9SCK3NWLsYpV0
-=f3Vr
+iQIcBAEBAgAGBQJWviaXAAoJEBQN5MwUoCm2o6MQAKrTYAiNu2v1CSUzvnyqDrkm
+k8eraTz/m2zmv8xxYX/8IGTVhh+ymkGqzuvy8JJa6grTcSWHO7Cp2MdnwW44bCS5
+kRTq07fvTak2jU1QFoyWvUcDLv+d5qYm1B61+oQhDIPz6skZFeE05VgMmWBQwOUp
+92BOg2iinVjMipW5OVeIQtLrBsujEQOuht68Ol4QZp8axjaqFJXiXyRrbhl5Z/43
+rLiMvLCmmh5U893okaXGMnTxhy0x5ppVLkG8PViAIUGL5KA3T58HEoY9+b8l5he4
+13YHWT+FBUmXKwnsCixsA9YXzz1K13aidI221YlRT4L5exvsyPDfDabm2Gro9ZQ9
+eMVCVCSQxieaKQjxi+SaJpaK6h4PSj96HmFtU9+vMep4JcA5Tqacm8lgJx1XWtAz
+R5KKH5gvzzORuUtjZPbsFwRIadbijZYlhUAeUBbRBb8mtqnnb0ttUAV/4TGFFz0d
+CxAoUq6pqprjqS6AJUb969PXU4VX3e48mCtM70UWp0pyev1meORBTZ5s+uNp4SBg
+QpWwmL28rRGonoedJrSzcqPMSDe8bRyWIP0ODbXlUxhCONFBnHhAu4jQIKPgg6IN
+hcjyZd6dMNEfJhhaHBvDxIkqytb1TN/AkP+oudQRHPvzJpsoAxU+dCLsCKnalmQY
+NeH1SqLHLQ2eamAYn2V2
+=n7N4
 -----END PGP SIGNATURE-----
 
---p2kqVDKq5asng8Dg--
+--J5MfuwkIyy7RmF4Q--
