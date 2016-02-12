@@ -1,37 +1,34 @@
 From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH 3/3] i2c: iproc: Support larger TX transfer
-Date: Fri, 12 Feb 2016 11:33:53 -0800
-Message-ID: <82574e4c-45b1-e312-4714-63712d7a4317@broadcom.com>
-References: <1453940842-9658-1-git-send-email-rjui@broadcom.com>
- <1453940842-9658-4-git-send-email-rjui@broadcom.com>
- <20160212193308.GS1520@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 5520-maca-inet1-outside.broadcom.com ([216.31.211.11]:5499 "EHLO
-	mail-irv-18.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750707AbcBLTdy (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 12 Feb 2016 14:33:54 -0500
-In-Reply-To: <20160212193308.GS1520@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Subject: [PATCH v2 0/3] iProc I2C driver enhancement
+Date: Fri, 12 Feb 2016 13:10:40 -0800
+Message-ID: <1455311443-30590-1-git-send-email-ray.jui@broadcom.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Icarus Chau <ichau@broadcom.com>, Ray Jui <rjui@broadcom.com>, Ray Jui <ray.jui@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Ray Jui <rjui@broadcom.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Icarus Chau <ichau@broadcom.com>
 
+This patch series 1) adds recovery support to the I2C host controller; 2) fix
+a typo in the driver; and 3) adds support for large TX payload size
 
+This patch series is based on Linux v4.5-rc1 and is available at:
 
-On 2/12/2016 11:33 AM, Wolfram Sang wrote:
->> @@ -293,7 +360,7 @@ static const struct i2c_algorithm bcm_iproc_algo = {
->>  static struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
->>  	/* need to reserve one byte in the FIFO for the slave address */
->>  	.max_read_len = M_TX_RX_FIFO_SIZE - 1,
->> -	.max_write_len = M_TX_RX_FIFO_SIZE - 1,
->> +	.max_write_len = 65535,
->
-> You can simply remove this line because len is u16 in the i2c core anyhow.
->
+repo: https://github.com/Broadcom/cygnus-linux.git
+branch: iproc-i2c-large-tx-v2
 
-Okay will do. Thanks!
+Changes from v1:
+ - Get rid of redundant function prototypes by placing functions in the right
+order
+ - Get rid of redundant setting of member 'max_write_len' from
+'struct i2c_adapter_quirks'
 
-Ray
+Ray Jui (3):
+  i2c: iproc: Add recovery mechanism in error case
+  i2c: iproc: Fix typo in the driver
+  i2c: iproc: Support larger TX transfer
+
+ drivers/i2c/busses/i2c-bcm-iproc.c | 177 ++++++++++++++++++++++++++-----------
+ 1 file changed, 124 insertions(+), 53 deletions(-)
+
+-- 
+1.9.1
