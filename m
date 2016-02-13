@@ -1,88 +1,78 @@
-From: Tony Lindgren <tony@atomide.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
 Subject: Re: tvp5150 regression after commit 9f924169c035
-Date: Fri, 12 Feb 2016 15:46:23 -0800
-Message-ID: <20160212234623.GB3500@atomide.com>
+Date: Fri, 12 Feb 2016 23:47:23 -0300
+Message-ID: <56BE993B.3010804@osg.samsung.com>
 References: <56B204CB.60602@osg.samsung.com>
- <20160208105417.GD2220@tetsubishi>
- <56BE57FC.3020407@osg.samsung.com>
- <20160212221352.GY3500@atomide.com>
- <56BE5C97.9070607@osg.samsung.com>
- <20160212224018.GZ3500@atomide.com>
- <56BE65F0.8040600@osg.samsung.com>
+ <20160208105417.GD2220@tetsubishi> <56BE57FC.3020407@osg.samsung.com>
+ <20160212221352.GY3500@atomide.com> <56BE5C97.9070607@osg.samsung.com>
+ <20160212224018.GZ3500@atomide.com> <56BE65F0.8040600@osg.samsung.com>
+ <20160212234623.GB3500@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <56BE65F0.8040600@osg.samsung.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from lists.s-osg.org ([54.187.51.154]:48234 "EHLO lists.s-osg.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750857AbcBMCrh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 12 Feb 2016 21:47:37 -0500
+In-Reply-To: <20160212234623.GB3500@atomide.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
 
-* Javier Martinez Canillas <javier@osg.samsung.com> [160212 15:09]:
-> Hello Tony,
-> 
-> On 02/12/2016 07:40 PM, Tony Lindgren wrote:
-> >* Javier Martinez Canillas <javier@osg.samsung.com> [160212 14:29]:
-> >>On 02/12/2016 07:13 PM, Tony Lindgren wrote:
-> >>>Hmm yeah I wonder if this canned solution helps here too:
-> >>>
-> >>>1. Check if the driver(s) are using pm_runtime_use_autosuspend()
-> >>>
-> >>
-> >>By driver do you mean the OMAP GPIO driver or the tvp5150 I2C driver?
-> >>The latter does not have runtime PM support.
-> >
-> >Sounds like OMAP GPIO then.
-> >
-> 
-> Ok.
-> >>>2. If so, you must use pm_runtime_dont_use_autosuspend() before
-> >>>    pm_runtime_put_sync() to make sure that pm_runtime_put_sync()
-> >>>    works.
-> >>>
-> >>>3. Or you can use pm_runtime_put_sync_suspend() instead of
-> >>>    pm_runtime_put_sync() for sections of code where the clocks
-> >>>    need to be stopped.
-> >>>
-> >>
-> >>I can check if the OMAP GPIO is following these and give a try but
-> >>don't have access to the board right now so I'll do it on Monday.
-> >
-> >It does not seem to be using pm_runtime_autosuspend(). Did you
-> >try reverting commit de85b9d57ab ("PM / runtime: Re-init runtime
-> >PM states at probe error and driver unbind") and see if that
-> >helps?
-> >
-> 
-> Yes, that's the first thing I tried when I noticed your patch:
-> 
-> ("i2c: omap: Fix PM regression with deferred probe for
-> pm_runtime_reinit")
-> 
-> But neither reverting commit de85b9d57ab nor your fix made a
-> difference.
-> >If it does, then sounds like we may have some other regression
-> >as well.
+Hello Tony,
 
-OK I doubt it's the GPIO driver if reverting 9f924169c035
-helps.
+On 02/12/2016 08:46 PM, Tony Lindgren wrote:
 
-I do see some GPIO regressions in current Linux next though,
-but sounds like you're using v4.5-rc series.
+[snip]
 
-> It seems that is not related but I hope that given you were
-> looking at the runtime PM core lately, maybe you can figure
-> out what we are missing.
-> 
-> I'm far from being familiar with the runtime PM framework
-> but I've looked and can't figure out why Wolfram's commit
-> make this driver to fail and reverting his commit make its
-> work again.
+>
+> OK I doubt it's the GPIO driver if reverting 9f924169c035
+> helps.
+>
 
-No idea. What kind of PM runtime use case has that one been
-tested with?
+Right, sorry. I first thought the problem was with the OMAP GPIO
+driver but then found that reverting 9f924169c035 caused the issue
+to go away which indicates the problem is somehow related to I2C.
 
-Regards,
+I forgot that and got confused again when answering to your email.
 
-Tony
+> I do see some GPIO regressions in current Linux next though,
+> but sounds like you're using v4.5-rc series.
+>
+
+Yes, I'm testing with v4.5-rc and not linux-next.
+
+>> It seems that is not related but I hope that given you were
+>> looking at the runtime PM core lately, maybe you can figure
+>> out what we are missing.
+>>
+>> I'm far from being familiar with the runtime PM framework
+>> but I've looked and can't figure out why Wolfram's commit
+>> make this driver to fail and reverting his commit make its
+>> work again.
+>
+> No idea. What kind of PM runtime use case has that one been
+> tested with?
+>
+
+Nothing special, the driver just fails to probe. What the driver
+does is to toggle some pins (Power Down and Reset) in the tvp5150
+chip to put it in an operational state and then attempts to read
+an I2C register to detect the chip version and this is what fails.
+
+> Regards,
+>
+> Tony
+>
+
+I'll try to find some time next week to dig deeper on this. Just
+thought that may be related to the issue you found but it seems
+that's not the case.
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
