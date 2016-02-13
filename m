@@ -1,78 +1,81 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: tvp5150 regression after commit 9f924169c035
-Date: Fri, 12 Feb 2016 23:47:23 -0300
-Message-ID: <56BE993B.3010804@osg.samsung.com>
-References: <56B204CB.60602@osg.samsung.com>
- <20160208105417.GD2220@tetsubishi> <56BE57FC.3020407@osg.samsung.com>
- <20160212221352.GY3500@atomide.com> <56BE5C97.9070607@osg.samsung.com>
- <20160212224018.GZ3500@atomide.com> <56BE65F0.8040600@osg.samsung.com>
- <20160212234623.GB3500@atomide.com>
+From: "Sricharan" <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: RE: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
+Date: Sat, 13 Feb 2016 12:28:50 +0530
+Message-ID: <002e01d1662c$0579d640$106d82c0$@codeaurora.org>
+References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org> <1453197766-18976-5-git-send-email-sricharan@codeaurora.org> <20160212183737.GA1520@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:48234 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750857AbcBMCrh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Feb 2016 21:47:37 -0500
-In-Reply-To: <20160212234623.GB3500@atomide.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160212183737.GA1520@katana>
+Content-Language: en-us
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ntelkar-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
 
-Hello Tony,
+Hi Wolfram,
 
-On 02/12/2016 08:46 PM, Tony Lindgren wrote:
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
+> Sent: Saturday, February 13, 2016 12:08 AM
+> To: Sricharan R
+> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org; galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org;
+> dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org;
+> andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; ntelkar-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org; architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
+> Subject: Re: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
+> 
+> On Tue, Jan 19, 2016 at 03:32:44PM +0530, Sricharan R wrote:
+> > QUP cores can be attached to a BAM module, which acts as a dma engine
+> > for the QUP core. When DMA with BAM is enabled, the BAM consumer
+> pipe
+> > transmitted data is written to the output FIFO and the BAM producer
+> > pipe received data is read from the input FIFO.
+> >
+> > With BAM capabilities, qup-i2c core can transfer more than
+> > 256 bytes, without a 'stop' which is not possible otherwise.
+> >
+> > Signed-off-by: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+> > Reviewed-by: Andy Gross <andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > Tested-by: Archit Taneja <architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+> > Tested-by: Telkar Nagender <ntelkar-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+> 
+> My code checkers found some issues:
+> 
+>     SPARSE
+> drivers/i2c/busses/i2c-qup.c:555:6: warning: symbol 'qup_sg_set_buf' was
+> not declared. Should it be static?
+> drivers/i2c/busses/i2c-qup.c:1243:50: warning: dubious: !x & !y
+>     SMATCH
+> drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s =
+> sg_next()
+> drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s =
+> sg_next()
+> drivers/i2c/busses/i2c-qup.c:1243 qup_i2c_xfer_v2() warn: add some
+> parenthesis here?
+>     CPPCHECK
+> drivers/i2c/busses/i2c-qup.c:1243: style: Boolean result is used in
+bitwise
+> operation. Clarify expression with parentheses.
+>     SPATCH
+> drivers/i2c/busses/i2c-qup.c:1380:2-13: WARNING: Assignment of bool to 0/1
+> drivers/i2c/busses/i2c-qup.c:1481:1-13: WARNING: Assignment of bool to 0/1
+>   CC      drivers/i2c/busses/i2c-qup.o
+> drivers/i2c/busses/i2c-qup.c:555:6: warning: no previous prototype for
+> 'qup_sg_set_buf' [-Wmissing-prototypes]  void qup_sg_set_buf(struct
+> scatterlist *sg, void *buf, struct qup_i2c_tag *tg,
+> 
+> Can you fix them and resend??
 
-[snip]
+    Sorry on this , will resend this patch.
 
->
-> OK I doubt it's the GPIO driver if reverting 9f924169c035
-> helps.
->
+Regards,
+ Sricharan
 
-Right, sorry. I first thought the problem was with the OMAP GPIO
-driver but then found that reverting 9f924169c035 caused the issue
-to go away which indicates the problem is somehow related to I2C.
-
-I forgot that and got confused again when answering to your email.
-
-> I do see some GPIO regressions in current Linux next though,
-> but sounds like you're using v4.5-rc series.
->
-
-Yes, I'm testing with v4.5-rc and not linux-next.
-
->> It seems that is not related but I hope that given you were
->> looking at the runtime PM core lately, maybe you can figure
->> out what we are missing.
->>
->> I'm far from being familiar with the runtime PM framework
->> but I've looked and can't figure out why Wolfram's commit
->> make this driver to fail and reverting his commit make its
->> work again.
->
-> No idea. What kind of PM runtime use case has that one been
-> tested with?
->
-
-Nothing special, the driver just fails to probe. What the driver
-does is to toggle some pins (Power Down and Reset) in the tvp5150
-chip to put it in an operational state and then attempts to read
-an I2C register to detect the chip version and this is what fails.
-
-> Regards,
->
-> Tony
->
-
-I'll try to find some time next week to dig deeper on this. Just
-thought that may be related to the issue you found but it seems
-that's not the case.
-
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
