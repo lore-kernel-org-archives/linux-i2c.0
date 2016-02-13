@@ -1,81 +1,56 @@
-From: "Sricharan" <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: RE: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
-Date: Sat, 13 Feb 2016 12:28:50 +0530
-Message-ID: <002e01d1662c$0579d640$106d82c0$@codeaurora.org>
-References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org> <1453197766-18976-5-git-send-email-sricharan@codeaurora.org> <20160212183737.GA1520@katana>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/3] i2c-piix4: Support alternative port selection
+ register
+Date: Sat, 13 Feb 2016 22:51:47 +0100
+Message-ID: <20160213225147.26c64bbf@endymion>
+References: <20160129104146.50f06562@endymion.delvare>
+	<20160129104452.05e94c08@endymion.delvare>
+	<20160212192720.GQ1520@katana>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160212183737.GA1520@katana>
-Content-Language: en-us
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ntelkar-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:54744 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751360AbcBMVvv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 13 Feb 2016 16:51:51 -0500
+In-Reply-To: <20160212192720.GQ1520@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Christian Fetzer <fetzer.ch@gmail.com>
 
 Hi Wolfram,
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
-> Sent: Saturday, February 13, 2016 12:08 AM
-> To: Sricharan R
-> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
-> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org; galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org;
-> dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org;
-> andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; ntelkar-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org; architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
-> Subject: Re: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
+On Fri, 12 Feb 2016 20:27:20 +0100, Wolfram Sang wrote:
+> On Fri, Jan 29, 2016 at 10:44:52AM +0100, Jean Delvare wrote:
+> > The SB800 register reference guide says that the SMBus port selection
+> > bits may not always be in register Smbus0En (0x2c) but could
+> > alternatively be found in register Smbus0Sel (0x2e) depending on the
+> > settings in register Smbus0SelEn (0x2f.) Add support for this
+> > configuration.
 > 
-> On Tue, Jan 19, 2016 at 03:32:44PM +0530, Sricharan R wrote:
-> > QUP cores can be attached to a BAM module, which acts as a dma engine
-> > for the QUP core. When DMA with BAM is enabled, the BAM consumer
-> pipe
-> > transmitted data is written to the output FIFO and the BAM producer
-> > pipe received data is read from the input FIFO.
-> >
-> > With BAM capabilities, qup-i2c core can transfer more than
-> > 256 bytes, without a 'stop' which is not possible otherwise.
-> >
-> > Signed-off-by: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> > Reviewed-by: Andy Gross <andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > Tested-by: Archit Taneja <architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> > Tested-by: Telkar Nagender <ntelkar-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> 
-> My code checkers found some issues:
-> 
->     SPARSE
-> drivers/i2c/busses/i2c-qup.c:555:6: warning: symbol 'qup_sg_set_buf' was
-> not declared. Should it be static?
-> drivers/i2c/busses/i2c-qup.c:1243:50: warning: dubious: !x & !y
->     SMATCH
-> drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s =
-> sg_next()
-> drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s =
-> sg_next()
-> drivers/i2c/busses/i2c-qup.c:1243 qup_i2c_xfer_v2() warn: add some
-> parenthesis here?
->     CPPCHECK
-> drivers/i2c/busses/i2c-qup.c:1243: style: Boolean result is used in
-bitwise
-> operation. Clarify expression with parentheses.
->     SPATCH
-> drivers/i2c/busses/i2c-qup.c:1380:2-13: WARNING: Assignment of bool to 0/1
-> drivers/i2c/busses/i2c-qup.c:1481:1-13: WARNING: Assignment of bool to 0/1
->   CC      drivers/i2c/busses/i2c-qup.o
-> drivers/i2c/busses/i2c-qup.c:555:6: warning: no previous prototype for
-> 'qup_sg_set_buf' [-Wmissing-prototypes]  void qup_sg_set_buf(struct
-> scatterlist *sg, void *buf, struct qup_i2c_tag *tg,
-> 
-> Can you fix them and resend??
+> Were you able to test both cases?
 
-    Sorry on this , will resend this patch.
+I don't have the hardware myself so I was not able to test any case.
+I was hoping Christian would test. This is the reason why I am logging
+which register is used, so that we know if the alternative setting is
+ever used. I found the potential problem by looking at the datasheet,
+it's not something that has been reported (yet.)
 
-Regards,
- Sricharan
+Meanwhile I have found a datasheet for device 780Bh (named Bolton FCH
+on AMD's web site, but Hudson2 in our driver) which suggest that the
+"alternative" setting is the only possible one on this chipset. The
+register used to figure out the setting is marked as reserved. If the
+register exists still and the relevant bit is set, then my patch should
+work. If not then a better patch will be needed.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I'll try to gain access to a system with a Bolton FCH and experiment
+with it.
+
+Then there's the most recent device, codenamed "CZ", for which I have
+no information at all.
+
+-- 
+Jean Delvare
+SUSE L3 Support
