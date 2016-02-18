@@ -1,64 +1,44 @@
 From: Daniel Baluta <daniel.baluta@intel.com>
-Subject: [RFC PATCH 0/9] iio: Fix ABBA deadlock in inv-mpu6050
-Date: Thu, 18 Feb 2016 17:53:05 +0200
-Message-ID: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
+Subject: [RFC PATCH 4/9] iio: imu: inv_mpu6050: Remove unnecessary parentheses
+Date: Thu, 18 Feb 2016 17:53:09 +0200
+Message-ID: <1455810794-3188-5-git-send-email-daniel.baluta@intel.com>
+References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
 Received: from mga02.intel.com ([134.134.136.20]:32180 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425202AbcBRPu7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 18 Feb 2016 10:50:59 -0500
+	id S1426586AbcBRPvN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 18 Feb 2016 10:51:13 -0500
+In-Reply-To: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: jic23@kernel.org
 Cc: knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, lucas.demarchi@intel.com, daniel.baluta@intel.com, srinivas.pandruvada@linux.intel.com, ggao@invensense.com, adi.reus@gmail.com, cmo@melexis.com, mwelling@ieee.org
 
-Sending this as an RFC because I don't know if style fixes are appropriate
-for this driver and also not sure if deadlock fix is the best solution.
+Fixes the following checkpatch warning:
+CHECK: Unnecessary parentheses around cpm->package.elements[i]
 
-I2C people should only look at patches 8/9 and 9/9.
+Signed-off-by: Daniel Baluta <daniel.baluta@intel.com>
+---
+ drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-The mpu6050 accel+gyro combo has an auxiliary I2C bus, allowing for
-an auxiliary sensor to be connected (eg. a magnetometer).
-
-The mpu can either act as an I2C master (functionality not currently
-implemented in the driver) or it can use a bypass multiplexer which
-directly connects the auxiliary I2C bus pins to the main I2C bus pins [1]
-Currently the driver implements the bypass mode via an I2C mux.
-
-This patchset fixes a deadlock in inv-mpu6050 IMU which happens when
-magnetometer (on auxiliary I2C bus) runs in parallel with accel or gyro.
-
-First 7 patches do some cleanup in order to make INV MPU6050 code easier
-to read.
-
-Patch number 8 allows passing NULL select callbacks to i2c_mux_master_xfer
-and i2c_mux_smbus_xfer.
-
-Patch number 9 actually fixes the deadlock.
-
-[1] (page 28, https://www.cdiweb.com/datasheets/invensense/MPU-6050_DataSheet_V3%204.pdf)
-
-Adriana Reus (2):
-  i2c: i2c-mux: Allow for NULL select callback
-  iio: imu: inv_mpu6050: Fix deadlock between i2c adapter lock and mpu
-    lock
-
-Daniel Baluta (7):
-  iio: imu: inv_mpu6050: Fix multiline comments style
-  iio: imu: inv_mpu6050: Fix Yoda conditions
-  iio: imu: inv_mpu6050: Fix newlines to make code easier to read
-  iio: imu: inv_mpu6050: Remove unnecessary parentheses
-  iio: imu: inv_mpu6050: Delete space before comma
-  iio: imu: inv_mpu6050: Fix code indent for if statement
-  iio: imu: inv_mpu6050: Fix alignment with open parenthesis
-
- drivers/i2c/i2c-mux.c                         |  10 ++-
- drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c    |   6 +-
- drivers/iio/imu/inv_mpu6050/inv_mpu_core.c    | 101 ++++++++++++++------------
- drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c     |  90 ++++-------------------
- drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c    |  23 +++---
- drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c |  22 +++---
- 6 files changed, 102 insertions(+), 150 deletions(-)
-
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+index 231a7af..2771106 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+@@ -66,11 +66,11 @@ static int asus_acpi_get_sensor_info(struct acpi_device *adev,
+ 		union acpi_object *elem;
+ 		int j;
+ 
+-		elem = &(cpm->package.elements[i]);
++		elem = &cpm->package.elements[i];
+ 		for (j = 0; j < elem->package.count; ++j) {
+ 			union acpi_object *sub_elem;
+ 
+-			sub_elem = &(elem->package.elements[j]);
++			sub_elem = &elem->package.elements[j];
+ 			if (sub_elem->type == ACPI_TYPE_STRING)
+ 				strlcpy(info->type, sub_elem->string.pointer,
+ 					sizeof(info->type));
 -- 
 2.5.0
