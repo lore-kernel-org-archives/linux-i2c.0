@@ -1,71 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: The sad state of lm-sensors.org
-Date: Thu, 18 Feb 2016 13:14:18 +0100
-Message-ID: <20160218121417.GA1438@katana>
-References: <CA+TH9V=pV0kK26c3n19x5poHxkguPoPxr_KHDhyQLdUppoSyGw@mail.gmail.com>
+Subject: Re: [PATCH V4] i2c: i801: Adding Intel Lewisburg support for iTCO
+Date: Thu, 18 Feb 2016 13:19:40 +0100
+Message-ID: <20160218121940.GB1438@katana>
+References: <1455762081-11947-1-git-send-email-alexandra.yates@linux.intel.com>
+ <1455762081-11947-2-git-send-email-alexandra.yates@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46073 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965658AbcBRMOX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 18 Feb 2016 07:14:23 -0500
+	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CA+TH9V=pV0kK26c3n19x5poHxkguPoPxr_KHDhyQLdUppoSyGw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1455762081-11947-2-git-send-email-alexandra.yates@linux.intel.com>
+Sender: stable-owner@vger.kernel.org
+To: Alexandra Yates <alexandra.yates@linux.intel.com>
+Cc: jdelvare@suse.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Angelo Compagnucci <angelo.compagnucci@gmail.com>
-Cc: linux-i2c@vger.kernel.org
 
 
---2fHTh5uZTiUOsy+g
+--s/l3CgOIzMHHjg/5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 18, 2016 at 10:43:44AM +0100, Angelo Compagnucci wrote:
-> Hello All,
+On Wed, Feb 17, 2016 at 06:21:21PM -0800, Alexandra Yates wrote:
+> Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog
+> resources have been moved to reside under the i801 SMBus host
+> controller whereas previously they were under the LPC device.
 >=20
-> The http://lm-sensors.org/ website is unreachable from many months
-> now, and as far as I can guess, it will not be brought up any time
-> soon.
+> This patch adds Intel lewisburg SMBus support for iTCO device.
+> It allows to load watchdog dynamically when the hardware is
+> present.
 >=20
-> I think it's time to move the old svn to github (gitlab?) and open a
-> website there.
+> Fixes: cdc5a3110e7c ("i2c: i801: add Intel Lewisburg device IDs")
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> Reviewed-by: Wolfram Sang <wsa@the-dreams.de>
 >=20
-> Importing the old svn is a really simple process and I'm offering to
-> volunteer the migration and setup of the new website.
->=20
-> Obviously, we may not use the pull request mechanism, but rely instead
-> on the old manual way carried up by the project maintainer.
->=20
-> What do you think?
+> Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
 
-Interestingly, the lm-sensors mailing list seems to be still working.
-You should ask there and cc Jean Delvare, he is still the maintainer.
-Thanks for offerering help nonetheless!
+Perfect. Applied to for-current and added stable, thanks!
 
 
---2fHTh5uZTiUOsy+g
+--s/l3CgOIzMHHjg/5
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWxbWZAAoJEBQN5MwUoCm2brgQAJc3ehKlxstsKIB61sh0658a
-E4AhCik+cNJlZaqTYoTcPOjWz2YxkkBS/Fls2F2xb10TS0PKXsYstjzWpcAnGM8i
-UA+5e2+CjHC9KImK+QlyqzshRvopc9/+y4KCKQ83AP/a0ZpdlBoV6YQ9P4EpwfID
-6lsX0ubrPPtxVNO4CtQPbdDtf8gY6vauVML4M0JPbEKi3ScigOxwH77Wen9zVQlw
-XhBFlSn1UKHCi/7aBW2YCAw4sSQmiWRrnXoHu4VJDighOtt+AJfTgF7GC/OisQkY
-IJx9a/COXQjd6UKCIe5Hlwp1fsxztKygs8ZBlqZLl9pDg55aFMe+6yLZh8yIlfTR
-y59w9UMzMO6DG1EqFraWFf0jnPiODJSbeT7sLoPagNZc7Xh9AOs58rC6qxosQ+w1
-Hk4Fh7k8gcuvKFnxUs9ClCljXhJaZA/eb/Hm8IbJsEbzVxLNQ+USOjNIEl6J+5Tb
-X1snaoIX8IDWA2cgdnt3g9DHae+uIZeJT7pB3p7UWBx1tRItIoJ8u7GMyqD/B9oV
-TC7qSi+53DfcSV233PBZbzfIeqQ6toMX+uFr/WY2uc6UdXRmI1dtNH4Qp3KykZoQ
-h2oe+0AHSySiK+ZZdGmEjn8dg5/4suhzOao5leHI0CLQbIqPAaBaDpUbGdtQeCfc
-Wb6MeWEB8j0fIKmv1W/O
-=eXJ/
+iQIcBAEBAgAGBQJWxbbcAAoJEBQN5MwUoCm2SXkP/RTA0QvmDbN0HvTdNvdCRKV5
+2euIiPoNcplcF7UhlwdC+/WKQN+QwsHUBZFocH6fmHtbYx6pSHM0MP52J29hCZHI
+IukX63sQG15h6Z15XXYdNtlYF81fQPwWrErFyH8nw34qe/mqoBl1G4lhmtDXNTAj
+mzBY4ApTDhO5iCEpbxWGIkurZt5LAQsHbQzw8nUXCQjoT/xk7I0v+MUdT9QMhV8N
+jz53M7UzZHILKGf0GPpWfEA/hBu9HrhIWQQZI6XPFMzpOBx1r5qz99IYZSCtNIXW
+GeNOb/rI5X66b1u51ur5iAW4jtxghHmXHQrq316/9jdheaAJTTI41jbFYggZy9F9
+1zR+uaKZpw7FB5WcY5WJM31w4YA/TYupHIFytXvUp/qA0WJ4aO4CmK/GMqE7FfG5
+3zpq1U8nWpXpN68F1NRS3Wo2So8xveFfDbQxDlBT6yO5sD/vFkqOQkMcjc8jeaR9
+DWsv7x8pw3VJYl976iGfSBiHjIb4Az3YcnteMmIq8hC0nNPz6c1ShOrwNpYxFlFT
+zRRJxr1+Sd5rzpvyO6+Mqry9sQqR2lc1HJUUYZXtI/sUFuiDeCAhudU8tLN0McXb
+SEM9ykvf0+6qRlMo+rIBMnk88c0I/iWoTKGCEa/3QIjlnUsPRhqOj8omGgd6gzhC
+OOPo+RAG9TTSZqn7L5uG
+=9ZTl
 -----END PGP SIGNATURE-----
 
---2fHTh5uZTiUOsy+g--
+--s/l3CgOIzMHHjg/5--
