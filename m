@@ -1,39 +1,38 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH V2] i2c: i801: Intel DNV_N device IDs SMBus
-Date: Thu, 18 Feb 2016 09:40:41 +0100
-Message-ID: <20160218094041.6b16cb67@endymion>
-References: <[PATCH V2] i2c: i801: Intel DNV_N device IDs SMBus>
-	<1455762228-22341-1-git-send-email-alexandra.yates@linux.intel.com>
+From: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+Subject: The sad state of lm-sensors.org
+Date: Thu, 18 Feb 2016 10:43:44 +0100
+Message-ID: <CA+TH9V=pV0kK26c3n19x5poHxkguPoPxr_KHDhyQLdUppoSyGw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:41707 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030335AbcBRIkp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 18 Feb 2016 03:40:45 -0500
-In-Reply-To: <1455762228-22341-1-git-send-email-alexandra.yates@linux.intel.com>
+Received: from mail-lf0-f44.google.com ([209.85.215.44]:36166 "EHLO
+	mail-lf0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425615AbcBRJo0 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 18 Feb 2016 04:44:26 -0500
+Received: by mail-lf0-f44.google.com with SMTP id 78so28447541lfy.3
+        for <linux-i2c@vger.kernel.org>; Thu, 18 Feb 2016 01:44:25 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Alexandra Yates <alexandra.yates@linux.intel.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-On Wed, 17 Feb 2016 18:23:48 -0800, Alexandra Yates wrote:
-> Adding Intel codename DNV_N platform device IDs for SMBus.
-> 
-> Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
-> ---
->  Change log V1 to V2: Added changes to Documentation/i2c/busses/i2c-i801
->  drivers/i2c/busses/Kconfig and fixed merge conflicts.
->  Documentation/i2c/busses/i2c-i801 | 1 +
->  drivers/i2c/busses/Kconfig        | 1 +
->  drivers/i2c/busses/i2c-i801.c     | 4 ++++
->  3 files changed, 6 insertions(+)
-> (...)
+Hello All,
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+The http://lm-sensors.org/ website is unreachable from many months
+now, and as far as I can guess, it will not be brought up any time
+soon.
 
-Thanks,
+I think it's time to move the old svn to github (gitlab?) and open a
+website there.
+
+Importing the old svn is a really simple process and I'm offering to
+volunteer the migration and setup of the new website.
+
+Obviously, we may not use the pull request mechanism, but rely instead
+on the old manual way carried up by the project maintainer.
+
+What do you think?
+
+Sincerely, Angelo
+
 -- 
-Jean Delvare
-SUSE L3 Support
+Profile: http://it.linkedin.com/in/compagnucciangelo
