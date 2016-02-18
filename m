@@ -1,63 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V4] i2c: i801: Adding Intel Lewisburg support for iTCO
-Date: Thu, 18 Feb 2016 13:19:40 +0100
-Message-ID: <20160218121940.GB1438@katana>
-References: <1455762081-11947-1-git-send-email-alexandra.yates@linux.intel.com>
- <1455762081-11947-2-git-send-email-alexandra.yates@linux.intel.com>
+Subject: Re: [PATCH V2] i2c: i801: Intel DNV_N device IDs SMBus
+Date: Thu, 18 Feb 2016 13:21:13 +0100
+Message-ID: <20160218122113.GC1438@katana>
+References: <1455762228-22341-1-git-send-email-alexandra.yates@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
-Return-path: <stable-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="E/DnYTRukya0zdZ1"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:46379 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425249AbcBRMVR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 18 Feb 2016 07:21:17 -0500
 Content-Disposition: inline
-In-Reply-To: <1455762081-11947-2-git-send-email-alexandra.yates@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Alexandra Yates <alexandra.yates@linux.intel.com>
-Cc: jdelvare@suse.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <1455762228-22341-1-git-send-email-alexandra.yates@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Alexandra Yates <alexandra.yates@linux.intel.com>
+Cc: jdelvare@suse.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---s/l3CgOIzMHHjg/5
+--E/DnYTRukya0zdZ1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 17, 2016 at 06:21:21PM -0800, Alexandra Yates wrote:
-> Starting from Intel Sunrisepoint (Skylake PCH) the iTCO watchdog
-> resources have been moved to reside under the i801 SMBus host
-> controller whereas previously they were under the LPC device.
->=20
-> This patch adds Intel lewisburg SMBus support for iTCO device.
-> It allows to load watchdog dynamically when the hardware is
-> present.
->=20
-> Fixes: cdc5a3110e7c ("i2c: i801: add Intel Lewisburg device IDs")
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
-> Reviewed-by: Wolfram Sang <wsa@the-dreams.de>
+On Wed, Feb 17, 2016 at 06:23:48PM -0800, Alexandra Yates wrote:
+> Adding Intel codename DNV_N platform device IDs for SMBus.
 >=20
 > Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
 
-Perfect. Applied to for-current and added stable, thanks!
+Applied to for-current, thanks!
 
 
---s/l3CgOIzMHHjg/5
+--E/DnYTRukya0zdZ1
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWxbbcAAoJEBQN5MwUoCm2SXkP/RTA0QvmDbN0HvTdNvdCRKV5
-2euIiPoNcplcF7UhlwdC+/WKQN+QwsHUBZFocH6fmHtbYx6pSHM0MP52J29hCZHI
-IukX63sQG15h6Z15XXYdNtlYF81fQPwWrErFyH8nw34qe/mqoBl1G4lhmtDXNTAj
-mzBY4ApTDhO5iCEpbxWGIkurZt5LAQsHbQzw8nUXCQjoT/xk7I0v+MUdT9QMhV8N
-jz53M7UzZHILKGf0GPpWfEA/hBu9HrhIWQQZI6XPFMzpOBx1r5qz99IYZSCtNIXW
-GeNOb/rI5X66b1u51ur5iAW4jtxghHmXHQrq316/9jdheaAJTTI41jbFYggZy9F9
-1zR+uaKZpw7FB5WcY5WJM31w4YA/TYupHIFytXvUp/qA0WJ4aO4CmK/GMqE7FfG5
-3zpq1U8nWpXpN68F1NRS3Wo2So8xveFfDbQxDlBT6yO5sD/vFkqOQkMcjc8jeaR9
-DWsv7x8pw3VJYl976iGfSBiHjIb4Az3YcnteMmIq8hC0nNPz6c1ShOrwNpYxFlFT
-zRRJxr1+Sd5rzpvyO6+Mqry9sQqR2lc1HJUUYZXtI/sUFuiDeCAhudU8tLN0McXb
-SEM9ykvf0+6qRlMo+rIBMnk88c0I/iWoTKGCEa/3QIjlnUsPRhqOj8omGgd6gzhC
-OOPo+RAG9TTSZqn7L5uG
-=9ZTl
+iQIcBAEBAgAGBQJWxbc5AAoJEBQN5MwUoCm2rVMQAKiZmZypS3I0Xnq+ZeWead7g
+EKvyYamnr0ss/IU2e4CgsRQUrbsTRQnB8QYRGju01dRjiSMAesNeZG7AZmJKUsqw
+WVx74XO6xZs4jey2UWLjjioVhp9e1kMM9WEDcqCSM8VUGRwdRBYa2RfL5oSRVEMV
+4LHIK/LsXYdwAHA6vi8VOx0qjhuLlqtuBuxWmDNtwR76aH3Y+PY9/0ZCtk+Wcd3w
+u4Nq8f7WgsVIHuyXOoUmq02SvGp2WM8kmvODrQnNH79s8x55mh2zBHF9b2L9ib0v
+TsH9zdh0tsWHPoOafrxdXeqS1Wl678UQp+Hnj2NMYC4aJFK8SmVv3dRDJXLb5bgc
+Iayh+WKpi/az8lThKCNp2RwyLrEeo8D+y/lOkP+1zXXepzWmmrMI5R5JlxlFb+SQ
+J9EYGu9bPa+4ofY23l9wGSXnsyDRcgPVz3XO9JHsPu/1HdqWOE0k8qSa0kZjBLXo
+CNkxHBZp0zr7L63yowT9+7p5jGcoHsXvezEfioXkgmqJTjvHnOMzDuMwyUbJrlhe
+6LSe/m9SyTnE9u71Xrt2XHwP9qRU95lJsaJjbIjye+7jkYWKxQxfWzcPNUZHOpvc
++RdIdlR32HyvQRiZ1Oa8g33P8+U73nmx2YHB4y5A8bNE+DGNDiArBpqfCrXzW44F
+3dv1X89+bcM8goJv67l7
+=N8ky
 -----END PGP SIGNATURE-----
 
---s/l3CgOIzMHHjg/5--
+--E/DnYTRukya0zdZ1--
