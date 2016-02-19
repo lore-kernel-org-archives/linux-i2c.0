@@ -1,69 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: ismt: Add Intel DNV PCI ID
-Date: Fri, 19 Feb 2016 21:45:03 +0100
-Message-ID: <20160219204503.GA5283@katana>
-References: <1455807273-133516-1-git-send-email-mika.westerberg@linux.intel.com>
- <20160219083917.GE1491@lahna.fi.intel.com>
+Subject: Re: [PATCH V2] i2c: i801: Intel DNV_N device IDs SMBus
+Date: Fri, 19 Feb 2016 21:48:04 +0100
+Message-ID: <20160219204803.GB5283@katana>
+References: <1455762228-22341-1-git-send-email-alexandra.yates@linux.intel.com>
+ <20160218122113.GC1438@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+	protocol="application/pgp-signature"; boundary="Yylu36WmvOXNoKYn"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:42295 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:42434 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1946140AbcBSUpO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 19 Feb 2016 15:45:14 -0500
+	id S1946140AbcBSUsI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 19 Feb 2016 15:48:08 -0500
 Content-Disposition: inline
-In-Reply-To: <20160219083917.GE1491@lahna.fi.intel.com>
+In-Reply-To: <20160218122113.GC1438@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org, alexandra.yates@intel.com
+To: Alexandra Yates <alexandra.yates@linux.intel.com>
+Cc: jdelvare@suse.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---Dxnq1zWXvFF0Q93v
+--Yylu36WmvOXNoKYn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 19, 2016 at 10:39:17AM +0200, Mika Westerberg wrote:
-> On Thu, Feb 18, 2016 at 04:54:33PM +0200, Mika Westerberg wrote:
-> > Intel DNV has the same iSMT SMBus host controller than Intel Avoton. Add
-> > DNV PCI ID to the list of supported devices.
+On Thu, Feb 18, 2016 at 01:21:13PM +0100, Wolfram Sang wrote:
+> On Wed, Feb 17, 2016 at 06:23:48PM -0800, Alexandra Yates wrote:
+> > Adding Intel codename DNV_N platform device IDs for SMBus.
 > >=20
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Signed-off-by: Alexandra Yates <alexandra.yates@linux.intel.com>
 >=20
-> Wolfram,
->=20
-> Please do not yet apply this patch. It seems to have same PCI ID that
-> Alexandra (Cc'd) added to i2c-i801.c.
->=20
-> Alexandra, are you sure that the PCI ID you added for DNV is actually
-> compatible with i2c-i801.c?
+> Applied to for-current, thanks!
 
-OK, I also dropped Alexandra's patch until this is cleared.
-
-Thanks for the heads up.
+Note: As stated elsewhere, too, I dropped it until the issue reported by
+Mika is sorted out.
 
 
---Dxnq1zWXvFF0Q93v
+--Yylu36WmvOXNoKYn
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWx37PAAoJEBQN5MwUoCm2RAgP/A2vKct3yfNiUDlDNItcilXl
-HYIIAHMHIBulbA3K5g1AzV2xgpgUozI73qVG7uLOhpl5LOuqdFi7zNysQZTSO6Yx
-GKY+MC/fG5Ypd/RLSVEBWt1uUFAjO3tAPfqQ3yURfWMmcTSv1MurGHY6wL9CClU2
-F/93W0Eg4O+ejpenbVHG89NUYTogYsB00YUulwUiMl4l5XTNShszuFKzvG6RT3LA
-CdbtCDbQg4ngGkM8asdqcK7AFMvNNDi1srd1Fvko/yvFo628eCpAcdd0gpxPY8sE
-Xy4qVxCCdDpfmh5nS+aX3b7KmMULLahRUsk0W68KItuOK20uSaU1VjqkMC4GDJGK
-j0zHEh0sm+P5EK79WJ4mLvUlm+IoZz702VLo1hMA/rrDlZTVMQofGqphko+Czshk
-cRQW6CyJI/2zPDWpEMzyXvHqBxZNWsaEc/r7UMiAt+sHBBjrAlGMuXTiPgPMa2uk
-4N6p7DdpdJSfFmFBpF0ZJdmf9sB3OV6xa1xoakYDpVE0V8Zdyq8A5EhDwYOJ6RwI
-yl5JZgs77SR71icivlHoft07CqGCARqrlSHOaNgaCwuNcIymyBj+Zbzc5/YYdft5
-VjMU3bCQTwtywpZE5rdEnrPDUERy1asByxGfRp/ByFXV6fAJK/hfQ4Tr9/67zwno
-/t2/VdmCpPSqiGK8qh3e
-=QLS1
+iQIcBAEBAgAGBQJWx3+DAAoJEBQN5MwUoCm26KgP/34dqW00cX95HaQy3iE4mIYH
+xOFuftKuRBimtaIejH6dpuGraxP3OnHJC9jNhpB19ObZgvxNMiulOrlQ3+Jvrgg9
+3GU2UgGrpeqVPf7taoULkRA/SVD79Sc4zj7UbKNb9hdkQEgGI3jYISqD8ARAVoFx
+zv6oHGyd3mMEOmz8g38Yh3ukResYHJdxMsMY9aL3219YZsCfIi7373U0UFmmgcAZ
+8WwKE3E7QE6qyUygR5IDB+3I39He6fC8YCz9sDkK5YlSYZSd6y9yJQZcvPKPgbtX
+oza1eoJOfp6MKga0MTXfsd/VbQ5aRCN7DVXXwkKPQmvI/8R6QVaKrTz0BqZbHOKo
+GA1a92BYMKcm3uvwGCpRpqEqNFbeD4NTa27aL2sLxUvIxRrcGx5MkTzWzbNLjfyk
+MdgI9naC8x0fTQXuR6Ytp843Yvb3Ds0Uc/jyyA8Z76hneSBFgbUyf7RKwlwgWlDx
+qXs1sdMkc3v32cxp88lhEwOzKeCLN6dk1hOzyWXUu4XBKUq5wOrVxVVJ2VxNUaV8
+AoDYTev4jel5x8BeVtLLlQKxUiyjb78KCAgD1Sur2BpabCEgo9uEJQWJ0CV14L4X
+BavKjo2qpYPXBBSVe9fP/KVfwhQStTu+Sw2xFq+k3SLUdEfQ/CiYTuhZblJ+4Fsa
+CpzaxmDPS7aEQYSi0eiI
+=wcb0
 -----END PGP SIGNATURE-----
 
---Dxnq1zWXvFF0Q93v--
+--Yylu36WmvOXNoKYn--
