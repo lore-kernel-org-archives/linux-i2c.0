@@ -1,59 +1,76 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c: ismt: Add Intel DNV PCI ID
-Date: Fri, 19 Feb 2016 10:39:17 +0200
-Message-ID: <20160219083917.GE1491@lahna.fi.intel.com>
-References: <1455807273-133516-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [RFC PATCH 2/9] iio: imu: inv_mpu6050: Fix Yoda conditions
+Date: Fri, 19 Feb 2016 10:09:45 +0100
+Message-ID: <CAKv63us92Epe0go9JGNScbeOepg3_j8RyW9w2qgN01Jvnj3sUQ@mail.gmail.com>
+References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com> <1455810794-3188-3-git-send-email-daniel.baluta@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:43595 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1946272AbcBSIj2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 19 Feb 2016 03:39:28 -0500
-Content-Disposition: inline
-In-Reply-To: <1455807273-133516-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1455810794-3188-3-git-send-email-daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Johnathan Iain Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, ggao-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org, Adriana Reus <adi.reus-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, mwelling-EkmVulN54Sk@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org, alexandra.yates@intel.com
 
-On Thu, Feb 18, 2016 at 04:54:33PM +0200, Mika Westerberg wrote:
-> Intel DNV has the same iSMT SMBus host controller than Intel Avoton. Add
-> DNV PCI ID to the list of supported devices.
-> 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+This is quite trivial.
 
-Wolfram,
+Acked-by: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
 
-Please do not yet apply this patch. It seems to have same PCI ID that
-Alexandra (Cc'd) added to i2c-i801.c.
-
-Alexandra, are you sure that the PCI ID you added for DNV is actually
-compatible with i2c-i801.c?
-
+On 18 February 2016 at 16:53, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+> This fixes the following checkpatch warning:
+>         * WARNING: Comparisons should place the constant
+>           on the right side of the test
+>
+> Signed-off-by: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-ismt.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-> index 7ba795b24e75..24c48e899a22 100644
-> --- a/drivers/i2c/busses/i2c-ismt.c
-> +++ b/drivers/i2c/busses/i2c-ismt.c
-> @@ -76,6 +76,7 @@
->  #define PCI_DEVICE_ID_INTEL_S1200_SMT0	0x0c59
->  #define PCI_DEVICE_ID_INTEL_S1200_SMT1	0x0c5a
->  #define PCI_DEVICE_ID_INTEL_AVOTON_SMT	0x1f15
-> +#define PCI_DEVICE_ID_INTEL_DNV_SMT	0x19ac
->  
->  #define ISMT_DESC_ENTRIES	2	/* number of descriptor entries */
->  #define ISMT_MAX_RETRIES	3	/* number of SMBus retries to attempt */
-> @@ -181,6 +182,7 @@ static const struct pci_device_id ismt_ids[] = {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT0) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT1) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_AVOTON_SMT) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMT) },
->  	{ 0, }
->  };
->  
-> -- 
-> 2.7.0
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 6 +++---
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c | 2 +-
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index 84e014c..c550ebb 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -84,7 +84,7 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>          * clock source be switched to gyro. Otherwise, it must be set to
+>          * internal clock
+>          */
+> -       if (INV_MPU6050_BIT_PWR_GYRO_STBY == mask) {
+> +       if (mask == INV_MPU6050_BIT_PWR_GYRO_STBY) {
+>                 result = regmap_read(st->map, st->reg->pwr_mgmt_1, &mgmt_1);
+>                 if (result)
+>                         return result;
+> @@ -92,7 +92,7 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>                 mgmt_1 &= ~INV_MPU6050_BIT_CLK_MASK;
+>         }
+>
+> -       if ((INV_MPU6050_BIT_PWR_GYRO_STBY == mask) && (!en)) {
+> +       if ((mask == INV_MPU6050_BIT_PWR_GYRO_STBY) && (!en)) {
+>                 /*
+>                  * turning off gyro requires switch to internal clock first.
+>                  * Then turn off gyro engine
+> @@ -117,7 +117,7 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>         if (en) {
+>                 /* Wait for output stabilize */
+>                 msleep(INV_MPU6050_TEMP_UP_TIME);
+> -               if (INV_MPU6050_BIT_PWR_GYRO_STBY == mask) {
+> +               if (mask == INV_MPU6050_BIT_PWR_GYRO_STBY) {
+>                         /* switch internal clock to PLL */
+>                         mgmt_1 |= INV_CLK_PLL;
+>                         result = regmap_write(st->map,
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+> index 1fc5fd9..441080b 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+> @@ -168,7 +168,7 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+>
+>                 result = kfifo_out(&st->timestamps, &timestamp, 1);
+>                 /* when there is no timestamp, put timestamp as 0 */
+> -               if (0 == result)
+> +               if (result == 0)
+>                         timestamp = 0;
+>
+>                 result = iio_push_to_buffers_with_timestamp(indio_dev, data,
+> --
+> 2.5.0
+>
