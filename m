@@ -1,38 +1,59 @@
-From: Eric Anholt <eric@anholt.net>
-Subject: [PATCH] i2c: bcm2835: Don't complain on -EPROBE_DEFER from getting our clock
-Date: Thu, 18 Feb 2016 17:12:55 -0800
-Message-ID: <1455844375-15019-1-git-send-email-eric@anholt.net>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] i2c: ismt: Add Intel DNV PCI ID
+Date: Fri, 19 Feb 2016 10:39:17 +0200
+Message-ID: <20160219083917.GE1491@lahna.fi.intel.com>
+References: <1455807273-133516-1-git-send-email-mika.westerberg@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gabe.freedesktop.org ([131.252.210.177]:48008 "EHLO
-	gabe.freedesktop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1947768AbcBSBM5 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 18 Feb 2016 20:12:57 -0500
+Received: from mga02.intel.com ([134.134.136.20]:43595 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1946272AbcBSIj2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 19 Feb 2016 03:39:28 -0500
+Content-Disposition: inline
+In-Reply-To: <1455807273-133516-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, linux-i2c@vger.kernel.org, Eric Anholt <eric@anholt.net>
+Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org, alexandra.yates@intel.com
 
-Fixes dmesg spam when we just need to wait a moment for the clock
-driver to probe.
+On Thu, Feb 18, 2016 at 04:54:33PM +0200, Mika Westerberg wrote:
+> Intel DNV has the same iSMT SMBus host controller than Intel Avoton. Add
+> DNV PCI ID to the list of supported devices.
+> 
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
----
- drivers/i2c/busses/i2c-bcm2835.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Wolfram,
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 818b051..d4f3239 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -253,7 +253,8 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 
- 	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(i2c_dev->clk)) {
--		dev_err(&pdev->dev, "Could not get clock\n");
-+		if (PTR_ERR(i2c_dev->clk) != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Could not get clock\n");
- 		return PTR_ERR(i2c_dev->clk);
- 	}
- 
--- 
-2.7.0
+Please do not yet apply this patch. It seems to have same PCI ID that
+Alexandra (Cc'd) added to i2c-i801.c.
+
+Alexandra, are you sure that the PCI ID you added for DNV is actually
+compatible with i2c-i801.c?
+
+> ---
+>  drivers/i2c/busses/i2c-ismt.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+> index 7ba795b24e75..24c48e899a22 100644
+> --- a/drivers/i2c/busses/i2c-ismt.c
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -76,6 +76,7 @@
+>  #define PCI_DEVICE_ID_INTEL_S1200_SMT0	0x0c59
+>  #define PCI_DEVICE_ID_INTEL_S1200_SMT1	0x0c5a
+>  #define PCI_DEVICE_ID_INTEL_AVOTON_SMT	0x1f15
+> +#define PCI_DEVICE_ID_INTEL_DNV_SMT	0x19ac
+>  
+>  #define ISMT_DESC_ENTRIES	2	/* number of descriptor entries */
+>  #define ISMT_MAX_RETRIES	3	/* number of SMBus retries to attempt */
+> @@ -181,6 +182,7 @@ static const struct pci_device_id ismt_ids[] = {
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT0) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT1) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_AVOTON_SMT) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMT) },
+>  	{ 0, }
+>  };
+>  
+> -- 
+> 2.7.0
