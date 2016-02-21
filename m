@@ -1,45 +1,45 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: brcmstb: allocate correct amount of memory for regmap
-Date: Sun, 21 Feb 2016 15:16:48 +0100
-Message-ID: <1456064238-6294-1-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, bcm-kernel-feedback-list@broadcom.com, Gregory Fong <gregory.0xf0@gmail.com>, Brian Norris <computersforpeace@gmail.com>, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] i2c: tegra: don't open code of_device_get_match_data()
+Date: Sun, 21 Feb 2016 14:57:42 +0100
+Message-ID: <1456063089-3403-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:53457 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753033AbcBURam (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 21 Feb 2016 12:30:42 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, linux-tegra@vger.kernel.org
 
-We want the size of the struct, not of a pointer to it. To be future
-proof, just dereference the pointer to get the desired type.
+From: Wolfram Sang <wolfram@the-dreams.de>
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+This change will also make Coverity happy by avoiding a theoretical NULL
+pointer dereference; yet another reason is to use the above helper function
+to tighten the code and make it more readable.
+
+Signed-off-by: Wolfram Sang <wolfram@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-brcmstb.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-index 3711df1d452622..4a45408dd82060 100644
---- a/drivers/i2c/busses/i2c-brcmstb.c
-+++ b/drivers/i2c/busses/i2c-brcmstb.c
-@@ -586,8 +586,7 @@ static int brcmstb_i2c_probe(struct platform_device *pdev)
- 	if (!dev)
- 		return -ENOMEM;
+Compile tested only; HW test would be much appreciated!
+
+ drivers/i2c/busses/i2c-tegra.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index a0522fcc4ff875..929185a7296c0e 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -805,9 +805,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->hw = &tegra20_i2c_hw;
  
--	dev->bsc_regmap = devm_kzalloc(&pdev->dev, sizeof(struct bsc_regs *),
--				       GFP_KERNEL);
-+	dev->bsc_regmap = devm_kzalloc(&pdev->dev, sizeof(*dev->bsc_regmap), GFP_KERNEL);
- 	if (!dev->bsc_regmap)
- 		return -ENOMEM;
- 
+ 	if (pdev->dev.of_node) {
+-		const struct of_device_id *match;
+-		match = of_match_device(tegra_i2c_of_match, &pdev->dev);
+-		i2c_dev->hw = match->data;
++		i2c_dev->hw = of_device_get_match_data(&pdev->dev);
+ 		i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
+ 						"nvidia,tegra20-i2c-dvc");
+ 	} else if (pdev->id == 3) {
 -- 
 2.7.0
