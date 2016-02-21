@@ -1,81 +1,66 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC PATCH 2/9] iio: imu: inv_mpu6050: Fix Yoda conditions
-Date: Sun, 21 Feb 2016 20:38:00 +0000
-Message-ID: <56CA2028.90603@kernel.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [RFC PATCH 3/9] iio: imu: inv_mpu6050: Fix newlines to make code
+ easier to read
+Date: Sun, 21 Feb 2016 20:38:38 +0000
+Message-ID: <56CA204E.3060002@kernel.org>
 References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
- <1455810794-3188-3-git-send-email-daniel.baluta@intel.com>
- <CAKv63us92Epe0go9JGNScbeOepg3_j8RyW9w2qgN01Jvnj3sUQ@mail.gmail.com>
+ <1455810794-3188-4-git-send-email-daniel.baluta@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKv63us92Epe0go9JGNScbeOepg3_j8RyW9w2qgN01Jvnj3sUQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, ggao-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org, Adriana Reus <adi.reus-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, mwelling-EkmVulN54Sk@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:60532 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751116AbcBUUik (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 21 Feb 2016 15:38:40 -0500
+In-Reply-To: <1455810794-3188-4-git-send-email-daniel.baluta@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Daniel Baluta <daniel.baluta@intel.com>
+Cc: knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, lucas.demarchi@intel.com, srinivas.pandruvada@linux.intel.com, ggao@invensense.com, adi.reus@gmail.com, cmo@melexis.com, mwelling@ieee.org
 
-On 19/02/16 09:09, Crt Mori wrote:
-> This is quite trivial.
+On 18/02/16 15:53, Daniel Baluta wrote:
+> This fixes the following checkpatch.pl warnings:
+> 	* WARNING: Missing a blank line after declarations
+> 	* CHECK: Blank lines aren't necessary before a close brace '}'
 > 
-> Acked-by: Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Daniel Baluta <daniel.baluta@intel.com>
 Applied.
+> ---
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 2 +-
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 1 +
+>  2 files changed, 2 insertions(+), 1 deletion(-)
 > 
-> On 18 February 2016 at 16:53, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
->> This fixes the following checkpatch warning:
->>         * WARNING: Comparisons should place the constant
->>           on the right side of the test
->>
->> Signed-off-by: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->> ---
->>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 6 +++---
->>  drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c | 2 +-
->>  2 files changed, 4 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
->> index 84e014c..c550ebb 100644
->> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
->> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
->> @@ -84,7 +84,7 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
->>          * clock source be switched to gyro. Otherwise, it must be set to
->>          * internal clock
->>          */
->> -       if (INV_MPU6050_BIT_PWR_GYRO_STBY == mask) {
->> +       if (mask == INV_MPU6050_BIT_PWR_GYRO_STBY) {
->>                 result = regmap_read(st->map, st->reg->pwr_mgmt_1, &mgmt_1);
->>                 if (result)
->>                         return result;
->> @@ -92,7 +92,7 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
->>                 mgmt_1 &= ~INV_MPU6050_BIT_CLK_MASK;
->>         }
->>
->> -       if ((INV_MPU6050_BIT_PWR_GYRO_STBY == mask) && (!en)) {
->> +       if ((mask == INV_MPU6050_BIT_PWR_GYRO_STBY) && (!en)) {
->>                 /*
->>                  * turning off gyro requires switch to internal clock first.
->>                  * Then turn off gyro engine
->> @@ -117,7 +117,7 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
->>         if (en) {
->>                 /* Wait for output stabilize */
->>                 msleep(INV_MPU6050_TEMP_UP_TIME);
->> -               if (INV_MPU6050_BIT_PWR_GYRO_STBY == mask) {
->> +               if (mask == INV_MPU6050_BIT_PWR_GYRO_STBY) {
->>                         /* switch internal clock to PLL */
->>                         mgmt_1 |= INV_CLK_PLL;
->>                         result = regmap_write(st->map,
->> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
->> index 1fc5fd9..441080b 100644
->> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
->> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
->> @@ -168,7 +168,7 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
->>
->>                 result = kfifo_out(&st->timestamps, &timestamp, 1);
->>                 /* when there is no timestamp, put timestamp as 0 */
->> -               if (0 == result)
->> +               if (result == 0)
->>                         timestamp = 0;
->>
->>                 result = iio_push_to_buffers_with_timestamp(indio_dev, data,
->> --
->> 2.5.0
->>
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> index 0bcfa8d..231a7af 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> @@ -186,7 +186,6 @@ int inv_mpu_acpi_create_mux_client(struct i2c_client *client)
+>  		st->mux_client = i2c_new_device(st->mux_adapter, &info);
+>  		if (!st->mux_client)
+>  			return -ENODEV;
+> -
+>  	}
+>  
+>  	return 0;
+> @@ -195,6 +194,7 @@ int inv_mpu_acpi_create_mux_client(struct i2c_client *client)
+>  void inv_mpu_acpi_delete_mux_client(struct i2c_client *client)
+>  {
+>  	struct inv_mpu6050_state *st = iio_priv(dev_get_drvdata(&client->dev));
+> +
+>  	if (st->mux_client)
+>  		i2c_unregister_device(st->mux_client);
+>  }
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index c550ebb..72cc478 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -365,6 +365,7 @@ static int inv_write_raw_get_fmt(struct iio_dev *indio_dev,
+>  
+>  	return -EINVAL;
+>  }
+> +
+>  static int inv_mpu6050_write_accel_scale(struct inv_mpu6050_state *st, int val)
+>  {
+>  	int result, i;
+> 
