@@ -1,45 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: tegra: don't open code of_device_get_match_data()
-Date: Sun, 21 Feb 2016 14:57:42 +0100
-Message-ID: <1456063089-3403-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:53457 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753033AbcBURam (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 21 Feb 2016 12:30:42 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC] i2c_check_functionality and error code
+Date: Sun, 21 Feb 2016 20:33:17 +0000
+Message-ID: <56CA1F0D.2060707@kernel.org>
+References: <CAKzfze-B4dx9aghERaRDu7xz0i6pMJcAUGMQX7OWJpWh7i=bxw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAKzfze-B4dx9aghERaRDu7xz0i6pMJcAUGMQX7OWJpWh7i=bxw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, linux-tegra@vger.kernel.org
 
-From: Wolfram Sang <wolfram@the-dreams.de>
+On 14/02/16 23:09, Matt Ranostay wrote:
+> Jonathan et all,
+> 
+> Has anyone noticed that there is no clear consensus on which error
+> code to return when a i2c_check_functionality() check fails within the
+> probe function. I've seen so far ENODEV, ENOTSUPP, EOPNOTSUPP, EIO,
+> and ENOSYS in drivers/iio
+> 
+> Shouldn't these be made a standard value like -ENOTSUPP?
+Would make sense - but is this the right choice.
 
-This change will also make Coverity happy by avoiding a theoretical NULL
-pointer dereference; yet another reason is to use the above helper function
-to tighten the code and make it more readable.
+Thought I'd grep HWMON as a possible source of a consensus on this and
+got no clear answer.  The most common in there looks to be -ENODEV though
+(From the first few pages of results anyway ;)
 
-Signed-off-by: Wolfram Sang <wolfram@the-dreams.de>
----
+Hohum. Wolfram what do you think?
 
-Compile tested only; HW test would be much appreciated!
+Worth cleaning this up?  Perhaps even kernel wise would lead to some
+consistency. I've never been that sharp on this in IIO so I can't
+really talk ;)
 
- drivers/i2c/busses/i2c-tegra.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Jonathan
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index a0522fcc4ff875..929185a7296c0e 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -805,9 +805,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->hw = &tegra20_i2c_hw;
- 
- 	if (pdev->dev.of_node) {
--		const struct of_device_id *match;
--		match = of_match_device(tegra_i2c_of_match, &pdev->dev);
--		i2c_dev->hw = match->data;
-+		i2c_dev->hw = of_device_get_match_data(&pdev->dev);
- 		i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
- 						"nvidia,tegra20-i2c-dvc");
- 	} else if (pdev->id == 3) {
--- 
-2.7.0
+
+> 
+> Thanks,
+> 
+> Matt
+> 
