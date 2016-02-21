@@ -1,51 +1,84 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC] i2c_check_functionality and error code
-Date: Sun, 21 Feb 2016 23:56:06 +0100
-Message-ID: <20160221225606.GA1386@katana>
-References: <CAKzfze-B4dx9aghERaRDu7xz0i6pMJcAUGMQX7OWJpWh7i=bxw@mail.gmail.com>
- <56CA1F0D.2060707@kernel.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH 0/9] iio: Fix ABBA deadlock in inv-mpu6050
+Date: Mon, 22 Feb 2016 00:17:51 +0100
+Message-ID: <20160221231751.GC1386@katana>
+References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="7gGkHNMELEOhSGF6"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:44219 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752464AbcBUXSB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 21 Feb 2016 18:18:01 -0500
 Content-Disposition: inline
-In-Reply-To: <56CA1F0D.2060707-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Daniel Baluta <daniel.baluta@intel.com>
+Cc: jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, lucas.demarchi@intel.com, srinivas.pandruvada@linux.intel.com, ggao@invensense.com, adi.reus@gmail.com, cmo@melexis.com, mwelling@ieee.org
 
 
---uAKRQypu60I7Lcqm
+--7gGkHNMELEOhSGF6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Hohum. Wolfram what do you think?
+On Thu, Feb 18, 2016 at 05:53:05PM +0200, Daniel Baluta wrote:
+> Sending this as an RFC because I don't know if style fixes are appropriate
+> for this driver and also not sure if deadlock fix is the best solution.
+>=20
+> I2C people should only look at patches 8/9 and 9/9.
+>=20
+> The mpu6050 accel+gyro combo has an auxiliary I2C bus, allowing for
+> an auxiliary sensor to be connected (eg. a magnetometer).
+>=20
+> The mpu can either act as an I2C master (functionality not currently
+> implemented in the driver) or it can use a bypass multiplexer which
+> directly connects the auxiliary I2C bus pins to the main I2C bus pins [1]
+> Currently the driver implements the bypass mode via an I2C mux.
+>=20
+> This patchset fixes a deadlock in inv-mpu6050 IMU which happens when
+> magnetometer (on auxiliary I2C bus) runs in parallel with accel or gyro.
+>=20
+> First 7 patches do some cleanup in order to make INV MPU6050 code easier
+> to read.
+>=20
+> Patch number 8 allows passing NULL select callbacks to i2c_mux_master_xfer
+> and i2c_mux_smbus_xfer.
+>=20
+> Patch number 9 actually fixes the deadlock.
 
-I'd go for "EOPNOTSUPP" since it is most descriptive. I wouldn't say we
-really need to fix it up in the kernel tree. However, I neither would
-vote against it.
+We recently had a bigger patch series fixing locking problems related to
+muxes. I sadly didn't have the time to review it. Can you have a look if
+it helps your case?
+
+http://thread.gmane.org/gmane.linux.drivers.i2c/26169
+
+Thanks,
+
+   Wolfram
 
 
---uAKRQypu60I7Lcqm
+--7gGkHNMELEOhSGF6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWykCGAAoJEBQN5MwUoCm2QSAQAKr8kPm7y/uMbwHJVCWKpinl
-VpQbA8teaquwYhR3am2EdiIiCHKNztnkovuW27x6uFyO7q2URHJ92WQrwAWZGxBT
-+Xa9XK+3dZXGBN9CVoxn0WKUOZvx6dZ00pQ1Hga18IMj7VSnvDaEHE35xu5A33iV
-QAXIiLPDkypgmZc3+xtJ4x7dOxyUe08/jvjtbFcsEK9AneXIjLaiTKC7WFeIvmmp
-7aN6ZneiHX5ZVFXwVYwP/d9P3aT7rBTw7pMmr4pxEKBWEVpYsHAvOlLbfgaMBj1c
-ELgpJriNoq4IRNLNKKcoHzVZ0x94jF1Y2+us2hBraNPQHzwBvS3WDv+wpBzwJgjV
-kmwWDgfD8S3Og+IFZZzbfX6rfS7WVNN0+mt0rD4YDsoOHGPrmJcdPV/MR9TsUFWq
-RDpxp8PwYfycZ/29lV4IycLNKGkqJND6JkVs5GpxPeh0J9daOqq2i8v0QnobKRaM
-0qoBjVfOdwSiZXJ2LPKtGYOJSt3CmnDEQovGt/Xwx/QgHEKui+t50MmbYIzOD7fY
-BiZYzlxyj5owcmilLvghdfG2pVj/nzvTRPN9JSttHr5NhdjH1EM1kJEd+sQGRRzG
-R0Novgd1Dx4eUDl5bFig73lFxFdsbIkslRPMlcOJReOtiSxs/CVPyJgaDZlSUMhR
-Kum8ykG7c3bdA3C6gwEI
-=dLJR
+iQIcBAEBAgAGBQJWykWfAAoJEBQN5MwUoCm2qOkP/jKGqpHffps8ssgicIW8TKCt
+T/f9Xf4mGFJ5v/KNIEtqc7xlumEysU50wCEeD9mox2AFjdMb+UICAtaR7si/TM8n
+gIzVGGA4/UHrnVfTW4aah+cqZ+wkwTL9KcZjBzNXLi6kCqMExAct2ilArvZLJCkQ
+CJyxjTU9kMyc64m9hEmXzAsgWsyzL5RlNLnD7O8paZ7iEDJwjqmNosZBa4TEzM+B
+ZoZE/sG5Sv+COLkcQgIe9BQmk7wsQyuCGYO7q2SPj/iCyvDUD7O7rI/2BZp4WhHy
+iDuBtLPnTfMEy+tO8euPcQBcaGp9b4gDX5H9z5OIH0gOCgLMes3mexuli3/bZ4VH
+Kin/F/tHubUQZ5gT3o12QWYS08w1btOhLtwflIamfFfrgwQDZaFo24dhrNhtzKLR
+hrwvbVbOPstP4rHgRzO4yUkUkxfWUdYP/aJTSrzIzfgRibzqej8odN48uBfLvDY7
+SLxZIKNvnPktjzuBQyKeIegQuy2V+ZSPtJYuE848yz9stmfG0ODgozANVJXmPYPy
+Zov2RJgkqEKnlEal1vLrSQwJ4juN0GLlAmCN5jVpOm2RAhSd38od0VBzBkALgvbl
+8Im6RmC5RlR3MkfcPDwvwkPhNt+d6yHgfbyxtc0brz6dW7lrDo/jc13v9JMOOIlc
+Hsw/Tuat+UsdVqnWOR1e
+=sKxT
 -----END PGP SIGNATURE-----
 
---uAKRQypu60I7Lcqm--
+--7gGkHNMELEOhSGF6--
