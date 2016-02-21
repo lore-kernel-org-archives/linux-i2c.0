@@ -1,45 +1,45 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 1/6] i2c: i2c-boardinfo: sort includes
-Date: Sat, 20 Feb 2016 23:38:46 +0100
-Message-ID: <1456007931-4595-2-git-send-email-wsa@the-dreams.de>
-References: <1456007931-4595-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:55900 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S2992809AbcBTWjC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 20 Feb 2016 17:39:02 -0500
-In-Reply-To: <1456007931-4595-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH] i2c: brcmstb: allocate correct amount of memory for regmap
+Date: Sun, 21 Feb 2016 15:16:48 +0100
+Message-ID: <1456064238-6294-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Florian Fainelli <f.fainelli@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, bcm-kernel-feedback-list@broadcom.com, Gregory Fong <gregory.0xf0@gmail.com>, Brian Norris <computersforpeace@gmail.com>, linux-arm-kernel@lists.infradead.org
+List-Id: linux-i2c@vger.kernel.org
 
-I request this for drivers, so the core should adhere to sorted includes as
-well.
+We want the size of the struct, not of a pointer to it. To be future
+proof, just dereference the pointer to get the desired type.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/i2c-boardinfo.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-brcmstb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-boardinfo.c b/drivers/i2c/i2c-boardinfo.c
-index 90e32295930332..e33022e2d459f1 100644
---- a/drivers/i2c/i2c-boardinfo.c
-+++ b/drivers/i2c/i2c-boardinfo.c
-@@ -12,11 +12,11 @@
-  * GNU General Public License for more details.
-  */
+diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
+index 3711df1d452622..4a45408dd82060 100644
+--- a/drivers/i2c/busses/i2c-brcmstb.c
++++ b/drivers/i2c/busses/i2c-brcmstb.c
+@@ -586,8 +586,7 @@ static int brcmstb_i2c_probe(struct platform_device *pdev)
+ 	if (!dev)
+ 		return -ENOMEM;
  
--#include <linux/kernel.h>
--#include <linux/i2c.h>
--#include <linux/slab.h>
- #include <linux/export.h>
-+#include <linux/i2c.h>
-+#include <linux/kernel.h>
- #include <linux/rwsem.h>
-+#include <linux/slab.h>
- 
- #include "i2c-core.h"
+-	dev->bsc_regmap = devm_kzalloc(&pdev->dev, sizeof(struct bsc_regs *),
+-				       GFP_KERNEL);
++	dev->bsc_regmap = devm_kzalloc(&pdev->dev, sizeof(*dev->bsc_regmap), GFP_KERNEL);
+ 	if (!dev->bsc_regmap)
+ 		return -ENOMEM;
  
 -- 
 2.7.0
