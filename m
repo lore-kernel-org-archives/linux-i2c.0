@@ -1,43 +1,117 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC] i2c_check_functionality and error code
-Date: Sun, 21 Feb 2016 20:33:17 +0000
-Message-ID: <56CA1F0D.2060707@kernel.org>
-References: <CAKzfze-B4dx9aghERaRDu7xz0i6pMJcAUGMQX7OWJpWh7i=bxw@mail.gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [RFC PATCH 1/9] iio: imu: inv_mpu6050: Fix multiline comments
+ style
+Date: Sun, 21 Feb 2016 20:36:27 +0000
+Message-ID: <56CA1FCB.40000@kernel.org>
+References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
+ <1455810794-3188-2-git-send-email-daniel.baluta@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKzfze-B4dx9aghERaRDu7xz0i6pMJcAUGMQX7OWJpWh7i=bxw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:60497 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751116AbcBUUga (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 21 Feb 2016 15:36:30 -0500
+In-Reply-To: <1455810794-3188-2-git-send-email-daniel.baluta@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Daniel Baluta <daniel.baluta@intel.com>
+Cc: knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, lucas.demarchi@intel.com, srinivas.pandruvada@linux.intel.com, ggao@invensense.com, adi.reus@gmail.com, cmo@melexis.com, mwelling@ieee.org
 
-On 14/02/16 23:09, Matt Ranostay wrote:
-> Jonathan et all,
+On 18/02/16 15:53, Daniel Baluta wrote:
+> The preffered style for long (multi-line) comments is:
 > 
-> Has anyone noticed that there is no clear consensus on which error
-> code to return when a i2c_check_functionality() check fails within the
-> probe function. I've seen so far ENODEV, ENOTSUPP, EOPNOTSUPP, EIO,
-> and ENOSYS in drivers/iio
+> /*
+>  * this is a multiline
+>  * comment
+>  */
 > 
-> Shouldn't these be made a standard value like -ENOTSUPP?
-Would make sense - but is this the right choice.
-
-Thought I'd grep HWMON as a possible source of a consensus on this and
-got no clear answer.  The most common in there looks to be -ENODEV though
-(From the first few pages of results anyway ;)
-
-Hohum. Wolfram what do you think?
-
-Worth cleaning this up?  Perhaps even kernel wise would lead to some
-consistency. I've never been that sharp on this in IIO so I can't
-really talk ;)
+> This also fixes checkpatch.pl warning:
+> WARNING: Block comments use * on subsequent lines
+> 
+> Signed-off-by: Daniel Baluta <daniel.baluta@intel.com>
+Applied to the togreg branch of iio.git - pushed out as testing as normal.
 
 Jonathan
-
-
+> ---
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 37 +++++++++++++++++++-----------
+>  1 file changed, 23 insertions(+), 14 deletions(-)
 > 
-> Thanks,
-> 
-> Matt
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index 2258600..84e014c 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -79,10 +79,11 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>  {
+>  	unsigned int d, mgmt_1;
+>  	int result;
+> -
+> -	/* switch clock needs to be careful. Only when gyro is on, can
+> -	   clock source be switched to gyro. Otherwise, it must be set to
+> -	   internal clock */
+> +	/*
+> +	 * switch clock needs to be careful. Only when gyro is on, can
+> +	 * clock source be switched to gyro. Otherwise, it must be set to
+> +	 * internal clock
+> +	 */
+>  	if (INV_MPU6050_BIT_PWR_GYRO_STBY == mask) {
+>  		result = regmap_read(st->map, st->reg->pwr_mgmt_1, &mgmt_1);
+>  		if (result)
+> @@ -92,8 +93,10 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>  	}
+>  
+>  	if ((INV_MPU6050_BIT_PWR_GYRO_STBY == mask) && (!en)) {
+> -		/* turning off gyro requires switch to internal clock first.
+> -		   Then turn off gyro engine */
+> +		/*
+> +		 * turning off gyro requires switch to internal clock first.
+> +		 * Then turn off gyro engine
+> +		 */
+>  		mgmt_1 |= INV_CLK_INTERNAL;
+>  		result = regmap_write(st->map, st->reg->pwr_mgmt_1, mgmt_1);
+>  		if (result)
+> @@ -391,8 +394,10 @@ static int inv_mpu6050_write_raw(struct iio_dev *indio_dev,
+>  	int result;
+>  
+>  	mutex_lock(&indio_dev->mlock);
+> -	/* we should only update scale when the chip is disabled, i.e.,
+> -		not running */
+> +	/*
+> +	 * we should only update scale when the chip is disabled, i.e.
+> +	 * not running
+> +	 */
+>  	if (st->chip_config.enable) {
+>  		result = -EBUSY;
+>  		goto error_write_raw;
+> @@ -529,8 +534,10 @@ static ssize_t inv_attr_show(struct device *dev,
+>  	s8 *m;
+>  
+>  	switch (this_attr->address) {
+> -	/* In MPU6050, the two matrix are the same because gyro and accel
+> -	   are integrated in one chip */
+> +	/*
+> +	 * In MPU6050, the two matrix are the same because gyro and accel
+> +	 * are integrated in one chip
+> +	 */
+>  	case ATTR_GYRO_MATRIX:
+>  	case ATTR_ACCL_MATRIX:
+>  		m = st->plat_data.orientation;
+> @@ -654,10 +661,12 @@ static int inv_check_and_setup_chip(struct inv_mpu6050_state *st)
+>  	if (result)
+>  		return result;
+>  	msleep(INV_MPU6050_POWER_UP_TIME);
+> -	/* toggle power state. After reset, the sleep bit could be on
+> -		or off depending on the OTP settings. Toggling power would
+> -		make it in a definite state as well as making the hardware
+> -		state align with the software state */
+> +	/*
+> +	 * toggle power state. After reset, the sleep bit could be on
+> +	 * or off depending on the OTP settings. Toggling power would
+> +	 * make it in a definite state as well as making the hardware
+> +	 * state align with the software state
+> +	 */
+>  	result = inv_mpu6050_set_power_itg(st, false);
+>  	if (result)
+>  		return result;
 > 
