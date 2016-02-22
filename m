@@ -1,102 +1,53 @@
-From: "Sricharan" <sricharan@codeaurora.org>
-Subject: RE: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
-Date: Mon, 22 Feb 2016 17:54:57 +0530
-Message-ID: <002a01d16d6c$0f790520$2e6b0f60$@codeaurora.org>
-References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org> <1453197766-18976-5-git-send-email-sricharan@codeaurora.org> <20160212183737.GA1520@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
+Date: Mon, 22 Feb 2016 13:32:26 +0100
+Message-ID: <20160222123225.GC1392@katana>
+References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org>
+ <1453197766-18976-5-git-send-email-sricharan@codeaurora.org>
+ <20160212183737.GA1520@katana>
+ <002a01d16d6c$0f790520$2e6b0f60$@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: 
-Content-Language: en-us
-Sender: linux-kernel-owner@vger.kernel.org
-To: 'Wolfram Sang' <wsa@the-dreams.de>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yVhtmJPUSI46BTXb"
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <002a01d16d6c$0f790520$2e6b0f60$@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Sricharan <sricharan@codeaurora.org>
 Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, andy.gross@linaro.org, ntelkar@codeaurora.org, architt@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-> -----Original Message-----
-> From: Sricharan [mailto:sricharan@codeaurora.org]
-> Sent: Saturday, February 13, 2016 12:29 PM
-> To: 'Wolfram Sang'
-> Cc: 'devicetree@vger.kernel.org'; 'linux-arm-msm@vger.kernel.org';
-> 'agross@codeaurora.org'; 'linux-kernel@vger.kernel.org'; 'linux-
-> i2c@vger.kernel.org'; 'iivanov@mm-sol.com'; 'galak@codeaurora.org';
-> 'dmaengine@vger.kernel.org'; 'linux-arm-kernel@lists.infradead.org';
-> 'andy.gross@linaro.org'; 'ntelkar@codeaurora.org';
-'architt@codeaurora.org'
-> Subject: RE: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
-> 
-> Hi Wolfram,
-> 
-> > -----Original Message-----
-> > From: Wolfram Sang [mailto:wsa@the-dreams.de]
-> > Sent: Saturday, February 13, 2016 12:08 AM
-> > To: Sricharan R
-> > Cc: devicetree@vger.kernel.org; linux-arm-msm@vger.kernel.org;
-> > agross@codeaurora.org; linux-kernel@vger.kernel.org; linux-
-> > i2c@vger.kernel.org; iivanov@mm-sol.com; galak@codeaurora.org;
-> > dmaengine@vger.kernel.org; linux-arm-kernel@lists.infradead.org;
-> > andy.gross@linaro.org; ntelkar@codeaurora.org; architt@codeaurora.org
-> > Subject: Re: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
-> >
-> > On Tue, Jan 19, 2016 at 03:32:44PM +0530, Sricharan R wrote:
-> > > QUP cores can be attached to a BAM module, which acts as a dma
-> > > engine for the QUP core. When DMA with BAM is enabled, the BAM
-> > > consumer
-> > pipe
-> > > transmitted data is written to the output FIFO and the BAM producer
-> > > pipe received data is read from the input FIFO.
-> > >
-> > > With BAM capabilities, qup-i2c core can transfer more than
-> > > 256 bytes, without a 'stop' which is not possible otherwise.
-> > >
-> > > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
-> > > Reviewed-by: Andy Gross <andy.gross@linaro.org>
-> > > Tested-by: Archit Taneja <architt@codeaurora.org>
-> > > Tested-by: Telkar Nagender <ntelkar@codeaurora.org>
-> >
-> > My code checkers found some issues:
-> >
-> >     SPARSE
-> > drivers/i2c/busses/i2c-qup.c:555:6: warning: symbol 'qup_sg_set_buf'
-> > was not declared. Should it be static?
-> > drivers/i2c/busses/i2c-qup.c:1243:50: warning: dubious: !x & !y
-> >     SMATCH
-> > drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s
-> > =
-> > sg_next()
-> > drivers/i2c/busses/i2c-qup.c:165 qup_sg_set_buf warn: unused return: s
-> > =
-> > sg_next()
-> > drivers/i2c/busses/i2c-qup.c:1243 qup_i2c_xfer_v2() warn: add some
-> > parenthesis here?
-> >     CPPCHECK
-> > drivers/i2c/busses/i2c-qup.c:1243: style: Boolean result is used in
-> > bitwise operation. Clarify expression with parentheses.
-> >     SPATCH
-> > drivers/i2c/busses/i2c-qup.c:1380:2-13: WARNING: Assignment of bool to
-> > 0/1
-> > drivers/i2c/busses/i2c-qup.c:1481:1-13: WARNING: Assignment of bool to
-> 0/1
-> >   CC      drivers/i2c/busses/i2c-qup.o
-> > drivers/i2c/busses/i2c-qup.c:555:6: warning: no previous prototype for
-> > 'qup_sg_set_buf' [-Wmissing-prototypes]  void qup_sg_set_buf(struct
-> > scatterlist *sg, void *buf, struct qup_i2c_tag *tg,
-> >
-> > Can you fix them and resend??
-> 
-  Really sorry for the delay ,  sent it here [1]
-
-  Also, while testing this series in one of a new platform, found that an
-additional 
-  Regression and a fix is required on top of this series. So can I send a
-separate fix on top of this series ?
+--yVhtmJPUSI46BTXb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
-[1]   https://patchwork.ozlabs.org/patch/586125/
+>   Regression and a fix is required on top of this series. So can I send a
+> separate fix on top of this series ?
 
-Regards,
- Sricharan
+Yes, do it like this. And please quote only relevant parts of a mail.
+
+
+--yVhtmJPUSI46BTXb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJWyv/ZAAoJEBQN5MwUoCm2jZkP+wSjR+lxJc1MEBqLAJChz6KQ
+6uwnZ1YdgS4b3aduXl2Y0Oqitmv9v52wo2NkS/kxAWuRaLNZgGK5UspUWjIPOqWP
+9ojEWZkjmt3idWqdJkvJewgYISHlIVxHRwKMjDoq88o5U4f+jDw82x+XcyX6Jeom
+X+lhQ7Q4txR2W9/OJgwhEz+RfgMy7vEXytS/Yokk44HJXSac8IlNus+uVrsXnKuf
+QRTmNq5NKm8dZLksSJEvqKArmDYVTwqpe5SSVGsvuRNTwuhfWkJAoe1PcFHVoWsA
+srSwi+goJzzLhNlkYZOx4xt+xrG87Pvub/tntP03bL7Gs6Ws+nRWfgIc6bc9pMrM
+qnRq415akrxLDPpf8ur3tzqrUJttLDPLwX48mciDjN0rMfO0igrWgPdHfImLVa/H
+sjMcjywvdazwG7+OmlFQUivmjhT3yeJKjksUiLqdprKSwpD1kgAa6p0XsWlWy8Px
+WDlcBROoXzUAG0B6LzQyyP1lZ03Znq26Qermq74XOkuEQogTcYJvv7dUZTmdMLWh
+KIa1gThD/gTQL/FWIweZeJi4FJbLuuOWy3cpN7XENvrXlMHTnJ8YYkwEYBGrhyXN
+Kwjvsecs26sF0J1Bh9Bkc50tPYTZkj7i9NGx8JvzyTi0cmAMkYnxazx/6F96X0Q/
+4KuPUPm457X9X3vi6bVU
+=1d2Q
+-----END PGP SIGNATURE-----
+
+--yVhtmJPUSI46BTXb--
