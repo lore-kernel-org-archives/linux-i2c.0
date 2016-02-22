@@ -1,56 +1,32 @@
-From: Simon Horman <horms+renesas@verge.net.au>
-Subject: [PATCH] i2c: riic, sh_mobile, rcar: Use ARCH_RENESAS
-Date: Mon, 22 Feb 2016 10:15:19 +0900
-Message-ID: <1456103719-10818-1-git-send-email-horms+renesas@verge.net.au>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>
+From: Gregory Fong <gregory.0xf0@gmail.com>
+Subject: Re: [PATCH] i2c: brcmstb: allocate correct amount of memory for regmap
+Date: Sun, 21 Feb 2016 22:33:14 -0800
+Message-ID: <CADtm3G7ZHfVyoEcAcFGC4oPX=XHyedSWDMvg6nKPLQ5_is=ZiQ@mail.gmail.com>
+References: <1456064238-6294-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ig0-f177.google.com ([209.85.213.177]:34681 "EHLO
+	mail-ig0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752595AbcBVGdo (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Feb 2016 01:33:44 -0500
+Received: by mail-ig0-f177.google.com with SMTP id g6so79767860igt.1
+        for <linux-i2c@vger.kernel.org>; Sun, 21 Feb 2016 22:33:43 -0800 (PST)
+In-Reply-To: <1456064238-6294-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Brian Norris <computersforpeace@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, bcm-kernel-feedback-list <bcm-kernel-feedback-list@broadcom.com>
 
-Make use of ARCH_RENESAS in place of ARCH_SHMOBILE.
+On Sun, Feb 21, 2016 at 6:16 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> We want the size of the struct, not of a pointer to it. To be future
+> proof, just dereference the pointer to get the desired type.
 
-This is part of an ongoing process to migrate from ARCH_SHMOBILE to
-ARCH_RENESAS the motivation for which being that RENESAS seems to be a more
-appropriate name than SHMOBILE for the majority of Renesas ARM based SoCs.
+This looks like it fixes like a fairly serious issue: before this
+change, the driver may modify memory that wasn't allocated for this
+struct.  Shouldn't this also have Cc: stable?
 
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
----
- drivers/i2c/busses/Kconfig | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-Based on the for-next branch of Wolfram's tree on kernel.org.
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index a2e456a0f3e2..faa8e6821fea 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -789,7 +789,7 @@ config I2C_QUP
- 
- config I2C_RIIC
- 	tristate "Renesas RIIC adapter"
--	depends on ARCH_SHMOBILE || COMPILE_TEST
-+	depends on ARCH_RENESAS || COMPILE_TEST
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  Renesas RIIC I2C interface.
-@@ -833,7 +833,7 @@ config I2C_SH7760
- config I2C_SH_MOBILE
- 	tristate "SuperH Mobile I2C Controller"
- 	depends on HAS_DMA
--	depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
-+	depends on SUPERH || ARCH_RENESAS || COMPILE_TEST
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  built-in I2C interface on the Renesas SH-Mobile processor.
-@@ -985,7 +985,7 @@ config I2C_XLP9XX
- 
- config I2C_RCAR
- 	tristate "Renesas R-Car I2C Controller"
--	depends on ARCH_SHMOBILE || COMPILE_TEST
-+	depends on ARCH_RENESAS || COMPILE_TEST
- 	select I2C_SLAVE
- 	help
- 	  If you say yes to this option, support will be included for the
--- 
-2.1.4
+Acked-by: Gregory Fong <gregory.0xf0@gmail.com>
