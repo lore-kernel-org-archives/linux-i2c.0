@@ -1,32 +1,40 @@
-From: "Sricharan" <sricharan@codeaurora.org>
-Subject: RE: [PATCH V7 4/6] i2c: qup: Add bam dma capabilities
-Date: Mon, 22 Feb 2016 19:11:08 +0530
-Message-ID: <001c01d16d76$b43d2690$1cb773b0$@codeaurora.org>
-References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org> <1453197766-18976-5-git-send-email-sricharan@codeaurora.org> <20160212183737.GA1520@katana> <002a01d16d6c$0f790520$2e6b0f60$@codeaurora.org> <20160222123225.GC1392@katana>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] i2c: riic, sh_mobile, rcar: Use ARCH_RENESAS
+Date: Mon, 22 Feb 2016 14:44:34 +0100
+Message-ID: <CAMuHMdV7XKdCYoJMYzv8zdUgiQrzWFtzVE2NuOY6Sj=6dnD-dg@mail.gmail.com>
+References: <1456103719-10818-1-git-send-email-horms+renesas@verge.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:43789 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755083AbcBVNlT (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Feb 2016 08:41:19 -0500
-In-Reply-To: <20160222123225.GC1392@katana>
-Content-Language: en-us
+Received: from mail-ig0-f178.google.com ([209.85.213.178]:33419 "EHLO
+	mail-ig0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754967AbcBVNof (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Feb 2016 08:44:35 -0500
+In-Reply-To: <1456103719-10818-1-git-send-email-horms+renesas@verge.net.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: 'Wolfram Sang' <wsa@the-dreams.de>
-Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Simon Horman <horms+renesas@verge.net.au>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, linux-renesas-soc@vger.kernel.org
 
-Hi Wolfram,
+On Mon, Feb 22, 2016 at 2:15 AM, Simon Horman
+<horms+renesas@verge.net.au> wrote:
+> Make use of ARCH_RENESAS in place of ARCH_SHMOBILE.
+>
+> This is part of an ongoing process to migrate from ARCH_SHMOBILE to
+> ARCH_RENESAS the motivation for which being that RENESAS seems to be a more
+> appropriate name than SHMOBILE for the majority of Renesas ARM based SoCs.
+>
+> Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
 
-> >   Regression and a fix is required on top of this series. So can I
-> > send a separate fix on top of this series ?
-> 
-> Yes, do it like this. And please quote only relevant parts of a mail.
-   Ok, will send a fix separately.   Sorry for the noisy reply previously ..
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
+Gr{oetje,eeting}s,
 
-Regards,
- Sricharan
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
