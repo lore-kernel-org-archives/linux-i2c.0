@@ -1,36 +1,41 @@
-From: Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH] i2c: brcmstb: allocate correct amount of memory for
- regmap
-Date: Mon, 22 Feb 2016 08:42:50 -0800
-Message-ID: <56CB3A8A.9040401@gmail.com>
-References: <1456064238-6294-1-git-send-email-wsa@the-dreams.de>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 1/7] mmc: omap_hsmmc: Fix PM regression with deferred
+ probe for pm_runtime_reinit
+Date: Mon, 22 Feb 2016 09:54:26 -0800
+Message-ID: <20160222175426.GI13417@atomide.com>
+References: <1455145370-20301-1-git-send-email-tony@atomide.com>
+ <1455145370-20301-2-git-send-email-tony@atomide.com>
+ <CAPDyKFpAcsfLgtu93P45fTEg11MjdGwREcyeGSS7vt6GWbNu_w@mail.gmail.com>
+ <20160211150240.GR19432@atomide.com>
+ <CAPDyKFo4Jyjwyvr3P5VHfDhQ87K9mnR01N-NtKz-yx2ycnfOLg@mail.gmail.com>
+ <20160211172632.GT19432@atomide.com>
+ <CAPDyKFpwGcCW_Vwz07cgh8LxGmxu9=GVch0MVJEpNJ19zoLZ7g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ob0-f173.google.com ([209.85.214.173]:33774 "EHLO
-	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754682AbcBVQmx (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Feb 2016 11:42:53 -0500
-Received: by mail-ob0-f173.google.com with SMTP id jq7so170178307obb.0
-        for <linux-i2c@vger.kernel.org>; Mon, 22 Feb 2016 08:42:52 -0800 (PST)
-In-Reply-To: <1456064238-6294-1-git-send-email-wsa@the-dreams.de>
+Received: from muru.com ([72.249.23.125]:46957 "EHLO muru.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752596AbcBVRya (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 22 Feb 2016 12:54:30 -0500
+Content-Disposition: inline
+In-Reply-To: <CAPDyKFpwGcCW_Vwz07cgh8LxGmxu9=GVch0MVJEpNJ19zoLZ7g@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: linux-omap <linux-omap@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-mmc <linux-mmc@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Kevin Hilman <khilman@baylibre.com>, Nishanth Menon <nm@ti.com>, "Rafael J . Wysocki" <rafael@kernel.org>, Tero Kristo <t-kristo@ti.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-serial@vger.kernel.org, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Peter Hurley <peter@hurleysoftware.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Le 21/02/2016 06:16, Wolfram Sang a =C3=A9crit :
-> We want the size of the struct, not of a pointer to it. To be future
-> proof, just dereference the pointer to get the desired type.
->=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+* Ulf Hansson <ulf.hansson@linaro.org> [160212 05:00]:
+> On 11 February 2016 at 18:26, Tony Lindgren <tony@atomide.com> wrote:
+> > Subject: [PATCH] mmc: omap_hsmmc: Fix PM regression with deferred probe for
+> >  pm_runtime_reinit
+>
+> Thanks, applied for fixes!
 
-=46ixes: dd1aa2524bc5 ("i2c: brcmstb: Add Broadcom settop SoC i2c
-controller driver")
+Ulf, any news on getting this into the mainline tree?
 
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+My PM tests have been now broken for six weeks or something
+because of this!
 
-Thanks!
---=20
-=46lorian
+Regards,
+
+Tony
