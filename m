@@ -1,84 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH 0/9] iio: Fix ABBA deadlock in inv-mpu6050
-Date: Mon, 22 Feb 2016 00:17:51 +0100
-Message-ID: <20160221231751.GC1386@katana>
-References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7gGkHNMELEOhSGF6"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:44219 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752464AbcBUXSB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 21 Feb 2016 18:18:01 -0500
-Content-Disposition: inline
-In-Reply-To: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Simon Horman <horms+renesas@verge.net.au>
+Subject: [PATCH] i2c: riic, sh_mobile, rcar: Use ARCH_RENESAS
+Date: Mon, 22 Feb 2016 10:15:19 +0900
+Message-ID: <1456103719-10818-1-git-send-email-horms+renesas@verge.net.au>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
-To: Daniel Baluta <daniel.baluta@intel.com>
-Cc: jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, lucas.demarchi@intel.com, srinivas.pandruvada@linux.intel.com, ggao@invensense.com, adi.reus@gmail.com, cmo@melexis.com, mwelling@ieee.org
 
+Make use of ARCH_RENESAS in place of ARCH_SHMOBILE.
 
---7gGkHNMELEOhSGF6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is part of an ongoing process to migrate from ARCH_SHMOBILE to
+ARCH_RENESAS the motivation for which being that RENESAS seems to be a more
+appropriate name than SHMOBILE for the majority of Renesas ARM based SoCs.
 
-On Thu, Feb 18, 2016 at 05:53:05PM +0200, Daniel Baluta wrote:
-> Sending this as an RFC because I don't know if style fixes are appropriate
-> for this driver and also not sure if deadlock fix is the best solution.
->=20
-> I2C people should only look at patches 8/9 and 9/9.
->=20
-> The mpu6050 accel+gyro combo has an auxiliary I2C bus, allowing for
-> an auxiliary sensor to be connected (eg. a magnetometer).
->=20
-> The mpu can either act as an I2C master (functionality not currently
-> implemented in the driver) or it can use a bypass multiplexer which
-> directly connects the auxiliary I2C bus pins to the main I2C bus pins [1]
-> Currently the driver implements the bypass mode via an I2C mux.
->=20
-> This patchset fixes a deadlock in inv-mpu6050 IMU which happens when
-> magnetometer (on auxiliary I2C bus) runs in parallel with accel or gyro.
->=20
-> First 7 patches do some cleanup in order to make INV MPU6050 code easier
-> to read.
->=20
-> Patch number 8 allows passing NULL select callbacks to i2c_mux_master_xfer
-> and i2c_mux_smbus_xfer.
->=20
-> Patch number 9 actually fixes the deadlock.
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+---
+ drivers/i2c/busses/Kconfig | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-We recently had a bigger patch series fixing locking problems related to
-muxes. I sadly didn't have the time to review it. Can you have a look if
-it helps your case?
+Based on the for-next branch of Wolfram's tree on kernel.org.
 
-http://thread.gmane.org/gmane.linux.drivers.i2c/26169
-
-Thanks,
-
-   Wolfram
-
-
---7gGkHNMELEOhSGF6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJWykWfAAoJEBQN5MwUoCm2qOkP/jKGqpHffps8ssgicIW8TKCt
-T/f9Xf4mGFJ5v/KNIEtqc7xlumEysU50wCEeD9mox2AFjdMb+UICAtaR7si/TM8n
-gIzVGGA4/UHrnVfTW4aah+cqZ+wkwTL9KcZjBzNXLi6kCqMExAct2ilArvZLJCkQ
-CJyxjTU9kMyc64m9hEmXzAsgWsyzL5RlNLnD7O8paZ7iEDJwjqmNosZBa4TEzM+B
-ZoZE/sG5Sv+COLkcQgIe9BQmk7wsQyuCGYO7q2SPj/iCyvDUD7O7rI/2BZp4WhHy
-iDuBtLPnTfMEy+tO8euPcQBcaGp9b4gDX5H9z5OIH0gOCgLMes3mexuli3/bZ4VH
-Kin/F/tHubUQZ5gT3o12QWYS08w1btOhLtwflIamfFfrgwQDZaFo24dhrNhtzKLR
-hrwvbVbOPstP4rHgRzO4yUkUkxfWUdYP/aJTSrzIzfgRibzqej8odN48uBfLvDY7
-SLxZIKNvnPktjzuBQyKeIegQuy2V+ZSPtJYuE848yz9stmfG0ODgozANVJXmPYPy
-Zov2RJgkqEKnlEal1vLrSQwJ4juN0GLlAmCN5jVpOm2RAhSd38od0VBzBkALgvbl
-8Im6RmC5RlR3MkfcPDwvwkPhNt+d6yHgfbyxtc0brz6dW7lrDo/jc13v9JMOOIlc
-Hsw/Tuat+UsdVqnWOR1e
-=sKxT
------END PGP SIGNATURE-----
-
---7gGkHNMELEOhSGF6--
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index a2e456a0f3e2..faa8e6821fea 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -789,7 +789,7 @@ config I2C_QUP
+ 
+ config I2C_RIIC
+ 	tristate "Renesas RIIC adapter"
+-	depends on ARCH_SHMOBILE || COMPILE_TEST
++	depends on ARCH_RENESAS || COMPILE_TEST
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  Renesas RIIC I2C interface.
+@@ -833,7 +833,7 @@ config I2C_SH7760
+ config I2C_SH_MOBILE
+ 	tristate "SuperH Mobile I2C Controller"
+ 	depends on HAS_DMA
+-	depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
++	depends on SUPERH || ARCH_RENESAS || COMPILE_TEST
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the Renesas SH-Mobile processor.
+@@ -985,7 +985,7 @@ config I2C_XLP9XX
+ 
+ config I2C_RCAR
+ 	tristate "Renesas R-Car I2C Controller"
+-	depends on ARCH_SHMOBILE || COMPILE_TEST
++	depends on ARCH_RENESAS || COMPILE_TEST
+ 	select I2C_SLAVE
+ 	help
+ 	  If you say yes to this option, support will be included for the
+-- 
+2.1.4
