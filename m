@@ -1,58 +1,30 @@
-From: Stefan Wahren <stefan.wahren@i2se.com>
-Subject: Re: [PATCH] i2c: bcm2835: Don't complain on -EPROBE_DEFER from
- getting our clock
-Date: Wed, 24 Feb 2016 18:29:43 +0100 (CET)
-Message-ID: <1956465948.222514.b52ca77e-fe5e-4536-8e14-525e9a846cdc.open-xchange@email.1und1.de>
-References: <1455844375-15019-1-git-send-email-eric@anholt.net>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC] i2c_check_functionality and error code
+Date: Wed, 24 Feb 2016 20:42:37 +0000
+Message-ID: <56CE15BD.3070800@kernel.org>
+References: <CAKzfze-B4dx9aghERaRDu7xz0i6pMJcAUGMQX7OWJpWh7i=bxw@mail.gmail.com>
+ <56CA1F0D.2060707@kernel.org> <20160221225606.GA1386@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1455844375-15019-1-git-send-email-eric@anholt.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eric Anholt <eric@anholt.net>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Lee Jones <lee@kernel.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160221225606.GA1386@katana>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Eric,
+On 21/02/16 22:56, Wolfram Sang wrote:
+>> Hohum. Wolfram what do you think?
+> 
+> I'd go for "EOPNOTSUPP" since it is most descriptive. I wouldn't say we
+> really need to fix it up in the kernel tree. However, I neither would
+> vote against it.
+> 
+I'm certainly keen on cleaning this up in IIO at the least.
+A bit of consistency is always nice and once we have done it once
+it should be reasonably pain free.
 
-> Eric Anholt <eric@anholt.net> hat am 19. Februar 2016 um 02:12 geschrieben:
->
->
-> Fixes dmesg spam when we just need to wait a moment for the clock
-> driver to probe.
->
-> Signed-off-by: Eric Anholt <eric@anholt.net>
-> ---
-> drivers/i2c/busses/i2c-bcm2835.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-bcm2835.c
-> b/drivers/i2c/busses/i2c-bcm2835.c
-> index 818b051..d4f3239 100644
-> --- a/drivers/i2c/busses/i2c-bcm2835.c
-> +++ b/drivers/i2c/busses/i2c-bcm2835.c
-> @@ -253,7 +253,8 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
->
-> i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
-> if (IS_ERR(i2c_dev->clk)) {
-> - dev_err(&pdev->dev, "Could not get clock\n");
-> + if (PTR_ERR(i2c_dev->clk) != -EPROBE_DEFER)
-> + dev_err(&pdev->dev, "Could not get clock\n");
+Anyhow, patches welcome ;)
 
-i know it's something different, but how about printing the error code here?
-
-Regards
-Stefan
-
-> return PTR_ERR(i2c_dev->clk);
-> }
->
-> --
-> 2.7.0
->
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+Jonathan
