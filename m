@@ -1,50 +1,45 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH] i2c: core: add devm apis for i2c_new_dummy and i2c_unregister
-Date: Wed, 24 Feb 2016 16:41:14 +0530
-Message-ID: <56CD8FD2.6080600@nvidia.com>
-References: <1454938058-28457-1-git-send-email-ldewangan@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1454938058-28457-1-git-send-email-ldewangan@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [RFC PATCH 0/2] ThunderX i2c driver
+Date: Wed, 24 Feb 2016 15:13:23 +0100
+Message-ID: <cover.1456322816.git.jglauber@cavium.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:36684 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754406AbcBXONm (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 24 Feb 2016 09:13:42 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Jan Glauber <jglauber@cavium.com>
 
-Hi Wolfram,
+Hi,
 
-On Monday 08 February 2016 06:57 PM, Laxman Dewangan wrote:
-> Add device managed APIs for i2c_new_dummy() and
-> i2c_unregister_device() so that it can be managed by
-> device framework for freeing it.
->
-> This helps on following:
-> 1. Maintaining the resource allocation and deallocation
-> 	i2c_dummy = i2c_new_dummy();
-> 	devm_regmap_init_i2c(i2c_dummy, &regmap_config)
->
-> 	On this case, the user of i2c_dummy which is
-> 	devm_regmap_init_i2c() is managed allocation where
-> 	i2c_new_dummy() is not.
-> 	On Free path, we have
-> 		i2c_unregister_device(i2c_dummy)
-> 	and later, device framework release the regmap. In this
-> 	case, client of i2c_dummy after the i2c_dummy.
->
-> 	By using devm apis, the sequence can be maintain
-> 		i2c_dummy = devm_i2c_new_dummy();
-> 		devm_regmap_init_i2c(i2c_dummy, &regmap_config)
->
-> 	and resource deallocation will be done in reverse order
-> 	by device framework.
->
-> 2. No need to release the i2c_client in error/remove path and hence
->     there is less code requirement.
->
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
->
+these two patches add support for the Cavium ThunderX SOC.
+The patches are on-top of the previous i2c-octeon series.
 
+Please review, feedback welcome!
 
-Can you please review this?
+Jan
+
+------------------------------------------------
+
+Jan Glauber (2):
+  i2c: Split i2c-octeon driver and add ThunderX support
+  i2c: thunderx: Add smbus support
+
+ drivers/i2c/busses/Kconfig             |   10 +
+ drivers/i2c/busses/Makefile            |    3 +
+ drivers/i2c/busses/i2c-cavium.c        |  828 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-cavium.h        |  191 +++++
+ drivers/i2c/busses/i2c-octeon-core.c   |  302 ++++++++
+ drivers/i2c/busses/i2c-octeon.c        | 1283 --------------------------------
+ drivers/i2c/busses/i2c-thunderx-core.c |  294 ++++++++
+ 7 files changed, 1628 insertions(+), 1283 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-cavium.c
+ create mode 100644 drivers/i2c/busses/i2c-cavium.h
+ create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
+ delete mode 100644 drivers/i2c/busses/i2c-octeon.c
+ create mode 100644 drivers/i2c/busses/i2c-thunderx-core.c
+
+-- 
+1.9.1
