@@ -1,57 +1,57 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: riic, sh_mobile, rcar: Use ARCH_RENESAS
-Date: Wed, 24 Feb 2016 11:21:06 +0100
-Message-ID: <20160224102106.GC1391@katana>
-References: <1456103719-10818-1-git-send-email-horms+renesas@verge.net.au>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: don't open code of_device_get_match_data()
+Date: Wed, 24 Feb 2016 11:25:27 +0100
+Message-ID: <20160224102527.GD1391@katana>
+References: <1456063089-3403-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iFRdW5/EC4oqxDHL"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="hoZxPH4CaxYzWscb"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1456103719-10818-1-git-send-email-horms+renesas@verge.net.au>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Simon Horman <horms+renesas@verge.net.au>
-Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+In-Reply-To: <1456063089-3403-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---iFRdW5/EC4oqxDHL
+--hoZxPH4CaxYzWscb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 22, 2016 at 10:15:19AM +0900, Simon Horman wrote:
-> Make use of ARCH_RENESAS in place of ARCH_SHMOBILE.
+On Sun, Feb 21, 2016 at 02:57:42PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 >=20
-> This is part of an ongoing process to migrate from ARCH_SHMOBILE to
-> ARCH_RENESAS the motivation for which being that RENESAS seems to be a mo=
-re
-> appropriate name than SHMOBILE for the majority of Renesas ARM based SoCs.
+> This change will also make Coverity happy by avoiding a theoretical NULL
+> pointer dereference; yet another reason is to use the above helper functi=
+on
+> to tighten the code and make it more readable.
 >=20
-> Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+> Signed-off-by: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---iFRdW5/EC4oqxDHL
+--hoZxPH4CaxYzWscb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJWzYQSAAoJEBQN5MwUoCm2/ZwP/RhP7usRQjvtQRJqRGaChq3d
-mZicFaFBVrVdGFjgjn+CD8nCR/qYhBBl26KFcUc9uqzO0+9zWj7zrxtn3gsyoCdA
-zvUAbq1oe04jN2MvepZElUMCCYLcy46UMyo26A11ISzwo2FdAz38t+9dlPnfs/FD
-KHrb6P9SosqzHL38LYMFdBgUsxb5IbX7LTYRCfElFSiil/6akeXeY1maTKtrP+tf
-vLWmZYQVA9cUZ8Ewd+7Gxbgb8B919w21oSFD5blLAGjZe53VQqA4SOaLxFWIZYF3
-kb5vogxII0YvMOhAvUq3G+U50T2EfgAyYiEkZHmOu8YGFUB8/KnvJQjUTcponlF3
-oM17iMCAl5GuvDCLTt+0Gy2utGN7IdfBJt/EkGYE/BRStUSzMQ91PNSXgX6SdqWr
-bPdMAKGwFmAc0n8qYo7gV1H4vWPPROTkHmEfaMtYv6CuanfqqsNY9z4RDgtXDobK
-bIg10/4Itn8UyEhwVmA/4aAxJ4z/2jGCOZ8SXE4gzSEUeMvnudNvdGECgc8EBe9D
-swyAQf6+j155QaK+iJxjzhUnTBuAjWUW1+qxKN36JELxE5ebca0lpfnPK1YiCQnC
-JUwY05p6EBNIRet31cJZhUGnQrW6ZNK9pvLjRIB33nKFImdyOOQBjlVuKX5tf63s
-XXG2ykOP7sqnCi0A4RlZ
-=Tb6k
+iQIcBAEBAgAGBQJWzYUXAAoJEBQN5MwUoCm2G4gP/3IX0XtxNMtElpIpv4grFJ5D
+NNnB2SzrKtLkbavlQqw+4GE9wguDDrdtjhYMIxeXWZ9pzCVyVo40902BzCqzxt6r
+9GphSvF7WQw+7k9Jjd0i0GHiWYToJfmFqemLD++ytDaF54RRW0o24Ky4itxB8NCU
+zQJZBXOD1WkPe+RinLHGEvA/mtB99iBdUm9ZeaBPi8B/5ji+0kCHdatNTXn9rdhn
+LnfvhJOPZvXApZJWDo6ZA04WQLRW6v+i0VTFTZMyWiiX/swv8E2qEHr1Enf4TvOD
+SkKVoQHLcxVuOyO06tNYAV7q+6ou5fTlPWFw2pyK4SuC4WQxhaO5wMuKhZEhpu/j
+wdr+kHjhTwKKqj9tLWh3i4KshPAW0b8oVy+19JuUjmH5AWdpp0QRZ7oF3LVWkEip
+Y+0hEgL/yfGzB6+0qjEm18dzXrn78QWzGBEVDF3mbeeBMH5a0kJgtI92XlFpdjQ3
+ZeHCxwJ7Phmhs21/OeLNS755unGxFtZg4dm+ZEYxWF8m9WfqV3TkyHCavIVIALHA
+96Z6P0YS1Ch+HW9+2u8CGPbEpSpHRhwdqfd5eKxBMYophM71WZo68w7JSP83bZaW
+vketmoMKqfY5lD+1ocQby4i5PxWKnQ/IXUR7dRDbIlKUQqlVNixnXS5vf6r0p7ij
+m5AWmRRMdjhIdNGPPugE
+=Vc+x
 -----END PGP SIGNATURE-----
 
---iFRdW5/EC4oqxDHL--
+--hoZxPH4CaxYzWscb--
