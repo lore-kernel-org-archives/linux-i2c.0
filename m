@@ -1,23 +1,28 @@
-From: Kamal Dasu <kdasu.kdev@gmail.com>
-Subject: Re: [PATCH] i2c: brcmstb: allocate correct amount of memory for regmap
-Date: Thu, 25 Feb 2016 14:32:11 -0500
-Message-ID: <CAC=U0a0FR8u3=zYU7xDW4dJxbwFUY4RHxMdK9zoEHdXcWyNDPg@mail.gmail.com>
+From: "Kamal Dasu" <kamal.dasu@broadcom.com>
+Subject: RE: [PATCH] i2c: brcmstb: allocate correct amount of memory for regmap
+Date: Thu, 25 Feb 2016 15:08:03 -0500
+Message-ID: <270d201d17008$3cae24f0$b60a6ed0$@broadcom.com>
+References: <1456064238-6294-1-git-send-email-wsa@the-dreams.de> <56CB3A8A.9040401@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:36559 "EHLO
-	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933645AbcBYTcS (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Feb 2016 14:32:18 -0500
-Received: by mail-wm0-f49.google.com with SMTP id g62so44006893wme.1
-        for <linux-i2c@vger.kernel.org>; Thu, 25 Feb 2016 11:32:12 -0800 (PST)
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:33443 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933286AbcBYUIG (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 25 Feb 2016 15:08:06 -0500
+Received: by mail-pf0-f180.google.com with SMTP id q63so38239781pfb.0
+        for <linux-i2c@vger.kernel.org>; Thu, 25 Feb 2016 12:08:05 -0800 (PST)
+In-Reply-To: <56CB3A8A.9040401@gmail.com>
+Content-Language: en-us
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list.pdl@broadcom.com, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>
+To: 'Wolfram Sang' <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
 
-> We want the size of the struct, not of a pointer to it. To be future proof,
-> just dereference the pointer to get the desired type.
+> We want the size of the struct, not of a pointer to it. To be future 
+> proof, just dereference the pointer to get the desired type.
 
 Thanks for catching and fixing this.
 
