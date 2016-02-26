@@ -1,84 +1,113 @@
-From: Daniel Baluta <daniel.baluta@intel.com>
-Subject: Re: [RFC PATCH 0/9] iio: Fix ABBA deadlock in inv-mpu6050
-Date: Fri, 26 Feb 2016 17:52:10 +0200
-Message-ID: <CAEnQRZCKJuYTxckGzcFvyTfvonwBqQW37D7Y5RqyeBbd2iPkKA@mail.gmail.com>
-References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
-	<20160221231751.GC1386@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Sricharan R <sricharan@codeaurora.org>
+Subject: [PATCH] drivers: i2c: Fix qup fifo handling
+Date: Fri, 26 Feb 2016 21:28:54 +0530
+Message-ID: <1456502334-8687-1-git-send-email-sricharan@codeaurora.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:36369 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753896AbcBZPwM (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 26 Feb 2016 10:52:12 -0500
-In-Reply-To: <20160221231751.GC1386@katana>
+Received: from smtp.codeaurora.org ([198.145.29.96]:38551 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754701AbcBZP7N (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 26 Feb 2016 10:59:13 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Daniel Baluta <daniel.baluta@intel.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Ge Gao <ggao@invensense.com>, Adriana Reus <adi.reus@gmail.com>, Crt Mori <cmo@melexis.com>, Michael Welling <mwelling@ieee.org>
+To: gpramod@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
+Cc: sricharan@codeaurora.org
 
-On Mon, Feb 22, 2016 at 1:17 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Thu, Feb 18, 2016 at 05:53:05PM +0200, Daniel Baluta wrote:
->> Sending this as an RFC because I don't know if style fixes are appropriate
->> for this driver and also not sure if deadlock fix is the best solution.
->>
->> I2C people should only look at patches 8/9 and 9/9.
->>
->> The mpu6050 accel+gyro combo has an auxiliary I2C bus, allowing for
->> an auxiliary sensor to be connected (eg. a magnetometer).
->>
->> The mpu can either act as an I2C master (functionality not currently
->> implemented in the driver) or it can use a bypass multiplexer which
->> directly connects the auxiliary I2C bus pins to the main I2C bus pins [1]
->> Currently the driver implements the bypass mode via an I2C mux.
->>
->> This patchset fixes a deadlock in inv-mpu6050 IMU which happens when
->> magnetometer (on auxiliary I2C bus) runs in parallel with accel or gyro.
->>
->> First 7 patches do some cleanup in order to make INV MPU6050 code easier
->> to read.
->>
->> Patch number 8 allows passing NULL select callbacks to i2c_mux_master_xfer
->> and i2c_mux_smbus_xfer.
->>
->> Patch number 9 actually fixes the deadlock.
->
-> We recently had a bigger patch series fixing locking problems related to
-> muxes. I sadly didn't have the time to review it. Can you have a look if
-> it helps your case?
->
-> http://thread.gmane.org/gmane.linux.drivers.i2c/26169
+After the addition of V2 support, there was a regression observed
+when testing it on MSM8996. The reason is driver puts the controller
+in to RUN state and writes the data to be 'tx' ed in fifo. But controller
+has to be put in to 'PAUSE' state and data has to written to fifo. Then
+should be put in to 'RUN' state separately.
 
+Signed-off-by: Sricharan R <sricharan@codeaurora.org>
+---
+ drivers/i2c/busses/i2c-qup.c | 46 +++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 39 insertions(+), 7 deletions(-)
 
-Hi Wolfram,
-
-Tested this and the deadlock is still there :(.
-
-It can be easily reproduced with following patch which enlarges
-the race window:
-
-iff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-index a3f5070..279d6e0 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-@@ -232,6 +232,7 @@ inv_mpu6050_read_raw(struct iio_dev *indio_dev,
-                ret = IIO_VAL_INT;
-                result = 0;
-                mutex_lock(&indio_dev->mlock);
-+               msleep(12000);
-                if (!st->chip_config.enable) {
-                        result = inv_mpu6050_set_power_itg(st, true);
-                        if (result)
-
-
-using the following commands:
-
-$ cat /sys/bus/iio/devices/iio:device0/in_accel_x_raw
-$ cat /sys/bus/iio/devices/iio:device1/in_magn_x_raw
-
-Off topic: I'm very curious why I didn't get a lockdep splat while running this,
-might be because adapter lock is a rt_mutex.
-
-thanks,
-Daniel.
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 30f3a2b..23eaabb 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -372,6 +372,38 @@ static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 	}
+ }
+ 
++static int check_for_fifo_space(struct qup_i2c_dev *qup)
++{
++	int ret;
++
++	ret = qup_i2c_change_state(qup, QUP_PAUSE_STATE);
++	if (ret)
++		goto out;
++
++	ret = qup_i2c_wait_ready(qup, QUP_OUT_FULL,
++				 RESET_BIT, 4 * ONE_BYTE);
++	if (ret) {
++		/* Fifo is full. Drain out the fifo */
++		ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
++		if (ret)
++			goto out;
++
++		ret = qup_i2c_wait_ready(qup, QUP_OUT_NOT_EMPTY,
++					 RESET_BIT, 256 * ONE_BYTE);
++		if (ret) {
++			dev_err(qup->dev, "timeout for fifo out full");
++			goto out;
++		}
++
++		ret = qup_i2c_change_state(qup, QUP_PAUSE_STATE);
++		if (ret)
++			goto out;
++	}
++
++out:
++	return ret;
++}
++
+ static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ {
+ 	u32 addr = msg->addr << 1;
+@@ -390,8 +422,7 @@ static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 
+ 	while (qup->pos < msg->len) {
+ 		/* Check that there's space in the FIFO for our pair */
+-		ret = qup_i2c_wait_ready(qup, QUP_OUT_FULL, RESET_BIT,
+-					 4 * ONE_BYTE);
++		ret = check_for_fifo_space(qup);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -413,6 +444,8 @@ static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 		idx++;
+ 	}
+ 
++	ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
++
+ 	return ret;
+ }
+ 
+@@ -441,12 +474,9 @@ static int qup_i2c_send_data(struct qup_i2c_dev *qup, int tlen, u8 *tbuf,
+ 	int ret = 0;
+ 
+ 	while (len > 0) {
+-		ret = qup_i2c_wait_ready(qup, QUP_OUT_FULL,
+-					 RESET_BIT, 4 * ONE_BYTE);
+-		if (ret) {
+-			dev_err(qup->dev, "timeout for fifo out full");
++		ret = check_for_fifo_space(qup);
++		if (ret)
+ 			return ret;
+-		}
+ 
+ 		t = (len >= 4) ? 4 : len;
+ 
+@@ -465,6 +495,8 @@ static int qup_i2c_send_data(struct qup_i2c_dev *qup, int tlen, u8 *tbuf,
+ 		len -= 4;
+ 	}
+ 
++	ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
++
+ 	return ret;
+ }
+ 
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
