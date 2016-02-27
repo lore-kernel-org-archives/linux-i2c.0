@@ -1,113 +1,44 @@
-From: Sricharan R <sricharan@codeaurora.org>
-Subject: [PATCH] drivers: i2c: Fix qup fifo handling
-Date: Fri, 26 Feb 2016 21:28:54 +0530
-Message-ID: <1456502334-8687-1-git-send-email-sricharan@codeaurora.org>
+From: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: =?utf-8?Q?=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0?=
+	=?utf-8?Q?=9A=D0=98=D0=95_=D0=91=D0=90=D0=97=D0=AB!_=D0?=
+	=?utf-8?Q?=A2=D0=B5=D0=BB=5CViber=5CWhatsapp=3A_+79133913?=
+	=?utf-8?Q?837_Email=3A_vavdeev17=40gmail=2Ecom_Skype=3A_p?=
+	=?utf-8?Q?rodawez389?=
+Date: Sat, 27 Feb 2016 17:54:08 +0600
+Message-ID: <08F347980DD9F635E9ECA51AEEEFFC3A@vger.kernel.org>
+Reply-To: "linux-i2c@vger.kernel.org" <vavdeev17@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:38551 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754701AbcBZP7N (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 26 Feb 2016 10:59:13 -0500
+Received: from [202.72.245.59] ([202.72.245.59]:32819 "EHLO ns1.railtelecom.mn"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754674AbcB1VMD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 28 Feb 2016 16:12:03 -0500
+Received: from 202.72.245.59 (localhost [127.0.0.1])
+	by ns1.railtelecom.mn (Postfix) with SMTP id 6BDCA3E3014
+	for <linux-i2c@vger.kernel.org>; Sat, 27 Feb 2016 19:54:09 +0800 (ULAT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: gpramod@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
-Cc: sricharan@codeaurora.org
+To: linux-i2c@vger.kernel.org
 
-After the addition of V2 support, there was a regression observed
-when testing it on MSM8996. The reason is driver puts the controller
-in to RUN state and writes the data to be 'tx' ed in fifo. But controller
-has to be put in to 'PAUSE' state and data has to written to fifo. Then
-should be put in to 'RUN' state separately.
+=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0=9A=D0=98=D0=95 =D0=91=D0=90=
+=D0=97=D0=AB!
 
-Signed-off-by: Sricharan R <sricharan@codeaurora.org>
----
- drivers/i2c/busses/i2c-qup.c | 46 +++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 39 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 30f3a2b..23eaabb 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -372,6 +372,38 @@ static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 	}
- }
- 
-+static int check_for_fifo_space(struct qup_i2c_dev *qup)
-+{
-+	int ret;
-+
-+	ret = qup_i2c_change_state(qup, QUP_PAUSE_STATE);
-+	if (ret)
-+		goto out;
-+
-+	ret = qup_i2c_wait_ready(qup, QUP_OUT_FULL,
-+				 RESET_BIT, 4 * ONE_BYTE);
-+	if (ret) {
-+		/* Fifo is full. Drain out the fifo */
-+		ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
-+		if (ret)
-+			goto out;
-+
-+		ret = qup_i2c_wait_ready(qup, QUP_OUT_NOT_EMPTY,
-+					 RESET_BIT, 256 * ONE_BYTE);
-+		if (ret) {
-+			dev_err(qup->dev, "timeout for fifo out full");
-+			goto out;
-+		}
-+
-+		ret = qup_i2c_change_state(qup, QUP_PAUSE_STATE);
-+		if (ret)
-+			goto out;
-+	}
-+
-+out:
-+	return ret;
-+}
-+
- static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- {
- 	u32 addr = msg->addr << 1;
-@@ -390,8 +422,7 @@ static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 
- 	while (qup->pos < msg->len) {
- 		/* Check that there's space in the FIFO for our pair */
--		ret = qup_i2c_wait_ready(qup, QUP_OUT_FULL, RESET_BIT,
--					 4 * ONE_BYTE);
-+		ret = check_for_fifo_space(qup);
- 		if (ret)
- 			return ret;
- 
-@@ -413,6 +444,8 @@ static int qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 		idx++;
- 	}
- 
-+	ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
-+
- 	return ret;
- }
- 
-@@ -441,12 +474,9 @@ static int qup_i2c_send_data(struct qup_i2c_dev *qup, int tlen, u8 *tbuf,
- 	int ret = 0;
- 
- 	while (len > 0) {
--		ret = qup_i2c_wait_ready(qup, QUP_OUT_FULL,
--					 RESET_BIT, 4 * ONE_BYTE);
--		if (ret) {
--			dev_err(qup->dev, "timeout for fifo out full");
-+		ret = check_for_fifo_space(qup);
-+		if (ret)
- 			return ret;
--		}
- 
- 		t = (len >= 4) ? 4 : len;
- 
-@@ -465,6 +495,8 @@ static int qup_i2c_send_data(struct qup_i2c_dev *qup, int tlen, u8 *tbuf,
- 		len -= 4;
- 	}
- 
-+	ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
-+
- 	return ret;
- }
- 
--- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
+=D0=A1=D0=BE=D0=B1=D0=B5=D1=80=D0=B5=D0=BC =D0=B4=D0=BB=D1=8F =D0=92=D0=
+=B0=D1=81 =D0=BF=D0=BE =D0=B8=D0=BD=D1=82=D0=B5=D1=80=D0=BD=D0=B5=D1=82=
+ =D0=B1=D0=B0=D0=B7=D1=83 =D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D1=85 =D0=BF=D0=
+=BE=D1=82=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=D1=85 =D0=
+=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D0=BE=D0=B2=20
+=D0=B4=D0=BB=D1=8F =D0=92=D0=B0=D1=88=D0=B5=D0=B3=D0=BE =D0=91=D0=B8=D0=
+=B7=D0=BD=D0=B5=D1=81=D0=B0!
+=D0=9C=D0=BD=D0=BE=D0=B3=D0=BE! =D0=91=D1=8B=D1=81=D1=82=D1=80=D0=BE! =D0=
+=9D=D0=B5=D0=B4=D0=BE=D1=80=D0=BE=D0=B3=D0=BE!=20
+=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9=D1=82=D0=B5 =D0=BE=D0=B1 =D1=8D=D1=82=D0=
+=BE=D0=BC =D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=D0=B5=D0=B5 =D0=BF=
+=D0=BE=20
+=D0=A2=D0=B5=D0=BB: +79133913837
+Viber: +79133913837
+Whatsapp: +79133913837
+Skype: prodawez389
+Email: vavdeev17@gmail.com
