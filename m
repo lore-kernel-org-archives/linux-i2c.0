@@ -1,44 +1,59 @@
-From: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Subject: =?utf-8?Q?=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0?=
-	=?utf-8?Q?=9A=D0=98=D0=95_=D0=91=D0=90=D0=97=D0=AB!_=D0?=
-	=?utf-8?Q?=A2=D0=B5=D0=BB=5CViber=5CWhatsapp=3A_+79133913?=
-	=?utf-8?Q?837_Email=3A_vavdeev17=40gmail=2Ecom_Skype=3A_p?=
-	=?utf-8?Q?rodawez389?=
-Date: Sat, 27 Feb 2016 17:54:08 +0600
-Message-ID: <08F347980DD9F635E9ECA51AEEEFFC3A@vger.kernel.org>
-Reply-To: "linux-i2c@vger.kernel.org" <vavdeev17@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from [202.72.245.59] ([202.72.245.59]:32819 "EHLO ns1.railtelecom.mn"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754674AbcB1VMD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 28 Feb 2016 16:12:03 -0500
-Received: from 202.72.245.59 (localhost [127.0.0.1])
-	by ns1.railtelecom.mn (Postfix) with SMTP id 6BDCA3E3014
-	for <linux-i2c@vger.kernel.org>; Sat, 27 Feb 2016 19:54:09 +0800 (ULAT)
-Sender: linux-i2c-owner@vger.kernel.org
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [Resend PATCH 00/10] i2c-octeon and i2c-thunderx drivers
+Date: Mon, 29 Feb 2016 14:46:07 +0100
+Message-ID: <cover.1456752497.git.jglauber@cavium.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ddaney@caviumnetworks.com, Jan Glauber <jglauber@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
 
-=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0=9A=D0=98=D0=95 =D0=91=D0=90=
-=D0=97=D0=AB!
+I'm resending both patch series as one since the thunderx driver
+depends on the octeon driver patches. Also (subtly) dropping the RFC
+in the hope of getting the patches reviewed.
 
-=D0=A1=D0=BE=D0=B1=D0=B5=D1=80=D0=B5=D0=BC =D0=B4=D0=BB=D1=8F =D0=92=D0=
-=B0=D1=81 =D0=BF=D0=BE =D0=B8=D0=BD=D1=82=D0=B5=D1=80=D0=BD=D0=B5=D1=82=
- =D0=B1=D0=B0=D0=B7=D1=83 =D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D1=85 =D0=BF=D0=
-=BE=D1=82=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=D1=85 =D0=
-=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D0=BE=D0=B2=20
-=D0=B4=D0=BB=D1=8F =D0=92=D0=B0=D1=88=D0=B5=D0=B3=D0=BE =D0=91=D0=B8=D0=
-=B7=D0=BD=D0=B5=D1=81=D0=B0!
-=D0=9C=D0=BD=D0=BE=D0=B3=D0=BE! =D0=91=D1=8B=D1=81=D1=82=D1=80=D0=BE! =D0=
-=9D=D0=B5=D0=B4=D0=BE=D1=80=D0=BE=D0=B3=D0=BE!=20
-=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9=D1=82=D0=B5 =D0=BE=D0=B1 =D1=8D=D1=82=D0=
-=BE=D0=BC =D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=D0=B5=D0=B5 =D0=BF=
-=D0=BE=20
-=D0=A2=D0=B5=D0=BB: +79133913837
-Viber: +79133913837
-Whatsapp: +79133913837
-Skype: prodawez389
-Email: vavdeev17@gmail.com
+This series for the Octeon i2c driver is an attempt to upstream some
+bug fixes and features that accumulated for some time. I tried to
+split the cleanup from the other patches and updated the patch
+descriptions according to my humble i2c knowledge.
+
+Patches are on top of 4.5-rc6 and were tested on OCTEON, OCTEON-78
+and ThunderX.
+
+Jan
+
+----------------------------------------------------------------------
+
+David Daney (4):
+  i2c-octeon: Support I2C_M_RECV_LEN
+  i2c-octeon: Enable high-level controller and improve on bus contention
+  i2c-octeon: Add support for cn78XX chips
+  i2c-octeon: Add workaround for chips with broken irqs
+
+Jan Glauber (4):
+  i2c-octeon: Cleanup i2c-octeon driver
+  dt-bindings: i2c: add Octeon cn78xx TWSI
+  i2c: split i2c-octeon driver and add ThunderX support
+  i2c: thunderx: add smbus support
+
+Peter Swain (2):
+  i2c-octeon: Flush TWSI writes with readback
+  i2c-octeon: Faster operation when IFLG signals late
+
+ .../devicetree/bindings/i2c/i2c-octeon.txt         |   6 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   3 +
+ drivers/i2c/busses/i2c-cavium.c                    | 828 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-cavium.h                    | 191 +++++
+ drivers/i2c/busses/i2c-octeon-core.c               | 302 ++++++++
+ drivers/i2c/busses/i2c-octeon.c                    | 633 ----------------
+ drivers/i2c/busses/i2c-thunderx-core.c             | 294 ++++++++
+ 8 files changed, 1634 insertions(+), 633 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-cavium.c
+ create mode 100644 drivers/i2c/busses/i2c-cavium.h
+ create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
+ delete mode 100644 drivers/i2c/busses/i2c-octeon.c
+ create mode 100644 drivers/i2c/busses/i2c-thunderx-core.c
+
+-- 
+1.9.1
