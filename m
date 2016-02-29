@@ -1,110 +1,51 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [Resend PATCH 08/10] i2c-octeon: Add workaround for chips with broken irqs
-Date: Mon, 29 Feb 2016 14:46:15 +0100
-Message-ID: <be4e3fc91e12bf2987999057404d36285933ad90.1456752497.git.jglauber@cavium.com>
+Subject: [Resend PATCH 04/10] dt-bindings: i2c: add Octeon cn78xx TWSI
+Date: Mon, 29 Feb 2016 14:46:11 +0100
+Message-ID: <68243c3227d98ec9b22fab511084b8c5280ac532.1456752497.git.jglauber@cavium.com>
 References: <cover.1456752497.git.jglauber@cavium.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:33787 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753641AbcB2Nql (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Feb 2016 08:46:41 -0500
 In-Reply-To: <cover.1456752497.git.jglauber@cavium.com>
 In-Reply-To: <cover.1456752497.git.jglauber@cavium.com>
 References: <cover.1456752497.git.jglauber@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ddaney@caviumnetworks.com, Jan Glauber <jglauber@cavium.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ddaney@caviumnetworks.com, Jan Glauber <jglauber@cavium.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-From: David Daney <ddaney@caviumnetworks.com>
+Add compatible string for Cavium Octeon cn78XX SOCs TWSI.
 
-CN3860 does not interrupt the CPU when the i2c status changes.  If
-we get a timeout, and see the status has in fact changed, we know we
-have this problem, and drop back to polling.
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Pawel Moll <pawel.moll@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: Kumar Gala <galak@codeaurora.org>
 
-Signed-off-by: David Daney <ddaney@caviumnetworks.com>
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
+Acked-by: David Daney <ddaney@caviumnetworks.com>
 ---
- drivers/i2c/busses/i2c-octeon.c | 46 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-octeon.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index e3552e5..3c2f848 100644
---- a/drivers/i2c/busses/i2c-octeon.c
-+++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -115,6 +115,7 @@ struct octeon_i2c {
- 	int			sys_freq;
- 	void __iomem		*twsi_base;
- 	struct device		*dev;
-+	int			broken_irq_mode;
- 	bool			hlc_enabled;
- 	void			(*int_en)	(struct octeon_i2c *);
- 	void			(*int_dis)	(struct octeon_i2c *);
-@@ -382,10 +383,33 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
- 	int first = 1;
- 	long result;
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-octeon.txt b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
+index dced82e..872d485 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
+@@ -4,6 +4,12 @@
  
-+	if (i2c->broken_irq_mode) {
-+		/*
-+		 * Some chip revisions seem to not assert the irq in
-+		 * the interrupt controller.  So we must poll for the
-+		 * IFLG change.
-+		 */
-+		u64 end = get_jiffies_64() + i2c->adap.timeout;
-+
-+		while (!octeon_i2c_test_iflg(i2c) &&
-+		       time_before64(get_jiffies_64(), end))
-+			udelay(50);
-+
-+		return octeon_i2c_test_iflg(i2c) ? 0 : -ETIMEDOUT;
-+	}
-+
- 	i2c->int_en(i2c);
- 	result = wait_event_timeout(i2c->queue, poll_iflg(i2c, &first),
- 				    i2c->adap.timeout);
- 	i2c->int_dis(i2c);
-+
-+	if (result <= 0 && OCTEON_IS_MODEL(OCTEON_CN38XX) &&
-+	    octeon_i2c_test_iflg(i2c)) {
-+		dev_err(i2c->dev,
-+			"broken irq connection detected, switching to polling mode.\n");
-+		i2c->broken_irq_mode = 1;
-+		return 0;
-+	}
- 	if (!result) {
- 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
- 		return -ETIMEDOUT;
-@@ -740,6 +764,21 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
- {
- 	int result;
+   Compatibility with all cn3XXX, cn5XXX and cn6XXX SOCs.
  
-+	if (i2c->broken_irq_mode) {
-+		/*
-+		 * Some cn38xx boards did not assert the irq in
-+		 * the interrupt controller.  So we must poll for the
-+		 * IFLG change.
-+		 */
-+		u64 end = get_jiffies_64() + i2c->adap.timeout;
++  or
 +
-+		while (!octeon_i2c_hlc_test_ready(i2c) &&
-+		       time_before64(get_jiffies_64(), end))
-+			udelay(50);
++  compatible: "cavium,octeon-7890-twsi"
 +
-+		return octeon_i2c_hlc_test_ready(i2c) ? 0 : -ETIMEDOUT;
-+	}
++  Compatibility with cn78XX SOCs.
 +
- 	i2c->hlc_int_en(i2c);
- 	result = wait_event_interruptible_timeout(i2c->queue,
- 			octeon_i2c_hlc_test_ready(i2c), i2c->adap.timeout);
-@@ -747,6 +786,13 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
- 	if (!result)
- 		octeon_i2c_hlc_int_clear(i2c);
+ - reg: The base address of the TWSI/I2C bus controller register bank.
  
-+	if (result <= 0 && OCTEON_IS_MODEL(OCTEON_CN38XX) &&
-+	    octeon_i2c_hlc_test_ready(i2c)) {
-+		dev_err(i2c->dev, "broken irq connection detected, switching to polling mode.\n");
-+			i2c->broken_irq_mode = 1;
-+			return 0;
-+	}
-+
- 	if (result < 0) {
- 		dev_dbg(i2c->dev, "%s: wait interrupted\n", __func__);
- 		return result;
+ - #address-cells: Must be <1>.
 -- 
 1.9.1
