@@ -1,267 +1,129 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [Resend PATCH 05/10] i2c-octeon: Add support for cn78XX chips
-Date: Mon, 29 Feb 2016 14:46:12 +0100
-Message-ID: <f4acb786d0cbd93c40e3ed1a0c9ea87ec0b29983.1456752497.git.jglauber@cavium.com>
-References: <cover.1456752497.git.jglauber@cavium.com>
+From: Laxman Dewangan <ldewangan@nvidia.com>
+Subject: [PATCH V2 1/2] i2c: core: add devm apis for i2c_new_dummy and i2c_unregister
+Date: Mon, 29 Feb 2016 19:07:02 +0530
+Message-ID: <1456753023-20559-1-git-send-email-ldewangan@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1456752497.git.jglauber@cavium.com>
-In-Reply-To: <cover.1456752497.git.jglauber@cavium.com>
-References: <cover.1456752497.git.jglauber@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ddaney@caviumnetworks.com, Jan Glauber <jglauber@cavium.com>
+To: wsa@the-dreams.de, corbet@lwn.net
+Cc: bjorn.andersson@sonymobile.com, gregkh@linuxfoundation.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Laxman Dewangan <ldewangan@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: David Daney <ddaney@caviumnetworks.com>
+Add resource managed version of i2c_new_dummy() and
+i2c_unregister_device().
 
-cn78XX has a different interrupt architecture, so we have to manage
-the interrupts differently.
+This helps in reducing the code size in error path and device
+remove callbacks and making proper sequence for deallocations.
 
-Signed-off-by: David Daney <ddaney@caviumnetworks.com>
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+
 ---
- drivers/i2c/busses/i2c-octeon.c | 156 ++++++++++++++++++++++++++++++++++------
- 1 file changed, 136 insertions(+), 20 deletions(-)
+Changes from V1:
+- Got review comment on similar change for pinctrl and taken care of
+  the same on this patch as V1 has similar issue.
+- Add the new devm_ APIs in the Documentation/driver-model/devres.txt
+- Will push the change for using this new APIs later once this is
+  applied as most of consumer for these APIs are in other subsystem like
+  MFD/RTC.
 
-diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index d48456a..0b28d8c 100644
---- a/drivers/i2c/busses/i2c-octeon.c
-+++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -15,6 +15,7 @@
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/atomic.h>
- #include <linux/delay.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-@@ -109,11 +110,18 @@ struct octeon_i2c {
- 	wait_queue_head_t	queue;
- 	struct i2c_adapter	adap;
- 	int			irq;
-+	int			hlc_irq;	/* For cn7890 only */
- 	u32			twsi_freq;
- 	int			sys_freq;
- 	void __iomem		*twsi_base;
- 	struct device		*dev;
- 	bool			hlc_enabled;
-+	void			(*int_en)	(struct octeon_i2c *);
-+	void			(*int_dis)	(struct octeon_i2c *);
-+	void			(*hlc_int_en)	(struct octeon_i2c *);
-+	void			(*hlc_int_dis)	(struct octeon_i2c *);
-+	atomic_t		int_en_cnt;
-+	atomic_t		hlc_int_en_cnt;
- };
- 
- static int reset_how;
-@@ -215,6 +223,58 @@ static void octeon_i2c_disable_hlc(struct octeon_i2c *i2c)
+ drivers/i2c/i2c-core.c | 66 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |  6 +++++
+ 2 files changed, 72 insertions(+)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 2949ab3..b5cd30b 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1158,6 +1158,72 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
  }
+ EXPORT_SYMBOL_GPL(i2c_new_dummy);
  
- /**
-+ * octeon_i2c_int_enable78 - enable the CORE interrupt
-+ * @i2c: The struct octeon_i2c
-+ *
-+ * The interrupt will be asserted when there is non-STAT_IDLE state in the
-+ * SW_TWSI_EOP_TWSI_STAT register.
-+ */
-+static void octeon_i2c_int_enable78(struct octeon_i2c *i2c)
++static void devm_i2c_dummy_release(struct device *dev, void *res)
 +{
-+	atomic_inc_return(&i2c->int_en_cnt);
-+	enable_irq(i2c->irq);
-+}
-+
-+static void __octeon_i2c_irq_disable(atomic_t *cnt, int irq)
-+{
-+	int count;
-+
-+	/*
-+	 * The interrupt can be disabled in two places, but we only
-+	 * want to make the disable_irq_nosync() call once, so keep
-+	 * track with the atomic variable.
-+	 */
-+	count = atomic_dec_if_positive(cnt);
-+	if (count >= 0)
-+		disable_irq_nosync(irq);
-+}
-+
-+/* disable the CORE interrupt */
-+static void octeon_i2c_int_disable78(struct octeon_i2c *i2c)
-+{
-+	__octeon_i2c_irq_disable(&i2c->int_en_cnt, i2c->irq);
++	i2c_unregister_device(*(struct i2c_client **)res);
 +}
 +
 +/**
-+ * octeon_i2c_hlc_int_enable78 - enable the ST interrupt
-+ * @i2c: The struct octeon_i2c
++ * devm_i2c_new_dummy - Resource managed version of i2c_new_dummy()
++ * @dev: Device pointer for which this resouce belongs to.
++ * @adapter: the adapter managing the device
++ * @address: seven bit address to be used
++ * Context: can sleep
 + *
-+ * The interrupt will be asserted when there is non-STAT_IDLE state in
-+ * the SW_TWSI_EOP_TWSI_STAT register.
++ * This returns the new i2c client. Returns a valid pointer to struct
++ * i2c_client or NULL to indicate error. The i2c_client will be
++ * automatically released when the device is unbound.
 + */
-+static void octeon_i2c_hlc_int_enable78(struct octeon_i2c *i2c)
++struct i2c_client *devm_i2c_new_dummy(struct device *dev,
++				      struct i2c_adapter *adapter,
++				      u16 address)
 +{
-+	atomic_inc_return(&i2c->hlc_int_en_cnt);
-+	enable_irq(i2c->hlc_irq);
-+}
++	struct i2c_client **ptr, *i2c_dummy;
 +
-+/* disable the ST interrupt */
-+static void octeon_i2c_hlc_int_disable78(struct octeon_i2c *i2c)
-+{
-+	__octeon_i2c_irq_disable(&i2c->hlc_int_en_cnt, i2c->hlc_irq);
-+}
++	ptr = devres_alloc(devm_i2c_dummy_release, sizeof(*ptr),
++			   GFP_KERNEL);
++	if (!ptr)
++		return NULL;
 +
-+/**
-  * bitbang_unblock - unblock the bus
-  * @i2c: The struct octeon_i2c
-  *
-@@ -251,7 +311,18 @@ static irqreturn_t octeon_i2c_isr(int irq, void *dev_id)
- {
- 	struct octeon_i2c *i2c = dev_id;
- 
--	octeon_i2c_int_disable(i2c);
-+	i2c->int_dis(i2c);
-+	wake_up(&i2c->queue);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/* interrupt service routine */
-+static irqreturn_t octeon_i2c_hlc_isr78(int irq, void *dev_id)
-+{
-+	struct octeon_i2c *i2c = dev_id;
-+
-+	i2c->hlc_int_dis(i2c);
- 	wake_up(&i2c->queue);
- 
- 	return IRQ_HANDLED;
-@@ -277,10 +348,10 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
- {
- 	long result;
- 
--	octeon_i2c_int_enable(i2c);
-+	i2c->int_en(i2c);
- 	result = wait_event_timeout(i2c->queue, octeon_i2c_test_iflg(i2c),
- 				    i2c->adap.timeout);
--	octeon_i2c_int_disable(i2c);
-+	i2c->int_dis(i2c);
- 	if (!result) {
- 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
- 		return -ETIMEDOUT;
-@@ -300,8 +371,8 @@ static int octeon_i2c_enable_hlc(struct octeon_i2c *i2c)
- 
- 	if (i2c->hlc_enabled)
- 		return 0;
--	else
--		i2c->hlc_enabled = true;
-+
-+	i2c->hlc_enabled = true;
- 
- 	while (1) {
- 		val = octeon_i2c_read_ctl(i2c) & (TWSI_CTL_STA | TWSI_CTL_STP);
-@@ -635,11 +706,10 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
- {
- 	int result;
- 
--	octeon_i2c_hlc_int_enable(i2c);
-+	i2c->hlc_int_en(i2c);
- 	result = wait_event_interruptible_timeout(i2c->queue,
--						  octeon_i2c_hlc_test_ready(i2c),
--						  i2c->adap.timeout);
--	octeon_i2c_int_disable(i2c);
-+			octeon_i2c_hlc_test_ready(i2c), i2c->adap.timeout);
-+	i2c->hlc_int_dis(i2c);
- 	if (!result)
- 		octeon_i2c_hlc_int_clear(i2c);
- 
-@@ -972,14 +1042,26 @@ static void octeon_i2c_setclock(struct octeon_i2c *i2c)
- static int octeon_i2c_probe(struct platform_device *pdev)
- {
- 	struct device_node *node = pdev->dev.of_node;
--	int irq, result = 0;
-+	int irq, hlc_irq = 0, result = 0;
- 	struct resource *res_mem;
- 	struct octeon_i2c *i2c;
--
--	/* All adaptors have an irq.  */
--	irq = platform_get_irq(pdev, 0);
--	if (irq < 0)
--		return irq;
-+	bool cn78xx_style;
-+
-+	cn78xx_style = of_device_is_compatible(node, "cavium,octeon-7890-twsi");
-+	if (cn78xx_style) {
-+		hlc_irq = platform_get_irq(pdev, 0);
-+		if (hlc_irq < 0)
-+			return hlc_irq;
-+
-+		irq = platform_get_irq(pdev, 2);
-+		if (irq < 0)
-+			return irq;
++	i2c_dummy = i2c_new_dummy(adapter, address);
++	if (i2c_dummy) {
++		*ptr = i2c_dummy;
++		devres_add(dev, ptr);
 +	} else {
-+		/* All adaptors have an irq.  */
-+		irq = platform_get_irq(pdev, 0);
-+		if (irq < 0)
-+			return irq;
++		devres_free(ptr);
 +	}
++
++	return i2c_dummy;
++}
++EXPORT_SYMBOL_GPL(devm_i2c_new_dummy);
++
++static int devm_i2c_client_match(struct device *dev, void *res, void *data)
++{
++	struct i2c_client **r = res;
++
++	if (WARN_ON(!r || !*r))
++		return 0;
++
++	return *r == data;
++}
++
++/**
++ * devm_i2c_unregister_device - Resource managed version of
++ *				i2c_unregister_device()
++ * @dev: Device for which which resource was allocated.
++ * @client: i2c client to free
++ *
++ * Unregister a dummy i2c with devm_i2c_unregister_device().
++ * Normally this function will not need to be called and the resource
++ * management code will ensure that the resource is freed.
++ */
++void devm_i2c_unregister_device(struct device *dev, struct i2c_client *client)
++{
++	WARN_ON(devres_release(dev, devm_i2c_dummy_release,
++			       devm_i2c_client_match, client));
++}
++EXPORT_SYMBOL_GPL(devm_i2c_unregister_device);
++
+ /* ------------------------------------------------------------------------- */
  
- 	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c) {
-@@ -1022,11 +1104,44 @@ static int octeon_i2c_probe(struct platform_device *pdev)
- 	init_waitqueue_head(&i2c->queue);
- 	i2c->irq = irq;
+ /* I2C bus adapters -- one roots each I2C or SMBUS segment */
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 200cf13b..3abb1f9 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -350,6 +350,12 @@ extern struct i2c_client *
+ i2c_new_dummy(struct i2c_adapter *adap, u16 address);
  
--	result = devm_request_irq(&pdev->dev, i2c->irq,
--				  octeon_i2c_isr, 0, DRV_NAME, i2c);
--	if (result < 0) {
--		dev_err(i2c->dev, "failed to attach interrupt\n");
--		goto out;
-+	if (cn78xx_style) {
-+		i2c->hlc_irq = hlc_irq;
+ extern void i2c_unregister_device(struct i2c_client *);
 +
-+		i2c->int_en = octeon_i2c_int_enable78;
-+		i2c->int_dis = octeon_i2c_int_disable78;
-+		i2c->hlc_int_en = octeon_i2c_hlc_int_enable78;
-+		i2c->hlc_int_dis = octeon_i2c_hlc_int_disable78;
-+
-+		irq_set_status_flags(i2c->irq, IRQ_NOAUTOEN);
-+		irq_set_status_flags(i2c->hlc_irq, IRQ_NOAUTOEN);
-+
-+		result = devm_request_irq(&pdev->dev, i2c->irq,
-+					  octeon_i2c_isr, 0, DRV_NAME, i2c);
-+
-+		if (result < 0) {
-+			dev_err(i2c->dev, "failed to attach interrupt\n");
-+			goto out;
-+		}
-+		result = devm_request_irq(&pdev->dev, i2c->hlc_irq,
-+					  octeon_i2c_hlc_isr78, 0,
-+					  DRV_NAME, i2c);
-+
-+		if (result < 0) {
-+			dev_err(i2c->dev, "failed to attach interrupt\n");
-+			goto out;
-+		}
-+	} else {
-+		i2c->int_en = octeon_i2c_int_enable;
-+		i2c->int_dis = octeon_i2c_int_disable;
-+		i2c->hlc_int_en = octeon_i2c_hlc_int_enable;
-+		i2c->hlc_int_dis = octeon_i2c_int_disable;
-+
-+		result = devm_request_irq(&pdev->dev, i2c->irq,
-+					  octeon_i2c_isr, 0, DRV_NAME, i2c);
-+		if (result < 0) {
-+			dev_err(i2c->dev, "failed to attach interrupt\n");
-+			goto out;
-+		}
- 	}
++extern struct i2c_client *devm_i2c_new_dummy(struct device *dev,
++					     struct i2c_adapter *adapter,
++					     u16 address);
++extern void devm_i2c_unregister_device(struct device *dev,
++				       struct i2c_client *client);
+ #endif /* I2C */
  
- 	result = octeon_i2c_initlowlevel(i2c);
-@@ -1067,6 +1182,7 @@ static int octeon_i2c_remove(struct platform_device *pdev)
- 
- static const struct of_device_id octeon_i2c_match[] = {
- 	{	.compatible = "cavium,octeon-3860-twsi",	},
-+	{	.compatible = "cavium,octeon-7890-twsi",	},
- 	{},
- };
- MODULE_DEVICE_TABLE(of, octeon_i2c_match);
+ /* Mainboard arch_initcall() code should register all its I2C devices.
 -- 
-1.9.1
+2.1.4
