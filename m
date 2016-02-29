@@ -1,96 +1,110 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [Resend PATCH 07/10] i2c-octeon: Faster operation when IFLG signals late
-Date: Mon, 29 Feb 2016 14:46:14 +0100
-Message-ID: <9a33135d05d6b084754fb1953e2351a9c69c537f.1456752497.git.jglauber@cavium.com>
+Subject: [Resend PATCH 08/10] i2c-octeon: Add workaround for chips with broken irqs
+Date: Mon, 29 Feb 2016 14:46:15 +0100
+Message-ID: <be4e3fc91e12bf2987999057404d36285933ad90.1456752497.git.jglauber@cavium.com>
 References: <cover.1456752497.git.jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36689 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754266AbcB2Nqo (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Feb 2016 08:46:44 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1456752497.git.jglauber@cavium.com>
 In-Reply-To: <cover.1456752497.git.jglauber@cavium.com>
 References: <cover.1456752497.git.jglauber@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ddaney@caviumnetworks.com, Peter Swain <pswain@cavium.com>, Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ddaney@caviumnetworks.com, Jan Glauber <jglauber@cavium.com>
+List-Id: linux-i2c@vger.kernel.org
 
-From: Peter Swain <pswain@cavium.com>
+From: David Daney <ddaney@caviumnetworks.com>
 
-Some versions can deliver low-level twsi irq before twsi_ctl.iflg
-is set, leading to timeout-driven i/o.
-When an irq signals event, but woken task does not see the expected
-twsi_ctl.iflg, re-check about 80uS later.
+CN3860 does not interrupt the CPU when the i2c status changes.  If
+we get a timeout, and see the status has in fact changed, we know we
+have this problem, and drop back to polling.
 
-EEPROM reads on 100kHz i2c now measure ~5.2kB/s, about 1/2 what's
-achievable, and much better than the worst-case 100 bytes/sec before.
-
-Signed-off-by: Peter Swain <pswain@cavium.com>
+Signed-off-by: David Daney <ddaney@caviumnetworks.com>
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
-Acked-by: David Daney <ddaney@caviumnetworks.com>
 ---
- drivers/i2c/busses/i2c-octeon.c | 31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-octeon.c | 46 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index bb15a9c..e3552e5 100644
+index e3552e5..3c2f848 100644
 --- a/drivers/i2c/busses/i2c-octeon.c
 +++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -130,6 +130,14 @@ static int timeout = 2;
- module_param(timeout, int, 0444);
- MODULE_PARM_DESC(timeout, "Low-level device timeout (ms)");
- 
-+/*
-+ * On some hardware IFLG is not visible in TWSI_CTL until after low-level IRQ,
-+ * so re-sample CTL a short time later to avoid stalls.
-+ */
-+static int irq_early_us = 80;
-+module_param(irq_early_us, int, 0644);
-+MODULE_PARM_DESC(irq_early_us, "Re-poll for IFLG after IRQ (us)");
-+
- static void writeqflush(u64 val, void __iomem *addr)
- {
- 	__raw_writeq(val, addr);
-@@ -343,6 +351,26 @@ static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
- 	return (octeon_i2c_read_ctl(i2c) & TWSI_CTL_IFLG) != 0;
- }
- 
-+/*
-+ * Wait-helper which addresses the delayed-IFLAG problem by re-polling for
-+ * missing TWSI_CTL[IFLG] a few us later, when irq has signalled an event,
-+ * but none found. Skip this re-poll on the first (non-wakeup) call.
-+ */
-+static int poll_iflg(struct octeon_i2c *i2c, int *first_p)
-+{
-+	int iflg = octeon_i2c_test_iflg(i2c);
-+
-+	if (iflg)
-+		return 1;
-+	if (*first_p)
-+		*first_p = 0;
-+	else {
-+		usleep_range(irq_early_us, 2 * irq_early_us);
-+		iflg = octeon_i2c_test_iflg(i2c);
-+	}
-+	return iflg;
-+}
-+
- /**
-  * octeon_i2c_wait - wait for the IFLG to be set
-  * @i2c: The struct octeon_i2c
-@@ -351,10 +379,11 @@ static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
-  */
- static int octeon_i2c_wait(struct octeon_i2c *i2c)
- {
-+	int first = 1;
+@@ -115,6 +115,7 @@ struct octeon_i2c {
+ 	int			sys_freq;
+ 	void __iomem		*twsi_base;
+ 	struct device		*dev;
++	int			broken_irq_mode;
+ 	bool			hlc_enabled;
+ 	void			(*int_en)	(struct octeon_i2c *);
+ 	void			(*int_dis)	(struct octeon_i2c *);
+@@ -382,10 +383,33 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ 	int first = 1;
  	long result;
  
++	if (i2c->broken_irq_mode) {
++		/*
++		 * Some chip revisions seem to not assert the irq in
++		 * the interrupt controller.  So we must poll for the
++		 * IFLG change.
++		 */
++		u64 end = get_jiffies_64() + i2c->adap.timeout;
++
++		while (!octeon_i2c_test_iflg(i2c) &&
++		       time_before64(get_jiffies_64(), end))
++			udelay(50);
++
++		return octeon_i2c_test_iflg(i2c) ? 0 : -ETIMEDOUT;
++	}
++
  	i2c->int_en(i2c);
--	result = wait_event_timeout(i2c->queue, octeon_i2c_test_iflg(i2c),
-+	result = wait_event_timeout(i2c->queue, poll_iflg(i2c, &first),
+ 	result = wait_event_timeout(i2c->queue, poll_iflg(i2c, &first),
  				    i2c->adap.timeout);
  	i2c->int_dis(i2c);
++
++	if (result <= 0 && OCTEON_IS_MODEL(OCTEON_CN38XX) &&
++	    octeon_i2c_test_iflg(i2c)) {
++		dev_err(i2c->dev,
++			"broken irq connection detected, switching to polling mode.\n");
++		i2c->broken_irq_mode = 1;
++		return 0;
++	}
  	if (!result) {
+ 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
+ 		return -ETIMEDOUT;
+@@ -740,6 +764,21 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
+ {
+ 	int result;
+ 
++	if (i2c->broken_irq_mode) {
++		/*
++		 * Some cn38xx boards did not assert the irq in
++		 * the interrupt controller.  So we must poll for the
++		 * IFLG change.
++		 */
++		u64 end = get_jiffies_64() + i2c->adap.timeout;
++
++		while (!octeon_i2c_hlc_test_ready(i2c) &&
++		       time_before64(get_jiffies_64(), end))
++			udelay(50);
++
++		return octeon_i2c_hlc_test_ready(i2c) ? 0 : -ETIMEDOUT;
++	}
++
+ 	i2c->hlc_int_en(i2c);
+ 	result = wait_event_interruptible_timeout(i2c->queue,
+ 			octeon_i2c_hlc_test_ready(i2c), i2c->adap.timeout);
+@@ -747,6 +786,13 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
+ 	if (!result)
+ 		octeon_i2c_hlc_int_clear(i2c);
+ 
++	if (result <= 0 && OCTEON_IS_MODEL(OCTEON_CN38XX) &&
++	    octeon_i2c_hlc_test_ready(i2c)) {
++		dev_err(i2c->dev, "broken irq connection detected, switching to polling mode.\n");
++			i2c->broken_irq_mode = 1;
++			return 0;
++	}
++
+ 	if (result < 0) {
+ 		dev_dbg(i2c->dev, "%s: wait interrupted\n", __func__);
+ 		return result;
 -- 
 1.9.1
