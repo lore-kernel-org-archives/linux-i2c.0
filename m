@@ -1,39 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: rcar: don't open code of_device_get_match_data()
-Date: Tue,  1 Mar 2016 17:36:43 +0100
-Message-ID: <1456850216-8197-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+From: David Daney <ddaney@caviumnetworks.com>
+Subject: Re: [PATCH] i2c-thunderx: fix compile error for x86_64
+Date: Tue, 1 Mar 2016 09:02:21 -0800
+Message-ID: <56D5CB1D.7010104@caviumnetworks.com>
+References: <25e8960abe506539a230db6d31ab75e7195752b8.1456752497.git.jglauber@cavium.com> <1456840398-9275-1-git-send-email-jglauber@cavium.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1456840398-9275-1-git-send-email-jglauber@cavium.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On 03/01/2016 05:53 AM, Jan Glauber wrote:
+> The i2c-thunderx driver only depends on 64BIT and PCI,
+> because there is no reason to limit it to ARM64.
+>
+> Adjusting the check in the header file that selects Octeon
+> or ThunderX values to check for CONFIG_I2C_THUNDERX
+> instead of CONFIG_ARCH_THUNDER fixes the compile error
+> on x86_64.
+>
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
-This change will also make Coverity happy by avoiding a theoretical NULL
-pointer dereference; yet another reason is to use the above helper function
-to tighten the code and make it more readable.
+Yes, CONFIG_ARCH_THUNDER must die wherever it is encountered.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+Acked-by: David Daney <david.daney@cavium.com>
 
-Tested on a Lager board.
+That said, since the previous patch set didn't build under some 
+configurations, can you fold this in, and submit a v2 that is complete 
+and stand alone?
 
- drivers/i2c/busses/i2c-rcar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks,
+David Daney
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 1abeadc8ab7959..68ecb5630ad588 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -611,7 +611,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->io))
- 		return PTR_ERR(priv->io);
- 
--	priv->devtype = (enum rcar_i2c_type)of_match_device(rcar_i2c_dt_ids, dev)->data;
-+	priv->devtype = (enum rcar_i2c_type)of_device_get_match_data(dev);
- 	init_waitqueue_head(&priv->wait);
- 
- 	adap = &priv->adap;
--- 
-2.7.0
+> ---
+>   drivers/i2c/busses/i2c-cavium.h | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-cavium.h b/drivers/i2c/busses/i2c-cavium.h
+> index 8357997..c7398f4 100644
+> --- a/drivers/i2c/busses/i2c-cavium.h
+> +++ b/drivers/i2c/busses/i2c-cavium.h
+> @@ -8,7 +8,7 @@
+>   #include <linux/pci.h>
+>
+>   /* Register offsets */
+> -#ifdef CONFIG_ARCH_THUNDER
+> +#ifdef CONFIG_I2C_THUNDERX
+>   	#define SW_TWSI			0x1000
+>   	#define TWSI_INT		0x1010
+>   	#define SW_TWSI_EXT		0x1018
+>
