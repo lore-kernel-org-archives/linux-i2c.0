@@ -1,66 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: xiic: Implement Power management
-Date: Tue, 1 Mar 2016 19:29:47 +0100
-Message-ID: <20160301182947.GB1488@katana>
-References: <1451893834-1066-1-git-send-email-shubhraj@xilinx.com>
+Subject: Re: [RFC PATCH 8/9] i2c: i2c-mux: Allow for NULL select callback
+Date: Tue, 1 Mar 2016 21:30:23 +0100
+Message-ID: <20160301203015.GC1488@katana>
+References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
+ <1455810794-3188-9-git-send-email-daniel.baluta@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+	protocol="application/pgp-signature"; boundary="s9fJI615cBHmzTOP"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35881 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:40427 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752293AbcCAS3v (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 1 Mar 2016 13:29:51 -0500
+	id S1751056AbcCAUaf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 1 Mar 2016 15:30:35 -0500
 Content-Disposition: inline
-In-Reply-To: <1451893834-1066-1-git-send-email-shubhraj@xilinx.com>
+In-Reply-To: <1455810794-3188-9-git-send-email-daniel.baluta@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Shubhrajyoti Datta <shubhraj@xilinx.com>
+To: Daniel Baluta <daniel.baluta@intel.com>
+Cc: jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, lucas.demarchi@intel.com, srinivas.pandruvada@linux.intel.com, ggao@invensense.com, adi.reus@gmail.com, cmo@melexis.com, mwelling@ieee.org
 
 
---0eh6TmSyL6TZE2Uz
+--s9fJI615cBHmzTOP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Feb 18, 2016 at 05:53:13PM +0200, Daniel Baluta wrote:
+> From: Adriana Reus <adriana.reus@intel.com>
+>=20
+> Add a check in i2c_mux_master_xfer before calling the select callback.
+> This is necessary so that NULL callbacks can be safely registered.
+>=20
+> Signed-off-by: Adriana Reus <adriana.reus@intel.com>
+> Signed-off-by: Daniel Baluta <daniel.baluta@intel.com>
+
+Hmm, rather than supporting that in the core, I'd prefer to have the
+driver pass an empty function instead. Then, in the driver, we can have
+a comment explaining the special situation.
 
 
-> +	ret = clk_prepare_enable(i2c->clk);
-> +	if (ret)
-> +		dev_err(&pdev->dev, "Unable to enable clock.\n");
-
-Don't you want to bail out here? The clk refcounting will be messed up
-if you continue.
-
-> +err_clk_dis:
-> +	clk_disable_unprepare(i2c->clk);
-> +	pm_runtime_set_suspended(&pdev->dev);
-> +	pm_runtime_disable(&pdev->dev);
-> +	return ret;
-
-To match the inverse of the activation order, I'd put the
-clk_disable_unprepare after the pm_* calls. Couldn't it happen that
-those calls need to change the clk state?
-
-
---0eh6TmSyL6TZE2Uz
+--s9fJI615cBHmzTOP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW1d+bAAoJEBQN5MwUoCm2G8AP/AzIsPNkCRsXuq37aMjKv5Qs
-SOTAOd+ITz8jRq6Su1TyiFY+izJsse0gKv4QZx+97fx32yee+Iy6YyxjO/4/AcTZ
-RL2UHgtUr0XTaZrQ3YCdvM8/s6DxsBllB4kYtiKE1f/PZKYvbd2A/hameR/ELlYo
-FOyTmEioqsGhgtAAyywsh5O9iC/4mgLS506A4HiwG9CgUKt7FMuq37fKv03Kq9pV
-rM1L2AzLqHWrwg2SenzeoZZHil4U48XM6fNTaFw8drrS85Ug2fw/qka9xJ5H8KwF
-thjMi7DJ7v0tDr+3k9wGR0e62ue37Wb0QeVtaw2RJE8qN0QpwISnxuMEpD+6njDF
-W8UIWWZZB7RRF6ERwVsB/rtwwjTT7lANPc5ZkWw6kPFg9wgJpxXeaQpiPy9Lhx2d
-xoa+Kn1rseVptwtswFz6o0ArqpDcKHS6GDrzPqb5+eRFK+z1++p5WK4P+Dp8Wurm
-kgzcnZsm+uzEQPZAJMCIos6tfBmDKymuXBbOWa8B9uThOXwWs6v9MJduaahyUo3I
-Gei3xhMjd81Z9TWhs2sQIXUqa451eseXi3RK+mztUn+8PuNk6r/hMEgRGJEFkhjN
-EdWHw59icWLW6g/CZi54rn8bA0PKXBf0Xciw42L/ESed/Rd+bhBwTdbOt69ffuTZ
-Kd5xz7Uk4R98CC+GhF7/
-=NbB2
+iQIcBAEBAgAGBQJW1fvXAAoJEBQN5MwUoCm2UmwQAKXDNlPVbliM5SyNdu8CxLd2
+j8G1oyTyvRkDfx8Px7thRAXQ0th45oBSrVXL8Bg1r1NEbDQ2ZzsCesdw7vBkfe9Y
+9WXoaVlrt/AKASJ5M0Qj/oO25GQi9zyPx+hBt62zYb99HSGMP9Eh1sQI/u/hH1LF
+y79DTs+cm/izdl7m8PGmJfvCPpsjWfbHRKcR0w3yWKnlJyASjGt2A2JxzJ/TnRfr
+I4pS+VjjxYWHh/oaU2MYA+cLHkYMioDhc326xsxHyysp6ftKOBYwFFQsKt8zwPgZ
+Db6naMpmglO5ZcOV9x4IPoMK2QMxy6k9+Mc4wHalvRSt/qqpC4uM8q4hGvgt2ESg
+AfI3UScB3PlQUgc9S5S+IFe0EpOfwfjfhTVMuNuLoIiP//Cj6VaJRZH+cswMf1ZF
+aM42R+WMqH5fQ8QECx3AOENt+5wZa/4hKgth5DZE/Sv0Dnxb4RYLyVmqGUWoiwb3
+MCpw5gC4egtvS3cWO2lzHB46MEpFDtBlBBzveObZqAaDhn6LDSF1tvV8tF07r63I
+XKMYn8UbATD+8BGrQrk7F35HMIaVh0k6xvVBnpqqzj5Nkf43QpEoRJYgM2MfnE40
+tV06HhmtDbjWEWug1Nj2RcpRpaUbuRFAKDCwUdkaXixJG4ZLLa1kPybGn01L8f/v
+Ky5+l8hcYcn4i20D5a37
+=o+WX
 -----END PGP SIGNATURE-----
 
---0eh6TmSyL6TZE2Uz--
+--s9fJI615cBHmzTOP--
