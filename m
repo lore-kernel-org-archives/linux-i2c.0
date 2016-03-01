@@ -1,55 +1,58 @@
-From: David Daney <ddaney@caviumnetworks.com>
-Subject: Re: [PATCH] i2c-thunderx: fix compile error for x86_64
-Date: Tue, 1 Mar 2016 09:02:21 -0800
-Message-ID: <56D5CB1D.7010104@caviumnetworks.com>
-References: <25e8960abe506539a230db6d31ab75e7195752b8.1456752497.git.jglauber@cavium.com> <1456840398-9275-1-git-send-email-jglauber@cavium.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: brcmstb: allocate correct amount of memory for
+ regmap
+Date: Tue, 1 Mar 2016 19:19:36 +0100
+Message-ID: <20160301181936.GA1488@katana>
+References: <1456064238-6294-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1456840398-9275-1-git-send-email-jglauber@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jan Glauber <jglauber@cavium.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:35355 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751965AbcCASTm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 1 Mar 2016 13:19:42 -0500
+Content-Disposition: inline
+In-Reply-To: <1456064238-6294-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com
 
-On 03/01/2016 05:53 AM, Jan Glauber wrote:
-> The i2c-thunderx driver only depends on 64BIT and PCI,
-> because there is no reason to limit it to ARM64.
->
-> Adjusting the check in the header file that selects Octeon
-> or ThunderX values to check for CONFIG_I2C_THUNDERX
-> instead of CONFIG_ARCH_THUNDER fixes the compile error
-> on x86_64.
->
-> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
-Yes, CONFIG_ARCH_THUNDER must die wherever it is encountered.
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: David Daney <david.daney@cavium.com>
+On Sun, Feb 21, 2016 at 03:16:48PM +0100, Wolfram Sang wrote:
+> We want the size of the struct, not of a pointer to it. To be future
+> proof, just dereference the pointer to get the desired type.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-That said, since the previous patch set didn't build under some 
-configurations, can you fold this in, and submit a v2 that is complete 
-and stand alone?
+Applied to for-current with stable tag added, thanks!
 
-Thanks,
-David Daney
 
-> ---
->   drivers/i2c/busses/i2c-cavium.h | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-cavium.h b/drivers/i2c/busses/i2c-cavium.h
-> index 8357997..c7398f4 100644
-> --- a/drivers/i2c/busses/i2c-cavium.h
-> +++ b/drivers/i2c/busses/i2c-cavium.h
-> @@ -8,7 +8,7 @@
->   #include <linux/pci.h>
->
->   /* Register offsets */
-> -#ifdef CONFIG_ARCH_THUNDER
-> +#ifdef CONFIG_I2C_THUNDERX
->   	#define SW_TWSI			0x1000
->   	#define TWSI_INT		0x1010
->   	#define SW_TWSI_EXT		0x1018
->
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW1d04AAoJEBQN5MwUoCm29MMP/j4iTIuedyjHQ0YcfgCxxn+/
+w85ailSFRPc3k2Ac5RzJKSPnaR1DZQCl3XMYhSZaVmerp04Dqbc2me9zf6/j20rO
+VEqevBDFhjHvtDrukVsyfCfALe/7BZcOzqj0wI/N73k3gti9R6woRe55O43qAClJ
+YQ1QYNfXL7wVbLDxgA4D79p9H84eEPiTIAc2WxERNoFCnjECAPmVnXFB4sjxS/EP
+3/4Dak/kbOfHkSUFPhwViT1eDiOqJw+XZ2LLKlZqm/bXxOWCeIaC7txNo5GDT8gX
+QoKMV3iWPmFIFttbne2bSj7v9JLfLR8REl7yPYTmWb9aFYuiiOHxXKyUe+hRFIw/
+ZewKptx7JB7CEF8WhkV6iuEzdPT1tXANoSl0fX9AhWN+Whe1oeqD8lZjYULotySK
+g8dKAcXrkXXYWgfuMmeDDfbO6zFQxFt5VimRcMEP9wlf5SvFcVa2/GueDvTQqhWK
+igUy3tvQyKB57JOa0s6YgJwSBdiYnWPyoY71N0D5ynGpHZ9nDEwBwgTJ+2+rCMJt
+hydVgx64bK50NzDpwAgoWQtx1Lcs0cc25qkPIURpNnF5+L0uosaD0nlgpFr+HKBx
+RDxP5j25P8QyjOAQJwWD4aezHEPhsi+Y2AHzJ820SBPGO/qa9igriOf36koUy5T3
+ndk/6K8b/xY3sPlp8BoU
+=3bfV
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--
