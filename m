@@ -1,94 +1,54 @@
-From: Michal Simek <michal.simek@xilinx.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCHv2 1/2] i2c: cadence: Fix the Documentation
-Date: Wed, 2 Mar 2016 09:22:22 +0100
-Message-ID: <56D6A2BE.7060503@xilinx.com>
+Date: Wed, 2 Mar 2016 10:01:52 +0100
+Message-ID: <20160302090151.GA1402@katana>
 References: <1456824065-22080-1-git-send-email-shubhraj@xilinx.com>
+ <56D6A2BE.7060503@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-cys01nam02on0089.outbound.protection.outlook.com ([104.47.37.89]:12096
-	"EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751144AbcCBIhV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 2 Mar 2016 03:37:21 -0500
-In-Reply-To: <1456824065-22080-1-git-send-email-shubhraj@xilinx.com>
+Received: from sauhun.de ([89.238.76.85]:37941 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753307AbcCBJCA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 2 Mar 2016 04:02:00 -0500
+Content-Disposition: inline
+In-Reply-To: <56D6A2BE.7060503@xilinx.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-i2c@vger.kernel.org
-Cc: soren.brinkmann@xilinx.com, michal.simek@xilinx.com, wsa@the-dreams.de, Shubhrajyoti Datta <shubhraj@xilinx.com>
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-i2c@vger.kernel.org, soren.brinkmann@xilinx.com, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-On 1.3.2016 10:21, Shubhrajyoti Datta wrote:
-> The runtime adaptation patch missed the documentation update.
-> This fixes the same.
-> 
-> Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
-> ---
-> v2 changes:
-> fix the dev param description
-> 
->  drivers/i2c/busses/i2c-cadence.c |   12 +++++++-----
->  1 files changed, 7 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-> index 6b08d16..f9f485d 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -124,6 +124,8 @@
->  
->  /**
->   * struct cdns_i2c - I2C device private data structure
-> + *
-> + * @dev:		Pointer to device structure
->   * @membase:		Base address of the I2C device
->   * @adap:		I2C adapter instance
->   * @p_msg:		Message pointer
-> @@ -815,8 +817,8 @@ static int cdns_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
->  }
->  
->  /**
-> - * cdns_i2c_suspend - Suspend method for the driver
-> - * @_dev:	Address of the platform_device structure
-> + * cdns_i2c_runtime_suspend -  Runtime suspend method for the driver
-> + * @dev:	Address of the platform_device structure
->   *
->   * Put the driver into low power mode.
->   *
-> @@ -833,10 +835,10 @@ static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
->  }
->  
->  /**
-> - * cdns_i2c_resume - Resume from suspend
-> - * @_dev:	Address of the platform_device structure
-> + * cdns_i2c_runtime_resume - Runtime resume
-> + * @dev:	Address of the platform_device structure
->   *
-> - * Resume operation after suspend.
-> + * Runtime resume callback.
->   *
->   * Return: 0 on success and error value on error
->   */
-> 
 
-Can you also please include this fix there too?
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c
-b/drivers/i2c/busses/i2c-cadence.c
-index f9f485d2d917..90bbd9f9dd8f 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -173,7 +173,7 @@ struct cdns_platform_data {
-                                             clk_rate_change_nb)
 
- /**
-- * cdns_i2c_clear_bus_hold() - Clear bus hold bit
-+ * cdns_i2c_clear_bus_hold - Clear bus hold bit
-  * @id:        Pointer to driver data struct
-  *
-  * Helper to clear the controller's bus hold bit.
+> Tested-by: Michal Simek <michal.simek@xilinx.com>
 
-When it is added feel free to add my
-Tested-by: Michal Simek <michal.simek@xilinx.com>
+Tested-by for a documentation patch?
 
-Thanks,
-Michal
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW1qv/AAoJEBQN5MwUoCm2XqAP/0Xq64a8/Oh1NiKVs+9G//eN
+yuTPsOJbyVPBzqAhTrDzsWiEWEaRxlGzgbJuDQD1//19EG34g+Nmby9H71MgfCTq
+OKX61NCIH44EFOGq5krKnPN078joDwgDPaOOTkZP4eNd52Y+L5daCl0HfCSEHcFY
+73AgTzaO1WoxFWPlbSvi1oryURDWe7QiMxbJlN4q5zyGqrb61gx7vb9d4TGEDA2f
+D6cqWDire9KoxPjGukI/RdWjEn57xE44dHEP5JaDTFdGffVlHYpWb3zWmlZVq1Wg
+W4WPlfKtafWrUaPJfVn0BTmT2HxplBa048v6UOZDYRlB3gT/bztFrGTQY9/mppk0
+g3ZWIIGyGKEiKXKbUeMDdmLwBNAwo/6yy2U04e1CdTFsHrnijSE64G6vriaVh0k6
+mNwkrRhwrDHvuDZ1FAojfg52I1fm3Q0H4HdMzesaXRkUe5HQsyccbQdWeHR+YB3v
+L2BIMg9vJgdl8oRLyeVJH4q4aNNoWi78f8ERD4Z7JkNWdnD3hjKXVcQVDmlzgLxv
+Istl4BaobI4iOvROrb0iXyKCxgJFIww+YhqR9ZtsTw77Hi8BRMARhU+6a2eYdiGz
+nhNWXj2ARdnLn1Ikp+u00GCpxddGesPVdoUXAF1YVWYJ35VArYL9zs0PEQbgusg/
+/8H7f5eEN3eW03rupqGf
+=gCpA
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--
