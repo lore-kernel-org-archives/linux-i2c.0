@@ -1,32 +1,39 @@
-From: Michal Simek <michal.simek@xilinx.com>
-Subject: Re: [PATCHv2 1/2] i2c: cadence: Fix the Documentation
-Date: Wed, 2 Mar 2016 10:05:02 +0100
-Message-ID: <56D6ACBE.1060904@xilinx.com>
-References: <1456824065-22080-1-git-send-email-shubhraj@xilinx.com>
- <56D6A2BE.7060503@xilinx.com> <20160302090151.GA1402@katana>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] i2c: rcar: don't open code of_device_get_match_data()
+Date: Wed, 2 Mar 2016 10:06:51 +0100
+Message-ID: <CAMuHMdXd5JYKSAd1D3=gmSQFfCOeYzxzOvT6EDuGY+t1y4+_=w@mail.gmail.com>
+References: <1456850216-8197-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-sn1nam02on0085.outbound.protection.outlook.com ([104.47.36.85]:18688
-	"EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750826AbcCBJFM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 2 Mar 2016 04:05:12 -0500
-In-Reply-To: <20160302090151.GA1402@katana>
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:37527 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754077AbcCBJGw (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Mar 2016 04:06:52 -0500
+In-Reply-To: <1456850216-8197-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Michal Simek <michal.simek@xilinx.com>
-Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-i2c@vger.kernel.org, soren.brinkmann@xilinx.com, Shubhrajyoti Datta <shubhraj@xilinx.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-renesas-soc@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>
 
-On 2.3.2016 10:01, Wolfram Sang wrote:
-> 
->> Tested-by: Michal Simek <michal.simek@xilinx.com>
-> 
-> Tested-by for a documentation patch?
+On Tue, Mar 1, 2016 at 5:36 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> This change will also make Coverity happy by avoiding a theoretical NULL
+> pointer dereference; yet another reason is to use the above helper function
+> to tighten the code and make it more readable.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-yep. I was running kernel-doc which check it fully.
-That's why I have added tested-by.
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Thanks,
-Michal
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
