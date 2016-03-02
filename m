@@ -1,77 +1,62 @@
-From: Daniel Baluta <daniel.baluta@intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [RFC PATCH 9/9] iio: imu: inv_mpu6050: Fix deadlock between i2c
  adapter lock and mpu lock
-Date: Wed, 2 Mar 2016 18:33:38 +0200
-Message-ID: <CAEnQRZAF-tAjDwJkUNEVQXYqWDt7RsH2bH81UBAMUhsoWEt73g@mail.gmail.com>
+Date: Wed, 2 Mar 2016 18:06:30 +0100
+Message-ID: <20160302170630.GA5439@katana>
 References: <1455810794-3188-1-git-send-email-daniel.baluta@intel.com>
-	<1455810794-3188-10-git-send-email-daniel.baluta@intel.com>
-	<20160301205052.GD1488@katana>
+ <1455810794-3188-10-git-send-email-daniel.baluta@intel.com>
+ <20160301205052.GD1488@katana>
+ <CAEnQRZAF-tAjDwJkUNEVQXYqWDt7RsH2bH81UBAMUhsoWEt73g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:36664 "EHLO
-	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752542AbcCBQdk (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Mar 2016 11:33:40 -0500
-In-Reply-To: <20160301205052.GD1488@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAEnQRZAF-tAjDwJkUNEVQXYqWDt7RsH2bH81UBAMUhsoWEt73g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ge Gao <ggao-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Adriana Reus <adi.reus-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Crt Mori <cmo-fc6wVz46lShBDgjK7y7TUQ@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Daniel Baluta <daniel.baluta@intel.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Ge Gao <ggao@invensense.com>, Adriana Reus <adi.reus@gmail.com>, Crt Mori <cmo@melexis.com>, Michael Welling <mwelling@ieee.org>
 
-On Tue, Mar 1, 2016 at 10:50 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Thu, Feb 18, 2016 at 05:53:14PM +0200, Daniel Baluta wrote:
->> From: Adriana Reus <adriana.reus@intel.com>
->>
->> This deadlock occurs if the accel/gyro and the sensor on the auxiliary
->> I2C (in my setup it's an ak8975) are working at the same time.
->>
->> Scenario:
->>
->>       T1                                      T2
->>      ====                                    ====
->> inv_mpu6050_read_fifo                  aux sensor op (eg. ak8975_read_raw)
->>         |                                     |
->> mutex_lock(&indio_dev->mlock)           i2c_transfer
->>         |                                     |
->> i2c transaction                         i2c adapter lock
->>         |                                     |
->> i2c adapter lock                        i2c_mux_master_xfer
->>                                               |
->>                                         inv_mpu6050_select_bypass
->>                                               |
->>                                         mutex_lock(&indio_dev->mlock)
->>
->> When we operate on an mpu sensor the order of locking is mpu lock
->> followed by the i2c adapter lock. However, when we operate the auxiliary
->> sensor the order of locking is the other way around.
->>
->> In order to avoid this enable the bypass mux bit once in the beginning
->> and remove the select/deselect_bypass functions.
->>
->> This patch moves the bypass enabling in a separate function
->> that is called once at probe and removes the functionality from
->> inv_mpu_select/deselect_bypass.
->>
->> Another advantage of this approach is that power-wise the mpu chip isn't
->> powered up at each auxiliary sensor i2c transaction so if only the
->> compass is used this would be more power efficient.
->
-> I think the comments (power must be enabled on select) rendered this
-> solution not acceptable. What about using mutex_trylock in
-> inv_mpu6050_select_bypass() and returning -EAGAIN if the lock is already
-> held?
 
-Well, yes this would be a very good temporary solution. I'm afraid tough
-that reading at high rates accel/gyro data will starve the aux sensor readings.
+--GvXjxJ+pjyke8COw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I looked into the I2C adapter / mux code but I got lost rapidly :). It
-feels like
-the natural solution would be for the I2C core to not hold the adapter lock
-while doing transactions on the muxed child adapter.
 
-Anyhow, sometimes starving is better than deadlocking so I will send a patch
-with your suggestion.
+> I looked into the I2C adapter / mux code but I got lost rapidly :). It
+> feels like the natural solution would be for the I2C core to not hold
+> the adapter lock while doing transactions on the muxed child adapter.
 
-thanks,
-Daniel.
+The patch series I mentioned to you does exactly that. It locks only the
+mux side of the muxed bus, not the whole parent adapter. It didn't work
+for you because the mux driver maybe needed some adaptions as well?
+
+However, I am still undecided if that series should go upstream because
+it makes the mux code another magnitude more complex. And while this
+seems to be the second issue which could be fixed by that series, both
+issues are corner cases, so I am not sure it is worth the complexity.
+
+
+--GvXjxJ+pjyke8COw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW1x2WAAoJEBQN5MwUoCm2SoYP+wZhCsIYf5HCUxo9YtA4sYB0
+41UQd1yVEe16asuC6ChA3UDvjnDGLgy3FcDzwWjPEyJAt7kbP+HhOVjjDpkCe1ux
+8C+lr274LITknO2rM+aU9hVFsUnDuMOukvELYxOGZXtQZkTnC/VwuZL4nSrD1CF6
+YMCknen+/cluY2Klg+jadpE5uBhKtRdLGU2Nj1YN+o6lhjSsn4GnZSZLGOcjgoup
+HGrprCIwU5e4rt+BVrRRCokkptQBJGOjaY6i58NARkJlJlMOXfVbruvNCU4/YLNh
+2kMnW3R7aKv54X4KeYl/vaxWg7FBIwWiiVQVj7Sc9H1FE0P1N7S4fZoylmzRvoDe
+eH9jH1SESQKqks1kWJ49q5i1e1RoGqwQXIrN49+Bc+BXEyqYOgTYbVpoeXdfhLOI
+nCrKkZ4EHxOBO9YT0NPjPdBoyKXQtSpnSl9pAsQQSo2UjC/qxBwWYq49QXs44K15
+tll9rrUeES/FUzDjVdacDgavu449MirvUJibKmbgBTib4w/YDeRYb7RPOe9yZ0VH
+KOpVR5hqhBPB7tukKq8Mc47CmFdPedbGQnUAkDlP7cxcbOJEPqPJBf1MMa+ozD0y
+jeEMGRql+UJsFFL3DiiLBQObAUid0HHjIldWp4jg4xgm7H4xvRTP37Q6uoThC8Lw
+tvmxS7J0c2l7iEP3dGL3
+=ex7G
+-----END PGP SIGNATURE-----
+
+--GvXjxJ+pjyke8COw--
