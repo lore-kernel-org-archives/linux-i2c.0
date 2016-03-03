@@ -1,63 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: mediatek: i2c multi transfer optimization
-Date: Thu, 3 Mar 2016 22:18:35 +0100
-Message-ID: <20160303211835.GC1501@katana>
-References: <1456421739-5450-1-git-send-email-liguo.zhang@mediatek.com>
+Subject: Re: [PATCH] i2c: rcar: don't open code of_device_get_match_data()
+Date: Thu, 3 Mar 2016 22:26:36 +0100
+Message-ID: <20160303212636.GD1501@katana>
+References: <1456850216-8197-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w7PDEPdKQumQfZlR"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:45673 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758105AbcCCVSm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 3 Mar 2016 16:18:42 -0500
+	protocol="application/pgp-signature"; boundary="veXX9dWIonWZEC6h"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1456421739-5450-1-git-send-email-liguo.zhang@mediatek.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1456850216-8197-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-renesas-soc@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Liguo Zhang <liguo.zhang@mediatek.com>
-Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 
 
---w7PDEPdKQumQfZlR
+--veXX9dWIonWZEC6h
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 26, 2016 at 01:35:39AM +0800, Liguo Zhang wrote:
-> Send the next transfer in the i2c irq handler, and only signal
-> complete() when the entire transaction has been completed.
-
-This describes what you do. But not why. Is this an improvment of
-throughput? Is there a downside of interrupt latency?
-
-Thanks.
-
+On Tue, Mar 01, 2016 at 05:36:43PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
-> ---
-> change in v2:
-> Remove the unused variable left_num in mtk_i2c_transfer().
+> This change will also make Coverity happy by avoiding a theoretical NULL
+> pointer dereference; yet another reason is to use the above helper functi=
+on
+> to tighten the code and make it more readable.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---w7PDEPdKQumQfZlR
+Applied to for-next, thanks!
+
+
+--veXX9dWIonWZEC6h
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW2KorAAoJEBQN5MwUoCm2p3EP/1CyMQ/2QGu59Qz0je8uKiUZ
-CwEQJKgwh7AXuyCHczdHezhGtVpGkc2Qpgodty2ELyiujTAH5TkzOScL3cD8yyHr
-AVve4pT3Atq9MFRAIOHJGmShf1HMTbfa/IyNTcny3QjuIti+ncgdMdVzxfFZxguW
-g0s2gTG5Jz6SDHZfzz7eLD4ct1FW4JpUk0mDM6ZdQfS2fXbg9zGPgcsfb0mwXoue
-emga0lRk9hQcPm5HSUfQ5TxRMFe3i1I+qu4RZ5K+fndIcvRAAUbRd30vHDNWOWDi
-YPJ+WjeFChFRGtKeUvm0OTtjfnYJ7gJq2Zv4LyZ13vsDEqUx7zHZ50JfBbeIUQd1
-n2gn424Dbn9vxMSKdJL8WQMr546NDPWgbBuyWE6V4BsSN3gI1eXlIGV4EpbH8i08
-olXfdPCiIBEi7POluh4dcsR9t0KfebmvYokcju6EJmSLBCFXkEdM/42ifS+N/7lS
-nlbyXKyGMM0K+cnXb/PyShsT0LLqV8NWRvhFro06sO0Ex4i8vtRQFQURXTuvrgzq
-aQTd30JaEwwzub0Phh2uqiPT06Em/37g1VTtYQ5uSVKBt6Ld6svKNoyEYOe6iKMQ
-HUzc+1354kZRjh0+VZgCimWlyt6Pix0O4Ii/ug7dmpbff5IOiuITJVwSVt0OBG7k
-PHKvmReh3W+py3hfZl3G
-=EL2G
+iQIcBAEBAgAGBQJW2KwMAAoJEBQN5MwUoCm2tusP/34G52KWfgn+V+DGK1Ox4BwJ
+/7NA4NeppzENnHnP9Pu89rsKVOoaEOWb1mQjjPn0fozNlbNQ8fiWEeoWxLNIsBVt
+WPRmP3WZnlvn9vOKZsIVd2ZNNeeSduFbysX28/2VBGZ6TIOYUDoCShx2dDhsd4g9
+UjXRTesaS8HMtusH5Pjiza3rKC19P7cAFQ8yXFD3UkOiroN4XH01dizVxmI2VOxh
+Arn6aeX1yrv4nfP42BZWGSMWnO/lah0ScTyQaCEcDk8lvXPpeECiL6wB3ZE/PdLO
+PpXTCZRLKmIqFM8Gf2pCgzdZgY21fHSZepH5QX/PNt9CP7wciObf74tB9OhThQ5Q
+27AZrK2z/l5TMoXyYwzrLwOOSWSZS8OgoaXeu5hjI+u6PQtSleaI5v74aagPgypO
+ZeO8XE/GPbUOtxZh/3v4HCA3o4C8yUqXxmKCRk0JdF+ltr3OQ5+Dbq7BhB++Jp79
+I7smK2faKGlkPKuyHfWJnU3nc0M3j9B6QvK7PllTTe+9/7n50m/BCK4nSsPukmhV
+enR7qX//1tdwNQJBfQBDsppcVGm0xLU7QCv6xGnsb6O9SURt0x3j/3h872r4WKiW
+/CBMedhWWwcUdmRoovN08kqGoYsmoyO7rNrmrsJX7PUELDb+f8PRLHKUHLQ1OFfV
+ZSaYkbfuLijg7lOTQ5MC
+=8EUP
 -----END PGP SIGNATURE-----
 
---w7PDEPdKQumQfZlR--
+--veXX9dWIonWZEC6h--
