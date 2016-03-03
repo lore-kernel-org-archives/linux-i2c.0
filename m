@@ -1,100 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-smbus: Don't report duplicate alerts
-Date: Thu, 3 Mar 2016 21:57:54 +0100
-Message-ID: <20160303205754.GE1711@katana>
-References: <1453222848-20457-1-git-send-email-minyard@acm.org>
+Subject: Re: [PATCH] drivers: i2c: Fix qup fifo handling
+Date: Thu, 3 Mar 2016 22:14:18 +0100
+Message-ID: <20160303211418.GA1501@katana>
+References: <1456502334-8687-1-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="N1GIdlSm9i+YlY4t"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:45027 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751938AbcCCVAU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 3 Mar 2016 16:00:20 -0500
+	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1453222848-20457-1-git-send-email-minyard@acm.org>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1456502334-8687-1-git-send-email-sricharan@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Sricharan R <sricharan@codeaurora.org>
+Cc: gpramod@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: minyard@acm.org, Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 
 
---N1GIdlSm9i+YlY4t
+--ibTvN161/egqYuK8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 19, 2016 at 11:00:48AM -0600, minyard@acm.org wrote:
-> From: Corey Minyard <cminyard@mvista.com>
+On Fri, Feb 26, 2016 at 09:28:54PM +0530, Sricharan R wrote:
+> After the addition of V2 support, there was a regression observed
+> when testing it on MSM8996. The reason is driver puts the controller
+> in to RUN state and writes the data to be 'tx' ed in fifo. But controller
+> has to be put in to 'PAUSE' state and data has to written to fifo. Then
+> should be put in to 'RUN' state separately.
 >=20
-> Getting the same alert twice in a row is legal and normal,
-> especially on a fast device (like running in qemu).  Kind of
-> like interrupts.  So don't report duplicate alerts, and deliver
-> them normally.
->=20
-> Signed-off-by: Corey Minyard <cminyard@mvista.com>
+> Signed-off-by: Sricharan R <sricharan@codeaurora.org>
 
-Looks plausible to me, but I never used SMBALERT myself. Any chance this
-can cause a regression? Jean, what do you think?
+Changed the subject to "i2c: qup: Fix fifo handling after adding V2
+support". Please note the prefixes and the more detailed description.
 
-> ---
->  drivers/i2c/i2c-smbus.c | 7 -------
->  1 file changed, 7 deletions(-)
->=20
-> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> index 94765a8..cecd423 100644
-> --- a/drivers/i2c/i2c-smbus.c
-> +++ b/drivers/i2c/i2c-smbus.c
-> @@ -75,7 +75,6 @@ static void smbus_alert(struct work_struct *work)
->  {
->  	struct i2c_smbus_alert *alert;
->  	struct i2c_client *ara;
-> -	unsigned short prev_addr =3D 0;	/* Not a valid address */
-> =20
->  	alert =3D container_of(work, struct i2c_smbus_alert, alert);
->  	ara =3D alert->ara;
-> @@ -99,18 +98,12 @@ static void smbus_alert(struct work_struct *work)
->  		data.flag =3D status & 1;
->  		data.addr =3D status >> 1;
-> =20
-> -		if (data.addr =3D=3D prev_addr) {
-> -			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
-> -				"0x%02x, skipping\n", data.addr);
-> -			break;
-> -		}
->  		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
->  			data.addr, data.flag);
-> =20
->  		/* Notify driver for the device which issued the alert */
->  		device_for_each_child(&ara->adapter->dev, &data,
->  				      smbus_do_alert);
-> -		prev_addr =3D data.addr;
->  	}
-> =20
->  	/* We handled all alerts; re-enable level-triggered IRQs */
-> --=20
-> 2.5.0
->=20
+Applied to for-next, thanks!
 
---N1GIdlSm9i+YlY4t
+
+--ibTvN161/egqYuK8
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW2KVSAAoJEBQN5MwUoCm2kNYP/Ru4LoIDOH4qRgF4LEiIM+Gn
-DaPW4m8j9ohfF2GVmTEsOOcVFJhSCruWXN5q4p6qaWQ3ks8vDBDrevj5vnh9bObk
-9WOFgL1Hl+7ocP6YwSYFdor6R60P9GwQSuMKLK9H9c0d7iHwExm6HaYWHm1F56k0
-bgPGFFIb6+c+6mZb1nGW+IaT1FveM+/zZURkm+u5x0g3cPmAAjDRC79OVB7XM32T
-3SyL0GAMJCW9s/tKHBnbviRh4vwbzX+aQjb4sDhRkxvTZoktndytgQ+KyvSNndAa
-83YFLU01KGcz0oSlONH1wO/gOuvMbQXpfflarDDKutEck/CD3ufJjFaenF6akCyc
-/gGJPA7/54yj0GQh2VMYNwF3WGJZ1f6R3SdNRvf3vZkoQOfxFXdi7pPYAkeSbVnS
-gPU1MYNfDYph5b6fh45k/ZrcRLbbrvhvZ1eAUDKRoVlKEmgZiNhLNft7RhEQTQXj
-CpeA1wzwHpqatBFtG/FvMe88mGob+TYDCUaw87Q8JK9ll4TMtOsQCOrjbHN65QqU
-cGtsPt1h0v6H+VhglMm6b6z+ynqRkFgLMgM/6mEiLr9sGK55rDssoNGica3BEQWA
-rkhodqOH6+7cmwXTUWLyTMRCpGZ1MvwY7pQG9GSkECfytq+x12RC31I4kRImXhA7
-wix4lAfw0Dy9SuVKO6iT
-=uEeT
+iQIcBAEBAgAGBQJW2KkqAAoJEBQN5MwUoCm2UIUQAKN1quQyZ0xnDaHPRmy+5mTZ
+5mszacgOcIeKgmO+3g/42k9Q9mmd992sj6OCK3WWn1BUJYx4TlvFeaBnSVGbGKiA
+pmUoymhLfFQgLxV3eLVYmk5vLc694w0hInkMG2qBRpBP3PlvAFfXFgCry1stnMFD
+gz6oB2RU1MYp9SwfUKgiX8eQqMEltL2nTgGTsWifUn2SRfCXe1iT/B1zivyyK25E
+CyPDfVtDZ6H8kpPOTD88Ey5+8Vst3/CQMXg8WozzsliX0facQZ452TvDdKqgkPo2
+LzpLucicgPBfd5XauOD98CtycEvVpsIyGuR8erFyCY376fZL++1mQiDFUgBwZZvk
+CZmNpWw8qkyj/Id6lz3oo5Bqx1KpmCis0EmfuO32kSWQyctbP/Du7b19PoZaQ5QW
+kviHFqIHFZxUe7AIedoXNP4QbumuOyUYXCOamTzMueWFEb710UliiG4icft+UaBD
+J2AVmBZQeTBlaXXz7WG7vSfZWQPN83XwehD29T593jmp7xjryghXUH2ASFO3+AW1
+XhXCffzfS42TVeBefP++7b3YAaNMulC2B4WtvK2oPQxdQPyogq2/3LVPpmzBUrVG
+YQcb7lQOIPnTfLMz0+t9MqghfLRMxjM47/wiEV+zYGtaL6D+oA0ElftHIZzQK33d
+hVM5zpf1qqR7bXgH1x04
+=JWQ3
 -----END PGP SIGNATURE-----
 
---N1GIdlSm9i+YlY4t--
+--ibTvN161/egqYuK8--
