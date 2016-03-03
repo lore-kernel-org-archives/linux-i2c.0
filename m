@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@lysator.liu.se>
-Subject: [PATCH v4 13/18] [media] cx231xx: convert to use an explicit i2c mux core
-Date: Thu,  3 Mar 2016 23:27:25 +0100
-Message-ID: <1457044050-15230-14-git-send-email-peda@lysator.liu.se>
+Subject: [PATCH v4 15/18] i2c-mux: drop old unused i2c-mux api
+Date: Thu,  3 Mar 2016 23:27:27 +0100
+Message-ID: <1457044050-15230-16-git-send-email-peda@lysator.liu.se>
 References: <1457044050-15230-1-git-send-email-peda@lysator.liu.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1457044050-15230-1-git-send-email-peda@lysator.liu.se>
@@ -12,142 +12,131 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Peter Rosin <peda@axentia.se>
 
-Allocate an explicit i2c mux core to handle parent and child adapters
-etc. Update the select op to be in terms of the i2c mux core instead
-of the child adapter.
+All i2c mux users are using an explicit i2c mux core, drop support
+for implicit i2c mux cores.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/media/usb/cx231xx/cx231xx-core.c |  6 ++--
- drivers/media/usb/cx231xx/cx231xx-i2c.c  | 47 ++++++++++++++++----------------
- drivers/media/usb/cx231xx/cx231xx.h      |  4 ++-
- 3 files changed, 31 insertions(+), 26 deletions(-)
+ drivers/i2c/i2c-mux.c   | 59 -------------------------------------------------
+ include/linux/i2c-mux.h | 15 -------------
+ 2 files changed, 74 deletions(-)
 
-diff --git a/drivers/media/usb/cx231xx/cx231xx-core.c b/drivers/media/usb/cx231xx/cx231xx-core.c
-index f497888d94bf..f7aac2abd783 100644
---- a/drivers/media/usb/cx231xx/cx231xx-core.c
-+++ b/drivers/media/usb/cx231xx/cx231xx-core.c
-@@ -1304,6 +1304,9 @@ int cx231xx_dev_init(struct cx231xx *dev)
- 	cx231xx_i2c_register(&dev->i2c_bus[1]);
- 	cx231xx_i2c_register(&dev->i2c_bus[2]);
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 7df323a01661..e7ac7a4a7a83 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -28,12 +28,6 @@
+ #include <linux/acpi.h>
  
-+	errCode = cx231xx_i2c_mux_create(dev);
-+	if (errCode < 0)
-+		return errCode;
- 	cx231xx_i2c_mux_register(dev, 0);
- 	cx231xx_i2c_mux_register(dev, 1);
+ /* multiplexer per channel data */
+-struct i2c_mux_priv_old {
+-	void *mux_priv;
+-	int (*select)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
+-	int (*deselect)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
+-};
+-
+ struct i2c_mux_priv {
+ 	struct i2c_adapter adap;
+ 	struct i2c_algorithm algo;
+@@ -290,48 +284,6 @@ struct i2c_mux_core *i2c_mux_one_adapter(struct i2c_adapter *parent,
+ }
+ EXPORT_SYMBOL_GPL(i2c_mux_one_adapter);
  
-@@ -1426,8 +1429,7 @@ EXPORT_SYMBOL_GPL(cx231xx_dev_init);
- void cx231xx_dev_uninit(struct cx231xx *dev)
+-static int i2c_mux_select(struct i2c_mux_core *muxc, u32 chan)
+-{
+-	struct i2c_mux_priv_old *priv = i2c_mux_priv(muxc);
+-
+-	return priv->select(muxc->parent, priv->mux_priv, chan);
+-}
+-
+-static int i2c_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
+-{
+-	struct i2c_mux_priv_old *priv = i2c_mux_priv(muxc);
+-
+-	return priv->deselect(muxc->parent, priv->mux_priv, chan);
+-}
+-
+-struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+-					struct device *mux_dev, void *mux_priv,
+-					u32 force_nr, u32 chan_id,
+-					unsigned int class,
+-					int (*select)(struct i2c_adapter *,
+-						      void *, u32),
+-					int (*deselect)(struct i2c_adapter *,
+-							void *, u32))
+-{
+-	struct i2c_mux_core *muxc;
+-	struct i2c_mux_priv_old *priv;
+-
+-	muxc = i2c_mux_one_adapter(parent, mux_dev, sizeof(*priv), 0,
+-				   force_nr, chan_id, class,
+-				   i2c_mux_select,
+-				   deselect ? i2c_mux_deselect : NULL);
+-	if (IS_ERR(muxc))
+-		return NULL;
+-
+-	priv = i2c_mux_priv(muxc);
+-	priv->select = select;
+-	priv->deselect = deselect;
+-	priv->mux_priv = mux_priv;
+-
+-	return muxc->adapter[0];
+-}
+-EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
+-
+ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
  {
- 	/* Un Initialize I2C bus */
--	cx231xx_i2c_mux_unregister(dev, 1);
--	cx231xx_i2c_mux_unregister(dev, 0);
-+	cx231xx_i2c_mux_unregister(dev);
- 	cx231xx_i2c_unregister(&dev->i2c_bus[2]);
- 	cx231xx_i2c_unregister(&dev->i2c_bus[1]);
- 	cx231xx_i2c_unregister(&dev->i2c_bus[0]);
-diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/cx231xx/cx231xx-i2c.c
-index a29c345b027d..eb22e05d4add 100644
---- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
-+++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
-@@ -557,40 +557,41 @@ int cx231xx_i2c_unregister(struct cx231xx_i2c *bus)
-  * cx231xx_i2c_mux_select()
-  * switch i2c master number 1 between port1 and port3
+ 	char symlink_name[20];
+@@ -353,17 +305,6 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
+ }
+ EXPORT_SYMBOL_GPL(i2c_mux_del_adapters);
+ 
+-void i2c_del_mux_adapter(struct i2c_adapter *adap)
+-{
+-	struct i2c_mux_priv *priv = adap->algo_data;
+-	struct i2c_mux_core *muxc = priv->muxc;
+-
+-	i2c_mux_del_adapters(muxc);
+-	devm_kfree(muxc->dev, muxc->adapter);
+-	devm_kfree(muxc->dev, muxc);
+-}
+-EXPORT_SYMBOL_GPL(i2c_del_mux_adapter);
+-
+ MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>");
+ MODULE_DESCRIPTION("I2C driver for multiplexed I2C busses");
+ MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
+index 0d97d7a3f03c..25c88ccf9c38 100644
+--- a/include/linux/i2c-mux.h
++++ b/include/linux/i2c-mux.h
+@@ -55,20 +55,6 @@ int i2c_mux_reserve_adapters(struct i2c_mux_core *muxc, int adapters);
+ 
+ /*
+  * Called to create a i2c bus on a multiplexed bus segment.
+- * The mux_dev and chan_id parameters are passed to the select
+- * and deselect callback functions to perform hardware-specific
+- * mux control.
+- */
+-struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+-				struct device *mux_dev,
+-				void *mux_priv, u32 force_nr, u32 chan_id,
+-				unsigned int class,
+-				int (*select) (struct i2c_adapter *,
+-					       void *mux_dev, u32 chan_id),
+-				int (*deselect) (struct i2c_adapter *,
+-						 void *mux_dev, u32 chan_id));
+-/*
+- * Called to create a i2c bus on a multiplexed bus segment.
+  * The chan_id parameter is passed to the select and deselect
+  * callback functions to perform hardware-specific mux control.
   */
--static int cx231xx_i2c_mux_select(struct i2c_adapter *adap,
--			void *mux_priv, u32 chan_id)
-+static int cx231xx_i2c_mux_select(struct i2c_mux_core *muxc, u32 chan_id)
- {
--	struct cx231xx *dev = mux_priv;
-+	struct cx231xx *dev = i2c_mux_priv(muxc);
+@@ -88,7 +74,6 @@ struct i2c_mux_core *i2c_mux_one_adapter(struct i2c_adapter *parent,
+ 					 int (*deselect)(struct i2c_mux_core *,
+ 							 u32));
  
- 	return cx231xx_enable_i2c_port_3(dev, chan_id);
- }
+-void i2c_del_mux_adapter(struct i2c_adapter *adap);
+ void i2c_mux_del_adapters(struct i2c_mux_core *muxc);
  
-+int cx231xx_i2c_mux_create(struct cx231xx *dev)
-+{
-+	dev->muxc = i2c_mux_alloc(&dev->i2c_bus[1].i2c_adap, dev->dev, 0, 0,
-+				  cx231xx_i2c_mux_select, NULL);
-+	if (!dev->muxc)
-+		return -ENOMEM;
-+	dev->muxc->priv = dev;
-+	return 0;
-+}
-+
- int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no)
- {
--	struct i2c_adapter *i2c_parent = &dev->i2c_bus[1].i2c_adap;
--	/* what is the correct mux_dev? */
--	struct device *mux_dev = dev->dev;
--
--	dev->i2c_mux_adap[mux_no] = i2c_add_mux_adapter(i2c_parent,
--				mux_dev,
--				dev /* mux_priv */,
--				0,
--				mux_no /* chan_id */,
--				0 /* class */,
--				&cx231xx_i2c_mux_select,
--				NULL);
--
--	if (!dev->i2c_mux_adap[mux_no])
-+	int rc;
-+
-+	rc = i2c_mux_add_adapter(dev->muxc,
-+				 0,
-+				 mux_no /* chan_id */,
-+				 0 /* class */);
-+	if (rc)
- 		dev_warn(dev->dev,
- 			 "i2c mux %d register FAILED\n", mux_no);
- 
--	return 0;
-+	return rc;
- }
- 
--void cx231xx_i2c_mux_unregister(struct cx231xx *dev, int mux_no)
-+void cx231xx_i2c_mux_unregister(struct cx231xx *dev)
- {
--	i2c_del_mux_adapter(dev->i2c_mux_adap[mux_no]);
--	dev->i2c_mux_adap[mux_no] = NULL;
-+	i2c_mux_del_adapters(dev->muxc);
- }
- 
- struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port)
-@@ -603,9 +604,9 @@ struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port)
- 	case I2C_2:
- 		return &dev->i2c_bus[2].i2c_adap;
- 	case I2C_1_MUX_1:
--		return dev->i2c_mux_adap[0];
-+		return dev->muxc->adapter[0];
- 	case I2C_1_MUX_3:
--		return dev->i2c_mux_adap[1];
-+		return dev->muxc->adapter[1];
- 	default:
- 		return NULL;
- 	}
-diff --git a/drivers/media/usb/cx231xx/cx231xx.h b/drivers/media/usb/cx231xx/cx231xx.h
-index ec6d3f5bc36d..fab222059e51 100644
---- a/drivers/media/usb/cx231xx/cx231xx.h
-+++ b/drivers/media/usb/cx231xx/cx231xx.h
-@@ -625,6 +625,7 @@ struct cx231xx {
- 
- 	/* I2C adapters: Master 1 & 2 (External) & Master 3 (Internal only) */
- 	struct cx231xx_i2c i2c_bus[3];
-+	struct i2c_mux_core *muxc;
- 	struct i2c_adapter *i2c_mux_adap[2];
- 
- 	unsigned int xc_fw_load_done:1;
-@@ -759,8 +760,9 @@ int cx231xx_reset_analog_tuner(struct cx231xx *dev);
- void cx231xx_do_i2c_scan(struct cx231xx *dev, int i2c_port);
- int cx231xx_i2c_register(struct cx231xx_i2c *bus);
- int cx231xx_i2c_unregister(struct cx231xx_i2c *bus);
-+int cx231xx_i2c_mux_create(struct cx231xx *dev);
- int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no);
--void cx231xx_i2c_mux_unregister(struct cx231xx *dev, int mux_no);
-+void cx231xx_i2c_mux_unregister(struct cx231xx *dev);
- struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port);
- 
- /* Internal block control functions */
+ #endif /* __KERNEL__ */
 -- 
 2.1.4
