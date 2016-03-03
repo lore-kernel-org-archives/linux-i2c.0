@@ -1,66 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: ismt: Add Intel DNV PCI ID
-Date: Thu, 3 Mar 2016 22:15:38 +0100
-Message-ID: <20160303211538.GB1501@katana>
-References: <1455807273-133516-1-git-send-email-mika.westerberg@linux.intel.com>
- <20160219083917.GE1491@lahna.fi.intel.com>
- <5B3EBE90AD716C428A6F03AC478C5406B6270015@ORSMSX105.amr.corp.intel.com>
+Subject: Re: [PATCH v2] i2c: mediatek: i2c multi transfer optimization
+Date: Thu, 3 Mar 2016 22:18:35 +0100
+Message-ID: <20160303211835.GC1501@katana>
+References: <1456421739-5450-1-git-send-email-liguo.zhang@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Y7xTucakfITjPcLV"
+	protocol="application/pgp-signature"; boundary="w7PDEPdKQumQfZlR"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:45584 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:45673 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756367AbcCCVPq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 3 Mar 2016 16:15:46 -0500
+	id S1758105AbcCCVSm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 3 Mar 2016 16:18:42 -0500
 Content-Disposition: inline
-In-Reply-To: <5B3EBE90AD716C428A6F03AC478C5406B6270015@ORSMSX105.amr.corp.intel.com>
+In-Reply-To: <1456421739-5450-1-git-send-email-liguo.zhang@mediatek.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Yates, Alexandra" <alexandra.yates@intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, "Heasley, Seth" <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Liguo Zhang <liguo.zhang@mediatek.com>
+Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 
 
---Y7xTucakfITjPcLV
+--w7PDEPdKQumQfZlR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Mika,
+On Fri, Feb 26, 2016 at 01:35:39AM +0800, Liguo Zhang wrote:
+> Send the next transfer in the i2c irq handler, and only signal
+> complete() when the entire transaction has been completed.
 
-> I go this device ID from the External Design Specification (EDS) document=
- for DNV.  The EDS lists this as the SMBus Controller as follows:=20
->  Bus: 0 Device:18 Function:0 Device ID: 0x19AC Description:  SMBus Contro=
-ller - Host =20
+This describes what you do. But not why. Is this an improvment of
+throughput? Is there a downside of interrupt latency?
+
+Thanks.
+
 >=20
-> In the same document there is a list of PCI IDs.=20
+> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+> ---
+> change in v2:
+> Remove the unused variable left_num in mtk_i2c_transfer().
 
-Did this comment help?
-
-Thanks,
-
-   Wolfram
-
-
---Y7xTucakfITjPcLV
+--w7PDEPdKQumQfZlR
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW2Kl6AAoJEBQN5MwUoCm2dAYQAJT7fpQZFI1mP33G/8zwxxJY
-/nxfMKCfkX+1eSOVi+Q54+1I8B5t4qewz1nY7qJDxvEWJQ4nIJbFpcQ0wLqIwxmd
-JtEMFdFplcRNrgaCVLxFbCgS7FjmD/V8elQWcxAR/9NshdMSbN+WlqlI9IfkmoTG
-EvBSbtiXqEql1ZIeQj6AJG/TfKIB1tMQWJbzgJ9QuN4yI504XcxE6NvAaioCS8DX
-p27P+ZIKeNMWItN2+yLkEp6IYC8sHzyV37XGTCuUu5qtqnxOfbzxtuqvrl9Hx9Wy
-6gQAHgcbYlElhR+8FcVuMhWt+CaUZnLZmKXSAfa8YjyOv2Sx7aTd3nZEOOEeFt7w
-x+9NUCXlzn82KTXeLjDZeqoAbymB5rqleYvZiCk7XnDE0iMIqtGJvMmXOiVNQBwv
-2BYqi2xftKXio5Z+08KB2f8h8JSEuChQEigehkqSIy7fDsBj3W3XN37TYO6+p0Cx
-5nN1VxMNA2CZYs+0+Bskr23LlBsZ93kieNZ0DhB5IjeEMuxY/5qHN9IRf7BbDn7E
-1eagEwK26ZNAkgvwDHx2VF3F5mjjbTL+Iw81+Lumwmkpi8FTl8SYYgZyJAFeMXvI
-yX6yO1XbTN2h5ICXZVNJFiiXqTWusJLwnbnYFMpACIOKH1hFux8l8AzIm+No5jPb
-7DkJ4sTUwbbgPNBmVs1B
-=GGe9
+iQIcBAEBAgAGBQJW2KorAAoJEBQN5MwUoCm2p3EP/1CyMQ/2QGu59Qz0je8uKiUZ
+CwEQJKgwh7AXuyCHczdHezhGtVpGkc2Qpgodty2ELyiujTAH5TkzOScL3cD8yyHr
+AVve4pT3Atq9MFRAIOHJGmShf1HMTbfa/IyNTcny3QjuIti+ncgdMdVzxfFZxguW
+g0s2gTG5Jz6SDHZfzz7eLD4ct1FW4JpUk0mDM6ZdQfS2fXbg9zGPgcsfb0mwXoue
+emga0lRk9hQcPm5HSUfQ5TxRMFe3i1I+qu4RZ5K+fndIcvRAAUbRd30vHDNWOWDi
+YPJ+WjeFChFRGtKeUvm0OTtjfnYJ7gJq2Zv4LyZ13vsDEqUx7zHZ50JfBbeIUQd1
+n2gn424Dbn9vxMSKdJL8WQMr546NDPWgbBuyWE6V4BsSN3gI1eXlIGV4EpbH8i08
+olXfdPCiIBEi7POluh4dcsR9t0KfebmvYokcju6EJmSLBCFXkEdM/42ifS+N/7lS
+nlbyXKyGMM0K+cnXb/PyShsT0LLqV8NWRvhFro06sO0Ex4i8vtRQFQURXTuvrgzq
+aQTd30JaEwwzub0Phh2uqiPT06Em/37g1VTtYQ5uSVKBt6Ld6svKNoyEYOe6iKMQ
+HUzc+1354kZRjh0+VZgCimWlyt6Pix0O4Ii/ug7dmpbff5IOiuITJVwSVt0OBG7k
+PHKvmReh3W+py3hfZl3G
+=EL2G
 -----END PGP SIGNATURE-----
 
---Y7xTucakfITjPcLV--
+--w7PDEPdKQumQfZlR--
