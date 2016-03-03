@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@lysator.liu.se>
-Subject: [PATCH v4 11/18] [media] rtl2832: convert to use an explicit i2c mux core
-Date: Thu,  3 Mar 2016 23:27:23 +0100
-Message-ID: <1457044050-15230-12-git-send-email-peda@lysator.liu.se>
+Subject: [PATCH v4 13/18] [media] cx231xx: convert to use an explicit i2c mux core
+Date: Thu,  3 Mar 2016 23:27:25 +0100
+Message-ID: <1457044050-15230-14-git-send-email-peda@lysator.liu.se>
 References: <1457044050-15230-1-git-send-email-peda@lysator.liu.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1457044050-15230-1-git-send-email-peda@lysator.liu.se>
@@ -13,92 +13,141 @@ List-Id: linux-i2c@vger.kernel.org
 From: Peter Rosin <peda@axentia.se>
 
 Allocate an explicit i2c mux core to handle parent and child adapters
-etc. Update the select/deselect ops to be in terms of the i2c mux core
-instead of the child adapter.
+etc. Update the select op to be in terms of the i2c mux core instead
+of the child adapter.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/media/dvb-frontends/rtl2832.c      | 22 +++++++++++-----------
- drivers/media/dvb-frontends/rtl2832_priv.h |  2 +-
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/media/usb/cx231xx/cx231xx-core.c |  6 ++--
+ drivers/media/usb/cx231xx/cx231xx-i2c.c  | 47 ++++++++++++++++----------------
+ drivers/media/usb/cx231xx/cx231xx.h      |  4 ++-
+ 3 files changed, 31 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/rtl2832.c b/drivers/media/dvb-frontends/rtl2832.c
-index 10f2119935da..775444898599 100644
---- a/drivers/media/dvb-frontends/rtl2832.c
-+++ b/drivers/media/dvb-frontends/rtl2832.c
-@@ -866,9 +866,9 @@ err:
- 	dev_dbg(&client->dev, "failed=%d\n", ret);
- }
+diff --git a/drivers/media/usb/cx231xx/cx231xx-core.c b/drivers/media/usb/cx231xx/cx231xx-core.c
+index f497888d94bf..f7aac2abd783 100644
+--- a/drivers/media/usb/cx231xx/cx231xx-core.c
++++ b/drivers/media/usb/cx231xx/cx231xx-core.c
+@@ -1304,6 +1304,9 @@ int cx231xx_dev_init(struct cx231xx *dev)
+ 	cx231xx_i2c_register(&dev->i2c_bus[1]);
+ 	cx231xx_i2c_register(&dev->i2c_bus[2]);
  
--static int rtl2832_select(struct i2c_adapter *adap, void *mux_priv, u32 chan_id)
-+static int rtl2832_select(struct i2c_mux_core *muxc, u32 chan_id)
++	errCode = cx231xx_i2c_mux_create(dev);
++	if (errCode < 0)
++		return errCode;
+ 	cx231xx_i2c_mux_register(dev, 0);
+ 	cx231xx_i2c_mux_register(dev, 1);
+ 
+@@ -1426,8 +1429,7 @@ EXPORT_SYMBOL_GPL(cx231xx_dev_init);
+ void cx231xx_dev_uninit(struct cx231xx *dev)
  {
--	struct rtl2832_dev *dev = mux_priv;
-+	struct rtl2832_dev *dev = i2c_mux_priv(muxc);
- 	struct i2c_client *client = dev->client;
- 	int ret;
- 
-@@ -889,10 +889,9 @@ err:
- 	return ret;
- }
- 
--static int rtl2832_deselect(struct i2c_adapter *adap, void *mux_priv,
--			    u32 chan_id)
-+static int rtl2832_deselect(struct i2c_mux_core *muxc, u32 chan_id)
+ 	/* Un Initialize I2C bus */
+-	cx231xx_i2c_mux_unregister(dev, 1);
+-	cx231xx_i2c_mux_unregister(dev, 0);
++	cx231xx_i2c_mux_unregister(dev);
+ 	cx231xx_i2c_unregister(&dev->i2c_bus[2]);
+ 	cx231xx_i2c_unregister(&dev->i2c_bus[1]);
+ 	cx231xx_i2c_unregister(&dev->i2c_bus[0]);
+diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+index a29c345b027d..eb22e05d4add 100644
+--- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
++++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+@@ -557,40 +557,41 @@ int cx231xx_i2c_unregister(struct cx231xx_i2c *bus)
+  * cx231xx_i2c_mux_select()
+  * switch i2c master number 1 between port1 and port3
+  */
+-static int cx231xx_i2c_mux_select(struct i2c_adapter *adap,
+-			void *mux_priv, u32 chan_id)
++static int cx231xx_i2c_mux_select(struct i2c_mux_core *muxc, u32 chan_id)
  {
--	struct rtl2832_dev *dev = mux_priv;
-+	struct rtl2832_dev *dev = i2c_mux_priv(muxc);
+-	struct cx231xx *dev = mux_priv;
++	struct cx231xx *dev = i2c_mux_priv(muxc);
  
- 	schedule_delayed_work(&dev->i2c_gate_work, usecs_to_jiffies(100));
- 	return 0;
-@@ -1078,7 +1077,7 @@ static struct i2c_adapter *rtl2832_get_i2c_adapter(struct i2c_client *client)
- 	struct rtl2832_dev *dev = i2c_get_clientdata(client);
- 
- 	dev_dbg(&client->dev, "\n");
--	return dev->i2c_adapter_tuner;
-+	return dev->muxc->adapter[0];
+ 	return cx231xx_enable_i2c_port_3(dev, chan_id);
  }
  
- static int rtl2832_enable_slave_ts(struct i2c_client *client)
-@@ -1253,12 +1252,13 @@ static int rtl2832_probe(struct i2c_client *client,
- 		goto err_regmap_exit;
- 
- 	/* create muxed i2c adapter for demod tuner bus */
--	dev->i2c_adapter_tuner = i2c_add_mux_adapter(i2c, &i2c->dev, dev,
--			0, 0, 0, rtl2832_select, rtl2832_deselect);
--	if (dev->i2c_adapter_tuner == NULL) {
--		ret = -ENODEV;
-+	dev->muxc = i2c_mux_one_adapter(i2c, &i2c->dev, 0, 0, 0, 0, 0,
-+					rtl2832_select, rtl2832_deselect);
-+	if (IS_ERR(dev->muxc)) {
-+		ret = PTR_ERR(dev->muxc);
- 		goto err_regmap_exit;
- 	}
++int cx231xx_i2c_mux_create(struct cx231xx *dev)
++{
++	dev->muxc = i2c_mux_alloc(&dev->i2c_bus[1].i2c_adap, dev->dev, 0, 0,
++				  cx231xx_i2c_mux_select, NULL);
++	if (!dev->muxc)
++		return -ENOMEM;
 +	dev->muxc->priv = dev;
++	return 0;
++}
++
+ int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no)
+ {
+-	struct i2c_adapter *i2c_parent = &dev->i2c_bus[1].i2c_adap;
+-	/* what is the correct mux_dev? */
+-	struct device *mux_dev = dev->dev;
+-
+-	dev->i2c_mux_adap[mux_no] = i2c_add_mux_adapter(i2c_parent,
+-				mux_dev,
+-				dev /* mux_priv */,
+-				0,
+-				mux_no /* chan_id */,
+-				0 /* class */,
+-				&cx231xx_i2c_mux_select,
+-				NULL);
+-
+-	if (!dev->i2c_mux_adap[mux_no])
++	int rc;
++
++	rc = i2c_mux_add_adapter(dev->muxc,
++				 0,
++				 mux_no /* chan_id */,
++				 0 /* class */);
++	if (rc)
+ 		dev_warn(dev->dev,
+ 			 "i2c mux %d register FAILED\n", mux_no);
  
- 	/* create dvb_frontend */
- 	memcpy(&dev->fe.ops, &rtl2832_ops, sizeof(struct dvb_frontend_ops));
-@@ -1293,7 +1293,7 @@ static int rtl2832_remove(struct i2c_client *client)
+-	return 0;
++	return rc;
+ }
  
- 	cancel_delayed_work_sync(&dev->i2c_gate_work);
- 
--	i2c_del_mux_adapter(dev->i2c_adapter_tuner);
+-void cx231xx_i2c_mux_unregister(struct cx231xx *dev, int mux_no)
++void cx231xx_i2c_mux_unregister(struct cx231xx *dev)
+ {
+-	i2c_del_mux_adapter(dev->i2c_mux_adap[mux_no]);
+-	dev->i2c_mux_adap[mux_no] = NULL;
 +	i2c_mux_del_adapters(dev->muxc);
+ }
  
- 	regmap_exit(dev->regmap);
+ struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port)
+@@ -603,9 +604,9 @@ struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port)
+ 	case I2C_2:
+ 		return &dev->i2c_bus[2].i2c_adap;
+ 	case I2C_1_MUX_1:
+-		return dev->i2c_mux_adap[0];
++		return dev->muxc->adapter[0];
+ 	case I2C_1_MUX_3:
+-		return dev->i2c_mux_adap[1];
++		return dev->muxc->adapter[1];
+ 	default:
+ 		return NULL;
+ 	}
+diff --git a/drivers/media/usb/cx231xx/cx231xx.h b/drivers/media/usb/cx231xx/cx231xx.h
+index ec6d3f5bc36d..fab222059e51 100644
+--- a/drivers/media/usb/cx231xx/cx231xx.h
++++ b/drivers/media/usb/cx231xx/cx231xx.h
+@@ -625,6 +625,7 @@ struct cx231xx {
  
-diff --git a/drivers/media/dvb-frontends/rtl2832_priv.h b/drivers/media/dvb-frontends/rtl2832_priv.h
-index 5dcd3a41d23f..6b3cd23a2c26 100644
---- a/drivers/media/dvb-frontends/rtl2832_priv.h
-+++ b/drivers/media/dvb-frontends/rtl2832_priv.h
-@@ -36,7 +36,7 @@ struct rtl2832_dev {
- 	struct mutex regmap_mutex;
- 	struct regmap_config regmap_config;
- 	struct regmap *regmap;
--	struct i2c_adapter *i2c_adapter_tuner;
+ 	/* I2C adapters: Master 1 & 2 (External) & Master 3 (Internal only) */
+ 	struct cx231xx_i2c i2c_bus[3];
 +	struct i2c_mux_core *muxc;
- 	struct dvb_frontend fe;
- 	struct delayed_work stat_work;
- 	enum fe_status fe_status;
+ 	struct i2c_adapter *i2c_mux_adap[2];
+ 
+ 	unsigned int xc_fw_load_done:1;
+@@ -759,8 +760,9 @@ int cx231xx_reset_analog_tuner(struct cx231xx *dev);
+ void cx231xx_do_i2c_scan(struct cx231xx *dev, int i2c_port);
+ int cx231xx_i2c_register(struct cx231xx_i2c *bus);
+ int cx231xx_i2c_unregister(struct cx231xx_i2c *bus);
++int cx231xx_i2c_mux_create(struct cx231xx *dev);
+ int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no);
+-void cx231xx_i2c_mux_unregister(struct cx231xx *dev, int mux_no);
++void cx231xx_i2c_mux_unregister(struct cx231xx *dev);
+ struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port);
+ 
+ /* Internal block control functions */
 -- 
 2.1.4
