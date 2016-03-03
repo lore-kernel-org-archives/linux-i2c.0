@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@lysator.liu.se>
-Subject: [PATCH v4 17/18] i2c: muxes always lock the parent adapter
-Date: Thu,  3 Mar 2016 23:27:29 +0100
-Message-ID: <1457044050-15230-18-git-send-email-peda@lysator.liu.se>
+Subject: [PATCH v4 14/18] of/unittest: convert to use an explicit i2c mux core
+Date: Thu,  3 Mar 2016 23:27:26 +0100
+Message-ID: <1457044050-15230-15-git-send-email-peda@lysator.liu.se>
 References: <1457044050-15230-1-git-send-email-peda@lysator.liu.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1457044050-15230-1-git-send-email-peda@lysator.liu.se>
@@ -12,106 +12,98 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Peter Rosin <peda@axentia.se>
 
-Instead of checking for i2c parent adapters for every lock/unlock, simply
-override the locking for muxes to always lock/unlock the parent adapter
-directly.
+Allocate an explicit i2c mux core to handle parent and child adapters
+etc. Update the select op to be in terms of the i2c mux core instead
+of the child adapter.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/i2c-core.c | 21 +++------------------
- drivers/i2c/i2c-mux.c  | 27 +++++++++++++++++++++++++++
- 2 files changed, 30 insertions(+), 18 deletions(-)
+ drivers/of/unittest.c | 40 +++++++++++++++-------------------------
+ 1 file changed, 15 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 946afd8e9f78..6be266c3d39b 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -964,12 +964,7 @@ static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
-  */
- static void i2c_adapter_lock_bus(struct i2c_adapter *adapter, int flags)
- {
--	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
+diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
+index 979b6e415cea..a6dc4b18047e 100644
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -1687,13 +1687,7 @@ static struct i2c_driver unittest_i2c_dev_driver = {
+ 
+ #if IS_BUILTIN(CONFIG_I2C_MUX)
+ 
+-struct unittest_i2c_mux_data {
+-	int nchans;
+-	struct i2c_adapter *adap[];
+-};
 -
--	if (parent)
--		i2c_lock_adapter(parent);
--	else
--		rt_mutex_lock(&adapter->bus_lock);
-+	rt_mutex_lock(&adapter->bus_lock);
- }
- 
- /**
-@@ -978,12 +973,7 @@ static void i2c_adapter_lock_bus(struct i2c_adapter *adapter, int flags)
-  */
- static int i2c_adapter_trylock_bus(struct i2c_adapter *adapter, int flags)
+-static int unittest_i2c_mux_select_chan(struct i2c_adapter *adap,
+-			       void *client, u32 chan)
++static int unittest_i2c_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
  {
--	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
--
--	if (parent)
--		return parent->trylock_bus(parent, flags);
--	else
--		return rt_mutex_trylock(&adapter->bus_lock);
-+	return rt_mutex_trylock(&adapter->bus_lock);
+ 	return 0;
  }
- 
- /**
-@@ -992,12 +982,7 @@ static int i2c_adapter_trylock_bus(struct i2c_adapter *adapter, int flags)
-  */
- static void i2c_adapter_unlock_bus(struct i2c_adapter *adapter, int flags)
+@@ -1701,11 +1695,11 @@ static int unittest_i2c_mux_select_chan(struct i2c_adapter *adap,
+ static int unittest_i2c_mux_probe(struct i2c_client *client,
+ 		const struct i2c_device_id *id)
  {
--	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
--
--	if (parent)
--		i2c_unlock_adapter(parent);
--	else
--		rt_mutex_unlock(&adapter->bus_lock);
-+	rt_mutex_unlock(&adapter->bus_lock);
- }
+-	int ret, i, nchans, size;
++	int ret, i, nchans;
+ 	struct device *dev = &client->dev;
+ 	struct i2c_adapter *adap = to_i2c_adapter(dev->parent);
+ 	struct device_node *np = client->dev.of_node, *child;
+-	struct unittest_i2c_mux_data *stm;
++	struct i2c_mux_core *muxc;
+ 	u32 reg, max_reg;
  
- static void i2c_dev_set_name(struct i2c_adapter *adap,
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index e7ac7a4a7a83..6f5c70c527b8 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -98,6 +98,30 @@ static unsigned int i2c_mux_parent_classes(struct i2c_adapter *parent)
- 	return class;
- }
+ 	dev_dbg(dev, "%s for node @%s\n", __func__, np->full_name);
+@@ -1729,25 +1723,23 @@ static int unittest_i2c_mux_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
  
-+static void i2c_parent_lock_bus(struct i2c_adapter *adapter, int flags)
-+{
-+	struct i2c_mux_priv *priv = adapter->algo_data;
-+	struct i2c_adapter *parent = priv->muxc->parent;
-+
-+	parent->lock_bus(parent, flags);
-+}
-+
-+static int i2c_parent_trylock_bus(struct i2c_adapter *adapter, int flags)
-+{
-+	struct i2c_mux_priv *priv = adapter->algo_data;
-+	struct i2c_adapter *parent = priv->muxc->parent;
-+
-+	return parent->trylock_bus(parent, flags);
-+}
-+
-+static void i2c_parent_unlock_bus(struct i2c_adapter *adapter, int flags)
-+{
-+	struct i2c_mux_priv *priv = adapter->algo_data;
-+	struct i2c_adapter *parent = priv->muxc->parent;
-+
-+	parent->unlock_bus(parent, flags);
-+}
-+
- int i2c_mux_reserve_adapters(struct i2c_mux_core *muxc, int adapters)
+-	size = offsetof(struct unittest_i2c_mux_data, adap[nchans]);
+-	stm = devm_kzalloc(dev, size, GFP_KERNEL);
+-	if (!stm) {
+-		dev_err(dev, "Out of memory\n");
++	muxc = i2c_mux_alloc(adap, dev, 0, 0,
++			     unittest_i2c_mux_select_chan, NULL);
++	if (!muxc)
+ 		return -ENOMEM;
+-	}
+-	stm->nchans = nchans;
++	ret = i2c_mux_reserve_adapters(muxc, nchans);
++	if (ret)
++		return ret;
+ 	for (i = 0; i < nchans; i++) {
+-		stm->adap[i] = i2c_add_mux_adapter(adap, dev, client,
+-				0, i, 0, unittest_i2c_mux_select_chan, NULL);
+-		if (!stm->adap[i]) {
++		ret = i2c_mux_add_adapter(muxc, 0, i, 0);
++		if (ret) {
+ 			dev_err(dev, "Failed to register mux #%d\n", i);
+-			for (i--; i >= 0; i--)
+-				i2c_del_mux_adapter(stm->adap[i]);
++			i2c_mux_del_adapters(muxc);
+ 			return -ENODEV;
+ 		}
+ 	}
+ 
+-	i2c_set_clientdata(client, stm);
++	i2c_set_clientdata(client, muxc);
+ 
+ 	return 0;
+ };
+@@ -1756,12 +1748,10 @@ static int unittest_i2c_mux_remove(struct i2c_client *client)
  {
- 	struct i2c_adapter **adapter;
-@@ -192,6 +216,9 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 	priv->adap.retries = parent->retries;
- 	priv->adap.timeout = parent->timeout;
- 	priv->adap.quirks = parent->quirks;
-+	priv->adap.lock_bus = i2c_parent_lock_bus;
-+	priv->adap.trylock_bus = i2c_parent_trylock_bus;
-+	priv->adap.unlock_bus = i2c_parent_unlock_bus;
+ 	struct device *dev = &client->dev;
+ 	struct device_node *np = client->dev.of_node;
+-	struct unittest_i2c_mux_data *stm = i2c_get_clientdata(client);
+-	int i;
++	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
  
- 	/* Sanity check on class */
- 	if (i2c_mux_parent_classes(parent) & class)
+ 	dev_dbg(dev, "%s for node @%s\n", __func__, np->full_name);
+-	for (i = stm->nchans - 1; i >= 0; i--)
+-		i2c_del_mux_adapter(stm->adap[i]);
++	i2c_mux_del_adapters(muxc);
+ 	return 0;
+ }
+ 
 -- 
 2.1.4
