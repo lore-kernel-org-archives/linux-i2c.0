@@ -1,81 +1,62 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Subject: [PATCHv3 1/2] i2c: cadence: Fix the Documentation
-Date: Thu, 3 Mar 2016 11:20:39 +0530
-Message-ID: <1456984240-17389-1-git-send-email-shubhraj@xilinx.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCHv2 2/2] i2c: xiic: Implement Power management
+Date: Thu, 3 Mar 2016 09:31:32 +0100
+Message-ID: <20160303083131.GB1552@katana>
+References: <1456920247-37291-1-git-send-email-shubhraj@xilinx.com>
+ <1456920247-37291-2-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OwLcNYc0lM97+oe1"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-cys01nam02on0050.outbound.protection.outlook.com ([104.47.37.50]:25066
-	"EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751004AbcCCFuu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 3 Mar 2016 00:50:50 -0500
+Received: from sauhun.de ([89.238.76.85]:54781 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756894AbcCCIbh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 3 Mar 2016 03:31:37 -0500
+Content-Disposition: inline
+In-Reply-To: <1456920247-37291-2-git-send-email-shubhraj@xilinx.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: anirudh@xilinx.com, soren.brinkmann@xilinx.com, michal.simek@xilinx.com, wsa@the-dreams.de, Shubhrajyoti Datta <shubhraj@xilinx.com>
+To: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-The runtime adaptation patch missed the documentation update.
-This fixes the same.
 
-Tested-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
----
-v2 changes:
-fix the dev param description
+--OwLcNYc0lM97+oe1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-v3 changes
-Fix the cdns_i2c_clear_bus_hold
+On Wed, Mar 02, 2016 at 05:34:07PM +0530, Shubhrajyoti Datta wrote:
+> Enable power management. This patch enables the clocks
+> before transfer and disables after the transfer.
+>=20
+> Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
+> ---
+>  drivers/i2c/busses/i2c-xiic.c |   88 +++++++++++++++++++++++++++++++++++=
+++---
+>  1 files changed, 81 insertions(+), 7 deletions(-)
 
- drivers/i2c/busses/i2c-cadence.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+Changelog?
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 6b08d16..90bbd9f 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -124,6 +124,8 @@
- 
- /**
-  * struct cdns_i2c - I2C device private data structure
-+ *
-+ * @dev:		Pointer to device structure
-  * @membase:		Base address of the I2C device
-  * @adap:		I2C adapter instance
-  * @p_msg:		Message pointer
-@@ -171,7 +173,7 @@ struct cdns_platform_data {
- 					     clk_rate_change_nb)
- 
- /**
-- * cdns_i2c_clear_bus_hold() - Clear bus hold bit
-+ * cdns_i2c_clear_bus_hold - Clear bus hold bit
-  * @id:	Pointer to driver data struct
-  *
-  * Helper to clear the controller's bus hold bit.
-@@ -815,8 +817,8 @@ static int cdns_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
- }
- 
- /**
-- * cdns_i2c_suspend - Suspend method for the driver
-- * @_dev:	Address of the platform_device structure
-+ * cdns_i2c_runtime_suspend -  Runtime suspend method for the driver
-+ * @dev:	Address of the platform_device structure
-  *
-  * Put the driver into low power mode.
-  *
-@@ -833,10 +835,10 @@ static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
- }
- 
- /**
-- * cdns_i2c_resume - Resume from suspend
-- * @_dev:	Address of the platform_device structure
-+ * cdns_i2c_runtime_resume - Runtime resume
-+ * @dev:	Address of the platform_device structure
-  *
-- * Resume operation after suspend.
-+ * Runtime resume callback.
-  *
-  * Return: 0 on success and error value on error
-  */
--- 
-1.7.1
+
+--OwLcNYc0lM97+oe1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW1/ZjAAoJEBQN5MwUoCm23O0QAKuUiud/n/O4nsugycqvQPuq
+CDK7GyiCKt2OYq89ud8gGYCRc1NOVEg9XQGmjGsK2MKCqp5SDkljJoAKTP5tT5pz
+pnPbbwaHreqjbDIMujwpjDbjGHRtHMfImqHqhpX1Si7Ep+H55LxZ5XzSxi+dzL0q
+UKIGjFIqOi/Tf91cpnqF1Tnomd3YpXRqEe0rRdr9YYs0tB+xCz1xvAq3PxZOnnE5
+xXBEQgEzNqViXsLqTuirSneqpMBT8H46bVlc4ZHIyz2K+k9Jx4fcPpptb3oiiFaG
+4i29LDbXoiDGvJP+cqYeJLgeAQCyCQZP/llwUw3EOSnQX8k3BopNwl/nVdzppJOV
+1ABfVyqnMtgRCEFGtHuelYEmQV5G25bfhdcBEY44O6FHLnam3lB2xSB8ky201slL
+RcxrXnIx8UudM21y1VYPVwMS2NK/vzPkNAhNkxiVTr2vc8jIyWdvpPQ3EEYzRD9I
+g6og1IihNdm3C1lL5SRZqnlhj0WhUYiPHRk1DX+z6esHTP9U6Nz73FhgmNTyxGUu
+gfFjO3P1aOM6iDVPRlLEHTAeJR1yxClVhIXvCNFxdPofsXDwpN0ACEKPysI8uowd
+JhwaLCIABtX7tXaWOCCRBQqQysidY2vZ6802S5JO8CsWz5n7M/NgTQ3yHJttgthE
+u0pkUGsTlN8REP1uVI4h
+=KTni
+-----END PGP SIGNATURE-----
+
+--OwLcNYc0lM97+oe1--
