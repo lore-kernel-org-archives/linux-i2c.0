@@ -1,70 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: imx: add slave support. v2
-Date: Thu, 3 Mar 2016 22:35:10 +0100
-Message-ID: <20160303213509.GF1501@katana>
-References: <1453824880-4844-1-git-send-email-dbaranov@dev.rtsoft.ru>
+Subject: Re: [PATCH 2/2] drivers/i2c/i2c-imx.c: improve i2c bus error recovery
+Date: Thu, 3 Mar 2016 22:37:13 +0100
+Message-ID: <20160303213713.GG1501@katana>
+References: <1453884283-33414-1-git-send-email-ying.zhang22455@nxp.com>
+ <1453884283-33414-2-git-send-email-ying.zhang22455@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iBwuxWUsK/REspAd"
+	protocol="application/pgp-signature"; boundary="Cp3Cp8fzgozWLBWL"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46101 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:46146 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754573AbcCCVfO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 3 Mar 2016 16:35:14 -0500
+	id S1757734AbcCCVhQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 3 Mar 2016 16:37:16 -0500
 Content-Disposition: inline
-In-Reply-To: <1453824880-4844-1-git-send-email-dbaranov@dev.rtsoft.ru>
+In-Reply-To: <1453884283-33414-2-git-send-email-ying.zhang22455@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Dmitriy Baranov <dbaranov@dev.rtsoft.ru>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Maxim Syrchin <syrchin@dev.rtsoft.ru>
+To: ying.zhang22455@nxp.com
+Cc: linux-i2c@vger.kernel.org, xiaobo.xie@nxp.com, york.sun@nxp.com, Ying Zhang <b40530@freescale.com>
 
 
---iBwuxWUsK/REspAd
+--Cp3Cp8fzgozWLBWL
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 26, 2016 at 07:14:40PM +0300, Dmitriy Baranov wrote:
-> Add I2C slave provider using the generic slave interface.
-> It also supports master transactions when the slave in the idle mode.
+On Wed, Jan 27, 2016 at 04:44:43PM +0800, ying.zhang22455@nxp.com wrote:
+> From: Ying Zhang <b40530@freescale.com>
 >=20
-> Issues:
-> Changes work only in PIO mode (when driver doesn`t use DMA)
+> When a system reset does not cause all I2C devices to be reset, slave can
+> hold bus low to cause bus hang.
+> It is necessary to force the I2C module to become the I2C bus master out
+> of reset and drive SCL.
+>=20
+> The patch fixup the bus if a hang has been detected.
+>=20
+> Signed-off-by: Ying Zhang <b40530@freescale.com>
 
-This is fine with me. We don't support block transfers currently in the
-slave core anyhow.
+Can't you make use of the generic recovery infrastructure using struct
+i2c_bus_recovery_info?
 
-> There are might be race conditions.
 
-Can you name them
-
-> +enum imx_i2c_slave_state {
-> +	I2C_IMX_SLAVE_IDLE,
-> +	I2C_IMX_SLAVE_IRQ,
-> +	I2C_IMX_SLAVE_POLLING
-
-Highlevel question first: Why do you have polling? Why would anyone not
-want to use interrupts here?
-
---iBwuxWUsK/REspAd
+--Cp3Cp8fzgozWLBWL
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW2K4NAAoJEBQN5MwUoCm25RgQAJ+Cm/jssZg7bHOXzlx37Fo4
-MFWNxH3PboBkvzWxlebuqrS0vckSYGO/uvBXuF3w3hd39txodgeEBqcfucOMT3Ge
-DxRCAvtLWXm/5EgUYn+3Z1xMs9JdhBZ69zV34nklTZAdwHKPe58goM9zJCRFhSFg
-FE4MS917zr9VEX8xJEx6XMf2KhddHTeiwxeZLM+0yXOu7GUao0tBIZLtn+fKA+0J
-SOSAbPKQG60cIgNvaLlsFNweGz/84X6PL7SnqNVPIEn5Pqi7MyT39JB6hgYIYeLP
-HDidajpx+tzObDX1CJA49Q97OomaEhiJGACX+q4YI3OOyr+0bIfKQn7xXlMXhCYu
-Oktf9AQhljBVos5LhbBpU0OpbuPejurT8kVOJovcPanflw4TF7Gr0SDl5FEoBuhG
-1aTWBqhRxZxmcMv/H7KQ/WHc5nz/tgMfkGmX6pDBCk/dar7fhsaclA5YCQAKiWrl
-Fl/zSXtg0Fobc5lrx3votcQeTlo1ZyOo6sss32OoHCqOE8+XQY6bnD0pzz1ZUrYJ
-Z8yw3ZmDWMqLPEhewEaIJ01O/g7LIChosQogX32J3PGXFuOa+4pvwclDx1RElES4
-cukMBQdX2S65hg+OV5zseFSMy8IwH5z+253ERIy/+uTV9WNW/3YpIn8wFnnjP7Q2
-DJjWOaIM8mHaPSBpTmss
-=G14s
+iQIcBAEBAgAGBQJW2K6JAAoJEBQN5MwUoCm22A4P/0B7ny7h82Mi4AbGVngRYaGi
+PXkLe9Cw6C/E2nHozwVwt72pyc6K3xj87mHY+brPJFlkXUqb2z7nGyKQcRBECG/9
+U0DyD+NBtRCSLxtPy17oFrcciSGDbENPcHDYY0yYI+6vO7RpdO6tOsgH1tgrNz+Y
+YkSb+TnLOYc1/EzszN8G304uAvJhrj2NyoLMTp6l1XZJnyLKb3OIwJ4cRrcgCvUi
+d+AvTLm3tQcL2/G7poq8FT8HDZVqoyg9WpUwIjm4BUcfkYoqRquMDl2mhcmSQw++
+SrlVbzoEkkA/7GrSDhzTvMKVA84HTl6PyLdrKIeNutqJm3VC1XDlR77K9P6fyVrd
+u+9wOXblwYV0MsehyIbS6cSU23aCpwcjEZs4nxEToDd5riTgb7+09xNBzn/nxtI/
+0aTUEA9CvhgWeyLNo7PQ4U9uX4u2RN6my9VTI2LcYAIDrIlX+fW1vge5n5ea2LDF
+KzOJleOqFfltucZHFiGTWvK6gNCJuV98cRKRUA4hDg1i4qLjeXEIj3LtjzA3ugJO
+70WgYxvhzfDeLS27OpU6SysUDD5nZITsFFo8P5k3wi+nz+nIy/6hmCZmg0AOT2z3
+YkYbfe7JEE2CAzZuCv2mIS3acoPz2dhb8yGUHrjdw8MjL3aYank/p4D8CqVq6s4y
+tEiXVxLiVXAmbqI9vwU9
+=v+Dq
 -----END PGP SIGNATURE-----
 
---iBwuxWUsK/REspAd--
+--Cp3Cp8fzgozWLBWL--
