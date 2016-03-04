@@ -1,38 +1,36 @@
-From: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Subject: Re: [PATCH v4 18/18] i2c-mux: relax locking of the top i2c adapter
- during i2c controlled muxing
-Date: Fri, 04 Mar 2016 08:10:47 +0100
-Message-ID: <56D934F7.4060909@lysator.liu.se>
-References: <1457044050-15230-1-git-send-email-peda@lysator.liu.se> <1457044050-15230-19-git-send-email-peda@lysator.liu.se>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] i2c: ismt: Add Intel DNV PCI ID
+Date: Fri, 4 Mar 2016 10:38:07 +0200
+Message-ID: <20160304083807.GC9667@lahna.fi.intel.com>
+References: <1455807273-133516-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20160219083917.GE1491@lahna.fi.intel.com>
+ <5B3EBE90AD716C428A6F03AC478C5406B6270015@ORSMSX105.amr.corp.intel.com>
+ <20160303211538.GB1501@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1457044050-15230-19-git-send-email-peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Viorel Suman <viorel.suman-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Terry Heo <terryheo-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Tommi Rantala <tt.rantala-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:13179 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751489AbcCDIiO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 4 Mar 2016 03:38:14 -0500
+Content-Disposition: inline
+In-Reply-To: <20160303211538.GB1501@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "Yates, Alexandra" <alexandra.yates@intel.com>, "Heasley, Seth" <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi!
+On Thu, Mar 03, 2016 at 10:15:38PM +0100, Wolfram Sang wrote:
+> Mika,
+> 
+> > I go this device ID from the External Design Specification (EDS) document for DNV.  The EDS lists this as the SMBus Controller as follows: 
+> >  Bus: 0 Device:18 Function:0 Device ID: 0x19AC Description:  SMBus Controller - Host  
+> > 
+> > In the same document there is a list of PCI IDs. 
+> 
+> Did this comment help?
 
-Here's a fixup for a problem found by the test robot. Sorry for the
-inconvenience.
+Not really.
 
-Cheers,
-Peter
-
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 40a4e0397826..b73c42eddca3 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -226,6 +226,7 @@ struct i2c_adapter *i2c_root_adapter(struct device *dev)
- 
- 	return i2c_root;
- }
-+EXPORT_SYMBOL_GPL(i2c_root_adapter);
- 
- int i2c_mux_reserve_adapters(struct i2c_mux_core *muxc, int adapters)
- {
--- 
-2.1.4
+We are figuring out which one it is and will send a new patch as soon as
+we know better :)
