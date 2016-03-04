@@ -1,86 +1,151 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c-smbus: Don't report duplicate alerts
-Date: Fri, 04 Mar 2016 11:15:57 +0100
-Message-ID: <1457086557.4527.15.camel@chaos.site>
-References: <1453222848-20457-1-git-send-email-minyard@acm.org>
-	 <20160303205754.GE1711@katana>
+From: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH 0/9] iio: Fix ABBA deadlock in inv-mpu6050
+Date: Fri, 4 Mar 2016 12:20:16 +0200
+Message-ID: <CAEnQRZCTbcHqztwtyPH5phQMQUb48vSrf4KmQY68hKPBJr3OPQ@mail.gmail.com>
+References: <CAEnQRZCKJuYTxckGzcFvyTfvonwBqQW37D7Y5RqyeBbd2iPkKA@mail.gmail.com>
+	<1457046598-15367-1-git-send-email-peda@lysator.liu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39919 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756431AbcCDKP7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 4 Mar 2016 05:15:59 -0500
-In-Reply-To: <20160303205754.GE1711@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1457046598-15367-1-git-send-email-peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Cc: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ge Gao <GGao-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: minyard@acm.org, linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 
-Le Thursday 03 March 2016 =C3=A0 21:57 +0100, Wolfram Sang a =C3=A9crit=
- :
-> On Tue, Jan 19, 2016 at 11:00:48AM -0600, minyard@acm.org wrote:
-> > From: Corey Minyard <cminyard@mvista.com>
-> >=20
-> > Getting the same alert twice in a row is legal and normal,
-> > especially on a fast device (like running in qemu).  Kind of
-> > like interrupts.  So don't report duplicate alerts, and deliver
-> > them normally.
-> >=20
-> > Signed-off-by: Corey Minyard <cminyard@mvista.com>
->=20
-> Looks plausible to me, but I never used SMBALERT myself. Any chance t=
-his
-> can cause a regression? Jean, what do you think?
+On Fri, Mar 4, 2016 at 1:09 AM, Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org> wrote:
+> From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>
+> Hi Daniel,
+>
+> Daniel Baluta wrote:
+>>On Mon, Feb 22, 2016 at 1:17 AM, Wolfram Sang wrote:
+>>> On Thu, Feb 18, 2016 at 05:53:05PM +0200, Daniel Baluta wrote:
+>>>> Sending this as an RFC because I don't know if style fixes are appropriate
+>>>> for this driver and also not sure if deadlock fix is the best solution.
+>
+> *snip*
+>
+>>> We recently had a bigger patch series fixing locking problems related to
+>>> muxes. I sadly didn't have the time to review it. Can you have a look if
+>>> it helps your case?
+>>>
+>>> http://thread.gmane.org/gmane.linux.drivers.i2c/26169
+>>
+>> Tested this and the deadlock is still there :(.
+>
+> I assume that when you tested v3 of my series, you did nothing
+> to actually make use of the new stuff available in the mux-core?
+> If you didn't do anything to make use of the new stuff, the
+> driver should behave as before.
 
-I'm afraid I had a good reason to add this check back then. I'll test
-with my ADM1032 evaluation board when I get back home (tomorrow at the
-earliest.) Maybe my hardware was misbehaving, in which case I agree any
-filtering should be done at the device driver level. But I must double
-check what the SMBus specification says too.
+You are right. I used v3 as it is.
+>
+> So, please try this patch on top of my recently posted v4 of the
+> "i2c mux cleanup and locking update" series [1]. I have not tested
+> this patch at all, but I have the feeling it could do the trick...
 
-Either way the patch's subject is misleading. Should be "Don't filter
-out duplicate alerts" or something like that.
+This patch fixes the problem! :P
 
-> > ---
-> >  drivers/i2c/i2c-smbus.c | 7 -------
-> >  1 file changed, 7 deletions(-)
-> >=20
-> > diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> > index 94765a8..cecd423 100644
-> > --- a/drivers/i2c/i2c-smbus.c
-> > +++ b/drivers/i2c/i2c-smbus.c
-> > @@ -75,7 +75,6 @@ static void smbus_alert(struct work_struct *work)
-> >  {
-> >  	struct i2c_smbus_alert *alert;
-> >  	struct i2c_client *ara;
-> > -	unsigned short prev_addr =3D 0;	/* Not a valid address */
-> > =20
-> >  	alert =3D container_of(work, struct i2c_smbus_alert, alert);
-> >  	ara =3D alert->ara;
-> > @@ -99,18 +98,12 @@ static void smbus_alert(struct work_struct *wor=
-k)
-> >  		data.flag =3D status & 1;
-> >  		data.addr =3D status >> 1;
-> > =20
-> > -		if (data.addr =3D=3D prev_addr) {
-> > -			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
-> > -				"0x%02x, skipping\n", data.addr);
-> > -			break;
-> > -		}
-> >  		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
-> >  			data.addr, data.flag);
-> > =20
-> >  		/* Notify driver for the device which issued the alert */
-> >  		device_for_each_child(&ara->adapter->dev, &data,
-> >  				      smbus_do_alert);
-> > -		prev_addr =3D data.addr;
-> >  	}
-> > =20
-> >  	/* We handled all alerts; re-enable level-triggered IRQs */
-
-
---=20
-Jean Delvare
-SUSE L3 Support
+> Cheers,
+> Peter
+>
+> [1] https://marc.info/?l=linux-iio&m=145704469628330&w=3
+>
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index 642f22013d17..02b56e631973 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -79,35 +79,6 @@ int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 d)
+>         return i2c_smbus_write_i2c_block_data(st->client, reg, 1, &d);
+>  }
+>
+> -/*
+> - * The i2c read/write needs to happen in unlocked mode. As the parent
+> - * adapter is common. If we use locked versions, it will fail as
+> - * the mux adapter will lock the parent i2c adapter, while calling
+> - * select/deselect functions.
+> - */
+> -static int inv_mpu6050_write_reg_unlocked(struct inv_mpu6050_state *st,
+> -                                         u8 reg, u8 d)
+> -{
+> -       int ret;
+> -       u8 buf[2];
+> -       struct i2c_msg msg[1] = {
+> -               {
+> -                       .addr = st->client->addr,
+> -                       .flags = 0,
+> -                       .len = sizeof(buf),
+> -                       .buf = buf,
+> -               }
+> -       };
+> -
+> -       buf[0] = reg;
+> -       buf[1] = d;
+> -       ret = __i2c_transfer(st->client->adapter, msg, 1);
+> -       if (ret != 1)
+> -               return ret;
+> -
+> -       return 0;
+> -}
+> -
+>  static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+>  {
+>         struct iio_dev *indio_dev = i2c_mux_priv(muxc);
+> @@ -117,8 +88,7 @@ static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+>         /* Use the same mutex which was used everywhere to protect power-op */
+>         mutex_lock(&indio_dev->mlock);
+>         if (!st->powerup_count) {
+> -               ret = inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
+> -                                                    0);
+> +               ret = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1, 0);
+>                 if (ret)
+>                         goto write_error;
+>
+> @@ -126,9 +96,9 @@ static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+>         }
+>         if (!ret) {
+>                 st->powerup_count++;
+> -               ret = inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
+> -                                                    st->client->irq |
+> -                                                    INV_MPU6050_BIT_BYPASS_EN);
+> +               ret = inv_mpu6050_write_reg(st, st->reg->int_pin_cfg,
+> +                                           st->client->irq |
+> +                                           INV_MPU6050_BIT_BYPASS_EN);
+>         }
+>  write_error:
+>         mutex_unlock(&indio_dev->mlock);
+> @@ -143,12 +113,11 @@ static int inv_mpu6050_deselect_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+>
+>         mutex_lock(&indio_dev->mlock);
+>         /* It doesn't really mattter, if any of the calls fails */
+> -       inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
+> -                                      st->client->irq);
+> +       inv_mpu6050_write_reg(st, st->reg->int_pin_cfg, st->client->irq);
+>         st->powerup_count--;
+>         if (!st->powerup_count)
+> -               inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
+> -                                              INV_MPU6050_BIT_SLEEP);
+> +               inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
+> +                                     INV_MPU6050_BIT_SLEEP);
+>         mutex_unlock(&indio_dev->mlock);
+>
+>         return 0;
+> @@ -839,8 +808,8 @@ static int inv_mpu_probe(struct i2c_client *client,
+>                 goto out_remove_trigger;
+>         }
+>
+> -       st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0, 0,
+> -                                      0, 0, 0,
+> +       st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0,
+> +                                      I2C_CONTROLLED_MUX, 0, 0, 0,
+>                                        inv_mpu6050_select_bypass,
+>                                        inv_mpu6050_deselect_bypass);
+>         if (IS_ERR(st->muxc)) {
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
