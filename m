@@ -1,142 +1,94 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: Re: [RFC PATCH 0/9] iio: Fix ABBA deadlock in inv-mpu6050
-Date: Fri,  4 Mar 2016 00:09:58 +0100
-Message-ID: <1457046598-15367-1-git-send-email-peda@lysator.liu.se>
-References: <CAEnQRZCKJuYTxckGzcFvyTfvonwBqQW37D7Y5RqyeBbd2iPkKA@mail.gmail.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [PATCHv3 2/2] i2c: cadence: Implement save restore
+Date: Fri, 4 Mar 2016 09:55:39 +0530
+Message-ID: <CAKfKVtG5sC7+2Gsq60irZAYgof1guqWTg=YCN+63xJV=tfmowg@mail.gmail.com>
+References: <1456984240-17389-1-git-send-email-shubhraj@xilinx.com>
+	<1456984240-17389-2-git-send-email-shubhraj@xilinx.com>
+	<20160303204013.GC1711@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.lysator.liu.se ([130.236.254.3]:58143 "EHLO
-	mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758680AbcCCXKW (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Mar 2016 18:10:22 -0500
-In-Reply-To: <CAEnQRZCKJuYTxckGzcFvyTfvonwBqQW37D7Y5RqyeBbd2iPkKA@mail.gmail.com>
+Received: from mail-qk0-f175.google.com ([209.85.220.175]:35290 "EHLO
+	mail-qk0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751149AbcCDEZk (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Mar 2016 23:25:40 -0500
+Received: by mail-qk0-f175.google.com with SMTP id o6so16966523qkc.2
+        for <linux-i2c@vger.kernel.org>; Thu, 03 Mar 2016 20:25:39 -0800 (PST)
+In-Reply-To: <20160303204013.GC1711@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Daniel Baluta <daniel.baluta@intel.com>
-Cc: Peter Rosin <peda@axentia.se>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Ge Gao <GGao@invensense.com>, Jonathan Cameron <jic23@kernel.org>, Peter Rosin <peda@lysator.liu.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-i2c@vger.kernel.org, anirudh@xilinx.com, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Michal Simek <michal.simek@xilinx.com>, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-From: Peter Rosin <peda@axentia.se>
+On Fri, Mar 4, 2016 at 2:10 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Thu, Mar 03, 2016 at 11:20:40AM +0530, Shubhrajyoti Datta wrote:
+>
+>> Implement save restore for i2c module.
+>> Since we have only a couple of registers
+>> an unconditional restore is done.
+>
+> But you only save one register instead of a couple? Also, the subject
+> could be more descriptive IMO.
+That is because the timeout is written a fixed value always so just restore
+is done.
 
-Hi Daniel,
+>
+>> zynq-mp has the capability of going off.
+>> the current kernel does not hit off however some day it will.
+>> since the overhead of having the support is not much may be it is better to have it in the kernel.
+>
+> This sounds like the patch is not tested?
+to simulate the suspend behavior I  did a reset of the module by writing to
+slcr register.
+And then did a transfer.
 
-Daniel Baluta wrote:
->On Mon, Feb 22, 2016 at 1:17 AM, Wolfram Sang wrote:
->> On Thu, Feb 18, 2016 at 05:53:05PM +0200, Daniel Baluta wrote:
->>> Sending this as an RFC because I don't know if style fixes are appropriate
->>> for this driver and also not sure if deadlock fix is the best solution.
+>
+>> +static void cdns_i2c_init(struct cdns_i2c *id)
+>> +{
+>> +     cdns_i2c_writereg(id->ctrl_reg, CDNS_I2C_CR_OFFSET);
+>> +     /*
+>> +      * Cadence I2C controller has a bug wherein it generates
+>> +      * invalid read transaction after HW timeout in master receiver mode.
+>> +      * HW timeout is not used by this driver and the interrupt is disabled.
+>> +      * But the feature itself cannot be disabled. Hence maximum value
+>> +      * is written to this register to reduce the chances of error.
+>> +      */
+>> +     cdns_i2c_writereg(CDNS_I2C_TIMEOUT_MAX, CDNS_I2C_TIME_OUT_OFFSET);
+>> +}
+>
+> This...
 
-*snip*
+Writes the values to the register.
 
->> We recently had a bigger patch series fixing locking problems related to
->> muxes. I sadly didn't have the time to review it. Can you have a look if
->> it helps your case?
->>
->> http://thread.gmane.org/gmane.linux.drivers.i2c/26169
-> 
-> Tested this and the deadlock is still there :(.
+>
+>> +
+>> +/**
+>>   * cdns_i2c_runtime_resume - Runtime resume
+>>   * @dev:     Address of the platform_device structure
+>>   *
+>> @@ -853,6 +874,7 @@ static int __maybe_unused cdns_i2c_runtime_resume(struct device *dev)
+>>               dev_err(dev, "Cannot enable clock.\n");
+>>               return ret;
+>>       }
+>> +     cdns_i2c_init(xi2c);
+>
+> and this...
+At resume .
+(Actually this could be conditional however since we have 2 registers
+so can be unconditioal)
+>
+>> -
+>> -     /*
+>> -      * Cadence I2C controller has a bug wherein it generates
+>> -      * invalid read transaction after HW timeout in master receiver mode.
+>> -      * HW timeout is not used by this driver and the interrupt is disabled.
+>> -      * But the feature itself cannot be disabled. Hence maximum value
+>> -      * is written to this register to reduce the chances of error.
+>> -      */
+>> -     cdns_i2c_writereg(CDNS_I2C_TIMEOUT_MAX, CDNS_I2C_TIME_OUT_OFFSET);
+>> +     cdns_i2c_init(id);
 
-I assume that when you tested v3 of my series, you did nothing
-to actually make use of the new stuff available in the mux-core?
-If you didn't do anything to make use of the new stuff, the
-driver should behave as before.
-
-So, please try this patch on top of my recently posted v4 of the
-"i2c mux cleanup and locking update" series [1]. I have not tested
-this patch at all, but I have the feeling it could do the trick...
-
-Cheers,
-Peter
-
-[1] https://marc.info/?l=linux-iio&m=145704469628330&w=3
-
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-index 642f22013d17..02b56e631973 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-@@ -79,35 +79,6 @@ int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 d)
- 	return i2c_smbus_write_i2c_block_data(st->client, reg, 1, &d);
- }
- 
--/*
-- * The i2c read/write needs to happen in unlocked mode. As the parent
-- * adapter is common. If we use locked versions, it will fail as
-- * the mux adapter will lock the parent i2c adapter, while calling
-- * select/deselect functions.
-- */
--static int inv_mpu6050_write_reg_unlocked(struct inv_mpu6050_state *st,
--					  u8 reg, u8 d)
--{
--	int ret;
--	u8 buf[2];
--	struct i2c_msg msg[1] = {
--		{
--			.addr = st->client->addr,
--			.flags = 0,
--			.len = sizeof(buf),
--			.buf = buf,
--		}
--	};
--
--	buf[0] = reg;
--	buf[1] = d;
--	ret = __i2c_transfer(st->client->adapter, msg, 1);
--	if (ret != 1)
--		return ret;
--
--	return 0;
--}
--
- static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
- {
- 	struct iio_dev *indio_dev = i2c_mux_priv(muxc);
-@@ -117,8 +88,7 @@ static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
- 	/* Use the same mutex which was used everywhere to protect power-op */
- 	mutex_lock(&indio_dev->mlock);
- 	if (!st->powerup_count) {
--		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
--						     0);
-+		ret = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1, 0);
- 		if (ret)
- 			goto write_error;
- 
-@@ -126,9 +96,9 @@ static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
- 	}
- 	if (!ret) {
- 		st->powerup_count++;
--		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
--						     st->client->irq |
--						     INV_MPU6050_BIT_BYPASS_EN);
-+		ret = inv_mpu6050_write_reg(st, st->reg->int_pin_cfg,
-+					    st->client->irq |
-+					    INV_MPU6050_BIT_BYPASS_EN);
- 	}
- write_error:
- 	mutex_unlock(&indio_dev->mlock);
-@@ -143,12 +113,11 @@ static int inv_mpu6050_deselect_bypass(struct i2c_mux_core *muxc, u32 chan_id)
- 
- 	mutex_lock(&indio_dev->mlock);
- 	/* It doesn't really mattter, if any of the calls fails */
--	inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
--				       st->client->irq);
-+	inv_mpu6050_write_reg(st, st->reg->int_pin_cfg, st->client->irq);
- 	st->powerup_count--;
- 	if (!st->powerup_count)
--		inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
--					       INV_MPU6050_BIT_SLEEP);
-+		inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
-+				      INV_MPU6050_BIT_SLEEP);
- 	mutex_unlock(&indio_dev->mlock);
- 
- 	return 0;
-@@ -839,8 +808,8 @@ static int inv_mpu_probe(struct i2c_client *client,
- 		goto out_remove_trigger;
- 	}
- 
--	st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0, 0,
--				       0, 0, 0,
-+	st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0,
-+				       I2C_CONTROLLED_MUX, 0, 0, 0,
- 				       inv_mpu6050_select_bypass,
- 				       inv_mpu6050_deselect_bypass);
- 	if (IS_ERR(st->muxc)) {
--- 
-2.1.4
+And at init.
+>
+> ... and this look like a unrelated change to me?
+>
