@@ -1,57 +1,86 @@
-From: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Subject: Re: [PATCH v4 16/18] i2c: allow adapter drivers to override the adapter
- locking
-Date: Fri, 04 Mar 2016 10:33:14 +0100
-Message-ID: <56D9565A.4020201@lysator.liu.se>
-References: <1457044050-15230-1-git-send-email-peda@lysator.liu.se> <1457044050-15230-17-git-send-email-peda@lysator.liu.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c-smbus: Don't report duplicate alerts
+Date: Fri, 04 Mar 2016 11:15:57 +0100
+Message-ID: <1457086557.4527.15.camel@chaos.site>
+References: <1453222848-20457-1-git-send-email-minyard@acm.org>
+	 <20160303205754.GE1711@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1457044050-15230-17-git-send-email-peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Viorel Suman <viorel.suman-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Terry Heo <terryheo-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Tommi Rantala <tt.rantala-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:39919 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756431AbcCDKP7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 4 Mar 2016 05:15:59 -0500
+In-Reply-To: <20160303205754.GE1711@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: minyard@acm.org, linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 
-Hi!
+Le Thursday 03 March 2016 =C3=A0 21:57 +0100, Wolfram Sang a =C3=A9crit=
+ :
+> On Tue, Jan 19, 2016 at 11:00:48AM -0600, minyard@acm.org wrote:
+> > From: Corey Minyard <cminyard@mvista.com>
+> >=20
+> > Getting the same alert twice in a row is legal and normal,
+> > especially on a fast device (like running in qemu).  Kind of
+> > like interrupts.  So don't report duplicate alerts, and deliver
+> > them normally.
+> >=20
+> > Signed-off-by: Corey Minyard <cminyard@mvista.com>
+>=20
+> Looks plausible to me, but I never used SMBALERT myself. Any chance t=
+his
+> can cause a regression? Jean, what do you think?
 
-Here's a fixup for a problem found by the test robot. Sorry for the
-inconvenience.
+I'm afraid I had a good reason to add this check back then. I'll test
+with my ADM1032 evaluation board when I get back home (tomorrow at the
+earliest.) Maybe my hardware was misbehaving, in which case I agree any
+filtering should be done at the device driver level. But I must double
+check what the SMBus specification says too.
 
-Cheers,
-Peter
+Either way the patch's subject is misleading. Should be "Don't filter
+out duplicate alerts" or something like that.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 6be266c3d39b..5ecc6fc52ce0 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -961,6 +961,8 @@ static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
- /**
-  * i2c_adapter_lock_bus - Get exclusive access to an I2C bus segment
-  * @adapter: Target I2C bus segment
-+ * @flags: I2C_LOCK_ADAPTER locks the root i2c adapter, I2C_LOCK_SEGMENT
-+ *	locks only this branch in the adapter tree
-  */
- static void i2c_adapter_lock_bus(struct i2c_adapter *adapter, int flags)
- {
-@@ -970,6 +972,8 @@ static void i2c_adapter_lock_bus(struct i2c_adapter *adapter, int flags)
- /**
-  * i2c_adapter_trylock_bus - Try to get exclusive access to an I2C bus segment
-  * @adapter: Target I2C bus segment
-+ * @flags: I2C_LOCK_ADAPTER trylocks the root i2c adapter, I2C_LOCK_SEGMENT
-+ * 	trylocks only this branch in the adapter tree
-  */
- static int i2c_adapter_trylock_bus(struct i2c_adapter *adapter, int flags)
- {
-@@ -979,6 +983,8 @@ static int i2c_adapter_trylock_bus(struct i2c_adapter *adapter, int flags)
- /**
-  * i2c_adapter_unlock_bus - Release exclusive access to an I2C bus segment
-  * @adapter: Target I2C bus segment
-+ * @flags: I2C_LOCK_ADAPTER unlocks the root i2c adapter, I2C_LOCK_SEGMENT
-+ * 	unlocks only this branch in the adapter tree
-  */
- static void i2c_adapter_unlock_bus(struct i2c_adapter *adapter, int flags)
- {
--- 
-2.1.4
+> > ---
+> >  drivers/i2c/i2c-smbus.c | 7 -------
+> >  1 file changed, 7 deletions(-)
+> >=20
+> > diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+> > index 94765a8..cecd423 100644
+> > --- a/drivers/i2c/i2c-smbus.c
+> > +++ b/drivers/i2c/i2c-smbus.c
+> > @@ -75,7 +75,6 @@ static void smbus_alert(struct work_struct *work)
+> >  {
+> >  	struct i2c_smbus_alert *alert;
+> >  	struct i2c_client *ara;
+> > -	unsigned short prev_addr =3D 0;	/* Not a valid address */
+> > =20
+> >  	alert =3D container_of(work, struct i2c_smbus_alert, alert);
+> >  	ara =3D alert->ara;
+> > @@ -99,18 +98,12 @@ static void smbus_alert(struct work_struct *wor=
+k)
+> >  		data.flag =3D status & 1;
+> >  		data.addr =3D status >> 1;
+> > =20
+> > -		if (data.addr =3D=3D prev_addr) {
+> > -			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
+> > -				"0x%02x, skipping\n", data.addr);
+> > -			break;
+> > -		}
+> >  		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
+> >  			data.addr, data.flag);
+> > =20
+> >  		/* Notify driver for the device which issued the alert */
+> >  		device_for_each_child(&ara->adapter->dev, &data,
+> >  				      smbus_do_alert);
+> > -		prev_addr =3D data.addr;
+> >  	}
+> > =20
+> >  	/* We handled all alerts; re-enable level-triggered IRQs */
+
+
+--=20
+Jean Delvare
+SUSE L3 Support
