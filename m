@@ -1,7 +1,7 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v2 08/10] i2c-octeon: Add workaround for chips with broken irqs
-Date: Fri,  4 Mar 2016 18:57:50 +0100
-Message-ID: <be4e3fc91e12bf2987999057404d36285933ad90.1457111729.git.jglauber@cavium.com>
+Subject: [PATCH v2 02/10] i2c-octeon: Support I2C_M_RECV_LEN
+Date: Fri,  4 Mar 2016 18:57:44 +0100
+Message-ID: <5f4464a95f70dc1f2a5d324616bb20de020d38dd.1457111729.git.jglauber@cavium.com>
 References: <cover.1457111728.git.jglauber@cavium.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1457111728.git.jglauber@cavium.com>
@@ -14,97 +14,59 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: David Daney <ddaney@caviumnetworks.com>
 
-CN3860 does not interrupt the CPU when the i2c status changes.  If
-we get a timeout, and see the status has in fact changed, we know we
-have this problem, and drop back to polling.
+If I2C_M_RECV_LEN is set consider the length byte.
 
 Signed-off-by: David Daney <ddaney@caviumnetworks.com>
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-octeon.c | 46 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ drivers/i2c/busses/i2c-octeon.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index e3552e5..3c2f848 100644
+index 1f14094..fa4d439 100644
 --- a/drivers/i2c/busses/i2c-octeon.c
 +++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -115,6 +115,7 @@ struct octeon_i2c {
- 	int			sys_freq;
- 	void __iomem		*twsi_base;
- 	struct device		*dev;
-+	int			broken_irq_mode;
- 	bool			hlc_enabled;
- 	void			(*int_en)	(struct octeon_i2c *);
- 	void			(*int_dis)	(struct octeon_i2c *);
-@@ -382,10 +383,33 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
- 	int first = 1;
- 	long result;
- 
-+	if (i2c->broken_irq_mode) {
-+		/*
-+		 * Some chip revisions seem to not assert the irq in
-+		 * the interrupt controller.  So we must poll for the
-+		 * IFLG change.
-+		 */
-+		u64 end = get_jiffies_64() + i2c->adap.timeout;
-+
-+		while (!octeon_i2c_test_iflg(i2c) &&
-+		       time_before64(get_jiffies_64(), end))
-+			udelay(50);
-+
-+		return octeon_i2c_test_iflg(i2c) ? 0 : -ETIMEDOUT;
-+	}
-+
- 	i2c->int_en(i2c);
- 	result = wait_event_timeout(i2c->queue, poll_iflg(i2c, &first),
- 				    i2c->adap.timeout);
- 	i2c->int_dis(i2c);
-+
-+	if (result <= 0 && OCTEON_IS_MODEL(OCTEON_CN38XX) &&
-+	    octeon_i2c_test_iflg(i2c)) {
-+		dev_err(i2c->dev,
-+			"broken irq connection detected, switching to polling mode.\n");
-+		i2c->broken_irq_mode = 1;
-+		return 0;
-+	}
- 	if (!result) {
- 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
- 		return -ETIMEDOUT;
-@@ -740,6 +764,21 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
+@@ -392,13 +392,14 @@ static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
+  * @target: Target address
+  * @data: Pointer to the location to store the data
+  * @rlength: Length of the data
++ * @recv_len: flag for length byte
+  *
+  * The address is sent over the bus, then the data is read.
+  *
+  * Returns 0 on success, otherwise a negative errno.
+  */
+ static int octeon_i2c_read(struct octeon_i2c *i2c, int target, u8 *data,
+-			   u16 *rlength)
++			   u16 *rlength, bool recv_len)
  {
- 	int result;
+ 	int length = *rlength;
+ 	int i, result;
+@@ -438,6 +439,15 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target, u8 *data,
+ 			return result;
  
-+	if (i2c->broken_irq_mode) {
-+		/*
-+		 * Some cn38xx boards did not assert the irq in
-+		 * the interrupt controller.  So we must poll for the
-+		 * IFLG change.
-+		 */
-+		u64 end = get_jiffies_64() + i2c->adap.timeout;
-+
-+		while (!octeon_i2c_hlc_test_ready(i2c) &&
-+		       time_before64(get_jiffies_64(), end))
-+			udelay(50);
-+
-+		return octeon_i2c_hlc_test_ready(i2c) ? 0 : -ETIMEDOUT;
-+	}
-+
- 	i2c->hlc_int_en(i2c);
- 	result = wait_event_interruptible_timeout(i2c->queue,
- 			octeon_i2c_hlc_test_ready(i2c), i2c->adap.timeout);
-@@ -747,6 +786,13 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
- 	if (!result)
- 		octeon_i2c_hlc_int_clear(i2c);
- 
-+	if (result <= 0 && OCTEON_IS_MODEL(OCTEON_CN38XX) &&
-+	    octeon_i2c_hlc_test_ready(i2c)) {
-+		dev_err(i2c->dev, "broken irq connection detected, switching to polling mode.\n");
-+			i2c->broken_irq_mode = 1;
-+			return 0;
-+	}
-+
- 	if (result < 0) {
- 		dev_dbg(i2c->dev, "%s: wait interrupted\n", __func__);
- 		return result;
+ 		data[i] = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_DATA);
++		if (recv_len && i == 0) {
++			if (data[i] > I2C_SMBUS_BLOCK_MAX + 1) {
++				dev_err(i2c->dev,
++					"%s: read len > I2C_SMBUS_BLOCK_MAX %d\n",
++					__func__, data[i]);
++				return -EIO;
++			}
++			length += data[i];
++		}
+ 	}
+ 	*rlength = length;
+ 	return 0;
+@@ -466,7 +476,8 @@ static int octeon_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			 pmsg->len, pmsg->addr, i + 1, num);
+ 		if (pmsg->flags & I2C_M_RD)
+ 			ret = octeon_i2c_read(i2c, pmsg->addr, pmsg->buf,
+-					      &pmsg->len);
++					      &pmsg->len,
++					      pmsg->flags & I2C_M_RECV_LEN);
+ 		else
+ 			ret = octeon_i2c_write(i2c, pmsg->addr, pmsg->buf,
+ 					       pmsg->len);
 -- 
 1.9.1
