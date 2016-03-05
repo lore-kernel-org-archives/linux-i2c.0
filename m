@@ -1,96 +1,242 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 0/8] i2c mux cleanup and locking update
-Date: Sat, 5 Mar 2016 19:29:35 +0100
-Message-ID: <20160305182934.GA1394@katana>
-References: <1452265496-22475-1-git-send-email-peda@lysator.liu.se>
- <20160302172904.GC5439@katana>
- <56DB1C07.4040008@kernel.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 01/10] i2c-octeon: Cleanup i2c-octeon driver
+Date: Sat, 5 Mar 2016 19:47:31 +0100
+Message-ID: <20160305184731.GB1394@katana>
+References: <cover.1457111728.git.jglauber@cavium.com>
+ <4b342427bdf6d7dc7cf9ded9172deadd24a53650.1457111729.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:33140 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750709AbcCESrg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 5 Mar 2016 13:47:36 -0500
 Content-Disposition: inline
-In-Reply-To: <56DB1C07.4040008-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, Olli Salonen <olli.salonen-X3B1VOXEql0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <4b342427bdf6d7dc7cf9ded9172deadd24a53650.1457111729.git.jglauber@cavium.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
 
---bg08WKrSYDhXBjb5
+--RASg3xLB4tUQ4RcS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+Hi Jan,
 
-> Perhaps it's one to let sit into at least the next cycle (and get some te=
-sting
-> on those media devices if we can) but, whilst it is fiddly the gains seen=
- in
-> individual drivers (like the example Peter put in response to the V4 seri=
-es)
-> make it look worthwhile to me.  Also, whilst the invensense part is plain=
- odd
-> in many ways, the case Peter had looks rather more normal.
->=20
-> At the end of the day, sometimes fiddly problems need fiddly code.=20
-> (says a guy who doesn't have to maintain it!)
->=20
-> It certainly helps that Peter has done a thorough job, broken the patches
-> up cleanly and provided clean descriptions of what he is doing.
+The description is not enough. A list what kind of changes you applied
+would be nice.
 
-Yes, Peter has done a great job so far and the latest results were very
-convincing (fixing the invensense issue and the savings for rtl2832).
+I'd like to have these checkpatch issues fixed:
 
-And yes, I am reluctant to maintain this code alone, so my question
-would be:
+ERROR: trailing statements should be on next line
+#177: FILE: drivers/i2c/busses/i2c-octeon.c:133:
++	while ((tmp & SW_TWSI_V) !=3D 0);
 
-Peter, are you interested in becoming the i2c-mux maintainer and look
-after the code even after it was merged? (From "you reviewing patches and
-me picking them up" to "you have your own branch which I pull", we can
-discuss the best workflow.)
+ERROR: trailing statements should be on next line
+#202: FILE: drivers/i2c/busses/i2c-octeon.c:152:
++	while ((tmp & SW_TWSI_V) !=3D 0);
 
-If that would be the case, I have the same idea like Jonathan: Give it
-another cycle for more review & test and aim for the 4.7 merge window.
+CHECK: Prefer using the BIT_ULL macro
+#52: FILE: drivers/i2c/busses/i2c-octeon.c:39:
++#define SW_TWSI_V		(1ULL << 63)
 
-I have to admit that I still haven't done a more thorough review, so I
-can't say if I see a show-stopper in this series. Yet, even if so I am
-positive it can be sorted out. Oh, and we should call for people with
-special experience in locking.
+Note: I don't care so much about the 80 char limit as long as the line
+length is not too excessive.
 
-What do people think?
 
-Regards,
+> -#define DRV_NAME "i2c-octeon"
+> +#define DRV_NAME		"i2c-octeon"
+
+I'm in favor for indenting register and bit defines, but other than that
+I think one space is enough. I won't force my opinion on you, though.
+Just wanted to let you know.
+
+> +#define INT_ENA_ST		0x1
+> +#define INT_ENA_TS		0x2
+> +#define INT_ENA_CORE		0x4
+
+I assume those are bits? Then, they shouldn't be in the registers
+section.
+
+> +/* TWSI_INT values */
+> +#define ST_INT			0x01
+> +#define TS_INT			0x02
+> +#define CORE_INT		0x04
+> +#define ST_EN			0x10
+> +#define TS_EN			0x20
+> +#define CORE_EN			0x40
+> +#define SDA_OVR			0x100
+> +#define SCL_OVR			0x200
+> +#define SDA			0x400
+> +#define SCL			0x800
+
+I think those should have a prefix. SDA and SCL are dangerously generic.
+
+>  struct octeon_i2c {
+> -	wait_queue_head_t queue;
+> -	struct i2c_adapter adap;
+> -	int irq;
+> -	u32 twsi_freq;
+> -	int sys_freq;
+> -	resource_size_t twsi_phys;
+> -	void __iomem *twsi_base;
+> -	resource_size_t regsize;
+> -	struct device *dev;
+> +	wait_queue_head_t	queue;
+> +	struct i2c_adapter	adap;
+> +	int			irq;
+> +	u32			twsi_freq;
+> +	int			sys_freq;
+> +	void __iomem		*twsi_base;
+> +	struct device		*dev;
+
+NAK. structs change often, and then one needs to fix the whole
+indentation. One space is enough here.
+
+>  };
+
+> -static u8 octeon_i2c_read_sw(struct octeon_i2c *i2c, u64 eop_reg)
+> +static u64 octeon_i2c_read_sw64(struct octeon_i2c *i2c, u64 eop_reg)
+=2E..
+> -	return tmp & 0xFF;
+> +	return tmp;
+> +}
+=2E..
+> +
+> +/**
+> + * octeon_i2c_read_sw - read lower bits of an I2C core register
+> + * @i2c: The struct octeon_i2c
+> + * @eop_reg: Register selector
+> + *
+> + * Returns the data.
+> + *
+> + * The I2C core registers are accessed indirectly via the SW_TWSI CSR.
+> + */
+> +static u8 octeon_i2c_read_sw(struct octeon_i2c *i2c, u64 eop_reg)
+> +{
+> +	return octeon_i2c_read_sw64(i2c, eop_reg);
+>  }
+
+This is not a cleanup!
+
+> +/* disable the CORE interrupt */
+>  static void octeon_i2c_int_disable(struct octeon_i2c *i2c)
+>  {
+> -	octeon_i2c_write_int(i2c, 0);
+> +	/* clear TS/ST/IFLG events */
+> +	octeon_i2c_write_int(i2c, TS_INT | ST_INT);
+>  }
+
+Isn't this a functional change?
+
+>  /**
+> - * octeon_i2c_unblock - unblock the bus.
+> - * @i2c: The struct octeon_i2c.
+> + * bitbang_unblock - unblock the bus
+> + * @i2c: The struct octeon_i2c
+>   *
+> - * If there was a reset while a device was driving 0 to bus,
+> - * bus is blocked. We toggle it free manually by some clock
+> - * cycles and send a stop.
+> + * If there was a reset while a device was driving 0 to bus, bus is bloc=
+ked.
+> + * We toggle it free manually by some clock cycles and send a stop.
+>   */
+> -static void octeon_i2c_unblock(struct octeon_i2c *i2c)
+> +static void bitbang_unblock(struct octeon_i2c *i2c)
+
+I dunno understand the change of the function name. However, this should
+be refactored to use the i2c_bus_recovery infrastructure anyhow.
+
+> -	result =3D wait_event_timeout(i2c->queue,
+> -					octeon_i2c_test_iflg(i2c),
+> -					i2c->adap.timeout);
+> -
+> +	result =3D wait_event_timeout(i2c->queue, octeon_i2c_test_iflg(i2c),
+> +				    i2c->adap.timeout);
+
+You could rename this variable to 'time_left' to make the code even
+easier to read.
+
+>  static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
+> -			    const u8 *data, int length)
+> +			    u8 *data, int length)
+
+Why this change?
+
+>  {
+> -	int i, result;
+> +	int result, i;
+
+And this?
+
+> -static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
+> -			   u8 *data, int length)
+> +static int octeon_i2c_read(struct octeon_i2c *i2c, int target, u8 *data,
+> +			   u16 *rlength)
+>  {
+> +	int length =3D *rlength;
+
+And this?
+
+> @@ -353,15 +411,14 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, =
+int target,
+>  	if (result)
+>  		return result;
+> =20
+> -	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, (target<<1) | 1);
+> -	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
+> -
+> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, TWSI_CTL_ENAB);
+
+Is this really the same?
+
+>  static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
+> @@ -435,13 +490,10 @@ static struct i2c_adapter octeon_i2c_ops =3D {
+>  	.owner =3D THIS_MODULE,
+>  	.name =3D "OCTEON adapter",
+>  	.algo =3D &octeon_i2c_algo,
+> -	.timeout =3D HZ / 50,
+
+This is a functional change, or?
+
+> -	i2c->twsi_phys =3D res_mem->start;
+> -	i2c->regsize =3D resource_size(res_mem);
+
+Those are removed which is okay in general, but should be in a seperate
+patch.
+
+This patch was hard to review because so many changes were overlapping.
+It really  should have been broken out. Like one patch only removing the
+trailing "." in the kernel-doc. One fixing the indentation issues. One
+removing the now superfluous fields in struct octeon_i2c, etc...
 
    Wolfram
 
-PS: Peter, have you seen my demuxer driver in my for-next branch? I hope
-it won't spoil your design?
 
-
---bg08WKrSYDhXBjb5
+--RASg3xLB4tUQ4RcS
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW2yWOAAoJEBQN5MwUoCm2h8QQAJpKVERebHnxPRdoWQvKdFgA
-bAkwdGd9yBqmnBLvZ7MmxLOqRdZAd9YoXa2D7fVAUeVC20nGiicwpMALB4JwUC/I
-6zmMQjEwQtErLKnHx3MUvELmsvnj5jhlFph17KgmtH4scKrJmzSSPdv//L02CxYT
-CwdmPCZAfqdSbpa8X+ZIyrMBuy0h1dYcytj5ZXlz8tXugqSSpnk7t0ruwMq3gVuy
-L50WIpWF6dJpMQRiRPVh5d5tKUOEYCbb2PbHGjIq7msFYTdD/fg6Ml4dIZuxf80C
-Fj8YwNoPEq+OuXFvF0r6PYyYZ2XfW+2wdqNRmRAr9Xt+ECav3wNMZb8E7RqfoVmE
-ssXkInXcg0+oofVNPHDzJYFQxjfPqmY4N32nmQ88z1HUCaUwA5Abfmw6SWfcI92f
-VcNjAs5AQVDzhfpfwm/atwTGs1xm6gXQymL77hDvmKQnOUvIRATuXHjSB+FLbuSs
-ypt52ZDBml0xdMTdwznX8uThijBeM6Ynw4w2UkIqkgipOfCzDuomcHd/+8n8z3i0
-WwA5NKx8rI65R72BXkHj0nHy4c9StOuTXfNilMVyBHIsE8K+GDbdu375em3TuKcD
-qiJRUHk0xpdmnhrXbURzUzvnbc3BdeG/JDJd/ErVycicx6wSXtktaqtRiEjwreSG
-qK61eIj0COHEjoX/hk3s
-=rkf3
+iQIcBAEBAgAGBQJW2ynDAAoJEBQN5MwUoCm2WkQP/0+iSRQoCgIFPTJBE0mnNpMR
+VujWkMHbrR1dDnjJCY4crLKdcFXCQn7PvlKK3+W+nFFlb9yJpb7e7U0vte4CfqlS
+gljccvYGxJNF3sm66kj+U0B3b4hyAeZLSP0rl3M5KhFQPQ6JIrMlXVnt1ga2zaem
+6+478f01NAf1NPqAfmTWfgSCqCIMpnf7qnYAH+x0Swb0FnhZqlqfT6y2sheKaHPs
+G8Bq6HHJJVovMu3383w96/nIzGnfiuHWT+SdWCwVJaG2pxf7EmCPzZyDvlTU9U3S
+GzXI48E275fdH5wc/i2jgByCPKw9fADJ24HhRCBV+O+GXFTMf70nyemfwrI4a+nx
+n2AIuc8ofyCa0RcLM406Uh9xx1obJ0xIm79sbv7ai+kXPI1scdtClKITl7GW5C/y
+u/MIpzFA8VG0HFa967oIwBJDzhG60zZt+ae9tIVxapEOgibTWeTgue7stkTgLiU0
+LVXm6yOFoXikCPQsjCy4HFPdqDF49Iu+vCWtdtqFcCS8mNhySUmF/IMXdwRAA2Ag
+pMMDYxA6ezXpgGTJX/sY4gv1ISQthgfMW3xU1Z2OqoSwHaSD/V4DnCUtgkXAUSQh
+hWIHIyxB46z8MjEEtS6NqKmLX0RuA8DohBCNF2DtMThbn/e6PeSOWAzyo2UZ0quN
+xSpIEIA5YO5DoVO6NZpo
+=Vo0a
 -----END PGP SIGNATURE-----
 
---bg08WKrSYDhXBjb5--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--RASg3xLB4tUQ4RcS--
