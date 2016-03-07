@@ -1,87 +1,51 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v3 09/14] i2c-octeon: Flush TWSI writes with readback
-Date: Mon,  7 Mar 2016 16:10:52 +0100
-Message-ID: <b12605dbe864ee6302d0c112d2fad11e0b206427.1457362545.git.jglauber@cavium.com>
+Subject: [PATCH v3 07/14] dt-bindings: i2c: Add Octeon cn78xx TWSI
+Date: Mon,  7 Mar 2016 16:10:50 +0100
+Message-ID: <f944dc3cd2df7957dbc5fb08cf7be007dd25ae29.1457362545.git.jglauber@cavium.com>
 References: <cover.1457362545.git.jglauber@cavium.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33654 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753161AbcCGPLW (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Mar 2016 10:11:22 -0500
 In-Reply-To: <cover.1457362545.git.jglauber@cavium.com>
 In-Reply-To: <cover.1457362545.git.jglauber@cavium.com>
 References: <cover.1457362545.git.jglauber@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Peter Swain <pswain@cavium.com>, Jan Glauber <jglauber@cavium.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-From: Peter Swain <pswain@cavium.com>
+Add compatible string for Cavium Octeon cn78XX SOCs TWSI.
 
-Signed-off-by: Peter Swain <pswain@cavium.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Pawel Moll <pawel.moll@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: Kumar Gala <galak@codeaurora.org>
+
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 Acked-by: David Daney <ddaney@caviumnetworks.com>
 ---
- drivers/i2c/busses/i2c-octeon.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-octeon.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index b76ccd5..a8a56a0 100644
---- a/drivers/i2c/busses/i2c-octeon.c
-+++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -126,6 +126,12 @@ static int timeout = 2;
- module_param(timeout, int, 0444);
- MODULE_PARM_DESC(timeout, "Low-level device timeout (ms)");
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-octeon.txt b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
+index dced82e..872d485 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
+@@ -4,6 +4,12 @@
  
-+static void writeqflush(u64 val, void __iomem *addr)
-+{
-+	__raw_writeq(val, addr);
-+	__raw_readq(addr);	/* wait for write to land */
-+}
+   Compatibility with all cn3XXX, cn5XXX and cn6XXX SOCs.
+ 
++  or
 +
- /**
-  * octeon_i2c_write_sw - write an I2C core register
-  * @i2c: The struct octeon_i2c
-@@ -186,8 +192,7 @@ static u8 octeon_i2c_read_sw(struct octeon_i2c *i2c, u64 eop_reg)
-  */
- static void octeon_i2c_write_int(struct octeon_i2c *i2c, u64 data)
- {
--	__raw_writeq(data, i2c->twsi_base + TWSI_INT);
--	__raw_readq(i2c->twsi_base + TWSI_INT);
-+	writeqflush(data, i2c->twsi_base + TWSI_INT);
- }
++  compatible: "cavium,octeon-7890-twsi"
++
++  Compatibility with cn78XX SOCs.
++
+ - reg: The base address of the TWSI/I2C bus controller register bank.
  
- /**
-@@ -573,10 +578,10 @@ static int octeon_i2c_simple_write(struct octeon_i2c *i2c, struct i2c_msg *msgs)
- 
- 		for (i = 0; i < msgs[0].len - 4 && i < 4; i++, j--)
- 			ext |= (u64) msgs[0].buf[j] << (8 * i);
--		__raw_writeq(ext, i2c->twsi_base + SW_TWSI_EXT);
-+		writeqflush(ext, i2c->twsi_base + SW_TWSI_EXT);
- 	}
- 
--	__raw_writeq(cmd, i2c->twsi_base + SW_TWSI);
-+	writeqflush(cmd, i2c->twsi_base + SW_TWSI);
- 
- 	ret = octeon_i2c_hlc_wait(i2c);
- 	if (ret)
-@@ -622,7 +627,7 @@ static int octeon_i2c_ia_read(struct octeon_i2c *i2c, struct i2c_msg *msgs)
- 		cmd |= (u64) msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
- 
- 	octeon_i2c_hlc_int_clear(i2c);
--	__raw_writeq(cmd, i2c->twsi_base + SW_TWSI);
-+	writeqflush(cmd, i2c->twsi_base + SW_TWSI);
- 
- 	ret = octeon_i2c_hlc_wait(i2c);
- 	if (ret)
-@@ -682,10 +687,10 @@ static int octeon_i2c_ia_write(struct octeon_i2c *i2c, struct i2c_msg *msgs)
- 		set_ext = true;
- 	}
- 	if (set_ext)
--		__raw_writeq(ext, i2c->twsi_base + SW_TWSI_EXT);
-+		writeqflush(ext, i2c->twsi_base + SW_TWSI_EXT);
- 
- 	octeon_i2c_hlc_int_clear(i2c);
--	__raw_writeq(cmd, i2c->twsi_base + SW_TWSI);
-+	writeqflush(cmd, i2c->twsi_base + SW_TWSI);
- 
- 	ret = octeon_i2c_hlc_wait(i2c);
- 	if (ret)
+ - #address-cells: Must be <1>.
 -- 
 1.9.1
