@@ -1,51 +1,220 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v3 07/14] dt-bindings: i2c: Add Octeon cn78xx TWSI
-Date: Mon,  7 Mar 2016 16:10:50 +0100
-Message-ID: <f944dc3cd2df7957dbc5fb08cf7be007dd25ae29.1457362545.git.jglauber@cavium.com>
+Subject: [PATCH v3 01/14] i2c-octeon: Cleanup kerneldoc comments
+Date: Mon,  7 Mar 2016 16:10:44 +0100
+Message-ID: <57cc6122a97b3c33c5a96e83bffa7d074908bfda.1457362545.git.jglauber@cavium.com>
 References: <cover.1457362545.git.jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33654 "EHLO
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33992 "EHLO
 	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753161AbcCGPLW (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Mar 2016 10:11:22 -0500
+	with ESMTP id S1752568AbcCGPLQ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Mar 2016 10:11:16 -0500
 In-Reply-To: <cover.1457362545.git.jglauber@cavium.com>
 In-Reply-To: <cover.1457362545.git.jglauber@cavium.com>
 References: <cover.1457362545.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 
-Add compatible string for Cavium Octeon cn78XX SOCs TWSI.
-
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-Cc: Kumar Gala <galak@codeaurora.org>
+Remove point after parameter description and replace kerneldoc
+by a comment if it has no additional no value.
 
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
-Acked-by: David Daney <ddaney@caviumnetworks.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-octeon.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-octeon.c | 89 ++++++++++++++++++-----------------------
+ 1 file changed, 39 insertions(+), 50 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-octeon.txt b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
-index dced82e..872d485 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
-@@ -4,6 +4,12 @@
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index 32914ab..4a08418 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -73,10 +73,10 @@ struct octeon_i2c {
+ };
  
-   Compatibility with all cn3XXX, cn5XXX and cn6XXX SOCs.
+ /**
+- * octeon_i2c_write_sw - write an I2C core register.
+- * @i2c: The struct octeon_i2c.
+- * @eop_reg: Register selector.
+- * @data: Value to be written.
++ * octeon_i2c_write_sw - write an I2C core register
++ * @i2c: The struct octeon_i2c
++ * @eop_reg: Register selector
++ * @data: Value to be written
+  *
+  * The I2C core registers are accessed indirectly via the SW_TWSI CSR.
+  */
+@@ -93,9 +93,9 @@ static void octeon_i2c_write_sw(struct octeon_i2c *i2c,
+ }
  
-+  or
-+
-+  compatible: "cavium,octeon-7890-twsi"
-+
-+  Compatibility with cn78XX SOCs.
-+
- - reg: The base address of the TWSI/I2C bus controller register bank.
+ /**
+- * octeon_i2c_read_sw - write an I2C core register.
+- * @i2c: The struct octeon_i2c.
+- * @eop_reg: Register selector.
++ * octeon_i2c_read_sw - write an I2C core register
++ * @i2c: The struct octeon_i2c
++ * @eop_reg: Register selector
+  *
+  * Returns the data.
+  *
+@@ -115,8 +115,8 @@ static u8 octeon_i2c_read_sw(struct octeon_i2c *i2c, u64 eop_reg)
  
- - #address-cells: Must be <1>.
+ /**
+  * octeon_i2c_write_int - write the TWSI_INT register
+- * @i2c: The struct octeon_i2c.
+- * @data: Value to be written.
++ * @i2c: The struct octeon_i2c
++ * @data: Value to be written
+  */
+ static void octeon_i2c_write_int(struct octeon_i2c *i2c, u64 data)
+ {
+@@ -125,8 +125,8 @@ static void octeon_i2c_write_int(struct octeon_i2c *i2c, u64 data)
+ }
+ 
+ /**
+- * octeon_i2c_int_enable - enable the TS interrupt.
+- * @i2c: The struct octeon_i2c.
++ * octeon_i2c_int_enable - enable the CORE interrupt
++ * @i2c: The struct octeon_i2c
+  *
+  * The interrupt will be asserted when there is non-STAT_IDLE state in
+  * the SW_TWSI_EOP_TWSI_STAT register.
+@@ -136,22 +136,18 @@ static void octeon_i2c_int_enable(struct octeon_i2c *i2c)
+ 	octeon_i2c_write_int(i2c, 0x40);
+ }
+ 
+-/**
+- * octeon_i2c_int_disable - disable the TS interrupt.
+- * @i2c: The struct octeon_i2c.
+- */
++/* disable the CORE interrupt */
+ static void octeon_i2c_int_disable(struct octeon_i2c *i2c)
+ {
+ 	octeon_i2c_write_int(i2c, 0);
+ }
+ 
+ /**
+- * octeon_i2c_unblock - unblock the bus.
+- * @i2c: The struct octeon_i2c.
++ * octeon_i2c_unblock - unblock the bus
++ * @i2c: The struct octeon_i2c
+  *
+- * If there was a reset while a device was driving 0 to bus,
+- * bus is blocked. We toggle it free manually by some clock
+- * cycles and send a stop.
++ * If there was a reset while a device was driving 0 to bus, bus is blocked.
++ * We toggle it free manually by some clock cycles and send a stop.
+  */
+ static void octeon_i2c_unblock(struct octeon_i2c *i2c)
+ {
+@@ -171,11 +167,7 @@ static void octeon_i2c_unblock(struct octeon_i2c *i2c)
+ 	octeon_i2c_write_int(i2c, 0x0);
+ }
+ 
+-/**
+- * octeon_i2c_isr - the interrupt service routine.
+- * @int: The irq, unused.
+- * @dev_id: Our struct octeon_i2c.
+- */
++/* interrupt service routine */
+ static irqreturn_t octeon_i2c_isr(int irq, void *dev_id)
+ {
+ 	struct octeon_i2c *i2c = dev_id;
+@@ -193,8 +185,8 @@ static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
+ }
+ 
+ /**
+- * octeon_i2c_wait - wait for the IFLG to be set.
+- * @i2c: The struct octeon_i2c.
++ * octeon_i2c_wait - wait for the IFLG to be set
++ * @i2c: The struct octeon_i2c
+  *
+  * Returns 0 on success, otherwise a negative errno.
+  */
+@@ -219,8 +211,8 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ }
+ 
+ /**
+- * octeon_i2c_start - send START to the bus.
+- * @i2c: The struct octeon_i2c.
++ * octeon_i2c_start - send START to the bus
++ * @i2c: The struct octeon_i2c
+  *
+  * Returns 0 on success, otherwise a negative errno.
+  */
+@@ -260,8 +252,8 @@ static int octeon_i2c_start(struct octeon_i2c *i2c)
+ }
+ 
+ /**
+- * octeon_i2c_stop - send STOP to the bus.
+- * @i2c: The struct octeon_i2c.
++ * octeon_i2c_stop - send STOP to the bus
++ * @i2c: The struct octeon_i2c
+  *
+  * Returns 0 on success, otherwise a negative errno.
+  */
+@@ -282,11 +274,11 @@ static int octeon_i2c_stop(struct octeon_i2c *i2c)
+ }
+ 
+ /**
+- * octeon_i2c_write - send data to the bus.
+- * @i2c: The struct octeon_i2c.
+- * @target: Target address.
+- * @data: Pointer to the data to be sent.
+- * @length: Length of the data.
++ * octeon_i2c_write - send data to the bus via low-level controller
++ * @i2c: The struct octeon_i2c
++ * @target: Target address
++ * @data: Pointer to the data to be sent
++ * @length: Length of the data
+  *
+  * The address is sent over the bus, then the data.
+  *
+@@ -330,11 +322,11 @@ static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
+ }
+ 
+ /**
+- * octeon_i2c_read - receive data from the bus.
+- * @i2c: The struct octeon_i2c.
+- * @target: Target address.
+- * @data: Pointer to the location to store the datae .
+- * @length: Length of the data.
++ * octeon_i2c_read - receive data from the bus via low-level controller
++ * @i2c: The struct octeon_i2c
++ * @target: Target address
++ * @data: Pointer to the location to store the data
++ * @length: Length of the data
+  *
+  * The address is sent over the bus, then the data is read.
+  *
+@@ -386,13 +378,12 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
+ }
+ 
+ /**
+- * octeon_i2c_xfer - The driver's master_xfer function.
+- * @adap: Pointer to the i2c_adapter structure.
+- * @msgs: Pointer to the messages to be processed.
+- * @num: Length of the MSGS array.
++ * octeon_i2c_xfer - The driver's master_xfer function
++ * @adap: Pointer to the i2c_adapter structure
++ * @msgs: Pointer to the messages to be processed
++ * @num: Length of the MSGS array
+  *
+- * Returns the number of messages processed, or a negative errno on
+- * failure.
++ * Returns the number of messages processed, or a negative errno on failure.
+  */
+ static int octeon_i2c_xfer(struct i2c_adapter *adap,
+ 			   struct i2c_msg *msgs,
+@@ -438,9 +429,7 @@ static struct i2c_adapter octeon_i2c_ops = {
+ 	.timeout = HZ / 50,
+ };
+ 
+-/**
+- * octeon_i2c_setclock - Calculate and set clock divisors.
+- */
++/* calculate and set clock divisors */
+ static int octeon_i2c_setclock(struct octeon_i2c *i2c)
+ {
+ 	int tclk, thp_base, inc, thp_idx, mdiv_idx, ndiv_idx, foscl, diff;
 -- 
 1.9.1
