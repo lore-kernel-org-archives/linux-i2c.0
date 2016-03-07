@@ -1,91 +1,80 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Subject: [PATCHv4] i2c: cadence: Fix the kernel-doc warnings
-Date: Mon, 7 Mar 2016 14:58:39 +0530
-Message-ID: <1457342919-12657-1-git-send-email-shubhraj@xilinx.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 0/8] i2c mux cleanup and locking update
+Date: Mon, 7 Mar 2016 11:23:09 +0100
+Message-ID: <20160307102309.GA1405@katana>
+References: <1452265496-22475-1-git-send-email-peda@lysator.liu.se>
+ <20160302172904.GC5439@katana>
+ <56DB1C07.4040008@kernel.org>
+ <20160305182934.GA1394@katana>
+ <56DD3E1E.5040003@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-sn1nam02on0053.outbound.protection.outlook.com ([104.47.36.53]:51552
-	"EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751958AbcCGJ3H (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 7 Mar 2016 04:29:07 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <56DD3E1E.5040003@lysator.liu.se>
+Sender: linux-media-owner@vger.kernel.org
+To: Peter Rosin <peda@lysator.liu.se>
+Cc: Jonathan Cameron <jic23@kernel.org>, Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Adriana Reus <adriana.reus@intel.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>, Nicholas Mc Guire <hofrat@osadl.org>, Olli Salonen <olli.salonen@iki.fi>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: soren.brinkmann@xilinx.com, michal.simek@xilinx.com, wsa@the-dreams.de, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-This fixes the below warnings
-drivers/i2c/busses/i2c-cadence.c:164: warning: No description found for parameter 'dev'
-drivers/i2c/busses/i2c-cadence.c:826: warning: No description found for parameter 'dev'
-drivers/i2c/busses/i2c-cadence.c:826: warning: Excess function parameter '_dev' description in 'cdns_i2c_runtime_suspend'
-drivers/i2c/busses/i2c-cadence.c:844: warning: No description found for parameter 'dev'
-drivers/i2c/busses/i2c-cadence.c:844: warning: Excess function parameter '_dev' description in 'cdns_i2c_runtime_resume'
 
-while at it also update the cdns_i2c_clear_bus_hold
-and the runtime function update.
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Tested-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
----
-v2 changes:
-fix the dev param description
 
-v3 changes
-Fix the cdns_i2c_clear_bus_hold
+> My offer is going to be this, I'll look after any unforeseen future problems
+> caused by this rework, and I can be the i2c-mux maintainer. But if being
 
-v4 changes
-Update the commit message
+Yay, thanks a lot!
 
- drivers/i2c/busses/i2c-cadence.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+> the i2c-mux maintainer turns out to be a huge time-sink, there is no way I
+> can stay on in the long run. But I guess that is the same for any maintainer
+> (whose job description does not explicitly include being maintainer).
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 6b08d16..90bbd9f 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -124,6 +124,8 @@
- 
- /**
-  * struct cdns_i2c - I2C device private data structure
-+ *
-+ * @dev:		Pointer to device structure
-  * @membase:		Base address of the I2C device
-  * @adap:		I2C adapter instance
-  * @p_msg:		Message pointer
-@@ -171,7 +173,7 @@ struct cdns_platform_data {
- 					     clk_rate_change_nb)
- 
- /**
-- * cdns_i2c_clear_bus_hold() - Clear bus hold bit
-+ * cdns_i2c_clear_bus_hold - Clear bus hold bit
-  * @id:	Pointer to driver data struct
-  *
-  * Helper to clear the controller's bus hold bit.
-@@ -815,8 +817,8 @@ static int cdns_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
- }
- 
- /**
-- * cdns_i2c_suspend - Suspend method for the driver
-- * @_dev:	Address of the platform_device structure
-+ * cdns_i2c_runtime_suspend -  Runtime suspend method for the driver
-+ * @dev:	Address of the platform_device structure
-  *
-  * Put the driver into low power mode.
-  *
-@@ -833,10 +835,10 @@ static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
- }
- 
- /**
-- * cdns_i2c_resume - Resume from suspend
-- * @_dev:	Address of the platform_device structure
-+ * cdns_i2c_runtime_resume - Runtime resume
-+ * @dev:	Address of the platform_device structure
-  *
-- * Resume operation after suspend.
-+ * Runtime resume callback.
-  *
-  * Return: 0 on success and error value on error
-  */
--- 
-1.7.1
+Well, since I became the I2C maintainer in late 2012, i2c-mux was always
+low-bandwidth:
+
+$ git log --pretty=oneline v3.2.. -- drivers/i2c/muxes/ drivers/i2c/i2c-mux.c | wc -l
+72
+
+And your patch series is already bigger than what was accepted in the
+last year altogether :) I understand the uncertainty feeling about this
+step; however, I truly think it is not much work. It is a niche -
+though, one I'd like to have supported by your expertise.
+
+> the mux update. The main commonality of the demux and the preexisting muxes
+> seems to be that the name includes "mux" and that it is all about i2c. Agreed?
+
+Yes, and because they are quite different, I wasn't sure if it a) is not
+affected at all or b) totally breaks the design. Glad to hear it is a).
+
+Thanks again, looks like we have a roadmap now for getting this series
+in \o/
+
+   Wolfram
+
+
+--jI8keyz6grp/JLjh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW3VaNAAoJEBQN5MwUoCm22/IP/1RlgbCkTAdpLAodKwAhH57d
+ctOvoI7DNgYrKaTcy03vefZirGa79BUwkobZs4LOvXfDoIYCn/+UN3s0ykVJYJyR
+gBbGwiUoSDkHgrWI1XuP8vkg2QTG2M5W6n9XffXsdLQSUlwysLkrNICKJ+tDY0Fd
+FRH/QjQx/HLXPqjRTOKizLFXjCYeJVm9a7z3KHE3EH2QiC2Rl7tM2P+IPHpPK15V
+xOLf4ey5KszkMUrWxH4/ISngNJ2mj7agyQMEgSvFuLdo2SwRZCtjlpNXbvsv27Vw
+EcXaLPc40iFJzCrhpQb+cXaEXhn9yEPQLe/ZEO5NkGO5Q2JM11/uS/cGvjEi1Q1G
+xW9f3xbvdA3/Alku/ToqTtM5pAjFcmAf1QqacyirqJCPIHUs2MdYuXv9rkSAEm+u
+KRX6CST3E/hu/sC2qR9vLUXueaHnf14hpoeNLDIRKzxRkC5VHBEt1LBV8SHLrs/L
+JWpLkQOgBIkUaAFast6TTsr67BFOKaGYtvS8OmpnE4+nr0NGai2U+NbXie+pdB0Q
+4wi1WE6e03DKB91wexmHIWFG71okoGwE/+dOHEaDORXe8LiiQ98SwkWAuxcUtP/n
+Wk24wIWXX5IQqXpjXqTzAA+Pvt1YM1NoIU615joFlBfRUihKxnWWHi92Do7iHpPZ
+xCtR0hIAVdtg/nlLDj2y
+=2jMg
+-----END PGP SIGNATURE-----
+
+--jI8keyz6grp/JLjh--
