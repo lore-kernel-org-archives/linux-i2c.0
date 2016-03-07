@@ -1,82 +1,91 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: Re: [PATCH v3 0/8] i2c mux cleanup and locking update
-Date: Mon, 07 Mar 2016 09:38:54 +0100
-Message-ID: <56DD3E1E.5040003@lysator.liu.se>
-References: <1452265496-22475-1-git-send-email-peda@lysator.liu.se> <20160302172904.GC5439@katana> <56DB1C07.4040008@kernel.org> <20160305182934.GA1394@katana>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Subject: [PATCHv4] i2c: cadence: Fix the kernel-doc warnings
+Date: Mon, 7 Mar 2016 14:58:39 +0530
+Message-ID: <1457342919-12657-1-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.lysator.liu.se ([130.236.254.3]:36280 "EHLO
-	mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752026AbcCGIjG (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Mar 2016 03:39:06 -0500
-In-Reply-To: <20160305182934.GA1394@katana>
+Received: from mail-sn1nam02on0053.outbound.protection.outlook.com ([104.47.36.53]:51552
+	"EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751958AbcCGJ3H (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 7 Mar 2016 04:29:07 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Cameron <jic23@kernel.org>
-Cc: Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Adriana Reus <adriana.reus@intel.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>, Nicholas Mc Guire <hofrat@osadl.org>, Olli Salonen <olli.salonen@iki.fi>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org, devicetree@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: soren.brinkmann@xilinx.com, michal.simek@xilinx.com, wsa@the-dreams.de, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
-On 2016-03-05 19:29, Wolfram Sang wrote:
-> 
->> Perhaps it's one to let sit into at least the next cycle (and get some testing
->> on those media devices if we can) but, whilst it is fiddly the gains seen in
->> individual drivers (like the example Peter put in response to the V4 series)
->> make it look worthwhile to me.  Also, whilst the invensense part is plain odd
->> in many ways, the case Peter had looks rather more normal.
->>
->> At the end of the day, sometimes fiddly problems need fiddly code. 
->> (says a guy who doesn't have to maintain it!)
->>
->> It certainly helps that Peter has done a thorough job, broken the patches
->> up cleanly and provided clean descriptions of what he is doing.
-> 
-> Yes, Peter has done a great job so far and the latest results were very
-> convincing (fixing the invensense issue and the savings for rtl2832).
-> 
-> And yes, I am reluctant to maintain this code alone, so my question
-> would be:
-> 
-> Peter, are you interested in becoming the i2c-mux maintainer and look
-> after the code even after it was merged? (From "you reviewing patches and
-> me picking them up" to "you have your own branch which I pull", we can
-> discuss the best workflow.)
+This fixes the below warnings
+drivers/i2c/busses/i2c-cadence.c:164: warning: No description found for parameter 'dev'
+drivers/i2c/busses/i2c-cadence.c:826: warning: No description found for parameter 'dev'
+drivers/i2c/busses/i2c-cadence.c:826: warning: Excess function parameter '_dev' description in 'cdns_i2c_runtime_suspend'
+drivers/i2c/busses/i2c-cadence.c:844: warning: No description found for parameter 'dev'
+drivers/i2c/busses/i2c-cadence.c:844: warning: Excess function parameter '_dev' description in 'cdns_i2c_runtime_resume'
 
-My code wouldn't be worth much if I didn't offer to look after it myself. On
-the other hand, I am also reluctant to be the go-to person for all things
-i2c-mux, as I don't have a clear picture of how much work it's going to be.
-My offer is going to be this, I'll look after any unforeseen future problems
-caused by this rework, and I can be the i2c-mux maintainer. But if being
-the i2c-mux maintainer turns out to be a huge time-sink, there is no way I
-can stay on in the long run. But I guess that is the same for any maintainer
-(whose job description does not explicitly include being maintainer).
+while at it also update the cdns_i2c_clear_bus_hold
+and the runtime function update.
 
-> If that would be the case, I have the same idea like Jonathan: Give it
-> another cycle for more review & test and aim for the 4.7 merge window.
+Tested-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
+---
+v2 changes:
+fix the dev param description
 
-Yes, sounds good. One of the reasons for doing things right (or at least
-trying to) is to have more people look at the work. *I* think it's good,
-but more eyes can't hurt.
+v3 changes
+Fix the cdns_i2c_clear_bus_hold
 
-> I have to admit that I still haven't done a more thorough review, so I
-> can't say if I see a show-stopper in this series. Yet, even if so I am
-> positive it can be sorted out. Oh, and we should call for people with
-> special experience in locking.
-> 
-> What do people think?
-> 
-> Regards,
-> 
->    Wolfram
-> 
-> PS: Peter, have you seen my demuxer driver in my for-next branch? I hope
-> it won't spoil your design?
+v4 changes
+Update the commit message
 
-I had a brief look, and I can't see anything in the demux that's affected by
-the mux update. The main commonality of the demux and the preexisting muxes
-seems to be that the name includes "mux" and that it is all about i2c. Agreed?
+ drivers/i2c/busses/i2c-cadence.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
-In short, I see no problems.
-
-Cheers,
-Peter
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 6b08d16..90bbd9f 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -124,6 +124,8 @@
+ 
+ /**
+  * struct cdns_i2c - I2C device private data structure
++ *
++ * @dev:		Pointer to device structure
+  * @membase:		Base address of the I2C device
+  * @adap:		I2C adapter instance
+  * @p_msg:		Message pointer
+@@ -171,7 +173,7 @@ struct cdns_platform_data {
+ 					     clk_rate_change_nb)
+ 
+ /**
+- * cdns_i2c_clear_bus_hold() - Clear bus hold bit
++ * cdns_i2c_clear_bus_hold - Clear bus hold bit
+  * @id:	Pointer to driver data struct
+  *
+  * Helper to clear the controller's bus hold bit.
+@@ -815,8 +817,8 @@ static int cdns_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+ }
+ 
+ /**
+- * cdns_i2c_suspend - Suspend method for the driver
+- * @_dev:	Address of the platform_device structure
++ * cdns_i2c_runtime_suspend -  Runtime suspend method for the driver
++ * @dev:	Address of the platform_device structure
+  *
+  * Put the driver into low power mode.
+  *
+@@ -833,10 +835,10 @@ static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
+ }
+ 
+ /**
+- * cdns_i2c_resume - Resume from suspend
+- * @_dev:	Address of the platform_device structure
++ * cdns_i2c_runtime_resume - Runtime resume
++ * @dev:	Address of the platform_device structure
+  *
+- * Resume operation after suspend.
++ * Runtime resume callback.
+  *
+  * Return: 0 on success and error value on error
+  */
+-- 
+1.7.1
