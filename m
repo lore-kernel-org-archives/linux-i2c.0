@@ -1,67 +1,84 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH] i2c: i2c-core: do not use bus internal data
-Date: Mon,  7 Mar 2016 17:19:17 +0530
-Message-ID: <1457351357-13457-1-git-send-email-sudipm.mukherjee@gmail.com>
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [PATCH v3 00/14] i2c-octeon and i2c-thunderx drivers
+Date: Mon,  7 Mar 2016 16:10:43 +0100
+Message-ID: <cover.1457362545.git.jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f175.google.com ([209.85.192.175]:36122 "EHLO
-	mail-pf0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751938AbcCGLt1 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Mar 2016 06:49:27 -0500
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35026 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752538AbcCGPLP (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Mar 2016 10:11:15 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, gregkh@linuxfoundation.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 
-The variable p is a data structure which is used by the driver core
-internally and it is not expected that busses will be directly accessing
-these driver core internal only data.
+This series for the Octeon i2c driver is an attempt to upstream some
+bug fixes and features that accumulated for some time.
 
-Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
----
+On top of the Octeon changes a i2c driver for the ThunderX SOC is
+added which uses the same functional block as the Octeon driver.
 
-Reference of Greg's comment about it at:
-https://lkml.org/lkml/2016/3/5/171
+Patches #1-3 are cleanups.
+Patches #4-11 are forward-ports of Octeon features and bugfixes.
+Patch #12 prepares for the driver split
+Patches #13-14 add the ThunderX driver.
 
- drivers/i2c/i2c-core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Patches are on top of 4.5-rc7 and were tested on OCTEON, OCTEON-78
+and ThunderX.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 2949ab3..2f31fb5 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -73,6 +73,7 @@ static struct device_type i2c_client_type;
- static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
- 
- static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
-+static bool is_registered;
- 
- void i2c_transfer_trace_reg(void)
- {
-@@ -1529,7 +1530,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	int res = 0;
- 
- 	/* Can't register until after driver model init */
--	if (unlikely(WARN_ON(!i2c_bus_type.p))) {
-+	if (unlikely(WARN_ON(!is_registered))) {
- 		res = -EAGAIN;
- 		goto out_list;
- 	}
-@@ -1926,7 +1927,7 @@ int i2c_register_driver(struct module *owner, struct i2c_driver *driver)
- 	int res;
- 
- 	/* Can't register until after driver model init */
--	if (unlikely(WARN_ON(!i2c_bus_type.p)))
-+	if (unlikely(WARN_ON(!is_registered)))
- 		return -EAGAIN;
- 
- 	/* add the driver to the list of i2c drivers in the driver core */
-@@ -2118,6 +2119,7 @@ static int __init i2c_init(void)
- 	if (IS_ENABLED(CONFIG_OF_DYNAMIC))
- 		WARN_ON(of_reconfig_notifier_register(&i2c_of_notifier));
- 
-+	is_registered = true;
- 	return 0;
- 
- class_err:
+Changes to v2:
+- Split clenaup patch into several patches
+- Strictly moved functional changes to later patches
+- Fixed do-while checkpatch errors
+- Moved defines to the patches that use them
+- Use BIT_ULL macro
+- Split ThunderX patch into 2 patches
+
+Changes to v1:
+- Fixed compile error on x86_64
+- Disabled thunderx driver on MIPS
+- Re-ordered some thunderx probe functions for readability
+- Fix missing of_irq.h and i2c-smbus.h includes
+- Use IS_ENABLED for CONFIG options
+
+Jan
+
+-------------------------------------------------
+
+David Daney (5):
+  i2c-octeon: Cleanup resource allocation code
+  i2c-octeon: Support I2C_M_RECV_LEN
+  i2c-octeon: Enable high-level controller and improve on bus contention
+  i2c-octeon: Add support for cn78XX chips
+  i2c-octeon: Add workaround for broken irqs on CN3860
+
+Jan Glauber (6):
+  i2c-octeon: Cleanup kerneldoc comments
+  i2c-octeon: Cleanup i2c-octeon driver
+  dt-bindings: i2c: Add Octeon cn78xx TWSI
+  i2c-octeon: Split the driver into two parts
+  i2c-thunderx: Add i2c driver for ThunderX SOC
+  i2c-thunderx: Add smbus support
+
+Peter Swain (3):
+  i2c-octeon: Make adapter timeout tunable
+  i2c-octeon: Flush TWSI writes with readback
+  i2c-octeon: Faster operation when IFLG signals late
+
+ .../devicetree/bindings/i2c/i2c-octeon.txt         |   6 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   3 +
+ drivers/i2c/busses/i2c-cavium.c                    | 828 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-cavium.h                    | 203 +++++
+ drivers/i2c/busses/i2c-octeon-core.c               | 304 ++++++++
+ drivers/i2c/busses/i2c-octeon.c                    | 633 ----------------
+ drivers/i2c/busses/i2c-thunderx-core.c             | 301 ++++++++
+ 8 files changed, 1655 insertions(+), 633 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-cavium.c
+ create mode 100644 drivers/i2c/busses/i2c-cavium.h
+ create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
+ delete mode 100644 drivers/i2c/busses/i2c-octeon.c
+ create mode 100644 drivers/i2c/busses/i2c-thunderx-core.c
+
 -- 
 1.9.1
