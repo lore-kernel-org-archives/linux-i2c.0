@@ -1,44 +1,40 @@
-From: "Fu, Zhonghui" <zhonghui.fu@linux.intel.com>
-Subject: Re: [PATCH v2] i2c/designware: enable i2c controller to
- suspend/resume asynchronously
-Date: Tue, 8 Mar 2016 16:05:43 +0800
-Message-ID: <56DE87D7.7060205@linux.intel.com>
-References: <569893D1.5050403@linux.intel.com>
- <56AF73E1.7080501@linux.intel.com>
- <1454339763.32507.26.camel@linux.intel.com>
- <20160201155422.GC10607@tetsubishi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] MAINTAINERS: move Mika and me to designated reviewers
+Date: Tue,  8 Mar 2016 11:19:24 +0200
+Message-ID: <1457428764-80793-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:43665 "EHLO mga14.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:27573 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754118AbcCHIGi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 8 Mar 2016 03:06:38 -0500
-In-Reply-To: <20160201155422.GC10607@tetsubishi>
+	id S932132AbcCHJTb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 8 Mar 2016 04:19:31 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+Jarkko is a main contact to handle i2c-designware driver. Move Mika and me to
+designated reviewers which we actualy are.
 
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ MAINTAINERS | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-On 2/1/2016 11:54 PM, Wolfram Sang wrote:
->>>> device may be completed in separate kernel thread. PM core ensures
->>>> all power state transition dependency between devices. This patch
-> I'd like an Ack on that from a PM maintainer, because I think chips like
-> PMICs are special and might not be covered by the generic case...
->
->> Besides that we have to be really aware about DMA power related fix
->> introduced in v4.5-rc1 in acpi_lpss.c [1]. So, I would like to see a
->> wide testing especially on Intel Baytrail / Braswell platforms before
->> enabling it.
-> And this one, too.
-Because of long leave, so sorry for very late reply.
-
-I agree with you. Need more investigation and test for this patch before enabling it.
-
-
-Thanks,
-Zhonghui
->
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f5e6a53..465fc58 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9540,9 +9540,9 @@ F: Documentation/devicetree/bindings/net/snps,dwc-qos-ethernet.txt
+ F: drivers/net/ethernet/synopsys/dwc_eth_qos.c
+ 
+ SYNOPSYS DESIGNWARE I2C DRIVER
+-M:	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+ M:	Jarkko Nikula <jarkko.nikula@linux.intel.com>
+-M:	Mika Westerberg <mika.westerberg@linux.intel.com>
++R:	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
++R:	Mika Westerberg <mika.westerberg@linux.intel.com>
+ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
+ F:	drivers/i2c/busses/i2c-designware-*
+-- 
+2.7.0
