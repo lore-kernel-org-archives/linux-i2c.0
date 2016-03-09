@@ -1,120 +1,62 @@
-From: Yangbo Lu <yangbo.lu@nxp.com>
-Subject: [v6, 5/5] mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
-Date: Wed, 9 Mar 2016 18:08:51 +0800
-Message-ID: <1457518131-11339-6-git-send-email-yangbo.lu@nxp.com>
-References: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org
-Cc: Rob Herring <robh+dt@kernel.org>, scott.wood@nxp.com, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, ulf.hansson@linaro.org, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Zhao Qiang <qiang.zhao@freescale.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com, Yangbo Lu <yangbo.lu@nxp.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] i2c-i801: sort IDs alphabetically
+Date: Wed,  9 Mar 2016 14:14:17 +0200
+Message-ID: <1457525657-19178-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:36263 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932340AbcCIMOV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 9 Mar 2016 07:14:21 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-The eSDHC of T4240-R1.0-R2.0 has incorrect vender version and spec version.
-Acturally the right version numbers should be VVN=0x13 and SVN = 0x1.
-This patch adds the GUTS driver support for eSDHC driver to get SVR(System
-version register). And fix host version to avoid that incorrect version
-numbers break down the ADMA data transfer.
+Sort the list to have a faster search for a certain PCI ID.
 
-Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
-Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
+There is no functional change.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-Changes for v2:
-	- Got SVR through iomap instead of dts
-Changes for v3:
-	- Managed GUTS through syscon instead of iomap in eSDHC driver
-Changes for v4:
-	- Got SVR by GUTS driver instead of SYSCON
-Changes for v5:
-	- Changed to get SVR through API fsl_guts_get_svr()
-	- Combined patch 4, patch 5 and patch 6 into one
-Changes for v6:
-	- Added 'Acked-by: Ulf Hansson'
----
- drivers/mmc/host/Kconfig          |  1 +
- drivers/mmc/host/sdhci-of-esdhc.c | 23 +++++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ drivers/i2c/busses/i2c-i801.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
-index 04feea8..5743b05 100644
---- a/drivers/mmc/host/Kconfig
-+++ b/drivers/mmc/host/Kconfig
-@@ -142,6 +142,7 @@ config MMC_SDHCI_OF_ESDHC
- 	depends on MMC_SDHCI_PLTFM
- 	depends on PPC || ARCH_MXC || ARCH_LAYERSCAPE
- 	select MMC_SDHCI_IO_ACCESSORS
-+	select FSL_GUTS
- 	help
- 	  This selects the Freescale eSDHC controller support.
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 27fa0cb..585a3b7 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -184,7 +184,7 @@
  
-diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
-index 3f34d35..68cc020 100644
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -18,6 +18,8 @@
- #include <linux/of.h>
- #include <linux/delay.h>
- #include <linux/module.h>
-+#include <linux/fsl/svr.h>
-+#include <linux/fsl/guts.h>
- #include <linux/mmc/host.h>
- #include "sdhci-pltfm.h"
- #include "sdhci-esdhc.h"
-@@ -28,6 +30,8 @@
- struct sdhci_esdhc {
- 	u8 vendor_ver;
- 	u8 spec_ver;
-+	u32 soc_ver;
-+	u8 soc_rev;
- };
+ /* Older devices have their ID defined in <linux/pci_ids.h> */
+ #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
+-#define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
++#define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
+ #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
+ #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS		0x1d22
+ /* Patsburg also has three 'Integrated Device Function' SMBus controllers */
+@@ -193,9 +193,11 @@
+ #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2		0x1d72
+ #define PCI_DEVICE_ID_INTEL_PANTHERPOINT_SMBUS		0x1e22
+ #define PCI_DEVICE_ID_INTEL_AVOTON_SMBUS		0x1f3c
++#define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
+ #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS		0x2330
+ #define PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS		0x23b0
+ #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS		0x3b30
++#define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS		0x8c22
+ #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS		0x8ca2
+ #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS		0x8d22
+@@ -204,10 +206,8 @@
+ #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2		0x8d7f
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS		0x9c22
+ #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
+-#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
+ #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
+-#define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
+-#define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
++#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
+ #define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xa1a3
+ #define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
  
- /**
-@@ -73,6 +77,8 @@ static u32 esdhc_readl_fixup(struct sdhci_host *host,
- static u16 esdhc_readw_fixup(struct sdhci_host *host,
- 				     int spec_reg, u32 value)
- {
-+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
-+	struct sdhci_esdhc *esdhc = sdhci_pltfm_priv(pltfm_host);
- 	u16 ret;
- 	int shift = (spec_reg & 0x2) * 8;
- 
-@@ -80,6 +86,13 @@ static u16 esdhc_readw_fixup(struct sdhci_host *host,
- 		ret = value & 0xffff;
- 	else
- 		ret = (value >> shift) & 0xffff;
-+
-+	/* Workaround for T4240-R1.0-R2.0 eSDHC which has incorrect
-+	 * vendor version and spec version information.
-+	 */
-+	if ((spec_reg == SDHCI_HOST_VERSION) &&
-+	    (esdhc->soc_ver == SVR_T4240) && (esdhc->soc_rev <= 0x20))
-+		ret = (VENDOR_V_23 << SDHCI_VENDOR_VER_SHIFT) | SDHCI_SPEC_200;
- 	return ret;
- }
- 
-@@ -567,10 +580,20 @@ static void esdhc_init(struct platform_device *pdev, struct sdhci_host *host)
- 	struct sdhci_pltfm_host *pltfm_host;
- 	struct sdhci_esdhc *esdhc;
- 	u16 host_ver;
-+	u32 svr;
- 
- 	pltfm_host = sdhci_priv(host);
- 	esdhc = sdhci_pltfm_priv(pltfm_host);
- 
-+	fsl_guts_init();
-+	svr = fsl_guts_get_svr();
-+	if (svr) {
-+		esdhc->soc_ver = SVR_SOC_VER(svr);
-+		esdhc->soc_rev = SVR_REV(svr);
-+	} else {
-+		dev_err(&pdev->dev, "Failed to get SVR value!\n");
-+	}
-+
- 	host_ver = sdhci_readw(host, SDHCI_HOST_VERSION);
- 	esdhc->vendor_ver = (host_ver & SDHCI_VENDOR_VER_MASK) >>
- 			     SDHCI_VENDOR_VER_SHIFT;
 -- 
-2.1.0.27.g96db324
-
+2.7.0
