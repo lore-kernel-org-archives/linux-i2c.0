@@ -1,85 +1,49 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH v4 0/8] i2c: Relax mandatory I2C ID table passing
-Date: Wed, 9 Mar 2016 12:30:33 +0700
-Message-ID: <20160309053033.GM13692@x1>
-References: <1441972564-9621-1-git-send-email-kieranbingham@gmail.com>
- <20151009211636.GA1481@katana>
- <CAB3z_RrOKvQW5GiTEP2zqMaQ=EtpsqHB1GmUm-+D+12NM=USOg@mail.gmail.com>
- <20160308042221.GD13692@x1>
- <CAB3z_RpyRr5T4W2iLJfA8xiZLuiMgAN=-EN=xgv2RDTNMmOdzg@mail.gmail.com>
+From: Yangbo Lu <yangbo.lu@nxp.com>
+Subject: [v6, 0/5] Fix eSDHC host version register bug
+Date: Wed, 9 Mar 2016 18:08:46 +0800
+Message-ID: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f181.google.com ([209.85.192.181]:36502 "EHLO
-	mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752201AbcCIFas (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Mar 2016 00:30:48 -0500
-Received: by mail-pf0-f181.google.com with SMTP id u190so1557246pfb.3
-        for <linux-i2c@vger.kernel.org>; Tue, 08 Mar 2016 21:30:48 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAB3z_RpyRr5T4W2iLJfA8xiZLuiMgAN=-EN=xgv2RDTNMmOdzg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org
+Cc: Rob Herring <robh+dt@kernel.org>, scott.wood@nxp.com, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, ulf.hansson@linaro.org, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Zhao Qiang <qiang.zhao@freescale.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com, Yangbo Lu <yangbo.lu@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Kieran Bingham <kieranbingham@gmail.com>
-Cc: Grant Likely <grant.likely@linaro.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Tue, 08 Mar 2016, Kieran Bingham wrote:
+This patchset is used to fix a host version register bug in the T4240-R1.0-R2.0
+eSDHC controller. To get the SoC version and revision, it's needed to add the
+GUTS driver to access the global utilities registers.
 
-> On 8 Mar 2016 11:22, "Lee Jones" <lee.jones@linaro.org> wrote:
-> >
-> > On Mon, 12 Oct 2015, Kieran Bingham wrote:
-> >
-> > > Hi Wolfram,
-> > >
-> > > On 9 October 2015 at 22:16, Wolfram Sang <wsa@the-dreams.de> wrot=
-e:
-> > > >
-> > > > As said to Kieran personally in Dublin, I want a verification t=
-hat all
-> > > > binding methods still work, especially runtime instantiation fo=
-r
-> drivers
-> > > > without i2c_device_ids.
-> > >
-> > > Ok, I should be able to find some time to look at that this week.
-> > >
-> > > >  Also, for the last patch, a verification should
-> > > > be done if the drivers i2c_device_id hasn't been used meanwhile=
-=2E
-> > >
-> > > I'll see what I can do ...
-> > >
-> > > > I'd also like to see 'probe_new' instead of 'probe2' for the ne=
-w
-> function
-> > > > name. That should be it.
-> > >
-> > > Ok, obviously this is only a temporary naming so I don't mind eit=
-her
-> way,
-> > > I'll do a rename for the next version
-> > >
-> > > I've also just found a compile failure to fix up on !CONFIG_OF, t=
-his
-> > > can make its way into the respin.
-> >
-> > I still don't see this upstream.  What's the latest status?
->=20
-> Needs correct testing:
-> "verification that all binding methods still work, especially runtime
-> instantiation for drivers without i2c_device_ids."
->=20
-> Actually I rebased this set last week.  I was going to try and see if=
- I can
-> test in qemu. Just need to work out how to load DT fragments at runti=
-me.
+So, the first three patches are to add the GUTS driver.
+The following two patches are to enable GUTS driver support to get SVR in eSDHC
+driver and fix host version for T4240.
 
-Sounds like an over-the-top solution.  Can't you just modprobe some mod=
-ules?
+Yangbo Lu (5):
+  ARM64: dts: ls2080a: add device configuration node
+  soc: fsl: add GUTS driver for QorIQ platforms
+  dt: move guts devicetree doc out of powerpc directory
+  powerpc/fsl: move mpc85xx.h to include/linux/fsl
+  mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+ .../bindings/{powerpc => soc}/fsl/guts.txt         |   3 +
+ arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi     |   6 ++
+ drivers/clk/clk-qoriq.c                            |   3 +-
+ drivers/i2c/busses/i2c-mpc.c                       |   2 +-
+ drivers/iommu/fsl_pamu.c                           |   3 +-
+ drivers/mmc/host/Kconfig                           |   1 +
+ drivers/mmc/host/sdhci-of-esdhc.c                  |  23 ++++
+ drivers/net/ethernet/freescale/gianfar.c           |   2 +-
+ drivers/soc/Kconfig                                |   2 +-
+ drivers/soc/fsl/Kconfig                            |   8 ++
+ drivers/soc/fsl/Makefile                           |   1 +
+ drivers/soc/fsl/guts.c                             | 119 +++++++++++++++++++++
+ include/linux/fsl/guts.h                           | 100 ++++++++---------
+ .../asm/mpc85xx.h => include/linux/fsl/svr.h       |   4 +-
+ 14 files changed, 220 insertions(+), 57 deletions(-)
+ rename Documentation/devicetree/bindings/{powerpc => soc}/fsl/guts.txt (91%)
+ create mode 100644 drivers/soc/fsl/Kconfig
+ create mode 100644 drivers/soc/fsl/guts.c
+ rename arch/powerpc/include/asm/mpc85xx.h => include/linux/fsl/svr.h (97%)
+
+-- 
+2.1.0.27.g96db324
