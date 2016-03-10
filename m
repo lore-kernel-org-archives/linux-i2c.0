@@ -1,120 +1,61 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH 2/2] i2c: i801: Add runtime PM support with autosuspend
-Date: Thu, 10 Mar 2016 14:12:22 +0200
-Message-ID: <1457611942-8405-3-git-send-email-jarkko.nikula@linux.intel.com>
-References: <1457611942-8405-1-git-send-email-jarkko.nikula@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:17470 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750744AbcCJMMe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 10 Mar 2016 07:12:34 -0500
-In-Reply-To: <1457611942-8405-1-git-send-email-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH] i2c: designware: Add device HID for future AMD I2C controller
+Date: Thu, 10 Mar 2016 23:48:38 +0100
+Message-ID: <2731127.s35Tc35DYy@vostro.rjw.lan>
+References: <1457609692-25903-1-git-send-email-Xiangliang.Yu@amd.com> <56E13104.8050307@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <56E13104.8050307@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Xiangliang Yu <Xiangliang.Yu@amd.com>, lenb@kernel.org, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, SPG_Linux_Kernel@amd.com
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Reinette Chatre <reinette.chatre@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Allow runtime PM so that PM and PCI core can put the device into low-power
-state when idle and resume it back when needed in those platforms that
-support PM for i801 device.
+On Thursday, March 10, 2016 10:32:04 AM Jarkko Nikula wrote:
+> On 03/10/2016 01:34 PM, Xiangliang Yu wrote:
+> > Add device HID AMDI0010 to match the AMD ACPI Vendor ID (AMDI) that
+> > was registered in http://www.uefi.org/acpi_id_list, and the I2C
+> > controller on future AMD paltform will use the HID instead of AMD0010.
+> >
+> > Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
+> > ---
+> >   drivers/acpi/acpi_apd.c                     | 1 +
+> >   drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
+> >   2 files changed, 2 insertions(+)
+> >
+> > diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+> > index d507cf6..d0aad06 100644
+> > --- a/drivers/acpi/acpi_apd.c
+> > +++ b/drivers/acpi/acpi_apd.c
+> > @@ -143,6 +143,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+> >   	/* Generic apd devices */
+> >   #ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+> >   	{ "AMD0010", APD_ADDR(cz_i2c_desc) },
+> > +	{ "AMDI0010", APD_ADDR(cz_i2c_desc) },
+> >   	{ "AMD0020", APD_ADDR(cz_uart_desc) },
+> >   	{ "AMD0030", },
+> >   #endif
+> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > index 438f1b4..d656657 100644
+> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > @@ -123,6 +123,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+> >   	{ "80860F41", 0 },
+> >   	{ "808622C1", 0 },
+> >   	{ "AMD0010", ACCESS_INTR_MASK },
+> > +	{ "AMDI0010", ACCESS_INTR_MASK },
+> >   	{ "AMDI0510", 0 },
+> >   	{ "APMC0D0F", 0 },
+> >   	{ }
+> > --
+> I guess these changes don't necessarily need to go together? Although I 
+> think chances to get a conflict is pretty low.
+> 
+> For i2c-designware:
+> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Enable also autosuspend with 1 second delay in order to not needlessly
-toggle power state on and off if there are multiple transactions during
-short time.
+OK, queued up for 4.6, thanks!
 
-Device is resumed at the beginning of bus access and marked idle ready
-for autosuspend at the end of it.
-
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Tested-by: Reinette Chatre <reinette.chatre@intel.com>
----
- drivers/i2c/busses/i2c-i801.c | 28 ++++++++++++++++++++++------
- 1 file changed, 22 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 091debf7c9de..184dfcd547cd 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -94,6 +94,7 @@
- #include <linux/err.h>
- #include <linux/platform_device.h>
- #include <linux/platform_data/itco_wdt.h>
-+#include <linux/pm_runtime.h>
- 
- #if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
- 		defined CONFIG_DMI
-@@ -714,9 +715,11 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- {
- 	int hwpec;
- 	int block = 0;
--	int ret, xact = 0;
-+	int ret = 0, xact = 0;
- 	struct i801_priv *priv = i2c_get_adapdata(adap);
- 
-+	pm_runtime_get_sync(&priv->pci_dev->dev);
-+
- 	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
- 		&& size != I2C_SMBUS_QUICK
- 		&& size != I2C_SMBUS_I2C_BLOCK_DATA;
-@@ -773,7 +776,8 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	default:
- 		dev_err(&priv->pci_dev->dev, "Unsupported transaction %d\n",
- 			size);
--		return -EOPNOTSUPP;
-+		ret = -EOPNOTSUPP;
-+		goto out;
- 	}
- 
- 	if (hwpec)	/* enable/disable hardware PEC */
-@@ -796,11 +800,11 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		       ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B), SMBAUXCTL(priv));
- 
- 	if (block)
--		return ret;
-+		goto out;
- 	if (ret)
--		return ret;
-+		goto out;
- 	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK))
--		return 0;
-+		goto out;
- 
- 	switch (xact & 0x7f) {
- 	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
-@@ -812,7 +816,11 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 			     (inb_p(SMBHSTDAT1(priv)) << 8);
- 		break;
- 	}
--	return 0;
-+
-+out:
-+	pm_runtime_mark_last_busy(&priv->pci_dev->dev);
-+	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
-+	return ret;
- }
- 
- 
-@@ -1411,6 +1419,11 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- 	pci_set_drvdata(dev, priv);
- 
-+	pm_runtime_set_autosuspend_delay(&dev->dev, 1000);
-+	pm_runtime_use_autosuspend(&dev->dev);
-+	pm_runtime_put_autosuspend(&dev->dev);
-+	pm_runtime_allow(&dev->dev);
-+
- 	return 0;
- }
- 
-@@ -1418,6 +1431,9 @@ static void i801_remove(struct pci_dev *dev)
- {
- 	struct i801_priv *priv = pci_get_drvdata(dev);
- 
-+	pm_runtime_forbid(&dev->dev);
-+	pm_runtime_get_noresume(&dev->dev);
-+
- 	i801_del_mux(priv);
- 	i2c_del_adapter(&priv->adapter);
- 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
--- 
-2.7.0
+Rafael
