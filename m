@@ -1,62 +1,53 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/1] i2c-i801: sort IDs alphabetically
-Date: Wed,  9 Mar 2016 14:14:17 +0200
-Message-ID: <1457525657-19178-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Xiangliang Yu <Xiangliang.Yu@amd.com>
+Subject: [PATCH] i2c: designware: Add device HID for future AMD I2C controller
+Date: Thu, 10 Mar 2016 19:34:52 +0800
+Message-ID: <1457609692-25903-1-git-send-email-Xiangliang.Yu@amd.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:36263 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932340AbcCIMOV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 9 Mar 2016 07:14:21 -0500
+Received: from mail-by2on0088.outbound.protection.outlook.com ([207.46.100.88]:60742
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S964918AbcCJHJ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 10 Mar 2016 02:09:57 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: rjw@rjwysocki.net, lenb@kernel.org, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, SPG_Linux_Kernel@amd.com, Xiangliang Yu <Xiangliang.Yu@amd.com>
 
-Sort the list to have a faster search for a certain PCI ID.
+Add device HID AMDI0010 to match the AMD ACPI Vendor ID (AMDI) that
+was registered in http://www.uefi.org/acpi_id_list, and the I2C
+controller on future AMD paltform will use the HID instead of AMD0010.
 
-There is no functional change.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
 ---
- drivers/i2c/busses/i2c-i801.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/acpi/acpi_apd.c                     | 1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 27fa0cb..585a3b7 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -184,7 +184,7 @@
- 
- /* Older devices have their ID defined in <linux/pci_ids.h> */
- #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
--#define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
-+#define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
- #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
- #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS		0x1d22
- /* Patsburg also has three 'Integrated Device Function' SMBus controllers */
-@@ -193,9 +193,11 @@
- #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2		0x1d72
- #define PCI_DEVICE_ID_INTEL_PANTHERPOINT_SMBUS		0x1e22
- #define PCI_DEVICE_ID_INTEL_AVOTON_SMBUS		0x1f3c
-+#define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
- #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS		0x2330
- #define PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS		0x23b0
- #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS		0x3b30
-+#define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
- #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS		0x8c22
- #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS		0x8ca2
- #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS		0x8d22
-@@ -204,10 +206,8 @@
- #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2		0x8d7f
- #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS		0x9c22
- #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
--#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
- #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
--#define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
--#define PCI_DEVICE_ID_INTEL_BROXTON_SMBUS		0x5ad4
-+#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
- #define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xa1a3
- #define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
- 
+diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+index d507cf6..d0aad06 100644
+--- a/drivers/acpi/acpi_apd.c
++++ b/drivers/acpi/acpi_apd.c
+@@ -143,6 +143,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+ 	/* Generic apd devices */
+ #ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
+ 	{ "AMD0010", APD_ADDR(cz_i2c_desc) },
++	{ "AMDI0010", APD_ADDR(cz_i2c_desc) },
+ 	{ "AMD0020", APD_ADDR(cz_uart_desc) },
+ 	{ "AMD0030", },
+ #endif
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 438f1b4..d656657 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -123,6 +123,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "80860F41", 0 },
+ 	{ "808622C1", 0 },
+ 	{ "AMD0010", ACCESS_INTR_MASK },
++	{ "AMDI0010", ACCESS_INTR_MASK },
+ 	{ "AMDI0510", 0 },
+ 	{ "APMC0D0F", 0 },
+ 	{ }
 -- 
-2.7.0
+1.9.1
