@@ -1,61 +1,44 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH] i2c: designware: Add device HID for future AMD I2C controller
-Date: Thu, 10 Mar 2016 23:48:38 +0100
-Message-ID: <2731127.s35Tc35DYy@vostro.rjw.lan>
-References: <1457609692-25903-1-git-send-email-Xiangliang.Yu@amd.com> <56E13104.8050307@linux.intel.com>
+From: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: =?utf-8?Q?=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0?=
+	=?utf-8?Q?=9A=D0=98=D0=95_=D0=91=D0=90=D0=97=D0=AB!_=D0?=
+	=?utf-8?Q?=A2=D0=B5=D0=BB=5CViber=5CWhatsapp=3A_+79133913?=
+	=?utf-8?Q?837_Email=3A_mgordeev72=40gmail=2Ecom_Skype=3A_?=
+	=?utf-8?Q?prodawez389?=
+Date: Fri, 11 Mar 2016 18:45:09 +0600
+Message-ID: <B64C249CE93D12D10D0841FE5A3F4B9D@vger.kernel.org>
+Reply-To: "linux-i2c@vger.kernel.org" <mgordeev72@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <56E13104.8050307@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Xiangliang Yu <Xiangliang.Yu@amd.com>, lenb@kernel.org, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, SPG_Linux_Kernel@amd.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from nicehills24.com ([82.146.47.63]:33218 "EHLO nicehills24.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752540AbcCKOEx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 11 Mar 2016 09:04:53 -0500
+Received: from 82.146.47.63 (localhost.localdomain [127.0.0.1])
+	by nicehills24.com (Postfix) with SMTP id 55FC6D728882
+	for <linux-i2c@vger.kernel.org>; Fri, 11 Mar 2016 15:45:11 +0300 (MSK)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-On Thursday, March 10, 2016 10:32:04 AM Jarkko Nikula wrote:
-> On 03/10/2016 01:34 PM, Xiangliang Yu wrote:
-> > Add device HID AMDI0010 to match the AMD ACPI Vendor ID (AMDI) that
-> > was registered in http://www.uefi.org/acpi_id_list, and the I2C
-> > controller on future AMD paltform will use the HID instead of AMD0010.
-> >
-> > Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
-> > ---
-> >   drivers/acpi/acpi_apd.c                     | 1 +
-> >   drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
-> >   2 files changed, 2 insertions(+)
-> >
-> > diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> > index d507cf6..d0aad06 100644
-> > --- a/drivers/acpi/acpi_apd.c
-> > +++ b/drivers/acpi/acpi_apd.c
-> > @@ -143,6 +143,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
-> >   	/* Generic apd devices */
-> >   #ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
-> >   	{ "AMD0010", APD_ADDR(cz_i2c_desc) },
-> > +	{ "AMDI0010", APD_ADDR(cz_i2c_desc) },
-> >   	{ "AMD0020", APD_ADDR(cz_uart_desc) },
-> >   	{ "AMD0030", },
-> >   #endif
-> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > index 438f1b4..d656657 100644
-> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > @@ -123,6 +123,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
-> >   	{ "80860F41", 0 },
-> >   	{ "808622C1", 0 },
-> >   	{ "AMD0010", ACCESS_INTR_MASK },
-> > +	{ "AMDI0010", ACCESS_INTR_MASK },
-> >   	{ "AMDI0510", 0 },
-> >   	{ "APMC0D0F", 0 },
-> >   	{ }
-> > --
-> I guess these changes don't necessarily need to go together? Although I 
-> think chances to get a conflict is pretty low.
-> 
-> For i2c-designware:
-> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0=9A=D0=98=D0=95 =D0=91=D0=90=
+=D0=97=D0=AB!
 
-OK, queued up for 4.6, thanks!
-
-Rafael
+=D0=A1=D0=BE=D0=B1=D0=B5=D1=80=D0=B5=D0=BC =D0=B4=D0=BB=D1=8F =D0=92=D0=
+=B0=D1=81 =D0=BF=D0=BE =D0=B8=D0=BD=D1=82=D0=B5=D1=80=D0=BD=D0=B5=D1=82=
+ =D0=B1=D0=B0=D0=B7=D1=83 =D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D1=85 =D0=BF=D0=
+=BE=D1=82=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=D1=85 =D0=
+=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D0=BE=D0=B2=20
+=D0=B4=D0=BB=D1=8F =D0=92=D0=B0=D1=88=D0=B5=D0=B3=D0=BE =D0=91=D0=B8=D0=
+=B7=D0=BD=D0=B5=D1=81=D0=B0!
+=D0=9C=D0=BD=D0=BE=D0=B3=D0=BE! =D0=91=D1=8B=D1=81=D1=82=D1=80=D0=BE! =D0=
+=9D=D0=B5=D0=B4=D0=BE=D1=80=D0=BE=D0=B3=D0=BE!=20
+=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9=D1=82=D0=B5 =D0=BE=D0=B1 =D1=8D=D1=82=D0=
+=BE=D0=BC =D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=D0=B5=D0=B5 =D0=BF=
+=D0=BE=20
+=D0=A2=D0=B5=D0=BB: +79133913837
+Viber: +79133913837
+Whatsapp: +79133913837
+Skype: prodawez389
+Email: mgordeev72@gmail.com
