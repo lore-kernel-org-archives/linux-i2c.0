@@ -1,59 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [v6, 4/5] powerpc/fsl: move mpc85xx.h to include/linux/fsl
-Date: Sat, 12 Mar 2016 16:52:54 +0100
-Message-ID: <20160312155254.GJ1661@katana>
-References: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com>
- <1457518131-11339-5-git-send-email-yangbo.lu@nxp.com>
+Subject: Re: [v1,1/1] i2c-i801: sort IDs alphabetically
+Date: Sat, 12 Mar 2016 17:01:16 +0100
+Message-ID: <20160312160116.GK1661@katana>
+References: <1457525657-19178-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AXxEqdD4tcVTjWte"
-Return-path: <linux-clk-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="wRokNccIwvMzawGl"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:50535 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751685AbcCLQBW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 12 Mar 2016 11:01:22 -0500
 Content-Disposition: inline
-In-Reply-To: <1457518131-11339-5-git-send-email-yangbo.lu@nxp.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Yangbo Lu <yangbo.lu@nxp.com>
-Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, scott.wood@nxp.com, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, ulf.hansson@linaro.org, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Zhao Qiang <qiang.zhao@freescale.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com
+In-Reply-To: <1457525657-19178-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
 
 
---AXxEqdD4tcVTjWte
+--wRokNccIwvMzawGl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 09, 2016 at 06:08:50PM +0800, Yangbo Lu wrote:
-> Move mpc85xx.h to include/linux/fsl and rename it to svr.h as
-> a common header file. It has been used for mpc85xx and it will
-> be used for ARM-based SoC as well.
+On Wed, Mar 09, 2016 at 02:14:17PM +0200, Andy Shevchenko wrote:
+> Sort the list to have a faster search for a certain PCI ID.
 >=20
-> Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+> There is no functional change.
+>=20
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-=46rom a glimpse, looks like proper refactoring. Thanks!
-
-For the I2C part:
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Applied to for-next, thanks!
 
 
---AXxEqdD4tcVTjWte
+--wRokNccIwvMzawGl
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW5DtWAAoJEBQN5MwUoCm2N8wP/A+9PzzjAh69NdEWEYwAmYNQ
-O+VKHOPKJS8+cx+LgBtRcfEPQFa1Yjhbc67iLD3iCZmflpMTPkTxJaCXtCpX7spT
-czvjtG2dnaW57mkuuu1M1n6g2Pk8AqFScH7fgJ8/T0PsLo9n/+uZQOqsahYLYBA6
-eHz4NL7vhXW0X8K1v2VnPI8PzEc3jxz72ZsGo4JdKrrSNjs20rHpjXm4/c6L/IxY
-ww6eMTeOY+aXfNEHyWX67bwVX0j+9puiQ0RWdnQEo/3n9XMdketiEwpClO/fzAmb
-YGg7ChK0pVFqt54gk5Kj6eA9hCDiNsOK9LSeVNX5qsqmIcr1enxD9WNOV0zjPTfP
-pF1mR52ygaACR5KU8LQSZVyZBjar9lMq60Fw6KCRunwCMjpnkUxLWHFH8TrH5NAG
-bcVaO158C7FW7Ixk+d0uaZpqIMg2co62nUXXLxUvMSVbDNxuzvo6gCosZt5z3oKr
-9oEVkaqTk7QhX8szHB+BYKjoBVK+oi4UsgvQ3LnTCCt5r9vGGwGGnNEluOKHzB5o
-hEdKZ7/Ubd8yuCAkVzZHW4s0i248RxUY+a45u2adw6Zp5L7Dvw4JWPo0YD6qT4UN
-AMUJnu+dAf/WgL1wn1Nb1AKsbnN3dz8paP0kdGXTtfO51B1FeFrs7x9io1wvUFyn
-4zIuW6V0i4oZlV+/XynJ
-=VEQJ
+iQIcBAEBAgAGBQJW5D1MAAoJEBQN5MwUoCm2tkgP/0jT2yd9ULmw1kzrmkWOEOoR
+Sb2pfmxhicSicrI1PWnnkk87dqBnwNljhYo5DzVmIpH1eBX0oqXV7jYUlvX59npl
+FehFBs+G9Vma/tg/iqQ/2fIilQCX5Nb5LxOanBLDLWxe6nRlEAWjM3noneFbJeac
+LgCAQ5fU41zfk3Ome4gGs22+udJNo3YJKzsxRmw/I6vlJ5D3QKgndg2S7jBKx8mi
+w983dvDqci5DxReUKg7rWm78tVlwB1SpfXY0V1KWIaNgQ8C7s08GvpibQ8qg1/54
++D8/GvraWSg36n6GW98MrnH56lq3aHYK7qGPZ7Afl9cy6ENAxKi/bdAY7ymkP1pD
+XcDvMzWLOO97JUh73e0AXaJaTM4irx2Jg5JYN0Bm7oMYx4ABpANfYe5OInM4iFTC
+vfvJREKgNI30N/bdJqTyYD8MLyKc509DCR4epdYW9HY926xFlmdIZPvHWgQHy7SP
+NnnH0tismjLXC3QXDnD8ZLE4BuVm8+1gTUgnTpNwqHBWU59EyB9rDmVHbhtgJ4py
+MK/S155b1zQlZe/UUigSE0f/LkYWgHqbzdH+zHx7RDyW9wF9RktL1vneyNotsjYD
+BqipJADjgxo6l3a6k/J3da7TAGXmqkppva/M8VuBlY4qp9nCsyO7DEcT3Z9SidcF
+IALW9nt/zImX/03yDuvh
+=wxv8
 -----END PGP SIGNATURE-----
 
---AXxEqdD4tcVTjWte--
+--wRokNccIwvMzawGl--
