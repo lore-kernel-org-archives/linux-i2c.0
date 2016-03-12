@@ -1,58 +1,98 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-core: do not use bus internal data
-Date: Sat, 12 Mar 2016 16:14:12 +0100
-Message-ID: <20160312151412.GC1661@katana>
-References: <1457351357-13457-1-git-send-email-sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH v3 02/14] i2c-octeon: Cleanup i2c-octeon driver
+Date: Sat, 12 Mar 2016 16:35:00 +0100
+Message-ID: <20160312153459.GD1661@katana>
+References: <cover.1457362545.git.jglauber@cavium.com>
+ <aea2307d9ff5295a0041d3a129dd3e95bf3bd04c.1457362545.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ncSAzJYg3Aa9+CRW"
+	protocol="application/pgp-signature"; boundary="Hf61M2y+wYpnELGG"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50260 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:50337 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752634AbcCLPOR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 12 Mar 2016 10:14:17 -0500
+	id S1752720AbcCLPfE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 12 Mar 2016 10:35:04 -0500
 Content-Disposition: inline
-In-Reply-To: <1457351357-13457-1-git-send-email-sudipm.mukherjee@gmail.com>
+In-Reply-To: <aea2307d9ff5295a0041d3a129dd3e95bf3bd04c.1457362545.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, gregkh@linuxfoundation.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
 
---ncSAzJYg3Aa9+CRW
+--Hf61M2y+wYpnELGG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 07, 2016 at 05:19:17PM +0530, Sudip Mukherjee wrote:
-> The variable p is a data structure which is used by the driver core
-> internally and it is not expected that busses will be directly accessing
-> these driver core internal only data.
->=20
-> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+On Mon, Mar 07, 2016 at 04:10:45PM +0100, Jan Glauber wrote:
+> Cleanup only without functional change.
 
-Removed the unlikely() and applied to for-next, thanks!
+I like most of the changes, but there are still some functional changes
+left.
+
+> -static int octeon_i2c_stop(struct octeon_i2c *i2c)
+> +/* send STOP to the bus */
+> +static void octeon_i2c_stop(struct octeon_i2c *i2c)
+>  {
+>  	u8 data;
+> =20
+> @@ -266,11 +259,8 @@ static int octeon_i2c_stop(struct octeon_i2c *i2c)
+> =20
+>  	data =3D octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
+> =20
+> -	if (data !=3D STAT_IDLE) {
+> +	if (data !=3D STAT_IDLE)
+>  		dev_err(i2c->dev, "%s: bad status(0x%x)\n", __func__, data);
+> -		return -EIO;
+> -	}
+> -	return 0;
+
+Why this change? I don't know what SW_TWSI_EOP_TWSI_STAT tells, but this
+is surely not a cleanup.
+
+>  	octeon_i2c_stop(i2c);
+> =20
+> -	return (ret !=3D 0) ? ret : num;
+> +	return ret ? -EAGAIN : num;
+
+This is also not a cleanup and looks wrong. -EAGAIN is for lost
+arbitration only.
+
+> =20
+> -static struct of_device_id octeon_i2c_match[] =3D {
+> -	{
+> -		.compatible =3D "cavium,octeon-3860-twsi",
+> -	},
+> +static const struct of_device_id octeon_i2c_match[] =3D {
+> +	{	.compatible =3D "cavium,octeon-3860-twsi",	},
+
+Nit: I'd prefer no tabs within the curly braces.
+
+Thanks,
+
+   Wolfram
 
 
---ncSAzJYg3Aa9+CRW
+--Hf61M2y+wYpnELGG
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW5DJEAAoJEBQN5MwUoCm2GU8QAIYc+nxJaoH698b8cwMP+g0G
-IrAp2kyiHrtJJqE6SeGgMIn+FL5Hjob49juQzCO+KB5ts272IP9NbrcvaCvVU7Vt
-GWz0fAU9XsV8Lzq/IfcuHoOZ4GBqsgXlCCpduJrlRl30BrOD98IBBIVFnUGuATud
-8YUBH2UTy/VViVlt6ff80S1Isk4ngDahiRsuUVlFBnweHmbwB4NY5fOWZ2m3ysN7
-tw+gGEUHE/drv5sl2ZplYyNj/j78nq+TP6p7IR0XFRf/DDCcHYbLMkzECxxQL8Ck
-w+LUg70riXgQEpoaz28wx2h6F1vuqlhzm4vBSli3otKmdH6ffRJSZwOog5QWCJdu
-U5GBbgpeQfzzPAXSb/pTwjfdZIz9mGjhnTYDUP/a4ShCCAhx5Hd0KC8LTbQ0aW6u
-oirkWne76bXoC6QInyxbioXKgtBu33moOlI0tIST8k2ZyW8UvysywKysIa+TaIsU
-UP9R6eL8bundmOSIDiprE/wwwpRMCjNUNZZ/knlR1ps7yaipuuN5NLMtZx4/Wrmf
-8UxELNP7vEzIjUJ19XR155xChMUdJyk7B5th74imCIzuRa4JlnkYUySI+2340kZA
-cWkGH/1Bnsdo6t88IFyu+gvkNonQ6e86ysHXMt0x42I+oYzRfj1+DaI60vtOATwp
-Imgv6cCxRKz/BmyzHXmR
-=6zIA
+iQIcBAEBAgAGBQJW5DcjAAoJEBQN5MwUoCm2GJQP/jSHH13doQtq+kf+f86c+tsn
+ddktMuVh8Udh08zGbsYQCTigfTpFTY6SonFpnyZs4zXdmkbIdMdNfPfIJq6dyEgC
+/dFOwZpzuFtvPIREBbEGZ1bk1vphOX2mE+2rgLVz6iNGDPDT7KItNbBaIS6DjGXL
+7F6sN8HioBmg4rIABY6k+w1fdkT8H+DV+2RpJdjW2OJk32gvTcbe1E+TU8h/Yokr
+Rh533kVVJg9N1BgNB5nQTXm3eVO4aenTUwSLVKtXG6+uUhh3ef1hO94E2kNB4FFp
+UeS58nVLAaoRqzgcpYXtazWAmnppkM7gzCPLe+sUrWTk807uu5gBxbD6/qU1jAT1
+/FRMztQuT/5Q01FAppnDj+U0wVYwfHQv4I/eCZmZk0EEIVLuo5tGhvMn3A8UQLeh
+2FjPItSmP2dSIKTsE2r9kCxDMJpkAB7oLLxH3wTL2THpvckTyakPrs+Aof6GwJFM
+h6hgfEiyOjxIEvW8U04vMLpFSPMfpxMKQvO/FQ4TJrQ1jOYeoXCYk5jA5rnOCV9i
+nH1XM3NNvo3wZnIGJuAOFaqSBiONzH6cWb0ouI9ykLJsojT6ToEIfglOL/6eNei0
+mbzkiCDGw1u9fzjekMtM9P34GGDTaAUTYa1e2fRnB4MxeVxYFyEp32fmtvcXkFAT
+MyTxZe4J9iwsp0fQT5GK
+=+nRT
 -----END PGP SIGNATURE-----
 
---ncSAzJYg3Aa9+CRW--
+--Hf61M2y+wYpnELGG--
