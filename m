@@ -1,98 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 02/14] i2c-octeon: Cleanup i2c-octeon driver
-Date: Sat, 12 Mar 2016 16:35:00 +0100
-Message-ID: <20160312153459.GD1661@katana>
+Subject: Re: [PATCH v3 01/14] i2c-octeon: Cleanup kerneldoc comments
+Date: Sat, 12 Mar 2016 16:35:10 +0100
+Message-ID: <20160312153509.GE1661@katana>
 References: <cover.1457362545.git.jglauber@cavium.com>
- <aea2307d9ff5295a0041d3a129dd3e95bf3bd04c.1457362545.git.jglauber@cavium.com>
+ <57cc6122a97b3c33c5a96e83bffa7d074908bfda.1457362545.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Hf61M2y+wYpnELGG"
+	protocol="application/pgp-signature"; boundary="2qXFWqzzG3v1+95a"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50337 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:50341 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752720AbcCLPfE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 12 Mar 2016 10:35:04 -0500
+	id S1752720AbcCLPfO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 12 Mar 2016 10:35:14 -0500
 Content-Disposition: inline
-In-Reply-To: <aea2307d9ff5295a0041d3a129dd3e95bf3bd04c.1457362545.git.jglauber@cavium.com>
+In-Reply-To: <57cc6122a97b3c33c5a96e83bffa7d074908bfda.1457362545.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jan Glauber <jglauber@cavium.com>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
 
---Hf61M2y+wYpnELGG
+--2qXFWqzzG3v1+95a
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 07, 2016 at 04:10:45PM +0100, Jan Glauber wrote:
-> Cleanup only without functional change.
+On Mon, Mar 07, 2016 at 04:10:44PM +0100, Jan Glauber wrote:
+> Remove point after parameter description and replace kerneldoc
+> by a comment if it has no additional no value.
+>=20
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
-I like most of the changes, but there are still some functional changes
-left.
-
-> -static int octeon_i2c_stop(struct octeon_i2c *i2c)
-> +/* send STOP to the bus */
-> +static void octeon_i2c_stop(struct octeon_i2c *i2c)
->  {
->  	u8 data;
-> =20
-> @@ -266,11 +259,8 @@ static int octeon_i2c_stop(struct octeon_i2c *i2c)
-> =20
->  	data =3D octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-> =20
-> -	if (data !=3D STAT_IDLE) {
-> +	if (data !=3D STAT_IDLE)
->  		dev_err(i2c->dev, "%s: bad status(0x%x)\n", __func__, data);
-> -		return -EIO;
-> -	}
-> -	return 0;
-
-Why this change? I don't know what SW_TWSI_EOP_TWSI_STAT tells, but this
-is surely not a cleanup.
-
->  	octeon_i2c_stop(i2c);
-> =20
-> -	return (ret !=3D 0) ? ret : num;
-> +	return ret ? -EAGAIN : num;
-
-This is also not a cleanup and looks wrong. -EAGAIN is for lost
-arbitration only.
-
-> =20
-> -static struct of_device_id octeon_i2c_match[] =3D {
-> -	{
-> -		.compatible =3D "cavium,octeon-3860-twsi",
-> -	},
-> +static const struct of_device_id octeon_i2c_match[] =3D {
-> +	{	.compatible =3D "cavium,octeon-3860-twsi",	},
-
-Nit: I'd prefer no tabs within the curly braces.
-
-Thanks,
-
-   Wolfram
+Applied to for-next, thanks!
 
 
---Hf61M2y+wYpnELGG
+--2qXFWqzzG3v1+95a
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW5DcjAAoJEBQN5MwUoCm2GJQP/jSHH13doQtq+kf+f86c+tsn
-ddktMuVh8Udh08zGbsYQCTigfTpFTY6SonFpnyZs4zXdmkbIdMdNfPfIJq6dyEgC
-/dFOwZpzuFtvPIREBbEGZ1bk1vphOX2mE+2rgLVz6iNGDPDT7KItNbBaIS6DjGXL
-7F6sN8HioBmg4rIABY6k+w1fdkT8H+DV+2RpJdjW2OJk32gvTcbe1E+TU8h/Yokr
-Rh533kVVJg9N1BgNB5nQTXm3eVO4aenTUwSLVKtXG6+uUhh3ef1hO94E2kNB4FFp
-UeS58nVLAaoRqzgcpYXtazWAmnppkM7gzCPLe+sUrWTk807uu5gBxbD6/qU1jAT1
-/FRMztQuT/5Q01FAppnDj+U0wVYwfHQv4I/eCZmZk0EEIVLuo5tGhvMn3A8UQLeh
-2FjPItSmP2dSIKTsE2r9kCxDMJpkAB7oLLxH3wTL2THpvckTyakPrs+Aof6GwJFM
-h6hgfEiyOjxIEvW8U04vMLpFSPMfpxMKQvO/FQ4TJrQ1jOYeoXCYk5jA5rnOCV9i
-nH1XM3NNvo3wZnIGJuAOFaqSBiONzH6cWb0ouI9ykLJsojT6ToEIfglOL/6eNei0
-mbzkiCDGw1u9fzjekMtM9P34GGDTaAUTYa1e2fRnB4MxeVxYFyEp32fmtvcXkFAT
-MyTxZe4J9iwsp0fQT5GK
-=+nRT
+iQIcBAEBAgAGBQJW5DctAAoJEBQN5MwUoCm2KScP/2/cEKCN194QDt/0cOm2CzZk
+wEXHh1JGVt1cBPDz5siekBcj0BUmupy+02gIufsiX7GY2PA8h+ieVXZfTN8NcFWK
+0w9Uc8w7rahR4xsoVaMXKdCxCo6XKyiRntbRjo3znUyzk8wDWny7gkOy9Zw23aAA
+2jvEWDq3deJ6qVb2UM0NoK7doOuxEJr0t3TKeNIZjWSsmbEDnrS2pOnmvnDgt9Sv
+LZ9mmZt/VQnERolKBHEtpQpFF+TKrpYJwYdKnCoSckxo4JLB7ly5hfmy8TXV2cmk
+oqX8Ofr1Sw0OCuc3a/fK38lxkz6YmE3H7PP+wRhec7341G4rUZA4QVn+In5UfYsR
+dl7H67hj1U4G8+xIgSgYZRmxjSOOs6Ur78GD0SXpZ1gETI5y47IvYHEMyVwyO1Jw
+nVMMOCEed1XaOomnkSJHInC55nwZSp3nznA3yKpXyidzjN7pPHMOD1BFlAigFS4s
+piwxIoaNlX143r6No4Q9G4SF5DANxIdP9w3gwrJfg+T/Q+PeGmN839ccIE7sx3p6
+tvSPdKzEU27bDYNFcgpnkiGXHUTGvWqjX0BoTB0j0tWLAHvFaf7KLa8KunpSrqyF
+Hs1uhZFSDaPS8u3ZOU/QXs6XoxKTqHlks2UbBUb1oG/QYZo8+pPp4QQ52Rad+mIn
+r2/JbhEcCQQ8F3MTd83p
+=4DZf
 -----END PGP SIGNATURE-----
 
---Hf61M2y+wYpnELGG--
+--2qXFWqzzG3v1+95a--
