@@ -1,70 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv4] i2c: cadence: Fix the kernel-doc warnings
-Date: Sat, 12 Mar 2016 16:03:44 +0100
-Message-ID: <20160312150344.GB1661@katana>
-References: <1457342919-12657-1-git-send-email-shubhraj@xilinx.com>
+Subject: Re: [PATCH] i2c: i2c-core: do not use bus internal data
+Date: Sat, 12 Mar 2016 16:14:12 +0100
+Message-ID: <20160312151412.GC1661@katana>
+References: <1457351357-13457-1-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
+	protocol="application/pgp-signature"; boundary="ncSAzJYg3Aa9+CRW"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50223 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:50260 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752618AbcCLPDu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 12 Mar 2016 10:03:50 -0500
+	id S1752634AbcCLPOR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 12 Mar 2016 10:14:17 -0500
 Content-Disposition: inline
-In-Reply-To: <1457342919-12657-1-git-send-email-shubhraj@xilinx.com>
+In-Reply-To: <1457351357-13457-1-git-send-email-sudipm.mukherjee@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Cc: linux-i2c@vger.kernel.org, soren.brinkmann@xilinx.com, michal.simek@xilinx.com, Shubhrajyoti Datta <shubhraj@xilinx.com>
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, gregkh@linuxfoundation.org
 
 
---v9Ux+11Zm5mwPlX6
+--ncSAzJYg3Aa9+CRW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 07, 2016 at 02:58:39PM +0530, Shubhrajyoti Datta wrote:
-> This fixes the below warnings
-> drivers/i2c/busses/i2c-cadence.c:164: warning: No description found for p=
-arameter 'dev'
-> drivers/i2c/busses/i2c-cadence.c:826: warning: No description found for p=
-arameter 'dev'
-> drivers/i2c/busses/i2c-cadence.c:826: warning: Excess function parameter =
-'_dev' description in 'cdns_i2c_runtime_suspend'
-> drivers/i2c/busses/i2c-cadence.c:844: warning: No description found for p=
-arameter 'dev'
-> drivers/i2c/busses/i2c-cadence.c:844: warning: Excess function parameter =
-'_dev' description in 'cdns_i2c_runtime_resume'
+On Mon, Mar 07, 2016 at 05:19:17PM +0530, Sudip Mukherjee wrote:
+> The variable p is a data structure which is used by the driver core
+> internally and it is not expected that busses will be directly accessing
+> these driver core internal only data.
 >=20
-> while at it also update the cdns_i2c_clear_bus_hold
-> and the runtime function update.
->=20
-> Tested-by: Michal Simek <michal.simek@xilinx.com>
-> Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
+> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-Applied to for-next, thanks!
+Removed the unlikely() and applied to for-next, thanks!
 
 
---v9Ux+11Zm5mwPlX6
+--ncSAzJYg3Aa9+CRW
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW5C/QAAoJEBQN5MwUoCm2aRUP/R85Er8ahRnzaHSq6TwjKLXt
-bsY+iWubypcJE6kj/AbyiBy05Tl/UYLVpxwgBmYQ8PGF8c/8dOQdEqYxc1RHEOOj
-481WW2/Fd1wg23kOela/whfCWRUfRD+eF3PBlUGCuVs7LfOOM8j0c9ThMmwnmSrM
-WdWjkdDzDpklnF356iljUDoxcKhSnNiCH7NLP5U7HNEfoUNqSYeaHC3tHKsyLqeZ
-aozY4ZC4k7+4tUQWkLPFI09TX74Ewn3ZsHCpWFQrlMWPkrPdteSY9PKORfP6Bxc6
-DIiLEVLZPhfaJ6l1uuqxn/qYKsMT5QO/G53fycMrOHPwFJ051G/WrLLdvXPoH66Q
-ME8tvyxW/bSFPLWg9VEW669EPd4xYIVa061ggpEriq4qQmKSEki3T8TwZtqh7aWc
-kPpagKGzXP3YGzt8HToW3MOmWGsh9lmG6zU4+wu0ZK6uF3CXgV4k39y3pX249eZ3
-aKYb4iouoHcFm2BMxdnBqp/8+w3b9/ok/41i4pAKl3dV7xlEoJHNsxNbWzZXqI2a
-lfgLMZXuxEwrxKspIJc7VyjYwmifYQFqKD8QCDHijQm4h+aKgIPLaHgAduGoLrml
-8GZ8mPUO/o26gShgQsfavdjqF+OLDSInUwW6MIaKiEy1kZvSe29K2njmKojVKlD5
-nb9XtSsKb+/RxlLKear8
-=COOb
+iQIcBAEBAgAGBQJW5DJEAAoJEBQN5MwUoCm2GU8QAIYc+nxJaoH698b8cwMP+g0G
+IrAp2kyiHrtJJqE6SeGgMIn+FL5Hjob49juQzCO+KB5ts272IP9NbrcvaCvVU7Vt
+GWz0fAU9XsV8Lzq/IfcuHoOZ4GBqsgXlCCpduJrlRl30BrOD98IBBIVFnUGuATud
+8YUBH2UTy/VViVlt6ff80S1Isk4ngDahiRsuUVlFBnweHmbwB4NY5fOWZ2m3ysN7
+tw+gGEUHE/drv5sl2ZplYyNj/j78nq+TP6p7IR0XFRf/DDCcHYbLMkzECxxQL8Ck
+w+LUg70riXgQEpoaz28wx2h6F1vuqlhzm4vBSli3otKmdH6ffRJSZwOog5QWCJdu
+U5GBbgpeQfzzPAXSb/pTwjfdZIz9mGjhnTYDUP/a4ShCCAhx5Hd0KC8LTbQ0aW6u
+oirkWne76bXoC6QInyxbioXKgtBu33moOlI0tIST8k2ZyW8UvysywKysIa+TaIsU
+UP9R6eL8bundmOSIDiprE/wwwpRMCjNUNZZ/knlR1ps7yaipuuN5NLMtZx4/Wrmf
+8UxELNP7vEzIjUJ19XR155xChMUdJyk7B5th74imCIzuRa4JlnkYUySI+2340kZA
+cWkGH/1Bnsdo6t88IFyu+gvkNonQ6e86ysHXMt0x42I+oYzRfj1+DaI60vtOATwp
+Imgv6cCxRKz/BmyzHXmR
+=6zIA
 -----END PGP SIGNATURE-----
 
---v9Ux+11Zm5mwPlX6--
+--ncSAzJYg3Aa9+CRW--
