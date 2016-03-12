@@ -1,95 +1,42 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Add device HID for future AMD I2C
- controller
-Date: Sat, 12 Mar 2016 17:03:09 +0100
-Message-ID: <20160312160309.GL1661@katana>
-References: <1457609692-25903-1-git-send-email-Xiangliang.Yu@amd.com>
- <56E13104.8050307@linux.intel.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [PATCHv3 2/2] i2c: cadence: Implement save restore
+Date: Sat, 12 Mar 2016 22:53:26 +0530
+Message-ID: <CAKfKVtH2ayu=sEvkSpi0oRjacUDMqeQ4R+10=9i6Ho2xaV+VuA@mail.gmail.com>
+References: <1456984240-17389-1-git-send-email-shubhraj@xilinx.com>
+	<1456984240-17389-2-git-send-email-shubhraj@xilinx.com>
+	<20160303204013.GC1711@katana>
+	<CAKfKVtG5sC7+2Gsq60irZAYgof1guqWTg=YCN+63xJV=tfmowg@mail.gmail.com>
+	<20160312150236.GA1661@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8SdtHY/0P4yzaavF"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <56E13104.8050307@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Xiangliang Yu <Xiangliang.Yu@amd.com>, rjw@rjwysocki.net, lenb@kernel.org, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, SPG_Linux_Kernel@amd.com
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qg0-f52.google.com ([209.85.192.52]:34227 "EHLO
+	mail-qg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751883AbcCLRX2 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 12 Mar 2016 12:23:28 -0500
+Received: by mail-qg0-f52.google.com with SMTP id w104so123172573qge.1
+        for <linux-i2c@vger.kernel.org>; Sat, 12 Mar 2016 09:23:27 -0800 (PST)
+In-Reply-To: <20160312150236.GA1661@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-i2c@vger.kernel.org, anirudh@xilinx.com, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Michal Simek <michal.simek@xilinx.com>, Shubhrajyoti Datta <shubhraj@xilinx.com>
 
+On Sat, Mar 12, 2016 at 8:32 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> >> zynq-mp has the capability of going off.
+>> >> the current kernel does not hit off however some day it will.
+>> >> since the overhead of having the support is not much may be it is better to have it in the kernel.
+>> >
+>> > This sounds like the patch is not tested?
+>> to simulate the suspend behavior I  did a reset of the module by writing to
+>> slcr register.
+>> And then did a transfer.
+>
+> I'd prefer a patch which is tested under the actual condition. So, let's
+> wait until proper suspend support is added.
+>
 
---8SdtHY/0P4yzaavF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Mar 10, 2016 at 10:32:04AM +0200, Jarkko Nikula wrote:
-> On 03/10/2016 01:34 PM, Xiangliang Yu wrote:
-> >Add device HID AMDI0010 to match the AMD ACPI Vendor ID (AMDI) that
-> >was registered in http://www.uefi.org/acpi_id_list, and the I2C
-> >controller on future AMD paltform will use the HID instead of AMD0010.
-> >
-> >Signed-off-by: Xiangliang Yu <Xiangliang.Yu@amd.com>
-> >---
-> >  drivers/acpi/acpi_apd.c                     | 1 +
-> >  drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
-> >  2 files changed, 2 insertions(+)
-> >
-> >diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> >index d507cf6..d0aad06 100644
-> >--- a/drivers/acpi/acpi_apd.c
-> >+++ b/drivers/acpi/acpi_apd.c
-> >@@ -143,6 +143,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
-> >  	/* Generic apd devices */
-> >  #ifdef CONFIG_X86_AMD_PLATFORM_DEVICE
-> >  	{ "AMD0010", APD_ADDR(cz_i2c_desc) },
-> >+	{ "AMDI0010", APD_ADDR(cz_i2c_desc) },
-> >  	{ "AMD0020", APD_ADDR(cz_uart_desc) },
-> >  	{ "AMD0030", },
-> >  #endif
-> >diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> >index 438f1b4..d656657 100644
-> >--- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> >+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> >@@ -123,6 +123,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
-> >  	{ "80860F41", 0 },
-> >  	{ "808622C1", 0 },
-> >  	{ "AMD0010", ACCESS_INTR_MASK },
-> >+	{ "AMDI0010", ACCESS_INTR_MASK },
-> >  	{ "AMDI0510", 0 },
-> >  	{ "APMC0D0F", 0 },
-> >  	{ }
-> >--
-> I guess these changes don't necessarily need to go together? Although I
-> think chances to get a conflict is pretty low.
-
-I would have preferred seperate patches, too.
-
-> For i2c-designware:
-> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-
-For the record:
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-
---8SdtHY/0P4yzaavF
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJW5D29AAoJEBQN5MwUoCm2ZwcQAKD6TPmXmdUnXH3U/rijBcSe
-BzKzYzAQo8L7JUJM5qoSqRVNkrsH12q7Qlnc2u8tTEmeiTCakEfuQFIg7RujrjCx
-YR3GKQ8V3R9tB4ILv6V6tRamNLBpC1idjfGVx96+8347GnbxCUKtT8U3QUxb2kxy
-kS5KaKrJn9cmEODY/2XsNmrQh0ucS3IKycNeeB90kwqQFm0wUBwkIyAhIpLMoagy
-/DGGRA50egunOckfDtnC1fO4liJB8ciLdgqkqrfkVpTPuRrFLLH2wm9l+ZkL5NJv
-bLRK0yj9KEzIZ2JhrSq4/JR4NA2g4ohMIXe8dusKmzfez8wPFYh0mUVmF4JTSsew
-AOGTIqLnlpjBBhbTQx60okhMtOMIvWy1SZuaPNgXKKTg7qatTMfnBxo+LZNeLEmT
-wJuqjU+AcL79aQnrMXMySJnQWaeEuggf3xZPAJB8Ry9RHBbnpNhccsZEW+jYpv7e
-Sak5WxpJ2Maj1J+6LjlpMpw1xDhrWBR7c2r3t1YqbKQ04hLq/QEByeRWIAjAz47i
-OJp/Ci2Lu5hmWki+Grwv1twWQ1DPzrVk1ZSpnX2g6saNybsrciNvNZglpynQOT2i
-UaGqR42XH8Oc4mS69Qkp0Xx/i3511eRrylJPUr32Z2/vIiIMXMo7VwNBWG63iJmm
-iEportPmJSe7Vhq16AKi
-=5LVA
------END PGP SIGNATURE-----
-
---8SdtHY/0P4yzaavF--
+Makes sense.
+thanks,
+Shubhrajyoti
