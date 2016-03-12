@@ -1,60 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 03/14] i2c-octeon: Cleanup resource allocation code
-Date: Sat, 12 Mar 2016 16:37:15 +0100
-Message-ID: <20160312153715.GF1661@katana>
+Subject: Re: [PATCH v3 04/14] i2c-octeon: Support I2C_M_RECV_LEN
+Date: Sat, 12 Mar 2016 16:44:22 +0100
+Message-ID: <20160312154422.GG1661@katana>
 References: <cover.1457362545.git.jglauber@cavium.com>
- <f33c059a7df4d76768c4b9345c341bdeea2b6484.1457362545.git.jglauber@cavium.com>
+ <aa1595b6fd6b16fbc0339115b2169acb6458dd38.1457362545.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5CUMAwwhRxlRszMD"
+	protocol="application/pgp-signature"; boundary="5L6AZ1aJH5mDrqCQ"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50353 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:50400 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752720AbcCLPhS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 12 Mar 2016 10:37:18 -0500
+	id S1752694AbcCLPo0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 12 Mar 2016 10:44:26 -0500
 Content-Disposition: inline
-In-Reply-To: <f33c059a7df4d76768c4b9345c341bdeea2b6484.1457362545.git.jglauber@cavium.com>
+In-Reply-To: <aa1595b6fd6b16fbc0339115b2169acb6458dd38.1457362545.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jan Glauber <jglauber@cavium.com>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, David Daney <david.daney@cavium.com>
 
 
---5CUMAwwhRxlRszMD
+--5L6AZ1aJH5mDrqCQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 07, 2016 at 04:10:46PM +0100, Jan Glauber wrote:
+On Mon, Mar 07, 2016 at 04:10:47PM +0100, Jan Glauber wrote:
 > From: David Daney <david.daney@cavium.com>
 >=20
-> Use resource start and size directly.
+> If I2C_M_RECV_LEN is set consider the length byte.
 >=20
-> Signed-off-by: David Daney <david.daney@cavium.com>
+> Signed-off-by: David Daney <ddaney@caviumnetworks.com>
 > Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
-What about converting to devm_ioremap_resource()?
+You also might want to set "| I2C_FUNC_SMBUS_READ_BLOCK_DATA |
+I2C_FUNC_SMBUS_BLOCK_PROC_CALL" in your functionality?
+
+> +		if (recv_len && i =3D=3D 0) {
+> +			if (data[i] > I2C_SMBUS_BLOCK_MAX + 1) {
+> +				dev_err(i2c->dev,
+> +					"%s: read len > I2C_SMBUS_BLOCK_MAX %d\n",
+> +					__func__, data[i]);
+> +				return -EIO;
+
+According to Documentation/i2c/fault-codes this should be -EPROTO.
 
 
---5CUMAwwhRxlRszMD
+--5L6AZ1aJH5mDrqCQ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW5DerAAoJEBQN5MwUoCm2LgYP+QH56BxVniKCTxnSqZS8yVAg
-MT9v26dHML1GB/ZgXcPj+ku1NMvCeJ9iW+99DMX3a77fXe+Pw5unZT0ZQQNEVyrk
-P0Zxd0NThLLBq85MLLBLLxj5rSJX530JkHC1E8+t3HqH0RXZns1+wjDmwj0QL/n0
-7kKOgWwXBMiaH+Gtds1mC9SCkEP40tgKWkZUWCPb/irvagH7IJYz2fMkuMBE9VsO
-KePqXSnW3S3WtBRlNyhK9jHNn/JgOAKahZTFvVBA92pReyc+NvlfSPbyAWgOfOMd
-fQLoiiw8xs67ydNfXSc9fdeXj6JL7NJ/KBE+df3QEpkDvDueDWUA/P0sqakP7mJx
-WgXEgNvze7Q/lKrkbnx/84J2qC3OTkm8WIbHR5t53uDaatKBDLZMKNUfxzSNkfzf
-THCVJxZsmiZgbLt6sc/Z/yUD9nPWFcCmU78ssgs+ddZVkMUloWxmhtmXXCms2jxj
-3jL2OUkLwdDrKItZeWHhoI/zEJrMHZLWrvtqHpSpA7YHPNld9rnB7ECqGPd6HVCr
-b5jI0W2s7SGo0Fj5qV8rSA3NWZUm0AfU5OLG6//MDhrpgYgX5fQ92+aCw+Y+Gxnm
-EoFwtHBnqkK7IhY+Sfh9eOAQenpRx4m0Jn8PGWDfKNSpwljyxTGRu6Hoy7sNGciX
-hNrjMHnSihkp8DgF9ffh
-=Q9h7
+iQIcBAEBAgAGBQJW5DlWAAoJEBQN5MwUoCm2mgMP+gI4Z1QBaCFapkZNn0E+5WrI
+Pi1jEwWLTjUmzbokUNwlrat0E7J8M15BDWHnyxrcpRj9LSX/5Mm/05M33uEAhYIn
+1x5JzlTFtvUhKeQb6O9VDzdmxEA36Fd9p/XB1gQw0Gv3ZMXDnwUil1LyBeaFCeMX
+FcFRZRS3T3VTndOTz5SaD5xPNvB40otl9rggZS5cq1EmeHwhXAcjfeDNxbuJPdyV
+OQ+lMHlvEkI98ubbKIARbAbXfmN3PyAsYE8w1L0fEt2GdF7RnA2UoluUV8b0RfYp
+t5Expq658Dq3eOgFX6QNGLebgCPwwnYsM4oR7Rgoq5Ib5F+gIVdW/NAStJ4MHoQv
+j30jMQ8gPAjG8eudswoU5+A8qCWZEdbrngYZEvxHNMwSoVqv4Fo0BcgY7s5sRDAQ
+sEyK1QMc+rtWAGqN4Hn5Ie/GHQx6Di633bVQKanrzj35RkpfHD4tRxDdsmuor0sS
+hHYetNcXZ1b/8XWAkFCnq3QxOq/whGAPN2XmRIGU+ymEsEpEzQn2CvAwhffvTJdF
+YdAHE6AgCQvdLlPjf6zSn2TXk656C+dih71Wz/yF0+37QpVXtaim5wQCTKSEStdx
+JxlL673AGRq+a6iFcuOo7owjvmMdHuw9ql1ABaKFHoiVenKG+iEV5u1wGBpocUkT
+D5H9q9wXn8M3LCxkimel
+=uB+4
 -----END PGP SIGNATURE-----
 
---5CUMAwwhRxlRszMD--
+--5L6AZ1aJH5mDrqCQ--
