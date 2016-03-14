@@ -1,123 +1,77 @@
-From: Yakir Yang <ykk@rock-chips.com>
-Subject: [PATCH 2/2] ARM: dts: rockchip: add i2c nodes RK3228 SoCs
-Date: Mon, 14 Mar 2016 11:11:42 +0800
-Message-ID: <1457925102-30476-1-git-send-email-ykk@rock-chips.com>
-References: <1457924955-29996-1-git-send-email-ykk@rock-chips.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.130]:60443 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932489AbcCNDNv (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 13 Mar 2016 23:13:51 -0400
-In-Reply-To: <1457924955-29996-1-git-send-email-ykk@rock-chips.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: RE: [v6, 5/5] mmc: sdhci-of-esdhc: fix host version for
+	T4240-R1.0-R2.0
+Date: Mon, 14 Mar 2016 07:29:26 +0000
+Message-ID: <HE1PR04MB0889CE4742B92461A925B9C4F8880@HE1PR04MB0889.eurprd04.prod.outlook.com>
+References: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com>
+	<1457518131-11339-6-git-send-email-yangbo.lu@nxp.com>
+	<4947024.WeMycs2fID@wuerfel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <4947024.WeMycs2fID@wuerfel>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Zhao Qiang <qiang.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Scott Wood <scott.wood-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWOunwaRDDq4rA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Heiko Stuebner <heiko@sntech.de>, Rob Herring <robh+dt@kernel.org>
-Cc: Kumar Gala <galak@codeaurora.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, Yakir Yang <ykk@rock-chips.com>
 
-This patch add the i2c dt nodes for rk3228 SoCs.
+> -----Original Message-----
+> From: Arnd Bergmann [mailto:arnd-r2nGTMty4D4@public.gmane.org]
+> Sent: Monday, March 14, 2016 6:26 AM
+> To: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> Cc: Yangbo Lu; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-
+> kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+> clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; iommu-cunTk1MwBs/ROKNJybVBZg@public.gmane.org
+> foundation.org; netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; Zhao Qiang; Russell King; Bhupesh Sharma; Joerg
+> Roedel; Santosh Shilimkar; Scott Wood; Rob Herring; Claudiu Manoil; Kumar
+> Gala; Yang-Leo Li; Xiaobo Xie
+> Subject: Re: [v6, 5/5] mmc: sdhci-of-esdhc: fix host version for T4240-
+> R1.0-R2.0
+> 
+> On Wednesday 09 March 2016 18:08:51 Yangbo Lu wrote:
+> > @@ -567,10 +580,20 @@ static void esdhc_init(struct platform_device
+> *pdev, struct sdhci_host *host)
+> >         struct sdhci_pltfm_host *pltfm_host;
+> >         struct sdhci_esdhc *esdhc;
+> >         u16 host_ver;
+> > +       u32 svr;
+> >
+> >         pltfm_host = sdhci_priv(host);
+> >         esdhc = sdhci_pltfm_priv(pltfm_host);
+> >
+> > +       fsl_guts_init();
+> > +       svr = fsl_guts_get_svr();
+> > +       if (svr) {
+> > +               esdhc->soc_ver = SVR_SOC_VER(svr);
+> > +               esdhc->soc_rev = SVR_REV(svr);
+> > +       } else {
+> > +               dev_err(&pdev->dev, "Failed to get SVR value!\n");
+> > +       }
+> > +
+> 
+> This makes the driver non-portable. Better identify the specific
+> workarounds based on the compatible string for this device, or add a
+> boolean DT property for the quirk.
+> 
+> 	Arnd
 
-Signed-off-by: Yakir Yang <ykk@rock-chips.com>
----
- arch/arm/boot/dts/rk3228.dtsi | 80 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 80 insertions(+)
+[Lu Yangbo-B47093] Hi Arnd, we did have a discussion about using DTS in v1 before.
+https://patchwork.kernel.org/patch/6834221/
 
-diff --git a/arch/arm/boot/dts/rk3228.dtsi b/arch/arm/boot/dts/rk3228.dtsi
-index 119ff12..a159296 100644
---- a/arch/arm/boot/dts/rk3228.dtsi
-+++ b/arch/arm/boot/dts/rk3228.dtsi
-@@ -185,6 +185,58 @@
- 		status = "disabled";
- 	};
- 
-+	i2c0: i2c@11050000 {
-+		compatible = "rockchip,rk3228-i2c";
-+		reg = <0x11050000 0x1000>;
-+		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clock-names = "i2c";
-+		clocks = <&cru PCLK_I2C0>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c0_xfer>;
-+		status = "disabled";
-+	};
-+
-+	i2c1: i2c@11060000 {
-+		compatible = "rockchip,rk3228-i2c";
-+		reg = <0x11060000 0x1000>;
-+		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clock-names = "i2c";
-+		clocks = <&cru PCLK_I2C1>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c1_xfer>;
-+		status = "disabled";
-+	};
-+
-+	i2c2: i2c@11070000 {
-+		compatible = "rockchip,rk3228-i2c";
-+		reg = <0x11070000 0x1000>;
-+		interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clock-names = "i2c";
-+		clocks = <&cru PCLK_I2C2>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c2_xfer>;
-+		status = "disabled";
-+	};
-+
-+	i2c3: i2c@11080000 {
-+		compatible = "rockchip,rk3228-i2c";
-+		reg = <0x11080000 0x1000>;
-+		interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clock-names = "i2c";
-+		clocks = <&cru PCLK_I2C3>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c3_xfer>;
-+		status = "disabled";
-+	};
-+
- 	pwm0: pwm@110b0000 {
- 		compatible = "rockchip,rk3288-pwm";
- 		reg = <0x110b0000 0x10>;
-@@ -349,6 +401,34 @@
- 			bias-disable;
- 		};
- 
-+		i2c0 {
-+			i2c0_xfer: i2c0-xfer {
-+				rockchip,pins = <0 0 RK_FUNC_1 &pcfg_pull_none>,
-+						<0 1 RK_FUNC_1 &pcfg_pull_none>;
-+			};
-+		};
-+
-+		i2c1 {
-+			i2c1_xfer: i2c1-xfer {
-+				rockchip,pins = <0 2 RK_FUNC_1 &pcfg_pull_none>,
-+						<0 3 RK_FUNC_1 &pcfg_pull_none>;
-+			};
-+		};
-+
-+		i2c2 {
-+			i2c2_xfer: i2c2-xfer {
-+				rockchip,pins = <2 20 RK_FUNC_1 &pcfg_pull_none>,
-+						<2 21 RK_FUNC_1 &pcfg_pull_none>;
-+			};
-+		};
-+
-+		i2c3 {
-+			i2c3_xfer: i2c3-xfer {
-+				rockchip,pins = <0 6 RK_FUNC_1 &pcfg_pull_none>,
-+						<0 7 RK_FUNC_1 &pcfg_pull_none>;
-+			};
-+		};
-+
- 		emmc {
- 			emmc_clk: emmc-clk {
- 				rockchip,pins = <2 7 RK_FUNC_2 &pcfg_pull_none>;
--- 
-1.9.1
+We don't have a separate DTS file for each revision of an SOC and if we did, we'd constantly have people using the wrong one.
+In addition, the device tree is stable ABI and errata are often discovered after device tree are deployed.
+See the link for details.
+
+So we decide to read SVR from the device-config/guts MMIO block other than using DTS.
+Thanks.
