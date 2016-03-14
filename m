@@ -1,56 +1,84 @@
-From: Shardar Shariff Md <smohammed@nvidia.com>
-Subject: [PATCH 2/2] i2c: tegra: add multimaster mode property to binding
-Date: Mon, 14 Mar 2016 14:14:34 +0530
-Message-ID: <1457945074-30020-2-git-send-email-smohammed@nvidia.com>
-References: <1457945074-30020-1-git-send-email-smohammed@nvidia.com>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH v3 02/14] i2c-octeon: Cleanup i2c-octeon driver
+Date: Mon, 14 Mar 2016 09:52:19 +0100
+Message-ID: <20160314085219.GA2503@hardcore>
+References: <cover.1457362545.git.jglauber@cavium.com>
+ <aea2307d9ff5295a0041d3a129dd3e95bf3bd04c.1457362545.git.jglauber@cavium.com>
+ <20160312153459.GD1661@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:11237 "EHLO
-	hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754856AbcCNIpu (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Mar 2016 04:45:50 -0400
-In-Reply-To: <1457945074-30020-1-git-send-email-smohammed@nvidia.com>
+Received: from mail-by2on0054.outbound.protection.outlook.com ([207.46.100.54]:34435
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755329AbcCNIwf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 14 Mar 2016 04:52:35 -0400
+Content-Disposition: inline
+In-Reply-To: <20160312153459.GD1661@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: ldewangan@nvidia.com, wsa@the-dreams.de, swarren@wwwdotorg.org, thierry.reding@gmail.com, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, smohammed@nvidia.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
-- Document the usage "nvidia,multimaster-mode" property
-for enabling multimaster mode.
-- Add compatible string for Tegra 210 SOC.
+On Sat, Mar 12, 2016 at 04:35:00PM +0100, Wolfram Sang wrote:
+> On Mon, Mar 07, 2016 at 04:10:45PM +0100, Jan Glauber wrote:
+> > Cleanup only without functional change.
+> 
+> I like most of the changes, but there are still some functional changes
+> left.
+> 
+> > -static int octeon_i2c_stop(struct octeon_i2c *i2c)
+> > +/* send STOP to the bus */
+> > +static void octeon_i2c_stop(struct octeon_i2c *i2c)
+> >  {
+> >  	u8 data;
+> >  
+> > @@ -266,11 +259,8 @@ static int octeon_i2c_stop(struct octeon_i2c *i2c)
+> >  
+> >  	data = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
+> >  
+> > -	if (data != STAT_IDLE) {
+> > +	if (data != STAT_IDLE)
+> >  		dev_err(i2c->dev, "%s: bad status(0x%x)\n", __func__, data);
+> > -		return -EIO;
+> > -	}
+> > -	return 0;
+> 
+> Why this change? I don't know what SW_TWSI_EOP_TWSI_STAT tells, but this
+> is surely not a cleanup.
 
-Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
----
- Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt | 4 ++++
- 1 file changed, 4 insertions(+)
+It is no functional change because the return value of
+octeon_i2c_stop() was ignored anyway. That said, the whole read-back of
+the status and the dev_err looks like debug code to me and is removed
+in a later patch anyway. I'll incoporate this in the cleanup,
+so octeon_i2c_stop() will only do the write.
 
-diff --git a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-index 87507e9..fa5eb35 100644
---- a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-@@ -2,6 +2,7 @@ NVIDIA Tegra20/Tegra30/Tegra114 I2C controller driver.
- 
- Required properties:
- - compatible : should be:
-+	"nvidia,tegra210-i2c"
- 	"nvidia,tegra114-i2c"
- 	"nvidia,tegra30-i2c"
- 	"nvidia,tegra20-i2c"
-@@ -56,6 +57,8 @@ Required properties:
- - dma-names: Must include the following entries:
-   - rx
-   - tx
-+- nvidia,multimaster-mode: Must contain an entry for the bus operating
-+  in multimaster mode.
- 
- Example:
- 
-@@ -71,5 +74,6 @@ Example:
- 		reset-names = "i2c";
- 		dmas = <&apbdma 16>, <&apbdma 16>;
- 		dma-names = "rx", "tx";
-+		nvidia,multimaster-mode;
- 		status = "disabled";
- 	};
--- 
-1.8.1.5
+> >  	octeon_i2c_stop(i2c);
+> >  
+> > -	return (ret != 0) ? ret : num;
+> > +	return ret ? -EAGAIN : num;
+> 
+> This is also not a cleanup and looks wrong. -EAGAIN is for lost
+> arbitration only.
+
+I agree, this looks like an over-simplification and drops
+the EINVAL/ETIMEDOUT/EIO errors. I'll drop that completely.
+
+> >  
+> > -static struct of_device_id octeon_i2c_match[] = {
+> > -	{
+> > -		.compatible = "cavium,octeon-3860-twsi",
+> > -	},
+> > +static const struct of_device_id octeon_i2c_match[] = {
+> > +	{	.compatible = "cavium,octeon-3860-twsi",	},
+> 
+> Nit: I'd prefer no tabs within the curly braces.
+
+Agreed.
+
+thanks, Jan
+
+> Thanks,
+> 
+>    Wolfram
+> 
