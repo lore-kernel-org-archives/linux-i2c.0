@@ -1,280 +1,112 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: tegra: enable multi master mode
-Date: Mon, 14 Mar 2016 10:01:58 +0100
-Message-ID: <20160314090158.GA1383@katana>
-References: <1457945074-30020-1-git-send-email-smohammed@nvidia.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH] i2c: i2c-core: do not use bus internal data
+Date: Mon, 14 Mar 2016 10:18:19 +0100
+Message-ID: <20160314091819.GA27975@ulmo>
+References: <1457351357-13457-1-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35512 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755487AbcCNJCL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 14 Mar 2016 05:02:11 -0400
+Received: from mail-wm0-f50.google.com ([74.125.82.50]:36074 "EHLO
+	mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932438AbcCNJSX (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Mar 2016 05:18:23 -0400
 Content-Disposition: inline
-In-Reply-To: <1457945074-30020-1-git-send-email-smohammed@nvidia.com>
+In-Reply-To: <1457351357-13457-1-git-send-email-sudipm.mukherjee@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Shardar Shariff Md <smohammed@nvidia.com>
-Cc: ldewangan@nvidia.com, swarren@wwwdotorg.org, thierry.reding@gmail.com, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, gregkh@linuxfoundation.org
 
 
---ikeVEW9yuYc//A+q
+--vkogqOf2sHV7VnPd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 14, 2016 at 02:14:33PM +0530, Shardar Shariff Md wrote:
-> Enable multi-master mode in I2C_CNFG reg based on hw features.
-> Using single/multi-master mode bit introduced for Tegra210,
-> whereas multi-master mode is enabled by default in HW for T124 and
-> earlier Tegra SOC. Enabling this bit doesn't explicitly start
-> treating the bus has having multiple masters, but will start
-> checking for arbitration lost and reporting when it occurs.
+On Mon, Mar 07, 2016 at 05:19:17PM +0530, Sudip Mukherjee wrote:
+> The variable p is a data structure which is used by the driver core
+> internally and it is not expected that busses will be directly accessing
+> these driver core internal only data.
 >=20
-> The Tegra210 I2C controller supports single/multi master mode.
-> Add chipdata for Tegra210 and its compatibility string so that
-> Tegra210 will select data that enables multi master mode correctly.
->=20
-> Add "nvidia,multimaster-mode" property to enable multimaster specific
-> prerequisites:
-
-Please check Documentation/devicetree/bindings/i2c/i2c.txt. There is a
-generic "multi-master" binding already.
-
-> 1. Enable 1st level clock always set.
-> 2. Disable 2nd level clock gating (slcg which is supported from
->    T124 SOC and later chips)
->=20
-> Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+> Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 > ---
->  drivers/i2c/busses/i2c-tegra.c | 70 ++++++++++++++++++++++++++++++++++++=
-++----
->  1 file changed, 64 insertions(+), 6 deletions(-)
 >=20
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegr=
-a.c
-> index efba1eb..ce99d02 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -38,6 +38,7 @@
->  #define I2C_CNFG_DEBOUNCE_CNT_SHIFT		12
->  #define I2C_CNFG_PACKET_MODE_EN			(1<<10)
->  #define I2C_CNFG_NEW_MASTER_FSM			(1<<11)
-> +#define I2C_CNFG_MULTI_MASTER_MODE		(1<<17)
->  #define I2C_STATUS				0x01C
->  #define I2C_SL_CNFG				0x020
->  #define I2C_SL_CNFG_NACK			(1<<1)
-> @@ -133,6 +134,8 @@ struct tegra_i2c_hw_feature {
->  	bool has_single_clk_source;
->  	int clk_divisor_hs_mode;
->  	int clk_divisor_std_fast_mode;
-> +	bool has_multi_master_mode;
-> +	bool has_slcg_override_reg;
->  };
+> Reference of Greg's comment about it at:
+> https://lkml.org/lkml/2016/3/5/171
+>=20
+>  drivers/i2c/i2c-core.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 2949ab3..2f31fb5 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -73,6 +73,7 @@ static struct device_type i2c_client_type;
+>  static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *dr=
+iver);
 > =20
->  /**
-> @@ -173,6 +176,7 @@ struct tegra_i2c_dev {
->  	int msg_read;
->  	u32 bus_clk_rate;
->  	bool is_suspended;
-> +	bool is_multimaster_mode;
->  };
+>  static struct static_key i2c_trace_msg =3D STATIC_KEY_INIT_FALSE;
+> +static bool is_registered;
 > =20
->  static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned =
-long reg)
-> @@ -185,6 +189,9 @@ static u32 dvc_readl(struct tegra_i2c_dev *i2c_dev, u=
-nsigned long reg)
->  	return readl(i2c_dev->base + reg);
->  }
+>  void i2c_transfer_trace_reg(void)
+>  {
+> @@ -1529,7 +1530,7 @@ static int i2c_register_adapter(struct i2c_adapter =
+*adap)
+>  	int res =3D 0;
 > =20
-> +#define I2C_CLKEN_OVERRIDE			0x090
-> +#define I2C_MST_CORE_CLKEN_OVR			(1 << 0)
-> +
->  /*
->   * i2c_writel and i2c_readl will offset the register if necessary to talk
->   * to the I2C block inside the DVC block
-> @@ -424,6 +431,10 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_=
-dev)
-> =20
->  	val =3D I2C_CNFG_NEW_MASTER_FSM | I2C_CNFG_PACKET_MODE_EN |
->  		(0x2 << I2C_CNFG_DEBOUNCE_CNT_SHIFT);
-> +
-> +	if (i2c_dev->hw->has_multi_master_mode)
-> +		val |=3D I2C_CNFG_MULTI_MASTER_MODE;
-> +
->  	i2c_writel(i2c_dev, val, I2C_CNFG);
->  	i2c_writel(i2c_dev, 0, I2C_INT_MASK);
-> =20
-> @@ -449,6 +460,9 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_d=
-ev)
->  	if (tegra_i2c_flush_fifos(i2c_dev))
->  		err =3D -ETIMEDOUT;
-> =20
-> +	if (i2c_dev->is_multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
-> +		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
-> +
->  	tegra_i2c_clock_disable(i2c_dev);
-> =20
->  	if (i2c_dev->irq_disabled) {
-> @@ -660,6 +674,20 @@ static u32 tegra_i2c_func(struct i2c_adapter *adap)
->  	return ret;
->  }
-> =20
-> +static void tegra_i2c_parse_dt(struct tegra_i2c_dev *i2c_dev)
-> +{
-> +	struct device_node *np =3D i2c_dev->dev->of_node;
-> +	int ret;
-> +
-> +	ret =3D of_property_read_u32(np, "clock-frequency",
-> +			&i2c_dev->bus_clk_rate);
-> +	if (ret)
-> +		i2c_dev->bus_clk_rate =3D 100000; /* default clock rate */
-> +
-> +	i2c_dev->is_multimaster_mode =3D of_property_read_bool(np,
-> +			"nvidia,multimaster-mode");
-> +}
-> +
->  static const struct i2c_algorithm tegra_i2c_algo =3D {
->  	.master_xfer	=3D tegra_i2c_xfer,
->  	.functionality	=3D tegra_i2c_func,
-> @@ -671,6 +699,8 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_=
-hw =3D {
->  	.has_single_clk_source =3D false,
->  	.clk_divisor_hs_mode =3D 3,
->  	.clk_divisor_std_fast_mode =3D 0,
-> +	.has_multi_master_mode =3D false,
-> +	.has_slcg_override_reg =3D false,
->  };
-> =20
->  static const struct tegra_i2c_hw_feature tegra30_i2c_hw =3D {
-> @@ -679,6 +709,8 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_=
-hw =3D {
->  	.has_single_clk_source =3D false,
->  	.clk_divisor_hs_mode =3D 3,
->  	.clk_divisor_std_fast_mode =3D 0,
-> +	.has_multi_master_mode =3D false,
-> +	.has_slcg_override_reg =3D false,
->  };
-> =20
->  static const struct tegra_i2c_hw_feature tegra114_i2c_hw =3D {
-> @@ -687,10 +719,25 @@ static const struct tegra_i2c_hw_feature tegra114_i=
-2c_hw =3D {
->  	.has_single_clk_source =3D true,
->  	.clk_divisor_hs_mode =3D 1,
->  	.clk_divisor_std_fast_mode =3D 0x19,
-> +	.has_multi_master_mode =3D false,
-> +	.has_slcg_override_reg =3D false,
->  };
-> =20
-> +static const struct tegra_i2c_hw_feature tegra210_i2c_hw =3D {
-> +	.has_continue_xfer_support =3D true,
-> +	.has_per_pkt_xfer_complete_irq =3D true,
-> +	.has_single_clk_source =3D true,
-> +	.clk_divisor_hs_mode =3D 1,
-> +	.clk_divisor_std_fast_mode =3D 0x19,
-> +	.has_config_load_reg =3D true,
-> +	.has_multi_master_mode =3D true,
-> +	.has_slcg_override_reg =3D true,
-> +};
-> +
-> +
->  /* Match table for of_platform binding */
->  static const struct of_device_id tegra_i2c_of_match[] =3D {
-> +	{ .compatible =3D "nvidia,tegra210-i2c", .data =3D &tegra210_i2c_hw, },
->  	{ .compatible =3D "nvidia,tegra114-i2c", .data =3D &tegra114_i2c_hw, },
->  	{ .compatible =3D "nvidia,tegra30-i2c", .data =3D &tegra30_i2c_hw, },
->  	{ .compatible =3D "nvidia,tegra20-i2c", .data =3D &tegra20_i2c_hw, },
-> @@ -745,10 +792,7 @@ static int tegra_i2c_probe(struct platform_device *p=
-dev)
->  		return PTR_ERR(i2c_dev->rst);
+>  	/* Can't register until after driver model init */
+> -	if (unlikely(WARN_ON(!i2c_bus_type.p))) {
+> +	if (unlikely(WARN_ON(!is_registered))) {
+>  		res =3D -EAGAIN;
+>  		goto out_list;
 >  	}
+> @@ -1926,7 +1927,7 @@ int i2c_register_driver(struct module *owner, struc=
+t i2c_driver *driver)
+>  	int res;
 > =20
-> -	ret =3D of_property_read_u32(i2c_dev->dev->of_node, "clock-frequency",
-> -					&i2c_dev->bus_clk_rate);
-> -	if (ret)
-> -		i2c_dev->bus_clk_rate =3D 100000; /* default clock rate */
-> +	tegra_i2c_parse_dt(i2c_dev);
+>  	/* Can't register until after driver model init */
+> -	if (unlikely(WARN_ON(!i2c_bus_type.p)))
+> +	if (unlikely(WARN_ON(!is_registered)))
+>  		return -EAGAIN;
 > =20
->  	i2c_dev->hw =3D &tegra20_i2c_hw;
+>  	/* add the driver to the list of i2c drivers in the driver core */
+> @@ -2118,6 +2119,7 @@ static int __init i2c_init(void)
+>  	if (IS_ENABLED(CONFIG_OF_DYNAMIC))
+>  		WARN_ON(of_reconfig_notifier_register(&i2c_of_notifier));
 > =20
-> @@ -796,6 +840,13 @@ static int tegra_i2c_probe(struct platform_device *p=
-dev)
->  		goto unprepare_fast_clk;
->  	}
-> =20
-> +	if (i2c_dev->is_multimaster_mode) {
-> +		ret =3D clk_enable(i2c_dev->div_clk);
-> +		dev_err(i2c_dev->dev, "div_clk enable failed %d\n",
-> +				ret);
-> +		goto unprepare_div_clk;
-> +	}
-> +
->  	ret =3D tegra_i2c_init(i2c_dev);
->  	if (ret) {
->  		dev_err(&pdev->dev, "Failed to initialize i2c controller");
-> @@ -806,7 +857,7 @@ static int tegra_i2c_probe(struct platform_device *pd=
-ev)
->  			tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
->  	if (ret) {
->  		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
-> -		goto unprepare_div_clk;
-> +		goto disable_div_clk;
->  	}
-> =20
->  	i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
-> @@ -822,11 +873,15 @@ static int tegra_i2c_probe(struct platform_device *=
-pdev)
->  	ret =3D i2c_add_numbered_adapter(&i2c_dev->adapter);
->  	if (ret) {
->  		dev_err(&pdev->dev, "Failed to add I2C adapter\n");
-> -		goto unprepare_div_clk;
-> +		goto disable_div_clk;
->  	}
-> =20
+> +	is_registered =3D true;
 >  	return 0;
 > =20
-> +disable_div_clk:
-> +	if (i2c_dev->is_multimaster_mode)
-> +		clk_disable(i2c_dev->div_clk);
-> +
->  unprepare_div_clk:
->  	clk_unprepare(i2c_dev->div_clk);
-> =20
-> @@ -842,6 +897,9 @@ static int tegra_i2c_remove(struct platform_device *p=
-dev)
->  	struct tegra_i2c_dev *i2c_dev =3D platform_get_drvdata(pdev);
->  	i2c_del_adapter(&i2c_dev->adapter);
-> =20
-> +	if (i2c_dev->is_multimaster_mode)
-> +		clk_disable(i2c_dev->div_clk);
-> +
->  	clk_unprepare(i2c_dev->div_clk);
->  	if (!i2c_dev->hw->has_single_clk_source)
->  		clk_unprepare(i2c_dev->fast_clk);
-> --=20
-> 1.8.1.5
->=20
+>  class_err:
 
---ikeVEW9yuYc//A+q
+This doesn't work. I see a number of these WARN_ON()s trigger and I
+think the reason is that i2c_init() always fails now. The cause seems to
+be that i2c_init() calls i2c_add_driver(&dummy_driver), which will now
+always fail, because is_register is set to true *after* that call. There
+is no way I see I2C working at all after this patch.
+
+Thierry
+
+--vkogqOf2sHV7VnPd
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v2
 
-iQIcBAEBAgAGBQJW5n4GAAoJEBQN5MwUoCm2LjQP/3h3HBbJyF4ArwNee3AAxfXm
-hC8BblV5ZHyql5/M25OOQBr1IvAhw3zvKrv1TXk/dJ5w5b0TzUREoVZTz5ut7Qnq
-BybfAIUYQptT5B+E5Xo9VM3Sgrq5rFs62MLP1KCc9vk5XXhVVr3EFooJqebxJ0WA
-jRbAGio95Zco82Fh9fev+9ZYm4LjpVukPKhzSECay79gKtHfAFrUuJ4RERF5O3z7
-VvfF7qsAZ/o9BLF3vu1QOuh1NU684vM3UZ6i2xJHIhN0TkB22a176U89JfIKMcE1
-NyVYSTuSNwESonCST/h1LLWrbwnTzIu4skk6FcCYSHA4b4686PKhEzkzQ8dzVrZH
-A61ru6E3C4EAqBkcZ6iTi3tPZX2cURMnpyUMxsaOtB1Ez+odAs+UJLmAVfbyxDnl
-SM6cnP3GUy5BfhZk/ihWq2scZ3Gd0NmAu7N6pWTzFI3hWS0O2Y3ZR0/xPmSRDSWh
-YSrpe7Me9CUuM7Estr9o4ts8jN1yqERSW+Uumsjhblqujv1w3CL9TsHgBZ2sInZb
-/TBgYMf+epTesgKgNq4kxXjcn5lbahfnQYIV3a1AtECJz/aVtMBiQbZLg1UxhdEu
-Pt402AzU6NRwAm0mnvMydfPgFJjqd9RfJoYnGawq3aA3sUfhKToNSNa6oOW+ckJl
-vJ5WXDBctwZs7aM9pQx9
-=Wfb9
+iQIcBAABCAAGBQJW5oHXAAoJEN0jrNd/PrOhz+EP/i0MmjqzAwYApIdyAwhABkUj
+jETLGqUHEZdbGlKcwtfb52TUqtwFvAmYw1Qz7hyqO4LPBZ2NNBBXhGlHWN8BVkZa
+JwOjopH4IosGlc3q0ck5pGKdQFB+dKbmlHR+r84doKe4utc558t89CYkE6ytsFrZ
+WcG89ngba4OxpQ41XTZW1o0cVXsUaNopqSnSB4OvPJVB3Z19EawkTeCC6u7ZBu0l
+n9efRJ8hRfWypZB0SdPLTiGm/JLQLovZTGNrJ50QG7Wn/6mlhl2l8X/fhD9p7tz0
+FyvccRU05AgE07L4zA0w9/izGV19SpxsdYBsVPfyMVwuR81aR8yZRKR64hZFiWZp
+UOblqLNgkohtLOXjYBY0O1UtQlXSBd3GURM/AhtwM/g06AlHb9sGGQm6mv2bRzia
+0AQNScgbUzwwOhVSyF4g0vg5oIS4TJPtIH3J5S23AqI8AUH8vAjbuuQT3+yZpboJ
+7TwuEmE5F+K7zccVg/8wotU/4VY7AibHBiaWthp7g64PmV7Aj716K6kOcNWUeMLe
+Q2FqbSbOr6ZmWUPbqRO/XAxckztKlDBBAy++qkdaO2vcI+QV09jLNeo/fJr1/n8/
+20i9BmE+DyWlFT+ythpmJgCdWf9VvwRvBcLfXMv0eQYnMU3ELjsqzV5mwzNRhWou
+KTOKy6UJ8TqLiu5DjFcb
+=xiUR
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--vkogqOf2sHV7VnPd--
