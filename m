@@ -1,38 +1,58 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH] i2c: i2c-core: do not use bus internal data
-Date: Mon, 14 Mar 2016 19:55:34 +0530
-Message-ID: <20160314142534.GC5699@sudip-laptop>
-References: <1457351357-13457-1-git-send-email-sudipm.mukherjee@gmail.com>
- <20160314091819.GA27975@ulmo>
- <20160314092809.GC1383@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: immediately mark ourselves as registered
+Date: Mon, 14 Mar 2016 15:58:51 +0100
+Message-ID: <20160314145850.GA15426@katana>
+References: <1457949206-7226-1-git-send-email-wsa@the-dreams.de>
+ <20160314141903.GB5699@sudip-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:32945 "EHLO
-	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934173AbcCNOZi (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Mar 2016 10:25:38 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160314092809.GC1383@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20160314141903.GB5699@sudip-laptop>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Thierry Reding <thierry.reding@gmail.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, gregkh@linuxfoundation.org
 
-On Mon, Mar 14, 2016 at 10:28:10AM +0100, Wolfram Sang wrote:
-> 
-> > This doesn't work. I see a number of these WARN_ON()s trigger and I
-> > think the reason is that i2c_init() always fails now. The cause seems to
-> > be that i2c_init() calls i2c_add_driver(&dummy_driver), which will now
-> > always fail, because is_register is set to true *after* that call. There
-> > is no way I see I2C working at all after this patch.
-> 
-> Same conclusion here. Too much trust applied to the original patch, mea
-> culpa and sorry! Will send the fixup (tested!) in a minute.
 
-Sorry for the mess. Fengguang Wu did send me a warning, but since I was
-travelling i could not do much with it.
-Sorry again.
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-regards
-sudip
+> @@ -2128,6 +2130,7 @@ class_err:
+>  bus_err:
+>  #endif
+>  	bus_unregister(&i2c_bus_type);
+> +	is_registered = false;
+
+Right. Fixed up locally, above the bus_unregister though. Thanks!
+
+> Sorry again for the previous patch.
+
+Things happen. Next time, just say it is untested, or better: Test
+before sending. I'll pay more attention, too. Case closed.
+
+
+--MGYHOYXEY6WxJCY8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW5tGqAAoJEBQN5MwUoCm2P34QAKHSI8HA4ID/wR5LKY/OvmdM
+CxaEew5wN6xFYUJI7nLnyNsTz5ecsejbcW4cnjTIrlkwUu3qYZbO6VkX5g4QzM8n
+FbraO/1S+nNbLBmD26Fn1uwmqzOkUurwQNRpOYmRVnhO67hznDRzTRqgk5I2DIrW
+fezITYkgnMP48I2a1ooL2i4qrUc16mkDJ0TW+n4jsouSPPBoWeKQ4go8hM/sUK99
+KzYJDzxKqLu1zsoj7MObANyAIq4LkDsd7/3tSJwLCeTTl55Zx8eJ9cZ9pNWlwwJg
+i8MfIznO+8oyOt3IF8imRuVgoD7LNlQ5KQgUI56msE7r3ABvk+Zs0cuAqdKr0vaf
+DOzZzNBMBX/AKvqEFWkR6P7bOMPfuBqYKPnRKeAEs7HHQ0lL8PBExkFoHmFoCD+F
+tK01gKpbJFTsqEcA3Bq1jbFxGLA3rqJBzrgXSs+A3l0l3GnzpJzsT6aK9P7j6+NF
+mOMPASAFJI+OOcvF4NGCCIqmCQMi5PwHzfQiVg9zLamUtqSNfwXdQyLKB3VpO0pn
+S7cP7+ZZ76LoAPep5A5s4asbKMYHlAiW72zUfNime93hRKdjpDg4V22sQRN4Fnl5
+JU5tpCx5lGnQtC0K5LuvtCJMXw8npIwlaDGYh/PYT5rNa+u2vXNYVJqhJQuuLK1I
+BYMF1lyn8kaxWofXMO7X
+=Ihwn
+-----END PGP SIGNATURE-----
+
+--MGYHOYXEY6WxJCY8--
