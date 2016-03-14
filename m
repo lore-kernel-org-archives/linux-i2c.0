@@ -1,58 +1,91 @@
-From: "Swain, Peter" <Peter.Swain@caviumnetworks.com>
-Subject: Re: [PATCH v3 05/14] i2c-octeon: Make adapter timeout tunable
-Date: Mon, 14 Mar 2016 17:21:47 +0000
-Message-ID: <BLUPR0701MB2067C09B7C009361EAE7B93B87880@BLUPR0701MB2067.namprd07.prod.outlook.com>
-References: <cover.1457362545.git.jglauber@cavium.com>
- <00a182c50af211e409f128630ba6ba5359da6198.1457362545.git.jglauber@cavium.com>
- <20160312154611.GH1661@katana>,<20160314124505.GA5771@hardcore>
+From: Scott Wood <scott.wood@nxp.com>
+Subject: Re: [v6, 5/5] mmc: sdhci-of-esdhc: fix host version for
+ T4240-R1.0-R2.0
+Date: Mon, 14 Mar 2016 17:45:43 +0000
+Message-ID: <DB5PR0401MB19286B2D23D07F5C60DB799D91880@DB5PR0401MB1928.eurprd04.prod.outlook.com>
+References: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com>
+ <1457518131-11339-6-git-send-email-yangbo.lu@nxp.com>
+ <4947024.WeMycs2fID@wuerfel>
+ <HE1PR04MB0889CE4742B92461A925B9C4F8880@HE1PR04MB0889.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bl2on0068.outbound.protection.outlook.com ([65.55.169.68]:1059
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751216AbcCNRg4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Mar 2016 13:36:56 -0400
-In-Reply-To: <20160314124505.GA5771@hardcore>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Yangbo Lu <yangbo.lu@nxp.com>, Arnd Bergmann <arnd@arndb.de>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Zhao Qiang <qiang.zhao@freescale.com>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Joerg Roedel <joro@8bytes.org>, Kumar Gala <galak@codeaurora.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Yang-Leo Li <leoyang.li@nxp.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, Rob Herring <robh+dt@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Santosh Shilimkar <ssantosh@kernel.org>, Xiaobo Xie <xiaobo.xie@nxp.com>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, linux-arm-kernel@lists.infradead.
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Glauber <Jan.Glauber@caviumnetworks.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Daney, David" <David.Daney@caviumnetworks.com>, Peter Swain <pswain@cavium.com>
 
+On 03/14/2016 02:29 AM, Yangbo Lu wrote:
+>> -----Original Message-----
+>> From: Arnd Bergmann [mailto:arnd@arndb.de]
+>> Sent: Monday, March 14, 2016 6:26 AM
+>> To: linuxppc-dev@lists.ozlabs.org
+>> Cc: Yangbo Lu; devicetree@vger.kernel.org; linux-arm-
+>> kernel@lists.infradead.org; linux-kernel@vger.kernel.org; linux-
+>> clk@vger.kernel.org; linux-i2c@vger.kernel.org; iommu@lists.linux-
+>> foundation.org; netdev@vger.kernel.org; linux-mmc@vger.kernel.org;
+>> ulf.hansson@linaro.org; Zhao Qiang; Russell King; Bhupesh Sharma; Joerg
+>> Roedel; Santosh Shilimkar; Scott Wood; Rob Herring; Claudiu Manoil; Kumar
+>> Gala; Yang-Leo Li; Xiaobo Xie
+>> Subject: Re: [v6, 5/5] mmc: sdhci-of-esdhc: fix host version for T4240-
+>> R1.0-R2.0
+>>
+>> On Wednesday 09 March 2016 18:08:51 Yangbo Lu wrote:
+>>> @@ -567,10 +580,20 @@ static void esdhc_init(struct platform_device
+>> *pdev, struct sdhci_host *host)
+>>>         struct sdhci_pltfm_host *pltfm_host;
+>>>         struct sdhci_esdhc *esdhc;
+>>>         u16 host_ver;
+>>> +       u32 svr;
+>>>
+>>>         pltfm_host =3D sdhci_priv(host);
+>>>         esdhc =3D sdhci_pltfm_priv(pltfm_host);
+>>>
+>>> +       fsl_guts_init();
+>>> +       svr =3D fsl_guts_get_svr();
+>>> +       if (svr) {
+>>> +               esdhc->soc_ver =3D SVR_SOC_VER(svr);
+>>> +               esdhc->soc_rev =3D SVR_REV(svr);
+>>> +       } else {
+>>> +               dev_err(&pdev->dev, "Failed to get SVR value!\n");
+>>> +       }
+>>> +
+>>
+>> This makes the driver non-portable. Better identify the specific
+>> workarounds based on the compatible string for this device, or add a
+>> boolean DT property for the quirk.
+>>
+>> 	Arnd
+> =
 
-Agreed, this timeout modparam can go, it serves no purpose which can't be achieved with existing ioctl.
+> [Lu Yangbo-B47093] Hi Arnd, we did have a discussion about using DTS in v=
+1 before.
+> https://patchwork.kernel.org/patch/6834221/
+> =
 
-It was introduced during debug to reduce spurious error count while hunting an issue finally resolved by the 80uS IFLG re-poll. But the same effect is achieved by (for example) the at24 driver's retry at 25mS timeout. The issue there is not timeout _within_ command, but failure to respect a 25mS post-write recovery time before next access to the at24, and the existing at24-level retry works well (though delaying the presentation of the next at24 transaction _within_ the at24 driver would have lead to less bus-level churn).
-Leaving this adapter tuning out affects nothing but the (normally invisible) adapter-level retry count, which is better addressed within the target device's code, like at24 does. Default is ioctl-tweakable, so users wanting fine tuning have a mechanism.
+> We don=92t have a separate DTS file for each revision of an SOC and if we=
+ did, we'd constantly have people using the wrong one.
+> In addition, the device tree is stable ABI and errata are often discovere=
+d after device tree are deployed.
+> See the link for details.
+> =
 
--pete
+> So we decide to read SVR from the device-config/guts MMIO block other tha=
+n using DTS.
+> Thanks.
 
-________________________________________
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Sent: Monday, March 14, 2016 5:45 AM
-To: Wolfram Sang
-Cc: linux-kernel@vger.kernel.org; linux-i2c@vger.kernel.org; Daney, David; Peter Swain
-Subject: Re: [PATCH v3 05/14] i2c-octeon: Make adapter timeout tunable
+Also note that this driver is already only for fsl-specific hardware,
+and it will still work even if fsl_guts doesn't find anything to bind to
+-- it just wouldn't be able to detect errata based on SVR in that case.
 
-On Sat, Mar 12, 2016 at 04:46:12PM +0100, Wolfram Sang wrote:
-> On Mon, Mar 07, 2016 at 04:10:48PM +0100, Jan Glauber wrote:
-> > From: Peter Swain <pswain@cavium.com>
-> >
-> > Make the i2c adapter timeout a module parameter to allow upper-level
-> > target device drivers to retry with their own logic before their own
-> > timeouts abort operations.
-> >
-> > For example, at24 eeprom driver retries for 25ms when -EAGAIN
-> > indicates that an eeprom has gone unresponsive while committing
-> > a newly written page (5ms on typical devices).
-> >
-> > Signed-off-by: Peter Swain <pswain@cavium.com>
-> > Signed-off-by: Jan Glauber <jglauber@cavium.com>
->
-> i2c-dev has IOCTLs for timeout and retries. Can't you use those?
->
-
-Yes, with these IOCTLs we don't need to add a module parameter
-so I'll drop that.
+-Scott
