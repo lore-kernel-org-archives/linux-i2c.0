@@ -1,40 +1,47 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [v6, 5/5] mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
-Date: Sun, 13 Mar 2016 23:26:28 +0100
-Message-ID: <4947024.WeMycs2fID@wuerfel>
-References: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com> <1457518131-11339-6-git-send-email-yangbo.lu@nxp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-clk-owner@vger.kernel.org>
-In-Reply-To: <1457518131-11339-6-git-send-email-yangbo.lu@nxp.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: linuxppc-dev@lists.ozlabs.org
-Cc: Yangbo Lu <yangbo.lu@nxp.com>, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, ulf.hansson@linaro.org, Zhao Qiang <qiang.zhao@freescale.com>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Joerg Roedel <joro@8bytes.org>, Santosh Shilimkar <ssantosh@kernel.org>, scott.wood@nxp.com, Rob Herring <robh+dt@kernel.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Kumar Gala <galak@codeaurora.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com
+From: Yakir Yang <ykk@rock-chips.com>
+Subject: [PATCH 1/2] i2c: rk3x: add support for rk3228
+Date: Mon, 14 Mar 2016 11:09:15 +0800
+Message-ID: <1457924955-29996-1-git-send-email-ykk@rock-chips.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Heiko Stuebner <heiko@sntech.de>, Rob Herring <robh+dt@kernel.org>
+Cc: Kumar Gala <galak@codeaurora.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, Yakir Yang <ykk@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 09 March 2016 18:08:51 Yangbo Lu wrote:
-> @@ -567,10 +580,20 @@ static void esdhc_init(struct platform_device *pdev, struct sdhci_host *host)
->         struct sdhci_pltfm_host *pltfm_host;
->         struct sdhci_esdhc *esdhc;
->         u16 host_ver;
-> +       u32 svr;
->  
->         pltfm_host = sdhci_priv(host);
->         esdhc = sdhci_pltfm_priv(pltfm_host);
->  
-> +       fsl_guts_init();
-> +       svr = fsl_guts_get_svr();
-> +       if (svr) {
-> +               esdhc->soc_ver = SVR_SOC_VER(svr);
-> +               esdhc->soc_rev = SVR_REV(svr);
-> +       } else {
-> +               dev_err(&pdev->dev, "Failed to get SVR value!\n");
-> +       }
-> +
+Enable the I2C core for this SoC.
 
-This makes the driver non-portable. Better identify the specific workarounds
-based on the compatible string for this device, or add a boolean DT property
-for the quirk.
+Signed-off-by: Yakir Yang <ykk@rock-chips.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 4 ++--
+ drivers/i2c/busses/i2c-rk3x.c                      | 1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-	Arnd
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+index f0d71bc..0b4a85f 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+@@ -6,8 +6,8 @@ RK3xxx SoCs.
+ Required properties :
+ 
+  - reg : Offset and length of the register set for the device
+- - compatible : should be "rockchip,rk3066-i2c", "rockchip,rk3188-i2c" or
+-		"rockchip,rk3288-i2c".
++ - compatible : should be "rockchip,rk3066-i2c", "rockchip,rk3188-i2c",
++		"rockchip,rk3228-i2c" or "rockchip,rk3288-i2c".
+  - interrupts : interrupt number
+  - clocks : parent clock
+ 
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 9096d17..3dcc5f3 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -855,6 +855,7 @@ static struct rk3x_i2c_soc_data soc_data[3] = {
+ static const struct of_device_id rk3x_i2c_match[] = {
+ 	{ .compatible = "rockchip,rk3066-i2c", .data = (void *)&soc_data[0] },
+ 	{ .compatible = "rockchip,rk3188-i2c", .data = (void *)&soc_data[1] },
++	{ .compatible = "rockchip,rk3228-i2c", .data = (void *)&soc_data[2] },
+ 	{ .compatible = "rockchip,rk3288-i2c", .data = (void *)&soc_data[2] },
+ 	{},
+ };
+-- 
+1.9.1
