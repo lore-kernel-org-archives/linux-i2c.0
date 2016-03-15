@@ -1,133 +1,114 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v5 1/4] i2c: add a protocol parameter to the alert
- callback
-Date: Tue, 15 Mar 2016 21:08:48 +0100
-Message-ID: <20160315200848.GQ22340@mail.corp.redhat.com>
-References: <1458053624-14818-1-git-send-email-benjamin.tissoires@redhat.com>
- <1458053624-14818-2-git-send-email-benjamin.tissoires@redhat.com>
- <20160315152940.GA5284@roeck-us.net>
+From: sergk sergk2mail <sergk.admin@gmail.com>
+Subject: Re: I2c client driver + ACPI on Baytrail & kernel 4.4.2 = ?
+Date: Tue, 15 Mar 2016 22:26:40 +0000
+Message-ID: <CA+V1LzqgXpm1nERbXD2MPHFFvsv8skm=-BKLdwYU-uU=RQUaYg@mail.gmail.com>
+References: <CA+V1LzrWqmx2GH6cs65mS=YHkvx+6wnnq7RpeYChH886pn5fog@mail.gmail.com>
+	<56E6ACBC.6010508@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160315152940.GA5284@roeck-us.net>
-Sender: linux-input-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qk0-f174.google.com ([209.85.220.174]:34329 "EHLO
+	mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932180AbcCOW0l (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Mar 2016 18:26:41 -0400
+Received: by mail-qk0-f174.google.com with SMTP id x1so13621137qkc.1
+        for <linux-i2c@vger.kernel.org>; Tue, 15 Mar 2016 15:26:40 -0700 (PDT)
+In-Reply-To: <56E6ACBC.6010508@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org
 
-On Mar 15 2016 or thereabouts, Guenter Roeck wrote:
-> On Tue, Mar 15, 2016 at 03:53:41PM +0100, Benjamin Tissoires wrote:
-> > .alert() is meant to be generic, but there is currently no way
-> > for the device driver to know which protocol generated the alert.
-> > Add a parameter in .alert() to help the device driver to understand
-> > what is given in data.
-> > 
-> > This patch is required to have the support of SMBus Host Notify protocol
-> > through .alert().
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >  drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
-> >  drivers/hwmon/lm90.c          | 3 ++-
-> >  drivers/i2c/i2c-smbus.c       | 3 ++-
-> >  include/linux/i2c.h           | 7 ++++++-
-> >  4 files changed, 15 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-> > index 5f1c3d0..84d07bc 100644
-> > --- a/drivers/char/ipmi/ipmi_ssif.c
-> > +++ b/drivers/char/ipmi/ipmi_ssif.c
-> > @@ -568,12 +568,16 @@ static void retry_timeout(unsigned long data)
-> >  }
-> >  
-> >  
-> > -static void ssif_alert(struct i2c_client *client, unsigned int data)
-> > +static void ssif_alert(struct i2c_client *client,
-> > +		       enum i2c_alert_protocol protocol, unsigned int data)
-> >  {
-> >  	struct ssif_info *ssif_info = i2c_get_clientdata(client);
-> >  	unsigned long oflags, *flags;
-> >  	bool do_get = false;
-> >  
-> > +	if (protocol != I2C_PROTOCOL_SMBUS_ALERT)
-> > +		return;
-> > +
-> >  	ssif_inc_stat(ssif_info, alerts);
-> >  
-> >  	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
-> > diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-> > index c9ff08d..2b77dbd 100644
-> > --- a/drivers/hwmon/lm90.c
-> > +++ b/drivers/hwmon/lm90.c
-> > @@ -1624,7 +1624,8 @@ static int lm90_remove(struct i2c_client *client)
-> >  	return 0;
-> >  }
-> >  
-> > -static void lm90_alert(struct i2c_client *client, unsigned int flag)
-> > +static void lm90_alert(struct i2c_client *client, enum i2c_alert_protocol type,
-> > +		       unsigned int flag)
-> >  {
-> 
-> For IPMI you added a check for the alert type. It would seem to be prudent to
-> add one here as well, unless you expect the driver to be able to handle all
-> alert types without modification. In that case, though, I would expect some
-> note that this is the case.
+Hi Jarko,
+Exploring sysfs shows:
 
-Hi Guenter,
+ls -l /sys/bus/acpi/devices/CHPN0001:00
+lrwxrwxrwx 1 root root 0 Mar 15 22:08
+/sys/bus/acpi/devices/CHPN0001:00 ->
+../../../devices/LNXSYSTM:00/LNXSYBUS:00/80860F41:03/CHPN0001:00
+root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/status
+0
 
-yes, this is a miss from my side. I'll update the series tomorrow.
-Hopefully by then, the kbuild bot will find the remaining issues (2 in a
-row is kind of shameful).
+status is 0 - what does this mean? It is detected via ACPI but not present?
+What does "LNXSYBUS:00/80860F41:03"  means?  Does it mean i2c-3, 0x41
+?  80860F41:03 == ?
 
-Cheers,
-Benjamin
+also inside its subfolders I do not see nothing useful:
 
-> 
-> Thnaks,
-> Guenter
-> 
-> >  	u16 alarms;
-> >  
-> > diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> > index abb55d3..3b6765a 100644
-> > --- a/drivers/i2c/i2c-smbus.c
-> > +++ b/drivers/i2c/i2c-smbus.c
-> > @@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
-> >  	if (client->dev.driver) {
-> >  		driver = to_i2c_driver(client->dev.driver);
-> >  		if (driver->alert)
-> > -			driver->alert(client, data->flag);
-> > +			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
-> > +				      data->flag);
-> >  		else
-> >  			dev_warn(&client->dev, "no driver alert()!\n");
-> >  	} else
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index 200cf13b..baae02a 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -126,6 +126,10 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
-> >  					  u8 command, u8 length, u8 *values);
-> >  #endif /* I2C */
-> >  
-> > +enum i2c_alert_protocol {
-> > +	I2C_PROTOCOL_SMBUS_ALERT,
-> > +};
-> > +
-> >  /**
-> >   * struct i2c_driver - represent an I2C device driver
-> >   * @class: What kind of i2c device we instantiate (for detect)
-> > @@ -181,7 +185,8 @@ struct i2c_driver {
-> >  	 * For the SMBus alert protocol, there is a single bit of data passed
-> >  	 * as the alert response's low bit ("event flag").
-> >  	 */
-> > -	void (*alert)(struct i2c_client *, unsigned int data);
-> > +	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
-> > +		      unsigned int data);
-> >  
-> >  	/* a ioctl like command that can be used to perform specific functions
-> >  	 * with the device.
-> > -- 
-> > 2.5.0
-> > 
+cat /sys/bus/acpi/devices/CHPN0001:00/adr
+0x00000000
+root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/hid
+CHPN0001
+root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/modalias
+acpi:CHPN0001:PNP0C50:
+root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/path
+\_SB_.I2C4.TCS5
+root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/uevent
+MODALIAS=acpi:CHPN0001:PNP0C50:
+root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/power/runtime_usage
+0
+root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/power/control
+auto
+root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/power/runtime_enabled
+disabled
+
+So the question is the same - how to obtain via acpi in mentioned
+above code i2cbus, bus addr and irq for this touch?
+
+Regards,
+                 Serge Kolotylo.
+
+On Mon, Mar 14, 2016 at 12:21 PM, Jarkko Nikula
+<jarkko.nikula@linux.intel.com> wrote:
+> Hi
+>
+> On 03/13/2016 02:43 PM, sergk sergk2mail wrote:
+>>
+>> Hi All,
+>> Please help to correct create i2c client with ACPI support for device
+>> (touchscreen) on i2c on vanilla 4.4.2 kernel x86_64 Baytrail,
+>> disrtibutive = Arch.
+>> ========================================================
+>> According kernel Documentation I have created such skeleton:
+>>
+>>
+>> #define DEVICE_NAME  "testme"
+>>
+>> static const struct acpi_device_id icn_ts_acpi_match[] = {
+>>      { "CHPN0001", 0 },
+>>      { "PNP05C0", 0 },
+>>      { },
+>> };
+>
+>
+> Touchscreen and PNPxxxx: can it be i2c-hid compatible touchscreen?
+>
+> Those typically have vendor specific ACPI _HID but device is matched using
+> ACPI PNP compatible ID (_CID) "PNP0C50" or "ACPI0C50". See
+> drivers/hid/i2c-hid/i2c-hid.c.
+>
+> Just thinking if you have device with _CID "PNP0C50" and either device is
+> matched before your driver with i2c-hid driver or your driver doesn't probe
+> because "PNP05C0" != "PNP0C50".
+>
+>> MAIN QUESTIONS:
+>>
+>> 1) What is wrong with i2c client driver code? Why it is NOT obtain
+>> info from ACPI DSD table?
+>>
+> Your example looks ok. Another what comes to my mind is the device actually
+> present. Sometimes DSDT tables may specify multiple alternative devices but
+> only one being actually connected. You could check that by reading the
+> device status which reads 15 if the device is present.
+>
+> cat /sys/bus/acpi/devices/ACPI01234/status
+> 15
+>
+>> 2) In which way should be created i2c dev while registering i2c acpi
+>> driver? Who\where\what and how should create this i2c device?
+>>
+> i2c-core registers the i2c devices connected to certain bus when adapter
+> device for that bus is registered in i2c-core.c: i2c_register_adapter().
+>
+> --
+> Jarkko
