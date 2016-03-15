@@ -1,208 +1,298 @@
-From: David Wu <wdc@rock-chips.com>
-Subject: [PATCH v4 1/3] i2c: rk3x: switch to i2c generic dt parsing
-Date: Tue, 15 Mar 2016 06:52:28 +0800
-Message-ID: <1457995950-46710-2-git-send-email-wdc@rock-chips.com>
-References: <1457995950-46710-1-git-send-email-wdc@rock-chips.com>
-Content-Type: text/plain; charset="utf-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1457995950-46710-1-git-send-email-wdc@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: heiko@sntech.de, wsa@the-dreams.de
-Cc: dianders@chromium.org, andy.shevchenko@gmail.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, david.wu@rock-chips.com
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v5 2/4] i2c-smbus: add SMBus Host Notify support
+Date: Tue, 15 Mar 2016 15:53:42 +0100
+Message-ID: <1458053624-14818-3-git-send-email-benjamin.tissoires@redhat.com>
+References: <1458053624-14818-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:56630 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756070AbcCOOxz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 15 Mar 2016 10:53:55 -0400
+In-Reply-To: <1458053624-14818-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
+Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-From: David Wu <david.wu@rock-chips.com>
+SMBus Host Notify allows a slave device to act as a master on a bus to
+notify the host of an interrupt. On Intel chipsets, the functionality
+is directly implemented in the firmware. We just need to export a
+function to call .alert() on the proper device driver.
 
-Switch to the new generic functions: i2c_parse_fw_timings().
+i2c_handle_smbus_host_notify() behaves like i2c_handle_smbus_alert().
+When called, it schedules a task that will be able to sleep to go through
+the list of devices attached to the adapter.
 
-Signed-off-by: David Wu <david.wu@rock-chips.com>
+The current implementation allows one Host Notification to be scheduled
+while an other is running.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
-change in v3:
-- parse timing information with common interface(Wolfram, Andy)
+ Documentation/i2c/smbus-protocol |   3 ++
+ drivers/i2c/i2c-smbus.c          | 113 +++++++++++++++++++++++++++++++++++++--
+ include/linux/i2c-smbus.h        |  43 +++++++++++++++
+ include/linux/i2c.h              |   3 ++
+ include/uapi/linux/i2c.h         |   1 +
+ 5 files changed, 158 insertions(+), 5 deletions(-)
 
- drivers/i2c/busses/i2c-rk3x.c | 87 ++++++++++++-------------------------------
- 1 file changed, 24 insertions(+), 63 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 9096d17..c4b0d89 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -101,10 +101,7 @@ struct rk3x_i2c {
- 	struct notifier_block clk_rate_nb;
+diff --git a/Documentation/i2c/smbus-protocol b/Documentation/i2c/smbus-protocol
+index 6012b12..4e07848 100644
+--- a/Documentation/i2c/smbus-protocol
++++ b/Documentation/i2c/smbus-protocol
+@@ -199,6 +199,9 @@ alerting device's address.
  
- 	/* Settings */
--	unsigned int scl_frequency;
--	unsigned int scl_rise_ns;
--	unsigned int scl_fall_ns;
--	unsigned int sda_fall_ns;
-+	struct i2c_timings t;
+ [S] [HostAddr] [Wr] A [DevAddr] A [DataLow] A [DataHigh] A [P]
  
- 	/* Synchronization & notification */
- 	spinlock_t lock;
-@@ -437,10 +434,7 @@ out:
-  * Calculate divider values for desired SCL frequency
-  *
-  * @clk_rate: I2C input clock rate
-- * @scl_rate: Desired SCL rate
-- * @scl_rise_ns: How many ns it takes for SCL to rise.
-- * @scl_fall_ns: How many ns it takes for SCL to fall.
-- * @sda_fall_ns: How many ns it takes for SDA to fall.
-+ * @t: Known I2C timing information.
-  * @div_low: Divider output for low
-  * @div_high: Divider output for high
-  *
-@@ -448,11 +442,10 @@ out:
-  * a best-effort divider value is returned in divs. If the target rate is
-  * too high, we silently use the highest possible rate.
-  */
--static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
--			      unsigned long scl_rise_ns,
--			      unsigned long scl_fall_ns,
--			      unsigned long sda_fall_ns,
--			      unsigned long *div_low, unsigned long *div_high)
-+static int rk3x_i2c_calc_divs(unsigned long clk_rate,
-+			      struct i2c_timings *t,
-+			      unsigned long *div_low,
-+			      unsigned long *div_high)
- {
- 	unsigned long spec_min_low_ns, spec_min_high_ns;
- 	unsigned long spec_setup_start, spec_max_data_hold_ns;
-@@ -472,12 +465,12 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 	int ret = 0;
++I2C drivers for devices which can trigger SMBus Host Notify should implement
++the optional alert() callback.
++
  
- 	/* Only support standard-mode and fast-mode */
--	if (WARN_ON(scl_rate > 400000))
--		scl_rate = 400000;
-+	if (WARN_ON(t->bus_freq_hz > 400000))
-+		t->bus_freq_hz = 400000;
+ Packet Error Checking (PEC)
+ ===========================
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index 3b6765a..1de7ee5 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -33,7 +33,8 @@ struct i2c_smbus_alert {
  
- 	/* prevent scl_rate_khz from becoming 0 */
--	if (WARN_ON(scl_rate < 1000))
--		scl_rate = 1000;
-+	if (WARN_ON(t->bus_freq_hz < 1000))
-+		t->bus_freq_hz = 1000;
+ struct alert_data {
+ 	unsigned short		addr;
+-	u8			flag:1;
++	enum i2c_alert_protocol	type;
++	unsigned int		data;
+ };
  
- 	/*
- 	 * min_low_ns:  The minimum number of ns we need to hold low to
-@@ -491,7 +484,7 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 	 *	 This is because the i2c host on Rockchip holds the data line
- 	 *	 for half the low time.
- 	 */
--	if (scl_rate <= 100000) {
-+	if (t->bus_freq_hz <= 100000) {
- 		/* Standard-mode */
- 		spec_min_low_ns = 4700;
- 		spec_setup_start = 4700;
-@@ -506,7 +499,7 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 		spec_max_data_hold_ns = 900;
- 		data_hold_buffer_ns = 50;
- 	}
--	min_high_ns = scl_rise_ns + spec_min_high_ns;
-+	min_high_ns = t->scl_rise_ns + spec_min_high_ns;
+ /* If this is the alerting device, notify its driver */
+@@ -56,8 +57,7 @@ static int smbus_do_alert(struct device *dev, void *addrp)
+ 	if (client->dev.driver) {
+ 		driver = to_i2c_driver(client->dev.driver);
+ 		if (driver->alert)
+-			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
+-				      data->flag);
++			driver->alert(client, data->type, data->data);
+ 		else
+ 			dev_warn(&client->dev, "no driver alert()!\n");
+ 	} else
+@@ -97,8 +97,9 @@ static void smbus_alert(struct work_struct *work)
+ 		if (status < 0)
+ 			break;
  
- 	/*
- 	 * Timings for repeated start:
-@@ -517,18 +510,18 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 	 * we meet tSU;STA and tHD;STA times.
- 	 */
- 	min_high_ns = max(min_high_ns,
--		DIV_ROUND_UP((scl_rise_ns + spec_setup_start) * 1000, 875));
-+		DIV_ROUND_UP((t->scl_rise_ns + spec_setup_start) * 1000, 875));
- 	min_high_ns = max(min_high_ns,
--		DIV_ROUND_UP((scl_rise_ns + spec_setup_start +
--			      sda_fall_ns + spec_min_high_ns), 2));
-+		DIV_ROUND_UP((t->scl_rise_ns + spec_setup_start +
-+			      t->sda_fall_ns + spec_min_high_ns), 2));
+-		data.flag = status & 1;
++		data.data = status & 1;
+ 		data.addr = status >> 1;
++		data.type = I2C_PROTOCOL_SMBUS_ALERT;
  
--	min_low_ns = scl_fall_ns + spec_min_low_ns;
-+	min_low_ns = t->scl_fall_ns + spec_min_low_ns;
- 	max_low_ns = spec_max_data_hold_ns * 2 - data_hold_buffer_ns;
- 	min_total_ns = min_low_ns + min_high_ns;
+ 		if (data.addr == prev_addr) {
+ 			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
+@@ -106,7 +107,7 @@ static void smbus_alert(struct work_struct *work)
+ 			break;
+ 		}
+ 		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
+-			data.addr, data.flag);
++			data.addr, data.data);
  
- 	/* Adjust to avoid overflow */
- 	clk_rate_khz = DIV_ROUND_UP(clk_rate, 1000);
--	scl_rate_khz = scl_rate / 1000;
-+	scl_rate_khz = t->bus_freq_hz / 1000;
- 
- 	/*
- 	 * We need the total div to be >= this number
-@@ -616,14 +609,13 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 
- static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
- {
-+	struct i2c_timings *t = &i2c->t;
- 	unsigned long div_low, div_high;
- 	u64 t_low_ns, t_high_ns;
- 	int ret;
- 
--	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, i2c->scl_rise_ns,
--				 i2c->scl_fall_ns, i2c->sda_fall_ns,
--				 &div_low, &div_high);
--	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", i2c->scl_frequency);
-+	ret = rk3x_i2c_calc_divs(clk_rate, t, &div_low, &div_high);
-+	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", t->bus_freq_hz);
- 
- 	clk_enable(i2c->clk);
- 	i2c_writel(i2c, (div_high << 16) | (div_low & 0xffff), REG_CLKDIV);
-@@ -634,7 +626,7 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
- 	dev_dbg(i2c->dev,
- 		"CLK %lukhz, Req %uns, Act low %lluns high %lluns\n",
- 		clk_rate / 1000,
--		1000000000 / i2c->scl_frequency,
-+		1000000000 / t->bus_freq_hz,
- 		t_low_ns, t_high_ns);
+ 		/* Notify driver for the device which issued the alert */
+ 		device_for_each_child(&ara->adapter->dev, &data,
+@@ -240,6 +241,108 @@ int i2c_handle_smbus_alert(struct i2c_client *ara)
  }
+ EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert);
  
-@@ -664,9 +656,7 @@ static int rk3x_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
++static void smbus_host_notify_work(struct work_struct *work)
++{
++	struct alert_data alert;
++	struct i2c_adapter *adapter;
++	unsigned long flags;
++	u16 payload;
++	u8 addr;
++	struct smbus_host_notify *data;
++
++	data = container_of(work, struct smbus_host_notify, work);
++
++	spin_lock_irqsave(&data->lock, flags);
++	payload = data->payload;
++	addr = data->addr;
++	adapter = data->adapter;
++
++	/* clear the pending bit and release the spinlock */
++	data->pending = false;
++	spin_unlock_irqrestore(&data->lock, flags);
++
++	if (!adapter || !addr)
++		return;
++
++	alert.type = I2C_PROTOCOL_SMBUS_HOST_NOTIFY;
++	alert.addr = addr;
++	alert.data = payload;
++
++	device_for_each_child(&adapter->dev, &alert, smbus_do_alert);
++}
++
++/**
++ * i2c_setup_smbus_host_notify - Allocate a new smbus_host_notify for the given
++ * I2C adapter.
++ * @adapter: the adapter we want to associate a Host Notify function
++ *
++ * Returns a struct smbus_host_notify pointer on success, and NULL on failure.
++ * The resulting smbus_host_notify must not be freed afterwards, it is a
++ * managed resource already.
++ */
++struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
++{
++	struct smbus_host_notify *host_notify;
++
++	host_notify = devm_kzalloc(&adap->dev, sizeof(struct smbus_host_notify),
++				   GFP_KERNEL);
++	if (!host_notify)
++		return NULL;
++
++	host_notify->adapter = adap;
++
++	spin_lock_init(&host_notify->lock);
++	INIT_WORK(&host_notify->work, smbus_host_notify_work);
++
++	return host_notify;
++}
++EXPORT_SYMBOL_GPL(i2c_setup_smbus_host_notify);
++
++/**
++ * i2c_handle_smbus_host_notify - Forward a Host Notify event to the correct
++ * I2C client.
++ * @host_notify: the struct host_notify attached to the relevant adapter
++ * @data: the Host Notify data which contains the payload and address of the
++ * client
++ * Context: can't sleep
++ *
++ * Helper function to be called from an I2C bus driver's interrupt
++ * handler. It will schedule the Host Notify work, in turn calling the
++ * corresponding I2C device driver's alert function.
++ *
++ * host_notify should be a valid pointer previously returned by
++ * i2c_setup_smbus_host_notify().
++ */
++int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
++				 unsigned short addr, unsigned int data)
++{
++	unsigned long flags;
++	struct i2c_adapter *adapter;
++
++	if (!host_notify || !host_notify->adapter)
++		return -EINVAL;
++
++	adapter = host_notify->adapter;
++
++	spin_lock_irqsave(&host_notify->lock, flags);
++
++	if (host_notify->pending) {
++		spin_unlock_irqrestore(&host_notify->lock, flags);
++		dev_warn(&adapter->dev, "Host Notify already scheduled\n.");
++		return -EFAULT;
++	}
++
++	host_notify->payload = data;
++	host_notify->addr = addr;
++
++	/* Mark that there is a pending notification and release the lock */
++	host_notify->pending = true;
++	spin_unlock_irqrestore(&host_notify->lock, flags);
++
++	return schedule_work(&host_notify->work);
++}
++EXPORT_SYMBOL_GPL(i2c_handle_smbus_host_notify);
++
+ module_i2c_driver(smbalert_driver);
  
- 	switch (event) {
- 	case PRE_RATE_CHANGE:
--		if (rk3x_i2c_calc_divs(ndata->new_rate, i2c->scl_frequency,
--				       i2c->scl_rise_ns, i2c->scl_fall_ns,
--				       i2c->sda_fall_ns,
-+		if (rk3x_i2c_calc_divs(ndata->new_rate, &i2c->t,
- 				       &div_low, &div_high) != 0)
- 			return NOTIFY_STOP;
+ MODULE_AUTHOR("Jean Delvare <jdelvare@suse.de>");
+diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
+index 8f1b086..d2fbd19 100644
+--- a/include/linux/i2c-smbus.h
++++ b/include/linux/i2c-smbus.h
+@@ -23,6 +23,8 @@
+ #define _LINUX_I2C_SMBUS_H
  
-@@ -879,37 +869,8 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
- 	match = of_match_node(rk3x_i2c_match, np);
- 	i2c->soc_data = (struct rk3x_i2c_soc_data *)match->data;
+ #include <linux/i2c.h>
++#include <linux/spinlock.h>
++#include <linux/workqueue.h>
  
--	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
--				 &i2c->scl_frequency)) {
--		dev_info(&pdev->dev, "using default SCL frequency: %d\n",
--			 DEFAULT_SCL_RATE);
--		i2c->scl_frequency = DEFAULT_SCL_RATE;
--	}
--
--	if (i2c->scl_frequency == 0 || i2c->scl_frequency > 400 * 1000) {
--		dev_warn(&pdev->dev, "invalid SCL frequency specified.\n");
--		dev_warn(&pdev->dev, "using default SCL frequency: %d\n",
--			 DEFAULT_SCL_RATE);
--		i2c->scl_frequency = DEFAULT_SCL_RATE;
--	}
--
--	/*
--	 * Read rise and fall time from device tree. If not available use
--	 * the default maximum timing from the specification.
--	 */
--	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-rising-time-ns",
--				 &i2c->scl_rise_ns)) {
--		if (i2c->scl_frequency <= 100000)
--			i2c->scl_rise_ns = 1000;
--		else
--			i2c->scl_rise_ns = 300;
--	}
--	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-falling-time-ns",
--				 &i2c->scl_fall_ns))
--		i2c->scl_fall_ns = 300;
--	if (of_property_read_u32(pdev->dev.of_node, "i2c-sda-falling-time-ns",
--				 &i2c->sda_fall_ns))
--		i2c->sda_fall_ns = i2c->scl_fall_ns;
-+	/* use common interface to get I2C timing properties */
-+	i2c_parse_fw_timings(&pdev->dev, &i2c->t, true);
  
- 	strlcpy(i2c->adap.name, "rk3x-i2c", sizeof(i2c->adap.name));
- 	i2c->adap.owner = THIS_MODULE;
+ /**
+@@ -48,4 +50,45 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+ 					 struct i2c_smbus_alert_setup *setup);
+ int i2c_handle_smbus_alert(struct i2c_client *ara);
+ 
++/**
++ * smbus_host_notify - internal structure used by the Host Notify mechanism.
++ * @adapter: the I2C adapter associated with this struct
++ * @work: worker used to schedule the IRQ in the slave device
++ * @lock: spinlock to check if a notification is already pending
++ * @pending: flag set when a notification is pending (any new notification will
++ *		be rejected if pending is true)
++ * @payload: the actual payload of the Host Notify event
++ * @addr: the address of the slave device which raised the notification
++ *
++ * This struct needs to be allocated by i2c_setup_smbus_host_notify() and does
++ * not need to be freed. Internally, i2c_setup_smbus_host_notify() uses a
++ * managed resource to clean this up when the adapter get released.
++ */
++struct smbus_host_notify {
++	struct i2c_adapter	*adapter;
++	struct work_struct	work;
++	spinlock_t		lock;
++	bool			pending;
++	u16			payload;
++	u8			addr;
++};
++
++#if defined(CONFIG_I2C_SMBUS) || defined(CONFIG_I2C_SMBUS_MODULE)
++struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap);
++int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
++				 unsigned short addr, unsigned int data);
++#else
++static inline struct smbus_host_notify *
++i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
++{
++	return NULL;
++}
++
++static inline int i2c_handle_smbus_host_notify(struct i2c_adapter *adapter,
++				     unsigned short addr, unsigned int data)
++{
++	return 0;
++}
++#endif /* I2C_SMBUS */
++
+ #endif /* _LINUX_I2C_SMBUS_H */
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index baae02a..056f800 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -128,6 +128,7 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+ 
+ enum i2c_alert_protocol {
+ 	I2C_PROTOCOL_SMBUS_ALERT,
++	I2C_PROTOCOL_SMBUS_HOST_NOTIFY,
+ };
+ 
+ /**
+@@ -184,6 +185,8 @@ struct i2c_driver {
+ 	 * The format and meaning of the data value depends on the protocol.
+ 	 * For the SMBus alert protocol, there is a single bit of data passed
+ 	 * as the alert response's low bit ("event flag").
++	 * For the SMBus Host Notify protocol, the data corresponds to the
++	 * 16-bit payload data reported by the slave device acting as master.
+ 	 */
+ 	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
+ 		      unsigned int data);
+diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+index b0a7dd6..83ec8ae 100644
+--- a/include/uapi/linux/i2c.h
++++ b/include/uapi/linux/i2c.h
+@@ -101,6 +101,7 @@ struct i2c_msg {
+ #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
+ #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
+ #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
++#define I2C_FUNC_SMBUS_HOST_NOTIFY	0x10000000
+ 
+ #define I2C_FUNC_SMBUS_BYTE		(I2C_FUNC_SMBUS_READ_BYTE | \
+ 					 I2C_FUNC_SMBUS_WRITE_BYTE)
 -- 
-1.9.1
+2.5.0
