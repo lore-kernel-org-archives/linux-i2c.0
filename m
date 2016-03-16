@@ -1,131 +1,49 @@
-From: sergk sergk2mail <sergk.admin@gmail.com>
-Subject: Re: I2c client driver + ACPI on Baytrail & kernel 4.4.2 = ?
-Date: Tue, 15 Mar 2016 23:12:56 +0000
-Message-ID: <CA+V1LzrtvN=HCKed8gfZSkHst0NdkvbAtb0mkV4y6AhusNSEFA@mail.gmail.com>
-References: <CA+V1LzrWqmx2GH6cs65mS=YHkvx+6wnnq7RpeYChH886pn5fog@mail.gmail.com>
-	<56E6ACBC.6010508@linux.intel.com>
-	<CA+V1LzqgXpm1nERbXD2MPHFFvsv8skm=-BKLdwYU-uU=RQUaYg@mail.gmail.com>
+From: Pan Gao <pandy.gao@nxp.com>
+Subject: RE: [Patch v1] i2c: imx7ulp: add i.MX7ULP i2c controller bus driver
+Date: Wed, 16 Mar 2016 02:21:46 +0000
+Message-ID: <AM4PR0401MB1780E6F86EC643627A0E7E34F68A0@AM4PR0401MB1780.eurprd04.prod.outlook.com>
+References: <1458035482-14905-1-git-send-email-pandy.gao@nxp.com>
+ <56E80321.6090105@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qg0-f41.google.com ([209.85.192.41]:36795 "EHLO
-	mail-qg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754285AbcCOXM5 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Mar 2016 19:12:57 -0400
-Received: by mail-qg0-f41.google.com with SMTP id u110so28842050qge.3
-        for <linux-i2c@vger.kernel.org>; Tue, 15 Mar 2016 16:12:56 -0700 (PDT)
-In-Reply-To: <CA+V1LzqgXpm1nERbXD2MPHFFvsv8skm=-BKLdwYU-uU=RQUaYg@mail.gmail.com>
+Received: from mail-am1on0053.outbound.protection.outlook.com ([157.56.112.53]:50272
+	"EHLO emea01-am1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754636AbcCPCVt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 15 Mar 2016 22:21:49 -0400
+In-Reply-To: <56E80321.6090105@mentor.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org
+To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Frank Li <frank.li@nxp.com>, Fugang Duan <fugang.duan@nxp.com>
 
-Hi,
-
-regarding "80860F41:03"
-from DSDT 80860F41:
-Name (_HID, "80860F41" /* Intel Baytrail I2C Host Controller */)  //
-_HID: Hardware ID
-            Name (_CID, "80860F41" /* Intel Baytrail I2C Host
-Controller */)  // _CID: Compatible ID
-
-
-So, is this mean i2c-3?
-Regards,
-                Serge Kolotylo.
-
-On Tue, Mar 15, 2016 at 10:26 PM, sergk sergk2mail
-<sergk.admin@gmail.com> wrote:
-> Hi Jarko,
-> Exploring sysfs shows:
->
-> ls -l /sys/bus/acpi/devices/CHPN0001:00
-> lrwxrwxrwx 1 root root 0 Mar 15 22:08
-> /sys/bus/acpi/devices/CHPN0001:00 ->
-> ../../../devices/LNXSYSTM:00/LNXSYBUS:00/80860F41:03/CHPN0001:00
-> root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/status
-> 0
->
-> status is 0 - what does this mean? It is detected via ACPI but not present?
-> What does "LNXSYBUS:00/80860F41:03"  means?  Does it mean i2c-3, 0x41
-> ?  80860F41:03 == ?
->
-> also inside its subfolders I do not see nothing useful:
->
-> cat /sys/bus/acpi/devices/CHPN0001:00/adr
-> 0x00000000
-> root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/hid
-> CHPN0001
-> root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/modalias
-> acpi:CHPN0001:PNP0C50:
-> root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/path
-> \_SB_.I2C4.TCS5
-> root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/uevent
-> MODALIAS=acpi:CHPN0001:PNP0C50:
-> root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/power/runtime_usage
-> 0
-> root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/power/control
-> auto
-> root@archiso ~ # cat /sys/bus/acpi/devices/CHPN0001:00/power/runtime_enabled
-> disabled
->
-> So the question is the same - how to obtain via acpi in mentioned
-> above code i2cbus, bus addr and irq for this touch?
->
-> Regards,
->                  Serge Kolotylo.
->
-> On Mon, Mar 14, 2016 at 12:21 PM, Jarkko Nikula
-> <jarkko.nikula@linux.intel.com> wrote:
->> Hi
->>
->> On 03/13/2016 02:43 PM, sergk sergk2mail wrote:
->>>
->>> Hi All,
->>> Please help to correct create i2c client with ACPI support for device
->>> (touchscreen) on i2c on vanilla 4.4.2 kernel x86_64 Baytrail,
->>> disrtibutive = Arch.
->>> ========================================================
->>> According kernel Documentation I have created such skeleton:
->>>
->>>
->>> #define DEVICE_NAME  "testme"
->>>
->>> static const struct acpi_device_id icn_ts_acpi_match[] = {
->>>      { "CHPN0001", 0 },
->>>      { "PNP05C0", 0 },
->>>      { },
->>> };
->>
->>
->> Touchscreen and PNPxxxx: can it be i2c-hid compatible touchscreen?
->>
->> Those typically have vendor specific ACPI _HID but device is matched using
->> ACPI PNP compatible ID (_CID) "PNP0C50" or "ACPI0C50". See
->> drivers/hid/i2c-hid/i2c-hid.c.
->>
->> Just thinking if you have device with _CID "PNP0C50" and either device is
->> matched before your driver with i2c-hid driver or your driver doesn't probe
->> because "PNP05C0" != "PNP0C50".
->>
->>> MAIN QUESTIONS:
->>>
->>> 1) What is wrong with i2c client driver code? Why it is NOT obtain
->>> info from ACPI DSD table?
->>>
->> Your example looks ok. Another what comes to my mind is the device actually
->> present. Sometimes DSDT tables may specify multiple alternative devices but
->> only one being actually connected. You could check that by reading the
->> device status which reads 15 if the device is present.
->>
->> cat /sys/bus/acpi/devices/ACPI01234/status
->> 15
->>
->>> 2) In which way should be created i2c dev while registering i2c acpi
->>> driver? Who\where\what and how should create this i2c device?
->>>
->> i2c-core registers the i2c devices connected to certain bus when adapter
->> device for that bus is registered in i2c-core.c: i2c_register_adapter().
->>
->> --
->> Jarkko
+RnJvbTogVmxhZGltaXIgWmFwb2xza2l5IDxtYWlsdG86dmxhZGltaXJfemFwb2xza2l5QG1lbnRv
+ci5jb20+IFNlbnQ6IFR1ZXNkYXksIE1hcmNoIDE1LCAyMDE2IDg6NDIgUE0NCj4gVG86IFBhbiBH
+YW8gPHBhbmR5Lmdhb0BueHAuY29tPjsgd3NhQHRoZS1kcmVhbXMuZGU7IHUua2xlaW5lLQ0KPiBr
+b2VuaWdAcGVuZ3V0cm9uaXguZGUNCj4gQ2M6IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7IEZy
+YW5rIExpIDxmcmFuay5saUBueHAuY29tPjsgRnVnYW5nIER1YW4NCj4gPGZ1Z2FuZy5kdWFuQG54
+cC5jb20+DQo+IFN1YmplY3Q6IFJlOiBbUGF0Y2ggdjFdIGkyYzogaW14N3VscDogYWRkIGkuTVg3
+VUxQIGkyYyBjb250cm9sbGVyIGJ1cyBkcml2ZXINCj4gDQo+IEhlbGxvLA0KPiANCj4gT24gMTUu
+MDMuMjAxNiAxMTo1MSwgR2FvIFBhbiB3cm90ZToNCj4gPiBBZGQgaS5NWDdVTFAgaTJjIGJ1cyBk
+cml2ZXIgd2hpY2ggY2FuIGNvbnRpbnVlIG9wZXJhdGluZyBpbiBzdG9wIG1vZGVzDQo+ID4gcHJv
+dmlkZWQgYW4gYXBwcm9wcmlhdGUgY2xvY2sgaXMgYXZhaWxhYmxlLg0KPiA+DQo+ID4gSXQgaXMg
+YWxzbyBkZXNpZ25lZCBmb3IgbG93IENQVSBvdmVyaGVhZCB3aXRoIERNQSBvZmZsb2FkaW5nIG9m
+IEZJRk8NCj4gPiByZWdpc3RlciBhY2Nlc3Nlcy4NCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEdh
+byBQYW4gPHBhbmR5Lmdhb0BueHAuY29tPg0KPiA+IC0tLQ0KPiANCj4gW3NuaXBdDQo+IA0KPiA+
+ICsNCj4gPiArc3RhdGljIGludCBpMmNfaW14N3VscF9zdGFydChzdHJ1Y3QgaW14N3VscF9pMmNf
+c3RydWN0ICppMmNfaW14N3VscCkNCj4gPiArew0KPiA+ICsJaW50IHJldDsNCj4gPiArCXVuc2ln
+bmVkIGludCB0ZW1wOw0KPiA+ICsNCj4gPiArCWRldl9kYmcoJmkyY19pbXg3dWxwLT5hZGFwdGVy
+LmRldiwgIjwlcz5cbiIsIF9fZnVuY19fKTsNCj4gPiArDQo+ID4gKwlyZXQgPSBjbGtfcHJlcGFy
+ZV9lbmFibGUoaTJjX2lteDd1bHAtPmJ1c19jbGspOw0KPiA+ICsJaWYgKHJldCkgew0KPiA+ICsJ
+CWRldl9lcnIoJmkyY19pbXg3dWxwLT5hZGFwdGVyLmRldiwNCj4gPiArCQkJImNhbid0IGVuYWJs
+ZSBJMkMgYnVzIGNsb2NrLCByZXQ9JWRcbiIsIHJldCk7DQo+ID4gKwkJcmV0dXJuIHJldDsNCj4g
+PiArCX0NCj4gPiArDQo+ID4gKwlyZXQgPSBjbGtfcHJlcGFyZV9lbmFibGUoaTJjX2lteDd1bHAt
+PnBlcl9jbGspOw0KPiA+ICsJaWYgKHJldCkgew0KPiA+ICsJCWRldl9lcnIoJmkyY19pbXg3dWxw
+LT5hZGFwdGVyLmRldiwNCj4gPiArCQkJImNhbid0IGVuYWJsZSBJMkMgcGVyaXBoZXJhbCBjbG9j
+aywgcmV0PSVkXG4iLCByZXQpOw0KPiA+ICsJCXJldHVybiByZXQ7DQo+IA0KPiBMZWFrZWQgcHJl
+cGFyZWQvZW5hYmxlZCBpMmNfaW14N3VscC0+YnVzX2NsayBjbG9jayBvbiBlcnJvciBwYXRoLg0K
+IA0KWWVzLCB5b3UgYXJlIHJpZ2h0LiBUaGFua3MhIA0KDQpCZXN0IFJlZ2FyZHMNCkdhbyBQYW4N
+Cg==
