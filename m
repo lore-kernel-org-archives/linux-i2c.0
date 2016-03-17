@@ -1,207 +1,63 @@
-From: David Wu <david.wu@rock-chips.com>
-Subject: [PATCH v5 1/2] i2c: rk3x: switch to i2c generic dt parsing
-Date: Thu, 17 Mar 2016 00:57:17 +0800
-Message-ID: <1458147438-62387-2-git-send-email-david.wu@rock-chips.com>
-References: <1458147438-62387-1-git-send-email-david.wu@rock-chips.com>
-Content-Type: text/plain; charset="utf-8"
+From: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
+Subject: next-20160314 - crash in i2c_dev_init/bus_register_notifier at boot
+Date: Thu, 17 Mar 2016 10:59:51 -0400
+Message-ID: <5769.1458226791@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1458226791_2528P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.133]:53160 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756010AbcCQIvO (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Mar 2016 04:51:14 -0400
-In-Reply-To: <1458147438-62387-1-git-send-email-david.wu@rock-chips.com>
+Received: from outbound.smtp.vt.edu ([198.82.183.121]:33208 "EHLO
+	omr2.cc.vt.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932879AbcCQPAB (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Mar 2016 11:00:01 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: heiko@sntech.de, wsa@the-dreams.de
-Cc: dianders@chromium.org, andy.shevchenko@gmail.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, david.wu@rock-chips.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Switch to the new generic functions: i2c_parse_fw_timings().
+--==_Exmh_1458226791_2528P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-off-by: David Wu <david.wu@rock-chips.com>
----
- drivers/i2c/busses/i2c-rk3x.c | 87 ++++++++++++-------------------------------
- 1 file changed, 24 insertions(+), 63 deletions(-)
+Seeing this consistent crash on next-20160314.  Sorry for shortened traceback,
+hand-transcribed as the crash doesn't get logged to /sys/fs/pstore as
+expected. next-20160307 works just fine.
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 9096d17..c4b0d89 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -101,10 +101,7 @@ struct rk3x_i2c {
- 	struct notifier_block clk_rate_nb;
- 
- 	/* Settings */
--	unsigned int scl_frequency;
--	unsigned int scl_rise_ns;
--	unsigned int scl_fall_ns;
--	unsigned int sda_fall_ns;
-+	struct i2c_timings t;
- 
- 	/* Synchronization & notification */
- 	spinlock_t lock;
-@@ -437,10 +434,7 @@ out:
-  * Calculate divider values for desired SCL frequency
-  *
-  * @clk_rate: I2C input clock rate
-- * @scl_rate: Desired SCL rate
-- * @scl_rise_ns: How many ns it takes for SCL to rise.
-- * @scl_fall_ns: How many ns it takes for SCL to fall.
-- * @sda_fall_ns: How many ns it takes for SDA to fall.
-+ * @t: Known I2C timing information.
-  * @div_low: Divider output for low
-  * @div_high: Divider output for high
-  *
-@@ -448,11 +442,10 @@ out:
-  * a best-effort divider value is returned in divs. If the target rate is
-  * too high, we silently use the highest possible rate.
-  */
--static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
--			      unsigned long scl_rise_ns,
--			      unsigned long scl_fall_ns,
--			      unsigned long sda_fall_ns,
--			      unsigned long *div_low, unsigned long *div_high)
-+static int rk3x_i2c_calc_divs(unsigned long clk_rate,
-+			      struct i2c_timings *t,
-+			      unsigned long *div_low,
-+			      unsigned long *div_high)
- {
- 	unsigned long spec_min_low_ns, spec_min_high_ns;
- 	unsigned long spec_setup_start, spec_max_data_hold_ns;
-@@ -472,12 +465,12 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 	int ret = 0;
- 
- 	/* Only support standard-mode and fast-mode */
--	if (WARN_ON(scl_rate > 400000))
--		scl_rate = 400000;
-+	if (WARN_ON(t->bus_freq_hz > 400000))
-+		t->bus_freq_hz = 400000;
- 
- 	/* prevent scl_rate_khz from becoming 0 */
--	if (WARN_ON(scl_rate < 1000))
--		scl_rate = 1000;
-+	if (WARN_ON(t->bus_freq_hz < 1000))
-+		t->bus_freq_hz = 1000;
- 
- 	/*
- 	 * min_low_ns:  The minimum number of ns we need to hold low to
-@@ -491,7 +484,7 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 	 *	 This is because the i2c host on Rockchip holds the data line
- 	 *	 for half the low time.
- 	 */
--	if (scl_rate <= 100000) {
-+	if (t->bus_freq_hz <= 100000) {
- 		/* Standard-mode */
- 		spec_min_low_ns = 4700;
- 		spec_setup_start = 4700;
-@@ -506,7 +499,7 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 		spec_max_data_hold_ns = 900;
- 		data_hold_buffer_ns = 50;
- 	}
--	min_high_ns = scl_rise_ns + spec_min_high_ns;
-+	min_high_ns = t->scl_rise_ns + spec_min_high_ns;
- 
- 	/*
- 	 * Timings for repeated start:
-@@ -517,18 +510,18 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 	 * we meet tSU;STA and tHD;STA times.
- 	 */
- 	min_high_ns = max(min_high_ns,
--		DIV_ROUND_UP((scl_rise_ns + spec_setup_start) * 1000, 875));
-+		DIV_ROUND_UP((t->scl_rise_ns + spec_setup_start) * 1000, 875));
- 	min_high_ns = max(min_high_ns,
--		DIV_ROUND_UP((scl_rise_ns + spec_setup_start +
--			      sda_fall_ns + spec_min_high_ns), 2));
-+		DIV_ROUND_UP((t->scl_rise_ns + spec_setup_start +
-+			      t->sda_fall_ns + spec_min_high_ns), 2));
- 
--	min_low_ns = scl_fall_ns + spec_min_low_ns;
-+	min_low_ns = t->scl_fall_ns + spec_min_low_ns;
- 	max_low_ns = spec_max_data_hold_ns * 2 - data_hold_buffer_ns;
- 	min_total_ns = min_low_ns + min_high_ns;
- 
- 	/* Adjust to avoid overflow */
- 	clk_rate_khz = DIV_ROUND_UP(clk_rate, 1000);
--	scl_rate_khz = scl_rate / 1000;
-+	scl_rate_khz = t->bus_freq_hz / 1000;
- 
- 	/*
- 	 * We need the total div to be >= this number
-@@ -616,14 +609,13 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
- 
- static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
- {
-+	struct i2c_timings *t = &i2c->t;
- 	unsigned long div_low, div_high;
- 	u64 t_low_ns, t_high_ns;
- 	int ret;
- 
--	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, i2c->scl_rise_ns,
--				 i2c->scl_fall_ns, i2c->sda_fall_ns,
--				 &div_low, &div_high);
--	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", i2c->scl_frequency);
-+	ret = rk3x_i2c_calc_divs(clk_rate, t, &div_low, &div_high);
-+	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", t->bus_freq_hz);
- 
- 	clk_enable(i2c->clk);
- 	i2c_writel(i2c, (div_high << 16) | (div_low & 0xffff), REG_CLKDIV);
-@@ -634,7 +626,7 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
- 	dev_dbg(i2c->dev,
- 		"CLK %lukhz, Req %uns, Act low %lluns high %lluns\n",
- 		clk_rate / 1000,
--		1000000000 / i2c->scl_frequency,
-+		1000000000 / t->bus_freq_hz,
- 		t_low_ns, t_high_ns);
- }
- 
-@@ -664,9 +656,7 @@ static int rk3x_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
- 
- 	switch (event) {
- 	case PRE_RATE_CHANGE:
--		if (rk3x_i2c_calc_divs(ndata->new_rate, i2c->scl_frequency,
--				       i2c->scl_rise_ns, i2c->scl_fall_ns,
--				       i2c->sda_fall_ns,
-+		if (rk3x_i2c_calc_divs(ndata->new_rate, &i2c->t,
- 				       &div_low, &div_high) != 0)
- 			return NOTIFY_STOP;
- 
-@@ -879,37 +869,8 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
- 	match = of_match_node(rk3x_i2c_match, np);
- 	i2c->soc_data = (struct rk3x_i2c_soc_data *)match->data;
- 
--	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
--				 &i2c->scl_frequency)) {
--		dev_info(&pdev->dev, "using default SCL frequency: %d\n",
--			 DEFAULT_SCL_RATE);
--		i2c->scl_frequency = DEFAULT_SCL_RATE;
--	}
--
--	if (i2c->scl_frequency == 0 || i2c->scl_frequency > 400 * 1000) {
--		dev_warn(&pdev->dev, "invalid SCL frequency specified.\n");
--		dev_warn(&pdev->dev, "using default SCL frequency: %d\n",
--			 DEFAULT_SCL_RATE);
--		i2c->scl_frequency = DEFAULT_SCL_RATE;
--	}
--
--	/*
--	 * Read rise and fall time from device tree. If not available use
--	 * the default maximum timing from the specification.
--	 */
--	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-rising-time-ns",
--				 &i2c->scl_rise_ns)) {
--		if (i2c->scl_frequency <= 100000)
--			i2c->scl_rise_ns = 1000;
--		else
--			i2c->scl_rise_ns = 300;
--	}
--	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-falling-time-ns",
--				 &i2c->scl_fall_ns))
--		i2c->scl_fall_ns = 300;
--	if (of_property_read_u32(pdev->dev.of_node, "i2c-sda-falling-time-ns",
--				 &i2c->sda_fall_ns))
--		i2c->sda_fall_ns = i2c->scl_fall_ns;
-+	/* use common interface to get I2C timing properties */
-+	i2c_parse_fw_timings(&pdev->dev, &i2c->t, true);
- 
- 	strlcpy(i2c->adap.name, "rk3x-i2c", sizeof(i2c->adap.name));
- 	i2c->adap.owner = THIS_MODULE;
--- 
-1.9.1
+BUG: unable to handle kernel NULL pointer dereference at 000000000260
+IP: blocking_notifier_chain_register+0x37/0xd0
+...
+Call Trace:
+bus_register_notifier+0x1c/0x20
+i2c_dev_init+0x9c/0xf2
+do_one_initcall_+0x99/0x210
+? set_debug_rodata+0x12/0x12
+kernel_init_freeable+0x1b3/0x240
+kernel_init+0x3/0x100
+
+'git blame' doesn't seem to find anything relevant and recent in
+kernel/notifier.c or drivers/i2c/i2c-dev.c.  Does this ring any
+bells, or is it time to bisect?
+
+--==_Exmh_1458226791_2528P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Exmh version 2.5 07/13/2001
+
+iQIVAwUBVurGZwdmEQWDXROgAQKJDg/8D++dVdosjqpej2Gx6ePkKJEtrQGzwDQ1
+wOmIOCkASffDqIqy+XKsQjy+L9JgTIKzxKP+C4A50NdNpq6aE2NJMbzkGm80ltZR
+Xh6DORHFI8BtY60lLkwysXFCTSJJO9BGO/J+iTZkffcGlG4tqzIY+4i63sAhU2v9
+VlI2yEbiV0pMdqj0/1ecc5i7mK3yLn478WEHe57zpD1N4fbQltnbCZYEd/b9Gyzo
+FQRykcFUpXS0gFh1uWffrEM95jpf2sY97aHBFvmMBbs+qA/dRWGf7q95Emib3vKp
+yo8ySXVWj4d8hWCZ9s4q4dAaZUggEOoUnnAb9Ji9GxuvE145IKUBXLRkpen6K+G/
+RDOuboNA9KmbL4DNaQeUeWFjI5kL6mf12bXpLZoKmqUj+w3DdTXJMwQ/R/yGURxI
+D+OwK4+WxbAfhEhRSV3IAa5lhc1IqEHwLxYl8ost7pfny981M2cvZXWC1jflk1Bi
+RLNgMl7IVKY/Da3qQrHlOdpCNPbiDTZ8nD+zeGIHiUbUqJkz/dTXRM3gDA2dUkH6
+pZ6iI+B8UGcne1gtT6v120U48hIPGge7+uUbRbzIm7C0KjQVPnJyb5a643uSqtlP
+H++BM27v+4xElkpwOlHytCIdT2eXAgwF+fSkzqzE9N0BzRGeUmeLoLBIkq6hVHAT
+KUDTfQ4rKVI=
+=W9HE
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1458226791_2528P--
