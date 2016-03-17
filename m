@@ -1,53 +1,82 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [v6, 3/5] dt: move guts devicetree doc out of powerpc directory
-Date: Thu, 17 Mar 2016 12:57:49 -0500
-Message-ID: <CAL_JsqL8NkEQx2NoVHSUGYhtNsybCo-yfBCde+_OuMmfwbhYEw@mail.gmail.com>
-References: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com>
- <1457518131-11339-4-git-send-email-yangbo.lu@nxp.com> <20160317170640.GB21009@rob-hp-laptop>
- <4107975.rId64mooHz@wuerfel>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: next-20160314 - crash in i2c_dev_init/bus_register_notifier at
+ boot
+Date: Thu, 17 Mar 2016 21:52:25 +0100
+Message-ID: <20160317205225.GA1482@katana>
+References: <5769.1458226791@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <4107975.rId64mooHz@wuerfel>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Yangbo Lu <yangbo.lu@nxp.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-clk <linux-clk@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux IOMMU <iommu@lists.linux-foundation.org>, netdev <netdev@vger.kernel.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, scott.wood@nxp.com, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Ulf Hansson <ulf.hansson@linaro.org>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Zhao Qiang <qiang.zhao@freescale.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@ker>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:58210 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1030465AbcCQUwc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 17 Mar 2016 16:52:32 -0400
+Content-Disposition: inline
+In-Reply-To: <5769.1458226791@turing-police.cc.vt.edu>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Thu, Mar 17, 2016 at 12:11 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Thursday 17 March 2016 12:06:40 Rob Herring wrote:
->> > diff --git a/Documentation/devicetree/bindings/powerpc/fsl/guts.txt b/Documentation/devicetree/bindings/soc/fsl/guts.txt
->> > similarity index 91%
->> > rename from Documentation/devicetree/bindings/powerpc/fsl/guts.txt
->> > rename to Documentation/devicetree/bindings/soc/fsl/guts.txt
->> > index b71b203..07adca9 100644
->> > --- a/Documentation/devicetree/bindings/powerpc/fsl/guts.txt
->> > +++ b/Documentation/devicetree/bindings/soc/fsl/guts.txt
->> > @@ -25,6 +25,9 @@ Recommended properties:
->> >   - fsl,liodn-bits : Indicates the number of defined bits in the LIODN
->> >     registers, for those SOCs that have a PAMU device.
->> >
->> > + - little-endian : Indicates that the global utilities block is little
->> > +   endian. The default is big endian.
->>
->> The default is "the native endianness of the system".
->
-> This may be what is currently documented, but not what we are doing
-> in practice, as there is no "native endianess" for either PowerPC or
-> ARM -- both allow running big-endian or little-endian kernels and the
-> device registers are fixed.
 
-Notice I said system, not architecture. The way the device registers
-are fixed is what I mean by native endianness.
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If the purpose of adding this property now is to support GUTS on the
-ARM SoCs, then I'd argue using this property is probably wrong. If the
-PPC systems are designed with BE device registers and ARM systems with
-LE, then this property is not needed.
+On Thu, Mar 17, 2016 at 10:59:51AM -0400, Valdis Kletnieks wrote:
+> Seeing this consistent crash on next-20160314.  Sorry for shortened trace=
+back,
+> hand-transcribed as the crash doesn't get logged to /sys/fs/pstore as
+> expected. next-20160307 works just fine.
+>=20
+> BUG: unable to handle kernel NULL pointer dereference at 000000000260
+> IP: blocking_notifier_chain_register+0x37/0xd0
+> ...
+> Call Trace:
+> bus_register_notifier+0x1c/0x20
+> i2c_dev_init+0x9c/0xf2
+> do_one_initcall_+0x99/0x210
+> ? set_debug_rodata+0x12/0x12
+> kernel_init_freeable+0x1b3/0x240
+> kernel_init+0x3/0x100
+>=20
+> 'git blame' doesn't seem to find anything relevant and recent in
+> kernel/notifier.c or drivers/i2c/i2c-dev.c.  Does this ring any
+> bells, or is it time to bisect?
 
-> I think the property here is fine.
+Can you try a newer -next or apply this patch on top?
 
-Unless you have studied the FSL ARM based SoCs, then there is not
-enough information here to tell.
+https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/patch/driv=
+ers/i2c?id=3Db980a26d02d1f54be31346666222304fcd27ea33
 
-Rob
+I think this should solve it.
+
+Thanks for reporting!
+
+   Wolfram
+
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW6xkJAAoJEBQN5MwUoCm2/zUQAKxPbYfxEmiUH3uNPdnssOtK
+1W2aiu4QHBnZqKloCH2Us+cvxMrm0z+VH8nbLwpakl1257B5jmxSDn9vQBFcjx3u
+iwvG+12GmQ/dLRBYoINLO/mne5sroEJwZCRCPeaOP2P/hrAkUMcJvsmRlLumGcb+
+zvYWtTNtM0CI3VRmcsksp5THCdx5BC5+iN5l5dM4FI/ESQixaBIDtS/XII3LhVGM
+O1THxqR2cfoMO3/GGq5f3Csudu9JtZ57hvnLNflO6jWP7lLIZh5xkTgkMVz4slEL
+TMjih6G0qUPQZDu8qR+x7zV2M+CV8mmTlh4jo7sO2lUcG2oPk0a8Z7YkL9plBq5s
+/QWqZOk+CcZX+rQ7gtHgmyP73WKIxkDn9iGzRmTbdKAEv53cdnS1bKR7Bw1ijjr+
+9sNE378qdGn+47b6VxrJuKECNcOOzMFPQcdeEfc33b6S6knIaqahUj4/kJ0W2Iz2
+37cAgny8WGSgize5LrXvX+LPjWF3tQOpFqQ7KnXlqWx9GTByMqexUp3Roa75lwFG
+kvKvFmsUNx9/+Yhd/vS4gR3HgaFJ5HHNGPC5BgNguFGSQLRJarU70kmGzd3bWUmp
+HG5T3C2ZI8I2l8Iczfh2OdduBe5dvdjUbZqxdfi8Ft7VNjYt2SkLc+zBcr1OBMXa
+P1NjEyVhuD2ZDTZzhGR8
+=RQSs
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--
