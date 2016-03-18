@@ -1,70 +1,137 @@
-From: Leo Li <pku.leo@gmail.com>
-Subject: Re: [v6, 3/5] dt: move guts devicetree doc out of powerpc directory
-Date: Thu, 17 Mar 2016 16:33:35 -0500
-Message-ID: <CADRPPNRPP0cxrJT13OR+dAWuw8m0mr0=VJLY+JyTO=QsB_vVUw@mail.gmail.com>
-References: <1457518131-11339-1-git-send-email-yangbo.lu@nxp.com>
-	<1457518131-11339-4-git-send-email-yangbo.lu@nxp.com>
-	<20160317170640.GB21009@rob-hp-laptop>
-	<4107975.rId64mooHz@wuerfel>
-	<CAL_JsqL8NkEQx2NoVHSUGYhtNsybCo-yfBCde+_OuMmfwbhYEw@mail.gmail.com>
+From: Andrew Duggan <andrew.duggan@gmail.com>
+Subject: Re: [PATCH v6 1/4] i2c: add a protocol parameter to the alert callback
+Date: Thu, 17 Mar 2016 17:04:03 -0700
+Message-ID: <CAE7eX3Kt6=tszUCJjG7txpf-LuLL_iX8JWrs6+vHES+iUmB0yQ@mail.gmail.com>
+References: <1458146348-17171-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1458146348-17171-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CAL_JsqL8NkEQx2NoVHSUGYhtNsybCo-yfBCde+_OuMmfwbhYEw@mail.gmail.com>
-Sender: netdev-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Ulf Hansson <ulf.hansson@linaro.org>, Zhao Qiang <qiang.zhao@freescale.com>, xiaobo.xie@nxp.com, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-clk <linux-clk@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Joerg Roedel <joro@8bytes.org>, scott.wood@nxp.com, Claudiu Manoil <claudiu.manoil@freescale.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Yangbo Lu <yangbo.lu@nxp.com>, Santosh Shilimkar <ssantosh@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, netdev <netdev@vger.kernel.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Li Yang <leoyang.li@nxp.com>, Linux IOMMU <iommu@lists.linux-foundation.org>, Kumar Gala <galak@codeauro>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1458146348-17171-2-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 17, 2016 at 12:57 PM, Rob Herring <robh@kernel.org> wrote:
-> On Thu, Mar 17, 2016 at 12:11 PM, Arnd Bergmann <arnd@arndb.de> wrote:
->> On Thursday 17 March 2016 12:06:40 Rob Herring wrote:
->>> > diff --git a/Documentation/devicetree/bindings/powerpc/fsl/guts.txt b/Documentation/devicetree/bindings/soc/fsl/guts.txt
->>> > similarity index 91%
->>> > rename from Documentation/devicetree/bindings/powerpc/fsl/guts.txt
->>> > rename to Documentation/devicetree/bindings/soc/fsl/guts.txt
->>> > index b71b203..07adca9 100644
->>> > --- a/Documentation/devicetree/bindings/powerpc/fsl/guts.txt
->>> > +++ b/Documentation/devicetree/bindings/soc/fsl/guts.txt
->>> > @@ -25,6 +25,9 @@ Recommended properties:
->>> >   - fsl,liodn-bits : Indicates the number of defined bits in the LIODN
->>> >     registers, for those SOCs that have a PAMU device.
->>> >
->>> > + - little-endian : Indicates that the global utilities block is little
->>> > +   endian. The default is big endian.
->>>
->>> The default is "the native endianness of the system".
->>
->> This may be what is currently documented, but not what we are doing
->> in practice, as there is no "native endianess" for either PowerPC or
->> ARM -- both allow running big-endian or little-endian kernels and the
->> device registers are fixed.
+On Wed, Mar 16, 2016 at 9:39 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> .alert() is meant to be generic, but there is currently no way
+> for the device driver to know which protocol generated the alert.
+> Add a parameter in .alert() to help the device driver to understand
+> what is given in data.
 >
-> Notice I said system, not architecture. The way the device registers
-> are fixed is what I mean by native endianness.
-
-I think sometimes it's also hard to define the native endianess of the
-system too.  For whatever reason, we have hardware that having
-big-endian registers on some on-chip devices but using little-endian
-registers on other devices.  Even if all the devices on certain
-hardware use registers of the same endianess, it is also hard for the
-device driver to know what the native endianess really is.
-
+> This patch is required to have the support of SMBus Host Notify protocol
+> through .alert().
 >
-> If the purpose of adding this property now is to support GUTS on the
-> ARM SoCs, then I'd argue using this property is probably wrong. If the
-> PPC systems are designed with BE device registers and ARM systems with
-> LE, then this property is not needed.
->
->> I think the property here is fine.
->
-> Unless you have studied the FSL ARM based SoCs, then there is not
-> enough information here to tell.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Recent FSL ARM SoCs seems to have more weird endianess issue. :( The
-same IP could have registers of different endianess on different ARM
-SoCs.  That why we need to define the endianess explicitly in device
-tree.
+Tested-by: Andrew Duggan <aduggan@synaptics.com>
 
-Regards,
-Leo
+> ---
+>
+> new in v2
+>
+> changes in v3:
+> - added also lm90.c to support the new API
+>
+> no changes in v4
+>
+> no changes in v5
+>
+> changes in v6:
+> - made sure lm90 also checks for the type of alert first
+>
+>  drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
+>  drivers/hwmon/lm90.c          | 6 +++++-
+>  drivers/i2c/i2c-smbus.c       | 3 ++-
+>  include/linux/i2c.h           | 7 ++++++-
+>  4 files changed, 18 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+> index 5f1c3d0..1d67fa3 100644
+> --- a/drivers/char/ipmi/ipmi_ssif.c
+> +++ b/drivers/char/ipmi/ipmi_ssif.c
+> @@ -568,12 +568,16 @@ static void retry_timeout(unsigned long data)
+>  }
+>
+>
+> -static void ssif_alert(struct i2c_client *client, unsigned int data)
+> +static void ssif_alert(struct i2c_client *client, enum i2c_alert_protocol type,
+> +                      unsigned int data)
+>  {
+>         struct ssif_info *ssif_info = i2c_get_clientdata(client);
+>         unsigned long oflags, *flags;
+>         bool do_get = false;
+>
+> +       if (type != I2C_PROTOCOL_SMBUS_ALERT)
+> +               return;
+> +
+>         ssif_inc_stat(ssif_info, alerts);
+>
+>         flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+> diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+> index c9ff08d..a00fd38 100644
+> --- a/drivers/hwmon/lm90.c
+> +++ b/drivers/hwmon/lm90.c
+> @@ -1624,10 +1624,14 @@ static int lm90_remove(struct i2c_client *client)
+>         return 0;
+>  }
+>
+> -static void lm90_alert(struct i2c_client *client, unsigned int flag)
+> +static void lm90_alert(struct i2c_client *client, enum i2c_alert_protocol type,
+> +                      unsigned int flag)
+>  {
+>         u16 alarms;
+>
+> +       if (type != I2C_PROTOCOL_SMBUS_ALERT)
+> +               return;
+> +
+>         if (lm90_is_tripped(client, &alarms)) {
+>                 /*
+>                  * Disable ALERT# output, because these chips don't implement
+> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+> index abb55d3..3b6765a 100644
+> --- a/drivers/i2c/i2c-smbus.c
+> +++ b/drivers/i2c/i2c-smbus.c
+> @@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
+>         if (client->dev.driver) {
+>                 driver = to_i2c_driver(client->dev.driver);
+>                 if (driver->alert)
+> -                       driver->alert(client, data->flag);
+> +                       driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
+> +                                     data->flag);
+>                 else
+>                         dev_warn(&client->dev, "no driver alert()!\n");
+>         } else
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 200cf13b..baae02a 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -126,6 +126,10 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+>                                           u8 command, u8 length, u8 *values);
+>  #endif /* I2C */
+>
+> +enum i2c_alert_protocol {
+> +       I2C_PROTOCOL_SMBUS_ALERT,
+> +};
+> +
+>  /**
+>   * struct i2c_driver - represent an I2C device driver
+>   * @class: What kind of i2c device we instantiate (for detect)
+> @@ -181,7 +185,8 @@ struct i2c_driver {
+>          * For the SMBus alert protocol, there is a single bit of data passed
+>          * as the alert response's low bit ("event flag").
+>          */
+> -       void (*alert)(struct i2c_client *, unsigned int data);
+> +       void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
+> +                     unsigned int data);
+>
+>         /* a ioctl like command that can be used to perform specific functions
+>          * with the device.
+> --
+> 2.5.0
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
