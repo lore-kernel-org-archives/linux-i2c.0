@@ -1,56 +1,133 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] MAINTAINERS: add myself as i2c mux maintainer
-Date: Fri, 18 Mar 2016 10:37:48 +0100
-Message-ID: <20160318093747.GE1388@katana>
-References: <1457995963-10048-1-git-send-email-peda@lysator.liu.se>
+From: Corey Minyard <minyard@acm.org>
+Subject: Re: [PATCH v6 1/4] i2c: add a protocol parameter to the alert
+ callback
+Date: Fri, 18 Mar 2016 09:26:08 -0500
+Message-ID: <56EC1000.7020009@acm.org>
+References: <1458146348-17171-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1458146348-17171-2-git-send-email-benjamin.tissoires@redhat.com>
+Reply-To: minyard@acm.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7CZp05NP8/gJM8Cl"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35476 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753918AbcCRJhw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 18 Mar 2016 05:37:52 -0400
-Content-Disposition: inline
-In-Reply-To: <1457995963-10048-1-git-send-email-peda@lysator.liu.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1458146348-17171-2-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
+Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@lysator.liu.se>
-Cc: linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
 
+Looks ok to me.  For IPMI:
 
---7CZp05NP8/gJM8Cl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Corey Minyard <cminyard@mvista.com>
 
-On Mon, Mar 14, 2016 at 11:52:43PM +0100, Peter Rosin wrote:
-> From: Peter Rosin <peda@axentia.se>
->=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
-
-Applied to for-next, thanks!
-
-
---7CZp05NP8/gJM8Cl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJW68xrAAoJEBQN5MwUoCm2FhkP/i4h5BUosYijsGeqSGoyTiOK
-eUtLZC1+BeJLqo3ZtH6hUYCphZyzNOD3H5oMBkR3scFp1n2Go608dmsAibWPmlSD
-CyVM60TMHm7quVNpmx1fC7YzlNaPIZPhm1RMj7mQGW8WHY7dsrYVnfVVIFpiLQU8
-bzSZkKKyJFVClg4GVhTk4rljRD2o6eKxBJuM6/0oBhOKmakN9T3r2EOHak4OxsFH
-2AV2U6sEKUR9/74UhvochaZqIpDb8APFNffofvLfkqTPwZUzggNJDtKwMnYswjn+
-FsaHx8/7YCbPa1j1KrVema63shfsfqdjSm4jgqsXfDgHal8T5Iag+kTaYLdwYIaX
-wjeieCvqzZD+sEfQ0/vlG6LSbp/+PYz1QkI/rBisHT+nx+NnVjV5q2mxXIctmrlz
-EkgWk2ilKz3WPZLEK0XK/pLpWCf12mKzyGmZQNZwZbTDrUf1vd45fHAZe4OjVvIn
-aqSE4bRyf+0SPQtPrUMgwU8H5btN/2YFiDn/r+n8A4pFPEWcO6OfvB6JvdVrwKrq
-e8GL4NgUjTuH4AL51U/G5Vj0xyAKYY4BTLkyy7HMRkTdrWDaz6bVCwN479Wo5HTz
-6aDzewHOMa+UELKXpFWo9loFZFMoYmMd7bXrXl6FTb8mLSbFwxrqifvboyDigUV1
-pjzleGCvwflsL3+iHGdS
-=Yi4i
------END PGP SIGNATURE-----
-
---7CZp05NP8/gJM8Cl--
+On 03/16/2016 11:39 AM, Benjamin Tissoires wrote:
+> .alert() is meant to be generic, but there is currently no way
+> for the device driver to know which protocol generated the alert.
+> Add a parameter in .alert() to help the device driver to understand
+> what is given in data.
+>
+> This patch is required to have the support of SMBus Host Notify protocol
+> through .alert().
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>
+> new in v2
+>
+> changes in v3:
+> - added also lm90.c to support the new API
+>
+> no changes in v4
+>
+> no changes in v5
+>
+> changes in v6:
+> - made sure lm90 also checks for the type of alert first
+>
+>   drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
+>   drivers/hwmon/lm90.c          | 6 +++++-
+>   drivers/i2c/i2c-smbus.c       | 3 ++-
+>   include/linux/i2c.h           | 7 ++++++-
+>   4 files changed, 18 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
+> index 5f1c3d0..1d67fa3 100644
+> --- a/drivers/char/ipmi/ipmi_ssif.c
+> +++ b/drivers/char/ipmi/ipmi_ssif.c
+> @@ -568,12 +568,16 @@ static void retry_timeout(unsigned long data)
+>   }
+>   
+>   
+> -static void ssif_alert(struct i2c_client *client, unsigned int data)
+> +static void ssif_alert(struct i2c_client *client, enum i2c_alert_protocol type,
+> +		       unsigned int data)
+>   {
+>   	struct ssif_info *ssif_info = i2c_get_clientdata(client);
+>   	unsigned long oflags, *flags;
+>   	bool do_get = false;
+>   
+> +	if (type != I2C_PROTOCOL_SMBUS_ALERT)
+> +		return;
+> +
+>   	ssif_inc_stat(ssif_info, alerts);
+>   
+>   	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+> diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+> index c9ff08d..a00fd38 100644
+> --- a/drivers/hwmon/lm90.c
+> +++ b/drivers/hwmon/lm90.c
+> @@ -1624,10 +1624,14 @@ static int lm90_remove(struct i2c_client *client)
+>   	return 0;
+>   }
+>   
+> -static void lm90_alert(struct i2c_client *client, unsigned int flag)
+> +static void lm90_alert(struct i2c_client *client, enum i2c_alert_protocol type,
+> +		       unsigned int flag)
+>   {
+>   	u16 alarms;
+>   
+> +	if (type != I2C_PROTOCOL_SMBUS_ALERT)
+> +		return;
+> +
+>   	if (lm90_is_tripped(client, &alarms)) {
+>   		/*
+>   		 * Disable ALERT# output, because these chips don't implement
+> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+> index abb55d3..3b6765a 100644
+> --- a/drivers/i2c/i2c-smbus.c
+> +++ b/drivers/i2c/i2c-smbus.c
+> @@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
+>   	if (client->dev.driver) {
+>   		driver = to_i2c_driver(client->dev.driver);
+>   		if (driver->alert)
+> -			driver->alert(client, data->flag);
+> +			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
+> +				      data->flag);
+>   		else
+>   			dev_warn(&client->dev, "no driver alert()!\n");
+>   	} else
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 200cf13b..baae02a 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -126,6 +126,10 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+>   					  u8 command, u8 length, u8 *values);
+>   #endif /* I2C */
+>   
+> +enum i2c_alert_protocol {
+> +	I2C_PROTOCOL_SMBUS_ALERT,
+> +};
+> +
+>   /**
+>    * struct i2c_driver - represent an I2C device driver
+>    * @class: What kind of i2c device we instantiate (for detect)
+> @@ -181,7 +185,8 @@ struct i2c_driver {
+>   	 * For the SMBus alert protocol, there is a single bit of data passed
+>   	 * as the alert response's low bit ("event flag").
+>   	 */
+> -	void (*alert)(struct i2c_client *, unsigned int data);
+> +	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
+> +		      unsigned int data);
+>   
+>   	/* a ioctl like command that can be used to perform specific functions
+>   	 * with the device.
