@@ -1,49 +1,118 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v4 03/14] i2c-octeon: Change adapter timeout and retry default values
-Date: Fri, 18 Mar 2016 09:46:28 +0100
-Message-ID: <dd3af500365eeeac662a097441259e90a0d3e303.1458289385.git.jglauber@cavium.com>
+Subject: [PATCH v4 14/14] i2c-thunderx: Add smbus alert support
+Date: Fri, 18 Mar 2016 09:46:39 +0100
+Message-ID: <550065701b581b3950aab26188d4917596b82e21.1458289385.git.jglauber@cavium.com>
 References: <cover.1458289385.git.jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:36485 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753000AbcCRIqz (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Mar 2016 04:46:55 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1458289385.git.jglauber@cavium.com>
 In-Reply-To: <cover.1458289385.git.jglauber@cavium.com>
 References: <cover.1458289385.git.jglauber@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Convert the adapter timeout to 2 ms instead of a fixed number of
-jiffies and set retries to 10.
+Add smbus alert interrupt support.
 
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-octeon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-cavium.h        |  6 ++++++
+ drivers/i2c/busses/i2c-thunderx-core.c | 35 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index 9240037..e616e4c 100644
---- a/drivers/i2c/busses/i2c-octeon.c
-+++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -414,7 +414,6 @@ static struct i2c_adapter octeon_i2c_ops = {
- 	.owner = THIS_MODULE,
- 	.name = "OCTEON adapter",
- 	.algo = &octeon_i2c_algo,
--	.timeout = HZ / 50,
+diff --git a/drivers/i2c/busses/i2c-cavium.h b/drivers/i2c/busses/i2c-cavium.h
+index 31608c4..f934624 100644
+--- a/drivers/i2c/busses/i2c-cavium.h
++++ b/drivers/i2c/busses/i2c-cavium.h
+@@ -3,6 +3,7 @@
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/i2c.h>
++#include <linux/i2c-smbus.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/pci.h>
+@@ -118,6 +119,11 @@ struct octeon_i2c {
+ #if IS_ENABLED(CONFIG_I2C_THUNDERX)
+ 	struct msix_entry i2c_msix;
+ #endif
++
++#if IS_ENABLED(CONFIG_I2C_SMBUS)
++	struct i2c_smbus_alert_setup alert_data;
++	struct i2c_client *ara;
++#endif
  };
  
- /* calculate and set clock divisors */
-@@ -541,6 +540,8 @@ static int octeon_i2c_probe(struct platform_device *pdev)
- 	octeon_i2c_set_clock(i2c);
+ static inline void writeqflush(u64 val, void __iomem *addr)
+diff --git a/drivers/i2c/busses/i2c-thunderx-core.c b/drivers/i2c/busses/i2c-thunderx-core.c
+index 6168517..93bb64b 100644
+--- a/drivers/i2c/busses/i2c-thunderx-core.c
++++ b/drivers/i2c/busses/i2c-thunderx-core.c
+@@ -9,9 +9,11 @@
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
++#include <linux/i2c-smbus.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/of_irq.h>
+ #include <linux/pci.h>
  
- 	i2c->adap = octeon_i2c_ops;
-+	i2c->adap.timeout = msecs_to_jiffies(2);
-+	i2c->adap.retries = 10;
- 	i2c->adap.dev.parent = &pdev->dev;
- 	i2c->adap.dev.of_node = node;
- 	i2c_set_adapdata(&i2c->adap, i2c);
+ #include "i2c-cavium.h"
+@@ -108,6 +110,35 @@ static void thunder_i2c_clock_disable(struct device *dev, struct clk *clk)
+ 	devm_clk_put(dev, clk);
+ }
+ 
++static int thunder_i2c_smbus_setup(struct octeon_i2c *i2c,
++				   struct device_node *node)
++{
++#if IS_ENABLED(CONFIG_I2C_SMBUS)
++	u32 type;
++
++	i2c->alert_data.irq = irq_of_parse_and_map(node, 0);
++	if (!i2c->alert_data.irq)
++		return -EINVAL;
++
++	type = irqd_get_trigger_type(irq_get_irq_data(i2c->alert_data.irq));
++	i2c->alert_data.alert_edge_triggered =
++		(type & IRQ_TYPE_LEVEL_MASK) ? 1 : 0;
++
++	i2c->ara = i2c_setup_smbus_alert(&i2c->adap, &i2c->alert_data);
++	if (!i2c->ara)
++		return -ENODEV;
++#endif
++	return 0;
++}
++
++static void thunder_i2c_smbus_remove(struct octeon_i2c *i2c)
++{
++#if IS_ENABLED(CONFIG_I2C_SMBUS)
++	if (i2c->ara)
++		i2c_unregister_device(i2c->ara);
++#endif
++}
++
+ static void thunder_i2c_set_name(struct pci_dev *pdev, struct octeon_i2c *i2c,
+ 				 char *name)
+ {
+@@ -207,6 +238,9 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+ 		goto out_irq;
+ 	}
+ 
++	ret = thunder_i2c_smbus_setup(i2c, node);
++	if (ret < 0)
++		dev_err(dev, "Failed to setup smbus alert\n");
+ 	dev_info(i2c->dev, "probed\n");
+ 	return 0;
+ 
+@@ -237,6 +271,7 @@ static void thunder_i2c_remove_pci(struct pci_dev *pdev)
+ 
+ 	dev = i2c->dev;
+ 	thunder_i2c_clock_disable(dev, i2c->clk);
++	thunder_i2c_smbus_remove(i2c);
+ 	i2c_del_adapter(&i2c->adap);
+ 	devm_free_irq(dev, i2c->i2c_msix.vector, i2c);
+ 	pci_disable_msix(pdev);
 -- 
 1.9.1
