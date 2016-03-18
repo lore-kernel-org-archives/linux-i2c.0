@@ -1,133 +1,36 @@
-From: Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH v6 1/4] i2c: add a protocol parameter to the alert
- callback
-Date: Fri, 18 Mar 2016 09:26:08 -0500
-Message-ID: <56EC1000.7020009@acm.org>
-References: <1458146348-17171-1-git-send-email-benjamin.tissoires@redhat.com>
- <1458146348-17171-2-git-send-email-benjamin.tissoires@redhat.com>
-Reply-To: minyard@acm.org
+From: David Daney <ddaney@caviumnetworks.com>
+Subject: Re: [PATCH v4 11/14] i2c-octeon: Rename driver to prepare for split
+Date: Fri, 18 Mar 2016 10:11:10 -0700
+Message-ID: <56EC36AE.9050603@caviumnetworks.com>
+References: <cover.1458289385.git.jglauber@cavium.com> <e618ce0f8824d04311c5796cdb6688b55e6afa6f.1458289385.git.jglauber@cavium.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1458146348-17171-2-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
-Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-bl2on0077.outbound.protection.outlook.com ([65.55.169.77]:65222
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752572AbcCRRLS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 18 Mar 2016 13:11:18 -0400
+In-Reply-To: <e618ce0f8824d04311c5796cdb6688b55e6afa6f.1458289385.git.jglauber@cavium.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Looks ok to me.  For IPMI:
-
-Acked-by: Corey Minyard <cminyard@mvista.com>
-
-On 03/16/2016 11:39 AM, Benjamin Tissoires wrote:
-> .alert() is meant to be generic, but there is currently no way
-> for the device driver to know which protocol generated the alert.
-> Add a parameter in .alert() to help the device driver to understand
-> what is given in data.
+On 03/18/2016 01:46 AM, Jan Glauber wrote:
+> This is just an intermediate commit in preparation of
+> the driver split. The module rename in this commit
+> will be reverted in the next patch, this is just done
+> to make the series bisectible.
 >
-> This patch is required to have the support of SMBus Host Notify protocol
-> through .alert().
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 > ---
+>   drivers/i2c/busses/Makefile          |    2 +-
+>   drivers/i2c/busses/i2c-octeon-core.c | 1264 ++++++++++++++++++++++++++++++++++
+>   drivers/i2c/busses/i2c-octeon.c      | 1264 ----------------------------------
+>   3 files changed, 1265 insertions(+), 1265 deletions(-)
+>   create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
+>   delete mode 100644 drivers/i2c/busses/i2c-octeon.c
 >
-> new in v2
->
-> changes in v3:
-> - added also lm90.c to support the new API
->
-> no changes in v4
->
-> no changes in v5
->
-> changes in v6:
-> - made sure lm90 also checks for the type of alert first
->
->   drivers/char/ipmi/ipmi_ssif.c | 6 +++++-
->   drivers/hwmon/lm90.c          | 6 +++++-
->   drivers/i2c/i2c-smbus.c       | 3 ++-
->   include/linux/i2c.h           | 7 ++++++-
->   4 files changed, 18 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-> index 5f1c3d0..1d67fa3 100644
-> --- a/drivers/char/ipmi/ipmi_ssif.c
-> +++ b/drivers/char/ipmi/ipmi_ssif.c
-> @@ -568,12 +568,16 @@ static void retry_timeout(unsigned long data)
->   }
->   
->   
-> -static void ssif_alert(struct i2c_client *client, unsigned int data)
-> +static void ssif_alert(struct i2c_client *client, enum i2c_alert_protocol type,
-> +		       unsigned int data)
->   {
->   	struct ssif_info *ssif_info = i2c_get_clientdata(client);
->   	unsigned long oflags, *flags;
->   	bool do_get = false;
->   
-> +	if (type != I2C_PROTOCOL_SMBUS_ALERT)
-> +		return;
-> +
->   	ssif_inc_stat(ssif_info, alerts);
->   
->   	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
-> diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-> index c9ff08d..a00fd38 100644
-> --- a/drivers/hwmon/lm90.c
-> +++ b/drivers/hwmon/lm90.c
-> @@ -1624,10 +1624,14 @@ static int lm90_remove(struct i2c_client *client)
->   	return 0;
->   }
->   
-> -static void lm90_alert(struct i2c_client *client, unsigned int flag)
-> +static void lm90_alert(struct i2c_client *client, enum i2c_alert_protocol type,
-> +		       unsigned int flag)
->   {
->   	u16 alarms;
->   
-> +	if (type != I2C_PROTOCOL_SMBUS_ALERT)
-> +		return;
-> +
->   	if (lm90_is_tripped(client, &alarms)) {
->   		/*
->   		 * Disable ALERT# output, because these chips don't implement
-> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> index abb55d3..3b6765a 100644
-> --- a/drivers/i2c/i2c-smbus.c
-> +++ b/drivers/i2c/i2c-smbus.c
-> @@ -56,7 +56,8 @@ static int smbus_do_alert(struct device *dev, void *addrp)
->   	if (client->dev.driver) {
->   		driver = to_i2c_driver(client->dev.driver);
->   		if (driver->alert)
-> -			driver->alert(client, data->flag);
-> +			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT,
-> +				      data->flag);
->   		else
->   			dev_warn(&client->dev, "no driver alert()!\n");
->   	} else
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 200cf13b..baae02a 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -126,6 +126,10 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
->   					  u8 command, u8 length, u8 *values);
->   #endif /* I2C */
->   
-> +enum i2c_alert_protocol {
-> +	I2C_PROTOCOL_SMBUS_ALERT,
-> +};
-> +
->   /**
->    * struct i2c_driver - represent an I2C device driver
->    * @class: What kind of i2c device we instantiate (for detect)
-> @@ -181,7 +185,8 @@ struct i2c_driver {
->   	 * For the SMBus alert protocol, there is a single bit of data passed
->   	 * as the alert response's low bit ("event flag").
->   	 */
-> -	void (*alert)(struct i2c_client *, unsigned int data);
-> +	void (*alert)(struct i2c_client *, enum i2c_alert_protocol protocol,
-> +		      unsigned int data);
->   
->   	/* a ioctl like command that can be used to perform specific functions
->   	 * with the device.
+Again, if we need another patch submission, use "git format-patch -M ..."
