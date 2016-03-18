@@ -1,62 +1,95 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: next-20160314 - crash in i2c_dev_init/bus_register_notifier at
- boot
-Date: Fri, 18 Mar 2016 08:24:51 +0100
-Message-ID: <20160318072451.GB1388@katana>
-References: <5769.1458226791@turing-police.cc.vt.edu>
- <20160317205225.GA1482@katana>
- <3731.1458269728@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="V0207lvV8h4k8FAm"
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [PATCH v4 00/14] i2c-octeon and i2c-thunderx drivers
+Date: Fri, 18 Mar 2016 09:46:25 +0100
+Message-ID: <cover.1458289385.git.jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:34724 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751099AbcCRHY6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 18 Mar 2016 03:24:58 -0400
-Content-Disposition: inline
-In-Reply-To: <3731.1458269728@turing-police.cc.vt.edu>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35672 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752294AbcCRIqv (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Mar 2016 04:46:51 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+
+This series for the Octeon i2c driver is an attempt to upstream some
+bug fixes and features that accumulated for some time.
+
+On top of the Octeon changes a i2c driver for the ThunderX SOC is
+added which uses the same functional block as the Octeon driver.
+
+Patches #1-2 are cleanups.
+Patches #3-10 are forward-ports of Octeon features and bugfixes.
+Patch #11-12 prepare for the driver split
+Patches #13-14 add the ThunderX driver.
+
+Patches are on top of 4.5 + i2c-octeon-kerneldoc-patch and were
+tested on OCTEON, OCTEON-78 and ThunderX.
+
+Changes to v3:
+- added more functionality flags for SMBUS
+- removed both module parameters
+- make xfer return also other errors than EGAIN
+- return EPROTO on invalid SMBUS block length
+- use devm_ioremap_resource
+- added rename-only patch
+- removed kerneldoc patch from series
+- improved defines
+
+Changes to v2:
+- Split clenaup patch into several patches
+- Strictly moved functional changes to later patches
+- Fixed do-while checkpatch errors
+- Moved defines to the patches that use them
+- Use BIT_ULL macro
+- Split ThunderX patch into 2 patches
+
+Changes to v1:
+- Fixed compile error on x86_64
+- Disabled thunderx driver on MIPS
+- Re-ordered some thunderx probe functions for readability
+- Fix missing of_irq.h and i2c-smbus.h includes
+- Use IS_ENABLED for CONFIG options
+
+Jan
+
+-------------------------------------------------
 
 
---V0207lvV8h4k8FAm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+David Daney (4):
+  i2c-octeon: Support I2C_M_RECV_LEN
+  i2c-octeon: Enable high-level controller and improve on bus contention
+  i2c-octeon: Add support for cn78xx chips
+  i2c-octeon: Add workaround for broken irqs on CN3860
 
+Jan Glauber (8):
+  i2c-octeon: Cleanup i2c-octeon driver
+  i2c-octeon: Cleanup resource allocation code
+  i2c-octeon: Change adapter timeout and retry default values
+  dt-bindings: i2c: Add Octeon cn78xx TWSI
+  i2c-octeon: Rename driver to prepare for split
+  i2c-octeon: Split the driver into two parts
+  i2c-thunderx: Add i2c driver for ThunderX SOC
+  i2c-thunderx: Add smbus alert support
 
-> Confirming that issue is fixed in next-20160317.
+Peter Swain (2):
+  i2c-octeon: Flush TWSI writes with readback
+  i2c-octeon: Faster operation when IFLG signals late
 
-Thanks for confirming...
+ .../devicetree/bindings/i2c/i2c-octeon.txt         |   6 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   3 +
+ drivers/i2c/busses/i2c-cavium.c                    | 822 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-cavium.h                    | 212 ++++++
+ drivers/i2c/busses/i2c-octeon-core.c               | 283 +++++++
+ drivers/i2c/busses/i2c-octeon.c                    | 622 ----------------
+ drivers/i2c/busses/i2c-thunderx-core.c             | 303 ++++++++
+ 8 files changed, 1639 insertions(+), 622 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-cavium.c
+ create mode 100644 drivers/i2c/busses/i2c-cavium.h
+ create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
+ delete mode 100644 drivers/i2c/busses/i2c-octeon.c
+ create mode 100644 drivers/i2c/busses/i2c-thunderx-core.c
 
-> Now on to fix the *next* problem :)
-
-...and good luck with that!
-
-   Wolfram
-
-
---V0207lvV8h4k8FAm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJW661DAAoJEBQN5MwUoCm2riIP/2GMkPOmEmUYWJWrMxdjsR9M
-/MxsTZMIZryWlm6Ke0RI99/fQDsCAzBqnCUO9fA6jLoZd3ZFhq0fvJSxptDOe68/
-hbrO1kOxYsW7tm1PkD9snvSQ5MHyyBtp3aTltpKP/33FEPnqxJ1C3OBij6BtWuyV
-zJEZEewFumLRChQWHbZBNam/1BQbE4tPqBc06SkCpo9lhlub1FlLau4POTb5CQdb
-UQBz6xso7NKAZy1l6X3EGgf5xMvYPIQ40ubvejIuNVNSrGIE1Bmp896miOXjqrvG
-gDBv9DSQ8JakPR6zYDAgCMKYAV0HwMk/pN+wG8tG3ZLMzniBR2+BPDVsW7Xa7EqR
-0v/bSGx4Ym0cds9H1g6hhEaTQZE/Df8pRHOnA/ooSsnowA31HZSiKRCt9kxaxw0x
-0WMDwmVnVqhgSBZ/rY2Vkp10SwXwM1WeIfJ4BjFdOFNmqKlophlluLzkAFqzAYKj
-rC2nsXpwd4zf5EMvkSPMDbk4HD6CL6ApqusQII43wgl8cpDWnDxhGRlKEMPLwTu1
-/9Ahr9CxKvIqRqpVrc9M9n+VylBV0d8Hl7m0j6vfdzIYlciNOAejGK/7BDzn4WNl
-DOQXRPc8O/F58G8AIzNtYNsq46svpx+wuC3EzQPOWqZBiREh3IEKTX4LWWmIDhZ0
-iQ46IVYFirzCThRX+JFD
-=QLEn
------END PGP SIGNATURE-----
-
---V0207lvV8h4k8FAm--
+-- 
+1.9.1
