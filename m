@@ -1,17 +1,67 @@
-From: Robert <kec.belimbing@muaraenimkab.go.id>
-Subject: RE: RE
-Date: Sat, 19 Mar 2016 17:06:47 +0700 (WIB)
-Message-ID: <1131389466.13178.1458382007774.JavaMail.zimbra__3719.79712876982$1458388082$gmane$org@muaraenimkab.go.id>
-Reply-To: Robert <cquinn@netzero.net>
+From: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: =?utf-8?Q?=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0?=
+	=?utf-8?Q?=9A=D0=98=D0=95_=D0=91=D0=90=D0=97=D0=AB!_=D0?=
+	=?utf-8?Q?=A2=D0=B5=D0=BB=5CViber=5CWhatsapp=3A_=D0=9A=D0?=
+	=?utf-8?Q?=9B=D0=98=D0=95HTC=D0=9A=D0=98=D0=95_=D0=91A3?=
+	=?utf-8?Q?=D0=AB!_T=D0=B5=D0=BB=3A_+79l=D0=97=D0=979l=D0?=
+	=?utf-8?Q?=978=D0=977_Email=3A_mgordeev72=40gmail=2Ecom_S?=
+	=?utf-8?Q?kype=3A_prodawez389_=D0=A3=D0=B7=D0=BD=D0=B0=D0?=
+	=?utf-8?Q?=B9=D1=82=D0=B5_=D0=BF=D0=BE=D0=B4=D1=80=D0=BE?=
+	=?utf-8?Q?=D0=B1=D0=BD=D0=B5=D0=B5!!!?=
+Date: Sat, 19 Mar 2016 22:14:54 +0600
+Message-ID: <EE147CC4B1654A89555019A602CE7548@vger.kernel.org>
+Reply-To: "linux-i2c@vger.kernel.org" <mgordeev72@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 173.subnet118-97-169.static.astinet.telkom.net.id ([118.97.169.173]:54589
-	"EHLO zcs.muaraenimkab.go.id" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1753514AbcCSLrb (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 19 Mar 2016 07:47:31 -0400
+Received: from static-181-143-229-122.une.net.co ([181.143.229.122]:41537 "EHLO
+	ServProxy.localdomain" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S932138AbcCSRYK (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 19 Mar 2016 13:24:10 -0400
+Received: from 181.143.229.122 (localhost.localdomain [127.0.0.1])
+	by ServProxy.localdomain (Postfix) with SMTP id 2F65FEC958
+	for <linux-i2c@vger.kernel.org>; Sat, 19 Mar 2016 19:11:38 -0500 (COT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-Please confirm receipt of my previous mail..When can i call you 
+=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0=9A=D0=98=D0=95 =D0=91=D0=90=
+=D0=97=D0=AB =D0=94=D0=90=D0=9D=D0=9D=D0=AB=D0=A5 =D0=94=D0=9B=D0=AF =D0=
+=9F=D0=A0=D0=9E=D0=94=D0=90=D0=96=D0=98 =D0=92=D0=90=D0=A8=D0=98=D0=A5 =
+=D0=A2=D0=9E=D0=92=D0=90=D0=A0=D0=9E=D0=92 =D0=98 =D0=A3=D0=A1=D0=9B=D0=
+=A3=D0=93!
+
+=D0=A1=D0=BE=D0=B1=D0=B8=D1=80=D0=B0=D0=B5=D0=BC =D0=BF=D0=BE =D0=B8=D0=
+=BD=D1=82=D0=B5=D1=80=D0=BD=D0=B5=D1=82 =D0=BF=D0=BE=D0=B4 =D0=B7=D0=B0=
+=D0=BA=D0=B0=D0=B7 =D0=B1=D0=B0=D0=B7=D1=8B =D0=B4=D0=B0=D0=BD=D0=BD=D1=
+=8B=D1=85=20
+=D0=BF=D0=BE=D1=82=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=
+=D1=85 =D0=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D0=BE=D0=B2 =D0=B4=D0=BB=D1=
+=8F =D0=91=D0=B8=D0=B7=D0=BD=D0=B5=D1=81=D0=B0!
+=D0=9F=D0=BE =D0=B1=D0=B0=D0=B7=D0=B5 =D0=BC=D0=BE=D0=B6=D0=BD=D0=BE =D0=
+=B7=D0=B2=D0=BE=D0=BD=D0=B8=D1=82=D1=8C, =D0=BF=D0=B8=D1=81=D0=B0=D1=82=
+=D1=8C, =D1=81=D0=BB=D0=B0=D1=82=D1=8C =D1=84=D0=B0=D0=BA=D1=81=D1=8B=20
+=D0=B8 email,=D0=B2=D0=B5=D1=81=D1=82=D0=B8 =D0=BB=D1=8E=D0=B1=D1=8B=D0=
+=B5 =D0=BF=D1=80=D1=8F=D0=BC=D1=8B=D0=B5 =D0=B0=D0=BA=D1=82=D0=B8=D0=B2=
+=D0=BD=D1=8B=D0=B5 =D0=BF=D1=80=D0=BE=D0=B4=D0=B0=D0=B6=D0=B8=20
+=D0=92=D0=B0=D1=88=D0=B8=D1=85 =D1=82=D0=BE=D0=B2=D0=B0=D1=80=D0=BE=D0=B2=
+ =D0=B8 =D1=83=D1=81=D0=BB=D1=83=D0=B3!
+=D0=A3=D0=B6=D0=B5 =D0=B7=D0=B0=D0=B2=D1=82=D1=80=D0=B0 =D0=BE=D0=B3=D1=
+=80=D0=BE=D0=BC=D0=BD=D0=B0=D1=8F =D0=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D1=
+=81=D0=BA=D0=B0=D1=8F =D0=B1=D0=B0=D0=B7=D0=B0 =D1=83 =D0=92=D0=B0=D1=81=
+,
+=D0=BE=D1=81=D1=82=D0=B0=D0=B5=D1=82=D1=81=D1=8F =D1=82=D0=BE=D0=BB=D1=8C=
+=D0=BA=D0=BE =D1=83=D0=B4=D0=BE=D0=B1=D0=BD=D1=8B=D0=BC =D0=B4=D0=BB=D1=
+=8F =D0=92=D0=B0=D1=81 =D1=81=D0=BF=D0=BE=D1=81=D0=BE=D0=B1=D0=BE=D0=BC=
+ =D0=BF=D1=80=D0=BE=D0=B4=D0=B0=D1=82=D1=8C =D0=92=D0=B0=D1=88=D0=B8 =D1=
+=82=D0=BE=D0=B2=D0=B0=D1=80=D1=8B =D0=B8 =D1=83=D1=81=D0=BB=D1=83=D0=B3=
+=D0=B8!
+=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9=D1=82=D0=B5 =D0=BE=D0=B1 =D1=8D=D1=82=D0=
+=BE=D0=BC =D0=B5=D1=89=D0=B5 =D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=
+=D0=B5=D0=B5:
+
+=D0=A2=D0=B5=D0=BB\Viber\Whatsapp:K=D0=9B=D0=98=D0=95HT=D0=A1K=D0=98=D0=
+=95 =D0=91A3=D0=ACl! T=D0=B5=D0=BB: +79I=D0=97=D0=979I=D0=978=D0=977
+Skype: prodawez389
+Email: mgordeev72@gmail.com
