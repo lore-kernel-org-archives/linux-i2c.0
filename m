@@ -1,67 +1,127 @@
-From: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Subject: =?utf-8?Q?=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0?=
-	=?utf-8?Q?=9A=D0=98=D0=95_=D0=91=D0=90=D0=97=D0=AB!_=D0?=
-	=?utf-8?Q?=A2=D0=B5=D0=BB=5CViber=5CWhatsapp=3A_K=D0=9B?=
-	=?utf-8?Q?=D0=98=D0=95HT=D0=A1K=D0=98=D0=95_=D0=91=D0=90?=
-	=?utf-8?Q?=D0=97=D0=ACI!_T=D0=B5=D0=BB=3A_+79l3939350=D0?=
-	=?utf-8?Q?=B1_Email=3A_abelozerov39=40gmail=2Ecom_Skype?=
-	=?utf-8?Q?=3A_prodawez389_=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9?=
-	=?utf-8?Q?=D1=82=D0=B5_=D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0?=
-	=?utf-8?Q?=B1=D0=BD=D0=B5=D0=B5!!!?=
-Date: Mon, 21 Mar 2016 05:15:22 +0600
-Message-ID: <C33951E99C4867A4787D348B2FA0079B@vger.kernel.org>
-Reply-To: "linux-i2c@vger.kernel.org" <abelozerov39@gmail.com>
+From: "Sricharan" <sricharan@codeaurora.org>
+Subject: RE: [RESEND PATCH V7 4/6] i2c: qup: Add bam dma capabilities
+Date: Mon, 21 Mar 2016 19:31:27 +0530
+Message-ID: <004901d1837a$2df9f620$89ede260$@codeaurora.org>
+References: <1456142895-32646-1-git-send-email-sricharan@codeaurora.org> <20160224101949.GB1391@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from [14.63.224.76] ([14.63.224.76]:54805 "EHLO
-	i-5990-32467-VM.cs1766cloud.internal" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754662AbcCULdl (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Mar 2016 07:33:41 -0400
-Received: from 14.63.224.76 (localhost.localdomain [127.0.0.1])
-	by i-5990-32467-VM.cs1766cloud.internal (8.13.8/8.13.8) with SMTP id u2KNFMw0013349
-	for <linux-i2c@vger.kernel.org>; Mon, 21 Mar 2016 08:15:26 +0900
+Received: from smtp.codeaurora.org ([198.145.29.96]:56151 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754861AbcCUOBh (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Mar 2016 10:01:37 -0400
+In-Reply-To: <20160224101949.GB1391@katana>
+Content-Language: en-us
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: 'Wolfram Sang' <wsa@the-dreams.de>
+Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-=D0=9A=D0=9B=D0=98=D0=95=D0=9D=D0=A2=D0=A1=D0=9A=D0=98=D0=95 =D0=91=D0=90=
-=D0=97=D0=AB =D0=94=D0=90=D0=9D=D0=9D=D0=AB=D0=A5 =D0=94=D0=9B=D0=AF =D0=
-=9F=D0=A0=D0=9E=D0=94=D0=90=D0=96=D0=98 =D0=92=D0=90=D0=A8=D0=98=D0=A5 =
-=D0=A2=D0=9E=D0=92=D0=90=D0=A0=D0=9E=D0=92 =D0=98 =D0=A3=D0=A1=D0=9B=D0=
-=A3=D0=93!
+Hi wolfram,
 
-=D0=A1=D0=BE=D0=B1=D0=B8=D1=80=D0=B0=D0=B5=D0=BC =D0=BF=D0=BE =D0=B8=D0=
-=BD=D1=82=D0=B5=D1=80=D0=BD=D0=B5=D1=82 =D0=BF=D0=BE=D0=B4 =D0=B7=D0=B0=
-=D0=BA=D0=B0=D0=B7 =D0=B1=D0=B0=D0=B7=D1=8B =D0=B4=D0=B0=D0=BD=D0=BD=D1=
-=8B=D1=85=20
-=D0=BF=D0=BE=D1=82=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=
-=D1=85 =D0=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D0=BE=D0=B2 =D0=B4=D0=BB=D1=
-=8F =D0=91=D0=B8=D0=B7=D0=BD=D0=B5=D1=81=D0=B0!
-=D0=9F=D0=BE =D0=B1=D0=B0=D0=B7=D0=B5 =D0=BC=D0=BE=D0=B6=D0=BD=D0=BE =D0=
-=B7=D0=B2=D0=BE=D0=BD=D0=B8=D1=82=D1=8C, =D0=BF=D0=B8=D1=81=D0=B0=D1=82=
-=D1=8C, =D1=81=D0=BB=D0=B0=D1=82=D1=8C =D1=84=D0=B0=D0=BA=D1=81=D1=8B=20
-=D0=B8 email,=D0=B2=D0=B5=D1=81=D1=82=D0=B8 =D0=BB=D1=8E=D0=B1=D1=8B=D0=
-=B5 =D0=BF=D1=80=D1=8F=D0=BC=D1=8B=D0=B5 =D0=B0=D0=BA=D1=82=D0=B8=D0=B2=
-=D0=BD=D1=8B=D0=B5 =D0=BF=D1=80=D0=BE=D0=B4=D0=B0=D0=B6=D0=B8=20
-=D0=92=D0=B0=D1=88=D0=B8=D1=85 =D1=82=D0=BE=D0=B2=D0=B0=D1=80=D0=BE=D0=B2=
- =D0=B8 =D1=83=D1=81=D0=BB=D1=83=D0=B3!
-=D0=A3=D0=B6=D0=B5 =D0=B7=D0=B0=D0=B2=D1=82=D1=80=D0=B0 =D0=BE=D0=B3=D1=
-=80=D0=BE=D0=BC=D0=BD=D0=B0=D1=8F =D0=BA=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D1=
-=81=D0=BA=D0=B0=D1=8F =D0=B1=D0=B0=D0=B7=D0=B0 =D1=83 =D0=92=D0=B0=D1=81=
-,
-=D0=BE=D1=81=D1=82=D0=B0=D0=B5=D1=82=D1=81=D1=8F =D1=82=D0=BE=D0=BB=D1=8C=
-=D0=BA=D0=BE =D1=83=D0=B4=D0=BE=D0=B1=D0=BD=D1=8B=D0=BC =D0=B4=D0=BB=D1=
-=8F =D0=92=D0=B0=D1=81 =D1=81=D0=BF=D0=BE=D1=81=D0=BE=D0=B1=D0=BE=D0=BC=
- =D0=BF=D1=80=D0=BE=D0=B4=D0=B0=D1=82=D1=8C =D0=92=D0=B0=D1=88=D0=B8 =D1=
-=82=D0=BE=D0=B2=D0=B0=D1=80=D1=8B =D0=B8 =D1=83=D1=81=D0=BB=D1=83=D0=B3=
-=D0=B8!
-=D0=A3=D0=B7=D0=BD=D0=B0=D0=B9=D1=82=D0=B5 =D0=BE=D0=B1 =D1=8D=D1=82=D0=
-=BE=D0=BC =D0=B5=D1=89=D0=B5 =D0=BF=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=
-=D0=B5=D0=B5:
+> On Mon, Feb 22, 2016 at 05:38:15PM +0530, Sricharan R wrote:
+> > QUP cores can be attached to a BAM module, which acts as a dma engine
+> > for the QUP core. When DMA with BAM is enabled, the BAM consumer
+> pipe
+> > transmitted data is written to the output FIFO and the BAM producer
+> > pipe received data is read from the input FIFO.
+> >
+> > With BAM capabilities, qup-i2c core can transfer more than
+> > 256 bytes, without a 'stop' which is not possible otherwise.
+> >
+> > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
+> > Reviewed-by: Andy Gross <andy.gross@linaro.org>
+> > Tested-by: Archit Taneja <architt@codeaurora.org>
+> > Tested-by: Telkar Nagender <ntelkar@codeaurora.org>
+> 
+> Applied to for-next, thanks!
 
-=D0=A2=D0=B5=D0=BB\Viber\Whatsapp:K=D0=9B=D0=98=D0=95HTCK=D0=98=D0=95 =D0=
-=91A3=D0=AB! Te=D0=BB: +79l=D0=979=D0=979=D0=9750=D0=B1
-Skype: prodawez389
-Email: abelozerov39@gmail.com
+There is a bug with only this patch which comes out when CONFIG_DEBUG_SG
+option gets
+enabled.  I have patch like below to fix it, but wanted to ask you if it
+would correct to have this in the
+original patch or should I sent a separate fix ? Sorry for the mess on this.
+Not sure if the pull request is sent
+already.
+
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 23eaabb..a1fae0c 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -595,9 +595,6 @@ static int qup_sg_set_buf(struct scatterlist *sg, void
+*buf,
+ 	if (!ret)
+ 		return -EINVAL;
+ 
+-	if (!map)
+-		sg_dma_address(sg) = tg->addr + ((u8 *)buf - tg->start);
+-
+ 	return 0;
+ }
+ 
+@@ -1268,6 +1265,8 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
+ 		}
+ 	}
+ 
++	idx = 0;
++
+ 	do {
+ 		if (msgs[idx].len == 0) {
+ 			ret = -EINVAL;
+@@ -1407,27 +1406,21 @@ static int qup_i2c_probe(struct platform_device
+*pdev)
+ 
+ 		/* 2 tag bytes for each block + 5 for start, stop tags */
+ 		size = blocks * 2 + 5;
+-		qup->dpool = dma_pool_create("qup_i2c-dma-pool", &pdev->dev,
+-					     size, 4, 0);
+ 
+-		qup->start_tag.start = dma_pool_alloc(qup->dpool,
+GFP_KERNEL,
+-						      &qup->start_tag.addr);
++		qup->start_tag.start = devm_kzalloc(&pdev->dev,
++						    size, GFP_KERNEL);
+ 		if (!qup->start_tag.start) {
+ 			ret = -ENOMEM;
+ 			goto fail_dma;
+ 		}
+ 
+-		qup->brx.tag.start = dma_pool_alloc(qup->dpool,
+-						    GFP_KERNEL,
+-						    &qup->brx.tag.addr);
++		qup->brx.tag.start = devm_kzalloc(&pdev->dev, size,
+GFP_KERNEL);
+ 		if (!qup->brx.tag.start) {
+ 			ret = -ENOMEM;
+ 			goto fail_dma;
+ 		}
+ 
+-		qup->btx.tag.start = dma_pool_alloc(qup->dpool,
+-						    GFP_KERNEL,
+-						    &qup->btx.tag.addr);
++		qup->btx.tag.start = devm_kzalloc(&pdev->dev, size,
+GFP_KERNEL);
+ 		if (!qup->btx.tag.start) {
+ 			ret = -ENOMEM;
+ 			goto fail_dma;
+@@ -1566,13 +1559,6 @@ static int qup_i2c_remove(struct platform_device
+*pdev)
+ 	struct qup_i2c_dev *qup = platform_get_drvdata(pdev);
+ 
+ 	if (qup->is_dma) {
+-		dma_pool_free(qup->dpool, qup->start_tag.start,
+-			      qup->start_tag.addr);
+-		dma_pool_free(qup->dpool, qup->brx.tag.start,
+-			      qup->brx.tag.addr);
+-		dma_pool_free(qup->dpool, qup->btx.tag.start,
+-			      qup->btx.tag.addr);
+-		dma_pool_destroy(qup->dpool);
+ 		dma_release_channel(qup->btx.dma);
+ 		dma_release_channel(qup->brx.dma);
+ 	}
+--
+
+Regards,
+ Sricharan
