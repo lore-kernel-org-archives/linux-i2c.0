@@ -1,96 +1,86 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 05/14] i2c-octeon: Enable high-level controller and
- improve on bus contention
-Date: Wed, 23 Mar 2016 21:32:15 +0100
-Message-ID: <20160323203215.GF19849@katana>
-References: <cover.1458289385.git.jglauber@cavium.com>
- <27b7d9015f8165da0371e4d26c9acc72772ae3a0.1458289385.git.jglauber@cavium.com>
+From: Laison@seymour.toledo.br, Computech@seymour.toledo.br,
+	"Inc <support"@ensuretech.com
+Subject: CISCO IP PHONES AND CPU's
+Date: Thu, 24 Mar 2016 01:45:21 +0700
+Message-ID: <20160323200920.25EDBA66AB@seymour.toledo.br>
+Reply-To: sales@laisoncomputertech.us
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="B0nZA57HJSoPbsHY"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:48281 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756125AbcCWUcU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 23 Mar 2016 16:32:20 -0400
-Content-Disposition: inline
-In-Reply-To: <27b7d9015f8165da0371e4d26c9acc72772ae3a0.1458289385.git.jglauber@cavium.com>
+Received: from seymour.toledo.br ([200.148.142.55]:34097 "EHLO
+	seymour.toledo.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756772AbcCWUi5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Mar 2016 16:38:57 -0400
+Content-Description: Mail message body
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Glauber <jglauber@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, David Daney <david.daney@cavium.com>
+To: Recipients <support@ensuretech.com>
 
+Hi,
 
---B0nZA57HJSoPbsHY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Our Stock list.
 
-On Fri, Mar 18, 2016 at 09:46:30AM +0100, Jan Glauber wrote:
-> From: David Daney <david.daney@cavium.com>
->=20
-> Use High Level Controller when possible.
+Brand NEW
+96 x Cisco 7900 IP Phone
+87 x Unified IP Phone 6900
+12 x Unified IP Phone 8900
+76 x Unified IP Phone 9900
+55 x Unified IP Phone 8800
+67 x Cisco 1921
+67 x Cisco 1941
+56 x Cisco CP-7961G 7961G
+34 x Cisco CP-7971G-GE 7971G
+19 x Cisco Unified IP Conference Station 7937G Model: 7937 CP-7937G
+20 x Cisco CP-7975G 7975G
 
-Can you give me a one line description what this Controller is? I'd
-assume it can do simple write-then-read messages with less setup?
+Brand New Sealed :
 
-> i2c-octeon was reacting badly to bus contention: when in
-> direct-access mode (for transfers > 8 bytes, which cannot use the
-> high-level controller) some !ACK or arbitration-loss states were
-> not causing the current transfer to be aborted, and the bus released.
+23 x  CISCO1921-SEC/K9
+Conditions: Brand New Sealed
+Description: CISCO 1921 Security Bundle w/SEC license PAK
 
-So, what does this patch do? Enable HLC for transfers < 8 byte? And for
-all other transfers we still suffer from the same problem?
+45 x CISCO1921/K9
+Conditions: Brand New Sealed
+Description: CISCO 1921 Modular Router, 2 GE, 2 EHWIC slots, 512DRAM, IP Base
 
-Such information should be here, too. It helps reviewing when I already
-have the big picture.
+(1)  WS-C4500X-16SFP+
+Serial number:  JAE183501L3
+US&#36;2600
 
-> There's one place in i2c protocol that !ACK is an acceptable
-> response: in the final byte of a read cycle.  In this case the
-> destination is not saying that the transfer failed, just that it
-> doesn't want more data.
+(1)  WS-C3850-48PW-S
+Serial number:  FCW1823C0EW
+US&#36;2650
 
-Ehrm, no? For reads, the MASTER is saying it doesn't need any more data.
-And an I2C eeprom can legally NACK a write, e.g. when it is still
-processing the previous write. Also, NACK is a valid response after the
-address phase, meaning there is no device listening.
+(1)  WS-X6908-10G-2T
+Serial number:  SAL1620CKUB
+US&#36;3650
 
-Does the implementation cover the above cases?
+(1)  ASR1000-ESP10
+Serial number:  JAE181306C3
+US&#36;3800
 
-> This enables correct behavior of ACK on final byte of non-final read
-> msgs too.
+(1)  AIR-CT5508-250-K9   (this is new but box is open!)
+Serial number:  FCW1521L038
+US&#36;4000
 
-The patch is huge and very hard to review. Maybe it needs to be split
-up. Brainstorming example: a) move functions like octeon_i2c_set_clock()
-upwards, b) change them if needed, c) implement HLC functions, d) add
-switching logic to use HLC or non-HLC functions...
+CPUs part number below
 
-But first we need to be clear on the big picture view.
+89 x  X5650
 
-Thanks,
+975 x  X5660
 
-   Wolfram
+150 x  X5680
 
+265 x  X5690
 
---B0nZA57HJSoPbsHY
-Content-Type: application/pgp-signature; name="signature.asc"
+Kindly make your price offers.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJW8v1PAAoJEBQN5MwUoCm2CAMP+wdjunskJEmEbPqaeVMWakWs
-++8s/3Cv1oAVVF/CTHdlqjmt+m3UvlmmTmF0+8UxorKbQQ4lDef9UUFujEWruzh4
-HTfnmed7RkeHMFhFQZCgGiHqmQ0DPmlBjPQX45HSIOYg1F56jCOgwpFU1p+XW/OL
-B9SQMZJmofLOjHDNEkKVlvff+lzuOQ7XVzxb1SsoLcZFF5/6ag6ZlMmAtOvU7lMx
-88mDPtoLQPbsfsvxsSK7Nl1ZHsaH5SsCTkwvlZuQ2pvQH9QGUOEuFtkMjRj91xmT
-wkakRj6CJVrlPNSCRWt1701e2/xAu/KnK3BmE1M/WqZypE5uL0dlabXdqqD/4/BY
-r5vxccYN8k+PfWyjGJHt73Mfm4MR/uFU2rG6LZHPVyesGEw1Sk3C9jhFiBvG7D7Q
-Hm4pEJpPwl64qf+Kt3rAKojLSAOqul4KIHH0SwI9JmUhNAhD17NMAEJxkhC+RJSA
-wgeQ15buWOImt2S1iKPHgEj8VyxhAdIrRpyUB0yYmo/q0GaFJkFeD6Oj0BwhzyWG
-zbjm1OG+aUkWCpDIlYktcAct8iZfcqnDx7OyJxeD9PFWdKxmgzgykLfMSl4CEl5e
-Y1XqYhp+tke9F5cvBqojnxO2AaRut44pxEGc7zRVbM/Wgz3Ptou5+oupcXwSaZbf
-rWECz6IcutMZxC4/RL8s
-=LDpr
------END PGP SIGNATURE-----
-
---B0nZA57HJSoPbsHY--
+Sincerely
+Barbara Johnson
+Laison Computech
+210 N Scoring Ave,
+Rialto California, 92376
+Tel: +1-657-232-7047
+Fax: +1-347-214-0478
+Email: sales@laisoncomputertech.us
