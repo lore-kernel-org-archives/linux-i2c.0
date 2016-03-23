@@ -1,87 +1,71 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: prevent endless uevent loop with CONFIG_I2C_DEBUG_CORE
-Date: Wed, 23 Mar 2016 20:47:02 +0100
-Message-ID: <1458762422-30079-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Jan Glauber <jglauber@cavium.com>, Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Subject: Re: [PATCH v4 01/14] i2c-octeon: Cleanup i2c-octeon driver
+Date: Wed, 23 Mar 2016 20:51:58 +0100
+Message-ID: <20160323195158.GB19849@katana>
+References: <cover.1458289385.git.jglauber@cavium.com>
+ <0c8d2f5e22f6bb73d056d790c65da9f7cf248561.1458289385.git.jglauber@cavium.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:48046 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752155AbcCWTwD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 23 Mar 2016 15:52:03 -0400
+Content-Disposition: inline
+In-Reply-To: <0c8d2f5e22f6bb73d056d790c65da9f7cf248561.1458289385.git.jglauber@cavium.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
-Jan reported this:
-===
-After enabling CONFIG_I2C_DEBUG_CORE my system was broken
-(no network, console login not possible). System log was
-flooded with the this message:
 
- ...
-[  608.052077] rtc-ds1307 0-0068: uevent
-[  608.052500] rtc-ds1307 0-0068: uevent
-[  608.052925] rtc-ds1307 0-0068: uevent
- ...
+--3uo+9/B/ebqu+fSQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The culprit is the dev_dbg printk in the i2c uevent handler.
-If this is activated (for instance by CONFIG_I2C_DEBUG_CORE)
-it results in an endless loop with systemd-journald.
+On Fri, Mar 18, 2016 at 09:46:26AM +0100, Jan Glauber wrote:
+> Cleanup only without functional change.
+>=20
+> - removed DRV_VERSION
+> - defines: use defines instead of plain values,
+>   use BIT_ULL macro, add comments
+> - rename waitqueue return value to time_left
+> - sort local variables by length
+> - fix indentation and whitespace errors
+> - make function return void if the result is not used
+>   (octeon_i2c_stop, octeon_i2c_set_clock)
+> - remove debug code from octeon_i2c_stop
+> - renamed some functions for readability
+> - update copyright
+>=20
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
-This happens if user-space scans the system log and reads the uevent
-file to get information about a newly created device, which seems fair
-use to me. Unfortunately reading the "uevent" file uses the same
-function that runs for creating the uevent for a new device,
-generating the next syslog entry.
+Forgot to say: This is already upsteam. Since it is "just" cleanup, I
+didn't want to wait another cycle and merged it for v4.6 merge window
+already, so we can continue with reviewing the next patches.
 
-Ideally user-space would implement a recursion detection and
-after reading the same device file for the 1000th time call it a
-day, but nevertheless I think we should avoid this problem by
-removing the debug print completly or using another print variant.
 
-The same problem seems to be reported here:
-https://bugs.freedesktop.org/show_bug.cgi?id=76886
-===
+--3uo+9/B/ebqu+fSQ
+Content-Type: application/pgp-signature; name="signature.asc"
 
-His patch converted the message to pr_debug, but I think the debug can
-simply go. We have other means to see code paths these days. This
-enables us to clean up the function some more while we are here.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Reported-by: Jan Glauber <jglauber@cavium.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Acked-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Tested-by: Jan Glauber <jglauber@cavium.com>
----
+iQIcBAEBAgAGBQJW8vPeAAoJEBQN5MwUoCm2O9wP/2o+ikGt5e0hEfy1HsU6sLrd
+hqkimg6x+kDuoVMmGk6ABxEJuYiRgqNs+3WJEPq35ZsQznlgkFAM27ndf7GS90DE
+Zic/5YoBCCrKPZVcExt7SWDlrIB5FlIJwHnMYupIDtoGHvd/9T9fFGQNlXhaTGUj
+ByT78l7pgQf/r7+yDxPmoM6Q0yKv+pSSOOQcCWbZ5HEKFo/4XOS8N14/DqkUA9eK
+u1UaNPwj0wNt+1NM4nQ91al0fDJLTWDTyv3xYpG9X2n5RvB/+fMlDozfYreAu0lR
+D75a/JyuUHBRUPfHLCR/HISfUI5mJIP9L4mAjhNCewewRZ/hhpaT8KVK1V+0fwqq
+g14dvCIwFNKpD4vBwZQlaa/XzGD0F55qhR7MkHfYGevAqoj/aubJ0SQPvldyiZAn
+6c43KE4rqIwXOPbFVV2hAsud0B3fQZiYugQHKzxESuJak8fiLdARIBUaPQgCEYDV
+YvmN8I3pIWuqqak5WJwy0pcRbXprv4kRJP5TUYHD+ARythRLyDSMo5t1FYaUKcsT
+nRp5lTJUZ2wKtmLvv7U93VgdT2nmHeA5LkkH3g1+Ycpc8CcBD2wm30MsjoN/mOZv
+2rgvVVNxYeV3HS2dRPQ9c+wKWi/L35ks8lv/2TxbrnNp5QNUGqyGw5JHeq0x/RzZ
+TyJDxmEAWujw/99K1eAS
+=XjFN
+-----END PGP SIGNATURE-----
 
-Thanks again, Jan, for the report!
-
- drivers/i2c/i2c-core.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 0f2f8484e8ec1f..e584d88ee337f6 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -525,22 +525,16 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
- 	return 0;
- }
- 
--
--/* uevent helps with hotplug: modprobe -q $(MODALIAS) */
- static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
- {
--	struct i2c_client	*client = to_i2c_client(dev);
-+	struct i2c_client *client = to_i2c_client(dev);
- 	int rc;
- 
- 	rc = acpi_device_uevent_modalias(dev, env);
- 	if (rc != -ENODEV)
- 		return rc;
- 
--	if (add_uevent_var(env, "MODALIAS=%s%s",
--			   I2C_MODULE_PREFIX, client->name))
--		return -ENOMEM;
--	dev_dbg(dev, "uevent\n");
--	return 0;
-+	return add_uevent_var(env, "MODALIAS=%s%s", I2C_MODULE_PREFIX, client->name);
- }
- 
- /* i2c bus recovery routines */
--- 
-2.7.0
+--3uo+9/B/ebqu+fSQ--
