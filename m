@@ -1,84 +1,87 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH] i2c: Prevent endless uevent loop with dev_dbg
-Date: Wed, 23 Mar 2016 18:29:05 +0100
-Message-ID: <20160323172905.GB1712@hardcore>
-References: <1458748247-9219-1-git-send-email-jglauber@cavium.com>
- <20160323165033.GB1385@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c: prevent endless uevent loop with CONFIG_I2C_DEBUG_CORE
+Date: Wed, 23 Mar 2016 20:47:02 +0100
+Message-ID: <1458762422-30079-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160323165033.GB1385@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Jan Glauber <jglauber@cavium.com>, Alexander Sverdlin <alexander.sverdlin@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 23, 2016 at 05:50:33PM +0100, Wolfram Sang wrote:
-> On Wed, Mar 23, 2016 at 04:50:47PM +0100, Jan Glauber wrote:
-> > After enabling CONFIG_I2C_DEBUG_CORE my system was broken
-> > (no network, console login not possible). System log was
-> > flooded with the this message:
-> > 
-> >  ...
-> > [  608.052077] rtc-ds1307 0-0068: uevent
-> > [  608.052500] rtc-ds1307 0-0068: uevent
-> > [  608.052925] rtc-ds1307 0-0068: uevent
-> >  ...
-> > 
-> > The culprit is the dev_dbg printk in the i2c uevent handler.
-> > If this is activated (for instance by CONFIG_I2C_DEBUG_CORE)
-> > it results in an endless loop with systemd-journald.
-> > 
-> > This happens if user-space scans the system log and reads the uevent
-> > file to get information about a newly created device, which seems fair
-> > use to me. Unfortunately reading the "uevent" file uses the same
-> > function that runs for creating the uevent for a new device,
-> > generating the next syslog entry.
-> > 
-> > Ideally user-space would implement a recursion detection and
-> > after reading the same device file for the 1000th time call it a
-> > day, but nevertheless I think we should avoid this problem by
-> > removing the debug print completly or using another print variant.
-> 
-> Thanks for pointing out this problem. I think this debug can go. I also
-> think the function can be cleaned up some more. Can you test this patch?
+Jan reported this:
+===
+After enabling CONFIG_I2C_DEBUG_CORE my system was broken
+(no network, console login not possible). System log was
+flooded with the this message:
 
-Works for me!
+ ...
+[  608.052077] rtc-ds1307 0-0068: uevent
+[  608.052500] rtc-ds1307 0-0068: uevent
+[  608.052925] rtc-ds1307 0-0068: uevent
+ ...
 
-Thanks, Jan
+The culprit is the dev_dbg printk in the i2c uevent handler.
+If this is activated (for instance by CONFIG_I2C_DEBUG_CORE)
+it results in an endless loop with systemd-journald.
 
-> Thanks,
-> 
->    Wolfram
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 0f2f8484e8ec1f..e584d88ee337f6 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -525,22 +525,16 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
->  	return 0;
->  }
->  
-> -
-> -/* uevent helps with hotplug: modprobe -q $(MODALIAS) */
->  static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
->  {
-> -	struct i2c_client	*client = to_i2c_client(dev);
-> +	struct i2c_client *client = to_i2c_client(dev);
->  	int rc;
->  
->  	rc = acpi_device_uevent_modalias(dev, env);
->  	if (rc != -ENODEV)
->  		return rc;
->  
-> -	if (add_uevent_var(env, "MODALIAS=%s%s",
-> -			   I2C_MODULE_PREFIX, client->name))
-> -		return -ENOMEM;
-> -	dev_dbg(dev, "uevent\n");
-> -	return 0;
-> +	return add_uevent_var(env, "MODALIAS=%s%s", I2C_MODULE_PREFIX, client->name);
->  }
->  
->  /* i2c bus recovery routines */
-> 
+This happens if user-space scans the system log and reads the uevent
+file to get information about a newly created device, which seems fair
+use to me. Unfortunately reading the "uevent" file uses the same
+function that runs for creating the uevent for a new device,
+generating the next syslog entry.
+
+Ideally user-space would implement a recursion detection and
+after reading the same device file for the 1000th time call it a
+day, but nevertheless I think we should avoid this problem by
+removing the debug print completly or using another print variant.
+
+The same problem seems to be reported here:
+https://bugs.freedesktop.org/show_bug.cgi?id=76886
+===
+
+His patch converted the message to pr_debug, but I think the debug can
+simply go. We have other means to see code paths these days. This
+enables us to clean up the function some more while we are here.
+
+Reported-by: Jan Glauber <jglauber@cavium.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Tested-by: Jan Glauber <jglauber@cavium.com>
+---
+
+Thanks again, Jan, for the report!
+
+ drivers/i2c/i2c-core.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 0f2f8484e8ec1f..e584d88ee337f6 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -525,22 +525,16 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ 	return 0;
+ }
+ 
+-
+-/* uevent helps with hotplug: modprobe -q $(MODALIAS) */
+ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+ {
+-	struct i2c_client	*client = to_i2c_client(dev);
++	struct i2c_client *client = to_i2c_client(dev);
+ 	int rc;
+ 
+ 	rc = acpi_device_uevent_modalias(dev, env);
+ 	if (rc != -ENODEV)
+ 		return rc;
+ 
+-	if (add_uevent_var(env, "MODALIAS=%s%s",
+-			   I2C_MODULE_PREFIX, client->name))
+-		return -ENOMEM;
+-	dev_dbg(dev, "uevent\n");
+-	return 0;
++	return add_uevent_var(env, "MODALIAS=%s%s", I2C_MODULE_PREFIX, client->name);
+ }
+ 
+ /* i2c bus recovery routines */
+-- 
+2.7.0
