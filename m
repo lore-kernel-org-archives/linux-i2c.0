@@ -1,96 +1,96 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 03/14] i2c-octeon: Change adapter timeout and retry
- default values
-Date: Wed, 23 Mar 2016 20:55:18 +0100
-Message-ID: <20160323195517.GE19849@katana>
+Subject: Re: [PATCH v4 05/14] i2c-octeon: Enable high-level controller and
+ improve on bus contention
+Date: Wed, 23 Mar 2016 21:32:15 +0100
+Message-ID: <20160323203215.GF19849@katana>
 References: <cover.1458289385.git.jglauber@cavium.com>
- <dd3af500365eeeac662a097441259e90a0d3e303.1458289385.git.jglauber@cavium.com>
+ <27b7d9015f8165da0371e4d26c9acc72772ae3a0.1458289385.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d8Lz2Tf5e5STOWUP"
+	protocol="application/pgp-signature"; boundary="B0nZA57HJSoPbsHY"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:48083 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:48281 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756247AbcCWTzV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 23 Mar 2016 15:55:21 -0400
+	id S1756125AbcCWUcU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 23 Mar 2016 16:32:20 -0400
 Content-Disposition: inline
-In-Reply-To: <dd3af500365eeeac662a097441259e90a0d3e303.1458289385.git.jglauber@cavium.com>
+In-Reply-To: <27b7d9015f8165da0371e4d26c9acc72772ae3a0.1458289385.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jan Glauber <jglauber@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, David Daney <david.daney@cavium.com>
 
 
---d8Lz2Tf5e5STOWUP
+--B0nZA57HJSoPbsHY
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 18, 2016 at 09:46:28AM +0100, Jan Glauber wrote:
-> Convert the adapter timeout to 2 ms instead of a fixed number of
-> jiffies and set retries to 10.
+On Fri, Mar 18, 2016 at 09:46:30AM +0100, Jan Glauber wrote:
+> From: David Daney <david.daney@cavium.com>
+>=20
+> Use High Level Controller when possible.
 
-You describe what you change, but not why this is needed. Why 10
-retries? And shouldn't that be 20ms seeing the HZ/50 ?
+Can you give me a one line description what this Controller is? I'd
+assume it can do simple write-then-read messages with less setup?
 
-Also, please use "i2c: octeon: " as prefix in the subject.
+> i2c-octeon was reacting badly to bus contention: when in
+> direct-access mode (for transfers > 8 bytes, which cannot use the
+> high-level controller) some !ACK or arbitration-loss states were
+> not causing the current transfer to be aborted, and the bus released.
+
+So, what does this patch do? Enable HLC for transfers < 8 byte? And for
+all other transfers we still suffer from the same problem?
+
+Such information should be here, too. It helps reviewing when I already
+have the big picture.
+
+> There's one place in i2c protocol that !ACK is an acceptable
+> response: in the final byte of a read cycle.  In this case the
+> destination is not saying that the transfer failed, just that it
+> doesn't want more data.
+
+Ehrm, no? For reads, the MASTER is saying it doesn't need any more data.
+And an I2C eeprom can legally NACK a write, e.g. when it is still
+processing the previous write. Also, NACK is a valid response after the
+address phase, meaning there is no device listening.
+
+Does the implementation cover the above cases?
+
+> This enables correct behavior of ACK on final byte of non-final read
+> msgs too.
+
+The patch is huge and very hard to review. Maybe it needs to be split
+up. Brainstorming example: a) move functions like octeon_i2c_set_clock()
+upwards, b) change them if needed, c) implement HLC functions, d) add
+switching logic to use HLC or non-HLC functions...
+
+But first we need to be clear on the big picture view.
 
 Thanks,
 
    Wolfram
 
->=20
-> Signed-off-by: Jan Glauber <jglauber@cavium.com>
-> ---
->  drivers/i2c/busses/i2c-octeon.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-oct=
-eon.c
-> index 9240037..e616e4c 100644
-> --- a/drivers/i2c/busses/i2c-octeon.c
-> +++ b/drivers/i2c/busses/i2c-octeon.c
-> @@ -414,7 +414,6 @@ static struct i2c_adapter octeon_i2c_ops =3D {
->  	.owner =3D THIS_MODULE,
->  	.name =3D "OCTEON adapter",
->  	.algo =3D &octeon_i2c_algo,
-> -	.timeout =3D HZ / 50,
->  };
-> =20
->  /* calculate and set clock divisors */
-> @@ -541,6 +540,8 @@ static int octeon_i2c_probe(struct platform_device *p=
-dev)
->  	octeon_i2c_set_clock(i2c);
-> =20
->  	i2c->adap =3D octeon_i2c_ops;
-> +	i2c->adap.timeout =3D msecs_to_jiffies(2);
-> +	i2c->adap.retries =3D 10;
->  	i2c->adap.dev.parent =3D &pdev->dev;
->  	i2c->adap.dev.of_node =3D node;
->  	i2c_set_adapdata(&i2c->adap, i2c);
-> --=20
-> 1.9.1
->=20
 
---d8Lz2Tf5e5STOWUP
+--B0nZA57HJSoPbsHY
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW8vSlAAoJEBQN5MwUoCm2Ch4P+weQ7JfvVsu8JHE3V3g63L45
-JW2DZ/+Z7AohAjniU5K/R0qZTE9O161yQSKC7FOWkti1S2fMiY8uQWIrWWLlyk2d
-dlOPlSztGAjWztvmsWETG8ZIVwNCgitHYkHUoF7ws8QyXvdnn89dnQbWECUAdveZ
-wMW7TB6zzUYPu+xQABObKq5d6BeY5ouZnFXyHArVTL7MTRh74MjxiEN2gqOHOINf
-0KAbjVWCwNwB1JHQHU2hT1eI7a0k77+QbNlXhwClLvqdOkStAU04WAYfGuFehq62
-Q3S9sgsbP3l1HIYFuLfl39iE4bRoGGCC7aUjRLbcl2ANFx5bb7kAthlyF7sUG6Qd
-xO1hP7nA5EaR/pF+X2FE/tpLe8tfnZuGX8NklnGwx01ryfcqR42nO0IwdCB6TqPJ
-/8pS7N32RmHaN9Am7y4cvAo1NQMrMbHLkp8znly+XowKVIhYIE6Q+/qgchpI7EfF
-C/79iHdC2/un7DPdKCO9AK7m+8XJSt3sfdBD30ryK2wMacSQvVSE4gYlKbRZsLSi
-YEWtwcwA6X7KCux42RxQVp0ldiwOMJwqKf2bW8zXL2cDd3X5CLbN5srbwLLYmoP/
-TaK42Knzif7Ag9a2fMERYtX1+Pt3qLM3LC1edfUR52tjI2O32v39For4+Gkk1Mdz
-KeiaYsQot1xkiIEtF96k
-=E642
+iQIcBAEBAgAGBQJW8v1PAAoJEBQN5MwUoCm2CAMP+wdjunskJEmEbPqaeVMWakWs
+++8s/3Cv1oAVVF/CTHdlqjmt+m3UvlmmTmF0+8UxorKbQQ4lDef9UUFujEWruzh4
+HTfnmed7RkeHMFhFQZCgGiHqmQ0DPmlBjPQX45HSIOYg1F56jCOgwpFU1p+XW/OL
+B9SQMZJmofLOjHDNEkKVlvff+lzuOQ7XVzxb1SsoLcZFF5/6ag6ZlMmAtOvU7lMx
+88mDPtoLQPbsfsvxsSK7Nl1ZHsaH5SsCTkwvlZuQ2pvQH9QGUOEuFtkMjRj91xmT
+wkakRj6CJVrlPNSCRWt1701e2/xAu/KnK3BmE1M/WqZypE5uL0dlabXdqqD/4/BY
+r5vxccYN8k+PfWyjGJHt73Mfm4MR/uFU2rG6LZHPVyesGEw1Sk3C9jhFiBvG7D7Q
+Hm4pEJpPwl64qf+Kt3rAKojLSAOqul4KIHH0SwI9JmUhNAhD17NMAEJxkhC+RJSA
+wgeQ15buWOImt2S1iKPHgEj8VyxhAdIrRpyUB0yYmo/q0GaFJkFeD6Oj0BwhzyWG
+zbjm1OG+aUkWCpDIlYktcAct8iZfcqnDx7OyJxeD9PFWdKxmgzgykLfMSl4CEl5e
+Y1XqYhp+tke9F5cvBqojnxO2AaRut44pxEGc7zRVbM/Wgz3Ptou5+oupcXwSaZbf
+rWECz6IcutMZxC4/RL8s
+=LDpr
 -----END PGP SIGNATURE-----
 
---d8Lz2Tf5e5STOWUP--
+--B0nZA57HJSoPbsHY--
