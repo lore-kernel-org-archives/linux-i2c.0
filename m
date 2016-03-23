@@ -1,60 +1,96 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 04/14] i2c-octeon: Support I2C_M_RECV_LEN
-Date: Wed, 23 Mar 2016 20:52:56 +0100
-Message-ID: <20160323195256.GD19849@katana>
+Subject: Re: [PATCH v4 03/14] i2c-octeon: Change adapter timeout and retry
+ default values
+Date: Wed, 23 Mar 2016 20:55:18 +0100
+Message-ID: <20160323195517.GE19849@katana>
 References: <cover.1458289385.git.jglauber@cavium.com>
- <5dc0231b91f7ead7c556d1a5a9e44e51d89f107d.1458289385.git.jglauber@cavium.com>
+ <dd3af500365eeeac662a097441259e90a0d3e303.1458289385.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OROCMA9jn6tkzFBc"
+	protocol="application/pgp-signature"; boundary="d8Lz2Tf5e5STOWUP"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:48056 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:48083 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756270AbcCWTw7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 23 Mar 2016 15:52:59 -0400
+	id S1756247AbcCWTzV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 23 Mar 2016 15:55:21 -0400
 Content-Disposition: inline
-In-Reply-To: <5dc0231b91f7ead7c556d1a5a9e44e51d89f107d.1458289385.git.jglauber@cavium.com>
+In-Reply-To: <dd3af500365eeeac662a097441259e90a0d3e303.1458289385.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jan Glauber <jglauber@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, David Daney <david.daney@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
 
---OROCMA9jn6tkzFBc
+--d8Lz2Tf5e5STOWUP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 18, 2016 at 09:46:29AM +0100, Jan Glauber wrote:
-> From: David Daney <david.daney@cavium.com>
+On Fri, Mar 18, 2016 at 09:46:28AM +0100, Jan Glauber wrote:
+> Convert the adapter timeout to 2 ms instead of a fixed number of
+> jiffies and set retries to 10.
+
+You describe what you change, but not why this is needed. Why 10
+retries? And shouldn't that be 20ms seeing the HZ/50 ?
+
+Also, please use "i2c: octeon: " as prefix in the subject.
+
+Thanks,
+
+   Wolfram
+
 >=20
-> If I2C_M_RECV_LEN is set consider the length byte.
->=20
-> Signed-off-by: David Daney <ddaney@caviumnetworks.com>
 > Signed-off-by: Jan Glauber <jglauber@cavium.com>
+> ---
+>  drivers/i2c/busses/i2c-octeon.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-oct=
+eon.c
+> index 9240037..e616e4c 100644
+> --- a/drivers/i2c/busses/i2c-octeon.c
+> +++ b/drivers/i2c/busses/i2c-octeon.c
+> @@ -414,7 +414,6 @@ static struct i2c_adapter octeon_i2c_ops =3D {
+>  	.owner =3D THIS_MODULE,
+>  	.name =3D "OCTEON adapter",
+>  	.algo =3D &octeon_i2c_algo,
+> -	.timeout =3D HZ / 50,
+>  };
+> =20
+>  /* calculate and set clock divisors */
+> @@ -541,6 +540,8 @@ static int octeon_i2c_probe(struct platform_device *p=
+dev)
+>  	octeon_i2c_set_clock(i2c);
+> =20
+>  	i2c->adap =3D octeon_i2c_ops;
+> +	i2c->adap.timeout =3D msecs_to_jiffies(2);
+> +	i2c->adap.retries =3D 10;
+>  	i2c->adap.dev.parent =3D &pdev->dev;
+>  	i2c->adap.dev.of_node =3D node;
+>  	i2c_set_adapdata(&i2c->adap, i2c);
+> --=20
+> 1.9.1
+>=20
 
-Like patch 1, this is already upstream.
-
-
---OROCMA9jn6tkzFBc
+--d8Lz2Tf5e5STOWUP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJW8vQXAAoJEBQN5MwUoCm2h+sP/ifjOpRhjW3tkT8OQqibbmsg
-mzZEulQc05D/dqA6jz0QBkPxQ0s7wBbo8r6gVrF0mv4x8l7+LC9E3jdG2ohCr12S
-+zS0oLLyrOP5DbbJU4NMgqiddHoQFfm0l5VovrOXs9IpGKgqhSnZPzh2O6HTUHF3
-UvK/dtJwHqnlQqyBo2INRhiUBSRF/Go12Vsl9EM1IehabXais9gY3ktL7HU5GeXc
-2jTPlr8TcgF7r/poN6VIiBaWU7xEPsJqLY1UFRpktfH1e/OpSty4AmoZ+cqARUXc
-5KfxE7y4NUEeCZRAM5uzr9wPxIqMiK//ysYvZ9z1knQV9Cimm+nLWb+5gWJT5UZ/
-yq2My/bqbZYTDIio++ynwAdiRM3NN7SGbGXNESjgFPHxIEEdfA6igyU4AWOI2ydt
-FsT2ePqFuRuMpJtPMyL67uVc7DsgdPkgDh5iRSszePv/cYJUfAmsCoD2eMUn6Tx8
-iirtzJ/D707QRNJnN24K9BNstyjYV0WfnVeGPODK3QRW16Iy9Esy8Rq3+nt/YvfQ
-mKmLD724Fetj9xbfANsZdUoc+Nw6UyVBmC7dyFBGi/KzRnXV8HsYhopMs81xa+qe
-8tXC7gGWwERKPA0mkOHCYdR4uUpzLKcR+wvtgGpVLXU50uFWam26CrMr3oyFkk2D
-3GEOZH6M5rbKvLMFo6AB
-=KZUz
+iQIcBAEBAgAGBQJW8vSlAAoJEBQN5MwUoCm2Ch4P+weQ7JfvVsu8JHE3V3g63L45
+JW2DZ/+Z7AohAjniU5K/R0qZTE9O161yQSKC7FOWkti1S2fMiY8uQWIrWWLlyk2d
+dlOPlSztGAjWztvmsWETG8ZIVwNCgitHYkHUoF7ws8QyXvdnn89dnQbWECUAdveZ
+wMW7TB6zzUYPu+xQABObKq5d6BeY5ouZnFXyHArVTL7MTRh74MjxiEN2gqOHOINf
+0KAbjVWCwNwB1JHQHU2hT1eI7a0k77+QbNlXhwClLvqdOkStAU04WAYfGuFehq62
+Q3S9sgsbP3l1HIYFuLfl39iE4bRoGGCC7aUjRLbcl2ANFx5bb7kAthlyF7sUG6Qd
+xO1hP7nA5EaR/pF+X2FE/tpLe8tfnZuGX8NklnGwx01ryfcqR42nO0IwdCB6TqPJ
+/8pS7N32RmHaN9Am7y4cvAo1NQMrMbHLkp8znly+XowKVIhYIE6Q+/qgchpI7EfF
+C/79iHdC2/un7DPdKCO9AK7m+8XJSt3sfdBD30ryK2wMacSQvVSE4gYlKbRZsLSi
+YEWtwcwA6X7KCux42RxQVp0ldiwOMJwqKf2bW8zXL2cDd3X5CLbN5srbwLLYmoP/
+TaK42Knzif7Ag9a2fMERYtX1+Pt3qLM3LC1edfUR52tjI2O32v39For4+Gkk1Mdz
+KeiaYsQot1xkiIEtF96k
+=E642
 -----END PGP SIGNATURE-----
 
---OROCMA9jn6tkzFBc--
+--d8Lz2Tf5e5STOWUP--
