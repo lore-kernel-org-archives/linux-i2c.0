@@ -1,54 +1,62 @@
-From: Daniel Baluta <daniel.baluta@intel.com>
-Subject: Re: [PATCH 3/3] iio: imu: mpu6050: Add support for auxiliary I2C master
-Date: Wed, 23 Mar 2016 14:32:27 +0200
-Message-ID: <CAEnQRZDxc2ju1mamgmSm8soFjv2L7WVER8oA-77hFJd7BcfP1g@mail.gmail.com>
-References: <1458232366-12773-1-git-send-email-daniel.baluta@intel.com>
-	<1458232366-12773-4-git-send-email-daniel.baluta@intel.com>
-	<56EE7FD3.7050803@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [PATCH] i2c: Prevent endless uevent loop with dev_dbg
+Date: Wed, 23 Mar 2016 16:50:47 +0100
+Message-ID: <1458748247-9219-1-git-send-email-jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33204 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754985AbcCWMc3 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Mar 2016 08:32:29 -0400
-In-Reply-To: <56EE7FD3.7050803@kernel.org>
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:38385 "EHLO
+	mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754423AbcCWPvY (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Mar 2016 11:51:24 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Daniel Baluta <daniel.baluta@intel.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Matt Ranostay <matt.ranostay@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Crt Mori <cmo@melexis.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Ge Gao <ggao@invensense.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Adriana Reus <adi.reus@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Jan Glauber <jglauber@cavium.com>
 
-On Sun, Mar 20, 2016 at 12:47 PM, Jonathan Cameron <jic23@kernel.org> wrote:
-> On 17/03/16 16:32, Daniel Baluta wrote:
->> The MPU-60X0 [1] has an auxiliary I2C bus for connecting external
->> sensors. This bus has two operating modes:
->>       * pass-through, which connects the primary and auxiliary busses
->>       together [already implemented]
->>       * I2C master mode, where MPU60X0 acts as a master to any
->>       external connected sensors [implemented in this patch]
->>
->> I2C master supports up to 5 slaves. Slaves 0-3 have a common operating
->> mode while slave 4 is different.
->>
->> This patch only adds support for slave 4 because it has a cleaner
->> interface and it has an interrupt that signals when data from slave
->> to master arrived.
->>
->> Registers are described here [2].
->>
->> We use threaded handler for reading slave4 done interrupt bit.
->>
->> [1]
->> https://www.cdiweb.com/datasheets/invensense/MPU-6050_DataSheet_V3%204.pdf
->> [2]
->> http://www6.in.tum.de/pub/Main/TeachingWs2015SeminarAuonomousFahren/RM-MPU-6000A.pdf
->>
->> Signed-off-by: Daniel Baluta <daniel.baluta@intel.com>
-> hmm. Daniel - this is an i2c driver (be it within an IIO driver) so you need
-> to cc Wolfram and the i2c list.
->
-> I'll be needing an Ack from Wolfram if I am to take this,
+After enabling CONFIG_I2C_DEBUG_CORE my system was broken
+(no network, console login not possible). System log was
+flooded with the this message:
 
-Will do with v2.
+ ...
+[  608.052077] rtc-ds1307 0-0068: uevent
+[  608.052500] rtc-ds1307 0-0068: uevent
+[  608.052925] rtc-ds1307 0-0068: uevent
+ ...
 
-Daniel.
+The culprit is the dev_dbg printk in the i2c uevent handler.
+If this is activated (for instance by CONFIG_I2C_DEBUG_CORE)
+it results in an endless loop with systemd-journald.
+
+This happens if user-space scans the system log and reads the uevent
+file to get information about a newly created device, which seems fair
+use to me. Unfortunately reading the "uevent" file uses the same
+function that runs for creating the uevent for a new device,
+generating the next syslog entry.
+
+Ideally user-space would implement a recursion detection and
+after reading the same device file for the 1000th time call it a
+day, but nevertheless I think we should avoid this problem by
+removing the debug print completly or using another print variant.
+
+The same problem seems to be reported here:
+https://bugs.freedesktop.org/show_bug.cgi?id=76886
+
+Signed-off-by: Jan Glauber <jglauber@cavium.com>
+---
+ drivers/i2c/i2c-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 0f2f848..84165d9 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -539,7 +539,7 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	if (add_uevent_var(env, "MODALIAS=%s%s",
+ 			   I2C_MODULE_PREFIX, client->name))
+ 		return -ENOMEM;
+-	dev_dbg(dev, "uevent\n");
++	pr_debug("uevent: device: %s\n", dev_name(dev));
+ 	return 0;
+ }
+ 
+-- 
+1.9.1
