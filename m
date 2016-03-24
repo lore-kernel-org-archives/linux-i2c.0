@@ -1,35 +1,52 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v2 11/13] eeprom: at24: add at24mac series flag
-Date: Thu, 24 Mar 2016 17:19:41 +0100
-Message-ID: <1458836383-6668-12-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH v2 05/13] eeprom: at24: replace msleep() with usleep_range()
+Date: Thu, 24 Mar 2016 17:19:35 +0100
+Message-ID: <1458836383-6668-6-git-send-email-bgolaszewski@baylibre.com>
 References: <1458836383-6668-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f42.google.com ([74.125.82.42]:36212 "EHLO
+	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756509AbcCXQTx (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 12:19:53 -0400
+Received: by mail-wm0-f42.google.com with SMTP id u125so19712014wmg.1
+        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 09:19:52 -0700 (PDT)
 In-Reply-To: <1458836383-6668-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Lunn <andrew@lunn.ch>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
-List-Id: linux-i2c@vger.kernel.org
 
-As part of supporting the at24mac series add a new flag to the at24
-platform data. When set, it indicates that this chip exposes the
-factory-programmed EUI-48 or EUI-64 address.
+We cannot expect msleep(1) to actually sleep for a period shorter than
+20 ms. Replace all calls to msleep() with usleep_range().
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- include/linux/platform_data/at24.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/eeprom/at24.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index 5bc02fe..fa89605 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -48,6 +48,7 @@ struct at24_platform_data {
- #define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
- #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
- #define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
-+#define AT24_FLAG_MAC		BIT(2)	/* factory-programmed mac address */
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 9e01428..bc5be1e 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -240,8 +240,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+ 		if (status == count)
+ 			return count;
  
- 	void		(*setup)(struct nvmem_device *nvmem, void *context);
- 	void		*context;
+-		/* REVISIT: at HZ=100, this is sloooow */
+-		msleep(1);
++		usleep_range(1000, 1500);
+ 	} while (time_before(read_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+@@ -355,8 +354,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ 		if (status == count)
+ 			return count;
+ 
+-		/* REVISIT: at HZ=100, this is sloooow */
+-		msleep(1);
++		usleep_range(1000, 1500);
+ 	} while (time_before(write_time, timeout));
+ 
+ 	return -ETIMEDOUT;
 -- 
 2.7.4
