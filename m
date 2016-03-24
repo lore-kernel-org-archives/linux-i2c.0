@@ -1,44 +1,41 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 01/13] eeprom: at24: remove a reduntant if
-Date: Thu, 24 Mar 2016 15:45:55 +0100
-Message-ID: <1458830767-23816-2-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 11/13] eeprom: at24: add at24mac series flag
+Date: Thu, 24 Mar 2016 15:46:05 +0100
+Message-ID: <1458830767-23816-12-git-send-email-bgolaszewski@baylibre.com>
 References: <1458830767-23816-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:34381 "EHLO
-	mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752330AbcCXOqT (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 10:46:19 -0400
-Received: by mail-wm0-f51.google.com with SMTP id p65so277599980wmp.1
-        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 07:46:18 -0700 (PDT)
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:33039 "EHLO
+	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751543AbcCXOqX (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 10:46:23 -0400
+Received: by mail-wm0-f49.google.com with SMTP id l68so278049239wml.0
+        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 07:46:22 -0700 (PDT)
 In-Reply-To: <1458830767-23816-1-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Lunn <andrew@lunn.ch>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-It seems as if the second check for I2C_FUNC_I2C functionality had
-been introduced accidentally during a merge. Tt's reduntant, so
-remove it.
+As part of supporting the at24mac series add a new flag to the at24
+platform data. When set, it indicates that this chip exposes the
+factory-programmed EUI-48 or EUI-64 address.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 3 ---
- 1 file changed, 3 deletions(-)
+ include/linux/platform_data/at24.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 089d694..001a9af 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -544,10 +544,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		} else {
- 			return -EPFNOSUPPORT;
- 		}
--	}
+diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+index 5bc02fe..fa89605 100644
+--- a/include/linux/platform_data/at24.h
++++ b/include/linux/platform_data/at24.h
+@@ -48,6 +48,7 @@ struct at24_platform_data {
+ #define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
+ #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
+ #define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
++#define AT24_FLAG_MAC		BIT(2)	/* factory-programmed mac address */
  
--	/* Use I2C operations unless we're stuck with SMBus extensions. */
--	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
- 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
+ 	void		(*setup)(struct nvmem_device *nvmem, void *context);
+ 	void		*context;
 -- 
 2.7.4
