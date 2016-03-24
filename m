@@ -1,64 +1,69 @@
-From: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Subject: Re: [PATCH v2 1/8] i2c-mux: add common core data for every mux instance
-Date: Thu, 24 Mar 2016 12:05:50 +0100
-Message-ID: <56F3CA0E.60906@lysator.liu.se>
-References: <1452009438-27347-1-git-send-email-peda@lysator.liu.se> <1452009438-27347-2-git-send-email-peda@lysator.liu.se> <56F3B86E.4050002@mentor.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices addresses
+Date: Thu, 24 Mar 2016 09:02:13 -0500
+Message-ID: <CAL_JsqLBVLoUOTPMHy+ABoXkZD0U36NCgSNPLLtBPoK6FJBfnQ@mail.gmail.com>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+ <20160201144608.GA26606@rob-hp-laptop> <CAH-u=80AH6njdkc_2JOnHM21eFFDDdwsE1y=k31=J-6kTPXwPA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <56F3B86E.4050002-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>Olli Salonen <oll>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:41650 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753112AbcCXOCn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 24 Mar 2016 10:02:43 -0400
+In-Reply-To: <CAH-u=80AH6njdkc_2JOnHM21eFFDDdwsE1y=k31=J-6kTPXwPA@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
+Cc: Jean-Michel Hautbois <jhautbois@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Lars-Peter Clausen <lars@metafoo.de>
 
-Hi Vladimir,
-
-On 2016-03-24 10:50, Vladimir Zapolskiy wrote:
-> Hi Peter,
-> 
-> On 05.01.2016 17:57, Peter Rosin wrote:
->> From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+On Thu, Mar 24, 2016 at 5:11 AM, Jean-Michel Hautbois
+<jean-michel.hautbois@veo-labs.com> wrote:
+> Hi !
+>
+> 2016-02-01 15:46 GMT+01:00 Rob Herring <robh@kernel.org>:
+>> On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
+>>> Some I2C devices have multiple addresses assigned, for example each address
+>>> corresponding to a different internal register map page of the device.
+>>> So far drivers which need support for this have handled this with a driver
+>>> specific and non-generic implementation, e.g. passing the additional address
+>>> via platform data.
+>>>
+>>> This patch provides a new helper function called i2c_new_secondary_device()
+>>> which is intended to provide a generic way to get the secondary address
+>>> as well as instantiate a struct i2c_client for the secondary address.
+>>>
+>>> The function expects a pointer to the primary i2c_client, a name
+>>> for the secondary address and an optional default address. The name is used
+>>> as a handle to specify which secondary address to get.
+>>>
+>>> The default address is used as a fallback in case no secondary address
+>>> was explicitly specified. In case no secondary address and no default
+>>> address were specified the function returns NULL.
+>>>
+>>> For now the function only supports look-up of the secondary address
+>>> from devicetree, but it can be extended in the future
+>>> to for example support board files and/or ACPI.
+>>>
+>>> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+>>> ---
+>>> v2: adding some DT bindings documentation (more than one year later...)
+>>>
+>>>  Documentation/devicetree/bindings/i2c/i2c.txt |  7 +++++
 >>
->> The initial core mux structure starts off small with only the parent
->> adapter pointer, which all muxes have, and a priv pointer for mux
->> driver private data.
+>> Acked-by: Rob Herring <robh@kernel.org>
 >>
->> Add i2c_mux_alloc function to unify the creation of a mux.
->>
->> Where appropriate, pass around the mux core structure instead of the
->> parent adapter or the driver private data.
->>
->> Remove the parent adapter pointer from the driver private data for all
->> mux drivers.
->>
->> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-> 
-> is it still under review? If yes, please find one question from me below :)
+>>>  drivers/i2c/i2c-core.c                        | 42 +++++++++++++++++++++++++++
+>>>  include/linux/i2c.h                           |  5 ++++
+>>>  3 files changed, 54 insertions(+)
+>
+> Thanks Rob for your ack. What is the future of this patch ?
 
-Yes, the series is still under review/testing, with an update planned in a
-week or so.
+I'm expecting Wolfram to pick it up.
 
-> [snip]
-> 
->> @@ -196,21 +195,21 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
->>  		dev_err(dev, "Cannot parse i2c-parent\n");
->>  		return -EINVAL;
->>  	}
->> -	arb->parent = of_get_i2c_adapter_by_node(parent_np);
->> +	muxc->parent = of_find_i2c_adapter_by_node(parent_np);
-> 
-> why do you prefer here to use "unlocked" version of API?
-> 
-> Foe example would it be safe/possible to unload an I2C bus device driver
-> module or unbind I2C device itself in runtime?
+> I know the merge window is opened, so it will not be integrated now,
+> but could be in the next version ?
 
-I think you ask why I change from of_get_i2c_... to of_find_i2c_..., and that
-change was not intentional. It was the result of a bad merge during an early
-rebase.
+I would say it is not too late for 4.6 if it was missed by accident.
 
-Does that cover it?
-
-Cheers,
-Peter
+Rob
