@@ -1,78 +1,53 @@
-From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v2 1/8] i2c-mux: add common core data for every mux
- instance
-Date: Thu, 24 Mar 2016 16:24:31 +0200
-Message-ID: <56F3F89F.8000805@mentor.com>
-References: <1452009438-27347-1-git-send-email-peda@lysator.liu.se>
- <1452009438-27347-2-git-send-email-peda@lysator.liu.se>
- <56F3B86E.4050002@mentor.com> <56F3CA0E.60906@lysator.liu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <56F3CA0E.60906-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>Olli Salonen <oll>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 00/13] eeprom: support for at24cs and at24mac
+Date: Thu, 24 Mar 2016 15:45:54 +0100
+Message-ID: <1458830767-23816-1-git-send-email-bgolaszewski@baylibre.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Peter,
+Chips from the at24cs EEPROM series have an additional read-only
+memory area containing a factory pre-programmed serial number. In
+order to access it, a dummy write must be executed before reading
+the serial number bytes.
 
-On 24.03.2016 13:05, Peter Rosin wrote:
-> Hi Vladimir,
-> 
-> On 2016-03-24 10:50, Vladimir Zapolskiy wrote:
->> Hi Peter,
->>
->> On 05.01.2016 17:57, Peter Rosin wrote:
->>> From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
->>>
->>> The initial core mux structure starts off small with only the parent
->>> adapter pointer, which all muxes have, and a priv pointer for mux
->>> driver private data.
->>>
->>> Add i2c_mux_alloc function to unify the creation of a mux.
->>>
->>> Where appropriate, pass around the mux core structure instead of the
->>> parent adapter or the driver private data.
->>>
->>> Remove the parent adapter pointer from the driver private data for all
->>> mux drivers.
->>>
->>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
->>
->> is it still under review? If yes, please find one question from me below :)
-> 
-> Yes, the series is still under review/testing, with an update planned in a
-> week or so.
-> 
->> [snip]
->>
->>> @@ -196,21 +195,21 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
->>>  		dev_err(dev, "Cannot parse i2c-parent\n");
->>>  		return -EINVAL;
->>>  	}
->>> -	arb->parent = of_get_i2c_adapter_by_node(parent_np);
->>> +	muxc->parent = of_find_i2c_adapter_by_node(parent_np);
->>
->> why do you prefer here to use "unlocked" version of API?
->>
->> Foe example would it be safe/possible to unload an I2C bus device driver
->> module or unbind I2C device itself in runtime?
-> 
-> I think you ask why I change from of_get_i2c_... to of_find_i2c_..., and that
-> change was not intentional. It was the result of a bad merge during an early
-> rebase.
-> 
-> Does that cover it?
-> 
+Chips from the at24mac familiy, apart from the serial number, have
+a second special memory area containing a factory programmed
+EUI-48/EUI64 mac address.
 
-Yep, thank you for clarification, please account this in v3.
+The read-only serial/mac memory area is accessible on a different i2c
+slave address (addr + 0x08). This patchset makes it possible to
+instantiate a separate at24 device on this second address and access
+the read-only area through the regular eeprom sysfs attribute or the
+new nvmem subsystem.
 
-I'll try to find some time to review the whole changeset carefully,
-in fact I briefly reviewed it two months ago, but I didn't find
-anything obviously wrong that time.
+This series also contains several patches intoducing some minor tweaks
+and refactoring.
 
---
-With best wishes,
-Vladimir
+Tested with at24cs32 and at24cs02 chips (for both 16 and 8 bit address
+pointers). I have no means of testing the support for at24mac chips, I
+relied solely on the datasheet.
+
+Bartosz Golaszewski (13):
+  eeprom: at24: remove a reduntant if
+  eeprom: at24: improve the device_id table readability
+  eeprom: at24: platform_data: use BIT() macro
+  eeprom: at24: make locking more fine-grained
+  eeprom: at24: replace msleep() with usleep_range()
+  eeprom: at24: add serial number flag
+  eeprom: at24: support reading of the serial number
+  eeprom: at24: call read and write routines via function pointers
+  eeprom: at24: use at24cs_serial_read()
+  eeprom: at24: add the at24cs series to the list of supported devices
+  eeprom: at24: add at24mac series flag
+  eeprom: at24: add support for at24mac series
+  eeprom: at24: add at24mac chips to the list of supported devices
+
+ drivers/misc/eeprom/at24.c         | 200 ++++++++++++++++++++++++++++---------
+ include/linux/platform_data/at24.h |  10 +-
+ 2 files changed, 161 insertions(+), 49 deletions(-)
+
+-- 
+2.7.4
