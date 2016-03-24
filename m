@@ -1,115 +1,55 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 04/13] eeprom: at24: make locking more fine-grained
- (fwd)
-Date: Thu, 24 Mar 2016 17:30:10 +0100 (CET)
-Message-ID: <alpine.DEB.2.10.1603241729220.2534@hadrien>
+From: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Subject: Re: [PATCH v2 1/8] i2c-mux: add common core data for every mux instance
+Date: Thu, 24 Mar 2016 19:59:37 +0100
+Message-ID: <56F43919.1020501@lysator.liu.se>
+References: <1452009438-27347-1-git-send-email-peda@lysator.liu.se> <1452009438-27347-2-git-send-email-peda@lysator.liu.se> <56F3B86E.4050002@mentor.com> <56F3CA0E.60906@lysator.liu.se> <56F3F89F.8000805@mentor.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:5842 "EHLO
-	mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751834AbcCXQaS (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 12:30:18 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <56F3F89F.8000805-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>Olli Salonen <oll>
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, kbuild-all@01.org
 
-If this is correct, it seems quite subtle.
+Hi Vladimir,
 
-julia
+On 2016-03-24 15:24, Vladimir Zapolskiy wrote:
+> On 24.03.2016 13:05, Peter Rosin wrote:
+>> On 2016-03-24 10:50, Vladimir Zapolskiy wrote:
+>>> On 05.01.2016 17:57, Peter Rosin wrote:
+>>>> @@ -196,21 +195,21 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
+>>>>  		dev_err(dev, "Cannot parse i2c-parent\n");
+>>>>  		return -EINVAL;
+>>>>  	}
+>>>> -	arb->parent = of_get_i2c_adapter_by_node(parent_np);
+>>>> +	muxc->parent = of_find_i2c_adapter_by_node(parent_np);
+>>>
+>>> why do you prefer here to use "unlocked" version of API?
+>>>
+>>> Foe example would it be safe/possible to unload an I2C bus device driver
+>>> module or unbind I2C device itself in runtime?
+>>
+>> I think you ask why I change from of_get_i2c_... to of_find_i2c_..., and that
+>> change was not intentional. It was the result of a bad merge during an early
+>> rebase.
+>>
+>> Does that cover it?
+>>
+> 
+> Yep, thank you for clarification, please account this in v3.
 
----------- Forwarded message ----------
-Date: Fri, 25 Mar 2016 00:25:33 +0800
-From: kbuild test robot <fengguang.wu@intel.com>
-To: kbuild@01.org
-Cc: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 04/13] eeprom: at24: make locking more fine-grained
+Oh , v3 is old news, v4 was sent out some weeks ago, and there is a v5
+on a github branch. This bad rebase was fixed in v4.
 
-CC: kbuild-all@01.org
-In-Reply-To: <1458830767-23816-5-git-send-email-bgolaszewski@baylibre.com>
-TO: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-CC: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-CC: Andrew Lunn <andrew@lunn.ch>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> I'll try to find some time to review the whole changeset carefully,
+> in fact I briefly reviewed it two months ago, but I didn't find
+> anything obviously wrong that time.
 
-Hi Bartosz,
+Please put that on hold until I have rebased ontop of v4.6-rc1 and
+changed a couple of other things. I'd hate for you to waste your
+time on outdated patches.
 
-[auto build test WARNING on next-20160324]
-[cannot apply to v4.5-rc7 v4.5-rc6 v4.5-rc5 v4.5]
-[if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
-
-url:    https://github.com/0day-ci/linux/commits/Bartosz-Golaszewski/eeprom-support-for-at24cs-and-at24mac/20160324-230008
-:::::: branch date: 85 minutes ago
-:::::: commit date: 85 minutes ago
-
->> drivers/misc/eeprom/at24.c:356:3-9: preceding lock on line 312
-
-git remote add linux-review https://github.com/0day-ci/linux
-git remote update linux-review
-git checkout 9e24d3f64066d8452c1ab00486a5a4878a30b7b1
-vim +356 drivers/misc/eeprom/at24.c
-
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  306  	if (!at24->use_smbus) {
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  307  		int i = 0;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  308
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  309  		msg.addr = client->addr;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  310  		msg.flags = 0;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  311
-9e24d3f6 drivers/misc/eeprom/at24.c Bartosz Golaszewski 2016-03-24 @312  		mutex_lock(&at24->wrbuf_lock);
-9e24d3f6 drivers/misc/eeprom/at24.c Bartosz Golaszewski 2016-03-24  313
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  314  		/* msg.buf is u8 and casts will mask the values */
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  315  		msg.buf = at24->writebuf;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  316  		if (at24->chip.flags & AT24_FLAG_ADDR16)
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  317  			msg.buf[i++] = offset >> 8;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  318
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  319  		msg.buf[i++] = offset;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  320  		memcpy(&msg.buf[i], buf, count);
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  321  		msg.len = i + count;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  322  	}
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  323
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  324  	/*
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  325  	 * Writes fail if the previous one didn't complete yet. We may
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  326  	 * loop a few times until this one succeeds, waiting at least
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  327  	 * long enough for one entire page write to work.
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  328  	 */
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  329  	timeout = jiffies + msecs_to_jiffies(write_timeout);
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  330  	do {
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  331  		write_time = jiffies;
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  332  		if (at24->use_smbus_write) {
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  333  			switch (at24->use_smbus_write) {
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  334  			case I2C_SMBUS_I2C_BLOCK_DATA:
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  335  				status = i2c_smbus_write_i2c_block_data(client,
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  336  						offset, count, buf);
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  337  				break;
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  338  			case I2C_SMBUS_BYTE_DATA:
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  339  				status = i2c_smbus_write_byte_data(client,
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  340  						offset, buf[0]);
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  341  				break;
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  342  			}
-a839ce66 drivers/misc/eeprom/at24.c Christian Gmeiner   2014-10-09  343
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  344  			if (status == 0)
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  345  				status = count;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  346  		} else {
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  347  			status = i2c_transfer(client->adapter, &msg, 1);
-9e24d3f6 drivers/misc/eeprom/at24.c Bartosz Golaszewski 2016-03-24  348  			mutex_unlock(&at24->wrbuf_lock);
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  349  			if (status == 1)
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  350  				status = count;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  351  		}
-2ce5b34f drivers/i2c/chips/at24.c   David Brownell      2008-08-10  352  		dev_dbg(&client->dev, "write %zu@%d --> %zd (%ld)\n",
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  353  				count, offset, status, jiffies);
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  354
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  355  		if (status == count)
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14 @356  			return count;
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  357
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  358  		/* REVISIT: at HZ=100, this is sloooow */
-2b7a5056 drivers/i2c/chips/at24.c   Wolfram Sang        2008-07-14  359  		msleep(1);
-
-:::::: The code at line 356 was first introduced by commit
-:::::: 2b7a5056a0a7ff17d5d2004c29c852a92a6bd632 i2c: New-style EEPROM driver using device IDs
-
-:::::: TO: Wolfram Sang <w.sang@pengutronix.de>
-:::::: CC: Jean Delvare <khali@mahadeva.delvare>
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+Cheers,
+Peter
