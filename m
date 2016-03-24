@@ -1,86 +1,80 @@
-From: Laison@seymour.toledo.br, Computech@seymour.toledo.br,
-	"Inc <support"@ensuretech.com
-Subject: CISCO IP PHONES AND CPU's
-Date: Thu, 24 Mar 2016 02:12:04 +0700
-Message-ID: <20160323203603.9913EA7B60__28514.4687899903$1458768359$gmane$org@seymour.toledo.br>
-Reply-To: sales@laisoncomputertech.us
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Subject: Re: [PATCH v2 1/8] i2c-mux: add common core data for every mux
+ instance
+Date: Thu, 24 Mar 2016 11:50:38 +0200
+Message-ID: <56F3B86E.4050002@mentor.com>
+References: <1452009438-27347-1-git-send-email-peda@lysator.liu.se>
+ <1452009438-27347-2-git-send-email-peda@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from seymour.toledo.br ([200.148.142.55]:47372 "EHLO
-	seymour.toledo.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757017AbcCWVYt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Mar 2016 17:24:49 -0400
-Content-Description: Mail message body
+Received: from relay1.mentorg.com ([192.94.38.131]:44848 "EHLO
+	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755204AbcCXJuy (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 05:50:54 -0400
+In-Reply-To: <1452009438-27347-2-git-send-email-peda@lysator.liu.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Recipients <support@ensuretech.com>
+To: Peter Rosin <peda@lysator.liu.se>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Adriana Reus <adriana.reus@intel.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>, Nicholas Mc Guire <hofrat@osadl.org>Olli Salonen <oll>
 
-Hi,
+Hi Peter,
 
-Our Stock list.
+On 05.01.2016 17:57, Peter Rosin wrote:
+> From: Peter Rosin <peda@axentia.se>
+> 
+> The initial core mux structure starts off small with only the parent
+> adapter pointer, which all muxes have, and a priv pointer for mux
+> driver private data.
+> 
+> Add i2c_mux_alloc function to unify the creation of a mux.
+> 
+> Where appropriate, pass around the mux core structure instead of the
+> parent adapter or the driver private data.
+> 
+> Remove the parent adapter pointer from the driver private data for all
+> mux drivers.
+> 
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-Brand NEW
-96 x Cisco 7900 IP Phone
-87 x Unified IP Phone 6900
-12 x Unified IP Phone 8900
-76 x Unified IP Phone 9900
-55 x Unified IP Phone 8800
-67 x Cisco 1921
-67 x Cisco 1941
-56 x Cisco CP-7961G 7961G
-34 x Cisco CP-7971G-GE 7971G
-19 x Cisco Unified IP Conference Station 7937G Model: 7937 CP-7937G
-20 x Cisco CP-7975G 7975G
+is it still under review? If yes, please find one question from me below :)
 
-Brand New Sealed :
+[snip]
 
-23 x  CISCO1921-SEC/K9
-Conditions: Brand New Sealed
-Description: CISCO 1921 Security Bundle w/SEC license PAK
+> @@ -196,21 +195,21 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
+>  		dev_err(dev, "Cannot parse i2c-parent\n");
+>  		return -EINVAL;
+>  	}
+> -	arb->parent = of_get_i2c_adapter_by_node(parent_np);
+> +	muxc->parent = of_find_i2c_adapter_by_node(parent_np);
 
-45 x CISCO1921/K9
-Conditions: Brand New Sealed
-Description: CISCO 1921 Modular Router, 2 GE, 2 EHWIC slots, 512DRAM, IP Base
+why do you prefer here to use "unlocked" version of API?
 
-(1)  WS-C4500X-16SFP+
-Serial number:  JAE183501L3
-US&#36;2600
+Foe example would it be safe/possible to unload an I2C bus device driver
+module or unbind I2C device itself in runtime?
 
-(1)  WS-C3850-48PW-S
-Serial number:  FCW1823C0EW
-US&#36;2650
+>  	of_node_put(parent_np);
+> -	if (!arb->parent) {
+> +	if (!muxc->parent) {
+>  		dev_err(dev, "Cannot find parent bus\n");
+>  		return -EPROBE_DEFER;
+>  	}
+>  
+>  	/* Actually add the mux adapter */
+> -	arb->child = i2c_add_mux_adapter(arb->parent, dev, arb, 0, 0, 0,
+> +	arb->child = i2c_add_mux_adapter(muxc, dev, arb, 0, 0, 0,
+>  					 i2c_arbitrator_select,
+>  					 i2c_arbitrator_deselect);
+>  	if (!arb->child) {
+>  		dev_err(dev, "Failed to add adapter\n");
+>  		ret = -ENODEV;
+> -		i2c_put_adapter(arb->parent);
+> +		i2c_put_adapter(muxc->parent);
+>  	}
+>  
+>  	return ret;
 
-(1)  WS-X6908-10G-2T
-Serial number:  SAL1620CKUB
-US&#36;3650
-
-(1)  ASR1000-ESP10
-Serial number:  JAE181306C3
-US&#36;3800
-
-(1)  AIR-CT5508-250-K9   (this is new but box is open!)
-Serial number:  FCW1521L038
-US&#36;4000
-
-CPUs part number below
-
-89 x  X5650
-
-975 x  X5660
-
-150 x  X5680
-
-265 x  X5690
-
-Kindly make your price offers.
-
-Sincerely
-Barbara Johnson
-Laison Computech
-210 N Scoring Ave,
-Rialto California, 92376
-Tel: +1-657-232-7047
-Fax: +1-347-214-0478
-Email: sales@laisoncomputertech.us
+--
+With best wishes,
+Vladimir
