@@ -1,59 +1,44 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 09/13] eeprom: at24: use at24cs_serial_read()
-Date: Thu, 24 Mar 2016 15:46:03 +0100
-Message-ID: <1458830767-23816-10-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 01/13] eeprom: at24: remove a reduntant if
+Date: Thu, 24 Mar 2016 15:45:55 +0100
+Message-ID: <1458830767-23816-2-git-send-email-bgolaszewski@baylibre.com>
 References: <1458830767-23816-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:34601 "EHLO
-	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752489AbcCXOqV (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 10:46:21 -0400
-Received: by mail-wm0-f49.google.com with SMTP id p65so277606055wmp.1
-        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 07:46:21 -0700 (PDT)
+Received: from mail-wm0-f51.google.com ([74.125.82.51]:34381 "EHLO
+	mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752330AbcCXOqT (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 10:46:19 -0400
+Received: by mail-wm0-f51.google.com with SMTP id p65so277599980wmp.1
+        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 07:46:18 -0700 (PDT)
 In-Reply-To: <1458830767-23816-1-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Lunn <andrew@lunn.ch>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Assign at24cs_serial_read() to at24->read_func if the chip allows serial
-number read operation.
+It seems as if the second check for I2C_FUNC_I2C functionality had
+been introduced accidentally during a merge. Tt's reduntant, so
+remove it.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/misc/eeprom/at24.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 5b484bc..9515001 100644
+index 089d694..001a9af 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -162,9 +162,8 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
- 	return at24->client[i];
- }
+@@ -544,10 +544,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		} else {
+ 			return -EPFNOSUPPORT;
+ 		}
+-	}
  
--static int __attribute__((unused))
--at24cs_serial_read(struct at24_data *at24,
--		   char *buf, loff_t off, size_t count)
-+static int at24cs_serial_read(struct at24_data *at24,
-+			      char *buf, loff_t off, size_t count)
- {
- 	unsigned long timeout, read_time;
- 	struct i2c_client *client;
-@@ -614,8 +613,12 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
- 
--	at24->read_func = at24_read;
--	at24->write_func = at24_write;
-+	if (chip.flags & AT24_FLAG_SERIAL) {
-+		at24->read_func = at24cs_serial_read;
-+	} else {
-+		at24->read_func = at24_read;
-+		at24->write_func = at24_write;
-+	}
- 
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
- 	if (writable) {
+-	/* Use I2C operations unless we're stuck with SMBus extensions. */
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+ 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
 -- 
 2.7.4
