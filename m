@@ -1,120 +1,74 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v2 04/13] eeprom: at24: make locking more fine-grained
-Date: Thu, 24 Mar 2016 17:19:34 +0100
-Message-ID: <1458836383-6668-5-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH v2 08/13] eeprom: at24: call read and write routines via function pointers
+Date: Thu, 24 Mar 2016 17:19:38 +0100
+Message-ID: <1458836383-6668-9-git-send-email-bgolaszewski@baylibre.com>
 References: <1458836383-6668-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:37907 "EHLO
-	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756172AbcCXQTw (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 12:19:52 -0400
-Received: by mail-wm0-f48.google.com with SMTP id l68so73702540wml.1
-        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 09:19:51 -0700 (PDT)
+Received: from mail-wm0-f49.google.com ([74.125.82.49]:37998 "EHLO
+	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756814AbcCXQT4 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 12:19:56 -0400
+Received: by mail-wm0-f49.google.com with SMTP id l68so73705093wml.1
+        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 09:19:55 -0700 (PDT)
 In-Reply-To: <1458836383-6668-1-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Lunn <andrew@lunn.ch>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-The only field in struct at24_data that needs locking in the module
-code is u8 *writebuf. Other data is already protected by i2c core.
+In order to support non-standard read/write functions (as part of the
+at24cs series support) introduce two function pointers in struct
+at24_data to which different implementations can be assigned.
 
-Rename the lock in at24_data to wrbuf_lock and only use it where
-writebuf is accessed.
+For now we continue to use the regular read/write routines by default.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 28 +++++-----------------------
- 1 file changed, 5 insertions(+), 23 deletions(-)
+ drivers/misc/eeprom/at24.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 744c526..9e01428 100644
+index fda5c56..4c868a2 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -59,13 +59,8 @@ struct at24_data {
+@@ -59,6 +59,10 @@ struct at24_data {
  	int use_smbus;
  	int use_smbus_write;
  
--	/*
--	 * Lock protects against activities from other Linux tasks,
--	 * but not from changes by other I2C masters.
--	 */
--	struct mutex lock;
--
- 	u8 *writebuf;
-+	struct mutex wrbuf_lock;
- 	unsigned write_max;
- 	unsigned num_addresses;
- 
-@@ -260,12 +255,6 @@ static ssize_t at24_read(struct at24_data *at24,
- 	if (unlikely(!count))
- 		return count;
- 
--	/*
--	 * Read data from chip, protecting against concurrent updates
--	 * from this host, but not from other I2C masters.
--	 */
--	mutex_lock(&at24->lock);
--
- 	while (count) {
- 		ssize_t	status;
- 
-@@ -281,8 +270,6 @@ static ssize_t at24_read(struct at24_data *at24,
- 		retval += status;
- 	}
- 
--	mutex_unlock(&at24->lock);
--
- 	return retval;
- }
- 
-@@ -322,6 +309,8 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 		msg.addr = client->addr;
- 		msg.flags = 0;
- 
-+		mutex_lock(&at24->wrbuf_lock);
++	ssize_t (*read_func)(struct at24_data *, char *, loff_t, size_t);
++	ssize_t (*write_func)(struct at24_data *,
++			      const char *, loff_t, size_t);
 +
- 		/* msg.buf is u8 and casts will mask the values */
- 		msg.buf = at24->writebuf;
- 		if (at24->chip.flags & AT24_FLAG_ADDR16)
-@@ -356,6 +345,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 				status = count;
- 		} else {
- 			status = i2c_transfer(client->adapter, &msg, 1);
-+			mutex_unlock(&at24->wrbuf_lock);
- 			if (status == 1)
- 				status = count;
- 		}
-@@ -380,12 +370,6 @@ static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
- 	if (unlikely(!count))
- 		return count;
+ 	u8 *writebuf;
+ 	struct mutex wrbuf_lock;
+ 	unsigned write_max;
+@@ -458,7 +462,7 @@ static int at24_regmap_read(void *context, const void *reg, size_t reg_size,
+ 	off_t offset = *(u32 *)reg;
+ 	int err;
  
--	/*
--	 * Write data to chip, protecting against concurrent updates
--	 * from this host, but not from other I2C masters.
--	 */
--	mutex_lock(&at24->lock);
--
- 	while (count) {
- 		ssize_t	status;
+-	err = at24_read(at24, val, offset, val_size);
++	err = at24->read_func(at24, val, offset, val_size);
+ 	if (err)
+ 		return err;
+ 	return 0;
+@@ -476,7 +480,7 @@ static int at24_regmap_write(void *context, const void *data, size_t count)
+ 	buf = (const char *)data + sizeof(offset);
+ 	len = count - sizeof(offset);
  
-@@ -401,8 +385,6 @@ static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
- 		retval += status;
- 	}
- 
--	mutex_unlock(&at24->lock);
--
- 	return retval;
- }
- 
-@@ -566,7 +548,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (!at24)
- 		return -ENOMEM;
- 
--	mutex_init(&at24->lock);
-+	mutex_init(&at24->wrbuf_lock);
- 	at24->use_smbus = use_smbus;
- 	at24->use_smbus_write = use_smbus_write;
+-	err = at24_write(at24, buf, offset, len);
++	err = at24->write_func(at24, buf, offset, len);
+ 	if (err)
+ 		return err;
+ 	return 0;
+@@ -611,6 +615,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  	at24->chip = chip;
+ 	at24->num_addresses = num_addresses;
+ 
++	at24->read_func = at24_read;
++	at24->write_func = at24_write;
++
+ 	writable = !(chip.flags & AT24_FLAG_READONLY);
+ 	if (writable) {
+ 		if (!use_smbus || use_smbus_write) {
 -- 
 2.7.4
