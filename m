@@ -1,65 +1,44 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v2 02/13] eeprom: at24: improve the device_id table readability
-Date: Thu, 24 Mar 2016 17:19:32 +0100
-Message-ID: <1458836383-6668-3-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH v2 01/13] eeprom: at24: remove a reduntant if
+Date: Thu, 24 Mar 2016 17:19:31 +0100
+Message-ID: <1458836383-6668-2-git-send-email-bgolaszewski@baylibre.com>
 References: <1458836383-6668-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:36880 "EHLO
+	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754668AbcCXQTs (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 12:19:48 -0400
+Received: by mail-wm0-f54.google.com with SMTP id p65so73379640wmp.0
+        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 09:19:47 -0700 (PDT)
 In-Reply-To: <1458836383-6668-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Lunn <andrew@lunn.ch>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
-List-Id: linux-i2c@vger.kernel.org
 
-As part of the preparation for introducing support for more chips,
-improve the readability of the device table by separating columns
-with tabs.
+It seems as if the second check for I2C_FUNC_I2C functionality had
+been introduced accidentally during a merge. Tt's reduntant, so
+remove it.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/misc/eeprom/at24.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 001a9af..744c526 100644
+index 089d694..001a9af 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -113,23 +113,23 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+@@ -544,10 +544,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		} else {
+ 			return -EPFNOSUPPORT;
+ 		}
+-	}
  
- static const struct i2c_device_id at24_ids[] = {
- 	/* needs 8 addresses as A0-A2 are ignored */
--	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
-+	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
- 	/* old variants can't be handled with this generic entry! */
--	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
--	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
-+	{ "24c01",	AT24_DEVICE_MAGIC(1024 / 8,	0) },
-+	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
- 	/* spd is a 24c02 in memory DIMMs */
--	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
--		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
--	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
-+	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
-+				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
-+	{ "24c04",	AT24_DEVICE_MAGIC(4096 / 8,	0) },
- 	/* 24rf08 quirk is handled at i2c-core */
--	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
--	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
--	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
--	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
--	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
--	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
--	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
--	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
-+	{ "24c08",	AT24_DEVICE_MAGIC(8192 / 8,	0) },
-+	{ "24c16",	AT24_DEVICE_MAGIC(16384 / 8,	0) },
-+	{ "24c32",	AT24_DEVICE_MAGIC(32768 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c64",	AT24_DEVICE_MAGIC(65536 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c128",	AT24_DEVICE_MAGIC(131072 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c1024",	AT24_DEVICE_MAGIC(1048576 / 8,	AT24_FLAG_ADDR16) },
- 	{ "at24", 0 },
- 	{ /* END OF LIST */ }
- };
+-	/* Use I2C operations unless we're stuck with SMBus extensions. */
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+ 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
 -- 
 2.7.4
