@@ -1,80 +1,65 @@
-From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Subject: Re: [PATCH v2 1/8] i2c-mux: add common core data for every mux
- instance
-Date: Thu, 24 Mar 2016 11:50:38 +0200
-Message-ID: <56F3B86E.4050002@mentor.com>
-References: <1452009438-27347-1-git-send-email-peda@lysator.liu.se>
- <1452009438-27347-2-git-send-email-peda@lysator.liu.se>
+From: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices addresses
+Date: Thu, 24 Mar 2016 11:11:45 +0100
+Message-ID: <CAH-u=80AH6njdkc_2JOnHM21eFFDDdwsE1y=k31=J-6kTPXwPA@mail.gmail.com>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+ <20160201144608.GA26606@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relay1.mentorg.com ([192.94.38.131]:44848 "EHLO
-	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755204AbcCXJuy (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 05:50:54 -0400
-In-Reply-To: <1452009438-27347-2-git-send-email-peda@lysator.liu.se>
+Received: from mail-vk0-f42.google.com ([209.85.213.42]:36110 "EHLO
+	mail-vk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932479AbcCXKMG (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Mar 2016 06:12:06 -0400
+Received: by mail-vk0-f42.google.com with SMTP id z68so52210304vkg.3
+        for <linux-i2c@vger.kernel.org>; Thu, 24 Mar 2016 03:12:05 -0700 (PDT)
+In-Reply-To: <20160201144608.GA26606@rob-hp-laptop>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@lysator.liu.se>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Adriana Reus <adriana.reus@intel.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Hans Verkuil <hans.verkuil@cisco.com>, Nicholas Mc Guire <hofrat@osadl.org>Olli Salonen <oll>
+To: Rob Herring <robh@kernel.org>
+Cc: Jean-Michel Hautbois <jhautbois@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, wsa@the-dreams.de, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Lars-Peter Clausen <lars@metafoo.de>
 
-Hi Peter,
+Hi !
 
-On 05.01.2016 17:57, Peter Rosin wrote:
-> From: Peter Rosin <peda@axentia.se>
-> 
-> The initial core mux structure starts off small with only the parent
-> adapter pointer, which all muxes have, and a priv pointer for mux
-> driver private data.
-> 
-> Add i2c_mux_alloc function to unify the creation of a mux.
-> 
-> Where appropriate, pass around the mux core structure instead of the
-> parent adapter or the driver private data.
-> 
-> Remove the parent adapter pointer from the driver private data for all
-> mux drivers.
-> 
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+2016-02-01 15:46 GMT+01:00 Rob Herring <robh@kernel.org>:
+> On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
+>> Some I2C devices have multiple addresses assigned, for example each address
+>> corresponding to a different internal register map page of the device.
+>> So far drivers which need support for this have handled this with a driver
+>> specific and non-generic implementation, e.g. passing the additional address
+>> via platform data.
+>>
+>> This patch provides a new helper function called i2c_new_secondary_device()
+>> which is intended to provide a generic way to get the secondary address
+>> as well as instantiate a struct i2c_client for the secondary address.
+>>
+>> The function expects a pointer to the primary i2c_client, a name
+>> for the secondary address and an optional default address. The name is used
+>> as a handle to specify which secondary address to get.
+>>
+>> The default address is used as a fallback in case no secondary address
+>> was explicitly specified. In case no secondary address and no default
+>> address were specified the function returns NULL.
+>>
+>> For now the function only supports look-up of the secondary address
+>> from devicetree, but it can be extended in the future
+>> to for example support board files and/or ACPI.
+>>
+>> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+>> ---
+>> v2: adding some DT bindings documentation (more than one year later...)
+>>
+>>  Documentation/devicetree/bindings/i2c/i2c.txt |  7 +++++
+>
+> Acked-by: Rob Herring <robh@kernel.org>
+>
+>>  drivers/i2c/i2c-core.c                        | 42 +++++++++++++++++++++++++++
+>>  include/linux/i2c.h                           |  5 ++++
+>>  3 files changed, 54 insertions(+)
 
-is it still under review? If yes, please find one question from me below :)
+Thanks Rob for your ack. What is the future of this patch ?
+I know the merge window is opened, so it will not be integrated now,
+but could be in the next version ?
 
-[snip]
-
-> @@ -196,21 +195,21 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
->  		dev_err(dev, "Cannot parse i2c-parent\n");
->  		return -EINVAL;
->  	}
-> -	arb->parent = of_get_i2c_adapter_by_node(parent_np);
-> +	muxc->parent = of_find_i2c_adapter_by_node(parent_np);
-
-why do you prefer here to use "unlocked" version of API?
-
-Foe example would it be safe/possible to unload an I2C bus device driver
-module or unbind I2C device itself in runtime?
-
->  	of_node_put(parent_np);
-> -	if (!arb->parent) {
-> +	if (!muxc->parent) {
->  		dev_err(dev, "Cannot find parent bus\n");
->  		return -EPROBE_DEFER;
->  	}
->  
->  	/* Actually add the mux adapter */
-> -	arb->child = i2c_add_mux_adapter(arb->parent, dev, arb, 0, 0, 0,
-> +	arb->child = i2c_add_mux_adapter(muxc, dev, arb, 0, 0, 0,
->  					 i2c_arbitrator_select,
->  					 i2c_arbitrator_deselect);
->  	if (!arb->child) {
->  		dev_err(dev, "Failed to add adapter\n");
->  		ret = -ENODEV;
-> -		i2c_put_adapter(arb->parent);
-> +		i2c_put_adapter(muxc->parent);
->  	}
->  
->  	return ret;
-
---
-With best wishes,
-Vladimir
+Thanks,
+JM
