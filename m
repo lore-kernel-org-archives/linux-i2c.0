@@ -1,50 +1,32 @@
-From: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH] i2c: mux: demux-pinctrl: Fix reading the "master" attribute
-Date: Wed, 30 Mar 2016 17:27:16 +0100
-Message-ID: <1459355236.27975.5.camel@codethink.co.uk>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: Re: [Linux-kernel] [PATCH] i2c: mux: demux-pinctrl: Fix reading the
+ "master" attribute
+Date: Wed, 30 Mar 2016 17:42:31 +0100
+Message-ID: <56FC01F7.1060503@codethink.co.uk>
+References: <1459355236.27975.5.camel@codethink.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ducie-dc1.codethink.co.uk ([185.25.241.215]:36763 "EHLO
+Received: from ducie-dc1.codethink.co.uk ([185.25.241.215]:37358 "EHLO
 	ducie-dc1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753498AbcC3Q1X (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Mar 2016 12:27:23 -0400
+	with ESMTP id S1751107AbcC3Qmg (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Mar 2016 12:42:36 -0400
+In-Reply-To: <1459355236.27975.5.camel@codethink.co.uk>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, CT kernel <linux-kernel@lists.codethink.co.uk>
+To: Ben Hutchings <ben.hutchings@codethink.co.uk>, Wolfram Sang <wsa@the-dreams.de>
+Cc: CT kernel <linux-kernel@lists.codethink.co.uk>, linux-i2c@vger.kernel.org
 
-sysfs attributes should use the same format for reads and writes,
-rather than pretty-printing on read.
+On 30/03/16 17:27, Ben Hutchings wrote:
+> sysfs attributes should use the same format for reads and writes,
+> rather than pretty-printing on read.
+> 
+> Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
+> Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 
-Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
----
- drivers/i2c/muxes/i2c-demux-pinctrl.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-index 7748a0a5ddb9..9e8f3d702314 100644
---- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-@@ -144,14 +144,8 @@ static ssize_t cur_master_show(struct device *dev, struct device_attribute *attr
- 			   char *buf)
- {
- 	struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
--	int count = 0, i;
- 
--	for (i = 0; i < priv->num_chan && count < PAGE_SIZE; i++)
--		count += scnprintf(buf + count, PAGE_SIZE - count, "%c %d - %s\n",
--				 i == priv->cur_chan ? '*' : ' ', i,
--				 priv->chan[i].parent_np->full_name);
--
--	return count;
-+	return sprintf(buf, "%u\n", priv->cur_chan);
- }
- 
- static ssize_t cur_master_store(struct device *dev, struct device_attribute *attr,
+should that be moved to a debugfs entry or a read-only sysfs?
 
 -- 
-Ben Hutchings
-Software Developer, Codethink Ltd.
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
