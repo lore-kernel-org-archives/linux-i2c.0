@@ -1,51 +1,93 @@
-From: "Sricharan" <sricharan@codeaurora.org>
-Subject: RE: [PATCH V7 5/6] dts: msm8974: Add blsp2_bam dma node
-Date: Mon, 28 Mar 2016 18:29:32 +0530
-Message-ID: <000d01d188f1$b150e660$13f2b320$@codeaurora.org>
-References: <1453197766-18976-1-git-send-email-sricharan@codeaurora.org> <1453197766-18976-6-git-send-email-sricharan@codeaurora.org> <CAJAp7Oi33=kraAiU337JdFJZbuKZEVoCtY4FfAv_RgiWVmz+sw@mail.gmail.com> <20160326022612.GA3764@hector.attlocal.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: prevent endless uevent loop with
+ CONFIG_I2C_DEBUG_CORE
+Date: Wed, 30 Mar 2016 14:23:01 +0200
+Message-ID: <20160330122300.GB9329@katana>
+References: <1458762422-30079-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:50587 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751444AbcC1M7n (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 28 Mar 2016 08:59:43 -0400
-In-Reply-To: <20160326022612.GA3764@hector.attlocal.net>
-Content-Language: en-us
+Received: from sauhun.de ([89.238.76.85]:43015 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750952AbcC3MXG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 30 Mar 2016 08:23:06 -0400
+Content-Disposition: inline
+In-Reply-To: <1458762422-30079-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: 'Andy Gross' <andy.gross@linaro.org>, 'Bjorn Andersson' <bjorn@kryo.se>
-Cc: devicetree@vger.kernel.org, 'Archit Taneja' <architt@codeaurora.org>, 'Wolfram Sang' <wsa@the-dreams.de>, 'linux-arm-msm' <linux-arm-msm@vger.kernel.org>, ntelkar@codeaurora.org, 'Kumar Gala' <galak@codeaurora.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, "'Ivan T. Ivanov'" <iivanov@mm-sol.com>, 'Andy Gross' <agross@codeaurora.org>, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jan Glauber <jglauber@cavium.com>, Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-> On Fri, Mar 25, 2016 at 04:17:30PM -0700, Bjorn Andersson wrote:
-> > On Tue, Jan 19, 2016 at 2:02 AM, Sricharan R <sricharan@codeaurora.org>
-> wrote:
-> > > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
-> > > Reviewed-by: Andy Gross <andy.gross@linaro.org>
-> 
-> <snip>
-> 
-> > > +               blsp2_dma: dma-controller@f9944000 {
-> > > +                       compatible = "qcom,bam-v1.4.0";
-> > > +                       reg = <0xf9944000 0x19000>;
-> > > +                       interrupts = <GIC_SPI 239
-IRQ_TYPE_LEVEL_HIGH>;
-> > > +                       clocks = <&gcc GCC_BLSP2_AHB_CLK>;
-> > > +                       clock-names = "bam_clk";
-> > > +                       #dma-cells = <1>;
-> > > +                       qcom,ee = <0>;
-> >
-> > Without "qcom,bam_ctrl_remote;" and
-> > https://patchwork.kernel.org/patch/8639181/ the Xperia Honami board
-> > fails to boot with this patch included.
-> 
-> Ouch.  At least one set of pipes must be used by some other processor and
-> TZ has locked down that BLSP.
 
- Hmm, this was not the case atleast on the apq8074DB board that I tested
-this on.
+--v9Ux+11Zm5mwPlX6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
- Sricharan
+On Wed, Mar 23, 2016 at 08:47:02PM +0100, Wolfram Sang wrote:
+> Jan reported this:
+> =3D=3D=3D
+> After enabling CONFIG_I2C_DEBUG_CORE my system was broken
+> (no network, console login not possible). System log was
+> flooded with the this message:
+>=20
+>  ...
+> [  608.052077] rtc-ds1307 0-0068: uevent
+> [  608.052500] rtc-ds1307 0-0068: uevent
+> [  608.052925] rtc-ds1307 0-0068: uevent
+>  ...
+>=20
+> The culprit is the dev_dbg printk in the i2c uevent handler.
+> If this is activated (for instance by CONFIG_I2C_DEBUG_CORE)
+> it results in an endless loop with systemd-journald.
+>=20
+> This happens if user-space scans the system log and reads the uevent
+> file to get information about a newly created device, which seems fair
+> use to me. Unfortunately reading the "uevent" file uses the same
+> function that runs for creating the uevent for a new device,
+> generating the next syslog entry.
+>=20
+> Ideally user-space would implement a recursion detection and
+> after reading the same device file for the 1000th time call it a
+> day, but nevertheless I think we should avoid this problem by
+> removing the debug print completly or using another print variant.
+>=20
+> The same problem seems to be reported here:
+> https://bugs.freedesktop.org/show_bug.cgi?id=3D76886
+> =3D=3D=3D
+>=20
+> His patch converted the message to pr_debug, but I think the debug can
+> simply go. We have other means to see code paths these days. This
+> enables us to clean up the function some more while we are here.
+>=20
+> Reported-by: Jan Glauber <jglauber@cavium.com>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Acked-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+> Tested-by: Jan Glauber <jglauber@cavium.com>
+
+Applied to for-current, thanks!
+
+
+--v9Ux+11Zm5mwPlX6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJW+8UkAAoJEBQN5MwUoCm2UucP+gJm9ABApsKoZG3FOwLjChU5
+okmcQlLK+9LIb8MHpmqNqvtc0ngZMoFrP3vMzDTziKMTWWV7LcYaXPiKfsHj3TeD
+mHgrudDWQobwwR/Dg1+nBU2Zxb78H1DkVyeNpFI1RCauFf2wKyYw1yqUucau6Ja9
+pmaMemqszxjzNxWgIgKOYQ62UX6G9xopN7MyGzhhH2q/LtBusyheKS1BtoXJDzNr
+L7gRiAFYxLSuz+Dq0afrs4nbhSwWBMRZ87qdvQExYGTflqMFkebbsQrrAMjio2ky
+t/FeoDZ1EdpDgwbz3AqYGjuFbL1FxOzAlxjbanm4h9cEoNU8hdWe7sTLLDo7lB1V
+yUutpqayYVK1E2Ul+zML+wsa5UIwmBp3wYbRQuuRR8zo0WFrWpvtjh6rrFMjjpZv
+FncvZdF86NfpXnGiTRG/N0vqynxtFixSC3CSg1j/pEwdxMDo5EZtme3YClPhJG6s
+3PrRNdjksMCBSHB6V+BcjQnZkAEIsQOnESdALhKpnqb3EEY0LHbOwSzfw11PrJJ7
+ws6F3e0ngqvJcYvfAXTkIk3POFXhn4o7iUtkdQ6MGlsJFubTk2wI0bTPbAiYT8Kz
+ciCsXDtIfPuKc71RsMqzjUnWsMZflXNzm3kJBlNaFg7Hx+6HIOaprss+KVkuHHT0
+mu3d8Czd9K/3vwaCdYaW
+=fthS
+-----END PGP SIGNATURE-----
+
+--v9Ux+11Zm5mwPlX6--
