@@ -1,417 +1,51 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v5 03/14] i2c: octeon: Improve error handling
-Date: Thu, 31 Mar 2016 12:28:16 +0200
-Message-ID: <7f714944bf1b1d9f14a3d93ca44164de2b12a211.1459352583.git.jglauber@cavium.com>
+Subject: [PATCH v5 01/14] i2c: octeon: Increase retry default and use fixed timeout value
+Date: Thu, 31 Mar 2016 12:28:14 +0200
+Message-ID: <7e4c8b3007137d9cf9d5b8ab5d4c4c326dc2f1e0.1459352583.git.jglauber@cavium.com>
 References: <cover.1459327368.git.jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33310 "EHLO
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:36633 "EHLO
 	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751654AbcCaK2p (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 06:28:45 -0400
+	with ESMTP id S1751664AbcCaK2m (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 06:28:42 -0400
 In-Reply-To: <cover.1459327368.git.jglauber@cavium.com>
 In-Reply-To: <cover.1459352583.git.jglauber@cavium.com>
 References: <cover.1459352583.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Peter Swain <pswain@cavium.com>, Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 
-From: Peter Swain <pswain@cavium.com>
+Convert the adapter timeout to 2 ms independently of depending on CONFIG_HZ.
+CONFIG_HZ is 100 for MIPS Cavium-Octeon so the timeout value is not changed.
 
-Consider more status codes and improve error handling.
-Distinguish handling for first and last part of a message.
+Also set retries to 5 to improve robustness.
 
-TODO: Convert to use the i2c recovery framework.
-
-Signed-off-by: Peter Swain <pswain@cavium.com>
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-octeon.c | 244 +++++++++++++++++++++++++++++-----------
- 1 file changed, 178 insertions(+), 66 deletions(-)
+ drivers/i2c/busses/i2c-octeon.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index f647667..a037245 100644
+index 46fb6c4..c4abf16 100644
 --- a/drivers/i2c/busses/i2c-octeon.c
 +++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -56,12 +56,34 @@
- #define TWSI_CTL_AAK		0x04	/* Assert ACK */
- 
- /* Some status values */
-+#define STAT_ERROR		0x00
- #define STAT_START		0x08
- #define STAT_RSTART		0x10
- #define STAT_TXADDR_ACK		0x18
-+#define STAT_TXADDR_NAK		0x20
- #define STAT_TXDATA_ACK		0x28
-+#define STAT_TXDATA_NAK		0x30
-+#define STAT_LOST_ARB_38	0x38
- #define STAT_RXADDR_ACK		0x40
-+#define STAT_RXADDR_NAK		0x48
- #define STAT_RXDATA_ACK		0x50
-+#define STAT_RXDATA_NAK		0x58
-+#define STAT_SLAVE_60		0x60
-+#define STAT_LOST_ARB_68	0x68
-+#define STAT_SLAVE_70		0x70
-+#define STAT_LOST_ARB_78	0x78
-+#define STAT_SLAVE_80		0x80
-+#define STAT_SLAVE_88		0x88
-+#define STAT_GENDATA_ACK	0x90
-+#define STAT_GENDATA_NAK	0x98
-+#define STAT_SLAVE_A0		0xA0
-+#define STAT_SLAVE_A8		0xA8
-+#define STAT_LOST_ARB_B0	0xB0
-+#define STAT_SLAVE_LOST		0xB8
-+#define STAT_SLAVE_NAK		0xC0
-+#define STAT_SLAVE_ACK		0xC8
-+#define STAT_AD2W_ACK		0xD0
-+#define STAT_AD2W_NAK		0xD8
- #define STAT_IDLE		0xF8
- 
- /* TWSI_INT values */
-@@ -79,6 +101,8 @@ struct octeon_i2c {
- 	struct device *dev;
+@@ -426,7 +426,6 @@ static struct i2c_adapter octeon_i2c_ops = {
+ 	.owner = THIS_MODULE,
+ 	.name = "OCTEON adapter",
+ 	.algo = &octeon_i2c_algo,
+-	.timeout = HZ / 50,
  };
  
-+static int reset_how;
-+
- /**
-  * octeon_i2c_write_sw - write an I2C core register
-  * @i2c: The struct octeon_i2c
-@@ -186,7 +210,6 @@ static irqreturn_t octeon_i2c_isr(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--
- static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
- {
- 	return (octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_CTL) & TWSI_CTL_IFLG) != 0;
-@@ -214,6 +237,66 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
- 	return 0;
- }
- 
-+static int octeon_i2c_lost_arb(u8 code, int final_read)
-+{
-+	switch (code) {
-+	/* Arbitration lost */
-+	case STAT_LOST_ARB_38:
-+	case STAT_LOST_ARB_68:
-+	case STAT_LOST_ARB_78:
-+	case STAT_LOST_ARB_B0:
-+		return -EAGAIN;
-+
-+	/* Being addressed as slave, should back off & listen */
-+	case STAT_SLAVE_60:
-+	case STAT_SLAVE_70:
-+	case STAT_GENDATA_ACK:
-+	case STAT_GENDATA_NAK:
-+		return -EIO;
-+
-+	/* Core busy as slave */
-+	case STAT_SLAVE_80:
-+	case STAT_SLAVE_88:
-+	case STAT_SLAVE_A0:
-+	case STAT_SLAVE_A8:
-+	case STAT_SLAVE_LOST:
-+	case STAT_SLAVE_NAK:
-+	case STAT_SLAVE_ACK:
-+		return -EIO;
-+
-+	/* ACK allowed on pre-terminal bytes only */
-+	case STAT_RXDATA_ACK:
-+		if (!final_read)
-+			return 0;
-+		return -EAGAIN;
-+
-+	/* NAK allowed on terminal byte only */
-+	case STAT_RXDATA_NAK:
-+		if (final_read)
-+			return 0;
-+		return -EAGAIN;
-+	case STAT_TXDATA_NAK:
-+	case STAT_TXADDR_NAK:
-+	case STAT_RXADDR_NAK:
-+	case STAT_AD2W_NAK:
-+		return -EAGAIN;
-+	}
-+	return 0;
-+}
-+
-+static int check_arb(struct octeon_i2c *i2c, int final_read)
-+{
-+	return octeon_i2c_lost_arb(octeon_i2c_read_sw(i2c,
-+			SW_TWSI_EOP_TWSI_STAT),	final_read);
-+}
-+
-+/* send STOP to the bus */
-+static void octeon_i2c_stop(struct octeon_i2c *i2c)
-+{
-+	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
-+			    TWSI_CTL_ENAB | TWSI_CTL_STP);
-+}
-+
  /* calculate and set clock divisors */
- static void octeon_i2c_set_clock(struct octeon_i2c *i2c)
- {
-@@ -277,71 +360,103 @@ static int octeon_i2c_init_lowlevel(struct octeon_i2c *i2c)
- 	return -EIO;
- }
+@@ -553,6 +552,8 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+ 	octeon_i2c_set_clock(i2c);
  
-+/*
-+ * TWSI state seems stuck. Not sure if it's TWSI-engine state or something
-+ * else on bus. The initial _stop() is always harmless, it just resets state
-+ * machine, does not _transmit_ STOP unless engine was active.
-+ */
-+static int start_unstick(struct octeon_i2c *i2c)
-+{
-+	octeon_i2c_stop(i2c);
-+
-+	/*
-+	 * Response is escalated over successive calls,
-+	 * as EAGAIN provokes retries from i2c/core.
-+	 */
-+	switch (reset_how++ % 4) {
-+	case 0:
-+		/* just the stop above */
-+		break;
-+	case 1:
-+		/*
-+		 * Controller refused to send start flag. May be a
-+		 * client is holding SDA low? Let's try to free it.
-+		 */
-+		octeon_i2c_unblock(i2c);
-+		break;
-+	case 2:
-+		/* re-init our TWSI hardware */
-+		octeon_i2c_init_lowlevel(i2c);
-+		break;
-+	default:
-+		/* retry in caller */
-+		reset_how = 0;
-+		return -EAGAIN;
-+	}
-+	return 0;
-+}
-+
- /**
-  * octeon_i2c_start - send START to the bus
-  * @i2c: The struct octeon_i2c
-+ * @first: first msg in combined operation?
-  *
-  * Returns 0 on success, otherwise a negative errno.
-  */
--static int octeon_i2c_start(struct octeon_i2c *i2c)
-+static int octeon_i2c_start(struct octeon_i2c *i2c, int first)
- {
- 	int result;
- 	u8 data;
- 
--	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
--			    TWSI_CTL_ENAB | TWSI_CTL_STA);
-+	while (1) {
-+		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
-+				    TWSI_CTL_ENAB | TWSI_CTL_STA);
- 
--	result = octeon_i2c_wait(i2c);
--	if (result) {
--		if (octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT) == STAT_IDLE) {
--			/*
--			 * Controller refused to send start flag May
--			 * be a client is holding SDA low - let's try
--			 * to free it.
--			 */
--			octeon_i2c_unblock(i2c);
--			octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
--					    TWSI_CTL_ENAB | TWSI_CTL_STA);
--			result = octeon_i2c_wait(i2c);
-+		result = octeon_i2c_wait(i2c);
-+		data = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-+
-+		switch (data) {
-+		case STAT_START:
-+		case STAT_RSTART:
-+			if (!first)
-+				return -EAGAIN;
-+			reset_how = 0;
-+			return 0;
-+		case STAT_RXADDR_ACK:
-+			if (first)
-+				return -EAGAIN;
-+			return start_unstick(i2c);
-+		/*
-+		 * case STAT_IDLE:
-+		 * case STAT_ERROR:
-+		 */
-+		default:
-+			if (!first)
-+				return -EAGAIN;
-+			start_unstick(i2c);
- 		}
--		if (result)
--			return result;
- 	}
--
--	data = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
--	if ((data != STAT_START) && (data != STAT_RSTART)) {
--		dev_err(i2c->dev, "%s: bad status (0x%x)\n", __func__, data);
--		return -EIO;
--	}
--
- 	return 0;
- }
- 
--/* send STOP to the bus */
--static void octeon_i2c_stop(struct octeon_i2c *i2c)
--{
--	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
--			    TWSI_CTL_ENAB | TWSI_CTL_STP);
--}
--
- /**
-  * octeon_i2c_write - send data to the bus via low-level controller
-  * @i2c: The struct octeon_i2c
-  * @target: Target address
-  * @data: Pointer to the data to be sent
-  * @length: Length of the data
-+ * @last: is last msg in combined operation?
-  *
-  * The address is sent over the bus, then the data.
-  *
-  * Returns 0 on success, otherwise a negative errno.
-  */
- static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
--			    const u8 *data, int length)
-+			    const u8 *data, int length, int first, int last)
- {
- 	int i, result;
--	u8 tmp;
- 
--	result = octeon_i2c_start(i2c);
-+	result = octeon_i2c_start(i2c, first);
- 	if (result)
- 		return result;
- 
-@@ -353,14 +468,9 @@ static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
- 		return result;
- 
- 	for (i = 0; i < length; i++) {
--		tmp = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
--
--		if ((tmp != STAT_TXADDR_ACK) && (tmp != STAT_TXDATA_ACK)) {
--			dev_err(i2c->dev,
--				"%s: bad status before write (0x%x)\n",
--				__func__, tmp);
--			return -EIO;
--		}
-+		result = check_arb(i2c, false);
-+		if (result)
-+			return result;
- 
- 		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, data[i]);
- 		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
-@@ -368,6 +478,9 @@ static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
- 		result = octeon_i2c_wait(i2c);
- 		if (result)
- 			return result;
-+		result = check_arb(i2c, false);
-+		if (result)
-+			return result;
- 	}
- 
- 	return 0;
-@@ -379,54 +492,51 @@ static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
-  * @target: Target address
-  * @data: Pointer to the location to store the data
-  * @rlength: Length of the data
-+ * @phase: which phase of a combined operation.
-  * @recv_len: flag for length byte
-  *
-  * The address is sent over the bus, then the data is read.
-  *
-  * Returns 0 on success, otherwise a negative errno.
-  */
--static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
--			   u8 *data, u16 *rlength, bool recv_len)
-+static int octeon_i2c_read(struct octeon_i2c *i2c, int target, u8 *data,
-+			   u16 *rlength, bool first, bool last, bool recv_len)
- {
-+	u8 ctl = TWSI_CTL_ENAB | TWSI_CTL_AAK;
- 	int i, result, length = *rlength;
- 	u8 tmp;
- 
- 	if (length < 1)
- 		return -EINVAL;
- 
--	result = octeon_i2c_start(i2c);
-+	result = octeon_i2c_start(i2c, first);
- 	if (result)
- 		return result;
- 
- 	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, (target << 1) | 1);
--	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
--
--	result = octeon_i2c_wait(i2c);
--	if (result)
--		return result;
- 
--	for (i = 0; i < length; i++) {
-+	for (i = 0; i < length; ) {
- 		tmp = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-+		result = octeon_i2c_lost_arb(tmp, !(ctl & TWSI_CTL_AAK));
-+		if (result)
-+			return result;
- 
--		if ((tmp != STAT_RXDATA_ACK) && (tmp != STAT_RXADDR_ACK)) {
--			dev_err(i2c->dev,
--				"%s: bad status before read (0x%x)\n",
--				__func__, tmp);
--			return -EIO;
-+		switch (tmp) {
-+		case STAT_RXDATA_ACK:
-+		case STAT_RXDATA_NAK:
-+			data[i++] = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_DATA);
- 		}
- 
--		if (i + 1 < length)
--			octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
--					    TWSI_CTL_ENAB | TWSI_CTL_AAK);
--		else
--			octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
--					    TWSI_CTL_ENAB);
-+		/* NAK last recv'd byte, as a no-more-please */
-+		if (last && i == length - 1)
-+			ctl &= ~TWSI_CTL_AAK;
- 
-+		/* clr iflg to allow next event */
-+		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, ctl);
- 		result = octeon_i2c_wait(i2c);
- 		if (result)
- 			return result;
- 
--		data[i] = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_DATA);
- 		if (recv_len && i == 0) {
- 			if (data[i] > I2C_SMBUS_BLOCK_MAX + 1) {
- 				dev_err(i2c->dev,
-@@ -457,6 +567,7 @@ static int octeon_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 
- 	for (i = 0; ret == 0 && i < num; i++) {
- 		struct i2c_msg *pmsg = &msgs[i];
-+		bool last = (i == (num - 1));
- 
- 		dev_dbg(i2c->dev,
- 			"Doing %s %d byte(s) to/from 0x%02x - %d of %d messages\n",
-@@ -464,10 +575,11 @@ static int octeon_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			 pmsg->len, pmsg->addr, i + 1, num);
- 		if (pmsg->flags & I2C_M_RD)
- 			ret = octeon_i2c_read(i2c, pmsg->addr, pmsg->buf,
--					      &pmsg->len, pmsg->flags & I2C_M_RECV_LEN);
-+					      &pmsg->len, !i, last,
-+					      pmsg->flags & I2C_M_RECV_LEN);
- 		else
- 			ret = octeon_i2c_write(i2c, pmsg->addr, pmsg->buf,
--					       pmsg->len);
-+					       pmsg->len, !i, last);
- 	}
- 	octeon_i2c_stop(i2c);
- 
+ 	i2c->adap = octeon_i2c_ops;
++	i2c->adap.timeout = msecs_to_jiffies(2);
++	i2c->adap.retries = 5;
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = node;
+ 	i2c_set_adapdata(&i2c->adap, i2c);
 -- 
 1.9.1
