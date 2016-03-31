@@ -1,51 +1,124 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v5 01/14] i2c: octeon: Increase retry default and use fixed timeout value
-Date: Thu, 31 Mar 2016 12:28:14 +0200
-Message-ID: <7e4c8b3007137d9cf9d5b8ab5d4c4c326dc2f1e0.1459352583.git.jglauber@cavium.com>
-References: <cover.1459327368.git.jglauber@cavium.com>
+From: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH] i2c: mux: demux-pinctrl: Clean up sysfs attributes
+Date: Thu, 31 Mar 2016 16:40:05 +0100
+Message-ID: <1459438805.18533.3.camel@codethink.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:36633 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751664AbcCaK2m (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 06:28:42 -0400
-In-Reply-To: <cover.1459327368.git.jglauber@cavium.com>
-In-Reply-To: <cover.1459352583.git.jglauber@cavium.com>
-References: <cover.1459352583.git.jglauber@cavium.com>
+Received: from ducie-dc1.codethink.co.uk ([185.25.241.215]:40385 "EHLO
+	ducie-dc1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751511AbcCaPkO (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 11:40:14 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+Cc: linux-i2c@vger.kernel.org, CT kernel <linux-kernel@lists.codethink.co.uk>, Ben Dooks <ben.dooks@codethink.co.uk>
 
-Convert the adapter timeout to 2 ms independently of depending on CONFIG_HZ.
-CONFIG_HZ is 100 for MIPS Cavium-Octeon so the timeout value is not changed.
+sysfs attributes should use the same format for reads and writes,
+rather than pretty-printing on read.
 
-Also set retries to 5 to improve robustness.
+* Make the "cur_master" attribute read back as just the name of the
+  master
+* Expose the list of all masters as a read-only "available_masters"
+  attribute, using space separators as in similar attributes of other
+  devices
 
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
+Also, spell out "cur_master" in full as "current_master".
+
+Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 ---
- drivers/i2c/busses/i2c-octeon.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/muxes/i2c-demux-pinctrl.c | 39 ++++++++++++++++++++++++++---------
+ 1 file changed, 29 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index 46fb6c4..c4abf16 100644
---- a/drivers/i2c/busses/i2c-octeon.c
-+++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -426,7 +426,6 @@ static struct i2c_adapter octeon_i2c_ops = {
- 	.owner = THIS_MODULE,
- 	.name = "OCTEON adapter",
- 	.algo = &octeon_i2c_algo,
--	.timeout = HZ / 50,
- };
+diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+index 7748a0a5ddb9..8de073aed001 100644
+--- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+@@ -140,22 +140,34 @@ static int i2c_demux_change_master(struct i2c_demux_pinctrl_priv *priv, u32 new_
+ 	return i2c_demux_activate_master(priv, new_chan);
+ }
  
- /* calculate and set clock divisors */
-@@ -553,6 +552,8 @@ static int octeon_i2c_probe(struct platform_device *pdev)
- 	octeon_i2c_set_clock(i2c);
+-static ssize_t cur_master_show(struct device *dev, struct device_attribute *attr,
+-			   char *buf)
++static ssize_t available_masters_show(struct device *dev,
++				      struct device_attribute *attr,
++				      char *buf)
+ {
+ 	struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
+ 	int count = 0, i;
  
- 	i2c->adap = octeon_i2c_ops;
-+	i2c->adap.timeout = msecs_to_jiffies(2);
-+	i2c->adap.retries = 5;
- 	i2c->adap.dev.parent = &pdev->dev;
- 	i2c->adap.dev.of_node = node;
- 	i2c_set_adapdata(&i2c->adap, i2c);
+ 	for (i = 0; i < priv->num_chan && count < PAGE_SIZE; i++)
+-		count += scnprintf(buf + count, PAGE_SIZE - count, "%c %d - %s\n",
+-				 i == priv->cur_chan ? '*' : ' ', i,
+-				 priv->chan[i].parent_np->full_name);
++		count += scnprintf(buf + count, PAGE_SIZE - count, "%d:%s%c",
++				   i, priv->chan[i].parent_np->full_name,
++				   i == priv->num_chan - 1 ? '\n' : ' ');
+ 
+ 	return count;
+ }
++static DEVICE_ATTR_RO(available_masters);
+ 
+-static ssize_t cur_master_store(struct device *dev, struct device_attribute *attr,
+-			    const char *buf, size_t count)
++static ssize_t current_master_show(struct device *dev,
++				   struct device_attribute *attr,
++				   char *buf)
++{
++	struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d\n", priv->cur_chan);
++}
++
++static ssize_t current_master_store(struct device *dev,
++				    struct device_attribute *attr,
++				    const char *buf, size_t count)
+ {
+ 	struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
+ 	unsigned int val;
+@@ -172,7 +184,7 @@ static ssize_t cur_master_store(struct device *dev, struct device_attribute *att
+ 
+ 	return ret < 0 ? ret : count;
+ }
+-static DEVICE_ATTR_RW(cur_master);
++static DEVICE_ATTR_RW(current_master);
+ 
+ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+ {
+@@ -218,12 +230,18 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+ 	/* switch to first parent as active master */
+ 	i2c_demux_activate_master(priv, 0);
+ 
+-	err = device_create_file(&pdev->dev, &dev_attr_cur_master);
++	err = device_create_file(&pdev->dev, &dev_attr_available_masters);
+ 	if (err)
+ 		goto err_rollback;
+ 
++	err = device_create_file(&pdev->dev, &dev_attr_current_master);
++	if (err)
++		goto err_rollback_available;
++
+ 	return 0;
+ 
++err_rollback_available:
++	device_remove_file(&pdev->dev, &dev_attr_available_masters);
+ err_rollback:
+ 	for (j = 0; j < i; j++) {
+ 		of_node_put(priv->chan[j].parent_np);
+@@ -238,7 +256,8 @@ static int i2c_demux_pinctrl_remove(struct platform_device *pdev)
+ 	struct i2c_demux_pinctrl_priv *priv = platform_get_drvdata(pdev);
+ 	int i;
+ 
+-	device_remove_file(&pdev->dev, &dev_attr_cur_master);
++	device_remove_file(&pdev->dev, &dev_attr_current_master);
++	device_remove_file(&pdev->dev, &dev_attr_available_masters);
+ 
+ 	i2c_demux_deactivate_master(priv);
+ 
+
 -- 
-1.9.1
+Ben Hutchings
+Software Developer, Codethink Ltd.
