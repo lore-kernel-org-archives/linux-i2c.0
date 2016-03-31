@@ -1,98 +1,82 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v5 00/14] i2c-octeon and i2c-thunderx drivers
-Date: Thu, 31 Mar 2016 12:28:13 +0200
-Message-ID: <cover.1459327368.git.jglauber@cavium.com>
+Subject: [PATCH v5 08/14] i2c: octeon: Faster operation when IFLG signals late
+Date: Thu, 31 Mar 2016 12:28:21 +0200
+Message-ID: <a332b7273723f70dc6c795a02bd79690c30a65fc.1459352583.git.jglauber@cavium.com>
+References: <cover.1459327368.git.jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35500 "EHLO
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:33963 "EHLO
 	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751654AbcCaK2l (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 06:28:41 -0400
+	with ESMTP id S1755980AbcCaK2u (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 06:28:50 -0400
+In-Reply-To: <cover.1459327368.git.jglauber@cavium.com>
+In-Reply-To: <cover.1459352583.git.jglauber@cavium.com>
+References: <cover.1459352583.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Peter Swain <pswain@cavium.com>, Jan Glauber <jglauber@cavium.com>
 
-This series for the Octeon i2c driver is an attempt to upstream some
-bug fixes and features that accumulated for some time.
+From: Peter Swain <pswain@cavium.com>
 
-On top of the Octeon changes a i2c driver for the ThunderX SOC is
-added which uses the same functional block as the Octeon driver.
+Some versions can deliver low-level twsi irq before twsi_ctl.iflg
+is set, leading to timeout-driven i/o.
+When an irq signals event, but woken task does not see the expected
+twsi_ctl.iflg, re-check about 80uS later.
 
-Patches #1-9 are forward-ports of Octeon features and bugfixes.
-Patches #10-12 prepare for the driver split.
-Patches #13-14 add the ThunderX driver.
+EEPROM reads on 100kHz i2c now measure ~5.2kB/s, about 1/2 what's
+achievable, and much better than the worst-case 100 bytes/sec before.
 
-Patches are on top of 4.6-rc1 and were tested on OCTEON, OCTEON-78
-and ThunderX.
+Signed-off-by: Peter Swain <pswain@cavium.com>
+Signed-off-by: Jan Glauber <jglauber@cavium.com>
+Acked-by: David Daney <ddaney@caviumnetworks.com>
+---
+ drivers/i2c/busses/i2c-octeon.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
-Changes to v4:
-- Splitted the High-Level Controller patch into several patches
-- Reworded some commit messages
-
-Changes to v3:
-- Added more functionality flags for SMBUS
-- Removed both module parameters
-- Make xfer return also other errors than EGAIN
-- Return EPROTO on invalid SMBUS block length
-- Use devm_ioremap_resource
-- Added rename-only patch
-- Removed kerneldoc patch from series
-- Improved defines
-
-Changes to v2:
-- Split clenaup patch into several patches
-- Strictly moved functional changes to later patches
-- Fixed do-while checkpatch errors
-- Moved defines to the patches that use them
-- Use BIT_ULL macro
-- Split ThunderX patch into 2 patches
-
-Changes to v1:
-- Fixed compile error on x86_64
-- Disabled thunderx driver on MIPS
-- Re-ordered some thunderx probe functions for readability
-- Fix missing of_irq.h and i2c-smbus.h includes
-- Use IS_ENABLED for CONFIG options
-
-Jan
-
--------------------------------------------------
-
-
-David Daney (3):
-  i2c: octeon: Enable High-Level Controller
-  i2c: octeon: Add support for cn78xx chips
-  i2c: octeon: Add workaround for broken irqs on CN3860
-
-Jan Glauber (8):
-  i2c: octeon: Increase retry default and use fixed timeout value
-  i2c: octeon: Move set-clock and init-lowlevel upward
-  dt-bindings: i2c: Add Octeon cn78xx TWSI
-  i2c: octeon: Move read function before write
-  i2c: octeon: Rename driver to prepare for split
-  i2c: octeon: Split the driver into two parts
-  i2c: thunderx: Add i2c driver for ThunderX SOC
-  i2c: thunderx: Add smbus alert support
-
-Peter Swain (3):
-  i2c: octeon: Improve error handling
-  i2c: octeon: Flush TWSI writes with readback
-  i2c: octeon: Faster operation when IFLG signals late
-
- .../devicetree/bindings/i2c/i2c-octeon.txt         |   6 +
- drivers/i2c/busses/Kconfig                         |  10 +
- drivers/i2c/busses/Makefile                        |   3 +
- drivers/i2c/busses/i2c-cavium.c                    | 822 +++++++++++++++++++++
- drivers/i2c/busses/i2c-cavium.h                    | 212 ++++++
- drivers/i2c/busses/i2c-octeon-core.c               | 283 +++++++
- drivers/i2c/busses/i2c-octeon.c                    | 600 ---------------
- drivers/i2c/busses/i2c-thunderx-core.c             | 303 ++++++++
- 8 files changed, 1639 insertions(+), 600 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-cavium.c
- create mode 100644 drivers/i2c/busses/i2c-cavium.h
- create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
- delete mode 100644 drivers/i2c/busses/i2c-octeon.c
- create mode 100644 drivers/i2c/busses/i2c-thunderx-core.c
-
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index 44ce9d4..cc1fe51 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -342,6 +342,28 @@ static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
+ 	return (octeon_i2c_read_ctl(i2c) & TWSI_CTL_IFLG) != 0;
+ }
+ 
++#define I2C_OCTEON_IFLG_WAIT 80	/* microseconds */
++
++/*
++ * Wait-helper which addresses the delayed-IFLAG problem by re-polling for
++ * missing TWSI_CTL[IFLG] a few us later, when irq has signalled an event,
++ * but none found. Skip this re-poll on the first (non-wakeup) call.
++ */
++static int poll_iflg(struct octeon_i2c *i2c, int *first_p)
++{
++	int iflg = octeon_i2c_test_iflg(i2c);
++
++	if (iflg)
++		return 1;
++	if (*first_p)
++		*first_p = 0;
++	else {
++		usleep_range(I2C_OCTEON_IFLG_WAIT, 2 * I2C_OCTEON_IFLG_WAIT);
++		iflg = octeon_i2c_test_iflg(i2c);
++	}
++	return iflg;
++}
++
+ /**
+  * octeon_i2c_wait - wait for the IFLG to be set
+  * @i2c: The struct octeon_i2c
+@@ -351,9 +373,10 @@ static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
+ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ {
+ 	long time_left;
++	int first = 1;
+ 
+ 	i2c->int_en(i2c);
+-	time_left = wait_event_timeout(i2c->queue, octeon_i2c_test_iflg(i2c),
++	time_left = wait_event_timeout(i2c->queue, poll_iflg(i2c, &first),
+ 				       i2c->adap.timeout);
+ 	i2c->int_dis(i2c);
+ 	if (!time_left) {
 -- 
 1.9.1
