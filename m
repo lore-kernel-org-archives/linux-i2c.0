@@ -1,122 +1,136 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v5 14/14] i2c: thunderx: Add smbus alert support
-Date: Thu, 31 Mar 2016 12:28:27 +0200
-Message-ID: <18ef3c1552056e51b8cfcc084be249a5372100be.1459352583.git.jglauber@cavium.com>
+Subject: [PATCH v5 10/14] i2c: octeon: Move read function before write
+Date: Thu, 31 Mar 2016 12:28:23 +0200
+Message-ID: <b00158f108b8ff15cc90d647e03deb52a4b41b92.1459352583.git.jglauber@cavium.com>
 References: <cover.1459327368.git.jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:36828 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756064AbcCaK25 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 06:28:57 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1459327368.git.jglauber@cavium.com>
 In-Reply-To: <cover.1459352583.git.jglauber@cavium.com>
 References: <cover.1459352583.git.jglauber@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Add smbus alert interrupt support.
+Just sorting the functions to be consistent with the other
+read/write variants.
 
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-cavium.h        |  6 ++++++
- drivers/i2c/busses/i2c-thunderx-core.c | 35 ++++++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+)
+ drivers/i2c/busses/i2c-octeon.c | 94 ++++++++++++++++++++---------------------
+ 1 file changed, 47 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cavium.h b/drivers/i2c/busses/i2c-cavium.h
-index 31608c4..f934624 100644
---- a/drivers/i2c/busses/i2c-cavium.h
-+++ b/drivers/i2c/busses/i2c-cavium.h
-@@ -3,6 +3,7 @@
- #include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
-@@ -118,6 +119,11 @@ struct octeon_i2c {
- #if IS_ENABLED(CONFIG_I2C_THUNDERX)
- 	struct msix_entry i2c_msix;
- #endif
-+
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	struct i2c_smbus_alert_setup alert_data;
-+	struct i2c_client *ara;
-+#endif
- };
- 
- static inline void writeqflush(u64 val, void __iomem *addr)
-diff --git a/drivers/i2c/busses/i2c-thunderx-core.c b/drivers/i2c/busses/i2c-thunderx-core.c
-index 2ce985b..339378a 100644
---- a/drivers/i2c/busses/i2c-thunderx-core.c
-+++ b/drivers/i2c/busses/i2c-thunderx-core.c
-@@ -9,9 +9,11 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/of_irq.h>
- #include <linux/pci.h>
- 
- #include "i2c-cavium.h"
-@@ -108,6 +110,35 @@ static void thunder_i2c_clock_disable(struct device *dev, struct clk *clk)
- 	devm_clk_put(dev, clk);
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index 9621b66..95cd301 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -928,53 +928,6 @@ static int octeon_i2c_start(struct octeon_i2c *i2c, int first)
  }
  
-+static int thunder_i2c_smbus_setup(struct octeon_i2c *i2c,
-+				   struct device_node *node)
+ /**
+- * octeon_i2c_write - send data to the bus via low-level controller
+- * @i2c: The struct octeon_i2c
+- * @target: Target address
+- * @data: Pointer to the data to be sent
+- * @length: Length of the data
+- * @last: is last msg in combined operation?
+- *
+- * The address is sent over the bus, then the data.
+- *
+- * Returns 0 on success, otherwise a negative errno.
+- */
+-static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
+-			    const u8 *data, int length, int first, int last)
+-{
+-	int i, result;
+-
+-	result = octeon_i2c_start(i2c, first);
+-	if (result)
+-		return result;
+-
+-	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, target << 1);
+-	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
+-
+-	result = octeon_i2c_wait(i2c);
+-	if (result)
+-		return result;
+-
+-	for (i = 0; i < length; i++) {
+-		result = check_arb(i2c, false);
+-		if (result)
+-			return result;
+-
+-		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, data[i]);
+-		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
+-
+-		result = octeon_i2c_wait(i2c);
+-		if (result)
+-			return result;
+-		result = check_arb(i2c, false);
+-		if (result)
+-			return result;
+-	}
+-
+-	return 0;
+-}
+-
+-/**
+  * octeon_i2c_read - receive data from the bus via low-level controller
+  * @i2c: The struct octeon_i2c
+  * @target: Target address
+@@ -1040,6 +993,53 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target, u8 *data,
+ }
+ 
+ /**
++ * octeon_i2c_write - send data to the bus via low-level controller
++ * @i2c: The struct octeon_i2c
++ * @target: Target address
++ * @data: Pointer to the data to be sent
++ * @length: Length of the data
++ * @last: is last msg in combined operation?
++ *
++ * The address is sent over the bus, then the data.
++ *
++ * Returns 0 on success, otherwise a negative errno.
++ */
++static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
++			    const u8 *data, int length, int first, int last)
 +{
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	u32 type;
++	int i, result;
 +
-+	i2c->alert_data.irq = irq_of_parse_and_map(node, 0);
-+	if (!i2c->alert_data.irq)
-+		return -EINVAL;
++	result = octeon_i2c_start(i2c, first);
++	if (result)
++		return result;
 +
-+	type = irqd_get_trigger_type(irq_get_irq_data(i2c->alert_data.irq));
-+	i2c->alert_data.alert_edge_triggered =
-+		(type & IRQ_TYPE_LEVEL_MASK) ? 1 : 0;
++	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, target << 1);
++	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
 +
-+	i2c->ara = i2c_setup_smbus_alert(&i2c->adap, &i2c->alert_data);
-+	if (!i2c->ara)
-+		return -ENODEV;
-+#endif
++	result = octeon_i2c_wait(i2c);
++	if (result)
++		return result;
++
++	for (i = 0; i < length; i++) {
++		result = check_arb(i2c, false);
++		if (result)
++			return result;
++
++		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, data[i]);
++		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
++
++		result = octeon_i2c_wait(i2c);
++		if (result)
++			return result;
++		result = check_arb(i2c, false);
++		if (result)
++			return result;
++	}
++
 +	return 0;
 +}
 +
-+static void thunder_i2c_smbus_remove(struct octeon_i2c *i2c)
-+{
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	if (i2c->ara)
-+		i2c_unregister_device(i2c->ara);
-+#endif
-+}
-+
- static void thunder_i2c_set_name(struct pci_dev *pdev, struct octeon_i2c *i2c,
- 				 char *name)
- {
-@@ -207,6 +238,9 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 		goto out_irq;
- 	}
- 
-+	ret = thunder_i2c_smbus_setup(i2c, node);
-+	if (ret < 0)
-+		dev_err(dev, "Failed to setup smbus alert\n");
- 	dev_info(i2c->dev, "probed\n");
- 	return 0;
- 
-@@ -237,6 +271,7 @@ static void thunder_i2c_remove_pci(struct pci_dev *pdev)
- 
- 	dev = i2c->dev;
- 	thunder_i2c_clock_disable(dev, i2c->clk);
-+	thunder_i2c_smbus_remove(i2c);
- 	i2c_del_adapter(&i2c->adap);
- 	devm_free_irq(dev, i2c->i2c_msix.vector, i2c);
- 	pci_disable_msix(pdev);
++/**
+  * octeon_i2c_xfer - The driver's master_xfer function
+  * @adap: Pointer to the i2c_adapter structure
+  * @msgs: Pointer to the messages to be processed
 -- 
 1.9.1
