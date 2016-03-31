@@ -1,55 +1,114 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC PATCH 06/10] spi: add support for ACPI reconfigure
- notifications
-Date: Thu, 31 Mar 2016 10:29:35 -0700
-Message-ID: <20160331172935.GL2350@sirena.org.uk>
-References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
- <1459417026-6697-7-git-send-email-octavian.purdila@intel.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH v3 09/11] i2c: rcar: revoke START request early
+Date: Fri, 1 Apr 2016 00:02:56 +0300
+Message-ID: <56FD9080.4090203@cogentembedded.com>
+References: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
+ <1447948611-2615-10-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="vYlOGI1a8wP+YbIl"
-Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1459417026-6697-7-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1447948611-2615-10-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hello.
 
---vYlOGI1a8wP+YbIl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 11/19/2015 06:56 PM, Wolfram Sang wrote:
 
-On Thu, Mar 31, 2016 at 12:37:02PM +0300, Octavian Purdila wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> If we don't clear START generation as soon as possible, it may cause
+> another message to be generated, e.g. when receiving NACK in address
+> phase. To keep the race window as small as possible, we clear it right
+> at the beginning of the interrupt. We don't need any checks since we
+> always want to stop START and STOP generation on the next occasion after
+> we started it.
+>
+> This patch improves the situation but sadly does not completely fix it.
+> It is still to be researched if we can do better given this HW design.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-> +#if IS_ENABLED(CONFIG_ACPI)
-> +static int acpi_spi_table_load(struct device *dev, const void *data)
-> +{
-> +	struct spi_master *master = container_of(dev, struct spi_master, dev);
+    Thanks for a great work, Wolfram!
+    We need this patch in -stable kernels. The R-Car audio just doesn't work 
+without it...
+
+> ---
+>   drivers/i2c/busses/i2c-rcar.c | 23 +++++++----------------
+>   1 file changed, 7 insertions(+), 16 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index f237b4fc5b5e55..40979130200935 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -83,6 +83,7 @@
+>
+>   #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
+>   #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
+> +#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
+>   #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
+>
+>   #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
+> @@ -289,13 +290,6 @@ static void rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+>   	if (!(msr & MDE))
+>   		return;
+>
+> -	/*
+> -	 * If address transfer phase finished,
+> -	 * goto data phase.
+> -	 */
+> -	if (msr & MAT)
+> -		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+> -
+>   	if (priv->pos < msg->len) {
+>   		/*
+>   		 * Prepare next data to ICRXTX register.
+> @@ -345,11 +339,7 @@ static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+>   		return;
+>
+>   	if (msr & MAT) {
+> -		/*
+> -		 * Address transfer phase finished,
+> -		 * but, there is no data at this point.
+> -		 * Do nothing.
+> -		 */
+> +		/* Address transfer phase finished, but no data at this point. */
+>   	} else if (priv->pos < msg->len) {
+>   		/*
+>   		 * get received data
+> @@ -365,8 +355,6 @@ static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+>   	 */
+>   	if (priv->pos + 1 >= msg->len)
+>   		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+> -	else
+> -		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+>
+>   	if (priv->pos == msg->len && !(priv->flags & ID_LAST_MSG))
+>   		rcar_i2c_next_msg(priv);
+> @@ -432,7 +420,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+>   static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+>   {
+>   	struct rcar_i2c_priv *priv = ptr;
+> -	u32 msr;
+> +	u32 msr, val;
 > +
-> +	acpi_register_spi_devices(master);
-> +	return 0;
-> +}
+> +	/* Clear START or STOP as soon as we can */
+> +	val = rcar_i2c_read(priv, ICMCR);
+> +	rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
+>
+>   	msr = rcar_i2c_read(priv, ICMSR);
+>
+> @@ -454,7 +446,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+>   	/* Nack */
+>   	if (msr & MNR) {
+>   		/* HW automatically sends STOP after received NACK */
+> -		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+>   		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
+>   		rcar_i2c_flags_set(priv, ID_NACK);
+>   		goto out;
 
-Why do we have a separate code path for this coompared to the initial
-startup?  The handling appears to be identical so it seems we should
-drive this from the ACPI code so we don't have to add this to every
-single bus with ACPI bindings.
+MBR, Sergei
 
---vYlOGI1a8wP+YbIl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJW/V50AAoJECTWi3JdVIfQaYwH/1w1D1N5NRZxoG8yE8B48DU6
-dPRkmhxGlcoz5A0COfqjPMbEdccEcSod1bNjAzoBdIElblKWkpqakv55oLU81Gbc
-mkVkVVusnB7QGrc9dsw9PY2ydDlP4CM9UWcxPUa3SHGnS0L2fUy82Vq5rkc5Fss4
-8vW8W6GSVRGfATDsZlLegCP4GiKCEO68EbqZXm2gXQEQuphn4dRGHc+Wk+1hfMiF
-VGt1hVL/edlU8EDRGeLYN548OYrkbRPQjkq1YI2+JmYj3mRO8/vDj60hvajQ04hd
-3mQcwrkNAXn+6vmgl8ZP+FiFAHcUpxHB3Py5djkRqPfuN9HdSzstJleGX4VtvuA=
-=57Lr
------END PGP SIGNATURE-----
-
---vYlOGI1a8wP+YbIl--
