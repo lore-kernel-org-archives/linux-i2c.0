@@ -1,51 +1,168 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v5 05/14] dt-bindings: i2c: Add Octeon cn78xx TWSI
-Date: Thu, 31 Mar 2016 12:28:18 +0200
-Message-ID: <46ce80b0f6025bbba6d10205fb8067641d52ac2c.1459352583.git.jglauber@cavium.com>
+Subject: [PATCH v5 02/14] i2c: octeon: Move set-clock and init-lowlevel upward
+Date: Thu, 31 Mar 2016 12:28:15 +0200
+Message-ID: <071b014895e74717eddb8c90f47e966c12e40a5e.1459352583.git.jglauber@cavium.com>
 References: <cover.1459327368.git.jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:35588 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755773AbcCaK2r (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 06:28:47 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1459327368.git.jglauber@cavium.com>
 In-Reply-To: <cover.1459352583.git.jglauber@cavium.com>
 References: <cover.1459352583.git.jglauber@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Add compatible string for Cavium Octeon cn78XX SOCs TWSI.
-
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-Cc: Kumar Gala <galak@codeaurora.org>
+No functional change, just moving the functions upward in
+preparation of improving the recovery.
 
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
-Acked-by: David Daney <ddaney@caviumnetworks.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-octeon.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-octeon.c | 126 ++++++++++++++++++++--------------------
+ 1 file changed, 63 insertions(+), 63 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-octeon.txt b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
-index dced82e..872d485 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
-@@ -4,6 +4,12 @@
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index c4abf16..f647667 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -214,6 +214,69 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ 	return 0;
+ }
  
-   Compatibility with all cn3XXX, cn5XXX and cn6XXX SOCs.
++/* calculate and set clock divisors */
++static void octeon_i2c_set_clock(struct octeon_i2c *i2c)
++{
++	int tclk, thp_base, inc, thp_idx, mdiv_idx, ndiv_idx, foscl, diff;
++	int thp = 0x18, mdiv = 2, ndiv = 0, delta_hz = 1000000;
++
++	for (ndiv_idx = 0; ndiv_idx < 8 && delta_hz != 0; ndiv_idx++) {
++		/*
++		 * An mdiv value of less than 2 seems to not work well
++		 * with ds1337 RTCs, so we constrain it to larger values.
++		 */
++		for (mdiv_idx = 15; mdiv_idx >= 2 && delta_hz != 0; mdiv_idx--) {
++			/*
++			 * For given ndiv and mdiv values check the
++			 * two closest thp values.
++			 */
++			tclk = i2c->twsi_freq * (mdiv_idx + 1) * 10;
++			tclk *= (1 << ndiv_idx);
++			thp_base = (i2c->sys_freq / (tclk * 2)) - 1;
++
++			for (inc = 0; inc <= 1; inc++) {
++				thp_idx = thp_base + inc;
++				if (thp_idx < 5 || thp_idx > 0xff)
++					continue;
++
++				foscl = i2c->sys_freq / (2 * (thp_idx + 1));
++				foscl = foscl / (1 << ndiv_idx);
++				foscl = foscl / (mdiv_idx + 1) / 10;
++				diff = abs(foscl - i2c->twsi_freq);
++				if (diff < delta_hz) {
++					delta_hz = diff;
++					thp = thp_idx;
++					mdiv = mdiv_idx;
++					ndiv = ndiv_idx;
++				}
++			}
++		}
++	}
++	octeon_i2c_write_sw(i2c, SW_TWSI_OP_TWSI_CLK, thp);
++	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CLKCTL, (mdiv << 3) | ndiv);
++}
++
++static int octeon_i2c_init_lowlevel(struct octeon_i2c *i2c)
++{
++	u8 status;
++	int tries;
++
++	/* disable high level controller, enable bus access */
++	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
++
++	/* reset controller */
++	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_RST, 0);
++
++	for (tries = 10; tries; tries--) {
++		udelay(1);
++		status = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
++		if (status == STAT_IDLE)
++			return 0;
++	}
++	dev_err(i2c->dev, "%s: TWSI_RST failed! (0x%x)\n", __func__, status);
++	return -EIO;
++}
++
+ /**
+  * octeon_i2c_start - send START to the bus
+  * @i2c: The struct octeon_i2c
+@@ -428,69 +491,6 @@ static struct i2c_adapter octeon_i2c_ops = {
+ 	.algo = &octeon_i2c_algo,
+ };
  
-+  or
-+
-+  compatible: "cavium,octeon-7890-twsi"
-+
-+  Compatibility with cn78XX SOCs.
-+
- - reg: The base address of the TWSI/I2C bus controller register bank.
- 
- - #address-cells: Must be <1>.
+-/* calculate and set clock divisors */
+-static void octeon_i2c_set_clock(struct octeon_i2c *i2c)
+-{
+-	int tclk, thp_base, inc, thp_idx, mdiv_idx, ndiv_idx, foscl, diff;
+-	int thp = 0x18, mdiv = 2, ndiv = 0, delta_hz = 1000000;
+-
+-	for (ndiv_idx = 0; ndiv_idx < 8 && delta_hz != 0; ndiv_idx++) {
+-		/*
+-		 * An mdiv value of less than 2 seems to not work well
+-		 * with ds1337 RTCs, so we constrain it to larger values.
+-		 */
+-		for (mdiv_idx = 15; mdiv_idx >= 2 && delta_hz != 0; mdiv_idx--) {
+-			/*
+-			 * For given ndiv and mdiv values check the
+-			 * two closest thp values.
+-			 */
+-			tclk = i2c->twsi_freq * (mdiv_idx + 1) * 10;
+-			tclk *= (1 << ndiv_idx);
+-			thp_base = (i2c->sys_freq / (tclk * 2)) - 1;
+-
+-			for (inc = 0; inc <= 1; inc++) {
+-				thp_idx = thp_base + inc;
+-				if (thp_idx < 5 || thp_idx > 0xff)
+-					continue;
+-
+-				foscl = i2c->sys_freq / (2 * (thp_idx + 1));
+-				foscl = foscl / (1 << ndiv_idx);
+-				foscl = foscl / (mdiv_idx + 1) / 10;
+-				diff = abs(foscl - i2c->twsi_freq);
+-				if (diff < delta_hz) {
+-					delta_hz = diff;
+-					thp = thp_idx;
+-					mdiv = mdiv_idx;
+-					ndiv = ndiv_idx;
+-				}
+-			}
+-		}
+-	}
+-	octeon_i2c_write_sw(i2c, SW_TWSI_OP_TWSI_CLK, thp);
+-	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CLKCTL, (mdiv << 3) | ndiv);
+-}
+-
+-static int octeon_i2c_init_lowlevel(struct octeon_i2c *i2c)
+-{
+-	u8 status;
+-	int tries;
+-
+-	/* disable high level controller, enable bus access */
+-	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
+-
+-	/* reset controller */
+-	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_RST, 0);
+-
+-	for (tries = 10; tries; tries--) {
+-		udelay(1);
+-		status = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
+-		if (status == STAT_IDLE)
+-			return 0;
+-	}
+-	dev_err(i2c->dev, "%s: TWSI_RST failed! (0x%x)\n", __func__, status);
+-	return -EIO;
+-}
+-
+ static int octeon_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *node = pdev->dev.of_node;
 -- 
 1.9.1
