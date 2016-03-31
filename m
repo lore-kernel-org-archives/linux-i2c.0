@@ -1,69 +1,125 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Linux-kernel] [PATCH] i2c: mux: demux-pinctrl: Fix reading the
- "master" attribute
-Date: Wed, 30 Mar 2016 22:56:33 +0200
-Message-ID: <20160330205633.GA1386@katana>
-References: <1459355236.27975.5.camel@codethink.co.uk>
- <56FC01F7.1060503@codethink.co.uk>
- <1459356327.27975.7.camel@codethink.co.uk>
+From: "thilo.cestonaro@ts.fujitsu.com" <thilo.cestonaro@ts.fujitsu.com>
+Subject: i2c-i801 and ACPI resource conflict
+Date: Thu, 31 Mar 2016 06:45:57 +0000
+Message-ID: <1459406614.29230.4.camel@ts.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
+Content-Type: multipart/signed; micalg=sha-1;
+	protocol="application/x-pkcs7-signature"; boundary="=-K461iq2k3EkQlv1jZItL"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:45243 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751394AbcC3U4k (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 30 Mar 2016 16:56:40 -0400
-Content-Disposition: inline
-In-Reply-To: <1459356327.27975.7.camel@codethink.co.uk>
+Received: from mail1.bemta3.messagelabs.com ([195.245.230.176]:48215 "EHLO
+	mail1.bemta3.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755811AbcCaGxO (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 02:53:14 -0400
+Received: from R01UKEXCASM123.r01.fujitsu.local (ex2k13_123.fs.fujitsu.com [10.183.43.175])
+	by mailhost2.uk.fujitsu.com (8.14.5/8.14.5) with ESMTP id u2V6lMp4015456
+	(version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=FAIL)
+	for <linux-i2c@vger.kernel.org>; Thu, 31 Mar 2016 07:47:22 +0100
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>, CT kernel <linux-kernel@lists.codethink.co.uk>, linux-i2c@vger.kernel.org
+To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-K461iq2k3EkQlv1jZItL
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 30, 2016 at 05:45:27PM +0100, Ben Hutchings wrote:
-> On Wed, 2016-03-30 at 17:42 +0100, Ben Dooks wrote:
-> > On 30/03/16 17:27, Ben Hutchings wrote:
-> > > sysfs attributes should use the same format for reads and writes,
-> > > rather than pretty-printing on read.
-> > >=20
-> > > Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
-> > > Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-> >=20
-> > should that be moved to a debugfs entry or a read-only sysfs?
->=20
-> Probably another read-only attribute (like "scaling_governor" vs
-> "scaling_available_governors" in cpufreq).
+Hey!
 
-I agree. "current_master" and "available_masters" is probably the way to
-go. Can you do it or shall I?
+Whenever I load the i2c-i801 smbus controller module I get a resource
+conflict with the ACPI:
+-----------------------
+ACPI Warning: SystemIO range 0x000000000000F040-0x000000000000F05F
+conflicts with OpRegion 0x000000000000F040-0x000000000000F04F
+(\_SB_.PCI0.SBUS.SMBI) (20150619/utaddress-254)
+-----------------------
+
+This resource conflict is due to some ASL code in the BIOS claiming the
+resource.
+
+What should be done to fix that sort of resource conflict? Does the
+BIOS vendor need to remove the ASL code, or should the driver do
+something different or do I need to write a module which uses the ACPI
+to access the smbus controller?
+
+Any hints would be nice!
+
+Thanks!
+
+BR,
+Thilo
+--=-K461iq2k3EkQlv1jZItL
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIM6DCCA9Qw
+ggK8oAMCAQICEDTNElfINoNG4L/3PTADbgUwDQYJKoZIhvcNAQEFBQAwLzEtMCsGA1UEAxMkRnVq
+aXRzdSBUZWNobm9sb2d5IFNvbHV0aW9ucyBSb290IENBMB4XDTA5MDMxMjEyMjQ1OVoXDTE5MDMx
+MTEyMjQ1OVowLzEtMCsGA1UEAxMkRnVqaXRzdSBUZWNobm9sb2d5IFNvbHV0aW9ucyBVc2VyIENB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsBtNf0fN8EkW9y6QqoQGS6LUwezenV2B
+nDzORdGanukRtpGzYMAPdyiwtlp0/zONa+jCJGzkX4iYCjTsiJvx01SPRNZ24fHaFGXpJBX599q6
+ZF0isu+h1aIas1tfyCBalAbKKLvNgIuQjnXhdffVk4vSuBytO3OGcULtJ2+lYVSEvxzGt9iTSwT5
+RnEvKpR0iOC+9/UNVOiPK9XCz5u7bg3iehP5gD+v5uu3YIRwV/5gyd7AZPcckTfYP/GZcybcAXfE
+l5nb/bZiSLHeZEjxMMM8YZqFKhH9xymIdjkcRK7NJ2j8OD708QFv4b4bme1mHGfTjSbxb1nOoUTs
+NtshZwIDAQABo4HrMIHoMB0GA1UdDgQWBBQI9chqv4Dje1DEOfQHmEbobX6XqDALBgNVHQ8EBAMC
+AYYwHwYDVR0jBBgwFoAUFHXiV7YVNxWAKpflUUhlrM+GkMswEgYDVR0TAQH/BAgwBgEB/wIBADBH
+BggrBgEFBQcBAQQ7MDkwNwYIKwYBBQUHMAKGK2h0dHA6Ly9haWEudHMuZnVqaXRzdS5jb20vYWlh
+L2Z0czAxcm9vdC5jZXIwPAYDVR0fBDUwMzAxoC+gLYYraHR0cDovL2NkcC50cy5mdWppdHN1LmNv
+bS9jZHAvZnRzMDFyb290LmNybDANBgkqhkiG9w0BAQUFAAOCAQEAQ7pQP9Lw9bcnt1DhvV5UWb1z
+mnACSo6n6x+bupckQzlrf3aJ7HQZigZuaCak+dexL18I86iNDDOJBBsrz0DcD4XPszcLTUezqqGl
+AyIbviBq5mwDHAWBA9F11GRx6LdrHMKNdHPwAWyC3r6qv4GO6A+z16KUZFSP4kvuaN5YHI481T7F
+FxEmntkylphndX+6mQ1NABApMMhX0aN5dVhPAMAP8nENJ1hGk81IG8gzkoHDPSoLCtffAnNhYAqh
+vrDO2ybXb/9x+Sf3DQuzBg3hpB1yJM3K8foQaS3uTpFITfdMprcQyrIdl4Jw26s/6vpIs0siLVTp
+3yAwgNaqQSgxSTCCBIQwggNsoAMCAQICCiWUlIAAAAACJH0wDQYJKoZIhvcNAQEFBQAwLzEtMCsG
+A1UEAxMkRnVqaXRzdSBUZWNobm9sb2d5IFNvbHV0aW9ucyBVc2VyIENBMB4XDTE0MDMyMTEyMTM1
+M1oXDTE3MDMyMDEyMTM1M1owQjEZMBcGA1UEAwwQQ2VzdG9uYXJvLCBUaGlsbzElMCMGA1UECgwc
+RnVqaXRzdSBUZWNobm9sb2d5IFNvbHV0aW9uczCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA
+qP3ld/ylkJOTj2rXQ+VrRf/+YMgZS5CGDnMWk+sMoS5f6JqtwfGcfBU/DhfnLsePut2q+ex/RDZF
+M6yCraPS0vdnTKm2O3Q7/UhhAV1Mi4XzzGeY1Y0qm+85EgMBISPwB5mThLYPsun5UIFs6e8tvlwZ
+Rzp/jrv/AzAfsSbHGXcCAwEAAaOCAhEwggINMAsGA1UdDwQEAwIFoDByBgNVHREEazBpgR50aGls
+by5jZXN0b25hcm9AdHMuZnVqaXRzdS5jb22BI1RoaWxvLkNlc3RvbmFyb0BmdWppdHN1LXNpZW1l
+bnMuY29tgSIrNDk4MjE4MDQ4MjMyOEBpbmNvbWluZ2ZheC5mc2MubmV0MB0GA1UdDgQWBBSiHLgI
+jjo+7KxLJ4t1+YZxgBSn8TAfBgNVHSMEGDAWgBQI9chqv4Dje1DEOfQHmEbobX6XqDA8BgNVHR8E
+NTAzMDGgL6AthitodHRwOi8vY2RwLnRzLmZ1aml0c3UuY29tL2NkcC9mdHMwMXVzZXIuY3JsMEcG
+CCsGAQUFBwEBBDswOTA3BggrBgEFBQcwAoYraHR0cDovL2FpYS50cy5mdWppdHN1LmNvbS9haWEv
+ZnRzMDF1c2VyLmNlcjAMBgNVHRMBAf8EAjAAMD0GCSsGAQQBgjcVBwQwMC4GJisGAQQBgjcVCIWF
+xDKBh/9hgYWBBIbsgiCBx4EaeYOIoHGH0vEvAgFkAgEIMBMGA1UdJQQMMAoGCCsGAQUFBwMEMBsG
+CSsGAQQBgjcVCgQOMAwwCgYIKwYBBQUHAwQwRAYJKoZIhvcNAQkPBDcwNTAOBggqhkiG9w0DAgIC
+AIAwDgYIKoZIhvcNAwQCAgCAMAcGBSsOAwIHMAoGCCqGSIb3DQMHMA0GCSqGSIb3DQEBBQUAA4IB
+AQAEGTAyHPmTyCR029H+P/u9xRezlfA2OVvV97Ls/oLCXGGr6EkMvpHodTc6n4EWSb2ul3VPSRQf
+uSmBgIcHQJykHdSChisaqkeOpHG0rjM9GXh2eQ7ECovpQIfdIbRZKNxlJihSDsDWHyZldBlPVbDh
+xMeT6xJ/ylF8UQ8FXKUir6W/BSPZF5kLdsmCeOpWC4jOGNPEMUAcuiHZPyqAhjlWk750I4oJJKvD
+bwO8/mkxmzOjpOsk8O3CdljCjYPoYtJPI/oNVsYdmiokzne4FusPYKDzv5i0dN74KLR48maXvi3/
+WsTFqwks45QeBJT/z+1sYy+dYWpv9XGN+jR1o4ImMIIEhDCCA2ygAwIBAgIKJZSUgAAAAAIkfTAN
+BgkqhkiG9w0BAQUFADAvMS0wKwYDVQQDEyRGdWppdHN1IFRlY2hub2xvZ3kgU29sdXRpb25zIFVz
+ZXIgQ0EwHhcNMTQwMzIxMTIxMzUzWhcNMTcwMzIwMTIxMzUzWjBCMRkwFwYDVQQDDBBDZXN0b25h
+cm8sIFRoaWxvMSUwIwYDVQQKDBxGdWppdHN1IFRlY2hub2xvZ3kgU29sdXRpb25zMIGfMA0GCSqG
+SIb3DQEBAQUAA4GNADCBiQKBgQCo/eV3/KWQk5OPatdD5WtF//5gyBlLkIYOcxaT6wyhLl/omq3B
+8Zx8FT8OF+cux4+63ar57H9ENkUzrIKto9LS92dMqbY7dDv9SGEBXUyLhfPMZ5jVjSqb7zkSAwEh
+I/AHmZOEtg+y6flQgWzp7y2+XBlHOn+Ou/8DMB+xJscZdwIDAQABo4ICETCCAg0wCwYDVR0PBAQD
+AgWgMHIGA1UdEQRrMGmBHnRoaWxvLmNlc3RvbmFyb0B0cy5mdWppdHN1LmNvbYEjVGhpbG8uQ2Vz
+dG9uYXJvQGZ1aml0c3Utc2llbWVucy5jb22BIis0OTgyMTgwNDgyMzI4QGluY29taW5nZmF4LmZz
+Yy5uZXQwHQYDVR0OBBYEFKIcuAiOOj7srEsni3X5hnGAFKfxMB8GA1UdIwQYMBaAFAj1yGq/gON7
+UMQ59AeYRuhtfpeoMDwGA1UdHwQ1MDMwMaAvoC2GK2h0dHA6Ly9jZHAudHMuZnVqaXRzdS5jb20v
+Y2RwL2Z0czAxdXNlci5jcmwwRwYIKwYBBQUHAQEEOzA5MDcGCCsGAQUFBzAChitodHRwOi8vYWlh
+LnRzLmZ1aml0c3UuY29tL2FpYS9mdHMwMXVzZXIuY2VyMAwGA1UdEwEB/wQCMAAwPQYJKwYBBAGC
+NxUHBDAwLgYmKwYBBAGCNxUIhYXEMoGH/2GBhYEEhuyCIIHHgRp5g4igcYfS8S8CAWQCAQgwEwYD
+VR0lBAwwCgYIKwYBBQUHAwQwGwYJKwYBBAGCNxUKBA4wDDAKBggrBgEFBQcDBDBEBgkqhkiG9w0B
+CQ8ENzA1MA4GCCqGSIb3DQMCAgIAgDAOBggqhkiG9w0DBAICAIAwBwYFKw4DAgcwCgYIKoZIhvcN
+AwcwDQYJKoZIhvcNAQEFBQADggEBAAQZMDIc+ZPIJHTb0f4/+73FF7OV8DY5W9X3suz+gsJcYavo
+SQy+keh1NzqfgRZJva6XdU9JFB+5KYGAhwdAnKQd1IKGKxqqR46kcbSuMz0ZeHZ5DsQKi+lAh90h
+tFko3GUmKFIOwNYfJmV0GU9VsOHEx5PrEn/KUXxRDwVcpSKvpb8FI9kXmQt2yYJ46lYLiM4Y08Qx
+QBy6Idk/KoCGOVaTvnQjigkkq8NvA7z+aTGbM6Ok6yTw7cJ2WMKNg+hi0k8j+g1Wxh2aKiTOd7gW
+6w9goPO/mLR03vgotHjyZpe+Lf9axMWrCSzjlB4ElP/P7WxjL51ham/1cY36NHWjgiYxggHhMIIB
+3QIBATA9MC8xLTArBgNVBAMTJEZ1aml0c3UgVGVjaG5vbG9neSBTb2x1dGlvbnMgVXNlciBDQQIK
+JZSUgAAAAAIkfTAJBgUrDgMCGgUAoIH7MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZI
+hvcNAQkFMQ8XDTE2MDMzMTA2NDMzNFowIwYJKoZIhvcNAQkEMRYEFO2QY7sPt8LJYDReE1a8MClL
+b79vMEwGCSsGAQQBgjcQBDE/MD0wLzEtMCsGA1UEAxMkRnVqaXRzdSBUZWNobm9sb2d5IFNvbHV0
+aW9ucyBVc2VyIENBAgollJSAAAAAAiR9ME4GCyqGSIb3DQEJEAILMT+gPTAvMS0wKwYDVQQDEyRG
+dWppdHN1IFRlY2hub2xvZ3kgU29sdXRpb25zIFVzZXIgQ0ECCiWUlIAAAAACJH0wDQYJKoZIhvcN
+AQEBBQAEgYBtAcfeKV0Sh9GkbAD8ITmfUmbRzl43rHiYmpz/bNe97wPG8xuB1sWt7xmwVpi+yM4o
+WwsCqztSXiMqMmrLrX7HUITPHRe/fFeuhJVgIyMFX81ohq+yrfn4BM3yuskWy0T0R7D0c3Ix2mNC
+2yP0RuRdqvvT72W1bBGEo6fP7btNpQAAAAAAAA==
 
 
---k1lZvvs/B4yU6o8G
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJW/D2BAAoJEBQN5MwUoCm2bksP/iQtJT0lwSvXnwh4CckgJ3MY
-SoYARWcs5L8bymxsAaafvZf1yAfggSGGHNoio751pzD3NKI67EM+Maa52jKe8Qmf
-TpQqPxYAoxsRPQQxqik+eNKgJO5hyow6qaFf2CrJNa3swYYS+JrmajO6bsPpRHuM
-rJBWtZ2gufH2Vp/U/RYUSOOqutIkvE2SER3TQxx+e6+YeYcsEqGgJkb8XqTHB0VI
-04dYbFGakmZIusL4dRIZhzIw0NHNmNiDxB1vO19SDyZ8embwiD4QRkFAo5WvDHMu
-AHXGGLwau6tvjjS6xpHHzwkuHOCKTN1jU339Uxxsl+aNTdYbPp/T3rFQybUNJZbA
-0MQfS7C0gc1TREz/2qR/tEkCXPCFtSXFS9cyQ0Dx1pd9tM45LAawJVCZ9xh69CqT
-a493x0Wn31SgyecFaSh2aWTKhpOHhWBnTZrEthNxF/vIPzfUWghPJS3ZUJHQc47q
-hTFoAqE3rABsXsejUFF41twqDybfLLu+7pK4n6fSRo++BDVHbggIlQvaVIIpqkin
-o/wh30JZnVOyj6nQCXGEgyNOnBz4/EPlKxmuv9wpIZE0T+qW7LS75FET1/Lhkbm+
-jAvlsHf0Whb1eMSJdcohokkLwB/LFAIR2t8pqKKJrTGRpeqdTzFqFGgo174IH2hO
-wVSJlnWrZm0tIkaKaHY0
-=B+M7
------END PGP SIGNATURE-----
-
---k1lZvvs/B4yU6o8G--
+--=-K461iq2k3EkQlv1jZItL--
