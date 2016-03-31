@@ -1,124 +1,55 @@
-From: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH] i2c: mux: demux-pinctrl: Clean up sysfs attributes
-Date: Thu, 31 Mar 2016 16:40:05 +0100
-Message-ID: <1459438805.18533.3.camel@codethink.co.uk>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC PATCH 06/10] spi: add support for ACPI reconfigure
+ notifications
+Date: Thu, 31 Mar 2016 10:29:35 -0700
+Message-ID: <20160331172935.GL2350@sirena.org.uk>
+References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
+ <1459417026-6697-7-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ducie-dc1.codethink.co.uk ([185.25.241.215]:40385 "EHLO
-	ducie-dc1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751511AbcCaPkO (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Mar 2016 11:40:14 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="vYlOGI1a8wP+YbIl"
+Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1459417026-6697-7-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, CT kernel <linux-kernel@lists.codethink.co.uk>, Ben Dooks <ben.dooks@codethink.co.uk>
 
-sysfs attributes should use the same format for reads and writes,
-rather than pretty-printing on read.
 
-* Make the "cur_master" attribute read back as just the name of the
-  master
-* Expose the list of all masters as a read-only "available_masters"
-  attribute, using space separators as in similar attributes of other
-  devices
+--vYlOGI1a8wP+YbIl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Also, spell out "cur_master" in full as "current_master".
+On Thu, Mar 31, 2016 at 12:37:02PM +0300, Octavian Purdila wrote:
 
-Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
----
- drivers/i2c/muxes/i2c-demux-pinctrl.c | 39 ++++++++++++++++++++++++++---------
- 1 file changed, 29 insertions(+), 10 deletions(-)
+> +#if IS_ENABLED(CONFIG_ACPI)
+> +static int acpi_spi_table_load(struct device *dev, const void *data)
+> +{
+> +	struct spi_master *master = container_of(dev, struct spi_master, dev);
+> +
+> +	acpi_register_spi_devices(master);
+> +	return 0;
+> +}
 
-diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-index 7748a0a5ddb9..8de073aed001 100644
---- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-@@ -140,22 +140,34 @@ static int i2c_demux_change_master(struct i2c_demux_pinctrl_priv *priv, u32 new_
- 	return i2c_demux_activate_master(priv, new_chan);
- }
- 
--static ssize_t cur_master_show(struct device *dev, struct device_attribute *attr,
--			   char *buf)
-+static ssize_t available_masters_show(struct device *dev,
-+				      struct device_attribute *attr,
-+				      char *buf)
- {
- 	struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
- 	int count = 0, i;
- 
- 	for (i = 0; i < priv->num_chan && count < PAGE_SIZE; i++)
--		count += scnprintf(buf + count, PAGE_SIZE - count, "%c %d - %s\n",
--				 i == priv->cur_chan ? '*' : ' ', i,
--				 priv->chan[i].parent_np->full_name);
-+		count += scnprintf(buf + count, PAGE_SIZE - count, "%d:%s%c",
-+				   i, priv->chan[i].parent_np->full_name,
-+				   i == priv->num_chan - 1 ? '\n' : ' ');
- 
- 	return count;
- }
-+static DEVICE_ATTR_RO(available_masters);
- 
--static ssize_t cur_master_store(struct device *dev, struct device_attribute *attr,
--			    const char *buf, size_t count)
-+static ssize_t current_master_show(struct device *dev,
-+				   struct device_attribute *attr,
-+				   char *buf)
-+{
-+	struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", priv->cur_chan);
-+}
-+
-+static ssize_t current_master_store(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
- {
- 	struct i2c_demux_pinctrl_priv *priv = dev_get_drvdata(dev);
- 	unsigned int val;
-@@ -172,7 +184,7 @@ static ssize_t cur_master_store(struct device *dev, struct device_attribute *att
- 
- 	return ret < 0 ? ret : count;
- }
--static DEVICE_ATTR_RW(cur_master);
-+static DEVICE_ATTR_RW(current_master);
- 
- static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
- {
-@@ -218,12 +230,18 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
- 	/* switch to first parent as active master */
- 	i2c_demux_activate_master(priv, 0);
- 
--	err = device_create_file(&pdev->dev, &dev_attr_cur_master);
-+	err = device_create_file(&pdev->dev, &dev_attr_available_masters);
- 	if (err)
- 		goto err_rollback;
- 
-+	err = device_create_file(&pdev->dev, &dev_attr_current_master);
-+	if (err)
-+		goto err_rollback_available;
-+
- 	return 0;
- 
-+err_rollback_available:
-+	device_remove_file(&pdev->dev, &dev_attr_available_masters);
- err_rollback:
- 	for (j = 0; j < i; j++) {
- 		of_node_put(priv->chan[j].parent_np);
-@@ -238,7 +256,8 @@ static int i2c_demux_pinctrl_remove(struct platform_device *pdev)
- 	struct i2c_demux_pinctrl_priv *priv = platform_get_drvdata(pdev);
- 	int i;
- 
--	device_remove_file(&pdev->dev, &dev_attr_cur_master);
-+	device_remove_file(&pdev->dev, &dev_attr_current_master);
-+	device_remove_file(&pdev->dev, &dev_attr_available_masters);
- 
- 	i2c_demux_deactivate_master(priv);
- 
+Why do we have a separate code path for this coompared to the initial
+startup?  The handling appears to be identical so it seems we should
+drive this from the ACPI code so we don't have to add this to every
+single bus with ACPI bindings.
 
--- 
-Ben Hutchings
-Software Developer, Codethink Ltd.
+--vYlOGI1a8wP+YbIl
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJW/V50AAoJECTWi3JdVIfQaYwH/1w1D1N5NRZxoG8yE8B48DU6
+dPRkmhxGlcoz5A0COfqjPMbEdccEcSod1bNjAzoBdIElblKWkpqakv55oLU81Gbc
+mkVkVVusnB7QGrc9dsw9PY2ydDlP4CM9UWcxPUa3SHGnS0L2fUy82Vq5rkc5Fss4
+8vW8W6GSVRGfATDsZlLegCP4GiKCEO68EbqZXm2gXQEQuphn4dRGHc+Wk+1hfMiF
+VGt1hVL/edlU8EDRGeLYN548OYrkbRPQjkq1YI2+JmYj3mRO8/vDj60hvajQ04hd
+3mQcwrkNAXn+6vmgl8ZP+FiFAHcUpxHB3Py5djkRqPfuN9HdSzstJleGX4VtvuA=
+=57Lr
+-----END PGP SIGNATURE-----
+
+--vYlOGI1a8wP+YbIl--
