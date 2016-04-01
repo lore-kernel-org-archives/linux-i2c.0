@@ -1,64 +1,35 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [RFC PATCH 06/10] spi: add support for ACPI reconfigure
- notifications
-Date: Fri, 1 Apr 2016 07:08:56 -0700
-Message-ID: <20160401140856.GW2350@sirena.org.uk>
-References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
- <1459417026-6697-7-git-send-email-octavian.purdila@intel.com>
- <20160331172935.GL2350@sirena.org.uk>
- <CAE1zotJbUGBOUF-4-XAx0DUkj55egOMXVn9FzjV3Fdj4MYxD0Q@mail.gmail.com>
+From: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: Re: [v7, 4/5] powerpc/fsl: move mpc85xx.h to include/linux/fsl
+Date: Fri, 1 Apr 2016 12:03:29 -0700
+Message-ID: <56FEC601.7020800@codeaurora.org>
+References: <1459480051-3701-1-git-send-email-yangbo.lu@nxp.com>
+	<1459480051-3701-5-git-send-email-yangbo.lu@nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="hjRTvux2945W8dyK"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:35536 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751067AbcDAOJ3 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Apr 2016 10:09:29 -0400
-Content-Disposition: inline
-In-Reply-To: <CAE1zotJbUGBOUF-4-XAx0DUkj55egOMXVn9FzjV3Fdj4MYxD0Q@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <1459480051-3701-5-git-send-email-yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Zhao Qiang <qiang.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, scott.wood-3arQi8VN3Tc@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, leoyang.li-3arQi8VN3Tc@public.gmane.org, xiaobo.xie-3arQi8VN3Tc@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
 
+On 03/31/2016 08:07 PM, Yangbo Lu wrote:
+>  drivers/clk/clk-qoriq.c                                       | 3 +--
+>
 
---hjRTvux2945W8dyK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+For clk part:
 
-On Fri, Apr 01, 2016 at 01:54:28PM +0300, Octavian Purdila wrote:
+Acked-by: Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 
-> I probably don't fully understand your question, but I don't see a way
-> of how we can create a new SPI device from generic ACPI code. For
-> example, in acpi_spi_add_device() we need the spi_master node so that
-> we can allocate the spi device.
-
-Right, but the same applies to initial enumeration so we also have to
-manually instantiate ACPI devices on startup.  Why do we need to do
-that?
-
-> The handling is identical because we don't have yet have a way to
-> identify what where the new nodes added when a new ACPI table /
-> overlay has been loaded, so we have to rescan the ACPI namespace under
-> each controller.
-
-That's not the point.  The point is that since the handling is identical
-why are we handling it through exactly the same code?
-
---hjRTvux2945W8dyK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJW/oD0AAoJECTWi3JdVIfQaRAH/jeQz8zKvAX6aepL5CfzNu3V
-o6yItlKEvj0noTBht+Qpw2MRWvpjZHMEWGV5XEmLZC3S7ft8apurWTGDppJkRsf+
-I1fSxifDFMoEhMA3tN39ruRBcSajBrF7zroElYR6WgTbtcbSPYtxCAJHbjHdJyEB
-/XG6bSk4due7Vezl/jKE0ap/hOWXa3qBzfA7rXIWWw+TbvtyYXlHSJHdZZttRH07
-gVNcsLhfRBwp8EqbSnUM3WxvVx6xMTsNtKLnu1q4e9YNL69ZbS0MpEIoNBOJJnl9
-97WntPF+mgoufsRLvnUFkggxHZu1Q1a0oO4kWezuYmgqvXzoNc+XDvamSJ3LsX0=
-=PJGW
------END PGP SIGNATURE-----
-
---hjRTvux2945W8dyK--
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
