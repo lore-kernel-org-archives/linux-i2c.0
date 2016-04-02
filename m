@@ -1,37 +1,66 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH v3 09/11] i2c: rcar: revoke START request early
-Date: Sat, 2 Apr 2016 15:51:59 +0300
-Message-ID: <56FFC06F.70108@cogentembedded.com>
-References: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
- <1447948611-2615-10-git-send-email-wsa@the-dreams.de>
- <56FD9080.4090203@cogentembedded.com> <20160331224838.GA7381@katana>
- <56FED245.4010503@cogentembedded.com> <20160401201415.GA25936@katana>
- <56FEFEC4.6010401@cogentembedded.com> <20160402072726.GA1384@katana>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [RFC PATCH 06/10] spi: add support for ACPI reconfigure
+ notifications
+Date: Sat, 2 Apr 2016 09:24:49 -0700
+Message-ID: <20160402162449.GB2350@sirena.org.uk>
+References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
+ <1459417026-6697-7-git-send-email-octavian.purdila@intel.com>
+ <20160331172935.GL2350@sirena.org.uk>
+ <CAE1zotJbUGBOUF-4-XAx0DUkj55egOMXVn9FzjV3Fdj4MYxD0Q@mail.gmail.com>
+ <20160401140856.GW2350@sirena.org.uk>
+ <CAJZ5v0itmFDdPi6vJmsheEHADEwmeTNgCQ5iVroJfV=o6Wof3A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="rtWt6SZ6GqpxALBD"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:33240 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752237AbcDBMwD (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Apr 2016 08:52:03 -0400
-Received: by mail-lb0-f174.google.com with SMTP id u8so97365485lbk.0
-        for <linux-i2c@vger.kernel.org>; Sat, 02 Apr 2016 05:52:02 -0700 (PDT)
-In-Reply-To: <20160402072726.GA1384@katana>
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:38154 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751314AbcDBQZL (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Apr 2016 12:25:11 -0400
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0itmFDdPi6vJmsheEHADEwmeTNgCQ5iVroJfV=o6Wof3A@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
 
-On 4/2/2016 10:27 AM, Wolfram Sang wrote:
 
->>     Thanks again! I ended up backporting all the patches up to #9. Not sure
->> it'd be acceptable for the -stable kernels since there's a lot of refactors
->> involved...
->
-> That's what I thought, too.
+--rtWt6SZ6GqpxALBD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-    And I still don't feel good about the patch removing the spinlock -- I'm 
-not sure it's SMP-safe...
+On Fri, Apr 01, 2016 at 09:26:38PM +0200, Rafael J. Wysocki wrote:
+> On Fri, Apr 1, 2016 at 4:08 PM, Mark Brown <broonie@kernel.org> wrote:
 
-MBR, Sergei
+> > That's not the point.  The point is that since the handling is identical
+> > why are we handling it through exactly the same code?
+
+> I think that during the initial enumeration the controller driver's
+> probe walks the children and creates device objects for them.  When a
+> table is loaded later, the controller driver has been probed already
+> and there needs to be a way to trigger a walk over the (new) children
+> from it.
+
+> Or a hook somewhere around acpi_platform_notify() is needed.
+
+What I don't understand is why the flow on inital probe isn't simply to
+register the controller which then triggers the walk of the children.
+That way any bus that supports initial probe also supports hotplug
+without needing to go and manually add a second code path.
+
+--rtWt6SZ6GqpxALBD
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJW//JQAAoJECTWi3JdVIfQFHwH/2J7wKNmy+CXSc+JOI24dd/l
+BsStLIDa+Vh7k9Ml720D1EoA1NwZxKkMV2wmEMSrYBGwrIAVJr46l2L9sYo1nyzU
+mTxlwWVPbbgr5ofF/RlaJrXFI3eIogBoXrrrPk54WrizG1W5LvNNn2xtzLJlHxGa
+8olcz/UKlydNVA0n8y/8QR+Rg+uy6MULLqgpoTig0P5Hck6/E7gNG+gYZhwVA5yI
+Ak4/HAe1BPdxaYUuf/rYqeRYLlXv4jPqZER5CTSPP/cU64XSns3S0AI8LXrgXFBV
+DFCEvNpXoMKYpxCoXlzttIbPBgjP9mdiiVz2rL+JYkjTI0jwMHqRh4DvNDRoG8U=
+=Kt7q
+-----END PGP SIGNATURE-----
+
+--rtWt6SZ6GqpxALBD--
