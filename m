@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@lysator.liu.se>
-Subject: [PATCH v6 06/24] i2c: i2c-mux-pca954x: convert to use an explicit i2c mux core
-Date: Sun,  3 Apr 2016 10:52:36 +0200
-Message-ID: <1459673574-11440-7-git-send-email-peda@lysator.liu.se>
+Subject: [PATCH v6 08/24] iio: imu: inv_mpu6050: convert to use an explicit i2c mux core
+Date: Sun,  3 Apr 2016 10:52:38 +0200
+Message-ID: <1459673574-11440-9-git-send-email-peda@lysator.liu.se>
 References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
@@ -16,168 +16,144 @@ Allocate an explicit i2c mux core to handle parent and child adapters
 etc. Update the select/deselect ops to be in terms of the i2c mux core
 instead of the child adapter.
 
-Add a mask to handle the case where not all child adapters should
-cause a mux deselect to happen, now that there is a common deselect op
-for all child adapters.
-
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/muxes/i2c-mux-pca954x.c | 64 +++++++++++++++++++------------------
- 1 file changed, 33 insertions(+), 31 deletions(-)
+ drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c |  2 +-
+ drivers/iio/imu/inv_mpu6050/inv_mpu_core.c |  1 -
+ drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c  | 32 +++++++++++++-----------------
+ drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |  3 ++-
+ 4 files changed, 17 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index acfcef3d4068..1693d29c11a4 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -60,9 +60,10 @@ enum pca_type {
- 
- struct pca954x {
- 	enum pca_type type;
--	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
- 
- 	u8 last_chan;		/* last register value */
-+	u8 deselect;
-+	struct i2c_client *client;
- };
- 
- struct chip_desc {
-@@ -146,10 +147,10 @@ static int pca954x_reg_write(struct i2c_adapter *adap,
- 	return ret;
- }
- 
--static int pca954x_select_chan(struct i2c_adapter *adap,
--			       void *client, u32 chan)
-+static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
- {
--	struct pca954x *data = i2c_get_clientdata(client);
-+	struct pca954x *data = i2c_mux_priv(muxc);
-+	struct i2c_client *client = data->client;
- 	const struct chip_desc *chip = &chips[data->type];
- 	u8 regval;
- 	int ret = 0;
-@@ -162,21 +163,24 @@ static int pca954x_select_chan(struct i2c_adapter *adap,
- 
- 	/* Only select the channel if its different from the last channel */
- 	if (data->last_chan != regval) {
--		ret = pca954x_reg_write(adap, client, regval);
-+		ret = pca954x_reg_write(muxc->parent, client, regval);
- 		data->last_chan = regval;
- 	}
- 
- 	return ret;
- }
- 
--static int pca954x_deselect_mux(struct i2c_adapter *adap,
--				void *client, u32 chan)
-+static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
- {
--	struct pca954x *data = i2c_get_clientdata(client);
-+	struct pca954x *data = i2c_mux_priv(muxc);
-+	struct i2c_client *client = data->client;
-+
-+	if (!(data->deselect & (1 << chan)))
-+		return 0;
- 
- 	/* Deselect active channel */
- 	data->last_chan = 0;
--	return pca954x_reg_write(adap, client, data->last_chan);
-+	return pca954x_reg_write(muxc->parent, client, data->last_chan);
- }
- 
- /*
-@@ -191,17 +195,21 @@ static int pca954x_probe(struct i2c_client *client,
- 	bool idle_disconnect_dt;
- 	struct gpio_desc *gpio;
- 	int num, force, class;
-+	struct i2c_mux_core *muxc;
- 	struct pca954x *data;
- 	int ret;
- 
- 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
- 		return -ENODEV;
- 
--	data = devm_kzalloc(&client->dev, sizeof(struct pca954x), GFP_KERNEL);
--	if (!data)
-+	muxc = i2c_mux_alloc(adap, &client->dev, sizeof(*data), 0,
-+			     pca954x_select_chan, pca954x_deselect_mux);
-+	if (!muxc)
- 		return -ENOMEM;
-+	data = i2c_mux_priv(muxc);
- 
--	i2c_set_clientdata(client, data);
-+	i2c_set_clientdata(client, muxc);
-+	data->client = client;
- 
- 	/* Get the mux out of reset if a reset GPIO is specified. */
- 	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_LOW);
-@@ -220,6 +228,10 @@ static int pca954x_probe(struct i2c_client *client,
- 	data->type = id->driver_data;
- 	data->last_chan = 0;		   /* force the first selection */
- 
-+	ret = i2c_mux_reserve_adapters(muxc, chips[data->type].nchans);
-+	if (ret)
-+		return ret;
-+
- 	idle_disconnect_dt = of_node &&
- 		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
- 
-@@ -238,16 +250,13 @@ static int pca954x_probe(struct i2c_client *client,
- 				/* discard unconfigured channels */
- 				break;
- 			idle_disconnect_pd = pdata->modes[num].deselect_on_exit;
-+			data->deselect |= (idle_disconnect_pd
-+					   || idle_disconnect_dt) << num;
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+index 2771106fd650..f62b8bd9ad7e 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+@@ -183,7 +183,7 @@ int inv_mpu_acpi_create_mux_client(struct i2c_client *client)
+ 			} else
+ 				return 0; /* no secondary addr, which is OK */
  		}
+-		st->mux_client = i2c_new_device(st->mux_adapter, &info);
++		st->mux_client = i2c_new_device(st->muxc->adapter[0], &info);
+ 		if (!st->mux_client)
+ 			return -ENODEV;
+ 	}
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+index d192953e9a38..0c2bded2b5b7 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+@@ -23,7 +23,6 @@
+ #include <linux/kfifo.h>
+ #include <linux/spinlock.h>
+ #include <linux/iio/iio.h>
+-#include <linux/i2c-mux.h>
+ #include <linux/acpi.h>
+ #include "inv_mpu_iio.h"
  
--		data->virt_adaps[num] =
--			i2c_add_mux_adapter(adap, &client->dev, client,
--				force, num, class, pca954x_select_chan,
--				(idle_disconnect_pd || idle_disconnect_dt)
--					? pca954x_deselect_mux : NULL);
-+		ret = i2c_mux_add_adapter(muxc, force, num, class);
- 
--		if (data->virt_adaps[num] == NULL) {
--			ret = -ENODEV;
-+		if (ret) {
- 			dev_err(&client->dev,
- 				"failed to register multiplexed adapter"
- 				" %d as bus %d\n", num, force);
-@@ -263,23 +272,15 @@ static int pca954x_probe(struct i2c_client *client,
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+index f581256d9d4c..0d429d788106 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+@@ -15,7 +15,6 @@
+ #include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+-#include <linux/i2c-mux.h>
+ #include <linux/iio/iio.h>
+ #include <linux/module.h>
+ #include "inv_mpu_iio.h"
+@@ -52,10 +51,9 @@ static int inv_mpu6050_write_reg_unlocked(struct i2c_client *client,
  	return 0;
+ }
  
- virt_reg_failed:
--	for (num--; num >= 0; num--)
--		i2c_del_mux_adapter(data->virt_adaps[num]);
-+	i2c_mux_del_adapters(muxc);
+-static int inv_mpu6050_select_bypass(struct i2c_adapter *adap, void *mux_priv,
+-				     u32 chan_id)
++static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+ {
+-	struct i2c_client *client = mux_priv;
++	struct i2c_client *client = i2c_mux_priv(muxc);
+ 	struct iio_dev *indio_dev = dev_get_drvdata(&client->dev);
+ 	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+ 	int ret = 0;
+@@ -84,10 +82,9 @@ write_error:
  	return ret;
  }
  
- static int pca954x_remove(struct i2c_client *client)
+-static int inv_mpu6050_deselect_bypass(struct i2c_adapter *adap,
+-				       void *mux_priv, u32 chan_id)
++static int inv_mpu6050_deselect_bypass(struct i2c_mux_core *muxc, u32 chan_id)
  {
--	struct pca954x *data = i2c_get_clientdata(client);
--	const struct chip_desc *chip = &chips[data->type];
--	int i;
--
--	for (i = 0; i < chip->nchans; ++i)
--		if (data->virt_adaps[i]) {
--			i2c_del_mux_adapter(data->virt_adaps[i]);
--			data->virt_adaps[i] = NULL;
--		}
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+-	struct i2c_client *client = mux_priv;
++	struct i2c_client *client = i2c_mux_priv(muxc);
+ 	struct iio_dev *indio_dev = dev_get_drvdata(&client->dev);
+ 	struct inv_mpu6050_state *st = iio_priv(indio_dev);
  
-+	i2c_mux_del_adapters(muxc);
+@@ -136,16 +133,15 @@ static int inv_mpu_probe(struct i2c_client *client,
+ 		return result;
+ 
+ 	st = iio_priv(dev_get_drvdata(&client->dev));
+-	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
+-					      &client->dev,
+-					      client,
+-					      0, 0, 0,
+-					      inv_mpu6050_select_bypass,
+-					      inv_mpu6050_deselect_bypass);
+-	if (!st->mux_adapter) {
+-		result = -ENODEV;
++	st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0, 0,
++				       0, 0, 0,
++				       inv_mpu6050_select_bypass,
++				       inv_mpu6050_deselect_bypass);
++	if (IS_ERR(st->muxc)) {
++		result = PTR_ERR(st->muxc);
+ 		goto out_unreg_device;
+ 	}
++	st->muxc->priv = client;
+ 
+ 	result = inv_mpu_acpi_create_mux_client(client);
+ 	if (result)
+@@ -154,7 +150,7 @@ static int inv_mpu_probe(struct i2c_client *client,
  	return 0;
- }
  
-@@ -287,7 +288,8 @@ static int pca954x_remove(struct i2c_client *client)
- static int pca954x_resume(struct device *dev)
+ out_del_mux:
+-	i2c_del_mux_adapter(st->mux_adapter);
++	i2c_mux_del_adapters(st->muxc);
+ out_unreg_device:
+ 	inv_mpu_core_remove(&client->dev);
+ 	return result;
+@@ -162,11 +158,11 @@ out_unreg_device:
+ 
+ static int inv_mpu_remove(struct i2c_client *client)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
--	struct pca954x *data = i2c_get_clientdata(client);
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
-+	struct pca954x *data = i2c_mux_priv(muxc);
+-	struct iio_dev *indio_dev = i2c_get_clientdata(client);
++	struct iio_dev *indio_dev = dev_get_drvdata(&client->dev);
+ 	struct inv_mpu6050_state *st = iio_priv(indio_dev);
  
- 	data->last_chan = 0;
- 	return i2c_smbus_write_byte(client, 0);
+ 	inv_mpu_acpi_delete_mux_client(client);
+-	i2c_del_mux_adapter(st->mux_adapter);
++	i2c_mux_del_adapters(st->muxc);
+ 
+ 	return inv_mpu_core_remove(&client->dev);
+ }
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+index e302a49703bf..bb3cef6d7059 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+@@ -11,6 +11,7 @@
+ * GNU General Public License for more details.
+ */
+ #include <linux/i2c.h>
++#include <linux/i2c-mux.h>
+ #include <linux/kfifo.h>
+ #include <linux/spinlock.h>
+ #include <linux/iio/iio.h>
+@@ -127,7 +128,7 @@ struct inv_mpu6050_state {
+ 	const struct inv_mpu6050_hw *hw;
+ 	enum   inv_devices chip_type;
+ 	spinlock_t time_stamp_lock;
+-	struct i2c_adapter *mux_adapter;
++	struct i2c_mux_core *muxc;
+ 	struct i2c_client *mux_client;
+ 	unsigned int powerup_count;
+ 	struct inv_mpu6050_platform_data plat_data;
 -- 
 2.1.4
