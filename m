@@ -1,39 +1,37 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 13/18] i2c: i2c-ocores: use new 8 bit address helper function
-Date: Sun,  3 Apr 2016 20:44:56 +0200
-Message-ID: <1459709101-24462-14-git-send-email-wsa@the-dreams.de>
-References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH] i2c: jz4780: prevent potential division by zero
+Date: Sun,  3 Apr 2016 23:32:00 +0200
+Message-ID: <1459719125-27320-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:51934 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:54934 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752817AbcDCSp3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 3 Apr 2016 14:45:29 -0400
-In-Reply-To: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
+	id S1751569AbcDCVcR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 3 Apr 2016 17:32:17 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+
+Make sure we don't OOPS in case clock-frequency is set to 0 in a DT. The
+variable set here is later used as a divisor.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-ocores.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-jz4780.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 11b7b87311ed2f..dfa7a4b4a91d78 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -178,10 +178,7 @@ static void ocores_process(struct ocores_i2c *i2c)
- 		if (i2c->nmsgs) {	/* end? */
- 			/* send start? */
- 			if (!(msg->flags & I2C_M_NOSTART)) {
--				u8 addr = (msg->addr << 1);
--
--				if (msg->flags & I2C_M_RD)
--					addr |= 1;
-+				u8 addr = i2c_8bit_addr_from_msg(msg);
+diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
+index f325663c27c532..597408fc6834fc 100644
+--- a/drivers/i2c/busses/i2c-jz4780.c
++++ b/drivers/i2c/busses/i2c-jz4780.c
+@@ -770,7 +770,7 @@ static int jz4780_i2c_probe(struct platform_device *pdev)
  
- 				i2c->state = STATE_START;
- 
+ 	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+ 				   &clk_freq);
+-	if (ret) {
++	if (ret || clk_freq == 0) {
+ 		dev_err(&pdev->dev, "clock-frequency not specified in DT");
+ 		goto err;
+ 	}
 -- 
 2.7.0
