@@ -1,12 +1,12 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 03/18] i2c: core: use new 8 bit address helper function
-Date: Sun,  3 Apr 2016 20:44:46 +0200
-Message-ID: <1459709101-24462-4-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 02/18] i2c: introduce helper function to get 8 bit address from a message
+Date: Sun,  3 Apr 2016 20:44:45 +0200
+Message-ID: <1459709101-24462-3-git-send-email-wsa@the-dreams.de>
 References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:51895 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:51892 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752406AbcDCSpP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	id S1752379AbcDCSpP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
 	Sun, 3 Apr 2016 14:45:15 -0400
 In-Reply-To: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
@@ -14,23 +14,31 @@ List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
+Drivers do this in various ways, let's use one standard way of doing it.
+Note: I2C_M_RD is bit 0, so the code could be simplified. To be extremly
+robust and to advertise good coding practices, I still use the ternary
+operator and let the compilers do the optimizing job.
+
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/i2c-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/i2c.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 0f2f8484e8ec1f..778d316de9f8ca 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2652,7 +2652,7 @@ static u8 i2c_smbus_pec(u8 crc, u8 *p, size_t count)
- static u8 i2c_smbus_msg_pec(u8 pec, struct i2c_msg *msg)
- {
- 	/* The address will be sent first */
--	u8 addr = (msg->addr << 1) | !!(msg->flags & I2C_M_RD);
-+	u8 addr = i2c_8bit_addr_from_msg(msg);
- 	pec = i2c_smbus_pec(pec, &addr, 1);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 200cf13b00f620..c30833b7b0730d 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -654,6 +654,11 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
+ 	return adap->nr;
+ }
  
- 	/* The data buffer follows */
++static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
++{
++	return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
++}
++
+ /**
+  * module_i2c_driver() - Helper macro for registering a modular I2C driver
+  * @__i2c_driver: i2c_driver struct
 -- 
 2.7.0
