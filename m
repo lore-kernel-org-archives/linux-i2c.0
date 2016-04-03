@@ -1,65 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 09/11] i2c: rcar: revoke START request early
-Date: Sun, 3 Apr 2016 15:47:40 +0200
-Message-ID: <20160403134740.GA7231@katana>
-References: <1447948611-2615-10-git-send-email-wsa@the-dreams.de>
- <56FD9080.4090203@cogentembedded.com>
- <20160331224838.GA7381@katana>
- <56FED245.4010503@cogentembedded.com>
- <20160401201415.GA25936@katana>
- <56FEFEC4.6010401@cogentembedded.com>
- <20160402072726.GA1384@katana>
- <56FFC06F.70108@cogentembedded.com>
- <20160403082513.GA1404@katana>
- <57011C30.7020805@cogentembedded.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <57011C30.7020805@cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
+Subject: [PATCH] i2c: mux: demux-pinctrl: Update docs to new sysfs-attributes
+Date: Sun,  3 Apr 2016 16:42:16 +0200
+Message-ID: <1459694536-23144-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Ben Hutchings <ben.hutchings@codethink.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Update the docs according to the recent code changes, too.
 
+Fixes: c0c508a418f9da ("i2c: mux: demux-pinctrl: Clean up sysfs attributes")
+Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ .../ABI/testing/sysfs-platform-i2c-demux-pinctrl   | 29 +++++++++-------------
+ 1 file changed, 12 insertions(+), 17 deletions(-)
 
-> >>    And I still don't feel good about the patch removing the spinlock -=
-- I'm
-> >>not sure it's SMP-safe...
-> >
-> >In what scenario?
->=20
->    I've reviewed the patches once again and it looked like they are safe.
-
-Thanks.
-
-
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXAR78AAoJEBQN5MwUoCm2I1QQAKsVA7Ox0U5X8VOh+q3ETJux
-SoFEUcPoQQ7ODNUKbymn0FjkntGnPnIRdQoCpzJSFoqOSySYKNuGw9aKNE5UioeT
-0qwNnpLIOF7iM5ttM9krXCyFjh/9yxaeUGBVDmgZgy2YgUqcVPwNcOPzi/lasY8F
-qnmJTUwrfHoiAKh+D91jY2ou9v+bBSERyCNUtzMm3UtlXCvaE15xFQVac2uWLsCE
-Hwf+i4lQw/fDzReZTjE6WKucTuu+7yqGBxSQlfqIZ4W30WpJuolMpk4UjaUjaHYX
-Wnt8g62+HrrH493R4c7xkYNRiIEVyO12KvNmwc9ISRSXgEF5r/i80aKTTZBiQVh1
-u69Z6A9JfG0xxf4BUqqpSaFwGVBqxC6YK2J6Vtz0bYTGXKOvw/SvKVadqnBCPW6q
-cbGtQ5HyFmSVN7IwqpxQZ+iaPXOe6PDOTVcdEKqwA9CiMd7BorCJE+sXV0wFQdZc
-ctwFa5pUfusguZMdr8sc4eaJuLtCXRV3kJmHn5b3IAXIeJBAGdNL3BS4u53DgbYZ
-qVQQ1/5JsMEKj3W6yTx+BvdQa3Vy+xH/7et/1sJ9YAxdx9c3NzjXpW50SRdduXqI
-eAVwD4qs9t9n/y0Nbb/psFKH9IW7IyaMP5tB3JZfUCOtOJTNh1Zjxv1D6PM0eCCy
-moJdHqv5atwi9bUxZT7N
-=V6v+
------END PGP SIGNATURE-----
-
---y0ulUmNC+osPPQO6--
+diff --git a/Documentation/ABI/testing/sysfs-platform-i2c-demux-pinctrl b/Documentation/ABI/testing/sysfs-platform-i2c-demux-pinctrl
+index 7ac7d7262bb718..3c3514815cd53b 100644
+--- a/Documentation/ABI/testing/sysfs-platform-i2c-demux-pinctrl
++++ b/Documentation/ABI/testing/sysfs-platform-i2c-demux-pinctrl
+@@ -1,23 +1,18 @@
+-What:		/sys/devices/platform/<i2c-demux-name>/cur_master
++What:		/sys/devices/platform/<i2c-demux-name>/available_masters
+ Date:		January 2016
+ KernelVersion:	4.6
+ Contact:	Wolfram Sang <wsa@the-dreams.de>
+ Description:
++		Reading the file will give you a list of masters which can be
++		selected for a demultiplexed bus. The format is
++		"<index>:<name>". Example from a Renesas Lager board:
+ 
+-This file selects the active I2C master for a demultiplexed bus.
++		0:/i2c@e6500000 1:/i2c@e6508000
+ 
+-Write 0 there for the first master, 1 for the second etc. Reading the file will
+-give you a list with the active master marked. Example from a Renesas Lager
+-board:
+-
+-root@Lager:~# cat /sys/devices/platform/i2c@8/cur_master
+-* 0 - /i2c@9
+-  1 - /i2c@e6520000
+-  2 - /i2c@e6530000
+-
+-root@Lager:~# echo 2 > /sys/devices/platform/i2c@8/cur_master
+-
+-root@Lager:~# cat /sys/devices/platform/i2c@8/cur_master
+-  0 - /i2c@9
+-  1 - /i2c@e6520000
+-* 2 - /i2c@e6530000
++What:		/sys/devices/platform/<i2c-demux-name>/current_master
++Date:		January 2016
++KernelVersion:	4.6
++Contact:	Wolfram Sang <wsa@the-dreams.de>
++Description:
++		This file selects/shows the active I2C master for a demultiplexed
++		bus. It uses the <index> value from the file 'available_masters'.
+-- 
+2.7.0
