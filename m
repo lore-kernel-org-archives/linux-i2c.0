@@ -1,66 +1,58 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [RFC PATCH 06/10] spi: add support for ACPI reconfigure
- notifications
-Date: Sat, 2 Apr 2016 09:24:49 -0700
-Message-ID: <20160402162449.GB2350@sirena.org.uk>
-References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
- <1459417026-6697-7-git-send-email-octavian.purdila@intel.com>
- <20160331172935.GL2350@sirena.org.uk>
- <CAE1zotJbUGBOUF-4-XAx0DUkj55egOMXVn9FzjV3Fdj4MYxD0Q@mail.gmail.com>
- <20160401140856.GW2350@sirena.org.uk>
- <CAJZ5v0itmFDdPi6vJmsheEHADEwmeTNgCQ5iVroJfV=o6Wof3A@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 09/11] i2c: rcar: revoke START request early
+Date: Sun, 3 Apr 2016 10:25:13 +0200
+Message-ID: <20160403082513.GA1404@katana>
+References: <1447948611-2615-1-git-send-email-wsa@the-dreams.de>
+ <1447948611-2615-10-git-send-email-wsa@the-dreams.de>
+ <56FD9080.4090203@cogentembedded.com>
+ <20160331224838.GA7381@katana>
+ <56FED245.4010503@cogentembedded.com>
+ <20160401201415.GA25936@katana>
+ <56FEFEC4.6010401@cogentembedded.com>
+ <20160402072726.GA1384@katana>
+ <56FFC06F.70108@cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="rtWt6SZ6GqpxALBD"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:38154 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751314AbcDBQZL (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Apr 2016 12:25:11 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAJZ5v0itmFDdPi6vJmsheEHADEwmeTNgCQ5iVroJfV=o6Wof3A@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <56FFC06F.70108@cogentembedded.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
 
 
---rtWt6SZ6GqpxALBD
+--45Z9DzgjV8m4Oswq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Apr 01, 2016 at 09:26:38PM +0200, Rafael J. Wysocki wrote:
-> On Fri, Apr 1, 2016 at 4:08 PM, Mark Brown <broonie@kernel.org> wrote:
 
-> > That's not the point.  The point is that since the handling is identical
-> > why are we handling it through exactly the same code?
+>    And I still don't feel good about the patch removing the spinlock -- I'm
+> not sure it's SMP-safe...
 
-> I think that during the initial enumeration the controller driver's
-> probe walks the children and creates device objects for them.  When a
-> table is loaded later, the controller driver has been probed already
-> and there needs to be a way to trigger a walk over the (new) children
-> from it.
+In what scenario?
 
-> Or a hook somewhere around acpi_platform_notify() is needed.
 
-What I don't understand is why the flow on inital probe isn't simply to
-register the controller which then triggers the walk of the children.
-That way any bus that supports initial probe also supports hotplug
-without needing to go and manually add a second code path.
-
---rtWt6SZ6GqpxALBD
+--45Z9DzgjV8m4Oswq
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v1
 
-iQEcBAEBCAAGBQJW//JQAAoJECTWi3JdVIfQFHwH/2J7wKNmy+CXSc+JOI24dd/l
-BsStLIDa+Vh7k9Ml720D1EoA1NwZxKkMV2wmEMSrYBGwrIAVJr46l2L9sYo1nyzU
-mTxlwWVPbbgr5ofF/RlaJrXFI3eIogBoXrrrPk54WrizG1W5LvNNn2xtzLJlHxGa
-8olcz/UKlydNVA0n8y/8QR+Rg+uy6MULLqgpoTig0P5Hck6/E7gNG+gYZhwVA5yI
-Ak4/HAe1BPdxaYUuf/rYqeRYLlXv4jPqZER5CTSPP/cU64XSns3S0AI8LXrgXFBV
-DFCEvNpXoMKYpxCoXlzttIbPBgjP9mdiiVz2rL+JYkjTI0jwMHqRh4DvNDRoG8U=
-=Kt7q
+iQIcBAEBAgAGBQJXANNpAAoJEBQN5MwUoCm2EdQP/3NPWdgSJu4nXPrwT6tveDGH
+J9Nbx4hpwES0qnZHqKtTcuLJWSfR9pKcydFifepTrdacEc1a+1HzpCcISDjNWuN+
+NcZR1zEkGbe6NEETNNidPEIsxep5vKhXj1erA57Jf5XxsdLK2LOqf2OwFE8RU5s5
+yqCWA6MsTKkpnUP6sCr6Eh8A74uKdWGj3ayWIXmIYD5ZozX842nWAJrJpMWdy4b4
+gptt2V+P/q5x3Xl8KYMjT5M81i8Bt/fnZmAGjSAKRrK9wSJ6wahabUVGcgAiKuzJ
+ur2uC0JWsXRnqR3U0SPLGYv1DGt4KHJcjvusHcvyNyAxql2r+mFxJIQl3MAbEQIG
+mRS0VIjNF+/ZsHD8KeYqrypFmM30M9QFnHWfjSsp37GsUdAnucHLrorvAY/nfy0N
+3zRI7E8asrh0DyIlbW2iWDY41iD6E9tsAHdIZ7c0KW02mLLDbEfJct0elhsfvIOm
+RhkMAeK5HltCPLhuEYx9EvMWcIRx6MucgOwZoG/QovrCOXxwMFAAldxwV7x/gkpr
+XSJMrfaIURbqrkgZtK4KC7wInxriGe1Hedx1IdpNePjWvtNy29bOaMPX4quU3EI3
+OS0hlEhVTa/qM32yF1MhiiYl4XnXEGFqY9PeUlS/Mk2nVSKMaAJQW2aL70RUbuR5
+v4JXjkJyT/OwbXPTYjrg
+=1YJj
 -----END PGP SIGNATURE-----
 
---rtWt6SZ6GqpxALBD--
+--45Z9DzgjV8m4Oswq--
