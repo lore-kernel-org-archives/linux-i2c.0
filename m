@@ -1,114 +1,142 @@
-From: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Subject: [PATCH v6 14/24] of/unittest: convert to use an explicit i2c mux core
-Date: Sun,  3 Apr 2016 10:52:44 +0200
-Message-ID: <1459673574-11440-15-git-send-email-peda@lysator.liu.se>
+From: Peter Rosin <peda@lysator.liu.se>
+Subject: [PATCH v6 15/24] i2c-mux: drop old unused i2c-mux api
+Date: Sun,  3 Apr 2016 10:52:45 +0200
+Message-ID: <1459673574-11440-16-git-send-email-peda@lysator.liu.se>
 References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1459673574-11440-1-git-send-email-peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Mat
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Kalle Valo <kvalo@codeaurora.org>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Adriana Reus <adriana.reus@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Mat
 List-Id: linux-i2c@vger.kernel.org
 
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+From: Peter Rosin <peda@axentia.se>
 
-Allocate an explicit i2c mux core to handle parent and child adapters
-etc. Update the select op to be in terms of the i2c mux core instead
-of the child adapter.
+All i2c mux users are using an explicit i2c mux core, drop support
+for implicit i2c mux cores.
 
-Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/of/unittest.c | 40 +++++++++++++++-------------------------
- 1 file changed, 15 insertions(+), 25 deletions(-)
+ drivers/i2c/i2c-mux.c   | 59 -------------------------------------------------
+ include/linux/i2c-mux.h | 15 -------------
+ 2 files changed, 74 deletions(-)
 
-diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index e986e6ee52e0..84a65b711e8c 100644
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -1692,13 +1692,7 @@ static struct i2c_driver unittest_i2c_dev_driver = {
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index d95eb66e11bf..08d99e776a69 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -28,12 +28,6 @@
+ #include <linux/slab.h>
  
- #if IS_BUILTIN(CONFIG_I2C_MUX)
- 
--struct unittest_i2c_mux_data {
--	int nchans;
--	struct i2c_adapter *adap[];
+ /* multiplexer per channel data */
+-struct i2c_mux_priv_old {
+-	void *mux_priv;
+-	int (*select)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
+-	int (*deselect)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
 -};
 -
--static int unittest_i2c_mux_select_chan(struct i2c_adapter *adap,
--			       void *client, u32 chan)
-+static int unittest_i2c_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
- {
- 	return 0;
+ struct i2c_mux_priv {
+ 	struct i2c_adapter adap;
+ 	struct i2c_algorithm algo;
+@@ -290,48 +284,6 @@ struct i2c_mux_core *i2c_mux_one_adapter(struct i2c_adapter *parent,
  }
-@@ -1706,11 +1700,11 @@ static int unittest_i2c_mux_select_chan(struct i2c_adapter *adap,
- static int unittest_i2c_mux_probe(struct i2c_client *client,
- 		const struct i2c_device_id *id)
+ EXPORT_SYMBOL_GPL(i2c_mux_one_adapter);
+ 
+-static int i2c_mux_select(struct i2c_mux_core *muxc, u32 chan)
+-{
+-	struct i2c_mux_priv_old *priv = i2c_mux_priv(muxc);
+-
+-	return priv->select(muxc->parent, priv->mux_priv, chan);
+-}
+-
+-static int i2c_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
+-{
+-	struct i2c_mux_priv_old *priv = i2c_mux_priv(muxc);
+-
+-	return priv->deselect(muxc->parent, priv->mux_priv, chan);
+-}
+-
+-struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+-					struct device *mux_dev, void *mux_priv,
+-					u32 force_nr, u32 chan_id,
+-					unsigned int class,
+-					int (*select)(struct i2c_adapter *,
+-						      void *, u32),
+-					int (*deselect)(struct i2c_adapter *,
+-							void *, u32))
+-{
+-	struct i2c_mux_core *muxc;
+-	struct i2c_mux_priv_old *priv;
+-
+-	muxc = i2c_mux_one_adapter(parent, mux_dev, sizeof(*priv), 0,
+-				   force_nr, chan_id, class,
+-				   i2c_mux_select,
+-				   deselect ? i2c_mux_deselect : NULL);
+-	if (IS_ERR(muxc))
+-		return NULL;
+-
+-	priv = i2c_mux_priv(muxc);
+-	priv->select = select;
+-	priv->deselect = deselect;
+-	priv->mux_priv = mux_priv;
+-
+-	return muxc->adapter[0];
+-}
+-EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
+-
+ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
  {
--	int ret, i, nchans, size;
-+	int ret, i, nchans;
- 	struct device *dev = &client->dev;
- 	struct i2c_adapter *adap = to_i2c_adapter(dev->parent);
- 	struct device_node *np = client->dev.of_node, *child;
--	struct unittest_i2c_mux_data *stm;
-+	struct i2c_mux_core *muxc;
- 	u32 reg, max_reg;
- 
- 	dev_dbg(dev, "%s for node @%s\n", __func__, np->full_name);
-@@ -1734,25 +1728,23 @@ static int unittest_i2c_mux_probe(struct i2c_client *client,
- 		return -EINVAL;
- 	}
- 
--	size = offsetof(struct unittest_i2c_mux_data, adap[nchans]);
--	stm = devm_kzalloc(dev, size, GFP_KERNEL);
--	if (!stm) {
--		dev_err(dev, "Out of memory\n");
-+	muxc = i2c_mux_alloc(adap, dev, 0, 0,
-+			     unittest_i2c_mux_select_chan, NULL);
-+	if (!muxc)
- 		return -ENOMEM;
--	}
--	stm->nchans = nchans;
-+	ret = i2c_mux_reserve_adapters(muxc, nchans);
-+	if (ret)
-+		return ret;
- 	for (i = 0; i < nchans; i++) {
--		stm->adap[i] = i2c_add_mux_adapter(adap, dev, client,
--				0, i, 0, unittest_i2c_mux_select_chan, NULL);
--		if (!stm->adap[i]) {
-+		ret = i2c_mux_add_adapter(muxc, 0, i, 0);
-+		if (ret) {
- 			dev_err(dev, "Failed to register mux #%d\n", i);
--			for (i--; i >= 0; i--)
--				i2c_del_mux_adapter(stm->adap[i]);
-+			i2c_mux_del_adapters(muxc);
- 			return -ENODEV;
- 		}
- 	}
- 
--	i2c_set_clientdata(client, stm);
-+	i2c_set_clientdata(client, muxc);
- 
- 	return 0;
- };
-@@ -1761,12 +1753,10 @@ static int unittest_i2c_mux_remove(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
- 	struct device_node *np = client->dev.of_node;
--	struct unittest_i2c_mux_data *stm = i2c_get_clientdata(client);
--	int i;
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
- 
- 	dev_dbg(dev, "%s for node @%s\n", __func__, np->full_name);
--	for (i = stm->nchans - 1; i >= 0; i--)
--		i2c_del_mux_adapter(stm->adap[i]);
-+	i2c_mux_del_adapters(muxc);
- 	return 0;
+ 	char symlink_name[20];
+@@ -353,17 +305,6 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
  }
+ EXPORT_SYMBOL_GPL(i2c_mux_del_adapters);
  
+-void i2c_del_mux_adapter(struct i2c_adapter *adap)
+-{
+-	struct i2c_mux_priv *priv = adap->algo_data;
+-	struct i2c_mux_core *muxc = priv->muxc;
+-
+-	i2c_mux_del_adapters(muxc);
+-	devm_kfree(muxc->dev, muxc->adapter);
+-	devm_kfree(muxc->dev, muxc);
+-}
+-EXPORT_SYMBOL_GPL(i2c_del_mux_adapter);
+-
+ MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>");
+ MODULE_DESCRIPTION("I2C driver for multiplexed I2C busses");
+ MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
+index 0d97d7a3f03c..25c88ccf9c38 100644
+--- a/include/linux/i2c-mux.h
++++ b/include/linux/i2c-mux.h
+@@ -55,20 +55,6 @@ int i2c_mux_reserve_adapters(struct i2c_mux_core *muxc, int adapters);
+ 
+ /*
+  * Called to create a i2c bus on a multiplexed bus segment.
+- * The mux_dev and chan_id parameters are passed to the select
+- * and deselect callback functions to perform hardware-specific
+- * mux control.
+- */
+-struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+-				struct device *mux_dev,
+-				void *mux_priv, u32 force_nr, u32 chan_id,
+-				unsigned int class,
+-				int (*select) (struct i2c_adapter *,
+-					       void *mux_dev, u32 chan_id),
+-				int (*deselect) (struct i2c_adapter *,
+-						 void *mux_dev, u32 chan_id));
+-/*
+- * Called to create a i2c bus on a multiplexed bus segment.
+  * The chan_id parameter is passed to the select and deselect
+  * callback functions to perform hardware-specific mux control.
+  */
+@@ -88,7 +74,6 @@ struct i2c_mux_core *i2c_mux_one_adapter(struct i2c_adapter *parent,
+ 					 int (*deselect)(struct i2c_mux_core *,
+ 							 u32));
+ 
+-void i2c_del_mux_adapter(struct i2c_adapter *adap);
+ void i2c_mux_del_adapters(struct i2c_mux_core *muxc);
+ 
+ #endif /* __KERNEL__ */
 -- 
 2.1.4
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
