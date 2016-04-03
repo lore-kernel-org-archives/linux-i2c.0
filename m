@@ -1,61 +1,80 @@
-From: Tema williams <temawilliams22@gmail.com>
-Subject: WE NEED YOUR HELP URGENTLY.
-Date: Sun, 3 Apr 2016 18:14:14 +0200
-Message-ID: <CA+hOsCvD3C4OmnF77sXHYmo_TOmxOYZx0ndPSdjPY=VrvrzoOQ__40687.709747772$1459700079$gmane$org@mail.gmail.com>
-Reply-To: temawilliams26@yahoo.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 00/18] i2c: make creation of 8 bit addresses consistent
+Date: Sun,  3 Apr 2016 20:44:43 +0200
+Message-ID: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ig0-f194.google.com ([209.85.213.194]:34776 "EHLO
-	mail-ig0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754026AbcDCQOQ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 3 Apr 2016 12:14:16 -0400
-Received: by mail-ig0-f194.google.com with SMTP id qu10so1932831igc.1
-        for <linux-i2c@vger.kernel.org>; Sun, 03 Apr 2016 09:14:15 -0700 (PDT)
+Received: from sauhun.de ([89.238.76.85]:51888 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752323AbcDCSpP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 3 Apr 2016 14:45:15 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Dear Sir/madam,
+This series addresses two things which have come up in the past:
 
-With due respect and to the glory of Almighty God whom we worship I
-call upon you to assist my family.
-Please Permit me to inform you of my desire of going into business
-relationship with you.
+* document that I2C_M_RD is bit 0. It is not good coding style but some
+  drivers (and userspace) silently assume so anyhow. To avoid regressions,
+  let's make that explicit.
 
-My name is Tema Williams,The only Son of late Chief PATRICK WILLIAMS.
-My father was a very wealthy cocoa merchant in Abidjan but we are from
-Sierra Leone
-After my Father death I and my Family move to South Africa as refugee.
+* use one function to generate an 8 bit address (7 bit address + RW bit)
+  from a struct msg. People did this in various ways, sometimes overly
+  brave and sometimes overly anxious with the operator precedence. That
+  was partly not nice to read and partly triggering code checkers.
 
-My father was poisoned to death by his business associates on one of
-their outings on a business trip.
-Before his death in a private hospital in Abidjan he secretly called
-me on his bed side and told me that
-he has the sum of ($12.000,000 MILLION US DOLLAR) kept with a security
-and finance company in South Africa,
-He also explained to me that it was because of this wealth that he was
-poisoned by his business associates,
-that I should seek for a beneficiary in any country of my choice where
-I will transfer this money and use it for investment.
-I am honorably seeking for your assistance to transfer our fund out of
-South Africa.
-Upon the successful transfer of this fund,we shall make arrangement
-for me,my mother and younger sister to come
-over to your country to further our Education and invest in a
-profitable business that you may suggest.
+The new function was tested using a Renesas Lager board with the i2c-sh_mobile
+driver. Buildbot was happy with the series, too. A branch can be found here:
 
-More over,I am willing to offer you 20% of the total sum as
-compensation for your effort/input after the successful
-transfer of this fund into your nominated bank account overseas.
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/8bit_macro
 
-As we depend on God, and with God all things are possible.
-Anticipating to hear from you today.
+I'd really appreciate more tests on real HW. Also happy for other comments,
+reviews...
 
-Thanks and God bless.
-PLEASE CALL ME +27787597591
+Thanks,
+
+   Wolfram
 
 
-Best regards,
+Wolfram Sang (18):
+  i2c: guarantee that I2C_M_RD will be 0x0001 forever
+  i2c: introduce helper function to get 8 bit address from a message
+  i2c: core: use new 8 bit address helper function
+  i2c: i2c-bcm-iproc: use new 8 bit address helper function
+  i2c: i2c-bcm-kona: use new 8 bit address helper function
+  i2c: i2c-brcmstb: use new 8 bit address helper function
+  i2c: i2c-cpm: use new 8 bit address helper function
+  i2c: i2c-ibm_iic: use new 8 bit address helper function
+  i2c: i2c-img-scb: use new 8 bit address helper function
+  i2c: i2c-iop3xx: use new 8 bit address helper function
+  i2c: i2c-lpc2k: use new 8 bit address helper function
+  i2c: i2c-mt65xx: use new 8 bit address helper function
+  i2c: i2c-ocores: use new 8 bit address helper function
+  i2c: i2c-powermac: use new 8 bit address helper function
+  i2c: i2c-qup: use new 8 bit address helper function
+  i2c: i2c-sh_mobile: use new 8 bit address helper function
+  i2c: i2c-sirf: use new 8 bit address helper function
+  i2c: i2c-st: use new 8 bit address helper function
 
-Tema Williams
-(for the family)
+ drivers/i2c/busses/i2c-bcm-iproc.c |  2 +-
+ drivers/i2c/busses/i2c-bcm-kona.c  |  5 +----
+ drivers/i2c/busses/i2c-brcmstb.c   |  4 +---
+ drivers/i2c/busses/i2c-cpm.c       |  4 +---
+ drivers/i2c/busses/i2c-ibm_iic.c   |  2 +-
+ drivers/i2c/busses/i2c-img-scb.c   |  4 +---
+ drivers/i2c/busses/i2c-iop3xx.c    |  5 +----
+ drivers/i2c/busses/i2c-lpc2k.c     |  4 +---
+ drivers/i2c/busses/i2c-mt65xx.c    |  5 +----
+ drivers/i2c/busses/i2c-ocores.c    |  5 +----
+ drivers/i2c/busses/i2c-powermac.c  |  4 +---
+ drivers/i2c/busses/i2c-qup.c       |  2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c |  3 +--
+ drivers/i2c/busses/i2c-sirf.c      |  4 +---
+ drivers/i2c/busses/i2c-st.c        |  3 +--
+ drivers/i2c/i2c-core.c             |  2 +-
+ include/linux/i2c.h                |  5 +++++
+ include/uapi/linux/i2c.h           | 13 +++++++------
+ 18 files changed, 28 insertions(+), 48 deletions(-)
+
+-- 
+2.7.0
