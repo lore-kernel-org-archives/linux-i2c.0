@@ -1,58 +1,40 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 01/18] i2c: guarantee that I2C_M_RD will be 0x0001 forever
-Date: Mon, 4 Apr 2016 12:47:19 +0200
-Message-ID: <20160404104719.GC1383@katana>
-References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
- <1459709101-24462-2-git-send-email-wsa@the-dreams.de>
- <1459765571.2503.15.camel@linux.intel.com>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH 02/10] acpi: install SSDT tables from initrd
+Date: Mon, 4 Apr 2016 16:07:31 +0300
+Message-ID: <CAE1zotLX8L=jpJRYtUddtpYmgc0NxqmtdDjcQPWWg8KTO8PH5A@mail.gmail.com>
+References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
+	<1459417026-6697-3-git-send-email-octavian.purdila@intel.com>
+	<1AE640813FDE7649BE1B193DEA596E883BB66258@SHSMSX101.ccr.corp.intel.com>
+	<CAE1zotJ1fa4m-_FO3PUQK8_p0vHcfWD5TmuMdxOSHDjku421pA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WplhKdTI2c8ulnbP"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60337 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754504AbcDDKrX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 4 Apr 2016 06:47:23 -0400
-Content-Disposition: inline
-In-Reply-To: <1459765571.2503.15.camel@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAE1zotJ1fa4m-_FO3PUQK8_p0vHcfWD5TmuMdxOSHDjku421pA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org
 
+On Fri, Apr 1, 2016 at 1:11 PM, Octavian Purdila
+<octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+> On Fri, Apr 1, 2016 at 8:05 AM, Zheng, Lv <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+>> Hi,
+>>
+>> IMO, there is already a similar function upstreamed:
+>> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c85cc81
+>> Could it work for your use case?
+>
+> Yes, it is basically the same.
+>
+> The only difference is on how we handle taint. I think we should use a
+> new taint for overlays and that we don't need to disable lockdep.
+>
+> BTW, why is lockdep disabled when we override?
 
---WplhKdTI2c8ulnbP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The other thing I forgot to mention is that I think we should allow
+installing new tables even if CONFIG_ACPI_INITRD_TABLE_OVERRIDE is not
+selected. IMO the override and overlay functionality is different,
+with the latter being more then a debug option.
 
-> Didn't see a comment as stated though.
-
-Yeah, it is hidden in the refactoring :/
-
- > +					/* I2C_M_RD is guaranteed to  be 0x0001! */
-
-   Wolfram
-
-
---WplhKdTI2c8ulnbP
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXAkY3AAoJEBQN5MwUoCm2avoQAIfW7VDm5RxJV9l32jBpSIHO
-b3H/qi5VOjOZIkaiiCSSU7yFUl/UFS+s3EMTInUs+cWTteO0dGKkGaVRUSvLsJOH
-PNJeRXUxRQsdXl5w//PPN3PdzNTaEOG11rvqcWpZ44zMweIRI8UzMmFD3qmTRUNO
-8mgvpq+zYxPylItJ82lePhRvgYgPOD4hC3314aqbswP0bx5P6AbfIA9KRR23Cw5W
-OMMVI0KrjPfPLU+LVM1wfO/1PbbNI3xDmaGlo0MBvQgJBLPlYLeXPMX2osQ4IW+8
-LGrOt1SkVkv7HBZwP+0lgwfz60+kpUIWI4yGXO8QsUhKp/dA50m/CTWYs+7ePU4z
-LAKYrlNAsaPRY1elybk1gcTk4OiKEl/Q5yEj9bxqJs5t3/s2qX0spJ7UFvxAfC5Q
-dbTkrLVGpVkIH+mngWImjHs4526ibESKyKxAHT/nD/w4s4kkNHe7Hsz0MoahrpR2
-W2eJaeoxb4WTw0wYYHV0rxWbS1rvsq1l7kOUiSHr8WZhZG2SwKZL+OK/lqVmN52G
-/ItEijLdIxMKHxjtLvOMbT/rUHd1nVJUlQdsSOkXXbjTf5PFB4hxHWuH2aZxT6K1
-DR7f/Iodn6M8JCsEzSQgjo/ayRBL0YhWNPvSskshipE1Q3P0Vk2EHgGxpYz/9Asl
-nNUOPRkzOcfBC/dGhZM0
-=Jm/C
------END PGP SIGNATURE-----
-
---WplhKdTI2c8ulnbP--
+I will prepare a patch for the next version of the series to decouple
+installing new tables from CONFIG_ACPI_INITRD_TABLE_OVERRIDE.
