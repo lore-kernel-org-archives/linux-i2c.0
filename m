@@ -1,46 +1,73 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 03/18] i2c: core: use new 8 bit address helper function
-Date: Mon, 04 Apr 2016 13:27:50 +0300
-Message-ID: <1459765670.2503.16.camel@linux.intel.com>
+From: "Shevchenko, Andriy" <andriy.shevchenko@intel.com>
+Subject: Re: [PATCH 01/18] i2c: guarantee that I2C_M_RD will be 0x0001
+ forever
+Date: Mon, 4 Apr 2016 10:29:02 +0000
+Message-ID: <1459765801.2503.17.camel@intel.com>
 References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
-	 <1459709101-24462-4-git-send-email-wsa@the-dreams.de>
+	 <1459709101-24462-2-git-send-email-wsa@the-dreams.de>
+	 <1459765571.2503.15.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:20219 "EHLO mga11.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:43405 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754504AbcDDK0x (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 4 Apr 2016 06:26:53 -0400
-In-Reply-To: <1459709101-24462-4-git-send-email-wsa@the-dreams.de>
+	id S1754788AbcDDK3H (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 4 Apr 2016 06:29:07 -0400
+In-Reply-To: <1459765571.2503.15.camel@linux.intel.com>
+Content-Language: en-US
+Content-ID: <663F92E13CCD974581E9617DC3228806@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On Sun, 2016-04-03 at 20:44 +0200, Wolfram Sang wrote:
-
-Even simple short commit message? Same to the rest.
-
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
-> =C2=A0drivers/i2c/i2c-core.c | 2 +-
-> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 0f2f8484e8ec1f..778d316de9f8ca 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -2652,7 +2652,7 @@ static u8 i2c_smbus_pec(u8 crc, u8 *p, size_t
-> count)
-> =C2=A0static u8 i2c_smbus_msg_pec(u8 pec, struct i2c_msg *msg)
-> =C2=A0{
-> =C2=A0	/* The address will be sent first */
-> -	u8 addr =3D (msg->addr << 1) | !!(msg->flags & I2C_M_RD);
-> +	u8 addr =3D i2c_8bit_addr_from_msg(msg);
-> =C2=A0	pec =3D i2c_smbus_pec(pec, &addr, 1);
-> =C2=A0
-> =C2=A0	/* The data buffer follows */
-
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+T24gTW9uLCAyMDE2LTA0LTA0IGF0IDEzOjI2ICswMzAwLCBBbmR5IFNoZXZjaGVua28gd3JvdGU6
+DQo+IE9uIFN1biwgMjAxNi0wNC0wMyBhdCAyMDo0NCArMDIwMCwgV29sZnJhbSBTYW5nIHdyb3Rl
+Og0KPiA+IA0KPiA+IFRoZXJlIGlzIGNvZGUgb3V0IHRoZXJlIGluIHVzZXIgc3BhY2UgYW5kIGtl
+cm5lbCBzcGFjZSB3aGljaCByZWxpZXMNCj4gPiBvbg0KPiA+IEkyQ19NX1JEIGJlaW5nIGJpdCAw
+IHRvIHNpbXBsaWZ5IHRoZWlyIGJpdCBvcGVyYXRpb25zLiBBZGQgYQ0KPiA+IGNvbW1lbnQNCj4g
+PiB0bw0KPiA+IG1ha2Ugc3VyZSB0aGlzIHdpbGwgbmV2ZXIgYnJlYWsuIERvIHByb3BlciBzb3J0
+aW5nIG9mIHRoZSBkZWZpbmVzDQo+ID4gd2hpbGUNCj4gPiB3ZSBhcmUgaGVyZS4NCj4gRGlkbid0
+IHNlZSBhIGNvbW1lbnQgYXMgc3RhdGVkIHRob3VnaC4NCg0KQWgsIG92ZXJsb29rZWQgaXQuIEFu
+eXdheSwgcGVyaGFwcyB3b3J0aCB0byBtZW50aW9uIHVuZGVyDQpEb2N1bWVudGF0aW9uLiBXaGF0
+IGRvIHlvdSB0aGluaz8NCg0KPiANCj4gPiANCj4gPiANCj4gPiBTaWduZWQtb2ZmLWJ5OiBXb2xm
+cmFtIFNhbmcgPHdzYUB0aGUtZHJlYW1zLmRlPg0KPiA+IC0tLQ0KPiA+IMKgaW5jbHVkZS91YXBp
+L2xpbnV4L2kyYy5oIHwgMTMgKysrKysrKy0tLS0tLQ0KPiA+IMKgMSBmaWxlIGNoYW5nZWQsIDcg
+aW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkNCj4gPiANCj4gPiBkaWZmIC0tZ2l0IGEvaW5j
+bHVkZS91YXBpL2xpbnV4L2kyYy5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L2kyYy5oDQo+ID4gaW5k
+ZXggYjBhN2RkNjFlYjM1M2EuLmFkY2JlZjRiZmY2MTBhIDEwMDY0NA0KPiA+IC0tLSBhL2luY2x1
+ZGUvdWFwaS9saW51eC9pMmMuaA0KPiA+ICsrKyBiL2luY2x1ZGUvdWFwaS9saW51eC9pMmMuaA0K
+PiA+IEBAIC02OCwxNCArNjgsMTUgQEANCj4gPiDCoHN0cnVjdCBpMmNfbXNnIHsNCj4gPiDCoAlf
+X3UxNiBhZGRyOwkvKiBzbGF2ZSBhZGRyZXNzCQkJDQo+ID4gKg0KPiA+IC8NCj4gPiDCoAlfX3Ux
+NiBmbGFnczsNCj4gPiAtI2RlZmluZSBJMkNfTV9URU4JCTB4MDAxMAkvKiB0aGlzIGlzIGEgdGVu
+DQo+ID4gYml0DQo+ID4gY2hpcCBhZGRyZXNzICovDQo+ID4gwqAjZGVmaW5lIEkyQ19NX1JECQkw
+eDAwMDEJLyogcmVhZCBkYXRhLCBmcm9tDQo+ID4gc2xhdmUgdG8gbWFzdGVyICovDQo+ID4gLSNk
+ZWZpbmUgSTJDX01fU1RPUAkJMHg4MDAwCS8qIGlmDQo+ID4gSTJDX0ZVTkNfUFJPVE9DT0xfTUFO
+R0xJTkcgKi8NCj4gPiAtI2RlZmluZSBJMkNfTV9OT1NUQVJUCQkweDQwMDAJLyogaWYNCj4gPiBJ
+MkNfRlVOQ19OT1NUQVJUICovDQo+ID4gLSNkZWZpbmUgSTJDX01fUkVWX0RJUl9BRERSCTB4MjAw
+MAkvKiBpZg0KPiA+IEkyQ19GVU5DX1BST1RPQ09MX01BTkdMSU5HICovDQo+ID4gLSNkZWZpbmUg
+STJDX01fSUdOT1JFX05BSwkweDEwMDAJLyogaWYNCj4gPiBJMkNfRlVOQ19QUk9UT0NPTF9NQU5H
+TElORyAqLw0KPiA+IC0jZGVmaW5lIEkyQ19NX05PX1JEX0FDSwkJMHgwODAwCS8qIGlmDQo+ID4g
+STJDX0ZVTkNfUFJPVE9DT0xfTUFOR0xJTkcgKi8NCj4gPiArCQkJCQkvKiBJMkNfTV9SRCBpcyBn
+dWFyYW50ZWVkDQo+ID4gdG8NCj4gPiBiZSAweDAwMDEhICovDQo+ID4gKyNkZWZpbmUgSTJDX01f
+VEVOCQkweDAwMTAJLyogdGhpcyBpcyBhIHRlbg0KPiA+IGJpdA0KPiA+IGNoaXAgYWRkcmVzcyAq
+Lw0KPiA+IMKgI2RlZmluZSBJMkNfTV9SRUNWX0xFTgkJMHgwNDAwCS8qIGxlbmd0aCB3aWxsDQo+
+ID4gYmUgZmlyc3QgcmVjZWl2ZWQgYnl0ZSAqLw0KPiA+ICsjZGVmaW5lIEkyQ19NX05PX1JEX0FD
+SwkJMHgwODAwCS8qIGlmDQo+ID4gSTJDX0ZVTkNfUFJPVE9DT0xfTUFOR0xJTkcgKi8NCj4gPiAr
+I2RlZmluZSBJMkNfTV9JR05PUkVfTkFLCTB4MTAwMAkvKiBpZg0KPiA+IEkyQ19GVU5DX1BST1RP
+Q09MX01BTkdMSU5HICovDQo+ID4gKyNkZWZpbmUgSTJDX01fUkVWX0RJUl9BRERSCTB4MjAwMAkv
+KiBpZg0KPiA+IEkyQ19GVU5DX1BST1RPQ09MX01BTkdMSU5HICovDQo+ID4gKyNkZWZpbmUgSTJD
+X01fTk9TVEFSVAkJMHg0MDAwCS8qIGlmDQo+ID4gSTJDX0ZVTkNfTk9TVEFSVCAqLw0KPiA+ICsj
+ZGVmaW5lIEkyQ19NX1NUT1AJCTB4ODAwMAkvKiBpZg0KPiA+IEkyQ19GVU5DX1BST1RPQ09MX01B
+TkdMSU5HICovDQo+ID4gwqAJX191MTYgbGVuOwkJLyogbXNnIGxlbmd0aAkJCQ0KPiA+IAkqLw0K
+PiA+IMKgCV9fdTggKmJ1ZjsJCS8qIHBvaW50ZXIgdG8gbXNnIGRhdGEJCQ0KPiA+IAkqLw0KPiA+
+IMKgfTsNCg0KLS0gDQpBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2Y2hlbmtvQGludGVsLmNv
+bT4NCkludGVsIEZpbmxhbmQgT3kNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpJbnRlbCBGaW5sYW5kIE95ClJlZ2lz
+dGVyZWQgQWRkcmVzczogUEwgMjgxLCAwMDE4MSBIZWxzaW5raSAKQnVzaW5lc3MgSWRlbnRpdHkg
+Q29kZTogMDM1NzYwNiAtIDQgCkRvbWljaWxlZCBpbiBIZWxzaW5raSAKClRoaXMgZS1tYWlsIGFu
+ZCBhbnkgYXR0YWNobWVudHMgbWF5IGNvbnRhaW4gY29uZmlkZW50aWFsIG1hdGVyaWFsIGZvcgp0
+aGUgc29sZSB1c2Ugb2YgdGhlIGludGVuZGVkIHJlY2lwaWVudChzKS4gQW55IHJldmlldyBvciBk
+aXN0cmlidXRpb24KYnkgb3RoZXJzIGlzIHN0cmljdGx5IHByb2hpYml0ZWQuIElmIHlvdSBhcmUg
+bm90IHRoZSBpbnRlbmRlZApyZWNpcGllbnQsIHBsZWFzZSBjb250YWN0IHRoZSBzZW5kZXIgYW5k
+IGRlbGV0ZSBhbGwgY29waWVzLgo=
