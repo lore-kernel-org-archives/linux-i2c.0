@@ -1,80 +1,85 @@
-From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Subject: Re: Handling clocks on external busses
-Date: Mon, 4 Apr 2016 10:57:20 +0100
-Message-ID: <20160404095720.GJ31814@localhost.localdomain>
-References: <20151124173718.GK18889@ck-lbox>
- <20151202125855.GB6058@localhost.localdomain>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 01/18] i2c: guarantee that I2C_M_RD will be 0x0001
+ forever
+Date: Mon, 04 Apr 2016 13:26:11 +0300
+Message-ID: <1459765571.2503.15.camel@linux.intel.com>
+References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
+	 <1459709101-24462-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-clk-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20151202125855.GB6058@localhost.localdomain>
-Sender: linux-clk-owner@vger.kernel.org
-To: linux-clk@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux@arm.linux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, broonie@kernel.org, wsa@the-dreams.de
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:15480 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754611AbcDDKZP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 4 Apr 2016 06:25:15 -0400
+In-Reply-To: <1459709101-24462-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Wed, Dec 02, 2015 at 12:58:55PM +0000, Charles Keepax wrote:
-> On Tue, Nov 24, 2015 at 05:37:18PM +0000, Charles Keepax wrote:
-> > Hi,
-> > 
-> > When a clock driver is controlling a clock that is controlled
-> > over I2C / SPI, we need to perform a write on that bus to enable
-> > the clock. However, such busses often have their own clocks that
-> > must be enabled. Since all clock prepares are controlled under
-> > one large mutex this easily causes deadlock. The device is
-> > waiting for the I2C / SPI write to complete and the I2C / SPI
-> > driver is waiting for the clock prepare lock to be released so it
-> > can enable its own clock.
-> > 
-> > I have had a bit of a search and it seems the only really advice
-> > kicking about is that all I2C / SPI drivers should leave the
-> > clock prepared all the time. Is that intended to be the long term
-> > solution, should I treat not leaving the clock prepared as a bug?
-> > 
-> > Thanks,
-> > Charles
-> 
-> Adding a few more people for visibility.
-> 
-> So after a bit more digging it seems this has been mitigated slightly
-> as a lot of SPI driver have been updated to execute transfers in
-> thread rather than from a worker thread and it seems the clock
-> framework lets you re-enter the locked sections if called from the
-> same thread.
-> 
-> I am looking at moving some (in mainline) clocking code into an actual
-> clocking driver (for a SPI/I2C audio CODEC) but I am rather nervous
-> about this causing problems for customers with random deadlocks.
-> 
-> I guess the naive solution looks like individual locks per clock, but
-> from what I have been able to google it looks like there are some
-> challenges with that approach, does anyone have any links to previous
-> discussions on that? And any suggestions on how I might approach
-> this?
-> 
-> Thanks,
-> Charles
+On Sun, 2016-04-03 at 20:44 +0200, Wolfram Sang wrote:
+> There is code out there in user space and kernel space which relies
+> on
+> I2C_M_RD being bit 0 to simplify their bit operations. Add a comment
+> to
+> make sure this will never break. Do proper sorting of the defines
+> while
+> we are here.
 
-Hi guys,
+Didn't see a comment as stated though.
 
-Still struggling with this, basically the issue is that I need to
-add a clock DT binding so a clock source can be user controlled.
-But I can't find anyway to control a clock
-that is behind a SPI interface reliably. Yes if the SPI transfer
-gets executed in thread things work because of the re-entrant
-clock locking, but when that doesn't happen and the SPI core punts
-this to its worker thread things lock up. I also tried using
-async SPI calls, which technically violates the requirement then
-the clock is prepared before prepare returns although in our case
-this doesn't really matter, but even that can potentially cause
-issues as you have a potential mutex inversion (between the SPI
-bus lock and the clock prepare lock).
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+> =C2=A0include/uapi/linux/i2c.h | 13 +++++++------
+> =C2=A01 file changed, 7 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+> index b0a7dd61eb353a..adcbef4bff610a 100644
+> --- a/include/uapi/linux/i2c.h
+> +++ b/include/uapi/linux/i2c.h
+> @@ -68,14 +68,15 @@
+> =C2=A0struct i2c_msg {
+> =C2=A0	__u16 addr;	/* slave address			*
+> /
+> =C2=A0	__u16 flags;
+> -#define I2C_M_TEN		0x0010	/* this is a ten bit
+> chip address */
+> =C2=A0#define I2C_M_RD		0x0001	/* read data, from
+> slave to master */
+> -#define I2C_M_STOP		0x8000	/* if
+> I2C_FUNC_PROTOCOL_MANGLING */
+> -#define I2C_M_NOSTART		0x4000	/* if
+> I2C_FUNC_NOSTART */
+> -#define I2C_M_REV_DIR_ADDR	0x2000	/* if
+> I2C_FUNC_PROTOCOL_MANGLING */
+> -#define I2C_M_IGNORE_NAK	0x1000	/* if
+> I2C_FUNC_PROTOCOL_MANGLING */
+> -#define I2C_M_NO_RD_ACK		0x0800	/* if
+> I2C_FUNC_PROTOCOL_MANGLING */
+> +					/* I2C_M_RD is guaranteed to
+> be 0x0001! */
+> +#define I2C_M_TEN		0x0010	/* this is a ten bit
+> chip address */
+> =C2=A0#define I2C_M_RECV_LEN		0x0400	/* length will
+> be first received byte */
+> +#define I2C_M_NO_RD_ACK		0x0800	/* if
+> I2C_FUNC_PROTOCOL_MANGLING */
+> +#define I2C_M_IGNORE_NAK	0x1000	/* if
+> I2C_FUNC_PROTOCOL_MANGLING */
+> +#define I2C_M_REV_DIR_ADDR	0x2000	/* if
+> I2C_FUNC_PROTOCOL_MANGLING */
+> +#define I2C_M_NOSTART		0x4000	/* if
+> I2C_FUNC_NOSTART */
+> +#define I2C_M_STOP		0x8000	/* if
+> I2C_FUNC_PROTOCOL_MANGLING */
+> =C2=A0	__u16 len;		/* msg length		=09
+> 	*/
+> =C2=A0	__u8 *buf;		/* pointer to msg data	=09
+> 	*/
+> =C2=A0};
 
-How would we feel about just adding the clock binding at the
-moment and parsing it manually to set the clock source? Then we
-could add a proper clock driver once the locking is fixed in the
-clock framework.
-
-Thanks,
-Charles
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
