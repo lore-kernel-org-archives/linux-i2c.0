@@ -1,85 +1,54 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 01/18] i2c: guarantee that I2C_M_RD will be 0x0001
- forever
-Date: Mon, 04 Apr 2016 13:26:11 +0300
-Message-ID: <1459765571.2503.15.camel@linux.intel.com>
-References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
-	 <1459709101-24462-2-git-send-email-wsa@the-dreams.de>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [RFC PATCH 06/10] spi: add support for ACPI reconfigure notifications
+Date: Mon, 4 Apr 2016 13:25:56 +0300
+Message-ID: <CAE1zotKDZd2mYmzoQvCPgVrZ5vfOrPDtBRzTscdsqrZbT8Z+cg@mail.gmail.com>
+References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
+	<1459417026-6697-7-git-send-email-octavian.purdila@intel.com>
+	<20160331172935.GL2350@sirena.org.uk>
+	<CAE1zotJbUGBOUF-4-XAx0DUkj55egOMXVn9FzjV3Fdj4MYxD0Q@mail.gmail.com>
+	<20160401140856.GW2350@sirena.org.uk>
+	<CAJZ5v0itmFDdPi6vJmsheEHADEwmeTNgCQ5iVroJfV=o6Wof3A@mail.gmail.com>
+	<20160402162449.GB2350@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:15480 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754611AbcDDKZP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 4 Apr 2016 06:25:15 -0400
-In-Reply-To: <1459709101-24462-2-git-send-email-wsa@the-dreams.de>
+Received: from mail-lb0-f170.google.com ([209.85.217.170]:36034 "EHLO
+	mail-lb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753979AbcDDKZ6 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 4 Apr 2016 06:25:58 -0400
+Received: by mail-lb0-f170.google.com with SMTP id qe11so153626556lbc.3
+        for <linux-i2c@vger.kernel.org>; Mon, 04 Apr 2016 03:25:57 -0700 (PDT)
+In-Reply-To: <20160402162449.GB2350@sirena.org.uk>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
 
-On Sun, 2016-04-03 at 20:44 +0200, Wolfram Sang wrote:
-> There is code out there in user space and kernel space which relies
-> on
-> I2C_M_RD being bit 0 to simplify their bit operations. Add a comment
-> to
-> make sure this will never break. Do proper sorting of the defines
-> while
-> we are here.
+On Sat, Apr 2, 2016 at 7:24 PM, Mark Brown <broonie@kernel.org> wrote:
+> On Fri, Apr 01, 2016 at 09:26:38PM +0200, Rafael J. Wysocki wrote:
+>> On Fri, Apr 1, 2016 at 4:08 PM, Mark Brown <broonie@kernel.org> wrote:
+>
+>> > That's not the point.  The point is that since the handling is identical
+>> > why are we handling it through exactly the same code?
+>
+>> I think that during the initial enumeration the controller driver's
+>> probe walks the children and creates device objects for them.  When a
+>> table is loaded later, the controller driver has been probed already
+>> and there needs to be a way to trigger a walk over the (new) children
+>> from it.
+>
+>> Or a hook somewhere around acpi_platform_notify() is needed.
+>
+> What I don't understand is why the flow on inital probe isn't simply to
+> register the controller which then triggers the walk of the children.
+> That way any bus that supports initial probe also supports hotplug
+> without needing to go and manually add a second code path.
 
-Didn't see a comment as stated though.
+Do you mean register the notifier per controller instead of per
+subsystem? Either way we need changes at the subsystem level and I
+choose to follow the device tree implementation for consistency.
 
->=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
-> =C2=A0include/uapi/linux/i2c.h | 13 +++++++------
-> =C2=A01 file changed, 7 insertions(+), 6 deletions(-)
->=20
-> diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
-> index b0a7dd61eb353a..adcbef4bff610a 100644
-> --- a/include/uapi/linux/i2c.h
-> +++ b/include/uapi/linux/i2c.h
-> @@ -68,14 +68,15 @@
-> =C2=A0struct i2c_msg {
-> =C2=A0	__u16 addr;	/* slave address			*
-> /
-> =C2=A0	__u16 flags;
-> -#define I2C_M_TEN		0x0010	/* this is a ten bit
-> chip address */
-> =C2=A0#define I2C_M_RD		0x0001	/* read data, from
-> slave to master */
-> -#define I2C_M_STOP		0x8000	/* if
-> I2C_FUNC_PROTOCOL_MANGLING */
-> -#define I2C_M_NOSTART		0x4000	/* if
-> I2C_FUNC_NOSTART */
-> -#define I2C_M_REV_DIR_ADDR	0x2000	/* if
-> I2C_FUNC_PROTOCOL_MANGLING */
-> -#define I2C_M_IGNORE_NAK	0x1000	/* if
-> I2C_FUNC_PROTOCOL_MANGLING */
-> -#define I2C_M_NO_RD_ACK		0x0800	/* if
-> I2C_FUNC_PROTOCOL_MANGLING */
-> +					/* I2C_M_RD is guaranteed to
-> be 0x0001! */
-> +#define I2C_M_TEN		0x0010	/* this is a ten bit
-> chip address */
-> =C2=A0#define I2C_M_RECV_LEN		0x0400	/* length will
-> be first received byte */
-> +#define I2C_M_NO_RD_ACK		0x0800	/* if
-> I2C_FUNC_PROTOCOL_MANGLING */
-> +#define I2C_M_IGNORE_NAK	0x1000	/* if
-> I2C_FUNC_PROTOCOL_MANGLING */
-> +#define I2C_M_REV_DIR_ADDR	0x2000	/* if
-> I2C_FUNC_PROTOCOL_MANGLING */
-> +#define I2C_M_NOSTART		0x4000	/* if
-> I2C_FUNC_NOSTART */
-> +#define I2C_M_STOP		0x8000	/* if
-> I2C_FUNC_PROTOCOL_MANGLING */
-> =C2=A0	__u16 len;		/* msg length		=09
-> 	*/
-> =C2=A0	__u8 *buf;		/* pointer to msg data	=09
-> 	*/
-> =C2=A0};
-
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+The other reason is that (pending other ACPICA changes) we can add
+other notification events in the future such as node added or removed
+(just like device tree), and in that case the probe and hotplug
+handling would be different (and a bit more efficient).
