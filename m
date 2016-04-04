@@ -1,62 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mux: demux-pinctrl: Update docs to new
- sysfs-attributes
-Date: Mon, 4 Apr 2016 12:46:26 +0200
-Message-ID: <20160404104626.GB1383@katana>
-References: <1459694536-23144-1-git-send-email-wsa@the-dreams.de>
- <f78524a192204258911c64a633e10d3c@EMAIL.axentia.se>
+Subject: Re: [PATCH 01/18] i2c: guarantee that I2C_M_RD will be 0x0001 forever
+Date: Mon, 4 Apr 2016 12:47:19 +0200
+Message-ID: <20160404104719.GC1383@katana>
+References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
+ <1459709101-24462-2-git-send-email-wsa@the-dreams.de>
+ <1459765571.2503.15.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+pHx0qQiF2pBVqBT"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="WplhKdTI2c8ulnbP"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:60337 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754504AbcDDKrX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 4 Apr 2016 06:47:23 -0400
 Content-Disposition: inline
-In-Reply-To: <f78524a192204258911c64a633e10d3c@EMAIL.axentia.se>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Ben Hutchings <ben.hutchings@codethink.co.uk>
+In-Reply-To: <1459765571.2503.15.camel@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org
 
 
---+pHx0qQiF2pBVqBT
+--WplhKdTI2c8ulnbP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Apr 03, 2016 at 10:13:57PM +0000, Peter Rosin wrote:
-> Wolfram Sang wrote:
-> > Update the docs according to the recent code changes, too.
-> >=20
-> > Fixes: c0c508a418f9da ("i2c: mux: demux-pinctrl: Clean up sysfs attribu=
-tes")
-> > Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> Wolfram, in case it wasn't obvious, I just wanted to clarify that I'm
-> perfectly happy with you handling everything about demux-pinctrl.
-> If that suits you?
+> Didn't see a comment as stated though.
 
-Sure, I don't expect there much to happen anyhow.
+Yeah, it is hidden in the refactoring :/
+
+ > +					/* I2C_M_RD is guaranteed to  be 0x0001! */
+
+   Wolfram
 
 
---+pHx0qQiF2pBVqBT
+--WplhKdTI2c8ulnbP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXAkYCAAoJEBQN5MwUoCm2CQIP/RCcjEt6Qd2njz5XSEPoTxB0
-hIpKQfvwzPiCzqGhdwE2+vIYaPDjKXRzMxY1a/6ORoooMHGuI4lvV1G/eZl+TCzG
-jY8nfP97UKOv5IeSrlh+AhJPwlcFBEaSL+TUW1RPy91AwxxQTXlruiUPHK08ALZd
-p4BBrIGiTyKIxfATEqTjMl51/syQUDeRyzehhcMUJ9JJ2jS5bmT0ZYxBx7jpGztp
-/LxJ49i9Nz8mDvAulrGW2TVQ5kvPFG6+GpmgQZjFFNLvabWlSdL1/DoEFpZY61wR
-eHozOSshkq1MUiVsm72KA1yWHyK06cqjn+lhYmvUQrwFzp8BerCsX1RniBG9Qy+7
-UvGN85hNFRXkV5qallgNZRuc6Az8+1Bsb8+KPC4nyfQF+ZLyPg39+m21sGJySavN
-AfOGGcKfEk9Te0zNDnPPVCRAqK8ycx8VTKXAY0EDSQrvP6M6HcZAc/9d5NTPGGAH
-J76lItN0Ie7ENT2eK4+3XIa9NryMkn+ZYp2vu4FHC660DFOSXPLBY3Nwa04PmwyM
-sZlUI6F03e07Z1Rzxc9BP/RfDCCrFdZJvwvf5eVX6zOfRXhp/hwf7B/dbSxGfCmi
-8XwzOLE1yPFqnUlCqfFPNAj5JiMLzUaktd5ZSyMrgBLoz3xjSAh+tKX/SCKdMExZ
-Kjy3m6IkdYukrKRnYzP1
-=m6rO
+iQIcBAEBAgAGBQJXAkY3AAoJEBQN5MwUoCm2avoQAIfW7VDm5RxJV9l32jBpSIHO
+b3H/qi5VOjOZIkaiiCSSU7yFUl/UFS+s3EMTInUs+cWTteO0dGKkGaVRUSvLsJOH
+PNJeRXUxRQsdXl5w//PPN3PdzNTaEOG11rvqcWpZ44zMweIRI8UzMmFD3qmTRUNO
+8mgvpq+zYxPylItJ82lePhRvgYgPOD4hC3314aqbswP0bx5P6AbfIA9KRR23Cw5W
+OMMVI0KrjPfPLU+LVM1wfO/1PbbNI3xDmaGlo0MBvQgJBLPlYLeXPMX2osQ4IW+8
+LGrOt1SkVkv7HBZwP+0lgwfz60+kpUIWI4yGXO8QsUhKp/dA50m/CTWYs+7ePU4z
+LAKYrlNAsaPRY1elybk1gcTk4OiKEl/Q5yEj9bxqJs5t3/s2qX0spJ7UFvxAfC5Q
+dbTkrLVGpVkIH+mngWImjHs4526ibESKyKxAHT/nD/w4s4kkNHe7Hsz0MoahrpR2
+W2eJaeoxb4WTw0wYYHV0rxWbS1rvsq1l7kOUiSHr8WZhZG2SwKZL+OK/lqVmN52G
+/ItEijLdIxMKHxjtLvOMbT/rUHd1nVJUlQdsSOkXXbjTf5PFB4hxHWuH2aZxT6K1
+DR7f/Iodn6M8JCsEzSQgjo/ayRBL0YhWNPvSskshipE1Q3P0Vk2EHgGxpYz/9Asl
+nNUOPRkzOcfBC/dGhZM0
+=Jm/C
 -----END PGP SIGNATURE-----
 
---+pHx0qQiF2pBVqBT--
+--WplhKdTI2c8ulnbP--
