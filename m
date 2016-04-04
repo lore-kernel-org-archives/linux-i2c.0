@@ -1,54 +1,46 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [RFC PATCH 06/10] spi: add support for ACPI reconfigure notifications
-Date: Mon, 4 Apr 2016 13:25:56 +0300
-Message-ID: <CAE1zotKDZd2mYmzoQvCPgVrZ5vfOrPDtBRzTscdsqrZbT8Z+cg@mail.gmail.com>
-References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
-	<1459417026-6697-7-git-send-email-octavian.purdila@intel.com>
-	<20160331172935.GL2350@sirena.org.uk>
-	<CAE1zotJbUGBOUF-4-XAx0DUkj55egOMXVn9FzjV3Fdj4MYxD0Q@mail.gmail.com>
-	<20160401140856.GW2350@sirena.org.uk>
-	<CAJZ5v0itmFDdPi6vJmsheEHADEwmeTNgCQ5iVroJfV=o6Wof3A@mail.gmail.com>
-	<20160402162449.GB2350@sirena.org.uk>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 03/18] i2c: core: use new 8 bit address helper function
+Date: Mon, 04 Apr 2016 13:27:50 +0300
+Message-ID: <1459765670.2503.16.camel@linux.intel.com>
+References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
+	 <1459709101-24462-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lb0-f170.google.com ([209.85.217.170]:36034 "EHLO
-	mail-lb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753979AbcDDKZ6 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 4 Apr 2016 06:25:58 -0400
-Received: by mail-lb0-f170.google.com with SMTP id qe11so153626556lbc.3
-        for <linux-i2c@vger.kernel.org>; Mon, 04 Apr 2016 03:25:57 -0700 (PDT)
-In-Reply-To: <20160402162449.GB2350@sirena.org.uk>
+Received: from mga11.intel.com ([192.55.52.93]:20219 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754504AbcDDK0x (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 4 Apr 2016 06:26:53 -0400
+In-Reply-To: <1459709101-24462-4-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Sat, Apr 2, 2016 at 7:24 PM, Mark Brown <broonie@kernel.org> wrote:
-> On Fri, Apr 01, 2016 at 09:26:38PM +0200, Rafael J. Wysocki wrote:
->> On Fri, Apr 1, 2016 at 4:08 PM, Mark Brown <broonie@kernel.org> wrote:
->
->> > That's not the point.  The point is that since the handling is identical
->> > why are we handling it through exactly the same code?
->
->> I think that during the initial enumeration the controller driver's
->> probe walks the children and creates device objects for them.  When a
->> table is loaded later, the controller driver has been probed already
->> and there needs to be a way to trigger a walk over the (new) children
->> from it.
->
->> Or a hook somewhere around acpi_platform_notify() is needed.
->
-> What I don't understand is why the flow on inital probe isn't simply to
-> register the controller which then triggers the walk of the children.
-> That way any bus that supports initial probe also supports hotplug
-> without needing to go and manually add a second code path.
+On Sun, 2016-04-03 at 20:44 +0200, Wolfram Sang wrote:
 
-Do you mean register the notifier per controller instead of per
-subsystem? Either way we need changes at the subsystem level and I
-choose to follow the device tree implementation for consistency.
+Even simple short commit message? Same to the rest.
 
-The other reason is that (pending other ACPICA changes) we can add
-other notification events in the future such as node added or removed
-(just like device tree), and in that case the probe and hotplug
-handling would be different (and a bit more efficient).
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+> =C2=A0drivers/i2c/i2c-core.c | 2 +-
+> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 0f2f8484e8ec1f..778d316de9f8ca 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2652,7 +2652,7 @@ static u8 i2c_smbus_pec(u8 crc, u8 *p, size_t
+> count)
+> =C2=A0static u8 i2c_smbus_msg_pec(u8 pec, struct i2c_msg *msg)
+> =C2=A0{
+> =C2=A0	/* The address will be sent first */
+> -	u8 addr =3D (msg->addr << 1) | !!(msg->flags & I2C_M_RD);
+> +	u8 addr =3D i2c_8bit_addr_from_msg(msg);
+> =C2=A0	pec =3D i2c_smbus_pec(pec, &addr, 1);
+> =C2=A0
+> =C2=A0	/* The data buffer follows */
+
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
