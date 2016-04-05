@@ -1,70 +1,105 @@
-From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [v7, 0/5] Fix eSDHC host version register bug
-Date: Tue, 5 Apr 2016 13:27:58 +0200
-Message-ID: <CAPDyKFqgMCvbqMYZ-uM-rTnVvfJkCYbhv2kucCRyNyc9FWoR=Q@mail.gmail.com>
-References: <1459480051-3701-1-git-send-email-yangbo.lu@nxp.com>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH 06/10] spi: add support for ACPI reconfigure notifications
+Date: Tue, 5 Apr 2016 14:49:13 +0300
+Message-ID: <CAE1zot+wvU_he-6cFQi1np9X1=FcXWoF-mbxYDRYUkyOT+7nyQ@mail.gmail.com>
+References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
+	<1459417026-6697-7-git-send-email-octavian.purdila@intel.com>
+	<20160331172935.GL2350@sirena.org.uk>
+	<CAE1zotJbUGBOUF-4-XAx0DUkj55egOMXVn9FzjV3Fdj4MYxD0Q@mail.gmail.com>
+	<20160401140856.GW2350@sirena.org.uk>
+	<CAJZ5v0itmFDdPi6vJmsheEHADEwmeTNgCQ5iVroJfV=o6Wof3A@mail.gmail.com>
+	<20160402162449.GB2350@sirena.org.uk>
+	<CAE1zotKDZd2mYmzoQvCPgVrZ5vfOrPDtBRzTscdsqrZbT8Z+cg@mail.gmail.com>
+	<20160404160327.GH2350@sirena.org.uk>
+	<CAE1zot+ESGBEYeUbLTreKfkc-6B45uQq3PWhhRfBo1AWd-7Vxw@mail.gmail.com>
+	<CAJZ5v0gV8N6zgVrwtRFaY98Wv1HsoKs+4=U-s_V29FSpCdFW3g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <1459480051-3701-1-git-send-email-yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhao Qiang <qiang.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mmc <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, scott.wood-3arQi8VN3Tc@public.gmane.org, xiaobo.xie-3arQi8VN3Tc@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, leoyang.li-3arQi8VN3Tc@public.gmane.org, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAJZ5v0gV8N6zgVrwtRFaY98Wv1HsoKs+4=U-s_V29FSpCdFW3g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 1 April 2016 at 05:07, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org> wrote:
-> This patchset is used to fix a host version register bug in the T4240-R1.0-R2.0
-> eSDHC controller. To get the SoC version and revision, it's needed to add the
-> GUTS driver to access the global utilities registers.
+On Tue, Apr 5, 2016 at 12:18 AM, Rafael J. Wysocki <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> On Mon, Apr 4, 2016 at 9:34 PM, Octavian Purdila
+> <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+>> On Mon, Apr 4, 2016 at 7:03 PM, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+>>> On Mon, Apr 04, 2016 at 01:25:56PM +0300, Octavian Purdila wrote:
+>>>> On Sat, Apr 2, 2016 at 7:24 PM, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+>>>
+>>>> > What I don't understand is why the flow on inital probe isn't simply to
+>>>> > register the controller which then triggers the walk of the children.
+>>>> > That way any bus that supports initial probe also supports hotplug
+>>>> > without needing to go and manually add a second code path.
+>>>
+>>>> Do you mean register the notifier per controller instead of per
+>>>> subsystem? Either way we need changes at the subsystem level and I
+>>>> choose to follow the device tree implementation for consistency.
+>>>
+>>> No!  I mean use the exact same callback you've got now for everything.
+>>>
+>>>> The other reason is that (pending other ACPICA changes) we can add
+>>>> other notification events in the future such as node added or removed
+>>>> (just like device tree), and in that case the probe and hotplug
+>>>> handling would be different (and a bit more efficient).
+>>>
+>>> Why is probe different to hotplug?  We don't need to do that in the
+>>> normal driver model.
+>>
+>> There might be some confusion with the term, I am referring to slave
+>> hotplug, not controller hotplug.
+>>
+>> The way I see it, there are two logical operations: probe of a
+>> controller and the associated enumeration of the SPI slaves for that
+>> bus and "hotplug" of new SPI slaves and the enumeration of those
+>> particular slaves.
+>>
+>> When we probe the controller we search DT/ACPI and enumerate all the
+>> slaves for *that* controller.
+>>
+>> When a slave hotplug happens for device tree we get a device node
+>> notification and we can instantiate the SPI slave based on that info.
+>> In case of ACPI, (at this point) we get a global callback and in that
+>> callback we need to iterate through *all* controllers.
 >
-> So, the first three patches are to add the GUTS driver.
-> The following two patches are to enable GUTS driver support to get SVR in eSDHC
-> driver and fix host version for T4240.
+> Is that really necessary?
 >
-> Yangbo Lu (5):
->   ARM64: dts: ls2080a: add device configuration node
->   soc: fsl: add GUTS driver for QorIQ platforms
->   dt: move guts devicetree doc out of powerpc directory
->   powerpc/fsl: move mpc85xx.h to include/linux/fsl
->   mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
->
->  .../bindings/{powerpc => soc}/fsl/guts.txt         |   3 +
->  arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi     |   6 ++
->  arch/powerpc/kernel/cpu_setup_fsl_booke.S          |   2 +-
->  drivers/clk/clk-qoriq.c                            |   3 +-
->  drivers/i2c/busses/i2c-mpc.c                       |   2 +-
->  drivers/iommu/fsl_pamu.c                           |   3 +-
->  drivers/mmc/host/Kconfig                           |   1 +
->  drivers/mmc/host/sdhci-of-esdhc.c                  |  23 ++++
->  drivers/net/ethernet/freescale/gianfar.c           |   2 +-
->  drivers/soc/Kconfig                                |   2 +-
->  drivers/soc/fsl/Kconfig                            |   8 ++
->  drivers/soc/fsl/Makefile                           |   1 +
->  drivers/soc/fsl/guts.c                             | 119 +++++++++++++++++++++
->  include/linux/fsl/guts.h                           |  98 ++++++++---------
->  .../asm/mpc85xx.h => include/linux/fsl/svr.h       |   4 +-
->  15 files changed, 219 insertions(+), 58 deletions(-)
->  rename Documentation/devicetree/bindings/{powerpc => soc}/fsl/guts.txt (91%)
->  create mode 100644 drivers/soc/fsl/Kconfig
->  create mode 100644 drivers/soc/fsl/guts.c
->  rename arch/powerpc/include/asm/mpc85xx.h => include/linux/fsl/svr.h (97%)
->
-> --
-> 2.1.0.27.g96db324
->
+> The namespace rescan could notify the parent of a new node in
+> acpi_default_enumeration(), couldn't it?
 
-I was about to queue this for next, when I noticed that checkpatch is
-complaining/warning lots about these patches. Can you please a round
-of checkpatch and fix what makes sense.
+We could do that, with some complexity, but I am not sure if it is
+worth it - see below. And in either case I still don't see how we can
+avoid two enumeration paths: one from the probe of the controller ->
+spi_register_master() -> acpi_register_spi_devices()  and one from the
+notification handler -> acpi_register_spi_devices(). Both will end up
+are calling the same enumeration function but there are still two
+paths.
 
-Kind regards
-Uffe
+Even right now, in the case of dynamic DT, we have the two enumeration paths.
+
+If we really want to have a single path for ACPI enumeration we could
+do that by using an ACPI SPI bridge driver or scan handlers after
+extending the matching mechanisms. But we would still need to modify
+the SPI subsystem and I don't think its worth it just to save a call
+to acpi_register_spi_devices() from spi_register_master().
+
+Now for parent notification complexity: in the case of SPI we can
+easily to this because current ACPI SPI enumeration supports only
+direct children as slaves. However, on I2C we can have an unrelated
+node as a slave - that is why the I2C scanning searches the whole
+namespaces for references to a particular i2c_adapter. So, we would
+need to retrieve the parent node from the namespace node information
+which means that we will do SPI specific stuff in ACPI generic code. I
+don't think it is a big issue, because we already treat SPI / I2C
+special, right?
+
+Once we have the parent handle we would still have to iterate through
+all controllers to get the spi_master matching the ACPI handle. It is
+a bit more efficient then global notification, but probably won't
+matter in practice.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
