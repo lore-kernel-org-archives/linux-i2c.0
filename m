@@ -1,80 +1,40 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [RFC PATCH 02/10] acpi: install SSDT tables from initrd
-Date: Tue, 5 Apr 2016 10:23:08 +0300
-Message-ID: <CAE1zotJL9QW0V+k-4VJBBFuQ+kCcjGNUJ8W1LKd54Xdp++z3SQ@mail.gmail.com>
-References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
-	<1459417026-6697-3-git-send-email-octavian.purdila@intel.com>
-	<1AE640813FDE7649BE1B193DEA596E883BB66258@SHSMSX101.ccr.corp.intel.com>
-	<CAE1zotJ1fa4m-_FO3PUQK8_p0vHcfWD5TmuMdxOSHDjku421pA@mail.gmail.com>
-	<CAE1zotLX8L=jpJRYtUddtpYmgc0NxqmtdDjcQPWWg8KTO8PH5A@mail.gmail.com>
-	<1AE640813FDE7649BE1B193DEA596E883BB66700@SHSMSX101.ccr.corp.intel.com>
+From: Peter Rosin <peda@lysator.liu.se>
+Subject: Re: [PATCH v6 14/24] of/unittest: convert to use an explicit i2c
+ mux core
+Date: Tue, 05 Apr 2016 09:42:40 +0200
+Message-ID: <57036C70.5070301@lysator.liu.se>
+References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se> <1459673574-11440-15-git-send-email-peda@lysator.liu.se> <20160404051628.GO17806@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1AE640813FDE7649BE1B193DEA596E883BB66700@SHSMSX101.ccr.corp.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Zheng, Lv" <lv.zheng@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Tirdea, Irina" <irina.tirdea@intel.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20160404051628.GO17806@rob-hp-laptop>
+Sender: linux-doc-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Kalle Valo <kvalo@codeaurora.org>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Adriana Reus <adriana.reus@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Matt
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 5, 2016 at 3:49 AM, Zheng, Lv <lv.zheng@intel.com> wrote:
-> Hi,
->
->> From: Octavian Purdila [mailto:octavian.purdila@intel.com]
->> Subject: Re: [RFC PATCH 02/10] acpi: install SSDT tables from initrd
+On 2016-04-04 07:16, Rob Herring wrote:
+> On Sun, Apr 03, 2016 at 10:52:44AM +0200, Peter Rosin wrote:
+>> From: Peter Rosin <peda@axentia.se>
 >>
->> On Fri, Apr 1, 2016 at 1:11 PM, Octavian Purdila
->> <octavian.purdila@intel.com> wrote:
->> > On Fri, Apr 1, 2016 at 8:05 AM, Zheng, Lv <lv.zheng@intel.com> wrote:
->> >> Hi,
->> >>
->> >> IMO, there is already a similar function upstreamed:
->> >>
->> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c85c
->> c81
->> >> Could it work for your use case?
->> >
->> > Yes, it is basically the same.
->> >
->> > The only difference is on how we handle taint. I think we should use a
->> > new taint for overlays and that we don't need to disable lockdep.
->> >
->> > BTW, why is lockdep disabled when we override?
+>> Allocate an explicit i2c mux core to handle parent and child adapters
+>> etc. Update the select op to be in terms of the i2c mux core instead
+>> of the child adapter.
 >>
->> The other thing I forgot to mention is that I think we should allow
->> installing new tables even if CONFIG_ACPI_INITRD_TABLE_OVERRIDE is not
->> selected. IMO the override and overlay functionality is different,
->> with the latter being more then a debug option.
-> [Lv Zheng]
-> I don't think so. The initrd override mechanism is not dependent on CONFIG_ACPI_DEBUG.
-> According to the spec, we can allow a higher versioning same table (same table sig, table id, table oem id) to override the old tables as a patching functionality.
-> So both the functionalities are not debug options and serve for the same purpose from this point of view.
-> And IMO that's why the initrd override mechanism needn't be dependent on CONFIG_ACPI_DEBUG.
->
+>> Signed-off-by: Peter Rosin <peda@axentia.se>
+>> ---
+>>  drivers/of/unittest.c | 40 +++++++++++++++-------------------------
+>>  1 file changed, 15 insertions(+), 25 deletions(-)
+> 
+> I assume you ran the unittest...
 
-The problem is that CONFIG_ACPI_INITRD_TABLE_OVERRIDE is presented as
-a debug option in Documentation/initrd_table_override.txt and most
-distributions are not selecting it which makes it hard to use it in
-practice.
+It's one of the few drivers I do have hardware for, so yes, I did
+indeed test it!
 
-> I'm really OK with removing the acpi_table_taint() for CONFIG_ACPI_INITRD_TABLE_OVERRIDE but leaving some info messages indicating the table upgrades.
-> I don't think this mechanism is unsafe.
-> It happens during a initialization step occurring before the table is loaded and hence should be safe even the synchronization is not so robust in ACPICA.
-> And with the revision support added, we should be able to allow vendors to update the buggy tables.
-> That means the tables may be originated from the safe sources - the vendors.
->
->>
->> I will prepare a patch for the next version of the series to decouple
->> installing new tables from CONFIG_ACPI_INITRD_TABLE_OVERRIDE.
-> [Lv Zheng]
-> I don't think they need to be decoupled.
-> The use case is:
-> If there is an ACPI table in initrd image and:
-> 1. if the table's revision is higher than the existing one, override the existing one;
-> 2. if the table is a brand new one, install it.
->
+> Acked-by: Rob Herring <robh@kernel.org>
 
-The implementation will stay the same of course, I was just suggesting
-to move CONFIG_ACPI_INITRD_TABLE_OVERRIDE in
-acpi_os_physical_table_override to allow new tables to be loaded even
-if the option is not selected.
+Thanks!
+
+Cheers,
+Peter
