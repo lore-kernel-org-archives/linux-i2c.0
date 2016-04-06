@@ -1,62 +1,87 @@
-From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [v7, 0/5] Fix eSDHC host version register bug
-Date: Wed, 6 Apr 2016 10:14:36 +0200
-Message-ID: <CAPDyKFp8GDzSkpbTKoRL=rwiBrsWmsgN95zB-QJwfZTnq4M8BA@mail.gmail.com>
-References: <1459480051-3701-1-git-send-email-yangbo.lu@nxp.com>
-	<CAPDyKFqgMCvbqMYZ-uM-rTnVvfJkCYbhv2kucCRyNyc9FWoR=Q@mail.gmail.com>
-	<HE1PR04MB0889D75DC56E180D3508E7A1F89F0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH 10/10] acpi: add support for loading SSDTs via configfs
+Date: Wed, 6 Apr 2016 21:46:51 +0300
+Message-ID: <CAE1zotKa+t5cxznWfPyQ599k9ZB=akOuEDZusWcJgzux8wqp5A@mail.gmail.com>
+References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
+	<1459417026-6697-11-git-send-email-octavian.purdila@intel.com>
+	<1AE640813FDE7649BE1B193DEA596E883BB66233@SHSMSX101.ccr.corp.intel.com>
+	<CAE1zotLgjfKvFr0W9CjFbbkxqM6erLGwv-aHzTt=qwdCPzGOhw@mail.gmail.com>
+	<1AE640813FDE7649BE1B193DEA596E883BB6677B@SHSMSX101.ccr.corp.intel.com>
+	<CAE1zotKDFLNP5JTnMiWOstE4DYBHVeyP902J9ixD+fJbFqSZ6Q@mail.gmail.com>
+	<1AE640813FDE7649BE1B193DEA596E883BB66B8C@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <HE1PR04MB0889D75DC56E180D3508E7A1F89F0-6LN7OEpIatX1kPMWxTxe+c9NdZoXdze2vxpqHgZTriW3zl9H0oFU5g@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, Scott Wood <scott.wood-3arQi8VN3Tc@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhao Qiang <qiang.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mmc <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM1dQTEkxZZdg@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1AE640813FDE7649BE1B193DEA596E883BB66B8C-0J0gbvR4kThpB2pF5aRoyrfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Apr 6, 2016 at 9:05 AM, Zheng, Lv <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+
+>> It is hard to create new kernel objects from sysfs. You need to resort
+>> to hacks like using new_table sysfs entries which does not map to a
+>> kernel object. Writes larger then PAGE_SIZE are impossible to handle
+>> with multiple open files because you have no open callback to create a
+>> file context. It is also not possible to do any clean-up because there
+>> is no close callback and if something goes wrong for example when
+>> trying to install the table you will leak the allocated memory.
 >>
->> I was about to queue this for next, when I noticed that checkpatch is
->> complaining/warning lots about these patches. Can you please a round of
->> checkpatch and fix what makes sense.
+>> configfs was designed for the specific purpose of creating kernel
+>> objects from userspace and addresses all of the limitations above (and
+>> some more).
 >>
->> Kind regards
->> Uffe
+>> Initially I started to implement this functionality via sysfs but I
+>> run into the issues mentioned above and decided to use configfs.
+> [Lv Zheng]
+> I can sense different difficulties from your descriptions.
+> Let me break it down into details.
 >
-> [Lu Yangbo-B47093] Sorry about this, Uffe...
-
-No worries!
-
-> Should I ignore the warnings that update MAINTAINERS?
-
-drivers/soc/fsl/guts.c isn't part of the MAINTAINERS file, it should be.
-
-I also realize that the FREESCALE QUICC ENGINE LIBRARY section
-drivers/soc/fsl/qe/* also need an active maintainer, as it's currently
-orphan.
-
-Perhaps we should have create a new section for drivers/soc/fsl/*
-instead that covers all of the above? Maybe you or Scott are
-interested to pick it up?
-
-I also noted that, "include/linux/fsl/" isn't present in MAINTAINERS,
-please add that as well.
-
-> Regarding the 'undocumented' warning, I will added a patch updates doc before all the patches, Ok?
-
-Yes, good!
-
+> We already have acpi_table_handler working there for creating new ACPI table entries for us.
+> Based on this facility, let's think about the following solution:
+> 1. sysfs presenting change
+> We can change the table file to a table directory whose name is in the following format:
+> TableSignature-OemId-OemTableId
+> Then we can get rid of the annoying numbered table name suffix first.
+> The numbered table name suffix cannot be kept consistent to reflect the real index if we allow tables to be dynamically loaded/unloaded.
 >
-> Thanks a lot :)
+> This is the first design difficulty we need to solve.
+>
+> 2. acpi_table_handler change
+> Now we can append 2 new events to acpi_table_handler - ACPI_TABLE_INSTALL/ACPI_TABLE_UNINSTALL.
+> With which, the sysfs entries can be created/deleted when the table is added to/removed from the global table list.
+> And this should be the working mechanism for us
+> So we actually don't have the trouble to deal with the new kernel object creation/deletion from sysfs.
+>
+> I agree the dynamic kernel object creation/deletion need special care.
+> But this actually is what a kernel engineer should do because this kind of things happen here and there throughout the kernel.
+> We should have already been used to that.
+>
+> This is the second engineering difficulty we need to face.
+>
+> 3. load/unload commanding
+> Now we need a character device in sysfs to handle load/unload command.
+> Well, there are many such kind of files in sysfs, for example, device nodes.
+> So this is not a non-achievable task, but just a difficult engineering task.
+> The system engineers need to be skillful enough to implement this.
+> Like the dynamic kernel object handling, we should have already been used to this.
+>
+>
+> If you still think this is difficult, the alternative choice is to use acpidbg char device's ioctl interface.
+> That could simplifies this task.
+> And since the ioctl interface is required by ACPICA disassembler, the work on that will be inherited by the disassembler porting.
 >
 
-Kind regards
-Uffe
+Why can't the dissembler access the tables through the existing sysfs interface?
+
+> This is the last engineering difficulty we need to face.
+>
+> So why can't these solutions work for us?
+>
+
+It can be done, but it is not the right way to do it, IMO.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
