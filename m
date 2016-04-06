@@ -1,76 +1,62 @@
-From: Jisheng Zhang <jszhang@marvell.com>
-Subject: [PATCH] i2c: designware-platdrv: get fast/std speed scl high/low count from DT
-Date: Wed, 6 Apr 2016 15:28:00 +0800
-Message-ID: <1459927680-5480-1-git-send-email-jszhang@marvell.com>
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [v7, 0/5] Fix eSDHC host version register bug
+Date: Wed, 6 Apr 2016 10:14:36 +0200
+Message-ID: <CAPDyKFp8GDzSkpbTKoRL=rwiBrsWmsgN95zB-QJwfZTnq4M8BA@mail.gmail.com>
+References: <1459480051-3701-1-git-send-email-yangbo.lu@nxp.com>
+	<CAPDyKFqgMCvbqMYZ-uM-rTnVvfJkCYbhv2kucCRyNyc9FWoR=Q@mail.gmail.com>
+	<HE1PR04MB0889D75DC56E180D3508E7A1F89F0@HE1PR04MB0889.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@marvell.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <HE1PR04MB0889D75DC56E180D3508E7A1F89F0-6LN7OEpIatX1kPMWxTxe+c9NdZoXdze2vxpqHgZTriW3zl9H0oFU5g@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, Scott Wood <scott.wood-3arQi8VN3Tc@public.gmane.org>
+Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhao Qiang <qiang.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mmc <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM1dQTEkxZZdg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Sometimes, it's convenient to define the scl's high/low count directly,
-e.g HW people would do some measurement then directly give out the
-optimum counts. Previously, we solved the sda falling time and scl
-falling time by i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt(), then put them
-into dt, but what we really care isn't the sda/scl falling time.
+>>
+>> I was about to queue this for next, when I noticed that checkpatch is
+>> complaining/warning lots about these patches. Can you please a round of
+>> checkpatch and fix what makes sense.
+>>
+>> Kind regards
+>> Uffe
+>
+> [Lu Yangbo-B47093] Sorry about this, Uffe...
 
->From another side, the dw_i2c_acpi_configure() on ACPI platform also
-get hcnt/lcnt values rather than the sda/scl falling time from ACPI
-method, we want similar feature for DT platforms.
+No worries!
 
-Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
----
- Documentation/devicetree/bindings/i2c/i2c-designware.txt | 16 ++++++++++++++++
- drivers/i2c/busses/i2c-designware-platdrv.c              |  8 ++++++++
- 2 files changed, 24 insertions(+)
+> Should I ignore the warnings that update MAINTAINERS?
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-index fee26dc..05176fbf 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-@@ -20,6 +20,22 @@ Optional properties :
-  - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
-    This value which is by default 300ns is used to compute the tHIGH period.
- 
-+ - i2c-ss-scl-high-count : should contain the standard speed i2c clock SCL high
-+   count. If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
-+   will be ignored.
-+
-+ - i2c-ss-scl-low-count : should contain the standard speed i2c clock SCL low
-+   count. If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
-+   will be ignored.
-+
-+ - i2c-fs-scl-high-count : should contain the fast speed i2c clock SCL high
-+   count. If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
-+   will be ignored.
-+
-+ - i2c-fs-scl-low-count : should contain the fast speed i2c clock SCL low
-+   count. If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
-+   will be ignored.
-+
- Example :
- 
- 	i2c@f0000 {
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index d656657..8739a60 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -188,6 +188,14 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 					 &dev->scl_falling_time);
- 		device_property_read_u32(&pdev->dev, "clock-frequency",
- 					 &clk_freq);
-+		device_property_read_u16(&pdev->dev, "i2c-ss-scl-high-count",
-+					 &dev->ss_hcnt);
-+		device_property_read_u16(&pdev->dev, "i2c-ss-scl-low-count",
-+					 &dev->ss_lcnt);
-+		device_property_read_u16(&pdev->dev, "i2c-fs-scl-high-count",
-+					 &dev->fs_hcnt);
-+		device_property_read_u16(&pdev->dev, "i2c-fs-scl-low-count",
-+					 &dev->fs_lcnt);
- 	}
- 
- 	if (has_acpi_companion(&pdev->dev))
--- 
-2.8.0.rc3
+drivers/soc/fsl/guts.c isn't part of the MAINTAINERS file, it should be.
+
+I also realize that the FREESCALE QUICC ENGINE LIBRARY section
+drivers/soc/fsl/qe/* also need an active maintainer, as it's currently
+orphan.
+
+Perhaps we should have create a new section for drivers/soc/fsl/*
+instead that covers all of the above? Maybe you or Scott are
+interested to pick it up?
+
+I also noted that, "include/linux/fsl/" isn't present in MAINTAINERS,
+please add that as well.
+
+> Regarding the 'undocumented' warning, I will added a patch updates doc before all the patches, Ok?
+
+Yes, good!
+
+>
+> Thanks a lot :)
+>
+
+Kind regards
+Uffe
