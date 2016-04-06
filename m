@@ -1,95 +1,86 @@
-From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-Subject: RE: [v7, 0/5] Fix eSDHC host version register bug
-Date: Wed, 6 Apr 2016 06:12:58 +0000
-Message-ID: <HE1PR04MB0889D75DC56E180D3508E7A1F89F0@HE1PR04MB0889.eurprd04.prod.outlook.com>
-References: <1459480051-3701-1-git-send-email-yangbo.lu@nxp.com>
-	<CAPDyKFqgMCvbqMYZ-uM-rTnVvfJkCYbhv2kucCRyNyc9FWoR=Q@mail.gmail.com>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [RFC PATCH 02/10] acpi: install SSDT tables from initrd
+Date: Wed, 6 Apr 2016 06:15:06 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E883BB66BBD@SHSMSX101.ccr.corp.intel.com>
+References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
+	<1459417026-6697-3-git-send-email-octavian.purdila@intel.com>
+	<1AE640813FDE7649BE1B193DEA596E883BB66258@SHSMSX101.ccr.corp.intel.com>
+	<CAE1zotJ1fa4m-_FO3PUQK8_p0vHcfWD5TmuMdxOSHDjku421pA@mail.gmail.com>
+	<CAE1zotLX8L=jpJRYtUddtpYmgc0NxqmtdDjcQPWWg8KTO8PH5A@mail.gmail.com>
+	<1AE640813FDE7649BE1B193DEA596E883BB66700@SHSMSX101.ccr.corp.intel.com>
+ <CAE1zotJL9QW0V+k-4VJBBFuQ+kCcjGNUJ8W1LKd54Xdp++z3SQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <CAPDyKFqgMCvbqMYZ-uM-rTnVvfJkCYbhv2kucCRyNyc9FWoR=Q@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CAE1zotJL9QW0V+k-4VJBBFuQ+kCcjGNUJ8W1LKd54Xdp++z3SQ@mail.gmail.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhao Qiang <qiang.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mmc <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Scott Wood <scott.wood-3arQi8VN3Tc@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Purdila, Octavian" <octavian.purdila@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Tirdea, Irina" <irina.tirdea@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Ulf Hansson [mailto:ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org]
-> Sent: Tuesday, April 05, 2016 7:28 PM
-> To: Yangbo Lu
-> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org;
-> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org; linux-
-> clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; iommu-cunTk1MwBs/ROKNJybVBZg@public.gmane.org
-> foundation.org; netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-mmc; Rob Herring; Scott
-> Wood; Russell King; Jochen Friedrich; Joerg Roedel; Claudiu Manoil;
-> Bhupesh Sharma; Zhao Qiang; Kumar Gala; Santosh Shilimkar; Yang-Leo Li;
-> Xiaobo Xie
-> Subject: Re: [v7, 0/5] Fix eSDHC host version register bug
-> 
-> On 1 April 2016 at 05:07, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org> wrote:
-> > This patchset is used to fix a host version register bug in the
-> > T4240-R1.0-R2.0 eSDHC controller. To get the SoC version and revision,
-> > it's needed to add the GUTS driver to access the global utilities
-> registers.
-> >
-> > So, the first three patches are to add the GUTS driver.
-> > The following two patches are to enable GUTS driver support to get SVR
-> > in eSDHC driver and fix host version for T4240.
-> >
-> > Yangbo Lu (5):
-> >   ARM64: dts: ls2080a: add device configuration node
-> >   soc: fsl: add GUTS driver for QorIQ platforms
-> >   dt: move guts devicetree doc out of powerpc directory
-> >   powerpc/fsl: move mpc85xx.h to include/linux/fsl
-> >   mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
-> >
-> >  .../bindings/{powerpc => soc}/fsl/guts.txt         |   3 +
-> >  arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi     |   6 ++
-> >  arch/powerpc/kernel/cpu_setup_fsl_booke.S          |   2 +-
-> >  drivers/clk/clk-qoriq.c                            |   3 +-
-> >  drivers/i2c/busses/i2c-mpc.c                       |   2 +-
-> >  drivers/iommu/fsl_pamu.c                           |   3 +-
-> >  drivers/mmc/host/Kconfig                           |   1 +
-> >  drivers/mmc/host/sdhci-of-esdhc.c                  |  23 ++++
-> >  drivers/net/ethernet/freescale/gianfar.c           |   2 +-
-> >  drivers/soc/Kconfig                                |   2 +-
-> >  drivers/soc/fsl/Kconfig                            |   8 ++
-> >  drivers/soc/fsl/Makefile                           |   1 +
-> >  drivers/soc/fsl/guts.c                             | 119
-> +++++++++++++++++++++
-> >  include/linux/fsl/guts.h                           |  98 ++++++++-----
-> ----
-> >  .../asm/mpc85xx.h => include/linux/fsl/svr.h       |   4 +-
-> >  15 files changed, 219 insertions(+), 58 deletions(-)  rename
-> > Documentation/devicetree/bindings/{powerpc => soc}/fsl/guts.txt (91%)
-> > create mode 100644 drivers/soc/fsl/Kconfig  create mode 100644
-> > drivers/soc/fsl/guts.c  rename arch/powerpc/include/asm/mpc85xx.h =>
-> > include/linux/fsl/svr.h (97%)
-> >
-> > --
-> > 2.1.0.27.g96db324
-> >
-> 
-> I was about to queue this for next, when I noticed that checkpatch is
-> complaining/warning lots about these patches. Can you please a round of
-> checkpatch and fix what makes sense.
-> 
-> Kind regards
-> Uffe
-
-[Lu Yangbo-B47093] Sorry about this, Uffe...
-Should I ignore the warnings that update MAINTAINERS?
-Regarding the 'undocumented' warning, I will added a patch updates doc before all the patches, Ok?
-
-Thanks a lot :)
- 
+SGksDQoNCj4gRnJvbTogbGludXgtYWNwaS1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21haWx0bzps
+aW51eC1hY3BpLQ0KPiBvd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBPY3Rhdmlh
+biBQdXJkaWxhDQo+IFN1YmplY3Q6IFJlOiBbUkZDIFBBVENIIDAyLzEwXSBhY3BpOiBpbnN0YWxs
+IFNTRFQgdGFibGVzIGZyb20gaW5pdHJkDQo+IA0KPiBPbiBUdWUsIEFwciA1LCAyMDE2IGF0IDM6
+NDkgQU0sIFpoZW5nLCBMdiA8bHYuemhlbmdAaW50ZWwuY29tPiB3cm90ZToNCj4gPiBIaSwNCj4g
+Pg0KPiA+PiBGcm9tOiBPY3RhdmlhbiBQdXJkaWxhIFttYWlsdG86b2N0YXZpYW4ucHVyZGlsYUBp
+bnRlbC5jb21dDQo+ID4+IFN1YmplY3Q6IFJlOiBbUkZDIFBBVENIIDAyLzEwXSBhY3BpOiBpbnN0
+YWxsIFNTRFQgdGFibGVzIGZyb20gaW5pdHJkDQo+ID4+DQo+ID4+IE9uIEZyaSwgQXByIDEsIDIw
+MTYgYXQgMToxMSBQTSwgT2N0YXZpYW4gUHVyZGlsYQ0KPiA+PiA8b2N0YXZpYW4ucHVyZGlsYUBp
+bnRlbC5jb20+IHdyb3RlOg0KPiA+PiA+IE9uIEZyaSwgQXByIDEsIDIwMTYgYXQgODowNSBBTSwg
+WmhlbmcsIEx2IDxsdi56aGVuZ0BpbnRlbC5jb20+IHdyb3RlOg0KPiA+PiA+PiBIaSwNCj4gPj4g
+Pj4NCj4gPj4gPj4gSU1PLCB0aGVyZSBpcyBhbHJlYWR5IGEgc2ltaWxhciBmdW5jdGlvbiB1cHN0
+cmVhbWVkOg0KPiA+PiA+Pg0KPiA+Pg0KPiBodHRwczovL2dpdC5rZXJuZWwub3JnL2NnaXQvbGlu
+dXgva2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvY29tbWl0Lz9pZD1jODVjDQo+ID4+IGM4
+MQ0KPiA+PiA+PiBDb3VsZCBpdCB3b3JrIGZvciB5b3VyIHVzZSBjYXNlPw0KPiA+PiA+DQo+ID4+
+ID4gWWVzLCBpdCBpcyBiYXNpY2FsbHkgdGhlIHNhbWUuDQo+ID4+ID4NCj4gPj4gPiBUaGUgb25s
+eSBkaWZmZXJlbmNlIGlzIG9uIGhvdyB3ZSBoYW5kbGUgdGFpbnQuIEkgdGhpbmsgd2Ugc2hvdWxk
+IHVzZSBhDQo+ID4+ID4gbmV3IHRhaW50IGZvciBvdmVybGF5cyBhbmQgdGhhdCB3ZSBkb24ndCBu
+ZWVkIHRvIGRpc2FibGUgbG9ja2RlcC4NCj4gPj4gPg0KPiA+PiA+IEJUVywgd2h5IGlzIGxvY2tk
+ZXAgZGlzYWJsZWQgd2hlbiB3ZSBvdmVycmlkZT8NCj4gPj4NCj4gPj4gVGhlIG90aGVyIHRoaW5n
+IEkgZm9yZ290IHRvIG1lbnRpb24gaXMgdGhhdCBJIHRoaW5rIHdlIHNob3VsZCBhbGxvdw0KPiA+
+PiBpbnN0YWxsaW5nIG5ldyB0YWJsZXMgZXZlbiBpZiBDT05GSUdfQUNQSV9JTklUUkRfVEFCTEVf
+T1ZFUlJJREUgaXMgbm90DQo+ID4+IHNlbGVjdGVkLiBJTU8gdGhlIG92ZXJyaWRlIGFuZCBvdmVy
+bGF5IGZ1bmN0aW9uYWxpdHkgaXMgZGlmZmVyZW50LA0KPiA+PiB3aXRoIHRoZSBsYXR0ZXIgYmVp
+bmcgbW9yZSB0aGVuIGEgZGVidWcgb3B0aW9uLg0KPiA+IFtMdiBaaGVuZ10NCj4gPiBJIGRvbid0
+IHRoaW5rIHNvLiBUaGUgaW5pdHJkIG92ZXJyaWRlIG1lY2hhbmlzbSBpcyBub3QgZGVwZW5kZW50
+IG9uDQo+IENPTkZJR19BQ1BJX0RFQlVHLg0KPiA+IEFjY29yZGluZyB0byB0aGUgc3BlYywgd2Ug
+Y2FuIGFsbG93IGEgaGlnaGVyIHZlcnNpb25pbmcgc2FtZSB0YWJsZSAoc2FtZQ0KPiB0YWJsZSBz
+aWcsIHRhYmxlIGlkLCB0YWJsZSBvZW0gaWQpIHRvIG92ZXJyaWRlIHRoZSBvbGQgdGFibGVzIGFz
+IGEgcGF0Y2hpbmcNCj4gZnVuY3Rpb25hbGl0eS4NCj4gPiBTbyBib3RoIHRoZSBmdW5jdGlvbmFs
+aXRpZXMgYXJlIG5vdCBkZWJ1ZyBvcHRpb25zIGFuZCBzZXJ2ZSBmb3IgdGhlIHNhbWUNCj4gcHVy
+cG9zZSBmcm9tIHRoaXMgcG9pbnQgb2Ygdmlldy4NCj4gPiBBbmQgSU1PIHRoYXQncyB3aHkgdGhl
+IGluaXRyZCBvdmVycmlkZSBtZWNoYW5pc20gbmVlZG4ndCBiZSBkZXBlbmRlbnQgb24NCj4gQ09O
+RklHX0FDUElfREVCVUcuDQo+ID4NCj4gDQo+IFRoZSBwcm9ibGVtIGlzIHRoYXQgQ09ORklHX0FD
+UElfSU5JVFJEX1RBQkxFX09WRVJSSURFIGlzIHByZXNlbnRlZCBhcw0KPiBhIGRlYnVnIG9wdGlv
+biBpbiBEb2N1bWVudGF0aW9uL2luaXRyZF90YWJsZV9vdmVycmlkZS50eHQgYW5kIG1vc3QNCj4g
+ZGlzdHJpYnV0aW9ucyBhcmUgbm90IHNlbGVjdGluZyBpdCB3aGljaCBtYWtlcyBpdCBoYXJkIHRv
+IHVzZSBpdCBpbg0KPiBwcmFjdGljZS4NCj4gDQo+ID4gSSdtIHJlYWxseSBPSyB3aXRoIHJlbW92
+aW5nIHRoZSBhY3BpX3RhYmxlX3RhaW50KCkgZm9yDQo+IENPTkZJR19BQ1BJX0lOSVRSRF9UQUJM
+RV9PVkVSUklERSBidXQgbGVhdmluZyBzb21lIGluZm8gbWVzc2FnZXMNCj4gaW5kaWNhdGluZyB0
+aGUgdGFibGUgdXBncmFkZXMuDQo+ID4gSSBkb24ndCB0aGluayB0aGlzIG1lY2hhbmlzbSBpcyB1
+bnNhZmUuDQo+ID4gSXQgaGFwcGVucyBkdXJpbmcgYSBpbml0aWFsaXphdGlvbiBzdGVwIG9jY3Vy
+cmluZyBiZWZvcmUgdGhlIHRhYmxlIGlzIGxvYWRlZCBhbmQNCj4gaGVuY2Ugc2hvdWxkIGJlIHNh
+ZmUgZXZlbiB0aGUgc3luY2hyb25pemF0aW9uIGlzIG5vdCBzbyByb2J1c3QgaW4gQUNQSUNBLg0K
+PiA+IEFuZCB3aXRoIHRoZSByZXZpc2lvbiBzdXBwb3J0IGFkZGVkLCB3ZSBzaG91bGQgYmUgYWJs
+ZSB0byBhbGxvdyB2ZW5kb3JzIHRvDQo+IHVwZGF0ZSB0aGUgYnVnZ3kgdGFibGVzLg0KPiA+IFRo
+YXQgbWVhbnMgdGhlIHRhYmxlcyBtYXkgYmUgb3JpZ2luYXRlZCBmcm9tIHRoZSBzYWZlIHNvdXJj
+ZXMgLSB0aGUgdmVuZG9ycy4NCj4gPg0KPiA+Pg0KPiA+PiBJIHdpbGwgcHJlcGFyZSBhIHBhdGNo
+IGZvciB0aGUgbmV4dCB2ZXJzaW9uIG9mIHRoZSBzZXJpZXMgdG8gZGVjb3VwbGUNCj4gPj4gaW5z
+dGFsbGluZyBuZXcgdGFibGVzIGZyb20gQ09ORklHX0FDUElfSU5JVFJEX1RBQkxFX09WRVJSSURF
+Lg0KPiA+IFtMdiBaaGVuZ10NCj4gPiBJIGRvbid0IHRoaW5rIHRoZXkgbmVlZCB0byBiZSBkZWNv
+dXBsZWQuDQo+ID4gVGhlIHVzZSBjYXNlIGlzOg0KPiA+IElmIHRoZXJlIGlzIGFuIEFDUEkgdGFi
+bGUgaW4gaW5pdHJkIGltYWdlIGFuZDoNCj4gPiAxLiBpZiB0aGUgdGFibGUncyByZXZpc2lvbiBp
+cyBoaWdoZXIgdGhhbiB0aGUgZXhpc3Rpbmcgb25lLCBvdmVycmlkZSB0aGUgZXhpc3RpbmcNCj4g
+b25lOw0KPiA+IDIuIGlmIHRoZSB0YWJsZSBpcyBhIGJyYW5kIG5ldyBvbmUsIGluc3RhbGwgaXQu
+DQo+ID4NCj4gDQo+IFRoZSBpbXBsZW1lbnRhdGlvbiB3aWxsIHN0YXkgdGhlIHNhbWUgb2YgY291
+cnNlLCBJIHdhcyBqdXN0IHN1Z2dlc3RpbmcNCj4gdG8gbW92ZSBDT05GSUdfQUNQSV9JTklUUkRf
+VEFCTEVfT1ZFUlJJREUgaW4NCj4gYWNwaV9vc19waHlzaWNhbF90YWJsZV9vdmVycmlkZSB0byBh
+bGxvdyBuZXcgdGFibGVzIHRvIGJlIGxvYWRlZCBldmVuDQo+IGlmIHRoZSBvcHRpb24gaXMgbm90
+IHNlbGVjdGVkLg0KW0x2IFpoZW5nXSANClRoaXMgc291bmRzIHJlYXNvbmFibGUuDQpPciB5b3Ug
+Y2FuIHJlbmFtZSBpdCB0byBDT05GSUdfQUNQSV9UQUJMRV9VUEdSQURFIGFuZCBtYWtlIGl0IGRl
+ZmF1bHQgJ3knLg0KQWxzbyB5b3UgbmVlZCB0byByZW1vdmUgYWNwaV90YWJsZV90YWludCgpIHdo
+aWNoIGlzIG5vdCBzbyB1c2VmdWwgbm93Lg0KDQpUaGFua3MgYW5kIGJlc3QgcmVnYXJkcw0KLUx2
+DQo=
