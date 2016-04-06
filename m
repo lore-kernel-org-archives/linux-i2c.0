@@ -1,86 +1,76 @@
-From: "Zheng, Lv" <lv.zheng@intel.com>
-Subject: RE: [RFC PATCH 02/10] acpi: install SSDT tables from initrd
-Date: Wed, 6 Apr 2016 06:15:06 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E883BB66BBD@SHSMSX101.ccr.corp.intel.com>
-References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
-	<1459417026-6697-3-git-send-email-octavian.purdila@intel.com>
-	<1AE640813FDE7649BE1B193DEA596E883BB66258@SHSMSX101.ccr.corp.intel.com>
-	<CAE1zotJ1fa4m-_FO3PUQK8_p0vHcfWD5TmuMdxOSHDjku421pA@mail.gmail.com>
-	<CAE1zotLX8L=jpJRYtUddtpYmgc0NxqmtdDjcQPWWg8KTO8PH5A@mail.gmail.com>
-	<1AE640813FDE7649BE1B193DEA596E883BB66700@SHSMSX101.ccr.corp.intel.com>
- <CAE1zotJL9QW0V+k-4VJBBFuQ+kCcjGNUJ8W1LKd54Xdp++z3SQ@mail.gmail.com>
+From: Jisheng Zhang <jszhang@marvell.com>
+Subject: [PATCH] i2c: designware-platdrv: get fast/std speed scl high/low count from DT
+Date: Wed, 6 Apr 2016 15:28:00 +0800
+Message-ID: <1459927680-5480-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <CAE1zotJL9QW0V+k-4VJBBFuQ+kCcjGNUJ8W1LKd54Xdp++z3SQ@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Purdila, Octavian" <octavian.purdila@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Tirdea, Irina" <irina.tirdea@intel.com>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@marvell.com>
 List-Id: linux-i2c@vger.kernel.org
 
-SGksDQoNCj4gRnJvbTogbGludXgtYWNwaS1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21haWx0bzps
-aW51eC1hY3BpLQ0KPiBvd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBPY3Rhdmlh
-biBQdXJkaWxhDQo+IFN1YmplY3Q6IFJlOiBbUkZDIFBBVENIIDAyLzEwXSBhY3BpOiBpbnN0YWxs
-IFNTRFQgdGFibGVzIGZyb20gaW5pdHJkDQo+IA0KPiBPbiBUdWUsIEFwciA1LCAyMDE2IGF0IDM6
-NDkgQU0sIFpoZW5nLCBMdiA8bHYuemhlbmdAaW50ZWwuY29tPiB3cm90ZToNCj4gPiBIaSwNCj4g
-Pg0KPiA+PiBGcm9tOiBPY3RhdmlhbiBQdXJkaWxhIFttYWlsdG86b2N0YXZpYW4ucHVyZGlsYUBp
-bnRlbC5jb21dDQo+ID4+IFN1YmplY3Q6IFJlOiBbUkZDIFBBVENIIDAyLzEwXSBhY3BpOiBpbnN0
-YWxsIFNTRFQgdGFibGVzIGZyb20gaW5pdHJkDQo+ID4+DQo+ID4+IE9uIEZyaSwgQXByIDEsIDIw
-MTYgYXQgMToxMSBQTSwgT2N0YXZpYW4gUHVyZGlsYQ0KPiA+PiA8b2N0YXZpYW4ucHVyZGlsYUBp
-bnRlbC5jb20+IHdyb3RlOg0KPiA+PiA+IE9uIEZyaSwgQXByIDEsIDIwMTYgYXQgODowNSBBTSwg
-WmhlbmcsIEx2IDxsdi56aGVuZ0BpbnRlbC5jb20+IHdyb3RlOg0KPiA+PiA+PiBIaSwNCj4gPj4g
-Pj4NCj4gPj4gPj4gSU1PLCB0aGVyZSBpcyBhbHJlYWR5IGEgc2ltaWxhciBmdW5jdGlvbiB1cHN0
-cmVhbWVkOg0KPiA+PiA+Pg0KPiA+Pg0KPiBodHRwczovL2dpdC5rZXJuZWwub3JnL2NnaXQvbGlu
-dXgva2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvY29tbWl0Lz9pZD1jODVjDQo+ID4+IGM4
-MQ0KPiA+PiA+PiBDb3VsZCBpdCB3b3JrIGZvciB5b3VyIHVzZSBjYXNlPw0KPiA+PiA+DQo+ID4+
-ID4gWWVzLCBpdCBpcyBiYXNpY2FsbHkgdGhlIHNhbWUuDQo+ID4+ID4NCj4gPj4gPiBUaGUgb25s
-eSBkaWZmZXJlbmNlIGlzIG9uIGhvdyB3ZSBoYW5kbGUgdGFpbnQuIEkgdGhpbmsgd2Ugc2hvdWxk
-IHVzZSBhDQo+ID4+ID4gbmV3IHRhaW50IGZvciBvdmVybGF5cyBhbmQgdGhhdCB3ZSBkb24ndCBu
-ZWVkIHRvIGRpc2FibGUgbG9ja2RlcC4NCj4gPj4gPg0KPiA+PiA+IEJUVywgd2h5IGlzIGxvY2tk
-ZXAgZGlzYWJsZWQgd2hlbiB3ZSBvdmVycmlkZT8NCj4gPj4NCj4gPj4gVGhlIG90aGVyIHRoaW5n
-IEkgZm9yZ290IHRvIG1lbnRpb24gaXMgdGhhdCBJIHRoaW5rIHdlIHNob3VsZCBhbGxvdw0KPiA+
-PiBpbnN0YWxsaW5nIG5ldyB0YWJsZXMgZXZlbiBpZiBDT05GSUdfQUNQSV9JTklUUkRfVEFCTEVf
-T1ZFUlJJREUgaXMgbm90DQo+ID4+IHNlbGVjdGVkLiBJTU8gdGhlIG92ZXJyaWRlIGFuZCBvdmVy
-bGF5IGZ1bmN0aW9uYWxpdHkgaXMgZGlmZmVyZW50LA0KPiA+PiB3aXRoIHRoZSBsYXR0ZXIgYmVp
-bmcgbW9yZSB0aGVuIGEgZGVidWcgb3B0aW9uLg0KPiA+IFtMdiBaaGVuZ10NCj4gPiBJIGRvbid0
-IHRoaW5rIHNvLiBUaGUgaW5pdHJkIG92ZXJyaWRlIG1lY2hhbmlzbSBpcyBub3QgZGVwZW5kZW50
-IG9uDQo+IENPTkZJR19BQ1BJX0RFQlVHLg0KPiA+IEFjY29yZGluZyB0byB0aGUgc3BlYywgd2Ug
-Y2FuIGFsbG93IGEgaGlnaGVyIHZlcnNpb25pbmcgc2FtZSB0YWJsZSAoc2FtZQ0KPiB0YWJsZSBz
-aWcsIHRhYmxlIGlkLCB0YWJsZSBvZW0gaWQpIHRvIG92ZXJyaWRlIHRoZSBvbGQgdGFibGVzIGFz
-IGEgcGF0Y2hpbmcNCj4gZnVuY3Rpb25hbGl0eS4NCj4gPiBTbyBib3RoIHRoZSBmdW5jdGlvbmFs
-aXRpZXMgYXJlIG5vdCBkZWJ1ZyBvcHRpb25zIGFuZCBzZXJ2ZSBmb3IgdGhlIHNhbWUNCj4gcHVy
-cG9zZSBmcm9tIHRoaXMgcG9pbnQgb2Ygdmlldy4NCj4gPiBBbmQgSU1PIHRoYXQncyB3aHkgdGhl
-IGluaXRyZCBvdmVycmlkZSBtZWNoYW5pc20gbmVlZG4ndCBiZSBkZXBlbmRlbnQgb24NCj4gQ09O
-RklHX0FDUElfREVCVUcuDQo+ID4NCj4gDQo+IFRoZSBwcm9ibGVtIGlzIHRoYXQgQ09ORklHX0FD
-UElfSU5JVFJEX1RBQkxFX09WRVJSSURFIGlzIHByZXNlbnRlZCBhcw0KPiBhIGRlYnVnIG9wdGlv
-biBpbiBEb2N1bWVudGF0aW9uL2luaXRyZF90YWJsZV9vdmVycmlkZS50eHQgYW5kIG1vc3QNCj4g
-ZGlzdHJpYnV0aW9ucyBhcmUgbm90IHNlbGVjdGluZyBpdCB3aGljaCBtYWtlcyBpdCBoYXJkIHRv
-IHVzZSBpdCBpbg0KPiBwcmFjdGljZS4NCj4gDQo+ID4gSSdtIHJlYWxseSBPSyB3aXRoIHJlbW92
-aW5nIHRoZSBhY3BpX3RhYmxlX3RhaW50KCkgZm9yDQo+IENPTkZJR19BQ1BJX0lOSVRSRF9UQUJM
-RV9PVkVSUklERSBidXQgbGVhdmluZyBzb21lIGluZm8gbWVzc2FnZXMNCj4gaW5kaWNhdGluZyB0
-aGUgdGFibGUgdXBncmFkZXMuDQo+ID4gSSBkb24ndCB0aGluayB0aGlzIG1lY2hhbmlzbSBpcyB1
-bnNhZmUuDQo+ID4gSXQgaGFwcGVucyBkdXJpbmcgYSBpbml0aWFsaXphdGlvbiBzdGVwIG9jY3Vy
-cmluZyBiZWZvcmUgdGhlIHRhYmxlIGlzIGxvYWRlZCBhbmQNCj4gaGVuY2Ugc2hvdWxkIGJlIHNh
-ZmUgZXZlbiB0aGUgc3luY2hyb25pemF0aW9uIGlzIG5vdCBzbyByb2J1c3QgaW4gQUNQSUNBLg0K
-PiA+IEFuZCB3aXRoIHRoZSByZXZpc2lvbiBzdXBwb3J0IGFkZGVkLCB3ZSBzaG91bGQgYmUgYWJs
-ZSB0byBhbGxvdyB2ZW5kb3JzIHRvDQo+IHVwZGF0ZSB0aGUgYnVnZ3kgdGFibGVzLg0KPiA+IFRo
-YXQgbWVhbnMgdGhlIHRhYmxlcyBtYXkgYmUgb3JpZ2luYXRlZCBmcm9tIHRoZSBzYWZlIHNvdXJj
-ZXMgLSB0aGUgdmVuZG9ycy4NCj4gPg0KPiA+Pg0KPiA+PiBJIHdpbGwgcHJlcGFyZSBhIHBhdGNo
-IGZvciB0aGUgbmV4dCB2ZXJzaW9uIG9mIHRoZSBzZXJpZXMgdG8gZGVjb3VwbGUNCj4gPj4gaW5z
-dGFsbGluZyBuZXcgdGFibGVzIGZyb20gQ09ORklHX0FDUElfSU5JVFJEX1RBQkxFX09WRVJSSURF
-Lg0KPiA+IFtMdiBaaGVuZ10NCj4gPiBJIGRvbid0IHRoaW5rIHRoZXkgbmVlZCB0byBiZSBkZWNv
-dXBsZWQuDQo+ID4gVGhlIHVzZSBjYXNlIGlzOg0KPiA+IElmIHRoZXJlIGlzIGFuIEFDUEkgdGFi
-bGUgaW4gaW5pdHJkIGltYWdlIGFuZDoNCj4gPiAxLiBpZiB0aGUgdGFibGUncyByZXZpc2lvbiBp
-cyBoaWdoZXIgdGhhbiB0aGUgZXhpc3Rpbmcgb25lLCBvdmVycmlkZSB0aGUgZXhpc3RpbmcNCj4g
-b25lOw0KPiA+IDIuIGlmIHRoZSB0YWJsZSBpcyBhIGJyYW5kIG5ldyBvbmUsIGluc3RhbGwgaXQu
-DQo+ID4NCj4gDQo+IFRoZSBpbXBsZW1lbnRhdGlvbiB3aWxsIHN0YXkgdGhlIHNhbWUgb2YgY291
-cnNlLCBJIHdhcyBqdXN0IHN1Z2dlc3RpbmcNCj4gdG8gbW92ZSBDT05GSUdfQUNQSV9JTklUUkRf
-VEFCTEVfT1ZFUlJJREUgaW4NCj4gYWNwaV9vc19waHlzaWNhbF90YWJsZV9vdmVycmlkZSB0byBh
-bGxvdyBuZXcgdGFibGVzIHRvIGJlIGxvYWRlZCBldmVuDQo+IGlmIHRoZSBvcHRpb24gaXMgbm90
-IHNlbGVjdGVkLg0KW0x2IFpoZW5nXSANClRoaXMgc291bmRzIHJlYXNvbmFibGUuDQpPciB5b3Ug
-Y2FuIHJlbmFtZSBpdCB0byBDT05GSUdfQUNQSV9UQUJMRV9VUEdSQURFIGFuZCBtYWtlIGl0IGRl
-ZmF1bHQgJ3knLg0KQWxzbyB5b3UgbmVlZCB0byByZW1vdmUgYWNwaV90YWJsZV90YWludCgpIHdo
-aWNoIGlzIG5vdCBzbyB1c2VmdWwgbm93Lg0KDQpUaGFua3MgYW5kIGJlc3QgcmVnYXJkcw0KLUx2
-DQo=
+Sometimes, it's convenient to define the scl's high/low count directly,
+e.g HW people would do some measurement then directly give out the
+optimum counts. Previously, we solved the sda falling time and scl
+falling time by i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt(), then put them
+into dt, but what we really care isn't the sda/scl falling time.
+
+>From another side, the dw_i2c_acpi_configure() on ACPI platform also
+get hcnt/lcnt values rather than the sda/scl falling time from ACPI
+method, we want similar feature for DT platforms.
+
+Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-designware.txt | 16 ++++++++++++++++
+ drivers/i2c/busses/i2c-designware-platdrv.c              |  8 ++++++++
+ 2 files changed, 24 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+index fee26dc..05176fbf 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+@@ -20,6 +20,22 @@ Optional properties :
+  - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
+    This value which is by default 300ns is used to compute the tHIGH period.
+ 
++ - i2c-ss-scl-high-count : should contain the standard speed i2c clock SCL high
++   count. If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
++   will be ignored.
++
++ - i2c-ss-scl-low-count : should contain the standard speed i2c clock SCL low
++   count. If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
++   will be ignored.
++
++ - i2c-fs-scl-high-count : should contain the fast speed i2c clock SCL high
++   count. If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
++   will be ignored.
++
++ - i2c-fs-scl-low-count : should contain the fast speed i2c clock SCL low
++   count. If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
++   will be ignored.
++
+ Example :
+ 
+ 	i2c@f0000 {
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index d656657..8739a60 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -188,6 +188,14 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 					 &dev->scl_falling_time);
+ 		device_property_read_u32(&pdev->dev, "clock-frequency",
+ 					 &clk_freq);
++		device_property_read_u16(&pdev->dev, "i2c-ss-scl-high-count",
++					 &dev->ss_hcnt);
++		device_property_read_u16(&pdev->dev, "i2c-ss-scl-low-count",
++					 &dev->ss_lcnt);
++		device_property_read_u16(&pdev->dev, "i2c-fs-scl-high-count",
++					 &dev->fs_hcnt);
++		device_property_read_u16(&pdev->dev, "i2c-fs-scl-low-count",
++					 &dev->fs_lcnt);
+ 	}
+ 
+ 	if (has_acpi_companion(&pdev->dev))
+-- 
+2.8.0.rc3
