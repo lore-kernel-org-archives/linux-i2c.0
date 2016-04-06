@@ -1,147 +1,95 @@
-From: "Zheng, Lv" <lv.zheng@intel.com>
-Subject: RE: [RFC PATCH 10/10] acpi: add support for loading SSDTs via
- configfs
-Date: Wed, 6 Apr 2016 06:05:32 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E883BB66B8C@SHSMSX101.ccr.corp.intel.com>
-References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
-	<1459417026-6697-11-git-send-email-octavian.purdila@intel.com>
-	<1AE640813FDE7649BE1B193DEA596E883BB66233@SHSMSX101.ccr.corp.intel.com>
-	<CAE1zotLgjfKvFr0W9CjFbbkxqM6erLGwv-aHzTt=qwdCPzGOhw@mail.gmail.com>
-	<1AE640813FDE7649BE1B193DEA596E883BB6677B@SHSMSX101.ccr.corp.intel.com>
- <CAE1zotKDFLNP5JTnMiWOstE4DYBHVeyP902J9ixD+fJbFqSZ6Q@mail.gmail.com>
+From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: RE: [v7, 0/5] Fix eSDHC host version register bug
+Date: Wed, 6 Apr 2016 06:12:58 +0000
+Message-ID: <HE1PR04MB0889D75DC56E180D3508E7A1F89F0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+References: <1459480051-3701-1-git-send-email-yangbo.lu@nxp.com>
+	<CAPDyKFqgMCvbqMYZ-uM-rTnVvfJkCYbhv2kucCRyNyc9FWoR=Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAE1zotKDFLNP5JTnMiWOstE4DYBHVeyP902J9ixD+fJbFqSZ6Q@mail.gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <CAPDyKFqgMCvbqMYZ-uM-rTnVvfJkCYbhv2kucCRyNyc9FWoR=Q@mail.gmail.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Purdila, Octavian" <octavian.purdila@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, Christoph Hellwig <hch@lst.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Tirdea, Irina" <irina.tirdea@intel.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhao Qiang <qiang.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mmc <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Scott Wood <scott.wood-3arQi8VN3Tc@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGksDQoNCj4gRnJvbTogT2N0YXZpYW4gUHVyZGlsYSBbbWFpbHRvOm9jdGF2aWFuLnB1cmRpbGFA
-aW50ZWwuY29tXQ0KPiBTdWJqZWN0OiBSZTogW1JGQyBQQVRDSCAxMC8xMF0gYWNwaTogYWRkIHN1
-cHBvcnQgZm9yIGxvYWRpbmcgU1NEVHMgdmlhIGNvbmZpZ2ZzDQo+IA0KPiBPbiBUdWUsIEFwciA1
-LCAyMDE2IGF0IDY6MTEgQU0sIFpoZW5nLCBMdiA8bHYuemhlbmdAaW50ZWwuY29tPiB3cm90ZToN
-Cj4gPiBIaSwNCj4gPg0KPiA+PiBGcm9tOiBPY3RhdmlhbiBQdXJkaWxhIFttYWlsdG86b2N0YXZp
-YW4ucHVyZGlsYUBpbnRlbC5jb21dDQo+ID4+IFN1YmplY3Q6IFJlOiBbUkZDIFBBVENIIDEwLzEw
-XSBhY3BpOiBhZGQgc3VwcG9ydCBmb3IgbG9hZGluZyBTU0RUcyB2aWENCj4gY29uZmlnZnMNCj4g
-Pj4NCj4gPj4gT24gRnJpLCBBcHIgMSwgMjAxNiBhdCA3OjU1IEFNLCBaaGVuZywgTHYgPGx2Lnpo
-ZW5nQGludGVsLmNvbT4gd3JvdGU6DQo+ID4+ID4gSGksDQo+ID4+DQo+ID4+IEhpIEx2LA0KPiA+
-Pg0KPiA+PiA+PiBBZGQgc3VwcG9ydCBmb3IgYWNwaV91c2VyX3RhYmxlIGNvbmZpZ2ZzIGl0ZW1z
-IHRoYXQgYWxsb3dzIHRoZSB1c2VyIHRvDQo+ID4+ID4+IGxvYWQgbmV3IHRhYmxlcy4gVGhlIGRh
-dGEgYXR0cmlidXRlcyBjb250YWlucyB0aGUgdGFibGUgZGF0YSBhbmQgb25jZSBpdA0KPiA+PiA+
-PiBpcyBmaWxsZWQgZnJvbSB1c2Vyc3BhY2UgdGhlIHRhYmxlIGlzIGxvYWRlZCBhbmQgQUNQSSBk
-ZXZpY2VzIGFyZQ0KPiA+PiA+PiBlbnVtZXJhdGVkLg0KPiA+PiA+IFtMdiBaaGVuZ10NCj4gPj4g
-PiBXZSd2ZSBiZWVuIGNvbnNpZGVyaW5nIHRvIGltcGxlbWVudCB0aGlzIGZhY2lsaXR5IGJlZm9y
-ZS4NCj4gPj4gPiBUaGUgMiBhbHRlcm5hdGl2ZSBzb2x1dGlvbnMgYXJlOg0KPiA+PiA+IDEuIGlt
-cGxlbWVudCBMT0FEL1VOTE9BRCBpb2N0bCBmb3IgL3N5cy9rZXJuZWwvZGVidWcvYWNwaS9hY3Bp
-ZGJnIC0NCj4gdGhpcw0KPiA+PiB3aWxsIGJlIHVzZWZ1bCBmb3IgZXh0cmFjdGluZyBBTUwgYnl0
-ZSBzdHJlYW0gZnJvbSBrZXJuZWwgdG8gYmUgdXNlZCBieSBhDQo+ID4+IHVzZXJzcGFjZSBkaXNh
-c3NlbWJsZXIuDQo+ID4+DQo+ID4+IEFGQUlLIGFkZGluZyBuZXcgaW9jdGxzIGlzIGRpc2NvdXJh
-Z2VkLg0KPiA+IFtMdiBaaGVuZ10NCj4gPiBUb29scy9wb3dlci9hY3BpL3Rvb2xzL2FjcGlkYmcg
-aXMgYSBmaWxlIGRlc2NyaXB0b3IgYmFzZWQgdXRpbGl0eS4NCj4gPiBBbmQgaXQgbmVlZHMgYSBt
-ZXRob2QgdG8gb2J0YWluIGFuIEFNTCBieXRlIHN0cmVhbSBmcm9tIGtlcm5lbC4NCj4gPiBVc2lu
-ZyBpb2N0bCBpcyBhIGJlc3QgZml0IGRlc2lnbiBmb3IgYWNwaWRiZyBzbyB0aGF0IGl0IG5lZWRu
-J3QgdG8gYWNjZXNzIGFueQ0KPiBvdGhlciBmaWxlcy4NCj4gPg0KPiA+Pg0KPiA+PiA+IDIuIHRy
-YW5zaXRpb24gL3N5cy9maXJtd2FyZS9hY3BpL3RhYmxlcy94eHggaW50byBkaXJlY3RvcnkgYW5k
-IGltcGxlbWVudA0KPiA+PiAvc3lzL2Zpcm13YXJlL2FjcGkvdGFibGVzL2xvYWQsIC9zeXMvZmly
-bXdhcmUvYWNwaS90YWJsZXMvdW5sb2FkIC0gdGhpcw0KPiBzaG91bGQNCj4gPj4gYmUgYWJsZSB0
-byBtZWV0IHlvdXIgcmVxdWlyZW1lbnQuDQo+ID4+DQo+ID4+IFdlIGNhbid0IGRvIHRoYXQgYXMg
-aXQgd291bGQgYnJlYWsgdGhlIEFCSS4NCj4gPiBbTHYgWmhlbmddDQo+ID4gVGhlIG9ubHkgdXNl
-ciBvZiB0aGlzIGRpcmVjdG9yeSBoaWVyYXJjaHkgaXMgYWNwaWR1bXAuDQo+IA0KPiBTb21lIHN5
-c3RlbXMgKGUuZy4gQW5kcm9pZCwgQnJpbGxvKSBkbyBub3Qgc2hpcCBhY3BpZHVtcCBhbmQgaW4g
-dGhpcw0KPiBjYXNlIHRoZSBvbmx5IHdheSB0byBkdW1wIHRhYmxlcyBpcyBieSBhY2Nlc3Npbmcg
-c3lzZnMgZGlyZWN0bHkuDQo+IA0KPiA+IEFuZCB0aGUgdXNlciBvZiB0aGlzIHRvb2wgYXJlIGFs
-bCBkZXZlbG9wZXJzL3JlcG9ydGVycyBvbiB0aGUga2VybmVsIGJ1Z3ppbGxhLg0KPiA+IFdlJ3Zl
-IGJlZW4gYXNraW5nIHRoZSBCdWd6aWxsYSB1c2VycyB0byB1c2UgdGhlIHVwLXRvLWRhdGUgYWNw
-aWR1bXAgaW5zdGVhZA0KPiBvZiB0aGUgZGlzdHJpYnV0aW9uIHZlbmRvciBwcm92aWRlZCBvbmUg
-Zm9yIHNvIG1hbnkgeWVhcnMuDQo+ID4gU28gSU1PLCB0aGlzIGlzIG5vdCBhIHNlcmlvdXMgcHJv
-YmxlbSB5b3Ugc2hvdWxkIGNvbnNpZGVyLg0KPiA+IFlvdSBvbmx5IG5lZWQgdG8gdGhpbmsgYWJv
-dXQgYW4gYWNjZXB0YWJsZSB3YXkgZm9yIHRoZSBkaXN0cmlidXRpb24gdmVuZG9ycw0KPiB0byBz
-eW5jaHJvbml6ZSB0aGUga2VybmVsIGNoYW5nZSBhbmQgdGhlIGFjcGlkdW1wIGNoYW5nZS4NCj4g
-Pg0KPiANCj4gSSBndWVzcyB0aGUgcGVyZiBtb2RlbCB3aGVyZSB5b3UgaGF2ZSBhIHBlcmYgcGFj
-a2FnZSBidWlsZCB0b2dldGhlcg0KPiB3aXRoIHRoZSBrZXJuZWwgd2lsbCB3b3JrLiBCdXQgcmln
-aHQgbm93IGRpc3RyaWJ1dGlvbnMgYXJlIG5vdCB1c2luZw0KPiB0aGlzIG1vZGVsIGFuZCBhIGtl
-cm5lbCBjaGFuZ2Ugd2lsbCBicmVhayB0aGUgdXNlcnNwYWNlIHRvb2wuDQo+IA0KPiA+IElNTzoN
-Cj4gPiBZb3UgbWF5IGV4cG9zZSBhIHZlcnNpb24gZmlsZSBmcm9tIC9zeXMvZmlybXdhcmUvYWNw
-aS4NCj4gPiBhY3BpZHVtcCBjYW4gYmUgY2hhbmdlZCBhY2NvcmRpbmdseSBieSByZWZlcmVuY2lu
-ZyB0aGUgdmVyc2lvbiBmaWxlLg0KPiA+IEFuZCBvbGQgZGlyZWN0b3J5IGhpZXJhcmNoeSBzdXBw
-b3J0IGNvdWxkIGJlIGtlcHQgaW4gYWNwaWR1bXAuDQo+ID4NCj4gDQo+IFRoYXQgd2lsbCBzdGls
-bCBicmVhayBpZiB5b3UgdXBncmFkZSB0aGUga2VybmVsIGFuZCB1c2UgdGhlIG9sZCB0b29sLg0K
-PiANCj4gPiBOb3RlIHRoYXQgYWNwaWR1bXAgaXMgYWxzbyBhIHBhcnQgb2YgdGhlIGtlcm5lbCwg
-c28geW91ciBjaGFuZ2UgY291bGQgYmUNCj4gY29uc2lzdGVudC4NCj4gPiBGb3IgZXhhbXBsZSwN
-Cj4gPiBJZiB5b3UgY2hhbmdlZCBhY3BpZHVtcCBwcmlvciB0aGFuIG1ha2luZyB0aGUga2VybmVs
-IGNoYW5nZSwgdGhlDQo+IGRpc3RyaWJ1dGlvbiB2ZW5kb3JzIG1pZ2h0IGhhdmUgYWxyZWFkeSBy
-ZWxlYXNlZCB0aGUgbmV3IGFjcGlkdW1wIGZvciBhbGwgb2xkDQo+IGtlcm5lbHMgYmVmb3JlIHlv
-dSB0cmFuc2l0aW9uZWQgdGhlIGRpcmVjdG9yeSBoaWVyYXJjaHkuDQo+IA0KPiBUbyBtZSB0aGlz
-IHN0aWxsIGxvb2tzIGxpa2UgYnJlYWtpbmcgdXNlcnNwYWNlLCBwYXRjaGVzIGhhdmUgYmVlbg0K
-PiByZXZlcnRlZCBmb3IgbGVzcyA6KSBCdXQgSSBjYW4gc2VlIGhvdyB0aGlzIGNvdWxkIGJlIGNv
-bnNpZGVyZWQgYSBncmF5DQo+IGFyZWEuDQpbTHYgWmhlbmddIA0KRm9yIHRoZSAidXNlcnNwYWNl
-IGJyZWFraW5nIiBjb25jZXJuLg0KSU1PLCB3ZSBuZWVkbid0IHdvcnJ5IGFib3V0IHRoYXQgdG9v
-IG11Y2guDQoNCj4gDQo+IEFCSSBhc2lkZSwgc2VlIGJlbG93IGZvciB3aHkgY29uZmlnZnMgaXMg
-YmV0dGVyIHRoZW4gc3lzZnMuDQo+IA0KPiA+DQo+ID4+DQo+ID4+ID4gU28gbXkgZmlyc3QgcXVl
-c3Rpb24gaXM6DQo+ID4+ID4gV2h5IGRvIHlvdSB1c2UgY29uZmlnZnMgcmF0aGVyIHRoYW4gdGhl
-IGV4aXN0aW5nIG1lY2hhbmlzbXM/DQo+ID4+DQo+ID4+IHN5c2ZzIGlzIG5vdCBhIGdvb2QgY2hv
-aWNlIGZvciBkZWFsaW5nIHdpdGggb2JqZWN0cyBjcmVhdGVkIGZyb20NCj4gPj4gdXNlcnNwYWNl
-LCBjb25maWdmcyB3YXMgY3JlYXRlZCB0byBhZGRyZXNzIHRoaXMgc3BlY2lmaWMgbmVlZC4gU2lu
-Y2UNCj4gPj4gd2Ugd2FudCB0byBiZSBhYmxlIHRvIGNyZWF0ZSBhbmQgbG9hZCBuZXcgdGFibGVz
-IGZyb20gdXNlcnNwYWNlIHRoaXMNCj4gPj4gdXNlLWNhc2UgZml0cyB2ZXJ5IHdlbGwgd2l0aCBj
-b25maWdmcy4NCj4gPiBbTHYgWmhlbmddDQo+ID4gV2FzIHRoZSB0YWJsZSBiaW5hcnkgc3RyZWFt
-IHN0aWxsIG1haW50YWluZWQgYnkgdGhlIHVzZXJzcGFjZT8NCj4gPiBJZiBub3QsIEkgY291bGRu
-J3Qgc2VlIHRoZSBkaWZmZXJlbmNlL2FkdmFudGFnZXMgZnJvbSB1c2luZw0KPiAvc3lzL2Zpcm13
-YXJlL2FjcGkvdGFibGVzIHRvIHVzaW5nIGNvbmZpZ2ZzLg0KPiA+DQo+IA0KPiBJdCBpcyBoYXJk
-IHRvIGNyZWF0ZSBuZXcga2VybmVsIG9iamVjdHMgZnJvbSBzeXNmcy4gWW91IG5lZWQgdG8gcmVz
-b3J0DQo+IHRvIGhhY2tzIGxpa2UgdXNpbmcgbmV3X3RhYmxlIHN5c2ZzIGVudHJpZXMgd2hpY2gg
-ZG9lcyBub3QgbWFwIHRvIGENCj4ga2VybmVsIG9iamVjdC4gV3JpdGVzIGxhcmdlciB0aGVuIFBB
-R0VfU0laRSBhcmUgaW1wb3NzaWJsZSB0byBoYW5kbGUNCj4gd2l0aCBtdWx0aXBsZSBvcGVuIGZp
-bGVzIGJlY2F1c2UgeW91IGhhdmUgbm8gb3BlbiBjYWxsYmFjayB0byBjcmVhdGUgYQ0KPiBmaWxl
-IGNvbnRleHQuIEl0IGlzIGFsc28gbm90IHBvc3NpYmxlIHRvIGRvIGFueSBjbGVhbi11cCBiZWNh
-dXNlIHRoZXJlDQo+IGlzIG5vIGNsb3NlIGNhbGxiYWNrIGFuZCBpZiBzb21ldGhpbmcgZ29lcyB3
-cm9uZyBmb3IgZXhhbXBsZSB3aGVuDQo+IHRyeWluZyB0byBpbnN0YWxsIHRoZSB0YWJsZSB5b3Ug
-d2lsbCBsZWFrIHRoZSBhbGxvY2F0ZWQgbWVtb3J5Lg0KPiANCj4gY29uZmlnZnMgd2FzIGRlc2ln
-bmVkIGZvciB0aGUgc3BlY2lmaWMgcHVycG9zZSBvZiBjcmVhdGluZyBrZXJuZWwNCj4gb2JqZWN0
-cyBmcm9tIHVzZXJzcGFjZSBhbmQgYWRkcmVzc2VzIGFsbCBvZiB0aGUgbGltaXRhdGlvbnMgYWJv
-dmUgKGFuZA0KPiBzb21lIG1vcmUpLg0KPiANCj4gSW5pdGlhbGx5IEkgc3RhcnRlZCB0byBpbXBs
-ZW1lbnQgdGhpcyBmdW5jdGlvbmFsaXR5IHZpYSBzeXNmcyBidXQgSQ0KPiBydW4gaW50byB0aGUg
-aXNzdWVzIG1lbnRpb25lZCBhYm92ZSBhbmQgZGVjaWRlZCB0byB1c2UgY29uZmlnZnMuDQpbTHYg
-WmhlbmddIA0KSSBjYW4gc2Vuc2UgZGlmZmVyZW50IGRpZmZpY3VsdGllcyBmcm9tIHlvdXIgZGVz
-Y3JpcHRpb25zLg0KTGV0IG1lIGJyZWFrIGl0IGRvd24gaW50byBkZXRhaWxzLg0KDQpXZSBhbHJl
-YWR5IGhhdmUgYWNwaV90YWJsZV9oYW5kbGVyIHdvcmtpbmcgdGhlcmUgZm9yIGNyZWF0aW5nIG5l
-dyBBQ1BJIHRhYmxlIGVudHJpZXMgZm9yIHVzLg0KQmFzZWQgb24gdGhpcyBmYWNpbGl0eSwgbGV0
-J3MgdGhpbmsgYWJvdXQgdGhlIGZvbGxvd2luZyBzb2x1dGlvbjoNCjEuIHN5c2ZzIHByZXNlbnRp
-bmcgY2hhbmdlDQpXZSBjYW4gY2hhbmdlIHRoZSB0YWJsZSBmaWxlIHRvIGEgdGFibGUgZGlyZWN0
-b3J5IHdob3NlIG5hbWUgaXMgaW4gdGhlIGZvbGxvd2luZyBmb3JtYXQ6DQpUYWJsZVNpZ25hdHVy
-ZS1PZW1JZC1PZW1UYWJsZUlkDQpUaGVuIHdlIGNhbiBnZXQgcmlkIG9mIHRoZSBhbm5veWluZyBu
-dW1iZXJlZCB0YWJsZSBuYW1lIHN1ZmZpeCBmaXJzdC4NClRoZSBudW1iZXJlZCB0YWJsZSBuYW1l
-IHN1ZmZpeCBjYW5ub3QgYmUga2VwdCBjb25zaXN0ZW50IHRvIHJlZmxlY3QgdGhlIHJlYWwgaW5k
-ZXggaWYgd2UgYWxsb3cgdGFibGVzIHRvIGJlIGR5bmFtaWNhbGx5IGxvYWRlZC91bmxvYWRlZC4N
-Cg0KVGhpcyBpcyB0aGUgZmlyc3QgZGVzaWduIGRpZmZpY3VsdHkgd2UgbmVlZCB0byBzb2x2ZS4N
-Cg0KMi4gYWNwaV90YWJsZV9oYW5kbGVyIGNoYW5nZQ0KTm93IHdlIGNhbiBhcHBlbmQgMiBuZXcg
-ZXZlbnRzIHRvIGFjcGlfdGFibGVfaGFuZGxlciAtIEFDUElfVEFCTEVfSU5TVEFMTC9BQ1BJX1RB
-QkxFX1VOSU5TVEFMTC4NCldpdGggd2hpY2gsIHRoZSBzeXNmcyBlbnRyaWVzIGNhbiBiZSBjcmVh
-dGVkL2RlbGV0ZWQgd2hlbiB0aGUgdGFibGUgaXMgYWRkZWQgdG8vcmVtb3ZlZCBmcm9tIHRoZSBn
-bG9iYWwgdGFibGUgbGlzdC4NCkFuZCB0aGlzIHNob3VsZCBiZSB0aGUgd29ya2luZyBtZWNoYW5p
-c20gZm9yIHVzDQpTbyB3ZSBhY3R1YWxseSBkb24ndCBoYXZlIHRoZSB0cm91YmxlIHRvIGRlYWwg
-d2l0aCB0aGUgbmV3IGtlcm5lbCBvYmplY3QgY3JlYXRpb24vZGVsZXRpb24gZnJvbSBzeXNmcy4N
-Cg0KSSBhZ3JlZSB0aGUgZHluYW1pYyBrZXJuZWwgb2JqZWN0IGNyZWF0aW9uL2RlbGV0aW9uIG5l
-ZWQgc3BlY2lhbCBjYXJlLg0KQnV0IHRoaXMgYWN0dWFsbHkgaXMgd2hhdCBhIGtlcm5lbCBlbmdp
-bmVlciBzaG91bGQgZG8gYmVjYXVzZSB0aGlzIGtpbmQgb2YgdGhpbmdzIGhhcHBlbiBoZXJlIGFu
-ZCB0aGVyZSB0aHJvdWdob3V0IHRoZSBrZXJuZWwuDQpXZSBzaG91bGQgaGF2ZSBhbHJlYWR5IGJl
-ZW4gdXNlZCB0byB0aGF0Lg0KDQpUaGlzIGlzIHRoZSBzZWNvbmQgZW5naW5lZXJpbmcgZGlmZmlj
-dWx0eSB3ZSBuZWVkIHRvIGZhY2UuDQoNCjMuIGxvYWQvdW5sb2FkIGNvbW1hbmRpbmcNCk5vdyB3
-ZSBuZWVkIGEgY2hhcmFjdGVyIGRldmljZSBpbiBzeXNmcyB0byBoYW5kbGUgbG9hZC91bmxvYWQg
-Y29tbWFuZC4NCldlbGwsIHRoZXJlIGFyZSBtYW55IHN1Y2gga2luZCBvZiBmaWxlcyBpbiBzeXNm
-cywgZm9yIGV4YW1wbGUsIGRldmljZSBub2Rlcy4NClNvIHRoaXMgaXMgbm90IGEgbm9uLWFjaGll
-dmFibGUgdGFzaywgYnV0IGp1c3QgYSBkaWZmaWN1bHQgZW5naW5lZXJpbmcgdGFzay4NClRoZSBz
-eXN0ZW0gZW5naW5lZXJzIG5lZWQgdG8gYmUgc2tpbGxmdWwgZW5vdWdoIHRvIGltcGxlbWVudCB0
-aGlzLg0KTGlrZSB0aGUgZHluYW1pYyBrZXJuZWwgb2JqZWN0IGhhbmRsaW5nLCB3ZSBzaG91bGQg
-aGF2ZSBhbHJlYWR5IGJlZW4gdXNlZCB0byB0aGlzLg0KDQpJZiB5b3Ugc3RpbGwgdGhpbmsgdGhp
-cyBpcyBkaWZmaWN1bHQsIHRoZSBhbHRlcm5hdGl2ZSBjaG9pY2UgaXMgdG8gdXNlIGFjcGlkYmcg
-Y2hhciBkZXZpY2UncyBpb2N0bCBpbnRlcmZhY2UuDQpUaGF0IGNvdWxkIHNpbXBsaWZpZXMgdGhp
-cyB0YXNrLg0KQW5kIHNpbmNlIHRoZSBpb2N0bCBpbnRlcmZhY2UgaXMgcmVxdWlyZWQgYnkgQUNQ
-SUNBIGRpc2Fzc2VtYmxlciwgdGhlIHdvcmsgb24gdGhhdCB3aWxsIGJlIGluaGVyaXRlZCBieSB0
-aGUgZGlzYXNzZW1ibGVyIHBvcnRpbmcuDQoNClRoaXMgaXMgdGhlIGxhc3QgZW5naW5lZXJpbmcg
-ZGlmZmljdWx0eSB3ZSBuZWVkIHRvIGZhY2UuDQoNClNvIHdoeSBjYW4ndCB0aGVzZSBzb2x1dGlv
-bnMgd29yayBmb3IgdXM/DQoNClRoYW5rcyBhbmQgYmVzdCByZWdhcmRzDQotTHYNCg==
+> -----Original Message-----
+> From: Ulf Hansson [mailto:ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org]
+> Sent: Tuesday, April 05, 2016 7:28 PM
+> To: Yangbo Lu
+> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org;
+> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org; linux-
+> clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; iommu-cunTk1MwBs/ROKNJybVBZg@public.gmane.org
+> foundation.org; netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-mmc; Rob Herring; Scott
+> Wood; Russell King; Jochen Friedrich; Joerg Roedel; Claudiu Manoil;
+> Bhupesh Sharma; Zhao Qiang; Kumar Gala; Santosh Shilimkar; Yang-Leo Li;
+> Xiaobo Xie
+> Subject: Re: [v7, 0/5] Fix eSDHC host version register bug
+> 
+> On 1 April 2016 at 05:07, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org> wrote:
+> > This patchset is used to fix a host version register bug in the
+> > T4240-R1.0-R2.0 eSDHC controller. To get the SoC version and revision,
+> > it's needed to add the GUTS driver to access the global utilities
+> registers.
+> >
+> > So, the first three patches are to add the GUTS driver.
+> > The following two patches are to enable GUTS driver support to get SVR
+> > in eSDHC driver and fix host version for T4240.
+> >
+> > Yangbo Lu (5):
+> >   ARM64: dts: ls2080a: add device configuration node
+> >   soc: fsl: add GUTS driver for QorIQ platforms
+> >   dt: move guts devicetree doc out of powerpc directory
+> >   powerpc/fsl: move mpc85xx.h to include/linux/fsl
+> >   mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
+> >
+> >  .../bindings/{powerpc => soc}/fsl/guts.txt         |   3 +
+> >  arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi     |   6 ++
+> >  arch/powerpc/kernel/cpu_setup_fsl_booke.S          |   2 +-
+> >  drivers/clk/clk-qoriq.c                            |   3 +-
+> >  drivers/i2c/busses/i2c-mpc.c                       |   2 +-
+> >  drivers/iommu/fsl_pamu.c                           |   3 +-
+> >  drivers/mmc/host/Kconfig                           |   1 +
+> >  drivers/mmc/host/sdhci-of-esdhc.c                  |  23 ++++
+> >  drivers/net/ethernet/freescale/gianfar.c           |   2 +-
+> >  drivers/soc/Kconfig                                |   2 +-
+> >  drivers/soc/fsl/Kconfig                            |   8 ++
+> >  drivers/soc/fsl/Makefile                           |   1 +
+> >  drivers/soc/fsl/guts.c                             | 119
+> +++++++++++++++++++++
+> >  include/linux/fsl/guts.h                           |  98 ++++++++-----
+> ----
+> >  .../asm/mpc85xx.h => include/linux/fsl/svr.h       |   4 +-
+> >  15 files changed, 219 insertions(+), 58 deletions(-)  rename
+> > Documentation/devicetree/bindings/{powerpc => soc}/fsl/guts.txt (91%)
+> > create mode 100644 drivers/soc/fsl/Kconfig  create mode 100644
+> > drivers/soc/fsl/guts.c  rename arch/powerpc/include/asm/mpc85xx.h =>
+> > include/linux/fsl/svr.h (97%)
+> >
+> > --
+> > 2.1.0.27.g96db324
+> >
+> 
+> I was about to queue this for next, when I noticed that checkpatch is
+> complaining/warning lots about these patches. Can you please a round of
+> checkpatch and fix what makes sense.
+> 
+> Kind regards
+> Uffe
+
+[Lu Yangbo-B47093] Sorry about this, Uffe...
+Should I ignore the warnings that update MAINTAINERS?
+Regarding the 'undocumented' warning, I will added a patch updates doc before all the patches, Ok?
+
+Thanks a lot :)
+ 
