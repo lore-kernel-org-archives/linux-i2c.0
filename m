@@ -1,7 +1,8 @@
-From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [RFC PATCH 10/10] acpi: add support for loading SSDTs via configfs
-Date: Wed, 6 Apr 2016 21:46:51 +0300
-Message-ID: <CAE1zotKa+t5cxznWfPyQ599k9ZB=akOuEDZusWcJgzux8wqp5A@mail.gmail.com>
+From: "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [RFC PATCH 10/10] acpi: add support for loading SSDTs via
+ configfs
+Date: Thu, 7 Apr 2016 02:42:50 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E883BB66E60@SHSMSX101.ccr.corp.intel.com>
 References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
 	<1459417026-6697-11-git-send-email-octavian.purdila@intel.com>
 	<1AE640813FDE7649BE1B193DEA596E883BB66233@SHSMSX101.ccr.corp.intel.com>
@@ -9,79 +10,89 @@ References: <1459417026-6697-1-git-send-email-octavian.purdila@intel.com>
 	<1AE640813FDE7649BE1B193DEA596E883BB6677B@SHSMSX101.ccr.corp.intel.com>
 	<CAE1zotKDFLNP5JTnMiWOstE4DYBHVeyP902J9ixD+fJbFqSZ6Q@mail.gmail.com>
 	<1AE640813FDE7649BE1B193DEA596E883BB66B8C@SHSMSX101.ccr.corp.intel.com>
+ <CAE1zotKa+t5cxznWfPyQ599k9ZB=akOuEDZusWcJgzux8wqp5A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1AE640813FDE7649BE1B193DEA596E883BB66B8C-0J0gbvR4kThpB2pF5aRoyrfspsVTdybXVpNB7YpNyf8@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAE1zotKa+t5cxznWfPyQ599k9ZB=akOuEDZusWcJgzux8wqp5A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 6, 2016 at 9:05 AM, Zheng, Lv <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
-
->> It is hard to create new kernel objects from sysfs. You need to resort
->> to hacks like using new_table sysfs entries which does not map to a
->> kernel object. Writes larger then PAGE_SIZE are impossible to handle
->> with multiple open files because you have no open callback to create a
->> file context. It is also not possible to do any clean-up because there
->> is no close callback and if something goes wrong for example when
->> trying to install the table you will leak the allocated memory.
->>
->> configfs was designed for the specific purpose of creating kernel
->> objects from userspace and addresses all of the limitations above (and
->> some more).
->>
->> Initially I started to implement this functionality via sysfs but I
->> run into the issues mentioned above and decided to use configfs.
-> [Lv Zheng]
-> I can sense different difficulties from your descriptions.
-> Let me break it down into details.
->
-> We already have acpi_table_handler working there for creating new ACPI table entries for us.
-> Based on this facility, let's think about the following solution:
-> 1. sysfs presenting change
-> We can change the table file to a table directory whose name is in the following format:
-> TableSignature-OemId-OemTableId
-> Then we can get rid of the annoying numbered table name suffix first.
-> The numbered table name suffix cannot be kept consistent to reflect the real index if we allow tables to be dynamically loaded/unloaded.
->
-> This is the first design difficulty we need to solve.
->
-> 2. acpi_table_handler change
-> Now we can append 2 new events to acpi_table_handler - ACPI_TABLE_INSTALL/ACPI_TABLE_UNINSTALL.
-> With which, the sysfs entries can be created/deleted when the table is added to/removed from the global table list.
-> And this should be the working mechanism for us
-> So we actually don't have the trouble to deal with the new kernel object creation/deletion from sysfs.
->
-> I agree the dynamic kernel object creation/deletion need special care.
-> But this actually is what a kernel engineer should do because this kind of things happen here and there throughout the kernel.
-> We should have already been used to that.
->
-> This is the second engineering difficulty we need to face.
->
-> 3. load/unload commanding
-> Now we need a character device in sysfs to handle load/unload command.
-> Well, there are many such kind of files in sysfs, for example, device nodes.
-> So this is not a non-achievable task, but just a difficult engineering task.
-> The system engineers need to be skillful enough to implement this.
-> Like the dynamic kernel object handling, we should have already been used to this.
->
->
-> If you still think this is difficult, the alternative choice is to use acpidbg char device's ioctl interface.
-> That could simplifies this task.
-> And since the ioctl interface is required by ACPICA disassembler, the work on that will be inherited by the disassembler porting.
->
-
-Why can't the dissembler access the tables through the existing sysfs interface?
-
-> This is the last engineering difficulty we need to face.
->
-> So why can't these solutions work for us?
->
-
-It can be done, but it is not the right way to do it, IMO.
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGksDQoNCj4gRnJvbTogbGludXgtYWNwaS1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21haWx0bzps
+aW51eC1hY3BpLQ0KPiBvd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBPY3Rhdmlh
+biBQdXJkaWxhDQo+IFN1YmplY3Q6IFJlOiBbUkZDIFBBVENIIDEwLzEwXSBhY3BpOiBhZGQgc3Vw
+cG9ydCBmb3IgbG9hZGluZyBTU0RUcyB2aWEgY29uZmlnZnMNCj4gDQo+IE9uIFdlZCwgQXByIDYs
+IDIwMTYgYXQgOTowNSBBTSwgWmhlbmcsIEx2IDxsdi56aGVuZ0BpbnRlbC5jb20+IHdyb3RlOg0K
+PiANCj4gPj4gSXQgaXMgaGFyZCB0byBjcmVhdGUgbmV3IGtlcm5lbCBvYmplY3RzIGZyb20gc3lz
+ZnMuIFlvdSBuZWVkIHRvIHJlc29ydA0KPiA+PiB0byBoYWNrcyBsaWtlIHVzaW5nIG5ld190YWJs
+ZSBzeXNmcyBlbnRyaWVzIHdoaWNoIGRvZXMgbm90IG1hcCB0byBhDQo+ID4+IGtlcm5lbCBvYmpl
+Y3QuIFdyaXRlcyBsYXJnZXIgdGhlbiBQQUdFX1NJWkUgYXJlIGltcG9zc2libGUgdG8gaGFuZGxl
+DQo+ID4+IHdpdGggbXVsdGlwbGUgb3BlbiBmaWxlcyBiZWNhdXNlIHlvdSBoYXZlIG5vIG9wZW4g
+Y2FsbGJhY2sgdG8gY3JlYXRlIGENCj4gPj4gZmlsZSBjb250ZXh0LiBJdCBpcyBhbHNvIG5vdCBw
+b3NzaWJsZSB0byBkbyBhbnkgY2xlYW4tdXAgYmVjYXVzZSB0aGVyZQ0KPiA+PiBpcyBubyBjbG9z
+ZSBjYWxsYmFjayBhbmQgaWYgc29tZXRoaW5nIGdvZXMgd3JvbmcgZm9yIGV4YW1wbGUgd2hlbg0K
+PiA+PiB0cnlpbmcgdG8gaW5zdGFsbCB0aGUgdGFibGUgeW91IHdpbGwgbGVhayB0aGUgYWxsb2Nh
+dGVkIG1lbW9yeS4NCj4gPj4NCj4gPj4gY29uZmlnZnMgd2FzIGRlc2lnbmVkIGZvciB0aGUgc3Bl
+Y2lmaWMgcHVycG9zZSBvZiBjcmVhdGluZyBrZXJuZWwNCj4gPj4gb2JqZWN0cyBmcm9tIHVzZXJz
+cGFjZSBhbmQgYWRkcmVzc2VzIGFsbCBvZiB0aGUgbGltaXRhdGlvbnMgYWJvdmUgKGFuZA0KPiA+
+PiBzb21lIG1vcmUpLg0KPiA+Pg0KPiA+PiBJbml0aWFsbHkgSSBzdGFydGVkIHRvIGltcGxlbWVu
+dCB0aGlzIGZ1bmN0aW9uYWxpdHkgdmlhIHN5c2ZzIGJ1dCBJDQo+ID4+IHJ1biBpbnRvIHRoZSBp
+c3N1ZXMgbWVudGlvbmVkIGFib3ZlIGFuZCBkZWNpZGVkIHRvIHVzZSBjb25maWdmcy4NCj4gPiBb
+THYgWmhlbmddDQo+ID4gSSBjYW4gc2Vuc2UgZGlmZmVyZW50IGRpZmZpY3VsdGllcyBmcm9tIHlv
+dXIgZGVzY3JpcHRpb25zLg0KPiA+IExldCBtZSBicmVhayBpdCBkb3duIGludG8gZGV0YWlscy4N
+Cj4gPg0KPiA+IFdlIGFscmVhZHkgaGF2ZSBhY3BpX3RhYmxlX2hhbmRsZXIgd29ya2luZyB0aGVy
+ZSBmb3IgY3JlYXRpbmcgbmV3IEFDUEkNCj4gdGFibGUgZW50cmllcyBmb3IgdXMuDQo+ID4gQmFz
+ZWQgb24gdGhpcyBmYWNpbGl0eSwgbGV0J3MgdGhpbmsgYWJvdXQgdGhlIGZvbGxvd2luZyBzb2x1
+dGlvbjoNCj4gPiAxLiBzeXNmcyBwcmVzZW50aW5nIGNoYW5nZQ0KPiA+IFdlIGNhbiBjaGFuZ2Ug
+dGhlIHRhYmxlIGZpbGUgdG8gYSB0YWJsZSBkaXJlY3Rvcnkgd2hvc2UgbmFtZSBpcyBpbiB0aGUN
+Cj4gZm9sbG93aW5nIGZvcm1hdDoNCj4gPiBUYWJsZVNpZ25hdHVyZS1PZW1JZC1PZW1UYWJsZUlk
+DQo+ID4gVGhlbiB3ZSBjYW4gZ2V0IHJpZCBvZiB0aGUgYW5ub3lpbmcgbnVtYmVyZWQgdGFibGUg
+bmFtZSBzdWZmaXggZmlyc3QuDQo+ID4gVGhlIG51bWJlcmVkIHRhYmxlIG5hbWUgc3VmZml4IGNh
+bm5vdCBiZSBrZXB0IGNvbnNpc3RlbnQgdG8gcmVmbGVjdCB0aGUgcmVhbA0KPiBpbmRleCBpZiB3
+ZSBhbGxvdyB0YWJsZXMgdG8gYmUgZHluYW1pY2FsbHkgbG9hZGVkL3VubG9hZGVkLg0KPiA+DQo+
+ID4gVGhpcyBpcyB0aGUgZmlyc3QgZGVzaWduIGRpZmZpY3VsdHkgd2UgbmVlZCB0byBzb2x2ZS4N
+Cj4gPg0KPiA+IDIuIGFjcGlfdGFibGVfaGFuZGxlciBjaGFuZ2UNCj4gPiBOb3cgd2UgY2FuIGFw
+cGVuZCAyIG5ldyBldmVudHMgdG8gYWNwaV90YWJsZV9oYW5kbGVyIC0NCj4gQUNQSV9UQUJMRV9J
+TlNUQUxML0FDUElfVEFCTEVfVU5JTlNUQUxMLg0KPiA+IFdpdGggd2hpY2gsIHRoZSBzeXNmcyBl
+bnRyaWVzIGNhbiBiZSBjcmVhdGVkL2RlbGV0ZWQgd2hlbiB0aGUgdGFibGUgaXMgYWRkZWQNCj4g
+dG8vcmVtb3ZlZCBmcm9tIHRoZSBnbG9iYWwgdGFibGUgbGlzdC4NCj4gPiBBbmQgdGhpcyBzaG91
+bGQgYmUgdGhlIHdvcmtpbmcgbWVjaGFuaXNtIGZvciB1cw0KPiA+IFNvIHdlIGFjdHVhbGx5IGRv
+bid0IGhhdmUgdGhlIHRyb3VibGUgdG8gZGVhbCB3aXRoIHRoZSBuZXcga2VybmVsIG9iamVjdA0K
+PiBjcmVhdGlvbi9kZWxldGlvbiBmcm9tIHN5c2ZzLg0KPiA+DQo+ID4gSSBhZ3JlZSB0aGUgZHlu
+YW1pYyBrZXJuZWwgb2JqZWN0IGNyZWF0aW9uL2RlbGV0aW9uIG5lZWQgc3BlY2lhbCBjYXJlLg0K
+PiA+IEJ1dCB0aGlzIGFjdHVhbGx5IGlzIHdoYXQgYSBrZXJuZWwgZW5naW5lZXIgc2hvdWxkIGRv
+IGJlY2F1c2UgdGhpcyBraW5kIG9mDQo+IHRoaW5ncyBoYXBwZW4gaGVyZSBhbmQgdGhlcmUgdGhy
+b3VnaG91dCB0aGUga2VybmVsLg0KPiA+IFdlIHNob3VsZCBoYXZlIGFscmVhZHkgYmVlbiB1c2Vk
+IHRvIHRoYXQuDQo+ID4NCj4gPiBUaGlzIGlzIHRoZSBzZWNvbmQgZW5naW5lZXJpbmcgZGlmZmlj
+dWx0eSB3ZSBuZWVkIHRvIGZhY2UuDQo+ID4NCj4gPiAzLiBsb2FkL3VubG9hZCBjb21tYW5kaW5n
+DQo+ID4gTm93IHdlIG5lZWQgYSBjaGFyYWN0ZXIgZGV2aWNlIGluIHN5c2ZzIHRvIGhhbmRsZSBs
+b2FkL3VubG9hZCBjb21tYW5kLg0KPiA+IFdlbGwsIHRoZXJlIGFyZSBtYW55IHN1Y2gga2luZCBv
+ZiBmaWxlcyBpbiBzeXNmcywgZm9yIGV4YW1wbGUsIGRldmljZSBub2Rlcy4NCj4gPiBTbyB0aGlz
+IGlzIG5vdCBhIG5vbi1hY2hpZXZhYmxlIHRhc2ssIGJ1dCBqdXN0IGEgZGlmZmljdWx0IGVuZ2lu
+ZWVyaW5nIHRhc2suDQo+ID4gVGhlIHN5c3RlbSBlbmdpbmVlcnMgbmVlZCB0byBiZSBza2lsbGZ1
+bCBlbm91Z2ggdG8gaW1wbGVtZW50IHRoaXMuDQo+ID4gTGlrZSB0aGUgZHluYW1pYyBrZXJuZWwg
+b2JqZWN0IGhhbmRsaW5nLCB3ZSBzaG91bGQgaGF2ZSBhbHJlYWR5IGJlZW4gdXNlZCB0bw0KPiB0
+aGlzLg0KPiA+DQo+ID4NCj4gPiBJZiB5b3Ugc3RpbGwgdGhpbmsgdGhpcyBpcyBkaWZmaWN1bHQs
+IHRoZSBhbHRlcm5hdGl2ZSBjaG9pY2UgaXMgdG8gdXNlIGFjcGlkYmcgY2hhcg0KPiBkZXZpY2Un
+cyBpb2N0bCBpbnRlcmZhY2UuDQo+ID4gVGhhdCBjb3VsZCBzaW1wbGlmaWVzIHRoaXMgdGFzay4N
+Cj4gPiBBbmQgc2luY2UgdGhlIGlvY3RsIGludGVyZmFjZSBpcyByZXF1aXJlZCBieSBBQ1BJQ0Eg
+ZGlzYXNzZW1ibGVyLCB0aGUgd29yayBvbg0KPiB0aGF0IHdpbGwgYmUgaW5oZXJpdGVkIGJ5IHRo
+ZSBkaXNhc3NlbWJsZXIgcG9ydGluZy4NCj4gPg0KPiANCj4gV2h5IGNhbid0IHRoZSBkaXNzZW1i
+bGVyIGFjY2VzcyB0aGUgdGFibGVzIHRocm91Z2ggdGhlIGV4aXN0aW5nIHN5c2ZzIGludGVyZmFj
+ZT8NCltMdiBaaGVuZ10gDQpUaGUgYWNwaWRiZyB1dGlsaXR5IHNob3VsZCBiZSBzZWxmLWNvbnRh
+aW5lZC4NCkl0IHdpbGwgYmUgYmFjayBwb3J0ZWQgdG8gQUNQSUNBLg0KU28gaXQgbWlnaHQgYmUg
+cG9ydGVkIHRvIG90aGVyIE9TUE1zLg0KRnJvbSB0aGlzIHBvaW50IG9mIHZpZXcsIGFjcGlkYmcg
+bmVlZCBzdWNoIGtpbmQgb2YgZGVzaWduIC0gZG9pbmcgZXZlcnl0aGluZyBpdCBuZWVkIGZyb20g
+YW4gT1NQTSBrZXJuZWwgdXNpbmcgYSBzaW5nbGUgY2hhciBkZXZpY2UuDQoNClRoYW5rcyBhbmQg
+YmVzdCByZWdhcmRzDQotTHYNCg0KPiANCj4gPiBUaGlzIGlzIHRoZSBsYXN0IGVuZ2luZWVyaW5n
+IGRpZmZpY3VsdHkgd2UgbmVlZCB0byBmYWNlLg0KPiA+DQo+ID4gU28gd2h5IGNhbid0IHRoZXNl
+IHNvbHV0aW9ucyB3b3JrIGZvciB1cz8NCj4gPg0KPiANCj4gSXQgY2FuIGJlIGRvbmUsIGJ1dCBp
+dCBpcyBub3QgdGhlIHJpZ2h0IHdheSB0byBkbyBpdCwgSU1PLg0KPiAtLQ0KPiBUbyB1bnN1YnNj
+cmliZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtYWNw
+aSIgaW4NCj4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2VyLmtlcm5lbC5v
+cmcNCj4gTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpv
+cmRvbW8taW5mby5odG1sDQo=
