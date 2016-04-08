@@ -1,23 +1,32 @@
-From: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Subject: =?utf-8?Q?=D0=9A=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D1=81=D0?=
-	=?utf-8?Q?=BA=D0=B8=D0=B5_=D0=B1=D0=B0=D0=B7=D1=8B_=D1=82?=
-	=?utf-8?Q?=D0=B5=D0=BB_+79139393506?=
-Date: Fri, 8 Apr 2016 18:46:36 +0600
-Message-ID: <867C14ACD90D22E13D3871CE6A80BEC3@vger.kernel.org>
+From: AKINWUMI <urr@adminnfo3.website.tk>
+Subject: FROM: MR. OLIVER SENO!!
+Date: Fri, 8 Apr 2016 11:53:30 -0700
+Message-ID: <BY2PR17MB04889D44D07E18F4BC2EE789D0910__12201.2377404191$1460142574$gmane$org@BY2PR17MB0488.namprd17.prod.outlook.com>
+Reply-To: <officeosenol@yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from casasgeo.com ([200.94.75.212]:53921 "EHLO localhost.localdomain"
-	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752727AbcDHPr3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 8 Apr 2016 11:47:29 -0400
-Received: from 200.94.75.212 (localhost [IPv6:::1])
-	by localhost.localdomain (Postfix) with SMTP id 09B6AA091379
-	for <linux-i2c@vger.kernel.org>; Fri,  8 Apr 2016 07:46:37 -0500 (CDT)
+Received: from mail-by2hn0245.outbound.protection.outlook.com ([207.46.100.245]:25114
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1758853AbcDHTJA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 8 Apr 2016 15:09:00 -0400
+Content-Description: Mail message body
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Recipients <urr@adminnfo3.website.tk>
 
-=D0=9A=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D1=81=D0=BA=D0=B8=D0=B5 =D0=B1=D0=B0=
-=D0=B7=D1=8B =D1=82=D0=B5=D0=BB +79139393506
+Dear Sir.
+
+I bring you greetings. My name is Mr.Oliver Seno Lim, I am a staff of Abbey National Plc. London and heading our regional office in West Africa. Our late customer named Engr.Ben W.westland, made a fixed deposit amount of US$7Million.He did not declare any next of kin in any of his paper work, I want you as a foreigner to stand as the beneficiary to transfer this funds out of my bank into your account, after the successful transfer, we shall share in the ratio of 30% for you, 70%for me. Should you be interested please send me your information:
+
+1,Full names.
+2,current residential address.
+3,Tele/Fax numbers./your work.
+ 
+   
+All I need from you is your readiness, trustworthiness and edication. Please email me directly on my private email address: officeosenol@yahoo.com) so we can begin arrangements and I would give you more information on how we would handle this venture and once i hear from you i will give you information of the bank for the transferring funds on your name.
+
+Regards,
+Mr.Oliver Seno Lim 
