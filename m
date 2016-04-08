@@ -1,55 +1,64 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2] i2c: ismt: Add Intel DNV PCI ID
-Date: Fri,  8 Apr 2016 15:41:08 +0300
-Message-ID: <1460119268-23338-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:15923 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754281AbcDHMlR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 8 Apr 2016 08:41:17 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Christian Ruppert <christian.ruppert@alitech.com>
+Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
+Date: Fri, 8 Apr 2016 16:01:24 +0200
+Message-ID: <5707B9B4.6020402@alitech.com>
+References: <1459478866-3896-1-git-send-email-lucas.de.marchi@gmail.com>
+ <57066284.30403@alitech.com> <1460050108.5123.6.camel@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1460050108.5123.6.camel@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "De Marchi, Lucas" <lucas.demarchi@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, scott.lawson@intel.com, alexandra.yates@intel.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org
 
-Intel DNV has the same iSMT SMBus host controller than Intel Avoton. Add
-DNV PCI ID to the list of supported devices.
+On 2016-04-07 19:28, De Marchi, Lucas wrote:
+> Hi Christian,
+> 
+> On Thu, 2016-04-07 at 15:37 +0200, Christian Ruppert wrote:
+>> Dear Lucas,
+>>
+>> Sorry for the late reply but I had to put our test environment back
+>> together to check this patch. I'll keep it around for a while in case
+>> you have further iterations to test.
+> 
+> np, I'll try to iterate faster on this patch now, too.
+> 
+>> On Linux-4.6.0-rc2 the behaviour is still the same: The kernel locks up
+>> in an irq loop at dwi2c driver probe time. If I don't apply the patch
+>> everything works fine and the system boots and talks normally on the i2c
+>> bus.
+> 
+> :(
+> 
+> I really hoped this would work in your case.
+> 
+>> One solution might be to add a device-tree (and acpi) flag to tell the
+>> driver that it does not need to expect any nastily behaved devices on
+>> the bus. If this flag is given, the driver could use the faster
+>> disable-interrupt strategy. Without the flag we need to fall back to the
+>> conservative disable-i2c-controller strategy.
+> 
+> I'd like to try some other approaches before that. What if we start with it
+> disabled and enable at first use?
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
-Wolfram,
+I think this might work in our case and be worth a try. When thinking
+about it, it might even be cleaner to add a way to specify a list of
+reset pins (e.g. through the GPIO reset framework) to trigger before
+activating the bus. This would allow for more than one badly behaved
+devices on the bus and also render everything more independent of the
+probe order.
 
-This is the same patch that conflicted with another patch by Alexandra [1].
-We have now verified that it is the iSMT driver that is compatible with
-this particular PCI ID (not i2c-i801.c). Not tested on a real hardware as I
-do not have such machine available.
+I'm afraid that the general case (bad device behaviour after the first
+transfer) still cannot be covered by this strategy but I'm not sure if I
+have a way to test this.
 
-v2: Order PCI IDs by their value
+> After that we keep the approach of just
+> disabling the interrupts.  I can prep a patch for that.
 
-[1] https://patchwork.ozlabs.org/patch/584758/
+OK, I'll give it a try when it's ready.
 
- drivers/i2c/busses/i2c-ismt.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index 7ba795b24e75..1c8707710098 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -75,6 +75,7 @@
- /* PCI DIDs for the Intel SMBus Message Transport (SMT) Devices */
- #define PCI_DEVICE_ID_INTEL_S1200_SMT0	0x0c59
- #define PCI_DEVICE_ID_INTEL_S1200_SMT1	0x0c5a
-+#define PCI_DEVICE_ID_INTEL_DNV_SMT	0x19ac
- #define PCI_DEVICE_ID_INTEL_AVOTON_SMT	0x1f15
- 
- #define ISMT_DESC_ENTRIES	2	/* number of descriptor entries */
-@@ -180,6 +181,7 @@ struct ismt_priv {
- static const struct pci_device_id ismt_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT0) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT1) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMT) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_AVOTON_SMT) },
- 	{ 0, }
- };
--- 
-2.8.0.rc3
+Greetings,
+  Christian
