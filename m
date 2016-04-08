@@ -1,50 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: jz4780: really prevent potential division by zero
-Date: Fri,  8 Apr 2016 12:03:47 +0200
-Message-ID: <1460109827-3608-1-git-send-email-wsa@the-dreams.de>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
+Date: Fri, 8 Apr 2016 15:17:49 +0300
+Message-ID: <5707A16D.2010800@linux.intel.com>
+References: <1459478866-3896-1-git-send-email-lucas.de.marchi@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:55764 "EHLO pokefinder.org"
+Received: from mga02.intel.com ([134.134.136.20]:58751 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753756AbcDHKED (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 8 Apr 2016 06:04:03 -0400
+	id S1757888AbcDHMSD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 8 Apr 2016 08:18:03 -0400
+In-Reply-To: <1459478866-3896-1-git-send-email-lucas.de.marchi@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>, Axel Lin <axel.lin@ingics.com>, Wolfram Sang <wsa@the-dreams.de>
+To: Lucas De Marchi <lucas.de.marchi@gmail.com>, linux-i2c@vger.kernel.org
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, christian.ruppert@alitech.com
 
-Make sure that 'ret' is populated before we leave and check the variable
-which is actually used as a divisor. Add missing '\n' while we are here.
+Hi
 
-Reported-by: Axel Lin <axel.lin@ingics.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Fixes: 34cf2acdafaa ("i2c: jz4780: prevent potential division by zero")
----
- drivers/i2c/busses/i2c-jz4780.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+On 04/01/2016 05:47 AM, Lucas De Marchi wrote:
+> From: Lucas De Marchi <lucas.demarchi@intel.com>
+>
+> Disabling the adapter after each transfer is pretty bad for sensors and
+> other devices doing small transfers at a high rate. It slows down the
+> transfer rate a lot since each of them have to wait the adapter to be
+> enabled again.
+>
+> It was done in order to avoid the adapter to generate interrupts when
+> it's not being used. Instead of doing that here we just disable the
+> interrupt generation in the controller. With a small program test to
+> read/write registers in a sensor the speed doubled. Example below with
+> write sequences of 16 bytes:
+>
+> Before:
+> 	i2c-transfer-time -w -a 0x40 -x 6 -n 20000 -- 0 0 0xd0 0x07 0 0 0xd0 0x07 0 0 0xd0 0x07 0 0 0xd0 0x07
+> 	num_transfers=20000
+> 	transfer_time_avg=1032.728500us
+>
+> After:
+> 	i2c-transfer-time -w -a 0x40 -x 6 -n 20000 -- 0 0 0xd0 0x07 0 0 0xd0 0x07 0 0 0xd0 0x07 0 0 0xd0 0x07
+> 	num_transfers=20000
+> 	transfer_time_avg=470.256050us
+>
+I gave a test to this patch and saw similar improvements when dumping 
+large set of registers from I2C connected audio codec.
 
-diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-index 597408fc6834fc..ba14a863b451f9 100644
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -770,12 +770,17 @@ static int jz4780_i2c_probe(struct platform_device *pdev)
- 
- 	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
- 				   &clk_freq);
--	if (ret || clk_freq == 0) {
--		dev_err(&pdev->dev, "clock-frequency not specified in DT");
-+	if (ret) {
-+		dev_err(&pdev->dev, "clock-frequency not specified in DT\n");
- 		goto err;
- 	}
- 
- 	i2c->speed = clk_freq / 1000;
-+	if (i2c->speed == 0) {
-+		ret = -EINVAL;
-+		dev_err(&pdev->dev, "clock-frequency minimum is 1000\n");
-+		goto err;
-+	}
- 	jz4780_i2c_set_speed(i2c);
- 
- 	dev_info(&pdev->dev, "Bus frequency is %d KHz\n", i2c->speed);
+echo Y > /sys/kernel/debug/regmap/i2c-10EC5640\:00/cache_bypass
+time cat /sys/kernel/debug/regmap/i2c-10EC5640\:00/registers >/dev/null
+
+I checked the runtime PM status of adapter was suspended before running 
+above cat command in order to get comparable results.
+
+Before patch time was ~0.55 - ~0.76 s and with patch applied time was 
+~0.16 - ~0.25 s.
+
+Hopefully we'll find how to prevent regression on Christian's machines.
+
 -- 
-2.7.0
+Jarkko
