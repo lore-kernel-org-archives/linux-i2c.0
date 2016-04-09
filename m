@@ -1,30 +1,30 @@
-From: Axel Lin <axel.lin@ingics.com>
-Subject: Re: [PATCH] i2c: jz4780: really prevent potential division by zero
-Date: Sat, 9 Apr 2016 07:42:07 +0800
-Message-ID: <CAFRkauABTjkaYd0N7_P6ZdL6vhhvXh7E=se00h7e3uV1G7cm9w@mail.gmail.com>
-References: <1460109827-3608-1-git-send-email-wsa@the-dreams.de>
+From: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: =?utf-8?Q?=D0=9A=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D1=81=D0?=
+	=?utf-8?Q?=BA=D0=B8=D0=B5_=D0=B1=D0=B0=D0=B7=D1=8B_=D1=82?=
+	=?utf-8?Q?=D0=B5=D0=BB_+79133913837_=28t=D0=B5l=D0=B5gram?=
+	=?utf-8?Q?=5Fwhatsapp=5Fvib=D0=B5r=29_Skype=3A_prodawez38?=
+	=?utf-8?Q?9_Email=3A_prodawez128=40yandex=2Eru?=
+Date: Sat, 9 Apr 2016 14:54:50 +0600
+Message-ID: <25DFB70F7AAE81429E9BD26DC9F40846@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f51.google.com ([209.85.215.51]:33113 "EHLO
-	mail-lf0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933034AbcDHXmO (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 8 Apr 2016 19:42:14 -0400
-Received: by mail-lf0-f51.google.com with SMTP id e190so92964786lfe.0
-        for <linux-i2c@vger.kernel.org>; Fri, 08 Apr 2016 16:42:08 -0700 (PDT)
-In-Reply-To: <1460109827-3608-1-git-send-email-wsa@the-dreams.de>
+Received: from homa.sharif.ir ([81.31.160.35]:54255 "EHLO homa.sharif.ir"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751266AbcDIIy5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 9 Apr 2016 04:54:57 -0400
+Received: from mail.ce.sharif.edu (unknown [213.233.170.3])
+	by homa.sharif.ir (Postfix) with ESMTPS id EFE09E093C
+	for <linux-i2c@vger.kernel.org>; Sat,  9 Apr 2016 13:24:54 +0430 (IRDT)
+Received: from 213.233.170.3 (mail.ce.sharif.edu [127.0.0.1])
+	by mail.ce.sharif.edu (Postfix) with SMTP id EB7934100E
+	for <linux-i2c@vger.kernel.org>; Sat,  9 Apr 2016 13:25:32 +0430 (IRDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+To: linux-i2c@vger.kernel.org
 
-2016-04-08 18:03 GMT+08:00 Wolfram Sang <wsa@the-dreams.de>:
-> Make sure that 'ret' is populated before we leave and check the variable
-> which is actually used as a divisor. Add missing '\n' while we are here.
->
-> Reported-by: Axel Lin <axel.lin@ingics.com>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Fixes: 34cf2acdafaa ("i2c: jz4780: prevent potential division by zero")
-
-Looks good to me.
-Thanks
+=D0=9A=D0=BB=D0=B8=D0=B5=D0=BD=D1=82=D1=81=D0=BA=D0=B8=D0=B5 =D0=B1=D0=B0=
+=D0=B7=D1=8B =D1=82=D0=B5=D0=BB +79133913837 (t=D0=B5l=D0=B5gr=D0=B0m_w=
+h=D0=B0ts=D0=B0pp_vib=D0=B5r) Skype: prodawez389 Email: prodawez128@yan=
+dex.ru
