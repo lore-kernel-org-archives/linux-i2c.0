@@ -1,88 +1,210 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.6
-Date: Sun, 10 Apr 2016 09:31:38 +0200
-Message-ID: <20160410073134.GA1778@katana>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v6 08/24] iio: imu: inv_mpu6050: convert to use an
+ explicit i2c mux core
+Date: Sun, 10 Apr 2016 15:12:29 +0100
+Message-ID: <570A5F4D.7040104@kernel.org>
+References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
+ <1459673574-11440-9-git-send-email-peda@lysator.liu.se>
+ <5700F594.9090105@kernel.org> <570103AE.1020707@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43581 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751547AbcDJHbr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 10 Apr 2016 03:31:47 -0400
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <570103AE.1020707-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matt Ranostay <matt.ranostay-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On 03/04/16 12:51, Peter Rosin wrote:
+> On 2016-04-03 12:51, Jonathan Cameron wrote:
+>> On 03/04/16 09:52, Peter Rosin wrote:
+>>> From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>>>
+>>> Allocate an explicit i2c mux core to handle parent and child adapters
+>>> etc. Update the select/deselect ops to be in terms of the i2c mux core
+>>> instead of the child adapter.
+>>>
+>>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>> I'm mostly fine with this (though one unrelated change seems to have snuck
+>> in).  However, I'm not set up to test it - hence other than fixing the change
+>> you can have my ack, but ideal would be a tested by from someone with
+>> relevant hardware...  However, it looks to be a fairly mechanical change so
+>> if no one is currently setup to test it, then don't let it hold up the
+>> series too long!
+>>
+>> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> 
+> Thanks for your acks!
+> 
+>> Jonathan
+>>> ---
+>>>  drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c |  2 +-
+>>>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c |  1 -
+>>>  drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c  | 32 +++++++++++++-----------------
+>>>  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |  3 ++-
+>>>  4 files changed, 17 insertions(+), 21 deletions(-)
+>>>
+>>> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+>>> index 2771106fd650..f62b8bd9ad7e 100644
+>>> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+>>> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+>>> @@ -183,7 +183,7 @@ int inv_mpu_acpi_create_mux_client(struct i2c_client *client)
+>>>  			} else
+>>>  				return 0; /* no secondary addr, which is OK */
+>>>  		}
+>>> -		st->mux_client = i2c_new_device(st->mux_adapter, &info);
+>>> +		st->mux_client = i2c_new_device(st->muxc->adapter[0], &info);
+>>>  		if (!st->mux_client)
+>>>  			return -ENODEV;
+>>>  	}
+>>> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+>>> index d192953e9a38..0c2bded2b5b7 100644
+>>> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+>>> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+>>> @@ -23,7 +23,6 @@
+>>>  #include <linux/kfifo.h>
+>>>  #include <linux/spinlock.h>
+>>>  #include <linux/iio/iio.h>
+>>> -#include <linux/i2c-mux.h>
+>>>  #include <linux/acpi.h>
+>>>  #include "inv_mpu_iio.h"
+>>>  
+>>> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+>>> index f581256d9d4c..0d429d788106 100644
+>>> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+>>> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+>>> @@ -15,7 +15,6 @@
+>>>  #include <linux/delay.h>
+>>>  #include <linux/err.h>
+>>>  #include <linux/i2c.h>
+>>> -#include <linux/i2c-mux.h>
+>>>  #include <linux/iio/iio.h>
+>>>  #include <linux/module.h>
+>>>  #include "inv_mpu_iio.h"
+>>> @@ -52,10 +51,9 @@ static int inv_mpu6050_write_reg_unlocked(struct i2c_client *client,
+>>>  	return 0;
+>>>  }
+>>>  
+>>> -static int inv_mpu6050_select_bypass(struct i2c_adapter *adap, void *mux_priv,
+>>> -				     u32 chan_id)
+>>> +static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+>>>  {
+>>> -	struct i2c_client *client = mux_priv;
+>>> +	struct i2c_client *client = i2c_mux_priv(muxc);
+>>>  	struct iio_dev *indio_dev = dev_get_drvdata(&client->dev);
+> 
+> Here, the existing code uses drv_get_drvdata to get from i2c_client to iio_dev...
+> 
+>>>  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+>>>  	int ret = 0;
+>>> @@ -84,10 +82,9 @@ write_error:
+>>>  	return ret;
+>>>  }
+>>>  
+>>> -static int inv_mpu6050_deselect_bypass(struct i2c_adapter *adap,
+>>> -				       void *mux_priv, u32 chan_id)
+>>> +static int inv_mpu6050_deselect_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+>>>  {
+>>> -	struct i2c_client *client = mux_priv;
+>>> +	struct i2c_client *client = i2c_mux_priv(muxc);
+>>>  	struct iio_dev *indio_dev = dev_get_drvdata(&client->dev);
+> 
+> ...and here too...
+> 
+>>>  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+>>>  
+>>> @@ -136,16 +133,15 @@ static int inv_mpu_probe(struct i2c_client *client,
+>>>  		return result;
+>>>  
+>>>  	st = iio_priv(dev_get_drvdata(&client->dev));
+>>> -	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
+>>> -					      &client->dev,
+>>> -					      client,
+>>> -					      0, 0, 0,
+>>> -					      inv_mpu6050_select_bypass,
+>>> -					      inv_mpu6050_deselect_bypass);
+>>> -	if (!st->mux_adapter) {
+>>> -		result = -ENODEV;
+>>> +	st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0, 0,
+>>> +				       0, 0, 0,
+>>> +				       inv_mpu6050_select_bypass,
+>>> +				       inv_mpu6050_deselect_bypass);
+>>> +	if (IS_ERR(st->muxc)) {
+>>> +		result = PTR_ERR(st->muxc);
+>>>  		goto out_unreg_device;
+>>>  	}
+>>> +	st->muxc->priv = client;
+>>>  
+>>>  	result = inv_mpu_acpi_create_mux_client(client);
+>>>  	if (result)
+>>> @@ -154,7 +150,7 @@ static int inv_mpu_probe(struct i2c_client *client,
+>>>  	return 0;
+>>>  
+>>>  out_del_mux:
+>>> -	i2c_del_mux_adapter(st->mux_adapter);
+>>> +	i2c_mux_del_adapters(st->muxc);
+>>>  out_unreg_device:
+>>>  	inv_mpu_core_remove(&client->dev);
+>>>  	return result;
+>>> @@ -162,11 +158,11 @@ out_unreg_device:
+>>>  
+>>>  static int inv_mpu_remove(struct i2c_client *client)
+>>>  {
+>>> -	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+>>> +	struct iio_dev *indio_dev = dev_get_drvdata(&client->dev);
+>> Why this change?  Seems unrelated.
+> 
+> ...which is why I made this change. Maybe a bad call, but the inconsistency
+> disturbed me and I was changing the function anyway. I could split it out
+> to its own commit I suppose, or should I just not bother at all?
+Funny thing is I'd say the i2c_get_clientdata option is the better of the two!
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I don't really care though either way.
 
-Linus,
+J
+> 
+> Cheers,
+> Peter
+> 
+>>>  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+>>>  
+>>>  	inv_mpu_acpi_delete_mux_client(client);
+>>> -	i2c_del_mux_adapter(st->mux_adapter);
+>>> +	i2c_mux_del_adapters(st->muxc);
+>>>  
+>>>  	return inv_mpu_core_remove(&client->dev);
+>>>  }
+>>> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+>>> index e302a49703bf..bb3cef6d7059 100644
+>>> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+>>> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+>>> @@ -11,6 +11,7 @@
+>>>  * GNU General Public License for more details.
+>>>  */
+>>>  #include <linux/i2c.h>
+>>> +#include <linux/i2c-mux.h>
+>>>  #include <linux/kfifo.h>
+>>>  #include <linux/spinlock.h>
+>>>  #include <linux/iio/iio.h>
+>>> @@ -127,7 +128,7 @@ struct inv_mpu6050_state {
+>>>  	const struct inv_mpu6050_hw *hw;
+>>>  	enum   inv_devices chip_type;
+>>>  	spinlock_t time_stamp_lock;
+>>> -	struct i2c_adapter *mux_adapter;
+>>> +	struct i2c_mux_core *muxc;
+>>>  	struct i2c_client *mux_client;
+>>>  	unsigned int powerup_count;
+>>>  	struct inv_mpu6050_platform_data plat_data;
+>>>
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-some bugfixes from I2C:
-
-* fix a uevent triggered boot problem by removing a useless debug print
-* fix sysfs-attributes of the new i2c-demux-pinctrl driver to follow
-  standard kernel behaviour
-* fix a potential division-by-zero error (needed two takes)
-
-Please pull.
-
-   Wolfram
-
-
-The following changes since commit f55532a0c0b8bb6148f4e07853b876ef73bc69ca:
-
-  Linux 4.6-rc1 (2016-03-26 16:03:24 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to caf280800aaf73f0796d1bb3fa0f6576c8222258:
-
-  i2c: jz4780: really prevent potential division by zero (2016-04-09 08:36:44 +0200)
-
-----------------------------------------------------------------
-Ben Hutchings (1):
-      i2c: mux: demux-pinctrl: Clean up sysfs attributes
-
-Wolfram Sang (5):
-      i2c: prevent endless uevent loop with CONFIG_I2C_DEBUG_CORE
-      i2c: mux: demux-pinctrl: Update docs to new sysfs-attributes
-      i2c: jz4780: prevent potential division by zero
-      Revert "i2c: jz4780: prevent potential division by zero"
-      i2c: jz4780: really prevent potential division by zero
-
- .../ABI/testing/sysfs-platform-i2c-demux-pinctrl   | 29 +++++++---------
- drivers/i2c/busses/i2c-jz4780.c                    |  7 +++-
- drivers/i2c/i2c-core.c                             | 10 ++----
- drivers/i2c/muxes/i2c-demux-pinctrl.c              | 39 ++++++++++++++++------
- 4 files changed, 49 insertions(+), 36 deletions(-)
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXCgFWAAoJEBQN5MwUoCm2q88QAKHodu/Of/EWZk7yVV2rprLo
-GTE0km01eouXoFGP+pGVTZNnb8Gq2t0ZMVHAzcJQxg13C0YiUh+kzPaH4YXgg1oL
-aa4YLKH+9TOQCok8/Xhe0GXxiaROz6FMsGLYFudpAXDF45xqFaAJbR6Oy/zRfkPb
-06SNjvyG9fQnIF35h+dW7Qq6nLAhG5ccPS1T8258uLZTUibBkKR4T3cscOmJhkvm
-hPBXh/gxxk+BfhLlpUfn5jt3mHGZckJWVNcpurTFlMFtzwsuE9PXIUNwl0WXj8BV
-p+jsDxqGS7T3gIf9DFb6S4le7sryJZl/oaYsuc9qE0mN/B+KMuYvTIvMgO9P6fKb
-BYw12Ly60SJEgod5PYMmyRXQbiDS9kwmKdcbYLNNSh/Wz/vLoCEkGPI9QzaiWsF+
-RrpwQVi4ontG3liM5tAQNE4EDFVodw78OygjYPIHkGaZp86RjAQ+s4m6bw9pJlyd
-Gf1WyBn0wyWkv1iYpXD7gZHO14LKNnMrO8heyseULaxHpG0jMm/A4uaybLmrRGlS
-GctHT3GquXf83kSrrEYkpSZxoA4X+lO+6OjtyP46jSmOYZ4Gerd5ksE4PCsKr47D
-RT1gACrPz3+jhWRjWKkMEHKeVRPVd9rVEtASerDeU5s4wKwRUO91T47WQsDoZkxJ
-BuyPSqtmQkKCmgw2Fprr
-=ELZ4
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
