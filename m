@@ -1,42 +1,57 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH V2 1/2] i2c: core: add devm apis for i2c_new_dummy and
- i2c_unregister
-Date: Mon, 11 Apr 2016 21:34:29 +0530
-Message-ID: <570BCB0D.2090004@nvidia.com>
-References: <1456753023-20559-1-git-send-email-ldewangan@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 01/18] i2c: guarantee that I2C_M_RD will be 0x0001 forever
+Date: Mon, 11 Apr 2016 18:54:47 +0200
+Message-ID: <20160411165447.GB1532@katana>
+References: <1459709101-24462-1-git-send-email-wsa@the-dreams.de>
+ <1459709101-24462-2-git-send-email-wsa@the-dreams.de>
+ <1459765571.2503.15.camel@linux.intel.com>
+ <1459765801.2503.17.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1456753023-20559-1-git-send-email-ldewangan@nvidia.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: wsa@the-dreams.de, corbet@lwn.net
-Cc: bjorn.andersson@sonymobile.com, gregkh@linuxfoundation.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:59659 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751426AbcDKQyy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 11 Apr 2016 12:54:54 -0400
+Content-Disposition: inline
+In-Reply-To: <1459765801.2503.17.camel@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "Shevchenko, Andriy" <andriy.shevchenko@intel.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi Wolfram,
 
-On Monday 29 February 2016 07:07 PM, Laxman Dewangan wrote:
-> Add resource managed version of i2c_new_dummy() and
-> i2c_unregister_device().
->
-> This helps in reducing the code size in error path and device
-> remove callbacks and making proper sequence for deallocations.
->
-> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
->
-> ---
-> Changes from V1:
-> - Got review comment on similar change for pinctrl and taken care of
->    the same on this patch as V1 has similar issue.
-> - Add the new devm_ APIs in the Documentation/driver-model/devres.txt
-> - Will push the change for using this new APIs later once this is
->    applied as most of consumer for these APIs are in other subsystem like
->    MFD/RTC.
->
-Can you please review?
+--i9LlY+UWpKt15+FH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-If required, I can resend the patch.
 
-Thanks,
-Laxman
+> Ah, overlooked it. Anyway, perhaps worth to mention under
+> Documentation. What do you think?
+
+Unsure. We can add it later, I'd say.
+
+
+--i9LlY+UWpKt15+FH
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXC9bXAAoJEBQN5MwUoCm29rIQAJokItEJrJgIVMi5Hj/zcCy0
+bYHyIUsXyfh7hXWXY8IPho+Zb4w4tXqNiOu5CnUP+kFjt+H0emICfq5qKKvqBCAZ
+jCvjNEnxF+DWG+WqTiGcciMUewXutQO4OHbkTMz06JsB4x9haA5nLeHSd+v0HL0D
+EmbFFfxJLUzrSrwcnfE3duPXWMyy43xs8kha/Izez3ign3AL24Jwh+KTKn82nx16
+iQWAs7lDGPAXx1ZGnv1FLPkDPhOAZMLuZ53yhn3sktS2YOLR7ynavoGr9LPKvYoE
+72nIxhdqVZDJdKvywQJy3iJb4MpR9YGFY39k4azEnYBEmHC204qQ/Exn40eDGtfX
+adxsQhjDV1HSqBi/5Iz+g1F1OdrgjMl3g8BRXwK6bwKRy77E1iiKg+uCcUuVFZM+
+7a/9IajTh+zqKUC6aSIvMNVFboEMNXIfeDpFd45bWI7l1GI+Zumv01tRlKy0eoEl
+cwRBRlbE532PgMfVPcVuHcNwnpgt5MjcBLyw9v+Z9MRzYnHhuDoMgA4jmeh6UJzo
+eeW3IqL5t5jQkTw5FPjo2wUkkmh+fYoQjy9k8gxrXzj76fyWIlI/uvCtWcwAd2Pt
+3t2tVI83iw56KaaaX3VSNAvnI6PA7zlN5rQJjjvclhhJ0vuHexmQ9S6BeGdxB9xn
+s6/AnrPfkULVNTmnLhkk
+=7G0a
+-----END PGP SIGNATURE-----
+
+--i9LlY+UWpKt15+FH--
