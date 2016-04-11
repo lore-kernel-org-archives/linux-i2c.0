@@ -1,125 +1,62 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: let I2C masters ignore their children for PM
-Date: Mon, 11 Apr 2016 14:53:30 +0200
-Message-ID: <CAPDyKFqXjsrm13kRopVor_5_m_gTfunqfac4ozFL=w1w9k3QEw@mail.gmail.com>
+Date: Mon, 11 Apr 2016 15:02:17 +0200
+Message-ID: <20160411130217.GB4719@katana>
 References: <1460374700-23269-1-git-send-email-linus.walleij@linaro.org>
+ <CAPDyKFqXjsrm13kRopVor_5_m_gTfunqfac4ozFL=w1w9k3QEw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="98e8jtXdkpgskNou"
 Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1460374700-23269-1-git-send-email-linus.walleij@linaro.org>
+Content-Disposition: inline
+In-Reply-To: <CAPDyKFqXjsrm13kRopVor_5_m_gTfunqfac4ozFL=w1w9k3QEw@mail.gmail.com>
 Sender: linux-pm-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 11 April 2016 at 13:38, Linus Walleij <linus.walleij@linaro.org> wrote:
-> When using a certain I2C device with runtime PM enabled on
-> a certain I2C bus adaper the following happens:
->
-> struct amba_device *foo
->    \
->    struct i2c_adapter *bar
->       \
->       struct i2c_client *baz
->
-> The AMBA device foo has its device PM struct set to ignore
-> children with pm_suspend_ignore_children(&foo->dev, true).
-> This makes runtime PM work just fine locally in the driver:
-> the fact that devices on the bus are suspended or resumed
-> individually does not affect its operation, and the hardware
-> does not power up unless transferring messages.
->
-> However this child ignorance property is not inherited into
-> the struct i2c_adapter *bar.
->
-> On system suspend things will work fine.
->
-> On system resume the following annoying phenomenon occurs:
->
-> - In the pm_runtime_force_resume() path of
->   struct i2c_client *baz, pm_runtime_set_active(&baz->dev); is
->   eventually called.
->
-> - This becomes __pm_runtime_set_status(&baz->dev, RPM_ACTIVE);
->
-> - __pm_runtime_set_status() detects that RPM state is changed,
->   and checks whether the parent is:
->   not active (RPM_ACTIVE) and not ignoring its children
->   If this happens it concludes something is wrong, because
->   a parent that is not ignoring its children must be active
->   before any children activate.
->
-> - Since the struct i2c_adapter *bar does not ignore
->   its children, the PM core thinks that it must indeed go
->   online before its children, the check bails out with
->   -EBUSY, i.e. the i2c_client *baz thinks it can't work
->   because it's parent is not online, and it respects its
->   parent.
->
-> - In the driver the .resume() callback returns -EBUSY from
->   the runtime_force_resume() call as per above. This leaves
->   the device in a suspended state, leading to bad behaviour
->   later when the device is used. The following debug
->   print is made with an extra printg patch but illustrates
->   the problem:
->
-> [   17.040832] bh1780 2-0029: parent (i2c-2) is not active
->                parent->power.ignore_children = 0
-> [   17.040832] bh1780 2-0029: pm_runtime_force_resume:
->                pm_runtime_set_active() failed (-16)
-> [   17.040863] dpm_run_callback():
->                pm_runtime_force_resume+0x0/0x88 returns -16
-> [   17.040863] PM: Device 2-0029 failed to resume: error -16
->
-> Fix this by letting all struct i2c_adapter:s ignore their
-> children: i2c children have no business doing keeping
-> their parents awake: they are completely autonomous
-> devices that just use their parent to talk, a usecase
-> which must be power managed in the host on a per-message
-> basis.
->
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Ulf Hansson <ulf.hansson@linaro.org>
-> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-> Cc: linux-pm@vger.kernel.org
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v1->v2:
-> - Change subject from
->   "let I2C masters inherit suspend child ignorance"
->   to
->   "let I2C masters ignore their children for PM"
-> - Use the big hammer and do the sensible thing:
->   mark all i2c adapters as ignoring their children
->   when it comes to power management.
-> ---
->  drivers/i2c/i2c-core.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 0f2f8484e8ec..5e114342dcbc 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1566,6 +1566,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
->
->         pm_runtime_no_callbacks(&adap->dev);
->         pm_runtime_enable(&adap->dev);
-> +       pm_suspend_ignore_children(&adap->dev, true);
 
-I guess it doesn't matter much, but I would set this before calling
-pm_runtime_enable().
+--98e8jtXdkpgskNou
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
->  #ifdef CONFIG_I2C_COMPAT
->         res = class_compat_create_link(i2c_adapter_compat_class, &adap->dev,
-> --
-> 2.4.3
->
+> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > index 0f2f8484e8ec..5e114342dcbc 100644
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> > @@ -1566,6 +1566,7 @@ static int i2c_register_adapter(struct i2c_adapte=
+r *adap)
+> >
+> >         pm_runtime_no_callbacks(&adap->dev);
+> >         pm_runtime_enable(&adap->dev);
+> > +       pm_suspend_ignore_children(&adap->dev, true);
+>=20
+> I guess it doesn't matter much, but I would set this before calling
+> pm_runtime_enable().
 
-Besides the nitpick, feel free to add my:
+I was wondering about that, too.
 
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-Kind regards
-Uffe
+--98e8jtXdkpgskNou
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXC6BZAAoJEBQN5MwUoCm23ssQAIHhGQsNZjTRv6ZQaRRz7+Cd
+whdYgxCDOa4ohqxL6DidoKQsCR456ZT/eomqvPytaR2KV+QwWr1ImAnNF49DKHXs
+04Zd8yQy4Qsnep3occQVa0IzHIdjINuyKMNtgT6LLzp5eAHvzae/7Irucx3z6sqf
+l1p2bYy2j+lRf9AnXyy/ClTrg/hl/daqye42iPROrqIXd56J5mNwzddo/3ERGxW1
+nHPSC5ywduiDDWf0N05Sb0akYo49h3B540ImNE77+MtBshq4jx/QgozSwxvz3SDU
+gR+bkGULn+y6VZl5r4oqQlm9en48XZOiQy+JtY5k8JUs5QSiZ+CT1EOxEbz0rQVd
+Bogh0b40muEewZSe+YW8nVKVYP5E26tUsuWn59fKGUiRuhPk92A/12SnZW6OE5Yh
+qk236/vfy9FrvNPUGm5AO0cQmRtNno5w2YfTomA3CkKbA8IvCW6vgsiUboz9lhVO
+J1z/yBn+R6jkwRJ8orI6WhS4UyJi4IKM++udMjacqtmA4eugJWVSAFFy6MulSw8i
+HkySGlz15EfCmgkRNZLTOj+Q/mqc+scLT9+Mk+q13SDmophfzFGTh7+/vnLKYcle
+5lRNc/jpKqUL0NNfMRej/9xiw2TTxpVwwIma5uOeM7qUG1rOo5qYqV5Aj1ecV206
+C6bfTaInaQYrVdTHAtmy
+=iVlU
+-----END PGP SIGNATURE-----
+
+--98e8jtXdkpgskNou--
