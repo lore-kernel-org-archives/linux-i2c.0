@@ -1,71 +1,156 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH v2 02/13] eeprom: at24: improve the device_id table readability
-Date: Mon, 11 Apr 2016 11:57:18 -0700
-Message-ID: <1460401049-25459-3-git-send-email-bgolaszewski@baylibre.com>
-References: <1460401049-25459-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f172.google.com ([209.85.192.172]:34386 "EHLO
-	mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754659AbcDKS5v (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Apr 2016 14:57:51 -0400
-Received: by mail-pf0-f172.google.com with SMTP id c20so129106794pfc.1
-        for <linux-i2c@vger.kernel.org>; Mon, 11 Apr 2016 11:57:50 -0700 (PDT)
-In-Reply-To: <1460401049-25459-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 01/24] i2c-mux: add common data for every i2c-mux
+ instance
+Date: Mon, 11 Apr 2016 22:46:30 +0200
+Message-ID: <20160411204630.GA10401@katana>
+References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
+ <1459673574-11440-2-git-send-email-peda@lysator.liu.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1459673574-11440-2-git-send-email-peda@lysator.liu.se>
+Sender: linux-doc-owner@vger.kernel.org
+To: Peter Rosin <peda@lysator.liu.se>
+Cc: linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Kalle Valo <kvalo@codeaurora.org>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Adriana Reus <adriana.reus@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Matt
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, srinivas.kandagatla@linaro.org, maxime.ripard@free-electrons.com
-Cc: Andrew Lunn <andrew@lunn.ch>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-As part of the preparation for introducing support for more chips,
-improve the readability of the device table by separating columns
-with tabs.
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/misc/eeprom/at24.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 001a9af..744c526 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -113,23 +113,23 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 
- static const struct i2c_device_id at24_ids[] = {
- 	/* needs 8 addresses as A0-A2 are ignored */
--	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
-+	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
- 	/* old variants can't be handled with this generic entry! */
--	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
--	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
-+	{ "24c01",	AT24_DEVICE_MAGIC(1024 / 8,	0) },
-+	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
- 	/* spd is a 24c02 in memory DIMMs */
--	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
--		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
--	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
-+	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
-+				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
-+	{ "24c04",	AT24_DEVICE_MAGIC(4096 / 8,	0) },
- 	/* 24rf08 quirk is handled at i2c-core */
--	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
--	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
--	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
--	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
--	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
--	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
--	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
--	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
-+	{ "24c08",	AT24_DEVICE_MAGIC(8192 / 8,	0) },
-+	{ "24c16",	AT24_DEVICE_MAGIC(16384 / 8,	0) },
-+	{ "24c32",	AT24_DEVICE_MAGIC(32768 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c64",	AT24_DEVICE_MAGIC(65536 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c128",	AT24_DEVICE_MAGIC(131072 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c1024",	AT24_DEVICE_MAGIC(1048576 / 8,	AT24_FLAG_ADDR16) },
- 	{ "at24", 0 },
- 	{ /* END OF LIST */ }
- };
--- 
-2.7.4
+Hi Peter,
+
+first high-level review:
+
+> +int i2c_mux_reserve_adapters(struct i2c_mux_core *muxc, int adapters)
+
+I'd suggest to rename 'adapters' into 'num_adapters' throughout this
+patch. I think it makes the code a lot easier to understand.
+
+> +{
+> +	struct i2c_adapter **adapter;
+> +
+> +	if (adapters <=3D muxc->max_adapters)
+> +		return 0;
+> +
+> +	adapter =3D devm_kmalloc_array(muxc->dev,
+> +				     adapters, sizeof(*adapter),
+> +				     GFP_KERNEL);
+> +	if (!adapter)
+> +		return -ENOMEM;
+> +
+> +	if (muxc->adapter) {
+> +		memcpy(adapter, muxc->adapter,
+> +		       muxc->max_adapters * sizeof(*adapter));
+> +		devm_kfree(muxc->dev, muxc->adapter);
+> +	}
+> +
+> +	muxc->adapter =3D adapter;
+> +	muxc->max_adapters =3D adapters;
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_mux_reserve_adapters);
+
+Despite that I wonder why not using some of the realloc functions, I
+wonder even more if we couldn't supply num_adapters to i2c_mux_alloc()
+and reserve the memory statically. i2c busses are not
+dynamic/hot-pluggable so that should be good enough?
+
+> -	WARN(sysfs_create_link(&priv->adap.dev.kobj, &mux_dev->kobj, "mux_devic=
+e"),
+> -			       "can't create symlink to mux device\n");
+> +	WARN(sysfs_create_link(&priv->adap.dev.kobj, &muxc->dev->kobj,
+> +			       "mux_device"),
+
+Ignoring the 80 char limit here makes the code more readable.
+
+> +	     "can't create symlink to mux device\n");
+> =20
+>  	snprintf(symlink_name, sizeof(symlink_name), "channel-%u", chan_id);
+> -	WARN(sysfs_create_link(&mux_dev->kobj, &priv->adap.dev.kobj, symlink_na=
+me),
+> -			       "can't create symlink for channel %u\n", chan_id);
+> +	WARN(sysfs_create_link(&muxc->dev->kobj, &priv->adap.dev.kobj,
+> +			       symlink_name),
+
+ditto.
+
+> +	     "can't create symlink for channel %u\n", chan_id);
+>  	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
+>  		 i2c_adapter_id(&priv->adap));
+> =20
+> -	return &priv->adap;
+> +	muxc->adapter[muxc->adapters++] =3D &priv->adap;
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_mux_add_adapter);
+> +
+> +struct i2c_mux_core *i2c_mux_one_adapter(struct i2c_adapter *parent,
+> +					 struct device *dev, int sizeof_priv,
+> +					 u32 flags, u32 force_nr,
+> +					 u32 chan_id, unsigned int class,
+> +					 int (*select)(struct i2c_mux_core *,
+> +						       u32),
+
+ditto
+
+> +					 int (*deselect)(struct i2c_mux_core *,
+> +							 u32))
+
+ditto
+
+> +{
+> +	struct i2c_mux_core *muxc;
+> +	int ret;
+> +
+> +	muxc =3D i2c_mux_alloc(parent, dev, sizeof_priv, flags, select, deselec=
+t);
+> +	if (!muxc)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	ret =3D i2c_mux_add_adapter(muxc, force_nr, chan_id, class);
+> +	if (ret) {
+> +		devm_kfree(dev, muxc);
+> +		return ERR_PTR(ret);
+> +	}
+> +
+> +	return muxc;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_mux_one_adapter);
+
+Are you sure the above function pays off? Its argument list is very
+complex and it doesn't save a lot of code. Having seperate calls is
+probably more understandable in drivers? Then again, I assume it makes
+the conversion of existing drivers easier.
+
+So much for now. Thanks!
+
+   Wolfram
+
+
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXDA0lAAoJEBQN5MwUoCm2HswQAKtNuTfMBpUoo7AigaI3Fpxd
+LLJzQxBDJMJ98MgPpUyIuVZhMSi3BXtfCpbNCzNlr0p2VwPtKO50EJGVy95raOrX
+FESTq7soy3HQsqfaQjzXeF0YMsKkOvsxiKpL9vBz/bazIjzKDVWlJkLapGwOgchV
+hPyRAIC5f0+imUl9g3HVCIQcV6mtc5uGQRCMQA7NljM9FAvdAPBXWzAC4QSS2PZz
+6kNUxoJPNpvLwMm1htg2qBofIxbI5H7veNqnJm6QhiXjCkt9MsaJRPGw9+srZbnT
+R2VlfRqC6nhdarFcF0NCqWUdiyM2ogRQFMwrgxu6SIppQGUc9ZYTyZhJgIvAouEJ
+Xx5/W1BtcUd0RnS43Q/XX8ibi3IF6tQPH5SHT2nIulBe2wJ0j7/hPImxH2pc4vTN
+XcPGTBWoH4F0typK0RnvqcO5KctzJtelczOeQbGF4MhbMsxp6CIVSGqX1YDaZlT3
+w1ruL4FoLl/Zx5DLRjSNkIfE3gv/d73DXgE/NjVXcEcblNDVPp7a2eOuk8nKhb8x
+eeqmtFs+GvQeNoOLFtwtktMvMhDMSAk1FRher+5mPjMEl+nllT6RSX4c7UHuvF8r
+VNQeqE1xNt6Zv/aWc/pAlxdOz96a886yQntXgEImnOcTMof+KEFCUj0ZIxzH6195
+2a4U0wa6gVECaJytR+We
+=8CWa
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--
