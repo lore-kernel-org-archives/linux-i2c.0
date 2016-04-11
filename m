@@ -1,7 +1,7 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v6 19/19] i2c: thunderx: Add smbus alert support
-Date: Mon, 11 Apr 2016 17:28:50 +0200
-Message-ID: <5a3e47c01f7aac0ea967e5b58dd0df0013d1b8f3.1460387640.git.jglauber@cavium.com>
+Subject: [PATCH v6 13/19] i2c: octeon: Add workaround for broken irqs on CN3860
+Date: Mon, 11 Apr 2016 17:28:44 +0200
+Message-ID: <3e9c18a66b449837ace80e1c86f0a6fd6a638a9d.1460387640.git.jglauber@cavium.com>
 References: <cover.1460387640.git.jglauber@cavium.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1460387640.git.jglauber@cavium.com>
@@ -9,110 +9,120 @@ In-Reply-To: <cover.1460387640.git.jglauber@cavium.com>
 References: <cover.1460387640.git.jglauber@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, David Daney <david.daney@cavium.com>, Jan Glauber <jglauber@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add smbus alert interrupt support.
+From: David Daney <david.daney@cavium.com>
 
+CN3860 does not interrupt the CPU when the i2c status changes. If
+we get a timeout, and see the status has in fact changed, we know we
+have this problem, and drop back to polling.
+
+Signed-off-by: David Daney <ddaney@caviumnetworks.com>
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-cavium.h        |  6 ++++++
- drivers/i2c/busses/i2c-thunderx-core.c | 35 ++++++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+)
+ drivers/i2c/busses/i2c-octeon.c | 55 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 53 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cavium.h b/drivers/i2c/busses/i2c-cavium.h
-index c2e8bdb..ad94abd 100644
---- a/drivers/i2c/busses/i2c-cavium.h
-+++ b/drivers/i2c/busses/i2c-cavium.h
-@@ -3,6 +3,7 @@
- #include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
-@@ -119,6 +120,11 @@ struct octeon_i2c {
- #if IS_ENABLED(CONFIG_I2C_THUNDERX)
- 	struct msix_entry i2c_msix;
- #endif
-+
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	struct i2c_smbus_alert_setup alert_data;
-+	struct i2c_client *ara;
-+#endif
- };
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index bad49cf..bfaee37 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -119,6 +119,8 @@ struct octeon_i2c {
+ 	void __iomem *twsi_base;
+ 	struct device *dev;
+ 	bool hlc_enabled;
++	bool broken_irq_mode;
++	bool broken_irq_check;
+ 	void (*int_en)(struct octeon_i2c *);
+ 	void (*int_dis)(struct octeon_i2c *);
+ 	void (*hlc_int_en)(struct octeon_i2c *);
+@@ -378,10 +380,33 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ 	long time_left;
+ 	int first = 1;
  
- static inline void writeqflush(u64 val, void __iomem *addr)
-diff --git a/drivers/i2c/busses/i2c-thunderx-core.c b/drivers/i2c/busses/i2c-thunderx-core.c
-index 535c823..c493ce5 100644
---- a/drivers/i2c/busses/i2c-thunderx-core.c
-+++ b/drivers/i2c/busses/i2c-thunderx-core.c
-@@ -9,9 +9,11 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/of_irq.h>
- #include <linux/pci.h>
- 
- #include "i2c-cavium.h"
-@@ -108,6 +110,35 @@ static void thunder_i2c_clock_disable(struct device *dev, struct clk *clk)
- 	devm_clk_put(dev, clk);
- }
- 
-+static int thunder_i2c_smbus_setup(struct octeon_i2c *i2c,
-+				   struct device_node *node)
-+{
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	u32 type;
++	if (i2c->broken_irq_mode) {
++		/*
++		 * Some chip revisions seem to not assert the irq in
++		 * the interrupt controller.  So we must poll for the
++		 * IFLG change.
++		 */
++		u64 end = get_jiffies_64() + i2c->adap.timeout;
 +
-+	i2c->alert_data.irq = irq_of_parse_and_map(node, 0);
-+	if (!i2c->alert_data.irq)
-+		return -EINVAL;
++		while (!octeon_i2c_test_iflg(i2c) &&
++		       time_before64(get_jiffies_64(), end))
++			udelay(50);
 +
-+	type = irqd_get_trigger_type(irq_get_irq_data(i2c->alert_data.irq));
-+	i2c->alert_data.alert_edge_triggered =
-+		(type & IRQ_TYPE_LEVEL_MASK) ? 1 : 0;
++		return octeon_i2c_test_iflg(i2c) ? 0 : -ETIMEDOUT;
++	}
 +
-+	i2c->ara = i2c_setup_smbus_alert(&i2c->adap, &i2c->alert_data);
-+	if (!i2c->ara)
-+		return -ENODEV;
-+#endif
-+	return 0;
-+}
+ 	i2c->int_en(i2c);
+ 	time_left = wait_event_timeout(i2c->queue, poll_iflg(i2c, &first),
+ 				       i2c->adap.timeout);
+ 	i2c->int_dis(i2c);
 +
-+static void thunder_i2c_smbus_remove(struct octeon_i2c *i2c)
-+{
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	if (i2c->ara)
-+		i2c_unregister_device(i2c->ara);
-+#endif
-+}
-+
- static void thunder_i2c_set_name(struct pci_dev *pdev, struct octeon_i2c *i2c,
- 				 char *name)
++	if (time_left <= 0 && i2c->broken_irq_check &&
++	    octeon_i2c_test_iflg(i2c)) {
++		dev_err(i2c->dev,
++			"broken irq connection detected, switching to polling mode.\n");
++		i2c->broken_irq_mode = true;
++		return 0;
++	}
+ 	if (!time_left) {
+ 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
+ 		return -ETIMEDOUT;
+@@ -477,17 +502,40 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
  {
-@@ -212,6 +243,9 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 		goto out_irq;
+ 	int time_left;
+ 
++	if (i2c->broken_irq_mode) {
++		/*
++		 * Some cn38xx boards did not assert the irq in
++		 * the interrupt controller.  So we must poll for the
++		 * IFLG change.
++		 */
++		u64 end = get_jiffies_64() + i2c->adap.timeout;
++
++		while (!octeon_i2c_hlc_test_ready(i2c) &&
++		       time_before64(get_jiffies_64(), end))
++			udelay(50);
++
++		return octeon_i2c_hlc_test_ready(i2c) ? 0 : -ETIMEDOUT;
++	}
++
+ 	i2c->hlc_int_en(i2c);
+ 	time_left = wait_event_interruptible_timeout(i2c->queue,
+ 					octeon_i2c_hlc_test_ready(i2c),
+ 					i2c->adap.timeout);
+ 	i2c->hlc_int_dis(i2c);
+-	if (!time_left) {
++	if (!time_left)
+ 		octeon_i2c_hlc_int_clear(i2c);
++
++	if (time_left <= 0 && i2c->broken_irq_check &&
++	    octeon_i2c_hlc_test_ready(i2c)) {
++		dev_err(i2c->dev, "broken irq connection detected, switching to polling mode.\n");
++			i2c->broken_irq_mode = true;
++			return 0;
++	}
++
++	if (!time_left) {
+ 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
+ 		return -ETIMEDOUT;
+ 	}
+-
+ 	if (time_left < 0) {
+ 		dev_dbg(i2c->dev, "%s: wait interrupted\n", __func__);
+ 		return time_left;
+@@ -1143,6 +1191,9 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+ 		goto out;
  	}
  
-+	ret = thunder_i2c_smbus_setup(i2c, node);
-+	if (ret < 0)
-+		dev_info(dev, "Failed to setup smbus alert\n");
- 	dev_info(i2c->dev, "probed\n");
- 	return 0;
- 
-@@ -242,6 +276,7 @@ static void thunder_i2c_remove_pci(struct pci_dev *pdev)
- 
- 	dev = i2c->dev;
- 	thunder_i2c_clock_disable(dev, i2c->clk);
-+	thunder_i2c_smbus_remove(i2c);
- 	i2c_del_adapter(&i2c->adap);
- 	devm_free_irq(dev, i2c->i2c_msix.vector, i2c);
- 	pci_disable_msix(pdev);
++	if (OCTEON_IS_MODEL(OCTEON_CN38XX))
++		i2c->broken_irq_check = true;
++
+ 	result = octeon_i2c_init_lowlevel(i2c);
+ 	if (result) {
+ 		dev_err(i2c->dev, "init low level failed\n");
 -- 
 1.9.1
