@@ -1,172 +1,70 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v6 02/19] i2c: octeon: Move set-clock and init-lowlevel upward
-Date: Mon, 11 Apr 2016 17:28:33 +0200
-Message-ID: <0c8bf145fbe732f19bf6b44291d06b66cc3fb1cb.1460387640.git.jglauber@cavium.com>
-References: <cover.1460387640.git.jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34722 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754848AbcDKP3D (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Apr 2016 11:29:03 -0400
-In-Reply-To: <cover.1460387640.git.jglauber@cavium.com>
-In-Reply-To: <cover.1460387640.git.jglauber@cavium.com>
-References: <cover.1460387640.git.jglauber@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v6 00/24] i2c mux cleanup and locking update
+Date: Mon, 11 Apr 2016 17:59:06 +0200
+Message-ID: <20160411155906.GA1532@katana>
+References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
+ <20160411123959.GA4719@katana>
+ <570BA845.1060309@lysator.liu.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <570BA845.1060309-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matt
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 
-No functional change, just moving the functions upward in
-preparation of improving the recovery.
 
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
----
- drivers/i2c/busses/i2c-octeon.c | 126 ++++++++++++++++++++--------------------
- 1 file changed, 63 insertions(+), 63 deletions(-)
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index c4abf16..f647667 100644
---- a/drivers/i2c/busses/i2c-octeon.c
-+++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -214,6 +214,69 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
- 	return 0;
- }
- 
-+/* calculate and set clock divisors */
-+static void octeon_i2c_set_clock(struct octeon_i2c *i2c)
-+{
-+	int tclk, thp_base, inc, thp_idx, mdiv_idx, ndiv_idx, foscl, diff;
-+	int thp = 0x18, mdiv = 2, ndiv = 0, delta_hz = 1000000;
-+
-+	for (ndiv_idx = 0; ndiv_idx < 8 && delta_hz != 0; ndiv_idx++) {
-+		/*
-+		 * An mdiv value of less than 2 seems to not work well
-+		 * with ds1337 RTCs, so we constrain it to larger values.
-+		 */
-+		for (mdiv_idx = 15; mdiv_idx >= 2 && delta_hz != 0; mdiv_idx--) {
-+			/*
-+			 * For given ndiv and mdiv values check the
-+			 * two closest thp values.
-+			 */
-+			tclk = i2c->twsi_freq * (mdiv_idx + 1) * 10;
-+			tclk *= (1 << ndiv_idx);
-+			thp_base = (i2c->sys_freq / (tclk * 2)) - 1;
-+
-+			for (inc = 0; inc <= 1; inc++) {
-+				thp_idx = thp_base + inc;
-+				if (thp_idx < 5 || thp_idx > 0xff)
-+					continue;
-+
-+				foscl = i2c->sys_freq / (2 * (thp_idx + 1));
-+				foscl = foscl / (1 << ndiv_idx);
-+				foscl = foscl / (mdiv_idx + 1) / 10;
-+				diff = abs(foscl - i2c->twsi_freq);
-+				if (diff < delta_hz) {
-+					delta_hz = diff;
-+					thp = thp_idx;
-+					mdiv = mdiv_idx;
-+					ndiv = ndiv_idx;
-+				}
-+			}
-+		}
-+	}
-+	octeon_i2c_write_sw(i2c, SW_TWSI_OP_TWSI_CLK, thp);
-+	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CLKCTL, (mdiv << 3) | ndiv);
-+}
-+
-+static int octeon_i2c_init_lowlevel(struct octeon_i2c *i2c)
-+{
-+	u8 status;
-+	int tries;
-+
-+	/* disable high level controller, enable bus access */
-+	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
-+
-+	/* reset controller */
-+	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_RST, 0);
-+
-+	for (tries = 10; tries; tries--) {
-+		udelay(1);
-+		status = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-+		if (status == STAT_IDLE)
-+			return 0;
-+	}
-+	dev_err(i2c->dev, "%s: TWSI_RST failed! (0x%x)\n", __func__, status);
-+	return -EIO;
-+}
-+
- /**
-  * octeon_i2c_start - send START to the bus
-  * @i2c: The struct octeon_i2c
-@@ -428,69 +491,6 @@ static struct i2c_adapter octeon_i2c_ops = {
- 	.algo = &octeon_i2c_algo,
- };
- 
--/* calculate and set clock divisors */
--static void octeon_i2c_set_clock(struct octeon_i2c *i2c)
--{
--	int tclk, thp_base, inc, thp_idx, mdiv_idx, ndiv_idx, foscl, diff;
--	int thp = 0x18, mdiv = 2, ndiv = 0, delta_hz = 1000000;
--
--	for (ndiv_idx = 0; ndiv_idx < 8 && delta_hz != 0; ndiv_idx++) {
--		/*
--		 * An mdiv value of less than 2 seems to not work well
--		 * with ds1337 RTCs, so we constrain it to larger values.
--		 */
--		for (mdiv_idx = 15; mdiv_idx >= 2 && delta_hz != 0; mdiv_idx--) {
--			/*
--			 * For given ndiv and mdiv values check the
--			 * two closest thp values.
--			 */
--			tclk = i2c->twsi_freq * (mdiv_idx + 1) * 10;
--			tclk *= (1 << ndiv_idx);
--			thp_base = (i2c->sys_freq / (tclk * 2)) - 1;
--
--			for (inc = 0; inc <= 1; inc++) {
--				thp_idx = thp_base + inc;
--				if (thp_idx < 5 || thp_idx > 0xff)
--					continue;
--
--				foscl = i2c->sys_freq / (2 * (thp_idx + 1));
--				foscl = foscl / (1 << ndiv_idx);
--				foscl = foscl / (mdiv_idx + 1) / 10;
--				diff = abs(foscl - i2c->twsi_freq);
--				if (diff < delta_hz) {
--					delta_hz = diff;
--					thp = thp_idx;
--					mdiv = mdiv_idx;
--					ndiv = ndiv_idx;
--				}
--			}
--		}
--	}
--	octeon_i2c_write_sw(i2c, SW_TWSI_OP_TWSI_CLK, thp);
--	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CLKCTL, (mdiv << 3) | ndiv);
--}
--
--static int octeon_i2c_init_lowlevel(struct octeon_i2c *i2c)
--{
--	u8 status;
--	int tries;
--
--	/* disable high level controller, enable bus access */
--	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
--
--	/* reset controller */
--	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_RST, 0);
--
--	for (tries = 10; tries; tries--) {
--		udelay(1);
--		status = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
--		if (status == STAT_IDLE)
--			return 0;
--	}
--	dev_err(i2c->dev, "%s: TWSI_RST failed! (0x%x)\n", __func__, status);
--	return -EIO;
--}
--
- static int octeon_i2c_probe(struct platform_device *pdev)
- {
- 	struct device_node *node = pdev->dev.of_node;
--- 
-1.9.1
+
+> can obviously take forever. At the same time, many of the patches are kind
+> of mechanical, and feels rather safe.
+
+I agree about the mechanical stuff, thus my suggestion. We do what we
+can about testing and reviewing. And once it reaches linux-next
+(hopefully next week latest), test coverage will increase significantly
+and we can fix issues incrementally from there on. Same goes when it
+finally hits Linus' tree, coverage will increase more, but we should be
+really at a very sane level then ;)
+
+I will  also pick up patch 15 (the removal) for 4.8. So we have the full
+4.7 cycle to revert if something goes very wrong.
+
+> Maybe we should give Antti some more time to re-add his tested-by tags
+> on 9-12 before they are merged into non-rewritable branches?
+
+Yes. That would be great. I need to sync with the media maintainers
+anyhow. I'd like to push all the patches via my tree.
+
+Thanks,
+
+   Wolfram
+
+
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXC8nKAAoJEBQN5MwUoCm2FhoP/0DAY/OPBBWUqB5QPDKZVfLt
+IGcL/mPQHHV7KoIvPr6lJU05+zF2ntB7jKMgDZ+MUlKsSR+VK09RR92dYCEX5oWq
+M35Sd6KHu/eMs+bBQFs03xpyMvO9mYEZJe3zIkJxn857BYCMHH2b0s7IzRHpdx4+
+B5nCTq0haWkGrUKMIcHT0dVVszd1AqHBguAHA+TcfzGCvo+FhV+3pud+EgB+cVfy
+TDUSP6NRm0uPQZLDq6cspxFuMKwQMIhkgzBoxlx/pCALtpC54vBM3TGtOobAaqnx
+bntA5HbSolpyGO5IS9WMaJ0zlnHoLZqpUfcEKdAfoe4I459vjyLUKlDfpznu0Dyj
++cgJpZz66shkbWKrIuhrQ/KVG4VntGfm3BoLzcRH0JSFK0QAZGZq7u9EtghdEHvy
+gDGRFG5yL5mFNV6RSm/Fu1cgoeN4E8sHjXJI1ckTczWPq2cWrdaWu05IoXKf6Lci
+GQcJ4i2wdUOQMlypF7eaFVMl4ZHVIohMC29prR/NRu5fysUCXfZ3DHlX3yCNeevf
+5BuHCTh4L9ZhW4BUpbgcXD2uOtWyjUexXG5XwRG+4uvwePqYdkVEkzPpJ378+iPs
+thCQA6+4V+QmcrtVjk8clVzJ05wMUiw5DejpALGu3mKDQ9L4qBBGPfiP7vg4FrN6
+B0+I8uxSf+1LLniLZvyB
+=4NJ9
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--
