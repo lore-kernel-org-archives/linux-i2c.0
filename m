@@ -1,62 +1,90 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: let I2C masters ignore their children for PM
-Date: Mon, 11 Apr 2016 15:02:17 +0200
-Message-ID: <20160411130217.GB4719@katana>
-References: <1460374700-23269-1-git-send-email-linus.walleij@linaro.org>
- <CAPDyKFqXjsrm13kRopVor_5_m_gTfunqfac4ozFL=w1w9k3QEw@mail.gmail.com>
+From: Peter Rosin <peda@lysator.liu.se>
+Subject: Re: [PATCH v6 00/24] i2c mux cleanup and locking update
+Date: Mon, 11 Apr 2016 15:36:05 +0200
+Message-ID: <570BA845.1060309@lysator.liu.se>
+References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
+ <20160411123959.GA4719@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="98e8jtXdkpgskNou"
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAPDyKFqXjsrm13kRopVor_5_m_gTfunqfac4ozFL=w1w9k3QEw@mail.gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160411123959.GA4719@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Kalle Valo <kvalo@codeaurora.org>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Adriana Reus <adriana.reus@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Matt
 List-Id: linux-i2c@vger.kernel.org
 
+Hi!
 
---98e8jtXdkpgskNou
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 2016-04-11 14:39, Wolfram Sang wrote:
+> Hi Peter,
+>
+>> To summarize the series, there's some i2c-mux infrastructure cleanup work
+>> first (I think that part stands by itself as desireable regardless), the
+>> locking changes are in 16/24 and after with the real meat in 18/24. There
+>> is some documentation added in 19/24 while 20/24 and after are cleanups to
+>> existing drivers utilizing the new stuff.
+>
+> My idea is to review and pull in the infrastructure work for 4.7 and the
+> locking changes to 4.8. This gives us one cycle to fix regressions (if
+> any) in the infrastructure work first. Is that okay with you?
 
-> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > index 0f2f8484e8ec..5e114342dcbc 100644
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -1566,6 +1566,7 @@ static int i2c_register_adapter(struct i2c_adapte=
-r *adap)
-> >
-> >         pm_runtime_no_callbacks(&adap->dev);
-> >         pm_runtime_enable(&adap->dev);
-> > +       pm_suspend_ignore_children(&adap->dev, true);
->=20
-> I guess it doesn't matter much, but I would set this before calling
-> pm_runtime_enable().
+I was just thinking about how it appears impossible to get it all of it
+merged in one go and what to do about it...
 
-I was wondering about that, too.
+The untra-defensive approach is only merge stuff that has actually been
+tested on real hw, and to hold off the rest until someone has tested. That
+can obviously take forever. At the same time, many of the patches are kind
+of mechanical, and feels rather safe.
 
+  1 i2c-mux: add common data for every i2c-mux instance
+  2 i2c: i2c-mux-gpio: convert to use an explicit i2c mux core
+  3 i2c: i2c-mux-pinctrl: convert to use an explicit i2c mux core
+  4 i2c: i2c-arb-gpio-challenge: convert to use an explicit i2c mux core
+  5 i2c: i2c-mux-pca9541: convert to use an explicit i2c mux core
+  6 i2c: i2c-mux-pca954x: convert to use an explicit i2c mux core
+  7 i2c: i2c-mux-reg: convert to use an explicit i2c mux core
+  8 iio: imu: inv_mpu6050: convert to use an explicit i2c mux core
+  9 [media] m88ds3103: convert to use an explicit i2c mux core
+10 [media] rtl2830: convert to use an explicit i2c mux core
+11 [media] rtl2832: convert to use an explicit i2c mux core
+12 [media] si2168: convert to use an explicit i2c mux core
+13 [media] cx231xx: convert to use an explicit i2c mux core
+14 of/unittest: convert to use an explicit i2c mux core
+15 i2c-mux: drop old unused i2c-mux api
+16 i2c: allow adapter drivers to override the adapter locking
+17 i2c: muxes always lock the parent adapter
+18 i2c-mux: relax locking of the top i2c adapter during mux-locked muxing
+19 i2c-mux: document i2c muxes and elaborate on parent-/mux-locked muxes
+20 iio: imu: inv_mpu6050: change the i2c gate to be mux-locked
+21 [media] si2168: change the i2c gate to be mux-locked
+22 [media] rtl2832: change the i2c gate to be mux-locked
+23 [media] rtl2832_sdr: get rid of empty regmap wrappers
+24 [media] rtl2832: regmap is aware of lockdep, drop local locking hack
 
---98e8jtXdkpgskNou
-Content-Type: application/pgp-signature; name="signature.asc"
+I have tested 1, 2, 14, 16, 17 and 18 on real hw.
+Antti has tested 9, 10, 11, 12, 16, 17, 21, 22, 23 and 24, but they
+have been rebased since and 22 in particular is not a pure rebase since
+the driver moved underneath me. And the locking was not 100% the same
+either, not that I expect things to have gone south, but...
+15 is a functional no-op once 2-14 are merged.
+19 is docs only.
+Jonathan acked 8 and 20, but 20 needs a tested-by from Daniel Baluta
+and/or Adriana Reus.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+That leaves 3, 4, 5, 6, 7, 13, but all those fall in the mechanical
+category, with the possible exception of 13 which is more complex
+than the other patches in the 2-14 range. But 13 builds, and besides,
+what can possibly go wrong with a patch with that number? :-)
 
-iQIcBAEBAgAGBQJXC6BZAAoJEBQN5MwUoCm23ssQAIHhGQsNZjTRv6ZQaRRz7+Cd
-whdYgxCDOa4ohqxL6DidoKQsCR456ZT/eomqvPytaR2KV+QwWr1ImAnNF49DKHXs
-04Zd8yQy4Qsnep3occQVa0IzHIdjINuyKMNtgT6LLzp5eAHvzae/7Irucx3z6sqf
-l1p2bYy2j+lRf9AnXyy/ClTrg/hl/daqye42iPROrqIXd56J5mNwzddo/3ERGxW1
-nHPSC5ywduiDDWf0N05Sb0akYo49h3B540ImNE77+MtBshq4jx/QgozSwxvz3SDU
-gR+bkGULn+y6VZl5r4oqQlm9en48XZOiQy+JtY5k8JUs5QSiZ+CT1EOxEbz0rQVd
-Bogh0b40muEewZSe+YW8nVKVYP5E26tUsuWn59fKGUiRuhPk92A/12SnZW6OE5Yh
-qk236/vfy9FrvNPUGm5AO0cQmRtNno5w2YfTomA3CkKbA8IvCW6vgsiUboz9lhVO
-J1z/yBn+R6jkwRJ8orI6WhS4UyJi4IKM++udMjacqtmA4eugJWVSAFFy6MulSw8i
-HkySGlz15EfCmgkRNZLTOj+Q/mqc+scLT9+Mk+q13SDmophfzFGTh7+/vnLKYcle
-5lRNc/jpKqUL0NNfMRej/9xiw2TTxpVwwIma5uOeM7qUG1rOo5qYqV5Aj1ecV206
-C6bfTaInaQYrVdTHAtmy
-=iVlU
------END PGP SIGNATURE-----
+IIUC, your suggestion is to push 1-15 for 4.7, i.e. hope for the best
+with 3, 4, 5, 6, 7 and 13. And then hopefully get testing for 20, and
+retesting for 21, 22, 23 and 24 and merge 16-24 for 4.8.
 
---98e8jtXdkpgskNou--
+That seems like a good plan to me.
+
+Maybe we should give Antti some more time to re-add his tested-by tags
+on 9-12 before they are merged into non-rewritable branches?
+
+Cheers,
+Peter
