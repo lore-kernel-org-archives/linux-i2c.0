@@ -1,124 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: let I2C masters ignore their children for PM
-Date: Tue, 12 Apr 2016 23:18:25 +0200
-Message-ID: <20160412211825.GB1526@katana>
-References: <1460447855-18050-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [PATCH 2/2] i2c: designware: Allow build Baytrail semaphore
+ support when IOSF_MBI=m
+Date: Tue, 12 Apr 2016 23:27:55 +0200
+Message-ID: <20160412212755.GD1526@katana>
+References: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <1449748124-20744-2-git-send-email-jarkko.nikula@linux.intel.com>
+ <20160105222100.GA25443@pathfinder>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PmA2V3Z32TCmWXqI"
+	protocol="application/pgp-signature"; boundary="mJm6k4Vb/yFcL9ZU"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59513 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:59562 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758046AbcDLVSa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 12 Apr 2016 17:18:30 -0400
+	id S934241AbcDLV2A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 12 Apr 2016 17:28:00 -0400
 Content-Disposition: inline
-In-Reply-To: <1460447855-18050-1-git-send-email-linus.walleij@linaro.org>
+In-Reply-To: <20160105222100.GA25443@pathfinder>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-i2c@vger.kernel.org, Mark Brown <broonie@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org
+To: "David E. Box" <david.e.box@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
 
---PmA2V3Z32TCmWXqI
+--mJm6k4Vb/yFcL9ZU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 12, 2016 at 09:57:35AM +0200, Linus Walleij wrote:
-> When using a certain I2C device with runtime PM enabled on
-> a certain I2C bus adaper the following happens:
+On Tue, Jan 05, 2016 at 02:21:00PM -0800, David E. Box wrote:
+> Hi
 >=20
-> struct amba_device *foo
->    \
->    struct i2c_adapter *bar
->       \
->       struct i2c_client *baz
+> Sorry I missed this discussion. I believe the following code in
+> i2c_dw_eval_lock_support() should make it so that it doesn't matter how
+> IOSF_MBI is built:
 >=20
-> The AMBA device foo has its device PM struct set to ignore
-> children with pm_suspend_ignore_children(&foo->dev, true).
-> This makes runtime PM work just fine locally in the driver:
-> the fact that devices on the bus are suspended or resumed
-> individually does not affect its operation, and the hardware
-> does not power up unless transferring messages.
+>    if (!iosf_mbi_available())
+>            return -EPROBE_DEFER;
 >=20
-> However this child ignorance property is not inherited into
-> the struct i2c_adapter *bar.
+> I added this to address i2c_designware probing before iosf_mbi. It worked=
+ but
+> I do not recall if IOSF_MBI=3Dm was the problem scenario. If so you can j=
+ust
+> change it to:
 >=20
-> On system suspend things will work fine.
->=20
-> On system resume the following annoying phenomenon occurs:
->=20
-> - In the pm_runtime_force_resume() path of
->   struct i2c_client *baz, pm_runtime_set_active(&baz->dev); is
->   eventually called.
->=20
-> - This becomes __pm_runtime_set_status(&baz->dev, RPM_ACTIVE);
->=20
-> - __pm_runtime_set_status() detects that RPM state is changed,
->   and checks whether the parent is:
->   not active (RPM_ACTIVE) and not ignoring its children
->   If this happens it concludes something is wrong, because
->   a parent that is not ignoring its children must be active
->   before any children activate.
->=20
-> - Since the struct i2c_adapter *bar does not ignore
->   its children, the PM core thinks that it must indeed go
->   online before its children, the check bails out with
->   -EBUSY, i.e. the i2c_client *baz thinks it can't work
->   because it's parent is not online, and it respects its
->   parent.
->=20
-> - In the driver the .resume() callback returns -EBUSY from
->   the runtime_force_resume() call as per above. This leaves
->   the device in a suspended state, leading to bad behaviour
->   later when the device is used. The following debug
->   print is made with an extra printg patch but illustrates
->   the problem:
->=20
-> [   17.040832] bh1780 2-0029: parent (i2c-2) is not active
->                parent->power.ignore_children =3D 0
-> [   17.040832] bh1780 2-0029: pm_runtime_force_resume:
->                pm_runtime_set_active() failed (-16)
-> [   17.040863] dpm_run_callback():
->                pm_runtime_force_resume+0x0/0x88 returns -16
-> [   17.040863] PM: Device 2-0029 failed to resume: error -16
->=20
-> Fix this by letting all struct i2c_adapter:s ignore their
-> children: i2c children have no business doing keeping
-> their parents awake: they are completely autonomous
-> devices that just use their parent to talk, a usecase
-> which must be power managed in the host on a per-message
-> basis.
->=20
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Ulf Hansson <ulf.hansson@linaro.org>
-> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-> Cc: linux-pm@vger.kernel.org
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>    depends in I2C_DESIGNWARE_PLATFORM && IOSF_MBI
+>    =20
+> Give me a few days to confirm on my Baytrail device.=20
 
-Applied to for-next, thanks!
+What is the status here?
 
 
---PmA2V3Z32TCmWXqI
+--mJm6k4Vb/yFcL9ZU
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXDWYhAAoJEBQN5MwUoCm2ylsP/2NABR7+m7Ax0aDAxCGazyDf
-kBn3cLr1EBL/1Zu+Gz5ugwax1qYNycTiIy6e363rSEyj4r+nKI106IFRlWn1XE3C
-KuRPvciXLinLOosmaI6x7NZI/drMD+ZiBVxJpOQekrRXU1WviJsgdwt3GoNrN5bx
-GizALWcBRRvJcOXMtIN1erlss/NOExB2zYhogXAEuMZXGTf9NtWMu42ZQcVN8fhW
-VeEzGIvylVJ7DDZlbSphrVjc7yVfZFH/MaPOnfMJ0Z7xyJuxwtyLVu7aQNS9X8id
-TpCf/GkgLz8DwgnL5JQhTH153Sls9bpNY2WBdBubDSYAhZcqyfMTEXlhBf1+GBd6
-Sr9MJR8VubzQ/90w4wo4uPf5z1yxhPjAMqtvjAa9J5yELDqiTIrRZtd5hhrGvjAK
-g992aAHstM6mkyr8u/+nEmOEvhwwaovQZ9ohir3B9xc3Mr4IpdpCU99Gl2vZdh6x
-CAI6ihHKWDA2g35FjvIC1fRR5iGNrKdXVWL19uSXTOLJxT2OYOW6AfK9fuxM5khp
-TjtF/gwLMREP4Dy2hVUykOR+uTvF9fKCJO50CS5UpTNm68Nk3nAkysHUxLJd3fuR
-Se6AMXE55Cu9F33iOun37lXbnLX6hg5/LEahpd0TlAc4U37SYxjW2rtKKEl2TL++
-9nzrHxejVbmG2dm0x38d
-=8GG5
+iQIcBAEBAgAGBQJXDWhbAAoJEBQN5MwUoCm2+lIP/RGXyMefOYE61YiJ63N1I44o
+n5zCRaA7JAVtUr2chMwXuqiBhE9HkE5AkiQ/7oadTRi1d+saR0HHWCKv7IXLHADO
+KbQq2GsSChj580Lzj146tVEL/N8CUcdiY92HAfQdPESVb545xMA5uV9TT7yHX8Pn
+eSJn4iehjJxpraGprShVOx85GC9HmDbIPyMs06dvQZXUorRXdMWyl1mbNHmhKo4M
+CtfTEnbhC3ztOC8ugvWJKA9ABwiCTmIMgGnH85uwpsynE5WM5IKuNRP7gLFz1the
++WRmmroNEJatYl4sbqdnva2M+scS1cHcCnRAQbWQvvURefr9xEqt6nEqTJUZODlM
+WMtQF5S9ivDSJxXa/XJhMaNR3yItRJtKhK+5s2ZPehaTXtyei4ZcPtRKJyg45A0y
+QeXv3HI6FaBmWRJ4vruvXstPSyAUBnB0DlzwDBTatCAqx8rCQWHkgz8KACmzmgZm
+rpSI4O1+AOyfPpmlrUPXAB+mwwLExh0V+6EF0k7Fo3cAtR7bhtrKR/i1gQADTiDF
+CUwtPxnPr4NnEjM/KaxVCv1hhxAITgeBC8Nf/kb6e8QJLo2DpeepEqowZWrW4TZY
+v6arnBQOzjFtZwnRHfjAAIAnKfYb0DMBUKAygQqlIX8ZNnxqoHp4khefNB3zGYSK
+YvzphzUtJl9Rs1kfgoJL
+=qCjU
 -----END PGP SIGNATURE-----
 
---PmA2V3Z32TCmWXqI--
+--mJm6k4Vb/yFcL9ZU--
