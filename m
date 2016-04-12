@@ -1,57 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] ARM: dts: rockchip: add i2c nodes RK3228 SoCs
-Date: Tue, 12 Apr 2016 23:39:12 +0200
-Message-ID: <20160412213912.GF1526@katana>
-References: <1457924955-29996-1-git-send-email-ykk@rock-chips.com>
- <1457925102-30476-1-git-send-email-ykk@rock-chips.com>
+Subject: Re: i2c: xlp9xx: add support for Broadcom Vulcan
+Date: Tue, 12 Apr 2016 23:40:39 +0200
+Message-ID: <20160412214039.GG1526@katana>
+References: <1460377886-22437-1-git-send-email-tanmay.jagdale@broadcom.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Zs/RYxT/hKAHzkfQ"
+	protocol="application/pgp-signature"; boundary="5UGlQXeG3ziZS81+"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59649 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:59660 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756274AbcDLVjV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 12 Apr 2016 17:39:21 -0400
+	id S1755952AbcDLVkn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 12 Apr 2016 17:40:43 -0400
 Content-Disposition: inline
-In-Reply-To: <1457925102-30476-1-git-send-email-ykk@rock-chips.com>
+In-Reply-To: <1460377886-22437-1-git-send-email-tanmay.jagdale@broadcom.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Yakir Yang <ykk@rock-chips.com>
-Cc: Heiko Stuebner <heiko@sntech.de>, Rob Herring <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org
+To: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com
 
 
---Zs/RYxT/hKAHzkfQ
+--5UGlQXeG3ziZS81+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 14, 2016 at 11:11:42AM +0800, Yakir Yang wrote:
-> This patch add the i2c dt nodes for rk3228 SoCs.
+On Mon, Apr 11, 2016 at 06:01:26PM +0530, Tanmay Jagdale wrote:
+> The Broadcom Vulcan ARM64 processor uses the same I2C controller
+> present on the Broadcom XLP9xx/5xx MIPS processor family.
+> Updated the Kconfig by adding ARCH_VULCAN option.
 >=20
-> Signed-off-by: Yakir Yang <ykk@rock-chips.com>
+> Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
 
-This needs to go via arm-soc.
+Applied to for-current, thanks!
 
 
---Zs/RYxT/hKAHzkfQ
+--5UGlQXeG3ziZS81+
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXDWsAAAoJEBQN5MwUoCm2Q2YP/3pNmoesGQAEc0FvfFdTnMrS
-RajhH8L4LPSlmdNLq4GOUY16FHsWumGJBYtV4SZqdRnNP5hZ9MxFF7UQ4c2rTSmt
-xYny1KjKqr9D9Vje4kFLTT9VzPCniXnG5XwMAZh9yPRA5F1hYygjbYHYIgcuUlaE
-ipvpEDKmwhNXgNPZiDHFdwghD0cS7fjE25xmXYXN3amJ6pmHmz17jTHe2nYwhnH7
-EljgI0aGiiA70QFRMZ85rqtS5/TMoFvkBL/slL3GDkU+j1kDHKhtPgGlETPT/hIu
-Y1qgqUHY5CfBiUc9YM9tJhx2xdVJKWbpHxAqYBVcPhcjjGNKdBlEjL8p5DFUqoZa
-TX+1FOlOvllxiwXCrIP5uVR8Aw8wl/TeM24gKDSPUiqvlk8W3F7u+D3wssVaJ3S2
-0fJHr4ekQTZYnUWZTjkD48NzyaFdWm9QKStvKDhLQyQzff6lIusEEn66rZ09duTP
-hbVskwZekriQ1msvM7hKd6JhHHPMJa2CzlbIHfYpn9VVbHPIkb8qLrrZiuiEcLvs
-AfIMF0L+Dq67zKfWgeY4Tn56uL2K7QcSg6/ePikZ5dtZPcCfDyhZjtO6/lmuLzvY
-tOPfPozVDzXIN//oqXh0SWEH6tEeepvJj2r7CuJebxJj/xT03js06NiF6Ajxjcy/
-3Yr+gvWhg0eYRPNwh97A
-=mLck
+iQIcBAEBAgAGBQJXDWtXAAoJEBQN5MwUoCm2ahgP/2eEtRb0eOxMi/en7LLU19hx
+XdHWQZygjwpMSbZURvyL7bEcc5gI2vJJdeArhMtEMCibVS9EPrKIQ7Xq9zfJow3J
+eLHb3E4yL7uve3aBFWW0o0XBs1jZ2djVaS/mwFJwVNNtrxL5tXoOcsj592CCDkCS
+7br6mT5ggfPgN3/B1d/tTN+JNijyIj4+pE3lYhcg3N8yBDbV5o1XXT4xwcVfSrIC
+Zf7Lf6g1p0N2lrikDfMZIl4M0+3zEDS/mekNM73PgtitG2UNkL0SmTdoJTmlzpol
+B8UOzkGq0trOgpO15PFNe8+1zyV3XocGZT0U+DL7Q+TuVBQ9F3KrcfP7QNvZzJ0J
+8T7wt+Es2BY4bp19HjdlLlwtQf+lZNJUWuLrDi5Aobg/gk3jdNzkXB5Hd+uVIYmF
+CUit4ljvDWyGROHDETi/6q8YpUnxw9tkGpt8liV6GFtsfLr5Sdd82ZKvLTr/iztK
+NU67axzhq5yl8XFMelIpcRcr9zZgMwFbI0HrZsAXZdUem1VDgNptMEp1OLmjZz6n
+M1q0uRVWWvYM/qH70/kjbY19+j6dzuEGydmF0uE/WeB64vdD5tHjKPBhW9halMXQ
+YWzyTOWOiCB+P4Z3smV7VCFn7Vh1SojQNbzNm6RAw6bM4q9Thxau2aCbj4YLLbs+
+7sa167LtNW3oIVMzic14
+=DgMM
 -----END PGP SIGNATURE-----
 
---Zs/RYxT/hKAHzkfQ--
+--5UGlQXeG3ziZS81+--
