@@ -1,74 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: designware: Allow build Baytrail semaphore
- support when IOSF_MBI=m
-Date: Tue, 12 Apr 2016 23:27:55 +0200
-Message-ID: <20160412212755.GD1526@katana>
-References: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1449748124-20744-2-git-send-email-jarkko.nikula@linux.intel.com>
- <20160105222100.GA25443@pathfinder>
+Subject: Re: [PATCH 1/2] i2c: rk3x: add support for rk3228
+Date: Tue, 12 Apr 2016 23:38:48 +0200
+Message-ID: <20160412213848.GE1526@katana>
+References: <1457924955-29996-1-git-send-email-ykk@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mJm6k4Vb/yFcL9ZU"
+	protocol="application/pgp-signature"; boundary="10jrOL3x2xqLmOsH"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59562 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:59637 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934241AbcDLV2A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 12 Apr 2016 17:28:00 -0400
+	id S1756274AbcDLVjA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 12 Apr 2016 17:39:00 -0400
 Content-Disposition: inline
-In-Reply-To: <20160105222100.GA25443@pathfinder>
+In-Reply-To: <1457924955-29996-1-git-send-email-ykk@rock-chips.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "David E. Box" <david.e.box@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Yakir Yang <ykk@rock-chips.com>
+Cc: Heiko Stuebner <heiko@sntech.de>, Rob Herring <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org
 
 
---mJm6k4Vb/yFcL9ZU
+--10jrOL3x2xqLmOsH
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 05, 2016 at 02:21:00PM -0800, David E. Box wrote:
-> Hi
+On Mon, Mar 14, 2016 at 11:09:15AM +0800, Yakir Yang wrote:
+> Enable the I2C core for this SoC.
 >=20
-> Sorry I missed this discussion. I believe the following code in
-> i2c_dw_eval_lock_support() should make it so that it doesn't matter how
-> IOSF_MBI is built:
->=20
->    if (!iosf_mbi_available())
->            return -EPROBE_DEFER;
->=20
-> I added this to address i2c_designware probing before iosf_mbi. It worked=
- but
-> I do not recall if IOSF_MBI=3Dm was the problem scenario. If so you can j=
-ust
-> change it to:
->=20
->    depends in I2C_DESIGNWARE_PLATFORM && IOSF_MBI
->    =20
-> Give me a few days to confirm on my Baytrail device.=20
+> Signed-off-by: Yakir Yang <ykk@rock-chips.com>
 
-What is the status here?
+Applied to for-current, thanks!
 
 
---mJm6k4Vb/yFcL9ZU
+--10jrOL3x2xqLmOsH
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXDWhbAAoJEBQN5MwUoCm2+lIP/RGXyMefOYE61YiJ63N1I44o
-n5zCRaA7JAVtUr2chMwXuqiBhE9HkE5AkiQ/7oadTRi1d+saR0HHWCKv7IXLHADO
-KbQq2GsSChj580Lzj146tVEL/N8CUcdiY92HAfQdPESVb545xMA5uV9TT7yHX8Pn
-eSJn4iehjJxpraGprShVOx85GC9HmDbIPyMs06dvQZXUorRXdMWyl1mbNHmhKo4M
-CtfTEnbhC3ztOC8ugvWJKA9ABwiCTmIMgGnH85uwpsynE5WM5IKuNRP7gLFz1the
-+WRmmroNEJatYl4sbqdnva2M+scS1cHcCnRAQbWQvvURefr9xEqt6nEqTJUZODlM
-WMtQF5S9ivDSJxXa/XJhMaNR3yItRJtKhK+5s2ZPehaTXtyei4ZcPtRKJyg45A0y
-QeXv3HI6FaBmWRJ4vruvXstPSyAUBnB0DlzwDBTatCAqx8rCQWHkgz8KACmzmgZm
-rpSI4O1+AOyfPpmlrUPXAB+mwwLExh0V+6EF0k7Fo3cAtR7bhtrKR/i1gQADTiDF
-CUwtPxnPr4NnEjM/KaxVCv1hhxAITgeBC8Nf/kb6e8QJLo2DpeepEqowZWrW4TZY
-v6arnBQOzjFtZwnRHfjAAIAnKfYb0DMBUKAygQqlIX8ZNnxqoHp4khefNB3zGYSK
-YvzphzUtJl9Rs1kfgoJL
-=qCjU
+iQIcBAEBAgAGBQJXDWroAAoJEBQN5MwUoCm2qCwP/AvgdGt877siyW5Pq4stgJR7
+Qemn0GzpRQdaJxpbcAhijkTWiT5Kv5oupxc6D++o7DsugRw8u0a/kA/vbXmF3B5/
+OyvhvEjfpfO9SO/xROAn2z76+ZVzx+Djcn9wbNcAXDPqW81ronRAWuiHgKFunDUP
+heLrp78jbkWTlo2A+ylvBLc3woI4LzXKrwQPYuwOPCVTXI9IwXX6faNj5Mirw0lF
+aRRN+V3ai468C0B3m5ilLZgo7DKN1Tqaf7jVTfShQHpkpeNu16uPrJidpj0oii+L
+mnSb4VZjcvzhM7jRsb5V9U0FZZm/tJE4R5BahuzsjXz085qNuJPT5AM6QnLDO+km
+88tSHdB2zcjv+Rbrfjhu2pr7ubrKNmZFjKp50Mu4sV9wQbyW7B7k2ibuU12zINbt
+6oerRPQzLbgIsVwB0zPOTgK6n8QezmL3gt6HRvp27uNjnADOOAETYzvKH3b29eqg
+WlkYYXt4o8fKT4SBGUiWZ44mLHz/dztVeUiRE7DqtvsOCSDiDG3BMBo2bQN8X0Og
+ZMO/gVrGsclvbtpQhhELvmug6FHfTradH9ui9W9BDkqPGwmeKrfIya/f9XiRYbDH
+1tvj2BKp9GtslzMYrUDvjIJzC7zFarhWi6lCbUK7a8M5RnX45D3Ld5yGlUmxk5oT
+j1mH99H5B2BCldE72RBt
+=KnBd
 -----END PGP SIGNATURE-----
 
---mJm6k4Vb/yFcL9ZU--
+--10jrOL3x2xqLmOsH--
