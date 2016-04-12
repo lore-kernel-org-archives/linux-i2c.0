@@ -1,116 +1,66 @@
-From: Peter Griffin <peter.griffin@linaro.org>
-Subject: [PATCH] i2c: st: Implement i2c_bus_recovery_info callbacks
-Date: Tue, 12 Apr 2016 14:29:19 +0100
-Message-ID: <1460467759-11737-1-git-send-email-peter.griffin@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3] i2c: mediatek: i2c multi transfer optimization
+Date: Tue, 12 Apr 2016 23:13:56 +0200
+Message-ID: <20160412211355.GA1526@katana>
+References: <1457375031-3769-1-git-send-email-liguo.zhang@mediatek.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1457375031-3769-1-git-send-email-liguo.zhang@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, srinivas.kandagatla@gmail.com, maxime.coquelin@st.com, patrice.chotard@st.com, wsa@the-dreams.de
-Cc: peter.griffin@linaro.org, lee.jones@linaro.org, linux-i2c@vger.kernel.org, Frederic Pillon <frederic.pillon@st.com>
+To: Liguo Zhang <liguo.zhang@mediatek.com>
+Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
->From I2C specification:
 
-http://www.nxp.com/documents/user_manual/UM10204.pdf
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rev. 03 section 3.1.16 titled "Bus clear". When the i2c device held the
-SDA line low, the master should send 9 clocks pulses to try to recover.
+Hi,
 
-Signed-off-by: Frederic Pillon <frederic.pillon@st.com>
-Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
----
- drivers/i2c/busses/i2c-st.c | 56 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 55 insertions(+), 1 deletion(-)
+thanks for the submission!
 
-diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-index 6ee7715..37b0b34 100644
---- a/drivers/i2c/busses/i2c-st.c
-+++ b/drivers/i2c/busses/i2c-st.c
-@@ -337,10 +337,51 @@ static void st_i2c_hw_config(struct st_i2c_dev *i2c_dev)
- 	writel_relaxed(val, i2c_dev->base + SSC_NOISE_SUPP_WIDTH_DATAOUT);
- }
- 
-+/*
-+ * i2c bus recovery routines
-+ * get_scl and set_scl must be defined to avoid the recover_bus field of
-+ * i2c_bus_recovery_info to be overriden with NULL during the
-+ * i2c_add_adapter call
-+ */
-+
-+static int st_i2c_get_scl(struct i2c_adapter *adap)
-+{
-+	return 0;
-+}
-+
-+static void st_i2c_set_scl(struct i2c_adapter *adap, int val)
-+{
-+}
-+
-+static int st_i2c_recover_bus(struct i2c_adapter *i2c_adap)
-+{
-+	struct st_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
-+	u32 ctl;
-+
-+	dev_err(i2c_dev->dev, "Trying to recover bus\n");
-+
-+	/* Disable interrupts */
-+	writel_relaxed(0, i2c_dev->base + SSC_IEN);
-+
-+	st_i2c_hw_config(i2c_dev);
-+
-+	ctl = SSC_CTL_EN | SSC_CTL_MS |	SSC_CTL_EN_RX_FIFO | SSC_CTL_EN_TX_FIFO;
-+	st_i2c_set_bits(i2c_dev->base + SSC_CTL, ctl);
-+
-+	st_i2c_clr_bits(i2c_dev->base + SSC_I2C, SSC_I2C_I2CM);
-+	usleep_range(8000, 10000);
-+
-+	writel_relaxed(0, i2c_dev->base + SSC_TBUF);
-+	usleep_range(2000, 4000);
-+	st_i2c_set_bits(i2c_dev->base + SSC_I2C, SSC_I2C_I2CM);
-+
-+	return 0;
-+}
-+
- static int st_i2c_wait_free_bus(struct st_i2c_dev *i2c_dev)
- {
- 	u32 sta;
--	int i;
-+	int i, ret;
- 
- 	for (i = 0; i < 10; i++) {
- 		sta = readl_relaxed(i2c_dev->base + SSC_STA);
-@@ -352,6 +393,12 @@ static int st_i2c_wait_free_bus(struct st_i2c_dev *i2c_dev)
- 
- 	dev_err(i2c_dev->dev, "bus not free (status = 0x%08x)\n", sta);
- 
-+	ret = i2c_recover_bus(&i2c_dev->adap);
-+	if (ret) {
-+		dev_err(i2c_dev->dev, "Failed to recover the bus (%d)\n", ret);
-+		return ret;
-+	}
-+
- 	return -EBUSY;
- }
- 
-@@ -744,6 +791,12 @@ static struct i2c_algorithm st_i2c_algo = {
- 	.functionality = st_i2c_func,
- };
- 
-+static struct i2c_bus_recovery_info st_i2c_recovery_info = {
-+	.recover_bus = st_i2c_recover_bus,
-+	.get_scl =  st_i2c_get_scl,
-+	.set_scl =  st_i2c_set_scl,
-+};
-+
- static int st_i2c_of_get_deglitch(struct device_node *np,
- 		struct st_i2c_dev *i2c_dev)
- {
-@@ -826,6 +879,7 @@ static int st_i2c_probe(struct platform_device *pdev)
- 	adap->timeout = 2 * HZ;
- 	adap->retries = 0;
- 	adap->algo = &st_i2c_algo;
-+	adap->bus_recovery_info = &st_i2c_recovery_info;
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
- 
--- 
-1.9.1
+On Tue, Mar 08, 2016 at 02:23:51AM +0800, Liguo Zhang wrote:
+> Signal complete() in the i2c irq handler after one transfer done,
+> and then wait_for_completion_timeout() will return, this procedure
+> may cost much time, so only signal complete() when the entire
+> transaction has been completed, it will reduce the entire transaction
+> time.
+>=20
+> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+
+I wonder. You have less context switches, yes. On the other hand, you
+likely have bigger interrupt latency because you do more stuff in the
+interrupt handler. Is it really a gain in the end?
+
+Regards,
+
+   Wolfram
+
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXDWUTAAoJEBQN5MwUoCm2WqEP/iYiA940CEMWOPhx/RgpbdHq
++PoAO7geqKgb/u6b/HAtVdyXFpsnC3db3C6PFWg84q8gesh3HrmfarekIXcKQiGo
+/VHwXhSTbxu4KE4T4XlSzOlokb7Er7cJmg+P5Jv99CjpTAZGo00UfsxkUArca+5s
+J2fDV5/T1Q1hg8UFxdYTAukm7gB+lDyL8jBnDl9qCz4wWn5lfR0B1FBp8tyzjOIE
+CoWxx3B6FBAZh8pQYTHtWGf0TW1lIvG/bqu24upfV0Yf8m9UIFr2W1Op2v/Y5GC2
+JVnqJXZ7GtCbZTSMK5cU3yEHiRQE+dbPy017j3N4Ul6NUMYMv5aontfAt/Af1Nhx
+ruY8tDuk/izDN+zN4nTSCT4B6r/jMLpkCBoMHuKpXL6CsbJbiT+huYDubuxzAuH3
+YoJP/Nhoz98JFtYuBTk6L1l8UFK3w0V8paIwrSii92SdMvnntPaTUkBqMmtkn11a
+40Lq+OYLGGT5XDuPp91KFrRFhO5PLPSgZwt0KCjLVC3HN6dcnd7rQbRbP50yanZB
+EB8vPOwjKHjLaMBtjwSM85Gzv7PVjfw3YLEwSD0yg6bNjHE5f0wz74le/Y4tKYW5
+zSXIlnCyv3+DoWMNr6sQu/aiHnlm5chUT5EcgJFXSYpm/Eb5QN6Dh8XqHXf8DrQ/
+ZQTnCbTXdgklOqhSVrlg
+=83yL
+-----END PGP SIGNATURE-----
+
+--ZGiS0Q5IWpPtfppv--
