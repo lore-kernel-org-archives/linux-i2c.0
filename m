@@ -1,58 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: i2c: xlp9xx: add support for Broadcom Vulcan
-Date: Tue, 12 Apr 2016 23:40:39 +0200
-Message-ID: <20160412214039.GG1526@katana>
-References: <1460377886-22437-1-git-send-email-tanmay.jagdale@broadcom.com>
+Subject: Re: [PATCH v2] i2c: ismt: Add Intel DNV PCI ID
+Date: Tue, 12 Apr 2016 23:45:07 +0200
+Message-ID: <20160412214507.GH1526@katana>
+References: <1460119268-23338-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5UGlQXeG3ziZS81+"
+	protocol="application/pgp-signature"; boundary="bygAmIonOAIqBxQB"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59660 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:59692 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755952AbcDLVkn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 12 Apr 2016 17:40:43 -0400
+	id S1757409AbcDLVpW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 12 Apr 2016 17:45:22 -0400
 Content-Disposition: inline
-In-Reply-To: <1460377886-22437-1-git-send-email-tanmay.jagdale@broadcom.com>
+In-Reply-To: <1460119268-23338-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
-Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, scott.lawson@intel.com, alexandra.yates@intel.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org
 
 
---5UGlQXeG3ziZS81+
+--bygAmIonOAIqBxQB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 11, 2016 at 06:01:26PM +0530, Tanmay Jagdale wrote:
-> The Broadcom Vulcan ARM64 processor uses the same I2C controller
-> present on the Broadcom XLP9xx/5xx MIPS processor family.
-> Updated the Kconfig by adding ARCH_VULCAN option.
+On Fri, Apr 08, 2016 at 03:41:08PM +0300, Mika Westerberg wrote:
+> Intel DNV has the same iSMT SMBus host controller than Intel Avoton. Add
+> DNV PCI ID to the list of supported devices.
 >=20
-> Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
 Applied to for-current, thanks!
 
 
---5UGlQXeG3ziZS81+
+--bygAmIonOAIqBxQB
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXDWtXAAoJEBQN5MwUoCm2ahgP/2eEtRb0eOxMi/en7LLU19hx
-XdHWQZygjwpMSbZURvyL7bEcc5gI2vJJdeArhMtEMCibVS9EPrKIQ7Xq9zfJow3J
-eLHb3E4yL7uve3aBFWW0o0XBs1jZ2djVaS/mwFJwVNNtrxL5tXoOcsj592CCDkCS
-7br6mT5ggfPgN3/B1d/tTN+JNijyIj4+pE3lYhcg3N8yBDbV5o1XXT4xwcVfSrIC
-Zf7Lf6g1p0N2lrikDfMZIl4M0+3zEDS/mekNM73PgtitG2UNkL0SmTdoJTmlzpol
-B8UOzkGq0trOgpO15PFNe8+1zyV3XocGZT0U+DL7Q+TuVBQ9F3KrcfP7QNvZzJ0J
-8T7wt+Es2BY4bp19HjdlLlwtQf+lZNJUWuLrDi5Aobg/gk3jdNzkXB5Hd+uVIYmF
-CUit4ljvDWyGROHDETi/6q8YpUnxw9tkGpt8liV6GFtsfLr5Sdd82ZKvLTr/iztK
-NU67axzhq5yl8XFMelIpcRcr9zZgMwFbI0HrZsAXZdUem1VDgNptMEp1OLmjZz6n
-M1q0uRVWWvYM/qH70/kjbY19+j6dzuEGydmF0uE/WeB64vdD5tHjKPBhW9halMXQ
-YWzyTOWOiCB+P4Z3smV7VCFn7Vh1SojQNbzNm6RAw6bM4q9Thxau2aCbj4YLLbs+
-7sa167LtNW3oIVMzic14
-=DgMM
+iQIcBAEBAgAGBQJXDWxjAAoJEBQN5MwUoCm2ON4QALWdO0HGKDxBOiDgIwyFfUFV
+UYCM7ohqXGH4T7pFGt1KK1nDw+8ZR/O0HhvKnu2HYuDXGAkQnBFZqf3GXkCv/lZ8
+zyOq4PnO1g3iiPAVu9z9KyYPAlR9GFfrOUFo9p3OnfpmcG0bTmy/+pRoYatBqyKp
+UroRNf8rPRAyTYpGKMjfy6HGj2vrk3ZJk9TlvHJC+BQ/vpmaNr24pJ6plgHq1otA
+tBLjRJMzITyYbFxijmlNtPK2VdrZz7d3FBPZTm16GCQ2mQR4/inXzdT5dk71vhrf
+PYk10/THsBBfVb9723M+YnJHIQ0qmHJQWN3ffj1gznDtGy14Xhk8pn+FHz+Bn94o
+XtE5YCKz+cmH/dlEsjv/Tmr0pc3GkAZrpW0VX3nop++RzbybGnPp10LtaSCqoqyi
+QUIwKbCNriVVfFaOiT1Sg8+8YRP7yC8OPDCR6HEXQyWl/ygfjflV0pOvgof+e/2S
+rYpKC/3TzsRBTbtYyPOOuiGUQ16zGdCIGG8sAUpoNK/FqO1tFdK5PXjg/LeiHoJ1
+ZY4fktQbxNqM3eNYosaT4KM9/7hVrCGUWwWZx+aDd3yH+2M5y3nPsE1VIRMHLeS+
+EJuYRiDDOCXGdXsa9HKfL5y9hUUcpYz5sscQ6lqATFrRzROwXsnVT2drLKDQI1b1
+dxCcRm9Ho+GdwvMALoJg
+=0P9c
 -----END PGP SIGNATURE-----
 
---5UGlQXeG3ziZS81+--
+--bygAmIonOAIqBxQB--
