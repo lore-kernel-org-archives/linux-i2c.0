@@ -1,112 +1,119 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH v3] i2c: let I2C masters ignore their children for PM
-Date: Tue, 12 Apr 2016 09:57:35 +0200
-Message-ID: <1460447855-18050-1-git-send-email-linus.walleij@linaro.org>
-Return-path: <linux-pm-owner@vger.kernel.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org
+From: Axel Lin <axel.lin@ingics.com>
+Subject: [PATCH] i2c: simtec: Convert to use devm_* APIs
+Date: Tue, 12 Apr 2016 16:30:14 +0800
+Message-ID: <1460449814.28557.0.camel@ingics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:34736 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752649AbcDLIbH (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 12 Apr 2016 04:31:07 -0400
+Received: by mail-pa0-f46.google.com with SMTP id ot11so9549702pab.1
+        for <linux-i2c@vger.kernel.org>; Tue, 12 Apr 2016 01:31:07 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ben Dooks <ben@simtec.co.uk>, linux-i2c@vger.kernel.org
 
-When using a certain I2C device with runtime PM enabled on
-a certain I2C bus adaper the following happens:
+Use devm_* APIs to simplify the code a bit.
 
-struct amba_device *foo
-   \
-   struct i2c_adapter *bar
-      \
-      struct i2c_client *baz
-
-The AMBA device foo has its device PM struct set to ignore
-children with pm_suspend_ignore_children(&foo->dev, true).
-This makes runtime PM work just fine locally in the driver:
-the fact that devices on the bus are suspended or resumed
-individually does not affect its operation, and the hardware
-does not power up unless transferring messages.
-
-However this child ignorance property is not inherited into
-the struct i2c_adapter *bar.
-
-On system suspend things will work fine.
-
-On system resume the following annoying phenomenon occurs:
-
-- In the pm_runtime_force_resume() path of
-  struct i2c_client *baz, pm_runtime_set_active(&baz->dev); is
-  eventually called.
-
-- This becomes __pm_runtime_set_status(&baz->dev, RPM_ACTIVE);
-
-- __pm_runtime_set_status() detects that RPM state is changed,
-  and checks whether the parent is:
-  not active (RPM_ACTIVE) and not ignoring its children
-  If this happens it concludes something is wrong, because
-  a parent that is not ignoring its children must be active
-  before any children activate.
-
-- Since the struct i2c_adapter *bar does not ignore
-  its children, the PM core thinks that it must indeed go
-  online before its children, the check bails out with
-  -EBUSY, i.e. the i2c_client *baz thinks it can't work
-  because it's parent is not online, and it respects its
-  parent.
-
-- In the driver the .resume() callback returns -EBUSY from
-  the runtime_force_resume() call as per above. This leaves
-  the device in a suspended state, leading to bad behaviour
-  later when the device is used. The following debug
-  print is made with an extra printg patch but illustrates
-  the problem:
-
-[   17.040832] bh1780 2-0029: parent (i2c-2) is not active
-               parent->power.ignore_children = 0
-[   17.040832] bh1780 2-0029: pm_runtime_force_resume:
-               pm_runtime_set_active() failed (-16)
-[   17.040863] dpm_run_callback():
-               pm_runtime_force_resume+0x0/0x88 returns -16
-[   17.040863] PM: Device 2-0029 failed to resume: error -16
-
-Fix this by letting all struct i2c_adapter:s ignore their
-children: i2c children have no business doing keeping
-their parents awake: they are completely autonomous
-devices that just use their parent to talk, a usecase
-which must be power managed in the host on a per-message
-basis.
-
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-Cc: linux-pm@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
 ---
-ChangeLog v2->v3:
-- Move the pm_suspend_ignore_children() call before the
-  pm_runtime_enable() call.
-ChangeLog v1->v2:
-- Change subject from
-  "let I2C masters inherit suspend child ignorance"
-  to
-  "let I2C masters ignore their children for PM"
-- Use the big hammer and do the sensible thing:
-  mark all i2c adapters as ignoring their children
-  when it comes to power management.
----
- drivers/i2c/i2c-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-simtec.c | 52 +++++------------------------------------
+ 1 file changed, 6 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 0f2f8484e8ec..7083785a232c 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1565,6 +1565,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	dev_dbg(&adap->dev, "adapter [%s] registered\n", adap->name);
+diff --git a/drivers/i2c/busses/i2c-simtec.c b/drivers/i2c/busses/i2c-simtec.c
+index b4685bb..46b88d5 100644
+--- a/drivers/i2c/busses/i2c-simtec.c
++++ b/drivers/i2c/busses/i2c-simtec.c
+@@ -25,7 +25,6 @@
+ #include <linux/i2c-algo-bit.h>
  
- 	pm_runtime_no_callbacks(&adap->dev);
-+	pm_suspend_ignore_children(&adap->dev, true);
- 	pm_runtime_enable(&adap->dev);
+ struct simtec_i2c_data {
+-	struct resource		*ioarea;
+ 	void __iomem		*reg;
+ 	struct i2c_adapter	 adap;
+ 	struct i2c_algo_bit_data bit;
+@@ -69,37 +68,18 @@ static int simtec_i2c_probe(struct platform_device *dev)
+ {
+ 	struct simtec_i2c_data *pd;
+ 	struct resource *res;
+-	int size;
+-	int ret;
  
- #ifdef CONFIG_I2C_COMPAT
+-	pd = kzalloc(sizeof(struct simtec_i2c_data), GFP_KERNEL);
++	pd = devm_kzalloc(&dev->dev, sizeof(struct simtec_i2c_data),
++			  GFP_KERNEL);
+ 	if (pd == NULL)
+ 		return -ENOMEM;
+ 
+ 	platform_set_drvdata(dev, pd);
+ 
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		dev_err(&dev->dev, "cannot find IO resource\n");
+-		ret = -ENOENT;
+-		goto err;
+-	}
+-
+-	size = resource_size(res);
+-
+-	pd->ioarea = request_mem_region(res->start, size, dev->name);
+-	if (pd->ioarea == NULL) {
+-		dev_err(&dev->dev, "cannot request IO\n");
+-		ret = -ENXIO;
+-		goto err;
+-	}
+-
+-	pd->reg = ioremap(res->start, size);
+-	if (pd->reg == NULL) {
+-		dev_err(&dev->dev, "cannot map IO\n");
+-		ret = -ENXIO;
+-		goto err_res;
+-	}
++	pd->reg = devm_ioremap_resource(&dev->dev, res);
++	if (IS_ERR(pd->reg))
++		return PTR_ERR(pd->reg);
+ 
+ 	/* setup the private data */
+ 
+@@ -117,22 +97,7 @@ static int simtec_i2c_probe(struct platform_device *dev)
+ 	pd->bit.timeout = HZ;
+ 	pd->bit.udelay = 20;
+ 
+-	ret = i2c_bit_add_bus(&pd->adap);
+-	if (ret)
+-		goto err_all;
+-
+-	return 0;
+-
+- err_all:
+-	iounmap(pd->reg);
+-
+- err_res:
+-	release_resource(pd->ioarea);
+-	kfree(pd->ioarea);
+-
+- err:
+-	kfree(pd);
+-	return ret;
++	return i2c_bit_add_bus(&pd->adap);
+ }
+ 
+ static int simtec_i2c_remove(struct platform_device *dev)
+@@ -141,11 +106,6 @@ static int simtec_i2c_remove(struct platform_device *dev)
+ 
+ 	i2c_del_adapter(&pd->adap);
+ 
+-	iounmap(pd->reg);
+-	release_resource(pd->ioarea);
+-	kfree(pd->ioarea);
+-	kfree(pd);
+-
+ 	return 0;
+ }
+ 
 -- 
-2.4.3
-
+2.5.0
