@@ -1,59 +1,56 @@
-From: "David E. Box" <david.e.box@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c: designware: Allow build Baytrail semaphore
- support when IOSF_MBI=m
-Date: Tue, 12 Apr 2016 14:46:55 -0700
-Message-ID: <20160412214655.GA27603@pathfinder>
-References: <1449748124-20744-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1449748124-20744-2-git-send-email-jarkko.nikula@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: simtec: Convert to use devm_* APIs
+Date: Tue, 12 Apr 2016 23:48:31 +0200
+Message-ID: <20160412214831.GI1526@katana>
+References: <1460449814.28557.0.camel@ingics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lqaZmxkhekPBfBzr"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:57633 "EHLO mga04.intel.com"
+Received: from sauhun.de ([89.238.76.85]:59725 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756492AbcDLVrv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 12 Apr 2016 17:47:51 -0400
+	id S1755377AbcDLVsg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 12 Apr 2016 17:48:36 -0400
 Content-Disposition: inline
-In-Reply-To: <1449748124-20744-2-git-send-email-jarkko.nikula@linux.intel.com>
+In-Reply-To: <1460449814.28557.0.camel@ingics.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Axel Lin <axel.lin@ingics.com>
+Cc: Ben Dooks <ben@simtec.co.uk>, linux-i2c@vger.kernel.org
 
-On Thu, Dec 10, 2015 at 01:48:44PM +0200, Jarkko Nikula wrote:
-> I believe i2c-designware-baytrail.c doesn't have strict dependency that
-> Intel SoC IOSF Sideband support must be always built-in in order to be
-> able to compile support for Intel Baytrail I2C bus sharing HW semaphore.
-> 
-> Redefine build dependencies so that CONFIG_IOSF_MBI=y is required only
-> when CONFIG_I2C_DESIGNWARE_PLATFORM is built-in.
-> 
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> Hi David. Can you ack/nak this patch as I'm not fully familiar with this
-> HW semaphore can there be problems when IOSF_MBI is built as a module.
-> At least I'm getting similar sensible looking "punit semaphore
-> acquired/held for x ms" debug messages when I modprobe/rmmod
-> i2c_designware_platform independently is the CONFIG_IOSF_MBI=y or =m.
-> ---
->  drivers/i2c/busses/Kconfig | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 69c46fe13777..76f4d024def0 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -490,7 +490,9 @@ config I2C_DESIGNWARE_PCI
->  
->  config I2C_DESIGNWARE_BAYTRAIL
->  	bool "Intel Baytrail I2C semaphore support"
-> -	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=y && ACPI
-> +	depends on ACPI
-> +	depends on (I2C_DESIGNWARE_PLATFORM=m && IOSF_MBI) || \
-> +		   (I2C_DESIGNWARE_PLATFORM=y && IOSF_MBI=y)
->  	help
->  	  This driver enables managed host access to the PMIC I2C bus on select
->  	  Intel BayTrail platforms using the X-Powers AXP288 PMIC. It allows
-> -- 
-> 2.6.2
-> 
-Acked-by: David Box <david.e.box@linux.intel.com>
+
+--lqaZmxkhekPBfBzr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Apr 12, 2016 at 04:30:14PM +0800, Axel Lin wrote:
+> Use devm_* APIs to simplify the code a bit.
+>=20
+> Signed-off-by: Axel Lin <axel.lin@ingics.com>
+
+Thanks! Were you able to test it on hardware?
+
+
+--lqaZmxkhekPBfBzr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXDW0vAAoJEBQN5MwUoCm2JUYQAJN2SzkSwaXTqlS3C3xxZLcg
+klduStn6QC/D4No4QfKz3p3H3ueAPOx43iTA6aa8lTgELMbuhd3UOMjcNuh6G2NB
+exTw4X4Ocn3CxIZdAQc5F6VzGFRXl3+NSVf0fe3xPOfza6Kbd/7dA0G+Ed5AQZMl
+wv+DIj1AyuuuOHborbXSRtZ/bPseEXmDDp8WBMtqEpo4CRqAIztr5xN0P5xk/pRR
+lfoxqYussHFa8zkfa3H4uO+nETQSCAqljvWWKWiOXkw6afex2ON9Mr0aP68biOP3
+rMz8YfXuCTKuAAV6KgQ1EDUU+mTdks/ae300J0SNxe7CMnaHrka40uALKtIGx2GX
+P5gpTR+8mvq6DAyemUBNvN/6aQlUwBEkFTW3hHlgDMoHjWVbgz34YwKd2BILu/jP
+W1eWjciUbfiF8sRR3xinN8H0I4MMuYmyUFmfvzMbfspgwXQcV0IHr96eccyfCdwX
+vJqWYu8llCyksk1mBaPvpfrCIDILMnhf5SyNRAaMcJcRpTkt9fYzrVTQo+ewSQc8
+2oPxVgxTht72fiQWiGNr5wbdjT9PZkMLEzZ3vU5IjXSZzdBf23PMLAU4ODYAImAv
+Er3xPAjgX6QIZh4QEtxR+HVSUUQBuvJZAok8RujboBgEzpsWOp5YW9QSNAxsPoSC
+08TWh03nDf+Rd/GIKJUg
+=CRsD
+-----END PGP SIGNATURE-----
+
+--lqaZmxkhekPBfBzr--
