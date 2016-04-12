@@ -1,66 +1,124 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: mediatek: i2c multi transfer optimization
-Date: Tue, 12 Apr 2016 23:13:56 +0200
-Message-ID: <20160412211355.GA1526@katana>
-References: <1457375031-3769-1-git-send-email-liguo.zhang@mediatek.com>
+Subject: Re: [PATCH v3] i2c: let I2C masters ignore their children for PM
+Date: Tue, 12 Apr 2016 23:18:25 +0200
+Message-ID: <20160412211825.GB1526@katana>
+References: <1460447855-18050-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="PmA2V3Z32TCmWXqI"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:59513 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758046AbcDLVSa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 12 Apr 2016 17:18:30 -0400
 Content-Disposition: inline
-In-Reply-To: <1457375031-3769-1-git-send-email-liguo.zhang@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Liguo Zhang <liguo.zhang@mediatek.com>
-Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+In-Reply-To: <1460447855-18050-1-git-send-email-linus.walleij@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-i2c@vger.kernel.org, Mark Brown <broonie@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org
 
 
---ZGiS0Q5IWpPtfppv
+--PmA2V3Z32TCmWXqI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-thanks for the submission!
-
-On Tue, Mar 08, 2016 at 02:23:51AM +0800, Liguo Zhang wrote:
-> Signal complete() in the i2c irq handler after one transfer done,
-> and then wait_for_completion_timeout() will return, this procedure
-> may cost much time, so only signal complete() when the entire
-> transaction has been completed, it will reduce the entire transaction
-> time.
+On Tue, Apr 12, 2016 at 09:57:35AM +0200, Linus Walleij wrote:
+> When using a certain I2C device with runtime PM enabled on
+> a certain I2C bus adaper the following happens:
 >=20
-> Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
+> struct amba_device *foo
+>    \
+>    struct i2c_adapter *bar
+>       \
+>       struct i2c_client *baz
+>=20
+> The AMBA device foo has its device PM struct set to ignore
+> children with pm_suspend_ignore_children(&foo->dev, true).
+> This makes runtime PM work just fine locally in the driver:
+> the fact that devices on the bus are suspended or resumed
+> individually does not affect its operation, and the hardware
+> does not power up unless transferring messages.
+>=20
+> However this child ignorance property is not inherited into
+> the struct i2c_adapter *bar.
+>=20
+> On system suspend things will work fine.
+>=20
+> On system resume the following annoying phenomenon occurs:
+>=20
+> - In the pm_runtime_force_resume() path of
+>   struct i2c_client *baz, pm_runtime_set_active(&baz->dev); is
+>   eventually called.
+>=20
+> - This becomes __pm_runtime_set_status(&baz->dev, RPM_ACTIVE);
+>=20
+> - __pm_runtime_set_status() detects that RPM state is changed,
+>   and checks whether the parent is:
+>   not active (RPM_ACTIVE) and not ignoring its children
+>   If this happens it concludes something is wrong, because
+>   a parent that is not ignoring its children must be active
+>   before any children activate.
+>=20
+> - Since the struct i2c_adapter *bar does not ignore
+>   its children, the PM core thinks that it must indeed go
+>   online before its children, the check bails out with
+>   -EBUSY, i.e. the i2c_client *baz thinks it can't work
+>   because it's parent is not online, and it respects its
+>   parent.
+>=20
+> - In the driver the .resume() callback returns -EBUSY from
+>   the runtime_force_resume() call as per above. This leaves
+>   the device in a suspended state, leading to bad behaviour
+>   later when the device is used. The following debug
+>   print is made with an extra printg patch but illustrates
+>   the problem:
+>=20
+> [   17.040832] bh1780 2-0029: parent (i2c-2) is not active
+>                parent->power.ignore_children =3D 0
+> [   17.040832] bh1780 2-0029: pm_runtime_force_resume:
+>                pm_runtime_set_active() failed (-16)
+> [   17.040863] dpm_run_callback():
+>                pm_runtime_force_resume+0x0/0x88 returns -16
+> [   17.040863] PM: Device 2-0029 failed to resume: error -16
+>=20
+> Fix this by letting all struct i2c_adapter:s ignore their
+> children: i2c children have no business doing keeping
+> their parents awake: they are completely autonomous
+> devices that just use their parent to talk, a usecase
+> which must be power managed in the host on a per-message
+> basis.
+>=20
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Ulf Hansson <ulf.hansson@linaro.org>
+> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
+> Cc: linux-pm@vger.kernel.org
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
-I wonder. You have less context switches, yes. On the other hand, you
-likely have bigger interrupt latency because you do more stuff in the
-interrupt handler. Is it really a gain in the end?
-
-Regards,
-
-   Wolfram
+Applied to for-next, thanks!
 
 
---ZGiS0Q5IWpPtfppv
+--PmA2V3Z32TCmWXqI
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXDWUTAAoJEBQN5MwUoCm2WqEP/iYiA940CEMWOPhx/RgpbdHq
-+PoAO7geqKgb/u6b/HAtVdyXFpsnC3db3C6PFWg84q8gesh3HrmfarekIXcKQiGo
-/VHwXhSTbxu4KE4T4XlSzOlokb7Er7cJmg+P5Jv99CjpTAZGo00UfsxkUArca+5s
-J2fDV5/T1Q1hg8UFxdYTAukm7gB+lDyL8jBnDl9qCz4wWn5lfR0B1FBp8tyzjOIE
-CoWxx3B6FBAZh8pQYTHtWGf0TW1lIvG/bqu24upfV0Yf8m9UIFr2W1Op2v/Y5GC2
-JVnqJXZ7GtCbZTSMK5cU3yEHiRQE+dbPy017j3N4Ul6NUMYMv5aontfAt/Af1Nhx
-ruY8tDuk/izDN+zN4nTSCT4B6r/jMLpkCBoMHuKpXL6CsbJbiT+huYDubuxzAuH3
-YoJP/Nhoz98JFtYuBTk6L1l8UFK3w0V8paIwrSii92SdMvnntPaTUkBqMmtkn11a
-40Lq+OYLGGT5XDuPp91KFrRFhO5PLPSgZwt0KCjLVC3HN6dcnd7rQbRbP50yanZB
-EB8vPOwjKHjLaMBtjwSM85Gzv7PVjfw3YLEwSD0yg6bNjHE5f0wz74le/Y4tKYW5
-zSXIlnCyv3+DoWMNr6sQu/aiHnlm5chUT5EcgJFXSYpm/Eb5QN6Dh8XqHXf8DrQ/
-ZQTnCbTXdgklOqhSVrlg
-=83yL
+iQIcBAEBAgAGBQJXDWYhAAoJEBQN5MwUoCm2ylsP/2NABR7+m7Ax0aDAxCGazyDf
+kBn3cLr1EBL/1Zu+Gz5ugwax1qYNycTiIy6e363rSEyj4r+nKI106IFRlWn1XE3C
+KuRPvciXLinLOosmaI6x7NZI/drMD+ZiBVxJpOQekrRXU1WviJsgdwt3GoNrN5bx
+GizALWcBRRvJcOXMtIN1erlss/NOExB2zYhogXAEuMZXGTf9NtWMu42ZQcVN8fhW
+VeEzGIvylVJ7DDZlbSphrVjc7yVfZFH/MaPOnfMJ0Z7xyJuxwtyLVu7aQNS9X8id
+TpCf/GkgLz8DwgnL5JQhTH153Sls9bpNY2WBdBubDSYAhZcqyfMTEXlhBf1+GBd6
+Sr9MJR8VubzQ/90w4wo4uPf5z1yxhPjAMqtvjAa9J5yELDqiTIrRZtd5hhrGvjAK
+g992aAHstM6mkyr8u/+nEmOEvhwwaovQZ9ohir3B9xc3Mr4IpdpCU99Gl2vZdh6x
+CAI6ihHKWDA2g35FjvIC1fRR5iGNrKdXVWL19uSXTOLJxT2OYOW6AfK9fuxM5khp
+TjtF/gwLMREP4Dy2hVUykOR+uTvF9fKCJO50CS5UpTNm68Nk3nAkysHUxLJd3fuR
+Se6AMXE55Cu9F33iOun37lXbnLX6hg5/LEahpd0TlAc4U37SYxjW2rtKKEl2TL++
+9nzrHxejVbmG2dm0x38d
+=8GG5
 -----END PGP SIGNATURE-----
 
---ZGiS0Q5IWpPtfppv--
+--PmA2V3Z32TCmWXqI--
