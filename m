@@ -1,114 +1,63 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 06/19] i2c: octeon: Improve error status checking
-Date: Wed, 13 Apr 2016 10:55:20 +0200
-Message-ID: <20160413085519.GF1563@katana>
-References: <cover.1460387640.git.jglauber@cavium.com>
- <dded382de33f6a4b64c87d8ca2e016871403784d.1460387640.git.jglauber@cavium.com>
+From: Jisheng Zhang <jszhang@marvell.com>
+Subject: Re: [PATCH] i2c: designware-platdrv: get fast/std speed scl
+ high/low count from DT
+Date: Wed, 13 Apr 2016 20:11:47 +0800
+Message-ID: <20160413201147.5621a17c@xhacker>
+References: <1459927680-5480-1-git-send-email-jszhang@marvell.com>
+	<20160407175759.GO32257@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uTRFFR9qmiCqR05s"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <dded382de33f6a4b64c87d8ca2e016871403784d.1460387640.git.jglauber@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jan Glauber <jglauber@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:1154 "EHLO
+	mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S965192AbcDMMQT (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Apr 2016 08:16:19 -0400
+In-Reply-To: <20160407175759.GO32257@rob-hp-laptop>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: wsa@the-dreams.de, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+
+Dear Rob,
+
+On Thu, 7 Apr 2016 12:57:59 -0500 Rob Herring wrote:
+
+> On Wed, Apr 06, 2016 at 03:28:00PM +0800, Jisheng Zhang wrote:
+> > Sometimes, it's convenient to define the scl's high/low count directly,
+> > e.g HW people would do some measurement then directly give out the
+> > optimum counts. Previously, we solved the sda falling time and scl
+> > falling time by i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt(), then put them
+> > into dt, but what we really care isn't the sda/scl falling time.  
+> 
+> This is just so you can put specific clock count instead of converting 
+> from nanoseconds with standard properties or you gain some additional 
+> control of the timing. If only the former, then I prefer we stick with 
+> the common properties.
+
+To be honest, both. Let me show how I gain additional control of the timing
+with this patch while I can't do this w/o it.
+
+I want the similar high percent of SCL high for both standard-mode and
+fast-mode. Before this patch, this is not achievable because the parameters
+to cal the hcnt/lcnt via i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt() are different
+for standard-mode and fast-mode.
+
+Thanks,
+Jisheng
 
 
---uTRFFR9qmiCqR05s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-
-Please have a look at Documentation/i2c/fault-codes. -EAGAIN is only for
-arbitration loss.
-
-> +	/* ACK allowed on pre-terminal bytes only */
-> +	case STAT_RXDATA_ACK:
-> +		if (!final_read)
-> +			return 0;
-> +		return -EAGAIN;
-> +
-> +	/* NAK allowed on terminal byte only */
-> +	case STAT_RXDATA_NAK:
-> +		if (final_read)
-> +			return 0;
-> +		return -EAGAIN;
-
--EIO? Can this happen? It is the master who sends the NAK, so we are in
-control of that.
-
-> +
-> +	/* Arbitration lost */
-> +	case STAT_LOST_ARB_38:
-> +	case STAT_LOST_ARB_68:
-> +	case STAT_LOST_ARB_78:
-> +	case STAT_LOST_ARB_B0:
-> +		return -EAGAIN;
-
-OK.
-
-> +
-> +	/* Being addressed as slave, should back off & listen */
-> +	case STAT_SLAVE_60:
-> +	case STAT_SLAVE_70:
-> +	case STAT_GENDATA_ACK:
-> +	case STAT_GENDATA_NAK:
-> +		return -EIO;
-
--EOPNOTSUPP?
-
-> +
-> +	/* Core busy as slave */
-> +	case STAT_SLAVE_80:
-> +	case STAT_SLAVE_88:
-> +	case STAT_SLAVE_A0:
-> +	case STAT_SLAVE_A8:
-> +	case STAT_SLAVE_LOST:
-> +	case STAT_SLAVE_NAK:
-> +	case STAT_SLAVE_ACK:
-> +		return -EIO;
-
--EOPNOTSUPP?
-
-> +	case STAT_TXDATA_NAK:
-
--EIO?
-
-> +	case STAT_TXADDR_NAK:
-> +	case STAT_RXADDR_NAK:
-> +	case STAT_AD2W_NAK:
-
--ENXIO?
-
-> +		return -EAGAIN;
-> +	default:
-> +		dev_err(i2c->dev, "unhandled state: %d\n", stat);
-> +		return -EIO;
-
-OK.
-
-
---uTRFFR9qmiCqR05s
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXDgl3AAoJEBQN5MwUoCm2VHkP/3DkN/TZz6bFVcw4m2HA6y2C
-eIChc9pXq3Hn7IO4ViMi42RPVCr7rMsZKO6D9REylVY9A2UeYEivhoJYc9V7ttD+
-hwWVwcoe+k+Von5dG/HalKleylJae5rFtfVulyY7wIepFXGcnaJPVNBDsBd0jNtz
-k3Pc4UmL/4wbyKgGFgi8l1FEADUZl5RWdejsP4dSidBjdx5rW8lq85h3514ulj+8
-8Z//6qm1kvwzTGdB7qpwvR+9s6A/JlHEcpZ0V78sTz7Znao/No3GSvR4RPHrcdz3
-nzcQtqb9XQBf+8CZUdYJIpMPNnyLIamN9ynAs1VgWd1Be94wz4UU0vSgRwsc1BCX
-rqHuTEruQIc6fB9c3B0YaulKrB5uBp7GmRovj3aoF8fiCCXjyWWFanKxtVwsGzIN
-p1KDFiYoDzp6MRGahwJZmEhei1B+OWVIGoQxv+Qg6oxrgix8q7GLSJ/VMTjzGHmi
-vyb3QLjBox6oBlHBdW+Ek02C9idcuIRv+kyqtpgtwdkPdusSoQ+zUpr8e8b2GMor
-x3X4UEEWNAIzoxa5wV5b1p3I6xs0GKjh0Cyw6i9JCNtlLhwQnnctmJ4gxErtgyTa
-xvZTAagH9OqS5DKNrhVsx8TkkhOHiMRwKYHVjfRCyVo0/SHvnmOaEWijMzUXvfMg
-kCcIGTko9fQZ+WakHT94
-=8Q/i
------END PGP SIGNATURE-----
-
---uTRFFR9qmiCqR05s--
+> 
+> > From another side, the dw_i2c_acpi_configure() on ACPI platform also
+> > get hcnt/lcnt values rather than the sda/scl falling time from ACPI
+> > method, we want similar feature for DT platforms.  
+> 
+> That's nice, but not really a reason IMO.
+> 
+> > 
+> > Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-designware.txt | 16 ++++++++++++++++
+> >  drivers/i2c/busses/i2c-designware-platdrv.c              |  8 ++++++++
+> >  2 files changed, 24 insertions(+)  
