@@ -1,30 +1,84 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH 2/2] ARM: dts: rockchip: add i2c nodes RK3228 SoCs
-Date: Wed, 13 Apr 2016 22:57:01 +0200
-Message-ID: <5295818.srcnokibua@diego>
-References: <1457924955-29996-1-git-send-email-ykk@rock-chips.com> <1457925102-30476-1-git-send-email-ykk@rock-chips.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: tvp5150 regression after commit 9f924169c035
+Date: Wed, 13 Apr 2016 18:39:44 -0400
+Message-ID: <570ECAB0.4050107@osg.samsung.com>
+References: <56B204CB.60602@osg.samsung.com>
+ <20160208105417.GD2220@tetsubishi> <56BE57FC.3020407@osg.samsung.com>
+ <20160212221352.GY3500@atomide.com> <56BE5C97.9070607@osg.samsung.com>
+ <20160212224018.GZ3500@atomide.com> <56BE65F0.8040600@osg.samsung.com>
+ <20160212234623.GB3500@atomide.com> <56BE993B.3010804@osg.samsung.com>
+ <20160412223254.GK1526@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:39676 "EHLO gloria.sntech.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753459AbcDMU5O convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Apr 2016 16:57:14 -0400
-In-Reply-To: <1457925102-30476-1-git-send-email-ykk@rock-chips.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20160412223254.GK1526@katana>
+Sender: linux-pm-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
 List-Id: linux-i2c@vger.kernel.org
-To: Yakir Yang <ykk@rock-chips.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org
 
-Am Montag, 14. M=E4rz 2016, 11:11:42 schrieb Yakir Yang:
-> This patch add the i2c dt nodes for rk3228 SoCs.
->=20
-> Signed-off-by: Yakir Yang <ykk@rock-chips.com>
+Hello Wolfram,
 
-applied to my dts32 branch for 4.7, after moving the i2c pinctrl nodes =
-in=20
-between emmc and pwm* (please try to keep alphabetical ordering there)
+On 04/12/2016 06:32 PM, Wolfram Sang wrote:
+> 
+>> I'll try to find some time next week to dig deeper on this. Just
+>> thought that may be related to the issue you found but it seems
+>> that's not the case.
+> 
+> Any updates on this?
+>
 
+Sorry, I've been sick and then busy with other stuff so I didn't have time
+to dig deeper on this.
+ 
+> Thanks,
+> 
+>    Wolfram
+> 
 
-Heiko
+I'll write what I found so far in case someone with better knowledge about
+the runtime PM API and the OMAP I2C controller driver can have an idea of
+what could be causing this.
+
+The problem is that after commit 9f924169c035 ("i2c: always enable RuntimePM
+for the adapter device"), i2c_smbus_read_byte_data() fails and returns -110
+(ETIMEDOUT) error in the tvp5150 I2C driver.
+
+The call trace is the following:
+
+i2c_device_probe
+  tvp5150_probe
+    tvp5150_read
+      i2c_smbus_read_byte_data
+        i2c_smbus_xfer
+	  i2c_transfer
+	    omap_i2c_xfer
+              omap_i2c_xfer_msg
+
+The fail in omap_i2c_xfer_msg() is due the wait_for_completion_timeout()
+timeout, so it seems the omap_i2c_isr_thread() is not calling complete()
+for the cmd_complete completion when runtime PM is enabled (no idea why).
+
+If I revert commit 9f924169c035 then things works again or if I use the
+following patch that basically disables runtime PM for the OMAP adapter
+after it has been enabled by the I2C core due commit 9f924169c035: 
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 37a88f0ae179..0b72b21b379d 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1445,6 +1445,8 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		goto err_unuse_clocks;
+ 	}
+ 
++	pm_runtime_disable(&adap->dev);
++
+ 	dev_info(omap->dev, "bus %d rev%d.%d at %d kHz\n", adap->nr,
+ 		 major, minor, omap->speed);
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
