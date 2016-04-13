@@ -1,110 +1,63 @@
-From: Andrea Merello <andrea.merello@gmail.com>
-Subject: [PATCH RFC] I2C: i2c-smbus: add device tree support
-Date: Wed, 13 Apr 2016 10:36:31 +0200
-Message-ID: <1460536591-12573-1-git-send-email-andrea.merello@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jdelvare@suse.de
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Andrea Merello <andrea.merello@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 01/19] i2c: octeon: Increase retry default and use
+ fixed timeout value
+Date: Wed, 13 Apr 2016 10:39:36 +0200
+Message-ID: <20160413083936.GB1563@katana>
+References: <cover.1460387640.git.jglauber@cavium.com>
+ <912e7b105708740802cd6fc944d4d041a4939a35.1460387640.git.jglauber@cavium.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:34741 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754681AbcDMIjl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 13 Apr 2016 04:39:41 -0400
+Content-Disposition: inline
+In-Reply-To: <912e7b105708740802cd6fc944d4d041a4939a35.1460387640.git.jglauber@cavium.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
-According to Documentation/i2c/smbus-protocol, a smbus controller driver
-that wants to hook-in smbus extensions support, can call
-i2c_setup_smbus_alert(). There are very few drivers that are currently
-doing this.
 
-However the i2c-smbus module can also work with any
-smbus-extensions-unaware I2C controller, as long as we provide an extra
-IRQ line connected to the I2C bus ALARM signal.
+--kORqDWCi7qDJ0mEj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch makes it possible to go this way via DT. Note that the DT node
-will indeed describe a (little) piece of HW, that is the routing of the
-ALARM signal to an IRQ line (so it seems a fair DT use to me, but RFC).
+On Mon, Apr 11, 2016 at 05:28:32PM +0200, Jan Glauber wrote:
+> Convert the adapter timeout to 2 ms independently of depending on CONFIG_=
+HZ.
+> CONFIG_HZ is 100 for MIPS Cavium-Octeon so the timeout value is not chang=
+ed.
+>=20
+> Also set retries to 5 to improve robustness.
+>=20
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
-Note that AFAICT, by design, i2c-smbus module pretends to be an I2C slave
-with address 0x0C (that is the alarm response address), and IMHO this is
-quite consistent with usage in the DT as a I2C child node.
+Applied to for-next, thanks!
 
-Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-smbus.txt b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
-new file mode 100644
-index 0000000..da83127
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
-@@ -0,0 +1,20 @@
-+* i2c-smbus extensions
-+
-+Required Properties:
-+  - compatible: Must contain "smbus_alert"
-+  - interrupts: The irq line for smbus ALERT signal
-+  - reg: I2C slave address. Set to 0x0C (alert response address).
-+
-+Note: The i2c-smbus module registers itself as a slave I2C device. Whenever
-+a smbus controller directly support smbus extensions (and its driver supports
-+this), there is no need to add anything special to the DT. Otherwise, for using
-+i2c-smbus with any smbus-extensions-unaware I2C controllers, you need to
-+route the smbus ALARM signal to an extra IRQ line, thus you need to describe
-+this in the DT.
-+
-+Example:
-+	alert@0x0C {
-+		reg = <0x0C>;
-+		compatible = "smbus_alert";
-+		interrupts = <0 36 IRQ_TYPE_LEVEL_LOW>;
-+	};
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index abb55d3..7f0a566 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/workqueue.h>
-+#include <linux/of_irq.h>
+--kORqDWCi7qDJ0mEj
+Content-Type: application/pgp-signature; name="signature.asc"
 
- struct i2c_smbus_alert {
- 	unsigned int		alert_edge_triggered:1;
-@@ -137,20 +138,29 @@ static int smbalert_probe(struct i2c_client *ara,
- 	struct i2c_smbus_alert_setup *setup = dev_get_platdata(&ara->dev);
- 	struct i2c_smbus_alert *alert;
- 	struct i2c_adapter *adapter = ara->adapter;
-+	struct device_node *of_node = ara->dev.of_node;
- 	int res;
-+	int irq_type;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
- 	alert = devm_kzalloc(&ara->dev, sizeof(struct i2c_smbus_alert),
- 			     GFP_KERNEL);
- 	if (!alert)
- 		return -ENOMEM;
+iQIcBAEBAgAGBQJXDgXIAAoJEBQN5MwUoCm2IL8QAIstzUMFGXhGfiEZv8sh3/9t
+0R+GsGLajIWimZUGU5diMy1/xLj9WVCfZDtRU7igKw3A4W2YCixqbtIHKKmSSVLY
+m0tqKfafGWj7M0CqHXNmQNh+progn67hwtixeadQc0aL07KkNHmRAWzv6n/jOduS
+/+70ewUbk0s0HTSZxhFiUG0io95LeRmEh95yqZO6AO0eHYkdwE0eGBgJDF537VNO
+IP7PVkiDfqSjqPnoNVdgd5F/lhn0yUBI/5ZFzLK3IlU6sCXPoPK+7XnZuH0/g6cZ
+WN+x1IrDb4MicRgtI6PnlhSbWv/kxmYk0Or6j7tGVZ8V+efwmv51oZs7EVbu+pI3
+/p255CaE1h55HZYfywYuOGOYFObX4xc3VuUG+Mn4YG3VEP3Nb0Cj3vs+vd9bVCaX
+DcqsXCE6zBgOOlmP4KoIYnVrebRmfHqKip+7xP93X8oqB5wLqBGIudoP722G3Z68
+isRyVXpbCUtp4Lt9H6ACGF085lnGJwPcKOeJArOg5C9fZgyYJbf4KkTeB7pctegJ
+CiP9EU6vvp9jbyootwkrKLvFUkMPEoLq/1VlI2bMjGKqG3ajhh/FTpSi3W8XVrff
+JwRDdfJ2bp2cQBSZJ98SxNpW3Nz2yEhSBEh9N7QrnYKfuqfkMXOtNN8EU9v+RCpb
+tLFU6pXuGsEjbpguuCPc
+=ef7Z
+-----END PGP SIGNATURE-----
 
--	alert->alert_edge_triggered = setup->alert_edge_triggered;
--	alert->irq = setup->irq;
-+	if (setup) {
-+		alert->alert_edge_triggered = setup->alert_edge_triggered;
-+		alert->irq = setup->irq;
-+	} else if (of_node) {
-+		alert->irq = irq_of_parse_and_map(of_node, 0);
-+		irq_type = irq_get_trigger_type(alert->irq);
-+		alert->alert_edge_triggered = (irq_type & IRQ_TYPE_EDGE_BOTH);
-+	}
-+
- 	INIT_WORK(&alert->alert, smbus_alert);
- 	alert->ara = ara;
-
--	if (setup->irq > 0) {
--		res = devm_request_irq(&ara->dev, setup->irq, smbalert_irq,
-+	if (alert->irq > 0) {
-+		res = devm_request_irq(&ara->dev, alert->irq, smbalert_irq,
- 				       0, "smbus_alert", alert);
- 		if (res)
- 			return res;
-@@ -158,7 +168,7 @@ static int smbalert_probe(struct i2c_client *ara,
-
- 	i2c_set_clientdata(ara, alert);
- 	dev_info(&adapter->dev, "supports SMBALERT#, %s trigger\n",
--		 setup->alert_edge_triggered ? "edge" : "level");
-+		 alert->alert_edge_triggered ? "edge" : "level");
-
- 	return 0;
- }
+--kORqDWCi7qDJ0mEj--
