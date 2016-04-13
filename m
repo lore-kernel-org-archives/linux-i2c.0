@@ -1,70 +1,30 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RFC] I2C: i2c-smbus: add device tree support
-Date: Wed, 13 Apr 2016 20:58:49 +0300
-Message-ID: <CAHp75VepT0ztJ3sLoM_Yw+yo9E3QLJaKNae_AQ3TMH=LbNeRfQ@mail.gmail.com>
-References: <1460536591-12573-1-git-send-email-andrea.merello@gmail.com>
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH 2/2] ARM: dts: rockchip: add i2c nodes RK3228 SoCs
+Date: Wed, 13 Apr 2016 22:57:01 +0200
+Message-ID: <5295818.srcnokibua@diego>
+References: <1457924955-29996-1-git-send-email-ykk@rock-chips.com> <1457925102-30476-1-git-send-email-ykk@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1460536591-12573-1-git-send-email-andrea.merello-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrea Merello <andrea.merello-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from gloria.sntech.de ([95.129.55.99]:39676 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753459AbcDMU5O convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Apr 2016 16:57:14 -0400
+In-Reply-To: <1457925102-30476-1-git-send-email-ykk@rock-chips.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Yakir Yang <ykk@rock-chips.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Kumar Gala <galak@codeaurora.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org
 
-On Wed, Apr 13, 2016 at 11:36 AM, Andrea Merello
-<andrea.merello-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> According to Documentation/i2c/smbus-protocol, a smbus controller driver
-> that wants to hook-in smbus extensions support, can call
-> i2c_setup_smbus_alert(). There are very few drivers that are currently
-> doing this.
->
-> However the i2c-smbus module can also work with any
-> smbus-extensions-unaware I2C controller, as long as we provide an extra
-> IRQ line connected to the I2C bus ALARM signal.
->
-> This patch makes it possible to go this way via DT. Note that the DT node
-> will indeed describe a (little) piece of HW, that is the routing of the
-> ALARM signal to an IRQ line (so it seems a fair DT use to me, but RFC).
->
-> Note that AFAICT, by design, i2c-smbus module pretends to be an I2C slave
-> with address 0x0C (that is the alarm response address), and IMHO this is
-> quite consistent with usage in the DT as a I2C child node.
+Am Montag, 14. M=E4rz 2016, 11:11:42 schrieb Yakir Yang:
+> This patch add the i2c dt nodes for rk3228 SoCs.
+>=20
+> Signed-off-by: Yakir Yang <ykk@rock-chips.com>
 
-> --- a/drivers/i2c/i2c-smbus.c
-> +++ b/drivers/i2c/i2c-smbus.c
+applied to my dts32 branch for 4.7, after moving the i2c pinctrl nodes =
+in=20
+between emmc and pwm* (please try to keep alphabetical ordering there)
 
-> @@ -137,20 +138,29 @@ static int smbalert_probe(struct i2c_client *ara,
->         struct i2c_smbus_alert_setup *setup = dev_get_platdata(&ara->dev);
->         struct i2c_smbus_alert *alert;
->         struct i2c_adapter *adapter = ara->adapter;
-> +       struct device_node *of_node = ara->dev.of_node;
 
-Perhaps fwnode_handle ?
-
->         int res;
-> +       int irq_type;
->
->         alert = devm_kzalloc(&ara->dev, sizeof(struct i2c_smbus_alert),
->                              GFP_KERNEL);
->         if (!alert)
->                 return -ENOMEM;
->
-> -       alert->alert_edge_triggered = setup->alert_edge_triggered;
-> -       alert->irq = setup->irq;
-> +       if (setup) {
-> +               alert->alert_edge_triggered = setup->alert_edge_triggered;
-> +               alert->irq = setup->irq;
-> +       } else if (of_node) {
-> +               alert->irq = irq_of_parse_and_map(of_node, 0);
-> +               irq_type = irq_get_trigger_type(alert->irq);
-> +               alert->alert_edge_triggered = (irq_type & IRQ_TYPE_EDGE_BOTH);
-> +       }
-
--- 
-With Best Regards,
-Andy Shevchenko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Heiko
