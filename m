@@ -1,67 +1,32 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: tvp5150 regression after commit 9f924169c035
-Date: Wed, 13 Apr 2016 00:32:55 +0200
-Message-ID: <20160412223254.GK1526@katana>
-References: <56B204CB.60602@osg.samsung.com>
- <20160208105417.GD2220@tetsubishi>
- <56BE57FC.3020407@osg.samsung.com>
- <20160212221352.GY3500@atomide.com>
- <56BE5C97.9070607@osg.samsung.com>
- <20160212224018.GZ3500@atomide.com>
- <56BE65F0.8040600@osg.samsung.com>
- <20160212234623.GB3500@atomide.com>
- <56BE993B.3010804@osg.samsung.com>
+From: Axel Lin <axel.lin@ingics.com>
+Subject: Re: [PATCH] i2c: simtec: Convert to use devm_* APIs
+Date: Wed, 13 Apr 2016 08:43:49 +0800
+Message-ID: <CAFRkauAArNSY-_nytHYTVScjM46Zy8yTogjSMM7iqK421CTKOg@mail.gmail.com>
+References: <1460449814.28557.0.camel@ingics.com>
+	<20160412214831.GI1526@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vbzKE9fGfpHIBC6T"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60217 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965013AbcDLWdD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 12 Apr 2016 18:33:03 -0400
-Content-Disposition: inline
-In-Reply-To: <56BE993B.3010804@osg.samsung.com>
+Received: from mail-lf0-f65.google.com ([209.85.215.65]:33313 "EHLO
+	mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750795AbcDMAnv (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 12 Apr 2016 20:43:51 -0400
+Received: by mail-lf0-f65.google.com with SMTP id p64so4960046lfg.0
+        for <linux-i2c@vger.kernel.org>; Tue, 12 Apr 2016 17:43:50 -0700 (PDT)
+In-Reply-To: <20160412214831.GI1526@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ben Dooks <ben@simtec.co.uk>, linux-i2c@vger.kernel.org
 
+2016-04-13 5:48 GMT+08:00 Wolfram Sang <wsa@the-dreams.de>:
+> On Tue, Apr 12, 2016 at 04:30:14PM +0800, Axel Lin wrote:
+>> Use devm_* APIs to simplify the code a bit.
+>>
+>> Signed-off-by: Axel Lin <axel.lin@ingics.com>
+>
+> Thanks! Were you able to test it on hardware?
+>
+I don't have this h/w, so I cannot test it.
 
---vbzKE9fGfpHIBC6T
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> I'll try to find some time next week to dig deeper on this. Just
-> thought that may be related to the issue you found but it seems
-> that's not the case.
-
-Any updates on this?
-
-Thanks,
-
-   Wolfram
-
-
---vbzKE9fGfpHIBC6T
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXDXeWAAoJEBQN5MwUoCm2S6gP/0H6KskZC5CDKD/Bpgd+3ldi
-eKlqS0d2/wRakdsBxEgbVWiTvpXvBr44Ti8Bv3y6chFCLTKQcidd8C/BVV4X2NjK
-d+V7ULuxEOOTjaudDJUalfbA0YpN0/KzJbytihTqUDJBaViG04/Gn6k+ILdkv4y2
-QwJEkBWlC6lqIGkC8IHcOJyhZ/EuxX6z+UajZ2WVm69Wq3PnxNrz/d+jYojfQdK1
-mo3KWQxKaMJoyMvh0ARHgf+sxRqkHk0SB4rS/oTtC1EKj/4VBgKISOk6loqN3/ye
-GCiqfnVKbVyFp9aeDryPxNOEu4WHyD5BHlFnLyreiXagUICEPJr6NoANBoc/+zCB
-UlbLKBnn2jKP/8R5ERP+JxSitv8u6sJkkSU7YE6d1EIjgN74IO2DyG2lYmwRkLP3
-17hIj5bCWqFA8E0eQZWj3DRSiWrGO50xEhg2VJQyaGNtdlZ+KZ7dAgbP7xf2t1Cy
-4mFb4u2P642BGyqKuEDVSEII6fi+KIzUb7tXbfYfWKGWf8npXYCKDC4XJFG+han7
-sGpPFc9/BW5AqGJffJAyUToEkWTsNoQdMOZ0/HVKVf43N28VE+4v6sLB8x1khSDR
-qO4ItqtbzLQROwkj/yhkQggQjmgMUbvmGsyOOBWJbMXJEKsZuwNTwu/CoOqG7jzo
-LkF0xolR++1gaTy1Grya
-=TIdh
------END PGP SIGNATURE-----
-
---vbzKE9fGfpHIBC6T--
+Axel
