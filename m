@@ -1,160 +1,154 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware-platdrv: get fast/std speed scl
- high/low count from DT
-Date: Wed, 13 Apr 2016 16:23:45 +0300
-Message-ID: <1460553825.6620.134.camel@linux.intel.com>
-References: <1459927680-5480-1-git-send-email-jszhang@marvell.com>
-	 <CAHp75VcHNdAUeob2iR6U1HbUQzEccdjPy8ffuG4mB_=ZX7EokQ@mail.gmail.com>
-	 <20160413201637.284a3673@xhacker>
+From: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Subject: Re: [PATCH v6 01/24] i2c-mux: add common data for every i2c-mux
+ instance
+Date: Wed, 13 Apr 2016 15:37:50 +0200
+Message-ID: <570E4BAE.7060108@lysator.liu.se>
+References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
+ <1459673574-11440-2-git-send-email-peda@lysator.liu.se>
+ <20160411204630.GA10401@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160413201637.284a3673@xhacker>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jisheng Zhang <jszhang@marvell.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, ijc+devicetree <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160411204630.GA10401@katana>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matt
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2016-04-13 at 20:16 +0800, Jisheng Zhang wrote:
-> Dear Andy,
->=20
-> On Thu, 7 Apr 2016 21:05:35 +0300 Andy Shevchenko=C2=A0=C2=A0wrote:
->=20
-> >=20
-> > On Wed, Apr 6, 2016 at 10:28 AM, Jisheng Zhang <jszhang@marvell.com=
->
-> > wrote:
-> > >=20
-> > > Sometimes, it's convenient to define the scl's high/low count
-> > > directly,
-> > > e.g HW people would do some measurement then directly give out th=
-e
-> > > optimum counts. Previously, we solved the sda falling time and sc=
-l
-> > > falling time by i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt(), then put
-> > > them
-> > > into dt, but what we really care isn't the sda/scl falling time.
-> > >=20
-> > > From another side, the dw_i2c_acpi_configure() on ACPI platform
-> > > also
-> > > get hcnt/lcnt values rather than the sda/scl falling time from
-> > > ACPI
-> > > method, we want similar feature for DT platforms.
-> > > =C2=A0
-> > Instead of duplicating some words maybe better to explicitly define
-> > two groups of parameters and one which supersedes the other.
-> I'm sorry, I can't catch your meaning. Could you please kindly give
-> more
-> details? Or examples of "two groups of parameters"
+Hi!
 
+On 2016-04-11 22:46, Wolfram Sang wrote:
+> Hi Peter,
+> 
+> first high-level review:
+> 
+>> +int i2c_mux_reserve_adapters(struct i2c_mux_core *muxc, int adapters)
+> 
+> I'd suggest to rename 'adapters' into 'num_adapters' throughout this
+> patch. I think it makes the code a lot easier to understand.
 
-> --- + - i2c-ss-scl-high-count : should contain the standard speed i2c
-> > > clock SCL high
-> > > +=C2=A0=C2=A0=C2=A0count.=20
+Hmm, you mean just the variable names, right? And not function names
+such as i2c_mux_reserve_(num_)adapters?
 
+>> +{
+>> +	struct i2c_adapter **adapter;
+>> +
+>> +	if (adapters <= muxc->max_adapters)
+>> +		return 0;
+>> +
+>> +	adapter = devm_kmalloc_array(muxc->dev,
+>> +				     adapters, sizeof(*adapter),
+>> +				     GFP_KERNEL);
+>> +	if (!adapter)
+>> +		return -ENOMEM;
+>> +
+>> +	if (muxc->adapter) {
+>> +		memcpy(adapter, muxc->adapter,
+>> +		       muxc->max_adapters * sizeof(*adapter));
+>> +		devm_kfree(muxc->dev, muxc->adapter);
+>> +	}
+>> +
+>> +	muxc->adapter = adapter;
+>> +	muxc->max_adapters = adapters;
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL_GPL(i2c_mux_reserve_adapters);
+> 
+> Despite that I wonder why not using some of the realloc functions, I
 
-> > > If defined, the i2c-scl-falling-time-ns and i2c-sda-falling-time-
-> > > ns
-> > > +=C2=A0=C2=A0=C2=A0will be ignored.
+When I wrote it, I found no devm_ version of realloc. I'm not finding
+anything now either...
 
-I'm referring to the above sentence. Something like
+> wonder even more if we couldn't supply num_adapters to i2c_mux_alloc()
+> and reserve the memory statically. i2c busses are not
+> dynamic/hot-pluggable so that should be good enough?
 
-There are two groups of values identifying i2c timings:
+Yes, that would work, but it would take some restructuring in some of
+the drivers that currently don't know how many child adapters they
+are going to need when they call i2c_mux_alloc.
 
-1. i2c-scl-falling-time-ns and i2c-sda-falling-time-ns
-2. *-[hl]cnt
+Because you thought about removing i2c_mux_reserve_adapters completely,
+and not provide any means of adding more adapters than specified in
+the i2c_mux_alloc call, right?
 
-The second group of parameters supersedes the first one.
+>> -	WARN(sysfs_create_link(&priv->adap.dev.kobj, &mux_dev->kobj, "mux_device"),
+>> -			       "can't create symlink to mux device\n");
+>> +	WARN(sysfs_create_link(&priv->adap.dev.kobj, &muxc->dev->kobj,
+>> +			       "mux_device"),
+> 
+> Ignoring the 80 char limit here makes the code more readable.
 
+That is only true if you actually have more than 80 characters, so I don't
+agree. Are you adamant about it? (I'm not)
 
-> > > +
-> > > + - i2c-ss-scl-low-count : should contain the standard speed i2c
-> > > clock SCL low
-> > > +=C2=A0=C2=A0=C2=A0count. If defined, the i2c-scl-falling-time-ns=
- and i2c-sda-
-> > > falling-time-ns
-> > > +=C2=A0=C2=A0=C2=A0will be ignored.
-> > > +
-> > > + - i2c-fs-scl-high-count : should contain the fast speed i2c
-> > > clock SCL high
-> > > +=C2=A0=C2=A0=C2=A0count. If defined, the i2c-scl-falling-time-ns=
- and i2c-sda-
-> > > falling-time-ns
-> > > +=C2=A0=C2=A0=C2=A0will be ignored.
-> > > +
-> > > + - i2c-fs-scl-low-count : should contain the fast speed i2c cloc=
-k
-> > > SCL low
-> > > +=C2=A0=C2=A0=C2=A0count. If defined, the i2c-scl-falling-time-ns=
- and i2c-sda-
-> > > falling-time-ns
-> > > +=C2=A0=C2=A0=C2=A0will be ignored.
-> > > +
-> > > =C2=A0Example :
-> > >=20
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0i2c@f0000 {
-> > > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > index d656657..8739a60 100644
-> > > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > @@ -188,6 +188,14 @@ static int dw_i2c_plat_probe(struct
-> > > platform_device *pdev)
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0&dev->scl_falling_time);
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0device_property_read_u32(&pdev->dev, "clo=
-ck-
-> > > frequency",
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0&clk_freq);
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0device_property_read_u16(&pdev->dev, "i2c-ss-sc=
-l-
-> > > high-count",
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0&dev->ss_hcnt);
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0device_property_read_u16(&pdev->dev, "i2c-ss-sc=
-l-
-> > > low-count",
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0&dev->ss_lcnt);
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0device_property_read_u16(&pdev->dev, "i2c-fs-sc=
-l-
-> > > high-count",
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0&dev->fs_hcnt);
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0device_property_read_u16(&pdev->dev, "i2c-fs-sc=
-l-
-> > > low-count",
-> > > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0&dev->fs_lcnt);
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
-> > >=20
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (has_acpi_comp=
-anion(&pdev->dev))
-> > > --
-> > > 2.8.0.rc3
-> > > =C2=A0
-> >=20
-> >=20
+>> +	     "can't create symlink to mux device\n");
+>>  
+>>  	snprintf(symlink_name, sizeof(symlink_name), "channel-%u", chan_id);
+>> -	WARN(sysfs_create_link(&mux_dev->kobj, &priv->adap.dev.kobj, symlink_name),
+>> -			       "can't create symlink for channel %u\n", chan_id);
+>> +	WARN(sysfs_create_link(&muxc->dev->kobj, &priv->adap.dev.kobj,
+>> +			       symlink_name),
+> 
+> ditto.
+> 
+>> +	     "can't create symlink for channel %u\n", chan_id);
+>>  	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
+>>  		 i2c_adapter_id(&priv->adap));
+>>  
+>> -	return &priv->adap;
+>> +	muxc->adapter[muxc->adapters++] = &priv->adap;
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL_GPL(i2c_mux_add_adapter);
+>> +
+>> +struct i2c_mux_core *i2c_mux_one_adapter(struct i2c_adapter *parent,
+>> +					 struct device *dev, int sizeof_priv,
+>> +					 u32 flags, u32 force_nr,
+>> +					 u32 chan_id, unsigned int class,
+>> +					 int (*select)(struct i2c_mux_core *,
+>> +						       u32),
+> 
+> ditto
+> 
+>> +					 int (*deselect)(struct i2c_mux_core *,
+>> +							 u32))
+> 
+> ditto
+> 
+>> +{
+>> +	struct i2c_mux_core *muxc;
+>> +	int ret;
+>> +
+>> +	muxc = i2c_mux_alloc(parent, dev, sizeof_priv, flags, select, deselect);
+>> +	if (!muxc)
+>> +		return ERR_PTR(-ENOMEM);
+>> +
+>> +	ret = i2c_mux_add_adapter(muxc, force_nr, chan_id, class);
+>> +	if (ret) {
+>> +		devm_kfree(dev, muxc);
+>> +		return ERR_PTR(ret);
+>> +	}
+>> +
+>> +	return muxc;
+>> +}
+>> +EXPORT_SYMBOL_GPL(i2c_mux_one_adapter);
+> 
+> Are you sure the above function pays off? Its argument list is very
+> complex and it doesn't save a lot of code. Having seperate calls is
+> probably more understandable in drivers? Then again, I assume it makes
+> the conversion of existing drivers easier.
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+I added it in v4, you can check earlier versions if you like. Without
+it most gate-muxes (i.e. typically the muxes in drivers/media) grew
+since the i2c_add_mux_adapter call got replaced by two calls, i.e.
+i2c_mux_alloc followed by i2c_max_add_adapter, and coupled with
+error checks made it look more complex than before. So, this wasn't
+much of a cleanup from the point of those drivers.
+
+> So much for now. Thanks!
+
+Yeah, thanks!
+
+Cheers,
+Peter
