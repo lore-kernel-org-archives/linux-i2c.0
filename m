@@ -1,69 +1,57 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] i2c: designware-platdrv: implement bus recovery
-Date: Thu, 14 Apr 2016 12:34:45 -0500
-Message-ID: <20160414173445.GA21450@rob-hp-laptop>
-References: <1460642696-1858-1-git-send-email-jszhang@marvell.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 1/2] i2c: rk3x: switch to i2c generic dt parsing
+Date: Thu, 14 Apr 2016 20:39:23 +0200
+Message-ID: <20160414183922.GA2338@katana>
+References: <1458147438-62387-1-git-send-email-david.wu@rock-chips.com>
+ <1458147438-62387-2-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:50638 "EHLO mail.kernel.org"
+Received: from sauhun.de ([89.238.76.85]:43618 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754707AbcDNRew (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 14 Apr 2016 13:34:52 -0400
+	id S1755052AbcDNSje (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 14 Apr 2016 14:39:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1460642696-1858-1-git-send-email-jszhang@marvell.com>
+In-Reply-To: <1458147438-62387-2-git-send-email-david.wu@rock-chips.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jisheng Zhang <jszhang@marvell.com>
-Cc: wsa@the-dreams.de, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: David Wu <david.wu@rock-chips.com>
+Cc: heiko@sntech.de, dianders@chromium.org, andy.shevchenko@gmail.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2016 at 10:04:56PM +0800, Jisheng Zhang wrote:
-> Implement bus recovery methods for i2c designware so we can recover
-> from situations where SCL/SDA are stuck low.
-> 
-> The recovery method is similar as i2c-imx: "config the i2c pinctrl to
-> gpio mode by calling pinctrl sleep set function, and then use GPIO to
-> emulate the i2c protocol to send nine dummy clock to recover i2c
-> device. After recovery, set i2c pinctrl to default group setting.
-> 
-> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
-> ---
-> depends on runtime pm patches
-> http://lists.infradead.org/pipermail/linux-arm-kernel/2016-April/422202.html
->  .../devicetree/bindings/i2c/i2c-designware.txt     | 12 ++++++
->  drivers/i2c/busses/i2c-designware-core.c           |  6 ++-
->  drivers/i2c/busses/i2c-designware-core.h           |  4 ++
->  drivers/i2c/busses/i2c-designware-platdrv.c        | 50 ++++++++++++++++++++++
->  4 files changed, 71 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> index fee26dc..51a55c6 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> @@ -20,6 +20,13 @@ Optional properties :
->   - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
->     This value which is by default 300ns is used to compute the tHIGH period.
->  
-> + - scl-gpios: specify the gpio related to SCL pin
-> +
-> + - sda-gpios: specify the gpio related to SDA pin
-> +
-> + - pinctrl: add extra pinctrl to configure i2c pins to gpio function for i2c
-> +   bus recovery, call it "gpio" state
-> +
 
-Make these common properties in i2c.txt (and a separate patch).
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  Example :
->  
->  	i2c@f0000 {
-> @@ -42,4 +49,9 @@ Example :
->  		i2c-sda-hold-time-ns = <300>;
->  		i2c-sda-falling-time-ns = <300>;
->  		i2c-scl-falling-time-ns = <300>;
-> +		pinctrl-names = "default", "gpio";
-> +		pinctrl-0 = <&pinctrl_i2c1_default>;
-> +		pinctrl-1 = <&pinctrl_i2c1_gpio>;
-> +		scl-gpios = <&porta 26 GPIO_ACTIVE_HIGH>;
-> +		sda-gpios = <&porta 27 GPIO_ACTIVE_HIGH>;
->  	};
+On Thu, Mar 17, 2016 at 12:57:17AM +0800, David Wu wrote:
+> Switch to the new generic functions: i2c_parse_fw_timings().
+>=20
+> Signed-off-by: David Wu <david.wu@rock-chips.com>
+
+Yay, what a nice diffstat :) Applied to for-next, thanks!
+
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXD+PaAAoJEBQN5MwUoCm2aQ8P/ij2IxtQ4APPokpTuTj9sBlZ
+zxr0dDqp1KE81y83Pr8eSEYe6wJzaB/RR6jJqxqXieZlb1wpGHuh/L1HpxpL0jj9
+kLO6NkQt/Yl9CsDEYc6ITk1GVRmDFs0GLMWAjN6SHLbGBmoL802rwG9X5NsAyNqr
+OuAJeXXkLo5R04XSXwnbmXLAQxEN91w1NmhP8LwqJwdLEcDqwTPTYp2k9t/IiESk
+OB5UrBwA0I2M3T84A56KuzO2fxOQIojDSBEWFoffpKtRkO9+UK0wGuvlcfhG8L1W
+Op2CjG5twa5jY6TqsccO8GuNR2mcTQc3Z0LH/r2YzkhyJzF22FrEsasLSb1M36AF
+RyuLFSAdCDREXM872XxlToc+ZnjxrDeSg9L7EPgjH8OGy5rMZecvqSycir06CRbS
+OqP21kEvoDB/Aok1mk73T1vyEzde3c9S9FKLLpEQRjGpT233riwblj0fTyY27Rgz
+kFEHe+8sn3UF4D7ga8zb06Z7XiLaccGxxLdN9DAZRqd3XRS6Q7KFBY3AIt7N8/6b
+/J+UqfMeDvLmfrmgvNlIj5c8vfQrEGl7iMP6F55085kiz4ItL+WBse9N/zdc1XGX
+YXp9SqxB2IiKuvNhpNOendzB73Kqjd1jULltgEXkyES3kyQEbJayBD8pEHe3nc3S
+CZ+lv1ky3cp9eKDosiMc
+=OAWa
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--
