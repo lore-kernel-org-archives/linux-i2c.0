@@ -1,64 +1,33 @@
 From: Jisheng Zhang <jszhang@marvell.com>
-Subject: [PATCH 1/4] i2c: designware-platdrv: Fix runtime PM initialization
-Date: Thu, 14 Apr 2016 20:53:31 +0800
-Message-ID: <1460638414-5987-2-git-send-email-jszhang@marvell.com>
-References: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
+Subject: [PATCH 0/4] i2c: designware: runtime pm fix and improve
+Date: Thu, 14 Apr 2016 20:53:30 +0800
+Message-ID: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:59102 "EHLO
-	mx0a-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755008AbcDNM5x (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 08:57:53 -0400
-In-Reply-To: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@marvell.com>
+List-Id: linux-i2c@vger.kernel.org
 
-When pm_runtime_enable() was being called, the device's usage counter
-was 0, causing the PM layer to runtime-suspend the device.  We then
-went on to call i2c_dw_probe() on a suspended device, which could hung.
+This series tries to fix one hang issue during probe found on arm
+platform, and unbalanced clk enable prepare issue. Then applies similar
+change as commit 36d48fb5766a ("i2c: designware-platdrv: enable
+RuntimePM before registering to the core"), lastly remove the runtime
+suspend prevention in i2c_dw_probe().
 
-Fix this by incrementing the usage counter before pm_runtime_enable().
 
-Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+Jisheng Zhang (4):
+  i2c: designware-platdrv: Fix runtime PM initialization
+  i2c: designware-platdrv: fix unbalanced clk enable and prepare
+  i2c: designware-pcidrv: enable RuntimePM before registering to the
+    core
+  i2c: designware: remove runtime suspend prevention during registration
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index d656657..00f9e99 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -246,6 +246,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	if (dev->pm_runtime_disabled) {
- 		pm_runtime_forbid(&pdev->dev);
- 	} else {
-+		pm_runtime_get_noresume(&pdev->dev);
- 		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
- 		pm_runtime_use_autosuspend(&pdev->dev);
- 		pm_runtime_set_active(&pdev->dev);
-@@ -253,8 +254,19 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	}
- 
- 	r = i2c_dw_probe(dev);
--	if (r && !dev->pm_runtime_disabled)
-+	if (r)
-+		goto rpm_disable;
-+
-+	if (!dev->pm_runtime_disabled)
-+		pm_runtime_put_autosuspend(&pdev->dev);
-+
-+	return 0;
-+
-+rpm_disable:
-+	if (!dev->pm_runtime_disabled) {
- 		pm_runtime_disable(&pdev->dev);
-+		pm_runtime_put_noidle(&pdev->dev);
-+	}
- 
- 	return r;
- }
+ drivers/i2c/busses/i2c-designware-core.c    |  8 --------
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 11 +++++++----
+ drivers/i2c/busses/i2c-designware-platdrv.c | 16 +++++++++++++++-
+ 3 files changed, 22 insertions(+), 13 deletions(-)
+
 -- 
 2.8.0.rc3
