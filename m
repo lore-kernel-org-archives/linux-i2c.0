@@ -1,33 +1,46 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH 2/2] i2c: s3c2410: Use SET_NOIRQ_SYSTEM_SLEEP_PM_OPS
- instead of open-coded
-Date: Thu, 14 Apr 2016 15:27:07 +0200
-Message-ID: <570F9AAB.4010301@samsung.com>
-References: <1460596084.6630.1.camel@ingics.com>
- <1460596135.6630.2.camel@ingics.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: tvp5150 regression after commit 9f924169c035
+Date: Thu, 14 Apr 2016 09:41:05 -0400
+Message-ID: <570F9DF1.3070700@osg.samsung.com>
+References: <20160208105417.GD2220@tetsubishi>
+ <56BE57FC.3020407@osg.samsung.com> <20160212221352.GY3500@atomide.com>
+ <56BE5C97.9070607@osg.samsung.com> <20160212224018.GZ3500@atomide.com>
+ <56BE65F0.8040600@osg.samsung.com> <20160212234623.GB3500@atomide.com>
+ <56BE993B.3010804@osg.samsung.com> <20160412223254.GK1526@katana>
+ <570ECAB0.4050107@osg.samsung.com> <20160414111257.GG1533@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailout3.w1.samsung.com ([210.118.77.13]:49697 "EHLO
-	mailout3.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755306AbcDNN1L (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 09:27:11 -0400
-In-reply-to: <1460596135.6630.2.camel@ingics.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20160414111257.GG1533@katana>
+Sender: linux-pm-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
 List-Id: linux-i2c@vger.kernel.org
-To: Axel Lin <axel.lin@ingics.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 
-On 04/14/2016 03:08 AM, Axel Lin wrote:
-> Use SET_NOIRQ_SYSTEM_SLEEP_PM_OPS to simplify the code.
+Hello Wolfram,
+
+On 04/14/2016 07:12 AM, Wolfram Sang wrote:
 > 
-> Signed-off-by: Axel Lin <axel.lin@ingics.com>
-> ---
->  drivers/i2c/busses/i2c-s3c2410.c | 10 ++--------
->  1 file changed, 2 insertions(+), 8 deletions(-)
+>> I'll write what I found so far in case someone with better knowledge about
+>> the runtime PM API and the OMAP I2C controller driver can have an idea of
+>> what could be causing this.
+> 
+> Thanks for the summary. I got no other reports like this, I wonder about
 
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Yes, I also wonder why I'm the only one facing this issue... maybe no one
+else is using the tvp5150 driver on an OMAP board with mainline?
+
+> that. That being said, can you try this patch if it makes a change?
+> 
+> http://patchwork.ozlabs.org/patch/609280/
+> 
+
+Unfortunately it doesn't help, I just tried today's -next (next-20160414)
+that already has the mentioned patch but the issue is still present.
 
 Best regards,
-Krzysztof
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
