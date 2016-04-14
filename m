@@ -1,75 +1,53 @@
-From: Andrea Merello <andrea.merello@gmail.com>
-Subject: Re: [PATCH RFC] I2C: i2c-smbus: add device tree support
-Date: Thu, 14 Apr 2016 11:37:25 +0200
-Message-ID: <CAN8YU5OqmjDdbY6Op1tH=ggQgYA4CDxizwFzGSgsZgb=DMrq5Q@mail.gmail.com>
-References: <1460536591-12573-1-git-send-email-andrea.merello@gmail.com> <CAHp75VepT0ztJ3sLoM_Yw+yo9E3QLJaKNae_AQ3TMH=LbNeRfQ@mail.gmail.com>
-Reply-To: andrea.merello@gmail.com
+From: Axel Lin <axel.lin@ingics.com>
+Subject: [PATCH v2] i2c: efm32: Prevent potential division by zero
+Date: Thu, 14 Apr 2016 17:49:35 +0800
+Message-ID: <1460627375.17638.1.camel@ingics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VepT0ztJ3sLoM_Yw+yo9E3QLJaKNae_AQ3TMH=LbNeRfQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: jdelvare@suse.de, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:34609 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751205AbcDNJtk (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 05:49:40 -0400
+Received: by mail-pa0-f68.google.com with SMTP id hb4so6416498pac.1
+        for <linux-i2c@vger.kernel.org>; Thu, 14 Apr 2016 02:49:40 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>, linux-i2c@vger.kernel.org
 
-On Wed, Apr 13, 2016 at 7:58 PM, Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
-> On Wed, Apr 13, 2016 at 11:36 AM, Andrea Merello
-> <andrea.merello@gmail.com> wrote:
->> According to Documentation/i2c/smbus-protocol, a smbus controller driver
->> that wants to hook-in smbus extensions support, can call
->> i2c_setup_smbus_alert(). There are very few drivers that are currently
->> doing this.
->>
->> However the i2c-smbus module can also work with any
->> smbus-extensions-unaware I2C controller, as long as we provide an extra
->> IRQ line connected to the I2C bus ALARM signal.
->>
->> This patch makes it possible to go this way via DT. Note that the DT node
->> will indeed describe a (little) piece of HW, that is the routing of the
->> ALARM signal to an IRQ line (so it seems a fair DT use to me, but RFC).
->>
->> Note that AFAICT, by design, i2c-smbus module pretends to be an I2C slave
->> with address 0x0C (that is the alarm response address), and IMHO this is
->> quite consistent with usage in the DT as a I2C child node.
->
->> --- a/drivers/i2c/i2c-smbus.c
->> +++ b/drivers/i2c/i2c-smbus.c
->
->> @@ -137,20 +138,29 @@ static int smbalert_probe(struct i2c_client *ara,
->>         struct i2c_smbus_alert_setup *setup = dev_get_platdata(&ara->dev);
->>         struct i2c_smbus_alert *alert;
->>         struct i2c_adapter *adapter = ara->adapter;
->> +       struct device_node *of_node = ara->dev.of_node;
->
-> Perhaps fwnode_handle ?
+Make sure we don't OOPS in case clock-frequency is set to 0 in a DT. The
+variable set here is later used as a divisor.
 
-Browsing the kernel tree it looks like using of_node is how almost all
-drivers do. Any specific reason to go for fwnode_handle here?
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+---
+Hi Uwe,
+If my understand is correct, you prefer to make it return error rather
+than using default frequency setting if DT setting is wrong.
 
-Wouldn't this end up to just an extra is_of_node() and to_of_node() ?
+v2: Make probe return error instead of using default frequency.
 
->
->>         int res;
->> +       int irq_type;
->>
->>         alert = devm_kzalloc(&ara->dev, sizeof(struct i2c_smbus_alert),
->>                              GFP_KERNEL);
->>         if (!alert)
->>                 return -ENOMEM;
->>
->> -       alert->alert_edge_triggered = setup->alert_edge_triggered;
->> -       alert->irq = setup->irq;
->> +       if (setup) {
->> +               alert->alert_edge_triggered = setup->alert_edge_triggered;
->> +               alert->irq = setup->irq;
->> +       } else if (of_node) {
->> +               alert->irq = irq_of_parse_and_map(of_node, 0);
->> +               irq_type = irq_get_trigger_type(alert->irq);
->> +               alert->alert_edge_triggered = (irq_type & IRQ_TYPE_EDGE_BOTH);
->> +       }
->
-> --
-> With Best Regards,
-> Andy Shevchenko
+ drivers/i2c/busses/i2c-efm32.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-efm32.c b/drivers/i2c/busses/i2c-efm32.c
+index 8eff627..7c0636e 100644
+--- a/drivers/i2c/busses/i2c-efm32.c
++++ b/drivers/i2c/busses/i2c-efm32.c
+@@ -395,6 +395,13 @@ static int efm32_i2c_probe(struct platform_device *pdev)
+ 		frequency = 100000;
+ 		dev_info(&pdev->dev, "defaulting to 100 kHz\n");
+ 	}
++
++	if (frequency == 0) {
++		dev_err(&pdev->dev, "Invalid clock-frequency\n");
++		ret = -EINVAL;
++		goto err_disable_clk;
++	}
++
+ 	ddata->frequency = frequency;
+ 
+ 	rate = clk_get_rate(ddata->clk);
+-- 
+2.5.0
