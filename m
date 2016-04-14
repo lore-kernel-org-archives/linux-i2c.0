@@ -1,59 +1,75 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] i2c: efm32: Prevent potential division by zero
-Date: Thu, 14 Apr 2016 11:06:29 +0200
-Message-ID: <20160414090629.GO10108@pengutronix.de>
-References: <1460619774.4294.1.camel@ingics.com>
- <20160414082456.GK10108@pengutronix.de>
- <CAFRkauC4YeuewDGRWbhhBWCG=XbMuNyNL+Lj2jv-nb5EWzaO-Q@mail.gmail.com>
+From: Andrea Merello <andrea.merello@gmail.com>
+Subject: Re: [PATCH RFC] I2C: i2c-smbus: add device tree support
+Date: Thu, 14 Apr 2016 11:37:25 +0200
+Message-ID: <CAN8YU5OqmjDdbY6Op1tH=ggQgYA4CDxizwFzGSgsZgb=DMrq5Q@mail.gmail.com>
+References: <1460536591-12573-1-git-send-email-andrea.merello@gmail.com> <CAHp75VepT0ztJ3sLoM_Yw+yo9E3QLJaKNae_AQ3TMH=LbNeRfQ@mail.gmail.com>
+Reply-To: andrea.merello@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:57871 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752614AbcDNJGb (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 05:06:31 -0400
-Content-Disposition: inline
-In-Reply-To: <CAFRkauC4YeuewDGRWbhhBWCG=XbMuNyNL+Lj2jv-nb5EWzaO-Q@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAHp75VepT0ztJ3sLoM_Yw+yo9E3QLJaKNae_AQ3TMH=LbNeRfQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: jdelvare@suse.de, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Axel Lin <axel.lin@ingics.com>
-Cc: linux-i2c@vger.kernel.org, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>
 
-Hello Axel,
+On Wed, Apr 13, 2016 at 7:58 PM, Andy Shevchenko
+<andy.shevchenko@gmail.com> wrote:
+> On Wed, Apr 13, 2016 at 11:36 AM, Andrea Merello
+> <andrea.merello@gmail.com> wrote:
+>> According to Documentation/i2c/smbus-protocol, a smbus controller driver
+>> that wants to hook-in smbus extensions support, can call
+>> i2c_setup_smbus_alert(). There are very few drivers that are currently
+>> doing this.
+>>
+>> However the i2c-smbus module can also work with any
+>> smbus-extensions-unaware I2C controller, as long as we provide an extra
+>> IRQ line connected to the I2C bus ALARM signal.
+>>
+>> This patch makes it possible to go this way via DT. Note that the DT node
+>> will indeed describe a (little) piece of HW, that is the routing of the
+>> ALARM signal to an IRQ line (so it seems a fair DT use to me, but RFC).
+>>
+>> Note that AFAICT, by design, i2c-smbus module pretends to be an I2C slave
+>> with address 0x0C (that is the alarm response address), and IMHO this is
+>> quite consistent with usage in the DT as a I2C child node.
+>
+>> --- a/drivers/i2c/i2c-smbus.c
+>> +++ b/drivers/i2c/i2c-smbus.c
+>
+>> @@ -137,20 +138,29 @@ static int smbalert_probe(struct i2c_client *ara,
+>>         struct i2c_smbus_alert_setup *setup = dev_get_platdata(&ara->dev);
+>>         struct i2c_smbus_alert *alert;
+>>         struct i2c_adapter *adapter = ara->adapter;
+>> +       struct device_node *of_node = ara->dev.of_node;
+>
+> Perhaps fwnode_handle ?
 
-On Thu, Apr 14, 2016 at 04:29:42PM +0800, Axel Lin wrote:
-> 2016-04-14 16:24 GMT+08:00 Uwe Kleine-K=F6nig <u.kleine-koenig@pengut=
-ronix.de>:
-> > On Thu, Apr 14, 2016 at 03:42:54PM +0800, Axel Lin wrote:
-> >> Make sure we don't OOPS in case clock-frequency is set to 0 in a D=
-T. The
-> >> variable set here is later used as a divisor.
-> >
-> > This is correct in principle. I thought it's ok to misbehave if the=
- DT
-> > is broken? In this case the current code is just fine.
->=20
-> Current code hit division by zero if clock-frequency is 0.
-> clkdiv =3D DIV_ROUND_UP(rate, 8 * ddata->frequency) - 1;
-> Is it ok?
+Browsing the kernel tree it looks like using of_node is how almost all
+drivers do. Any specific reason to go for fwnode_handle here?
 
-IMHO yes. If you give the kernel a broken dt it's ok that the kernel is
-broken then.
+Wouldn't this end up to just an extra is_of_node() and to_of_node() ?
 
-So if you want, take my:
-
-	Registered-but-considered-unimportant-by: Uwe Kleine-K=F6nig <u.kleine=
--koenig@pengutronix.de>
-
-:-)
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+>
+>>         int res;
+>> +       int irq_type;
+>>
+>>         alert = devm_kzalloc(&ara->dev, sizeof(struct i2c_smbus_alert),
+>>                              GFP_KERNEL);
+>>         if (!alert)
+>>                 return -ENOMEM;
+>>
+>> -       alert->alert_edge_triggered = setup->alert_edge_triggered;
+>> -       alert->irq = setup->irq;
+>> +       if (setup) {
+>> +               alert->alert_edge_triggered = setup->alert_edge_triggered;
+>> +               alert->irq = setup->irq;
+>> +       } else if (of_node) {
+>> +               alert->irq = irq_of_parse_and_map(of_node, 0);
+>> +               irq_type = irq_get_trigger_type(alert->irq);
+>> +               alert->alert_edge_triggered = (irq_type & IRQ_TYPE_EDGE_BOTH);
+>> +       }
+>
+> --
+> With Best Regards,
+> Andy Shevchenko
