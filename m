@@ -1,42 +1,46 @@
-From: Axel Lin <axel.lin@ingics.com>
-Subject: [PATCH] i2c: efm32: Prevent potential division by zero
-Date: Thu, 14 Apr 2016 15:42:54 +0800
-Message-ID: <1460619774.4294.1.camel@ingics.com>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH v6 03/19] i2c: octeon: Rename [read|write]_sw to
+ reg_[read|write]
+Date: Thu, 14 Apr 2016 09:58:47 +0200
+Message-ID: <20160414075847.GA2532@hardcore>
+References: <cover.1460387640.git.jglauber@cavium.com>
+ <be18c6fc7331af1b383419819a5a947f35dd6d00.1460387640.git.jglauber@cavium.com>
+ <20160413084409.GD1563@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34325 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750964AbcDNHm7 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 03:42:59 -0400
-Received: by mail-pf0-f194.google.com with SMTP id d184so6384859pfc.1
-        for <linux-i2c@vger.kernel.org>; Thu, 14 Apr 2016 00:42:59 -0700 (PDT)
+Received: from mail-bn1bbn0100.outbound.protection.outlook.com ([157.56.111.100]:62202
+	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752357AbcDNH7E (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 14 Apr 2016 03:59:04 -0400
+Content-Disposition: inline
+In-Reply-To: <20160413084409.GD1563@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
-Make sure we don't OOPS in case clock-frequency is set to 0 in a DT. The
-variable set here is later used as a divisor.
+On Wed, Apr 13, 2016 at 10:44:09AM +0200, Wolfram Sang wrote:
+> On Mon, Apr 11, 2016 at 05:28:34PM +0200, Jan Glauber wrote:
+> > octeon_i2c_read_sw -> octeon_i2c_reg_read
+> > octeon_i2c_write_sw -> octeon_i2c_reg_write
+> > 
+> > Signed-off-by: Jan Glauber <jglauber@cavium.com>
+> 
+> Please add the motivation of the change (the reason). No need to resend
+> the whole patch. Just reply with the updated commit message and I'll fix
+> up locally.
+> 
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Sorry, forgot to expand the initial description a bit.
+
+Update:
 ---
- drivers/i2c/busses/i2c-efm32.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+i2c: octeon: Rename [read|write]_sw to reg_[read|write]
 
-diff --git a/drivers/i2c/busses/i2c-efm32.c b/drivers/i2c/busses/i2c-efm32.c
-index 8eff627..394c695 100644
---- a/drivers/i2c/busses/i2c-efm32.c
-+++ b/drivers/i2c/busses/i2c-efm32.c
-@@ -389,7 +389,7 @@ static int efm32_i2c_probe(struct platform_device *pdev)
- 	ddata->location = location;
- 
- 	ret = of_property_read_u32(np, "clock-frequency", &frequency);
--	if (!ret) {
-+	if (!ret && frequency != 0) {
- 		dev_dbg(&pdev->dev, "using frequency %u\n", frequency);
- 	} else {
- 		frequency = 100000;
--- 
-2.5.0
+Rename the [read|write]_sw functions to make it clearer they access
+the TWSI registers.
+---
+
+Thanks, Jan
