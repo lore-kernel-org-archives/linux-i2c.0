@@ -1,62 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 06/19] i2c: octeon: Improve error status checking
-Date: Thu, 14 Apr 2016 11:01:46 +0200
-Message-ID: <20160414090146.GF1533@katana>
-References: <cover.1460387640.git.jglauber@cavium.com>
- <dded382de33f6a4b64c87d8ca2e016871403784d.1460387640.git.jglauber@cavium.com>
- <20160413085519.GF1563@katana>
- <20160414081005.GC2532@hardcore>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH] i2c: efm32: Prevent potential division by zero
+Date: Thu, 14 Apr 2016 11:06:29 +0200
+Message-ID: <20160414090629.GO10108@pengutronix.de>
+References: <1460619774.4294.1.camel@ingics.com>
+ <20160414082456.GK10108@pengutronix.de>
+ <CAFRkauC4YeuewDGRWbhhBWCG=XbMuNyNL+Lj2jv-nb5EWzaO-Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z0eOaCaDLjvTGF2l"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:41521 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754538AbcDNJBu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 14 Apr 2016 05:01:50 -0400
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:57871 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752614AbcDNJGb (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 05:06:31 -0400
 Content-Disposition: inline
-In-Reply-To: <20160414081005.GC2532@hardcore>
+In-Reply-To: <CAFRkauC4YeuewDGRWbhhBWCG=XbMuNyNL+Lj2jv-nb5EWzaO-Q@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Glauber <jan.glauber@caviumnetworks.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
+To: Axel Lin <axel.lin@ingics.com>
+Cc: linux-i2c@vger.kernel.org, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>
 
+Hello Axel,
 
---z0eOaCaDLjvTGF2l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, Apr 14, 2016 at 04:29:42PM +0800, Axel Lin wrote:
+> 2016-04-14 16:24 GMT+08:00 Uwe Kleine-K=F6nig <u.kleine-koenig@pengut=
+ronix.de>:
+> > On Thu, Apr 14, 2016 at 03:42:54PM +0800, Axel Lin wrote:
+> >> Make sure we don't OOPS in case clock-frequency is set to 0 in a D=
+T. The
+> >> variable set here is later used as a divisor.
+> >
+> > This is correct in principle. I thought it's ok to misbehave if the=
+ DT
+> > is broken? In this case the current code is just fine.
+>=20
+> Current code hit division by zero if clock-frequency is 0.
+> clkdiv =3D DIV_ROUND_UP(rate, 8 * ddata->frequency) - 1;
+> Is it ok?
 
+IMHO yes. If you give the kernel a broken dt it's ok that the kernel is
+broken then.
 
-> Should I resend the whole series or will you review the other patches
-> before?
+So if you want, take my:
 
-The next batch I want to review is up to patch 10. Please hold back
-until I am there.
+	Registered-but-considered-unimportant-by: Uwe Kleine-K=F6nig <u.kleine=
+-koenig@pengutronix.de>
 
-Thanks,
+:-)
 
-   Wolfram
+Best regards
+Uwe
 
-
---z0eOaCaDLjvTGF2l
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXD1x6AAoJEBQN5MwUoCm2nDkP/0V8NDJeZ3z56FpoTk1KjNRg
-tRFNDV3/AFc0Y+t+2f8mF3+6Fk9sFAWVG9QDZjsYVswwKBGwxaklaaT1fztuvwKo
-VTjnkqcTNCQ5w5StIqDBgaGExp9qbb/ASvGpJQ9Y07jX64R7APmt3tmMCP0scQ2d
-J7funRan1iqRE69SdgkDmp5jQK+r1c2HYVqdqgfxh7Ifnl6ec6sWQRuZM3bvW5+4
-9xX8LrthHclEFc3281rrHqs6HmGDhQUy1iMWUD/BHl7rInXG4k1a4QV6D/tBYNKg
-uIbBd1B92sjlZEn3Vm/lwx8VLqSvmAraFW67EGaNUYGeBP0PjdQn+66nlPYV+aks
-wsZa/+tJVXiIDFDvIjIyqa7ZXadu7++ujWqbUFllpO2QYaLk1pqA0VL3NdmykV/B
-zbARQynxkHW6ajXWyUSRFJYbyuIXQ/0rR5A5/hbwFETWwARRd919KkgwVMWixo6b
-WeU6lB5Ffkn/QIgCrMqgNFiPndcCRpCztuMsStdb3tPyWPK1ue2rrwdJU6A+Ev4X
-QetwPamuR4+nfd1eVZwy1I3tuia7LUX64U4nUvJdAUlyUX/f7tRC/kOhaG37zacX
-sesP5ZbO6DA6pNbtjW61DnZmfeE7Pke7HlIquV37T712AxuVy0RR+RDMfTyZo1NF
-NZYczAS8DLFo/2fAY9hj
-=qd9O
------END PGP SIGNATURE-----
-
---z0eOaCaDLjvTGF2l--
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
