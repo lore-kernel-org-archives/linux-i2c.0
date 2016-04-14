@@ -1,51 +1,35 @@
-From: Svein Seldal <sveinse@seldal.com>
-Subject: i2c-tools userspace tools
-Date: Thu, 14 Apr 2016 23:55:22 +0200
-Message-ID: <571011CA.7090307@seldal.com>
+From: Daniel Walker <danielwa@cisco.com>
+Subject: i2c device hangs the whole bus, recovery ?
+Date: Thu, 14 Apr 2016 16:34:29 -0700
+Message-ID: <57102905.7080904@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.domeneshop.no ([194.63.252.55]:52261 "EHLO
-	smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751544AbcDNVzZ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 17:55:25 -0400
-Received: from 156.92-221-160.customer.lyse.net ([92.221.160.156]:54616 helo=[10.5.5.100])
-	by smtp.domeneshop.no with esmtpsa (TLS1.2:DHE_RSA_AES_128_CBC_SHA1:128)
-	(Exim 4.80)
-	(envelope-from <sveinse@seldal.com>)
-	id 1aqpER-00039e-Jd
-	for linux-i2c@vger.kernel.org; Thu, 14 Apr 2016 23:55:23 +0200
+Received: from alln-iport-1.cisco.com ([173.37.142.88]:56636 "EHLO
+	alln-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751867AbcDNXoK (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 19:44:10 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-
-Hi
-
-Is this the right list to discuss the i2c-tools user space software? If 
-not, please disregard this email.
-
-I have noticed that I can't seem to be able to use these tools out of 
-box for very many i2c devices, as the i2cget/i2cset isn't using a very 
-common protocol that these chips use.
-
-E.g. the protocol for byte/word read (which is also found in the SMBUS 
-spec) is:
-
-START - WR:SLAVE - DADR - START - RD:SLAVE - DATA - STOP
-
- From what I have tested, it seems "i2cget BUS SLAVE DADR" does the 
-following
-
-START - WR:SLAVE - DADR - START - RD:SLAVE - DADR - DATA - STOP
-
-It contains an extra read DADR byte, which is the slot where the actual 
-data is being returned.
-
-(My workaround is to run "i2cset BUS SLAVE CMD; i2cget BUS SLAVE")
-
-Is this something that patches will be accepted for?
+To: linux-i2c@vger.kernel.org, "xe-kernel@external.cisco.com" <xe-kernel@external.cisco.com>, "Anil Veliyankara Madam (aveliyan)" <aveliyan@cisco.com>, "Perry Li (chuangli)" <chuangli@cisco.com>
 
 
-Best regards,
-sveinse
+Hi all,
+
+We have a pca954x MUX and connected to this is some devices. We have one 
+device connected to the MUX which goes bad, and when we try to 
+communicate with the bad device (we don't know it's bad yet) , it causes 
+one of the i2c lines to go low and makes it impossible to connect with 
+any of the other devices on the bus.
+
+I don't know how common this type of situation is, but I thought I would 
+ask here how people would recover from this condition ? Is there a 
+standard way to do it, or is the standard way to reboot the machine ?
+
+I think ideally I would like to be able to detect that something is 
+wrong, and black list the device, and recover if possible.
+
+Any suggestions appreciated,
+
+Daniel
