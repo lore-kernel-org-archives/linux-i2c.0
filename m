@@ -1,64 +1,88 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v2] i2c: efm32: Prevent potential division by zero
-Date: Thu, 14 Apr 2016 20:52:50 +0200
-Message-ID: <20160414185250.GT10108@pengutronix.de>
-References: <1460627375.17638.1.camel@ingics.com>
- <20160414114041.GS10108@pengutronix.de>
- <CAFRkauC+JamMAM4YAunmqzggK7X4dDUAU8O0LTbcOEGHdD48uQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
+ addresses
+Date: Thu, 14 Apr 2016 21:10:33 +0200
+Message-ID: <20160414191033.GC2338@katana>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ABTtc+pdwF7KHXCz"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:35229 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752889AbcDNSwx (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 14:52:53 -0400
+Received: from sauhun.de ([89.238.76.85]:43714 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750781AbcDNTKm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 14 Apr 2016 15:10:42 -0400
 Content-Disposition: inline
-In-Reply-To: <CAFRkauC+JamMAM4YAunmqzggK7X4dDUAU8O0LTbcOEGHdD48uQ@mail.gmail.com>
+In-Reply-To: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Axel Lin <axel.lin@ingics.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>
+To: Jean-Michel Hautbois <jhautbois@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, laurent.pinchart@ideasonboard.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 
-Hello Axel,
 
-On Thu, Apr 14, 2016 at 10:17:45PM +0800, Axel Lin wrote:
-> 2016-04-14 19:40 GMT+08:00 Uwe Kleine-K=F6nig <u.kleine-koenig@pengut=
-ronix.de>:
-> > On Thu, Apr 14, 2016 at 05:49:35PM +0800, Axel Lin wrote:
-> >> Make sure we don't OOPS in case clock-frequency is set to 0 in a D=
-T. The
-> >> variable set here is later used as a divisor.
-> >>
-> >> Signed-off-by: Axel Lin <axel.lin@ingics.com>
-> >> ---
-> >> If my understand is correct, you prefer to make it return error ra=
-ther
-> >> than using default frequency setting if DT setting is wrong.
-> >
-> > No, I'd say it doesn't matter that the driver crashes if something
-> > invalid is specified in the device tree. This is not a driver bug, =
-but a
-> > dt bug. So if it happens, fix the device tree, no need to modify th=
-e
-> > driver.
+--ABTtc+pdwF7KHXCz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
+> Some I2C devices have multiple addresses assigned, for example each addre=
+ss
+> corresponding to a different internal register map page of the device.
+> So far drivers which need support for this have handled this with a driver
+> specific and non-generic implementation, e.g. passing the additional addr=
+ess
+> via platform data.
 >=20
-> I know that such case is a DT bug.
-> But the intention of this patch is to avoid oops rather than fix dt.
-> Make probe return error is enough to inform developer fixing dt.
+> This patch provides a new helper function called i2c_new_secondary_device=
+()
+> which is intended to provide a generic way to get the secondary address
+> as well as instantiate a struct i2c_client for the secondary address.
+>=20
+> The function expects a pointer to the primary i2c_client, a name
+> for the secondary address and an optional default address. The name is us=
+ed
+> as a handle to specify which secondary address to get.
+>=20
+> The default address is used as a fallback in case no secondary address
+> was explicitly specified. In case no secondary address and no default
+> address were specified the function returns NULL.
 
-an oops is also enough, and maybe even better because $developer cannot
-miss it.
+With "no default address" you mean the function parameter is 0? Yeah,
+you get a NULL pointer from i2c_new_device then, but also a dev_err
+message, or?
 
-I don't care much, because the error probably won't happen. If you ask
-me, I like your v2 better.
+> For now the function only supports look-up of the secondary address
+> from devicetree, but it can be extended in the future
+> to for example support board files and/or ACPI.
 
-Best regards
-Uwe
+Ccing Mika. I think it can be 1:1 converted to device_property_*
+functions already giving ACPI support for free?
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Thanks,
+
+   Wolfram
+
+
+--ABTtc+pdwF7KHXCz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXD+spAAoJEBQN5MwUoCm2TiwP/0iUg3o9bE3B8ZisIBQNn22P
+T6N8o3hLBkp33dd+XC+FXRUBzAao+dp8Vk24zWvs+G404KDXjRo+7p8V+q7Y/oZx
+DQxG3AzCqlYMZS+Awi06P/sWy8ByHZMh/tc7MNXhBcNe3CdoNTLVwrJ3+lyfWDlK
+kaMlpjYyAwMlmTb2eBzF19F9npD/dIN9ozRRtrIyGMm8Ai9+1Df/lY223S/1yHSp
+hlgMAuklmjuwJulKDi+khXioIUgUWkmYJiDzptPkc4aVkSs3zRBjcVh2EH+vOD2U
+QKUmFQLSrajOPplJABtp9jwme8Htkd6BP/1q9RJvTd/5JDNckbfSE5qdRUQezs5i
+MNWdTAJXTlQGax3u+el1esm+AmBoxVGKyZg4BR5+ACFvBYpnpvJjFKkLRSJ+x+HC
+3LiG0tkSlHXJN3xNtijA1goGly56Jncs3gs8j5ywvQzyZ+bzW4MTizs7sqDhpoUK
+Vr/rqSba0Dovh/hWazPnNqsuJOBgtXBAOtvtO2t6tbiwE4RkXO8/CXeQJjCmxZrp
+Y5/UWrNW3yxmkqNGQjB8HH5N06Ak1xVq4L8M5t8uvgzPgBxMzJOO2AeWSlvPYKtH
+fa6Fokb4Z0f5xfaiEEaoPEdzl+I95kIUSE9cApRmuRT3C72Zta4caOA0GhLumOni
++m12WnfdgfyEzREl5mRZ
+=4ehH
+-----END PGP SIGNATURE-----
+
+--ABTtc+pdwF7KHXCz--
