@@ -1,48 +1,56 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v2] i2c: efm32: Prevent potential division by zero
-Date: Thu, 14 Apr 2016 13:40:41 +0200
-Message-ID: <20160414114041.GS10108@pengutronix.de>
-References: <1460627375.17638.1.camel@ingics.com>
+From: Jisheng Zhang <jszhang@marvell.com>
+Subject: [PATCH 3/4] i2c: designware-pcidrv: enable RuntimePM before registering to the core
+Date: Thu, 14 Apr 2016 20:53:33 +0800
+Message-ID: <1460638414-5987-4-git-send-email-jszhang@marvell.com>
+References: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:39848 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752097AbcDNLkp (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 07:40:45 -0400
-Content-Disposition: inline
-In-Reply-To: <1460627375.17638.1.camel@ingics.com>
+Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:23438 "EHLO
+	mx0a-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753900AbcDNM5x (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 08:57:53 -0400
+In-Reply-To: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Axel Lin <axel.lin@ingics.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <kernel@pengutronix.de>
+To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@marvell.com>
 
-Hello Axel,
+As pointed out by commit 36d48fb5766a ("i2c: designware-platdrv: enable
+RuntimePM before registering to the core"), "The core may register
+clients attached to this master which may use funtionality from the
+master", so enable RuntimePM before registering to the core.
 
-On Thu, Apr 14, 2016 at 05:49:35PM +0800, Axel Lin wrote:
-> Make sure we don't OOPS in case clock-frequency is set to 0 in a DT. =
-The
-> variable set here is later used as a divisor.
->=20
-> Signed-off-by: Axel Lin <axel.lin@ingics.com>
-> ---
-> If my understand is correct, you prefer to make it return error rathe=
-r
-> than using default frequency setting if DT setting is wrong.
+Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-No, I'd say it doesn't matter that the driver crashes if something
-invalid is specified in the device tree. This is not a driver bug, but =
-a
-dt bug. So if it happens, fix the device tree, no need to modify the
-driver.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 7368be0..41a01a7 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -248,14 +248,17 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
+ 	adap->nr = controller->bus_num;
+ 
++	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
++	pm_runtime_use_autosuspend(&pdev->dev);
++	pm_runtime_allow(&pdev->dev);
++
+ 	r = i2c_dw_probe(dev);
+-	if (r)
++	if (r) {
++		pm_runtime_forbid(&pdev->dev);
+ 		return r;
++	}
+ 
+-	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+-	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_put_autosuspend(&pdev->dev);
+-	pm_runtime_allow(&pdev->dev);
+ 
+ 	return 0;
+ }
+-- 
+2.8.0.rc3
