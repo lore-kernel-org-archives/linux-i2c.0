@@ -1,42 +1,99 @@
 From: Axel Lin <axel.lin@ingics.com>
-Subject: [PATCH 1/2] i2c: versatile: Allow compile test build
-Date: Thu, 14 Apr 2016 22:30:36 +0800
-Message-ID: <1460644236.6039.2.camel@ingics.com>
+Subject: [PATCH 2/2] i2c: versatile: Convert to use resource managed devm_*
+ APIs
+Date: Thu, 14 Apr 2016 22:31:46 +0800
+Message-ID: <1460644306.6039.3.camel@ingics.com>
+References: <1460644236.6039.2.camel@ingics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:35491 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752332AbcDNOal (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 10:30:41 -0400
-Received: by mail-pa0-f68.google.com with SMTP id zy2so7047396pac.2
-        for <linux-i2c@vger.kernel.org>; Thu, 14 Apr 2016 07:30:40 -0700 (PDT)
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:35080 "EHLO
+	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753660AbcDNObv (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Apr 2016 10:31:51 -0400
+Received: by mail-pf0-f193.google.com with SMTP id r187so7342580pfr.2
+        for <linux-i2c@vger.kernel.org>; Thu, 14 Apr 2016 07:31:50 -0700 (PDT)
+In-Reply-To: <1460644236.6039.2.camel@ingics.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Pawel Moll <pawel.moll@arm.com>, Russell King <rmk+kernel@arm.linux.org.uk>, linux-i2c@vger.kernel.org
 
-There is no build dependency for this driver, so enable COMPILE_TEST to get
-better build coverage.
+Use devm_* APIs to simplify the code a bit.
+This patch also fixes the memory leak when unload the module.
 
 Signed-off-by: Axel Lin <axel.lin@ingics.com>
 ---
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi,
+I don't have this h/w, I'd appreciate if someone can test this patch.
+ drivers/i2c/busses/i2c-versatile.c | 46 +++++++++++---------------------------
+ 1 file changed, 13 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index faa8e68..6e0bba0 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -924,7 +924,7 @@ config I2C_UNIPHIER_F
+diff --git a/drivers/i2c/busses/i2c-versatile.c b/drivers/i2c/busses/i2c-versatile.c
+index 240637f..c73d2d2 100644
+--- a/drivers/i2c/busses/i2c-versatile.c
++++ b/drivers/i2c/busses/i2c-versatile.c
+@@ -70,28 +70,14 @@ static int i2c_versatile_probe(struct platform_device *dev)
+ 	struct resource *r;
+ 	int ret;
  
- config I2C_VERSATILE
- 	tristate "ARM Versatile/Realview I2C bus support"
--	depends on ARCH_VERSATILE || ARCH_REALVIEW || ARCH_VEXPRESS
-+	depends on ARCH_VERSATILE || ARCH_REALVIEW || ARCH_VEXPRESS || COMPILE_TEST
- 	select I2C_ALGOBIT
- 	help
- 	  Say yes if you want to support the I2C serial bus on ARMs Versatile
++	i2c = devm_kzalloc(&dev->dev, sizeof(struct i2c_versatile), GFP_KERNEL);
++	if (!i2c)
++		return -ENOMEM;
++
+ 	r = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	if (!r) {
+-		ret = -EINVAL;
+-		goto err_out;
+-	}
+-
+-	if (!request_mem_region(r->start, resource_size(r), "versatile-i2c")) {
+-		ret = -EBUSY;
+-		goto err_out;
+-	}
+-
+-	i2c = kzalloc(sizeof(struct i2c_versatile), GFP_KERNEL);
+-	if (!i2c) {
+-		ret = -ENOMEM;
+-		goto err_release;
+-	}
+-
+-	i2c->base = ioremap(r->start, resource_size(r));
+-	if (!i2c->base) {
+-		ret = -ENOMEM;
+-		goto err_free;
+-	}
++	i2c->base = devm_ioremap_resource(&dev->dev, r);
++	if (IS_ERR(i2c->base))
++		return PTR_ERR(i2c->base);
+ 
+ 	writel(SCL | SDA, i2c->base + I2C_CONTROLS);
+ 
+@@ -105,18 +91,12 @@ static int i2c_versatile_probe(struct platform_device *dev)
+ 
+ 	i2c->adap.nr = dev->id;
+ 	ret = i2c_bit_add_numbered_bus(&i2c->adap);
+-	if (ret >= 0) {
+-		platform_set_drvdata(dev, i2c);
+-		return 0;
+-	}
+-
+-	iounmap(i2c->base);
+- err_free:
+-	kfree(i2c);
+- err_release:
+-	release_mem_region(r->start, resource_size(r));
+- err_out:
+-	return ret;
++	if (ret < 0)
++		return ret;
++
++	platform_set_drvdata(dev, i2c);
++
++	return 0;
+ }
+ 
+ static int i2c_versatile_remove(struct platform_device *dev)
 -- 
 2.5.0
