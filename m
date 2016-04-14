@@ -1,65 +1,71 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: tvp5150 regression after commit 9f924169c035
-Date: Thu, 14 Apr 2016 08:12:45 -0700
-Message-ID: <20160414151244.GM5973@atomide.com>
-References: <20160212224018.GZ3500@atomide.com>
- <56BE65F0.8040600@osg.samsung.com>
- <20160212234623.GB3500@atomide.com>
- <56BE993B.3010804@osg.samsung.com>
- <20160412223254.GK1526@katana>
- <570ECAB0.4050107@osg.samsung.com>
- <20160414111257.GG1533@katana>
- <570F9DF1.3070700@osg.samsung.com>
- <20160414141945.GA1539@katana>
- <570FA8D6.5070308@osg.samsung.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH RFC] I2C: i2c-smbus: add device tree support
+Date: Thu, 14 Apr 2016 11:10:12 -0500
+Message-ID: <20160414161012.GA20532@rob-hp-laptop>
+References: <1460536591-12573-1-git-send-email-andrea.merello@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:42240 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753653AbcDNQKS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 14 Apr 2016 12:10:18 -0400
 Content-Disposition: inline
-In-Reply-To: <570FA8D6.5070308@osg.samsung.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
+In-Reply-To: <1460536591-12573-1-git-send-email-andrea.merello@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andrea Merello <andrea.merello@gmail.com>
+Cc: jdelvare@suse.de, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
-
-* Javier Martinez Canillas <javier@osg.samsung.com> [160414 07:28]:
-> Hello Wofram,
+On Wed, Apr 13, 2016 at 10:36:31AM +0200, Andrea Merello wrote:
+> According to Documentation/i2c/smbus-protocol, a smbus controller driver
+> that wants to hook-in smbus extensions support, can call
+> i2c_setup_smbus_alert(). There are very few drivers that are currently
+> doing this.
 > 
-> On 04/14/2016 10:19 AM, Wolfram Sang wrote:
-> > 
-> >> Yes, I also wonder why I'm the only one facing this issue... maybe no one
-> >> else is using the tvp5150 driver on an OMAP board with mainline?
-> > 
-> > I wonder why it only affects tvp5150. I don't see the connection yet.
-> > 
+> However the i2c-smbus module can also work with any
+> smbus-extensions-unaware I2C controller, as long as we provide an extra
+> IRQ line connected to the I2C bus ALARM signal.
 > 
-> Yes, me neither. All other I2C devices are working properly on this board.
+> This patch makes it possible to go this way via DT. Note that the DT node
+> will indeed describe a (little) piece of HW, that is the routing of the
+> ALARM signal to an IRQ line (so it seems a fair DT use to me, but RFC).
 > 
-> The only thing I can think, is that the tvp5150 needs a reset sequence in
-> order to be operative. It basically toggles two pins in the chip, this is
-> done in tvp5150_init() [0] and is needed before accessing I2C registers.
+> Note that AFAICT, by design, i2c-smbus module pretends to be an I2C slave
+> with address 0x0C (that is the alarm response address), and IMHO this is
+> quite consistent with usage in the DT as a I2C child node.
 > 
-> Maybe runtime pm has an effect on this and the chip is not reset correctly?
+> Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-smbus.txt b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
+> new file mode 100644
+> index 0000000..da83127
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
+> @@ -0,0 +1,20 @@
+> +* i2c-smbus extensions
+> +
+> +Required Properties:
+> +  - compatible: Must contain "smbus_alert"
+> +  - interrupts: The irq line for smbus ALERT signal
+> +  - reg: I2C slave address. Set to 0x0C (alert response address).
+> +
+> +Note: The i2c-smbus module registers itself as a slave I2C device. Whenever
+> +a smbus controller directly support smbus extensions (and its driver supports
+> +this), there is no need to add anything special to the DT. Otherwise, for using
+> +i2c-smbus with any smbus-extensions-unaware I2C controllers, you need to
+> +route the smbus ALARM signal to an extra IRQ line, thus you need to describe
+> +this in the DT.
 
-Is this with omap3 and does tvp5150 have a reset GPIO pin?
+Seems like you are designing the binding around how the module is 
+currently designed and creating a virtual device that doesn't exist.
 
-If so, you could be hitting the GPIO errata where a glitch can happen
-when restoring the GPIO state coming back from off mode in idle. This
-happes for GPIO pins that are not in GPIO bank1 and have an external
-pull down resistor on the line.
+A "smbalert-gpios" property in the controller node would be sufficient 
+here. Alternatively, an interrupt and standardized interrupt-names value 
+could be used.
 
-The short term workaround is to mux the reset pin to use the internal
-pulls by using PIN_INPUT_PULLUP | MUX_MODE7, or depending on the direction,
-PIN_INPUT_PULLDOWN | MUX_MODE7.
+Another option would be add a boolean property to each child node 
+smbalert capable and the childrens' interrupt properties would all be 
+the shared interrupt.
 
-The long term workaround is tho have gpio-omap.c do this dynamically
-with pinctrl-single.c using gpio-ranges, but that's going to take a
-while.. You can search for erratum 1.158 for more info.
-
-Regards,
-
-Tony
-
-> [0]: https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/tree/drivers/media/i2c/tvp5150.c#n1311
+Rob
