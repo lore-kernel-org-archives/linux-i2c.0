@@ -1,90 +1,88 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: [RFC] i2c: device-tree: Handling child nodes which are not i2c
- devices
-Date: Fri, 15 Apr 2016 16:35:17 +0100
-Message-ID: <57110A35.2070509@nvidia.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: tvp5150 regression after commit 9f924169c035
+Date: Fri, 15 Apr 2016 12:48:54 -0400
+Message-ID: <57111B76.8020106@osg.samsung.com>
+References: <20160212234623.GB3500@atomide.com>
+ <56BE993B.3010804@osg.samsung.com> <20160412223254.GK1526@katana>
+ <570ECAB0.4050107@osg.samsung.com> <20160414111257.GG1533@katana>
+ <570F9DF1.3070700@osg.samsung.com> <20160414141945.GA1539@katana>
+ <570FA8D6.5070308@osg.samsung.com> <20160414151244.GM5973@atomide.com>
+ <57102EE3.3020707@osg.samsung.com> <20160415145828.GT5973@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:7555 "EHLO
-	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750884AbcDOPfZ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Apr 2016 11:35:25 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20160415145828.GT5973@atomide.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Enric Balletbo i Serra <eballetbo@gmail.com>, =?UTF-8?Q?Agust=c3=ad_Fontquerni?= <af@iseebcn.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Thierry Reding <treding@nvidia.com>, Stephen Warren <swarren@nvidia.com>
-Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, linux-i2c@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-Hi all,
+Hello Tony,
 
-For Tegra we have an i2c device for display port, namely the display
-port auxiliary channel (or dpaux) as specified by the display port
-standard. If an design using Tegra does not utilise the display port
-interface, then the pads assigned to the dpaux can be re-assigned to
-another generic i2c controller (i2c6 for Tegra124/210). In other words,
-the pads can be re-used for a generic i2c interface.
+On 04/15/2016 10:58 AM, Tony Lindgren wrote:
+>>
+>>> The short term workaround is to mux the reset pin to use the internal
+>>> pulls by using PIN_INPUT_PULLUP | MUX_MODE7, or depending on the direction,
+>>> PIN_INPUT_PULLDOWN | MUX_MODE7.
+>>
+>> I guess you meant MUX_MODE4 here since the pin has to be in GPIO mode?
+> 
+> No, the glitch affects the GPIO mode, so that's why direction + pull +
+> safe mode is needed.
+>
 
-The registers that control whether the pads are mapped to the dpaux or
-i2c6 are located in the dpaux register space. Therefore, I am looking at
-adding pin controller support for dpaux so that i2c6 can request these
-pads if it is enabled and I was hoping to add a pinmux node the to dpaux
-device in device-tree to do this. For example, something like ...
+Ah ok, thanks for the explanation and sorry for the confusion.
+ 
+>> Also, I wonder how the issue could be related to the GPIO controller
+>> since is when enabling runtime PM for the I2C controller that things
+>> fail. IOW, disabling runtime PM for the I2C adapter shouldn't make
+>> things to work if the problem was caused by the mentioned GPIO errata.
+> 
+> If you block PM runtime for I2C, then it blocks deeper idle states
+> for the whole device. Note that you can disable off mode during idle
 
-	dpaux@0,545c0000 {
-		...
+Thanks again for this clarification.
 
-		/* pinctrl node */
-		pinmux {
-			...
-		};
-	};
+> and suspend with:
+> 
+> # echo 0 > /sys/kernel/debug/pm_debug/enable_off_mode
+>
 
-Although the above works, when doing this I noticed that when the device
-booted, I would seeing the following error messages on boot ...
+I see thought that enable_off_mode is 0 by default when booting the board:
 
- i2c i2c-5: of_i2c: modalias failure on ...
+# cat /sys/kernel/debug/pm_debug/enable_off_mode 
+0
 
-These error messages being caused by the new pinmux node because it is
-not recognised as an i2c device. To avoid this error messages we have
-come up with a couple solutions but wanted to get some feedback on the
-best approach.
+So if I understood your explanation correctly, that means that the glitch
+should not happen for the GPIO pins since the machine doesn't enter into
+deeper idle states that could cause the glitch from erratum 1.158?
+ 
+>> In any case, I've tried to use the internal pulls as you suggested but
+>> that didn't solve the issue.
+> 
+> OK. Just to be sure.. Did you use the safe mode mux option instead
+> of the GPIO mux option?
+>
 
-1. Add a i2c-bus sub-node to the dpaux binding (suggested by Stephen
-   Warren), so we would have something like the below. Then i2c devices
-   for dpaux would be place in the i2c-bus sub-node.
+No sorry, I tested with the GPIO mux mode before since I misunderstood
+your previous email. But now I've tested with safe mode mux and didn't
+make a difference (which was expected since off mode is disabled AFAIU). 
+ 
+> Note that in some cases the internal pull is not strong enough to
+> keep the reset line up if there's an external pull down resistor.
+>
 
-	dpaux@0,545c0000 {
-		...
+Yes, I got that from your previous email but as I mentioned, the lines
+in the board don't have external pull resistors.
+ 
+> Regards,
+> 
+> Tony
+> 
 
-		/* pinctrl node */
-		pinmux {
-			...
-		};
-
-		/* place-holder for i2c devices */
-		i2c-bus {
-			...
-		};
-	};	
-
-   To make the above work ideally we would like to make the 'i2c-bus'
-   node a generic solution for all i2c devices, so the i2c core would
-   check for the presence of this node and if it is found then would
-   default to this node for looking for i2c-devices.
-
-2. When registering i2c devices via device-tree, the function
-   of_i2c_register_devices() checks to see if OF_POPULATED flag is set
-   for a given node. If it is set, then the node is skipped. I believe
-   this was added for device-tree overlays (commit 4f001fd30145 i2c:
-   Mark instantiated device nodes with OF_POPULATE). Another option is
-   for the dpaux driver to mark the pinmux node as populated before
-   registering the i2c adapter and this will prevent the i2c core from
-   trying to parse the pinmux node. I am not sure if this would be
-   frowned upon in anyway or if we can guarantee that no future changes
-   to DT overlays would change this in a way where it would not work.
-
-Let me know your thoughts.
-
-Cheers
-Jon
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
