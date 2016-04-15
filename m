@@ -1,210 +1,179 @@
-From: Jisheng Zhang <jszhang@marvell.com>
-Subject: Re: [PATCH] i2c: designware-platdrv: implement bus recovery
-Date: Fri, 15 Apr 2016 15:30:33 +0800
-Message-ID: <20160415153033.5a8c4952@xhacker>
-References: <1460642696-1858-1-git-send-email-jszhang@marvell.com>
-	<20160414143916.GY1714@lahna.fi.intel.com>	<20160415140843.4a1e5d0f@xhacker>
-	<20160415070746.GA1714@lahna.fi.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
+ addresses
+Date: Fri, 15 Apr 2016 11:01:11 +0300
+Message-ID: <20160415080111.GD1714@lahna.fi.intel.com>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:22575 "EHLO
-	mx0a-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751005AbcDOHfS (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Apr 2016 03:35:18 -0400
-In-Reply-To: <20160415070746.GA1714@lahna.fi.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean-Michel Hautbois <jhautbois@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, wsa@the-dreams.de, laurent.pinchart@ideasonboard.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Fri, 15 Apr 2016 10:07:46 +0300
-Mika Westerberg <mika.westerberg@linux.intel.com> wrote:
++Srinivas
 
-> On Fri, Apr 15, 2016 at 02:08:43PM +0800, Jisheng Zhang wrote:
-> > Dear Mika,
-> > 
-> > On Thu, 14 Apr 2016 17:39:16 +0300 Mika Westerberg wrote:
-> >   
-> > > On Thu, Apr 14, 2016 at 10:04:56PM +0800, Jisheng Zhang wrote:  
-> > > > Implement bus recovery methods for i2c designware so we can recover
-> > > > from situations where SCL/SDA are stuck low.
-> > > > 
-> > > > The recovery method is similar as i2c-imx: "config the i2c pinctrl to
-> > > > gpio mode by calling pinctrl sleep set function, and then use GPIO to
-> > > > emulate the i2c protocol to send nine dummy clock to recover i2c
-> > > > device. After recovery, set i2c pinctrl to default group setting.
-> > > > 
-> > > > Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
-> > > > ---
-> > > > depends on runtime pm patches
-> > > > http://lists.infradead.org/pipermail/linux-arm-kernel/2016-April/422202.html
-> > > >  .../devicetree/bindings/i2c/i2c-designware.txt     | 12 ++++++
-> > > >  drivers/i2c/busses/i2c-designware-core.c           |  6 ++-
-> > > >  drivers/i2c/busses/i2c-designware-core.h           |  4 ++
-> > > >  drivers/i2c/busses/i2c-designware-platdrv.c        | 50 ++++++++++++++++++++++
-> > > >  4 files changed, 71 insertions(+), 1 deletion(-)
-> > > > 
-> > > > diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> > > > index fee26dc..51a55c6 100644
-> > > > --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> > > > +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> > > > @@ -20,6 +20,13 @@ Optional properties :
-> > > >   - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
-> > > >     This value which is by default 300ns is used to compute the tHIGH period.
-> > > >  
-> > > > + - scl-gpios: specify the gpio related to SCL pin
-> > > > +
-> > > > + - sda-gpios: specify the gpio related to SDA pin
-> > > > +
-> > > > + - pinctrl: add extra pinctrl to configure i2c pins to gpio function for i2c
-> > > > +   bus recovery, call it "gpio" state
-> > > > +
-> > > >  Example :
-> > > >  
-> > > >  	i2c@f0000 {
-> > > > @@ -42,4 +49,9 @@ Example :
-> > > >  		i2c-sda-hold-time-ns = <300>;
-> > > >  		i2c-sda-falling-time-ns = <300>;
-> > > >  		i2c-scl-falling-time-ns = <300>;
-> > > > +		pinctrl-names = "default", "gpio";
-> > > > +		pinctrl-0 = <&pinctrl_i2c1_default>;
-> > > > +		pinctrl-1 = <&pinctrl_i2c1_gpio>;
-> > > > +		scl-gpios = <&porta 26 GPIO_ACTIVE_HIGH>;
-> > > > +		sda-gpios = <&porta 27 GPIO_ACTIVE_HIGH>;
-> > > >  	};
-> > > > diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> > > > index 4255eaa..be40de1 100644
-> > > > --- a/drivers/i2c/busses/i2c-designware-core.c
-> > > > +++ b/drivers/i2c/busses/i2c-designware-core.c
-> > > > @@ -399,7 +399,10 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
-> > > >  	while (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
-> > > >  		if (timeout <= 0) {
-> > > >  			dev_warn(dev->dev, "timeout waiting for bus ready\n");
-> > > > -			return -ETIMEDOUT;
-> > > > +			i2c_recover_bus(&dev->adapter);
-> > > > +			if (dw_readl(dev, DW_IC_STATUS)
-> > > > +					& DW_IC_STATUS_ACTIVITY)
-> > > > +				return -ETIMEDOUT;
-> > > >  		}
-> > > >  		timeout--;
-> > > >  		usleep_range(1000, 1100);
-> > > > @@ -665,6 +668,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
-> > > >  	/* wait for tx to complete */
-> > > >  	if (!wait_for_completion_timeout(&dev->cmd_complete, HZ)) {
-> > > >  		dev_err(dev->dev, "controller timed out\n");
-> > > > +		i2c_recover_bus(&dev->adapter);
-> > > >  		/* i2c_dw_init implicitly disables the adapter */
-> > > >  		i2c_dw_init(dev);
-> > > >  		ret = -ETIMEDOUT;
-> > > > diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> > > > index cd409e7..26c84ee 100644
-> > > > --- a/drivers/i2c/busses/i2c-designware-core.h
-> > > > +++ b/drivers/i2c/busses/i2c-designware-core.h
-> > > > @@ -104,6 +104,10 @@ struct dw_i2c_dev {
-> > > >  	u16			fs_lcnt;
-> > > >  	int			(*acquire_lock)(struct dw_i2c_dev *dev);
-> > > >  	void			(*release_lock)(struct dw_i2c_dev *dev);
-> > > > +	struct i2c_bus_recovery_info rinfo;
-> > > > +	struct pinctrl		*pinctrl;
-> > > > +	struct pinctrl_state	*pinctrl_pins_default;
-> > > > +	struct pinctrl_state	*pinctrl_pins_gpio;
-> > > >  	bool			pm_runtime_disabled;
-> > > >  };
-> > > >  
-> > > > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > > index 1488cea..62bded9 100644
-> > > > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > > @@ -33,6 +33,7 @@
-> > > >  #include <linux/err.h>
-> > > >  #include <linux/interrupt.h>
-> > > >  #include <linux/of.h>
-> > > > +#include <linux/of_gpio.h>
-> > > >  #include <linux/platform_device.h>
-> > > >  #include <linux/pm.h>
-> > > >  #include <linux/pm_runtime.h>
-> > > > @@ -148,6 +149,49 @@ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
-> > > >  	return 0;
-> > > >  }
-> > > >  
-> > > > +static void i2c_dw_plat_prepare_recovery(struct i2c_adapter *adap)
-> > > > +{
-> > > > +	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-> > > > +
-> > > > +	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_gpio);
-> > > > +}
-> > > > +
-> > > > +static void i2c_dw_plat_unprepare_recovery(struct i2c_adapter *adap)
-> > > > +{
-> > > > +	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-> > > > +
-> > > > +	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_default);
-> > > > +}
-> > > > +
-> > > > +static void i2c_dw_plat_init_recovery_info(struct dw_i2c_dev *dev,
-> > > > +					   struct platform_device *pdev)
-> > > > +{
-> > > > +	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-> > > > +
-> > > > +	dev->pinctrl_pins_default = pinctrl_lookup_state(dev->pinctrl,
-> > > > +			PINCTRL_STATE_DEFAULT);
-> > > > +	dev->pinctrl_pins_gpio = pinctrl_lookup_state(dev->pinctrl,
-> > > > +			"gpio");
-> > > > +	rinfo->sda_gpio = of_get_named_gpio(pdev->dev.of_node, "sda-gpios", 0);
-> > > > +	rinfo->scl_gpio = of_get_named_gpio(pdev->dev.of_node, "scl-gpios", 0);
-> > > > +
-> > > > +	if (!gpio_is_valid(rinfo->sda_gpio) ||
-> > > > +	    !gpio_is_valid(rinfo->scl_gpio) ||
-> > > > +	    IS_ERR(dev->pinctrl_pins_default) ||
-> > > > +	    IS_ERR(dev->pinctrl_pins_gpio)) {
-> > > > +		dev_dbg(&pdev->dev, "recovery information incomplete\n");
-> > > > +		return;  
-> > 
-> > For ACPI, we should return here, right?  
+On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
+> Some I2C devices have multiple addresses assigned, for example each address
+> corresponding to a different internal register map page of the device.
+> So far drivers which need support for this have handled this with a driver
+> specific and non-generic implementation, e.g. passing the additional address
+> via platform data.
 > 
-> I hope so. And I do not want to see any useless messages about
-> incomplete recovery information on my PC.
-
-Got your points.
-
+> This patch provides a new helper function called i2c_new_secondary_device()
+> which is intended to provide a generic way to get the secondary address
+> as well as instantiate a struct i2c_client for the secondary address.
 > 
-> > > > +	}
-> > > > +
-> > > > +	dev_dbg(&pdev->dev, "using scl-gpio %d and sda-gpio %d for recovery\n",
-> > > > +		rinfo->sda_gpio, rinfo->scl_gpio);
-> > > > +
-> > > > +	rinfo->prepare_recovery = i2c_dw_plat_prepare_recovery;
-> > > > +	rinfo->unprepare_recovery = i2c_dw_plat_unprepare_recovery;
-> > > > +	rinfo->recover_bus = i2c_generic_gpio_recovery;    
-> > > 
-> > > This whole thing is DT specific and I don't see how we can do the same
-> > > for ACPI. Should it be enabled only when the controller was enumerated
-> > > from DT?  
-> > 
-> > Per my understanding, for ACPI, the pinctrl_pins_default, pinctrl_pins_gpio,
-> > sda_gpio and scl_gpio will be invalid or err, so we won't setup rinfo
-> > at all. However, I have no acpi platform which have i2c designware to double
-> > confirm.  
+> The function expects a pointer to the primary i2c_client, a name
+> for the secondary address and an optional default address. The name is used
+> as a handle to specify which secondary address to get.
 > 
-> What happens to those of_get_ functions when you pass NULL of_node? If
-> they do not crash then I suppose it is fine.
-
-I just checked the code,
-If CONFIG_OF isn't enabled, of_get_* will return error.
-If CONFIG_OF is enabled, but NULL of_node is passed, of_get_* will also return
-error, so it's fine ;)
-
+> The default address is used as a fallback in case no secondary address
+> was explicitly specified. In case no secondary address and no default
+> address were specified the function returns NULL.
 > 
-> Anyhow it might be good idea to do something like
-> 
-> 	if (!pdev->dev.of_node)
-> 		return;
-> 
-> in the beginning of that function.
+> For now the function only supports look-up of the secondary address
+> from devicetree, but it can be extended in the future
+> to for example support board files and/or ACPI.
 
-Sounds a good idea, will do in next version.
+It was not clear to me but does this support more than two addresses?
+For example we might a device with 3 I2cSerialBus() connectors:
 
-Thanks for your review,
-Jisheng
+    Device (CAM1)
+    {
+        Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+        {
+            Name (SBUF, ResourceTemplate ()
+            {
+                ...
+                I2cSerialBus (0x0010, ControllerInitiated, 0x00061A80,
+                    AddressingMode7Bit, "\\_SB.I2C4",
+                    0x00, ResourceConsumer, ,)
+                I2cSerialBus (0x000C, ControllerInitiated, 0x00061A80,
+                    AddressingMode7Bit, "\\_SB.I2C4",
+                    0x00, ResourceConsumer, ,)
+                I2cSerialBus (0x0054, ControllerInitiated, 0x00061A80,
+                    AddressingMode7Bit, "\\_SB.I2C4",
+                    0x00, ResourceConsumer, ,)
+            })
+            Return (SBUF) /* \_SB_.I2C4.CAM1._CRS.SBUF */
+        }
+        ...
+
+Furthermore those do not have names. At least the existing ones out
+there, which is why I think we should instead refer them with integer
+indexes. I think that works also with DT. Then provide an optional
+"reg-names" or whatever that can be used to get secondary addresses with
+certain name. For new stuff we can use names with ACPI _DSD method like:
+
+    Name (_DSD, Package () {
+        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+        Package () {
+            Package () {"reg-names", Package() {"primary", "secondary-1", "secondary-2"}}
+        }
+    })
+
+Here "secondary-1" maps to second entry in _CRS. Although not sure how
+useful the whole naming thing is.
+
+> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+> ---
+> v2: adding some DT bindings documentation (more than one year later...)
+> 
+>  Documentation/devicetree/bindings/i2c/i2c.txt |  7 +++++
+>  drivers/i2c/i2c-core.c                        | 42 +++++++++++++++++++++++++++
+>  include/linux/i2c.h                           |  5 ++++
+>  3 files changed, 54 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+> index c8d977e..f31b2ad 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> @@ -62,6 +62,13 @@ wants to support one of the below features, it should adapt the bindings below.
+>  - wakeup-source
+>  	device can be used as a wakeup source.
+>  
+> +- reg
+> +	I2C slave addresses
+> +
+> +- reg-names
+> +	Names of map programmable addresses.
+> +	It can contain any map needing another address than default one.
+> +
+>  Binding may contain optional "interrupts" property, describing interrupts
+>  used by the device. I2C core will assign "irq" interrupt (or the very first
+>  interrupt if not using interrupt names) as primary interrupt for the slave.
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index ffe715d..da49fab 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -1158,6 +1158,48 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_new_dummy);
+>  
+> +/**
+> + * i2c_new_secondary_device - Helper to get the instantiated secondary address
+> + * and create the associated device
+> + * @client: Handle to the primary client
+> + * @name: Handle to specify which secondary address to get
+> + * @default_addr: Used as a fallback if no secondary address was specified
+> + * Context: can sleep
+> + *
+> + * I2C clients can be composed of multiple I2C slaves bound together in a single
+> + * component. The I2C client driver then binds to the master I2C slave and needs
+> + * to create I2C dummy clients to communicate with all the other slaves.
+> + *
+> + * This function creates and returns an I2C dummy client whose I2C address is
+> + * retrieved from the platform firmware based on the given slave name. If no
+> + * address is specified by the firmware default_addr is used.
+> + *
+> + * On DT-based platforms the address is retrieved from the "reg" property entry
+> + * cell whose "reg-names" value matches the slave name.
+> + *
+> + * This returns the new i2c client, which should be saved for later use with
+> + * i2c_unregister_device(); or NULL to indicate an error.
+> + */
+> +struct i2c_client *i2c_new_secondary_device(struct i2c_client *client,
+> +						const char *name,
+> +						u16 default_addr)
+> +{
+> +	struct device_node *np = client->dev.of_node;
+> +	u32 addr = default_addr;
+> +	int i;
+> +
+> +	if (np) {
+> +		i = of_property_match_string(np, "reg-names", name);
+> +		if (i >= 0)
+> +			of_property_read_u32_index(np, "reg", i, &addr);
+> +	}
+> +
+> +	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
+> +	return i2c_new_dummy(client->adapter, addr);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_new_secondary_device);
+> +
+> +
+>  /* ------------------------------------------------------------------------- */
+>  
+>  /* I2C bus adapters -- one roots each I2C or SMBUS segment */
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 200cf13b..9c90735 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -349,6 +349,11 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
+>  extern struct i2c_client *
+>  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
+>  
+> +extern struct i2c_client *
+> +i2c_new_secondary_device(struct i2c_client *client,
+> +				const char *name,
+> +				u16 default_addr);
+> +
+>  extern void i2c_unregister_device(struct i2c_client *);
+>  #endif /* I2C */
+>  
+> -- 
+> 2.7.0
