@@ -1,179 +1,107 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
- addresses
-Date: Fri, 15 Apr 2016 11:01:11 +0300
-Message-ID: <20160415080111.GD1714@lahna.fi.intel.com>
-References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v6 01/24] i2c-mux: add common data for every i2c-mux
+ instance
+Date: Fri, 15 Apr 2016 13:23:19 +0200
+Message-ID: <20160415112318.GA3999@katana>
+References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
+ <1459673574-11440-2-git-send-email-peda@lysator.liu.se>
+ <20160411204630.GA10401@katana>
+ <570E4BAE.7060108@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean-Michel Hautbois <jhautbois@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, wsa@the-dreams.de, laurent.pinchart@ideasonboard.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+In-Reply-To: <570E4BAE.7060108-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-SamgB31n2u5IcsJQ0EH25Q@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matt
 List-Id: linux-i2c@vger.kernel.org
 
-+Srinivas
 
-On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
-> Some I2C devices have multiple addresses assigned, for example each address
-> corresponding to a different internal register map page of the device.
-> So far drivers which need support for this have handled this with a driver
-> specific and non-generic implementation, e.g. passing the additional address
-> via platform data.
-> 
-> This patch provides a new helper function called i2c_new_secondary_device()
-> which is intended to provide a generic way to get the secondary address
-> as well as instantiate a struct i2c_client for the secondary address.
-> 
-> The function expects a pointer to the primary i2c_client, a name
-> for the secondary address and an optional default address. The name is used
-> as a handle to specify which secondary address to get.
-> 
-> The default address is used as a fallback in case no secondary address
-> was explicitly specified. In case no secondary address and no default
-> address were specified the function returns NULL.
-> 
-> For now the function only supports look-up of the secondary address
-> from devicetree, but it can be extended in the future
-> to for example support board files and/or ACPI.
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It was not clear to me but does this support more than two addresses?
-For example we might a device with 3 I2cSerialBus() connectors:
 
-    Device (CAM1)
-    {
-        Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-        {
-            Name (SBUF, ResourceTemplate ()
-            {
-                ...
-                I2cSerialBus (0x0010, ControllerInitiated, 0x00061A80,
-                    AddressingMode7Bit, "\\_SB.I2C4",
-                    0x00, ResourceConsumer, ,)
-                I2cSerialBus (0x000C, ControllerInitiated, 0x00061A80,
-                    AddressingMode7Bit, "\\_SB.I2C4",
-                    0x00, ResourceConsumer, ,)
-                I2cSerialBus (0x0054, ControllerInitiated, 0x00061A80,
-                    AddressingMode7Bit, "\\_SB.I2C4",
-                    0x00, ResourceConsumer, ,)
-            })
-            Return (SBUF) /* \_SB_.I2C4.CAM1._CRS.SBUF */
-        }
-        ...
+> > I'd suggest to rename 'adapters' into 'num_adapters' throughout this
+> > patch. I think it makes the code a lot easier to understand.
+>=20
+> Hmm, you mean just the variable names, right? And not function names
+> such as i2c_mux_reserve_(num_)adapters?
 
-Furthermore those do not have names. At least the existing ones out
-there, which is why I think we should instead refer them with integer
-indexes. I think that works also with DT. Then provide an optional
-"reg-names" or whatever that can be used to get secondary addresses with
-certain name. For new stuff we can use names with ACPI _DSD method like:
+Yes, only variable names.
 
-    Name (_DSD, Package () {
-        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-        Package () {
-            Package () {"reg-names", Package() {"primary", "secondary-1", "secondary-2"}}
-        }
-    })
+> > Despite that I wonder why not using some of the realloc functions, I
+>=20
+> When I wrote it, I found no devm_ version of realloc. I'm not finding
+> anything now either...
 
-Here "secondary-1" maps to second entry in _CRS. Although not sure how
-useful the whole naming thing is.
+Right, there is no devm_ version of it :(
 
-> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
-> ---
-> v2: adding some DT bindings documentation (more than one year later...)
-> 
->  Documentation/devicetree/bindings/i2c/i2c.txt |  7 +++++
->  drivers/i2c/i2c-core.c                        | 42 +++++++++++++++++++++++++++
->  include/linux/i2c.h                           |  5 ++++
->  3 files changed, 54 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-> index c8d977e..f31b2ad 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-> @@ -62,6 +62,13 @@ wants to support one of the below features, it should adapt the bindings below.
->  - wakeup-source
->  	device can be used as a wakeup source.
->  
-> +- reg
-> +	I2C slave addresses
-> +
-> +- reg-names
-> +	Names of map programmable addresses.
-> +	It can contain any map needing another address than default one.
-> +
->  Binding may contain optional "interrupts" property, describing interrupts
->  used by the device. I2C core will assign "irq" interrupt (or the very first
->  interrupt if not using interrupt names) as primary interrupt for the slave.
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index ffe715d..da49fab 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1158,6 +1158,48 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
->  }
->  EXPORT_SYMBOL_GPL(i2c_new_dummy);
->  
-> +/**
-> + * i2c_new_secondary_device - Helper to get the instantiated secondary address
-> + * and create the associated device
-> + * @client: Handle to the primary client
-> + * @name: Handle to specify which secondary address to get
-> + * @default_addr: Used as a fallback if no secondary address was specified
-> + * Context: can sleep
-> + *
-> + * I2C clients can be composed of multiple I2C slaves bound together in a single
-> + * component. The I2C client driver then binds to the master I2C slave and needs
-> + * to create I2C dummy clients to communicate with all the other slaves.
-> + *
-> + * This function creates and returns an I2C dummy client whose I2C address is
-> + * retrieved from the platform firmware based on the given slave name. If no
-> + * address is specified by the firmware default_addr is used.
-> + *
-> + * On DT-based platforms the address is retrieved from the "reg" property entry
-> + * cell whose "reg-names" value matches the slave name.
-> + *
-> + * This returns the new i2c client, which should be saved for later use with
-> + * i2c_unregister_device(); or NULL to indicate an error.
-> + */
-> +struct i2c_client *i2c_new_secondary_device(struct i2c_client *client,
-> +						const char *name,
-> +						u16 default_addr)
-> +{
-> +	struct device_node *np = client->dev.of_node;
-> +	u32 addr = default_addr;
-> +	int i;
-> +
-> +	if (np) {
-> +		i = of_property_match_string(np, "reg-names", name);
-> +		if (i >= 0)
-> +			of_property_read_u32_index(np, "reg", i, &addr);
-> +	}
-> +
-> +	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
-> +	return i2c_new_dummy(client->adapter, addr);
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_new_secondary_device);
-> +
-> +
->  /* ------------------------------------------------------------------------- */
->  
->  /* I2C bus adapters -- one roots each I2C or SMBUS segment */
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 200cf13b..9c90735 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -349,6 +349,11 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
->  extern struct i2c_client *
->  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
->  
-> +extern struct i2c_client *
-> +i2c_new_secondary_device(struct i2c_client *client,
-> +				const char *name,
-> +				u16 default_addr);
-> +
->  extern void i2c_unregister_device(struct i2c_client *);
->  #endif /* I2C */
->  
-> -- 
-> 2.7.0
+> > wonder even more if we couldn't supply num_adapters to i2c_mux_alloc()
+> > and reserve the memory statically. i2c busses are not
+> > dynamic/hot-pluggable so that should be good enough?
+>=20
+> Yes, that would work, but it would take some restructuring in some of
+> the drivers that currently don't know how many child adapters they
+> are going to need when they call i2c_mux_alloc.
+
+Which ones?
+
+> Because you thought about removing i2c_mux_reserve_adapters completely,
+> and not provide any means of adding more adapters than specified in
+> the i2c_mux_alloc call, right?
+
+Yes. I assumed I2C to be static enough that such information is known in
+advance.
+
+> > Ignoring the 80 char limit here makes the code more readable.
+>=20
+> That is only true if you actually have more than 80 characters, so I don't
+> agree. Are you adamant about it? (I'm not)
+
+No. Keep it if you prefer it.
+
+> >> +EXPORT_SYMBOL_GPL(i2c_mux_one_adapter);
+> >=20
+> > Are you sure the above function pays off? Its argument list is very
+> > complex and it doesn't save a lot of code. Having seperate calls is
+> > probably more understandable in drivers? Then again, I assume it makes
+> > the conversion of existing drivers easier.
+>=20
+> I added it in v4, you can check earlier versions if you like. Without
+> it most gate-muxes (i.e. typically the muxes in drivers/media) grew
+> since the i2c_add_mux_adapter call got replaced by two calls, i.e.
+> i2c_mux_alloc followed by i2c_max_add_adapter, and coupled with
+> error checks made it look more complex than before. So, this wasn't
+> much of a cleanup from the point of those drivers.
+
+Hmm, v3 didn't have the driver patches posted with it. Can you push it
+to your branch? I am also not too strong with this one, but having a
+look how it looks without would be nice.
+
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXEM8mAAoJEBQN5MwUoCm2vqsQAI3yJI+B6O3czvil6A1eykpH
+g4woawT6xVkslGuCxiz+bXsjE3ldfGG7YH2BICfyhYLEvIkvVBgfVb1JQrsEsR4C
+AfpX3HyO2N29JO+S0Zk5NUToJ+6W2e6cMiAXKgBCGP3sODITuqx0Fku3Nvf7zfTB
+pR1wOH9lAg/+qSiBTtpclX0l8i2chQiRHJqFxUJUoErClZudrZkizbTugMkfsXJf
+qiywt1GsBgkPLcnAmISq71J/9QgsQZeMfJc85qCeEWng0YEkOruK8JFDHvqhffZw
+10P1GWYsFF3do2qeMgCh90xeZNWijzOJl8a/YcOnTRGgJRjfLeUu5Y93k+IhdZiq
+wJkSiybtFrz9Qq84DVwG53QHu9huZN/MW+GUxWKi45B2ZikM4UkPQMA3DBUVcn23
+AWTYhhGI7FenWI63NceG0Nl9+o3UxAO97SHIRcqvNmeZfMd0lsYi7oqDI+SuaOSy
+wI0NhdoWSl1mutULlojkMqWBiGHN+RweLTNpv6dVUgR+qBb/7+tCC7DRFQBA/G9a
+mA3d8EEEOoxo7mcP2F7PYmYiA42gN6TRiP+Lce3rqNyRMe+G3YoA/agWwgcsoehf
+p0pIWzU8vH/5jcz32FTHlooMQIgsx5IqT0FxbxIDPoTaNOuNcsgdOHArv84v/9j4
+H7duOm2CeCS5eX2uuQPU
+=Px0Y
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--
