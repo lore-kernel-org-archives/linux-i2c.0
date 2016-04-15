@@ -1,106 +1,202 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: tvp5150 regression after commit 9f924169c035
-Date: Thu, 14 Apr 2016 19:59:31 -0400
-Message-ID: <57102EE3.3020707@osg.samsung.com>
-References: <20160212224018.GZ3500@atomide.com>
- <56BE65F0.8040600@osg.samsung.com> <20160212234623.GB3500@atomide.com>
- <56BE993B.3010804@osg.samsung.com> <20160412223254.GK1526@katana>
- <570ECAB0.4050107@osg.samsung.com> <20160414111257.GG1533@katana>
- <570F9DF1.3070700@osg.samsung.com> <20160414141945.GA1539@katana>
- <570FA8D6.5070308@osg.samsung.com> <20160414151244.GM5973@atomide.com>
+From: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: designware-platdrv: implement bus recovery
+Date: Fri, 15 Apr 2016 14:08:43 +0800
+Message-ID: <20160415140843.4a1e5d0f@xhacker>
+References: <1460642696-1858-1-git-send-email-jszhang@marvell.com>
+	<20160414143916.GY1714@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20160414151244.GM5973@atomide.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-pm@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Enric Balletbo i Serra <eballetbo@gmail.com>, =?UTF-8?Q?Agust=c3=ad_Fontquerni?= <af@iseebcn.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160414143916.GY1714-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Tony,
+Dear Mika,
 
-On 04/14/2016 11:12 AM, Tony Lindgren wrote:
-> Hi,
+On Thu, 14 Apr 2016 17:39:16 +0300 Mika Westerberg wrote:
+
+> On Thu, Apr 14, 2016 at 10:04:56PM +0800, Jisheng Zhang wrote:
+> > Implement bus recovery methods for i2c designware so we can recover
+> > from situations where SCL/SDA are stuck low.
+> > 
+> > The recovery method is similar as i2c-imx: "config the i2c pinctrl to
+> > gpio mode by calling pinctrl sleep set function, and then use GPIO to
+> > emulate the i2c protocol to send nine dummy clock to recover i2c
+> > device. After recovery, set i2c pinctrl to default group setting.
+> > 
+> > Signed-off-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> > ---
+> > depends on runtime pm patches
+> > http://lists.infradead.org/pipermail/linux-arm-kernel/2016-April/422202.html
+> >  .../devicetree/bindings/i2c/i2c-designware.txt     | 12 ++++++
+> >  drivers/i2c/busses/i2c-designware-core.c           |  6 ++-
+> >  drivers/i2c/busses/i2c-designware-core.h           |  4 ++
+> >  drivers/i2c/busses/i2c-designware-platdrv.c        | 50 ++++++++++++++++++++++
+> >  4 files changed, 71 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> > index fee26dc..51a55c6 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> > @@ -20,6 +20,13 @@ Optional properties :
+> >   - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
+> >     This value which is by default 300ns is used to compute the tHIGH period.
+> >  
+> > + - scl-gpios: specify the gpio related to SCL pin
+> > +
+> > + - sda-gpios: specify the gpio related to SDA pin
+> > +
+> > + - pinctrl: add extra pinctrl to configure i2c pins to gpio function for i2c
+> > +   bus recovery, call it "gpio" state
+> > +
+> >  Example :
+> >  
+> >  	i2c@f0000 {
+> > @@ -42,4 +49,9 @@ Example :
+> >  		i2c-sda-hold-time-ns = <300>;
+> >  		i2c-sda-falling-time-ns = <300>;
+> >  		i2c-scl-falling-time-ns = <300>;
+> > +		pinctrl-names = "default", "gpio";
+> > +		pinctrl-0 = <&pinctrl_i2c1_default>;
+> > +		pinctrl-1 = <&pinctrl_i2c1_gpio>;
+> > +		scl-gpios = <&porta 26 GPIO_ACTIVE_HIGH>;
+> > +		sda-gpios = <&porta 27 GPIO_ACTIVE_HIGH>;
+> >  	};
+> > diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+> > index 4255eaa..be40de1 100644
+> > --- a/drivers/i2c/busses/i2c-designware-core.c
+> > +++ b/drivers/i2c/busses/i2c-designware-core.c
+> > @@ -399,7 +399,10 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
+> >  	while (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
+> >  		if (timeout <= 0) {
+> >  			dev_warn(dev->dev, "timeout waiting for bus ready\n");
+> > -			return -ETIMEDOUT;
+> > +			i2c_recover_bus(&dev->adapter);
+> > +			if (dw_readl(dev, DW_IC_STATUS)
+> > +					& DW_IC_STATUS_ACTIVITY)
+> > +				return -ETIMEDOUT;
+> >  		}
+> >  		timeout--;
+> >  		usleep_range(1000, 1100);
+> > @@ -665,6 +668,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+> >  	/* wait for tx to complete */
+> >  	if (!wait_for_completion_timeout(&dev->cmd_complete, HZ)) {
+> >  		dev_err(dev->dev, "controller timed out\n");
+> > +		i2c_recover_bus(&dev->adapter);
+> >  		/* i2c_dw_init implicitly disables the adapter */
+> >  		i2c_dw_init(dev);
+> >  		ret = -ETIMEDOUT;
+> > diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+> > index cd409e7..26c84ee 100644
+> > --- a/drivers/i2c/busses/i2c-designware-core.h
+> > +++ b/drivers/i2c/busses/i2c-designware-core.h
+> > @@ -104,6 +104,10 @@ struct dw_i2c_dev {
+> >  	u16			fs_lcnt;
+> >  	int			(*acquire_lock)(struct dw_i2c_dev *dev);
+> >  	void			(*release_lock)(struct dw_i2c_dev *dev);
+> > +	struct i2c_bus_recovery_info rinfo;
+> > +	struct pinctrl		*pinctrl;
+> > +	struct pinctrl_state	*pinctrl_pins_default;
+> > +	struct pinctrl_state	*pinctrl_pins_gpio;
+> >  	bool			pm_runtime_disabled;
+> >  };
+> >  
+> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > index 1488cea..62bded9 100644
+> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > @@ -33,6 +33,7 @@
+> >  #include <linux/err.h>
+> >  #include <linux/interrupt.h>
+> >  #include <linux/of.h>
+> > +#include <linux/of_gpio.h>
+> >  #include <linux/platform_device.h>
+> >  #include <linux/pm.h>
+> >  #include <linux/pm_runtime.h>
+> > @@ -148,6 +149,49 @@ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+> >  	return 0;
+> >  }
+> >  
+> > +static void i2c_dw_plat_prepare_recovery(struct i2c_adapter *adap)
+> > +{
+> > +	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+> > +
+> > +	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_gpio);
+> > +}
+> > +
+> > +static void i2c_dw_plat_unprepare_recovery(struct i2c_adapter *adap)
+> > +{
+> > +	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+> > +
+> > +	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_default);
+> > +}
+> > +
+> > +static void i2c_dw_plat_init_recovery_info(struct dw_i2c_dev *dev,
+> > +					   struct platform_device *pdev)
+> > +{
+> > +	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+> > +
+> > +	dev->pinctrl_pins_default = pinctrl_lookup_state(dev->pinctrl,
+> > +			PINCTRL_STATE_DEFAULT);
+> > +	dev->pinctrl_pins_gpio = pinctrl_lookup_state(dev->pinctrl,
+> > +			"gpio");
+> > +	rinfo->sda_gpio = of_get_named_gpio(pdev->dev.of_node, "sda-gpios", 0);
+> > +	rinfo->scl_gpio = of_get_named_gpio(pdev->dev.of_node, "scl-gpios", 0);
+> > +
+> > +	if (!gpio_is_valid(rinfo->sda_gpio) ||
+> > +	    !gpio_is_valid(rinfo->scl_gpio) ||
+> > +	    IS_ERR(dev->pinctrl_pins_default) ||
+> > +	    IS_ERR(dev->pinctrl_pins_gpio)) {
+> > +		dev_dbg(&pdev->dev, "recovery information incomplete\n");
+> > +		return;
+
+For ACPI, we should return here, right?
+
+> > +	}
+> > +
+> > +	dev_dbg(&pdev->dev, "using scl-gpio %d and sda-gpio %d for recovery\n",
+> > +		rinfo->sda_gpio, rinfo->scl_gpio);
+> > +
+> > +	rinfo->prepare_recovery = i2c_dw_plat_prepare_recovery;
+> > +	rinfo->unprepare_recovery = i2c_dw_plat_unprepare_recovery;
+> > +	rinfo->recover_bus = i2c_generic_gpio_recovery;  
 > 
-> * Javier Martinez Canillas <javier@osg.samsung.com> [160414 07:28]:
->> Hello Wofram,
->>
->> On 04/14/2016 10:19 AM, Wolfram Sang wrote:
->>>
->>>> Yes, I also wonder why I'm the only one facing this issue... maybe no one
->>>> else is using the tvp5150 driver on an OMAP board with mainline?
->>>
->>> I wonder why it only affects tvp5150. I don't see the connection yet.
->>>
->>
->> Yes, me neither. All other I2C devices are working properly on this board.
->>
->> The only thing I can think, is that the tvp5150 needs a reset sequence in
->> order to be operative. It basically toggles two pins in the chip, this is
->> done in tvp5150_init() [0] and is needed before accessing I2C registers.
->>
->> Maybe runtime pm has an effect on this and the chip is not reset correctly?
+> This whole thing is DT specific and I don't see how we can do the same
+> for ACPI. Should it be enabled only when the controller was enumerated
+> from DT?
+
+Per my understanding, for ACPI, the pinctrl_pins_default, pinctrl_pins_gpio,
+sda_gpio and scl_gpio will be invalid or err, so we won't setup rinfo
+at all. However, I have no acpi platform which have i2c designware to double
+confirm.
+
 > 
-> Is this with omap3 and does tvp5150 have a reset GPIO pin?
->
+> > +	dev->adapter.bus_recovery_info = rinfo;
+> > +}
+> > +
+> >  static int dw_i2c_plat_probe(struct platform_device *pdev)
+> >  {
+> >  	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+> > @@ -165,6 +209,12 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+> >  	if (!dev)
+> >  		return -ENOMEM;
+> >  
+> > +	dev->pinctrl = devm_pinctrl_get(&pdev->dev);
+> > +	if (IS_ERR(dev->pinctrl))
+> > +		return PTR_ERR(dev->pinctrl);
+> > +
+> > +	i2c_dw_plat_init_recovery_info(dev, pdev);
+> > +
+> >  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> >  	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+> >  	if (IS_ERR(dev->base))
+> > -- 
+> > 2.8.0.rc3  
 
-Yes, it's a DM3730 (OMAP3) and yes the tvp5150 (actually it's a tvp5151) has
-a reset pin that has to be toggled, along with a power-down pin for the chip
-to be in an operative state before accessing the I2C registers. That is the
-power/reset sequence I mentioned before.
- 
-> If so, you could be hitting the GPIO errata where a glitch can happen
-> when restoring the GPIO state coming back from off mode in idle. This
-> happes for GPIO pins that are not in GPIO bank1 and have an external
-> pull down resistor on the line.
->
-
-The GPIO lines connected to these pins are:
-
-GPIO126 (bank4 pin 30) -> tvp5150 power-down pin
-GPIO167 (bank6 pin 7)  -> tvp5150 reset pin
-
-Neither are in GPIO bank1 so they could be affected by the errata you
-mention but there isn't external pull down (or up) resistors on these
-lines AFAICT by looking at the board schematics. I've added to the cc
-list to other people that are familiar with the board in case I missed
-something.
-
-> The short term workaround is to mux the reset pin to use the internal
-> pulls by using PIN_INPUT_PULLUP | MUX_MODE7, or depending on the direction,
-> PIN_INPUT_PULLDOWN | MUX_MODE7.
->
-
-I guess you meant MUX_MODE4 here since the pin has to be in GPIO mode?
-
-Also, I wonder how the issue could be related to the GPIO controller
-since is when enabling runtime PM for the I2C controller that things
-fail. IOW, disabling runtime PM for the I2C adapter shouldn't make
-things to work if the problem was caused by the mentioned GPIO errata.
-
-In any case, I've tried to use the internal pulls as you suggested but
-that didn't solve the issue.
-
-> The long term workaround is tho have gpio-omap.c do this dynamically
-> with pinctrl-single.c using gpio-ranges, but that's going to take a
-> while.. You can search for erratum 1.158 for more info.
-> 
-> Regards,
-> 
-> Tony
-> 
->> [0]: https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/tree/drivers/media/i2c/tvp5150.c#n1311
-
-I'm really out of ideas on this, I don't think that Wolfram change has
-to be reverted since it seems I'm the only one facing this issue and
-also the DTS for the board I'm using is not even in mainline yet.
-
-I'm waiting for some discussions about the Media Controller input
-connectors DT bindings to settle before posting the board DTS patches.
-
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
