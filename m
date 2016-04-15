@@ -1,225 +1,61 @@
-From: "Martin Ayotte" <martinayotte@gmail.com>
-Subject: [PATCH v1 1/1] add missing UARTs pins for AllWinner H3 DTS + add new I2C entries for AllWinner H3 DTS
-Date: Fri, 15 Apr 2016 13:11:08 -0400
-Message-ID: <8673D89D449742EAB9F6EBD05655A295@GirolesWin7>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 2/2] i2c: rk3x: add i2c support for rk3399 soc
+Date: Fri, 15 Apr 2016 19:58:46 +0200
+Message-ID: <20160415175846.GA1533@katana>
+References: <1458147438-62387-1-git-send-email-david.wu@rock-chips.com>
+ <1458147438-62387-3-git-send-email-david.wu@rock-chips.com>
+ <20160414184848.GB2338@katana>
+ <5710DA28.6010104@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:32816 "EHLO
-	mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752666AbcDORLQ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Apr 2016 13:11:16 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <5710DA28.6010104@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "David.Wu" <david.wu@rock-chips.com>
+Cc: heiko@sntech.de, dianders@chromium.org, andy.shevchenko@gmail.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <wdc@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-sunxi@googlegroups.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, maxime.ripard@free-electrons.com
-Cc: jwrdegoede@fedoraproject.org, wens@csie.org, jenskuske@gmail.com, moinejf@free.fr, martinayotte@gmail.com
 
-Hi everyone,
 
-This patch is submit to provide endusers access to additional UARTs on
-AllWinner H3 SoC along with I2C ports.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
-Martin.
----
- arch/arm/boot/dts/sun8i-h3-orangepi-2.dts  | 36 ++++++++++++++
- arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts | 36 ++++++++++++++
- arch/arm/boot/dts/sun8i-h3.dtsi            | 75
-++++++++++++++++++++++++++++++
- 3 files changed, 147 insertions(+)
+> The default frequency rate of function clock is 50M Hz, it can match
+> F/S mode, but HS mode not. If use default rate 50M to get 1.7M
+> scl-frequency rate , we could not get accurately 1.7M frequecy rate.
+> The input-clk-rate is more higher, we get more accurately
+> scl-frequency rate,  as 200M is a suitable input-clk-rate.
+>=20
+> If 200M was used for F/S mode, it would increase power consumption, so
+> add a option that could be configured from DT.
 
-diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
-b/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
-index f93f5d1..f0b9823 100644
---- a/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
-+++ b/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
-@@ -176,6 +176,42 @@
- 	status = "okay";
- };
- 
-+&uart1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart1_pins_a>;
-+	status = "okay";
-+};
-+
-+&uart2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart2_pins_a>;
-+	status = "okay";
-+};
-+
-+&uart3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart3_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c0_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c1_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins_a>;
-+	status = "okay";
-+};
-+
- &usb1_vbus_pin_a {
- 	allwinner,pins = "PG13";
- };
-diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
-b/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
-index daf50b9a6..6994349 100644
---- a/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
-+++ b/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
-@@ -161,6 +161,42 @@
- 	status = "okay";
- };
- 
-+&uart1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart1_pins_a>;
-+	status = "okay";
-+};
-+
-+&uart2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart2_pins_a>;
-+	status = "okay";
-+};
-+
-+&uart3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart3_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c0_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c1_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins_a>;
-+	status = "okay";
-+};
-+
- &usbphy {
- 	/* USB VBUS is always on */
- 	status = "okay";
-diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi
-b/arch/arm/boot/dts/sun8i-h3.dtsi
-index 4a4926b..c947360d 100644
---- a/arch/arm/boot/dts/sun8i-h3.dtsi
-+++ b/arch/arm/boot/dts/sun8i-h3.dtsi
-@@ -508,6 +508,48 @@
- 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
- 			};
- 
-+			uart1_pins_a: uart1@0 {
-+				allwinner,pins = "PG6", "PG7";
-+				allwinner,function = "uart1";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			uart2_pins_a: uart2@0 {
-+				allwinner,pins = "PA0", "PA1";
-+				allwinner,function = "uart2";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			uart3_pins_a: uart3@0 {
-+				allwinner,pins = "PA13", "PA14";
-+				allwinner,function = "uart3";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			i2c0_pins_a: i2c0@0 {
-+				allwinner,pins = "PA11", "PA12";
-+				allwinner,function = "i2c0";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			i2c1_pins_a: i2c1@0 {
-+				allwinner,pins = "PA18", "PA19";
-+				allwinner,function = "i2c1";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			i2c2_pins_a: i2c2@0 {
-+				allwinner,pins = "PE12", "PE13";
-+				allwinner,function = "i2c2";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
- 			mmc0_pins_a: mmc0@0 {
- 				allwinner,pins = "PF0", "PF1", "PF2", "PF3",
- 						 "PF4", "PF5";
-@@ -626,6 +668,39 @@
- 			status = "disabled";
- 		};
- 
-+		i2c0: i2c@01c2ac00 {
-+			compatible = "allwinner,sun6i-a31-i2c";
-+			reg = <0x01c2ac00 0x400>;
-+			interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&bus_gates 96>;
-+			resets = <&apb2_rst 0>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c1: i2c@01c2b000 {
-+			compatible = "allwinner,sun6i-a31-i2c";
-+			reg = <0x01c2b000 0x400>;
-+			interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&bus_gates 97>;
-+			resets = <&apb2_rst 1>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c2: i2c@01c2b400 {
-+			compatible = "allwinner,sun6i-a31-i2c";
-+			reg = <0x01c2b400 0x400>;
-+			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&bus_gates 98>;
-+			resets = <&apb2_rst 2>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
- 		gic: interrupt-controller@01c81000 {
- 			compatible = "arm,cortex-a7-gic",
-"arm,cortex-a15-gic";
- 			reg = <0x01c81000 0x1000>,
--- 
-2.7.4
+If I understand you correctly, couldn't you use clk_set_rate() depending
+on the desired scl frequency which is already described in DT as
+clock-frequency?
+
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXESvWAAoJEBQN5MwUoCm2G9AQAJcjsZuJNHdNkH1geCWm00xl
+Ax4nIzTV2hAgIhkFfBup6XUOkOuEr5Pj/dbZ3HELNg2UovyIo4CmIENpYQVljHzm
+xBxodVJVBswzOQ4RzPRJj5AO+G+v0vPVTfOLAQEagLlTvb/h3FCBmVTc7DEvt2QG
+/tcU1fgyHBC0+3FX+UVmHKuYyJywhK6P+nPPGEfw4jHn6nF6hFpkj0oOibNfVmOr
+NjWJMycBrGiGpbBsc36VFqY1Lo/RbruawDNHY4OKj9Zl5f4cYryRM7V4uzNhYquM
+QvLhqTvOKPUbw1HsFnEY2ilOQC4bbS9oESWlf2Rf0BNHm0YOG7RiUvwJMBFazwM1
+nxRBZWb+gtzxi1n2wSC+rTjXlXBND8Fl+GA73YaS2GcQAnfcftvhDwJdBixdbh4J
+1JMvdKEO5F06f2/hAPno7Ixa+FCieOUId6YyhVBYttqE69I/ooEJ2YxHS6DYEhji
+5uqOWTDuvEzRuUal+/bIMs3M0dfmQza9c0v06z+p4caW/Qeb0O7Cl9OBYTRIjhoY
+N91sXlWMso7Kqr584Ffc7P2PiqRdKEZ7vCiEV0KeX02Axw8uL6YL41ywIY0EYfvM
+veL56Oku9TDnku8eOFAFTjl1h4V0qqQ2L2sS+fiQKoK2k9muE/aA/YyR9AZcS2Pe
+W3XAWW9I4uwQjcmBh7Yf
+=Gcqt
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
