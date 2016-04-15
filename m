@@ -1,223 +1,121 @@
-From: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v1 1/1] add missing UARTs pins for AllWinner H3
- DTS + add new I2C entries for AllWinner H3 DTS
-Date: Fri, 15 Apr 2016 11:21:49 -0400
-Message-ID: <ea31e5d86cdf8dd8c0f6cf998bdc623e624500c8.1460733718.git.martinayotte@gmail.com>
-References: <cover.1460733716.git.martinayotte@gmail.com>
-Reply-To: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDW4XUV4YULRBFPHYS4AKGQET2YSWOA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <cover.1460733716.git.martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, moinejf-GANU6spQydw@public.gmane.org, martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH] i2c: exynos5: Fix possible ABBA deadlock by keeping I2C clock prepared
+Date: Fri, 15 Apr 2016 18:04:47 -0400
+Message-ID: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Anand Moon <linux.amoon@gmail.com>, Paul Osmialowski <p.osmialowsk@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi everyone,
+The exynos5 I2C controller driver always prepares and enables a clock
+before using it and then disables unprepares it when the clock is not
+used anymore.
 
-This patch is submit to provide endusers access to additional UARTs on AllWinner H3 SoC along with I2C ports.
+But this can cause a possible ABBA deadlock in some scenarios since a
+driver that uses regmap to access its I2C registers, will first grab
+the regmap lock and then the I2C xfer function will grab the prepare
+lock when preparing the I2C clock. But since the clock driver also
+uses regmap for I2C accesses, preparing a clock will first grab the
+prepare lock and then the regmap lock when using the regmap API.
 
-Regards,
-Martin.
+An example of this happens on the Exynos5422 Odroid XU board where a
+s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
+share the same I2C regmap.
+
+The possible deadlock is reported by the kernel lockdep:
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(sec_core:428:(regmap)->lock);
+                                lock(prepare_lock);
+                                lock(sec_core:428:(regmap)->lock);
+   lock(prepare_lock);
+
+  *** DEADLOCK ***
+
+Fix this by only preparing the clock on probe and {en,dis}able in the
+rest of the driver.
+
+This patch is similar to commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA
+deadlock by keeping clock prepared") that fixes the same bug in other
+driver for an I2C controller found in Samsung SoCs.
+
+Reported-by: Anand Moon <linux.amoon@gmail.com>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
 ---
- arch/arm/boot/dts/sun8i-h3-orangepi-2.dts  | 36 ++++++++++++++
- arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts | 36 ++++++++++++++
- arch/arm/boot/dts/sun8i-h3.dtsi            | 75 ++++++++++++++++++++++++++++++
- 3 files changed, 147 insertions(+)
 
-diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts b/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
-index f93f5d1..f0b9823 100644
---- a/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
-+++ b/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
-@@ -176,6 +176,42 @@
- 	status = "okay";
- };
+ drivers/i2c/busses/i2c-exynos5.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index b29c7500461a..602633747149 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -671,7 +671,9 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+ 		return -EIO;
+ 	}
  
-+&uart1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart1_pins_a>;
-+	status = "okay";
-+};
-+
-+&uart2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart2_pins_a>;
-+	status = "okay";
-+};
-+
-+&uart3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart3_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c0_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c1_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins_a>;
-+	status = "okay";
-+};
-+
- &usb1_vbus_pin_a {
- 	allwinner,pins = "PG13";
- };
-diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts b/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
-index daf50b9a6..6994349 100644
---- a/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
-+++ b/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
-@@ -161,6 +161,42 @@
- 	status = "okay";
- };
+-	clk_prepare_enable(i2c->clk);
++	ret = clk_enable(i2c->clk);
++	if (ret)
++		return ret;
  
-+&uart1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart1_pins_a>;
-+	status = "okay";
-+};
-+
-+&uart2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart2_pins_a>;
-+	status = "okay";
-+};
-+
-+&uart3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&uart3_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c0_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c1_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins_a>;
-+	status = "okay";
-+};
-+
- &usbphy {
- 	/* USB VBUS is always on */
- 	status = "okay";
-diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
-index 4a4926b..c947360d 100644
---- a/arch/arm/boot/dts/sun8i-h3.dtsi
-+++ b/arch/arm/boot/dts/sun8i-h3.dtsi
-@@ -508,6 +508,48 @@
- 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
- 			};
+ 	for (i = 0; i < num; i++, msgs++) {
+ 		stop = (i == num - 1);
+@@ -695,7 +697,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+ 	}
  
-+			uart1_pins_a: uart1@0 {
-+				allwinner,pins = "PG6", "PG7";
-+				allwinner,function = "uart1";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			uart2_pins_a: uart2@0 {
-+				allwinner,pins = "PA0", "PA1";
-+				allwinner,function = "uart2";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			uart3_pins_a: uart3@0 {
-+				allwinner,pins = "PA13", "PA14";
-+				allwinner,function = "uart3";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			i2c0_pins_a: i2c0@0 {
-+				allwinner,pins = "PA11", "PA12";
-+				allwinner,function = "i2c0";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			i2c1_pins_a: i2c1@0 {
-+				allwinner,pins = "PA18", "PA19";
-+				allwinner,function = "i2c1";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			i2c2_pins_a: i2c2@0 {
-+				allwinner,pins = "PE12", "PE13";
-+				allwinner,function = "i2c2";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
- 			mmc0_pins_a: mmc0@0 {
- 				allwinner,pins = "PF0", "PF1", "PF2", "PF3",
- 						 "PF4", "PF5";
-@@ -626,6 +668,39 @@
- 			status = "disabled";
- 		};
+  out:
+-	clk_disable_unprepare(i2c->clk);
++	clk_disable(i2c->clk);
+ 	return ret;
+ }
  
-+		i2c0: i2c@01c2ac00 {
-+			compatible = "allwinner,sun6i-a31-i2c";
-+			reg = <0x01c2ac00 0x400>;
-+			interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&bus_gates 96>;
-+			resets = <&apb2_rst 0>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
+@@ -799,6 +801,10 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, i2c);
+ 
++	clk_disable(i2c->clk);
 +
-+		i2c1: i2c@01c2b000 {
-+			compatible = "allwinner,sun6i-a31-i2c";
-+			reg = <0x01c2b000 0x400>;
-+			interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&bus_gates 97>;
-+			resets = <&apb2_rst 1>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
++	return 0;
 +
-+		i2c2: i2c@01c2b400 {
-+			compatible = "allwinner,sun6i-a31-i2c";
-+			reg = <0x01c2b400 0x400>;
-+			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&bus_gates 98>;
-+			resets = <&apb2_rst 2>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
+  err_clk:
+ 	clk_disable_unprepare(i2c->clk);
+ 	return ret;
+@@ -810,6 +816,8 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
+ 
+ 	i2c_del_adapter(&i2c->adap);
+ 
++	clk_unprepare(i2c->clk);
 +
- 		gic: interrupt-controller@01c81000 {
- 			compatible = "arm,cortex-a7-gic", "arm,cortex-a15-gic";
- 			reg = <0x01c81000 0x1000>,
+ 	return 0;
+ }
+ 
+@@ -830,16 +838,18 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
+ 	struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
+ 	int ret = 0;
+ 
+-	clk_prepare_enable(i2c->clk);
++	ret = clk_enable(i2c->clk);
++	if (ret)
++		return ret;
+ 
+ 	ret = exynos5_hsi2c_clock_setup(i2c);
+ 	if (ret) {
+-		clk_disable_unprepare(i2c->clk);
++		clk_disable(i2c->clk);
+ 		return ret;
+ 	}
+ 
+ 	exynos5_i2c_init(i2c);
+-	clk_disable_unprepare(i2c->clk);
++	clk_disable(i2c->clk);
+ 	i2c->suspended = 0;
+ 
+ 	return 0;
 -- 
-2.7.4
+2.5.5
