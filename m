@@ -1,91 +1,75 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RESEND PATCH v2 00/13] eeprom: support for at24cs and at24mac
-Date: Sat, 16 Apr 2016 23:17:33 +0200
-Message-ID: <20160416211733.GD1522@katana>
-References: <1460401049-25459-1-git-send-email-bgolaszewski@baylibre.com>
+Subject: Re: [Patch v1] i2c: imx7ulp: add i.MX7ULP i2c controller bus driver
+Date: Sat, 16 Apr 2016 23:29:11 +0200
+Message-ID: <20160416212911.GE1522@katana>
+References: <1458035482-14905-1-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VV4b6MQE+OnNyhkM"
+	protocol="application/pgp-signature"; boundary="EgVrEAR5UttbsTXg"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:52749 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:52820 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751700AbcDPVRh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 16 Apr 2016 17:17:37 -0400
+	id S1751659AbcDPV3S (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 16 Apr 2016 17:29:18 -0400
 Content-Disposition: inline
-In-Reply-To: <1460401049-25459-1-git-send-email-bgolaszewski@baylibre.com>
+In-Reply-To: <1458035482-14905-1-git-send-email-pandy.gao@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, srinivas.kandagatla@linaro.org, maxime.ripard@free-electrons.com, Andrew Lunn <andrew@lunn.ch>
+To: Gao Pan <pandy.gao@nxp.com>
+Cc: u.kleine-koenig@pengutronix.de, linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com
 
 
---VV4b6MQE+OnNyhkM
+--EgVrEAR5UttbsTXg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-On Mon, Apr 11, 2016 at 11:57:16AM -0700, Bartosz Golaszewski wrote:
-> Chips from the at24cs EEPROM series have an additional read-only
-> memory area containing a factory pre-programmed serial number. In
-> order to access it, a dummy write must be executed before reading
-> the serial number bytes.
+On Tue, Mar 15, 2016 at 05:51:22PM +0800, Gao Pan wrote:
+> Add i.MX7ULP i2c bus driver which can continue operating
+> in stop modes provided an appropriate clock is available.
 >=20
-> Chips from the at24mac familiy, apart from the serial number, have
-> a second special memory area containing a factory programmed
-> EUI-48/EUI64 mac address.
+> It is also designed for low CPU overhead with DMA offloading
+> of FIFO register accesses.
 >=20
-> The read-only serial/mac memory area is accessible on a different i2c
-> slave address (addr + 0x08). This patchset makes it possible to
-> instantiate a separate at24 device on this second address and access
-> the read-only area through the regular eeprom sysfs attribute or the
-> new nvmem subsystem.
->=20
-> This series also contains several patches intoducing some minor tweaks
-> and refactoring.
->=20
-> Tested with at24cs32 and at24cs02 chips (for both 16 and 8 bit address
-> pointers). I have no means of testing the support for at24mac chips, I
-> relied solely on the datasheet.
+> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
 
-Thanks for adding at24mac nonetheless!
+Since you need to resend anyhow (DT support?), just a few high-level
+things.
 
-I still don't understand why you want to add this to at24 instead of
-doing a seperate driver for it? You basically tie a read_function to an
-nvmem device. You don't need the special smbus handling, cutting large
-requests into chunks, write support, size flags and all this from at24.
-And with the function pointers, it makes the already complex code a bit
-more complex.
+There is a lot of dev_dbg in here. Some of them are helpful when
+developing the driver, but not anymore once the driver is upstream.
+Please check for that.
 
-IMO, this could be solved by a simple, seperate driver. You could start
-with at24 and remove unneeded stuff. I think there should be mainly
-nvmem-init code and your read routines left. I also think this new
-driver should be allowed to set the "compat" option of the nvmem
-framework, so you'll get the "eeprom" file, too.
+> +static int __init i2c_adap_imx_init(void)
+> +{
+> +	return platform_driver_register(&i2c_imx7ulp_driver);
+> +}
+> +subsys_initcall(i2c_adap_imx_init);
 
-Or am I overlooking something?
+I usually don't accept subsys_initcall() for new drivers anymore. It
+usually works around problems. Make sure your I2C clients do defer
+probing properly.
 
 
---VV4b6MQE+OnNyhkM
+--EgVrEAR5UttbsTXg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXEqvsAAoJEBQN5MwUoCm2e2wP/1f5ACEtEcr321/9aU1QPidf
-6F0/QA6T5nucAQGtG9FpZYHnWR7Ls0q9g1OPnbXeQ1+Q7ygEYtcnOBXRB6rnEO7H
-JzkYg+CZuSAXVDYtDriUZrtLv7odZS8AT5Y2w4sIb/iHpsBBCLhqrhzcetWH3MaX
-tKvYzcyk2q8fPt78pUxx27+EZjJ/rAKL0gAKSodirPdRigasf502z4G3FeoHNGcc
-K/ddWdZuiyo///leDFATIm5z4Us8G7DR9F0asmGfqZSNwOCXdGiyFmWkGVANHk33
-yMq59iXhX2jaolFdsN7KAHP0r9EycFSpad+HB0fgK10jh3zH31iPVtx529qoQjd+
-Lz2dQFSMDiM/1nn16JUgcMAEVQ9O+NvHYYsN8GBQyHc0W0yXDI7P8GLcpCWXKA9P
-LxA2DrFLlhy/sGrqysmtMdpG2jCgEFfcMxzU0bLGmTp86gzo//r8jWWB+KPnFvGs
-cRhiB9KoNrxCg/DaXErCmxu/8E6w5vEZ5tmHc94naqcZhQY9xOpEihHrtiQsFSyE
-Ntz08VgWqPgnFAXZvXv3yG27byZVaMhF39WQvmJTGV3tAbls1oXaSVymOeg2Kl5H
-Z0g335IEclhIxD7aZY2GAG0AY0v7gAazHoLjGLAizkRTdN6ZF+Ij+C/9Mrxwkau5
-9FkypvyjejkxAFQ5evRM
-=d7bS
+iQIcBAEBAgAGBQJXEq6nAAoJEBQN5MwUoCm217sQAJm/qyMwjwgHEjtNLB/kBUlM
+q3mZPH5oEXbDsnPrBEJqY9VGHu4SGMm1YtyHF0RPuH6/jgJgF7QMWIIr5EUKNYaL
+iJcxf3ZGRb2iS95VOsgJ1SpHvOwvyVTFYXD4QPmhYt1FSu05asMNPaelFFyRnriR
+inzjrd3tWwhh5rNtKl/dKIX0bURd+PC2/t7THR/3jy9JG+t0Vi3jbrtK9G2ddTJp
+jonZz8srgbDyOzg0xy/3plRKUAymICszSNaQ6JC0c0XwF9FxN7g6/N+OsRC00M9+
+HOsWdSdnG9Fa+YqpCoNO8xZa2zLlU8fGW+p12hA9RHMKT5jQu9C/AqVl3dapXRQ3
+zm/6i+rsT58VfQ0OpLni9MRWxloI7cR3QfL2YZ/L0Od2jTYwCSPolvT7cV+6CYLo
+kwySFcM6xfRJQUFj/ufEe4mQjfs1hYfc5WAQP8viMh6ml9YewLYr/MHF61OiU2UL
+Dtbox2iT4s8PICzbwkK8h/0LuCMxnRNVdFxi/MhtSU0rXMRb2//0LitDVTpFbtrj
+i57YS88A1q/WbjNoGayZwLhMW2tSJC2g90BWjHNb9qIhB7MgyqBZ3zgYfYO6qf4t
+y3x9Fkg7ntiBnHqsu6t+1THOOb5/udxP2J94vpyUfDV8qK+DCwI68g4ybKwfJWkI
+JSwSZcHVSBM5/56LvqvX
+=X7B0
 -----END PGP SIGNATURE-----
 
---VV4b6MQE+OnNyhkM--
+--EgVrEAR5UttbsTXg--
