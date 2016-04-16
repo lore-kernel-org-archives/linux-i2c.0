@@ -1,115 +1,60 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH] i2c: exynos5: Fix possible ABBA deadlock by keeping I2C
- clock prepared
-Date: Sat, 16 Apr 2016 18:11:47 +0200
-Message-ID: <20160416161147.GA2794@kozik-lap>
-References: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RESEND PATCH v2 01/13] eeprom: at24: remove a reduntant if
+Date: Sat, 16 Apr 2016 22:48:17 +0200
+Message-ID: <20160416204817.GA1522@katana>
+References: <1460401049-25459-1-git-send-email-bgolaszewski@baylibre.com>
+ <1460401049-25459-2-git-send-email-bgolaszewski@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:52644 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751310AbcDPUs3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 16 Apr 2016 16:48:29 -0400
 Content-Disposition: inline
-In-Reply-To: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Anand Moon <linux.amoon@gmail.com>, Paul Osmialowski <p.osmialowsk@samsung.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <1460401049-25459-2-git-send-email-bgolaszewski@baylibre.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, srinivas.kandagatla@linaro.org, maxime.ripard@free-electrons.com, Andrew Lunn <andrew@lunn.ch>
 
-On Fri, Apr 15, 2016 at 06:04:47PM -0400, Javier Martinez Canillas wrote:
-> The exynos5 I2C controller driver always prepares and enables a clock
-> before using it and then disables unprepares it when the clock is not
-> used anymore.
-> 
-> But this can cause a possible ABBA deadlock in some scenarios since a
-> driver that uses regmap to access its I2C registers, will first grab
-> the regmap lock and then the I2C xfer function will grab the prepare
-> lock when preparing the I2C clock. But since the clock driver also
-> uses regmap for I2C accesses, preparing a clock will first grab the
-> prepare lock and then the regmap lock when using the regmap API.
-> 
-> An example of this happens on the Exynos5422 Odroid XU board where a
-> s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
-> share the same I2C regmap.
-> 
-> The possible deadlock is reported by the kernel lockdep:
-> 
->   Possible unsafe locking scenario:
-> 
->         CPU0                    CPU1
->         ----                    ----
->    lock(sec_core:428:(regmap)->lock);
->                                 lock(prepare_lock);
->                                 lock(sec_core:428:(regmap)->lock);
->    lock(prepare_lock);
-> 
->   *** DEADLOCK ***
-> 
-> Fix this by only preparing the clock on probe and {en,dis}able in the
-> rest of the driver.
-> 
-> This patch is similar to commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA
-> deadlock by keeping clock prepared") that fixes the same bug in other
-> driver for an I2C controller found in Samsung SoCs.
 
-I wish this would be fixed by introducing more granular clock locks
-(e.g. per controller) instead of implementing another workaround.
-I think this driver shouldn't care about this deadlock... although I see
-that this is the simplest solution for now.
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Reported-by: Anand Moon <linux.amoon@gmail.com>
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> 
-> ---
-> 
->  drivers/i2c/busses/i2c-exynos5.c | 20 +++++++++++++++-----
->  1 file changed, 15 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index b29c7500461a..602633747149 100644
-> --- a/drivers/i2c/busses/i2c-exynos5.c
-> +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -671,7 +671,9 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
->  		return -EIO;
->  	}
->  
-> -	clk_prepare_enable(i2c->clk);
-> +	ret = clk_enable(i2c->clk);
-> +	if (ret)
-> +		return ret;
->  
->  	for (i = 0; i < num; i++, msgs++) {
->  		stop = (i == num - 1);
-> @@ -695,7 +697,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
->  	}
->  
->   out:
-> -	clk_disable_unprepare(i2c->clk);
-> +	clk_disable(i2c->clk);
->  	return ret;
->  }
->  
-> @@ -799,6 +801,10 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, i2c);
->  
-> +	clk_disable(i2c->clk);
-> +
-> +	return 0;
-> +
->   err_clk:
->  	clk_disable_unprepare(i2c->clk);
->  	return ret;
-> @@ -810,6 +816,8 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
->  
->  	i2c_del_adapter(&i2c->adap);
->  
-> +	clk_unprepare(i2c->clk);
-> +
->  	return 0;
->  }
+On Mon, Apr 11, 2016 at 11:57:17AM -0700, Bartosz Golaszewski wrote:
+> It seems as if the second check for I2C_FUNC_I2C functionality had
+> been introduced accidentally during a merge. Tt's reduntant, so
+> remove it.
+>=20
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Please unprepare the clock when suspending. There is no point of having
-it prepared in that level.
+Reworded commit message (there was no merge conflict) and applied to
+for-next, thanks!
 
-Best regards,
-Krzysztof
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXEqURAAoJEBQN5MwUoCm2w1cP/i9F6PVNvjJ7drDNYmL+WWtD
+DGbNBUItaJw/HjLCNoAnPiDRo/dgIXJu8VlfnCFdKt5K6rdCuASepAlAtOYe6n7x
+tPpIy319dYB8M6lUeKRH4lbxLB3dj3NTeWtfmTRGeshlpZSpZ3vwNzLVfJIilsuG
+ES6zUQHnn1r9lTSnzRUQFCJMwnAaTK2Y5hxai3F57cKFBYqpBa7LyJQUIKjICOs3
+jo8r40CGpDsVXt47eRN29VWB+dveQRMPFirhLz8cWMs155hJ3phcext1Exk/wxHJ
+o0AhEwQOXU9jzciCz8TvvinzCGixAUHQJvu2I+IAkYPBHTt3ouWwJBdomFxpBfRQ
+0Xrb0wZ9uLU+xUfBu0rLEHITLt7i7+JgNQ9fowek25KxUkz7nVwG4xlhKYk/fvIT
+IP842Yz3boFFUu9Uar8iR1wXDoU7/ERokXq/d2jbIWFHv748CL0pZZpE3tbDP4iH
+V5bn7USM6ZhlZIz23uZLRtALpAvk8DJgUrlYOsZUx9sD4rAMXN5dlo4xQud7KcFR
+2YE+Kfswjkcvio66e/06RCngtbJXsveIFckupXyogNYp8rqdRcN7NoRIRgNZf2DU
+N8V7nv707n3yLTqpqcjFw2klG64HgehH9yXebHNEvltEEJS74Hp+HDa7zEejhJMu
+4JLxDumaxLIX4Fb4BmHw
+=VOwT
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--
