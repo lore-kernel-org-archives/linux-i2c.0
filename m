@@ -1,231 +1,144 @@
-From: Shardar Mohammed <smohammed@nvidia.com>
-Subject: RE: [PATCH] i2c: tegra: proper handling of error cases
-Date: Sat, 16 Apr 2016 08:08:50 +0000
-Message-ID: <73535dcc422441d3a981208dae1a2bad@bgmail102.nvidia.com>
-References: <1460726507-9170-1-git-send-email-smohammed@nvdiia.com>
- <20160415141558.GC3472@ulmo.ba.sec>
+From: Anand Moon <linux.amoon@gmail.com>
+Subject: Re: [PATCH] i2c: exynos5: Fix possible ABBA deadlock by keeping I2C
+ clock prepared
+Date: Sat, 16 Apr 2016 17:45:11 +0530
+Message-ID: <CANAwSgSgjpqhnXmfpVdOPDDN+=36n_sbR+hVJGouBoKMahYGwA@mail.gmail.com>
+References: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160415141558.GC3472@ulmo.ba.sec>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, Shardar Mohammed <smohammed@nvidia.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "gnurou@gmail.com" <gnurou@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f45.google.com ([209.85.218.45]:35021 "EHLO
+	mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751383AbcDPMPc (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Apr 2016 08:15:32 -0400
+In-Reply-To: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Paul Osmialowski <p.osmialowsk@samsung.com>, Kukjin Kim <kgene@kernel.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 
-Thanks for the review, updated with comments inline with Shardar.
+Hi Javier,
 
-> On Fri, Apr 15, 2016 at 06:51:47PM +0530, Shardar Shariff Md wrote:
-> > From: Shardar Shariff Md <smohammed@nvidia.com>
-> >
-> > To summarize the issue observed in error cases:
-> >
-> > In SW: For i2c message transfer, packet header and data payload is
-> > posted and then required error/packet completion interrupts are
-> > enabled later.
-> >
-> > In HW flow: HW process the packet just after packet header is posted,
-> > if ARB lost/NACK error occurs (SW will not handle immediately when
-> > error happens as error interrupts are not enabled at this point). HW
-> > assumes error is acknowledged and clears current data in FIFO, But SW
-> > here posts the remaining data payload which still stays in FIFO as
-> > stale data (data without packet header).
-> >
-> > Now once the interrupts are enabled, SW handles ARB lost/NACK error by
-> > clearing the ARB lost/NACK interrupt. Now HW assumes that SW attended
-> > the error and will parse/process stale data (data without packet
-> > header) present in FIFO which causes invalid NACK errors.
-> >
-> > Fix: Enable the error interrupts before posting the packet into FIFO
-> > which make sure HW to not clear the fifo. Also disable the packet mode
-> > before acknowledging errors (ARB lost/NACK error) to not process any
-> > stale data.
-> >
-> > As error interrupts are enabled before posting the packet header use
-> > spinlock to avoid preempting.
-> 
-> Please try to use up the full 78 characters per line in the commit message
-> (with the exception being the subject line that should be shorter).
+On 16 April 2016 at 03:34, Javier Martinez Canillas
+<javier@osg.samsung.com> wrote:
+> The exynos5 I2C controller driver always prepares and enables a clock
+> before using it and then disables unprepares it when the clock is not
+> used anymore.
+>
+> But this can cause a possible ABBA deadlock in some scenarios since a
+> driver that uses regmap to access its I2C registers, will first grab
+> the regmap lock and then the I2C xfer function will grab the prepare
+> lock when preparing the I2C clock. But since the clock driver also
+> uses regmap for I2C accesses, preparing a clock will first grab the
+> prepare lock and then the regmap lock when using the regmap API.
+>
+> An example of this happens on the Exynos5422 Odroid XU board where a
+> s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
+> share the same I2C regmap.
+>
+> The possible deadlock is reported by the kernel lockdep:
+>
+>   Possible unsafe locking scenario:
+>
+>         CPU0                    CPU1
+>         ----                    ----
+>    lock(sec_core:428:(regmap)->lock);
+>                                 lock(prepare_lock);
+>                                 lock(sec_core:428:(regmap)->lock);
+>    lock(prepare_lock);
+>
+>   *** DEADLOCK ***
+>
+> Fix this by only preparing the clock on probe and {en,dis}able in the
+> rest of the driver.
+>
+> This patch is similar to commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA
+> deadlock by keeping clock prepared") that fixes the same bug in other
+> driver for an I2C controller found in Samsung SoCs.
+>
+> Reported-by: Anand Moon <linux.amoon@gmail.com>
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>
+> ---
+>
+>  drivers/i2c/busses/i2c-exynos5.c | 20 +++++++++++++++-----
+>  1 file changed, 15 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+> index b29c7500461a..602633747149 100644
+> --- a/drivers/i2c/busses/i2c-exynos5.c
+> +++ b/drivers/i2c/busses/i2c-exynos5.c
+> @@ -671,7 +671,9 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+>                 return -EIO;
+>         }
+>
+> -       clk_prepare_enable(i2c->clk);
+> +       ret = clk_enable(i2c->clk);
+> +       if (ret)
+> +               return ret;
+>
+>         for (i = 0; i < num; i++, msgs++) {
+>                 stop = (i == num - 1);
+> @@ -695,7 +697,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+>         }
+>
+>   out:
+> -       clk_disable_unprepare(i2c->clk);
+> +       clk_disable(i2c->clk);
+>         return ret;
+>  }
+>
+> @@ -799,6 +801,10 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
+>
+>         platform_set_drvdata(pdev, i2c);
+>
+> +       clk_disable(i2c->clk);
+> +
+> +       return 0;
+> +
+>   err_clk:
+>         clk_disable_unprepare(i2c->clk);
+>         return ret;
+> @@ -810,6 +816,8 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
+>
+>         i2c_del_adapter(&i2c->adap);
+>
+> +       clk_unprepare(i2c->clk);
+> +
+>         return 0;
+>  }
+>
+> @@ -830,16 +838,18 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
+>         struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
+>         int ret = 0;
+>
+> -       clk_prepare_enable(i2c->clk);
+> +       ret = clk_enable(i2c->clk);
+> +       if (ret)
+> +               return ret;
+>
+>         ret = exynos5_hsi2c_clock_setup(i2c);
+>         if (ret) {
+> -               clk_disable_unprepare(i2c->clk);
+> +               clk_disable(i2c->clk);
+>                 return ret;
+>         }
+>
+>         exynos5_i2c_init(i2c);
+> -       clk_disable_unprepare(i2c->clk);
+> +       clk_disable(i2c->clk);
+>         i2c->suspended = 0;
+>
+>         return 0;
+> --
+> 2.5.5
+>
 
-[Shardar] Will take care of this.
+Thanks for fixing this bug. I also tried the same thing on clk, but
+missed the return on failed.
 
-> > diff --git a/drivers/i2c/busses/i2c-tegra.c
-> > b/drivers/i2c/busses/i2c-tegra.c
-> [...]
-> > @@ -423,12 +424,31 @@ static inline void tegra_i2c_clock_disable(struct
-> tegra_i2c_dev *i2c_dev)
-> >  		clk_disable(i2c_dev->fast_clk);
-> >  }
-> >
-> > +static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev
-> > +*i2c_dev) {
-> > +	unsigned long timeout;
-> > +
-> > +	if (i2c_dev->hw->has_config_load_reg) {
-> > +		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD,
-> I2C_CONFIG_LOAD);
-> > +		timeout = jiffies + msecs_to_jiffies(1000);
-> > +		while (i2c_readl(i2c_dev, I2C_CONFIG_LOAD) != 0) {
-> > +			if (time_after(jiffies, timeout)) {
-> > +				dev_warn(i2c_dev->dev,
-> > +					"timeout waiting for config load\n");
-> 
-> Nit: since you're already changing this, perhaps make the arguments on
-> subsequent lines align with the first argument on the first line? Like
-> so:
-> 
-> 				dev_warn(i2c_dev->dev,
-> 					 "timeout waiting for config load\n");
-> 
-> Note the extra space used for padding.
-> 
-[Shardar]  Will take care of this.
+Reviewed-by: Anand Moon <linux.amoon@gmail.com>
+Tested-by: Anand Moon <linux.amoon@gmail.com>
 
-> > +				return -ETIMEDOUT;
-> > +			}
-> > +			msleep(1);
-> > +		}
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)  {
-> >  	u32 val;
-> >  	int err = 0;
-> >  	u32 clk_divisor;
-> > -	unsigned long timeout = jiffies + HZ;
-> >
-> >  	err = tegra_i2c_clock_enable(i2c_dev);
-> >  	if (err < 0) {
-> > @@ -477,20 +497,13 @@ static int tegra_i2c_init(struct tegra_i2c_dev
-> *i2c_dev)
-> >  	if (i2c_dev->is_multimaster_mode && i2c_dev->hw-
-> >has_slcg_override_reg)
-> >  		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR,
-> I2C_CLKEN_OVERRIDE);
-> >
-> > -	if (i2c_dev->hw->has_config_load_reg) {
-> > -		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD,
-> I2C_CONFIG_LOAD);
-> > -		while (i2c_readl(i2c_dev, I2C_CONFIG_LOAD) != 0) {
-> > -			if (time_after(jiffies, timeout)) {
-> > -				dev_warn(i2c_dev->dev,
-> > -					"timeout waiting for config load\n");
-> > -				return -ETIMEDOUT;
-> > -			}
-> > -			msleep(1);
-> > -		}
-> > -	}
-> > +	err = tegra_i2c_wait_for_config_load(i2c_dev);
-> >
-> >  	tegra_i2c_clock_disable(i2c_dev);
-> >
-> > +	if (err)
-> > +		return err;
-> > +
-> 
-> The behaviour here is now different, though I assume it's really a fix that
-> disables the I2C clock in case the timeout happens. Given that I suspect this
-> would be better off in a separate patch (factor out the
-> tegra_i2c_wait_for_config_load() function and return error after the clocks
-> have been disabled).
-
-[Shardar] Will take care of this.
-> 
-> >  	if (i2c_dev->irq_disabled) {
-> >  		i2c_dev->irq_disabled = 0;
-> >  		enable_irq(i2c_dev->irq);
-> > @@ -499,14 +512,28 @@ static int tegra_i2c_init(struct tegra_i2c_dev
-> *i2c_dev)
-> >  	return err;
-> >  }
-> >
-> > +static int tegra_i2c_disable_packet_mode(struct tegra_i2c_dev
-> > +*i2c_dev) {
-> > +	u32 cnfg;
-> > +
-> > +	cnfg = i2c_readl(i2c_dev, I2C_CNFG);
-> > +	if (cnfg & I2C_CNFG_PACKET_MODE_EN)
-> > +		i2c_writel(i2c_dev, cnfg & (~I2C_CNFG_PACKET_MODE_EN),
-> 
-> Parentheses are not necessary here.
-> 
-> > +				I2C_CNFG);
-> 
-> If you drop the parentheses above this can be moved into the previous line
-> because it will fit within 80 columns.
-
-[Shardar] Will take care of this.
-
-> 
-> > +
-> > +	return tegra_i2c_wait_for_config_load(i2c_dev);
-> > +}
-> > +
-> >  static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)  {
-> >  	u32 status;
-> >  	const u32 status_err = I2C_INT_NO_ACK |
-> I2C_INT_ARBITRATION_LOST;
-> >  	struct tegra_i2c_dev *i2c_dev = dev_id;
-> > +	unsigned long flags;
-> >
-> >  	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
-> >
-> > +	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
-> >  	if (status == 0) {
-> >  		dev_warn(i2c_dev->dev, "irq status 0 %08x %08x %08x\n",
-> >  			 i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS),
-> @@ -522,6 +549,7
-> > @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
-> >  	}
-> >
-> >  	if (unlikely(status & status_err)) {
-> > +		tegra_i2c_disable_packet_mode(i2c_dev);
-> 
-> If you don't care about the return value it'd be better to reflect that by
-> making the function return void. I presume ignoring the error here is safe?
-
-[Shardar] Will take care of handling the return valure.
-
-> 
-> > @@ -583,6 +614,11 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev
-> *i2c_dev,
-> >  	i2c_dev->msg_read = (msg->flags & I2C_M_RD);
-> >  	reinit_completion(&i2c_dev->msg_complete);
-> >
-> > +	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
-> > +
-> > +	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
-> > +	tegra_i2c_unmask_irq(i2c_dev, int_mask);
-> > +
-> >  	packet_header = (0 << PACKET_HEADER0_HEADER_SIZE_SHIFT) |
-> >  			PACKET_HEADER0_PROTOCOL_I2C |
-> >  			(i2c_dev->cont_id <<
-> PACKET_HEADER0_CONT_ID_SHIFT) | @@ -612,14
-> > +648,15 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
-> >  	if (!(msg->flags & I2C_M_RD))
-> >  		tegra_i2c_fill_tx_fifo(i2c_dev);
-> >
-> > -	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
-> >  	if (i2c_dev->hw->has_per_pkt_xfer_complete_irq)
-> >  		int_mask |= I2C_INT_PACKET_XFER_COMPLETE;
-> >  	if (msg->flags & I2C_M_RD)
-> >  		int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
-> >  	else if (i2c_dev->msg_buf_remaining)
-> >  		int_mask |= I2C_INT_TX_FIFO_DATA_REQ;
-> > +
-> >  	tegra_i2c_unmask_irq(i2c_dev, int_mask);
-> 
-> Can this line be removed? The NO_ACK and ARBITRATION_LOST interrupts
-> are already unmasked earlier.
-
-[Shardar] unmask_irq() here is enabling other interrupts (PACKET_XFER_COMPLETE/TX_FIFO_DATA_REQ/RX_FIFO_DATA_REQ). please let me know if my understanding is wrong from your comment.
-
-> 
-> Thierry
-> 
-> * Unknown Key
-> * 0x7F3EB3A1
+Best Regards
+-Anand Moon
