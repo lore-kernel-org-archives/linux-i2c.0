@@ -1,101 +1,56 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v6 01/24] i2c-mux: add common data for every i2c-mux
- instance
-Date: Fri, 15 Apr 2016 15:52:55 +0000
-Message-ID: <AM4PR02MB1299030956B02941183DF239BC680@AM4PR02MB1299.eurprd02.prod.outlook.com>
+From: liguo zhang <liguo.zhang@mediatek.com>
+Subject: Re: [PATCH v3] i2c: mediatek: i2c multi transfer optimization
+Date: Sat, 16 Apr 2016 12:21:01 +0800
+Message-ID: <1460780461.29864.34.camel@mhfsdcap03>
+References: <1457375031-3769-1-git-send-email-liguo.zhang@mediatek.com>
+	 <20160412211355.GA1526@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: sv-SE
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@lysator.liu.se>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Kalle Valo <kvalo@codeaurora.org>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Adriana Reus <adriana.reus@intel.com>, Lucas De Marchi <lucas.demarchi@intel.co>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailgw02.mediatek.com ([218.249.47.111]:35570 "EHLO
+	mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750791AbcDPEVQ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Apr 2016 00:21:16 -0400
+In-Reply-To: <20160412211355.GA1526@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 
-Wolfram Sang wrote:
-> > > wonder even more if we couldn't supply num_adapters to i2c_mux_alloc()
-> > > and reserve the memory statically. i2c busses are not
-> > > dynamic/hot-pluggable so that should be good enough?
+On Tue, 2016-04-12 at 23:13 +0200, Wolfram Sang wrote:
+> Hi,
+> 
+> thanks for the submission!
+> 
+> On Tue, Mar 08, 2016 at 02:23:51AM +0800, Liguo Zhang wrote:
+> > Signal complete() in the i2c irq handler after one transfer done,
+> > and then wait_for_completion_timeout() will return, this procedure
+> > may cost much time, so only signal complete() when the entire
+> > transaction has been completed, it will reduce the entire transaction
+> > time.
 > > 
-> > Yes, that would work, but it would take some restructuring in some of
-> > the drivers that currently don't know how many child adapters they
-> > are going to need when they call i2c_mux_alloc.
+> > Signed-off-by: Liguo Zhang <liguo.zhang@mediatek.com>
 > 
-> Which ones?
-
-If you look at i2c-mux-reg.c, it currently allocates its private
-struct regmux, then fills it with various platform things and then
-when it knows how many children it needs it allocates them. After
-v6 it first allocates a mux core and private struct regmux in one go
-using i2c_mux_alloc, then continues in much the same way as before.
-
-If the number of children is needed for the i2c_mux_alloc call, then
-this is certainly doable, and it would probably not be all that bad,
-but the simplest approach would probably be to allocate the private
-struct regmux first, then dig through the platform data, then allocate
-the mux core when the number of children is known. Which would still
-be two allocations separated by the platform data dig.
-
-So, your suggestion would basically move the mux core allocation
-from generally being done early together with other private data to
-later when the driver has figured out how many children it's going
-to create.
-
-The restructuring I thought about is needed if the intention of this
-was to reduce number of allocations, but maybe you just wanted
-what I described above? Because what I did in v6 and what you are
-suggesting is quite similar in complexity, but your version has the
-advantage of not having the need for realloc.
-
-So, I have made this change locally (and the adapters->num_adapters
-change) and I like it. I haven't even compile-tested it yet though,
-but I'll get back when I have done some testing.
-
-> > Because you thought about removing i2c_mux_reserve_adapters completely,
-> > and not provide any means of adding more adapters than specified in
-> > the i2c_mux_alloc call, right?
+> I wonder. You have less context switches, yes. On the other hand, you
+> likely have bigger interrupt latency because you do more stuff in the
+> interrupt handler. Is it really a gain in the end?
 > 
-> Yes. I assumed I2C to be static enough that such information is known in
-> advance.
-> 
-> > > Ignoring the 80 char limit here makes the code more readable.
-> > 
-> > That is only true if you actually have more than 80 characters, so I don't
-> > agree. Are you adamant about it? (I'm not)
-> 
-> No. Keep it if you prefer it.
-> 
-> > >> +EXPORT_SYMBOL_GPL(i2c_mux_one_adapter);
-> > > 
-> > > Are you sure the above function pays off? Its argument list is very
-> > > complex and it doesn't save a lot of code. Having seperate calls is
-> > > probably more understandable in drivers? Then again, I assume it makes
-> > > the conversion of existing drivers easier.
-> > 
-> > I added it in v4, you can check earlier versions if you like. Without
-> > it most gate-muxes (i.e. typically the muxes in drivers/media) grew
-> > since the i2c_add_mux_adapter call got replaced by two calls, i.e.
-> > i2c_mux_alloc followed by i2c_max_add_adapter, and coupled with
-> > error checks made it look more complex than before. So, this wasn't
-> > much of a cleanup from the point of those drivers.
-> 
-> Hmm, v3 didn't have the driver patches posted with it. Can you push it
-> to your branch? I am also not too strong with this one, but having a
-> look how it looks without would be nice.
 
-Although I'm not sure what you meant by "driver patches", I have pushed
-mux-core-and-locking-2 and mux-core-and-locking-3 to
-https://github.com/peda-r/i2c-mux/ (note that these are the branches as
-they where when I posted v2 and v3 to the list, i.e. w/o fixups)
+When doing i2c multi transfer(first i2c write then i2c read, and not
+using the MTK i2c WRRD mode) repeatedly in our stress test, we found the
+procedure(complete()-->wait_for_completion_timeout()) may cost much
+time, and it will affect the following i2c transfer. In our stress test,
+It will affect the i2c read transfer, the value from the i2c read is not
+right.
+So when doing i2c multi transfer, the first is i2c write,then i2c read,
+we will use the MTK i2c WRRD mode to do i2c multi transfer in the
+previous patch.
+But If i2c multi transfer has at least three transfer, we can't use the
+MTK i2c WRRD mode, this patch may be important. Now we have not already
+seen the i2c multi transfer scenario, which has at least three transfer.
 
-Those early versions updated all drivers with each change, making each
-patch big, so if that was what you meant by missing "driver patches" then
-there simply were no driver patches.
-
-If you meant the follow-up patches to relax locking in the media drivers
-etc, I only compile-tested them using throwaway branches back then (if I
-even had branches). So, I don't have anything ready to push, sorry.
-
-Cheers,
-Peter
+> Regards,
+> 
+>    Wolfram
+> 
