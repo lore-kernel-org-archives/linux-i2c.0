@@ -1,123 +1,57 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH v2 2/2] i2c: exynos5: Fix possible ABBA deadlock by keeping I2C clock prepared
-Date: Sat, 16 Apr 2016 21:14:53 -0400
-Message-ID: <1460855693-28225-2-git-send-email-javier@osg.samsung.com>
-References: <1460855693-28225-1-git-send-email-javier@osg.samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1460855693-28225-1-git-send-email-javier@osg.samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Anand Moon <linux.amoon@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: Fix possible ABBA deadlock by keeping I2C
+ clock prepared
+Date: Sun, 17 Apr 2016 15:29:44 +0200
+Message-ID: <20160417132944.GA3620@kozik-lap>
+References: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
+ <20160416161147.GA2794@kozik-lap>
+ <5712DFC9.8000402@osg.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:35113 "EHLO
+	mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751673AbcDQN3t (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Apr 2016 09:29:49 -0400
+Content-Disposition: inline
+In-Reply-To: <5712DFC9.8000402@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-kernel@vger.kernel.org, Anand Moon <linux.amoon@gmail.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-The exynos5 I2C controller driver always prepares and enables a clock
-before using it and then disables unprepares it when the clock is not
-used anymore.
+On Sat, Apr 16, 2016 at 08:58:49PM -0400, Javier Martinez Canillas wrote:
+> But regardless of the ABBA deadlock, there are reasons why the clk API is
+> split into an {,un}prepare and {en,dis}able functions (e.g: non-atomic vs
+> atomic) and it is a common pattern for drivers to prepare the clock(s) on
+> setup (i.e: probe), unprepare on driver removal, and just {en,dis}able the
+> clock(s) during runtime.
 
-But this can cause a possible ABBA deadlock in some scenarios since a
-driver that uses regmap to access its I2C registers, will first grab
-the regmap lock and then the I2C xfer function will grab the prepare
-lock when preparing the I2C clock. But since the clock driver also
-uses regmap for I2C accesses, preparing a clock will first grab the
-prepare lock and then the regmap lock when using the regmap API.
+The reason to split prepare+enable is to differentiate the sleeping and
+non-sleeping paths. Not to encourage doing one type in probe() and rest
+in other places. The clock consumer does not care whether prepare or
+enable is a noop. It shouldn't care, because the clock provider might
+change and consumer remains the same. On the other hand the consumer is
+interested whether it can block or not.
 
-An example of this happens on the Exynos5422 Odroid XU4 board where a
-s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
-share the same I2C regmap.
+The argument that common pattern is to prepare in probe does not
+convince me. If a clock enable is an noop and everything is done in
+prepare/unprepare, then following such "common pattern" would be equal
+to keeping the clock on always, even if it could be unprepared (gated). 
 
-The possible deadlock is reported by the kernel lockdep:
 
-  Possible unsafe locking scenario:
+> So I believe this patch is good on its own 
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(sec_core:428:(regmap)->lock);
-                                lock(prepare_lock);
-                                lock(sec_core:428:(regmap)->lock);
-   lock(prepare_lock);
+As I said above, no. The pattern might be misleading. The prepare path
+is there for sleeping purposes. Not for probes. Choosing such
+pattern effectively makes clock handling worthless in certain clock
+providers (these which enable is a noop).
 
-  *** DEADLOCK ***
+> and at least makes the driver more
+> consistent with most I2C controller drivers that do the same w.r.t clocks.
 
-Fix it by leaving the code prepared on probe and use {en,dis}able in
-the I2C transfer function.
+I cannot respond to that argument because I do not know most I2C
+controllers.
 
-This patch is similar to commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA
-deadlock by keeping clock prepared") that fixes the same bug in other
-driver for an I2C controller found in Samsung SoCs.
-
-Reported-by: Anand Moon <linux.amoon@gmail.com>
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Anand Moon <linux.amoon@gmail.com>
-Tested-by: Anand Moon <linux.amoon@gmail.com>
-
----
-
-Changes in v2:
-- Add Anand Moon's Reviewed and Tested by tags.
-- Unprepare the clock on suspend. Suggested by Krzysztof Kozlowski.
-
- drivers/i2c/busses/i2c-exynos5.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index ebbcba3de20a..f54ece8fce78 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -671,7 +671,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
- 		return -EIO;
- 	}
- 
--	ret = clk_prepare_enable(i2c->clk);
-+	ret = clk_enable(i2c->clk);
- 	if (ret)
- 		return ret;
- 
-@@ -697,7 +697,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
- 	}
- 
-  out:
--	clk_disable_unprepare(i2c->clk);
-+	clk_disable(i2c->clk);
- 	return ret;
- }
- 
-@@ -803,6 +803,10 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, i2c);
- 
-+	clk_disable(i2c->clk);
-+
-+	return 0;
-+
-  err_clk:
- 	clk_disable_unprepare(i2c->clk);
- 	return ret;
-@@ -814,6 +818,8 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&i2c->adap);
- 
-+	clk_unprepare(i2c->clk);
-+
- 	return 0;
- }
- 
-@@ -825,6 +831,8 @@ static int exynos5_i2c_suspend_noirq(struct device *dev)
- 
- 	i2c->suspended = 1;
- 
-+	clk_unprepare(i2c->clk);
-+
- 	return 0;
- }
- 
-@@ -845,7 +853,7 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
- 	}
- 
- 	exynos5_i2c_init(i2c);
--	clk_disable_unprepare(i2c->clk);
-+	clk_disable(i2c->clk);
- 	i2c->suspended = 0;
- 
- 	return 0;
--- 
-2.5.5
+Best regards,
+Krzysztof
