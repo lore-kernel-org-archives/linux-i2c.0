@@ -1,79 +1,60 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH v2 2/2] i2c: exynos5: Fix possible ABBA deadlock by
- keeping I2C clock prepared
-Date: Sun, 17 Apr 2016 15:34:21 +0200
-Message-ID: <20160417133421.GC3620@kozik-lap>
-References: <1460855693-28225-1-git-send-email-javier@osg.samsung.com>
- <1460855693-28225-2-git-send-email-javier@osg.samsung.com>
+From: Pan Gao <pandy.gao@nxp.com>
+Subject: RE: [Patch v1] i2c: imx7ulp: add i.MX7ULP i2c controller bus driver
+Date: Mon, 18 Apr 2016 02:05:23 +0000
+Message-ID: <AM4PR0401MB17804BB4146BF63052774048F66B0@AM4PR0401MB1780.eurprd04.prod.outlook.com>
+References: <1458035482-14905-1-git-send-email-pandy.gao@nxp.com>
+ <20160416212911.GE1522@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:33277 "EHLO
-	mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753025AbcDQNeZ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Apr 2016 09:34:25 -0400
-Content-Disposition: inline
-In-Reply-To: <1460855693-28225-2-git-send-email-javier@osg.samsung.com>
+Received: from mail-am1on0091.outbound.protection.outlook.com ([157.56.112.91]:54790
+	"EHLO emea01-am1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751441AbcDRCF0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Apr 2016 22:05:26 -0400
+In-Reply-To: <20160416212911.GE1522@katana>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Anand Moon <linux.amoon@gmail.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Frank Li <frank.li@nxp.com>, Fugang Duan <fugang.duan@nxp.com>
 
-On Sat, Apr 16, 2016 at 09:14:53PM -0400, Javier Martinez Canillas wrote:
-> The exynos5 I2C controller driver always prepares and enables a clock
-> before using it and then disables unprepares it when the clock is not
-> used anymore.
+From: Wolfram Sang <wsa@the-dreams.de> Sent: Sunday, April 17, 2016 5:29 AM
+> To: Pan Gao <pandy.gao@nxp.com>
+> Cc: u.kleine-koenig@pengutronix.de; linux-i2c@vger.kernel.org; Frank Li
+> <frank.li@nxp.com>; Fugang Duan <fugang.duan@nxp.com>
+> Subject: Re: [Patch v1] i2c: imx7ulp: add i.MX7ULP i2c controller bus driver
 > 
-> But this can cause a possible ABBA deadlock in some scenarios since a
-> driver that uses regmap to access its I2C registers, will first grab
-> the regmap lock and then the I2C xfer function will grab the prepare
-> lock when preparing the I2C clock. But since the clock driver also
-> uses regmap for I2C accesses, preparing a clock will first grab the
-> prepare lock and then the regmap lock when using the regmap API.
+> On Tue, Mar 15, 2016 at 05:51:22PM +0800, Gao Pan wrote:
+> > Add i.MX7ULP i2c bus driver which can continue operating in stop modes
+> > provided an appropriate clock is available.
+> >
+> > It is also designed for low CPU overhead with DMA offloading of FIFO
+> > register accesses.
+> >
+> > Signed-off-by: Gao Pan <pandy.gao@nxp.com>
 > 
-> An example of this happens on the Exynos5422 Odroid XU4 board where a
-> s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
-> share the same I2C regmap.
+> Since you need to resend anyhow (DT support?), just a few high-level things.
 > 
-> The possible deadlock is reported by the kernel lockdep:
-> 
->   Possible unsafe locking scenario:
-> 
->         CPU0                    CPU1
->         ----                    ----
->    lock(sec_core:428:(regmap)->lock);
->                                 lock(prepare_lock);
->                                 lock(sec_core:428:(regmap)->lock);
->    lock(prepare_lock);
-> 
->   *** DEADLOCK ***
-> 
-> Fix it by leaving the code prepared on probe and use {en,dis}able in
-> the I2C transfer function.
-> 
-> This patch is similar to commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA
-> deadlock by keeping clock prepared") that fixes the same bug in other
-> driver for an I2C controller found in Samsung SoCs.
-> 
-> Reported-by: Anand Moon <linux.amoon@gmail.com>
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> Reviewed-by: Anand Moon <linux.amoon@gmail.com>
-> Tested-by: Anand Moon <linux.amoon@gmail.com>
-> 
-> ---
-> 
-> Changes in v2:
-> - Add Anand Moon's Reviewed and Tested by tags.
-> - Unprepare the clock on suspend. Suggested by Krzysztof Kozlowski.
-> 
->  drivers/i2c/busses/i2c-exynos5.c | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
+Yes, I will send DT patch in the V2. 
 
+> There is a lot of dev_dbg in here. Some of them are helpful when developing
+> the driver, but not anymore once the driver is upstream.
 
+Ok, will change it in V2. Thanks.
+ 
+> Please check for that.
+> 
+> > +static int __init i2c_adap_imx_init(void) {
+> > +	return platform_driver_register(&i2c_imx7ulp_driver);
+> > +}
+> > +subsys_initcall(i2c_adap_imx_init);
+> 
+> I usually don't accept subsys_initcall() for new drivers anymore. It usually
+> works around problems. Make sure your I2C clients do defer probing properly.
 
-Hi,
+Will change it in V2. Thanks.
 
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-
-Best regards,
-Krzysztof
+Thanks.
+Pandy.
