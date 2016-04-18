@@ -1,43 +1,99 @@
-From: "David.Wu" <david.wu@rock-chips.com>
-Subject: Re: [PATCH v5 2/2] i2c: rk3x: add i2c support for rk3399 soc
-Date: Mon, 18 Apr 2016 21:15:46 +0800
-Message-ID: <5714DE02.3040304@rock-chips.com>
-References: <1458147438-62387-1-git-send-email-david.wu@rock-chips.com>
- <1458147438-62387-3-git-send-email-david.wu@rock-chips.com>
- <20160414184848.GB2338@katana> <5710DA28.6010104@rock-chips.com>
- <20160415175846.GA1533@katana>
+From: Shardar Shariff Md <smohammed@nvidia.com>
+Subject: [PATCH v3 1/2] i2c: tegra: add separate function for config_load
+Date: Mon, 18 Apr 2016 18:45:54 +0530
+Message-ID: <1460985355-28901-1-git-send-email-smohammed@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.131]:56818 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751318AbcDRNPt (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Apr 2016 09:15:49 -0400
-In-Reply-To: <20160415175846.GA1533@katana>
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:15649 "EHLO
+	hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752611AbcDRNQR (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Apr 2016 09:16:17 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: heiko@sntech.de, dianders@chromium.org, andy.shevchenko@gmail.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <wdc@rock-chips.com>
+To: ldewangan@nvidia.com, swarren@wwwdotorg.org, thierry.reding@gmail.com, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, gnurou@gmail.com, smohammed@nvidia.com
 
-Hi Wolfram=EF=BC=8C
+- Define separate function for configuration load register handling
+to make it use by different functions later.
+- Instead of calculating timeout for the config load during init,
+calculate it when config load register is written. Also use the
+msecs_to_jiffies for timeout calculation instead of macro HZ.
 
-=E5=9C=A8 2016/4/16 1:58, Wolfram Sang =E5=86=99=E9=81=93:
->> The default frequency rate of function clock is 50M Hz, it can match
->> F/S mode, but HS mode not. If use default rate 50M to get 1.7M
->> scl-frequency rate , we could not get accurately 1.7M frequecy rate.
->> The input-clk-rate is more higher, we get more accurately
->> scl-frequency rate,  as 200M is a suitable input-clk-rate.
->>
->> If 200M was used for F/S mode, it would increase power consumption, =
-so
->> add a option that could be configured from DT.
-> If I understand you correctly, couldn't you use clk_set_rate() depend=
-ing
-> on the desired scl frequency which is already described in DT as
-> clock-frequency?
+Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
 
-Yeap, the default input clock rate is too low for HS mode, and it 's=20
-flexible that
-we get it from DT.
+Changes since v1:
+- Add separate function for config load handling
+---
+ drivers/i2c/busses/i2c-tegra.c | 39 +++++++++++++++++++++++++--------------
+ 1 file changed, 25 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index d764d64..6235f16 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -423,12 +423,31 @@ static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
+ 		clk_disable(i2c_dev->fast_clk);
+ }
+ 
++static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
++{
++	unsigned long timeout;
++
++	if (i2c_dev->hw->has_config_load_reg) {
++		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
++		timeout = jiffies + msecs_to_jiffies(1000);
++		while (i2c_readl(i2c_dev, I2C_CONFIG_LOAD) != 0) {
++			if (time_after(jiffies, timeout)) {
++				dev_warn(i2c_dev->dev,
++					 "timeout waiting for config load\n");
++				return -ETIMEDOUT;
++			}
++			msleep(1);
++		}
++	}
++
++	return 0;
++}
++
+ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ {
+ 	u32 val;
+ 	int err = 0;
+ 	u32 clk_divisor;
+-	unsigned long timeout = jiffies + HZ;
+ 
+ 	err = tegra_i2c_clock_enable(i2c_dev);
+ 	if (err < 0) {
+@@ -477,25 +496,17 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 	if (i2c_dev->is_multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
+ 		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
+ 
+-	if (i2c_dev->hw->has_config_load_reg) {
+-		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
+-		while (i2c_readl(i2c_dev, I2C_CONFIG_LOAD) != 0) {
+-			if (time_after(jiffies, timeout)) {
+-				dev_warn(i2c_dev->dev,
+-					"timeout waiting for config load\n");
+-				return -ETIMEDOUT;
+-			}
+-			msleep(1);
+-		}
+-	}
+-
+-	tegra_i2c_clock_disable(i2c_dev);
++	err = tegra_i2c_wait_for_config_load(i2c_dev);
++	if (err)
++		goto err;
+ 
+ 	if (i2c_dev->irq_disabled) {
+ 		i2c_dev->irq_disabled = 0;
+ 		enable_irq(i2c_dev->irq);
+ 	}
+ 
++err:
++	tegra_i2c_clock_disable(i2c_dev);
+ 	return err;
+ }
+ 
+-- 
+1.8.1.5
