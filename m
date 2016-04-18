@@ -1,215 +1,146 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v2] i2c: tegra: proper handling of error cases
-Date: Mon, 18 Apr 2016 09:37:57 +0200
-Message-ID: <20160418073757.GD13078@ulmo.ba.sec>
-References: <1460961282-3532-1-git-send-email-smohammed@nvidia.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: Fix possible ABBA deadlock by keeping I2C
+ clock prepared
+Date: Mon, 18 Apr 2016 09:50:06 +0200
+Message-ID: <571491AE.30908@samsung.com>
+References: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="HWvPVVuAAfuRc6SZ"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1460961282-3532-1-git-send-email-smohammed@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Shardar Shariff Md <smohammed@nvidia.com>
-Cc: ldewangan@nvidia.com, swarren@wwwdotorg.org, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, gnurou@gmail.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailout4.w1.samsung.com ([210.118.77.14]:29427 "EHLO
+	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751011AbcDRHuK (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Apr 2016 03:50:10 -0400
+In-reply-to: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>, linux-kernel@vger.kernel.org
+Cc: Anand Moon <linux.amoon@gmail.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
+Hello,
 
---HWvPVVuAAfuRc6SZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 2016-04-16 00:04, Javier Martinez Canillas wrote:
+> The exynos5 I2C controller driver always prepares and enables a clock
+> before using it and then disables unprepares it when the clock is not
+> used anymore.
+>
+> But this can cause a possible ABBA deadlock in some scenarios since a
+> driver that uses regmap to access its I2C registers, will first grab
+> the regmap lock and then the I2C xfer function will grab the prepare
+> lock when preparing the I2C clock. But since the clock driver also
+> uses regmap for I2C accesses, preparing a clock will first grab the
+> prepare lock and then the regmap lock when using the regmap API.
+>
+> An example of this happens on the Exynos5422 Odroid XU board where a
+> s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
+> share the same I2C regmap.
+>
+> The possible deadlock is reported by the kernel lockdep:
+>
+>    Possible unsafe locking scenario:
+>
+>          CPU0                    CPU1
+>          ----                    ----
+>     lock(sec_core:428:(regmap)->lock);
+>                                  lock(prepare_lock);
+>                                  lock(sec_core:428:(regmap)->lock);
+>     lock(prepare_lock);
+>
+>    *** DEADLOCK ***
+>
+> Fix this by only preparing the clock on probe and {en,dis}able in the
+> rest of the driver.
+>
+> This patch is similar to commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA
+> deadlock by keeping clock prepared") that fixes the same bug in other
+> driver for an I2C controller found in Samsung SoCs.
 
-On Mon, Apr 18, 2016 at 12:04:42PM +0530, Shardar Shariff Md wrote:
-> To summarize the issue observed in error cases:
->=20
-> SW Flow: For i2c message transfer, packet header and data payload is post=
-ed
-> and then required error/packet completion interrupts are enabled later.
->=20
-> HW flow: HW process the packet just after packet header is posted, if ARB
-> lost/NACK error occurs (SW will not handle immediately when error happens
-> as error interrupts are not enabled at this point). HW assumes error is
-> acknowledged and clears current data in FIFO, But SW here posts the
-> remaining data payload which still stays in FIFO as stale data (without
-> packet header).
->=20
-> Now once the interrupts are enabled, SW handles ARB lost/NACK error by
-> clearing the ARB lost/NACK interrupt. Now HW assumes that SW attended the
-> error and will parse/process stale data (data without packet header)
-> present in FIFO which causes invalid NACK errors.
->=20
-> Fix: Enable the error interrupts before posting the packet into FIFO which
-> make sure HW to not clear the fifo. Also disable the packet mode before
-> acknowledging errors (ARB lost/NACK error) to not process any stale data.
-> As error interrupts are enabled before posting the packet header use
-> spinlock to avoid preempting.
->=20
-> Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+I'm sorry, but this is not the right approach imho. It is just a workaround
+applied to specific driver, it also duplicates incorrect clock usage
+pattern (there is really no point keeping clock prepared all the time).
+
+IMHO this ABBA deadlock should be really fixed in clocks core (probably
+by removing global prepare mutex and replacing it with per clock
+controller mutexes). Without a proper patch this issue will hit us again
+with other i2c controllers or other drivers as well.
+
+> Reported-by: Anand Moon <linux.amoon@gmail.com>
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>
 > ---
->  drivers/i2c/busses/i2c-tegra.c | 70 ++++++++++++++++++++++++++++++++----=
-------
->  1 file changed, 54 insertions(+), 16 deletions(-)
-
-It's customary to include a history of your changes in the patch. This
-helps reviewers to reload context. You'd typically include it below the
---- separator (below the Signed-off-by). An example might look like
-this:
-
----
-Changes since v1:
-- blah
-- blub
-
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegr=
-a.c
-> index d764d64..47345ac 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -191,6 +191,7 @@ struct tegra_i2c_dev {
->  	u16 clk_divisor_non_hs_mode;
->  	bool is_suspended;
->  	bool is_multimaster_mode;
-> +	spinlock_t xfer_lock;
->  };
-> =20
->  static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned =
-long reg)
-> @@ -423,12 +424,31 @@ static inline void tegra_i2c_clock_disable(struct t=
-egra_i2c_dev *i2c_dev)
->  		clk_disable(i2c_dev->fast_clk);
->  }
-> =20
-> +static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
-> +{
-> +	unsigned long timeout;
-> +
-> +	if (i2c_dev->hw->has_config_load_reg) {
-> +		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
-> +		timeout =3D jiffies + msecs_to_jiffies(1000);
-> +		while (i2c_readl(i2c_dev, I2C_CONFIG_LOAD) !=3D 0) {
-> +			if (time_after(jiffies, timeout)) {
-> +				dev_warn(i2c_dev->dev,
-> +					 "timeout waiting for config load\n");
-> +				return -ETIMEDOUT;
-> +			}
-> +			msleep(1);
-> +		}
-> +	}
+>
+>   drivers/i2c/busses/i2c-exynos5.c | 20 +++++++++++++++-----
+>   1 file changed, 15 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+> index b29c7500461a..602633747149 100644
+> --- a/drivers/i2c/busses/i2c-exynos5.c
+> +++ b/drivers/i2c/busses/i2c-exynos5.c
+> @@ -671,7 +671,9 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+>   		return -EIO;
+>   	}
+>   
+> -	clk_prepare_enable(i2c->clk);
+> +	ret = clk_enable(i2c->clk);
+> +	if (ret)
+> +		return ret;
+>   
+>   	for (i = 0; i < num; i++, msgs++) {
+>   		stop = (i == num - 1);
+> @@ -695,7 +697,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+>   	}
+>   
+>    out:
+> -	clk_disable_unprepare(i2c->clk);
+> +	clk_disable(i2c->clk);
+>   	return ret;
+>   }
+>   
+> @@ -799,6 +801,10 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
+>   
+>   	platform_set_drvdata(pdev, i2c);
+>   
+> +	clk_disable(i2c->clk);
 > +
 > +	return 0;
-> +}
 > +
->  static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
->  {
->  	u32 val;
->  	int err =3D 0;
->  	u32 clk_divisor;
-> -	unsigned long timeout =3D jiffies + HZ;
-> =20
->  	err =3D tegra_i2c_clock_enable(i2c_dev);
->  	if (err < 0) {
-> @@ -477,36 +497,42 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c=
-_dev)
->  	if (i2c_dev->is_multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
->  		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
-> =20
-> -	if (i2c_dev->hw->has_config_load_reg) {
-> -		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
-> -		while (i2c_readl(i2c_dev, I2C_CONFIG_LOAD) !=3D 0) {
-> -			if (time_after(jiffies, timeout)) {
-> -				dev_warn(i2c_dev->dev,
-> -					"timeout waiting for config load\n");
-> -				return -ETIMEDOUT;
-> -			}
-> -			msleep(1);
-> -		}
-> -	}
-> -
-> -	tegra_i2c_clock_disable(i2c_dev);
-> +	err =3D tegra_i2c_wait_for_config_load(i2c_dev);
-> +	if (err)
-> +		goto err;
-
-I think it would still be good to split this into multiple patches to
-make it more obvious that you're merely extracting this code to a
-function. Perhaps you could mention that you do so because subsequent
-patches will reuse the code.
-
-> =20
->  	if (i2c_dev->irq_disabled) {
->  		i2c_dev->irq_disabled =3D 0;
->  		enable_irq(i2c_dev->irq);
->  	}
-> =20
-> +err:
-> +	tegra_i2c_clock_disable(i2c_dev);
->  	return err;
->  }
-> =20
-> +static int tegra_i2c_disable_packet_mode(struct tegra_i2c_dev *i2c_dev)
-> +{
-> +	u32 cnfg;
+>    err_clk:
+>   	clk_disable_unprepare(i2c->clk);
+>   	return ret;
+> @@ -810,6 +816,8 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
+>   
+>   	i2c_del_adapter(&i2c->adap);
+>   
+> +	clk_unprepare(i2c->clk);
 > +
-> +	cnfg =3D i2c_readl(i2c_dev, I2C_CNFG);
-> +	if (cnfg & I2C_CNFG_PACKET_MODE_EN)
-> +		i2c_writel(i2c_dev, cnfg & ~I2C_CNFG_PACKET_MODE_EN, I2C_CNFG);
-> +
-> +	return tegra_i2c_wait_for_config_load(i2c_dev);
-> +}
-> +
->  static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
->  {
->  	u32 status;
->  	const u32 status_err =3D I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
->  	struct tegra_i2c_dev *i2c_dev =3D dev_id;
-> +	unsigned long flags;
-> +	int ret;
-> =20
->  	status =3D i2c_readl(i2c_dev, I2C_INT_STATUS);
-> =20
-> +	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
->  	if (status =3D=3D 0) {
->  		dev_warn(i2c_dev->dev, "irq status 0 %08x %08x %08x\n",
->  			 i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS),
-> @@ -522,6 +548,9 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_i=
-d)
->  	}
-> =20
->  	if (unlikely(status & status_err)) {
-> +		ret =3D tegra_i2c_disable_packet_mode(i2c_dev);
-> +		if (ret)
-> +			return IRQ_NONE;
+>   	return 0;
+>   }
+>   
+> @@ -830,16 +838,18 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
+>   	struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
+>   	int ret = 0;
+>   
+> -	clk_prepare_enable(i2c->clk);
+> +	ret = clk_enable(i2c->clk);
+> +	if (ret)
+> +		return ret;
+>   
+>   	ret = exynos5_hsi2c_clock_setup(i2c);
+>   	if (ret) {
+> -		clk_disable_unprepare(i2c->clk);
+> +		clk_disable(i2c->clk);
+>   		return ret;
+>   	}
+>   
+>   	exynos5_i2c_init(i2c);
+> -	clk_disable_unprepare(i2c->clk);
+> +	clk_disable(i2c->clk);
+>   	i2c->suspended = 0;
+>   
+>   	return 0;
 
-That seems like the wrong response to me. You got here because there was
-an interrupt, but returning IRQ_NONE means that you couldn't detect that
-an interrupt was caused by this device. This is used ultimately by some
-code in the IRQ core to determine whether or not an interrupt gets
-erroneously triggered and if that happens too frequently it will be
-forcibly disabled. Outputting an error message sounds more appropriate,
-but otherwise it might be best for the code to continue.
-
-Thierry
-
---HWvPVVuAAfuRc6SZ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJXFI7VAAoJEN0jrNd/PrOhs8sQAJOUK/x+qWzpHh93Ucl3DHRe
-YcKGCQ480OmiXk7u2z+7KmUKHcfX/efKLmxpPOK+gCdnjeT4iJjKevheE8igYU+6
-7jtFizbC/l0EhRAaY87rNEgCyyUti09JbzVr+CrVnnsAZK1T/qlOxfNdyQy6vy5z
-ILiGfHyhu4XZPxBEzE1Qi4uH6FsSNXaslHx7nuTBZU656QSfqeT9pmMCoFMAkTni
-kcuzNjVe2HGLpAP08gLyM3/7X8t/upuBG+dxrc+zoKAj1zDr9xhMMXhHfCyhtVLa
-CizgtAZaNsuyRSnetjj7ATXkFWqcUnBq0H16jbN+E6hrLwa6+pFX4OxPZ6vBjftw
-s7d0d71w8TFsVbgtr/5IFES4pMxChmBYJxwZsz/SQpOtR5L8YquTJSyMhQZ9sdAj
-GR5Xhryv3rF9WzDQLS0K2QWnoyIUfpaS1XQCBFFV2hGl8Dr4Kvm2VpmlcylPZ8oa
-HmKADaBgQ+XJqcN15OTuWLv/DNZo6ke5Gf+nB4gABeX40LNcB5Vb1qWb115A4HES
-cHuBazLxX5mnnvIEp3ecTV6RRotLPfRpu94PW37JHWMbjQ8rJvstzwqMaCQy3tZq
-ApQEGwKQVdL7f7Wb/hSogYqMre+eZ5aaNuhT3lcpoCP3FMnw+LKDuI8X5k4JXjDh
-PapGlHXebuddRXYirdRs
-=i0Kl
------END PGP SIGNATURE-----
-
---HWvPVVuAAfuRc6SZ--
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
