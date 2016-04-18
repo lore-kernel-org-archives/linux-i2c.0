@@ -1,135 +1,121 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: tegra: proper handling of error cases
-Date: Mon, 18 Apr 2016 16:17:05 +0200
-Message-ID: <20160418141705.GB20508@ulmo.ba.sec>
-References: <1460985355-28901-1-git-send-email-smohammed@nvidia.com>
- <1460985355-28901-2-git-send-email-smohammed@nvidia.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
+ addresses
+Date: Mon, 18 Apr 2016 08:20:11 -0700
+Message-ID: <1460992811.8946.22.camel@linux.intel.com>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+	 <20160415080111.GD1714@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1460985355-28901-2-git-send-email-smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:53648 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751600AbcDRPTp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 18 Apr 2016 11:19:45 -0400
+In-Reply-To: <20160415080111.GD1714@lahna.fi.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Jean-Michel Hautbois <jhautbois@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, wsa@the-dreams.de, laurent.pinchart@ideasonboard.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 
-
---61jdw2sOBCFtR2d/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Apr 18, 2016 at 06:45:55PM +0530, Shardar Shariff Md wrote:
-> To summarize the issue observed in error cases:
+On Fri, 2016-04-15 at 11:01 +0300, Mika Westerberg wrote:
+> +Srinivas
 >=20
-> SW Flow: For i2c message transfer, packet header and data payload is
-> posted and then required error/packet completion interrupts are enabled
-> later.
+> On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
+> >=20
+> > Some I2C devices have multiple addresses assigned, for example each
+> > address
+> > corresponding to a different internal register map page of the
+> > device.
+> > So far drivers which need support for this have handled this with a
+> > driver
+> > specific and non-generic implementation, e.g. passing the
+> > additional address
+> > via platform data.
+> >=20
+> > This patch provides a new helper function called
+> > i2c_new_secondary_device()
+> > which is intended to provide a generic way to get the secondary
+> > address
+> > as well as instantiate a struct i2c_client for the secondary
+> > address.
+> >=20
+> > The function expects a pointer to the primary i2c_client, a name
+> > for the secondary address and an optional default address. The name
+> > is used
+> > as a handle to specify which secondary address to get.
+> >=20
+> > The default address is used as a fallback in case no secondary
+> > address
+> > was explicitly specified. In case no secondary address and no
+> > default
+> > address were specified the function returns NULL.
+> >=20
+> > For now the function only supports look-up of the secondary address
+> > from devicetree, but it can be extended in the future
+> > to for example support board files and/or ACPI.
+> It was not clear to me but does this support more than two addresses?
+
+In past when we were looking at this for Invensese MPU60XX device, we
+had two I2cSerialBus() entries, but they belong to two different
+devices. The first one for the MPU60XX and second one for another
+device which is a slave for MPU60XX. This slave device can be also be
+reached from master i2c controller, by disabling i2c master capability
+of MPU60XX device.
+So ACPI spec is very vague in specifying what they really meant.
+
+> For example we might a device with 3 I2cSerialBus() connectors:
 >=20
-> HW flow: HW process the packet just after packet header is posted, if
-> ARB lost/NACK error occurs (SW will not handle immediately when error
-> happens as error interrupts are not enabled at this point). HW assumes
-> error is acknowledged and clears current data in FIFO, But SW here posts
-> the remaining data payload which still stays in FIFO as stale data
-> (data without packet header).
+> =C2=A0=C2=A0=C2=A0=C2=A0Device (CAM1)
+> =C2=A0=C2=A0=C2=A0=C2=A0{
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0Method (_CRS, 0, NotS=
+erialized)=C2=A0=C2=A0// _CRS: Current Resource
+> Settings
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0{
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0Name (SBUF, ResourceTemplate ()
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0{
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0...
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0I2cSerialBus (0x0010, ControllerInitiated,
+> 0x00061A80,
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0AddressingMode7Bit, =
+"\\_SB.I2C4",
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A00x00, ResourceConsum=
+er, ,)
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0I2cSerialBus (0x000C, ControllerInitiated,
+> 0x00061A80,
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0AddressingMode7Bit, =
+"\\_SB.I2C4",
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A00x00, ResourceConsum=
+er, ,)
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0I2cSerialBus (0x0054, ControllerInitiated,
+> 0x00061A80,
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0AddressingMode7Bit, =
+"\\_SB.I2C4",
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A00x00, ResourceConsum=
+er, ,)
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0})
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0Return (SBUF) /* \_SB_.I2C4.CAM1._CRS.SBUF */
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0...
 >=20
-> Now once the interrupts are enabled, SW handles ARB lost/NACK error by
-> clearing the ARB lost/NACK interrupt. Now HW assumes that SW attended
-> the error and will parse/process stale data (data without packet header)
-> present in FIFO which causes invalid NACK errors.
->=20
-> Fix: Enable the error interrupts before posting the packet into FIFO
-> which make sure HW to not clear the fifo. Also disable the packet mode
-> before acknowledging errors (ARB lost/NACK error) to not process any
-> stale data. As error interrupts are enabled before posting the packet
-> header use spinlock to avoid preempting.
->=20
-> Signed-off-by: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->=20
-> Changes since v1:
-> - Align the commit message to 72 characters per line.
-> - Removing unnecessary paranthesis.
-> - Printing error if tegra_i2c_disable_packet_mode() fails
->   is already present and handling error is not taken cared
->   in ISR which was done in v2.
+> Furthermore those do not have names.
+Correct. Better to use indexes. I think Mika also proposed similar API
+in past.
 
-I think I didn't express myself very clearly, or gave insufficient
-information. The changelog reads easier if you have one entry per
-revision. The above would then read:
-
-Changes in v3:
-- Printing error if tegra_i2c_disable_packet_mode() fails
-  is already present and handling error is not taken cared
-  in ISR which was done in v2.
-
-Changes in v2:
-- Align the commit message to 72 characters per line.
-- Removing unnecessary paranthesis.
-
-And it should go below the --- separator.
-
-One more nitpick below.
-
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 28 ++++++++++++++++++++++++++--
->  1 file changed, 26 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegr=
-a.c
-> index 6235f16..7922892 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -191,6 +191,7 @@ struct tegra_i2c_dev {
->  	u16 clk_divisor_non_hs_mode;
->  	bool is_suspended;
->  	bool is_multimaster_mode;
-> +	spinlock_t xfer_lock;
->  };
-> =20
->  static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned =
-long reg)
-> @@ -510,14 +511,27 @@ err:
->  	return err;
->  }
-> =20
-> +static int tegra_i2c_disable_packet_mode(struct tegra_i2c_dev *i2c_dev)
-> +{
-> +	u32 cnfg;
-> +
-> +	cnfg =3D i2c_readl(i2c_dev, I2C_CNFG);
-> +	if (cnfg & I2C_CNFG_PACKET_MODE_EN)
-> +		i2c_writel(i2c_dev, cnfg & ~I2C_CNFG_PACKET_MODE_EN, I2C_CNFG);
-> +
-> +	return tegra_i2c_wait_for_config_load(i2c_dev);
-> +}
-
-Since you no longer use the return value you might as well just make the
-function return void. I don't feel very strongly about it, though, so
-I'll defer to Wolfram.
-
-Thierry
-
---61jdw2sOBCFtR2d/
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJXFOxhAAoJEN0jrNd/PrOhiQQP/jR9dv5aUEdLqoO/1BKEX3v2
-AF4Cx+6YlIYZ9KUuDvyav0pEydKXSYirWVG8ruRGr96ZH95EXyJ2JM/d1NVmun8t
-SYnaUnJeJZ40TkzQPkR2EfarKzoxkT+FeDfRpK3UUcPuVk3al9C7Rhth+mwkjV8h
-CkLs80vAdMCkYYdTKZ7992+quNh3M2/BG4CcPI357xGeeCWTGGGWFq/ZtF7ZbaGH
-Fet0xj8SYNq3RJRb3W9dPYV43TdRqF6ECisyaWukDZQQ8fX51Oip0NXJFUuQIoU9
-gGUVlNDJI92C+m9gGTjZjVZAiIV48mSC0kgFIvNIp5LfXjc9d0MWnI5qTq3PGGrA
-V7R5WwbtQbegPKv7o4zQ+AuJ50rilP/ph6IQw39H8Quxla1lqq/T+YRSWnn73JYH
-2rFurqCiGD0caXalKLmcT3T0WoalS7bzwFcstLJm5LVet15zG91EHusSqHVPm5UH
-/CZ31hbNcBCNnhV7XAqXxwQGcafO32rRJlgsBqi05h8JbbWn2jGNAh07tRqhkIzS
-+sjwt4o9a0YcWsNl4CfLGuOoahYdUGrEdBuGyP9olIRc2fh4Ui1Debw4gteBPrUS
-+RbjSAWPePRNLRwDSwdGTmMz2isr24YEGUr+jD47KP7EAdRBreD6xYWxdyqIy2FO
-vh+mNgO+NffpnJvCmWHI
-=rtI0
------END PGP SIGNATURE-----
-
---61jdw2sOBCFtR2d/--
+Thanks,
+Srinivas
