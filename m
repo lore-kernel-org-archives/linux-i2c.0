@@ -1,80 +1,142 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH] i2c: exynos5: Fix possible ABBA deadlock by keeping I2C
- clock prepared
-Date: Mon, 18 Apr 2016 09:29:14 -0400
-Message-ID: <5714E12A.8090100@osg.samsung.com>
-References: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
- <571491AE.30908@samsung.com>
+From: Andrea Merello <andrea.merello-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH RFC] I2C: i2c-smbus: add device tree support
+Date: Mon, 18 Apr 2016 15:35:33 +0200
+Message-ID: <CAN8YU5PpXfPRBXD+Khe4wMWpxgyvZeBQOOV4oFxkCS=epCyoQQ@mail.gmail.com>
+References: <1460536591-12573-1-git-send-email-andrea.merello@gmail.com> <20160414161012.GA20532@rob-hp-laptop>
+Reply-To: andrea.merello-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <571491AE.30908@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Marek Szyprowski <m.szyprowski@samsung.com>, linux-kernel@vger.kernel.org
-Cc: Anand Moon <linux.amoon@gmail.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160414161012.GA20532@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Marek,
-
-On 04/18/2016 03:50 AM, Marek Szyprowski wrote:
-> Hello,
-> 
-> On 2016-04-16 00:04, Javier Martinez Canillas wrote:
->> The exynos5 I2C controller driver always prepares and enables a clock
->> before using it and then disables unprepares it when the clock is not
->> used anymore.
+On Thu, Apr 14, 2016 at 6:10 PM, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> On Wed, Apr 13, 2016 at 10:36:31AM +0200, Andrea Merello wrote:
+>> According to Documentation/i2c/smbus-protocol, a smbus controller driver
+>> that wants to hook-in smbus extensions support, can call
+>> i2c_setup_smbus_alert(). There are very few drivers that are currently
+>> doing this.
 >>
->> But this can cause a possible ABBA deadlock in some scenarios since a
->> driver that uses regmap to access its I2C registers, will first grab
->> the regmap lock and then the I2C xfer function will grab the prepare
->> lock when preparing the I2C clock. But since the clock driver also
->> uses regmap for I2C accesses, preparing a clock will first grab the
->> prepare lock and then the regmap lock when using the regmap API.
+>> However the i2c-smbus module can also work with any
+>> smbus-extensions-unaware I2C controller, as long as we provide an extra
+>> IRQ line connected to the I2C bus ALARM signal.
 >>
->> An example of this happens on the Exynos5422 Odroid XU board where a
->> s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
->> share the same I2C regmap.
+>> This patch makes it possible to go this way via DT. Note that the DT node
+>> will indeed describe a (little) piece of HW, that is the routing of the
+>> ALARM signal to an IRQ line (so it seems a fair DT use to me, but RFC).
 >>
->> The possible deadlock is reported by the kernel lockdep:
+>> Note that AFAICT, by design, i2c-smbus module pretends to be an I2C slave
+>> with address 0x0C (that is the alarm response address), and IMHO this is
+>> quite consistent with usage in the DT as a I2C child node.
 >>
->>    Possible unsafe locking scenario:
+>> Signed-off-by: Andrea Merello <andrea.merello-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 >>
->>          CPU0                    CPU1
->>          ----                    ----
->>     lock(sec_core:428:(regmap)->lock);
->>                                  lock(prepare_lock);
->>                                  lock(sec_core:428:(regmap)->lock);
->>     lock(prepare_lock);
->>
->>    *** DEADLOCK ***
->>
->> Fix this by only preparing the clock on probe and {en,dis}able in the
->> rest of the driver.
->>
->> This patch is similar to commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA
->> deadlock by keeping clock prepared") that fixes the same bug in other
->> driver for an I2C controller found in Samsung SoCs.
-> 
-> I'm sorry, but this is not the right approach imho. It is just a workaround
-> applied to specific driver, it also duplicates incorrect clock usage
-> pattern (there is really no point keeping clock prepared all the time).
-> 
-> IMHO this ABBA deadlock should be really fixed in clocks core (probably
-> by removing global prepare mutex and replacing it with per clock
-> controller mutexes). Without a proper patch this issue will hit us again
-> with other i2c controllers or other drivers as well.
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-smbus.txt b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
+>> new file mode 100644
+>> index 0000000..da83127
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
+>> @@ -0,0 +1,20 @@
+>> +* i2c-smbus extensions
+>> +
+>> +Required Properties:
+>> +  - compatible: Must contain "smbus_alert"
+>> +  - interrupts: The irq line for smbus ALERT signal
+>> +  - reg: I2C slave address. Set to 0x0C (alert response address).
+>> +
+>> +Note: The i2c-smbus module registers itself as a slave I2C device. Whenever
+>> +a smbus controller directly support smbus extensions (and its driver supports
+>> +this), there is no need to add anything special to the DT. Otherwise, for using
+>> +i2c-smbus with any smbus-extensions-unaware I2C controllers, you need to
+>> +route the smbus ALARM signal to an extra IRQ line, thus you need to describe
+>> +this in the DT.
 >
+> Seems like you are designing the binding around how the module is
+> currently designed and creating a virtual device that doesn't exist.
 
-Agreed, Krzysztof mentioned the same before. I'll take a look to the global
-mutex to see how I can make it more fine grained to prevent these deadlocks.
- 
->> Reported-by: Anand Moon <linux.amoon@gmail.com>
->> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
->>
+Yes, I actually stayed close to the original module design, but the current
+module design seems the result of reasonable rationale and it didn't
+appeared completely unreasonable for me even for DT.. Said that, my
+bindings didn't completely convinced me too, but while I agree that we
+have not a real I2C slave, I'm not completely convinced that there is no
+any real HW "device" to describe in the DT (see below).
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+> A "smbalert-gpios" property in the controller node would be sufficient
+> here. Alternatively, an interrupt and standardized interrupt-names value
+> could be used.
+
+Hmm, IMHO this way is not closer to the real HW. We are adding an
+interrupt property inside the I2C controller node, but that's not how the
+HW really is: the I2C controller is completely unaware of it (and it isn't
+its driver that handles it). If the I2C controller had that wire, then its
+driver could hook the i2c-smbus module by itself, without any extra DT
+prop.
+
+I don't see the point here. IMHO it isn't definitely about the I2C controller.
+The smbus-alert thing here is exactly what the I2C controller has _not_
+(and we are "emulating" it with external HW).
+
+> Another option would be add a boolean property to each child node
+> smbalert capable and the childrens' interrupt properties would all be
+> the shared interrupt.
+
+That's seems closer to the real HW, because at least the slave devices
+really have that wire..
+
+However I'm unsure whether the boolean property is enough: maybe
+there is some I2C slave that has both a regular INT line (handled by the
+I2C slave driver) and a smbus ALERT line (handled by the common
+i2c-smbus module)... Adding another interrupt property in the slave node
+seems also not good to me, because the I2C slave drivers must be made
+aware of it (to get the right one). Maybe we could introduce a new
+property like "alert-interrupt" in the slave nodes, that is caught by
+common I2C layer code..
+
+This could be nearly-OK to me, but there is a bunch of things because of
+which I'm still not 100% convinced that offloading this "smbalert" thing on
+every slave DT node is really right:
+
+- The alert line is not properly an interrupt. It's something that should
+go to the smalert pin of the I2C controller. But sometimes there is some
+HW (in my case a NOT and an OR logic, but it can be simply a wire) that
+_translates_ this signal to a interrupt signal. This can be as simple as a
+_connection_ but _logically_ this connection is changing the semantic.
+So I'd say we _have_ a (doesn't matter if it's as simple as a PCB track)
+piece of HW  that is in charge of this (and to which our DT property may
+belongs).. (And you can see the the i2c-smbus module as its driver).
+
+- Let's consider this example: I change the I2C controller with one that has
+the ALERT pin and manages the i2c-smbus by itself.. So I will have to
+delete the "alert-interrupt" property from all slave nodes.. IMHO this smells
+like something not good, or at least weird, doesn't it ?
+
+- I admit that we often use the DT nodes to describe things that are
+not really about how a device _is_, rather are about how the device is
+connected (regular interrupts, for example). But at least in this case
+the driver for the device needs to know this information and it's
+reasonable to let it access from the device node (and none else needs
+this). In the i2c-smbus case, on the other hand, our property is not related
+to the slave device itself, it's maybe related to how the device is connected,
+but it's also about how the BUS _is_, and the slave's driver don't care
+about it. It's indeed a property that should be caught by the common I2C
+code (that will instantiate the i2c-smbus module). This IMHO could be a
+symptom that this property shouldn't be in the I2C slave nodes. I'd say I
+can't really see any strong point for which it has to stay in the slaves' DT
+nodes..
+
+Does all this make any sense in your opinion?
+
+I'm thinking about a dedicated DT node for the i2c-smbus "extra
+hardware" with the interrupt property, and referenced by phandle in some
+way from the I2C bus...
+
+Andrea
+
+> Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
