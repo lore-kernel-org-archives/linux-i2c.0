@@ -1,146 +1,70 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [PATCH] i2c: exynos5: Fix possible ABBA deadlock by keeping I2C
- clock prepared
-Date: Mon, 18 Apr 2016 09:50:06 +0200
-Message-ID: <571491AE.30908@samsung.com>
-References: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 1/1] i2c: dln2: Pass forward ACPI companion
+Date: Mon, 18 Apr 2016 10:54:13 +0300
+Message-ID: <20160418075413.GL1714@lahna.fi.intel.com>
+References: <1458845956-30991-1-git-send-email-irina.tirdea@intel.com>
+ <20160416213304.GF1522@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailout4.w1.samsung.com ([210.118.77.14]:29427 "EHLO
-	mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751011AbcDRHuK (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Apr 2016 03:50:10 -0400
-In-reply-to: <1460757887-18128-1-git-send-email-javier@osg.samsung.com>
+Received: from mga11.intel.com ([192.55.52.93]:20976 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752041AbcDRHyR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 18 Apr 2016 03:54:17 -0400
+Content-Disposition: inline
+In-Reply-To: <20160416213304.GF1522@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>, linux-kernel@vger.kernel.org
-Cc: Anand Moon <linux.amoon@gmail.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Irina Tirdea <irina.tirdea@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>
 
-Hello,
+On Sat, Apr 16, 2016 at 11:33:04PM +0200, Wolfram Sang wrote:
+> On Thu, Mar 24, 2016 at 08:59:16PM +0200, Irina Tirdea wrote:
+> > Share the ACPI companion for the platform device with the
+> > i2c adapter, so that the adapter has access to the properties
+> > defined in ACPI tables.
+> > 
+> > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> > ---
+> 
+> Adding Mika for my question: A few drivers do this, does it make sense
+> to put this into the core?
 
-On 2016-04-16 00:04, Javier Martinez Canillas wrote:
-> The exynos5 I2C controller driver always prepares and enables a clock
-> before using it and then disables unprepares it when the clock is not
-> used anymore.
->
-> But this can cause a possible ABBA deadlock in some scenarios since a
-> driver that uses regmap to access its I2C registers, will first grab
-> the regmap lock and then the I2C xfer function will grab the prepare
-> lock when preparing the I2C clock. But since the clock driver also
-> uses regmap for I2C accesses, preparing a clock will first grab the
-> prepare lock and then the regmap lock when using the regmap API.
->
-> An example of this happens on the Exynos5422 Odroid XU board where a
-> s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
-> share the same I2C regmap.
->
-> The possible deadlock is reported by the kernel lockdep:
->
->    Possible unsafe locking scenario:
->
->          CPU0                    CPU1
->          ----                    ----
->     lock(sec_core:428:(regmap)->lock);
->                                  lock(prepare_lock);
->                                  lock(sec_core:428:(regmap)->lock);
->     lock(prepare_lock);
->
->    *** DEADLOCK ***
->
-> Fix this by only preparing the clock on probe and {en,dis}able in the
-> rest of the driver.
->
-> This patch is similar to commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA
-> deadlock by keeping clock prepared") that fixes the same bug in other
-> driver for an I2C controller found in Samsung SoCs.
+It is pretty much dependent on the driver in question, how it wants to
+deal with the ACPI companion.
 
-I'm sorry, but this is not the right approach imho. It is just a workaround
-applied to specific driver, it also duplicates incorrect clock usage
-pattern (there is really no point keeping clock prepared all the time).
+DT does the same for of_node:
 
-IMHO this ABBA deadlock should be really fixed in clocks core (probably
-by removing global prepare mutex and replacing it with per clock
-controller mutexes). Without a proper patch this issue will hit us again
-with other i2c controllers or other drivers as well.
+	ACPI_COMPANION_SET(&dln2->adapter.dev, ACPI_COMPANION(&pdev->dev));
+  	dln2->adapter.dev.of_node = dev->of_node;
 
-> Reported-by: Anand Moon <linux.amoon@gmail.com>
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
->
-> ---
->
->   drivers/i2c/busses/i2c-exynos5.c | 20 +++++++++++++++-----
->   1 file changed, 15 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index b29c7500461a..602633747149 100644
-> --- a/drivers/i2c/busses/i2c-exynos5.c
-> +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -671,7 +671,9 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
->   		return -EIO;
->   	}
->   
-> -	clk_prepare_enable(i2c->clk);
-> +	ret = clk_enable(i2c->clk);
-> +	if (ret)
-> +		return ret;
->   
->   	for (i = 0; i < num; i++, msgs++) {
->   		stop = (i == num - 1);
-> @@ -695,7 +697,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
->   	}
->   
->    out:
-> -	clk_disable_unprepare(i2c->clk);
-> +	clk_disable(i2c->clk);
->   	return ret;
->   }
->   
-> @@ -799,6 +801,10 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
->   
->   	platform_set_drvdata(pdev, i2c);
->   
-> +	clk_disable(i2c->clk);
-> +
-> +	return 0;
-> +
->    err_clk:
->   	clk_disable_unprepare(i2c->clk);
->   	return ret;
-> @@ -810,6 +816,8 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
->   
->   	i2c_del_adapter(&i2c->adap);
->   
-> +	clk_unprepare(i2c->clk);
-> +
->   	return 0;
->   }
->   
-> @@ -830,16 +838,18 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
->   	struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
->   	int ret = 0;
->   
-> -	clk_prepare_enable(i2c->clk);
-> +	ret = clk_enable(i2c->clk);
-> +	if (ret)
-> +		return ret;
->   
->   	ret = exynos5_hsi2c_clock_setup(i2c);
->   	if (ret) {
-> -		clk_disable_unprepare(i2c->clk);
-> +		clk_disable(i2c->clk);
->   		return ret;
->   	}
->   
->   	exynos5_i2c_init(i2c);
-> -	clk_disable_unprepare(i2c->clk);
-> +	clk_disable(i2c->clk);
->   	i2c->suspended = 0;
->   
->   	return 0;
+> Apart from that, looks good to me.
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Looks good to me too.
+
+> >  drivers/i2c/busses/i2c-dln2.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-dln2.c b/drivers/i2c/busses/i2c-dln2.c
+> > index 1600edd..f2eb4f7 100644
+> > --- a/drivers/i2c/busses/i2c-dln2.c
+> > +++ b/drivers/i2c/busses/i2c-dln2.c
+> > @@ -19,6 +19,7 @@
+> >  #include <linux/i2c.h>
+> >  #include <linux/platform_device.h>
+> >  #include <linux/mfd/dln2.h>
+> > +#include <linux/acpi.h>
+> >  
+> >  #define DLN2_I2C_MODULE_ID		0x03
+> >  #define DLN2_I2C_CMD(cmd)		DLN2_CMD(cmd, DLN2_I2C_MODULE_ID)
+> > @@ -210,6 +211,7 @@ static int dln2_i2c_probe(struct platform_device *pdev)
+> >  	dln2->adapter.algo = &dln2_i2c_usb_algorithm;
+> >  	dln2->adapter.quirks = &dln2_i2c_quirks;
+> >  	dln2->adapter.dev.parent = dev;
+> > +	ACPI_COMPANION_SET(&dln2->adapter.dev, ACPI_COMPANION(&pdev->dev));
+> >  	dln2->adapter.dev.of_node = dev->of_node;
+> >  	i2c_set_adapdata(&dln2->adapter, dln2);
+> >  	snprintf(dln2->adapter.name, sizeof(dln2->adapter.name), "%s-%s-%d",
+> > -- 
+> > 1.9.1
+> > 
