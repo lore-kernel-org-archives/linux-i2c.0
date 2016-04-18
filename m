@@ -1,70 +1,43 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 1/1] i2c: dln2: Pass forward ACPI companion
-Date: Mon, 18 Apr 2016 10:54:13 +0300
-Message-ID: <20160418075413.GL1714@lahna.fi.intel.com>
-References: <1458845956-30991-1-git-send-email-irina.tirdea@intel.com>
- <20160416213304.GF1522@katana>
+From: "David.Wu" <david.wu@rock-chips.com>
+Subject: Re: [PATCH v5 2/2] i2c: rk3x: add i2c support for rk3399 soc
+Date: Mon, 18 Apr 2016 21:15:46 +0800
+Message-ID: <5714DE02.3040304@rock-chips.com>
+References: <1458147438-62387-1-git-send-email-david.wu@rock-chips.com>
+ <1458147438-62387-3-git-send-email-david.wu@rock-chips.com>
+ <20160414184848.GB2338@katana> <5710DA28.6010104@rock-chips.com>
+ <20160415175846.GA1533@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:20976 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752041AbcDRHyR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 18 Apr 2016 03:54:17 -0400
-Content-Disposition: inline
-In-Reply-To: <20160416213304.GF1522@katana>
+Received: from lucky1.263xmail.com ([211.157.147.131]:56818 "EHLO
+	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751318AbcDRNPt (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Apr 2016 09:15:49 -0400
+In-Reply-To: <20160415175846.GA1533@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Irina Tirdea <irina.tirdea@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>
+Cc: heiko@sntech.de, dianders@chromium.org, andy.shevchenko@gmail.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <wdc@rock-chips.com>
 
-On Sat, Apr 16, 2016 at 11:33:04PM +0200, Wolfram Sang wrote:
-> On Thu, Mar 24, 2016 at 08:59:16PM +0200, Irina Tirdea wrote:
-> > Share the ACPI companion for the platform device with the
-> > i2c adapter, so that the adapter has access to the properties
-> > defined in ACPI tables.
-> > 
-> > Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
-> > ---
-> 
-> Adding Mika for my question: A few drivers do this, does it make sense
-> to put this into the core?
+Hi Wolfram=EF=BC=8C
 
-It is pretty much dependent on the driver in question, how it wants to
-deal with the ACPI companion.
+=E5=9C=A8 2016/4/16 1:58, Wolfram Sang =E5=86=99=E9=81=93:
+>> The default frequency rate of function clock is 50M Hz, it can match
+>> F/S mode, but HS mode not. If use default rate 50M to get 1.7M
+>> scl-frequency rate , we could not get accurately 1.7M frequecy rate.
+>> The input-clk-rate is more higher, we get more accurately
+>> scl-frequency rate,  as 200M is a suitable input-clk-rate.
+>>
+>> If 200M was used for F/S mode, it would increase power consumption, =
+so
+>> add a option that could be configured from DT.
+> If I understand you correctly, couldn't you use clk_set_rate() depend=
+ing
+> on the desired scl frequency which is already described in DT as
+> clock-frequency?
 
-DT does the same for of_node:
-
-	ACPI_COMPANION_SET(&dln2->adapter.dev, ACPI_COMPANION(&pdev->dev));
-  	dln2->adapter.dev.of_node = dev->of_node;
-
-> Apart from that, looks good to me.
-
-Looks good to me too.
-
-> >  drivers/i2c/busses/i2c-dln2.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-dln2.c b/drivers/i2c/busses/i2c-dln2.c
-> > index 1600edd..f2eb4f7 100644
-> > --- a/drivers/i2c/busses/i2c-dln2.c
-> > +++ b/drivers/i2c/busses/i2c-dln2.c
-> > @@ -19,6 +19,7 @@
-> >  #include <linux/i2c.h>
-> >  #include <linux/platform_device.h>
-> >  #include <linux/mfd/dln2.h>
-> > +#include <linux/acpi.h>
-> >  
-> >  #define DLN2_I2C_MODULE_ID		0x03
-> >  #define DLN2_I2C_CMD(cmd)		DLN2_CMD(cmd, DLN2_I2C_MODULE_ID)
-> > @@ -210,6 +211,7 @@ static int dln2_i2c_probe(struct platform_device *pdev)
-> >  	dln2->adapter.algo = &dln2_i2c_usb_algorithm;
-> >  	dln2->adapter.quirks = &dln2_i2c_quirks;
-> >  	dln2->adapter.dev.parent = dev;
-> > +	ACPI_COMPANION_SET(&dln2->adapter.dev, ACPI_COMPANION(&pdev->dev));
-> >  	dln2->adapter.dev.of_node = dev->of_node;
-> >  	i2c_set_adapdata(&dln2->adapter, dln2);
-> >  	snprintf(dln2->adapter.name, sizeof(dln2->adapter.name), "%s-%s-%d",
-> > -- 
-> > 1.9.1
-> > 
+Yeap, the default input clock rate is too low for HS mode, and it 's=20
+flexible that
+we get it from DT.
