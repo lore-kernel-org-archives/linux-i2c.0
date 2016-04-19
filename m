@@ -1,85 +1,43 @@
-From: Crestez Dan Leonard <leonard.crestez@intel.com>
-Subject: Re: [PATCH v6 08/24] iio: imu: inv_mpu6050: convert to use an
- explicit i2c mux core
-Date: Tue, 19 Apr 2016 18:58:11 +0300
-Message-ID: <57165593.4040700@intel.com>
-References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
- <1459673574-11440-9-git-send-email-peda@lysator.liu.se>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
+ addresses
+Date: Tue, 19 Apr 2016 09:27:39 -0700
+Message-ID: <1461083259.8946.93.camel@linux.intel.com>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+	 <20160415080111.GD1714@lahna.fi.intel.com>
+	 <1460992811.8946.22.camel@linux.intel.com> <5714FCBE.3060009@metafoo.de>
+	 <20160419124028.GF1725@lahna.fi.intel.com> <57162C4E.9090904@metafoo.de>
+	 <20160419131631.GG1725@lahna.fi.intel.com> <5716333D.1040106@metafoo.de>
+	 <20160419144027.GH1725@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1459673574-11440-9-git-send-email-peda@lysator.liu.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: Peter Rosin <peda@lysator.liu.se>, linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Kalle Valo <kvalo@codeaurora.org>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Adriana Reus <adriana.reus@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Mat
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:32896 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932482AbcDSQ1p (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 19 Apr 2016 12:27:45 -0400
+In-Reply-To: <20160419144027.GH1725@lahna.fi.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Lars-Peter Clausen <lars@metafoo.de>
+Cc: Jean-Michel Hautbois <jhautbois@gmail.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, wsa@the-dreams.de, laurent.pinchart@ideasonboard.com, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 
-On 04/03/2016 11:52 AM, Peter Rosin wrote:
-> From: Peter Rosin <peda@axentia.se>
-> 
-> Allocate an explicit i2c mux core to handle parent and child adapters
-> etc. Update the select/deselect ops to be in terms of the i2c mux core
-> instead of the child adapter.
-> 
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-> @@ -136,16 +133,15 @@ static int inv_mpu_probe(struct i2c_client *client,
->  		return result;
->  
->  	st = iio_priv(dev_get_drvdata(&client->dev));
-> -	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
-> -					      &client->dev,
-> -					      client,
-> -					      0, 0, 0,
-> -					      inv_mpu6050_select_bypass,
-> -					      inv_mpu6050_deselect_bypass);
-> -	if (!st->mux_adapter) {
-> -		result = -ENODEV;
-> +	st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0, 0,
-> +				       0, 0, 0,
-> +				       inv_mpu6050_select_bypass,
-> +				       inv_mpu6050_deselect_bypass);
-> +	if (IS_ERR(st->muxc)) {
-> +		result = PTR_ERR(st->muxc);
->  		goto out_unreg_device;
->  	}
-> +	st->muxc->priv = client;
+On Tue, 2016-04-19 at 17:40 +0300, Mika Westerberg wrote:
+> On Tue, Apr 19, 2016 at 03:31:41PM +0200, Lars-Peter Clausen wrote:
+> > 
+> > It adds a standard API for dealing with devices that have more than
+> > one
+> > address. It uses the normal way of specifying multiple (named)
+> > address in DT.
+> > 
+> > reg = <0xa>, <0xb>, <0xc>;
+> > reg-names = "main", "aux1", "aux2";
+> > 
+[...]
 
-I just tested this patch on mpu9150 (combo mpu6050+ak8975) and I got a
-crash on probe which looks sort of like this:
+> Srinivas, do you think this works with the sensor stuff?
+Yes, it will work.
 
-[    5.565374] RIP: 0010:[<ffffffff81481aed>] [<ffffffff81481aed>]
-mutex_lock+0xd/0x30
-[    5.565374] Call Trace:
-[    5.565374]  [<ffffffff813be34c>] inv_mpu6050_select_bypass+0x1c/0xa0
-...
-[    5.565374]  [<ffffffff81392141>] i2c_transfer+0x51/0x90
-...
-[    5.565374]  [<ffffffff81392cb5>] i2c_smbus_read_i2c_block_data+0x45/0xd0
-[    5.565374]  [<ffffffff813bec5a>] ak8975_probe+0x14a/0x5c0
-...
-[    5.565374]  [<ffffffff813933d8>] i2c_new_device+0x178/0x1e0
-[    5.565374]  [<ffffffff8139362d>] of_i2c_register_device+0xdd/0x1a0
-[    5.565374]  [<ffffffff8139372b>] of_i2c_register_devices+0x3b/0x60
-[    5.565374]  [<ffffffff81393e88>] i2c_register_adapter+0x178/0x410
-[    5.565374]  [<ffffffff81394203>] i2c_add_adapter+0x73/0x90
-[    5.565374]  [<ffffffff81395f3d>] i2c_mux_add_adapter+0x2ed/0x400
-[    5.565374]  [<ffffffff81396091>] i2c_mux_one_adapter+0x41/0x70
-[    5.565374]  [<ffffffff813be48a>] inv_mpu_probe+0xba/0x1a0
-
-This happens because muxc->priv is not initialized when probing devices
-behind the mux as described by devicetree. This can be easily fixed by
-using muxc->dev instead of muxc->priv, or perhaps by calling
-i2c_mux_alloc, initializing priv and later doing i2c_mux_add_adapter.
-
-These fixes are driver-specific and other drivers might experience
-similar issues. Perhaps i2c_mux_one_adapter should take void *priv just
-like old i2c_add_mux_adapter?
-
-After I fix this locally the deadlock when reading from both devices no
-longer happens.
-
---
-Regards,
-Leonard
+Thanks,
+Srinivas
