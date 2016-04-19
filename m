@@ -1,112 +1,61 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: Re: [PATCH v6 08/24] iio: imu: inv_mpu6050: convert to use an explicit i2c mux core
-Date: Tue, 19 Apr 2016 18:37:41 +0200
-Message-ID: <20160419163748.9129940005@mail.lysator.liu.se>
-References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se> <1459673574-11440-9-git-send-email-peda@lysator.liu.se> <57165593.4040700@intel.com>
+From: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: Re: [PATCH v1 1/1] add missing UARTs pins for AllWinner
+ H3 DTS + add new I2C entries for AllWinner H3 DTS
+Date: Tue, 19 Apr 2016 11:27:16 -0700 (PDT)
+Message-ID: <16057207-027e-4709-b5c2-61be199e5cb5@googlegroups.com>
+References: <8673D89D449742EAB9F6EBD05655A295@GirolesWin7> <CAGb2v67e_F1=VaY7ovzW7Whc2ToJU3YabeT-orrLTb0Pouhw_Q@mail.gmail.com>
+ <21e74cd8-2ec7-4fd3-aa5c-ba4eed29a6ab@googlegroups.com>
+ <CAGb2v65dsjbpGUrJXFG35cLGnFA6uDxtgMqupBN97=8XNnO68Q@mail.gmail.com>
+Reply-To: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.lysator.liu.se ([130.236.254.3]:44003 "EHLO
-	mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753377AbcDSQiE (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Apr 2016 12:38:04 -0400
-In-Reply-To: <57165593.4040700@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/mixed;
+	boundary="----=_Part_61_2113918111.1461090436457"
+Return-path: <linux-sunxi+bncBDW4XUV4YULRBBHR3G4AKGQEKEFASZQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <CAGb2v65dsjbpGUrJXFG35cLGnFA6uDxtgMqupBN97=8XNnO68Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Cc: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, moinejf-GANU6spQydw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>, linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Kalle Valo <kvalo@codeaurora.org>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Adriana Reus <adriana.reus@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Mat
 
-<hans.verkuil@cisco.com>,Arnd Bergmann <arnd@arndb.de>,Tommi Rantala <tt.rantala@gmail.com>,linux-i2c@vger.kernel.org,linux-doc@vger.kernel.org,linux-iio@vger.kernel.org,linux-media@vger.kernel.org,devicetree@vger.kernel.org
-Message-ID: <B09CD200-56D1-4BE0-B567-90CC23507ED5@lysator.liu.se>
+------=_Part_61_2113918111.1461090436457
+Content-Type: text/plain; charset=UTF-8
 
-On April 19, 2016 5:58:11 PM CEST, Crestez Dan Leonard <leonard.crestez@intel.com> wrote:
-> On 04/03/2016 11:52 AM, Peter Rosin wrote:
-> > From: Peter Rosin <peda@axentia.se>
-> > 
-> > Allocate an explicit i2c mux core to handle parent and child
-> adapters
-> > etc. Update the select/deselect ops to be in terms of the i2c mux
-> core
-> > instead of the child adapter.
-> > 
-> > --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-> > +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-> > @@ -136,16 +133,15 @@ static int inv_mpu_probe(struct i2c_client
-> *client,
-> >  		return result;
-> >  
-> >  	st = iio_priv(dev_get_drvdata(&client->dev));
-> > -	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
-> > -					      &client->dev,
-> > -					      client,
-> > -					      0, 0, 0,
-> > -					      inv_mpu6050_select_bypass,
-> > -					      inv_mpu6050_deselect_bypass);
-> > -	if (!st->mux_adapter) {
-> > -		result = -ENODEV;
-> > +	st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0,
-> 0,
-> > +				       0, 0, 0,
-> > +				       inv_mpu6050_select_bypass,
-> > +				       inv_mpu6050_deselect_bypass);
-> > +	if (IS_ERR(st->muxc)) {
-> > +		result = PTR_ERR(st->muxc);
-> >  		goto out_unreg_device;
-> >  	}
-> > +	st->muxc->priv = client;
-> 
-> I just tested this patch on mpu9150 (combo mpu6050+ak8975) and I got a
-> crash on probe which looks sort of like this:
-> 
-> [    5.565374] RIP: 0010:[<ffffffff81481aed>] [<ffffffff81481aed>]
-> mutex_lock+0xd/0x30
-> [    5.565374] Call Trace:
-> [    5.565374]  [<ffffffff813be34c>]
-> inv_mpu6050_select_bypass+0x1c/0xa0
-> ...
-> [    5.565374]  [<ffffffff81392141>] i2c_transfer+0x51/0x90
-> ...
-> [    5.565374]  [<ffffffff81392cb5>]
-> i2c_smbus_read_i2c_block_data+0x45/0xd0
-> [    5.565374]  [<ffffffff813bec5a>] ak8975_probe+0x14a/0x5c0
-> ...
-> [    5.565374]  [<ffffffff813933d8>] i2c_new_device+0x178/0x1e0
-> [    5.565374]  [<ffffffff8139362d>] of_i2c_register_device+0xdd/0x1a0
-> [    5.565374]  [<ffffffff8139372b>] of_i2c_register_devices+0x3b/0x60
-> [    5.565374]  [<ffffffff81393e88>] i2c_register_adapter+0x178/0x410
-> [    5.565374]  [<ffffffff81394203>] i2c_add_adapter+0x73/0x90
-> [    5.565374]  [<ffffffff81395f3d>] i2c_mux_add_adapter+0x2ed/0x400
-> [    5.565374]  [<ffffffff81396091>] i2c_mux_one_adapter+0x41/0x70
-> [    5.565374]  [<ffffffff813be48a>] inv_mpu_probe+0xba/0x1a0
-> 
-> This happens because muxc->priv is not initialized when probing
-> devices
-> behind the mux as described by devicetree. This can be easily fixed by
-> using muxc->dev instead of muxc->priv, or perhaps by calling
-> i2c_mux_alloc, initializing priv and later doing i2c_mux_add_adapter.
-> 
-> These fixes are driver-specific and other drivers might experience
-> similar issues. Perhaps i2c_mux_one_adapter should take void *priv
-> just
-> like old i2c_add_mux_adapter?
-> 
-> After I fix this locally the deadlock when reading from both devices
-> no
-> longer happens.
-> 
-> --
-> Regards,
-> Leonard
+On Tuesday, April 19, 2016 at 11:11:37 AM UTC-4, Chen-Yu Tsai wrote:
+> Try to wrap lines to 80 characters or less.
 
-Duh. Obvious now that you point it out. Thanks for catching this!
+Ok ! I will be more careful ...
 
-I will just remove the i2c_mux_one_adapter interface for v7 and
-have the affected drivers do i2c_mux_alloc as a separate step
-(which was one of your suggested paths forward...)
+> 1 change per patch. You are making 3 changes here. a) adding shared
+> pinmux settings,
+> b & c) enabling uarts and i2c busses for 2 boards.
+> 
+> You could split them into 1 dtsi patch adding the pinmux setting, and
+> then 1 for each
+> board enabling the peripherals.
 
-Thanks again, and sorry for the inconvenience,
-Peter
+Fine ! I will prepare and redo a new submit with only the DTSI for now.
 
-(Written on my phone, sorry for crappy formatting)
+> Perhaps they were enabled before the policy was enacted, or it just
+> slipped through. I
+> contributed to a few. But for many boards we might not have schematics
+> or the actual
+> device to check.
+
+Understood ! But sometimes things are so generic, like having uart0 and not having uart1 make it looks a bit strange. Some other times having some i2c2 because of PMIC while not having i2c0 and i2c1 is also strange.
+
+> How would you determine what the most common usage is for "development boards"?
+> If the vendor explicitly designed the pins to be used one way, and even printed
+> the description on the board, then you may have a valid argument. But even then,
+> with the C.H.I.P., they are going with DT overlays.
+> 
+> It shouldn't be hard for an end user to modify the DT. And with I2C devices, it
+> is almost a requirement.
+
+Ok ! I will look if it is easier to do the rest with overlays.
+------=_Part_61_2113918111.1461090436457--
