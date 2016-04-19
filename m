@@ -1,58 +1,243 @@
-From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v3 1/2] i2c: tegra: add separate function for config_load
-Date: Tue, 19 Apr 2016 10:31:41 +0100
-Message-ID: <5715FAFD.2070303@nvidia.com>
-References: <1460985355-28901-1-git-send-email-smohammed@nvidia.com>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: [PATCH v1 1/1] add missing UARTs pins for AllWinner
+ H3 DTS + add new I2C entries for AllWinner H3 DTS
+Date: Tue, 19 Apr 2016 19:11:21 +0800
+Message-ID: <CAGb2v67e_F1=VaY7ovzW7Whc2ToJU3YabeT-orrLTb0Pouhw_Q@mail.gmail.com>
+References: <8673D89D449742EAB9F6EBD05655A295@GirolesWin7>
+Reply-To: wens-jdAy2FN1RRM@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1460985355-28901-1-git-send-email-smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCMILY6JWQBBB4NE3C4AKGQEW4MZI2Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <8673D89D449742EAB9F6EBD05655A295@GirolesWin7>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Jens Kuske <jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, =?UTF-8?Q?Jean=2DFran=C3=A7ois_Moine?= <moinejf-GANU6spQydw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
-On 18/04/16 14:15, Shardar Shariff Md wrote:
-> - Define separate function for configuration load register handling
-> to make it use by different functions later.
-> - Instead of calculating timeout for the config load during init,
-> calculate it when config load register is written. Also use the
-> msecs_to_jiffies for timeout calculation instead of macro HZ.
-> 
-> Signed-off-by: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> 
-> Changes since v1:
-> - Add separate function for config load handling
+On Sat, Apr 16, 2016 at 1:11 AM, Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> Hi everyone,
+>
+> This patch is submit to provide endusers access to additional UARTs on
+> AllWinner H3 SoC along with I2C ports.
+>
+> Regards,
+> Martin.
 > ---
->  drivers/i2c/busses/i2c-tegra.c | 39 +++++++++++++++++++++++++--------------
->  1 file changed, 25 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index d764d64..6235f16 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -423,12 +423,31 @@ static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
->  		clk_disable(i2c_dev->fast_clk);
->  }
->  
-> +static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
-> +{
-> +	unsigned long timeout;
+>  arch/arm/boot/dts/sun8i-h3-orangepi-2.dts  | 36 ++++++++++++++
+>  arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts | 36 ++++++++++++++
+>  arch/arm/boot/dts/sun8i-h3.dtsi            | 75
+
+First of all, you are touching 3 different files here. These should
+be separate patches.
+
+Secondly, our policy is to not have a default function for generic GPIO pins.
+
+
+Regards
+ChenYu
+
+> ++++++++++++++++++++++++++++++
+>  3 files changed, 147 insertions(+)
+>
+> diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
+> b/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
+> index f93f5d1..f0b9823 100644
+> --- a/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
+> +++ b/arch/arm/boot/dts/sun8i-h3-orangepi-2.dts
+> @@ -176,6 +176,42 @@
+>         status = "okay";
+>  };
+>
+> +&uart1 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&uart1_pins_a>;
+> +       status = "okay";
+> +};
 > +
-> +	if (i2c_dev->hw->has_config_load_reg) {
-> +		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
-> +		timeout = jiffies + msecs_to_jiffies(1000);
-> +		while (i2c_readl(i2c_dev, I2C_CONFIG_LOAD) != 0) {
-> +			if (time_after(jiffies, timeout)) {
-> +				dev_warn(i2c_dev->dev,
-> +					 "timeout waiting for config load\n");
-> +				return -ETIMEDOUT;
-> +			}
-> +			msleep(1);
-> +		}
-
-How about using the readx_poll_timeout() (include/linux/iopoll.h) here?
-
-Cheers
-Jon
+> +&uart2 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&uart2_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&uart3 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&uart3_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&i2c0 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&i2c0_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&i2c1 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&i2c1_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&i2c2 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&i2c2_pins_a>;
+> +       status = "okay";
+> +};
+> +
+>  &usb1_vbus_pin_a {
+>         allwinner,pins = "PG13";
+>  };
+> diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
+> b/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
+> index daf50b9a6..6994349 100644
+> --- a/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
+> +++ b/arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts
+> @@ -161,6 +161,42 @@
+>         status = "okay";
+>  };
+>
+> +&uart1 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&uart1_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&uart2 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&uart2_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&uart3 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&uart3_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&i2c0 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&i2c0_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&i2c1 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&i2c1_pins_a>;
+> +       status = "okay";
+> +};
+> +
+> +&i2c2 {
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&i2c2_pins_a>;
+> +       status = "okay";
+> +};
+> +
+>  &usbphy {
+>         /* USB VBUS is always on */
+>         status = "okay";
+> diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi
+> b/arch/arm/boot/dts/sun8i-h3.dtsi
+> index 4a4926b..c947360d 100644
+> --- a/arch/arm/boot/dts/sun8i-h3.dtsi
+> +++ b/arch/arm/boot/dts/sun8i-h3.dtsi
+> @@ -508,6 +508,48 @@
+>                                 allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+>                         };
+>
+> +                       uart1_pins_a: uart1@0 {
+> +                               allwinner,pins = "PG6", "PG7";
+> +                               allwinner,function = "uart1";
+> +                               allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+> +                               allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+> +                       };
+> +
+> +                       uart2_pins_a: uart2@0 {
+> +                               allwinner,pins = "PA0", "PA1";
+> +                               allwinner,function = "uart2";
+> +                               allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+> +                               allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+> +                       };
+> +
+> +                       uart3_pins_a: uart3@0 {
+> +                               allwinner,pins = "PA13", "PA14";
+> +                               allwinner,function = "uart3";
+> +                               allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+> +                               allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+> +                       };
+> +
+> +                       i2c0_pins_a: i2c0@0 {
+> +                               allwinner,pins = "PA11", "PA12";
+> +                               allwinner,function = "i2c0";
+> +                               allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+> +                               allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+> +                       };
+> +
+> +                       i2c1_pins_a: i2c1@0 {
+> +                               allwinner,pins = "PA18", "PA19";
+> +                               allwinner,function = "i2c1";
+> +                               allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+> +                               allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+> +                       };
+> +
+> +                       i2c2_pins_a: i2c2@0 {
+> +                               allwinner,pins = "PE12", "PE13";
+> +                               allwinner,function = "i2c2";
+> +                               allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+> +                               allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+> +                       };
+> +
+>                         mmc0_pins_a: mmc0@0 {
+>                                 allwinner,pins = "PF0", "PF1", "PF2", "PF3",
+>                                                  "PF4", "PF5";
+> @@ -626,6 +668,39 @@
+>                         status = "disabled";
+>                 };
+>
+> +               i2c0: i2c@01c2ac00 {
+> +                       compatible = "allwinner,sun6i-a31-i2c";
+> +                       reg = <0x01c2ac00 0x400>;
+> +                       interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
+> +                       clocks = <&bus_gates 96>;
+> +                       resets = <&apb2_rst 0>;
+> +                       status = "disabled";
+> +                       #address-cells = <1>;
+> +                       #size-cells = <0>;
+> +               };
+> +
+> +               i2c1: i2c@01c2b000 {
+> +                       compatible = "allwinner,sun6i-a31-i2c";
+> +                       reg = <0x01c2b000 0x400>;
+> +                       interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
+> +                       clocks = <&bus_gates 97>;
+> +                       resets = <&apb2_rst 1>;
+> +                       status = "disabled";
+> +                       #address-cells = <1>;
+> +                       #size-cells = <0>;
+> +               };
+> +
+> +               i2c2: i2c@01c2b400 {
+> +                       compatible = "allwinner,sun6i-a31-i2c";
+> +                       reg = <0x01c2b400 0x400>;
+> +                       interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
+> +                       clocks = <&bus_gates 98>;
+> +                       resets = <&apb2_rst 2>;
+> +                       status = "disabled";
+> +                       #address-cells = <1>;
+> +                       #size-cells = <0>;
+> +               };
+> +
+>                 gic: interrupt-controller@01c81000 {
+>                         compatible = "arm,cortex-a7-gic",
+> "arm,cortex-a15-gic";
+>                         reg = <0x01c81000 0x1000>,
+> --
+> 2.7.4
+>
