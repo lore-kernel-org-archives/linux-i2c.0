@@ -1,127 +1,109 @@
-From: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2 1/1] add missing UARTs pins and I2C
- entriesfor AllWinner H3 DTSI
-Date: Tue, 19 Apr 2016 15:50:39 -0400
-Message-ID: <CAKQ8BtjPhfJC+njOUvo-4ZQ+Oj==LqQEhJ1LQROjY85hswE9Mg@mail.gmail.com>
-Reply-To: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDW4XUV4YULRBD4Y3K4AKGQE3AOPO4I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: Hans De Goede <jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Jens Kuske <jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, =?UTF-8?Q?Jean=2DFran=C3=A7ois_Moine?= <moinejf-GANU6spQydw@public.gmane.org>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH 1/2] i2c: s3c2410: Print errno code in error logs
+Date: Tue, 19 Apr 2016 16:10:40 -0400
+Message-ID: <1461096641-19788-1-git-send-email-javier@osg.samsung.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from lists.s-osg.org ([54.187.51.154]:42567 "EHLO lists.s-osg.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754107AbcDSULF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 19 Apr 2016 16:11:05 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Hi everyone,
+The driver not always prints the error code in case of a failure but this
+information can be very useful for debugging. So let's print if available.
 
-This patch is submit to provide endusers access to additional UARTs on
-AllWinner H3 SoC along with I2C ports.
-
-Regards,
-Martin.
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
 ---
- arch/arm/boot/dts/sun8i-h3.dtsi | 75 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
 
-diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
-index 4a4926b..c947360d 100644
---- a/arch/arm/boot/dts/sun8i-h3.dtsi
-+++ b/arch/arm/boot/dts/sun8i-h3.dtsi
-@@ -508,6 +508,48 @@
-                 allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-             };
+Hello,
 
-+            uart1_pins_a: uart1@0 {
-+                allwinner,pins = "PG6", "PG7";
-+                allwinner,function = "uart1";
-+                allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+                allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+            };
-+
-+            uart2_pins_a: uart2@0 {
-+                allwinner,pins = "PA0", "PA1";
-+                allwinner,function = "uart2";
-+                allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+                allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+            };
-+
-+            uart3_pins_a: uart3@0 {
-+                allwinner,pins = "PA13", "PA14";
-+                allwinner,function = "uart3";
-+                allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+                allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+            };
-+
-+            i2c0_pins_a: i2c0@0 {
-+                allwinner,pins = "PA11", "PA12";
-+                allwinner,function = "i2c0";
-+                allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+                allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+            };
-+
-+            i2c1_pins_a: i2c1@0 {
-+                allwinner,pins = "PA18", "PA19";
-+                allwinner,function = "i2c1";
-+                allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+                allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+            };
-+
-+            i2c2_pins_a: i2c2@0 {
-+                allwinner,pins = "PE12", "PE13";
-+                allwinner,function = "i2c2";
-+                allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+                allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+            };
-+
-             mmc0_pins_a: mmc0@0 {
-                 allwinner,pins = "PF0", "PF1", "PF2", "PF3",
-                          "PF4", "PF5";
-@@ -626,6 +668,39 @@
-             status = "disabled";
-         };
+This patch and 2/2 were only build tested because I don't have access to
+a board using this IP block. I just noticed these issues when comparing
+the i2c-s3c2410 driver with i2c-exynos5 where I did some fixes recently.
 
-+        i2c0: i2c@01c2ac00 {
-+            compatible = "allwinner,sun6i-a31-i2c";
-+            reg = <0x01c2ac00 0x400>;
-+            interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
-+            clocks = <&bus_gates 96>;
-+            resets = <&apb2_rst 0>;
-+            status = "disabled";
-+            #address-cells = <1>;
-+            #size-cells = <0>;
-+        };
-+
-+        i2c1: i2c@01c2b000 {
-+            compatible = "allwinner,sun6i-a31-i2c";
-+            reg = <0x01c2b000 0x400>;
-+            interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
-+            clocks = <&bus_gates 97>;
-+            resets = <&apb2_rst 1>;
-+            status = "disabled";
-+            #address-cells = <1>;
-+            #size-cells = <0>;
-+        };
-+
-+        i2c2: i2c@01c2b400 {
-+            compatible = "allwinner,sun6i-a31-i2c";
-+            reg = <0x01c2b400 0x400>;
-+            interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
-+            clocks = <&bus_gates 98>;
-+            resets = <&apb2_rst 2>;
-+            status = "disabled";
-+            #address-cells = <1>;
-+            #size-cells = <0>;
-+        };
-+
-         gic: interrupt-controller@01c81000 {
-             compatible = "arm,cortex-a7-gic", "arm,cortex-a15-gic";
-             reg = <0x01c81000 0x1000>,
+I think the patches are simple enough that is safe to pick them but of
+course testing will be highly appreciated.
+
+Best regards,
+Javier
+
+ drivers/i2c/busses/i2c-s3c2410.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 362a6de54833..4b873fe9a75b 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -944,7 +944,7 @@ static int s3c24xx_i2c_cpufreq_transition(struct notifier_block *nb,
+ 		i2c_unlock_adapter(&i2c->adap);
+ 
+ 		if (ret < 0)
+-			dev_err(i2c->dev, "cannot find frequency\n");
++			dev_err(i2c->dev, "cannot find frequency (%d)\n", ret);
+ 		else
+ 			dev_info(i2c->dev, "setting freq %d\n", got);
+ 	}
+@@ -995,7 +995,8 @@ static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
+ 
+ 		ret = gpio_request(gpio, "i2c-bus");
+ 		if (ret) {
+-			dev_err(i2c->dev, "gpio [%d] request failed\n", gpio);
++			dev_err(i2c->dev, "gpio [%d] request failed (%d)\n",
++				gpio, ret);
+ 			goto free_gpio;
+ 		}
+ 	}
+@@ -1199,7 +1200,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	ret = s3c24xx_i2c_init(i2c);
+ 	clk_disable(i2c->clk);
+ 	if (ret != 0) {
+-		dev_err(&pdev->dev, "I2C controller init failed\n");
++		dev_err(&pdev->dev, "I2C controller init failed (%d)\n", ret);
+ 		return ret;
+ 	}
+ 	/* find the IRQ for this unit (note, this relies on the init call to
+@@ -1209,7 +1210,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	if (!(i2c->quirks & QUIRK_POLL)) {
+ 		i2c->irq = ret = platform_get_irq(pdev, 0);
+ 		if (ret <= 0) {
+-			dev_err(&pdev->dev, "cannot find IRQ\n");
++			dev_err(&pdev->dev, "cannot find IRQ (%d)\n", ret);
+ 			clk_unprepare(i2c->clk);
+ 			return ret;
+ 		}
+@@ -1218,7 +1219,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 				dev_name(&pdev->dev), i2c);
+ 
+ 		if (ret != 0) {
+-			dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
++			dev_err(&pdev->dev, "cannot claim IRQ %d (%d)\n",
++				i2c->irq, ret);
+ 			clk_unprepare(i2c->clk);
+ 			return ret;
+ 		}
+@@ -1226,7 +1228,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = s3c24xx_i2c_register_cpufreq(i2c);
+ 	if (ret < 0) {
+-		dev_err(&pdev->dev, "failed to register cpufreq notifier\n");
++		dev_err(&pdev->dev, "failed to register cpufreq notifier (%d)\n",
++			ret);
+ 		clk_unprepare(i2c->clk);
+ 		return ret;
+ 	}
+@@ -1246,7 +1249,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = i2c_add_numbered_adapter(&i2c->adap);
+ 	if (ret < 0) {
+-		dev_err(&pdev->dev, "failed to add bus to i2c core\n");
++		dev_err(&pdev->dev, "failed to add bus to i2c core (%d)\n",
++			ret);
+ 		pm_runtime_disable(&pdev->dev);
+ 		s3c24xx_i2c_deregister_cpufreq(i2c);
+ 		clk_unprepare(i2c->clk);
 -- 
-2.7.4
+2.5.5
