@@ -1,103 +1,85 @@
-From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: Re: [PATCH v1 1/1] add missing UARTs pins for AllWinner
- H3 DTS + add new I2C entries for AllWinner H3 DTS
-Date: Tue, 19 Apr 2016 23:11:11 +0800
-Message-ID: <CAGb2v65dsjbpGUrJXFG35cLGnFA6uDxtgMqupBN97=8XNnO68Q@mail.gmail.com>
-References: <8673D89D449742EAB9F6EBD05655A295@GirolesWin7> <CAGb2v67e_F1=VaY7ovzW7Whc2ToJU3YabeT-orrLTb0Pouhw_Q@mail.gmail.com>
- <21e74cd8-2ec7-4fd3-aa5c-ba4eed29a6ab@googlegroups.com>
-Reply-To: wens-jdAy2FN1RRM@public.gmane.org
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: Re: [PATCH v6 08/24] iio: imu: inv_mpu6050: convert to use an
+ explicit i2c mux core
+Date: Tue, 19 Apr 2016 18:58:11 +0300
+Message-ID: <57165593.4040700@intel.com>
+References: <1459673574-11440-1-git-send-email-peda@lysator.liu.se>
+ <1459673574-11440-9-git-send-email-peda@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sunxi+bncBCMILY6JWQBBBJ4V3G4AKGQEFDZ7OQY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <21e74cd8-2ec7-4fd3-aa5c-ba4eed29a6ab-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Hans De Goede <jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Jens Kuske <jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, =?UTF-8?Q?Jean=2DFran=C3=A7ois_Moine?= <moinejf-GANU6spQydw@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1459673574-11440-9-git-send-email-peda@lysator.liu.se>
+Sender: linux-doc-owner@vger.kernel.org
+To: Peter Rosin <peda@lysator.liu.se>, linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Kalle Valo <kvalo@codeaurora.org>, Joe Perches <joe@perches.com>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Adriana Reus <adriana.reus@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Mat
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 19, 2016 at 10:46 PM,  <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> Hi ChenYu,
->
-> Thanks for your comments.
->
-> On Tuesday, April 19, 2016 at 7:11:50 AM UTC-4, Chen-Yu Tsai wrote:
->> Hi,
->>
->> >  arch/arm/boot/dts/sun8i-h3-orangepi-2.dts  | 36 ++++++++++++++
->> >  arch/arm/boot/dts/sun8i-h3-orangepi-pc.dts | 36 ++++++++++++++
->> >  arch/arm/boot/dts/sun8i-h3.dtsi            | 75
->>
->> First of all, you are touching 3 different files here. These should
->> be separate patches.
->
-> I'm trying to understand you here, but I can't. Those 3 files changed are=
- related each other. I could have separated the UART changes from I2C chang=
-es, but still those 3 files would have been modified at the same time for a=
- single commit and "git patch-format" would still have created a single pat=
-ch for the 3 files commit.
+On 04/03/2016 11:52 AM, Peter Rosin wrote:
+> From: Peter Rosin <peda@axentia.se>
+> 
+> Allocate an explicit i2c mux core to handle parent and child adapters
+> etc. Update the select/deselect ops to be in terms of the i2c mux core
+> instead of the child adapter.
+> 
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> @@ -136,16 +133,15 @@ static int inv_mpu_probe(struct i2c_client *client,
+>  		return result;
+>  
+>  	st = iio_priv(dev_get_drvdata(&client->dev));
+> -	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
+> -					      &client->dev,
+> -					      client,
+> -					      0, 0, 0,
+> -					      inv_mpu6050_select_bypass,
+> -					      inv_mpu6050_deselect_bypass);
+> -	if (!st->mux_adapter) {
+> -		result = -ENODEV;
+> +	st->muxc = i2c_mux_one_adapter(client->adapter, &client->dev, 0, 0,
+> +				       0, 0, 0,
+> +				       inv_mpu6050_select_bypass,
+> +				       inv_mpu6050_deselect_bypass);
+> +	if (IS_ERR(st->muxc)) {
+> +		result = PTR_ERR(st->muxc);
+>  		goto out_unreg_device;
+>  	}
+> +	st->muxc->priv = client;
 
-Try to wrap lines to 80 characters or less.
+I just tested this patch on mpu9150 (combo mpu6050+ak8975) and I got a
+crash on probe which looks sort of like this:
 
-1 change per patch. You are making 3 changes here. a) adding shared
-pinmux settings,
-b & c) enabling uarts and i2c busses for 2 boards.
+[    5.565374] RIP: 0010:[<ffffffff81481aed>] [<ffffffff81481aed>]
+mutex_lock+0xd/0x30
+[    5.565374] Call Trace:
+[    5.565374]  [<ffffffff813be34c>] inv_mpu6050_select_bypass+0x1c/0xa0
+...
+[    5.565374]  [<ffffffff81392141>] i2c_transfer+0x51/0x90
+...
+[    5.565374]  [<ffffffff81392cb5>] i2c_smbus_read_i2c_block_data+0x45/0xd0
+[    5.565374]  [<ffffffff813bec5a>] ak8975_probe+0x14a/0x5c0
+...
+[    5.565374]  [<ffffffff813933d8>] i2c_new_device+0x178/0x1e0
+[    5.565374]  [<ffffffff8139362d>] of_i2c_register_device+0xdd/0x1a0
+[    5.565374]  [<ffffffff8139372b>] of_i2c_register_devices+0x3b/0x60
+[    5.565374]  [<ffffffff81393e88>] i2c_register_adapter+0x178/0x410
+[    5.565374]  [<ffffffff81394203>] i2c_add_adapter+0x73/0x90
+[    5.565374]  [<ffffffff81395f3d>] i2c_mux_add_adapter+0x2ed/0x400
+[    5.565374]  [<ffffffff81396091>] i2c_mux_one_adapter+0x41/0x70
+[    5.565374]  [<ffffffff813be48a>] inv_mpu_probe+0xba/0x1a0
 
-You could split them into 1 dtsi patch adding the pinmux setting, and
-then 1 for each
-board enabling the peripherals.
+This happens because muxc->priv is not initialized when probing devices
+behind the mux as described by devicetree. This can be easily fixed by
+using muxc->dev instead of muxc->priv, or perhaps by calling
+i2c_mux_alloc, initializing priv and later doing i2c_mux_add_adapter.
 
->
-> Seeing all the patches that coming into the mailing lists, all of them co=
-ntains multiple files patches, why should it be different here ?
->
->>
->> Secondly, our policy is to not have a default function for generic GPIO =
-pins.
->>
->
-> If this is the official policy, then why so many DTS currently present ar=
-e not following the same rules, such sun6i-a31-hummingbird, sun7i-a20-olinu=
-xino-micro, sun7i-a20-mk808c, sun7i-a20-cubietruck and so many others ?
+These fixes are driver-specific and other drivers might experience
+similar issues. Perhaps i2c_mux_one_adapter should take void *priv just
+like old i2c_add_mux_adapter?
 
-Perhaps they were enabled before the policy was enacted, or it just
-slipped through. I
-contributed to a few. But for many boards we might not have schematics
-or the actual
-device to check.
+After I fix this locally the deadlock when reading from both devices no
+longer happens.
 
-Also, other boards having such settings is not a good argument.
-
-> I thought the rules were there to make DTS the most default common usage =
-definitions for most end-users in a general availability.
-> Then, if someone is really in shortage of GPIOs, they could easily turn t=
-hem back to "disabled" state.
-
-How would you determine what the most common usage is for "development boar=
-ds"?
-If the vendor explicitly designed the pins to be used one way, and even pri=
-nted
-the description on the board, then you may have a valid argument. But even =
-then,
-with the C.H.I.P., they are going with DT overlays.
-
-It shouldn't be hard for an end user to modify the DT. And with I2C devices=
-, it
-is almost a requirement.
-
-
-Regards
-ChenYu
-
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+--
+Regards,
+Leonard
