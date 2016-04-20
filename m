@@ -1,269 +1,126 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: [RFC PATCH v2 02/10] acpi: decouple initrd table install from CONFIG_ACPI_INITRD_TABLE_OVERRIDE
-Date: Wed, 20 Apr 2016 01:39:00 +0300
-Message-ID: <1461105548-20618-3-git-send-email-octavian.purdila@intel.com>
-References: <1461105548-20618-1-git-send-email-octavian.purdila@intel.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1461105548-20618-1-git-send-email-octavian.purdila@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Joel Becker <jlbec@evilplan.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, irina.tirdea@intel.com, Octavian Purdila <octavian.purdila@intel.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [PATCH 1/2] i2c: s3c2410: Print errno code in error logs
+Date: Wed, 20 Apr 2016 11:01:14 +0200
+Message-ID: <5717455A.1000007@samsung.com>
+References: <1461096641-19788-1-git-send-email-javier@osg.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:51083 "EHLO
+	mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750859AbcDTJBU (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Apr 2016 05:01:20 -0400
+In-reply-to: <1461096641-19788-1-git-send-email-javier@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>, linux-kernel@vger.kernel.org
+Cc: linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-The ACPI override and overlay functionality is different, with the
-latter being more then a debug option. Allow loading of ACPI tables from
-initrd even if CONFIG_ACPI_INITRD_TABLE_OVERRIDE is not selected.
+On 04/19/2016 10:10 PM, Javier Martinez Canillas wrote:
+> The driver not always prints the error code in case of a failure but this
+> information can be very useful for debugging. So let's print if available.
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> 
+> ---
+> 
+> Hello,
+> 
+> This patch and 2/2 were only build tested because I don't have access to
+> a board using this IP block. I just noticed these issues when comparing
+> the i2c-s3c2410 driver with i2c-exynos5 where I did some fixes recently.
+> 
+> I think the patches are simple enough that is safe to pick them but of
+> course testing will be highly appreciated.
+> 
+> Best regards,
+> Javier
+> 
+>  drivers/i2c/busses/i2c-s3c2410.c | 18 +++++++++++-------
+>  1 file changed, 11 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index 362a6de54833..4b873fe9a75b 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -944,7 +944,7 @@ static int s3c24xx_i2c_cpufreq_transition(struct notifier_block *nb,
+>  		i2c_unlock_adapter(&i2c->adap);
+>  
+>  		if (ret < 0)
+> -			dev_err(i2c->dev, "cannot find frequency\n");
+> +			dev_err(i2c->dev, "cannot find frequency (%d)\n", ret);
+>  		else
+>  			dev_info(i2c->dev, "setting freq %d\n", got);
+>  	}
+> @@ -995,7 +995,8 @@ static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
+>  
+>  		ret = gpio_request(gpio, "i2c-bus");
+>  		if (ret) {
+> -			dev_err(i2c->dev, "gpio [%d] request failed\n", gpio);
+> +			dev_err(i2c->dev, "gpio [%d] request failed (%d)\n",
+> +				gpio, ret);
+>  			goto free_gpio;
+>  		}
+>  	}
 
-The patch also switches to using TAINT_OVERLAY_ACPI_TABLE and adds
-documentation about how to load SSDT tables from initrd.
+The changes above are okay. Below - do not make sense. Just think...
+What do you want to improve? The probe failure already prints errno!
 
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
----
- Documentation/acpi/ssdt-overlays.txt | 26 ++++++++++++
- arch/x86/kernel/setup.c              |  2 +-
- drivers/acpi/osl.c                   | 80 +++++++++++++++++++-----------------
- include/linux/acpi.h                 |  8 +---
- 4 files changed, 71 insertions(+), 45 deletions(-)
 
-diff --git a/Documentation/acpi/ssdt-overlays.txt b/Documentation/acpi/ssdt-overlays.txt
-index 54ee74a..c328f6a 100644
---- a/Documentation/acpi/ssdt-overlays.txt
-+++ b/Documentation/acpi/ssdt-overlays.txt
-@@ -62,3 +62,29 @@ AML Output:    minnowmax.aml - 165 bytes, 6 named objects, 1 executable opcodes
- 
- The resulting AML code can then be loaded by the kernel using one of the methods
- below.
-+
-+== Loading ACPI SSDTs from initrd ==
-+
-+This option allows loading of user defined SSDTs from initrd and it is useful
-+when the system does not support EFI or when there is not enough EFI storage.
-+
-+It works in a similar way with initrd based ACPI tables overrides: SSDT aml code
-+must be placed in the first, uncompressed, initrd under the
-+"kernel/firmware/acpi" path. Multiple files can be used and this will translate
-+in loading multiple tables. Only SSDT and OEM tables are allowed.
-+
-+Here is an example:
-+
-+# Add the raw ACPI tables to an uncompressed cpio archive.
-+# They must be put into a /kernel/firmware/acpi directory inside the
-+# cpio archive.
-+# The uncompressed cpio archive must be the first.
-+# Other, typically compressed cpio archives, must be
-+# concatenated on top of the uncompressed one.
-+mkdir -p kernel/firmware/acpi
-+cp ssdt.aml kernel/firmware/acpi
-+
-+# Create the uncompressed cpio archive and concatenate the original initrd
-+# on top:
-+find kernel | cpio -H newc --create > /boot/instrumented_initrd
-+cat /boot/initrd >>/boot/instrumented_initrd
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 2367ae0..1908668 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -1139,7 +1139,7 @@ void __init setup_arch(char **cmdline_p)
- 	reserve_initrd();
- 
- #if defined(CONFIG_ACPI) && defined(CONFIG_BLK_DEV_INITRD)
--	acpi_initrd_override((void *)initrd_start, initrd_end - initrd_start);
-+	acpi_table_initrd_init((void *)initrd_start, initrd_end - initrd_start);
- #endif
- 
- 	vsmp_init();
-diff --git a/drivers/acpi/osl.c b/drivers/acpi/osl.c
-index 814d5f8..dcc99b4 100644
---- a/drivers/acpi/osl.c
-+++ b/drivers/acpi/osl.c
-@@ -602,15 +602,24 @@ acpi_os_predefined_override(const struct acpi_predefined_names *init_val,
- 	return AE_OK;
- }
- 
--static void acpi_table_taint(struct acpi_table_header *table)
-+static void acpi_table_taint(struct acpi_table_header *table, bool override)
- {
--	pr_warn(PREFIX
--		"Override [%4.4s-%8.8s], this is unsafe: tainting kernel\n",
--		table->signature, table->oem_table_id);
--	add_taint(TAINT_OVERRIDDEN_ACPI_TABLE, LOCKDEP_NOW_UNRELIABLE);
-+	enum lockdep_ok lockdep_ok;
-+	unsigned int taint;
-+
-+	if (override) {
-+		pr_warn(PREFIX "Override [%4.4s-%8.8s], this is unsafe: tainting kernel\n",
-+			table->signature, table->oem_table_id);
-+		lockdep_ok = false;
-+		taint = TAINT_OVERRIDDEN_ACPI_TABLE;
-+	} else {
-+		lockdep_ok = true;
-+		taint = TAINT_OVERLAY_ACPI_TABLE;
-+	}
-+
-+	add_taint(taint, lockdep_ok);
- }
- 
--#ifdef CONFIG_ACPI_INITRD_TABLE_OVERRIDE
- #include <linux/earlycpio.h>
- #include <linux/memblock.h>
- 
-@@ -642,13 +651,13 @@ static const char * const table_sigs[] = {
- 
- #define ACPI_HEADER_SIZE sizeof(struct acpi_table_header)
- 
--#define ACPI_OVERRIDE_TABLES 64
--static struct cpio_data __initdata acpi_initrd_files[ACPI_OVERRIDE_TABLES];
--static DECLARE_BITMAP(acpi_initrd_installed, ACPI_OVERRIDE_TABLES);
-+#define ACPI_INITRD_TABLES 64
-+static struct cpio_data acpi_initrd_files[ACPI_INITRD_TABLES] __initdata;
-+static DECLARE_BITMAP(acpi_initrd_installed, ACPI_INITRD_TABLES);
- 
- #define MAP_CHUNK_SIZE   (NR_FIX_BTMAPS << PAGE_SHIFT)
- 
--void __init acpi_initrd_override(void *data, size_t size)
-+void __init acpi_table_initrd_init(void *data, size_t size)
- {
- 	int sig, no, table_nr = 0, total_offset = 0;
- 	long offset = 0;
-@@ -659,7 +668,7 @@ void __init acpi_initrd_override(void *data, size_t size)
- 	if (data == NULL || size == 0)
- 		return;
- 
--	for (no = 0; no < ACPI_OVERRIDE_TABLES; no++) {
-+	for (no = 0; no < ACPI_INITRD_TABLES; no++) {
- 		file = find_cpio_data(cpio_path, data, size, &offset);
- 		if (!file.data)
- 			break;
-@@ -668,8 +677,8 @@ void __init acpi_initrd_override(void *data, size_t size)
- 		size -= offset;
- 
- 		if (file.size < sizeof(struct acpi_table_header)) {
--			pr_err("ACPI OVERRIDE: Table smaller than ACPI header [%s%s]\n",
--				cpio_path, file.name);
-+			pr_err(PREFIX "initrd: Table smaller than ACPI header [%s%s]\n",
-+			       cpio_path, file.name);
- 			continue;
- 		}
- 
-@@ -680,18 +689,18 @@ void __init acpi_initrd_override(void *data, size_t size)
- 				break;
- 
- 		if (!table_sigs[sig]) {
--			pr_err("ACPI OVERRIDE: Unknown signature [%s%s]\n",
--				cpio_path, file.name);
-+			pr_err(PREFIX "initrd: Unknown signature [%s%s]\n",
-+			       cpio_path, file.name);
- 			continue;
- 		}
- 		if (file.size != table->length) {
--			pr_err("ACPI OVERRIDE: File length does not match table length [%s%s]\n",
--				cpio_path, file.name);
-+			pr_err(PREFIX "initrd: File length does not match table length [%s%s]\n",
-+			       cpio_path, file.name);
- 			continue;
- 		}
- 		if (acpi_table_checksum(file.data, table->length)) {
--			pr_err("ACPI OVERRIDE: Bad table checksum [%s%s]\n",
--				cpio_path, file.name);
-+			pr_err(PREFIX "initrd: Bad table checksum [%s%s]\n",
-+			       cpio_path, file.name);
- 			continue;
- 		}
- 
-@@ -756,6 +765,7 @@ void __init acpi_initrd_override(void *data, size_t size)
- 	}
- }
- 
-+#ifdef CONFIG_ACPI_INITRD_TABLE_OVERRIDE
- acpi_status
- acpi_os_physical_table_override(struct acpi_table_header *existing_table,
- 				acpi_physical_address *address, u32 *length)
-@@ -792,7 +802,7 @@ acpi_os_physical_table_override(struct acpi_table_header *existing_table,
- 
- 		*length = table_length;
- 		*address = acpi_tables_addr + table_offset;
--		acpi_table_taint(existing_table);
-+		acpi_table_taint(existing_table, true);
- 		acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
- 		set_bit(table_index, acpi_initrd_installed);
- 		break;
-@@ -803,6 +813,17 @@ next_table:
- 	}
- 	return AE_OK;
- }
-+#else
-+acpi_status
-+acpi_os_physical_table_override(struct acpi_table_header *existing_table,
-+				acpi_physical_address *address,
-+				u32 *table_length)
-+{
-+	*table_length = 0;
-+	*address = 0;
-+	return AE_OK;
-+}
-+#endif /* CONFIG_ACPI_INITRD_TABLE_OVERRIDE */
- 
- void __init acpi_initrd_initialize_tables(void)
- {
-@@ -833,7 +854,7 @@ void __init acpi_initrd_initialize_tables(void)
- 			goto next_table;
- 		}
- 
--		acpi_table_taint(table);
-+		acpi_table_taint(table, false);
- 		acpi_os_unmap_memory(table, ACPI_HEADER_SIZE);
- 		acpi_install_table(acpi_tables_addr + table_offset, TRUE);
- 		set_bit(table_index, acpi_initrd_installed);
-@@ -842,21 +863,6 @@ next_table:
- 		table_index++;
- 	}
- }
--#else
--acpi_status
--acpi_os_physical_table_override(struct acpi_table_header *existing_table,
--				acpi_physical_address *address,
--				u32 *table_length)
--{
--	*table_length = 0;
--	*address = 0;
--	return AE_OK;
--}
--
--void __init acpi_initrd_initialize_tables(void)
--{
--}
--#endif /* CONFIG_ACPI_INITRD_TABLE_OVERRIDE */
- 
- acpi_status
- acpi_os_table_override(struct acpi_table_header *existing_table,
-@@ -872,7 +878,7 @@ acpi_os_table_override(struct acpi_table_header *existing_table,
- 		*new_table = (struct acpi_table_header *)AmlCode;
- #endif
- 	if (*new_table != NULL)
--		acpi_table_taint(existing_table);
-+		acpi_table_taint(existing_table, true);
- 	return AE_OK;
- }
- 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 06ed7e5..d4a3cb2 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -190,13 +190,7 @@ static inline int acpi_debugger_notify_command_complete(void)
- }
- #endif
- 
--#ifdef CONFIG_ACPI_INITRD_TABLE_OVERRIDE
--void acpi_initrd_override(void *data, size_t size);
--#else
--static inline void acpi_initrd_override(void *data, size_t size)
--{
--}
--#endif
-+void acpi_table_initrd_init(void *data, size_t size);
- 
- #define BAD_MADT_ENTRY(entry, end) (					    \
- 		(!entry) || (unsigned long)entry + sizeof(*entry) > end ||  \
--- 
-1.9.1
+Just look at crafted example (error triggered manually):
+[    0.135443] s3c-i2c 13860000.i2c: I2C clock enable failed (-100)
+[    0.135484] s3c-i2c: probe of 13860000.i2c failed with error -100
 
+Best regards,
+Krzysztof
+
+> @@ -1199,7 +1200,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+>  	ret = s3c24xx_i2c_init(i2c);
+>  	clk_disable(i2c->clk);
+>  	if (ret != 0) {
+> -		dev_err(&pdev->dev, "I2C controller init failed\n");
+> +		dev_err(&pdev->dev, "I2C controller init failed (%d)\n", ret);
+>  		return ret;
+>  	}
+>  	/* find the IRQ for this unit (note, this relies on the init call to
+> @@ -1209,7 +1210,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+>  	if (!(i2c->quirks & QUIRK_POLL)) {
+>  		i2c->irq = ret = platform_get_irq(pdev, 0);
+>  		if (ret <= 0) {
+> -			dev_err(&pdev->dev, "cannot find IRQ\n");
+> +			dev_err(&pdev->dev, "cannot find IRQ (%d)\n", ret);
+>  			clk_unprepare(i2c->clk);
+>  			return ret;
+>  		}
+> @@ -1218,7 +1219,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+>  				dev_name(&pdev->dev), i2c);
+>  
+>  		if (ret != 0) {
+> -			dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
+> +			dev_err(&pdev->dev, "cannot claim IRQ %d (%d)\n",
+> +				i2c->irq, ret);
+>  			clk_unprepare(i2c->clk);
+>  			return ret;
+>  		}
+> @@ -1226,7 +1228,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+>  
+>  	ret = s3c24xx_i2c_register_cpufreq(i2c);
+>  	if (ret < 0) {
+> -		dev_err(&pdev->dev, "failed to register cpufreq notifier\n");
+> +		dev_err(&pdev->dev, "failed to register cpufreq notifier (%d)\n",
+> +			ret);
+>  		clk_unprepare(i2c->clk);
+>  		return ret;
+>  	}
+> @@ -1246,7 +1249,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+>  
+>  	ret = i2c_add_numbered_adapter(&i2c->adap);
+>  	if (ret < 0) {
+> -		dev_err(&pdev->dev, "failed to add bus to i2c core\n");
+> +		dev_err(&pdev->dev, "failed to add bus to i2c core (%d)\n",
+> +			ret);
+>  		pm_runtime_disable(&pdev->dev);
+>  		s3c24xx_i2c_deregister_cpufreq(i2c);
+>  		clk_unprepare(i2c->clk);
+> 
