@@ -1,71 +1,46 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/4] i2c: designware-platdrv: fix unbalanced clk enable
- and prepare
-Date: Wed, 20 Apr 2016 17:16:00 +0300
-Message-ID: <1461161760.6620.306.camel@linux.intel.com>
-References: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
-	 <1460638414-5987-3-git-send-email-jszhang@marvell.com>
-	 <57177C32.4090000@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:30997 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754217AbcDTOPB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 20 Apr 2016 10:15:01 -0400
-In-Reply-To: <57177C32.4090000@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH v2 2/2] i2c: s3c2410: Check clk_prepare_enable() return value
+Date: Wed, 20 Apr 2016 10:37:56 -0400
+Message-ID: <1461163076-5959-2-git-send-email-javier@osg.samsung.com>
+References: <1461163076-5959-1-git-send-email-javier@osg.samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1461163076-5959-1-git-send-email-javier@osg.samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, mika.westerberg@linux.intel.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Wed, 2016-04-20 at 15:55 +0300, Jarkko Nikula wrote:
-> On 04/14/2016 03:53 PM, Jisheng Zhang wrote:
-> >=20
-> > If i2c_dw_probe() fail, we should call i2c_dw_plat_prepare_clk() to
-> > disable and unprepare the clk, otherwise the clk enable and prepare
-> > is left unbalanced.
-> >=20
-> > Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
-> > ---
-> > =C2=A0 drivers/i2c/busses/i2c-designware-platdrv.c | 2 ++
-> > =C2=A0 1 file changed, 2 insertions(+)
-> >=20
-> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > index 00f9e99..1488cea 100644
-> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > @@ -268,6 +268,8 @@ rpm_disable:
-> > =C2=A0=C2=A0		pm_runtime_put_noidle(&pdev->dev);
-> > =C2=A0=C2=A0	}
-> >=20
-> > +	i2c_dw_plat_prepare_clk(dev, false);
-> > +
-> > =C2=A0=C2=A0	return r;
-> > =C2=A0 }
-> >=20
-> This is a bit unclear to me does devm_clk_get take care of clk
-> disabling=C2=A0
-> in case of probe error or driver removal?
->=20
-> I see Andy's 1cb715ca4694 ("i2c-designware: move to managed functions=
-=C2=A0
-> (devm_*)") removed it but at quick look drivers/clk/clk-devres.c:=C2=A0
-> devm_clk_release() calls only clk_put and I don't see disable is done=
-=C2=A0
-> down the path.
+The clk_prepare_enable() function can fail so check the return
+value and propagate the error in case of a failure.
 
-The following is a mistake of the mentioned patch.
--=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0clk_disable_unprepare(dev->c=
-lk);
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-I did at the same mistake in dw_dmac driver which had been fixed later
-in the commit 8be4f523b480 ("dmaengine: dw: fix regression in dw_probe(=
-)
-function").
+---
 
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Changes in v2:
+- Don't print the errno code since that's already printed by the
+  core when probe fails. Suggested by Krzysztof Kozlowski.
+
+ drivers/i2c/busses/i2c-s3c2410.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 13f67df65c45..8a9ea0c1e41d 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1196,7 +1196,12 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	/* initialise the i2c controller */
+ 
+-	clk_prepare_enable(i2c->clk);
++	ret = clk_prepare_enable(i2c->clk);
++	if (ret) {
++		dev_err(&pdev->dev, "I2C clock enable failed\n");
++		return ret;
++	}
++
+ 	ret = s3c24xx_i2c_init(i2c);
+ 	clk_disable(i2c->clk);
+ 	if (ret != 0) {
+-- 
+2.5.5
