@@ -1,52 +1,49 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 1/3] i2c: s3c2410: Add missing clock unprepare on probe()
- error path
-Date: Wed, 20 Apr 2016 09:47:05 -0400
-Message-ID: <57178859.8040801@osg.samsung.com>
-References: <1461144292-22141-1-git-send-email-k.kozlowski@samsung.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 1/4] i2c: designware-platdrv: Fix runtime PM
+ initialization
+Date: Wed, 20 Apr 2016 16:53:08 +0300
+Message-ID: <571789C4.5020904@linux.intel.com>
+References: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
+ <1460638414-5987-2-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:50644 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752667AbcDTNrP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 20 Apr 2016 09:47:15 -0400
-In-Reply-To: <1461144292-22141-1-git-send-email-k.kozlowski@samsung.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1460638414-5987-2-git-send-email-jszhang@marvell.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jisheng Zhang <jszhang@marvell.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 
-Hello Krzysztof,
-
-On 04/20/2016 05:24 AM, Krzysztof Kozlowski wrote:
-> If during probe() the s3c24xx_i2c_init() failed, the clock was left in
-> disabled but prepared state.
-> 
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+On 04/14/2016 03:53 PM, Jisheng Zhang wrote:
+> When pm_runtime_enable() was being called, the device's usage counter
+> was 0, causing the PM layer to runtime-suspend the device.  We then
+> went on to call i2c_dw_probe() on a suspended device, which could hung.
+>
+> Fix this by incrementing the usage counter before pm_runtime_enable().
+>
+> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
 > ---
->  drivers/i2c/busses/i2c-s3c2410.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> index 362a6de54833..e9658af36f2e 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -1200,6 +1200,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
->  	clk_disable(i2c->clk);
->  	if (ret != 0) {
->  		dev_err(&pdev->dev, "I2C controller init failed\n");
-> +		clk_unprepare(i2c->clk);
->  		return ret;
->  	}
->  	/* find the IRQ for this unit (note, this relies on the init call to
-> 
+>   drivers/i2c/busses/i2c-designware-platdrv.c | 14 +++++++++++++-
+>   1 file changed, 13 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index d656657..00f9e99 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -246,6 +246,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>   	if (dev->pm_runtime_disabled) {
+>   		pm_runtime_forbid(&pdev->dev);
+>   	} else {
+> +		pm_runtime_get_noresume(&pdev->dev);
+>   		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+>   		pm_runtime_use_autosuspend(&pdev->dev);
+>   		pm_runtime_set_active(&pdev->dev);
 
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+pm_runtime_enable() here after pm_runtime_set_active() shouldn't suspend 
+as far as I understand which made me thinking if there is some other 
+issue that cause the symptoms what you are seeing? Like race with 
+runtime PM or similar.
 
-Best regards,
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Jarkko
