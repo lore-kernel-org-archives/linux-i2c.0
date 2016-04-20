@@ -1,63 +1,101 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 00/24] i2c mux cleanup and locking update
-Date: Wed, 20 Apr 2016 22:52:22 +0200
-Message-ID: <20160420205221.GB1546@katana>
-References: <1461165484-2314-1-git-send-email-peda@axentia.se>
+Subject: Re: [PATCH v6 07/19] i2c: octeon: Use i2c recovery framework
+Date: Wed, 20 Apr 2016 23:31:21 +0200
+Message-ID: <20160420213121.GC1546@katana>
+References: <cover.1460387640.git.jglauber@cavium.com>
+ <ab24627b5928f23967633243639b431d2113dbe1.1460387640.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pk6IbRAofICFmK5e"
-Return-path: <linux-doc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="vni90+aGYgRvsTuO"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:45825 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751228AbcDTVb2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 20 Apr 2016 17:31:28 -0400
 Content-Disposition: inline
-In-Reply-To: <1461165484-2314-1-git-send-email-peda@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlo>
+In-Reply-To: <ab24627b5928f23967633243639b431d2113dbe1.1460387640.git.jglauber@cavium.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
 
---Pk6IbRAofICFmK5e
+--vni90+aGYgRvsTuO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Apr 11, 2016 at 05:28:38PM +0200, Jan Glauber wrote:
+> Switch to the i2c bus recovery framework using generic SCL recovery.
+> If this fails try to reset the hardware. The recovery is triggered
+> during START on timeout of the interrupt or failure to reach
+> the START / repeated-START condition.
+>=20
+> The START function is moved to xfer and while at it:
+> - removed xfer debug message (i2c core already provides debugging)
+> - removed length is zero check
+>=20
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
+> ---
+>  drivers/i2c/busses/i2c-octeon.c | 178 +++++++++++++++++++++++++---------=
+------
+>  1 file changed, 111 insertions(+), 67 deletions(-)
 
-This was the diff of v6:
+Interesting, it got larger...
 
->  32 files changed, 1277 insertions(+), 915 deletions(-)
+>=20
+> +/**
+> + * octeon_i2c_write_int - read the TWSI_INT register
 
-This is v7:
+read_int
 
->  32 files changed, 1225 insertions(+), 916 deletions(-)
+> +	int ret, retries =3D 2;
 
-So, we gained a little overall. And while the individual drivers have a
-few lines more now, I still think it is more readable.
+I don't think 'retries' makes sense here. On failure, you return
+-EAGAIN, so the core will retry 'adapter->retries' times anyhow.
 
-So, thanks for doing that!
+> -	if (length < 1)
+> -		return -EINVAL;
 
-I'll give people some time for testing. I'll have a further look, too.
-Hopefully, I can pick up patches 1-14 by the end of the week.
+So, the adapter support 0-length messages now? Or why was it there? I
+have the feeling this is a seperate patch.
 
-   Wolfram
+> +static void octeon_i2c_prepare_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct octeon_i2c *i2c =3D i2c_get_adapdata(adap);
+> +
+> +	/*
+> +	 * The stop resets the state machine, does not _transmit_ STOP unless
+> +	 * engine was active.
+> +	 */
+> +	octeon_i2c_stop(i2c);
+> +
+> +	octeon_i2c_write_int(i2c, 0);
 
+Maybe a comment why the delay?
 
---Pk6IbRAofICFmK5e
+> +	udelay(5);
+> +}
+
+--vni90+aGYgRvsTuO
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXF+wFAAoJEBQN5MwUoCm25mEP/i6NKQYFWJO25EYSZWJCerM3
-UEw0k1CInID3LqMNI8/8LmcFiLArc1gA7TqmWksf9M9oW0TPi967rmSRnarI6zQN
-QbpT0qF7gUHYX0XFo7XlARaz/78s6AbdEvkGdicrXx9GzJz1KQQF8L8pZemUS7xY
-FcXsRnCL7/lhzqI+yKyNXrhwlCRLjLd8E6MtLHE20optmZN3nmMuy/jLgD+z3EQs
-fulGOcIjJZWgidiHrNZn6BB2dsd71lXN0ZBb5XNZgHjeevnn2HRgSYzXTtzk7Xye
-9nOR9EWJ8HCWLqeulEohEwOE95Q4uKPoDrQnSGbeQwEpXksHp21miW9T+AWa91gX
-9SI5BYG4aPlDqYGgUrS+pt8+q42Tb0V/gVwP0pFkxMSpZdmpDJxydTZhJ7kCvcQq
-h7Xm2VWE3SMKepnb5agzfhnCgZXIH86SBfv6pciVCq6Rzf3ZahEd3zMnbHl8gJu0
-BtamEGnghtuoSLWzRGEREg+vGPK3LEL4VvZaSJSfv838VcpG0ePMI6a7N7bRU3ah
-y4YTyUi5dd19WCwsqwldSD+zbcJ82xvtbc0Akb3F/bVJBWCdgmh6cAE2cNgfoh/Z
-uhQ94aUFRFQLZSuHO2nHYTX6QeJEAxB6IIK0I4bHXg2oAuHDaPsRmcuHaoz8LIE0
-PmVKkaxsAB7Wa/6TaR25
-=UCS6
+iQIcBAEBAgAGBQJXF/UpAAoJEBQN5MwUoCm2BnQP/3bv1kp/lzoCXS9FNmaEcDAn
+UiLh0j27oqCJO1Z0p2W9SeCOTv6t1/oJlNr3P+66jJlSM2//zUBiI2QOEb2leu/x
+TnFmY2JpkSImw1GGirNnAjoDfMNFzrBH0OeYXDwlcxpAWX9yYzSpk+3D7z7jI19D
+B2a9gxxf17JQbEimtrhveeRXe/XaKkXl0L6ahmKKyMzAV6giRtcnkNJCIgjAacIr
+EyQ+pnFO6bp6vv7nu10OYRdVPLCWhfYSYYfI52gYptiU77XfUQaLpZ9lRPgkO1fq
+5FQ/LidZFmBp5S8xHI1d/PeKox/4nSFYzZJz7lBTmyRLrZJl3Nri1qajHpRwqWo1
+K73ZyGzQAM/wpVo85fx097XSupJaaKIoKb2DMQ+QQz449VEpkjuG4TK/7Ul6hf+j
+Km+0lWDj17N+2+kNX4/Nxj+SafFeuiShijKTmIBZbH0cVS9n7APJTx96hNweuVOd
+hc7epwi1HIHGLww/S6GoRgvQKj/VE0min5gtg2t/HGr3LxIH+CHB2k3pXbQIfOLR
+U2CCj1sAEKF/uGU/cTvvvb5Uq98SPZkHEdS1QIAyIXq4x6ncO2MNSPYJb94zbOCt
+ZN90rcqSezsejc3SHQb9QT01b3hwTdCLqaNytqJF/axpe15qpj35Ev2L/GSDT/bZ
+gzoMKNvz9ZCQ2xisEQez
+=afKG
 -----END PGP SIGNATURE-----
 
---Pk6IbRAofICFmK5e--
+--vni90+aGYgRvsTuO--
