@@ -1,13 +1,13 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v7 09/24] [media] m88ds3103: convert to use an explicit i2c mux core
-Date: Wed, 20 Apr 2016 17:17:49 +0200
-Message-ID: <1461165484-2314-10-git-send-email-peda@axentia.se>
+Subject: [PATCH v7 13/24] [media] cx231xx: convert to use an explicit i2c mux core
+Date: Wed, 20 Apr 2016 17:17:53 +0200
+Message-ID: <1461165484-2314-14-git-send-email-peda@axentia.se>
 References: <1461165484-2314-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <1461165484-2314-1-git-send-email-peda@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel>
 List-Id: linux-i2c@vger.kernel.org
@@ -16,80 +16,139 @@ Allocate an explicit i2c mux core to handle parent and child adapters
 etc. Update the select op to be in terms of the i2c mux core instead
 of the child adapter.
 
-Reviewed-by: Antti Palosaari <crope@iki.fi>
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/media/dvb-frontends/m88ds3103.c      | 19 +++++++++++--------
- drivers/media/dvb-frontends/m88ds3103_priv.h |  2 +-
- 2 files changed, 12 insertions(+), 9 deletions(-)
+ drivers/media/usb/cx231xx/cx231xx-core.c |  6 ++--
+ drivers/media/usb/cx231xx/cx231xx-i2c.c  | 47 ++++++++++++++++----------------
+ drivers/media/usb/cx231xx/cx231xx.h      |  4 ++-
+ 3 files changed, 31 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/m88ds3103.c b/drivers/media/dvb-frontends/m88ds3103.c
-index 76883600ec6f..5557ef8fc704 100644
---- a/drivers/media/dvb-frontends/m88ds3103.c
-+++ b/drivers/media/dvb-frontends/m88ds3103.c
-@@ -1251,9 +1251,9 @@ static void m88ds3103_release(struct dvb_frontend *fe)
- 	i2c_unregister_device(client);
- }
+diff --git a/drivers/media/usb/cx231xx/cx231xx-core.c b/drivers/media/usb/cx231xx/cx231xx-core.c
+index f497888d94bf..f7aac2abd783 100644
+--- a/drivers/media/usb/cx231xx/cx231xx-core.c
++++ b/drivers/media/usb/cx231xx/cx231xx-core.c
+@@ -1304,6 +1304,9 @@ int cx231xx_dev_init(struct cx231xx *dev)
+ 	cx231xx_i2c_register(&dev->i2c_bus[1]);
+ 	cx231xx_i2c_register(&dev->i2c_bus[2]);
  
--static int m88ds3103_select(struct i2c_adapter *adap, void *mux_priv, u32 chan)
-+static int m88ds3103_select(struct i2c_mux_core *muxc, u32 chan)
++	errCode = cx231xx_i2c_mux_create(dev);
++	if (errCode < 0)
++		return errCode;
+ 	cx231xx_i2c_mux_register(dev, 0);
+ 	cx231xx_i2c_mux_register(dev, 1);
+ 
+@@ -1426,8 +1429,7 @@ EXPORT_SYMBOL_GPL(cx231xx_dev_init);
+ void cx231xx_dev_uninit(struct cx231xx *dev)
  {
--	struct m88ds3103_dev *dev = mux_priv;
-+	struct m88ds3103_dev *dev = i2c_mux_priv(muxc);
- 	struct i2c_client *client = dev->client;
- 	int ret;
- 	struct i2c_msg msg = {
-@@ -1374,7 +1374,7 @@ static struct i2c_adapter *m88ds3103_get_i2c_adapter(struct i2c_client *client)
+ 	/* Un Initialize I2C bus */
+-	cx231xx_i2c_mux_unregister(dev, 1);
+-	cx231xx_i2c_mux_unregister(dev, 0);
++	cx231xx_i2c_mux_unregister(dev);
+ 	cx231xx_i2c_unregister(&dev->i2c_bus[2]);
+ 	cx231xx_i2c_unregister(&dev->i2c_bus[1]);
+ 	cx231xx_i2c_unregister(&dev->i2c_bus[0]);
+diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+index a29c345b027d..473cd3433fe5 100644
+--- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
++++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+@@ -557,40 +557,41 @@ int cx231xx_i2c_unregister(struct cx231xx_i2c *bus)
+  * cx231xx_i2c_mux_select()
+  * switch i2c master number 1 between port1 and port3
+  */
+-static int cx231xx_i2c_mux_select(struct i2c_adapter *adap,
+-			void *mux_priv, u32 chan_id)
++static int cx231xx_i2c_mux_select(struct i2c_mux_core *muxc, u32 chan_id)
+ {
+-	struct cx231xx *dev = mux_priv;
++	struct cx231xx *dev = i2c_mux_priv(muxc);
  
- 	dev_dbg(&client->dev, "\n");
- 
--	return dev->i2c_adapter;
-+	return dev->muxc->adapter[0];
+ 	return cx231xx_enable_i2c_port_3(dev, chan_id);
  }
  
- static int m88ds3103_probe(struct i2c_client *client,
-@@ -1467,13 +1467,16 @@ static int m88ds3103_probe(struct i2c_client *client,
- 		goto err_kfree;
- 
- 	/* create mux i2c adapter for tuner */
--	dev->i2c_adapter = i2c_add_mux_adapter(client->adapter, &client->dev,
--					       dev, 0, 0, 0, m88ds3103_select,
--					       NULL);
--	if (dev->i2c_adapter == NULL) {
-+	dev->muxc = i2c_mux_alloc(client->adapter, &client->dev, 1, 0, 0,
-+				  m88ds3103_select, NULL);
-+	if (!dev->muxc) {
- 		ret = -ENOMEM;
- 		goto err_kfree;
- 	}
++int cx231xx_i2c_mux_create(struct cx231xx *dev)
++{
++	dev->muxc = i2c_mux_alloc(&dev->i2c_bus[1].i2c_adap, dev->dev, 2, 0, 0,
++				  cx231xx_i2c_mux_select, NULL);
++	if (!dev->muxc)
++		return -ENOMEM;
 +	dev->muxc->priv = dev;
-+	ret = i2c_mux_add_adapter(dev->muxc, 0, 0, 0);
-+	if (ret)
-+		goto err_kfree;
++	return 0;
++}
++
+ int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no)
+ {
+-	struct i2c_adapter *i2c_parent = &dev->i2c_bus[1].i2c_adap;
+-	/* what is the correct mux_dev? */
+-	struct device *mux_dev = dev->dev;
+-
+-	dev->i2c_mux_adap[mux_no] = i2c_add_mux_adapter(i2c_parent,
+-				mux_dev,
+-				dev /* mux_priv */,
+-				0,
+-				mux_no /* chan_id */,
+-				0 /* class */,
+-				&cx231xx_i2c_mux_select,
+-				NULL);
+-
+-	if (!dev->i2c_mux_adap[mux_no])
++	int rc;
++
++	rc = i2c_mux_add_adapter(dev->muxc,
++				 0,
++				 mux_no /* chan_id */,
++				 0 /* class */);
++	if (rc)
+ 		dev_warn(dev->dev,
+ 			 "i2c mux %d register FAILED\n", mux_no);
  
- 	/* create dvb_frontend */
- 	memcpy(&dev->fe.ops, &m88ds3103_ops, sizeof(struct dvb_frontend_ops));
-@@ -1502,7 +1505,7 @@ static int m88ds3103_remove(struct i2c_client *client)
+-	return 0;
++	return rc;
+ }
  
- 	dev_dbg(&client->dev, "\n");
- 
--	i2c_del_mux_adapter(dev->i2c_adapter);
+-void cx231xx_i2c_mux_unregister(struct cx231xx *dev, int mux_no)
++void cx231xx_i2c_mux_unregister(struct cx231xx *dev)
+ {
+-	i2c_del_mux_adapter(dev->i2c_mux_adap[mux_no]);
+-	dev->i2c_mux_adap[mux_no] = NULL;
 +	i2c_mux_del_adapters(dev->muxc);
+ }
  
- 	kfree(dev);
- 	return 0;
-diff --git a/drivers/media/dvb-frontends/m88ds3103_priv.h b/drivers/media/dvb-frontends/m88ds3103_priv.h
-index eee8c22c51ec..c5b4e177c6ea 100644
---- a/drivers/media/dvb-frontends/m88ds3103_priv.h
-+++ b/drivers/media/dvb-frontends/m88ds3103_priv.h
-@@ -42,7 +42,7 @@ struct m88ds3103_dev {
- 	enum fe_status fe_status;
- 	u32 dvbv3_ber; /* for old DVBv3 API read_ber */
- 	bool warm; /* FW running */
--	struct i2c_adapter *i2c_adapter;
+ struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port)
+@@ -603,9 +604,9 @@ struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port)
+ 	case I2C_2:
+ 		return &dev->i2c_bus[2].i2c_adap;
+ 	case I2C_1_MUX_1:
+-		return dev->i2c_mux_adap[0];
++		return dev->muxc->adapter[0];
+ 	case I2C_1_MUX_3:
+-		return dev->i2c_mux_adap[1];
++		return dev->muxc->adapter[1];
+ 	default:
+ 		return NULL;
+ 	}
+diff --git a/drivers/media/usb/cx231xx/cx231xx.h b/drivers/media/usb/cx231xx/cx231xx.h
+index 69f6d20870f5..90c867683076 100644
+--- a/drivers/media/usb/cx231xx/cx231xx.h
++++ b/drivers/media/usb/cx231xx/cx231xx.h
+@@ -624,6 +624,7 @@ struct cx231xx {
+ 
+ 	/* I2C adapters: Master 1 & 2 (External) & Master 3 (Internal only) */
+ 	struct cx231xx_i2c i2c_bus[3];
 +	struct i2c_mux_core *muxc;
- 	/* auto detect chip id to do different config */
- 	u8 chip_id;
- 	/* main mclk is calculated for M88RS6000 dynamically */
+ 	struct i2c_adapter *i2c_mux_adap[2];
+ 
+ 	unsigned int xc_fw_load_done:1;
+@@ -760,8 +761,9 @@ int cx231xx_reset_analog_tuner(struct cx231xx *dev);
+ void cx231xx_do_i2c_scan(struct cx231xx *dev, int i2c_port);
+ int cx231xx_i2c_register(struct cx231xx_i2c *bus);
+ int cx231xx_i2c_unregister(struct cx231xx_i2c *bus);
++int cx231xx_i2c_mux_create(struct cx231xx *dev);
+ int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no);
+-void cx231xx_i2c_mux_unregister(struct cx231xx *dev, int mux_no);
++void cx231xx_i2c_mux_unregister(struct cx231xx *dev);
+ struct i2c_adapter *cx231xx_get_i2c_adap(struct cx231xx *dev, int i2c_port);
+ 
+ /* Internal block control functions */
 -- 
 2.1.4
+
