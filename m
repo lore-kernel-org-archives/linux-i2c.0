@@ -1,77 +1,63 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] iio: inv_mpu6050: Add support for auxiliary I2C master
-Date: Wed, 20 Apr 2016 20:31:00 +0000
-Message-ID: <AM4PR02MB129981BAE6A4E893DDD38173BC6D0@AM4PR02MB1299.eurprd02.prod.outlook.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v7 00/24] i2c mux cleanup and locking update
+Date: Wed, 20 Apr 2016 22:52:22 +0200
+Message-ID: <20160420205221.GB1546@katana>
+References: <1461165484-2314-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: sv-SE
-Sender: linux-kernel-owner@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>, Jonathan Cameron <jic23@kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Peter Rosin <peda@axentia.se>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Pk6IbRAofICFmK5e"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1461165484-2314-1-git-send-email-peda@axentia.se>
+Sender: linux-doc-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlo>
 List-Id: linux-i2c@vger.kernel.org
 
-Crestez Dan Leonard wrote:
-> The MPU has an auxiliary I2C bus for connecting external
-> sensors. This bus has two operating modes:
-> * pass-through, which connects the primary and auxiliary busses
-> together. This is already supported via an i2c mux.
-> * I2C master mode, where the mpu60x0 acts as a master to any external
-> connected sensors. This is implemented by this patch.
-> 
-> This I2C master mode also works when the MPU itself is connected via
-> SPI.
-> 
-> I2C master supports up to 5 slaves. Slaves 0-3 have a common operating
-> mode while slave 4 is different. This patch implements an i2c adapter
-> using slave 4 because it has a cleaner interface and it has an
-> interrupt that signals when data from slave to master arrived.
-> 
-> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
-> ---
-> 
-> This is based on earlier work by Daniel Baluta <daniel.baluta@intel.com>:
-> https://www.spinics.net/lists/linux-iio/msg23573.html
-> 
-> Changes since that version:
-> * Nest the adapter in inv_mpu6050_state instead of making it static
-> * Explicitly forward of_node "i2c-aux-master" to allow describing aux devices
-> via devicetree.
-> 
-> For bypass/mux mode devicetree works automatically. The forwarding is based on
-> the "chan_id" parameter to i2c_add_mux_adapter and is implemented here:
-> 
-> http://lxr.free-electrons.com/source/drivers/i2c/i2c-mux.c#L158
 
-With any luck [1], this reference will be stale when 4.6 is released. It
-should be qulified with a version, something like .../i2c-mux.c?v=4.5#L158
+--Pk6IbRAofICFmK5e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Perhaps it might be better for devices handled via master mode to be described
-> via i2c@1? This would work by scanning the mpu node's children for something
-> with reg == 1.
 
-The 0 in i2c@0 (which is used by the mux mode) is the index of the mux slave
-meaning that i2c@1 would be a second mux slave on the same mux, but this is
-not a real mux as such, it is a gate which is piggybacking on the i2c mux infra.
-So, this "mux" can't have a second slave which is why only 0 is valid.
+This was the diff of v6:
 
-Tl;dr i2c@1 is definitely wrong for something that is not related to i2c@0.
+>  32 files changed, 1277 insertions(+), 915 deletions(-)
 
-> Or maybe the two busses should be called i2c-aux-master and i2c-aux-mux? Not
-> sure how to deal with that on the mux side.
+This is v7:
 
-Changing i2c to i2c-aux-mux would break existing device trees, that seems
-like a bad thing, no?
+>  32 files changed, 1225 insertions(+), 916 deletions(-)
 
-> It is not clear how to properly handle this and suggestions are welcome. The
-> way it currently works with this patch is documented immediately below.
+So, we gained a little overall. And while the individual drivers have a
+few lines more now, I still think it is more readable.
 
-I think the naming could be i2c-master0, i2c-master1 etc if it, with
-future work, would be possible to add more than one master (you talked about
-5 i2c slaves..).
+So, thanks for doing that!
 
-Cheers,
-Peter
+I'll give people some time for testing. I'll have a further look, too.
+Hopefully, I can pick up patches 1-14 by the end of the week.
 
-[1] https://lkml.org/lkml/2016/4/20/467
+   Wolfram
+
+
+--Pk6IbRAofICFmK5e
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXF+wFAAoJEBQN5MwUoCm25mEP/i6NKQYFWJO25EYSZWJCerM3
+UEw0k1CInID3LqMNI8/8LmcFiLArc1gA7TqmWksf9M9oW0TPi967rmSRnarI6zQN
+QbpT0qF7gUHYX0XFo7XlARaz/78s6AbdEvkGdicrXx9GzJz1KQQF8L8pZemUS7xY
+FcXsRnCL7/lhzqI+yKyNXrhwlCRLjLd8E6MtLHE20optmZN3nmMuy/jLgD+z3EQs
+fulGOcIjJZWgidiHrNZn6BB2dsd71lXN0ZBb5XNZgHjeevnn2HRgSYzXTtzk7Xye
+9nOR9EWJ8HCWLqeulEohEwOE95Q4uKPoDrQnSGbeQwEpXksHp21miW9T+AWa91gX
+9SI5BYG4aPlDqYGgUrS+pt8+q42Tb0V/gVwP0pFkxMSpZdmpDJxydTZhJ7kCvcQq
+h7Xm2VWE3SMKepnb5agzfhnCgZXIH86SBfv6pciVCq6Rzf3ZahEd3zMnbHl8gJu0
+BtamEGnghtuoSLWzRGEREg+vGPK3LEL4VvZaSJSfv838VcpG0ePMI6a7N7bRU3ah
+y4YTyUi5dd19WCwsqwldSD+zbcJ82xvtbc0Akb3F/bVJBWCdgmh6cAE2cNgfoh/Z
+uhQ94aUFRFQLZSuHO2nHYTX6QeJEAxB6IIK0I4bHXg2oAuHDaPsRmcuHaoz8LIE0
+PmVKkaxsAB7Wa/6TaR25
+=UCS6
+-----END PGP SIGNATURE-----
+
+--Pk6IbRAofICFmK5e--
