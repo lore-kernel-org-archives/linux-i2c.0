@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v7 06/24] i2c: i2c-mux-pca954x: convert to use an explicit i2c mux core
-Date: Wed, 20 Apr 2016 17:17:46 +0200
-Message-ID: <1461165484-2314-7-git-send-email-peda@axentia.se>
+Subject: [PATCH v7 05/24] i2c: i2c-mux-pca9541: convert to use an explicit i2c mux core
+Date: Wed, 20 Apr 2016 17:17:45 +0200
+Message-ID: <1461165484-2314-6-git-send-email-peda@axentia.se>
 References: <1461165484-2314-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -16,158 +16,133 @@ Allocate an explicit i2c mux core to handle parent and child adapters
 etc. Update the select/deselect ops to be in terms of the i2c mux core
 instead of the child adapter.
 
-Add a mask to handle the case where not all child adapters should
-cause a mux deselect to happen, now that there is a common deselect op
-for all child adapters.
-
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/muxes/i2c-mux-pca954x.c | 61 ++++++++++++++++++-------------------
- 1 file changed, 30 insertions(+), 31 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pca9541.c | 58 +++++++++++++++++--------------------
+ 1 file changed, 27 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index acfcef3d4068..528e755c468f 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -60,9 +60,10 @@ enum pca_type {
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index d0ba424adebc..3cb8af635db5 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -73,7 +73,7 @@
+ #define SELECT_DELAY_LONG	1000
  
- struct pca954x {
- 	enum pca_type type;
--	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
- 
- 	u8 last_chan;		/* last register value */
-+	u8 deselect;
+ struct pca9541 {
+-	struct i2c_adapter *mux_adap;
 +	struct i2c_client *client;
+ 	unsigned long select_timeout;
+ 	unsigned long arb_timeout;
  };
+@@ -217,7 +217,8 @@ static const u8 pca9541_control[16] = {
+  */
+ static int pca9541_arbitrate(struct i2c_client *client)
+ {
+-	struct pca9541 *data = i2c_get_clientdata(client);
++	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
++	struct pca9541 *data = i2c_mux_priv(muxc);
+ 	int reg;
  
- struct chip_desc {
-@@ -146,10 +147,10 @@ static int pca954x_reg_write(struct i2c_adapter *adap,
- 	return ret;
+ 	reg = pca9541_reg_read(client, PCA9541_CONTROL);
+@@ -285,9 +286,10 @@ static int pca9541_arbitrate(struct i2c_client *client)
+ 	return 0;
  }
  
--static int pca954x_select_chan(struct i2c_adapter *adap,
--			       void *client, u32 chan)
-+static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
+-static int pca9541_select_chan(struct i2c_adapter *adap, void *client, u32 chan)
++static int pca9541_select_chan(struct i2c_mux_core *muxc, u32 chan)
  {
--	struct pca954x *data = i2c_get_clientdata(client);
-+	struct pca954x *data = i2c_mux_priv(muxc);
+-	struct pca9541 *data = i2c_get_clientdata(client);
++	struct pca9541 *data = i2c_mux_priv(muxc);
 +	struct i2c_client *client = data->client;
- 	const struct chip_desc *chip = &chips[data->type];
- 	u8 regval;
- 	int ret = 0;
-@@ -162,21 +163,24 @@ static int pca954x_select_chan(struct i2c_adapter *adap,
- 
- 	/* Only select the channel if its different from the last channel */
- 	if (data->last_chan != regval) {
--		ret = pca954x_reg_write(adap, client, regval);
-+		ret = pca954x_reg_write(muxc->parent, client, regval);
- 		data->last_chan = regval;
- 	}
- 
- 	return ret;
+ 	int ret;
+ 	unsigned long timeout = jiffies + ARB2_TIMEOUT;
+ 		/* give up after this time */
+@@ -309,9 +311,11 @@ static int pca9541_select_chan(struct i2c_adapter *adap, void *client, u32 chan)
+ 	return -ETIMEDOUT;
  }
  
--static int pca954x_deselect_mux(struct i2c_adapter *adap,
+-static int pca9541_release_chan(struct i2c_adapter *adap,
 -				void *client, u32 chan)
-+static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
++static int pca9541_release_chan(struct i2c_mux_core *muxc, u32 chan)
  {
--	struct pca954x *data = i2c_get_clientdata(client);
-+	struct pca954x *data = i2c_mux_priv(muxc);
++	struct pca9541 *data = i2c_mux_priv(muxc);
 +	struct i2c_client *client = data->client;
 +
-+	if (!(data->deselect & (1 << chan)))
-+		return 0;
- 
- 	/* Deselect active channel */
- 	data->last_chan = 0;
--	return pca954x_reg_write(adap, client, data->last_chan);
-+	return pca954x_reg_write(muxc->parent, client, data->last_chan);
+ 	pca9541_release_bus(client);
+ 	return 0;
  }
- 
- /*
-@@ -191,17 +195,22 @@ static int pca954x_probe(struct i2c_client *client,
- 	bool idle_disconnect_dt;
- 	struct gpio_desc *gpio;
- 	int num, force, class;
+@@ -324,20 +328,13 @@ static int pca9541_probe(struct i2c_client *client,
+ {
+ 	struct i2c_adapter *adap = client->adapter;
+ 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
 +	struct i2c_mux_core *muxc;
- 	struct pca954x *data;
- 	int ret;
+ 	struct pca9541 *data;
+ 	int force;
+-	int ret = -ENODEV;
++	int ret;
  
- 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
- 		return -ENODEV;
- 
--	data = devm_kzalloc(&client->dev, sizeof(struct pca954x), GFP_KERNEL);
--	if (!data)
-+	muxc = i2c_mux_alloc(adap, &client->dev,
-+			     PCA954X_MAX_NCHANS, sizeof(*data), 0,
-+			     pca954x_select_chan, pca954x_deselect_mux);
-+	if (!muxc)
- 		return -ENOMEM;
-+	data = i2c_mux_priv(muxc);
- 
--	i2c_set_clientdata(client, data);
-+	i2c_set_clientdata(client, muxc);
-+	data->client = client;
- 
- 	/* Get the mux out of reset if a reset GPIO is specified. */
- 	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_LOW);
-@@ -238,16 +247,13 @@ static int pca954x_probe(struct i2c_client *client,
- 				/* discard unconfigured channels */
- 				break;
- 			idle_disconnect_pd = pdata->modes[num].deselect_on_exit;
-+			data->deselect |= (idle_disconnect_pd
-+					   || idle_disconnect_dt) << num;
- 		}
- 
--		data->virt_adaps[num] =
--			i2c_add_mux_adapter(adap, &client->dev, client,
--				force, num, class, pca954x_select_chan,
--				(idle_disconnect_pd || idle_disconnect_dt)
--					? pca954x_deselect_mux : NULL);
-+		ret = i2c_mux_add_adapter(muxc, force, num, class);
- 
--		if (data->virt_adaps[num] == NULL) {
--			ret = -ENODEV;
-+		if (ret) {
- 			dev_err(&client->dev,
- 				"failed to register multiplexed adapter"
- 				" %d as bus %d\n", num, force);
-@@ -263,23 +269,15 @@ static int pca954x_probe(struct i2c_client *client,
- 	return 0;
- 
- virt_reg_failed:
--	for (num--; num >= 0; num--)
--		i2c_del_mux_adapter(data->virt_adaps[num]);
-+	i2c_mux_del_adapters(muxc);
- 	return ret;
- }
- 
- static int pca954x_remove(struct i2c_client *client)
- {
--	struct pca954x *data = i2c_get_clientdata(client);
--	const struct chip_desc *chip = &chips[data->type];
--	int i;
+ 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE_DATA))
+-		goto err;
 -
--	for (i = 0; i < chip->nchans; ++i)
--		if (data->virt_adaps[i]) {
--			i2c_del_mux_adapter(data->virt_adaps[i]);
--			data->virt_adaps[i] = NULL;
--		}
+-	data = kzalloc(sizeof(struct pca9541), GFP_KERNEL);
+-	if (!data) {
+-		ret = -ENOMEM;
+-		goto err;
+-	}
+-
+-	i2c_set_clientdata(client, data);
++		return -ENODEV;
+ 
+ 	/*
+ 	 * I2C accesses are unprotected here.
+@@ -352,34 +349,33 @@ static int pca9541_probe(struct i2c_client *client,
+ 	force = 0;
+ 	if (pdata)
+ 		force = pdata->modes[0].adap_id;
+-	data->mux_adap = i2c_add_mux_adapter(adap, &client->dev, client,
+-					     force, 0, 0,
+-					     pca9541_select_chan,
+-					     pca9541_release_chan);
++	muxc = i2c_mux_alloc(adap, &client->dev, 1, sizeof(*data), 0,
++			     pca9541_select_chan, pca9541_release_chan);
++	if (!muxc)
++		return -ENOMEM;
+ 
+-	if (data->mux_adap == NULL) {
++	data = i2c_mux_priv(muxc);
++	data->client = client;
++
++	i2c_set_clientdata(client, muxc);
++
++	ret = i2c_mux_add_adapter(muxc, force, 0, 0);
++	if (ret) {
+ 		dev_err(&client->dev, "failed to register master selector\n");
+-		goto exit_free;
++		return ret;
+ 	}
+ 
+ 	dev_info(&client->dev, "registered master selector for I2C %s\n",
+ 		 client->name);
+ 
+ 	return 0;
+-
+-exit_free:
+-	kfree(data);
+-err:
+-	return ret;
+ }
+ 
+ static int pca9541_remove(struct i2c_client *client)
+ {
+-	struct pca9541 *data = i2c_get_clientdata(client);
+-
+-	i2c_del_mux_adapter(data->mux_adap);
 +	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
  
+-	kfree(data);
 +	i2c_mux_del_adapters(muxc);
  	return 0;
  }
  
-@@ -287,7 +285,8 @@ static int pca954x_remove(struct i2c_client *client)
- static int pca954x_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
--	struct pca954x *data = i2c_get_clientdata(client);
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
-+	struct pca954x *data = i2c_mux_priv(muxc);
- 
- 	data->last_chan = 0;
- 	return i2c_smbus_write_byte(client, 0);
 -- 
 2.1.4
