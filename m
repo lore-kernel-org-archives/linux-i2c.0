@@ -1,61 +1,86 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH v2 1/2] i2c: s3c2410: Print errno code in error logs
-Date: Wed, 20 Apr 2016 10:37:55 -0400
-Message-ID: <1461163076-5959-1-git-send-email-javier@osg.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [RESEND PATCH v2 00/13] eeprom: support for at24cs and at24mac
+Date: Wed, 20 Apr 2016 16:38:59 +0200
+Message-ID: <CAMpxmJVwFtLNi9cWXpEgY-5hJ+BE4VXPCAzkweCJCW6ezA=Ucg@mail.gmail.com>
+References: <1460401049-25459-1-git-send-email-bgolaszewski@baylibre.com>
+	<20160416211733.GD1522@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-io0-f171.google.com ([209.85.223.171]:36454 "EHLO
+	mail-io0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933011AbcDTOjA (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Apr 2016 10:39:00 -0400
+Received: by mail-io0-f171.google.com with SMTP id u185so54227606iod.3
+        for <linux-i2c@vger.kernel.org>; Wed, 20 Apr 2016 07:38:59 -0700 (PDT)
+In-Reply-To: <20160416211733.GD1522@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>
 
-The driver not always prints the error code in case of a failure but this
-information can be very useful for debugging. So let's print if available.
+2016-04-16 23:17 GMT+02:00 Wolfram Sang <wsa@the-dreams.de>:
+> Hi,
+>
+> On Mon, Apr 11, 2016 at 11:57:16AM -0700, Bartosz Golaszewski wrote:
+>> Chips from the at24cs EEPROM series have an additional read-only
+>> memory area containing a factory pre-programmed serial number. In
+>> order to access it, a dummy write must be executed before reading
+>> the serial number bytes.
+>>
+>> Chips from the at24mac familiy, apart from the serial number, have
+>> a second special memory area containing a factory programmed
+>> EUI-48/EUI64 mac address.
+>>
+>> The read-only serial/mac memory area is accessible on a different i2c
+>> slave address (addr + 0x08). This patchset makes it possible to
+>> instantiate a separate at24 device on this second address and access
+>> the read-only area through the regular eeprom sysfs attribute or the
+>> new nvmem subsystem.
+>>
+>> This series also contains several patches intoducing some minor tweaks
+>> and refactoring.
+>>
+>> Tested with at24cs32 and at24cs02 chips (for both 16 and 8 bit address
+>> pointers). I have no means of testing the support for at24mac chips, I
+>> relied solely on the datasheet.
+>
+> Thanks for adding at24mac nonetheless!
+>
+> I still don't understand why you want to add this to at24 instead of
+> doing a seperate driver for it? You basically tie a read_function to an
+> nvmem device. You don't need the special smbus handling, cutting large
+> requests into chunks, write support, size flags and all this from at24.
+> And with the function pointers, it makes the already complex code a bit
+> more complex.
+>
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Hi Wolfram,
 
----
+while you're right that this makes the code more complex, I can see
+some space for overall improvement of the driver's code quality with
+function pointers.
 
-Hello,
+The read and write routines are quite complex and decide which
+operations to use (smbus or i2c) on the fly every time they're called.
+Why not split them into several simpler functions (each implementing a
+single way of talking to EEPROM) that would be assigned in probe()
+depending on the chip type and adapter's functionalities? Would you be
+willing to accept a series that does it?
 
-This patch and 2/2 were only build tested because I don't have access to
-a board using this IP block. I just noticed these issues when comparing
-the i2c-s3c2410 driver with i2c-exynos5 where I did some fixes recently.
+> IMO, this could be solved by a simple, seperate driver. You could start
+> with at24 and remove unneeded stuff. I think there should be mainly
+> nvmem-init code and your read routines left. I also think this new
+> driver should be allowed to set the "compat" option of the nvmem
+> framework, so you'll get the "eeprom" file, too.
+>
+> Or am I overlooking something?
+>
 
-I think the patches are simple enough that is safe to pick them but of
-course testing will be highly appreciated.
+I think creating two new drivers for something as simple as that is
+overkill. Especially when it's a backwards compatible sub-family of
+chips we're talking about. How about leaving this in at24 and instead
+cleaning the driver up a bit with the approach I suggested above?
 
 Best regards,
-Javier
-
-Changes in v2:
-- Don't print the errno code on probe since it's already printed by the
-  core. Suggested by Krzysztof Kozlowski.
-
- drivers/i2c/busses/i2c-s3c2410.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 362a6de54833..13f67df65c45 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -944,7 +944,7 @@ static int s3c24xx_i2c_cpufreq_transition(struct notifier_block *nb,
- 		i2c_unlock_adapter(&i2c->adap);
- 
- 		if (ret < 0)
--			dev_err(i2c->dev, "cannot find frequency\n");
-+			dev_err(i2c->dev, "cannot find frequency (%d)\n", ret);
- 		else
- 			dev_info(i2c->dev, "setting freq %d\n", got);
- 	}
-@@ -995,7 +995,8 @@ static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
- 
- 		ret = gpio_request(gpio, "i2c-bus");
- 		if (ret) {
--			dev_err(i2c->dev, "gpio [%d] request failed\n", gpio);
-+			dev_err(i2c->dev, "gpio [%d] request failed (%d)\n",
-+				gpio, ret);
- 			goto free_gpio;
- 		}
- 	}
--- 
-2.5.5
+Bartosz Golaszewski
