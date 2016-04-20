@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v7 03/24] i2c: i2c-mux-pinctrl: convert to use an explicit i2c mux core
-Date: Wed, 20 Apr 2016 17:17:43 +0200
-Message-ID: <1461165484-2314-4-git-send-email-peda@axentia.se>
+Subject: [PATCH v7 06/24] i2c: i2c-mux-pca954x: convert to use an explicit i2c mux core
+Date: Wed, 20 Apr 2016 17:17:46 +0200
+Message-ID: <1461165484-2314-7-git-send-email-peda@axentia.se>
 References: <1461165484-2314-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -16,219 +16,158 @@ Allocate an explicit i2c mux core to handle parent and child adapters
 etc. Update the select/deselect ops to be in terms of the i2c mux core
 instead of the child adapter.
 
+Add a mask to handle the case where not all child adapters should
+cause a mux deselect to happen, now that there is a common deselect op
+for all child adapters.
+
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/muxes/i2c-mux-pinctrl.c | 83 ++++++++++++++-----------------------
- 1 file changed, 30 insertions(+), 53 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 61 ++++++++++++++++++-------------------
+ 1 file changed, 30 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-index b5a982ba8898..1b8dc711815e 100644
---- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-@@ -26,34 +26,29 @@
- #include <linux/of.h>
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index acfcef3d4068..528e755c468f 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -60,9 +60,10 @@ enum pca_type {
  
- struct i2c_mux_pinctrl {
--	struct device *dev;
- 	struct i2c_mux_pinctrl_platform_data *pdata;
- 	struct pinctrl *pinctrl;
- 	struct pinctrl_state **states;
- 	struct pinctrl_state *state_idle;
--	struct i2c_adapter *parent;
--	struct i2c_adapter **busses;
+ struct pca954x {
+ 	enum pca_type type;
+-	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
+ 
+ 	u8 last_chan;		/* last register value */
++	u8 deselect;
++	struct i2c_client *client;
  };
  
--static int i2c_mux_pinctrl_select(struct i2c_adapter *adap, void *data,
--				  u32 chan)
-+static int i2c_mux_pinctrl_select(struct i2c_mux_core *muxc, u32 chan)
- {
--	struct i2c_mux_pinctrl *mux = data;
-+	struct i2c_mux_pinctrl *mux = i2c_mux_priv(muxc);
- 
- 	return pinctrl_select_state(mux->pinctrl, mux->states[chan]);
- }
- 
--static int i2c_mux_pinctrl_deselect(struct i2c_adapter *adap, void *data,
--				    u32 chan)
-+static int i2c_mux_pinctrl_deselect(struct i2c_mux_core *muxc, u32 chan)
- {
--	struct i2c_mux_pinctrl *mux = data;
-+	struct i2c_mux_pinctrl *mux = i2c_mux_priv(muxc);
- 
- 	return pinctrl_select_state(mux->pinctrl, mux->state_idle);
- }
- 
- #ifdef CONFIG_OF
- static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pinctrl *mux,
--				struct platform_device *pdev)
-+				    struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	int num_names, i, ret;
-@@ -64,15 +59,12 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pinctrl *mux,
- 		return 0;
- 
- 	mux->pdata = devm_kzalloc(&pdev->dev, sizeof(*mux->pdata), GFP_KERNEL);
--	if (!mux->pdata) {
--		dev_err(mux->dev,
--			"Cannot allocate i2c_mux_pinctrl_platform_data\n");
-+	if (!mux->pdata)
- 		return -ENOMEM;
--	}
- 
- 	num_names = of_property_count_strings(np, "pinctrl-names");
- 	if (num_names < 0) {
--		dev_err(mux->dev, "Cannot parse pinctrl-names: %d\n",
-+		dev_err(&pdev->dev, "Cannot parse pinctrl-names: %d\n",
- 			num_names);
- 		return num_names;
- 	}
-@@ -80,23 +72,22 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pinctrl *mux,
- 	mux->pdata->pinctrl_states = devm_kzalloc(&pdev->dev,
- 		sizeof(*mux->pdata->pinctrl_states) * num_names,
- 		GFP_KERNEL);
--	if (!mux->pdata->pinctrl_states) {
--		dev_err(mux->dev, "Cannot allocate pinctrl_states\n");
-+	if (!mux->pdata->pinctrl_states)
- 		return -ENOMEM;
--	}
- 
- 	for (i = 0; i < num_names; i++) {
- 		ret = of_property_read_string_index(np, "pinctrl-names", i,
- 			&mux->pdata->pinctrl_states[mux->pdata->bus_count]);
- 		if (ret < 0) {
--			dev_err(mux->dev, "Cannot parse pinctrl-names: %d\n",
-+			dev_err(&pdev->dev, "Cannot parse pinctrl-names: %d\n",
- 				ret);
- 			return ret;
- 		}
- 		if (!strcmp(mux->pdata->pinctrl_states[mux->pdata->bus_count],
- 			    "idle")) {
- 			if (i != num_names - 1) {
--				dev_err(mux->dev, "idle state must be last\n");
-+				dev_err(&pdev->dev,
-+					"idle state must be last\n");
- 				return -EINVAL;
- 			}
- 			mux->pdata->pinctrl_state_idle = "idle";
-@@ -107,13 +98,13 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pinctrl *mux,
- 
- 	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
- 	if (!adapter_np) {
--		dev_err(mux->dev, "Cannot parse i2c-parent\n");
-+		dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
- 		return -ENODEV;
- 	}
- 	adapter = of_find_i2c_adapter_by_node(adapter_np);
- 	of_node_put(adapter_np);
- 	if (!adapter) {
--		dev_err(mux->dev, "Cannot find parent bus\n");
-+		dev_err(&pdev->dev, "Cannot find parent bus\n");
- 		return -EPROBE_DEFER;
- 	}
- 	mux->pdata->parent_bus_num = i2c_adapter_id(adapter);
-@@ -131,19 +122,15 @@ static inline int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pinctrl *mux,
- 
- static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
- {
-+	struct i2c_mux_core *muxc;
- 	struct i2c_mux_pinctrl *mux;
--	int (*deselect)(struct i2c_adapter *, void *, u32);
- 	int i, ret;
- 
- 	mux = devm_kzalloc(&pdev->dev, sizeof(*mux), GFP_KERNEL);
- 	if (!mux) {
--		dev_err(&pdev->dev, "Cannot allocate i2c_mux_pinctrl\n");
- 		ret = -ENOMEM;
- 		goto err;
- 	}
--	platform_set_drvdata(pdev, mux);
--
--	mux->dev = &pdev->dev;
- 
- 	mux->pdata = dev_get_platdata(&pdev->dev);
- 	if (!mux->pdata) {
-@@ -166,14 +153,15 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
- 		goto err;
- 	}
- 
--	mux->busses = devm_kzalloc(&pdev->dev,
--				   sizeof(*mux->busses) * mux->pdata->bus_count,
--				   GFP_KERNEL);
--	if (!mux->busses) {
--		dev_err(&pdev->dev, "Cannot allocate busses\n");
-+	muxc = i2c_mux_alloc(NULL, &pdev->dev, mux->pdata->bus_count, 0, 0,
-+			     i2c_mux_pinctrl_select, NULL);
-+	if (!muxc) {
- 		ret = -ENOMEM;
- 		goto err;
- 	}
-+	muxc->priv = mux;
-+
-+	platform_set_drvdata(pdev, muxc);
- 
- 	mux->pinctrl = devm_pinctrl_get(&pdev->dev);
- 	if (IS_ERR(mux->pinctrl)) {
-@@ -203,13 +191,11 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
- 			goto err;
- 		}
- 
--		deselect = i2c_mux_pinctrl_deselect;
--	} else {
--		deselect = NULL;
-+		muxc->deselect = i2c_mux_pinctrl_deselect;
- 	}
- 
--	mux->parent = i2c_get_adapter(mux->pdata->parent_bus_num);
--	if (!mux->parent) {
-+	muxc->parent = i2c_get_adapter(mux->pdata->parent_bus_num);
-+	if (!muxc->parent) {
- 		dev_err(&pdev->dev, "Parent adapter (%d) not found\n",
- 			mux->pdata->parent_bus_num);
- 		ret = -EPROBE_DEFER;
-@@ -220,12 +206,8 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
- 		u32 bus = mux->pdata->base_bus_num ?
- 				(mux->pdata->base_bus_num + i) : 0;
- 
--		mux->busses[i] = i2c_add_mux_adapter(mux->parent, &pdev->dev,
--						     mux, bus, i, 0,
--						     i2c_mux_pinctrl_select,
--						     deselect);
--		if (!mux->busses[i]) {
--			ret = -ENODEV;
-+		ret = i2c_mux_add_adapter(muxc, bus, i, 0);
-+		if (ret) {
- 			dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
- 			goto err_del_adapter;
- 		}
-@@ -234,23 +216,18 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
- 	return 0;
- 
- err_del_adapter:
--	for (; i > 0; i--)
--		i2c_del_mux_adapter(mux->busses[i - 1]);
--	i2c_put_adapter(mux->parent);
-+	i2c_mux_del_adapters(muxc);
-+	i2c_put_adapter(muxc->parent);
- err:
+ struct chip_desc {
+@@ -146,10 +147,10 @@ static int pca954x_reg_write(struct i2c_adapter *adap,
  	return ret;
  }
  
- static int i2c_mux_pinctrl_remove(struct platform_device *pdev)
+-static int pca954x_select_chan(struct i2c_adapter *adap,
+-			       void *client, u32 chan)
++static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
  {
--	struct i2c_mux_pinctrl *mux = platform_get_drvdata(pdev);
+-	struct pca954x *data = i2c_get_clientdata(client);
++	struct pca954x *data = i2c_mux_priv(muxc);
++	struct i2c_client *client = data->client;
+ 	const struct chip_desc *chip = &chips[data->type];
+ 	u8 regval;
+ 	int ret = 0;
+@@ -162,21 +163,24 @@ static int pca954x_select_chan(struct i2c_adapter *adap,
+ 
+ 	/* Only select the channel if its different from the last channel */
+ 	if (data->last_chan != regval) {
+-		ret = pca954x_reg_write(adap, client, regval);
++		ret = pca954x_reg_write(muxc->parent, client, regval);
+ 		data->last_chan = regval;
+ 	}
+ 
+ 	return ret;
+ }
+ 
+-static int pca954x_deselect_mux(struct i2c_adapter *adap,
+-				void *client, u32 chan)
++static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+ {
+-	struct pca954x *data = i2c_get_clientdata(client);
++	struct pca954x *data = i2c_mux_priv(muxc);
++	struct i2c_client *client = data->client;
++
++	if (!(data->deselect & (1 << chan)))
++		return 0;
+ 
+ 	/* Deselect active channel */
+ 	data->last_chan = 0;
+-	return pca954x_reg_write(adap, client, data->last_chan);
++	return pca954x_reg_write(muxc->parent, client, data->last_chan);
+ }
+ 
+ /*
+@@ -191,17 +195,22 @@ static int pca954x_probe(struct i2c_client *client,
+ 	bool idle_disconnect_dt;
+ 	struct gpio_desc *gpio;
+ 	int num, force, class;
++	struct i2c_mux_core *muxc;
+ 	struct pca954x *data;
+ 	int ret;
+ 
+ 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
+ 		return -ENODEV;
+ 
+-	data = devm_kzalloc(&client->dev, sizeof(struct pca954x), GFP_KERNEL);
+-	if (!data)
++	muxc = i2c_mux_alloc(adap, &client->dev,
++			     PCA954X_MAX_NCHANS, sizeof(*data), 0,
++			     pca954x_select_chan, pca954x_deselect_mux);
++	if (!muxc)
+ 		return -ENOMEM;
++	data = i2c_mux_priv(muxc);
+ 
+-	i2c_set_clientdata(client, data);
++	i2c_set_clientdata(client, muxc);
++	data->client = client;
+ 
+ 	/* Get the mux out of reset if a reset GPIO is specified. */
+ 	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_LOW);
+@@ -238,16 +247,13 @@ static int pca954x_probe(struct i2c_client *client,
+ 				/* discard unconfigured channels */
+ 				break;
+ 			idle_disconnect_pd = pdata->modes[num].deselect_on_exit;
++			data->deselect |= (idle_disconnect_pd
++					   || idle_disconnect_dt) << num;
+ 		}
+ 
+-		data->virt_adaps[num] =
+-			i2c_add_mux_adapter(adap, &client->dev, client,
+-				force, num, class, pca954x_select_chan,
+-				(idle_disconnect_pd || idle_disconnect_dt)
+-					? pca954x_deselect_mux : NULL);
++		ret = i2c_mux_add_adapter(muxc, force, num, class);
+ 
+-		if (data->virt_adaps[num] == NULL) {
+-			ret = -ENODEV;
++		if (ret) {
+ 			dev_err(&client->dev,
+ 				"failed to register multiplexed adapter"
+ 				" %d as bus %d\n", num, force);
+@@ -263,23 +269,15 @@ static int pca954x_probe(struct i2c_client *client,
+ 	return 0;
+ 
+ virt_reg_failed:
+-	for (num--; num >= 0; num--)
+-		i2c_del_mux_adapter(data->virt_adaps[num]);
++	i2c_mux_del_adapters(muxc);
+ 	return ret;
+ }
+ 
+ static int pca954x_remove(struct i2c_client *client)
+ {
+-	struct pca954x *data = i2c_get_clientdata(client);
+-	const struct chip_desc *chip = &chips[data->type];
 -	int i;
 -
--	for (i = 0; i < mux->pdata->bus_count; i++)
--		i2c_del_mux_adapter(mux->busses[i]);
--
--	i2c_put_adapter(mux->parent);
-+	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
+-	for (i = 0; i < chip->nchans; ++i)
+-		if (data->virt_adaps[i]) {
+-			i2c_del_mux_adapter(data->virt_adaps[i]);
+-			data->virt_adaps[i] = NULL;
+-		}
++	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
  
 +	i2c_mux_del_adapters(muxc);
-+	i2c_put_adapter(muxc->parent);
  	return 0;
  }
  
+@@ -287,7 +285,8 @@ static int pca954x_remove(struct i2c_client *client)
+ static int pca954x_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	struct pca954x *data = i2c_get_clientdata(client);
++	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
++	struct pca954x *data = i2c_mux_priv(muxc);
+ 
+ 	data->last_chan = 0;
+ 	return i2c_smbus_write_byte(client, 0);
 -- 
 2.1.4
