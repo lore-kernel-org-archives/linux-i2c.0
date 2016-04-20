@@ -1,62 +1,94 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 3/4] i2c: designware-pcidrv: enable RuntimePM before
- registering to the core
-Date: Wed, 20 Apr 2016 16:03:01 +0300
-Message-ID: <57177E05.80107@linux.intel.com>
-References: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
- <1460638414-5987-4-git-send-email-jszhang@marvell.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCH 1/2] i2c: s3c2410: Print errno code in error logs
+Date: Wed, 20 Apr 2016 09:36:16 -0400
+Message-ID: <571785D0.8090808@osg.samsung.com>
+References: <1461096641-19788-1-git-send-email-javier@osg.samsung.com>
+ <5717455A.1000007@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:36450 "EHLO mga04.intel.com"
+Received: from lists.s-osg.org ([54.187.51.154]:50573 "EHLO lists.s-osg.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752255AbcDTNDG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 20 Apr 2016 09:03:06 -0400
-In-Reply-To: <1460638414-5987-4-git-send-email-jszhang@marvell.com>
+	id S1754639AbcDTNgY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 20 Apr 2016 09:36:24 -0400
+In-Reply-To: <5717455A.1000007@samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jisheng Zhang <jszhang@marvell.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-kernel@vger.kernel.org
+Cc: linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On 04/14/2016 03:53 PM, Jisheng Zhang wrote:
-> As pointed out by commit 36d48fb5766a ("i2c: designware-platdrv: enable
-> RuntimePM before registering to the core"), "The core may register
-> clients attached to this master which may use funtionality from the
-> master", so enable RuntimePM before registering to the core.
->
-> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
-> ---
->   drivers/i2c/busses/i2c-designware-pcidrv.c | 11 +++++++----
->   1 file changed, 7 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> index 7368be0..41a01a7 100644
-> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> @@ -248,14 +248,17 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
->   	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
->   	adap->nr = controller->bus_num;
->
-> +	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
-> +	pm_runtime_use_autosuspend(&pdev->dev);
-> +	pm_runtime_allow(&pdev->dev);
-> +
->   	r = i2c_dw_probe(dev);
-> -	if (r)
-> +	if (r) {
-> +		pm_runtime_forbid(&pdev->dev);
->   		return r;
-> +	}
->
-> -	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
-> -	pm_runtime_use_autosuspend(&pdev->dev);
->   	pm_runtime_put_autosuspend(&pdev->dev);
-> -	pm_runtime_allow(&pdev->dev);
->
-Last time I checked this I didn't see urgent reason for the move because 
-runtime PM is enabled for PCI devices by default via pci_device_add() -> 
-pci_init_capabilities() -> pci_pm_init() -> pm_runtime_enable().
+Hello Krzysztof,
 
+Thanks a lot for your feedback.
+
+On 04/20/2016 05:01 AM, Krzysztof Kozlowski wrote:
+> On 04/19/2016 10:10 PM, Javier Martinez Canillas wrote:
+>> The driver not always prints the error code in case of a failure but this
+>> information can be very useful for debugging. So let's print if available.
+>>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>>
+>> ---
+>>
+>> Hello,
+>>
+>> This patch and 2/2 were only build tested because I don't have access to
+>> a board using this IP block. I just noticed these issues when comparing
+>> the i2c-s3c2410 driver with i2c-exynos5 where I did some fixes recently.
+>>
+>> I think the patches are simple enough that is safe to pick them but of
+>> course testing will be highly appreciated.
+>>
+>> Best regards,
+>> Javier
+>>
+>>  drivers/i2c/busses/i2c-s3c2410.c | 18 +++++++++++-------
+>>  1 file changed, 11 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+>> index 362a6de54833..4b873fe9a75b 100644
+>> --- a/drivers/i2c/busses/i2c-s3c2410.c
+>> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+>> @@ -944,7 +944,7 @@ static int s3c24xx_i2c_cpufreq_transition(struct notifier_block *nb,
+>>  		i2c_unlock_adapter(&i2c->adap);
+>>  
+>>  		if (ret < 0)
+>> -			dev_err(i2c->dev, "cannot find frequency\n");
+>> +			dev_err(i2c->dev, "cannot find frequency (%d)\n", ret);
+>>  		else
+>>  			dev_info(i2c->dev, "setting freq %d\n", got);
+>>  	}
+>> @@ -995,7 +995,8 @@ static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
+>>  
+>>  		ret = gpio_request(gpio, "i2c-bus");
+>>  		if (ret) {
+>> -			dev_err(i2c->dev, "gpio [%d] request failed\n", gpio);
+>> +			dev_err(i2c->dev, "gpio [%d] request failed (%d)\n",
+>> +				gpio, ret);
+>>  			goto free_gpio;
+>>  		}
+>>  	}
+> 
+> The changes above are okay. Below - do not make sense. Just think...
+> What do you want to improve? The probe failure already prints errno!
+>
+> 
+> Just look at crafted example (error triggered manually):
+> [    0.135443] s3c-i2c 13860000.i2c: I2C clock enable failed (-100)
+> [    0.135484] s3c-i2c: probe of 13860000.i2c failed with error -100
+>
+
+Sorry, I missed that. I should had looked more carefully to the call path...
+
+I'll post a v2 with only the changes that makes sense.
+
+> Best regards,
+> Krzysztof
+> 
+
+Best regards,
 -- 
-Jarkko
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
