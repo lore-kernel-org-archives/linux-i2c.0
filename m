@@ -1,62 +1,63 @@
 From: Jisheng Zhang <jszhang@marvell.com>
-Subject: Re: [PATCH 2/4] i2c: designware-platdrv: fix unbalanced clk enable
- and prepare
-Date: Thu, 21 Apr 2016 10:40:22 +0800
-Message-ID: <20160421104022.2d6549a9@xhacker>
+Subject: Re: [PATCH 1/4] i2c: designware-platdrv: Fix runtime PM
+ initialization
+Date: Thu, 21 Apr 2016 11:08:59 +0800
+Message-ID: <20160421110859.1509ad2c@xhacker>
 References: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
- <1460638414-5987-3-git-send-email-jszhang@marvell.com>
- <57177C32.4090000@linux.intel.com>
- <1461161760.6620.306.camel@linux.intel.com>
+	<1460638414-5987-2-git-send-email-jszhang@marvell.com>
+	<571789C4.5020904@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1461161760.6620.306.camel@linux.intel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: wsa@the-dreams.de, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:25185 "EHLO
+	mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751706AbcDUDNJ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Apr 2016 23:13:09 -0400
+In-Reply-To: <571789C4.5020904@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-RGVhciBKYXJra28sIEFuZHksCgpPbiBXZWQsIDIwIEFwciAyMDE2IDE3OjE2OjAwICswMzAwIEFu
-ZHkgU2hldmNoZW5rbyB3cm90ZToKCj4gT24gV2VkLCAyMDE2LTA0LTIwIGF0IDE1OjU1ICswMzAw
-LCBKYXJra28gTmlrdWxhIHdyb3RlOgo+ID4gT24gMDQvMTQvMjAxNiAwMzo1MyBQTSwgSmlzaGVu
-ZyBaaGFuZyB3cm90ZTogIAo+ID4gPiAKPiA+ID4gSWYgaTJjX2R3X3Byb2JlKCkgZmFpbCwgd2Ug
-c2hvdWxkIGNhbGwgaTJjX2R3X3BsYXRfcHJlcGFyZV9jbGsoKSB0bwo+ID4gPiBkaXNhYmxlIGFu
-ZCB1bnByZXBhcmUgdGhlIGNsaywgb3RoZXJ3aXNlIHRoZSBjbGsgZW5hYmxlIGFuZCBwcmVwYXJl
-Cj4gPiA+IGlzIGxlZnQgdW5iYWxhbmNlZC4KPiA+ID4gCj4gPiA+IFNpZ25lZC1vZmYtYnk6IEpp
-c2hlbmcgWmhhbmcgPGpzemhhbmdAbWFydmVsbC5jb20+Cj4gPiA+IC0tLQo+ID4gPiDCoCBkcml2
-ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxhdGRydi5jIHwgMiArKwo+ID4gPiDCoCAx
-IGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspCj4gPiA+IAo+ID4gPiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBsYXRkcnYuYwo+ID4gPiBiL2RyaXZl
-cnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1wbGF0ZHJ2LmMKPiA+ID4gaW5kZXggMDBmOWU5
-OS4uMTQ4OGNlYSAxMDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNp
-Z253YXJlLXBsYXRkcnYuYwo+ID4gPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2ln
-bndhcmUtcGxhdGRydi5jCj4gPiA+IEBAIC0yNjgsNiArMjY4LDggQEAgcnBtX2Rpc2FibGU6Cj4g
-PiA+IMKgwqAJCXBtX3J1bnRpbWVfcHV0X25vaWRsZSgmcGRldi0+ZGV2KTsKPiA+ID4gwqDCoAl9
-Cj4gPiA+IAo+ID4gPiArCWkyY19kd19wbGF0X3ByZXBhcmVfY2xrKGRldiwgZmFsc2UpOwo+ID4g
-PiArCj4gPiA+IMKgwqAJcmV0dXJuIHI7Cj4gPiA+IMKgIH0KPiA+ID4gICAKPiA+IFRoaXMgaXMg
-YSBiaXQgdW5jbGVhciB0byBtZSBkb2VzIGRldm1fY2xrX2dldCB0YWtlIGNhcmUgb2YgY2xrCj4g
-PiBkaXNhYmxpbmfCoAo+ID4gaW4gY2FzZSBvZiBwcm9iZSBlcnJvciBvciBkcml2ZXIgcmVtb3Zh
-bD8KPiA+IAo+ID4gSSBzZWUgQW5keSdzIDFjYjcxNWNhNDY5NCAoImkyYy1kZXNpZ253YXJlOiBt
-b3ZlIHRvIG1hbmFnZWQgZnVuY3Rpb25zwqAKPiA+IChkZXZtXyopIikgcmVtb3ZlZCBpdCBidXQg
-YXQgcXVpY2sgbG9vayBkcml2ZXJzL2Nsay9jbGstZGV2cmVzLmM6wqAKPiA+IGRldm1fY2xrX3Jl
-bGVhc2UoKSBjYWxscyBvbmx5IGNsa19wdXQgYW5kIEkgZG9uJ3Qgc2VlIGRpc2FibGUgaXMgZG9u
-ZcKgCj4gPiBkb3duIHRoZSBwYXRoLiAgCj4gCj4gVGhlIGZvbGxvd2luZyBpcyBhIG1pc3Rha2Ug
-b2YgdGhlIG1lbnRpb25lZCBwYXRjaC4KPiAtwqDCoMKgwqDCoMKgwqBjbGtfZGlzYWJsZV91bnBy
-ZXBhcmUoZGV2LT5jbGspOwo+IAo+IEkgZGlkIGF0IHRoZSBzYW1lIG1pc3Rha2UgaW4gZHdfZG1h
-YyBkcml2ZXIgd2hpY2ggaGFkIGJlZW4gZml4ZWQgbGF0ZXIKPiBpbiB0aGUgY29tbWl0IDhiZTRm
-NTIzYjQ4MCAoImRtYWVuZ2luZTogZHc6IGZpeCByZWdyZXNzaW9uIGluIGR3X3Byb2JlKCkKPiBm
-dW5jdGlvbiIpLgo+IAoKQXMgQW5keSBwb2ludGVkIG91dCwgbWFuYWdlZCBkZXZtX2Nsa19nZXQg
-Y2FuIG9ubHkgYXV0b21hdGljYWxseSBwdXQgY2xrCmJ1dCBkb2Vzbid0IHVucHJlcGFyZSBhbmQg
-ZGlzYWJsZSB0aGUgY2xrCgpUaGFua3MsCkppc2hlbmcKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0Cmxp
-bnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFk
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+Dear Jarkko,
+
+On Wed, 20 Apr 2016 16:53:08 +0300 Jarkko Nikula wrote:
+
+> On 04/14/2016 03:53 PM, Jisheng Zhang wrote:
+> > When pm_runtime_enable() was being called, the device's usage counter
+> > was 0, causing the PM layer to runtime-suspend the device.  We then
+> > went on to call i2c_dw_probe() on a suspended device, which could hung.
+> >
+> > Fix this by incrementing the usage counter before pm_runtime_enable().
+> >
+> > Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+> > ---
+> >   drivers/i2c/busses/i2c-designware-platdrv.c | 14 +++++++++++++-
+> >   1 file changed, 13 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > index d656657..00f9e99 100644
+> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > @@ -246,6 +246,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+> >   	if (dev->pm_runtime_disabled) {
+> >   		pm_runtime_forbid(&pdev->dev);
+> >   	} else {
+> > +		pm_runtime_get_noresume(&pdev->dev);
+> >   		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+> >   		pm_runtime_use_autosuspend(&pdev->dev);
+> >   		pm_runtime_set_active(&pdev->dev);  
+> 
+> pm_runtime_enable() here after pm_runtime_set_active() shouldn't suspend 
+> as far as I understand which made me thinking if there is some other 
+
+FWICT, on arm DT platform, the device usage counter is zero at the beginning,
+once we enable rpm, the i2c have chance to runtime suspend.
+
+Thanks,
+Jisheng
+
+> issue that cause the symptoms what you are seeing? Like race with 
+> runtime PM or similar.
+> 
