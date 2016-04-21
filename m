@@ -1,65 +1,79 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 07/19] i2c: octeon: Use i2c recovery framework
-Date: Thu, 21 Apr 2016 23:33:34 +0200
-Message-ID: <20160421213334.GA1538@katana>
-References: <cover.1460387640.git.jglauber@cavium.com>
- <ab24627b5928f23967633243639b431d2113dbe1.1460387640.git.jglauber@cavium.com>
- <20160420213121.GC1546@katana>
- <20160421130835.GA2623@hardcore>
- <20160421135450.GA5566@katana>
- <20160421175110.GA2710@hardcore>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [RFC PATCH v2 05/10] i2c: add support for ACPI reconfigure notifications
+Date: Fri, 22 Apr 2016 00:41:07 +0300
+Message-ID: <CAE1zotJsvw_oM61Kheo_g-C5ZcRaT-4AxOb6U0QbgXC06M0wTg@mail.gmail.com>
+References: <1461105548-20618-1-git-send-email-octavian.purdila@intel.com>
+	<1461105548-20618-6-git-send-email-octavian.purdila@intel.com>
+	<CAHp75VdCX65bftG+5D2r1N0nwYV0tSDf6+ZgJYPgxu9AV54eKA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:51088 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751731AbcDUVdn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 21 Apr 2016 17:33:43 -0400
-Content-Disposition: inline
-In-Reply-To: <20160421175110.GA2710@hardcore>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CAHp75VdCX65bftG+5D2r1N0nwYV0tSDf6+ZgJYPgxu9AV54eKA@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Glauber <jan.glauber@caviumnetworks.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
+
+On Fri, Apr 22, 2016 at 12:27 AM, Andy Shevchenko
+<andy.shevchenko@gmail.com> wrote:
+>
+
+Hi Andy and thanks for the review!
+
+> On Wed, Apr 20, 2016 at 1:39 AM, Octavian Purdila
+> <octavian.purdila@intel.com> wrote:
+> > This patch adds supports for I2C device enumeration and removal via
+> > ACPI reconfiguration notifications that are send as a result of an
+> > ACPI table load or unload operation.
+>
+> >
+> >         acpi_dev_free_resource_list(&resource_list);
+> >
+> > +       strlcpy(info->type, dev_name(&adev->dev), sizeof(info->type));
+>
+> strscpy() ?
+
+That is the original code, I just moved it in a different function.
+Its probably best if we use a separate patch for this, but is it worth
+it?
+
+>
+> > +static int acpi_i2c_match_adapter(struct device *dev, void *data)
+> > +{
+> > +       struct i2c_adapter *adapter = i2c_verify_adapter(dev);
+> > +
+> > +       if (!adapter)
+> > +               return 0;
+> > +
+>
+> > +       return ACPI_HANDLE(dev) == (acpi_handle)data;
+>
+> What is suppose to return? Hidden bool to integer conversion is not
+> best option I suppose.
+>
+
+per bus_find_device() :
+
+ * The callback should return 0 if the device doesn't match and
+non-zero
+ * if it does.  If the callback returns non-zero, this function will
+ * return to the caller and not iterate over any more devices.
+ */
+struct device *bus_find_device(struct bus_type *bus,
+                               struct device *start, void *data,
+                               int (*match)(struct device *dev, void *data))
 
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> I would like to disable SMBUS_QUICK. It never worked for the read case.
-
-Fine with me.
-
-> Could we break something by disabling the quick-write case or is
-> the quick-write emulated by a larger write if the feature bit is not
-> set?
-
-No emulation. It is simply not supported then. It is actually quite
-dangerous to simulate it with regular write.
-
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXGUctAAoJEBQN5MwUoCm2CVwQAI/iN6vBTLtY8otQUUNGbex1
-P40BpDvtnOAEaGdhmEzIa9XnO4iEX6YW1JX3Plda1FWulYKgqxWFxFXR0+LVSc6Y
-7QcBZVyWs4Anwe57JpOIIFWEeKBU+Db5FamFMd8mJVtsE1haOlJzMv/vZz33jNHq
-0XyFuQgt5xAUFojQDeG1SKgaszZbjCIf9DDxuY7apROi9gXlJVCJvAuY1mfnCXSu
-/Rv/d9oziglZWleRIw/oo6YsPUzlNHmH0UTvmSeOQJwZLH6Ya9xuNDEj18ms9Y/d
-Tdvhs1tmZ3IsGZP5g0sZGODhpBBpf2OD7oOcm2p/LXPuCWZ2xuhkCefjuugMODXO
-8Djz9LbW8ZfFBFabk95QHg7cJpB0hSxNl0Au8QxRZvbPdE/tUTEJQdp+gh8XrNK0
-eQgr9k74iIzwIydZ58euAmBrLexdA4Ehkwtv3qsEJ+wbffwCwseIRV08kl6DoamO
-LP/nCr1TQWZCgA1IoIjAsPwNmDS0RCaVmuNLCAzZ41tw9QjF9CcW6pA8RngF7Blv
-4V+yYYwjED+gB5YYtDOCjrYKWjpcqGVRCMFiQ+COubLglyLVQSYrxo18KChvxtJL
-xoow2jhpIqq49GekgJSdEM9urQQzhCqtW9nXSyMYyAPoSM3Pc7p/2Lesb297oM4d
-ddZr8Fy1ivFQ3olNuDK4
-=YGPx
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
+> > +}
+> > +
+> > +static int acpi_i2c_match_device(struct device *dev, void *data)
+> > +{
+> > +       return ACPI_COMPANION(dev) == data;
+>
+> Ditto.
+>
+> > +}
+>
+> --
+> With Best Regards,
+> Andy Shevchenko
