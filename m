@@ -1,59 +1,125 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 08/19] i2c: octeon: Enable High-Level Controller
-Date: Thu, 21 Apr 2016 15:55:25 +0200
-Message-ID: <20160421135525.GB5566@katana>
-References: <cover.1460387640.git.jglauber@cavium.com>
- <34aac0bb7c0ae1c0ef7ca43d087059d04d9d8b09.1460387640.git.jglauber@cavium.com>
- <20160420214354.GD1546@katana>
- <5717FAC3.6010406@caviumnetworks.com>
- <20160421134053.GB2623@hardcore>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH] iio: inv_mpu6050: Add support for auxiliary I2C master
+Date: Thu, 21 Apr 2016 13:56:18 +0000
+Message-ID: <AM4PR02MB1299B78B76BF112B2E06F20BBC6E0@AM4PR02MB1299.eurprd02.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49352 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751871AbcDUNze (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 21 Apr 2016 09:55:34 -0400
-Content-Disposition: inline
-In-Reply-To: <20160421134053.GB2623@hardcore>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Language: sv-SE
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Glauber <jan.glauber@caviumnetworks.com>
-Cc: David Daney <ddaney@caviumnetworks.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
+Crestez Dan Leonard wrote:
+> On 04/20/2016 11:31 PM, Peter Rosin wrote:
+> > Crestez Dan Leonard wrote:
+> >> Changes since that version:
+> >> * Nest the adapter in inv_mpu6050_state instead of making it static
+> >> * Explicitly forward of_node "i2c-aux-master" to allow describing aux devices
+> >> via devicetree.
+> >>
+> >> For bypass/mux mode devicetree works automatically. The forwarding is based on
+> >> the "chan_id" parameter to i2c_add_mux_adapter and is implemented here:
+> >>
+> >> http://lxr.free-electrons.com/source/drivers/i2c/i2c-mux.c?v=4.5#L158
+> >>
+> >> Perhaps it might be better for devices handled via master mode to be described
+> >> via i2c@1? This would work by scanning the mpu node's children for something
+> >> with reg == 1.
+> > 
+> > The 0 in i2c@0 (which is used by the mux mode) is the index of the mux slave
+> > meaning that i2c@1 would be a second mux slave on the same mux, but this is
+> > not a real mux as such, it is a gate which is piggybacking on the i2c mux infra.
+> > So, this "mux" can't have a second slave which is why only 0 is valid.
+> 
+> This behavior is automatic in i2c mux code and seems to assume that all
+> the children of mux_dev are i2c muxes. This might be obviously correct
+> and useful for dedicated i2c mux devices but in my case mux_dev is just
+> the i2c_client for a sensor.
+> 
+> From Documentation/devicetree/bindings/i2c/i2c-mux.txt:
+> 
+> > An i2c bus multiplexer/switch will have several child busses that are
+> > numbered uniquely in a device dependent manner.  The nodes for an i2c
+> > bus multiplexer/switch will have one child node for each child bus.
+> 
+> This seems to be written in a way that would allow me to define the
+> "auxiliary i2c master" as bus "1". After all, the numbering is device
+> dependent and it's not clear that all the child busses need to be
+> accessible through muxing rather than indirect access through device
+> registers.
 
---Pd0ReVV5GZGQvF3a
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+You are correct that if you have devicetree children where reg does
+not match the chan_id given to i2c_add_mux_adapter() those children
+will be ignored by the i2c-mux code. So, the code would be happy with
+a devicetree such as:
 
+	mpu6050@68 {
+		compatible = "...";
+		reg = <0x68>;
+		...
+		i2c-aux-mux@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
 
-> I think we should just drop the _interruptible_ and use
-> wait_event_timeout. The same is already used in the octeon_i2c_wait().
-> The 2ms timeout should not hurt anyone.
+			foo@44 {
+				compatible = "bar";
+				reg = <0x44>;
+				...
+			}
+		}
+		i2c-aux-master@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
 
-This is what most people have good experience with :)
+			gazonk@44 {
+				compatible = "baz";
+				reg = <0x44>;
+				...
+			}
+		}
+	}
 
+as long as you do only call i2c_add_mux_adapter() with chan_id = 0. And that
+is what you are doing. But I think it is a bit subtle...
 
---Pd0ReVV5GZGQvF3a
-Content-Type: application/pgp-signature; name="signature.asc"
+> >> Or maybe the two busses should be called i2c-aux-master and i2c-aux-mux? Not
+> >> sure how to deal with that on the mux side.
+> > 
+> > Changing i2c to i2c-aux-mux would break existing device trees, that seems
+> > like a bad thing, no?
+> 
+> That support was not documented in mpu6050's bindings and might not be
+> actually used.
+> 
+> >> It is not clear how to properly handle this and suggestions are welcome. The
+> >> way it currently works with this patch is documented immediately below.
+> > 
+> > I think the naming could be i2c-master0, i2c-master1 etc if it, with
+> > future work, would be possible to add more than one master (you talked about
+> > 5 i2c slaves..).
+> 
+> The device has 5 sets of registers for controlling i2c slaves but only
+> one physical auxiliary i2c bus. As far as I can tell slaves 0-3 are
+> intended to be used for gathering readings for slaved sensors
+> periodically without external intervention. Slave 4 can generate an
+> interrupt on completion and is more suitable for general-purpose
+> communication with any number of devices.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Ah, ok, so all 5 sets of slave registers are about the same physical i2c
+bus. So, you basically cannot sanely use this physical aux i2c bus as an
+i2c-mux and an extra i2c adapter in the same hw design. Correct?
 
-iQIcBAEBAgAGBQJXGNvNAAoJEBQN5MwUoCm2R/IQAIimog+k6EQsS588FkItvWaz
-ab7FL8eJzcBWZrNI8rFX0+hQMb7oDU1AwIRIZbOo7jdC0gG2+mdXoOKUdAxfLAT2
-/gJxB/ea34HZ3PTF0vBjSHVBOgmyhKozZ6Hxq6pGvr2Z7276cbNcWvOW45fL9ai7
-syJMEKRmsIZZZfMZGo1PkhoxeF2czvdHS6X38+X7VCrDyX/Nrs4g6Sw72nR0Dodc
-W0O+keh22gYgiAsn96deajf5f7jNBzjAGoJOQatR9Wa1JOR6RiL+i8D5DtH79C/t
-Qijnx6/kX5LKSMj3/SOw7sB8hFpe9jzT6qENwHRSoi7KM3HsRoyZxsVVDtlCREWk
-+f2azA4T6isJinkhT6gE3QTQHO4u7hMv158GUfpIoBga7QKkUFbpNM6EFgaFGxPO
-0KU5DWQM02Y5GgKz0WL3O1vjYXZTryt2ZsPfxGR3nR0yTY8qXs0T8wg8DBJJgXjJ
-RskHbqCSLzYYXZko0TJLz+3Oph57M7OKIkGFss+g+/HWA/HYBpH5ugRJn9WJ76ra
-iXn9XtXQ/fhiINHVZLYa/xDTty784VtZ9DSouZeqc9LBsGHrk+yx0lIazzh+c78r
-yIA2qSfnVXw1pmZ4QMYaQa+Cr9ya3z6TMR4Z/twpbzw4U5Nl1TX/cwM4Snabs8IU
-PHr85cIhW7++N9agNh2T
-=Plru
------END PGP SIGNATURE-----
+In that case, couldn't you look at the names of any devicetree children
+and use that to decide if you should even attempt to call
+i2c_add_mux_adapter or i2c_add_adapter?
 
---Pd0ReVV5GZGQvF3a--
+(But please don't clobber stuff for my i2c-mux rework, or you will have
+to wait even longer for that deadlock to be resolved)
+
+Cheers,
+Peter
