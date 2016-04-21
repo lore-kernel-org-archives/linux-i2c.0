@@ -1,79 +1,105 @@
-From: Crestez Dan Leonard <leonard.crestez@intel.com>
-Subject: Re: [PATCH] iio: inv_mpu6050: Add support for auxiliary I2C master
-Date: Thu, 21 Apr 2016 15:01:30 +0300
-Message-ID: <5718C11A.6010001@intel.com>
-References: <AM4PR02MB129981BAE6A4E893DDD38173BC6D0@AM4PR02MB1299.eurprd02.prod.outlook.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v3] i2c: designware-platdrv: fix unbalanced clk enable
+ and prepare
+Date: Thu, 21 Apr 2016 15:29:20 +0300
+Message-ID: <1461241760.6620.315.camel@linux.intel.com>
+References: <1461237767-7928-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:63968 "EHLO mga04.intel.com"
+Received: from mga02.intel.com ([134.134.136.20]:29494 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752044AbcDUMBg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 21 Apr 2016 08:01:36 -0400
-In-Reply-To: <AM4PR02MB129981BAE6A4E893DDD38173BC6D0@AM4PR02MB1299.eurprd02.prod.outlook.com>
+	id S1751770AbcDUM2U (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 21 Apr 2016 08:28:20 -0400
+In-Reply-To: <1461237767-7928-1-git-send-email-jszhang@marvell.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Jonathan Cameron <jic23@kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+To: Jisheng Zhang <jszhang@marvell.com>, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On 04/20/2016 11:31 PM, Peter Rosin wrote:
-> Crestez Dan Leonard wrote:
->> Changes since that version:
->> * Nest the adapter in inv_mpu6050_state instead of making it static
->> * Explicitly forward of_node "i2c-aux-master" to allow describing aux devices
->> via devicetree.
->>
->> For bypass/mux mode devicetree works automatically. The forwarding is based on
->> the "chan_id" parameter to i2c_add_mux_adapter and is implemented here:
->>
->> http://lxr.free-electrons.com/source/drivers/i2c/i2c-mux.c?v=4.5#L158
->>
->> Perhaps it might be better for devices handled via master mode to be described
->> via i2c@1? This would work by scanning the mpu node's children for something
->> with reg == 1.
-> 
-> The 0 in i2c@0 (which is used by the mux mode) is the index of the mux slave
-> meaning that i2c@1 would be a second mux slave on the same mux, but this is
-> not a real mux as such, it is a gate which is piggybacking on the i2c mux infra.
-> So, this "mux" can't have a second slave which is why only 0 is valid.
+On Thu, 2016-04-21 at 19:22 +0800, Jisheng Zhang wrote:
+> If i2c_dw_probe() fails, we should disable and unprepare the clock,
+> otherwise the clock enable and prepare is left unbalanced.
+>=20
+> In dw_i2c_plat_remove(), we'd better to not rely on rpm to disable
 
-This behavior is automatic in i2c mux code and seems to assume that all
-the children of mux_dev are i2c muxes. This might be obviously correct
-and useful for dedicated i2c mux devices but in my case mux_dev is just
-the i2c_client for a sensor.
+Sorry, didn't notice earlier
+rpm -> runtime PM
 
->From Documentation/devicetree/bindings/i2c/i2c-mux.txt:
+> and unprepare the clock since CONFIG_PM may be disabled when
+> configuring the kernel. So we explicitly disable and unprepare the
+> clock in dw_i2c_plat_remove() rather than implicitly rely on
+> pm_runtime_put_sync(). To keep the device usage count balanced, we
+> call pm_runtime_put_noidle(() to decrease the usage count.
 
-> An i2c bus multiplexer/switch will have several child busses that are
-> numbered uniquely in a device dependent manner.  The nodes for an i2c
-> bus multiplexer/switch will have one child node for each child bus.
+(() -> ()
 
-This seems to be written in a way that would allow me to define the
-"auxiliary i2c master" as bus "1". After all, the numbering is device
-dependent and it's not clear that all the child busses need to be
-accessible through muxing rather than indirect access through device
-registers.
+>=20
+> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
 
->> Or maybe the two busses should be called i2c-aux-master and i2c-aux-mux? Not
->> sure how to deal with that on the mux side.
-> 
-> Changing i2c to i2c-aux-mux would break existing device trees, that seems
-> like a bad thing, no?
+I don't know if Wolfram wants you to send new version, and I dunno if
+others still have comments, but
 
-That support was not documented in mpu6050's bindings and might not be
-actually used.
+Patch is in a good shape, but I think we have to carefully check the
+runtime PM change.
 
->> It is not clear how to properly handle this and suggestions are welcome. The
->> way it currently works with this patch is documented immediately below.
-> 
-> I think the naming could be i2c-master0, i2c-master1 etc if it, with
-> future work, would be possible to add more than one master (you talked about
-> 5 i2c slaves..).
+> ---
+> Since v2:
+> =C2=A0- s/clk/clock
+> =C2=A0- describe why use pm_runtime_put_noidle()
+>=20
+> Since v1:
+> =C2=A0- fix commit msg: "not rely on rpm" rather than "rely on rpm"
+> =C2=A0- call i2c_dw_plat_prepare_clk after pm_rumtime_disable()
+>=20
+> =C2=A0drivers/i2c/busses/i2c-designware-platdrv.c | 16 ++++++++++----=
+--
+> =C2=A01 file changed, 10 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+> b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index d656657..a771781 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -253,8 +253,11 @@ static int dw_i2c_plat_probe(struct
+> platform_device *pdev)
+> =C2=A0	}
+> =C2=A0
+> =C2=A0	r =3D i2c_dw_probe(dev);
+> -	if (r && !dev->pm_runtime_disabled)
+> -		pm_runtime_disable(&pdev->dev);
+> +	if (r) {
+> +		if (!dev->pm_runtime_disabled)
+> +			pm_runtime_disable(&pdev->dev);
+> +		i2c_dw_plat_prepare_clk(dev, false);
+> +	}
+> =C2=A0
+> =C2=A0	return r;
+> =C2=A0}
+> @@ -264,15 +267,16 @@ static int dw_i2c_plat_remove(struct
+> platform_device *pdev)
+> =C2=A0	struct dw_i2c_dev *dev =3D platform_get_drvdata(pdev);
+> =C2=A0
+> =C2=A0	pm_runtime_get_sync(&pdev->dev);
+> +	pm_runtime_dont_use_autosuspend(&pdev->dev);
+> +	if (!dev->pm_runtime_disabled)
+> +		pm_runtime_disable(&pdev->dev);
+> +	pm_runtime_put_noidle(&pdev->dev);
+> =C2=A0
+> =C2=A0	i2c_del_adapter(&dev->adapter);
+> =C2=A0
+> =C2=A0	i2c_dw_disable(dev);
+> =C2=A0
+> -	pm_runtime_dont_use_autosuspend(&pdev->dev);
+> -	pm_runtime_put_sync(&pdev->dev);
+> -	if (!dev->pm_runtime_disabled)
+> -		pm_runtime_disable(&pdev->dev);
+> +	i2c_dw_plat_prepare_clk(dev, false);
+> =C2=A0
+> =C2=A0	return 0;
+> =C2=A0}
 
-The device has 5 sets of registers for controlling i2c slaves but only
-one physical auxiliary i2c bus. As far as I can tell slaves 0-3 are
-intended to be used for gathering readings for slaved sensors
-periodically without external intervention. Slave 4 can generate an
-interrupt on completion and is more suitable for general-purpose
-communication with any number of devices.
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
