@@ -1,79 +1,45 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [RFC PATCH v2 05/10] i2c: add support for ACPI reconfigure notifications
-Date: Fri, 22 Apr 2016 00:41:07 +0300
-Message-ID: <CAE1zotJsvw_oM61Kheo_g-C5ZcRaT-4AxOb6U0QbgXC06M0wTg@mail.gmail.com>
-References: <1461105548-20618-1-git-send-email-octavian.purdila@intel.com>
-	<1461105548-20618-6-git-send-email-octavian.purdila@intel.com>
-	<CAHp75VdCX65bftG+5D2r1N0nwYV0tSDf6+ZgJYPgxu9AV54eKA@mail.gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v6] i2c: rk3x: add i2c support for rk3399 soc
+Date: Fri, 22 Apr 2016 01:00:08 +0300
+Message-ID: <CAHp75VdWz2sgWmBW30Jb5D4YCgUyM-LQQxzmGZ_3uW=iKUuKKQ@mail.gmail.com>
+References: <1458147438-62387-3-git-send-email-david.wu@rock-chips.com>
+	<1461074137-23899-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VdCX65bftG+5D2r1N0nwYV0tSDf6+ZgJYPgxu9AV54eKA@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ob0-f182.google.com ([209.85.214.182]:33531 "EHLO
+	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751240AbcDUWAJ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Apr 2016 18:00:09 -0400
+In-Reply-To: <1461074137-23899-1-git-send-email-david.wu@rock-chips.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: David Wu <david.wu@rock-chips.com>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Doug Anderson <dianders@chromium.org>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris Zhong <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Wu <wdc@rock-chips.com>
 
-On Fri, Apr 22, 2016 at 12:27 AM, Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
+On Tue, Apr 19, 2016 at 4:55 PM, David Wu <david.wu@rock-chips.com> wrote:
+> From: David Wu <wdc@rock-chips.com>
 >
-
-Hi Andy and thanks for the review!
-
-> On Wed, Apr 20, 2016 at 1:39 AM, Octavian Purdila
-> <octavian.purdila@intel.com> wrote:
-> > This patch adds supports for I2C device enumeration and removal via
-> > ACPI reconfiguration notifications that are send as a result of an
-> > ACPI table load or unload operation.
->
-> >
-> >         acpi_dev_free_resource_list(&resource_list);
-> >
-> > +       strlcpy(info->type, dev_name(&adev->dev), sizeof(info->type));
->
-> strscpy() ?
-
-That is the original code, I just moved it in a different function.
-Its probably best if we use a separate patch for this, but is it worth
-it?
-
->
-> > +static int acpi_i2c_match_adapter(struct device *dev, void *data)
-> > +{
-> > +       struct i2c_adapter *adapter = i2c_verify_adapter(dev);
-> > +
-> > +       if (!adapter)
-> > +               return 0;
-> > +
->
-> > +       return ACPI_HANDLE(dev) == (acpi_handle)data;
->
-> What is suppose to return? Hidden bool to integer conversion is not
-> best option I suppose.
+> - new method to caculate i2c timings for rk3399:
+>   There was an timing issue about "repeated start" time at the I2C
+>   controller of version0, controller appears to drop SDA at .875x (7/8)
+>   programmed clk high. On version 1 of the controller, the rule(.875x)
+>   isn't enough to meet tSU;STA
+>   requirements on 100k's Standard-mode. To resolve this issue,
+>   sda_update_config, start_setup_config and stop_setup_config for I2C
+>   timing information are added, new rules are designed to calculate
+>   the timing information at new v1.
+> - pclk and function clk are separated at rk3399.
+> - support i2c highspeed mode: 1.7MHz for rk3399
 >
 
-per bus_find_device() :
+Remove redundant parens in cases like
+1. x * (a->b)
+2. x = (a + b);
 
- * The callback should return 0 if the device doesn't match and
-non-zero
- * if it does.  If the callback returns non-zero, this function will
- * return to the caller and not iterate over any more devices.
- */
-struct device *bus_find_device(struct bus_type *bus,
-                               struct device *start, void *data,
-                               int (*match)(struct device *dev, void *data))
+Don't touch pieces of code that are not related (you removed one empty
+line without any reason).
 
-
-> > +}
-> > +
-> > +static int acpi_i2c_match_device(struct device *dev, void *data)
-> > +{
-> > +       return ACPI_COMPANION(dev) == data;
->
-> Ditto.
->
-> > +}
->
-> --
-> With Best Regards,
-> Andy Shevchenko
+-- 
+With Best Regards,
+Andy Shevchenko
