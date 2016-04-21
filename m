@@ -1,47 +1,50 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH] i2c: uniphier: add "\n" at the end of error log
-Date: Thu, 21 Apr 2016 15:12:44 +0900
-Message-ID: <1461219164-8963-1-git-send-email-yamada.masahiro@socionext.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [PATCH 2/3] i2c: s3c2410: Minor function-level comment cleanup
+Date: Thu, 21 Apr 2016 09:01:20 +0200
+Message-ID: <57187AC0.3000503@samsung.com>
+References: <1461144292-22141-1-git-send-email-k.kozlowski@samsung.com>
+ <1461144292-22141-2-git-send-email-k.kozlowski@samsung.com>
+ <57178B58.7050104@osg.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:34739 "EHLO
+	mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751722AbcDUHB0 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Apr 2016 03:01:26 -0400
+In-reply-to: <57178B58.7050104@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 
-Just in case.
+On 04/20/2016 03:59 PM, Javier Martinez Canillas wrote:
+> Hello Krzysztof,
+> 
+> On 04/20/2016 05:24 AM, Krzysztof Kozlowski wrote:
+>> Cleanup the weird function-level comments and remove obvious
+>> documentatoin for probe/remove.
+>>
+> 
+> s/documentatoin/documentation
+>  
+>> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+>> ---
+> 
+> I wonder if instead we should change to kernel-doc formatted documentation.
+> 
+> All the functions are static so kernel-doc is not really required but still
+> Documentation/kernel-doc-nano-HOWTO.txt says that is suggested for source
+> code layout consistency.
+> 
+> But I agree that's either kernel-doc format or minimal as your patch does:
+> 
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+Thanks for review. Indeed switching to kernel-doc would be the best...
+but that would require a little bit more rewritting than now. I just
+wanted to fix some weird looking comments.
 
- drivers/i2c/busses/i2c-uniphier-f.c | 2 +-
- drivers/i2c/busses/i2c-uniphier.c   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index 213ba55..aeead0d 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -524,7 +524,7 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		dev_err(dev, "failed to get IRQ number");
-+		dev_err(dev, "failed to get IRQ number\n");
- 		return irq;
- 	}
- 
-diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-index 89eaa8a..475a5eb 100644
---- a/drivers/i2c/busses/i2c-uniphier.c
-+++ b/drivers/i2c/busses/i2c-uniphier.c
-@@ -381,7 +381,7 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		dev_err(dev, "failed to get IRQ number");
-+		dev_err(dev, "failed to get IRQ number\n");
- 		return irq;
- 	}
- 
--- 
-1.9.1
+Best regards,
+Krzysztof
