@@ -1,59 +1,66 @@
 From: Jisheng Zhang <jszhang@marvell.com>
-Subject: Re: [PATCH 2/4] i2c: designware-platdrv: fix unbalanced clk enable
- and prepare
-Date: Thu, 21 Apr 2016 16:19:22 +0800
-Message-ID: <20160421161922.0068ef51@xhacker>
-References: <1460638414-5987-1-git-send-email-jszhang@marvell.com>
-	<1460638414-5987-3-git-send-email-jszhang@marvell.com>
-	<57177C32.4090000@linux.intel.com>
-	<1461161760.6620.306.camel@linux.intel.com>	<20160421104022.2d6549a9@xhacker>
-	<571883C6.3010404@linux.intel.com>
+Subject: [PATCH] i2c: designware-platdrv: fix unbalanced clk enable and prepare
+Date: Thu, 21 Apr 2016 17:20:24 +0800
+Message-ID: <1461230424-7395-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:48055 "EHLO
-	mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751618AbcDUIXn (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Apr 2016 04:23:43 -0400
-In-Reply-To: <571883C6.3010404@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@marvell.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Dear Jarkko,
+If i2c_dw_probe() fail, we should disable and unprepare the clk,
+otherwise the clk enable and prepare is left unbalanced.
 
-On Thu, 21 Apr 2016 10:39:50 +0300 Jarkko Nikula wrote:
+In dw_i2c_plat_remove(), we'd better to rely on rpm to disable
+and unprepare the clk since CONFIG_PM may be disabled when configuring
+the kernel. So we explicitly disable and unprepare the clk in
+dw_i2c_plat_remove().
 
-> On 04/21/2016 05:40 AM, Jisheng Zhang wrote:
-> > Dear Jarkko, Andy,
-> >
-> > On Wed, 20 Apr 2016 17:16:00 +0300 Andy Shevchenko wrote:
-> >  
-> >> On Wed, 2016-04-20 at 15:55 +0300, Jarkko Nikula wrote:  
-> >>> I see Andy's 1cb715ca4694 ("i2c-designware: move to managed functions
-> >>> (devm_*)") removed it but at quick look drivers/clk/clk-devres.c:
-> >>> devm_clk_release() calls only clk_put and I don't see disable is done
-> >>> down the path.  
-> >>
-> >> The following is a mistake of the mentioned patch.
-> >> -       clk_disable_unprepare(dev->clk);
-> >>
-> >> I did at the same mistake in dw_dmac driver which had been fixed later
-> >> in the commit 8be4f523b480 ("dmaengine: dw: fix regression in dw_probe()
-> >> function").
-> >>  
-> >
-> > As Andy pointed out, managed devm_clk_get can only automatically put clk
-> > but doesn't unprepare and disable the clk
-> >  
-> Ok, then it makes sense to move this fix first in the series and queue 
-> for stable v4.5+. Then another from you, Andy or me for kernels before 
-> b33af11de236 ("i2c: designware: Do not require clock when SSCN and FFCN 
-> are provided") that introduced the i2c_dw_plat_prepare_clk().
+Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-Sounds a good idea. Will send a separate fix for this purpose soon.
-
-Thanks,
-Jisheng
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index d656657..9f1bc94 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -253,8 +253,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	r = i2c_dw_probe(dev);
+-	if (r && !dev->pm_runtime_disabled)
+-		pm_runtime_disable(&pdev->dev);
++	if (r) {
++		i2c_dw_plat_prepare_clk(dev, false);
++		if (!dev->pm_runtime_disabled)
++			pm_runtime_disable(&pdev->dev);
++	}
+ 
+ 	return r;
+ }
+@@ -264,15 +267,16 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+ 
+ 	pm_runtime_get_sync(&pdev->dev);
++	pm_runtime_dont_use_autosuspend(&pdev->dev);
++	if (!dev->pm_runtime_disabled)
++		pm_runtime_disable(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
+ 
+ 	i2c_del_adapter(&dev->adapter);
+ 
+ 	i2c_dw_disable(dev);
+ 
+-	pm_runtime_dont_use_autosuspend(&pdev->dev);
+-	pm_runtime_put_sync(&pdev->dev);
+-	if (!dev->pm_runtime_disabled)
+-		pm_runtime_disable(&pdev->dev);
++	i2c_dw_plat_prepare_clk(dev, false);
+ 
+ 	return 0;
+ }
+-- 
+2.8.1
