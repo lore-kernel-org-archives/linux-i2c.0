@@ -1,71 +1,63 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH v6 08/19] i2c: octeon: Enable High-Level Controller
-Date: Thu, 21 Apr 2016 15:40:53 +0200
-Message-ID: <20160421134053.GB2623@hardcore>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 07/19] i2c: octeon: Use i2c recovery framework
+Date: Thu, 21 Apr 2016 15:54:50 +0200
+Message-ID: <20160421135450.GA5566@katana>
 References: <cover.1460387640.git.jglauber@cavium.com>
- <34aac0bb7c0ae1c0ef7ca43d087059d04d9d8b09.1460387640.git.jglauber@cavium.com>
- <20160420214354.GD1546@katana>
- <5717FAC3.6010406@caviumnetworks.com>
+ <ab24627b5928f23967633243639b431d2113dbe1.1460387640.git.jglauber@cavium.com>
+ <20160420213121.GC1546@katana>
+ <20160421130835.GA2623@hardcore>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bn1bon0084.outbound.protection.outlook.com ([157.56.111.84]:64078
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751302AbcDUNlO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 21 Apr 2016 09:41:14 -0400
+Received: from sauhun.de ([89.238.76.85]:49345 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752059AbcDUNzF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 21 Apr 2016 09:55:05 -0400
 Content-Disposition: inline
-In-Reply-To: <5717FAC3.6010406@caviumnetworks.com>
+In-Reply-To: <20160421130835.GA2623@hardcore>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: David Daney <ddaney@caviumnetworks.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Jan Glauber <jan.glauber@caviumnetworks.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
-On Wed, Apr 20, 2016 at 02:55:15PM -0700, David Daney wrote:
-> On 04/20/2016 02:43 PM, Wolfram Sang wrote:
-> >On Mon, Apr 11, 2016 at 05:28:39PM +0200, Jan Glauber wrote:
-> [...]
-> >>+ */
-> >>+static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
-> >>+{
-> >>+	int time_left;
-> >>+
-> >>+	octeon_i2c_hlc_int_enable(i2c);
-> >>+	time_left = wait_event_interruptible_timeout(i2c->queue,
-> >>+					octeon_i2c_hlc_test_ready(i2c),
-> >>+					i2c->adap.timeout);
-> >
-> >Have you tested signal handling thoroughly? Most driver dropped the
-> >_interruptible after a while. Mostly they found out that the state
-> >machine of the interrupt handler couldn't gracefully deal with it and
-> >nobody really needed the interruptible. Just saying.
-> 
-> Good point.  We know that exiting with a signal leaves us in an
-> undefined state.
-> 
-> We will have to think on this point.
 
-I think we should just drop the _interruptible_ and use
-wait_event_timeout. The same is already used in the octeon_i2c_wait().
-The 2ms timeout should not hurt anyone.
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> >
-> >>+	octeon_i2c_int_disable(i2c);
-> >>+	if (!time_left) {
-> >>+		octeon_i2c_hlc_int_clear(i2c);
-> >>+		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
-> >>+		return -ETIMEDOUT;
-> >>+	}
-> >>+
-> >>+	if (time_left < 0) {
-> >>+		dev_dbg(i2c->dev, "%s: wait interrupted\n", __func__);
-> >>+		return time_left;
-> >>+	}
-> >>+	return 0;
-> >>+}
-> >
-> >Drop the debug messages?
-> >
-> >I can't say much about the HW details, of course. Didn't spot anything
-> >suspicious there.
-> >
+
+> I assumed this check was bogus and there are no valid 0-length
+> messages...
+
+They are valid (check SMBUS_QUICK), but not every controller can handle
+them correctly. Your driver has SMBUS_QUICK enabled, so this is a
+contradiction to the check above where it rejects it.
+
+So, it looks like it needs to be tested again (and documented this
+time). If the HW can't do it, the FUNC bit for QUICK needs to be masked
+out. If it can do SMBUS_QUICK, the check can probably go away.
+
+
+--6c2NcOVqGQ03X4Wi
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXGNuqAAoJEBQN5MwUoCm2/c4QAJcYSByQUuiELEyUgON3RAOv
+yLlIECFGXnESCHu4uS25lT/3FdvNNfUBZEYR5fvTnmFQYUwXlagHWncOtu9a7R6q
+s3MUiGTWlBIRqlfbnOyvzQ/SGPdFFlogd57lxWXl3GWfizCoxb9yNjtX+BKT/Pa7
+qEXz6kzu5soKi7kkpweckayV9XqoRS2XVjnhWLlWmV221k/sFT5QfI2FOjGt3coU
+5SA8mV8kAphKdajSQ+ShG+Oakoma+G7TpCquBMbUYpDcfVPFMWb0r8vEPwYCpYR6
+8SGdcKuc6TiLm5dtnAXHEvJ4mEuLbnFBVUDjr/8oVEVFr3P3pQayjV+ZdOefxwmt
+CXMAAUTThuKPcRE6yek4O/lUq1exwzDAzWk3QrmKXYUHBDjkxYUbd92qebWFRevb
+UFsi59h+2jKLLzdiDhS3hQtSiXxDVQwAJl32OoKw/iNkZFYv76a2SUtVQl4lZuMX
+flpbiplUnrIkVuUV9zRmw/8krT8lj7TPiRf+uLdzBYCI3mH3xdGwTXaoWhXENayr
+FDft5kaGV9AtUJ6MbxHw8OBj9C1qLoAtMdKVMbLIj2yn8aYcOcQgZrHzfb4w21EB
+WVhxZLFfQ1xFHXbdaJsd3ELlfnhAR8NJedueMBf1SfVD522RmtBFHd+a9zz8865Q
+9R0btRjCc02986ubw9sw
+=ppxT
+-----END PGP SIGNATURE-----
+
+--6c2NcOVqGQ03X4Wi--
