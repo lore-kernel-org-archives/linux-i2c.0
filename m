@@ -1,74 +1,46 @@
-From: Jisheng Zhang <jszhang@marvell.com>
-Subject: [PATCH v2] i2c: designware-platdrv: fix unbalanced clk enable and prepare
-Date: Thu, 21 Apr 2016 17:26:51 +0800
-Message-ID: <1461230811-7495-1-git-send-email-jszhang@marvell.com>
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: Re: [PATCH] iio: inv_mpu6050: Add support for auxiliary I2C master
+Date: Thu, 21 Apr 2016 13:02:38 +0300
+Message-ID: <5718A53E.90101@intel.com>
+References: <201604210259.xtIWnZqM%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:8266 "EHLO
-	mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751282AbcDUJbL (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Apr 2016 05:31:11 -0400
+Received: from mga01.intel.com ([192.55.52.88]:9394 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751633AbcDUKCo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 21 Apr 2016 06:02:44 -0400
+In-Reply-To: <201604210259.xtIWnZqM%fengguang.wu@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@marvell.com>
+To: linux-iio@vger.kernel.org
+Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Jonathan Cameron <jic23@kernel.org>
 
-If i2c_dw_probe() fail, we should disable and unprepare the clk,
-otherwise the clk enable and prepare is left unbalanced.
+On 04/20/2016 09:17 PM, kbuild test robot wrote:
+> Hi,
+> 
+> [auto build test ERROR on iio/togreg]
+> [also build test ERROR on v4.6-rc4 next-20160420]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improving the system]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Crestez-Dan-Leonard/iio-inv_mpu6050-Add-support-for-auxiliary-I2C-master/20160421-012042
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio.git togreg
+> config: i386-randconfig-i1-201616 (attached as .config)
+> reproduce:
+>         # save the attached .config to linux build tree
+>         make ARCH=i386 
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    drivers/iio/imu/inv_mpu6050/inv_mpu_core.c: In function 'inv_mpu_core_probe':
+>>> drivers/iio/imu/inv_mpu6050/inv_mpu_core.c:966:11: error: implicit declaration of function 'i2c_add_adapter' [-Werror=implicit-function-declaration]
+>      result = i2c_add_adapter(&st->aux_master_adapter);
+>               ^
+>>> drivers/iio/imu/inv_mpu6050/inv_mpu_core.c:983:2: error: implicit declaration of function 'i2c_del_adapter' [-Werror=implicit-function-declaration]
+>      i2c_del_adapter(&st->aux_master_adapter);
+>      ^
+>    cc1: some warnings being treated as errors
 
-In dw_i2c_plat_remove(), we'd better to not rely on rpm to disable
-and unprepare the clk since CONFIG_PM may be disabled when configuring
-the kernel. So we explicitly disable and unprepare the clk in
-dw_i2c_plat_remove().
-
-Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
----
-Since v1:
- - fix commit msg: "not rely on rpm" rather than "rely on rpm"
- - call i2c_dw_plat_prepare_clk after pm_rumtime_disable()
-
- drivers/i2c/busses/i2c-designware-platdrv.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index d656657..a771781 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -253,8 +253,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	}
- 
- 	r = i2c_dw_probe(dev);
--	if (r && !dev->pm_runtime_disabled)
--		pm_runtime_disable(&pdev->dev);
-+	if (r) {
-+		if (!dev->pm_runtime_disabled)
-+			pm_runtime_disable(&pdev->dev);
-+		i2c_dw_plat_prepare_clk(dev, false);
-+	}
- 
- 	return r;
- }
-@@ -264,15 +267,16 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
- 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
- 
- 	pm_runtime_get_sync(&pdev->dev);
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
-+	if (!dev->pm_runtime_disabled)
-+		pm_runtime_disable(&pdev->dev);
-+	pm_runtime_put_noidle(&pdev->dev);
- 
- 	i2c_del_adapter(&dev->adapter);
- 
- 	i2c_dw_disable(dev);
- 
--	pm_runtime_dont_use_autosuspend(&pdev->dev);
--	pm_runtime_put_sync(&pdev->dev);
--	if (!dev->pm_runtime_disabled)
--		pm_runtime_disable(&pdev->dev);
-+	i2c_dw_plat_prepare_clk(dev, false);
- 
- 	return 0;
- }
--- 
-2.8.1
+This error happens if you disable CONFIG_I2C and only compile with SPI
+support. I will add a bunch of #ifdef CONFIG_I2C in the next version.
