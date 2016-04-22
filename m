@@ -1,76 +1,50 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: exynos5: Fix possible ABBA deadlock by
- keeping I2C clock prepared
-Date: Fri, 22 Apr 2016 15:31:46 +0200
-Message-ID: <20160422133146.GC1538@katana>
-References: <1460855693-28225-1-git-send-email-javier@osg.samsung.com>
- <1460855693-28225-2-git-send-email-javier@osg.samsung.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
+Subject: [PATCH] i2c: mux: pinctrl: fix indentation for better readability
+Date: Fri, 22 Apr 2016 15:44:07 +0200
+Message-ID: <1461332647-11227-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:55387 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:55463 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752245AbcDVNb7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 22 Apr 2016 09:31:59 -0400
-Content-Disposition: inline
-In-Reply-To: <1460855693-28225-2-git-send-email-javier@osg.samsung.com>
+	id S1752669AbcDVNo4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 22 Apr 2016 09:44:56 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Anand Moon <linux.amoon@gmail.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
 
+smatch rightfully says:
 
---XMCwj5IQnwKtuyBG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+drivers/i2c/muxes/i2c-mux-pinctrl.c:175 i2c_mux_pinctrl_probe() warn: inconsistent indenting
 
-On Sat, Apr 16, 2016 at 09:14:53PM -0400, Javier Martinez Canillas wrote:
-> The exynos5 I2C controller driver always prepares and enables a clock
-> before using it and then disables unprepares it when the clock is not
-> used anymore.
->=20
-> But this can cause a possible ABBA deadlock in some scenarios since a
-> driver that uses regmap to access its I2C registers, will first grab
-> the regmap lock and then the I2C xfer function will grab the prepare
-> lock when preparing the I2C clock. But since the clock driver also
-> uses regmap for I2C accesses, preparing a clock will first grab the
-> prepare lock and then the regmap lock when using the regmap API.
->=20
-> An example of this happens on the Exynos5422 Odroid XU4 board where a
-> s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
-> share the same I2C regmap.
->=20
-> The possible deadlock is reported by the kernel lockdep:
->=20
->   Possible unsafe locking scenario:
->=20
->         CPU0                    CPU1
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/muxes/i2c-mux-pinctrl.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-Squashed both patches into one for easier backporting, added stable and
-applied to for-current, thanks!
-
-
---XMCwj5IQnwKtuyBG
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXGifCAAoJEBQN5MwUoCm2QtEP/3xTxhXLVUZ19ws0rl6DKClT
-fenuzBMLwt2vDcDXqPB0IcnG74L1JhXjzmtaP4BdB1NevsnVMPjkqsQoAs8/Qbh4
-kdIpTaB5cXrjbyhPBIePqWZ6g+yp7zrrN4TW2yr7woDwdBuzizMAhr+/yVAtIcvs
-O88Jx1/Xeic1QLr1OGDB9aw3+sZ/7DigX8OTzNM6+JQD3nB9ohitkan9g64um4vs
-oarTGJrHDROVmyovh3z2x2bTeVzGsX8ttLo5+V4WRAtu51Rk8ZOBJM8D4iyh8zKf
-rOS6FBvHjmaHA5D0X8d+1pD4FuiKVDD5Ie/rOyP+hp3we2BgGqql5OG5nquOaSrI
-/6NUvEt/su/R6MK3b0csQiYX1+kCXFTJ7X8ej+Khtvk3nXzEPKGYsiOb6Un8mVKc
-qfiNhzkZvzeyf50u0Nji1+fO/r8Spnx6gsJRrEcN/QufEGjA/BPPFG7ko7evzUT7
-U32VLUaZ0AatHWqstpxGFoimKIyRhKLTKh4+ci2zjSSKFg0UYajtwdlVkXnxw+bC
-06D8NhFfGyxtxTFNpfYbLmmiRtR/iNtc6qD7KDmyvXyjtayfLJM3AxV7gWGua8y0
-R9LF+69d5U2pgUCknFlvrkFZbsKCHA7xgAWNJ7d2cKeI1jxmJco5MR9iEcRCeMgs
-QB36SmvwSBN6+2W/Rr6M
-=sP/e
------END PGP SIGNATURE-----
-
---XMCwj5IQnwKtuyBG--
+diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+index 1b8dc711815ed3..f4e62f4a50cc42 100644
+--- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+@@ -172,13 +172,13 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
+ 	for (i = 0; i < mux->pdata->bus_count; i++) {
+ 		mux->states[i] = pinctrl_lookup_state(mux->pinctrl,
+ 						mux->pdata->pinctrl_states[i]);
+-			if (IS_ERR(mux->states[i])) {
+-				ret = PTR_ERR(mux->states[i]);
+-				dev_err(&pdev->dev,
+-					"Cannot look up pinctrl state %s: %d\n",
+-					mux->pdata->pinctrl_states[i], ret);
+-				goto err;
+-			}
++		if (IS_ERR(mux->states[i])) {
++			ret = PTR_ERR(mux->states[i]);
++			dev_err(&pdev->dev,
++				"Cannot look up pinctrl state %s: %d\n",
++				mux->pdata->pinctrl_states[i], ret);
++			goto err;
++		}
+ 	}
+ 	if (mux->pdata->pinctrl_state_idle) {
+ 		mux->state_idle = pinctrl_lookup_state(mux->pinctrl,
+-- 
+2.7.0
