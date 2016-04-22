@@ -1,74 +1,87 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v7 00/24] i2c mux cleanup and locking update
-Date: Fri, 22 Apr 2016 07:54:12 +0000
-Message-ID: <AM4PR02MB1299DD7DBCE30E8EFE9E1259BC6F0@AM4PR02MB1299.eurprd02.prod.outlook.com>
+From: Jisheng Zhang <jszhang@marvell.com>
+Subject: [PATCH v4] i2c: designware-platdrv: fix unbalanced clk enable and prepare
+Date: Fri, 22 Apr 2016 16:49:31 +0800
+Message-ID: <1461314971-5944-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: sv-SE
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matt Ranostay <matt.ran>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:59322 "EHLO
+	mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751659AbcDVIxj (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Apr 2016 04:53:39 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@marvell.com>
 
-Hi Wolfram,
+If i2c_dw_probe() fails, we should disable and unprepare the clock,
+otherwise the clock enable and prepare is left unbalanced.
 
-Wolfram Sang wrote:
-> This was the diff of v6:
-> 
-> >  32 files changed, 1277 insertions(+), 915 deletions(-)
-> 
-> This is v7:
-> 
-> >  32 files changed, 1225 insertions(+), 916 deletions(-)
-> 
-> So, we gained a little overall. And while the individual drivers have a
-> few lines more now, I still think it is more readable.
-> 
-> So, thanks for doing that!
+In dw_i2c_plat_remove(), we'd better to not rely on runtime PM to
+disable and unprepare the clock since CONFIG_PM may be disabled when
+configuring the kernel. So we explicitly disable and unprepare the
+clock in dw_i2c_plat_remove() rather than implicitly rely on
+pm_runtime_put_sync(). To keep the device usage count balanced, we
+call pm_runtime_put_noidle() to decrease the usage count.
 
-Most, if not all, of these ~50 lines gained in v7 come from removing
-i2c_mux_reserve_adapters and realloc. I.e., I think we might even have
-lost a few lines with the i2c_mux_one_adapter removal, but not that many.
-If the doc patch is taken out of the equation, we gain new functionality,
-fix a bug and lose lines of code. Feels good!
-However, this is not why I'm writing this message...
+Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+---
+ Since v3:
+  - use runtime PM rather than rpm in commit msg
+  - remove duplicated "(" in commit msg
 
-> I'll give people some time for testing. I'll have a further look, too.
-> Hopefully, I can pick up patches 1-14 by the end of the week.
+ Since v2:
+ =C2=A0- s/clk/clock
+ =C2=A0- describe why use pm_runtime_put_noidle()
+=20
+ Since v1:
+ =C2=A0- fix commit msg: "not rely on rpm" rather than "rely on rpm"
+ =C2=A0- call i2c_dw_plat_prepare_clk after pm_rumtime_disable()
+ drivers/i2c/busses/i2c-designware-platdrv.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-The reason for this message is that I just realized a couple of things.
-
-First, you have suggested to merge patches 1-14 about now, and I assumed
-that implied merging with Linus for 4.6, but on rereading I realize that
-you have consistently targeted 4.7. I must be sloppy, and that had escaped
-me. Is it really necessary to be that cautious? Maybe I'm overly confident,
-but is 1-14 really such a big deal that it has to float in next for a whole
-cycle?
-
-The problem with waiting until 4.8 with the rest of the series is that it
-will likely go stale, e.g. patch 22 ([media] rtl2832: change the i2c gate
-to be mux-locked) touches a ton of register accesses in that driver since
-it removes a regmap wrapper that is rendered obsolete. Expecting that
-patch to work for 4.8 is overly optimistic, and while patching things up
-is (probably) easy, it also renders any previous testing suspect.
-
-That said, maybe I'm just impatient and reckless?
-
-Second, should we not add 15-24 to the next branch now as well to get
-testing going asap, even if we do not intend to merge it just yet or even
-in that exact form? Or is that abusing the next branch?
-
-Third, should we deprecate the old i2c_add_mux_adapter, so that new
-users do not crop up behind our backs in the transition? Or not bother?
-
-Fourth, I forgot to change patch 8 (iio: imu: inv_mpu6050: convert to
-use an explicit i2c mux core) to not change i2c_get_clientdata() ->
-dev_get_drvdata() as requested by Jonathan Cameron. How should I handle
-that? There are also some new Tested-by tags that I have added to my
-local branch but have not pushed anywhere. I'm ready to push all that
-to a new branch once you are ready to take it.
-
-Cheers,
-Peter
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/=
+busses/i2c-designware-platdrv.c
+index d656657..a771781 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -253,8 +253,11 @@ static int dw_i2c_plat_probe(struct platform_devic=
+e *pdev)
+ 	}
+=20
+ 	r =3D i2c_dw_probe(dev);
+-	if (r && !dev->pm_runtime_disabled)
+-		pm_runtime_disable(&pdev->dev);
++	if (r) {
++		if (!dev->pm_runtime_disabled)
++			pm_runtime_disable(&pdev->dev);
++		i2c_dw_plat_prepare_clk(dev, false);
++	}
+=20
+ 	return r;
+ }
+@@ -264,15 +267,16 @@ static int dw_i2c_plat_remove(struct platform_dev=
+ice *pdev)
+ 	struct dw_i2c_dev *dev =3D platform_get_drvdata(pdev);
+=20
+ 	pm_runtime_get_sync(&pdev->dev);
++	pm_runtime_dont_use_autosuspend(&pdev->dev);
++	if (!dev->pm_runtime_disabled)
++		pm_runtime_disable(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
+=20
+ 	i2c_del_adapter(&dev->adapter);
+=20
+ 	i2c_dw_disable(dev);
+=20
+-	pm_runtime_dont_use_autosuspend(&pdev->dev);
+-	pm_runtime_put_sync(&pdev->dev);
+-	if (!dev->pm_runtime_disabled)
+-		pm_runtime_disable(&pdev->dev);
++	i2c_dw_plat_prepare_clk(dev, false);
+=20
+ 	return 0;
+ }
+--=20
+2.8.1
