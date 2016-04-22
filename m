@@ -1,144 +1,76 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: [PATCH 4/4] i2c: i2c-mv64xxx: remove CONFIG_HAVE_CLK conditionals
-Date: Fri, 22 Apr 2016 15:19:54 +0200
-Message-ID: <1461331194-27637-5-git-send-email-thomas.petazzoni@free-electrons.com>
-References: <1461331194-27637-1-git-send-email-thomas.petazzoni@free-electrons.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/2] i2c: exynos5: Fix possible ABBA deadlock by
+ keeping I2C clock prepared
+Date: Fri, 22 Apr 2016 15:31:46 +0200
+Message-ID: <20160422133146.GC1538@katana>
+References: <1460855693-28225-1-git-send-email-javier@osg.samsung.com>
+ <1460855693-28225-2-git-send-email-javier@osg.samsung.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:39034 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752744AbcDVNUC (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Apr 2016 09:20:02 -0400
-In-Reply-To: <1461331194-27637-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Received: from sauhun.de ([89.238.76.85]:55387 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752245AbcDVNb7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 22 Apr 2016 09:31:59 -0400
+Content-Disposition: inline
+In-Reply-To: <1460855693-28225-2-git-send-email-javier@osg.samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Nadav Haklai <nadavh@marvell.com>, Lior Amsalem <alior@marvell.com>, Hanna Hawa <hannah@marvell.com>, Yehuda Yitschak <yehuday@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Anand Moon <linux.amoon@gmail.com>, Kukjin Kim <kgene@kernel.org>, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-When clock support was added to the i2c-mv64xxx, not all clk functions
-had stubs when for !CONFIG_HAVE_CLK configurations. However, nowadays,
-both "struct clk" and all the clock framework functions have stubs
-when CONFIG_HAVE_CLK is not enabled, so it no longer makes sense to
-carry such compile-time conditionals in the driver.
 
-This commit was compile tested on both ARM64 (which has both
-CONFIG_OF=y and CONFIG_HAVE_CLK=y) and PowerPC c2k_defconfig (which
-has CONFIG_OF=y, CONFIG_HAVE_CLK disabled, and the i2c-mv64xxx driver
-enabled).
+--XMCwj5IQnwKtuyBG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The only non-trivial change is in the mv64xxx_of_config() function,
-which was returning -ENODEV unconditionally if CONFIG_HAVE_CLK was
-disabled. Simply removing this condition works fine because the first
-test done by the function is to verify if drv_data->clk points to a
-valid clock, and if it doesn't, we return -ENODEV. When
-CONFIG_HAVE_CLK is disabled, devm_clk_get() unconditionally returns
-NULL, so mv64xxx_of_config() will return -ENODEV when no clock is
-provided, which is the intended behavior.
+On Sat, Apr 16, 2016 at 09:14:53PM -0400, Javier Martinez Canillas wrote:
+> The exynos5 I2C controller driver always prepares and enables a clock
+> before using it and then disables unprepares it when the clock is not
+> used anymore.
+>=20
+> But this can cause a possible ABBA deadlock in some scenarios since a
+> driver that uses regmap to access its I2C registers, will first grab
+> the regmap lock and then the I2C xfer function will grab the prepare
+> lock when preparing the I2C clock. But since the clock driver also
+> uses regmap for I2C accesses, preparing a clock will first grab the
+> prepare lock and then the regmap lock when using the regmap API.
+>=20
+> An example of this happens on the Exynos5422 Odroid XU4 board where a
+> s2mps11 PMIC is used and both the s2mps11 regulators and clk drivers
+> share the same I2C regmap.
+>=20
+> The possible deadlock is reported by the kernel lockdep:
+>=20
+>   Possible unsafe locking scenario:
+>=20
+>         CPU0                    CPU1
 
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
----
- drivers/i2c/busses/i2c-mv64xxx.c | 25 ++++++-------------------
- 1 file changed, 6 insertions(+), 19 deletions(-)
+Squashed both patches into one for easier backporting, added stable and
+applied to for-current, thanks!
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index e87db03..b4dec08 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -134,9 +134,7 @@ struct mv64xxx_i2c_data {
- 	int			rc;
- 	u32			freq_m;
- 	u32			freq_n;
--#if defined(CONFIG_HAVE_CLK)
- 	struct clk              *clk;
--#endif
- 	wait_queue_head_t	waitq;
- 	spinlock_t		lock;
- 	struct i2c_msg		*msg;
-@@ -757,7 +755,6 @@ static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
- MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
- 
- #ifdef CONFIG_OF
--#ifdef CONFIG_HAVE_CLK
- static int
- mv64xxx_calc_freq(struct mv64xxx_i2c_data *drv_data,
- 		  const int tclk, const int n, const int m)
-@@ -791,25 +788,20 @@ mv64xxx_find_baud_factors(struct mv64xxx_i2c_data *drv_data,
- 		return false;
- 	return true;
- }
--#endif /* CONFIG_HAVE_CLK */
- 
- static int
- mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 		  struct device *dev)
- {
--	/* CLK is mandatory when using DT to describe the i2c bus. We
--	 * need to know tclk in order to calculate bus clock
--	 * factors.
--	 */
--#if !defined(CONFIG_HAVE_CLK)
--	/* Have OF but no CLK */
--	return -ENODEV;
--#else
- 	const struct of_device_id *device;
- 	struct device_node *np = dev->of_node;
- 	u32 bus_freq, tclk;
- 	int rc = 0;
- 
-+	/* CLK is mandatory when using DT to describe the i2c bus. We
-+	 * need to know tclk in order to calculate bus clock
-+	 * factors.
-+	 */
- 	if (IS_ERR(drv_data->clk)) {
- 		rc = -ENODEV;
- 		goto out;
-@@ -869,7 +861,6 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 
- out:
- 	return rc;
--#endif
- }
- #else /* CONFIG_OF */
- static int
-@@ -907,14 +898,13 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- 	init_waitqueue_head(&drv_data->waitq);
- 	spin_lock_init(&drv_data->lock);
- 
--#if defined(CONFIG_HAVE_CLK)
- 	/* Not all platforms have a clk */
- 	drv_data->clk = devm_clk_get(&pd->dev, NULL);
- 	if (IS_ERR(drv_data->clk) && PTR_ERR(drv_data->clk) == -EPROBE_DEFER)
- 		return -EPROBE_DEFER;
- 	if (!IS_ERR(drv_data->clk))
- 		clk_prepare_enable(drv_data->clk);
--#endif
-+
- 	if (pdata) {
- 		drv_data->freq_m = pdata->freq_m;
- 		drv_data->freq_n = pdata->freq_n;
-@@ -964,11 +954,10 @@ exit_reset:
- 	if (!IS_ERR_OR_NULL(drv_data->rstc))
- 		reset_control_assert(drv_data->rstc);
- exit_clk:
--#if defined(CONFIG_HAVE_CLK)
- 	/* Not all platforms have a clk */
- 	if (!IS_ERR(drv_data->clk))
- 		clk_disable_unprepare(drv_data->clk);
--#endif
-+
- 	return rc;
- }
- 
-@@ -981,11 +970,9 @@ mv64xxx_i2c_remove(struct platform_device *dev)
- 	free_irq(drv_data->irq, drv_data);
- 	if (!IS_ERR_OR_NULL(drv_data->rstc))
- 		reset_control_assert(drv_data->rstc);
--#if defined(CONFIG_HAVE_CLK)
- 	/* Not all platforms have a clk */
- 	if (!IS_ERR(drv_data->clk))
- 		clk_disable_unprepare(drv_data->clk);
--#endif
- 
- 	return 0;
- }
--- 
-2.6.4
+
+--XMCwj5IQnwKtuyBG
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXGifCAAoJEBQN5MwUoCm2QtEP/3xTxhXLVUZ19ws0rl6DKClT
+fenuzBMLwt2vDcDXqPB0IcnG74L1JhXjzmtaP4BdB1NevsnVMPjkqsQoAs8/Qbh4
+kdIpTaB5cXrjbyhPBIePqWZ6g+yp7zrrN4TW2yr7woDwdBuzizMAhr+/yVAtIcvs
+O88Jx1/Xeic1QLr1OGDB9aw3+sZ/7DigX8OTzNM6+JQD3nB9ohitkan9g64um4vs
+oarTGJrHDROVmyovh3z2x2bTeVzGsX8ttLo5+V4WRAtu51Rk8ZOBJM8D4iyh8zKf
+rOS6FBvHjmaHA5D0X8d+1pD4FuiKVDD5Ie/rOyP+hp3we2BgGqql5OG5nquOaSrI
+/6NUvEt/su/R6MK3b0csQiYX1+kCXFTJ7X8ej+Khtvk3nXzEPKGYsiOb6Un8mVKc
+qfiNhzkZvzeyf50u0Nji1+fO/r8Spnx6gsJRrEcN/QufEGjA/BPPFG7ko7evzUT7
+U32VLUaZ0AatHWqstpxGFoimKIyRhKLTKh4+ci2zjSSKFg0UYajtwdlVkXnxw+bC
+06D8NhFfGyxtxTFNpfYbLmmiRtR/iNtc6qD7KDmyvXyjtayfLJM3AxV7gWGua8y0
+R9LF+69d5U2pgUCknFlvrkFZbsKCHA7xgAWNJ7d2cKeI1jxmJco5MR9iEcRCeMgs
+QB36SmvwSBN6+2W/Rr6M
+=sP/e
+-----END PGP SIGNATURE-----
+
+--XMCwj5IQnwKtuyBG--
