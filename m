@@ -1,50 +1,128 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: mux: pinctrl: fix indentation for better readability
-Date: Fri, 22 Apr 2016 15:44:07 +0200
-Message-ID: <1461332647-11227-1-git-send-email-wsa@the-dreams.de>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v4] i2c: designware-platdrv: fix unbalanced clk enable and
+ prepare
+Date: Fri, 22 Apr 2016 16:59:31 +0300
+Message-ID: <571A2E43.9030109@linux.intel.com>
+References: <1461314971-5944-1-git-send-email-jszhang@marvell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:55463 "EHLO pokefinder.org"
+Received: from mga02.intel.com ([134.134.136.20]:5865 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752669AbcDVNo4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 22 Apr 2016 09:44:56 -0400
+	id S1752461AbcDVN7x (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 22 Apr 2016 09:59:53 -0400
+In-Reply-To: <1461314971-5944-1-git-send-email-jszhang@marvell.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+To: Jisheng Zhang <jszhang@marvell.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-smatch rightfully says:
+Hi
 
-drivers/i2c/muxes/i2c-mux-pinctrl.c:175 i2c_mux_pinctrl_probe() warn: inconsistent indenting
+On 04/22/2016 11:49 AM, Jisheng Zhang wrote:
+> If i2c_dw_probe() fails, we should disable and unprepare the clock,
+> otherwise the clock enable and prepare is left unbalanced.
+>
+> In dw_i2c_plat_remove(), we'd better to not rely on runtime PM to
+> disable and unprepare the clock since CONFIG_PM may be disabled when
+> configuring the kernel. So we explicitly disable and unprepare the
+> clock in dw_i2c_plat_remove() rather than implicitly rely on
+> pm_runtime_put_sync(). To keep the device usage count balanced, we
+> call pm_runtime_put_noidle() to decrease the usage count.
+>
+> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+> ---
+>   Since v3:
+>    - use runtime PM rather than rpm in commit msg
+>    - remove duplicated "(" in commit msg
+>
+>   Since v2:
+>    - s/clk/clock
+>    - describe why use pm_runtime_put_noidle()
+>
+>   Since v1:
+>    - fix commit msg: "not rely on rpm" rather than "rely on rpm"
+>    - call i2c_dw_plat_prepare_clk after pm_rumtime_disable()
+>   drivers/i2c/busses/i2c-designware-platdrv.c | 16 ++++++++++------
+>   1 file changed, 10 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index d656657..a771781 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -253,8 +253,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>   	}
+>
+>   	r = i2c_dw_probe(dev);
+> -	if (r && !dev->pm_runtime_disabled)
+> -		pm_runtime_disable(&pdev->dev);
+> +	if (r) {
+> +		if (!dev->pm_runtime_disabled)
+> +			pm_runtime_disable(&pdev->dev);
+> +		i2c_dw_plat_prepare_clk(dev, false);
+> +	}
+>
+>   	return r;
+>   }
+> @@ -264,15 +267,16 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
+>   	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+>
+>   	pm_runtime_get_sync(&pdev->dev);
+> +	pm_runtime_dont_use_autosuspend(&pdev->dev);
+> +	if (!dev->pm_runtime_disabled)
+> +		pm_runtime_disable(&pdev->dev);
+> +	pm_runtime_put_noidle(&pdev->dev);
+>
+>   	i2c_del_adapter(&dev->adapter);
+>
+>   	i2c_dw_disable(dev);
+>
+> -	pm_runtime_dont_use_autosuspend(&pdev->dev);
+> -	pm_runtime_put_sync(&pdev->dev);
+> -	if (!dev->pm_runtime_disabled)
+> -		pm_runtime_disable(&pdev->dev);
+> +	i2c_dw_plat_prepare_clk(dev, false);
+>
+This feels a bit an invasive change to me for unbalanced clock 
+enable/disable and I noticed this changes semantics how 
+drivers/acpi/acpi_lpss.c devices are shutdown when removing the driver. 
+Although I didn't notice does it cause any regression.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/i2c/muxes/i2c-mux-pinctrl.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+Before patch:
+1. drivers/base/dd.c: __device_release_driver()
+    - pm_runtime_get_sync()
+      -> acpi_device_set_power(D0)
+         acpi_lpss_restore_ctx()
+         dw_i2c_plat_resume()
+2. dw_i2c_plat_remove()
+    - pm_runtime_dont_use_autosuspend()
+      pm_runtime_put_sync()
+      -> dw_i2c_plat_suspend()
+         acpi_lpss_save_ctx()
+         acpi_device_set_power(D3)
+3. __device_release_driver() continue
+    - dev->pm_domain->dismiss(dev)
+      -> acpi_lpss_dismiss() ... -> acpi_device_set_power(D3)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-index 1b8dc711815ed3..f4e62f4a50cc42 100644
---- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-@@ -172,13 +172,13 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
- 	for (i = 0; i < mux->pdata->bus_count; i++) {
- 		mux->states[i] = pinctrl_lookup_state(mux->pinctrl,
- 						mux->pdata->pinctrl_states[i]);
--			if (IS_ERR(mux->states[i])) {
--				ret = PTR_ERR(mux->states[i]);
--				dev_err(&pdev->dev,
--					"Cannot look up pinctrl state %s: %d\n",
--					mux->pdata->pinctrl_states[i], ret);
--				goto err;
--			}
-+		if (IS_ERR(mux->states[i])) {
-+			ret = PTR_ERR(mux->states[i]);
-+			dev_err(&pdev->dev,
-+				"Cannot look up pinctrl state %s: %d\n",
-+				mux->pdata->pinctrl_states[i], ret);
-+			goto err;
-+		}
- 	}
- 	if (mux->pdata->pinctrl_state_idle) {
- 		mux->state_idle = pinctrl_lookup_state(mux->pinctrl,
+After patch:
+1. drivers/base/dd.c: __device_release_driver()
+  - pm_runtime_get_sync()
+    -> acpi_device_set_power(D0)
+       acpi_lpss_restore_ctx()
+       dw_i2c_plat_resume()
+2. dw_i2c_plat_remove()
+    - pm_runtime_dont_use_autosuspend()
+      pm_runtime_put_noidle()
+      * no device suspending and acpi_lpss_save_ctx()
+3. __device_release_driver() continue
+    - dev->pm_domain->dismiss(dev)
+    -> acpi_lpss_dismiss() ... -> acpi_device_set_power(D3)
+      * powers down here
+
+So after patch there is no acpi_lpss_save_ctx() call but I don't see 
+does it cause any issue here. Maybe it's better to track clock only. 
+What you think Andy?
+
 -- 
-2.7.0
+Jarkko
