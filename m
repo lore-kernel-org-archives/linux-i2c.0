@@ -1,38 +1,144 @@
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: [PATCH 0/4] i2c: i2c-mv64xxx: misc small improvements
-Date: Fri, 22 Apr 2016 15:19:50 +0200
-Message-ID: <1461331194-27637-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Subject: [PATCH 4/4] i2c: i2c-mv64xxx: remove CONFIG_HAVE_CLK conditionals
+Date: Fri, 22 Apr 2016 15:19:54 +0200
+Message-ID: <1461331194-27637-5-git-send-email-thomas.petazzoni@free-electrons.com>
+References: <1461331194-27637-1-git-send-email-thomas.petazzoni@free-electrons.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from down.free-electrons.com ([37.187.137.238]:39002 "EHLO
+Received: from down.free-electrons.com ([37.187.137.238]:39034 "EHLO
 	mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752177AbcDVNUA (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Apr 2016 09:20:00 -0400
+	with ESMTP id S1752744AbcDVNUC (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Apr 2016 09:20:02 -0400
+In-Reply-To: <1461331194-27637-1-git-send-email-thomas.petazzoni@free-electrons.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, Nadav Haklai <nadavh@marvell.com>, Lior Amsalem <alior@marvell.com>, Hanna Hawa <hannah@marvell.com>, Yehuda Yitschak <yehuday@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 
-Hello,
+When clock support was added to the i2c-mv64xxx, not all clk functions
+had stubs when for !CONFIG_HAVE_CLK configurations. However, nowadays,
+both "struct clk" and all the clock framework functions have stubs
+when CONFIG_HAVE_CLK is not enabled, so it no longer makes sense to
+carry such compile-time conditionals in the driver.
 
-Here are four small patches doing misc improvements to the i2c-mv64xxx
-I2C controller driver. The first two patches are really needed in
-order to be able to use this I2C controller driver on the ARM64
-Marvell Armada 7K/8K platforms. The last two patches are additional
-cleanups/improvements made along the way.
+This commit was compile tested on both ARM64 (which has both
+CONFIG_OF=y and CONFIG_HAVE_CLK=y) and PowerPC c2k_defconfig (which
+has CONFIG_OF=y, CONFIG_HAVE_CLK disabled, and the i2c-mv64xxx driver
+enabled).
 
-Thanks!
+The only non-trivial change is in the mv64xxx_of_config() function,
+which was returning -ENODEV unconditionally if CONFIG_HAVE_CLK was
+disabled. Simply removing this condition works fine because the first
+test done by the function is to verify if drv_data->clk points to a
+valid clock, and if it doesn't, we return -ENODEV. When
+CONFIG_HAVE_CLK is disabled, devm_clk_get() unconditionally returns
+NULL, so mv64xxx_of_config() will return -ENODEV when no clock is
+provided, which is the intended behavior.
 
-Thomas
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-Thomas Petazzoni (4):
-  i2c: i2c-mv64xxx: enable the driver on ARCH_MVEBU
-  i2c: i2c-mv64xxx: handle probe deferral for the clock
-  i2c: i2c-mv64xxx: use clk_{prepare_enable,disable_unprepare}
-  i2c: i2c-mv64xxx: remove CONFIG_HAVE_CLK conditionals
-
- drivers/i2c/busses/Kconfig       |  2 +-
- drivers/i2c/busses/i2c-mv64xxx.c | 45 +++++++++++++---------------------------
- 2 files changed, 15 insertions(+), 32 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index e87db03..b4dec08 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -134,9 +134,7 @@ struct mv64xxx_i2c_data {
+ 	int			rc;
+ 	u32			freq_m;
+ 	u32			freq_n;
+-#if defined(CONFIG_HAVE_CLK)
+ 	struct clk              *clk;
+-#endif
+ 	wait_queue_head_t	waitq;
+ 	spinlock_t		lock;
+ 	struct i2c_msg		*msg;
+@@ -757,7 +755,6 @@ static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
+ MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
+ 
+ #ifdef CONFIG_OF
+-#ifdef CONFIG_HAVE_CLK
+ static int
+ mv64xxx_calc_freq(struct mv64xxx_i2c_data *drv_data,
+ 		  const int tclk, const int n, const int m)
+@@ -791,25 +788,20 @@ mv64xxx_find_baud_factors(struct mv64xxx_i2c_data *drv_data,
+ 		return false;
+ 	return true;
+ }
+-#endif /* CONFIG_HAVE_CLK */
+ 
+ static int
+ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 		  struct device *dev)
+ {
+-	/* CLK is mandatory when using DT to describe the i2c bus. We
+-	 * need to know tclk in order to calculate bus clock
+-	 * factors.
+-	 */
+-#if !defined(CONFIG_HAVE_CLK)
+-	/* Have OF but no CLK */
+-	return -ENODEV;
+-#else
+ 	const struct of_device_id *device;
+ 	struct device_node *np = dev->of_node;
+ 	u32 bus_freq, tclk;
+ 	int rc = 0;
+ 
++	/* CLK is mandatory when using DT to describe the i2c bus. We
++	 * need to know tclk in order to calculate bus clock
++	 * factors.
++	 */
+ 	if (IS_ERR(drv_data->clk)) {
+ 		rc = -ENODEV;
+ 		goto out;
+@@ -869,7 +861,6 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 
+ out:
+ 	return rc;
+-#endif
+ }
+ #else /* CONFIG_OF */
+ static int
+@@ -907,14 +898,13 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ 	init_waitqueue_head(&drv_data->waitq);
+ 	spin_lock_init(&drv_data->lock);
+ 
+-#if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+ 	drv_data->clk = devm_clk_get(&pd->dev, NULL);
+ 	if (IS_ERR(drv_data->clk) && PTR_ERR(drv_data->clk) == -EPROBE_DEFER)
+ 		return -EPROBE_DEFER;
+ 	if (!IS_ERR(drv_data->clk))
+ 		clk_prepare_enable(drv_data->clk);
+-#endif
++
+ 	if (pdata) {
+ 		drv_data->freq_m = pdata->freq_m;
+ 		drv_data->freq_n = pdata->freq_n;
+@@ -964,11 +954,10 @@ exit_reset:
+ 	if (!IS_ERR_OR_NULL(drv_data->rstc))
+ 		reset_control_assert(drv_data->rstc);
+ exit_clk:
+-#if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+ 	if (!IS_ERR(drv_data->clk))
+ 		clk_disable_unprepare(drv_data->clk);
+-#endif
++
+ 	return rc;
+ }
+ 
+@@ -981,11 +970,9 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+ 	free_irq(drv_data->irq, drv_data);
+ 	if (!IS_ERR_OR_NULL(drv_data->rstc))
+ 		reset_control_assert(drv_data->rstc);
+-#if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+ 	if (!IS_ERR(drv_data->clk))
+ 		clk_disable_unprepare(drv_data->clk);
+-#endif
+ 
+ 	return 0;
+ }
 -- 
 2.6.4
