@@ -1,88 +1,118 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware-platdrv: get fast/std speed scl high/low
- count from DT
-Date: Sun, 24 Apr 2016 22:39:23 +0200
-Message-ID: <20160424203922.GC4317@katana>
-References: <1459927680-5480-1-git-send-email-jszhang@marvell.com>
- <20160407175759.GO32257@rob-hp-laptop>
- <20160413201147.5621a17c@xhacker>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: st: Implement i2c_bus_recovery_info callbacks
+Date: Sun, 24 Apr 2016 23:10:44 +0200
+Message-ID: <20160424211044.GD4317@katana>
+References: <1460467759-11737-1-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="jL2BoiuKMElzg3CS"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:40969 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753336AbcDXVKu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 24 Apr 2016 17:10:50 -0400
 Content-Disposition: inline
-In-Reply-To: <20160413201147.5621a17c@xhacker>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Cc: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+In-Reply-To: <1460467759-11737-1-git-send-email-peter.griffin@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Griffin <peter.griffin@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, srinivas.kandagatla@gmail.com, maxime.coquelin@st.com, patrice.chotard@st.com, lee.jones@linaro.org, linux-i2c@vger.kernel.org, Frederic Pillon <frederic.pillon@st.com>
 
 
---DIOMP1UsTsWJauNi
+--jL2BoiuKMElzg3CS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 13, 2016 at 08:11:47PM +0800, Jisheng Zhang wrote:
-> Dear Rob,
->=20
-> On Thu, 7 Apr 2016 12:57:59 -0500 Rob Herring wrote:
->=20
-> > On Wed, Apr 06, 2016 at 03:28:00PM +0800, Jisheng Zhang wrote:
-> > > Sometimes, it's convenient to define the scl's high/low count directl=
-y,
-> > > e.g HW people would do some measurement then directly give out the
-> > > optimum counts. Previously, we solved the sda falling time and scl
-> > > falling time by i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt(), then put them
-> > > into dt, but what we really care isn't the sda/scl falling time. =20
-> >=20
-> > This is just so you can put specific clock count instead of converting=
-=20
-> > from nanoseconds with standard properties or you gain some additional=
-=20
-> > control of the timing. If only the former, then I prefer we stick with=
-=20
-> > the common properties.
->=20
-> To be honest, both. Let me show how I gain additional control of the timi=
-ng
-> with this patch while I can't do this w/o it.
->=20
-> I want the similar high percent of SCL high for both standard-mode and
-> fast-mode. Before this patch, this is not achievable because the paramete=
-rs
-> to cal the hcnt/lcnt via i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt() are diff=
-erent
-> for standard-mode and fast-mode.
+> +/*
+> + * i2c bus recovery routines
+> + * get_scl and set_scl must be defined to avoid the recover_bus field of
+> + * i2c_bus_recovery_info to be overriden with NULL during the
+> + * i2c_add_adapter call
+> + */
 
-If there is something you can't describe currently, then we can add
-additional properties to allow you to do what you want. But they should
-be generic bindings and not a plain value which is custom to this driver.
+Oh, that shouldn't be like this. Can you try this patch and remove the
+empty functions please?
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 4979728f7fb2de..604936955807e5 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1595,10 +1595,12 @@ static int i2c_register_adapter(struct i2c_adapter =
+*adap)
+=20
+ 			bri->get_scl =3D get_scl_gpio_value;
+ 			bri->set_scl =3D set_scl_gpio_value;
+-		} else if (!bri->set_scl || !bri->get_scl) {
++		} else if (bri->recover_bus =3D=3D i2c_generic_scl_recovery) {
+ 			/* Generic SCL recovery */
+-			dev_err(&adap->dev, "No {get|set}_gpio() found, not using recovery\n");
+-			adap->bus_recovery_info =3D NULL;
++			if (!bri->set_scl || !bri->get_scl) {
++				dev_err(&adap->dev, "No {get|set}_scl() found, not using recovery\n");
++				adap->bus_recovery_info =3D NULL;
++			}
+ 		}
+ 	}
+=20
+
+> +static int st_i2c_recover_bus(struct i2c_adapter *i2c_adap)
+> +{
+
+Can you describe what the function does? It is not clear to me that it
+generates 9 scl pulses.
+
+> +	struct st_i2c_dev *i2c_dev =3D i2c_get_adapdata(i2c_adap);
+> +	u32 ctl;
+> +
+> +	dev_err(i2c_dev->dev, "Trying to recover bus\n");
+
+This is not an error. Either dev_dbg or drop it, I'd say.
+
+> +
+> +	/* Disable interrupts */
+> +	writel_relaxed(0, i2c_dev->base + SSC_IEN);
+> +
+> +	st_i2c_hw_config(i2c_dev);
+> +
+> +	ctl =3D SSC_CTL_EN | SSC_CTL_MS |	SSC_CTL_EN_RX_FIFO | SSC_CTL_EN_TX_FI=
+FO;
+> +	st_i2c_set_bits(i2c_dev->base + SSC_CTL, ctl);
+> +
+> +	st_i2c_clr_bits(i2c_dev->base + SSC_I2C, SSC_I2C_I2CM);
+> +	usleep_range(8000, 10000);
+> +
+> +	writel_relaxed(0, i2c_dev->base + SSC_TBUF);
+> +	usleep_range(2000, 4000);
+> +	st_i2c_set_bits(i2c_dev->base + SSC_I2C, SSC_I2C_I2CM);
+> +
+> +	return 0;
+> +}
+
+Thanks,
+
+   Wolfram
 
 
---DIOMP1UsTsWJauNi
+--jL2BoiuKMElzg3CS
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXHS76AAoJEBQN5MwUoCm2C78P/R8ahfoIxSpEMtC6XHd1LXmc
-ZB/TXqtB2llMLRR0umlTwgzticDSWLWXQ3LkWLI/XnofxYhiRquakpIqEuIfsqME
-DAo3Vdr1TrLHIVmZFMDQEZO3Wj/yzEQIpJf+uWkcjzIulQbHLfLybagfJX1JNNnb
-sxM++07ybQ37QkXb3Yj7YxU1iUmTKa26JPWAl6uBXjLwCvlIz2o26LFyDxuclaOe
-J5z3ij5m2EQeNjlZ/MzXf4fGBsdlHcs7A+qomuB1P7P8POZ8fqivhH6+gaBG1P/J
-jtrpcolECKfJM8K+3RE3XFPTlhPCQRuMHLu0xe0WlpG8AZxoV+N+cobx+rQNLa4E
-X86AK5poUkV7l5UI49nQ6Z18WLYoh+KT+EQdYutw5y59KiCPx+N7FBI7bGQ9sojW
-v9uhuzPLaT3xpL6rvwZhPIenb2n025bFRVoabDkZQZqB1siBPrTA1wbHX/cALwG5
-V4mykeBQvGJbsggW3Aio1x7bX8SUdzkG5AtBKguh2ZGM37kWWghPhjDfNDeFV+Wn
-pYLw21W8IRBEvdzUczEUwTSqL+KwxxhNhwGTz99+ERvFytQrMi8wtUJ/0FoUd5XC
-jW4Fvh8S1PGtgD/v9I2VAS+oz4xzt/XcJpZahJ3sumf2sxPLVsFZaY6PcWvlKkD2
-+wYm1hciZn+E/lPrl97P
-=z6p2
+iQIcBAEBAgAGBQJXHTZUAAoJEBQN5MwUoCm25S0P/347ynQWPjQha7I2QKY4HzVk
+SogWfr6uDyXUYp2XGrNVGto/ZIwwNbzZIiJDAo1YDMCtGNTfRC8Ru74g+FiEK6tj
+9ubk80R/fPuDjTbIS3SeeTYYkfjNowG5rPXk9/UlfTcKS7Vi1coNJ+ulTvkLvns0
+LtNlPnaQ14vInzcPzlO+TDM0zL+ae8DWgMBwwYJrmmnqu4J57A5Hn0xBfgSG0YXf
+lpAl7oIXUBUFTUtFzbegRX99H+PNtqsMDJuXGzgb1sLQanu1JxuipkVjnQ+j1LS2
+J4YmTrIRZQtrcckhCH9KHNaFI1iDrkrM9jt/rMyfbgX0RDFOjz31TRWOwzb5pJ1+
+aMUTeN96z/tMwgm2BaGQTQMOt5t3vTuQ1/jSWiz1V5zmXZr0GRjm6cX0+cXv00GP
+fj7uNYQRnNnJRpTF7akjye0lFYx/DHk+XkbLtoWU/vmgwtVe7Rhd2pjWvmQ2colR
+Iz1oQ2WhccUMsA8nVA4DQsyu75QaNPMQgxEnb08442Z81tyJxyxRczEI5nfny3hV
+d28jl+Al+WB72dGb/UjQCzM4O85DrAJN069zJOkkYs8lll9DCrFwivefviet77A5
+8aGlLh4H/5Lxh+6mApDsPSzQFKvatRviEt5OH1gDFUPxnamG7qa1oW921clVxkR5
+ybaTJ9bYE5WgoN6qH0Xi
+=bIvh
 -----END PGP SIGNATURE-----
 
---DIOMP1UsTsWJauNi--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--jL2BoiuKMElzg3CS--
