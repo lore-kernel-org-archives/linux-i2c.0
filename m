@@ -1,7 +1,7 @@
 From: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 05/12] nvmem: vif610-ocotp: remove nvmem regmap dependency
-Date: Sun, 24 Apr 2016 20:28:09 +0100
-Message-ID: <1461526096-29584-6-git-send-email-srinivas.kandagatla@linaro.org>
+Subject: [PATCH 08/12] nvmem: mtk-efuse: remove nvmem regmap dependency
+Date: Sun, 24 Apr 2016 20:28:12 +0100
+Message-ID: <1461526096-29584-9-git-send-email-srinivas.kandagatla@linaro.org>
 References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,106 +26,96 @@ instead of regmap.
 
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/nvmem/vf610-ocotp.c | 44 ++++++++++----------------------------------
- 1 file changed, 10 insertions(+), 34 deletions(-)
+ drivers/nvmem/Kconfig     |  1 -
+ drivers/nvmem/mtk-efuse.c | 47 ++++++++++++++++++++++++++++++++---------------
+ 2 files changed, 32 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/nvmem/vf610-ocotp.c b/drivers/nvmem/vf610-ocotp.c
-index 8641319..72e4faa 100644
---- a/drivers/nvmem/vf610-ocotp.c
-+++ b/drivers/nvmem/vf610-ocotp.c
-@@ -25,7 +25,6 @@
+diff --git a/drivers/nvmem/Kconfig b/drivers/nvmem/Kconfig
+index 377bc21..c158712 100644
+--- a/drivers/nvmem/Kconfig
++++ b/drivers/nvmem/Kconfig
+@@ -48,7 +48,6 @@ config NVMEM_MXS_OCOTP
+ config MTK_EFUSE
+ 	tristate "Mediatek SoCs EFUSE support"
+ 	depends on ARCH_MEDIATEK || COMPILE_TEST
+-	select REGMAP_MMIO
+ 	help
+ 	  This is a driver to access hardware related data like sensor
+ 	  calibration, HDMI impedance etc.
+diff --git a/drivers/nvmem/mtk-efuse.c b/drivers/nvmem/mtk-efuse.c
+index 9c49369..32fd572 100644
+--- a/drivers/nvmem/mtk-efuse.c
++++ b/drivers/nvmem/mtk-efuse.c
+@@ -14,15 +14,35 @@
+ 
+ #include <linux/device.h>
+ #include <linux/module.h>
++#include <linux/io.h>
  #include <linux/nvmem-provider.h>
- #include <linux/of.h>
  #include <linux/platform_device.h>
 -#include <linux/regmap.h>
- #include <linux/slab.h>
  
- /* OCOTP Register Offsets */
-@@ -152,23 +151,16 @@ static int vf610_get_fuse_address(int base_addr_offset)
- 	return -EINVAL;
- }
- 
--static int vf610_ocotp_write(void *context, const void *data, size_t count)
--{
--	return 0;
--}
--
--static int vf610_ocotp_read(void *context,
--			const void *off, size_t reg_size,
--			void *val, size_t val_size)
-+static int vf610_ocotp_read(void *context, unsigned int offset,
-+			void *val, size_t bytes)
- {
- 	struct vf610_ocotp *ocotp = context;
- 	void __iomem *base = ocotp->base;
--	unsigned int offset = *(u32 *)off;
- 	u32 reg, *buf = val;
- 	int fuse_addr;
- 	int ret;
- 
--	while (val_size > 0) {
-+	while (bytes > 0) {
- 		fuse_addr = vf610_get_fuse_address(offset);
- 		if (fuse_addr > 0) {
- 			writel(ocotp->timing, base + OCOTP_TIMING);
-@@ -205,29 +197,19 @@ static int vf610_ocotp_read(void *context,
- 		}
- 
- 		buf++;
--		val_size--;
--		offset += reg_size;
-+		bytes -= 4;
-+		offset += 4;
- 	}
- 
- 	return 0;
- }
- 
--static struct regmap_bus vf610_ocotp_bus = {
--	.read = vf610_ocotp_read,
--	.write = vf610_ocotp_write,
--	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
--	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
--};
--
--static struct regmap_config ocotp_regmap_config = {
+-static struct regmap_config mtk_regmap_config = {
 -	.reg_bits = 32,
 -	.val_bits = 32,
 -	.reg_stride = 4,
 -};
--
- static struct nvmem_config ocotp_config = {
- 	.name = "ocotp",
- 	.owner = THIS_MODULE,
-+	.stride = 4,
-+	.word_size = 4,
-+	.reg_read = vf610_ocotp_read,
- };
++static int mtk_reg_read(void *context,
++			unsigned int reg, void *_val, size_t bytes)
++{
++	void __iomem *base = context;
++	u32 *val = _val;
++	int i = 0, words = bytes / 4;
++
++	while (words--)
++		*val++ = readl(base + reg + (i++ * 4));
++
++	return 0;
++}
++
++static int mtk_reg_write(void *context,
++			 unsigned int reg, void *_val, size_t bytes)
++{
++	void __iomem *base = context;
++	u32 *val = _val;
++	int i = 0, words = bytes / 4;
++
++	while (words--)
++		writel(*val++, base + reg + (i++ * 4));
++
++	return 0;
++}
  
- static const struct of_device_id ocotp_of_match[] = {
-@@ -247,7 +229,6 @@ static int vf610_ocotp_probe(struct platform_device *pdev)
+ static int mtk_efuse_probe(struct platform_device *pdev)
  {
- 	struct device *dev = &pdev->dev;
+@@ -30,7 +50,6 @@ static int mtk_efuse_probe(struct platform_device *pdev)
  	struct resource *res;
+ 	struct nvmem_device *nvmem;
+ 	struct nvmem_config *econfig;
 -	struct regmap *regmap;
- 	struct vf610_ocotp *ocotp_dev;
+ 	void __iomem *base;
  
- 	ocotp_dev = devm_kzalloc(&pdev->dev,
-@@ -267,13 +248,8 @@ static int vf610_ocotp_probe(struct platform_device *pdev)
- 		return PTR_ERR(ocotp_dev->clk);
- 	}
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -42,14 +61,12 @@ static int mtk_efuse_probe(struct platform_device *pdev)
+ 	if (!econfig)
+ 		return -ENOMEM;
  
--	ocotp_regmap_config.max_register = resource_size(res);
--	regmap = devm_regmap_init(dev,
--		&vf610_ocotp_bus, ocotp_dev, &ocotp_regmap_config);
+-	mtk_regmap_config.max_register = resource_size(res) - 1;
+-
+-	regmap = devm_regmap_init_mmio(dev, base, &mtk_regmap_config);
 -	if (IS_ERR(regmap)) {
 -		dev_err(dev, "regmap init failed\n");
 -		return PTR_ERR(regmap);
 -	}
-+	ocotp_config.size = resource_size(res);
-+	ocotp_config.priv = ocotp_dev;
- 	ocotp_config.dev = dev;
- 
- 	ocotp_dev->nvmem = nvmem_register(&ocotp_config);
+-
++	econfig->stride = 4;
++	econfig->word_size = 4;
++	econfig->reg_read = mtk_reg_read;
++	econfig->reg_write = mtk_reg_write;
++	econfig->size = resource_size(res);
++	econfig->priv = base;
+ 	econfig->dev = dev;
+ 	econfig->owner = THIS_MODULE;
+ 	nvmem = nvmem_register(econfig);
 -- 
 2.5.0
