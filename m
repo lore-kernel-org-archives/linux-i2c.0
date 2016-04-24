@@ -1,64 +1,88 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c/omap: drop the lock hard irq context
-Date: Sun, 24 Apr 2016 22:37:06 +0200
-Message-ID: <20160424203706.GB4317@katana>
-References: <1459778123-16267-1-git-send-email-grygorii.strashko@ti.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: designware-platdrv: get fast/std speed scl high/low
+ count from DT
+Date: Sun, 24 Apr 2016 22:39:23 +0200
+Message-ID: <20160424203922.GC4317@katana>
+References: <1459927680-5480-1-git-send-email-jszhang@marvell.com>
+ <20160407175759.GO32257@rob-hp-laptop>
+ <20160413201147.5621a17c@xhacker>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:40858 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753200AbcDXUhN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 24 Apr 2016 16:37:13 -0400
+	protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1459778123-16267-1-git-send-email-grygorii.strashko@ti.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20160413201147.5621a17c@xhacker>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Sekhar Nori <nsekhar@ti.com>, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 
---LpQ9ahxlCli8rRTG
+--DIOMP1UsTsWJauNi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 04, 2016 at 04:55:23PM +0300, Grygorii Strashko wrote:
-> From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+On Wed, Apr 13, 2016 at 08:11:47PM +0800, Jisheng Zhang wrote:
+> Dear Rob,
 >=20
-> The lock is taken while reading two registers. On RT the first lock is
-> taken in hard irq where it might sleep and in the threaded irq.
-> The threaded irq runs in oneshot mode so the hard irq does not run until
-> the thread the completes so there is no reason to grab the lock.
+> On Thu, 7 Apr 2016 12:57:59 -0500 Rob Herring wrote:
 >=20
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> [grygorii.strashko@ti.com: drop locking from isr completely and remove
-> lock field from struct omap_i2c_dev]
-> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+> > On Wed, Apr 06, 2016 at 03:28:00PM +0800, Jisheng Zhang wrote:
+> > > Sometimes, it's convenient to define the scl's high/low count directl=
+y,
+> > > e.g HW people would do some measurement then directly give out the
+> > > optimum counts. Previously, we solved the sda falling time and scl
+> > > falling time by i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt(), then put them
+> > > into dt, but what we really care isn't the sda/scl falling time. =20
+> >=20
+> > This is just so you can put specific clock count instead of converting=
+=20
+> > from nanoseconds with standard properties or you gain some additional=
+=20
+> > control of the timing. If only the former, then I prefer we stick with=
+=20
+> > the common properties.
+>=20
+> To be honest, both. Let me show how I gain additional control of the timi=
+ng
+> with this patch while I can't do this w/o it.
+>=20
+> I want the similar high percent of SCL high for both standard-mode and
+> fast-mode. Before this patch, this is not achievable because the paramete=
+rs
+> to cal the hcnt/lcnt via i2c_dw_scl_hcnt() and i2c_dw_scl_lcnt() are diff=
+erent
+> for standard-mode and fast-mode.
 
-Applied to for-next, thanks!
+If there is something you can't describe currently, then we can add
+additional properties to allow you to do what you want. But they should
+be generic bindings and not a plain value which is custom to this driver.
 
 
---LpQ9ahxlCli8rRTG
+--DIOMP1UsTsWJauNi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXHS5yAAoJEBQN5MwUoCm2v1IP+QFf7LQ3Sh9xXRzX4EsoG0dw
-p5o2YpEFBAaDkOszMBRspw/vwbWIVLwJbGv2zuTHL4FwnskuFzSTpHMQIJL/oW4X
-7E+mRqFIlrmSeN7+1TawOVK/LvCniAAuxXdJKiSXKhdm0hnoRKCMvA+yn2HNh451
-v5GzjqoB8oGOrUO+iWktx6eQtk1PolXiLUamL/J6OJeH/11Smi/3rduuTtcgbs3o
-ln93U+knUlzYuCmTRlQ3s8dU+IAgES43x59u9tfWardcqDtZF+qoSdceVhsDuu/q
-smsbgXhOxV6gR/81Gi6Q2oBYEQHPQfmE4dbbuBfkMOvcaJI/fd2sGuEZErVgEXhL
-p1AgzubhxTt6nQHSzTPbGQVDhvf50GqMg1mvb5u8F8sxrfErgLodSQtocyFxLX2W
-B3uxCV4SUIZqSscfgSCvrls1vSx1+cDlFZRvP6UCqhuNDQtKd1LfUxMCQIgyLWkk
-ApMTL8E5jXxL7kz9Hmdu4r6k2c/GwtaRHCvKQbK0AyzjkeLOB4O6MtfNhmNsZ24S
-7nGVaOSdQ+XPf3SDhpuKtCRL52SUADFrNRS4Sn0WfOi3Bb9udQj0dUadbUNdsqZe
-VPJVmVYFb0onmWxfhnMQLBxTh6aYaxV4fP63Y5zcM/IhML6vtI1C9Uo0x3jIAqew
-mFZ320UkGgZ1lHcS9ZJ6
-=pXlJ
+iQIcBAEBAgAGBQJXHS76AAoJEBQN5MwUoCm2C78P/R8ahfoIxSpEMtC6XHd1LXmc
+ZB/TXqtB2llMLRR0umlTwgzticDSWLWXQ3LkWLI/XnofxYhiRquakpIqEuIfsqME
+DAo3Vdr1TrLHIVmZFMDQEZO3Wj/yzEQIpJf+uWkcjzIulQbHLfLybagfJX1JNNnb
+sxM++07ybQ37QkXb3Yj7YxU1iUmTKa26JPWAl6uBXjLwCvlIz2o26LFyDxuclaOe
+J5z3ij5m2EQeNjlZ/MzXf4fGBsdlHcs7A+qomuB1P7P8POZ8fqivhH6+gaBG1P/J
+jtrpcolECKfJM8K+3RE3XFPTlhPCQRuMHLu0xe0WlpG8AZxoV+N+cobx+rQNLa4E
+X86AK5poUkV7l5UI49nQ6Z18WLYoh+KT+EQdYutw5y59KiCPx+N7FBI7bGQ9sojW
+v9uhuzPLaT3xpL6rvwZhPIenb2n025bFRVoabDkZQZqB1siBPrTA1wbHX/cALwG5
+V4mykeBQvGJbsggW3Aio1x7bX8SUdzkG5AtBKguh2ZGM37kWWghPhjDfNDeFV+Wn
+pYLw21W8IRBEvdzUczEUwTSqL+KwxxhNhwGTz99+ERvFytQrMi8wtUJ/0FoUd5XC
+jW4Fvh8S1PGtgD/v9I2VAS+oz4xzt/XcJpZahJ3sumf2sxPLVsFZaY6PcWvlKkD2
++wYm1hciZn+E/lPrl97P
+=z6p2
 -----END PGP SIGNATURE-----
 
---LpQ9ahxlCli8rRTG--
+--DIOMP1UsTsWJauNi--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
