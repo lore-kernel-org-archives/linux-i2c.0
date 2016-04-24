@@ -1,238 +1,160 @@
 From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 02/12] eeprom: at24: remove nvmem regmap dependency
-Date: Sun, 24 Apr 2016 20:28:06 +0100
-Message-ID: <1461526096-29584-3-git-send-email-srinivas.kandagatla@linaro.org>
+Subject: [PATCH 11/12] nvmem: mxs-ocotp: remove nvmem regmap dependency
+Date: Sun, 24 Apr 2016 20:28:15 +0100
+Message-ID: <1461526096-29584-12-git-send-email-srinivas.kandagatla@linaro.org>
 References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:37816 "EHLO
-	mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751170AbcDXT2g (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 24 Apr 2016 15:28:36 -0400
-Received: by mail-wm0-f54.google.com with SMTP id n3so97907032wmn.0
-        for <linux-i2c@vger.kernel.org>; Sun, 24 Apr 2016 12:28:35 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Wolfram Sang <wsa@the-dreams.de>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Joachim Eastwood <manabian@gmail.com>, Matthias Brugger <matthias.bgg@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Chen-Yu Tsai <wens@csie.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, Mark Brown <broonie@kernel.org>, andrew@lunn.ch
+List-Id: linux-i2c@vger.kernel.org
 
-This patch moves to nvmem support in the driver to use callback instead
-of regmap.
+This patch moves to nvmem support in the driver to use callback
+instead of regmap.
 
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
- drivers/misc/eeprom/Kconfig |   1 -
- drivers/misc/eeprom/at24.c  | 103 ++++++++++----------------------------------
- 2 files changed, 22 insertions(+), 82 deletions(-)
+ drivers/nvmem/mxs-ocotp.c | 79 +++++++++++++----------------------------------
+ 1 file changed, 21 insertions(+), 58 deletions(-)
 
-diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
-index cfc493c..2d70464 100644
---- a/drivers/misc/eeprom/Kconfig
-+++ b/drivers/misc/eeprom/Kconfig
-@@ -3,7 +3,6 @@ menu "EEPROM support"
- config EEPROM_AT24
- 	tristate "I2C EEPROMs / RAMs / ROMs from most vendors"
- 	depends on I2C && SYSFS
--	select REGMAP
- 	select NVMEM
- 	help
- 	  Enable this driver to get read/write support to most I2C EEPROMs
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 089d694..de550a6 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -23,7 +23,6 @@
- #include <linux/acpi.h>
- #include <linux/i2c.h>
- #include <linux/nvmem-provider.h>
--#include <linux/regmap.h>
- #include <linux/platform_data/at24.h>
- 
- /*
-@@ -69,7 +68,6 @@ struct at24_data {
- 	unsigned write_max;
- 	unsigned num_addresses;
- 
--	struct regmap_config regmap_config;
- 	struct nvmem_config nvmem_config;
- 	struct nvmem_device *nvmem;
- 
-@@ -252,10 +250,10 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	return -ETIMEDOUT;
- }
- 
--static ssize_t at24_read(struct at24_data *at24,
--		char *buf, loff_t off, size_t count)
-+static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- {
--	ssize_t retval = 0;
-+	struct at24_data *at24 = priv;
-+	char *buf = val;
- 
- 	if (unlikely(!count))
- 		return count;
-@@ -267,23 +265,21 @@ static ssize_t at24_read(struct at24_data *at24,
- 	mutex_lock(&at24->lock);
- 
- 	while (count) {
--		ssize_t	status;
-+		int	status;
- 
- 		status = at24_eeprom_read(at24, buf, off, count);
--		if (status <= 0) {
--			if (retval == 0)
--				retval = status;
--			break;
-+		if (status < 0) {
-+			mutex_unlock(&at24->lock);
-+			return status;
- 		}
- 		buf += status;
- 		off += status;
- 		count -= status;
--		retval += status;
- 	}
- 
- 	mutex_unlock(&at24->lock);
- 
--	return retval;
-+	return 0;
- }
- 
- /*
-@@ -372,13 +368,13 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 	return -ETIMEDOUT;
- }
- 
--static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
--			  size_t count)
-+static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- {
--	ssize_t retval = 0;
-+	struct at24_data *at24 = priv;
-+	char *buf = val;
- 
- 	if (unlikely(!count))
--		return count;
-+		return -EINVAL;
- 
- 	/*
- 	 * Write data to chip, protecting against concurrent updates
-@@ -387,70 +383,23 @@ static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
- 	mutex_lock(&at24->lock);
- 
- 	while (count) {
--		ssize_t	status;
-+		int status;
- 
- 		status = at24_eeprom_write(at24, buf, off, count);
--		if (status <= 0) {
--			if (retval == 0)
--				retval = status;
--			break;
-+		if (status < 0) {
-+			mutex_unlock(&at24->lock);
-+			return status;
- 		}
- 		buf += status;
- 		off += status;
- 		count -= status;
--		retval += status;
- 	}
- 
- 	mutex_unlock(&at24->lock);
- 
--	return retval;
--}
--
--/*-------------------------------------------------------------------------*/
--
--/*
-- * Provide a regmap interface, which is registered with the NVMEM
-- * framework
--*/
--static int at24_regmap_read(void *context, const void *reg, size_t reg_size,
--			    void *val, size_t val_size)
--{
--	struct at24_data *at24 = context;
--	off_t offset = *(u32 *)reg;
--	int err;
--
--	err = at24_read(at24, val, offset, val_size);
--	if (err)
--		return err;
--	return 0;
--}
--
--static int at24_regmap_write(void *context, const void *data, size_t count)
--{
--	struct at24_data *at24 = context;
--	const char *buf;
--	u32 offset;
--	size_t len;
--	int err;
--
--	memcpy(&offset, data, sizeof(offset));
--	buf = (const char *)data + sizeof(offset);
--	len = count - sizeof(offset);
--
--	err = at24_write(at24, buf, offset, len);
--	if (err)
--		return err;
+diff --git a/drivers/nvmem/mxs-ocotp.c b/drivers/nvmem/mxs-ocotp.c
+index 8ba19bb..3bf962c 100644
+--- a/drivers/nvmem/mxs-ocotp.c
++++ b/drivers/nvmem/mxs-ocotp.c
+@@ -66,11 +66,10 @@ static int mxs_ocotp_wait(struct mxs_ocotp *otp)
  	return 0;
  }
  
--static const struct regmap_bus at24_regmap_bus = {
--	.read = at24_regmap_read,
--	.write = at24_regmap_write,
--	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
--};
--
--/*-------------------------------------------------------------------------*/
--
- #ifdef CONFIG_OF
- static void at24_get_ofdata(struct i2c_client *client,
- 		struct at24_platform_data *chip)
-@@ -482,7 +431,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	struct at24_data *at24;
- 	int err;
- 	unsigned i, num_addresses;
--	struct regmap *regmap;
+-static int mxs_ocotp_read(void *context, const void *reg, size_t reg_size,
+-			  void *val, size_t val_size)
++static int mxs_ocotp_read(void *context, unsigned int offset,
++			  void *val, size_t bytes)
+ {
+ 	struct mxs_ocotp *otp = context;
+-	unsigned int offset = *(u32 *)reg;
+ 	u32 *buf = val;
+ 	int ret;
  
- 	if (client->dev.platform_data) {
- 		chip = *(struct at24_platform_data *)client->dev.platform_data;
-@@ -612,19 +560,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -94,17 +93,16 @@ static int mxs_ocotp_read(void *context, const void *reg, size_t reg_size,
+ 	if (ret)
+ 		goto close_banks;
+ 
+-	while (val_size) {
++	while (bytes) {
+ 		if ((offset < OCOTP_DATA_OFFSET) || (offset % 16)) {
+ 			/* fill up non-data register */
+-			*buf = 0;
++			*buf++ = 0;
+ 		} else {
+-			*buf = readl(otp->base + offset);
++			*buf++ = readl(otp->base + offset);
  		}
+ 
+-		buf++;
+-		val_size--;
+-		offset += reg_size;
++		bytes -= 4;
++		offset += 4;
  	}
  
--	at24->regmap_config.reg_bits = 32;
--	at24->regmap_config.val_bits = 8;
--	at24->regmap_config.reg_stride = 1;
--	at24->regmap_config.max_register = chip.byte_len - 1;
+ close_banks:
+@@ -117,57 +115,28 @@ disable_clk:
+ 	return ret;
+ }
+ 
+-static int mxs_ocotp_write(void *context, const void *data, size_t count)
+-{
+-	/* We don't want to support writing */
+-	return 0;
+-}
 -
--	regmap = devm_regmap_init(&client->dev, &at24_regmap_bus, at24,
--				  &at24->regmap_config);
+-static bool mxs_ocotp_writeable_reg(struct device *dev, unsigned int reg)
+-{
+-	return false;
+-}
+-
+ static struct nvmem_config ocotp_config = {
+ 	.name = "mxs-ocotp",
++	.stride = 16,
++	.word_size = 4,
+ 	.owner = THIS_MODULE,
+ };
+ 
+-static const struct regmap_range imx23_ranges[] = {
+-	regmap_reg_range(OCOTP_DATA_OFFSET, 0x210),
+-};
+-
+-static const struct regmap_access_table imx23_access = {
+-	.yes_ranges = imx23_ranges,
+-	.n_yes_ranges = ARRAY_SIZE(imx23_ranges),
+-};
+-
+-static const struct regmap_range imx28_ranges[] = {
+-	regmap_reg_range(OCOTP_DATA_OFFSET, 0x290),
+-};
+-
+-static const struct regmap_access_table imx28_access = {
+-	.yes_ranges = imx28_ranges,
+-	.n_yes_ranges = ARRAY_SIZE(imx28_ranges),
++struct imx_data {
++	int max_reg;
+ };
+ 
+-static struct regmap_bus mxs_ocotp_bus = {
+-	.read = mxs_ocotp_read,
+-	.write = mxs_ocotp_write, /* make regmap_init() happy */
+-	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
+-	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
++static const struct imx_data imx23_data = {
++	.max_reg = 0x210,
+ };
+ 
+-static struct regmap_config mxs_ocotp_config = {
+-	.reg_bits = 32,
+-	.val_bits = 32,
+-	.reg_stride = 16,
+-	.writeable_reg = mxs_ocotp_writeable_reg,
++static const struct imx_data imx28_data = {
++	.max_reg = 0x290,
+ };
+ 
+ static const struct of_device_id mxs_ocotp_match[] = {
+-	{ .compatible = "fsl,imx23-ocotp", .data = &imx23_access },
+-	{ .compatible = "fsl,imx28-ocotp", .data = &imx28_access },
++	{ .compatible = "fsl,imx23-ocotp", .data = &imx23_data },
++	{ .compatible = "fsl,imx28-ocotp", .data = &imx23_data },
+ 	{ /* sentinel */},
+ };
+ MODULE_DEVICE_TABLE(of, mxs_ocotp_match);
+@@ -175,6 +144,7 @@ MODULE_DEVICE_TABLE(of, mxs_ocotp_match);
+ static int mxs_ocotp_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
++	struct imx_data *data;
+ 	struct mxs_ocotp *otp;
+ 	struct resource *res;
+ 	const struct of_device_id *match;
+@@ -205,17 +175,10 @@ static int mxs_ocotp_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	access = match->data;
+-	mxs_ocotp_config.rd_table = access;
+-	mxs_ocotp_config.max_register = access->yes_ranges[0].range_max;
+-
+-	regmap = devm_regmap_init(dev, &mxs_ocotp_bus, otp, &mxs_ocotp_config);
 -	if (IS_ERR(regmap)) {
--		dev_err(&client->dev, "regmap init failed\n");
--		err = PTR_ERR(regmap);
--		goto err_clients;
+-		dev_err(dev, "regmap init failed\n");
+-		ret = PTR_ERR(regmap);
+-		goto err_clk;
 -	}
--
- 	at24->nvmem_config.name = dev_name(&client->dev);
- 	at24->nvmem_config.dev = &client->dev;
- 	at24->nvmem_config.read_only = !writable;
-@@ -632,6 +567,12 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->nvmem_config.owner = THIS_MODULE;
- 	at24->nvmem_config.compat = true;
- 	at24->nvmem_config.base_dev = &client->dev;
-+	at24->nvmem_config.reg_read = at24_read;
-+	at24->nvmem_config.reg_write = at24_write;
-+	at24->nvmem_config.priv = at24;
-+	at24->nvmem_config.stride = 4;
-+	at24->nvmem_config.word_size = 1;
-+	at24->nvmem_config.size = chip.byte_len;
++	data = match->data;
  
- 	at24->nvmem = nvmem_register(&at24->nvmem_config);
- 
++	ocotp_config.size = data->max_reg;
++	ocotp_config.priv = otp;
+ 	ocotp_config.dev = dev;
+ 	otp->nvmem = nvmem_register(&ocotp_config);
+ 	if (IS_ERR(otp->nvmem)) {
 -- 
 2.5.0
