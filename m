@@ -1,7 +1,7 @@
 From: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 08/12] nvmem: mtk-efuse: remove nvmem regmap dependency
-Date: Sun, 24 Apr 2016 20:28:12 +0100
-Message-ID: <1461526096-29584-9-git-send-email-srinivas.kandagatla@linaro.org>
+Subject: [PATCH 06/12] nvmem: sunxi-sid: remove nvmem regmap dependency
+Date: Sun, 24 Apr 2016 20:28:10 +0100
+Message-ID: <1461526096-29584-7-git-send-email-srinivas.kandagatla@linaro.org>
 References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,95 +27,119 @@ instead of regmap.
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
  drivers/nvmem/Kconfig     |  1 -
- drivers/nvmem/mtk-efuse.c | 47 ++++++++++++++++++++++++++++++++---------------
- 2 files changed, 32 insertions(+), 16 deletions(-)
+ drivers/nvmem/sunxi_sid.c | 54 ++++++++---------------------------------------
+ 2 files changed, 9 insertions(+), 46 deletions(-)
 
 diff --git a/drivers/nvmem/Kconfig b/drivers/nvmem/Kconfig
-index 377bc21..c158712 100644
+index a87273b..377bc21 100644
 --- a/drivers/nvmem/Kconfig
 +++ b/drivers/nvmem/Kconfig
-@@ -48,7 +48,6 @@ config NVMEM_MXS_OCOTP
- config MTK_EFUSE
- 	tristate "Mediatek SoCs EFUSE support"
- 	depends on ARCH_MEDIATEK || COMPILE_TEST
+@@ -81,7 +81,6 @@ config ROCKCHIP_EFUSE
+ config NVMEM_SUNXI_SID
+ 	tristate "Allwinner SoCs SID support"
+ 	depends on ARCH_SUNXI
 -	select REGMAP_MMIO
  	help
- 	  This is a driver to access hardware related data like sensor
- 	  calibration, HDMI impedance etc.
-diff --git a/drivers/nvmem/mtk-efuse.c b/drivers/nvmem/mtk-efuse.c
-index 9c49369..32fd572 100644
---- a/drivers/nvmem/mtk-efuse.c
-+++ b/drivers/nvmem/mtk-efuse.c
-@@ -14,15 +14,35 @@
- 
- #include <linux/device.h>
- #include <linux/module.h>
-+#include <linux/io.h>
+ 	  This is a driver for the 'security ID' available on various Allwinner
+ 	  devices.
+diff --git a/drivers/nvmem/sunxi_sid.c b/drivers/nvmem/sunxi_sid.c
+index bc88b40..1567ccc 100644
+--- a/drivers/nvmem/sunxi_sid.c
++++ b/drivers/nvmem/sunxi_sid.c
+@@ -21,13 +21,14 @@
  #include <linux/nvmem-provider.h>
+ #include <linux/of.h>
  #include <linux/platform_device.h>
 -#include <linux/regmap.h>
+ #include <linux/slab.h>
+ #include <linux/random.h>
  
--static struct regmap_config mtk_regmap_config = {
--	.reg_bits = 32,
--	.val_bits = 32,
--	.reg_stride = 4,
--};
-+static int mtk_reg_read(void *context,
-+			unsigned int reg, void *_val, size_t bytes)
-+{
-+	void __iomem *base = context;
-+	u32 *val = _val;
-+	int i = 0, words = bytes / 4;
-+
-+	while (words--)
-+		*val++ = readl(base + reg + (i++ * 4));
-+
-+	return 0;
-+}
-+
-+static int mtk_reg_write(void *context,
-+			 unsigned int reg, void *_val, size_t bytes)
-+{
-+	void __iomem *base = context;
-+	u32 *val = _val;
-+	int i = 0, words = bytes / 4;
-+
-+	while (words--)
-+		writel(*val++, base + reg + (i++ * 4));
-+
-+	return 0;
-+}
+ static struct nvmem_config econfig = {
+ 	.name = "sunxi-sid",
+ 	.read_only = true,
++	.stride = 4,
++	.word_size = 1,
+ 	.owner = THIS_MODULE,
+ };
  
- static int mtk_efuse_probe(struct platform_device *pdev)
+@@ -51,54 +52,23 @@ static u8 sunxi_sid_read_byte(const struct sunxi_sid *sid,
+ 	return sid_key; /* Only return the last byte */
+ }
+ 
+-static int sunxi_sid_read(void *context,
+-			  const void *reg, size_t reg_size,
+-			  void *val, size_t val_size)
++static int sunxi_sid_read(void *context, unsigned int offset,
++			  void *val, size_t bytes)
  {
-@@ -30,7 +50,6 @@ static int mtk_efuse_probe(struct platform_device *pdev)
+ 	struct sunxi_sid *sid = context;
+-	unsigned int offset = *(u32 *)reg;
+ 	u8 *buf = val;
+ 
+-	while (val_size) {
+-		*buf++ = sunxi_sid_read_byte(sid, offset);
+-		val_size--;
+-		offset++;
+-	}
+-
+-	return 0;
+-}
++	while (bytes--)
++		*buf++ = sunxi_sid_read_byte(sid, offset++);
+ 
+-static int sunxi_sid_write(void *context, const void *data, size_t count)
+-{
+-	/* Unimplemented, dummy to keep regmap core happy */
+ 	return 0;
+ }
+ 
+-static struct regmap_bus sunxi_sid_bus = {
+-	.read = sunxi_sid_read,
+-	.write = sunxi_sid_write,
+-	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
+-	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
+-};
+-
+-static bool sunxi_sid_writeable_reg(struct device *dev, unsigned int reg)
+-{
+-	return false;
+-}
+-
+-static struct regmap_config sunxi_sid_regmap_config = {
+-	.reg_bits = 32,
+-	.val_bits = 8,
+-	.reg_stride = 1,
+-	.writeable_reg = sunxi_sid_writeable_reg,
+-};
+-
+ static int sunxi_sid_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
  	struct resource *res;
  	struct nvmem_device *nvmem;
- 	struct nvmem_config *econfig;
 -	struct regmap *regmap;
- 	void __iomem *base;
+ 	struct sunxi_sid *sid;
+ 	int ret, i, size;
+ 	char *randomness;
+@@ -113,16 +83,10 @@ static int sunxi_sid_probe(struct platform_device *pdev)
+ 		return PTR_ERR(sid->base);
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -42,14 +61,12 @@ static int mtk_efuse_probe(struct platform_device *pdev)
- 	if (!econfig)
- 		return -ENOMEM;
- 
--	mtk_regmap_config.max_register = resource_size(res) - 1;
+ 	size = resource_size(res) - 1;
+-	sunxi_sid_regmap_config.max_register = size;
 -
--	regmap = devm_regmap_init_mmio(dev, base, &mtk_regmap_config);
+-	regmap = devm_regmap_init(dev, &sunxi_sid_bus, sid,
+-				  &sunxi_sid_regmap_config);
 -	if (IS_ERR(regmap)) {
 -		dev_err(dev, "regmap init failed\n");
 -		return PTR_ERR(regmap);
 -	}
 -
-+	econfig->stride = 4;
-+	econfig->word_size = 4;
-+	econfig->reg_read = mtk_reg_read;
-+	econfig->reg_write = mtk_reg_write;
-+	econfig->size = resource_size(res);
-+	econfig->priv = base;
- 	econfig->dev = dev;
- 	econfig->owner = THIS_MODULE;
- 	nvmem = nvmem_register(econfig);
++	econfig.size = resource_size(res);
+ 	econfig.dev = dev;
++	econfig.reg_read = sunxi_sid_read;
++	econfig.priv = sid;
+ 	nvmem = nvmem_register(&econfig);
+ 	if (IS_ERR(nvmem))
+ 		return PTR_ERR(nvmem);
 -- 
 2.5.0
