@@ -1,143 +1,63 @@
-From: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 07/12] nvmem: rockchip-efuse: remove nvmem regmap dependency
-Date: Sun, 24 Apr 2016 20:28:11 +0100
-Message-ID: <1461526096-29584-8-git-send-email-srinivas.kandagatla@linaro.org>
-References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
+ addresses
+Date: Sun, 24 Apr 2016 22:14:37 +0200
+Message-ID: <20160424201437.GA2123@katana>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+ <20160415080111.GD1714@lahna.fi.intel.com>
+ <1460992811.8946.22.camel@linux.intel.com>
+ <5714FCBE.3060009@metafoo.de>
+ <20160419124028.GF1725@lahna.fi.intel.com>
+ <57162C4E.9090904@metafoo.de>
+ <20160419131631.GG1725@lahna.fi.intel.com>
+ <5716333D.1040106@metafoo.de>
+ <20160419144027.GH1725@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1461526096-29584-1-git-send-email-srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: andrew-g2DYL2Zd6BY@public.gmane.org, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20160419144027.GH1725-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean-Michel Hautbois <jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, Jean-Michel Hautbois <jean-michel.hautbois-JiVWUdsMzBtWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch moves to nvmem support in the driver to use callback
-instead of regmap.
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/nvmem/rockchip-efuse.c | 49 ++++++++----------------------------------
- 1 file changed, 9 insertions(+), 40 deletions(-)
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/nvmem/rockchip-efuse.c b/drivers/nvmem/rockchip-efuse.c
-index a009795..4d3f391 100644
---- a/drivers/nvmem/rockchip-efuse.c
-+++ b/drivers/nvmem/rockchip-efuse.c
-@@ -23,7 +23,6 @@
- #include <linux/slab.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
--#include <linux/regmap.h>
- 
- #define EFUSE_A_SHIFT			6
- #define EFUSE_A_MASK			0x3ff
-@@ -41,17 +40,9 @@ struct rockchip_efuse_chip {
- 	struct clk *clk;
- };
- 
--static int rockchip_efuse_write(void *context, const void *data, size_t count)
-+static int rockchip_efuse_read(void *context, unsigned int offset,
-+			       void *val, size_t bytes)
- {
--	/* Nothing TBD, Read-Only */
--	return 0;
--}
--
--static int rockchip_efuse_read(void *context,
--			       const void *reg, size_t reg_size,
--			       void *val, size_t val_size)
--{
--	unsigned int offset = *(u32 *)reg;
- 	struct rockchip_efuse_chip *efuse = context;
- 	u8 *buf = val;
- 	int ret;
-@@ -64,12 +55,12 @@ static int rockchip_efuse_read(void *context,
- 
- 	writel(EFUSE_LOAD | EFUSE_PGENB, efuse->base + REG_EFUSE_CTRL);
- 	udelay(1);
--	while (val_size) {
-+	while (bytes--) {
- 		writel(readl(efuse->base + REG_EFUSE_CTRL) &
- 			     (~(EFUSE_A_MASK << EFUSE_A_SHIFT)),
- 			     efuse->base + REG_EFUSE_CTRL);
- 		writel(readl(efuse->base + REG_EFUSE_CTRL) |
--			     ((offset & EFUSE_A_MASK) << EFUSE_A_SHIFT),
-+			     ((offset++ & EFUSE_A_MASK) << EFUSE_A_SHIFT),
- 			     efuse->base + REG_EFUSE_CTRL);
- 		udelay(1);
- 		writel(readl(efuse->base + REG_EFUSE_CTRL) |
-@@ -79,9 +70,6 @@ static int rockchip_efuse_read(void *context,
- 		writel(readl(efuse->base + REG_EFUSE_CTRL) &
- 		     (~EFUSE_STROBE), efuse->base + REG_EFUSE_CTRL);
- 		udelay(1);
--
--		val_size -= 1;
--		offset += 1;
- 	}
- 
- 	/* Switch to standby mode */
-@@ -92,22 +80,11 @@ static int rockchip_efuse_read(void *context,
- 	return 0;
- }
- 
--static struct regmap_bus rockchip_efuse_bus = {
--	.read = rockchip_efuse_read,
--	.write = rockchip_efuse_write,
--	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
--	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
--};
--
--static struct regmap_config rockchip_efuse_regmap_config = {
--	.reg_bits = 32,
--	.reg_stride = 1,
--	.val_bits = 8,
--};
--
- static struct nvmem_config econfig = {
- 	.name = "rockchip-efuse",
- 	.owner = THIS_MODULE,
-+	.stride = 1,
-+	.word_size = 1,
- 	.read_only = true,
- };
- 
-@@ -121,7 +98,6 @@ static int rockchip_efuse_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
- 	struct nvmem_device *nvmem;
--	struct regmap *regmap;
- 	struct rockchip_efuse_chip *efuse;
- 
- 	efuse = devm_kzalloc(&pdev->dev, sizeof(struct rockchip_efuse_chip),
-@@ -139,16 +115,9 @@ static int rockchip_efuse_probe(struct platform_device *pdev)
- 		return PTR_ERR(efuse->clk);
- 
- 	efuse->dev = &pdev->dev;
--
--	rockchip_efuse_regmap_config.max_register = resource_size(res) - 1;
--
--	regmap = devm_regmap_init(efuse->dev, &rockchip_efuse_bus,
--				  efuse, &rockchip_efuse_regmap_config);
--	if (IS_ERR(regmap)) {
--		dev_err(efuse->dev, "regmap init failed\n");
--		return PTR_ERR(regmap);
--	}
--
-+	econfig.size = resource_size(res);
-+	econfig.reg_read = rockchip_efuse_read;
-+	econfig.priv = efuse;
- 	econfig.dev = efuse->dev;
- 	nvmem = nvmem_register(&econfig);
- 	if (IS_ERR(nvmem))
--- 
-2.5.0
+
+> The above should work with both DT and ACPI so I'm OK with the current
+> patch. We can add ACPI parts later when needed.
+
+Just to make sure, I read this as an ack for the original patch?
+
+
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXHSktAAoJEBQN5MwUoCm2A6YP/jv9Z6pHjkrxQTlgrMGqq+DQ
+shbwlymDIo9zHPpZ+qclW2284O6Z4fA40smaDDS4MvEzKNaGX+Gkg16kL9QyhgkS
+fV2kEnNZSol//UpyE7F84tPz6PYlySubkV3xBakjuj2YTN21xXedF1AldTxlO1vd
+Xe3CLBvd+dMPVbqNvgvQ0ntueG4rDcDXM5RM0Rp7M8v5ss8YOU2HORICP1VrEK6h
+0ngK3SN2FOMAg6Nxzlb/t0W5QSLed2GEWB45HSJSudeM8bkuPDpvtbrajZRS48e+
+T6ic4a//7uNV/36KTp1WzadKpUW8S1GwzK+5onLChd29PN3hW0nRKIS0M1IBO8c9
+EZlZWShrzhw/LfroybD/Xn5Xu+POimov2cCKQI2UPk87Pdo53QfFCbetA++obMk4
+MBoOE3yQERiuzESPANpc2NkFg5+vw5F6p7ZZ0z3Cz/Y3lmZX8YrxXgybLPv5gtL/
+DzBCJwZ+XqHsHRV5/dLxNGO4RLI+UoAlzACfi099bL17ogTYcPQ7hDzWA1A/P9+F
+1ZyX93empAkelZR7x2dxQXxG1OjEvRPPRPFwqWx3V7KhXXgJolr+yEYYKE1XWLzi
+wBv2KPe2zZ8c4ZR9+2amdlLCKMaure38KOxA6mMYAgDOlfzAU9T/gyFZe9CJ1kFP
+AGC0uD1uxoJWUXqjstyp
+=ZNi4
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
