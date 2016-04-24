@@ -1,63 +1,58 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
- addresses
-Date: Sun, 24 Apr 2016 22:14:37 +0200
-Message-ID: <20160424201437.GA2123@katana>
-References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
- <20160415080111.GD1714@lahna.fi.intel.com>
- <1460992811.8946.22.camel@linux.intel.com>
- <5714FCBE.3060009@metafoo.de>
- <20160419124028.GF1725@lahna.fi.intel.com>
- <57162C4E.9090904@metafoo.de>
- <20160419131631.GG1725@lahna.fi.intel.com>
- <5716333D.1040106@metafoo.de>
- <20160419144027.GH1725@lahna.fi.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/1] i2c: dln2: Pass forward ACPI companion
+Date: Sun, 24 Apr 2016 22:30:54 +0200
+Message-ID: <20160424203054.GA4317@katana>
+References: <1458845956-30991-1-git-send-email-irina.tirdea@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:40825 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751170AbcDXUbB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 24 Apr 2016 16:31:01 -0400
 Content-Disposition: inline
-In-Reply-To: <20160419144027.GH1725-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean-Michel Hautbois <jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, Jean-Michel Hautbois <jean-michel.hautbois-JiVWUdsMzBtWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1458845956-30991-1-git-send-email-irina.tirdea@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Irina Tirdea <irina.tirdea@intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>
 
 
---SLDf9lqlvOQaIe6s
+--2oS5YaxWCcQjTEyO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Mar 24, 2016 at 08:59:16PM +0200, Irina Tirdea wrote:
+> Share the ACPI companion for the platform device with the
+> i2c adapter, so that the adapter has access to the properties
+> defined in ACPI tables.
+>=20
+> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+
+Applied to for-next, thanks!
 
 
-> The above should work with both DT and ACPI so I'm OK with the current
-> patch. We can add ACPI parts later when needed.
-
-Just to make sure, I read this as an ack for the original patch?
-
-
---SLDf9lqlvOQaIe6s
+--2oS5YaxWCcQjTEyO
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXHSktAAoJEBQN5MwUoCm2A6YP/jv9Z6pHjkrxQTlgrMGqq+DQ
-shbwlymDIo9zHPpZ+qclW2284O6Z4fA40smaDDS4MvEzKNaGX+Gkg16kL9QyhgkS
-fV2kEnNZSol//UpyE7F84tPz6PYlySubkV3xBakjuj2YTN21xXedF1AldTxlO1vd
-Xe3CLBvd+dMPVbqNvgvQ0ntueG4rDcDXM5RM0Rp7M8v5ss8YOU2HORICP1VrEK6h
-0ngK3SN2FOMAg6Nxzlb/t0W5QSLed2GEWB45HSJSudeM8bkuPDpvtbrajZRS48e+
-T6ic4a//7uNV/36KTp1WzadKpUW8S1GwzK+5onLChd29PN3hW0nRKIS0M1IBO8c9
-EZlZWShrzhw/LfroybD/Xn5Xu+POimov2cCKQI2UPk87Pdo53QfFCbetA++obMk4
-MBoOE3yQERiuzESPANpc2NkFg5+vw5F6p7ZZ0z3Cz/Y3lmZX8YrxXgybLPv5gtL/
-DzBCJwZ+XqHsHRV5/dLxNGO4RLI+UoAlzACfi099bL17ogTYcPQ7hDzWA1A/P9+F
-1ZyX93empAkelZR7x2dxQXxG1OjEvRPPRPFwqWx3V7KhXXgJolr+yEYYKE1XWLzi
-wBv2KPe2zZ8c4ZR9+2amdlLCKMaure38KOxA6mMYAgDOlfzAU9T/gyFZe9CJ1kFP
-AGC0uD1uxoJWUXqjstyp
-=ZNi4
+iQIcBAEBAgAGBQJXHSz+AAoJEBQN5MwUoCm27agP/0OVVV66cZkoWXO8d8uhi6IT
+W7oa4tttkpk0dE7Y0PkVuLV1zwt+GCpQ1eePPzm0vfY+GfD0hqd8QCvD4Su4smBr
+KRsy+NX/0aZnntyZcAESt580z/+cudgxXU64HzBExMNHXc19kiSTOo2N1bWPqoia
+k9XQ+/MN8JEDJkyjUH8fsGCwi6R62l+7dR/nN74BJmpydq5MAFxrmrrWsa63NKdS
+71iXzY8fKGLETccquRyTDjRoyWM+KTI7w+ojo9e5uBWyxfxbhBmMdRfFDjfsQI3l
+XaDjJKCV/z0iP9nkIG+QmSEupQ0+TaHLecBXyKZghrJ/B2O0k+ayYGST+/bsfOwc
+CAbePYu8R9WoWnMD2nYiOYQOqhHyZMQj3Udu5F79Bi7njSKe8RUpf1Yl03IAWRMp
+3CXPOWoM3qK7HmhEk02lWjR7mMbY3cSYR7Qq4iU23nukdGyKMICe7y/3IfxbM1d7
+B79IzI0G3EDmoFwFVnhS8vXzxXoZ9ofNg2njBtb2fu9WZ80T4/LTR9lEIGlHp73D
+kf8mKuj05aOb92wnXtkOVeyQO5tvJZr0mCu47467jQebD7CThWOtAxsQ7nzEL3jI
+DrlSy9krcNOZWAR9SPFs5dLConbMFKlGfj9o4ojBo3kbFbVBbk08zs34z3B0EJz7
+hJogoJr83YA6TgpJSQVe
+=j5IL
 -----END PGP SIGNATURE-----
 
---SLDf9lqlvOQaIe6s--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--2oS5YaxWCcQjTEyO--
