@@ -1,7 +1,7 @@
 From: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 06/12] nvmem: sunxi-sid: remove nvmem regmap dependency
-Date: Sun, 24 Apr 2016 20:28:10 +0100
-Message-ID: <1461526096-29584-7-git-send-email-srinivas.kandagatla@linaro.org>
+Subject: [PATCH 07/12] nvmem: rockchip-efuse: remove nvmem regmap dependency
+Date: Sun, 24 Apr 2016 20:28:11 +0100
+Message-ID: <1461526096-29584-8-git-send-email-srinivas.kandagatla@linaro.org>
 References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,120 +26,118 @@ instead of regmap.
 
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/nvmem/Kconfig     |  1 -
- drivers/nvmem/sunxi_sid.c | 54 ++++++++---------------------------------------
- 2 files changed, 9 insertions(+), 46 deletions(-)
+ drivers/nvmem/rockchip-efuse.c | 49 ++++++++----------------------------------
+ 1 file changed, 9 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/nvmem/Kconfig b/drivers/nvmem/Kconfig
-index a87273b..377bc21 100644
---- a/drivers/nvmem/Kconfig
-+++ b/drivers/nvmem/Kconfig
-@@ -81,7 +81,6 @@ config ROCKCHIP_EFUSE
- config NVMEM_SUNXI_SID
- 	tristate "Allwinner SoCs SID support"
- 	depends on ARCH_SUNXI
--	select REGMAP_MMIO
- 	help
- 	  This is a driver for the 'security ID' available on various Allwinner
- 	  devices.
-diff --git a/drivers/nvmem/sunxi_sid.c b/drivers/nvmem/sunxi_sid.c
-index bc88b40..1567ccc 100644
---- a/drivers/nvmem/sunxi_sid.c
-+++ b/drivers/nvmem/sunxi_sid.c
-@@ -21,13 +21,14 @@
- #include <linux/nvmem-provider.h>
+diff --git a/drivers/nvmem/rockchip-efuse.c b/drivers/nvmem/rockchip-efuse.c
+index a009795..4d3f391 100644
+--- a/drivers/nvmem/rockchip-efuse.c
++++ b/drivers/nvmem/rockchip-efuse.c
+@@ -23,7 +23,6 @@
+ #include <linux/slab.h>
  #include <linux/of.h>
  #include <linux/platform_device.h>
 -#include <linux/regmap.h>
- #include <linux/slab.h>
- #include <linux/random.h>
  
- static struct nvmem_config econfig = {
- 	.name = "sunxi-sid",
- 	.read_only = true,
-+	.stride = 4,
-+	.word_size = 1,
- 	.owner = THIS_MODULE,
+ #define EFUSE_A_SHIFT			6
+ #define EFUSE_A_MASK			0x3ff
+@@ -41,17 +40,9 @@ struct rockchip_efuse_chip {
+ 	struct clk *clk;
  };
  
-@@ -51,54 +52,23 @@ static u8 sunxi_sid_read_byte(const struct sunxi_sid *sid,
- 	return sid_key; /* Only return the last byte */
- }
- 
--static int sunxi_sid_read(void *context,
--			  const void *reg, size_t reg_size,
--			  void *val, size_t val_size)
-+static int sunxi_sid_read(void *context, unsigned int offset,
-+			  void *val, size_t bytes)
+-static int rockchip_efuse_write(void *context, const void *data, size_t count)
++static int rockchip_efuse_read(void *context, unsigned int offset,
++			       void *val, size_t bytes)
  {
- 	struct sunxi_sid *sid = context;
--	unsigned int offset = *(u32 *)reg;
- 	u8 *buf = val;
- 
--	while (val_size) {
--		*buf++ = sunxi_sid_read_byte(sid, offset);
--		val_size--;
--		offset++;
--	}
--
+-	/* Nothing TBD, Read-Only */
 -	return 0;
 -}
-+	while (bytes--)
-+		*buf++ = sunxi_sid_read_byte(sid, offset++);
- 
--static int sunxi_sid_write(void *context, const void *data, size_t count)
+-
+-static int rockchip_efuse_read(void *context,
+-			       const void *reg, size_t reg_size,
+-			       void *val, size_t val_size)
 -{
--	/* Unimplemented, dummy to keep regmap core happy */
+-	unsigned int offset = *(u32 *)reg;
+ 	struct rockchip_efuse_chip *efuse = context;
+ 	u8 *buf = val;
+ 	int ret;
+@@ -64,12 +55,12 @@ static int rockchip_efuse_read(void *context,
+ 
+ 	writel(EFUSE_LOAD | EFUSE_PGENB, efuse->base + REG_EFUSE_CTRL);
+ 	udelay(1);
+-	while (val_size) {
++	while (bytes--) {
+ 		writel(readl(efuse->base + REG_EFUSE_CTRL) &
+ 			     (~(EFUSE_A_MASK << EFUSE_A_SHIFT)),
+ 			     efuse->base + REG_EFUSE_CTRL);
+ 		writel(readl(efuse->base + REG_EFUSE_CTRL) |
+-			     ((offset & EFUSE_A_MASK) << EFUSE_A_SHIFT),
++			     ((offset++ & EFUSE_A_MASK) << EFUSE_A_SHIFT),
+ 			     efuse->base + REG_EFUSE_CTRL);
+ 		udelay(1);
+ 		writel(readl(efuse->base + REG_EFUSE_CTRL) |
+@@ -79,9 +70,6 @@ static int rockchip_efuse_read(void *context,
+ 		writel(readl(efuse->base + REG_EFUSE_CTRL) &
+ 		     (~EFUSE_STROBE), efuse->base + REG_EFUSE_CTRL);
+ 		udelay(1);
+-
+-		val_size -= 1;
+-		offset += 1;
+ 	}
+ 
+ 	/* Switch to standby mode */
+@@ -92,22 +80,11 @@ static int rockchip_efuse_read(void *context,
  	return 0;
  }
  
--static struct regmap_bus sunxi_sid_bus = {
--	.read = sunxi_sid_read,
--	.write = sunxi_sid_write,
+-static struct regmap_bus rockchip_efuse_bus = {
+-	.read = rockchip_efuse_read,
+-	.write = rockchip_efuse_write,
 -	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
 -	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
 -};
 -
--static bool sunxi_sid_writeable_reg(struct device *dev, unsigned int reg)
--{
--	return false;
--}
--
--static struct regmap_config sunxi_sid_regmap_config = {
+-static struct regmap_config rockchip_efuse_regmap_config = {
 -	.reg_bits = 32,
--	.val_bits = 8,
 -	.reg_stride = 1,
--	.writeable_reg = sunxi_sid_writeable_reg,
+-	.val_bits = 8,
 -};
 -
- static int sunxi_sid_probe(struct platform_device *pdev)
+ static struct nvmem_config econfig = {
+ 	.name = "rockchip-efuse",
+ 	.owner = THIS_MODULE,
++	.stride = 1,
++	.word_size = 1,
+ 	.read_only = true,
+ };
+ 
+@@ -121,7 +98,6 @@ static int rockchip_efuse_probe(struct platform_device *pdev)
  {
- 	struct device *dev = &pdev->dev;
  	struct resource *res;
  	struct nvmem_device *nvmem;
 -	struct regmap *regmap;
- 	struct sunxi_sid *sid;
- 	int ret, i, size;
- 	char *randomness;
-@@ -113,16 +83,10 @@ static int sunxi_sid_probe(struct platform_device *pdev)
- 		return PTR_ERR(sid->base);
+ 	struct rockchip_efuse_chip *efuse;
  
- 	size = resource_size(res) - 1;
--	sunxi_sid_regmap_config.max_register = size;
+ 	efuse = devm_kzalloc(&pdev->dev, sizeof(struct rockchip_efuse_chip),
+@@ -139,16 +115,9 @@ static int rockchip_efuse_probe(struct platform_device *pdev)
+ 		return PTR_ERR(efuse->clk);
+ 
+ 	efuse->dev = &pdev->dev;
 -
--	regmap = devm_regmap_init(dev, &sunxi_sid_bus, sid,
--				  &sunxi_sid_regmap_config);
+-	rockchip_efuse_regmap_config.max_register = resource_size(res) - 1;
+-
+-	regmap = devm_regmap_init(efuse->dev, &rockchip_efuse_bus,
+-				  efuse, &rockchip_efuse_regmap_config);
 -	if (IS_ERR(regmap)) {
--		dev_err(dev, "regmap init failed\n");
+-		dev_err(efuse->dev, "regmap init failed\n");
 -		return PTR_ERR(regmap);
 -	}
 -
 +	econfig.size = resource_size(res);
- 	econfig.dev = dev;
-+	econfig.reg_read = sunxi_sid_read;
-+	econfig.priv = sid;
++	econfig.reg_read = rockchip_efuse_read;
++	econfig.priv = efuse;
+ 	econfig.dev = efuse->dev;
  	nvmem = nvmem_register(&econfig);
  	if (IS_ERR(nvmem))
- 		return PTR_ERR(nvmem);
 -- 
 2.5.0
