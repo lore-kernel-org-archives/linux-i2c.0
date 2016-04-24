@@ -1,213 +1,131 @@
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 10/12] nvmem: lpc18xx-eeprom: remove nvmem regmap dependency
-Date: Sun, 24 Apr 2016 20:28:14 +0100
-Message-ID: <1461526096-29584-11-git-send-email-srinivas.kandagatla@linaro.org>
+From: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 05/12] nvmem: vif610-ocotp: remove nvmem regmap dependency
+Date: Sun, 24 Apr 2016 20:28:09 +0100
+Message-ID: <1461526096-29584-6-git-send-email-srinivas.kandagatla@linaro.org>
 References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:36128 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753256AbcDXT2r (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 24 Apr 2016 15:28:47 -0400
-Received: by mail-wm0-f47.google.com with SMTP id v188so75428162wme.1
-        for <linux-i2c@vger.kernel.org>; Sun, 24 Apr 2016 12:28:46 -0700 (PDT)
-In-Reply-To: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <1461526096-29584-1-git-send-email-srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: andrew-g2DYL2Zd6BY@public.gmane.org, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Joachim Eastwood <manabian@gmail.com>, Matthias Brugger <matthias.bgg@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Chen-Yu Tsai <wens@csie.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, Mark Brown <broonie@kernel.org>, andrew@lunn.ch
 
 This patch moves to nvmem support in the driver to use callback
 instead of regmap.
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/nvmem/lpc18xx_eeprom.c | 94 ++++++++++++------------------------------
- 1 file changed, 26 insertions(+), 68 deletions(-)
+ drivers/nvmem/vf610-ocotp.c | 44 ++++++++++----------------------------------
+ 1 file changed, 10 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/nvmem/lpc18xx_eeprom.c b/drivers/nvmem/lpc18xx_eeprom.c
-index 878fce7..c81ae4c 100644
---- a/drivers/nvmem/lpc18xx_eeprom.c
-+++ b/drivers/nvmem/lpc18xx_eeprom.c
-@@ -16,7 +16,6 @@
- #include <linux/module.h>
+diff --git a/drivers/nvmem/vf610-ocotp.c b/drivers/nvmem/vf610-ocotp.c
+index 8641319..72e4faa 100644
+--- a/drivers/nvmem/vf610-ocotp.c
++++ b/drivers/nvmem/vf610-ocotp.c
+@@ -25,7 +25,6 @@
  #include <linux/nvmem-provider.h>
+ #include <linux/of.h>
  #include <linux/platform_device.h>
 -#include <linux/regmap.h>
- #include <linux/reset.h>
+ #include <linux/slab.h>
  
- /* Registers */
-@@ -51,12 +50,7 @@ struct lpc18xx_eeprom_dev {
- 	struct nvmem_device *nvmem;
- 	unsigned reg_bytes;
- 	unsigned val_bytes;
--};
--
--static struct regmap_config lpc18xx_regmap_config = {
--	.reg_bits = 32,
--	.reg_stride = 4,
--	.val_bits = 32,
-+	int size;
- };
- 
- static inline void lpc18xx_eeprom_writel(struct lpc18xx_eeprom_dev *eeprom,
-@@ -95,30 +89,35 @@ static int lpc18xx_eeprom_busywait_until_prog(struct lpc18xx_eeprom_dev *eeprom)
- 	return -ETIMEDOUT;
+ /* OCOTP Register Offsets */
+@@ -152,23 +151,16 @@ static int vf610_get_fuse_address(int base_addr_offset)
+ 	return -EINVAL;
  }
  
--static int lpc18xx_eeprom_gather_write(void *context, const void *reg,
--				       size_t reg_size, const void *val,
--				       size_t val_size)
-+static int lpc18xx_eeprom_gather_write(void *context, unsigned int reg,
-+				       void *val, size_t bytes)
- {
- 	struct lpc18xx_eeprom_dev *eeprom = context;
--	unsigned int offset = *(u32 *)reg;
-+	unsigned int offset = reg;
- 	int ret;
- 
--	if (offset % lpc18xx_regmap_config.reg_stride)
-+	/*
-+	 * The last page contains the EEPROM initialization data and is not
-+	 * writable.
-+	 */
-+	if ((reg > eeprom->size - LPC18XX_EEPROM_PAGE_SIZE) ||
-+			(reg + bytes > eeprom->size - LPC18XX_EEPROM_PAGE_SIZE))
- 		return -EINVAL;
- 
-+
- 	lpc18xx_eeprom_writel(eeprom, LPC18XX_EEPROM_PWRDWN,
- 			      LPC18XX_EEPROM_PWRDWN_NO);
- 
- 	/* Wait 100 us while the EEPROM wakes up */
- 	usleep_range(100, 200);
- 
--	while (val_size) {
-+	while (bytes) {
- 		writel(*(u32 *)val, eeprom->mem_base + offset);
- 		ret = lpc18xx_eeprom_busywait_until_prog(eeprom);
- 		if (ret < 0)
- 			return ret;
- 
--		val_size -= eeprom->val_bytes;
-+		bytes -= eeprom->val_bytes;
- 		val += eeprom->val_bytes;
- 		offset += eeprom->val_bytes;
- 	}
-@@ -129,23 +128,10 @@ static int lpc18xx_eeprom_gather_write(void *context, const void *reg,
- 	return 0;
- }
- 
--static int lpc18xx_eeprom_write(void *context, const void *data, size_t count)
-+static int lpc18xx_eeprom_read(void *context, unsigned int offset,
-+			       void *val, size_t bytes)
- {
- 	struct lpc18xx_eeprom_dev *eeprom = context;
--	unsigned int offset = eeprom->reg_bytes;
--
--	if (count <= offset)
--		return -EINVAL;
--
--	return lpc18xx_eeprom_gather_write(context, data, eeprom->reg_bytes,
--					   data + offset, count - offset);
+-static int vf610_ocotp_write(void *context, const void *data, size_t count)
+-{
+-	return 0;
 -}
 -
--static int lpc18xx_eeprom_read(void *context, const void *reg, size_t reg_size,
--			       void *val, size_t val_size)
--{
--	struct lpc18xx_eeprom_dev *eeprom = context;
--	unsigned int offset = *(u32 *)reg;
+-static int vf610_ocotp_read(void *context,
+-			const void *off, size_t reg_size,
+-			void *val, size_t val_size)
++static int vf610_ocotp_read(void *context, unsigned int offset,
++			void *val, size_t bytes)
+ {
+ 	struct vf610_ocotp *ocotp = context;
+ 	void __iomem *base = ocotp->base;
+-	unsigned int offset = *(u32 *)off;
+ 	u32 reg, *buf = val;
+ 	int fuse_addr;
+ 	int ret;
  
- 	lpc18xx_eeprom_writel(eeprom, LPC18XX_EEPROM_PWRDWN,
- 			      LPC18XX_EEPROM_PWRDWN_NO);
-@@ -153,9 +139,9 @@ static int lpc18xx_eeprom_read(void *context, const void *reg, size_t reg_size,
- 	/* Wait 100 us while the EEPROM wakes up */
- 	usleep_range(100, 200);
+-	while (val_size > 0) {
++	while (bytes > 0) {
+ 		fuse_addr = vf610_get_fuse_address(offset);
+ 		if (fuse_addr > 0) {
+ 			writel(ocotp->timing, base + OCOTP_TIMING);
+@@ -205,29 +197,19 @@ static int vf610_ocotp_read(void *context,
+ 		}
  
--	while (val_size) {
-+	while (bytes) {
- 		*(u32 *)val = readl(eeprom->mem_base + offset);
--		val_size -= eeprom->val_bytes;
-+		bytes -= eeprom->val_bytes;
- 		val += eeprom->val_bytes;
- 		offset += eeprom->val_bytes;
+ 		buf++;
+-		val_size--;
+-		offset += reg_size;
++		bytes -= 4;
++		offset += 4;
  	}
-@@ -166,31 +152,13 @@ static int lpc18xx_eeprom_read(void *context, const void *reg, size_t reg_size,
+ 
  	return 0;
  }
  
--static struct regmap_bus lpc18xx_eeprom_bus = {
--	.write = lpc18xx_eeprom_write,
--	.gather_write = lpc18xx_eeprom_gather_write,
--	.read = lpc18xx_eeprom_read,
+-static struct regmap_bus vf610_ocotp_bus = {
+-	.read = vf610_ocotp_read,
+-	.write = vf610_ocotp_write,
 -	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
 -	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
 -};
 -
--static bool lpc18xx_eeprom_writeable_reg(struct device *dev, unsigned int reg)
--{
--	/*
--	 * The last page contains the EEPROM initialization data and is not
--	 * writable.
--	 */
--	return reg <= lpc18xx_regmap_config.max_register -
--						LPC18XX_EEPROM_PAGE_SIZE;
--}
+-static struct regmap_config ocotp_regmap_config = {
+-	.reg_bits = 32,
+-	.val_bits = 32,
+-	.reg_stride = 4,
+-};
 -
--static bool lpc18xx_eeprom_readable_reg(struct device *dev, unsigned int reg)
--{
--	return reg <= lpc18xx_regmap_config.max_register;
--}
- 
- static struct nvmem_config lpc18xx_nvmem_config = {
- 	.name = "lpc18xx-eeprom",
+ static struct nvmem_config ocotp_config = {
+ 	.name = "ocotp",
+ 	.owner = THIS_MODULE,
 +	.stride = 4,
 +	.word_size = 4,
-+	.reg_read = lpc18xx_eeprom_read,
-+	.reg_write = lpc18xx_eeprom_gather_write,
- 	.owner = THIS_MODULE,
++	.reg_read = vf610_ocotp_read,
  };
  
-@@ -200,7 +168,6 @@ static int lpc18xx_eeprom_probe(struct platform_device *pdev)
+ static const struct of_device_id ocotp_of_match[] = {
+@@ -247,7 +229,6 @@ static int vf610_ocotp_probe(struct platform_device *pdev)
+ {
  	struct device *dev = &pdev->dev;
- 	struct reset_control *rst;
- 	unsigned long clk_rate;
--	struct regmap *regmap;
  	struct resource *res;
- 	int ret;
+-	struct regmap *regmap;
+ 	struct vf610_ocotp *ocotp_dev;
  
-@@ -243,8 +210,8 @@ static int lpc18xx_eeprom_probe(struct platform_device *pdev)
- 		goto err_clk;
+ 	ocotp_dev = devm_kzalloc(&pdev->dev,
+@@ -267,13 +248,8 @@ static int vf610_ocotp_probe(struct platform_device *pdev)
+ 		return PTR_ERR(ocotp_dev->clk);
  	}
  
--	eeprom->val_bytes = lpc18xx_regmap_config.val_bits / BITS_PER_BYTE;
--	eeprom->reg_bytes = lpc18xx_regmap_config.reg_bits / BITS_PER_BYTE;
-+	eeprom->val_bytes = 4;
-+	eeprom->reg_bytes = 4;
- 
- 	/*
- 	 * Clock rate is generated by dividing the system bus clock by the
-@@ -264,19 +231,10 @@ static int lpc18xx_eeprom_probe(struct platform_device *pdev)
- 	lpc18xx_eeprom_writel(eeprom, LPC18XX_EEPROM_PWRDWN,
- 			      LPC18XX_EEPROM_PWRDWN_YES);
- 
--	lpc18xx_regmap_config.max_register = resource_size(res) - 1;
--	lpc18xx_regmap_config.writeable_reg = lpc18xx_eeprom_writeable_reg;
--	lpc18xx_regmap_config.readable_reg = lpc18xx_eeprom_readable_reg;
--
--	regmap = devm_regmap_init(dev, &lpc18xx_eeprom_bus, eeprom,
--				  &lpc18xx_regmap_config);
+-	ocotp_regmap_config.max_register = resource_size(res);
+-	regmap = devm_regmap_init(dev,
+-		&vf610_ocotp_bus, ocotp_dev, &ocotp_regmap_config);
 -	if (IS_ERR(regmap)) {
--		dev_err(dev, "regmap init failed: %ld\n", PTR_ERR(regmap));
--		ret = PTR_ERR(regmap);
--		goto err_clk;
+-		dev_err(dev, "regmap init failed\n");
+-		return PTR_ERR(regmap);
 -	}
--
-+	eeprom->size = resource_size(res);
-+	lpc18xx_nvmem_config.size = resource_size(res);
- 	lpc18xx_nvmem_config.dev = dev;
-+	lpc18xx_nvmem_config.priv = eeprom;
++	ocotp_config.size = resource_size(res);
++	ocotp_config.priv = ocotp_dev;
+ 	ocotp_config.dev = dev;
  
- 	eeprom->nvmem = nvmem_register(&lpc18xx_nvmem_config);
- 	if (IS_ERR(eeprom->nvmem)) {
+ 	ocotp_dev->nvmem = nvmem_register(&ocotp_config);
 -- 
 2.5.0
