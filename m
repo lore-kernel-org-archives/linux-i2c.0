@@ -1,58 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/1] i2c: dln2: Pass forward ACPI companion
-Date: Sun, 24 Apr 2016 22:30:54 +0200
-Message-ID: <20160424203054.GA4317@katana>
-References: <1458845956-30991-1-git-send-email-irina.tirdea@intel.com>
+Subject: Re: [PATCH] i2c/omap: drop the lock hard irq context
+Date: Sun, 24 Apr 2016 22:37:06 +0200
+Message-ID: <20160424203706.GB4317@katana>
+References: <1459778123-16267-1-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:40825 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:40858 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751170AbcDXUbB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 24 Apr 2016 16:31:01 -0400
+	id S1753200AbcDXUhN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 24 Apr 2016 16:37:13 -0400
 Content-Disposition: inline
-In-Reply-To: <1458845956-30991-1-git-send-email-irina.tirdea@intel.com>
+In-Reply-To: <1459778123-16267-1-git-send-email-grygorii.strashko@ti.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Irina Tirdea <irina.tirdea@intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Sekhar Nori <nsekhar@ti.com>, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
 
---2oS5YaxWCcQjTEyO
+--LpQ9ahxlCli8rRTG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 24, 2016 at 08:59:16PM +0200, Irina Tirdea wrote:
-> Share the ACPI companion for the platform device with the
-> i2c adapter, so that the adapter has access to the properties
-> defined in ACPI tables.
+On Mon, Apr 04, 2016 at 04:55:23PM +0300, Grygorii Strashko wrote:
+> From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 >=20
-> Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
+> The lock is taken while reading two registers. On RT the first lock is
+> taken in hard irq where it might sleep and in the threaded irq.
+> The threaded irq runs in oneshot mode so the hard irq does not run until
+> the thread the completes so there is no reason to grab the lock.
+>=20
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> [grygorii.strashko@ti.com: drop locking from isr completely and remove
+> lock field from struct omap_i2c_dev]
+> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 
 Applied to for-next, thanks!
 
 
---2oS5YaxWCcQjTEyO
+--LpQ9ahxlCli8rRTG
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXHSz+AAoJEBQN5MwUoCm27agP/0OVVV66cZkoWXO8d8uhi6IT
-W7oa4tttkpk0dE7Y0PkVuLV1zwt+GCpQ1eePPzm0vfY+GfD0hqd8QCvD4Su4smBr
-KRsy+NX/0aZnntyZcAESt580z/+cudgxXU64HzBExMNHXc19kiSTOo2N1bWPqoia
-k9XQ+/MN8JEDJkyjUH8fsGCwi6R62l+7dR/nN74BJmpydq5MAFxrmrrWsa63NKdS
-71iXzY8fKGLETccquRyTDjRoyWM+KTI7w+ojo9e5uBWyxfxbhBmMdRfFDjfsQI3l
-XaDjJKCV/z0iP9nkIG+QmSEupQ0+TaHLecBXyKZghrJ/B2O0k+ayYGST+/bsfOwc
-CAbePYu8R9WoWnMD2nYiOYQOqhHyZMQj3Udu5F79Bi7njSKe8RUpf1Yl03IAWRMp
-3CXPOWoM3qK7HmhEk02lWjR7mMbY3cSYR7Qq4iU23nukdGyKMICe7y/3IfxbM1d7
-B79IzI0G3EDmoFwFVnhS8vXzxXoZ9ofNg2njBtb2fu9WZ80T4/LTR9lEIGlHp73D
-kf8mKuj05aOb92wnXtkOVeyQO5tvJZr0mCu47467jQebD7CThWOtAxsQ7nzEL3jI
-DrlSy9krcNOZWAR9SPFs5dLConbMFKlGfj9o4ojBo3kbFbVBbk08zs34z3B0EJz7
-hJogoJr83YA6TgpJSQVe
-=j5IL
+iQIcBAEBAgAGBQJXHS5yAAoJEBQN5MwUoCm2v1IP+QFf7LQ3Sh9xXRzX4EsoG0dw
+p5o2YpEFBAaDkOszMBRspw/vwbWIVLwJbGv2zuTHL4FwnskuFzSTpHMQIJL/oW4X
+7E+mRqFIlrmSeN7+1TawOVK/LvCniAAuxXdJKiSXKhdm0hnoRKCMvA+yn2HNh451
+v5GzjqoB8oGOrUO+iWktx6eQtk1PolXiLUamL/J6OJeH/11Smi/3rduuTtcgbs3o
+ln93U+knUlzYuCmTRlQ3s8dU+IAgES43x59u9tfWardcqDtZF+qoSdceVhsDuu/q
+smsbgXhOxV6gR/81Gi6Q2oBYEQHPQfmE4dbbuBfkMOvcaJI/fd2sGuEZErVgEXhL
+p1AgzubhxTt6nQHSzTPbGQVDhvf50GqMg1mvb5u8F8sxrfErgLodSQtocyFxLX2W
+B3uxCV4SUIZqSscfgSCvrls1vSx1+cDlFZRvP6UCqhuNDQtKd1LfUxMCQIgyLWkk
+ApMTL8E5jXxL7kz9Hmdu4r6k2c/GwtaRHCvKQbK0AyzjkeLOB4O6MtfNhmNsZ24S
+7nGVaOSdQ+XPf3SDhpuKtCRL52SUADFrNRS4Sn0WfOi3Bb9udQj0dUadbUNdsqZe
+VPJVmVYFb0onmWxfhnMQLBxTh6aYaxV4fP63Y5zcM/IhML6vtI1C9Uo0x3jIAqew
+mFZ320UkGgZ1lHcS9ZJ6
+=pXlJ
 -----END PGP SIGNATURE-----
 
---2oS5YaxWCcQjTEyO--
+--LpQ9ahxlCli8rRTG--
