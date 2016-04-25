@@ -1,106 +1,73 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: Re: [RFC] i2c: device-tree: Handling child nodes which are not i2c
- devices
-Date: Mon, 25 Apr 2016 15:51:16 +0100
-Message-ID: <571E2EE4.90104@nvidia.com>
-References: <57110A35.2070509@nvidia.com>
+From: Lucas De Marchi <lucas.demarchi@intel.com>
+Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
+Date: Mon, 25 Apr 2016 12:04:47 -0300
+Message-ID: <571E320F.1020607@intel.com>
+References: <5707B9B4.6020402@alitech.com>
+ <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
+ <571E04BA.3030301@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:15012 "EHLO
-	hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752601AbcDYOvX (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Apr 2016 10:51:23 -0400
-In-Reply-To: <57110A35.2070509@nvidia.com>
+Received: from mga04.intel.com ([192.55.52.120]:50695 "EHLO mga04.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932459AbcDYPEv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 25 Apr 2016 11:04:51 -0400
+In-Reply-To: <571E04BA.3030301@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Thierry Reding <treding@nvidia.com>, Stephen Warren <swarren@nvidia.com>
-Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, linux-i2c@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, Christian Ruppert <christian.ruppert@alitech.com>
 
-Hi all,
 
-Any thoughts on this? Let me know if this is not clear in anyway.
 
-Cheers
-Jon
+On 04/25/2016 08:51 AM, Jarkko Nikula wrote:
 
-On 15/04/16 16:35, Jon Hunter wrote:
-> Hi all,
-> 
-> For Tegra we have an i2c device for display port, namely the display
-> port auxiliary channel (or dpaux) as specified by the display port
-> standard. If an design using Tegra does not utilise the display port
-> interface, then the pads assigned to the dpaux can be re-assigned to
-> another generic i2c controller (i2c6 for Tegra124/210). In other words,
-> the pads can be re-used for a generic i2c interface.
-> 
-> The registers that control whether the pads are mapped to the dpaux or
-> i2c6 are located in the dpaux register space. Therefore, I am looking at
-> adding pin controller support for dpaux so that i2c6 can request these
-> pads if it is enabled and I was hoping to add a pinmux node the to dpaux
-> device in device-tree to do this. For example, something like ...
-> 
-> 	dpaux@0,545c0000 {
-> 		...
-> 
-> 		/* pinctrl node */
-> 		pinmux {
-> 			...
-> 		};
-> 	};
-> 
-> Although the above works, when doing this I noticed that when the device
-> booted, I would seeing the following error messages on boot ...
-> 
->  i2c i2c-5: of_i2c: modalias failure on ...
-> 
-> These error messages being caused by the new pinmux node because it is
-> not recognised as an i2c device. To avoid this error messages we have
-> come up with a couple solutions but wanted to get some feedback on the
-> best approach.
-> 
-> 1. Add a i2c-bus sub-node to the dpaux binding (suggested by Stephen
->    Warren), so we would have something like the below. Then i2c devices
->    for dpaux would be place in the i2c-bus sub-node.
-> 
-> 	dpaux@0,545c0000 {
-> 		...
-> 
-> 		/* pinctrl node */
-> 		pinmux {
-> 			...
-> 		};
-> 
-> 		/* place-holder for i2c devices */
-> 		i2c-bus {
-> 			...
-> 		};
-> 	};	
-> 
->    To make the above work ideally we would like to make the 'i2c-bus'
->    node a generic solution for all i2c devices, so the i2c core would
->    check for the presence of this node and if it is found then would
->    default to this node for looking for i2c-devices.
-> 
-> 2. When registering i2c devices via device-tree, the function
->    of_i2c_register_devices() checks to see if OF_POPULATED flag is set
->    for a given node. If it is set, then the node is skipped. I believe
->    this was added for device-tree overlays (commit 4f001fd30145 i2c:
->    Mark instantiated device nodes with OF_POPULATE). Another option is
->    for the dpaux driver to mark the pinmux node as populated before
->    registering the i2c adapter and this will prevent the i2c core from
->    trying to parse the pinmux node. I am not sure if this would be
->    frowned upon in anyway or if we can guarantee that no future changes
->    to DT overlays would change this in a way where it would not work.
-> 
-> Let me know your thoughts.
-> 
-> Cheers
-> Jon
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+[ ... ]
+
+>> @@ -413,8 +416,16 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+>>       struct i2c_msg *msgs = dev->msgs;
+>>       u32 ic_con, ic_tar = 0;
+>>
+>> -    /* Disable the adapter */
+>> -    __i2c_dw_enable(dev, false);
+>> +    if (dev->enabled) {
+>> +        u32 ic_status;
+>> +
+>> +        /* check ic_tar and ic_con can be dynamically updated */
+>> +        ic_status = dw_readl(dev, DW_IC_STATUS);
+>> +        if (ic_status & DW_IC_STATUS_ACTIVITY
+>> +            || !(ic_status & DW_IC_STATUS_TX_EMPTY)) {
+>> +            __i2c_dw_enable(dev, false);
+>> +        }
+>> +    }
+>>
+> Worth to double check this. I see bit 1 means TX FIFO not full and bit 2
+> is TX FIFO completely empty.
+
+the conditions to be able to update IC_TAR dynamically are:
+
+   - Adapter isn't doing any TX/RX operation (IC_STATUS[5] == 0) and
+   - There are no entries in TX FIFO (IC_STATUS[2] == 1)
+
+So... yeah, the condition above seems wrong. I should be reading bit 5, 
+not bit 1. Thanks! However:
+
+IC_STATUS[5] signals activity for master mode
+IC_STATUS[6] signals activity for slave mode
+IC_STATUS[0] is IC_STATUS[5]|IC_STATUS[6]
+
+And this controller is never in slave mode, only master mode, so it 
+should be equivalent.
+
+I wonder if I even have to check bit 5 since AFAICS we wouldn't be able 
+to even call this function if there were any operation on tx/rx.
+
+>
+> Otherwise I'm fine with the patch as long as it works for Christian.
+>
+
+Anyway, I'll re-test with bit 5 checked and send an update.
+
+
+Lucas De Marchi
