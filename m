@@ -1,116 +1,163 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v7 15/15] i2c: thunderx: Add smbus alert support
-Date: Mon, 25 Apr 2016 16:33:44 +0200
-Message-ID: <1461594824-7215-16-git-send-email-jglauber@cavium.com>
+Subject: [PATCH v7 08/15] i2c: octeon: Improve performance if interrupt is early
+Date: Mon, 25 Apr 2016 16:33:37 +0200
+Message-ID: <1461594824-7215-9-git-send-email-jglauber@cavium.com>
 References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Peter Swain <pswain@cavium.com>, Jan Glauber <jglauber@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add smbus alert interrupt support.
+=46rom: Peter Swain <pswain@cavium.com>
 
+There is a race between the TWSI interrupt and the condition
+that is required before proceeding:
+
+Low-level: interrupt flag bit must be set
+High-level controller: valid bit must be clear
+
+If the interrupt comes too early and the condition is not met
+the wait will time out, and the transfer is aborted leading
+to very poor performance.
+
+To avoid this race retry for the condition ~80 =C2=B5s later.
+The retry is avoided on the very first invocation of
+wait_event_timeout() (which tests the condition before entering
+the wait and is therefore always wrong in this case).
+
+EEPROM reads on 100kHz i2c now measure ~5.2kB/s, about 1/2 what's
+achievable, and much better than the worst-case 100 bytes/sec before.
+
+While at it remove the debug print from the low-level wait function.
+
+Signed-off-by: Peter Swain <pswain@cavium.com>
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-cavium.h        |  6 ++++++
- drivers/i2c/busses/i2c-thunderx-core.c | 35 ++++++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+)
+ drivers/i2c/busses/i2c-octeon.c | 55 +++++++++++++++++++++++++++++++++=
++-------
+ 1 file changed, 46 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cavium.h b/drivers/i2c/busses/i2c-cavium.h
-index ad57b03..749dffc 100644
---- a/drivers/i2c/busses/i2c-cavium.h
-+++ b/drivers/i2c/busses/i2c-cavium.h
-@@ -3,6 +3,7 @@
- #include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
-@@ -120,6 +121,11 @@ struct octeon_i2c {
- #if IS_ENABLED(CONFIG_I2C_THUNDERX)
- 	struct msix_entry i2c_msix;
- #endif
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-o=
+cteon.c
+index 76fa479..3144fe9 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -109,6 +109,8 @@
+ #define TWSI_INT_SDA		BIT_ULL(10)
+ #define TWSI_INT_SCL		BIT_ULL(11)
+=20
++#define I2C_OCTEON_EVENT_WAIT 80 /* microseconds */
 +
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	struct i2c_smbus_alert_setup alert_data;
-+	struct i2c_client *ara;
-+#endif
- };
- 
- static inline void octeon_i2c_writeq_flush(u64 val, void __iomem *addr)
-diff --git a/drivers/i2c/busses/i2c-thunderx-core.c b/drivers/i2c/busses/i2c-thunderx-core.c
-index 8fcd26c..e1a111d 100644
---- a/drivers/i2c/busses/i2c-thunderx-core.c
-+++ b/drivers/i2c/busses/i2c-thunderx-core.c
-@@ -9,9 +9,11 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/of_irq.h>
- #include <linux/pci.h>
- 
- #include "i2c-cavium.h"
-@@ -106,6 +108,35 @@ static void thunder_i2c_clock_disable(struct device *dev, struct clk *clk)
- 	devm_clk_put(dev, clk);
+ struct octeon_i2c {
+ 	wait_queue_head_t queue;
+ 	struct i2c_adapter adap;
+@@ -340,11 +342,29 @@ static irqreturn_t octeon_i2c_hlc_isr78(int irq, =
+void *dev_id)
+ 	return IRQ_HANDLED;
  }
- 
-+static int thunder_i2c_smbus_setup(struct octeon_i2c *i2c,
-+				   struct device_node *node)
-+{
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	u32 type;
-+
-+	i2c->alert_data.irq = irq_of_parse_and_map(node, 0);
-+	if (!i2c->alert_data.irq)
-+		return -EINVAL;
-+
-+	type = irqd_get_trigger_type(irq_get_irq_data(i2c->alert_data.irq));
-+	i2c->alert_data.alert_edge_triggered =
-+		(type & IRQ_TYPE_LEVEL_MASK) ? 1 : 0;
-+
-+	i2c->ara = i2c_setup_smbus_alert(&i2c->adap, &i2c->alert_data);
-+	if (!i2c->ara)
-+		return -ENODEV;
-+#endif
-+	return 0;
-+}
-+
-+static void thunder_i2c_smbus_remove(struct octeon_i2c *i2c)
-+{
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	if (i2c->ara)
-+		i2c_unregister_device(i2c->ara);
-+#endif
-+}
-+
- static void thunder_i2c_set_name(struct pci_dev *pdev, struct octeon_i2c *i2c,
- 				 char *name)
+=20
+-static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
++static bool octeon_i2c_test_iflg(struct octeon_i2c *i2c)
  {
-@@ -210,6 +241,9 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 		goto out_irq;
- 	}
- 
-+	ret = thunder_i2c_smbus_setup(i2c, node);
-+	if (ret < 0)
-+		dev_info(dev, "Failed to setup smbus alert\n");
- 	dev_info(i2c->dev, "probed\n");
+ 	return (octeon_i2c_ctl_read(i2c) & TWSI_CTL_IFLG);
+ }
+=20
++static bool octeon_i2c_test_ready(struct octeon_i2c *i2c, bool *first)
++{
++	if (octeon_i2c_test_iflg(i2c))
++		return true;
++
++	if (*first) {
++		*first =3D false;
++		return false;
++	}
++
++	/*
++	 * IRQ has signaled an event but IFLG hasn't changed.
++	 * Sleep and retry once.
++	 */
++	usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
++	return octeon_i2c_test_iflg(i2c);
++}
++
+ /**
+  * octeon_i2c_wait - wait for the IFLG to be set
+  * @i2c: The struct octeon_i2c
+@@ -354,15 +374,14 @@ static int octeon_i2c_test_iflg(struct octeon_i2c=
+ *i2c)
+ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ {
+ 	long time_left;
++	bool first =3D 1;
+=20
+ 	i2c->int_enable(i2c);
+-	time_left =3D wait_event_timeout(i2c->queue, octeon_i2c_test_iflg(i2c=
+),
++	time_left =3D wait_event_timeout(i2c->queue, octeon_i2c_test_ready(i2=
+c, &first),
+ 				       i2c->adap.timeout);
+ 	i2c->int_disable(i2c);
+-	if (!time_left) {
+-		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
++	if (!time_left)
+ 		return -ETIMEDOUT;
+-	}
+=20
  	return 0;
- 
-@@ -240,6 +274,7 @@ static void thunder_i2c_remove_pci(struct pci_dev *pdev)
- 
- 	dev = i2c->dev;
- 	thunder_i2c_clock_disable(dev, i2c->clk);
-+	thunder_i2c_smbus_remove(i2c);
- 	i2c_del_adapter(&i2c->adap);
- 	devm_free_irq(dev, i2c->i2c_msix.vector, i2c);
- 	pci_disable_msix(pdev);
--- 
+ }
+@@ -428,11 +447,28 @@ static int octeon_i2c_check_status(struct octeon_=
+i2c *i2c, int final_read)
+ 	}
+ }
+=20
+-static bool octeon_i2c_hlc_test_ready(struct octeon_i2c *i2c)
++static bool octeon_i2c_hlc_test_valid(struct octeon_i2c *i2c)
++{
++	return (__raw_readq(i2c->twsi_base + SW_TWSI) & SW_TWSI_V) =3D=3D 0;
++}
++
++static bool octeon_i2c_hlc_test_ready(struct octeon_i2c *i2c, bool *fi=
+rst)
+ {
+-	u64 val =3D __raw_readq(i2c->twsi_base + SW_TWSI);
++	/* check if valid bit is cleared */
++	if (octeon_i2c_hlc_test_valid(i2c))
++		return true;
+=20
+-	return (val & SW_TWSI_V) =3D=3D 0;
++	if (*first) {
++		*first =3D false;
++		return false;
++	}
++
++	/*
++	 * IRQ has signaled an event but valid bit isn't cleared.
++	 * Sleep and retry once.
++	 */
++	usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
++	return octeon_i2c_hlc_test_valid(i2c);
+ }
+=20
+ static void octeon_i2c_hlc_int_enable(struct octeon_i2c *i2c)
+@@ -454,11 +490,12 @@ static void octeon_i2c_hlc_int_clear(struct octeo=
+n_i2c *i2c)
+  */
+ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
+ {
++	bool first =3D 1;
+ 	int time_left;
+=20
+ 	i2c->hlc_int_enable(i2c);
+ 	time_left =3D wait_event_timeout(i2c->queue,
+-				       octeon_i2c_hlc_test_ready(i2c),
++				       octeon_i2c_hlc_test_ready(i2c, &first),
+ 				       i2c->adap.timeout);
+ 	i2c->hlc_int_disable(i2c);
+ 	if (!time_left) {
+--=20
 1.9.1
