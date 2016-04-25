@@ -1,67 +1,84 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 3/3] i2c: s3c2410: Cleanup indentation and comment
- style
-Date: Tue, 26 Apr 2016 00:28:03 +0200
-Message-ID: <20160425222802.GN1550@katana>
-References: <1461222291-5642-1-git-send-email-k.kozlowski@samsung.com>
- <1461222291-5642-3-git-send-email-k.kozlowski@samsung.com>
+From: David Daney <ddaney@caviumnetworks.com>
+Subject: Re: [PATCH v7 03/15] i2c: octeon: Remove I2C_FUNC_SMBUS_QUICK support
+Date: Mon, 25 Apr 2016 15:28:25 -0700
+Message-ID: <571E9A09.60409@caviumnetworks.com>
+References: <1461594824-7215-1-git-send-email-jglauber@cavium.com> <1461594824-7215-4-git-send-email-jglauber@cavium.com> <20160425221621.GI1550@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O27Gs9jTTFWz3gAR"
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47369 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750843AbcDYW2M (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 25 Apr 2016 18:28:12 -0400
-Content-Disposition: inline
-In-Reply-To: <1461222291-5642-3-git-send-email-k.kozlowski@samsung.com>
+Received: from mail-bl2on0076.outbound.protection.outlook.com ([65.55.169.76]:31472
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750816AbcDYWnN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 25 Apr 2016 18:43:13 -0400
+In-Reply-To: <20160425221621.GI1550@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jan Glauber <jglauber@cavium.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+
+On 04/25/2016 03:16 PM, Wolfram Sang wrote:
+> On Mon, Apr 25, 2016 at 04:33:32PM +0200, Jan Glauber wrote:
+>> SMBUS QUICK never worked for the read case, because EINVAL was returned
+>> for a zero length message. The hardware does not support SMBUS QUICK
+>> messages so disable the support and remove the zero length check.
+>>
+>> Signed-off-by: Jan Glauber <jglauber@cavium.com>
+>
+> I see better now and I think we need to drop this patch. It looks like
+> the driver supports only SMBUS_QUICK_WRITE which can be used for
+> scanning devices. The driver probably works with 'i2cdetect -q'. This
+> will regress if I apply the patch.
+>
+> It seems it can't do SMBUS_QUICK_READ thus the extra check in the code.
+>
+> I2C_FUNC_SMBUS_QUICK should have been split up in READ and WRITE to
+> support this scenario.
+>
+> Are my assumptions correct?
+
+I think you may be reading too much into the intent of the code.
+
+I don't know that anyone has ever run "i2cdetect -q" on these buses, I 
+know that I haven't.  Since I2C is inherently unprobable, we specify the 
+presence of all devices from the device tree passed by system firmware. 
+  Runtime scanning for devices is not necessary.
+
+That said, it is not a big deal one way or the other with respect to 
+this patch.  If someone verifies that "i2cdetect -q" does something 
+sensible, then there is probably no harm in dropping this patch.
 
 
---O27Gs9jTTFWz3gAR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Apr 21, 2016 at 09:04:51AM +0200, Krzysztof Kozlowski wrote:
-> Improve the readability by:
->  - fixing indentation,
->  - switching to proper block comments,
->  - removing spurious blank lines,
->  - checkpatch: void function return statements are not generally useful,
->  - checkpatch: braces {} are not necessary for any arm of this
->    statement,
->  - checkpatch: missing a blank line after declarations.
->=20
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
->=20
-
-Applied to for-next, thanks!
-
-
---O27Gs9jTTFWz3gAR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXHpnyAAoJEBQN5MwUoCm2vYAQAJkLViqlnlS0mGlOAIS1Z5wX
-PDwuiwegGqIsOCrIwOJOBPusam+UDJETpL3jAyaVyP6E+NsIzfUGvurPlWb3ZEeP
-knW8ky8XC+00sT4MqZY4fetLPO4xGIA8S3mBTtwYV4/79GU6IVEFmgu0jmWO+p00
-7/3TPyVtcyi6uwJXAC+w3wRt18OWtc8oPAIBwxKrRwQN6Vj1K+2jHqWsa9Hh2VRm
-KQw+PEHK13rqDeGcoAqGmKfkYkeTX3uVFumHtpFEAFHDaXobn8bvokV9X8PqKBD+
-DBopr7MdEUfuTKlZ9Nsc46Z8mTzM0tTlKfFRVV3b01uh8DIB9efkIS0QxpNijX+0
-DQhVrPav8zYt0rcTh/0UokG7aYVjGsXS0SRgzGtQs5nDdLjGVVROXqeEpjK7PNvb
-uAomizrYeMwRkjp8S7YoMyvGuyKHXl2+m5vPBfoJa5wLcy4g+iPz+NeD+ozitMOh
-TqQqvJkBzTd/9GtEyOKdEqPkBpAeHWjsoLaHNpLeYxL1NqoUFjYtPmiKsns5V+EE
-gJHukzVGop3Rac40xtHNQtc0win4gcVsWxxVn1Yklx3iHHYZOk4axXBubYbO6GNx
-yi2FSbLRGzuHzNL/I+KrUJk2QXmHq1WTKjTjDtysvgufs0TFPif3BZXaxtpBNBMP
-9sahNmtyiuF8gA+SeAWY
-=4rDx
------END PGP SIGNATURE-----
-
---O27Gs9jTTFWz3gAR--
+>
+>
+>> ---
+>>   drivers/i2c/busses/i2c-octeon.c | 5 +----
+>>   1 file changed, 1 insertion(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+>> index 0f536a1..ad563cf 100644
+>> --- a/drivers/i2c/busses/i2c-octeon.c
+>> +++ b/drivers/i2c/busses/i2c-octeon.c
+>> @@ -459,9 +459,6 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
+>>   	int i, result, length = *rlength;
+>>   	bool final_read = false;
+>>
+>> -	if (length < 1)
+>> -		return -EINVAL;
+>> -
+>>   	octeon_i2c_data_write(i2c, (target << 1) | 1);
+>>   	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
+>>
+>> @@ -597,7 +594,7 @@ static struct i2c_bus_recovery_info octeon_i2c_recovery_info = {
+>>
+>>   static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
+>>   {
+>> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
+>> +	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) |
+>>   	       I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_SMBUS_BLOCK_PROC_CALL;
+>>   }
+>>
+>> --
+>> 1.9.1
+>>
