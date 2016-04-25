@@ -1,81 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 05/15] i2c: octeon: Enable High-Level Controller
-Date: Mon, 25 Apr 2016 23:44:29 +0200
-Message-ID: <20160425214429.GE1550@katana>
-References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
- <1461594824-7215-6-git-send-email-jglauber@cavium.com>
+Subject: Re: [PATCH v6 10/19] i2c: octeon: Add support for cn78xx chips
+Date: Mon, 25 Apr 2016 23:45:50 +0200
+Message-ID: <20160425214549.GF1550@katana>
+References: <cover.1460387640.git.jglauber@cavium.com>
+ <878b7035b447b6700abc7ec79c375df090067ebc.1460387640.git.jglauber@cavium.com>
+ <20160420215218.GE1546@katana>
+ <5718027F.7050707@caviumnetworks.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AjmyJqqohANyBN/e"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="kbCYTQG2MZjuOjyn"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:47183 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965053AbcDYVpz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 25 Apr 2016 17:45:55 -0400
 Content-Disposition: inline
-In-Reply-To: <1461594824-7215-6-git-send-email-jglauber@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jan Glauber <jglauber@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
+In-Reply-To: <5718027F.7050707@caviumnetworks.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: David Daney <ddaney@caviumnetworks.com>
+Cc: Jan Glauber <jglauber@cavium.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <david.daney@cavium.com>
 
 
---AjmyJqqohANyBN/e
+--kbCYTQG2MZjuOjyn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Apr 25, 2016 at 04:33:34PM +0200, Jan Glauber wrote:
-> From: David Daney <ddaney@caviumnetworks.com>
->=20
-> Use High-Level Controller (HLC) when possible. The HLC can read/write
-> up to 8 bytes and is completely optional. The most important difference
-> of the HLC is that it only requires one interrupt for a transfer
-> (up to 8 bytes) where the low-level read/write requires 2 interrupts
-> plus one interrupt per transferred byte. Since the interrupts are costly
-> using the HLC improves the performance. Also, the HLC provides improved
-> error handling.
->=20
-> Signed-off-by: David Daney <ddaney@caviumnetworks.com>
-> Signed-off-by: Jan Glauber <jglauber@cavium.com>
-
-Applied to for-next, thanks!
-
-I can recommend using --strict with checkpatch. It found some issues:
-
-total: 0 errors, 0 warnings, 18 checks, 427 lines checked
-
-CHECK: No space is necessary after a cast
-#327: FILE: drivers/i2c/busses/i2c-octeon.c:563:
-+		ext |=3D (u64) msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
-
-I fixed all 14 of those.
-
-CHECK: braces {} should be used on all arms of this statement
-#325: FILE: drivers/i2c/busses/i2c-octeon.c:561:
-+	if (msgs[0].len =3D=3D 2) {
-[...]
-+	} else
-[...]
-
-and 2 of those.
 
 
---AjmyJqqohANyBN/e
+> Personally, I preferred the old way where each device had interrupt enable
+> bits that could be controlled independently of the interrupt controller.  I
+> have been told that I should abandon my preference for that type of
+> antiquated architecture and welcome the brave new world of the unified
+> interrupt enable bit.  Never the less, I still feel some nostalgia for the
+> old way.
+
+:) I think I am with you on this one.
+
+
+--kbCYTQG2MZjuOjyn
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXHo+9AAoJEBQN5MwUoCm2NhUQAJRq+FOidw4QZh+ai2wL1BAs
-f34UEpUT8AGAQytmDM6tjX1fi+WKkQzb5O163ZJECOq0YtQmq5Ae8h8rnYSdGWfr
-XE4UlqKIRwQxurjN+TJOPNvl3nT9FyThQ3sHXuPEtLol/SFoboDTc94kPb5ykj6/
-Y+XO1N0iPaLUJ955ryjUCZ1IIqT11cppQ0TvBoQD30f7yecbtkv47BthS3iD8YiE
-f+FaBOYoJrtlaiHRDDCj+k2RN8s1cgAxeizahOPruOPVQcWxFxZLUhIk1k8c7Wdv
-OYZHabtruwbRVpSOXRSPJ8Ty9c/u6iBTv8nalfnHE5n2YuYiuQv56wpuhQRqJluZ
-VL0DfAsE08lsCPabOanb/qIFq7ipaU4zA65ffctPRbeMopITtW/AtXsh7fd30BH6
-ESQI/PiEFTqxzdhzLVHIBDW2QPqIA6rYsOxEiHhDI6J6wI2iAryrdFjCPVWFZVNl
-8GqAhrP2ymgho1X4zsI735X5lZBwE/cs0WqS/GOKutQVyBzL9JI1krfD7J2/1akh
-V1iF+AOhh9N/xVXelj0WBAGtGZJ/LDtErXwEsj/75aVat6tzpz741pi5n+b/O7sP
-Qj4xp5B7Qfgjd2wBkW8oNART0tpCb0KMXAHevhxBHYWBrTgzklItcBAPGarEC56c
-5H95OvWYOB3Q/RwUCn+0
-=eKTH
+iQIcBAEBAgAGBQJXHpANAAoJEBQN5MwUoCm257wP/39+xeLxzi0l3vSd4zz8ZC+b
+hcQyUGX2q9M9Ii5gK2Ye1V4P+yHaFLqWK4YJ2lRgwPHLIhjRnqw0/bbunQOuAsZv
+Z5gJn/TeQ9NTNOyjk5vnwdRJUVtVJD24qkTK68lJ4T0Ul/HhwwK1izn2leuVHb36
+ykSMsinajt6n0Dw4s/mCJKMK1g8hislbeb9IiR9zlfDpEUGSZnjnhWD3ztlPXHUT
+VRd8xuXdnJXtd2xx5Gvlp3pQGjYRgEIn38g0POPbdIXfrZ1OAEhlq2B3G9avG70W
+a+z9Mwy4MqAE/JecwpJp5/j1esSnD9cdHtvRgNR3tq6X6cRV/E3640R8cW8tFfxy
+s8XvYfax5mizMC3Q32VsjZ2uXFd05sKFSBo6mNmO4FnMrmw6w2/IPqe3L4/CJU7r
+QtgccdcqvyQr7TFs2wc2udpxetxcdEEG0Q/gKMhjSGHNrC3liqUfjHOTdZZVP+Jy
+6qfREjHpHZSEjnkoTfZWnVUXjIlVBDs4FbZ1IadK+JcE6OxMbSA+JASf4P/BfkUF
+kyklLsx1tF7meiQPl5G1nT2P49g6N1ZwRnKzCIbLCh4XX0rHrzo7lT2pZrEswVqP
+05AXyVZzV1Gnbmw4RxlZvGRMUw3wTakPPtG9TPwawTbZwP4ZZsuY500jjlIEjSoh
+iEJ1iE9dm5fmY1u6gHc+
+=OW17
 -----END PGP SIGNATURE-----
 
---AjmyJqqohANyBN/e--
+--kbCYTQG2MZjuOjyn--
