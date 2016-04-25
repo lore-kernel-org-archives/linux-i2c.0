@@ -1,89 +1,56 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
-Date: Mon, 25 Apr 2016 14:51:22 +0300
-Message-ID: <571E04BA.3030301@linux.intel.com>
-References: <5707B9B4.6020402@alitech.com>
- <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
+From: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v6 1/4] i2c: tegra: disable clock before returning error
+Date: Mon, 25 Apr 2016 17:27:35 +0530
+Message-ID: <1461585458-23948-1-git-send-email-smohammed@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:40217 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932118AbcDYLvb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 25 Apr 2016 07:51:31 -0400
-In-Reply-To: <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+Cc: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Lucas De Marchi <lucas.demarchi@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>
 
-On 04/22/2016 06:08 PM, Lucas De Marchi wrote:
-> Disabling the adapter after each transfer is pretty bad for sensors and
-> other devices doing small transfers at a high rate. It slows down the
-> transfer rate a lot since each of them have to wait the adapter to be
-> enabled again.
->
-> During the transfer init we check the status register for no activity
-> and TX buffer being empty since otherwise we can't change IC_TAR
-> dynamically.
->
-> When a transfer fails the adapter will still be disabled - this is a
-> conservative approach. When transfers succeed, the adapter is left
-> enabled and it's configured so to disable interrupts.
->
-> With a small program test to read/write registers in a sensor the speed
-> doubled. Example below with write sequences of 16 bytes:
->
-> Before:
-> 	i2c-transfer-time -w -a 0x40 -x 6 -n 20000 -- 0 0 0xd0 0x07 0 0 0xd0 0x07 0 0 0xd0 0x07 0 0 0xd0 0x07
-> 	num_transfers=20000
-> 	transfer_time_avg=1032.728500us
->
-> After:
-> 	i2c-transfer-time -w -a 0x40 -x 6 -n 20000 -- 0 0 0xd0 0x07 0 0 0xd0 0x07 0 0 0xd0 0x07 0 0 0xd0 0x07
-> 	num_transfers=20000
-> 	transfer_time_avg=470.256050us
->
-> Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-> ---
->   drivers/i2c/busses/i2c-designware-core.c | 48 ++++++++++++++++++++------------
->   drivers/i2c/busses/i2c-designware-core.h |  1 +
->   2 files changed, 31 insertions(+), 18 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index 99b54be..8a08e68 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -90,6 +90,7 @@
->   					 DW_IC_INTR_STOP_DET)
->
->   #define DW_IC_STATUS_ACTIVITY	0x1
-> +#define DW_IC_STATUS_TX_EMPTY	0x2
+Disable clock before returning error in tegra_i2c_init()
 
-...
+Signed-off-by: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-> @@ -413,8 +416,16 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
->   	struct i2c_msg *msgs = dev->msgs;
->   	u32 ic_con, ic_tar = 0;
->
-> -	/* Disable the adapter */
-> -	__i2c_dw_enable(dev, false);
-> +	if (dev->enabled) {
-> +		u32 ic_status;
-> +
-> +		/* check ic_tar and ic_con can be dynamically updated */
-> +		ic_status = dw_readl(dev, DW_IC_STATUS);
-> +		if (ic_status & DW_IC_STATUS_ACTIVITY
-> +			|| !(ic_status & DW_IC_STATUS_TX_EMPTY)) {
-> +			__i2c_dw_enable(dev, false);
-> +		}
-> +	}
->
-Worth to double check this. I see bit 1 means TX FIFO not full and bit 2 
-is TX FIFO completely empty.
+---
+Changes in v5:
+- Move current patch as separate patch
 
-Otherwise I'm fine with the patch as long as it works for Christian.
+Changes in v6:
+- Remove unnecessary line
+---
+ drivers/i2c/busses/i2c-tegra.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index d764d64..445398c3 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -483,19 +483,20 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 			if (time_after(jiffies, timeout)) {
+ 				dev_warn(i2c_dev->dev,
+ 					"timeout waiting for config load\n");
+-				return -ETIMEDOUT;
++				err = -ETIMEDOUT;
++				goto err;
+ 			}
+ 			msleep(1);
+ 		}
+ 	}
+ 
+-	tegra_i2c_clock_disable(i2c_dev);
+-
+ 	if (i2c_dev->irq_disabled) {
+ 		i2c_dev->irq_disabled = 0;
+ 		enable_irq(i2c_dev->irq);
+ 	}
+ 
++err:
++	tegra_i2c_clock_disable(i2c_dev);
+ 	return err;
+ }
+ 
 -- 
-Jarkko
+1.8.1.5
