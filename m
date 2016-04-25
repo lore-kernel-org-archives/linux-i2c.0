@@ -1,103 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 03/15] i2c: octeon: Remove I2C_FUNC_SMBUS_QUICK support
-Date: Tue, 26 Apr 2016 00:16:22 +0200
-Message-ID: <20160425221621.GI1550@katana>
-References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
- <1461594824-7215-4-git-send-email-jglauber@cavium.com>
+Subject: Re: [PATCH v2 1/2] i2c: s3c2410: Print errno code in error logs
+Date: Tue, 26 Apr 2016 00:20:45 +0200
+Message-ID: <20160425222045.GJ1550@katana>
+References: <1461163076-5959-1-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wZdghQXYJzyo6AGC"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47287 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750750AbcDYWQ0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 25 Apr 2016 18:16:26 -0400
+	protocol="application/pgp-signature"; boundary="rwgQ89ZNnFUwFHTC"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1461594824-7215-4-git-send-email-jglauber@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1461163076-5959-1-git-send-email-javier@osg.samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Glauber <jglauber@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
 
---wZdghQXYJzyo6AGC
+--rwgQ89ZNnFUwFHTC
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 25, 2016 at 04:33:32PM +0200, Jan Glauber wrote:
-> SMBUS QUICK never worked for the read case, because EINVAL was returned
-> for a zero length message. The hardware does not support SMBUS QUICK
-> messages so disable the support and remove the zero length check.
+On Wed, Apr 20, 2016 at 10:37:55AM -0400, Javier Martinez Canillas wrote:
+> The driver not always prints the error code in case of a failure but this
+> information can be very useful for debugging. So let's print if available.
 >=20
-> Signed-off-by: Jan Glauber <jglauber@cavium.com>
-
-I see better now and I think we need to drop this patch. It looks like
-the driver supports only SMBUS_QUICK_WRITE which can be used for
-scanning devices. The driver probably works with 'i2cdetect -q'. This
-will regress if I apply the patch.
-
-It seems it can't do SMBUS_QUICK_READ thus the extra check in the code.
-
-I2C_FUNC_SMBUS_QUICK should have been split up in READ and WRITE to
-support this scenario.
-
-Are my assumptions correct?
-
-
-> ---
->  drivers/i2c/busses/i2c-octeon.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-oct=
-eon.c
-> index 0f536a1..ad563cf 100644
-> --- a/drivers/i2c/busses/i2c-octeon.c
-> +++ b/drivers/i2c/busses/i2c-octeon.c
-> @@ -459,9 +459,6 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, in=
-t target,
->  	int i, result, length =3D *rlength;
->  	bool final_read =3D false;
-> =20
-> -	if (length < 1)
-> -		return -EINVAL;
-> -
->  	octeon_i2c_data_write(i2c, (target << 1) | 1);
->  	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
-> =20
-> @@ -597,7 +594,7 @@ static struct i2c_bus_recovery_info octeon_i2c_recove=
-ry_info =3D {
-> =20
->  static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
->  {
-> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-> +	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) |
->  	       I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_SMBUS_BLOCK_PROC_CALL;
->  }
-> =20
-> --=20
-> 1.9.1
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 >=20
 
---wZdghQXYJzyo6AGC
+Applied to for-next, thanks!
+
+
+--rwgQ89ZNnFUwFHTC
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXHpc1AAoJEBQN5MwUoCm2u8IP/jgAbprx2Mr0eLqaqXifdqwV
-JtAFdPNRq0t/xzVi6U488GsEbGpA1ZvyjAYeTSCuIznEyIQKXjZheXbUhuCtyI5f
-CIYZuadllywPU/qL2XIVJB6sTnpDWU9Yhr80gYf1psVK8cgzAXqWyheREz4zJEp6
-4e9EPiOX54uWZpuLKBY51N3VXVgLaBpMYdt5KERbaxnqGTVxv4h2jRKZCcEoIEdx
-j6dstWY/O3dJ3aiCgLnrOer33LIyeXhMIEVLApcTvU3SFSviWuV55ijxBDy0kgek
-GLzInqce318ztoAXTVLTty/cA218q3MOdUod8xMitoWFOqWLH2Vmr63pi5at5VzK
-oOJxoGyz68aSrnVNepF8CElLfeHJFgeQBc0FcafW57EHhDuAOP8bzu3RVTTN1qIH
-4zRaEGzBqyWF0bp3wVK51fegCKArJGjiwS0fU3QJf8TrV8q5eEGL4TdluGP+igmD
-7YiUQLMzOvKH3uHhjT0ZaijpWqrFrlJYkE9TlEsDj7VwrTa2ukZO+V//nmf8hPlg
-42fFkL4Rq/IAFOzuk3RjnHELCzbnkZNKFiJHVlK5LA5T6qTOCBQOmpKZ2zWiFb/s
-n7x413ofLhQPA3Df8K7zqWB10uhP6cx3znJqTechxRoRic2ib+y943FY/Vwll6EL
-5nuQX6dUME96182+J1P9
-=pdFX
+iQIcBAEBAgAGBQJXHpg9AAoJEBQN5MwUoCm2x1gP/2smicFCKNeDWz53qnF+gCyt
+A0Bjn5jMRRZVltffqT4kFr/+qoZMiR+CVJFSHzERhfCaSCus9R9td7nFJD7CrdK1
+W4sgf510kTrlKYoSC978AnHF63/Vpgx86aEmlbq04jOpgM18MAN5xDqh0uMLlo/4
+Togp+zgT9Fv/sXbbqQpVMmxNzhVbsdrdVGLQIXPOufAw25O6+8Da+azsjpak27zo
+vnKV78dOica0wFSegLr/XwErNGkS7/+fsa+I7A9YrJumbdaaWGjI79a8U7dCbW1g
+TOsvYliq5jTzeB4QOY86aOYb809kh26hnhm03nXpws5H9EkYrjxJt8E1JNdo/z5o
+cEwhQSh9Ry/LfiIulZ2zPL4gc4N/B38CZNCzWtkmb3dsmP3Zsjr9GyUGMVqeF8Ln
+nhdlb+lnsFWCobZEQZXIqQ0H27b3nO545BkXYN4I83G2KEBNg0P2TFoUmXVSoPGZ
+TxNLDu3GRSzJ7sh4rslXM7tJKyTkK7tpjX+2AZYfrR8u6Cq0p+RkFAoccmY7iHrm
+UU1eA6xCqj9vrFqTG07Y6K8q3zF/gRdP4PwceT/HiQ5T0sIGa8nuHne+BfpqhIiZ
+7yYYlx/LIAk3TpUgEMLJrHf/OXe5LHO/EHDmbHYyeeaCLPyGwhQeH4NGedthPxBM
+xMDN9B6h0b78X6f4g2MB
+=qazi
 -----END PGP SIGNATURE-----
 
---wZdghQXYJzyo6AGC--
+--rwgQ89ZNnFUwFHTC--
