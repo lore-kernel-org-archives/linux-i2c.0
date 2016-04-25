@@ -1,118 +1,122 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v7 10/15] i2c: octeon: Move read function before write
-Date: Mon, 25 Apr 2016 16:33:39 +0200
-Message-ID: <1461594824-7215-11-git-send-email-jglauber@cavium.com>
+Subject: [PATCH v7 09/15] i2c: octeon: Add workaround for broken irqs on CN3860
+Date: Mon, 25 Apr 2016 16:33:38 +0200
+Message-ID: <1461594824-7215-10-git-send-email-jglauber@cavium.com>
 References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, David Daney <david.daney@cavium.com>, Jan Glauber <jglauber@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Just sorting the functions to be consistent with the other
-read/write variants.
+From: David Daney <david.daney@cavium.com>
 
+CN3860 does not interrupt the CPU when the i2c status changes. If
+we get a timeout, and see the status has in fact changed, we know we
+have this problem, and drop back to polling.
+
+Signed-off-by: David Daney <ddaney@caviumnetworks.com>
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-octeon.c | 78 ++++++++++++++++++++---------------------
- 1 file changed, 39 insertions(+), 39 deletions(-)
+ drivers/i2c/busses/i2c-octeon.c | 53 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 51 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index 009cc33..2bc32b9 100644
+index 3144fe9..009cc33 100644
 --- a/drivers/i2c/busses/i2c-octeon.c
 +++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -864,45 +864,6 @@ static void octeon_i2c_stop(struct octeon_i2c *i2c)
- }
+@@ -121,6 +121,8 @@ struct octeon_i2c {
+ 	void __iomem *twsi_base;
+ 	struct device *dev;
+ 	bool hlc_enabled;
++	bool broken_irq_mode;
++	bool broken_irq_check;
+ 	void (*int_enable)(struct octeon_i2c *);
+ 	void (*int_disable)(struct octeon_i2c *);
+ 	void (*hlc_int_enable)(struct octeon_i2c *);
+@@ -376,10 +378,32 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ 	long time_left;
+ 	bool first = 1;
  
- /**
-- * octeon_i2c_write - send data to the bus via low-level controller
-- * @i2c: The struct octeon_i2c
-- * @target: Target address
-- * @data: Pointer to the data to be sent
-- * @length: Length of the data
-- *
-- * The address is sent over the bus, then the data.
-- *
-- * Returns 0 on success, otherwise a negative errno.
-- */
--static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
--			    const u8 *data, int length)
--{
--	int i, result;
--
--	octeon_i2c_data_write(i2c, target << 1);
--	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
--
--	result = octeon_i2c_wait(i2c);
--	if (result)
--		return result;
--
--	for (i = 0; i < length; i++) {
--		result = octeon_i2c_check_status(i2c, false);
--		if (result)
--			return result;
--
--		octeon_i2c_data_write(i2c, data[i]);
--		octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
--
--		result = octeon_i2c_wait(i2c);
--		if (result)
--			return result;
--	}
--
--	return 0;
--}
--
--/**
-  * octeon_i2c_read - receive data from the bus via low-level controller
-  * @i2c: The struct octeon_i2c
-  * @target: Target address
-@@ -967,6 +928,45 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
- }
- 
- /**
-+ * octeon_i2c_write - send data to the bus via low-level controller
-+ * @i2c: The struct octeon_i2c
-+ * @target: Target address
-+ * @data: Pointer to the data to be sent
-+ * @length: Length of the data
-+ *
-+ * The address is sent over the bus, then the data.
-+ *
-+ * Returns 0 on success, otherwise a negative errno.
-+ */
-+static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
-+			    const u8 *data, int length)
-+{
-+	int i, result;
++	/*
++	 * Some chip revisions don't assert the irq in the interrupt
++	 * controller. So we must poll for the IFLG change.
++	 */
++	if (i2c->broken_irq_mode) {
++		u64 end = get_jiffies_64() + i2c->adap.timeout;
 +
-+	octeon_i2c_data_write(i2c, target << 1);
-+	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
++		while (!octeon_i2c_test_iflg(i2c) &&
++		       time_before64(get_jiffies_64(), end))
++			udelay(50);
 +
-+	result = octeon_i2c_wait(i2c);
-+	if (result)
-+		return result;
-+
-+	for (i = 0; i < length; i++) {
-+		result = octeon_i2c_check_status(i2c, false);
-+		if (result)
-+			return result;
-+
-+		octeon_i2c_data_write(i2c, data[i]);
-+		octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
-+
-+		result = octeon_i2c_wait(i2c);
-+		if (result)
-+			return result;
++		return octeon_i2c_test_iflg(i2c) ? 0 : -ETIMEDOUT;
 +	}
 +
-+	return 0;
-+}
+ 	i2c->int_enable(i2c);
+ 	time_left = wait_event_timeout(i2c->queue, octeon_i2c_test_ready(i2c, &first),
+ 				       i2c->adap.timeout);
+ 	i2c->int_disable(i2c);
 +
-+/**
-  * octeon_i2c_xfer - The driver's master_xfer function
-  * @adap: Pointer to the i2c_adapter structure
-  * @msgs: Pointer to the messages to be processed
++	if (i2c->broken_irq_check && !time_left &&
++	    octeon_i2c_test_iflg(i2c)) {
++		dev_err(i2c->dev, "broken irq connection detected, switching to polling mode.\n");
++		i2c->broken_irq_mode = true;
++		return 0;
++	}
++
+ 	if (!time_left)
+ 		return -ETIMEDOUT;
+ 
+@@ -493,15 +517,37 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
+ 	bool first = 1;
+ 	int time_left;
+ 
++	/*
++	 * Some cn38xx boards don't assert the irq in the interrupt
++	 * controller. So we must poll for the valid bit change.
++	 */
++	if (i2c->broken_irq_mode) {
++		u64 end = get_jiffies_64() + i2c->adap.timeout;
++
++		while (!octeon_i2c_hlc_test_valid(i2c) &&
++		       time_before64(get_jiffies_64(), end))
++			udelay(50);
++
++		return octeon_i2c_hlc_test_valid(i2c) ? 0 : -ETIMEDOUT;
++	}
++
+ 	i2c->hlc_int_enable(i2c);
+ 	time_left = wait_event_timeout(i2c->queue,
+ 				       octeon_i2c_hlc_test_ready(i2c, &first),
+ 				       i2c->adap.timeout);
+ 	i2c->hlc_int_disable(i2c);
+-	if (!time_left) {
++	if (!time_left)
+ 		octeon_i2c_hlc_int_clear(i2c);
+-		return -ETIMEDOUT;
++
++	if (i2c->broken_irq_check && !time_left &&
++	    octeon_i2c_hlc_test_valid(i2c)) {
++		dev_err(i2c->dev, "broken irq connection detected, switching to polling mode.\n");
++			i2c->broken_irq_mode = true;
++			return 0;
+ 	}
++
++	if (!time_left)
++		return -ETIMEDOUT;
+ 	return 0;
+ }
+ 
+@@ -1136,6 +1182,9 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+ 		goto out;
+ 	}
+ 
++	if (OCTEON_IS_MODEL(OCTEON_CN38XX))
++		i2c->broken_irq_check = true;
++
+ 	result = octeon_i2c_init_lowlevel(i2c);
+ 	if (result) {
+ 		dev_err(i2c->dev, "init low level failed\n");
 -- 
 1.9.1
