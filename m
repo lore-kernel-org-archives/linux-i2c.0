@@ -1,80 +1,88 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 03/15] i2c: octeon: Remove I2C_FUNC_SMBUS_QUICK support
-Date: Tue, 26 Apr 2016 09:36:20 +0200
-Message-ID: <20160426073620.GA1543@katana>
-References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
- <1461594824-7215-4-git-send-email-jglauber@cavium.com>
- <20160425221621.GI1550@katana>
- <20160426055845.GB5758@hardcore>
- <20160426064242.GC5758@hardcore>
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Subject: Re: [PATCH] i2c: imx: use usleep_range(50,100) instead of udelay(50)
+Date: Tue, 26 Apr 2016 14:02:57 +0300
+Message-ID: <571F4AE1.7020207@mentor.com>
+References: <1461652066-16456-1-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49414 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752394AbcDZHg1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Apr 2016 03:36:27 -0400
-Content-Disposition: inline
-In-Reply-To: <20160426064242.GC5758@hardcore>
+Received: from relay1.mentorg.com ([192.94.38.131]:40177 "EHLO
+	relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752177AbcDZLDM (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Apr 2016 07:03:12 -0400
+In-Reply-To: <1461652066-16456-1-git-send-email-dirk.behme@de.bosch.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Glauber <jan.glauber@caviumnetworks.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
+To: Dirk Behme <dirk.behme@de.bosch.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Oleksij Rempel <linux@rempel-privat.de>
 
+Hi Dirk,
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 26.04.2016 09:27, Dirk Behme wrote:
+> From: Oleksij Rempel <linux@rempel-privat.de>
+> 
+> Documentation/timers/timers-howto.txt recommends to use
+> usleep_range on delays > 10usec. According to my test results
+> with Neonode zForce touchscreen driver, usleep_range indeed
+> reduces CPU load.
+> 
+> Stats collected with "./perf record -a -g -F 1000 sleep 10"
+> 
+> i2c-imx with udelay(50):
+> 34.19% 0.00% irq/220-Neonode [kernel.kallsyms] [k] irq_thread
+>     ---irq_thread
+>        |--33.75%--irq_thread_fn
+>        |    |--19.27%--0x7f08a878
+>        |    |     i2c_master_recv
+>        |    |     i2c_transfer
+>        |    |     __i2c_transfer
+>        |    |     i2c_imx_xfer
+>        |    |     |--11.71%--i2c_imx_trx_complete
+>        |    |     |--5.70%--i2c_imx_start <<<<----------------
+>        |    |     |     |--5.38%--__timer_const_udelay
+>        |    |     |     |      __timer_delay
+>        |    |     |     |      --5.07%--read_current_timer
+> 
+> i2c-imx with usleep_range(50,100)
+> 29.08% 0.00% irq/220-Neonode  [kernel.kallsyms] [k] irq_thread
+>     ---irq_thread
+>        |--28.89%--irq_thread_fn
+>        |    |--17.21%--0x7f08a878
+>        |    |     i2c_master_recv
+>        |    |     |--17.14%--i2c_transfer
+>        |    |     |     __i2c_transfer
+>        |    |     |     i2c_imx_xfer
+>        |    |     |     |--14.29%--i2c_imx_trx_complete
+>        |    |     |     |--1.42%--i2c_imx_start <<<<----------
+>        |    |     |     |      |--0.71%--usleep_range
+>        |    |     |     |      |--0.53%--i2c_imx_bus_busy
+> 
+> Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
 
+missing your Signed-off-by.
 
-> > Yes, I thought briefly about splitting SMBUS_QUICK into read-write
-> > variants too. To me the question is if this feature is still used on modern
-> > devices or if this is more a relict of the past. I don't know enough
-> > about SMBUS to answer that.
+Reviewed-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
 
-Well, note that there are zero-length messages in I2C allowed as well.
-Not only in SMBUS. I mainly use the term SMBUS_QUICK because it covers
-both cases.
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 1ca7ef2..1844bc9 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -525,7 +525,7 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
+>  	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode, i2c_imx, IMX_I2C_I2CR);
+>  
+>  	/* Wait controller to be stable */
+> -	udelay(50);
+> +	usleep_range(50, 150);
+>  
+>  	/* Start I2C transaction */
+>  	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> 
 
-
-> Checking on ThunderX:
-...
-> Do all these other numbers make sense (although there are no
-> devices)?
-
-It makes sense in a way that it shows SMBUS_QUICK_WRITE is broken :) It
-doesn't react to ACK/NACK properly. So, what needs to be done:
-
-1) remove SMBUS_QUICK as you did in this patch 2) move the length check
-so it doesn't only check read messages but also write messages. That is
-to prevent handling custom setup I2C messages with a length of 0 (which
-is legal). I'd suggest to return -EOPNOTSUPP in this case.
-
-Thanks,
-
-   Wolfram
-
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXHxpzAAoJEBQN5MwUoCm2bYoP/1bFZcSFpXvKlPwlxhp/YEwd
-qiVqZRT3xyOUd/7CWTQcMi94Xmp91pTZzH1mdK8juVrzZvNwoSAPFXA7iFxGULpV
-0wC06CCLTY8UAeQg0qY86IbYr0g/z66XTB5wEEM06Xhbx3FL0A+Lv0BlhoG82cTb
-q+tl7J1V1XgzT1Jw9aZg2HoTR6xOofIfL4dCKYvZ3U60WQyyuj/TF/daPoKqVBcg
-ubGmvuV+Zp344JE3WwesdZfhzO9BntEI7j2Gldx5Wv9vyqTwmxpQOCYvyZMr0iFv
-sDZUqpMDNAOJQCRKfD7Vsj8wEiao6/a+/W3loCnHXgb4pmX/5kzZux6qiHj5eJfy
-I/tE5KetE/f8t42THXyyTrBuJNDmDnCKmeM8B3TgkoFvYXhJxYUDKjLarhHcIM7S
-uL4cqeCBE9TlmOUaZATz2gsfDN0uTAITxpquwB1EnCFEq6kLCzeThRCqK9JdPm9C
-I6dlx/Ryg6OcpaDgzKnslz9pY9M+bzz9vemNzT0PzFQy+rLmBCrYxqJlyNNb+w+p
-OfRXG37i9vomWtrweb9be9N0uMf44Qgh+jgYeCze0IK5Gj4RxC0MCQsLgLpWUAvt
-WsJwFQOnctdh+qLAinp61AvVbQopvV3m9zhHJLjX7Wy+5rLWKLYshx9Er8fp/rcs
-sanISCsma97ysg77DejC
-=h7LX
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+--
+With best wishes,
+Vladimir
