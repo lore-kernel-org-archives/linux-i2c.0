@@ -1,88 +1,74 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH v7 03/15] i2c: octeon: Remove I2C_FUNC_SMBUS_QUICK support
-Date: Tue, 26 Apr 2016 07:58:45 +0200
-Message-ID: <20160426055845.GB5758@hardcore>
-References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
- <1461594824-7215-4-git-send-email-jglauber@cavium.com>
- <20160425221621.GI1550@katana>
+From: Dirk Behme <dirk.behme@de.bosch.com>
+Subject: [PATCH] i2c: imx: use usleep_range(50,100) instead of udelay(50)
+Date: Tue, 26 Apr 2016 08:27:46 +0200
+Message-ID: <1461652066-16456-1-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bl2on0083.outbound.protection.outlook.com ([65.55.169.83]:43040
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751027AbcDZF7A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Apr 2016 01:59:00 -0400
-Content-Disposition: inline
-In-Reply-To: <20160425221621.GI1550@katana>
+Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:60293 "EHLO
+	smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750995AbcDZG1w (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Apr 2016 02:27:52 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Oleksij Rempel <linux@rempel-privat.de>
 
-On Tue, Apr 26, 2016 at 12:16:22AM +0200, Wolfram Sang wrote:
-> On Mon, Apr 25, 2016 at 04:33:32PM +0200, Jan Glauber wrote:
-> > SMBUS QUICK never worked for the read case, because EINVAL was returned
-> > for a zero length message. The hardware does not support SMBUS QUICK
-> > messages so disable the support and remove the zero length check.
-> > 
-> > Signed-off-by: Jan Glauber <jglauber@cavium.com>
-> 
-> I see better now and I think we need to drop this patch. It looks like
-> the driver supports only SMBUS_QUICK_WRITE which can be used for
-> scanning devices. The driver probably works with 'i2cdetect -q'. This
-> will regress if I apply the patch.
-> 
-> It seems it can't do SMBUS_QUICK_READ thus the extra check in the code.
-> 
-> I2C_FUNC_SMBUS_QUICK should have been split up in READ and WRITE to
-> support this scenario.
-> 
-> Are my assumptions correct?
+From: Oleksij Rempel <linux@rempel-privat.de>
 
-Yes, I thought briefly about splitting SMBUS_QUICK into read-write
-variants too. To me the question is if this feature is still used on modern
-devices or if this is more a relict of the past. I don't know enough
-about SMBUS to answer that.
+Documentation/timers/timers-howto.txt recommends to use
+usleep_range on delays > 10usec. According to my test results
+with Neonode zForce touchscreen driver, usleep_range indeed
+reduces CPU load.
 
-Also, the ThunderX documentation does not mention that it is supported.
-The read case would be forbidden by the documentation (that was probably
-the reason for adding the read EINVAL). The write case is kind of a grey
-area, it might or might not work.
+Stats collected with "./perf record -a -g -F 1000 sleep 10"
 
-I'll see what i2cdetect does.
+i2c-imx with udelay(50):
+34.19% 0.00% irq/220-Neonode [kernel.kallsyms] [k] irq_thread
+    ---irq_thread
+       |--33.75%--irq_thread_fn
+       |    |--19.27%--0x7f08a878
+       |    |     i2c_master_recv
+       |    |     i2c_transfer
+       |    |     __i2c_transfer
+       |    |     i2c_imx_xfer
+       |    |     |--11.71%--i2c_imx_trx_complete
+       |    |     |--5.70%--i2c_imx_start <<<<----------------
+       |    |     |     |--5.38%--__timer_const_udelay
+       |    |     |     |      __timer_delay
+       |    |     |     |      --5.07%--read_current_timer
 
-Thanks,
-Jan
+i2c-imx with usleep_range(50,100)
+29.08% 0.00% irq/220-Neonode  [kernel.kallsyms] [k] irq_thread
+    ---irq_thread
+       |--28.89%--irq_thread_fn
+       |    |--17.21%--0x7f08a878
+       |    |     i2c_master_recv
+       |    |     |--17.14%--i2c_transfer
+       |    |     |     __i2c_transfer
+       |    |     |     i2c_imx_xfer
+       |    |     |     |--14.29%--i2c_imx_trx_complete
+       |    |     |     |--1.42%--i2c_imx_start <<<<----------
+       |    |     |     |      |--0.71%--usleep_range
+       |    |     |     |      |--0.53%--i2c_imx_bus_busy
 
-> 
-> > ---
-> >  drivers/i2c/busses/i2c-octeon.c | 5 +----
-> >  1 file changed, 1 insertion(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-> > index 0f536a1..ad563cf 100644
-> > --- a/drivers/i2c/busses/i2c-octeon.c
-> > +++ b/drivers/i2c/busses/i2c-octeon.c
-> > @@ -459,9 +459,6 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
-> >  	int i, result, length = *rlength;
-> >  	bool final_read = false;
-> >  
-> > -	if (length < 1)
-> > -		return -EINVAL;
-> > -
-> >  	octeon_i2c_data_write(i2c, (target << 1) | 1);
-> >  	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
-> >  
-> > @@ -597,7 +594,7 @@ static struct i2c_bus_recovery_info octeon_i2c_recovery_info = {
-> >  
-> >  static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
-> >  {
-> > -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-> > +	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) |
-> >  	       I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_SMBUS_BLOCK_PROC_CALL;
-> >  }
-> >  
-> > -- 
-> > 1.9.1
-> > 
+Signed-off-by: Oleksij Rempel <linux@rempel-privat.de>
+---
+ drivers/i2c/busses/i2c-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 1ca7ef2..1844bc9 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -525,7 +525,7 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
+ 	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode, i2c_imx, IMX_I2C_I2CR);
+ 
+ 	/* Wait controller to be stable */
+-	udelay(50);
++	usleep_range(50, 150);
+ 
+ 	/* Start I2C transaction */
+ 	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+-- 
+2.8.0
