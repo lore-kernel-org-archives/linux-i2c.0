@@ -1,84 +1,94 @@
-From: David Daney <ddaney@caviumnetworks.com>
-Subject: Re: [PATCH v7 03/15] i2c: octeon: Remove I2C_FUNC_SMBUS_QUICK support
-Date: Mon, 25 Apr 2016 15:28:25 -0700
-Message-ID: <571E9A09.60409@caviumnetworks.com>
-References: <1461594824-7215-1-git-send-email-jglauber@cavium.com> <1461594824-7215-4-git-send-email-jglauber@cavium.com> <20160425221621.GI1550@katana>
+From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: RE: [v8, 1/7] Documentation: DT: update Freescale DCFG compatible
+Date: Tue, 26 Apr 2016 02:43:10 +0000
+Message-ID: <HE1PR04MB0889A68C6D275D3102382D8BF8630@HE1PR04MB0889.eurprd04.prod.outlook.com>
+References: <1461306464-19521-1-git-send-email-yangbo.lu@nxp.com>
+	<1461306464-19521-2-git-send-email-yangbo.lu@nxp.com>
+	<20160422131151.GJ10606@leverpostej>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bl2on0076.outbound.protection.outlook.com ([65.55.169.76]:31472
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750816AbcDYWnN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 25 Apr 2016 18:43:13 -0400
-In-Reply-To: <20160425221621.GI1550@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20160422131151.GJ10606@leverpostej>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Cc: "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Zhao Qiang <qiang.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Scott Wood <scott.wood-3arQi8VN3Tc@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jan Glauber <jglauber@cavium.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On 04/25/2016 03:16 PM, Wolfram Sang wrote:
-> On Mon, Apr 25, 2016 at 04:33:32PM +0200, Jan Glauber wrote:
->> SMBUS QUICK never worked for the read case, because EINVAL was returned
->> for a zero length message. The hardware does not support SMBUS QUICK
->> messages so disable the support and remove the zero length check.
->>
->> Signed-off-by: Jan Glauber <jglauber@cavium.com>
->
-> I see better now and I think we need to drop this patch. It looks like
-> the driver supports only SMBUS_QUICK_WRITE which can be used for
-> scanning devices. The driver probably works with 'i2cdetect -q'. This
-> will regress if I apply the patch.
->
-> It seems it can't do SMBUS_QUICK_READ thus the extra check in the code.
->
-> I2C_FUNC_SMBUS_QUICK should have been split up in READ and WRITE to
-> support this scenario.
->
-> Are my assumptions correct?
-
-I think you may be reading too much into the intent of the code.
-
-I don't know that anyone has ever run "i2cdetect -q" on these buses, I 
-know that I haven't.  Since I2C is inherently unprobable, we specify the 
-presence of all devices from the device tree passed by system firmware. 
-  Runtime scanning for devices is not necessary.
-
-That said, it is not a big deal one way or the other with respect to 
-this patch.  If someone verifies that "i2cdetect -q" does something 
-sensible, then there is probably no harm in dropping this patch.
+Hi Mark,
 
 
->
->
->> ---
->>   drivers/i2c/busses/i2c-octeon.c | 5 +----
->>   1 file changed, 1 insertion(+), 4 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
->> index 0f536a1..ad563cf 100644
->> --- a/drivers/i2c/busses/i2c-octeon.c
->> +++ b/drivers/i2c/busses/i2c-octeon.c
->> @@ -459,9 +459,6 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
->>   	int i, result, length = *rlength;
->>   	bool final_read = false;
->>
->> -	if (length < 1)
->> -		return -EINVAL;
->> -
->>   	octeon_i2c_data_write(i2c, (target << 1) | 1);
->>   	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
->>
->> @@ -597,7 +594,7 @@ static struct i2c_bus_recovery_info octeon_i2c_recovery_info = {
->>
->>   static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
->>   {
->> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
->> +	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) |
->>   	       I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_SMBUS_BLOCK_PROC_CALL;
->>   }
->>
->> --
->> 1.9.1
->>
+> -----Original Message-----
+> From: Mark Rutland [mailto:mark.rutland-5wv7dgnIgG8@public.gmane.org]
+> Sent: Friday, April 22, 2016 9:12 PM
+> To: Yangbo Lu
+> Cc: linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org;
+> devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; linux-
+> kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org;
+> netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; Scott Wood; Rob Herring;
+> Russell King; Jochen Friedrich; Joerg Roedel; Claudiu Manoil; Bhupesh
+> Sharma; Zhao Qiang; Kumar Gala; Santosh Shilimkar; Yang-Leo Li; Xiaobo
+> Xie
+> Subject: Re: [v8, 1/7] Documentation: DT: update Freescale DCFG
+> compatible
+> 
+> On Fri, Apr 22, 2016 at 02:27:38PM +0800, Yangbo Lu wrote:
+> > Update Freescale DCFG compatible with 'fsl,<chip>-dcfg' instead of
+> > 'fsl,ls1021a-dcfg' to include more chips.
+> >
+> > Signed-off-by: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+> > ---
+> > Changes for v8:
+> > 	- Added this patch
+> > ---
+> >  Documentation/devicetree/bindings/arm/fsl.txt | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/Documentation/devicetree/bindings/arm/fsl.txt
+> > b/Documentation/devicetree/bindings/arm/fsl.txt
+> > index 752a685..1d5f512 100644
+> > --- a/Documentation/devicetree/bindings/arm/fsl.txt
+> > +++ b/Documentation/devicetree/bindings/arm/fsl.txt
+> > @@ -119,7 +119,7 @@ Freescale DCFG
+> >  configuration and status for the device. Such as setting the
+> > secondary  core start address and release the secondary core from
+> holdoff and startup.
+> >    Required properties:
+> > -  - compatible: should be "fsl,ls1021a-dcfg"
+> > +  - compatible: should be "fsl,<chip>-dcfg"
+> 
+> Please list specific values expected for <chip>, while jusy saying <chip>
+> may be more generic, it makes it practically impossible to search for the
+> correct binding given a compatible string, and it's vague as to exaclty
+> what <chip> should be.
+
+[Lu Yangbo-B47093] Thanks for your comment. I will list the possible chips.
+
+> 
+> Thanks,
+> Mark.
+> 
+> 
+> 
+> >    - reg : should contain base address and length of DCFG
+> > memory-mapped registers
+> >
+> >  Example:
+> > --
+> > 2.1.0.27.g96db324
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe devicetree"
+> > in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo
+> > info at  http://vger.kernel.org/majordomo-info.html
+> >
