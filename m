@@ -1,79 +1,80 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v7 03/15] i2c: octeon: Remove I2C_FUNC_SMBUS_QUICK support
-Date: Tue, 26 Apr 2016 08:42:42 +0200
-Message-ID: <20160426064242.GC5758@hardcore>
+Date: Tue, 26 Apr 2016 09:36:20 +0200
+Message-ID: <20160426073620.GA1543@katana>
 References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
  <1461594824-7215-4-git-send-email-jglauber@cavium.com>
  <20160425221621.GI1550@katana>
  <20160426055845.GB5758@hardcore>
+ <20160426064242.GC5758@hardcore>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bn1on0059.outbound.protection.outlook.com ([157.56.110.59]:8547
-	"EHLO na01-bn1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751221AbcDZGm7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Apr 2016 02:42:59 -0400
+Received: from sauhun.de ([89.238.76.85]:49414 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752394AbcDZHg1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 26 Apr 2016 03:36:27 -0400
 Content-Disposition: inline
-In-Reply-To: <20160426055845.GB5758@hardcore>
+In-Reply-To: <20160426064242.GC5758@hardcore>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Jan Glauber <jan.glauber@caviumnetworks.com>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
-On Tue, Apr 26, 2016 at 07:58:45AM +0200, Jan Glauber wrote:
-> On Tue, Apr 26, 2016 at 12:16:22AM +0200, Wolfram Sang wrote:
-> > On Mon, Apr 25, 2016 at 04:33:32PM +0200, Jan Glauber wrote:
-> > > SMBUS QUICK never worked for the read case, because EINVAL was returned
-> > > for a zero length message. The hardware does not support SMBUS QUICK
-> > > messages so disable the support and remove the zero length check.
-> > > 
-> > > Signed-off-by: Jan Glauber <jglauber@cavium.com>
-> > 
-> > I see better now and I think we need to drop this patch. It looks like
-> > the driver supports only SMBUS_QUICK_WRITE which can be used for
-> > scanning devices. The driver probably works with 'i2cdetect -q'. This
-> > will regress if I apply the patch.
-> > 
-> > It seems it can't do SMBUS_QUICK_READ thus the extra check in the code.
-> > 
-> > I2C_FUNC_SMBUS_QUICK should have been split up in READ and WRITE to
-> > support this scenario.
-> > 
-> > Are my assumptions correct?
-> 
-> Yes, I thought briefly about splitting SMBUS_QUICK into read-write
-> variants too. To me the question is if this feature is still used on modern
-> devices or if this is more a relict of the past. I don't know enough
-> about SMBUS to answer that.
-> 
-> Also, the ThunderX documentation does not mention that it is supported.
-> The read case would be forbidden by the documentation (that was probably
-> the reason for adding the read EINVAL). The write case is kind of a grey
-> area, it might or might not work.
-> 
-> I'll see what i2cdetect does.
 
-Checking on ThunderX:
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[root@localhost linux-aarch64]# i2cdetect -q 0
-WARNING! This program can confuse your I2C bus, cause data loss and worse!
-I will probe file /dev/i2c-0 using quick write commands.
-I will probe address range 0x03-0x77.
-Continue? [Y/n] 
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 
-10: 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 
-20: 20 21 22 23 24 25 26 27 28 29 2a 2b 2c 2d 2e 2f 
-30: 30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f 
-40: 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 
-50: 50 51 52 53 54 55 56 57 58 59 5a 5b 5c 5d 5e 5f 
-60: 60 61 62 63 64 65 66 67 UU 69 6a 6b 6c 6d 6e 6f 
-70: 70 71 72 73 74 75 76 77 
 
-Address 68 is the only device (rtc clock, module loaded).
+> > Yes, I thought briefly about splitting SMBUS_QUICK into read-write
+> > variants too. To me the question is if this feature is still used on modern
+> > devices or if this is more a relict of the past. I don't know enough
+> > about SMBUS to answer that.
 
-Do all these other numbers make sense (although there are no
-devices)?
+Well, note that there are zero-length messages in I2C allowed as well.
+Not only in SMBUS. I mainly use the term SMBUS_QUICK because it covers
+both cases.
 
---Jan
+
+> Checking on ThunderX:
+...
+> Do all these other numbers make sense (although there are no
+> devices)?
+
+It makes sense in a way that it shows SMBUS_QUICK_WRITE is broken :) It
+doesn't react to ACK/NACK properly. So, what needs to be done:
+
+1) remove SMBUS_QUICK as you did in this patch 2) move the length check
+so it doesn't only check read messages but also write messages. That is
+to prevent handling custom setup I2C messages with a length of 0 (which
+is legal). I'd suggest to return -EOPNOTSUPP in this case.
+
+Thanks,
+
+   Wolfram
+
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXHxpzAAoJEBQN5MwUoCm2bYoP/1bFZcSFpXvKlPwlxhp/YEwd
+qiVqZRT3xyOUd/7CWTQcMi94Xmp91pTZzH1mdK8juVrzZvNwoSAPFXA7iFxGULpV
+0wC06CCLTY8UAeQg0qY86IbYr0g/z66XTB5wEEM06Xhbx3FL0A+Lv0BlhoG82cTb
+q+tl7J1V1XgzT1Jw9aZg2HoTR6xOofIfL4dCKYvZ3U60WQyyuj/TF/daPoKqVBcg
+ubGmvuV+Zp344JE3WwesdZfhzO9BntEI7j2Gldx5Wv9vyqTwmxpQOCYvyZMr0iFv
+sDZUqpMDNAOJQCRKfD7Vsj8wEiao6/a+/W3loCnHXgb4pmX/5kzZux6qiHj5eJfy
+I/tE5KetE/f8t42THXyyTrBuJNDmDnCKmeM8B3TgkoFvYXhJxYUDKjLarhHcIM7S
+uL4cqeCBE9TlmOUaZATz2gsfDN0uTAITxpquwB1EnCFEq6kLCzeThRCqK9JdPm9C
+I6dlx/Ryg6OcpaDgzKnslz9pY9M+bzz9vemNzT0PzFQy+rLmBCrYxqJlyNNb+w+p
+OfRXG37i9vomWtrweb9be9N0uMf44Qgh+jgYeCze0IK5Gj4RxC0MCQsLgLpWUAvt
+WsJwFQOnctdh+qLAinp61AvVbQopvV3m9zhHJLjX7Wy+5rLWKLYshx9Er8fp/rcs
+sanISCsma97ysg77DejC
+=h7LX
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
