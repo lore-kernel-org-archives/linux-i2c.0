@@ -1,39 +1,62 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH] i2c: nforce2: Use IS_ENABLED() instead of checking for built-in or module
-Date: Tue, 26 Apr 2016 13:22:33 -0400
-Message-ID: <1461691353-22095-1-git-send-email-javier@osg.samsung.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: octeon: Remove zero-length message support
+Date: Tue, 26 Apr 2016 23:04:25 +0200
+Message-ID: <20160426210425.GB4587@katana>
+References: <20160426125342.GB23679@katana>
+ <1461680812-10237-1-git-send-email-jglauber@cavium.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:34657 "EHLO lists.s-osg.org"
+Received: from sauhun.de ([89.238.76.85]:52344 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752233AbcDZRWr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Apr 2016 13:22:47 -0400
+	id S1752297AbcDZVEb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 26 Apr 2016 17:04:31 -0400
+Content-Disposition: inline
+In-Reply-To: <1461680812-10237-1-git-send-email-jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
 
-The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
-built-in or as a module, use that macro instead of open coding the same.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+--wq9mPyueHGvFACwf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
----
+On Tue, Apr 26, 2016 at 04:26:52PM +0200, Jan Glauber wrote:
+> Zero-length message support (SMBUS QUICK or i2c) never worked with
+> the Octeon hardware. Disable SMBUS QUICK support and bail out in
+> case of a zero-length i2c request.
+>=20
+> After this change 'i2c-detect -q' will return an error on Octeon but
+> the previously reported results were wrong anyway.
+>=20
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
- drivers/i2c/busses/i2c-nforce2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Applied to for-next, thanks!
 
-diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
-index 70b3c9158509..42fcc9458432 100644
---- a/drivers/i2c/busses/i2c-nforce2.c
-+++ b/drivers/i2c/busses/i2c-nforce2.c
-@@ -127,7 +127,7 @@ static struct pci_driver nforce2_driver;
- 
- /* For multiplexing support, we need a global reference to the 1st
-    SMBus channel */
--#if defined CONFIG_I2C_NFORCE2_S4985 || defined CONFIG_I2C_NFORCE2_S4985_MODULE
-+#if IS_ENABLED(CONFIG_I2C_NFORCE2_S4985)
- struct i2c_adapter *nforce2_smbus;
- EXPORT_SYMBOL_GPL(nforce2_smbus);
- 
--- 
-2.5.5
+
+--wq9mPyueHGvFACwf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXH9fZAAoJEBQN5MwUoCm2hxcP/j8mHxhM0mNVIPUcf4DBCfFd
+NFahStnEQmSPacJSyzKyDG4KWnSDdehGYEfbtGeSxHazoC9LUn/2Y6lOUKEHXQuv
+e2sM26CU7Wja5jXLrkbV1v2C6aq9vQBShUFx74Rh3GYOM4FIEU+lV/K1CrOAI6As
+IQoCBRsBgq15qA/DLrms42jmgC2IIOa+7JcPsLWJ15+bgZ07ZoF6WNyMPX+U+oUs
+8MAjm1BeshhtVMb9JuQWpDYhfRztLAhAKvR4WrrH4hLsADAmCen/PoiZFWeZI4j3
+maOWXBaaeEGqiKUttV9Y9FTdJYH7bM4J56w/oso2tiUIaJYtX+Vng4C6RFtpoYoj
+0xdNyQeTJZpgDUUqGbK/a/FahXse/ujPDPdFyZ+w0I3Q+HAp3Kidu9wFWsKS+7nq
+eK59Ph25vSDrMxvu5S93f/UqakHpAddlpaycPm5RmhocX1xMyFq13VbAJCf4B4xB
+9bRJIyDTKF8run4SQu2E87ugmfH/PiPu/UNAtuA/CNusF8AdheUyQ1Oc/VWiBYMJ
+1aFTJ6pcygR+0wHy/LlFirUEslQOca1VmPB5ArYitYAcyi8rER+sgpMV/gY40b3R
+E/GO3rTpu/7rJIPC9tY/QB/gCN2RTF5JAvP2kTs0DpCyVXXBZCgkVFSmmr+uiawO
+QfnXhmF0ymx3Zm1eBBX7
+=fIZ9
+-----END PGP SIGNATURE-----
+
+--wq9mPyueHGvFACwf--
