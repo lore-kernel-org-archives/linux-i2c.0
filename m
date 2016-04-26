@@ -1,81 +1,68 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] The input clock of I2C should be platform/2
-Date: Tue, 26 Apr 2016 23:31:57 +0200
-Message-ID: <20160426213157.GH4587@katana>
-References: <1453880893-3015-1-git-send-email-ying.zhang22455@nxp.com>
+Subject: Re: [PATCH] i2c: imx: use usleep_range(50,100) instead of udelay(50)
+Date: Tue, 26 Apr 2016 23:35:27 +0200
+Message-ID: <20160426213527.GI4587@katana>
+References: <1461652066-16456-1-git-send-email-dirk.behme@de.bosch.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82evfD9Ogz2JrdWZ"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:52463 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752036AbcDZVcA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Apr 2016 17:32:00 -0400
+	protocol="application/pgp-signature"; boundary="nO3oAMapP4dBpMZi"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1453880893-3015-1-git-send-email-ying.zhang22455@nxp.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1461652066-16456-1-git-send-email-dirk.behme@de.bosch.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dirk Behme <dirk.behme@de.bosch.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Oleksij Rempel <linux@rempel-privat.de>
 List-Id: linux-i2c@vger.kernel.org
-To: ying.zhang22455@nxp.com
-Cc: linux-i2c@vger.kernel.org, xiaobo.xie@nxp.com, york.sun@nxp.com, b45385@freescale.com, Ying Zhang <b40530@freescale.com>
 
 
---82evfD9Ogz2JrdWZ
+--nO3oAMapP4dBpMZi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 27, 2016 at 03:48:13PM +0800, ying.zhang22455@nxp.com wrote:
-> From: Ying Zhang <b40530@freescale.com>
+On Tue, Apr 26, 2016 at 08:27:46AM +0200, Dirk Behme wrote:
+> From: Oleksij Rempel <linux@rempel-privat.de>
 >=20
-
-The patch description should state where this information comes from.
-
-> Signed-off-by: Ying Zhang <b40530@freescale.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Documentation/timers/timers-howto.txt recommends to use
+> usleep_range on delays > 10usec. According to my test results
+> with Neonode zForce touchscreen driver, usleep_range indeed
+> reduces CPU load.
 >=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index a2b132c..806cb99 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -475,7 +475,7 @@ static void i2c_imx_set_clk(struct imx_i2c_struct *i2=
-c_imx)
->  	int i;
-> =20
->  	/* Divider value calculation */
-> -	i2c_clk_rate =3D clk_get_rate(i2c_imx->clk);
-> +	i2c_clk_rate =3D clk_get_rate(i2c_imx->clk) / 2;
->  	if (i2c_imx->cur_clk =3D=3D i2c_clk_rate)
->  		return;
-> =20
-> --=20
-> 2.1.0.27.g96db324
+> Stats collected with "./perf record -a -g -F 1000 sleep 10"
 >=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> i2c-imx with udelay(50):
+> 34.19% 0.00% irq/220-Neonode [kernel.kallsyms] [k] irq_thread
+>     ---irq_thread
+>        |--33.75%--irq_thread_fn
+>        |    |--19.27%--0x7f08a878
+>        |    |     i2c_master_recv
+>        |    |     i2c_transfer
+>        |    |     __i2c_transfer
+>        |    |     i2c_imx_xfer
+>        |    |     |--11.71%--i2c_imx_trx_complete
 
---82evfD9Ogz2JrdWZ
+Reworded $subject to match code and applied to for-next, thanks!
+
+
+--nO3oAMapP4dBpMZi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXH95NAAoJEBQN5MwUoCm2E54P+QFJhphatv62QQ8fMKu0gcff
-qoWhjXo8L05tOpTkH6NsjqEPvAoDG6ebck5dHWqQIf/GM1rr0xfUSfRlFrXHad80
-uXBfqFSP3HGVr2OA1Nm55MKW2RG2SCQ5wVlEZQZJIvdqJzLSBEGHOGkcb9nHzq+L
-qH8QulFPu1rINiJYraH1B6B4EU6u4qtRaPhIS8N9eTt3zgt6M0LxlGzOa41p+ort
-auj/cK5MMmq5gb1S1vSCgKJ7ecZyje8Nxa+i+eprxhGegt459f8XVbSyOrxlceQZ
-IFryFFrjIv9/Z8F8493G6y32jmog+aUjSvkYQkaanhaurcVBLrr2qvKGJKKsCQJy
-K/d19KZ8BSlbIEodgqraA3cwbdLcg36TSW0tqzmtNmBMa9ABfVryBGBNFA9+9NaM
-rd08dVNr1MfhWutCOx1kY/nKhelp5SM0W/2LSDCiuPVEYx80AI6ENoEFMd44lGg1
-xhKtwKJeqVbmdAfkKFMrgs/TlfAJh/gApt4OtnibGjdbrqS/tSdQ23t3WygKvYyl
-FKERfZqFBZDvcLA931N0zMM2R23fdPZ/Q9UQ5ReQnTFNJPlaQj2u6xzs+UymgUNi
-TTdK84IHgK0aBQHwM2661uNjU766WOcOCAbBT/u8AoMdztbxlcphDvw3vqv0L2dN
-WizaIhe4ZR5+qnzGaG30
-=KoZS
+iQIcBAEBAgAGBQJXH98fAAoJEBQN5MwUoCm2+iEP/1xpIa7d1OBm/dbm3MkgTr6j
+d5bCX9fSQ50CKuKQWXs1zx1rhUuPfL1M1vTgxZDzHmRxUGooD0grBc6LrCxDp2AR
+IAyFhvPKXiRpY5UYlagFMi0SaPTnlHdAQ5Uo+1ADOypq5CD+4AgHlQC4ZxLweKi7
+WJ5rBqfpeS6khTjB3LjFNOZbA+x1E6Xr0ssn73bCE6gCWMDdeUYk0izX4isd8f2G
+ztAEfprLZ5umezRwQ3HB043xFpfcQB0aLGNHWKkbiOODWODDPzdqIagMFJirPT79
+oIPpMZAYwDKhzuTq+wNlEU44CCp7HLuYXucLuCx80yWBXud2b3C3lWpF84VsSCmA
+h0tVscdfeYesNpGOl1EvFxrptIMLTKGZgloFFvjNJ5JwW9H5UB28lcnrJ/9xo+yX
+QnX3NlfJM/e+6KNnS/ulObcy5Wu44KMUa0Zm9zWJSV1wZQkRFNo5EjhexDYyOH9j
+IRAjnXUr5o5P7JMuN/AD7SEeBTn2xS773oaVmMoRza/T1bmcroXMb/opqzxtrLdh
+vigqkUijUqjSTVOhPTX04wr4SxoYKBnr4QYQMOjxZCSIRIcb3GS+4inAlbNBT3ww
+1EFmcxucrZAIX0LClerb/zBLJns9AbB5576QiAwnpE9Y7cUsA7a6HunSQIc7BENx
+bnEbkTIOc+TQ2Uh/DQtO
+=vm/Y
 -----END PGP SIGNATURE-----
 
---82evfD9Ogz2JrdWZ--
+--nO3oAMapP4dBpMZi--
