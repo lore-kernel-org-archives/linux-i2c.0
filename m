@@ -1,62 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 03/15] i2c: octeon: Remove I2C_FUNC_SMBUS_QUICK support
-Date: Tue, 26 Apr 2016 14:53:42 +0200
-Message-ID: <20160426125342.GB23679@katana>
-References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
- <1461594824-7215-4-git-send-email-jglauber@cavium.com>
- <20160425221621.GI1550@katana>
- <20160426055845.GB5758@hardcore>
- <20160426064242.GC5758@hardcore>
- <20160426073620.GA1543@katana>
- <20160426123444.GB9796@hardcore>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [PATCH] i2c: octeon: Remove zero-length message support
+Date: Tue, 26 Apr 2016 16:26:52 +0200
+Message-ID: <1461680812-10237-1-git-send-email-jglauber@cavium.com>
+References: <20160426125342.GB23679@katana>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50630 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751507AbcDZMxt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Apr 2016 08:53:49 -0400
-Content-Disposition: inline
-In-Reply-To: <20160426123444.GB9796@hardcore>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:32894 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751953AbcDZOnN (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Apr 2016 10:43:13 -0400
+In-Reply-To: <20160426125342.GB23679@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Glauber <jan.glauber@caviumnetworks.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 
+Zero-length message support (SMBUS QUICK or i2c) never worked with
+the Octeon hardware. Disable SMBUS QUICK support and bail out in
+case of a zero-length i2c request.
 
---zx4FCpZtqtKETZ7O
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+After this change 'i2c-detect -q' will return an error on Octeon but
+the previously reported results were wrong anyway.
 
+Signed-off-by: Jan Glauber <jglauber@cavium.com>
+---
+ drivers/i2c/busses/i2c-octeon.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-> OK, I'll do that. Should I rebase the remaining patches or would you
-> like to review them first ? :)
-
-Just resend this one, please. I probably pick up patches 8+9 for the
-next cycle, but with the i2c-mux locking rework planned for 4.7, too, I
-don't think I have the bandwidth to apply the rest for 4.7 as well.
-
-
---zx4FCpZtqtKETZ7O
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXH2TWAAoJEBQN5MwUoCm27ZEQAKu2bL+1Wa4vVhkXvW0a2j2f
-fSe/GL+faGnlGtWW2Xl/qd8JZNYCLKKpCo+G7GGQc32Vyc1O+kyz7eliscEZxl/U
-xVgEDDDUk5Uk2QgN5Sc+2LRZlLOs6DHyW0ghGEIAljNzS0vdXK7kPK/Eu2yEiQcJ
-Ybf67OIBfY+jagZNU5F6YfY3qD28LIxKjFgKRD/gADSPH4zNEnoZ/m7N7UyqE7yF
-Ueqp196Zc0Uot7/cLPMh0JV1b08wmx4t1AXabPvQU77pNN/bO3b/r7gs6+B47yoS
-1I259DiWDtX+vr7aMH2Wsrsn6KlSVxV8WInuig8jnG7J2KPjiFE5cfv4tr2/GjoC
-DOOsiHtAIMtL/FLZuowfegc/sR9XSEywd61zwPWynzYNrQVdJ+GDUl8LpWLutuof
-+iuTFI/u9qfoGrocWdx3TFuJeofggO84YwwrnwNKsnLIwMT0YTfbXESRA3ANFInk
-fOgXNKie9Iu9M+khjYaINljdrWN+qjZZ3L4vQfdTSH+t2zo1IIH/ndQ+LQn5M9UB
-Vh+LJfyLqLZceRBNp9ICkMQ+Wzz7mMW46goORISbvCDTHKs8o5mu+VhucPZiuCfc
-ZyC1zrKhCbZso2m01J9nDmfd14vW4sZPTa8IPC7EDBbNXlMsofALRupqscwC6VQ9
-pUyfYbDR2zljPio4CFAc
-=LYer
------END PGP SIGNATURE-----
-
---zx4FCpZtqtKETZ7O--
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index 9f11e19..e8a65f5 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -837,9 +837,6 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
+ 	int i, result, length = *rlength;
+ 	bool final_read = false;
+ 
+-	if (length < 1)
+-		return -EINVAL;
+-
+ 	octeon_i2c_data_write(i2c, (target << 1) | 1);
+ 	octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB);
+ 
+@@ -925,6 +922,12 @@ static int octeon_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	for (i = 0; ret == 0 && i < num; i++) {
+ 		struct i2c_msg *pmsg = &msgs[i];
+ 
++		/* zero-length messages are not supported */
++		if (!pmsg->len) {
++			ret = -EOPNOTSUPP;
++			break;
++		}
++
+ 		ret = octeon_i2c_start(i2c);
+ 		if (ret)
+ 			return ret;
+@@ -998,7 +1001,7 @@ static struct i2c_bus_recovery_info octeon_i2c_recovery_info = {
+ 
+ static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
++	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) |
+ 	       I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_SMBUS_BLOCK_PROC_CALL;
+ }
+ 
+-- 
+1.9.1
