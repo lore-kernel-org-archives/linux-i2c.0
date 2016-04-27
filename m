@@ -1,60 +1,56 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
-Date: Wed, 27 Apr 2016 19:33:09 +0200
-Message-ID: <20160427173308.GN7946@pengutronix.de>
+Date: Wed, 27 Apr 2016 19:37:15 +0200
+Message-ID: <20160427173715.GC15161@katana>
 References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
  <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+ <20160427173308.GN7946@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O3RTKUHj+75w1tg5"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:52937 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752287AbcD0RdM (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Apr 2016 13:33:12 -0400
+Received: from sauhun.de ([89.238.76.85]:57248 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752041AbcD0RhT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 27 Apr 2016 13:37:19 -0400
 Content-Disposition: inline
-In-Reply-To: <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <20160427173308.GN7946@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
 Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 
-Hello,
 
-On Fri, Jun 19, 2015 at 12:40:31PM +0200, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> This tool allows to construct and concat multiple I2C messages into o=
-ne
-> single transfer. Its aim is to test I2C master controllers, and so th=
-ere
-> is no SMBus fallback.
->=20
-> I've been missing such a tool a number of times now, so I finally got
-> around to writing it myself. As with all I2C tools, it can be dangero=
-us,
-> but it can also be very useful when developing. I am not sure if dist=
-ros
-> should supply it, I'll leave that to Jean's experience. For embedded
-> build systems, I think this should be selectable.
->=20
-> Tested with various Renesas I2C IP cores as well as Tegra and AT91.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+--O3RTKUHj+75w1tg5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I didn't look at the patch, but it would be great to get this
-functionality into i2c-tools.
 
-Note, I didn't check if this patch got applied in the meantime, my
-excuse is that http://lm-sensors.org where AFAIK the i2c-tools repo is
-located isn't reachable for me.
+> I didn't look at the patch, but it would be great to get this
+> functionality into i2c-tools.
 
-Best regards
-Uwe
+The code is ready, but I got stuck writing the man page :(
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+
+--O3RTKUHj+75w1tg5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXIPjLAAoJEBQN5MwUoCm2or4P/RF9frocGMn6wdmOVh10S2P4
+gd4k6avNsvn037OIN7Y0MwVQpGXhxN65exZO4DCbdWD1GaTNeJdBZ88ir2avSfA4
+VtZCxAdYfBgxWAlQY1AZcCw4Es3gH1ctnrLj870qm07eKDl8OmqeNLADaQhNDD21
+DYZXVyYXUApzvFFJcIg86XBYhTLnky3ml2MctkXSNKGw04vmUWiOHehKbTRGewZj
+vKlXBM5dZhkRVc2ieUoFYcrLQxNaxvT0VkOOO4bp0/mIR9hIe6krZfKTCohn4jNC
+9mM3qL5UNNOuX0ovSM4dWjzv9fra5i2gG6Twgt2s4V5hm1/Ah8dmzWAPDOZ9vehn
+N5mUv04rhP3mfajNdpIPBH9TpivzXuGVn3Rp0F2l6rie5aUaxV2SmhEE4UV60saI
+Iobo2UvAxqxTRBUzVq0xIXPNQV3aNjena3DwwKZKCNqri9bOT2AZ4o0EkGKMR/2h
+RB2Rhj5KkKStLkpVCI0aDMhUrVtqW1qqcr+cJqL1K2Z/8hdPggHm7q9Cr+3VcB8h
+pW30yjlKFA8LFZVVDFAxSNo/3zlKpq6JDVDE4wYsmZOtZ+2CYkPNEC59eIMGxvFD
+Dq2rBHZ+UA206gaKZKBpN0tKcwzs3a/o+CuOWpOfR8E5FYWBb5JkM1dDtUgfWRXt
+YRyBc9kEWa7et1F3XWiU
+=9piD
+-----END PGP SIGNATURE-----
+
+--O3RTKUHj+75w1tg5--
