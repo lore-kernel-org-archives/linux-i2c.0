@@ -1,100 +1,51 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] iio: inv_mpu6050: Add support for auxiliary I2C master
-Date: Wed, 27 Apr 2016 10:39:17 +0200
-Message-ID: <6ab228db-9695-ac22-9c65-fd15c4837c45@axentia.se>
-References: <5b1937140558514b3e43ed2c21ee860ecbac61ec.1461172603.git.leonard.crestez@intel.com>
- <a978ad85-8191-7506-8090-809f89d0b2e2@kernel.org>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH v7 09/15] i2c: octeon: Add workaround for broken irqs on
+ CN3860
+Date: Wed, 27 Apr 2016 11:37:07 +0200
+Message-ID: <20160427093707.GA2624@hardcore>
+References: <1461594824-7215-1-git-send-email-jglauber@cavium.com>
+ <1461594824-7215-10-git-send-email-jglauber@cavium.com>
+ <20160426211759.GD4587@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db3on0119.outbound.protection.outlook.com ([157.55.234.119]:8992
-	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750721AbcD0Ijb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 27 Apr 2016 04:39:31 -0400
-In-Reply-To: <a978ad85-8191-7506-8090-809f89d0b2e2@kernel.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160426211759.GD4587@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, David Daney <david.daney@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>, Crestez Dan Leonard <leonard.crestez@intel.com>, linux-iio@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-Hi!
+On Tue, Apr 26, 2016 at 11:17:59PM +0200, Wolfram Sang wrote:
+> On Mon, Apr 25, 2016 at 04:33:38PM +0200, Jan Glauber wrote:
+> > From: David Daney <david.daney@cavium.com>
+> > 
+> > CN3860 does not interrupt the CPU when the i2c status changes. If
+> > we get a timeout, and see the status has in fact changed, we know we
+> > have this problem, and drop back to polling.
+> > 
+> > Signed-off-by: David Daney <ddaney@caviumnetworks.com>
+> > Signed-off-by: Jan Glauber <jglauber@cavium.com>
+> 
+> My code checkers say something:
+> 
+>     CHECKPATCH
+> CHECK: usleep_range is preferred over udelay; see Documentation/timers/timers-howto.txt
+> #37: FILE: drivers/i2c/busses/i2c-octeon.c:390:
+> +			udelay(50);
+> 
+> CHECK: usleep_range is preferred over udelay; see Documentation/timers/timers-howto.txt
+> #70: FILE: drivers/i2c/busses/i2c-octeon.c:529:
+> +			udelay(50);
+> 
+> Dunno if you want to change that? Seems reasonable to me. Also:
 
-On 2016-04-23 23:32, Jonathan Cameron wrote:
-> On 20/04/16 18:17, Crestez Dan Leonard wrote:
->> The MPU has an auxiliary I2C bus for connecting external
->> sensors. This bus has two operating modes:
->> * pass-through, which connects the primary and auxiliary busses
->> together. This is already supported via an i2c mux.
->> * I2C master mode, where the mpu60x0 acts as a master to any external
->> connected sensors. This is implemented by this patch.
->>
->> This I2C master mode also works when the MPU itself is connected via
->> SPI.
->>
->> I2C master supports up to 5 slaves. Slaves 0-3 have a common operating
->> mode while slave 4 is different. This patch implements an i2c adapter
->> using slave 4 because it has a cleaner interface and it has an
->> interrupt that signals when data from slave to master arrived.
->>
->> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
-> This one needs acks from:
->
-> Device tree maintainer (odd binding ;)
-> Peter Rosin (odd binding interacting with the mux support)
-> Wolfram (it has a whole i2c master driver in here).
->
-> (just thought I'd list these for the avoidance of doubt).
+Yes, makes sense.
 
-I spot some overlap with the questions in "[RFC] i2c: device-tree:
-Handling child nodes which are not i2c devices"
-http://marc.info/?l=linux-i2c&m=146073452819116&w=2
+>     SMATCH
+> drivers/i2c/busses/i2c-octeon.c:544 octeon_i2c_hlc_wait() warn: inconsistent indenting
+> 
+> This is true as well.
+> 
 
-And I think I agree with Stephen Warren that an intermediate placeholder
-node would make sense. I.e.
-
-    mpu6050@68 {
-        compatible = "...";
-        reg = <0x68>;
-        ...
-        i2c-aux-mux {
-            i2c@0 {
-                #address-cells = <1>;
-                #size-cells = <0>;
-                reg = <0>;
-
-                foo@44 {
-                    compatible = "bar";
-                    reg = <0x44>;
-                    ...
-                }
-            }
-        }
-    }
-
-Or
-
-    mpu6050@68 {
-        compatible = "...";
-        reg = <0x68>;
-        ...
-        i2c-aux-master {
-            #address-cells = <1>;
-            #size-cells = <0>;
-
-            gazonk@44 {
-                compatible = "baz";
-                reg = <0x44>;
-                ...
-            }
-        }
-    }
-
-depending on if you want an aux-mux or an aux-master.
-
-But I don't know if that intermediate i2c-aux-mux node causes any
-problems?
-
-Cheers,
-Peter
+OK, I'll reply with an updated patch.
