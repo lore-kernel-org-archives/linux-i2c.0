@@ -1,56 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
-Date: Wed, 27 Apr 2016 19:37:15 +0200
-Message-ID: <20160427173715.GC15161@katana>
-References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
- <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
- <20160427173308.GN7946@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O3RTKUHj+75w1tg5"
+From: Thomas Zimmermann <tdz@users.sourceforge.net>
+Subject: [PATCH] i2c: Raise SDA for each received bit, if necessary
+Date: Wed, 27 Apr 2016 20:11:54 +0200
+Message-ID: <1461780714-20378-1-git-send-email-tdz@users.sourceforge.net>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:57248 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752041AbcD0RhT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 27 Apr 2016 13:37:19 -0400
-Content-Disposition: inline
-In-Reply-To: <20160427173308.GN7946@pengutronix.de>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:34642 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753505AbcD0SMt (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Apr 2016 14:12:49 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Zimmermann <tdz@users.sourceforge.net>
 
+Some I2C adapters don't raise SDA by themselves when sending a bit. This
+behavior can be seen with the DDC channel of SiS 300 graphics cards.
 
---O3RTKUHj+75w1tg5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch adds the flag |set_sdahi| to |struct i2c_algo_bit_data|. With
+the flags set to true, the I2C bit algo will raise SDA before reading each
+bit from the bus. With the flag set to false, the bit algo will keep its
+current behavior of raising SDA only once before receiving a full byte.
 
+The flag also ensures that |acknak| is always called with SDA raised.
 
-> I didn't look at the patch, but it would be great to get this
-> functionality into i2c-tools.
+Signed-off-by: Thomas Zimmermann <tdz@users.sourceforge.net>
+---
+ drivers/i2c/algos/i2c-algo-bit.c | 2 ++
+ include/linux/i2c-algo-bit.h     | 5 +++++
+ 2 files changed, 7 insertions(+)
 
-The code is ready, but I got stuck writing the man page :(
-
-
---O3RTKUHj+75w1tg5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXIPjLAAoJEBQN5MwUoCm2or4P/RF9frocGMn6wdmOVh10S2P4
-gd4k6avNsvn037OIN7Y0MwVQpGXhxN65exZO4DCbdWD1GaTNeJdBZ88ir2avSfA4
-VtZCxAdYfBgxWAlQY1AZcCw4Es3gH1ctnrLj870qm07eKDl8OmqeNLADaQhNDD21
-DYZXVyYXUApzvFFJcIg86XBYhTLnky3ml2MctkXSNKGw04vmUWiOHehKbTRGewZj
-vKlXBM5dZhkRVc2ieUoFYcrLQxNaxvT0VkOOO4bp0/mIR9hIe6krZfKTCohn4jNC
-9mM3qL5UNNOuX0ovSM4dWjzv9fra5i2gG6Twgt2s4V5hm1/Ah8dmzWAPDOZ9vehn
-N5mUv04rhP3mfajNdpIPBH9TpivzXuGVn3Rp0F2l6rie5aUaxV2SmhEE4UV60saI
-Iobo2UvAxqxTRBUzVq0xIXPNQV3aNjena3DwwKZKCNqri9bOT2AZ4o0EkGKMR/2h
-RB2Rhj5KkKStLkpVCI0aDMhUrVtqW1qqcr+cJqL1K2Z/8hdPggHm7q9Cr+3VcB8h
-pW30yjlKFA8LFZVVDFAxSNo/3zlKpq6JDVDE4wYsmZOtZ+2CYkPNEC59eIMGxvFD
-Dq2rBHZ+UA206gaKZKBpN0tKcwzs3a/o+CuOWpOfR8E5FYWBb5JkM1dDtUgfWRXt
-YRyBc9kEWa7et1F3XWiU
-=9piD
------END PGP SIGNATURE-----
-
---O3RTKUHj+75w1tg5--
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index 9d233bb..aa8cf33 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -224,6 +224,8 @@ static int i2c_inb(struct i2c_adapter *i2c_adap)
+ 			indata |= 0x01;
+ 		setscl(adap, 0);
+ 		udelay(i == 7 ? adap->udelay / 2 : adap->udelay);
++		if (adap->set_sdahi)
++			sdahi(adap);
+ 	}
+ 	/* assert: scl is low */
+ 	return indata;
+diff --git a/include/linux/i2c-algo-bit.h b/include/linux/i2c-algo-bit.h
+index 63904ba..e9f0a59 100644
+--- a/include/linux/i2c-algo-bit.h
++++ b/include/linux/i2c-algo-bit.h
+@@ -46,6 +46,11 @@ struct i2c_algo_bit_data {
+ 				   minimum 5 us for standard-mode I2C and SMBus,
+ 				   maximum 50 us for SMBus */
+ 	int timeout;		/* in jiffies */
++
++	/* Some adapters do not raise SDA by themselves when sending. Set
++	 * this flag to raise SDA before reading each bit.
++	 */
++	bool set_sdahi;
+ };
+ 
+ int i2c_bit_add_bus(struct i2c_adapter *);
+-- 
+2.1.4
