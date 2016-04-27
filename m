@@ -1,127 +1,62 @@
-From: andrew-ct chen <andrew-ct.chen@mediatek.com>
-Subject: Re: [PATCH 08/12] nvmem: mtk-efuse: remove nvmem regmap dependency
-Date: Wed, 27 Apr 2016 14:30:13 +0800
-Message-ID: <1461738613.12466.8.camel@mtksdaap41>
-References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
-	 <1461526096-29584-9-git-send-email-srinivas.kandagatla@linaro.org>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
+Date: Wed, 27 Apr 2016 10:47:11 +0300
+Message-ID: <57206E7F.5000603@linux.intel.com>
+References: <5707B9B4.6020402@alitech.com>
+ <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
+ <571E04BA.3030301@linux.intel.com> <571E320F.1020607@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:23833 "EHLO
-	mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752241AbcD0GaR (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Apr 2016 02:30:17 -0400
-In-Reply-To: <1461526096-29584-9-git-send-email-srinivas.kandagatla@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <571E320F.1020607@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lucas De Marchi <lucas.demarchi@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, Christian Ruppert <christian.ruppert@alitech.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, andrew@lunn.ch, Heiko Stuebner <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Joachim Eastwood <manabian@gmail.com>, linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-mediatek@lists.infradead.org, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org
 
-Hi Srinivas,
+On 04/25/2016 06:04 PM, Lucas De Marchi wrote:
+>
+>
+> On 04/25/2016 08:51 AM, Jarkko Nikula wrote:
+>
+> [ ... ]
+>
+>>> @@ -413,8 +416,16 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev
+>>> *dev)
+>>>       struct i2c_msg *msgs = dev->msgs;
+>>>       u32 ic_con, ic_tar = 0;
+>>>
+>>> -    /* Disable the adapter */
+>>> -    __i2c_dw_enable(dev, false);
+>>> +    if (dev->enabled) {
+>>> +        u32 ic_status;
+>>> +
+>>> +        /* check ic_tar and ic_con can be dynamically updated */
+>>> +        ic_status = dw_readl(dev, DW_IC_STATUS);
+>>> +        if (ic_status & DW_IC_STATUS_ACTIVITY
+>>> +            || !(ic_status & DW_IC_STATUS_TX_EMPTY)) {
+>>> +            __i2c_dw_enable(dev, false);
+>>> +        }
+>>> +    }
+>>>
+>> Worth to double check this. I see bit 1 means TX FIFO not full and bit 2
+>> is TX FIFO completely empty.
+>
+> the conditions to be able to update IC_TAR dynamically are:
+>
+>    - Adapter isn't doing any TX/RX operation (IC_STATUS[5] == 0) and
+>    - There are no entries in TX FIFO (IC_STATUS[2] == 1)
+>
+> So... yeah, the condition above seems wrong. I should be reading bit 5,
+> not bit 1. Thanks! However:
+>
+It reads above, bit 2 instead of 1 for TX FIFO checking and then either 
+bit 5 or 0 for activity checking.
 
-On Sun, 2016-04-24 at 20:28 +0100, Srinivas Kandagatla wrote:
-> This patch moves to nvmem support in the driver to use callback
-> instead of regmap.
-> 
-> Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-> ---
+I'd say it's probably better to check bit 5 instead of bit 0 even bit 0 
+is or'ed from bits 5 and 6. I don't know how possible slave support and 
+slave being active will play here so it's best to follow spec.
 
-Thanks for the patch. It works on our platform. This driver doesn't
-support "efuse write". I will send another patch for fixing this.
-
-Acked-by: Andrew-CT Chen <andrew-ct.chen@mediatek.com>
-
-Andrew
-
->  drivers/nvmem/Kconfig     |  1 -
->  drivers/nvmem/mtk-efuse.c | 47 ++++++++++++++++++++++++++++++++---------------
->  2 files changed, 32 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/nvmem/Kconfig b/drivers/nvmem/Kconfig
-> index 377bc21..c158712 100644
-> --- a/drivers/nvmem/Kconfig
-> +++ b/drivers/nvmem/Kconfig
-> @@ -48,7 +48,6 @@ config NVMEM_MXS_OCOTP
->  config MTK_EFUSE
->  	tristate "Mediatek SoCs EFUSE support"
->  	depends on ARCH_MEDIATEK || COMPILE_TEST
-> -	select REGMAP_MMIO
->  	help
->  	  This is a driver to access hardware related data like sensor
->  	  calibration, HDMI impedance etc.
-> diff --git a/drivers/nvmem/mtk-efuse.c b/drivers/nvmem/mtk-efuse.c
-> index 9c49369..32fd572 100644
-> --- a/drivers/nvmem/mtk-efuse.c
-> +++ b/drivers/nvmem/mtk-efuse.c
-> @@ -14,15 +14,35 @@
->  
->  #include <linux/device.h>
->  #include <linux/module.h>
-> +#include <linux/io.h>
->  #include <linux/nvmem-provider.h>
->  #include <linux/platform_device.h>
-> -#include <linux/regmap.h>
->  
-> -static struct regmap_config mtk_regmap_config = {
-> -	.reg_bits = 32,
-> -	.val_bits = 32,
-> -	.reg_stride = 4,
-> -};
-> +static int mtk_reg_read(void *context,
-> +			unsigned int reg, void *_val, size_t bytes)
-> +{
-> +	void __iomem *base = context;
-> +	u32 *val = _val;
-> +	int i = 0, words = bytes / 4;
-> +
-> +	while (words--)
-> +		*val++ = readl(base + reg + (i++ * 4));
-> +
-> +	return 0;
-> +}
-> +
-> +static int mtk_reg_write(void *context,
-> +			 unsigned int reg, void *_val, size_t bytes)
-> +{
-> +	void __iomem *base = context;
-> +	u32 *val = _val;
-> +	int i = 0, words = bytes / 4;
-> +
-> +	while (words--)
-> +		writel(*val++, base + reg + (i++ * 4));
-> +
-> +	return 0;
-> +}
->  
->  static int mtk_efuse_probe(struct platform_device *pdev)
->  {
-> @@ -30,7 +50,6 @@ static int mtk_efuse_probe(struct platform_device *pdev)
->  	struct resource *res;
->  	struct nvmem_device *nvmem;
->  	struct nvmem_config *econfig;
-> -	struct regmap *regmap;
->  	void __iomem *base;
->  
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> @@ -42,14 +61,12 @@ static int mtk_efuse_probe(struct platform_device *pdev)
->  	if (!econfig)
->  		return -ENOMEM;
->  
-> -	mtk_regmap_config.max_register = resource_size(res) - 1;
-> -
-> -	regmap = devm_regmap_init_mmio(dev, base, &mtk_regmap_config);
-> -	if (IS_ERR(regmap)) {
-> -		dev_err(dev, "regmap init failed\n");
-> -		return PTR_ERR(regmap);
-> -	}
-> -
-> +	econfig->stride = 4;
-> +	econfig->word_size = 4;
-> +	econfig->reg_read = mtk_reg_read;
-> +	econfig->reg_write = mtk_reg_write;
-> +	econfig->size = resource_size(res);
-> +	econfig->priv = base;
->  	econfig->dev = dev;
->  	econfig->owner = THIS_MODULE;
->  	nvmem = nvmem_register(econfig);
+-- 
+jarkko
