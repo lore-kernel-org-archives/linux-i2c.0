@@ -1,62 +1,100 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
-Date: Wed, 27 Apr 2016 10:47:11 +0300
-Message-ID: <57206E7F.5000603@linux.intel.com>
-References: <5707B9B4.6020402@alitech.com>
- <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
- <571E04BA.3030301@linux.intel.com> <571E320F.1020607@intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] iio: inv_mpu6050: Add support for auxiliary I2C master
+Date: Wed, 27 Apr 2016 10:39:17 +0200
+Message-ID: <6ab228db-9695-ac22-9c65-fd15c4837c45@axentia.se>
+References: <5b1937140558514b3e43ed2c21ee860ecbac61ec.1461172603.git.leonard.crestez@intel.com>
+ <a978ad85-8191-7506-8090-809f89d0b2e2@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <571E320F.1020607@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lucas De Marchi <lucas.demarchi@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, Christian Ruppert <christian.ruppert@alitech.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db3on0119.outbound.protection.outlook.com ([157.55.234.119]:8992
+	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750721AbcD0Ijb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 27 Apr 2016 04:39:31 -0400
+In-Reply-To: <a978ad85-8191-7506-8090-809f89d0b2e2@kernel.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>, Crestez Dan Leonard <leonard.crestez@intel.com>, linux-iio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-On 04/25/2016 06:04 PM, Lucas De Marchi wrote:
->
->
-> On 04/25/2016 08:51 AM, Jarkko Nikula wrote:
->
-> [ ... ]
->
->>> @@ -413,8 +416,16 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev
->>> *dev)
->>>       struct i2c_msg *msgs = dev->msgs;
->>>       u32 ic_con, ic_tar = 0;
->>>
->>> -    /* Disable the adapter */
->>> -    __i2c_dw_enable(dev, false);
->>> +    if (dev->enabled) {
->>> +        u32 ic_status;
->>> +
->>> +        /* check ic_tar and ic_con can be dynamically updated */
->>> +        ic_status = dw_readl(dev, DW_IC_STATUS);
->>> +        if (ic_status & DW_IC_STATUS_ACTIVITY
->>> +            || !(ic_status & DW_IC_STATUS_TX_EMPTY)) {
->>> +            __i2c_dw_enable(dev, false);
->>> +        }
->>> +    }
->>>
->> Worth to double check this. I see bit 1 means TX FIFO not full and bit 2
->> is TX FIFO completely empty.
->
-> the conditions to be able to update IC_TAR dynamically are:
->
->    - Adapter isn't doing any TX/RX operation (IC_STATUS[5] == 0) and
->    - There are no entries in TX FIFO (IC_STATUS[2] == 1)
->
-> So... yeah, the condition above seems wrong. I should be reading bit 5,
-> not bit 1. Thanks! However:
->
-It reads above, bit 2 instead of 1 for TX FIFO checking and then either 
-bit 5 or 0 for activity checking.
+Hi!
 
-I'd say it's probably better to check bit 5 instead of bit 0 even bit 0 
-is or'ed from bits 5 and 6. I don't know how possible slave support and 
-slave being active will play here so it's best to follow spec.
+On 2016-04-23 23:32, Jonathan Cameron wrote:
+> On 20/04/16 18:17, Crestez Dan Leonard wrote:
+>> The MPU has an auxiliary I2C bus for connecting external
+>> sensors. This bus has two operating modes:
+>> * pass-through, which connects the primary and auxiliary busses
+>> together. This is already supported via an i2c mux.
+>> * I2C master mode, where the mpu60x0 acts as a master to any external
+>> connected sensors. This is implemented by this patch.
+>>
+>> This I2C master mode also works when the MPU itself is connected via
+>> SPI.
+>>
+>> I2C master supports up to 5 slaves. Slaves 0-3 have a common operating
+>> mode while slave 4 is different. This patch implements an i2c adapter
+>> using slave 4 because it has a cleaner interface and it has an
+>> interrupt that signals when data from slave to master arrived.
+>>
+>> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+> This one needs acks from:
+>
+> Device tree maintainer (odd binding ;)
+> Peter Rosin (odd binding interacting with the mux support)
+> Wolfram (it has a whole i2c master driver in here).
+>
+> (just thought I'd list these for the avoidance of doubt).
 
--- 
-jarkko
+I spot some overlap with the questions in "[RFC] i2c: device-tree:
+Handling child nodes which are not i2c devices"
+http://marc.info/?l=linux-i2c&m=146073452819116&w=2
+
+And I think I agree with Stephen Warren that an intermediate placeholder
+node would make sense. I.e.
+
+    mpu6050@68 {
+        compatible = "...";
+        reg = <0x68>;
+        ...
+        i2c-aux-mux {
+            i2c@0 {
+                #address-cells = <1>;
+                #size-cells = <0>;
+                reg = <0>;
+
+                foo@44 {
+                    compatible = "bar";
+                    reg = <0x44>;
+                    ...
+                }
+            }
+        }
+    }
+
+Or
+
+    mpu6050@68 {
+        compatible = "...";
+        reg = <0x68>;
+        ...
+        i2c-aux-master {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            gazonk@44 {
+                compatible = "baz";
+                reg = <0x44>;
+                ...
+            }
+        }
+    }
+
+depending on if you want an aux-mux or an aux-master.
+
+But I don't know if that intermediate i2c-aux-mux node causes any
+problems?
+
+Cheers,
+Peter
