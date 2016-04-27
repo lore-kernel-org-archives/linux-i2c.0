@@ -1,150 +1,127 @@
-From: maitysanchayan@gmail.com
-Subject: Re: [PATCH 05/12] nvmem: vif610-ocotp: remove nvmem regmap dependency
-Date: Wed, 27 Apr 2016 11:06:00 +0530
-Message-ID: <20160427053600.GB2048@Sanchayan-Arch.localdomain>
+From: andrew-ct chen <andrew-ct.chen@mediatek.com>
+Subject: Re: [PATCH 08/12] nvmem: mtk-efuse: remove nvmem regmap dependency
+Date: Wed, 27 Apr 2016 14:30:13 +0800
+Message-ID: <1461738613.12466.8.camel@mtksdaap41>
 References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
- <1461526096-29584-6-git-send-email-srinivas.kandagatla@linaro.org>
+	 <1461526096-29584-9-git-send-email-srinivas.kandagatla@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34849 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752829AbcD0FmT (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Apr 2016 01:42:19 -0400
-Content-Disposition: inline
-In-Reply-To: <1461526096-29584-6-git-send-email-srinivas.kandagatla@linaro.org>
+Received: from mailgw02.mediatek.com ([210.61.82.184]:23833 "EHLO
+	mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752241AbcD0GaR (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Apr 2016 02:30:17 -0400
+In-Reply-To: <1461526096-29584-9-git-send-email-srinivas.kandagatla@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, andrew@lunn.ch, Heiko Stuebner <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Joachim Eastwood <manabian@gmail.com>, linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-mediatek@lists.infradead.org, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org, stefan@agner.ch
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, andrew@lunn.ch, Heiko Stuebner <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Joachim Eastwood <manabian@gmail.com>, linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-mediatek@lists.infradead.org, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org
 
-Hello Srinivas,
+Hi Srinivas,
 
-On 16-04-24 20:28:09, Srinivas Kandagatla wrote:
+On Sun, 2016-04-24 at 20:28 +0100, Srinivas Kandagatla wrote:
 > This patch moves to nvmem support in the driver to use callback
 > instead of regmap.
-
-Minor nit, it says "vif610-octop" it should have been vf610-ocotp.
-
-For what it's worth, I tested this on Colibri Vybrid VF61 for a while and
-all seems to work fine.
-
-So with the testing for vf610-ocotp driver other than the minor nit
-
-Acked-by: Sanchayan Maity <maitysanchayan@gmail.com>
-
-Regards,
-Sanchayan.
-
 > 
 > Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 > ---
->  drivers/nvmem/vf610-ocotp.c | 44 ++++++++++----------------------------------
->  1 file changed, 10 insertions(+), 34 deletions(-)
+
+Thanks for the patch. It works on our platform. This driver doesn't
+support "efuse write". I will send another patch for fixing this.
+
+Acked-by: Andrew-CT Chen <andrew-ct.chen@mediatek.com>
+
+Andrew
+
+>  drivers/nvmem/Kconfig     |  1 -
+>  drivers/nvmem/mtk-efuse.c | 47 ++++++++++++++++++++++++++++++++---------------
+>  2 files changed, 32 insertions(+), 16 deletions(-)
 > 
-> diff --git a/drivers/nvmem/vf610-ocotp.c b/drivers/nvmem/vf610-ocotp.c
-> index 8641319..72e4faa 100644
-> --- a/drivers/nvmem/vf610-ocotp.c
-> +++ b/drivers/nvmem/vf610-ocotp.c
-> @@ -25,7 +25,6 @@
+> diff --git a/drivers/nvmem/Kconfig b/drivers/nvmem/Kconfig
+> index 377bc21..c158712 100644
+> --- a/drivers/nvmem/Kconfig
+> +++ b/drivers/nvmem/Kconfig
+> @@ -48,7 +48,6 @@ config NVMEM_MXS_OCOTP
+>  config MTK_EFUSE
+>  	tristate "Mediatek SoCs EFUSE support"
+>  	depends on ARCH_MEDIATEK || COMPILE_TEST
+> -	select REGMAP_MMIO
+>  	help
+>  	  This is a driver to access hardware related data like sensor
+>  	  calibration, HDMI impedance etc.
+> diff --git a/drivers/nvmem/mtk-efuse.c b/drivers/nvmem/mtk-efuse.c
+> index 9c49369..32fd572 100644
+> --- a/drivers/nvmem/mtk-efuse.c
+> +++ b/drivers/nvmem/mtk-efuse.c
+> @@ -14,15 +14,35 @@
+>  
+>  #include <linux/device.h>
+>  #include <linux/module.h>
+> +#include <linux/io.h>
 >  #include <linux/nvmem-provider.h>
->  #include <linux/of.h>
 >  #include <linux/platform_device.h>
 > -#include <linux/regmap.h>
->  #include <linux/slab.h>
 >  
->  /* OCOTP Register Offsets */
-> @@ -152,23 +151,16 @@ static int vf610_get_fuse_address(int base_addr_offset)
->  	return -EINVAL;
->  }
->  
-> -static int vf610_ocotp_write(void *context, const void *data, size_t count)
-> -{
-> -	return 0;
-> -}
-> -
-> -static int vf610_ocotp_read(void *context,
-> -			const void *off, size_t reg_size,
-> -			void *val, size_t val_size)
-> +static int vf610_ocotp_read(void *context, unsigned int offset,
-> +			void *val, size_t bytes)
->  {
->  	struct vf610_ocotp *ocotp = context;
->  	void __iomem *base = ocotp->base;
-> -	unsigned int offset = *(u32 *)off;
->  	u32 reg, *buf = val;
->  	int fuse_addr;
->  	int ret;
->  
-> -	while (val_size > 0) {
-> +	while (bytes > 0) {
->  		fuse_addr = vf610_get_fuse_address(offset);
->  		if (fuse_addr > 0) {
->  			writel(ocotp->timing, base + OCOTP_TIMING);
-> @@ -205,29 +197,19 @@ static int vf610_ocotp_read(void *context,
->  		}
->  
->  		buf++;
-> -		val_size--;
-> -		offset += reg_size;
-> +		bytes -= 4;
-> +		offset += 4;
->  	}
->  
->  	return 0;
->  }
->  
-> -static struct regmap_bus vf610_ocotp_bus = {
-> -	.read = vf610_ocotp_read,
-> -	.write = vf610_ocotp_write,
-> -	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
-> -	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
-> -};
-> -
-> -static struct regmap_config ocotp_regmap_config = {
+> -static struct regmap_config mtk_regmap_config = {
 > -	.reg_bits = 32,
 > -	.val_bits = 32,
 > -	.reg_stride = 4,
 > -};
-> -
->  static struct nvmem_config ocotp_config = {
->  	.name = "ocotp",
->  	.owner = THIS_MODULE,
-> +	.stride = 4,
-> +	.word_size = 4,
-> +	.reg_read = vf610_ocotp_read,
->  };
+> +static int mtk_reg_read(void *context,
+> +			unsigned int reg, void *_val, size_t bytes)
+> +{
+> +	void __iomem *base = context;
+> +	u32 *val = _val;
+> +	int i = 0, words = bytes / 4;
+> +
+> +	while (words--)
+> +		*val++ = readl(base + reg + (i++ * 4));
+> +
+> +	return 0;
+> +}
+> +
+> +static int mtk_reg_write(void *context,
+> +			 unsigned int reg, void *_val, size_t bytes)
+> +{
+> +	void __iomem *base = context;
+> +	u32 *val = _val;
+> +	int i = 0, words = bytes / 4;
+> +
+> +	while (words--)
+> +		writel(*val++, base + reg + (i++ * 4));
+> +
+> +	return 0;
+> +}
 >  
->  static const struct of_device_id ocotp_of_match[] = {
-> @@ -247,7 +229,6 @@ static int vf610_ocotp_probe(struct platform_device *pdev)
+>  static int mtk_efuse_probe(struct platform_device *pdev)
 >  {
->  	struct device *dev = &pdev->dev;
+> @@ -30,7 +50,6 @@ static int mtk_efuse_probe(struct platform_device *pdev)
 >  	struct resource *res;
+>  	struct nvmem_device *nvmem;
+>  	struct nvmem_config *econfig;
 > -	struct regmap *regmap;
->  	struct vf610_ocotp *ocotp_dev;
+>  	void __iomem *base;
 >  
->  	ocotp_dev = devm_kzalloc(&pdev->dev,
-> @@ -267,13 +248,8 @@ static int vf610_ocotp_probe(struct platform_device *pdev)
->  		return PTR_ERR(ocotp_dev->clk);
->  	}
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> @@ -42,14 +61,12 @@ static int mtk_efuse_probe(struct platform_device *pdev)
+>  	if (!econfig)
+>  		return -ENOMEM;
 >  
-> -	ocotp_regmap_config.max_register = resource_size(res);
-> -	regmap = devm_regmap_init(dev,
-> -		&vf610_ocotp_bus, ocotp_dev, &ocotp_regmap_config);
+> -	mtk_regmap_config.max_register = resource_size(res) - 1;
+> -
+> -	regmap = devm_regmap_init_mmio(dev, base, &mtk_regmap_config);
 > -	if (IS_ERR(regmap)) {
 > -		dev_err(dev, "regmap init failed\n");
 > -		return PTR_ERR(regmap);
 > -	}
-> +	ocotp_config.size = resource_size(res);
-> +	ocotp_config.priv = ocotp_dev;
->  	ocotp_config.dev = dev;
->  
->  	ocotp_dev->nvmem = nvmem_register(&ocotp_config);
-> -- 
-> 2.5.0
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> -
+> +	econfig->stride = 4;
+> +	econfig->word_size = 4;
+> +	econfig->reg_read = mtk_reg_read;
+> +	econfig->reg_write = mtk_reg_write;
+> +	econfig->size = resource_size(res);
+> +	econfig->priv = base;
+>  	econfig->dev = dev;
+>  	econfig->owner = THIS_MODULE;
+>  	nvmem = nvmem_register(econfig);
