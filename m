@@ -1,41 +1,47 @@
-From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Subject: I2C driver for LTC1760 dual smart battery system manager
-Date: Thu, 28 Apr 2016 21:15:51 +0200
-Message-ID: <1461870951.6670.33.camel@amnesix>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [RFC PATCH v2 06/10] spi: add support for ACPI reconfigure notifications
+Date: Thu, 28 Apr 2016 22:37:57 +0300
+Message-ID: <CAE1zot+LuQJGrDrEDM2iVv-omz3Sg6k3bavX+5gde8jzrK0pog@mail.gmail.com>
+References: <1461105548-20618-1-git-send-email-octavian.purdila@intel.com>
+	<1461105548-20618-7-git-send-email-octavian.purdila@intel.com>
+	<20160428174215.GS3217@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f48.google.com ([74.125.82.48]:37026 "EHLO
+	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752625AbcD1Th7 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Apr 2016 15:37:59 -0400
+Received: by mail-wm0-f48.google.com with SMTP id a17so2626308wme.0
+        for <linux-i2c@vger.kernel.org>; Thu, 28 Apr 2016 12:37:58 -0700 (PDT)
+In-Reply-To: <20160428174215.GS3217@sirena.org.uk>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
 
-Hello,
+On Thu, Apr 28, 2016 at 8:42 PM, Mark Brown <broonie@kernel.org> wrote:
+> On Wed, Apr 20, 2016 at 01:39:04AM +0300, Octavian Purdila wrote:
+>
+>> +     switch (value) {
+>> +     case ACPI_RECONFIG_DEVICE_ADD:
+>> +             master = acpi_spi_find_master_by_adev(adev->parent);
+>> +             if (!master)
+>> +                     break;
+>> +
+>> +             acpi_register_spi_device(master, adev);
+>> +             put_device(&master->dev);
+>> +             break;
+>> +     case ACPI_RECONFIG_DEVICE_REMOVE:
+>> +             spi = acpi_spi_find_device_by_adev(adev);
+>> +             if (!spi)
+>> +                     break;
+>
+> There's more code here now than I remember but this all looks *really*
+> close to the DT code except for the OF_POPULATED flag that we set when
+> things are instantiated in DT.  The duplication seems bad but the fact
+> that we're missing the flag worries me...  do we have guarantees that
+> ACPI won't double register?
 
-I have written an Kernel driver for the LTC1760 which is basically an
-charger which can handle 2 batteries. Datasheet can be found at
-http://www.linear.com/product/LTC1760
-
-However, the device has one speciality: Hence it handles two smart
-batteries, which are expected to sit on I2C address 0x0b, it implements
-an i2c mux. As the device does so, my driver does also (using
-i2c_add_mux_adapter() call).
-Further more, Linux already ships with an driver capable to talk to
-these smart battery chips, namely "sbs-battery".
-
-I currently using device tree to bind the LTC1760 to the smbus it sits
-on and further to define the i2c-lines it implements as well as the
-batteries sitting on the two muxed lines.
-
-Would you say this approach is technically right? The LTC expects SBS
-compliant batteries connected to it, which implies a standard minimal
-interface. But binding the batteries via device tree gives the user the
-freedom to specify a more specialized driver.
-On the other hand one could argue that if the LTC is present, also
-batteries are (potentially) present and the LTC driver is responsible to
-read the related registers and provide proper PM attributes. Personally
-I don't like to rewrite or copy code wich works just fine...
-
-Greetings
-Karl-Heinz Schneider
-
+We use the adev->flags.visited to check when a device has been already
+enumerated, and we skip registering a new SPI slave in that case.
