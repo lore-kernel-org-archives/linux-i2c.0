@@ -1,61 +1,79 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC PATCH v2 06/10] spi: add support for ACPI reconfigure
- notifications
-Date: Thu, 28 Apr 2016 18:42:15 +0100
-Message-ID: <20160428174215.GS3217@sirena.org.uk>
-References: <1461105548-20618-1-git-send-email-octavian.purdila@intel.com>
- <1461105548-20618-7-git-send-email-octavian.purdila@intel.com>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
+ PCI BAR
+Date: Thu, 28 Apr 2016 11:34:38 -0700
+Message-ID: <577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
+References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Fbmjlltyndrrs22i"
-Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1461105548-20618-7-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:50383 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751865AbcD1Sem (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 28 Apr 2016 14:34:42 -0400
+In-Reply-To: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
 
+On 04/28/2016 03:23 AM, Mika Westerberg wrote:
+> Many Intel systems the BIOS declares a SystemIO OpRegion below the SMBus
+> PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
+>
+>   Device (SBUS)
+>   {
+>       OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
+>       Field (SMBI, ByteAcc, NoLock, Preserve)
+>       {
+>           HSTS,   8,
+>           Offset (0x02),
+>           HCON,   8,
+>           HCOM,   8,
+>           TXSA,   8,
+>           DAT0,   8,
+>           DAT1,   8,
+>           HBDR,   8,
+>           PECR,   8,
+>           RXSA,   8,
+>           SDAT,   16
+>       }
+>
+> There are also bunch of ASL methods that that the BIOS can use to access
+> these fields. Most of the systems in question ASL methods accessing the
+> SMBI OpRegion are never used.
+>
+> Now, because of this SMBI OpRegion many systems fail to load the SMBus
+> driver with an error looking like one below:
+>
+>   ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305F
+>        conflicts with OpRegion 0x0000000000003040-0x000000000000304F
+>        (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
+>   ACPI: If an ACPI driver is available for this device, you should use
+>        it instead of the native driver
+>
+> The reason is that this SMBI OpRegion conflicts with the PCI BAR used by
+> the SMBus driver.
+>
+> It turns out that we can install a custom SystemIO address space handler
+> for the SMBus device to intercept all accesses through that OpRegion. This
+> allows us to share the PCI BAR with the ASL code if it for some reason is
+> using it. We do not expect that this OpRegion handler will ever be called
+> but if it is we print a warning and execute the read/write operation under
+> a lock which prevents ASL and OS from messing each other.
 
---Fbmjlltyndrrs22i
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Tested-by: Andy Lutomirski <luto@kernel.org> # Dell XPS 13 9350
 
-On Wed, Apr 20, 2016 at 01:39:04AM +0300, Octavian Purdila wrote:
+This successfully works around:
 
-> +	switch (value) {
-> +	case ACPI_RECONFIG_DEVICE_ADD:
-> +		master = acpi_spi_find_master_by_adev(adev->parent);
-> +		if (!master)
-> +			break;
-> +
-> +		acpi_register_spi_device(master, adev);
-> +		put_device(&master->dev);
-> +		break;
-> +	case ACPI_RECONFIG_DEVICE_REMOVE:
-> +		spi = acpi_spi_find_device_by_adev(adev);
-> +		if (!spi)
-> +			break;
+https://bugzilla.kernel.org/show_bug.cgi?id=110041
 
-There's more code here now than I remember but this all looks *really*
-close to the DT code except for the OF_POPULATED flag that we set when
-things are instantiated in DT.  The duplication seems bad but the fact
-that we're missing the flag worries me...  do we have guarantees that
-ACPI won't double register?
+but the BIOS people should still fix their ASL.  Sigh.
 
---Fbmjlltyndrrs22i
-Content-Type: application/pgp-signature; name="signature.asc"
+On the Dell laptop, the observable effect is that the driver loads and 
+finds the iTCO thing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Pali, this may be considerably more useful on your laptop.
 
-iQEcBAEBCAAGBQJXIkt2AAoJECTWi3JdVIfQpzsH/1n7hl+pE1kFRXGcgoE4Nfpc
-owPTtbAhGra2SXpf0bg9kFHrkidpshYpNMp2I5bBma1pr97xWvWVkksUNCb+zD/X
-97x+eOBfVXAogdmrcorGbBWgF5Q/2o55oED9jPlHAufF7yXJhvxCrtD7hE2qWaEj
-xlvLE9w5BGmVQpg03emG/PIYVCV5LcFzmuA3UbYCe1uEp/xUb2IJbFm+6y2urIAw
-TN0/+aG5eRl+E90omFsswtCbSBtGVa8+HCPt135FxBCYuLz/FnaORmSKV2tjPMWF
-YcsnscsJODp550pbAtCGoOAjj6oZAnMZwx6gn7chT0r1unSBzp9ukUhSCLsmlDc=
-=oKzG
------END PGP SIGNATURE-----
-
---Fbmjlltyndrrs22i--
+--Andy
