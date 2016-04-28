@@ -1,54 +1,48 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v7 16/24] i2c: allow adapter drivers to override the
- adapter locking
-Date: Thu, 28 Apr 2016 23:08:26 +0200
-Message-ID: <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
-References: <1461165484-2314-1-git-send-email-peda@axentia.se>
- <1461165484-2314-17-git-send-email-peda@axentia.se>
- <20160428205018.GA3553@katana>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v6] i2c: rk3x: add i2c support for rk3399 soc
+Date: Thu, 28 Apr 2016 14:28:34 -0700
+Message-ID: <CAD=FV=WxoZArMyhAPEmhG4FVHqhd-snMt59_Hk=BVsP2hZBxpw@mail.gmail.com>
+References: <1458147438-62387-3-git-send-email-david.wu@rock-chips.com>
+	<1461074137-23899-1-git-send-email-david.wu@rock-chips.com>
+	<CAD=FV=U7Vsnh8RZjZ=an0Sfb+soS=+v1icoH=kL1huCR_9TTgA@mail.gmail.com>
+	<572212AE.5060904@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20160428205018.GA3553@katana>
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.koz>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-yw0-f176.google.com ([209.85.161.176]:35170 "EHLO
+	mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753806AbcD1V2f (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Apr 2016 17:28:35 -0400
+Received: by mail-yw0-f176.google.com with SMTP id g133so129297645ywb.2
+        for <linux-i2c@vger.kernel.org>; Thu, 28 Apr 2016 14:28:34 -0700 (PDT)
+In-Reply-To: <572212AE.5060904@rock-chips.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "David.Wu" <david.wu@rock-chips.com>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Wu <wdc@rock-chips.com>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>
 
+Hi,
 
-
-On 2016-04-28 22:50, Wolfram Sang wrote:
-> On Wed, Apr 20, 2016 at 05:17:56PM +0200, Peter Rosin wrote:
->> Add i2c_lock_bus() and i2c_unlock_bus(), which call the new lock_bus and
->> unlock_bus ops in the adapter. These funcs/ops take an additional flags
->> argument that indicates for what purpose the adapter is locked.
->>
->> There are two flags, I2C_LOCK_ADAPTER and I2C_LOCK_SEGMENT, but they are
->> both implemented the same. For now. Locking the adapter means that the
->> whole bus is locked, locking the segment means that only the current bus
->> segment is locked (i.e. i2c traffic on the parent side of mux is still
->> allowed even if the child side of the mux is locked.
->>
->> Also support a trylock_bus op (but no function to call it, as it is not
->> expected to be needed outside of the i2c core).
->>
->> Implement i2c_lock_adapter/i2c_unlock_adapter in terms of the new locking
->> scheme (i.e. lock with the I2C_LOCK_ADAPTER flag).
->>
->> Annotate some of the locking with explicit I2C_LOCK_SEGMENT flags.
->>
->> Signed-off-by: Peter Rosin <peda@axentia.se>
-> Letting you know that I start reviewing the 2nd part of your series. Did
-> the first glimpse today. Will hopefully do the in-depth part this
-> weekend. One thing already:
+On Thu, Apr 28, 2016 at 6:39 AM, David.Wu <david.wu@rock-chips.com> wrote:
+> +enum rk3x_i2c_bus_speed {
+> +       I2C_FS_SPD,
+> +       I2C_HS_SPD
+> +};
+> +
+> +struct rk3x_i2c;
 >
->> +static void i2c_adapter_lock_bus(struct i2c_adapter *adapter, int flags)
-> Shouldn't flags be unsigned?
+> Why do you need this forward definition?  Seems like it's not
+> necessary.  Remove?
 >
+>
+> I think we need a Master_Code state to seperate from other state.
 
-Yes, obviously... I'll make that change locally and wait for the rest.
+I meant remove the line above the contains just:
 
-Cheers,
-Peter
+  struct rk3x_i2c;
 
+...I don't believe it's needed.  You only need a forward declaration
+like that if you refer to the structure before it's defined.
+
+
+-Doug
