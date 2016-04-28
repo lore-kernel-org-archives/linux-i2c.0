@@ -1,198 +1,199 @@
-From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: Re: [PATCH 11/12] nvmem: mxs-ocotp: remove nvmem regmap dependency
-Date: Thu, 28 Apr 2016 08:50:34 +0200
-Message-ID: <5721B2BA.4080100@i2se.com>
-References: <1461526096-29584-1-git-send-email-srinivas.kandagatla@linaro.org>
- <1461526096-29584-12-git-send-email-srinivas.kandagatla@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1461526096-29584-12-git-send-email-srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: andrew-g2DYL2Zd6BY@public.gmane.org, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with PCI BAR
+Date: Thu, 28 Apr 2016 13:23:30 +0300
+Message-ID: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Srinivas,
+Many Intel systems the BIOS declares a SystemIO OpRegion below the SMBus
+PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
 
-Am 24.04.2016 um 21:28 schrieb Srinivas Kandagatla:
-> This patch moves to nvmem support in the driver to use callback
-> instead of regmap.
->
-> Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/nvmem/mxs-ocotp.c | 79 +++++++++++++----------------------------------
->  1 file changed, 21 insertions(+), 58 deletions(-)
->
-> diff --git a/drivers/nvmem/mxs-ocotp.c b/drivers/nvmem/mxs-ocotp.c
-> index 8ba19bb..3bf962c 100644
-> --- a/drivers/nvmem/mxs-ocotp.c
-> +++ b/drivers/nvmem/mxs-ocotp.c
+  Device (SBUS)
+  {
+      OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
+      Field (SMBI, ByteAcc, NoLock, Preserve)
+      {
+          HSTS,   8,
+          Offset (0x02),
+          HCON,   8,
+          HCOM,   8,
+          TXSA,   8,
+          DAT0,   8,
+          DAT1,   8,
+          HBDR,   8,
+          PECR,   8,
+          RXSA,   8,
+          SDAT,   16
+      }
 
-the include of regmap.h should also be removed.
+There are also bunch of ASL methods that that the BIOS can use to access
+these fields. Most of the systems in question ASL methods accessing the
+SMBI OpRegion are never used.
 
-> @@ -66,11 +66,10 @@ static int mxs_ocotp_wait(struct mxs_ocotp *otp)
->  	return 0;
->  }
->  
-> -static int mxs_ocotp_read(void *context, const void *reg, size_t reg_size,
-> -			  void *val, size_t val_size)
-> +static int mxs_ocotp_read(void *context, unsigned int offset,
-> +			  void *val, size_t bytes)
->  {
->  	struct mxs_ocotp *otp = context;
-> -	unsigned int offset = *(u32 *)reg;
->  	u32 *buf = val;
->  	int ret;
->  
-> @@ -94,17 +93,16 @@ static int mxs_ocotp_read(void *context, const void *reg, size_t reg_size,
->  	if (ret)
->  		goto close_banks;
->  
-> -	while (val_size) {
-> +	while (bytes) {
->  		if ((offset < OCOTP_DATA_OFFSET) || (offset % 16)) {
->  			/* fill up non-data register */
-> -			*buf = 0;
-> +			*buf++ = 0;
->  		} else {
-> -			*buf = readl(otp->base + offset);
-> +			*buf++ = readl(otp->base + offset);
->  		}
->  
-> -		buf++;
-> -		val_size--;
-> -		offset += reg_size;
-> +		bytes -= 4;
-> +		offset += 4;
+Now, because of this SMBI OpRegion many systems fail to load the SMBus
+driver with an error looking like one below:
 
-This change would also fix the buffer overflow but Stanislav's patch
-should be applied before to get the fix in stable.
+  ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305F
+       conflicts with OpRegion 0x0000000000003040-0x000000000000304F
+       (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
+  ACPI: If an ACPI driver is available for this device, you should use
+       it instead of the native driver
 
->  	}
->  
->  close_banks:
-> @@ -117,57 +115,28 @@ disable_clk:
->  	return ret;
->  }
->  
-> -static int mxs_ocotp_write(void *context, const void *data, size_t count)
-> -{
-> -	/* We don't want to support writing */
-> -	return 0;
-> -}
-> -
-> -static bool mxs_ocotp_writeable_reg(struct device *dev, unsigned int reg)
-> -{
-> -	return false;
-> -}
-> -
->  static struct nvmem_config ocotp_config = {
->  	.name = "mxs-ocotp",
-> +	.stride = 16,
-> +	.word_size = 4,
->  	.owner = THIS_MODULE,
+The reason is that this SMBI OpRegion conflicts with the PCI BAR used by
+the SMBus driver.
 
-.reg_read = mxs_ocotp_read,
+It turns out that we can install a custom SystemIO address space handler
+for the SMBus device to intercept all accesses through that OpRegion. This
+allows us to share the PCI BAR with the ASL code if it for some reason is
+using it. We do not expect that this OpRegion handler will ever be called
+but if it is we print a warning and execute the read/write operation under
+a lock which prevents ASL and OS from messing each other.
 
->  };
->  
-> -static const struct regmap_range imx23_ranges[] = {
-> -	regmap_reg_range(OCOTP_DATA_OFFSET, 0x210),
-> -};
-> -
-> -static const struct regmap_access_table imx23_access = {
-> -	.yes_ranges = imx23_ranges,
-> -	.n_yes_ranges = ARRAY_SIZE(imx23_ranges),
-> -};
-> -
-> -static const struct regmap_range imx28_ranges[] = {
-> -	regmap_reg_range(OCOTP_DATA_OFFSET, 0x290),
-> -};
-> -
-> -static const struct regmap_access_table imx28_access = {
-> -	.yes_ranges = imx28_ranges,
-> -	.n_yes_ranges = ARRAY_SIZE(imx28_ranges),
-> +struct imx_data {
-struct mxs_data
+Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-i801.c | 83 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 79 insertions(+), 4 deletions(-)
 
-These chips are named imx2x but the platform is mxs. Please don't ask why.
-> +	int max_reg;
-Since nvmem_config uses "size" instead of "max_reg" we better use "size"
-here, too. This avoids confusion and potential issues see below.
->  };
->  
-> -static struct regmap_bus mxs_ocotp_bus = {
-> -	.read = mxs_ocotp_read,
-> -	.write = mxs_ocotp_write, /* make regmap_init() happy */
-> -	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
-> -	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
-> +static const struct imx_data imx23_data = {
-static const struct mxs_data imx23_data
-> +	.max_reg = 0x210,
-.size = 0x220,
->  };
->  
-> -static struct regmap_config mxs_ocotp_config = {
-> -	.reg_bits = 32,
-> -	.val_bits = 32,
-> -	.reg_stride = 16,
-> -	.writeable_reg = mxs_ocotp_writeable_reg,
-> +static const struct imx_data imx28_data = {
-static const struct mxs_data imx28_data
-> +	.max_reg = 0x290,
-.size = 0x2a0,
->  };
->  
->  static const struct of_device_id mxs_ocotp_match[] = {
-> -	{ .compatible = "fsl,imx23-ocotp", .data = &imx23_access },
-> -	{ .compatible = "fsl,imx28-ocotp", .data = &imx28_access },
-> +	{ .compatible = "fsl,imx23-ocotp", .data = &imx23_data },
-> +	{ .compatible = "fsl,imx28-ocotp", .data = &imx23_data },
-.compatible = "fsl,imx28-ocotp", .data = &imx28_data
->  	{ /* sentinel */},
->  };
->  MODULE_DEVICE_TABLE(of, mxs_ocotp_match);
-> @@ -175,6 +144,7 @@ MODULE_DEVICE_TABLE(of, mxs_ocotp_match);
->  static int mxs_ocotp_probe(struct platform_device *pdev)
->  {
->  	struct device *dev = &pdev->dev;
-> +	struct imx_data *data;
-const struct mxs_data *data
->  	struct mxs_ocotp *otp;
->  	struct resource *res;
->  	const struct of_device_id *match;
-> @@ -205,17 +175,10 @@ static int mxs_ocotp_probe(struct platform_device *pdev)
->  		return ret;
->  	}
->  
-> -	access = match->data;
-> -	mxs_ocotp_config.rd_table = access;
-> -	mxs_ocotp_config.max_register = access->yes_ranges[0].range_max;
-> -
-> -	regmap = devm_regmap_init(dev, &mxs_ocotp_bus, otp, &mxs_ocotp_config);
-> -	if (IS_ERR(regmap)) {
-> -		dev_err(dev, "regmap init failed\n");
-> -		ret = PTR_ERR(regmap);
-> -		goto err_clk;
-> -	}
-> +	data = match->data;
->  
-> +	ocotp_config.size = data->max_reg;
-data->size
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 5652bf6ce9be..7c0957870ee8 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -247,6 +247,9 @@ struct i801_priv {
+ 	struct platform_device *mux_pdev;
+ #endif
+ 	struct platform_device *tco_pdev;
++
++	/* Serialize ACPI ASL and OS access to the registers */
++	struct mutex acpi_lock;
+ };
+ 
+ #define FEATURE_SMBUS_PEC	(1 << 0)
+@@ -721,6 +724,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 	struct i801_priv *priv = i2c_get_adapdata(adap);
+ 
+ 	pm_runtime_get_sync(&priv->pci_dev->dev);
++	mutex_lock(&priv->acpi_lock);
+ 
+ 	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
+ 		&& size != I2C_SMBUS_QUICK
+@@ -820,6 +824,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 	}
+ 
+ out:
++	mutex_unlock(&priv->acpi_lock);
+ 	pm_runtime_mark_last_busy(&priv->pci_dev->dev);
+ 	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
+ 	return ret;
+@@ -1260,6 +1265,75 @@ static void i801_add_tco(struct i801_priv *priv)
+ 	priv->tco_pdev = pdev;
+ }
+ 
++#ifdef CONFIG_ACPI
++static acpi_status
++i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
++		     u64 *value, void *handler_context, void *region_context)
++{
++	struct i801_priv *priv = handler_context;
++	struct pci_dev *pdev = priv->pci_dev;
++	acpi_status status;
++
++	dev_warn_once(&pdev->dev,
++		      "BIOS is accessing SMBus registers from ASL\n");
++
++	/*
++	 * ASL code is trying to access the I/O port. Make sure we do not
++	 * access the bus at the same time from OS side by taking the lock
++	 * here.
++	 */
++	pm_runtime_get_sync(&pdev->dev);
++	mutex_lock(&priv->acpi_lock);
++
++	if (function == ACPI_READ) {
++		u32 val = (u32)*value;
++		status = acpi_os_read_port(address, &val, bits);
++		if (ACPI_SUCCESS(status))
++			*value = val;
++	} else {
++		status = acpi_os_write_port(address, (u32)*value, bits);
++	}
++
++	mutex_unlock(&priv->acpi_lock);
++	pm_runtime_mark_last_busy(&pdev->dev);
++	pm_runtime_put_autosuspend(&pdev->dev);
++
++	return status;
++}
++
++static int i801_acpi_probe(struct i801_priv *priv)
++{
++	struct acpi_device *adev;
++	acpi_status status;
++
++	adev = ACPI_COMPANION(&priv->pci_dev->dev);
++	if (adev) {
++		status = acpi_install_address_space_handler(adev->handle,
++				ACPI_ADR_SPACE_SYSTEM_IO, i801_acpi_io_handler,
++				NULL, priv);
++		if (ACPI_SUCCESS(status))
++			return 0;
++	}
++
++	return acpi_check_resource_conflict(&priv->pci_dev->resource[SMBBAR]);
++}
++
++static void i801_acpi_remove(struct i801_priv *priv)
++{
++	struct acpi_device *adev;
++
++	adev = ACPI_COMPANION(&priv->pci_dev->dev);
++	if (!adev)
++		return;
++
++	acpi_remove_address_space_handler(adev->handle,
++		ACPI_ADR_SPACE_SYSTEM_IO, i801_acpi_io_handler);
++}
++#else
++static inline int i801_acpi_probe(struct i801_priv *priv) { return 0; }
++static inline void i801_acpi_remove(struct i801_priv *priv) { }
++#endif
++
+ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	unsigned char temp;
+@@ -1277,6 +1351,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	priv->adapter.dev.parent = &dev->dev;
+ 	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&dev->dev));
+ 	priv->adapter.retries = 3;
++	mutex_init(&priv->acpi_lock);
+ 
+ 	priv->pci_dev = dev;
+ 	switch (dev->device) {
+@@ -1339,10 +1414,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		return -ENODEV;
+ 	}
+ 
+-	err = acpi_check_resource_conflict(&dev->resource[SMBBAR]);
+-	if (err) {
+-		return -ENODEV;
+-	}
++	err = i801_acpi_probe(priv);
++	if (err)
++		return err;
+ 
+ 	err = pcim_iomap_regions(dev, 1 << SMBBAR,
+ 				 dev_driver_string(&dev->dev));
+@@ -1439,6 +1513,7 @@ static void i801_remove(struct pci_dev *dev)
+ 	pm_runtime_forbid(&dev->dev);
+ 	pm_runtime_get_noresume(&dev->dev);
+ 
++	i801_acpi_remove(priv);
+ 	i801_del_mux(priv);
+ 	i2c_del_adapter(&priv->adapter);
+ 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
+-- 
+2.8.0.rc3
 
-Regards
-Stefan
-> +	ocotp_config.priv = otp;
->  	ocotp_config.dev = dev;
->  	otp->nvmem = nvmem_register(&ocotp_config);
->  	if (IS_ERR(otp->nvmem)) {
