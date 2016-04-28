@@ -1,199 +1,112 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with PCI BAR
-Date: Thu, 28 Apr 2016 13:23:30 +0300
-Message-ID: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: Re: [PATCH] iio: inv_mpu6050: Add support for auxiliary I2C master
+Date: Thu, 28 Apr 2016 13:39:45 +0300
+Message-ID: <5721E871.8010003@intel.com>
+References: <5b1937140558514b3e43ed2c21ee860ecbac61ec.1461172603.git.leonard.crestez@intel.com>
+ <a978ad85-8191-7506-8090-809f89d0b2e2@kernel.org>
+ <6ab228db-9695-ac22-9c65-fd15c4837c45@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <6ab228db-9695-ac22-9c65-fd15c4837c45@axentia.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Many Intel systems the BIOS declares a SystemIO OpRegion below the SMBus
-PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
+On 04/27/2016 11:39 AM, Peter Rosin wrote:
+> On 2016-04-23 23:32, Jonathan Cameron wrote:
+>> On 20/04/16 18:17, Crestez Dan Leonard wrote:
+>>> The MPU has an auxiliary I2C bus for connecting external
+>>> sensors. This bus has two operating modes:
+>>> * pass-through, which connects the primary and auxiliary busses
+>>> together. This is already supported via an i2c mux.
+>>> * I2C master mode, where the mpu60x0 acts as a master to any external
+>>> connected sensors. This is implemented by this patch.
+>>>
+>>> This I2C master mode also works when the MPU itself is connected via
+>>> SPI.
+>>>
+>>> I2C master supports up to 5 slaves. Slaves 0-3 have a common operating
+>>> mode while slave 4 is different. This patch implements an i2c adapter
+>>> using slave 4 because it has a cleaner interface and it has an
+>>> interrupt that signals when data from slave to master arrived.
+>>>
+>>> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+>> This one needs acks from:
+>>
+>> Device tree maintainer (odd binding ;)
+>> Peter Rosin (odd binding interacting with the mux support)
+>> Wolfram (it has a whole i2c master driver in here).
+>>
+>> (just thought I'd list these for the avoidance of doubt).
+> 
+> I spot some overlap with the questions in "[RFC] i2c: device-tree:
+> Handling child nodes which are not i2c devices"
+> http://marc.info/?l=linux-i2c&m=146073452819116&w=2
+> 
+> And I think I agree with Stephen Warren that an intermediate placeholder
+> node would make sense. I.e.
+> 
+>     mpu6050@68 {
+>         compatible = "...";
+>         reg = <0x68>;
+>         ...
+>         i2c-aux-mux {
+>             i2c@0 {
+>                 #address-cells = <1>;
+>                 #size-cells = <0>;
+>                 reg = <0>;
+> 
+>                 foo@44 {
+>                     compatible = "bar";
+>                     reg = <0x44>;
+>                     ...
+>                 }
+>             }
+>         }
+>     }
+> 
+> Or
+> 
+>     mpu6050@68 {
+>         compatible = "...";
+>         reg = <0x68>;
+>         ...
+>         i2c-aux-master {
+>             #address-cells = <1>;
+>             #size-cells = <0>;
+> 
+>             gazonk@44 {
+>                 compatible = "baz";
+>                 reg = <0x44>;
+>                 ...
+>             }
+>         }
+>     }
+> 
+> depending on if you want an aux-mux or an aux-master.
+> 
+> But I don't know if that intermediate i2c-aux-mux node causes any
+> problems?
 
-  Device (SBUS)
-  {
-      OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
-      Field (SMBI, ByteAcc, NoLock, Preserve)
-      {
-          HSTS,   8,
-          Offset (0x02),
-          HCON,   8,
-          HCOM,   8,
-          TXSA,   8,
-          DAT0,   8,
-          DAT1,   8,
-          HBDR,   8,
-          PECR,   8,
-          RXSA,   8,
-          SDAT,   16
-      }
+It's not clear how that would be implemented. It seems to me that right
+now i2c_add_mux_adapter assumes that the parent device is a dedicated
+mux device and all it's children are mux branches. Would this require
+introducing a new "struct device" for the i2c-aux-master node?
 
-There are also bunch of ASL methods that that the BIOS can use to access
-these fields. Most of the systems in question ASL methods accessing the
-SMBI OpRegion are never used.
+It might make sense to make the automatic processing of the parents
+node's of_node optional and let the caller assign the of_node describing
+the attached devices.
 
-Now, because of this SMBI OpRegion many systems fail to load the SMBus
-driver with an error looking like one below:
+I think the most natural solution would be to require child nodes named
+i2c-aux-mux and i2c-aux-master to describe aux devices. For backwards
+compatibility it would be easiest to go with i2c@0/i2c@1 (identified by
+reg=0/1).
 
-  ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305F
-       conflicts with OpRegion 0x0000000000003040-0x000000000000304F
-       (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
-  ACPI: If an ACPI driver is available for this device, you should use
-       it instead of the native driver
+But I don't know much about devicetree and I'd rather accept an external
+suggestion.
 
-The reason is that this SMBI OpRegion conflicts with the PCI BAR used by
-the SMBus driver.
-
-It turns out that we can install a custom SystemIO address space handler
-for the SMBus device to intercept all accesses through that OpRegion. This
-allows us to share the PCI BAR with the ASL code if it for some reason is
-using it. We do not expect that this OpRegion handler will ever be called
-but if it is we print a warning and execute the read/write operation under
-a lock which prevents ASL and OS from messing each other.
-
-Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/i2c/busses/i2c-i801.c | 83 ++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 79 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 5652bf6ce9be..7c0957870ee8 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -247,6 +247,9 @@ struct i801_priv {
- 	struct platform_device *mux_pdev;
- #endif
- 	struct platform_device *tco_pdev;
-+
-+	/* Serialize ACPI ASL and OS access to the registers */
-+	struct mutex acpi_lock;
- };
- 
- #define FEATURE_SMBUS_PEC	(1 << 0)
-@@ -721,6 +724,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	struct i801_priv *priv = i2c_get_adapdata(adap);
- 
- 	pm_runtime_get_sync(&priv->pci_dev->dev);
-+	mutex_lock(&priv->acpi_lock);
- 
- 	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
- 		&& size != I2C_SMBUS_QUICK
-@@ -820,6 +824,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	}
- 
- out:
-+	mutex_unlock(&priv->acpi_lock);
- 	pm_runtime_mark_last_busy(&priv->pci_dev->dev);
- 	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
- 	return ret;
-@@ -1260,6 +1265,75 @@ static void i801_add_tco(struct i801_priv *priv)
- 	priv->tco_pdev = pdev;
- }
- 
-+#ifdef CONFIG_ACPI
-+static acpi_status
-+i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
-+		     u64 *value, void *handler_context, void *region_context)
-+{
-+	struct i801_priv *priv = handler_context;
-+	struct pci_dev *pdev = priv->pci_dev;
-+	acpi_status status;
-+
-+	dev_warn_once(&pdev->dev,
-+		      "BIOS is accessing SMBus registers from ASL\n");
-+
-+	/*
-+	 * ASL code is trying to access the I/O port. Make sure we do not
-+	 * access the bus at the same time from OS side by taking the lock
-+	 * here.
-+	 */
-+	pm_runtime_get_sync(&pdev->dev);
-+	mutex_lock(&priv->acpi_lock);
-+
-+	if (function == ACPI_READ) {
-+		u32 val = (u32)*value;
-+		status = acpi_os_read_port(address, &val, bits);
-+		if (ACPI_SUCCESS(status))
-+			*value = val;
-+	} else {
-+		status = acpi_os_write_port(address, (u32)*value, bits);
-+	}
-+
-+	mutex_unlock(&priv->acpi_lock);
-+	pm_runtime_mark_last_busy(&pdev->dev);
-+	pm_runtime_put_autosuspend(&pdev->dev);
-+
-+	return status;
-+}
-+
-+static int i801_acpi_probe(struct i801_priv *priv)
-+{
-+	struct acpi_device *adev;
-+	acpi_status status;
-+
-+	adev = ACPI_COMPANION(&priv->pci_dev->dev);
-+	if (adev) {
-+		status = acpi_install_address_space_handler(adev->handle,
-+				ACPI_ADR_SPACE_SYSTEM_IO, i801_acpi_io_handler,
-+				NULL, priv);
-+		if (ACPI_SUCCESS(status))
-+			return 0;
-+	}
-+
-+	return acpi_check_resource_conflict(&priv->pci_dev->resource[SMBBAR]);
-+}
-+
-+static void i801_acpi_remove(struct i801_priv *priv)
-+{
-+	struct acpi_device *adev;
-+
-+	adev = ACPI_COMPANION(&priv->pci_dev->dev);
-+	if (!adev)
-+		return;
-+
-+	acpi_remove_address_space_handler(adev->handle,
-+		ACPI_ADR_SPACE_SYSTEM_IO, i801_acpi_io_handler);
-+}
-+#else
-+static inline int i801_acpi_probe(struct i801_priv *priv) { return 0; }
-+static inline void i801_acpi_remove(struct i801_priv *priv) { }
-+#endif
-+
- static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	unsigned char temp;
-@@ -1277,6 +1351,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	priv->adapter.dev.parent = &dev->dev;
- 	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&dev->dev));
- 	priv->adapter.retries = 3;
-+	mutex_init(&priv->acpi_lock);
- 
- 	priv->pci_dev = dev;
- 	switch (dev->device) {
-@@ -1339,10 +1414,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 		return -ENODEV;
- 	}
- 
--	err = acpi_check_resource_conflict(&dev->resource[SMBBAR]);
--	if (err) {
--		return -ENODEV;
--	}
-+	err = i801_acpi_probe(priv);
-+	if (err)
-+		return err;
- 
- 	err = pcim_iomap_regions(dev, 1 << SMBBAR,
- 				 dev_driver_string(&dev->dev));
-@@ -1439,6 +1513,7 @@ static void i801_remove(struct pci_dev *dev)
- 	pm_runtime_forbid(&dev->dev);
- 	pm_runtime_get_noresume(&dev->dev);
- 
-+	i801_acpi_remove(priv);
- 	i801_del_mux(priv);
- 	i2c_del_adapter(&priv->adapter);
- 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
--- 
-2.8.0.rc3
-
+Regards,
+Leonard
