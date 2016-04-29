@@ -1,114 +1,43 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
- PCI BAR
-Date: Fri, 29 Apr 2016 11:03:51 +0200
-Message-ID: <20160429090351.GS12528@pali>
-References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
- <577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH v7 16/24] i2c: allow adapter drivers to override the
+ adapter locking
+Date: Fri, 29 Apr 2016 11:16:51 +0200
+Message-ID: <357e6fda-73b3-fb7f-c341-97f09af1943f@axentia.se>
+References: <1461165484-2314-1-git-send-email-peda@axentia.se>
+ <1461165484-2314-17-git-send-email-peda@axentia.se>
+ <20160428205018.GA3553@katana>
+ <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
+ <20160429071604.GB1870@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Mario Limonciello <mario_limonciello@dell.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160429071604.GB1870@katana>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matt Ranostay <matt.ranostay-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Krzysztof Kozlowski <k.koz>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 28 April 2016 11:34:38 Andy Lutomirski wrote:
-> On 04/28/2016 03:23 AM, Mika Westerberg wrote:
-> >Many Intel systems the BIOS declares a SystemIO OpRegion below the S=
-MBus
-> >PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
-> >
-> >  Device (SBUS)
-> >  {
-> >      OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
-> >      Field (SMBI, ByteAcc, NoLock, Preserve)
-> >      {
-> >          HSTS,   8,
-> >          Offset (0x02),
-> >          HCON,   8,
-> >          HCOM,   8,
-> >          TXSA,   8,
-> >          DAT0,   8,
-> >          DAT1,   8,
-> >          HBDR,   8,
-> >          PECR,   8,
-> >          RXSA,   8,
-> >          SDAT,   16
-> >      }
-> >
-> >There are also bunch of ASL methods that that the BIOS can use to ac=
-cess
-> >these fields. Most of the systems in question ASL methods accessing =
-the
-> >SMBI OpRegion are never used.
-> >
-> >Now, because of this SMBI OpRegion many systems fail to load the SMB=
-us
-> >driver with an error looking like one below:
-> >
-> >  ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305F
-> >       conflicts with OpRegion 0x0000000000003040-0x000000000000304F
-> >       (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
-> >  ACPI: If an ACPI driver is available for this device, you should u=
-se
-> >       it instead of the native driver
-> >
-> >The reason is that this SMBI OpRegion conflicts with the PCI BAR use=
-d by
-> >the SMBus driver.
-> >
-> >It turns out that we can install a custom SystemIO address space han=
-dler
-> >for the SMBus device to intercept all accesses through that OpRegion=
-=2E This
-> >allows us to share the PCI BAR with the ASL code if it for some reas=
-on is
-> >using it. We do not expect that this OpRegion handler will ever be c=
-alled
-> >but if it is we print a warning and execute the read/write operation=
- under
-> >a lock which prevents ASL and OS from messing each other.
->=20
-> Tested-by: Andy Lutomirski <luto@kernel.org> # Dell XPS 13 9350
->=20
-> This successfully works around:
->=20
-> https://bugzilla.kernel.org/show_bug.cgi?id=3D110041
->=20
-> but the BIOS people should still fix their ASL.  Sigh.
->=20
-> On the Dell laptop, the observable effect is that the driver loads an=
-d finds
-> the iTCO thing.
->=20
-> Pali, this may be considerably more useful on your laptop.
+On 2016-04-29 09:16, Wolfram Sang wrote:
+>> Yes, obviously... I'll make that change locally and wait for the rest.
+> Another nit: You could use '--strict' with checkpatch and see if you
+> want to fix the issues reported. I am not keen on those (except for
+> 'space around operators'), it's a matter of taste I guess, but maybe you
+> like some of the suggestions.
+>
+Yes, they look like reasonable complaints.
 
-Andy, I am right that I will be able to load i2c-i801.ko driver without
-acpi_enforce_resources=3Dlax parameter?
+So, I fixed all of them locally except the complaint about lack of comment
+on the new struct mutex member in struct si2168_dev (patch 21/24),
+because that patch is Anttis and he's the maintainer of that driver...
 
-If yes, then it sounds good! Finally I would be able to bind
-lis3lv02d_i2c.ko driver for accelerometer which is on my E6440 machine.
+Antti, if you want that fixed as part of this series, send a suitable comment
+for the mutex this way and I'll incorporate it.
 
-Andy, is there any way to tell i2c-i801.ko driver that on i2c bus (whic=
-h
-that driver exports) is present some i2c device? Months ago I got list
-of Latitude machines on which i2c address is that accelerometer present=
-=2E
+Cheers,
+Peter
 
-It is possible to hardcode that mapping (DMI name of laptop --> i2c
-address) into dell-laptop driver, so i2c-i801.ko and lis3lv02d_i2c.ko
-will be automatically loaded and lis3l binded correctly to i801 i2c add=
-ress?
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
 --
-To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
-n
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
