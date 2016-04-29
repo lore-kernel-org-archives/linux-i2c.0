@@ -1,52 +1,63 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v7 22/24] [media] rtl2832: change the i2c gate to be
- mux-locked
-Date: Fri, 29 Apr 2016 08:57:52 +0200
-Message-ID: <20160429065752.GA1870@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v7 16/24] i2c: allow adapter drivers to override the
+ adapter locking
+Date: Fri, 29 Apr 2016 09:16:04 +0200
+Message-ID: <20160429071604.GB1870@katana>
 References: <1461165484-2314-1-git-send-email-peda@axentia.se>
- <1461165484-2314-23-git-send-email-peda@axentia.se>
- <20160428214758.GA4531@katana>
- <4ae65dd6-1197-11d6-ef0a-714c0525cf3a@axentia.se>
+ <1461165484-2314-17-git-send-email-peda@axentia.se>
+ <20160428205018.GA3553@katana>
+ <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="UHN/qo2QbUvPLonB"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:40019 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750925AbcD2HQQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 29 Apr 2016 03:16:16 -0400
 Content-Disposition: inline
-In-Reply-To: <4ae65dd6-1197-11d6-ef0a-714c0525cf3a-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matt Ranostay <matt.ranostay-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Krzysztof Kozlowski <k.kozlo>
+In-Reply-To: <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlo>
 
 
---envbJBWh7q8WU6mo
+--UHN/qo2QbUvPLonB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-> So, I think all is ok, or do you need more than Tested-by?
+> Yes, obviously... I'll make that change locally and wait for the rest.
 
-I think this will do. Thanks!
+Another nit: You could use '--strict' with checkpatch and see if you
+want to fix the issues reported. I am not keen on those (except for
+'space around operators'), it's a matter of taste I guess, but maybe you
+like some of the suggestions.
+
+Thanks,
+
+   Wolfram
 
 
---envbJBWh7q8WU6mo
+--UHN/qo2QbUvPLonB
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXIwXwAAoJEBQN5MwUoCm2UnUP/2B1IrbS77z10XlqIYnwthVF
-tWSEFlv+9wwkLVfpRQ/3aK2gMCAkblwnph3uhOytPLRFDYSbSQQTEmEhZ46RvKhK
-k3oDjzH1xqci5u8w84y+ykWokI/x/xBSsbw/R2ox2OY/LKts92DrYVT2RxFIq2Vt
-+Jt8yfI8gxAOsiRi3qxYnH1FaqboxB/qbGdXKIduZe1yx6V+I2h0fHOLH/IiRF2M
-yoGcDpKrn69VYprAn6HK4+5erdAvT7dNSNoeW/QulBzUrIXs59h3VF3gHGKpRwSZ
-8zoxHAsHlBw6i0Qnd0PGW7BKBu9h7w4NrbShbmmqR+T4UF9f/bA1E9EaWDOM27QA
-v+B40nNV3VRMCLjNW00KdlgUF8LCNbb38dZ2IdK9z+RnuSlVhRD/tguWD4DKJKjs
-KdnDiZ4c1EVio+H/cylyyBV2RRxiWGDCSVwZlSWS66G3ca5wH7dZokFJqr+iTsNK
-kLMeJqsXgOlmbG+D573BgskD+SBvw75ht32LcsKqNw+12InEKzcRNrXwaxLAGvYA
-p4TxXM1hfG9/oiQr3mQ/fup2tUDpg7vqDZIqvJbXg/gCPkxxDE8PNiByQ3VLOKgd
-xPCoVA22rLBMaGqCYmM33fioxA+Embp6AkEhx8vM18xqJfU1kR4ZFYZ/mOhIEMlp
-oUmO+G1ZGXeVVlSFg2cc
-=e09L
+iQIcBAEBAgAGBQJXIwo0AAoJEBQN5MwUoCm2xygP/R5oDbvLxlS7QtNDFqs9YQsb
+ue1CKWIAtDwxVfWhTN4Ux5CvI5qPlwR8XKphfQA2zuZxx0jdndtyLs1rsPMyHXXq
+DHOZES/Sh3KQw2BS6VCIiO845STigGd59qEuRkWIsNPk5ZCoE4ysPsVHVzNb91Uy
+JERiKobdGC4oPL/8OHkq9AKsRlDgq4ljCdHafc4TZktM8fl6R6x0yBJlh1OxcX4z
+93pYx6Z/wRd0c4sMDUYOlEZgwmqVK15BhxkWRiYggdvI7vde3bX5SB25sjpYbNV0
+NBA2pDEj7CqMth6Y+QkxxHaSqsWFe9Zf6mK69RJ11S/61FfBDAh6NKZOEWakZm0R
+hk89WmtwSgyGtQdjadOCZxZykDidlT3wyRjk1bZ7LuK6aon8IIOkWMux3Pa96Dxp
+PwVGpMaSXz24aWKu0FWENYoISP8dKY+pcGoMV2Hah9/21ciengW/Gd1PG/h4aDjO
+87Lqo9JusJ+UI5/mmViL7ev2M6u26jG1UgfPVWyKwWtxFqV4IIU7iVuwxmn17CYn
+OJ6fRQi5R0ImNL/0BF6DY9mqovephJTtMiO7Oc7OXHtM6VtIUGIdSddYBkRgQlFj
+p8g6WMpcH/aO+Ta35w1k1UiTNvA3HS6N1NjcHS/1TBop/ck3SeZWK8pQ26LBJev8
+j9ihkxWB4rcskib6i911
+=Nlmg
 -----END PGP SIGNATURE-----
 
---envbJBWh7q8WU6mo--
+--UHN/qo2QbUvPLonB--
