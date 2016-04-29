@@ -1,62 +1,87 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 22/24] [media] rtl2832: change the i2c gate to be
- mux-locked
-Date: Thu, 28 Apr 2016 23:47:58 +0200
-Message-ID: <20160428214758.GA4531@katana>
-References: <1461165484-2314-1-git-send-email-peda@axentia.se>
- <1461165484-2314-23-git-send-email-peda@axentia.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+From: Andy Lutomirski <luto@kernel.org>
+Subject: [PATCH v3 0/2] i2c_imc: New driver, at long last
+Date: Thu, 28 Apr 2016 18:03:23 -0700
+Message-ID: <cover.1461891499.git.luto@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1461165484-2314-23-git-send-email-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlo>
+To: Wolfram Sang <wsa@the-dreams.de>, Christoph Hellwig <hch@infradead.org>
+Cc: Boaz Harrosh <boaz@plexistor.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Rui Wang <ruiv.wang@gmail.com>, Jean Delvare <jdelvare@suse.de>, Alun Evans <alun@badgerous.net>, Robert Elliott <Elliott@hp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Paul Bolle <pebolle@tiscali.nl>, Tony Luck <tony.luck@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, Andy Lutomirski <luto@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+A few weeks ago, hch reminded me that there are lots of real live
+production users of iMC's SMBUS.  They're currently using low-quality
+userspace hacks or low-quality non-public kernels drivers.  Let's fix
+that.
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This adds i2c_imc, a driver for the SMBUS lines on DIMM slots on
+modern Intel server chips.  Conceptually, I like it a lot -- it's a
+driver for a bus for which we know the exact topology a priori.
+That means that we can actually enumerate the things on the bus
+reasonably cleanly.
 
-On Wed, Apr 20, 2016 at 05:18:02PM +0200, Peter Rosin wrote:
-> The root i2c adapter lock is then no longer held by the i2c mux during
-> accesses behind the i2c gate, and such accesses need to take that lock
-> just like any other ordinary i2c accesses do.
->=20
-> So, declare the i2c gate mux-locked, and zap the regmap overrides
-> that makes the i2c accesses unlocked and use plain old regmap
-> accesses. This also removes the need for the regmap wrappers used by
-> rtl2832_sdr, so deconvolute the code further and provide the regmap
-> handle directly instead of the wrapper functions.
->=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+This driver is a bit weird, but I don't think that merging it will
+cause problems, and there are Real Users (tm) of this hardware on
+Linux, many of whom would benefit from using a reasonably
+high-quality in-tree driver over the various awful userspace hacks
+that are floating around.
 
-Antti, I'd need some tag from you since this is not the i2c realm.
+It has two caveats.
 
+Big caveat: Lots of things like to touch this bus, such as a BMC,
+the memory controller power management stuff, and maybe even SMM
+code.  Intel forgot to define a way to arbitrate between them, nor
+are the SMBUS master regs designed to be poked by multiple things at
+once.  The upshot is that loading this driver is generally unsafe.
+The driver takes some measures to detect contention for the
+registers and shut itself down, but no one should rely on that.
 
---bg08WKrSYDhXBjb5
-Content-Type: application/pgp-signature; name="signature.asc"
+My understanding is that there is or was work in ACPI land to define
+an arbitration mechanism.  Once this happens, we can support it in
+this driver.  In the mean time, this driver has actual users, and
+there are motherboards specifically designed to be used with a
+driver like this.  (I have such a board, and you can even buy them
+on regular online shopping sutes.)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Therefore, I added a module parameter called allow_unsafe_access.  If
+unset, the driver will refuse to load with an informative message.  If
+set, the driver will pr_warn and load.
 
-iQIcBAEBAgAGBQJXIoUOAAoJEBQN5MwUoCm2jusP/j3ToNlZQahVV1UtMvPujy94
-AF3AWGq+Gn1OWavfKFBdJXxQHsqAydIuu5lsxX5+sZALJgR7KjOX3mGRdBS5Nle2
-xDVL5vQzm8QsXHHJ5r4CKL8nKTFxZaDZZ51i+CeuBuuOVVwR/nzUK8Kdgth0s1az
-leYSe8gc7znMcipW5+5JeaCsFOkUX/gHZHcORur5g5vXYHoHjhMvCxbO+KqhTrFc
-VHFhGAMN8ltRlayIHpFMvTW3s4chO5/cONVILcTS3uMpV1VftovuwV2fC9TKaUq5
-NqB2heSPeEAYboNk4cG6FC2LxOkpsl6ux11HrODI/YkMz2he2bbQG7qod6AT0RW2
-yTSPH2Wr0gxlJPBq0JOX4XQF+l0Arx7KY3iR//1H5cCNbBHVE1ABVM7wwTRMhJAF
-9mYON8A1OTmWHyaJ/QRVevdU/0jt2iCvrerctBCljkjRtQZGBSNQyhqwS23HIL+0
-RDSWK7H/L9Hv0lbzNEUPiUpupDxu5HLveu4oYivrTrt6RCN4HWnVr3sIsaa4x7TD
-o0p1LiUew+g2mx0SzGzAy8oXiGxZ6WwYP06GY7jrbqIYwvD180zr+VoFdoKARPzs
-GY7gUsgh87x4fQrQ4XYVRqarp4xMuyzhTUYOD8AAbGbaFCiLPEKK58ytDLqoRctO
-vGQQGn0rRRdpd3Zq8Fn+
-=3zSS
------END PGP SIGNATURE-----
+Little caveat: This submission only supposts Sandy Bridge.  I'd rather
+get it merged without Ivy Bridge and Haswell support and add them later
+(should be easy) rather than trying to make the driver support all
+possible hardware before merging it.
 
---bg08WKrSYDhXBjb5--
+Changes from v2:
+ - Rebased and re-tested.
+
+Changes from v1:
+ - Fix checkpatch license nits.
+ - Fix MODULE_LICENSE.
+ - Add missing parentheses to macros.
+ - Tidy up imc_wait_not_busy.
+ - Clean up post-transaction-completion handling code.
+ - Downgrade a bunch of message severities.
+ - Misc checkpatch stuff.
+ - Move select I2C_DIMM_BUS where it belongs.
+ - Improve comments.
+
+Changes from much earlier:
+ - This was an updated resubmission after about a year of thumb
+   twiddling.
+   
+Andy Lutomirski (2):
+  i2c_imc: New driver for Intel's iMC, found on LGA2011 SNB chips
+  i2c, i2c_imc: Add DIMM bus code
+
+ drivers/i2c/busses/Kconfig    |  23 ++
+ drivers/i2c/busses/Makefile   |   5 +
+ drivers/i2c/busses/dimm-bus.c | 107 ++++++++
+ drivers/i2c/busses/i2c-imc.c  | 570 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/dimm-bus.h  |  20 ++
+ 5 files changed, 725 insertions(+)
+ create mode 100644 drivers/i2c/busses/dimm-bus.c
+ create mode 100644 drivers/i2c/busses/i2c-imc.c
+ create mode 100644 include/linux/i2c/dimm-bus.h
+
+-- 
+2.5.5
