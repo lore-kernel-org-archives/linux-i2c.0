@@ -1,63 +1,78 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 16/24] i2c: allow adapter drivers to override the
- adapter locking
-Date: Fri, 29 Apr 2016 09:16:04 +0200
-Message-ID: <20160429071604.GB1870@katana>
-References: <1461165484-2314-1-git-send-email-peda@axentia.se>
- <1461165484-2314-17-git-send-email-peda@axentia.se>
- <20160428205018.GA3553@katana>
- <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
+ PCI BAR
+Date: Fri, 29 Apr 2016 11:56:15 +0300
+Message-ID: <20160429085615.GK32610@lahna.fi.intel.com>
+References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
+ <577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UHN/qo2QbUvPLonB"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:40019 "EHLO pokefinder.org"
+Received: from mga03.intel.com ([134.134.136.65]:5055 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750925AbcD2HQQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 29 Apr 2016 03:16:16 -0400
+	id S1750752AbcD2I4V (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 29 Apr 2016 04:56:21 -0400
 Content-Disposition: inline
-In-Reply-To: <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
+In-Reply-To: <577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlo>
+To: Andy Lutomirski <luto@kernel.org>
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
 
+On Thu, Apr 28, 2016 at 11:34:38AM -0700, Andy Lutomirski wrote:
+> On 04/28/2016 03:23 AM, Mika Westerberg wrote:
+> >Many Intel systems the BIOS declares a SystemIO OpRegion below the SMBus
+> >PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
+> >
+> >  Device (SBUS)
+> >  {
+> >      OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
+> >      Field (SMBI, ByteAcc, NoLock, Preserve)
+> >      {
+> >          HSTS,   8,
+> >          Offset (0x02),
+> >          HCON,   8,
+> >          HCOM,   8,
+> >          TXSA,   8,
+> >          DAT0,   8,
+> >          DAT1,   8,
+> >          HBDR,   8,
+> >          PECR,   8,
+> >          RXSA,   8,
+> >          SDAT,   16
+> >      }
+> >
+> >There are also bunch of ASL methods that that the BIOS can use to access
+> >these fields. Most of the systems in question ASL methods accessing the
+> >SMBI OpRegion are never used.
+> >
+> >Now, because of this SMBI OpRegion many systems fail to load the SMBus
+> >driver with an error looking like one below:
+> >
+> >  ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305F
+> >       conflicts with OpRegion 0x0000000000003040-0x000000000000304F
+> >       (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
+> >  ACPI: If an ACPI driver is available for this device, you should use
+> >       it instead of the native driver
+> >
+> >The reason is that this SMBI OpRegion conflicts with the PCI BAR used by
+> >the SMBus driver.
+> >
+> >It turns out that we can install a custom SystemIO address space handler
+> >for the SMBus device to intercept all accesses through that OpRegion. This
+> >allows us to share the PCI BAR with the ASL code if it for some reason is
+> >using it. We do not expect that this OpRegion handler will ever be called
+> >but if it is we print a warning and execute the read/write operation under
+> >a lock which prevents ASL and OS from messing each other.
+> 
+> Tested-by: Andy Lutomirski <luto@kernel.org> # Dell XPS 13 9350
 
---UHN/qo2QbUvPLonB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks for testing!
 
-> Yes, obviously... I'll make that change locally and wait for the rest.
+> This successfully works around:
+> 
+> https://bugzilla.kernel.org/show_bug.cgi?id=110041
+> 
+> but the BIOS people should still fix their ASL.  Sigh.
 
-Another nit: You could use '--strict' with checkpatch and see if you
-want to fix the issues reported. I am not keen on those (except for
-'space around operators'), it's a matter of taste I guess, but maybe you
-like some of the suggestions.
-
-Thanks,
-
-   Wolfram
-
-
---UHN/qo2QbUvPLonB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXIwo0AAoJEBQN5MwUoCm2xygP/R5oDbvLxlS7QtNDFqs9YQsb
-ue1CKWIAtDwxVfWhTN4Ux5CvI5qPlwR8XKphfQA2zuZxx0jdndtyLs1rsPMyHXXq
-DHOZES/Sh3KQw2BS6VCIiO845STigGd59qEuRkWIsNPk5ZCoE4ysPsVHVzNb91Uy
-JERiKobdGC4oPL/8OHkq9AKsRlDgq4ljCdHafc4TZktM8fl6R6x0yBJlh1OxcX4z
-93pYx6Z/wRd0c4sMDUYOlEZgwmqVK15BhxkWRiYggdvI7vde3bX5SB25sjpYbNV0
-NBA2pDEj7CqMth6Y+QkxxHaSqsWFe9Zf6mK69RJ11S/61FfBDAh6NKZOEWakZm0R
-hk89WmtwSgyGtQdjadOCZxZykDidlT3wyRjk1bZ7LuK6aon8IIOkWMux3Pa96Dxp
-PwVGpMaSXz24aWKu0FWENYoISP8dKY+pcGoMV2Hah9/21ciengW/Gd1PG/h4aDjO
-87Lqo9JusJ+UI5/mmViL7ev2M6u26jG1UgfPVWyKwWtxFqV4IIU7iVuwxmn17CYn
-OJ6fRQi5R0ImNL/0BF6DY9mqovephJTtMiO7Oc7OXHtM6VtIUGIdSddYBkRgQlFj
-p8g6WMpcH/aO+Ta35w1k1UiTNvA3HS6N1NjcHS/1TBop/ck3SeZWK8pQ26LBJev8
-j9ihkxWB4rcskib6i911
-=Nlmg
------END PGP SIGNATURE-----
-
---UHN/qo2QbUvPLonB--
+For what it's worth Kabylake BIOS should not have this OpRegion anymore.
