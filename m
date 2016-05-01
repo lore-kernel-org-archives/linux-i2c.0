@@ -1,550 +1,801 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC 5/7] iio: inv_mpu6050: Add support for auxiliary I2C master
-Date: Sun, 1 May 2016 18:27:39 +0100
-Message-ID: <7168c23b-8b82-5e57-42fd-b164bee9fa85@kernel.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [RFC 7/7] iio: inv_mpu6050: Add support for external sensors
+Date: Sun, 1 May 2016 18:54:58 +0100
+Message-ID: <a00dadc2-c75f-12fe-8099-f7ed0772677c@kernel.org>
 References: <cover.1461953982.git.leonard.crestez@intel.com>
- <4aeaced7c1c8e222996df4c1b4b71e505ab256f7.1461953982.git.leonard.crestez@intel.com>
+ <c2631025b2405ad01c92964ed185d73647593f17.1461953982.git.leonard.crestez@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4aeaced7c1c8e222996df4c1b4b71e505ab256f7.1461953982.git.leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Ge Gao <GGao-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <Mark.Rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>"devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <c2631025b2405ad01c92964ed185d73647593f17.1461953982.git.leonard.crestez@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Crestez Dan Leonard <leonard.crestez@intel.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, Ge Gao <GGao@invensense.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Mark Rutland <Mark.Rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 On 29/04/16 20:02, Crestez Dan Leonard wrote:
-> The MPU has an auxiliary I2C bus for connecting external
-> sensors. This bus has two operating modes:
-> * pass-through, which connects the primary and auxiliary busses
-> together. This is already supported via an i2c mux.
-> * I2C master mode, where the mpu60x0 acts as a master to any external
-> connected sensors. This is implemented by this patch.
+> This works by copying their channels at probe time.
 > 
-> This I2C master mode also works when the MPU itself is connected via
-> SPI.
-> 
-> I2C master supports up to 5 slaves. Slaves 0-3 have a common operating
-> mode while slave 4 is different. This patch implements an i2c adapter
-> using slave 4 because it has a cleaner interface and it has an
-> interrupt that signals when data from slave to master arrived.
-> 
-> Signed-off-by: Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Quite a few missing cc's here.  Device tree bindings => device tree list
-and maintainers.  Master i2c device => wolfram + linux-i2c.
-All these people need to be included in this sort of discussion.
+> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+This is some mixture of deeply nefarious and rather cool.
+Great bit of work all in all.
 
-The quirk used to avoid unecessary writes to one of the registers bothers
-me in that it's not obviously correct.  Perhaps using a read / write pair
-would be nicer?
+Cc'd device tree list and maintainers - to them - this is downright mad
+hardware - basically a partial i2c offload engine sitting on either i2c or
+spi buses with lots of iritating restrictions but useful stuff like a fifo
+between it and the rest of the world - upshot it's much much faster than
+actually addressing these devices directly... 
+
+First time I read the datasheet for this part - I thought no one would ever
+figure out / go to the effort of supporting this functionality.  Turns
+out I was wrong!
+
+It is the only part I know of allowing this level of flexibility as a sensor
+hub.  Most sensor hubs hide entirely what is going on behind them whereas this
+one exposes what is going on...
+
+Also cc'd the i2c list / Peter, Wolfram and Mark (just because they might be
+interested!)
+
+Jonathan
 > ---
->  .../devicetree/bindings/iio/imu/inv_mpu6050.txt    |  61 +++++-
->  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c         | 239 ++++++++++++++++++++-
->  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h          |  46 ++++
->  drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c      |   8 -
->  4 files changed, 341 insertions(+), 13 deletions(-)
+>  .../devicetree/bindings/iio/imu/inv_mpu6050.txt    |  37 +-
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c         | 420 ++++++++++++++++++++-
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h          |  63 +++-
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c         |  48 ++-
+>  4 files changed, 555 insertions(+), 13 deletions(-)
 > 
 > diff --git a/Documentation/devicetree/bindings/iio/imu/inv_mpu6050.txt b/Documentation/devicetree/bindings/iio/imu/inv_mpu6050.txt
-> index a9fc11e..aaf12b4 100644
+> index aaf12b4..79b8326 100644
 > --- a/Documentation/devicetree/bindings/iio/imu/inv_mpu6050.txt
 > +++ b/Documentation/devicetree/bindings/iio/imu/inv_mpu6050.txt
-> @@ -1,16 +1,27 @@
->  InvenSense MPU-6050 Six-Axis (Gyro + Accelerometer) MEMS MotionTracking Device
+> @@ -23,6 +23,28 @@ Devices connected in "bypass" mode must be listed behind i2c@0 with the address
 >  
-> -http://www.invensense.com/mems/gyro/mpu6050.html
-If this is invalid, please add an up to date link if possible.
-> -
->  Required properties:
-> - - compatible : should be "invensense,mpu6050"
-> - - reg : the I2C address of the sensor
-> + - compatible : should be "invensense,mpuXXXX"
-List them all explicitly here rather than wild cards.
-> + - reg : the I2C or SPI address of the sensor
->   - interrupt-parent : should be the phandle for the interrupt controller
->   - interrupts : interrupt mapping for GPIO IRQ
+>  Devices connected in "master" mode must be listed behind i2c@1 with the address 1
 >  
->  Optional properties:
->   - mount-matrix: an optional 3x3 mounting rotation matrix
-> + - inv,i2c-aux-master: operate aux i2c in "master mode" (default is mux).
+> +It is possible to configure the MPU to automatically fetch reading for
+> +devices connected on the auxiliary i2c bus without CPU intervention. When this
+> +is done the driver will present the channels of the slaved devices as if they
+> +belong to the MPU device itself.
 > +
-> +Valid compatible strings:
-Vendor prefix? These will work for historical reasons, but now vendor
-prefix should definitely be there as well.
-> + - mpu6000
-> + - mpu6050
-> + - mpu6500
-> + - mpu9150
+> +Reads and write to config values (like scaling factors) are forwarded to the
+> +other driver while data reads are handled from MPU registers. The channels are
+> +also available through the MPU's iio triggered buffer mechanism. This feature
+> +can allow sampling up to 24 bytes from 4 slaves at a much higher rate.
 > +
-> +It is possible to attach auxiliary sensors to the MPU and have them be handled
-> +by linux. Those auxiliary sensors are described as an i2c bus.
+> +This is be specified in device tree as an "inv,external-sensors" node which
+> +have children indexed by slave ids 0 to 3. The child node identifying each
+> +external sensor reading has the following properties:
+> + - reg: 0 to 3 slave index
+> + - inv,addr : the I2C address to read from
+> + - inv,reg : the I2C register to read from
+> + - inv,len : read length from the device
+> + - inv,external-channels : list of slaved channels specified by config index.
+I wonder if we want to try and make these generic - probably not until we have
+at least one more device doing something similar...
 > +
-> +Devices connected in "bypass" mode must be listed behind i2c@0 with the address 0
->  
-> +Devices connected in "master" mode must be listed behind i2c@1 with the address 1
->  
+> +The sum of storagebits for external channels must equal the read length. Only
+> +16bit channels are currently supported.
+> +
 >  Example:
 >  	mpu6050@68 {
-> @@ -28,3 +39,45 @@ Example:
->  		               "0",                   /* y2 */
->  		               "0.984807753012208";   /* z2 */
+>  		compatible = "invensense,mpu6050";
+> @@ -61,7 +83,8 @@ Example describing mpu9150 (which includes an ak9875 on chip):
+>  		};
 >  	};
+>  
+> -Example describing a mpu6500 via SPI with an hmc5883l on auxiliary i2c:
+> +Example describing a mpu6500 via SPI with an hmc5883l on aux i2c configured for
+> +automatic external readings as slave 0:
+>  	mpu6500@0 {
+>  		compatible = "inv,mpu6500";
+>  		reg = <0x0>;
+> @@ -80,4 +103,16 @@ Example describing a mpu6500 via SPI with an hmc5883l on auxiliary i2c:
+>  				reg = <0x1e>;
+>  			};
+>  		};
 > +
-> +Example describing mpu9150 (which includes an ak9875 on chip):
-> +	mpu9150@68 {
-> +		compatible = "invensense,mpu9150";
-> +		reg = <0x68>;
-> +		interrupt-parent = <&gpio1>;
-> +		interrupts = <18 1>;
-> +
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		i2c@0 {
-> +			reg = <0>;
+> +		inv,external-sensors {
 > +			#address-cells = <1>;
 > +			#size-cells = <0>;
-> +
-> +			ak8975@0c {
-> +				compatible = "ak,ak8975";
-> +				reg = <0x0c>;
+> +			hmc5833l@0 {
+> +				reg = <0>;
+> +				inv,addr = <0x1e>;
+> +				inv,reg = <3>;
+> +				inv,len = <6>;
+> +				inv,external-channels = <0 1 2>;
 > +			};
 > +		};
-> +	};
-> +
-> +Example describing a mpu6500 via SPI with an hmc5883l on auxiliary i2c:
-> +	mpu6500@0 {
-> +		compatible = "inv,mpu6500";
-> +		reg = <0x0>;
-> +		spi-max-frequency = <1000000>;
-> +		interrupt-parent = <&gpio1>;
-> +		interrupts = <31 1>;
-> +
-> +		inv,i2c-aux-master
-> +		i2c@1 {
-> +			reg = <1>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +
-> +			hmc5883l@1e {
-> +				compatible = "honeywell,hmc5883l";
-> +				reg = <0x1e>;
-> +			};
-> +		};
-> +	};
+>  	};
 > diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> index 5918c23..064fc07 100644
+> index 712e901..224be3c 100644
 > --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
 > +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> @@ -25,6 +25,8 @@
->  #include <linux/iio/iio.h>
->  #include <linux/i2c-mux.h>
->  #include <linux/acpi.h>
-> +#include <linux/completion.h>
+> @@ -41,6 +41,8 @@ static const int gyro_scale_6050[] = {133090, 266181, 532362, 1064724};
+>   */
+>  static const int accel_scale[] = {598, 1196, 2392, 4785};
+>  
+> +#define INV_MPU6050_NUM_INT_CHAN 8
 > +
->  #include "inv_mpu_iio.h"
->  
->  /*
-> @@ -57,6 +59,12 @@ static const struct inv_mpu6050_reg_map reg_set_6500 = {
->  	.int_pin_cfg		= INV_MPU6050_REG_INT_PIN_CFG,
->  	.accl_offset		= INV_MPU6500_REG_ACCEL_OFFSET,
->  	.gyro_offset		= INV_MPU6050_REG_GYRO_OFFSET,
-> +	.slv4_addr		= INV_MPU6050_REG_I2C_SLV4_ADDR,
-> +	.slv4_reg		= INV_MPU6050_REG_I2C_SLV4_REG,
-> +	.slv4_do		= INV_MPU6050_REG_I2C_SLV4_DO,
-> +	.slv4_ctrl		= INV_MPU6050_REG_I2C_SLV4_CTRL,
-> +	.slv4_di		= INV_MPU6050_REG_I2C_SLV4_DI,
-> +	.mst_status		= INV_MPU6050_REG_I2C_MST_STATUS,
->  };
->  
->  static const struct inv_mpu6050_reg_map reg_set_6050 = {
-> @@ -77,6 +85,12 @@ static const struct inv_mpu6050_reg_map reg_set_6050 = {
->  	.int_pin_cfg		= INV_MPU6050_REG_INT_PIN_CFG,
->  	.accl_offset		= INV_MPU6050_REG_ACCEL_OFFSET,
->  	.gyro_offset		= INV_MPU6050_REG_GYRO_OFFSET,
-> +	.slv4_addr		= INV_MPU6050_REG_I2C_SLV4_ADDR,
-> +	.slv4_reg		= INV_MPU6050_REG_I2C_SLV4_REG,
-> +	.slv4_do		= INV_MPU6050_REG_I2C_SLV4_DO,
-> +	.slv4_ctrl		= INV_MPU6050_REG_I2C_SLV4_CTRL,
-> +	.slv4_di		= INV_MPU6050_REG_I2C_SLV4_DI,
-> +	.mst_status		= INV_MPU6050_REG_I2C_MST_STATUS,
->  };
->  
->  static const struct inv_mpu6050_chip_config chip_config_6050 = {
-> @@ -130,6 +144,10 @@ static bool inv_mpu6050_volatile_reg(struct device *dev, unsigned int reg)
->  	case INV_MPU6050_REG_FIFO_COUNT_H:
->  	case INV_MPU6050_REG_FIFO_COUNT_H + 1:
->  	case INV_MPU6050_REG_FIFO_R_W:
-> +	case INV_MPU6050_REG_I2C_MST_STATUS:
-> +	case INV_MPU6050_REG_INT_STATUS:
-> +	case INV_MPU6050_REG_I2C_SLV4_CTRL:
-> +	case INV_MPU6050_REG_I2C_SLV4_DI:
+>  static const struct inv_mpu6050_reg_map reg_set_6500 = {
+>  	.sample_rate_div	= INV_MPU6050_REG_SAMPLE_RATE_DIV,
+>  	.lpf                    = INV_MPU6050_REG_CONFIG,
+> @@ -136,6 +138,9 @@ static bool inv_mpu6050_volatile_reg(struct device *dev, unsigned int reg)
 >  		return true;
->  	default:
->  		return false;
-> @@ -140,6 +158,8 @@ static bool inv_mpu6050_precious_reg(struct device *dev, unsigned int reg)
->  {
+>  	if (reg >= INV_MPU6050_REG_RAW_GYRO && reg < INV_MPU6050_REG_RAW_GYRO + 6)
+>  		return true;
+> +	if (reg < INV_MPU6050_REG_EXT_SENS_DATA_00 + INV_MPU6050_CNT_EXT_SENS_DATA &&
+> +			reg >= INV_MPU6050_REG_EXT_SENS_DATA_00)
+> +		return true;
 >  	switch (reg) {
->  	case INV_MPU6050_REG_FIFO_R_W:
-> +	case INV_MPU6050_REG_I2C_MST_STATUS:
-> +	case INV_MPU6050_REG_INT_STATUS:
->  		return true;
->  	default:
->  		return false;
-> @@ -852,6 +872,196 @@ static int inv_check_and_setup_chip(struct inv_mpu6050_state *st)
->  	return 0;
+>  	case INV_MPU6050_REG_TEMPERATURE:
+>  	case INV_MPU6050_REG_TEMPERATURE + 1:
+> @@ -340,13 +345,115 @@ static int inv_mpu6050_sensor_show(struct inv_mpu6050_state  *st, int reg,
+>  	return IIO_VAL_INT;
 >  }
 >  
-> +static irqreturn_t inv_mpu_irq_handler(int irq, void *private)
+> +static bool iio_chan_needs_swab(const struct iio_chan_spec *chan)
 > +{
-> +	struct inv_mpu6050_state *st = (struct inv_mpu6050_state *)private;
-> +
-> +	iio_trigger_poll(st->trig);
-> +
-> +	return IRQ_WAKE_THREAD;
-> +}
-> +
-> +static irqreturn_t inv_mpu_irq_thread_handler(int irq, void *private)
-> +{
-> +	struct inv_mpu6050_state *st = (struct inv_mpu6050_state *)private;
-> +	int ret, val;
-> +
-> +	ret = regmap_read(st->map, st->reg->mst_status, &val);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +#ifdef CONFIG_I2C
-> +	if (val & INV_MPU6050_BIT_I2C_SLV4_DONE)
-> +		complete(&st->slv4_done);
+> +#if defined(__LITTLE_ENDIAN)
+> +	return chan->scan_type.endianness == IIO_BE;
+> +#elif defined(__BIG_ENDIAN)
+> +	return chan->scan_type.endianness == IIO_LE;
+> +#else
+> +	#error undefined endianness
 > +#endif
-> +
-> +	return IRQ_HANDLED;
 > +}
 > +
-> +#ifdef CONFIG_I2C
-> +static u32 inv_mpu_i2c_functionality(struct i2c_adapter *adap)
+> +/* Convert iio buffer format to IIO_CHAN_INFO_RAW value */
+> +static int iio_bufval_to_rawval(const struct iio_chan_spec *chan, void *buf, int *val)
 > +{
-> +	return I2C_FUNC_SMBUS_BYTE_DATA;
+> +	switch (chan->scan_type.storagebits) {
+> +	case 8: *val = *((u8*)buf); break;
+> +	case 16: *val = *(u16*)buf; break;
+> +	case 32: *val = *(u32*)buf; break;
+> +	default: return -EINVAL;
+> +	}
+> +
+> +	*val >>= chan->scan_type.shift;
+> +	*val &= (1 << chan->scan_type.realbits) - 1;
+> +	if (iio_chan_needs_swab(chan)) {
+> +		if (chan->scan_type.storagebits == 16)
+> +			*val = swab16(*val);
+> +		else if (chan->scan_type.storagebits == 32)
+> +			*val = swab32(*val);
+This needs some explanatory comments!
+> +	}
+> +	if (chan->scan_type.sign == 's')
+> +		*val = sign_extend32(*val, chan->scan_type.storagebits - 1);
+> +
+> +	return 0;
 > +}
 > +
 > +static int
-> +inv_mpu_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr,
-> +		       unsigned short flags, char read_write, u8 command,
-> +		       int size, union i2c_smbus_data *data)
+> +inv_mpu6050_read_raw_external(struct iio_dev *indio_dev,
+> +			      struct iio_chan_spec const *chan,
+> +			      int *val, int *val2, long mask)
 > +{
-> +	struct inv_mpu6050_state *st = i2c_get_adapdata(adap);
-> +	struct iio_dev *indio_dev = iio_priv_to_dev(st);
+> +	int result;
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> +	int chan_index = chan - indio_dev->channels;
+> +	struct inv_mpu6050_ext_chan_state *ext_chan_state =
+> +			&st->ext_chan[chan_index - INV_MPU6050_NUM_INT_CHAN];
+> +	struct inv_mpu6050_ext_sens_state *ext_sens_state =
+> +			&st->ext_sens[ext_chan_state->ext_sens_index];
+> +	struct iio_dev *orig_dev = ext_sens_state->orig_dev;
+> +	const struct iio_chan_spec *orig_chan = &orig_dev->channels[ext_chan_state->orig_chan_index];
+> +	int data_offset;
+> +	int data_length;
+> +	u8 buf[4];
 > +
-> +	unsigned long time_left;
-> +	int result, val;
-> +	u8 ctrl;
+> +	/* Everything but raw data reads is forwarded. */
+> +	if (mask != IIO_CHAN_INFO_RAW)
+> +		return orig_dev->info->read_raw(orig_dev, orig_chan, val, val2, mask);
+Obviously this is useful for testing, but on a polled interface do we actually
+care that it is quicker to go directly?  I'd be tempted to not bother except
+for the buffered mode.
 > +
-> +	/*
-> +	 * The i2c adapter we implement is extremely limited.
-> +	 * Check for callers that don't check functionality bits.
-> +	 *
-> +	 * If we don't check we might succesfully return incorrect data.
-> +	 */
-> +	if (size != I2C_SMBUS_BYTE_DATA) {
-> +		dev_err(&adap->dev, "unsupported xfer rw=%d size=%d\n",
-> +			read_write, size);
-> +		dump_stack();
+> +	/* Raw reads are handled directly. */
+> +	data_offset = INV_MPU6050_REG_EXT_SENS_DATA_00 + ext_chan_state->data_offset;
+> +	data_length = chan->scan_type.storagebits / 8;
+> +	if (data_length > sizeof(buf)) {
 > +		return -EINVAL;
 > +	}
 > +
 > +	mutex_lock(&indio_dev->mlock);
-> +	result = inv_mpu6050_set_power_itg(st, true);
+> +	if (!st->chip_config.enable) {
+> +		result = inv_mpu6050_set_power_itg(st, true);
+> +		if (result)
+> +			goto error_unlock;
+> +	}
+> +	result = regmap_bulk_read(st->map, data_offset, buf, data_length);
+> +	if (result)
+> +		goto error_unpower;
+> +	if (!st->chip_config.enable) {
+> +		result = inv_mpu6050_set_power_itg(st, false);
+> +		if (result)
+> +			goto error_unlock;
+> +	}
 > +	mutex_unlock(&indio_dev->mlock);
-> +	if (result < 0)
+> +
+> +	/* Convert buf to val and return success */
+> +	result = iio_bufval_to_rawval(chan, buf, val);
+> +	if (result)
 > +		return result;
+> +	return IIO_VAL_INT;
 > +
-> +	if (read_write == I2C_SMBUS_WRITE)
-> +		addr |= INV_MPU6050_BIT_I2C_SLV4_W;
-> +	else
-> +		addr |= INV_MPU6050_BIT_I2C_SLV4_R;
+> +error_unpower:
+> +	if (!st->chip_config.enable)
+> +		inv_mpu6050_set_power_itg(st, false);
+> +error_unlock:
+> +	mutex_unlock(&indio_dev->mlock);
+> +	return result;
+> +}
 > +
-> +	/*
-> +	 * Regmap will never ignore writes but it will ignore full-register
-> +	 * updates to the same value.
-Hmm. I'd missed this distinction.  Feels decidely 'interesting'... and makes
-my earlier suggestion invalid as I guess the fields stuff uses update bits
-internally.
-
-> +	 *
-> +	 * This avoids having to touch slv4_addr when doing consecutive
-> +	 * reads/writes with the same device.
-> +	 */
-> +	result = regmap_update_bits(st->map, st->reg->slv4_addr, 0xff, addr);
-> +	if (result < 0)
-> +		return result;
+>  static int
+>  inv_mpu6050_read_raw(struct iio_dev *indio_dev,
+>  		     struct iio_chan_spec const *chan,
+>  		     int *val, int *val2, long mask)
+>  {
+> -	struct inv_mpu6050_state  *st = iio_priv(indio_dev);
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+>  	int ret = 0;
+> +	int chan_index;
 > +
-> +	result = regmap_write(st->map, st->reg->slv4_reg, command);
-> +	if (result < 0)
-> +		return result;
+> +	if (chan < indio_dev->channels || chan > indio_dev->channels + indio_dev->num_channels) {
+> +		return -EINVAL;
+> +	}
+> +	chan_index = chan - indio_dev->channels;
+> +	if (chan_index >= INV_MPU6050_NUM_INT_CHAN)
+> +		return inv_mpu6050_read_raw_external(indio_dev, chan, val, val2, mask);
+>  
+>  	switch (mask) {
+>  	case IIO_CHAN_INFO_RAW:
+> @@ -819,6 +926,309 @@ static const struct iio_info mpu_info = {
+>  	.validate_trigger = inv_mpu6050_validate_trigger,
+>  };
+>  
+> +extern struct device_type iio_device_type;
 > +
-> +	if (read_write == I2C_SMBUS_WRITE) {
-> +		result = regmap_write(st->map, st->reg->slv4_do, data->byte);
-> +		if (result < 0)
-> +			return result;
+> +static int iio_device_from_i2c_client_match(struct device *dev, void *data)
+> +{
+> +	return dev->type == &iio_device_type;
+> +}
+> +
+> +static struct iio_dev* iio_device_from_i2c_client(struct i2c_client* i2c)
+> +{
+> +	struct device *child;
+> +
+> +	child = device_find_child(&i2c->dev, NULL, iio_device_from_i2c_client_match);
+> +
+> +	return (child ? dev_to_iio_dev(child) : NULL);
+> +}
+> +
+> +static int inv_mpu_set_external_reads_enabled(struct inv_mpu6050_state *st, bool en)
+> +{
+> +	int i, result, error = 0;
+> +
+> +	/* Even if there are errors try to disable all slaves. */
+> +	for (i = 0; i < INV_MPU6050_MAX_EXT_SENSORS; ++i) {
+> +		result = regmap_update_bits(st->map, INV_MPU6050_REG_I2C_SLV_CTRL(i),
+> +					    INV_MPU6050_BIT_I2C_SLV_EN,
+> +					    en ?  INV_MPU6050_BIT_I2C_SLV_EN : 0);
+> +		if (result) {
+> +			error = result;
+> +		}
 > +	}
 > +
-> +	ctrl = INV_MPU6050_BIT_SLV4_EN | INV_MPU6050_BIT_SLV4_INT_EN;
-> +	result = regmap_write(st->map, st->reg->slv4_ctrl, ctrl);
-> +	if (result < 0)
+> +	return error;
+> +}
+> +
+> +static int inv_mpu_parse_one_ext_sens(struct device *dev,
+> +				      struct device_node *np,
+> +				      struct inv_mpu6050_ext_sens_spec *spec)
+> +{
+> +	int result;
+> +	u32 addr, reg, len;
+> +
+> +	result = of_property_read_u32(np, "inv,addr", &addr);
+> +	if (result)
+> +		return result;
+> +	result = of_property_read_u32(np, "inv,reg", &reg);
+> +	if (result)
+> +		return result;
+> +	result = of_property_read_u32(np, "inv,len", &len);
+> +	if (result)
 > +		return result;
 > +
-> +	/* Wait for completion for both reads and writes */
-> +	time_left = wait_for_completion_timeout(&st->slv4_done, HZ);
-> +	if (!time_left)
-> +		return -ETIMEDOUT;
+> +	spec->addr = addr;
+> +	spec->reg = reg;
+> +	spec->len = len;
 > +
-> +	if (read_write == I2C_SMBUS_READ) {
-> +		result = regmap_read(st->map, st->reg->slv4_di, &val);
-> +		if (result < 0)
-> +			return result;
-> +		data->byte = val;
-> +	}
-> +
-> +	mutex_lock(&indio_dev->mlock);
-> +	result = inv_mpu6050_set_power_itg(st, false);
-> +	mutex_unlock(&indio_dev->mlock);
+> +	result = of_property_count_u32_elems(np, "inv,external-channels");
 > +	if (result < 0)
 > +		return result;
+> +	spec->num_ext_channels = result;
+> +	spec->ext_channels = devm_kmalloc(dev, spec->num_ext_channels * sizeof(*spec->ext_channels), GFP_KERNEL);
+> +	if (!spec->ext_channels)
+> +		return -ENOMEM;
+> +	result = of_property_read_u32_array(np, "inv,external-channels",
+> +					    spec->ext_channels,
+> +					    spec->num_ext_channels);
+> +	if (result)
+> +		return result;
+> +
 > +	return 0;
 > +}
 > +
-> +static const struct i2c_algorithm inv_mpu_i2c_algo = {
-> +	.smbus_xfer	=	inv_mpu_i2c_smbus_xfer,
-> +	.functionality	=	inv_mpu_i2c_functionality,
-> +};
-> +
-> +static struct device_node *inv_mpu_get_aux_i2c_ofnode(struct device_node *parent)
+> +static int inv_mpu_parse_ext_sens(struct device *dev,
+> +				  struct device_node *node,
+> +				  struct inv_mpu6050_ext_sens_spec *specs)
 > +{
 > +	struct device_node *child;
 > +	int result;
 > +	u32 reg;
 > +
-> +	if (!parent)
-> +		return NULL;
-> +	for_each_child_of_node(parent, child) {
+> +	for_each_available_child_of_node(node, child) {
 > +		result = of_property_read_u32(child, "reg", &reg);
 > +		if (result)
-> +			continue;
-> +		if (reg == 1 && !strcmp(child->name, "i2c"))
-> +			return child;
+> +			return result;
+> +		if (reg > INV_MPU6050_MAX_EXT_SENSORS) {
+> +			dev_err(dev, "External sensor index %u out of range, max %d\n",
+> +				reg, INV_MPU6050_MAX_EXT_SENSORS);
+> +			return -EINVAL;
+> +		}
+> +		result = inv_mpu_parse_one_ext_sens(dev, child, &specs[reg]);
+> +		if (result)
+> +			return result;
 > +	}
 > +
-> +	return NULL;
+> +	return 0;
 > +}
 > +
-> +static int inv_mpu_probe_aux_master(struct iio_dev* indio_dev)
+> +static int inv_mpu_get_ext_sens_spec(struct iio_dev *indio_dev)
 > +{
 > +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
 > +	struct device *dev = regmap_get_device(st->map);
+> +	struct device_node *node;
 > +	int result;
 > +
-> +	/* First check i2c-aux-master property */
-> +	st->i2c_aux_master_mode = of_property_read_bool(dev->of_node,
-> +							"inv,i2c-aux-master");
-> +	if (!st->i2c_aux_master_mode)
+> +	node = of_get_child_by_name(dev->of_node, "inv,external-sensors");
+> +	if (node) {
+> +		result = inv_mpu_parse_ext_sens(dev, node, st->ext_sens_spec);
+> +		if (result)
+> +			dev_err(dev, "Failed to parsing external-sensors devicetree data\n");
+> +		return result;
+> +	}
+> +
+> +	/* Maybe some other way to deal with this? */
+Probably not ;)
+> +
+> +	return 0;
+> +}
+> +
+> +/* Struct used while enumerating devices and matching them */
+> +struct inv_mpu_handle_ext_sensor_fnarg
+> +{
+> +	struct iio_dev *indio_dev;
+> +
+> +	/* Next scan index */
+> +	int scan_index;
+> +	/* Index among external channels */
+> +	int chan_index;
+> +	/* Offset in EXTDATA */
+> +	int data_offset;
+> +	struct iio_chan_spec *channels;
+> +};
+> +
+> +static int inv_mpu_config_external_read(struct inv_mpu6050_state *st, int index,
+> +					const struct inv_mpu6050_ext_sens_spec *spec)
+> +{
+> +	int result;
+> +
+> +	result = regmap_write(st->map, INV_MPU6050_REG_I2C_SLV_ADDR(index),
+> +			      INV_MPU6050_BIT_I2C_SLV_RW | spec->addr);
+> +	if (result)
+> +		return result;
+> +	result = regmap_write(st->map, INV_MPU6050_REG_I2C_SLV_REG(index), spec->reg);
+> +	if (result)
+> +		return result;
+> +	result = regmap_write(st->map, INV_MPU6050_REG_I2C_SLV_CTRL(index),
+> +			      INV_MPU6050_BIT_I2C_SLV_EN | spec->len);
+> +
+> +	return result;
+> +}
+> +
+> +static int inv_mpu_handle_ext_sensor_fn(struct device *dev, void *data)
+> +{
+> +	struct inv_mpu_handle_ext_sensor_fnarg *fnarg = data;
+> +	struct iio_dev *indio_dev = fnarg->indio_dev;
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> +	struct device *mydev = regmap_get_device(st->map);
+> +	struct i2c_client *client;
+> +	struct iio_dev *orig_dev;
+> +	int i, j;
+> +
+> +	client = i2c_verify_client(dev);
+> +	if (!client)
 > +		return 0;
-> +	dev_info(dev, "Configuring aux i2c in master mode\n");
+> +	orig_dev = iio_device_from_i2c_client(client);
+> +	if (!orig_dev)
+> +		return 0;
+> +	for (i = 0; i < INV_MPU6050_MAX_EXT_SENSORS; ++i) {
+> +		int start_data_offset;
+> +		struct inv_mpu6050_ext_sens_spec *ext_sens_spec = &st->ext_sens_spec[i];
+> +		struct inv_mpu6050_ext_sens_state *ext_sens_state = &st->ext_sens[i];
+> +
+> +		if (ext_sens_spec->addr != client->addr)
+> +			continue;
+> +		if (ext_sens_state->orig_dev) {
+> +			dev_warn(&indio_dev->dev, "already found slave with at addr %d\n", client->addr);
+> +			continue;
+> +		}
+> +		dev_info(mydev, "external sensor %d is device %s\n",
+> +				i, orig_dev->name ?: dev_name(&orig_dev->dev));
+> +		ext_sens_state->orig_dev = orig_dev;
+> +		ext_sens_state->scan_mask = 0;
+> +		ext_sens_state->data_len = ext_sens_spec->len;
+> +		start_data_offset = fnarg->data_offset;
+> +
+> +		/* Matched the device (by address). Now process channels: */
+> +		for (j = 0; j < ext_sens_spec->num_ext_channels; ++j) {
+> +			int orig_chan_index;
+> +			const struct iio_chan_spec *orig_chan_spec;
+> +			struct iio_chan_spec *chan_spec;
+> +			struct inv_mpu6050_ext_chan_state *chan_state;
+> +
+> +			orig_chan_index = ext_sens_spec->ext_channels[j];
+> +			orig_chan_spec = &orig_dev->channels[orig_chan_index];
+> +			chan_spec = &fnarg->channels[INV_MPU6050_NUM_INT_CHAN + fnarg->chan_index];
+> +			chan_state = &st->ext_chan[fnarg->chan_index];
+> +
+> +			chan_state->ext_sens_index = i;
+> +			chan_state->orig_chan_index = orig_chan_index;
+> +			chan_state->data_offset = fnarg->data_offset;
+> +			memcpy(chan_spec, orig_chan_spec, sizeof(struct iio_chan_spec));
+> +			chan_spec->scan_index = fnarg->scan_index;
+> +			ext_sens_state->scan_mask |= (1 << chan_spec->scan_index);
+> +			if (orig_chan_spec->scan_type.storagebits != 16) {
+> +				/*
+> +				 * Supporting other channels sizes would require data read from the
+> +				 * hardware fifo to comply with iio alignment.
+> +				 */
+Or a demux/mux before iio_push_to_buffers.
+> +				dev_err(&indio_dev->dev, "All external channels must have 16 storage bits\n");
+> +				return -EINVAL;
+> +			}
+> +
+> +			fnarg->scan_index++;
+> +			fnarg->chan_index++;
+> +			fnarg->data_offset += chan_spec->scan_type.storagebits / 8;
+> +			dev_info(mydev, "Reading external channel #%d scan_index %d data_offset %d"
+> +					" from original device %s chan #%d scan_index %d\n",
+> +					fnarg->chan_index, chan_spec->scan_index, chan_state->data_offset,
+> +					orig_dev->name ?: dev_name(&orig_dev->dev), orig_chan_index, orig_chan_spec->scan_index);
+> +		}
+> +		if (start_data_offset + ext_sens_spec->len != fnarg->data_offset) {
+> +			dev_warn(mydev, "length mismatch between i2c slave read length and slave channel spec\n");
+> +			return -EINVAL;
+> +		}
+> +
+> +		return inv_mpu_config_external_read(st, i, ext_sens_spec);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static int inv_mpu6050_handle_ext_sensors(struct iio_dev *indio_dev)
+> +{
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> +	struct device *dev = regmap_get_device(st->map);
+> +	struct inv_mpu_handle_ext_sensor_fnarg fnarg = {
+> +		.indio_dev = indio_dev,
+> +		.chan_index = 0,
+> +		.data_offset = 0,
+> +		.scan_index = INV_MPU6050_SCAN_TIMESTAMP,
+> +	};
+> +	int i, result;
+> +	int num_ext_chan = 0, sum_data_len = 0;
+> +
+> +	inv_mpu_get_ext_sens_spec(indio_dev);
+> +	for (i = 0; i < INV_MPU6050_MAX_EXT_SENSORS; ++i) {
+> +		num_ext_chan += st->ext_sens_spec[i].num_ext_channels;
+> +		sum_data_len += st->ext_sens_spec[i].len;
+> +	}
+> +	if (sum_data_len > INV_MPU6050_CNT_EXT_SENS_DATA) {
+> +		dev_err(dev, "Too many bytes from external sensors:"
+> +			      " requested=%d max=%d\n",
+> +			      sum_data_len, INV_MPU6050_CNT_EXT_SENS_DATA);
+> +		return -EINVAL;
+> +	}
+> +
+> +	/* Zero length means nothing to do */
+> +	if (!sum_data_len) {
+> +		indio_dev->channels = inv_mpu_channels;
+> +		indio_dev->num_channels = INV_MPU6050_NUM_INT_CHAN;
+> +		BUILD_BUG_ON(ARRAY_SIZE(inv_mpu_channels) != INV_MPU6050_NUM_INT_CHAN);
+> +		return 0;
+> +	}
+> +
+> +	fnarg.channels = devm_kmalloc(indio_dev->dev.parent,
+> +				      (num_ext_chan + INV_MPU6050_NUM_INT_CHAN) *
+> +				      sizeof(struct iio_chan_spec),
+> +				      GFP_KERNEL);
+> +	if (!fnarg.channels)
+> +		return -ENOMEM;
+> +	memcpy(fnarg.channels, inv_mpu_channels, sizeof(inv_mpu_channels));
+> +	memset(fnarg.channels + INV_MPU6050_NUM_INT_CHAN, 0,
+> +	       num_ext_chan * sizeof(struct iio_chan_spec));
+> +
+> +	st->ext_chan = devm_kzalloc(indio_dev->dev.parent,
+> +			(num_ext_chan) * sizeof(*st->ext_chan),
+> +			GFP_KERNEL);
+> +	if (!st->ext_chan)
+> +		return -ENOMEM;
 > +
 > +	result = inv_mpu6050_set_power_itg(st, true);
 > +	if (result < 0)
 > +		return result;
 > +
-> +	/* enable master */
-> +	st->chip_config.user_ctrl |= INV_MPU6050_BIT_I2C_MST_EN;
-> +	result = regmap_write(st->map, st->reg->user_ctrl, st->chip_config.user_ctrl);
-> +	if (result < 0)
-> +		return result;
+> +	result = device_for_each_child(&st->aux_master_adapter.dev, &fnarg,
+> +				       inv_mpu_handle_ext_sensor_fn);
+> +	if (result)
+> +		goto out_disable;
+> +	/* Timestamp channel has index 0 and last scan_index */
+> +	fnarg.channels[0].scan_index = fnarg.scan_index;
 > +
-> +	result = regmap_update_bits(st->map, st->reg->int_enable,
-> +				 INV_MPU6050_BIT_MST_INT_EN,
-> +				 INV_MPU6050_BIT_MST_INT_EN);
-> +	if (result < 0)
-> +		return result;
+> +	if (fnarg.chan_index != num_ext_chan) {
+> +		dev_err(&indio_dev->dev, "Failed to match all external channels!\n");
+> +		result = -EINVAL;
+> +		goto out_disable;
+> +	}
 > +
 > +	result = inv_mpu6050_set_power_itg(st, false);
-> +	if (result < 0)
-> +		return result;
+> +	indio_dev->channels = fnarg.channels;
+> +	indio_dev->num_channels = INV_MPU6050_NUM_INT_CHAN + num_ext_chan;
+> +	return result;
 > +
-> +	init_completion(&st->slv4_done);
-> +	st->aux_master_adapter.owner = THIS_MODULE;
-> +	st->aux_master_adapter.algo = &inv_mpu_i2c_algo;
-> +	st->aux_master_adapter.dev.parent = dev;
-> +	snprintf(st->aux_master_adapter.name, sizeof(st->aux_master_adapter.name),
-> +			"aux-master-%s", indio_dev->name);
-> +	st->aux_master_adapter.dev.of_node = inv_mpu_get_aux_i2c_ofnode(dev->of_node);
-> +	i2c_set_adapdata(&st->aux_master_adapter, st);
-> +	/* This will also probe aux devices so transfers must work now */
-> +	result = i2c_add_adapter(&st->aux_master_adapter);
-> +	if (result < 0) {
-> +		dev_err(dev, "i2x aux master register fail %d\n", result);
-> +		return result;
-> +	}
-> +
-> +	return 0;
+> +out_disable:
+> +	inv_mpu6050_set_power_itg(st, false);
+> +	inv_mpu_set_external_reads_enabled(st, false);
+> +	return result;
 > +}
-> +#endif
 > +
->  int inv_mpu_core_probe(struct regmap *regmap, int irq, const char *name,
->  		int (*inv_mpu_bus_setup)(struct iio_dev *), int chip_type)
->  {
-> @@ -931,16 +1141,39 @@ int inv_mpu_core_probe(struct regmap *regmap, int irq, const char *name,
->  		goto out_unreg_ring;
->  	}
+>  /**
+>   *  inv_check_and_setup_chip() - check and setup chip.
+>   */
+> @@ -1121,8 +1531,6 @@ int inv_mpu_core_probe(struct regmap *regmap, int irq, const char *name,
+>  		indio_dev->name = name;
+>  	else
+>  		indio_dev->name = dev_name(dev);
+> -	indio_dev->channels = inv_mpu_channels;
+> -	indio_dev->num_channels = ARRAY_SIZE(inv_mpu_channels);
 >  
-> +	/* Request interrupt for trigger and i2c master adapter */
-> +	result = devm_request_threaded_irq(&indio_dev->dev, st->irq,
-> +					   &inv_mpu_irq_handler,
-> +					   &inv_mpu_irq_thread_handler,
-> +					   IRQF_TRIGGER_RISING, "inv_mpu",
-> +					   st);
-> +	if (result) {
-> +		dev_err(dev, "request irq fail %d\n", result);
-> +		goto out_remove_trigger;
-> +	}
-> +
-> +#ifdef CONFIG_I2C
-> +	result = inv_mpu_probe_aux_master(indio_dev);
+>  	indio_dev->info = &mpu_info;
+>  	indio_dev->modes = INDIO_BUFFER_TRIGGERED;
+> @@ -1160,6 +1568,12 @@ int inv_mpu_core_probe(struct regmap *regmap, int irq, const char *name,
+>  	}
+>  #endif
+>  
+> +	result = inv_mpu6050_handle_ext_sensors(indio_dev);
 > +	if (result < 0) {
-> +		dev_err(dev, "i2c aux master probe fail %d\n", result);
+> +		dev_err(dev, "failed to configure channels %d\n", result);
 > +		goto out_remove_trigger;
 > +	}
-> +#endif
 > +
 >  	INIT_KFIFO(st->timestamps);
 >  	spin_lock_init(&st->time_stamp_lock);
 >  	result = iio_device_register(indio_dev);
->  	if (result) {
->  		dev_err(dev, "IIO register fail %d\n", result);
-> -		goto out_remove_trigger;
-> +		goto out_del_adapter;
->  	}
->  
->  	return 0;
->  
-> +out_del_adapter:
-> +#ifdef CONFIG_I2C
-> +	i2c_del_adapter(&st->aux_master_adapter);
-> +#endif
->  out_remove_trigger:
->  	inv_mpu6050_remove_trigger(st);
->  out_unreg_ring:
-> @@ -952,10 +1185,14 @@ EXPORT_SYMBOL_GPL(inv_mpu_core_probe);
->  int inv_mpu_core_remove(struct device  *dev)
->  {
->  	struct iio_dev *indio_dev = dev_get_drvdata(dev);
-> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
->  
->  	iio_device_unregister(indio_dev);
->  	inv_mpu6050_remove_trigger(iio_priv(indio_dev));
->  	iio_triggered_buffer_cleanup(indio_dev);
-> +#ifdef CONFIG_I2C
-> +	i2c_del_adapter(&st->aux_master_adapter);
-> +#endif
->  
->  	return 0;
->  }
 > diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> index bd2c0fd..9d15633 100644
+> index 9d406df..007fe75 100644
 > --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
 > +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> @@ -42,6 +42,13 @@
->   *  @int_pin_cfg;	Controls interrupt pin configuration.
->   *  @accl_offset:	Controls the accelerometer calibration offset.
->   *  @gyro_offset:	Controls the gyroscope calibration offset.
-> + *  @mst_status:	secondary I2C master interrupt source status
-> + *  @slv4_addr:		I2C slave address for slave 4 transaction
-> + *  @slv4_reg:		I2C register used with slave 4 transaction
-> + *  @slv4_di:		I2C data in register for slave 4 transaction
-> + *  @slv4_ctrl:		I2C slave 4 control register
-> + *  @slv4_do:		I2C data out register for slave 4 transaction
-> +
->   */
->  struct inv_mpu6050_reg_map {
->  	u8 sample_rate_div;
-> @@ -61,6 +68,15 @@ struct inv_mpu6050_reg_map {
->  	u8 int_pin_cfg;
->  	u8 accl_offset;
->  	u8 gyro_offset;
-> +	u8 mst_status;
-> +
-> +	/* slave 4 registers */
-> +	u8 slv4_addr;
-> +	u8 slv4_reg;
-> +	u8 slv4_di; /* data in */
-> +	u8 slv4_ctrl;
-> +	u8 slv4_do; /* data out */
-> +
+> @@ -124,6 +124,40 @@ struct inv_mpu6050_hw {
+>  	const struct inv_mpu6050_chip_config *config;
 >  };
 >  
->  /*device enum */
-> @@ -139,6 +155,15 @@ struct inv_mpu6050_state {
->  	DECLARE_KFIFO(timestamps, long long, TIMESTAMP_FIFO_SIZE);
->  	struct regmap *map;
->  	int irq;
+> +#define INV_MPU6050_MAX_EXT_SENSORS 4
 > +
-> +	/* if the MPU connects to aux devices as a master */
-> +	bool i2c_aux_master_mode;
+> +/* Specification for an external sensor */
+> +struct inv_mpu6050_ext_sens_spec {
+> +	unsigned short addr;
+> +	u8 reg, len;
 > +
-> +#ifdef CONFIG_I2C
-> +	/* I2C adapter for talking to aux sensors in "master" mode */
-> +	struct i2c_adapter aux_master_adapter;
-> +	struct completion slv4_done;
-> +#endif
+> +	int num_ext_channels;
+> +	int *ext_channels;
+> +};
+> +
+> +/* Driver state for each external sensor */
+> +struct inv_mpu6050_ext_sens_state {
+> +	struct iio_dev *orig_dev;
+> +
+> +	/* Mask of all channels in this sensor */
+> +	unsigned long scan_mask;
+> +
+> +	/* Length of reading. */
+> +	int data_len;
+> +};
+> +
+> +/* Driver state for each external channel */
+> +struct inv_mpu6050_ext_chan_state {
+> +	/* Index inside state->ext_sens */
+> +	int ext_sens_index;
+> +
+> +	/* Index inside orig_dev->channels */
+> +	int orig_chan_index;
+> +
+> +	/* Relative to EXT_SENS_DATA_00 */
+> +	int data_offset;
+> +};
+> +
+>  /*
+>   *  struct inv_mpu6050_state - Driver state variables.
+>   *  @TIMESTAMP_FIFO_SIZE: fifo size for timestamp.
+> @@ -164,6 +198,10 @@ struct inv_mpu6050_state {
+>  	struct i2c_adapter aux_master_adapter;
+>  	struct completion slv4_done;
+>  #endif
+> +
+> +	struct inv_mpu6050_ext_sens_spec ext_sens_spec[INV_MPU6050_MAX_EXT_SENSORS];
+> +	struct inv_mpu6050_ext_sens_state ext_sens[INV_MPU6050_MAX_EXT_SENSORS];
+> +	struct inv_mpu6050_ext_chan_state *ext_chan;
 >  };
 >  
 >  /*register and associated bit definition*/
-> @@ -154,9 +179,30 @@ struct inv_mpu6050_state {
+> @@ -178,6 +216,24 @@ struct inv_mpu6050_state {
+>  #define INV_MPU6050_REG_FIFO_EN             0x23
 >  #define INV_MPU6050_BIT_ACCEL_OUT           0x08
 >  #define INV_MPU6050_BITS_GYRO_OUT           0x70
+> +#define INV_MPU6050_BIT_SLV0_FIFO_EN        0x01
+> +#define INV_MPU6050_BIT_SLV1_FIFO_EN        0x02
+> +#define INV_MPU6050_BIT_SLV2_FIFO_EN        0x04
+> +#define INV_MPU6050_BIT_SLV2_FIFO_EN        0x04
+> +
+> +/* SLV3 fifo enabling is not in REG_FIFO_EN */
+> +#define INV_MPU6050_REG_MST_CTRL	    0x24
+> +#define INV_MPU6050_BIT_SLV3_FIFO_EN        0x10
+> +
+> +/* For slaves 0-3 */
+> +#define INV_MPU6050_REG_I2C_SLV_ADDR(i)     (0x25 + 3 * (i))
+> +#define INV_MPU6050_REG_I2C_SLV_REG(i)      (0x26 + 3 * (i))
+> +#define INV_MPU6050_REG_I2C_SLV_CTRL(i)     (0x27 + 3 * (i))
+> +#define INV_MPU6050_BIT_I2C_SLV_RW          0x80
+> +#define INV_MPU6050_BIT_I2C_SLV_EN          0x80
+> +#define INV_MPU6050_BIT_I2C_SLV_BYTE_SW     0x40
+> +#define INV_MPU6050_BIT_I2C_SLV_REG_DIS     0x20
+> +#define INV_MPU6050_BIT_I2C_SLV_REG_GRP     0x10
 >  
-> +#define INV_MPU6050_REG_I2C_SLV4_ADDR       0x31
-> +#define INV_MPU6050_BIT_I2C_SLV4_R          0x80
-> +#define INV_MPU6050_BIT_I2C_SLV4_W          0x00
-> +
-> +#define INV_MPU6050_REG_I2C_SLV4_REG        0x32
-> +#define INV_MPU6050_REG_I2C_SLV4_DO         0x33
-> +#define INV_MPU6050_REG_I2C_SLV4_CTRL       0x34
-> +
-> +#define INV_MPU6050_BIT_SLV4_EN             0x80
-> +#define INV_MPU6050_BIT_SLV4_INT_EN         0x40
-> +#define INV_MPU6050_BIT_SLV4_DIS            0x20
-> +
-> +#define INV_MPU6050_REG_I2C_SLV4_DI         0x35
-> +
-> +#define INV_MPU6050_REG_I2C_MST_STATUS      0x36
-> +#define INV_MPU6050_BIT_I2C_SLV4_DONE       0x40
-> +
->  #define INV_MPU6050_REG_INT_ENABLE          0x38
->  #define INV_MPU6050_BIT_DATA_RDY_EN         0x01
->  #define INV_MPU6050_BIT_DMP_INT_EN          0x02
-> +#define INV_MPU6050_BIT_MST_INT_EN          0x08
-> +
-> +#define INV_MPU6050_REG_INT_STATUS          0x3A
-> +#define INV_MPU6050_BIT_MST_INT             0x08
+>  #define INV_MPU6050_REG_I2C_SLV4_ADDR       0x31
+>  #define INV_MPU6050_BIT_I2C_SLV4_R          0x80
+> @@ -252,8 +308,8 @@ struct inv_mpu6050_state {
+>  #define INV_MPU6050_GYRO_CONFIG_FSR_SHIFT    3
+>  #define INV_MPU6050_ACCL_CONFIG_FSR_SHIFT    3
 >  
->  #define INV_MPU6050_REG_RAW_ACCEL           0x3B
->  #define INV_MPU6050_REG_TEMPERATURE         0x41
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c
-> index fc55923..a334ed9 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c
-> @@ -126,14 +126,6 @@ int inv_mpu6050_probe_trigger(struct iio_dev *indio_dev)
->  	if (!st->trig)
->  		return -ENOMEM;
+> -/* 6 + 6 round up and plus 8 */
+> -#define INV_MPU6050_OUTPUT_DATA_SIZE         24
+> +/* max is 3*2 accel + 3*2 gyro + 24 external + 8 ts */
+> +#define INV_MPU6050_OUTPUT_DATA_SIZE         44
 >  
-> -	ret = devm_request_irq(&indio_dev->dev, st->irq,
-> -			       &iio_trigger_generic_data_rdy_poll,
-> -			       IRQF_TRIGGER_RISING,
-> -			       "inv_mpu",
-> -			       st->trig);
-> -	if (ret)
-> -		return ret;
+>  #define INV_MPU6050_REG_INT_PIN_CFG	0x37
+>  #define INV_MPU6050_BIT_BYPASS_EN	0x2
+> @@ -266,6 +322,9 @@ struct inv_mpu6050_state {
+>  #define INV_MPU6050_MIN_FIFO_RATE            4
+>  #define INV_MPU6050_ONE_K_HZ                 1000
+>  
+> +#define INV_MPU6050_REG_EXT_SENS_DATA_00	0x49
+> +#define INV_MPU6050_CNT_EXT_SENS_DATA		24
+> +
+>  #define INV_MPU6050_REG_WHOAMI			117
+>  
+>  #define INV_MPU6000_WHOAMI_VALUE		0x68
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+> index e8bda7f..8fa5c3d 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+> @@ -52,6 +52,10 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
+>  	result = regmap_write(st->map, st->reg->fifo_en, 0);
+>  	if (result)
+>  		goto reset_fifo_fail;
+> +	result = regmap_update_bits(st->map, INV_MPU6050_REG_MST_CTRL,
+> +				    INV_MPU6050_BIT_SLV3_FIFO_EN, 0);
+> +	if (result)
+> +		goto reset_fifo_fail;
+>  	/* disable fifo reading */
+>  	st->chip_config.user_ctrl &= ~INV_MPU6050_BIT_FIFO_EN;
+>  	result = regmap_write(st->map, st->reg->user_ctrl,
+> @@ -70,7 +74,8 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
+>  
+>  	/* enable interrupt */
+>  	if (st->chip_config.accl_fifo_enable ||
+> -	    st->chip_config.gyro_fifo_enable) {
+> +	    st->chip_config.gyro_fifo_enable ||
+> +	    true) {
+>  		result = regmap_update_bits(st->map, st->reg->int_enable,
+>  					    INV_MPU6050_BIT_DATA_RDY_EN,
+>  					    INV_MPU6050_BIT_DATA_RDY_EN);
+> @@ -89,10 +94,23 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
+>  		d |= INV_MPU6050_BITS_GYRO_OUT;
+>  	if (st->chip_config.accl_fifo_enable)
+>  		d |= INV_MPU6050_BIT_ACCEL_OUT;
+> +	if (*indio_dev->active_scan_mask & st->ext_sens[0].scan_mask)
+> +		d |= INV_MPU6050_BIT_SLV0_FIFO_EN;
+> +	if (*indio_dev->active_scan_mask & st->ext_sens[1].scan_mask)
+> +		d |= INV_MPU6050_BIT_SLV1_FIFO_EN;
+> +	if (*indio_dev->active_scan_mask & st->ext_sens[2].scan_mask)
+> +		d |= INV_MPU6050_BIT_SLV2_FIFO_EN;
+>  	result = regmap_write(st->map, st->reg->fifo_en, d);
+>  	if (result)
+>  		goto reset_fifo_fail;
 > -
->  	st->trig->dev.parent = regmap_get_device(st->map);
->  	st->trig->ops = &inv_mpu_trigger_ops;
->  	iio_trigger_set_drvdata(st->trig, indio_dev);
+> +	if (*indio_dev->active_scan_mask & st->ext_sens[3].scan_mask)
+> +	{
+> +		result = regmap_update_bits(st->map, INV_MPU6050_REG_MST_CTRL,
+> +					    INV_MPU6050_BIT_SLV3_FIFO_EN,
+> +					    INV_MPU6050_BIT_SLV3_FIFO_EN);
+> +		if (result)
+> +			goto reset_fifo_fail;
+> +	}
+>  	return 0;
+>  
+>  reset_fifo_fail:
+> @@ -129,8 +147,9 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+>  	struct iio_poll_func *pf = p;
+>  	struct iio_dev *indio_dev = pf->indio_dev;
+>  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> -	size_t bytes_per_datum;
+> +	size_t bytes_per_datum = 0;
+>  	int result;
+> +	int i;
+>  	u8 data[INV_MPU6050_OUTPUT_DATA_SIZE];
+>  	u16 fifo_count;
+>  	s64 timestamp;
+> @@ -143,15 +162,18 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+>  	spi = i2c ? NULL: to_spi_device(regmap_dev);
+>  
+>  	mutex_lock(&indio_dev->mlock);
+> -	if (!(st->chip_config.accl_fifo_enable |
+> -		st->chip_config.gyro_fifo_enable))
+> -		goto end_session;
+> +
+> +	/* Compute bytes_per_datum */
+>  	bytes_per_datum = 0;
+>  	if (st->chip_config.accl_fifo_enable)
+>  		bytes_per_datum += INV_MPU6050_BYTES_PER_3AXIS_SENSOR;
+> -
+>  	if (st->chip_config.gyro_fifo_enable)
+>  		bytes_per_datum += INV_MPU6050_BYTES_PER_3AXIS_SENSOR;
+> +	for (i = 0; i < INV_MPU6050_MAX_EXT_SENSORS; ++i)
+> +		if (st->ext_sens[i].scan_mask & *indio_dev->active_scan_mask)
+> +			bytes_per_datum += st->ext_sens[i].data_len;
+> +	if (!bytes_per_datum)
+> +		return 0;
+>  
+>  	/*
+>  	 * read fifo_count register to know how many bytes inside FIFO
+> @@ -228,6 +250,7 @@ static int inv_mpu_buffer_preenable(struct iio_dev *indio_dev)
+>  {
+>  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+>  	unsigned long mask = *indio_dev->active_scan_mask;
+> +	int i;
+>  
+>  	if ((mask & INV_MPU6050_SCAN_MASK_GYRO) &&
+>  	    (mask & INV_MPU6050_SCAN_MASK_GYRO) != INV_MPU6050_SCAN_MASK_GYRO)
+> @@ -245,6 +268,17 @@ static int inv_mpu_buffer_preenable(struct iio_dev *indio_dev)
+>  		return -EINVAL;
+>  	}
+>  
+> +	for (i = 0; i < INV_MPU6050_MAX_EXT_SENSORS; ++i) {
+> +		if ((mask & st->ext_sens[i].scan_mask) &&
+> +		    (mask & st->ext_sens[i].scan_mask) != st->ext_sens[i].scan_mask)
+> +		{
+> +			dev_warn(regmap_get_device(st->map),
+> +				 "External channels from the same reading "
+> +				 "can only be enabled together\n");
+> +			return -EINVAL;
+> +		}
+> +	}
+> +
+>  	return 0;
+>  }
+>  
 > 
