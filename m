@@ -1,97 +1,63 @@
-From: Christian Ruppert <christian.ruppert@alitech.com>
-Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
-Date: Mon, 2 May 2016 12:11:35 +0200
-Message-ID: <572727D7.6080708@alitech.com>
-References: <5707B9B4.6020402@alitech.com>
- <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
- <CAKi4VA+WVwXBM5cP8Q1iQ_YqWF5jvE5XbbLYEb9Jjfo4Lgw3=g@mail.gmail.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
+ PCI BAR
+Date: Mon, 2 May 2016 13:12:18 +0300
+Message-ID: <20160502101218.GM32610@lahna.fi.intel.com>
+References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
+ <577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
+ <20160429085615.GK32610@lahna.fi.intel.com>
+ <CALCETrWe+juuxO9bhv-=V6j9z=a2N+4BWO8Uaa_zMxYNQEA2Lg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from nopam.alitech.com ([202.3.176.31]:39573 "EHLO nopam.alitech.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752805AbcEBKL6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 2 May 2016 06:11:58 -0400
-In-Reply-To: <CAKi4VA+WVwXBM5cP8Q1iQ_YqWF5jvE5XbbLYEb9Jjfo4Lgw3=g@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CALCETrWe+juuxO9bhv-=V6j9z=a2N+4BWO8Uaa_zMxYNQEA2Lg@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Andy Lutomirski <luto@kernel.org>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Lucas De Marchi <lucas.de.marchi@gmail.com>, Lucas De Marchi <lucas.demarchi@intel.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>
 
-Dear Lucas,
+On Fri, Apr 29, 2016 at 06:13:52PM -0700, Andy Lutomirski wrote:
+> A question, though: there's nothing that keeps i801_access from being
+> called in between consecutive ACPI accesses.  Could this confuse the
+> ASL code?  Would it be helpful if i801_access were to save away the
+> old register state and restore it when it's done in the event that an
+> opregion access has been seen so that the ASL-configured state doesn't
+> get stomped on?
 
-On 22.04.2016 17:19, Lucas De Marchi wrote:
-> CC'ing Christian.
+Looking at those ASL methods of Lenovo Yoga 900 for example they seem to
+initialize the hardware, do the transaction and cleanup in one go.
+That's also what the i2c-i801.c driver is doing as far as I can say. So
+in that sense they should not mess with each other.
+
+Of course this all breaks if the ASL code expects the state to survive
+between transactions.
+
+> Also, what happens if i801_access happens while the i801 master is
+> busy with an ASL-initiated transaction?  Will it wait for the
+> transaction to finish?
+
+Yes, it should since ->acpi_lock is taken by i801_acpi_io_handler().
+
+> If this is a problem, an alternative approach might be to virtualize
+> the registers as seen by ACPI and to only load them into the real
+> registers when a transaction starts.
 > 
-> On Fri, Apr 22, 2016 at 12:08 PM, Lucas De Marchi
-> <lucas.demarchi@intel.com> wrote:
->> Disabling the adapter after each transfer is pretty bad for sensors and
->> other devices doing small transfers at a high rate. It slows down the
->> transfer rate a lot since each of them have to wait the adapter to be
->> enabled again.
->>
->> During the transfer init we check the status register for no activity
->> and TX buffer being empty since otherwise we can't change IC_TAR
->> dynamically.
->>
->> When a transfer fails the adapter will still be disabled - this is a
->> conservative approach. When transfers succeed, the adapter is left
->> enabled and it's configured so to disable interrupts.
-> 
-> Christian, this is the updated patch. Now adapter starts disabled and
-> is disabled when there's a failed transfer. I hope this can work with
-> your hardware.
+> Also, what happens if the opregion is declared globally instead of in
+> the scope of the ACPI companion?  Does that happen?  If so, it might
+> make sense to deny loading the driver unless in lax mode.
 
-Good news: The system now boots without deadlocks.
+I don't know if that happens but it is certainly possible.
 
-Bad  news: Not all transfers seem to take place as they should.
-           I don't have the time for a deep analysis but a few quick
-           experiments seem to indicate that the adapter needs to be
-           disabled while updating TAR to a value different from the
-           previous one. Disabling the adapter does not seem to be
-           required if TAR doesn't change from one transfer to the next.
-           I don't know if there are any conditions under which we can
-           leave the adapter enabled while changing TAR but at least in
-           some cases it seems to work.
+Actually reading ACPI 6.1 spec again, chapter 5.5.2.4.3 says this:
 
-The adapter seems to work reliably with the following diff on top of
-your patch (included a dirty version of Jarkko's comments as well, not
-sure if that's required to make everything work):
+  If a platform uses a PCI BAR Target operation region, an ACPI OS will
+  not load a native device driver for the associated PCI function. For
+  example, if any of the BARs in a PCI function are associated with a PCI
+  BAR Target operation region, then the OS will assume that the PCI
+  function is to be entirely under the control of the ACPI system
+  firmware. No driver will be loaded.
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c
-b/drivers/i2c/busses/i2c-designware-core.c
-index 8a08e68..e927285 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -421,8 +421,8 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
-
-                /* check ic_tar and ic_con can be dynamically updated */
-                ic_status = dw_readl(dev, DW_IC_STATUS);
--               if (ic_status & DW_IC_STATUS_ACTIVITY
--                       || !(ic_status & DW_IC_STATUS_TX_EMPTY)) {
-+               if (ic_status & (0x1<<5)
-+                       || !(ic_status & (0x1<<1))) {
-                        __i2c_dw_enable(dev, false);
-                }
-        }
-@@ -442,13 +442,18 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
-                ic_con &= ~DW_IC_CON_10BITADDR_MASTER;
-        }
-
-+       ic_tar |= msgs[dev->msg_write_idx].addr;
-+
-        dw_writel(dev, ic_con, DW_IC_CON);
-
-        /*
-         * Set the slave (target) address and enable 10-bit addressing mode
-         * if applicable.
-         */
--       dw_writel(dev, msgs[dev->msg_write_idx].addr | ic_tar, DW_IC_TAR);
-+       if (ic_tar != dw_readl(dev, DW_IC_TAR))
-+               __i2c_dw_enable(dev, false);
-+
-+       dw_writel(dev, ic_tar, DW_IC_TAR);
-
-        /* enforce disabled interrupts (due to HW issues) */
-        i2c_dw_disable_int(dev);
+So what we are currently doing (preventing the driver from loading) is
+the right thing to do according the above. Maybe we can change that
+warning into debug/info message instead?
