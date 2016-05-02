@@ -1,79 +1,113 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
- PCI BAR
-Date: Mon, 2 May 2016 08:53:55 -0700
-Message-ID: <CALCETrUTEgiPzmymP9Nok7K85ECSWwbyJUpPZ_mCh74dczC+0Q@mail.gmail.com>
-References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
- <577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org> <20160429085615.GK32610@lahna.fi.intel.com>
- <CALCETrWe+juuxO9bhv-=V6j9z=a2N+4BWO8Uaa_zMxYNQEA2Lg@mail.gmail.com>
- <20160502101218.GM32610@lahna.fi.intel.com> <CALCETrWur5HhsHsBAH2y85-ZPbRdkZSL_XyT-kNBrzTMCtMdLQ@mail.gmail.com>
- <20160502155021.GB1717@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [PATCH v8 0/8] i2c-octeon and i2c-thunderx driver
+Date: Mon,  2 May 2016 19:35:40 +0200
+Message-ID: <1462210548-4648-1-git-send-email-jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:34458 "EHLO
-	mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754028AbcEBPyQ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 2 May 2016 11:54:16 -0400
-Received: by mail-oi0-f49.google.com with SMTP id k142so195200653oib.1
-        for <linux-i2c@vger.kernel.org>; Mon, 02 May 2016 08:54:15 -0700 (PDT)
-In-Reply-To: <20160502155021.GB1717@lahna.fi.intel.com>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:32782 "EHLO
+	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754224AbcEBRgP (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 2 May 2016 13:36:15 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 
-On Mon, May 2, 2016 at 8:50 AM, Mika Westerberg
-<mika.westerberg@linux.intel.com> wrote:
-> On Mon, May 02, 2016 at 08:29:42AM -0700, Andy Lutomirski wrote:
->> On Mon, May 2, 2016 at 3:12 AM, Mika Westerberg
->> <mika.westerberg@linux.intel.com> wrote:
->> > On Fri, Apr 29, 2016 at 06:13:52PM -0700, Andy Lutomirski wrote:
->> >> A question, though: there's nothing that keeps i801_access from being
->> >> called in between consecutive ACPI accesses.  Could this confuse the
->> >> ASL code?  Would it be helpful if i801_access were to save away the
->> >> old register state and restore it when it's done in the event that an
->> >> opregion access has been seen so that the ASL-configured state doesn't
->> >> get stomped on?
->> >
->> > Looking at those ASL methods of Lenovo Yoga 900 for example they seem to
->> > initialize the hardware, do the transaction and cleanup in one go.
->> > That's also what the i2c-i801.c driver is doing as far as I can say. So
->> > in that sense they should not mess with each other.
->> >
->>
->> Is your locking actually sufficient to get that right?  You're taking
->> acpi_lock, which is private to the driver, so you're only holding it
->> during actual opregion access AFAICT.  That means that, if one thread
->> is in the ACPI interpreter in one of these blocks and another thread
->> is in the driver, they could still interleave their accesses.  Am I
->> missing something?
->
-> No, you are right.
->
->> > Of course this all breaks if the ASL code expects the state to survive
->> > between transactions.
->> >
->> >> Also, what happens if i801_access happens while the i801 master is
->> >> busy with an ASL-initiated transaction?  Will it wait for the
->> >> transaction to finish?
->> >
->> > Yes, it should since ->acpi_lock is taken by i801_acpi_io_handler().
->>
->> But i801_acpi_io_handler has no concept of a transaction AFAICT.
->
-> Indeed it only handles access one-by-one not by transaction. So if the
-> ASL code is in middle of a transaction and i2c-i801.c starts one as well
-> it will mess the registers.
->
-> Back to drawing board :-/
+Hi Wolfram,
 
-:-/
+this are the remaining patches that implement the ThunderX driver.
+I like to send them now even if they might not make 4.7.
+After the Octeon parts are merged the ThunderX driver code is
+quite straight-forward, as should be the driver split.
 
-I can try to test using the ACPI debugger maybe, but my laptop with
-this problem doesn't have any calls to the offending ASL at all, so
-just booting it won't exercise any of the interesting cases at all.
+Patch #5 - #7 are (final) cleanup patches.
+
+Patches are on-top of next-20160502.
+
+Thanks,
+Jan
+
+-------------------------------------------------
+
+Changes to v7:
+- Sort include files also in octeon-core.c
+- Add cleanup bool patch (left-over from v7)
+- Dropped read-write function shuffle patch
+
+Changes to v6:
+- Fixed read_int kerneldoc
+- Removed udelay after write-int in recovery
+- Killed retries in recovery, use EAGAIN
+- Disable SMBUS QUICK and remove unneeded length check
+- Spell out enable/disable
+- Switch to wait_event_timeout
+- Removed superfluous status check in HLC write
+- Optimize wait-queue also for HLC
+- Use readq/writeq instead of __raw_* in some places
+- Add STAT_IDLE to status check (valid after a write)
+
+Changes to v5:
+- Switch to i2c recovery framework
+- Clean-up register access, introduce new helper functions
+- Fixed ready bit check in combined write
+- Fixed IFLG clear in hlc_enable
+- Removed complicated last phase logic, not needed when we send
+  START for every message part
+
+Changes to v4:
+- Splitted the High-Level Controller patch into several patches
+- Reworded some commit messages
+
+Changes to v3:
+- Added more functionality flags for SMBUS
+- Removed both module parameters
+- Make xfer return also other errors than EGAIN
+- Return EPROTO on invalid SMBUS block length
+- Use devm_ioremap_resource
+- Added rename-only patch
+- Removed kerneldoc patch from series
+- Improved defines
+
+Changes to v2:
+- Split clenaup patch into several patches
+- Strictly moved functional changes to later patches
+- Fixed do-while checkpatch errors
+- Moved defines to the patches that use them
+- Use BIT_ULL macro
+- Split ThunderX patch into 2 patches
+
+Changes to v1:
+- Fixed compile error on x86_64
+- Disabled thunderx driver on MIPS
+- Re-ordered some thunderx probe functions for readability
+- Fix missing of_irq.h and i2c-smbus.h includes
+- Use IS_ENABLED for CONFIG options
+
+Jan
+
+-------------------------------------------------
+
+Jan Glauber (8):
+  i2c: octeon: Rename driver to prepare for split
+  i2c: octeon: Split the driver into two parts
+  i2c: thunderx: Add i2c driver for ThunderX SOC
+  i2c: thunderx: Add smbus alert support
+  i2c: octeon,thunderx: Move register offsets to struct
+  i2c: octeon: Sort include files alphabetically
+  i2c: cavium: Use booleon values for booleon variables
+  i2c: octeon: thunderx: Add MAINTAINERS entry
+
+ MAINTAINERS                                       |   25 +-
+ drivers/i2c/busses/Kconfig                        |   10 +
+ drivers/i2c/busses/Makefile                       |    3 +
+ drivers/i2c/busses/{i2c-octeon.c => i2c-cavium.c} | 1033 ++++++---------------
+ drivers/i2c/busses/i2c-cavium.h                   |  214 +++++
+ drivers/i2c/busses/i2c-octeon-core.c              |  288 ++++++
+ drivers/i2c/busses/i2c-thunderx-core.c            |  306 ++++++
+ 7 files changed, 1132 insertions(+), 747 deletions(-)
+ rename drivers/i2c/busses/{i2c-octeon.c => i2c-cavium.c} (57%)
+ create mode 100644 drivers/i2c/busses/i2c-cavium.h
+ create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
+ create mode 100644 drivers/i2c/busses/i2c-thunderx-core.c
 
 -- 
-Andy Lutomirski
-AMA Capital Management, LLC
+1.9.1
