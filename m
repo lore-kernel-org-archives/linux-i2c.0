@@ -1,116 +1,54 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v8 4/8] i2c: thunderx: Add smbus alert support
-Date: Mon,  2 May 2016 19:35:44 +0200
-Message-ID: <1462210548-4648-5-git-send-email-jglauber@cavium.com>
-References: <1462210548-4648-1-git-send-email-jglauber@cavium.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462210548-4648-1-git-send-email-jglauber@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+From: Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>
+Subject: Re: [PATCH v7 16/24] i2c: allow adapter drivers to override the
+ adapter locking
+Date: Mon, 2 May 2016 22:20:19 +0300
+Message-ID: <5727A873.4080400@iki.fi>
+References: <1461165484-2314-1-git-send-email-peda@axentia.se>
+ <1461165484-2314-17-git-send-email-peda@axentia.se>
+ <20160428205018.GA3553@katana>
+ <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
+ <20160429071604.GB1870@katana>
+ <357e6fda-73b3-fb7f-c341-97f09af1943f@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <357e6fda-73b3-fb7f-c341-97f09af1943f-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Kalle Valo <kvalo-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Adriana Reus <adriana.reus-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matt Ranostay <matt.ranostay-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Hans
 List-Id: linux-i2c@vger.kernel.org
 
-Add smbus alert interrupt support.
+On 04/29/2016 12:16 PM, Peter Rosin wrote:
+> On 2016-04-29 09:16, Wolfram Sang wrote:
+>>> Yes, obviously... I'll make that change locally and wait for the rest.
+>> Another nit: You could use '--strict' with checkpatch and see if you
+>> want to fix the issues reported. I am not keen on those (except for
+>> 'space around operators'), it's a matter of taste I guess, but maybe you
+>> like some of the suggestions.
+>>
+> Yes, they look like reasonable complaints.
+>
+> So, I fixed all of them locally except the complaint about lack of comment
+> on the new struct mutex member in struct si2168_dev (patch 21/24),
+> because that patch is Anttis and he's the maintainer of that driver...
+>
+> Antti, if you want that fixed as part of this series, send a suitable comment
+> for the mutex this way and I'll incorporate it.
 
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
----
- drivers/i2c/busses/i2c-cavium.h        |  6 ++++++
- drivers/i2c/busses/i2c-thunderx-core.c | 35 ++++++++++++++++++++++++++++++++++
- 2 files changed, 41 insertions(+)
+Ah, I never ran checkpatch with --strict option...
 
-diff --git a/drivers/i2c/busses/i2c-cavium.h b/drivers/i2c/busses/i2c-cavium.h
-index 33c7e1f..9c128c1 100644
---- a/drivers/i2c/busses/i2c-cavium.h
-+++ b/drivers/i2c/busses/i2c-cavium.h
-@@ -3,6 +3,7 @@
- #include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
-@@ -119,6 +120,11 @@ struct octeon_i2c {
- #if IS_ENABLED(CONFIG_I2C_THUNDERX)
- 	struct msix_entry i2c_msix;
- #endif
-+
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	struct i2c_smbus_alert_setup alert_data;
-+	struct i2c_client *ara;
-+#endif
- };
- 
- static inline void octeon_i2c_writeq_flush(u64 val, void __iomem *addr)
-diff --git a/drivers/i2c/busses/i2c-thunderx-core.c b/drivers/i2c/busses/i2c-thunderx-core.c
-index 656b405..ac63113 100644
---- a/drivers/i2c/busses/i2c-thunderx-core.c
-+++ b/drivers/i2c/busses/i2c-thunderx-core.c
-@@ -9,9 +9,11 @@
- #include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/of_irq.h>
- #include <linux/pci.h>
- 
- #include "i2c-cavium.h"
-@@ -106,6 +108,35 @@ static void thunder_i2c_clock_disable(struct device *dev, struct clk *clk)
- 	devm_clk_put(dev, clk);
- }
- 
-+static int thunder_i2c_smbus_setup(struct octeon_i2c *i2c,
-+				   struct device_node *node)
-+{
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	u32 type;
-+
-+	i2c->alert_data.irq = irq_of_parse_and_map(node, 0);
-+	if (!i2c->alert_data.irq)
-+		return -EINVAL;
-+
-+	type = irqd_get_trigger_type(irq_get_irq_data(i2c->alert_data.irq));
-+	i2c->alert_data.alert_edge_triggered =
-+		(type & IRQ_TYPE_LEVEL_MASK) ? 1 : 0;
-+
-+	i2c->ara = i2c_setup_smbus_alert(&i2c->adap, &i2c->alert_data);
-+	if (!i2c->ara)
-+		return -ENODEV;
-+#endif
-+	return 0;
-+}
-+
-+static void thunder_i2c_smbus_remove(struct octeon_i2c *i2c)
-+{
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+	if (i2c->ara)
-+		i2c_unregister_device(i2c->ara);
-+#endif
-+}
-+
- static void thunder_i2c_set_name(struct pci_dev *pdev, struct octeon_i2c *i2c,
- 				 char *name)
- {
-@@ -206,6 +237,9 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 		goto out_irq;
- 	}
- 
-+	ret = thunder_i2c_smbus_setup(i2c, node);
-+	if (ret < 0)
-+		dev_info(dev, "Failed to setup smbus alert\n");
- 	dev_info(i2c->dev, "probed\n");
- 	return 0;
- 
-@@ -236,6 +270,7 @@ static void thunder_i2c_remove_pci(struct pci_dev *pdev)
- 
- 	dev = i2c->dev;
- 	thunder_i2c_clock_disable(dev, i2c->clk);
-+	thunder_i2c_smbus_remove(i2c);
- 	i2c_del_adapter(&i2c->adap);
- 	devm_free_irq(dev, i2c->i2c_msix.vector, i2c);
- 	pci_disable_msix(pdev);
+CHECK: struct mutex definition without comment
+#202: FILE: drivers/media/dvb-frontends/si2168_priv.h:32:
++	struct mutex i2c_mutex;
+
+If you wish you could add some comment for it, but for me it is still 
+pretty much self explaining. It is lock to protect firmware command 
+execution. Command is executed always with I2C write and then poll reply 
+using I2C read until it timeouts or answers with "ready" status.
+
+regards
+Antti
+
 -- 
-1.9.1
+http://palosaari.fi/
