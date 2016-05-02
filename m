@@ -1,82 +1,75 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
 Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
  PCI BAR
-Date: Mon, 2 May 2016 13:21:57 +0300
-Message-ID: <20160502102157.GO32610@lahna.fi.intel.com>
+Date: Mon, 2 May 2016 13:42:41 +0200
+Message-ID: <CAJZ5v0gjB5_2Oer_Oq1B-J9Sx9wBw89mcdhfd=7V2gTmQoaLKQ@mail.gmail.com>
 References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
- <CAJZ5v0irGCpV1xXroQyPk5yYbLyAY3R8HtMKiq76C4ZBA=AKgw@mail.gmail.com>
+	<577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
+	<20160429085615.GK32610@lahna.fi.intel.com>
+	<CALCETrWe+juuxO9bhv-=V6j9z=a2N+4BWO8Uaa_zMxYNQEA2Lg@mail.gmail.com>
+	<20160502101218.GM32610@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:52534 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753044AbcEBKWD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 2 May 2016 06:22:03 -0400
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0irGCpV1xXroQyPk5yYbLyAY3R8HtMKiq76C4ZBA=AKgw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20160502101218.GM32610@lahna.fi.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-i2c <linux-i2c@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Andy Lutomirski <luto@kernel.org>
 
-On Fri, Apr 29, 2016 at 10:21:29PM +0200, Rafael J. Wysocki wrote:
-> On Thu, Apr 28, 2016 at 12:23 PM, Mika Westerberg
-> <mika.westerberg@linux.intel.com> wrote:
-> > Many Intel systems the BIOS declares a SystemIO OpRegion below the SMBus
-> > PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
-> >
-> >   Device (SBUS)
-> >   {
-> >       OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
-> >       Field (SMBI, ByteAcc, NoLock, Preserve)
-> >       {
-> >           HSTS,   8,
-> >           Offset (0x02),
-> >           HCON,   8,
-> >           HCOM,   8,
-> >           TXSA,   8,
-> >           DAT0,   8,
-> >           DAT1,   8,
-> >           HBDR,   8,
-> >           PECR,   8,
-> >           RXSA,   8,
-> >           SDAT,   16
-> >       }
-> >
-> > There are also bunch of ASL methods that that the BIOS can use to access
-> > these fields. Most of the systems in question ASL methods accessing the
-> > SMBI OpRegion are never used.
-> >
-> > Now, because of this SMBI OpRegion many systems fail to load the SMBus
-> > driver with an error looking like one below:
-> >
-> >   ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305F
-> >        conflicts with OpRegion 0x0000000000003040-0x000000000000304F
-> >        (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
-> >   ACPI: If an ACPI driver is available for this device, you should use
-> >        it instead of the native driver
-> >
-> > The reason is that this SMBI OpRegion conflicts with the PCI BAR used by
-> > the SMBus driver.
-> >
-> > It turns out that we can install a custom SystemIO address space handler
-> > for the SMBus device to intercept all accesses through that OpRegion. This
-> > allows us to share the PCI BAR with the ASL code if it for some reason is
-> > using it. We do not expect that this OpRegion handler will ever be called
-> > but if it is we print a warning and execute the read/write operation under
-> > a lock which prevents ASL and OS from messing each other.
-> >
-> > Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> 
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+On Mon, May 2, 2016 at 12:12 PM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> On Fri, Apr 29, 2016 at 06:13:52PM -0700, Andy Lutomirski wrote:
+>> A question, though: there's nothing that keeps i801_access from being
+>> called in between consecutive ACPI accesses.  Could this confuse the
+>> ASL code?  Would it be helpful if i801_access were to save away the
+>> old register state and restore it when it's done in the event that an
+>> opregion access has been seen so that the ASL-configured state doesn't
+>> get stomped on?
+>
+> Looking at those ASL methods of Lenovo Yoga 900 for example they seem to
+> initialize the hardware, do the transaction and cleanup in one go.
+> That's also what the i2c-i801.c driver is doing as far as I can say. So
+> in that sense they should not mess with each other.
+>
+> Of course this all breaks if the ASL code expects the state to survive
+> between transactions.
+>
+>> Also, what happens if i801_access happens while the i801 master is
+>> busy with an ASL-initiated transaction?  Will it wait for the
+>> transaction to finish?
+>
+> Yes, it should since ->acpi_lock is taken by i801_acpi_io_handler().
+>
+>> If this is a problem, an alternative approach might be to virtualize
+>> the registers as seen by ACPI and to only load them into the real
+>> registers when a transaction starts.
+>>
+>> Also, what happens if the opregion is declared globally instead of in
+>> the scope of the ACPI companion?  Does that happen?  If so, it might
+>> make sense to deny loading the driver unless in lax mode.
+>
+> I don't know if that happens but it is certainly possible.
+>
+> Actually reading ACPI 6.1 spec again, chapter 5.5.2.4.3 says this:
+>
+>   If a platform uses a PCI BAR Target operation region, an ACPI OS will
+>   not load a native device driver for the associated PCI function. For
+>   example, if any of the BARs in a PCI function are associated with a PCI
+>   BAR Target operation region, then the OS will assume that the PCI
+>   function is to be entirely under the control of the ACPI system
+>   firmware. No driver will be loaded.
+>
+> So what we are currently doing (preventing the driver from loading) is
+> the right thing to do according the above.
 
-Thanks!
+In general, that is the right thing to do.  That's why we do it as a rule. :-)
 
-> If it addresses any public BZ bugs, it would be good to add Link: tags
-> for those and maybe Reported-by: for the reporters?
+However, in this particular case we actually know that the opregion
+declaration is bogus at least on some systems.  So, this is a
+workaround for a known defect in some systems' ACPI tables.
 
-Good point. I can add those.
+> Maybe we can change that warning into debug/info message instead?
 
-However, after reading ACPI 6.1 spec again, I'm having second thoughts
-about this patch. See my other email to Andy on this thread.
+I wouldn't do that if it affected other cases in which opregion
+declarations were actually correct.
