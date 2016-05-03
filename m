@@ -1,83 +1,46 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
  PCI BAR
-Date: Mon, 2 May 2016 23:29:01 +0200
-Message-ID: <CAJZ5v0hS4O2eAUrAK4xC=s8OHtiTpj-bKjzry_GoKk2m5NktnA@mail.gmail.com>
+Date: Tue, 3 May 2016 11:53:07 +0300
+Message-ID: <20160503085307.GD1717@lahna.fi.intel.com>
 References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
-	<577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
-	<20160429085615.GK32610@lahna.fi.intel.com>
-	<CALCETrWe+juuxO9bhv-=V6j9z=a2N+4BWO8Uaa_zMxYNQEA2Lg@mail.gmail.com>
-	<20160502101218.GM32610@lahna.fi.intel.com>
-	<CALCETrWur5HhsHsBAH2y85-ZPbRdkZSL_XyT-kNBrzTMCtMdLQ@mail.gmail.com>
-	<20160502155021.GB1717@lahna.fi.intel.com>
+ <577f885f-b54d-cf55-b1a3-0b04358271d8@kernel.org>
+ <20160429085615.GK32610@lahna.fi.intel.com>
+ <CALCETrWe+juuxO9bhv-=V6j9z=a2N+4BWO8Uaa_zMxYNQEA2Lg@mail.gmail.com>
+ <20160502101218.GM32610@lahna.fi.intel.com>
+ <CALCETrWur5HhsHsBAH2y85-ZPbRdkZSL_XyT-kNBrzTMCtMdLQ@mail.gmail.com>
+ <20160502155021.GB1717@lahna.fi.intel.com>
+ <CAJZ5v0hS4O2eAUrAK4xC=s8OHtiTpj-bKjzry_GoKk2m5NktnA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:33009 "EHLO
-	mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755118AbcEBV3E (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 2 May 2016 17:29:04 -0400
-In-Reply-To: <20160502155021.GB1717@lahna.fi.intel.com>
+Received: from mga09.intel.com ([134.134.136.24]:27312 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755787AbcECIxN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 3 May 2016 04:53:13 -0400
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0hS4O2eAUrAK4xC=s8OHtiTpj-bKjzry_GoKk2m5NktnA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Mario Limonciello <mario_limonciello@dell.com>
 
-On Mon, May 2, 2016 at 5:50 PM, Mika Westerberg
-<mika.westerberg@linux.intel.com> wrote:
-> On Mon, May 02, 2016 at 08:29:42AM -0700, Andy Lutomirski wrote:
->> On Mon, May 2, 2016 at 3:12 AM, Mika Westerberg
->> <mika.westerberg@linux.intel.com> wrote:
->> > On Fri, Apr 29, 2016 at 06:13:52PM -0700, Andy Lutomirski wrote:
->> >> A question, though: there's nothing that keeps i801_access from being
->> >> called in between consecutive ACPI accesses.  Could this confuse the
->> >> ASL code?  Would it be helpful if i801_access were to save away the
->> >> old register state and restore it when it's done in the event that an
->> >> opregion access has been seen so that the ASL-configured state doesn't
->> >> get stomped on?
->> >
->> > Looking at those ASL methods of Lenovo Yoga 900 for example they seem to
->> > initialize the hardware, do the transaction and cleanup in one go.
->> > That's also what the i2c-i801.c driver is doing as far as I can say. So
->> > in that sense they should not mess with each other.
->> >
->>
->> Is your locking actually sufficient to get that right?  You're taking
->> acpi_lock, which is private to the driver, so you're only holding it
->> during actual opregion access AFAICT.  That means that, if one thread
->> is in the ACPI interpreter in one of these blocks and another thread
->> is in the driver, they could still interleave their accesses.  Am I
->> missing something?
->
-> No, you are right.
->
->> > Of course this all breaks if the ASL code expects the state to survive
->> > between transactions.
->> >
->> >> Also, what happens if i801_access happens while the i801 master is
->> >> busy with an ASL-initiated transaction?  Will it wait for the
->> >> transaction to finish?
->> >
->> > Yes, it should since ->acpi_lock is taken by i801_acpi_io_handler().
->>
->> But i801_acpi_io_handler has no concept of a transaction AFAICT.
->
-> Indeed it only handles access one-by-one not by transaction. So if the
-> ASL code is in middle of a transaction and i2c-i801.c starts one as well
-> it will mess the registers.
->
-> Back to drawing board :-/
+On Mon, May 02, 2016 at 11:29:01PM +0200, Rafael J. Wysocki wrote:
+> It doesn't look like trying to make it safe for both the driver and
+> AML to use the same range of addresses is a realistic goal.  At least
+> the benefit will not outweigh the resulting complexity if the opregion
+> is actually never used by AML in practice.
+> 
+> So, why don't we have a flag that will make i801_access() return an
+> error on every invocation when set (the callers of it should be able
+> to cope with that or they are broken IMO) and why don't we set it when
+> AML accesses the opregion first time?
 
-It doesn't look like trying to make it safe for both the driver and
-AML to use the same range of addresses is a realistic goal.  At least
-the benefit will not outweigh the resulting complexity if the opregion
-is actually never used by AML in practice.
+Yeah, that occured to me also yesterday evening :)
 
-So, why don't we have a flag that will make i801_access() return an
-error on every invocation when set (the callers of it should be able
-to cope with that or they are broken IMO) and why don't we set it when
-AML accesses the opregion first time?
+> Yes, that will prevent the driver from actually working *when* AML
+> turns out to use the opregion, but IMO that's a bit more friendly than
+> preventing the driver from loading at all.
 
-Yes, that will prevent the driver from actually working *when* AML
-turns out to use the opregion, but IMO that's a bit more friendly than
-preventing the driver from loading at all.
+I agree. If nobody objects, I'm going to create v2 of the patch that
+prevents further driver access if AML touches the OpRegion.
