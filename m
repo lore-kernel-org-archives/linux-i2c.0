@@ -1,56 +1,43 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v7 16/24] i2c: allow adapter drivers to override the
- adapter locking
-Date: Wed, 4 May 2016 16:10:49 +0200
-Message-ID: <87de4033-3b58-3ef6-d22b-b90901885b39@axentia.se>
-References: <1461165484-2314-1-git-send-email-peda@axentia.se>
- <1461165484-2314-17-git-send-email-peda@axentia.se>
- <20160428205018.GA3553@katana>
- <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
- <20160429071604.GB1870@katana>
- <357e6fda-73b3-fb7f-c341-97f09af1943f@axentia.se>
- <20160503213908.GC2018@tetsubishi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+From: David Wu <david.wu@rock-chips.com>
+Subject: [PATCH v7 3/9] i2c: rk3x: Remove redundant rk3x_i2c_clean_ipd()
+Date: Wed,  4 May 2016 22:13:08 +0800
+Message-ID: <1462371194-5809-4-git-send-email-david.wu@rock-chips.com>
+References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
+Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db3on0133.outbound.protection.outlook.com ([157.55.234.133]:14412
-	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750911AbcEDOLF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 4 May 2016 10:11:05 -0400
-In-Reply-To: <20160503213908.GC2018@tetsubishi>
+Received: from lucky1.263xmail.com ([211.157.147.131]:48692 "EHLO
+	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750779AbcEDOOb (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 4 May 2016 10:14:31 -0400
+In-Reply-To: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.koz>
+To: heiko@sntech.de, wsa@the-dreams.de
+Cc: robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <david.wu@rock-chips.com>
 
+Call rk3x_i2c_setup() before rk3x_i2c_start()
+and the last thing in setup was to clean the IPD,
+so no reason to do it at the beginning of start.
 
+Signed-off-by: David Wu <david.wu@rock-chips.com>
+---
+Change in v7:
+- none
 
-On 2016-05-03 23:39, Wolfram Sang wrote:
->> Yes, they look like reasonable complaints.
-> 
-> Thanks for fixing them. I just sent out my latest comments and when you
-> fix those and send V8, I'll apply that right away. I think we are safe
-> to fix the rest incrementally if needed. Note that I didn't review the
+ drivers/i2c/busses/i2c-rk3x.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Sounds like a plan.
-
-> IIO and media patches, I trust the reviewers on those.
-> 
-> Thanks for your work on this! I need a break now, this is
-> mind-boggling...
-
-And thanks for reviewing it!
-
-A question on best practices here... I already did a v8 (but only as
-a branch) so I think this will be v9, bit that's a minor detail. The
-real question is what I should do about patches 1-15 that are already
-in next? Send them too? If not, should I send 16-24 with the same old
-patch numbers or should they be numbered 1-9 now? And should such a
-shortened series be rebased on 1-15 in next?
-
-Or does it not really matter?
-
-Cheers,
-Peter
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 1e2677a..9eeb4e5 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -174,7 +174,6 @@ static void rk3x_i2c_start(struct rk3x_i2c *i2c)
+ {
+ 	u32 val;
+ 
+-	rk3x_i2c_clean_ipd(i2c);
+ 	i2c_writel(i2c, REG_INT_START, REG_IEN);
+ 
+ 	/* enable adapter with correct mode, send START condition */
+-- 
+1.9.1
