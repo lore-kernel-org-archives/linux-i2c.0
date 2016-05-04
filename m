@@ -1,124 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v9 0/9] i2c mux cleanup and locking update
-Date: Wed, 4 May 2016 22:42:48 +0200
-Message-ID: <20160504204248.GA4270@katana>
-References: <1462392935-28011-1-git-send-email-peda@axentia.se>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v7 1/9] i2c: rk3x: add documentation to fields in "struct rk3x_i2c"
+Date: Wed, 4 May 2016 16:45:59 -0700
+Message-ID: <CAD=FV=VyAie7NcO3q4qQWEdHaiUUHbRN-6iWV3y+kvgSYPpkEg@mail.gmail.com>
+References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
+	<1462371194-5809-2-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1462392935-28011-1-git-send-email-peda@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, Hans Verkuil <hans.v>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1462371194-5809-2-git-send-email-david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Brian Norris <briannorris-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, David Riley <davidriley-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+David,
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, May 4, 2016 at 7:13 AM, David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
+> Signed-off-by: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> ---
+> Change in v7:
+> - none
+>
+>  drivers/i2c/busses/i2c-rk3x.c | 22 +++++++++++++++++++++-
+>  1 file changed, 21 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+> index 80bed02..7e45d51 100644
+> --- a/drivers/i2c/busses/i2c-rk3x.c
+> +++ b/drivers/i2c/busses/i2c-rk3x.c
+> @@ -90,6 +90,26 @@ struct rk3x_i2c_soc_data {
+>         int grf_offset;
+>  };
+>
+> +/**
+> + * struct rk3x_i2c - private data of the controller
+> + * @adap: corresponding I2C adapter
+> + * @dev: device for this controller
+> + * @soc_data: related soc data struct
+> + * @regs: virtual memory area
+> + * @clk: clock of i2c bus
+> + * @clk_rate_nb: i2c clk rate change notify
+> + * @t: I2C known timing information
 
-On Wed, May 04, 2016 at 10:15:26PM +0200, Peter Rosin wrote:
-> Hi!
->=20
-> I have a pair of boards with this i2c topology:
->=20
->                        GPIO ---|  ------ BAT1
->                         |      v /
->    I2C  -----+------B---+---- MUX
->              |                   \
->            EEPROM                 ------ BAT2
->=20
-> 	(B denotes the boundary between the boards)
->=20
-> The problem with this is that the GPIO controller sits on the same i2c bus
-> that it MUXes. For pca954x devices this is worked around by using unlocked
-> transfers when updating the MUX. I have no such luck as the GPIO is a gen=
-eral
-> purpose IO expander and the MUX is just a random bidirectional MUX, unawa=
-re
-> of the fact that it is muxing an i2c bus. Extending unlocked transfers
-> into the GPIO subsystem is too ugly to even think about. But the general =
-hw
-> approach is sane in my opinion, with the number of connections between the
-> two boards minimized. To put it plainly, I need support for it.
->=20
-> So, I observe that while it is needed to have the i2c bus locked during t=
-he
-> actual MUX update in order to avoid random garbage on the slave side, it
-> is not strictly a must to have it locked over the whole sequence of a full
-> select-transfer-deselect operation. The MUX itself needs to be locked, so
-> transfers to clients behind the mux are serialized, and the MUX needs to =
-be
-> stable during all i2c traffic (otherwise individual mux slave segments
-> might see garbage).
->=20
-> This series accomplishes this by adding code to i2c-mux-gpio and
-> i2c-mux-pinctrl that determines if all involved devices used to update the
-> mux are controlled by the same root i2c adapter that is muxed. When this
-> is the case, the select-transfer-deselect operations should be locked
-> individually to avoid the deadlock. The i2c bus *is* still locked
-> during muxing, since the muxing happens as part of i2c transfers. This
-> is true even if the MUX is updated with several transfers to the GPIO (at
-> least as long as *all* MUX changes are using the i2c master bus). A lock
-> is added to i2c adapters that muxes on that adapter grab, so that transfe=
-rs
-> through the muxes are serialized.
->=20
-> Concerns:
-> - The locking is perhaps too complex?
-> - I worry about the priority inheritance aspect of the adapter lock. When
->   the transfers behind the mux are divided into select-transfer-deselect =
-all
->   locked individually, low priority transfers get more chances to interfe=
-re
->   with high priority transfers.
-> - When doing an i2c_transfer() in_atomic() context or with irqs_disabled(=
-),
->   there is a higher possibility that the mux is not returned to its idle
->   state after a failed (-EAGAIN) transfer due to trylock.
-> - Is the detection of i2c-controlled gpios and pinctrls sane (i.e. the
->   usage of the new i2c_root_adapter() function in 18/24)?
->=20
-> The first half (patches 01-15 in v7) of what was originally part of this
-> series have already been scheduled for 4.6. So, this is the second half
-> (patches 16-24 in v7, patches 1-9 in v9).
->=20
-> To summarize the series, there is some preparatory locking changes in
-> in 1/9 and the real meat is in 3/9. There is some documentation added in
-> 4/9 while 5/9 and after are cleanups to existing drivers utilizing
-> the new stuff.
->=20
-> PS. needs a bunch of testing, I do not have access to all the involved hw.
->=20
-> This second half of the series is planned to be merged with 4.7 and can
-> also be pulled from github, if that is preferred:
->=20
-
-Applied all to for-next, thanks for keeping at it!
+You're a little ahead of yourself.  The @t element doesn't exist as of
+this patch.  Instead all the sub-elements are there.  This in this
+patch you need to document scl_frequency, scl_rise_ns, ....  In a
+later patch you'd change it to t.
 
 
---ew6BAiZeqk4r7MaW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXKl7IAAoJEBQN5MwUoCm2m88P/3xZwhW448LzmsJnYPKjkk60
-QYI1Ndi/yx22b3KFjihd5dBq/nyq9BVNpqkDeEFOuknC1Sg8aYjfu5nFJWIPj+50
-GLjbP1qfPhBxygzPJ5m5/pgBPQJGa6XI+UVFjKOoUYPzQXLLLI040hlYgkU9OPVa
-/OqybfWaA6AATy+J1nU0SStLHnJbQO4l+0QXJQ3DyGjJbW1ZJzbAm1F3vCjlfSQF
-T6HFsMSBUDzpKtDyLIznekRJqMp9wkn5nc2ZALKR9f51DSM52auEHrMGqPKHCdun
-gaRFuGj6h9xzUkJkdB7PibS78jUDyZJT237bPnB3JWRnWyy/Y4dQjekr6FZdpc2n
-ciUpYAiAfzaSk+mxr496glcaLDalU5pCzsWVLfFsxSz1hKF56vIT4SIElpfcZy9R
-NjrXj9GpdDTHc8IfZYpHxoy2ILfHoEZwySvoOHQdfuWDk56JCvJK8e2NFm1RVGPw
-xeGyFHPg+vnznMe45leVhsuX8YzTJhpTrrS+j5XnuQi+Af1ZPFrHety4Yw01pWqS
-NA2BiYE8uBAIzLVKaChGGCHJyMgpkp97ESx7n1GuCq3VITIpwQJLIb5ynartEwEk
-HBHlDc78s1Q6Vhm3sTUpXi6bsW/XD0aveg8CSqWHuMLCnxfKi4N2yz9Y1uOe++Um
-c7j74vKBacnVMkhGKbPw
-=+P4c
------END PGP SIGNATURE-----
-
---ew6BAiZeqk4r7MaW--
+-Doug
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
