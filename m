@@ -1,71 +1,71 @@
-From: David Wu <david.wu@rock-chips.com>
-Subject: [PATCH v7 9/9] i2c: rk3x: support fast-mode plus for rk3399
-Date: Wed,  4 May 2016 22:37:48 +0800
-Message-ID: <1462372668-6583-1-git-send-email-david.wu@rock-chips.com>
-References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
-Content-Type: text/plain; charset="utf-8"
+From: Lucas De Marchi <lucas.de.marchi@gmail.com>
+Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
+Date: Wed, 4 May 2016 11:38:08 -0300
+Message-ID: <CAKi4VAJ4UMpezFpqro+2=gNQD=tjEN=wVC6kahT3wQQYTOquqg@mail.gmail.com>
+References: <5707B9B4.6020402@alitech.com> <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
+ <CAKi4VA+WVwXBM5cP8Q1iQ_YqWF5jvE5XbbLYEb9Jjfo4Lgw3=g@mail.gmail.com> <572727D7.6080708@alitech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.132]:57932 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751344AbcEDOiW (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 4 May 2016 10:38:22 -0400
-In-Reply-To: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
+Received: from mail-yw0-f173.google.com ([209.85.161.173]:33261 "EHLO
+	mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753417AbcEDOi2 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 4 May 2016 10:38:28 -0400
+In-Reply-To: <572727D7.6080708@alitech.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: heiko@sntech.de, wsa@the-dreams.de
-Cc: robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <david.wu@rock-chips.com>
+To: Christian Ruppert <christian.ruppert@alitech.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>
 
-Signed-off-by: David Wu <david.wu@rock-chips.com>
----
- drivers/i2c/busses/i2c-rk3x.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+Hi Christian,
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 47368c4..c66cc39 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -124,6 +124,17 @@ static const struct i2c_spec_values fast_mode_spec = {
- 	.min_hold_buffer_ns = 1300,
- };
- 
-+static const struct i2c_spec_values fast_mode_plus_spec = {
-+	.min_hold_start_ns = 260,
-+	.min_low_ns = 500,
-+	.min_high_ns = 260,
-+	.min_setup_start_ns = 260,
-+	.max_data_hold_ns = 400,
-+	.min_data_setup_ns = 50,
-+	.min_setup_stop_ns = 260,
-+	.min_hold_buffer_ns = 500,
-+};
-+
- /**
-  * struct rk3x_i2c_calced_timings:
-  * @div_low: Divider output for low
-@@ -534,8 +545,10 @@ static const struct i2c_spec_values *rk3x_i2c_get_spec(unsigned int speed)
- {
- 	if (speed <= 100000)
- 		return &standard_mode_spec;
--	else
-+	else if (speed <= 400000)
- 		return &fast_mode_spec;
-+	else
-+		return &fast_mode_plus_spec;
- }
- 
- /**
-@@ -746,9 +759,9 @@ static int rk3x_i2c_v1_calc_timings(unsigned long clk_rate,
- 	const struct i2c_spec_values *spec;
- 	int ret = 0;
- 
--	/* Support standard-mode and fast-mode */
--	if (WARN_ON(t->bus_freq_hz > 400000))
--		t->bus_freq_hz = 400000;
-+	/* Support standard-mode, fast-mode and fast-mode plus */
-+	if (WARN_ON(t->bus_freq_hz > 1000000))
-+		t->bus_freq_hz = 1000000;
- 
- 	/* prevent scl_rate_khz from becoming 0 */
- 	if (WARN_ON(t->bus_freq_hz < 1000))
--- 
-1.9.1
+On Mon, May 2, 2016 at 7:11 AM, Christian Ruppert
+<christian.ruppert@alitech.com> wrote:
+> Dear Lucas,
+>
+> On 22.04.2016 17:19, Lucas De Marchi wrote:
+>> CC'ing Christian.
+>>
+>> On Fri, Apr 22, 2016 at 12:08 PM, Lucas De Marchi
+>> <lucas.demarchi@intel.com> wrote:
+>>> Disabling the adapter after each transfer is pretty bad for sensors and
+>>> other devices doing small transfers at a high rate. It slows down the
+>>> transfer rate a lot since each of them have to wait the adapter to be
+>>> enabled again.
+>>>
+>>> During the transfer init we check the status register for no activity
+>>> and TX buffer being empty since otherwise we can't change IC_TAR
+>>> dynamically.
+>>>
+>>> When a transfer fails the adapter will still be disabled - this is a
+>>> conservative approach. When transfers succeed, the adapter is left
+>>> enabled and it's configured so to disable interrupts.
+>>
+>> Christian, this is the updated patch. Now adapter starts disabled and
+>> is disabled when there's a failed transfer. I hope this can work with
+>> your hardware.
+>
+> Good news: The system now boots without deadlocks.
+
+:). Thanks for testing this.
+
+>
+> Bad  news: Not all transfers seem to take place as they should.
+>            I don't have the time for a deep analysis but a few quick
+>            experiments seem to indicate that the adapter needs to be
+>            disabled while updating TAR to a value different from the
+>            previous one. Disabling the adapter does not seem to be
+>            required if TAR doesn't change from one transfer to the next.
+>            I don't know if there are any conditions under which we can
+>            leave the adapter enabled while changing TAR but at least in
+>            some cases it seems to work.
+
+:(
+
+This is unfortunate. If the bus is shared for 2 slave devices we will
+get the slow down back. I wonder if there's a HW version or something
+like that in the registers which can be used to add quirks to tweak the
+behavior.  I'll dig some documentation, but if anyone knows, it'd be
+nice to have it pointed out.
+
+Lucas De Marchi
