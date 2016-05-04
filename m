@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv5 6/8] i2c: Provide a temporary .probe_new() call-back type
-Date: Wed,  4 May 2016 16:14:46 +0100
-Message-ID: <1462374888-22888-7-git-send-email-kieran@bingham.xyz>
+Subject: [PATCHv5 2/8] i2c: Add the ability to match device to compatible string without an of_node
+Date: Wed,  4 May 2016 16:14:42 +0100
+Message-ID: <1462374888-22888-3-git-send-email-kieran@bingham.xyz>
 References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
@@ -12,86 +12,59 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Lee Jones <lee.jones@linaro.org>
 
-This will aid the seamless removal of the current probe()'s, more
-commonly unused than used second parameter.  Most I2C drivers can
-simply switch over to the new interface, others which have DT
-support can use its own matching instead and others can call
-i2c_match_id() themselves.  This brings I2C's device probe method
-into line with other similar interfaces in the kernel and prevents
-the requirement to pass an i2c_device_id table.
+A great deal of I2C devices are currently matched via DT node name, and
+as such the compatible naming convention of '<vendor>,<device>' has gone
+somewhat awry - some nodes don't supply one, some supply an arbitrary
+string and others the correct device name with an arbitrary vendor prefix.
 
-Suggested-by: Grant Likely <grant.likely@linaro.org>
+In an effort to correct this problem we have to supply a mechanism to
+match a device by compatible string AND by simple device name.  This
+function strips off the '<vendor>,' part of a supplied compatible string
+and attempts to match without it.
+
+The plan is to remove this function once all of the compatible strings
+for each device have been brought into line.
+
+Acked-by: Grant Likely <grant.likely@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
-[Kieran: fix rebase conflicts and adapt for dev_pm_domain_{attach,detach}]
+[Kieran: strnicmp to strncasecmp]
 Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
 Tested-by: Kieran Bingham <kieran@bingham.xyz>
 ---
-Changes since v4 [Kieran]
- - Rename .probe2 to probe_new
- - Checkpatch warnings fixed
----
- drivers/i2c/i2c-core.c | 15 ++++++++++++---
- include/linux/i2c.h    |  8 +++++++-
- 2 files changed, 19 insertions(+), 4 deletions(-)
+ drivers/i2c/i2c-core.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 64d543b041b1..268fec3b6931 100644
+index e980c8257676..f75e78f6f9c1 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -697,8 +697,6 @@ static int i2c_device_probe(struct device *dev)
- 	}
- 
- 	driver = to_i2c_driver(dev->driver);
--	if (!driver->probe)
--		return -EINVAL;
- 
- 	/*
- 	 * An I2C ID table is not mandatory, if and only if, a suitable Device
-@@ -740,7 +738,18 @@ static int i2c_device_probe(struct device *dev)
- 	if (status == -EPROBE_DEFER)
- 		goto err_clear_wakeup_irq;
- 
--	status = driver->probe(client, i2c_match_id(driver->id_table, client));
-+	/*
-+	 * When there are no more users of probe(),
-+	 * rename probe_new to probe.
-+	 */
-+	if (driver->probe_new)
-+		status = driver->probe_new(client);
-+	else if (driver->probe)
-+		status = driver->probe(client,
-+				       i2c_match_id(driver->id_table, client));
-+	else
-+		status = -EINVAL;
+@@ -1494,6 +1494,27 @@ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node)
+ 	return adapter;
+ }
+ EXPORT_SYMBOL(of_get_i2c_adapter_by_node);
 +
- 	if (status)
- 		goto err_detach_pm_domain;
- 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index e3aa3f5e59a8..c8f73b9f51fe 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -130,7 +130,8 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
-  * struct i2c_driver - represent an I2C device driver
-  * @class: What kind of i2c device we instantiate (for detect)
-  * @attach_adapter: Callback for bus addition (deprecated)
-- * @probe: Callback for device binding
-+ * @probe: Callback for device binding - soon to be deprecated
-+ * @probe_new: New callback for device binding
-  * @remove: Callback for device unbinding
-  * @shutdown: Callback for device shutdown
-  * @alert: Alert callback, for example for the SMBus alert protocol
-@@ -173,6 +174,11 @@ struct i2c_driver {
- 	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
- 	int (*remove)(struct i2c_client *);
- 
-+	/* New driver model interface to aid the seamless removal of the
-+	 * current probe()'s, more commonly unused than used second parameter.
-+	 */
-+	int (*probe_new)(struct i2c_client *);
++static const struct of_device_id*
++i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
++				  struct i2c_client *client)
++{
++	const char *name;
 +
- 	/* driver model interfaces that don't relate to enumeration  */
- 	void (*shutdown)(struct i2c_client *);
- 
++	for (; matches->compatible[0]; matches++) {
++		name = strchr(matches->compatible, ',');
++		if (!name)
++			name = matches->compatible;
++		else
++			name++;
++
++		if (!strncasecmp(client->name, name, strlen(client->name)))
++			return matches;
++	}
++
++	return NULL;
++}
++
+ #else
+ static void of_i2c_register_devices(struct i2c_adapter *adap) { }
+ #endif /* CONFIG_OF */
 -- 
 2.5.0
