@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v9 4/9] i2c-mux: document i2c muxes and elaborate on parent-/mux-locked muxes
-Date: Wed, 4 May 2016 22:15:30 +0200
-Message-ID: <1462392935-28011-5-git-send-email-peda@axentia.se>
+Subject: [PATCH v9 7/9] [media] rtl2832: change the i2c gate to be mux-locked
+Date: Wed, 4 May 2016 22:15:33 +0200
+Message-ID: <1462392935-28011-8-git-send-email-peda@axentia.se>
 References: <1462392935-28011-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,400 +12,504 @@ To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlowski>
 List-Id: linux-i2c@vger.kernel.org
 
+The root i2c adapter lock is then no longer held by the i2c mux during
+accesses behind the i2c gate, and such accesses need to take that lock
+just like any other ordinary i2c accesses do.
+
+So, declare the i2c gate mux-locked, and zap the regmap overrides
+that makes the i2c accesses unlocked and use plain old regmap
+accesses. This also removes the need for the regmap wrappers used by
+rtl2832_sdr, so deconvolute the code further and provide the regmap
+handle directly instead of the wrapper functions.
+
+Tested-by: Antti Palosaari <crope@iki.fi>
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- Documentation/i2c/i2c-topology | 370 +++++++++++++++++++++++++++++++++++++++++
- MAINTAINERS                    |   1 +
- 2 files changed, 371 insertions(+)
- create mode 100644 Documentation/i2c/i2c-topology
+ Documentation/i2c/i2c-topology            |   2 +-
+ drivers/media/dvb-frontends/rtl2832.c     | 190 ++++--------------------------
+ drivers/media/dvb-frontends/rtl2832.h     |   4 +-
+ drivers/media/dvb-frontends/rtl2832_sdr.c |  13 +-
+ drivers/media/dvb-frontends/rtl2832_sdr.h |   5 +-
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c   |   5 +-
+ 6 files changed, 37 insertions(+), 182 deletions(-)
 
 diff --git a/Documentation/i2c/i2c-topology b/Documentation/i2c/i2c-topology
-new file mode 100644
-index 000000000000..27bfd682808d
---- /dev/null
+index 5e40802f0be2..e0aefeece551 100644
+--- a/Documentation/i2c/i2c-topology
 +++ b/Documentation/i2c/i2c-topology
-@@ -0,0 +1,370 @@
-+I2C topology
-+============
-+
-+There are a couple of reasons for building more complex i2c topologies
-+than a straight-forward i2c bus with one adapter and one or more devices.
-+
-+1. A mux may be needed on the bus to prevent address collisions.
-+
-+2. The bus may be accessible from some external bus master, and arbitration
-+   may be needed to determine if it is ok to access the bus.
-+
-+3. A device (particularly RF tuners) may want to avoid the digital noise
-+   from the i2c bus, at least most of the time, and sits behind a gate
-+   that has to be operated before the device can be accessed.
-+
-+Etc
-+
-+These constructs are represented as i2c adapter trees by Linux, where
-+each adapter has a parent adapter (except the root adapter) and zero or
-+more child adapters. The root adapter is the actual adapter that issues
-+i2c transfers, and all adapters with a parent are part of an "i2c-mux"
-+object (quoted, since it can also be an arbitrator or a gate).
-+
-+Depending of the particular mux driver, something happens when there is
-+an i2c transfer on one of its child adapters. The mux driver can
-+obviously operate a mux, but it can also do arbitration with an external
-+bus master or open a gate. The mux driver has two operations for this,
-+select and deselect. select is called before the transfer and (the
-+optional) deselect is called after the transfer.
-+
-+
-+Locking
-+=======
-+
-+There are two variants of locking available to i2c muxes, they can be
-+mux-locked or parent-locked muxes. As is evident from below, it can be
-+useful to know if a mux is mux-locked or if it is parent-locked. The
-+following list was correct at the time of writing:
-+
-+In drivers/i2c/muxes/
-+i2c-arb-gpio-challenge    Parent-locked
-+i2c-mux-gpio              Normally parent-locked, mux-locked iff
-+                          all involved gpio pins are controlled by the
-+                          same i2c root adapter that they mux.
-+i2c-mux-pca9541           Parent-locked
-+i2c-mux-pca954x           Parent-locked
-+i2c-mux-pinctrl           Normally parent-locked, mux-locked iff
-+                          all involved pinctrl devices are controlled
-+                          by the same i2c root adapter that they mux.
-+i2c-mux-reg               Parent-locked
-+
-+In drivers/iio/
-+imu/inv_mpu6050/          Parent-locked
-+
-+In drivers/media/
-+dvb-frontends/m88ds3103   Parent-locked
-+dvb-frontends/rtl2830     Parent-locked
-+dvb-frontends/rtl2832     Parent-locked
-+dvb-frontends/si2168      Parent-locked
-+usb/cx231xx/              Parent-locked
-+
-+
-+Mux-locked muxes
-+----------------
-+
-+Mux-locked muxes does not lock the entire parent adapter during the
-+full select-transfer-deselect transaction, only the muxes on the parent
-+adapter are locked. Mux-locked muxes are mostly interesting if the
-+select and/or deselect operations must use i2c transfers to complete
-+their tasks. Since the parent adapter is not fully locked during the
-+full transaction, unrelated i2c transfers may interleave the different
-+stages of the transaction. This has the benefit that the mux driver
-+may be easier and cleaner to implement, but it has some caveats.
-+
-+ML1. If you build a topology with a mux-locked mux being the parent
-+     of a parent-locked mux, this might break the expectation from the
-+     parent-locked mux that the root adapter is locked during the
-+     transaction.
-+
-+ML2. It is not safe to build arbitrary topologies with two (or more)
-+     mux-locked muxes that are not siblings, when there are address
-+     collisions between the devices on the child adapters of these
-+     non-sibling muxes.
-+
-+     I.e. the select-transfer-deselect transaction targeting e.g. device
-+     address 0x42 behind mux-one may be interleaved with a similar
-+     operation targeting device address 0x42 behind mux-two. The
-+     intension with such a topology would in this hypothetical example
-+     be that mux-one and mux-two should not be selected simultaneously,
-+     but mux-locked muxes do not guarantee that in all topologies.
-+
-+ML3. A mux-locked mux cannot be used by a driver for auto-closing
-+     gates/muxes, i.e. something that closes automatically after a given
-+     number (one, in most cases) of i2c transfers. Unrelated i2c transfers
-+     may creep in and close prematurely.
-+
-+ML4. If any non-i2c operation in the mux driver changes the i2c mux state,
-+     the driver has to lock the root adapter during that operation.
-+     Otherwise garbage may appear on the bus as seen from devices
-+     behind the mux, when an unrelated i2c transfer is in flight during
-+     the non-i2c mux-changing operation.
-+
-+
-+Mux-locked Example
-+------------------
-+
-+                   .----------.     .--------.
-+    .--------.     |   mux-   |-----| dev D1 |
-+    |  root  |--+--|  locked  |     '--------'
-+    '--------'  |  |  mux M1  |--.  .--------.
-+                |  '----------'  '--| dev D2 |
-+                |  .--------.       '--------'
-+                '--| dev D3 |
-+                   '--------'
-+
-+When there is an access to D1, this happens:
-+
-+ 1. Someone issues an i2c-transfer to D1.
-+ 2. M1 locks muxes on its parent (the root adapter in this case).
-+ 3. M1 calls ->select to ready the mux.
-+ 4. M1 (presumably) does some i2c-transfers as part of its select.
-+    These transfers are normal i2c-transfers that locks the parent
-+    adapter.
-+ 5. M1 feeds the i2c-transfer from step 1 to its parent adapter as a
-+    normal i2c-transfer that locks the parent adapter.
-+ 6. M1 calls ->deselect, if it has one.
-+ 7. Same rules as in step 4, but for ->deselect.
-+ 8. M1 unlocks muxes on its parent.
-+
-+This means that accesses to D2 are lockout out for the full duration
-+of the entire operation. But accesses to D3 are possibly interleaved
-+at any point.
-+
-+
-+Parent-locked muxes
-+-------------------
-+
-+Parent-locked muxes lock the parent adapter during the full select-
-+transfer-deselect transaction. The implication is that the mux driver
-+has to ensure that any and all i2c transfers through that parent
-+adapter during the transaction are unlocked i2c transfers (using e.g.
-+__i2c_transfer), or a deadlock will follow. There are a couple of
-+caveats.
-+
-+PL1. If you build a topology with a parent-locked mux being the child
-+     of another mux, this might break a possible assumption from the
-+     child mux that the root adapter is unused between its select op
-+     and the actual transfer (e.g. if the child mux is auto-closing
-+     and the parent mux issus i2c-transfers as part of its select).
-+     This is especially the case if the parent mux is mux-locked, but
-+     it may also happen if the parent mux is parent-locked.
-+
-+PL2. If select/deselect calls out to other subsystems such as gpio,
-+     pinctrl, regmap or iio, it is essential that any i2c transfers
-+     caused by these subsystems are unlocked. This can be convoluted to
-+     accomplish, maybe even impossible if an acceptably clean solution
-+     is sought.
-+
-+
-+Parent-locked Example
-+---------------------
-+
-+                   .----------.     .--------.
-+    .--------.     |  parent- |-----| dev D1 |
-+    |  root  |--+--|  locked  |     '--------'
-+    '--------'  |  |  mux M1  |--.  .--------.
-+                |  '----------'  '--| dev D2 |
-+                |  .--------.       '--------'
-+                '--| dev D3 |
-+                   '--------'
-+
-+When there is an access to D1, this happens:
-+
-+ 1. Someone issues an i2c-transfer to D1.
-+ 2. M1 locks muxes on its parent (the root adapter in this case).
-+ 3. M1 locks its parent adapter.
-+ 4. M1 calls ->select to ready the mux.
-+ 5. If M1 does any i2c-transfers (on this root adapter) as part of
-+    its select, those transfers must be unlocked i2c-transfers so
-+    that they do not deadlock the root adapter.
-+ 6. M1 feeds the i2c-transfer from step 1 to the root adapter as an
-+    unlocked i2c-transfer, so that it does not deadlock the parent
-+    adapter.
-+ 7. M1 calls ->deselect, if it has one.
-+ 8. Same rules as in step 5, but for ->deselect.
-+ 9. M1 unlocks its parent adapter.
-+10. M1 unlocks muxes on its parent.
-+
-+
-+This means that accesses to both D2 and D3 are locked out for the full
-+duration of the entire operation.
-+
-+
-+Complex Examples
-+================
-+
-+Parent-locked mux as parent of parent-locked mux
-+------------------------------------------------
-+
-+This is a useful topology, but it can be bad.
-+
-+                   .----------.     .----------.     .--------.
-+    .--------.     |  parent- |-----|  parent- |-----| dev D1 |
-+    |  root  |--+--|  locked  |     |  locked  |     '--------'
-+    '--------'  |  |  mux M1  |--.  |  mux M2  |--.  .--------.
-+                |  '----------'  |  '----------'  '--| dev D2 |
-+                |  .--------.    |  .--------.       '--------'
-+                '--| dev D4 |    '--| dev D3 |
-+                   '--------'       '--------'
-+
-+When any device is accessed, all other devices are locked out for
-+the full duration of the operation (both muxes lock their parent,
-+and specifically when M2 requests its parent to lock, M1 passes
-+the buck to the root adapter).
-+
-+This topology is bad if M2 is an auto-closing mux and M1->select
-+issues any unlocked i2c transfers on the root adapter that may leak
-+through and be seen by the M2 adapter, thus closing M2 prematurely.
-+
-+
-+Mux-locked mux as parent of mux-locked mux
-+------------------------------------------
-+
-+This is a good topology.
-+
-+                   .----------.     .----------.     .--------.
-+    .--------.     |   mux-   |-----|   mux-   |-----| dev D1 |
-+    |  root  |--+--|  locked  |     |  locked  |     '--------'
-+    '--------'  |  |  mux M1  |--.  |  mux M2  |--.  .--------.
-+                |  '----------'  |  '----------'  '--| dev D2 |
-+                |  .--------.    |  .--------.       '--------'
-+                '--| dev D4 |    '--| dev D3 |
-+                   '--------'       '--------'
-+
-+When device D1 is accessed, accesses to D2 are locked out for the
-+full duration of the operation (muxes on the top child adapter of M1
-+are locked). But accesses to D3 and D4 are possibly interleaved at
-+any point. Accesses to D3 locks out D1 and D2, but accesses to D4
-+are still possibly interleaved.
-+
-+
-+Mux-locked mux as parent of parent-locked mux
-+---------------------------------------------
-+
-+This is probably a bad topology.
-+
-+                   .----------.     .----------.     .--------.
-+    .--------.     |   mux-   |-----|  parent- |-----| dev D1 |
-+    |  root  |--+--|  locked  |     |  locked  |     '--------'
-+    '--------'  |  |  mux M1  |--.  |  mux M2  |--.  .--------.
-+                |  '----------'  |  '----------'  '--| dev D2 |
-+                |  .--------.    |  .--------.       '--------'
-+                '--| dev D4 |    '--| dev D3 |
-+                   '--------'       '--------'
-+
-+When device D1 is accessed, accesses to D2 and D3 are locked out
-+for the full duration of the operation (M1 locks child muxes on the
-+root adapter). But accesses to D4 are possibly interleaved at any
-+point.
-+
-+This kind of topology is generally not suitable and should probably
-+be avoided. The reason is that M2 probably assumes that there will
-+be no i2c transfers during its calls to ->select and ->deselect, and
-+if there are, any such transfers might appear on the slave side of M2
-+as partial i2c transfers, i.e. garbage or worse. This might cause
-+device lockups and/or other problems.
-+
-+The topology is especially troublesome if M2 is an auto-closing
-+mux. In that case, any interleaved accesses to D4 might close M2
-+prematurely, as might any i2c-transfers part of M1->select.
-+
-+But if M2 is not making the above stated assumption, and if M2 is not
-+auto-closing, the topology is fine.
-+
-+
-+Parent-locked mux as parent of mux-locked mux
-+---------------------------------------------
-+
-+This is a good topology.
-+
-+                   .----------.     .----------.     .--------.
-+    .--------.     |  parent- |-----|   mux-   |-----| dev D1 |
-+    |  root  |--+--|  locked  |     |  locked  |     '--------'
-+    '--------'  |  |  mux M1  |--.  |  mux M2  |--.  .--------.
-+                |  '----------'  |  '----------'  '--| dev D2 |
-+                |  .--------.    |  .--------.       '--------'
-+                '--| dev D4 |    '--| dev D3 |
-+                   '--------'       '--------'
-+
-+When D1 is accessed, accesses to D2 are locked out for the full
-+duration of the operation (muxes on the top child adapter of M1
-+are locked). Accesses to D3 and D4 are possibly interleaved at
-+any point, just as is expected for mux-locked muxes.
-+
-+When D3 or D4 are accessed, everything else is locked out. For D3
-+accesses, M1 locks the root adapter. For D4 accesses, the root
-+adapter is locked directly.
-+
-+
-+Two mux-locked sibling muxes
-+----------------------------
-+
-+This is a good topology.
-+
-+                                    .--------.
-+                   .----------.  .--| dev D1 |
-+                   |   mux-   |--'  '--------'
-+                .--|  locked  |     .--------.
-+                |  |  mux M1  |-----| dev D2 |
-+                |  '----------'     '--------'
-+                |  .----------.     .--------.
-+    .--------.  |  |   mux-   |-----| dev D3 |
-+    |  root  |--+--|  locked  |     '--------'
-+    '--------'  |  |  mux M2  |--.  .--------.
-+                |  '----------'  '--| dev D4 |
-+                |  .--------.       '--------'
-+                '--| dev D5 |
-+                   '--------'
-+
-+When D1 is accessed, accesses to D2, D3 and D4 are locked out. But
-+accesses to D5 may be interleaved at any time.
-+
-+
-+Two parent-locked sibling muxes
-+-------------------------------
-+
-+This is a good topology.
-+
-+                                   .--------.
-+                   .----------.  .--| dev D1 |
-+                   |  parent- |--'  '--------'
-+                .--|  locked  |     .--------.
-+                |  |  mux M1  |-----| dev D2 |
-+                |  '----------'     '--------'
-+                |  .----------.     .--------.
-+    .--------.  |  |  parent- |-----| dev D3 |
-+    |  root  |--+--|  locked  |     '--------'
-+    '--------'  |  |  mux M2  |--.  .--------.
-+                |  '----------'  '--| dev D4 |
-+                |  .--------.       '--------'
-+                '--| dev D5 |
-+                   '--------'
-+
-+When any device is accessed, accesses to all other devices are locked
-+out.
-+
-+
-+Mux-locked and parent-locked sibling muxes
-+------------------------------------------
-+
-+This is a good topology.
-+
-+                                   .--------.
-+                   .----------.  .--| dev D1 |
-+                   |   mux-   |--'  '--------'
-+                .--|  locked  |     .--------.
-+                |  |  mux M1  |-----| dev D2 |
-+                |  '----------'     '--------'
-+                |  .----------.     .--------.
-+    .--------.  |  |  parent- |-----| dev D3 |
-+    |  root  |--+--|  locked  |     '--------'
-+    '--------'  |  |  mux M2  |--.  .--------.
-+                |  '----------'  '--| dev D4 |
-+                |  .--------.       '--------'
-+                '--| dev D5 |
-+                   '--------'
-+
-+When D1 or D2 are accessed, accesses to D3 and D4 are locked out while
-+accesses to D5 may interleave. When D3 or D4 are accessed, accesses to
-+all other devices are locked out.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 61a323a6b2cf..1a8b11f920e6 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5275,6 +5275,7 @@ I2C MUXES
- M:	Peter Rosin <peda@axentia.se>
- L:	linux-i2c@vger.kernel.org
- S:	Maintained
-+F:	Documentation/i2c/i2c-topology
- F:	Documentation/i2c/muxes/
- F:	Documentation/devicetree/bindings/i2c/i2c-mux*
- F:	drivers/i2c/i2c-mux.c
+@@ -55,7 +55,7 @@ imu/inv_mpu6050/          Mux-locked
+ In drivers/media/
+ dvb-frontends/m88ds3103   Parent-locked
+ dvb-frontends/rtl2830     Parent-locked
+-dvb-frontends/rtl2832     Parent-locked
++dvb-frontends/rtl2832     Mux-locked
+ dvb-frontends/si2168      Mux-locked
+ usb/cx231xx/              Parent-locked
+ 
+diff --git a/drivers/media/dvb-frontends/rtl2832.c b/drivers/media/dvb-frontends/rtl2832.c
+index 1b23788797b5..957523f07f61 100644
+--- a/drivers/media/dvb-frontends/rtl2832.c
++++ b/drivers/media/dvb-frontends/rtl2832.c
+@@ -153,43 +153,6 @@ static const struct rtl2832_reg_entry registers[] = {
+ 	[DVBT_REG_4MSEL]	= {0x013,  0, 0},
+ };
+ 
+-/* Our regmap is bypassing I2C adapter lock, thus we do it! */
+-static int rtl2832_bulk_write(struct i2c_client *client, unsigned int reg,
+-			      const void *val, size_t val_count)
+-{
+-	struct rtl2832_dev *dev = i2c_get_clientdata(client);
+-	int ret;
+-
+-	i2c_lock_adapter(client->adapter);
+-	ret = regmap_bulk_write(dev->regmap, reg, val, val_count);
+-	i2c_unlock_adapter(client->adapter);
+-	return ret;
+-}
+-
+-static int rtl2832_update_bits(struct i2c_client *client, unsigned int reg,
+-			       unsigned int mask, unsigned int val)
+-{
+-	struct rtl2832_dev *dev = i2c_get_clientdata(client);
+-	int ret;
+-
+-	i2c_lock_adapter(client->adapter);
+-	ret = regmap_update_bits(dev->regmap, reg, mask, val);
+-	i2c_unlock_adapter(client->adapter);
+-	return ret;
+-}
+-
+-static int rtl2832_bulk_read(struct i2c_client *client, unsigned int reg,
+-			     void *val, size_t val_count)
+-{
+-	struct rtl2832_dev *dev = i2c_get_clientdata(client);
+-	int ret;
+-
+-	i2c_lock_adapter(client->adapter);
+-	ret = regmap_bulk_read(dev->regmap, reg, val, val_count);
+-	i2c_unlock_adapter(client->adapter);
+-	return ret;
+-}
+-
+ static int rtl2832_rd_demod_reg(struct rtl2832_dev *dev, int reg, u32 *val)
+ {
+ 	struct i2c_client *client = dev->client;
+@@ -204,7 +167,7 @@ static int rtl2832_rd_demod_reg(struct rtl2832_dev *dev, int reg, u32 *val)
+ 	len = (msb >> 3) + 1;
+ 	mask = REG_MASK(msb - lsb);
+ 
+-	ret = rtl2832_bulk_read(client, reg_start_addr, reading, len);
++	ret = regmap_bulk_read(dev->regmap, reg_start_addr, reading, len);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -234,7 +197,7 @@ static int rtl2832_wr_demod_reg(struct rtl2832_dev *dev, int reg, u32 val)
+ 	len = (msb >> 3) + 1;
+ 	mask = REG_MASK(msb - lsb);
+ 
+-	ret = rtl2832_bulk_read(client, reg_start_addr, reading, len);
++	ret = regmap_bulk_read(dev->regmap, reg_start_addr, reading, len);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -248,7 +211,7 @@ static int rtl2832_wr_demod_reg(struct rtl2832_dev *dev, int reg, u32 val)
+ 	for (i = 0; i < len; i++)
+ 		writing[i] = (writing_tmp >> ((len - 1 - i) * 8)) & 0xff;
+ 
+-	ret = rtl2832_bulk_write(client, reg_start_addr, writing, len);
++	ret = regmap_bulk_write(dev->regmap, reg_start_addr, writing, len);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -525,7 +488,8 @@ static int rtl2832_set_frontend(struct dvb_frontend *fe)
+ 	}
+ 
+ 	for (j = 0; j < sizeof(bw_params[0]); j++) {
+-		ret = rtl2832_bulk_write(client, 0x11c + j, &bw_params[i][j], 1);
++		ret = regmap_bulk_write(dev->regmap,
++					0x11c + j, &bw_params[i][j], 1);
+ 		if (ret)
+ 			goto err;
+ 	}
+@@ -581,11 +545,11 @@ static int rtl2832_get_frontend(struct dvb_frontend *fe,
+ 	if (dev->sleeping)
+ 		return 0;
+ 
+-	ret = rtl2832_bulk_read(client, 0x33c, buf, 2);
++	ret = regmap_bulk_read(dev->regmap, 0x33c, buf, 2);
+ 	if (ret)
+ 		goto err;
+ 
+-	ret = rtl2832_bulk_read(client, 0x351, &buf[2], 1);
++	ret = regmap_bulk_read(dev->regmap, 0x351, &buf[2], 1);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -716,7 +680,7 @@ static int rtl2832_read_status(struct dvb_frontend *fe, enum fe_status *status)
+ 	/* signal strength */
+ 	if (dev->fe_status & FE_HAS_SIGNAL) {
+ 		/* read digital AGC */
+-		ret = rtl2832_bulk_read(client, 0x305, &u8tmp, 1);
++		ret = regmap_bulk_read(dev->regmap, 0x305, &u8tmp, 1);
+ 		if (ret)
+ 			goto err;
+ 
+@@ -742,7 +706,7 @@ static int rtl2832_read_status(struct dvb_frontend *fe, enum fe_status *status)
+ 			{87659938, 87659938, 87885178, 88241743},
+ 		};
+ 
+-		ret = rtl2832_bulk_read(client, 0x33c, &u8tmp, 1);
++		ret = regmap_bulk_read(dev->regmap, 0x33c, &u8tmp, 1);
+ 		if (ret)
+ 			goto err;
+ 
+@@ -754,7 +718,7 @@ static int rtl2832_read_status(struct dvb_frontend *fe, enum fe_status *status)
+ 		if (hierarchy > HIERARCHY_NUM - 1)
+ 			goto err;
+ 
+-		ret = rtl2832_bulk_read(client, 0x40c, buf, 2);
++		ret = regmap_bulk_read(dev->regmap, 0x40c, buf, 2);
+ 		if (ret)
+ 			goto err;
+ 
+@@ -775,7 +739,7 @@ static int rtl2832_read_status(struct dvb_frontend *fe, enum fe_status *status)
+ 
+ 	/* BER */
+ 	if (dev->fe_status & FE_HAS_LOCK) {
+-		ret = rtl2832_bulk_read(client, 0x34e, buf, 2);
++		ret = regmap_bulk_read(dev->regmap, 0x34e, buf, 2);
+ 		if (ret)
+ 			goto err;
+ 
+@@ -825,8 +789,6 @@ static int rtl2832_read_ber(struct dvb_frontend *fe, u32 *ber)
+ 
+ /*
+  * I2C gate/mux/repeater logic
+- * We must use unlocked __i2c_transfer() here (through regmap) because of I2C
+- * adapter lock is already taken by tuner driver.
+  * There is delay mechanism to avoid unneeded I2C gate open / close. Gate close
+  * is delayed here a little bit in order to see if there is sequence of I2C
+  * messages sent to same I2C bus.
+@@ -838,7 +800,7 @@ static void rtl2832_i2c_gate_work(struct work_struct *work)
+ 	int ret;
+ 
+ 	/* close gate */
+-	ret = rtl2832_update_bits(dev->client, 0x101, 0x08, 0x00);
++	ret = regmap_update_bits(dev->regmap, 0x101, 0x08, 0x00);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -856,10 +818,7 @@ static int rtl2832_select(struct i2c_mux_core *muxc, u32 chan_id)
+ 	/* terminate possible gate closing */
+ 	cancel_delayed_work(&dev->i2c_gate_work);
+ 
+-	/*
+-	 * I2C adapter lock is already taken and due to that we will use
+-	 * regmap_update_bits() which does not lock again I2C adapter.
+-	 */
++	/* open gate */
+ 	ret = regmap_update_bits(dev->regmap, 0x101, 0x08, 0x08);
+ 	if (ret)
+ 		goto err;
+@@ -932,94 +891,6 @@ static bool rtl2832_volatile_reg(struct device *dev, unsigned int reg)
+ }
+ 
+ /*
+- * We implement own I2C access routines for regmap in order to get manual access
+- * to I2C adapter lock, which is needed for I2C mux adapter.
+- */
+-static int rtl2832_regmap_read(void *context, const void *reg_buf,
+-			       size_t reg_size, void *val_buf, size_t val_size)
+-{
+-	struct i2c_client *client = context;
+-	int ret;
+-	struct i2c_msg msg[2] = {
+-		{
+-			.addr = client->addr,
+-			.flags = 0,
+-			.len = reg_size,
+-			.buf = (u8 *)reg_buf,
+-		}, {
+-			.addr = client->addr,
+-			.flags = I2C_M_RD,
+-			.len = val_size,
+-			.buf = val_buf,
+-		}
+-	};
+-
+-	ret = __i2c_transfer(client->adapter, msg, 2);
+-	if (ret != 2) {
+-		dev_warn(&client->dev, "i2c reg read failed %d reg %02x\n",
+-			 ret, *(u8 *)reg_buf);
+-		if (ret >= 0)
+-			ret = -EREMOTEIO;
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+-static int rtl2832_regmap_write(void *context, const void *data, size_t count)
+-{
+-	struct i2c_client *client = context;
+-	int ret;
+-	struct i2c_msg msg[1] = {
+-		{
+-			.addr = client->addr,
+-			.flags = 0,
+-			.len = count,
+-			.buf = (u8 *)data,
+-		}
+-	};
+-
+-	ret = __i2c_transfer(client->adapter, msg, 1);
+-	if (ret != 1) {
+-		dev_warn(&client->dev, "i2c reg write failed %d reg %02x\n",
+-			 ret, *(u8 *)data);
+-		if (ret >= 0)
+-			ret = -EREMOTEIO;
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+-static int rtl2832_regmap_gather_write(void *context, const void *reg,
+-				       size_t reg_len, const void *val,
+-				       size_t val_len)
+-{
+-	struct i2c_client *client = context;
+-	int ret;
+-	u8 buf[256];
+-	struct i2c_msg msg[1] = {
+-		{
+-			.addr = client->addr,
+-			.flags = 0,
+-			.len = 1 + val_len,
+-			.buf = buf,
+-		}
+-	};
+-
+-	buf[0] = *(u8 const *)reg;
+-	memcpy(&buf[1], val, val_len);
+-
+-	ret = __i2c_transfer(client->adapter, msg, 1);
+-	if (ret != 1) {
+-		dev_warn(&client->dev, "i2c reg write failed %d reg %02x\n",
+-			 ret, *(u8 const *)reg);
+-		if (ret >= 0)
+-			ret = -EREMOTEIO;
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+-/*
+  * FIXME: Hack. Implement own regmap locking in order to silence lockdep
+  * recursive lock warning. That happens when regmap I2C client calls I2C mux
+  * adapter, which leads demod I2C repeater enable via demod regmap. Operation
+@@ -1072,29 +943,29 @@ static int rtl2832_slave_ts_ctrl(struct i2c_client *client, bool enable)
+ 		ret = rtl2832_wr_demod_reg(dev, DVBT_SOFT_RST, 0x0);
+ 		if (ret)
+ 			goto err;
+-		ret = rtl2832_bulk_write(client, 0x10c, "\x5f\xff", 2);
++		ret = regmap_bulk_write(dev->regmap, 0x10c, "\x5f\xff", 2);
+ 		if (ret)
+ 			goto err;
+ 		ret = rtl2832_wr_demod_reg(dev, DVBT_PIP_ON, 0x1);
+ 		if (ret)
+ 			goto err;
+-		ret = rtl2832_bulk_write(client, 0x0bc, "\x18", 1);
++		ret = regmap_bulk_write(dev->regmap, 0x0bc, "\x18", 1);
+ 		if (ret)
+ 			goto err;
+-		ret = rtl2832_bulk_write(client, 0x192, "\x7f\xf7\xff", 3);
++		ret = regmap_bulk_write(dev->regmap, 0x192, "\x7f\xf7\xff", 3);
+ 		if (ret)
+ 			goto err;
+ 	} else {
+-		ret = rtl2832_bulk_write(client, 0x192, "\x00\x0f\xff", 3);
++		ret = regmap_bulk_write(dev->regmap, 0x192, "\x00\x0f\xff", 3);
+ 		if (ret)
+ 			goto err;
+-		ret = rtl2832_bulk_write(client, 0x0bc, "\x08", 1);
++		ret = regmap_bulk_write(dev->regmap, 0x0bc, "\x08", 1);
+ 		if (ret)
+ 			goto err;
+ 		ret = rtl2832_wr_demod_reg(dev, DVBT_PIP_ON, 0x0);
+ 		if (ret)
+ 			goto err;
+-		ret = rtl2832_bulk_write(client, 0x10c, "\x00\x00", 2);
++		ret = regmap_bulk_write(dev->regmap, 0x10c, "\x00\x00", 2);
+ 		if (ret)
+ 			goto err;
+ 		ret = rtl2832_wr_demod_reg(dev, DVBT_SOFT_RST, 0x1);
+@@ -1123,7 +994,7 @@ static int rtl2832_pid_filter_ctrl(struct dvb_frontend *fe, int onoff)
+ 	else
+ 		u8tmp = 0x00;
+ 
+-	ret = rtl2832_update_bits(client, 0x061, 0xc0, u8tmp);
++	ret = regmap_update_bits(dev->regmap, 0x061, 0xc0, u8tmp);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -1158,14 +1029,14 @@ static int rtl2832_pid_filter(struct dvb_frontend *fe, u8 index, u16 pid,
+ 	buf[1] = (dev->filters >>  8) & 0xff;
+ 	buf[2] = (dev->filters >> 16) & 0xff;
+ 	buf[3] = (dev->filters >> 24) & 0xff;
+-	ret = rtl2832_bulk_write(client, 0x062, buf, 4);
++	ret = regmap_bulk_write(dev->regmap, 0x062, buf, 4);
+ 	if (ret)
+ 		goto err;
+ 
+ 	/* add PID */
+ 	buf[0] = (pid >> 8) & 0xff;
+ 	buf[1] = (pid >> 0) & 0xff;
+-	ret = rtl2832_bulk_write(client, 0x066 + 2 * index, buf, 2);
++	ret = regmap_bulk_write(dev->regmap, 0x066 + 2 * index, buf, 2);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -1183,12 +1054,6 @@ static int rtl2832_probe(struct i2c_client *client,
+ 	struct rtl2832_dev *dev;
+ 	int ret;
+ 	u8 tmp;
+-	static const struct regmap_bus regmap_bus = {
+-		.read = rtl2832_regmap_read,
+-		.write = rtl2832_regmap_write,
+-		.gather_write = rtl2832_regmap_gather_write,
+-		.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
+-	};
+ 	static const struct regmap_range_cfg regmap_range_cfg[] = {
+ 		{
+ 			.selector_reg     = 0x00,
+@@ -1228,20 +1093,19 @@ static int rtl2832_probe(struct i2c_client *client,
+ 	dev->regmap_config.ranges = regmap_range_cfg,
+ 	dev->regmap_config.num_ranges = ARRAY_SIZE(regmap_range_cfg),
+ 	dev->regmap_config.cache_type = REGCACHE_NONE,
+-	dev->regmap = regmap_init(&client->dev, &regmap_bus, client,
+-				  &dev->regmap_config);
++	dev->regmap = regmap_init_i2c(client, &dev->regmap_config);
+ 	if (IS_ERR(dev->regmap)) {
+ 		ret = PTR_ERR(dev->regmap);
+ 		goto err_kfree;
+ 	}
+ 
+ 	/* check if the demod is there */
+-	ret = rtl2832_bulk_read(client, 0x000, &tmp, 1);
++	ret = regmap_bulk_read(dev->regmap, 0x000, &tmp, 1);
+ 	if (ret)
+ 		goto err_regmap_exit;
+ 
+ 	/* create muxed i2c adapter for demod tuner bus */
+-	dev->muxc = i2c_mux_alloc(i2c, &i2c->dev, 1, 0, 0,
++	dev->muxc = i2c_mux_alloc(i2c, &i2c->dev, 1, 0, I2C_MUX_LOCKED,
+ 				  rtl2832_select, rtl2832_deselect);
+ 	if (!dev->muxc) {
+ 		ret = -ENOMEM;
+@@ -1262,9 +1126,7 @@ static int rtl2832_probe(struct i2c_client *client,
+ 	pdata->slave_ts_ctrl = rtl2832_slave_ts_ctrl;
+ 	pdata->pid_filter = rtl2832_pid_filter;
+ 	pdata->pid_filter_ctrl = rtl2832_pid_filter_ctrl;
+-	pdata->bulk_read = rtl2832_bulk_read;
+-	pdata->bulk_write = rtl2832_bulk_write;
+-	pdata->update_bits = rtl2832_update_bits;
++	pdata->regmap = dev->regmap;
+ 
+ 	dev_info(&client->dev, "Realtek RTL2832 successfully attached\n");
+ 	return 0;
+diff --git a/drivers/media/dvb-frontends/rtl2832.h b/drivers/media/dvb-frontends/rtl2832.h
+index 6390af64cf45..03c0de039fa9 100644
+--- a/drivers/media/dvb-frontends/rtl2832.h
++++ b/drivers/media/dvb-frontends/rtl2832.h
+@@ -57,9 +57,7 @@ struct rtl2832_platform_data {
+ 	int (*pid_filter)(struct dvb_frontend *, u8, u16, int);
+ 	int (*pid_filter_ctrl)(struct dvb_frontend *, int);
+ /* private: Register access for SDR module use only */
+-	int (*bulk_read)(struct i2c_client *, unsigned int, void *, size_t);
+-	int (*bulk_write)(struct i2c_client *, unsigned int, const void *, size_t);
+-	int (*update_bits)(struct i2c_client *, unsigned int, unsigned int, unsigned int);
++	struct regmap *regmap;
+ };
+ 
+ #endif /* RTL2832_H */
+diff --git a/drivers/media/dvb-frontends/rtl2832_sdr.c b/drivers/media/dvb-frontends/rtl2832_sdr.c
+index b860f02a4e55..6a6b1debe277 100644
+--- a/drivers/media/dvb-frontends/rtl2832_sdr.c
++++ b/drivers/media/dvb-frontends/rtl2832_sdr.c
+@@ -35,6 +35,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/jiffies.h>
+ #include <linux/math64.h>
++#include <linux/regmap.h>
+ 
+ static bool rtl2832_sdr_emulated_fmt;
+ module_param_named(emulated_formats, rtl2832_sdr_emulated_fmt, bool, 0644);
+@@ -169,9 +170,9 @@ static int rtl2832_sdr_wr_regs(struct rtl2832_sdr_dev *dev, u16 reg,
+ {
+ 	struct platform_device *pdev = dev->pdev;
+ 	struct rtl2832_sdr_platform_data *pdata = pdev->dev.platform_data;
+-	struct i2c_client *client = pdata->i2c_client;
++	struct regmap *regmap = pdata->regmap;
+ 
+-	return pdata->bulk_write(client, reg, val, len);
++	return regmap_bulk_write(regmap, reg, val, len);
+ }
+ 
+ #if 0
+@@ -181,9 +182,9 @@ static int rtl2832_sdr_rd_regs(struct rtl2832_sdr_dev *dev, u16 reg, u8 *val,
+ {
+ 	struct platform_device *pdev = dev->pdev;
+ 	struct rtl2832_sdr_platform_data *pdata = pdev->dev.platform_data;
+-	struct i2c_client *client = pdata->i2c_client;
++	struct regmap *regmap = pdata->regmap;
+ 
+-	return pdata->bulk_read(client, reg, val, len);
++	return regmap_bulk_read(regmap, reg, val, len);
+ }
+ #endif
+ 
+@@ -199,9 +200,9 @@ static int rtl2832_sdr_wr_reg_mask(struct rtl2832_sdr_dev *dev, u16 reg,
+ {
+ 	struct platform_device *pdev = dev->pdev;
+ 	struct rtl2832_sdr_platform_data *pdata = pdev->dev.platform_data;
+-	struct i2c_client *client = pdata->i2c_client;
++	struct regmap *regmap = pdata->regmap;
+ 
+-	return pdata->update_bits(client, reg, mask, val);
++	return regmap_update_bits(regmap, reg, mask, val);
+ }
+ 
+ /* Private functions */
+diff --git a/drivers/media/dvb-frontends/rtl2832_sdr.h b/drivers/media/dvb-frontends/rtl2832_sdr.h
+index 342ea84860df..d8fc7e7212e3 100644
+--- a/drivers/media/dvb-frontends/rtl2832_sdr.h
++++ b/drivers/media/dvb-frontends/rtl2832_sdr.h
+@@ -56,10 +56,7 @@ struct rtl2832_sdr_platform_data {
+ #define RTL2832_SDR_TUNER_R828D     0x2b
+ 	u8 tuner;
+ 
+-	struct i2c_client *i2c_client;
+-	int (*bulk_read)(struct i2c_client *, unsigned int, void *, size_t);
+-	int (*bulk_write)(struct i2c_client *, unsigned int, const void *, size_t);
+-	int (*update_bits)(struct i2c_client *, unsigned int, unsigned int, unsigned int);
++	struct regmap *regmap;
+ 	struct dvb_frontend *dvb_frontend;
+ 	struct v4l2_subdev *v4l2_subdev;
+ 	struct dvb_usb_device *dvb_usb_device;
+diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+index fa72642d41f3..eb7af8cb8aca 100644
+--- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
++++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+@@ -1333,10 +1333,7 @@ static int rtl2832u_tuner_attach(struct dvb_usb_adapter *adap)
+ 	case TUNER_RTL2832_R828D:
+ 		pdata.clk = dev->rtl2832_platform_data.clk;
+ 		pdata.tuner = dev->tuner;
+-		pdata.i2c_client = dev->i2c_client_demod;
+-		pdata.bulk_read = dev->rtl2832_platform_data.bulk_read;
+-		pdata.bulk_write = dev->rtl2832_platform_data.bulk_write;
+-		pdata.update_bits = dev->rtl2832_platform_data.update_bits;
++		pdata.regmap = dev->rtl2832_platform_data.regmap;
+ 		pdata.dvb_frontend = adap->fe[0];
+ 		pdata.dvb_usb_device = d;
+ 		pdata.v4l2_subdev = subdev;
 -- 
 2.1.4
