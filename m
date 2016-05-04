@@ -1,12 +1,12 @@
 From: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 2/3] dts: sun8i-h3: add i2c0/i2c1/i2c2 pins definitions
-Date: Wed, 4 May 2016 14:07:44 -0400
-Message-ID: <9ad51f2de704b50d7e48669b65eb48ff904a6de7.1462380489.git.martinayotte@gmail.com>
+Subject: [PATCH v3 3/3] dts: sun8i-h3: add i2c0/i2c1/i2c2 soc peripherals
+Date: Wed, 4 May 2016 14:07:46 -0400
+Message-ID: <55eaefff091736da50c7671941110ce0b979a0e2.1462380489.git.martinayotte@gmail.com>
 References: <cover.1462380487.git.martinayotte@gmail.com>
 Reply-To: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDW4XUV4YULRBX7VVC4QKGQE5R3B6ZY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBDW4XUV4YULRBYHVVC4QKGQEOKLBZPQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <cover.1462380487.git.martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,44 +19,56 @@ To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFre
 Cc: jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, moinejf-GANU6spQydw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-dts: sun8i-h3: add i2c0/i2c1/i2c2 pins definitions
+dts sun8i-h3: add i2c0/i2c1/i2c2 soc peripherals
 
 Signed-off-by: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- arch/arm/boot/dts/sun8i-h3.dtsi | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ arch/arm/boot/dts/sun8i-h3.dtsi | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
 diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
-index 292ed59..79a3af6 100644
+index 79a3af6..c947360d 100644
 --- a/arch/arm/boot/dts/sun8i-h3.dtsi
 +++ b/arch/arm/boot/dts/sun8i-h3.dtsi
-@@ -529,6 +529,27 @@
- 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
- 			};
+@@ -668,6 +668,39 @@
+ 			status = "disabled";
+ 		};
  
-+			i2c0_pins_a: i2c0@0 {
-+				allwinner,pins = "PA11", "PA12";
-+				allwinner,function = "i2c0";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
++		i2c0: i2c@01c2ac00 {
++			compatible = "allwinner,sun6i-a31-i2c";
++			reg = <0x01c2ac00 0x400>;
++			interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&bus_gates 96>;
++			resets = <&apb2_rst 0>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
 +
-+			i2c1_pins_a: i2c1@0 {
-+				allwinner,pins = "PA18", "PA19";
-+				allwinner,function = "i2c1";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
++		i2c1: i2c@01c2b000 {
++			compatible = "allwinner,sun6i-a31-i2c";
++			reg = <0x01c2b000 0x400>;
++			interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&bus_gates 97>;
++			resets = <&apb2_rst 1>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
 +
-+			i2c2_pins_a: i2c2@0 {
-+				allwinner,pins = "PE12", "PE13";
-+				allwinner,function = "i2c2";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
++		i2c2: i2c@01c2b400 {
++			compatible = "allwinner,sun6i-a31-i2c";
++			reg = <0x01c2b400 0x400>;
++			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&bus_gates 98>;
++			resets = <&apb2_rst 2>;
++			status = "disabled";
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
 +
- 			mmc0_pins_a: mmc0@0 {
- 				allwinner,pins = "PF0", "PF1", "PF2", "PF3",
- 						 "PF4", "PF5";
+ 		gic: interrupt-controller@01c81000 {
+ 			compatible = "arm,cortex-a7-gic", "arm,cortex-a15-gic";
+ 			reg = <0x01c81000 0x1000>,
 -- 
 2.7.4
