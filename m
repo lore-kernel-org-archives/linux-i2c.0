@@ -1,67 +1,63 @@
-From: Scott Wood <oss@buserror.net>
-Subject: Re: [v9, 6/7] MAINTAINERS: add entry for Freescale SoC driver
-Date: Wed, 04 May 2016 12:35:08 -0500
-Message-ID: <1462383308.16584.43.camel@buserror.net>
-References: <1462332274-13744-1-git-send-email-yangbo.lu@nxp.com>
-	 <1462332274-13744-7-git-send-email-yangbo.lu@nxp.com>
+From: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3 1/3] dts: sun8i-h3: add uart1/uart2/uart3
+ pins definitions
+Date: Wed, 4 May 2016 14:07:13 -0400
+Message-ID: <0f102282237376f10da619d041d9187a1d9beba9.1462380489.git.martinayotte@gmail.com>
+References: <cover.1462380487.git.martinayotte@gmail.com>
+Reply-To: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <1462332274-13744-7-git-send-email-yangbo.lu@nxp.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Yangbo Lu <yangbo.lu@nxp.com>, linux-mmc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: ulf.hansson@linaro.org, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Qiang Zhao <qiang.zhao@nxp.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDW4XUV4YULRBXPVVC4QKGQE6AJCH2A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <cover.1462380487.git.martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, moinejf-GANU6spQydw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2016-05-04 at 11:24 +0800, Yangbo Lu wrote:
-> Add maintainer entry for Freescale SoC driver including
-> the QE library and the GUTS driver now. Also add maintainer
-> for QE library.
-> 
-> Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
-> ---
-> Changes for v8:
-> 	- Added this patch
-> Changes for v9:
-> 	- Added linux-arm mail list
-> 	- Removed GUTS driver entry
-> ---
->  MAINTAINERS | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 42e65d1..ce91db7 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -4622,9 +4622,18 @@ F:	drivers/net/ethernet/freescale/fec_ptp.c
->  F:	drivers/net/ethernet/freescale/fec.h
->  F:	Documentation/devicetree/bindings/net/fsl-fec.txt
->  
-> +FREESCALE SOC DRIVER
-> +M:	Scott Wood <oss@buserror.net>
-> +L:	linuxppc-dev@lists.ozlabs.org
-> +L:	linux-arm-kernel@lists.infradead.org
-> +S:	Maintained
-> +F:	drivers/soc/fsl/
-> +F:	include/linux/fsl/
-> +
->  FREESCALE QUICC ENGINE LIBRARY
-> +M:	Qiang Zhao <qiang.zhao@nxp.com>
->  L:	linuxppc-dev@lists.ozlabs.org
-> -S:	Orphan
-> +S:	Maintained
->  F:	drivers/soc/fsl/qe/
->  F:	include/soc/fsl/*qe*.h
->  F:	include/soc/fsl/*ucc*.h
+dts: sun8i-h3: add uart1/uart2/uart3 pins definitions
 
-s/DRIVER/DRIVERS/
+Signed-off-by: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ arch/arm/boot/dts/sun8i-h3.dtsi | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-There's more than one.
-
-Otherwise:
-Acked-by: Scott Wood <oss@buserror.net>
-
--Scott
-
-> 
+diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
+index 4a4926b..292ed59 100644
+--- a/arch/arm/boot/dts/sun8i-h3.dtsi
++++ b/arch/arm/boot/dts/sun8i-h3.dtsi
+@@ -508,6 +508,27 @@
+ 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+ 			};
+ 
++			uart1_pins_a: uart1@0 {
++				allwinner,pins = "PG6", "PG7";
++				allwinner,function = "uart1";
++				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
++			};
++
++			uart2_pins_a: uart2@0 {
++				allwinner,pins = "PA0", "PA1";
++				allwinner,function = "uart2";
++				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
++			};
++
++			uart3_pins_a: uart3@0 {
++				allwinner,pins = "PA13", "PA14";
++				allwinner,function = "uart3";
++				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
++			};
++
+ 			mmc0_pins_a: mmc0@0 {
+ 				allwinner,pins = "PF0", "PF1", "PF2", "PF3",
+ 						 "PF4", "PF5";
+-- 
+2.7.4
