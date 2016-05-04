@@ -1,7 +1,7 @@
 From: David Wu <david.wu@rock-chips.com>
-Subject: [PATCH v7 4/9] i2c: rk3x: Move setting STATE_START and add STATE_SETUP
-Date: Wed,  4 May 2016 22:13:09 +0800
-Message-ID: <1462371194-5809-5-git-send-email-david.wu@rock-chips.com>
+Subject: [PATCH v7 5/9] i2c: rk3x: Change SoC data to not use array
+Date: Wed,  4 May 2016 22:33:38 +0800
+Message-ID: <1462372418-6349-1-git-send-email-david.wu@rock-chips.com>
 References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
 Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -13,48 +13,60 @@ List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: David Wu <david.wu@rock-chips.com>
 ---
-Change in v7:
-- none
-
- drivers/i2c/busses/i2c-rk3x.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-rk3x.c | 38 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 30 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 9eeb4e5..0838fcf 100644
+index 0838fcf..9686c81 100644
 --- a/drivers/i2c/busses/i2c-rk3x.c
 +++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -87,6 +87,7 @@ struct rk3x_i2c_calced_timings {
+@@ -867,17 +867,39 @@ static const struct i2c_algorithm rk3x_i2c_algorithm = {
+ 	.functionality		= rk3x_i2c_func,
+ };
  
- enum rk3x_i2c_state {
- 	STATE_IDLE,
-+	STATE_SETUP,
- 	STATE_START,
- 	STATE_READ,
- 	STATE_WRITE,
-@@ -174,6 +175,7 @@ static void rk3x_i2c_start(struct rk3x_i2c *i2c)
- {
- 	u32 val;
+-static struct rk3x_i2c_soc_data soc_data[3] = {
+-	{ .grf_offset = 0x154 }, /* rk3066 */
+-	{ .grf_offset = 0x0a4 }, /* rk3188 */
+-	{ .grf_offset = -1 },    /* no I2C switching needed */
++static const struct rk3x_i2c_soc_data rk3066_soc_data = {
++	.grf_offset = 0x154,
++};
++
++static const struct rk3x_i2c_soc_data rk3188_soc_data = {
++	.grf_offset = 0x0a4,
++};
++
++static const struct rk3x_i2c_soc_data rk3228_soc_data = {
++	.grf_offset = -1,
++};
++
++static const struct rk3x_i2c_soc_data rk3288_soc_data = {
++	.grf_offset = -1,
+ };
  
-+	i2c->state = STATE_START;
- 	i2c_writel(i2c, REG_INT_START, REG_IEN);
- 
- 	/* enable adapter with correct mode, send START condition */
-@@ -451,6 +453,7 @@ static irqreturn_t rk3x_i2c_irq(int irqno, void *dev_id)
- 		rk3x_i2c_handle_stop(i2c, ipd);
- 		break;
- 	case STATE_IDLE:
-+	case STATE_SETUP:
- 		break;
- 	}
- 
-@@ -781,7 +784,7 @@ static int rk3x_i2c_setup(struct rk3x_i2c *i2c, struct i2c_msg *msgs, int num)
- 
- 	i2c->addr = msgs[0].addr;
- 	i2c->busy = true;
--	i2c->state = STATE_START;
-+	i2c->state = STATE_SETUP;
- 	i2c->processed = 0;
- 	i2c->error = 0;
- 
+ static const struct of_device_id rk3x_i2c_match[] = {
+-	{ .compatible = "rockchip,rk3066-i2c", .data = (void *)&soc_data[0] },
+-	{ .compatible = "rockchip,rk3188-i2c", .data = (void *)&soc_data[1] },
+-	{ .compatible = "rockchip,rk3228-i2c", .data = (void *)&soc_data[2] },
+-	{ .compatible = "rockchip,rk3288-i2c", .data = (void *)&soc_data[2] },
++	{
++		.compatible = "rockchip,rk3066-i2c",
++		.data = (void *)&rk3066_soc_data
++	},
++	{
++		.compatible = "rockchip,rk3188-i2c",
++		.data = (void *)&rk3188_soc_data
++	},
++	{
++		.compatible = "rockchip,rk3228-i2c",
++		.data = (void *)&rk3228_soc_data
++	},
++	{
++		.compatible = "rockchip,rk3288-i2c",
++		.data = (void *)&rk3288_soc_data
++	},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, rk3x_i2c_match);
 -- 
 1.9.1
