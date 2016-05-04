@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v9 9/9] [media] rtl2832: regmap is aware of lockdep, drop local locking hack
-Date: Wed, 4 May 2016 22:15:35 +0200
-Message-ID: <1462392935-28011-10-git-send-email-peda@axentia.se>
+Subject: [PATCH v9 5/9] iio: imu: inv_mpu6050: change the i2c gate to be mux-locked
+Date: Wed, 4 May 2016 22:15:31 +0200
+Message-ID: <1462392935-28011-6-git-send-email-peda@axentia.se>
 References: <1462392935-28011-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,75 +12,170 @@ To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlowski>
 List-Id: linux-i2c@vger.kernel.org
 
-Tested-by: Antti Palosaari <crope@iki.fi>
-Reviewed-by: Antti Palosaari <crope@iki.fi>
+The root i2c adapter lock is then no longer held by the i2c mux during
+accesses behind the i2c gate, and such accesses need to take that lock
+just like any other ordinary i2c accesses do.
+
+So, declare the i2c gate mux-locked, and zap the code that makes the
+unlocked i2c accesses and just use ordinary regmap_write accesses.
+
+This also happens to fix the deadlock described in
+http://patchwork.ozlabs.org/patch/584776/ authored by
+Adriana Reus <adriana.reus@intel.com> and submitted by
+Daniel Baluta <daniel.baluta@intel.com>
+
+----------8<----------
+iio: imu: inv_mpu6050: Fix deadlock between i2c adapter lock and mpu lock
+
+This deadlock occurs if the accel/gyro and the sensor on the auxiliary
+I2C (in my setup it's an ak8975) are working at the same time.
+
+Scenario:
+
+      T1					T2
+     ====				       ====
+inv_mpu6050_read_fifo                  aux sensor op (eg. ak8975_read_raw)
+        |                                     |
+mutex_lock(&indio_dev->mlock)           i2c_transfer
+        |                                     |
+i2c transaction                         i2c adapter lock
+        |                                     |
+i2c adapter lock                        i2c_mux_master_xfer
+                                              |
+                                        inv_mpu6050_select_bypass
+                                              |
+                                        mutex_lock(&indio_dev->mlock)
+
+When we operate on an mpu sensor the order of locking is mpu lock
+followed by the i2c adapter lock. However, when we operate the auxiliary
+sensor the order of locking is the other way around.
+
+...
+----------8<----------
+
+The reason this patch fixes the deadlock is that T2 does not grab the
+i2c adapter lock until the very end (and grabs the newfangled i2c mux
+lock where it previously grabbed the i2c adapter lock).
+
+Acked-by: Jonathan Cameron <jic23@kernel.org>
+Acked-by: Daniel Baluta <daniel.baluta@intel.com>
+Tested-by: Crestez Dan Leonard <leonard.crestez@intel.com>
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/media/dvb-frontends/rtl2832.c      | 30 ------------------------------
- drivers/media/dvb-frontends/rtl2832_priv.h |  1 -
- 2 files changed, 31 deletions(-)
+ Documentation/i2c/i2c-topology            |  2 +-
+ drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c | 52 ++++++-------------------------
+ 2 files changed, 11 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/rtl2832.c b/drivers/media/dvb-frontends/rtl2832.c
-index 957523f07f61..bfb6beedd40b 100644
---- a/drivers/media/dvb-frontends/rtl2832.c
-+++ b/drivers/media/dvb-frontends/rtl2832.c
-@@ -890,32 +890,6 @@ static bool rtl2832_volatile_reg(struct device *dev, unsigned int reg)
- 	return false;
- }
+diff --git a/Documentation/i2c/i2c-topology b/Documentation/i2c/i2c-topology
+index 27bfd682808d..69b008518454 100644
+--- a/Documentation/i2c/i2c-topology
++++ b/Documentation/i2c/i2c-topology
+@@ -50,7 +50,7 @@ i2c-mux-pinctrl           Normally parent-locked, mux-locked iff
+ i2c-mux-reg               Parent-locked
+ 
+ In drivers/iio/
+-imu/inv_mpu6050/          Parent-locked
++imu/inv_mpu6050/          Mux-locked
+ 
+ In drivers/media/
+ dvb-frontends/m88ds3103   Parent-locked
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+index 3a078df84224..e25f7ef7f0ea 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+@@ -24,45 +24,16 @@ static const struct regmap_config inv_mpu_regmap_config = {
+ 	.val_bits = 8,
+ };
  
 -/*
-- * FIXME: Hack. Implement own regmap locking in order to silence lockdep
-- * recursive lock warning. That happens when regmap I2C client calls I2C mux
-- * adapter, which leads demod I2C repeater enable via demod regmap. Operation
-- * takes two regmap locks recursively - but those are different regmap instances
-- * in a two different I2C drivers, so it is not deadlock. Proper fix is to make
-- * regmap aware of lockdep.
+- * The i2c read/write needs to happen in unlocked mode. As the parent
+- * adapter is common. If we use locked versions, it will fail as
+- * the mux adapter will lock the parent i2c adapter, while calling
+- * select/deselect functions.
 - */
--static void rtl2832_regmap_lock(void *__dev)
+-static int inv_mpu6050_write_reg_unlocked(struct i2c_client *client,
+-					  u8 reg, u8 d)
 -{
--	struct rtl2832_dev *dev = __dev;
--	struct i2c_client *client = dev->client;
+-	int ret;
+-	u8 buf[2] = {reg, d};
+-	struct i2c_msg msg[1] = {
+-		{
+-			.addr = client->addr,
+-			.flags = 0,
+-			.len = sizeof(buf),
+-			.buf = buf,
+-		}
+-	};
 -
--	dev_dbg(&client->dev, "\n");
--	mutex_lock(&dev->regmap_mutex);
+-	ret = __i2c_transfer(client->adapter, msg, 1);
+-	if (ret != 1)
+-		return ret;
+-
+-	return 0;
 -}
 -
--static void rtl2832_regmap_unlock(void *__dev)
--{
--	struct rtl2832_dev *dev = __dev;
--	struct i2c_client *client = dev->client;
--
--	dev_dbg(&client->dev, "\n");
--	mutex_unlock(&dev->regmap_mutex);
--}
--
- static struct dvb_frontend *rtl2832_get_dvb_frontend(struct i2c_client *client)
+ static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
  {
- 	struct rtl2832_dev *dev = i2c_get_clientdata(client);
-@@ -1082,12 +1056,8 @@ static int rtl2832_probe(struct i2c_client *client,
- 	dev->sleeping = true;
- 	INIT_DELAYED_WORK(&dev->i2c_gate_work, rtl2832_i2c_gate_work);
- 	/* create regmap */
--	mutex_init(&dev->regmap_mutex);
- 	dev->regmap_config.reg_bits =  8,
- 	dev->regmap_config.val_bits =  8,
--	dev->regmap_config.lock = rtl2832_regmap_lock,
--	dev->regmap_config.unlock = rtl2832_regmap_unlock,
--	dev->regmap_config.lock_arg = dev,
- 	dev->regmap_config.volatile_reg = rtl2832_volatile_reg,
- 	dev->regmap_config.max_register = 5 * 0x100,
- 	dev->regmap_config.ranges = regmap_range_cfg,
-diff --git a/drivers/media/dvb-frontends/rtl2832_priv.h b/drivers/media/dvb-frontends/rtl2832_priv.h
-index d8f97d14f6fd..c1a8a69e9015 100644
---- a/drivers/media/dvb-frontends/rtl2832_priv.h
-+++ b/drivers/media/dvb-frontends/rtl2832_priv.h
-@@ -33,7 +33,6 @@
- struct rtl2832_dev {
- 	struct rtl2832_platform_data *pdata;
- 	struct i2c_client *client;
--	struct mutex regmap_mutex;
- 	struct regmap_config regmap_config;
- 	struct regmap *regmap;
- 	struct i2c_mux_core *muxc;
+-	struct i2c_client *client = i2c_mux_priv(muxc);
+-	struct iio_dev *indio_dev = dev_get_drvdata(&client->dev);
++	struct iio_dev *indio_dev = i2c_mux_priv(muxc);
+ 	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+ 	int ret = 0;
+ 
+ 	/* Use the same mutex which was used everywhere to protect power-op */
+ 	mutex_lock(&indio_dev->mlock);
+ 	if (!st->powerup_count) {
+-		ret = inv_mpu6050_write_reg_unlocked(client,
+-						     st->reg->pwr_mgmt_1, 0);
++		ret = regmap_write(st->map, st->reg->pwr_mgmt_1, 0);
+ 		if (ret)
+ 			goto write_error;
+ 
+@@ -71,10 +42,9 @@ static int inv_mpu6050_select_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+ 	}
+ 	if (!ret) {
+ 		st->powerup_count++;
+-		ret = inv_mpu6050_write_reg_unlocked(client,
+-						     st->reg->int_pin_cfg,
+-						     INV_MPU6050_INT_PIN_CFG |
+-						     INV_MPU6050_BIT_BYPASS_EN);
++		ret = regmap_write(st->map, st->reg->int_pin_cfg,
++				   INV_MPU6050_INT_PIN_CFG |
++				   INV_MPU6050_BIT_BYPASS_EN);
+ 	}
+ write_error:
+ 	mutex_unlock(&indio_dev->mlock);
+@@ -84,18 +54,16 @@ write_error:
+ 
+ static int inv_mpu6050_deselect_bypass(struct i2c_mux_core *muxc, u32 chan_id)
+ {
+-	struct i2c_client *client = i2c_mux_priv(muxc);
+-	struct iio_dev *indio_dev = dev_get_drvdata(&client->dev);
++	struct iio_dev *indio_dev = i2c_mux_priv(muxc);
+ 	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+ 
+ 	mutex_lock(&indio_dev->mlock);
+ 	/* It doesn't really mattter, if any of the calls fails */
+-	inv_mpu6050_write_reg_unlocked(client, st->reg->int_pin_cfg,
+-				       INV_MPU6050_INT_PIN_CFG);
++	regmap_write(st->map, st->reg->int_pin_cfg, INV_MPU6050_INT_PIN_CFG);
+ 	st->powerup_count--;
+ 	if (!st->powerup_count)
+-		inv_mpu6050_write_reg_unlocked(client, st->reg->pwr_mgmt_1,
+-					       INV_MPU6050_BIT_SLEEP);
++		regmap_write(st->map, st->reg->pwr_mgmt_1,
++			     INV_MPU6050_BIT_SLEEP);
+ 	mutex_unlock(&indio_dev->mlock);
+ 
+ 	return 0;
+@@ -134,7 +102,7 @@ static int inv_mpu_probe(struct i2c_client *client,
+ 
+ 	st = iio_priv(dev_get_drvdata(&client->dev));
+ 	st->muxc = i2c_mux_alloc(client->adapter, &client->dev,
+-				 1, 0, 0,
++				 1, 0, I2C_MUX_LOCKED,
+ 				 inv_mpu6050_select_bypass,
+ 				 inv_mpu6050_deselect_bypass);
+ 	if (!st->muxc) {
 -- 
 2.1.4
