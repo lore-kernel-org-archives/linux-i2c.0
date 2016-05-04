@@ -1,70 +1,68 @@
-From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv5 2/8] i2c: Add the ability to match device to compatible string without an of_node
-Date: Wed,  4 May 2016 16:14:42 +0100
-Message-ID: <1462374888-22888-3-git-send-email-kieran@bingham.xyz>
-References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, javier@osg.samsung.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com, Kieran Bingham <kieran@ksquared.org.uk>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v7 16/24] i2c: allow adapter drivers to override the
+ adapter locking
+Date: Wed, 4 May 2016 18:38:25 +0200
+Message-ID: <20160504163825.GA1516@katana>
+References: <1461165484-2314-1-git-send-email-peda@axentia.se>
+ <1461165484-2314-17-git-send-email-peda@axentia.se>
+ <20160428205018.GA3553@katana>
+ <470abe38-ab5f-2d0a-305b-e1a3253ce5a9@axentia.se>
+ <20160429071604.GB1870@katana>
+ <357e6fda-73b3-fb7f-c341-97f09af1943f@axentia.se>
+ <20160503213908.GC2018@tetsubishi>
+ <87de4033-3b58-3ef6-d22b-b90901885b39@axentia.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <87de4033-3b58-3ef6-d22b-b90901885b39@axentia.se>
+Sender: linux-media-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Jiri Slaby <jslaby@suse.com>, Daniel Baluta <daniel.baluta@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, Adriana Reus <adriana.reus@intel.com>, Matt Ranostay <matt.ranostay@intel.com>, Krzysztof Kozlowski <k.kozlo>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
 
-A great deal of I2C devices are currently matched via DT node name, and
-as such the compatible naming convention of '<vendor>,<device>' has gone
-somewhat awry - some nodes don't supply one, some supply an arbitrary
-string and others the correct device name with an arbitrary vendor prefix.
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In an effort to correct this problem we have to supply a mechanism to
-match a device by compatible string AND by simple device name.  This
-function strips off the '<vendor>,' part of a supplied compatible string
-and attempts to match without it.
 
-The plan is to remove this function once all of the compatible strings
-for each device have been brought into line.
+> A question on best practices here... I already did a v8 (but only as
+> a branch) so I think this will be v9, bit that's a minor detail. The
+> real question is what I should do about patches 1-15 that are already
+> in next? Send them too? If not, should I send 16-24 with the same old
+> patch numbers or should they be numbered 1-9 now? And should such a
+> shortened series be rebased on 1-15 in next?
+>=20
+> Or does it not really matter?
 
-Acked-by: Grant Likely <grant.likely@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-[Kieran: strnicmp to strncasecmp]
-Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
-Tested-by: Kieran Bingham <kieran@bingham.xyz>
----
- drivers/i2c/i2c-core.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+Easiest for me is:
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index e980c8257676..f75e78f6f9c1 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1494,6 +1494,27 @@ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node)
- 	return adapter;
- }
- EXPORT_SYMBOL(of_get_i2c_adapter_by_node);
-+
-+static const struct of_device_id*
-+i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
-+				  struct i2c_client *client)
-+{
-+	const char *name;
-+
-+	for (; matches->compatible[0]; matches++) {
-+		name = strchr(matches->compatible, ',');
-+		if (!name)
-+			name = matches->compatible;
-+		else
-+			name++;
-+
-+		if (!strncasecmp(client->name, name, strlen(client->name)))
-+			return matches;
-+	}
-+
-+	return NULL;
-+}
-+
- #else
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
--- 
-2.5.0
+Send as v9, only the patches not yet applied, numbered from 1-9, based
+on my for-next.
+
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXKiWBAAoJEBQN5MwUoCm2JRwP/3pJfeAOonaG99Z+aFHFcxKb
+nV2lgIKSHRzgLxEFInIhnvW1m6gvm9AqJL0IO3ZYOJkmly7bf896FGGMVWSG3wHg
+5EepSrn8HuDPIlCf23EDgzTqSvp+J2GChbC/0x7AtQ7PnGw3CmKqGJPz2ecxRUMg
+iMGVVo3eNoBaboYB0lAmawHgS3Ui2zyn5t9GHPeZNmD8uFG8CrGK1wPD1KkK298X
+2KSKDX3K8G1us81/iVs4Z67E21O+9ls5zZCpBmZi1YSDWA5vzf3Rh8BIYPUj3BaT
+K6Dq/RnBt5aVOzG5wWdaonLZca6ozQgF1kgrPcNj+6mPWyv8+nzNSMDDqaqYDXt1
+IL6crz1aGIMhz6chlRFQm6HhMVnGp83CCwIjeaUNEnzG6VeFux0UJPMVyWVDc4pQ
+qDVs8izEnVbAw46JwbJxCxpqSgRDqDyAnsMdh1/x8XT/SbuPaNHWVFGz7/8G+1FG
+7QzlNcX0WGdapK7ZR3dZ4ob2z4tkL3EKiVbiN7jePpqk0C6Uppa61xNj9LdFKAJe
+WXSArGjwUzWisLzPZ37w0ko0a+uMVGrQxv2YQGAUixaXpqtaXx75Boj7lIiozflS
+ryO/VniaGcVTsHJiAHZo5fpt7XOqPwmfq4cs4qEn38PXkhScKwlfyRwraYcrjtJx
+K6HVk05ZVfaPU8CRrIvE
+=XLBz
+-----END PGP SIGNATURE-----
+
+--7AUc2qLy4jB3hD7Z--
