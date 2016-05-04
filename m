@@ -1,71 +1,46 @@
-From: Lucas De Marchi <lucas.de.marchi@gmail.com>
-Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
-Date: Wed, 4 May 2016 11:38:08 -0300
-Message-ID: <CAKi4VAJ4UMpezFpqro+2=gNQD=tjEN=wVC6kahT3wQQYTOquqg@mail.gmail.com>
-References: <5707B9B4.6020402@alitech.com> <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
- <CAKi4VA+WVwXBM5cP8Q1iQ_YqWF5jvE5XbbLYEb9Jjfo4Lgw3=g@mail.gmail.com> <572727D7.6080708@alitech.com>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH v2 06/10] spi: add support for ACPI reconfigure notifications
+Date: Wed, 4 May 2016 18:04:45 +0300
+Message-ID: <CAE1zotJ1FKNdxCqV_XRUJrFB-fqHpBr54rj3C65ZM80h7=t3DQ@mail.gmail.com>
+References: <1461105548-20618-1-git-send-email-octavian.purdila@intel.com>
+	<1461105548-20618-7-git-send-email-octavian.purdila@intel.com>
+	<20160428174215.GS3217@sirena.org.uk>
+	<CAE1zot+LuQJGrDrEDM2iVv-omz3Sg6k3bavX+5gde8jzrK0pog@mail.gmail.com>
+	<20160503121954.GQ6292@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f173.google.com ([209.85.161.173]:33261 "EHLO
-	mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753417AbcEDOi2 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 4 May 2016 10:38:28 -0400
-In-Reply-To: <572727D7.6080708@alitech.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160503121954.GQ6292-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-spi <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Christian Ruppert <christian.ruppert@alitech.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>
 
-Hi Christian,
-
-On Mon, May 2, 2016 at 7:11 AM, Christian Ruppert
-<christian.ruppert@alitech.com> wrote:
-> Dear Lucas,
+On Tue, May 3, 2016 at 3:19 PM, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> On Thu, Apr 28, 2016 at 10:37:57PM +0300, Octavian Purdila wrote:
+>> On Thu, Apr 28, 2016 at 8:42 PM, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
 >
-> On 22.04.2016 17:19, Lucas De Marchi wrote:
->> CC'ing Christian.
->>
->> On Fri, Apr 22, 2016 at 12:08 PM, Lucas De Marchi
->> <lucas.demarchi@intel.com> wrote:
->>> Disabling the adapter after each transfer is pretty bad for sensors and
->>> other devices doing small transfers at a high rate. It slows down the
->>> transfer rate a lot since each of them have to wait the adapter to be
->>> enabled again.
->>>
->>> During the transfer init we check the status register for no activity
->>> and TX buffer being empty since otherwise we can't change IC_TAR
->>> dynamically.
->>>
->>> When a transfer fails the adapter will still be disabled - this is a
->>> conservative approach. When transfers succeed, the adapter is left
->>> enabled and it's configured so to disable interrupts.
->>
->> Christian, this is the updated patch. Now adapter starts disabled and
->> is disabled when there's a failed transfer. I hope this can work with
->> your hardware.
+>> > There's more code here now than I remember but this all looks *really*
+>> > close to the DT code except for the OF_POPULATED flag that we set when
+>> > things are instantiated in DT.  The duplication seems bad but the fact
+>> > that we're missing the flag worries me...  do we have guarantees that
+>> > ACPI won't double register?
 >
-> Good news: The system now boots without deadlocks.
-
-:). Thanks for testing this.
-
+>> We use the adev->flags.visited to check when a device has been already
+>> enumerated, and we skip registering a new SPI slave in that case.
 >
-> Bad  news: Not all transfers seem to take place as they should.
->            I don't have the time for a deep analysis but a few quick
->            experiments seem to indicate that the adapter needs to be
->            disabled while updating TAR to a value different from the
->            previous one. Disabling the adapter does not seem to be
->            required if TAR doesn't change from one transfer to the next.
->            I don't know if there are any conditions under which we can
->            leave the adapter enabled while changing TAR but at least in
->            some cases it seems to work.
+> OK, but the fact that I need to know that isn't exactly thrilling -
+> that's really the issue with the not quite duplication here.  It's not
+> just if the code works but also the maintainability.
 
-:(
+I agree that this is unfortunate. I could not find a common path for
+both device tree and ACPI. Perhaps when we remove of_node from struct
+device and move to fwnode we could remove some duplication.
 
-This is unfortunate. If the bus is shared for 2 slave devices we will
-get the slow down back. I wonder if there's a HW version or something
-like that in the registers which can be used to add quirks to tweak the
-behavior.  I'll dig some documentation, but if anyone knows, it'd be
-nice to have it pointed out.
-
-Lucas De Marchi
+I can add a couple of comments around  acpi_device_enumerated() and
+adev->flags.visited = true; to make it clear that we won't double
+enumerate. Will that help?
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
