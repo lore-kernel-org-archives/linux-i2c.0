@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv5 7/8] mfd: 88pm860x: Move over to new I2C device .probe() call
-Date: Wed,  4 May 2016 16:14:47 +0100
-Message-ID: <1462374888-22888-8-git-send-email-kieran@bingham.xyz>
+Subject: [PATCHv5 4/8] i2c: Make I2C ID tables non-mandatory for DT'ed devices
+Date: Wed,  4 May 2016 16:14:44 +0100
+Message-ID: <1462374888-22888-5-git-send-email-kieran@bingham.xyz>
 References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
@@ -12,43 +12,49 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Lee Jones <lee.jones@linaro.org>
 
-As part of an effort to rid the mostly unused second parameter for I2C
-related .probe() functions and to conform to other existing frameworks
-we're moving over to a temporary replacement .probe() call-back.
+Currently the I2C framework insists on devices supplying an I2C ID
+table.  Many of the devices which do so unnecessarily adding quite a
+few wasted lines to kernel code.  This patch allows drivers a means
+to 'not' supply the aforementioned table and match on DT match tables
+instead.
 
 Acked-by: Grant Likely <grant.likely@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
-
+Tested-by: Kieran Bingham <kieran@bingham.xyz>
 ---
-Changes since v4
- - Rename .probe2 to probe_new
----
- drivers/mfd/88pm860x-core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/i2c-core.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/88pm860x-core.c b/drivers/mfd/88pm860x-core.c
-index 25e1aafae60c..227b99018657 100644
---- a/drivers/mfd/88pm860x-core.c
-+++ b/drivers/mfd/88pm860x-core.c
-@@ -1132,8 +1132,7 @@ static int pm860x_dt_init(struct device_node *np,
- 	return 0;
- }
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 88211009d282..dd5a19ee92af 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -511,7 +511,7 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
  
--static int pm860x_probe(struct i2c_client *client,
--				  const struct i2c_device_id *id)
-+static int pm860x_probe(struct i2c_client *client)
- {
- 	struct pm860x_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct device_node *node = client->dev.of_node;
-@@ -1259,7 +1258,7 @@ static struct i2c_driver pm860x_driver = {
- 		.pm     = &pm860x_pm_ops,
- 		.of_match_table	= pm860x_dt_ids,
- 	},
--	.probe		= pm860x_probe,
-+	.probe_new	= pm860x_probe,
- 	.remove		= pm860x_remove,
- 	.id_table	= pm860x_id_table,
- };
+ 
+ 	/* Attempt an OF style match */
+-	if (of_driver_match_device(dev, drv))
++	if (i2c_of_match_device(drv->of_match_table, client))
+ 		return 1;
+ 
+ 	/* Then ACPI style match */
+@@ -696,7 +696,15 @@ static int i2c_device_probe(struct device *dev)
+ 	}
+ 
+ 	driver = to_i2c_driver(dev->driver);
+-	if (!driver->probe || !driver->id_table)
++	if (!driver->probe)
++		return -EINVAL;
++
++	/*
++	 * An I2C ID table is not mandatory, if and only if, a suitable Device
++	 * Tree match table entry is supplied for the probing device.
++	 */
++	if (!driver->id_table &&
++	    !i2c_of_match_device(dev->driver->of_match_table, client))
+ 		return -ENODEV;
+ 
+ 	if (client->flags & I2C_CLIENT_WAKE) {
 -- 
 2.5.0
