@@ -1,54 +1,41 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v7 4/9] i2c: rk3x: Move setting STATE_START and add STATE_SETUP
-Date: Thu, 5 May 2016 15:56:45 -0700
-Message-ID: <CAD=FV=WVKpJJbqc=UYbeObDurjte0iQOzvLL++i=wM9=TBeCDQ@mail.gmail.com>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v7 5/9] i2c: rk3x: Change SoC data to not use array
+Date: Thu, 5 May 2016 15:57:39 -0700
+Message-ID: <CAD=FV=UsLmiASrso1SM5aGQPmJKNSXS260E7fiiYgmFQ4t1jpA@mail.gmail.com>
 References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
-	<1462371194-5809-5-git-send-email-david.wu@rock-chips.com>
+	<1462372418-6349-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462371194-5809-5-git-send-email-david.wu@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Wu <david.wu@rock-chips.com>
-Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Tao Huang <huangtao@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Eddie Cai <cf@rock-chips.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Kumar Gala <galak@codeaurora.org>, Chris <zyw@rock-chips.com>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1462372418-6349-1-git-send-email-david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Brian Norris <briannorris-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, David Riley <davidriley-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-David,
+Hi,
 
-On Wed, May 4, 2016 at 7:13 AM, David Wu <david.wu@rock-chips.com> wrote:
-> Signed-off-by: David Wu <david.wu@rock-chips.com>
-> ---
-> Change in v7:
-> - none
->
->  drivers/i2c/busses/i2c-rk3x.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+On Wed, May 4, 2016 at 7:33 AM, David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
+> Signed-off-by: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 
-Probably this change could be dropped now.  Switching the location of
-setting START_START was much more important when you were supporting
-HIGH SPEED mode.  I don't think we need it anymore, right?
-
-...if we want to keep this change, I'd say:
-
-1. Add a description, like maybe:
-
-To help with debugging add a STATE_SETUP between STATE_IDLE and
-STATE_START to make it more obvious that we're not actually idle but we
-also haven't initiated the start bit.  This change is not expected to
-have any impact but it does delay the changing of state to STATE_START.
-If previously we were getting an erroneous interrupt before we actually
-sent the start bit we'll now be treating that differently.  The new
-behavior (catching the erroneous interrupt) should be better.
-
-2. Change "i2c->state = STATE_SETUP" to the _start_ of
-rk3x_i2c_setup().  That would have a better chance of catching a
-spurious interrupt.
-
-3. Add an error check at the start of rk3x_i2c_irq() similar to the
-check for STATE_IDLE (or use the same check and modify the printk).
-Specifically the justification for adding STATE_SETUP is to help with
-debugging (catch interrupts that were unexpected and print more info
-about our state), so we should make it useful for this.
+nit: $SUBJECT should probably mention that this also constifies the SoC data.
 
 
--Doug
+Again, needs description, like maybe:
+
+Specifying the i2c SoC data in an array provides very little benefit and
+gets unwieldly / confusing as the array grows since the next bit of code
+needs to refer to elements in the array by their raw integral index.
+
+Let's just create a single 'static const' structure for each SoC so that
+we can refer to these structures by ID.
+
+
+IMHO this can be applied any time independent of any earlier patches.
+
+Suggested-by: Douglas Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Reviewed-by: Douglas Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
