@@ -1,258 +1,44 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v3 2/2] i2c, i2c_imc: Add DIMM bus code
-Date: Thu, 5 May 2016 10:48:29 -0700
-Message-ID: <CALCETrX84cNYvXkmYoLpRExZ25E=Ta2bzPV-pVenoowf0+okOQ@mail.gmail.com>
-References: <cover.1461891499.git.luto@kernel.org> <01cb3ac1d5c76f61890e258a20758c7f75fb161a.1461891499.git.luto@kernel.org>
- <94D0CD8314A33A4D9D801C0FE68B40296392DA39@G9W0745.americas.hpqcorp.net>
+From: Naveen Kaje <nkaje@codeaurora.org>
+Subject: Re: [15/18] i2c: i2c-qup: use new 8 bit address helper function
+Date: Thu, 5 May 2016 12:27:20 -0600
+Message-ID: <fdcbf59d-7d26-8151-6858-c73201510f9d@codeaurora.org>
+References: <1459709101-24462-16-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <94D0CD8314A33A4D9D801C0FE68B40296392DA39@G9W0745.americas.hpqcorp.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Elliott, Robert (Persistent Memory)" <elliott@hpe.com>
-Cc: Andy Lutomirski <luto@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Christoph Hellwig <hch@infradead.org>, Boaz Harrosh <boaz@plexistor.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Rui Wang <ruiv.wang@gmail.com>, Jean Delvare <jdelvare@suse.de>, Alun Evans <alun@badgerous.net>, Robert Elliott <Elliott@hp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Paul Bolle <pebolle@tiscali.nl>, Tony Luck <tony.luck@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.29.96]:44662 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755555AbcEES10 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 14:27:26 -0400
+In-Reply-To: <1459709101-24462-16-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Mon, May 2, 2016 at 12:49 PM, Elliott, Robert (Persistent Memory)
-<elliott@hpe.com> wrote:
+On 4/3/2016 12:44 PM, Wolfram Sang wrote:
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>   drivers/i2c/busses/i2c-qup.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 >
->
->> -----Original Message-----
->> From: Andy Lutomirski [mailto:luto@kernel.org]
->> Sent: Thursday, April 28, 2016 8:03 PM
->> To: Wolfram Sang <wsa@the-dreams.de>; Christoph Hellwig <hch@infradead.org>
->> Cc: Boaz Harrosh <boaz@plexistor.com>; One Thousand Gnomes
->> <gnomes@lxorguk.ukuu.org.uk>; Rui Wang <ruiv.wang@gmail.com>; Jean Delvare
->> <jdelvare@suse.de>; Alun Evans <alun@badgerous.net>; Robert Elliott
->> <Elliott@hp.com>; linux-i2c@vger.kernel.org; Mauro Carvalho Chehab
->> <m.chehab@samsung.com>; Paul Bolle <pebolle@tiscali.nl>; Tony Luck
->> <tony.luck@intel.com>; linux-kernel@vger.kernel.org; Guenter Roeck
->> <linux@roeck-us.net>; Andy Lutomirski <luto@kernel.org>
->> Subject: [PATCH v3 2/2] i2c, i2c_imc: Add DIMM bus code
->>
->> Add i2c_scan_dimm_bus to declare that a particular i2c_adapter
->> contains DIMMs.  This will probe (and autoload modules!) for useful
->> SMBUS devices that live on DIMMs.  i2c_imc calls it.
->>
->> As more SMBUS-addressable DIMM components become supported, this
->> code can be extended to probe for them.
->>
->> Signed-off-by: Andy Lutomirski <luto@kernel.org>
->> ---
->>  drivers/i2c/busses/Kconfig    |   5 ++
->>  drivers/i2c/busses/Makefile   |   4 ++
->>  drivers/i2c/busses/dimm-bus.c | 107
->> ++++++++++++++++++++++++++++++++++++++++++
->>  drivers/i2c/busses/i2c-imc.c  |   3 ++
->>  include/linux/i2c/dimm-bus.h  |  20 ++++++++
->>  5 files changed, 139 insertions(+)
->>  create mode 100644 drivers/i2c/busses/dimm-bus.c
->>  create mode 100644 include/linux/i2c/dimm-bus.h
->>
->> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
->> index 3c05de897566..10aa87872408 100644
->> --- a/drivers/i2c/busses/Kconfig
->> +++ b/drivers/i2c/busses/Kconfig
->> @@ -152,9 +152,14 @@ config I2C_ISMT
->>         This driver can also be built as a module.  If so, the module will
->> be
->>         called i2c-ismt.
->>
->> +config I2C_DIMM_BUS
->> +       tristate
->> +       default n
->> +
->>  config I2C_IMC
->>       tristate "Intel iMC (LGA 2011) SMBus Controller"
->>       depends on PCI && X86
->> +     select I2C_DIMM_BUS
->>       help
->>         If you say yes to this option, support will be included for the
->> Intel
->>         Integrated Memory Controller SMBus host controller interface.  This
->> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
->> index ab3cdf1b3ca1..093591935bc8 100644
->> --- a/drivers/i2c/busses/Makefile
->> +++ b/drivers/i2c/busses/Makefile
->> @@ -25,6 +25,10 @@ obj-$(CONFIG_I2C_SIS96X)   += i2c-sis96x.o
->>  obj-$(CONFIG_I2C_VIA)                += i2c-via.o
->>  obj-$(CONFIG_I2C_VIAPRO)     += i2c-viapro.o
->>
->> +# DIMM busses
->> +obj-$(CONFIG_I2C_DIMM_BUS)   += dimm-bus.o
->> +obj-$(CONFIG_I2C_IMC)                += i2c-imc.o
->> +
->>  # Mac SMBus host controller drivers
->>  obj-$(CONFIG_I2C_HYDRA)              += i2c-hydra.o
->>  obj-$(CONFIG_I2C_POWERMAC)   += i2c-powermac.o
->> diff --git a/drivers/i2c/busses/dimm-bus.c b/drivers/i2c/busses/dimm-bus.c
->> new file mode 100644
->> index 000000000000..d41c1095c093
->> --- /dev/null
->> +++ b/drivers/i2c/busses/dimm-bus.c
->> @@ -0,0 +1,107 @@
->> +/*
->> + * Copyright (c) 2013-2016 Andrew Lutomirski <luto@amacapital.net>
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License version 2
->> + * as published by the Free Software Foundation.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License for more details.
->> + */
->> +
->> +#include <linux/i2c.h>
->> +#include <linux/bug.h>
->> +#include <linux/module.h>
->> +#include <linux/i2c/dimm-bus.h>
->> +
->> +static bool probe_addr(struct i2c_adapter *adapter, int addr)
->> +{
->> +     /*
->> +      * So far, all known devices that live on DIMMs can be safely
->> +      * and reliably detected by trying to read a byte at address
->> +      * zero.  (The exception is the SPD write protection control,
->> +      * which can't be probed and requires special hardware and/or
->> +      * quick writes to access, and has no driver.)
->> +      */
->
-> If the bus is in the middle of any other kind of access or sequence of
-> accesses, it's hard to predict what this will do.
->
-> If it's a 512 byte SPD EEPROM and the last page select was to page 1,
-> this will read byte 256 rather than byte 0.  The thread needs to do
-> its own set page 0 write to ensure it knows what it is reading.
+> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+> index 23eaabb19f961a..cc6439ab3f7141 100644
+> --- a/drivers/i2c/busses/i2c-qup.c
+> +++ b/drivers/i2c/busses/i2c-qup.c
+> @@ -515,7 +515,7 @@ static int qup_i2c_get_data_len(struct qup_i2c_dev *qup)
+>   static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+>   			    struct i2c_msg *msg,  int is_dma)
+>   {
+> -	u16 addr = (msg->addr << 1) | ((msg->flags & I2C_M_RD) == I2C_M_RD);
+> +	u16 addr = i2c_8bit_addr_from_msg(msg);
+>   	int len = 0;
+>   	int data_len;
+Looks good to me. Tested ok on QDF2432.
+There is another place in issue_read that we can use this helper 
+function. I will send a follow up patch.
 
-I'm slightly confused here.  Are you saying that this could interfere
-with a concurrent access or that a concurrent access could interfere
-with this check?  All I'm trying to do is detect whether there's a
-DIMM in the slot -- I don't particularly care *which* byte of SPD data
-I end up reading.
-
-In theory, i2c_imc could possibly interrogate the chipset to figure
-out which slots are populated, but that's tedious and this code seems
-to work fine, at least on DDR3 systems.
-
->> +void i2c_scan_dimm_bus(struct i2c_adapter *adapter)
->> +{
->> +     struct i2c_board_info info = {};
->> +     int slot;
->> +
->> +     /*
->> +      * We probe with "read byte data".  If any DIMM SMBUS driver can't
->> +      * support that access type, this function should be updated.
->> +      */
->> +     if (WARN_ON(!i2c_check_functionality(adapter,
->> +                                          I2C_FUNC_SMBUS_READ_BYTE_DATA)))
->> +             return;
->> +
->> +     /*
->> +      * Addresses on DIMMs use the three low bits to identify the slot
->> +      * and the four high bits to identify the device type.  Known
->> +      * devices are:
->> +      *
->> +      *  - 0x50 - 0x57: SPD (Serial Presence Detect) EEPROM
->> +      *  - 0x30 - 0x37: SPD WP control -- not easy to probe
->> +      *  - 0x18 - 0x1f: TSOD (Temperature Sensor on DIMM)
->
-> In DDR4, you might also encounter:
-> * 0x10 - 0x17 NVDIMM controller (pre-standard)
-
-I would prefer if someone else wrote those couple lines of code for
-NDA reasons.  I could probably get permission to do it, but this
-doesn't seem worthwhile.
-
-> * 0x40 - 0x47 NVDIMM controller (JESD245 Byte Addressable Energy Backed Interface)
-
-Is there an actual linux driver that we should try to bind?  If not,
-we could wait for that driver to get written.  From the spec, it looks
-like this should be found by reading the SPD, not by probing for the
-I2C slave address.
-
-Given that this is now standard, has anyone figured out how bus
-arbitration should work?  I know how it works on the legacy boards
-(BIOS gets out of the way; OS is in control, at least if properly
-configured), but I don't have access to a standards-compliant board.
-
-I updated the comment for the next version.
-
-> * 0x58 - 0x5F Registering Clock Driver (RCD) (JEDEC DDR4RCD01)
-
-Is this useful for Linux?  I couldn't find the spec, maybe because I'm
-searching JEDEC's site wrong.
-
->
->> +      *
->> +      * There's no point in trying to probe the SPD WP control: we'd
->> +      * want to probe using quick reads, which i2c-imc doesn't
->> +      * support, we don't have a driver for it, we can't really use
->> +      * it without special hardware (it's not a normal i2c slave --
->> +      * see the JEDEC docs), and using it risks bricking the DIMM
->> +      * it's on anyway.
->
-> You do need to write to 0x36 and 0x37 a lot while accessing
-> SPD EEPROMs in DDR4:
-> * 0x36 selects SPD page 0 (bytes 0-255) on all DIMMs
-> * 0x37 selects SPD page 1 (bytes 256-511) on all DIMMs
->
-> Since the page selects are broadcast, you cannot have independent threads
-> talking to different DIMM SPD EEPROMs unless they're very coordinated.
-
-Are you talking about the SPD read interface or the SPD write
-interface?  I'm intentionally not trying to probe for the write
-interface.
-
->
->> +      *
->> +      * NB: There's no need to save the return value from
->> +      * i2c_new_device, as the core code will unregister it for us
->> +      * when the adapter is removed.  If users want to bind a
->> +      * different driver, nothing stops them from unbinding the
->> +      * drivers we request here.
->> +      */
->> +     for (slot = 0; slot < 8; slot++) {
->> +             /* If there's no SPD, then assume there's no DIMM here. */
->> +             if (!probe_addr(adapter, 0x50 | slot))
->> +                     continue;
->> +
->> +             strcpy(info.type, "spd");
->> +             info.addr = 0x50 | slot;
->> +             i2c_new_device(adapter, &info);
->> +
->> +             if (probe_addr(adapter, 0x18 | slot)) {
->> +                     /* This is a temperature sensor. */
->> +                     strcpy(info.type, "jc42");
->
-> JC-42 is the name of a JEDEC committee.  TSE2004av is "the family of"
-> "Serial Presence Detect (SPD) EEPROMs and Temperature Sensor (TS) as
-> used for memory module applications" in DDR4, defined by JEDEC
-> standard No. 21-C section 4.1.6.  The earlier TSE2002av only supported
-> 256 bytes of SPD EEPROM.  Since the driver is already called jc42.c,
-> maybe add a comment with the actual standards references.
->
-
-I changed it to:
-
-        if (probe_addr(adapter, 0x18 | slot)) {
-            /*
-             * This is a temperature sensor.  The interface is
-             * defined in the JEDEC TSE2004av specification.
-             * Linux's driver for this is called "jc42", which
-             * is a bit nonsensical (JC-42 is the name of the
-             * committee, not the sensor).
-             */
-            strcpy(info.type, "jc42");
-            info.addr = 0x18 | slot;
-            i2c_new_device(adapter, &info);
-        }
-
-for the next version.
-
-Aside from the comments, are you okay with the code in this file?
-FWIW, it's not currently possible to use this code with DDR4 AFAIK
-because there aren't any systems that support both the current
-incarnation of i2c_imc and DDR4.  This could easily change, of course,
-once someone adds support for newer CPUs.
+Reviewed by: Naveen Kaje <nkaje@codeaurora.org>
+Tested by: Naveen Kaje <nkaje@codeaurora.org>
+>   
