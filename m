@@ -1,46 +1,73 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] i2c: rcar: add DMA support
-Date: Thu, 5 May 2016 17:06:25 -0500
-Message-ID: <20160505220625.GA18367@rob-hp-laptop>
-References: <1462365503-8451-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+Subject: Re: [PATCH v7 7/9] dt-bindings: i2c: rk3x: add support for rk3399
+Date: Thu, 5 May 2016 17:12:12 -0500
+Message-ID: <20160505221212.GA26820@rob-hp-laptop>
+References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
+ <1462372523-6444-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:35423 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.136]:35571 "EHLO mail.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757890AbcEEWGa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 5 May 2016 18:06:30 -0400
+	id S1752284AbcEEWMS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 5 May 2016 18:12:18 -0400
 Content-Disposition: inline
-In-Reply-To: <1462365503-8451-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+In-Reply-To: <1462372523-6444-1-git-send-email-david.wu@rock-chips.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Niklas =?iso-8859-1?Q?S=F6derlund?= <niklas.soderlund+renesas@ragnatech.se>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
+To: David Wu <david.wu@rock-chips.com>
+Cc: heiko@sntech.de, wsa@the-dreams.de, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, May 04, 2016 at 02:38:23PM +0200, Niklas S=F6derlund wrote:
-> Make it possible to transfer i2c message buffers via DMA.
-> Start/Stop/Sending_Slave_Address and some data is still handled using
-> the old state machine, it is sending the bulk of the data that is don=
-e
-> via DMA.
->=20
-> The first byte of a transmission and the last two bytes of reception =
-are
-> sent/received using PIO. This is needed for the HW to have access to =
-the
-> first byte before DMA transmit and to be able to set the STOP conditi=
-on
-> for DMA reception.
->=20
-> Signed-off-by: Niklas S=F6derlund <niklas.soderlund+renesas@ragnatech=
-=2Ese>
+On Wed, May 04, 2016 at 10:35:23PM +0800, David Wu wrote:
+> The bus clock and function clock are separated at rk3399,
+> and others use one clock as the bus clock and function clock.
+> 
+> Signed-off-by: David Wu <david.wu@rock-chips.com>
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   3 +
->  drivers/i2c/busses/i2c-rcar.c                      | 237 +++++++++++=
-+++++++++-
->  2 files changed, 236 insertions(+), 4 deletions(-)
+>  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 16 +++++++++++++---
+>  1 file changed, 13 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+> index 0b4a85f..82b6f6b 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+> @@ -6,10 +6,20 @@ RK3xxx SoCs.
+>  Required properties :
+>  
+>   - reg : Offset and length of the register set for the device
+> - - compatible : should be "rockchip,rk3066-i2c", "rockchip,rk3188-i2c",
+> -		"rockchip,rk3228-i2c" or "rockchip,rk3288-i2c".
+> + - compatible: should be one of the followings
 
-Is DMA actually faster or less cpu usage? I'm doubtful.
+s/followings/following:/
 
-Acked-by: Rob Herring <robh@kernel.org>
+> +   - "rockchip,rk3066-i2c": for rk3066
+> +   - "rockchip,rk3188-i2c": for rk3188
+> +   - "rockchip,rk3228-i2c": for rk3228
+> +   - "rockchip,rk3288-i2c": for rk3288
+> +   - "rockchip,rk3399-i2c": for rk3399
+>   - interrupts : interrupt number
+> - - clocks : parent clock
+> + - clocks: See ../clock/clock-bindings.txt
+> +   - For older hardware (rk3066, rk3188, rk3228, rk3288):
+> +     - There is one clock that's used both to derive the functional clock
+> +       for the device and as the bus clock.  REQUIRED.
+
+This is the required section, so REQUIRED is redundant.
+
+> +   - For newer hardware (rk3399): specify by name
+> +     - "i2c": REQUIRED. This is used to derive the functional clock.
+> +     - "pclk": REQUIRED. This is the bus clock.equired on RK3066, RK3188 :
+
+This doesn't make sense. The first line says this applies to rk3399, but 
+then here it is talking about other parts.
+
+And there's a typo.
+
+>  
+>  Required on RK3066, RK3188 :
+>  
+> -- 
+> 1.9.1
+> 
+> 
