@@ -1,101 +1,66 @@
 From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v7 6/9] i2c: rk3x: Move spec timing data to "static const" structs
-Date: Thu, 5 May 2016 15:58:47 -0700
-Message-ID: <CAD=FV=Vg+umhA73uR66AdFmaNKhpyXCYojqE9kZJqkTOsyK_Jg@mail.gmail.com>
+Subject: Re: [PATCH v7 7/9] dt-bindings: i2c: rk3x: add support for rk3399
+Date: Thu, 5 May 2016 15:59:58 -0700
+Message-ID: <CAD=FV=XXojzZiVFuXuChZdDeTxE6tFSJZ=8FqLpVTG2L6xWpBg@mail.gmail.com>
 References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
-	<1462372472-6396-1-git-send-email-david.wu@rock-chips.com>
+	<1462372523-6444-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f176.google.com ([209.85.161.176]:35080 "EHLO
-	mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757170AbcEEW6s (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 18:58:48 -0400
-Received: by mail-yw0-f176.google.com with SMTP id g133so149430224ywb.2
-        for <linux-i2c@vger.kernel.org>; Thu, 05 May 2016 15:58:48 -0700 (PDT)
-In-Reply-To: <1462372472-6396-1-git-send-email-david.wu@rock-chips.com>
+Received: from mail-yw0-f177.google.com ([209.85.161.177]:36620 "EHLO
+	mail-yw0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758009AbcEEW77 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 18:59:59 -0400
+Received: by mail-yw0-f177.google.com with SMTP id o66so169757023ywc.3
+        for <linux-i2c@vger.kernel.org>; Thu, 05 May 2016 15:59:59 -0700 (PDT)
+In-Reply-To: <1462372523-6444-1-git-send-email-david.wu@rock-chips.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: David Wu <david.wu@rock-chips.com>
 Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-David,
+Hi,
 
-On Wed, May 4, 2016 at 7:34 AM, David Wu <david.wu@rock-chips.com> wrote:
+On Wed, May 4, 2016 at 7:35 AM, David Wu <david.wu@rock-chips.com> wrote:
+> The bus clock and function clock are separated at rk3399,
+> and others use one clock as the bus clock and function clock.
+>
 > Signed-off-by: David Wu <david.wu@rock-chips.com>
-
-As you can probably guess, again a description would be nice.  Like maybe:
-
-The i2c timing specs are really just constant data.  There's no reason
-to write code to init them, so move them out to structures.  This not
-only is a cleaner solution but it will reduce code duplication when we
-introduce a new variant of rk3x_i2c_calc_divs() in a future patch.
-
-That helps someone reading the patch understand the motivation.
-
-
-> @@ -76,6 +76,51 @@ enum {
->  #define DEFAULT_SCL_RATE  (100 * 1000) /* Hz */
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 16 +++++++++++++---
+>  1 file changed, 13 insertions(+), 3 deletions(-)
 >
->  /**
-> + * struct i2c_spec_values:
-> + * @min_hold_start_ns: min hold time (repeated) START condition
-> + * @min_low_ns: min LOW period of the SCL clock
-> + * @min_high_ns: min HIGH period of the SCL cloc
-> + * @min_setup_start_ns: min set-up time for a repeated START conditio
-> + * @max_data_hold_ns: max data hold time
-> + * @min_data_setup_ns: min data set-up time
-> + * @min_setup_stop_ns: min set-up time for STOP condition
-> + * @min_hold_buffer_ns: min bus free time between a STOP and
-> + * START condition
-> + */
-> +struct i2c_spec_values {
-> +       unsigned long min_hold_start_ns;
-> +       unsigned long min_low_ns;
-> +       unsigned long min_high_ns;
-> +       unsigned long min_setup_start_ns;
-> +       unsigned long max_data_hold_ns;
-> +       unsigned long min_data_setup_ns;
-> +       unsigned long min_setup_stop_ns;
-> +       unsigned long min_hold_buffer_ns;
-> +};
-> +
-> +static const struct i2c_spec_values standard_mode_spec = {
-> +       .min_hold_start_ns = 4000,
-> +       .min_low_ns = 4700,
-> +       .min_high_ns = 4000,
-> +       .min_setup_start_ns = 4700,
-> +       .max_data_hold_ns = 3450,
-> +       .min_data_setup_ns = 250,
-> +       .min_setup_stop_ns = 4000,
-> +       .min_hold_buffer_ns = 4700,
-
-There are more spec values than are currently used in this patch.
-Personally I'm OK with that, but if you wanted to be totally clean
-this patch would only include the spec values that were needed, then
-introduce the additional values in the rk3399 patch.
-
-
-> @@ -492,6 +548,8 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate,
->         unsigned long min_div_for_hold, min_total_div;
->         unsigned long extra_div, extra_low_div, ideal_low_div;
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+> index 0b4a85f..82b6f6b 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+> @@ -6,10 +6,20 @@ RK3xxx SoCs.
+>  Required properties :
 >
-> +       unsigned long data_hold_buffer_ns = 50;
+>   - reg : Offset and length of the register set for the device
+> - - compatible : should be "rockchip,rk3066-i2c", "rockchip,rk3188-i2c",
+> -               "rockchip,rk3228-i2c" or "rockchip,rk3288-i2c".
+> + - compatible: should be one of the followings
+> +   - "rockchip,rk3066-i2c": for rk3066
+> +   - "rockchip,rk3188-i2c": for rk3188
+> +   - "rockchip,rk3228-i2c": for rk3228
+> +   - "rockchip,rk3288-i2c": for rk3288
+> +   - "rockchip,rk3399-i2c": for rk3399
+>   - interrupts : interrupt number
+> - - clocks : parent clock
+> + - clocks: See ../clock/clock-bindings.txt
+> +   - For older hardware (rk3066, rk3188, rk3228, rk3288):
+> +     - There is one clock that's used both to derive the functional clock
+> +       for the device and as the bus clock.  REQUIRED.
+> +   - For newer hardware (rk3399): specify by name
+> +     - "i2c": REQUIRED. This is used to derive the functional clock.
+> +     - "pclk": REQUIRED. This is the bus clock.equired on RK3066, RK3188 :
 
-aside (feel free to ignore): Gosh, I kinda forgot what the heck this
-value was for.  I guess it's not anything in the spec.  I have a
-feeling it was some sort of slop value that someone felt was
-necessary, but I don't quite remember.  Oh well, I guess we leave it
-there since I'd rather not mess with timings on old hardware that are
-apparently working for everyone.  :-P
+Looks great except that you need to delete the "equired on RK3066,
+RK3188 :" part, which looks like it was leftover from some sort of
+copy/paste.
 
-
-In any case, aside from the missing description:
-
-Suggested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-
-IMHO this can be applied any time independent of any earlier patches.
+Once that is done, feel free to add my Reviewed-by tag.
 
 
 -Doug
