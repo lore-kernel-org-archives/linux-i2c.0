@@ -1,42 +1,54 @@
 From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v7 3/9] i2c: rk3x: Remove redundant rk3x_i2c_clean_ipd()
-Date: Thu, 5 May 2016 15:55:54 -0700
-Message-ID: <CAD=FV=XpS4UYR5ORXUOGJXPXBr_Tpc6r87+Tm83KE654ZbkdzA@mail.gmail.com>
+Subject: Re: [PATCH v7 4/9] i2c: rk3x: Move setting STATE_START and add STATE_SETUP
+Date: Thu, 5 May 2016 15:56:45 -0700
+Message-ID: <CAD=FV=WVKpJJbqc=UYbeObDurjte0iQOzvLL++i=wM9=TBeCDQ@mail.gmail.com>
 References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
-	<1462371194-5809-4-git-send-email-david.wu@rock-chips.com>
+	<1462371194-5809-5-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f172.google.com ([209.85.161.172]:34405 "EHLO
-	mail-yw0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757769AbcEEWzz (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 18:55:55 -0400
-Received: by mail-yw0-f172.google.com with SMTP id j74so149303198ywg.1
-        for <linux-i2c@vger.kernel.org>; Thu, 05 May 2016 15:55:55 -0700 (PDT)
-In-Reply-To: <1462371194-5809-4-git-send-email-david.wu@rock-chips.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1462371194-5809-5-git-send-email-david.wu@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: David Wu <david.wu@rock-chips.com>
-Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Tao Huang <huangtao@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Eddie Cai <cf@rock-chips.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Kumar Gala <galak@codeaurora.org>, Chris <zyw@rock-chips.com>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+List-Id: linux-i2c@vger.kernel.org
 
 David,
 
 On Wed, May 4, 2016 at 7:13 AM, David Wu <david.wu@rock-chips.com> wrote:
-> Call rk3x_i2c_setup() before rk3x_i2c_start()
-> and the last thing in setup was to clean the IPD,
-> so no reason to do it at the beginning of start.
->
 > Signed-off-by: David Wu <david.wu@rock-chips.com>
 > ---
 > Change in v7:
 > - none
 >
->  drivers/i2c/busses/i2c-rk3x.c | 1 -
->  1 file changed, 1 deletion(-)
+>  drivers/i2c/busses/i2c-rk3x.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 
-Looks great.  Thanks for splitting this out from other patches--makes
-it much more obvious what's happening!  :)
+Probably this change could be dropped now.  Switching the location of
+setting START_START was much more important when you were supporting
+HIGH SPEED mode.  I don't think we need it anymore, right?
 
-IMHO this can be applied any time independent of any earlier patches.
+...if we want to keep this change, I'd say:
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+1. Add a description, like maybe:
+
+To help with debugging add a STATE_SETUP between STATE_IDLE and
+STATE_START to make it more obvious that we're not actually idle but we
+also haven't initiated the start bit.  This change is not expected to
+have any impact but it does delay the changing of state to STATE_START.
+If previously we were getting an erroneous interrupt before we actually
+sent the start bit we'll now be treating that differently.  The new
+behavior (catching the erroneous interrupt) should be better.
+
+2. Change "i2c->state = STATE_SETUP" to the _start_ of
+rk3x_i2c_setup().  That would have a better chance of catching a
+spurious interrupt.
+
+3. Add an error check at the start of rk3x_i2c_irq() similar to the
+check for STATE_IDLE (or use the same check and modify the printk).
+Specifically the justification for adding STATE_SETUP is to help with
+debugging (catch interrupts that were unexpected and print more info
+about our state), so we should make it useful for this.
+
+
+-Doug
