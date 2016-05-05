@@ -1,72 +1,63 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [RFC 5/7] iio: inv_mpu6050: Add support for auxiliary I2C master
-Date: Thu, 5 May 2016 08:10:50 -0500
-Message-ID: <CAL_JsqKXv3vY_rce18jm4fcYBArc8V_o_1cpuUFYbJFgt2-QOA@mail.gmail.com>
-References: <cover.1461953982.git.leonard.crestez@intel.com>
- <4aeaced7c1c8e222996df4c1b4b71e505ab256f7.1461953982.git.leonard.crestez@intel.com>
- <7168c23b-8b82-5e57-42fd-b164bee9fa85@kernel.org> <3e520787-1dc4-b703-9a44-1c3ac2200f25@intel.com>
+From: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v4 1/3] dts: sun8i-h3: add uart1/uart2/uart3
+ pins definitions
+Date: Thu, 5 May 2016 09:59:20 -0400
+Message-ID: <1fb8a17a7758b790f68a311d3f1ea7018f2961a3.1462457172.git.martinayotte@gmail.com>
+References: <cover.1462457172.git.martinayotte@gmail.com>
+Reply-To: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:33403 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751345AbcEENLT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 5 May 2016 09:11:19 -0400
-In-Reply-To: <3e520787-1dc4-b703-9a44-1c3ac2200f25@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBDW4XUV4YULRBINKVW4QKGQEXA524GA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <cover.1462457172.git.martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Cc: jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, Ge Gao <GGao@invensense.com>, Peter Rosin <peda@axentia.se>, Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Mark Rutland <Mark.Rutland@arm.com>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Matt Ranostay <matt.ranostay@intel.com>
 
-On Thu, May 5, 2016 at 7:38 AM, Crestez Dan Leonard
-<leonard.crestez@intel.com> wrote:
-> On 05/01/2016 08:27 PM, Jonathan Cameron wrote:
->> On 29/04/16 20:02, Crestez Dan Leonard wrote:
->>> --- a/Documentation/devicetree/bindings/iio/imu/inv_mpu6050.txt
->>> +++ b/Documentation/devicetree/bindings/iio/imu/inv_mpu6050.txt
->>> @@ -1,16 +1,27 @@
->>>  InvenSense MPU-6050 Six-Axis (Gyro + Accelerometer) MEMS MotionTracking Device
->>>
->>> -http://www.invensense.com/mems/gyro/mpu6050.html
->> If this is invalid, please add an up to date link if possible.
->>> -
->>>  Required properties:
->>> - - compatible : should be "invensense,mpu6050"
->>> - - reg : the I2C address of the sensor
->>> + - compatible : should be "invensense,mpuXXXX"
->> List them all explicitly here rather than wild cards.
->>
-> But the list is a bit long. I'll just write "see below for valid
-> compatible strings".
+dts: sun8i-h3: add uart1/uart2/uart3 pins definitions
 
-No, please list here. 4 is not long. A note of which ones are SPI
-would be good too.
+Signed-off-by: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ arch/arm/boot/dts/sun8i-h3.dtsi | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-Can you add 9250 as well as it is commonly available for maker h/w.
-
->
->>> + - reg : the I2C or SPI address of the sensor
->>>   - interrupt-parent : should be the phandle for the interrupt controller
->>>   - interrupts : interrupt mapping for GPIO IRQ
->>>
->>>  Optional properties:
->>>   - mount-matrix: an optional 3x3 mounting rotation matrix
->>> + - inv,i2c-aux-master: operate aux i2c in "master mode" (default is mux).
->>> +
->>> +Valid compatible strings:
->> Vendor prefix? These will work for historical reasons, but now vendor
->> prefix should definitely be there as well.
->>> + - mpu6000
->>> + - mpu6050
->>> + - mpu6500
->>> + - mpu9150
->>
-> The driver currently only lists i2c_device_id and this will work
-> ignoring the vendor string. I can prefix all these valid strings with
-> the vendor prefix but this is not actually a requirement. That would
-> require a separate unrelated patch adding of_device_id tables.
-
-What the driver happens to do is irrelevant to the binding. From a
-binding standpoint, the vendor prefix is always required.
-
-Rob
+diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
+index 4a4926b..292ed59 100644
+--- a/arch/arm/boot/dts/sun8i-h3.dtsi
++++ b/arch/arm/boot/dts/sun8i-h3.dtsi
+@@ -508,6 +508,27 @@
+ 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+ 			};
+ 
++			uart1_pins_a: uart1@0 {
++				allwinner,pins = "PG6", "PG7";
++				allwinner,function = "uart1";
++				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
++			};
++
++			uart2_pins_a: uart2@0 {
++				allwinner,pins = "PA0", "PA1";
++				allwinner,function = "uart2";
++				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
++			};
++
++			uart3_pins_a: uart3@0 {
++				allwinner,pins = "PA13", "PA14";
++				allwinner,function = "uart3";
++				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
++				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
++			};
++
+ 			mmc0_pins_a: mmc0@0 {
+ 				allwinner,pins = "PF0", "PF1", "PF2", "PF3",
+ 						 "PF4", "PF5";
+-- 
+2.7.4
