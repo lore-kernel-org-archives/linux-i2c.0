@@ -1,62 +1,53 @@
-From: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4 2/3] dts: sun8i-h3: add i2c0/i2c1/i2c2 pins definitions
-Date: Thu, 5 May 2016 10:00:06 -0400
-Message-ID: <f137fb6ade91f28ef40c2dbf6a5a337c5ed0198e.1462457172.git.martinayotte@gmail.com>
-References: <cover.1462457172.git.martinayotte@gmail.com>
-Reply-To: martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Andy Gross <andy.gross@linaro.org>
+Subject: Re: [PATCH 2/2] drivers: i2c: qup: Fix error handling
+Date: Thu, 5 May 2016 12:22:19 -0500
+Message-ID: <20160505172219.GB6533@hector.attlocal.net>
+References: <1462166637-16778-1-git-send-email-sricharan@codeaurora.org>
+ <1462166637-16778-3-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBDW4XUV4YULRBIVKVW4QKGQEQ75W2DA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <cover.1462457172.git.martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
-Cc: jwrdegoede-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, jenskuske-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f51.google.com ([209.85.218.51]:36088 "EHLO
+	mail-oi0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752284AbcEERWV (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 13:22:21 -0400
+Received: by mail-oi0-f51.google.com with SMTP id x201so110430456oif.3
+        for <linux-i2c@vger.kernel.org>; Thu, 05 May 2016 10:22:21 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1462166637-16778-3-git-send-email-sricharan@codeaurora.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sricharan R <sricharan@codeaurora.org>
+Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-dts: sun8i-h3: add i2c0/i2c1/i2c2 pins definitions
+On Mon, May 02, 2016 at 10:53:57AM +0530, Sricharan R wrote:
+> Among the bus errors reported from the QUP_MASTER_STATUS register
+> only NACK is considered and transfer gets suspended, while
+> other errors are ignored. Correct this and suspend the transfer
+> for other errors as well. This avoids unnessecary 'timeouts' which
+> happens when waiting for events that would never happen when there
+> is already an error condition on the bus.
+> 
+> Signed-off-by: Sricharan R <sricharan@codeaurora.org>
+> ---
+>  drivers/i2c/busses/i2c-qup.c | 34 +++++++++++++++++++++++++---------
+>  1 file changed, 25 insertions(+), 9 deletions(-)
 
-Signed-off-by: Martin Ayotte <martinayotte-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- arch/arm/boot/dts/sun8i-h3.dtsi | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+Reviewed-by: Andy Gross <andy.gross@linaro.org>
 
-diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
-index 292ed59..79a3af6 100644
---- a/arch/arm/boot/dts/sun8i-h3.dtsi
-+++ b/arch/arm/boot/dts/sun8i-h3.dtsi
-@@ -529,6 +529,27 @@
- 				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
- 			};
- 
-+			i2c0_pins_a: i2c0@0 {
-+				allwinner,pins = "PA11", "PA12";
-+				allwinner,function = "i2c0";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			i2c1_pins_a: i2c1@0 {
-+				allwinner,pins = "PA18", "PA19";
-+				allwinner,function = "i2c1";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
-+			i2c2_pins_a: i2c2@0 {
-+				allwinner,pins = "PE12", "PE13";
-+				allwinner,function = "i2c2";
-+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
-+			};
-+
- 			mmc0_pins_a: mmc0@0 {
- 				allwinner,pins = "PF0", "PF1", "PF2", "PF3",
- 						 "PF4", "PF5";
--- 
-2.7.4
+<snip>
+
+> @@ -1227,6 +1240,9 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
+>  	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
+>  	int ret, len, idx = 0, use_dma = 0;
+>  
+> +	qup->bus_err = 0;
+> +	qup->qup_err = 0;
+> +
+
+What about the initial setting of these?  Does this need to be removed from the
+main xfer function?
+
+>  	ret = pm_runtime_get_sync(qup->dev);
+>  	if (ret < 0)
+>  		goto out;
