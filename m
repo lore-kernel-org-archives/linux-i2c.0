@@ -1,53 +1,58 @@
 From: Andy Gross <andy.gross@linaro.org>
-Subject: Re: [PATCH 2/2] drivers: i2c: qup: Fix error handling
-Date: Thu, 5 May 2016 12:22:19 -0500
-Message-ID: <20160505172219.GB6533@hector.attlocal.net>
+Subject: Re: [PATCH 1/2] drivers: i2c: qup: Fix broken dma when
+ CONFIG_DEBUG_SG is enabled
+Date: Thu, 5 May 2016 12:33:37 -0500
+Message-ID: <20160505173337.GC6533@hector.attlocal.net>
 References: <1462166637-16778-1-git-send-email-sricharan@codeaurora.org>
- <1462166637-16778-3-git-send-email-sricharan@codeaurora.org>
+ <1462166637-16778-2-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f51.google.com ([209.85.218.51]:36088 "EHLO
-	mail-oi0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752284AbcEERWV (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 13:22:21 -0400
-Received: by mail-oi0-f51.google.com with SMTP id x201so110430456oif.3
-        for <linux-i2c@vger.kernel.org>; Thu, 05 May 2016 10:22:21 -0700 (PDT)
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1462166637-16778-3-git-send-email-sricharan@codeaurora.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <1462166637-16778-2-git-send-email-sricharan@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: Sricharan R <sricharan@codeaurora.org>
 Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 02, 2016 at 10:53:57AM +0530, Sricharan R wrote:
-> Among the bus errors reported from the QUP_MASTER_STATUS register
-> only NACK is considered and transfer gets suspended, while
-> other errors are ignored. Correct this and suspend the transfer
-> for other errors as well. This avoids unnessecary 'timeouts' which
-> happens when waiting for events that would never happen when there
-> is already an error condition on the bus.
+On Mon, May 02, 2016 at 10:53:56AM +0530, Sricharan R wrote:
+> With CONFIG_DEBUG_SG is enabled and when dma mode is used, below dump is seen,
+> 
+> ------------[ cut here ]------------
+> kernel BUG at include/linux/scatterlist.h:140!
+> Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+> Modules linked in:
+> CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.4.0-00459-g9f087b9-dirty #7
+> Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+> task: ffffffc036868000 ti: ffffffc036870000 task.ti: ffffffc036870000
+> PC is at qup_sg_set_buf.isra.13+0x138/0x154
+> LR is at qup_sg_set_buf.isra.13+0x50/0x154
+> pc : [<ffffffc0005a0ed8>] lr : [<ffffffc0005a0df0>] pstate: 60000145
+> sp : ffffffc0368735c0
+> x29: ffffffc0368735c0 x28: ffffffc036873752
+> x27: ffffffc035233018 x26: ffffffc000c4e000
+> x25: 0000000000000000 x24: 0000000000000004
+> x23: 0000000000000000 x22: ffffffc035233668
+> x21: ffffff80004e3000 x20: ffffffc0352e0018
+> x19: 0000004000000000 x18: 0000000000000028
+> x17: 0000000000000004 x16: ffffffc0017a39c8
+> x15: 0000000000001cdf x14: ffffffc0019929d8
+> x13: ffffffc0352e0018 x12: 0000000000000000
+> x11: 0000000000000001 x10: 0000000000000001
+> x9 : ffffffc0012b2d70 x8 : ffffff80004e3000
+> x7 : 0000000000000018 x6 : 0000000030000000
+> x5 : ffffffc00199f018 x4 : ffffffc035233018
+> x3 : 0000000000000004 x2 : 00000000c0000000
+> x1 : 0000000000000003 x0 : 0000000000000000
+> 
+> Process swapper/0 (pid: 1, stack limit = 0xffffffc036870020)
+> Stack: (0xffffffc0368735c0 to 0xffffffc036874000)
+> 
+> Change allocation of sg buffers from dma_coherent memory to kzalloc
+> to fix the issue.
 > 
 > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
-> ---
->  drivers/i2c/busses/i2c-qup.c | 34 +++++++++++++++++++++++++---------
->  1 file changed, 25 insertions(+), 9 deletions(-)
+
+Looks fine.
 
 Reviewed-by: Andy Gross <andy.gross@linaro.org>
-
-<snip>
-
-> @@ -1227,6 +1240,9 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
->  	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
->  	int ret, len, idx = 0, use_dma = 0;
->  
-> +	qup->bus_err = 0;
-> +	qup->qup_err = 0;
-> +
-
-What about the initial setting of these?  Does this need to be removed from the
-main xfer function?
-
->  	ret = pm_runtime_get_sync(qup->dev);
->  	if (ret < 0)
->  		goto out;
