@@ -1,73 +1,38 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v7 7/9] dt-bindings: i2c: rk3x: add support for rk3399
-Date: Thu, 5 May 2016 17:12:12 -0500
-Message-ID: <20160505221212.GA26820@rob-hp-laptop>
-References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
- <1462372523-6444-1-git-send-email-david.wu@rock-chips.com>
+Subject: Re: [v10, 1/7] Documentation: DT: update Freescale DCFG compatible
+Date: Thu, 5 May 2016 17:25:21 -0500
+Message-ID: <20160505222521.GA18377@rob-hp-laptop>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
+ <1462417950-46796-2-git-send-email-yangbo.lu@nxp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:35571 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.136]:36667 "EHLO mail.kernel.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752284AbcEEWMS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 5 May 2016 18:12:18 -0400
+	id S1755447AbcEEWZ2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 5 May 2016 18:25:28 -0400
 Content-Disposition: inline
-In-Reply-To: <1462372523-6444-1-git-send-email-david.wu@rock-chips.com>
+In-Reply-To: <1462417950-46796-2-git-send-email-yangbo.lu@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: David Wu <david.wu@rock-chips.com>
-Cc: heiko@sntech.de, wsa@the-dreams.de, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Yangbo Lu <yangbo.lu@nxp.com>
+Cc: linux-mmc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org, ulf.hansson@linaro.org, Scott Wood <oss@buserror.net>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Qiang Zhao <qiang.zhao@nxp.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com
 
-On Wed, May 04, 2016 at 10:35:23PM +0800, David Wu wrote:
-> The bus clock and function clock are separated at rk3399,
-> and others use one clock as the bus clock and function clock.
+On Thu, May 05, 2016 at 11:12:24AM +0800, Yangbo Lu wrote:
+> Update Freescale DCFG compatible with 'fsl,<chip>-dcfg' instead
+> of 'fsl,ls1021a-dcfg' to include more chips such as ls1021a,
+> ls1043a, and ls2080a.
 > 
-> Signed-off-by: David Wu <david.wu@rock-chips.com>
+> Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 16 +++++++++++++---
->  1 file changed, 13 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> index 0b4a85f..82b6f6b 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> @@ -6,10 +6,20 @@ RK3xxx SoCs.
->  Required properties :
->  
->   - reg : Offset and length of the register set for the device
-> - - compatible : should be "rockchip,rk3066-i2c", "rockchip,rk3188-i2c",
-> -		"rockchip,rk3228-i2c" or "rockchip,rk3288-i2c".
-> + - compatible: should be one of the followings
+> Changes for v8:
+> 	- Added this patch
+> Changes for v9:
+> 	- Added a list for the possible compatibles
+> Changes for v10:
+> 	- None
+> ---
+>  Documentation/devicetree/bindings/arm/fsl.txt | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 
-s/followings/following:/
-
-> +   - "rockchip,rk3066-i2c": for rk3066
-> +   - "rockchip,rk3188-i2c": for rk3188
-> +   - "rockchip,rk3228-i2c": for rk3228
-> +   - "rockchip,rk3288-i2c": for rk3288
-> +   - "rockchip,rk3399-i2c": for rk3399
->   - interrupts : interrupt number
-> - - clocks : parent clock
-> + - clocks: See ../clock/clock-bindings.txt
-> +   - For older hardware (rk3066, rk3188, rk3228, rk3288):
-> +     - There is one clock that's used both to derive the functional clock
-> +       for the device and as the bus clock.  REQUIRED.
-
-This is the required section, so REQUIRED is redundant.
-
-> +   - For newer hardware (rk3399): specify by name
-> +     - "i2c": REQUIRED. This is used to derive the functional clock.
-> +     - "pclk": REQUIRED. This is the bus clock.equired on RK3066, RK3188 :
-
-This doesn't make sense. The first line says this applies to rk3399, but 
-then here it is talking about other parts.
-
-And there's a typo.
-
->  
->  Required on RK3066, RK3188 :
->  
-> -- 
-> 1.9.1
-> 
-> 
+Acked-by: Rob Herring <robh@kernel.org>
