@@ -1,49 +1,51 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
- PCI BAR
-Date: Thu, 5 May 2016 10:27:25 +0200
-Message-ID: <20160505082725.GQ12528@pali>
-References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com>
- <20160429090351.GS12528@pali>
- <CALCETrXO128w2ZyCj3TV96gS0k_f+9THYmT-Au7s26TLB18tpA@mail.gmail.com>
- <201604292300.23616@pali>
- <CALCETrXF0PnEnHrNXkQJ6dFq3HhF7tRgkOt7zZF5EBinU_Wc+g@mail.gmail.com>
- <CALCETrUL9kFrGuRJVOhOvJXQRiYOyHMeWsANr__PfSSEvYWaYw@mail.gmail.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [v10,
+	7/7] mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
+Date: Thu, 05 May 2016 10:31:36 +0200
+Message-ID: <4448030.Zs8fVnr3nm@wuerfel>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
+	<1462417950-46796-8-git-send-email-yangbo.lu@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:34849 "EHLO
-	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755909AbcEEI13 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 04:27:29 -0400
-Content-Disposition: inline
-In-Reply-To: <CALCETrUL9kFrGuRJVOhOvJXQRiYOyHMeWsANr__PfSSEvYWaYw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <1462417950-46796-8-git-send-email-yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, xiaobo.xie-3arQi8VN3Tc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, leoyang.li-3arQi8VN3Tc@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Andy Lutomirski <luto@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Mario Limonciello <mario_limonciello@dell.com>
 
-On Friday 29 April 2016 17:56:14 Andy Lutomirski wrote:
-> On Fri, Apr 29, 2016 at 2:42 PM, Andy Lutomirski <luto@amacapital.net=
-> wrote:
-> > On Fri, Apr 29, 2016 at 2:00 PM, Pali Roh=C3=A1r <pali.rohar@gmail.=
-com> wrote:
-> >> On Friday 29 April 2016 20:10:23 Andy Lutomirski wrote:
-> >>> Jean and Wolfram: is there a quirk mechanism to add i2c devices t=
-hat
-> >>> aren't directly enumerable but are known to exist due to DMI?
-> >>
-> >> Maybe something like i2c_register_board_info()?
-> >
-> > Maybe.  i think that wants to be called before the adapter shows up=
-, though.
->=20
-> i2c_probe_optional_slaves may be a more appropriate place to put this=
-=2E
+On Thursday 05 May 2016 11:12:30 Yangbo Lu wrote:
+> 
+> +       fsl_guts_init();
+> +       svr = fsl_guts_get_svr();
+> +       if (svr) {
+> +               esdhc->soc_ver = SVR_SOC_VER(svr);
+> +               esdhc->soc_rev = SVR_REV(svr);
+> +       } else {
+> +               dev_err(&pdev->dev, "Failed to get SVR value!\n");
+> +       }
+> +
+> 
 
-I cannot find function i2c_probe_optional_slaves. Where is it?
 
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+Sorry for jumping in again after not participating in the discussion for the
+past few versions.
+
+What happened to my suggestion of making this a platform-independent interface
+to avoid the link time dependency?
+
+Specifically, why not add an exported function to drivers/base/soc.c that
+uses glob_match() for comparing a string in the device driver to the ID
+of the SoC that is set by whatever SoC identifying driver the platform
+has?
+
+	Arnd
