@@ -1,66 +1,242 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v7 7/9] dt-bindings: i2c: rk3x: add support for rk3399
-Date: Thu, 5 May 2016 15:59:58 -0700
-Message-ID: <CAD=FV=XXojzZiVFuXuChZdDeTxE6tFSJZ=8FqLpVTG2L6xWpBg@mail.gmail.com>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v7 8/9] i2c: rk3x: add i2c support for rk3399 soc
+Date: Thu, 5 May 2016 16:00:56 -0700
+Message-ID: <CAD=FV=VhMJiowNWm+0=jzzK0vajg1=3PutaWbzhGPN_BU2+19w@mail.gmail.com>
 References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
-	<1462372523-6444-1-git-send-email-david.wu@rock-chips.com>
+	<1462372609-6535-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f177.google.com ([209.85.161.177]:36620 "EHLO
-	mail-yw0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758009AbcEEW77 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 18:59:59 -0400
-Received: by mail-yw0-f177.google.com with SMTP id o66so169757023ywc.3
-        for <linux-i2c@vger.kernel.org>; Thu, 05 May 2016 15:59:59 -0700 (PDT)
-In-Reply-To: <1462372523-6444-1-git-send-email-david.wu@rock-chips.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1462372609-6535-1-git-send-email-david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Brian Norris <briannorris-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, David Riley <davidriley-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: David Wu <david.wu@rock-chips.com>
-Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi,
+David,
 
-On Wed, May 4, 2016 at 7:35 AM, David Wu <david.wu@rock-chips.com> wrote:
-> The bus clock and function clock are separated at rk3399,
-> and others use one clock as the bus clock and function clock.
+On Wed, May 4, 2016 at 7:36 AM, David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
+> +/**
+> + * Calculate timing values for desired SCL frequency
+> + *
+> + * @clk_rate: I2C input clock rate
+> + * @t: Known I2C timing information
+> + * @t_calc: Caculated rk3x private timings that would be written into regs
+> +
+> + * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. In that case
+> + * a best-effort divider value is returned in divs. If the target rate is
+> + * too high, we silently use the highest possible rate.
+> + * The following formulas are v1's method to calculate timings.
+> + *
+> + * l = divl + 1;
+> + * h = divh + 1;
+> + * s = sda_update_config + 1;
+> + * u = start_setup_config + 1;
+> + * p = stop_setup_config + 1;
+> + * T = Tclk_i2c;
+> +
+> + * tHigh = 8 * h * T;
+> + * tLow = 8 * l * T;
+> +
+> + * tHD;sda = (l * s + 1) * T;
+> + * tSU;sda = [(8 - s) * l + 1] * T;
+> + * tI2C = 8 * (l + h) * T;
+> +
+> + * tSU;sta = (8h * u + 1) * T;
+> + * tHD;sta = [8h * (u + 1) - 1] * T;
+> + * tSU;sto = (8h * p + 1) * T;
+> + */
+> +static int rk3x_i2c_v1_calc_timings(unsigned long clk_rate,
+> +                                   struct i2c_timings *t,
+> +                                   struct rk3x_i2c_calced_timings *t_calc)
+> +{
+
+I don't think I'm going to try to understand all the math here.  I'll
+trust you that this does something sane.
+
+
+> +       /* Final divh and divl must be greater than 0, otherwise the
+> +        * hardware would not output the i2c clk.
+> +        */
+
+nit: multiline comment style doesn't match rest of file.
+
+
+>  static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
+>  {
+>         struct i2c_timings *t = &i2c->t;
+> -       struct rk3x_i2c_calced_timings calc;
+> +       struct rk3x_i2c_calced_timings *calc = &i2c->t_calc;
+>         u64 t_low_ns, t_high_ns;
+>         int ret;
 >
-> Signed-off-by: David Wu <david.wu@rock-chips.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 16 +++++++++++++---
->  1 file changed, 13 insertions(+), 3 deletions(-)
+> -       ret = rk3x_i2c_calc_divs(clk_rate, t, &calc);
+> +       ret = i2c->soc_data->calc_timings(clk_rate, t, calc);
+>         WARN_ONCE(ret != 0, "Could not reach SCL freq %u", t->bus_freq_hz);
 >
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> index 0b4a85f..82b6f6b 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> @@ -6,10 +6,20 @@ RK3xxx SoCs.
->  Required properties :
+> -       clk_enable(i2c->clk);
+> -       i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low & 0xffff),
+> +       if (i2c->pclk)
+> +               clk_enable(i2c->pclk);
+> +       else
+> +               clk_enable(i2c->clk);
+> +       i2c_writel(i2c, (calc->div_high << 16) | (calc->div_low & 0xffff),
+>                    REG_CLKDIV);
+
+There is a subtle bug here, though it likely doesn't manifest in any
+current hardware configurations.
+
+Specifically if you get a clock change on a device with a "v1"
+controller while an i2c transaction is happening then you will likely
+get i2c errors.
+
+The clock change notifications work like this:
+* Before the clock change, adjust the timings based on the faster of
+the old/new clock.
+* Let the clock change happen.
+* If we didn't adjust the timings before, adjust them now.
+
+With the logic above there will be a period where the i2c transaction
+is happening slower than ideal, but that should be OK.  ...and you can
+imagine the speed of the transaction changing midway through the
+transaction--even midway through a single byte.
+
+
+With v1 some of the timing information is _not_updated by
+rk3x_i2c_adapt_div()--it's only set at the start of a transaction.
+That breaks all the above assumptions.
+
+So you should probably be updating the the RKI2C_CON register here by
+doing a read-modify-write, like:
+
+ctrl = i2c_readl(i2c, REG_CON);
+ctrl &= ~REG_CON_TUNING_MASK;
+ctrl |= i2c->t_calc.tuning;
+i2c_writel(i2c, ctrl, REG_CON);
+
+
+Also (optional): once you do that, there becomes much less of a reason
+to store "t_calc" in "struct rk3x_i2c".  Already you're never using
+the "div_low" and "div_high" that you store in the "struct rk3x_i2c".
+Of course, to do that you've got to change other places not to clobber
+these bits in REG_CON.
+
+
+> @@ -728,11 +910,11 @@ static int rk3x_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+>  {
+>         struct clk_notifier_data *ndata = data;
+>         struct rk3x_i2c *i2c = container_of(nb, struct rk3x_i2c, clk_rate_nb);
+> -       struct rk3x_i2c_calced_timings calc;
 >
->   - reg : Offset and length of the register set for the device
-> - - compatible : should be "rockchip,rk3066-i2c", "rockchip,rk3188-i2c",
-> -               "rockchip,rk3228-i2c" or "rockchip,rk3288-i2c".
-> + - compatible: should be one of the followings
-> +   - "rockchip,rk3066-i2c": for rk3066
-> +   - "rockchip,rk3188-i2c": for rk3188
-> +   - "rockchip,rk3228-i2c": for rk3228
-> +   - "rockchip,rk3288-i2c": for rk3288
-> +   - "rockchip,rk3399-i2c": for rk3399
->   - interrupts : interrupt number
-> - - clocks : parent clock
-> + - clocks: See ../clock/clock-bindings.txt
-> +   - For older hardware (rk3066, rk3188, rk3228, rk3288):
-> +     - There is one clock that's used both to derive the functional clock
-> +       for the device and as the bus clock.  REQUIRED.
-> +   - For newer hardware (rk3399): specify by name
-> +     - "i2c": REQUIRED. This is used to derive the functional clock.
-> +     - "pclk": REQUIRED. This is the bus clock.equired on RK3066, RK3188 :
+>         switch (event) {
+>         case PRE_RATE_CHANGE:
+> -               if (rk3x_i2c_calc_divs(ndata->new_rate, &i2c->t, &calc) != 0)
+> +               if (i2c->soc_data->calc_timings(ndata->new_rate, &i2c->t,
+> +                                               &i2c->t_calc) != 0)
 
-Looks great except that you need to delete the "equired on RK3066,
-RK3188 :" part, which looks like it was leftover from some sort of
-copy/paste.
+This change is incorrect.  Please change it back to being calculated
+in a local variable.  Optionally also add a comment that says:
 
-Once that is done, feel free to add my Reviewed-by tag.
+/*
+ * Try the calculation (but don't store the result) ahead of
+ * time to see if we need to block the clock change.  Timings
+ * shouldn't actually take effect until rk3x_i2c_adapt_div().
+ */
+
+Specifically in the case that we return NOTIFY_STOP here we _don't_
+want to have modified our internal timings.  We also _don't_ want to
+have modified our internal timings in the case that the old_rate > the
+new_rate.
+
+BTW: Did you manage to find anyone using an old Rockchip SoC that can
+test your patches?
+
+
+> @@ -1042,17 +1236,38 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+>
+>         platform_set_drvdata(pdev, i2c);
+>
+> +       i2c->clk = devm_clk_get(&pdev->dev, NULL);
+> +       if (IS_ERR(i2c->clk)) {
+> +               dev_err(&pdev->dev, "cannot get clock\n");
+> +               return PTR_ERR(i2c->clk);
+> +       }
+> +
+>         ret = clk_prepare(i2c->clk);
+>         if (ret < 0) {
+>                 dev_err(&pdev->dev, "Could not prepare clock\n");
+>                 return ret;
+>         }
+>
+> +       if (i2c->soc_data->calc_timings == rk3x_i2c_v1_calc_timings) {
+> +               i2c->pclk = devm_clk_get(&pdev->dev, "pclk");
+> +               if (IS_ERR(i2c->pclk)) {
+> +                       dev_err(i2c->dev, "Could not get i2c pclk\n");
+> +                       ret = PTR_ERR(i2c->pclk);
+> +                       goto err_clk;
+> +               }
+> +
+> +               ret = clk_prepare(i2c->pclk);
+> +               if (ret) {
+> +                       dev_err(i2c->dev, "Could not prepare pclk\n");
+> +                       goto err_clk;
+> +               }
+> +       }
+
+This is not matching the bindings.  You are still assuming that "i2c"
+clock is the first clock and "pclk" is the one named "pclk".  Said
+another way, if you had the following in your device tree:
+
+  clocks =  <&pmucru PCLK_I2C0_PMU>, <&pmucru SCLK_I2C0_PMU>;
+  clock-names = "pclk", "i2c";
+
+...you'll find that you'll get back "pclk" twice.  The first time
+you'll get it because you asked for the first clock listed, the second
+time because you asked for the clock named "pclk".
+
+I'd also say that your life will probably be easier if you always
+setup both "clk" and "pclk", even on old CPUs.  It's OK to call
+"clk_prepare" twice and OK to call "clk_enable" twice.
+
+Thus, I'd probably write all the code as this (untested):
+
+  if (i2c->soc_data->calc_timings == rk3x_i2c_v0_calc_timings) {
+    /* Only one clock to use for bus clock and peripheral clock */
+    i2c->clk = devm_clk_get(&pdev->dev, NULL);
+    i2c->pclk = i2c->clk;
+  } else {
+    i2c->clk = devm_clk_get(&pdev->dev, "i2c");
+    i2c->pclk = devm_clk_get(&pdev->dev, "pclk");
+  }
+  if (IS_ERR(i2c->clk)) {
+    ret = PTR_ERR(i2c->clk);
+    if (ret != -EPROBE_DEFER)
+      dev_err(&pdev->dev, "Can't get bus clk: %d\n", ret);
+    return ret;
+  }
+  if (IS_ERR(i2c->pclk)) {
+    ret = PTR_ERR(i2c->pclk);
+    if (ret != -EPROBE_DEFER)
+      dev_err(&pdev->dev, "Can't get periph clk: %d\n", ret);
+    return ret;
+  }
+  ret = clk_prepare(i2c->clk);
+  if (ret < 0) {
+    dev_err(&pdev->dev, "Can't prepare bus clk: %d\n", ret);
+    return ret;
+  }
+  ret = clk_prepare(i2c->pclk);
+  if (ret < 0) {
+    dev_err(&pdev->dev, "Can't prepare periph clock: %d\n", ret);
+    goto err_clk;
+  }
+
+If you take that advice, you can get rid of all of the "if
+(i2c->pclk)" statements in your code.
 
 
 -Doug
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
