@@ -1,20 +1,20 @@
 From: "David.Wu" <david.wu@rock-chips.com>
-Subject: Re: [PATCH v7 9/9] i2c: rk3x: support fast-mode plus for rk3399
-Date: Fri, 6 May 2016 10:12:04 +0800
-Message-ID: <572BFD74.9080200@rock-chips.com>
+Subject: Re: [PATCH v7 2/9] i2c: rk3x: use struct "rk3x_i2c_calced_timings"
+Date: Fri, 6 May 2016 10:19:13 +0800
+Message-ID: <572BFF21.6060500@rock-chips.com>
 References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
- <1462372668-6583-1-git-send-email-david.wu@rock-chips.com>
- <CAD=FV=UtHPDtB7LTbUpwcjOcoYwNma59-TRDU3hrt6c_2TWxxA@mail.gmail.com>
+ <1462371194-5809-3-git-send-email-david.wu@rock-chips.com>
+ <CAD=FV=WAbedAB78shifxwjmZ-od8rhOiNz80rpdqfwzRsdX6WQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8;
 	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.133]:49611 "EHLO
+Received: from lucky1.263xmail.com ([211.157.147.134]:58965 "EHLO
 	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754684AbcEFCLx (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 22:11:53 -0400
-In-Reply-To: <CAD=FV=UtHPDtB7LTbUpwcjOcoYwNma59-TRDU3hrt6c_2TWxxA@mail.gmail.com>
+	with ESMTP id S1754220AbcEFCS7 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 22:18:59 -0400
+In-Reply-To: <CAD=FV=WAbedAB78shifxwjmZ-od8rhOiNz80rpdqfwzRsdX6WQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Doug Anderson <dianders@chromium.org>
@@ -22,70 +22,36 @@ Cc: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-drea
 
 Hi Doug,
 
-=E5=9C=A8 2016/5/6 7:02, Doug Anderson =E5=86=99=E9=81=93:
+=E5=9C=A8 2016/5/6 6:55, Doug Anderson =E5=86=99=E9=81=93:
 > David,
 >
-> On Wed, May 4, 2016 at 7:37 AM, David Wu <david.wu@rock-chips.com> wr=
+> On Wed, May 4, 2016 at 7:13 AM, David Wu <david.wu@rock-chips.com> wr=
 ote:
 >> Signed-off-by: David Wu <david.wu@rock-chips.com>
+>
+> Usually folks like a description and not just a subject line.  I'd ad=
+d
+> a description like:
+>
+> The "div_high" and "div_low" values are always used together.  Group =
+them
+> into a structure to make it easier to pass them both around.  This
+> structure also provides a place for future calculated timings.
+>
+
+Okay, i will add it in next version, thanks.
+
 >> ---
->>   drivers/i2c/busses/i2c-rk3x.c | 21 +++++++++++++++++----
->>   1 file changed, 17 insertions(+), 4 deletions(-)
+>> Change in v7:
+>> - none
 >>
->> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-=
-rk3x.c
->> index 47368c4..c66cc39 100644
->> --- a/drivers/i2c/busses/i2c-rk3x.c
->> +++ b/drivers/i2c/busses/i2c-rk3x.c
->> @@ -124,6 +124,17 @@ static const struct i2c_spec_values fast_mode_s=
-pec =3D {
->>          .min_hold_buffer_ns =3D 1300,
->>   };
->>
->> +static const struct i2c_spec_values fast_mode_plus_spec =3D {
->> +       .min_hold_start_ns =3D 260,
->> +       .min_low_ns =3D 500,
->> +       .min_high_ns =3D 260,
->> +       .min_setup_start_ns =3D 260,
->> +       .max_data_hold_ns =3D 400,
+>>   drivers/i2c/busses/i2c-rk3x.c | 55 +++++++++++++++++++++++++------=
+------------
+>>   1 file changed, 32 insertions(+), 23 deletions(-)
 >
-> I'm curious where you got the data_hold_ns.  I can't quite remember
-> what this parameter does / how the timing function works anymore, but
-> the doc I have (search for UM10204 and click the first link) shows
-> values for Standard-mode and Fast-mode but not Fast-mode Plus.  It
-> seems to imply that this is a bit of a bogus number anyway because it
-> only matters if we don't stretch the tLOW to go along with the longer
-> data hold.
+> Other than the description, I think this looks fine.
 >
-> As I have said in the previous patch, how all this stuff works has
-> totally left my brain, so if you understand it that's probably good
-> enough.  If you feel like I should try to re-understand this again so
-> I can review it more deeply, let me know.
->
->
-
-Yes, I could not get the description of fast-mode plus data_hold_ns, bu=
-t=20
-I saw that the maximum tHD;DAT must be less than the maximum of=20
-tVD;DATor tVD;ACKby for Standard-mode and Fast-mode.
-
-So I think the maximum tHD;DAT for Fast-mode Plus should be less than=20
-the maximum of tVD;DATor tVD;ACKby too, the maximum of tVD;DATor=20
-tVD;ACKby is 450ns, and 400ns is my taking a conservative value.
-
-Description form UM10204
-[4] The maximum tHD;DATcould be 3.45=CE=BCs and 0.9=CE=BCs for Standard=
--mode and=20
-=46ast-mode, but must be less than the maximum of tVD;DATor tVD;ACKby a=
-=20
-transition time. This maximum must only be met if the device does not=20
-stretch the LOW period (tLOW) of the SCL signal. If the clock stretches=
-=20
-the SCL, the data must be valid by the set-up time before it releases
-the clock.
-
-> Since I assume that you had some sane reason to include max_data_hold=
-_ns:
+> IMHO this can be applied any time independent of any earlier patches.
 >
 > Reviewed-by: Douglas Anderson <dianders@chromium.org>
 >
