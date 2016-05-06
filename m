@@ -1,82 +1,97 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v7 8/9] i2c: rk3x: add i2c support for rk3399 soc
-Date: Fri, 6 May 2016 11:00:02 -0700
-Message-ID: <CAD=FV=XOOAbKxqJsxGU4pXbNJtbq_Q4Pj2=9P48NCze5NTJyrw@mail.gmail.com>
-References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
-	<1462372609-6535-1-git-send-email-david.wu@rock-chips.com>
-	<CAD=FV=VhMJiowNWm+0=jzzK0vajg1=3PutaWbzhGPN_BU2+19w@mail.gmail.com>
-	<572C64B5.6080607@rock-chips.com>
+From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Subject: Re: I2C driver for LTC1760 dual smart battery system manager
+Date: Fri, 06 May 2016 21:23:27 +0200
+Message-ID: <1462562607.17299.26.camel@amnesix>
+References: <1461870951.6670.33.camel@amnesix>
+	 <500153f6-32a9-3dd2-6bdc-cf96b6afde95@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f173.google.com ([209.85.161.173]:33634 "EHLO
-	mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758166AbcEFSAF (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 6 May 2016 14:00:05 -0400
-Received: by mail-yw0-f173.google.com with SMTP id t10so225685619ywa.0
-        for <linux-i2c@vger.kernel.org>; Fri, 06 May 2016 11:00:03 -0700 (PDT)
-In-Reply-To: <572C64B5.6080607@rock-chips.com>
+Received: from schneider-inet.de ([85.214.76.205]:45157 "EHLO
+	h1714509.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758144AbcEFTXe (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 6 May 2016 15:23:34 -0400
+In-Reply-To: <500153f6-32a9-3dd2-6bdc-cf96b6afde95@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "David.Wu" <david.wu@rock-chips.com>
-Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Phil Reid <preid@electromag.com.au>
+Cc: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org
 
-Hi
+Hi Phil
 
-On Fri, May 6, 2016 at 2:32 AM, David.Wu <david.wu@rock-chips.com> wrote:
->> Also (optional): once you do that, there becomes much less of a reason
->> to store "t_calc" in "struct rk3x_i2c".  Already you're never using
->> the "div_low" and "div_high" that you store in the "struct rk3x_i2c".
->> Of course, to do that you've got to change other places not to clobber
->> these bits in REG_CON.
->>
->
-> So, I only just need to store tuning value in the "struct rk3x_i2c", but not
-> to store the "div_low" and "div_high"?
+Am Freitag, den 06.05.2016, 15:27 +0800 schrieb Phil Reid:
+> G'day Karl
+> On 29/04/2016 03:15, Karl-Heinz Schneider wrote:
+> >
+> > I have written an Kernel driver for the LTC1760 which is basically an
+> > charger which can handle 2 batteries. Datasheet can be found at
+> > http://www.linear.com/product/LTC1760
+> They're nice chips.
+> >
+> > However, the device has one speciality: Hence it handles two smart
+> > batteries, which are expected to sit on I2C address 0x0b, it implements
+> > an i2c mux. As the device does so, my driver does also (using
+> > i2c_add_mux_adapter() call).
+> > Further more, Linux already ships with an driver capable to talk to
+> > these smart battery chips, namely "sbs-battery".
+> >
+> > I currently using device tree to bind the LTC1760 to the smbus it sits
+> > on and further to define the i2c-lines it implements as well as the
+> > batteries sitting on the two muxed lines.
+> >
+> > Would you say this approach is technically right? The LTC expects SBS
+> > compliant batteries connected to it, which implies a standard minimal
+> > interface. But binding the batteries via device tree gives the user the
+> > freedom to specify a more specialized driver.
+> > On the other hand one could argue that if the LTC is present, also
+> > batteries are (potentially) present and the LTC driver is responsible to
+> > read the related registers and provide proper PM attributes. Personally
+> > I don't like to rewrite or copy code wich works just fine...
+> >
+> 
+> I've been writing a driver for the same chip :).
+> My system has 2 ltc1760 for a total of 4 batteries.
+> Haven't completed it as yet so hadn't posted, but got it talking to the batteries.
+> I implemented an I2c mux in the driver and just attached two sbs-battery's to it in the device tree.
+> I think the mux is the way to go, simple and reuses existing code.
+> 
 
-I was suggesting not adding anything to what's stored in "struct
-rk3x_i2c" (AKA don't add t_calc there).  Just set the value directly
-in the register here then change all other bits of code to respect it.
+Think so too.
+My version doesn't do very much. It presents the "online" property and
+charging state, which is also changeable to fast mode. It has some more
+interesting information in it's registers, but don't know how to put
+them into standard power_supply properties.
 
-That is:
+> The sbs-battery driver needs a couple of gpio pins to indicate battery presence,
+> so I was thinking of implementing these in the ltc1760 as gpio pins.
+> Not sure what the bext approach is here.
 
-In rk3x_i2c_start(), write:
+Would say that's not necessary. Using the GPIO for the sbs-battery
+driver to detect the presence of the battery is purely optional. Indeed
+it requests the GPIO as input and tries to make it an interrupt line. If
+either step fails, handling the GPIO and interrupt is skipped.
 
-  u32 val = i2c_readl(i2c, REG_CON) & REG_CON_TUNING_MASK;
+> 
+> FYI, if you didn't find it there is an acpi only driver for the ltc1760 in the kernel.
+> But I could see a way to make it work with device trees. It enumerates it's own
+> batteries.
 
-In rk3x_i2c_xfer(), write:
-  val = i2c_readl(i2c, REG_CON) & REG_CON_TUNING_MASK
-  val |= REG_CON_EN | REG_CON_STOP, REG_CON;
-  i2c_writel(i2c, val);
+Indeed I failed to find it. Looked through drivers to find something
+similar. How is it named?
 
+> 
+> I have found the ltc1760 doesn't work to well with some i2c masters.
+> Currently using the bit bang i2c bus driver as that was the most reliable.
+> The designware controller kept locking up.
 
-You could get fancy and add a new "i2c_update_bits", but that might be overkill.
+Did guess that could happen. The ltc1760 acts by itself as an I2C master
+on it's muxed lines, and if it communicates to the currently selected
+battery the masters clock line is held low during this time, preventing
+the master from communicating at all. This may lead to time outs on
+masters side.
 
-
-> The patches we have already used in our projects, they are verified by the
-> basic tests. I would ask them to do more tests. Because we didn't change the
-> clock rate now, it was a fixed value when clk inited, so we could not find
-> the bug here.
-
-OK.  Presumably a rk3066 w/ DVS enabled would be a good test?  Reading
-the description of commit 249051f49907 ("i2c: rk3x: handle dynamic
-clock rate changes correctly"), I see:
-
-    The i2c input clock can change dynamically, e.g. on the RK3066 where
-    pclk_i2c0 and pclk_i2c1 are connected to the armclk, which changes
-    rate on cpu frequency scaling.
-
-
->> If you take that advice, you can get rid of all of the "if
->> (i2c->pclk)" statements in your code.
->>
->
-> It would make i2c->clk to be enabled and prepared twice when uses
-> rk3x_i2c_v0_calc_timings for old hardware. But if do the opposite
-> disabled and unprepated twice, that is okay.
-
-Right.  The same clock will get an enable / prepare count of "2"
-(instead of two different clocks getting a count of "1).  ...but
-nothing should be hurt by that.
-
--Doug
+I'm using an IMX6 on an SECO Q7 board, where the ltc is soldered on it's
+smbus line. Did you try to reduce I2C speed? Mine is running fine at
+100kHz. I don't know if there is a way to adjust time out values of I2C
+masters?
