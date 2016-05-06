@@ -1,78 +1,68 @@
-From: "David.Wu" <david.wu@rock-chips.com>
-Subject: Re: [PATCH v7 4/9] i2c: rk3x: Move setting STATE_START and add
- STATE_SETUP
-Date: Fri, 6 May 2016 11:20:41 +0800
-Message-ID: <572C0D89.9050708@rock-chips.com>
-References: <1462371194-5809-1-git-send-email-david.wu@rock-chips.com>
- <1462371194-5809-5-git-send-email-david.wu@rock-chips.com>
- <CAD=FV=WVKpJJbqc=UYbeObDurjte0iQOzvLL++i=wM9=TBeCDQ@mail.gmail.com>
+From: "Sricharan" <sricharan@codeaurora.org>
+Subject: RE: [PATCH 2/2] drivers: i2c: qup: Fix error handling
+Date: Fri, 6 May 2016 09:39:18 +0530
+Message-ID: <001e01d1a74d$13c716b0$3b554410$@codeaurora.org>
+References: <1462166637-16778-1-git-send-email-sricharan@codeaurora.org> <1462166637-16778-3-git-send-email-sricharan@codeaurora.org> <20160505172219.GB6533@hector.attlocal.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.132]:42003 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755416AbcEFDUa (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 5 May 2016 23:20:30 -0400
-In-Reply-To: <CAD=FV=WVKpJJbqc=UYbeObDurjte0iQOzvLL++i=wM9=TBeCDQ@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20160505172219.GB6533@hector.attlocal.net>
+Content-Language: en-us
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: 'Andy Gross' <andy.gross@linaro.org>
+Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Tao Huang <huangtao@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Eddie Cai <cf@rock-chips.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Kumar Gala <galak@codeaurora.org>, Chris <zyw@rock-chips.com>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-Hi Doug,
+Hi Andy,
 
-=E5=9C=A8 2016/5/6 6:56, Doug Anderson =E5=86=99=E9=81=93:
-> David,
->
-> On Wed, May 4, 2016 at 7:13 AM, David Wu <david.wu@rock-chips.com> wr=
-ote:
->> Signed-off-by: David Wu <david.wu@rock-chips.com>
->> ---
->> Change in v7:
->> - none
->>
->>   drivers/i2c/busses/i2c-rk3x.c | 5 ++++-
->>   1 file changed, 4 insertions(+), 1 deletion(-)
->
-> Probably this change could be dropped now.  Switching the location of
-> setting START_START was much more important when you were supporting
-> HIGH SPEED mode.  I don't think we need it anymore, right?
->
+> -----Original Message-----
+> From: Andy Gross [mailto:andy.gross@linaro.org]
+> Sent: Thursday, May 05, 2016 10:52 PM
+> To: Sricharan R <sricharan@codeaurora.org>
+> Cc: devicetree@vger.kernel.org; architt@codeaurora.org; linux-arm-
+> msm@vger.kernel.org; ntelkar@codeaurora.org; galak@codeaurora.org;
+> linux-kernel@vger.kernel.org; linux-i2c@vger.kernel.org; iivanov@mm-
+> sol.com; agross@codeaurora.org; dmaengine@vger.kernel.org; linux-arm-
+> kernel@lists.infradead.org
+> Subject: Re: [PATCH 2/2] drivers: i2c: qup: Fix error handling
+> 
+> On Mon, May 02, 2016 at 10:53:57AM +0530, Sricharan R wrote:
+> > Among the bus errors reported from the QUP_MASTER_STATUS register
+> only
+> > NACK is considered and transfer gets suspended, while other errors are
+> > ignored. Correct this and suspend the transfer for other errors as
+> > well. This avoids unnessecary 'timeouts' which happens when waiting
+> > for events that would never happen when there is already an error
+> > condition on the bus.
+> >
+> > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
+> > ---
+> >  drivers/i2c/busses/i2c-qup.c | 34 +++++++++++++++++++++++++---------
+> >  1 file changed, 25 insertions(+), 9 deletions(-)
+> 
+> Reviewed-by: Andy Gross <andy.gross@linaro.org>
+> 
+ Thanks.
+> <snip>
+> 
+> > @@ -1227,6 +1240,9 @@ static int qup_i2c_xfer_v2(struct i2c_adapter
+> *adap,
+> >  	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
+> >  	int ret, len, idx = 0, use_dma = 0;
+> >
+> > +	qup->bus_err = 0;
+> > +	qup->qup_err = 0;
+> > +
+> 
+> What about the initial setting of these?  Does this need to be removed
+from
+> the main xfer function?
+  Thanks for the catch. Will remove in bam_xfer , redundant.
+  Now that there are i2x_xfer_v2 and i2c_xfer, 
+   its not set in the old i2c_xfer call, where as it should be set there
+   as well. I will change this and resend.
 
-Yes, I would drop it next version=EF=BC=8CSTATE_SETUP didn't make sense=
-, it was
-not much more important, because there was a error printk for=20
-rk3x_i2c_setup() called failed.
-
-> ...if we want to keep this change, I'd say:
->
-> 1. Add a description, like maybe:
->
-> To help with debugging add a STATE_SETUP between STATE_IDLE and
-> STATE_START to make it more obvious that we're not actually idle but =
-we
-> also haven't initiated the start bit.  This change is not expected to
-> have any impact but it does delay the changing of state to STATE_STAR=
-T.
-> If previously we were getting an erroneous interrupt before we actual=
-ly
-> sent the start bit we'll now be treating that differently.  The new
-> behavior (catching the erroneous interrupt) should be better.
->
-> 2. Change "i2c->state =3D STATE_SETUP" to the _start_ of
-> rk3x_i2c_setup().  That would have a better chance of catching a
-> spurious interrupt.
->
-> 3. Add an error check at the start of rk3x_i2c_irq() similar to the
-> check for STATE_IDLE (or use the same check and modify the printk).
-> Specifically the justification for adding STATE_SETUP is to help with
-> debugging (catch interrupts that were unexpected and print more info
-> about our state), so we should make it useful for this.
->
->
-> -Doug
->
->
->
+Regards,
+ Sricharan
