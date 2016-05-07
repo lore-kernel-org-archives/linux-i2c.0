@@ -1,97 +1,77 @@
-From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Subject: Re: I2C driver for LTC1760 dual smart battery system manager
-Date: Fri, 06 May 2016 21:23:27 +0200
-Message-ID: <1462562607.17299.26.camel@amnesix>
-References: <1461870951.6670.33.camel@amnesix>
-	 <500153f6-32a9-3dd2-6bdc-cf96b6afde95@electromag.com.au>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with PCI BAR
+Date: Sat, 7 May 2016 16:11:45 +0200
+Message-ID: <201605071611.45664@pali>
+References: <1461839010-110231-1-git-send-email-mika.westerberg@linux.intel.com> <20160505082725.GQ12528@pali> <CALCETrW3i7QkVNRo4RQkRViPBo8dSn=4mKDZiA=Ar3v7=dgz1A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed;
+  boundary="nextPart4346586.rXkMv1I1ja";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from schneider-inet.de ([85.214.76.205]:45157 "EHLO
-	h1714509.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758144AbcEFTXe (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 6 May 2016 15:23:34 -0400
-In-Reply-To: <500153f6-32a9-3dd2-6bdc-cf96b6afde95@electromag.com.au>
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:36187 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752282AbcEGOLt (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 7 May 2016 10:11:49 -0400
+In-Reply-To: <CALCETrW3i7QkVNRo4RQkRViPBo8dSn=4mKDZiA=Ar3v7=dgz1A@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>
-Cc: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jean Delvare <jdelvare@suse.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Hi Phil
+--nextPart4346586.rXkMv1I1ja
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Am Freitag, den 06.05.2016, 15:27 +0800 schrieb Phil Reid:
-> G'day Karl
-> On 29/04/2016 03:15, Karl-Heinz Schneider wrote:
-> >
-> > I have written an Kernel driver for the LTC1760 which is basically an
-> > charger which can handle 2 batteries. Datasheet can be found at
-> > http://www.linear.com/product/LTC1760
-> They're nice chips.
-> >
-> > However, the device has one speciality: Hence it handles two smart
-> > batteries, which are expected to sit on I2C address 0x0b, it implements
-> > an i2c mux. As the device does so, my driver does also (using
-> > i2c_add_mux_adapter() call).
-> > Further more, Linux already ships with an driver capable to talk to
-> > these smart battery chips, namely "sbs-battery".
-> >
-> > I currently using device tree to bind the LTC1760 to the smbus it sits
-> > on and further to define the i2c-lines it implements as well as the
-> > batteries sitting on the two muxed lines.
-> >
-> > Would you say this approach is technically right? The LTC expects SBS
-> > compliant batteries connected to it, which implies a standard minimal
-> > interface. But binding the batteries via device tree gives the user the
-> > freedom to specify a more specialized driver.
-> > On the other hand one could argue that if the LTC is present, also
-> > batteries are (potentially) present and the LTC driver is responsible to
-> > read the related registers and provide proper PM attributes. Personally
-> > I don't like to rewrite or copy code wich works just fine...
-> >
-> 
-> I've been writing a driver for the same chip :).
-> My system has 2 ltc1760 for a total of 4 batteries.
-> Haven't completed it as yet so hadn't posted, but got it talking to the batteries.
-> I implemented an I2c mux in the driver and just attached two sbs-battery's to it in the device tree.
-> I think the mux is the way to go, simple and reuses existing code.
-> 
+On Friday 06 May 2016 21:00:25 Andy Lutomirski wrote:
+> On May 5, 2016 1:27 AM, "Pali Roh=C3=A1r" <pali.rohar@gmail.com> wrote:
+> > On Friday 29 April 2016 17:56:14 Andy Lutomirski wrote:
+> > > On Fri, Apr 29, 2016 at 2:42 PM, Andy Lutomirski
+> > > <luto@amacapital.net>
+>=20
+> wrote:
+> > > > On Fri, Apr 29, 2016 at 2:00 PM, Pali Roh=C3=A1r
+> > > > <pali.rohar@gmail.com>
+>=20
+> wrote:
+> > > >> On Friday 29 April 2016 20:10:23 Andy Lutomirski wrote:
+> > > >>> Jean and Wolfram: is there a quirk mechanism to add i2c
+> > > >>> devices that aren't directly enumerable but are known to
+> > > >>> exist due to DMI?
+> > > >>=20
+> > > >> Maybe something like i2c_register_board_info()?
+> > > >=20
+> > > > Maybe.  i think that wants to be called before the adapter
+> > > > shows up,
+>=20
+> though.
+>=20
+> > > i2c_probe_optional_slaves may be a more appropriate place to put
+> > > this.
+> >=20
+> > I cannot find function i2c_probe_optional_slaves. Where is it?
+>=20
+> Sorry, I meant i801_probe_optional_slaves.
 
-Think so too.
-My version doesn't do very much. It presents the "online" property and
-charging state, which is also changeable to fast mode. It has some more
-interesting information in it's registers, but don't know how to put
-them into standard power_supply properties.
+Hm... that could probably work. I will look at dell-smo8800.c and=20
+lis3lv02d_i2c.c and i2c-i801.c how to interconnect all those devices...
 
-> The sbs-battery driver needs a couple of gpio pins to indicate battery presence,
-> so I was thinking of implementing these in the ltc1760 as gpio pins.
-> Not sure what the bext approach is here.
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-Would say that's not necessary. Using the GPIO for the sbs-battery
-driver to detect the presence of the battery is purely optional. Indeed
-it requests the GPIO as input and tries to make it an interrupt line. If
-either step fails, handling the GPIO and interrupt is skipped.
+--nextPart4346586.rXkMv1I1ja
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-> 
-> FYI, if you didn't find it there is an acpi only driver for the ltc1760 in the kernel.
-> But I could see a way to make it work with device trees. It enumerates it's own
-> batteries.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-Indeed I failed to find it. Looked through drivers to find something
-similar. How is it named?
+iEYEABECAAYFAlct96EACgkQi/DJPQPkQ1JWaACcCaaQDWL681sihcKqru6g/eC2
+2bcAn0j9zq+kQ1zly92UJyoPiz2rJGP8
+=1N1q
+-----END PGP SIGNATURE-----
 
-> 
-> I have found the ltc1760 doesn't work to well with some i2c masters.
-> Currently using the bit bang i2c bus driver as that was the most reliable.
-> The designware controller kept locking up.
-
-Did guess that could happen. The ltc1760 acts by itself as an I2C master
-on it's muxed lines, and if it communicates to the currently selected
-battery the masters clock line is held low during this time, preventing
-the master from communicating at all. This may lead to time outs on
-masters side.
-
-I'm using an IMX6 on an SECO Q7 board, where the ltc is soldered on it's
-smbus line. Did you try to reduce I2C speed? Mine is running fine at
-100kHz. I don't know if there is a way to adjust time out values of I2C
-masters?
+--nextPart4346586.rXkMv1I1ja--
