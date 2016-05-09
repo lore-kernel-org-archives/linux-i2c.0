@@ -1,107 +1,64 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: I2C driver for LTC1760 dual smart battery system manager
-Date: Mon, 9 May 2016 10:00:22 +0200
-Message-ID: <86aa60dc-1146-9eee-01e1-4388be7981f1@axentia.se>
-References: <1461870951.6670.33.camel@amnesix>
- <500153f6-32a9-3dd2-6bdc-cf96b6afde95@electromag.com.au>
- <1462562607.17299.26.camel@amnesix>
- <4fe0360a-304e-944a-3c77-9e5a701552de@electromag.com.au>
+From: Christian Ruppert <christian.ruppert@alitech.com>
+Subject: Re: [PATCH] i2c: designware: do not disable adapter after transfer
+Date: Mon, 9 May 2016 10:50:20 +0200
+Message-ID: <57dde84d-8c2c-b24d-da57-ce40fcf493ec@alitech.com>
+References: <5707B9B4.6020402@alitech.com>
+ <1461337687-2484-1-git-send-email-lucas.demarchi@intel.com>
+ <CAKi4VA+WVwXBM5cP8Q1iQ_YqWF5jvE5XbbLYEb9Jjfo4Lgw3=g@mail.gmail.com>
+ <572727D7.6080708@alitech.com>
+ <CAKi4VAJ4UMpezFpqro+2=gNQD=tjEN=wVC6kahT3wQQYTOquqg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-am1on0133.outbound.protection.outlook.com ([157.56.112.133]:27468
-	"EHLO emea01-am1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751332AbcEIIcR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 9 May 2016 04:32:17 -0400
-In-Reply-To: <4fe0360a-304e-944a-3c77-9e5a701552de@electromag.com.au>
+Received: from nopam.alitech.com ([202.3.176.31]:52347 "EHLO nopam.alitech.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751432AbcEIIu2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 9 May 2016 04:50:28 -0400
+In-Reply-To: <CAKi4VAJ4UMpezFpqro+2=gNQD=tjEN=wVC6kahT3wQQYTOquqg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>, Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Cc: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org
+To: Lucas De Marchi <lucas.de.marchi@gmail.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>
 
-Hi!
+Dear Lucas,
 
-[adding acpi people]
-
-On 2016-05-09 03:41, Phil Reid wrote:
-> G'day Karl,
-> On 7/05/2016 03:23, Karl-Heinz Schneider wrote:
->> Hi Phil
+On 04.05.2016 16:38, Lucas De Marchi wrote:
+> Hi Christian,
+> 
+> On Mon, May 2, 2016 at 7:11 AM, Christian Ruppert
+> <christian.ruppert@alitech.com> wrote:
+>> Dear Lucas,
 >>
->> Am Freitag, den 06.05.2016, 15:27 +0800 schrieb Phil Reid:
->>> G'day Karl
->>> On 29/04/2016 03:15, Karl-Heinz Schneider wrote:
->>>>
->>>> I have written an Kernel driver for the LTC1760 which is basically an
->>>> charger which can handle 2 batteries. Datasheet can be found at
->>>> http://www.linear.com/product/LTC1760
->>> They're nice chips.
->>>>
->>>> However, the device has one speciality: Hence it handles two smart
->>>> batteries, which are expected to sit on I2C address 0x0b, it implements
->>>> an i2c mux. As the device does so, my driver does also (using
->>>> i2c_add_mux_adapter() call).
->>>> Further more, Linux already ships with an driver capable to talk to
->>>> these smart battery chips, namely "sbs-battery".
->>>>
->>>> I currently using device tree to bind the LTC1760 to the smbus it sits
->>>> on and further to define the i2c-lines it implements as well as the
->>>> batteries sitting on the two muxed lines.
->>>>
->>>> Would you say this approach is technically right? The LTC expects SBS
->>>> compliant batteries connected to it, which implies a standard minimal
->>>> interface. But binding the batteries via device tree gives the user the
->>>> freedom to specify a more specialized driver.
->>>> On the other hand one could argue that if the LTC is present, also
->>>> batteries are (potentially) present and the LTC driver is responsible to
->>>> read the related registers and provide proper PM attributes. Personally
->>>> I don't like to rewrite or copy code wich works just fine...
->>>>
+>> On 22.04.2016 17:19, Lucas De Marchi wrote:
+>>> CC'ing Christian.
 >>>
->>> I've been writing a driver for the same chip :).
->>> My system has 2 ltc1760 for a total of 4 batteries.
->>> Haven't completed it as yet so hadn't posted, but got it talking to the batteries.
->>> I implemented an I2c mux in the driver and just attached two sbs-battery's to it in the device tree.
->>> I think the mux is the way to go, simple and reuses existing code.
->>>
->>
->> Think so too.
+>>> On Fri, Apr 22, 2016 at 12:08 PM, Lucas De Marchi
+>>> <lucas.demarchi@intel.com> wrote:
+> [...]
+>> Bad  news: Not all transfers seem to take place as they should.
+>>            I don't have the time for a deep analysis but a few quick
+>>            experiments seem to indicate that the adapter needs to be
+>>            disabled while updating TAR to a value different from the
+>>            previous one. Disabling the adapter does not seem to be
+>>            required if TAR doesn't change from one transfer to the next.
+>>            I don't know if there are any conditions under which we can
+>>            leave the adapter enabled while changing TAR but at least in
+>>            some cases it seems to work.
+> 
+> :(
+> 
+> This is unfortunate. If the bus is shared for 2 slave devices we will
+> get the slow down back. I wonder if there's a HW version or something
+> like that in the registers which can be used to add quirks to tweak the
+> behavior.  I'll dig some documentation, but if anyone knows, it'd be
+> nice to have it pointed out.
 
-I also think the muxing in ltc1760 appears to fit nicely with the
-i2c-mux framework. But I only had a cursory look...
+There is such a register (DW_IC_COMP_VERSION) and we used it before for
+hold time configuration, see line 374. In my case, the value of the
+register is 0x3131372a. We're now just left with the problem to find out
+how many (and which) hardware issues there are and in which version they
+were fixed exactly...
 
->>> FYI, if you didn't find it there is an acpi only driver for the ltc1760 in the kernel.
->>> But I could see a way to make it work with device trees. It enumerates it's own
->>> batteries.
->>
->> Indeed I failed to find it. Looked through drivers to find something
->> similar. How is it named?
-> It wrapped up in the acpi/sbs.c driver. Does specifically mention the ltc1760.
-> It doesn't really do much with the charger other than use it to enumerate number of batteries
-> and switch the i2c mux.
-> Search for manager_present and you'll find the relevant code.
-
-I had a look at the acpi code you point to, and it appears to be
-racy.
-
-It registers an attribute (alarm_attr) for every batteriy with the
-"store" function set to acpi_battery_alarm_store, which calls
-acpi_battery_set_alarm, which -- without any locking -- checks if
-the mux is set correctly, updates the mux if not, and then writes
-to the battery.
-
-I see other code-paths that also appear to touch the mux in
-similar ways (i.e. without locking) but I didn't really look any
-further than the above, which seems to be enough of a real
-problem if separate users write to the alarm attr of batteries
-connected to the same manager.
-
-The suggested fix is to register the ltc1760 mux as a real
-i2c-mux, which would probably be easiest when the i2c-mux locking
-update scheduled for 4.7 has landed (presently available in the
-i2c for-next branch and in linux-next).
-
-Cheers,
-Peter
+Greetings,
+  Christian
