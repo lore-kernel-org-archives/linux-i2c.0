@@ -1,147 +1,98 @@
-From: "Sricharan" <sricharan@codeaurora.org>
-Subject: RE: [PATCH 2/2] i2c: qup: support SMBus block read
-Date: Tue, 10 May 2016 12:43:21 +0530
-Message-ID: <000b01d1aa8b$7317a300$5946e900$@codeaurora.org>
-References: <1462317959-11632-1-git-send-email-nkaje@codeaurora.org> <1462317959-11632-2-git-send-email-nkaje@codeaurora.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCHv5 8/8] mfd: as3722: Rid driver of superfluous I2C device
+ ID structure
+Date: Tue, 10 May 2016 08:33:46 +0100
+Message-ID: <20160510073346.GH19473@dell>
+References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
+ <1462374888-22888-9-git-send-email-kieran@bingham.xyz>
+ <a34c73e5-afdb-5f2b-0775-4959cb09dbaa@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:35671 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751004AbcEJHNa (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2016 03:13:30 -0400
-In-Reply-To: <1462317959-11632-2-git-send-email-nkaje@codeaurora.org>
-Content-Language: en-us
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:36917 "EHLO
+	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750741AbcEJHdh (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2016 03:33:37 -0400
+Received: by mail-wm0-f47.google.com with SMTP id a17so10884572wme.0
+        for <linux-i2c@vger.kernel.org>; Tue, 10 May 2016 00:33:36 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <a34c73e5-afdb-5f2b-0775-4959cb09dbaa@osg.samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: 'Naveen Kaje' <nkaje@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, 'Andy Gross' <andy.gross@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Kieran Bingham <kieran@ksquared.org.uk>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
 
-+additional lists
+On Tue, 10 May 2016, Javier Martinez Canillas wrote:
 
-> I2C QUP driver relies on SMBus emulation support from the framework.
-> To handle SMBus block reads, the driver should check I2C_M_RECV_LEN flag
-> and should read the first byte received as the message length.
-> 
-> The driver configures the QUP hardware to read one byte. Once the message
-> length is known from this byte, the QUP hardware is configured to read the
-> rest.
-> 
-> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
-> ---
->  drivers/i2c/busses/i2c-qup.c | 95 ++++++++++++++++++++++++++++++-------
-> -------
->  1 file changed, 66 insertions(+), 29 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index
-> ef31b26..2658b67 100644
-> --- a/drivers/i2c/busses/i2c-qup.c
-> +++ b/drivers/i2c/busses/i2c-qup.c
-> @@ -526,38 +526,49 @@ static int qup_i2c_set_tags(u8 *tags, struct
-> qup_i2c_dev *qup,
-> 
->  	int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
-> 
-> -	if (qup->blk.pos == 0) {
-> -		tags[len++] = QUP_TAG_V2_START;
-> -		tags[len++] = addr & 0xff;
-> +	/* Handle SMBus block data read */
-> +	if ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN)
-> &&
-> +	    (msg->len > 1)) {
-> +		tags[len++] = QUP_TAG_V2_DATARD_STOP;
-> +		data_len = qup_i2c_get_data_len(qup);
-> +		tags[len++] = data_len - 1;
-> +	} else {
-> +		if (qup->blk.pos == 0) {
-> +			tags[len++] = QUP_TAG_V2_START;
-> +			tags[len++] = addr & 0xff;
-> 
-> -		if (msg->flags & I2C_M_TEN)
-> -			tags[len++] = addr >> 8;
-> -	}
-> +			if (msg->flags & I2C_M_TEN)
-> +				tags[len++] = addr >> 8;
-> +		}
-> 
-> -	/* Send _STOP commands for the last block */
-> -	if (last) {
-> -		if (msg->flags & I2C_M_RD)
-> -			tags[len++] = QUP_TAG_V2_DATARD_STOP;
-> -		else
-> -			tags[len++] = QUP_TAG_V2_DATAWR_STOP;
-> -	} else {
-> -		if (msg->flags & I2C_M_RD)
-> +		/* Send _STOP commands for the last block */
-> +		if ((msg->flags & I2C_M_RD)
-> +			&& (msg->flags & I2C_M_RECV_LEN)) {
->  			tags[len++] = QUP_TAG_V2_DATARD;
-> -		else
-> -			tags[len++] = QUP_TAG_V2_DATAWR;
-> -	}
-> +		} else if (last) {
-> +			if (msg->flags & I2C_M_RD)
-> +				tags[len++] = QUP_TAG_V2_DATARD_STOP;
-> +			else
-> +				tags[len++] = QUP_TAG_V2_DATAWR_STOP;
-> +		} else {
-> +			if (msg->flags & I2C_M_RD)
-> +				tags[len++] = QUP_TAG_V2_DATARD;
-> +			else
-> +				tags[len++] = QUP_TAG_V2_DATAWR;
-> +		}
-> 
-> -	data_len = qup_i2c_get_data_len(qup);
-> +		data_len = qup_i2c_get_data_len(qup);
-> 
-> -	/* 0 implies 256 bytes */
-> -	if (data_len == QUP_READ_LIMIT)
-> -		tags[len++] = 0;
-> -	else
-> -		tags[len++] = data_len;
-> +		/* 0 implies 256 bytes */
-> +		if (data_len == QUP_READ_LIMIT)
-> +			tags[len++] = 0;
-> +		else
-> +			tags[len++] = data_len;
-> 
-> -	if ((msg->flags & I2C_M_RD) && last && is_dma) {
-> -		tags[len++] = QUP_BAM_INPUT_EOT;
-> -		tags[len++] = QUP_BAM_FLUSH_STOP;
-> +		if ((msg->flags & I2C_M_RD) && last && is_dma) {
-> +			tags[len++] = QUP_BAM_INPUT_EOT;
-> +			tags[len++] = QUP_BAM_FLUSH_STOP;
-> +		}
->  	}
-> 
-   Will it look simpler if we add a qup_i2c_set_tags_smb instead and add an
-   Comment ? Here it is not clear how this is different from a normal read.
+> On 05/04/2016 11:14 AM, Kieran Bingham wrote:
+> > From: Lee Jones <lee.jones@linaro.org>
+> >=20
+> > Also remove unused second probe() parameter 'i2c_device_id'.
+> >
+> > Acked-by: Grant Likely <grant.likely@linaro.org>
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
+> >=20
+> > ---
+> > Changes since v4
+> >  - Rename .probe2 to probe_new
+> > ---
+> >  drivers/mfd/as3722.c | 12 ++----------
+> >  1 file changed, 2 insertions(+), 10 deletions(-)
+> >=20
+> > diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
+> > index e1f597f97f86..28fc62af6861 100644
+> > --- a/drivers/mfd/as3722.c
+> > +++ b/drivers/mfd/as3722.c
+> > @@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_clien=
+t *i2c,
+> >  	return 0;
+> >  }
+> > =20
+> > -static int as3722_i2c_probe(struct i2c_client *i2c,
+> > -			const struct i2c_device_id *id)
+> > +static int as3722_i2c_probe(struct i2c_client *i2c)
+> >  {
+> >  	struct as3722 *as3722;
+> >  	unsigned long irq_flags;
+> > @@ -453,12 +452,6 @@ static const struct of_device_id as3722_of_mat=
+ch[] =3D {
+> >  };
+> >  MODULE_DEVICE_TABLE(of, as3722_of_match);
+> > =20
+> > -static const struct i2c_device_id as3722_i2c_id[] =3D {
+> > -	{ "as3722", 0 },
+> > -	{},
+> > -};
+> > -MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
+> > -
+>=20
+> Just a note that this can only be made because the driver's Kconfig s=
+ymbol
+> is bool and not tristate. Since for drivers that can be built as a mo=
+dule,
+> the I2C core always reports a MODALIAS of the form "i2c:as3722" and s=
+o the
+> i2c_device_id array and the MODULE_DEVICE_TABLE() are needed even whe=
+n not
+> used by the driver.
+>=20
+> As mentioned the change is correct for this driver but I just wanted =
+to
+> point out in case other authors try to do the same change for drivers=
+ that
+> can be built as a module and so breaking module auto-loading.
 
-<snip..>
+Sounds like a subsequent patch might be required to fix that use-case
+too.  I'll add it to my TODO. :)
 
-> +
-> +		/* Handle SMBus block read length */
-> +		if ((msg->flags & I2C_M_RECV_LEN) && (msg->len == 1)) {
-> +			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
-> +				ret = -EPROTO;
-> +				goto err;
-> +			}
-> +			msg->len += msg->buf[0];
-> +			qup->pos = 0;
-> +			qup_i2c_set_read_mode_v2(qup, msg->len);
-> +			qup_i2c_issue_xfer_v2(qup, msg);
-> +			ret = qup_i2c_wait_for_complete(qup, msg);
-> +			if (ret)
-> +				goto err;
-> +			qup_i2c_set_blk_data(qup, msg);
-> +		}
->  	} while (qup->blk.pos < qup->blk.count);
-       
-         When v2 mode is not supported this should return an error,
-         in qup_i2c_xfer for msg->flags & I2C_M_RECV_LEN
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>=20
+> Best regards,
 
-Regards,
- Sricharan
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
