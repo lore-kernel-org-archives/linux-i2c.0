@@ -1,32 +1,30 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCHv5 4/8] i2c: Make I2C ID tables non-mandatory for DT'ed
- devices
-Date: Tue, 10 May 2016 01:01:11 -0400
-Message-ID: <98c8b92c-9ae0-0c9c-03d5-6b01483af8db@osg.samsung.com>
+Subject: Re: [PATCHv5 5/8] i2c: Export i2c_match_id() for direct use by device
+ drivers
+Date: Tue, 10 May 2016 01:02:52 -0400
+Message-ID: <dd0774b1-116f-45fe-87bb-a244de5844e7@osg.samsung.com>
 References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
- <1462374888-22888-5-git-send-email-kieran@bingham.xyz>
+ <1462374888-22888-6-git-send-email-kieran@bingham.xyz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:38286 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750991AbcEJFBX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 10 May 2016 01:01:23 -0400
-In-Reply-To: <1462374888-22888-5-git-send-email-kieran@bingham.xyz>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1462374888-22888-6-git-send-email-kieran@bingham.xyz>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Kieran Bingham <kieran@ksquared.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
+List-Id: linux-i2c@vger.kernel.org
 
 On 05/04/2016 11:14 AM, Kieran Bingham wrote:
 > From: Lee Jones <lee.jones@linaro.org>
 > 
-> Currently the I2C framework insists on devices supplying an I2C ID
-> table.  Many of the devices which do so unnecessarily adding quite a
-> few wasted lines to kernel code.  This patch allows drivers a means
-> to 'not' supply the aforementioned table and match on DT match tables
-> instead.
+> When there was no other way to match a I2C device to driver i2c_match_id()
+> was exclusively used.  However, now there are other types of tables which
+> are commonly supplied, matching on an i2c_device_id table is used less
+> frequently.  Instead of _always_ calling i2c_match_id() from within the
+> framework, we only need to do so from drivers which have no other way of
+> matching.  This patch makes i2c_match_id() available to the aforementioned
+> device drivers.
 > 
 > Acked-by: Grant Likely <grant.likely@linaro.org>
 > Signed-off-by: Lee Jones <lee.jones@linaro.org>
