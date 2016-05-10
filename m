@@ -1,85 +1,137 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCHv5 0/8] 2c: Relax mandatory I2C ID table passing
-Date: Tue, 10 May 2016 01:31:18 -0400
-Message-ID: <d6ad231e-767a-c3a0-cc61-037ed6de7f96@osg.samsung.com>
-References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
+From: "Sricharan" <sricharan@codeaurora.org>
+Subject: RE: [PATCH 1/2] i2c: qup: add ACPI support
+Date: Tue, 10 May 2016 11:35:55 +0530
+Message-ID: <000201d1aa82$07b3f680$171be380$@codeaurora.org>
+References: <1462317959-11632-1-git-send-email-nkaje@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:38434 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751129AbcEJFba (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 10 May 2016 01:31:30 -0400
-In-Reply-To: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
+Received: from smtp.codeaurora.org ([198.145.29.96]:60043 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750950AbcEJGGE (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2016 02:06:04 -0400
+In-Reply-To: <1462317959-11632-1-git-send-email-nkaje@codeaurora.org>
+Content-Language: en-us
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kieran Bingham <kieran@ksquared.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
+To: 'Naveen Kaje' <nkaje@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, 'Andy Gross' <andy.gross@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org
 
-Hello Kieran,
++additional lists
 
-On 05/04/2016 11:14 AM, Kieran Bingham wrote:
-> This patch set finally pops up again, after a long time stuck somewhere in the
-> midst of my stack.
+> Add support to get the device parameters from ACPI. Assume that the clocks
+> are managed by firmware.
 > 
-> As it stood last year, the requirements were to rename probe2 to probe_new, and
-> ensure that it was correctly tested. The rename was the easy bit, but the
-> testing took me more time to get things set up properly. And other commitments
-> then got in the way of things. Of course this patch set has also been rebased
-> as well, but there wasn't any major pain there.
+> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+> ---
+<snip>
+> +	bool input_clk_ctrl = true;
 > 
-> Testing
-> -------
+>  	qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL);
+>  	if (!qup)
+> @@ -1372,7 +1378,14 @@ static int qup_i2c_probe(struct platform_device
+> *pdev)
+>  	init_completion(&qup->xfer);
+>  	platform_set_drvdata(pdev, qup);
 > 
-> To try to establish testing, I have used a beagle-bone-black, and a DS1307 RTC
-> connected to the BBB SCL and SDA lines. The main reason for these choices is
-> accesibility. i.e. I have them, and the BBB readily boots a kernel for me to
-> test and iterate with.
+> -	of_property_read_u32(node, "clock-frequency", &clk_freq);
+> +	ret = device_property_read_u32(qup->dev, "clock-frequency",
+> &clk_freq);
+> +	if (ret) {
+> +		dev_warn(qup->dev, "using default clock-frequency values");
+> +		clk_freq = DEFAULT_CLK_FREQ;
+> +	}
+> +
+> +	if (ACPI_HANDLE(qup->dev) && !node)
+> +		input_clk_ctrl = false;
 > 
-> I've tested the device with i2cdetect, and then worked through testing the
-> sysfs interface, device tree, and module autoloading, each time ensuring that
-> the RTC enumerates and operates
+>  	if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-
+> v1.1.1")) {
+>  		qup->adap.algo = &qup_i2c_algo;
+> @@ -1454,20 +1467,29 @@ nodma:
+>  		return qup->irq;
+>  	}
 > 
-> * new_device (built-in, and external module)
->   echo ds1307 0x68 > /sys/bus/i2c/devices/i2c-2/new_device
->   cat /sys/class/rtc/rtc0/date
-> 
->  - Both of those worked fine.
-> 
-> * Device Tree
->   I tested that the device would still register by adding a node in the device
->   tree for the board, and testing with a built-in module. 
-> 
->  - This worked fine.
-> 
-> * Module Autoloading
->   With the device tree node in the board dts file, it wouldn't automatically
->   load from the external module. This was due to the rtc-ds1307 module not
->   exporting an of_match table, and not yet having Javier's "report OF style
->   modalias when probing using DT" [0]  patch applied
-> 
->  - With the module updated, and Javiers patch applied, the module autoloads
-> 
-> Finally, I feel I can safely add this tag to the patch set:
-> Tested-by: Kieran Bingham <kieran@bingham.xyz>
->
+> -	qup->clk = devm_clk_get(qup->dev, "core");
+> -	if (IS_ERR(qup->clk)) {
+> -		dev_err(qup->dev, "Could not get core clock\n");
+> -		return PTR_ERR(qup->clk);
+> -	}
+> +	if (input_clk_ctrl) {
+     The above ACPI_HANDLE check can be directly used here and avoid the
+variable.
 
-Same here, I've tested this series using an Exynos5800 Peach Pi Chromebook
-that has a I2C touchpad device (Atmel mXT540S). So I used this series and
-removed the i2c_device_id table from the device driver.
+> +		qup->clk = devm_clk_get(qup->dev, "core");
+> +		if (IS_ERR(qup->clk)) {
+> +			dev_err(qup->dev, "Could not get core clock\n");
+> +			return PTR_ERR(qup->clk);
+> +		}
+> 
+> -	qup->pclk = devm_clk_get(qup->dev, "iface");
+> -	if (IS_ERR(qup->pclk)) {
+> -		dev_err(qup->dev, "Could not get iface clock\n");
+> -		return PTR_ERR(qup->pclk);
+> +		qup->pclk = devm_clk_get(qup->dev, "iface");
+> +		if (IS_ERR(qup->pclk)) {
+> +			dev_err(qup->dev, "Could not get iface clock\n");
+> +			return PTR_ERR(qup->pclk);
+> +		}
+> +		qup_i2c_enable_clocks(qup);
+> +		src_clk_freq = clk_get_rate(qup->clk);
+> +	} else {
+> +		ret = device_property_read_u32(qup->dev,
+> +				"src-clock-hz", &src_clk_freq);
+> +		if (ret) {
+> +			dev_warn(qup->dev, "using default src-clock-hz");
+> +			src_clk_freq = DEFAULT_SRC_CLK;
+> +		}
+>  	}
+> 
+> -	qup_i2c_enable_clocks(qup);
+> -
+>  	/*
+>  	 * Bootloaders might leave a pending interrupt on certain QUP's,
+>  	 * so we reset the core before registering for interrupts.
+> @@ -1514,7 +1536,6 @@ nodma:
+>  	size = QUP_INPUT_FIFO_SIZE(io_mode);
+>  	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
+> 
+> -	src_clk_freq = clk_get_rate(qup->clk);
+>  	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
+>  	hs_div = 3;
+>  	qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff); @@ -1534,6 +1555,8
+> @@ nodma:
+>  	qup->adap.dev.parent = qup->dev;
+>  	qup->adap.dev.of_node = pdev->dev.of_node;
+>  	qup->is_last = true;
+> +	if (ACPI_HANDLE(qup->dev))
+> +		ACPI_COMPANION_SET(&qup->adap.dev,
+> ACPI_COMPANION(qup->dev));
+    Can we move this inside the above check.
+> 
+>  	strlcpy(qup->adap.name, "QUP I2C adapter", sizeof(qup-
+> >adap.name));
+> 
+> @@ -1639,6 +1662,13 @@ static const struct of_device_id
+> qup_i2c_dt_match[] = {  };  MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
+> 
+> +#if IS_ENABLED(CONFIG_ACPI)
+> +static const struct acpi_device_id qup_i2c_acpi_match[] = {
+> +	{ "QCOM8010"},
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_ids); #endif
+>  static struct platform_driver qup_i2c_driver = {
+>  	.probe  = qup_i2c_probe,
+>  	.remove = qup_i2c_remove,
+> @@ -1646,6 +1676,7 @@ static struct platform_driver qup_i2c_driver = {
+>  		.name = "i2c_qup",
+>  		.pm = &qup_i2c_qup_pm_ops,
+>  		.of_match_table = qup_i2c_dt_match,
+> +		.acpi_match_table = ACPI_PTR(qup_i2c_acpi_match),
+ Should this also be in #if IS_ENABLED(CONFIG_ACPI) check ?
 
-The driver could match correctly using the of_device_id table and also the
-module was auto-loaded when using my mentioned RFC patch to report OF style
-module aliases instead of always using the legacy one.
-
-I've also reviewed the patches and the changes looks good to me. I hope the
-patches can finally land since have been in the list for almost 2 years [0].
-
-[0]: https://lkml.org/lkml/2014/8/28/283
-
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Regards,
+ Sricharan
