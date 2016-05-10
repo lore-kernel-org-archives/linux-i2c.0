@@ -1,98 +1,93 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCHv5 8/8] mfd: as3722: Rid driver of superfluous I2C device
- ID structure
-Date: Tue, 10 May 2016 08:33:46 +0100
-Message-ID: <20160510073346.GH19473@dell>
+From: Kieran Bingham <kieran@ksquared.org.uk>
+Subject: Re: [PATCHv5 0/8] 2c: Relax mandatory I2C ID table passing
+Date: Tue, 10 May 2016 08:48:02 +0100
+Message-ID: <57319232.3060608@bingham.xyz>
 References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
- <1462374888-22888-9-git-send-email-kieran@bingham.xyz>
- <a34c73e5-afdb-5f2b-0775-4959cb09dbaa@osg.samsung.com>
+ <d6ad231e-767a-c3a0-cc61-037ed6de7f96@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:36917 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750741AbcEJHdh (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2016 03:33:37 -0400
-Received: by mail-wm0-f47.google.com with SMTP id a17so10884572wme.0
-        for <linux-i2c@vger.kernel.org>; Tue, 10 May 2016 00:33:36 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <a34c73e5-afdb-5f2b-0775-4959cb09dbaa@osg.samsung.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <d6ad231e-767a-c3a0-cc61-037ed6de7f96@osg.samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Kieran Bingham <kieran@ksquared.org.uk>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
 
-On Tue, 10 May 2016, Javier Martinez Canillas wrote:
+Hi Javier,
 
+On 10/05/16 06:31, Javier Martinez Canillas wrote:
+> Hello Kieran,
+> 
 > On 05/04/2016 11:14 AM, Kieran Bingham wrote:
-> > From: Lee Jones <lee.jones@linaro.org>
-> >=20
-> > Also remove unused second probe() parameter 'i2c_device_id'.
-> >
-> > Acked-by: Grant Likely <grant.likely@linaro.org>
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
-> >=20
-> > ---
-> > Changes since v4
-> >  - Rename .probe2 to probe_new
-> > ---
-> >  drivers/mfd/as3722.c | 12 ++----------
-> >  1 file changed, 2 insertions(+), 10 deletions(-)
-> >=20
-> > diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
-> > index e1f597f97f86..28fc62af6861 100644
-> > --- a/drivers/mfd/as3722.c
-> > +++ b/drivers/mfd/as3722.c
-> > @@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_clien=
-t *i2c,
-> >  	return 0;
-> >  }
-> > =20
-> > -static int as3722_i2c_probe(struct i2c_client *i2c,
-> > -			const struct i2c_device_id *id)
-> > +static int as3722_i2c_probe(struct i2c_client *i2c)
-> >  {
-> >  	struct as3722 *as3722;
-> >  	unsigned long irq_flags;
-> > @@ -453,12 +452,6 @@ static const struct of_device_id as3722_of_mat=
-ch[] =3D {
-> >  };
-> >  MODULE_DEVICE_TABLE(of, as3722_of_match);
-> > =20
-> > -static const struct i2c_device_id as3722_i2c_id[] =3D {
-> > -	{ "as3722", 0 },
-> > -	{},
-> > -};
-> > -MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
-> > -
->=20
-> Just a note that this can only be made because the driver's Kconfig s=
-ymbol
-> is bool and not tristate. Since for drivers that can be built as a mo=
-dule,
-> the I2C core always reports a MODALIAS of the form "i2c:as3722" and s=
-o the
-> i2c_device_id array and the MODULE_DEVICE_TABLE() are needed even whe=
-n not
-> used by the driver.
->=20
-> As mentioned the change is correct for this driver but I just wanted =
-to
-> point out in case other authors try to do the same change for drivers=
- that
-> can be built as a module and so breaking module auto-loading.
+>> This patch set finally pops up again, after a long time stuck somewhere in the
+>> midst of my stack.
+>>
+>> As it stood last year, the requirements were to rename probe2 to probe_new, and
+>> ensure that it was correctly tested. The rename was the easy bit, but the
+>> testing took me more time to get things set up properly. And other commitments
+>> then got in the way of things. Of course this patch set has also been rebased
+>> as well, but there wasn't any major pain there.
+>>
+>> Testing
+>> -------
+>>
+>> To try to establish testing, I have used a beagle-bone-black, and a DS1307 RTC
+>> connected to the BBB SCL and SDA lines. The main reason for these choices is
+>> accesibility. i.e. I have them, and the BBB readily boots a kernel for me to
+>> test and iterate with.
+>>
+>> I've tested the device with i2cdetect, and then worked through testing the
+>> sysfs interface, device tree, and module autoloading, each time ensuring that
+>> the RTC enumerates and operates
+>>
+>> * new_device (built-in, and external module)
+>>   echo ds1307 0x68 > /sys/bus/i2c/devices/i2c-2/new_device
+>>   cat /sys/class/rtc/rtc0/date
+>>
+>>  - Both of those worked fine.
+>>
+>> * Device Tree
+>>   I tested that the device would still register by adding a node in the device
+>>   tree for the board, and testing with a built-in module. 
+>>
+>>  - This worked fine.
+>>
+>> * Module Autoloading
+>>   With the device tree node in the board dts file, it wouldn't automatically
+>>   load from the external module. This was due to the rtc-ds1307 module not
+>>   exporting an of_match table, and not yet having Javier's "report OF style
+>>   modalias when probing using DT" [0]  patch applied
+>>
+>>  - With the module updated, and Javiers patch applied, the module autoloads
+>>
+>> Finally, I feel I can safely add this tag to the patch set:
+>> Tested-by: Kieran Bingham <kieran@bingham.xyz>
+>>
+> 
+> Same here, I've tested this series using an Exynos5800 Peach Pi Chromebook
+> that has a I2C touchpad device (Atmel mXT540S). So I used this series and
+> removed the i2c_device_id table from the device driver.
+> 
+> The driver could match correctly using the of_device_id table and also the
+> module was auto-loaded when using my mentioned RFC patch to report OF style
+> module aliases instead of always using the legacy one.
+> 
+> I've also reviewed the patches and the changes looks good to me. I hope the
+> patches can finally land since have been in the list for almost 2 years [0].
 
-Sounds like a subsequent patch might be required to fix that use-case
-too.  I'll add it to my TODO. :)
+Looks like the original submission [1] is even closer to 2 years ago,
+at 2nd June 2014!
 
-> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
->=20
-> Best regards,
+> [0]: https://lkml.org/lkml/2014/8/28/283
+  [1]: https://lkml.org/lkml/2014/6/2/274
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Thanks for taking the time to test as well. Lets aim to complete the
+conversion in less than 2 years :)
+
+(Note to self when referencing in the future, "Hello 2018")
+
+-- 
+Regards
+
+Kieran Bingham
