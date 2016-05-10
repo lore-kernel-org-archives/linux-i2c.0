@@ -1,36 +1,130 @@
 From: minyard@acm.org
-Subject: [PATCH v2 0/3] Add parameters for sysfs added I2C devices
-Date: Tue, 10 May 2016 11:11:36 -0500
-Message-ID: <1462896699-1627-1-git-send-email-minyard@acm.org>
+Subject: [PATCH v2 2/3] i2c-smbus: Allow parms to be passed in from sysfs new_device
+Date: Tue, 10 May 2016 11:11:38 -0500
+Message-ID: <1462896699-1627-3-git-send-email-minyard@acm.org>
+References: <1462896699-1627-1-git-send-email-minyard@acm.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35860 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752018AbcEJQLr (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2016 12:11:47 -0400
-Received: by mail-pf0-f193.google.com with SMTP id g132so1275635pfb.3
-        for <linux-i2c@vger.kernel.org>; Tue, 10 May 2016 09:11:47 -0700 (PDT)
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:34256 "EHLO
+	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751782AbcEJQLq (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2016 12:11:46 -0400
+Received: by mail-pf0-f195.google.com with SMTP id 145so1285869pfz.1
+        for <linux-i2c@vger.kernel.org>; Tue, 10 May 2016 09:11:46 -0700 (PDT)
+In-Reply-To: <1462896699-1627-1-git-send-email-minyard@acm.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
-Cc: minyard@acm.org
+Cc: minyard@acm.org, Corey Minyard <cminyard@mvista.com>
 
-This is a set of patches I posted earlier, it allows you to pass in
-parameters when adding I2C devices through sysfs.
+From: Corey Minyard <cminyard@mvista.com>
 
-I really need this for the IPMI over I2C driver (The SSIF driver)
-for a couple of reasons.
+This allows "irq=<num>" and "edge" to be passed in to the i2c new_device
+after the name and i2c address.  This way the alert can be configured
+without having to have platform data.
 
-The SSIF driver itself needs to take a parameter to tell it's
-address on the IPMI bus in case it's not the default.  It's also
-nice to be able to pass in debug parameters this way.
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+---
+ drivers/i2c/i2c-smbus.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
-Second, the IPMI driver can use SMBus alerts, but if the SMBus
-alert device is added via sysfs, there is no way to specify the
-interrupt information, thus it's fairly useless.
-
-The first patch adds the ability to have parameters for sysfs added
-I2C devices.  The second patch adds interrupt parameters for the
-SMBus alert device.  The last is the IPMI SSIF changes, just for
-example, I can add those in the IPMI tree.
-
--corey
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index 7748fd6..4f099ad 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -23,6 +23,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
++#include <linux/ctype.h>
+ 
+ struct i2c_smbus_alert {
+ 	unsigned int		alert_edge_triggered:1;
+@@ -123,15 +124,86 @@ static irqreturn_t smbalert_irq(int irq, void *d)
+ 	return IRQ_HANDLED;
+ }
+ 
++static struct i2c_smbus_alert_setup *smbalert_parse_parms(struct device *dev,
++		const char *parms,
++		struct i2c_smbus_alert_setup *data)
++{
++	int rv;
++	char end;
++
++	if (!parms)
++		return NULL;
++
++	data->alert_edge_triggered = false;
++	while (*parms) {
++		const char *next = parms;
++		const char *val;
++		int parmlen;
++
++		while (*next && !isspace(*next) && *next != '=')
++			next++;
++
++		parmlen = next - parms;
++
++		if (*next == '=') {
++			next++;
++			val = next;
++			while (*next && !isspace(*next))
++				next++;
++		} else {
++			val = NULL;
++		}
++
++		if (strncmp(parms, "irq", parmlen) == 0) {
++			if (!val) {
++				dev_err(dev, "no irq parm value given\n");
++				return NULL;
++			}
++			rv = sscanf(val, "%d%c", &data->irq, &end);
++			if ((rv < 1) || ((rv > 1) && !isspace(end))) {
++				dev_err(dev, "Invalid irq parm: %s\n", val);
++				return NULL;
++			}
++		} else if (strncmp(parms, "edge", parmlen) == 0) {
++			if (val) {
++				dev_err(dev, "Value given with edge parm: %s\n",
++					val);
++				return NULL;
++			}
++			data->alert_edge_triggered = true;
++		} else {
++			dev_err(dev, "Invalid parameter: %s\n", parms);
++			return NULL;
++		}
++
++		while (*next && isspace(*next))
++			next++;
++		parms = next;
++	}
++
++	return data;
++}
++
+ /* Setup SMBALERT# infrastructure */
+ static int smbalert_probe(struct i2c_client *ara,
+ 			  const struct i2c_device_id *id)
+ {
+ 	struct i2c_smbus_alert_setup *setup = dev_get_platdata(&ara->dev);
++	struct i2c_smbus_alert_setup dummy_setup;
+ 	struct i2c_smbus_alert *alert;
+ 	struct i2c_adapter *adapter = ara->adapter;
+ 	int res;
+ 
++	if (ara->parms)
++		/* Came in through sysfs. */
++		setup = smbalert_parse_parms(&ara->dev, ara->parms,
++					     &dummy_setup);
++
++	if (!setup) {
++		dev_err(&ara->dev, "SMBus alert without setup\n");
++		return -ENODEV;
++	}
++
+ 	alert = devm_kzalloc(&ara->dev, sizeof(struct i2c_smbus_alert),
+ 			     GFP_KERNEL);
+ 	if (!alert)
+-- 
+2.7.4
