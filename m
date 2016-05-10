@@ -1,93 +1,84 @@
-From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: Re: [PATCHv5 0/8] 2c: Relax mandatory I2C ID table passing
-Date: Tue, 10 May 2016 08:48:02 +0100
-Message-ID: <57319232.3060608@bingham.xyz>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCHv5 8/8] mfd: as3722: Rid driver of superfluous I2C device
+ ID structure
+Date: Tue, 10 May 2016 09:23:19 -0400
+Message-ID: <8df98822-22d4-7d03-2b84-6e96e0b6f8af@osg.samsung.com>
 References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
- <d6ad231e-767a-c3a0-cc61-037ed6de7f96@osg.samsung.com>
+ <1462374888-22888-9-git-send-email-kieran@bingham.xyz>
+ <a34c73e5-afdb-5f2b-0775-4959cb09dbaa@osg.samsung.com>
+ <20160510073346.GH19473@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d6ad231e-767a-c3a0-cc61-037ed6de7f96@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from lists.s-osg.org ([54.187.51.154]:40376 "EHLO lists.s-osg.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751588AbcEJNXi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 10 May 2016 09:23:38 -0400
+In-Reply-To: <20160510073346.GH19473@dell>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Kieran Bingham <kieran@ksquared.org.uk>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
 
-Hi Javier,
+Hello Lee,
 
-On 10/05/16 06:31, Javier Martinez Canillas wrote:
-> Hello Kieran,
+On 05/10/2016 03:33 AM, Lee Jones wrote:
+> On Tue, 10 May 2016, Javier Martinez Canillas wrote:
+
+[snip]
+
+>>>  
+>>> -static const struct i2c_device_id as3722_i2c_id[] = {
+>>> -	{ "as3722", 0 },
+>>> -	{},
+>>> -};
+>>> -MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
+>>> -
+>>
+>> Just a note that this can only be made because the driver's Kconfig symbol
+>> is bool and not tristate. Since for drivers that can be built as a module,
+>> the I2C core always reports a MODALIAS of the form "i2c:as3722" and so the
+>> i2c_device_id array and the MODULE_DEVICE_TABLE() are needed even when not
+>> used by the driver.
+>>
+>> As mentioned the change is correct for this driver but I just wanted to
+>> point out in case other authors try to do the same change for drivers that
+>> can be built as a module and so breaking module auto-loading.
 > 
-> On 05/04/2016 11:14 AM, Kieran Bingham wrote:
->> This patch set finally pops up again, after a long time stuck somewhere in the
->> midst of my stack.
->>
->> As it stood last year, the requirements were to rename probe2 to probe_new, and
->> ensure that it was correctly tested. The rename was the easy bit, but the
->> testing took me more time to get things set up properly. And other commitments
->> then got in the way of things. Of course this patch set has also been rebased
->> as well, but there wasn't any major pain there.
->>
->> Testing
->> -------
->>
->> To try to establish testing, I have used a beagle-bone-black, and a DS1307 RTC
->> connected to the BBB SCL and SDA lines. The main reason for these choices is
->> accesibility. i.e. I have them, and the BBB readily boots a kernel for me to
->> test and iterate with.
->>
->> I've tested the device with i2cdetect, and then worked through testing the
->> sysfs interface, device tree, and module autoloading, each time ensuring that
->> the RTC enumerates and operates
->>
->> * new_device (built-in, and external module)
->>   echo ds1307 0x68 > /sys/bus/i2c/devices/i2c-2/new_device
->>   cat /sys/class/rtc/rtc0/date
->>
->>  - Both of those worked fine.
->>
->> * Device Tree
->>   I tested that the device would still register by adding a node in the device
->>   tree for the board, and testing with a built-in module. 
->>
->>  - This worked fine.
->>
->> * Module Autoloading
->>   With the device tree node in the board dts file, it wouldn't automatically
->>   load from the external module. This was due to the rtc-ds1307 module not
->>   exporting an of_match table, and not yet having Javier's "report OF style
->>   modalias when probing using DT" [0]  patch applied
->>
->>  - With the module updated, and Javiers patch applied, the module autoloads
->>
->> Finally, I feel I can safely add this tag to the patch set:
->> Tested-by: Kieran Bingham <kieran@bingham.xyz>
->>
-> 
-> Same here, I've tested this series using an Exynos5800 Peach Pi Chromebook
-> that has a I2C touchpad device (Atmel mXT540S). So I used this series and
-> removed the i2c_device_id table from the device driver.
-> 
-> The driver could match correctly using the of_device_id table and also the
-> module was auto-loaded when using my mentioned RFC patch to report OF style
-> module aliases instead of always using the legacy one.
-> 
-> I've also reviewed the patches and the changes looks good to me. I hope the
-> patches can finally land since have been in the list for almost 2 years [0].
+> Sounds like a subsequent patch might be required to fix that use-case
+> too.  I'll add it to my TODO. :)
+>
 
-Looks like the original submission [1] is even closer to 2 years ago,
-at 2nd June 2014!
+Well, the fix is really trivial and I've posted it as an RFC patch a [0] a
+long time ago. That is what Kieran and my used to test module autoload with
+this patch series.
 
-> [0]: https://lkml.org/lkml/2014/8/28/283
-  [1]: https://lkml.org/lkml/2014/6/2/274
+The problem is that a lot of I2C drivers are relying on how the subsystem
+behave (always match using i2c_device_id table and report i2c: modalias)
+and so OF drivers don't have an of_device_id table since was not necessary.
 
-Thanks for taking the time to test as well. Lets aim to complete the
-conversion in less than 2 years :)
+So if the RFC patch lands [0], that will break a lot of drivers since after
+that, the I2C devices registered via OF will report a of: modalias but will
+not have a OF aliases in their modules.
 
-(Note to self when referencing in the future, "Hello 2018")
+We need a flag day to change the I2C subsystem behaviour and that can only
+happen after all the in-tree I2C drivers have proper exported of_device_id.
 
+I posted a patch series almost a year ago [1] trying to fix the I2C drivers
+that I could find using a script but then found that removing the I2C table
+was not possible also due how the subsystem did the matching. Fortunately
+your patch series fixed this :)
+
+So after your series land, I plan to do the same investigation again and
+post patches to fix all the remaining I2C drivers so the modalias patch can
+finally land and the I2C subsystem report modalias like other subsystems do.
+
+[0]: https://patchwork.ozlabs.org/patch/502201/
+[1]: https://lkml.org/lkml/2015/7/30/519
+
+Best regards,
 -- 
-Regards
-
-Kieran Bingham
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
