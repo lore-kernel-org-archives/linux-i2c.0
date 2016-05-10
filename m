@@ -1,112 +1,87 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCHv5 8/8] mfd: as3722: Rid driver of superfluous I2C device
- ID structure
-Date: Tue, 10 May 2016 15:01:52 +0100
-Message-ID: <20160510140152.GN19473@dell>
-References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
- <1462374888-22888-9-git-send-email-kieran@bingham.xyz>
- <a34c73e5-afdb-5f2b-0775-4959cb09dbaa@osg.samsung.com>
- <20160510073346.GH19473@dell>
- <8df98822-22d4-7d03-2b84-6e96e0b6f8af@osg.samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+From: Kieran Bingham <kieran@ksquared.org.uk>
+Subject: [PATCH] cocci: Find i2c drivers with an of_device table that isn't exported
+Date: Tue, 10 May 2016 15:39:25 +0100
+Message-ID: <1462891165-25013-1-git-send-email-kieran@bingham.xyz>
+References: <8df98822-22d4-7d03-2b84-6e96e0b6f8af@osg.samsung.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:32927 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751395AbcEJOjb (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2016 10:39:31 -0400
 In-Reply-To: <8df98822-22d4-7d03-2b84-6e96e0b6f8af@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Kieran Bingham <kieran@ksquared.org.uk>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: javier@osg.samsung.com, lee.jones@linaro.org
+Cc: kieran@ksquared.org.uk, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
 
-On Tue, 10 May 2016, Javier Martinez Canillas wrote:
+This script will then add the MODULE_DEVICE_TABLE(of, ...) to correctly export
+the device tree table
 
-> Hello Lee,
->=20
-> On 05/10/2016 03:33 AM, Lee Jones wrote:
-> > On Tue, 10 May 2016, Javier Martinez Canillas wrote:
->=20
-> [snip]
->=20
-> >>> =20
-> >>> -static const struct i2c_device_id as3722_i2c_id[] =3D {
-> >>> -	{ "as3722", 0 },
-> >>> -	{},
-> >>> -};
-> >>> -MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
-> >>> -
-> >>
-> >> Just a note that this can only be made because the driver's Kconfi=
-g symbol
-> >> is bool and not tristate. Since for drivers that can be built as a=
- module,
-> >> the I2C core always reports a MODALIAS of the form "i2c:as3722" an=
-d so the
-> >> i2c_device_id array and the MODULE_DEVICE_TABLE() are needed even =
-when not
-> >> used by the driver.
-> >>
-> >> As mentioned the change is correct for this driver but I just want=
-ed to
-> >> point out in case other authors try to do the same change for driv=
-ers that
-> >> can be built as a module and so breaking module auto-loading.
-> >=20
-> > Sounds like a subsequent patch might be required to fix that use-ca=
-se
-> > too.  I'll add it to my TODO. :)
-> >
->=20
-> Well, the fix is really trivial and I've posted it as an RFC patch a =
-[0] a
-> long time ago. That is what Kieran and my used to test module autoloa=
-d with
-> this patch series.
->=20
-> The problem is that a lot of I2C drivers are relying on how the subsy=
-stem
-> behave (always match using i2c_device_id table and report i2c: modali=
-as)
-> and so OF drivers don't have an of_device_id table since was not nece=
-ssary.
->=20
-> So if the RFC patch lands [0], that will break a lot of drivers since=
- after
-> that, the I2C devices registered via OF will report a of: modalias bu=
-t will
-> not have a OF aliases in their modules.
->=20
-> We need a flag day to change the I2C subsystem behaviour and that can=
- only
-> happen after all the in-tree I2C drivers have proper exported of_devi=
-ce_id.
->=20
-> I posted a patch series almost a year ago [1] trying to fix the I2C d=
-rivers
-> that I could find using a script but then found that removing the I2C=
- table
-> was not possible also due how the subsystem did the matching. Fortuna=
-tely
-> your patch series fixed this :)
->=20
-> So after your series land, I plan to do the same investigation again =
-and
-> post patches to fix all the remaining I2C drivers so the modalias pat=
-ch can
-> finally land and the I2C subsystem report modalias like other subsyst=
-ems do.
+Usage: spatch --sp-file scripts/coccinelle/i2c/i2c_table_missing_export.cocci . --in-place
+---
 
-Sounds perfect.  Thanks for the explanation.
+Javier,
 
-Wolfram,
- Things are looking up for the subsystem, please do your thing, so we
- can ensure awesomeness. :)
+I've been working on scripts to automate some of the conversion processes
+involved in this DT_I2C project.
 
-> [0]: https://patchwork.ozlabs.org/patch/502201/
-> [1]: https://lkml.org/lkml/2015/7/30/519
+This one adds missing exports for i2c device tables.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Feel free to use it if it helps.
+
+I have another one which searches for drivers which have both an I2C device table, and an OF device table,
+and a probe function which does not use the second parameter.
+
+It then performs the conversion to the probe_new() and removes the I2C device table.
+
+Should help with the bulk of the conversion
+
+--
+Kieran
+
+ .../coccinelle/i2c/of_table_missing_export.cocci   | 34 ++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+ create mode 100644 scripts/coccinelle/i2c/of_table_missing_export.cocci
+
+diff --git a/scripts/coccinelle/i2c/of_table_missing_export.cocci b/scripts/coccinelle/i2c/of_table_missing_export.cocci
+new file mode 100644
+index 000000000000..5d1950fdf8a3
+--- /dev/null
++++ b/scripts/coccinelle/i2c/of_table_missing_export.cocci
+@@ -0,0 +1,34 @@
++// Look for I2C drivers without an exported of_device_id table
++//
++
++// C1 : Identify the i2c_device_id array
++
++@ i2c_dev_id @
++identifier arr;
++@@
++struct i2c_device_id arr[] = { ... };
++
++// C2 : For now, we only want to match on I2C drivers
++
++@ dev_id depends on i2c_dev_id @
++identifier arr;
++@@
++struct of_device_id arr[] = { ... };
++
++// C2 : Check if we already export the MODULE_DEVICE_TABLE
++
++@ of_dev_table depends on dev_id @
++declarer name MODULE_DEVICE_TABLE;
++identifier of;
++identifier dev_id.arr;
++@@
++ MODULE_DEVICE_TABLE(of, arr);
++
++
++// A1: Export it!
++
++@ add_mod_dev_table depends on !of_dev_table @
++identifier dev_id.arr;
++@@
++struct of_device_id arr[] = { ... };
+++ MODULE_DEVICE_TABLE(of, arr);
+-- 
+2.5.0
