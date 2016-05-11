@@ -1,122 +1,90 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH] cocci: Provide script to find i2c_tables missing exports
-Date: Wed, 11 May 2016 16:07:19 -0400
-Message-ID: <65c31271-9ab9-161b-cfe7-4186274da951@osg.samsung.com>
-References: <8df98822-22d4-7d03-2b84-6e96e0b6f8af@osg.samsung.com>
- <1462892843-32409-1-git-send-email-kieran@bingham.xyz>
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: Re: [PATCH v8 8/8] i2c: rk3x: support fast-mode plus for rk3399
+Date: Wed, 11 May 2016 23:09:43 +0200
+Message-ID: <5153288.jNhUuzGC3g@phil>
+References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com> <1462908794-27333-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lists.s-osg.org ([54.187.51.154]:48080 "EHLO lists.s-osg.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751611AbcEKUHf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 11 May 2016 16:07:35 -0400
-In-Reply-To: <1462892843-32409-1-git-send-email-kieran@bingham.xyz>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1462908794-27333-1-git-send-email-david.wu@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Wu <david.wu@rock-chips.com>
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kieran Bingham <kieran@ksquared.org.uk>, lee.jones@linaro.org
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
 
-Hello Kieran,
+Am Mittwoch, 11. Mai 2016, 03:33:14 schrieb David Wu:
 
-Thanks for the patch, it would be great to automate this to avoid new
-drivers to introduce new issues!
+please always try to also provide some sort of commit message.
 
-On 05/10/2016 11:07 AM, Kieran Bingham wrote:
-> Adds MODULE_DEVICE_TABLE(i2c, ...) to correctly export tables in i2c drivers
+---
+Implement fast mode plus that allows bus speeds of up to 1MHz.
+.....
+
+---
+
+Additionally, the i2c-noob in me would wish for a short sentence on where 
+the timing values come from (measured, somewhere in the TRM I didn't find or 
+something completely different).
+
+
+Patch content itself looks good, so with a suitable commit message,
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+
+
+> Signed-off-by: David Wu <david.wu@rock-chips.com>
+> Reviewed-by: Douglas Anderson <dianders@chromium.org>
 > ---
-> Ahem, My appologies, I wrongly sent the patch I was working on for OF tables,
->
-
-No worries and in fact we need to identify both (I2C && OF tables not exported).
-
-There are currently 3 issues that have to be fixed on I2C drivers w.r.t to device
-and driver match and module auto-loading:
-
-1) Drivers with I2C table but not exported (match will work but autoload no).
-
-2) Drivers with OF table but not exported (match will work but autoload no).
-
-3) Drivers with an I2C table but with no OF table even when the I2C devices
-   are registered via OF. Match and autoload works because the core always
-   reports a MODALIAS=i2c:* for both but once we change it to reports the
-   corret modalias, things will break since now will be MODALIAS=of:N*fT*C
-   and the module won't have a modalias of that form.
-
-1) and 2) are somehow easy and your semantic patches can be used to find
-and fix them.
-
-Now 3) is more tricky since is hard to say if a DT is relying on the fact
-that the I2C core strips the manufacture from the compatible string and
-just matches using the model part.
-
-I think the best we can do is to check if there are such a users in the
-in-tree DTS or documented compatible in the DT bindings documents. But if
-someone is using with a DT that's not in mainline, then things will break. 
-
-So if you can think of a way to automatize 3) using coccinelle, that will
-be great. My coccinelle knowledge is near to non-existent but one issue I
-see is that coccinelle context seems to be restricted to just the current
-file so it can't check in external files like DTS or DT bindings docs.
-
-> Of course this is the correct patch for adding the i2c_device_id exports,
-> which I think is what you are currently looking at
-> --
-> Kieran
+> Change in v8:
+> - None
 > 
-
-[snip]
-
-> +
-> +// A1: Export it!
-> +
-> +@ add_mod_dev_table depends on !i2c_dev_table @
-> +identifier dev_id.arr;
-> +@@
-> +struct i2c_device_id arr[] = { ... };
-> ++ MODULE_DEVICE_TABLE(i2c, arr);
+>  drivers/i2c/busses/i2c-rk3x.c | 21 +++++++++++++++++----
+>  1 file changed, 17 insertions(+), 4 deletions(-)
 > 
-
-A problem with this semantic patch is that is going to give a lot of
-false positives. Not always a MODULE_DEVICE_TABLE(i2c,...) is needed
-after a i2c_device_id array, drivers that can't be build as a module
-(i.e: whose Kconfig is not tristate) or board files are two examples.
-
-One way I think we can minimize this is by checking if the driver is
-including the module.h header file or not. This still will give some
-false positives, since many drivers that can't be build as module
-wrongly include module.h but in any case that's something that needs
-to be fixed in those drivers.
-
-So I think you need something like the following change to squash with
-your patch:
-
-diff --git a/scripts/coccinelle/i2c/i2c_table_missing_export.cocci b/scripts/coccinelle/i2c/i2c_table_missing_export.cocci
-index 58c06856e4d4..df98279e326d 100644
---- a/scripts/coccinelle/i2c/i2c_table_missing_export.cocci
-+++ b/scripts/coccinelle/i2c/i2c_table_missing_export.cocci
-@@ -4,9 +4,16 @@
- // Usage:
- // spatch --sp-file scripts/coccinelle/i2c/i2c_table_missing_export.cocci . --in-place
- 
-+// C0 : Check if module.h is included
-+
-+@ includes_module @
-+@@
-+
-+# include <linux/module.h>
-+
- // C1 : Identify the i2c_device_id array
- 
--@ dev_id @
-+@ dev_id depends on includes_module @
- identifier arr;
- @@
- struct i2c_device_id arr[] = { ... };
-
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+> index 25ed1ad..0ba25ee 100644
+> --- a/drivers/i2c/busses/i2c-rk3x.c
+> +++ b/drivers/i2c/busses/i2c-rk3x.c
+> @@ -126,6 +126,17 @@ static const struct i2c_spec_values fast_mode_spec =
+> { .min_hold_buffer_ns = 1300,
+>  };
+> 
+> +static const struct i2c_spec_values fast_mode_plus_spec = {
+> +	.min_hold_start_ns = 260,
+> +	.min_low_ns = 500,
+> +	.min_high_ns = 260,
+> +	.min_setup_start_ns = 260,
+> +	.max_data_hold_ns = 400,
+> +	.min_data_setup_ns = 50,
+> +	.min_setup_stop_ns = 260,
+> +	.min_hold_buffer_ns = 500,
+> +};
+> +
+>  /**
+>   * struct rk3x_i2c_calced_timings:
+>   * @div_low: Divider output for low
+> @@ -531,8 +542,10 @@ static const struct i2c_spec_values
+> *rk3x_i2c_get_spec(unsigned int speed) {
+>  	if (speed <= 100000)
+>  		return &standard_mode_spec;
+> -	else
+> +	else if (speed <= 400000)
+>  		return &fast_mode_spec;
+> +	else
+> +		return &fast_mode_plus_spec;
+>  }
+> 
+>  /**
+> @@ -743,9 +756,9 @@ static int rk3x_i2c_v1_calc_timings(unsigned long
+> clk_rate, const struct i2c_spec_values *spec;
+>  	int ret = 0;
+> 
+> -	/* Support standard-mode and fast-mode */
+> -	if (WARN_ON(t->bus_freq_hz > 400000))
+> -		t->bus_freq_hz = 400000;
+> +	/* Support standard-mode, fast-mode and fast-mode plus */
+> +	if (WARN_ON(t->bus_freq_hz > 1000000))
+> +		t->bus_freq_hz = 1000000;
+> 
+>  	/* prevent scl_rate_khz from becoming 0 */
+>  	if (WARN_ON(t->bus_freq_hz < 1000))
