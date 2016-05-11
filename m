@@ -1,343 +1,635 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v3] i2c: i801: Allow ACPI SystemIO OpRegion to conflict
- with PCI BAR
-Date: Wed, 11 May 2016 14:40:48 +0300
-Message-ID: <20160511114048.GP1713@lahna.fi.intel.com>
-References: <1462781834-7890-1-git-send-email-mika.westerberg@linux.intel.com>
- <20160511113933.6868d115@endymion>
+From: Caesar Wang <caesar.upstream@gmail.com>
+Subject: Re: [PATCH v8 7/8] i2c: rk3x: add i2c support for rk3399 soc
+Date: Wed, 11 May 2016 19:43:06 +0800
+Message-ID: <57331ACA.5020605@gmail.com>
+References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
+ <1462908698-27284-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160511113933.6868d115@endymion>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, pali.rohar@gmail.com, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1462908698-27284-1-git-send-email-david.wu@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Wu <david.wu@rock-chips.com>
+Cc: heiko@sntech.de, wsa@the-dreams.de, mark.rutland@arm.com, huangtao@rock-chips.com, xjq@rock-chips.com, hl@rock-chips.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, dianders@chromium.org, linux-kernel@vger.kernel.org, cf@rock-chips.com, andy.shevchenko@gmail.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, galak@codeaurora.org, zyw@rock-chips.com, briannorris@google.com, davidriley@google.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 11, 2016 at 11:39:33AM +0200, Jean Delvare wrote:
-> Hi Mika,
->=20
-> First of all, thank you very much for working on this problem, this i=
-s
-> highly appreciated.
 
-You're welcome :)
 
-> On Mon,  9 May 2016 11:17:14 +0300, Mika Westerberg wrote:
-> > Many Intel systems the BIOS declares a SystemIO OpRegion below the =
-SMBus
-> > PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
-> >=20
-> >   Device (SBUS)
-> >   {
-> >       OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
-> >       Field (SMBI, ByteAcc, NoLock, Preserve)
-> >       {
-> >           HSTS,   8,
-> >           Offset (0x02),
-> >           HCON,   8,
-> >           HCOM,   8,
-> >           TXSA,   8,
-> >           DAT0,   8,
-> >           DAT1,   8,
-> >           HBDR,   8,
-> >           PECR,   8,
-> >           RXSA,   8,
-> >           SDAT,   16
-> >       }
-> >=20
-> > There are also bunch of AML methods that that the BIOS can use to a=
-ccess
-> > these fields. Most of the systems in question AML methods accessing=
- the
-> > SMBI OpRegion are never used.
-> >=20
-> > Now, because of this SMBI OpRegion many systems fail to load the SM=
-Bus
-> > driver with an error looking like one below:
-> >=20
-> >   ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305=
-=46
-> >        conflicts with OpRegion 0x0000000000003040-0x000000000000304=
-=46
-> >        (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
-> >   ACPI: If an ACPI driver is available for this device, you should =
-use
-> >        it instead of the native driver
-> >=20
-> > The reason is that this SMBI OpRegion conflicts with the PCI BAR us=
-ed by
-> > the SMBus driver.
-> >=20
-> > It turns out that we can install a custom SystemIO address space ha=
-ndler
-> > for the SMBus device to intercept all accesses through that OpRegio=
-n. This
-> > allows us to share the PCI BAR with the AML code if it for some rea=
-son is
-> > using it. We do not expect that this OpRegion handler will ever be =
-called
-> > but if it is we print a warning and prevent all access from the SMB=
-us
-> > driver itself.
-> >=20
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D110041
-> > Reported-by: Andy Lutomirski <luto@kernel.org>
-> > Reported-by: Pali Roh=E1r <pali.rohar@gmail.com>
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> > Changes to v2:
-> >=20
-> >  - Return -EIO instead of -EPERM
-> >  - Added ACK from Rafael
-> >  - Added Link and Reported-by tags
-> >  - Tagged for stable inclusion
-> >=20
-> >  drivers/i2c/busses/i2c-i801.c | 106 ++++++++++++++++++++++++++++++=
-++++++++++--
-> >  1 file changed, 102 insertions(+), 4 deletions(-)
->=20
-> I have tested this on my Dell OptiPlex 9020 MT system, and it works
-> well. Gives me access to the SPD EEPROMs on my memory modules.
+=E5=9C=A8 2016=E5=B9=B405=E6=9C=8811=E6=97=A5 03:31, David Wu =E5=86=99=
+=E9=81=93:
+> - new method to caculate i2c timings for rk3399:
+>    There was an timing issue about "repeated start" time at the I2C
+>    controller of version0, controller appears to drop SDA at .875x (7=
+/8)
+>    programmed clk high. On version 1 of the controller, the rule(.875=
+x)
+>    isn't enough to meet tSU;STA
+>    requirements on 100k's Standard-mode. To resolve this issue,
+>    sda_update_config, start_setup_config and stop_setup_config for I2=
+C
+>    timing information are added, new rules are designed to calculate
+>    the timing information at new v1.
+> - pclk and function clk are separated at rk3399
+>
+> Signed-off-by: David Wu <david.wu@rock-chips.com>
+> ---
+> Changes in v8:
+> - update tuning in RKI2C_CON register by doing a read-modify-write (D=
+oug)
+> - new method to use pclk and clk (Doug)
+>
+> Changes in v7:
+> - transform into a 9 series patches (Doug)
+> - drop highspeed with mastercode, and support fast-mode plus (Doug)
 
-Good to know. Thanks for testing.
+Tested-by: Caesar Wang <wxt@rock-chips.com>
+=46ew comments below:
 
-> Below is my review.
->=20
-> > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c=
--i801.c
-> > index 5652bf6ce9be..d69ad96460b5 100644
-> > --- a/drivers/i2c/busses/i2c-i801.c
-> > +++ b/drivers/i2c/busses/i2c-i801.c
-> > @@ -247,6 +247,13 @@ struct i801_priv {
-> >  	struct platform_device *mux_pdev;
-> >  #endif
-> >  	struct platform_device *tco_pdev;
-> > +
-> > +	/*
-> > +	 * If set to true the host controller registers are reserved for
-> > +	 * ACPI AML use. Protected by acpi_lock.
-> > +	 */
-> > +	bool acpi_reserved;
-> > +	struct mutex acpi_lock;
-> >  };
-> > =20
-> >  #define FEATURE_SMBUS_PEC	(1 << 0)
-> > @@ -720,6 +727,12 @@ static s32 i801_access(struct i2c_adapter *ada=
-p, u16 addr,
-> >  	int ret =3D 0, xact =3D 0;
-> >  	struct i801_priv *priv =3D i2c_get_adapdata(adap);
-> > =20
-> > +	mutex_lock(&priv->acpi_lock);
-> > +	if (priv->acpi_reserved) {
-> > +		mutex_unlock(&priv->acpi_lock);
-> > +		return -EIO;
->=20
-> I see this has been discussed before, but I don't think EIO is
-> appropriate here. You didn't even try to issue an I/O to the device, =
-so
-> how could it fail? EBUSY would better reflect the situation IMHO.
 
-That works for me as well. Rafael suggested -EIO and it was originally
--EPERM but I have no problems changing it to return -EBUSY.
+I picked David's patches up for my rk3399 evb board.
+Add the needed i2c devices for dts.
 
-> > +	}
-> > +
-> >  	pm_runtime_get_sync(&priv->pci_dev->dev);
-> > =20
-> >  	hwpec =3D (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CL=
-IENT_PEC)
-> > @@ -822,6 +835,7 @@ static s32 i801_access(struct i2c_adapter *adap=
-, u16 addr,
-> >  out:
-> >  	pm_runtime_mark_last_busy(&priv->pci_dev->dev);
-> >  	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
-> > +	mutex_unlock(&priv->acpi_lock);
-> >  	return ret;
-> >  }
-> > =20
-> > @@ -1260,6 +1274,89 @@ static void i801_add_tco(struct i801_priv *p=
-riv)
-> >  	priv->tco_pdev =3D pdev;
-> >  }
-> > =20
-> > +#ifdef CONFIG_ACPI
-> > +static acpi_status
-> > +i801_acpi_io_handler(u32 function, acpi_physical_address address, =
-u32 bits,
-> > +		     u64 *value, void *handler_context, void *region_context)
-> > +{
-> > +	struct i801_priv *priv =3D handler_context;
-> > +	struct pci_dev *pdev =3D priv->pci_dev;
-> > +	acpi_status status;
-> > +
-> > +	/*
-> > +	 * Once BIOS AML code touches the OpRegion we warn and inhibit an=
-y
-> > +	 * further access from the driver itself. This device is now owne=
-d
-> > +	 * by the system firmware.
-> > +	 */
-> > +	dev_warn_once(&pdev->dev, "BIOS is accessing SMBus registers\n");
-> > +	dev_warn_once(&pdev->dev, "Driver SMBus register access inhibited=
-\n");
->=20
-> Given that you have priv->acpi_reserved to record if we've been there
-> before, maybe you could move the warnings below, and use simple
-> dev_warn? I suspect it's cheaper than dev_warn_once.
+localhost / #modprobe i2c-dev
+localhost / # i2cdump -f -y 0 0x1b
+No size specified (using byte-data access)
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f 0123456789abcdef
+00: 18 01 09 21 01 13 01 00 00 00 00 01 01 00 00 00 ???!???....??...
+10: 80 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ??..............
+20: 00 5f 00 6f ff 00 00 00 10 00 ff 0f ff 02 01 0f ._.o....?..?.???
+30: 00 00 01 0f 00 00 02 03 00 00 09 00 00 0c 00 0a ..??..??..?..?.?
+40: 00 0c 00 0c 00 07 00 0a 00 0c 00 00 00 5f 00 03 .?.?.?.?.?..._.?
+50: 06 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ??..............
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+70: 00 cf 03 00 28 00 0c 1c 80 19 00 34 12 00 71 00 .??.(.????.4?.q.
+80: 10 50 1f ac 00 40 00 49 00 00 c0 44 41 01 00 00 ?P??.@.I..?DA?..
+90: 55 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 U...............
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+localhost / # i2cset -f -y 0 0x1b 0x90 0xff
+localhost / # i2cdump -f -y 0 0x1b |grep 90
+  No size specified (using byte-data access)
+90: ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
 
-OK, I'll move them to the block below.
+The i2c devices are working for my board.
 
-> > +
-> > +	mutex_lock(&priv->acpi_lock);
-> > +
-> > +	if (!priv->acpi_reserved) {
-> > +		priv->acpi_reserved =3D true;
-> > +
-> > +		/*
-> > +		 * BIOS is accessing the host controller so prevent it from
-> > +		 * suspending automatically from now on.
-> > +		 */
-> > +		pm_runtime_get_sync(&pdev->dev);
-> > +	}
-> > +
-> > +	if (function =3D=3D ACPI_READ) {
-> > +		u32 val =3D (u32)*value;
->=20
-> I'm confused. acpi_os_read_port is writing the result of the read to
-> "val", it doesn't read from it, so I don't think it needs to be
-> initialized?
+run:
+modprobe i2c-dev; for i in $(seq 0 8); do echo =3D=3DBUS $i; i2cdetect =
+-y -q=20
+$i; done
+See the output message,and mesure the i2c frequency.
 
-Indeed, that's not needed at all.
 
-> Also, looking at the acpi_os_read_port() call in
-> drivers/acpi/apei/apei-base.c, it would seem you can cast *value
-> directly in-place, without using a temporary variable. This would lim=
-it
-> the overhead.
 
-OK.
 
-> > +		status =3D acpi_os_read_port(address, &val, bits);
-> > +		if (ACPI_SUCCESS(status))
-> > +			*value =3D val;
-> > +	} else {
-> > +		status =3D acpi_os_write_port(address, (u32)*value, bits);
-> > +	}
-> > +
-> > +	mutex_unlock(&priv->acpi_lock);
-> > +
-> > +	return status;
-> > +}
-> > +
-> > +static int i801_acpi_probe(struct i801_priv *priv)
-> > +{
-> > +	struct acpi_device *adev;
-> > +	acpi_status status;
-> > +
-> > +	adev =3D ACPI_COMPANION(&priv->pci_dev->dev);
-> > +	if (adev) {
-> > +		status =3D acpi_install_address_space_handler(adev->handle,
-> > +				ACPI_ADR_SPACE_SYSTEM_IO, i801_acpi_io_handler,
-> > +				NULL, priv);
-> > +		if (ACPI_SUCCESS(status))
-> > +			return 0;
-> > +	}
-> > +
-> > +	return acpi_check_resource_conflict(&priv->pci_dev->resource[SMBB=
-AR]);
-> > +}
-> > +
-> > +static void i801_acpi_remove(struct i801_priv *priv)
-> > +{
-> > +	struct acpi_device *adev;
-> > +
-> > +	adev =3D ACPI_COMPANION(&priv->pci_dev->dev);
-> > +	if (!adev)
-> > +		return;
-> > +
-> > +	acpi_remove_address_space_handler(adev->handle,
-> > +		ACPI_ADR_SPACE_SYSTEM_IO, i801_acpi_io_handler);
-> > +
-> > +	mutex_lock(&priv->acpi_lock);
-> > +	if (priv->acpi_reserved) {
-> > +		priv->acpi_reserved =3D false;
->=20
-> Is this actually needed? priv is about to be destroyed anyway.
 
-It is not needed. I'll remove it.
+>
+>   drivers/i2c/busses/i2c-rk3x.c | 289 +++++++++++++++++++++++++++++++=
+++++++++---
+>   1 file changed, 270 insertions(+), 19 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-r=
+k3x.c
+> index 9791797..25ed1ad 100644
+> --- a/drivers/i2c/busses/i2c-rk3x.c
+> +++ b/drivers/i2c/busses/i2c-rk3x.c
+> @@ -58,6 +58,12 @@ enum {
+>   #define REG_CON_LASTACK   BIT(5) /* 1: send NACK after last receive=
+d byte */
+>   #define REG_CON_ACTACK    BIT(6) /* 1: stop if NACK is received */
+>  =20
+> +#define REG_CON_TUNING_MASK GENMASK(15, 8)
+> +
+> +#define REG_CON_SDA_CFG(cfg) ((cfg) << 8)
+> +#define REG_CON_STA_CFG(cfg) ((cfg) << 12)
+> +#define REG_CON_STO_CFG(cfg) ((cfg) << 14)
+> +
+>   /* REG_MRXADDR bits */
+>   #define REG_MRXADDR_VALID(x) BIT(24 + (x)) /* [x*8+7:x*8] of MRX[R]=
+ADDR valid */
+>  =20
+> @@ -77,40 +83,62 @@ enum {
+>  =20
+>   /**
+>    * struct i2c_spec_values:
+> + * @min_hold_start_ns: min hold time (repeated) START condition
+>    * @min_low_ns: min LOW period of the SCL clock
+>    * @min_high_ns: min HIGH period of the SCL cloc
+>    * @min_setup_start_ns: min set-up time for a repeated START condit=
+io
+>    * @max_data_hold_ns: max data hold time
+> + * @min_data_setup_ns: min data set-up time
+> + * @min_setup_stop_ns: min set-up time for STOP condition
+> + * @min_hold_buffer_ns: min bus free time between a STOP and
+> + * START condition
+>    */
+>   struct i2c_spec_values {
+> +	unsigned long min_hold_start_ns;
+>   	unsigned long min_low_ns;
+>   	unsigned long min_high_ns;
+>   	unsigned long min_setup_start_ns;
+>   	unsigned long max_data_hold_ns;
+> +	unsigned long min_data_setup_ns;
+> +	unsigned long min_setup_stop_ns;
+> +	unsigned long min_hold_buffer_ns;
+>   };
+>  =20
+>   static const struct i2c_spec_values standard_mode_spec =3D {
+> +	.min_hold_start_ns =3D 4000,
+>   	.min_low_ns =3D 4700,
+>   	.min_high_ns =3D 4000,
+>   	.min_setup_start_ns =3D 4700,
+>   	.max_data_hold_ns =3D 3450,
+> +	.min_data_setup_ns =3D 250,
+> +	.min_setup_stop_ns =3D 4000,
+> +	.min_hold_buffer_ns =3D 4700,
+>   };
+>  =20
+>   static const struct i2c_spec_values fast_mode_spec =3D {
+> +	.min_hold_start_ns =3D 600,
+>   	.min_low_ns =3D 1300,
+>   	.min_high_ns =3D 600,
+>   	.min_setup_start_ns =3D 600,
+>   	.max_data_hold_ns =3D 900,
+> +	.min_data_setup_ns =3D 100,
+> +	.min_setup_stop_ns =3D 600,
+> +	.min_hold_buffer_ns =3D 1300,
+>   };
+>  =20
+>   /**
+>    * struct rk3x_i2c_calced_timings:
+>    * @div_low: Divider output for low
+>    * @div_high: Divider output for high
+> + * @tuning: Used to adjust setup/hold data time,
+> + * setup/hold start time and setup stop time for
+> + * v1's calc_timings, the tuning should all be 0
+> + * for old hardware anyone using v0's calc_timings.
+>    */
+>   struct rk3x_i2c_calced_timings {
+>   	unsigned long div_low;
+>   	unsigned long div_high;
+> +	unsigned int tuning;
+>   };
+>  =20
+>   enum rk3x_i2c_state {
+> @@ -123,9 +151,12 @@ enum rk3x_i2c_state {
+>  =20
+>   /**
+>    * @grf_offset: offset inside the grf regmap for setting the i2c ty=
+pe
+> + * @calc_timings: Callback function for i2c timing information calcu=
+lated
+>    */
+>   struct rk3x_i2c_soc_data {
+>   	int grf_offset;
+> +	int (*calc_timings)(unsigned long, struct i2c_timings *,
+> +			    struct rk3x_i2c_calced_timings *);
+>   };
+>  =20
+>   /**
+> @@ -134,7 +165,8 @@ struct rk3x_i2c_soc_data {
+>    * @dev: device for this controller
+>    * @soc_data: related soc data struct
+>    * @regs: virtual memory area
+> - * @clk: clock of i2c bus
+> + * @clk: function clk for rk3399 or function & Bus clks for others
+> + * @pclk: Bus clk for rk3399
+>    * @clk_rate_nb: i2c clk rate change notify
+>    * @t: I2C known timing information
+>    * @lock: spinlock for the i2c bus
+> @@ -156,6 +188,7 @@ struct rk3x_i2c {
+>   	/* Hardware resources */
+>   	void __iomem *regs;
+>   	struct clk *clk;
+> +	struct clk *pclk;
+>   	struct notifier_block clk_rate_nb;
+>  =20
+>   	/* Settings */
+> @@ -200,12 +233,12 @@ static inline void rk3x_i2c_clean_ipd(struct rk=
+3x_i2c *i2c)
+>    */
+>   static void rk3x_i2c_start(struct rk3x_i2c *i2c)
+>   {
+> -	u32 val;
+> +	u32 val =3D i2c_readl(i2c, REG_CON) & REG_CON_TUNING_MASK;
+>  =20
+>   	i2c_writel(i2c, REG_INT_START, REG_IEN);
+>  =20
+>   	/* enable adapter with correct mode, send START condition */
+> -	val =3D REG_CON_EN | REG_CON_MOD(i2c->mode) | REG_CON_START;
+> +	val |=3D REG_CON_EN | REG_CON_MOD(i2c->mode) | REG_CON_START;
+>  =20
+>   	/* if we want to react to NACK, set ACTACK bit */
+>   	if (!(i2c->msg->flags & I2C_M_IGNORE_NAK))
+> @@ -513,9 +546,9 @@ static const struct i2c_spec_values *rk3x_i2c_get=
+_spec(unsigned int speed)
+>    * a best-effort divider value is returned in divs. If the target r=
+ate is
+>    * too high, we silently use the highest possible rate.
+>    */
+> -static int rk3x_i2c_calc_divs(unsigned long clk_rate,
+> -			      struct i2c_timings *t,
+> -			      struct rk3x_i2c_calced_timings *t_calc)
+> +static int rk3x_i2c_v0_calc_timings(unsigned long clk_rate,
+> +				    struct i2c_timings *t,
+> +				    struct rk3x_i2c_calced_timings *t_calc)
+>   {
+>   	unsigned long min_low_ns, min_high_ns;
+>   	unsigned long max_low_ns, min_total_ns;
+> @@ -661,20 +694,189 @@ static int rk3x_i2c_calc_divs(unsigned long cl=
+k_rate,
+>   	return ret;
+>   }
+>  =20
+> +/**
+> + * Calculate timing values for desired SCL frequency
+> + *
+> + * @clk_rate: I2C input clock rate
+> + * @t: Known I2C timing information
+> + * @t_calc: Caculated rk3x private timings that would be written int=
+o regs
+> +
 
-> > +		pm_runtime_put(&priv->pci_dev->dev);
-> > +	}
-> > +	mutex_unlock(&priv->acpi_lock);
-> > +}
-> > +#else
-> > +static inline int i801_acpi_probe(struct i801_priv *priv) { return=
- 0; }
-> > +static inline void i801_acpi_remove(struct i801_priv *priv) { }
-> > +#endif
-> > +
-> >  static int i801_probe(struct pci_dev *dev, const struct pci_device=
-_id *id)
-> >  {
-> >  	unsigned char temp;
-> > @@ -1277,6 +1374,7 @@ static int i801_probe(struct pci_dev *dev, co=
-nst struct pci_device_id *id)
-> >  	priv->adapter.dev.parent =3D &dev->dev;
-> >  	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&dev->dev))=
-;
-> >  	priv->adapter.retries =3D 3;
-> > +	mutex_init(&priv->acpi_lock);
-> > =20
-> >  	priv->pci_dev =3D dev;
-> >  	switch (dev->device) {
-> > @@ -1339,10 +1437,9 @@ static int i801_probe(struct pci_dev *dev, c=
-onst struct pci_device_id *id)
-> >  		return -ENODEV;
-> >  	}
-> > =20
-> > -	err =3D acpi_check_resource_conflict(&dev->resource[SMBBAR]);
-> > -	if (err) {
-> > -		return -ENODEV;
-> > -	}
-> > +	err =3D i801_acpi_probe(priv);
-> > +	if (err)
-> > +		return err;
->=20
-> Before your patch we would return -ENODEV in case of conflict. Now we
-> are returning -EBUSY instead. I see no reason for this change. Or if
-> you think this is actually needed, that seems independent from what
-> your patch is doing, so it should be a separate patch.
+miss the '* ' , i guess
+> + * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. =
+In that case
+> + * a best-effort divider value is returned in divs. If the target ra=
+te is
+> + * too high, we silently use the highest possible rate.
+> + * The following formulas are v1's method to calculate timings.
+> + *
+> + * l =3D divl + 1;
+> + * h =3D divh + 1;
+> + * s =3D sda_update_config + 1;
+> + * u =3D start_setup_config + 1;
+> + * p =3D stop_setup_config + 1;
+> + * T =3D Tclk_i2c;
+> +
 
-Returning -ENODEV seems to be right thing to do. I'll change it in the
-next version.
+Ditto
+> + * tHigh =3D 8 * h * T;
+> + * tLow =3D 8 * l * T;
+> +
 
-> > =20
-> >  	err =3D pcim_iomap_regions(dev, 1 << SMBBAR,
-> >  				 dev_driver_string(&dev->dev));
-> > @@ -1439,6 +1536,7 @@ static void i801_remove(struct pci_dev *dev)
-> >  	pm_runtime_forbid(&dev->dev);
-> >  	pm_runtime_get_noresume(&dev->dev);
-> > =20
-> > +	i801_acpi_remove(priv);
-> >  	i801_del_mux(priv);
-> >  	i2c_del_adapter(&priv->adapter);
->=20
-> This looks racy. Until i2c_del_adapter() is called, the SMBus may be
-> used. So I think you should call i801_acpi_remove() after
-> i2c_del_adapter().
+Ditto
+> + * tHD;sda =3D (l * s + 1) * T;
+> + * tSU;sda =3D [(8 - s) * l + 1] * T;
+> + * tI2C =3D 8 * (l + h) * T;
+> +
 
-That's right. I'll move the call to happen after i2c_del_adapter() is
-called.
+Ditto
+> + * tSU;sta =3D (8h * u + 1) * T;
+> + * tHD;sta =3D [8h * (u + 1) - 1] * T;
+> + * tSU;sto =3D (8h * p + 1) * T;
+> + */
+> +static int rk3x_i2c_v1_calc_timings(unsigned long clk_rate,
+> +				    struct i2c_timings *t,
+> +				    struct rk3x_i2c_calced_timings *t_calc)
+> +{
+> +	unsigned long min_low_ns, min_high_ns, min_total_ns;
+> +	unsigned long min_setup_start_ns, min_setup_data_ns;
+> +	unsigned long min_setup_stop_ns, max_hold_data_ns;
+> +
+> +	unsigned long clk_rate_khz, scl_rate_khz;
+> +
+> +	unsigned long min_low_div, min_high_div;
+> +
+> +	unsigned long min_div_for_hold, min_total_div;
+> +	unsigned long extra_div, extra_low_div;
+> +	unsigned long sda_update_cfg, stp_sta_cfg, stp_sto_cfg;
+> +
+> +	const struct i2c_spec_values *spec;
+> +	int ret =3D 0;
+> +
+> +	/* Support standard-mode and fast-mode */
+> +	if (WARN_ON(t->bus_freq_hz > 400000))
+> +		t->bus_freq_hz =3D 400000;
+> +
+> +	/* prevent scl_rate_khz from becoming 0 */
+> +	if (WARN_ON(t->bus_freq_hz < 1000))
+> +		t->bus_freq_hz =3D 1000;
+> +
+> +	/*
+> +	 * min_low_ns: The minimum number of ns we need to hold low to
+> +	 *	       meet I2C specification, should include fall time.
+> +	 * min_high_ns: The minimum number of ns we need to hold high to
+> +	 *	        meet I2C specification, should include rise time.
+> +	 */
+> +	spec =3D rk3x_i2c_get_spec(t->bus_freq_hz);
+> +
+> +	/* calculate min-divh and min-divl */
+> +	clk_rate_khz =3D DIV_ROUND_UP(clk_rate, 1000);
+> +	scl_rate_khz =3D t->bus_freq_hz / 1000;
+> +	min_total_div =3D DIV_ROUND_UP(clk_rate_khz, scl_rate_khz * 8);
+> +
+> +	min_high_ns =3D t->scl_rise_ns + spec->min_high_ns;
+> +	min_high_div =3D DIV_ROUND_UP(clk_rate_khz * min_high_ns, 8 * 10000=
+00);
+> +
+> +	min_low_ns =3D t->scl_fall_ns + spec->min_low_ns;
+> +	min_low_div =3D DIV_ROUND_UP(clk_rate_khz * min_low_ns, 8 * 1000000=
+);
+> +
+> +	/*
+> +	 * Final divh and divl must be greater than 0, otherwise the
+> +	 * hardware would not output the i2c clk.
+> +	 */
+> +	min_high_div =3D (min_high_div < 1) ? 2 : min_high_div;
+> +	min_low_div =3D (min_low_div < 1) ? 2 : min_low_div;
+> +
+> +	/* These are the min dividers needed for min hold times. */
+> +	min_div_for_hold =3D (min_low_div + min_high_div);
+> +	min_total_ns =3D min_low_ns + min_high_ns;
+> +
+> +	/*
+> +	 * This is the maximum divider so we don't go over the maximum.
+> +	 * We don't round up here (we round down) since this is a maximum.
+> +	 */
+> +	 if (min_div_for_hold >=3D min_total_div) {
+> +		/*
+> +		 * Time needed to meet hold requirements is important.
+> +		 * Just use that.
+> +		 */
+> +		t_calc->div_low =3D min_low_div;
+> +		t_calc->div_high =3D min_high_div;
+> +	} else {
+> +		/*
+> +		 * We've got to distribute some time among the low and high
+> +		 * so we don't run too fast.
+> +		 * We'll try to split things up by the scale of min_low_div and
+> +		 * min_high_div, biasing slightly towards having a higher div
+> +		 * for low (spend more time low).
+> +		 */
+> +		extra_div =3D min_total_div - min_div_for_hold;
+> +		extra_low_div =3D DIV_ROUND_UP(min_low_div * extra_div,
+> +					     min_div_for_hold);
+> +
+> +		t_calc->div_low =3D min_low_div + extra_low_div;
+> +		t_calc->div_high =3D min_high_div + (extra_div - extra_low_div);
+> +	}
+> +
+> +	/*
+> +	 * calculate sda data hold count by the rules, data_upd_st:3
+> +	 * is a appropriate value to reduce calculated times.
+> +	 */
+> +	for (sda_update_cfg =3D 3; sda_update_cfg > 0; sda_update_cfg--) {
+> +		max_hold_data_ns =3D  DIV_ROUND_UP((sda_update_cfg
+> +						 * (t_calc->div_low) + 1)
+> +						 * 1000000, clk_rate_khz);
+> +		min_setup_data_ns =3D  DIV_ROUND_UP(((8 - sda_update_cfg)
+> +						 * (t_calc->div_low) + 1)
+> +						 * 1000000, clk_rate_khz);
+> +		if ((max_hold_data_ns < spec->max_data_hold_ns) &&
+> +		    (min_setup_data_ns > spec->min_data_setup_ns))
+> +			break;
+> +	}
+> +
+> +	/* calculate setup start config */
+> +	min_setup_start_ns =3D t->scl_rise_ns + spec->min_setup_start_ns;
+> +	stp_sta_cfg =3D DIV_ROUND_UP(clk_rate_khz * min_setup_start_ns
+> +			   - 1000000, 8 * 1000000 * (t_calc->div_high));
+> +
+> +	/* calculate setup stop config */
+> +	min_setup_stop_ns =3D t->scl_rise_ns + spec->min_setup_stop_ns;
+> +	stp_sto_cfg =3D DIV_ROUND_UP(clk_rate_khz * min_setup_stop_ns
+> +			   - 1000000, 8 * 1000000 * (t_calc->div_high));
+> +
+> +	t_calc->tuning =3D REG_CON_SDA_CFG(--sda_update_cfg) |
+> +			 REG_CON_STA_CFG(--stp_sta_cfg) |
+> +			 REG_CON_STO_CFG(--stp_sto_cfg);
+> +
+> +	t_calc->div_low--;
+> +	t_calc->div_high--;
+> +
+> +	/* Maximum divider supported by hw is 0xffff */
+> +	if (t_calc->div_low > 0xffff) {
+> +		t_calc->div_low =3D 0xffff;
+> +		ret =3D -EINVAL;
+> +	}
+> +
+> +	if (t_calc->div_high > 0xffff) {
+> +		t_calc->div_high =3D 0xffff;
+> +		ret =3D -EINVAL;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+>   static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long =
+clk_rate)
+>   {
+>   	struct i2c_timings *t =3D &i2c->t;
+>   	struct rk3x_i2c_calced_timings calc;
+>   	u64 t_low_ns, t_high_ns;
+> +	u32 val;
+>   	int ret;
+>  =20
+> -	ret =3D rk3x_i2c_calc_divs(clk_rate, t, &calc);
+> +	ret =3D i2c->soc_data->calc_timings(clk_rate, t, &calc);
+>   	WARN_ONCE(ret !=3D 0, "Could not reach SCL freq %u", t->bus_freq_h=
+z);
+>  =20
+> -	clk_enable(i2c->clk);
+> +	clk_enable(i2c->pclk);
+> +
+>   	i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low & 0xffff),
+>   		   REG_CLKDIV);
+> -	clk_disable(i2c->clk);
+> +
+> +	val =3D i2c_readl(i2c, REG_CON);
+> +	val &=3D ~REG_CON_TUNING_MASK;
+> +	val |=3D calc.tuning;
+> +	i2c_writel(i2c, val, REG_CON);
+> +
+> +	clk_disable(i2c->pclk);
+>  =20
+>   	t_low_ns =3D div_u64(((u64)calc.div_low + 1) * 8 * 1000000000, clk=
+_rate);
+>   	t_high_ns =3D div_u64(((u64)calc.div_high + 1) * 8 * 1000000000,
+> @@ -712,7 +914,13 @@ static int rk3x_i2c_clk_notifier_cb(struct notif=
+ier_block *nb, unsigned long
+>  =20
+>   	switch (event) {
+>   	case PRE_RATE_CHANGE:
+> -		if (rk3x_i2c_calc_divs(ndata->new_rate, &i2c->t, &calc) !=3D 0)
+> +		/*
+> +		 * Try the calculation (but don't store the result) ahead of
+> +		 * time to see if we need to block the clock change.  Timings
+> +		 * shouldn't actually take effect until rk3x_i2c_adapt_div().
+> +		 */
+> +		if (i2c->soc_data->calc_timings(ndata->new_rate, &i2c->t,
+> +						&calc) !=3D 0)
+>   			return NOTIFY_STOP;
+>  =20
+>   		/* scale up */
+> @@ -822,12 +1030,14 @@ static int rk3x_i2c_xfer(struct i2c_adapter *a=
+dap,
+>   {
+>   	struct rk3x_i2c *i2c =3D (struct rk3x_i2c *)adap->algo_data;
+>   	unsigned long timeout, flags;
+> +	u32 val;
+>   	int ret =3D 0;
+>   	int i;
+>  =20
+>   	spin_lock_irqsave(&i2c->lock, flags);
+>  =20
+>   	clk_enable(i2c->clk);
+> +	clk_enable(i2c->pclk);
+>  =20
+>   	i2c->is_last_msg =3D false;
+>  =20
+> @@ -861,7 +1071,9 @@ static int rk3x_i2c_xfer(struct i2c_adapter *ada=
+p,
+>  =20
+>   			/* Force a STOP condition without interrupt */
+>   			i2c_writel(i2c, 0, REG_IEN);
+> -			i2c_writel(i2c, REG_CON_EN | REG_CON_STOP, REG_CON);
+> +			val =3D i2c_readl(i2c, REG_CON) & REG_CON_TUNING_MASK;
+> +			val |=3D REG_CON_EN | REG_CON_STOP;
+> +			i2c_writel(i2c, val, REG_CON);
+>  =20
+>   			i2c->state =3D STATE_IDLE;
+>  =20
+> @@ -875,7 +1087,9 @@ static int rk3x_i2c_xfer(struct i2c_adapter *ada=
+p,
+>   		}
+>   	}
+>  =20
+> +	clk_disable(i2c->pclk);
+>   	clk_disable(i2c->clk);
+> +
+>   	spin_unlock_irqrestore(&i2c->lock, flags);
+>  =20
+>   	return ret < 0 ? ret : num;
+> @@ -893,18 +1107,27 @@ static const struct i2c_algorithm rk3x_i2c_alg=
+orithm =3D {
+>  =20
+>   static const struct rk3x_i2c_soc_data rk3066_soc_data =3D {
+>   	.grf_offset =3D 0x154,
+> +	.calc_timings =3D rk3x_i2c_v0_calc_timings,
+>   };
+>  =20
+>   static const struct rk3x_i2c_soc_data rk3188_soc_data =3D {
+>   	.grf_offset =3D 0x0a4,
+> +	.calc_timings =3D rk3x_i2c_v0_calc_timings,
+>   };
+>  =20
+>   static const struct rk3x_i2c_soc_data rk3228_soc_data =3D {
+>   	.grf_offset =3D -1,
+> +	.calc_timings =3D rk3x_i2c_v0_calc_timings,
+>   };
+>  =20
+>   static const struct rk3x_i2c_soc_data rk3288_soc_data =3D {
+>   	.grf_offset =3D -1,
+> +	.calc_timings =3D rk3x_i2c_v0_calc_timings,
+> +};
+> +
+> +static const struct rk3x_i2c_soc_data rk3399_soc_data =3D {
+> +	.grf_offset =3D -1,
+> +	.calc_timings =3D rk3x_i2c_v1_calc_timings,
+>   };
+>  =20
+>   static const struct of_device_id rk3x_i2c_match[] =3D {
+> @@ -924,6 +1147,10 @@ static const struct of_device_id rk3x_i2c_match=
+[] =3D {
+>   		.compatible =3D "rockchip,rk3288-i2c",
+>   		.data =3D (void *)&rk3288_soc_data
+>   	},
+> +	{
+> +		.compatible =3D "rockchip,rk3399-i2c",
+> +		.data =3D (void *)&rk3399_soc_data
+> +	},
+>   	{},
+>   };
+>   MODULE_DEVICE_TABLE(of, rk3x_i2c_match);
+> @@ -963,12 +1190,6 @@ static int rk3x_i2c_probe(struct platform_devic=
+e *pdev)
+>   	spin_lock_init(&i2c->lock);
+>   	init_waitqueue_head(&i2c->wait);
+>  =20
+> -	i2c->clk =3D devm_clk_get(&pdev->dev, NULL);
+> -	if (IS_ERR(i2c->clk)) {
+> -		dev_err(&pdev->dev, "cannot get clock\n");
+> -		return PTR_ERR(i2c->clk);
+> -	}
+> -
+>   	mem =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>   	i2c->regs =3D devm_ioremap_resource(&pdev->dev, mem);
+>   	if (IS_ERR(i2c->regs))
+> @@ -1022,17 +1243,44 @@ static int rk3x_i2c_probe(struct platform_dev=
+ice *pdev)
+>  =20
+>   	platform_set_drvdata(pdev, i2c);
+>  =20
+> +	if (i2c->soc_data->calc_timings =3D=3D rk3x_i2c_v0_calc_timings) {
+> +		/* Only one clock to use for bus clock and peripheral clock */
+> +		i2c->clk =3D devm_clk_get(&pdev->dev, NULL);
+> +		i2c->pclk =3D i2c->clk;
+> +	} else {
+> +		i2c->clk =3D devm_clk_get(&pdev->dev, "i2c");
+> +		i2c->pclk =3D devm_clk_get(&pdev->dev, "pclk");
+> +	}
+> +
+> +	if (IS_ERR(i2c->clk)) {
+> +		ret =3D PTR_ERR(i2c->clk);
+> +		if (ret !=3D -EPROBE_DEFER)
+> +			dev_err(&pdev->dev, "Can't get bus clk: %d\n", ret);
+> +		return ret;
+> +	}
+> +	if (IS_ERR(i2c->pclk)) {
+> +		ret =3D PTR_ERR(i2c->pclk);
+> +		if (ret !=3D -EPROBE_DEFER)
+> +			dev_err(&pdev->dev, "Can't get periph clk: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+>   	ret =3D clk_prepare(i2c->clk);
+>   	if (ret < 0) {
+> -		dev_err(&pdev->dev, "Could not prepare clock\n");
+> +		dev_err(&pdev->dev, "Can't prepare bus clk: %d\n", ret);
+>   		return ret;
+>   	}
+> +	ret =3D clk_prepare(i2c->pclk);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "Can't prepare periph clock: %d\n", ret);
+> +		goto err_clk;
+> +	}
+>  =20
+>   	i2c->clk_rate_nb.notifier_call =3D rk3x_i2c_clk_notifier_cb;
+>   	ret =3D clk_notifier_register(i2c->clk, &i2c->clk_rate_nb);
+>   	if (ret !=3D 0) {
+>   		dev_err(&pdev->dev, "Unable to register clock notifier\n");
+> -		goto err_clk;
+> +		goto err_pclk;
+>   	}
+>  =20
+>   	clk_rate =3D clk_get_rate(i2c->clk);
+> @@ -1050,6 +1298,8 @@ static int rk3x_i2c_probe(struct platform_devic=
+e *pdev)
+>  =20
+>   err_clk_notifier:
+>   	clk_notifier_unregister(i2c->clk, &i2c->clk_rate_nb);
+> +err_pclk:
+> +	clk_unprepare(i2c->pclk);
+>   err_clk:
+>   	clk_unprepare(i2c->clk);
+>   	return ret;
+> @@ -1062,6 +1312,7 @@ static int rk3x_i2c_remove(struct platform_devi=
+ce *pdev)
+>   	i2c_del_adapter(&i2c->adap);
+>  =20
+>   	clk_notifier_unregister(i2c->clk, &i2c->clk_rate_nb);
+> +	clk_unprepare(i2c->pclk);
+>   	clk_unprepare(i2c->clk);
+>  =20
+>   	return 0;
 
-Thanks for the review.
---
-To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--=20
+Thanks,
+Caesar
