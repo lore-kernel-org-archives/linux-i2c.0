@@ -1,88 +1,42 @@
-From: Caesar Wang <caesar.upstream@gmail.com>
-Subject: Re: [PATCH v8 8/8] i2c: rk3x: support fast-mode plus for rk3399
-Date: Wed, 11 May 2016 19:44:58 +0800
-Message-ID: <57331B3A.7050801@gmail.com>
-References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
- <1462908794-27333-1-git-send-email-david.wu@rock-chips.com>
+From: Mason <slash.tmp@free.fr>
+Subject: [PATCH] i2c: xlr: rename ARCH_TANGOX to ARCH_TANGO
+Date: Wed, 11 May 2016 16:27:57 +0200
+Message-ID: <5733416D.70409@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462908794-27333-1-git-send-email-david.wu@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Wu <david.wu@rock-chips.com>
-Cc: heiko@sntech.de, wsa@the-dreams.de, mark.rutland@arm.com, huangtao@rock-chips.com, xjq@rock-chips.com, hl@rock-chips.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org, dianders@chromium.org, linux-kernel@vger.kernel.org, cf@rock-chips.com, andy.shevchenko@gmail.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, galak@codeaurora.org, zyw@rock-chips.com, briannorris@google.com, davidriley@google.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp2-g21.free.fr ([212.27.42.2]:22183 "EHLO smtp2-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751587AbcEKO2K (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 11 May 2016 10:28:10 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Mans Rullgard <mans@mansr.com>, Sebastian Frias <sf84@laposte.net>
 
+From: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
 
+The ARCH name was changed during the review process.
+http://article.gmane.org/gmane.linux.ports.arm.kernel/456331
 
-=E5=9C=A8 2016=E5=B9=B405=E6=9C=8811=E6=97=A5 03:33, David Wu =E5=86=99=
-=E9=81=93:
-> Signed-off-by: David Wu <david.wu@rock-chips.com>
-> Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+---
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Tested-by: Caesar Wang <wxt@rock-chips.com>
-> ---
-> Change in v8:
-> - None
->
->   drivers/i2c/busses/i2c-rk3x.c | 21 +++++++++++++++++----
->   1 file changed, 17 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-r=
-k3x.c
-> index 25ed1ad..0ba25ee 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -126,6 +126,17 @@ static const struct i2c_spec_values fast_mode_sp=
-ec =3D {
->   	.min_hold_buffer_ns =3D 1300,
->   };
->  =20
-> +static const struct i2c_spec_values fast_mode_plus_spec =3D {
-> +	.min_hold_start_ns =3D 260,
-> +	.min_low_ns =3D 500,
-> +	.min_high_ns =3D 260,
-> +	.min_setup_start_ns =3D 260,
-> +	.max_data_hold_ns =3D 400,
-> +	.min_data_setup_ns =3D 50,
-> +	.min_setup_stop_ns =3D 260,
-> +	.min_hold_buffer_ns =3D 500,
-> +};
-> +
->   /**
->    * struct rk3x_i2c_calced_timings:
->    * @div_low: Divider output for low
-> @@ -531,8 +542,10 @@ static const struct i2c_spec_values *rk3x_i2c_ge=
-t_spec(unsigned int speed)
->   {
->   	if (speed <=3D 100000)
->   		return &standard_mode_spec;
-> -	else
-> +	else if (speed <=3D 400000)
->   		return &fast_mode_spec;
-> +	else
-> +		return &fast_mode_plus_spec;
->   }
->  =20
->   /**
-> @@ -743,9 +756,9 @@ static int rk3x_i2c_v1_calc_timings(unsigned long=
- clk_rate,
->   	const struct i2c_spec_values *spec;
->   	int ret =3D 0;
->  =20
-> -	/* Support standard-mode and fast-mode */
-> -	if (WARN_ON(t->bus_freq_hz > 400000))
-> -		t->bus_freq_hz =3D 400000;
-> +	/* Support standard-mode, fast-mode and fast-mode plus */
-> +	if (WARN_ON(t->bus_freq_hz > 1000000))
-> +		t->bus_freq_hz =3D 1000000;
->  =20
->   	/* prevent scl_rate_khz from becoming 0 */
->   	if (WARN_ON(t->bus_freq_hz < 1000))
-
-
---=20
-Thanks,
-Caesar
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 2dd40ddf04de..d8d18ed65440 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -965,7 +965,7 @@ config I2C_XILINX
+ 
+ config I2C_XLR
+ 	tristate "Netlogic XLR and Sigma Designs I2C support"
+-	depends on CPU_XLR || ARCH_TANGOX
++	depends on CPU_XLR || ARCH_TANGO
+ 	help
+ 	  This driver enables support for the on-chip I2C interface of
+ 	  the Netlogic XLR/XLS MIPS processors and Sigma Designs SOCs.
+-- 
+2.8.1
