@@ -1,50 +1,79 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: i2c-i801 partially broken on Lynx Point PCH?
-Date: Wed, 11 May 2016 19:34:31 +0200
-Message-ID: <1462988071.6344.0.camel@chaos.suse>
-References: <20160511093452.5bc2614c@endymion>
-	 <20160511104322.60521365@endymion>
-	 <DEC3922D1904474A8862C7BFF516EA9A94FB736C@ORSMSX101.amr.corp.intel.com>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v8 7/8] i2c: rk3x: add i2c support for rk3399 soc
+Date: Wed, 11 May 2016 10:37:57 -0700
+Message-ID: <CAD=FV=Uf-U3RBpgFbR3LkPAJTWqz3d02+H7iyA-SS-y=r3cXjA@mail.gmail.com>
+References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
+	<1462908698-27284-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50622 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752417AbcEKRee (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 11 May 2016 13:34:34 -0400
-In-Reply-To: <DEC3922D1904474A8862C7BFF516EA9A94FB736C@ORSMSX101.amr.corp.intel.com>
+Received: from mail-vk0-f44.google.com ([209.85.213.44]:35919 "EHLO
+	mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752007AbcEKRh7 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 13:37:59 -0400
+Received: by mail-vk0-f44.google.com with SMTP id s184so66272930vkb.3
+        for <linux-i2c@vger.kernel.org>; Wed, 11 May 2016 10:37:58 -0700 (PDT)
+In-Reply-To: <1462908698-27284-1-git-send-email-david.wu@rock-chips.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Heasley, Seth" <seth.heasley@intel.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: David Wu <david.wu@rock-chips.com>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On mer., 2016-05-11 at 16:15 +0000, Heasley, Seth wrote:
-> Hi Jean,
-> 
-> > On Wed, 11 May 2016 09:34:52 +0200, Jean Delvare wrote:
-> > > In commit 062737fb6d90 you added support for the Intel Lynx Point PCH
-> > > to the i2c-i801 driver. I happen to have a machine with this chipset
-> > > since a few weeks, and found that the i2c-i801 driver doesn't work
-> > > properly on it. Specifically, the eeprom driver return 0xff for all
-> > > EEPROM bytes. The at24 driver fails too, with a timeout.
-> > >
-> > > After some testing using i2cdetect, i2cdump and i2cget, I found that
-> > > some I2C transactions work (SMBUS_QUICK, SMBUS_READ_BYTE,
-> > > SMBUS_READ_BYTE_DATA, SMBUS_READ_WORD_DATA,
-> > SMBUS_READ_BLOCK_DATA),
-> > > however others do not (SMBUS_WRITE_BYTE, SMBUS_READ_I2C_BLOCK.) I
-> > > can't easily test other transaction types as all I have on the SMBus
-> > > are SPD EEPROMs on my memory modules.
-> > >
-> > > Did you test the i2c-i801 driver on an actual Lynx Point PCH chipset?
-> > > Or did you only add the PCI ID of the device, assuming it would work?
-> 
-> I tested on an Intel system with Lynx Point and saw everything working, consistent with what you're seeing on the SUSE system.
+Hi,
 
-Do you happen to know which revision it was?
+On Tue, May 10, 2016 at 12:31 PM, David Wu <david.wu@rock-chips.com> wrote:
+>  static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
+>  {
+>         struct i2c_timings *t = &i2c->t;
+>         struct rk3x_i2c_calced_timings calc;
+>         u64 t_low_ns, t_high_ns;
+> +       u32 val;
+>         int ret;
+>
+> -       ret = rk3x_i2c_calc_divs(clk_rate, t, &calc);
+> +       ret = i2c->soc_data->calc_timings(clk_rate, t, &calc);
+>         WARN_ONCE(ret != 0, "Could not reach SCL freq %u", t->bus_freq_hz);
+>
+> -       clk_enable(i2c->clk);
+> +       clk_enable(i2c->pclk);
+> +
+>         i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low & 0xffff),
+>                    REG_CLKDIV);
+> -       clk_disable(i2c->clk);
+> +
+> +       val = i2c_readl(i2c, REG_CON);
+> +       val &= ~REG_CON_TUNING_MASK;
+> +       val |= calc.tuning;
+> +       i2c_writel(i2c, val, REG_CON);
 
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+Another subtle bug here.  You need to be holding the spinlock here
+since you're doing a read-modify-write of a register that is also
+touched by the interrupt handler.  We never needed it before because
+the previous register update wasn't touched by anyone else and it was
+a single atomic write.
+
+Also: technically if we are midway through a transfer when all this
+happens then there will be a very short period of time when the two
+timing-related registers won't match with each other.  I have no idea
+how much that would matter, but in the very least it seems wise to
+minimize the time where they mismatch.  So I'd probably write:
+
+       spin_lock_irqsave(&i2c->lock, flags);
+       val = i2c_readl(i2c, REG_CON);
+       val &= ~REG_CON_TUNING_MASK;
+       val |= calc.tuning;
+       i2c_writel(i2c, val, REG_CON);
+       i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low & 0xffff),
+                  REG_CLKDIV);
+       spin_unlock_irqrestore(&i2c->lock, flags);
+
+...if we really end up with on a system with a dynamically changing
+clock that uses the new-style timing and we see real problems, we can
+always try to come up with a way to avoid any problems.  Sound OK?
+
+
+Otherwise, I think things look good to me.  Caesar's comments would
+also be good to fix.
+
+
+-Doug
