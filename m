@@ -1,153 +1,38 @@
-From: Naveen Kaje <nkaje@codeaurora.org>
-Subject: [PATCH v2 2/2] i2c: qup: support SMBus block read
-Date: Wed, 11 May 2016 16:45:36 -0600
-Message-ID: <1463006736-24652-2-git-send-email-nkaje@codeaurora.org>
-References: <1463006736-24652-1-git-send-email-nkaje@codeaurora.org>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v8 8/8] i2c: rk3x: support fast-mode plus for rk3399
+Date: Wed, 11 May 2016 16:41:54 -0700
+Message-ID: <CAD=FV=VzQ8PRokgAaTV00L31mcXFEzBG8c1NB4+Rqyx75hwwDg@mail.gmail.com>
+References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
+	<1462908794-27333-1-git-send-email-david.wu@rock-chips.com>
+	<5153288.jNhUuzGC3g@phil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:55561 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751632AbcEKWpo (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 18:45:44 -0400
-In-Reply-To: <1463006736-24652-1-git-send-email-nkaje@codeaurora.org>
+Received: from mail-vk0-f47.google.com ([209.85.213.47]:35565 "EHLO
+	mail-vk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751682AbcEKXlz (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 19:41:55 -0400
+Received: by mail-vk0-f47.google.com with SMTP id f66so77507039vkh.2
+        for <linux-i2c@vger.kernel.org>; Wed, 11 May 2016 16:41:55 -0700 (PDT)
+In-Reply-To: <5153288.jNhUuzGC3g@phil>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-arm-kernel@lists.infrared.org, linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, austinwc@codeaurora.org, Naveen Kaje <nkaje@codeaurora.org>
+To: Heiko Stuebner <heiko@sntech.de>
+Cc: David Wu <david.wu@rock-chips.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-I2C QUP driver relies on SMBus emulation support from the framework.
-To handle SMBus block reads, the driver should check I2C_M_RECV_LEN
-flag and should read the first byte received as the message length.
+Heiko,
 
-The driver configures the QUP hardware to read one byte. Once the
-message length is known from this byte, the QUP hardware is configured
-to read the rest.
+On Wed, May 11, 2016 at 2:09 PM, Heiko Stuebner <heiko@sntech.de> wrote:
+> Additionally, the i2c-noob in me would wish for a short sentence on where
+> the timing values come from (measured, somewhere in the TRM I didn't find or
+> something completely different).
 
-Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
----
- drivers/i2c/busses/i2c-qup.c | 72 ++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 69 insertions(+), 3 deletions(-)
+If you search for "UM10204" you'll find the first link is
+<http://www.nxp.com/documents/user_manual/UM10204.pdf>.  That appears
+to be the official standard.  At least that's what
+<http://www.i2c-bus.org/fast-mode-plus/> says (though they have an old
+link).
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 559947c..2ca18d8 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -517,6 +517,39 @@ static int qup_i2c_get_data_len(struct qup_i2c_dev *qup)
- 	return data_len;
- }
- 
-+static bool qup_i2c_check_msg_len(struct i2c_msg *msg)
-+{
-+	return ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN));
-+}
-+
-+static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
-+			struct i2c_msg *msg)
-+{
-+	int len = 0;
-+	int data_len = qup_i2c_get_data_len(qup);
-+
-+	if (msg->len > 1) {
-+		tags[len++] = QUP_TAG_V2_DATARD_STOP;
-+		tags[len++] = data_len - 1;
-+	} else {
-+		if (qup->blk.pos == 0) {
-+			tags[len++] = QUP_TAG_V2_START;
-+			tags[len++] = addr & 0xff;
-+
-+			if (msg->flags & I2C_M_TEN)
-+				tags[len++] = addr >> 8;
-+		}
-+
-+		tags[len++] = QUP_TAG_V2_DATARD;
-+		/* 0 implies 256 bytes */
-+		if (data_len == QUP_READ_LIMIT)
-+			tags[len++] = 0;
-+		else
-+			tags[len++] = data_len;
-+	}
-+	return len;
-+}
-+
- static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 			    struct i2c_msg *msg,  int is_dma)
- {
-@@ -526,6 +559,10 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 
- 	int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
- 
-+	/* Handle tags for SMBus block read */
-+	if (qup_i2c_check_msg_len(msg))
-+		return qup_i2c_set_tags_smb(addr, tags, qup, msg);
-+
- 	if (qup->blk.pos == 0) {
- 		tags[len++] = QUP_TAG_V2_START;
- 		tags[len++] = addr & 0xff;
-@@ -1065,9 +1102,17 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
- 				struct i2c_msg *msg)
- {
- 	u32 val;
--	int idx, pos = 0, ret = 0, total;
-+	int idx, pos = 0, ret = 0, total, msg_offset = 0;
- 
-+	/*
-+	 * If the message length is already read in
-+	 * the first byte of the buffer, account for
-+	 * that by setting the offset
-+	 */
-+	if (qup_i2c_check_msg_len(msg) && (msg->len > 1))
-+		msg_offset = 1;
- 	total = qup_i2c_get_data_len(qup);
-+	total -= msg_offset;
- 
- 	/* 2 extra bytes for read tags */
- 	while (pos < (total + 2)) {
-@@ -1087,8 +1132,8 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
- 
- 			if (pos >= (total + 2))
- 				goto out;
--
--			msg->buf[qup->pos++] = val & 0xff;
-+			msg->buf[qup->pos+msg_offset] = val & 0xff;
-+			qup->pos++;
- 		}
- 	}
- 
-@@ -1128,6 +1173,22 @@ static int qup_i2c_read_one_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 			goto err;
- 
- 		qup->blk.pos++;
-+
-+		/* Handle SMBus block read length */
-+		if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
-+			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
-+				ret = -EPROTO;
-+				goto err;
-+			}
-+			msg->len += msg->buf[0];
-+			qup->pos = 0;
-+			qup_i2c_set_read_mode_v2(qup, msg->len);
-+			qup_i2c_issue_xfer_v2(qup, msg);
-+			ret = qup_i2c_wait_for_complete(qup, msg);
-+			if (ret)
-+				goto err;
-+			qup_i2c_set_blk_data(qup, msg);
-+		}
- 	} while (qup->blk.pos < qup->blk.count);
- 
- err:
-@@ -1210,6 +1271,11 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
- 			goto out;
- 		}
- 
-+		if (qup_i2c_check_msg_len(&msgs[idx])) {
-+			ret = -EOPNOTSUPP;
-+			goto out;
-+		}
-+
- 		if (msgs[idx].flags & I2C_M_RD)
- 			ret = qup_i2c_read_one(qup, &msgs[idx]);
- 		else
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project.
+Agree that it wouldn't hurt to mention that in the commit message.
+
+-Doug
