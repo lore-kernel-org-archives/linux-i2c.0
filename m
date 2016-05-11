@@ -1,82 +1,40 @@
-From: Heiko Stuebner <heiko@sntech.de>
-Subject: Re: [PATCH v8 1/8] i2c: rk3x: add documentation to fields in "struct rk3x_i2c"
-Date: Wed, 11 May 2016 17:04:49 +0200
-Message-ID: <4217955.sKb92Wcadr@phil>
-References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com> <1462908252-27016-2-git-send-email-david.wu@rock-chips.com>
+From: Mason <slash.tmp@free.fr>
+Subject: Re: [PATCH] i2c: xlr: rename ARCH_TANGOX to ARCH_TANGO
+Date: Wed, 11 May 2016 17:06:43 +0200
+Message-ID: <57334A83.6060407@free.fr>
+References: <5733416D.70409@free.fr> <20160511145536.GE1716@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462908252-27016-2-git-send-email-david.wu@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Wu <david.wu@rock-chips.com>
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp2-g21.free.fr ([212.27.42.2]:40518 "EHLO smtp2-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752012AbcEKPG5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 11 May 2016 11:06:57 -0400
+In-Reply-To: <20160511145536.GE1716@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Mans Rullgard <mans@mansr.com>, Sebastian Frias <sf84@laposte.net>
 
-Am Mittwoch, 11. Mai 2016, 03:24:05 schrieb David Wu:
+On 11/05/2016 16:55, Wolfram Sang wrote:
 
-In general, all patches should have a commit message (even if it's obvious) 
-and some maintainers even enforce this in a hard way.
-
-How about something like:
-
-----
-Add kernel-doc documentation for the elements of the previously
-undocumented struct rk3x_i2c.
-----
-
-Some minor nitpicks below, otherwise
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-
-> Signed-off-by: David Wu <david.wu@rock-chips.com>
-> Reviewed-by: Douglas Anderson <dianders@chromium.org>
-> ---
-> Change in v8:
-> - none
+> On Wed, May 11, 2016 at 04:27:57PM +0200, Mason wrote:
 > 
->  drivers/i2c/busses/i2c-rk3x.c | 22 +++++++++++++++++++++-
->  1 file changed, 21 insertions(+), 1 deletion(-)
+>> From: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+>>
+>> The ARCH name was changed during the review process.
+>> http://article.gmane.org/gmane.linux.ports.arm.kernel/456331
+>>
+>> Signed-off-by: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+>> ---
 > 
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-> index 80bed02..7e45d51 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -90,6 +90,26 @@ struct rk3x_i2c_soc_data {
->  	int grf_offset;
->  };
-> 
-> +/**
-> + * struct rk3x_i2c - private data of the controller
-> + * @adap: corresponding I2C adapter
-> + * @dev: device for this controller
-> + * @soc_data: related soc data struct
-> + * @regs: virtual memory area
-> + * @clk: clock of i2c bus
-> + * @clk_rate_nb: i2c clk rate change notify
-		^ i2c clk rate change notifier block
+> Where is your Signed-off? Where is your real name? Shouldn't there be a
+> flag day changing that all at once?
 
-> + * @t: I2C known timing information
-> + * @lock: spinlock for the i2c bus
-> + * @wait: the waitqueue to wait for i2c transfer
-> + * @busy: the condition for the event to wait for
-> + * @msg: current i2c message
-> + * @addr: addr of i2c slave device
-> + * @mode: mode of i2c transfer
-> + * @is_last_msg: flag determines whether it is the last msg in this
-> transfer + * @state: state of i2c transfer
-> + * @processed: byte length which has been send or received
-										^ sent (with a "t")
+Errr, I'm confused...
 
-> + * @error: error code for i2c transfer
-> + */
->  struct rk3x_i2c {
->  	struct i2c_adapter adap;
->  	struct device *dev;
-> @@ -116,7 +136,7 @@ struct rk3x_i2c {
-> 
->  	/* I2C state machine */
->  	enum rk3x_i2c_state state;
-> -	unsigned int processed; /* sent/received bytes */
-> +	unsigned int processed;
->  	int error;
->  };
+The patch author is "Marc Gonzalez" (a real name) with the appropriate
+Signed-off-by tag. What else are you expecting?
+
+Regards.
