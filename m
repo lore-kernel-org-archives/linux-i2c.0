@@ -1,79 +1,85 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v8 7/8] i2c: rk3x: add i2c support for rk3399 soc
-Date: Wed, 11 May 2016 10:37:57 -0700
-Message-ID: <CAD=FV=Uf-U3RBpgFbR3LkPAJTWqz3d02+H7iyA-SS-y=r3cXjA@mail.gmail.com>
-References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
-	<1462908698-27284-1-git-send-email-david.wu@rock-chips.com>
+From: Abhishek Sahu <absahu@codeaurora.org>
+Subject: RE: [PATCH 2/2] i2c: qup: Fixed the DMA segments length
+Date: Wed, 11 May 2016 23:13:58 +0530
+Message-ID: <699f798ccc0a7d36640cef42ac26a697@codeaurora.org>
+References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org>
+ <1462797871-8595-3-git-send-email-absahu@codeaurora.org>
+ <000b01d1aba0$c2fea380$48fbea80$@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-vk0-f44.google.com ([209.85.213.44]:35919 "EHLO
-	mail-vk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752007AbcEKRh7 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 13:37:59 -0400
-Received: by mail-vk0-f44.google.com with SMTP id s184so66272930vkb.3
-        for <linux-i2c@vger.kernel.org>; Wed, 11 May 2016 10:37:58 -0700 (PDT)
-In-Reply-To: <1462908698-27284-1-git-send-email-david.wu@rock-chips.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <000b01d1aba0$c2fea380$48fbea80$@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Sricharan <sricharan@codeaurora.org>
+Cc: agross@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
-To: David Wu <david.wu@rock-chips.com>
-Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi,
+On 2016-05-11 21:48, Sricharan wrote:
+> Hi,
+> 
+>> 1. The current QCOM I2C driver code is failing for transfer length 
+>> greater
+>> than 255. This is happening due to improper segments length as the I2C 
+>> DMA
+>> segments can be maximum of 256 bytes.
+>> 
+>> 2. The transfer length tlen was being initialized with 0 for 256 
+>> bytes,
+>> which is
+>> being passed for DMA mappings resulting in improper DMA mapping 
+>> length.
+>> 
+>> This patch fixes the above said problems by initializing the block 
+>> count
+>> with
+>> the values calculated in qup_i2c_set_blk_data and calculating the
+> remaining
+>> length for last DMA segment. Also, the block data length need to be
+>> decremented after each transfer. Additionally, this patch corrects the
+>> tlen
+>> assignment for DMA mapping.
+>> 
+>> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
+>> ---
+>>  drivers/i2c/busses/i2c-qup.c | 12 +++++++-----
+>>  1 file changed, 7 insertions(+), 5 deletions(-)
+>> 
+>> diff --git a/drivers/i2c/busses/i2c-qup.c 
+>> b/drivers/i2c/busses/i2c-qup.c
+>> index
+>> 8c2f1bc..6d6b7dc 100644
+>> --- a/drivers/i2c/busses/i2c-qup.c
+>> +++ b/drivers/i2c/busses/i2c-qup.c
+>> @@ -651,23 +651,24 @@ static int qup_i2c_bam_do_xfer(struct
+>> qup_i2c_dev *qup, struct i2c_msg *msg,
+>>  	u8 *tags;
+>> 
+>>  	while (idx < num) {
+>> -		blocks = (msg->len + limit) / limit;
+>> -		rem = msg->len % limit;
+>>  		tx_len = 0, len = 0, i = 0;
+>> 
+>>  		qup->is_last = (idx == (num - 1));
+>> 
+>>  		qup_i2c_set_blk_data(qup, msg);
+>> 
+>> +		blocks = qup->blk.count;
+>> +		rem = msg->len - (blocks - 1) * limit;
+>> +
+>       Same if we had blocks = (msg->len + limit - 1) / limit instead of 
+> the
+> above ?
+Yes. We calculating this inside qup_i2c_set_blk_data and assigning the 
+same value to
+qup->blk.count so I am using this to avoid redundant arithmetic 
+operations.
+>      Otherwise,
+>      Reviewed-by: Sricharan@codeaurora.org
+> 
+> Regards,
+>  Sricharan
 
-On Tue, May 10, 2016 at 12:31 PM, David Wu <david.wu@rock-chips.com> wrote:
->  static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
->  {
->         struct i2c_timings *t = &i2c->t;
->         struct rk3x_i2c_calced_timings calc;
->         u64 t_low_ns, t_high_ns;
-> +       u32 val;
->         int ret;
->
-> -       ret = rk3x_i2c_calc_divs(clk_rate, t, &calc);
-> +       ret = i2c->soc_data->calc_timings(clk_rate, t, &calc);
->         WARN_ONCE(ret != 0, "Could not reach SCL freq %u", t->bus_freq_hz);
->
-> -       clk_enable(i2c->clk);
-> +       clk_enable(i2c->pclk);
-> +
->         i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low & 0xffff),
->                    REG_CLKDIV);
-> -       clk_disable(i2c->clk);
-> +
-> +       val = i2c_readl(i2c, REG_CON);
-> +       val &= ~REG_CON_TUNING_MASK;
-> +       val |= calc.tuning;
-> +       i2c_writel(i2c, val, REG_CON);
-
-Another subtle bug here.  You need to be holding the spinlock here
-since you're doing a read-modify-write of a register that is also
-touched by the interrupt handler.  We never needed it before because
-the previous register update wasn't touched by anyone else and it was
-a single atomic write.
-
-Also: technically if we are midway through a transfer when all this
-happens then there will be a very short period of time when the two
-timing-related registers won't match with each other.  I have no idea
-how much that would matter, but in the very least it seems wise to
-minimize the time where they mismatch.  So I'd probably write:
-
-       spin_lock_irqsave(&i2c->lock, flags);
-       val = i2c_readl(i2c, REG_CON);
-       val &= ~REG_CON_TUNING_MASK;
-       val |= calc.tuning;
-       i2c_writel(i2c, val, REG_CON);
-       i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low & 0xffff),
-                  REG_CLKDIV);
-       spin_unlock_irqrestore(&i2c->lock, flags);
-
-...if we really end up with on a system with a dynamically changing
-clock that uses the new-style timing and we see real problems, we can
-always try to come up with a way to avoid any problems.  Sound OK?
-
-
-Otherwise, I think things look good to me.  Caesar's comments would
-also be good to fix.
-
-
--Doug
+-- 
+Abhishek Sahu
