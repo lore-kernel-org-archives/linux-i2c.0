@@ -1,131 +1,158 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH v8 0/8] i2c-octeon and i2c-thunderx driver
-Date: Wed, 11 May 2016 19:20:57 +0200
-Message-ID: <20160511172057.GA2687@hardcore>
-References: <1462210548-4648-1-git-send-email-jglauber@cavium.com>
+From: Naveen Kaje <nkaje@codeaurora.org>
+Subject: Re: [PATCH v2 1/3] i2c: Add parameters to sysfs-added i2c devices
+Date: Wed, 11 May 2016 11:23:29 -0600
+Message-ID: <350ff358-cddb-766a-0822-19f5de91097b@codeaurora.org>
+References: <1462896699-1627-1-git-send-email-minyard@acm.org>
+ <1462896699-1627-2-git-send-email-minyard@acm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bl2on0097.outbound.protection.outlook.com ([65.55.169.97]:10880
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751648AbcEKRVN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 11 May 2016 13:21:13 -0400
-Content-Disposition: inline
-In-Reply-To: <1462210548-4648-1-git-send-email-jglauber@cavium.com>
+Received: from smtp.codeaurora.org ([198.145.29.96]:55499 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751788AbcEKRXd (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 13:23:33 -0400
+In-Reply-To: <1462896699-1627-2-git-send-email-minyard@acm.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>
-
-Hi Wolfram,
-
-we want to add ACPI support to the ThunderX i2c driver
-because it is meant for servers and some distributions
-require ACPI there. The changes are small but I'll post
-a new version of the remaining patches shortly.
-
-Thanks,
-Jan
+To: minyard@acm.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+Cc: Corey Minyard <cminyard@mvista.com>
 
 
-On Mon, May 02, 2016 at 07:35:40PM +0200, Jan Glauber wrote:
-> Hi Wolfram,
-> 
-> this are the remaining patches that implement the ThunderX driver.
-> I like to send them now even if they might not make 4.7.
-> After the Octeon parts are merged the ThunderX driver code is
-> quite straight-forward, as should be the driver split.
-> 
-> Patch #5 - #7 are (final) cleanup patches.
-> 
-> Patches are on-top of next-20160502.
-> 
-> Thanks,
-> Jan
-> 
-> -------------------------------------------------
-> 
-> Changes to v7:
-> - Sort include files also in octeon-core.c
-> - Add cleanup bool patch (left-over from v7)
-> - Dropped read-write function shuffle patch
-> 
-> Changes to v6:
-> - Fixed read_int kerneldoc
-> - Removed udelay after write-int in recovery
-> - Killed retries in recovery, use EAGAIN
-> - Disable SMBUS QUICK and remove unneeded length check
-> - Spell out enable/disable
-> - Switch to wait_event_timeout
-> - Removed superfluous status check in HLC write
-> - Optimize wait-queue also for HLC
-> - Use readq/writeq instead of __raw_* in some places
-> - Add STAT_IDLE to status check (valid after a write)
-> 
-> Changes to v5:
-> - Switch to i2c recovery framework
-> - Clean-up register access, introduce new helper functions
-> - Fixed ready bit check in combined write
-> - Fixed IFLG clear in hlc_enable
-> - Removed complicated last phase logic, not needed when we send
->   START for every message part
-> 
-> Changes to v4:
-> - Splitted the High-Level Controller patch into several patches
-> - Reworded some commit messages
-> 
-> Changes to v3:
-> - Added more functionality flags for SMBUS
-> - Removed both module parameters
-> - Make xfer return also other errors than EGAIN
-> - Return EPROTO on invalid SMBUS block length
-> - Use devm_ioremap_resource
-> - Added rename-only patch
-> - Removed kerneldoc patch from series
-> - Improved defines
-> 
-> Changes to v2:
-> - Split clenaup patch into several patches
-> - Strictly moved functional changes to later patches
-> - Fixed do-while checkpatch errors
-> - Moved defines to the patches that use them
-> - Use BIT_ULL macro
-> - Split ThunderX patch into 2 patches
-> 
-> Changes to v1:
-> - Fixed compile error on x86_64
-> - Disabled thunderx driver on MIPS
-> - Re-ordered some thunderx probe functions for readability
-> - Fix missing of_irq.h and i2c-smbus.h includes
-> - Use IS_ENABLED for CONFIG options
-> 
-> Jan
-> 
-> -------------------------------------------------
-> 
-> Jan Glauber (8):
->   i2c: octeon: Rename driver to prepare for split
->   i2c: octeon: Split the driver into two parts
->   i2c: thunderx: Add i2c driver for ThunderX SOC
->   i2c: thunderx: Add smbus alert support
->   i2c: octeon,thunderx: Move register offsets to struct
->   i2c: octeon: Sort include files alphabetically
->   i2c: cavium: Use booleon values for booleon variables
->   i2c: octeon: thunderx: Add MAINTAINERS entry
-> 
->  MAINTAINERS                                       |   25 +-
->  drivers/i2c/busses/Kconfig                        |   10 +
->  drivers/i2c/busses/Makefile                       |    3 +
->  drivers/i2c/busses/{i2c-octeon.c => i2c-cavium.c} | 1033 ++++++---------------
->  drivers/i2c/busses/i2c-cavium.h                   |  214 +++++
->  drivers/i2c/busses/i2c-octeon-core.c              |  288 ++++++
->  drivers/i2c/busses/i2c-thunderx-core.c            |  306 ++++++
->  7 files changed, 1132 insertions(+), 747 deletions(-)
->  rename drivers/i2c/busses/{i2c-octeon.c => i2c-cavium.c} (57%)
->  create mode 100644 drivers/i2c/busses/i2c-cavium.h
->  create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
->  create mode 100644 drivers/i2c/busses/i2c-thunderx-core.c
-> 
-> -- 
-> 1.9.1
+
+On 5/10/2016 10:11 AM, minyard@acm.org wrote:
+> From: Corey Minyard <cminyard@mvista.com>
+>
+> Some devices might need parameters to control their operation,
+> add the ability to pass these parameters to the client.
+>
+> This also makes the parsing of sysfs-added I2C devices a little
+> more flexible, allowing tabs and arbitrary numbers of spaces.
+>
+> Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Tested on QDF2432 with I2C IPMI client to ensure no regressions are 
+introduced.
+Tested-by: Naveen Kaje <nkaje@codeaurora.org>
+
+> ---
+>   drivers/i2c/i2c-core.c | 43 +++++++++++++++++++++++++++++++------------
+>   include/linux/i2c.h    |  3 +++
+>   2 files changed, 34 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index e584d88..069c385 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -51,6 +51,7 @@
+>   #include <linux/pm_domain.h>
+>   #include <linux/pm_runtime.h>
+>   #include <linux/pm_wakeirq.h>
+> +#include <linux/ctype.h>
+>   #include <linux/property.h>
+>   #include <linux/rwsem.h>
+>   #include <linux/slab.h>
+> @@ -780,7 +781,10 @@ static void i2c_device_shutdown(struct device *dev)
+>   
+>   static void i2c_client_dev_release(struct device *dev)
+>   {
+> -	kfree(to_i2c_client(dev));
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +
+> +	kfree(client->parms);
+> +	kfree(client);
+>   }
+>   
+>   static ssize_t
+> @@ -1047,6 +1051,13 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+>   	client->flags = info->flags;
+>   	client->addr = info->addr;
+>   	client->irq = info->irq;
+> +	if (info->parms) {
+> +		client->parms = kstrdup(info->parms, GFP_KERNEL);
+> +		if (!client->parms) {
+> +			dev_err(&adap->dev, "Out of memory allocating parms\n");
+> +			goto out_err_silent;
+> +		}
+> +	}
+>   
+>   	strlcpy(client->name, info->type, sizeof(client->name));
+>   
+> @@ -1196,31 +1207,39 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
+>   	struct i2c_adapter *adap = to_i2c_adapter(dev);
+>   	struct i2c_board_info info;
+>   	struct i2c_client *client;
+> -	char *blank, end;
+> +	char *pos, end;
+>   	int res;
+>   
+>   	memset(&info, 0, sizeof(struct i2c_board_info));
+>   
+> -	blank = strchr(buf, ' ');
+> -	if (!blank) {
+> +	pos = strpbrk(buf, " \t");
+> +	if (!pos) {
+>   		dev_err(dev, "%s: Missing parameters\n", "new_device");
+>   		return -EINVAL;
+>   	}
+> -	if (blank - buf > I2C_NAME_SIZE - 1) {
+> +	if (pos - buf > I2C_NAME_SIZE - 1) {
+>   		dev_err(dev, "%s: Invalid device name\n", "new_device");
+>   		return -EINVAL;
+>   	}
+> -	memcpy(info.type, buf, blank - buf);
+> +	memcpy(info.type, buf, pos - buf);
+>   
+> -	/* Parse remaining parameters, reject extra parameters */
+> -	res = sscanf(++blank, "%hi%c", &info.addr, &end);
+> -	if (res < 1) {
+> +	while (isspace(*pos))
+> +		pos++;
+> +
+> +	/* Parse address, saving remaining parameters. */
+> +	res = sscanf(pos, "%hi%c", &info.addr, &end);
+> +	if (res < 1 || (res > 1 && !isspace(end))) {
+>   		dev_err(dev, "%s: Can't parse I2C address\n", "new_device");
+>   		return -EINVAL;
+>   	}
+> -	if (res > 1  && end != '\n') {
+> -		dev_err(dev, "%s: Extra parameters\n", "new_device");
+> -		return -EINVAL;
+> +	if (res > 1) {
+> +		/* Extra parms, skip the address and space. */
+> +		while (!isspace(*pos))
+> +			pos++;
+> +		while (isspace(*pos))
+> +			pos++;
+> +		if (*pos)
+> +			info.parms = pos;
+>   	}
+>   
+>   	if ((info.addr & I2C_ADDR_OFFSET_TEN_BIT) == I2C_ADDR_OFFSET_TEN_BIT) {
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 200cf13b..35db0dd 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -225,6 +225,7 @@ struct i2c_client {
+>   	char name[I2C_NAME_SIZE];
+>   	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
+>   	struct device dev;		/* the device structure		*/
+> +	char *parms;			/* sysfs extra parms		*/
+>   	int irq;			/* irq issued by device		*/
+>   	struct list_head detected;
+>   #if IS_ENABLED(CONFIG_I2C_SLAVE)
+> @@ -282,6 +283,7 @@ static inline int i2c_slave_event(struct i2c_client *client,
+>    * @archdata: copied into i2c_client.dev.archdata
+>    * @of_node: pointer to OpenFirmware device node
+>    * @fwnode: device node supplied by the platform firmware
+> + * @parms: Parameters supplied on the sysfs command line
+>    * @irq: stored in i2c_client.irq
+>    *
+>    * I2C doesn't actually support hardware probing, although controllers and
+> @@ -303,6 +305,7 @@ struct i2c_board_info {
+>   	struct dev_archdata	*archdata;
+>   	struct device_node *of_node;
+>   	struct fwnode_handle *fwnode;
+> +	char            *parms;
+>   	int		irq;
+>   };
+>   
