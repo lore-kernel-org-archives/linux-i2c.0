@@ -1,38 +1,38 @@
-From: Peter Griffin <peter.griffin@linaro.org>
-Subject: Re: [PATCH] i2c: st: Implement i2c_bus_recovery_info callbacks
-Date: Wed, 11 May 2016 16:26:20 +0100
-Message-ID: <20160511152620.GA22265@griffinp-ThinkPad-X1-Carbon-2nd>
-References: <1460467759-11737-1-git-send-email-peter.griffin@linaro.org>
- <20160424211044.GD4317@katana>
- <5722107C.3000600@st.com>
- <20160428145720.GA1541@katana>
- <572344D8.6060401@st.com>
- <20160429140351.GA1459@griffinp-mac>
- <20160511150122.GF1716@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Subject: [PATCH 0/5] Add support for the STM32F4 I2C
+Date: Wed, 11 May 2016 17:36:09 +0200
+Message-ID: <1462980974-22091-1-git-send-email-cedric.madianga@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f49.google.com ([74.125.82.49]:36911 "EHLO
-	mail-wm0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932096AbcEKP0Z (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 11:26:25 -0400
-Received: by mail-wm0-f49.google.com with SMTP id a17so89202339wme.0
-        for <linux-i2c@vger.kernel.org>; Wed, 11 May 2016 08:26:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20160511150122.GF1716@katana>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35059 "EHLO
+	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751407AbcEKPh1 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 11:37:27 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Maxime Coquelin <maxime.coquelin@st.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, srinivas.kandagatla@gmail.com, patrice.chotard@st.com, lee.jones@linaro.org, linux-i2c@vger.kernel.org, Frederic Pillon <frederic.pillon@st.com>
+To: mcoquelin.stm32@gmail.com, patrice.chotard@st.com, wsa@the-dreams.de, robh+dt@kernel.org, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 
-Hi Wolfram,
+This patchset adds support for the I2C controller embedded in STM32F4xx SoC.
+It enables I2C transfer in interrupt mode with Standard-mode and Fast-mode bus
+speed.
 
-On Wed, 11 May 2016, Wolfram Sang wrote:
+M'boumba Cedric Madianga (5):
+  dt-bindings: Document the STM32 I2C bindings
+  i2c: Add STM32F4 I2C driver
+  ARM: dts: Add I2C1 support for STM32F429 SoC
+  ARM: dts: Add I2C1 support for STM32429 eval board
+  ARM: configs: Add I2C support for STM32 defconfig
 
-> > Yes I'll send a v2 with your comment added.
-> 
-> Any news?
->
-Sorry, I will re-send it in a few minutes.
+ .../devicetree/bindings/i2c/i2c-stm32.txt          |  33 +
+ arch/arm/boot/dts/stm32429i-eval.dts               |   6 +
+ arch/arm/boot/dts/stm32f429.dtsi                   |  24 +
+ arch/arm/configs/stm32_defconfig                   |   3 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-stm32f4.c                   | 872 +++++++++++++++++++++
+ 7 files changed, 949 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+ create mode 100644 drivers/i2c/busses/i2c-stm32f4.c
 
-Peter. 
+-- 
+1.9.1
