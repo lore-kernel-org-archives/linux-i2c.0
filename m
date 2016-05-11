@@ -1,85 +1,31 @@
-From: Abhishek Sahu <absahu@codeaurora.org>
-Subject: RE: [PATCH 2/2] i2c: qup: Fixed the DMA segments length
-Date: Wed, 11 May 2016 23:13:58 +0530
-Message-ID: <699f798ccc0a7d36640cef42ac26a697@codeaurora.org>
-References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org>
- <1462797871-8595-3-git-send-email-absahu@codeaurora.org>
- <000b01d1aba0$c2fea380$48fbea80$@codeaurora.org>
+From: "Heasley, Seth" <seth.heasley@intel.com>
+Subject: RE: i2c-i801 partially broken on Lynx Point PCH?
+Date: Wed, 11 May 2016 17:46:19 +0000
+Message-ID: <DEC3922D1904474A8862C7BFF516EA9A94FB7475@ORSMSX101.amr.corp.intel.com>
+References: <20160511093452.5bc2614c@endymion>
+	 <20160511104322.60521365@endymion>
+	 <DEC3922D1904474A8862C7BFF516EA9A94FB736C@ORSMSX101.amr.corp.intel.com>
+ <1462988071.6344.0.camel@chaos.suse>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <000b01d1aba0$c2fea380$48fbea80$@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Sricharan <sricharan@codeaurora.org>
-Cc: agross@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:44767 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751651AbcEKRqW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 11 May 2016 13:46:22 -0400
+In-Reply-To: <1462988071.6344.0.camel@chaos.suse>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-On 2016-05-11 21:48, Sricharan wrote:
-> Hi,
-> 
->> 1. The current QCOM I2C driver code is failing for transfer length 
->> greater
->> than 255. This is happening due to improper segments length as the I2C 
->> DMA
->> segments can be maximum of 256 bytes.
->> 
->> 2. The transfer length tlen was being initialized with 0 for 256 
->> bytes,
->> which is
->> being passed for DMA mappings resulting in improper DMA mapping 
->> length.
->> 
->> This patch fixes the above said problems by initializing the block 
->> count
->> with
->> the values calculated in qup_i2c_set_blk_data and calculating the
-> remaining
->> length for last DMA segment. Also, the block data length need to be
->> decremented after each transfer. Additionally, this patch corrects the
->> tlen
->> assignment for DMA mapping.
->> 
->> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
->> ---
->>  drivers/i2c/busses/i2c-qup.c | 12 +++++++-----
->>  1 file changed, 7 insertions(+), 5 deletions(-)
->> 
->> diff --git a/drivers/i2c/busses/i2c-qup.c 
->> b/drivers/i2c/busses/i2c-qup.c
->> index
->> 8c2f1bc..6d6b7dc 100644
->> --- a/drivers/i2c/busses/i2c-qup.c
->> +++ b/drivers/i2c/busses/i2c-qup.c
->> @@ -651,23 +651,24 @@ static int qup_i2c_bam_do_xfer(struct
->> qup_i2c_dev *qup, struct i2c_msg *msg,
->>  	u8 *tags;
->> 
->>  	while (idx < num) {
->> -		blocks = (msg->len + limit) / limit;
->> -		rem = msg->len % limit;
->>  		tx_len = 0, len = 0, i = 0;
->> 
->>  		qup->is_last = (idx == (num - 1));
->> 
->>  		qup_i2c_set_blk_data(qup, msg);
->> 
->> +		blocks = qup->blk.count;
->> +		rem = msg->len - (blocks - 1) * limit;
->> +
->       Same if we had blocks = (msg->len + limit - 1) / limit instead of 
-> the
-> above ?
-Yes. We calculating this inside qup_i2c_set_blk_data and assigning the 
-same value to
-qup->blk.count so I am using this to avoid redundant arithmetic 
-operations.
->      Otherwise,
->      Reviewed-by: Sricharan@codeaurora.org
-> 
-> Regards,
->  Sricharan
-
--- 
-Abhishek Sahu
+PiA+ID4gPiBEaWQgeW91IHRlc3QgdGhlIGkyYy1pODAxIGRyaXZlciBvbiBhbiBhY3R1YWwgTHlu
+eCBQb2ludCBQQ0ggY2hpcHNldD8NCj4gPiA+ID4gT3IgZGlkIHlvdSBvbmx5IGFkZCB0aGUgUENJ
+IElEIG9mIHRoZSBkZXZpY2UsIGFzc3VtaW5nIGl0IHdvdWxkIHdvcms/DQo+ID4NCj4gPiBJIHRl
+c3RlZCBvbiBhbiBJbnRlbCBzeXN0ZW0gd2l0aCBMeW54IFBvaW50IGFuZCBzYXcgZXZlcnl0aGlu
+ZyB3b3JraW5nLA0KPiBjb25zaXN0ZW50IHdpdGggd2hhdCB5b3UncmUgc2VlaW5nIG9uIHRoZSBT
+VVNFIHN5c3RlbS4NCj4gDQo+IERvIHlvdSBoYXBwZW4gdG8ga25vdyB3aGljaCByZXZpc2lvbiBp
+dCB3YXM/DQoNCkknbSBzb3JyeSwgSSBkb24ndCBrbm93IHRoYXQuIFRvbyBsb25nIGFnby4NCg0K
+LVNldGgNCg==
