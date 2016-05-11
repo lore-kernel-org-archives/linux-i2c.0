@@ -1,40 +1,80 @@
-From: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
-Subject: [PATCH v2] i2c: xlr: rename ARCH_TANGOX to ARCH_TANGO
-Date: Wed, 11 May 2016 17:20:05 +0200
-Message-ID: <57334DA5.5030102@sigmadesigns.com>
+From: "Sricharan" <sricharan@codeaurora.org>
+Subject: RE: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
+Date: Wed, 11 May 2016 21:27:40 +0530
+Message-ID: <000701d1ab9d$df9b3100$9ed19300$@codeaurora.org>
+References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org> <1462797871-8595-2-git-send-email-absahu@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from a.mx.sdesigns.eu ([78.31.43.6]:3557 "EHLO a.mx.sdesigns.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932076AbcEKPhu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 11 May 2016 11:37:50 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:48603 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751401AbcEKP5y (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 11:57:54 -0400
+In-Reply-To: <1462797871-8595-2-git-send-email-absahu@codeaurora.org>
+Content-Language: en-us
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Mans Rullgard <mans@mansr.com>, Sebastian Frias <sf84@laposte.net>, Mason <slash.tmp@free.fr>
+To: 'Abhishek Sahu' <absahu@codeaurora.org>, agross@codeaurora.org
+Cc: architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
 
-The ARCH name was changed during the review process.
-http://article.gmane.org/gmane.linux.ports.arm.kernel/456331
+Hi,
 
-Signed-off-by: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
----
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> 1. Current QCOM I2C driver hangs when sending data to address 0x03-0x07
+> in some scenarios. The QUP controller generates invalid write in this
+case,
+> since these addresses are reserved for different bus formats.
+> 
+> 2. Also, the error handling is done by I2C QUP ISR in the case of DMA
+mode.
+> The state need to be RESET in case of any error for clearing the available
+> data in FIFO, which otherwise leaves the BAM DMA controller in hang state.
+> 
+> This patch fixes the above two issues by clearing the error bits from I2C
+and
+> QUP status in ISR in case of I2C error, QUP error and resets the QUP state
+to
+> clear the FIFO data.
+> 
+> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
+> ---
+>  drivers/i2c/busses/i2c-qup.c | 14 ++++++++------
+>  1 file changed, 8 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index
+> 23eaabb..8c2f1bc 100644
+> --- a/drivers/i2c/busses/i2c-qup.c
+> +++ b/drivers/i2c/busses/i2c-qup.c
+> @@ -213,14 +213,16 @@ static irqreturn_t qup_i2c_interrupt(int irq, void
+> *dev)
+>  	bus_err &= I2C_STATUS_ERROR_MASK;
+>  	qup_err &= QUP_STATUS_ERROR_FLAGS;
+> 
+> -	if (qup_err) {
+> -		/* Clear Error interrupt */
+> +	/* Clear the error bits in QUP_ERROR_FLAGS */
+> +	if (qup_err)
+>  		writel(qup_err, qup->base + QUP_ERROR_FLAGS);
+> -		goto done;
+> -	}
+> 
+> -	if (bus_err) {
+> -		/* Clear Error interrupt */
+> +	/* Clear the error bits in QUP_I2C_STATUS */
+> +	if (bus_err)
+> +		writel(bus_err, qup->base + QUP_I2C_STATUS);
+> +
+> +	/* Reset the QUP State in case of error */
+> +	if (qup_err || bus_err) {
+>  		writel(QUP_RESET_STATE, qup->base + QUP_STATE);
+>  		goto done;
+>  	}
+       In qup_i2c_xfer and qup_i2c_xfer_v2 state is set to RESET at the end,
+when
+       there is no error. So would it be fine if we do it there
+unconditionally ?
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 2dd40ddf04de..d8d18ed65440 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -965,7 +965,7 @@ config I2C_XILINX
- 
- config I2C_XLR
- 	tristate "Netlogic XLR and Sigma Designs I2C support"
--	depends on CPU_XLR || ARCH_TANGOX
-+	depends on CPU_XLR || ARCH_TANGO
- 	help
- 	  This driver enables support for the on-chip I2C interface of
- 	  the Netlogic XLR/XLS MIPS processors and Sigma Designs SOCs.
--- 
-2.8.1
+Regards,
+ Sricharan
