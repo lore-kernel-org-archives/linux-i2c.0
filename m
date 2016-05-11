@@ -1,152 +1,148 @@
 From: Naveen Kaje <nkaje@codeaurora.org>
-Subject: Re: [PATCH 2/2] i2c: qup: support SMBus block read
-Date: Wed, 11 May 2016 16:11:09 -0600
-Message-ID: <5298a5a9-77cf-ca51-8146-044c75498128@codeaurora.org>
-References: <1462317959-11632-1-git-send-email-nkaje@codeaurora.org>
- <1462317959-11632-2-git-send-email-nkaje@codeaurora.org>
- <000b01d1aa8b$7317a300$5946e900$@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2 1/2] i2c: qup: add ACPI support
+Date: Wed, 11 May 2016 16:45:35 -0600
+Message-ID: <1463006736-24652-1-git-send-email-nkaje@codeaurora.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:50799 "EHLO
+Received: from smtp.codeaurora.org ([198.145.29.96]:55544 "EHLO
 	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751580AbcEKWLL (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 18:11:11 -0400
-In-Reply-To: <000b01d1aa8b$7317a300$5946e900$@codeaurora.org>
+	with ESMTP id S1751632AbcEKWpm (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 18:45:42 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sricharan <sricharan@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, 'Andy Gross' <andy.gross@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infrared.org, linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, austinwc@codeaurora.org, Naveen Kaje <nkaje@codeaurora.org>
 
+Add support to get the device parameters from ACPI. Assume
+that the clocks are managed by firmware.
 
+Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+---
+ drivers/i2c/busses/i2c-qup.c | 59 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 44 insertions(+), 15 deletions(-)
 
-On 5/10/2016 1:13 AM, Sricharan wrote:
-> +additional lists
->
->> I2C QUP driver relies on SMBus emulation support from the framework.
->> To handle SMBus block reads, the driver should check I2C_M_RECV_LEN flag
->> and should read the first byte received as the message length.
->>
->> The driver configures the QUP hardware to read one byte. Once the message
->> length is known from this byte, the QUP hardware is configured to read the
->> rest.
->>
->> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
->> ---
->>   drivers/i2c/busses/i2c-qup.c | 95 ++++++++++++++++++++++++++++++-------
->> -------
->>   1 file changed, 66 insertions(+), 29 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-> index
->> ef31b26..2658b67 100644
->> --- a/drivers/i2c/busses/i2c-qup.c
->> +++ b/drivers/i2c/busses/i2c-qup.c
->> @@ -526,38 +526,49 @@ static int qup_i2c_set_tags(u8 *tags, struct
->> qup_i2c_dev *qup,
->>
->>   	int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
->>
->> -	if (qup->blk.pos == 0) {
->> -		tags[len++] = QUP_TAG_V2_START;
->> -		tags[len++] = addr & 0xff;
->> +	/* Handle SMBus block data read */
->> +	if ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN)
->> &&
->> +	    (msg->len > 1)) {
->> +		tags[len++] = QUP_TAG_V2_DATARD_STOP;
->> +		data_len = qup_i2c_get_data_len(qup);
->> +		tags[len++] = data_len - 1;
->> +	} else {
->> +		if (qup->blk.pos == 0) {
->> +			tags[len++] = QUP_TAG_V2_START;
->> +			tags[len++] = addr & 0xff;
->>
->> -		if (msg->flags & I2C_M_TEN)
->> -			tags[len++] = addr >> 8;
->> -	}
->> +			if (msg->flags & I2C_M_TEN)
->> +				tags[len++] = addr >> 8;
->> +		}
->>
->> -	/* Send _STOP commands for the last block */
->> -	if (last) {
->> -		if (msg->flags & I2C_M_RD)
->> -			tags[len++] = QUP_TAG_V2_DATARD_STOP;
->> -		else
->> -			tags[len++] = QUP_TAG_V2_DATAWR_STOP;
->> -	} else {
->> -		if (msg->flags & I2C_M_RD)
->> +		/* Send _STOP commands for the last block */
->> +		if ((msg->flags & I2C_M_RD)
->> +			&& (msg->flags & I2C_M_RECV_LEN)) {
->>   			tags[len++] = QUP_TAG_V2_DATARD;
->> -		else
->> -			tags[len++] = QUP_TAG_V2_DATAWR;
->> -	}
->> +		} else if (last) {
->> +			if (msg->flags & I2C_M_RD)
->> +				tags[len++] = QUP_TAG_V2_DATARD_STOP;
->> +			else
->> +				tags[len++] = QUP_TAG_V2_DATAWR_STOP;
->> +		} else {
->> +			if (msg->flags & I2C_M_RD)
->> +				tags[len++] = QUP_TAG_V2_DATARD;
->> +			else
->> +				tags[len++] = QUP_TAG_V2_DATAWR;
->> +		}
->>
->> -	data_len = qup_i2c_get_data_len(qup);
->> +		data_len = qup_i2c_get_data_len(qup);
->>
->> -	/* 0 implies 256 bytes */
->> -	if (data_len == QUP_READ_LIMIT)
->> -		tags[len++] = 0;
->> -	else
->> -		tags[len++] = data_len;
->> +		/* 0 implies 256 bytes */
->> +		if (data_len == QUP_READ_LIMIT)
->> +			tags[len++] = 0;
->> +		else
->> +			tags[len++] = data_len;
->>
->> -	if ((msg->flags & I2C_M_RD) && last && is_dma) {
->> -		tags[len++] = QUP_BAM_INPUT_EOT;
->> -		tags[len++] = QUP_BAM_FLUSH_STOP;
->> +		if ((msg->flags & I2C_M_RD) && last && is_dma) {
->> +			tags[len++] = QUP_BAM_INPUT_EOT;
->> +			tags[len++] = QUP_BAM_FLUSH_STOP;
->> +		}
->>   	}
->>
->     Will it look simpler if we add a qup_i2c_set_tags_smb instead and add an
->     Comment ? Here it is not clear how this is different from a normal read.
-Will rework this and send V2.
-> <snip..>
->
->> +
->> +		/* Handle SMBus block read length */
->> +		if ((msg->flags & I2C_M_RECV_LEN) && (msg->len == 1)) {
->> +			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
->> +				ret = -EPROTO;
->> +				goto err;
->> +			}
->> +			msg->len += msg->buf[0];
->> +			qup->pos = 0;
->> +			qup_i2c_set_read_mode_v2(qup, msg->len);
->> +			qup_i2c_issue_xfer_v2(qup, msg);
->> +			ret = qup_i2c_wait_for_complete(qup, msg);
->> +			if (ret)
->> +				goto err;
->> +			qup_i2c_set_blk_data(qup, msg);
->> +		}
->>   	} while (qup->blk.pos < qup->blk.count);
->         
->           When v2 mode is not supported this should return an error,
->           in qup_i2c_xfer for msg->flags & I2C_M_RECV_LEN
-Will add a check in qup_i2c_xfer in the next version of the patch.
->
-> Regards,
->   Sricharan
->
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 23eaabb..559947c 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -29,6 +29,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/scatterlist.h>
++#include <linux/acpi.h>
+ 
+ /* QUP Registers */
+ #define QUP_CONFIG		0x000
+@@ -132,6 +133,10 @@
+ /* Max timeout in ms for 32k bytes */
+ #define TOUT_MAX			300
+ 
++/* Default values. Use these if FW query fails */
++#define DEFAULT_CLK_FREQ 100000
++#define DEFAULT_SRC_CLK 20000000
++
+ struct qup_i2c_block {
+ 	int	count;
+ 	int	pos;
+@@ -1360,8 +1365,8 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	u32 io_mode, hw_ver, size;
+ 	int ret, fs_div, hs_div;
+-	int src_clk_freq;
+-	u32 clk_freq = 100000;
++	u32 src_clk_freq = 0;
++	u32 clk_freq = 0;
+ 	int blocks;
+ 
+ 	qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL);
+@@ -1372,7 +1377,12 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 	init_completion(&qup->xfer);
+ 	platform_set_drvdata(pdev, qup);
+ 
+-	of_property_read_u32(node, "clock-frequency", &clk_freq);
++	ret = device_property_read_u32(qup->dev, "clock-frequency", &clk_freq);
++	if (ret) {
++		dev_warn(qup->dev, "using default clock-frequency %d",
++			DEFAULT_CLK_FREQ);
++		clk_freq = DEFAULT_CLK_FREQ;
++	}
+ 
+ 	if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-v1.1.1")) {
+ 		qup->adap.algo = &qup_i2c_algo;
+@@ -1454,20 +1464,31 @@ nodma:
+ 		return qup->irq;
+ 	}
+ 
+-	qup->clk = devm_clk_get(qup->dev, "core");
+-	if (IS_ERR(qup->clk)) {
+-		dev_err(qup->dev, "Could not get core clock\n");
+-		return PTR_ERR(qup->clk);
+-	}
++	if (ACPI_HANDLE(qup->dev)) {
++		ret = device_property_read_u32(qup->dev,
++				"src-clock-hz", &src_clk_freq);
++		if (ret) {
++			dev_warn(qup->dev, "using default src-clock-hz %d",
++				DEFAULT_SRC_CLK);
++			src_clk_freq = DEFAULT_SRC_CLK;
++		}
++		ACPI_COMPANION_SET(&qup->adap.dev, ACPI_COMPANION(qup->dev));
++	} else {
++		qup->clk = devm_clk_get(qup->dev, "core");
++		if (IS_ERR(qup->clk)) {
++			dev_err(qup->dev, "Could not get core clock\n");
++			return PTR_ERR(qup->clk);
++		}
+ 
+-	qup->pclk = devm_clk_get(qup->dev, "iface");
+-	if (IS_ERR(qup->pclk)) {
+-		dev_err(qup->dev, "Could not get iface clock\n");
+-		return PTR_ERR(qup->pclk);
++		qup->pclk = devm_clk_get(qup->dev, "iface");
++		if (IS_ERR(qup->pclk)) {
++			dev_err(qup->dev, "Could not get iface clock\n");
++			return PTR_ERR(qup->pclk);
++		}
++		qup_i2c_enable_clocks(qup);
++		src_clk_freq = clk_get_rate(qup->clk);
+ 	}
+ 
+-	qup_i2c_enable_clocks(qup);
+-
+ 	/*
+ 	 * Bootloaders might leave a pending interrupt on certain QUP's,
+ 	 * so we reset the core before registering for interrupts.
+@@ -1514,7 +1535,6 @@ nodma:
+ 	size = QUP_INPUT_FIFO_SIZE(io_mode);
+ 	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
+ 
+-	src_clk_freq = clk_get_rate(qup->clk);
+ 	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
+ 	hs_div = 3;
+ 	qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff);
+@@ -1639,6 +1659,14 @@ static const struct of_device_id qup_i2c_dt_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
+ 
++#if IS_ENABLED(CONFIG_ACPI)
++static const struct acpi_device_id qup_i2c_acpi_match[] = {
++	{ "QCOM8010"},
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_ids);
++#endif
++
+ static struct platform_driver qup_i2c_driver = {
+ 	.probe  = qup_i2c_probe,
+ 	.remove = qup_i2c_remove,
+@@ -1646,6 +1674,7 @@ static struct platform_driver qup_i2c_driver = {
+ 		.name = "i2c_qup",
+ 		.pm = &qup_i2c_qup_pm_ops,
+ 		.of_match_table = qup_i2c_dt_match,
++		.acpi_match_table = ACPI_PTR(qup_i2c_acpi_match),
+ 	},
+ };
+ 
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
