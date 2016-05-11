@@ -1,130 +1,143 @@
-From: minyard@acm.org
-Subject: [PATCH v2 2/3] i2c-smbus: Allow parms to be passed in from sysfs new_device
-Date: Tue, 10 May 2016 11:11:38 -0500
-Message-ID: <1462896699-1627-3-git-send-email-minyard@acm.org>
-References: <1462896699-1627-1-git-send-email-minyard@acm.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:34256 "EHLO
-	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751782AbcEJQLq (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 10 May 2016 12:11:46 -0400
-Received: by mail-pf0-f195.google.com with SMTP id 145so1285869pfz.1
-        for <linux-i2c@vger.kernel.org>; Tue, 10 May 2016 09:11:46 -0700 (PDT)
-In-Reply-To: <1462896699-1627-1-git-send-email-minyard@acm.org>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [v10, 7/7] mmc: sdhci-of-esdhc: fix host version for
+	T4240-R1.0-R2.0
+Date: Tue, 10 May 2016 22:26:26 -0500
+Message-ID: <1462937186.16584.77.camel@buserror.net>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
+	<4448030.Zs8fVnr3nm@wuerfel>
+	<HE1PR04MB0889B52134A43C0E7A452B7BF87C0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+	<5159406.HOFrj7pRfW@wuerfel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <5159406.HOFrj7pRfW@wuerfel>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Xi
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
-Cc: minyard@acm.org, Corey Minyard <cminyard@mvista.com>
 
-From: Corey Minyard <cminyard@mvista.com>
+On Thu, 2016-05-05 at 13:10 +0200, Arnd Bergmann wrote:
+> On Thursday 05 May 2016 09:41:32 Yangbo Lu wrote:
+> > > -----Original Message-----
+> > > From: Arnd Bergmann [mailto:arnd-r2nGTMty4D4@public.gmane.org]
+> > > Sent: Thursday, May 05, 2016 4:32 PM
+> > > To: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> > > Cc: Yangbo Lu; linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> > > linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> > > linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; iommu-cunTk1MwBs/ROKNJybVBZg@public.gmane.org
+> > > foundation.org; netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mark Rutland;
+> > > ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; Russell King; Bhupesh Sharma; Joerg Roedel;
+> > > Santosh Shilimkar; Yang-Leo Li; Scott Wood; Rob Herring; Claudiu Manoil;
+> > > Kumar Gala; Xiaobo Xie; Qiang Zhao
+> > > Subject: Re: [v10, 7/7] mmc: sdhci-of-esdhc: fix host version for T4240-
+> > > R1.0-R2.0
+> > > 
+> > > On Thursday 05 May 2016 11:12:30 Yangbo Lu wrote:
+> > > > IIRC, it is the same IP block as i.MX and Arnd's point is this won't
+> > > > even compile on !PPC. It is things like this that prevent sharing the
+> > > > driver.
+> > 
+> > The whole point of using the MMIO SVR instead of the PPC SPR is so that
+> > it will work on ARM...  The guts driver should build on any platform as
+> > long as OF is enabled, and if it doesn't find a node to bind to it will
+> > return 0 for SVR, and the eSDHC driver will continue (after printing an
+> > error that should be removed) without the ability to test for errata
+> > based on SVR.
+> 
+> It feels like a bad design to have to come up with a different
+> method for each SoC type here when they all do the same thing
+> and want to identify some variant of the chip to do device
+> specific quirks.
+> 
+> As far as I'm concerned, every driver in drivers/soc that needs to
+> export a symbol to be used by a device driver is an indication that
+> we don't have the right set of abstractions yet. There are cases
+> that are not worth abstracting because the functionality is rather
+> obscure and only a couple of drivers for one particular chip
+> ever need it.
+> 
+> Finding out the version of the SoC does not look like this case.
 
-This allows "irq=<num>" and "edge" to be passed in to the i2c new_device
-after the name and i2c address.  This way the alert can be configured
-without having to have platform data.
+I'm open to new ways of abstracting this, but can that please be discussed
+after these patches are merged?  This patchset is fixing a problem, the
+existing abstraction is unappealing and not widely adopted, a new abstraction
+is not ready, and we're only touching code for our hardware.
 
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
----
- drivers/i2c/i2c-smbus.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 72 insertions(+)
+Oh, and the existing abstraction isn't even "existing".  I don't see any
+examples where soc_device is being used like this -- or even any way for a
+driver (the one consuming the information, not the soc "driver") to get a
+reference to the soc_device that's been registered short of searching for the
+device object by name -- and you're asking for new functionality in
+drivers/base/soc.c.
 
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index 7748fd6..4f099ad 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -23,6 +23,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/workqueue.h>
-+#include <linux/ctype.h>
- 
- struct i2c_smbus_alert {
- 	unsigned int		alert_edge_triggered:1;
-@@ -123,15 +124,86 @@ static irqreturn_t smbalert_irq(int irq, void *d)
- 	return IRQ_HANDLED;
- }
- 
-+static struct i2c_smbus_alert_setup *smbalert_parse_parms(struct device *dev,
-+		const char *parms,
-+		struct i2c_smbus_alert_setup *data)
-+{
-+	int rv;
-+	char end;
-+
-+	if (!parms)
-+		return NULL;
-+
-+	data->alert_edge_triggered = false;
-+	while (*parms) {
-+		const char *next = parms;
-+		const char *val;
-+		int parmlen;
-+
-+		while (*next && !isspace(*next) && *next != '=')
-+			next++;
-+
-+		parmlen = next - parms;
-+
-+		if (*next == '=') {
-+			next++;
-+			val = next;
-+			while (*next && !isspace(*next))
-+				next++;
-+		} else {
-+			val = NULL;
-+		}
-+
-+		if (strncmp(parms, "irq", parmlen) == 0) {
-+			if (!val) {
-+				dev_err(dev, "no irq parm value given\n");
-+				return NULL;
-+			}
-+			rv = sscanf(val, "%d%c", &data->irq, &end);
-+			if ((rv < 1) || ((rv > 1) && !isspace(end))) {
-+				dev_err(dev, "Invalid irq parm: %s\n", val);
-+				return NULL;
-+			}
-+		} else if (strncmp(parms, "edge", parmlen) == 0) {
-+			if (val) {
-+				dev_err(dev, "Value given with edge parm: %s\n",
-+					val);
-+				return NULL;
-+			}
-+			data->alert_edge_triggered = true;
-+		} else {
-+			dev_err(dev, "Invalid parameter: %s\n", parms);
-+			return NULL;
-+		}
-+
-+		while (*next && isspace(*next))
-+			next++;
-+		parms = next;
-+	}
-+
-+	return data;
-+}
-+
- /* Setup SMBALERT# infrastructure */
- static int smbalert_probe(struct i2c_client *ara,
- 			  const struct i2c_device_id *id)
- {
- 	struct i2c_smbus_alert_setup *setup = dev_get_platdata(&ara->dev);
-+	struct i2c_smbus_alert_setup dummy_setup;
- 	struct i2c_smbus_alert *alert;
- 	struct i2c_adapter *adapter = ara->adapter;
- 	int res;
- 
-+	if (ara->parms)
-+		/* Came in through sysfs. */
-+		setup = smbalert_parse_parms(&ara->dev, ara->parms,
-+					     &dummy_setup);
-+
-+	if (!setup) {
-+		dev_err(&ara->dev, "SMBus alert without setup\n");
-+		return -ENODEV;
-+	}
-+
- 	alert = devm_kzalloc(&ara->dev, sizeof(struct i2c_smbus_alert),
- 			     GFP_KERNEL);
- 	if (!alert)
--- 
-2.7.4
+> > > I think the first four patches take care of building for ARM,
+> > > but the problem remains if you want to enable COMPILE_TEST as
+> > > we need for certain automated checking.
+> > 
+> > What specific problem is there with COMPILE_TEST?
+> 
+> COMPILE_TEST is solvable here and the way it is implemented in this
+> case (selecting FSL_GUTS from the driver) indeed looks like it works
+> correctly, but it's still awkward that this means building the
+> SoC specific ID stuff into the vmlinux binary for any driver that
+> uses something like that for a particular SoC.
+
+Please keep in mind that this is a Freescale-specific driver... it's not as if
+we're attaching this dependency to common SDHCI code.
+
+> 
+> > > > Dealing with Si revs is a common problem. We should have a
+> > > > common solution. There is soc_device for this purpose.
+> > > 
+> > > Exactly. The last time this came up, I think we agreed to implement a
+> > > helper using glob_match() on the soc_device strings. Unfortunately
+> > > this hasn't happened then, but I'd still prefer that over yet another
+> > > vendor-specific way of dealing with the generic issue.
+> > 
+> > soc_device would require encoding the SVR as a string and then decoding
+> > the string, which is more complicated and error prone than having
+> > platform-specific code test a platform-specific number. 
+> 
+> You already need to encode it as a string to register the soc_device,
+
+No we don't, because we don't already register a soc_device on arm64 or ppc
+(and it looks like whatever does get registered on at least some relevant
+arm32 chips is not particularly useful).
+
+> and the driver just needs to pass a glob string, so the only part that
+> is missing is the generic function that takes the string from the
+> driver and passes that to glob_match for the soc_device.
+
+"just"
+
+And what would the glob look like?
+
+I'd rather not write kernel code as if it were a shell/Perl script.
+
+> > And when would it get registered on arm64, which doesn't have
+> > platform code?
+> 
+> Whenever the soc driver is loaded, as is the case now. The match
+> function can return -EPROBE_DEFER if no SoC device is registered
+> yet.
+
+That's too late for some places where we need access to SVR, e.g. clock
+drivers (which use CLK_OF_DECLARE and are initialized very early, not as part
+of the driver model and thus can't defer).  Currently we have an #ifdef
+CONFIG_PPC for this in drivers/clk/clk-qoriq.c... Maybe we should have done
+that here as well, and saved some grief. :-)  At least until an erratum pops
+up on an ARM-based chip.
+
+And what happens if we're running on arm32, and thus the arch code already
+registered an soc_device with a different (and less useful) encoding?
+
+-Scott
