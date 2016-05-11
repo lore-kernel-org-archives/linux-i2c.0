@@ -1,73 +1,40 @@
-From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Subject: [PATCH 3/5] ARM: dts: Add I2C1 support for STM32F429 SoC
-Date: Wed, 11 May 2016 17:36:12 +0200
-Message-ID: <1462980974-22091-4-git-send-email-cedric.madianga@gmail.com>
-References: <1462980974-22091-1-git-send-email-cedric.madianga@gmail.com>
+From: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+Subject: [PATCH v2] i2c: xlr: rename ARCH_TANGOX to ARCH_TANGO
+Date: Wed, 11 May 2016 17:20:05 +0200
+Message-ID: <57334DA5.5030102@sigmadesigns.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1462980974-22091-1-git-send-email-cedric.madianga@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: mcoquelin.stm32@gmail.com, patrice.chotard@st.com, wsa@the-dreams.de, robh+dt@kernel.org, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from a.mx.sdesigns.eu ([78.31.43.6]:3557 "EHLO a.mx.sdesigns.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932076AbcEKPhu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 11 May 2016 11:37:50 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Mans Rullgard <mans@mansr.com>, Sebastian Frias <sf84@laposte.net>, Mason <slash.tmp@free.fr>
 
-Signed-off-by: Patrice Chotard <patrice.chotard@st.com>
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+The ARCH name was changed during the review process.
+http://article.gmane.org/gmane.linux.ports.arm.kernel/456331
+
+Signed-off-by: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
 ---
- arch/arm/boot/dts/stm32f429.dtsi | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
-index 434d4b9..cbfeb4e 100644
---- a/arch/arm/boot/dts/stm32f429.dtsi
-+++ b/arch/arm/boot/dts/stm32f429.dtsi
-@@ -323,6 +323,18 @@
- 					slew-rate = <2>;
- 				};
- 			};
-+
-+			i2c1_sda_pin: i2c1_sda@0 {
-+				pins {
-+					pinmux = <STM32F429_PB9_FUNC_I2C1_SDA>;
-+					drive-open-drain;
-+				};
-+			};
-+			i2c1_scl_pin: i2c1_scl@0 {
-+				pins {
-+					pinmux = <STM32F429_PB6_FUNC_I2C1_SCL>;
-+				};
-+			};
- 		};
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 2dd40ddf04de..d8d18ed65440 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -965,7 +965,7 @@ config I2C_XILINX
  
- 		rcc: rcc@40023800 {
-@@ -395,6 +407,18 @@
- 			interrupts = <80>;
- 			clocks = <&rcc 0 38>;
- 		};
-+
-+		i2c1: i2c@40005400 {
-+			compatible = "st,i2c-stm32f4";
-+			reg = <0x40005400 0x400>;
-+			interrupts = <31>,
-+				     <32>;
-+			resets = <&rcc 277>;
-+			clocks = <&rcc 0 149>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
- 	};
- };
- 
+ config I2C_XLR
+ 	tristate "Netlogic XLR and Sigma Designs I2C support"
+-	depends on CPU_XLR || ARCH_TANGOX
++	depends on CPU_XLR || ARCH_TANGO
+ 	help
+ 	  This driver enables support for the on-chip I2C interface of
+ 	  the Netlogic XLR/XLS MIPS processors and Sigma Designs SOCs.
 -- 
-1.9.1
+2.8.1
