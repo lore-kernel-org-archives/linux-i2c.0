@@ -1,90 +1,142 @@
-From: Heiko Stuebner <heiko@sntech.de>
-Subject: Re: [PATCH v8 8/8] i2c: rk3x: support fast-mode plus for rk3399
-Date: Wed, 11 May 2016 23:09:43 +0200
-Message-ID: <5153288.jNhUuzGC3g@phil>
-References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com> <1462908794-27333-1-git-send-email-david.wu@rock-chips.com>
+From: Naveen Kaje <nkaje@codeaurora.org>
+Subject: Re: [PATCH 1/2] i2c: qup: add ACPI support
+Date: Wed, 11 May 2016 16:09:59 -0600
+Message-ID: <e31e85f4-93f7-f9ad-295f-76b5dc28b9e2@codeaurora.org>
+References: <1462317959-11632-1-git-send-email-nkaje@codeaurora.org>
+ <000201d1aa82$07b3f680$171be380$@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1462908794-27333-1-git-send-email-david.wu@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Wu <david.wu@rock-chips.com>
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.29.96]:50426 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751617AbcEKWKD (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 18:10:03 -0400
+In-Reply-To: <000201d1aa82$07b3f680$171be380$@codeaurora.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
-Am Mittwoch, 11. Mai 2016, 03:33:14 schrieb David Wu:
-
-please always try to also provide some sort of commit message.
-
----
-Implement fast mode plus that allows bus speeds of up to 1MHz.
-.....
-
----
-
-Additionally, the i2c-noob in me would wish for a short sentence on where 
-the timing values come from (measured, somewhere in the TRM I didn't find or 
-something completely different).
+To: Sricharan <sricharan@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, 'Andy Gross' <andy.gross@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org
 
 
-Patch content itself looks good, so with a suitable commit message,
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
 
-
-> Signed-off-by: David Wu <david.wu@rock-chips.com>
-> Reviewed-by: Douglas Anderson <dianders@chromium.org>
-> ---
-> Change in v8:
-> - None
-> 
->  drivers/i2c/busses/i2c-rk3x.c | 21 +++++++++++++++++----
->  1 file changed, 17 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-> index 25ed1ad..0ba25ee 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -126,6 +126,17 @@ static const struct i2c_spec_values fast_mode_spec =
-> { .min_hold_buffer_ns = 1300,
->  };
-> 
-> +static const struct i2c_spec_values fast_mode_plus_spec = {
-> +	.min_hold_start_ns = 260,
-> +	.min_low_ns = 500,
-> +	.min_high_ns = 260,
-> +	.min_setup_start_ns = 260,
-> +	.max_data_hold_ns = 400,
-> +	.min_data_setup_ns = 50,
-> +	.min_setup_stop_ns = 260,
-> +	.min_hold_buffer_ns = 500,
-> +};
-> +
->  /**
->   * struct rk3x_i2c_calced_timings:
->   * @div_low: Divider output for low
-> @@ -531,8 +542,10 @@ static const struct i2c_spec_values
-> *rk3x_i2c_get_spec(unsigned int speed) {
->  	if (speed <= 100000)
->  		return &standard_mode_spec;
-> -	else
-> +	else if (speed <= 400000)
->  		return &fast_mode_spec;
-> +	else
-> +		return &fast_mode_plus_spec;
->  }
-> 
->  /**
-> @@ -743,9 +756,9 @@ static int rk3x_i2c_v1_calc_timings(unsigned long
-> clk_rate, const struct i2c_spec_values *spec;
->  	int ret = 0;
-> 
-> -	/* Support standard-mode and fast-mode */
-> -	if (WARN_ON(t->bus_freq_hz > 400000))
-> -		t->bus_freq_hz = 400000;
-> +	/* Support standard-mode, fast-mode and fast-mode plus */
-> +	if (WARN_ON(t->bus_freq_hz > 1000000))
-> +		t->bus_freq_hz = 1000000;
-> 
->  	/* prevent scl_rate_khz from becoming 0 */
->  	if (WARN_ON(t->bus_freq_hz < 1000))
+On 5/10/2016 12:05 AM, Sricharan wrote:
+> +additional lists
+>
+>> Add support to get the device parameters from ACPI. Assume that the clocks
+>> are managed by firmware.
+>>
+>> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+>> ---
+> <snip>
+>> +	bool input_clk_ctrl = true;
+>>
+>>   	qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL);
+>>   	if (!qup)
+>> @@ -1372,7 +1378,14 @@ static int qup_i2c_probe(struct platform_device
+>> *pdev)
+>>   	init_completion(&qup->xfer);
+>>   	platform_set_drvdata(pdev, qup);
+>>
+>> -	of_property_read_u32(node, "clock-frequency", &clk_freq);
+>> +	ret = device_property_read_u32(qup->dev, "clock-frequency",
+>> &clk_freq);
+>> +	if (ret) {
+>> +		dev_warn(qup->dev, "using default clock-frequency values");
+>> +		clk_freq = DEFAULT_CLK_FREQ;
+>> +	}
+>> +
+>> +	if (ACPI_HANDLE(qup->dev) && !node)
+>> +		input_clk_ctrl = false;
+>>
+>>   	if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-
+>> v1.1.1")) {
+>>   		qup->adap.algo = &qup_i2c_algo;
+>> @@ -1454,20 +1467,29 @@ nodma:
+>>   		return qup->irq;
+>>   	}
+>>
+>> -	qup->clk = devm_clk_get(qup->dev, "core");
+>> -	if (IS_ERR(qup->clk)) {
+>> -		dev_err(qup->dev, "Could not get core clock\n");
+>> -		return PTR_ERR(qup->clk);
+>> -	}
+>> +	if (input_clk_ctrl) {
+>       The above ACPI_HANDLE check can be directly used here and avoid the
+> variable.
+Thanks for reviewing. Will do in V2.
+>
+>> +		qup->clk = devm_clk_get(qup->dev, "core");
+>> +		if (IS_ERR(qup->clk)) {
+>> +			dev_err(qup->dev, "Could not get core clock\n");
+>> +			return PTR_ERR(qup->clk);
+>> +		}
+>>
+>> -	qup->pclk = devm_clk_get(qup->dev, "iface");
+>> -	if (IS_ERR(qup->pclk)) {
+>> -		dev_err(qup->dev, "Could not get iface clock\n");
+>> -		return PTR_ERR(qup->pclk);
+>> +		qup->pclk = devm_clk_get(qup->dev, "iface");
+>> +		if (IS_ERR(qup->pclk)) {
+>> +			dev_err(qup->dev, "Could not get iface clock\n");
+>> +			return PTR_ERR(qup->pclk);
+>> +		}
+>> +		qup_i2c_enable_clocks(qup);
+>> +		src_clk_freq = clk_get_rate(qup->clk);
+>> +	} else {
+>> +		ret = device_property_read_u32(qup->dev,
+>> +				"src-clock-hz", &src_clk_freq);
+>> +		if (ret) {
+>> +			dev_warn(qup->dev, "using default src-clock-hz");
+>> +			src_clk_freq = DEFAULT_SRC_CLK;
+>> +		}
+>>   	}
+>>
+>> -	qup_i2c_enable_clocks(qup);
+>> -
+>>   	/*
+>>   	 * Bootloaders might leave a pending interrupt on certain QUP's,
+>>   	 * so we reset the core before registering for interrupts.
+>> @@ -1514,7 +1536,6 @@ nodma:
+>>   	size = QUP_INPUT_FIFO_SIZE(io_mode);
+>>   	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
+>>
+>> -	src_clk_freq = clk_get_rate(qup->clk);
+>>   	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
+>>   	hs_div = 3;
+>>   	qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff); @@ -1534,6 +1555,8
+>> @@ nodma:
+>>   	qup->adap.dev.parent = qup->dev;
+>>   	qup->adap.dev.of_node = pdev->dev.of_node;
+>>   	qup->is_last = true;
+>> +	if (ACPI_HANDLE(qup->dev))
+>> +		ACPI_COMPANION_SET(&qup->adap.dev,
+>> ACPI_COMPANION(qup->dev));
+>      Can we move this inside the above check.
+Will do in V2.
+>>   	strlcpy(qup->adap.name, "QUP I2C adapter", sizeof(qup-
+>>> adap.name));
+>> @@ -1639,6 +1662,13 @@ static const struct of_device_id
+>> qup_i2c_dt_match[] = {  };  MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
+>>
+>> +#if IS_ENABLED(CONFIG_ACPI)
+>> +static const struct acpi_device_id qup_i2c_acpi_match[] = {
+>> +	{ "QCOM8010"},
+>> +	{ },
+>> +};
+>> +MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_ids); #endif
+>>   static struct platform_driver qup_i2c_driver = {
+>>   	.probe  = qup_i2c_probe,
+>>   	.remove = qup_i2c_remove,
+>> @@ -1646,6 +1676,7 @@ static struct platform_driver qup_i2c_driver = {
+>>   		.name = "i2c_qup",
+>>   		.pm = &qup_i2c_qup_pm_ops,
+>>   		.of_match_table = qup_i2c_dt_match,
+>> +		.acpi_match_table = ACPI_PTR(qup_i2c_acpi_match),
+>   Should this also be in #if IS_ENABLED(CONFIG_ACPI) check ?
+No, ACPI_PTR (defined in include/linux/acpi.h) takes care of setting the 
+pointer value based on the availability of CONFIG_ACPI.
+>
+> Regards,
+>   Sricharan
+>
