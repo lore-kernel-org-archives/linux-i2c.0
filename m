@@ -1,57 +1,85 @@
-From: Andy Gross <andy.gross@linaro.org>
+From: Abhishek Sahu <absahu@codeaurora.org>
 Subject: Re: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
-Date: Thu, 12 May 2016 12:58:30 -0500
-Message-ID: <20160512175830.GA32019@hector>
+Date: Fri, 13 May 2016 01:02:29 +0530
+Message-ID: <20160512193229.GA10499@chewinlnx07.qualcomm.com>
 References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org>
  <1462797871-8595-2-git-send-email-absahu@codeaurora.org>
  <000701d1ab9d$df9b3100$9ed19300$@codeaurora.org>
  <934365f2bd30f242d8548e2a27483679@codeaurora.org>
  <20160512051347.GE8453@hector.attlocal.net>
  <20160512061843.GA6187@chewinlnx07.qualcomm.com>
+ <20160512175830.GA32019@hector>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.29.96]:42836 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932065AbcELTcm (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 May 2016 15:32:42 -0400
 Content-Disposition: inline
-In-Reply-To: <20160512061843.GA6187@chewinlnx07.qualcomm.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Abhishek Sahu <absahu@codeaurora.org>
-Cc: Sricharan <sricharan@codeaurora.org>, agross@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
+In-Reply-To: <20160512175830.GA32019@hector>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Gross <andy.gross@linaro.org>
+Cc: Sricharan <sricharan@codeaurora.org>, agross@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
 
-On Thu, May 12, 2016 at 11:48:43AM +0530, Abhishek Sahu wrote:
-> On Thu, May 12, 2016 at 12:13:47AM -0500, Andy Gross wrote:
-> > On Wed, May 11, 2016 at 11:04:17PM +0530, Abhishek Sahu wrote:
-> > 
-> > <snip>
-> > 
-> > > >       In qup_i2c_xfer and qup_i2c_xfer_v2 state is set to RESET at the
-> > > >end, when
-> > > >       there is no error. So would it be fine if we do it there
-> > > >unconditionally ?
-> > > >
-> > > >Regards,
-> > > > Sricharan
+On Thu, May 12, 2016 at 12:58:30PM -0500, Andy Gross wrote:
+> On Thu, May 12, 2016 at 11:48:43AM +0530, Abhishek Sahu wrote:
+> > On Thu, May 12, 2016 at 12:13:47AM -0500, Andy Gross wrote:
+> > > On Wed, May 11, 2016 at 11:04:17PM +0530, Abhishek Sahu wrote:
 > > > 
-> > > RESET the QUP state wouldn't create any issue in the case of multiple calls.
-> > > The existing code also RESET the QUP state for bus_err but it is not
-> > > clearing
-> > > status bits.
+> > > <snip>
+> > > 
+> > > > >       In qup_i2c_xfer and qup_i2c_xfer_v2 state is set to RESET at the
+> > > > >end, when
+> > > > >       there is no error. So would it be fine if we do it there
+> > > > >unconditionally ?
+> > > > >
+> > > > >Regards,
+> > > > > Sricharan
+> > > > 
+> > > > RESET the QUP state wouldn't create any issue in the case of multiple calls.
+> > > > The existing code also RESET the QUP state for bus_err but it is not
+> > > > clearing
+> > > > status bits.
+> > > 
+> > > It'd be better to not reset the QUP inside the ISR at all.  I think the better
+> > > solution is making the reset occur in the xfer function.  So just clear the bits
+> > > like you should in the isr, and defer reset till later.
 > > 
-> > It'd be better to not reset the QUP inside the ISR at all.  I think the better
-> > solution is making the reset occur in the xfer function.  So just clear the bits
-> > like you should in the isr, and defer reset till later.
+> > This is a HW workaround for QUP where we need to RESET the core in
+> > ISR. When interrupt is level triggerd, more than one interrupt may
+> > fire in error cases and QUP will generate these interrupts after
+> > completion of current interrupt. Thus we reset the core immediately
+> > in the ISR to ward off the next interrupt.
 > 
-> This is a HW workaround for QUP where we need to RESET the core in
-> ISR. When interrupt is level triggerd, more than one interrupt may
-> fire in error cases and QUP will generate these interrupts after
-> completion of current interrupt. Thus we reset the core immediately
-> in the ISR to ward off the next interrupt.
+> I wonder if that was just an expedient solution.  And it seems like it could be
+> a little racy as a poll is not being done to make sure the QUP state machine
+> transitions to reset.  Is there any documentation/errata on this?  Or is this
+> just from commit comments?
+> 
+> 
+> Regards,
+> Andy
 
-I wonder if that was just an expedient solution.  And it seems like it could be
-a little racy as a poll is not being done to make sure the QUP state machine
-transitions to reset.  Is there any documentation/errata on this?  Or is this
-just from commit comments?
+Hi Andy,
 
+Thanks for your comments. We have only added the patch for clearing
+the error bits. This resetting of QUP is present in the base code
+itself. Since this QUP is being used by all the QCOM chips that's why
+we have not changed the existing QUP reset logic. We will look
+into reset polling logic separately and will post the patch for the
+same.
 
-Regards,
-Andy
+We got the input for QUP RESET by referring our working internal
+drivers and we also faced the BAM hang issue in base upstream
+driver, if we don't do this RESET. If we schedule any transfer
+with DMA mode then the DMA Engine (BAM) will never get any interrupt
+for these errors, since the QUP interrupt handles the error cases.
+The BAM will generate the interrupt only when it will receive the
+requested amount of data. This reset will clear the QUP FIFO and
+we will get the BAM transfer completion interrupt by the existing
+logic present in the base bam transfer function.
+
+-- 
+Abhishek Sahu
