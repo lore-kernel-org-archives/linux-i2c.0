@@ -1,84 +1,104 @@
-From: "David.Wu" <david.wu@rock-chips.com>
-Subject: Re: [PATCH v8 6/8] dt-bindings: i2c: rk3x: add support for rk3399
-Date: Thu, 12 May 2016 09:14:04 +0800
-Message-ID: <5733D8DC.1010603@rock-chips.com>
-References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
- <1462908647-27236-1-git-send-email-david.wu@rock-chips.com>
- <CAD=FV=VzL8AfzUnPYgsf_NqPgbp2_o_qJC7-DWHmekWVQ-Es=A@mail.gmail.com>
+From: "Sricharan" <sricharan@codeaurora.org>
+Subject: RE: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
+Date: Thu, 12 May 2016 07:58:59 +0530
+Message-ID: <000901d1abf6$0f3ebf50$2dbc3df0$@codeaurora.org>
+References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org> <1462797871-8595-2-git-send-email-absahu@codeaurora.org> <000701d1ab9d$df9b3100$9ed19300$@codeaurora.org> <934365f2bd30f242d8548e2a27483679@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.134]:52705 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752207AbcELBNu (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 21:13:50 -0400
-In-Reply-To: <CAD=FV=VzL8AfzUnPYgsf_NqPgbp2_o_qJC7-DWHmekWVQ-Es=A@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <934365f2bd30f242d8548e2a27483679@codeaurora.org>
+Content-Language: en-us
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: 'Abhishek Sahu' <absahu@codeaurora.org>
+Cc: architt@codeaurora.org, wsa@the-dreams.de, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, andy.gross@linaro.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Doug,
+Hi,
 
-=E5=9C=A8 2016/5/12 0:35, Doug Anderson =E5=86=99=E9=81=93:
-> Hi,
->
-> On Tue, May 10, 2016 at 12:30 PM, David Wu <david.wu@rock-chips.com> =
-wrote:
->> The bus clock and function clock are separated at rk3399,
->> and others use one clock as the bus clock and function clock.
->>
->> Signed-off-by: David Wu <david.wu@rock-chips.com>
->> Reviewed-by: Douglas Anderson <dianders@chromium.org>
->> ---
->> Change in v8:
->> - remove error description.
->>
->>   Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 16 ++++++++++=
-+++---
->>   1 file changed, 13 insertions(+), 3 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Do=
-cumentation/devicetree/bindings/i2c/i2c-rk3x.txt
->> index 0b4a85f..5429301 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
->> @@ -6,10 +6,20 @@ RK3xxx SoCs.
->>   Required properties :
->>
->>    - reg : Offset and length of the register set for the device
->> - - compatible : should be "rockchip,rk3066-i2c", "rockchip,rk3188-i=
-2c",
->> -               "rockchip,rk3228-i2c" or "rockchip,rk3288-i2c".
->> + - compatible: should be one of the following:
->> +   - "rockchip,rk3066-i2c": for rk3066
->> +   - "rockchip,rk3188-i2c": for rk3188
->> +   - "rockchip,rk3228-i2c": for rk3228
->> +   - "rockchip,rk3288-i2c": for rk3288
->> +   - "rockchip,rk3399-i2c": for rk3399
->>    - interrupts : interrupt number
->> - - clocks : parent clock
->> + - clocks: See ../clock/clock-bindings.txt
->> +   - For older hardware (rk3066, rk3188, rk3228, rk3288):
->> +     - There is one clock that's used both to derive the functional=
- clock
->> +       for the device and as the bus clock.
->> +   - For newer hardware (rk3399): specified by name
->> +     - "i2c": REQUIRED. This is used to derive the functional clock=
-=2E
->> +     - "pclk": REQUIRED. This is the bus clock.
->
-> Depending on what Rob thinks, it might make sense to remove the above
-> two "REQUIRED" bits.  That would match his earlier feedback since
-> we're still in the "Required" section and thus it is redundant.
->
+> -----Original Message-----
+> From: linux-arm-kernel [mailto:linux-arm-kernel-
+> bounces@lists.infradead.org] On Behalf Of Abhishek Sahu
+> Sent: Wednesday, May 11, 2016 11:04 PM
+> To: Sricharan <sricharan@codeaurora.org>
+> Cc: architt@codeaurora.org; wsa@the-dreams.de; linux-arm-
+> msm@vger.kernel.org; ntelkar@codeaurora.org; linux-
+> kernel@vger.kernel.org; dmaengine@vger.kernel.org; linux-
+> i2c@vger.kernel.org; agross@codeaurora.org; andy.gross@linaro.org; linux-
+> arm-kernel@lists.infradead.org
+> Subject: RE: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
+> 
+> On 2016-05-11 21:27, Sricharan wrote:
+> > Hi,
+> >
+> >> 1. Current QCOM I2C driver hangs when sending data to address
+> >> 0x03-0x07
+> >> in some scenarios. The QUP controller generates invalid write in this
+> >> case, since these addresses are reserved for different bus formats.
+> >>
+> >> 2. Also, the error handling is done by I2C QUP ISR in the case of DMA
+> >> mode.
+> >> The state need to be RESET in case of any error for clearing the
+> >> available data in FIFO, which otherwise leaves the BAM DMA controller
+> >> in hang state.
+> >>
+> >> This patch fixes the above two issues by clearing the error bits from
+> >> I2C and QUP status in ISR in case of I2C error, QUP error and resets
+> >> the QUP state to clear the FIFO data.
+> >>
+> >> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
+> >> ---
+> >>  drivers/i2c/busses/i2c-qup.c | 14 ++++++++------
+> >>  1 file changed, 8 insertions(+), 6 deletions(-)
+> >>
+> >> diff --git a/drivers/i2c/busses/i2c-qup.c
+> >> b/drivers/i2c/busses/i2c-qup.c index 23eaabb..8c2f1bc 100644
+> >> --- a/drivers/i2c/busses/i2c-qup.c
+> >> +++ b/drivers/i2c/busses/i2c-qup.c
+> >> @@ -213,14 +213,16 @@ static irqreturn_t qup_i2c_interrupt(int irq,
+> >> void
+> >> *dev)
+> >>  	bus_err &= I2C_STATUS_ERROR_MASK;
+> >>  	qup_err &= QUP_STATUS_ERROR_FLAGS;
+> >>
+> >> -	if (qup_err) {
+> >> -		/* Clear Error interrupt */
+> >> +	/* Clear the error bits in QUP_ERROR_FLAGS */
+> >> +	if (qup_err)
+> >>  		writel(qup_err, qup->base + QUP_ERROR_FLAGS);
+> >> -		goto done;
+> >> -	}
+> >>
+> >> -	if (bus_err) {
+> >> -		/* Clear Error interrupt */
+> >> +	/* Clear the error bits in QUP_I2C_STATUS */
+> >> +	if (bus_err)
+> >> +		writel(bus_err, qup->base + QUP_I2C_STATUS);
+> >> +
+> >> +	/* Reset the QUP State in case of error */
+> >> +	if (qup_err || bus_err) {
+> >>  		writel(QUP_RESET_STATE, qup->base + QUP_STATE);
+> >>  		goto done;
+> >>  	}
+> >        In qup_i2c_xfer and qup_i2c_xfer_v2 state is set to RESET at
+> > the end, when
+> >        there is no error. So would it be fine if we do it there
+> > unconditionally ?
+> >
+> > Regards,
+> >  Sricharan
+> 
+> RESET the QUP state wouldn't create any issue in the case of multiple
+calls.
+> The existing code also RESET the QUP state for bus_err but it is not
+clearing
+> status bits.
+    So is there a difference that you see by setting it in isr for qup
+errors ?
+    Otherwise, its better to set it in one place unconditionally instead of
+doing
+    it in two places ?
 
-Okay, i make a little misunderstand for that, so i will fix it in next=20
-version.
-
-> -Doug
->
->
->
+Regards,
+ Sricharan
