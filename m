@@ -1,49 +1,170 @@
-From: Aleksei Mamlin <mamlinav@gmail.com>
-Subject: Re: State of the i2c-piix4 driver
-Date: Thu, 12 May 2016 07:53:25 +0000 (UTC)
-Message-ID: <loom.20160512T094247-214@post.gmane.org>
-References: <20160308151341.48eb3f41@endymion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:58570 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752083AbcELHzI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 12 May 2016 03:55:08 -0400
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <gldi-i2c-1@m.gmane.org>)
-	id 1b0lSb-0005sf-To
-	for linux-i2c@vger.kernel.org; Thu, 12 May 2016 09:55:06 +0200
-Received: from mail2.teploobmennik.ru ([95.79.26.27])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-i2c@vger.kernel.org>; Thu, 12 May 2016 09:55:05 +0200
-Received: from mamlinav by mail2.teploobmennik.ru with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-i2c@vger.kernel.org>; Thu, 12 May 2016 09:55:05 +0200
-Sender: linux-i2c-owner@vger.kernel.org
+From: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH v9 5/8] i2c: rk3x: Move spec timing data to "static const" structs
+Date: Thu, 12 May 2016 15:57:09 +0800
+Message-ID: <1463039829-8267-1-git-send-email-david.wu@rock-chips.com>
+References: <1463039586-8134-1-git-send-email-david.wu@rock-chips.com>
+Content-Type: text/plain; charset="utf-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1463039586-8134-1-git-send-email-david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, briannorris-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, davidriley-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
 
-Jean Delvare <jdelvare <at> suse.de> writes:
+The i2c timing specs are really just constant data. There's no reason
+to write code to init them, so move them out to structures. This not
+only is a cleaner solution but it will reduce code duplication when we
+introduce a new variant of rk3x_i2c_calc_divs() in a future patch.
 
-> 
-> 5* The I/O ports used for SMBus configuration and port switching are
-> also needed by a watchdog driver, sp5100_tco. Both drivers request the
-> region, so the first one wins, and the other driver can't be loaded.
-> sp5100_tco was there first, so the changes done to the i2c-piix4 driver
-> recently will cause a regression for some users by preventing them
-> from using the sp5100_tco and i2c-piix4 drivers at the same time. In
-> the long run I guess we will need a helper module to handle this shared
-> resource. Unless IORESOURCE_MUXED can be used for that. Either way,
-> that's more work than I can put into this before kernel v4.5 is
-> released. For the time being, I think we should simply make it
-> non-fatal if the I/O ports can't be requested, and continue without
-> multiplexing (as before.)
-> 
+Signed-off-by: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Suggested-by: Douglas Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Reviewed-by: Douglas Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+---
+Change in v9:
+- none
 
-Hi Jean
-Have you any progress with 5*?
-I have the same HP MicroServer G7 as Christian and it would be nice to have 
-both i2c and watchdog working at same time.
+Changes in v8:
+- add commit description.
+- remove the spec values that were not needed, then
+  introduce the additional values in the rk3399 patch. 
+
+ drivers/i2c/busses/i2c-rk3x.c | 83 ++++++++++++++++++++++++++++---------------
+ 1 file changed, 55 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index d7a871f..9791797 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -76,6 +76,34 @@ enum {
+ #define DEFAULT_SCL_RATE  (100 * 1000) /* Hz */
+ 
+ /**
++ * struct i2c_spec_values:
++ * @min_low_ns: min LOW period of the SCL clock
++ * @min_high_ns: min HIGH period of the SCL cloc
++ * @min_setup_start_ns: min set-up time for a repeated START conditio
++ * @max_data_hold_ns: max data hold time
++ */
++struct i2c_spec_values {
++	unsigned long min_low_ns;
++	unsigned long min_high_ns;
++	unsigned long min_setup_start_ns;
++	unsigned long max_data_hold_ns;
++};
++
++static const struct i2c_spec_values standard_mode_spec = {
++	.min_low_ns = 4700,
++	.min_high_ns = 4000,
++	.min_setup_start_ns = 4700,
++	.max_data_hold_ns = 3450,
++};
++
++static const struct i2c_spec_values fast_mode_spec = {
++	.min_low_ns = 1300,
++	.min_high_ns = 600,
++	.min_setup_start_ns = 600,
++	.max_data_hold_ns = 900,
++};
++
++/**
+  * struct rk3x_i2c_calced_timings:
+  * @div_low: Divider output for low
+  * @div_high: Divider output for high
+@@ -460,6 +488,21 @@ out:
+ }
+ 
+ /**
++ * Get timing values of I2C specification
++ *
++ * @speed: Desired SCL frequency
++ *
++ * Returns: Matched i2c spec values.
++ */
++static const struct i2c_spec_values *rk3x_i2c_get_spec(unsigned int speed)
++{
++	if (speed <= 100000)
++		return &standard_mode_spec;
++	else
++		return &fast_mode_spec;
++}
++
++/**
+  * Calculate divider values for desired SCL frequency
+  *
+  * @clk_rate: I2C input clock rate
+@@ -474,10 +517,6 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate,
+ 			      struct i2c_timings *t,
+ 			      struct rk3x_i2c_calced_timings *t_calc)
+ {
+-	unsigned long spec_min_low_ns, spec_min_high_ns;
+-	unsigned long spec_setup_start, spec_max_data_hold_ns;
+-	unsigned long data_hold_buffer_ns;
+-
+ 	unsigned long min_low_ns, min_high_ns;
+ 	unsigned long max_low_ns, min_total_ns;
+ 
+@@ -489,6 +528,8 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate,
+ 	unsigned long min_div_for_hold, min_total_div;
+ 	unsigned long extra_div, extra_low_div, ideal_low_div;
+ 
++	unsigned long data_hold_buffer_ns = 50;
++	const struct i2c_spec_values *spec;
+ 	int ret = 0;
+ 
+ 	/* Only support standard-mode and fast-mode */
+@@ -511,22 +552,8 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate,
+ 	 *	 This is because the i2c host on Rockchip holds the data line
+ 	 *	 for half the low time.
+ 	 */
+-	if (t->bus_freq_hz <= 100000) {
+-		/* Standard-mode */
+-		spec_min_low_ns = 4700;
+-		spec_setup_start = 4700;
+-		spec_min_high_ns = 4000;
+-		spec_max_data_hold_ns = 3450;
+-		data_hold_buffer_ns = 50;
+-	} else {
+-		/* Fast-mode */
+-		spec_min_low_ns = 1300;
+-		spec_setup_start = 600;
+-		spec_min_high_ns = 600;
+-		spec_max_data_hold_ns = 900;
+-		data_hold_buffer_ns = 50;
+-	}
+-	min_high_ns = t->scl_rise_ns + spec_min_high_ns;
++	spec = rk3x_i2c_get_spec(t->bus_freq_hz);
++	min_high_ns = t->scl_rise_ns + spec->min_high_ns;
+ 
+ 	/*
+ 	 * Timings for repeated start:
+@@ -536,14 +563,14 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate,
+ 	 * We need to account for those rules in picking our "high" time so
+ 	 * we meet tSU;STA and tHD;STA times.
+ 	 */
+-	min_high_ns = max(min_high_ns,
+-		DIV_ROUND_UP((t->scl_rise_ns + spec_setup_start) * 1000, 875));
+-	min_high_ns = max(min_high_ns,
+-		DIV_ROUND_UP((t->scl_rise_ns + spec_setup_start +
+-			      t->sda_fall_ns + spec_min_high_ns), 2));
+-
+-	min_low_ns = t->scl_fall_ns + spec_min_low_ns;
+-	max_low_ns = spec_max_data_hold_ns * 2 - data_hold_buffer_ns;
++	min_high_ns = max(min_high_ns, DIV_ROUND_UP(
++		(t->scl_rise_ns + spec->min_setup_start_ns) * 1000, 875));
++	min_high_ns = max(min_high_ns, DIV_ROUND_UP(
++		(t->scl_rise_ns + spec->min_setup_start_ns + t->sda_fall_ns +
++		spec->min_high_ns), 2));
++
++	min_low_ns = t->scl_fall_ns + spec->min_low_ns;
++	max_low_ns =  spec->max_data_hold_ns * 2 - data_hold_buffer_ns;
+ 	min_total_ns = min_low_ns + min_high_ns;
+ 
+ 	/* Adjust to avoid overflow */
+-- 
+1.9.1
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
