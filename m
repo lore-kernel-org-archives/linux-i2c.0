@@ -1,7 +1,7 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v9 7/8] i2c: cavium: Use booleon values for booleon variables
-Date: Thu, 12 May 2016 14:22:15 +0200
-Message-ID: <1463055736-20025-8-git-send-email-jglauber@cavium.com>
+Subject: [PATCH v9 8/8] i2c: octeon: thunderx: Add MAINTAINERS entry
+Date: Thu, 12 May 2016 14:22:16 +0200
+Message-ID: <1463055736-20025-9-git-send-email-jglauber@cavium.com>
 References: <1463055736-20025-1-git-send-email-jglauber@cavium.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1463055736-20025-1-git-send-email-jglauber@cavium.com>
@@ -10,34 +10,51 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Initialize booleon values with true instead of 1.
+The i2c Octeon and ThunderX drivers are maintained by Cavium.
+While at it fix the whitespace errors of the next entry.
 
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
+Acked-by: David Daney <david.daney@cavium.com>
 ---
- drivers/i2c/busses/i2c-cavium.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ MAINTAINERS | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cavium.c b/drivers/i2c/busses/i2c-cavium.c
-index e95ee5c..140f0d1 100644
---- a/drivers/i2c/busses/i2c-cavium.c
-+++ b/drivers/i2c/busses/i2c-cavium.c
-@@ -63,7 +63,7 @@ static bool octeon_i2c_test_ready(struct octeon_i2c *i2c, bool *first)
- static int octeon_i2c_wait(struct octeon_i2c *i2c)
- {
- 	long time_left;
--	bool first = 1;
-+	bool first = true;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 09744d2..bc28301 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2826,15 +2826,24 @@ S:	Maintained
+ F:	drivers/iio/light/cm*
+ F:	Documentation/devicetree/bindings/i2c/trivial-devices.txt
  
- 	/*
- 	 * Some chip revisions don't assert the irq in the interrupt
-@@ -176,7 +176,7 @@ static void octeon_i2c_hlc_disable(struct octeon_i2c *i2c)
-  */
- static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
- {
--	bool first = 1;
-+	bool first = true;
- 	int time_left;
++CAVIUM I2C DRIVER
++M:	Jan Glauber <jglauber@cavium.com>
++M:	David Daney <david.daney@cavium.com>
++W:	http://www.cavium.com
++S:	Supported
++F:	drivers/i2c/busses/i2c-cavium*
++F:	drivers/i2c/busses/i2c-octeon*
++F:	drivers/i2c/busses/i2c-thunderx*
++
+ CAVIUM LIQUIDIO NETWORK DRIVER
+-M:     Derek Chickles <derek.chickles@caviumnetworks.com>
+-M:     Satanand Burla <satananda.burla@caviumnetworks.com>
+-M:     Felix Manlunas <felix.manlunas@caviumnetworks.com>
+-M:     Raghu Vatsavayi <raghu.vatsavayi@caviumnetworks.com>
+-L:     netdev@vger.kernel.org
+-W:     http://www.cavium.com
+-S:     Supported
+-F:     drivers/net/ethernet/cavium/liquidio/
++M:	Derek Chickles <derek.chickles@caviumnetworks.com>
++M:	Satanand Burla <satananda.burla@caviumnetworks.com>
++M:	Felix Manlunas <felix.manlunas@caviumnetworks.com>
++M:	Raghu Vatsavayi <raghu.vatsavayi@caviumnetworks.com>
++L:	netdev@vger.kernel.org
++W:	http://www.cavium.com
++S:	Supported
++F:	drivers/net/ethernet/cavium/liquidio/
  
- 	/*
+ CC2520 IEEE-802.15.4 RADIO DRIVER
+ M:	Varka Bhadram <varkabhadram@gmail.com>
 -- 
 1.9.1
