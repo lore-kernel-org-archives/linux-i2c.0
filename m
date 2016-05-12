@@ -1,77 +1,52 @@
 From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: rcar: add DMA support
-Date: Thu, 12 May 2016 23:31:27 +0200
-Message-ID: <20160512213127.GA1860@katana>
+Date: Thu, 12 May 2016 23:35:51 +0200
+Message-ID: <20160512213551.GA1641@katana>
 References: <1462365503-8451-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+ <20160505220625.GA18367@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:48975 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751330AbcELVbj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 12 May 2016 17:31:39 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1462365503-8451-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20160505220625.GA18367@rob-hp-laptop>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
 
-Hi Niklas,
 
-thanks for the submission. I was finally able to test this change.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, May 04, 2016 at 02:38:23PM +0200, Niklas S=C3=B6derlund wrote:
-> Make it possible to transfer i2c message buffers via DMA.
-> Start/Stop/Sending_Slave_Address and some data is still handled using
-> the old state machine, it is sending the bulk of the data that is don=
-e
-> via DMA.
->=20
-> The first byte of a transmission and the last two bytes of reception =
-are
-> sent/received using PIO. This is needed for the HW to have access to =
-the
-> first byte before DMA transmit and to be able to set the STOP conditi=
-on
-> for DMA reception.
->=20
-> Signed-off-by: Niklas S=C3=B6derlund <niklas.soderlund+renesas@ragnat=
-ech.se>
 
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Is DMA actually faster or less cpu usage? I'm doubtful.
 
-I did regression tests on my Salvator-X trying to trigger previously
-known issues. Nothing bad happened. This could be expected since START
-and STOP is done in PIO mode, but one never knows :) Also did verify
-that DMA is triggered for bigger transfers.
+No need to be faster at 100/400kHz :) The key here is way less
+interrupts for bigger transfers. The threshold value is hard to measure,
+however.
 
-Did you have time to re-measure the threshold? Also, did you try bootin=
-g
-without DMA and on Gen2? We had a bit of hazzle with !DMA with the
-sh_mobile-driver. Boot test and basic i2cdetect will suffice.
 
-Patch looks good, only minor nits:
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> +	/* Do not use DMA for messages shorter then 8 bytes */
-> +	if (msg->len < 8)
-> +		return;
-> +
-> +	if (IS_ERR(chan))
-> +		return;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Make this one if (a || b)?
+iQIcBAEBAgAGBQJXNPc3AAoJEBQN5MwUoCm2rq8P/3V6/RHRLfC4iSWbFPEfsVYT
+CBWgccvl6CjHE6M7tIPpOho+ADh7V/edz9uUv41vbUyxRhafqU0S/HEL5u9+i0ep
+ymemGrZFO7CzzX/DYRX0RPBUH5PkMjFvr91EGO5hMZQoXo1D8mq0js7zL+MVwelT
+Eu0dtZVco5LIGov540XHJ64HmwtCkXE9HVd5034Ju8kUk+wkWdZZDckCaB+ZbtIq
+ownlprn9+Jn75Ng5oLVf0ZR6OIJ4JSHo68UWaikpB+9EhD+KwL07gF8eo2COGGr3
+aSXap7GdFYP9A5R+0fPuk/dAgveoGqTYCegkmGp14tcjlX+SgCgLiktVVfDzkfaw
+HOcn8o4FPumsKODBXCv3zwhEywTvCfhHr5RdGiCjTo7eiFKz1ThnUVrJcaqS2xZ/
+Ch5KnQrtI91DWZxI/bMX4gSBzlxy+OvC6nenjzTerxA24DUXTqYGh3/BIxBuXnCt
+zV1Da2yuYMiFgzO8jpUTqQB3pK9PUQPMoQfna5flxFwZjs/7ySKe4INSuObBexC5
+gYnGBHPMJzkksKRGjtv0o2ZwEudtxS4SRtao4I3bUR44HEqkr/c5wnKuqIVHkNZN
+1jOj/xJ4GoT7bNHm03Do0PXcDkJxLiPk1IhJ7DXytu/PLCLY0pZ59LiU7Rem6lwc
+ftt8pq0mFJ/ZjxDozWPO
+=xbcF
+-----END PGP SIGNATURE-----
 
-> @@ -516,6 +738,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapte=
-r *adap,
->  out:
->  	pm_runtime_put(dev);
-> =20
-> +
-
-Unrelated change ;)
-
-Thanks,
-
-   Wolfram
+--0F1p//8PRICkK4MW--
