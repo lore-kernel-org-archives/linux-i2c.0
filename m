@@ -1,82 +1,34 @@
-From: David Wu <david.wu@rock-chips.com>
-Subject: [PATCH v9 8/8] i2c: rk3x: support fast-mode plus for rk3399
-Date: Thu, 12 May 2016 16:01:15 +0800
-Message-ID: <1463040075-8438-1-git-send-email-david.wu@rock-chips.com>
-References: <1463039586-8134-1-git-send-email-david.wu@rock-chips.com>
-Content-Type: text/plain; charset="utf-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.133]:35164 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751364AbcELIBe (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 May 2016 04:01:34 -0400
-In-Reply-To: <1463039586-8134-1-git-send-email-david.wu@rock-chips.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: Re: [PATCH v8 8/8] i2c: rk3x: support fast-mode plus for rk3399
+Date: Thu, 12 May 2016 10:30:25 +0200
+Message-ID: <6806722.VBDbziL6YI@phil>
+References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com> <5153288.jNhUuzGC3g@phil> <CAD=FV=VzQ8PRokgAaTV00L31mcXFEzBG8c1NB4+Rqyx75hwwDg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAD=FV=VzQ8PRokgAaTV00L31mcXFEzBG8c1NB4+Rqyx75hwwDg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: David Wu <david.wu@rock-chips.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: heiko@sntech.de, wsa@the-dreams.de
-Cc: robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <david.wu@rock-chips.com>
 
-Implement fast mode plus that allows bus speeds of up to 1MHz.
+Am Mittwoch, 11. Mai 2016, 16:41:54 schrieb Doug Anderson:
+> Heiko,
+> 
+> On Wed, May 11, 2016 at 2:09 PM, Heiko Stuebner <heiko@sntech.de> wrote:
+> > Additionally, the i2c-noob in me would wish for a short sentence on
+> > where
+> > the timing values come from (measured, somewhere in the TRM I didn't
+> > find or something completely different).
+> 
+> If you search for "UM10204" you'll find the first link is
+> <http://www.nxp.com/documents/user_manual/UM10204.pdf>.  That appears
+> to be the official standard.  At least that's what
+> <http://www.i2c-bus.org/fast-mode-plus/> says (though they have an old
+> link).
 
-Signed-off-by: David Wu <david.wu@rock-chips.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Caesar Wang <wxt@rock-chips.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
----
-Change in v9:
-- add commit message
-
-Change in v8:
-- none
-
- drivers/i2c/busses/i2c-rk3x.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 673656e..ba4ce39 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -126,6 +126,17 @@ static const struct i2c_spec_values fast_mode_spec = {
- 	.min_hold_buffer_ns = 1300,
- };
- 
-+static const struct i2c_spec_values fast_mode_plus_spec = {
-+	.min_hold_start_ns = 260,
-+	.min_low_ns = 500,
-+	.min_high_ns = 260,
-+	.min_setup_start_ns = 260,
-+	.max_data_hold_ns = 400,
-+	.min_data_setup_ns = 50,
-+	.min_setup_stop_ns = 260,
-+	.min_hold_buffer_ns = 500,
-+};
-+
- /**
-  * struct rk3x_i2c_calced_timings:
-  * @div_low: Divider output for low
-@@ -531,8 +542,10 @@ static const struct i2c_spec_values *rk3x_i2c_get_spec(unsigned int speed)
- {
- 	if (speed <= 100000)
- 		return &standard_mode_spec;
--	else
-+	else if (speed <= 400000)
- 		return &fast_mode_spec;
-+	else
-+		return &fast_mode_plus_spec;
- }
- 
- /**
-@@ -743,9 +756,9 @@ static int rk3x_i2c_v1_calc_timings(unsigned long clk_rate,
- 	const struct i2c_spec_values *spec;
- 	int ret = 0;
- 
--	/* Support standard-mode and fast-mode */
--	if (WARN_ON(t->bus_freq_hz > 400000))
--		t->bus_freq_hz = 400000;
-+	/* Support standard-mode, fast-mode and fast-mode plus */
-+	if (WARN_ON(t->bus_freq_hz > 1000000))
-+		t->bus_freq_hz = 1000000;
- 
- 	/* prevent scl_rate_khz from becoming 0 */
- 	if (WARN_ON(t->bus_freq_hz < 1000))
--- 
-1.9.1
+I did find that document yesterday, but was to blind and somehow only saw the 
+separate table for highspeed-timings. On a closer look, I now also found the 
+timing-table for the other modes [due to the bigger font-size used there? 
+;-) ]
