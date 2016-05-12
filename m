@@ -1,44 +1,49 @@
-From: Andy Gross <andy.gross@linaro.org>
+From: Abhishek Sahu <absahu@codeaurora.org>
 Subject: Re: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
-Date: Thu, 12 May 2016 00:13:47 -0500
-Message-ID: <20160512051347.GE8453@hector.attlocal.net>
+Date: Thu, 12 May 2016 11:48:43 +0530
+Message-ID: <20160512061843.GA6187@chewinlnx07.qualcomm.com>
 References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org>
  <1462797871-8595-2-git-send-email-absahu@codeaurora.org>
  <000701d1ab9d$df9b3100$9ed19300$@codeaurora.org>
  <934365f2bd30f242d8548e2a27483679@codeaurora.org>
+ <20160512051347.GE8453@hector.attlocal.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f42.google.com ([209.85.218.42]:34491 "EHLO
-	mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751732AbcELFNt (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 May 2016 01:13:49 -0400
-Received: by mail-oi0-f42.google.com with SMTP id k142so102778583oib.1
-        for <linux-i2c@vger.kernel.org>; Wed, 11 May 2016 22:13:49 -0700 (PDT)
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <934365f2bd30f242d8548e2a27483679@codeaurora.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Abhishek Sahu <absahu@codeaurora.org>
+In-Reply-To: <20160512051347.GE8453@hector.attlocal.net>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Andy Gross <andy.gross@linaro.org>
 Cc: Sricharan <sricharan@codeaurora.org>, agross@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
+List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 11, 2016 at 11:04:17PM +0530, Abhishek Sahu wrote:
-
-<snip>
-
-> >       In qup_i2c_xfer and qup_i2c_xfer_v2 state is set to RESET at the
-> >end, when
-> >       there is no error. So would it be fine if we do it there
-> >unconditionally ?
-> >
-> >Regards,
-> > Sricharan
+On Thu, May 12, 2016 at 12:13:47AM -0500, Andy Gross wrote:
+> On Wed, May 11, 2016 at 11:04:17PM +0530, Abhishek Sahu wrote:
 > 
-> RESET the QUP state wouldn't create any issue in the case of multiple calls.
-> The existing code also RESET the QUP state for bus_err but it is not
-> clearing
-> status bits.
+> <snip>
+> 
+> > >       In qup_i2c_xfer and qup_i2c_xfer_v2 state is set to RESET at the
+> > >end, when
+> > >       there is no error. So would it be fine if we do it there
+> > >unconditionally ?
+> > >
+> > >Regards,
+> > > Sricharan
+> > 
+> > RESET the QUP state wouldn't create any issue in the case of multiple calls.
+> > The existing code also RESET the QUP state for bus_err but it is not
+> > clearing
+> > status bits.
+> 
+> It'd be better to not reset the QUP inside the ISR at all.  I think the better
+> solution is making the reset occur in the xfer function.  So just clear the bits
+> like you should in the isr, and defer reset till later.
 
-It'd be better to not reset the QUP inside the ISR at all.  I think the better
-solution is making the reset occur in the xfer function.  So just clear the bits
-like you should in the isr, and defer reset till later.
+This is a HW workaround for QUP where we need to RESET the core in
+ISR. When interrupt is level triggerd, more than one interrupt may
+fire in error cases and QUP will generate these interrupts after
+completion of current interrupt. Thus we reset the core immediately
+in the ISR to ward off the next interrupt.
+
+-- 
+Abhishek Sahu
