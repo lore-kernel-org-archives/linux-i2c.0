@@ -1,63 +1,45 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: Raise SDA for each received bit, if necessary
-Date: Thu, 12 May 2016 11:05:44 +0200
-Message-ID: <20160512090544.GB1638@katana>
-References: <1461780714-20378-1-git-send-email-tdz@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BwCQnh7xodEAoBMC"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1461780714-20378-1-git-send-email-tdz@users.sourceforge.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Zimmermann <tdz@users.sourceforge.net>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: only check scl functions when using generic recovery
+Date: Thu, 12 May 2016 11:25:19 +0200
+Message-ID: <1463045119-7375-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:44919 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751576AbcELJZ2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 12 May 2016 05:25:28 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Griffin <peter.griffin@linaro.org>
 
+A custom recovery function doesn't need these pointers to be populated
+because it may work differently internally.
 
---BwCQnh7xodEAoBMC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Tested-by: Peter Griffin <peter.griffin@linaro.org>
+---
+ drivers/i2c/i2c-core.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Hi Thomas,
-
-On Wed, Apr 27, 2016 at 08:11:54PM +0200, Thomas Zimmermann wrote:
-> Some I2C adapters don't raise SDA by themselves when sending a bit. This
-> behavior can be seen with the DDC channel of SiS 300 graphics cards.
-
-I think you mean 'clients' or 'devices' here, not adapters (masters),
-right? So, it seems you have a bus without a pull-up resistor (or a
-broken one?) but use now a push-pull design. This is against the I2C
-standard and for most circiuts quite dangerous as it can lead to
-shortcuts.
-
-Do you have any hints that the bus is designed this way? In which driver
-do you want to use the new flag?
-
-Thanks,
-
-   Wolfram
-
-
---BwCQnh7xodEAoBMC
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXNEdoAAoJEBQN5MwUoCm22u8P/07ooDEFEXbT/Urr006Yz3x5
-gRqcSxVV0kEUrIc/6sK1nxGdh19DhDkjtAV630Qn1/Orp/bI/w7jiCzRfiicijdY
-ROwsbX91PdGcNANfWEy2TAwnJNCf/TOHtPYMShLPEzSuRe75MFP0mpZ/G8VRc5BS
-uf3deVDWFeO+JN8Jmr7mdPk/I92heh8LVggPr95XKkXrfTxD1unhET0cQTQPbEMW
-NYmkd0row/FXCJDbbx0JECwzR85P8T5HcjH786qAfNPtiBupf+ExZDr7q91s6q5V
-yQV5XLkTvcUi9Oe8uNediZ6BxdlhZX9PvHvuSnM5xyL3LVcOKI79cNYEh9JvqJ42
-4Nla9yVrDMJ7F6HHBPypf5TzXwDOEKN8nbf8eHnmemINOZFfjxIpbJUNYuWF59QL
-tof8hXIZjQU+MN7E4iGfsK1uGOft+8sn7fp+Q4fRFFaEYGogHpaKFng8YK4VjJK0
-9hLINmm5N8ZVnVWjTOGQ+hwjDjx2YdMK6mmony764TrLJczd0RmcaSQpSmNxqOCM
-Rc1Uzw+amujwphLY7VZMn6aM7Y462A3oSqeznTJ6YGdohvNRUT7spH0pYONC6tr4
-U7z7mpeqT8g0J3jVU2D4UTtsy4jibV7oEivLwIL4LpAQ3s+pOLG9QanBB2TCJSqH
-G45bZdJDnXOgyoJq8pon
-=HCuS
------END PGP SIGNATURE-----
-
---BwCQnh7xodEAoBMC--
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 9da44616252995..af11b658984d76 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1594,10 +1594,12 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 
+ 			bri->get_scl = get_scl_gpio_value;
+ 			bri->set_scl = set_scl_gpio_value;
+-		} else if (!bri->set_scl || !bri->get_scl) {
++		} else if (bri->recover_bus == i2c_generic_scl_recovery) {
+ 			/* Generic SCL recovery */
+-			dev_err(&adap->dev, "No {get|set}_gpio() found, not using recovery\n");
+-			adap->bus_recovery_info = NULL;
++			if (!bri->set_scl || !bri->get_scl) {
++				dev_err(&adap->dev, "No {get|set}_scl() found, not using recovery\n");
++				adap->bus_recovery_info = NULL;
++			}
+ 		}
+ 	}
+ 
+-- 
+2.8.1
