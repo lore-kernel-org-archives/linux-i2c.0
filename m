@@ -1,110 +1,64 @@
-From: "David.Wu" <david.wu@rock-chips.com>
-Subject: Re: [PATCH v8 7/8] i2c: rk3x: add i2c support for rk3399 soc
-Date: Thu, 12 May 2016 23:07:34 +0800
-Message-ID: <57349C36.4030401@rock-chips.com>
-References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
- <1462908698-27284-1-git-send-email-david.wu@rock-chips.com>
- <CAD=FV=Uf-U3RBpgFbR3LkPAJTWqz3d02+H7iyA-SS-y=r3cXjA@mail.gmail.com>
- <5733D7AA.1060500@rock-chips.com>
+From: Thomas Zimmermann <tdz@users.sourceforge.net>
+Subject: Re: [PATCH] i2c: Raise SDA for each received bit, if necessary
+Date: Thu, 12 May 2016 18:19:12 +0200
+Message-ID: <5734AD00.3050904@users.sourceforge.net>
+References: <1461780714-20378-1-git-send-email-tdz@users.sourceforge.net>
+ <20160512090544.GB1638@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.135]:48871 "EHLO
-	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751491AbcELPHU (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 May 2016 11:07:20 -0400
-In-Reply-To: <5733D7AA.1060500@rock-chips.com>
+Received: from mail-wm0-f42.google.com ([74.125.82.42]:38026 "EHLO
+	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932086AbcELQTk (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 May 2016 12:19:40 -0400
+In-Reply-To: <20160512090544.GB1638@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Doug=EF=BC=8C
+Hi
 
-=E5=9C=A8 2016/5/12 9:08, David.Wu =E5=86=99=E9=81=93:
-> Hi Doug,
->
-> =E5=9C=A8 2016/5/12 1:37, Doug Anderson =E5=86=99=E9=81=93:
->> Hi,
->>
->> On Tue, May 10, 2016 at 12:31 PM, David Wu <david.wu@rock-chips.com>
->> wrote:
->>>   static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned lon=
-g
->>> clk_rate)
->>>   {
->>>          struct i2c_timings *t =3D &i2c->t;
->>>          struct rk3x_i2c_calced_timings calc;
->>>          u64 t_low_ns, t_high_ns;
->>> +       u32 val;
->>>          int ret;
->>>
->>> -       ret =3D rk3x_i2c_calc_divs(clk_rate, t, &calc);
->>> +       ret =3D i2c->soc_data->calc_timings(clk_rate, t, &calc);
->>>          WARN_ONCE(ret !=3D 0, "Could not reach SCL freq %u",
->>> t->bus_freq_hz);
->>>
->>> -       clk_enable(i2c->clk);
->>> +       clk_enable(i2c->pclk);
->>> +
->>>          i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low &
->>> 0xffff),
->>>                     REG_CLKDIV);
->>> -       clk_disable(i2c->clk);
->>> +
->>> +       val =3D i2c_readl(i2c, REG_CON);
->>> +       val &=3D ~REG_CON_TUNING_MASK;
->>> +       val |=3D calc.tuning;
->>> +       i2c_writel(i2c, val, REG_CON);
->>
->> Another subtle bug here.  You need to be holding the spinlock here
->> since you're doing a read-modify-write of a register that is also
->> touched by the interrupt handler.  We never needed it before because
->> the previous register update wasn't touched by anyone else and it wa=
-s
->> a single atomic write.
->>
->> Also: technically if we are midway through a transfer when all this
->> happens then there will be a very short period of time when the two
->> timing-related registers won't match with each other.  I have no ide=
-a
->> how much that would matter, but in the very least it seems wise to
->> minimize the time where they mismatch.  So I'd probably write:
->>
->>         spin_lock_irqsave(&i2c->lock, flags);
->>         val =3D i2c_readl(i2c, REG_CON);
->>         val &=3D ~REG_CON_TUNING_MASK;
->>         val |=3D calc.tuning;
->>         i2c_writel(i2c, val, REG_CON);
->>         i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low & 0xff=
-ff),
->>                    REG_CLKDIV);
->>         spin_unlock_irqrestore(&i2c->lock, flags);
->>
->> ...if we really end up with on a system with a dynamically changing
->> clock that uses the new-style timing and we see real problems, we ca=
-n
->> always try to come up with a way to avoid any problems.  Sound OK?
->>
->>
->
-> Good, add spin_lock is very necessary for atomic write here, thanks f=
-or
-> your advice.
+Am 12.05.2016 um 11:05 schrieb Wolfram Sang:
+> Hi Thomas,
+> 
+> On Wed, Apr 27, 2016 at 08:11:54PM +0200, Thomas Zimmermann wrote:
+>> Some I2C adapters don't raise SDA by themselves when sending a bit. This
+>> behavior can be seen with the DDC channel of SiS 300 graphics cards.
+> 
+> I think you mean 'clients' or 'devices' here, not adapters (masters),
+> right?
 
-I also found a subtle bug, it would clean the con register by use=20
-"i2c_writel(i2c, 0, REG_CON)" in rk3x_i2c_stop(). So i think it would b=
-e=20
-fixed by using read-modify-write way here in next version.
+Yes, sorry.
 
->
->> Otherwise, I think things look good to me.  Caesar's comments would
->> also be good to fix.
->>
->>
->> -Doug
->>
->>
->>
+> So, it seems you have a bus without a pull-up resistor (or a
+> broken one?) but use now a push-pull design. This is against the I2C
+> standard and for most circiuts quite dangerous as it can lead to
+> shortcuts.
+
+I see.
+
+> Do you have any hints that the bus is designed this way? In which driver
+> do you want to use the new flag?
+
+I was playing with the DRM framework and an old SiS graphics card. I
+discovered this issue while trying to read the EDID from the monitor.
+
+I have a few other SiS cards/models here and they all expose this
+behavior. So I guess it's intentional(==cheaper?), although the HW docs
+don't seem mention it explicitly.
+
+Best regards
+Thomas
+
+> 
+> Thanks,
+> 
+>    Wolfram
+> 
+
+
+-- 
+GnuPG:          http://tdz.users.sourceforge.net/tdz.asc
+Fingerprint:    16FF F599 82F8 E5AA 18C6 5220 D9DA D7D4 4EF1 DF08
