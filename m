@@ -1,33 +1,77 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v8 7/8] i2c: rk3x: add i2c support for rk3399 soc
-Date: Thu, 12 May 2016 14:09:24 -0700
-Message-ID: <CAD=FV=W1-DDtuLUzW1uLiFxuhpnmhnKB1od_yweY=WJ-4u3=kQ@mail.gmail.com>
-References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
-	<1462908698-27284-1-git-send-email-david.wu@rock-chips.com>
-	<CAD=FV=Uf-U3RBpgFbR3LkPAJTWqz3d02+H7iyA-SS-y=r3cXjA@mail.gmail.com>
-	<5733D7AA.1060500@rock-chips.com>
-	<57349C36.4030401@rock-chips.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: rcar: add DMA support
+Date: Thu, 12 May 2016 23:31:27 +0200
+Message-ID: <20160512213127.GA1860@katana>
+References: <1462365503-8451-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <57349C36.4030401-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "David.Wu" <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Brian Norris <briannorris-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, David Riley <davidriley-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:48975 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751330AbcELVbj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 12 May 2016 17:31:39 -0400
+Content-Disposition: inline
+In-Reply-To: <1462365503-8451-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
 
-David,
+Hi Niklas,
 
-On Thu, May 12, 2016 at 8:07 AM, David.Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
-> I also found a subtle bug, it would clean the con register by use
-> "i2c_writel(i2c, 0, REG_CON)" in rk3x_i2c_stop(). So i think it would be
-> fixed by using read-modify-write way here in next version.
+thanks for the submission. I was finally able to test this change.
 
-Good catch.  I look forward to the next version (maybe the last
-version, since this series is looking really good).
+On Wed, May 04, 2016 at 02:38:23PM +0200, Niklas S=C3=B6derlund wrote:
+> Make it possible to transfer i2c message buffers via DMA.
+> Start/Stop/Sending_Slave_Address and some data is still handled using
+> the old state machine, it is sending the bulk of the data that is don=
+e
+> via DMA.
+>=20
+> The first byte of a transmission and the last two bytes of reception =
+are
+> sent/received using PIO. This is needed for the HW to have access to =
+the
+> first byte before DMA transmit and to be able to set the STOP conditi=
+on
+> for DMA reception.
+>=20
+> Signed-off-by: Niklas S=C3=B6derlund <niklas.soderlund+renesas@ragnat=
+ech.se>
 
--Doug
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+I did regression tests on my Salvator-X trying to trigger previously
+known issues. Nothing bad happened. This could be expected since START
+and STOP is done in PIO mode, but one never knows :) Also did verify
+that DMA is triggered for bigger transfers.
+
+Did you have time to re-measure the threshold? Also, did you try bootin=
+g
+without DMA and on Gen2? We had a bit of hazzle with !DMA with the
+sh_mobile-driver. Boot test and basic i2cdetect will suffice.
+
+Patch looks good, only minor nits:
+
+> +	/* Do not use DMA for messages shorter then 8 bytes */
+> +	if (msg->len < 8)
+> +		return;
+> +
+> +	if (IS_ERR(chan))
+> +		return;
+
+Make this one if (a || b)?
+
+> @@ -516,6 +738,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapte=
+r *adap,
+>  out:
+>  	pm_runtime_put(dev);
+> =20
+> +
+
+Unrelated change ;)
+
+Thanks,
+
+   Wolfram
