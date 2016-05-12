@@ -1,64 +1,57 @@
-From: Thomas Zimmermann <tdz@users.sourceforge.net>
-Subject: Re: [PATCH] i2c: Raise SDA for each received bit, if necessary
-Date: Thu, 12 May 2016 18:19:12 +0200
-Message-ID: <5734AD00.3050904@users.sourceforge.net>
-References: <1461780714-20378-1-git-send-email-tdz@users.sourceforge.net>
- <20160512090544.GB1638@katana>
+From: Andy Gross <andy.gross@linaro.org>
+Subject: Re: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
+Date: Thu, 12 May 2016 12:58:30 -0500
+Message-ID: <20160512175830.GA32019@hector>
+References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org>
+ <1462797871-8595-2-git-send-email-absahu@codeaurora.org>
+ <000701d1ab9d$df9b3100$9ed19300$@codeaurora.org>
+ <934365f2bd30f242d8548e2a27483679@codeaurora.org>
+ <20160512051347.GE8453@hector.attlocal.net>
+ <20160512061843.GA6187@chewinlnx07.qualcomm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f42.google.com ([74.125.82.42]:38026 "EHLO
-	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932086AbcELQTk (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 May 2016 12:19:40 -0400
-In-Reply-To: <20160512090544.GB1638@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160512061843.GA6187@chewinlnx07.qualcomm.com>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Abhishek Sahu <absahu@codeaurora.org>
+Cc: Sricharan <sricharan@codeaurora.org>, agross@codeaurora.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi
-
-Am 12.05.2016 um 11:05 schrieb Wolfram Sang:
-> Hi Thomas,
+On Thu, May 12, 2016 at 11:48:43AM +0530, Abhishek Sahu wrote:
+> On Thu, May 12, 2016 at 12:13:47AM -0500, Andy Gross wrote:
+> > On Wed, May 11, 2016 at 11:04:17PM +0530, Abhishek Sahu wrote:
+> > 
+> > <snip>
+> > 
+> > > >       In qup_i2c_xfer and qup_i2c_xfer_v2 state is set to RESET at the
+> > > >end, when
+> > > >       there is no error. So would it be fine if we do it there
+> > > >unconditionally ?
+> > > >
+> > > >Regards,
+> > > > Sricharan
+> > > 
+> > > RESET the QUP state wouldn't create any issue in the case of multiple calls.
+> > > The existing code also RESET the QUP state for bus_err but it is not
+> > > clearing
+> > > status bits.
+> > 
+> > It'd be better to not reset the QUP inside the ISR at all.  I think the better
+> > solution is making the reset occur in the xfer function.  So just clear the bits
+> > like you should in the isr, and defer reset till later.
 > 
-> On Wed, Apr 27, 2016 at 08:11:54PM +0200, Thomas Zimmermann wrote:
->> Some I2C adapters don't raise SDA by themselves when sending a bit. This
->> behavior can be seen with the DDC channel of SiS 300 graphics cards.
-> 
-> I think you mean 'clients' or 'devices' here, not adapters (masters),
-> right?
+> This is a HW workaround for QUP where we need to RESET the core in
+> ISR. When interrupt is level triggerd, more than one interrupt may
+> fire in error cases and QUP will generate these interrupts after
+> completion of current interrupt. Thus we reset the core immediately
+> in the ISR to ward off the next interrupt.
 
-Yes, sorry.
-
-> So, it seems you have a bus without a pull-up resistor (or a
-> broken one?) but use now a push-pull design. This is against the I2C
-> standard and for most circiuts quite dangerous as it can lead to
-> shortcuts.
-
-I see.
-
-> Do you have any hints that the bus is designed this way? In which driver
-> do you want to use the new flag?
-
-I was playing with the DRM framework and an old SiS graphics card. I
-discovered this issue while trying to read the EDID from the monitor.
-
-I have a few other SiS cards/models here and they all expose this
-behavior. So I guess it's intentional(==cheaper?), although the HW docs
-don't seem mention it explicitly.
-
-Best regards
-Thomas
-
-> 
-> Thanks,
-> 
->    Wolfram
-> 
+I wonder if that was just an expedient solution.  And it seems like it could be
+a little racy as a poll is not being done to make sure the QUP state machine
+transitions to reset.  Is there any documentation/errata on this?  Or is this
+just from commit comments?
 
 
--- 
-GnuPG:          http://tdz.users.sourceforge.net/tdz.asc
-Fingerprint:    16FF F599 82F8 E5AA 18C6 5220 D9DA D7D4 4EF1 DF08
+Regards,
+Andy
