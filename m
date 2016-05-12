@@ -1,115 +1,363 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v9 0/8] i2c-octeon and i2c-thunderx driver
-Date: Thu, 12 May 2016 14:22:08 +0200
-Message-ID: <1463055736-20025-1-git-send-email-jglauber@cavium.com>
+Subject: [PATCH v9 3/8] i2c: thunderx: Add i2c driver for ThunderX SOC
+Date: Thu, 12 May 2016 14:22:11 +0200
+Message-ID: <1463055736-20025-4-git-send-email-jglauber@cavium.com>
+References: <1463055736-20025-1-git-send-email-jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:33981 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751364AbcELMWi (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 May 2016 08:22:38 -0400
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33468 "EHLO
+	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751364AbcELMWl (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 12 May 2016 08:22:41 -0400
+In-Reply-To: <1463055736-20025-1-git-send-email-jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 
-Hi Wolfram,
+The ThunderX SOC uses the same i2c block as the Octeon SOC.
+The main difference is that on ThunderX the device is a PCI device
+so device probing is done via PCI, interrupts are MSI-X. The
+clock rates can be set via device tree or ACPI.
 
-this update adds ACPI support for the clock-frequency setting in the
-thunderx driver. For SMBUS alert support it is currently unclear how
-it will look like in ACPI so I left that unimplemented.
-
-Patch #5 - #7 are (final) cleanup patches.
-
-Patches are on-top of next-20160512.
-
-Changes to v8:
-- Use device property for clock-frequency setting in thunderx,
-  get rid of of_find_node_by_name
-- Simplify adap.name by using device name
-- SMBUS ACPI handling
-- Re-phrase SMBUS error/not-specified message
-
-Changes to v7:
-- Sort include files also in octeon-core.c
-- Add cleanup bool patch (left-over from v7)
-- Dropped read-write function shuffle patch
-
-Changes to v6:
-- Fixed read_int kerneldoc
-- Removed udelay after write-int in recovery
-- Killed retries in recovery, use EAGAIN
-- Disable SMBUS QUICK and remove unneeded length check
-- Spell out enable/disable
-- Switch to wait_event_timeout
-- Removed superfluous status check in HLC write
-- Optimize wait-queue also for HLC
-- Use readq/writeq instead of __raw_* in some places
-- Add STAT_IDLE to status check (valid after a write)
-
-Changes to v5:
-- Switch to i2c recovery framework
-- Clean-up register access, introduce new helper functions
-- Fixed ready bit check in combined write
-- Fixed IFLG clear in hlc_enable
-- Removed complicated last phase logic, not needed when we send
-  START for every message part
-
-Changes to v4:
-- Splitted the High-Level Controller patch into several patches
-- Reworded some commit messages
-
-Changes to v3:
-- Added more functionality flags for SMBUS
-- Removed both module parameters
-- Make xfer return also other errors than EGAIN
-- Return EPROTO on invalid SMBUS block length
-- Use devm_ioremap_resource
-- Added rename-only patch
-- Removed kerneldoc patch from series
-- Improved defines
-
-Changes to v2:
-- Split clenaup patch into several patches
-- Strictly moved functional changes to later patches
-- Fixed do-while checkpatch errors
-- Moved defines to the patches that use them
-- Use BIT_ULL macro
-- Split ThunderX patch into 2 patches
-
-Changes to v1:
-- Fixed compile error on x86_64
-- Disabled thunderx driver on MIPS
-- Re-ordered some thunderx probe functions for readability
-- Fix missing of_irq.h and i2c-smbus.h includes
-- Use IS_ENABLED for CONFIG options
-
-Thanks,
-Jan
-
--------------------------------------------------
-
-Jan Glauber (8):
-  i2c: octeon: Rename driver to prepare for split
-  i2c: octeon: Split the driver into two parts
-  i2c: thunderx: Add i2c driver for ThunderX SOC
-  i2c: thunderx: Add SMBUS alert support
-  i2c: octeon,thunderx: Move register offsets to struct
-  i2c: octeon: Sort include files alphabetically
-  i2c: cavium: Use booleon values for booleon variables
-  i2c: octeon: thunderx: Add MAINTAINERS entry
-
- MAINTAINERS                                       |   25 +-
- drivers/i2c/busses/Kconfig                        |   10 +
- drivers/i2c/busses/Makefile                       |    3 +
- drivers/i2c/busses/{i2c-octeon.c => i2c-cavium.c} | 1033 ++++++---------------
- drivers/i2c/busses/i2c-cavium.h                   |  214 +++++
- drivers/i2c/busses/i2c-octeon-core.c              |  288 ++++++
- drivers/i2c/busses/i2c-thunderx-core.c            |  305 ++++++
- 7 files changed, 1131 insertions(+), 747 deletions(-)
- rename drivers/i2c/busses/{i2c-octeon.c => i2c-cavium.c} (57%)
- create mode 100644 drivers/i2c/busses/i2c-cavium.h
- create mode 100644 drivers/i2c/busses/i2c-octeon-core.c
+Signed-off-by: Jan Glauber <jglauber@cavium.com>
+---
+ drivers/i2c/busses/Kconfig             |  10 ++
+ drivers/i2c/busses/Makefile            |   2 +
+ drivers/i2c/busses/i2c-cavium.h        |  16 ++-
+ drivers/i2c/busses/i2c-thunderx-core.c | 250 +++++++++++++++++++++++++++++++++
+ 4 files changed, 275 insertions(+), 3 deletions(-)
  create mode 100644 drivers/i2c/busses/i2c-thunderx-core.c
 
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 2dd40dd..5b1447a 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -953,6 +953,16 @@ config I2C_OCTEON
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-octeon.
+ 
++config I2C_THUNDERX
++	tristate "Cavium ThunderX I2C bus support"
++	depends on 64BIT && PCI && !CAVIUM_OCTEON_SOC
++	help
++	  Say yes if you want to support the I2C serial bus on Cavium
++	  ThunderX SOC.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-thunderx.
++
+ config I2C_XILINX
+ 	tristate "Xilinx I2C Controller"
+ 	depends on HAS_IOMEM
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 282f781..a32ff14 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -93,6 +93,8 @@ obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+ obj-$(CONFIG_I2C_WMT)		+= i2c-wmt.o
+ i2c-octeon-objs := i2c-cavium.o i2c-octeon-core.o
+ obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
++i2c-thunderx-objs := i2c-cavium.o i2c-thunderx-core.o
++obj-$(CONFIG_I2C_THUNDERX)	+= i2c-thunderx.o
+ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+ obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
+ obj-$(CONFIG_I2C_XLP9XX)	+= i2c-xlp9xx.o
+diff --git a/drivers/i2c/busses/i2c-cavium.h b/drivers/i2c/busses/i2c-cavium.h
+index 81c6a81..33c7e1f 100644
+--- a/drivers/i2c/busses/i2c-cavium.h
++++ b/drivers/i2c/busses/i2c-cavium.h
+@@ -8,9 +8,15 @@
+ #include <linux/pci.h>
+ 
+ /* Register offsets */
+-#define SW_TWSI			0x00
+-#define TWSI_INT		0x10
+-#define SW_TWSI_EXT		0x18
++#if IS_ENABLED(CONFIG_I2C_THUNDERX)
++	#define SW_TWSI			0x1000
++	#define TWSI_INT		0x1010
++	#define SW_TWSI_EXT		0x1018
++#else
++	#define SW_TWSI			0x00
++	#define TWSI_INT		0x10
++	#define SW_TWSI_EXT		0x18
++#endif
+ 
+ /* Controller command patterns */
+ #define SW_TWSI_V		BIT_ULL(63)	/* Valid bit */
+@@ -94,6 +100,7 @@
+ struct octeon_i2c {
+ 	wait_queue_head_t queue;
+ 	struct i2c_adapter adap;
++	struct clk *clk;
+ 	int irq;
+ 	int hlc_irq;		/* For cn7890 only */
+ 	u32 twsi_freq;
+@@ -109,6 +116,9 @@ struct octeon_i2c {
+ 	void (*hlc_int_disable)(struct octeon_i2c *);
+ 	atomic_t int_enable_cnt;
+ 	atomic_t hlc_int_enable_cnt;
++#if IS_ENABLED(CONFIG_I2C_THUNDERX)
++	struct msix_entry i2c_msix;
++#endif
+ };
+ 
+ static inline void octeon_i2c_writeq_flush(u64 val, void __iomem *addr)
+diff --git a/drivers/i2c/busses/i2c-thunderx-core.c b/drivers/i2c/busses/i2c-thunderx-core.c
+new file mode 100644
+index 0000000..dbde48c
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-thunderx-core.c
+@@ -0,0 +1,250 @@
++/*
++ * Cavium ThunderX i2c driver.
++ *
++ * Copyright (C) 2015,2016 Cavium Inc.
++ * Authors: Fred Martin <fmartin@caviumnetworks.com>
++ *	    Jan Glauber <jglauber@cavium.com>
++ */
++
++#include <linux/acpi.h>
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++
++#include "i2c-cavium.h"
++
++#define DRV_NAME "i2c-thunderx"
++
++#define PCI_CFG_REG_BAR_NUM		0
++#define PCI_DEVICE_ID_THUNDER_TWSI	0xa012
++
++#define SYS_FREQ_DEFAULT		800000000
++
++#define TWSI_INT_ENA_W1C		0x1028
++#define TWSI_INT_ENA_W1S		0x1030
++
++/*
++ * Enable the CORE interrupt.
++ * The interrupt will be asserted when there is non-STAT_IDLE state in the
++ * SW_TWSI_EOP_TWSI_STAT register.
++ */
++static void thunder_i2c_int_enable(struct octeon_i2c *i2c)
++{
++	octeon_i2c_writeq_flush(TWSI_INT_CORE_INT,
++				i2c->twsi_base + TWSI_INT_ENA_W1S);
++}
++
++/*
++ * Disable the CORE interrupt.
++ */
++static void thunder_i2c_int_disable(struct octeon_i2c *i2c)
++{
++	octeon_i2c_writeq_flush(TWSI_INT_CORE_INT,
++				i2c->twsi_base + TWSI_INT_ENA_W1C);
++}
++
++static void thunder_i2c_hlc_int_enable(struct octeon_i2c *i2c)
++{
++	octeon_i2c_writeq_flush(TWSI_INT_ST_INT | TWSI_INT_TS_INT,
++				i2c->twsi_base + TWSI_INT_ENA_W1S);
++}
++
++static void thunder_i2c_hlc_int_disable(struct octeon_i2c *i2c)
++{
++	octeon_i2c_writeq_flush(TWSI_INT_ST_INT | TWSI_INT_TS_INT,
++				i2c->twsi_base + TWSI_INT_ENA_W1C);
++}
++
++static u32 thunderx_i2c_functionality(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) |
++	       I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_SMBUS_BLOCK_PROC_CALL;
++}
++
++static const struct i2c_algorithm thunderx_i2c_algo = {
++	.master_xfer = octeon_i2c_xfer,
++	.functionality = thunderx_i2c_functionality,
++};
++
++static struct i2c_adapter thunderx_i2c_ops = {
++	.owner	= THIS_MODULE,
++	.name	= "ThunderX adapter",
++	.algo	= &thunderx_i2c_algo,
++};
++
++static void thunder_i2c_clock_enable(struct device *dev, struct octeon_i2c *i2c)
++{
++	int ret;
++
++	i2c->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(i2c->clk)) {
++		i2c->clk = NULL;
++		goto skip;
++	}
++
++	ret = clk_prepare_enable(i2c->clk);
++	if (ret)
++		goto skip;
++	i2c->sys_freq = clk_get_rate(i2c->clk);
++
++skip:
++	if (!i2c->sys_freq)
++		i2c->sys_freq = SYS_FREQ_DEFAULT;
++
++	dev_info(dev, "Set system clock to %u\n", i2c->sys_freq);
++}
++
++static void thunder_i2c_clock_disable(struct device *dev, struct clk *clk)
++{
++	if (!clk)
++		return;
++	clk_disable_unprepare(clk);
++	devm_clk_put(dev, clk);
++}
++
++static int thunder_i2c_probe_pci(struct pci_dev *pdev,
++				 const struct pci_device_id *ent)
++{
++	struct device *dev = &pdev->dev;
++	struct octeon_i2c *i2c;
++	int ret = 0;
++
++	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
++	if (!i2c)
++		return -ENOMEM;
++
++	i2c->dev = dev;
++	pci_set_drvdata(pdev, i2c);
++	ret = pci_enable_device(pdev);
++	if (ret) {
++		dev_err(dev, "Failed to enable PCI device\n");
++		goto out_free_i2c;
++	}
++
++	ret = pci_request_regions(pdev, DRV_NAME);
++	if (ret) {
++		dev_err(dev, "PCI request regions failed 0x%x\n", ret);
++		goto out_disable_device;
++	}
++
++	i2c->twsi_base = pci_ioremap_bar(pdev, PCI_CFG_REG_BAR_NUM);
++	if (!i2c->twsi_base) {
++		dev_err(dev, "Cannot map CSR memory space\n");
++		ret = -EINVAL;
++		goto out_release_regions;
++	}
++
++	thunder_i2c_clock_enable(dev, i2c);
++
++	ret = device_property_read_u32(dev, "clock-frequency", &i2c->twsi_freq);
++	if (ret)
++		i2c->twsi_freq = 100000;
++
++	init_waitqueue_head(&i2c->queue);
++
++	i2c->int_enable = thunder_i2c_int_enable;
++	i2c->int_disable = thunder_i2c_int_disable;
++	i2c->hlc_int_enable = thunder_i2c_hlc_int_enable;
++	i2c->hlc_int_disable = thunder_i2c_hlc_int_disable;
++
++	ret = pci_enable_msix(pdev, &i2c->i2c_msix, 1);
++	if (ret) {
++		dev_err(dev, "Unable to enable MSI-X\n");
++		goto out_unmap;
++	}
++
++	ret = devm_request_irq(dev, i2c->i2c_msix.vector, octeon_i2c_isr, 0,
++			       DRV_NAME, i2c);
++	if (ret < 0) {
++		dev_err(dev, "Failed to attach i2c interrupt\n");
++		goto out_msix;
++	}
++
++	ret = octeon_i2c_init_lowlevel(i2c);
++	if (ret) {
++		dev_err(dev, "Init low level failed\n");
++		goto out_msix;
++	}
++
++	octeon_i2c_set_clock(i2c);
++
++	i2c->adap = thunderx_i2c_ops;
++	i2c->adap.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
++	i2c->adap.timeout = msecs_to_jiffies(5);
++	i2c->adap.retries = 5;
++	i2c->adap.bus_recovery_info = &octeon_i2c_recovery_info;
++	i2c->adap.dev.parent = dev;
++	i2c->adap.dev.of_node = pdev->dev.of_node;
++	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
++		 "Cavium ThunderX i2c adapter at %s", dev_name(dev));
++	i2c_set_adapdata(&i2c->adap, i2c);
++
++	ret = i2c_add_adapter(&i2c->adap);
++	if (ret < 0) {
++		dev_err(dev, "Failed to add i2c adapter\n");
++		goto out_irq;
++	}
++
++	dev_info(i2c->dev, "probed\n");
++	return 0;
++
++out_irq:
++	devm_free_irq(dev, i2c->i2c_msix.vector, i2c);
++out_msix:
++	pci_disable_msix(pdev);
++out_unmap:
++	iounmap(i2c->twsi_base);
++	thunder_i2c_clock_disable(dev, i2c->clk);
++out_release_regions:
++	pci_release_regions(pdev);
++out_disable_device:
++	pci_disable_device(pdev);
++out_free_i2c:
++	pci_set_drvdata(pdev, NULL);
++	devm_kfree(dev, i2c);
++	return ret;
++}
++
++static void thunder_i2c_remove_pci(struct pci_dev *pdev)
++{
++	struct octeon_i2c *i2c = pci_get_drvdata(pdev);
++	struct device *dev;
++
++	if (!i2c)
++		return;
++
++	dev = i2c->dev;
++	thunder_i2c_clock_disable(dev, i2c->clk);
++	i2c_del_adapter(&i2c->adap);
++	devm_free_irq(dev, i2c->i2c_msix.vector, i2c);
++	pci_disable_msix(pdev);
++	iounmap(i2c->twsi_base);
++	pci_release_regions(pdev);
++	pci_disable_device(pdev);
++	pci_set_drvdata(pdev, NULL);
++	devm_kfree(dev, i2c);
++}
++
++static const struct pci_device_id thunder_i2c_pci_id_table[] = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_CAVIUM, PCI_DEVICE_ID_THUNDER_TWSI) },
++	{ 0, }
++};
++
++MODULE_DEVICE_TABLE(pci, thunder_i2c_pci_id_table);
++
++static struct pci_driver thunder_i2c_pci_driver = {
++	.name		= DRV_NAME,
++	.id_table	= thunder_i2c_pci_id_table,
++	.probe		= thunder_i2c_probe_pci,
++	.remove		= thunder_i2c_remove_pci,
++};
++
++module_pci_driver(thunder_i2c_pci_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Fred Martin <fmartin@caviumnetworks.com>");
++MODULE_DESCRIPTION("I2C-Bus adapter for Cavium ThunderX SOC");
 -- 
 1.9.1
