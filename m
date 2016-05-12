@@ -1,67 +1,84 @@
 From: "David.Wu" <david.wu@rock-chips.com>
-Subject: Re: [PATCH v8 3/8] i2c: rk3x: Remove redundant rk3x_i2c_clean_ipd()
-Date: Thu, 12 May 2016 09:11:29 +0800
-Message-ID: <5733D841.1020905@rock-chips.com>
+Subject: Re: [PATCH v8 6/8] dt-bindings: i2c: rk3x: add support for rk3399
+Date: Thu, 12 May 2016 09:14:04 +0800
+Message-ID: <5733D8DC.1010603@rock-chips.com>
 References: <1462908252-27016-1-git-send-email-david.wu@rock-chips.com>
- <1462908252-27016-4-git-send-email-david.wu@rock-chips.com>
- <2477327.hJjg0APDhg@phil>
+ <1462908647-27236-1-git-send-email-david.wu@rock-chips.com>
+ <CAD=FV=VzL8AfzUnPYgsf_NqPgbp2_o_qJC7-DWHmekWVQ-Es=A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
+Content-Type: text/plain; charset=utf-8;
 	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2477327.hJjg0APDhg@phil>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Heiko Stuebner <heiko@sntech.de>
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from lucky1.263xmail.com ([211.157.147.134]:52705 "EHLO
+	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752207AbcELBNu (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 11 May 2016 21:13:50 -0400
+In-Reply-To: <CAD=FV=VzL8AfzUnPYgsf_NqPgbp2_o_qJC7-DWHmekWVQ-Es=A@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Brian Norris <briannorris@google.com>, David Riley <davidriley@google.com>, Tao Huang <huangtao@rock-chips.com>, Lin Huang <hl@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Chris <zyw@rock-chips.com>, Eddie Cai <cf@rock-chips.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Heiko
+Hi Doug,
 
-=E5=9C=A8 2016/5/12 2:26, Heiko Stuebner =E5=86=99=E9=81=93:
-> Am Mittwoch, 11. Mai 2016, 03:24:07 schrieb David Wu:
->> Call rk3x_i2c_setup() before rk3x_i2c_start()
+=E5=9C=A8 2016/5/12 0:35, Doug Anderson =E5=86=99=E9=81=93:
+> Hi,
 >
-> That beginning of the sentence could use a tiny improvement, like
->
-> ----
-> rk3x_i2c_setup() gets called directly before rk3x_i2c_start()
-> ----
->
-
-Okay, i will add it in next version, Thanks.
-
-> to make it obvious what happens in the code.
->
-> But a nice small improvement
-> Reviewed-by: Heiko Stuebner <heiko@sntech.de>
->
->> and the last thing in setup was to clean the IPD,
->> so no reason to do it at the beginning of start.
+> On Tue, May 10, 2016 at 12:30 PM, David Wu <david.wu@rock-chips.com> =
+wrote:
+>> The bus clock and function clock are separated at rk3399,
+>> and others use one clock as the bus clock and function clock.
 >>
 >> Signed-off-by: David Wu <david.wu@rock-chips.com>
 >> Reviewed-by: Douglas Anderson <dianders@chromium.org>
 >> ---
 >> Change in v8:
->> - none
+>> - remove error description.
 >>
->>   drivers/i2c/busses/i2c-rk3x.c | 1 -
->>   1 file changed, 1 deletion(-)
+>>   Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 16 ++++++++++=
++++---
+>>   1 file changed, 13 insertions(+), 3 deletions(-)
 >>
->> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-=
-rk3x.c
->> index 1e2677a..9eeb4e5 100644
->> --- a/drivers/i2c/busses/i2c-rk3x.c
->> +++ b/drivers/i2c/busses/i2c-rk3x.c
->> @@ -174,7 +174,6 @@ static void rk3x_i2c_start(struct rk3x_i2c *i2c)
->>   {
->>   	u32 val;
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Do=
+cumentation/devicetree/bindings/i2c/i2c-rk3x.txt
+>> index 0b4a85f..5429301 100644
+>> --- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+>> @@ -6,10 +6,20 @@ RK3xxx SoCs.
+>>   Required properties :
 >>
->> -	rk3x_i2c_clean_ipd(i2c);
->>   	i2c_writel(i2c, REG_INT_START, REG_IEN);
->>
->>   	/* enable adapter with correct mode, send START condition */
+>>    - reg : Offset and length of the register set for the device
+>> - - compatible : should be "rockchip,rk3066-i2c", "rockchip,rk3188-i=
+2c",
+>> -               "rockchip,rk3228-i2c" or "rockchip,rk3288-i2c".
+>> + - compatible: should be one of the following:
+>> +   - "rockchip,rk3066-i2c": for rk3066
+>> +   - "rockchip,rk3188-i2c": for rk3188
+>> +   - "rockchip,rk3228-i2c": for rk3228
+>> +   - "rockchip,rk3288-i2c": for rk3288
+>> +   - "rockchip,rk3399-i2c": for rk3399
+>>    - interrupts : interrupt number
+>> - - clocks : parent clock
+>> + - clocks: See ../clock/clock-bindings.txt
+>> +   - For older hardware (rk3066, rk3188, rk3228, rk3288):
+>> +     - There is one clock that's used both to derive the functional=
+ clock
+>> +       for the device and as the bus clock.
+>> +   - For newer hardware (rk3399): specified by name
+>> +     - "i2c": REQUIRED. This is used to derive the functional clock=
+=2E
+>> +     - "pclk": REQUIRED. This is the bus clock.
 >
+> Depending on what Rob thinks, it might make sense to remove the above
+> two "REQUIRED" bits.  That would match his earlier feedback since
+> we're still in the "Required" section and thus it is redundant.
+>
+
+Okay, i make a little misunderstand for that, so i will fix it in next=20
+version.
+
+> -Doug
 >
 >
 >
