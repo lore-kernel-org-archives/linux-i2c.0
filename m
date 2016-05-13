@@ -1,73 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: Raise SDA for each received bit, if necessary
-Date: Fri, 13 May 2016 12:33:56 +0200
-Message-ID: <20160513103355.GE1778@katana>
-References: <1461780714-20378-1-git-send-email-tdz@users.sourceforge.net>
- <20160512090544.GB1638@katana>
- <5734AD00.3050904@users.sourceforge.net>
+Subject: Re: [PATCH] i2c: only check scl functions when using generic recovery
+Date: Fri, 13 May 2016 12:40:33 +0200
+Message-ID: <20160513104033.GF1778@katana>
+References: <1463045119-7375-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+SfteS7bOf3dGlBC"
+	protocol="application/pgp-signature"; boundary="Bqc0IY4JZZt50bUr"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:53225 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:53259 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752024AbcEMKeM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 13 May 2016 06:34:12 -0400
+	id S1752791AbcEMKkh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 13 May 2016 06:40:37 -0400
 Content-Disposition: inline
-In-Reply-To: <5734AD00.3050904@users.sourceforge.net>
+In-Reply-To: <1463045119-7375-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Thomas Zimmermann <tdz@users.sourceforge.net>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Peter Griffin <peter.griffin@linaro.org>
 
 
---+SfteS7bOf3dGlBC
+--Bqc0IY4JZZt50bUr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, May 12, 2016 at 11:25:19AM +0200, Wolfram Sang wrote:
+> A custom recovery function doesn't need these pointers to be populated
+> because it may work differently internally.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Tested-by: Peter Griffin <peter.griffin@linaro.org>
+
+Applied to for-next, thanks!
 
 
-> I was playing with the DRM framework and an old SiS graphics card. I
-> discovered this issue while trying to read the EDID from the monitor.
-
-So, there is no upstream user yet?
-
-> I have a few other SiS cards/models here and they all expose this
-> behavior. So I guess it's intentional(==cheaper?), although the HW docs
-> don't seem mention it explicitly.
-
-OK. Well. As this flag is potentially dangerous, I would prefer to not
-apply the patch unless there is an upstream user of this. If there is
-one, I'd be okay with applying it with the flag renamed to something
-like "dangerous_push_pull_bus" or similar with additional comments
-saying there is some (broken) HW which needs it but nobody should get
-the idea to design a bus like this.
-
-Makes sense?
-
-Regards,
-
-   Wolfram
-
-
---+SfteS7bOf3dGlBC
+--Bqc0IY4JZZt50bUr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXNa2TAAoJEBQN5MwUoCm2ch8QAIOK/nG+VLM31WMtfvlFB43r
-kCrPC7z9ZgQJkKnx3uz8ANvcif/uI4WSAlacvv3aJNWhBvf4Mu0bHuuF7r1YEas0
-ft1/3D6vwSGqFnyJFWEFvJNdC9R/0RGWnsphrNidM/x100sHJvLV0q9YLAqfkVYk
-bcUL96HMoEj7s5FVEob/aCkXV4Ic7kCSbJyZdxWHbf0bWFP3EvMoMqJRawPdcsG1
-wHtY9GuxfN+IAE/4IC8sHeZMv6Cp276JGIHUop00wFCRamC5OgytrkvJHSd91WFp
-fKyTnrQfcbHZQsjeJnBFttzawis4rnAKwCXgXAA47bG47WQi5xihXPaJW6ar1IoP
-QrVDflI/lXtRYcERDEmyr+8qnLOXDpHkK3thi3I2ebFxcBolop6kF/fqEhGG0OQ0
-KP4WxQjaPxXugSJhJNfbXazU4cOcpPwUSZGtUtgrmo6ZrHHA197Rexi87Q1JF6Ax
-inS6HNBbNcNQpDOKqMNMl0U/o1mq6Qe7xAaoHBWLQKRQFRtxx54S4DY8uZxp1+sV
-H44MTTliCPutwgi0awuWUlBueP/ccfVejJa3QlOBm1RaxcyXbSYtG9A96cCUtnNk
-tOhJ7Wcnyfo1SX62xBaMZGC5qUgMP2mffOyk286qEf+aZJNTfbLa/8hKLnpprNm+
-8UjdfgE0hDsJ+U1kfXod
-=eEMW
+iQIcBAEBAgAGBQJXNa8hAAoJEBQN5MwUoCm25OUP+weMfx9nP8Yvl1uLIizKECH5
+VgqoltrqXY/eR7kDOO3ho17s1O7LCeNCVGGDxO8hdwx+Rti2WfmNS6iFZDiKvcE5
+xPNzlV3UQ3lDOWD9EJ3/T7I7k5spDeETpgvG3GWatRAcNB078/XWP88zBrI3REEY
+YPGU3auesqWbvjnX5pQVMzMQ0keokJ/zxRUolVlMuq9IaA1dW2+tr4aq1UQ4zQa6
+kjLyEgdzhLTLnQnw95ocv0x3qVVXRknCsrdMMHHcD17pNfJpx8t9sQV/XrqhXpw9
+E8U05ZgfFYAVskYG1C76y3N9YcQcEgGAPiT1mdsAbiMHFQIBPIoH1LN0YhtU1vr5
+xHz66pBOAjwikuWfNBAN86KwDYKIwgok9ZuzCbk0S1ng0ALL8ldeqetuqzV2CNSf
+Cu+4FaV8uil6ka3MJO31qIpXRpoGOGofsidgxgE6Sa4XrLg5zsEmkWInwdFNFtBs
+mDV+21izxz+kqZrdEqsruVn5vOSXlPfiUo/cYAX+Oksl9jWjJpc+BuswTK2BTKi+
+/gVAioSXf2k6SlUcRvqOKrEbFfHnwqAAvv2CWemJJZsUEtBcj2WJ32qor/cp6sbV
+3W+mxg1gUtPQnyaxfcAEMO5n6CiRhv+YCi7xwrfijE30J6rxLwpq1pZUakc2ou+7
+O3p4YDNZrrG2MajNPMAK
+=osSy
 -----END PGP SIGNATURE-----
 
---+SfteS7bOf3dGlBC--
+--Bqc0IY4JZZt50bUr--
