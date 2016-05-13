@@ -1,58 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: only check scl functions when using generic recovery
-Date: Fri, 13 May 2016 12:40:33 +0200
-Message-ID: <20160513104033.GF1778@katana>
-References: <1463045119-7375-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: st: Implement bus clear
+Date: Fri, 13 May 2016 12:41:32 +0200
+Message-ID: <20160513104132.GG1778@katana>
+References: <1462983719-342-1-git-send-email-peter.griffin@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Bqc0IY4JZZt50bUr"
+	protocol="application/pgp-signature"; boundary="BzCohdixPhurzSK4"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:53259 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:53266 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752791AbcEMKkh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 13 May 2016 06:40:37 -0400
+	id S1752058AbcEMKlh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 13 May 2016 06:41:37 -0400
 Content-Disposition: inline
-In-Reply-To: <1463045119-7375-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1462983719-342-1-git-send-email-peter.griffin@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Peter Griffin <peter.griffin@linaro.org>
+To: Peter Griffin <peter.griffin@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, srinivas.kandagatla@gmail.com, maxime.coquelin@st.com, patrice.chotard@st.com, lee.jones@linaro.org, linux-i2c@vger.kernel.org, Frederic Pillon <frederic.pillon@st.com>
 
 
---Bqc0IY4JZZt50bUr
+--BzCohdixPhurzSK4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 12, 2016 at 11:25:19AM +0200, Wolfram Sang wrote:
-> A custom recovery function doesn't need these pointers to be populated
-> because it may work differently internally.
+On Wed, May 11, 2016 at 05:21:59PM +0100, Peter Griffin wrote:
+> From I2C specifications:
+>       http://www.nxp.com/documents/user_manual/UM10204.pdf
 >=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Tested-by: Peter Griffin <peter.griffin@linaro.org>
+> Chapter 3.1.16, when the i2c device held the SDA line low, the master
+> should send 9 clocks pulses to try to recover.
+>=20
+> Signed-off-by: Frederic Pillon <frederic.pillon@st.com>
+> Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
 
-Applied to for-next, thanks!
+Applied to for-next, thanks! Please us PATCH V<n> next time.
 
 
---Bqc0IY4JZZt50bUr
+--BzCohdixPhurzSK4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXNa8hAAoJEBQN5MwUoCm25OUP+weMfx9nP8Yvl1uLIizKECH5
-VgqoltrqXY/eR7kDOO3ho17s1O7LCeNCVGGDxO8hdwx+Rti2WfmNS6iFZDiKvcE5
-xPNzlV3UQ3lDOWD9EJ3/T7I7k5spDeETpgvG3GWatRAcNB078/XWP88zBrI3REEY
-YPGU3auesqWbvjnX5pQVMzMQ0keokJ/zxRUolVlMuq9IaA1dW2+tr4aq1UQ4zQa6
-kjLyEgdzhLTLnQnw95ocv0x3qVVXRknCsrdMMHHcD17pNfJpx8t9sQV/XrqhXpw9
-E8U05ZgfFYAVskYG1C76y3N9YcQcEgGAPiT1mdsAbiMHFQIBPIoH1LN0YhtU1vr5
-xHz66pBOAjwikuWfNBAN86KwDYKIwgok9ZuzCbk0S1ng0ALL8ldeqetuqzV2CNSf
-Cu+4FaV8uil6ka3MJO31qIpXRpoGOGofsidgxgE6Sa4XrLg5zsEmkWInwdFNFtBs
-mDV+21izxz+kqZrdEqsruVn5vOSXlPfiUo/cYAX+Oksl9jWjJpc+BuswTK2BTKi+
-/gVAioSXf2k6SlUcRvqOKrEbFfHnwqAAvv2CWemJJZsUEtBcj2WJ32qor/cp6sbV
-3W+mxg1gUtPQnyaxfcAEMO5n6CiRhv+YCi7xwrfijE30J6rxLwpq1pZUakc2ou+7
-O3p4YDNZrrG2MajNPMAK
-=osSy
+iQIcBAEBAgAGBQJXNa9cAAoJEBQN5MwUoCm2eb0QAJhsTh4s7uXoF+x7rBrCjMse
+IjjRphf10LkVnPKtN+mVTOFIKzXOn+XEuDEe4rxeyM9fOWYQ9ISyV7taqqxh7XgN
+LUTp2K4GNs1KX89b8SBmk5adSqcXIoHh1xvKuI/C7ggzVHXoyfPWmj7K7xPFVcF2
+EgvkMNmbQJDzhwrGZb9juUOAoF8/SiC1+54qHykE3Vg8MbpYl0NwSWZQWOYKaXJD
+jOqyzkaEqzkRESKbgJDM/cGiHC0jHGuPesdDnQ34Kjx0fX6CQVjwMNSYVRGhEUbl
+S04xz+KKIWi7Q+ryPHfa7rJRN85/yaf0E6UgOPigSrVP+pJRO1wQdXKgnqERhu/Z
+EpZYaMnWVxzVI4UHBGkcZFF/y3AGMoSgzcNyOPzN42nDLuXtB6YamwqP22a/Evd6
+C6mKNFauoOtOeg9QxRLguVCpiUux06brfdECpYcjSl8fnr/MM1mYIWG0nMtK6Ani
+t7j/eLhghZKN3CAuI0ZAZHFWIjIu0mkVHJYDtMu45PwX0lsb1Y6tGDRnL+uWHEG1
+aWRmiGutAmna96uDarpLl6+tK5v5AeRVnj0ly4FNceSJvd+IrFXy6yMMfNGo8YlW
+JFZlrXa82dlUJs+qH2U0S1xQNT+8ti231tuOVxdxzGsiAfpk3w5Mql0MHK3sc9Gr
+H81qmu/dTtvVO58tdfSA
+=dYKU
 -----END PGP SIGNATURE-----
 
---Bqc0IY4JZZt50bUr--
+--BzCohdixPhurzSK4--
