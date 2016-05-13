@@ -1,69 +1,46 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V2 2/2] drivers: i2c: qup: Fix error handling
-Date: Fri, 13 May 2016 13:50:21 +0200
-Message-ID: <20160513115021.GK1778@katana>
-References: <1462534274-28925-1-git-send-email-sricharan@codeaurora.org>
- <1462534274-28925-3-git-send-email-sricharan@codeaurora.org>
- <20160513114823.GJ1778@katana>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: [PATCH v2] i2c: at91: change log when dma configuration fails
+Date: Fri, 13 May 2016 14:24:21 +0200
+Message-ID: <1463142261-26321-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45wMVEkw4XUbiYON"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20160513114823.GJ1778@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ntelkar-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, nkaje-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from eusmtp01.atmel.com ([212.144.249.243]:58442 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751443AbcEMMXx (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 13 May 2016 08:23:53 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, nicolas.ferre@atmel.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>
 
+When the DMA configuration fails, there is a log reporting that we can't
+use DMA and indicating the error number. When booting the kernel, it is
+annoying to see this error number. Moreover, people can think something
+is going wrong. It is not the case, it means that DMA can't be used but
+it doesn't prevent to use i2c.
 
---45wMVEkw4XUbiYON
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+---
+ drivers/i2c/busses/i2c-at91.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Fri, May 13, 2016 at 01:48:23PM +0200, Wolfram Sang wrote:
-> On Fri, May 06, 2016 at 05:01:14PM +0530, Sricharan R wrote:
-> > Among the bus errors reported from the QUP_MASTER_STATUS register
-> > only NACK is considered and transfer gets suspended, while
-> > other errors are ignored. Correct this and suspend the transfer
-> > for other errors as well. This avoids unnessecary 'timeouts' which
-> > happens when waiting for events that would never happen when there
-> > is already an error condition on the bus.
-> >=20
-> > Signed-off-by: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> > Reviewed-by: Andy Gross <andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->=20
-> Please check Documentation/i2c/fault-codes for proper fault codes.
+Changes:
+- v2:
+  - remove ret parameter
 
-And while we are here: NACK is not an error but a valid response. Can
-you remove the dev_err related to that? Otherwise tools like i2cdetect
-will probably flood your log.
-
-
---45wMVEkw4XUbiYON
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXNb99AAoJEBQN5MwUoCm2pNoQAKOgdymmdFmQxQ8QxAqoxj1G
-uMdMDfVS563kCoqBBKjR7wxbWXcXaVNZ0WUNf5G5St5MmsxRfjquxBm+xmW5lx7D
-3K+5x+Jgry1jGZ7QO5664CgksZJjrZbot1ZsW0vbTKfjaN6HCVawGjBrwpllyQmB
-wRkt3hhORdPBAICPdins6Am0mCoqAUAuRf+dj1pRoWbdQE6enYrcA3Kkf0SbGzIv
-5j+lucE1maj2XhTZzfsqb/rMbbJg9vmQaw4xK8LtH7k7VCRHbK0/Bm8pd4niSSYO
-i3LwVogMDoUkMxe0Seirshqd9jPeZpVczPJqpcHrUqPl+ijSULClX6zdxtQeib1/
-4D9F80NGJ6x2g7rgCRT8sv/PxCipM8+JJbkYfxxutixnoiPhwKy2StfeUDBkxvat
-kVFJkfaolxrxQ2Mjo83hnneNBRkRh9giRuCh9VLmNfaZSbQDdHXopZN174HKn9uT
-bjF4f0jImWqWdqd2v5+xply/Yb9qrXR5Lh/vZwqVpp0YcerQifxccQ6/K1RhBZ7S
-R92tItR/iWoEAFm5gAWJ7w8+aSNjlD3SCjqoYmefjshH6xNHvv1+UUCPWH9/T2qN
-Ey4/FCsauanzGVxn59qHaouytZwEB2RaMjBYgK9tYwmucLh8FOU+Or2wVQWOEpTz
-11JlQbV8vspCtw9sUeNT
-=l9K9
------END PGP SIGNATURE-----
-
---45wMVEkw4XUbiYON--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 921d32b..6384d08 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -1013,7 +1013,7 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ 
+ error:
+ 	if (ret != -EPROBE_DEFER)
+-		dev_info(dev->dev, "can't use DMA, error %d\n", ret);
++		dev_info(dev->dev, "can't request DMA channels, continue without DMA support\n");
+ 	if (dma->chan_rx)
+ 		dma_release_channel(dma->chan_rx);
+ 	if (dma->chan_tx)
+-- 
+2.5.0
