@@ -1,61 +1,50 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: st: Implement bus clear
-Date: Fri, 13 May 2016 12:41:32 +0200
-Message-ID: <20160513104132.GG1778@katana>
-References: <1462983719-342-1-git-send-email-peter.griffin@linaro.org>
+Subject: Re: [PATCH V2 0/2] drivers: i2c: qup: Some misc fixes
+Date: Fri, 13 May 2016 13:44:36 +0200
+Message-ID: <20160513114436.GH1778@katana>
+References: <1462534274-28925-1-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BzCohdixPhurzSK4"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:53266 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752058AbcEMKlh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 13 May 2016 06:41:37 -0400
+	protocol="application/pgp-signature"; boundary="Dx9iWuMxHO1cCoFc"
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1462983719-342-1-git-send-email-peter.griffin@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1462534274-28925-1-git-send-email-sricharan@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Sricharan R <sricharan@codeaurora.org>
+Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nkaje@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Griffin <peter.griffin@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, srinivas.kandagatla@gmail.com, maxime.coquelin@st.com, patrice.chotard@st.com, lee.jones@linaro.org, linux-i2c@vger.kernel.org, Frederic Pillon <frederic.pillon@st.com>
 
 
---BzCohdixPhurzSK4
+--Dx9iWuMxHO1cCoFc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 11, 2016 at 05:21:59PM +0100, Peter Griffin wrote:
-> From I2C specifications:
->       http://www.nxp.com/documents/user_manual/UM10204.pdf
->=20
-> Chapter 3.1.16, when the i2c device held the SDA line low, the master
-> should send 9 clocks pulses to try to recover.
->=20
-> Signed-off-by: Frederic Pillon <frederic.pillon@st.com>
-> Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+On Fri, May 06, 2016 at 05:01:12PM +0530, Sricharan R wrote:
+> One for fixing the bug with CONFIG_DEBUG_SG enabled and another
+> to suspend the transfer for all errors instead of just for nack.
 
-Applied to for-next, thanks! Please us PATCH V<n> next time.
+You haven't stated what was changed in V2.
 
 
---BzCohdixPhurzSK4
+--Dx9iWuMxHO1cCoFc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXNa9cAAoJEBQN5MwUoCm2eb0QAJhsTh4s7uXoF+x7rBrCjMse
-IjjRphf10LkVnPKtN+mVTOFIKzXOn+XEuDEe4rxeyM9fOWYQ9ISyV7taqqxh7XgN
-LUTp2K4GNs1KX89b8SBmk5adSqcXIoHh1xvKuI/C7ggzVHXoyfPWmj7K7xPFVcF2
-EgvkMNmbQJDzhwrGZb9juUOAoF8/SiC1+54qHykE3Vg8MbpYl0NwSWZQWOYKaXJD
-jOqyzkaEqzkRESKbgJDM/cGiHC0jHGuPesdDnQ34Kjx0fX6CQVjwMNSYVRGhEUbl
-S04xz+KKIWi7Q+ryPHfa7rJRN85/yaf0E6UgOPigSrVP+pJRO1wQdXKgnqERhu/Z
-EpZYaMnWVxzVI4UHBGkcZFF/y3AGMoSgzcNyOPzN42nDLuXtB6YamwqP22a/Evd6
-C6mKNFauoOtOeg9QxRLguVCpiUux06brfdECpYcjSl8fnr/MM1mYIWG0nMtK6Ani
-t7j/eLhghZKN3CAuI0ZAZHFWIjIu0mkVHJYDtMu45PwX0lsb1Y6tGDRnL+uWHEG1
-aWRmiGutAmna96uDarpLl6+tK5v5AeRVnj0ly4FNceSJvd+IrFXy6yMMfNGo8YlW
-JFZlrXa82dlUJs+qH2U0S1xQNT+8ti231tuOVxdxzGsiAfpk3w5Mql0MHK3sc9Gr
-H81qmu/dTtvVO58tdfSA
-=dYKU
+iQIcBAEBAgAGBQJXNb4jAAoJEBQN5MwUoCm2LNMQAKVZxV7uA1RNk7Z1aIT3TzoX
+bb7+ZU2/Am9mreamhGOWCYCS0etyNGwY6msb1L0HAZX8iB3syC+L11cDUxJLCH5C
+kSY/g994r5I5NZggONmEjeIxQ+J+qXyqOKj1ewE2Q7x0W/8ZWsp03uhdc1wLL6TK
+n+ZUH8Cg5nbBFK04Z3sejBz91s1JmvzLP0LwSIJpNxLlsOOjfGJrX1V+FG7tNGxG
+HaSRV8pnc+38LU3ph3oSOt4D3hjX+G5qtAI8eWWYolHNTPtYGXnJrXx3500devrn
+dbBHCDeJr03fh1oLTP/AeqnoLzZ0MmSg5ucKDKQaT6fXBPnhzr3WnujLB+u6TN3+
+kGKAWtaFj/ayIEciKIkiR0WojT5fLVjH322vMLrDw+728zylkGewUSUgC5P+PnJB
+QAXHisiIrnJQkkqMaPXQ9PUJPchEHhorqsN18iAvoqZWZF+0AyR3PbALZF2SbtCC
+4CegQItlKxSr6zyLEsKkKsRW/+1Ywu4gg+h7qvICPzm5mIfM/cFr7cgotd5Tk70S
+VFXel7DK+Y/l0yd6A57c4ln2cPY7/U4jFsibPAbFdwdrOlBj1+fGmSZCmqEiU71z
+x8RabflG4iiOi7DQmiwF4Btt1doeiTY9mkPtHtHA+ofeuVRy15pJwua3aWTTdPC0
+JQzJr2TAH4rqDq+2egLb
+=Tp76
 -----END PGP SIGNATURE-----
 
---BzCohdixPhurzSK4--
+--Dx9iWuMxHO1cCoFc--
