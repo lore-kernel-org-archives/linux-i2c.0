@@ -1,52 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: add DMA support
-Date: Thu, 12 May 2016 23:35:51 +0200
-Message-ID: <20160512213551.GA1641@katana>
-References: <1462365503-8451-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
- <20160505220625.GA18367@rob-hp-laptop>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: [PATCH] i2c: at91: change log when dma configuration fails
+Date: Fri, 13 May 2016 11:22:11 +0200
+Message-ID: <1463131331-6136-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160505220625.GA18367@rob-hp-laptop>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from eusmtp01.atmel.com ([212.144.249.242]:44098 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751408AbcEMJVn (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 13 May 2016 05:21:43 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, nicolas.ferre@atmel.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>
 
+When the DMA configuration fails, there is a log reporting that we can't
+use DMA and indicating the error number. When booting the kernel, it is
+annoying to see this error number. Moreover, people can think something
+is going wrong. It is not the case, it means that DMA can't be used but
+it doesn't prevent to use i2c.
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+---
+ drivers/i2c/busses/i2c-at91.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-
-> Is DMA actually faster or less cpu usage? I'm doubtful.
-
-No need to be faster at 100/400kHz :) The key here is way less
-interrupts for bigger transfers. The threshold value is hard to measure,
-however.
-
-
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXNPc3AAoJEBQN5MwUoCm2rq8P/3V6/RHRLfC4iSWbFPEfsVYT
-CBWgccvl6CjHE6M7tIPpOho+ADh7V/edz9uUv41vbUyxRhafqU0S/HEL5u9+i0ep
-ymemGrZFO7CzzX/DYRX0RPBUH5PkMjFvr91EGO5hMZQoXo1D8mq0js7zL+MVwelT
-Eu0dtZVco5LIGov540XHJ64HmwtCkXE9HVd5034Ju8kUk+wkWdZZDckCaB+ZbtIq
-ownlprn9+Jn75Ng5oLVf0ZR6OIJ4JSHo68UWaikpB+9EhD+KwL07gF8eo2COGGr3
-aSXap7GdFYP9A5R+0fPuk/dAgveoGqTYCegkmGp14tcjlX+SgCgLiktVVfDzkfaw
-HOcn8o4FPumsKODBXCv3zwhEywTvCfhHr5RdGiCjTo7eiFKz1ThnUVrJcaqS2xZ/
-Ch5KnQrtI91DWZxI/bMX4gSBzlxy+OvC6nenjzTerxA24DUXTqYGh3/BIxBuXnCt
-zV1Da2yuYMiFgzO8jpUTqQB3pK9PUQPMoQfna5flxFwZjs/7ySKe4INSuObBexC5
-gYnGBHPMJzkksKRGjtv0o2ZwEudtxS4SRtao4I3bUR44HEqkr/c5wnKuqIVHkNZN
-1jOj/xJ4GoT7bNHm03Do0PXcDkJxLiPk1IhJ7DXytu/PLCLY0pZ59LiU7Rem6lwc
-ftt8pq0mFJ/ZjxDozWPO
-=xbcF
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 921d32b..f2a7457 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -1013,7 +1013,9 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ 
+ error:
+ 	if (ret != -EPROBE_DEFER)
+-		dev_info(dev->dev, "can't use DMA, error %d\n", ret);
++		dev_info(dev->dev,
++			 "can't request DMA channels, continue without DMA support\n",
++			 ret);
+ 	if (dma->chan_rx)
+ 		dma_release_channel(dma->chan_rx);
+ 	if (dma->chan_tx)
+-- 
+2.5.0
