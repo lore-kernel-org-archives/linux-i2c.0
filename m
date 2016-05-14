@@ -1,42 +1,30 @@
-From: Crestez Dan Leonard <cdleonard@gmail.com>
-Subject: Re: [PATCH i2c-tools] i2cget: Add support for i2c block data
-Date: Sat, 14 May 2016 14:30:02 +0300
-Message-ID: <93dcb82b-b04e-4b3c-1868-2a4fe4a086c8@gmail.com>
-References: <044b3af6a47dfa92e047f0ff57e39a5b61e00058.1463165295.git.leonard.crestez@intel.com>
- <5736738D.3020909@roeck-us.net>
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: Re: [PATCH v9 0/8] add i2c driver supported for rk3399
+Date: Sat, 14 May 2016 13:30:41 +0200
+Message-ID: <1649653.55gUf8lt1c@phil>
+References: <1463039586-8134-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34044 "EHLO
-	mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751313AbcENLaG (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 14 May 2016 07:30:06 -0400
-Received: by mail-wm0-f67.google.com with SMTP id n129so8489196wmn.1
-        for <linux-i2c@vger.kernel.org>; Sat, 14 May 2016 04:30:05 -0700 (PDT)
-In-Reply-To: <5736738D.3020909@roeck-us.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1463039586-8134-1-git-send-email-david.wu@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Wu <david.wu@rock-chips.com>
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>, Crestez Dan Leonard <leonard.crestez@intel.com>, linux-i2c@vger.kernel.org
-Cc: Jean Delvare <khali@linux-fr.org>
 
-On 05/14/2016 03:38 AM, Guenter Roeck wrote:
-> On 05/13/2016 11:54 AM, Crestez Dan Leonard wrote:
->> This adds mode 'i' for I2C_SMBUS_I2C_BLOCK_DATA. This is the same mode
->> letter from i2cdump.
->>
->> Length is optional and defaults to 32 (maximum).
->>
->> The indended use is debugging i2c devices with shell commands.
->>
-> How does this differ from the 'i' option of i2cdump ?
+Am Donnerstag, 12. Mai 2016, 15:52:58 schrieb David Wu:
+> There are three points differert from others:
+>  - new method to caculate i2c timings for rk3399
+>  - pclk and function clk are separated at rk3399
+>  - add fast-plus mode supported for rk3399
 
-Apparently i2cdump doesn't support a range in "i" mode. I considered 
-adding a range to i2cdump in all modes but:
-- i2cdump code is a more complicated
-- Not all devices interpret i2c bulk read as a register range. Reading X 
-bytes from register Y can be different from reading registers from X to X+Y.
+On a rk3288
 
--- 
-Regards,
-Leanard
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+
+to make sure nothing currently working broke - and everything is running 
+still fine.
+
+
+Heiko
