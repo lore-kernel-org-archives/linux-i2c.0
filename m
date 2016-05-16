@@ -1,45 +1,68 @@
-From: "Sricharan" <sricharan@codeaurora.org>
-Subject: RE: [PATCH V2 2/2] drivers: i2c: qup: Fix error handling
-Date: Mon, 16 May 2016 11:29:25 +0530
-Message-ID: <002201d1af38$1eb3e330$5c1ba990$@codeaurora.org>
-References: <1462534274-28925-1-git-send-email-sricharan@codeaurora.org> <1462534274-28925-3-git-send-email-sricharan@codeaurora.org> <20160513114823.GJ1778@katana> <20160513115021.GK1778@katana>
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: Re: [PATCH i2c-tools] i2cget: Add support for i2c block data
+Date: Mon, 16 May 2016 14:39:17 +0300
+Message-ID: <5739B165.50801@intel.com>
+References: <044b3af6a47dfa92e047f0ff57e39a5b61e00058.1463165295.git.leonard.crestez@intel.com>
+ <5736738D.3020909@roeck-us.net>
+ <93dcb82b-b04e-4b3c-1868-2a4fe4a086c8@gmail.com>
+ <57373FD5.5070603@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:54473 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750787AbcEPF7g (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 16 May 2016 01:59:36 -0400
-In-Reply-To: <20160513115021.GK1778@katana>
-Content-Language: en-us
+Received: from mga04.intel.com ([192.55.52.120]:19293 "EHLO mga04.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750726AbcEPLjm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 16 May 2016 07:39:42 -0400
+In-Reply-To: <57373FD5.5070603@roeck-us.net>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: 'Wolfram Sang' <wsa@the-dreams.de>
-Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nkaje@codeaurora.org
+To: Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org
+Cc: Jean Delvare <khali@linux-fr.org>
 
-Hi,
-> > > Among the bus errors reported from the QUP_MASTER_STATUS register
-> > > only NACK is considered and transfer gets suspended, while other
-> > > errors are ignored. Correct this and suspend the transfer for other
-> > > errors as well. This avoids unnessecary 'timeouts' which happens
-> > > when waiting for events that would never happen when there is
-> > > already an error condition on the bus.
-> > >
-> > > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
-> > > Reviewed-by: Andy Gross <andy.gross@linaro.org>
-> >
-> > Please check Documentation/i2c/fault-codes for proper fault codes.
+On 05/14/2016 06:10 PM, Guenter Roeck wrote:
+> On 05/14/2016 04:30 AM, Crestez Dan Leonard wrote:
+>> On 05/14/2016 03:38 AM, Guenter Roeck wrote:
+>>> On 05/13/2016 11:54 AM, Crestez Dan Leonard wrote:
+>>>> This adds mode 'i' for I2C_SMBUS_I2C_BLOCK_DATA. This is the same mode
+>>>> letter from i2cdump.
+>>>>
+>>>> Length is optional and defaults to 32 (maximum).
+>>>>
+>>>> The indended use is debugging i2c devices with shell commands.
+>>>>
+>>> How does this differ from the 'i' option of i2cdump ?
+>>
+>> Apparently i2cdump doesn't support a range in "i" mode. I considered
+>> adding a range to i2cdump in all modes but:
+>> - i2cdump code is a more complicated
 > 
-    Ok, Thanks for pointing this out. So, for NACK I think it is more
-appropriate to
-    return -ENXIO and -EIO for other errors. Will correct this.
+> Maybe, but it already supports the command.
+> 
+>> - Not all devices interpret i2c bulk read as a register range. Reading
+>> X bytes from register Y can be different from reading registers from X
+>> to X+Y.
+>>
+> Not sure I understand what that has to do with supporting i2c block data.
+> Both commands call i2c_smbus_read_i2c_block_data(). Please explain.
 
-> And while we are here: NACK is not an error but a valid response. Can you
-> remove the dev_err related to that? Otherwise tools like i2cdetect will
-> probably flood your log.
-  Ok, will correct this.
+I just found it easier to implement this as an extension to i2cget
+rather than add range support to i2cdump 'i' mode. I also think it's a
+better fit for i2cget because the "length" parameter doesn't always
+imply a register range.
 
+As to how this is useful: I have an i2c sensor where new data can come
+in while the driver is still reading and this will prevent further
+interrupts. I can confirm this by issuing a command like:
+
+    i2cget -f -y 0 0x18 0xa8 i 6
+
+This bulk read of 6 bytes will unlock the driver for a short while.
+
+This can't be done with current i2cdump's 'i' mode because that just
+dumps all registers. i2cdump's byte/word modes issue multiple reads
+which is not fast enough.
+
+-- 
 Regards,
- Sricharan         
+Leonard
