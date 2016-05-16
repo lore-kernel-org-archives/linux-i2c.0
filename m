@@ -1,18 +1,18 @@
 From: "Sricharan" <sricharan@codeaurora.org>
-Subject: RE: [PATCH V2 1/2] drivers: i2c: qup: Fix broken dma when CONFIG_DEBUG_SG is enabled
-Date: Mon, 16 May 2016 10:49:04 +0530
-Message-ID: <000e01d1af32$7c05de40$74119ac0$@codeaurora.org>
-References: <1462534274-28925-1-git-send-email-sricharan@codeaurora.org> <1462534274-28925-2-git-send-email-sricharan@codeaurora.org> <20160513114716.GI1778@katana>
+Subject: RE: [PATCH V2 2/2] drivers: i2c: qup: Fix error handling
+Date: Mon, 16 May 2016 11:29:25 +0530
+Message-ID: <002201d1af38$1eb3e330$5c1ba990$@codeaurora.org>
+References: <1462534274-28925-1-git-send-email-sricharan@codeaurora.org> <1462534274-28925-3-git-send-email-sricharan@codeaurora.org> <20160513114823.GJ1778@katana> <20160513115021.GK1778@katana>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:51023 "EHLO
+Received: from smtp.codeaurora.org ([198.145.29.96]:54473 "EHLO
 	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750753AbcEPFTP (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 16 May 2016 01:19:15 -0400
-In-Reply-To: <20160513114716.GI1778@katana>
+	with ESMTP id S1750787AbcEPF7g (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 16 May 2016 01:59:36 -0400
+In-Reply-To: <20160513115021.GK1778@katana>
 Content-Language: en-us
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -20,54 +20,26 @@ To: 'Wolfram Sang' <wsa@the-dreams.de>
 Cc: devicetree@vger.kernel.org, architt@codeaurora.org, linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, iivanov@mm-sol.com, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org, nkaje@codeaurora.org
 
 Hi,
-> > With CONFIG_DEBUG_SG is enabled and when dma mode is used, below
-> dump
-> > is seen,
+> > > Among the bus errors reported from the QUP_MASTER_STATUS register
+> > > only NACK is considered and transfer gets suspended, while other
+> > > errors are ignored. Correct this and suspend the transfer for other
+> > > errors as well. This avoids unnessecary 'timeouts' which happens
+> > > when waiting for events that would never happen when there is
+> > > already an error condition on the bus.
+> > >
+> > > Signed-off-by: Sricharan R <sricharan@codeaurora.org>
+> > > Reviewed-by: Andy Gross <andy.gross@linaro.org>
 > >
-> > ------------[ cut here ]------------
-> > kernel BUG at include/linux/scatterlist.h:140!
-> > Internal error: Oops - BUG: 0 [#1] PREEMPT SMP Modules linked in:
-> > CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.4.0-00459-g9f087b9-dirty
-> > #7 Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-> > task: ffffffc036868000 ti: ffffffc036870000 task.ti: ffffffc036870000
-> > PC is at qup_sg_set_buf.isra.13+0x138/0x154
-> > LR is at qup_sg_set_buf.isra.13+0x50/0x154 pc : [<ffffffc0005a0ed8>]
-> > lr : [<ffffffc0005a0df0>] pstate: 60000145 sp : ffffffc0368735c0
-> > x29: ffffffc0368735c0 x28: ffffffc036873752
-> > x27: ffffffc035233018 x26: ffffffc000c4e000
-> > x25: 0000000000000000 x24: 0000000000000004
-> > x23: 0000000000000000 x22: ffffffc035233668
-> > x21: ffffff80004e3000 x20: ffffffc0352e0018
-> > x19: 0000004000000000 x18: 0000000000000028
-> > x17: 0000000000000004 x16: ffffffc0017a39c8
-> > x15: 0000000000001cdf x14: ffffffc0019929d8
-> > x13: ffffffc0352e0018 x12: 0000000000000000
-> > x11: 0000000000000001 x10: 0000000000000001
-> > x9 : ffffffc0012b2d70 x8 : ffffff80004e3000
-> > x7 : 0000000000000018 x6 : 0000000030000000
-> > x5 : ffffffc00199f018 x4 : ffffffc035233018
-> > x3 : 0000000000000004 x2 : 00000000c0000000
-> > x1 : 0000000000000003 x0 : 0000000000000000
-> >
-> > Process swapper/0 (pid: 1, stack limit = 0xffffffc036870020)
-> > Stack: (0xffffffc0368735c0 to 0xffffffc036874000)
-> >
-> > Change allocation of sg buffers from dma_coherent memory to kzalloc to
-> > fix the issue.
+> > Please check Documentation/i2c/fault-codes for proper fault codes.
 > 
-> This description describes what you do. But not why it is the correct
-solution
-> to the OOPS. The OOPS  neither describes it. Please add some more
-> explanation.
-> 
-   Ok,will describe it more. The reason it oops is sg_set_bug expects that
-the
-   buf parameter passed in should be a from the lowmem and a valid
-pageframe.
-  This is not true for pages from dma_alloc_coherent which can be carveouts,
-hence
-  the check fails. Allocating buffers using kzalloc fixes the issue.
+    Ok, Thanks for pointing this out. So, for NACK I think it is more
+appropriate to
+    return -ENXIO and -EIO for other errors. Will correct this.
+
+> And while we are here: NACK is not an error but a valid response. Can you
+> remove the dev_err related to that? Otherwise tools like i2cdetect will
+> probably flood your log.
+  Ok, will correct this.
 
 Regards,
- Sricharan
-  
+ Sricharan         
