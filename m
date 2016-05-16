@@ -1,93 +1,130 @@
-From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Subject: [PATCH v2 4/5] of: unittest: changeset helpers
-Date: Mon, 16 May 2016 19:41:27 +0300
-Message-ID: <1463416888-22044-5-git-send-email-pantelis.antoniou@konsulko.com>
+From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v2 3/5] of: changeset: Add of_changeset_node_move method
+Date: Mon, 16 May 2016 19:41:26 +0300
+Message-ID: <1463416888-22044-4-git-send-email-pantelis.antoniou@konsulko.com>
 References: <1463416888-22044-1-git-send-email-pantelis.antoniou@konsulko.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1463416888-22044-1-git-send-email-pantelis.antoniou@konsulko.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robherring2@gmail.com>
-Cc: Frank Rowand <frowand.list@gmail.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, Marek Vasut <marex@denx.de>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Pantelis Antoniou <panto@antoniou-consulting.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1463416888-22044-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add a unitest specific for the new changeset helpers.
+Adds a changeset helper for moving a subtree to a different place
+in the running tree. This is useful in advances cases of dynamic
+device tree construction.
 
-Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 ---
- drivers/of/unittest.c | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+ drivers/of/dynamic.c | 66 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/of.h   |  9 +++++++
+ 2 files changed, 75 insertions(+)
 
-diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index e986e6e..ff6939b 100644
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -543,6 +543,59 @@ static void __init of_unittest_changeset(void)
- #endif
+diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
+index 83cc801..b07fec2 100644
+--- a/drivers/of/dynamic.c
++++ b/drivers/of/dynamic.c
+@@ -1054,3 +1054,69 @@ int __of_changeset_add_update_property_string_list(
+ 	return ret;
  }
- 
-+static void __init of_unittest_changeset_helper(void)
+ EXPORT_SYMBOL_GPL(__of_changeset_add_update_property_string_list);
++
++static struct device_node *
++__of_changeset_node_move_one(struct of_changeset *ocs,
++		struct device_node *np, struct device_node *new_parent)
 +{
-+#ifdef CONFIG_OF_DYNAMIC
-+	struct device_node *n1, *n2, *n21, *parent, *np;
-+	struct of_changeset chgset;
++	struct device_node *np2;
++	const char *unitname;
++	int err;
 +
-+	of_changeset_init(&chgset);
++	err = of_changeset_detach_node(ocs, np);
++	if (err)
++		return ERR_PTR(err);
 +
-+	parent = of_find_node_by_path("/testcase-data/changeset");
++	unitname = strrchr(np->full_name, '/');
++	if (!unitname)
++		unitname = np->full_name;
 +
-+	unittest(parent, "testcase setup failure\n");
-+	n1 = of_changeset_create_device_node(&chgset,
-+			parent, "/testcase-data/changeset/n1");
-+	unittest(n1, "testcase setup failure\n");
-+	n2 = of_changeset_create_device_node(&chgset,
-+			parent, "/testcase-data/changeset/n2");
-+	unittest(n2, "testcase setup failure\n");
-+	n21 = of_changeset_create_device_node(&chgset, n2, "%s/%s",
-+			"/testcase-data/changeset/n2", "n21");
-+	unittest(n21, "testcase setup failure\n");
++	np2 = __of_node_dup(np, "%s/%s",
++			new_parent->full_name, unitname);
++	if (!np2)
++		return ERR_PTR(-ENOMEM);
++	np2->parent = new_parent;
 +
-+	unittest(!of_changeset_add_property_string(&chgset, parent,
-+				"prop-add", "foo"), "fail add prop\n");
++	err = of_changeset_attach_node(ocs, np2);
++	if (err)
++		return ERR_PTR(err);
 +
-+	unittest(!of_changeset_attach_node(&chgset, n1), "fail n1 attach\n");
-+	unittest(!of_changeset_attach_node(&chgset, n2), "fail n2 attach\n");
-+	unittest(!of_changeset_attach_node(&chgset, n21), "fail n21 attach\n");
-+
-+	unittest(!of_changeset_apply(&chgset), "apply failed\n");
-+
-+	/* Make sure node names are constructed correctly */
-+	np = of_find_node_by_path("/testcase-data/changeset/n1");
-+	unittest(np, "'%s' not added\n", n1->full_name);
-+	of_node_put(np);
-+
-+	/* Make sure node names are constructed correctly */
-+	np = of_find_node_by_path("/testcase-data/changeset/n2");
-+	unittest(np, "'%s' not added\n", n2->full_name);
-+	of_node_put(np);
-+
-+	np = of_find_node_by_path("/testcase-data/changeset/n2/n21");
-+	unittest(np, "'%s' not added\n", n21->full_name);
-+	of_node_put(np);
-+
-+	unittest(!of_changeset_revert(&chgset), "revert failed\n");
-+
-+	of_changeset_destroy(&chgset);
-+
-+	of_node_put(parent);
-+#endif
++	return np2;
 +}
 +
++/**
++ * of_changeset_node_move_to - Moves a subtree to a new place in
++ *                             the tree
++ *
++ * @ocs:	changeset pointer
++ * @np:		device node pointer to be moved
++ * @to:		device node of the new parent
++ *
++ * Moves a subtree to a new place in the tree.
++ * Note that a move is a safe operation because the phandles
++ * remain valid.
++ *
++ * Returns zero on success, a negative error value otherwise.
++ */
++int of_changeset_node_move(struct of_changeset *ocs,
++		struct device_node *np, struct device_node *new_parent)
++{
++	struct device_node *npc, *nppc;
 +
- static void __init of_unittest_parse_interrupts(void)
++	/* move the root first */
++	nppc = __of_changeset_node_move_one(ocs, np, new_parent);
++	if (IS_ERR(nppc))
++		return PTR_ERR(nppc);
++
++	/* move the subtrees next */
++	for_each_child_of_node(np, npc) {
++		nppc = __of_changeset_node_move_one(ocs, npc, nppc);
++		if (IS_ERR(nppc)) {
++			of_node_put(npc);
++			return PTR_ERR(nppc);
++		}
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(of_changeset_node_move);
+diff --git a/include/linux/of.h b/include/linux/of.h
+index 9df3b71..97ac5c8 100644
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -1056,6 +1056,9 @@ int __of_changeset_add_update_property_string_list(
+ 		struct of_changeset *ocs, struct device_node *np,
+ 		const char *name, const char **strs, int count, bool update);
+ 
++int of_changeset_node_move(struct of_changeset *ocs,
++	struct device_node *np, struct device_node *new_parent);
++
+ #else /* CONFIG_OF_DYNAMIC */
+ static inline int of_reconfig_notifier_register(struct notifier_block *nb)
  {
- 	struct device_node *np;
-@@ -1969,6 +2022,7 @@ static int __init of_unittest(void)
- 	of_unittest_property_string();
- 	of_unittest_property_copy();
- 	of_unittest_changeset();
-+	of_unittest_changeset_helper();
- 	of_unittest_parse_interrupts();
- 	of_unittest_parse_interrupts_extended();
- 	of_unittest_match_node();
+@@ -1118,6 +1121,12 @@ static inline int __of_changeset_add_update_property_string_list(
+ 	return -EINVAL;
+ }
+ 
++static inline int of_changeset_node_move(struct of_changeset *ocs,
++		struct device_node *np, struct device_node *new_parent)
++{
++	return -EINVAL;
++}
++
+ #endif /* CONFIG_OF_DYNAMIC */
+ 
+ /**
 -- 
 1.7.12
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
