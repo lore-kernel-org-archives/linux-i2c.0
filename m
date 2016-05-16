@@ -1,68 +1,32 @@
-From: Crestez Dan Leonard <leonard.crestez@intel.com>
-Subject: Re: [PATCH i2c-tools] i2cget: Add support for i2c block data
-Date: Mon, 16 May 2016 14:39:17 +0300
-Message-ID: <5739B165.50801@intel.com>
-References: <044b3af6a47dfa92e047f0ff57e39a5b61e00058.1463165295.git.leonard.crestez@intel.com>
- <5736738D.3020909@roeck-us.net>
- <93dcb82b-b04e-4b3c-1868-2a4fe4a086c8@gmail.com>
- <57373FD5.5070603@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:19293 "EHLO mga04.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750726AbcEPLjm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 16 May 2016 07:39:42 -0400
-In-Reply-To: <57373FD5.5070603@roeck-us.net>
-Sender: linux-i2c-owner@vger.kernel.org
+From: David Wu <david.wu@rock-chips.com>
+Subject: [PATCH v10 0/8] add i2c driver supported for rk3399
+Date: Mon, 16 May 2016 21:57:35 +0800
+Message-ID: <1463407063-41218-1-git-send-email-david.wu@rock-chips.com>
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: heiko@sntech.de, wsa@the-dreams.de
+Cc: robh+dt@kernel.org, dianders@chromium.org, andy.shevchenko@gmail.com, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, briannorris@google.com, davidriley@google.com, huangtao@rock-chips.com, hl@rock-chips.com, xjq@rock-chips.com, zyw@rock-chips.com, cf@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <david.wu@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org
-Cc: Jean Delvare <khali@linux-fr.org>
 
-On 05/14/2016 06:10 PM, Guenter Roeck wrote:
-> On 05/14/2016 04:30 AM, Crestez Dan Leonard wrote:
->> On 05/14/2016 03:38 AM, Guenter Roeck wrote:
->>> On 05/13/2016 11:54 AM, Crestez Dan Leonard wrote:
->>>> This adds mode 'i' for I2C_SMBUS_I2C_BLOCK_DATA. This is the same mode
->>>> letter from i2cdump.
->>>>
->>>> Length is optional and defaults to 32 (maximum).
->>>>
->>>> The indended use is debugging i2c devices with shell commands.
->>>>
->>> How does this differ from the 'i' option of i2cdump ?
->>
->> Apparently i2cdump doesn't support a range in "i" mode. I considered
->> adding a range to i2cdump in all modes but:
->> - i2cdump code is a more complicated
-> 
-> Maybe, but it already supports the command.
-> 
->> - Not all devices interpret i2c bulk read as a register range. Reading
->> X bytes from register Y can be different from reading registers from X
->> to X+Y.
->>
-> Not sure I understand what that has to do with supporting i2c block data.
-> Both commands call i2c_smbus_read_i2c_block_data(). Please explain.
+There are three points differert from others:
+ - new method to caculate i2c timings for rk3399
+ - pclk and function clk are separated at rk3399
+ - add fast-plus mode supported for rk3399
 
-I just found it easier to implement this as an extension to i2cget
-rather than add range support to i2cdump 'i' mode. I also think it's a
-better fit for i2cget because the "length" parameter doesn't always
-imply a register range.
+David Wu (8):
+  i2c: rk3x: add documentation to fields in "struct rk3x_i2c"
+  i2c: rk3x: use struct "rk3x_i2c_calced_timings"
+  i2c: rk3x: Remove redundant rk3x_i2c_clean_ipd()
+  i2c: rk3x: Change SoC data to not use array
+  i2c: rk3x: Move spec timing data to "static const" structs
+  dt-bindings: i2c: rk3x: add support for rk3399
+  i2c: rk3x: add i2c support for rk3399 soc
+  i2c: rk3x: support fast-mode plus for rk3399
 
-As to how this is useful: I have an i2c sensor where new data can come
-in while the driver is still reading and this will prevent further
-interrupts. I can confirm this by issuing a command like:
-
-    i2cget -f -y 0 0x18 0xa8 i 6
-
-This bulk read of 6 bytes will unlock the driver for a short while.
-
-This can't be done with current i2cdump's 'i' mode because that just
-dumps all registers. i2cdump's byte/word modes issue multiple reads
-which is not fast enough.
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |  16 +-
+ drivers/i2c/busses/i2c-rk3x.c                      | 498 +++++++++++++++++----
+ 2 files changed, 434 insertions(+), 80 deletions(-)
 
 -- 
-Regards,
-Leonard
+1.9.1
