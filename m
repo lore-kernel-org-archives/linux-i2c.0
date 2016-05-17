@@ -1,346 +1,185 @@
-From: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Subject: Re: [PATCH 2/5] i2c: Add STM32F4 I2C driver
-Date: Tue, 17 May 2016 11:48:08 +0200
-Message-ID: <CALszF6A-jiCBtSO1RFDdgHKTKmsonRXFVs0x2zHha1LJ3UhwtQ@mail.gmail.com>
-References: <1462980974-22091-1-git-send-email-cedric.madianga@gmail.com>
-	<1462980974-22091-3-git-send-email-cedric.madianga@gmail.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH v2 2/5] of: changesets: Introduce changeset helper methods
+Date: Tue, 17 May 2016 12:25:51 +0200
+Message-ID: <e7dbb25a-0638-1c33-7473-60e047bf9d98@axentia.se>
+References: <1463416888-22044-1-git-send-email-pantelis.antoniou@konsulko.com>
+ <1463416888-22044-3-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qg0-f65.google.com ([209.85.192.65]:33428 "EHLO
-	mail-qg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754670AbcEQJsJ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2016 05:48:09 -0400
-In-Reply-To: <1462980974-22091-3-git-send-email-cedric.madianga@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1463416888-22044-3-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Cc: Patrice Chotard <patrice.chotard@st.com>, wsa@the-dreams.de, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-Hi Cedric,
+Hi!
 
-2016-05-11 17:36 GMT+02:00 M'boumba Cedric Madianga <cedric.madianga@gmail.com>:
-> This patch adds support for the STM32F4 I2C controller.
->
-> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+I found a resource management bug in this patch.
+
+Cheers,
+Peter
+
+On 2016-05-16 18:41, Pantelis Antoniou wrote:
+> Changesets are very powerful, but the lack of a helper API
+> makes using them cumbersome. Introduce a simple copy based
+> API that makes things considerably easier.
+> 
+> To wit, adding a property using the raw API.
+> 
+> 	struct property *prop;
+> 	prop = kzalloc(sizeof(*prop)), GFP_KERNEL);
+> 	prop->name = kstrdup("compatible");
+> 	prop->value = kstrdup("foo,bar");
+> 	prop->length = strlen(prop->value) + 1;
+> 	of_changeset_add_property(ocs, np, prop);
+> 
+> while using the helper API
+> 
+> 	of_changeset_add_property_string(ocs, np, "compatible",
+> 			"foo,bar");
+> 
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 > ---
->  drivers/i2c/busses/Kconfig       |  10 +
->  drivers/i2c/busses/Makefile      |   1 +
->  drivers/i2c/busses/i2c-stm32f4.c | 872 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 883 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-stm32f4.c
->
-...
-> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
-> new file mode 100644
-> index 0000000..4692213
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-stm32f4.c
-...
-> +enum stm32f4_i2c_speed {
-> +       STM32F4_I2C_SPEED_STANDARD, /* 100 kHz */
-> +       STM32F4_I2C_SPEED_FAST, /* 400 kHz */
-> +       STM32F4_I2C_SPEED_END,
-> +};
+>  drivers/of/dynamic.c | 226 +++++++++++++++++++++++++++++++++++
+>  include/linux/of.h   | 328 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 554 insertions(+)
+> 
+> diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
+> index e4dea94..83cc801 100644
+> --- a/drivers/of/dynamic.c
+> +++ b/drivers/of/dynamic.c
+> @@ -828,3 +828,229 @@ int of_changeset_action(struct of_changeset *ocs, unsigned long action,
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL_GPL(of_changeset_action);
+> +
+> +/* changeset helpers */
 > +
 > +/**
-> + * struct stm32f4_i2c_timings - per-Mode tuning parameters
-> + * @rate: I2C bus rate
-> + * @duty: Fast mode duty cycle
-> + */
-> +struct stm32f4_i2c_timings {
-> +       u32 rate;
-> +       u32 duty;
-> +};
-...
-> +/**
-> + * struct stm32f4_i2c_dev - private data of the controller
-> + * @adap: I2C adapter for this controller
-> + * @dev: device for this controller
-> + * @base: virtual memory area
-> + * @complete: completion of I2C message
-> + * @irq_event: interrupt event line for the controller
-> + * @irq_error: interrupt error line for the controller
-> + * @clk: hw i2c clock
-> + * speed: I2C clock frequency of the controller. Standard or Fast only supported
-> + * @client: I2C transfer information
-> + * @busy: I2C transfer on-going
-> + * @rst: I2C reset line
-> + */
-> +struct stm32f4_i2c_dev {
-> +       struct i2c_adapter              adap;
-> +       struct device                   *dev;
-> +       void __iomem                    *base;
-> +       struct completion               complete;
-> +       int                             irq_event;
-> +       int                             irq_error;
-> +       struct clk                      *clk;
-> +       int                             speed;
-> +       struct stm32f4_i2c_client       client;
-> +       bool                            busy;
-> +       struct reset_control            *rst;
-> +};
-> +
-> +static struct stm32f4_i2c_timings i2c_timings[] = {
-> +       [STM32F4_I2C_SPEED_STANDARD] = {
-> +               .rate                   = 100000,
-> +               .duty                   = 0,
-> +       },
-> +       [STM32F4_I2C_SPEED_FAST] = {
-> +               .rate                   = 400000,
-> +               .duty                   = 0,
-> +       },
-> +};
-Is this table really needed?
-As duty value seems to always be 0, couldn't you just store the rate
-in the speed field?
-
-
-> +static void stm32f4_i2c_set_rise_time(struct stm32f4_i2c_dev *i2c_dev)
-> +{
-> +       u32 trise, freq, cr2;
-> +
-> +       cr2 = readl_relaxed(i2c_dev->base + STM32F4_I2C_CR2);
-> +       freq = cr2 & STM32F4_I2C_CR2_FREQ_MASK;
-> +
-> +       trise = readl_relaxed(i2c_dev->base + STM32F4_I2C_TRISE);
-> +       trise &= ~STM32F4_I2C_TRISE_TRISE_MASK;
-> +
-> +       if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD)
-> +               trise |= STM32F4_I2C_TRISE_TRISE((freq + 1));
-> +       else
-> +               trise |= STM32F4_I2C_TRISE_TRISE((((freq * 300) / 1000) + 1));
-Or if you keep the timings struct, maybe the rise time should be part of it.
-Doing, that, you will avoid the if/else
-
-> +
-> +       writel_relaxed(trise, i2c_dev->base + STM32F4_I2C_TRISE);
-> +}
-> +
-> +static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
-> +{
-> +       struct stm32f4_i2c_timings *t = &i2c_timings[i2c_dev->speed];
-> +       u32 ccr, val, clk_rate;
-> +
-> +       ccr = readl_relaxed(i2c_dev->base + STM32F4_I2C_CCR);
-> +       ccr &= ~(STM32F4_I2C_CCR_FS | STM32F4_I2C_CCR_DUTY |
-> +                STM32F4_I2C_CCR_CCR_MASK);
-> +
-> +       clk_rate = clk_get_rate(i2c_dev->clk);
-> +
-> +       switch (i2c_dev->speed) {
-> +       case STM32F4_I2C_SPEED_STANDARD:
-> +               val = clk_rate / t->rate * 2;
-> +               if (val < STM32F4_I2C_MIN_CCR)
-> +                       ccr |= STM32F4_I2C_CCR_CCR(STM32F4_I2C_MIN_CCR);
-> +               else
-> +                       ccr |= STM32F4_I2C_CCR_CCR(val);
-> +               break;
-> +       case STM32F4_I2C_SPEED_FAST:
-> +               ccr |= STM32F4_I2C_CCR_FS;
-> +               if (t->duty) {
-> +                       ccr |= STM32F4_I2C_CCR_DUTY;
-> +                       ccr |= STM32F4_I2C_CCR_CCR(clk_rate / t->rate * 25);
-> +               } else {
-> +                       ccr |= STM32F4_I2C_CCR_CCR(clk_rate / t->rate * 3);
-> +               }
-Is it really useful since duty seems to always be 0?
-
-> +               break;
-> +       default:
-> +               dev_err(i2c_dev->dev, "I2C speed mode not supported\n");
-> +       }
-> +
-> +       writel_relaxed(ccr, i2c_dev->base + STM32F4_I2C_CCR);
-> +}
-> +
-> +static void stm32f4_i2c_set_filter(struct stm32f4_i2c_dev *i2c_dev)
-> +{
-> +       u32 filter;
-> +
-> +       /* Enable analog noise filter and disable digital noise filter */
-Maybe a stupid question, but is it always what we want?
-Are there some cases we would prefer to use the digital noise filter
-instead of the analog one?
-
-> +       filter = readl_relaxed(i2c_dev->base + STM32F4_I2C_FLTR);
-> +       filter &= ~(STM32F4_I2C_FLTR_ANOFF | STM32F4_I2C_FLTR_DNF_MASK);
-> +       writel_relaxed(filter, i2c_dev->base + STM32F4_I2C_FLTR);
-> +}
-> +
-> +/**
-> + * stm32f4_i2c_hw_config() - Prepare I2C block
-> + * @i2c_dev: Controller's private data
-> + */
-> +static void stm32f4_i2c_hw_config(struct stm32f4_i2c_dev *i2c_dev)
-> +{
-> +       void __iomem *reg = i2c_dev->base + STM32F4_I2C_CR1;
-> +
-> +       /* Disable I2C */
-> +       stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_PE);
-> +
-> +       stm32f4_i2c_set_periph_clk_freq(i2c_dev);
-> +
-> +       stm32f4_i2c_set_rise_time(i2c_dev);
-> +
-> +       stm32f4_i2c_set_speed_mode(i2c_dev);
-> +
-> +       stm32f4_i2c_set_filter(i2c_dev);
-> +
-> +       /* Enable I2C */
-> +       stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_PE);
-> +}
-> +
-> +static int stm32f4_i2c_wait_free_bus(struct stm32f4_i2c_dev *i2c_dev)
-> +{
-> +       u32 status;
-> +       int ret;
-> +
-> +       ret = readl_relaxed_poll_timeout(i2c_dev->base + STM32F4_I2C_SR2,
-> +                                        status,
-> +                                        !(status & STM32F4_I2C_SR2_BUSY),
-> +                                        10, 1000);
-> +       if (ret) {
-> +               dev_err(i2c_dev->dev, "bus not free\n");
-> +               ret = -EBUSY;
-> +       }
-> +
-> +       return ret;
-> +}
-> +
-> +/**
-> + * stm32f4_i2c_write_ byte() - Write a byte in the data register
-> + * @i2c_dev: Controller's private data
-> + * @byte: Data to write in the register
-> + */
-> +static void stm32f4_i2c_write_byte(struct stm32f4_i2c_dev *i2c_dev, u8 byte)
-> +{
-> +       writel_relaxed(byte, i2c_dev->base + STM32F4_I2C_DR);
-> +}
-> +
-> +/**
-> + * stm32f4_i2c_write_msg() - Fill the data register in write mode
-> + * @i2c_dev: Controller's private data
+> + * of_changeset_create_device_node - Create an empty device node
 > + *
-> + * This function fills the data register with I2C transfer buffer
+> + * @ocs:	changeset pointer
+> + * @parent:	parent device node
+> + * @fmt:	format string for the node's full_name
+> + * @args:	argument list for the format string
+> + *
+> + * Create an empty device node, marking it as detached and allocated.
+> + *
+> + * Returns a device node on success, an error encoded pointer otherwise
 > + */
-> +static void stm32f4_i2c_write_msg(struct stm32f4_i2c_dev *i2c_dev)
+> +struct device_node *of_changeset_create_device_nodev(
+> +	struct of_changeset *ocs, struct device_node *parent,
+> +	const char *fmt, va_list vargs)
 > +{
-> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
+> +	struct device_node *node;
 > +
-> +       stm32f4_i2c_write_byte(i2c_dev, *c->buf++);
-> +       c->count--;
+> +	node = __of_node_dupv(NULL, fmt, vargs);
+> +	if (!node)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	node->parent = parent;
+> +	return node;
 > +}
-> +
-> +static void stm32f4_i2c_read_msg(struct stm32f4_i2c_dev *i2c_dev)
-> +{
-> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
-> +       u32 rbuf;
-> +
-> +       rbuf = readl_relaxed(i2c_dev->base + STM32F4_I2C_DR);
-> +       *c->buf++ = (u8)rbuf & 0xff;
-> +       c->count--;
-> +}
-> +
-> +static void stm32f4_i2c_terminate_xfer(struct stm32f4_i2c_dev *i2c_dev)
-> +{
-> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
-> +       void __iomem *reg = i2c_dev->base + STM32F4_I2C_CR2;
-> +
-> +       /* Disable all interrupts */
-> +       stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_IRQ_MASK);
-> +
-> +       /* Set STOP or REPSTART */
-> +       reg = i2c_dev->base + STM32F4_I2C_CR1;
-> +       if (c->stop)
-> +               stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_STOP);
-> +       else
-> +               stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_START);
-> +
-> +       complete(&i2c_dev->complete);
-> +}
+> +EXPORT_SYMBOL_GPL(of_changeset_create_device_nodev);
 > +
 > +/**
-> + * stm32f4_i2c_handle_write() - Handle FIFO empty interrupt in case of write
-> + * @i2c_dev: Controller's private data
+> + * of_changeset_create_device_node - Create an empty device node
+> + *
+> + * @ocs:	changeset pointer
+> + * @parent:	parent device node
+> + * @fmt:	Format string for the node's full_name
+> + * ...		Arguments
+> + *
+> + * Create an empty device node, marking it as detached and allocated.
+> + *
+> + * Returns a device node on success, an error encoded pointer otherwise
 > + */
-> +static void stm32f4_i2c_handle_write(struct stm32f4_i2c_dev *i2c_dev)
+> +__printf(3, 4) struct device_node *
+> +of_changeset_create_device_node(struct of_changeset *ocs,
+> +	struct device_node *parent, const char *fmt, ...)
 > +{
-> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
-> +       void __iomem *reg = i2c_dev->base + STM32F4_I2C_CR2;
+> +	va_list vargs;
+> +	struct device_node *node;
 > +
-> +       if (c->count) {
-> +               stm32f4_i2c_write_msg(i2c_dev);
-> +               if (!c->count) {
-> +                       /* Disable BUF interrupt */
-> +                       stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_ITBUFEN);
-> +               }
-> +       } else {
-> +               stm32f4_i2c_terminate_xfer(i2c_dev);
-> +       }
+> +	va_start(vargs, fmt);
+> +	node = of_changeset_create_device_nodev(ocs, parent, fmt, vargs);
+> +	va_end(vargs);
+> +	return node;
 > +}
+> +EXPORT_SYMBOL_GPL(of_changeset_create_device_node);
 > +
 > +/**
-> + * stm32f4_i2c_handle_tx_btf() - Handle byte transfer finished interrupt
-> + * in case of write
-> + * @i2c_dev: Controller's private data
+> + * __of_changeset_add_property_copy - Create/update a new property copying
+> + *                                    name & value
+> + *
+> + * @ocs:	changeset pointer
+> + * @np:		device node pointer
+> + * @name:	name of the property
+> + * @value:	pointer to the value data
+> + * @length:	length of the value in bytes
+> + * @update:	True on update operation
+> + *
+> + * Adds/updates a property to the changeset by making copies of the name & value
+> + * entries. The @update parameter controls whether an add or update takes place.
+> + *
+> + * Returns zero on success, a negative error value otherwise.
 > + */
-> +static void stm32f4_i2c_handle_tx_btf(struct stm32f4_i2c_dev *i2c_dev)
+> +int __of_changeset_add_update_property_copy(struct of_changeset *ocs,
+> +		struct device_node *np, const char *name, const void *value,
+> +		int length, bool update)
 > +{
-> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
+> +	struct property *prop;
+> +	char *new_name;
+> +	void *new_value;
+> +	int ret = -ENOMEM;
 > +
-> +       if (c->count)
-> +               stm32f4_i2c_write_msg(i2c_dev);
-> +       else
-> +               stm32f4_i2c_terminate_xfer(i2c_dev);
+> +	prop = kzalloc(sizeof(*prop), GFP_KERNEL);
+> +	if (!prop)
+> +		return -ENOMEM;
+> +
+> +	new_name = kstrdup(name, GFP_KERNEL);
+> +	if (!new_name)
+> +		goto out_err;
+> +
+> +	/*
+> +	 * NOTE: There is no check for zero length value.
+> +	 * In case of a boolean property, this will allocate a value
+> +	 * of zero bytes. We do this to work around the use
+> +	 * of of_get_property() calls on boolean values.
+> +	 */
+> +	new_value = kmemdup(value, length, GFP_KERNEL);
+> +	if (!new_value)
+
+You leak new_name here.
+
+> +		goto out_err;
+> +
+> +	of_property_set_flag(prop, OF_DYNAMIC);
+> +
+> +	prop->name = new_name;
+> +	prop->value = new_value;
+> +	prop->length = length;
+> +
+> +	if (!update)
+> +		ret = of_changeset_add_property(ocs, np, prop);
+> +	else
+> +		ret = of_changeset_update_property(ocs, np, prop);
+> +
+> +	if (!ret)
+> +		return 0;
+> +
+> +out_err:
+> +	kfree(prop->value);
+> +	kfree(prop->name);
+> +	kfree(prop);
+> +	return ret;
 > +}
-The two functions above look very similar.
-Isn't there a way to factorize?
+> +EXPORT_SYMBOL_GPL(__of_changeset_add_update_property_copy);
 
-> +
-> +/**
-> + * stm32f4_i2c_handle_read() - Handle FIFO enmpty interrupt in case of read
-s/enmpty/empty/
-
-
-...
-> +
-> +/**
-> + * stm32f4_i2c_xfer() - Transfer combined I2C message
-> + * @i2c_adap: Adapter pointer to the controller
-> + * @msgs: Pointer to data to be written.
-> + * @num: Number of messages to be executed
-> + */
-> +static int stm32f4_i2c_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg msgs[],
-> +                           int num)
-> +{
-> +       struct stm32f4_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
-> +       int ret, i;
-> +
-> +       i2c_dev->busy = true;
-> +
-> +       ret = clk_prepare_enable(i2c_dev->clk);
-> +       if (ret) {
-> +               dev_err(i2c_dev->dev, "Failed to prepare_enable clock\n");
-> +               return ret;
-> +       }
-> +
-> +       stm32f4_i2c_hw_config(i2c_dev);
-Maybe you could call this only at probe and resume time?
-You would save some register accesses.
-
-> +
-> +       for (i = 0; i < num && !ret; i++)
-> +               ret = stm32f4_i2c_xfer_msg(i2c_dev, &msgs[i], i == 0,
-> +                                          i == num - 1);
-> +
-> +       clk_disable_unprepare(i2c_dev->clk);
-> +
-> +       i2c_dev->busy = false;
-> +
-> +       return (ret < 0) ? ret : i;
-> +}
-> +
-
-Thanks!
-Maxime
+*snip*
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
