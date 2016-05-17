@@ -1,185 +1,105 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v2 2/5] of: changesets: Introduce changeset helper methods
-Date: Tue, 17 May 2016 12:25:51 +0200
-Message-ID: <e7dbb25a-0638-1c33-7473-60e047bf9d98@axentia.se>
-References: <1463416888-22044-1-git-send-email-pantelis.antoniou@konsulko.com>
- <1463416888-22044-3-git-send-email-pantelis.antoniou@konsulko.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v4] i2c: i801: Allow ACPI SystemIO OpRegion to conflict
+ with PCI BAR
+Date: Tue, 17 May 2016 12:45:23 +0200
+Message-ID: <20160517124523.5697e260@endymion>
+References: <1463143555-20261-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1463416888-22044-3-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:56164 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755807AbcEQKp4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2016 06:45:56 -0400
+In-Reply-To: <1463143555-20261-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, pali.rohar@gmail.com, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 
-Hi!
+Hi Mika,
 
-I found a resource management bug in this patch.
-
-Cheers,
-Peter
-
-On 2016-05-16 18:41, Pantelis Antoniou wrote:
-> Changesets are very powerful, but the lack of a helper API
-> makes using them cumbersome. Introduce a simple copy based
-> API that makes things considerably easier.
-> 
-> To wit, adding a property using the raw API.
-> 
-> 	struct property *prop;
-> 	prop = kzalloc(sizeof(*prop)), GFP_KERNEL);
-> 	prop->name = kstrdup("compatible");
-> 	prop->value = kstrdup("foo,bar");
-> 	prop->length = strlen(prop->value) + 1;
-> 	of_changeset_add_property(ocs, np, prop);
-> 
-> while using the helper API
-> 
-> 	of_changeset_add_property_string(ocs, np, "compatible",
-> 			"foo,bar");
-> 
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+On Fri, 13 May 2016 15:45:55 +0300, Mika Westerberg wrote:
+> Many Intel systems the BIOS declares a SystemIO OpRegion below the SM=
+Bus
+> PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
+>=20
+>   Device (SBUS)
+>   {
+>       OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
+>       Field (SMBI, ByteAcc, NoLock, Preserve)
+>       {
+>           HSTS,   8,
+>           Offset (0x02),
+>           HCON,   8,
+>           HCOM,   8,
+>           TXSA,   8,
+>           DAT0,   8,
+>           DAT1,   8,
+>           HBDR,   8,
+>           PECR,   8,
+>           RXSA,   8,
+>           SDAT,   16
+>       }
+>=20
+> There are also bunch of AML methods that that the BIOS can use to acc=
+ess
+> these fields. Most of the systems in question AML methods accessing t=
+he
+> SMBI OpRegion are never used.
+>=20
+> Now, because of this SMBI OpRegion many systems fail to load the SMBu=
+s
+> driver with an error looking like one below:
+>=20
+>   ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305F
+>        conflicts with OpRegion 0x0000000000003040-0x000000000000304F
+>        (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
+>   ACPI: If an ACPI driver is available for this device, you should us=
+e
+>        it instead of the native driver
+>=20
+> The reason is that this SMBI OpRegion conflicts with the PCI BAR used=
+ by
+> the SMBus driver.
+>=20
+> It turns out that we can install a custom SystemIO address space hand=
+ler
+> for the SMBus device to intercept all accesses through that OpRegion.=
+ This
+> allows us to share the PCI BAR with the AML code if it for some reaso=
+n is
+> using it. We do not expect that this OpRegion handler will ever be ca=
+lled
+> but if it is we print a warning and prevent all access from the SMBus
+> driver itself.
+>=20
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D110041
+> Reported-by: Andy Lutomirski <luto@kernel.org>
+> Reported-and-tested-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Cc: stable@vger.kernel.org
 > ---
->  drivers/of/dynamic.c | 226 +++++++++++++++++++++++++++++++++++
->  include/linux/of.h   | 328 +++++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 554 insertions(+)
-> 
-> diff --git a/drivers/of/dynamic.c b/drivers/of/dynamic.c
-> index e4dea94..83cc801 100644
-> --- a/drivers/of/dynamic.c
-> +++ b/drivers/of/dynamic.c
-> @@ -828,3 +828,229 @@ int of_changeset_action(struct of_changeset *ocs, unsigned long action,
->  	return 0;
->  }
->  EXPORT_SYMBOL_GPL(of_changeset_action);
-> +
-> +/* changeset helpers */
-> +
-> +/**
-> + * of_changeset_create_device_node - Create an empty device node
-> + *
-> + * @ocs:	changeset pointer
-> + * @parent:	parent device node
-> + * @fmt:	format string for the node's full_name
-> + * @args:	argument list for the format string
-> + *
-> + * Create an empty device node, marking it as detached and allocated.
-> + *
-> + * Returns a device node on success, an error encoded pointer otherwise
-> + */
-> +struct device_node *of_changeset_create_device_nodev(
-> +	struct of_changeset *ocs, struct device_node *parent,
-> +	const char *fmt, va_list vargs)
-> +{
-> +	struct device_node *node;
-> +
-> +	node = __of_node_dupv(NULL, fmt, vargs);
-> +	if (!node)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	node->parent = parent;
-> +	return node;
-> +}
-> +EXPORT_SYMBOL_GPL(of_changeset_create_device_nodev);
-> +
-> +/**
-> + * of_changeset_create_device_node - Create an empty device node
-> + *
-> + * @ocs:	changeset pointer
-> + * @parent:	parent device node
-> + * @fmt:	Format string for the node's full_name
-> + * ...		Arguments
-> + *
-> + * Create an empty device node, marking it as detached and allocated.
-> + *
-> + * Returns a device node on success, an error encoded pointer otherwise
-> + */
-> +__printf(3, 4) struct device_node *
-> +of_changeset_create_device_node(struct of_changeset *ocs,
-> +	struct device_node *parent, const char *fmt, ...)
-> +{
-> +	va_list vargs;
-> +	struct device_node *node;
-> +
-> +	va_start(vargs, fmt);
-> +	node = of_changeset_create_device_nodev(ocs, parent, fmt, vargs);
-> +	va_end(vargs);
-> +	return node;
-> +}
-> +EXPORT_SYMBOL_GPL(of_changeset_create_device_node);
-> +
-> +/**
-> + * __of_changeset_add_property_copy - Create/update a new property copying
-> + *                                    name & value
-> + *
-> + * @ocs:	changeset pointer
-> + * @np:		device node pointer
-> + * @name:	name of the property
-> + * @value:	pointer to the value data
-> + * @length:	length of the value in bytes
-> + * @update:	True on update operation
-> + *
-> + * Adds/updates a property to the changeset by making copies of the name & value
-> + * entries. The @update parameter controls whether an add or update takes place.
-> + *
-> + * Returns zero on success, a negative error value otherwise.
-> + */
-> +int __of_changeset_add_update_property_copy(struct of_changeset *ocs,
-> +		struct device_node *np, const char *name, const void *value,
-> +		int length, bool update)
-> +{
-> +	struct property *prop;
-> +	char *new_name;
-> +	void *new_value;
-> +	int ret = -ENOMEM;
-> +
-> +	prop = kzalloc(sizeof(*prop), GFP_KERNEL);
-> +	if (!prop)
-> +		return -ENOMEM;
-> +
-> +	new_name = kstrdup(name, GFP_KERNEL);
-> +	if (!new_name)
-> +		goto out_err;
-> +
-> +	/*
-> +	 * NOTE: There is no check for zero length value.
-> +	 * In case of a boolean property, this will allocate a value
-> +	 * of zero bytes. We do this to work around the use
-> +	 * of of_get_property() calls on boolean values.
-> +	 */
-> +	new_value = kmemdup(value, length, GFP_KERNEL);
-> +	if (!new_value)
+> Changes to v3:
+> =20
+>  - Added Tested-by from Pali Roh=C3=A1r (The patch did not change tha=
+t much so I
+>    though it is still valid)
+>  - Return -EBUSY instead of -EIO
+>  - Move dev_warns() to be inside if (!priv->acpi_reserved) block
+>  - Remove unnecessary variable "val"
+>  - Do not clear priv->acpi_reserved in i801_acpi_remove()
+>  - Return -ENODEV if we detect conflict
+>  - Call i801_acpi_remove() after i2c_del_adapter().
+> (...)
 
-You leak new_name here.
+Tested-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-> +		goto out_err;
-> +
-> +	of_property_set_flag(prop, OF_DYNAMIC);
-> +
-> +	prop->name = new_name;
-> +	prop->value = new_value;
-> +	prop->length = length;
-> +
-> +	if (!update)
-> +		ret = of_changeset_add_property(ocs, np, prop);
-> +	else
-> +		ret = of_changeset_update_property(ocs, np, prop);
-> +
-> +	if (!ret)
-> +		return 0;
-> +
-> +out_err:
-> +	kfree(prop->value);
-> +	kfree(prop->name);
-> +	kfree(prop);
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(__of_changeset_add_update_property_copy);
-
-*snip*
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+--=20
+Jean Delvare
+SUSE L3 Support
