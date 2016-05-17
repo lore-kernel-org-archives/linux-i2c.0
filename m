@@ -1,51 +1,48 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH 1/5] dt-bindings: Document the STM32 I2C bindings
-Date: Tue, 17 May 2016 09:21:31 +0200
-Message-ID: <CAOAejn3VJX4ZZZ9nXN+YOs_s-sXBOnGkvRXhZwP3undVnDjXMA@mail.gmail.com>
-References: <1462980974-22091-1-git-send-email-cedric.madianga@gmail.com>
-	<1462980974-22091-2-git-send-email-cedric.madianga@gmail.com>
-	<20160516150440.GA6312@rob-hp-laptop>
+From: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+Subject: Re: [PATCH v2] i2c: xlr: rename ARCH_TANGOX to ARCH_TANGO
+Date: Tue, 17 May 2016 10:14:08 +0200
+Message-ID: <573AD2D0.8010909@sigmadesigns.com>
+References: <57334DA5.5030102@sigmadesigns.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:35949 "EHLO
-	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750711AbcEQHVc (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2016 03:21:32 -0400
-In-Reply-To: <20160516150440.GA6312@rob-hp-laptop>
+Received: from a.mx.sdesigns.eu ([78.31.43.6]:65260 "EHLO a.mx.sdesigns.eu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754977AbcEQIOL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 17 May 2016 04:14:11 -0400
+In-Reply-To: <57334DA5.5030102@sigmadesigns.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, patrice.chotard@st.com, Wolfram Sang <wsa@the-dreams.de>, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Mans Rullgard <mans@mansr.com>, Sebastian Frias <sf84@laposte.net>, Mason <slash.tmp@free.fr>
 
- Hi,
+On 11/05/2016 17:20, Marc Gonzalez wrote:
 
-2016-05-16 17:04 GMT+02:00 Rob Herring <robh@kernel.org>:
-> On Wed, May 11, 2016 at 05:36:10PM +0200, M'boumba Cedric Madianga wrote:
->> This patch adds documentation of device tree bindings for the STM32 I2C
->> controller.
->>
->> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
->> ---
->>  .../devicetree/bindings/i2c/i2c-stm32.txt          | 33 ++++++++++++++++++++++
->>  1 file changed, 33 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
->> new file mode 100644
->> index 0000000..73215c6
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
->> @@ -0,0 +1,33 @@
->> +* I2C controller embedded in STMicroelectronics STM32 I2C platform
->> +
->> +Required properties :
->> +- compatible : Must be "st,i2c-stm32f4"
->
-> Normal order is st,stm32f4-i2c
-Ok Thanks, I will correct it in the V2.
+> The ARCH name was changed during the review process.
+> http://article.gmane.org/gmane.linux.ports.arm.kernel/456331
+> 
+> Signed-off-by: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+> ---
+>  drivers/i2c/busses/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 2dd40ddf04de..d8d18ed65440 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -965,7 +965,7 @@ config I2C_XILINX
+>  
+>  config I2C_XLR
+>  	tristate "Netlogic XLR and Sigma Designs I2C support"
+> -	depends on CPU_XLR || ARCH_TANGOX
+> +	depends on CPU_XLR || ARCH_TANGO
+>  	help
+>  	  This driver enables support for the on-chip I2C interface of
+>  	  the Netlogic XLR/XLS MIPS processors and Sigma Designs SOCs.
 
->
-> Rob
+Hello Wolfram,
 
-Cedric
+Do you think you will be able to queue this patch for 4.7-rc2 ?
+
+Regards.
