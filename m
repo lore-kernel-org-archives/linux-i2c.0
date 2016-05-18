@@ -1,373 +1,119 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/5] i2c: Add STM32F4 I2C driver
-Date: Wed, 18 May 2016 09:24:50 +0200
-Message-ID: <CAOAejn0Fsizp9fK1mNn3BBeL2LeoVgt5_zF5656La4G2uDPH7g@mail.gmail.com>
-References: <1462980974-22091-1-git-send-email-cedric.madianga@gmail.com>
-	<1462980974-22091-3-git-send-email-cedric.madianga@gmail.com>
-	<CALszF6A-jiCBtSO1RFDdgHKTKmsonRXFVs0x2zHha1LJ3UhwtQ@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: i2c-i801 partially broken on Lynx Point PCH?
+Date: Wed, 18 May 2016 14:05:08 +0200
+Message-ID: <20160518140508.7dfe192e@endymion>
+References: <20160511093452.5bc2614c@endymion>
+	<20160511104322.60521365@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CALszF6A-jiCBtSO1RFDdgHKTKmsonRXFVs0x2zHha1LJ3UhwtQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:53083 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751667AbcERMFM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 18 May 2016 08:05:12 -0400
+In-Reply-To: <20160511104322.60521365@endymion>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Seth Heasley <seth.heasley@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Hi Maxime,
+On Wed, 11 May 2016 10:43:22 +0200, Jean Delvare wrote:
+> On Wed, 11 May 2016 09:34:52 +0200, Jean Delvare wrote:
+> > In commit 062737fb6d90 you added support for the Intel Lynx Point PCH
+> > to the i2c-i801 driver. I happen to have a machine with this chipset
+> > since a few weeks, and found that the i2c-i801 driver doesn't work
+> > properly on it. Specifically, the eeprom driver return 0xff for all
+> > EEPROM bytes. The at24 driver fails too, with a timeout.
+> > 
+> > After some testing using i2cdetect, i2cdump and i2cget, I found that
+> > some I2C transactions work (SMBUS_QUICK, SMBUS_READ_BYTE,
+> > SMBUS_READ_BYTE_DATA, SMBUS_READ_WORD_DATA, SMBUS_READ_BLOCK_DATA),
+> > however others do not (SMBUS_WRITE_BYTE, SMBUS_READ_I2C_BLOCK.) I can't
+> > easily test other transaction types as all I have on the SMBus are SPD
+> > EEPROMs on my memory modules.
+> > 
+> > Did you test the i2c-i801 driver on an actual Lynx Point PCH chipset?
+> > Or did you only add the PCI ID of the device, assuming it would work?
+> 
+> As an additional data point, I managed to find a machine on the SUSE
+> network with a Lynx Point PCH. I tested it and everything works fine
+> there. So not all systems with the Lynx Point PCH [8086:8c22] have the
+> problem.
+> 
+> One difference between my system and the working one is the PCI device
+> revision (04 for me, 05 for the working machine.) So maybe it has
+> something to do with the revision. Or maybe it's a problem with the way
+> the BIOS initializes the device (my system is from Dell, the working
+> one from Intel.)
 
-2016-05-17 11:48 GMT+02:00 Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> Hi Cedric,
->
-> 2016-05-11 17:36 GMT+02:00 M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->> This patch adds support for the STM32F4 I2C controller.
->>
->> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->>  drivers/i2c/busses/Kconfig       |  10 +
->>  drivers/i2c/busses/Makefile      |   1 +
->>  drivers/i2c/busses/i2c-stm32f4.c | 872 +++++++++++++++++++++++++++++++++++++++
->>  3 files changed, 883 insertions(+)
->>  create mode 100644 drivers/i2c/busses/i2c-stm32f4.c
->>
-> ...
->> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
->> new file mode 100644
->> index 0000000..4692213
->> --- /dev/null
->> +++ b/drivers/i2c/busses/i2c-stm32f4.c
-> ...
->> +enum stm32f4_i2c_speed {
->> +       STM32F4_I2C_SPEED_STANDARD, /* 100 kHz */
->> +       STM32F4_I2C_SPEED_FAST, /* 400 kHz */
->> +       STM32F4_I2C_SPEED_END,
->> +};
->> +
->> +/**
->> + * struct stm32f4_i2c_timings - per-Mode tuning parameters
->> + * @rate: I2C bus rate
->> + * @duty: Fast mode duty cycle
->> + */
->> +struct stm32f4_i2c_timings {
->> +       u32 rate;
->> +       u32 duty;
->> +};
-> ...
->> +/**
->> + * struct stm32f4_i2c_dev - private data of the controller
->> + * @adap: I2C adapter for this controller
->> + * @dev: device for this controller
->> + * @base: virtual memory area
->> + * @complete: completion of I2C message
->> + * @irq_event: interrupt event line for the controller
->> + * @irq_error: interrupt error line for the controller
->> + * @clk: hw i2c clock
->> + * speed: I2C clock frequency of the controller. Standard or Fast only supported
->> + * @client: I2C transfer information
->> + * @busy: I2C transfer on-going
->> + * @rst: I2C reset line
->> + */
->> +struct stm32f4_i2c_dev {
->> +       struct i2c_adapter              adap;
->> +       struct device                   *dev;
->> +       void __iomem                    *base;
->> +       struct completion               complete;
->> +       int                             irq_event;
->> +       int                             irq_error;
->> +       struct clk                      *clk;
->> +       int                             speed;
->> +       struct stm32f4_i2c_client       client;
->> +       bool                            busy;
->> +       struct reset_control            *rst;
->> +};
->> +
->> +static struct stm32f4_i2c_timings i2c_timings[] = {
->> +       [STM32F4_I2C_SPEED_STANDARD] = {
->> +               .rate                   = 100000,
->> +               .duty                   = 0,
->> +       },
->> +       [STM32F4_I2C_SPEED_FAST] = {
->> +               .rate                   = 400000,
->> +               .duty                   = 0,
->> +       },
->> +};
-> Is this table really needed?
-> As duty value seems to always be 0, couldn't you just store the rate
-> in the speed field?
-You are right. I will directly use speed field in the V2
+OK, I know what's going on.
 
->
->
->> +static void stm32f4_i2c_set_rise_time(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       u32 trise, freq, cr2;
->> +
->> +       cr2 = readl_relaxed(i2c_dev->base + STM32F4_I2C_CR2);
->> +       freq = cr2 & STM32F4_I2C_CR2_FREQ_MASK;
->> +
->> +       trise = readl_relaxed(i2c_dev->base + STM32F4_I2C_TRISE);
->> +       trise &= ~STM32F4_I2C_TRISE_TRISE_MASK;
->> +
->> +       if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD)
->> +               trise |= STM32F4_I2C_TRISE_TRISE((freq + 1));
->> +       else
->> +               trise |= STM32F4_I2C_TRISE_TRISE((((freq * 300) / 1000) + 1));
-> Or if you keep the timings struct, maybe the rise time should be part of it.
-> Doing, that, you will avoid the if/else
-As timings struct will be removed, I will keep this piece of code but
-thanks for this remark.
+Starting with the 8-Series/C220 chipsets, Intel introduced a new
+configuration bit for the SMBus controller in register HOSTC (PCI
+D31:F3 Address Offset 40h):
 
->
->> +
->> +       writel_relaxed(trise, i2c_dev->base + STM32F4_I2C_TRISE);
->> +}
->> +
->> +static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       struct stm32f4_i2c_timings *t = &i2c_timings[i2c_dev->speed];
->> +       u32 ccr, val, clk_rate;
->> +
->> +       ccr = readl_relaxed(i2c_dev->base + STM32F4_I2C_CCR);
->> +       ccr &= ~(STM32F4_I2C_CCR_FS | STM32F4_I2C_CCR_DUTY |
->> +                STM32F4_I2C_CCR_CCR_MASK);
->> +
->> +       clk_rate = clk_get_rate(i2c_dev->clk);
->> +
->> +       switch (i2c_dev->speed) {
->> +       case STM32F4_I2C_SPEED_STANDARD:
->> +               val = clk_rate / t->rate * 2;
->> +               if (val < STM32F4_I2C_MIN_CCR)
->> +                       ccr |= STM32F4_I2C_CCR_CCR(STM32F4_I2C_MIN_CCR);
->> +               else
->> +                       ccr |= STM32F4_I2C_CCR_CCR(val);
->> +               break;
->> +       case STM32F4_I2C_SPEED_FAST:
->> +               ccr |= STM32F4_I2C_CCR_FS;
->> +               if (t->duty) {
->> +                       ccr |= STM32F4_I2C_CCR_DUTY;
->> +                       ccr |= STM32F4_I2C_CCR_CCR(clk_rate / t->rate * 25);
->> +               } else {
->> +                       ccr |= STM32F4_I2C_CCR_CCR(clk_rate / t->rate * 3);
->> +               }
-> Is it really useful since duty seems to always be 0?
-Agree, I will rework it by directly set duty at 0 in the register.
+Bit 4  SPD Write Disable - R/WO.
+       0 = SPD write enabled.
+       1 = SPD write disabled. Writes to SMBus addresses 50h - 57h are
+           disabled.
 
->
->> +               break;
->> +       default:
->> +               dev_err(i2c_dev->dev, "I2C speed mode not supported\n");
->> +       }
->> +
->> +       writel_relaxed(ccr, i2c_dev->base + STM32F4_I2C_CCR);
->> +}
->> +
->> +static void stm32f4_i2c_set_filter(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       u32 filter;
->> +
->> +       /* Enable analog noise filter and disable digital noise filter */
-> Maybe a stupid question, but is it always what we want?
-> Are there some cases we would prefer to use the digital noise filter
-> instead of the analog one?
-I don't have any use case where the digital noise filter is used.
-So as I cannot test it, I prefer to only use the default filter (analog)
+This bit is set on my machine, and not set on the machine on the SUSE
+network, which is why the behavior differs.
 
->
->> +       filter = readl_relaxed(i2c_dev->base + STM32F4_I2C_FLTR);
->> +       filter &= ~(STM32F4_I2C_FLTR_ANOFF | STM32F4_I2C_FLTR_DNF_MASK);
->> +       writel_relaxed(filter, i2c_dev->base + STM32F4_I2C_FLTR);
->> +}
->> +
->> +/**
->> + * stm32f4_i2c_hw_config() - Prepare I2C block
->> + * @i2c_dev: Controller's private data
->> + */
->> +static void stm32f4_i2c_hw_config(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       void __iomem *reg = i2c_dev->base + STM32F4_I2C_CR1;
->> +
->> +       /* Disable I2C */
->> +       stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_PE);
->> +
->> +       stm32f4_i2c_set_periph_clk_freq(i2c_dev);
->> +
->> +       stm32f4_i2c_set_rise_time(i2c_dev);
->> +
->> +       stm32f4_i2c_set_speed_mode(i2c_dev);
->> +
->> +       stm32f4_i2c_set_filter(i2c_dev);
->> +
->> +       /* Enable I2C */
->> +       stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_PE);
->> +}
->> +
->> +static int stm32f4_i2c_wait_free_bus(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       u32 status;
->> +       int ret;
->> +
->> +       ret = readl_relaxed_poll_timeout(i2c_dev->base + STM32F4_I2C_SR2,
->> +                                        status,
->> +                                        !(status & STM32F4_I2C_SR2_BUSY),
->> +                                        10, 1000);
->> +       if (ret) {
->> +               dev_err(i2c_dev->dev, "bus not free\n");
->> +               ret = -EBUSY;
->> +       }
->> +
->> +       return ret;
->> +}
->> +
->> +/**
->> + * stm32f4_i2c_write_ byte() - Write a byte in the data register
->> + * @i2c_dev: Controller's private data
->> + * @byte: Data to write in the register
->> + */
->> +static void stm32f4_i2c_write_byte(struct stm32f4_i2c_dev *i2c_dev, u8 byte)
->> +{
->> +       writel_relaxed(byte, i2c_dev->base + STM32F4_I2C_DR);
->> +}
->> +
->> +/**
->> + * stm32f4_i2c_write_msg() - Fill the data register in write mode
->> + * @i2c_dev: Controller's private data
->> + *
->> + * This function fills the data register with I2C transfer buffer
->> + */
->> +static void stm32f4_i2c_write_msg(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
->> +
->> +       stm32f4_i2c_write_byte(i2c_dev, *c->buf++);
->> +       c->count--;
->> +}
->> +
->> +static void stm32f4_i2c_read_msg(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
->> +       u32 rbuf;
->> +
->> +       rbuf = readl_relaxed(i2c_dev->base + STM32F4_I2C_DR);
->> +       *c->buf++ = (u8)rbuf & 0xff;
->> +       c->count--;
->> +}
->> +
->> +static void stm32f4_i2c_terminate_xfer(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
->> +       void __iomem *reg = i2c_dev->base + STM32F4_I2C_CR2;
->> +
->> +       /* Disable all interrupts */
->> +       stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_IRQ_MASK);
->> +
->> +       /* Set STOP or REPSTART */
->> +       reg = i2c_dev->base + STM32F4_I2C_CR1;
->> +       if (c->stop)
->> +               stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_STOP);
->> +       else
->> +               stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_START);
->> +
->> +       complete(&i2c_dev->complete);
->> +}
->> +
->> +/**
->> + * stm32f4_i2c_handle_write() - Handle FIFO empty interrupt in case of write
->> + * @i2c_dev: Controller's private data
->> + */
->> +static void stm32f4_i2c_handle_write(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
->> +       void __iomem *reg = i2c_dev->base + STM32F4_I2C_CR2;
->> +
->> +       if (c->count) {
->> +               stm32f4_i2c_write_msg(i2c_dev);
->> +               if (!c->count) {
->> +                       /* Disable BUF interrupt */
->> +                       stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_ITBUFEN);
->> +               }
->> +       } else {
->> +               stm32f4_i2c_terminate_xfer(i2c_dev);
->> +       }
->> +}
->> +
->> +/**
->> + * stm32f4_i2c_handle_tx_btf() - Handle byte transfer finished interrupt
->> + * in case of write
->> + * @i2c_dev: Controller's private data
->> + */
->> +static void stm32f4_i2c_handle_tx_btf(struct stm32f4_i2c_dev *i2c_dev)
->> +{
->> +       struct stm32f4_i2c_client *c = &i2c_dev->client;
->> +
->> +       if (c->count)
->> +               stm32f4_i2c_write_msg(i2c_dev);
->> +       else
->> +               stm32f4_i2c_terminate_xfer(i2c_dev);
->> +}
-> The two functions above look very similar.
-> Isn't there a way to factorize?
-Good point. Thanks. I will do it in the V2.
->
->> +
->> +/**
->> + * stm32f4_i2c_handle_read() - Handle FIFO enmpty interrupt in case of read
-> s/enmpty/empty/
-OK
+I understand the idea of protecting SPD EEPROMs from accidental writes
+(even though in practice most memory module vendors write-protect the
+EEPROMs themselves.) However I am afraid Intel got the implementation
+wrong. They appear to be simply checking bit 0 of the XMIT_SLVA
+register to decide if a transaction is a read or a write. Unfortunately
+this fails for the 2 best methods available to read EEPROMs:
 
->
->
-> ...
->> +
->> +/**
->> + * stm32f4_i2c_xfer() - Transfer combined I2C message
->> + * @i2c_adap: Adapter pointer to the controller
->> + * @msgs: Pointer to data to be written.
->> + * @num: Number of messages to be executed
->> + */
->> +static int stm32f4_i2c_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg msgs[],
->> +                           int num)
->> +{
->> +       struct stm32f4_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
->> +       int ret, i;
->> +
->> +       i2c_dev->busy = true;
->> +
->> +       ret = clk_prepare_enable(i2c_dev->clk);
->> +       if (ret) {
->> +               dev_err(i2c_dev->dev, "Failed to prepare_enable clock\n");
->> +               return ret;
->> +       }
->> +
->> +       stm32f4_i2c_hw_config(i2c_dev);
-> Maybe you could call this only at probe and resume time?
-> You would save some register accesses.
-Yes of course, I have put this here for test purpose as I wanted to
-switch between Standard to Fast mode without compile a new DT and
-rebooting the board.
-But thanks to device tree overlay, I could easily do it and now I
-don't have any reason to set hw config for each transfer.
-I will fix it in V2.
+* The I2C Block Read transaction must set this bit to 0 (write) even if
+  it is a read transaction. This is explicitly mentioned in the
+  datasheet (page 215, "For I2C Read command, the value written into
+  bit 0 of the Transmit Slave Address Register (SMB I/O register,
+  offset 04h) needs to be 0.")
 
->
->> +
->> +       for (i = 0; i < num && !ret; i++)
->> +               ret = stm32f4_i2c_xfer_msg(i2c_dev, &msgs[i], i == 0,
->> +                                          i == num - 1);
->> +
->> +       clk_disable_unprepare(i2c_dev->clk);
->> +
->> +       i2c_dev->busy = false;
->> +
->> +       return (ret < 0) ? ret : i;
->> +}
->> +
->
-> Thanks!
-> Maxime
+* If using continuous byte reads (Receive Byte in SMBus terminology) to
+  retrieve the contents of the EEPROM, the read pointer must be reset
+  to 0 beforehand. This is done with a Send Byte transaction. While
+  this transaction doesn't write data to the EEPROM, it is still
+  blocked by the write protection mechanism.
 
- Thanks for your review
-Cedric
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+So the only ways left to read the EEPROM contents are 1-byte reads or
+at best 2-byte reads. This is far less efficient than I2C Block reads
+or continuous byte reads.
+
+Mika/Jarkko, is there any chance to get your hardware people involved?
+I wonder if there is any workaround to this issue? Any chance to get
+this fixed in future chipsets? Not sure about Send Byte but the write
+protection should definitely not block I2C Block Read transactions.
+
+For now we need to come up with a software workaround. I can think of 3
+approaches:
+
+1* Remove I2C_FUNC_SMBUS_READ_I2C_BLOCK from the list of supported
+   transactions whenever SPD write protection is enabled. In practice I
+   think I2C Block Read is only useful for EEPROMs anyway, so I doubt
+   anyone else will miss it. This is clearly a hack, but it's quite
+   simple. Then the eeprom and at24 drivers will automatically fall
+   back to slower read methods.
+
+2* Hack the eeprom and at24 drivers so that in case I2C Block Reads were
+   supposed to work but do not, they fallback dynamically to the other
+   read methods. The downside is that one-time failures would trigger
+   the fallback too.
+
+3* Introduce a finer-grained version of i2c_check_functionality() which
+   takes the slave address as an extra parameter. The i2c-i801 driver
+   would implement an extra callback function to handle it, and mask out
+   I2C_FUNC_SMBUS_READ_I2C_BLOCK and all write transactions if the slave
+   address is in the 0x50-0x57 range and the SPD protection bit is set.
+   This is more work, enlarges the size of struct i2c_algorithm by one
+   pointer, but is certainly cleaner than the two hacks above.
+
+If anyone can think of any better solution, please let me know.
+
+-- 
+Jean Delvare
+SUSE L3 Support
