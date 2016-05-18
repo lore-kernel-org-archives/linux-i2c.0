@@ -1,105 +1,141 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v4] i2c: i801: Allow ACPI SystemIO OpRegion to conflict
- with PCI BAR
-Date: Tue, 17 May 2016 12:45:23 +0200
-Message-ID: <20160517124523.5697e260@endymion>
-References: <1463143555-20261-1-git-send-email-mika.westerberg@linux.intel.com>
+From: "Sricharan" <sricharan@codeaurora.org>
+Subject: RE: [PATCH v2 1/2] i2c: qup: add ACPI support
+Date: Wed, 18 May 2016 11:34:58 +0530
+Message-ID: <000201d1b0cb$39306e60$ab914b20$@codeaurora.org>
+References: <1463006736-24652-1-git-send-email-nkaje@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:56164 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755807AbcEQKp4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 17 May 2016 06:45:56 -0400
-In-Reply-To: <1463143555-20261-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1463006736-24652-1-git-send-email-nkaje@codeaurora.org>
+Content-Language: en-us
+Sender: linux-kernel-owner@vger.kernel.org
+To: 'Naveen Kaje' <nkaje@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infrared.org, linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, austinwc@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, pali.rohar@gmail.com, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 
-Hi Mika,
+Hi,
 
-On Fri, 13 May 2016 15:45:55 +0300, Mika Westerberg wrote:
-> Many Intel systems the BIOS declares a SystemIO OpRegion below the SM=
-Bus
-> PCI device as can be seen in ACPI DSDT table from Lenovo Yoga 900:
->=20
->   Device (SBUS)
->   {
->       OperationRegion (SMBI, SystemIO, (SBAR << 0x05), 0x10)
->       Field (SMBI, ByteAcc, NoLock, Preserve)
->       {
->           HSTS,   8,
->           Offset (0x02),
->           HCON,   8,
->           HCOM,   8,
->           TXSA,   8,
->           DAT0,   8,
->           DAT1,   8,
->           HBDR,   8,
->           PECR,   8,
->           RXSA,   8,
->           SDAT,   16
->       }
->=20
-> There are also bunch of AML methods that that the BIOS can use to acc=
-ess
-> these fields. Most of the systems in question AML methods accessing t=
-he
-> SMBI OpRegion are never used.
->=20
-> Now, because of this SMBI OpRegion many systems fail to load the SMBu=
-s
-> driver with an error looking like one below:
->=20
->   ACPI Warning: SystemIO range 0x0000000000003040-0x000000000000305F
->        conflicts with OpRegion 0x0000000000003040-0x000000000000304F
->        (\_SB.PCI0.SBUS.SMBI) (20160108/utaddress-255)
->   ACPI: If an ACPI driver is available for this device, you should us=
-e
->        it instead of the native driver
->=20
-> The reason is that this SMBI OpRegion conflicts with the PCI BAR used=
- by
-> the SMBus driver.
->=20
-> It turns out that we can install a custom SystemIO address space hand=
-ler
-> for the SMBus device to intercept all accesses through that OpRegion.=
- This
-> allows us to share the PCI BAR with the AML code if it for some reaso=
-n is
-> using it. We do not expect that this OpRegion handler will ever be ca=
-lled
-> but if it is we print a warning and prevent all access from the SMBus
-> driver itself.
->=20
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D110041
-> Reported-by: Andy Lutomirski <luto@kernel.org>
-> Reported-and-tested-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Cc: stable@vger.kernel.org
+> Add support to get the device parameters from ACPI. Assume that the clocks
+> are managed by firmware.
+> 
+> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
 > ---
-> Changes to v3:
-> =20
->  - Added Tested-by from Pali Roh=C3=A1r (The patch did not change tha=
-t much so I
->    though it is still valid)
->  - Return -EBUSY instead of -EIO
->  - Move dev_warns() to be inside if (!priv->acpi_reserved) block
->  - Remove unnecessary variable "val"
->  - Do not clear priv->acpi_reserved in i801_acpi_remove()
->  - Return -ENODEV if we detect conflict
->  - Call i801_acpi_remove() after i2c_del_adapter().
-> (...)
+>  drivers/i2c/busses/i2c-qup.c | 59 +++++++++++++++++++++++++++++++++---
+> --------
+>  1 file changed, 44 insertions(+), 15 deletions(-)
+> 
+<.snip>
 
-Tested-by: Jean Delvare <jdelvare@suse.de>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> +/* Default values. Use these if FW query fails */ #define
+> +DEFAULT_CLK_FREQ 100000 #define DEFAULT_SRC_CLK 20000000
+> +
+>  struct qup_i2c_block {
+>  	int	count;
+>  	int	pos;
+> @@ -1360,8 +1365,8 @@ static int qup_i2c_probe(struct platform_device
+> *pdev)
+>  	struct resource *res;
+>  	u32 io_mode, hw_ver, size;
+>  	int ret, fs_div, hs_div;
+> -	int src_clk_freq;
+> -	u32 clk_freq = 100000;
+> +	u32 src_clk_freq = 0;
+> +	u32 clk_freq = 0;
+>  	int blocks;
+> 
+>  	qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL); @@ -
+> 1372,7 +1377,12 @@ static int qup_i2c_probe(struct platform_device *pdev)
+>  	init_completion(&qup->xfer);
+>  	platform_set_drvdata(pdev, qup);
+> 
+> -	of_property_read_u32(node, "clock-frequency", &clk_freq);
+> +	ret = device_property_read_u32(qup->dev, "clock-frequency",
+> &clk_freq);
+> +	if (ret) {
+> +		dev_warn(qup->dev, "using default clock-frequency %d",
+> +			DEFAULT_CLK_FREQ);
+> +		clk_freq = DEFAULT_CLK_FREQ;
+> +	}
+> 
+>  	if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-
+> v1.1.1")) {
+>  		qup->adap.algo = &qup_i2c_algo;
+> @@ -1454,20 +1464,31 @@ nodma:
+>  		return qup->irq;
+>  	}
+> 
+> -	qup->clk = devm_clk_get(qup->dev, "core");
+> -	if (IS_ERR(qup->clk)) {
+> -		dev_err(qup->dev, "Could not get core clock\n");
+> -		return PTR_ERR(qup->clk);
+> -	}
+> +	if (ACPI_HANDLE(qup->dev)) {
+> +		ret = device_property_read_u32(qup->dev,
+> +				"src-clock-hz", &src_clk_freq);
+> +		if (ret) {
+> +			dev_warn(qup->dev, "using default src-clock-hz %d",
+> +				DEFAULT_SRC_CLK);
+> +			src_clk_freq = DEFAULT_SRC_CLK;
+> +		}
+> +		ACPI_COMPANION_SET(&qup->adap.dev,
+> ACPI_COMPANION(qup->dev));
+> +	} else {
+> +		qup->clk = devm_clk_get(qup->dev, "core");
+> +		if (IS_ERR(qup->clk)) {
+> +			dev_err(qup->dev, "Could not get core clock\n");
+> +			return PTR_ERR(qup->clk);
+> +		}
+> 
+> -	qup->pclk = devm_clk_get(qup->dev, "iface");
+> -	if (IS_ERR(qup->pclk)) {
+> -		dev_err(qup->dev, "Could not get iface clock\n");
+> -		return PTR_ERR(qup->pclk);
+> +		qup->pclk = devm_clk_get(qup->dev, "iface");
+> +		if (IS_ERR(qup->pclk)) {
+> +			dev_err(qup->dev, "Could not get iface clock\n");
+> +			return PTR_ERR(qup->pclk);
+> +		}
+> +		qup_i2c_enable_clocks(qup);
+> +		src_clk_freq = clk_get_rate(qup->clk);
+>  	}
+> 
+> -	qup_i2c_enable_clocks(qup);
+> -
+>  	/*
+>  	 * Bootloaders might leave a pending interrupt on certain QUP's,
+>  	 * so we reset the core before registering for interrupts.
+> @@ -1514,7 +1535,6 @@ nodma:
+>  	size = QUP_INPUT_FIFO_SIZE(io_mode);
+>  	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
+> 
+> -	src_clk_freq = clk_get_rate(qup->clk);
+>  	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
+>  	hs_div = 3;
+>  	qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff); @@ -1639,6 +1659,14
+> @@ static const struct of_device_id qup_i2c_dt_match[] = {  };
+> MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
+> 
+> +#if IS_ENABLED(CONFIG_ACPI)
+> +static const struct acpi_device_id qup_i2c_acpi_match[] = {
+> +	{ "QCOM8010"},
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_ids); #endif
+> +
+>  static struct platform_driver qup_i2c_driver = {
+>  	.probe  = qup_i2c_probe,
+>  	.remove = qup_i2c_remove,
+> @@ -1646,6 +1674,7 @@ static struct platform_driver qup_i2c_driver = {
+>  		.name = "i2c_qup",
+>  		.pm = &qup_i2c_qup_pm_ops,
+>  		.of_match_table = qup_i2c_dt_match,
+> +		.acpi_match_table = ACPI_PTR(qup_i2c_acpi_match),
+>  	},
+>  };
+> 
+ Reviewed-by: sricharan@codeaurora.org
 
-Thanks,
---=20
-Jean Delvare
-SUSE L3 Support
+Regards,
+ Sricharan
