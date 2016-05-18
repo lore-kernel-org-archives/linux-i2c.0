@@ -1,65 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Jean Delvare <jdelvare@suse.de>
 Subject: Re: i2c-i801 partially broken on Lynx Point PCH?
-Date: Wed, 18 May 2016 15:02:53 +0200
-Message-ID: <20160518130253.GA1637@katana>
+Date: Wed, 18 May 2016 15:20:01 +0200
+Message-ID: <20160518152001.3ddb8d11@endymion>
 References: <20160511093452.5bc2614c@endymion>
- <20160511104322.60521365@endymion>
- <20160518140508.7dfe192e@endymion>
+	<20160511104322.60521365@endymion>
+	<20160518140508.7dfe192e@endymion>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:56328 "EHLO pokefinder.org"
+Received: from mx2.suse.de ([195.135.220.15]:36168 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752793AbcERNDD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 18 May 2016 09:03:03 -0400
-Content-Disposition: inline
+	id S1751120AbcERNUK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 18 May 2016 09:20:10 -0400
 In-Reply-To: <20160518140508.7dfe192e@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Seth Heasley <seth.heasley@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Seth Heasley <seth.heasley@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
+Me again...
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Wed, 18 May 2016 14:05:08 +0200, Jean Delvare wrote:
+> * The I2C Block Read transaction must set this bit to 0 (write) even if
+>   it is a read transaction. This is explicitly mentioned in the
+>   datasheet (page 215, "For I2C Read command, the value written into
+>   bit 0 of the Transmit Slave Address Register (SMB I/O register,
+>   offset 04h) needs to be 0.")
+> (...)
+> Mika/Jarkko, is there any chance to get your hardware people involved?
+> I wonder if there is any workaround to this issue? Any chance to get
+> this fixed in future chipsets? Not sure about Send Byte but the write
+> protection should definitely not block I2C Block Read transactions.
+> 
+> For now we need to come up with a software workaround. I can think of 3
+> approaches:
+> (...)
+> If anyone can think of any better solution, please let me know.
 
+4* It could be that the sentence in the datasheet that claims the slave
+   address register bit 0 must be set to 0 (write) for I2C Block Reads
+   is a left-over from previous incarnations of the chipset, and this no
+   longer holds true today. Out of curiosity I tried setting bit 0 to 1
+   (as it should normally be for a read) and it seems to work just
+   fine. And then it is no longer affected by the SPD write protection
+   mechanism. However I don't know if there is any problem or negative
+   side effect I may have missed.
 
-> 1* Remove I2C_FUNC_SMBUS_READ_I2C_BLOCK from the list of supported
->    transactions whenever SPD write protection is enabled. In practice I
->    think I2C Block Read is only useful for EEPROMs anyway, so I doubt
->    anyone else will miss it. This is clearly a hack, but it's quite
->    simple. Then the eeprom and at24 drivers will automatically fall
->    back to slower read methods.
+Mika/Jarkko, can you check with your hardware guys if that statement on
+page 215 still holds for 8-Series/C220 and later?
 
-Doesn't feel very hackish to me. We skip a functionality which is known
-to not work in this configuration. IIUC we might be able to get it to
-work if we throw more code at it, but I don't like the extra complexity
-in the I2C core for such a rare case.
-
-Summary: My preferred solution so far :)
-
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXPGf9AAoJEBQN5MwUoCm2OrQP/2RlGE0AzUgNXTxmyfJlJqr9
-fHh83YWeuJN7Z26JgNmaIGc9k/u2ZAPY5mFBB2Cb4aGajm3d2oMjbq53tAVhuVF4
-s45aYP59RqhsbsbNs1dX/teX6BYZc3ose++r0Dz4eOc4x+wg+wZAer/vwUX/6b1L
-821hpvcN8hNc42Z0Aaz5uifpTujTcTRHmRTHPXv3m2xrKQJ7GVRpwU1rp4x2Cz3X
-g8PJaKaXJ8YbMWXg/Y1oI45VBgE/jcPhYP9k0wSOAQxsKiI0u1MKKkn5c0bPWp4P
-zsr0QPdRrfEG8JScOQW1jM8Xste56CKgLDwpkGnO6kagkAQrsjs89tMfMm4ebvsh
-XkSbG43g9x2gcxyNzJlnxmF27od2orKm/hyW/476RLuvQVQYfEznpte9PLGOuh6b
-aQJv/k6QwVUZghSeQdkhgM+m1IRwaK2zRbcCV0mCf+XGMSUhqAgPKwcF1qtdaz7+
-LFlEFyvQf2dktg/pe8ZzwUTMVR+jMMDJDHom5k+SylkbtX00aqquMxyREqYJNQph
-8/IJ9VkgMoobs11nuH1UU/BLWHqGH8c+xuOpuMfSV8if2DYAeQFbHB/rTHqMHTkl
-QUirWut5SQ6ptLTdOnbEqQ8MxdmcyA7CIDbZdUZ4SwCq4sdLWKBIxyitJPJQfmKz
-kdVgKmD7WhvK6NcVnOge
-=C2UG
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
