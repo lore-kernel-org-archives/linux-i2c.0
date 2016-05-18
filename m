@@ -1,56 +1,32 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: i2c-i801 partially broken on Lynx Point PCH?
-Date: Wed, 18 May 2016 15:20:01 +0200
-Message-ID: <20160518152001.3ddb8d11@endymion>
-References: <20160511093452.5bc2614c@endymion>
-	<20160511104322.60521365@endymion>
-	<20160518140508.7dfe192e@endymion>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCHv2] i2c: rcar: add DMA support
+Date: Wed, 18 May 2016 15:23:07 +0200
+Message-ID: <6110679.RmWR1Poicp@wuerfel>
+References: <1463228228-32560-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36168 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751120AbcERNUK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 18 May 2016 09:20:10 -0400
-In-Reply-To: <20160518140508.7dfe192e@endymion>
+Received: from mout.kundenserver.de ([217.72.192.75]:59692 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751950AbcERNXS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 18 May 2016 09:23:18 -0400
+In-Reply-To: <1463228228-32560-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Seth Heasley <seth.heasley@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: Niklas =?ISO-8859-1?Q?S=F6derlund?= <niklas.soderlund+renesas@ragnatech.se>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
 
-Me again...
+On Saturday 14 May 2016 14:17:08 Niklas S=F6derlund wrote:
+> +       chan =3D dma_request_slave_channel_reason(dev, chan_name);
+> +       if (IS_ERR(chan)) {
+> +               ret =3D PTR_ERR(chan);
+> +               dev_dbg(dev, "request_channel failed for %s (%d)\n",
+> +                       chan_name, ret);
+> +               return chan;
+> +       }
+>=20
 
-On Wed, 18 May 2016 14:05:08 +0200, Jean Delvare wrote:
-> * The I2C Block Read transaction must set this bit to 0 (write) even if
->   it is a read transaction. This is explicitly mentioned in the
->   datasheet (page 215, "For I2C Read command, the value written into
->   bit 0 of the Transmit Slave Address Register (SMB I/O register,
->   offset 04h) needs to be 0.")
-> (...)
-> Mika/Jarkko, is there any chance to get your hardware people involved?
-> I wonder if there is any workaround to this issue? Any chance to get
-> this fixed in future chipsets? Not sure about Send Byte but the write
-> protection should definitely not block I2C Block Read transactions.
-> 
-> For now we need to come up with a software workaround. I can think of 3
-> approaches:
-> (...)
-> If anyone can think of any better solution, please let me know.
+I think you should now use dma_request_chan() for new drivers.
 
-4* It could be that the sentence in the datasheet that claims the slave
-   address register bit 0 must be set to 0 (write) for I2C Block Reads
-   is a left-over from previous incarnations of the chipset, and this no
-   longer holds true today. Out of curiosity I tried setting bit 0 to 1
-   (as it should normally be for a read) and it seems to work just
-   fine. And then it is no longer affected by the SPD write protection
-   mechanism. However I don't know if there is any problem or negative
-   side effect I may have missed.
-
-Mika/Jarkko, can you check with your hardware guys if that statement on
-page 215 still holds for 8-Series/C220 and later?
-
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+	Arnd
