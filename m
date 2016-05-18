@@ -1,7 +1,7 @@
 From: Crestez Dan Leonard <leonard.crestez@intel.com>
-Subject: [PATCH v2 3/7] iio: inv_mpu6050: Only toggle DATA_RDY_EN in inv_reset_fifo
-Date: Wed, 18 May 2016 18:00:50 +0300
-Message-ID: <37946b54fbedeb258f12413a09683c18a8825290.1463582011.git.leonard.crestez@intel.com>
+Subject: [PATCH v2 4/7] iio: inv_mpu6050: Cache non-volatile bits of user_ctrl
+Date: Wed, 18 May 2016 18:00:51 +0300
+Message-ID: <e39e64f7f39c2f41d2b8daf2dc60b01c44b1f8eb.1463582011.git.leonard.crestez@intel.com>
 References: <cover.1463582011.git.leonard.crestez@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1463582011.git.leonard.crestez@intel.com>
@@ -14,59 +14,76 @@ List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
 ---
- drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c    | 13 ++++++++-----
- drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c |  3 ++-
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h     | 2 ++
+ drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c    | 9 ++++++---
+ drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c | 4 +++-
+ 3 files changed, 11 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+index 297b0ef..bd2c0fd 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+@@ -80,6 +80,7 @@ enum inv_devices {
+  *  @enable:		master enable state.
+  *  @accl_fifo_enable:	enable accel data output
+  *  @gyro_fifo_enable:	enable gyro data output
++ *  @user_ctrl:		The non-volatile bits of user_ctrl
+  *  @fifo_rate:		FIFO update rate.
+  */
+ struct inv_mpu6050_chip_config {
+@@ -89,6 +90,7 @@ struct inv_mpu6050_chip_config {
+ 	unsigned int enable:1;
+ 	unsigned int accl_fifo_enable:1;
+ 	unsigned int gyro_fifo_enable:1;
++	u8 user_ctrl;
+ 	u16 fifo_rate;
+ };
+ 
 diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
-index 8455af0..3fc0b71 100644
+index 3fc0b71..56ee1e2 100644
 --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
 +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
-@@ -41,7 +41,8 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
- 	struct inv_mpu6050_state  *st = iio_priv(indio_dev);
+@@ -53,13 +53,15 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
+ 	if (result)
+ 		goto reset_fifo_fail;
+ 	/* disable fifo reading */
+-	result = regmap_write(st->map, st->reg->user_ctrl, 0);
++	st->chip_config.user_ctrl &= ~INV_MPU6050_BIT_FIFO_EN;
++	result = regmap_write(st->map, st->reg->user_ctrl,
++			      st->chip_config.user_ctrl);
+ 	if (result)
+ 		goto reset_fifo_fail;
  
- 	/* disable interrupt */
--	result = regmap_write(st->map, st->reg->int_enable, 0);
-+	result = regmap_update_bits(st->map, st->reg->int_enable,
-+				    INV_MPU6050_BIT_DATA_RDY_EN, 0);
- 	if (result) {
- 		dev_err(regmap_get_device(st->map), "int_enable failed %d\n",
- 			result);
-@@ -68,8 +69,9 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
- 	/* enable interrupt */
- 	if (st->chip_config.accl_fifo_enable ||
- 	    st->chip_config.gyro_fifo_enable) {
--		result = regmap_write(st->map, st->reg->int_enable,
--				      INV_MPU6050_BIT_DATA_RDY_EN);
-+		result = regmap_update_bits(st->map, st->reg->int_enable,
-+					    INV_MPU6050_BIT_DATA_RDY_EN,
-+					    INV_MPU6050_BIT_DATA_RDY_EN);
- 		if (result)
+ 	/* reset FIFO*/
+ 	result = regmap_write(st->map, st->reg->user_ctrl,
+-			      INV_MPU6050_BIT_FIFO_RST);
++			      st->chip_config.user_ctrl | INV_MPU6050_BIT_FIFO_RST);
+ 	if (result)
+ 		goto reset_fifo_fail;
+ 
+@@ -76,8 +78,9 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
  			return result;
  	}
-@@ -92,8 +94,9 @@ int inv_reset_fifo(struct iio_dev *indio_dev)
- 
- reset_fifo_fail:
- 	dev_err(regmap_get_device(st->map), "reset fifo failed %d\n", result);
--	result = regmap_write(st->map, st->reg->int_enable,
--			      INV_MPU6050_BIT_DATA_RDY_EN);
-+	result = regmap_update_bits(st->map, st->reg->int_enable,
-+				    INV_MPU6050_BIT_DATA_RDY_EN,
-+				    INV_MPU6050_BIT_DATA_RDY_EN);
- 
- 	return result;
- }
+ 	/* enable FIFO reading and I2C master interface*/
++	st->chip_config.user_ctrl |= INV_MPU6050_BIT_FIFO_EN;
+ 	result = regmap_write(st->map, st->reg->user_ctrl,
+-			      INV_MPU6050_BIT_FIFO_EN);
++			      st->chip_config.user_ctrl);
+ 	if (result)
+ 		goto reset_fifo_fail;
+ 	/* enable sensor output to FIFO */
 diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c
-index e8818d4..1a6bad3 100644
+index 1a6bad3..fc55923 100644
 --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c
 +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_trigger.c
-@@ -69,7 +69,8 @@ static int inv_mpu6050_set_enable(struct iio_dev *indio_dev, bool enable)
+@@ -74,7 +74,9 @@ static int inv_mpu6050_set_enable(struct iio_dev *indio_dev, bool enable)
  		if (result)
  			return result;
  
--		result = regmap_write(st->map, st->reg->int_enable, 0);
-+		result = regmap_update_bits(st->map, st->reg->int_enable,
-+					INV_MPU6050_BIT_DATA_RDY_EN, 0);
+-		result = regmap_write(st->map, st->reg->user_ctrl, 0);
++		st->chip_config.user_ctrl &= ~INV_MPU6050_BIT_FIFO_EN;
++		result = regmap_write(st->map, st->reg->user_ctrl,
++				      st->chip_config.user_ctrl);
  		if (result)
  			return result;
  
