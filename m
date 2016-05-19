@@ -1,43 +1,245 @@
-From: "Niklas =?iso-8859-1?Q?S=F6derlund?=" <niklas.soderlund@ragnatech.se>
-Subject: Re: [PATCHv2] i2c: rcar: add DMA support
-Date: Thu, 19 May 2016 10:01:07 +0200
-Message-ID: <20160519080107.GM29375@bigcity.dyn.berto.se>
-References: <1463228228-32560-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
- <6110679.RmWR1Poicp@wuerfel>
+From: "David.Wu" <david.wu@rock-chips.com>
+Subject: Re: [PATCH] arm64: dts: rockchip: add i2c nodes for rk3399
+Date: Thu, 19 May 2016 16:09:13 +0800
+Message-ID: <466d93c8-e405-51d7-401d-3d7cbd8560cf@rock-chips.com>
+References: <1463429371-10950-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=gbk;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6110679.RmWR1Poicp@wuerfel>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from lucky1.263xmail.com ([211.157.147.132]:48499 "EHLO
+	lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751760AbcESIIp (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 May 2016 04:08:45 -0400
+In-Reply-To: <1463429371-10950-1-git-send-email-dianders@chromium.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Douglas Anderson <dianders@chromium.org>, Heiko Stuebner <heiko@sntech.de>
+Cc: linux-rockchip@lists.infradead.org, jay.xu@rock-chips.com, briannorris@chromium.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, catalin.marinas@arm.com, will.deacon@arm.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-Hi Arnd,
+Hi Doug,
 
-Thanks for your feedback.
+=D4=DA 2016/5/17 4:09, Douglas Anderson =D0=B4=B5=C0:
+> From: David Wu <david.wu@rock-chips.com>
+>
+> We've got 9 (count em!) i2c controllers on rk3399, some of which are =
+in
+> the PMU power domain and some of which are normal peripherals.  Add t=
+hem
+> all to the main rk3399 dtsi file so future patches can turn them on i=
+n
+> the board dts files.
+>
+> Note: by default we try to set the i2c clock rate to 200 MHz so that =
+we
+> can achieve good i2c functional clock rates.  200 MHz gives us the
+> ability to make very close to 100 kHz / 400 kHz / 1 MHz rates.  If
+> boards want to tune clock rates further they can always override.
+> Possibly boards could want to tune this if:
+> - they wanted to save an infinitesimal amount of power and they knew
+>   their i2c bus was slow anyway.  Since we gate the functional clock
+>   when the i2c bus is not active, power savings would only be while i=
+2c
+>   transfers were happening and probably won't be very big anyway.
+> - they wanted to eek out a bit more speed by carefully tuning the sou=
+rce
+>   clock to make divisions work out perfectly, accounting for the rise=
+ /
+>   fall time measured on an actual board.
+>
+> Note also that we still request 200 MHz for the PMU i2c busses even
+> though we expect that we won't make that exactly (currently PPLL is 6=
+76
+> MHz which gives us 169 MHz).
 
-On 2016-05-18 15:23:07 +0200, Arnd Bergmann wrote:
-> On Saturday 14 May 2016 14:17:08 Niklas S=F6derlund wrote:
-> > +       chan =3D dma_request_slave_channel_reason(dev, chan_name);
-> > +       if (IS_ERR(chan)) {
-> > +               ret =3D PTR_ERR(chan);
-> > +               dev_dbg(dev, "request_channel failed for %s (%d)\n"=
-,
-> > +                       chan_name, ret);
-> > +               return chan;
-> > +       }
-> >=20
->=20
-> I think you should now use dma_request_chan() for new drivers.
+Yeah, this looks like you got all the right bits in the right places an=
+d=20
+didn't mess it up.
+This patch is looking really good to me, thanks for doing it.
 
-Will fix and resend.
-
->=20
-> 	Arnd
-
---=20
-Regards,
-Niklas S=F6derlund
+>
+> Signed-off-by: David Wu <david.wu@rock-chips.com>
+> Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
+> [dianders: wrote desc; put in assigned-clocks; reordered nodes]
+> Signed-off-by: Douglas Anderson <dianders@chromium.org>
+> ---
+> Note: this patch is based upon David Wu's patch series to add rk3399
+> support to i2c-rk3x.c and shouldn't land until at least device tree
+> bindings land.
+>
+>  arch/arm64/boot/dts/rockchip/rk3399.dtsi | 144 +++++++++++++++++++++=
+++++++++++
+>  1 file changed, 144 insertions(+)
+>
+> diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/bo=
+ot/dts/rockchip/rk3399.dtsi
+> index 46f325a143b0..753a91728b4c 100644
+> --- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+> +++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+> @@ -54,6 +54,15 @@
+>  	#size-cells =3D <2>;
+>
+>  	aliases {
+> +		i2c0 =3D &i2c0;
+> +		i2c1 =3D &i2c1;
+> +		i2c2 =3D &i2c2;
+> +		i2c3 =3D &i2c3;
+> +		i2c4 =3D &i2c4;
+> +		i2c5 =3D &i2c5;
+> +		i2c6 =3D &i2c6;
+> +		i2c7 =3D &i2c7;
+> +		i2c8 =3D &i2c8;
+>  		serial0 =3D &uart0;
+>  		serial1 =3D &uart1;
+>  		serial2 =3D &uart2;
+> @@ -272,6 +281,96 @@
+>  		};
+>  	};
+>
+> +	i2c1: i2c@ff110000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff110000 0x0 0x1000>;
+> +		assigned-clocks =3D <&cru SCLK_I2C1>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&cru SCLK_I2C1>, <&cru PCLK_I2C1>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c1_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+> +	i2c2: i2c@ff120000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff120000 0x0 0x1000>;
+> +		assigned-clocks =3D <&cru SCLK_I2C2>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&cru SCLK_I2C2>, <&cru PCLK_I2C2>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c2_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+> +	i2c3: i2c@ff130000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff130000 0x0 0x1000>;
+> +		assigned-clocks =3D <&cru SCLK_I2C3>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&cru SCLK_I2C3>, <&cru PCLK_I2C3>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c3_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+> +	i2c5: i2c@ff140000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff140000 0x0 0x1000>;
+> +		assigned-clocks =3D <&cru SCLK_I2C5>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&cru SCLK_I2C5>, <&cru PCLK_I2C5>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c5_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+> +	i2c6: i2c@ff150000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff150000 0x0 0x1000>;
+> +		assigned-clocks =3D <&cru SCLK_I2C6>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&cru SCLK_I2C6>, <&cru PCLK_I2C6>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c6_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+> +	i2c7: i2c@ff160000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff160000 0x0 0x1000>;
+> +		assigned-clocks =3D <&cru SCLK_I2C7>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&cru SCLK_I2C7>, <&cru PCLK_I2C7>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c7_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+>  	uart0: serial@ff180000 {
+>  		compatible =3D "rockchip,rk3399-uart", "snps,dw-apb-uart";
+>  		reg =3D <0x0 0xff180000 0x0 0x100>;
+> @@ -420,6 +519,51 @@
+>  		status =3D "disabled";
+>  	};
+>
+> +	i2c0: i2c@ff3c0000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff3c0000 0x0 0x1000>;
+> +		assigned-clocks =3D <&pmucru SCLK_I2C0_PMU>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&pmucru SCLK_I2C0_PMU>, <&pmucru PCLK_I2C0_PMU>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c0_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+> +	i2c4: i2c@ff3d0000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff3d0000 0x0 0x1000>;
+> +		assigned-clocks =3D <&pmucru SCLK_I2C4_PMU>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&pmucru SCLK_I2C4_PMU>, <&pmucru PCLK_I2C4_PMU>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c4_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+> +	i2c8: i2c@ff3e0000 {
+> +		compatible =3D "rockchip,rk3399-i2c";
+> +		reg =3D <0x0 0xff3e0000 0x0 0x1000>;
+> +		assigned-clocks =3D <&pmucru SCLK_I2C8_PMU>;
+> +		assigned-clock-rates =3D <200000000>;
+> +		clocks =3D <&pmucru SCLK_I2C8_PMU>, <&pmucru PCLK_I2C8_PMU>;
+> +		clock-names =3D "i2c", "pclk";
+> +		interrupts =3D <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&i2c8_xfer>;
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		status =3D "disabled";
+> +	};
+> +
+>  	pwm0: pwm@ff420000 {
+>  		compatible =3D "rockchip,rk3399-pwm", "rockchip,rk3288-pwm";
+>  		reg =3D <0x0 0xff420000 0x0 0x10>;
+>
