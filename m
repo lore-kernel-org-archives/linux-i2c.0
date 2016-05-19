@@ -1,47 +1,41 @@
-From: =?UTF-8?q?Niklas=20S=C3=B6derlund?=
-	<niklas.soderlund+renesas@ragnatech.se>
-Subject: [PATCH] i2c: rcar: use dma_request_chan()
-Date: Thu, 19 May 2016 10:29:17 +0200
-Message-ID: <1463646557-22489-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v4] i2c: i801: Allow ACPI SystemIO OpRegion to conflict
+ with PCI BAR
+Date: Thu, 19 May 2016 11:45:46 +0200
+Message-ID: <20160519114546.65433c59@endymion>
+References: <1463143555-20261-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp-3.sys.kth.se ([130.237.48.192]:52735 "EHLO
-	smtp-3.sys.kth.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752002AbcESIbE (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 May 2016 04:31:04 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1463143555-20261-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, pali.rohar@gmail.com, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Cc: arnd@arndb.de, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>
 
-New drivers should not use dma_request_slave_channel_reason() but
-dma_request_chan(). The former is a macro to the later so this change d=
-o
-not effect the driver in any way.
+Hi Mika,
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Niklas S=C3=B6derlund <niklas.soderlund+renesas@ragnatec=
-h.se>
----
- drivers/i2c/busses/i2c-rcar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Fri, 13 May 2016 15:45:55 +0300, Mika Westerberg wrote:
+> +	if (function == ACPI_READ)
+> +		status = acpi_os_read_port(address, (u32 *)value, bits);
+> +	else
+> +		status = acpi_os_write_port(address, (u32)*value, bits);
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rca=
-r.c
-index c42d52a..cf82438 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -626,7 +626,7 @@ static struct dma_chan *rcar_i2c_request_dma_chan(s=
-truct device *dev,
- 	char *chan_name =3D dir =3D=3D DMA_MEM_TO_DEV ? "tx" : "rx";
- 	int ret;
-=20
--	chan =3D dma_request_slave_channel_reason(dev, chan_name);
-+	chan =3D dma_request_chan(dev, chan_name);
- 	if (IS_ERR(chan)) {
- 		ret =3D PTR_ERR(chan);
- 		dev_dbg(dev, "request_channel failed for %s (%d)\n",
---=20
-2.8.2
+Jeremy McNicoll at RedHat brought to my attention that this may not be
+safe. This assumes that function is either exactly ACPI_READ or exactly
+ACPI_WRITE. However function is a 32-bit bitfield if I understand
+correctly.
+
+Shouldn't it instead be:
+
+	if ((function & ACPI_IO_MASK) == ACPI_READ)
+
+as drivers exfldio, acpi_ipmi and i2c-core do? Maybe it makes no
+difference if other bits are never used, but maybe they will be in the
+future.
+
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
