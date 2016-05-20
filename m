@@ -1,155 +1,138 @@
-From: Austin Christ <austinwc@codeaurora.org>
-Subject: [PATCH v3 2/2] i2c: qup: support SMBus block read
-Date: Thu, 19 May 2016 15:44:28 -0600
-Message-ID: <1463694268-9473-2-git-send-email-austinwc@codeaurora.org>
-References: <1463694268-9473-1-git-send-email-austinwc@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1463694268-9473-1-git-send-email-austinwc@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: nkaje@codeaurora.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, linux-arm-kernel@lists.infradead.org, Austin Christ <austinwc@codeaurora.org>
+From: Matt Ranostay <mranostay@gmail.com>
+Subject: Re: [PATCH v2 2/7] iio: inv_mpu6050: Initial regcache support
+Date: Thu, 19 May 2016 19:34:10 -0700
+Message-ID: <CAKzfze8dDENOvaDf_VH8MRy-HEmCu3q_aGEzD+GYR7B1Ob2rBw@mail.gmail.com>
+References: <cover.1463582011.git.leonard.crestez@intel.com> <e29974565e941e37684fcd883330915cfaf2cf47.1463582011.git.leonard.crestez@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:33209 "EHLO
+	mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754060AbcETCex (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 May 2016 22:34:53 -0400
+In-Reply-To: <e29974565e941e37684fcd883330915cfaf2cf47.1463582011.git.leonard.crestez@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Crestez Dan Leonard <leonard.crestez@intel.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, Ge Gao <ggao@invensense.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-From: Naveen Kaje <nkaje@codeaurora.org>
+On Wed, May 18, 2016 at 8:00 AM, Crestez Dan Leonard
+<leonard.crestez@intel.com> wrote:
+> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+> ---
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 47 ++++++++++++++++++++++++++++++
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c  |  5 ----
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |  1 +
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c  |  5 ----
+>  4 files changed, 48 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index b269b37..5918c23 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -116,6 +116,53 @@ static const struct inv_mpu6050_hw hw_info[] = {
+>         },
+>  };
+>
+> +static bool inv_mpu6050_volatile_reg(struct device *dev, unsigned int reg)
+> +{
+> +       if (reg >= INV_MPU6050_REG_RAW_ACCEL && reg < INV_MPU6050_REG_RAW_ACCEL + 6)
+> +               return true;
+> +       if (reg >= INV_MPU6050_REG_RAW_GYRO && reg < INV_MPU6050_REG_RAW_GYRO + 6)
+> +               return true;
 
-I2C QUP driver relies on SMBus emulation support from the framework.
-To handle SMBus block reads, the driver should check I2C_M_RECV_LEN
-flag and should read the first byte received as the message length.
+I think you want to put parenthesis around the addition operations...
+the condition check probably don't evaluate to what you are expecting.
 
-The driver configures the QUP hardware to read one byte. Once the
-message length is known from this byte, the QUP hardware is configured
-to read the rest.
-
-Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
-Signed-off-by: Austin Christ <austinwc@codeaurora.org>
----
- drivers/i2c/busses/i2c-qup.c | 68 ++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 65 insertions(+), 3 deletions(-)
-
-Changes:
-- v3:
- - clean up redundant checks
- - use constant instead of variable for smbus length field
-- v2:
- - rework the smbus block read and break into separate function
-
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index ea6ca5f..9fbed83 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -517,6 +517,33 @@ static int qup_i2c_get_data_len(struct qup_i2c_dev *qup)
- 	return data_len;
- }
- 
-+static bool qup_i2c_check_msg_len(struct i2c_msg *msg)
-+{
-+	return ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN));
-+}
-+
-+static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
-+			struct i2c_msg *msg)
-+{
-+	int len = 0;
-+
-+	if (msg->len > 1) {
-+		tags[len++] = QUP_TAG_V2_DATARD_STOP;
-+		tags[len++] = qup_i2c_get_data_len(qup) - 1;
-+	} else {
-+		tags[len++] = QUP_TAG_V2_START;
-+		tags[len++] = addr & 0xff;
-+
-+		if (msg->flags & I2C_M_TEN)
-+			tags[len++] = addr >> 8;
-+
-+		tags[len++] = QUP_TAG_V2_DATARD;
-+		/* Read 1 byte indicating the length of the SMBus message */
-+		tags[len++] = 1;
-+	}
-+	return len;
-+}
-+
- static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 			    struct i2c_msg *msg,  int is_dma)
- {
-@@ -526,6 +553,10 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 
- 	int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
- 
-+	/* Handle tags for SMBus block read */
-+	if (qup_i2c_check_msg_len(msg))
-+		return qup_i2c_set_tags_smb(addr, tags, qup, msg);
-+
- 	if (qup->blk.pos == 0) {
- 		tags[len++] = QUP_TAG_V2_START;
- 		tags[len++] = addr & 0xff;
-@@ -1065,9 +1096,17 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
- 				struct i2c_msg *msg)
- {
- 	u32 val;
--	int idx, pos = 0, ret = 0, total;
-+	int idx, pos = 0, ret = 0, total, msg_offset = 0;
- 
-+	/*
-+	 * If the message length is already read in
-+	 * the first byte of the buffer, account for
-+	 * that by setting the offset
-+	 */
-+	if (qup_i2c_check_msg_len(msg) && (msg->len > 1))
-+		msg_offset = 1;
- 	total = qup_i2c_get_data_len(qup);
-+	total -= msg_offset;
- 
- 	/* 2 extra bytes for read tags */
- 	while (pos < (total + 2)) {
-@@ -1087,8 +1126,8 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
- 
- 			if (pos >= (total + 2))
- 				goto out;
--
--			msg->buf[qup->pos++] = val & 0xff;
-+			msg->buf[qup->pos + msg_offset] = val & 0xff;
-+			qup->pos++;
- 		}
- 	}
- 
-@@ -1128,6 +1167,24 @@ static int qup_i2c_read_one_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 			goto err;
- 
- 		qup->blk.pos++;
-+
-+		/* Handle SMBus block read length */
-+		if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
-+			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
-+				ret = -EPROTO;
-+				goto err;
-+			}
-+			msg->len += msg->buf[0];
-+			qup->pos = 0;
-+			qup_i2c_set_read_mode_v2(qup, msg->len);
-+			ret = qup_i2c_issue_xfer_v2(qup, msg);
-+			if (ret)
-+				goto err;
-+			ret = qup_i2c_wait_for_complete(qup, msg);
-+			if (ret)
-+				goto err;
-+			qup_i2c_set_blk_data(qup, msg);
-+		}
- 	} while (qup->blk.pos < qup->blk.count);
- 
- err:
-@@ -1210,6 +1267,11 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
- 			goto out;
- 		}
- 
-+		if (qup_i2c_check_msg_len(&msgs[idx])) {
-+			ret = -EOPNOTSUPP;
-+			goto out;
-+		}
-+
- 		if (msgs[idx].flags & I2C_M_RD)
- 			ret = qup_i2c_read_one(qup, &msgs[idx]);
- 		else
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project.
+> +       switch (reg) {
+> +       case INV_MPU6050_REG_TEMPERATURE:
+> +       case INV_MPU6050_REG_TEMPERATURE + 1:
+> +       case INV_MPU6050_REG_USER_CTRL:
+> +       case INV_MPU6050_REG_PWR_MGMT_1:
+> +       case INV_MPU6050_REG_FIFO_COUNT_H:
+> +       case INV_MPU6050_REG_FIFO_COUNT_H + 1:
+> +       case INV_MPU6050_REG_FIFO_R_W:
+> +               return true;
+> +       default:
+> +               return false;
+> +       }
+> +}
+> +
+> +static bool inv_mpu6050_precious_reg(struct device *dev, unsigned int reg)
+> +{
+> +       switch (reg) {
+> +       case INV_MPU6050_REG_FIFO_R_W:
+> +               return true;
+> +       default:
+> +               return false;
+> +       }
+> +}
+> +
+> +/*
+> + * Common regmap config for inv_mpu devices
+> + *
+> + * The current volatile/precious registers are common among supported devices.
+> + * When that changes the volatile/precious callbacks should go through the
+> + * inv_mpu6050_reg_map structs.
+> + */
+> +const struct regmap_config inv_mpu_regmap_config = {
+> +       .reg_bits = 8,
+> +       .val_bits = 8,
+> +
+> +       .cache_type = REGCACHE_RBTREE,
+> +       .volatile_reg = inv_mpu6050_volatile_reg,
+> +       .precious_reg = inv_mpu6050_precious_reg,
+> +};
+> +EXPORT_SYMBOL_GPL(inv_mpu_regmap_config);
+> +
+>  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>  {
+>         unsigned int d, mgmt_1;
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+> index 1a424a6..1a8d1a5 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
+> @@ -20,11 +20,6 @@
+>  #include <linux/module.h>
+>  #include "inv_mpu_iio.h"
+>
+> -static const struct regmap_config inv_mpu_regmap_config = {
+> -       .reg_bits = 8,
+> -       .val_bits = 8,
+> -};
+> -
+>  /*
+>   * The i2c read/write needs to happen in unlocked mode. As the parent
+>   * adapter is common. If we use locked versions, it will fail as
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> index 47ca25b..297b0ef 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> @@ -291,3 +291,4 @@ int inv_mpu_core_probe(struct regmap *regmap, int irq, const char *name,
+>  int inv_mpu_core_remove(struct device *dev);
+>  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on);
+>  extern const struct dev_pm_ops inv_mpu_pmops;
+> +extern const struct regmap_config inv_mpu_regmap_config;
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c
+> index 190a4a5..b3bd977 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c
+> @@ -17,11 +17,6 @@
+>  #include <linux/iio/iio.h>
+>  #include "inv_mpu_iio.h"
+>
+> -static const struct regmap_config inv_mpu_regmap_config = {
+> -       .reg_bits = 8,
+> -       .val_bits = 8,
+> -};
+> -
+>  static int inv_mpu_i2c_disable(struct iio_dev *indio_dev)
+>  {
+>         struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> --
+> 2.5.5
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
