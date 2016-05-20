@@ -1,138 +1,176 @@
-From: Matt Ranostay <mranostay@gmail.com>
-Subject: Re: [PATCH v2 2/7] iio: inv_mpu6050: Initial regcache support
-Date: Thu, 19 May 2016 19:34:10 -0700
-Message-ID: <CAKzfze8dDENOvaDf_VH8MRy-HEmCu3q_aGEzD+GYR7B1Ob2rBw@mail.gmail.com>
-References: <cover.1463582011.git.leonard.crestez@intel.com> <e29974565e941e37684fcd883330915cfaf2cf47.1463582011.git.leonard.crestez@intel.com>
+From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: RE: [v10, 7/7] mmc: sdhci-of-esdhc: fix host version for
+	T4240-R1.0-R2.0
+Date: Fri, 20 May 2016 06:05:45 +0000
+Message-ID: <HE1PR04MB08891B37898C97E1800D701EF84B0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
+	<4448030.Zs8fVnr3nm@wuerfel>
+	<HE1PR04MB0889B52134A43C0E7A452B7BF87C0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+	<5159406.HOFrj7pRfW@wuerfel> <1462937186.16584.77.camel@buserror.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:33209 "EHLO
-	mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754060AbcETCex (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 19 May 2016 22:34:53 -0400
-In-Reply-To: <e29974565e941e37684fcd883330915cfaf2cf47.1463582011.git.leonard.crestez@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <1462937186.16584.77.camel-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>Q
 List-Id: linux-i2c@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, Ge Gao <ggao@invensense.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 
-On Wed, May 18, 2016 at 8:00 AM, Crestez Dan Leonard
-<leonard.crestez@intel.com> wrote:
-> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
-> ---
->  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 47 ++++++++++++++++++++++++++++++
->  drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c  |  5 ----
->  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |  1 +
->  drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c  |  5 ----
->  4 files changed, 48 insertions(+), 10 deletions(-)
->
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> index b269b37..5918c23 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> @@ -116,6 +116,53 @@ static const struct inv_mpu6050_hw hw_info[] = {
->         },
->  };
->
-> +static bool inv_mpu6050_volatile_reg(struct device *dev, unsigned int reg)
-> +{
-> +       if (reg >= INV_MPU6050_REG_RAW_ACCEL && reg < INV_MPU6050_REG_RAW_ACCEL + 6)
-> +               return true;
-> +       if (reg >= INV_MPU6050_REG_RAW_GYRO && reg < INV_MPU6050_REG_RAW_GYRO + 6)
-> +               return true;
+Hi Arnd,
 
-I think you want to put parenthesis around the addition operations...
-the condition check probably don't evaluate to what you are expecting.
+Any comments? 
+Please reply when you see the email since we want this eSDHC issue to be fixed soon.
 
-> +       switch (reg) {
-> +       case INV_MPU6050_REG_TEMPERATURE:
-> +       case INV_MPU6050_REG_TEMPERATURE + 1:
-> +       case INV_MPU6050_REG_USER_CTRL:
-> +       case INV_MPU6050_REG_PWR_MGMT_1:
-> +       case INV_MPU6050_REG_FIFO_COUNT_H:
-> +       case INV_MPU6050_REG_FIFO_COUNT_H + 1:
-> +       case INV_MPU6050_REG_FIFO_R_W:
-> +               return true;
-> +       default:
-> +               return false;
-> +       }
-> +}
-> +
-> +static bool inv_mpu6050_precious_reg(struct device *dev, unsigned int reg)
-> +{
-> +       switch (reg) {
-> +       case INV_MPU6050_REG_FIFO_R_W:
-> +               return true;
-> +       default:
-> +               return false;
-> +       }
-> +}
-> +
-> +/*
-> + * Common regmap config for inv_mpu devices
-> + *
-> + * The current volatile/precious registers are common among supported devices.
-> + * When that changes the volatile/precious callbacks should go through the
-> + * inv_mpu6050_reg_map structs.
-> + */
-> +const struct regmap_config inv_mpu_regmap_config = {
-> +       .reg_bits = 8,
-> +       .val_bits = 8,
-> +
-> +       .cache_type = REGCACHE_RBTREE,
-> +       .volatile_reg = inv_mpu6050_volatile_reg,
-> +       .precious_reg = inv_mpu6050_precious_reg,
-> +};
-> +EXPORT_SYMBOL_GPL(inv_mpu_regmap_config);
-> +
->  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
->  {
->         unsigned int d, mgmt_1;
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
-> index 1a424a6..1a8d1a5 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c
-> @@ -20,11 +20,6 @@
->  #include <linux/module.h>
->  #include "inv_mpu_iio.h"
->
-> -static const struct regmap_config inv_mpu_regmap_config = {
-> -       .reg_bits = 8,
-> -       .val_bits = 8,
-> -};
-> -
->  /*
->   * The i2c read/write needs to happen in unlocked mode. As the parent
->   * adapter is common. If we use locked versions, it will fail as
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> index 47ca25b..297b0ef 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> @@ -291,3 +291,4 @@ int inv_mpu_core_probe(struct regmap *regmap, int irq, const char *name,
->  int inv_mpu_core_remove(struct device *dev);
->  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on);
->  extern const struct dev_pm_ops inv_mpu_pmops;
-> +extern const struct regmap_config inv_mpu_regmap_config;
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c
-> index 190a4a5..b3bd977 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_spi.c
-> @@ -17,11 +17,6 @@
->  #include <linux/iio/iio.h>
->  #include "inv_mpu_iio.h"
->
-> -static const struct regmap_config inv_mpu_regmap_config = {
-> -       .reg_bits = 8,
-> -       .val_bits = 8,
-> -};
-> -
->  static int inv_mpu_i2c_disable(struct iio_dev *indio_dev)
->  {
->         struct inv_mpu6050_state *st = iio_priv(indio_dev);
-> --
-> 2.5.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+All the patches are Freescale-specific and is to fix the eSDHC driver.
+Could we let them merged first if you were talking about a new way of abstracting getting SoC version.
+
+
+Thanks :)
+
+
+Best regards,
+Yangbo Lu
+
+> -----Original Message-----
+> From: Scott Wood [mailto:oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org]
+> Sent: Wednesday, May 11, 2016 11:26 AM
+> To: Arnd Bergmann; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> Cc: Yangbo Lu; linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org; Mark Rutland;
+> devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; Russell King; Bhupesh
+> Sharma; netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Joerg Roedel; Kumar Gala; linux-
+> mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Yang-Leo Li;
+> iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org; Rob Herring; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> Claudiu Manoil; Santosh Shilimkar; Xiaobo Xie; linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> Qiang Zhao
+> Subject: Re: [v10, 7/7] mmc: sdhci-of-esdhc: fix host version for T4240-
+> R1.0-R2.0
+> 
+> On Thu, 2016-05-05 at 13:10 +0200, Arnd Bergmann wrote:
+> > On Thursday 05 May 2016 09:41:32 Yangbo Lu wrote:
+> > > > -----Original Message-----
+> > > > From: Arnd Bergmann [mailto:arnd-r2nGTMty4D4@public.gmane.org]
+> > > > Sent: Thursday, May 05, 2016 4:32 PM
+> > > > To: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> > > > Cc: Yangbo Lu; linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> > > > devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org;
+> > > > linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> > > > linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; iommu-cunTk1MwBs/ROKNJybVBZg@public.gmane.org foundation.org;
+> > > > netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mark Rutland; ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org;
+> > > > Russell King; Bhupesh Sharma; Joerg Roedel; Santosh Shilimkar;
+> > > > Yang-Leo Li; Scott Wood; Rob Herring; Claudiu Manoil; Kumar Gala;
+> > > > Xiaobo Xie; Qiang Zhao
+> > > > Subject: Re: [v10, 7/7] mmc: sdhci-of-esdhc: fix host version for
+> > > > T4240-
+> > > > R1.0-R2.0
+> > > >
+> > > > On Thursday 05 May 2016 11:12:30 Yangbo Lu wrote:
+> > > > > IIRC, it is the same IP block as i.MX and Arnd's point is this
+> > > > > won't even compile on !PPC. It is things like this that prevent
+> > > > > sharing the driver.
+> > >
+> > > The whole point of using the MMIO SVR instead of the PPC SPR is so
+> > > that it will work on ARM...  The guts driver should build on any
+> > > platform as long as OF is enabled, and if it doesn't find a node to
+> > > bind to it will return 0 for SVR, and the eSDHC driver will continue
+> > > (after printing an error that should be removed) without the ability
+> > > to test for errata based on SVR.
+> >
+> > It feels like a bad design to have to come up with a different method
+> > for each SoC type here when they all do the same thing and want to
+> > identify some variant of the chip to do device specific quirks.
+> >
+> > As far as I'm concerned, every driver in drivers/soc that needs to
+> > export a symbol to be used by a device driver is an indication that we
+> > don't have the right set of abstractions yet. There are cases that are
+> > not worth abstracting because the functionality is rather obscure and
+> > only a couple of drivers for one particular chip ever need it.
+> >
+> > Finding out the version of the SoC does not look like this case.
+> 
+> I'm open to new ways of abstracting this, but can that please be
+> discussed after these patches are merged?  This patchset is fixing a
+> problem, the existing abstraction is unappealing and not widely adopted,
+> a new abstraction is not ready, and we're only touching code for our
+> hardware.
+> 
+> Oh, and the existing abstraction isn't even "existing".  I don't see any
+> examples where soc_device is being used like this -- or even any way for
+> a driver (the one consuming the information, not the soc "driver") to get
+> a reference to the soc_device that's been registered short of searching
+> for the device object by name -- and you're asking for new functionality
+> in drivers/base/soc.c.
+> 
+> > > > I think the first four patches take care of building for ARM, but
+> > > > the problem remains if you want to enable COMPILE_TEST as we need
+> > > > for certain automated checking.
+> > >
+> > > What specific problem is there with COMPILE_TEST?
+> >
+> > COMPILE_TEST is solvable here and the way it is implemented in this
+> > case (selecting FSL_GUTS from the driver) indeed looks like it works
+> > correctly, but it's still awkward that this means building the SoC
+> > specific ID stuff into the vmlinux binary for any driver that uses
+> > something like that for a particular SoC.
+> 
+> Please keep in mind that this is a Freescale-specific driver... it's not
+> as if we're attaching this dependency to common SDHCI code.
+> 
+> >
+> > > > > Dealing with Si revs is a common problem. We should have a
+> > > > > common solution. There is soc_device for this purpose.
+> > > >
+> > > > Exactly. The last time this came up, I think we agreed to
+> > > > implement a helper using glob_match() on the soc_device strings.
+> > > > Unfortunately this hasn't happened then, but I'd still prefer that
+> > > > over yet another vendor-specific way of dealing with the generic
+> issue.
+> > >
+> > > soc_device would require encoding the SVR as a string and then
+> > > decoding the string, which is more complicated and error prone than
+> > > having platform-specific code test a platform-specific number.
+> >
+> > You already need to encode it as a string to register the soc_device,
+> 
+> No we don't, because we don't already register a soc_device on arm64 or
+> ppc (and it looks like whatever does get registered on at least some
+> relevant
+> arm32 chips is not particularly useful).
+> 
+> > and the driver just needs to pass a glob string, so the only part that
+> > is missing is the generic function that takes the string from the
+> > driver and passes that to glob_match for the soc_device.
+> 
+> "just"
+> 
+> And what would the glob look like?
+> 
+> I'd rather not write kernel code as if it were a shell/Perl script.
+> 
+> > > And when would it get registered on arm64, which doesn't have
+> > > platform code?
+> >
+> > Whenever the soc driver is loaded, as is the case now. The match
+> > function can return -EPROBE_DEFER if no SoC device is registered yet.
+> 
+> That's too late for some places where we need access to SVR, e.g. clock
+> drivers (which use CLK_OF_DECLARE and are initialized very early, not as
+> part of the driver model and thus can't defer).  Currently we have an
+> #ifdef CONFIG_PPC for this in drivers/clk/clk-qoriq.c... Maybe we should
+> have done that here as well, and saved some grief. :-)  At least until an
+> erratum pops up on an ARM-based chip.
+> 
+> And what happens if we're running on arm32, and thus the arch code
+> already registered an soc_device with a different (and less useful)
+> encoding?
+> 
+> -Scott
