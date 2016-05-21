@@ -1,51 +1,34 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: [PATCH v3] i2c: at91: change log when dma configuration fails
-Date: Fri, 20 May 2016 14:06:31 +0200
-Message-ID: <1463745991-26257-1-git-send-email-ludovic.desroches@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Andrea Gelmini <andrea.gelmini@gelma.net>
+Subject: [PATCH 0018/1529] Fix typo
+Date: Sat, 21 May 2016 13:37:47 +0200
+Message-ID: <20160521113747.32214-1-andrea.gelmini@gelma.net>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:26741 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752930AbcETMGB (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 20 May 2016 08:06:01 -0400
+Received: from mail-lb0-f195.google.com ([209.85.217.195]:36247 "EHLO
+	mail-lb0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752009AbcEULhy (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 21 May 2016 07:37:54 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, dgilbert@interlog.com, nicolas.ferre@atmel.com, Ludovic Desroches <ludovic.desroches@atmel.com>
+To: andrea.gelmini@gelma.net
+Cc: trivial@kernel.org, wsa@the-dreams.de, dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, devicetree@hellion.org.uk, galak@codeaurora.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-When the DMA configuration fails, there is a log reporting that we can't
-use DMA and indicating the error number. When booting the kernel, it is
-annoying to see this error number. Moreover, people can think something
-is going wrong. It is not the case, it means that DMA can't be used but
-it doesn't prevent to use i2c.
-
-Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
 ---
- drivers/i2c/busses/i2c-at91.c | 2 +-
+ Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Douglas, sorry but I can't answer you directly, your email address is
-blacklisted on our server.
-
-Changes:
-- v3:
-  - s/request/get (comment done in private)
-- v2:
-  - remove ret parameter
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 921d32b..f233726 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -1013,7 +1013,7 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 
- error:
- 	if (ret != -EPROBE_DEFER)
--		dev_info(dev->dev, "can't use DMA, error %d\n", ret);
-+		dev_info(dev->dev, "can't get DMA channel, continue without DMA support\n");
- 	if (dma->chan_rx)
- 		dma_release_channel(dma->chan_rx);
- 	if (dma->chan_tx)
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
+index 89b3250..75dd5c2 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
+@@ -22,7 +22,7 @@ Required for all cases except "samsung,s3c2440-hdmiphy-i2c":
+     - gpios: The order of the gpios should be the following: <SDA, SCL>.
+       The gpio specifier depends on the gpio controller. Required in all
+       cases except for "samsung,s3c2440-hdmiphy-i2c" whose input/output
+-      lines are permanently wired to the respective clienta
++      lines are permanently wired to the respective client
+   - Pinctrl variant (preferred, if available):
+     - pinctrl-0: Pin control group to be used for this controller.
+     - pinctrl-names: Should contain only one value - "default".
 -- 
-2.5.0
+2.8.2.534.g1f66975
