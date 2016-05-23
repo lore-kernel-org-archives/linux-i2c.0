@@ -1,64 +1,39 @@
-From: "Christ, Austin" <austinwc@codeaurora.org>
-Subject: Re: [PATCH v2 2/2] i2c: qup: support SMBus block read
-Date: Mon, 23 May 2016 11:45:51 -0600
-Message-ID: <4ca84ab1-f558-25b1-2fa5-dbcf9e8cc2e7@codeaurora.org>
-References: <1463006736-24652-1-git-send-email-nkaje@codeaurora.org>
- <1463006736-24652-2-git-send-email-nkaje@codeaurora.org>
- <000d01d1b0d3$d70e1f30$852a5d90$@codeaurora.org>
- <757c18e2-562a-9f43-0fb6-ab3e7ac3af88@codeaurora.org>
- <000501d1b271$fef3bc90$fcdb35b0$@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Moritz Fischer <moritz.fischer@ettus.com>
+Subject: [PATCH] misc: at24: Fix typo in at24 header file
+Date: Mon, 23 May 2016 11:44:39 -0700
+Message-ID: <1464029079-29334-1-git-send-email-moritz.fischer@ettus.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:45734 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751429AbcEWRpx (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 23 May 2016 13:45:53 -0400
-In-Reply-To: <000501d1b271$fef3bc90$fcdb35b0$@codeaurora.org>
+Received: from mail-pf0-f169.google.com ([209.85.192.169]:33117 "EHLO
+	mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752157AbcEWSos (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 23 May 2016 14:44:48 -0400
+Received: by mail-pf0-f169.google.com with SMTP id b124so10252757pfb.0
+        for <linux-i2c@vger.kernel.org>; Mon, 23 May 2016 11:44:48 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sricharan <sricharan@codeaurora.org>, 'Naveen Kaje' <nkaje@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, linux-arm-kernel@lists.infradead.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, moritz.fischer.private@gmail.com, Moritz Fischer <moritz.fischer@ettus.com>
 
+This commit fixes a simple typo s/mvmem/nvmem in the
+example.
 
+Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
+---
+ include/linux/platform_data/at24.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 5/20/2016 2:31 AM, Sricharan wrote:
-> Hi,
->
-> <snip..>
->>>> @@ -1128,6 +1173,22 @@ static int qup_i2c_read_one_v2(struct
->>>> qup_i2c_dev *qup, struct i2c_msg *msg)
->>>>    			goto err;
->>>>
->>>>    		qup->blk.pos++;
->>>> +
->>>> +		/* Handle SMBus block read length */
->>>> +		if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
->>>> +			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
->>>> +				ret = -EPROTO;
->>>> +				goto err;
->>>> +			}
->>>> +			msg->len += msg->buf[0];
->>>> +			qup->pos = 0;
->>>> +			qup_i2c_set_read_mode_v2(qup, msg->len);
->>>> +			qup_i2c_issue_xfer_v2(qup, msg);
->>>> +			ret = qup_i2c_wait_for_complete(qup, msg);
->>>> +			if (ret)
->>>> +				goto err;
->>> 		Is the issue_xfer_v2 needed inside this here ?
->> No, qup_i2c_issue_xfer_v2 is needed so that we read rest of the data
->> that is indicated by the length we read earlier.
-> So qup_i2c_issue_xfer_v2 writes the tags and there is one already in the loop above this
->   check. So if you just do qup_i2c_set_read_mode_v2 and qup_i2c_set_blk_data inside this
->   check, will not be enough ?
->
-> Regards,
->   Sricharan
->
-In testing, removing the call to qup_i2c_issue_xfer_v2() within the 
-conditional statement for SMBus length causes failures. That transfer 
-request is needed to read that block of data.
-
-Thanks,
-Austin
+diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+index dc9a13e..be830b1 100644
+--- a/include/linux/platform_data/at24.h
++++ b/include/linux/platform_data/at24.h
+@@ -26,7 +26,7 @@
+  *
+  * An example in pseudo code for a setup() callback:
+  *
+- * void get_mac_addr(struct mvmem_device *nvmem, void *context)
++ * void get_mac_addr(struct nvmem_device *nvmem, void *context)
+  * {
+  *	u8 *mac_addr = ethernet_pdata->mac_addr;
+  *	off_t offset = context;
+-- 
+2.5.5
