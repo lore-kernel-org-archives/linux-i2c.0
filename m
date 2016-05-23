@@ -1,61 +1,64 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH] i2c: nomadik: move runtime suspend of hw to _noirq
-Date: Mon, 23 May 2016 14:59:16 +0200
-Message-ID: <1464008356-21162-1-git-send-email-linus.walleij@linaro.org>
+From: "Christ, Austin" <austinwc@codeaurora.org>
+Subject: Re: [PATCH v2 2/2] i2c: qup: support SMBus block read
+Date: Mon, 23 May 2016 11:45:51 -0600
+Message-ID: <4ca84ab1-f558-25b1-2fa5-dbcf9e8cc2e7@codeaurora.org>
+References: <1463006736-24652-1-git-send-email-nkaje@codeaurora.org>
+ <1463006736-24652-2-git-send-email-nkaje@codeaurora.org>
+ <000d01d1b0d3$d70e1f30$852a5d90$@codeaurora.org>
+ <757c18e2-562a-9f43-0fb6-ab3e7ac3af88@codeaurora.org>
+ <000501d1b271$fef3bc90$fcdb35b0$@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lb0-f171.google.com ([209.85.217.171]:33789 "EHLO
-	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753412AbcEWM72 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 23 May 2016 08:59:28 -0400
-Received: by mail-lb0-f171.google.com with SMTP id k7so34303086lbm.0
-        for <linux-i2c@vger.kernel.org>; Mon, 23 May 2016 05:59:27 -0700 (PDT)
+Received: from smtp.codeaurora.org ([198.145.29.96]:45734 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751429AbcEWRpx (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 23 May 2016 13:45:53 -0400
+In-Reply-To: <000501d1b271$fef3bc90$fcdb35b0$@codeaurora.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>, Ulf Hansson <ulf.hansson@linaro.org>
+To: Sricharan <sricharan@codeaurora.org>, 'Naveen Kaje' <nkaje@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, linux-arm-kernel@lists.infradead.org
 
-The runtime suspend of the hardware (declocking and pin control
-resting) needs to happen in the *_noirq callbacks after all
-hardware interrupts are disabled and we know there will be no
-more I2C traffic in the system.
 
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/i2c/busses/i2c-nomadik.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index bcd17e8cbcb4..c96a3e331bed 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -877,7 +877,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- }
- 
- #ifdef CONFIG_PM_SLEEP
--static int nmk_i2c_suspend_late(struct device *dev)
-+static int nmk_i2c_suspend_noirq(struct device *dev)
- {
- 	int ret;
- 
-@@ -889,7 +889,7 @@ static int nmk_i2c_suspend_late(struct device *dev)
- 	return 0;
- }
- 
--static int nmk_i2c_resume_early(struct device *dev)
-+static int nmk_i2c_resume_noirq(struct device *dev)
- {
- 	return pm_runtime_force_resume(dev);
- }
-@@ -931,7 +931,8 @@ static int nmk_i2c_runtime_resume(struct device *dev)
- #endif
- 
- static const struct dev_pm_ops nmk_i2c_pm = {
--	SET_LATE_SYSTEM_SLEEP_PM_OPS(nmk_i2c_suspend_late, nmk_i2c_resume_early)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(nmk_i2c_suspend_noirq,
-+				      nmk_i2c_resume_noirq)
- 	SET_RUNTIME_PM_OPS(nmk_i2c_runtime_suspend,
- 			nmk_i2c_runtime_resume,
- 			NULL)
--- 
-2.4.11
+On 5/20/2016 2:31 AM, Sricharan wrote:
+> Hi,
+>
+> <snip..>
+>>>> @@ -1128,6 +1173,22 @@ static int qup_i2c_read_one_v2(struct
+>>>> qup_i2c_dev *qup, struct i2c_msg *msg)
+>>>>    			goto err;
+>>>>
+>>>>    		qup->blk.pos++;
+>>>> +
+>>>> +		/* Handle SMBus block read length */
+>>>> +		if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
+>>>> +			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
+>>>> +				ret = -EPROTO;
+>>>> +				goto err;
+>>>> +			}
+>>>> +			msg->len += msg->buf[0];
+>>>> +			qup->pos = 0;
+>>>> +			qup_i2c_set_read_mode_v2(qup, msg->len);
+>>>> +			qup_i2c_issue_xfer_v2(qup, msg);
+>>>> +			ret = qup_i2c_wait_for_complete(qup, msg);
+>>>> +			if (ret)
+>>>> +				goto err;
+>>> 		Is the issue_xfer_v2 needed inside this here ?
+>> No, qup_i2c_issue_xfer_v2 is needed so that we read rest of the data
+>> that is indicated by the length we read earlier.
+> So qup_i2c_issue_xfer_v2 writes the tags and there is one already in the loop above this
+>   check. So if you just do qup_i2c_set_read_mode_v2 and qup_i2c_set_blk_data inside this
+>   check, will not be enough ?
+>
+> Regards,
+>   Sricharan
+>
+In testing, removing the call to qup_i2c_issue_xfer_v2() within the 
+conditional statement for SMBus length causes failures. That transfer 
+request is needed to read that block of data.
+
+Thanks,
+Austin
