@@ -1,49 +1,58 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [RFC PATCH] i2c: i801: Fix I2C Block Read on 8-Series/C220 and
- later
-Date: Tue, 24 May 2016 10:00:55 +0300
-Message-ID: <5743FC27.2000307@linux.intel.com>
-References: <20160523114740.1f8cf29e@endymion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Subject: i2c: xlp9xx: add ACPI support for Broadcom Vulcan
+Date: Tue, 24 May 2016 13:39:03 +0530
+Message-ID: <1464077343-1665-1-git-send-email-tanmay.jagdale@broadcom.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:32288 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754110AbcEXHA7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 24 May 2016 03:00:59 -0400
-In-Reply-To: <20160523114740.1f8cf29e@endymion>
+Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:54343 "EHLO
+	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754323AbcEXIJv (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 24 May 2016 04:09:51 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com, tanmay.jagdale@broadcom.com
 
-Hi
+Added ACPI support for the I2C controller present on Broadcom's
+Vulcan ARM64 processor. ACPI ID used by the controller is BRCM9007.
 
-On 05/23/2016 12:47 PM, Jean Delvare wrote:
-> Starting with the 8-Series/C220 PCH (Lynx Point), the SMBus
-> controller includes a SPD EEPROM protection mechanism. Once the SPD
-> Write Disable bit is set, only reads are allowed to slave addresses
-> 0x50-0x57.
->
-> However the legacy implementation of I2C Block Read since the ICH5
-> looks like a write, and is therefore blocked by the SPD protection
-> mechanism. This causes the eeprom and at24 drivers to fail.
->
-> So assume that I2C Block Read is implemented as an actual read on
-> these chipsets. I tested it on my Q87 chipset and it seems to work
-> just fine.
->
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> ---
-> Jarkko, Mika, that's what I'm using on my machine now. It works, but
-> obviously I'd prefer to have confirmation from Intel hardware people
-> that this is the right thing to do before it goes upstream.
->
-I haven't yet found the contact but search is on going.
+Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+---
+ drivers/i2c/busses/i2c-xlp9xx.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index c941418..62a7cff 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -13,6 +13,7 @@
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/acpi.h>
+ #include <linux/platform_device.h>
+ 
+ #define XLP9XX_I2C_DIV			0x0
+@@ -429,12 +430,21 @@ static const struct of_device_id xlp9xx_i2c_of_match[] = {
+ 	{ /* sentinel */ },
+ };
+ 
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id vulcan_i2c_acpi_ids[] = {
++	{"BRCM9007", 0},
++	{}
++};
++MODULE_DEVICE_TABLE(acpi, vulcan_i2c_acpi_ids);
++#endif
++
+ static struct platform_driver xlp9xx_i2c_driver = {
+ 	.probe = xlp9xx_i2c_probe,
+ 	.remove = xlp9xx_i2c_remove,
+ 	.driver = {
+ 		.name = "xlp9xx-i2c",
+ 		.of_match_table = xlp9xx_i2c_of_match,
++		.acpi_match_table = ACPI_PTR(vulcan_i2c_acpi_ids),
+ 	},
+ };
+ 
 -- 
-Jarkko
+2.1.0
