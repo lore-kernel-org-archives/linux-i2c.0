@@ -1,39 +1,49 @@
-From: Moritz Fischer <moritz.fischer@ettus.com>
-Subject: [PATCH] misc: at24: Fix typo in at24 header file
-Date: Mon, 23 May 2016 11:44:39 -0700
-Message-ID: <1464029079-29334-1-git-send-email-moritz.fischer@ettus.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [RFC PATCH] i2c: i801: Fix I2C Block Read on 8-Series/C220 and
+ later
+Date: Tue, 24 May 2016 10:00:55 +0300
+Message-ID: <5743FC27.2000307@linux.intel.com>
+References: <20160523114740.1f8cf29e@endymion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f169.google.com ([209.85.192.169]:33117 "EHLO
-	mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752157AbcEWSos (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 23 May 2016 14:44:48 -0400
-Received: by mail-pf0-f169.google.com with SMTP id b124so10252757pfb.0
-        for <linux-i2c@vger.kernel.org>; Mon, 23 May 2016 11:44:48 -0700 (PDT)
+Received: from mga02.intel.com ([134.134.136.20]:32288 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754110AbcEXHA7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 24 May 2016 03:00:59 -0400
+In-Reply-To: <20160523114740.1f8cf29e@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, moritz.fischer.private@gmail.com, Moritz Fischer <moritz.fischer@ettus.com>
+To: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-This commit fixes a simple typo s/mvmem/nvmem in the
-example.
+Hi
 
-Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
----
- include/linux/platform_data/at24.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 05/23/2016 12:47 PM, Jean Delvare wrote:
+> Starting with the 8-Series/C220 PCH (Lynx Point), the SMBus
+> controller includes a SPD EEPROM protection mechanism. Once the SPD
+> Write Disable bit is set, only reads are allowed to slave addresses
+> 0x50-0x57.
+>
+> However the legacy implementation of I2C Block Read since the ICH5
+> looks like a write, and is therefore blocked by the SPD protection
+> mechanism. This causes the eeprom and at24 drivers to fail.
+>
+> So assume that I2C Block Read is implemented as an actual read on
+> these chipsets. I tested it on my Q87 chipset and it seems to work
+> just fine.
+>
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> ---
+> Jarkko, Mika, that's what I'm using on my machine now. It works, but
+> obviously I'd prefer to have confirmation from Intel hardware people
+> that this is the right thing to do before it goes upstream.
+>
+I haven't yet found the contact but search is on going.
 
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index dc9a13e..be830b1 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -26,7 +26,7 @@
-  *
-  * An example in pseudo code for a setup() callback:
-  *
-- * void get_mac_addr(struct mvmem_device *nvmem, void *context)
-+ * void get_mac_addr(struct nvmem_device *nvmem, void *context)
-  * {
-  *	u8 *mac_addr = ethernet_pdata->mac_addr;
-  *	off_t offset = context;
 -- 
-2.5.5
+Jarkko
