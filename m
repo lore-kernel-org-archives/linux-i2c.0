@@ -1,50 +1,211 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH] i2c: i801: Drop needless bit-wise OR
-Date: Wed, 25 May 2016 09:37:02 +0200
-Message-ID: <20160525093702.64d7309c@endymion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59704 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752353AbcEYHhH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 25 May 2016 03:37:07 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Sricharan R <sricharan@codeaurora.org>
+Subject: [PATCH V3 1/2] i2c: qup: Fix broken dma when CONFIG_DEBUG_SG is enabled
+Date: Wed, 25 May 2016 13:46:51 +0530
+Message-ID: <1464164212-11377-2-git-send-email-sricharan@codeaurora.org>
+References: <1464164212-11377-1-git-send-email-sricharan@codeaurora.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1464164212-11377-1-git-send-email-sricharan@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, linux-arm-kernel@lists.infradead.org, nkaje@codeaurora.org, wsa@the-dreams.de, absahu@codeaurora.org
+Cc: sricharan@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-The interrupt handling code makes it look like several status values
-may be merged together before being processed, while this will never
-happen. Change from bit-wise OR to simple assignment to make it more
-obvious and avoid misunderstanding.
+With CONFIG_DEBUG_SG is enabled and when dma mode is used, below dump is seen,
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+------------[ cut here ]------------
+kernel BUG at include/linux/scatterlist.h:140!
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.4.0-00459-g9f087b9-dirty #7
+Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+task: ffffffc036868000 ti: ffffffc036870000 task.ti: ffffffc036870000
+PC is at qup_sg_set_buf.isra.13+0x138/0x154
+LR is at qup_sg_set_buf.isra.13+0x50/0x154
+pc : [<ffffffc0005a0ed8>] lr : [<ffffffc0005a0df0>] pstate: 60000145
+sp : ffffffc0368735c0
+x29: ffffffc0368735c0 x28: ffffffc036873752
+x27: ffffffc035233018 x26: ffffffc000c4e000
+x25: 0000000000000000 x24: 0000000000000004
+x23: 0000000000000000 x22: ffffffc035233668
+x21: ffffff80004e3000 x20: ffffffc0352e0018
+x19: 0000004000000000 x18: 0000000000000028
+x17: 0000000000000004 x16: ffffffc0017a39c8
+x15: 0000000000001cdf x14: ffffffc0019929d8
+x13: ffffffc0352e0018 x12: 0000000000000000
+x11: 0000000000000001 x10: 0000000000000001
+x9 : ffffffc0012b2d70 x8 : ffffff80004e3000
+x7 : 0000000000000018 x6 : 0000000030000000
+x5 : ffffffc00199f018 x4 : ffffffc035233018
+x3 : 0000000000000004 x2 : 00000000c0000000
+x1 : 0000000000000003 x0 : 0000000000000000
+
+Process swapper/0 (pid: 1, stack limit = 0xffffffc036870020)
+Stack: (0xffffffc0368735c0 to 0xffffffc036874000)
+
+sg_set_buf expects that the buf parameter passed in should be from
+lowmem and a valid pageframe. This is not true for pages from
+dma_alloc_coherent which can be carveouts, hence the check fails.
+Change allocation of sg buffers from dma_coherent memory to kzalloc
+to fix the issue.
+
+Signed-off-by: Sricharan R <sricharan@codeaurora.org>
+Reviewed-by: Andy Gross <andy.gross@linaro.org>
+Tested-by: Naveen Kaje <nkaje@codeaurora.org>
 ---
-Daniel, was there any reason for this bit-wise OR, which I may be
-missing?
+[V3] Added more commit description.
 
- drivers/i2c/busses/i2c-i801.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-qup.c | 53 ++++++++++++++------------------------------
+ 1 file changed, 17 insertions(+), 36 deletions(-)
 
---- linux-4.5.orig/drivers/i2c/busses/i2c-i801.c	2016-05-24 11:04:33.169026906 +0200
-+++ linux-4.5/drivers/i2c/busses/i2c-i801.c	2016-05-24 11:05:40.564642488 +0200
-@@ -548,7 +548,7 @@ static irqreturn_t i801_isr(int irq, voi
- 	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS;
- 	if (status) {
- 		outb_p(status, SMBHSTSTS(priv));
--		priv->status |= status;
-+		priv->status = status;
- 		wake_up(&priv->waitq);
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 23eaabb..8620e99 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -585,8 +585,8 @@ static void qup_i2c_bam_cb(void *data)
+ }
+ 
+ static int qup_sg_set_buf(struct scatterlist *sg, void *buf,
+-			  struct qup_i2c_tag *tg, unsigned int buflen,
+-			  struct qup_i2c_dev *qup, int map, int dir)
++			  unsigned int buflen, struct qup_i2c_dev *qup,
++			  int dir)
+ {
+ 	int ret;
+ 
+@@ -595,9 +595,6 @@ static int qup_sg_set_buf(struct scatterlist *sg, void *buf,
+ 	if (!ret)
+ 		return -EINVAL;
+ 
+-	if (!map)
+-		sg_dma_address(sg) = tg->addr + ((u8 *)buf - tg->start);
+-
+ 	return 0;
+ }
+ 
+@@ -670,16 +667,15 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+ 				/* scratch buf to read the start and len tags */
+ 				ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
+ 						     &qup->brx.tag.start[0],
+-						     &qup->brx.tag,
+-						     2, qup, 0, 0);
++						     2, qup, DMA_FROM_DEVICE);
+ 
+ 				if (ret)
+ 					return ret;
+ 
+ 				ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
+ 						     &msg->buf[limit * i],
+-						     NULL, tlen, qup,
+-						     1, DMA_FROM_DEVICE);
++						     tlen, qup,
++						     DMA_FROM_DEVICE);
+ 				if (ret)
+ 					return ret;
+ 
+@@ -688,7 +684,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+ 			}
+ 			ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
+ 					     &qup->start_tag.start[off],
+-					     &qup->start_tag, len, qup, 0, 0);
++					     len, qup, DMA_TO_DEVICE);
+ 			if (ret)
+ 				return ret;
+ 
+@@ -696,8 +692,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+ 			/* scratch buf to read the BAM EOT and FLUSH tags */
+ 			ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
+ 					     &qup->brx.tag.start[0],
+-					     &qup->brx.tag, 2,
+-					     qup, 0, 0);
++					     2, qup, DMA_FROM_DEVICE);
+ 			if (ret)
+ 				return ret;
+ 		} else {
+@@ -709,17 +704,15 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+ 				len = qup_i2c_set_tags(tags, qup, msg, 1);
+ 
+ 				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
+-						     tags,
+-						     &qup->start_tag, len,
+-						     qup, 0, 0);
++						     tags, len,
++						     qup, DMA_TO_DEVICE);
+ 				if (ret)
+ 					return ret;
+ 
+ 				tx_len += len;
+ 				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
+ 						     &msg->buf[limit * i],
+-						     NULL, tlen, qup, 1,
+-						     DMA_TO_DEVICE);
++						     tlen, qup, DMA_TO_DEVICE);
+ 				if (ret)
+ 					return ret;
+ 				i++;
+@@ -738,8 +731,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+ 							QUP_BAM_FLUSH_STOP;
+ 				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
+ 						     &qup->btx.tag.start[0],
+-						     &qup->btx.tag, len,
+-						     qup, 0, 0);
++						     len, qup, DMA_TO_DEVICE);
+ 				if (ret)
+ 					return ret;
+ 				tx_nents += 1;
+@@ -1268,6 +1260,8 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
+ 		}
  	}
  
-
-
++	idx = 0;
++
+ 	do {
+ 		if (msgs[idx].len == 0) {
+ 			ret = -EINVAL;
+@@ -1407,27 +1401,21 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 
+ 		/* 2 tag bytes for each block + 5 for start, stop tags */
+ 		size = blocks * 2 + 5;
+-		qup->dpool = dma_pool_create("qup_i2c-dma-pool", &pdev->dev,
+-					     size, 4, 0);
+ 
+-		qup->start_tag.start = dma_pool_alloc(qup->dpool, GFP_KERNEL,
+-						      &qup->start_tag.addr);
++		qup->start_tag.start = devm_kzalloc(&pdev->dev,
++						    size, GFP_KERNEL);
+ 		if (!qup->start_tag.start) {
+ 			ret = -ENOMEM;
+ 			goto fail_dma;
+ 		}
+ 
+-		qup->brx.tag.start = dma_pool_alloc(qup->dpool,
+-						    GFP_KERNEL,
+-						    &qup->brx.tag.addr);
++		qup->brx.tag.start = devm_kzalloc(&pdev->dev, 2, GFP_KERNEL);
+ 		if (!qup->brx.tag.start) {
+ 			ret = -ENOMEM;
+ 			goto fail_dma;
+ 		}
+ 
+-		qup->btx.tag.start = dma_pool_alloc(qup->dpool,
+-						    GFP_KERNEL,
+-						    &qup->btx.tag.addr);
++		qup->btx.tag.start = devm_kzalloc(&pdev->dev, 2, GFP_KERNEL);
+ 		if (!qup->btx.tag.start) {
+ 			ret = -ENOMEM;
+ 			goto fail_dma;
+@@ -1566,13 +1554,6 @@ static int qup_i2c_remove(struct platform_device *pdev)
+ 	struct qup_i2c_dev *qup = platform_get_drvdata(pdev);
+ 
+ 	if (qup->is_dma) {
+-		dma_pool_free(qup->dpool, qup->start_tag.start,
+-			      qup->start_tag.addr);
+-		dma_pool_free(qup->dpool, qup->brx.tag.start,
+-			      qup->brx.tag.addr);
+-		dma_pool_free(qup->dpool, qup->btx.tag.start,
+-			      qup->btx.tag.addr);
+-		dma_pool_destroy(qup->dpool);
+ 		dma_release_channel(qup->btx.dma);
+ 		dma_release_channel(qup->brx.dma);
+ 	}
 -- 
-Jean Delvare
-SUSE L3 Support
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
