@@ -1,58 +1,50 @@
-From: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
-Subject: i2c: xlp9xx: add ACPI support for Broadcom Vulcan
-Date: Tue, 24 May 2016 13:39:03 +0530
-Message-ID: <1464077343-1665-1-git-send-email-tanmay.jagdale@broadcom.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH] i2c: i801: Drop needless bit-wise OR
+Date: Wed, 25 May 2016 09:37:02 +0200
+Message-ID: <20160525093702.64d7309c@endymion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:54343 "EHLO
-	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754323AbcEXIJv (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 24 May 2016 04:09:51 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59704 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752353AbcEYHhH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 25 May 2016 03:37:07 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com, tanmay.jagdale@broadcom.com
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Added ACPI support for the I2C controller present on Broadcom's
-Vulcan ARM64 processor. ACPI ID used by the controller is BRCM9007.
+The interrupt handling code makes it look like several status values
+may be merged together before being processed, while this will never
+happen. Change from bit-wise OR to simple assignment to make it more
+obvious and avoid misunderstanding.
 
-Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-xlp9xx.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+Daniel, was there any reason for this bit-wise OR, which I may be
+missing?
 
-diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-index c941418..62a7cff 100644
---- a/drivers/i2c/busses/i2c-xlp9xx.c
-+++ b/drivers/i2c/busses/i2c-xlp9xx.c
-@@ -13,6 +13,7 @@
- #include <linux/io.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/acpi.h>
- #include <linux/platform_device.h>
+ drivers/i2c/busses/i2c-i801.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-4.5.orig/drivers/i2c/busses/i2c-i801.c	2016-05-24 11:04:33.169026906 +0200
++++ linux-4.5/drivers/i2c/busses/i2c-i801.c	2016-05-24 11:05:40.564642488 +0200
+@@ -548,7 +548,7 @@ static irqreturn_t i801_isr(int irq, voi
+ 	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS;
+ 	if (status) {
+ 		outb_p(status, SMBHSTSTS(priv));
+-		priv->status |= status;
++		priv->status = status;
+ 		wake_up(&priv->waitq);
+ 	}
  
- #define XLP9XX_I2C_DIV			0x0
-@@ -429,12 +430,21 @@ static const struct of_device_id xlp9xx_i2c_of_match[] = {
- 	{ /* sentinel */ },
- };
- 
-+#ifdef CONFIG_ACPI
-+static const struct acpi_device_id vulcan_i2c_acpi_ids[] = {
-+	{"BRCM9007", 0},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(acpi, vulcan_i2c_acpi_ids);
-+#endif
-+
- static struct platform_driver xlp9xx_i2c_driver = {
- 	.probe = xlp9xx_i2c_probe,
- 	.remove = xlp9xx_i2c_remove,
- 	.driver = {
- 		.name = "xlp9xx-i2c",
- 		.of_match_table = xlp9xx_i2c_of_match,
-+		.acpi_match_table = ACPI_PTR(vulcan_i2c_acpi_ids),
- 	},
- };
- 
+
+
 -- 
-2.1.0
+Jean Delvare
+SUSE L3 Support
