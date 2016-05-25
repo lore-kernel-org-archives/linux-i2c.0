@@ -1,49 +1,59 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 5/5] i2c-i801: Remove redundant code and event-drive
-Date: Wed, 25 May 2016 14:52:30 +0200
-Message-ID: <20160525145230.24f1c881@endymion>
-References: <1453223377-20608-1-git-send-email-minyard@acm.org>
-	<1453223377-20608-6-git-send-email-minyard@acm.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] i2c: nomadik: move runtime suspend of hw to _noirq
+Date: Wed, 25 May 2016 14:53:51 +0200
+Message-ID: <CACRpkdbFvRKpzY82qWpt6CNLEe8GfgaSOJPaebaanOWbT7mC9Q@mail.gmail.com>
+References: <1464008356-21162-1-git-send-email-linus.walleij@linaro.org>
+	<CAPDyKFpvwQkqS9TRCj+JCOro-fdbkPKrXr6V7eEeSJLMah61Ng@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:45809 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751817AbcEYMwd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 25 May 2016 08:52:33 -0400
-In-Reply-To: <1453223377-20608-6-git-send-email-minyard@acm.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <CAPDyKFpvwQkqS9TRCj+JCOro-fdbkPKrXr6V7eEeSJLMah61Ng@mail.gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Kevin Hilman <khilman@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: minyard@acm.org
-Cc: linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 
-Hi Corey,
+On Wed, May 25, 2016 at 12:09 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+> On 23 May 2016 at 14:59, Linus Walleij <linus.walleij@linaro.org> wrote:
+>> The runtime suspend of the hardware (declocking and pin control
+>> resting) needs to happen in the *_noirq callbacks after all
+>> hardware interrupts are disabled and we know there will be no
+>> more I2C traffic in the system.
+>
+> As you need this change, it means some other device requires the I2C
+> device to be runtime resumed, while a *_late callback tries to suspend
+> the other device. Right!?
 
-On Tue, 19 Jan 2016 11:09:37 -0600, minyard@acm.org wrote:
-> From: Corey Minyard <cminyard@mvista.com>
-> 
-> There was a lot of redundant code in the driver, basically one copy
-> for the polled interface and one for the interrupt-driven interface.
-> Only use the interrupt-driven interface and use a timer to check
-> the interface periodically and time things out.
+Yep.
 
-This patch is simply too large and messy for me to consider reviewing
-it. It needs to be split into smaller pieces. But honestly I don't see
-that much redundancy in the driver, and as a matter of fact your patch
-adds more lines than it removes.
+> Can you tell which these devices are?
 
-This is unfortunate because some of the changes would still be good to
-have. In particular having a single call to i801_check_post() would be
-a nice clean-up.
+Those I have seen colliding in suspend/resume cycles:
+drivers/leds/leds-lp5521.c
+drivers/iio/light/bh1780.c
+(note that I have fixes pending for the bh1780 driver)
 
-> This also adds timeouts when using interrupt, so a failed operation
-> won't hang forever.
+> Moving the suspend operations to the *_noirq callbacks could improve
+> the situation, but unfortunate it's comes with a limitation.
+> That's because runtime PM has been disabled (by genpd or the PM core)
+> before the *_late callbacks is invoked, which means the I2C device
+> needs to be runtime resumed in an earlier phase to make it
+> operational.
 
-As far as I can see, the current code already has these timeouts,
-although maybe it wasn't the case when you first wrote this patch? This
-was added by b3b8df9772 in November 2014.
+Hm uncertain what you mean here, but happy to test.
+The macro SET_NOIRQ_SYSTEM_SLEEP_PM_OPS makes
+you think the hooks should be paired up and has this nice
+symmetry, do you mean I should not do this but keep
+the resume hook where SET_LATE_SYSTEM_SLEEP_PM_OPS()
+puts it?
 
--- 
-Jean Delvare
-SUSE L3 Support
+> This is indeed a generic problem, as we don't have a way to describe
+> these kind of dependences between devices. In other words, we need to
+> control the order of how devices becomes suspended/resumed. If that
+> could be done, we could likely avoid runtime resuming devices
+> unnecessarily.
+
+Correct, keep me in the loop and I can test some patches.
+
+Yours,
+Linus Walleij
