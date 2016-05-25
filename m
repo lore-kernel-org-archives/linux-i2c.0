@@ -1,92 +1,87 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH] i2c: nomadik: move runtime suspend of hw to _noirq
-Date: Wed, 25 May 2016 12:09:20 +0200
-Message-ID: <CAPDyKFpvwQkqS9TRCj+JCOro-fdbkPKrXr6V7eEeSJLMah61Ng@mail.gmail.com>
-References: <1464008356-21162-1-git-send-email-linus.walleij@linaro.org>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/5] i2c-i801: hwpec and check_pre cleanups
+Date: Wed, 25 May 2016 13:04:45 +0200
+Message-ID: <20160525130445.60dc8f26@endymion>
+References: <1453223377-20608-1-git-send-email-minyard@acm.org>
+	<1453223377-20608-2-git-send-email-minyard@acm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:36380 "EHLO
-	mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750745AbcEYKJW (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 25 May 2016 06:09:22 -0400
-Received: by mail-wm0-f51.google.com with SMTP id n129so173126074wmn.1
-        for <linux-i2c@vger.kernel.org>; Wed, 25 May 2016 03:09:21 -0700 (PDT)
-In-Reply-To: <1464008356-21162-1-git-send-email-linus.walleij@linaro.org>
+Received: from mx2.suse.de ([195.135.220.15]:53695 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753939AbcEYLEt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 25 May 2016 07:04:49 -0400
+In-Reply-To: <1453223377-20608-2-git-send-email-minyard@acm.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Kevin Hilman <khilman@kernel.org>
+To: minyard@acm.org
+Cc: linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 
-+ linux-pm, Rafael, Kevin
+Sorry, I accidentally sent the previous reply while I wasn't done with
+the review yet.
 
-On 23 May 2016 at 14:59, Linus Walleij <linus.walleij@linaro.org> wrote:
-> The runtime suspend of the hardware (declocking and pin control
-> resting) needs to happen in the *_noirq callbacks after all
-> hardware interrupts are disabled and we know there will be no
-> more I2C traffic in the system.
+On Tue, 19 Jan 2016 11:09:33 -0600, minyard@acm.org wrote:
+> @@ -691,13 +682,15 @@ static int i801_block_transaction(struct i801_priv *priv,
+>  	   doesn't mention this limitation. */
+>  	if ((priv->features & FEATURE_BLOCK_BUFFER)
+>  	 && command != I2C_SMBUS_I2C_BLOCK_DATA
+> -	 && i801_set_block_buffer_mode(priv) == 0)
+> +	 && i801_set_block_buffer_mode(priv) == 0) {
+> +		if (hwpec)
+> +			priv->xact_extra |= SMBHSTCNT_PEC_EN;
+>  		result = i801_block_transaction_by_block(priv, data,
+> -							 read_write, hwpec);
+> -	else
+> +							 read_write);
+> +	} else
+>  		result = i801_block_transaction_byte_by_byte(priv, data,
+>  							     read_write,
+> -							     command, hwpec);
+> +							     command);
+>  
+> (...)
+> @@ -776,11 +770,17 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+>  		return -EOPNOTSUPP;
+>  	}
+>  
+> -	if (hwpec)	/* enable/disable hardware PEC */
+> +	result = i801_check_pre(priv);
+> +	if (result < 0)
+> +		return result;
+> +
+> +	if (hwpec) {	/* enable/disable hardware PEC */
+>  		outb_p(inb_p(SMBAUXCTL(priv)) | SMBAUXCTL_CRC, SMBAUXCTL(priv));
+> -	else
+> +	} else {
+>  		outb_p(inb_p(SMBAUXCTL(priv)) & (~SMBAUXCTL_CRC),
+>  		       SMBAUXCTL(priv));
+> +		priv->xact_extra &= ~SMBHSTCNT_PEC_EN;
+> +	}
 
-As you need this change, it means some other device requires the I2C
-device to be runtime resumed, while a *_late callback tries to suspend
-the other device. Right!?
+I'm confused by this asymmetry. You clear the PEC flag here, but you
+set it in i801_block_transaction() above. Originally the flag was set
+in i801_block_transaction_by_block() (and didn't have to be cleared, as
+it was temporary.)
 
-Can you tell which these devices are?
+With your implementation, PEC may or may not be enabled if a driver
+asks for a non-block transaction with PEC. If this is the first
+transaction then it will not be enabled (bug already existed before
+your patch.) But if the previous transaction was a block transaction
+with PEC then the flag will still be present, so PEC will still be
+enabled. The previous implementation was wrong but at least it was
+consistently so.
 
-Moving the suspend operations to the *_noirq callbacks could improve
-the situation, but unfortunate it's comes with a limitation.
-That's because runtime PM has been disabled (by genpd or the PM core)
-before the *_late callbacks is invoked, which means the I2C device
-needs to be runtime resumed in an earlier phase to make it
-operational.
+This makes me believe we should rather fix the bugs first, and then
+look into cleaning up this part of the code.
 
-This is indeed a generic problem, as we don't have a way to describe
-these kind of dependences between devices. In other words, we need to
-control the order of how devices becomes suspended/resumed. If that
-could be done, we could likely avoid runtime resuming devices
-unnecessarily.
+If you start storing transaction-dependent information in struct
+i801_priv, you must make sure that nothing will leak from one
+transaction to the next. I still have to review the rest of your patch
+series, but I don't think it makes sense to carry the PEC flag that way
+if the rest of the transaction information is still passed as function
+parameters.
 
-Kind regards
-Uffe
-
->
-> Cc: Ulf Hansson <ulf.hansson@linaro.org>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
->  drivers/i2c/busses/i2c-nomadik.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-> index bcd17e8cbcb4..c96a3e331bed 100644
-> --- a/drivers/i2c/busses/i2c-nomadik.c
-> +++ b/drivers/i2c/busses/i2c-nomadik.c
-> @@ -877,7 +877,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
->  }
->
->  #ifdef CONFIG_PM_SLEEP
-> -static int nmk_i2c_suspend_late(struct device *dev)
-> +static int nmk_i2c_suspend_noirq(struct device *dev)
->  {
->         int ret;
->
-> @@ -889,7 +889,7 @@ static int nmk_i2c_suspend_late(struct device *dev)
->         return 0;
->  }
->
-> -static int nmk_i2c_resume_early(struct device *dev)
-> +static int nmk_i2c_resume_noirq(struct device *dev)
->  {
->         return pm_runtime_force_resume(dev);
->  }
-> @@ -931,7 +931,8 @@ static int nmk_i2c_runtime_resume(struct device *dev)
->  #endif
->
->  static const struct dev_pm_ops nmk_i2c_pm = {
-> -       SET_LATE_SYSTEM_SLEEP_PM_OPS(nmk_i2c_suspend_late, nmk_i2c_resume_early)
-> +       SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(nmk_i2c_suspend_noirq,
-> +                                     nmk_i2c_resume_noirq)
->         SET_RUNTIME_PM_OPS(nmk_i2c_runtime_suspend,
->                         nmk_i2c_runtime_resume,
->                         NULL)
-> --
-> 2.4.11
->
+-- 
+Jean Delvare
+SUSE L3 Support
