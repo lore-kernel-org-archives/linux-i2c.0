@@ -1,232 +1,173 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 1/5] i2c-i801: hwpec and check_pre cleanups
-Date: Wed, 25 May 2016 11:30:49 +0200
-Message-ID: <20160525113049.69dc7c30@endymion>
-References: <1453223377-20608-1-git-send-email-minyard@acm.org>
- <1453223377-20608-2-git-send-email-minyard@acm.org>
+From: rajeev kumar <rajeevkumar.linux@gmail.com>
+Subject: Re: [PATCH v3 2/2] i2c: qup: support SMBus block read
+Date: Wed, 25 May 2016 15:01:29 +0530
+Message-ID: <CAA7nrtgAh6EDJO_qTgMawE=tpZe6F_Ae1G0OhuUME0QF4W5AJA@mail.gmail.com>
+References: <1463694268-9473-1-git-send-email-austinwc@codeaurora.org>
+	<1463694268-9473-2-git-send-email-austinwc@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43191 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752651AbcEYJaw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 25 May 2016 05:30:52 -0400
-In-Reply-To: <1453223377-20608-2-git-send-email-minyard@acm.org>
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:33611 "EHLO
+	mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752942AbcEYJbc (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 25 May 2016 05:31:32 -0400
+In-Reply-To: <1463694268-9473-2-git-send-email-austinwc@codeaurora.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: minyard@acm.org
-Cc: linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
+To: Austin Christ <austinwc@codeaurora.org>
+Cc: nkaje@codeaurora.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-Hi Corey,
-
-On Tue, 19 Jan 2016 11:09:33 -0600, minyard@acm.org wrote:
-> From: Corey Minyard <cminyard@mvista.com>
-> 
-> Add an "xact_extra" variable and use it to carry the PEC enable and
-> interrupt flags .
-
-Which is a good thing, because...? This needs a justification. At this
-point I just see an implementation change, with no reason to prefer one
-implementation to the other. In such cases I prefer to leave things as
-they are, to avoid introducing bugs.
-
-Stray space in description above.
-
-Is it just me or PEC handling is quite broken in this driver,
-regardless of your patch? If I read the code correctly:
-* hwpec isn't used for non-block transactions.
-* i801_block_transaction_byte_by_byte() takes hwpec as a parameter but
-  never uses it.
-Which basically means that PEC is only really implemented for one-shot
-block transactions, right?
-
-> Also move i801_check_pre() to i801_access()  That consolidates it to
-> one call, and there's no point in doing all the work if the hardware
-> isn't ready.
-
-Why do both changes in a single patch? They don't seem to be related.
-These changes would be easier to review and integrate as separate
-patches.
-
-> 
-> Signed-off-by: Corey Minyard <cminyard@mvista.com>
+On Fri, May 20, 2016 at 3:14 AM, Austin Christ <austinwc@codeaurora.org> wrote:
+> From: Naveen Kaje <nkaje@codeaurora.org>
+>
+> I2C QUP driver relies on SMBus emulation support from the framework.
+> To handle SMBus block reads, the driver should check I2C_M_RECV_LEN
+> flag and should read the first byte received as the message length.
+>
+> The driver configures the QUP hardware to read one byte. Once the
+> message length is known from this byte, the QUP hardware is configured
+> to read the rest.
+>
+> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+> Signed-off-by: Austin Christ <austinwc@codeaurora.org>
 > ---
->  drivers/i2c/busses/i2c-i801.c | 51 ++++++++++++++++++++++---------------------
->  1 file changed, 26 insertions(+), 25 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index f62d697..62cf1e5 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -230,6 +230,7 @@ struct i801_priv {
->  	/* isr processing */
->  	wait_queue_head_t waitq;
->  	u8 status;
-> +	u8 xact_extra; /* Used to set INTREN if irqs enabled, and HWPEC */
->  
->  	/* Command state used by isr for byte-by-byte block transactions */
->  	u8 cmd;
-> @@ -401,13 +402,13 @@ static int i801_transaction(struct i801_priv *priv, int xact)
->  	int result;
->  	const struct i2c_adapter *adap = &priv->adapter;
->  
-> -	result = i801_check_pre(priv);
-> -	if (result < 0)
-> -		return result;
-> +	/*
-> +	 * the current contents of SMBHSTCNT can be overwritten, since PEC,
-> +	 * SMBSCMD are passed in xact
-
-This is no longer true, PEC is in priv->xact_extra after your changes,
-not xact.
-
-> +	 */
-> +	outb_p(xact | priv->xact_extra | SMBHSTCNT_START,  SMBHSTCNT(priv));
->  
->  	if (priv->features & FEATURE_IRQ) {
-> -		outb_p(xact | SMBHSTCNT_INTREN | SMBHSTCNT_START,
-> -		       SMBHSTCNT(priv));
->  		result = wait_event_timeout(priv->waitq,
->  					    (status = priv->status),
->  					    adap->timeout);
-> @@ -420,17 +421,13 @@ static int i801_transaction(struct i801_priv *priv, int xact)
->  		return i801_check_post(priv, status);
->  	}
->  
-> -	/* the current contents of SMBHSTCNT can be overwritten, since PEC,
-> -	 * SMBSCMD are passed in xact */
-> -	outb_p(xact | SMBHSTCNT_START, SMBHSTCNT(priv));
-> -
->  	status = i801_wait_intr(priv);
->  	return i801_check_post(priv, status);
+>  drivers/i2c/busses/i2c-qup.c | 68 ++++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 65 insertions(+), 3 deletions(-)
+>
+> Changes:
+> - v3:
+>  - clean up redundant checks
+>  - use constant instead of variable for smbus length field
+> - v2:
+>  - rework the smbus block read and break into separate function
+>
+> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+> index ea6ca5f..9fbed83 100644
+> --- a/drivers/i2c/busses/i2c-qup.c
+> +++ b/drivers/i2c/busses/i2c-qup.c
+> @@ -517,6 +517,33 @@ static int qup_i2c_get_data_len(struct qup_i2c_dev *qup)
+>         return data_len;
 >  }
->  
->  static int i801_block_transaction_by_block(struct i801_priv *priv,
->  					   union i2c_smbus_data *data,
-> -					   char read_write, int hwpec)
-> +					   char read_write)
->  {
->  	int i, len;
->  	int status;
-> @@ -445,8 +442,7 @@ static int i801_block_transaction_by_block(struct i801_priv *priv,
->  			outb_p(data->block[i+1], SMBBLKDAT(priv));
->  	}
->  
-> -	status = i801_transaction(priv, I801_BLOCK_DATA |
-> -				  (hwpec ? SMBHSTCNT_PEC_EN : 0));
-> +	status = i801_transaction(priv, I801_BLOCK_DATA);
->  	if (status)
->  		return status;
->  
-> @@ -553,8 +549,7 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
->   */
->  static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
->  					       union i2c_smbus_data *data,
-> -					       char read_write, int command,
-> -					       int hwpec)
-> +					       char read_write, int command)
->  {
->  	int i, len;
->  	int smbcmd;
-> @@ -562,10 +557,6 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
->  	int result;
->  	const struct i2c_adapter *adap = &priv->adapter;
->  
-> -	result = i801_check_pre(priv);
-> -	if (result < 0)
-> -		return result;
-> -
->  	len = data->block[0];
->  
->  	if (read_write == I2C_SMBUS_WRITE) {
-> @@ -583,7 +574,7 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
->  		priv->is_read = (read_write == I2C_SMBUS_READ);
->  		if (len == 1 && priv->is_read)
->  			smbcmd |= SMBHSTCNT_LAST_BYTE;
-> -		priv->cmd = smbcmd | SMBHSTCNT_INTREN;
-> +		priv->cmd = smbcmd | priv->xact_extra;
->  		priv->len = len;
->  		priv->count = 0;
->  		priv->data = &data->block[1];
-> @@ -691,13 +682,15 @@ static int i801_block_transaction(struct i801_priv *priv,
->  	   doesn't mention this limitation. */
->  	if ((priv->features & FEATURE_BLOCK_BUFFER)
->  	 && command != I2C_SMBUS_I2C_BLOCK_DATA
-> -	 && i801_set_block_buffer_mode(priv) == 0)
-> +	 && i801_set_block_buffer_mode(priv) == 0) {
-> +		if (hwpec)
-> +			priv->xact_extra |= SMBHSTCNT_PEC_EN;
->  		result = i801_block_transaction_by_block(priv, data,
-> -							 read_write, hwpec);
-> -	else
-> +							 read_write);
-> +	} else
->  		result = i801_block_transaction_byte_by_byte(priv, data,
->  							     read_write,
-> -							     command, hwpec);
-> +							     command);
->  
->  	if (command == I2C_SMBUS_I2C_BLOCK_DATA
->  	 && read_write == I2C_SMBUS_WRITE) {
-> @@ -716,6 +709,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
->  	int block = 0;
->  	int ret, xact = 0;
->  	struct i801_priv *priv = i2c_get_adapdata(adap);
-> +	int result;
-
-You already have ret here which serves the same purpose, no need to
-introduce another variable.
-
->  
->  	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
->  		&& size != I2C_SMBUS_QUICK
-> @@ -776,11 +770,17 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
->  		return -EOPNOTSUPP;
->  	}
->  
-> -	if (hwpec)	/* enable/disable hardware PEC */
-> +	result = i801_check_pre(priv);
-> +	if (result < 0)
-> +		return result;
-
-At first I was worried that this move is breaking the symmetry with
-i2c_check_post(), but now I see you do the same cleanup for
-i2c_check_post() later in the series. Good.
-
-So I have no objection to moving the call to i801_check_pre() earlier,
-in the common path. But shouldn't it be even earlier? As you said,
-there's no point in doing all the work if the controller is not ready.
-Shouldn't i801_check_pre() be called first thing in i801_access()?
-
+>
+> +static bool qup_i2c_check_msg_len(struct i2c_msg *msg)
+> +{
+> +       return ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN));
+> +}
 > +
-> +	if (hwpec) {	/* enable/disable hardware PEC */
->  		outb_p(inb_p(SMBAUXCTL(priv)) | SMBAUXCTL_CRC, SMBAUXCTL(priv));
-> -	else
-> +	} else {
->  		outb_p(inb_p(SMBAUXCTL(priv)) & (~SMBAUXCTL_CRC),
->  		       SMBAUXCTL(priv));
-> +		priv->xact_extra &= ~SMBHSTCNT_PEC_EN;
-> +	}
->  
->  	if (block)
->  		ret = i801_block_transaction(priv, data, read_write, size,
-> @@ -1381,6 +1381,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  	}
->  
->  	if (priv->features & FEATURE_IRQ) {
-> +		priv->xact_extra |= SMBHSTCNT_INTREN;
+> +static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
+> +                       struct i2c_msg *msg)
+> +{
+> +       int len = 0;
+> +
+> +       if (msg->len > 1) {
+> +               tags[len++] = QUP_TAG_V2_DATARD_STOP;
+> +               tags[len++] = qup_i2c_get_data_len(qup) - 1;
+> +       } else {
+> +               tags[len++] = QUP_TAG_V2_START;
+> +               tags[len++] = addr & 0xff;
+> +
+> +               if (msg->flags & I2C_M_TEN)
+> +                       tags[len++] = addr >> 8;
+> +
+> +               tags[len++] = QUP_TAG_V2_DATARD;
+> +               /* Read 1 byte indicating the length of the SMBus message */
+> +               tags[len++] = 1;
+> +       }
+> +       return len;
+> +}
+> +
+>  static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+>                             struct i2c_msg *msg,  int is_dma)
+>  {
+> @@ -526,6 +553,10 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+>
+>         int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
+>
+> +       /* Handle tags for SMBus block read */
+> +       if (qup_i2c_check_msg_len(msg))
+> +               return qup_i2c_set_tags_smb(addr, tags, qup, msg);
+> +
+>         if (qup->blk.pos == 0) {
+>                 tags[len++] = QUP_TAG_V2_START;
+>                 tags[len++] = addr & 0xff;
+> @@ -1065,9 +1096,17 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
+>                                 struct i2c_msg *msg)
+>  {
+>         u32 val;
+> -       int idx, pos = 0, ret = 0, total;
+> +       int idx, pos = 0, ret = 0, total, msg_offset = 0;
+>
+> +       /*
+> +        * If the message length is already read in
+> +        * the first byte of the buffer, account for
+> +        * that by setting the offset
+> +        */
+> +       if (qup_i2c_check_msg_len(msg) && (msg->len > 1))
+> +               msg_offset = 1;
+>         total = qup_i2c_get_data_len(qup);
+> +       total -= msg_offset;
+>
+>         /* 2 extra bytes for read tags */
+>         while (pos < (total + 2)) {
+> @@ -1087,8 +1126,8 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
+>
+>                         if (pos >= (total + 2))
+>                                 goto out;
+> -
+> -                       msg->buf[qup->pos++] = val & 0xff;
+> +                       msg->buf[qup->pos + msg_offset] = val & 0xff;
+> +                       qup->pos++;
+>                 }
+>         }
+>
+> @@ -1128,6 +1167,24 @@ static int qup_i2c_read_one_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>                         goto err;
+>
+>                 qup->blk.pos++;
+> +
+> +               /* Handle SMBus block read length */
+> +               if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
+> +                       if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
+> +                               ret = -EPROTO;
+> +                               goto err;
+> +                       }
+> +                       msg->len += msg->buf[0];
+> +                       qup->pos = 0;
+> +                       qup_i2c_set_read_mode_v2(qup, msg->len);
+> +                       ret = qup_i2c_issue_xfer_v2(qup, msg);
+> +                       if (ret)
+> +                               goto err;
+> +                       ret = qup_i2c_wait_for_complete(qup, msg);
+> +                       if (ret)
+> +                               goto err;
+> +                       qup_i2c_set_blk_data(qup, msg);
+> +               }
+>         } while (qup->blk.pos < qup->blk.count);
+>
+>  err:
+> @@ -1210,6 +1267,11 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
+>                         goto out;
+>                 }
+>
+> +               if (qup_i2c_check_msg_len(&msgs[idx])) {
+> +                       ret = -EOPNOTSUPP;
 
-A few lines below, we may disable FEATURE_IRQ if we failed to allocate
-the irq. If this happens, your change leaves the driver in an
-inconsistent state where priv->xact_extra contains SMBHSTCNT_INTREN but
-interrupts should not be used.
+Could you please rethink on this return value ? It should not be "EOPNOTSUPP"
 
->  		init_waitqueue_head(&priv->waitq);
->  
->  		err = devm_request_irq(&dev->dev, dev->irq, i801_isr,
+~Rajeev
 
-
--- 
-Jean Delvare
-SUSE L3 Support
+> +                       goto out;
+> +               }
+> +
+>                 if (msgs[idx].flags & I2C_M_RD)
+>                         ret = qup_i2c_read_one(qup, &msgs[idx]);
+>                 else
+> --
+> Qualcomm Innovation Center, Inc.
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> a Linux Foundation Collaborative Project.
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
