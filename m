@@ -1,69 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V3 1/2] i2c: qup: Fix broken dma when CONFIG_DEBUG_SG is
- enabled
-Date: Thu, 26 May 2016 20:48:05 +0200
-Message-ID: <20160526184805.GC1614@katana>
-References: <1464164212-11377-1-git-send-email-sricharan@codeaurora.org>
- <1464164212-11377-2-git-send-email-sricharan@codeaurora.org>
+Subject: Re: [PATCH] misc: at24: Fix typo in at24 header file
+Date: Thu, 26 May 2016 20:53:02 +0200
+Message-ID: <20160526185302.GD1614@katana>
+References: <1464029079-29334-1-git-send-email-moritz.fischer@ettus.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s9fJI615cBHmzTOP"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="MAH+hnPXVZWQ5cD/"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43768 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752175AbcEZSxH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 26 May 2016 14:53:07 -0400
 Content-Disposition: inline
-In-Reply-To: <1464164212-11377-2-git-send-email-sricharan@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sricharan R <sricharan@codeaurora.org>
-Cc: linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, linux-arm-kernel@lists.infradead.org, nkaje@codeaurora.org, absahu@codeaurora.org
+In-Reply-To: <1464029079-29334-1-git-send-email-moritz.fischer@ettus.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Moritz Fischer <moritz.fischer@ettus.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, moritz.fischer.private@gmail.com
 
 
---s9fJI615cBHmzTOP
+--MAH+hnPXVZWQ5cD/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On Mon, May 23, 2016 at 11:44:39AM -0700, Moritz Fischer wrote:
+> This commit fixes a simple typo s/mvmem/nvmem in the
+> example.
+>=20
+> Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
 
-> sg_set_buf expects that the buf parameter passed in should be from
-> lowmem and a valid pageframe. This is not true for pages from
-> dma_alloc_coherent which can be carveouts, hence the check fails.
-
-OK, given you mean dma_pool_alloc here, the check fails for the
-pageframe because of the pool? Is my understanding correct?
-
-> Change allocation of sg buffers from dma_coherent memory to kzalloc
-> to fix the issue.
-
-But why can you drop the coherency?
-
-> @@ -1268,6 +1260,8 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
->  		}
->  	}
-> =20
-> +	idx =3D 0;
-> +
-
-This looks like an unrelated change.
+Applied to for-next, thanks!
 
 
---s9fJI615cBHmzTOP
+--MAH+hnPXVZWQ5cD/
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXR0TlAAoJEBQN5MwUoCm2Y0gP/0DIq9NN9jaHeFQUPvwB7BQ7
-0vtJCAW6QHnOIGuGG70bI65/iFMsPirMhPLSMWLwfUqCO/WdWfQMF6a7akX4F0qc
-q0EMVeaHpJrVhkXLcGVqjWOIEdleDV6V/PBLpihX1UECKzA5IwW4UCADCNRLKa31
-GLQhTlGxIGNThwC65hCncT1+DerfHyIpOjznO0pXTY9oLFJWKGQXjSSMZgzalVqP
-8PfAvuRJ1LwgRro5Gu281kFh2YnYkst+OBZppeIj5GcxP3zLCgTdxSIYMzrjwPcb
-ZOA1Pg3RpTPxDqeaTcR3t+aj+QFf7DwurCDd60bm83O3IwaqAIq1j1AUuFghv61H
-T603res/KNsY1VFD7iIbD7MrvY6/OUuKPDmOSauwrMXwDAf37nwP1TMEtEsG+ewL
-O/tVABaelZJJemBAsW25RDtdMvk93N0SqCzxcdg4KnA4+EG1l5BbCPuIxrK0o2ZO
-7sOjDRRiBQwAS569FbBJqzBnR6QlSFrGPLGioS5ftXYELMUt9VcBqVKvrmkxc18n
-423BHIRGB1wvyzYFT8PhsJZQ3/anKV8l877hSxU3Vhe0gTxBBHyExlzlPh6aOIx+
-+FV/kgRVG5uK8MGB6vj5nhWhpNV+KcEVxDyx5iNSFKQRaxSmD0p6Thb2q8Y+jLcS
-8kUuiRMyEaqACqyJBCYg
-=anYk
+iQIcBAEBAgAGBQJXR0YOAAoJEBQN5MwUoCm20BYP/2nClc+vTUOpZLdOy1q1soTg
+0Z6nyCsSi1dF978yIYPERT9kVfwtaIXvKNcDEzlNDbwdEBQ81uyuROdMo9/mUk34
+9CO2JaRB1XC1rWXK9s8wqJVF0Pd2SzNSJiwu01y0uIigMCpNTdibqcU+dOrlZQK9
+kRtn+2fH6i7YVaBNxZ+x6GnatY+0f45IgHCSOVetnkSwKKuH+03Hi3GSIkUKK4Bi
+N1GFlxvSbOEXAp3zJtk3rtj/FJq/uW8uBL2cHg8AaAjlnm9COYSWcelySCGV0udP
+YUywSgFRzbGHVwNvbnsBA/qHc9+3RdbJDmJUIL6RhLgvFpqZqB1g1jfk65LrauzG
+9RZWo47733NDPyw6A0j7IJ0xw0Fb3FiQ9/IP1Sa5D1ZaUlpBJYgsW7SYErsVZXQO
+f2jUMMtNTuXe5wrfgMqwXlxUjbrcKM73PnRu5IMN7Nnn+hG7OyyWZy9Wge4TICZR
+9gOXYaWMKmWcAhOVllSlIR4iOFh/LkE1SN9PlWaHVLmrk961ja1Zq8mQbzNA5UZm
+qW9FQh7cps67PWdv0nHnTyoXxitWuoK2R+sKAOOA737O4RqHsInG+1vvz1PjuGs7
+Njcg36uh422Nh4gjFIcsOCnFDEx5rWSnsXNwj2dxTUslyhXRt5PnL2lgcxRZgQlT
+6aMQ+aEDLuz6dKkhFdzR
+=SzM/
 -----END PGP SIGNATURE-----
 
---s9fJI615cBHmzTOP--
+--MAH+hnPXVZWQ5cD/--
