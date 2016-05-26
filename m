@@ -1,46 +1,78 @@
-From: Yangbo Lu <yangbo.lu@nxp.com>
-Subject: RE: [v10, 7/7] mmc: sdhci-of-esdhc: fix host version for
- T4240-R1.0-R2.0
-Date: Thu, 26 May 2016 04:05:26 +0000
-Message-ID: <HE1PR04MB0889852B7809A1CCFF8922ACF8410@HE1PR04MB0889.eurprd04.prod.outlook.com>
-References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
-	 <4448030.Zs8fVnr3nm@wuerfel>
-	 <HE1PR04MB0889B52134A43C0E7A452B7BF87C0@HE1PR04MB0889.eurprd04.prod.outlook.com>
-	 <5159406.HOFrj7pRfW@wuerfel> <1462937186.16584.77.camel@buserror.net>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 5/5] i2c-i801: Remove redundant code and event-drive
+Date: Thu, 26 May 2016 09:17:33 +0200
+Message-ID: <20160526091733.53821092@endymion>
+References: <1453223377-20608-1-git-send-email-minyard@acm.org>
+	<1453223377-20608-6-git-send-email-minyard@acm.org>
+	<20160525145230.24f1c881@endymion>
+	<5745D9B5.5000704@acm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-am1on0059.outbound.protection.outlook.com ([157.56.112.59]:40496
-	"EHLO emea01-am1-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750696AbcEZEFa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 26 May 2016 00:05:30 -0400
-Content-Language: en-US
+Received: from mx2.suse.de ([195.135.220.15]:39812 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751497AbcEZHRg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 26 May 2016 03:17:36 -0400
+In-Reply-To: <5745D9B5.5000704@acm.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Scott Wood <oss@buserror.net>, Arnd Bergmann <arnd@arndb.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Cc: "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Joerg Roedel <joro@8bytes.org>, Kumar Gala <galak@codeaurora.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Yang-Leo Li <leoyang.li@nxp.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, Rob Herring <robh+dt@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Santosh Shilimkar <ssantosh@kernel.org>, Xiaobo Xie <xiaobo.xie@nxp.com>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, Qiang Zhao <q>
+To: Corey Minyard <minyard@acm.org>
+Cc: linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 
-SGkgVWZmZSwNCg0KQ291bGQgd2UgbWVyZ2UgdGhpcyBwYXRjaHNldD8gLi4uDQpJdCBoYXMgYmVl
-biBhIGxvbmcgdGltZSB0byB3YWl0IGZvciBBcm5kJ3MgcmVzcG9uc2UuLi4NCiANClRoYW5rcyBh
-IGxvdC4NCg0KDQpCZXN0IHJlZ2FyZHMsDQpZYW5nYm8gTHUNCg0KDQo+IC0tLS0tT3JpZ2luYWwg
-TWVzc2FnZS0tLS0tDQo+IEZyb206IFlhbmdibyBMdQ0KPiBTZW50OiBGcmlkYXksIE1heSAyMCwg
-MjAxNiAyOjA2IFBNDQo+IFRvOiAnU2NvdHQgV29vZCc7IEFybmQgQmVyZ21hbm47IGxpbnV4LWFy
-bS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPiBDYzogbGludXhwcGMtZGV2QGxpc3RzLm96
-bGFicy5vcmc7IE1hcmsgUnV0bGFuZDsNCj4gZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IHVs
-Zi5oYW5zc29uQGxpbmFyby5vcmc7IFJ1c3NlbGwgS2luZzsgQmh1cGVzaA0KPiBTaGFybWE7IG5l
-dGRldkB2Z2VyLmtlcm5lbC5vcmc7IEpvZXJnIFJvZWRlbDsgS3VtYXIgR2FsYTsgbGludXgtDQo+
-IG1tY0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IFlhbmct
-TGVvIExpOw0KPiBpb21tdUBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZzsgUm9iIEhlcnJpbmc7
-IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7DQo+IENsYXVkaXUgTWFub2lsOyBTYW50b3NoIFNo
-aWxpbWthcjsgWGlhb2JvIFhpZTsgbGludXgtY2xrQHZnZXIua2VybmVsLm9yZzsNCj4gUWlhbmcg
-Wmhhbw0KPiBTdWJqZWN0OiBSRTogW3YxMCwgNy83XSBtbWM6IHNkaGNpLW9mLWVzZGhjOiBmaXgg
-aG9zdCB2ZXJzaW9uIGZvciBUNDI0MC0NCj4gUjEuMC1SMi4wDQo+IA0KPiBIaSBBcm5kLA0KPiAN
-Cj4gQW55IGNvbW1lbnRzPw0KPiBQbGVhc2UgcmVwbHkgd2hlbiB5b3Ugc2VlIHRoZSBlbWFpbCBz
-aW5jZSB3ZSB3YW50IHRoaXMgZVNESEMgaXNzdWUgdG8gYmUNCj4gZml4ZWQgc29vbi4NCj4gDQo+
-IEFsbCB0aGUgcGF0Y2hlcyBhcmUgRnJlZXNjYWxlLXNwZWNpZmljIGFuZCBpcyB0byBmaXggdGhl
-IGVTREhDIGRyaXZlci4NCj4gQ291bGQgd2UgbGV0IHRoZW0gbWVyZ2VkIGZpcnN0IGlmIHlvdSB3
-ZXJlIHRhbGtpbmcgYWJvdXQgYSBuZXcgd2F5IG9mDQo+IGFic3RyYWN0aW5nIGdldHRpbmcgU29D
-IHZlcnNpb24uDQo+IA0KPiANCj4gVGhhbmtzIDopDQo+IA0KPiANCj4gQmVzdCByZWdhcmRzLA0K
-PiBZYW5nYm8gTHUNCj4gDQoNCg==
+Hi Corey,
+
+On Wed, 25 May 2016 11:58:29 -0500, Corey Minyard wrote:
+> On 05/25/2016 07:52 AM, Jean Delvare wrote:
+> > On Tue, 19 Jan 2016 11:09:37 -0600, minyard@acm.org wrote:
+> >> From: Corey Minyard <cminyard@mvista.com>
+> >>
+> >> There was a lot of redundant code in the driver, basically one copy
+> >> for the polled interface and one for the interrupt-driven interface.
+> >> Only use the interrupt-driven interface and use a timer to check
+> >> the interface periodically and time things out.
+> > This patch is simply too large and messy for me to consider reviewing
+> > it. It needs to be split into smaller pieces. But honestly I don't see
+> > that much redundancy in the driver, and as a matter of fact your patch
+> > adds more lines than it removes.
+> 
+> Umm:
+> 
+>   drivers/i2c/busses/i2c-i801.c | 582 +++++++++++++++++++++---------------------
+>   1 file changed, 284 insertions(+), 298 deletions(-)
+> 
+> It's not a lot of lines, but it is a little smaller.
+
+Oops, my bad, I read the diffstat wrong. My apologies.
+
+> > This is unfortunate because some of the changes would still be good to
+> > have. In particular having a single call to i801_check_post() would be
+> > a nice clean-up.
+> 
+> Yes, looking over this some more, several of the issues have been
+> addressed that these patches originally targeted.
+> 
+> This was originally part of a set of patches that allowed access to
+> I2C devices when the system couldn't schedule, primarily for
+> storing panic information and handling watchdogs at panic and
+> in kgdb.  For that you have to event-drive it so you can poll.
+> I've abandoned those changes, but this small set looked
+> like it has some useful stuff.
+> 
+> Thanks for the review, I'll look at pulling out some of the good things
+
+Thank you, I'll be happy to review and test the new series, hopefully
+faster than I did for this one. Now that the i2c-i801 driver works on
+my system again, it should be much easier.
+
+> (and getting rid of hwpec from i801_block_transaction_byte_by_byte
+> since it's not used there any more).
+
+Did it ever work? And more importantly, does the hardware support it?
+Before cleaning up the code, I'd like to make sure the driver supports
+PEC in all cases where the hardware itself supports it. I'll do some
+tests.
+
+-- 
+Jean Delvare
+SUSE L3 Support
