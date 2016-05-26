@@ -1,67 +1,187 @@
-From: Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH 5/5] i2c-i801: Remove redundant code and event-drive
-Date: Thu, 26 May 2016 07:15:28 -0500
-Message-ID: <5746E8E0.7060301@acm.org>
-References: <1453223377-20608-1-git-send-email-minyard@acm.org>
- <1453223377-20608-6-git-send-email-minyard@acm.org>
- <20160525145230.24f1c881@endymion> <5745D9B5.5000704@acm.org>
- <20160526091733.53821092@endymion>
-Reply-To: minyard@acm.org
+From: "Christ, Austin" <austinwc@codeaurora.org>
+Subject: Re: [PATCH v3 2/2] i2c: qup: support SMBus block read
+Date: Thu, 26 May 2016 09:42:46 -0600
+Message-ID: <a658f005-4a1d-0ce8-1e75-7f4bab9c1abc@codeaurora.org>
+References: <1463694268-9473-1-git-send-email-austinwc@codeaurora.org>
+ <1463694268-9473-2-git-send-email-austinwc@codeaurora.org>
+ <CAA7nrtgAh6EDJO_qTgMawE=tpZe6F_Ae1G0OhuUME0QF4W5AJA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f68.google.com ([209.85.220.68]:34047 "EHLO
-	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753262AbcEZMPc (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 26 May 2016 08:15:32 -0400
-Received: by mail-pa0-f68.google.com with SMTP id yl2so8837521pac.1
-        for <linux-i2c@vger.kernel.org>; Thu, 26 May 2016 05:15:31 -0700 (PDT)
-In-Reply-To: <20160526091733.53821092@endymion>
+Received: from smtp.codeaurora.org ([198.145.29.96]:53741 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754437AbcEZPm4 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 26 May 2016 11:42:56 -0400
+In-Reply-To: <CAA7nrtgAh6EDJO_qTgMawE=tpZe6F_Ae1G0OhuUME0QF4W5AJA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
+To: rajeev kumar <rajeevkumar.linux@gmail.com>
+Cc: nkaje@codeaurora.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-On 05/26/2016 02:17 AM, Jean Delvare wrote:
-> Hi Corey,
->
-snip
->
->>> This is unfortunate because some of the changes would still be good to
->>> have. In particular having a single call to i801_check_post() would be
->>> a nice clean-up.
->> Yes, looking over this some more, several of the issues have been
->> addressed that these patches originally targeted.
+Hello,
+
+
+On 5/25/2016 3:31 AM, rajeev kumar wrote:
+> On Fri, May 20, 2016 at 3:14 AM, Austin Christ <austinwc@codeaurora.org> wrote:
+>> From: Naveen Kaje <nkaje@codeaurora.org>
 >>
->> This was originally part of a set of patches that allowed access to
->> I2C devices when the system couldn't schedule, primarily for
->> storing panic information and handling watchdogs at panic and
->> in kgdb.  For that you have to event-drive it so you can poll.
->> I've abandoned those changes, but this small set looked
->> like it has some useful stuff.
+>> I2C QUP driver relies on SMBus emulation support from the framework.
+>> To handle SMBus block reads, the driver should check I2C_M_RECV_LEN
+>> flag and should read the first byte received as the message length.
 >>
->> Thanks for the review, I'll look at pulling out some of the good things
-> Thank you, I'll be happy to review and test the new series, hopefully
-> faster than I did for this one. Now that the i2c-i801 driver works on
-> my system again, it should be much easier.
-
-Ok, thanks.
-
-BTW, I have a working i801 device on qemu, if that helps you.  I'm
-working to get it into mainline there.  What's in qemu now is only
-marginally functional.
-
->> (and getting rid of hwpec from i801_block_transaction_byte_by_byte
->> since it's not used there any more).
-> Did it ever work? And more importantly, does the hardware support it?
-> Before cleaning up the code, I'd like to make sure the driver supports
-> PEC in all cases where the hardware itself supports it. I'll do some
-> tests.
+>> The driver configures the QUP hardware to read one byte. Once the
+>> message length is known from this byte, the QUP hardware is configured
+>> to read the rest.
+>>
+>> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+>> Signed-off-by: Austin Christ <austinwc@codeaurora.org>
+>> ---
+>>   drivers/i2c/busses/i2c-qup.c | 68 ++++++++++++++++++++++++++++++++++++++++++--
+>>   1 file changed, 65 insertions(+), 3 deletions(-)
+>>
+>> Changes:
+>> - v3:
+>>   - clean up redundant checks
+>>   - use constant instead of variable for smbus length field
+>> - v2:
+>>   - rework the smbus block read and break into separate function
+>>
+>> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+>> index ea6ca5f..9fbed83 100644
+>> --- a/drivers/i2c/busses/i2c-qup.c
+>> +++ b/drivers/i2c/busses/i2c-qup.c
+>> @@ -517,6 +517,33 @@ static int qup_i2c_get_data_len(struct qup_i2c_dev *qup)
+>>          return data_len;
+>>   }
+>>
+>> +static bool qup_i2c_check_msg_len(struct i2c_msg *msg)
+>> +{
+>> +       return ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN));
+>> +}
+>> +
+>> +static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
+>> +                       struct i2c_msg *msg)
+>> +{
+>> +       int len = 0;
+>> +
+>> +       if (msg->len > 1) {
+>> +               tags[len++] = QUP_TAG_V2_DATARD_STOP;
+>> +               tags[len++] = qup_i2c_get_data_len(qup) - 1;
+>> +       } else {
+>> +               tags[len++] = QUP_TAG_V2_START;
+>> +               tags[len++] = addr & 0xff;
+>> +
+>> +               if (msg->flags & I2C_M_TEN)
+>> +                       tags[len++] = addr >> 8;
+>> +
+>> +               tags[len++] = QUP_TAG_V2_DATARD;
+>> +               /* Read 1 byte indicating the length of the SMBus message */
+>> +               tags[len++] = 1;
+>> +       }
+>> +       return len;
+>> +}
+>> +
+>>   static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+>>                              struct i2c_msg *msg,  int is_dma)
+>>   {
+>> @@ -526,6 +553,10 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+>>
+>>          int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
+>>
+>> +       /* Handle tags for SMBus block read */
+>> +       if (qup_i2c_check_msg_len(msg))
+>> +               return qup_i2c_set_tags_smb(addr, tags, qup, msg);
+>> +
+>>          if (qup->blk.pos == 0) {
+>>                  tags[len++] = QUP_TAG_V2_START;
+>>                  tags[len++] = addr & 0xff;
+>> @@ -1065,9 +1096,17 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
+>>                                  struct i2c_msg *msg)
+>>   {
+>>          u32 val;
+>> -       int idx, pos = 0, ret = 0, total;
+>> +       int idx, pos = 0, ret = 0, total, msg_offset = 0;
+>>
+>> +       /*
+>> +        * If the message length is already read in
+>> +        * the first byte of the buffer, account for
+>> +        * that by setting the offset
+>> +        */
+>> +       if (qup_i2c_check_msg_len(msg) && (msg->len > 1))
+>> +               msg_offset = 1;
+>>          total = qup_i2c_get_data_len(qup);
+>> +       total -= msg_offset;
+>>
+>>          /* 2 extra bytes for read tags */
+>>          while (pos < (total + 2)) {
+>> @@ -1087,8 +1126,8 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
+>>
+>>                          if (pos >= (total + 2))
+>>                                  goto out;
+>> -
+>> -                       msg->buf[qup->pos++] = val & 0xff;
+>> +                       msg->buf[qup->pos + msg_offset] = val & 0xff;
+>> +                       qup->pos++;
+>>                  }
+>>          }
+>>
+>> @@ -1128,6 +1167,24 @@ static int qup_i2c_read_one_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>>                          goto err;
+>>
+>>                  qup->blk.pos++;
+>> +
+>> +               /* Handle SMBus block read length */
+>> +               if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
+>> +                       if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
+>> +                               ret = -EPROTO;
+>> +                               goto err;
+>> +                       }
+>> +                       msg->len += msg->buf[0];
+>> +                       qup->pos = 0;
+>> +                       qup_i2c_set_read_mode_v2(qup, msg->len);
+>> +                       ret = qup_i2c_issue_xfer_v2(qup, msg);
+>> +                       if (ret)
+>> +                               goto err;
+>> +                       ret = qup_i2c_wait_for_complete(qup, msg);
+>> +                       if (ret)
+>> +                               goto err;
+>> +                       qup_i2c_set_blk_data(qup, msg);
+>> +               }
+>>          } while (qup->blk.pos < qup->blk.count);
+>>
+>>   err:
+>> @@ -1210,6 +1267,11 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
+>>                          goto out;
+>>                  }
+>>
+>> +               if (qup_i2c_check_msg_len(&msgs[idx])) {
+>> +                       ret = -EOPNOTSUPP;
+> Could you please rethink on this return value ? It should not be "EOPNOTSUPP"
 >
+> ~Rajeev
 
-The docs are kind of unclear.  I didn't find anything that said it
-didn't work, but I got that impression from some place.  I never
-tested it out.
+This will be replaced with "EINVAL" in v4 patches.
+>
+>> +                       goto out;
+>> +               }
+>> +
+>>                  if (msgs[idx].flags & I2C_M_RD)
+>>                          ret = qup_i2c_read_one(qup, &msgs[idx]);
+>>                  else
+>> --
+>> Qualcomm Innovation Center, Inc.
+>> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+>> a Linux Foundation Collaborative Project.
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
--corey
+Thanks,
+Austin
