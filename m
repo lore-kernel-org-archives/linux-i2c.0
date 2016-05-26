@@ -1,161 +1,53 @@
-From: Austin Christ <austinwc@codeaurora.org>
-Subject: [PATCH 2/2][v4] i2c: qup: support SMBus block read
-Date: Thu, 26 May 2016 13:37:57 -0600
-Message-ID: <1464291477-4705-2-git-send-email-austinwc@codeaurora.org>
-References: <1464291477-4705-1-git-send-email-austinwc@codeaurora.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:43708 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754727AbcEZTiS (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 26 May 2016 15:38:18 -0400
-In-Reply-To: <1464291477-4705-1-git-send-email-austinwc@codeaurora.org>
-Sender: linux-i2c-owner@vger.kernel.org
+From: "Sricharan" <sricharan@codeaurora.org>
+Subject: RE: [PATCH V3 1/2] i2c: qup: Fix broken dma when CONFIG_DEBUG_SG is enabled
+Date: Fri, 27 May 2016 03:31:13 +0530
+Message-ID: <002201d1b79a$22862bc0$67928340$@codeaurora.org>
+References: <1464164212-11377-1-git-send-email-sricharan@codeaurora.org> <1464164212-11377-2-git-send-email-sricharan@codeaurora.org> <20160526184805.GC1614@katana>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20160526184805.GC1614@katana>
+Content-Language: en-us
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: 'Wolfram Sang' <wsa@the-dreams.de>
+Cc: linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, nkaje@codeaurora.org, absahu@codeaurora.org, linux-i2c@vger.kernel.org, galak@codeaurora.org, andy.gross@linaro.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org, nkaje@codeaurora.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, linux-arm-kernel@lists.infradead.org, Austin Christ <austinwc@codeaurora.org>
 
-From: Naveen Kaje <nkaje@codeaurora.org>
+Hi,
 
-I2C QUP driver relies on SMBus emulation support from the framework.
-To handle SMBus block reads, the driver should check I2C_M_RECV_LEN
-flag and should read the first byte received as the message length.
+>> sg_set_buf expects that the buf parameter passed in should be from
+>> lowmem and a valid pageframe. This is not true for pages from
+>> dma_alloc_coherent which can be carveouts, hence the check fails.
+>
+>OK, given you mean dma_pool_alloc here, the check fails for the
+>pageframe because of the pool? Is my understanding correct?
+>
+Yes right. Since those are carveouts, there is no valid pageframe,
+ so the check fails.
 
-The driver configures the QUP hardware to read one byte. Once the
-message length is known from this byte, the QUP hardware is configured
-to read the rest.
+>> Change allocation of sg buffers from dma_coherent memory to kzalloc
+>> to fix the issue.
+>
+>But why can you drop the coherency?
+>
+ The coherency is not dropped here. dma_map/unmap used
+ makes the buffer coherent before passing it to
+ dmaengine. Previously it was not required.
+ I can add this in description if its not clear.
 
-Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
-Signed-off-by: Austin Christ <austinwc@codeaurora.org>
----
- drivers/i2c/busses/i2c-qup.c | 68 ++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 65 insertions(+), 3 deletions(-)
+ >> @@ -1268,6 +1260,8 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
+>>  		}
+>>  	}
+>>
+>> +	idx = 0;
+>> +
+>
+>This looks like an unrelated change.
+    Ha, wrong. This should have been in a separate patch. This was to fix a
+    initialization issue in dma mode. Sorry, should not have been here, will
+    move it to out.
 
-Changes:
--v4:
- - correct error code
-- v3:
- - clean up redundant checks
- - use constant instead of variable for smbus length field
-- v2:
- - rework the smbus block read and break into separate function
-
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index ea6ca5f..576320f 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -517,6 +517,33 @@ static int qup_i2c_get_data_len(struct qup_i2c_dev *qup)
- 	return data_len;
- }
- 
-+static bool qup_i2c_check_msg_len(struct i2c_msg *msg)
-+{
-+	return ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN));
-+}
-+
-+static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
-+			struct i2c_msg *msg)
-+{
-+	int len = 0;
-+
-+	if (msg->len > 1) {
-+		tags[len++] = QUP_TAG_V2_DATARD_STOP;
-+		tags[len++] = qup_i2c_get_data_len(qup) - 1;
-+	} else {
-+		tags[len++] = QUP_TAG_V2_START;
-+		tags[len++] = addr & 0xff;
-+
-+		if (msg->flags & I2C_M_TEN)
-+			tags[len++] = addr >> 8;
-+
-+		tags[len++] = QUP_TAG_V2_DATARD;
-+		/* Read 1 byte indicating the length of the SMBus message */
-+		tags[len++] = 1;
-+	}
-+	return len;
-+}
-+
- static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 			    struct i2c_msg *msg,  int is_dma)
- {
-@@ -526,6 +553,10 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 
- 	int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
- 
-+	/* Handle tags for SMBus block read */
-+	if (qup_i2c_check_msg_len(msg))
-+		return qup_i2c_set_tags_smb(addr, tags, qup, msg);
-+
- 	if (qup->blk.pos == 0) {
- 		tags[len++] = QUP_TAG_V2_START;
- 		tags[len++] = addr & 0xff;
-@@ -1065,9 +1096,17 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
- 				struct i2c_msg *msg)
- {
- 	u32 val;
--	int idx, pos = 0, ret = 0, total;
-+	int idx, pos = 0, ret = 0, total, msg_offset = 0;
- 
-+	/*
-+	 * If the message length is already read in
-+	 * the first byte of the buffer, account for
-+	 * that by setting the offset
-+	 */
-+	if (qup_i2c_check_msg_len(msg) && (msg->len > 1))
-+		msg_offset = 1;
- 	total = qup_i2c_get_data_len(qup);
-+	total -= msg_offset;
- 
- 	/* 2 extra bytes for read tags */
- 	while (pos < (total + 2)) {
-@@ -1087,8 +1126,8 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
- 
- 			if (pos >= (total + 2))
- 				goto out;
--
--			msg->buf[qup->pos++] = val & 0xff;
-+			msg->buf[qup->pos + msg_offset] = val & 0xff;
-+			qup->pos++;
- 		}
- 	}
- 
-@@ -1128,6 +1167,24 @@ static int qup_i2c_read_one_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 			goto err;
- 
- 		qup->blk.pos++;
-+
-+		/* Handle SMBus block read length */
-+		if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
-+			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
-+				ret = -EPROTO;
-+				goto err;
-+			}
-+			msg->len += msg->buf[0];
-+			qup->pos = 0;
-+			qup_i2c_set_read_mode_v2(qup, msg->len);
-+			ret = qup_i2c_issue_xfer_v2(qup, msg);
-+			if (ret)
-+				goto err;
-+			ret = qup_i2c_wait_for_complete(qup, msg);
-+			if (ret)
-+				goto err;
-+			qup_i2c_set_blk_data(qup, msg);
-+		}
- 	} while (qup->blk.pos < qup->blk.count);
- 
- err:
-@@ -1210,6 +1267,11 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
- 			goto out;
- 		}
- 
-+		if (qup_i2c_check_msg_len(&msgs[idx])) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+
- 		if (msgs[idx].flags & I2C_M_RD)
- 			ret = qup_i2c_read_one(qup, &msgs[idx]);
- 		else
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project.
+Regards,
+ Sricharan
