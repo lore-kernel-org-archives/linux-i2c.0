@@ -1,64 +1,57 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 5/5] i2c: demux: Use changeset helpers for clarity
-Date: Thu, 26 May 2016 20:58:24 +0200
-Message-ID: <20160526185823.GF1614@katana>
-References: <1463416888-22044-1-git-send-email-pantelis.antoniou@konsulko.com>
- <1463416888-22044-6-git-send-email-pantelis.antoniou@konsulko.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: xlr: rename ARCH_TANGOX to ARCH_TANGO
+Date: Thu, 26 May 2016 21:06:51 +0200
+Message-ID: <20160526190651.GG1614@katana>
+References: <57334DA5.5030102@sigmadesigns.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+jhVVhN62yS6hEJ8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="+sHJum3is6Tsg7/J"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43832 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752179AbcEZTG4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 26 May 2016 15:06:56 -0400
 Content-Disposition: inline
-In-Reply-To: <1463416888-22044-6-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Cc: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+In-Reply-To: <57334DA5.5030102@sigmadesigns.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
+Cc: linux-i2c@vger.kernel.org, Mans Rullgard <mans@mansr.com>, Sebastian Frias <sf84@laposte.net>, Mason <slash.tmp@free.fr>
 
 
---+jhVVhN62yS6hEJ8
+--+sHJum3is6Tsg7/J
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 16, 2016 at 07:41:28PM +0300, Pantelis Antoniou wrote:
-> The changeset helpers are easier to use, use them instead of
-> using the static property.
+On Wed, May 11, 2016 at 05:20:05PM +0200, Marc Gonzalez wrote:
+> The ARCH name was changed during the review process.
+> http://article.gmane.org/gmane.linux.ports.arm.kernel/456331
 >=20
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+> Signed-off-by: Marc Gonzalez <marc_gonzalez@sigmadesigns.com>
 
-If you think this is worthwhile, then it's fine with me :)
-
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-
-> +				adap_np, "status", "okay");
-
-"ok" would be shorter?
+Applied to for-next, thanks! (should be in v4.7-rc1 or rc2 latest)
 
 
---+jhVVhN62yS6hEJ8
+--+sHJum3is6Tsg7/J
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXR0dPAAoJEBQN5MwUoCm2WyoP/3AVJYo8d6qmHzGhGsVq6hYC
-wqumWvZLdL+7EPQLtPpLOYeWLvz23UYqO7tiFs9o+5FRmcFj8cD7E55Cy3lW4zDS
-WDHYkEBzfkXRfxTdKglJFynjIzHo/WKtu+Ai1ZGEfe/7M2ct4Rx1ApdZmjpaTiGK
-6cYZ8KKOT5P9/uOz1DrgsedIvLrgRw0kgUH/PNSxxPGFTEFuIODXRQEUGqQf8V28
-OmVAfutktIDhK/mSdNGfa5pTij5K9ggxYIY6lWoB6wv5XeIDk5gZvOMc3NrAmBQD
-b88lrcR4mIC94Ilr6PlfgzOu7ZxCUPQYJC62mBCmPcOZg4UGzAG8qyh7EhcjTpPW
-S4CpAzY9Jo0p20QsaAwZFncZuJy/pcoUOmaffq447xFzxxeuWWeSyld5eZFsgEGI
-3IRoB0cIfEGhGsoAysp6e8tGYe0EMdFA8iOyZprW2T718VOJGCfri2E6HAaD3M0l
-j5xH4YUESyaPXXBK/95aLMjjRHBY3uSx09dgS1+jL6knn6NAbOSfTD8juDEMEAyC
-X+KRX77h4Aur/cF2o/rc2a7KU9doiEqPg+TooWk4RZPEUTOiJWzfffsgJvP+lfPW
-ed2+MonR08up+EHdrlI0RpOWOzCs7SzkhGLj0SjG9iILpdoba4XBIEbOB9QNz++l
-LbZv1+RJ+d2embhwmIEp
-=l1hH
+iQIcBAEBAgAGBQJXR0lLAAoJEBQN5MwUoCm2/ZQQAI3j2WoQWr8frud9DVLFjJMP
+8vNG5KA5wxyTco8iBhrYdVjByEns+3h8+M60Kcm8XUy8cPtOXMPLBRynND/M3+ka
+XJiRX8qKoKLj0BvPilO1qci0WHgGjp1Z3h/Y6SD4cTYN6XvwNZ9YTgI28WXBka6V
+xsvVH9U4qbgId9TE6iXPvrcBpV9ugWeGv2eZegJxruQtUNeezbvmFH+hyuzW3ZAD
++n2yVqfi2TsYRuzHb1XW0/RYGn0QC/3JIIAVQeW+ojFus1HhqMvIq8+p1Dgc50Fb
+eGkHhAPIWhWjT7/sLmlPHh7uF7KUGvCVLTrokxq1otMUkuLbLwL67CphE+fXlcbq
+vhylVnhepIuXvIuvRmUELgEjnkfQqszX+kmXLG+FUyemMw4s0nn1pueAfFvvddvK
+p8Y5YdVdSRGsiQAea/q3oKCICqdvO5iJJv6eTfQkyb3d7FajglcA6OtBDQS6u2qL
+UW35Uij3p+OxEUp04aTwoYmfmoEpLikh23EQ4qjVGNQCi+m6yZcWW+Q9NtM+c/Mn
+wUBOoDvLrnvs53AZX99MIksis3ZoFYStQ/9NX1Nj2ZLYZxlZ3JmzmxoSCd4Ar09h
+5CtQz+ec5+5lfreYSwsLlsjhqDDWZxkuz1Da6tvkgfJ7yafYR7YSv4qKe9NiOyuW
+tpVQgkqzdkYIdlMDzhly
+=K6oh
 -----END PGP SIGNATURE-----
 
---+jhVVhN62yS6hEJ8--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--+sHJum3is6Tsg7/J--
