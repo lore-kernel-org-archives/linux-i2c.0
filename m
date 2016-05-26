@@ -1,31 +1,45 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c: i801: Drop needless bit-wise OR
-Date: Thu, 26 May 2016 11:36:57 +0300
-Message-ID: <20160526083657.GT1789@lahna.fi.intel.com>
-References: <20160525093702.64d7309c@endymion>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 0/5] i2c: designware: Enable fast mode plus and high
+ speed
+Date: Thu, 26 May 2016 13:59:11 +0300
+Message-ID: <1464260351.27624.7.camel@linux.intel.com>
+References: <1464249672-24566-1-git-send-email-weifeng.voon@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:11363 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750854AbcEZIhD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 26 May 2016 04:37:03 -0400
-Content-Disposition: inline
-In-Reply-To: <20160525093702.64d7309c@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1464249672-24566-1-git-send-email-weifeng.voon@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Weifeng Voon <weifeng.voon@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jui.nee.tan@intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Daniel Kurtz <djkurtz@chromium.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-On Wed, May 25, 2016 at 09:37:02AM +0200, Jean Delvare wrote:
-> The interrupt handling code makes it look like several status values
-> may be merged together before being processed, while this will never
-> happen. Change from bit-wise OR to simple assignment to make it more
-> obvious and avoid misunderstanding.
-> 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Daniel Kurtz <djkurtz@chromium.org>
-> Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+On Thu, 2016-05-26 at 16:01 +0800, Weifeng Voon wrote:
+> Enabled fast mode plus and high speed which supported by APL SoC.
+>=20
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+=46WIW:
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+> Weifeng Voon (5):
+> =C2=A0 i2c: designware: Move clk_freq into struct dw_i2c_dev
+> =C2=A0 i2c: designware: get fast plus and high speed *CNT configurati=
+on
+> =C2=A0 i2c: designware: Enable fast mode plus
+> =C2=A0 i2c: designware: set the common config before the if else
+> =C2=A0 i2c: designware: Enable high speed mode
+>=20
+> =C2=A0drivers/i2c/busses/i2c-designware-core.c=C2=A0=C2=A0=C2=A0=C2=A0=
+| 33
+> +++++++++++++++++++++---
+> =C2=A0drivers/i2c/busses/i2c-designware-core.h=C2=A0=C2=A0=C2=A0=C2=A0=
+| 12 +++++++++
+> =C2=A0drivers/i2c/busses/i2c-designware-platdrv.c | 39 ++++++++++++++=
++++++-
+> ---------
+> =C2=A03 files changed, 68 insertions(+), 16 deletions(-)
+>=20
+
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
