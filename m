@@ -1,56 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: use dma_request_chan()
-Date: Thu, 26 May 2016 20:43:23 +0200
-Message-ID: <20160526184323.GA1614@katana>
-References: <1463646557-22489-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+Subject: Re: [PATCH] i2c: I2C_RCAR should depend on HAS_DMA
+Date: Thu, 26 May 2016 20:44:25 +0200
+Message-ID: <20160526184425.GB1614@katana>
+References: <1463902715-12680-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43732 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753268AbcEZSoa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 26 May 2016 14:44:30 -0400
 Content-Disposition: inline
-In-Reply-To: <1463646557-22489-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, arnd@arndb.de
+In-Reply-To: <1463902715-12680-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=utf-8
+--0eh6TmSyL6TZE2Uz
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 19, 2016 at 10:29:17AM +0200, Niklas S=C3=B6derlund wrote:
-> New drivers should not use dma_request_slave_channel_reason() but
-> dma_request_chan(). The former is a macro to the later so this change do
-> not effect the driver in any way.
+On Sun, May 22, 2016 at 09:38:35AM +0200, Geert Uytterhoeven wrote:
+> If NO_DMA=3Dy:
 >=20
-> Suggested-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Niklas S=C3=B6derlund <niklas.soderlund+renesas@ragnatech.=
-se>
+>     drivers/built-in.o: In function `rcar_i2c_dma_unmap':
+>     i2c-rcar.c:(.text+0x6f06c6): undefined reference to `bad_dma_ops'
+>     drivers/built-in.o: In function `rcar_i2c_dma':
+>     i2c-rcar.c:(.text+0x6f07e2): undefined reference to `bad_dma_ops'
+>     i2c-rcar.c:(.text+0x6f0838): undefined reference to `bad_dma_ops'
+>=20
+> Add a dependency on HAS_DMA to fix this.
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
 Applied to for-next, thanks!
 
 
---fdj2RfSjLxBAspz7
+--0eh6TmSyL6TZE2Uz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXR0PLAAoJEBQN5MwUoCm2tNcP/iyJ8xGMQVDb4cmw8IcKZqoP
-Es5SszAnGh/63ckADcwWBYKncPh3qwPGqg+1ehe+BpID9/3Ta5MzK8TxI4tGfBns
-VD1mjE0mQ0APzWZUgnoNE/ynYeUOSoZtMTLbxY7NBFR/1MnFDwqyJLco1ovWhh17
-eK9OoQ5mK8VW38UPQm1qPn5laUJSOMmv9wc5qvkcll2FPx7/roNtIXVL7rsNqwhJ
-1UmI1SpGmgiTx1U4+f72CwKKnyKoJu6zXRfE/yxOB6gWAdIIMyPnIrzznNz6vbmh
-86xz0fIG66xV5Tr5I3HQlzf9ytt3gMnW1UmBHAiG62t3lhG4K/ZZMrnF0WUb39c+
-Sae8/ddo+LK5dTXbHH/QNMMGQCZ+lpHOjzXPDxZsA3NcqORimuhWsVcD+zD/DrQk
-domvJ0DdKBPv6L2ucPlNIM9PvQmkTgOhM5aclc39fFxDU2icji3Q8ym7OxmkZ3Ne
-u8JrRrmsuiWMVeGhand1jS3i5w3mHdGHh6RX2msEk/N0b8iLZ2sxQlkM08s+6Csj
-j89F0PZGYd+0mbmhldSBteS9LLibF65M4vVAUwLgnyhR0jjDqa+unHFqvo3zBqX1
-+uEBs8kuok+KTctfRTK4jhxPtstRrzkiW/n4gHMYHIBNDg5WIN31teYHbrji167d
-PokmBlumzem7tT3XuYTP
-=0B2j
+iQIcBAEBAgAGBQJXR0QJAAoJEBQN5MwUoCm2aroP/iE6g6Bse9EC93SQs2nivJMY
+fN4yivezRU+Wz3O0Cx/7AadyXBYZAJzEUZyBQKiYYhxgErhYCa9nlbQPe1xC0toJ
+aLR9e9tyWzKeXv2imQ1z1kpVqDo+x7DoJWK8jKB9DpGHjn6vfmZuepSvjpI2JBP7
+M2/X2qvh//Dq2DDtl5abCceA/sPnB1OuNWYhA+vMfF2gBV+3mwu+dJ6guMR18JLd
+bjB3h8mFNMdTDvoqvBlAk2le7KXBloKVxPM68t5LRpImF5HqKdsKlweYHOkwEy01
+iquEsk8WZb/O+18gPFGKDn2ZaE3glRyFLk92RwtqAT4vySUtVFnUko1/R7uTW9Of
+DK0C3U2Ig5J3KwXjeRx8h3WrLfv6kYkpRIcnhjPbXhG52yrqprcjk5NnA/rUrtm0
+pP6K5AokzJZpVwTH2VHQ/oDoGFLv3Jidy5u7oxj89FQDf6MEe64f5RcZoTzH9AYL
+PDIqFkZM1Th93f58M8/J2hHjz7bpC50nmoRyysXIXOvE9DcxUwwDOzXRCnFwvhRV
+zs3ZroG8BSWsjRaRsypst2SaOLB2j3ykLCc/CVh19GcoTCOM+GfxNBwSEfGriOQK
+kRlDHrDJTkBkwb7umErLPme8DNS3SPDuoMuitI0DPAzKbymlcTI8aJF+mByXtpjX
+PEDRY2jqlrrg1u5ub+0K
+=iERY
 -----END PGP SIGNATURE-----
 
---fdj2RfSjLxBAspz7--
+--0eh6TmSyL6TZE2Uz--
