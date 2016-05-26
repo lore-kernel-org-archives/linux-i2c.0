@@ -1,57 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] misc: at24: Fix typo in at24 header file
-Date: Thu, 26 May 2016 20:53:02 +0200
-Message-ID: <20160526185302.GD1614@katana>
-References: <1464029079-29334-1-git-send-email-moritz.fischer@ettus.com>
+Subject: Re: [PATCH v3] i2c: at91: change log when dma configuration fails
+Date: Thu, 26 May 2016 20:57:29 +0200
+Message-ID: <20160526185729.GE1614@katana>
+References: <1463745991-26257-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MAH+hnPXVZWQ5cD/"
+	protocol="application/pgp-signature"; boundary="7LkOrbQMr4cezO2T"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43768 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:43782 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752175AbcEZSxH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 26 May 2016 14:53:07 -0400
+	id S1754758AbcEZS5e (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 26 May 2016 14:57:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1464029079-29334-1-git-send-email-moritz.fischer@ettus.com>
+In-Reply-To: <1463745991-26257-1-git-send-email-ludovic.desroches@atmel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Moritz Fischer <moritz.fischer@ettus.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, moritz.fischer.private@gmail.com
+To: Ludovic Desroches <ludovic.desroches@atmel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, dgilbert@interlog.com, nicolas.ferre@atmel.com
 
 
---MAH+hnPXVZWQ5cD/
+--7LkOrbQMr4cezO2T
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 23, 2016 at 11:44:39AM -0700, Moritz Fischer wrote:
-> This commit fixes a simple typo s/mvmem/nvmem in the
-> example.
+On Fri, May 20, 2016 at 02:06:31PM +0200, Ludovic Desroches wrote:
+> When the DMA configuration fails, there is a log reporting that we can't
+> use DMA and indicating the error number. When booting the kernel, it is
+> annoying to see this error number. Moreover, people can think something
+> is going wrong. It is not the case, it means that DMA can't be used but
+> it doesn't prevent to use i2c.
 >=20
-> Signed-off-by: Moritz Fischer <moritz.fischer@ettus.com>
+> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
 
 Applied to for-next, thanks!
 
 
---MAH+hnPXVZWQ5cD/
+--7LkOrbQMr4cezO2T
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXR0YOAAoJEBQN5MwUoCm20BYP/2nClc+vTUOpZLdOy1q1soTg
-0Z6nyCsSi1dF978yIYPERT9kVfwtaIXvKNcDEzlNDbwdEBQ81uyuROdMo9/mUk34
-9CO2JaRB1XC1rWXK9s8wqJVF0Pd2SzNSJiwu01y0uIigMCpNTdibqcU+dOrlZQK9
-kRtn+2fH6i7YVaBNxZ+x6GnatY+0f45IgHCSOVetnkSwKKuH+03Hi3GSIkUKK4Bi
-N1GFlxvSbOEXAp3zJtk3rtj/FJq/uW8uBL2cHg8AaAjlnm9COYSWcelySCGV0udP
-YUywSgFRzbGHVwNvbnsBA/qHc9+3RdbJDmJUIL6RhLgvFpqZqB1g1jfk65LrauzG
-9RZWo47733NDPyw6A0j7IJ0xw0Fb3FiQ9/IP1Sa5D1ZaUlpBJYgsW7SYErsVZXQO
-f2jUMMtNTuXe5wrfgMqwXlxUjbrcKM73PnRu5IMN7Nnn+hG7OyyWZy9Wge4TICZR
-9gOXYaWMKmWcAhOVllSlIR4iOFh/LkE1SN9PlWaHVLmrk961ja1Zq8mQbzNA5UZm
-qW9FQh7cps67PWdv0nHnTyoXxitWuoK2R+sKAOOA737O4RqHsInG+1vvz1PjuGs7
-Njcg36uh422Nh4gjFIcsOCnFDEx5rWSnsXNwj2dxTUslyhXRt5PnL2lgcxRZgQlT
-6aMQ+aEDLuz6dKkhFdzR
-=SzM/
+iQIcBAEBAgAGBQJXR0cYAAoJEBQN5MwUoCm2lCEQAICF8pS1IclInMjgJ/gkeoh+
+Gy5ByMXhSShEbWvWcjA3nWs7hvYBh/sPeiyH0fNSudZbNNC2e+CYZOei7kr4oXMC
+Q7/EZVhIihGOfzYyYHZnquKxJj48FY+5vEBnWTZQFiv7JIjExez2QD/GX1iNgsm5
+eS06fmmMqkLjLbFMqL4VMsGkBaEW5Z32ZnBT3WsMHuZe3OHC3WUnRbMe4RoLxaYo
+cLB//XyMrNuCXmO5EK/fUxPz6uZx9oLRLjwY4ppIv13aS7QhnubntwiNdGeHoUbg
+OT+FRF9GS4ST3/wXQd1LKSnHJ53/crt2gvPJGF5Ck9JtCruvYpPmy0cWm/VI5+0i
+qEgLMg+4G3pK57gaWHmwtafmHLdQJ8pXfm/b0Xy36cIisC36l952cG8wphVRaJ1/
+v9rQp000F68KdYxAMt3cC5BncwSatXeFyx+UTL6Ep1vMELFEI4lFTjaj2xQ4/k43
+F6RaePVn6rvNk+FqqOt6XfaMA0w90b12GFytdLM7cjQuYIzb/eu9R2ynhOsWp6wK
+tJJc46/GOlmqcU/h+GSPzgXNGk6+ZrWpj6Y8vvi0SVKNRVt6zsmSVKlRzeYp+9Yr
+AUIaybpnDLJROxqrblnEizdhJKVKcKGiPyZ3V1JEoywfkgyFRAk2yhdPfGqeBwkE
+2/NF6m9Ht+L6glVo0rRY
+=q3jV
 -----END PGP SIGNATURE-----
 
---MAH+hnPXVZWQ5cD/--
+--7LkOrbQMr4cezO2T--
