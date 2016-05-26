@@ -1,74 +1,56 @@
-From: Manish Badarkhe <badarkhe.manish@gmail.com>
-Subject: Re: [RFC 1/1] drivers: i2c: omap: Add slave support
-Date: Thu, 26 May 2016 21:37:21 +0530
-Message-ID: <CAKDJKT4Ws3XusYJTkojjeMvwxc2R9BRYpmn6HwGOH_8QF+pe0A@mail.gmail.com>
-References: <20160525141119.14486-1-rk@ti.com>
-	<20160525141119.14486-2-rk@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: rcar: use dma_request_chan()
+Date: Thu, 26 May 2016 20:43:23 +0200
+Message-ID: <20160526184323.GA1614@katana>
+References: <1463646557-22489-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160525141119.14486-2-rk@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ravikumar Kattekola <rk@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>, wsa@the-dreams.de, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1463646557-22489-1-git-send-email-niklas.soderlund+renesas@ragnatech.se>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund+renesas@ragnatech.se>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, arnd@arndb.de
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ravikumar
 
-Some sanity comments, just good to have.
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +#ifdef CONFIG_I2C_SLAVE
-> +static int omap_i2c_slave_irq(struct omap_i2c_dev *omap)
-> +{
-> +       u16 stat_raw;
-> +       u16 stat;
-> +       u16 bits;
-> +       u8 value;
-> +
-> +       stat_raw = omap_i2c_read_reg(omap, OMAP_I2C_IP_V2_IRQSTATUS_RAW);
-> +       bits = omap_i2c_read_reg(omap, OMAP_I2C_IE_REG);
-> +       stat_raw &= bits;
-> +
-> +       if (stat_raw & OMAP_I2C_STAT_AAS) {
-> +               omap_i2c_ack_stat(omap, OMAP_I2C_STAT_AAS);
-> +               stat_raw &= ~OMAP_I2C_STAT_AAS;
-> +       }
-> +
-> +out:
-> +       return 0;
-> +}
-> +#endif
+On Thu, May 19, 2016 at 10:29:17AM +0200, Niklas S=C3=B6derlund wrote:
+> New drivers should not use dma_request_slave_channel_reason() but
+> dma_request_chan(). The former is a macro to the later so this change do
+> not effect the driver in any way.
+>=20
+> Suggested-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Niklas S=C3=B6derlund <niklas.soderlund+renesas@ragnatech.=
+se>
 
-This function always return 0.
-
-> +#ifdef CONFIG_I2C_SLAVE
-> +static int omap_i2c_reg_slave(struct i2c_client *slave)
-> +{
-> +       struct omap_i2c_dev *omap = i2c_get_adapdata(slave->adapter);
-> +       u16 reg;
-> +       int ret = 0;
-> +       /* Enable necessary interrupts */
-> +       omap_i2c_write_reg(omap, OMAP_I2C_IE_REG, omap->iestate);
-> +
-> +       return 0;
-> +
-> +}
-
-Better to return "ret" here as already been initialized to 0
-
-> +
-> +static int omap_i2c_unreg_slave(struct i2c_client *slave)
-> +{
-> +       struct omap_i2c_dev *omap = i2c_get_adapdata(slave->adapter);
-> +       u16 reg;
-> +
-> +       pm_runtime_put(omap->dev);
-> +       return 0;
-> +}
-> +#endif
-
-This function always return 0
+Applied to for-next, thanks!
 
 
-Regards
-Manish Badarkhe
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXR0PLAAoJEBQN5MwUoCm2tNcP/iyJ8xGMQVDb4cmw8IcKZqoP
+Es5SszAnGh/63ckADcwWBYKncPh3qwPGqg+1ehe+BpID9/3Ta5MzK8TxI4tGfBns
+VD1mjE0mQ0APzWZUgnoNE/ynYeUOSoZtMTLbxY7NBFR/1MnFDwqyJLco1ovWhh17
+eK9OoQ5mK8VW38UPQm1qPn5laUJSOMmv9wc5qvkcll2FPx7/roNtIXVL7rsNqwhJ
+1UmI1SpGmgiTx1U4+f72CwKKnyKoJu6zXRfE/yxOB6gWAdIIMyPnIrzznNz6vbmh
+86xz0fIG66xV5Tr5I3HQlzf9ytt3gMnW1UmBHAiG62t3lhG4K/ZZMrnF0WUb39c+
+Sae8/ddo+LK5dTXbHH/QNMMGQCZ+lpHOjzXPDxZsA3NcqORimuhWsVcD+zD/DrQk
+domvJ0DdKBPv6L2ucPlNIM9PvQmkTgOhM5aclc39fFxDU2icji3Q8ym7OxmkZ3Ne
+u8JrRrmsuiWMVeGhand1jS3i5w3mHdGHh6RX2msEk/N0b8iLZ2sxQlkM08s+6Csj
+j89F0PZGYd+0mbmhldSBteS9LLibF65M4vVAUwLgnyhR0jjDqa+unHFqvo3zBqX1
++uEBs8kuok+KTctfRTK4jhxPtstRrzkiW/n4gHMYHIBNDg5WIN31teYHbrji167d
+PokmBlumzem7tT3XuYTP
+=0B2j
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--
