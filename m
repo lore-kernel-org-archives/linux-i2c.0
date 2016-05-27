@@ -1,58 +1,100 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: dev: don't start function name with 'return'
-Date: Fri, 27 May 2016 22:53:52 +0200
-Message-ID: <20160527205351.GA1605@katana>
-References: <1464347891-4236-1-git-send-email-wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.7
+Date: Fri, 27 May 2016 22:59:17 +0200
+Message-ID: <20160527205914.GA1987@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49263 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755818AbcE0UyA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 27 May 2016 16:54:00 -0400
+	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1464347891-4236-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Erico Nunes <erico.nunes@datacom.ind.br>
 
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
+--J/dobhs11T7y2rNN
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 27, 2016 at 01:18:11PM +0200, Wolfram Sang wrote:
-> I stumbled multiple times over 'return_i2c_dev', especially before the
-> actual 'return res'. It makes the code hard to read, so reanme the
-> function to 'put_i2c_dev' which also better matches 'get_free_i2c_dev'.
->=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Linus,
 
-Applied to for-next, thanks!
+here is the second pull request from I2C for this merge window:
+
+* one new feature (which nearly fell through the cracks): i2c-dev does now
+  use the cdev API so it can handle >256 minors. Seems people do need
+  that.
+* two fixes for the just added DMA feature for i2c-rcar
+* some typo fixes
+
+Please pull. Thanks,
+
+   Wolfram
 
 
---uAKRQypu60I7Lcqm
+The following changes since commit ea8ea737c46cffa5d0ee74309f81e55a7e5e9c2a:
+
+  Merge tag 'nfs-for-4.7-1' of git://git.linux-nfs.org/projects/anna/linux-=
+nfs (2016-05-26 10:33:33 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+
+for you to fetch changes up to 72a71f869c95dc11b73f09fe18c593d4a0618c3f:
+
+  i2c: dev: don't start function name with 'return' (2016-05-27 13:13:01 +0=
+200)
+
+----------------------------------------------------------------
+Erico Nunes (1):
+      i2c: dev: switch from register_chrdev to cdev API
+
+Geert Uytterhoeven (1):
+      i2c: rcar: should depend on HAS_DMA
+
+Ludovic Desroches (1):
+      i2c: at91: change log when dma configuration fails
+
+Marc Gonzalez (1):
+      i2c: xlr: rename ARCH_TANGOX to ARCH_TANGO
+
+Moritz Fischer (1):
+      misc: at24: Fix typo in at24 header file
+
+Niklas S=C3=B6derlund (1):
+      i2c: rcar: use dma_request_chan()
+
+Wolfram Sang (1):
+      i2c: dev: don't start function name with 'return'
+
+ drivers/i2c/busses/Kconfig         |  3 ++-
+ drivers/i2c/busses/i2c-at91.c      |  2 +-
+ drivers/i2c/busses/i2c-rcar.c      |  2 +-
+ drivers/i2c/i2c-dev.c              | 25 ++++++++++++++++++-------
+ include/linux/platform_data/at24.h |  2 +-
+ 5 files changed, 23 insertions(+), 11 deletions(-)
+
+--J/dobhs11T7y2rNN
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXSLPfAAoJEBQN5MwUoCm2WgoQAJFM7d1sP+fTkYBtMhHeqK1D
-7VogcEL4WaGKHswFd6nkEfrZujmlMs4FAcQ/meeNIXS36mc5/MuQdQk+TCVHRszG
-3BuBWJWx3cpyV2RBpgMol+IDKe8jWudbsSOLp3Pt15dwjR/AFeHHmzbRuMrqnE7w
-lHlrCIn5KaK0N5YKPZxUNBXlXlBbXxsQ741aTTSWwIyHYWn8n/1MqBcen7VawLPp
-7q2+fb4S2mBHYbmlKCtFwrBaZKKrlPAfsNOcdz6KK6Kb7qURHSRa1LgwgVuzoUMR
-g8zDomZv5Yg/P0crNoDZLric+ccAJzxg3cQX+9EcGXheQSSN80BkQHIT+dRYV9ZY
-3KH5svuVh1GAYGssnhowU5UbzhqUx/VJe4b4Z5JHL5grZQzEp19XCS4IAw2M0nlL
-shI9iLvGGsFRpz6StqaCLBeTwTMbjwmirjLPK8jP7AtzgDbXDUidcpKH7CLbpZHE
-PZCRLn8un460VmxI6YfaADHFCKR2mrUBb/QW0TkpfLvXVZhtjH3UtoDHWOcPTqgz
-9VyZJkNcktl5/bQPlYoCSUFmCcTp7YAE4nNwt9CpXZcbXSIoroyvYxrZDVSrDkBh
-KII0zeK/qeTc3niIx/U+0Oq8kbRG6hhw9t3OiNbCX6s8tmGEsrrwObrYMbYSzked
-3SXpgRx4Hfabmi0dzA8Z
-=1YPm
+iQIcBAEBAgAGBQJXSLUiAAoJEBQN5MwUoCm267oQALSCtPK+RbCCy3SSp8BgYvQk
+qdOwOJYOjMoNZmMfR2nAVde3dRaw1ikDZhSHVlF+rmV8Y/nOzT/nAL2ZhV7xKUTh
+ju1lBotGmPNtpyIHjgrnJ7amytEQt3LLDNluaMmDPdzzPWJcJsXQSytcu+fWE22+
+QwW8UrnYoqgqN2J7+6esFyvHqb2GjpkBpfMTEeOWHXW3Q9N5iyx8pX0u2WFBUDFM
+OS5pu5ApHXwbcPgnPctQ4BOnKWM4m+sE9LaXv1RCOSgf+ZDMLnPvlY0jb+65oW2z
+pd3FQxgdfDjQ7/FyiTZsYTZ73By0bqpauIiJX+vnXIPx3eo80NX0+isMSZe5u2/Q
+7iGPsKOu5Vttbla2AsZpP+pH8skt+YTIk83Mfc+oyIhqKB4ZBTw7g4pdL7nHPXPC
+EBQKwHXzAoJCqHG5KY46cqNt9FRJV8IupZ+ITy9DObH/f34RXQVKkPFhMlcvBTgT
++j480qyuPhAdlfmZnnTgreaaSp/NisGyQ/lo6OGp4AKpPYStLcksgE6syZMbA7Qc
+KNjC1hKbb9jPDMNuzrzjmNHIAirAr/J0cvhoIz1+S76nLhfdwDgDPAtkiFcBAo/n
+TT99ovnC+SgMjQqkIo6mzYgPy/L4JXeGTkkugHxLZK8vwST8yvMGdCOZtleRsaBp
+iHZOXAPDWCqYXRXOa9SV
+=mQ+8
 -----END PGP SIGNATURE-----
 
---uAKRQypu60I7Lcqm--
+--J/dobhs11T7y2rNN--
