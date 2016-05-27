@@ -1,160 +1,58 @@
-From: Shardar Shariff Md <smohammed@nvidia.com>
-Subject: [PATCH v8 3/3] i2c: tegra: proper handling of error cases
-Date: Fri, 27 May 2016 19:07:04 +0530
-Message-ID: <1464356224-10339-3-git-send-email-smohammed@nvidia.com>
-References: <1464356224-10339-1-git-send-email-smohammed@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: dev: don't start function name with 'return'
+Date: Fri, 27 May 2016 22:53:52 +0200
+Message-ID: <20160527205351.GA1605@katana>
+References: <1464347891-4236-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1464356224-10339-1-git-send-email-smohammed@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: ldewangan@nvidia.com, wsa@the-dreams.de, swarren@wwwdotorg.org, thierry.reding@gmail.com, gnurou@gmail.com, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: smohammed@nvidia.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:49263 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755818AbcE0UyA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 27 May 2016 16:54:00 -0400
+Content-Disposition: inline
+In-Reply-To: <1464347891-4236-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Erico Nunes <erico.nunes@datacom.ind.br>
 
-To summarize the issue observed in error cases:
 
-SW Flow: For i2c message transfer, packet header and data payload is
-posted and then required error/packet completion interrupts are enabled
-later.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-HW flow: HW process the packet just after packet header is posted, if
-ARB lost/NACK error occurs (SW will not handle immediately when error
-happens as error interrupts are not enabled at this point). HW assumes
-error is acknowledged and clears current data in FIFO, But SW here posts
-the remaining data payload which still stays in FIFO as stale data
-(data without packet header).
+On Fri, May 27, 2016 at 01:18:11PM +0200, Wolfram Sang wrote:
+> I stumbled multiple times over 'return_i2c_dev', especially before the
+> actual 'return res'. It makes the code hard to read, so reanme the
+> function to 'put_i2c_dev' which also better matches 'get_free_i2c_dev'.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-Now once the interrupts are enabled, SW handles ARB lost/NACK error by
-clearing the ARB lost/NACK interrupt. Now HW assumes that SW attended
-the error and will parse/process stale data (data without packet header)
-present in FIFO which causes invalid NACK errors.
+Applied to for-next, thanks!
 
-Fix: Enable the error interrupts before posting the packet into FIFO
-which make sure HW to not clear the fifo. Also disable the packet mode
-before acknowledging errors (ARB lost/NACK error) to not process any
-stale data. As error interrupts are enabled before posting the packet
-header use spinlock to avoid preempting.
 
-Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
 
----
-Changes in v2:
-- Align the commit message to 72 characters per line.
-- Removing unnecessary paranthesis.
-- Handle error in isr
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Changes in v3:
-- Printing error if tegra_i2c_disable_packet_mode() fails
-  is already present and handling error is not taken cared
-  in ISR which was done in v2 but keeping return error in
-  *wait_for_config_load() as its used in tegra_i2c_init()
----
- drivers/i2c/busses/i2c-tegra.c | 28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+iQIcBAEBAgAGBQJXSLPfAAoJEBQN5MwUoCm2WgoQAJFM7d1sP+fTkYBtMhHeqK1D
+7VogcEL4WaGKHswFd6nkEfrZujmlMs4FAcQ/meeNIXS36mc5/MuQdQk+TCVHRszG
+3BuBWJWx3cpyV2RBpgMol+IDKe8jWudbsSOLp3Pt15dwjR/AFeHHmzbRuMrqnE7w
+lHlrCIn5KaK0N5YKPZxUNBXlXlBbXxsQ741aTTSWwIyHYWn8n/1MqBcen7VawLPp
+7q2+fb4S2mBHYbmlKCtFwrBaZKKrlPAfsNOcdz6KK6Kb7qURHSRa1LgwgVuzoUMR
+g8zDomZv5Yg/P0crNoDZLric+ccAJzxg3cQX+9EcGXheQSSN80BkQHIT+dRYV9ZY
+3KH5svuVh1GAYGssnhowU5UbzhqUx/VJe4b4Z5JHL5grZQzEp19XCS4IAw2M0nlL
+shI9iLvGGsFRpz6StqaCLBeTwTMbjwmirjLPK8jP7AtzgDbXDUidcpKH7CLbpZHE
+PZCRLn8un460VmxI6YfaADHFCKR2mrUBb/QW0TkpfLvXVZhtjH3UtoDHWOcPTqgz
+9VyZJkNcktl5/bQPlYoCSUFmCcTp7YAE4nNwt9CpXZcbXSIoroyvYxrZDVSrDkBh
+KII0zeK/qeTc3niIx/U+0Oq8kbRG6hhw9t3OiNbCX6s8tmGEsrrwObrYMbYSzked
+3SXpgRx4Hfabmi0dzA8Z
+=1YPm
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 4e30f86..3e7d2b7 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -194,6 +194,7 @@ struct tegra_i2c_dev {
- 	u16 clk_divisor_non_hs_mode;
- 	bool is_suspended;
- 	bool is_multimaster_mode;
-+	spinlock_t xfer_lock;
- };
- 
- static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned long reg)
-@@ -515,14 +516,27 @@ err:
- 	return err;
- }
- 
-+static int tegra_i2c_disable_packet_mode(struct tegra_i2c_dev *i2c_dev)
-+{
-+	u32 cnfg;
-+
-+	cnfg = i2c_readl(i2c_dev, I2C_CNFG);
-+	if (cnfg & I2C_CNFG_PACKET_MODE_EN)
-+		i2c_writel(i2c_dev, cnfg & ~I2C_CNFG_PACKET_MODE_EN, I2C_CNFG);
-+
-+	return tegra_i2c_wait_for_config_load(i2c_dev);
-+}
-+
- static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- {
- 	u32 status;
- 	const u32 status_err = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
- 	struct tegra_i2c_dev *i2c_dev = dev_id;
-+	unsigned long flags;
- 
- 	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
- 
-+	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
- 	if (status == 0) {
- 		dev_warn(i2c_dev->dev, "irq status 0 %08x %08x %08x\n",
- 			 i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS),
-@@ -538,6 +552,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	}
- 
- 	if (unlikely(status & status_err)) {
-+		tegra_i2c_disable_packet_mode(i2c_dev);
- 		if (status & I2C_INT_NO_ACK)
- 			i2c_dev->msg_err |= I2C_ERR_NO_ACK;
- 		if (status & I2C_INT_ARBITRATION_LOST)
-@@ -567,7 +582,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 		BUG_ON(i2c_dev->msg_buf_remaining);
- 		complete(&i2c_dev->msg_complete);
- 	}
--	return IRQ_HANDLED;
-+	goto done;
- err:
- 	/* An error occurred, mask all interrupts */
- 	tegra_i2c_mask_irq(i2c_dev, I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST |
-@@ -578,6 +593,8 @@ err:
- 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
- 
- 	complete(&i2c_dev->msg_complete);
-+done:
-+	spin_unlock_irqrestore(&i2c_dev->xfer_lock, flags);
- 	return IRQ_HANDLED;
- }
- 
-@@ -587,6 +604,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	u32 packet_header;
- 	u32 int_mask;
- 	unsigned long time_left;
-+	unsigned long flags;
- 
- 	tegra_i2c_flush_fifos(i2c_dev);
- 
-@@ -599,6 +617,11 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	i2c_dev->msg_read = (msg->flags & I2C_M_RD);
- 	reinit_completion(&i2c_dev->msg_complete);
- 
-+	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
-+
-+	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
-+	tegra_i2c_unmask_irq(i2c_dev, int_mask);
-+
- 	packet_header = (0 << PACKET_HEADER0_HEADER_SIZE_SHIFT) |
- 			PACKET_HEADER0_PROTOCOL_I2C |
- 			(i2c_dev->cont_id << PACKET_HEADER0_CONT_ID_SHIFT) |
-@@ -628,14 +651,15 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	if (!(msg->flags & I2C_M_RD))
- 		tegra_i2c_fill_tx_fifo(i2c_dev);
- 
--	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
- 	if (i2c_dev->hw->has_per_pkt_xfer_complete_irq)
- 		int_mask |= I2C_INT_PACKET_XFER_COMPLETE;
- 	if (msg->flags & I2C_M_RD)
- 		int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
- 	else if (i2c_dev->msg_buf_remaining)
- 		int_mask |= I2C_INT_TX_FIFO_DATA_REQ;
-+
- 	tegra_i2c_unmask_irq(i2c_dev, int_mask);
-+	spin_unlock_irqrestore(&i2c_dev->xfer_lock, flags);
- 	dev_dbg(i2c_dev->dev, "unmasked irq: %02x\n",
- 		i2c_readl(i2c_dev, I2C_INT_MASK));
- 
--- 
-1.8.1.5
+--uAKRQypu60I7Lcqm--
