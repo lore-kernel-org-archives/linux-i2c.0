@@ -1,56 +1,96 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: dev: don't start function name with 'return'
-Date: Fri, 27 May 2016 13:18:11 +0200
-Message-ID: <1464347891-4236-1-git-send-email-wsa@the-dreams.de>
+From: Shardar Shariff Md <smohammed@nvidia.com>
+Subject: [PATCH v8 2/3] i2c: tegra: add separate function for config_load programing
+Date: Fri, 27 May 2016 19:07:03 +0530
+Message-ID: <1464356224-10339-2-git-send-email-smohammed@nvidia.com>
+References: <1464356224-10339-1-git-send-email-smohammed@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47365 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753176AbcE0LSU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 27 May 2016 07:18:20 -0400
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:1829 "EHLO
+	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753109AbcE0NhX (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 27 May 2016 09:37:23 -0400
+In-Reply-To: <1464356224-10339-1-git-send-email-smohammed@nvidia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Erico Nunes <erico.nunes@datacom.ind.br>, Wolfram Sang <wsa@the-dreams.de>
+To: ldewangan@nvidia.com, wsa@the-dreams.de, swarren@wwwdotorg.org, thierry.reding@gmail.com, gnurou@gmail.com, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: smohammed@nvidia.com
 
-I stumbled multiple times over 'return_i2c_dev', especially before the
-actual 'return res'. It makes the code hard to read, so reanme the
-function to 'put_i2c_dev' which also better matches 'get_free_i2c_dev'.
+Define separate function for configuration load register handling
+to make it use by different functions later.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+
 ---
- drivers/i2c/i2c-dev.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Changes in v2:
+- Remove unnecessary paranthesis and align to 80 characters per line
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 2562a45ff152e5..89593dcb79f032 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -91,7 +91,7 @@ static struct i2c_dev *get_free_i2c_dev(struct i2c_adapter *adap)
- 	return i2c_dev;
+Changes in v3:
+- Add separate function for config load handling
+
+Changes in v4:
+- Move timeout calculation to separate patch
+---
+ drivers/i2c/busses/i2c-tegra.c | 40 +++++++++++++++++++++++++---------------
+ 1 file changed, 25 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 7cbeb4e..4e30f86 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -426,6 +426,28 @@ static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
+ 		clk_disable(i2c_dev->fast_clk);
  }
  
--static void return_i2c_dev(struct i2c_dev *i2c_dev)
-+static void put_i2c_dev(struct i2c_dev *i2c_dev)
++static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
++{
++	unsigned long reg_offset;
++	u32 val;
++	int err;
++
++	if (i2c_dev->hw->has_config_load_reg) {
++		reg_offset = tegra_i2c_reg_addr(i2c_dev, I2C_CONFIG_LOAD);
++		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
++		err = readx_poll_timeout(readl, i2c_dev->base + reg_offset,
++					 val, val == 0, 1000,
++					 I2C_CONFIG_LOAD_TIMEOUT);
++		if (err) {
++			dev_warn(i2c_dev->dev,
++				 "timeout waiting for config load\n");
++			return err;
++		}
++	}
++
++	return 0;
++}
++
+ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
  {
- 	spin_lock(&i2c_dev_list_lock);
- 	list_del(&i2c_dev->list);
-@@ -575,7 +575,7 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
- error:
- 	cdev_del(&i2c_dev->cdev);
- error_cdev:
--	return_i2c_dev(i2c_dev);
-+	put_i2c_dev(i2c_dev);
- 	return res;
- }
+ 	u32 val;
+@@ -479,21 +501,9 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 	if (i2c_dev->is_multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
+ 		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
  
-@@ -592,7 +592,7 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
- 	if (!i2c_dev) /* attach_adapter must have failed */
- 		return 0;
+-	if (i2c_dev->hw->has_config_load_reg) {
+-		u32 val;
+-		unsigned long reg_offset;
+-
+-		reg_offset = tegra_i2c_reg_addr(i2c_dev, I2C_CONFIG_LOAD);
+-		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
+-		err = readx_poll_timeout(readl, i2c_dev->base + reg_offset,
+-					 val, val == 0, 1000,
+-					 I2C_CONFIG_LOAD_TIMEOUT);
+-		if (err) {
+-			dev_warn(i2c_dev->dev,
+-				 "timeout waiting for config load\n");
+-			goto err;
+-		}
+-	}
++	err = tegra_i2c_wait_for_config_load(i2c_dev);
++	if (err)
++		goto err;
  
--	return_i2c_dev(i2c_dev);
-+	put_i2c_dev(i2c_dev);
- 	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
- 	cdev_del(&i2c_dev->cdev);
- 
+ 	if (i2c_dev->irq_disabled) {
+ 		i2c_dev->irq_disabled = 0;
 -- 
-2.8.1
+1.8.1.5
