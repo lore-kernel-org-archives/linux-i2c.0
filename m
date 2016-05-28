@@ -1,61 +1,61 @@
-From: Fengguang Wu <fengguang.wu@intel.com>
-Subject: Re: [i2c: dev] d6760b14d4:  BUG: KASAN: slab-out-of-bounds in
- of_device_uevent at addr ffff8800091b4c49
-Date: Sat, 28 May 2016 18:14:08 +0800
-Message-ID: <20160528101408.GA4346@wfg-t540p.sh.intel.com>
-References: <57493af0.akIr4abjopweDkBu%fengguang.wu@intel.com>
- <20160528071234.GA1714@katana>
- <20160528072433.GA1844@wfg-t540p.sh.intel.com>
- <20160528073217.GB1714@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] Revert "i2c: dev: switch from register_chrdev to cdev
+ API"
+Date: Sat, 28 May 2016 18:04:58 +0200
+Message-ID: <20160528160458.GA1614@katana>
+References: <1464426467-1824-1-git-send-email-wsa@the-dreams.de>
+ <20160528091559.GR11011@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:8555 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750922AbcE1KON (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 28 May 2016 06:14:13 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160528073217.GB1714@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20160528091559.GR11011@mwanda>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Erico Nunes <erico.nunes@datacom.ind.br>, kernel-janitors@vger.kernel.org, LKP <lkp@01.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Erico Nunes <erico.nunes@datacom.ind.br>, LKP <lkp@01.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Ye Xiaolong <xiaolong.ye@intel.com>
 
-On Sat, May 28, 2016 at 09:32:17AM +0200, Wolfram Sang wrote:
-> 
-> > There will be simple boot tests quickly after the compile tests.
-> > However boot tests typically need more time to be detected, bisected
-> > and especially manual checked. We are yet to automate more boot error
-> > reports.
-> 
-> Thanks for the heads up. Could there be success mails for boot tests,
-> too?
 
-That may be too noisy to be useful. Boot errors may not be well
-reproducible, may take different forms, and the base trees are
-typically not clean -- even mainline tree has regular errors, for
-example, here are the runtime error ids in kernel v4.6 with kconfig
-x86_64-rhel:
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-boot_successes: 1470
-boot_failures: 154
-BUG:sleeping_function_called_from_invalid_context_at_kernel/irq/manage.c: 102
-WARNING:at_drivers/gpu/drm/i915/intel_display.c:#intel_modeset_init[i915]: 4
-drm:fw_domains_get[i915]]: 57
-drm:__gen6_gt_wait_for_thread_c0[i915]]: 57
-BUG:kernel_test_crashed: 4
-invoked_oom-killer:gfp_mask=0x: 22
-Mem-Info: 22
-Kernel_panic-not_syncing:Out_of_memory_and_no_killable_processes: 18
-invalid_opcode:#[##]SMP: 3
-RIP:ftrace_stub: 16
-Kernel_panic-not_syncing:Fatal_exception: 16
-BUG:unable_to_handle_kernel: 13
-Oops: 13
-Out_of_memory:Kill_process: 4
 
-However if you are still interested, we can try composing auto runtime
-test report emails.
+> These kinds of use after frees don't always cause a runtime problem.  I
+> found it using static analysis, but I bet you could detect it if you
+> enabled kasan.  The other option is to enable PAGE_POISONING?
 
-Thanks,
-Fengguang
+Thanks, PAGE_POISONING did trigger the issue. So, I now picked up your
+patch instead of the revert because I could verify the problem and the
+proper solution. Thanks again.
+
+What I still wonder: Which analysis reported the problem to you? I
+always run sparse, smatch, cppcheck, and coccicheck on the patches when
+applying and no-one reported the issue.
+
+   Wolfram
+
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXScGpAAoJEBQN5MwUoCm2On0P/AkADGBmG/2uWkVvY+fPag4i
+Lc9si0cBxJFN0OucrJ/QAbEPGU7zX8s8jR/pePWCBg976IdJ3mLj2C7T+RQXXEGO
+pSxkJS0EGmjNZC/e6hUOxnng+KZC0HM7vC+o5Qi1JVbS8ClJM8bZEvtvSHVIfGea
+HZG713CdhQfiD6tRyDjS9jx/oAs+0yZ6z/40q9YzvEP6lKdYj1EZQ4srRS9Yqe2C
+SAi3i29q48pS1gBCm+NKTXylXrozCPAbouWF7ydxpgiZ4UlSqEgmnAhABG8dAmkV
+6aRvt4qXL+pKAmSneg+rKA1YEuZS/dZwY/vr6SL/Hclu7nsxd0PdZxDlPOSQWq6i
+ktY62TvGsM9eXpuaCX35xYIjSW5o4Q0a3uj7NxvHLiMBK7Nq37hP6+XHH3wVEDdf
+LJO6fPvrCqGVU8NU4Ru7m4beDLhIt60OAj/2MMPxfe1eQAVWQFezMeXglDuR3g6D
+SxMiwuj+0rayocTP/r23mpRAURuiRDRDuWxFvOHXNPpAzkzuo5ymiM+kSlzuceT6
+B/AF+mu8i+H34ZCYu4LF07gxcOhTc9ykCxvMhSN75KvYZ0RL4ULRSMwicLOkuV0k
+EIBT3jVptNHKhqGtom8tpjcC+mAdCyqcSjnxkfsMv3cLpWWOBdFAvc3DfnFy6670
+DVG5Kdeu3rx192uKdkw3
+=DLQd
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
