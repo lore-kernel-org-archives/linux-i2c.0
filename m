@@ -1,50 +1,60 @@
-From: Fengguang Wu <fengguang.wu@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [i2c: dev] d6760b14d4:  BUG: KASAN: slab-out-of-bounds in
  of_device_uevent at addr ffff8800091b4c49
-Date: Sat, 28 May 2016 15:24:33 +0800
-Message-ID: <20160528072433.GA1844@wfg-t540p.sh.intel.com>
+Date: Sat, 28 May 2016 09:32:17 +0200
+Message-ID: <20160528073217.GB1714@katana>
 References: <57493af0.akIr4abjopweDkBu%fengguang.wu@intel.com>
  <20160528071234.GA1714@katana>
+ <20160528072433.GA1844@wfg-t540p.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:7498 "EHLO mga02.intel.com"
+Received: from sauhun.de ([89.238.76.85]:51971 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750701AbcE1HYj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 28 May 2016 03:24:39 -0400
+	id S1750701AbcE1HcZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 28 May 2016 03:32:25 -0400
 Content-Disposition: inline
-In-Reply-To: <20160528071234.GA1714@katana>
+In-Reply-To: <20160528072433.GA1844@wfg-t540p.sh.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Fengguang Wu <fengguang.wu@intel.com>
 Cc: Erico Nunes <erico.nunes@datacom.ind.br>, LKP <lkp@01.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Ye Xiaolong <xiaolong.ye@intel.com>
 
-On Sat, May 28, 2016 at 09:12:34AM +0200, Wolfram Sang wrote:
-> > 0day kernel testing robot got the below dmesg and the first bad commit is
-> > 
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
-> 
-> So, I got a success message from buildbot "[wsa:i2c/for-next]
-> 72a71f869c95dc11b73f09fe18c593d4a0618c3f BUILD SUCCESS".
-> 
-> I assume now that the above message covers only compile-testing while
 
-That's right. "BUILD SUCCESS" only covers compile testing and static
-checks.
+--hHWLQfXTYDoKhP50
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> linus master tree also gets boot testing? Correct?
 
-All branches will get boot testing. linus/master naturally receives
-much more tests since all branches are eventually based on some Linus
-commit.
+> There will be simple boot tests quickly after the compile tests.
+> However boot tests typically need more time to be detected, bisected
+> and especially manual checked. We are yet to automate more boot error
+> reports.
 
-> I was under the impression before that the above message also covers
-> simple boot tests.
+Thanks for the heads up. Could there be success mails for boot tests,
+too?
 
-There will be simple boot tests quickly after the compile tests.
-However boot tests typically need more time to be detected, bisected
-and especially manual checked. We are yet to automate more boot error
-reports.
 
-Thanks,
-Fengguang
+--hHWLQfXTYDoKhP50
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXSUmAAAoJEBQN5MwUoCm2cQsP/1BaPo7dY4Dg3bWD4OXxK2iF
+on/4wxd6TbvlO0f779pVVZZfXxhbkfME57wO2uUzg/tfbRHC9U29W4AazmUNQ890
+Da0IEeyqd9y4ACExcIvDt6PSKBR8SLVMe6XGObwDT5cSsX0uHrKLofTZ4MPKUT/i
+f1XeRm6oQgM8wmR1zT7tc/DDp1HrvBszvRJ+a0dNH0X/GtmV2d74quIExMyr1Xv/
+5ALXT+PH8TPepBJoqjAV1a/lwi3+6nbpiezaK9C5G77WoIju7SGrsTAptgqLd8NI
+2C7eD1/i3rP8mh6L7+QTAIwtgdlyfzi+o+8wNSvSI2JIpvJRuvXMJaTvp70aDFlx
+xMPLl70Ojc420QpYp5LjoSpvnOcC/0LHWUgXBOyhuGlS6prZTteu+sM3pVGm84+W
+lQjXMjHl/axCFspGHjG5rg20tcUB6bGY8izBbTPpOlbCX3tr1+1t9WcOuvd+j3iW
+7HQZJqUuJ40yObo4xDawpLzAGrzYPuNbOUfMb9BhhavjD/I29Qjj1FfPlSTIVUBJ
+fx+CfjXaok+E0qgd2+wtoesTMVQJ+bynSqXGNPAJilOktYCaDhb+CLmozkHQ2AK2
+ky2RHGNWwjRnLYfCh3eh16uFPYjVD9eOn4VOu+ldMrd8SL/IEPXJpJfd0JrbzSCV
+uDz/tbnMLP9/ujrD0jqD
+=c32S
+-----END PGP SIGNATURE-----
+
+--hHWLQfXTYDoKhP50--
