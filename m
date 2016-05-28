@@ -1,61 +1,77 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] Revert "i2c: dev: switch from register_chrdev to cdev
- API"
-Date: Sat, 28 May 2016 18:04:58 +0200
-Message-ID: <20160528160458.GA1614@katana>
-References: <1464426467-1824-1-git-send-email-wsa@the-dreams.de>
- <20160528091559.GR11011@mwanda>
+Subject: [PULL REQUEST] i2c for 4.7
+Date: Sat, 28 May 2016 21:06:53 +0200
+Message-ID: <20160528190650.GA1869@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:54049 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750742AbcE1THD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 28 May 2016 15:07:03 -0400
 Content-Disposition: inline
-In-Reply-To: <20160528091559.GR11011@mwanda>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Erico Nunes <erico.nunes@datacom.ind.br>, kernel-janitors@vger.kernel.org, LKP <lkp@01.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---T4sUOijqQbZv57TR
+--gBBFr7Ir9EOA20Yy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+Linus,
 
-> These kinds of use after frees don't always cause a runtime problem.  I
-> found it using static analysis, but I bet you could detect it if you
-> enabled kasan.  The other option is to enable PAGE_POISONING?
+here is the pull request from I2C with the fix for a regression
+introduced yesterday. The regression didn't show up here locally because
+I did not have PAGE_POISONING enabled. And buildbots discovered this
+only after it hit your tree. Thanks to Dan for the quick response.
+Really sorry about the noise!
 
-Thanks, PAGE_POISONING did trigger the issue. So, I now picked up your
-patch instead of the revert because I could verify the problem and the
-proper solution. Thanks again.
-
-What I still wonder: Which analysis reported the problem to you? I
-always run sparse, smatch, cppcheck, and coccicheck on the patches when
-applying and no-one reported the issue.
+Thanks,
 
    Wolfram
 
 
---T4sUOijqQbZv57TR
+The following changes since commit ed2608faa0f701b1dbc65277a9e5c7ff7118bfd4:
+
+  Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input (2016-05-27 19:14:35 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+
+for you to fetch changes up to e6be18f6d62c1d3b331ae020b76a29c2ccf6b0bf:
+
+  i2c: dev: use after free in detach (2016-05-28 17:37:42 +0200)
+
+----------------------------------------------------------------
+Dan Carpenter (1):
+      i2c: dev: use after free in detach
+
+ drivers/i2c/i2c-dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--gBBFr7Ir9EOA20Yy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXScGpAAoJEBQN5MwUoCm2On0P/AkADGBmG/2uWkVvY+fPag4i
-Lc9si0cBxJFN0OucrJ/QAbEPGU7zX8s8jR/pePWCBg976IdJ3mLj2C7T+RQXXEGO
-pSxkJS0EGmjNZC/e6hUOxnng+KZC0HM7vC+o5Qi1JVbS8ClJM8bZEvtvSHVIfGea
-HZG713CdhQfiD6tRyDjS9jx/oAs+0yZ6z/40q9YzvEP6lKdYj1EZQ4srRS9Yqe2C
-SAi3i29q48pS1gBCm+NKTXylXrozCPAbouWF7ydxpgiZ4UlSqEgmnAhABG8dAmkV
-6aRvt4qXL+pKAmSneg+rKA1YEuZS/dZwY/vr6SL/Hclu7nsxd0PdZxDlPOSQWq6i
-ktY62TvGsM9eXpuaCX35xYIjSW5o4Q0a3uj7NxvHLiMBK7Nq37hP6+XHH3wVEDdf
-LJO6fPvrCqGVU8NU4Ru7m4beDLhIt60OAj/2MMPxfe1eQAVWQFezMeXglDuR3g6D
-SxMiwuj+0rayocTP/r23mpRAURuiRDRDuWxFvOHXNPpAzkzuo5ymiM+kSlzuceT6
-B/AF+mu8i+H34ZCYu4LF07gxcOhTc9ykCxvMhSN75KvYZ0RL4ULRSMwicLOkuV0k
-EIBT3jVptNHKhqGtom8tpjcC+mAdCyqcSjnxkfsMv3cLpWWOBdFAvc3DfnFy6670
-DVG5Kdeu3rx192uKdkw3
-=DLQd
+iQIcBAEBAgAGBQJXSexKAAoJEBQN5MwUoCm2+t4P/3TTnhFDIrJGK3UnHPfaPhuH
+QF4aVTIgYndGtRhhh45Wir3HjwJlk4eYuOKwYOXhbqhFsypcKjUtwNsU1gQMhrl0
+chGLvtaoiWx8vAQTjDKjU3RWwcK1hN8Vy/0hd2+3+2j6gSzzDfYc7P3fRJvbZ4kF
+xnGhgN78HsseO5BtK7WwYlRp0bP79VJw1BuhR10P5FE/MRsG4NTEUu4r/F797WLZ
+YeIsjQ0jSDanp7zGy9PqAgDgnrA29xvKAgneigtHMkx20o3qO7WjbDpblMogguYM
+vs/FlVm+Xpft3w/sjWXTHM1U/ts9MW+ixDHEW14NoEXVEshCdtGEWRKiTUF49xzY
+b/HNinDtPrr+ex6h76cdX5qpKcYjk3/qlkjeUJUaT38vtN+QQOtOuls+5YxG87Id
+rJsgG+FkCzt/LMUlaw48kJCNUdJwKvjMhSaHyv+J/sSE6q5+6Nl3qFtaQHV480TK
+YMTqFngoIqmYj5t8V4qdSmbx5YmrANzgknRi976coQTfAcbA6f3vkIoHOQBtRGD1
+o/BSX+53PuGrTiXuB9eyhIXH6Bbtoeh3n4auBILLv4U50OznTLPFrImxQiIoq1nL
+iy9AFgG+J4pmgBmewn1xxHt0SjsQkkht1igxsa6MHc0JJ6dAUcb8TIFltjRXW1rQ
+A16oKKJVia86yV2/+yLi
+=L17+
 -----END PGP SIGNATURE-----
 
---T4sUOijqQbZv57TR--
+--gBBFr7Ir9EOA20Yy--
