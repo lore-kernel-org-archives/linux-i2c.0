@@ -1,65 +1,42 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 01/14] eeprom: at24: improve the device_id table readability
-Date: Sun, 29 May 2016 23:53:39 +0200
-Message-ID: <1464558832-2262-2-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 09/14] eeprom: at24: platform_data: add serial number flag
+Date: Sun, 29 May 2016 23:53:47 +0200
+Message-ID: <1464558832-2262-10-git-send-email-bgolaszewski@baylibre.com>
 References: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f51.google.com ([74.125.82.51]:35482 "EHLO
+	mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932373AbcE2VyX (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 29 May 2016 17:54:23 -0400
+Received: by mail-wm0-f51.google.com with SMTP id a136so61562088wme.0
+        for <linux-i2c@vger.kernel.org>; Sun, 29 May 2016 14:54:23 -0700 (PDT)
 In-Reply-To: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-List-Id: linux-i2c@vger.kernel.org
 
-As part of the preparation for introducing support for more chips,
-improve the readability of the device table by separating columns
-with tabs.
+In preparation for supporting the at24cs EEPROM series add a new flag
+to the at24 platform data. When set, it should tell the driver that
+the chip has an additional read-only memory area that holds a factory
+pre-programmed serial number.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ include/linux/platform_data/at24.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 9ceb63b..411600d 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -111,23 +111,23 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+index d5e9024..fe0507e 100644
+--- a/include/linux/platform_data/at24.h
++++ b/include/linux/platform_data/at24.h
+@@ -48,6 +48,7 @@ struct at24_platform_data {
+ #define AT24_FLAG_READONLY	BIT(6)	/* sysfs-entry will be read-only */
+ #define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
+ #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
++#define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
  
- static const struct i2c_device_id at24_ids[] = {
- 	/* needs 8 addresses as A0-A2 are ignored */
--	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
-+	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
- 	/* old variants can't be handled with this generic entry! */
--	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
--	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
-+	{ "24c01",	AT24_DEVICE_MAGIC(1024 / 8,	0) },
-+	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
- 	/* spd is a 24c02 in memory DIMMs */
--	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
--		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
--	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
-+	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
-+				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
-+	{ "24c04",	AT24_DEVICE_MAGIC(4096 / 8,	0) },
- 	/* 24rf08 quirk is handled at i2c-core */
--	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
--	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
--	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
--	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
--	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
--	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
--	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
--	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
-+	{ "24c08",	AT24_DEVICE_MAGIC(8192 / 8,	0) },
-+	{ "24c16",	AT24_DEVICE_MAGIC(16384 / 8,	0) },
-+	{ "24c32",	AT24_DEVICE_MAGIC(32768 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c64",	AT24_DEVICE_MAGIC(65536 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c128",	AT24_DEVICE_MAGIC(131072 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c1024",	AT24_DEVICE_MAGIC(1048576 / 8,	AT24_FLAG_ADDR16) },
- 	{ "at24", 0 },
- 	{ /* END OF LIST */ }
- };
+ 	void		(*setup)(struct nvmem_device *nvmem, void *context);
+ 	void		*context;
 -- 
 2.7.4
