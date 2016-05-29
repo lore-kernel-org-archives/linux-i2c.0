@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 05/14] eeprom: at24: hide the read/write loop behind a macro
-Date: Sun, 29 May 2016 23:53:43 +0200
-Message-ID: <1464558832-2262-6-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 13/14] eeprom: at24: add support for at24mac series
+Date: Sun, 29 May 2016 23:53:51 +0200
+Message-ID: <1464558832-2262-14-git-send-email-bgolaszewski@baylibre.com>
 References: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,97 +10,78 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKM
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Before splitting the read/write routines into smaller, more
-specialized functions, unduplicate some code in advance.
+Add a new read function to the at24 driver allowing to retrieve the
+factory-programmed mac address embedded in chips from the at24mac
+family.
 
-Use a 'for' loop instead of 'do while' when waiting for the previous
-write to complete and hide it behind a macro.
+These chips can be instantiated similarily to the at24cs family,
+except that there's no way of having access to both the serial number
+and the mac address at the same time - the user must instantiate
+either an at24cs or at24mac device as both special memory areas are
+accessible on the same slave address.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 42 ++++++++++++++++++++----------------------
- 1 file changed, 20 insertions(+), 22 deletions(-)
+ drivers/misc/eeprom/at24.c | 38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0621937..2efb572 100644
+index 0b5240d..b3afe15 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -113,6 +113,22 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
- 	    << AT24_SIZE_BYTELEN | ilog2(_len))
+@@ -347,6 +347,36 @@ static ssize_t at24_eeprom_read_serial(struct at24_data *at24, char *buf,
+ 	return -ETIMEDOUT;
+ }
  
-+/*
-+ * Both reads and writes fail if the previous write didn't complete yet. This
-+ * macro loops a few times waiting at least long enough for one entire page
-+ * write to work.
-+ *
-+ * It takes two parameters: a variable in which the future timeout in jiffies
-+ * will be stored and a temporary variable holding the time of the last
-+ * iteration of processing the request. Both should be unsigned integers
-+ * holding at least 32 bits.
-+ */
-+#define loop_until_timeout(tout, op_time)				\
-+	for (tout = jiffies + msecs_to_jiffies(write_timeout),		\
-+		op_time = jiffies;					\
-+	     time_before(op_time, tout);				\
-+	     usleep_range(1000, 1500), op_time = jiffies)
++static ssize_t at24_eeprom_read_mac(struct at24_data *at24, char *buf,
++				    unsigned int offset, size_t count)
++{
++	unsigned long timeout, read_time;
++	struct i2c_client *client;
++	struct i2c_msg msg[2];
++	u8 addrbuf[2];
++	int status;
 +
- static const struct i2c_device_id at24_ids[] = {
- 	/* needs 8 addresses as A0-A2 are ignored */
- 	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
-@@ -225,14 +241,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 		msg[1].len = count;
- 	}
- 
--	/*
--	 * Reads fail if the previous write didn't complete yet. We may
--	 * loop a few times until this one succeeds, waiting at least
--	 * long enough for one entire page write to work.
--	 */
--	timeout = jiffies + msecs_to_jiffies(write_timeout);
--	do {
--		read_time = jiffies;
++	client = at24_translate_offset(at24, &offset);
++
++	memset(msg, 0, sizeof(msg));
++	msg[0].addr = client->addr;
++	msg[0].buf = addrbuf;
++	addrbuf[0] = 0x90 + offset;
++	msg[0].len = 1;
++	msg[1].addr = client->addr;
++	msg[1].flags = I2C_M_RD;
++	msg[1].buf = buf;
++	msg[1].len = count;
++
 +	loop_until_timeout(timeout, read_time) {
- 		if (at24->use_smbus) {
- 			status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
- 									   count, buf);
-@@ -246,9 +255,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 
- 		if (status == count)
- 			return count;
--
--		usleep_range(1000, 1500);
--	} while (time_before(read_time, timeout));
++		status = i2c_transfer(client->adapter, msg, 2);
++		if (status == 2)
++			return count;
 +	}
++
++	return -ETIMEDOUT;
++}
++
+ /*
+  * Note that if the hardware write-protect pin is pulled high, the whole
+  * chip is normally write protected. But there are plenty of product
+@@ -648,8 +678,16 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	at24->chip = chip;
+ 	at24->num_addresses = num_addresses;
  
- 	return -ETIMEDOUT;
- }
-@@ -299,14 +306,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 		msg.len = i + count;
- 	}
- 
--	/*
--	 * Writes fail if the previous one didn't complete yet. We may
--	 * loop a few times until this one succeeds, waiting at least
--	 * long enough for one entire page write to work.
--	 */
--	timeout = jiffies + msecs_to_jiffies(write_timeout);
--	do {
--		write_time = jiffies;
-+	loop_until_timeout(timeout, write_time) {
- 		if (at24->use_smbus_write) {
- 			switch (at24->use_smbus_write) {
- 			case I2C_SMBUS_I2C_BLOCK_DATA:
-@@ -331,9 +331,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 
- 		if (status == count)
- 			return count;
--
--		usleep_range(1000, 1500);
--	} while (time_before(write_time, timeout));
++	if ((chip.flags & AT24_FLAG_SERIAL) && (chip.flags & AT24_FLAG_MAC)) {
++		dev_err(&client->dev,
++			"invalid device data - cannot have both AT24_FLAG_SERIAL & AT24_FLAG_MAC.");
++		return -EINVAL;
 +	}
- 
- 	return -ETIMEDOUT;
- }
++
+ 	if (chip.flags & AT24_FLAG_SERIAL) {
+ 		at24->read_func = at24_eeprom_read_serial;
++	} else if (chip.flags & AT24_FLAG_MAC) {
++		at24->read_func = at24_eeprom_read_mac;
+ 	} else {
+ 		at24->read_func = at24->use_smbus ? at24_eeprom_read_smbus
+ 						  : at24_eeprom_read_i2c;
 -- 
 2.7.4
