@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 13/14] eeprom: at24: add support for at24mac series
-Date: Sun, 29 May 2016 23:53:51 +0200
-Message-ID: <1464558832-2262-14-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 03/14] eeprom: at24: coding style fixes
+Date: Sun, 29 May 2016 23:53:41 +0200
+Message-ID: <1464558832-2262-4-git-send-email-bgolaszewski@baylibre.com>
 References: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,78 +10,63 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKM
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add a new read function to the at24 driver allowing to retrieve the
-factory-programmed mac address embedded in chips from the at24mac
-family.
-
-These chips can be instantiated similarily to the at24cs family,
-except that there's no way of having access to both the serial number
-and the mac address at the same time - the user must instantiate
-either an at24cs or at24mac device as both special memory areas are
-accessible on the same slave address.
+Align the arguments in broken lines with the arguments list's opening
+brackets and make checkpatch.pl happy by converting 'unsigned' into
+'unsigned int'.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ drivers/misc/eeprom/at24.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0b5240d..b3afe15 100644
+index e12d76f..564a201 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -347,6 +347,36 @@ static ssize_t at24_eeprom_read_serial(struct at24_data *at24, char *buf,
- 	return -ETIMEDOUT;
+@@ -147,7 +147,7 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
+  * Assumes that sanity checks for offset happened at sysfs-layer.
+  */
+ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
+-		unsigned *offset)
++						unsigned int *offset)
+ {
+ 	unsigned i;
+ 
+@@ -163,7 +163,7 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
  }
  
-+static ssize_t at24_eeprom_read_mac(struct at24_data *at24, char *buf,
-+				    unsigned int offset, size_t count)
-+{
-+	unsigned long timeout, read_time;
-+	struct i2c_client *client;
-+	struct i2c_msg msg[2];
-+	u8 addrbuf[2];
-+	int status;
-+
-+	client = at24_translate_offset(at24, &offset);
-+
-+	memset(msg, 0, sizeof(msg));
-+	msg[0].addr = client->addr;
-+	msg[0].buf = addrbuf;
-+	addrbuf[0] = 0x90 + offset;
-+	msg[0].len = 1;
-+	msg[1].addr = client->addr;
-+	msg[1].flags = I2C_M_RD;
-+	msg[1].buf = buf;
-+	msg[1].len = count;
-+
-+	loop_until_timeout(timeout, read_time) {
-+		status = i2c_transfer(client->adapter, msg, 2);
-+		if (status == 2)
-+			return count;
-+	}
-+
-+	return -ETIMEDOUT;
-+}
-+
- /*
-  * Note that if the hardware write-protect pin is pulled high, the whole
-  * chip is normally write protected. But there are plenty of product
-@@ -648,8 +678,16 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
+ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+-		unsigned offset, size_t count)
++				unsigned int offset, size_t count)
+ {
+ 	struct i2c_msg msg[2];
+ 	u8 msgbuf[2];
+@@ -258,7 +258,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+  * writes at most one page.
+  */
+ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+-		unsigned offset, size_t count)
++				 unsigned int offset, size_t count)
+ {
+ 	struct i2c_client *client;
+ 	struct i2c_msg msg;
+@@ -400,7 +400,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
  
-+	if ((chip.flags & AT24_FLAG_SERIAL) && (chip.flags & AT24_FLAG_MAC)) {
-+		dev_err(&client->dev,
-+			"invalid device data - cannot have both AT24_FLAG_SERIAL & AT24_FLAG_MAC.");
-+		return -EINVAL;
-+	}
-+
- 	if (chip.flags & AT24_FLAG_SERIAL) {
- 		at24->read_func = at24_eeprom_read_serial;
-+	} else if (chip.flags & AT24_FLAG_MAC) {
-+		at24->read_func = at24_eeprom_read_mac;
- 	} else {
- 		at24->read_func = at24->use_smbus ? at24_eeprom_read_smbus
- 						  : at24_eeprom_read_i2c;
+ #ifdef CONFIG_OF
+ static void at24_get_ofdata(struct i2c_client *client,
+-		struct at24_platform_data *chip)
++			    struct at24_platform_data *chip)
+ {
+ 	const __be32 *val;
+ 	struct device_node *node = client->dev.of_node;
+@@ -415,7 +415,7 @@ static void at24_get_ofdata(struct i2c_client *client,
+ }
+ #else
+ static void at24_get_ofdata(struct i2c_client *client,
+-		struct at24_platform_data *chip)
++			    struct at24_platform_data *chip)
+ { }
+ #endif /* CONFIG_OF */
+ 
 -- 
 2.7.4
