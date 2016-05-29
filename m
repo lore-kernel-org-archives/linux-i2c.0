@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 03/14] eeprom: at24: coding style fixes
-Date: Sun, 29 May 2016 23:53:41 +0200
-Message-ID: <1464558832-2262-4-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 12/14] eeprom: at24: platform_data: add at24mac series flag
+Date: Sun, 29 May 2016 23:53:50 +0200
+Message-ID: <1464558832-2262-13-git-send-email-bgolaszewski@baylibre.com>
 References: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,63 +10,26 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKM
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Align the arguments in broken lines with the arguments list's opening
-brackets and make checkpatch.pl happy by converting 'unsigned' into
-'unsigned int'.
+As part of supporting the at24mac series add a new flag to the at24
+platform data. When set, it indicates that this chip exposes the
+factory-programmed EUI-48 or EUI-64 address.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/linux/platform_data/at24.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index e12d76f..564a201 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -147,7 +147,7 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
-  * Assumes that sanity checks for offset happened at sysfs-layer.
-  */
- static struct i2c_client *at24_translate_offset(struct at24_data *at24,
--		unsigned *offset)
-+						unsigned int *offset)
- {
- 	unsigned i;
+diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+index fe0507e..80e4239 100644
+--- a/include/linux/platform_data/at24.h
++++ b/include/linux/platform_data/at24.h
+@@ -49,6 +49,7 @@ struct at24_platform_data {
+ #define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
+ #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
+ #define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
++#define AT24_FLAG_MAC		BIT(2)	/* factory-programmed mac address */
  
-@@ -163,7 +163,7 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
- }
- 
- static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
--		unsigned offset, size_t count)
-+				unsigned int offset, size_t count)
- {
- 	struct i2c_msg msg[2];
- 	u8 msgbuf[2];
-@@ -258,7 +258,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
-  * writes at most one page.
-  */
- static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
--		unsigned offset, size_t count)
-+				 unsigned int offset, size_t count)
- {
- 	struct i2c_client *client;
- 	struct i2c_msg msg;
-@@ -400,7 +400,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 
- #ifdef CONFIG_OF
- static void at24_get_ofdata(struct i2c_client *client,
--		struct at24_platform_data *chip)
-+			    struct at24_platform_data *chip)
- {
- 	const __be32 *val;
- 	struct device_node *node = client->dev.of_node;
-@@ -415,7 +415,7 @@ static void at24_get_ofdata(struct i2c_client *client,
- }
- #else
- static void at24_get_ofdata(struct i2c_client *client,
--		struct at24_platform_data *chip)
-+			    struct at24_platform_data *chip)
- { }
- #endif /* CONFIG_OF */
- 
+ 	void		(*setup)(struct nvmem_device *nvmem, void *context);
+ 	void		*context;
 -- 
 2.7.4
