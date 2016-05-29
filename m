@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 06/14] eeprom: at24: split at24_eeprom_read() into specialized functions
-Date: Sun, 29 May 2016 23:53:44 +0200
-Message-ID: <1464558832-2262-7-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 05/14] eeprom: at24: hide the read/write loop behind a macro
+Date: Sun, 29 May 2016 23:53:43 +0200
+Message-ID: <1464558832-2262-6-git-send-email-bgolaszewski@baylibre.com>
 References: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,182 +10,97 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKM
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Split at24_eeprom_read() into two smaller functions - one for the
-i2c operations and one for the smbus extensions. Assign them in
-at24_probe() depending on the bus capabilities.
+Before splitting the read/write routines into smaller, more
+specialized functions, unduplicate some code in advance.
 
-Also: in order to avoid duplications move the comments related to
-offset calculations above the at24_translate_offset() routine.
+Use a 'for' loop instead of 'do while' when waiting for the previous
+write to complete and hide it behind a macro.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 125 +++++++++++++++++++++++++--------------------
- 1 file changed, 71 insertions(+), 54 deletions(-)
+ drivers/misc/eeprom/at24.c | 42 ++++++++++++++++++++----------------------
+ 1 file changed, 20 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2efb572..e7db137 100644
+index 0621937..2efb572 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -165,6 +165,19 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
-  * This routine supports chips which consume multiple I2C addresses. It
-  * computes the addressing information to be used for a given r/w request.
-  * Assumes that sanity checks for offset happened at sysfs-layer.
-+ *
-+ * Slave address and byte offset derive from the offset. Always
-+ * set the byte address; on a multi-master board, another master
-+ * may have changed the chip's "current" address pointer.
-+ *
-+ * REVISIT some multi-address chips don't rollover page reads to
-+ * the next slave address, so we may need to truncate the count.
-+ * Those chips might need another quirk flag.
-+ *
-+ * If the real hardware used four adjacent 24c02 chips and that
-+ * were misconfigured as one 24c08, that would be a similar effect:
-+ * one "eeprom" file not four, but larger reads would fail when
-+ * they crossed certain pages.
-  */
- static struct i2c_client *at24_translate_offset(struct at24_data *at24,
- 						unsigned int *offset)
-@@ -182,74 +195,77 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
- 	return at24->client[i];
- }
+@@ -113,6 +113,22 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+ 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
+ 	    << AT24_SIZE_BYTELEN | ilog2(_len))
  
--static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
--				unsigned int offset, size_t count)
-+static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
-+				      unsigned int offset, size_t count)
- {
--	struct i2c_msg msg[2];
--	u8 msgbuf[2];
-+	unsigned long timeout, read_time;
- 	struct i2c_client *client;
-+	int status;
++/*
++ * Both reads and writes fail if the previous write didn't complete yet. This
++ * macro loops a few times waiting at least long enough for one entire page
++ * write to work.
++ *
++ * It takes two parameters: a variable in which the future timeout in jiffies
++ * will be stored and a temporary variable holding the time of the last
++ * iteration of processing the request. Both should be unsigned integers
++ * holding at least 32 bits.
++ */
++#define loop_until_timeout(tout, op_time)				\
++	for (tout = jiffies + msecs_to_jiffies(write_timeout),		\
++		op_time = jiffies;					\
++	     time_before(op_time, tout);				\
++	     usleep_range(1000, 1500), op_time = jiffies)
 +
-+	client = at24_translate_offset(at24, &offset);
-+
-+	if (count > io_limit)
-+		count = io_limit;
-+
-+	/* Smaller eeproms can work given some SMBus extension calls */
-+	if (count > I2C_SMBUS_BLOCK_MAX)
-+		count = I2C_SMBUS_BLOCK_MAX;
-+
+ static const struct i2c_device_id at24_ids[] = {
+ 	/* needs 8 addresses as A0-A2 are ignored */
+ 	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
+@@ -225,14 +241,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+ 		msg[1].len = count;
+ 	}
+ 
+-	/*
+-	 * Reads fail if the previous write didn't complete yet. We may
+-	 * loop a few times until this one succeeds, waiting at least
+-	 * long enough for one entire page write to work.
+-	 */
+-	timeout = jiffies + msecs_to_jiffies(write_timeout);
+-	do {
+-		read_time = jiffies;
 +	loop_until_timeout(timeout, read_time) {
-+		status = i2c_smbus_read_i2c_block_data_or_emulated(client,
-+								   offset,
-+								   count, buf);
-+
-+		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
-+				count, offset, status, jiffies);
-+
-+		if (status == count)
-+			return count;
+ 		if (at24->use_smbus) {
+ 			status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
+ 									   count, buf);
+@@ -246,9 +255,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+ 
+ 		if (status == count)
+ 			return count;
+-
+-		usleep_range(1000, 1500);
+-	} while (time_before(read_time, timeout));
 +	}
-+
-+	return -ETIMEDOUT;
-+}
-+
-+static ssize_t at24_eeprom_read_i2c(struct at24_data *at24, char *buf,
-+				    unsigned int offset, size_t count)
-+{
- 	unsigned long timeout, read_time;
-+	struct i2c_client *client;
-+	struct i2c_msg msg[2];
- 	int status, i;
-+	u8 msgbuf[2];
  
- 	memset(msg, 0, sizeof(msg));
--
+ 	return -ETIMEDOUT;
+ }
+@@ -299,14 +306,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ 		msg.len = i + count;
+ 	}
+ 
 -	/*
--	 * REVISIT some multi-address chips don't rollover page reads to
--	 * the next slave address, so we may need to truncate the count.
--	 * Those chips might need another quirk flag.
--	 *
--	 * If the real hardware used four adjacent 24c02 chips and that
--	 * were misconfigured as one 24c08, that would be a similar effect:
--	 * one "eeprom" file not four, but larger reads would fail when
--	 * they crossed certain pages.
+-	 * Writes fail if the previous one didn't complete yet. We may
+-	 * loop a few times until this one succeeds, waiting at least
+-	 * long enough for one entire page write to work.
 -	 */
+-	timeout = jiffies + msecs_to_jiffies(write_timeout);
+-	do {
+-		write_time = jiffies;
++	loop_until_timeout(timeout, write_time) {
+ 		if (at24->use_smbus_write) {
+ 			switch (at24->use_smbus_write) {
+ 			case I2C_SMBUS_I2C_BLOCK_DATA:
+@@ -331,9 +331,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ 
+ 		if (status == count)
+ 			return count;
 -
--	/*
--	 * Slave address and byte offset derive from the offset. Always
--	 * set the byte address; on a multi-master board, another master
--	 * may have changed the chip's "current" address pointer.
--	 */
- 	client = at24_translate_offset(at24, &offset);
+-		usleep_range(1000, 1500);
+-	} while (time_before(write_time, timeout));
++	}
  
- 	if (count > io_limit)
- 		count = io_limit;
- 
--	if (at24->use_smbus) {
--		/* Smaller eeproms can work given some SMBus extension calls */
--		if (count > I2C_SMBUS_BLOCK_MAX)
--			count = I2C_SMBUS_BLOCK_MAX;
--	} else {
--		/*
--		 * When we have a better choice than SMBus calls, use a
--		 * combined I2C message. Write address; then read up to
--		 * io_limit data bytes. Note that read page rollover helps us
--		 * here (unlike writes). msgbuf is u8 and will cast to our
--		 * needs.
--		 */
--		i = 0;
--		if (at24->chip.flags & AT24_FLAG_ADDR16)
--			msgbuf[i++] = offset >> 8;
--		msgbuf[i++] = offset;
-+	/*
-+	 * When we have a better choice than SMBus calls, use a combined I2C
-+	 * message. Write address; then read up to io_limit data bytes. Note
-+	 * that read page rollover helps us here (unlike writes). msgbuf is
-+	 * u8 and will cast to our needs.
-+	 */
-+	i = 0;
-+	if (at24->chip.flags & AT24_FLAG_ADDR16)
-+		msgbuf[i++] = offset >> 8;
-+	msgbuf[i++] = offset;
- 
--		msg[0].addr = client->addr;
--		msg[0].buf = msgbuf;
--		msg[0].len = i;
-+	msg[0].addr = client->addr;
-+	msg[0].buf = msgbuf;
-+	msg[0].len = i;
- 
--		msg[1].addr = client->addr;
--		msg[1].flags = I2C_M_RD;
--		msg[1].buf = buf;
--		msg[1].len = count;
--	}
-+	msg[1].addr = client->addr;
-+	msg[1].flags = I2C_M_RD;
-+	msg[1].buf = buf;
-+	msg[1].len = count;
- 
- 	loop_until_timeout(timeout, read_time) {
--		if (at24->use_smbus) {
--			status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
--									   count, buf);
--		} else {
--			status = i2c_transfer(client->adapter, msg, 2);
--			if (status == 2)
--				status = count;
--		}
-+		status = i2c_transfer(client->adapter, msg, 2);
-+		if (status == 2)
-+			status = count;
-+
- 		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
- 				count, offset, status, jiffies);
- 
-@@ -520,7 +536,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
- 
--	at24->read_func = at24_eeprom_read;
-+	at24->read_func = at24->use_smbus ? at24_eeprom_read_smbus
-+					  : at24_eeprom_read_i2c;
- 	at24->write_func = at24_eeprom_write;
- 
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
+ 	return -ETIMEDOUT;
+ }
 -- 
 2.7.4
