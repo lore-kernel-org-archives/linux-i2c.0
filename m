@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 02/14] eeprom: at24: move at24_read() below at24_eeprom_write()
-Date: Sun, 29 May 2016 23:53:40 +0200
-Message-ID: <1464558832-2262-3-git-send-email-bgolaszewski@baylibre.com>
+Subject: [PATCH 14/14] eeprom: at24: add at24mac chips to the list of supported devices
+Date: Sun, 29 May 2016 23:53:52 +0200
+Message-ID: <1464558832-2262-15-git-send-email-bgolaszewski@baylibre.com>
 References: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,96 +10,29 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKM
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-In preparation for splitting at24_eeprom_write() & at24_eeprom_read()
-into smaller, specialized routines move at24_read() below, so that it
-won't be intertwined with the low-level EEPROM accessors.
+Now with the infrastructure for reading the factory-programmed mac
+address in place, add the two available chips from the at24mac
+family: at24mac402 and at24mac602 to the device ID list.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 64 +++++++++++++++++++++++-----------------------
- 1 file changed, 32 insertions(+), 32 deletions(-)
+ drivers/misc/eeprom/at24.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 411600d..e12d76f 100644
+index b3afe15..0b8fafdb 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -249,38 +249,6 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	return -ETIMEDOUT;
- }
- 
--static int at24_read(void *priv, unsigned int off, void *val, size_t count)
--{
--	struct at24_data *at24 = priv;
--	char *buf = val;
--
--	if (unlikely(!count))
--		return count;
--
--	/*
--	 * Read data from chip, protecting against concurrent updates
--	 * from this host, but not from other I2C masters.
--	 */
--	mutex_lock(&at24->lock);
--
--	while (count) {
--		int	status;
--
--		status = at24_eeprom_read(at24, buf, off, count);
--		if (status < 0) {
--			mutex_unlock(&at24->lock);
--			return status;
--		}
--		buf += status;
--		off += status;
--		count -= status;
--	}
--
--	mutex_unlock(&at24->lock);
--
--	return 0;
--}
--
- /*
-  * Note that if the hardware write-protect pin is pulled high, the whole
-  * chip is normally write protected. But there are plenty of product
-@@ -366,6 +334,38 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 	return -ETIMEDOUT;
- }
- 
-+static int at24_read(void *priv, unsigned int off, void *val, size_t count)
-+{
-+	struct at24_data *at24 = priv;
-+	char *buf = val;
-+
-+	if (unlikely(!count))
-+		return count;
-+
-+	/*
-+	 * Read data from chip, protecting against concurrent updates
-+	 * from this host, but not from other I2C masters.
-+	 */
-+	mutex_lock(&at24->lock);
-+
-+	while (count) {
-+		int	status;
-+
-+		status = at24_eeprom_read(at24, buf, off, count);
-+		if (status < 0) {
-+			mutex_unlock(&at24->lock);
-+			return status;
-+		}
-+		buf += status;
-+		off += status;
-+		count -= status;
-+	}
-+
-+	mutex_unlock(&at24->lock);
-+
-+	return 0;
-+}
-+
- static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- {
- 	struct at24_data *at24 = priv;
+@@ -139,6 +139,10 @@ static const struct i2c_device_id at24_ids[] = {
+ 	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
+ 	{ "24cs02",	AT24_DEVICE_MAGIC(128 / 8,
+ 				AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
++	{ "24mac402",	AT24_DEVICE_MAGIC(48 / 8,
++				AT24_FLAG_MAC | AT24_FLAG_READONLY) },
++	{ "24mac602",	AT24_DEVICE_MAGIC(64 / 8,
++				AT24_FLAG_MAC | AT24_FLAG_READONLY) },
+ 	/* spd is a 24c02 in memory DIMMs */
+ 	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
+ 				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
 -- 
 2.7.4
