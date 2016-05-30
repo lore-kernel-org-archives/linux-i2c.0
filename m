@@ -1,74 +1,121 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 04/14] eeprom: at24: call read/write functions via function pointers
-Date: Sun, 29 May 2016 23:53:42 +0200
-Message-ID: <1464558832-2262-5-git-send-email-bgolaszewski@baylibre.com>
-References: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
+From: minyard@acm.org
+Subject: [PATCH v2 03/10] i2c-i801: Move hwpec handling into block transaction
+Date: Sun, 29 May 2016 20:08:57 -0500
+Message-ID: <1464570544-975-4-git-send-email-minyard@acm.org>
+References: <1464570544-975-1-git-send-email-minyard@acm.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f41.google.com ([74.125.82.41]:36391 "EHLO
-	mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753267AbcE2VyR (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 29 May 2016 17:54:17 -0400
-Received: by mail-wm0-f41.google.com with SMTP id n129so61528847wmn.1
-        for <linux-i2c@vger.kernel.org>; Sun, 29 May 2016 14:54:16 -0700 (PDT)
-In-Reply-To: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:35052 "EHLO
+	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752025AbcE3BJP (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 29 May 2016 21:09:15 -0400
+In-Reply-To: <1464570544-975-1-git-send-email-minyard@acm.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, minyard@acm.org
+Cc: Corey Minyard <cminyard@mvista.com>
 
-The first step in simplifying the read and write functions is to call
-them via function pointers stored in at24_data. When we eventually
-split the routines into smaller ones (depending on whether they use
-smbus or i2c operations) we'll simply assign them to said pointers
-instead of checking the flags at runtime every time we read/write.
+From: Corey Minyard <cminyard@mvista.com>
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Since hwpec is only used for block transactions, move it out of
+i801_access() and into i801_block_transaction().
+
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 ---
- drivers/misc/eeprom/at24.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 47 +++++++++++++++++++++++--------------------
+ 1 file changed, 25 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 564a201..0621937 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -58,6 +58,10 @@ struct at24_data {
- 	int use_smbus;
- 	int use_smbus_write;
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 205f9d0..222be9c 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -656,11 +656,22 @@ static int i801_set_block_buffer_mode(struct i801_priv *priv)
+ }
  
-+	ssize_t (*read_func)(struct at24_data *, char *, unsigned int, size_t);
-+	ssize_t (*write_func)(struct at24_data *,
-+			      const char *, unsigned int, size_t);
+ /* Block transaction function */
+-static int i801_block_transaction(struct i801_priv *priv,
++static int i801_block_transaction(struct i801_priv *priv, unsigned short flags,
+ 				  union i2c_smbus_data *data, char read_write,
+-				  int command, int hwpec)
++				  int command)
+ {
+ 	int result = 0;
++	int hwpec = (priv->features & FEATURE_SMBUS_PEC)
++		&& (flags & I2C_CLIENT_PEC)
++		&& command != I2C_SMBUS_QUICK
++		&& command != I2C_SMBUS_I2C_BLOCK_DATA;
 +
- 	/*
- 	 * Lock protects against activities from other Linux tasks,
- 	 * but not from changes by other I2C masters.
-@@ -351,7 +355,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- 	while (count) {
- 		int	status;
++	if (hwpec)	/* enable/disable hardware PEC */
++		outb_p(inb_p(SMBAUXCTL(priv)) | SMBAUXCTL_CRC,
++		       SMBAUXCTL(priv));
++	else
++		outb_p(inb_p(SMBAUXCTL(priv)) & (~SMBAUXCTL_CRC),
++		       SMBAUXCTL(priv));
  
--		status = at24_eeprom_read(at24, buf, off, count);
-+		status = at24->read_func(at24, buf, off, count);
- 		if (status < 0) {
- 			mutex_unlock(&at24->lock);
- 			return status;
-@@ -383,7 +387,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	while (count) {
- 		int status;
+ 	if (read_write == I2C_SMBUS_WRITE
+ 	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
+@@ -685,6 +696,16 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 							     read_write,
+ 							     command);
  
--		status = at24_eeprom_write(at24, buf, off, count);
-+		status = at24->write_func(at24, buf, off, count);
- 		if (status < 0) {
- 			mutex_unlock(&at24->lock);
- 			return status;
-@@ -518,6 +522,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
- 
-+	at24->read_func = at24_eeprom_read;
-+	at24->write_func = at24_eeprom_write;
++	/*
++	 * Some BIOSes don't like it when PEC is enabled at reboot or
++	 * resume time, so we forcibly disable it after every
++	 * transaction. Turn off E32B for the same reason.
++	 */
++	if (hwpec)
++		outb_p(inb_p(SMBAUXCTL(priv)) &
++		       ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B),
++		       SMBAUXCTL(priv));
 +
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
- 	if (writable) {
- 		if (!use_smbus || use_smbus_write) {
+ 	return result;
+ }
+ 
+@@ -693,7 +714,6 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 		       unsigned short flags, char read_write, u8 command,
+ 		       int size, union i2c_smbus_data *data)
+ {
+-	int hwpec;
+ 	int block = 0;
+ 	int ret = 0, xact = 0;
+ 	int hostc = -1;
+@@ -701,10 +721,6 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 
+ 	pm_runtime_get_sync(&priv->pci_dev->dev);
+ 
+-	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
+-		&& size != I2C_SMBUS_QUICK
+-		&& size != I2C_SMBUS_I2C_BLOCK_DATA;
+-
+ 	switch (size) {
+ 	case I2C_SMBUS_QUICK:
+ 		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
+@@ -773,25 +789,12 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 		goto out;
+ 	}
+ 
+-	if (hwpec)	/* enable/disable hardware PEC */
+-		outb_p(inb_p(SMBAUXCTL(priv)) | SMBAUXCTL_CRC, SMBAUXCTL(priv));
+-	else
+-		outb_p(inb_p(SMBAUXCTL(priv)) & (~SMBAUXCTL_CRC),
+-		       SMBAUXCTL(priv));
+-
+ 	if (block)
+-		ret = i801_block_transaction(priv, data, read_write, size,
+-					     hwpec);
++		ret = i801_block_transaction(priv, flags, data, read_write,
++					     size);
+ 	else
+ 		ret = i801_transaction(priv, xact);
+ 
+-	/* Some BIOSes don't like it when PEC is enabled at reboot or resume
+-	   time, so we forcibly disable it after every transaction. Turn off
+-	   E32B for the same reason. */
+-	if (hwpec || block)
+-		outb_p(inb_p(SMBAUXCTL(priv)) &
+-		       ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B), SMBAUXCTL(priv));
+-
+ 	if (hostc >= 0)
+ 		pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hostc);
+ 
 -- 
 2.7.4
