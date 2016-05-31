@@ -1,93 +1,255 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v2 6/7] iio: inv_mpu6050: Reformat sample for active scan mask
-Date: Tue, 31 May 2016 17:33:50 +0100
-Message-ID: <5D99415E-09D3-45D1-B4C9-7354625B2DEF@kernel.org>
-References: <cover.1463582011.git.leonard.crestez@intel.com> <7df4b331d35e3e6a19d13ccbcb5d12f0347b660c.1463582011.git.leonard.crestez@intel.com> <14d4a757-f60a-40c0-03b4-c36d1b22d30e@kernel.org> <49c4a235-29fd-aa55-d9d2-8ead5cefd737@intel.com> <4EB54DBB-A77A-4BC5-8960-5CE9EB1B5DF2@kernel.org> <3169df0b-78d8-a35c-bd31-f2d4e7e17bde@intel.com>
+From: "Andrew F. Davis" <afd@ti.com>
+Subject: [PATCH 2/2] i2c: sm-usb-dig: add TI SM-USB-DIG I2C bus driver
+Date: Tue, 31 May 2016 12:30:45 -0500
+Message-ID: <20160531173045.5742-2-afd@ti.com>
+References: <20160531173045.5742-1-afd@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3169df0b-78d8-a35c-bd31-f2d4e7e17bde@intel.com>
+In-Reply-To: <20160531173045.5742-1-afd@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>, linux-iio@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, Ge Gao <ggao@invensense.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Andrew F . Davis" <afd@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Add support for the I2C bus functionality of the TI SM-USB-DIG.
 
+Signed-off-by: Andrew F. Davis <afd@ti.com>
+---
+ drivers/i2c/busses/Kconfig          |  10 ++
+ drivers/i2c/busses/Makefile         |   1 +
+ drivers/i2c/busses/i2c-sm-usb-dig.c | 190 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 201 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-sm-usb-dig.c
 
-On 31 May 2016 09:56:51 BST, Crestez Dan Leonard <leonard.crestez@intel.com> wrote:
->On 05/31/2016 12:42 AM, Jonathan Cameron wrote:
->> On 30 May 2016 14:44:41 BST, Crestez Dan Leonard
-><leonard.crestez@intel.com> wrote:
->>> On 05/29/2016 06:47 PM, Jonathan Cameron wrote:
->>>> On 18/05/16 16:00, Crestez Dan Leonard wrote:
->>>>> Right now it is possible to only enable some of the x/y/z
->channels,
->>> for
->>>>> example you can enable accel_z without x or y but if you actually
->do
->>>>> that what you get is actually only the x channel.
->>>>>
->>>>> Fix this by reformatting the hardware sample to only include the
->>>>> requested channels.
->>>> As it stands here there is no benefit in doing this over using the
->>> core
->>>> demux. In fact it's considerably less efficient (fair enough that
->you
->>>> are keeping it simple in the first instance).
->>>> The patch description should make that clear.
->>>
->>> Why is it less efficient? All it really does is a bunch of memcpy.
->> 
->> Not doing agglomeration of neighbouring copies (iirc) not git either
->set of code to
->> hand!
->
->You're right about that. But the total data rate is still very low.
->
->>>> I'd definitely like to see simple extension of that option to
->handle
->>>> a callback to get the nearest scanmask that is possible (as an
->>> alternative
->>>> to the static scan_masks_available list.)
->>>>
->>>> This only gets interesting if we are dealing with the unaligned
->case
->>> and for
->>>> these parts that only kicks in I think if the slave devices have
->say
->>> 3 bytes in
->>>> their data type.  
->>>
->>> But I want to deal with the unaligned case because it's better than
->>> introducing odd validations on slave channels. If I added an
->extension
->>> to get the nearest scanmask I would have to remove it in PATCH 7.
->> Hmm I must have misread that. Though you were only supporting 16 bit
->channels
->>  for aux sensors.
->
->That was in a previous version, I dropped that limitation now.
->
->> Then for now can we give this a slightly less generic name. I am not
->happy
->>  enough that we want this in the core 'yet'. 
->> Easy to rename later if it makes sense.
->
->Ok, I will rename these functions to start with inv_mpu_* instead of
->iio_*.
->
->In theory it would be interesting to refactor the iio demuxing code to
->support this but then this patch serios would grow even more
->complicated.
-
-Agreed. Let's leave that for a separate effort!
-
-I was vaguely wondering about letting the core demux input be unaligned but
- enforce the output keeping current alignment.  Fiddly even then however.
-
-J
-
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index f167021..5c74d09 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -1076,6 +1076,16 @@ config I2C_ROBOTFUZZ_OSIF
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-osif.
+ 
++config I2C_SM_USB_DIG
++	tristate "Texas Instruments SM-USB-DIG I2C interface"
++	depends on MFD_SM_USB_DIG
++	help
++	  This adds support for the I2C bus functionality of the
++	  TI SM-USB-DIG USB interface adapter.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-sm-usb-dig.
++
+ config I2C_TAOS_EVM
+ 	tristate "TAOS evaluation module"
+ 	depends on TTY
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 37f2819..2ee25ef 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -103,6 +103,7 @@ obj-$(CONFIG_I2C_DLN2)		+= i2c-dln2.o
+ obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+ obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
+ obj-$(CONFIG_I2C_ROBOTFUZZ_OSIF)	+= i2c-robotfuzz-osif.o
++obj-$(CONFIG_I2C_SM_USB_DIG)	+= i2c-sm-usb-dig.o
+ obj-$(CONFIG_I2C_TAOS_EVM)	+= i2c-taos-evm.o
+ obj-$(CONFIG_I2C_TINY_USB)	+= i2c-tiny-usb.o
+ obj-$(CONFIG_I2C_VIPERBOARD)	+= i2c-viperboard.o
+diff --git a/drivers/i2c/busses/i2c-sm-usb-dig.c b/drivers/i2c/busses/i2c-sm-usb-dig.c
+new file mode 100644
+index 0000000..719a8c1
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-sm-usb-dig.c
+@@ -0,0 +1,190 @@
++/*
++ * I2C bus driver for TI SM-USB-DIG
++ *
++ * Copyright (C) 2016 Texas Instruments Incorporated - http://www.ti.com/
++ *	Andrew F. Davis <afd@ti.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
++ * kind, whether expressed or implied; without even the implied warranty
++ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License version 2 for more details.
++ */
++
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++
++#include <linux/mfd/sm-usb-dig.h>
++
++/* (data size - start condition - address - ACK) / ACK after data byte */
++#define SMUSBDIG_I2C_MAX_MSG ((SMUSBDIG_DATA_SIZE - 3) / 2)
++
++struct smusbdig_i2c {
++	struct device *dev;
++	struct smusbdig_device *smusbdig;
++	struct i2c_adapter adapter;
++};
++
++enum smusbdig_i2c_command {
++	SMUSBDIG_I2C_START = 0x3,
++	SMUSBDIG_I2C_STOP = 0x4,
++	SMUSBDIG_I2C_ACKM = 0x5,
++	SMUSBDIG_I2C_ACKS = 0x6,
++};
++
++static void smusbdig_i2c_packet_init(struct smusbdig_packet *packet)
++{
++	memset(packet, 0, sizeof(*packet));
++	packet->function = SMUSBDIG_I2C;
++	packet->channel = 0x1;
++}
++
++static int smusbdig_i2c_xfer(struct i2c_adapter *adapter,
++			     struct i2c_msg *msgs, int num)
++{
++	struct smusbdig_i2c *smusbdig_i2c = i2c_get_adapdata(adapter);
++	struct smusbdig_packet packet;
++	int i, j, k, ret;
++
++	for (i = 0; i < num; i++) {
++		smusbdig_i2c_packet_init(&packet);
++		smusbdig_packet_add_command(&packet, SMUSBDIG_I2C_START);
++		/* add read bit to address if needed */
++		msgs[i].addr <<= 1;
++		if (msgs[i].flags & I2C_M_RD)
++			msgs[i].addr |= BIT(0);
++		smusbdig_packet_add_data(&packet, msgs[i].addr);
++		smusbdig_packet_add_command(&packet, SMUSBDIG_I2C_ACKS);
++		if (msgs[i].flags & I2C_M_RD) {
++			for (j = 0; j < msgs[i].len; j++) {
++				smusbdig_packet_add_data(&packet, 0xff);
++				smusbdig_packet_add_command(&packet, SMUSBDIG_I2C_ACKM);
++			}
++		} else {
++			for (j = 0; j < msgs[i].len; j++) {
++				smusbdig_packet_add_data(&packet, msgs[i].buf[j]);
++				smusbdig_packet_add_command(&packet, SMUSBDIG_I2C_ACKS);
++			}
++		}
++
++		ret = smusbdig_xfer(smusbdig_i2c->smusbdig,
++				    (u8 *)&packet, sizeof(packet));
++		if (ret)
++			return ret;
++
++		/*
++		 * now we read in any data we got during read MSGs
++		 * and check ACKS
++		 */
++		if (((u8 *)&packet)[2]) {
++			num = -EPROTO;
++			goto stop;
++		}
++		for (j = 0, k = 3; j < msgs[i].len; j++, k += 2) {
++			if (msgs[i].flags & I2C_M_RD) {
++				msgs[i].buf[j] = ((u8 *)&packet)[k];
++			} else if (((u8 *)&packet)[k + 1]) {
++				num = -EPROTO;
++				goto stop;
++			}
++		}
++	}
++
++stop:
++	/* send stop condition */
++	smusbdig_i2c_packet_init(&packet);
++	smusbdig_packet_add_command(&packet, SMUSBDIG_I2C_STOP);
++	ret = smusbdig_xfer(smusbdig_i2c->smusbdig,
++			    (u8 *)&packet, sizeof(packet));
++	if (ret)
++		return ret;
++
++	return num;
++}
++
++static u32 smusbdig_i2c_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static const struct i2c_algorithm smusbdig_i2c_algo = {
++	.master_xfer = smusbdig_i2c_xfer,
++	.functionality = smusbdig_i2c_func,
++};
++
++static struct i2c_adapter smusbdig_i2c_adapter = {
++	.owner = THIS_MODULE,
++	.class = I2C_CLASS_HWMON,
++	.algo = &smusbdig_i2c_algo,
++};
++
++static struct i2c_adapter_quirks dln2_i2c_quirks = {
++	.max_read_len = SMUSBDIG_I2C_MAX_MSG,
++	.max_write_len = SMUSBDIG_I2C_MAX_MSG,
++};
++
++static int smusbdig_i2c_probe(struct platform_device *pdev)
++{
++	struct smusbdig_i2c *smusbdig_i2c;
++	struct device *dev = &pdev->dev;
++	int ret;
++
++	smusbdig_i2c = devm_kzalloc(dev, sizeof(*smusbdig_i2c), GFP_KERNEL);
++	if (!smusbdig_i2c)
++		return -ENOMEM;
++
++	smusbdig_i2c->dev = dev;
++	smusbdig_i2c->smusbdig = dev_get_drvdata(dev->parent);
++	smusbdig_i2c->adapter = smusbdig_i2c_adapter;
++	strlcpy(smusbdig_i2c->adapter.name, dev_name(dev),
++		sizeof(smusbdig_i2c->adapter.name));
++	smusbdig_i2c->adapter.quirks = &dln2_i2c_quirks;
++	smusbdig_i2c->adapter.dev.parent = dev;
++	smusbdig_i2c->adapter.dev.of_node = dev->of_node;
++
++	i2c_set_adapdata(&smusbdig_i2c->adapter, smusbdig_i2c);
++	platform_set_drvdata(pdev, smusbdig_i2c);
++
++	ret = i2c_add_adapter(&smusbdig_i2c->adapter);
++	if (ret) {
++		dev_err(dev, "unable to add I2C adapter\n");
++		return ret;
++	}
++
++	dev_info(dev, "TI SM-USB-DIG Added: I2C Bus\n");
++
++	return 0;
++}
++
++static int smusbdig_i2c_remove(struct platform_device *pdev)
++{
++	struct smusbdig_i2c *smusbdig_i2c = platform_get_drvdata(pdev);
++
++	i2c_del_adapter(&smusbdig_i2c->adapter);
++
++	return 0;
++}
++
++static const struct platform_device_id smusbdig_i2c_id_table[] = {
++	{ "sm-usb-dig-i2c", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(platform, smusbdig_i2c_id_table);
++
++static struct platform_driver smusbdig_i2c_driver = {
++	.driver = {
++		.name = "sm-usb-dig-i2c",
++	},
++	.probe = smusbdig_i2c_probe,
++	.remove = smusbdig_i2c_remove,
++	.id_table = smusbdig_i2c_id_table,
++};
++module_platform_driver(smusbdig_i2c_driver);
++
++MODULE_AUTHOR("Andrew F. Davis <afd@ti.com>");
++MODULE_DESCRIPTION("I2C bus driver for TI SM-USB-DIG interface adapter");
++MODULE_LICENSE("GPL v2");
 -- 
-Sent from my Android device with K-9 Mail. Please excuse my brevity.
+2.8.3
