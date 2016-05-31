@@ -1,56 +1,93 @@
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
-Subject: [PATCH] i2c: pca-isa: Utilize the module_isa_driver macro
-Date: Tue, 31 May 2016 12:22:34 -0400
-Message-ID: <20160531162223.GA17106@sophia>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v2 6/7] iio: inv_mpu6050: Reformat sample for active scan mask
+Date: Tue, 31 May 2016 17:33:50 +0100
+Message-ID: <5D99415E-09D3-45D1-B4C9-7354625B2DEF@kernel.org>
+References: <cover.1463582011.git.leonard.crestez@intel.com> <7df4b331d35e3e6a19d13ccbcb5d12f0347b660c.1463582011.git.leonard.crestez@intel.com> <14d4a757-f60a-40c0-03b4-c36d1b22d30e@kernel.org> <49c4a235-29fd-aa55-d9d2-8ead5cefd737@intel.com> <4EB54DBB-A77A-4BC5-8960-5CE9EB1B5DF2@kernel.org> <3169df0b-78d8-a35c-bd31-f2d4e7e17bde@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f196.google.com ([209.85.161.196]:36119 "EHLO
-	mail-yw0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750744AbcEaQWm (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 31 May 2016 12:22:42 -0400
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3169df0b-78d8-a35c-bd31-f2d4e7e17bde@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Crestez Dan Leonard <leonard.crestez@intel.com>, linux-iio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, Ge Gao <ggao@invensense.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This driver does not do anything special in module init/exit. This patch
-eliminates the module init/exit boilerplate code by utilizing the
-module_isa_driver macro.
 
-Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
----
- drivers/i2c/busses/i2c-pca-isa.c | 13 +------------
- 1 file changed, 1 insertion(+), 12 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-pca-isa.c b/drivers/i2c/busses/i2c-pca-isa.c
-index e0eb4ca..d916fc4 100644
---- a/drivers/i2c/busses/i2c-pca-isa.c
-+++ b/drivers/i2c/busses/i2c-pca-isa.c
-@@ -193,16 +193,6 @@ static struct isa_driver pca_isa_driver = {
- 	}
- };
- 
--static int __init pca_isa_init(void)
--{
--	return isa_register_driver(&pca_isa_driver, 1);
--}
--
--static void __exit pca_isa_exit(void)
--{
--	isa_unregister_driver(&pca_isa_driver);
--}
--
- MODULE_AUTHOR("Ian Campbell <icampbell@arcom.com>");
- MODULE_DESCRIPTION("ISA base PCA9564/PCA9665 driver");
- MODULE_LICENSE("GPL");
-@@ -221,5 +211,4 @@ MODULE_PARM_DESC(clock, "Clock rate in hertz.\n\t\t"
- 		"\t\t\t\tFast+: 400100 - 10000099\n"
- 		"\t\t\t\tTurbo: Up to 1265800");
- 
--module_init(pca_isa_init);
--module_exit(pca_isa_exit);
-+module_isa_driver(pca_isa_driver, 1);
+On 31 May 2016 09:56:51 BST, Crestez Dan Leonard <leonard.crestez@intel.com> wrote:
+>On 05/31/2016 12:42 AM, Jonathan Cameron wrote:
+>> On 30 May 2016 14:44:41 BST, Crestez Dan Leonard
+><leonard.crestez@intel.com> wrote:
+>>> On 05/29/2016 06:47 PM, Jonathan Cameron wrote:
+>>>> On 18/05/16 16:00, Crestez Dan Leonard wrote:
+>>>>> Right now it is possible to only enable some of the x/y/z
+>channels,
+>>> for
+>>>>> example you can enable accel_z without x or y but if you actually
+>do
+>>>>> that what you get is actually only the x channel.
+>>>>>
+>>>>> Fix this by reformatting the hardware sample to only include the
+>>>>> requested channels.
+>>>> As it stands here there is no benefit in doing this over using the
+>>> core
+>>>> demux. In fact it's considerably less efficient (fair enough that
+>you
+>>>> are keeping it simple in the first instance).
+>>>> The patch description should make that clear.
+>>>
+>>> Why is it less efficient? All it really does is a bunch of memcpy.
+>> 
+>> Not doing agglomeration of neighbouring copies (iirc) not git either
+>set of code to
+>> hand!
+>
+>You're right about that. But the total data rate is still very low.
+>
+>>>> I'd definitely like to see simple extension of that option to
+>handle
+>>>> a callback to get the nearest scanmask that is possible (as an
+>>> alternative
+>>>> to the static scan_masks_available list.)
+>>>>
+>>>> This only gets interesting if we are dealing with the unaligned
+>case
+>>> and for
+>>>> these parts that only kicks in I think if the slave devices have
+>say
+>>> 3 bytes in
+>>>> their data type.  
+>>>
+>>> But I want to deal with the unaligned case because it's better than
+>>> introducing odd validations on slave channels. If I added an
+>extension
+>>> to get the nearest scanmask I would have to remove it in PATCH 7.
+>> Hmm I must have misread that. Though you were only supporting 16 bit
+>channels
+>>  for aux sensors.
+>
+>That was in a previous version, I dropped that limitation now.
+>
+>> Then for now can we give this a slightly less generic name. I am not
+>happy
+>>  enough that we want this in the core 'yet'. 
+>> Easy to rename later if it makes sense.
+>
+>Ok, I will rename these functions to start with inv_mpu_* instead of
+>iio_*.
+>
+>In theory it would be interesting to refactor the iio demuxing code to
+>support this but then this patch serios would grow even more
+>complicated.
+
+Agreed. Let's leave that for a separate effort!
+
+I was vaguely wondering about letting the core demux input be unaligned but
+ enforce the output keeping current alignment.  Fiddly even then however.
+
+J
+
 -- 
-2.7.3
+Sent from my Android device with K-9 Mail. Please excuse my brevity.
