@@ -1,75 +1,72 @@
-From: Crestez Dan Leonard <leonard.crestez@intel.com>
-Subject: Re: [PATCH v2 6/7] iio: inv_mpu6050: Reformat sample for active scan
- mask
-Date: Tue, 31 May 2016 11:56:51 +0300
-Message-ID: <3169df0b-78d8-a35c-bd31-f2d4e7e17bde@intel.com>
-References: <cover.1463582011.git.leonard.crestez@intel.com>
- <7df4b331d35e3e6a19d13ccbcb5d12f0347b660c.1463582011.git.leonard.crestez@intel.com>
- <14d4a757-f60a-40c0-03b4-c36d1b22d30e@kernel.org>
- <49c4a235-29fd-aa55-d9d2-8ead5cefd737@intel.com>
- <4EB54DBB-A77A-4BC5-8960-5CE9EB1B5DF2@kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v6 0/4] i2c-smbus: add support for HOST NOTIFY
+Date: Tue, 31 May 2016 11:17:31 +0200
+Message-ID: <20160531091731.GV23234@mail.corp.redhat.com>
+References: <1458146348-17171-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4EB54DBB-A77A-4BC5-8960-5CE9EB1B5DF2@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Daniel Baluta <daniel.baluta@intel.com>, Ge Gao <ggao@invensense.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1458146348-17171-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>
+Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/31/2016 12:42 AM, Jonathan Cameron wrote:
-> On 30 May 2016 14:44:41 BST, Crestez Dan Leonard <leonard.crestez@intel.com> wrote:
->> On 05/29/2016 06:47 PM, Jonathan Cameron wrote:
->>> On 18/05/16 16:00, Crestez Dan Leonard wrote:
->>>> Right now it is possible to only enable some of the x/y/z channels,
->> for
->>>> example you can enable accel_z without x or y but if you actually do
->>>> that what you get is actually only the x channel.
->>>>
->>>> Fix this by reformatting the hardware sample to only include the
->>>> requested channels.
->>> As it stands here there is no benefit in doing this over using the
->> core
->>> demux. In fact it's considerably less efficient (fair enough that you
->>> are keeping it simple in the first instance).
->>> The patch description should make that clear.
->>
->> Why is it less efficient? All it really does is a bunch of memcpy.
+Hi,
+
+On Mar 16 2016 or thereabouts, Benjamin Tissoires wrote:
+> Hi,
 > 
-> Not doing agglomeration of neighbouring copies (iirc) not git either set of code to
-> hand!
+> this is a quick respin of the series with the kbuild test bot fixes and the
+> requested lm90 change.
+> 
+> Again, I think applying the RMI4 input driver needs the merge of the input tree
+> in master first, but having reviews on the Host Notify implementation would be
+> good.
 
-You're right about that. But the total data rate is still very low.
 
->>> I'd definitely like to see simple extension of that option to handle
->>> a callback to get the nearest scanmask that is possible (as an
->> alternative
->>> to the static scan_masks_available list.)
->>>
->>> This only gets interesting if we are dealing with the unaligned case
->> and for
->>> these parts that only kicks in I think if the slave devices have say
->> 3 bytes in
->>> their data type.  
->>
->> But I want to deal with the unaligned case because it's better than
->> introducing odd validations on slave channels. If I added an extension
->> to get the nearest scanmask I would have to remove it in PATCH 7.
-> Hmm I must have misread that. Though you were only supporting 16 bit channels
->  for aux sensors.
+Well, RMI4 is now in master, and it's been 2 months and a half since this
+v6. Thanks for everyone who send their acks, but I'd like to have a
+review on the Host Notify implementation (Jean??????).
 
-That was in a previous version, I dropped that limitation now.
+We just had a new bug this week that shows that the fallback protocol we
+use under Linux for Synaptics touchpad is buggy[1]. I really like to see
+this moving forward so I'll send a v7 with the acks and tested by, but I
+really would like to get Wolfram's or Jean's attention for the Host
+notify part.
 
-> Then for now can we give this a slightly less generic name. I am not happy
->  enough that we want this in the core 'yet'. 
-> Easy to rename later if it makes sense.
+Cheers,
+Benjamin
 
-Ok, I will rename these functions to start with inv_mpu_* instead of iio_*.
+[1] https://bugs.freedesktop.org/show_bug.cgi?id=96267
 
-In theory it would be interesting to refactor the iio demuxing code to
-support this but then this patch serios would grow even more complicated.
-
--- 
-Regards,
-Leonard
+> 
+> Cheers,
+> Benjamin
+> 
+> Benjamin Tissoires (4):
+>   i2c: add a protocol parameter to the alert callback
+>   i2c-smbus: add SMBus Host Notify support
+>   i2c: i801: add support of Host Notify
+>   Input: synaptics-rmi4 - add SMBus support
+> 
+>  Documentation/i2c/smbus-protocol |   3 +
+>  drivers/char/ipmi/ipmi_ssif.c    |   6 +-
+>  drivers/hwmon/lm90.c             |   6 +-
+>  drivers/i2c/busses/Kconfig       |   1 +
+>  drivers/i2c/busses/i2c-i801.c    |  85 +++++++-
+>  drivers/i2c/i2c-smbus.c          | 112 ++++++++++-
+>  drivers/input/rmi4/Kconfig       |  12 ++
+>  drivers/input/rmi4/Makefile      |   1 +
+>  drivers/input/rmi4/rmi_bus.h     |  12 ++
+>  drivers/input/rmi4/rmi_smbus.c   | 416 +++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c-smbus.h        |  44 +++++
+>  include/linux/i2c.h              |  10 +-
+>  include/uapi/linux/i2c.h         |   1 +
+>  13 files changed, 699 insertions(+), 10 deletions(-)
+>  create mode 100644 drivers/input/rmi4/rmi_smbus.c
+> 
+> -- 
+> 2.5.0
+> 
