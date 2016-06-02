@@ -1,63 +1,74 @@
-From: "Voon, Weifeng" <weifeng.voon@intel.com>
-Subject: RE: [PATCH] i2c: designware: Enable ioctl I2C_TIMEOUT
-Date: Thu, 2 Jun 2016 09:11:03 +0000
-Message-ID: <D6759987A7968C4889FDA6FA91D5CBC801BFEAE0@PGSMSX103.gar.corp.intel.com>
-References: <1464854250-6810-1-git-send-email-weifeng.voon@intel.com>
- <20160602083330.GY26768@pengutronix.de>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 4/4] Revert "powerpc/fsl: Move fsl_guts.h out of
+	arch/powerpc"
+Date: Thu, 02 Jun 2016 11:01:45 +0200
+Message-ID: <3225846.9EJ0sHv0XK@wuerfel>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
+	<5513501.AmZs7h1vI2@wuerfel>
+	<1464830660.22191.6.camel@buserror.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:6978 "EHLO mga04.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751317AbcFBJLI convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Jun 2016 05:11:08 -0400
-In-Reply-To: <20160602083330.GY26768@pengutronix.de>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <1464830660.22191.6.camel-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iomm>
 List-Id: linux-i2c@vger.kernel.org
-To: =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "Tan, Jui Nee" <jui.nee.tan@intel.com>
 
-> From: Uwe Kleine-K=F6nig [mailto:u.kleine-koenig@pengutronix.de]
-> On Thu, Jun 02, 2016 at 03:57:30PM +0800, Weifeng Voon wrote:
-> > This allows applications to set the transfer timeout in 10ms
-> > increments via ioctl I2C_TIMEOUT.
->=20
-> 10ms is only correct with HZ=3D100. With higher values of HZ you get =
-a finer
-> resolution. I'd write:
->=20
-> 	Respect the transfer timeout set via the I2C_TIMEOUT ioctl.
->=20
+On Wednesday, June 1, 2016 8:24:20 PM CEST Scott Wood wrote:
+> On Mon, 2016-05-30 at 15:18 +0200, Arnd Bergmann wrote:
+> > All users of this driver are PowerPC specific and the header file
+> > has no business in the global include/linux/ hierarchy, so move
+> > it back before anyone starts using it on ARM.
+> > 
+> > This reverts commit 948486544713492f00ac8a9572909101ea892cb0.
+> > 
+> > Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+> > ---
+> > This part of the series is not required for the eSDHC quirk,
+> > but it restores the asm/fsl_guts.h header so it doesn't accidentally
+> > get abused for this in the future. I found two drivers outside of
+> > arch/powerpc that already accessed the registers directly, but the
+> > functions look fairly contained, and can be easily hidden in an
+> > #ifdef CONFIG_PPC
+> 
+> NACK
+> 
+> Besides adding ifdef pollution for no good reason, this register block is used
+> on some ARM chips as well.  Why is it a problem if "anyone starts using it on
+> ARM"?
 
-10ms is correct and regardless of HZ.=20
-=46rom i2c-dev.c:
-client->adapter->timeout =3D msecs_to_jiffies(arg * 10);
+It's just not a good interface when it's defined as "this is the layout of
+a register area that any driver can ioremap() if they can figure out the
+device node". It's not uncommon to have register areas like that, but
+normally you have at the minimum a 'syscon' device to handle locking
+between drivers accessing the same registers and to avoid having to map
+the same area multiple times.
 
-The purpose of putting in the resolution of 10ms is just for the ease o=
-f others when
-they are using this patch. I am ok to take it out if it is not necessar=
-y.
+If we need to use 'guts' registers on ARM, we can find a way to abstract
+them properly for the given use cases, using a syscon or a driver with
+exported functions, but just making a PowerPC platform specific header
+global to all Linux drivers by putting it into include/linux doesn't seem
+right.
 
-> and not mention the resolution at all. After all your patch doesn't "=
-enable" that
-> ioctl, just makes use of the value set by it.
+Note that the header file uses a structure definition rather than the more
+common macros with register offsets, which is fine for a driver that has
+its own registers and abstracts them, but it doesn't really work with
+the regmap interface, so if we want to use it with syscon, it also needs to
+be rewritten.
 
-Yes, you are right. I am just using the value set by it. Maybe this may=
- sounds more=20
-relevant:
-	Set transfer timeout via ioctl I2C_TIMEOUT=20
+> BTW, of all the mailing lists you included on this CC, you seem to have left
+> off the PPC list (I've added it).
 
-Or any other recommendation?
+Sorry, my mistake.
 
->=20
-> Best regards
-> Uwe
->=20
->=20
-> --
-> Pengutronix e.K.                           | Uwe Kleine-K=F6nig      =
-      |
-> Industrial Linux Solutions                 | http://www.pengutronix.d=
-e/  |
+	Arnd
