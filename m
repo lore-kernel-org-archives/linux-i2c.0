@@ -1,68 +1,95 @@
-From: Eric Anholt <eric@anholt.net>
-Subject: [PATCH] i2c: bcm2835: Set up the clock stretching timeout at boot.
-Date: Wed,  1 Jun 2016 15:07:25 -0700
-Message-ID: <1464818845-5348-1-git-send-email-eric@anholt.net>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anholt.net ([50.246.234.109]:34417 "EHLO anholt.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750720AbcFAWH1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 1 Jun 2016 18:07:27 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Scott Wood <oss@buserror.net>
+Subject: Re: [PATCH 3/4] mmc: sdhci-of-esdhc: fix host version for
+ T4240-R1.0-R2.0
+Date: Wed, 01 Jun 2016 20:11:14 -0500
+Message-ID: <1464829874.16584.163.camel@buserror.net>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
+	 <HE1PR04MB0889852B7809A1CCFF8922ACF8410@HE1PR04MB0889.eurprd04.prod.outlook.com>
+	 <CAPDyKFqx2JMLzXoDxGCKFYMFV47+SegnkuWFXKvsQHK7L5w-1g@mail.gmail.com>
+	 <6110875.0k1HlSKhzn@wuerfel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <6110875.0k1HlSKhzn@wuerfel>
+Sender: netdev-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, Yangbo Lu <yangbo.lu@nxp.com>, Mark Rutland <mark.rutland@arm.com>, Xiaobo Xie <xiaobo.xie@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, Qiang Zhao <qiang.zhao@nxp.com>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Santosh Shilimkar <ssantosh@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Yang-Leo Li <leoyang.li@nxp.com>, iommu
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, linux-i2c@vger.kernel.org, Eric Anholt <eric@anholt.net>
 
-The register at poweron contains 0x40, which at our typical 100khz bus
-rate means .64ms instead of the desired 25ms.
+On Mon, 2016-05-30 at 15:16 +0200, Arnd Bergmann wrote:
+> This is a rewrite of an earlier patch from Yangbo Lu, adding a quirk
+> for the NXP QorIQ T4240 in the detection of the host device version.
+> 
+> Unfortunately, this device cannot be detected using the compatible
+> string, as we have to support existing DTS files that use the generic
+> "fsl,t4240-esdhc" identifier but that have other host versions that
+> are correctly detected.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> 
+> diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of
+> -esdhc.c
+> index 3f34d354f1fc..1d4814fe4cb2 100644
+> --- a/drivers/mmc/host/sdhci-of-esdhc.c
+> +++ b/drivers/mmc/host/sdhci-of-esdhc.c
+> @@ -73,14 +73,16 @@ static u32 esdhc_readl_fixup(struct sdhci_host *host,
+>  static u16 esdhc_readw_fixup(struct sdhci_host *host,
+>  				     int spec_reg, u32 value)
+>  {
+> +	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+> +	struct sdhci_esdhc *esdhc = sdhci_pltfm_priv(pltfm_host);
+>  	u16 ret;
+>  	int shift = (spec_reg & 0x2) * 8;
+>  
+>  	if (spec_reg == SDHCI_HOST_VERSION)
+> -		ret = value & 0xffff;
+> -	else
+> -		ret = (value >> shift) & 0xffff;
+> -	return ret;
+> +		return esdhc->vendor_ver << SDHCI_VENDOR_VER_SHIFT |
+> +		       esdhc->spec_ver;
+> +
+> +	return (value >> shift) & 0xffff;
+>  }
+>  
+>  static u8 esdhc_readb_fixup(struct sdhci_host *host,
+> @@ -562,16 +564,32 @@ static const struct sdhci_pltfm_data
+> sdhci_esdhc_le_pdata = {
+>  	.ops = &sdhci_esdhc_le_ops,
+>  };
+>  
+> +#define T4240_HOST_VER ((VENDOR_V_23 << SDHCI_VENDOR_VER_SHIFT) |
+> SDHCI_SPEC_200)
+> +static const struct soc_device_attribute esdhc_t4240_quirk = {
+> +	/* T4240 revision < 0x20 uses vendor version 23, SDHCI version 200
+> */
+> +	{ .soc_id = "T4*(0x824000)", .revision = "0x[01]?",
+> +	  .data = (void *)(uintptr_t)(T4240_HOST_VER) },
 
-Fixes many clock stretching timeouts when talking to the DSI panel's
-bridge chip, and will hopefully fix talking to the FXL6408 GPIO
-expander on the Pi3 as well.
+Why should this code need to care that the string begins with "T4"?  This
+creates dual maintenance if that were to change.  It's also broken because
+T4240 has compatible = "fsl,t4240-device-config", "fsl,qoriq-device-config
+-2.0" and thus with these patches it would incorrectly show up as "P series
+(0x824000)".  The compatible string of this node was never meant to be a key
+for choosing a string to describe the system to userspace.
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
----
- drivers/i2c/busses/i2c-bcm2835.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+0x824000 is a magic number which should be represented symbolically.
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 818b051d25e6..1348f224013d 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -28,6 +28,11 @@
- #define BCM2835_I2C_FIFO	0x10
- #define BCM2835_I2C_DIV		0x14
- #define BCM2835_I2C_DEL		0x18
-+/*
-+ * 16-bit field for the number of SCL cycles to wait after rising SCL
-+ * before deciding the slave is not responding.  0 disables the
-+ * timeout detection.
-+ */
- #define BCM2835_I2C_CLKT	0x1c
- 
- #define BCM2835_I2C_C_READ	BIT(0)
-@@ -238,6 +243,7 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	u32 bus_clk_rate, divider;
- 	int ret;
- 	struct i2c_adapter *adap;
-+	u32 clkt;
- 
- 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
- 	if (!i2c_dev)
-@@ -280,6 +286,15 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	}
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
- 
-+	/*
-+	 * SMBUS says "Devices participating in a transfer will
-+	 * timeout when any clock low exceeds the value of
-+	 * T_TIMEOUT,MIN of 25 ms."
-+	 */
-+	clkt = DIV_ROUND_UP(25 * bus_clk_rate, 1000);
-+	clkt = min(clkt, 0xffffu);
-+	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, clkt);
-+
- 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!irq) {
- 		dev_err(&pdev->dev, "No IRQ resource\n");
--- 
-2.8.0.rc3
+If T4240 is affected, then so are the reduced-core variants T4160 and T4080,
+but 0x824000 doesn't match them (Yangbo's patch had the same problem).  And
+please don't respond with "0x824*"
+
+You also didn't strip out the E bit of SVR which indicates encryption
+capability and nothing else (Yangbo's patch did not have this problem because
+it used SVR_SOC_VER).
+
+What happens if the revision condition is more complicated, such as <= 0x20
+with 0x21 being fine?  Multiple quirk entries where before we had as simple
+comparison?
+
+I fail to see how this approach is an improvement (much less one that needs to
+hold up a patchset that is fixing a problem and is not touching any generic
+code).  Why does this need to be a string?
+
+-Scott
