@@ -1,49 +1,42 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH] i2c: robotfuzz-osif: Constify osif_table
-Date: Thu, 2 Jun 2016 13:59:57 +0200
-Message-ID: <20160602115957.GE17343@lunn.ch>
-References: <1464845328.6532.1.camel@ingics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from vps0.lunn.ch ([178.209.37.122]:57486 "EHLO vps0.lunn.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932294AbcFBMAA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 2 Jun 2016 08:00:00 -0400
-Content-Disposition: inline
-In-Reply-To: <1464845328.6532.1.camel@ingics.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Subject: [PATCH v2 0/5] Add support for the STM32F4 I2C
+Date: Thu,  2 Jun 2016 16:26:03 +0200
+Message-ID: <1464877568-21897-1-git-send-email-cedric.madianga@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: patrice.chotard@st.com, mcoquelin.stm32@gmail.com, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Axel Lin <axel.lin@ingics.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Thu, Jun 02, 2016 at 01:28:48PM +0800, Axel Lin wrote:
-> osif_table is never modified, so declare it as const.
-> 
-> Signed-off-by: Axel Lin <axel.lin@ingics.com>
+This patchset adds support for the I2C controller embedded in STM32F4xx SoC.
+It enables I2C transfer in interrupt mode with Standard-mode and Fast-mode bus
+speed.
 
-Acked-by: Andrew Lunn <andrew@lunn.ch>
+Changes since v1:
+- use compatible st,stm32f4-i2c instead of st,i2c-stm32f4 (Rob)
+- fix typo s/enmpty/empty (Maxime)
+- use one function to handle TX fifo empty and byte xfer finished IT (Maxime)
+- set duty cycle in timing struct in Fast mode
+- Rework clock management (call prepare/unprepare at probe and remove, call
+  clk_enable/clk_disable for each I2C transfer)
 
-Thanks
-	Andrew
+M'boumba Cedric Madianga (5):
+  dt-bindings: Document the STM32 I2C bindings
+  i2c: Add STM32F4 I2C driver
+  ARM: dts: Add I2C1 support for STM32F429 SoC
+  ARM: dts: Add I2C1 support for STM32429 eval board
+  ARM: configs: Add I2C support for STM32 defconfig
 
-> ---
->  drivers/i2c/busses/i2c-robotfuzz-osif.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-> index ced9c6a..89d8b41 100644
-> --- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
-> +++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-> @@ -125,7 +125,7 @@ static struct i2c_algorithm osif_algorithm = {
->  #define USB_OSIF_VENDOR_ID	0x1964
->  #define USB_OSIF_PRODUCT_ID	0x0001
->  
-> -static struct usb_device_id osif_table[] = {
-> +static const struct usb_device_id osif_table[] = {
->  	{ USB_DEVICE(USB_OSIF_VENDOR_ID, USB_OSIF_PRODUCT_ID) },
->  	{ }
->  };
-> -- 
-> 2.5.0
-> 
+ .../devicetree/bindings/i2c/i2c-stm32.txt          |  33 +
+ arch/arm/boot/dts/stm32429i-eval.dts               |   6 +
+ arch/arm/boot/dts/stm32f429.dtsi                   |  24 +
+ arch/arm/configs/stm32_defconfig                   |   3 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-stm32f4.c                   | 867 +++++++++++++++++++++
+ 7 files changed, 944 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+ create mode 100644 drivers/i2c/busses/i2c-stm32f4.c
+
+-- 
+1.9.1
