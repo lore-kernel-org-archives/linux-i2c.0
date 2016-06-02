@@ -1,73 +1,83 @@
-From: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Subject: Re: [PATCH v2 3/5] ARM: dts: Add I2C1 support for STM32F429 SoC
-Date: Thu, 2 Jun 2016 18:07:11 +0200
-Message-ID: <CALszF6D4K1GsFdb0z3Lkb=EJdhzNnZNnAxeyCZGq36+Cnwf+_A@mail.gmail.com>
-References: <1464877568-21897-1-git-send-email-cedric.madianga@gmail.com>
- <1464877568-21897-4-git-send-email-cedric.madianga@gmail.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Subject: Re: [PATCH] i2c: bcm2835: Set up the clock stretching timeout at
+ boot.
+Date: Thu, 2 Jun 2016 18:35:34 +0200
+Message-ID: <30fcc305-971d-4a1c-18c1-08c28585e260@i2se.com>
+References: <1464818845-5348-1-git-send-email-eric@anholt.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1464877568-21897-4-git-send-email-cedric.madianga@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux@armlinux.org.uk, Patrice Chotard <patrice.chotard@st.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([217.72.192.75]:61960 "EHLO
+	mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752701AbcFBQgF (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Jun 2016 12:36:05 -0400
+In-Reply-To: <1464818845-5348-1-git-send-email-eric@anholt.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Eric Anholt <eric@anholt.net>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
 
-2016-06-02 16:26 GMT+02:00 M'boumba Cedric Madianga <cedric.madianga@gmail.com>:
-> Signed-off-by: Patrice Chotard <patrice.chotard@st.com>
-> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-> ---
->  arch/arm/boot/dts/stm32f429.dtsi | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
+Hi Eric,
+
+Am 02.06.2016 um 00:07 schrieb Eric Anholt:
+> The register at poweron contains 0x40, which at our typical 100khz bus
+> rate means .64ms instead of the desired 25ms.
 >
-> diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
-> index 434d4b9..d5857eb 100644
-> --- a/arch/arm/boot/dts/stm32f429.dtsi
-> +++ b/arch/arm/boot/dts/stm32f429.dtsi
-> @@ -323,6 +323,18 @@
->                                         slew-rate = <2>;
->                                 };
->                         };
+> Fixes many clock stretching timeouts when talking to the DSI panel's
+> bridge chip, and will hopefully fix talking to the FXL6408 GPIO
+> expander on the Pi3 as well.
+>
+> Signed-off-by: Eric Anholt <eric@anholt.net>
+> ---
+>  drivers/i2c/busses/i2c-bcm2835.c | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+> index 818b051d25e6..1348f224013d 100644
+> --- a/drivers/i2c/busses/i2c-bcm2835.c
+> +++ b/drivers/i2c/busses/i2c-bcm2835.c
+> @@ -28,6 +28,11 @@
+>  #define BCM2835_I2C_FIFO	0x10
+>  #define BCM2835_I2C_DIV		0x14
+>  #define BCM2835_I2C_DEL		0x18
+> +/*
+> + * 16-bit field for the number of SCL cycles to wait after rising SCL
+> + * before deciding the slave is not responding.  0 disables the
+> + * timeout detection.
+> + */
+>  #define BCM2835_I2C_CLKT	0x1c
+>  
+>  #define BCM2835_I2C_C_READ	BIT(0)
+> @@ -238,6 +243,7 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+>  	u32 bus_clk_rate, divider;
+>  	int ret;
+>  	struct i2c_adapter *adap;
+> +	u32 clkt;
+>  
+>  	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+>  	if (!i2c_dev)
+> @@ -280,6 +286,15 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+>  	}
+>  	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
+>  
+> +	/*
+> +	 * SMBUS says "Devices participating in a transfer will
+> +	 * timeout when any clock low exceeds the value of
+> +	 * T_TIMEOUT,MIN of 25 ms."
+> +	 */
+> +	clkt = DIV_ROUND_UP(25 * bus_clk_rate, 1000);
+> +	clkt = min(clkt, 0xffffu);
+> +	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, clkt);
 > +
-> +                       i2c1_sda_pin: i2c1_sda@0 {
-> +                               pins {
-> +                                       pinmux = <STM32F429_PB9_FUNC_I2C1_SDA>;
-> +                                       drive-open-drain;
-> +                               };
-> +                       };
-> +                       i2c1_scl_pin: i2c1_scl@0 {
-> +                               pins {
-> +                                       pinmux = <STM32F429_PB6_FUNC_I2C1_SCL>;
-> +                               };
-> +                       };
->                 };
-Shouldn't be preferrable to group the two functions in a single one,
-as done for usart config in this file?:
 
-            usart1_pins_a: usart1@0 {
-                pins1 {
-                    pinmux = <STM32F429_PA9_FUNC_USART1_TX>;
-                    bias-disable;
-                    drive-push-pull;
-                    slew-rate = <0>;
-                };
-                pins2 {
-                    pinmux = <STM32F429_PA10_FUNC_USART1_RX>;
-                    bias-disable;
-                };
-            };
+could we really assume that the clk rate never change after driver probing?
 
-Also, I would prefer the phandle to be suffixed with the port number,
-as multiple muxing options are available, for example "i2c1_pins_b".
+This also affects Gerd's patch [PATCH 28/32] i2c: bcm2835: Set up the
+rising/falling edge delays.
 
-Thanks,
-Maxime
+Stefan
+
+>  	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+>  	if (!irq) {
+>  		dev_err(&pdev->dev, "No IRQ resource\n");
