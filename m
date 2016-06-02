@@ -1,44 +1,57 @@
-From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Subject: [PATCH v2 4/5] ARM: dts: Add I2C1 support for STM32429 eval board
-Date: Thu,  2 Jun 2016 16:26:07 +0200
-Message-ID: <1464877568-21897-5-git-send-email-cedric.madianga@gmail.com>
-References: <1464877568-21897-1-git-send-email-cedric.madianga@gmail.com>
+From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
+Subject: Re: [PATCH 2/5] i2c: Add STM32F4 I2C driver
+Date: Thu, 2 Jun 2016 17:35:12 +0200
+Message-ID: <CAOAejn0G3JzATKME5DaMV0GEBwQVWjkB1=ei-7LOQ98vzkUeVw@mail.gmail.com>
+References: <1462980974-22091-1-git-send-email-cedric.madianga@gmail.com>
+	<1462980974-22091-3-git-send-email-cedric.madianga@gmail.com>
+	<CALszF6A-jiCBtSO1RFDdgHKTKmsonRXFVs0x2zHha1LJ3UhwtQ@mail.gmail.com>
+	<CAOAejn0Fsizp9fK1mNn3BBeL2LeoVgt5_zF5656La4G2uDPH7g@mail.gmail.com>
+	<CAOAejn1NQDJpGrTwGtpvSfVOGg3UuCkj8wLJ7B5LnW1-Z2VrQA@mail.gmail.com>
+	<CALszF6ADLuZ0wK=L68FDzy5M5_eSPRTbNOjSoQw=dWDOjsPqCA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1464877568-21897-1-git-send-email-cedric.madianga@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: patrice.chotard@st.com, mcoquelin.stm32@gmail.com, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33412 "EHLO
+	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161101AbcFBPfO (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Jun 2016 11:35:14 -0400
+In-Reply-To: <CALszF6ADLuZ0wK=L68FDzy5M5_eSPRTbNOjSoQw=dWDOjsPqCA@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Patrice Chotard <patrice.chotard@st.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
----
- arch/arm/boot/dts/stm32429i-eval.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
+Hi,
 
-diff --git a/arch/arm/boot/dts/stm32429i-eval.dts b/arch/arm/boot/dts/stm32429i-eval.dts
-index 6bfc595..0bf427a 100644
---- a/arch/arm/boot/dts/stm32429i-eval.dts
-+++ b/arch/arm/boot/dts/stm32429i-eval.dts
-@@ -123,3 +123,9 @@
- 	pinctrl-names = "default";
- 	status = "okay";
- };
-+
-+&i2c1 {
-+	pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
-+	pinctrl-names = "default";
-+	status = "okay";
-+};
--- 
-1.9.1
+>> +
+>> +/**
+>> + * stm32f4_i2c_xfer() - Transfer combined I2C message
+>> + * @i2c_adap: Adapter pointer to the controller
+>> + * @msgs: Pointer to data to be written.
+>> + * @num: Number of messages to be executed
+>> + */
+>> +static int stm32f4_i2c_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg msgs[],
+>> +                           int num)
+>> +{
+>> +       struct stm32f4_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
+>> +       int ret, i;
+>> +
+>> +       i2c_dev->busy = true;
+>> +
+>> +       ret = clk_prepare_enable(i2c_dev->clk);
+>> +       if (ret) {
+>> +               dev_err(i2c_dev->dev, "Failed to prepare_enable clock\n");
+>> +               return ret;
+>> +       }
+>> +
+>> +       stm32f4_i2c_hw_config(i2c_dev);
+> Maybe you could call this only at probe and resume time?
+> You would save some register accesses.
+Some clarification about this point.
+We need to call stm32f4_i2c_hw_config before each I2C transfer as at
+the end of I2C communication the peripheral is automatically disabled
+and configuration registers are reset.
+
+
+BR,
+Cedric
