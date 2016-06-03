@@ -1,67 +1,48 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH v2 3/5] ARM: dts: Add I2C1 support for STM32F429 SoC
-Date: Fri, 3 Jun 2016 09:57:11 +0200
-Message-ID: <CAOAejn13uZq320pGgYY7PENC1VK+Og22S_yRYkcVAP6O87fTrw@mail.gmail.com>
-References: <1464877568-21897-1-git-send-email-cedric.madianga@gmail.com>
- <1464877568-21897-4-git-send-email-cedric.madianga@gmail.com> <CALszF6D4K1GsFdb0z3Lkb=EJdhzNnZNnAxeyCZGq36+Cnwf+_A@mail.gmail.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
+ addresses
+Date: Fri, 3 Jun 2016 10:24:56 +0200
+Message-ID: <57513ED8.6000703@metafoo.de>
+References: <1460992811.8946.22.camel@linux.intel.com>
+ <5714FCBE.3060009@metafoo.de> <20160419124028.GF1725@lahna.fi.intel.com>
+ <57162C4E.9090904@metafoo.de> <20160419131631.GG1725@lahna.fi.intel.com>
+ <5716333D.1040106@metafoo.de> <20160419144027.GH1725@lahna.fi.intel.com>
+ <20160424201437.GA2123@katana> <20160425072553.GK1725@lahna.fi.intel.com>
+ <20160425073940.GD1541@katana> <20160425074126.GL1725@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CALszF6D4K1GsFdb0z3Lkb=EJdhzNnZNnAxeyCZGq36+Cnwf+_A@mail.gmail.com>
+In-Reply-To: <20160425074126.GL1725@lahna.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Patrice Chotard <patrice.chotard@st.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jean-Michel Hautbois <jhautbois@gmail.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, laurent.pinchart@ideasonboard.com, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 List-Id: linux-i2c@vger.kernel.org
 
-2016-06-02 18:07 GMT+02:00 Maxime Coquelin <mcoquelin.stm32@gmail.com>:
-> 2016-06-02 16:26 GMT+02:00 M'boumba Cedric Madianga <cedric.madianga@gmail.com>:
->> Signed-off-by: Patrice Chotard <patrice.chotard@st.com>
->> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
->> ---
->>  arch/arm/boot/dts/stm32f429.dtsi | 24 ++++++++++++++++++++++++
->>  1 file changed, 24 insertions(+)
+On 04/25/2016 09:41 AM, Mika Westerberg wrote:
+> On Mon, Apr 25, 2016 at 09:39:41AM +0200, Wolfram Sang wrote:
+>> On Mon, Apr 25, 2016 at 10:25:53AM +0300, Mika Westerberg wrote:
+>>> On Sun, Apr 24, 2016 at 10:14:37PM +0200, Wolfram Sang wrote:
+>>>>
+>>>>> The above should work with both DT and ACPI so I'm OK with the current
+>>>>> patch. We can add ACPI parts later when needed.
+>>>>
+>>>> Just to make sure, I read this as an ack for the original patch?
+>>>
+>>> Yes :)
 >>
->> diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
->> index 434d4b9..d5857eb 100644
->> --- a/arch/arm/boot/dts/stm32f429.dtsi
->> +++ b/arch/arm/boot/dts/stm32f429.dtsi
->> @@ -323,6 +323,18 @@
->>                                         slew-rate = <2>;
->>                                 };
->>                         };
->> +
->> +                       i2c1_sda_pin: i2c1_sda@0 {
->> +                               pins {
->> +                                       pinmux = <STM32F429_PB9_FUNC_I2C1_SDA>;
->> +                                       drive-open-drain;
->> +                               };
->> +                       };
->> +                       i2c1_scl_pin: i2c1_scl@0 {
->> +                               pins {
->> +                                       pinmux = <STM32F429_PB6_FUNC_I2C1_SCL>;
->> +                               };
->> +                       };
->>                 };
-> Shouldn't be preferrable to group the two functions in a single one,
-I agree. It is better.
->
->             usart1_pins_a: usart1@0 {
->                 pins1 {
->                     pinmux = <STM32F429_PA9_FUNC_USART1_TX>;
->                     bias-disable;
->                     drive-push-pull;
->                     slew-rate = <0>;
->                 };
->                 pins2 {
->                     pinmux = <STM32F429_PA10_FUNC_USART1_RX>;
->                     bias-disable;
->                 };
->             };
->
-> Also, I would prefer the phandle to be suffixed with the port number,
-> as multiple muxing options are available, for example "i2c1_pins_b".
-Ok understood. I will fix that in the V3.
-Thanks
->
-> Thanks,
-> Maxime
+>> Thanks! Could you use the formal tag for that in the future please?
+>> Patchwork automatically collects them and that saves me some work. (I
+>> even have a keyboard macro for that and use it a lot)
+> 
+> Sure, sorry about that.
+> 
+> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+
+Hi Wolfram,
+
+It looks like everybody was OK now with this patch, but it got lost somehow.
+Should it be resent, or can you still pick it up from patchwork?
+
+Thanks,
+- Lars
