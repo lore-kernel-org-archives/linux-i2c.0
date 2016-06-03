@@ -1,48 +1,81 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
- addresses
-Date: Fri, 3 Jun 2016 10:24:56 +0200
-Message-ID: <57513ED8.6000703@metafoo.de>
-References: <1460992811.8946.22.camel@linux.intel.com>
- <5714FCBE.3060009@metafoo.de> <20160419124028.GF1725@lahna.fi.intel.com>
- <57162C4E.9090904@metafoo.de> <20160419131631.GG1725@lahna.fi.intel.com>
- <5716333D.1040106@metafoo.de> <20160419144027.GH1725@lahna.fi.intel.com>
- <20160424201437.GA2123@katana> <20160425072553.GK1725@lahna.fi.intel.com>
- <20160425073940.GD1541@katana> <20160425074126.GL1725@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160425074126.GL1725@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jean-Michel Hautbois <jhautbois@gmail.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, laurent.pinchart@ideasonboard.com, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+From: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Subject: [PATCH v2] i2c: xlp9xx: add ACPI support for Broadcom Vulcan
+Date: Fri,  3 Jun 2016 16:44:34 +0530
+Message-ID: <1464952474-15714-1-git-send-email-tanmay.jagdale@broadcom.com>
+References: <1464077343-1665-1-git-send-email-tanmay.jagdale@broadcom.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:45395 "EHLO
+	mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161050AbcFCLOv (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Jun 2016 07:14:51 -0400
+In-Reply-To: <1464077343-1665-1-git-send-email-tanmay.jagdale@broadcom.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com, Tanmay Jagdale <tanmay.jagdale@broadcom.com>
 
-On 04/25/2016 09:41 AM, Mika Westerberg wrote:
-> On Mon, Apr 25, 2016 at 09:39:41AM +0200, Wolfram Sang wrote:
->> On Mon, Apr 25, 2016 at 10:25:53AM +0300, Mika Westerberg wrote:
->>> On Sun, Apr 24, 2016 at 10:14:37PM +0200, Wolfram Sang wrote:
->>>>
->>>>> The above should work with both DT and ACPI so I'm OK with the current
->>>>> patch. We can add ACPI parts later when needed.
->>>>
->>>> Just to make sure, I read this as an ack for the original patch?
->>>
->>> Yes :)
->>
->> Thanks! Could you use the formal tag for that in the future please?
->> Patchwork automatically collects them and that saves me some work. (I
->> even have a keyboard macro for that and use it a lot)
-> 
-> Sure, sorry about that.
-> 
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Added ACPI support for the I2C controller present on Broadcom's
+Vulcan ARM64 processor. ACPI ID used by the controller is BRCM9007.
 
-Hi Wolfram,
+Changed the xlp9xx_i2c_get_frequency() function to use
+device_property_read_u32() API so that the "clock-frequency" value
+can be read from _DSD in ACPI mode.
 
-It looks like everybody was OK now with this patch, but it got lost somehow.
-Should it be resent, or can you still pick it up from patchwork?
+Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+---
+Changes in v2:
+	Changed of_property_read_u32() to device_property_read_u32()
+	so that the "clock-frequency" can be read from DTS or ACPI.
 
-Thanks,
-- Lars
+ drivers/i2c/busses/i2c-xlp9xx.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index c941418..049aa4d 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -13,6 +13,7 @@
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/acpi.h>
+ #include <linux/platform_device.h>
+ 
+ #define XLP9XX_I2C_DIV			0x0
+@@ -341,11 +342,10 @@ static struct i2c_algorithm xlp9xx_i2c_algo = {
+ static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
+ 				    struct xlp9xx_i2c_dev *priv)
+ {
+-	struct device_node *np = pdev->dev.of_node;
+ 	u32 freq;
+ 	int err;
+ 
+-	err = of_property_read_u32(np, "clock-frequency", &freq);
++	err = device_property_read_u32(&pdev->dev, "clock-frequency", &freq);
+ 	if (err) {
+ 		freq = XLP9XX_I2C_DEFAULT_FREQ;
+ 		dev_dbg(&pdev->dev, "using default frequency %u\n", freq);
+@@ -429,12 +429,21 @@ static const struct of_device_id xlp9xx_i2c_of_match[] = {
+ 	{ /* sentinel */ },
+ };
+ 
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id vulcan_i2c_acpi_ids[] = {
++	{"BRCM9007", 0},
++	{}
++};
++MODULE_DEVICE_TABLE(acpi, vulcan_i2c_acpi_ids);
++#endif
++
+ static struct platform_driver xlp9xx_i2c_driver = {
+ 	.probe = xlp9xx_i2c_probe,
+ 	.remove = xlp9xx_i2c_remove,
+ 	.driver = {
+ 		.name = "xlp9xx-i2c",
+ 		.of_match_table = xlp9xx_i2c_of_match,
++		.acpi_match_table = ACPI_PTR(vulcan_i2c_acpi_ids),
+ 	},
+ };
+ 
+-- 
+2.1.0
