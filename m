@@ -1,72 +1,92 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] i2c: i801: Drop needless bit-wise OR
-Date: Fri, 3 Jun 2016 19:21:51 +0800
-Message-ID: <CAGS+omAcKcJsW7dAMMa4mbw-S7jS632CniWCpRRNNB1ie-ew3Q@mail.gmail.com>
-References: <20160525093702.64d7309c@endymion> <CAGS+omBnhpUYTXzooaZZgMChyepiAkSzt0-MxRe530=-bTyCsw@mail.gmail.com>
- <20160601113703.382c2a5f@endymion> <CAGS+omBWXdY7n58i=kMggVwH-1OHScU+u7COCnpCcSmdvQu_7Q@mail.gmail.com>
- <20160602134519.002f4776@endymion>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Subject: Re: [PATCH v3 06/33] drm: Minimally initialise drm_dp_aux
+Date: Fri, 3 Jun 2016 17:59:11 +0300
+Message-ID: <20160603145911.GZ4329@intel.com>
+References: <1464964636-3877-1-git-send-email-chris@chris-wilson.co.uk>
+ <1464964636-3877-7-git-send-email-chris@chris-wilson.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f53.google.com ([209.85.214.53]:35876 "EHLO
-	mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752133AbcFCLWN (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Jun 2016 07:22:13 -0400
-Received: by mail-it0-f53.google.com with SMTP id f67so6372538ith.1
-        for <linux-i2c@vger.kernel.org>; Fri, 03 Jun 2016 04:22:12 -0700 (PDT)
-In-Reply-To: <20160602134519.002f4776@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <1464964636-3877-7-git-send-email-chris@chris-wilson.co.uk>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Wolfram Sang <wsa@the-dreams.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Dave Airlie <airlied@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 
-On Thu, Jun 2, 2016 at 7:45 PM, Jean Delvare <jdelvare@suse.de> wrote:
->
-> On Wed, 1 Jun 2016 17:38:27 +0800, Daniel Kurtz wrote:
-> > On Wed, Jun 1, 2016 at 5:37 PM, Jean Delvare <jdelvare@suse.de> wrote:
-> > >
-> > > Hi Daniel,
-> > >
-> > > On Mon, 30 May 2016 22:07:55 +0800, Daniel Kurtz wrote:
-> > > > On Wed, May 25, 2016 at 3:37 PM, Jean Delvare <jdelvare@suse.de> wrote:
-> > > > > The interrupt handling code makes it look like several status values
-> > > > > may be merged together before being processed, while this will never
-> > > > > happen. Change from bit-wise OR to simple assignment to make it more
-> > > > > obvious and avoid misunderstanding.
-> > > > >
-> > > > > Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> > > > > Cc: Daniel Kurtz <djkurtz@chromium.org>
-> > > > > Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> > > > > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > > > > Cc: Wolfram Sang <wsa@the-dreams.de>
-> > > > > ---
-> > > > > Daniel, was there any reason for this bit-wise OR, which I may be
-> > > > > missing?
-> > > >
-> > > > The only thing I can think of is that I didn't want to assume that we
-> > > > would always clear priv->status before another interrupt arrived.
-> > >
-> > > Well my question is quite clear: can this actually happen? I can't see
-> > > how.
-> >
-> > I have no idea.  You'd have to ask Intel, I guess.
->
-> You wrote the code based on public documentation, I thought you would
-> know. But if you can't be bothered, never mind, I'll trust my
-> understanding of the code.
-
-Here is the documentation:
-http://www.intel.com/content/dam/doc/datasheet/io-controller-hub-6-datasheet.pdf
-Page 570
-
-I thought maybe there were situations where you could get INTR and an
-error condition, but I don't see anything like that in the
-documentation, so I think you are right and only one bit will be set
-at a time.
-
-Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
-
-
-> --
-> Jean Delvare
-> SUSE L3 Support
+T24gRnJpLCBKdW4gMDMsIDIwMTYgYXQgMDM6MzY6NDlQTSArMDEwMCwgQ2hyaXMgV2lsc29uIHdy
+b3RlOgo+IFdoZW4gdHJ5aW5nIHRvIHNwbGl0IHVwIHRoZSBpbml0aWFsaXNhdGlvbiBwaGFzZSBh
+bmQgdGhlIHJlZ2lzdHJhdGlvbgo+IHBoYXNlLCBvbmUgaW1tZWRpYXRlIHByb2JsZW0gZW5jb3Vu
+dGVyZWQgaXMgdHJ5aW5nIHRvIHVzZSBvdXIgb3duIGkyYwo+IGRldmljZXMgYmVmb3JlIHJlZ2lz
+dHJhdGlvbiB3aXRoIHVzZXJzcGFjZSAodG8gcmVhZCBFRElEIGR1cmluZyBkZXZpY2UKPiBkaXNj
+b3ZlcnkpLiBkcm1fZHBfYXV4IGluIHBhcnRpY3VsYXIgb25seSBvZmZlcnMgYW4gaW50ZXJmYWNl
+IGZvciBzZXR0aW5nCj4gdXAgdGhlIGRldmljZSAqYWZ0ZXIqIHdlIGhhdmUgZXhwb3NlZCB0aGUg
+Y29ubmVjdG9yIHZpYSBzeXNmcy4gSW4gb3JkZXIKPiB0byBicmVhayB0aGUgY2hpY2tlbi1hbmQt
+ZWdnIHByb2JsZW0sIGV4cG9ydCBkcm1fZHBfYXV4X2luaXQoKSB0bwo+IG1pbmltYWxseSBwcmVw
+YXJlIHRoZSBpMmMgZGV2aWNlIGZvciBpbnRlcm5hbCB1c2UgYmVmb3JlCj4gZHJtX2Nvbm5lY3Rv
+cl9yZWdpc3RlcigpLgo+IAo+IFNpZ25lZC1vZmYtYnk6IENocmlzIFdpbHNvbiA8Y2hyaXNAY2hy
+aXMtd2lsc29uLmNvLnVrPgo+IENjOiBEYXZlIEFpcmxpZSA8YWlybGllZEByZWRoYXQuY29tPgo+
+IENjOiBSYWZhZWwgQW50b2dub2xsaSA8cmFmYWVsLmFudG9nbm9sbGlAaW50ZWwuY29tPgo+IENj
+OiBWaWxsZSBTeXJqw6Rsw6QgPHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tPgo+IENjOiBk
+cmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCj4gLS0tCj4gIGRyaXZlcnMvZ3B1L2RybS9k
+cm1fZHBfaGVscGVyLmMgfCAyNiArKysrKysrKysrKysrKysrKysrKystLS0tLQo+ICBpbmNsdWRl
+L2RybS9kcm1fZHBfaGVscGVyLmggICAgIHwgIDEgKwo+ICAyIGZpbGVzIGNoYW5nZWQsIDIyIGlu
+c2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4gCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1
+L2RybS9kcm1fZHBfaGVscGVyLmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2RwX2hlbHBlci5jCj4g
+aW5kZXggNGIwODhhZmEyMWIyLi45YjRlYzY1ZTFkZTYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9n
+cHUvZHJtL2RybV9kcF9oZWxwZXIuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZHBfaGVs
+cGVyLmMKPiBAQCAtNzkxLDE1ICs3OTEsMTYgQEAgc3RhdGljIHZvaWQgdW5sb2NrX2J1cyhzdHJ1
+Y3QgaTJjX2FkYXB0ZXIgKmkyYywgdW5zaWduZWQgaW50IGZsYWdzKQo+ICB9Cj4gIAo+ICAvKioK
+PiAtICogZHJtX2RwX2F1eF9yZWdpc3RlcigpIC0gaW5pdGlhbGlzZSBhbmQgcmVnaXN0ZXIgYXV4
+IGNoYW5uZWwKPiArICogZHJtX2RwX2F1eF9pbml0KCkgLSBtaW5pbWFsbHkgaW5pdGlhbGlzZSBh
+biBhdXggY2hhbm5lbAo+ICAgKiBAYXV4OiBEaXNwbGF5UG9ydCBBVVggY2hhbm5lbAo+ICAgKgo+
+IC0gKiBSZXR1cm5zIDAgb24gc3VjY2VzcyBvciBhIG5lZ2F0aXZlIGVycm9yIGNvZGUgb24gZmFp
+bHVyZS4KPiArICogSWYgeW91IG5lZWQgdG8gdXNlIHRoZSBkcm1fZHBfYXV4J3MgaTJjIGFkYXB0
+ZXIgcHJpb3IgdG8gcmVnaXN0ZXJpbmcgaXQKPiArICogd2l0aCB0aGUgb3V0c2lkZSB3b3JsZCwg
+Y2FsbCBkcm1fZHBfYXV4X2luaXQoKSBmaXJzdC4gWW91IG11c3Qgc3RpbGwKPiArICogY2FsbCBk
+cm1fZHBfYXV4X3JlZ2lzdGVyKCkgb25jZSB0aGUgY29ubmVjdG9yIGhhcyBiZWVuIHJlZ2lzdGVy
+ZWQgdG8KPiArICogYWxsb3cgdXNlcnNwYWNlIGFjY2VzcyB0byB0aGUgYXV4aWxpYXJ5IERQIGNo
+YW5uZWwuCj4gICAqLwo+IC1pbnQgZHJtX2RwX2F1eF9yZWdpc3RlcihzdHJ1Y3QgZHJtX2RwX2F1
+eCAqYXV4KQo+ICt2b2lkIGRybV9kcF9hdXhfaW5pdChzdHJ1Y3QgZHJtX2RwX2F1eCAqYXV4KQo+
+ICB7Cj4gLQlpbnQgcmV0Owo+IC0KPiAgCW11dGV4X2luaXQoJmF1eC0+aHdfbXV0ZXgpOwo+ICAK
+PiAgCWF1eC0+ZGRjLmFsZ28gPSAmZHJtX2RwX2kyY19hbGdvOwo+IEBAIC04MDksNiArODEwLDIx
+IEBAIGludCBkcm1fZHBfYXV4X3JlZ2lzdGVyKHN0cnVjdCBkcm1fZHBfYXV4ICphdXgpCj4gIAlh
+dXgtPmRkYy5sb2NrX2J1cyA9IGxvY2tfYnVzOwo+ICAJYXV4LT5kZGMudHJ5bG9ja19idXMgPSB0
+cnlsb2NrX2J1czsKPiAgCWF1eC0+ZGRjLnVubG9ja19idXMgPSB1bmxvY2tfYnVzOwo+ICt9Cj4g
+K0VYUE9SVF9TWU1CT0woZHJtX2RwX2F1eF9pbml0KTsKClRoaXMgZG9lc24ndCBmZWVsIHZlcnkg
+c2FmZSB0byBtZS4gVG8gbWUgaXQgbG9va3MgbGlrZSB0aGUgaTJjIGNvcmUKd2Fzbid0IGRlc2ln
+bmVkIHRvIGhhdmUgdGhlIGFkYXB0ZXIgYmUgdXNlZCBiZWZvcmUgaTJjX2FkZF9hZGFwdGVyKCkK
+aXMgY2FsbGVkLiBJIGd1ZXNzIGl0IG1pZ2h0IHdvcmsgaW4gdGhpcyBjYXNlIHNpbmNlIHlvdSBw
+cm92aWRlIHlvdXIKb3duIGxvY2sgdmZ1bmNzLgoKSSB0aGluayBzb21lb25lIHNob3VsZCBmaXgg
+dGhlIGkyYyBjb3JlIHRvIHNwbGl0IGkyY19hZGRfYWRhcHRlcigpCiYgY28uIGludG8gaW5pdCBh
+bmQgcmVnaXN0ZXIgcGhhc2VzLiBDYzppbmcgaTJjIGZvbGtzLi4uCgo+ICsKPiArLyoqCj4gKyAq
+IGRybV9kcF9hdXhfcmVnaXN0ZXIoKSAtIGluaXRpYWxpc2UgYW5kIHJlZ2lzdGVyIGF1eCBjaGFu
+bmVsCj4gKyAqIEBhdXg6IERpc3BsYXlQb3J0IEFVWCBjaGFubmVsCj4gKyAqCj4gKyAqIFJldHVy
+bnMgMCBvbiBzdWNjZXNzIG9yIGEgbmVnYXRpdmUgZXJyb3IgY29kZSBvbiBmYWlsdXJlLgo+ICsg
+Ki8KPiAraW50IGRybV9kcF9hdXhfcmVnaXN0ZXIoc3RydWN0IGRybV9kcF9hdXggKmF1eCkKPiAr
+ewo+ICsJaW50IHJldDsKPiArCj4gKwlpZiAoIWF1eC0+ZGRjLmFsZ28pCj4gKwkJZHJtX2RwX2F1
+eF9pbml0KGF1eCk7Cj4gIAo+ICAJYXV4LT5kZGMuY2xhc3MgPSBJMkNfQ0xBU1NfRERDOwo+ICAJ
+YXV4LT5kZGMub3duZXIgPSBUSElTX01PRFVMRTsKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9kcm0v
+ZHJtX2RwX2hlbHBlci5oIGIvaW5jbHVkZS9kcm0vZHJtX2RwX2hlbHBlci5oCj4gaW5kZXggNWE4
+NDhlNzM0NDIyLi40ZDg1Y2YyODc0YWYgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9kcm0vZHJtX2Rw
+X2hlbHBlci5oCj4gKysrIGIvaW5jbHVkZS9kcm0vZHJtX2RwX2hlbHBlci5oCj4gQEAgLTgwNSw2
+ICs4MDUsNyBAQCBpbnQgZHJtX2RwX2xpbmtfcG93ZXJfdXAoc3RydWN0IGRybV9kcF9hdXggKmF1
+eCwgc3RydWN0IGRybV9kcF9saW5rICpsaW5rKTsKPiAgaW50IGRybV9kcF9saW5rX3Bvd2VyX2Rv
+d24oc3RydWN0IGRybV9kcF9hdXggKmF1eCwgc3RydWN0IGRybV9kcF9saW5rICpsaW5rKTsKPiAg
+aW50IGRybV9kcF9saW5rX2NvbmZpZ3VyZShzdHJ1Y3QgZHJtX2RwX2F1eCAqYXV4LCBzdHJ1Y3Qg
+ZHJtX2RwX2xpbmsgKmxpbmspOwo+ICAKPiArdm9pZCBkcm1fZHBfYXV4X2luaXQoc3RydWN0IGRy
+bV9kcF9hdXggKmF1eCk7Cj4gIGludCBkcm1fZHBfYXV4X3JlZ2lzdGVyKHN0cnVjdCBkcm1fZHBf
+YXV4ICphdXgpOwo+ICB2b2lkIGRybV9kcF9hdXhfdW5yZWdpc3RlcihzdHJ1Y3QgZHJtX2RwX2F1
+eCAqYXV4KTsKPiAgCj4gLS0gCj4gMi44LjEKCi0tIApWaWxsZSBTeXJqw6Rsw6QKSW50ZWwgT1RD
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZl
+bCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xp
+c3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
