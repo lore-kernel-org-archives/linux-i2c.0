@@ -1,81 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
- addresses
-Date: Sun, 5 Jun 2016 08:15:03 +0200
-Message-ID: <20160605061458.GA2722@katana>
-References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+Subject: Re: [PATCH v7 0/4] i2c-smbus: add support for HOST NOTIFY
+Date: Sun, 5 Jun 2016 09:13:28 +0200
+Message-ID: <20160605071325.GB2722@katana>
+References: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:41357 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750775AbcFEGPb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 5 Jun 2016 02:15:31 -0400
+	protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean-Michel Hautbois <jhautbois@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, laurent.pinchart@ideasonboard.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 
 
---Kj7319i9nmIyA2yE
+--ADZbWkCsHQ7r3kzd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
-> Some I2C devices have multiple addresses assigned, for example each addre=
-ss
-> corresponding to a different internal register map page of the device.
-> So far drivers which need support for this have handled this with a driver
-> specific and non-generic implementation, e.g. passing the additional addr=
-ess
-> via platform data.
->=20
-> This patch provides a new helper function called i2c_new_secondary_device=
-()
-> which is intended to provide a generic way to get the secondary address
-> as well as instantiate a struct i2c_client for the secondary address.
->=20
-> The function expects a pointer to the primary i2c_client, a name
-> for the secondary address and an optional default address. The name is us=
-ed
-> as a handle to specify which secondary address to get.
->=20
-> The default address is used as a fallback in case no secondary address
-> was explicitly specified. In case no secondary address and no default
-> address were specified the function returns NULL.
->=20
-> For now the function only supports look-up of the secondary address
-> from devicetree, but it can be extended in the future
-> to for example support board files and/or ACPI.
->=20
-> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
+Hi Benjamin,
 
-Fixed a 'checkpatch --strict' warning and applied to for-next, thanks!
+> this is mostly a resubmission of the v6 with the acks, tested-by and few typos
+> here and there.
+
+I actually reviewed v6 but got an NMI so writing the mails fell through
+the cracks :( Sorry about that! Good news is that the code is fine from
+my point of view, some documentation updates I'd request. After updating
+those, I will pick up the core patches right away. Note that while the
+i801 patch looks good to me, I need Jean's review here. There are other
+patches pending for i801, that needs to be coordinated by him.
+
+Thanks,
+
+   Wolfram
 
 
---Kj7319i9nmIyA2yE
+--ADZbWkCsHQ7r3kzd
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXU8NiAAoJEBQN5MwUoCm2x1UP/2iJA6vcisXXipbBaUUCn/be
-Dqhwpx8T7E5VSjGtq5zFT2kP/Qbr1+wkFkGyFQKsMd5n7UMgvrG9TuDyTFpAAJVs
-Xov0fd8oTtA8SbquP//PipLQmtMuSdCd80tqayqYEgV9yGf9msRIc8RnyXUZ/q8/
-RyvLtTIE9nD0ZV88KiuKZAqaOmjjeEf3gW5ouR9VtTiN1LvxEnF0LzezIgFQHVoi
-gzqk4V56oulahk/7YtYjAELnNeVgK4uVwoVlthV85QK6YaLPm2yIti+VwVaMNgTV
-6p3RCjnRm003CiWIfL0pAXzo0F3RXWUwqXlN8rn8wDkUEXoRQrjZ7U3ZdNrNw3PJ
-Z2oDnr1mQxDJcDtnDK3zRyoSszR15CezwbEU6xgtYxgsI1lKKflMcrcIldUB7oEp
-zxqvo3mVYBmtg35KNW1XZV4ipyn71U6fKjfI96CPgTYnKYUxbCsRIgamZv4uKZHU
-hE4k6V7xm3x9Xb1CC3qkm0185tS2Rh3Q5VbJwDFoExrvrXX9MrxpjvVDiT4ERmOh
-XHg8ZVqQqBjuO3xyNcF4OJ9lyrQrSx/GX/hX7fl15flaHpnI6pWZJNU1/ontuqTs
-8xJ/h6fvX0qW/ujdodqqyAkawtv70fvRUzNsAHxDA2Dsl/hY1h+0PceUTzoy07Da
-ZMB4aB4o1K8LwJJZorjf
-=/XYl
+iQIcBAEBAgAGBQJXU9EUAAoJEBQN5MwUoCm2hBIP/j+w32sjOJ4o4YCjZ3pgl/wd
+6lPpwHqxw2aNLwxCmZtzISbw6e7CK912nCoJDR/KKItrlrkmlQ6VBc7TkDK7EGfX
+M6yUlhhPPJhyb3e0CphPh7ydvNZvm1qDzvPU+ezNTQ5AHd0A8FEYfjgnPrDzeWLv
+aYvL2z/ePfysZ3W5maXhH0KkhTCpHJvhijvj6ddKrTpmZB8Ee4YzjCm5WwvQ1E9F
+lD3Z6/jyZWI68e1eJdnbxLJLEtFWkvwpL4KCIB+4gzTBLlfFejL1fDnUDWNIVjG9
+Z48dIAdLyD6MRZE4e5h7zm0zH5yA7hYzOwZ6RwKMiyDZvIemYAKrL4N2yQ69LqpJ
+0XMYImQvC5ZsWQ9P0FFUm9bcGw/tgedBF8pvwieOPF7COqVOQRT7bLN9E1TerQEL
+Hv5s3ln3n/+Cdw3s9Hpxt6YJ06AMC5tYJXO/mUhaA1OsAULWXxOnZYsMeXvM0Baj
+lHftiaC8wQL0r8ltV4QyUk2C/49Yo4kCNdRfvo4FI3r4ev+uNns7Wq1bCgD9U/5t
+NDuPf138nE1OND2qX3+WmBMJd6cgOkJIkouHn8jCYWGjaxIfy8I8yhhHWPpN1kqo
+ys/jYHiYUtaXJwFyhsadgQeIananGhXilS6M0q1ayIfi6ESqPaZ4Pf/Yk4M6qBAa
+L9DxGfNRVdWTMQYlw++H
+=Q2fF
 -----END PGP SIGNATURE-----
 
---Kj7319i9nmIyA2yE--
+--ADZbWkCsHQ7r3kzd--
