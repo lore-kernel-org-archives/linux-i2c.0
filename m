@@ -1,460 +1,81 @@
-From: Angelo Compagnucci <angelo.compagnucci@gmail.com>
-Subject: [PATCH] drivers/i2c/busses: adding ch341a USB adapter
-Date: Sat,  4 Jun 2016 19:00:21 +0200
-Message-ID: <1465059621-19370-1-git-send-email-angelo.compagnucci@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: Add generic support passing secondary devices
+ addresses
+Date: Sun, 5 Jun 2016 08:15:03 +0200
+Message-ID: <20160605061458.GA2722@katana>
+References: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34918 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751047AbcFDRAd (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 4 Jun 2016 13:00:33 -0400
-Received: by mail-wm0-f65.google.com with SMTP id e3so6253312wme.2
-        for <linux-i2c@vger.kernel.org>; Sat, 04 Jun 2016 10:00:32 -0700 (PDT)
+Received: from sauhun.de ([89.238.76.85]:41357 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750775AbcFEGPb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 5 Jun 2016 02:15:31 -0400
+Content-Disposition: inline
+In-Reply-To: <1454254380-9246-1-git-send-email-jean-michel.hautbois@veo-labs.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+To: Jean-Michel Hautbois <jhautbois@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, galak@codeaurora.org, ijc+devicetree@hellion.org.uk, mark.rutland@arm.com, pawel.moll@arm.com, robh+dt@kernel.org, laurent.pinchart@ideasonboard.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 
-This patch adds support for ch341a USB to I2C bridge, it's
-based on a reverse engineering of the official gui client
-and several code examples.
 
-Tested with several eeprom models (24c32, 24c08), rtc (ds1307),
-adc (mcp3422).
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Angelo Compagnucci <angelo.compagnucci@gmail.com>
----
- drivers/i2c/busses/Kconfig      |  10 ++
- drivers/i2c/busses/Makefile     |   1 +
- drivers/i2c/busses/i2c-ch341a.c | 388 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 399 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-ch341a.c
+On Sun, Jan 31, 2016 at 04:33:00PM +0100, Jean-Michel Hautbois wrote:
+> Some I2C devices have multiple addresses assigned, for example each addre=
+ss
+> corresponding to a different internal register map page of the device.
+> So far drivers which need support for this have handled this with a driver
+> specific and non-generic implementation, e.g. passing the additional addr=
+ess
+> via platform data.
+>=20
+> This patch provides a new helper function called i2c_new_secondary_device=
+()
+> which is intended to provide a generic way to get the secondary address
+> as well as instantiate a struct i2c_client for the secondary address.
+>=20
+> The function expects a pointer to the primary i2c_client, a name
+> for the secondary address and an optional default address. The name is us=
+ed
+> as a handle to specify which secondary address to get.
+>=20
+> The default address is used as a fallback in case no secondary address
+> was explicitly specified. In case no secondary address and no default
+> address were specified the function returns NULL.
+>=20
+> For now the function only supports look-up of the secondary address
+> from devicetree, but it can be extended in the future
+> to for example support board files and/or ACPI.
+>=20
+> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@veo-labs.com>
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index f167021..2a168c2 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -997,6 +997,16 @@ config I2C_RCAR
- 
- comment "External I2C/SMBus adapter drivers"
- 
-+config I2C_CH341A
-+        tristate "Winchiphead CH341A USB adapter"
-+        depends on USB
-+        help
-+          If you say yes to this option, support will be included for
-+          Winchiphead CH341A, a USB to I2C interface.
-+
-+          This driver can also be built as a module.  If so, the module
-+          will be called i2c-ch341a.
-+
- config I2C_DIOLAN_U2C
- 	tristate "Diolan U2C-12 USB adapter"
- 	depends on USB
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 37f2819..16805b7 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -98,6 +98,7 @@ obj-$(CONFIG_I2C_XLP9XX)	+= i2c-xlp9xx.o
- obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
- 
- # External I2C/SMBus adapter drivers
-+obj-$(CONFIG_I2C_CH341A)	+= i2c-ch341a.o
- obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
- obj-$(CONFIG_I2C_DLN2)		+= i2c-dln2.o
- obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
-diff --git a/drivers/i2c/busses/i2c-ch341a.c b/drivers/i2c/busses/i2c-ch341a.c
-new file mode 100644
-index 0000000..6d75b02
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-ch341a.c
-@@ -0,0 +1,388 @@
-+/*
-+ * Driver for the Winchiphead CH341A USB to I2C chip
-+ *
-+ * Datasheet: http://www.winchiphead.com/download/CH341/CH341DS1.PDF
-+ *
-+ * Copyright (C) 2016 Angelo Compagnucci <angelo.compagnucci@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation, version 2.
-+ *
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
-+#include <linux/usb.h>
-+#include <linux/i2c.h>
-+#include <linux/string.h>
-+#include <linux/platform_device.h>
-+
-+#define TIMEOUT 1000
-+
-+#define CH341A_CONTROL_I2C        0xAA
-+
-+#define CH341A_I2C_CMD_STA        0x74
-+#define CH341A_I2C_CMD_STO        0x75
-+#define CH341A_I2C_CMD_OUT        0x80
-+#define CH341A_I2C_CMD_IN         0xC0
-+#define CH341A_I2C_CMD_MAX_LENGTH 32
-+#define CH341A_I2C_CMD_SET        0x60
-+#define CH341A_I2C_CMD_US         0x40
-+#define CH341A_I2C_CMD_MS         0x50
-+#define CH341A_I2C_CMD_DLY        0x0f
-+#define CH341A_I2C_CMD_END        0x00
-+
-+#define SEND_PAYLOAD_LENGTH       29
-+#define RECV_PAYLOAD_LENGTH       32
-+
-+struct i2c_ch341a {
-+	u8 in_buf[CH341A_I2C_CMD_MAX_LENGTH];
-+	u8 out_buf[CH341A_I2C_CMD_MAX_LENGTH];
-+	struct usb_device *usb_dev;
-+	struct usb_interface *interface;
-+	struct i2c_adapter adapter;
-+	unsigned int clock_speed;
-+	int ep_in, ep_out;
-+};
-+
-+static int ch341a_usb_i2c_command(struct i2c_adapter *adapter, u8 *cmd, u8 len)
-+{
-+	struct i2c_ch341a *dev = (struct i2c_ch341a *)adapter->algo_data;
-+	int sent, ret;
-+
-+	ret = usb_bulk_msg(dev->usb_dev,
-+		usb_sndbulkpipe(dev->usb_dev, dev->ep_out),
-+		cmd, len, &sent, TIMEOUT);
-+	if (ret != 0) return ret;
-+
-+	return 0;
-+}
-+
-+static int ch341a_usb_i2c_start(struct i2c_adapter *adapter)
-+{
-+	u8 I2C_CMD_START[] = {CH341A_CONTROL_I2C, CH341A_I2C_CMD_STA, CH341A_I2C_CMD_END};
-+	print_hex_dump_bytes(__func__, DUMP_PREFIX_OFFSET, I2C_CMD_START, sizeof(I2C_CMD_START));
-+	return ch341a_usb_i2c_command(adapter, I2C_CMD_START, sizeof(I2C_CMD_START));
-+}
-+
-+static int ch341a_usb_i2c_stop(struct i2c_adapter *adapter)
-+{
-+	u8 I2C_CMD_STOP[] = {CH341A_CONTROL_I2C, CH341A_I2C_CMD_STO, CH341A_I2C_CMD_END};
-+	print_hex_dump_bytes(__func__, DUMP_PREFIX_OFFSET, I2C_CMD_STOP, sizeof(I2C_CMD_STOP));
-+	return ch341a_usb_i2c_command(adapter, I2C_CMD_STOP, sizeof(I2C_CMD_STOP));
-+}
-+
-+static int ch341a_usb_i2c_set_speed(struct i2c_adapter *adapter, unsigned int data)
-+{
-+	struct i2c_ch341a *ch341a_data = (struct i2c_ch341a *)adapter->algo_data;
-+	u8 I2C_CMD_SET[] = {CH341A_CONTROL_I2C, CH341A_I2C_CMD_SET , CH341A_I2C_CMD_END};
-+	u8 speed;
-+
-+	switch (data) {
-+		case 100:
-+			speed = 0;
-+			break;
-+		case 400:
-+			speed = 1;
-+			break;
-+		case 750:
-+			speed = 2;
-+			break;
-+		case 1000:
-+			speed = 3;
-+			break;
-+		default:
-+			return -EINVAL;
-+	}
-+
-+	ch341a_data->clock_speed = data;
-+
-+	I2C_CMD_SET[1] |= speed;
-+
-+	print_hex_dump_bytes(__func__, DUMP_PREFIX_OFFSET, I2C_CMD_SET, sizeof(I2C_CMD_SET));
-+	return ch341a_usb_i2c_command(adapter, I2C_CMD_SET, sizeof(I2C_CMD_SET));
-+}
-+
-+static int ch341a_usb_i2c_write(struct i2c_adapter *adapter, u8 len, u8 *data)
-+{
-+	struct i2c_ch341a *dev = (struct i2c_ch341a *)adapter->algo_data;
-+	int ret, actual;
-+
-+	dev->out_buf[0] = CH341A_CONTROL_I2C;
-+	dev->out_buf[1] = CH341A_I2C_CMD_OUT | len;
-+	memcpy(&dev->out_buf[2], data, len);
-+	dev->out_buf[2+len] = CH341A_I2C_CMD_END;
-+
-+	print_hex_dump_bytes(__func__, DUMP_PREFIX_OFFSET, dev->out_buf, len+3);
-+
-+	ret = usb_bulk_msg(dev->usb_dev,
-+		usb_sndbulkpipe(dev->usb_dev, dev->ep_out),
-+		dev->out_buf, len+3, &actual, TIMEOUT);
-+	if (ret != 0) return ret;
-+
-+	return 0;
-+}
-+
-+static int ch341a_usb_write_bytes(struct i2c_adapter *adapter, u8 addr, u16 len, u8 *data)
-+{
-+	int i, ret;
-+
-+	ret = ch341a_usb_i2c_start(adapter);
-+	if (ret != 0) return ret;
-+
-+	ret = ch341a_usb_i2c_write(adapter, 1, &addr);
-+	if (ret != 0) return ret;
-+
-+	for (i=0; i < len/SEND_PAYLOAD_LENGTH; i++) {
-+		ret = ch341a_usb_i2c_write(adapter,
-+			SEND_PAYLOAD_LENGTH,
-+			&data[i*SEND_PAYLOAD_LENGTH]);
-+		if (ret != 0) return ret;
-+	}
-+	if ( len % SEND_PAYLOAD_LENGTH ) {
-+		ret = ch341a_usb_i2c_write(adapter,
-+			len-(SEND_PAYLOAD_LENGTH*i),
-+			&data[i*SEND_PAYLOAD_LENGTH]);
-+		if (ret != 0) return ret;
-+	}
-+
-+	ret = ch341a_usb_i2c_stop(adapter);
-+	usleep_range(2000, 10000);
-+
-+	return ret;
-+}
-+
-+static int ch341a_usb_i2c_read(struct i2c_adapter *adapter, u8 len, u8 *data)
-+{
-+	struct i2c_ch341a *dev = (struct i2c_ch341a *)adapter->algo_data;
-+	u8 I2C_CMD_READ_BYTE[] = {CH341A_CONTROL_I2C, 0, CH341A_I2C_CMD_END};
-+	int ret, actual;
-+
-+	I2C_CMD_READ_BYTE[1] = CH341A_I2C_CMD_IN | (u8) len;
-+
-+	ret = usb_bulk_msg(dev->usb_dev,
-+			usb_sndbulkpipe(dev->usb_dev, dev->ep_out),
-+			I2C_CMD_READ_BYTE, sizeof(I2C_CMD_READ_BYTE), &actual, TIMEOUT);
-+	if (ret != 0) return ret;
-+
-+	ret = usb_bulk_msg(dev->usb_dev,
-+			usb_rcvbulkpipe(dev->usb_dev, dev->ep_in),
-+			dev->in_buf, RECV_PAYLOAD_LENGTH, &actual, TIMEOUT);
-+	if (ret != 0) return ret;
-+
-+	memcpy(data, dev->in_buf, len);
-+
-+	return 0;
-+}
-+
-+static int ch341a_usb_i2c_read_bytes(struct i2c_adapter *adapter, u8 addr, u16 len, u8 *data)
-+{
-+	int ret, i;
-+
-+	ret = ch341a_usb_i2c_start(adapter);
-+	if (ret != 0) return ret;
-+	ret = ch341a_usb_i2c_write(adapter, 1, &addr);
-+	if (ret != 0) return ret;
-+
-+	for (i=0; i < len/RECV_PAYLOAD_LENGTH; i++) {
-+		ret = ch341a_usb_i2c_read(adapter,
-+			RECV_PAYLOAD_LENGTH,
-+			&data[i*RECV_PAYLOAD_LENGTH]);
-+		if (ret != 0) return ret;
-+	}
-+	if ( len % RECV_PAYLOAD_LENGTH ) {
-+		ret = ch341a_usb_i2c_read(adapter,
-+			len-(RECV_PAYLOAD_LENGTH*i),
-+			&data[i*RECV_PAYLOAD_LENGTH]);
-+		if (ret != 0) return ret;
-+	}
-+
-+	print_hex_dump_bytes(__func__, DUMP_PREFIX_OFFSET, data, len);
-+
-+	ret = ch341a_usb_i2c_stop(adapter);
-+	if (ret != 0) return ret;
-+	ch341a_usb_i2c_write(adapter, 1, &addr); //should give error so don't check here
-+
-+	return 0;
-+}
-+
-+static int ch341a_usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, int num)
-+{
-+	struct i2c_msg *pmsg;
-+	int i;
-+
-+	for (i = 0; i < num; i++) {
-+		pmsg = &msgs[i];
-+		dev_dbg(&adapter->dev, "%s: (addr=%x, flags=%x, len=%d)", __func__,
-+			pmsg->addr, pmsg->flags, pmsg->len);
-+		if (pmsg->flags & I2C_M_RD) {
-+			if (ch341a_usb_i2c_read_bytes(adapter,
-+				(pmsg->addr<<1) + 1,
-+				pmsg->len, pmsg->buf) != 0)
-+					return -EREMOTEIO;
-+		} else {
-+			if (ch341a_usb_write_bytes(adapter,
-+				(pmsg->addr<<1), pmsg->len, pmsg->buf) != 0)
-+					return -EREMOTEIO;
-+		}
-+	}
-+	return i;
-+}
-+
-+static u32 ch341a_usb_func(struct i2c_adapter *adapter)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static ssize_t ch341a_attr_clock_store_value(struct device *dev,
-+			struct device_attribute *attr,
-+			const char *buf, size_t count) {
-+
-+	struct i2c_adapter *adapter = to_i2c_adapter(dev);
-+	unsigned int value;
-+	int ret;
-+
-+	ret = kstrtouint(buf, 10, &value);
-+
-+	ret = ch341a_usb_i2c_set_speed(adapter, value);
-+	if (ret != 0) return -EINVAL;
-+
-+	return count;
-+}
-+
-+static ssize_t ch341a_attr_clock_show_value(struct device *dev,
-+				struct device_attribute *attr,
-+				char *buf) {
-+	struct i2c_adapter *adapter = to_i2c_adapter(dev);
-+	struct i2c_ch341a *ch341a_data = (struct i2c_ch341a *)adapter->algo_data;
-+	return sprintf(buf, "%d\n", (ch341a_data->clock_speed));
-+}
-+
-+static ssize_t ch341a_attr_clock_show_freqs(struct device *dev,
-+				struct device_attribute *attr,
-+				char *buf) {
-+	return sprintf(buf, "100 400 750 1000\n");
-+}
-+
-+static DEVICE_ATTR(clock_frequency, S_IWUSR | S_IRUGO,
-+			ch341a_attr_clock_show_value,
-+			ch341a_attr_clock_store_value);
-+static DEVICE_ATTR(clock_frequency_available, S_IRUGO,
-+		ch341a_attr_clock_show_freqs, NULL);
-+
-+static struct attribute *ch341a_attrs[] = {
-+	&dev_attr_clock_frequency.attr,
-+	&dev_attr_clock_frequency_available.attr,
-+	NULL
-+};
-+ATTRIBUTE_GROUPS(ch341a);
-+
-+static const struct i2c_algorithm usb_algorithm = {
-+	.master_xfer	= ch341a_usb_xfer,
-+	.functionality	= ch341a_usb_func,
-+};
-+
-+static const struct usb_device_id ch341a_table[] = {
-+	{ USB_DEVICE(0x1a86, 0x5512) },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(usb, ch341a_table);
-+
-+static void ch341a_free(struct i2c_ch341a *dev)
-+{
-+	usb_put_dev(dev->usb_dev);
-+	kfree(dev);
-+}
-+
-+static int ch341a_probe(struct usb_interface *interface,
-+			const struct usb_device_id *id)
-+{
-+	struct usb_host_interface *hostif = interface->cur_altsetting;
-+	struct i2c_ch341a *dev;
-+	int ret = -ENOMEM;
-+
-+	dev_dbg(&interface->dev, "probing usb device\n");
-+
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-+	if (dev == NULL) {
-+		dev_err(&interface->dev, "Out of memory\n");
-+		goto error;
-+	}
-+
-+	dev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
-+	dev->interface = interface;
-+
-+	dev->ep_out = hostif->endpoint[1].desc.bEndpointAddress;
-+	dev->ep_in = hostif->endpoint[0].desc.bEndpointAddress;
-+
-+	usb_set_intfdata(interface, dev);
-+
-+	dev->adapter.owner = THIS_MODULE;
-+	dev->adapter.class = I2C_CLASS_HWMON;
-+	dev->adapter.algo = &usb_algorithm;
-+	dev->adapter.algo_data = dev;
-+	dev->adapter.dev.groups = ch341a_groups;
-+	i2c_set_adapdata(&dev->adapter, dev);
-+	snprintf(dev->adapter.name, sizeof(dev->adapter.name),
-+		 "i2c-ch341a at bus %03d device %03d",
-+		 dev->usb_dev->bus->busnum, dev->usb_dev->devnum);
-+
-+	dev->adapter.dev.parent = &dev->interface->dev;
-+
-+	ret = i2c_add_adapter(&dev->adapter);
-+	if (ret < 0) {
-+		goto error;
-+	}
-+
-+	ret = ch341a_usb_i2c_set_speed(&dev->adapter, 100);
-+	if (ret != 0) return ret;
-+
-+	dev_info(&dev->adapter.dev, "connected i2c-ch341a device\n");
-+
-+	return 0;
-+
-+ error:
-+	if (dev)
-+		usb_set_intfdata(interface, NULL);
-+		ch341a_free(dev);
-+
-+	return ret;
-+}
-+
-+static void ch341a_disconnect(struct usb_interface *interface)
-+{
-+	struct i2c_ch341a *dev = usb_get_intfdata(interface);
-+
-+	i2c_del_adapter(&dev->adapter);
-+	usb_set_intfdata(interface, NULL);
-+	ch341a_free(dev);
-+
-+	dev_dbg(&interface->dev, "disconnected\n");
-+}
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id ch341a_of_match[] = {
-+	{ .compatible = "ch341a" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, ch341a_of_match);
-+#endif
-+
-+static struct usb_driver ch341a_driver = {
-+	.name		= "i2c-ch341a",
-+	.probe		= ch341a_probe,
-+	.disconnect	= ch341a_disconnect,
-+	.id_table	= ch341a_table,
-+};
-+
-+module_usb_driver(ch341a_driver);
-+
-+MODULE_AUTHOR("Angelo Compagnucci <angelo.compagnucci@gmail.com>");
-+MODULE_DESCRIPTION("i2c-ch341a driver");
-+MODULE_LICENSE("GPL v2");
--- 
-1.9.1
+Fixed a 'checkpatch --strict' warning and applied to for-next, thanks!
+
+
+--Kj7319i9nmIyA2yE
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXU8NiAAoJEBQN5MwUoCm2x1UP/2iJA6vcisXXipbBaUUCn/be
+Dqhwpx8T7E5VSjGtq5zFT2kP/Qbr1+wkFkGyFQKsMd5n7UMgvrG9TuDyTFpAAJVs
+Xov0fd8oTtA8SbquP//PipLQmtMuSdCd80tqayqYEgV9yGf9msRIc8RnyXUZ/q8/
+RyvLtTIE9nD0ZV88KiuKZAqaOmjjeEf3gW5ouR9VtTiN1LvxEnF0LzezIgFQHVoi
+gzqk4V56oulahk/7YtYjAELnNeVgK4uVwoVlthV85QK6YaLPm2yIti+VwVaMNgTV
+6p3RCjnRm003CiWIfL0pAXzo0F3RXWUwqXlN8rn8wDkUEXoRQrjZ7U3ZdNrNw3PJ
+Z2oDnr1mQxDJcDtnDK3zRyoSszR15CezwbEU6xgtYxgsI1lKKflMcrcIldUB7oEp
+zxqvo3mVYBmtg35KNW1XZV4ipyn71U6fKjfI96CPgTYnKYUxbCsRIgamZv4uKZHU
+hE4k6V7xm3x9Xb1CC3qkm0185tS2Rh3Q5VbJwDFoExrvrXX9MrxpjvVDiT4ERmOh
+XHg8ZVqQqBjuO3xyNcF4OJ9lyrQrSx/GX/hX7fl15flaHpnI6pWZJNU1/ontuqTs
+8xJ/h6fvX0qW/ujdodqqyAkawtv70fvRUzNsAHxDA2Dsl/hY1h+0PceUTzoy07Da
+ZMB4aB4o1K8LwJJZorjf
+=/XYl
+-----END PGP SIGNATURE-----
+
+--Kj7319i9nmIyA2yE--
