@@ -1,111 +1,54 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH 02/14] eeprom: at24: move at24_read() below at24_eeprom_write()
-Date: Mon,  6 Jun 2016 10:48:44 +0200
-Message-ID: <1465202936-16832-3-git-send-email-bgolaszewski@baylibre.com>
-References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] power: Add support for LTC1760 Dual Smart Battery System
+ Manager
+Date: Mon, 6 Jun 2016 12:16:32 +0200
+Message-ID: <5860b17d-8958-4292-59ab-68dfd1efff4d@axentia.se>
+References: <1465160129.17905.24.camel@amnesix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:36636 "EHLO
-	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751342AbcFFItJ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Jun 2016 04:49:09 -0400
-Received: by mail-wm0-f48.google.com with SMTP id n184so81002268wmn.1
-        for <linux-i2c@vger.kernel.org>; Mon, 06 Jun 2016 01:49:09 -0700 (PDT)
-In-Reply-To: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
+Received: from mail-db5eur01on0100.outbound.protection.outlook.com ([104.47.2.100]:18946
+	"EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750951AbcFFKQz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 6 Jun 2016 06:16:55 -0400
+In-Reply-To: <1465160129.17905.24.camel@amnesix>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, sre@kernel.org, dbaryshkov@gmail.com, dwmw2@infradead.org
+Cc: Phil Reid <preid@electromag.com.au>
 
-In preparation for splitting at24_eeprom_write() & at24_eeprom_read()
-into smaller, specialized routines move at24_read() below, so that it
-won't be intertwined with the low-level EEPROM accessors.
+Hi!
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/misc/eeprom/at24.c | 64 +++++++++++++++++++++++-----------------------
- 1 file changed, 32 insertions(+), 32 deletions(-)
+On 2016-06-05 22:55, Karl-Heinz Schneider wrote:
+> This driver adds support for the LTC1760 Dual Smart Battery System
+> Manager.
+> The LTC1760 is an I2C device listening at address 0x0a and is capable of
+> communicating up to two I2C smart battery devices. Both smart battery
+> devices are listening at address 0x0b, so the LTC1760 muliplexes between
+> them. The driver makes use of the I2C-Mux framework to allow smart
+> batteries to be bound via device tree, i.e. the sbs-battery driver.
+> 
+> Via sysfs interface the online state and charge type are presented where
+> the charge type can also be changed between the default value "trickle"
+> and
+> "fast".
+> 
+> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+> ---
+> Path generated against v4.7-rc1
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 411600d..e12d76f 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -249,38 +249,6 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	return -ETIMEDOUT;
- }
- 
--static int at24_read(void *priv, unsigned int off, void *val, size_t count)
--{
--	struct at24_data *at24 = priv;
--	char *buf = val;
--
--	if (unlikely(!count))
--		return count;
--
--	/*
--	 * Read data from chip, protecting against concurrent updates
--	 * from this host, but not from other I2C masters.
--	 */
--	mutex_lock(&at24->lock);
--
--	while (count) {
--		int	status;
--
--		status = at24_eeprom_read(at24, buf, off, count);
--		if (status < 0) {
--			mutex_unlock(&at24->lock);
--			return status;
--		}
--		buf += status;
--		off += status;
--		count -= status;
--	}
--
--	mutex_unlock(&at24->lock);
--
--	return 0;
--}
--
- /*
-  * Note that if the hardware write-protect pin is pulled high, the whole
-  * chip is normally write protected. But there are plenty of product
-@@ -366,6 +334,38 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 	return -ETIMEDOUT;
- }
- 
-+static int at24_read(void *priv, unsigned int off, void *val, size_t count)
-+{
-+	struct at24_data *at24 = priv;
-+	char *buf = val;
-+
-+	if (unlikely(!count))
-+		return count;
-+
-+	/*
-+	 * Read data from chip, protecting against concurrent updates
-+	 * from this host, but not from other I2C masters.
-+	 */
-+	mutex_lock(&at24->lock);
-+
-+	while (count) {
-+		int	status;
-+
-+		status = at24_eeprom_read(at24, buf, off, count);
-+		if (status < 0) {
-+			mutex_unlock(&at24->lock);
-+			return status;
-+		}
-+		buf += status;
-+		off += status;
-+		count -= status;
-+	}
-+
-+	mutex_unlock(&at24->lock);
-+
-+	return 0;
-+}
-+
- static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- {
- 	struct at24_data *at24 = priv;
--- 
-2.7.4
+This patch has two fundamental problems. First, the patch is whitespace-
+damaged (your mailer probably destroyed it). Please fix that. Second, and
+more serious, the patch has not even been compile-tested when applied on
+top of v4.7-rc1.
+
+The i2c-muxing code saw an update in 4.6 and this driver needs adjustment.
+As a hint, I suspect that you can make this mux "mux-locked" and avoid
+the dead-lock workaround in ltc1760_write_select_bat_reg().
+
+I didn't look further than this.
+
+Cheers,
+Peter
