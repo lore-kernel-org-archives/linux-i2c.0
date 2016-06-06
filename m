@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH 09/14] eeprom: at24: platform_data: add serial number flag
-Date: Mon,  6 Jun 2016 10:48:51 +0200
-Message-ID: <1465202936-16832-10-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH 01/14] eeprom: at24: improve the device_id table readability
+Date: Mon,  6 Jun 2016 10:48:43 +0200
+Message-ID: <1465202936-16832-2-git-send-email-bgolaszewski@baylibre.com>
 References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,27 +10,56 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKM
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-In preparation for supporting the at24cs EEPROM series add a new flag
-to the at24 platform data. When set, it should tell the driver that
-the chip has an additional read-only memory area that holds a factory
-pre-programmed serial number.
+As part of the preparation for introducing support for more chips,
+improve the readability of the device table by separating columns
+with tabs.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- include/linux/platform_data/at24.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/eeprom/at24.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index fcfdfe3..d595874 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -48,6 +48,7 @@ struct at24_platform_data {
- #define AT24_FLAG_READONLY	BIT(6)	/* sysfs-entry will be read-only */
- #define AT24_FLAG_IRUGO		BIT(5)	/* sysfs-entry will be world-readable */
- #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
-+#define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 9ceb63b..411600d 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -111,23 +111,23 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
  
- 	void		(*setup)(struct nvmem_device *nvmem, void *context);
- 	void		*context;
+ static const struct i2c_device_id at24_ids[] = {
+ 	/* needs 8 addresses as A0-A2 are ignored */
+-	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
++	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
+ 	/* old variants can't be handled with this generic entry! */
+-	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
+-	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
++	{ "24c01",	AT24_DEVICE_MAGIC(1024 / 8,	0) },
++	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
+ 	/* spd is a 24c02 in memory DIMMs */
+-	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
+-		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
+-	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
++	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
++				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
++	{ "24c04",	AT24_DEVICE_MAGIC(4096 / 8,	0) },
+ 	/* 24rf08 quirk is handled at i2c-core */
+-	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
+-	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
+-	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
++	{ "24c08",	AT24_DEVICE_MAGIC(8192 / 8,	0) },
++	{ "24c16",	AT24_DEVICE_MAGIC(16384 / 8,	0) },
++	{ "24c32",	AT24_DEVICE_MAGIC(32768 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c64",	AT24_DEVICE_MAGIC(65536 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c128",	AT24_DEVICE_MAGIC(131072 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c1024",	AT24_DEVICE_MAGIC(1048576 / 8,	AT24_FLAG_ADDR16) },
+ 	{ "at24", 0 },
+ 	{ /* END OF LIST */ }
+ };
 -- 
 2.7.4
