@@ -1,59 +1,93 @@
 From: Crestez Dan Leonard <leonard.crestez@intel.com>
-Subject: [RFC 0/2] Match i2c_device_id when using DT ids through ACPI
-Date: Mon,  6 Jun 2016 23:03:26 +0300
-Message-ID: <cover.1465242308.git.leonard.crestez@intel.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-acpi@vger.kernel.org
+Subject: [RFC 1/2] acpi: Expose acpi_of_match_device
+Date: Mon,  6 Jun 2016 23:03:27 +0300
+Message-ID: <7cafe8e2edf5e37e91c749d669594443bd3d9c39.1465242308.git.leonard.crestez@intel.com>
+References: <cover.1465242308.git.leonard.crestez@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1465242308.git.leonard.crestez@intel.com>
+In-Reply-To: <cover.1465242308.git.leonard.crestez@intel.com>
+References: <cover.1465242308.git.leonard.crestez@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
 Cc: Crestez Dan Leonard <leonard.crestez@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>, Octavian Purdila <octavian.purdila@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Linux supports instantiating devices using devicetree ids from ACPI by setting
-the id to PRP0001 and adding the devicetree compatible string in _DSD
-properties. This is described in Documentation/acpi/enumeration.txt.
+This can be used by device drivers as the equivalent of of_match_device
+when they are instantiated through ACPI using devicetree IDs. This is
+described in Documentation/acpi/enumeration.txt
 
-I've tried to use this feature using custom ACPI tables and one issue I
-encountered is that a lot of i2c device drivers are written for DT only and
-expect a valid i2c_device_id *id parameter to their probe function but this is
-always NULL for the PRP0001 case. Others call of_match_device in order to
-determine their exact model number and that will also fail.
+Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+---
+ drivers/acpi/bus.c   | 13 +++++++------
+ include/linux/acpi.h |  8 ++++++++
+ 2 files changed, 15 insertions(+), 6 deletions(-)
 
-Drivers normally do this in order to differentiate between minor model numbers
-supported by the same driver, for example hmc5883 versus hmc5983.
-
-For ACPI it is common to add calls to acpi_match_device in order to do such
-differentiation. It might make sense to call some form of acpi_of_match_device
-except no such function is currently exported. I think it makes a lot of sense
-to refactor the current acpi_of_match_device to return the of_device_id and
-export it.
-
-This is in PATCH 1. After exposing this function it could be called from each
-driver that needs to support multiple models through PRP0001. I guess the
-alternative to exposing acpi_of_match_device would be for driver code to poke
-at acpi_device->data.of_compatible?
-
-Going further it might make sense to attempt to fetch the i2c_device_id when
-instantiating through PRP0001. This already happens automatically for
-devicetree and it makes a lot of sense it would work through ACPI with DT ids.
-Patch 2 hacks an additional search in i2c register code. This makes some
-drivers "just work" without manually handling the "ACPI with DT ids" case.
-
-For P1 it might make sense to change the parameters around so that
-acpi_of_match_device will have the same signature as of_match_device.
-
-The purpose of these changes would be to make more drivers easier to
-instantiate through ACPI firmware. It's possible that I misunderstood and this
-problem already has a different solution.
-
-Crestez Dan Leonard (2):
-  acpi: Expose acpi_of_match_device
-  i2c: Pass i2c_device_id to probe func when using DT ids through ACPI
-
- drivers/acpi/bus.c     | 13 +++++++------
- drivers/i2c/i2c-core.c | 26 +++++++++++++++++++++++---
- include/linux/acpi.h   |  8 ++++++++
- 3 files changed, 38 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index 27367d4..b366bb2 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -574,18 +574,18 @@ struct acpi_device *acpi_companion_match(const struct device *dev)
+  * identifiers and a _DSD object with the "compatible" property, use that
+  * property to match against the given list of identifiers.
+  */
+-static bool acpi_of_match_device(struct acpi_device *adev,
+-				 const struct of_device_id *of_match_table)
++const struct of_device_id* acpi_of_match_device(const struct acpi_device *adev,
++						const struct of_device_id *of_match_table)
+ {
+ 	const union acpi_object *of_compatible, *obj;
+ 	int i, nval;
+ 
+ 	if (!adev)
+-		return false;
++		return NULL;
+ 
+ 	of_compatible = adev->data.of_compatible;
+ 	if (!of_match_table || !of_compatible)
+-		return false;
++		return NULL;
+ 
+ 	if (of_compatible->type == ACPI_TYPE_PACKAGE) {
+ 		nval = of_compatible->package.count;
+@@ -600,11 +600,12 @@ static bool acpi_of_match_device(struct acpi_device *adev,
+ 
+ 		for (id = of_match_table; id->compatible[0]; id++)
+ 			if (!strcasecmp(obj->string.pointer, id->compatible))
+-				return true;
++				return id;
+ 	}
+ 
+-	return false;
++	return NULL;
+ }
++EXPORT_SYMBOL(acpi_of_match_device);
+ 
+ static bool __acpi_match_device_cls(const struct acpi_device_id *id,
+ 				    struct acpi_hardware_id *hwid)
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index d4a3cb2..b8cefca 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -524,6 +524,8 @@ extern int acpi_nvs_for_each_region(int (*func)(__u64, __u64, void *),
+ 
+ const struct acpi_device_id *acpi_match_device(const struct acpi_device_id *ids,
+ 					       const struct device *dev);
++const struct of_device_id *acpi_of_match_device(const struct acpi_device *dev,
++						const struct of_device_id *ids);
+ 
+ extern bool acpi_driver_match_device(struct device *dev,
+ 				     const struct device_driver *drv);
+@@ -649,6 +651,12 @@ static inline const struct acpi_device_id *acpi_match_device(
+ 	return NULL;
+ }
+ 
++const struct of_device_id *acpi_of_match_device(const struct acpi_device *dev,
++						const struct acpi_device_id *ids);
++{
++	return NULL;
++}
++
+ static inline bool acpi_driver_match_device(struct device *dev,
+ 					    const struct device_driver *drv)
+ {
 -- 
 2.5.5
-
