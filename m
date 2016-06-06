@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH 05/14] eeprom: at24: hide the read/write loop behind a macro
-Date: Mon,  6 Jun 2016 10:48:47 +0200
-Message-ID: <1465202936-16832-6-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH 14/14] eeprom: at24: add at24mac chips to the list of supported devices
+Date: Mon,  6 Jun 2016 10:48:56 +0200
+Message-ID: <1465202936-16832-15-git-send-email-bgolaszewski@baylibre.com>
 References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,97 +10,29 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKM
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Before splitting the read/write routines into smaller, more
-specialized functions, unduplicate some code in advance.
-
-Use a 'for' loop instead of 'do while' when waiting for the previous
-write to complete and hide it behind a macro.
+Now with the infrastructure for reading the factory-programmed mac
+address in place, add the two available chips from the at24mac
+family: at24mac402 and at24mac602 to the device ID list.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 42 ++++++++++++++++++++----------------------
- 1 file changed, 20 insertions(+), 22 deletions(-)
+ drivers/misc/eeprom/at24.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0621937..2efb572 100644
+index b3afe15..0b8fafdb 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -113,6 +113,22 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
- 	    << AT24_SIZE_BYTELEN | ilog2(_len))
- 
-+/*
-+ * Both reads and writes fail if the previous write didn't complete yet. This
-+ * macro loops a few times waiting at least long enough for one entire page
-+ * write to work.
-+ *
-+ * It takes two parameters: a variable in which the future timeout in jiffies
-+ * will be stored and a temporary variable holding the time of the last
-+ * iteration of processing the request. Both should be unsigned integers
-+ * holding at least 32 bits.
-+ */
-+#define loop_until_timeout(tout, op_time)				\
-+	for (tout = jiffies + msecs_to_jiffies(write_timeout),		\
-+		op_time = jiffies;					\
-+	     time_before(op_time, tout);				\
-+	     usleep_range(1000, 1500), op_time = jiffies)
-+
- static const struct i2c_device_id at24_ids[] = {
- 	/* needs 8 addresses as A0-A2 are ignored */
- 	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
-@@ -225,14 +241,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 		msg[1].len = count;
- 	}
- 
--	/*
--	 * Reads fail if the previous write didn't complete yet. We may
--	 * loop a few times until this one succeeds, waiting at least
--	 * long enough for one entire page write to work.
--	 */
--	timeout = jiffies + msecs_to_jiffies(write_timeout);
--	do {
--		read_time = jiffies;
-+	loop_until_timeout(timeout, read_time) {
- 		if (at24->use_smbus) {
- 			status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
- 									   count, buf);
-@@ -246,9 +255,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 
- 		if (status == count)
- 			return count;
--
--		usleep_range(1000, 1500);
--	} while (time_before(read_time, timeout));
-+	}
- 
- 	return -ETIMEDOUT;
- }
-@@ -299,14 +306,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 		msg.len = i + count;
- 	}
- 
--	/*
--	 * Writes fail if the previous one didn't complete yet. We may
--	 * loop a few times until this one succeeds, waiting at least
--	 * long enough for one entire page write to work.
--	 */
--	timeout = jiffies + msecs_to_jiffies(write_timeout);
--	do {
--		write_time = jiffies;
-+	loop_until_timeout(timeout, write_time) {
- 		if (at24->use_smbus_write) {
- 			switch (at24->use_smbus_write) {
- 			case I2C_SMBUS_I2C_BLOCK_DATA:
-@@ -331,9 +331,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 
- 		if (status == count)
- 			return count;
--
--		usleep_range(1000, 1500);
--	} while (time_before(write_time, timeout));
-+	}
- 
- 	return -ETIMEDOUT;
- }
+@@ -139,6 +139,10 @@ static const struct i2c_device_id at24_ids[] = {
+ 	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
+ 	{ "24cs02",	AT24_DEVICE_MAGIC(128 / 8,
+ 				AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
++	{ "24mac402",	AT24_DEVICE_MAGIC(48 / 8,
++				AT24_FLAG_MAC | AT24_FLAG_READONLY) },
++	{ "24mac602",	AT24_DEVICE_MAGIC(64 / 8,
++				AT24_FLAG_MAC | AT24_FLAG_READONLY) },
+ 	/* spd is a 24c02 in memory DIMMs */
+ 	{ "spd",	AT24_DEVICE_MAGIC(2048 / 8,
+ 				AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
 -- 
 2.7.4
