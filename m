@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [RESEND PATCH 04/14] eeprom: at24: call read/write functions via function pointers
-Date: Mon,  6 Jun 2016 10:48:46 +0200
-Message-ID: <1465202936-16832-5-git-send-email-bgolaszewski@baylibre.com>
+Subject: [RESEND PATCH 03/14] eeprom: at24: coding style fixes
+Date: Mon,  6 Jun 2016 10:48:45 +0200
+Message-ID: <1465202936-16832-4-git-send-email-bgolaszewski@baylibre.com>
 References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
@@ -10,59 +10,63 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKM
 Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The first step in simplifying the read and write functions is to call
-them via function pointers stored in at24_data. When we eventually
-split the routines into smaller ones (depending on whether they use
-smbus or i2c operations) we'll simply assign them to said pointers
-instead of checking the flags at runtime every time we read/write.
+Align the arguments in broken lines with the arguments list's opening
+brackets and make checkpatch.pl happy by converting 'unsigned' into
+'unsigned int'.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/misc/eeprom/at24.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 564a201..0621937 100644
+index e12d76f..564a201 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -58,6 +58,10 @@ struct at24_data {
- 	int use_smbus;
- 	int use_smbus_write;
+@@ -147,7 +147,7 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
+  * Assumes that sanity checks for offset happened at sysfs-layer.
+  */
+ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
+-		unsigned *offset)
++						unsigned int *offset)
+ {
+ 	unsigned i;
  
-+	ssize_t (*read_func)(struct at24_data *, char *, unsigned int, size_t);
-+	ssize_t (*write_func)(struct at24_data *,
-+			      const char *, unsigned int, size_t);
-+
- 	/*
- 	 * Lock protects against activities from other Linux tasks,
- 	 * but not from changes by other I2C masters.
-@@ -351,7 +355,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- 	while (count) {
- 		int	status;
+@@ -163,7 +163,7 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
+ }
  
--		status = at24_eeprom_read(at24, buf, off, count);
-+		status = at24->read_func(at24, buf, off, count);
- 		if (status < 0) {
- 			mutex_unlock(&at24->lock);
- 			return status;
-@@ -383,7 +387,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	while (count) {
- 		int status;
+ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+-		unsigned offset, size_t count)
++				unsigned int offset, size_t count)
+ {
+ 	struct i2c_msg msg[2];
+ 	u8 msgbuf[2];
+@@ -258,7 +258,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+  * writes at most one page.
+  */
+ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+-		unsigned offset, size_t count)
++				 unsigned int offset, size_t count)
+ {
+ 	struct i2c_client *client;
+ 	struct i2c_msg msg;
+@@ -400,7 +400,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
  
--		status = at24_eeprom_write(at24, buf, off, count);
-+		status = at24->write_func(at24, buf, off, count);
- 		if (status < 0) {
- 			mutex_unlock(&at24->lock);
- 			return status;
-@@ -518,6 +522,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
+ #ifdef CONFIG_OF
+ static void at24_get_ofdata(struct i2c_client *client,
+-		struct at24_platform_data *chip)
++			    struct at24_platform_data *chip)
+ {
+ 	const __be32 *val;
+ 	struct device_node *node = client->dev.of_node;
+@@ -415,7 +415,7 @@ static void at24_get_ofdata(struct i2c_client *client,
+ }
+ #else
+ static void at24_get_ofdata(struct i2c_client *client,
+-		struct at24_platform_data *chip)
++			    struct at24_platform_data *chip)
+ { }
+ #endif /* CONFIG_OF */
  
-+	at24->read_func = at24_eeprom_read;
-+	at24->write_func = at24_eeprom_write;
-+
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
- 	if (writable) {
- 		if (!use_smbus || use_smbus_write) {
 -- 
 2.7.4
