@@ -1,35 +1,31 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [RESEND PATCH 00/14] eeprom: at24: driver rework and
- at24cs/at24mac support
-Date: Mon, 6 Jun 2016 15:01:09 +0200
-Message-ID: <CAMpxmJWVjtNPZGj-PV4rASdqVcCex22Jsu2cqG_Lom9LvGrOgw@mail.gmail.com>
-References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
-	<20160606111347.GA1516@katana>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 1/5] dt-bindings: Document the STM32 I2C bindings
+Date: Mon, 6 Jun 2016 08:21:48 -0500
+Message-ID: <20160606132148.GA14169@rob-hp-laptop>
+References: <1464877568-21897-1-git-send-email-cedric.madianga@gmail.com>
+ <1464877568-21897-2-git-send-email-cedric.madianga@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160606111347.GA1516@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:35920 "EHLO
+	mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751038AbcFFNVu (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Jun 2016 09:21:50 -0400
+Content-Disposition: inline
+In-Reply-To: <1464877568-21897-2-git-send-email-cedric.madianga@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Cc: patrice.chotard@st.com, mcoquelin.stm32@gmail.com, wsa@the-dreams.de, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-2016-06-06 13:13 GMT+02:00 Wolfram Sang <wsa@the-dreams.de>:
-> Bartosz,
->
-> the only thing you achieve by resending large series a week(!) after it
-> had been originally posted is to create annoyance. You should know by
-> now that I use patchwork which doesn't forget things...
->
-> I appreciate the work you did; yet I alone can't compensate for the lack
-> of reviewing on the list. A resend won't help that.
->
+On Thu, Jun 02, 2016 at 04:26:04PM +0200, M'boumba Cedric Madianga wrote:
+> This patch adds documentation of device tree bindings for the STM32 I2C
+> controller.
+> 
+> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+> ---
+>  .../devicetree/bindings/i2c/i2c-stm32.txt          | 33 ++++++++++++++++++++++
+>  1 file changed, 33 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
 
-Hi Wolfram,
-
-sorry for that. I always resend after a week without response - just
-as suggested in Documentation/SubmittingPatches. I'll keep in mind
-that there's no need for that in case of code you maintain.
-
-Best regards,
-Bartosz Golaszewski
+Acked-by: Rob Herring <robh@kernel.org>
