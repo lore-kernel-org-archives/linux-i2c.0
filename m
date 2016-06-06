@@ -1,61 +1,59 @@
-From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Subject: Re: [PATCH] power: Add support for LTC1760 Dual Smart Battery
- System Manager
-Date: Mon, 06 Jun 2016 21:26:14 +0200
-Message-ID: <1465241174.23646.4.camel@amnesix>
-References: <1465160129.17905.24.camel@amnesix>
-	 <5860b17d-8958-4292-59ab-68dfd1efff4d@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: [RFC 0/2] Match i2c_device_id when using DT ids through ACPI
+Date: Mon,  6 Jun 2016 23:03:26 +0300
+Message-ID: <cover.1465242308.git.leonard.crestez@intel.com>
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <5860b17d-8958-4292-59ab-68dfd1efff4d@axentia.se>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, sre@kernel.org, dbaryshkov@gmail.com, dwmw2@infradead.org, Phil Reid <preid@electromag.com.au>
+To: linux-acpi@vger.kernel.org
+Cc: Crestez Dan Leonard <leonard.crestez@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>, Octavian Purdila <octavian.purdila@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Linux supports instantiating devices using devicetree ids from ACPI by setting
+the id to PRP0001 and adding the devicetree compatible string in _DSD
+properties. This is described in Documentation/acpi/enumeration.txt.
 
-Am Montag, den 06.06.2016, 12:16 +0200 schrieb Peter Rosin:
-> Hi!
-> 
-> On 2016-06-05 22:55, Karl-Heinz Schneider wrote:
-> > This driver adds support for the LTC1760 Dual Smart Battery System
-> > Manager.
-> > The LTC1760 is an I2C device listening at address 0x0a and is capable of
-> > communicating up to two I2C smart battery devices. Both smart battery
-> > devices are listening at address 0x0b, so the LTC1760 muliplexes between
-> > them. The driver makes use of the I2C-Mux framework to allow smart
-> > batteries to be bound via device tree, i.e. the sbs-battery driver.
-> > 
-> > Via sysfs interface the online state and charge type are presented where
-> > the charge type can also be changed between the default value "trickle"
-> > and
-> > "fast".
-> > 
-> > Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> > ---
-> > Path generated against v4.7-rc1
-> 
-> This patch has two fundamental problems. First, the patch is whitespace-
-> damaged (your mailer probably destroyed it). Please fix that. Second, and
-> more serious, the patch has not even been compile-tested when applied on
-> top of v4.7-rc1.
-Sorry mixed things up in the makefile. Was happy the compiler didn't
-complain about anything...
-> 
-> The i2c-muxing code saw an update in 4.6 and this driver needs adjustment.
-> As a hint, I suspect that you can make this mux "mux-locked" and avoid
-> the dead-lock workaround in ltc1760_write_select_bat_reg().
-Difficult to test for me, since I'm forced to use an old 3.14 Kernel for
-the target device (SECO imx6 board).
-> 
-> I didn't look further than this.
-> 
-> Cheers,
-> Peter
-Tanks for review and sorry for noise in this case. Will fix the issues.
+I've tried to use this feature using custom ACPI tables and one issue I
+encountered is that a lot of i2c device drivers are written for DT only and
+expect a valid i2c_device_id *id parameter to their probe function but this is
+always NULL for the PRP0001 case. Others call of_match_device in order to
+determine their exact model number and that will also fail.
 
-Greetings
+Drivers normally do this in order to differentiate between minor model numbers
+supported by the same driver, for example hmc5883 versus hmc5983.
+
+For ACPI it is common to add calls to acpi_match_device in order to do such
+differentiation. It might make sense to call some form of acpi_of_match_device
+except no such function is currently exported. I think it makes a lot of sense
+to refactor the current acpi_of_match_device to return the of_device_id and
+export it.
+
+This is in PATCH 1. After exposing this function it could be called from each
+driver that needs to support multiple models through PRP0001. I guess the
+alternative to exposing acpi_of_match_device would be for driver code to poke
+at acpi_device->data.of_compatible?
+
+Going further it might make sense to attempt to fetch the i2c_device_id when
+instantiating through PRP0001. This already happens automatically for
+devicetree and it makes a lot of sense it would work through ACPI with DT ids.
+Patch 2 hacks an additional search in i2c register code. This makes some
+drivers "just work" without manually handling the "ACPI with DT ids" case.
+
+For P1 it might make sense to change the parameters around so that
+acpi_of_match_device will have the same signature as of_match_device.
+
+The purpose of these changes would be to make more drivers easier to
+instantiate through ACPI firmware. It's possible that I misunderstood and this
+problem already has a different solution.
+
+Crestez Dan Leonard (2):
+  acpi: Expose acpi_of_match_device
+  i2c: Pass i2c_device_id to probe func when using DT ids through ACPI
+
+ drivers/acpi/bus.c     | 13 +++++++------
+ drivers/i2c/i2c-core.c | 26 +++++++++++++++++++++++---
+ include/linux/acpi.h   |  8 ++++++++
+ 3 files changed, 38 insertions(+), 9 deletions(-)
+
+-- 
+2.5.5
 
