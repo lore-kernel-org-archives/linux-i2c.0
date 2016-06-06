@@ -1,37 +1,61 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 0/3] i2c: core/designware: Find bus speed from ACPI
-Date: Mon, 6 Jun 2016 19:06:05 +0300
-Message-ID: <20160606160605.GF1791@lahna.fi.intel.com>
-References: <1465212383-24639-1-git-send-email-jarkko.nikula@linux.intel.com>
+From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Subject: Re: [PATCH] power: Add support for LTC1760 Dual Smart Battery
+ System Manager
+Date: Mon, 06 Jun 2016 21:26:14 +0200
+Message-ID: <1465241174.23646.4.camel@amnesix>
+References: <1465160129.17905.24.camel@amnesix>
+	 <5860b17d-8958-4292-59ab-68dfd1efff4d@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:45228 "EHLO mga04.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751437AbcFFQGK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 6 Jun 2016 12:06:10 -0400
-Content-Disposition: inline
-In-Reply-To: <1465212383-24639-1-git-send-email-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <5860b17d-8958-4292-59ab-68dfd1efff4d@axentia.se>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, sre@kernel.org, dbaryshkov@gmail.com, dwmw2@infradead.org, Phil Reid <preid@electromag.com.au>
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>
 
-On Mon, Jun 06, 2016 at 02:26:20PM +0300, Jarkko Nikula wrote:
-> These patches add support to i2c-core for finding the bus speed from
-> ACPI by looking at slowest connection from ACPI I2cSerialBus resources
-> that are associated to I2C controller and use it in i2c-designware.
-> 
-> i2c-core patches apply on top of v4.7-rc1 and i2c-designware change is
-> on top of Weifeng's fast mode + and high speed set:
-> 
-> http://www.spinics.net/lists/linux-i2c/msg24699.html
-> 
-> Jarkko Nikula (3):
->   i2c: core: Cleanup I2C ACPI namespace
->   i2c: core: Add function for finding the bus speed from ACPI
->   i2c: designware: Find bus speed from ACPI
+Hi,
 
-For the whole series,
+Am Montag, den 06.06.2016, 12:16 +0200 schrieb Peter Rosin:
+> Hi!
+> 
+> On 2016-06-05 22:55, Karl-Heinz Schneider wrote:
+> > This driver adds support for the LTC1760 Dual Smart Battery System
+> > Manager.
+> > The LTC1760 is an I2C device listening at address 0x0a and is capable of
+> > communicating up to two I2C smart battery devices. Both smart battery
+> > devices are listening at address 0x0b, so the LTC1760 muliplexes between
+> > them. The driver makes use of the I2C-Mux framework to allow smart
+> > batteries to be bound via device tree, i.e. the sbs-battery driver.
+> > 
+> > Via sysfs interface the online state and charge type are presented where
+> > the charge type can also be changed between the default value "trickle"
+> > and
+> > "fast".
+> > 
+> > Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+> > ---
+> > Path generated against v4.7-rc1
+> 
+> This patch has two fundamental problems. First, the patch is whitespace-
+> damaged (your mailer probably destroyed it). Please fix that. Second, and
+> more serious, the patch has not even been compile-tested when applied on
+> top of v4.7-rc1.
+Sorry mixed things up in the makefile. Was happy the compiler didn't
+complain about anything...
+> 
+> The i2c-muxing code saw an update in 4.6 and this driver needs adjustment.
+> As a hint, I suspect that you can make this mux "mux-locked" and avoid
+> the dead-lock workaround in ltc1760_write_select_bat_reg().
+Difficult to test for me, since I'm forced to use an old 3.14 Kernel for
+the target device (SECO imx6 board).
+> 
+> I didn't look further than this.
+> 
+> Cheers,
+> Peter
+Tanks for review and sorry for noise in this case. Will fix the issues.
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Greetings
+
