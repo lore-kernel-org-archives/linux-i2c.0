@@ -1,31 +1,56 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 1/5] dt-bindings: Document the STM32 I2C bindings
-Date: Mon, 6 Jun 2016 08:21:48 -0500
-Message-ID: <20160606132148.GA14169@rob-hp-laptop>
-References: <1464877568-21897-1-git-send-email-cedric.madianga@gmail.com>
- <1464877568-21897-2-git-send-email-cedric.madianga@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 0/3] i2c: core/designware: Find bus speed from ACPI
+Date: Mon, 06 Jun 2016 16:24:09 +0300
+Message-ID: <1465219449.1767.103.camel@linux.intel.com>
+References: <1465212383-24639-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:35920 "EHLO
-	mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751038AbcFFNVu (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Jun 2016 09:21:50 -0400
-Content-Disposition: inline
-In-Reply-To: <1464877568-21897-2-git-send-email-cedric.madianga@gmail.com>
+Received: from mga09.intel.com ([134.134.136.24]:64124 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751734AbcFFNWz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 6 Jun 2016 09:22:55 -0400
+In-Reply-To: <1465212383-24639-1-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Cc: patrice.chotard@st.com, mcoquelin.stm32@gmail.com, wsa@the-dreams.de, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>
 
-On Thu, Jun 02, 2016 at 04:26:04PM +0200, M'boumba Cedric Madianga wrote:
-> This patch adds documentation of device tree bindings for the STM32 I2C
-> controller.
-> 
-> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-> ---
->  .../devicetree/bindings/i2c/i2c-stm32.txt          | 33 ++++++++++++++++++++++
->  1 file changed, 33 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+On Mon, 2016-06-06 at 14:26 +0300, Jarkko Nikula wrote:
+> These patches add support to i2c-core for finding the bus speed from
+> ACPI by looking at slowest connection from ACPI I2cSerialBus resource=
+s
+> that are associated to I2C controller and use it in i2c-designware.
+>=20
+> i2c-core patches apply on top of v4.7-rc1 and i2c-designware change i=
+s
+> on top of Weifeng's fast mode + and high speed set:
+>=20
+> http://www.spinics.net/lists/linux-i2c/msg24699.html
 
-Acked-by: Rob Herring <robh@kernel.org>
+Looks good to me:
+
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+>=20
+> Jarkko Nikula (3):
+> =C2=A0 i2c: core: Cleanup I2C ACPI namespace
+> =C2=A0 i2c: core: Add function for finding the bus speed from ACPI
+> =C2=A0 i2c: designware: Find bus speed from ACPI
+>=20
+> =C2=A0drivers/i2c/busses/i2c-designware-platdrv.c |=C2=A0=C2=A0=C2=A0=
+6 +-
+> =C2=A0drivers/i2c/i2c-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0| 116
+> +++++++++++++++++++---------
+> =C2=A0include/linux/i2c.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A09 +++
+> =C2=A03 files changed, 94 insertions(+), 37 deletions(-)
+>=20
+
+--=20
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
