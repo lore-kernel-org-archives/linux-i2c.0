@@ -1,56 +1,41 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 0/3] i2c: core/designware: Find bus speed from ACPI
-Date: Mon, 06 Jun 2016 16:24:09 +0300
-Message-ID: <1465219449.1767.103.camel@linux.intel.com>
-References: <1465212383-24639-1-git-send-email-jarkko.nikula@linux.intel.com>
+From: Lukasz Gemborowski <lukasz.gemborowski@nokia.com>
+Subject: [PATCH] i2c: Provide of_match_table to i2c-mux-reg
+Date: Mon, 6 Jun 2016 15:51:50 +0200
+Message-ID: <20160606135147.GA9810@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:64124 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751734AbcFFNWz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 6 Jun 2016 09:22:55 -0400
-In-Reply-To: <1465212383-24639-1-git-send-email-jarkko.nikula@linux.intel.com>
+Received: from mail-am1on0110.outbound.protection.outlook.com ([157.56.112.110]:13765
+	"EHLO emea01-am1-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751698AbcFFPY0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 6 Jun 2016 11:24:26 -0400
+Content-Disposition: inline
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>
+To: peda@axentia.se, wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: alexander.sverdlin@nokia.com
 
-On Mon, 2016-06-06 at 14:26 +0300, Jarkko Nikula wrote:
-> These patches add support to i2c-core for finding the bus speed from
-> ACPI by looking at slowest connection from ACPI I2cSerialBus resource=
-s
-> that are associated to I2C controller and use it in i2c-designware.
->=20
-> i2c-core patches apply on top of v4.7-rc1 and i2c-designware change i=
-s
-> on top of Weifeng's fast mode + and high speed set:
->=20
-> http://www.spinics.net/lists/linux-i2c/msg24699.html
+of_match_table was not filled which prevents device to be
+instantiated from device tree node.
 
-Looks good to me:
+Signed-off-by: Lukasz Gemborowski <lukasz.gemborowski@nokia.com>
+Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+---
+ drivers/i2c/muxes/i2c-mux-reg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
->=20
-> Jarkko Nikula (3):
-> =C2=A0 i2c: core: Cleanup I2C ACPI namespace
-> =C2=A0 i2c: core: Add function for finding the bus speed from ACPI
-> =C2=A0 i2c: designware: Find bus speed from ACPI
->=20
-> =C2=A0drivers/i2c/busses/i2c-designware-platdrv.c |=C2=A0=C2=A0=C2=A0=
-6 +-
-> =C2=A0drivers/i2c/i2c-core.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0| 116
-> +++++++++++++++++++---------
-> =C2=A0include/linux/i2c.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0|=C2=A0=C2=A0=C2=A09 +++
-> =C2=A03 files changed, 94 insertions(+), 37 deletions(-)
->=20
-
---=20
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index 6773cad..26e7c51 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -260,6 +260,7 @@ static struct platform_driver i2c_mux_reg_driver = {
+ 	.remove	= i2c_mux_reg_remove,
+ 	.driver	= {
+ 		.name	= "i2c-mux-reg",
++		.of_match_table = of_match_ptr(i2c_mux_reg_of_match),
+ 	},
+ };
+ 
+-- 
+2.5.0
