@@ -1,54 +1,60 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] power: Add support for LTC1760 Dual Smart Battery System
- Manager
-Date: Mon, 6 Jun 2016 12:16:32 +0200
-Message-ID: <5860b17d-8958-4292-59ab-68dfd1efff4d@axentia.se>
-References: <1465160129.17905.24.camel@amnesix>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RESEND PATCH 00/14] eeprom: at24: driver rework and
+ at24cs/at24mac support
+Date: Mon, 6 Jun 2016 13:13:48 +0200
+Message-ID: <20160606111347.GA1516@katana>
+References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0100.outbound.protection.outlook.com ([104.47.2.100]:18946
-	"EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750951AbcFFKQz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 6 Jun 2016 06:16:55 -0400
-In-Reply-To: <1465160129.17905.24.camel@amnesix>
+Received: from sauhun.de ([89.238.76.85]:48492 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751622AbcFFLNy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 6 Jun 2016 07:13:54 -0400
+Content-Disposition: inline
+In-Reply-To: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, sre@kernel.org, dbaryshkov@gmail.com, dwmw2@infradead.org
-Cc: Phil Reid <preid@electromag.com.au>
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
 
-Hi!
 
-On 2016-06-05 22:55, Karl-Heinz Schneider wrote:
-> This driver adds support for the LTC1760 Dual Smart Battery System
-> Manager.
-> The LTC1760 is an I2C device listening at address 0x0a and is capable of
-> communicating up to two I2C smart battery devices. Both smart battery
-> devices are listening at address 0x0b, so the LTC1760 muliplexes between
-> them. The driver makes use of the I2C-Mux framework to allow smart
-> batteries to be bound via device tree, i.e. the sbs-battery driver.
-> 
-> Via sysfs interface the online state and charge type are presented where
-> the charge type can also be changed between the default value "trickle"
-> and
-> "fast".
-> 
-> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> ---
-> Path generated against v4.7-rc1
+--x+6KMIRAuhnl3hBn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This patch has two fundamental problems. First, the patch is whitespace-
-damaged (your mailer probably destroyed it). Please fix that. Second, and
-more serious, the patch has not even been compile-tested when applied on
-top of v4.7-rc1.
+Bartosz,
 
-The i2c-muxing code saw an update in 4.6 and this driver needs adjustment.
-As a hint, I suspect that you can make this mux "mux-locked" and avoid
-the dead-lock workaround in ltc1760_write_select_bat_reg().
+the only thing you achieve by resending large series a week(!) after it
+had been originally posted is to create annoyance. You should know by
+now that I use patchwork which doesn't forget things...
 
-I didn't look further than this.
+I appreciate the work you did; yet I alone can't compensate for the lack
+of reviewing on the list. A resend won't help that.
 
-Cheers,
-Peter
+   Wolfram
+
+
+--x+6KMIRAuhnl3hBn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXVVrrAAoJEBQN5MwUoCm2X5MP/jjK+1civlvFKZcv49p1Otbd
+4jNN3HHPq68lH6n2w03TluXZrZMqWK86gncUsZfOTqEl0Xf+ZWGG8RiEUT3dxTYj
+nma36C5d/HWnRmWOWEMnmY05CZZO58fnW2fX+qOeYsXx22PCNA294waX3HBrzZlV
+b1J1ybfWcrODujihSQRtOKa7GQUijoJO99BEuMDkzhVBvEk5qIGJYjVw7zsUgTKe
+Rpf+c6xVlGMUNX0rJy71c4QpDrKqCg8flLbsoZAryXrod/12jU57ZipTlbvCft0I
+MfcVRU6Qo8+hWOFqw09k6HUN2CsVEvHn7o0Vv0qr/f3JvZ5lDJ1cfloA3ZYVL3Do
+2glbmUzHR2AusylbS0RtLvy7PHYf9a24N0NzsEDOyz26mrEZZOsamaKCfmOMRf34
+2pNOJX9vZS0gqpVMmgcKJDX7eol7ixc3wDap3l4EV1wWQteYbHwRVIbrzbowVOhe
+MlGl4Kd3Aubjct7cR7XZlpfVaMPUerbJvxawJPjuph8qgF/9sMnrpkhZjXwjol+i
+gwo8mawRV07btXINkpfdsKd/CMa/PYaGgC8bcZH4l3oXmhx7t4AgYFeXu3nsQvDq
+hLvvKUtHdzIXmav4Ts2QACgDmyyVeVDVAt6/hx6fhXUbCcIbaRrXelTWTanuqDZi
+QHgMRW/DcajuvjbSeYQH
+=vydv
+-----END PGP SIGNATURE-----
+
+--x+6KMIRAuhnl3hBn--
