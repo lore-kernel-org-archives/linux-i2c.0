@@ -1,48 +1,52 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] power: Add support for LTC1760 Dual Smart Battery System
- Manager
-Date: Tue, 7 Jun 2016 11:17:02 +0200
-Message-ID: <cbee71f0-464f-f1ca-5f99-36cf6c69d3f9@axentia.se>
-References: <1465160129.17905.24.camel@amnesix>
- <5860b17d-8958-4292-59ab-68dfd1efff4d@axentia.se>
- <1465241174.23646.4.camel@amnesix>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v7 0/4] i2c-smbus: add support for HOST NOTIFY
+Date: Tue, 7 Jun 2016 16:01:45 +0200
+Message-ID: <20160607140145.GA19237@mail.corp.redhat.com>
+References: <1464688985-19102-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20160605071325.GB2722@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1465241174.23646.4.camel@amnesix>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Cc: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, sre@kernel.org, dbaryshkov@gmail.com, dwmw2@infradead.org, Phil Reid <preid@electromag.com.au>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:50128 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754426AbcFGOBw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 7 Jun 2016 10:01:52 -0400
+Content-Disposition: inline
+In-Reply-To: <20160605071325.GB2722@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 2016-06-06 21:26, Karl-Heinz Schneider wrote:
-> Am Montag, den 06.06.2016, 12:16 +0200 schrieb Peter Rosin:
->> This patch has two fundamental problems. First, the patch is whitespace-
->> damaged (your mailer probably destroyed it). Please fix that. Second, and
->> more serious, the patch has not even been compile-tested when applied on
->> top of v4.7-rc1.
-> Sorry mixed things up in the makefile. Was happy the compiler didn't
-> complain about anything...
+Hi Wolfram,
 
-Ok, some kind of silly mistake...
+On Jun 05 2016 or thereabouts, Wolfram Sang wrote:
+> Hi Benjamin,
+> 
+> > this is mostly a resubmission of the v6 with the acks, tested-by and few typos
+> > here and there.
+> 
+> I actually reviewed v6 but got an NMI so writing the mails fell through
+> the cracks :( Sorry about that! Good news is that the code is fine from
+> my point of view, some documentation updates I'd request. After updating
+> those, I will pick up the core patches right away. Note that while the
 
->> The i2c-muxing code saw an update in 4.6 and this driver needs adjustment.
->> As a hint, I suspect that you can make this mux "mux-locked" and avoid
->> the dead-lock workaround in ltc1760_write_select_bat_reg().
-> Difficult to test for me, since I'm forced to use an old 3.14 Kernel for
-> the target device (SECO imx6 board).
+Great, many thanks!
+The documentation fixes look simple enough to do. However, I just
+realized a conflict in the i801 which requires tests (in the resume
+call).
 
-I feel your pain. I always feel trapped when working on vendor kernels.
+> i801 patch looks good to me, I need Jean's review here. There are other
+> patches pending for i801, that needs to be coordinated by him.
 
-The conversion is not difficult. Have a look at the commits leading
-up to 23fe440c59b9 "i2c: mux: drop old unused i2c-mux-api" to see
-examples of how to make it work for v4.7 (I think cddcc40b1b15
-"[media] rtl2832: convert to use an explicit i2c mux core" looks like
-it could be similar to your case). If you then think the mux should
-be mux-locked (see Documentation/i2c/i2c-topology) it should be a
-simple matter of specifying the flag I2C_MUX_LOCKED when calling
-i2c_mux_alloc() and getting rid of the dead-lock workaround.
+OK. I'll try to fetch those pending patches on patchwork and see how the
+merge would behave.
 
 Cheers,
-Peter
+Benjamin
+
+> 
+> Thanks,
+> 
+>    Wolfram
+> 
