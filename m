@@ -1,54 +1,64 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH 1/3] i2c: octeon: Missing AAK flag in case of I2C_M_RECV_LEN
-Date: Wed,  8 Jun 2016 08:51:17 +0200
-Message-ID: <d16b9cde449b0f6bad954c7ac1db2ac941231601.1465304877.git.jglauber@cavium.com>
-References: <cover.1465304877.git.jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34034 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751094AbcFHGvv (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Jun 2016 02:51:51 -0400
-In-Reply-To: <cover.1465304877.git.jglauber@cavium.com>
-In-Reply-To: <cover.1465304877.git.jglauber@cavium.com>
-References: <cover.1465304877.git.jglauber@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RESEND PATCH 00/14] eeprom: at24: driver rework and
+ at24cs/at24mac support
+Date: Wed, 8 Jun 2016 10:45:47 +0200
+Message-ID: <20160608084547.GJ1521@katana>
+References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
+ <20160606111347.GA1516@katana>
+ <CAMpxmJWVjtNPZGj-PV4rASdqVcCex22Jsu2cqG_Lom9LvGrOgw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="I/5syFLg1Ed7r+1G"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMpxmJWVjtNPZGj-PV4rASdqVcCex22Jsu2cqG_Lom9LvGrOgw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Steven.Hill@caviumnetworks.com, Jan Glauber <jglauber@cavium.com>
 
-During receive the controller requires the AAK flag for all
-bytes but the final one. This was wrong in case of I2C_M_RECV_LEN,
-where the decision if the final byte is to be transmitted
-happened before adding the additional received length byte.
 
-Set the AAK flag if additional bytes are to be received.
+--I/5syFLg1Ed7r+1G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
----
- drivers/i2c/busses/i2c-octeon.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-index aa5f01e..1922e4a 100644
---- a/drivers/i2c/busses/i2c-octeon.c
-+++ b/drivers/i2c/busses/i2c-octeon.c
-@@ -934,8 +934,15 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
- 		return result;
- 
- 	for (i = 0; i < length; i++) {
--		/* for the last byte TWSI_CTL_AAK must not be set */
--		if (i + 1 == length)
-+		/*
-+		 * For the last byte to receive TWSI_CTL_AAK must not be set.
-+		 *
-+		 * A special case is I2C_M_RECV_LEN where we don't know the
-+		 * additional length yet. If recv_len is set we assume we're
-+		 * not reading the final byte and therefore need to set
-+		 * TWSI_CTL_AAK.
-+		 */
-+		if ((i + 1 == length) && !(recv_len && i == 0))
- 			final_read = true;
- 
- 		/* clear iflg to allow next event */
--- 
-2.9.0.rc0.21.g7777322
+> sorry for that. I always resend after a week without response - just
+> as suggested in Documentation/SubmittingPatches.
+
+Wow, do I really have to tell you these things?
+
+* It doesn't suggest to do that. It suggests to wait *a minimum* a week if
+  you yourself considered doing that.
+
+* A ping is more lightweight than resending 14 patches
+
+* You *know* the lag in the i2c patch review. How should a reference to
+  SubmittingPatches help the situation?
+
+Needless to say, I could have reviewed a patch now instead of uncovering
+wrong/sloppy readings of SubmittingPatches which I don't want to spread :(
+
+
+--I/5syFLg1Ed7r+1G
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXV9s7AAoJEBQN5MwUoCm2sTIQAKQEifH4pV/x9+OxJoAR/tVz
+gA2dKSPb2wqT9yU4lUO7leXjsHmaUNWU9qeUsUToIuRKfdEnMmhI1KZHqRSVledX
+R2eIjPhNtitNeC12ew0t7lTm16wXx2Fn/srJ1eMSWMOnETflhqqfHEtArPFZ57ik
+K4qN4+i/sYXF1zTTYPvN0Z9rjAbtf6ChImWCqJTj4177Ty1OdsMGtxysb9fQaHeE
+77sZ3lbdN+s3Jmp8C+072g47fC4a+U+AYJ9mQy/MB3es4/m2jfexx4VR28sM8jvM
+aBr/vxW+gWZcNCs3PfNCdYFxiudT2BBkVmKQJ8aFOD6qvCkDIytMVtuJXjhvpbJi
+okJ4JsfoiSlJm6/fg9b96dvn8ZZKrURi4PBZZWiYJ3eCGxteF/I+5i1wtATbrekf
+wMxUaYTBLqQ6RlJr/k3OUGm/7nh0qNfK+wjMXnyt5voC+LKyC54graXg00QrvfZ7
+0jk6duvY9siO248hytvNvthJIbzvHPg+/vqEQIgOOebUuuDwck0sZHhWvWOtLeqr
+ZKOuvhDk6kQLnnGIWexm9EeT2FgjULovshknl67Wta/4vds1m/yc/ePtReyc1SRw
+4AC3P4NJN/wZdyohEK2QZLDVXS0CM6KhGuMxrRraggOdjJcV95GiXcaFLLFpBsaq
+vwYb1GLaaLDSiNTnI7fk
+=b8Hp
+-----END PGP SIGNATURE-----
+
+--I/5syFLg1Ed7r+1G--
