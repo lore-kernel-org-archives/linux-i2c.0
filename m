@@ -1,63 +1,118 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [RFC 0/2] Match i2c_device_id when using DT ids through ACPI
-Date: Wed, 08 Jun 2016 02:15:04 +0200
-Message-ID: <1943200.ETapnCIHt7@vostro.rjw.lan>
-References: <cover.1465242308.git.leonard.crestez@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <cover.1465242308.git.leonard.crestez@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>
-Cc: linux-acpi@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>, Octavian Purdila <octavian.purdila@intel.com>
+From: Simon Horman <horms+renesas@verge.net.au>
+Subject: [PATCH] i2c: mux: refer to i2c-mux.txt
+Date: Wed,  8 Jun 2016 15:21:39 +0900
+Message-ID: <1465366899-4824-1-git-send-email-horms+renesas@verge.net.au>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, June 06, 2016 11:03:26 PM Crestez Dan Leonard wrote:
-> Linux supports instantiating devices using devicetree ids from ACPI by setting
-> the id to PRP0001 and adding the devicetree compatible string in _DSD
-> properties. This is described in Documentation/acpi/enumeration.txt.
-> 
-> I've tried to use this feature using custom ACPI tables and one issue I
-> encountered is that a lot of i2c device drivers are written for DT only and
-> expect a valid i2c_device_id *id parameter to their probe function but this is
-> always NULL for the PRP0001 case. Others call of_match_device in order to
-> determine their exact model number and that will also fail.
-> 
-> Drivers normally do this in order to differentiate between minor model numbers
-> supported by the same driver, for example hmc5883 versus hmc5983.
-> 
-> For ACPI it is common to add calls to acpi_match_device in order to do such
-> differentiation. It might make sense to call some form of acpi_of_match_device
-> except no such function is currently exported. I think it makes a lot of sense
-> to refactor the current acpi_of_match_device to return the of_device_id and
-> export it.
-> 
-> This is in PATCH 1. After exposing this function it could be called from each
-> driver that needs to support multiple models through PRP0001. I guess the
-> alternative to exposing acpi_of_match_device would be for driver code to poke
-> at acpi_device->data.of_compatible?
-> 
-> Going further it might make sense to attempt to fetch the i2c_device_id when
-> instantiating through PRP0001. This already happens automatically for
-> devicetree and it makes a lot of sense it would work through ACPI with DT ids.
-> Patch 2 hacks an additional search in i2c register code. This makes some
-> drivers "just work" without manually handling the "ACPI with DT ids" case.
-> 
-> For P1 it might make sense to change the parameters around so that
-> acpi_of_match_device will have the same signature as of_match_device.
-> 
-> The purpose of these changes would be to make more drivers easier to
-> instantiate through ACPI firmware. It's possible that I misunderstood and this
-> problem already has a different solution.
-> 
-> Crestez Dan Leonard (2):
->   acpi: Expose acpi_of_match_device
->   i2c: Pass i2c_device_id to probe func when using DT ids through ACPI
+Correct references to i2c-mux.txt which was previously mux.txt.
 
-It would be good to CC the actual patches to the same set of addresses as this
-message.
+Also correct the spelling of relevant.
 
-Thanks,
-Rafael
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+---
+ Documentation/devicetree/bindings/i2c/i2c-arb-gpio-challenge.txt | 4 ++--
+ Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt      | 3 ++-
+ Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt           | 6 +++---
+ Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt        | 4 ++--
+ Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt            | 6 +++---
+ 5 files changed, 12 insertions(+), 11 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-arb-gpio-challenge.txt b/Documentation/devicetree/bindings/i2c/i2c-arb-gpio-challenge.txt
+index bfeabb843941..71191ff0e781 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-arb-gpio-challenge.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-arb-gpio-challenge.txt
+@@ -44,8 +44,8 @@ Required properties:
+ - our-claim-gpio: The GPIO that we use to claim the bus.
+ - their-claim-gpios: The GPIOs that the other sides use to claim the bus.
+   Note that some implementations may only support a single other master.
+-- Standard I2C mux properties. See mux.txt in this directory.
+-- Single I2C child bus node at reg 0. See mux.txt in this directory.
++- Standard I2C mux properties. See i2c-mux.txt in this directory.
++- Single I2C child bus node at reg 0. See i2c-mux.txt in this directory.
+ 
+ Optional properties:
+ - slew-delay-us: microseconds to wait for a GPIO to go high. Default is 10 us.
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt b/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+index 6078aefe7ed4..7ce23ac61308 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-demux-pinctrl.txt
+@@ -27,7 +27,8 @@ Required properties:
+ - i2c-bus-name: The name of this bus. Also needed as pinctrl-name for the I2C
+ 		parents.
+ 
+-Furthermore, I2C mux properties and child nodes. See mux.txt in this directory.
++Furthermore, I2C mux properties and child nodes. See i2c-mux.txt in this
++directory.
+ 
+ Example:
+ 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
+index 66709a825541..21da3ecbb370 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
+@@ -22,8 +22,8 @@ Required properties:
+ - i2c-parent: The phandle of the I2C bus that this multiplexer's master-side
+   port is connected to.
+ - mux-gpios: list of gpios used to control the muxer
+-* Standard I2C mux properties. See mux.txt in this directory.
+-* I2C child bus nodes. See mux.txt in this directory.
++* Standard I2C mux properties. See i2c-mux.txt in this directory.
++* I2C child bus nodes. See i2c-mux.txt in this directory.
+ 
+ Optional properties:
+ - idle-state: value to set the muxer to when idle. When no value is
+@@ -33,7 +33,7 @@ For each i2c child node, an I2C child bus will be created. They will
+ be numbered based on their order in the device tree.
+ 
+ Whenever an access is made to a device on a child bus, the value set
+-in the revelant node's reg property will be output using the list of
++in the relevant node's reg property will be output using the list of
+ GPIOs, the first in the list holding the least-significant value.
+ 
+ If an idle state is defined, using the idle-state (optional) property,
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+index ae8af1694e95..33119a98e144 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+@@ -28,9 +28,9 @@ Also required are:
+ * Standard pinctrl properties that specify the pin mux state for each child
+   bus. See ../pinctrl/pinctrl-bindings.txt.
+ 
+-* Standard I2C mux properties. See mux.txt in this directory.
++* Standard I2C mux properties. See i2c-mux.txt in this directory.
+ 
+-* I2C child bus nodes. See mux.txt in this directory.
++* I2C child bus nodes. See i2c-mux.txt in this directory.
+ 
+ For each named state defined in the pinctrl-names property, an I2C child bus
+ will be created. I2C child bus numbers are assigned based on the index into
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt
+index 688783fbe696..de00d7fc450b 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt
+@@ -7,8 +7,8 @@ Required properties:
+ - compatible: i2c-mux-reg
+ - i2c-parent: The phandle of the I2C bus that this multiplexer's master-side
+   port is connected to.
+-* Standard I2C mux properties. See mux.txt in this directory.
+-* I2C child bus nodes. See mux.txt in this directory.
++* Standard I2C mux properties. See i2c-mux.txt in this directory.
++* I2C child bus nodes. See i2c-mux.txt in this directory.
+ 
+ Optional properties:
+ - reg: this pair of <offset size> specifies the register to control the mux.
+@@ -24,7 +24,7 @@ Optional properties:
+   given, it defaults to the last value used.
+ 
+ Whenever an access is made to a device on a child bus, the value set
+-in the revelant node's reg property will be output to the register.
++in the relevant node's reg property will be output to the register.
+ 
+ If an idle state is defined, using the idle-state (optional) property,
+ whenever an access is not being made to a device on a child bus, the
+-- 
+2.1.4
