@@ -1,350 +1,161 @@
-From: "Andrew F. Davis" <afd@ti.com>
-Subject: Re: [PATCH 1/2] mfd: sm-usb-dig: Add support for the TI SM-USB-DIG
-Date: Wed, 8 Jun 2016 12:36:48 -0500
-Message-ID: <575857B0.3090504@ti.com>
-References: <20160531173045.5742-1-afd@ti.com> <20160608130647.GD14888@dell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Austin Christ <austinwc@codeaurora.org>
+Subject: [PATCH v4 1/2] i2c: qup: add ACPI support
+Date: Wed,  8 Jun 2016 12:19:44 -0600
+Message-ID: <1465409985-17113-1-git-send-email-austinwc@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160608130647.GD14888@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, nkaje@codeaurora.org, linux-arm-kernel@lists.infradead.org, Austin Christ <austinwc@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/08/2016 08:06 AM, Lee Jones wrote:
-> On Tue, 31 May 2016, Andrew F. Davis wrote:
-> 
->> The TI SM-USB-DIG is a USB to SPI/I2C/1Wire/GPIO adapter.
->> Add MFD core support.
->>
->> Signed-off-by: Andrew F. Davis <afd@ti.com>
->> ---
->> The SPI, GPIO, and 1Wire drivers are WIP.
->>
->>  drivers/mfd/Kconfig            |   8 +++
->>  drivers/mfd/Makefile           |   2 +
->>  drivers/mfd/sm-usb-dig.c       | 138 +++++++++++++++++++++++++++++++++++++++++
->>  include/linux/mfd/sm-usb-dig.h |  73 ++++++++++++++++++++++
->>  4 files changed, 221 insertions(+)
->>  create mode 100644 drivers/mfd/sm-usb-dig.c
->>  create mode 100644 include/linux/mfd/sm-usb-dig.h
->>
->> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
->> index 1bcf601..455219a 100644
->> --- a/drivers/mfd/Kconfig
->> +++ b/drivers/mfd/Kconfig
->> @@ -1373,6 +1373,14 @@ config MFD_LM3533
->>  	  additional drivers must be enabled in order to use the LED,
->>  	  backlight or ambient-light-sensor functionality of the device.
->>  
->> +config MFD_SM_USB_DIG
->> +	tristate "Texas Instruments SM-USB-DIG interface adapter"
-> 
-> If it is decided that MFD is truly the best place for this driver, you
-> are still going to need a USB Ack for it.
-> 
+From: Naveen Kaje <nkaje@codeaurora.org>
 
-Okay, will CC for next version.
+Add support to get the device parameters from ACPI. Assume
+that the clocks are managed by firmware.
 
->> +	select MFD_CORE
->> +	help
->> +	  Support for the TI SM-USB-DIG USB to SPI/I2C/1Wire/GPIO adapter.
->> +	  Additional drivers such as SPI_SM_USB_DIG, I2C_SM_USB_DIG, etc. must
->> +	  be enabled in order to use the functionality of the device.
->> +
->>  config MFD_TIMBERDALE
->>  	tristate "Timberdale FPGA"
->>  	select MFD_CORE
->> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
->> index 42a66e1..376013e 100644
->> --- a/drivers/mfd/Makefile
->> +++ b/drivers/mfd/Makefile
->> @@ -68,6 +68,8 @@ obj-$(CONFIG_MFD_WM8350_I2C)	+= wm8350-i2c.o
->>  wm8994-objs			:= wm8994-core.o wm8994-irq.o wm8994-regmap.o
->>  obj-$(CONFIG_MFD_WM8994)	+= wm8994.o
->>  
->> +obj-$(CONFIG_MFD_SM_USB_DIG)    += sm-usb-dig.o
->> +
->>  obj-$(CONFIG_TPS6105X)		+= tps6105x.o
->>  obj-$(CONFIG_TPS65010)		+= tps65010.o
->>  obj-$(CONFIG_TPS6507X)		+= tps6507x.o
->> diff --git a/drivers/mfd/sm-usb-dig.c b/drivers/mfd/sm-usb-dig.c
->> new file mode 100644
->> index 0000000..cf7ccab
->> --- /dev/null
->> +++ b/drivers/mfd/sm-usb-dig.c
-> 
-> This should probably be ti-sm-usb-dig.c
-> 
+Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+Signed-off-by: Austin Christ <austinwc@codeaurora.org>
+Reviewed-by: sricharan@codeaurora.org
+---
+ drivers/i2c/busses/i2c-qup.c | 59 ++++++++++++++++++++++++++++++++------------
+ 1 file changed, 43 insertions(+), 16 deletions(-)
 
-There doesn't seem to be a standard of prefixing devices with their
-manufacturers name, why would here be any different?
+Changes:
+- v4:
+ - remove warning for fall back to default clock frequency
+- v3:
+ - clean up unused variable
+- v2:
+ - clean up redundant checks and variables
 
->> @@ -0,0 +1,138 @@
->> +/*
->> + * MFD Core driver for TI SM-USB-DIG
->> + *
->> + * Copyright (C) 2016 Texas Instruments Incorporated - http://www.ti.com/
->> + *	Andrew F. Davis <afd@ti.com>
->> + *
->> + * This program is free software; you can redistribute it and/or
->> + * modify it under the terms of the GNU General Public License version 2 as
->> + * published by the Free Software Foundation.
->> + *
->> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
->> + * kind, whether expressed or implied; without even the implied warranty
->> + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License version 2 for more details.
->> + */
->> +
->> +#include <linux/usb.h>
->> +#include <linux/mfd/core.h>
->> +#include <linux/module.h>
->> +
->> +#include <linux/mfd/sm-usb-dig.h>
-> 
-> All alphabetical.
-> 
-
-ACK
-
->> +#define USB_VENDOR_ID_TI                0x0451
->> +#define USB_DEVICE_ID_TI_SM_USB_DIG	0x2f90
-> 
-> TI at the beginning.
-> 
-
-ACK
-
->> +#define SMUSBDIG_USB_TIMEOUT		1000	/* in ms */
-> 
-> Rename to SMUSBDIG_USB_TIMEOUT_MS
-> 
-
-ACK
-
->> +struct smusbdig_device {
->> +	struct usb_device *usb_dev;
->> +	struct usb_interface *interface;
->> +};
-> 
-> s/smusbdig/ti_smusbdig/
-> 
-> ... throughout.
-> 
-
-I'm not sure about this, I don't think anyone else will be making one of
-these and this only adds a lot of extra characters to a lot of lines.
-
->> +int smusbdig_xfer(struct smusbdig_device *smusbdig, u8 *buffer, int size)
->> +{
->> +	struct device *dev = &smusbdig->interface->dev;
->> +	int actual_length, ret;
->> +
->> +	if (!smusbdig || !buffer || size <= 0)
->> +		return -EINVAL;
->> +
->> +	ret = usb_interrupt_msg(smusbdig->usb_dev,
->> +				usb_sndctrlpipe(smusbdig->usb_dev, 1),
->> +				buffer, size, &actual_length,
->> +				SMUSBDIG_USB_TIMEOUT);
->> +	if (ret) {
->> +		dev_err(dev, "USB transaction failed\n");
->> +		return ret;
->> +	}
->> +
->> +	ret = usb_interrupt_msg(smusbdig->usb_dev,
->> +				usb_rcvctrlpipe(smusbdig->usb_dev, 1),
->> +				buffer, SMUSBDIG_PACKET_SIZE, &actual_length,
->> +				SMUSBDIG_USB_TIMEOUT);
->> +	if (ret) {
->> +		dev_err(dev, "USB transaction failed\n");
->> +		return ret;
->> +	}
->> +
->> +	return 0;
->> +}
->> +EXPORT_SYMBOL_GPL(smusbdig_xfer);
->> +
->> +static const struct mfd_cell smusbdig_mfd_cells[] = {
->> +	{ .name = "sm-usb-dig-gpio", },
->> +	{ .name = "sm-usb-dig-i2c", },
->> +	{ .name = "sm-usb-dig-spi", },
->> +	{ .name = "sm-usb-dig-w1", },
->> +};
->> +
->> +static int smusbdig_probe(struct usb_interface *interface,
->> +			  const struct usb_device_id *usb_id)
->> +{
->> +	struct usb_host_interface *hostif = interface->cur_altsetting;
->> +	struct device *dev = &interface->dev;
->> +	struct smusbdig_device *smusbdig;
->> +	u8 buffer[SMUSBDIG_PACKET_SIZE];
->> +	int ret;
->> +
->> +	if (hostif->desc.bInterfaceNumber != 0 ||
->> +	    hostif->desc.bNumEndpoints < 2)
->> +		return -ENODEV;
->> +
->> +	smusbdig = devm_kzalloc(dev, sizeof(*smusbdig), GFP_KERNEL);
->> +	if (!smusbdig)
->> +		return -ENOMEM;
->> +
->> +	smusbdig->usb_dev = usb_get_dev(interface_to_usbdev(interface));
->> +	smusbdig->interface = interface;
->> +	usb_set_intfdata(interface, smusbdig);
->> +
->> +	buffer[0] = SMUSBDIG_VERSION;
->> +	ret = smusbdig_xfer(smusbdig, buffer, 1);
->> +	if (ret)
->> +		return ret;
->> +
->> +	dev_info(dev, "TI SM-USB-DIG Version: %d.%02d Found\n",
->> +		 buffer[0], buffer[1]);
->> +
->> +	/* Turn on power supply output */
->> +	buffer[0] = SMUSBDIG_COMMAND;
->> +	buffer[1] = SMUSBDIG_COMMAND_DUTPOWERON;
->> +	ret = smusbdig_xfer(smusbdig, buffer, 2);
->> +	if (ret)
->> +		return ret;
->> +
->> +	dev_set_drvdata(dev, smusbdig);
->> +	ret = mfd_add_hotplug_devices(dev, smusbdig_mfd_cells,
->> +				      ARRAY_SIZE(smusbdig_mfd_cells));
->> +	if (ret) {
->> +		dev_err(dev, "unable to add MFD devices\n");
->> +		return ret;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +void smusbdig_disconnect(struct usb_interface *interface)
->> +{
->> +	mfd_remove_devices(&interface->dev);
->> +}
->> +
->> +static const struct usb_device_id smusbdig_id_table[] = {
->> +	{ USB_DEVICE(USB_VENDOR_ID_TI, USB_DEVICE_ID_TI_SM_USB_DIG) },
->> +	{ /* sentinel */ }
->> +};
->> +MODULE_DEVICE_TABLE(usb, smusbdig_id_table);
->> +
->> +static struct usb_driver smusbdig_driver = {
->> +	.name = "sm-usb-dig",
->> +	.probe = smusbdig_probe,
->> +	.disconnect = smusbdig_disconnect,
->> +	.id_table = smusbdig_id_table,
->> +};
->> +module_usb_driver(smusbdig_driver);
-> 
-> This doesn't look like an MFD driver.
-> 
-> Why aren't you putting this in the USB subsystem?
-> 
-
-This is not a USB driver, it just attaches to the USB bus like other
-drivers in this subsystem that attach to SPI/I2C/Platform buses, drivers
-tend to go into folders based on the functionality they expose, and this
-exposes multiple functions, not USB functionality, so MFD makes the most
-sense to me.
-
-This device/driver is just like the dln2 and viperboard drivers
-currently in the MFD subsystem.
-
->> +MODULE_AUTHOR("Andrew F. Davis <afd@ti.com>");
->> +MODULE_DESCRIPTION("Core driver for TI SM-USB-DIG interface adapter");
->> +MODULE_LICENSE("GPL v2");
->> diff --git a/include/linux/mfd/sm-usb-dig.h b/include/linux/mfd/sm-usb-dig.h
->> new file mode 100644
->> index 0000000..1558ff2
->> --- /dev/null
->> +++ b/include/linux/mfd/sm-usb-dig.h
->> @@ -0,0 +1,73 @@
->> +/*
->> + * Copyright (C) 2016 Texas Instruments Incorporated - http://www.ti.com/
->> + *	Andrew F. Davis <afd@ti.com>
->> + *
->> + * This program is free software; you can redistribute it and/or
->> + * modify it under the terms of the GNU General Public License version 2 as
->> + * published by the Free Software Foundation.
->> + *
->> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
->> + * kind, whether expressed or implied; without even the implied warranty
->> + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License version 2 for more details.
->> + */
->> +
->> +#ifndef __LINUX_MFD_SM_USB_DIG_H
->> +#define __LINUX_MFD_SM_USB_DIG_H
->> +
->> +#define SMUSBDIG_PACKET_SIZE    32
->> +/* (packet size - packet header */
->> +#define SMUSBDIG_DATA_SIZE (SMUSBDIG_PACKET_SIZE - 7)
->> +
->> +enum smusbdig_function {
->> +	SMUSBDIG_SPI            = 0x01,
->> +	SMUSBDIG_I2C            = 0x02,
->> +	SMUSBDIG_1W             = 0x03,
->> +	SMUSBDIG_COMMAND        = 0x04,
->> +	SMUSBDIG_VERSION        = 0x07,
->> +};
->> +
->> +enum smusbdig_sub_command {
->> +	SMUSBDIG_COMMAND_DUTPOWERON	= 0x01,
->> +	SMUSBDIG_COMMAND_DUTPOWEROFF	= 0x02,
->> +};
->> +
->> +struct smusbdig_packet {
->> +	u8 function;
->> +	u8 channel;
->> +	u8 edge_polarity;
->> +	u8 num_commands;
->> +	u8 is_command_mask[3];
->> +	u8 data[SMUSBDIG_DATA_SIZE];
->> +} __packed;
->> +
->> +static void smusbdig_packet_add_command(struct smusbdig_packet *packet,
->> +					int command)
->> +{
->> +	int num_commands = packet->num_commands;
->> +	int mask_number = num_commands / 8;
->> +	int mask_bit = num_commands % 8;
->> +
->> +	if (num_commands >= SMUSBDIG_DATA_SIZE)
->> +		return;
->> +
->> +	packet->is_command_mask[mask_number] |= BIT(7 - mask_bit);
->> +	packet->data[num_commands] = command;
->> +	packet->num_commands++;
->> +}
-> 
-> Inline?
-> 
-
-ACK
-
->> +static void smusbdig_packet_add_data(struct smusbdig_packet *packet, u8 data)
->> +{
->> +	int num_commands = packet->num_commands;
->> +
->> +	if (num_commands >= SMUSBDIG_DATA_SIZE)
->> +		return;
->> +
->> +	packet->data[num_commands] = data;
->> +	packet->num_commands++;
->> +}
-> 
-> Inline?
-> 
-
-ACK
-
->> +struct smusbdig_device;
->> +int smusbdig_xfer(struct smusbdig_device *smusbdig, u8 *buffer, int size);
->> +
->> +#endif /* __LINUX_MFD_SM_USB_DIG_H */
-> 
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index dddd4da..0f23d58 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -29,6 +29,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/scatterlist.h>
++#include <linux/acpi.h>
+ 
+ /* QUP Registers */
+ #define QUP_CONFIG		0x000
+@@ -132,6 +133,10 @@
+ /* Max timeout in ms for 32k bytes */
+ #define TOUT_MAX			300
+ 
++/* Default values. Use these if FW query fails */
++#define DEFAULT_CLK_FREQ 100000
++#define DEFAULT_SRC_CLK 20000000
++
+ struct qup_i2c_block {
+ 	int	count;
+ 	int	pos;
+@@ -1354,14 +1359,13 @@ static void qup_i2c_disable_clocks(struct qup_i2c_dev *qup)
+ static int qup_i2c_probe(struct platform_device *pdev)
+ {
+ 	static const int blk_sizes[] = {4, 16, 32};
+-	struct device_node *node = pdev->dev.of_node;
+ 	struct qup_i2c_dev *qup;
+ 	unsigned long one_bit_t;
+ 	struct resource *res;
+ 	u32 io_mode, hw_ver, size;
+ 	int ret, fs_div, hs_div;
+-	int src_clk_freq;
+-	u32 clk_freq = 100000;
++	u32 src_clk_freq = 0;
++	u32 clk_freq = DEFAULT_CLK_FREQ;
+ 	int blocks;
+ 
+ 	qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL);
+@@ -1372,7 +1376,11 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 	init_completion(&qup->xfer);
+ 	platform_set_drvdata(pdev, qup);
+ 
+-	of_property_read_u32(node, "clock-frequency", &clk_freq);
++	ret = device_property_read_u32(qup->dev, "clock-frequency", &clk_freq);
++	if (ret) {
++		dev_notice(qup->dev, "using default clock-frequency %d",
++			DEFAULT_CLK_FREQ);
++	}
+ 
+ 	if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-v1.1.1")) {
+ 		qup->adap.algo = &qup_i2c_algo;
+@@ -1454,20 +1462,31 @@ nodma:
+ 		return qup->irq;
+ 	}
+ 
+-	qup->clk = devm_clk_get(qup->dev, "core");
+-	if (IS_ERR(qup->clk)) {
+-		dev_err(qup->dev, "Could not get core clock\n");
+-		return PTR_ERR(qup->clk);
+-	}
++	if (ACPI_HANDLE(qup->dev)) {
++		ret = device_property_read_u32(qup->dev,
++				"src-clock-hz", &src_clk_freq);
++		if (ret) {
++			dev_warn(qup->dev, "using default src-clock-hz %d",
++				DEFAULT_SRC_CLK);
++			src_clk_freq = DEFAULT_SRC_CLK;
++		}
++		ACPI_COMPANION_SET(&qup->adap.dev, ACPI_COMPANION(qup->dev));
++	} else {
++		qup->clk = devm_clk_get(qup->dev, "core");
++		if (IS_ERR(qup->clk)) {
++			dev_err(qup->dev, "Could not get core clock\n");
++			return PTR_ERR(qup->clk);
++		}
+ 
+-	qup->pclk = devm_clk_get(qup->dev, "iface");
+-	if (IS_ERR(qup->pclk)) {
+-		dev_err(qup->dev, "Could not get iface clock\n");
+-		return PTR_ERR(qup->pclk);
++		qup->pclk = devm_clk_get(qup->dev, "iface");
++		if (IS_ERR(qup->pclk)) {
++			dev_err(qup->dev, "Could not get iface clock\n");
++			return PTR_ERR(qup->pclk);
++		}
++		qup_i2c_enable_clocks(qup);
++		src_clk_freq = clk_get_rate(qup->clk);
+ 	}
+ 
+-	qup_i2c_enable_clocks(qup);
+-
+ 	/*
+ 	 * Bootloaders might leave a pending interrupt on certain QUP's,
+ 	 * so we reset the core before registering for interrupts.
+@@ -1514,7 +1533,6 @@ nodma:
+ 	size = QUP_INPUT_FIFO_SIZE(io_mode);
+ 	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
+ 
+-	src_clk_freq = clk_get_rate(qup->clk);
+ 	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
+ 	hs_div = 3;
+ 	qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff);
+@@ -1639,6 +1657,14 @@ static const struct of_device_id qup_i2c_dt_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
+ 
++#if IS_ENABLED(CONFIG_ACPI)
++static const struct acpi_device_id qup_i2c_acpi_match[] = {
++	{ "QCOM8010"},
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_ids);
++#endif
++
+ static struct platform_driver qup_i2c_driver = {
+ 	.probe  = qup_i2c_probe,
+ 	.remove = qup_i2c_remove,
+@@ -1646,6 +1672,7 @@ static struct platform_driver qup_i2c_driver = {
+ 		.name = "i2c_qup",
+ 		.pm = &qup_i2c_qup_pm_ops,
+ 		.of_match_table = qup_i2c_dt_match,
++		.acpi_match_table = ACPI_PTR(qup_i2c_acpi_match),
+ 	},
+ };
+ 
+-- 
+Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project.
