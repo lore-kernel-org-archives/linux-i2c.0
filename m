@@ -1,17 +1,17 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [v2,04/10] i2c-i801: Consolidate calls to i801_check_pre()
-Date: Thu, 9 Jun 2016 11:44:02 +0200
-Message-ID: <20160609094402.GF24234@mail.corp.redhat.com>
-References: <1464570544-975-5-git-send-email-minyard@acm.org>
+Subject: Re: [v2,05/10] i2c-i801: Consolidate calls to i801_check_post
+Date: Thu, 9 Jun 2016 12:03:29 +0200
+Message-ID: <20160609100329.GG24234@mail.corp.redhat.com>
+References: <1464570544-975-6-git-send-email-minyard@acm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36193 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59810 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752868AbcFIJoG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 9 Jun 2016 05:44:06 -0400
+	id S1751775AbcFIKDe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 9 Jun 2016 06:03:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1464570544-975-5-git-send-email-minyard@acm.org>
+In-Reply-To: <1464570544-975-6-git-send-email-minyard@acm.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Corey Minyard <minyard@acm.org>
@@ -20,57 +20,174 @@ Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vg
 On May 29 2016 or thereabouts, Corey Minyard wrote:
 > From: Corey Minyard <cminyard@mvista.com>
 > 
-> It was always done before starting the transaction, so do it
-> in common code before the transaction start.
+> This was almost always called at the end of the transaction.  The
+> only time it wasn't called was when a protocol violation occurred,
+> and the error reporting was inconsistent there.
+> 
+> So have the transaction functions return positive status or a
+> negative error if they detect an issue.  If a protocol violation
+> does occur, always do a kill operation on the bus instead of just
+> trying to finish the operation.  If there was a hardware issue,
+> the code that was there to terminate the transaction could loop
+> forever, and the kill seems more appropriate if something goes
+> grossly wrong.
 > 
 > Signed-off-by: Corey Minyard <cminyard@mvista.com>
 > ---
->  drivers/i2c/busses/i2c-i801.c | 12 ++++--------
->  1 file changed, 4 insertions(+), 8 deletions(-)
+
+I *think* the patch is OK. I have a few comments.
+
+>  drivers/i2c/busses/i2c-i801.c | 51 +++++++++++++++++++++----------------------
+>  1 file changed, 25 insertions(+), 26 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 222be9c..8794e70 100644
+> index 8794e70..56db310 100644
 > --- a/drivers/i2c/busses/i2c-i801.c
 > +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -402,10 +402,6 @@ static int i801_transaction(struct i801_priv *priv, int xact)
->  	int result;
->  	const struct i2c_adapter *adap = &priv->adapter;
->  
-> -	result = i801_check_pre(priv);
-> -	if (result < 0)
-> -		return result;
-> -
->  	if (priv->features & FEATURE_IRQ) {
->  		outb_p(xact | SMBHSTCNT_INTREN | SMBHSTCNT_START,
->  		       SMBHSTCNT(priv));
-> @@ -562,10 +558,6 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
->  	int result;
->  	const struct i2c_adapter *adap = &priv->adapter;
->  
-> -	result = i801_check_pre(priv);
-> -	if (result < 0)
-> -		return result;
-> -
->  	len = data->block[0];
->  
->  	if (read_write == I2C_SMBUS_WRITE) {
-> @@ -789,6 +781,10 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
->  		goto out;
+> @@ -317,7 +317,13 @@ static int i801_check_post(struct i801_priv *priv, int status)
+>  	 * DEV_ERR.
+>  	 */
+>  	if (unlikely(status < 0)) {
+> -		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
+> +		result = status;
+> +		if (status == -EPROTO)
+> +			dev_err(&priv->pci_dev->dev,
+> +				"Illegal SMBus block read size %d\n",
+> +				priv->len);
+
+Not sure this is a good idea to map -EPROTO to "Illegal SMBus block read
+size". True, it looks like it can only happens this way, but I would
+rather see it mapped to "Protocol Error". Given that Protocol Error is
+not very interesting in itself, I'd rather keep the error messages in
+the callers only (except for ETIMEOUT where you can output an error
+message).
+
+> +		else
+> +			dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
+>  		/* try to stop the current command */
+>  		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
+>  		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
+> @@ -333,7 +339,7 @@ static int i801_check_post(struct i801_priv *priv, int status)
+>  			dev_err(&priv->pci_dev->dev,
+>  				"Failed terminating the transaction\n");
+>  		outb_p(STATUS_FLAGS, SMBHSTSTS(priv));
+> -		return -ETIMEDOUT;
+> +		return result;
 >  	}
 >  
-> +	ret = i801_check_pre(priv);
-> +	if (ret < 0)
-> +		goto out;
-> +
+>  	if (status & SMBHSTSTS_FAILED) {
+> @@ -414,15 +420,14 @@ static int i801_transaction(struct i801_priv *priv, int xact)
+>  				 "Timeout waiting for interrupt!\n");
 
-The calls looks identical (it gets called before each transaction), but
-given that this is a status register, I wonder if this should not be
-checked once the setup has been done, and not at the very early
-beginning.
+Here, the code already dev_warn the timeout and later i801_check_post
+will dev_err the timeout too. That's one too much IMO :)
+
+>  		}
+>  		priv->status = 0;
+> -		return i801_check_post(priv, status);
+> +		return status;
+>  	}
+>  
+>  	/* the current contents of SMBHSTCNT can be overwritten, since PEC,
+>  	 * SMBSCMD are passed in xact */
+>  	outb_p(xact | SMBHSTCNT_START, SMBHSTCNT(priv));
+>  
+> -	status = i801_wait_intr(priv);
+> -	return i801_check_post(priv, status);
+> +	return i801_wait_intr(priv);
+>  }
+>  
+>  static int i801_block_transaction_by_block(struct i801_priv *priv,
+> @@ -444,11 +449,11 @@ static int i801_block_transaction_by_block(struct i801_priv *priv,
+>  
+>  	status = i801_transaction(priv, I801_BLOCK_DATA |
+>  				  (hwpec ? SMBHSTCNT_PEC_EN : 0));
+> -	if (status)
+> +	if (status < 0 || status & STATUS_ERROR_FLAGS)
+>  		return status;
+>  
+>  	if (read_write == I2C_SMBUS_READ) {
+> -		len = inb_p(SMBHSTDAT0(priv));
+> +		len = priv->len = inb_p(SMBHSTDAT0(priv));
+>  		if (len < 1 || len > I2C_SMBUS_BLOCK_MAX)
+>  			return -EPROTO;
+>  
+> @@ -456,7 +461,7 @@ static int i801_block_transaction_by_block(struct i801_priv *priv,
+>  		for (i = 0; i < len; i++)
+>  			data->block[i + 1] = inb_p(SMBBLKDAT(priv));
+>  	}
+> -	return 0;
+> +	return status;
+>  }
+>  
+>  static void i801_isr_byte_done(struct i801_priv *priv)
+> @@ -590,7 +595,7 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+>  				 "Timeout waiting for interrupt!\n");
+>  		}
+>  		priv->status = 0;
+> -		return i801_check_post(priv, status);
+> +		return status;
+>  	}
+>  
+>  	for (i = 1; i <= len; i++) {
+> @@ -604,24 +609,14 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+>  
+>  		status = i801_wait_byte_done(priv);
+>  		if (status)
+> -			goto exit;
+> +			return status;
+>  
+>  		if (i == 1 && read_write == I2C_SMBUS_READ
+>  		 && command != I2C_SMBUS_I2C_BLOCK_DATA) {
+> -			len = inb_p(SMBHSTDAT0(priv));
+> -			if (len < 1 || len > I2C_SMBUS_BLOCK_MAX) {
+> -				dev_err(&priv->pci_dev->dev,
+> -					"Illegal SMBus block read size %d\n",
+> -					len);
+> -				/* Recover */
+> -				while (inb_p(SMBHSTSTS(priv)) &
+> -				       SMBHSTSTS_HOST_BUSY)
+> -					outb_p(SMBHSTSTS_BYTE_DONE,
+> -					       SMBHSTSTS(priv));
+> -				outb_p(SMBHSTSTS_INTR, SMBHSTSTS(priv));
+> +			priv->len = inb_p(SMBHSTDAT0(priv));
+> +			if (priv->len < 1 || priv->len > I2C_SMBUS_BLOCK_MAX)
+>  				return -EPROTO;
+> -			}
+> -			data->block[0] = len;
+> +			data->block[0] = len = priv->len;
+
+Not entirely sure why the priv->len changes are interleaved in this
+patch. I might be missing something, but it looks like it should not be
+there or in a separate patch.
 
 Cheers,
 Benjamin
 
->  	if (block)
->  		ret = i801_block_transaction(priv, flags, data, read_write,
->  					     size);
+>  		}
+>  
+>  		/* Retrieve/store value in SMBBLKDAT */
+> @@ -634,9 +629,7 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+>  		outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
+>  	}
+>  
+> -	status = i801_wait_intr(priv);
+> -exit:
+> -	return i801_check_post(priv, status);
+> +	return i801_wait_intr(priv);
+>  }
+>  
+>  static int i801_set_block_buffer_mode(struct i801_priv *priv)
+> @@ -791,6 +784,12 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+>  	else
+>  		ret = i801_transaction(priv, xact);
+>  
+> +	/*
+> +	 * ret can be status if positive or an error if negative.  Let
+> +	 * the post check handle it.
+> +	 */
+> +	ret = i801_check_post(priv, ret);
+> +
+>  	if (hostc >= 0)
+>  		pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hostc);
+>  
