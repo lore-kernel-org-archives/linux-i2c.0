@@ -1,56 +1,75 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: robotfuzz-osif: Constify osif_table
-Date: Thu, 9 Jun 2016 22:44:40 +0200
-Message-ID: <20160609204440.GM23522@katana>
-References: <1464845328.6532.1.camel@ingics.com>
+Subject: Re: [PATCH V3 1/2] i2c: qup: Fix broken dma when CONFIG_DEBUG_SG is
+ enabled
+Date: Thu, 9 Jun 2016 22:46:55 +0200
+Message-ID: <20160609204655.GN23522@katana>
+References: <1464164212-11377-1-git-send-email-sricharan@codeaurora.org>
+ <1464164212-11377-2-git-send-email-sricharan@codeaurora.org>
+ <20160526184805.GC1614@katana>
+ <002201d1b79a$22862bc0$67928340$@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="B9BE8dkJ1pIKavwa"
+	protocol="application/pgp-signature"; boundary="Zbynv6TNPa9FrOf6"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35017 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:35023 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750756AbcFIUon (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 9 Jun 2016 16:44:43 -0400
+	id S1750752AbcFIUrA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 9 Jun 2016 16:47:00 -0400
 Content-Disposition: inline
-In-Reply-To: <1464845328.6532.1.camel@ingics.com>
+In-Reply-To: <002201d1b79a$22862bc0$67928340$@codeaurora.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Axel Lin <axel.lin@ingics.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, linux-i2c@vger.kernel.org
+To: Sricharan <sricharan@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, nkaje@codeaurora.org, absahu@codeaurora.org, linux-i2c@vger.kernel.org, galak@codeaurora.org, andy.gross@linaro.org, linux-arm-kernel@lists.infradead.org
 
 
---B9BE8dkJ1pIKavwa
+--Zbynv6TNPa9FrOf6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 02, 2016 at 01:28:48PM +0800, Axel Lin wrote:
-> osif_table is never modified, so declare it as const.
+
+>  The coherency is not dropped here. dma_map/unmap used
+>  makes the buffer coherent before passing it to
+>  dmaengine. Previously it was not required.
+>  I can add this in description if its not clear.
+
+Please do.
+
 >=20
-> Signed-off-by: Axel Lin <axel.lin@ingics.com>
+>  >> @@ -1268,6 +1260,8 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *=
+adap,
+> >>  		}
+> >>  	}
+> >>
+> >> +	idx =3D 0;
+> >> +
+> >
+> >This looks like an unrelated change.
+>     Ha, wrong. This should have been in a separate patch.
 
-Applied to for-next, thanks!
+Exactly this is what I meant with "unrelated" :)
 
 
---B9BE8dkJ1pIKavwa
+--Zbynv6TNPa9FrOf6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXWdU3AAoJEBQN5MwUoCm2nXEQAJncraalkM8Ad0wYKQ/SC5Bj
-IfgvK3eMhm6iQHdgmDq0wkKyGCuP29hInXX1Bu3RseJHkYkc+R2SXXXJIkbXEJha
-lJ+fqMKYaDALOHGiaLJlk8OKdhxJ8Gvawaa7ANuHYbFWoNly7Voui7G/WaMnMudl
-mzr4vrSAw9h/zfHcEBByMyXRaN69g4hOYdki6+D2g1FuVKuDFVp6tqzXZkXr1OgB
-Yx6AmPqJNacB0f6ihwG0r1AAcEIdLeqbGwRJdoUc0jycr7iZe9MUOBX3YjtzMS6M
-dG+jev3MrCGKkuc9sbKbWGD5xlkjUyQ/wY4MGeuOgl9GLtE5PG6d8lmQtur6wj0e
-Gv63+/mpQrEYypJK7r2+Pe7zdoEgUDKr7w2z6IGYgJG8KmeZ1LjpPs/4aV2SMJNG
-m5TDu0lZ/W6/5aA0Eh+sCu1oXB5y3/fYNOQ/8zxJYVS2otO6wijKRFEel0LtxTq4
-0huFYYflQOuiFE+PYcRuvgMA6Hqy3LfNfAXFWNg3oJrqS1EhS/tf5c01YW6qXp9h
-txg0BdxmRbVwytbH+JFHiPAK2/TIe9oykSuGXXAUfcmwRQLkjoDY8UX+eMsnRuiQ
-zBWgLguxsAkdLhBlUl8Fd20knnGP91QYvuTxorlGRPslCPO+OtBja14aWmvZgybW
-8rMgjH2C39Qq2RpEiC3s
-=yy2R
+iQIcBAEBAgAGBQJXWdW/AAoJEBQN5MwUoCm2p8MP/jmhyC+EM6YozdvYQzh5fwpf
+E8oDOuYqGVDpUpLog8PyeD2/gXjMrnZ5eCRet3L4UtrOBpCpnYlyj6FLtOncphfL
+KKcw0wicL1UZKIjM+wEamFzQHm/5xx5mc5uSOiF5ccBHzWJA/MFzNxI0JJ7IINKz
+1PbdMFLrQRHfAbfssXMziCxrfz5IB8NPu5Sv/l8K8CH3uULtyKelJ0fCIG9b/9zG
+Z9IyvVDcIByKGqBbVDo4XQsG2eqouzAaw12w3SAxYr9gLAVwh1PtPYxKK6SJy4Yg
+pVzj7d+ki7Pk5+zvtbu1uxAKc1arx7ea1uCgyfN+mWCC5rZMPnNJokxo9jHP86me
+lAy8wDABjLeKe771RSVInO/CXbtgl8bqCG0iOmdm0nBaQuIvflQjqkp5T7ZFsy8T
+Rp+ZVB+HVelH5FmfpEQZAkSf0BRazutkHNtNrfUOc534AGyIBt7Ex6hzID+n1Yel
+Ctucp0wm+fgIkJ/yxY0PBG74HyNdgK2a/sjvHW+rMPzu6j5JfjmZkzjlyoJU5jNg
+LzRz/7Vmvi0vE4Vwg1XfzrWbVnMx/QtMQVmz20PVAr+kC6D7U3lWbpHfhEUGu+sc
+PbfU+1J+OOnG+CLY1y33cNkf9gJiChEQgy8STgv5mdFHQZ7NhZSzJYNqYbA9gWF6
+srzEx79tMYYX9EM5M/Zk
+=hHLu
 -----END PGP SIGNATURE-----
 
---B9BE8dkJ1pIKavwa--
+--Zbynv6TNPa9FrOf6--
