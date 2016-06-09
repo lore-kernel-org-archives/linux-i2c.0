@@ -1,75 +1,63 @@
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Subject: [PATCH 3/3] i2c: Export i2c_init_adapter() for use by drivers in
- early initialisation
-Date: Thu,  9 Jun 2016 09:53:55 +0100
-Message-ID: <1465462435-5240-3-git-send-email-chris@chris-wilson.co.uk>
-References: <1465462435-5240-1-git-send-email-chris@chris-wilson.co.uk>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [v2,01/10] i2c-i801: Remove hwpec from block byte-by-byte
+ function
+Date: Thu, 9 Jun 2016 11:36:44 +0200
+Message-ID: <20160609093643.GC24234@mail.corp.redhat.com>
+References: <1464570544-975-2-git-send-email-minyard@acm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1465462435-5240-1-git-send-email-chris@chris-wilson.co.uk>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: linux-i2c@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1464570544-975-2-git-send-email-minyard@acm.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Corey Minyard <minyard@acm.org>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 List-Id: linux-i2c@vger.kernel.org
 
-U29tZSBkcml2ZXJzIHJlcXVpcmUgdXNlIG9mIHRoZWlyIGkyYyBhZGFwdGVyIGxvbmcgYmVmb3Jl
-IHRoZXkgY2FuIGFkZAp0aGUgYWRhcHRlciB0byB1c2Vyc3BhY2UgKGkuZS4gYmVmb3JlIHRoZXkg
-ZXN0YWJsaXNoIGFuZCBleHBvc2UgdGhlaXIKb2JqZWN0cyBpbiB0aGUgc3lzZnMga29iamVjdCB0
-cmVlKS4gQ3VycmVudGx5IGkyY19hZGRfYWRhcHRlcigpCnJlZ2lzdGVycyB0aGUgYWRhcHRlciB3
-aXRoIHVzZXJzcGFjZSwgd2hpY2ggY2F1c2VzIGEgY29uZmxpY3QgaW4gdGhlCm9yZGVyaW5nIG9m
-IHRoZSBkcml2ZXIncyBpbml0aWFsaXNhdGlvbi4gRXhwb3J0aW5nIGkyY19pbml0X2FkYXB0ZXIo
-KQphbGxvd3MgZm9yIHRoZSBpMmMgYWRhcHRlciB0byBiZSB1c2VkIGVhcmx5IGluIHRoZSBpbml0
-aWFsaXNhdGlvbiBpbgpvcmRlciB0byBkZXRlY3Qgd2hldGhlciB0aGUgZGV2aWNlIHRoZSBhZGFw
-dGVyIGlzIGF0dGFjaGVkIHRvIGlzIGV2ZW4KcHJlc2VudC4gVGhlIGRyaXZlcnMgc3RpbGwgbmVl
-ZCB0byBjYWxsIGkyY19hZGRfYWRhcHRlcigpIChvcgppMmNfYWRkX251bWJlcl9hZGFwdGVyKCkp
-IGFzIHBlciBub3JtYWwgdG8gY29tcGxldGUgdGhlaXIgcmVnaXN0cmF0aW9uLgoKU2lnbmVkLW9m
-Zi1ieTogQ2hyaXMgV2lsc29uIDxjaHJpc0BjaHJpcy13aWxzb24uY28udWs+CkNjOiBWaWxsZSBT
-eXJqw6Rsw6QgPHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tPgpDYzogV29sZnJhbSBTYW5n
-IDx3c2FAdGhlLWRyZWFtcy5kZT4KQ2M6IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmcKQ2M6IGxp
-bnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcKQ2M6IGRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3Rv
-cC5vcmcKLS0tCiBkcml2ZXJzL2kyYy9pMmMtY29yZS5jIHwgMTYgKysrKysrKysrKysrKysrLQog
-aW5jbHVkZS9saW51eC9pMmMuaCAgICB8ICAxICsKIDIgZmlsZXMgY2hhbmdlZCwgMTYgaW5zZXJ0
-aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2kyYy1jb3Jl
-LmMgYi9kcml2ZXJzL2kyYy9pMmMtY29yZS5jCmluZGV4IDkxZmY3MGQzMWVjOC4uMGEzYmRiMDQ4
-ZDY1IDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9pMmMtY29yZS5jCisrKyBiL2RyaXZlcnMvaTJj
-L2kyYy1jb3JlLmMKQEAgLTE1MTEsNyArMTUxMSwyMCBAQCBzdGF0aWMgaW50IF9fcHJvY2Vzc19u
-ZXdfYWRhcHRlcihzdHJ1Y3QgZGV2aWNlX2RyaXZlciAqZCwgdm9pZCAqZGF0YSkKIAlyZXR1cm4g
-aTJjX2RvX2FkZF9hZGFwdGVyKHRvX2kyY19kcml2ZXIoZCksIGRhdGEpOwogfQogCi1zdGF0aWMg
-aW50IGkyY19pbml0X2FkYXB0ZXIoc3RydWN0IGkyY19hZGFwdGVyICphZGFwKQorLyoqCisgKiBp
-MmNfaW5pdF9hZGFwdGVyIC0gaW5pdGlhbGlzZSBpMmMgYWRhcHRlciBmb3IgaW50ZXJuYWwgdXNl
-CisgKiBAYWRhcHRlcjogdGhlIGFkYXB0ZXIgdG8gaW5pdGlhbGlzZQorICogQ29udGV4dDogYW55
-CisgKgorICogVGhpcyByb3V0aW5lIGlzIHVzZWQgdG8gaW5pdGlhbGlzZSBhbiBJMkMgYWRhcHRl
-ciBmb3IgaW50ZXJuYWwgdXNlCisgKiBwcmlvciB0byByZWdpc3RlcmluZyBpdCB3aXRoIHRoaXJk
-IHBhcnRpZXMgKGluY2x1ZGluZyB1c2Vyc3BhY2UpLiBUaGUKKyAqIGRyaXZlciBzaG91bGQgc3Rp
-bGwgY2FsbCBpMmNfYWRkX2FkYXB0ZXIoKSBvciBpMmNfYWRkX251bWJlcmVkX2FkYXB0ZXIoKQor
-ICogd2hlbiBpdCBpcyByZWFkeSB0byBleHBvc2UgdGhlIGFkYXB0ZXIgdG8gdXNlcnNwYWNlLgor
-ICoKKyAqIFJldHVybnM6IDAgb24gc3VjY2Vzcywgb3IgYSBuZWdhdGl2ZSBlcnJvciB2YWx1ZSBp
-ZiB0aGUgYWRhcHRlciBpcyBub3QKKyAqIGZ1bGx5IHNwZWNpZmllZCBmb3IgdXNlLgorICovCitp
-bnQgaTJjX2luaXRfYWRhcHRlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCiB7CiAJLyogT25s
-eSBpbml0aWFsaXNlIHRoZSBhZGFwdGVyIG9uY2UuICovCiAJaWYgKGxpc3RfZW1wdHkoJmFkYXAt
-PnVzZXJzcGFjZV9jbGllbnRzKSkKQEAgLTE1NDYsNiArMTU1OSw3IEBAIHN0YXRpYyBpbnQgaTJj
-X2luaXRfYWRhcHRlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCiAKIAlyZXR1cm4gMDsKIH0K
-K0VYUE9SVF9TWU1CT0woaTJjX2luaXRfYWRhcHRlcik7CiAKIHN0YXRpYyBpbnQgaTJjX3JlZ2lz
-dGVyX2FkYXB0ZXIoc3RydWN0IGkyY19hZGFwdGVyICphZGFwKQogewpkaWZmIC0tZ2l0IGEvaW5j
-bHVkZS9saW51eC9pMmMuaCBiL2luY2x1ZGUvbGludXgvaTJjLmgKaW5kZXggOTZhMjVhZTE0NDk0
-Li43MmM3NmM1ZWZiYTUgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaTJjLmgKKysrIGIvaW5j
-bHVkZS9saW51eC9pMmMuaApAQCAtNjM5LDYgKzYzOSw3IEBAIGkyY191bmxvY2tfYWRhcHRlcihz
-dHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXB0ZXIpCiAvKiBhZG1pbmlzdHJhdGlvbi4uLgogICovCiAj
-aWYgZGVmaW5lZChDT05GSUdfSTJDKSB8fCBkZWZpbmVkKENPTkZJR19JMkNfTU9EVUxFKQorZXh0
-ZXJuIGludCBpMmNfaW5pdF9hZGFwdGVyKHN0cnVjdCBpMmNfYWRhcHRlciAqKTsKIGV4dGVybiBp
-bnQgaTJjX2FkZF9hZGFwdGVyKHN0cnVjdCBpMmNfYWRhcHRlciAqKTsKIGV4dGVybiB2b2lkIGky
-Y19kZWxfYWRhcHRlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKik7CiBleHRlcm4gaW50IGkyY19hZGRf
-bnVtYmVyZWRfYWRhcHRlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKik7Ci0tIAoyLjguMQoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxp
-bmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
-ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+Hi Corey,
+
+I wanted to send a global rev-by, but it looks like some changes in this
+series are required from my point of view, so I'll just send individual
+rev-by and change requests as my review progresses.
+
+On May 29 2016 or thereabouts, Corey Minyard wrote:
+> From: Corey Minyard <cminyard@mvista.com>
+> 
+> It's not used in the function, so get rid of it.
+> 
+> Signed-off-by: Corey Minyard <cminyard@mvista.com>
+> ---
+
+I am not entirely sure if this was kept for a reason or not, but the
+argument is not used. So:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+>  drivers/i2c/busses/i2c-i801.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 64b1208b..818c0c8 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -554,8 +554,7 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+>   */
+>  static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+>  					       union i2c_smbus_data *data,
+> -					       char read_write, int command,
+> -					       int hwpec)
+> +					       char read_write, int command)
+>  {
+>  	int i, len;
+>  	int smbcmd;
+> @@ -698,7 +697,7 @@ static int i801_block_transaction(struct i801_priv *priv,
+>  	else
+>  		result = i801_block_transaction_byte_by_byte(priv, data,
+>  							     read_write,
+> -							     command, hwpec);
+> +							     command);
+>  
+>  	if (command == I2C_SMBUS_I2C_BLOCK_DATA
+>  	 && read_write == I2C_SMBUS_WRITE) {
