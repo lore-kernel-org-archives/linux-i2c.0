@@ -1,96 +1,60 @@
 From: Crestez Dan Leonard <leonard.crestez@intel.com>
-Subject: [RFC v2 2/2] i2c: Pass i2c_device_id to probe func when using DT ids through ACPI
-Date: Thu,  9 Jun 2016 16:06:03 +0300
-Message-ID: <f5d92224a005bc7b82e210957719b7be142c6388.1465477193.git.leonard.crestez@intel.com>
-References: <cover.1465477193.git.leonard.crestez@intel.com>
+Subject: [RFC v2 0/2] Match i2c_device_id when using DT ids through ACPI
+Date: Thu,  9 Jun 2016 16:06:01 +0300
+Message-ID: <cover.1465477193.git.leonard.crestez@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1465477193.git.leonard.crestez@intel.com>
-In-Reply-To: <cover.1465477193.git.leonard.crestez@intel.com>
-References: <cover.1465477193.git.leonard.crestez@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>
 Cc: Crestez Dan Leonard <leonard.crestez@intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, Daniel Baluta <daniel.baluta@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-When devices are instatiated through devicetree the i2c_client->name is
-set to the compatible string with company name stripped out. This is
-then matched to the i2c_device_id table to pass the device_id to the
-probe function. This id parameter is used by some device drivers to
-differentiate between model numbers.
+Linux supports instantiating devices using devicetree ids from ACPI by setting
+the id to PRP0001 and adding the devicetree compatible string in _DSD
+properties. This is described in Documentation/acpi/enumeration.txt.
 
-When using ACPI this id parameter is NULL and the driver usually needs
-to do ACPI-specific differentiation.
+I've tried to use this feature using custom ACPI tables and one issue I
+encountered is that a lot of i2c device drivers are written for DT only and
+expect a valid i2c_device_id *id parameter to their probe function but this is
+always NULL for the PRP0001 case. Others call of_match_device in order to
+determine their exact model number and that will also fail.
 
-This patch attempts to find a valid i2c_device_id when using ACPI with
-DT-like compatible strings.
+Drivers normally do this in order to differentiate between minor model numbers
+supported by the same driver, for example hmc5883 versus hmc5983.
 
-Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
----
+For ACPI it is common to add calls to acpi_match_device in order to do such
+differentiation. It might make sense to call some form of acpi_of_match_device
+except no such function is currently exported. I think it makes a lot of sense
+to refactor the current acpi_of_match_device to return the of_device_id and
+export it.
+
+This is in PATCH 1. After exposing this function it could be called from each
+driver that needs to support multiple models through PRP0001. I guess the
+alternative to exposing acpi_of_match_device would be for driver code to poke
+at acpi_device->data.of_compatible?
+
+Going further it might make sense to attempt to fetch the i2c_device_id when
+instantiating through PRP0001. This already happens automatically for
+devicetree and it makes a lot of sense it would work through ACPI with DT ids.
+Patch 2 hacks an additional search in i2c register code. This makes some
+drivers "just work" without manually handling the "ACPI with DT ids" case.
+
+For P1 it might make sense to change the parameters around so that
+acpi_of_match_device will have the same signature as of_match_device.
+
+The purpose of these changes would be to make more drivers easier to
+instantiate through ACPI firmware.
+
+v2 fixes the code to actually work correctly. Hopefully the patches will also
+be sent to the correct addresses this time.
+
+Crestez Dan Leonard (2):
+  acpi: Expose acpi_of_match_device
+  i2c: Pass i2c_device_id to probe func when using DT ids through ACPI
+
+ drivers/acpi/bus.c     | 13 +++++++------
  drivers/i2c/i2c-core.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+ include/linux/acpi.h   |  8 ++++++++
+ 3 files changed, 41 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 3ffeb6c..911052d 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -581,17 +581,23 @@ static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
- 
- /* ------------------------------------------------------------------------- */
- 
--static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
--						const struct i2c_client *client)
-+static const struct i2c_device_id *i2c_match_id_name(const struct i2c_device_id *id,
-+						     const char *id_name)
- {
- 	while (id->name[0]) {
--		if (strcmp(client->name, id->name) == 0)
-+		if (strcmp(id_name, id->name) == 0)
- 			return id;
- 		id++;
- 	}
- 	return NULL;
- }
- 
-+static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-+						const struct i2c_client *client)
-+{
-+	return i2c_match_id_name(id, client->name);
-+}
-+
- static int i2c_device_match(struct device *dev, struct device_driver *drv)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
-@@ -767,6 +773,7 @@ static int i2c_device_probe(struct device *dev)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
- 	struct i2c_driver	*driver;
-+	const struct i2c_device_id *i2c_device_id;
- 	int status;
- 
- 	if (!client)
-@@ -826,7 +833,22 @@ static int i2c_device_probe(struct device *dev)
- 	if (status == -EPROBE_DEFER)
- 		goto err_clear_wakeup_irq;
- 
--	status = driver->probe(client, i2c_match_id(driver->id_table, client));
-+	i2c_device_id = i2c_match_id(driver->id_table, client);
-+#ifdef CONFIG_ACPI
-+	if (!i2c_device_id) {
-+		const char *id_name;
-+		const struct of_device_id *ofid;
-+
-+		ofid = acpi_of_match_device(ACPI_COMPANION(&client->dev),
-+					    driver->driver.of_match_table);
-+		if (ofid) {
-+			id_name = strchr(ofid->compatible, ',');
-+			id_name = id_name ? id_name + 1 : ofid->compatible;
-+			i2c_device_id = i2c_match_id_name(driver->id_table, id_name);
-+		}
-+	}
-+#endif
-+	status = driver->probe(client, i2c_device_id);
- 	if (status)
- 		goto err_detach_pm_domain;
- 
 -- 
 2.5.5
