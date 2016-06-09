@@ -1,40 +1,56 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
- PCI BAR
-Date: Thu, 9 Jun 2016 11:15:46 +0300
-Message-ID: <20160609081546.GA1791@lahna.fi.intel.com>
-References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com>
- <20160608162913.GA24234@mail.corp.redhat.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Subject: [PATCH 1/3] i2c: Split adapter initialisation from registers
+Date: Thu,  9 Jun 2016 09:53:53 +0100
+Message-ID: <1465462435-5240-1-git-send-email-chris@chris-wilson.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:55257 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752683AbcFIIPw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 9 Jun 2016 04:15:52 -0400
-Content-Disposition: inline
-In-Reply-To: <20160608162913.GA24234@mail.corp.redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: linux-i2c@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, pali.rohar@gmail.com, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 
-On Wed, Jun 08, 2016 at 06:29:13PM +0200, Benjamin Tissoires wrote:
-> > -	err = acpi_check_resource_conflict(&dev->resource[SMBBAR]);
-> > -	if (err) {
-> > +	err = i801_acpi_probe(priv);
-> > +	if (err)
-> >  		return -ENODEV;
-> > -	}
-> 
-> I'd say that once this has been set, we need to call
-> acpi_remove_address_space_handler() in case of failure later (in the 2
-> returns after).
-
-Indeed - I wonder how many mistakes one patch can contain :-(
-
-Let me fix this and submit yet another version.
-
-> The rest looks OK to me.
-
-Thanks!
+SW4gb3JkZXIgdG8gaGFuZGxlIGRldmljZXMgdGhhdCBuZWVkIHRvIHVzZSB0aGUgYWRhcHRlciBw
+cmlvciB0byBpdApiZWluZyByZWdpc3RlcmVkIHdpdGggdGhlIHN5c3RlbSwgd2UgZmlyc3QgbmVl
+ZCB0byBzcGxpdCBvdXQgdGhlCmluaXRpYWxpc2F0aW9uIG9mIHRoZSBhZGFwdGVyIG91dCBvZiBp
+MmNfcmVnaXN0ZXJfYWRhcHRlci4KClNpZ25lZC1vZmYtYnk6IENocmlzIFdpbHNvbiA8Y2hyaXNA
+Y2hyaXMtd2lsc29uLmNvLnVrPgpDYzogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxp
+bnV4LmludGVsLmNvbT4KQ2M6IFdvbGZyYW0gU2FuZyA8d3NhQHRoZS1kcmVhbXMuZGU+CkNjOiBs
+aW51eC1pMmNAdmdlci5rZXJuZWwub3JnCkNjOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3Jn
+CkNjOiBkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCi0tLQogZHJpdmVycy9pMmMvaTJj
+LWNvcmUuYyB8IDI3ICsrKysrKysrKysrKysrKysrKy0tLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQs
+IDE4IGluc2VydGlvbnMoKyksIDkgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9p
+MmMvaTJjLWNvcmUuYyBiL2RyaXZlcnMvaTJjL2kyYy1jb3JlLmMKaW5kZXggYWYxMWI2NTg5ODRk
+Li43NDNjMzhhNjNkYTEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLmMKKysrIGIv
+ZHJpdmVycy9pMmMvaTJjLWNvcmUuYwpAQCAtMTUxMSwxNiArMTUxMSw4IEBAIHN0YXRpYyBpbnQg
+X19wcm9jZXNzX25ld19hZGFwdGVyKHN0cnVjdCBkZXZpY2VfZHJpdmVyICpkLCB2b2lkICpkYXRh
+KQogCXJldHVybiBpMmNfZG9fYWRkX2FkYXB0ZXIodG9faTJjX2RyaXZlcihkKSwgZGF0YSk7CiB9
+CiAKLXN0YXRpYyBpbnQgaTJjX3JlZ2lzdGVyX2FkYXB0ZXIoc3RydWN0IGkyY19hZGFwdGVyICph
+ZGFwKQorc3RhdGljIGludCBpMmNfaW5pdF9hZGFwdGVyKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRh
+cCkKIHsKLQlpbnQgcmVzID0gMDsKLQotCS8qIENhbid0IHJlZ2lzdGVyIHVudGlsIGFmdGVyIGRy
+aXZlciBtb2RlbCBpbml0ICovCi0JaWYgKFdBUk5fT04oIWlzX3JlZ2lzdGVyZWQpKSB7Ci0JCXJl
+cyA9IC1FQUdBSU47Ci0JCWdvdG8gb3V0X2xpc3Q7Ci0JfQotCiAJLyogU2FuaXR5IGNoZWNrcyAq
+LwogCWlmICh1bmxpa2VseShhZGFwLT5uYW1lWzBdID09ICdcMCcpKSB7CiAJCXByX2VycigiaTJj
+LWNvcmU6IEF0dGVtcHQgdG8gcmVnaXN0ZXIgYW4gYWRhcHRlciB3aXRoICIKQEAgLTE1NDgsNiAr
+MTU0MCwyMyBAQCBzdGF0aWMgaW50IGkyY19yZWdpc3Rlcl9hZGFwdGVyKHN0cnVjdCBpMmNfYWRh
+cHRlciAqYWRhcCkKIAlpZiAoYWRhcC0+dGltZW91dCA9PSAwKQogCQlhZGFwLT50aW1lb3V0ID0g
+SFo7CiAKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIGludCBpMmNfcmVnaXN0ZXJfYWRhcHRlcihz
+dHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCit7CisJaW50IHJlcyA9IDA7CisKKwkvKiBDYW4ndCBy
+ZWdpc3RlciB1bnRpbCBhZnRlciBkcml2ZXIgbW9kZWwgaW5pdCAqLworCWlmIChXQVJOX09OKCFp
+c19yZWdpc3RlcmVkKSkgeworCQlyZXMgPSAtRUFHQUlOOworCQlnb3RvIG91dF9saXN0OworCX0K
+KworCXJlcyA9IGkyY19pbml0X2FkYXB0ZXIoYWRhcCk7CisJaWYgKHJlcykKKwkJZ290byBvdXRf
+bGlzdDsKKwogCWRldl9zZXRfbmFtZSgmYWRhcC0+ZGV2LCAiaTJjLSVkIiwgYWRhcC0+bnIpOwog
+CWFkYXAtPmRldi5idXMgPSAmaTJjX2J1c190eXBlOwogCWFkYXAtPmRldi50eXBlID0gJmkyY19h
+ZGFwdGVyX3R5cGU7Ci0tIAoyLjguMQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJl
+ZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGlu
+Zm8vZHJpLWRldmVsCg==
