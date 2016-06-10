@@ -1,158 +1,85 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv5 0/8] 2c: Relax mandatory I2C ID table passing
-Date: Fri, 10 Jun 2016 15:32:00 +0200
-Message-ID: <20160610133200.GB1624@katana>
-References: <1462374888-22888-1-git-send-email-kieran@bingham.xyz>
- <20160609191513.GB23522@katana>
- <adcdbb75-41ae-774e-21cb-c039e2f0686f@osg.samsung.com>
- <20160609200405.GE23522@katana>
- <575A9082.9060804@bingham.xyz>
- <20160610110027.GA1626@katana>
- <575AAD67.5070804@bingham.xyz>
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: Re: [RFC v2 2/2] i2c: Pass i2c_device_id to probe func when using DT
+ ids through ACPI
+Date: Fri, 10 Jun 2016 18:57:36 +0300
+Message-ID: <6721468a-753d-fb52-5bc5-8738312b7bd0@intel.com>
+References: <cover.1465477193.git.leonard.crestez@intel.com>
+ <f5d92224a005bc7b82e210957719b7be142c6388.1465477193.git.leonard.crestez@intel.com>
+ <20160610063232.GR1791@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <575AAD67.5070804@bingham.xyz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kieran Bingham <kieran@ksquared.org.uk>
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20160610063232.GR1791@lahna.fi.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>, Octavian Purdila <octavian.purdila@intel.com>, Daniel Baluta <daniel.baluta@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On 06/10/2016 09:32 AM, Mika Westerberg wrote:
+> On Thu, Jun 09, 2016 at 04:06:03PM +0300, Crestez Dan Leonard wrote:
+>> When devices are instatiated through devicetree the i2c_client->name is
+>> set to the compatible string with company name stripped out. This is
+>> then matched to the i2c_device_id table to pass the device_id to the
+>> probe function. This id parameter is used by some device drivers to
+>> differentiate between model numbers.
+>>
+>> When using ACPI this id parameter is NULL and the driver usually needs
+>> to do ACPI-specific differentiation.
+>>
+>> This patch attempts to find a valid i2c_device_id when using ACPI with
+>> DT-like compatible strings.
+> 
+> So I don't really understand why it would be good idea to pass
+> i2c_device_id for devices which are matched against their ACPI/DT
+> tables. Apparently DT is already doing that so maybe there is some
+> reason.
+> 
+> Anyway, why not fill in the device name when it is first enumerated
+> if it uses DT compatible property? Just like DT does.
+> 
+This automatic matching of i2c_device_id works for devicetree because
+of_i2c_register_device sets i2c_board_info.type to the compatible string
+with the vendor prefix removed. For I2C devices described via ACPI the
+i2c_board_info.type string is set to the ACPI device name. This ends up
+something like "PRP0001:00".
 
---H1spWtNR+x+ondvy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This could be changed in acpi_i2c_get_info to use the of_compatible
+string from DSD if present. Is that what you mean? That would work and
+it would be cleaner than my patch. Something like this:
 
+diff --git drivers/i2c/i2c-core.c drivers/i2c/i2c-core.c
+index 1e0ef9b..ba2fe7f 100644
+--- drivers/i2c/i2c-core.c
++++ drivers/i2c/i2c-core.c
+@@ -181,7 +181,24 @@ static int acpi_i2c_get_info(struct acpi_device *adev,
 
-> When I reported :
->=20
-> > * new_device (built-in, and external module)
-> > echo ds1307 0x68 > /sys/bus/i2c/devices/i2c-2/new_device
-> > cat /sys/class/rtc/rtc0/date
-> >=20
-> > - Both of those worked fine.
->=20
-> That was *without* Javier's patch, but hopefully obviously *with* Lee's
-> patchset.
->=20
-> Do you need this testing *with* Javiers patch as well?
+        acpi_dev_free_resource_list(&resource_list);
 
-Without Javiers patch. But with a modified rtc driver which will only
-use proper compatibles, no i2c_device_ids, and probe_new. And this one
-should be able to instantiate via userspace with the driver builtin.
-
-We have documented ways of instantiating. All I ask for is to make sure
-the old style and new style work with them. Check the attached sketch
-for an example (only compile-tested and conversion to probe_new is
-missing). Can you instantiate the "maxim,ds1307" (with the additional
-printout) and "dallas,ds1307" via userspace?
-
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 821d9c089cdb48..10a4e5bc923e07 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -31,6 +31,7 @@
-  */
- enum ds_type {
- 	ds_1307,
-+	maxim_1307,
- 	ds_1337,
- 	ds_1338,
- 	ds_1339,
-@@ -144,6 +145,10 @@ static struct chip_desc chips[last_ds_type] =3D {
- 		.nvram_offset	=3D 8,
- 		.nvram_size	=3D 56,
- 	},
-+	[maxim_1307] =3D {
-+		.nvram_offset	=3D 8,
-+		.nvram_size	=3D 56,
-+	},
- 	[ds_1337] =3D {
- 		.alarm		=3D 1,
- 	},
-@@ -173,23 +178,6 @@ static struct chip_desc chips[last_ds_type] =3D {
- 	},
- };
-=20
--static const struct i2c_device_id ds1307_id[] =3D {
--	{ "ds1307", ds_1307 },
--	{ "ds1337", ds_1337 },
--	{ "ds1338", ds_1338 },
--	{ "ds1339", ds_1339 },
--	{ "ds1388", ds_1388 },
--	{ "ds1340", ds_1340 },
--	{ "ds3231", ds_3231 },
--	{ "m41t00", m41t00 },
--	{ "mcp7940x", mcp794xx },
--	{ "mcp7941x", mcp794xx },
--	{ "pt7c4338", ds_1307 },
--	{ "rx8025", rx_8025 },
--	{ }
--};
--MODULE_DEVICE_TABLE(i2c, ds1307_id);
--
- /*----------------------------------------------------------------------*/
-=20
- #define BLOCK_DATA_MAX_TRIES 10
-@@ -1435,6 +1423,9 @@ read_rtc:
- 	 */
- 	tmp =3D ds1307->regs[DS1307_REG_SECS];
- 	switch (ds1307->type) {
-+	case maxim_1307:
-+		dev_info(&client->dev, "I'm a Maxim\n");
-+		/* fallthrough */
- 	case ds_1307:
- 	case m41t00:
- 		/* clock halted?  turn it on, so clock can tick. */
-@@ -1610,13 +1601,22 @@ static int ds1307_remove(struct i2c_client *client)
- 	return 0;
- }
-=20
-+#ifdef CONFIG_OF
-+static const struct of_device_id ds1307_dt_ids[] =3D {
-+	{ .compatible =3D "dallas,ds1307", .data =3D (void *)ds_1307 },
-+	{ .compatible =3D "maxim,ds1307", .data =3D (void *)maxim_1307 },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, ds1302_dt_ids);
-+#endif
+-       strlcpy(info->type, dev_name(&adev->dev), sizeof(info->type));
++       /*
++        * If we have a DT id set info.type to the first compatible
+string with
++        * the vendor prefix stripped. This is similar to of_modalias_node
++        */
++       if (adev->data.of_compatible) {
++               const union acpi_object *obj;
++               const char *str, *chr;
 +
- static struct i2c_driver ds1307_driver =3D {
- 	.driver =3D {
- 		.name	=3D "rtc-ds1307",
-+		.of_match_table =3D of_match_ptr(ds1307_dt_ids),
- 	},
- 	.probe		=3D ds1307_probe,
- 	.remove		=3D ds1307_remove,
--	.id_table	=3D ds1307_id,
- };
-=20
- module_i2c_driver(ds1307_driver);
++               obj = adev->data.of_compatible;
++               if (obj->type == ACPI_TYPE_PACKAGE)
++                       obj = obj->package.elements;
++               str = obj->string.pointer;
++               chr = strchr(str, ',');
++               if (chr)
++                       str = chr + 1;
++               strlcpy(info->type, str, sizeof(info->type));
++       } else
++               strlcpy(info->type, dev_name(&adev->dev),
+sizeof(info->type));
 
+        return 0;
+ }
 
-
---H1spWtNR+x+ondvy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXWsFPAAoJEBQN5MwUoCm20H4P/25BTocrYG5642RU/ojWWMgd
-IDHIlUe01zftPil4li4MqOFPCzDlClCNNGkWIfC3ftLLs2plhkLKTqfdhDvs1Uyj
-gk3v4D6wXd1RjtKPBHOprdg7Mjsu80er8onMQr5DAQ5HJQ00Gw9UQCzpdRL+k/l9
-BH48ZG4s1HQ7aynXDGewDbhAznGGdRDsev/knT4k0ucyjE8d84kRfZAGQVUBe3gZ
-Qy8tqKqbxdHZZ7W2b455f5Cl1WDxuxsXBJyaQyI0kj/AelRalCpqhKAFxoL0aTm4
-LAYtAccx4bPYO4n9dkNtCK8ucWXVyMOLNYJN3INHVWs23w3SFBN4fv4xQ0YK45dS
-tu23KnOm6DrbPqW4wS0dNNXZfNuxUQjjr/J5YkpvoNiWAHFYA1JbbOK8GjiuAmgi
-V/N++9F25KDcWCd1hX0n4fieJdc6WImrNNKEWWKc3ZvN6ocgInCWWkF76S7lG5S4
-CgBCAMuPe9g8WNXzZ0w3nIx6nqfIlncqBHf/NTILL/uRp0SPc9yFS4ylG0Ulk7uK
-bUSHdh/Inww8icA4XONnnikEQt9b/VOmvACSp5CobXIKrqPQRpkwDFsvcOGQv19M
-lvmlCcAaZ7tG0fXe+qOyuOYltnQ+uzV7EiVwlNa0Lhj1fck8U1rhthCkXuLe+Sdu
-6vvXIRggBUmmUm2A7qdC
-=FdQ0
------END PGP SIGNATURE-----
-
---H1spWtNR+x+ondvy--
+The biggest concern is that this would change the i2c device name
+between kernel versions. Is that acceptable?
