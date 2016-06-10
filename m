@@ -1,100 +1,86 @@
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Subject: Re: [PATCH v3 06/33] drm: Minimally initialise drm_dp_aux
-Date: Fri, 10 Jun 2016 11:50:24 +0100
-Message-ID: <20160610105024.GB29328@nuc-i3427.alporthouse.com>
-References: <1464964636-3877-1-git-send-email-chris@chris-wilson.co.uk>
- <1464964636-3877-7-git-send-email-chris@chris-wilson.co.uk>
- <20160603145911.GZ4329@intel.com>
- <20160609205724.GA26250@nuc-i3427.alporthouse.com>
- <20160610102624.GG4329@intel.com>
+From: Corey Minyard <minyard@acm.org>
+Subject: Re: [v2,04/10] i2c-i801: Consolidate calls to i801_check_pre()
+Date: Fri, 10 Jun 2016 05:52:02 -0500
+Message-ID: <575A9BD2.1070905@acm.org>
+References: <1464570544-975-5-git-send-email-minyard@acm.org>
+ <20160609094402.GF24234@mail.corp.redhat.com>
+Reply-To: minyard@acm.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20160610102624.GG4329@intel.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Dave Airlie <airlied@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:32863 "EHLO
+	mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932124AbcFJKwJ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Jun 2016 06:52:09 -0400
+In-Reply-To: <20160609094402.GF24234@mail.corp.redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 
-T24gRnJpLCBKdW4gMTAsIDIwMTYgYXQgMDE6MjY6MjRQTSArMDMwMCwgVmlsbGUgU3lyasOkbMOk
-IHdyb3RlOgo+IE9uIFRodSwgSnVuIDA5LCAyMDE2IGF0IDA5OjU3OjI0UE0gKzAxMDAsIENocmlz
-IFdpbHNvbiB3cm90ZToKPiA+IE9uIEZyaSwgSnVuIDAzLCAyMDE2IGF0IDA1OjU5OjExUE0gKzAz
-MDAsIFZpbGxlIFN5cmrDpGzDpCB3cm90ZToKPiA+ID4gT24gRnJpLCBKdW4gMDMsIDIwMTYgYXQg
-MDM6MzY6NDlQTSArMDEwMCwgQ2hyaXMgV2lsc29uIHdyb3RlOgo+ID4gPiA+IFdoZW4gdHJ5aW5n
-IHRvIHNwbGl0IHVwIHRoZSBpbml0aWFsaXNhdGlvbiBwaGFzZSBhbmQgdGhlIHJlZ2lzdHJhdGlv
-bgo+ID4gPiA+IHBoYXNlLCBvbmUgaW1tZWRpYXRlIHByb2JsZW0gZW5jb3VudGVyZWQgaXMgdHJ5
-aW5nIHRvIHVzZSBvdXIgb3duIGkyYwo+ID4gPiA+IGRldmljZXMgYmVmb3JlIHJlZ2lzdHJhdGlv
-biB3aXRoIHVzZXJzcGFjZSAodG8gcmVhZCBFRElEIGR1cmluZyBkZXZpY2UKPiA+ID4gPiBkaXNj
-b3ZlcnkpLiBkcm1fZHBfYXV4IGluIHBhcnRpY3VsYXIgb25seSBvZmZlcnMgYW4gaW50ZXJmYWNl
-IGZvciBzZXR0aW5nCj4gPiA+ID4gdXAgdGhlIGRldmljZSAqYWZ0ZXIqIHdlIGhhdmUgZXhwb3Nl
-ZCB0aGUgY29ubmVjdG9yIHZpYSBzeXNmcy4gSW4gb3JkZXIKPiA+ID4gPiB0byBicmVhayB0aGUg
-Y2hpY2tlbi1hbmQtZWdnIHByb2JsZW0sIGV4cG9ydCBkcm1fZHBfYXV4X2luaXQoKSB0bwo+ID4g
-PiA+IG1pbmltYWxseSBwcmVwYXJlIHRoZSBpMmMgZGV2aWNlIGZvciBpbnRlcm5hbCB1c2UgYmVm
-b3JlCj4gPiA+ID4gZHJtX2Nvbm5lY3Rvcl9yZWdpc3RlcigpLgo+ID4gPiA+IAo+ID4gPiA+IFNp
-Z25lZC1vZmYtYnk6IENocmlzIFdpbHNvbiA8Y2hyaXNAY2hyaXMtd2lsc29uLmNvLnVrPgo+ID4g
-PiA+IENjOiBEYXZlIEFpcmxpZSA8YWlybGllZEByZWRoYXQuY29tPgo+ID4gPiA+IENjOiBSYWZh
-ZWwgQW50b2dub2xsaSA8cmFmYWVsLmFudG9nbm9sbGlAaW50ZWwuY29tPgo+ID4gPiA+IENjOiBW
-aWxsZSBTeXJqw6Rsw6QgPHZpbGxlLnN5cmphbGFAbGludXguaW50ZWwuY29tPgo+ID4gPiA+IENj
-OiBkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCj4gPiA+ID4gLS0tCj4gPiA+ID4gIGRy
-aXZlcnMvZ3B1L2RybS9kcm1fZHBfaGVscGVyLmMgfCAyNiArKysrKysrKysrKysrKysrKysrKyst
-LS0tLQo+ID4gPiA+ICBpbmNsdWRlL2RybS9kcm1fZHBfaGVscGVyLmggICAgIHwgIDEgKwo+ID4g
-PiA+ICAyIGZpbGVzIGNoYW5nZWQsIDIyIGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4g
-PiA+ID4gCj4gPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fZHBfaGVscGVy
-LmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2RwX2hlbHBlci5jCj4gPiA+ID4gaW5kZXggNGIwODhh
-ZmEyMWIyLi45YjRlYzY1ZTFkZTYgMTAwNjQ0Cj4gPiA+ID4gLS0tIGEvZHJpdmVycy9ncHUvZHJt
-L2RybV9kcF9oZWxwZXIuYwo+ID4gPiA+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZHBfaGVs
-cGVyLmMKPiA+ID4gPiBAQCAtNzkxLDE1ICs3OTEsMTYgQEAgc3RhdGljIHZvaWQgdW5sb2NrX2J1
-cyhzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmkyYywgdW5zaWduZWQgaW50IGZsYWdzKQo+ID4gPiA+ICB9
-Cj4gPiA+ID4gIAo+ID4gPiA+ICAvKioKPiA+ID4gPiAtICogZHJtX2RwX2F1eF9yZWdpc3Rlcigp
-IC0gaW5pdGlhbGlzZSBhbmQgcmVnaXN0ZXIgYXV4IGNoYW5uZWwKPiA+ID4gPiArICogZHJtX2Rw
-X2F1eF9pbml0KCkgLSBtaW5pbWFsbHkgaW5pdGlhbGlzZSBhbiBhdXggY2hhbm5lbAo+ID4gPiA+
-ICAgKiBAYXV4OiBEaXNwbGF5UG9ydCBBVVggY2hhbm5lbAo+ID4gPiA+ICAgKgo+ID4gPiA+IC0g
-KiBSZXR1cm5zIDAgb24gc3VjY2VzcyBvciBhIG5lZ2F0aXZlIGVycm9yIGNvZGUgb24gZmFpbHVy
-ZS4KPiA+ID4gPiArICogSWYgeW91IG5lZWQgdG8gdXNlIHRoZSBkcm1fZHBfYXV4J3MgaTJjIGFk
-YXB0ZXIgcHJpb3IgdG8gcmVnaXN0ZXJpbmcgaXQKPiA+ID4gPiArICogd2l0aCB0aGUgb3V0c2lk
-ZSB3b3JsZCwgY2FsbCBkcm1fZHBfYXV4X2luaXQoKSBmaXJzdC4gWW91IG11c3Qgc3RpbGwKPiA+
-ID4gPiArICogY2FsbCBkcm1fZHBfYXV4X3JlZ2lzdGVyKCkgb25jZSB0aGUgY29ubmVjdG9yIGhh
-cyBiZWVuIHJlZ2lzdGVyZWQgdG8KPiA+ID4gPiArICogYWxsb3cgdXNlcnNwYWNlIGFjY2VzcyB0
-byB0aGUgYXV4aWxpYXJ5IERQIGNoYW5uZWwuCj4gPiA+ID4gICAqLwo+ID4gPiA+IC1pbnQgZHJt
-X2RwX2F1eF9yZWdpc3RlcihzdHJ1Y3QgZHJtX2RwX2F1eCAqYXV4KQo+ID4gPiA+ICt2b2lkIGRy
-bV9kcF9hdXhfaW5pdChzdHJ1Y3QgZHJtX2RwX2F1eCAqYXV4KQo+ID4gPiA+ICB7Cj4gPiA+ID4g
-LQlpbnQgcmV0Owo+ID4gPiA+IC0KPiA+ID4gPiAgCW11dGV4X2luaXQoJmF1eC0+aHdfbXV0ZXgp
-Owo+ID4gPiA+ICAKPiA+ID4gPiAgCWF1eC0+ZGRjLmFsZ28gPSAmZHJtX2RwX2kyY19hbGdvOwo+
-ID4gPiA+IEBAIC04MDksNiArODEwLDIxIEBAIGludCBkcm1fZHBfYXV4X3JlZ2lzdGVyKHN0cnVj
-dCBkcm1fZHBfYXV4ICphdXgpCj4gPiA+ID4gIAlhdXgtPmRkYy5sb2NrX2J1cyA9IGxvY2tfYnVz
-Owo+ID4gPiA+ICAJYXV4LT5kZGMudHJ5bG9ja19idXMgPSB0cnlsb2NrX2J1czsKPiA+ID4gPiAg
-CWF1eC0+ZGRjLnVubG9ja19idXMgPSB1bmxvY2tfYnVzOwo+ID4gPiA+ICt9Cj4gPiA+ID4gK0VY
-UE9SVF9TWU1CT0woZHJtX2RwX2F1eF9pbml0KTsKPiA+ID4gCj4gPiA+IFRoaXMgZG9lc24ndCBm
-ZWVsIHZlcnkgc2FmZSB0byBtZS4gVG8gbWUgaXQgbG9va3MgbGlrZSB0aGUgaTJjIGNvcmUKPiA+
-ID4gd2Fzbid0IGRlc2lnbmVkIHRvIGhhdmUgdGhlIGFkYXB0ZXIgYmUgdXNlZCBiZWZvcmUgaTJj
-X2FkZF9hZGFwdGVyKCkKPiA+ID4gaXMgY2FsbGVkLiBJIGd1ZXNzIGl0IG1pZ2h0IHdvcmsgaW4g
-dGhpcyBjYXNlIHNpbmNlIHlvdSBwcm92aWRlIHlvdXIKPiA+ID4gb3duIGxvY2sgdmZ1bmNzLgo+
-ID4gPiAKPiA+ID4gSSB0aGluayBzb21lb25lIHNob3VsZCBmaXggdGhlIGkyYyBjb3JlIHRvIHNw
-bGl0IGkyY19hZGRfYWRhcHRlcigpCj4gPiA+ICYgY28uIGludG8gaW5pdCBhbmQgcmVnaXN0ZXIg
-cGhhc2VzLiBDYzppbmcgaTJjIGZvbGtzLi4uCj4gPiAKPiA+IEFzIHlvdSd2ZSBzZWVuLCBJIHNl
-bnQgdGhlIHBhdGNoZXMgdG8gc3BsaXQgaTJjX2FkZF9hZGFwdGVyKCkgdG8gYWxsb3cgZm9yCj4g
-PiB1cyB0byBjYWxsIGkyY19pbml0X2FkYXB0ZXIoKSBoZXJlIGluc3RlYWQuIEl0IHN0aWxsIHJl
-cXVpcmVzIHRoZSBzYW1lCj4gPiBiYXNpYyByZXZpZXcgdGhhdCB0aGlzIGluaXQgKHRoZSBzYW1l
-IGFzIGFib3ZlKSBpcyBzdWZmaWNpZW50IGZvciB1c2luZwo+ID4gaTJjX3RyYW5zZmVyKCkuCj4g
-PiAKPiA+IEkgd291bGQgbGlrZSB0byBnZXQgdGhlIHJlZ3Jlc3Npb24gZml4IGNvbXBsZXRlZCB3
-aXRob3V0IG11Y2ggZnV0aGVyCj4gPiBhZG8gLSBpbiBwYXJ0aWN1bGFyLCBub3QgZGVwZW5kaW5n
-IHVwb24gbGFuZGluZyBhbiBleHRlcm5hbCBwYXRjaC4KPiAKPiBXaGF0IHJlZ3Jlc3Npb24gaXMg
-dGhpcz8KCkl0IGFsbCBzdGFydGVkIGZyb20gdGhlIHVuY2xhaW1lZCBtbWlvIGFjY2VzcyBhY3Jv
-c3Mgc3VzcGVuZCwgd2hpY2gKc3RlbXMgZnJvbSBuZXZlciBoYXZpbmcgdG91Y2hlZCBhIGNvbnRl
-eHQgYmVmb3JlIHN1c3BlbmQuIFRoYXQgaW4gdHVybgptZWFudCB0b3VjaGluZyB0aGUgZGVsYXll
-ZCBycHMgaW5pdGlhbGlzYXRpb24gd2hpY2ggZW5kZWQgdXAgd2l0aCBEYW5pZWwKc2F5aW5nIHRo
-YXQgdGhlIGVudGlyZSBpbml0IGNoYWluIG5lZWRzIHRvIGJlIHVucmF2ZWxsZWQuIFNub3diYWxs
-LgotQ2hyaXMKCi0tIApDaHJpcyBXaWxzb24sIEludGVsIE9wZW4gU291cmNlIFRlY2hub2xvZ3kg
-Q2VudHJlCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRy
-aS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRw
-czovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+On 06/09/2016 04:44 AM, Benjamin Tissoires wrote:
+> On May 29 2016 or thereabouts, Corey Minyard wrote:
+>> From: Corey Minyard <cminyard@mvista.com>
+>>
+>> It was always done before starting the transaction, so do it
+>> in common code before the transaction start.
+>>
+>> Signed-off-by: Corey Minyard <cminyard@mvista.com>
+>> ---
+>>   drivers/i2c/busses/i2c-i801.c | 12 ++++--------
+>>   1 file changed, 4 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+>> index 222be9c..8794e70 100644
+>> --- a/drivers/i2c/busses/i2c-i801.c
+>> +++ b/drivers/i2c/busses/i2c-i801.c
+>> @@ -402,10 +402,6 @@ static int i801_transaction(struct i801_priv *priv, int xact)
+>>   	int result;
+>>   	const struct i2c_adapter *adap = &priv->adapter;
+>>   
+>> -	result = i801_check_pre(priv);
+>> -	if (result < 0)
+>> -		return result;
+>> -
+>>   	if (priv->features & FEATURE_IRQ) {
+>>   		outb_p(xact | SMBHSTCNT_INTREN | SMBHSTCNT_START,
+>>   		       SMBHSTCNT(priv));
+>> @@ -562,10 +558,6 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+>>   	int result;
+>>   	const struct i2c_adapter *adap = &priv->adapter;
+>>   
+>> -	result = i801_check_pre(priv);
+>> -	if (result < 0)
+>> -		return result;
+>> -
+>>   	len = data->block[0];
+>>   
+>>   	if (read_write == I2C_SMBUS_WRITE) {
+>> @@ -789,6 +781,10 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+>>   		goto out;
+>>   	}
+>>   
+>> +	ret = i801_check_pre(priv);
+>> +	if (ret < 0)
+>> +		goto out;
+>> +
+> The calls looks identical (it gets called before each transaction), but
+> given that this is a status register, I wonder if this should not be
+> checked once the setup has been done, and not at the very early
+> beginning.
+
+What I did is not a functional change from what was before, but I
+think you may be right, it might be best to move this check this
+before the switch statement above.  I'm not sure, though.
+
+Jean, do you have any thoughts on this?
+
+-corey
+
+> Cheers,
+> Benjamin
+>
+>>   	if (block)
+>>   		ret = i801_block_transaction(priv, flags, data, read_write,
+>>   					     size);
