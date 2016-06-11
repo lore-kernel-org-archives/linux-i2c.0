@@ -1,85 +1,94 @@
-From: Scott Wood <oss@buserror.net>
-Subject: Re: [PATCH 4/4] Revert "powerpc/fsl: Move fsl_guts.h out of
- arch/powerpc"
-Date: Fri, 10 Jun 2016 21:13:07 -0500
-Message-ID: <1465611186.22191.169.camel@buserror.net>
-References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
-	 <5513501.AmZs7h1vI2@wuerfel> <1464830660.22191.6.camel@buserror.net>
-	 <3225846.9EJ0sHv0XK@wuerfel>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.7
+Date: Sat, 11 Jun 2016 19:57:30 +0200
+Message-ID: <20160611175727.GA12308@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3225846.9EJ0sHv0XK@wuerfel>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc-dev@lists.ozlabs.org, Ulf Hansson <ulf.hansson@linaro.org>, Yangbo Lu <yangbo.lu@nxp.com>, Mark Rutland <mark.rutland@arm.com>, Xiaobo Xie <xiaobo.xie@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, Qiang Zhao <qiang.zhao@nxp.com>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Santosh Shilimkar <ssantosh@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Yang-Leo
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:44695 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751328AbcFKR5i (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 11 Jun 2016 13:57:38 -0400
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 2016-06-02 at 11:01 +0200, Arnd Bergmann wrote:
-> On Wednesday, June 1, 2016 8:24:20 PM CEST Scott Wood wrote:
-> > On Mon, 2016-05-30 at 15:18 +0200, Arnd Bergmann wrote:
-> > > All users of this driver are PowerPC specific and the header file
-> > > has no business in the global include/linux/ hierarchy, so move
-> > > it back before anyone starts using it on ARM.
-> > > 
-> > > This reverts commit 948486544713492f00ac8a9572909101ea892cb0.
-> > > 
-> > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > > ---
-> > > This part of the series is not required for the eSDHC quirk,
-> > > but it restores the asm/fsl_guts.h header so it doesn't accidentally
-> > > get abused for this in the future. I found two drivers outside of
-> > > arch/powerpc that already accessed the registers directly, but the
-> > > functions look fairly contained, and can be easily hidden in an
-> > > #ifdef CONFIG_PPC
-> > 
-> > NACK
-> > 
-> > Besides adding ifdef pollution for no good reason, this register block is
-> > used
-> > on some ARM chips as well.  Why is it a problem if "anyone starts using it
-> > on
-> > ARM"?
-> 
-> It's just not a good interface when it's defined as "this is the layout of
-> a register area that any driver can ioremap() if they can figure out the
-> device node".
 
-That's why I want to move accesses into one guts driver.
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->  It's not uncommon to have register areas like that, but
-> normally you have at the minimum a 'syscon' device to handle locking
-> between drivers accessing the same registers and to avoid having to map
-> the same area multiple times.
+Linus,
 
-syscon requires device tree changes.
+please pull the bugfixes for I2C:
 
-I don't see read-modify-write operations in regmap -- how does locking around
-an individual, inherently-atomic load or store help?
+* bigger fix for i801 to finally be able to be loaded on some machines again
+* smaller driver fixes
+* documentation update because of a renamed file
 
-> If we need to use 'guts' registers on ARM, we can find a way to abstract
-> them properly for the given use cases, using a syscon or a driver with
-> exported functions, but just making a PowerPC platform specific header
-> global to all Linux drivers by putting it into include/linux doesn't seem
-> right.
+Thanks,
 
-Again, it's not PowerPC-specific!  It started that way but then the same
-register block got put onto some ARM chips.
+   Wolfram
 
-It's not global to "all Linux drivers", just the ones that choose to include
-an fsl-specific header.
 
-If and when all uses of guts are moved into the guts driver, the header can be
-moved into drivers/soc/fsl.
+The following changes since commit af8c34ce6ae32addda3788d54a7e340cad22516b:
 
-> Note that the header file uses a structure definition rather than the more
-> common macros with register offsets, which is fine for a driver that has
-> its own registers and abstracts them, but it doesn't really work with
-> the regmap interface, so if we want to use it with syscon, it also needs to
-> be rewritten.
+  Linux 4.7-rc2 (2016-06-05 14:31:26 -0700)
 
-We don't want to use it with syscon.  If we did, the solution wouldn't be to
-move the header back to arch/powerpc, but to convert the struct into offsets.
+are available in the git repository at:
 
--Scott
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 9f05e6219023116b59f6495e8c4d4ba352dd5fea:
+
+  i2c: mux: reg: Provide of_match_table (2016-06-09 22:38:16 +0200)
+
+----------------------------------------------------------------
+Jan Glauber (2):
+      i2c: octeon: Missing AAK flag in case of I2C_M_RECV_LEN
+      i2c: octeon: Avoid printk after too long SMBUS message
+
+Lukasz Gemborowski (1):
+      i2c: mux: reg: Provide of_match_table
+
+Mika Westerberg (1):
+      i2c: i801: Allow ACPI SystemIO OpRegion to conflict with PCI BAR
+
+Simon Horman (1):
+      i2c: mux: refer to i2c-mux.txt
+
+ .../bindings/i2c/i2c-arb-gpio-challenge.txt        |  4 +-
+ .../devicetree/bindings/i2c/i2c-demux-pinctrl.txt  |  3 +-
+ .../devicetree/bindings/i2c/i2c-mux-gpio.txt       |  6 +-
+ .../devicetree/bindings/i2c/i2c-mux-pinctrl.txt    |  4 +-
+ .../devicetree/bindings/i2c/i2c-mux-reg.txt        |  6 +-
+ drivers/i2c/busses/i2c-i801.c                      | 99 +++++++++++++++++++++-
+ drivers/i2c/busses/i2c-octeon.c                    | 17 ++--
+ drivers/i2c/muxes/i2c-mux-reg.c                    |  1 +
+ 8 files changed, 119 insertions(+), 21 deletions(-)
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXXFEHAAoJEBQN5MwUoCm2xLIP/iEEWvq/u+p0qny73kXc/Mrx
+mitTkp2tm/0anCvYWNxrqTawSX8bukTmKU9rk8cqvz19FKrSy8mC9PUVMVpoLiAJ
+A9bIepEUDCSWwIcvj2jvTiHo20EZBQfdjV8VzM6bayzceUl+UsIm+JzXIoY7vLor
+MwEDMpdvpdAa8JXWSN5nQPOAQsZ//KLNp1LIKtOmeEBh2xBI1RY2AJNvFqZExYZx
+cAsDSSoJz1ZEM4nKlMNq2J03lCBx/jE+ujQc8O+PIDHo1CvrpFuHh06j4bnEbcz+
+rEZvpJRkmuRTYcw5Tdian7/ulMMqPI4JFZy2oTAubuax8vqrguSllGseGmBHXawO
+NrvVxmr8iACpJ5lVpo7AIgTtb5K6Lh3xgcmZO5Xvd08v9uOTf4QxoTNzwBPvnp1b
+3b1bqlpmlk1xRuUuGbJnWLDSyEMG1ThzzcdK9MTKShkCmcVUTWyz31Nf7SKUL3Pt
+qyOJt8mrQNzWB+88HgmBwO8844Tc2bMAv3btkNyLpJoBGRbxSKOZALvcFVbq81Qj
+MHmwARAztcPp277gu4zHe4XoMBx4oGhaixx2ezQvW5p/z6xuuEDheXZv4tWFjP5u
+aLYg54HAkLeNpTQkoAz/MhVXwjE4870rgQ0ectGXiIbkWzXgnkcSAmdth7qUiuAs
+VHTnN1Fo+Fp6T8b2sEka
+=7y37
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--
