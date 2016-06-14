@@ -1,71 +1,57 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 00/10] i2c: designware-platdrv: Some improvments related
- to PM
-Date: Tue, 14 Jun 2016 18:39:09 +0300
-Message-ID: <1465918749.30123.70.camel@linux.intel.com>
-References: <1465916848-8207-1-git-send-email-ulf.hansson@linaro.org>
+From: "Andrew F. Davis" <afd@ti.com>
+Subject: [PATCH] hsi: Build hsi_boardinfo.c into hsi core if enabled
+Date: Tue, 14 Jun 2016 11:13:04 -0500
+Message-ID: <57602D10.4080708@ti.com>
+References: <201606140808.bRJtAy1i%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:64484 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751571AbcFNPhv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 14 Jun 2016 11:37:51 -0400
-In-Reply-To: <1465916848-8207-1-git-send-email-ulf.hansson@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <201606140808.bRJtAy1i%fengguang.wu@intel.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@01.org, Russell King <linux@armlinux.org.uk>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Rusty Russell <rusty@rustcorp.com.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Ulf Hansson <ulf.hansson@linaro.org>, Lauro Ramos Venancio <lauro.venancio@openbossa.org>, Aloisio Almeida Jr <aloisio.almeida@openbossa.org>, Samuel Ortiz <sameo@linux.intel.com>, Ingo Molnar <mingo@kernel.org>, linux-pwm@vger.kernel.org, lguest@lists.ozlabs.org, linux-wireless@vger.kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linuxp
 List-Id: linux-i2c@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, linux-arm-kernel@lists.infradead.org
 
-On Tue, 2016-06-14 at 17:07 +0200, Ulf Hansson wrote:
-> Here's a couple changes for the i2c-designware driver. Most of them a
-> related to
-> the support for runtime PM and system PM, but there's also a few that
-> improves
-> some error handling.
->=20
-> I have tested these on Hisilicon Linaro 96-board (hi6220). I used a
-> couple local
-> changes to enable the power-key to act as a wakeup in system PM
-> suspend state.
-> If anyone are interested about those as well, I am happy to share
-> them.
+If the HSI core is built as a module hsi_boardinfo may still
+be built-in as its Kconfig type is bool, which can cause build
+issues. Fix this by building this code into the HSI core when
+enabled.
 
-I know Jarkko spent a lot to understand PM flow in this driver.
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Andrew F. Davis <afd@ti.com>
+---
+This build error seems to be due to Kconfig symbol CONFIG_HSI_BOARDINFO
+being a bool but depending on a tristate (CONFIG_HSI). This is normally
+okay when it is just a flag to enable a feature in source, but the
+helper code file hsi_boardinfo.c is built as a separate entity when
+enabled. This patch is probably how it was intended, and is more like
+how others do this kind of thing.
 
-My overall feelings after brief reading of the series you fixed a
-particular problem with your device or flow, which might have broken th=
-e
-half of current users. So, I wouldn't take this without Tested-by tags
-of (almost) all active stakeholders.
+This patch should be applied before the parent patch:
 
->=20
-> Ulf Hansson (10):
-> =C2=A0 i2c: designware-platdrv: Return error in ->probe() when clk un=
-gate
-> =C2=A0=C2=A0=C2=A0=C2=A0fails
-> =C2=A0 i2c: designware-platdrv: Gate clk in error path in ->probe()
-> =C2=A0 i2c: designware-platdrv: Unconditionally enable runtime PM
-> =C2=A0 i2c: designware-platdrv: Disable autosuspend in error path in
-> =C2=A0=C2=A0=C2=A0=C2=A0->probe()
-> =C2=A0 i2c: designware-platdrv: Fix clk gating in ->remove()
-> =C2=A0 i2c: designware-platdrv: Update runtime PM last busy mark in
-> ->probe()
-> =C2=A0 i2c: designware-platdrv: Re-init the HW when resuming
-> =C2=A0 i2c: designware-platdrv: Check return value from
-> clk_prepare_enable()
-> =C2=A0 i2c: designware-platdrv: Simplify code by using dev_get_drvdat=
-a()
-> =C2=A0 i2c: designware-platdrv: Rework system PM support
->=20
-> =C2=A0drivers/i2c/busses/i2c-designware-platdrv.c | 106 +++++++++++++=
-----
-> -----------
-> =C2=A01 file changed, 50 insertions(+), 56 deletions(-)
->=20
+ drivers/hsi/Makefile              | 3 ++-
+ drivers/hsi/{hsi.c => hsi_core.c} | 0
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+ rename drivers/hsi/{hsi.c => hsi_core.c} (100%)
 
---=20
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+diff --git a/drivers/hsi/Makefile b/drivers/hsi/Makefile
+index 360371e..9694478 100644
+--- a/drivers/hsi/Makefile
++++ b/drivers/hsi/Makefile
+@@ -1,7 +1,8 @@
+ #
+ # Makefile for HSI
+ #
+-obj-$(CONFIG_HSI_BOARDINFO)    += hsi_boardinfo.o
+ obj-$(CONFIG_HSI)              += hsi.o
++hsi-objs                       := hsi_core.o
++hsi-$(CONFIG_HSI_BOARDINFO)    += hsi_boardinfo.o
+ obj-y                          += controllers/
+ obj-y                          += clients/
+diff --git a/drivers/hsi/hsi.c b/drivers/hsi/hsi_core.c
+similarity index 100%
+rename from drivers/hsi/hsi.c
+rename to drivers/hsi/hsi_core.c
+-- 
+2.8.3
