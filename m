@@ -1,27 +1,40 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 01/12] gpio: Only descend into gpio directory when
- CONFIG_GPIOLIB is set
-Date: Tue, 14 Jun 2016 08:58:49 +0200
-Message-ID: <CACRpkdaEkCzp3W4x3HSurpHb1qtkJp-SvWCAQivuL3x8CBY-iQ@mail.gmail.com>
-References: <20160613200211.14790-1-afd@ti.com> <20160613200211.14790-2-afd@ti.com>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH 2/3] i2c: octeon: Add retry logic after receiving
+ STAT_RXADDR_NAK
+Date: Tue, 14 Jun 2016 10:03:51 +0200
+Message-ID: <20160614080351.GA4725@hardcore>
+References: <cover.1465304877.git.jglauber@cavium.com>
+ <2cc75a97f920146edc7af389870e271a8a056dd1.1465304877.git.jglauber@cavium.com>
+ <20160609201150.GH23522@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pwm-owner@vger.kernel.org>
-In-Reply-To: <20160613200211.14790-2-afd@ti.com>
-Sender: linux-pwm-owner@vger.kernel.org
-To: "Andrew F. Davis" <afd@ti.com>
-Cc: Russell King <linux@armlinux.org.uk>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Sebastian Reichel <sre@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Rusty Russell <rusty@rustcorp.com.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Ulf Hansson <ulf.hansson@linaro.org>, Lauro Ramos Venancio <lauro.venancio@openbossa.org>, Aloisio Almeida Jr <aloisio.almeida@openbossa.org>, Samuel Ortiz <sameo@linux.intel.com>, Ingo Molnar <mingo@kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, lguest@lists.ozlabs.org, "linuxppc-dev@lists.ozlabs.org list" <linuxppc-dev@lists.ozlabs.org>, linux-me
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160609201150.GH23522@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Steven.Hill@caviumnetworks.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 13, 2016 at 10:02 PM, Andrew F. Davis <afd@ti.com> wrote:
+On Thu, Jun 09, 2016 at 10:11:51PM +0200, Wolfram Sang wrote:
+> On Wed, Jun 08, 2016 at 08:51:18AM +0200, Jan Glauber wrote:
+> > The controller specification states that when receiving STAT_RXADDR_NAK
+> > the START should be sent again. Retry several times before finally
+> > failing with -ENXIO.
+> > 
+> > Without this change the IPMI SSIF driver fails executing several commands
+> > like 'ipmitool fru' on ThunderX.
+> 
+> Huh? Looks wrong to me. I'd say the client driver needs to retry. Only
+> that one knows if retrying is appropriate or a waste of time.
+> 
 
-> When CONFIG_GPIOLIB is not set make will still descend into the gpio
-> directory but nothing will be built. This produces unneeded build
-> artifacts and messages in addition to slowing the build. Fix this here.
->
-> Signed-off-by: Andrew F. Davis <afd@ti.com>
+I've been debugging this and it turned out that there was an related issue with
+the clock setting. With that corrected this patch is not needed anymore,
+so you can drop it.
 
-Patch applied. Strange that this went unnoticed for years.
+I still see a huge number of RXADDR_NAK's after START but the ipmi_ssif
+driver retry logic seems to deal with that.
 
-Yours,
-Linus Walleij
+thanks,
+Jan
