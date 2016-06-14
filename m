@@ -1,43 +1,60 @@
 From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 00/10] i2c: designware-platdrv: Some improvments related to PM
-Date: Tue, 14 Jun 2016 17:07:18 +0200
-Message-ID: <1465916848-8207-1-git-send-email-ulf.hansson@linaro.org>
+Subject: [PATCH 05/10] i2c: designware-platdrv: Fix clk gating in ->remove()
+Date: Tue, 14 Jun 2016 17:07:23 +0200
+Message-ID: <1465916848-8207-6-git-send-email-ulf.hansson@linaro.org>
+References: <1465916848-8207-1-git-send-email-ulf.hansson@linaro.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f45.google.com ([209.85.215.45]:35836 "EHLO
-	mail-lf0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750985AbcFNPHq (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Jun 2016 11:07:46 -0400
-Received: by mail-lf0-f45.google.com with SMTP id u74so106490952lff.2
-        for <linux-i2c@vger.kernel.org>; Tue, 14 Jun 2016 08:07:44 -0700 (PDT)
+Received: from mail-lf0-f44.google.com ([209.85.215.44]:33289 "EHLO
+	mail-lf0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750968AbcFNPHx (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Jun 2016 11:07:53 -0400
+Received: by mail-lf0-f44.google.com with SMTP id f6so85413170lfg.0
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Jun 2016 08:07:53 -0700 (PDT)
+In-Reply-To: <1465916848-8207-1-git-send-email-ulf.hansson@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, linux-arm-kernel@lists.infradead.org, Ulf Hansson <ulf.hansson@linaro.org>
 
-Here's a couple changes for the i2c-designware driver. Most of them a related to
-the support for runtime PM and system PM, but there's also a few that improves
-some error handling.
+The current approach to gate the clock in ->remove() relies on CONFIG_PM
+to be set, as it's expected that the call to pm_runtime_put_sync()
+triggers the ->runtime_suspend() callback to be invoked.
 
-I have tested these on Hisilicon Linaro 96-board (hi6220). I used a couple local
-changes to enable the power-key to act as a wakeup in system PM suspend state.
-If anyone are interested about those as well, I am happy to share them.
+Even in the case when CONFIG_PM is set, userspace may prevent runtime PM
+suspend via sysfs (pm_runtime_forbid()) for the device.
 
-Ulf Hansson (10):
-  i2c: designware-platdrv: Return error in ->probe() when clk ungate
-    fails
-  i2c: designware-platdrv: Gate clk in error path in ->probe()
-  i2c: designware-platdrv: Unconditionally enable runtime PM
-  i2c: designware-platdrv: Disable autosuspend in error path in
-    ->probe()
-  i2c: designware-platdrv: Fix clk gating in ->remove()
-  i2c: designware-platdrv: Update runtime PM last busy mark in ->probe()
-  i2c: designware-platdrv: Re-init the HW when resuming
-  i2c: designware-platdrv: Check return value from clk_prepare_enable()
-  i2c: designware-platdrv: Simplify code by using dev_get_drvdata()
-  i2c: designware-platdrv: Rework system PM support
+Fix the behaviour by converting from using pm_runtime_put_sync() into
+directly using the clk API to manage clock gating. Let's also update the
+runtime PM status for the device as to reflect the state of the HW.
 
- drivers/i2c/busses/i2c-designware-platdrv.c | 106 +++++++++++++---------------
- 1 file changed, 50 insertions(+), 56 deletions(-)
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 7f67d801..4083376 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -268,11 +268,16 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
+ 
+ 	i2c_dw_disable(dev);
+ 
++	if (!IS_ERR(dev->clk))
++		clk_disable_unprepare(dev->clk);
++
++	pm_runtime_disable(&pdev->dev);
++	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ 	if (dev->pm_runtime_disabled)
+ 		pm_runtime_put_noidle(&pdev->dev);
+-	pm_runtime_dont_use_autosuspend(&pdev->dev);
+-	pm_runtime_put_sync(&pdev->dev);
+-	pm_runtime_disable(&pdev->dev);
++
++	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_set_suspended(&pdev->dev);
+ 
+ 	return 0;
+ }
 -- 
 1.9.1
