@@ -1,57 +1,46 @@
-From: "Andrew F. Davis" <afd@ti.com>
-Subject: [PATCH] hsi: Build hsi_boardinfo.c into hsi core if enabled
-Date: Tue, 14 Jun 2016 11:13:04 -0500
-Message-ID: <57602D10.4080708@ti.com>
-References: <201606140808.bRJtAy1i%fengguang.wu@intel.com>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH] i2c: tegra: Correct error path in probe
+Date: Tue, 14 Jun 2016 21:26:46 +0100
+Message-ID: <1465936007-18599-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <201606140808.bRJtAy1i%fengguang.wu@intel.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: kbuild-all@01.org, Russell King <linux@armlinux.org.uk>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Rusty Russell <rusty@rustcorp.com.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Ulf Hansson <ulf.hansson@linaro.org>, Lauro Ramos Venancio <lauro.venancio@openbossa.org>, Aloisio Almeida Jr <aloisio.almeida@openbossa.org>, Samuel Ortiz <sameo@linux.intel.com>, Ingo Molnar <mingo@kernel.org>, linux-pwm@vger.kernel.org, lguest@lists.ozlabs.org, linux-wireless@vger.kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linuxp
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from hqemgate14.nvidia.com ([216.228.121.143]:14065 "EHLO
+	hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751597AbcFNU0z (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Jun 2016 16:26:55 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>
+Cc: Shardar Shariff Md <smohammed@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>
 
-If the HSI core is built as a module hsi_boardinfo may still
-be built-in as its Kconfig type is bool, which can cause build
-issues. Fix this by building this code into the HSI core when
-enabled.
+Commit 497fbe24987b ("i2c: tegra: enable multi master mode for tegra210")
+enables the Tegra I2C 'div_clk' for adapters using the multi-master mode
+during the device probe. Although the probe error path was updated to
+disable the clock on probe failure, there is one place after calling
+tegra_i2c_init() where the clock will not be disabled on failure. Correct
+the error path so that the 'div_clk' is disabled if calling
+tegra_i2c_init() fails.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Andrew F. Davis <afd@ti.com>
+Fixes: 497fbe24987b ("i2c: tegra: enable multi master mode for tegra210")
+
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 ---
-This build error seems to be due to Kconfig symbol CONFIG_HSI_BOARDINFO
-being a bool but depending on a tristate (CONFIG_HSI). This is normally
-okay when it is just a flag to enable a feature in source, but the
-helper code file hsi_boardinfo.c is built as a separate entity when
-enabled. This patch is probably how it was intended, and is more like
-how others do this kind of thing.
+ drivers/i2c/busses/i2c-tegra.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This patch should be applied before the parent patch:
-
- drivers/hsi/Makefile              | 3 ++-
- drivers/hsi/{hsi.c => hsi_core.c} | 0
- 2 files changed, 2 insertions(+), 1 deletion(-)
- rename drivers/hsi/{hsi.c => hsi_core.c} (100%)
-
-diff --git a/drivers/hsi/Makefile b/drivers/hsi/Makefile
-index 360371e..9694478 100644
---- a/drivers/hsi/Makefile
-+++ b/drivers/hsi/Makefile
-@@ -1,7 +1,8 @@
- #
- # Makefile for HSI
- #
--obj-$(CONFIG_HSI_BOARDINFO)    += hsi_boardinfo.o
- obj-$(CONFIG_HSI)              += hsi.o
-+hsi-objs                       := hsi_core.o
-+hsi-$(CONFIG_HSI_BOARDINFO)    += hsi_boardinfo.o
- obj-y                          += controllers/
- obj-y                          += clients/
-diff --git a/drivers/hsi/hsi.c b/drivers/hsi/hsi_core.c
-similarity index 100%
-rename from drivers/hsi/hsi.c
-rename to drivers/hsi/hsi_core.c
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 445398c314a3..b126dbaa47e3 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -912,7 +912,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	ret = tegra_i2c_init(i2c_dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to initialize i2c controller");
+-		goto unprepare_div_clk;
++		goto disable_div_clk;
+ 	}
+ 
+ 	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
 -- 
-2.8.3
+2.1.4
