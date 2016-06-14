@@ -1,40 +1,83 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH 2/3] i2c: octeon: Add retry logic after receiving
- STAT_RXADDR_NAK
-Date: Tue, 14 Jun 2016 10:03:51 +0200
-Message-ID: <20160614080351.GA4725@hardcore>
-References: <cover.1465304877.git.jglauber@cavium.com>
- <2cc75a97f920146edc7af389870e271a8a056dd1.1465304877.git.jglauber@cavium.com>
- <20160609201150.GH23522@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160609201150.GH23522@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Steven.Hill@caviumnetworks.com
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3 2/8] acpi: fix enumeration (visited) flags for bus rescans
+Date: Tue, 14 Jun 2016 18:17:20 +0300
+Message-ID: <1465917446-14043-3-git-send-email-octavian.purdila@intel.com>
+References: <1465917446-14043-1-git-send-email-octavian.purdila@intel.com>
+Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1465917446-14043-1-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J . Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 09, 2016 at 10:11:51PM +0200, Wolfram Sang wrote:
-> On Wed, Jun 08, 2016 at 08:51:18AM +0200, Jan Glauber wrote:
-> > The controller specification states that when receiving STAT_RXADDR_NAK
-> > the START should be sent again. Retry several times before finally
-> > failing with -ENXIO.
-> > 
-> > Without this change the IPMI SSIF driver fails executing several commands
-> > like 'ipmitool fru' on ThunderX.
-> 
-> Huh? Looks wrong to me. I'd say the client driver needs to retry. Only
-> that one knows if retrying is appropriate or a waste of time.
-> 
+If the ACPI tables changes as a result of a dinamically loaded table and
+a bus rescan is required the enumeration/visited flag are not
+consistent.
 
-I've been debugging this and it turned out that there was an related issue with
-the clock setting. With that corrected this patch is not needed anymore,
-so you can drop it.
+I2C/SPI are not directly enumerated in acpi_bus_attach(), however the
+visited flag is set. This makes it impossible to check if an ACPI device
+has already been enumerated by the I2C and SPI subsystems. To fix this
+issue we only set the visited flags if the device is not I2C or SPI.
 
-I still see a huge number of RXADDR_NAK's after START but the ipmi_ssif
-driver retry logic seems to deal with that.
+With this change we also need to remove setting visited to false from
+acpi_bus_attach(), otherwise if we rescan already enumerated I2C/SPI
+devices we try to re-enumerate them.
 
-thanks,
-Jan
+Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/acpi/scan.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 5f28cf7..7656ea4 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -1670,7 +1670,7 @@ static int acpi_check_spi_i2c_slave(struct acpi_resource *ares, void *data)
+ 	return -1;
+ }
+ 
+-static void acpi_default_enumeration(struct acpi_device *device)
++static bool acpi_default_enumeration(struct acpi_device *device)
+ {
+ 	struct list_head resource_list;
+ 	bool is_spi_i2c_slave = false;
+@@ -1685,6 +1685,7 @@ static void acpi_default_enumeration(struct acpi_device *device)
+ 	acpi_dev_free_resource_list(&resource_list);
+ 	if (!is_spi_i2c_slave)
+ 		acpi_create_platform_device(device);
++	return !is_spi_i2c_slave;
+ }
+ 
+ static const struct acpi_device_id generic_device_ids[] = {
+@@ -1744,6 +1745,7 @@ static void acpi_bus_attach(struct acpi_device *device)
+ 	struct acpi_device *child;
+ 	acpi_handle ejd;
+ 	int ret;
++	bool enumerated = true;
+ 
+ 	if (ACPI_SUCCESS(acpi_bus_get_ejd(device->handle, &ejd)))
+ 		register_dock_dependent_device(device, ejd);
+@@ -1766,7 +1768,7 @@ static void acpi_bus_attach(struct acpi_device *device)
+ 
+ 		device->flags.initialized = true;
+ 	}
+-	device->flags.visited = false;
++
+ 	ret = acpi_scan_attach_handler(device);
+ 	if (ret < 0)
+ 		return;
+@@ -1778,9 +1780,10 @@ static void acpi_bus_attach(struct acpi_device *device)
+ 			return;
+ 
+ 		if (!ret && device->pnp.type.platform_id)
+-			acpi_default_enumeration(device);
++			enumerated = acpi_default_enumeration(device);
+ 	}
+-	device->flags.visited = true;
++	if (enumerated)
++		device->flags.visited = true;
+ 
+  ok:
+ 	list_for_each_entry(child, &device->children, node)
+-- 
+2.7.4
