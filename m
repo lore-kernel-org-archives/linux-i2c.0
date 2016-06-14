@@ -1,46 +1,47 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: [PATCH] i2c: tegra: Correct error path in probe
-Date: Tue, 14 Jun 2016 21:26:46 +0100
-Message-ID: <1465936007-18599-1-git-send-email-jonathanh@nvidia.com>
+From: "Luis R. Rodriguez" <mcgrof@kernel.org>
+Subject: Re: [PATCH] i2c: remove __init from i2c_register_board_info()
+Date: Wed, 15 Jun 2016 00:18:07 +0200
+Message-ID: <20160614221807.GH11948@wotan.suse.de>
+References: <1465343547-19974-1-git-send-email-mcgrof@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:14065 "EHLO
-	hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751597AbcFNU0z (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Jun 2016 16:26:55 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1465343547-19974-1-git-send-email-mcgrof@kernel.org>
+Sender: linux-next-owner@vger.kernel.org
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, feng.tang@intel.com, linux-next@vger.kernel.org, mcgrof@kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>
-Cc: Shardar Shariff Md <smohammed@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>
 
-Commit 497fbe24987b ("i2c: tegra: enable multi master mode for tegra210")
-enables the Tegra I2C 'div_clk' for adapters using the multi-master mode
-during the device probe. Although the probe error path was updated to
-disable the clock on probe failure, there is one place after calling
-tegra_i2c_init() where the clock will not be disabled on failure. Correct
-the error path so that the 'div_clk' is disabled if calling
-tegra_i2c_init() fails.
+On Tue, Jun 07, 2016 at 04:52:27PM -0700, Luis R. Rodriguez wrote:
+> As of next-20160607 with allyesconfig we get this linker failure:
+> 
+>   MODPOST vmlinux.o
+> WARNING: vmlinux.o(.text+0x21bc0d): Section mismatch in reference from
+> the function intel_scu_devices_create() to the function
+> .init.text:i2c_register_board_info()
+> 
+> This is caused by the fact that intel_scu_devices_create() calls
+> i2c_register_board_info() and intel_scu_devices_create() is not
+> annotated with __init. This typically involves manual code
+> inspection and if one is certain this is correct we would
+> just peg intel_scu_devices_create() with a __ref annotation.
+> 
+> In this case this would be wrong though as the
+> intel_scu_devices_create() call is exported, and used in
+> the ipc_probe() on drivers/platform/x86/intel_scu_ipc.c.
+> The issue is that even though builtin_pci_driver(ipc_driver)
+> is used this just exposes the probe routine, which can occur
+> at any point in time if this bus supports hotplug. A race
+> can happen between kernel_init_freeable() that calls the init
+> calls (in this case registeres the intel_scu_ipc.c driver, and
+> later free_initmem(), which would free the i2c_register_board_info().
+> If a probe happens later in boot i2c_register_board_info() would
+> not be present and we should get a page fault.
+> 
+> Signed-off-by: Luis R. Rodriguez <mcgrof@kernel.org>
 
-Fixes: 497fbe24987b ("i2c: tegra: enable multi master mode for tegra210")
+I don't see this merged yet on linux-next and this is still an issue.
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ *Poke*
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 445398c314a3..b126dbaa47e3 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -912,7 +912,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	ret = tegra_i2c_init(i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to initialize i2c controller");
--		goto unprepare_div_clk;
-+		goto disable_div_clk;
- 	}
- 
- 	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
--- 
-2.1.4
+  Luis
