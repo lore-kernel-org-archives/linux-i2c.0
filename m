@@ -1,69 +1,97 @@
-From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Subject: Re: [PATCH v3 7/8] acpi: add support for configfs
-Date: Wed, 15 Jun 2016 00:59 +0200
-Message-ID: <3209646.novQQXrKbd@vostro.rjw.lan>
-References: <201606150617.OKhb5WCs%fengguang.wu@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201606150617.OKhb5WCs%fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, kbuild-all-JC7UmRfGjtg@public.gmane.org, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 2/3] i2c: designware-pci: Introduce Merrifield support
+Date: Wed, 15 Jun 2016 01:55:59 +0300
+Message-ID: <1465944960-25444-2-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1465944960-25444-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:29983 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752040AbcFNW4F (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 14 Jun 2016 18:56:05 -0400
+In-Reply-To: <1465944960-25444-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Hi Octavian,
+This patch enables I2C controllers found on Intel Edison board.
 
-On Wednesday, June 15, 2016 06:43:21 AM kbuild test robot wrote:
-> Hi,
-> 
-> [auto build test ERROR on pm/linux-next]
-> [also build test ERROR on v4.7-rc3]
-> [cannot apply to next-20160614]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Octavian-Purdila/ACPI-overlays/20160614-202312
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git linux-next
-> config: x86_64-allyesconfig (attached as .config)
-> compiler: gcc-6 (Debian 6.1.1-1) 6.1.1 20160430
-> reproduce:
->         # save the attached .config to linux build tree
->         make ARCH=x86_64 
-> 
-> Note: the linux-review/Octavian-Purdila/ACPI-overlays/20160614-202312 HEAD 042f716a165ffa274684c787377acddfc1f34e3f builds fine.
->       It only hurts bisectibility.
-> 
-> All errors (new ones prefixed by >>):
-> 
->    drivers/acpi/configfs.c: In function 'acpi_configfs_init':
-> >> drivers/acpi/configfs.c:19:31: error: 'acpi_configfs' undeclared (first use in this function)
->      struct config_group *root = &acpi_configfs.su_group;
->                                   ^~~~~~~~~~~~~
->    drivers/acpi/configfs.c:19:31: note: each undeclared identifier is reported only once for each function it appears in
->    drivers/acpi/configfs.c: In function 'acpi_configfs_exit':
->    drivers/acpi/configfs.c:33:33: error: 'acpi_configfs' undeclared (first use in this function)
->      configfs_unregister_subsystem(&acpi_configfs);
->                                     ^~~~~~~~~~~~~
-> 
-> vim +/acpi_configfs +19 drivers/acpi/configfs.c
-> 
->     13	#include <linux/configfs.h>
->     14	#include <linux/acpi.h>
->     15	
->     16	static int __init acpi_configfs_init(void)
->     17	{
->     18		int ret;
->   > 19		struct config_group *root = &acpi_configfs.su_group;
->     20	
->     21		config_group_init(root);
->     22	
-> 
-> ---
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 33 ++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-Any chance to send an updated patch with this fixed?
-
-No need to resend the whole series, just this single patch, please.
-
-Thanks,
-Rafael
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 0f1fc48..a51f6e0 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -42,6 +42,7 @@
+ 
+ enum dw_pci_ctl_id_t {
+ 	medfield,
++	merrifield,
+ 	baytrail,
+ 	haswell,
+ };
+@@ -75,6 +76,14 @@ struct dw_pci_controller {
+ 					I2C_FUNC_SMBUS_WORD_DATA |	\
+ 					I2C_FUNC_SMBUS_I2C_BLOCK)
+ 
++/* Merrifield HCNT/LCNT/SDA hold time */
++static struct dw_scl_sda_cfg mrfld_config = {
++	.ss_hcnt = 0x2f8,
++	.fs_hcnt = 0x87,
++	.ss_lcnt = 0x37b,
++	.fs_lcnt = 0x10a,
++};
++
+ /* BayTrail HCNT/LCNT/SDA hold time */
+ static struct dw_scl_sda_cfg byt_config = {
+ 	.ss_hcnt = 0x200,
+@@ -110,6 +119,19 @@ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
+ 	return -ENODEV;
+ }
+ 
++static int mrfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
++{
++	switch (PCI_SLOT(pdev->devfn)) {
++	case 8:
++		c->bus_num = PCI_FUNC(pdev->devfn) + 0 + 1;
++		return 0;
++	case 9:
++		c->bus_num = PCI_FUNC(pdev->devfn) + 4 + 1;
++		return 0;
++	}
++	return -ENODEV;
++}
++
+ static struct dw_pci_controller dw_pci_controllers[] = {
+ 	[medfield] = {
+ 		.bus_num = -1,
+@@ -119,6 +141,14 @@ static struct dw_pci_controller dw_pci_controllers[] = {
+ 		.clk_khz      = 25000,
+ 		.setup = mfld_setup,
+ 	},
++	[merrifield] = {
++		.bus_num = -1,
++		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
++		.tx_fifo_depth = 64,
++		.rx_fifo_depth = 64,
++		.scl_sda_cfg = &mrfld_config,
++		.setup = mrfld_setup,
++	},
+ 	[baytrail] = {
+ 		.bus_num = -1,
+ 		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
+@@ -266,6 +296,9 @@ static const struct pci_device_id i2_designware_pci_ids[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x082C), medfield },
+ 	{ PCI_VDEVICE(INTEL, 0x082D), medfield },
+ 	{ PCI_VDEVICE(INTEL, 0x082E), medfield },
++	/* Merrifield */
++	{ PCI_VDEVICE(INTEL, 0x1195), merrifield },
++	{ PCI_VDEVICE(INTEL, 0x1196), merrifield },
+ 	/* Baytrail */
+ 	{ PCI_VDEVICE(INTEL, 0x0F41), baytrail },
+ 	{ PCI_VDEVICE(INTEL, 0x0F42), baytrail },
+-- 
+2.8.1
