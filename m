@@ -1,40 +1,69 @@
 From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 09/10] i2c: designware-platdrv: Simplify code by using
- dev_get_drvdata()
-Date: Wed, 15 Jun 2016 14:24:52 +0300
-Message-ID: <b6846926-5577-126a-9ed2-bcbfd3a17a59@linux.intel.com>
+Subject: Re: [PATCH 02/10] i2c: designware-platdrv: Gate clk in error path in
+ ->probe()
+Date: Wed, 15 Jun 2016 15:07:02 +0300
+Message-ID: <0b2b63b3-6c66-fba2-028d-ab366b9df1af@linux.intel.com>
 References: <1465916848-8207-1-git-send-email-ulf.hansson@linaro.org>
- <1465916848-8207-10-git-send-email-ulf.hansson@linaro.org>
+ <1465916848-8207-3-git-send-email-ulf.hansson@linaro.org>
+ <1465917768.30123.65.camel@linux.intel.com>
+ <CAPDyKFpqR5a+b68wMmyY086OCmkiK9mvC-kcav8Q2x28z=0ONA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:6818 "EHLO mga01.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:10227 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751903AbcFOLY4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 15 Jun 2016 07:24:56 -0400
-In-Reply-To: <1465916848-8207-10-git-send-email-ulf.hansson@linaro.org>
+	id S1751903AbcFOMHh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 15 Jun 2016 08:07:37 -0400
+In-Reply-To: <CAPDyKFpqR5a+b68wMmyY086OCmkiK9mvC-kcav8Q2x28z=0ONA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, linux-arm-kernel@lists.infradead.org
+To: Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-On 06/14/2016 06:07 PM, Ulf Hansson wrote:
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+On 06/15/2016 10:16 AM, Ulf Hansson wrote:
+> On 14 June 2016 at 17:22, Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+>> On Tue, 2016-06-14 at 17:07 +0200, Ulf Hansson wrote:
+>>> The call to i2c_dw_probe() may fail in ->probe() in which case the
+>>> clock
+>>> remains ungated. Fix the error path by gating the clock before the
+>>> error
+>>> code is returned.
+>>>
+>>> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+>>> ---
+>>>  drivers/i2c/busses/i2c-designware-platdrv.c | 10 ++++++++--
+>>>  1 file changed, 8 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+>>> b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>> index e39962b..19174e7 100644
+>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>> @@ -235,6 +235,7 @@ static int dw_i2c_plat_probe(struct
+>>> platform_device *pdev)
+>>>       ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
+>>>       adap->dev.of_node = pdev->dev.of_node;
+>>>
+>>
+>>
+>>> +     pm_runtime_get_noresume(&pdev->dev);
+>>
+>>> +     pm_runtime_put(&pdev->dev);
+>>
+>> I don't see an explanation of these add-ons.
 >
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 2b91af3..b2c6037 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -310,8 +310,7 @@ static void dw_i2c_plat_complete(struct device *dev)
->  #ifdef CONFIG_PM
->  static int dw_i2c_plat_suspend(struct device *dev)
->  {
-> -	struct platform_device *pdev = to_platform_device(dev);
-> -	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
-> +	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
+> As we explicitly do clk_disable_unprepare() in the error path, we must
+> prevent the ->runtime_suspend() callback to be called during this
+> period.
 >
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> This is a common pattern used by many drivers deploying runtime PM
+> support, which is probably why I left out the explanation.
+>
+What would cause here runtime suspend during probe? Also pairing 
+pm_runtime_get_noresume() with pm_runtime_put() instead of 
+pm_runtime_put_noidle() looks suspicious to me.
+
+-- 
+Jarkko
