@@ -1,44 +1,51 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v10 1/8] i2c: octeon: Rename driver to prepare for split
-Date: Wed, 15 Jun 2016 15:51:27 +0200
-Message-ID: <9a3368bcf49132fd8656f158de53627c426dd3a7.1465997603.git.jglauber@cavium.com>
-References: <cover.1465997603.git.jglauber@cavium.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1465997603.git.jglauber@cavium.com>
-In-Reply-To: <cover.1465997603.git.jglauber@cavium.com>
-References: <cover.1465997603.git.jglauber@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Steven.Hill@caviumnetworks.com, Jan Glauber <jglauber@cavium.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 2/3] i2c: designware-pci: Introduce Merrifield support
+Date: Wed, 15 Jun 2016 17:09:54 +0300
+Message-ID: <1465999794.30123.122.camel@linux.intel.com>
+References: <1465944960-25444-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <1465944960-25444-2-git-send-email-andriy.shevchenko@linux.intel.com>
+	 <ffcdc682-1948-f048-b8df-4f3360fbe501@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:58757 "EHLO mga04.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932934AbcFOOJD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 15 Jun 2016 10:09:03 -0400
+In-Reply-To: <ffcdc682-1948-f048-b8df-4f3360fbe501@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-This is an intermediate commit in preparation of the driver split.
-The module rename in this commit will be reverted in the next patch,
-this is just done to make the series bisectible.
+On Wed, 2016-06-15 at 16:48 +0300, Jarkko Nikula wrote:
+> On 06/15/2016 01:55 AM, Andy Shevchenko wrote:
+> > This patch enables I2C controllers found on Intel Edison board.
 
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
----
- drivers/i2c/busses/Makefile                            | 2 +-
- drivers/i2c/busses/{i2c-octeon.c => i2c-octeon-core.c} | 0
- 2 files changed, 1 insertion(+), 1 deletion(-)
- rename drivers/i2c/busses/{i2c-octeon.c => i2c-octeon-core.c} (100%)
+> > +static int mrfld_setup(struct pci_dev *pdev, struct
+> > dw_pci_controller *c)
+> > +{
+> > +	switch (PCI_SLOT(pdev->devfn)) {
+> > +	case 8:
+> > +		c->bus_num =3D PCI_FUNC(pdev->devfn) + 0 + 1;
+> > +		return 0;
+> > +	case 9:
+> > +		c->bus_num =3D PCI_FUNC(pdev->devfn) + 4 + 1;
+> > +		return 0;
+> > +	}
+> > +	return -ENODEV;
+> > +}
+> > +
+>=20
+> What kind of bus numbers we are expected to see here and what offsets=
+=C2=A0
+> these magic numbers represent?
 
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 37f2819..3405286 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -91,7 +91,7 @@ obj-$(CONFIG_I2C_UNIPHIER)	+= i2c-uniphier.o
- obj-$(CONFIG_I2C_UNIPHIER_F)	+= i2c-uniphier-f.o
- obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
- obj-$(CONFIG_I2C_WMT)		+= i2c-wmt.o
--obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
-+obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon-core.o
- obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
- obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
- obj-$(CONFIG_I2C_XLP9XX)	+= i2c-xlp9xx.o
-diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon-core.c
-similarity index 100%
-rename from drivers/i2c/busses/i2c-octeon.c
-rename to drivers/i2c/busses/i2c-octeon-core.c
--- 
-1.9.1
+Official bus numbers are [1..7]. Thus, this + 1 at the end. First PCI
+device provides 4 functions, that's why +0 and +4.
+Do I need to add a comment there?
+
+--=20
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
