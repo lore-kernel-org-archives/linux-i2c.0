@@ -1,50 +1,82 @@
-From: "Andrew F. Davis" <afd@ti.com>
-Subject: Re: [PATCH v3 1/2] mfd: ti-smusbdig: Add support for the TI
- SM-USB-DIG
-Date: Wed, 15 Jun 2016 10:54:05 -0500
-Message-ID: <57617A1D.3050502@ti.com>
-References: <20160613150800.6302-1-afd@ti.com> <20160615154303.GN4948@dell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([198.47.19.12]:41079 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753136AbcFOPyK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 15 Jun 2016 11:54:10 -0400
-In-Reply-To: <20160615154303.GN4948@dell>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: [PATCH 0/3] Init device ids from ACPI of_compatible
+Date: Wed, 15 Jun 2016 21:30:26 +0300
+Message-ID: <cover.1466014238.git.leonard.crestez@intel.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Crestez Dan Leonard <leonard.crestez@intel.com>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 06/15/2016 10:43 AM, Lee Jones wrote:
-> This requires a USB Ack.
-> 
->> The TI SM-USB-DIG is a USB to SPI/I2C/1Wire/GPIO adapter.
->> Add MFD core support.
->>
->> Signed-off-by: Andrew F. Davis <afd@ti.com>
->> ---
-> 
-> Where is the change log from v1 => v2?
-> 
+When using devicetree stuff like i2c_client.name or spi_device.modalias
+is initialized to the first DT compatible id with the vendor prefix
+stripped. Since some drivers rely on this try to replicate it when using
+ACPI with DT ids.
 
-Looking at a diff of the two it looks like all the changes are related
-to your v1 feedback:
+Drivers rely on these ids in order to differentiate between hardware variants
+supported by the same driver. As far as I can tell the alternative would be for
+drivers to dig into ACPI_COMPANION manually somehow?
 
- - Rename sm-usb-dig -> ti-smusbdig
- - Inline helper functions in header
- - Alphabetize includes
+This also makes it so that the i2c_device_id parameter passed to probe is
+non-NULL when matching with ACPI and DT ids.
 
->> Changes from v2:
->>  - Add missing dependency on USB, thanks kbuild test robot
->>
->>  drivers/mfd/Kconfig             |   9 +++
->>  drivers/mfd/Makefile            |   2 +
->>  drivers/mfd/ti-smusbdig.c       | 138 ++++++++++++++++++++++++++++++++++++++++
->>  include/linux/mfd/ti-smusbdig.h |  75 ++++++++++++++++++++++
->>  4 files changed, 224 insertions(+)
->>  create mode 100644 drivers/mfd/ti-smusbdig.c
->>  create mode 100644 include/linux/mfd/ti-smusbdig.h
-> 
+The patches only touch the ACPI-specific parts of the i2c and spi core.
+
+These patches are on top of v4.7-rc3. I tested this using Octavin Purdila's
+patches for "acpi overlays" but this series does not depend on that. Patch 2
+has a conflict with acpi overlays because acpi_i2c_add_device was split into
+multiple functions.
+
+Here is an example .dsl for an SPI accelerometer connected to minnowboard max:
+
+Device (ACCL)
+{
+    Name (_ADR, Zero)
+    Name (_HID, "PRP0001")
+    Name (_CID, "PRP0001")
+    Name (_UID, One)
+
+    Method (_CRS, 0, Serialized)
+    {
+	Name (RBUF, ResourceTemplate ()
+	{
+	    SPISerialBus(1, PolarityLow, FourWireMode, 16,
+		    ControllerInitiated, 1000000, ClockPolarityLow,
+		    ClockPhaseFirst, "\\_SB.SPI1",)
+	    GpioInt (Edge, ActiveHigh, Exclusive, PullDown, 0x0000,
+		     "\\_SB.GPO2", 0x00, ResourceConsumer, , )
+	    { // Pin list
+		    1
+	    }
+	})
+	Return (RBUF)
+    }
+    Name (_DSD, Package ()
+    {
+	ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+	Package ()
+	{
+	    Package () {"compatible", "st,lis3dh"},
+	}
+    })
+}
+
+The driver for that device supports tens of models is not aware of ACPI.
+
+Like to prev thread: https://www.spinics.net/lists/linux-acpi/msg66469.html
+Like to acpi overlays: https://www.spinics.net/lists/linux-acpi/msg66638.html
+
+Crestez Dan Leonard (3):
+  acpi: Export acpi_of_modalias equiv of of_modalias_node
+  acpi i2c: Initialize info.type from of_compatible
+  acpi spi: Initialize modalias from of_compatible
+
+ drivers/acpi/bus.c      | 36 ++++++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-core.c  |  8 +++++++-
+ drivers/spi/spi.c       | 10 +++++++++-
+ include/acpi/acpi_bus.h |  1 +
+ 4 files changed, 53 insertions(+), 2 deletions(-)
+
+-- 
+2.5.5
+
