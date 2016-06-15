@@ -1,29 +1,40 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [PATCH v3 4/8] i2c: add support for ACPI reconfigure notifications
-Date: Wed, 15 Jun 2016 13:30:10 +0300
-Message-ID: <CAE1zotLFtzfOrfmiRaewzdctD4UDPa8pJ6fVC34C8XRrArb5UQ@mail.gmail.com>
-References: <1465917446-14043-1-git-send-email-octavian.purdila@intel.com>
-	<1465917446-14043-5-git-send-email-octavian.purdila@intel.com>
-	<20160615062724.GB1344@tetsubishi>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 09/10] i2c: designware-platdrv: Simplify code by using
+ dev_get_drvdata()
+Date: Wed, 15 Jun 2016 14:24:52 +0300
+Message-ID: <b6846926-5577-126a-9ed2-bcbfd3a17a59@linux.intel.com>
+References: <1465916848-8207-1-git-send-email-ulf.hansson@linaro.org>
+ <1465916848-8207-10-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20160615062724.GB1344@tetsubishi>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Joel Becker <jlbec@evilplan.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:6818 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751903AbcFOLY4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 15 Jun 2016 07:24:56 -0400
+In-Reply-To: <1465916848-8207-10-git-send-email-ulf.hansson@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, linux-arm-kernel@lists.infradead.org
 
-On Wed, Jun 15, 2016 at 9:27 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Tue, Jun 14, 2016 at 06:17:22PM +0300, Octavian Purdila wrote:
->> This patch adds supports for I2C device enumeration and removal via
->> ACPI reconfiguration notifications that are send as a result of an
->> ACPI table load or unload operation.
->>
->> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+On 06/14/2016 06:07 PM, Ulf Hansson wrote:
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 >
-> What happened to Mika's reviewed-by?
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 2b91af3..b2c6037 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -310,8 +310,7 @@ static void dw_i2c_plat_complete(struct device *dev)
+>  #ifdef CONFIG_PM
+>  static int dw_i2c_plat_suspend(struct device *dev)
+>  {
+> -	struct platform_device *pdev = to_platform_device(dev);
+> -	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+> +	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
 >
-
-Missed that, I will send a new series soon to correct a bisectability
-issues reported by kbuild and I'll add with Mika's reviewed-bys.
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
