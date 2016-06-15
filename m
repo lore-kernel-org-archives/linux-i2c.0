@@ -1,32 +1,31 @@
 From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v1 3/3] i2c: designware-pci: Sort header block
- alphabetically
-Date: Wed, 15 Jun 2016 16:49:01 +0300
-Message-ID: <5586b3fe-5b63-c46f-488b-ca9367ae7cac@linux.intel.com>
-References: <1465944960-25444-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1465944960-25444-3-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: designware: Use transfer timeout from ioctl
+ I2C_TIMEOUT
+Date: Wed, 15 Jun 2016 16:50:44 +0300
+Message-ID: <b4dff73a-5bab-cf08-3b6e-415e14774f04@linux.intel.com>
+References: <1465980946-20895-1-git-send-email-weifeng.voon@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:5225 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753355AbcFONtF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 15 Jun 2016 09:49:05 -0400
-In-Reply-To: <1465944960-25444-3-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1465980946-20895-1-git-send-email-weifeng.voon@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Weifeng Voon <weifeng.voon@intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jui.nee.tan@intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-On 06/15/2016 01:56 AM, Andy Shevchenko wrote:
-> Simply sort header block alphabetically.
+On 06/15/2016 11:55 AM, Weifeng Voon wrote:
+> This allows applications to set the transfer timeout in 10ms increments via
+> ioctl I2C_TIMEOUT.
 >
-> While here fix an indentation in one place and update a copyright line for
-> Intel.
+> changelog v2:
+> * No code change, just change to a more suitable title
 >
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Weifeng Voon <weifeng.voon@intel.com>
 > ---
->  drivers/i2c/busses/i2c-designware-pcidrv.c | 19 ++++++++++---------
->  1 file changed, 10 insertions(+), 9 deletions(-)
+>  drivers/i2c/busses/i2c-designware-core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
+Actually changelog doesn't belong to commit log. Otherwise
+
 Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
