@@ -1,77 +1,65 @@
-From: "Rafael J. Wysocki" <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 7/8] acpi: add support for configfs
-Date: Wed, 15 Jun 2016 23:02:20 +0200
-Message-ID: <CAJZ5v0ip=GuF041dR3m4mMSOqxMU7BDMYC2YTpKtCsjL6pXM+w@mail.gmail.com>
-References: <201606150617.OKhb5WCs%fengguang.wu@intel.com> <3209646.novQQXrKbd@vostro.rjw.lan>
- <CAE1zotJFg6xWexm0WbxOwU0JFsQ5NJUvo-Tw=hFmqXpNMuwYbA@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v8 3/4] i2c: i801: add support of Host Notify
+Date: Thu, 16 Jun 2016 08:09:42 +0200
+Message-ID: <20160616060942.GA1403@tetsubishi>
+References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1465484030-28838-4-git-send-email-benjamin.tissoires@redhat.com>
+ <20160615081247.GQ24234@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAE1zotJFg6xWexm0WbxOwU0JFsQ5NJUvo-Tw=hFmqXpNMuwYbA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, kbuild-all-JC7UmRfGjtg@public.gmane.org, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-spi <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160615081247.GQ24234@mail.corp.redhat.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 15, 2016 at 12:20 PM, Octavian Purdila
-<octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
-> On Wed, Jun 15, 2016 at 1:59 AM, Rafael J. Wysocki <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org> wrote:
->> Hi Octavian,
->>
->> On Wednesday, June 15, 2016 06:43:21 AM kbuild test robot wrote:
->>> Hi,
->>>
->>> [auto build test ERROR on pm/linux-next]
->>> [also build test ERROR on v4.7-rc3]
->>> [cannot apply to next-20160614]
->>> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
->>>
->>> url:    https://github.com/0day-ci/linux/commits/Octavian-Purdila/ACPI-overlays/20160614-202312
->>> base:   https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git linux-next
->>> config: x86_64-allyesconfig (attached as .config)
->>> compiler: gcc-6 (Debian 6.1.1-1) 6.1.1 20160430
->>> reproduce:
->>>         # save the attached .config to linux build tree
->>>         make ARCH=x86_64
->>>
->>> Note: the linux-review/Octavian-Purdila/ACPI-overlays/20160614-202312 HEAD 042f716a165ffa274684c787377acddfc1f34e3f builds fine.
->>>       It only hurts bisectibility.
->>>
->>> All errors (new ones prefixed by >>):
->>>
->>>    drivers/acpi/configfs.c: In function 'acpi_configfs_init':
->>> >> drivers/acpi/configfs.c:19:31: error: 'acpi_configfs' undeclared (first use in this function)
->>>      struct config_group *root = &acpi_configfs.su_group;
->>>                                   ^~~~~~~~~~~~~
->>>    drivers/acpi/configfs.c:19:31: note: each undeclared identifier is reported only once for each function it appears in
->>>    drivers/acpi/configfs.c: In function 'acpi_configfs_exit':
->>>    drivers/acpi/configfs.c:33:33: error: 'acpi_configfs' undeclared (first use in this function)
->>>      configfs_unregister_subsystem(&acpi_configfs);
->>>                                     ^~~~~~~~~~~~~
->>>
->>> vim +/acpi_configfs +19 drivers/acpi/configfs.c
->>>
->>>     13        #include <linux/configfs.h>
->>>     14        #include <linux/acpi.h>
->>>     15
->>>     16        static int __init acpi_configfs_init(void)
->>>     17        {
->>>     18                int ret;
->>>   > 19                struct config_group *root = &acpi_configfs.su_group;
->>>     20
->>>     21                config_group_init(root);
->>>     22
->>>
->>> ---
->>
->> Any chance to send an updated patch with this fixed?
->>
->> No need to resend the whole series, just this single patch, please.
->>
->
-> Oops, sorry about that. I will have to resend at least the last two
-> patches to fix this issue, but since I have missed to add the
-> Reviewed-by from Mika for another two patches, its probably best to
-> resend the whole series?
 
-Yes, please.
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+> > - removed the .resume hook as upstream changed suspend/resume hooks and=
+ there
+> >   is no need in the end to re-enable host notify on resume (tested on L=
+enovo
+> >   t440 and t450).
+>=20
+> Actually, this hook seemed to be required on the Lenovo T440 (Haswell)
+> but not on the T450 (Broadwell) laptop I have now here.
+>=20
+> Wolfram, I can resend the whole series or a follow-up patch to re-enable
+> after resume Host Notify. How do you prefer I deal with that?
+
+That depends a little how we want to handle patch 4. I am going to apply
+patches 1+2 today to my tree. Then you can just resend patch 3 which I
+hope will get some review soon, but I will pick it up for 4.8 later
+nonetheless. If it is not causing too much dependency hassle, I'd prefer
+that patch 4 goes via Dmitry's input tree.
+
+
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXYkKmAAoJEBQN5MwUoCm280AP/jekLLlp41Ksk+uUjMDhyRcW
+lG9Bdl3PkCsro1rWG41B3JTX4WekhfBRw1rM8becxR5qvpFouaB15aUHnebGVpeM
+2xwTwG0xGoQYDDeDLysvnxJVY9efv2LnDXJOtUFvcDfpg8CGCMnUsSkz2yUPBm6x
+uDeHYCRBP7qomYlVvly6Q1eIBA+uD9WBIda+fiQcneihduOPP2SRAmWR64C7NfeP
+EghzdFpQJ9RTbELIoxp1YDI7IjR7KKD1lVcEVGmeSiaI/4GEUOO/3H4QEfx3w5mw
+T86bmA+4rRBk0XjmuxatHOZLWeyX8ctD5uv5t0IDxwI+kZ3XKI7jVN9i3Rnix5Dc
+zi52nEiQEl8F2EJKTJyLgUYla54uYJil5n6Hp3hDkmdBtwt/DexpVR0AmpatQwYI
+XFjiIqwhtq+AdboZ18WSw64ytJhCEAQ0r7zaXX5UvgLquRh6VYe5yNFLgHfh4mOd
+ysfvGopiNraqQlwjlt+JCiLCnUHXuzV2cX9jF/KmI8T+3JUewCBNGRKrQ+/7PwpD
+IbjyoaVHx7RMjq6tCovvAKgjMz5mSOoocWy1Wo/VB7DvgJ4/aWdI4KBweYbjtHcw
+OS/Dk3xlngycrrldOi5ckNgUIssPgG/C/+vaRxyuHGWvMGQrX74clWhTNdUY5NAT
+NWS30DXPdQxrs1P8btES
+=4NfN
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--
