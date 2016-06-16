@@ -1,65 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v8 3/4] i2c: i801: add support of Host Notify
-Date: Thu, 16 Jun 2016 08:09:42 +0200
-Message-ID: <20160616060942.GA1403@tetsubishi>
-References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
- <1465484030-28838-4-git-send-email-benjamin.tissoires@redhat.com>
- <20160615081247.GQ24234@mail.corp.redhat.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2 0/3] i2c: designware-pci: refactor and add Merrifield
+ support
+Date: Thu, 16 Jun 2016 10:44:21 +0300
+Message-ID: <a653f0b3-0a95-8227-db35-0076c1461827@linux.intel.com>
+References: <1466003107-19375-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160615081247.GQ24234@mail.corp.redhat.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:51293 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753224AbcFPHoY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 16 Jun 2016 03:44:24 -0400
+In-Reply-To: <1466003107-19375-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
+On 06/15/2016 06:05 PM, Andy Shevchenko wrote:
+> Tested on bare metal (Intel Edison) by enumerating I2C GPIO expanders.
+>
+> In v2:
+> - leave bus 3 at STD speed for Medfield
+> - be consistent with workflow, i.e. call ->setup, and _then_ assign to i2c
+>   properties
+> - add a comment to explain magic numbers for Merrifield
+> - add an Ack for patch 3
+>
+> Andy Shevchenko (3):
+>   i2c: designware-pci: Make bus number allocation robust
+>   i2c: designware-pci: Introduce Merrifield support
+>   i2c: designware-pci: Sort header block alphabetically
+>
+>  drivers/i2c/busses/i2c-designware-core.h   |   1 +
+>  drivers/i2c/busses/i2c-designware-pcidrv.c | 143 +++++++++++++++++------------
+>  2 files changed, 86 insertions(+), 58 deletions(-)
+>
+> --
+> 2.8.1
+>
+To the series (patch 3 has my ack already):
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> > - removed the .resume hook as upstream changed suspend/resume hooks and=
- there
-> >   is no need in the end to re-enable host notify on resume (tested on L=
-enovo
-> >   t440 and t450).
->=20
-> Actually, this hook seemed to be required on the Lenovo T440 (Haswell)
-> but not on the T450 (Broadwell) laptop I have now here.
->=20
-> Wolfram, I can resend the whole series or a follow-up patch to re-enable
-> after resume Host Notify. How do you prefer I deal with that?
-
-That depends a little how we want to handle patch 4. I am going to apply
-patches 1+2 today to my tree. Then you can just resend patch 3 which I
-hope will get some review soon, but I will pick it up for 4.8 later
-nonetheless. If it is not causing too much dependency hassle, I'd prefer
-that patch 4 goes via Dmitry's input tree.
-
-
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXYkKmAAoJEBQN5MwUoCm280AP/jekLLlp41Ksk+uUjMDhyRcW
-lG9Bdl3PkCsro1rWG41B3JTX4WekhfBRw1rM8becxR5qvpFouaB15aUHnebGVpeM
-2xwTwG0xGoQYDDeDLysvnxJVY9efv2LnDXJOtUFvcDfpg8CGCMnUsSkz2yUPBm6x
-uDeHYCRBP7qomYlVvly6Q1eIBA+uD9WBIda+fiQcneihduOPP2SRAmWR64C7NfeP
-EghzdFpQJ9RTbELIoxp1YDI7IjR7KKD1lVcEVGmeSiaI/4GEUOO/3H4QEfx3w5mw
-T86bmA+4rRBk0XjmuxatHOZLWeyX8ctD5uv5t0IDxwI+kZ3XKI7jVN9i3Rnix5Dc
-zi52nEiQEl8F2EJKTJyLgUYla54uYJil5n6Hp3hDkmdBtwt/DexpVR0AmpatQwYI
-XFjiIqwhtq+AdboZ18WSw64ytJhCEAQ0r7zaXX5UvgLquRh6VYe5yNFLgHfh4mOd
-ysfvGopiNraqQlwjlt+JCiLCnUHXuzV2cX9jF/KmI8T+3JUewCBNGRKrQ+/7PwpD
-IbjyoaVHx7RMjq6tCovvAKgjMz5mSOoocWy1Wo/VB7DvgJ4/aWdI4KBweYbjtHcw
-OS/Dk3xlngycrrldOi5ckNgUIssPgG/C/+vaRxyuHGWvMGQrX74clWhTNdUY5NAT
-NWS30DXPdQxrs1P8btES
-=4NfN
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
