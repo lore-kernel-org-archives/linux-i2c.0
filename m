@@ -1,14 +1,14 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [RFC PATCH 04/13] drm/tegra: Add sor-safe clock for DPAUX on
- Tegra210
-Date: Fri, 17 Jun 2016 18:18:19 +0200
-Message-ID: <20160617161819.GE27475@ulmo.ba.sec>
+Subject: Re: [RFC PATCH 07/13] dt-bindings: i2c: Add support for 'i2c-bus'
+ subnode
+Date: Fri, 17 Jun 2016 18:23:24 +0200
+Message-ID: <20160617162324.GF27475@ulmo.ba.sec>
 References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
- <1466165027-17917-5-git-send-email-jonathanh@nvidia.com>
+ <1466165027-17917-8-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0510888029=="
+Content-Type: multipart/mixed; boundary="===============1542311797=="
 Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1466165027-17917-5-git-send-email-jonathanh@nvidia.com>
+In-Reply-To: <1466165027-17917-8-git-send-email-jonathanh@nvidia.com>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
@@ -23,141 +23,87 @@ Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, W
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============0510888029==
+--===============1542311797==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="cPi+lWm09sJ+d57q"
+	protocol="application/pgp-signature"; boundary="AH+kv8CCoFf6qPuz"
 Content-Disposition: inline
 
 
---cPi+lWm09sJ+d57q
+--AH+kv8CCoFf6qPuz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 17, 2016 at 01:03:38PM +0100, Jon Hunter wrote:
-> For Tegra210 the 'sor-safe' clock needs to be enabled when using DPAUX.
-> Add support to the DPAUX driver for enabling this clock on Tegra210.
+On Fri, Jun 17, 2016 at 01:03:41PM +0100, Jon Hunter wrote:
+> The I2C driver core for boards using device-tree assumes any subnode of
+> an I2C adapter in the device-tree blob as being a I2C slave device.
+> Although this makes complete sense, some I2C adapters may have subnodes
+> which are not I2C slaves but subnodes presenting other features. For
+> example some Tegra devices have an I2C interface which may share its
+> pins with other devices and to share these pins subnodes for
+> representing these pins so they have be shared via the pinctrl framework
+> are needed.
+>=20
+> To allow I2C adapters to have non-I2C specific subnodes in device-tree
+> that are not parsed by the I2C driver core by adding support for a
+> 'i2c-bus' subnode where I2C slaves can be placed. If the 'i2c-bus'
+> subnode is present then all I2C slaves must be placed under this subnode.
 >=20
 > Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 > ---
->  drivers/gpu/drm/tegra/dpaux.c | 29 +++++++++++++++++++++++++++--
->  1 file changed, 27 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/tegra/dpaux.c b/drivers/gpu/drm/tegra/dpaux.c
-> index aa3a037fcd3b..d696a7e45935 100644
-> --- a/drivers/gpu/drm/tegra/dpaux.c
-> +++ b/drivers/gpu/drm/tegra/dpaux.c
-> @@ -37,6 +37,7 @@ struct tegra_dpaux {
+>  Documentation/devicetree/bindings/i2c/i2c.txt | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+
+I think this makes a lot of sense, so:
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+One minor inconsistency below...
+
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentatio=
+n/devicetree/bindings/i2c/i2c.txt
+> index f31b2ad1552b..ed56b08c7e6e 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> @@ -32,6 +32,14 @@ wants to support one of the below features, it should =
+adapt the bindings below.
+>  - clock-frequency
+>  	frequency of bus clock in Hz.
 > =20
->  	struct reset_control *rst;
->  	struct clk *clk_parent;
-> +	struct clk *clk_sor;
+> +- i2c-bus
+> +	For I2C adapters that have child nodes that are a mixture of both I2C
+> +	devices and non-I2C devices (such as a pin controller), the 'i2c-bus'
+> +	subnode can be used for populating I2C devices to prevent the I2C core
+> +	from attempting to add any non-i2c nodes as I2C devices. If 'i2c-bus'
 
-Can we call this "clk_safe", please? On one hand that mirrors the name
-of the clock in the binding and on the other hand it avoids confusion
-with the real SOR clock.
-
->  	struct clk *clk;
-> =20
->  	struct regulator *vdd;
-> @@ -340,18 +341,37 @@ static int tegra_dpaux_probe(struct platform_device=
- *pdev)
->  		return PTR_ERR(dpaux->rst);
->  	}
-> =20
-> +	if (of_device_is_compatible(pdev->dev.of_node,
-> +				    "nvidia,tegra210-dpaux")) {
-> +		dpaux->clk_sor =3D devm_clk_get(&pdev->dev, "sor-safe");
-> +		if (IS_ERR(dpaux->clk_sor)) {
-> +			dev_err(&pdev->dev,
-> +				"failed to get sor-safe clock: %ld\n",
-> +				PTR_ERR(dpaux->clk_sor));
-> +			return PTR_ERR(dpaux->clk_sor);
-> +		}
-> +
-> +		err =3D clk_prepare_enable(dpaux->clk_sor);
-> +		if (err < 0) {
-> +			dev_err(&pdev->dev,
-> +				"failed to enable sor-safe clock: %d\n", err);
-> +			return err;
-> +		}
-> +	}
-
-Please make this part of a struct tegra_dpaux_soc, so that we don't have
-to check the compatible string again here. This could look like:
-
-	struct tegra_dpaux_soc {
-		bool needs_safe_clock;
-	};
-
-	static const struct tegra_dpaux_soc tegra124_dpaux_soc =3D {
-		.needs_safe_clock =3D false,
-	};
-
-	static const struct tegra_dpaux_soc tegra210_dpaux_soc =3D {
-		.needs_safe_clock =3D true,
-	};
-
-	...
-
-	static const struct of_device_id tegra_dpaux_of_match[] =3D {
-		{ .compatible =3D "nvidia,tegra210-dpaux", .data =3D &tegra210_dpaux_soc =
-},
-		{ .compatible =3D "nvidia,tegra124-dpaux", .data =3D &tegra124_dpaux_soc =
-},
-		{ },
-	};
-
-> @@ -434,6 +454,9 @@ disable_parent_clk:
->  assert_reset:
->  	reset_control_assert(dpaux->rst);
->  	clk_disable_unprepare(dpaux->clk);
-> +disable_sor_clk:
-> +	if (dpaux->clk_sor)
-> +		clk_disable_unprepare(dpaux->clk_sor);
-
-You can drop the extra check here, since the common clock framework
-ignores NULL or ERR_PTR() pointers.
-
-> =20
->  	return err;
->  }
-> @@ -456,6 +479,8 @@ static int tegra_dpaux_remove(struct platform_device =
-*pdev)
->  	clk_disable_unprepare(dpaux->clk_parent);
->  	reset_control_assert(dpaux->rst);
->  	clk_disable_unprepare(dpaux->clk);
-> +	if (dpaux->clk_sor)
-> +		clk_disable_unprepare(dpaux->clk_sor);
-
-Same here.
+"non-I2C"
 
 Thierry
 
---cPi+lWm09sJ+d57q
+--AH+kv8CCoFf6qPuz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAABCAAGBQJXZCLLAAoJEN0jrNd/PrOhLSsQAKHzU68Pos6E0xy7QFWz8Gna
-vfuAajRu9Z8TWUvWpNpXeRghZ+WgEnWRB/3jBo7jLzIuhgGfnBy0F0LY6QN4xJYn
-1/mjXho0R5QWxktCpaQx8la8JaN7Y/XM2tB9WUOgsnEYuAjAreoRaXxCcBitJsVR
-0Nq1OtEUvSvE+sJEvvVuF4UE+bOh7wuK1Hmt4BrCeSMyH51pMgGs0L4BRyUwOxjY
-BuZaDSpuvmDxuVJ37adUwFgj0oRcXVeIa6qgvOCDk2NZFymwiEv4xsyGnx89YSN7
-t215h2dj9b4Bm94S8PNkHMxIc267OlcGCUSPjrxRyw7Rw6ZfMfqa9aVMFHgkLx7o
-TikpwR94tCgwZcc6RNC/SHEOqQDEBHuN6YqIN8hx3p//5wSugndcUeIc0euJvnKR
-zrM7PvtWiBq+vS+i4PyS+5AOSsrTFCcBVer6QVFIttQwnPmGrOa38nWVzBBLs4BM
-8bjq+S1eo662pqWwOoNsUN2asxtKF7jBCWyN75oe8ZzMS9M1pgV7L/+qIlEMZA/n
-HKadAX3xeDA8GEetIbeUuLbUb4yD82fXh8StoAwN7uHVl1ODku1HQ4k5m/wMfAoy
-I+0MhAxmGsKHov3H5FiCu70wlbs/cPqIgO8/ABffeoKgrjoJ4pJrqRCpRBApBsHt
-3HhEB57yE3igMD1fBUiX
-=4fL8
+iQIcBAABCAAGBQJXZCP7AAoJEN0jrNd/PrOh5GQP/j1RAg4xj0cnLPnh7R+kYUp8
+dhEm7LU5ryn21pH06NJqAlvevGeLhvobLqiL386/EoTK8rD8L6VLzzufz+7b6fwL
+QQXf2/7lfEBxR6KFTPft2bCT1tP9DfNResNMpUYY51rtTIcY0HGEjlkiq7+UF6mA
+05MPfDQAKP0F5t3yq4VTVv9KXaAK9ZAGbcO+GqSk+WOyWT1Rdj0GSdCR33yQ0Of3
++Y4Nu15PnlVNDdgf6nANFWZiEc7VuCaGXweBDTyew0yH8kdzBYzrJnXuHF6wUn1J
+TX8ewSnU66c2M44R+xHwkeEscYrbeFL3GC60VwoeIvF8eyoCX5Bnen0WUM4rcczH
+eoSk+NpJEO7grbL4SscPb3rk8JQ7T3js9gS6fe9UhWe+PjHmg6Q1YV5xol2zXUq/
+Ke6C56XtzxEIp0ZI+bRoPt59YJtbwF/8h/J+uRwBuOvw9swwGfwy6Ocr5ZXfZWi8
+iwW1l3r6z39KOAJtoHqTQ0R2/K2gmwtpiy8KiLhLeooAxkhAds1APatfj2YATcB0
+SSAZwCQOdHLb25d0VbV5Jsx2Fac1xoUwovSX4sIyOv5b4qHdrkGde8ZUCy/Ewrhy
+7Obi4f0+LV2WbfBh8ELr3JzZZghPoBAP3TNzADQfGruo2RPkU4QmjPrmn7ubgMmj
+Ny0+QV8hH8SiWljHfEWL
+=CLvV
 -----END PGP SIGNATURE-----
 
---cPi+lWm09sJ+d57q--
+--AH+kv8CCoFf6qPuz--
 
---===============0510888029==
+--===============1542311797==
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
@@ -167,4 +113,4 @@ X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
 IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
 dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
 
---===============0510888029==--
+--===============1542311797==--
