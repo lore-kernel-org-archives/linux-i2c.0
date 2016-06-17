@@ -1,41 +1,39 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [RFC] regmap: Add regmap_pipe_read API
-Date: Thu, 16 Jun 2016 17:43:46 +0200
-Message-ID: <CAMuHMdVSQd0z=fXmr9RJ7-DY_7pHbMQri1sx2=pXZfTS=_Qrzw@mail.gmail.com>
-References: <7ca3857aa8869a1e1f4709860f57f7d92abf1c6b.1466089603.git.leonard.crestez@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <7ca3857aa8869a1e1f4709860f57f7d92abf1c6b.1466089603.git.leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Weifeng Voon <weifeng.voon@intel.com>
+Subject: [PATCH v3] i2c: designware: Use transfer timeout from ioctl I2C_TIMEOUT
+Date: Fri, 17 Jun 2016 09:46:35 +0800
+Message-ID: <1466127995-28318-1-git-send-email-weifeng.voon@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jui.nee.tan@intel.com, Weifeng Voon <weifeng.voon@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Leonard,
+This allows applications to set the transfer timeout in 10ms increments via
+ioctl I2C_TIMEOUT.
 
-On Thu, Jun 16, 2016 at 5:24 PM, Crestez Dan Leonard
-<leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
-> The regmap API usually assumes that bulk read operations will read a
-> range of registers but some I2C/SPI devices have certain registers for
-> which a such a read operation will return data from an internal FIFO
-> instead. Add an explicit API to support bulk read with pipe rather than
-> range semantics.
+Signed-off-by: Weifeng Voon <weifeng.voon@intel.com>
+---
+ changelog v2:
+ * No code change, just change to a more suitable title
 
-Please settle on either "fifo" or "pipe", instead of mixing both.
-Personally, I prefer the former.
+ changelog v3:
+ * Move changelog out of commit log
 
-Gr{oetje,eeting}s,
+ drivers/i2c/busses/i2c-designware-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 99b54be..c6922b8 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -663,7 +663,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	i2c_dw_xfer_init(dev);
+ 
+ 	/* wait for tx to complete */
+-	if (!wait_for_completion_timeout(&dev->cmd_complete, HZ)) {
++	if (!wait_for_completion_timeout(&dev->cmd_complete, adap->timeout)) {
+ 		dev_err(dev->dev, "controller timed out\n");
+ 		/* i2c_dw_init implicitly disables the adapter */
+ 		i2c_dw_init(dev);
+-- 
+1.9.1
