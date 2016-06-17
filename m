@@ -1,50 +1,40 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v3] i2c: designware: Use transfer timeout from ioctl
- I2C_TIMEOUT
-Date: Fri, 17 Jun 2016 08:36:42 +0300
-Message-ID: <52b627ca-93b6-5c67-7d00-cf4c962ab5df@linux.intel.com>
-References: <1466127995-28318-1-git-send-email-weifeng.voon@intel.com>
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: Re: [RFC] regmap: Add regmap_pipe_read API
+Date: Fri, 17 Jun 2016 10:04:27 +0300
+Message-ID: <643b0e6a-49a0-00bb-7aed-6d36c1e0bb6b@intel.com>
+References: <7ca3857aa8869a1e1f4709860f57f7d92abf1c6b.1466089603.git.leonard.crestez@intel.com>
+ <CAMuHMdVSQd0z=fXmr9RJ7-DY_7pHbMQri1sx2=pXZfTS=_Qrzw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:35874 "EHLO mga02.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:2427 "EHLO mga14.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754713AbcFQFgq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 17 Jun 2016 01:36:46 -0400
-In-Reply-To: <1466127995-28318-1-git-send-email-weifeng.voon@intel.com>
+	id S1750899AbcFQHEw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 17 Jun 2016 03:04:52 -0400
+In-Reply-To: <CAMuHMdVSQd0z=fXmr9RJ7-DY_7pHbMQri1sx2=pXZfTS=_Qrzw@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Weifeng Voon <weifeng.voon@intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jui.nee.tan@intel.com
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Mark Brown <broonie@kernel.org>, linux-spi <linux-spi@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Cameron <jic23@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 06/17/2016 04:46 AM, Weifeng Voon wrote:
-> This allows applications to set the transfer timeout in 10ms increments via
-> ioctl I2C_TIMEOUT.
->
-> Signed-off-by: Weifeng Voon <weifeng.voon@intel.com>
-> ---
->  changelog v2:
->  * No code change, just change to a more suitable title
->
->  changelog v3:
->  * Move changelog out of commit log
->
->  drivers/i2c/busses/i2c-designware-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index 99b54be..c6922b8 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -663,7 +663,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  	i2c_dw_xfer_init(dev);
->
->  	/* wait for tx to complete */
-> -	if (!wait_for_completion_timeout(&dev->cmd_complete, HZ)) {
-> +	if (!wait_for_completion_timeout(&dev->cmd_complete, adap->timeout)) {
->  		dev_err(dev->dev, "controller timed out\n");
->  		/* i2c_dw_init implicitly disables the adapter */
->  		i2c_dw_init(dev);
+On 06/16/2016 06:43 PM, Geert Uytterhoeven wrote:
+> Hi Leonard,
+> 
+> On Thu, Jun 16, 2016 at 5:24 PM, Crestez Dan Leonard
+> <leonard.crestez@intel.com> wrote:
+>> The regmap API usually assumes that bulk read operations will read a
+>> range of registers but some I2C/SPI devices have certain registers for
+>> which a such a read operation will return data from an internal FIFO
+>> instead. Add an explicit API to support bulk read with pipe rather than
+>> range semantics.
+> 
+> Please settle on either "fifo" or "pipe", instead of mixing both.
+> Personally, I prefer the former.
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Well, it doesn't have to be a fifo. The device can return data from some
+other kind of buffer (maybe a stack). I can adjust the documentation to
+clarify.
+
+I considered naming it something like regmap_multi_read_one_reg or
+something but regmap_pipe_read sounds reasonable and short.
