@@ -1,56 +1,32 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 2/3] acpi i2c: Initialize info.type from of_compatible
-Date: Fri, 17 Jun 2016 15:19:28 +0300
-Message-ID: <20160617121928.GL1739@lahna.fi.intel.com>
-References: <cover.1466014238.git.leonard.crestez@intel.com>
- <13cb5b7766b1b25a2bb61ce0053a38f6f440907b.1466014238.git.leonard.crestez@intel.com>
- <20160616081145.GU1740@lahna.fi.intel.com>
- <2ca8f355-bb28-8b68-7579-e26eaee3550a@intel.com>
+From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [RFC PATCH 10/13] drm/tegra: Add pinctrl support for DPAUX
+Date: Fri, 17 Jun 2016 13:42:14 +0100
+Message-ID: <5763F026.40001@nvidia.com>
+References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
+ <1466165027-17917-11-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <2ca8f355-bb28-8b68-7579-e26eaee3550a@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>
-Cc: linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>, Jarkko Nikula <jarkko.nikula@intel.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1466165027-17917-11-git-send-email-jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Cc: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 17, 2016 at 03:07:39PM +0300, Crestez Dan Leonard wrote:
-> On 06/16/2016 11:11 AM, Mika Westerberg wrote:
-> > On Wed, Jun 15, 2016 at 09:30:28PM +0300, Crestez Dan Leonard wrote:
-> >> When using devicetree i2c_board_info.type is set to the compatible
-> >> string with the vendor prefix removed. For I2C devices described via
-> >> ACPI the i2c_board_info.type string is set to the ACPI device name. When
-> >> using ACPI and DT ids this string ends up something like "PRP0001:00".
-> >>
-> >> If the of_compatible property is present try to use that instead. This
-> >> makes it easier to instantiate i2c drivers through ACPI with DT ids.
-> > 
-> > Adding Jarkko -- he was the original author of I2C/SPI device naming in
-> > ACPI. Since this only affects devices with PRP0001 in their _HID/_CID,
-> > it should not break anything.
-> 
-> It's possible to have something like this:
-> 
->             Name (_HID, "XXX1234")
->             Name (_CID, "PRP0001")
->             Name (_DSD, Package () {
->                 ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
->                 Package () {
->                     Package () {"compatible", "vendor,x1234"},
->                 }
->             })
-> 
-> With these patches the i2c device name changes from "XXX1234:00" to
-> "x1234". This would happen even if a driver matches the XXX1234 acpi ID.
-> It's not clear if anyone actually uses that or if this change would be
-> harmful.
 
-I have not seen a single machine using _DSD with PRP0001 so I don't
-think it is a problem.
 
-> It theory it would be possible to use of_compatible for naming only if
-> there are no other real IDs. I don't think it's worthwhile.
+On 17/06/16 13:03, Jon Hunter wrote:
+> The DPAUX pins are shared with an internal I2C controller. To allow
+> these pins to be muxed to the I2C controller, register a pinctrl device
+> for the DPAUX device. Make Tegra DRM support dependent on PINCTRL to
+> avoid any compilation issues.
 
-I agree.
+I forgot to add a comment here to say that this is based upon work from
+Thierry Reding and give credit for that.
+
+Cheers
+Jon
+
+-- 
+nvpublic
