@@ -1,40 +1,38 @@
-From: Crestez Dan Leonard <leonard.crestez@intel.com>
-Subject: Re: [RFC] regmap: Add regmap_pipe_read API
-Date: Fri, 17 Jun 2016 10:04:27 +0300
-Message-ID: <643b0e6a-49a0-00bb-7aed-6d36c1e0bb6b@intel.com>
-References: <7ca3857aa8869a1e1f4709860f57f7d92abf1c6b.1466089603.git.leonard.crestez@intel.com>
- <CAMuHMdVSQd0z=fXmr9RJ7-DY_7pHbMQri1sx2=pXZfTS=_Qrzw@mail.gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v3] i2c: designware: Use transfer timeout from ioctl
+ I2C_TIMEOUT
+Date: Fri, 17 Jun 2016 09:15:27 +0200
+Message-ID: <20160617071527.GW26048@pengutronix.de>
+References: <1466127995-28318-1-git-send-email-weifeng.voon@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:2427 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750899AbcFQHEw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 17 Jun 2016 03:04:52 -0400
-In-Reply-To: <CAMuHMdVSQd0z=fXmr9RJ7-DY_7pHbMQri1sx2=pXZfTS=_Qrzw@mail.gmail.com>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:56348 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750774AbcFQHPc (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jun 2016 03:15:32 -0400
+Content-Disposition: inline
+In-Reply-To: <1466127995-28318-1-git-send-email-weifeng.voon@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Mark Brown <broonie@kernel.org>, linux-spi <linux-spi@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Cameron <jic23@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Weifeng Voon <weifeng.voon@intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jui.nee.tan@intel.com
 
-On 06/16/2016 06:43 PM, Geert Uytterhoeven wrote:
-> Hi Leonard,
-> 
-> On Thu, Jun 16, 2016 at 5:24 PM, Crestez Dan Leonard
-> <leonard.crestez@intel.com> wrote:
->> The regmap API usually assumes that bulk read operations will read a
->> range of registers but some I2C/SPI devices have certain registers for
->> which a such a read operation will return data from an internal FIFO
->> instead. Add an explicit API to support bulk read with pipe rather than
->> range semantics.
-> 
-> Please settle on either "fifo" or "pipe", instead of mixing both.
-> Personally, I prefer the former.
+On Fri, Jun 17, 2016 at 09:46:35AM +0800, Weifeng Voon wrote:
+> This allows applications to set the transfer timeout in 10ms incremen=
+ts via
+> ioctl I2C_TIMEOUT.
+>=20
+> Signed-off-by: Weifeng Voon <weifeng.voon@intel.com>
+Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
 
-Well, it doesn't have to be a fifo. The device can return data from some
-other kind of buffer (maybe a stack). I can adjust the documentation to
-clarify.
+Best regards
+Uwe
 
-I considered naming it something like regmap_multi_read_one_reg or
-something but regmap_pipe_read sounds reasonable and short.
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
