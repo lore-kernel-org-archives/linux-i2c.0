@@ -1,92 +1,65 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 1/1] i2c-i801: make it depend on CONFIG_X86
-Date: Fri, 17 Jun 2016 12:31:35 +0300
-Message-ID: <1466155895.30123.153.camel@linux.intel.com>
-References: <1465996923-76230-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <20160616114915.0446f3a3@endymion>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v8 1/4] i2c: add a protocol parameter to the alert
+ callback
+Date: Fri, 17 Jun 2016 13:26:19 +0200
+Message-ID: <20160617112619.GA6876@tetsubishi>
+References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1465484030-28838-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:42128 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752665AbcFQJbm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 17 Jun 2016 05:31:42 -0400
-In-Reply-To: <20160616114915.0446f3a3@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1465484030-28838-2-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Thu, 2016-06-16 at 11:49 +0200, Jean Delvare wrote:
-> Hi Andy,
->=20
-> On Wed, 15 Jun 2016 16:22:03 +0300, Andy Shevchenko wrote:
-> > The IP seems not used outside of x86 world, so, make it depend on
-> > CONFIG_X86.
->=20
-> I've seen the ICH10 used on at least one IA64 system (Supermicro I8QB=
-H
-> mainboard.) So, nack, sorry. However I'd be OK with:
->=20
-> 	depends on X86 || IA64 || COMPILE_TEST
 
-I don't like this. Anyway it's good to know that module is used
-somewhere else. Thanks.
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Jun 09, 2016 at 04:53:47PM +0200, Benjamin Tissoires wrote:
+> .alert() is meant to be generic, but there is currently no way
+> for the device driver to know which protocol generated the alert.
+> Add a parameter in .alert() to help the device driver to understand
+> what is given in data.
 >=20
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > ---
-> > =C2=A0drivers/i2c/busses/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0| 4 ++--
-> > =C2=A0drivers/i2c/busses/i2c-i801.c | 4 ++--
-> > =C2=A02 files changed, 4 insertions(+), 4 deletions(-)
-> >=20
-> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfi=
-g
-> > index f167021..78609ad 100644
-> > --- a/drivers/i2c/busses/Kconfig
-> > +++ b/drivers/i2c/busses/Kconfig
-> > @@ -89,8 +89,8 @@ config I2C_HIX5HD2
-> > =C2=A0
-> > =C2=A0config I2C_I801
-> > =C2=A0	tristate "Intel 82801 (ICH/PCH)"
-> > -	depends on PCI
-> > -	select CHECK_SIGNATURE if X86 && DMI
-> > +	depends on X86 && PCI
-> > +	select CHECK_SIGNATURE if DMI
-> > =C2=A0	help
-> > =C2=A0	=C2=A0=C2=A0If you say yes to this option, support will be i=
-ncluded
-> > for the Intel 801 family of mainboard I2C interfaces.=C2=A0=C2=A0Sp=
-ecifically,
-> > the following diff --git a/drivers/i2c/busses/i2c-i801.c
-> > b/drivers/i2c/busses/i2c-i801.c index b436963..9dcc417 100644
-> > --- a/drivers/i2c/busses/i2c-i801.c
-> > +++ b/drivers/i2c/busses/i2c-i801.c
-> > @@ -902,7 +902,7 @@ static const struct pci_device_id i801_ids[] =3D=
- {
-> > =C2=A0
-> > =C2=A0MODULE_DEVICE_TABLE(pci, i801_ids);
-> > =C2=A0
-> > -#if defined CONFIG_X86 && defined CONFIG_DMI
-> > +#ifdef CONFIG_DMI
-> > =C2=A0static unsigned char apanel_addr;
-> > =C2=A0
-> > =C2=A0/* Scan the system ROM for the signature "FJKEYINF" */
-> > @@ -1020,7 +1020,7 @@ static void i801_probe_optional_slaves(struct
-> > i801_priv *priv) #else
-> > =C2=A0static void __init input_apanel_init(void) {}
-> > =C2=A0static void i801_probe_optional_slaves(struct i801_priv *priv=
-) {}
-> > -#endif	/* CONFIG_X86 && CONFIG_DMI */
-> > +#endif	/* CONFIG_DMI */
-> > =C2=A0
-> > =C2=A0#if (defined CONFIG_I2C_MUX_GPIO || defined
-> > CONFIG_I2C_MUX_GPIO_MODULE) && \ defined CONFIG_DMI
+> This patch is required to have the support of SMBus Host Notify protocol
+> through .alert().
 >=20
->=20
+> Tested-by: Andrew Duggan <aduggan@synaptics.com>
+> For hwmon:
+> Acked-by: Guenter Roeck <linux@roeck-us.net>
+> For IPMI:
+> Acked-by: Corey Minyard <cminyard@mvista.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
---=20
+Applied to for-next, thanks!
 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+
+--ZPt4rx8FFjLCG7dd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXY95aAAoJEBQN5MwUoCm2VJAP/iLoGNDIBCSY3DgImiv4oFPT
+uc/n3DngOTFVgH6EHFyzEc6FLFHYtZqadpRo/YNRTj5dI5tLpO/xr+INaTSGDVkH
+QSCFlyKIDNfeDIpzhZnnLSQMpmBhyx7GH4jBeby2M5Jj6tskaRkN5NmTt6dySAaw
+lCAVPd4KIBhJZUUMBSJisbtiVrceiEv8sdJu8RIrQTm8gv9P1q2e4oHiQI5Kkx30
+yxyVN+kQfVMATO6ZSTnpBKXhFfbTMDUGa02ZrOBEzISRuZS+ekDEyvi1+XSHby/J
+e6IqSoJQBRj2F4yDI7zXupy6Bb6qBD3r0Fi20eO6sHOBXStaSP6x7lB14JFVrYeZ
+2u+7yLLdUQYKJlaypa0MC7/NcZitftzYxgJAAu8SHhLgRyJLOiNEgBzsur84HjZi
++2CoH//9rhVyKUo9lQ6kQ/TblgZARWFiLnzm49+JRfOyhEhvy8jrb1IjHXjgSBCC
+1B+KFE2c2fipybkcBkKRUsTY8g6iQrjMnQpgpuZ36F4ZyMzBeL0s9dFTS2ATSAqk
+ppWrZw/Sol4cVjoovzZvbAErf9qsCpxQV69P+fQiP80C9QMQsu1rtugyiNzQ/iH/
+6JNYwS8s5HWi8v3uTTu++1BO8Z5/bSfe2KWKV08n9BwzJe7HeMIT7GaWZycVnRoW
+pL2Nbt6V6xkxQ6fPwRJU
+=+M+A
+-----END PGP SIGNATURE-----
+
+--ZPt4rx8FFjLCG7dd--
