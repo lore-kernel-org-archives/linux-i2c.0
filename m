@@ -1,38 +1,72 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 1/1] i2c-i801: make it depend on CONFIG_X86
-Date: Fri, 17 Jun 2016 22:05:54 +0300
-Message-ID: <1466190354.30123.163.camel@linux.intel.com>
-References: <1465996923-76230-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	<20160616114915.0446f3a3@endymion>
-	<1466155895.30123.153.camel@linux.intel.com>
-	 <20160617205936.74d3c6cd@endymion>
+From: "Andrew F. Davis" <afd@ti.com>
+Subject: Re: [PATCH 12/12] leds: Only descend into leds directory when
+ CONFIG_NEW_LEDS is set
+Date: Fri, 17 Jun 2016 17:46:21 -0500
+Message-ID: <57647DBD.2010406@ti.com>
+References: <20160613200211.14790-1-afd@ti.com>
+ <20160613200211.14790-13-afd@ti.com> <5760FA52.7010806@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:20990 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752021AbcFQTF6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 17 Jun 2016 15:05:58 -0400
-In-Reply-To: <20160617205936.74d3c6cd@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <5760FA52.7010806@samsung.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Jacek Anaszewski <j.anaszewski@samsung.com>
+Cc: Russell King <linux@armlinux.org.uk>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Sebastian Reichel <sre@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Rusty Russell <rusty@rustcorp.com.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Ulf Hansson <ulf.hansson@linaro.org>, Lauro Ramos Venancio <lauro.venancio@openbossa.org>, Aloisio Almeida Jr <aloisio.almeida@openbossa.org>, Samuel Ortiz <sameo@linux.intel.com>, Ingo Molnar <mingo@kernel.org>, linux-pwm@vger.kernel.org, lguest@lists.ozlabs.org, linux-wireless@vger.kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-leds@vger.kernel.org, linux-med
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Fri, 2016-06-17 at 20:59 +0200, Jean Delvare wrote:
-> On Fri, 17 Jun 2016 12:31:35 +0300, Andy Shevchenko wrote:
-> > On Thu, 2016-06-16 at 11:49 +0200, Jean Delvare wrote:
-> > > 	depends on X86 || IA64 || COMPILE_TEST
-> > 
-> > I don't like this. (...)
+On 06/15/2016 01:48 AM, Jacek Anaszewski wrote:
+> Hi Andrew,
 > 
-> May I ask why?
+> Thanks for the patch.
+> 
+> Please address the issue [1] raised by test bot and resubmit.
+> 
+> Thanks,
+> Jacek Anaszewski
+> 
+> [1] https://lkml.org/lkml/2016/6/13/1091
+> 
 
->From my point of view it's not scalable. If new arch comes you have to
-add it here.
+It looks like some systems use 'gpio_led_register_device' to make an
+in-memory copy of their LED device table so the original can be removed
+as .init.rodata. This doesn't necessarily depend on the LED subsystem
+but it kind of seems useless when the rest of the subsystem is disabled.
 
--- 
+One solution could be to use a dummy 'gpio_led_register_device' when the
+subsystem is not enabled. Another is just to remove the five or so uses
+of 'gpio_led_register_device' and have those systems register LED device
+tables like other systems do.
 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+If nether of these are acceptable then this patch can be dropped from
+this series for now.
+
+Thanks,
+Andrew
+
+> On 06/13/2016 10:02 PM, Andrew F. Davis wrote:
+>> When CONFIG_NEW_LEDS is not set make will still descend into the leds
+>> directory but nothing will be built. This produces unneeded build
+>> artifacts and messages in addition to slowing the build. Fix this here.
+>>
+>> Signed-off-by: Andrew F. Davis <afd@ti.com>
+>> ---
+>>   drivers/Makefile | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/Makefile b/drivers/Makefile
+>> index 567e32c..fa514d5 100644
+>> --- a/drivers/Makefile
+>> +++ b/drivers/Makefile
+>> @@ -127,7 +127,7 @@ obj-$(CONFIG_CPU_FREQ)        += cpufreq/
+>>   obj-$(CONFIG_CPU_IDLE)        += cpuidle/
+>>   obj-$(CONFIG_MMC)        += mmc/
+>>   obj-$(CONFIG_MEMSTICK)        += memstick/
+>> -obj-y                += leds/
+>> +obj-$(CONFIG_NEW_LEDS)        += leds/
+>>   obj-$(CONFIG_INFINIBAND)    += infiniband/
+>>   obj-$(CONFIG_SGI_SN)        += sn/
+>>   obj-y                += firmware/
+>>
+> 
+> 
