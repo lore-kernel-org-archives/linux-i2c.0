@@ -1,134 +1,75 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: [PATCH v4 2/8] acpi: fix enumeration (visited) flags for bus rescans
-Date: Fri, 17 Jun 2016 14:52:10 +0300
-Message-ID: <1466164336-9508-3-git-send-email-octavian.purdila@intel.com>
-References: <1466164336-9508-1-git-send-email-octavian.purdila@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1466164336-9508-1-git-send-email-octavian.purdila@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Joel Becker <jlbec@evilplan.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, irina.tirdea@intel.com, leonard.crestez@intel.com, Octavian Purdila <octavian.purdila@intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v10 0/8] add i2c driver supported for rk3399
+Date: Fri, 17 Jun 2016 13:56:11 +0200
+Message-ID: <20160617115611.GC6876@tetsubishi>
+References: <1463407063-41218-1-git-send-email-david.wu@rock-chips.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mvpLiMfbWzRoNl4x"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1463407063-41218-1-git-send-email-david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, briannorris-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, davidriley-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-If the ACPI tables changes as a result of a dinamically loaded table and
-a bus rescan is required the enumeration/visited flag are not
-consistent.
 
-I2C/SPI are not directly enumerated in acpi_bus_attach(), however the
-visited flag is set. This makes it impossible to check if an ACPI device
-has already been enumerated by the I2C and SPI subsystems. To fix this
-issue we only set the visited flags if the device is not I2C or SPI.
+--mvpLiMfbWzRoNl4x
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With this change we also need to remove setting visited to false from
-acpi_bus_attach(), otherwise if we rescan already enumerated I2C/SPI
-devices we try to re-enumerate them.
+On Mon, May 16, 2016 at 09:57:35PM +0800, David Wu wrote:
+> There are three points differert from others:
+>  - new method to caculate i2c timings for rk3399
+>  - pclk and function clk are separated at rk3399
+>  - add fast-plus mode supported for rk3399
+>=20
+> David Wu (8):
+>   i2c: rk3x: add documentation to fields in "struct rk3x_i2c"
+>   i2c: rk3x: use struct "rk3x_i2c_calced_timings"
+>   i2c: rk3x: Remove redundant rk3x_i2c_clean_ipd()
+>   i2c: rk3x: Change SoC data to not use array
+>   i2c: rk3x: Move spec timing data to "static const" structs
+>   dt-bindings: i2c: rk3x: add support for rk3399
+>   i2c: rk3x: add i2c support for rk3399 soc
+>   i2c: rk3x: support fast-mode plus for rk3399
+>=20
+>  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |  16 +-
 
-Note that I2C/SPI devices can be enumerated either via a scan handler
-(when using PRP0001) or via regular device_attach(). In either case
-the flow goes through acpi_default_enumeration() which makes it the
-ideal place to mark the ACPI device as enumerated.
+Applied whole series to for-next, thanks! This was nicely refactored and
+easy to review, thanks. Also thanks to all reviewers who helped this
+series. I fixed one checkpatch issue for you, though:
 
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
----
- drivers/acpi/scan.c  | 13 +++++++------
- include/linux/acpi.h | 18 ++++++++++++++++++
- 2 files changed, 25 insertions(+), 6 deletions(-)
+WARNING: Statements should start on a tabstop
+#278: FILE: drivers/i2c/busses/i2c-rk3x.c:789:
++	 if (min_div_for_hold >=3D min_total_div) {
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 5f28cf7..f80f8a7 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -1406,7 +1406,7 @@ void acpi_init_device_object(struct acpi_device *device, acpi_handle handle,
- 	acpi_bus_get_flags(device);
- 	device->flags.match_driver = false;
- 	device->flags.initialized = true;
--	device->flags.visited = false;
-+	acpi_device_clear_enumerated(device);
- 	device_initialize(&device->dev);
- 	dev_set_uevent_suppress(&device->dev, true);
- 	acpi_init_coherency(device);
-@@ -1683,8 +1683,10 @@ static void acpi_default_enumeration(struct acpi_device *device)
- 	acpi_dev_get_resources(device, &resource_list, acpi_check_spi_i2c_slave,
- 			       &is_spi_i2c_slave);
- 	acpi_dev_free_resource_list(&resource_list);
--	if (!is_spi_i2c_slave)
-+	if (!is_spi_i2c_slave) {
- 		acpi_create_platform_device(device);
-+		acpi_device_set_enumerated(device);
-+	}
- }
- 
- static const struct acpi_device_id generic_device_ids[] = {
-@@ -1751,7 +1753,7 @@ static void acpi_bus_attach(struct acpi_device *device)
- 	acpi_bus_get_status(device);
- 	/* Skip devices that are not present. */
- 	if (!acpi_device_is_present(device)) {
--		device->flags.visited = false;
-+		acpi_device_clear_enumerated(device);
- 		device->flags.power_manageable = 0;
- 		return;
- 	}
-@@ -1766,7 +1768,7 @@ static void acpi_bus_attach(struct acpi_device *device)
- 
- 		device->flags.initialized = true;
- 	}
--	device->flags.visited = false;
-+
- 	ret = acpi_scan_attach_handler(device);
- 	if (ret < 0)
- 		return;
-@@ -1780,7 +1782,6 @@ static void acpi_bus_attach(struct acpi_device *device)
- 		if (!ret && device->pnp.type.platform_id)
- 			acpi_default_enumeration(device);
- 	}
--	device->flags.visited = true;
- 
-  ok:
- 	list_for_each_entry(child, &device->children, node)
-@@ -1872,7 +1873,7 @@ void acpi_bus_trim(struct acpi_device *adev)
- 	 */
- 	acpi_device_set_power(adev, ACPI_STATE_D3_COLD);
- 	adev->flags.initialized = false;
--	adev->flags.visited = false;
-+	acpi_device_clear_enumerated(adev);
- }
- EXPORT_SYMBOL_GPL(acpi_bus_trim);
- 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 288fac5..7089e99 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -532,6 +532,16 @@ void acpi_walk_dep_device_list(acpi_handle handle);
- struct platform_device *acpi_create_platform_device(struct acpi_device *);
- #define ACPI_PTR(_ptr)	(_ptr)
- 
-+static inline void acpi_device_set_enumerated(struct acpi_device *adev)
-+{
-+	adev->flags.visited = true;
-+}
-+
-+static inline void acpi_device_clear_enumerated(struct acpi_device *adev)
-+{
-+	adev->flags.visited = false;
-+}
-+
- #else	/* !CONFIG_ACPI */
- 
- #define acpi_disabled 1
-@@ -678,6 +688,14 @@ static inline enum dev_dma_attr acpi_get_dma_attr(struct acpi_device *adev)
- 
- #define ACPI_PTR(_ptr)	(NULL)
- 
-+static inline void acpi_device_set_enumerated(struct acpi_device *adev)
-+{
-+}
-+
-+static inline void acpi_device_clear_enumerated(struct acpi_device *adev)
-+{
-+}
-+
- #endif	/* !CONFIG_ACPI */
- 
- #ifdef CONFIG_ACPI
--- 
-2.7.4
+
+--mvpLiMfbWzRoNl4x
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXY+VaAAoJEBQN5MwUoCm2LQAP/1h+DdiXM1Mu0YLLdpULOQ9S
+7iROR4TB4tOKx210fq/ixbJ4wRTZEA8cywxnmu7UBJBPIk+xf2PcazuzffxaioWu
+++DoAlxJsgmgzpVeUvRCbB4FwHiqc5iHnZJHpXo3k75dXKE6vKgUW8lPKsYnUIeP
+4wsk0zEy9oabAh0gr1HfWTd5AoqYUXTF8+Unv37ZNdW0l73rTocPlFQ8JlKLxf1t
+T/rGLXLvW39xpK8FM4ZH1ysmZVecJSRCN8KnGdtCK8pFB0AdqVJZ1kKC0Jr5siyW
+NlaxXzbXGpSYYTEEloIoyGCODMkmK3ot/eZl93PDr/66qj4R9enJt/u3EU3I332Q
+3Gr20mwiBP6mHY0rni6F9uukta91XDmYo4dRJ3xzRNgfBhn152IWs52hBxe3EaIF
+t2qZWrigPOHGANFZzJLkX/PvI+BVhylnldPIY8uCR9TPb2ezb9mnVU5l5HzJAUno
+xVPHNRaLuCqQP3xDPYMSlrXNaw386HXP3c6bxuk64Q4PggpAsTRTg6nbOMCHBT37
+VNjtjOlzMYL5IWGWip8UOUZOAFUy9Z5j3B0xwFIDZAuMeHksO25BWfW6zGf5G2sD
+9+6xHeI+M/L9G2/RCrO2Q4YPf0BnMB0U6etnb0yBuvTQnNdDbnLm/xXhUdWtCoFj
+m9Ju5LjC60aRjfvGedwP
+=AkVo
+-----END PGP SIGNATURE-----
+
+--mvpLiMfbWzRoNl4x--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
