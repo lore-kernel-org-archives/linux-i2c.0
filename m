@@ -1,95 +1,170 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [RFC PATCH 03/13] dt-bindings: drm/tegra: Update DPAUX
- documentation
-Date: Fri, 17 Jun 2016 18:13:06 +0200
-Message-ID: <20160617161306.GD27475@ulmo.ba.sec>
+Subject: Re: [RFC PATCH 04/13] drm/tegra: Add sor-safe clock for DPAUX on
+ Tegra210
+Date: Fri, 17 Jun 2016 18:18:19 +0200
+Message-ID: <20160617161819.GE27475@ulmo.ba.sec>
 References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
- <1466165027-17917-4-git-send-email-jonathanh@nvidia.com>
+ <1466165027-17917-5-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="NklN7DEeGtkPCoo3"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:35143 "EHLO
-	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932732AbcFQQNL (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jun 2016 12:13:11 -0400
-Content-Disposition: inline
-In-Reply-To: <1466165027-17917-4-git-send-email-jonathanh@nvidia.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============0510888029=="
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <1466165027-17917-5-git-send-email-jonathanh@nvidia.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: Jon Hunter <jonathanh@nvidia.com>
-Cc: David Airlie <airlied@linux.ie>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, dri-devel@lists.freedesktop.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 
---NklN7DEeGtkPCoo3
+--===============0510888029==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="cPi+lWm09sJ+d57q"
+Content-Disposition: inline
+
+
+--cPi+lWm09sJ+d57q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 17, 2016 at 01:03:37PM +0100, Jon Hunter wrote:
-> Update the DPAUX compatibility string information for Tegra124, Tegra132
-> and Tegra210. For Tegra210 an additional clock, 'sor-safe' is also
-> required for DPAUX and so add this clock information as well.
+On Fri, Jun 17, 2016 at 01:03:38PM +0100, Jon Hunter wrote:
+> For Tegra210 the 'sor-safe' clock needs to be enabled when using DPAUX.
+> Add support to the DPAUX driver for enabling this clock on Tegra210.
 >=20
 > Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 > ---
->  .../devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt    | 7 +=
-+++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
+>  drivers/gpu/drm/tegra/dpaux.c | 29 +++++++++++++++++++++++++++--
+>  1 file changed, 27 insertions(+), 2 deletions(-)
 >=20
-> diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra=
-20-host1x.txt b/Documentation/devicetree/bindings/display/tegra/nvidia,tegr=
-a20-host1x.txt
-> index a3bd8c050c4e..361a472eac4b 100644
-> --- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host=
-1x.txt
-> +++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host=
-1x.txt
-> @@ -226,9 +226,9 @@ of the following host1x client modules:
->    - nvidia,dpaux: phandle to a DispayPort AUX interface
+> diff --git a/drivers/gpu/drm/tegra/dpaux.c b/drivers/gpu/drm/tegra/dpaux.c
+> index aa3a037fcd3b..d696a7e45935 100644
+> --- a/drivers/gpu/drm/tegra/dpaux.c
+> +++ b/drivers/gpu/drm/tegra/dpaux.c
+> @@ -37,6 +37,7 @@ struct tegra_dpaux {
 > =20
->  - dpaux: DisplayPort AUX interface
-> -  - compatible: For Tegra124, must contain "nvidia,tegra124-dpaux".  Oth=
-erwise,
-> -    must contain '"nvidia,<chip>-dpaux", "nvidia,tegra124-dpaux"', where
-> -    <chip> is tegra132.
-> +  - compatible : Should contain one of the following:
-> +    - "nvidia,tegra124-dpaux": for Tegra124 and Tegra132
-> +    - "nvidia,tegra210-dpaux": for Tegra210
->    - reg: Physical base address and length of the controller's registers.
->    - interrupts: The interrupt outputs from the controller.
->    - clocks: Must contain an entry for each entry in clock-names.
-> @@ -236,6 +236,7 @@ of the following host1x client modules:
->    - clock-names: Must include the following entries:
->      - dpaux: clock input for the DPAUX hardware
->      - parent: reference clock
-> +    - sor-safe: additional clock input for the DPAUX hardware on Tegra210
+>  	struct reset_control *rst;
+>  	struct clk *clk_parent;
+> +	struct clk *clk_sor;
 
-It might be worth calling this simply "safe" because that's the
-contextual role of the clock, whereas sor-safe is the system name of the
-clock.
+Can we call this "clk_safe", please? On one hand that mirrors the name
+of the clock in the binding and on the other hand it avoids confusion
+with the real SOR clock.
+
+>  	struct clk *clk;
+> =20
+>  	struct regulator *vdd;
+> @@ -340,18 +341,37 @@ static int tegra_dpaux_probe(struct platform_device=
+ *pdev)
+>  		return PTR_ERR(dpaux->rst);
+>  	}
+> =20
+> +	if (of_device_is_compatible(pdev->dev.of_node,
+> +				    "nvidia,tegra210-dpaux")) {
+> +		dpaux->clk_sor =3D devm_clk_get(&pdev->dev, "sor-safe");
+> +		if (IS_ERR(dpaux->clk_sor)) {
+> +			dev_err(&pdev->dev,
+> +				"failed to get sor-safe clock: %ld\n",
+> +				PTR_ERR(dpaux->clk_sor));
+> +			return PTR_ERR(dpaux->clk_sor);
+> +		}
+> +
+> +		err =3D clk_prepare_enable(dpaux->clk_sor);
+> +		if (err < 0) {
+> +			dev_err(&pdev->dev,
+> +				"failed to enable sor-safe clock: %d\n", err);
+> +			return err;
+> +		}
+> +	}
+
+Please make this part of a struct tegra_dpaux_soc, so that we don't have
+to check the compatible string again here. This could look like:
+
+	struct tegra_dpaux_soc {
+		bool needs_safe_clock;
+	};
+
+	static const struct tegra_dpaux_soc tegra124_dpaux_soc =3D {
+		.needs_safe_clock =3D false,
+	};
+
+	static const struct tegra_dpaux_soc tegra210_dpaux_soc =3D {
+		.needs_safe_clock =3D true,
+	};
+
+	...
+
+	static const struct of_device_id tegra_dpaux_of_match[] =3D {
+		{ .compatible =3D "nvidia,tegra210-dpaux", .data =3D &tegra210_dpaux_soc =
+},
+		{ .compatible =3D "nvidia,tegra124-dpaux", .data =3D &tegra124_dpaux_soc =
+},
+		{ },
+	};
+
+> @@ -434,6 +454,9 @@ disable_parent_clk:
+>  assert_reset:
+>  	reset_control_assert(dpaux->rst);
+>  	clk_disable_unprepare(dpaux->clk);
+> +disable_sor_clk:
+> +	if (dpaux->clk_sor)
+> +		clk_disable_unprepare(dpaux->clk_sor);
+
+You can drop the extra check here, since the common clock framework
+ignores NULL or ERR_PTR() pointers.
+
+> =20
+>  	return err;
+>  }
+> @@ -456,6 +479,8 @@ static int tegra_dpaux_remove(struct platform_device =
+*pdev)
+>  	clk_disable_unprepare(dpaux->clk_parent);
+>  	reset_control_assert(dpaux->rst);
+>  	clk_disable_unprepare(dpaux->clk);
+> +	if (dpaux->clk_sor)
+> +		clk_disable_unprepare(dpaux->clk_sor);
+
+Same here.
 
 Thierry
 
---NklN7DEeGtkPCoo3
+--cPi+lWm09sJ+d57q
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAABCAAGBQJXZCGSAAoJEN0jrNd/PrOhFvMQAKhOYcpls3CmecqieOZSo2Au
-k6hbK4I1mqoDnuqbblQfZxXhuqx9elwh5PMsHcRNKgkMzzp07svv0ihqa1WO9yd0
-IvEk4TDEEh1n7quTC+ul3MoWJDlyQlQhg49CJATWcn58N04d4+jOuQamUJSJvTCb
-hgpPyeiG5tv4wi9j14HYSxqNDE98AcQTGe9PazbfF4VP5XDN2MBGg85YxhxhfuX+
-FxG3IteNytoX7aJdzlmb+zqGscG0tJuhle86vtHi3dyJDkIKg+RHcnLUWCEkdnhv
-ztCJQ8CP+q7leYZA/9QDTPbRZr7EG8y6I98SpVFvywMRUcLnQ/esae/ZjaTIKN4u
-Wc97+4VyRja0op5Y/PNXnO8FCe2AUND7nbg5ui5x1fpQJ+n9NzAPVUxE4ewlDUoH
-4EZlDWRWChsmz0CUsn+TrURBfNQhYGiHQM80Bxvu8grhRwFgoY8xlIo0HMVuy0hn
-KXNM+QwOKSkqO9dJt+5gFGEBS5hbBmuFKf8oIdgY1vSJrYSV7XFIdyHmiO/Nio63
-yt0nmzJ00QIN27Ieo6i27uBc/6w4D1oMjhiyIBv1kLPCMuEbFCRENqh0M9PbEX8K
-nDrXz6tsU7Wwy0E1ccjwLfQ9pnkYf49p2Qz0B/w1I8PYkf3npLC+WpqFXpMWIPms
-H+Ke8fD+TsThKsOZmY6+
-=eZ/j
+iQIcBAABCAAGBQJXZCLLAAoJEN0jrNd/PrOhLSsQAKHzU68Pos6E0xy7QFWz8Gna
+vfuAajRu9Z8TWUvWpNpXeRghZ+WgEnWRB/3jBo7jLzIuhgGfnBy0F0LY6QN4xJYn
+1/mjXho0R5QWxktCpaQx8la8JaN7Y/XM2tB9WUOgsnEYuAjAreoRaXxCcBitJsVR
+0Nq1OtEUvSvE+sJEvvVuF4UE+bOh7wuK1Hmt4BrCeSMyH51pMgGs0L4BRyUwOxjY
+BuZaDSpuvmDxuVJ37adUwFgj0oRcXVeIa6qgvOCDk2NZFymwiEv4xsyGnx89YSN7
+t215h2dj9b4Bm94S8PNkHMxIc267OlcGCUSPjrxRyw7Rw6ZfMfqa9aVMFHgkLx7o
+TikpwR94tCgwZcc6RNC/SHEOqQDEBHuN6YqIN8hx3p//5wSugndcUeIc0euJvnKR
+zrM7PvtWiBq+vS+i4PyS+5AOSsrTFCcBVer6QVFIttQwnPmGrOa38nWVzBBLs4BM
+8bjq+S1eo662pqWwOoNsUN2asxtKF7jBCWyN75oe8ZzMS9M1pgV7L/+qIlEMZA/n
+HKadAX3xeDA8GEetIbeUuLbUb4yD82fXh8StoAwN7uHVl1ODku1HQ4k5m/wMfAoy
+I+0MhAxmGsKHov3H5FiCu70wlbs/cPqIgO8/ABffeoKgrjoJ4pJrqRCpRBApBsHt
+3HhEB57yE3igMD1fBUiX
+=4fL8
 -----END PGP SIGNATURE-----
 
---NklN7DEeGtkPCoo3--
+--cPi+lWm09sJ+d57q--
+
+--===============0510888029==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+
+--===============0510888029==--
