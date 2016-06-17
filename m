@@ -1,91 +1,49 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: [RFC PATCH 11/13] arm64: tegra: Add SOR power-domain node
-Date: Fri, 17 Jun 2016 13:03:45 +0100
-Message-ID: <1466165027-17917-12-git-send-email-jonathanh@nvidia.com>
-References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+Subject: Re: [PATCH 2/3] acpi i2c: Initialize info.type from of_compatible
+Date: Fri, 17 Jun 2016 15:07:39 +0300
+Message-ID: <2ca8f355-bb28-8b68-7579-e26eaee3550a@intel.com>
+References: <cover.1466014238.git.leonard.crestez@intel.com>
+ <13cb5b7766b1b25a2bb61ce0053a38f6f440907b.1466014238.git.leonard.crestez@intel.com>
+ <20160616081145.GU1740@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:1476 "EHLO
-	hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933546AbcFQMEp (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jun 2016 08:04:45 -0400
-In-Reply-To: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160616081145.GU1740@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>, Jarkko Nikula <jarkko.nikula@intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>
 
-Add node for SOR power-domain for Tegra210 and populate the SOR
-power-domain phandle for SOR and DPAUX nodes that are dependent
-on this power-domain.
+On 06/16/2016 11:11 AM, Mika Westerberg wrote:
+> On Wed, Jun 15, 2016 at 09:30:28PM +0300, Crestez Dan Leonard wrote:
+>> When using devicetree i2c_board_info.type is set to the compatible
+>> string with the vendor prefix removed. For I2C devices described via
+>> ACPI the i2c_board_info.type string is set to the ACPI device name. When
+>> using ACPI and DT ids this string ends up something like "PRP0001:00".
+>>
+>> If the of_compatible property is present try to use that instead. This
+>> makes it easier to instantiate i2c drivers through ACPI with DT ids.
+> 
+> Adding Jarkko -- he was the original author of I2C/SPI device naming in
+> ACPI. Since this only affects devices with PRP0001 in their _HID/_CID,
+> it should not break anything.
 
-Please note that although neither the SOR or DPAUX drivers currently
-support runtime power-management, by populating the power-domain node
-the SOR power-domain will be turned on before probing SOR or DPAUX
-devices and kept on while the devices are bound.
+It's possible to have something like this:
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
----
- arch/arm64/boot/dts/nvidia/tegra210.dtsi | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+            Name (_HID, "XXX1234")
+            Name (_CID, "PRP0001")
+            Name (_DSD, Package () {
+                ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+                Package () {
+                    Package () {"compatible", "vendor,x1234"},
+                }
+            })
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra210.dtsi b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-index ebf44f4059f8..94f780b43037 100644
---- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-@@ -34,6 +34,7 @@
- 			clock-names = "dpaux", "parent";
- 			resets = <&tegra_car 207>;
- 			reset-names = "dpaux";
-+			power-domains = <&pd_sor>;
- 			status = "disabled";
- 		};
- 
-@@ -154,6 +155,7 @@
- 			clock-names = "sor", "parent", "dp", "safe";
- 			resets = <&tegra_car 182>;
- 			reset-names = "sor";
-+			power-domains = <&pd_sor>;
- 			status = "disabled";
- 		};
- 
-@@ -168,6 +170,7 @@
- 			clock-names = "sor", "parent", "dp", "safe";
- 			resets = <&tegra_car 183>;
- 			reset-names = "sor";
-+			power-domains = <&pd_sor>;
- 			status = "disabled";
- 		};
- 
-@@ -180,6 +183,7 @@
- 			clock-names = "dpaux", "parent";
- 			resets = <&tegra_car 181>;
- 			reset-names = "dpaux";
-+			power-domains = <&pd_sor>;
- 			status = "disabled";
- 		};
- 
-@@ -592,6 +596,20 @@
- 				resets = <&tegra_car 198>;
- 				#power-domain-cells = <0>;
- 			};
-+
-+			pd_sor: sor {
-+				clocks = <&tegra_car TEGRA210_CLK_SOR0>,
-+					 <&tegra_car TEGRA210_CLK_DSIA>,
-+					 <&tegra_car TEGRA210_CLK_DSIB>,
-+					 <&tegra_car TEGRA210_CLK_MIPI_CAL>,
-+					 <&tegra_car TEGRA210_CLK_DPAUX>;
-+				resets = <&tegra_car TEGRA210_CLK_SOR0>,
-+					 <&tegra_car TEGRA210_CLK_DSIA>,
-+					 <&tegra_car TEGRA210_CLK_DSIB>,
-+					 <&tegra_car TEGRA210_CLK_DPAUX>,
-+					 <&tegra_car TEGRA210_CLK_MIPI_CAL>;
-+				#power-domain-cells = <0>;
-+			};
- 		};
- 	};
- 
--- 
-2.1.4
+With these patches the i2c device name changes from "XXX1234:00" to
+"x1234". This would happen even if a driver matches the XXX1234 acpi ID.
+It's not clear if anyone actually uses that or if this change would be
+harmful.
+
+It theory it would be possible to use of_compatible for naming only if
+there are no other real IDs. I don't think it's worthwhile.
