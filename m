@@ -1,64 +1,124 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v8 2/4] i2c-smbus: add SMBus Host Notify support
-Date: Fri, 17 Jun 2016 13:26:30 +0200
-Message-ID: <20160617112630.GB6876@tetsubishi>
-References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
- <1465484030-28838-3-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uQr8t48UFsdbeI+V"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1465484030-28838-3-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v4 0/8]
+Date: Fri, 17 Jun 2016 14:52:08 +0300
+Message-ID: <1466164336-9508-1-git-send-email-octavian.purdila@intel.com>
+Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J . Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch set enables custom ACPI board configuration by adding
+mechanisms in the Linux kernel for loading user defined SSDTs.
 
---uQr8t48UFsdbeI+V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In order to support ACPI open-ended hardware configurations we need a
+way to augment the ACPI configuration provided by the firmware
+image. A common example is connecting sensors on I2C / SPI buses on
+development boards.
 
-On Thu, Jun 09, 2016 at 04:53:48PM +0200, Benjamin Tissoires wrote:
-> SMBus Host Notify allows a slave device to act as a master on a bus to
-> notify the host of an interrupt. On Intel chipsets, the functionality
-> is directly implemented in the firmware. We just need to export a
-> function to call .alert() on the proper device driver.
->=20
-> i2c_handle_smbus_host_notify() behaves like i2c_handle_smbus_alert().
-> When called, it schedules a task that will be able to sleep to go through
-> the list of devices attached to the adapter.
->=20
-> The current implementation allows one Host Notification to be scheduled
-> while an other is running.
->=20
-> Tested-by: Andrew Duggan <aduggan@synaptics.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Although this can be accomplished by creating a kernel platform driver
+or recompiling the firmware image with updated ACPI tables, neither is
+practical: the former proliferates board specific kernel code while
+the latter requires access to firmware tools which are often not
+publicly available.
 
-Applied to for-next, thanks!
+Because ACPI supports external references in AML code a more practical
+way to augment firmware ACPI configuration is by dynamically loading
+user defined SSDT tables that contain the board specific information.
+
+Currently it is possible to load SSDT overlays using the upgrade
+initrd mechanism introduced in 4.7. This patch series adds support for
+two more methods:
+
+* From an EFI variable
+
+ This is the preferred method, when EFI is supported on the platform,
+ because it allows a persistent, OS independent way of storing and
+ updating the user defined SSDTs. There is also work underway to
+ implement EFI support for loading user defined SSDTs and using this
+ method will make it easier to convert to the EFI loading mechanism
+ when that will arrive.
+
+* From userspace via configfs
+
+ This is useful when we want to defer the operation to userspace for
+ platform detection, loading the SSDTs from a custom partition, etc.
 
 
---uQr8t48UFsdbeI+V
-Content-Type: application/pgp-signature; name="signature.asc"
+Changes from v3:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+* fix a bisectability issue reported by kbuild
 
-iQIcBAEBAgAGBQJXY95kAAoJEBQN5MwUoCm2PksP/1CKxdlsv4CGUsDcB9p1KWAK
-2NXvkX8STXB/UDcsk715P9dw4lZ9AWelwikBLE8JgHltIM4J8aKFbmszBjsTEJig
-j/23wWsYvEOpODMJXamPVNxLHPA4N64NE9KuiW8JcPiCU+SlNUUoMdSe/jZetgy4
-n0q2/ECURS4nMCjg44P8dSj6Orh8huQRnWOkEeptI6BGa7TfxfdUjvQbMl0RDmFk
-L9fOIV9X6exFOB1haG1eijwi1ch+o2G2k8s1IYwzIfHk/i0wy2KD2qyzTIGm4IP9
-YB52IaVgQnfOAZcRfcb0Yds58sq9OSFgE5W/BRyWYZdXLUQnH9gLO18bdg2cyD46
-QI23Gi8xJToaLqgwag4MzeWgCcjkLfc1f3nNEliby2WItM4dzArm/oH669rq5zMP
-rVlts0B+esS7sFEDbe88UWG3QaEu9oBwgrpnYV2xzXQlRX8q4MJKfL6V0JDYaR4S
-9lCQtqDNqcgwS5iHB0V6aXLI4dVT9Ea5tD5mXkGG/cKnszijYgbyRguoMbEPe3V8
-i5/4lIW83x3t6O6JpEYKZ3ha17e/L4N8vXXok372PIUJnGv5VDMxm9G6GP4SpvCV
-/OcUhNdIHb8QkyFWIxoN+wCa3xulscCiFUx76+rrnppxJV0EeV4THBKmDnwy2EtK
-lBNqxLU5FPwiyLlhF+uQ
-=+DYJ
------END PGP SIGNATURE-----
+* rework the enumeration fix to support PRP0001 enumeration; also,
+  introduce acpi_device_set/clear_enumerated() for clarity
 
---uQr8t48UFsdbeI+V--
+* clear the enumerated status for acpi_device when the I2C/SPI clients
+  are removed (for example as a result of an adapter removal) to allow
+  the devices to be re-enumerated later
+
+Changes from v2:
+
+* fix a few issues caught by the kbuild test robot
+
+* add more configfs table attributes
+
+* removed the initrd based loading functionality from this patch set
+  as this can already be accomplished in 4.7 using the ACPI table
+  upgrade mechanism
+
+* rebased to 4.7-rc3
+
+Changes from v1:
+
+* rebased on top of the ACPI install from initrd table functionality;
+  there is significant overlap between the 1st patch in this series
+  and these patch [1] from Lv - I kept it in this series until the
+  discussions around the taint and config option are resolved
+
+* make sure EFI_RUNTIME_SERVICES are available before trying to use
+  EFI variables to load tables
+
+* rework the ACPI reconfiguration notifications to work on device
+  granularity (device added or removed) instead of table granularity
+  (table loaded or unloaded)
+
+* add support for table unloading / device removal
+
+* note that the last patch is just a hack to be able to test the table
+  unload / device remove functionality, if someone wants to try out
+  this patch set
+
+[1] https://patchwork.kernel.org/patch/8795931/
+
+Octavian Purdila (8):
+  Documentation: acpi: add SSDT overlays documentation
+  acpi: fix enumeration (visited) flags for bus rescans
+  acpi: add support for ACPI reconfiguration notifiers
+  i2c: add support for ACPI reconfigure notifications
+  spi: add support for ACPI reconfigure notifications
+  efi: load SSTDs from EFI variables
+  acpi: add support for configfs
+  acpi: add support for loading SSDTs via configfs
+
+ Documentation/ABI/testing/configfs-acpi |  36 +++++
+ Documentation/acpi/ssdt-overlays.txt    | 172 ++++++++++++++++++++
+ Documentation/kernel-parameters.txt     |   7 +
+ MAINTAINERS                             |   1 +
+ drivers/acpi/Kconfig                    |   9 ++
+ drivers/acpi/Makefile                   |   1 +
+ drivers/acpi/bus.c                      |   9 ++
+ drivers/acpi/configfs.c                 | 267 ++++++++++++++++++++++++++++++++
+ drivers/acpi/internal.h                 |   3 +
+ drivers/acpi/scan.c                     |  81 +++++++++-
+ drivers/acpi/sysfs.c                    |   6 +-
+ drivers/firmware/efi/efi.c              | 106 +++++++++++++
+ drivers/i2c/i2c-core.c                  | 172 +++++++++++++++-----
+ drivers/spi/spi.c                       |  96 +++++++++++-
+ include/linux/acpi.h                    |  36 +++++
+ 15 files changed, 946 insertions(+), 56 deletions(-)
+ create mode 100644 Documentation/ABI/testing/configfs-acpi
+ create mode 100644 Documentation/acpi/ssdt-overlays.txt
+ create mode 100644 drivers/acpi/configfs.c
+
+-- 
+2.7.4
