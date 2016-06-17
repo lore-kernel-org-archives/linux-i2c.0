@@ -1,101 +1,75 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [RFC PATCH 08/13] i2c: core: Add support for 'i2c-bus' subnode
-Date: Fri, 17 Jun 2016 18:24:29 +0200
-Message-ID: <20160617162429.GG27475@ulmo.ba.sec>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [RFC PATCH 07/13] dt-bindings: i2c: Add support for 'i2c-bus'
+ subnode
+Date: Fri, 17 Jun 2016 17:30:54 +0100
+Message-ID: <20160617163054.GD32754@leverpostej>
 References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
- <1466165027-17917-9-git-send-email-jonathanh@nvidia.com>
+ <1466165027-17917-8-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="gvF4niNJ+uBMJnEh"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:36494 "EHLO
-	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751809AbcFQQYe (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Jun 2016 12:24:34 -0400
-Content-Disposition: inline
-In-Reply-To: <1466165027-17917-9-git-send-email-jonathanh@nvidia.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: David Airlie <airlied@linux.ie>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org
-
-
---gvF4niNJ+uBMJnEh
 Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1466165027-17917-8-git-send-email-jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 17, 2016 at 01:03:42PM +0100, Jon Hunter wrote:
-> If the 'i2c-bus' device-tree node is present for an I2C adapter then
-> parse this subnode for I2C slaves.
->=20
-> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+On Fri, Jun 17, 2016 at 01:03:41PM +0100, Jon Hunter wrote:
+> The I2C driver core for boards using device-tree assumes any subnode of
+> an I2C adapter in the device-tree blob as being a I2C slave device.
+> Although this makes complete sense, some I2C adapters may have subnodes
+> which are not I2C slaves but subnodes presenting other features. For
+> example some Tegra devices have an I2C interface which may share its
+> pins with other devices and to share these pins subnodes for
+> representing these pins so they have be shared via the pinctrl framework
+> are needed.
+> 
+> To allow I2C adapters to have non-I2C specific subnodes in device-tree
+> that are not parsed by the I2C driver core by adding support for a
+> 'i2c-bus' subnode where I2C slaves can be placed. If the 'i2c-bus'
+> subnode is present then all I2C slaves must be placed under this subnode.
+> 
+> Signed-off-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 > ---
->  drivers/i2c/i2c-core.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 952d2f0c02c5..f552d97bad32 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1452,7 +1452,7 @@ static struct i2c_client *of_i2c_register_device(st=
-ruct i2c_adapter *adap,
-> =20
->  static void of_i2c_register_devices(struct i2c_adapter *adap)
->  {
-> -	struct device_node *node;
-> +	struct device_node *bus, *node;
-> =20
->  	/* Only register child devices if the adapter has a node pointer set */
->  	if (!adap->dev.of_node)
-> @@ -1460,11 +1460,18 @@ static void of_i2c_register_devices(struct i2c_ad=
-apter *adap)
-> =20
->  	dev_dbg(&adap->dev, "of_i2c: walking child nodes\n");
-> =20
-> -	for_each_available_child_of_node(adap->dev.of_node, node) {
-> +	bus =3D of_get_child_by_name(adap->dev.of_node, "i2c-bus");
-> +	if (!bus)
-> +		bus =3D adap->dev.of_node;
+>  Documentation/devicetree/bindings/i2c/i2c.txt | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+> index f31b2ad1552b..ed56b08c7e6e 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> @@ -32,6 +32,14 @@ wants to support one of the below features, it should adapt the bindings below.
+>  - clock-frequency
+>  	frequency of bus clock in Hz.
+>  
+> +- i2c-bus
+> +	For I2C adapters that have child nodes that are a mixture of both I2C
+> +	devices and non-I2C devices (such as a pin controller), the 'i2c-bus'
+> +	subnode can be used for populating I2C devices to prevent the I2C core
+> +	from attempting to add any non-i2c nodes as I2C devices. If 'i2c-bus'
+> +	subnode is present then all I2C slaves must be added under this
+> +	subnode.
 
-Maybe
-		bus =3D of_node_get(adap->dev.of_node);
+The general idea seems sound.
 
-here...
+It would be good if we could remove the mention of the I2C core,
+something like:
 
-> +
-> +	for_each_available_child_of_node(bus, node) {
->  		if (of_node_test_and_set_flag(node, OF_POPULATED))
->  			continue;
->  		of_i2c_register_device(adap, node);
->  	}
-> +
-> +	if (bus !=3D adap->dev.of_node)
-> +		of_node_put(bus);
+  - i2c-bus
+	For I2C adapters that have child nodes that are a mixture of both I2C
+	devices and non-I2C devices (such as a pin controller), the 'i2c-bus'
+	subnode can be used for populating I2C devices. If an 'i2c-bus'
+	subnode is present, only subnodes of this will be considered as
+	I2C slaves.
 
-=2E.. and drop the extra check here?
+How are #address-cells and #size-cells handled in this case? I assume
+that they should live under the i2c-bus subnode, which should be called
+out.
 
-Thierry
-
---gvF4niNJ+uBMJnEh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAABCAAGBQJXZCQ8AAoJEN0jrNd/PrOhdZYP/1wY+NhmNXmVn1KnCHvxdA+7
-BTnFDqczvsXo/xdBSPVmvmCMnt1bvL8RQj2PKkrRNuODFaEBfyIjeezG49fTfkZV
-GOyVPQoW/h9Ndaj6nquGgL/mBOcyDd7BA2soNX7vLsx43+r7q4ADzdKjJ/OAHU/p
-cgZ3raIIRsRkVMOuJBSc7+qM11J0L1Txsza2yWbPCqkLKoB/535Ow7gp9Rf1JKBk
-QP+HsNwI1MZxQhX55cAOpZ8+ANaVQiLxXNcvaQqnWGuL/YuCllQRVHapinB0QLMc
-Q/nxSGJ9hDmHWg+pSZmW1nLJmG6DXAk0VUH8LIJZFGS0Q16ED0GJggbWXdKco4LU
-WYiwn6kIqBj+Gn3dJ8JL7uSLv4fxAnkac2wfds9ZYhN2Pp3sgdHWzwYbiGNbIsqP
-Pmkx9rnqtHNUlHgFsIqflzPjMCmQiAt/Q23O6nZKetGsd079tsyAZ+T8ozXQVI/v
-RFGt9WaTT+cVQMq6uIqOqeILaLoDzoMGfhxZgo4eAcnL0bF3qFToI0AW7EFLchg2
-HSVaCxTvxuZdCNdY5LtO33UBFMdNEap2VvkkIlqj2Pnln0V8q6Za3TOdvVHFazZf
-9dVomWe0Vj6mGo2TN8m2BmFYNpDCwhrlZyaYX2I8m4z3aFBZ1D3icUczet3+xbKd
-19KqpJV+o2kQUuglI+zN
-=tTEE
------END PGP SIGNATURE-----
-
---gvF4niNJ+uBMJnEh--
+Thanks,
+Mark.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
