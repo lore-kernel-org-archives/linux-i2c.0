@@ -1,63 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 2/2] i2c: qup: support SMBus block read
-Date: Sat, 18 Jun 2016 16:13:28 +0200
-Message-ID: <20160618141328.GC1430@tetsubishi>
-References: <1465409985-17113-1-git-send-email-austinwc@codeaurora.org>
- <1465409985-17113-2-git-send-email-austinwc@codeaurora.org>
+Subject: Re: [PATCH V4 1/3] i2c: qup: Fix broken dma when CONFIG_DEBUG_SG is
+ enabled
+Date: Sat, 18 Jun 2016 18:20:15 +0200
+Message-ID: <20160618162014.GA3017@tetsubishi>
+References: <1465582101-19391-1-git-send-email-sricharan@codeaurora.org>
+ <1465582101-19391-2-git-send-email-sricharan@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="raC6veAxrt5nqIoY"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1465409985-17113-2-git-send-email-austinwc@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Austin Christ <austinwc@codeaurora.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, nkaje@codeaurora.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <1465582101-19391-2-git-send-email-sricharan@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sricharan R <sricharan@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org, ntelkar@codeaurora.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, andy.gross@linaro.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, linux-arm-kernel@lists.infradead.org, nkaje@codeaurora.org, absahu@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---raC6veAxrt5nqIoY
+--rwEMma7ioTxnRzrJ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 08, 2016 at 12:19:45PM -0600, Austin Christ wrote:
-> From: Naveen Kaje <nkaje@codeaurora.org>
+On Fri, Jun 10, 2016 at 11:38:19PM +0530, Sricharan R wrote:
+> With CONFIG_DEBUG_SG is enabled and when dma mode is used, below dump is =
+seen,
 >=20
-> I2C QUP driver relies on SMBus emulation support from the framework.
-> To handle SMBus block reads, the driver should check I2C_M_RECV_LEN
-> flag and should read the first byte received as the message length.
->=20
-> The driver configures the QUP hardware to read one byte. Once the
-> message length is known from this byte, the QUP hardware is configured
-> to read the rest.
->=20
-> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
-> Signed-off-by: Austin Christ <austinwc@codeaurora.org>
-> Reviewed-by: sricharan@codeaurora.org
 
-Missing name here, too. Looks good otherwise.
+Applied to for-next, thanks!
 
 
---raC6veAxrt5nqIoY
+--rwEMma7ioTxnRzrJ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXZVcHAAoJEBQN5MwUoCm2BogQALTxnNWZHV88YMvLFeSna0E2
-Aq2Hu3Y5zBNZKBzch3zBE6LTFC7IykkNohPQaMcCjMeUJNQtrAxGBUYwwlishuEp
-bmRCVRDg4w37Mcjh7fh0bg4Y7WLpSZzUlS+VkaJxYGU8FO5mi9QPB/6soopp9Vyk
-FHc6H+ThR3WcWf7cDBNjeDejThFNB2l3LVfrfLDkiWp3doAFlZejA3ApwNW+/2KX
-duSTL0e0F+5chEVBkpwgJaayBovoOjk0u2DRlf67UM7nlElCtl0STPTUolI0MmX9
-11pH7yQhap49qqhJ7asK85bp3TCgHokn5LUTZX2u0VBlmndfaSKUHjDeBj2QGTUA
-hRx0PA21gfuAzjjn5tU2W7Mv5Oyp6y2DT1tKAk7N0SgWvMgspWqhF9085J6Ow0P9
-LS9trIDpcygR9mKUqNr/z7qRn0ekXwdW+pLVtfWeUh83aEdlWqPKKGFE0hB+Ldqc
-1Wh9llShJMlJrsEcc7l10VQg7mVSv4MImM1W3zpIpgcmCw/ALQd0YIglbeYaAUd9
-rsGeQ6YZacGNNM32uH2TTOzWzJxT6Xn55IcPgUxY58C7sfwk1+zPdoiB3fpcxJTu
-6NdsiZa89c428cJ9lBrw6t1KhQ69ZvQurDF4dlca2nkqZ4nleIzV6z7LPLsa8Dmp
-P/PyFewo7Cm0+zMAzU1x
-=3BSk
+iQIcBAEBAgAGBQJXZXS+AAoJEBQN5MwUoCm2w1cP/2P3xm2Hk9NyxvKszB8puTEy
+63tVPNe1WMIZ5YulSzUkuoGOAvIySX8vaQ2w+LOaWNkKkyqlIoMo6F7oMqvQMlfy
+VEK2Yd5Pf8pKGzUJVAWDSrsMGE80L2AAggoEyg/i6PG5K7siUYwIKFca/fwCvh/a
+DWbSbyBbNq63DIfH8pMa+GWKrfIX3cMj4pULaC+NYEzC9wo6hMIHhhWWWNpOik6z
+ZEqL6Z4yK7UcCcqAB6JbLtbhILoiNOdwSRGTZ3DkcLQUkgcpLALBp1vHAvF8yhO5
+/wsYpasAUkUsJ3L6bBDbZvIbE0Dfp6xQiYBKB1PPfBQFGna2iIpJgRr1RdZzNnor
+x46m/Ajo0eX33V97V9URC2Fbv74nxsRHnTHYgQVhW4pn/iDyv+hhI23hJjVs6zyu
+7h0em+HMjFbUvVbYPLIoYKHKM7Nw6tzmWpDcSel6XxPIrcJ22MghCK1AhR/s8wj9
+1hT7/gKnUH+TOINt34QvG4xnj0na/2f74pVdwzuOeIw4iQHi6ZlmZMsDassm6mzT
+e2L0UGkgrBgXShRtm0bXvLbV9I4iBQvmBoddcvJGQ9Er7p0BsGdeXcWumlvbLbbW
+7AYFN5mYLAQoAnq1l62e1UdlLijnvJ2W82Yx708kED1NpTM4CoijYvjy/6HOw/TP
+IKEsQUU0FM2P5yVM7WXE
+=KnFG
 -----END PGP SIGNATURE-----
 
---raC6veAxrt5nqIoY--
+--rwEMma7ioTxnRzrJ--
