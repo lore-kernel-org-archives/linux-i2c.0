@@ -1,54 +1,77 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: i2c: qup: use address helper function in read transfer
-Date: Sat, 18 Jun 2016 18:31:24 +0200
-Message-ID: <20160618163124.GF3017@tetsubishi>
-References: <1462473197-28393-1-git-send-email-nkaje@codeaurora.org>
+Subject: Re: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
+Date: Sat, 18 Jun 2016 18:32:28 +0200
+Message-ID: <20160618163228.GG3017@tetsubishi>
+References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org>
+ <1462797871-8595-2-git-send-email-absahu@codeaurora.org>
+ <000701d1ab9d$df9b3100$9ed19300$@codeaurora.org>
+ <934365f2bd30f242d8548e2a27483679@codeaurora.org>
+ <20160512051347.GE8453@hector.attlocal.net>
+ <20160512061843.GA6187@chewinlnx07.qualcomm.com>
+ <20160512175830.GA32019@hector>
+ <20160512193229.GA10499@chewinlnx07.qualcomm.com>
+ <CAPBZ5QdD6knEzQVW-BAgRSMcd=Gqv9_1Xt2LNc+qWgtre_2ZXQ@mail.gmail.com>
+ <20160512202755.GA3680@chewinlnx07.qualcomm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rWhLK7VZz0iBluhq"
+	protocol="application/pgp-signature"; boundary="L+ofChggJdETEG3Y"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1462473197-28393-1-git-send-email-nkaje@codeaurora.org>
+In-Reply-To: <20160512202755.GA3680@chewinlnx07.qualcomm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Naveen Kaje <nkaje@codeaurora.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Abhishek Sahu <absahu@codeaurora.org>
+Cc: Andy Gross <andy.gross@linaro.org>, Sricharan <sricharan@codeaurora.org>, Andy Gross <agross@codeaurora.org>, Archit Taneja <architt@codeaurora.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, ntelkar@codeaurora.org, Linux Kernel list <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---rWhLK7VZz0iBluhq
+--L+ofChggJdETEG3Y
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 05, 2016 at 12:33:17PM -0600, Naveen Kaje wrote:
-> qup_i2c_issue_read() derives the address from i2c_msg.
-> This called in the read path when I2C_M_RD flag is set.
-> Therefore, use the 8 bit address helper function.
+> We run the command i2cdetect for address 0x3 to 0x77. The QUP generates
+> write error for address 0x3 to 0x7 apart from other bus errors since
+> these are reserved addresses. I was getting the crash in non DMA mode
+> and BAM hang in DMA mode before putting the fix.
 >=20
-> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+> Also we have connected the I2C TPM and run the following script
+> overnight for both DMA and Non DMA mode.  The script checks for
+> all transfer length and we are generating multiple NACK and
+> Non NACK error before each valid transfer.
+>=20
+> a=3D1
+>=20
+> while [ $a -lt 4096 ]
+> do
+>    echo $a
+>    i2cdetect -y -a -r 0 0x03 0x77
+>    tpm-manager get_random $a
+>    i2cdetect -y -a -r 1 0x03 0x77
+>    a=3D`expr $a + 1`
+> done
 
-Applied to for-next, thanks!
+So, what is the outcome of this discussion?
 
 
---rWhLK7VZz0iBluhq
+--L+ofChggJdETEG3Y
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXZXdbAAoJEBQN5MwUoCm284QP/0hLvqZDb5bzqL5a1PtTWwlz
-WcGT1VjqyeqWVGHrV4oo78m9De/LnVarIZxc37W+PGDmuN9A8yXWKyc3GXx9VZ56
-5pYEdJMJuHhBsGokGSkVXDkROEqRIB+PtAEK7D3toFfbIdaV2t9DUlQjLySqvfmj
-ue+DBXRop3TIaaLSIVJixkDMvlOZGExpcxj9hxyGmLFPKNzoAm/ccQEp+ztOGt4A
-NHZPDH4Zw+l3rtgm7/5EwNr9YSn/pZG4Y6rtZ5TyD9gFvjK9Aty9G6rSPlUudd+l
-GqokOp6Z+CTVh0NTlhBF8dzJqoCW/sZiewGtaHTRGK8ZHCaYzOEtfKrbXzqefyHR
-3Taf6xCPaqMqWDhv4d4iaanhhnQJwIVwE0cJTcljZWbj8DlSHEMnHP2K3+zVcXax
-mEvgE20ZWFm6dajhF+SabJq65xTyo6HVExmEu36IZRr1ua5MddSAXMeMGSBSqa0b
-mT4Q0V7AWa4Ceo6mq6/fvBsRnsTLzPm2paNk1yD/uNRM8cjhZoWJeYvgiNVPYtpj
-YzE8kG0pvRdOEwQFFI+HiE6zEelMUU+ydQG13zvBd4gGEmUDULqzBQuvWIlziQV/
-mZQoIknxrmkvNt8PSvC3nFl8e76MM216aMqomDMbojzYDbPtkGj24nL4hwQdb5+P
-oDm6MZxox0vI6GTJPhKy
-=TMC1
+iQIcBAEBAgAGBQJXZXebAAoJEBQN5MwUoCm2gYsP/3GNaYb4KVyiS0knNaDe6i5O
+v3duDfK3bnCm6bEtVM6KYl7I5Uj9FpNoeUHa8QbOo/J52BPGCouoNgg6eQy0Nx14
+i4qRuSMlTRW6qVB9rb8YuzU3t7phANScbmnhKHLegCuZ8nzBpz7NR9lPsvLzUtlH
+2qFJhURAE/hpMCgB9FUH5qzjrSu7wBSqmMx1weUVOJL49BNcIbM/jkFB8h5L81T/
+gTDEDqHjdMz45XD4/hQ18agrnzbricgS3n8/AqlPPgOjZe+BAruR6xEvGsZ4yzDr
+vMOXuxiEGHMillHtT6ml0XhCpJAhcAOano4WPReMYZOR+wZenMkr0STASqyo2Utl
+QN9UaWgvgckJ1TPqy8ylJfsjfPMuNCRGwgUZrorICSJ4UGLXnjEEPZWYJs1Cgsd+
+GDponlYT/Gankg5pl/HBBxSZH4wGAkUWOoGBYEZpnnGgeQjdBoZbJshg6rhfV2Q5
+mD+l43+ZdWyb6zALnn/SShuXbzOYChiTtKnVW6t3NeSgCSMGgAHr/92jB0lYYizF
+Mt94cr/8kbnGuFKVkQ7cFU9EoVS+ZHvkY715Tpx1ZZxUVbX+Hq6e6TrJMagzvU62
++acWMN0Fj0IFMqmJg3J6atDqAgZGhWQHx1ybZW5D7iSiUtVTazMIchV9nGiAH4Q3
+ecrtl5nem07YRTRSRMCG
+=Hkoc
 -----END PGP SIGNATURE-----
 
---rWhLK7VZz0iBluhq--
+--L+ofChggJdETEG3Y--
