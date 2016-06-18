@@ -1,49 +1,55 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH] arm64: dts: rockchip: add i2c nodes for rk3399
-Date: Sat, 18 Jun 2016 14:01:08 +0200
-Message-ID: <1633653.D0508meTWe@diego>
-References: <1463429371-10950-1-git-send-email-dianders@chromium.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: xlp9xx: add ACPI support for Broadcom Vulcan
+Date: Sat, 18 Jun 2016 16:04:21 +0200
+Message-ID: <20160618140420.GA1430@tetsubishi>
+References: <1464077343-1665-1-git-send-email-tanmay.jagdale@broadcom.com>
+ <1464952474-15714-1-git-send-email-tanmay.jagdale@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1463429371-10950-1-git-send-email-dianders@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Douglas Anderson <dianders@chromium.org>
-Cc: linux-rockchip@lists.infradead.org, david.wu@rock-chips.com, jay.xu@rock-chips.com, briannorris@chromium.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, catalin.marinas@arm.com, will.deacon@arm.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:53955 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751254AbcFROE2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 18 Jun 2016 10:04:28 -0400
+Content-Disposition: inline
+In-Reply-To: <1464952474-15714-1-git-send-email-tanmay.jagdale@broadcom.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com
 
-Am Montag, 16. Mai 2016, 13:09:31 schrieb Douglas Anderson:
-> From: David Wu <david.wu@rock-chips.com>
-> 
-> We've got 9 (count em!) i2c controllers on rk3399, some of which are in
-> the PMU power domain and some of which are normal peripherals.  Add them
-> all to the main rk3399 dtsi file so future patches can turn them on in
-> the board dts files.
-> 
-> Note: by default we try to set the i2c clock rate to 200 MHz so that we
-> can achieve good i2c functional clock rates.  200 MHz gives us the
-> ability to make very close to 100 kHz / 400 kHz / 1 MHz rates.  If
-> boards want to tune clock rates further they can always override.
-> Possibly boards could want to tune this if:
-> - they wanted to save an infinitesimal amount of power and they knew
->   their i2c bus was slow anyway.  Since we gate the functional clock
->   when the i2c bus is not active, power savings would only be while i2c
->   transfers were happening and probably won't be very big anyway.
-> - they wanted to eek out a bit more speed by carefully tuning the source
->   clock to make divisions work out perfectly, accounting for the rise /
->   fall time measured on an actual board.
-> 
-> Note also that we still request 200 MHz for the PMU i2c busses even
-> though we expect that we won't make that exactly (currently PPLL is 676
-> MHz which gives us 169 MHz).
-> 
-> Signed-off-by: David Wu <david.wu@rock-chips.com>
-> Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
-> [dianders: wrote desc; put in assigned-clocks; reordered nodes]
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
 
-applied to my dts64 branch for 4.8
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks
-Heiko
+>  #include <linux/module.h>
+> +#include <linux/acpi.h>
+>  #include <linux/platform_device.h>
+
+Keep the includes sorted, please.
+
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXZVTkAAoJEBQN5MwUoCm2cbUP/2PI9EeuK4LFDQfaRbwh8+Qp
+Nb3uLGM/KevZZ0Ug2Pc35Fwljb2fCybTWFf/DjuRiH3Ey7XsF/Bzs4jFOJq0VlP8
+4rom8rPkZeOl4HNlg2nvIQ7LlsCJDY+ClMUsfX5v296PCd7CDGPyZJtE9WyQA/rs
+M1kgpq37KeN21pDcR5enEHOVR3Dc7ddB5mP8x3P6ZkFpq2aFIX926JklousFoG81
+/GWm4COVTWwCR8Kc8ep/IzZWgDKHPWwt7ODevNL475FbJc74B9z4Mt8vfMJtKEBX
+J/iyCE8GN9mm4ewJtHw/ynu9/61MKSWq4ky/96xc2yacYCnzUn6Pk1W3RkMV8Pdn
+ZT9YvBvNRqu+BRxlJBCK+PuI6Ud6O7NRozoEr7TGybpl3Caa2yoOJCfish8HaZH3
+c1NG6RjatrqUN0skBLlGyGlMLbtd7jlM2wMZk3ZTdcRB8Q55ychMn5f+3FW9BGAV
+pCTIoAQD9jVYxqhkVi2SpzOzlAWW8mC8tiaNUeCRf+JTsnR/g6+IwsOmZl2WfJTo
+bjrWe7KB84zG064Vpmz27wb7iGFI3MbJgujjVzFQ6RJtclQoVs4uxN9dvytePYkc
+sLMA2MHbL+WDOvKofX9YP5QLHxsNV1CWrc2MBtvQsBEbjC3ij1dfaW5sGXqsaMst
+6B1xconV9sarcCheVz//
+=mJnu
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--
