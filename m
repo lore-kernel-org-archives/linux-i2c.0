@@ -1,34 +1,49 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC PATCH 06/13] pinctrl: pinconf: Add generic helper function
- for freeing mappings
-Date: Sat, 18 Jun 2016 11:04:08 +0200
-Message-ID: <CACRpkdYzHXL6S71QwEsKa_Y=rJHaNcRWjwRECtp=oQcfgNDObA@mail.gmail.com>
-References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com> <1466165027-17917-7-git-send-email-jonathanh@nvidia.com>
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH] arm64: dts: rockchip: add i2c nodes for rk3399
+Date: Sat, 18 Jun 2016 14:01:08 +0200
+Message-ID: <1633653.D0508meTWe@diego>
+References: <1463429371-10950-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1466165027-17917-7-git-send-email-jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "open list:DRM PANEL DRIVERS" <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1463429371-10950-1-git-send-email-dianders@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Douglas Anderson <dianders@chromium.org>
+Cc: linux-rockchip@lists.infradead.org, david.wu@rock-chips.com, jay.xu@rock-chips.com, briannorris@chromium.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, catalin.marinas@arm.com, will.deacon@arm.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 17, 2016 at 2:03 PM, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
+Am Montag, 16. Mai 2016, 13:09:31 schrieb Douglas Anderson:
+> From: David Wu <david.wu@rock-chips.com>
+> 
+> We've got 9 (count em!) i2c controllers on rk3399, some of which are in
+> the PMU power domain and some of which are normal peripherals.  Add them
+> all to the main rk3399 dtsi file so future patches can turn them on in
+> the board dts files.
+> 
+> Note: by default we try to set the i2c clock rate to 200 MHz so that we
+> can achieve good i2c functional clock rates.  200 MHz gives us the
+> ability to make very close to 100 kHz / 400 kHz / 1 MHz rates.  If
+> boards want to tune clock rates further they can always override.
+> Possibly boards could want to tune this if:
+> - they wanted to save an infinitesimal amount of power and they knew
+>   their i2c bus was slow anyway.  Since we gate the functional clock
+>   when the i2c bus is not active, power savings would only be while i2c
+>   transfers were happening and probably won't be very big anyway.
+> - they wanted to eek out a bit more speed by carefully tuning the source
+>   clock to make divisions work out perfectly, accounting for the rise /
+>   fall time measured on an actual board.
+> 
+> Note also that we still request 200 MHz for the PMU i2c busses even
+> though we expect that we won't make that exactly (currently PPLL is 676
+> MHz which gives us 169 MHz).
+> 
+> Signed-off-by: David Wu <david.wu@rock-chips.com>
+> Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
+> [dianders: wrote desc; put in assigned-clocks; reordered nodes]
+> Signed-off-by: Douglas Anderson <dianders@chromium.org>
 
-> The pinconf-generic.h file exposes functions for creating generic mappings
-> but it does not expose a function for freeing the mappings. Add a function
-> for freeing generic mappings.
->
-> Signed-off-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+applied to my dts64 branch for 4.8
 
-Looks reasonable. Can I apply it in isolation or do you need to keep
-it in your series with my ACK?
-
-Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-Yours,
-Linus Walleij
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks
+Heiko
