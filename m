@@ -1,77 +1,137 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
-Date: Sat, 18 Jun 2016 18:32:28 +0200
-Message-ID: <20160618163228.GG3017@tetsubishi>
-References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org>
- <1462797871-8595-2-git-send-email-absahu@codeaurora.org>
- <000701d1ab9d$df9b3100$9ed19300$@codeaurora.org>
- <934365f2bd30f242d8548e2a27483679@codeaurora.org>
- <20160512051347.GE8453@hector.attlocal.net>
- <20160512061843.GA6187@chewinlnx07.qualcomm.com>
- <20160512175830.GA32019@hector>
- <20160512193229.GA10499@chewinlnx07.qualcomm.com>
- <CAPBZ5QdD6knEzQVW-BAgRSMcd=Gqv9_1Xt2LNc+qWgtre_2ZXQ@mail.gmail.com>
- <20160512202755.GA3680@chewinlnx07.qualcomm.com>
+Subject: Re: [PATCH] i2c-smbus: Don't report duplicate alerts
+Date: Sun, 19 Jun 2016 14:06:19 +0200
+Message-ID: <20160619120619.GA3072@tetsubishi>
+References: <1453222848-20457-1-git-send-email-minyard@acm.org>
+ <20160303205754.GE1711@katana>
+ <1457086557.4527.15.camel@chaos.site>
+ <5720CC77.2080507@acm.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="L+ofChggJdETEG3Y"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:58120 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751697AbcFSMGa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 19 Jun 2016 08:06:30 -0400
 Content-Disposition: inline
-In-Reply-To: <20160512202755.GA3680@chewinlnx07.qualcomm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Abhishek Sahu <absahu@codeaurora.org>
-Cc: Andy Gross <andy.gross@linaro.org>, Sricharan <sricharan@codeaurora.org>, Andy Gross <agross@codeaurora.org>, Archit Taneja <architt@codeaurora.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, ntelkar@codeaurora.org, Linux Kernel list <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <5720CC77.2080507@acm.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Corey Minyard <minyard@acm.org>
+Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 
---L+ofChggJdETEG3Y
-Content-Type: text/plain; charset=us-ascii
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> We run the command i2cdetect for address 0x3 to 0x77. The QUP generates
-> write error for address 0x3 to 0x7 apart from other bus errors since
-> these are reserved addresses. I was getting the crash in non DMA mode
-> and BAM hang in DMA mode before putting the fix.
+On Wed, Apr 27, 2016 at 09:28:07AM -0500, Corey Minyard wrote:
+> On 03/04/2016 04:15 AM, Jean Delvare wrote:
+> >Le Thursday 03 March 2016 =C3=A0 21:57 +0100, Wolfram Sang a =C3=A9crit :
+> >>On Tue, Jan 19, 2016 at 11:00:48AM -0600, minyard@acm.org wrote:
+> >>>From: Corey Minyard <cminyard@mvista.com>
+> >>>
+> >>>Getting the same alert twice in a row is legal and normal,
+> >>>especially on a fast device (like running in qemu).  Kind of
+> >>>like interrupts.  So don't report duplicate alerts, and deliver
+> >>>them normally.
+> >>>
+> >>>Signed-off-by: Corey Minyard <cminyard@mvista.com>
+> >>Looks plausible to me, but I never used SMBALERT myself. Any chance this
+> >>can cause a regression? Jean, what do you think?
+> >I'm afraid I had a good reason to add this check back then. I'll test
+> >with my ADM1032 evaluation board when I get back home (tomorrow at the
+> >earliest.) Maybe my hardware was misbehaving, in which case I agree any
+> >filtering should be done at the device driver level. But I must double
+> >check what the SMBus specification says too.
 >=20
-> Also we have connected the I2C TPM and run the following script
-> overnight for both DMA and Non DMA mode.  The script checks for
-> all transfer length and we are generating multiple NACK and
-> Non NACK error before each valid transfer.
+> I looked at the SMBus specification and I couldn't find anything that
+> would speak to this particular issue.  It says it has to stop asserting
+> the interrupt when the ack is received on the bus, but it doesn't say
+> when it can re-assert the interrupts.
 >=20
-> a=3D1
+> I will say that without this change SMBus alerts are fairly useless
+> with IPMI over SMBus on both real hardware and in qemu.  It just
+> spews out these warning messages in qemu, and it prints them out
+> periodically on real hardware.
 >=20
-> while [ $a -lt 4096 ]
-> do
->    echo $a
->    i2cdetect -y -a -r 0 0x03 0x77
->    tpm-manager get_random $a
->    i2cdetect -y -a -r 1 0x03 0x77
->    a=3D`expr $a + 1`
-> done
+> To give an idea of what's happening here, on IPMI over SMBus, the
+> IPMI controller (BMC) will signal that it needs the host to do something
+> using an alert.  The driver does an I2C write to send a request to the
+> BMC to find out what it needs.  The BMC performs the request then
+> signals with an SMBus alert that the response is ready.  If the BMC is
+> very fast (like in the qemu case) or the host gets delayed enough before
+> coming back to this loop, the BMC will have the response ready and
+> reassert alert before the next check in the loop.
+>=20
+> I don't see a way to fix this that handles both scenarios.
 
-So, what is the outcome of this discussion?
+Jean: any news on this?
 
+Adding Benjamin to CC since he dealt with alerts recently, maybe he has
+something to add?
 
---L+ofChggJdETEG3Y
+>=20
+> -corey
+>=20
+> >Either way the patch's subject is misleading. Should be "Don't filter
+> >out duplicate alerts" or something like that.
+> >
+> >>>---
+> >>>  drivers/i2c/i2c-smbus.c | 7 -------
+> >>>  1 file changed, 7 deletions(-)
+> >>>
+> >>>diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+> >>>index 94765a8..cecd423 100644
+> >>>--- a/drivers/i2c/i2c-smbus.c
+> >>>+++ b/drivers/i2c/i2c-smbus.c
+> >>>@@ -75,7 +75,6 @@ static void smbus_alert(struct work_struct *work)
+> >>>  {
+> >>>  	struct i2c_smbus_alert *alert;
+> >>>  	struct i2c_client *ara;
+> >>>-	unsigned short prev_addr =3D 0;	/* Not a valid address */
+> >>>  	alert =3D container_of(work, struct i2c_smbus_alert, alert);
+> >>>  	ara =3D alert->ara;
+> >>>@@ -99,18 +98,12 @@ static void smbus_alert(struct work_struct *work)
+> >>>  		data.flag =3D status & 1;
+> >>>  		data.addr =3D status >> 1;
+> >>>-		if (data.addr =3D=3D prev_addr) {
+> >>>-			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
+> >>>-				"0x%02x, skipping\n", data.addr);
+> >>>-			break;
+> >>>-		}
+> >>>  		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
+> >>>  			data.addr, data.flag);
+> >>>  		/* Notify driver for the device which issued the alert */
+> >>>  		device_for_each_child(&ara->adapter->dev, &data,
+> >>>  				      smbus_do_alert);
+> >>>-		prev_addr =3D data.addr;
+> >>>  	}
+> >>>  	/* We handled all alerts; re-enable level-triggered IRQs */
+> >
+>=20
+
+--2fHTh5uZTiUOsy+g
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXZXebAAoJEBQN5MwUoCm2gYsP/3GNaYb4KVyiS0knNaDe6i5O
-v3duDfK3bnCm6bEtVM6KYl7I5Uj9FpNoeUHa8QbOo/J52BPGCouoNgg6eQy0Nx14
-i4qRuSMlTRW6qVB9rb8YuzU3t7phANScbmnhKHLegCuZ8nzBpz7NR9lPsvLzUtlH
-2qFJhURAE/hpMCgB9FUH5qzjrSu7wBSqmMx1weUVOJL49BNcIbM/jkFB8h5L81T/
-gTDEDqHjdMz45XD4/hQ18agrnzbricgS3n8/AqlPPgOjZe+BAruR6xEvGsZ4yzDr
-vMOXuxiEGHMillHtT6ml0XhCpJAhcAOano4WPReMYZOR+wZenMkr0STASqyo2Utl
-QN9UaWgvgckJ1TPqy8ylJfsjfPMuNCRGwgUZrorICSJ4UGLXnjEEPZWYJs1Cgsd+
-GDponlYT/Gankg5pl/HBBxSZH4wGAkUWOoGBYEZpnnGgeQjdBoZbJshg6rhfV2Q5
-mD+l43+ZdWyb6zALnn/SShuXbzOYChiTtKnVW6t3NeSgCSMGgAHr/92jB0lYYizF
-Mt94cr/8kbnGuFKVkQ7cFU9EoVS+ZHvkY715Tpx1ZZxUVbX+Hq6e6TrJMagzvU62
-+acWMN0Fj0IFMqmJg3J6atDqAgZGhWQHx1ybZW5D7iSiUtVTazMIchV9nGiAH4Q3
-ecrtl5nem07YRTRSRMCG
-=Hkoc
+iQIcBAEBAgAGBQJXZoq6AAoJEBQN5MwUoCm2HssP/2PzHJqEeOGsjm5KDO9MnjYa
+HRc/p9wM46HaM1ji7mEFhQeTjhmTl9Oh7EfS7bGv8uPdEp/SGCaNMtZwS3ms9z45
+iXYEu4GXp+X9rg0F6z+8cA/O1VQHUtFShPwmR9+bJFgMj3zXm0M/fc0gtQ2M0z0I
+nSvpLvpidxqFjr9bUdQJmS4FWzbp4GLIC+WwblUIuUdVyPpG4AQx6GgD3+SYAZsQ
+tivxJlUOUlpGJybSAtRomxlSKZKFiljNpsGra4Wd6hZv+viiXE1MEC3/ad2SgK+O
+gKTLeqGp2FB4XlDuR+JhoS8bUv49TCtHm8kQBkA5gCOqcGRpgXlsf8EhqvEAUMS9
+ZQKZClM0T27yzDf3ytW7YDPhBXhk+EU2vjuxVjLhGfx0xkxfMVYYpfIvjV427RoV
+g6AlWfcOe2QAREirrZILKxJTHhXdczpNfnxslV3xk3cP6CBThKi2cZjcEvgtxXXF
+szGiiOCnvZLWV+7SC09mu4o2aeNzO4XkYZa857Kox6E8mTue0Zz9XGt9HrwMqOg+
+0NcIrvR5Swo4hIPPiFBORP//7fbn8yA5pMXpo3IHIBeMKwf8ZW9dgL6BzmIHGzlj
+UwPV6RKfrurGYhJuydexMtPttyJcMiB3i5sbxchO/nZb/J8L0USBZxN2Ma1KFVOZ
+Iv/E1EFYXYudvs4ZnM4s
+=hre1
 -----END PGP SIGNATURE-----
 
---L+ofChggJdETEG3Y--
+--2fHTh5uZTiUOsy+g--
