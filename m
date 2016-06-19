@@ -1,30 +1,30 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: elektor: Utilize the module_isa_driver macro
-Date: Sun, 19 Jun 2016 19:46:48 +0200
-Message-ID: <20160619174648.GI2933@tetsubishi>
-References: <20160531153713.GA31615@sophia>
+Subject: Re: [PATCH] i2c: pca-isa: Utilize the module_isa_driver macro
+Date: Sun, 19 Jun 2016 19:48:17 +0200
+Message-ID: <20160619174817.GJ2933@tetsubishi>
+References: <20160531162223.GA17106@sophia>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mhOzvPhkurUs4vA9"
+	protocol="application/pgp-signature"; boundary="AXxEqdD4tcVTjWte"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59207 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:59211 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751191AbcFSRqx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 19 Jun 2016 13:46:53 -0400
+	id S1751627AbcFSRsW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 19 Jun 2016 13:48:22 -0400
 Content-Disposition: inline
-In-Reply-To: <20160531153713.GA31615@sophia>
+In-Reply-To: <20160531162223.GA17106@sophia>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: William Breathitt Gray <vilhelm.gray@gmail.com>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---mhOzvPhkurUs4vA9
+--AXxEqdD4tcVTjWte
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 31, 2016 at 11:37:13AM -0400, William Breathitt Gray wrote:
+On Tue, May 31, 2016 at 12:22:34PM -0400, William Breathitt Gray wrote:
 > This driver does not do anything special in module init/exit. This patch
 > eliminates the module init/exit boilerplate code by utilizing the
 > module_isa_driver macro.
@@ -34,25 +34,25 @@ On Tue, May 31, 2016 at 11:37:13AM -0400, William Breathitt Gray wrote:
 Applied to for-next, thanks!
 
 
---mhOzvPhkurUs4vA9
+--AXxEqdD4tcVTjWte
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXZtqHAAoJEBQN5MwUoCm2UAIP/0PUpIJ2JK6HYgx2n+bKmAAV
-mOu8t9m4UROiOpb9ik84C3FxyZeJJUfUY1ZmuOQlL6g95DTuq1gSgruUnEnbX7Xg
-LMzDGbhk7WUJdF92X3wJeBGD3e2glfgGpqiVRecLVObu3nKWH54p/2Vjh8/E27LE
-ht5TQgugUMbFkyuV0LuAcZ8Sq+otkd2fAZqnUUnea/gnGhQYBtf6+01/cNZntrWH
-O6j+JRQ2XUG+Wc8kqn7iYe2teopzqhbqPEhp1ZGTxP1cIHwEk7ap7aBHyPAJu8mR
-oUZ4dv0IWx2gRbMuzASlFXpXDAt2w5jUDPTIyc5g1ojDHwkwThcU3jke6F/Vvcf5
-EEtCTjDDemGxpxk6k2NWXRqU6/K2onY+E0IaoXYButquy+Jw9RIm5f8//GZHm5N+
-hdMOuJZCmIWgfqmTjV76tdyJ9uHnQWznGxkmMEOchqYAPNu/ya/bvNnxXH777/jw
-mHrTddF3pC7pgJJn7B1f1SG49MldLAaApmGckAx8vCIYc0edNkvFrLGbNGDn4OC3
-jWjvnXORgUrB1JdwENeRrCrAo9IwSn1UNyZlYViUVOQG9eXfdeiSiWycYloDEGFv
-uk9b/cDAanHwpu1mmpKAFWvNELKEvM2rxAPpKLjN6NLLLbLWgbWgCc44/LzqW55W
-Ppps8HcGMPleN+xGun12
-=7+yJ
+iQIcBAEBAgAGBQJXZtrgAAoJEBQN5MwUoCm2wUQP/iCkwAWyDMgY+azMMUpclS/s
+M7bOQZ5gSmM64XBXrlCPistufgPf4j2j1Mdn99hwXxRTOkDm6rvZP9O2jEX4kBa8
+HN+dWFJfoSbnhBCw8dT2R+3+x46HWb4isKioZJrQGH1pu+z5KGqv+ES8KDeIJ4HG
+1ZZgXq35q2Gag0bB1Qtrqg5RE1HaR+tgsAjRG7wXPlozn3XTEK7zoUaU0BMuhZW+
+wCEsONj8ZMgKT7yXAcQypCGEwK+0YkP/CGfsBIbtUo6lIqc3LKUK67k3hApUktLk
+uTyk1KOkTAkHMUpmBEPQDjCuSVerZ4NiEz8Jzp5/U/V4gVOV4jNT//Ri/ZnOPk9l
+7Cd5oPexkg2cksylNWvkgWYyE2biZVw5Csg5SaT8VFs8qveW4PRBUnbQv84gTPgZ
+quB+nCdaXVwMaGT2g1k0udMTpBeRmmdxqBCFixUA+/CEVm0Ze4zXVUlm9OzPAP4B
+xvHyPPmBPFC3UWqIOO56h3Xgg52/bSa2lkTnjqaEvc9CXu2IOtjXzIfXjN7fzlpK
+Aitd5trdDU+tXa79fgqXvn1YUkFxPY26fr3aRnPooBq5hqCP4fNdEuLDCbIdvGAn
+H0penxacVShTL58BxakLcOS0zTUWypJs7+X0nY42kQ8ZhETz0lIWRne6P9x9AKLT
+Bx4K0vYtufI0tU/dP3aX
+=nSU1
 -----END PGP SIGNATURE-----
 
---mhOzvPhkurUs4vA9--
+--AXxEqdD4tcVTjWte--
