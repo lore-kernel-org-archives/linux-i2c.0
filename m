@@ -1,52 +1,79 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v8 1/3] i2c: tegra: use readx_poll_timeout after
- config_load reg programmed
-Date: Sun, 19 Jun 2016 19:21:37 +0200
-Message-ID: <20160619172136.GE2933@tetsubishi>
-References: <1464356224-10339-1-git-send-email-smohammed@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: Designware patches
+Date: Sun, 19 Jun 2016 19:30:34 +0200
+Message-ID: <20160619173034.GF2933@tetsubishi>
+References: <20160619170800.GB2933@tetsubishi>
+ <1466356591.30123.167.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2qXFWqzzG3v1+95a"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="5CUMAwwhRxlRszMD"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:59151 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751191AbcFSRaj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 19 Jun 2016 13:30:39 -0400
 Content-Disposition: inline
-In-Reply-To: <1464356224-10339-1-git-send-email-smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1466356591.30123.167.camel@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>
 
 
---2qXFWqzzG3v1+95a
+--5CUMAwwhRxlRszMD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> +		err = readx_poll_timeout(readl, i2c_dev->base + reg_offset,
-> +					 val, val == 0, 1000,
-> +					 I2C_CONFIG_LOAD_TIMEOUT);
+> > http://patchwork.ozlabs.org/project/linux-
+> > i2c/list/?submitter=3D&state=3D&q=3Ddesign&archive=3D&delegate=3D
+>=20
+> Wow, there is a couple from ancient times!
 
-Any reason we can't use readl_poll_timeout() here?
+We can skip the one from 2013 :) And I missed the ack for the 2015 one,
+will apply it now.
+
+>=20
+> >=20
+> > I'd suggest I apply patches whenever they get acked- or rev-by tags.
+> > Or
+> > drop them when someone says so in a reply to the patch. Does that
+> > sound
+> > like a plan?
+>=20
+> My patches can't be applied since it touches PCI part.
+
+I assume s/can't/can/ here and that
+
+http://patchwork.ozlabs.org/patch/610444/
+
+is obsolete meanwhile then?
+
+Thanks,
+
+   Wolfram
 
 
---2qXFWqzzG3v1+95a
+--5CUMAwwhRxlRszMD
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXZtSgAAoJEBQN5MwUoCm2n+cP/1qVfJnVtBlrikKTTSWbd2Qk
-/86t9xtiyIxtl2rX8aTY9Ecgb1zZFg7RMfsaiKcIGjDlHlnm/AMWvgOwjME+MjT4
-vCBRVGjRVR1elOvN+szrWQ6PTSP5osG1SMkM/EGMMozxvo8SferUcd8l4gSOIKKJ
-fo+H+3EdlYh8HNhvV2nOMKqaAnlbLDsi3Uae3EP72dyprL0wvF7sTOQTCZ3j0J4x
-MzbLVxqJ/Pf9aVawelH1ciqs2DHO3HMmoS/s6sTYit4/3TTKoVAXxs0h56+ZYLLd
-4xBru5+/oeMjVF6c/lz/UvNJWQMQZEXrAZja1ByOLEv/NypkZgUoSKoLdcftj+pw
-JKcYWAE7AfhwoJ0d6/trj5szwLGYeavHdTBz1Mro6G7porAbTtU2qm17xKa0aHDi
-ApP3I23BiepnTOIkPa155OtiYM828lKsJTpQSzK/hBy2Gj4l8JOnDkUD1kpL/TH7
-GjqFtb8JjzeqLdqNcnSngP3UuZrbpA5KIS7AgxV8ONy4qfYBpxQeWk2QpeFsTht8
-TGYvL8h0M3tTPQ7DOD1RT1BPEtfEfgL0NiU9doG5kfMGcJ5QX+nZINmByjgEvoy8
-Mecqfk5YaSho8vwKkMkmdRyElfWLDaQDxmTfZnEKV6cWmRgk+DWE6mdyHGWbtKhq
-h4RsoOtcx/xsMQTMJSKI
-=bF6q
+iQIcBAEBAgAGBQJXZta6AAoJEBQN5MwUoCm2GssP/RHRsSW3x2nt896HT+G1e+X1
+trmQS/5Qqb4oU+yPJfNRY6stSOM4U2TtD9jGPQssd4Y8HsjRBV3hBE1OA6i5Ygv9
+1Mh/PIaStR9yVh6E+frlCu6LBvL18ZuebXajWaeEDw+h1x9Iz8ZhVITKuwl50f4j
+VSKT5XXKNQXL1Qv4NO7v01gZlvafPUAGtHzH9VlOmY0ryGSAz8f4X6jaV6+lYcoa
+x39n6a4sw5KlA7oixa6le1dHKEXv2vTLAuYYG3vDRsU8jRQjvECTqnet0aijH3wX
+o+cUwsO1rqKQi2l9G1Jvi4pSV6JnUGWMfSOXib8En+V2KydbRsgyMFKN7WSmPobe
+ifZPKEgoP0H4g+tuJl1TzjICfQIfpnrqpIMEJLK4Ul+wmg4LgKo9cGrmBKmpCIxb
+anGuV7umvekY2puAaStH86KnWusDgZ8L2Vthi67NPx4aUQBpB9thFvxe5tciPl7X
+nE8v56Ox42RmnLGoszsJ9bP/X8ihLdti4c8lmG9ZUO73NJTdORZVd6ryWErE8NJl
+7Zlv/UfHhr3jc1gv4rZ5pkcZ8IoLZct1ft0xMOuusRToPH+d8AkgwkFxq3VvV9gW
+FP7yEgVEy1OqCt1zzKmTjqZGx4/4imEJMPgo+te/7CZNnuT/q16GJ+OQp3ayMqWd
+lQ+qCSwEej0h5tlooL6A
+=Emi7
 -----END PGP SIGNATURE-----
 
---2qXFWqzzG3v1+95a--
+--5CUMAwwhRxlRszMD--
