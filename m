@@ -1,137 +1,79 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-smbus: Don't report duplicate alerts
-Date: Sun, 19 Jun 2016 14:06:19 +0200
-Message-ID: <20160619120619.GA3072@tetsubishi>
-References: <1453222848-20457-1-git-send-email-minyard@acm.org>
- <20160303205754.GE1711@katana>
- <1457086557.4527.15.camel@chaos.site>
- <5720CC77.2080507@acm.org>
+Subject: Re: [PATCH] i2c: remove __init from i2c_register_board_info()
+Date: Sun, 19 Jun 2016 14:15:38 +0200
+Message-ID: <20160619121538.GB3072@tetsubishi>
+References: <1465343547-19974-1-git-send-email-mcgrof@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:58120 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:58177 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751697AbcFSMGa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 19 Jun 2016 08:06:30 -0400
+	id S1751756AbcFSMb4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 19 Jun 2016 08:31:56 -0400
 Content-Disposition: inline
-In-Reply-To: <5720CC77.2080507@acm.org>
+In-Reply-To: <1465343547-19974-1-git-send-email-mcgrof@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Corey Minyard <minyard@acm.org>
-Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: "Luis R. Rodriguez" <mcgrof@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, feng.tang@intel.com, linux-next@vger.kernel.org
 
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=utf-8
+--s/l3CgOIzMHHjg/5
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 27, 2016 at 09:28:07AM -0500, Corey Minyard wrote:
-> On 03/04/2016 04:15 AM, Jean Delvare wrote:
-> >Le Thursday 03 March 2016 =C3=A0 21:57 +0100, Wolfram Sang a =C3=A9crit :
-> >>On Tue, Jan 19, 2016 at 11:00:48AM -0600, minyard@acm.org wrote:
-> >>>From: Corey Minyard <cminyard@mvista.com>
-> >>>
-> >>>Getting the same alert twice in a row is legal and normal,
-> >>>especially on a fast device (like running in qemu).  Kind of
-> >>>like interrupts.  So don't report duplicate alerts, and deliver
-> >>>them normally.
-> >>>
-> >>>Signed-off-by: Corey Minyard <cminyard@mvista.com>
-> >>Looks plausible to me, but I never used SMBALERT myself. Any chance this
-> >>can cause a regression? Jean, what do you think?
-> >I'm afraid I had a good reason to add this check back then. I'll test
-> >with my ADM1032 evaluation board when I get back home (tomorrow at the
-> >earliest.) Maybe my hardware was misbehaving, in which case I agree any
-> >filtering should be done at the device driver level. But I must double
-> >check what the SMBus specification says too.
+On Tue, Jun 07, 2016 at 04:52:27PM -0700, Luis R. Rodriguez wrote:
+> As of next-20160607 with allyesconfig we get this linker failure:
 >=20
-> I looked at the SMBus specification and I couldn't find anything that
-> would speak to this particular issue.  It says it has to stop asserting
-> the interrupt when the ack is received on the bus, but it doesn't say
-> when it can re-assert the interrupts.
+>   MODPOST vmlinux.o
+> WARNING: vmlinux.o(.text+0x21bc0d): Section mismatch in reference from
+> the function intel_scu_devices_create() to the function
+> .init.text:i2c_register_board_info()
 >=20
-> I will say that without this change SMBus alerts are fairly useless
-> with IPMI over SMBus on both real hardware and in qemu.  It just
-> spews out these warning messages in qemu, and it prints them out
-> periodically on real hardware.
+> This is caused by the fact that intel_scu_devices_create() calls
+> i2c_register_board_info() and intel_scu_devices_create() is not
+> annotated with __init. This typically involves manual code
+> inspection and if one is certain this is correct we would
+> just peg intel_scu_devices_create() with a __ref annotation.
 >=20
-> To give an idea of what's happening here, on IPMI over SMBus, the
-> IPMI controller (BMC) will signal that it needs the host to do something
-> using an alert.  The driver does an I2C write to send a request to the
-> BMC to find out what it needs.  The BMC performs the request then
-> signals with an SMBus alert that the response is ready.  If the BMC is
-> very fast (like in the qemu case) or the host gets delayed enough before
-> coming back to this loop, the BMC will have the response ready and
-> reassert alert before the next check in the loop.
+> In this case this would be wrong though as the
+> intel_scu_devices_create() call is exported, and used in
+> the ipc_probe() on drivers/platform/x86/intel_scu_ipc.c.
+> The issue is that even though builtin_pci_driver(ipc_driver)
+> is used this just exposes the probe routine, which can occur
+> at any point in time if this bus supports hotplug. A race
+> can happen between kernel_init_freeable() that calls the init
+> calls (in this case registeres the intel_scu_ipc.c driver, and
+> later free_initmem(), which would free the i2c_register_board_info().
+> If a probe happens later in boot i2c_register_board_info() would
+> not be present and we should get a page fault.
 >=20
-> I don't see a way to fix this that handles both scenarios.
+> Signed-off-by: Luis R. Rodriguez <mcgrof@kernel.org>
 
-Jean: any news on this?
+Applied to for-current, thanks! Do you think this should go to stable?
 
-Adding Benjamin to CC since he dealt with alerts recently, maybe he has
-something to add?
 
->=20
-> -corey
->=20
-> >Either way the patch's subject is misleading. Should be "Don't filter
-> >out duplicate alerts" or something like that.
-> >
-> >>>---
-> >>>  drivers/i2c/i2c-smbus.c | 7 -------
-> >>>  1 file changed, 7 deletions(-)
-> >>>
-> >>>diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> >>>index 94765a8..cecd423 100644
-> >>>--- a/drivers/i2c/i2c-smbus.c
-> >>>+++ b/drivers/i2c/i2c-smbus.c
-> >>>@@ -75,7 +75,6 @@ static void smbus_alert(struct work_struct *work)
-> >>>  {
-> >>>  	struct i2c_smbus_alert *alert;
-> >>>  	struct i2c_client *ara;
-> >>>-	unsigned short prev_addr =3D 0;	/* Not a valid address */
-> >>>  	alert =3D container_of(work, struct i2c_smbus_alert, alert);
-> >>>  	ara =3D alert->ara;
-> >>>@@ -99,18 +98,12 @@ static void smbus_alert(struct work_struct *work)
-> >>>  		data.flag =3D status & 1;
-> >>>  		data.addr =3D status >> 1;
-> >>>-		if (data.addr =3D=3D prev_addr) {
-> >>>-			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
-> >>>-				"0x%02x, skipping\n", data.addr);
-> >>>-			break;
-> >>>-		}
-> >>>  		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
-> >>>  			data.addr, data.flag);
-> >>>  		/* Notify driver for the device which issued the alert */
-> >>>  		device_for_each_child(&ara->adapter->dev, &data,
-> >>>  				      smbus_do_alert);
-> >>>-		prev_addr =3D data.addr;
-> >>>  	}
-> >>>  	/* We handled all alerts; re-enable level-triggered IRQs */
-> >
->=20
-
---2fHTh5uZTiUOsy+g
+--s/l3CgOIzMHHjg/5
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXZoq6AAoJEBQN5MwUoCm2HssP/2PzHJqEeOGsjm5KDO9MnjYa
-HRc/p9wM46HaM1ji7mEFhQeTjhmTl9Oh7EfS7bGv8uPdEp/SGCaNMtZwS3ms9z45
-iXYEu4GXp+X9rg0F6z+8cA/O1VQHUtFShPwmR9+bJFgMj3zXm0M/fc0gtQ2M0z0I
-nSvpLvpidxqFjr9bUdQJmS4FWzbp4GLIC+WwblUIuUdVyPpG4AQx6GgD3+SYAZsQ
-tivxJlUOUlpGJybSAtRomxlSKZKFiljNpsGra4Wd6hZv+viiXE1MEC3/ad2SgK+O
-gKTLeqGp2FB4XlDuR+JhoS8bUv49TCtHm8kQBkA5gCOqcGRpgXlsf8EhqvEAUMS9
-ZQKZClM0T27yzDf3ytW7YDPhBXhk+EU2vjuxVjLhGfx0xkxfMVYYpfIvjV427RoV
-g6AlWfcOe2QAREirrZILKxJTHhXdczpNfnxslV3xk3cP6CBThKi2cZjcEvgtxXXF
-szGiiOCnvZLWV+7SC09mu4o2aeNzO4XkYZa857Kox6E8mTue0Zz9XGt9HrwMqOg+
-0NcIrvR5Swo4hIPPiFBORP//7fbn8yA5pMXpo3IHIBeMKwf8ZW9dgL6BzmIHGzlj
-UwPV6RKfrurGYhJuydexMtPttyJcMiB3i5sbxchO/nZb/J8L0USBZxN2Ma1KFVOZ
-Iv/E1EFYXYudvs4ZnM4s
-=hre1
+iQIcBAEBAgAGBQJXZozqAAoJEBQN5MwUoCm27GQP/1ttY6h657MGQP3p/fCdW2Nx
+rdJqm5kzPgcRzSHKBk0mNHfRLUm3UUl1mIp6wv/rtjlspA45iy46KsmTqmzpy9nn
+PCaLP31WurjuR5zFECl5fOy5vr2p1e4myADKWMIaWPfpR0AbqHz1sDAd92ouns3i
+kni+8K6Q9BkUW3JvvCICyeoD6URQoSx14G/gwHbPGhANaj181n7NCsRh5nHyxNGp
+6+jjvaa2HFSI3PRhcvaTVXeLxFNn5PUCbVZOKHpPePRYf+wJjpRCopOLptiXA2Zd
+E4b/qTFgL8Gxg4G1GWCmdHIq+kUrm1j0/ofqXeFwsd/6SmJlURjm438B/BXojC7P
+bEiDxfxkOyQh4EhM1VFrOuY21wbdkHFd5Z8iSwIlXoIw/NwD1ifIty2i4fpgViG4
+Yhj4/bHXp9bSX2AY3g0UfeB+jKo58Uhlmf0FOaLhZvQy7IMGSw2ZMMoO5X9yurQW
+GyddvKZbGqK0DzuHCo9wp59TQBfOWDbQ7SisCKrAAiQKfLxZDU/XuBck4Ik7OvT1
+hsng6Toj3bG8FQpT/A84Dd6Rz7Zy3u1QI6qjCZK5qx3n28CGn0bj1IzkXN3CAvOB
+gafLfvADmWgYDmVq5/WuUJapMlOcm+9+C98HGu3S+gF9RJ3KXZW0L9WHtiZYv0F5
+DiQ3h4UuoBkdXXsEXKD3
+=sbUQ
 -----END PGP SIGNATURE-----
 
---2fHTh5uZTiUOsy+g--
+--s/l3CgOIzMHHjg/5--
