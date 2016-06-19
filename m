@@ -1,64 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Designware patches
-Date: Sun, 19 Jun 2016 19:08:00 +0200
-Message-ID: <20160619170800.GB2933@tetsubishi>
+Subject: Re: [RFC PATCH] i2c: i801: Fix I2C Block Read on 8-Series/C220 and
+ later
+Date: Sun, 19 Jun 2016 19:09:51 +0200
+Message-ID: <20160619170950.GC2933@tetsubishi>
+References: <20160523114740.1f8cf29e@endymion>
+ <5743FC27.2000307@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
+	protocol="application/pgp-signature"; boundary="ncSAzJYg3Aa9+CRW"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59087 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:59093 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751313AbcFSRIQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 19 Jun 2016 13:08:16 -0400
+	id S1751234AbcFSRJ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 19 Jun 2016 13:09:57 -0400
 Content-Disposition: inline
+In-Reply-To: <5743FC27.2000307@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
 
---v9Ux+11Zm5mwPlX6
+--ncSAzJYg3Aa9+CRW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi Jarkko and everyone,
 
-there are a bunch of patches pending for the designware driver and I am
-a bit lost e.g. if a series is superseding another series by taking a
-different approach, if there are contradicting series, or what would be
-a good order to pick them. May I ask for some assistance here? The list
-of patches can be seen here:
+> >Jarkko, Mika, that's what I'm using on my machine now. It works, but
+> >obviously I'd prefer to have confirmation from Intel hardware people
+> >that this is the right thing to do before it goes upstream.
+> >
+> I haven't yet found the contact but search is on going.
 
-http://patchwork.ozlabs.org/project/linux-i2c/list/?submitter=&state=&q=design&archive=&delegate=
-
-I'd suggest I apply patches whenever they get acked- or rev-by tags. Or
-drop them when someone says so in a reply to the patch. Does that sound
-like a plan?
-
-Thanks,
-
-   Wolfram
+Is there a plan B if no further information shows up?
 
 
---v9Ux+11Zm5mwPlX6
+--ncSAzJYg3Aa9+CRW
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXZtFvAAoJEBQN5MwUoCm21j0P/jNosi/BFs0LhUtkqb3lq0+S
-qPNnkPcHqvvODQ7JH9V1rQ/Qq/jQycnxWPr+UtPjollsSVi9ZH8QkFjJmPMAXsnW
-eFGz4tNEf3A4LTzRpGVcYn+jSLbM4lTViy1JpmKStXOHfxJCTpUEeliaRAYIVKXF
-1c3awoDFt25/8e5vpGEw14CFFt4bA2bAA35tTS/B/OuFBC+XnQj9skoOAejt85R9
-JvoEY1FpsP/cCcsW092EESzByxeRVCraIF+LgAOnme95xe3OWW/Uws4BgqBdeMRu
-C3Kf31CukWd4h/Hc1na5XGPRYbccxEDcO8psqvC5inoX+xb1q44YcUO8wR6XUChg
-ADqeS1mWauJwLqcT3AA8QD75rCkbsXuC2o05XFOAOUi92RmI9SCJLiNJHDhubjW1
-MqxlujJxU5G64hNju+MAbc1lgao4DQwGDJGBTYDtGHcZHqCwGj28q0xYIupXTpKd
-5D5xCuT/k+zquJhi7bZpqF3FjS7VrRXWaxxzQO76I1zHNW1xZYamfqbk4WViadfb
-wvVte4maAvkFH29G8yT18CHhVQ3DGZMCztldZ3eQythCMlrvhdKfbUaICQBBoOoS
-s71CJoK3soY5YGLyV1JGZo7+UGqNbOBc0lPZL3yJFmRiUnjdsqSuH1feIAoUEAeA
-vnoFwZSTep8cwguYslvY
-=SKiw
+iQIcBAEBAgAGBQJXZtHeAAoJEBQN5MwUoCm254EP/R66Be5ksWSHpOUC0p3rsSjX
+F1nMY1D6ksJOYsxxws97ym/8H2rOc3eKocvRNOAErQ/Kf7xeHGGGZKTe6TbggNnG
+Q9Mx+5/va9SJSwKIQunCxIdF69viYLtRQWkK7Luo/LCIlJWlZECFAKD4TWLrHYid
+vkAt3kUWTUJ5tNNxXOHFGAEoKdLhYzjA50QYgMa5XDzy4H+0XTB/3lrAz/MtwR3J
+axXWwEFZrPvUuHztb2ttQ8cpJ5Cc2IWirlFg0PoHVic3I5WR+Tv+4PVWVIWb69YP
+LauOOJWPBOQxojmXODblTYagCGSzKVKqwLFSJ1aF2TV+I8W6GP50+9N4KqCNLH7l
+D0NVO74dfMpvJYNMEardba1VkqVWSTR4tZRhy4I9Z/0DpNtZ9uj+CHkgLdietdJP
+ALb/RCocdFXoafJNdH3QTvJpDmPrUfoMoCtyZlm0gcLpbbVkzzoyHdvVL5QjW4aJ
+wdTDU7tUbMTBQU5UtAfo46tSRf4V4kpzdj0weuft6CXef6ISVOvh37n66ANizotd
+Dvx9Y7hdiDbpEKHp5MNs7IxxU275uFUW7GkVInYuMC8uZpIMK0WchHotJDV8GKca
+DFT1u0vlhkCbo+OpW4eGwsnmP4aJZTX/sUAwlntTzPoSrIHa281IlN2YMJgpe3uO
+CPQVqXOzm+JGsYW13AkJ
+=k3TP
 -----END PGP SIGNATURE-----
 
---v9Ux+11Zm5mwPlX6--
+--ncSAzJYg3Aa9+CRW--
