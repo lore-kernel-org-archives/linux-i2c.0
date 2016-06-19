@@ -1,43 +1,56 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/1] i2c: designware-pci: clarify a comment for Merrifield
-Date: Sun, 19 Jun 2016 23:21:56 +0300
-Message-ID: <1466367716-89939-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
+Date: Sun, 19 Jun 2016 21:56:41 +0200
+Message-ID: <20160619195641.GD26875@pengutronix.de>
+References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
+ <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+ <20160427173308.GN7946@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:14824 "EHLO mga04.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751286AbcFSUZE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 19 Jun 2016 16:25:04 -0400
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:50192 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751501AbcFSUd1 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 19 Jun 2016 16:33:27 -0400
+Content-Disposition: inline
+In-Reply-To: <20160427173308.GN7946@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 
-There are more than 7 busses, but only 7 are user visible. Update comment
-accordingly.
+Hello,
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-pcidrv.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+On Wed, Apr 27, 2016 at 07:33:09PM +0200, Uwe Kleine-K=F6nig wrote:
+> On Fri, Jun 19, 2015 at 12:40:31PM +0200, Wolfram Sang wrote:
+> > This tool allows to construct and concat multiple I2C messages into=
+ one
+> > single transfer. Its aim is to test I2C master controllers, and so =
+there
+> > is no SMBus fallback.
+> > [...]
+>=20
+> I didn't look at the patch, but it would be great to get this
+> functionality into i2c-tools.
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index b66c31a..7c5a340 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -125,10 +125,10 @@ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
- static int mrfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
- {
- 	/*
--	 * On Intel Merrifield the i2c busses are enumerated [1..7]. So, we add
--	 * 1 to shift the default range. Besides that the first PCI slot
--	 * provides 4 functions, that's why we have to add 0 to the head slot
--	 * and 4 to the tail one.
-+	 * On Intel Merrifield the user visible i2c busses are enumerated
-+	 * [1..7]. So, we add 1 to shift the default range. Besides that the
-+	 * first PCI slot provides 4 functions, that's why we have to add 0 to
-+	 * the fisrt slot and 4 to the next one.
- 	 */
- 	switch (PCI_SLOT(pdev->devfn)) {
- 	case 8:
--- 
-2.8.1
+In the meantime I tested i2ctransfer, I really like it and it helped me
+debugging a problem with an i2c rtc device that isn't usable with
+i2cget/i2cset.
+=20
+> Note, I didn't check if this patch got applied in the meantime, my
+> excuse is that http://lm-sensors.org where AFAIK the i2c-tools repo i=
+s
+> located isn't reachable for me.
+
+This still stands. Where is the upstream repository of i2c-tools?
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
