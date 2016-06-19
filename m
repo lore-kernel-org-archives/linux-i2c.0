@@ -1,67 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
-Date: Sun, 19 Jun 2016 22:00:30 +0200
-Message-ID: <20160619200030.GA3329@tetsubishi>
-References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
- <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
- <20160427173308.GN7946@pengutronix.de>
- <20160619195641.GD26875@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] i2c: designware-pci: clarify a comment for Merrifield
+Date: Sun, 19 Jun 2016 23:21:56 +0300
+Message-ID: <1466367716-89939-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:59536 "EHLO pokefinder.org"
+Received: from mga04.intel.com ([192.55.52.120]:14824 "EHLO mga04.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751364AbcFSUAk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 19 Jun 2016 16:00:40 -0400
-Content-Disposition: inline
-In-Reply-To: <20160619195641.GD26875@pengutronix.de>
+	id S1751286AbcFSUZE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 19 Jun 2016 16:25:04 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+There are more than 7 busses, but only 7 are user visible. Update comment
+accordingly.
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-
-> In the meantime I tested i2ctransfer, I really like it and it helped me
-> debugging a problem with an i2c rtc device that isn't usable with
-> i2cget/i2cset.
-
-I read this as Tested-by :)
-
-> > Note, I didn't check if this patch got applied in the meantime, my
-> > excuse is that http://lm-sensors.org where AFAIK the i2c-tools repo is
-> > located isn't reachable for me.
->=20
-> This still stands. Where is the upstream repository of i2c-tools?
-
-Jean, did we already discuss moving it to kernel.org?
-
-
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXZvneAAoJEBQN5MwUoCm2G3cQALQhQJJx3he6mBpO+6qqALQg
-PiKbaekwf3qawhYOBeUGhVuGsV68aQBqWoc+K1NRE5Wq2QdXk5SjKjTJX6TruTa+
-R7BChsnc9AAMcb0ivZP/3OyJK5ZcHN2SxZYIc5604IjgkWRTduBvLoxqTCKTThwc
-VQ8+xgpXMCrnBsVnMpE76FKzCTzZUyI9vCjhFRHfGhPalmKRqZfrbA/qcBgkPdoo
-nn/Cw16bT9oVHCCaX8KyzKKM+NOKd8YsjQw6GzZGLCrSbwjuaV1+SKgAqqp7aS6D
-vr1bZhx2+j/gNlaRJINJtWd4N0I4GDaA5Za0oDNwJuU6vywVFYcIYvcw5Bu/Zkca
-UB4+0Tqb8ySvPRQ9PD7b6Xj2E8eS0Pu+/bt2MPM3Lb/1I3JNsNbRI5jgeNHAOjY5
-fED97Kqh+n6Ff1icSPWZ9dCJvjDFs8eEs+3m7dKfZznPXQPqmWwoTgN9d9cnFd6d
-LPc6PM0pjC6yJWQ4uEOooPLOevNEZfuXcCyFfKws3bvsBLYZzuTsUsvM6+UxaqPn
-udIKpO6QajDu6EJcplaRdSd37jKUT5jeBWkOljQAC4zkujWFijY6TAFlZ6Re0RDP
-fTiQhz5sk3S2ScB5EWd+rTwiYbb2oLyDyyZAtt4hxPjbpNW6SKh3/TW1JSgdGOXk
-RDSW5qyOSmvLB6zIW4oi
-=Zvgc
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index b66c31a..7c5a340 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -125,10 +125,10 @@ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
+ static int mrfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
+ {
+ 	/*
+-	 * On Intel Merrifield the i2c busses are enumerated [1..7]. So, we add
+-	 * 1 to shift the default range. Besides that the first PCI slot
+-	 * provides 4 functions, that's why we have to add 0 to the head slot
+-	 * and 4 to the tail one.
++	 * On Intel Merrifield the user visible i2c busses are enumerated
++	 * [1..7]. So, we add 1 to shift the default range. Besides that the
++	 * first PCI slot provides 4 functions, that's why we have to add 0 to
++	 * the fisrt slot and 4 to the next one.
+ 	 */
+ 	switch (PCI_SLOT(pdev->devfn)) {
+ 	case 8:
+-- 
+2.8.1
