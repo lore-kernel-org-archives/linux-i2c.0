@@ -1,55 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: designware: Use transfer timeout from ioctl
- I2C_TIMEOUT
-Date: Sun, 19 Jun 2016 18:54:01 +0200
-Message-ID: <20160619165400.GA2933@tetsubishi>
-References: <1466127995-28318-1-git-send-email-weifeng.voon@intel.com>
+Subject: Designware patches
+Date: Sun, 19 Jun 2016 19:08:00 +0200
+Message-ID: <20160619170800.GB2933@tetsubishi>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:59087 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751313AbcFSRIQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 19 Jun 2016 13:08:16 -0400
 Content-Disposition: inline
-In-Reply-To: <1466127995-28318-1-git-send-email-weifeng.voon@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Weifeng Voon <weifeng.voon@intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jui.nee.tan@intel.com
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>
 
 
---a8Wt8u1KmwUX3Y2C
+--v9Ux+11Zm5mwPlX6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 17, 2016 at 09:46:35AM +0800, Weifeng Voon wrote:
-> This allows applications to set the transfer timeout in 10ms increments v=
-ia
-> ioctl I2C_TIMEOUT.
->=20
-> Signed-off-by: Weifeng Voon <weifeng.voon@intel.com>
+Hi Jarkko and everyone,
 
-Applied to for-next, thanks!
+there are a bunch of patches pending for the designware driver and I am
+a bit lost e.g. if a series is superseding another series by taking a
+different approach, if there are contradicting series, or what would be
+a good order to pick them. May I ask for some assistance here? The list
+of patches can be seen here:
+
+http://patchwork.ozlabs.org/project/linux-i2c/list/?submitter=&state=&q=design&archive=&delegate=
+
+I'd suggest I apply patches whenever they get acked- or rev-by tags. Or
+drop them when someone says so in a reply to the patch. Does that sound
+like a plan?
+
+Thanks,
+
+   Wolfram
 
 
---a8Wt8u1KmwUX3Y2C
+--v9Ux+11Zm5mwPlX6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXZs4oAAoJEBQN5MwUoCm2XkQQAKnZLczXKysQFmp2HxbmeKXk
-sxQkiGzpcLWvZGrDRdUxYGe55rmb30Rw1tfpANZj9XuWsgQ9fX9s0Q19Ta/qytw6
-cjIm1d9gJWvsxSLCAR+lVKldGL1M3j7oVIVqMPnSUQeHBvlMBK8mbm9u6zc8ff6X
-IOkEdtj4AVoFfJDs7hT1eCRcZR2WEgYDFm8it07s0qUluk4VDk5e2y1hqX6E3Eoc
-b1anmlP12RRGu1sxp+uvhzwD0DDC4dKQDQtJ1VO9+CHRWzJGGXzRhPLTzZS8mxDy
-NSCWpo1zr9LxRxqNPLa8bWN009maXwVTrneyRfH4YbrypD5wF/k6MJi84hZB7EZX
-N312BncgNBqihIX26uJITBluiIQtXQHXpZrqYqbth7BA587tSm4PArgZc9xU7en3
-2h6tUrcFy6MxaiOt92ThSeBfxYkP+Zy984ttIrceeHvdG8+ZhWx0zU4elaeJ0XYj
-1GnDWOhOZiUnY6+f/GUYk2SrZY/p2V3N1lR32aynf4Q4dvzu7nSIqkg54LCELTRk
-BbcHyY7fbAaQtQhnYB2vN6CC7h+ZiHdnu9ZkKvRgwaVh+8CMm+qOE1FbOzKnr+UW
-CZbv64/5UGFC6KkxLrSek3r+LLFtQRReOQdrct8dlnEpu1Qc5/QOid4+WSo145IA
-TYuuiXIOxumXwVkf9Sw/
-=Xz0W
+iQIcBAEBAgAGBQJXZtFvAAoJEBQN5MwUoCm21j0P/jNosi/BFs0LhUtkqb3lq0+S
+qPNnkPcHqvvODQ7JH9V1rQ/Qq/jQycnxWPr+UtPjollsSVi9ZH8QkFjJmPMAXsnW
+eFGz4tNEf3A4LTzRpGVcYn+jSLbM4lTViy1JpmKStXOHfxJCTpUEeliaRAYIVKXF
+1c3awoDFt25/8e5vpGEw14CFFt4bA2bAA35tTS/B/OuFBC+XnQj9skoOAejt85R9
+JvoEY1FpsP/cCcsW092EESzByxeRVCraIF+LgAOnme95xe3OWW/Uws4BgqBdeMRu
+C3Kf31CukWd4h/Hc1na5XGPRYbccxEDcO8psqvC5inoX+xb1q44YcUO8wR6XUChg
+ADqeS1mWauJwLqcT3AA8QD75rCkbsXuC2o05XFOAOUi92RmI9SCJLiNJHDhubjW1
+MqxlujJxU5G64hNju+MAbc1lgao4DQwGDJGBTYDtGHcZHqCwGj28q0xYIupXTpKd
+5D5xCuT/k+zquJhi7bZpqF3FjS7VrRXWaxxzQO76I1zHNW1xZYamfqbk4WViadfb
+wvVte4maAvkFH29G8yT18CHhVQ3DGZMCztldZ3eQythCMlrvhdKfbUaICQBBoOoS
+s71CJoK3soY5YGLyV1JGZo7+UGqNbOBc0lPZL3yJFmRiUnjdsqSuH1feIAoUEAeA
+vnoFwZSTep8cwguYslvY
+=SKiw
 -----END PGP SIGNATURE-----
 
---a8Wt8u1KmwUX3Y2C--
+--v9Ux+11Zm5mwPlX6--
