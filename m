@@ -1,50 +1,47 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v1 1/1] i2c: designware-pci: clarify a comment for
- Merrifield
-Date: Mon, 20 Jun 2016 09:47:15 +0300
-Message-ID: <555cf8c0-8e25-f839-1e7c-d6f2d083bfd9@linux.intel.com>
-References: <1466367716-89939-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
+Date: Mon, 20 Jun 2016 08:49:30 +0200
+Message-ID: <20160620064929.GF26875@pengutronix.de>
+References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
+ <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+ <20160427173308.GN7946@pengutronix.de>
+ <20160619195641.GD26875@pengutronix.de>
+ <20160619200030.GA3329@tetsubishi>
+ <20160619215145.GE26875@pengutronix.de>
+ <20160620060806.GA1763@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:19333 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751781AbcFTGsH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 20 Jun 2016 02:48:07 -0400
-In-Reply-To: <1466367716-89939-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:38030 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752552AbcFTGtc (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jun 2016 02:49:32 -0400
+Content-Disposition: inline
+In-Reply-To: <20160620060806.GA1763@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 
-On 06/19/2016 11:21 PM, Andy Shevchenko wrote:
-> There are more than 7 busses, but only 7 are user visible. Update comment
-> accordingly.
->
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  drivers/i2c/busses/i2c-designware-pcidrv.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> index b66c31a..7c5a340 100644
-> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> @@ -125,10 +125,10 @@ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
->  static int mrfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
->  {
->  	/*
-> -	 * On Intel Merrifield the i2c busses are enumerated [1..7]. So, we add
-> -	 * 1 to shift the default range. Besides that the first PCI slot
-> -	 * provides 4 functions, that's why we have to add 0 to the head slot
-> -	 * and 4 to the tail one.
-> +	 * On Intel Merrifield the user visible i2c busses are enumerated
-> +	 * [1..7]. So, we add 1 to shift the default range. Besides that the
-> +	 * first PCI slot provides 4 functions, that's why we have to add 0 to
-> +	 * the fisrt slot and 4 to the next one.
+On Mon, Jun 20, 2016 at 08:08:07AM +0200, Wolfram Sang wrote:
+>=20
+> > That's fine. For maximal correctness use my private email address f=
+or
+> > the tag as I did test during my free time.
+>=20
+> Can't you just provide the line I should use?
 
-typo ->     ---^
+Silly me, That would be
 
-Otherwise
+	Tested-by: Uwe Kleine-K=F6nig <uwe@kleine-koenig.org>
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Thanks
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
