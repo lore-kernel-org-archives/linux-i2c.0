@@ -1,200 +1,85 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v4 1/2] i2c: qup: add ACPI support
-Date: Mon, 20 Jun 2016 11:24:20 +0300
-Message-ID: <20160620082420.GX1739@lahna.fi.intel.com>
-References: <1465409985-17113-1-git-send-email-austinwc@codeaurora.org>
- <20160618141034.GB1430@tetsubishi>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: Re: [RFC PATCH 04/13] drm/tegra: Add sor-safe clock for DPAUX on
+ Tegra210
+Date: Mon, 20 Jun 2016 09:43:42 +0100
+Message-ID: <5767ACBE.3090008@nvidia.com>
+References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
+ <1466165027-17917-5-git-send-email-jonathanh@nvidia.com>
+ <20160617161819.GE27475@ulmo.ba.sec>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:52171 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753141AbcFTIYZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 20 Jun 2016 04:24:25 -0400
-Content-Disposition: inline
-In-Reply-To: <20160618141034.GB1430@tetsubishi>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20160617161819.GE27475@ulmo.ba.sec>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, dri-devel@lists.freedesktop.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Austin Christ <austinwc@codeaurora.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, nkaje@codeaurora.org, linux-arm-kernel@lists.infradead.org
 
-On Sat, Jun 18, 2016 at 04:10:34PM +0200, Wolfram Sang wrote:
-> On Wed, Jun 08, 2016 at 12:19:44PM -0600, Austin Christ wrote:
-> > From: Naveen Kaje <nkaje@codeaurora.org>
-> > 
-> > Add support to get the device parameters from ACPI. Assume
-> > that the clocks are managed by firmware.
-> 
-> Adding Mika to CC: Can you have a look at the ACPI binding? Looks ok to
-> me...
-> 
-> > 
-> > Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
-> > Signed-off-by: Austin Christ <austinwc@codeaurora.org>
-> > Reviewed-by: sricharan@codeaurora.org
-> 
-> Please add a name before the email address
-> 
-> > ---
-> >  drivers/i2c/busses/i2c-qup.c | 59 ++++++++++++++++++++++++++++++++------------
-> >  1 file changed, 43 insertions(+), 16 deletions(-)
-> > 
-> > Changes:
-> > - v4:
-> >  - remove warning for fall back to default clock frequency
-> > - v3:
-> >  - clean up unused variable
-> > - v2:
-> >  - clean up redundant checks and variables
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-> > index dddd4da..0f23d58 100644
-> > --- a/drivers/i2c/busses/i2c-qup.c
-> > +++ b/drivers/i2c/busses/i2c-qup.c
-> > @@ -29,6 +29,7 @@
-> >  #include <linux/platform_device.h>
-> >  #include <linux/pm_runtime.h>
-> >  #include <linux/scatterlist.h>
-> > +#include <linux/acpi.h>
-> 
-> Keep includes sorted.
-> 
-> >  
-> >  /* QUP Registers */
-> >  #define QUP_CONFIG		0x000
-> > @@ -132,6 +133,10 @@
-> >  /* Max timeout in ms for 32k bytes */
-> >  #define TOUT_MAX			300
-> >  
-> > +/* Default values. Use these if FW query fails */
-> > +#define DEFAULT_CLK_FREQ 100000
-> > +#define DEFAULT_SRC_CLK 20000000
-> > +
-> >  struct qup_i2c_block {
-> >  	int	count;
-> >  	int	pos;
-> > @@ -1354,14 +1359,13 @@ static void qup_i2c_disable_clocks(struct qup_i2c_dev *qup)
-> >  static int qup_i2c_probe(struct platform_device *pdev)
-> >  {
-> >  	static const int blk_sizes[] = {4, 16, 32};
-> > -	struct device_node *node = pdev->dev.of_node;
-> >  	struct qup_i2c_dev *qup;
-> >  	unsigned long one_bit_t;
-> >  	struct resource *res;
-> >  	u32 io_mode, hw_ver, size;
-> >  	int ret, fs_div, hs_div;
-> > -	int src_clk_freq;
-> > -	u32 clk_freq = 100000;
-> > +	u32 src_clk_freq = 0;
-> > +	u32 clk_freq = DEFAULT_CLK_FREQ;
-> >  	int blocks;
-> >  
-> >  	qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL);
-> > @@ -1372,7 +1376,11 @@ static int qup_i2c_probe(struct platform_device *pdev)
-> >  	init_completion(&qup->xfer);
-> >  	platform_set_drvdata(pdev, qup);
-> >  
-> > -	of_property_read_u32(node, "clock-frequency", &clk_freq);
-> > +	ret = device_property_read_u32(qup->dev, "clock-frequency", &clk_freq);
-> > +	if (ret) {
-> > +		dev_notice(qup->dev, "using default clock-frequency %d",
-> > +			DEFAULT_CLK_FREQ);
-> > +	}
-> >  
-> >  	if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-v1.1.1")) {
-> >  		qup->adap.algo = &qup_i2c_algo;
-> > @@ -1454,20 +1462,31 @@ nodma:
-> >  		return qup->irq;
-> >  	}
-> >  
-> > -	qup->clk = devm_clk_get(qup->dev, "core");
-> > -	if (IS_ERR(qup->clk)) {
-> > -		dev_err(qup->dev, "Could not get core clock\n");
-> > -		return PTR_ERR(qup->clk);
-> > -	}
-> > +	if (ACPI_HANDLE(qup->dev)) {
-
-Use has_acpi_companion() if you need to.
-
-> > +		ret = device_property_read_u32(qup->dev,
-> > +				"src-clock-hz", &src_clk_freq);
-
-Alternatively you can make qup_i2c_acpi_probe() which creates clock for
-you based on the ACPI ID of the device. Then you do not need to have
-these custom properties just because ACPI does not have native support
-for clocks.
-
-Ideally if one uses device_property_* API it should not need to
-distinguish between DT/ACPI/whatnot.
-
-> > +		if (ret) {
-> > +			dev_warn(qup->dev, "using default src-clock-hz %d",
-> > +				DEFAULT_SRC_CLK);
-
-Why this is warning?
-
-> > +			src_clk_freq = DEFAULT_SRC_CLK;
-> > +		}
-
-> > +		ACPI_COMPANION_SET(&qup->adap.dev, ACPI_COMPANION(qup->dev));
-> > +	} else {
-> > +		qup->clk = devm_clk_get(qup->dev, "core");
-> > +		if (IS_ERR(qup->clk)) {
-> > +			dev_err(qup->dev, "Could not get core clock\n");
-> > +			return PTR_ERR(qup->clk);
-> > +		}
-> >  
-> > -	qup->pclk = devm_clk_get(qup->dev, "iface");
-> > -	if (IS_ERR(qup->pclk)) {
-> > -		dev_err(qup->dev, "Could not get iface clock\n");
-> > -		return PTR_ERR(qup->pclk);
-> > +		qup->pclk = devm_clk_get(qup->dev, "iface");
-> > +		if (IS_ERR(qup->pclk)) {
-> > +			dev_err(qup->dev, "Could not get iface clock\n");
-> > +			return PTR_ERR(qup->pclk);
-> > +		}
-> > +		qup_i2c_enable_clocks(qup);
-> > +		src_clk_freq = clk_get_rate(qup->clk);
-> >  	}
-> >  
-> > -	qup_i2c_enable_clocks(qup);
-> > -
-> >  	/*
-> >  	 * Bootloaders might leave a pending interrupt on certain QUP's,
-> >  	 * so we reset the core before registering for interrupts.
-> > @@ -1514,7 +1533,6 @@ nodma:
-> >  	size = QUP_INPUT_FIFO_SIZE(io_mode);
-> >  	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
-> >  
-> > -	src_clk_freq = clk_get_rate(qup->clk);
-> >  	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
-> >  	hs_div = 3;
-> >  	qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff);
-> > @@ -1639,6 +1657,14 @@ static const struct of_device_id qup_i2c_dt_match[] = {
-> >  };
-> >  MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
-> >  
-> > +#if IS_ENABLED(CONFIG_ACPI)
-> > +static const struct acpi_device_id qup_i2c_acpi_match[] = {
-> > +	{ "QCOM8010"},
-> > +	{ },
-> > +};
-> > +MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_ids);
-> > +#endif
-> > +
-> >  static struct platform_driver qup_i2c_driver = {
-> >  	.probe  = qup_i2c_probe,
-> >  	.remove = qup_i2c_remove,
-> > @@ -1646,6 +1672,7 @@ static struct platform_driver qup_i2c_driver = {
-> >  		.name = "i2c_qup",
-> >  		.pm = &qup_i2c_qup_pm_ops,
-> >  		.of_match_table = qup_i2c_dt_match,
-> > +		.acpi_match_table = ACPI_PTR(qup_i2c_acpi_match),
-> >  	},
-> >  };
-> >  
-> > -- 
-> > Qualcomm Innovation Center, Inc.
-> > The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-> > a Linux Foundation Collaborative Project.
-> > 
+Ck9uIDE3LzA2LzE2IDE3OjE4LCBUaGllcnJ5IFJlZGluZyB3cm90ZToKPiAqIFBHUCBTaWduZWQg
+YnkgYW4gdW5rbm93biBrZXkKPiAKPiBPbiBGcmksIEp1biAxNywgMjAxNiBhdCAwMTowMzozOFBN
+ICswMTAwLCBKb24gSHVudGVyIHdyb3RlOgo+PiBGb3IgVGVncmEyMTAgdGhlICdzb3Itc2FmZScg
+Y2xvY2sgbmVlZHMgdG8gYmUgZW5hYmxlZCB3aGVuIHVzaW5nIERQQVVYLgo+PiBBZGQgc3VwcG9y
+dCB0byB0aGUgRFBBVVggZHJpdmVyIGZvciBlbmFibGluZyB0aGlzIGNsb2NrIG9uIFRlZ3JhMjEw
+Lgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBKb24gSHVudGVyIDxqb25hdGhhbmhAbnZpZGlhLmNvbT4K
+Pj4gLS0tCj4+ICBkcml2ZXJzL2dwdS9kcm0vdGVncmEvZHBhdXguYyB8IDI5ICsrKysrKysrKysr
+KysrKysrKysrKysrKysrKy0tCj4+ICAxIGZpbGUgY2hhbmdlZCwgMjcgaW5zZXJ0aW9ucygrKSwg
+MiBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS90ZWdyYS9k
+cGF1eC5jIGIvZHJpdmVycy9ncHUvZHJtL3RlZ3JhL2RwYXV4LmMKPj4gaW5kZXggYWEzYTAzN2Zj
+ZDNiLi5kNjk2YTdlNDU5MzUgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS90ZWdyYS9k
+cGF1eC5jCj4+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS90ZWdyYS9kcGF1eC5jCj4+IEBAIC0zNyw2
+ICszNyw3IEBAIHN0cnVjdCB0ZWdyYV9kcGF1eCB7Cj4+ICAKPj4gIAlzdHJ1Y3QgcmVzZXRfY29u
+dHJvbCAqcnN0Owo+PiAgCXN0cnVjdCBjbGsgKmNsa19wYXJlbnQ7Cj4+ICsJc3RydWN0IGNsayAq
+Y2xrX3NvcjsKPiAKPiBDYW4gd2UgY2FsbCB0aGlzICJjbGtfc2FmZSIsIHBsZWFzZT8gT24gb25l
+IGhhbmQgdGhhdCBtaXJyb3JzIHRoZSBuYW1lCj4gb2YgdGhlIGNsb2NrIGluIHRoZSBiaW5kaW5n
+IGFuZCBvbiB0aGUgb3RoZXIgaGFuZCBpdCBhdm9pZHMgY29uZnVzaW9uCj4gd2l0aCB0aGUgcmVh
+bCBTT1IgY2xvY2suCgpPSy4KCj4+ICAJc3RydWN0IGNsayAqY2xrOwo+PiAgCj4+ICAJc3RydWN0
+IHJlZ3VsYXRvciAqdmRkOwo+PiBAQCAtMzQwLDE4ICszNDEsMzcgQEAgc3RhdGljIGludCB0ZWdy
+YV9kcGF1eF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQo+PiAgCQlyZXR1cm4g
+UFRSX0VSUihkcGF1eC0+cnN0KTsKPj4gIAl9Cj4+ICAKPj4gKwlpZiAob2ZfZGV2aWNlX2lzX2Nv
+bXBhdGlibGUocGRldi0+ZGV2Lm9mX25vZGUsCj4+ICsJCQkJICAgICJudmlkaWEsdGVncmEyMTAt
+ZHBhdXgiKSkgewo+PiArCQlkcGF1eC0+Y2xrX3NvciA9IGRldm1fY2xrX2dldCgmcGRldi0+ZGV2
+LCAic29yLXNhZmUiKTsKPj4gKwkJaWYgKElTX0VSUihkcGF1eC0+Y2xrX3NvcikpIHsKPj4gKwkJ
+CWRldl9lcnIoJnBkZXYtPmRldiwKPj4gKwkJCQkiZmFpbGVkIHRvIGdldCBzb3Itc2FmZSBjbG9j
+azogJWxkXG4iLAo+PiArCQkJCVBUUl9FUlIoZHBhdXgtPmNsa19zb3IpKTsKPj4gKwkJCXJldHVy
+biBQVFJfRVJSKGRwYXV4LT5jbGtfc29yKTsKPj4gKwkJfQo+PiArCj4+ICsJCWVyciA9IGNsa19w
+cmVwYXJlX2VuYWJsZShkcGF1eC0+Y2xrX3Nvcik7Cj4+ICsJCWlmIChlcnIgPCAwKSB7Cj4+ICsJ
+CQlkZXZfZXJyKCZwZGV2LT5kZXYsCj4+ICsJCQkJImZhaWxlZCB0byBlbmFibGUgc29yLXNhZmUg
+Y2xvY2s6ICVkXG4iLCBlcnIpOwo+PiArCQkJcmV0dXJuIGVycjsKPj4gKwkJfQo+PiArCX0KPiAK
+PiBQbGVhc2UgbWFrZSB0aGlzIHBhcnQgb2YgYSBzdHJ1Y3QgdGVncmFfZHBhdXhfc29jLCBzbyB0
+aGF0IHdlIGRvbid0IGhhdmUKPiB0byBjaGVjayB0aGUgY29tcGF0aWJsZSBzdHJpbmcgYWdhaW4g
+aGVyZS4gVGhpcyBjb3VsZCBsb29rIGxpa2U6Cj4gCj4gCXN0cnVjdCB0ZWdyYV9kcGF1eF9zb2Mg
+ewo+IAkJYm9vbCBuZWVkc19zYWZlX2Nsb2NrOwo+IAl9Owo+IAo+IAlzdGF0aWMgY29uc3Qgc3Ry
+dWN0IHRlZ3JhX2RwYXV4X3NvYyB0ZWdyYTEyNF9kcGF1eF9zb2MgPSB7Cj4gCQkubmVlZHNfc2Fm
+ZV9jbG9jayA9IGZhbHNlLAo+IAl9Owo+IAo+IAlzdGF0aWMgY29uc3Qgc3RydWN0IHRlZ3JhX2Rw
+YXV4X3NvYyB0ZWdyYTIxMF9kcGF1eF9zb2MgPSB7Cj4gCQkubmVlZHNfc2FmZV9jbG9jayA9IHRy
+dWUsCj4gCX07Cj4gCj4gCS4uLgo+IAo+IAlzdGF0aWMgY29uc3Qgc3RydWN0IG9mX2RldmljZV9p
+ZCB0ZWdyYV9kcGF1eF9vZl9tYXRjaFtdID0gewo+IAkJeyAuY29tcGF0aWJsZSA9ICJudmlkaWEs
+dGVncmEyMTAtZHBhdXgiLCAuZGF0YSA9ICZ0ZWdyYTIxMF9kcGF1eF9zb2MgfSwKPiAJCXsgLmNv
+bXBhdGlibGUgPSAibnZpZGlhLHRlZ3JhMTI0LWRwYXV4IiwgLmRhdGEgPSAmdGVncmExMjRfZHBh
+dXhfc29jIH0sCj4gCQl7IH0sCj4gCX07CgpPSy4gSSB3b25kZXIgaWYgd2Ugc2hvdWxkIGNhbGwg
+aXQgJ2hhc19zYWZlX2Nsb2NrJyBiZWNhdXNlIHRoaXMgY2xvY2sKZG9lcyBub3QgZXhpc3QgZm9y
+IHRlZ3JhMTI0IEFGQUlDVC4gI2Jpa2VzaGVkIDstKQoKPj4gQEAgLTQzNCw2ICs0NTQsOSBAQCBk
+aXNhYmxlX3BhcmVudF9jbGs6Cj4+ICBhc3NlcnRfcmVzZXQ6Cj4+ICAJcmVzZXRfY29udHJvbF9h
+c3NlcnQoZHBhdXgtPnJzdCk7Cj4+ICAJY2xrX2Rpc2FibGVfdW5wcmVwYXJlKGRwYXV4LT5jbGsp
+Owo+PiArZGlzYWJsZV9zb3JfY2xrOgo+PiArCWlmIChkcGF1eC0+Y2xrX3NvcikKPj4gKwkJY2xr
+X2Rpc2FibGVfdW5wcmVwYXJlKGRwYXV4LT5jbGtfc29yKTsKPiAKPiBZb3UgY2FuIGRyb3AgdGhl
+IGV4dHJhIGNoZWNrIGhlcmUsIHNpbmNlIHRoZSBjb21tb24gY2xvY2sgZnJhbWV3b3JrCj4gaWdu
+b3JlcyBOVUxMIG9yIEVSUl9QVFIoKSBwb2ludGVycy4KCk9LLgoKPj4gIAo+PiAgCXJldHVybiBl
+cnI7Cj4+ICB9Cj4+IEBAIC00NTYsNiArNDc5LDggQEAgc3RhdGljIGludCB0ZWdyYV9kcGF1eF9y
+ZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikKPj4gIAljbGtfZGlzYWJsZV91bnBy
+ZXBhcmUoZHBhdXgtPmNsa19wYXJlbnQpOwo+PiAgCXJlc2V0X2NvbnRyb2xfYXNzZXJ0KGRwYXV4
+LT5yc3QpOwo+PiAgCWNsa19kaXNhYmxlX3VucHJlcGFyZShkcGF1eC0+Y2xrKTsKPj4gKwlpZiAo
+ZHBhdXgtPmNsa19zb3IpCj4+ICsJCWNsa19kaXNhYmxlX3VucHJlcGFyZShkcGF1eC0+Y2xrX3Nv
+cik7Cj4gCj4gU2FtZSBoZXJlLgoKT0suCgpDaGVlcnMKSm9uCgotLSAKbnZwdWJsaWMKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxp
+bmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
+ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
