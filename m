@@ -1,51 +1,71 @@
-From: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Subject: Re: [PATCH] i2c: remove __init from i2c_register_board_info()
-Date: Mon, 20 Jun 2016 17:12:12 +0200
-Message-ID: <20160620151212.GA25646@wotan.suse.de>
-References: <1465343547-19974-1-git-send-email-mcgrof@kernel.org>
- <20160619121538.GB3072@tetsubishi>
+From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Subject: [PATCH v3 3/5] ARM: dts: Add I2C1 support for STM32F429 SoC
+Date: Mon, 20 Jun 2016 18:20:07 +0200
+Message-ID: <1466439609-1814-4-git-send-email-cedric.madianga@gmail.com>
+References: <1466439609-1814-1-git-send-email-cedric.madianga@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160619121538.GB3072@tetsubishi>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "Luis R. Rodriguez" <mcgrof@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, feng.tang@intel.com, linux-next@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1466439609-1814-1-git-send-email-cedric.madianga@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: patrice.chotard@st.com, mcoquelin.stm32@gmail.com, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Jun 19, 2016 at 02:15:38PM +0200, Wolfram Sang wrote:
-> On Tue, Jun 07, 2016 at 04:52:27PM -0700, Luis R. Rodriguez wrote:
-> > As of next-20160607 with allyesconfig we get this linker failure:
-> > 
-> >   MODPOST vmlinux.o
-> > WARNING: vmlinux.o(.text+0x21bc0d): Section mismatch in reference from
-> > the function intel_scu_devices_create() to the function
-> > .init.text:i2c_register_board_info()
-> > 
-> > This is caused by the fact that intel_scu_devices_create() calls
-> > i2c_register_board_info() and intel_scu_devices_create() is not
-> > annotated with __init. This typically involves manual code
-> > inspection and if one is certain this is correct we would
-> > just peg intel_scu_devices_create() with a __ref annotation.
-> > 
-> > In this case this would be wrong though as the
-> > intel_scu_devices_create() call is exported, and used in
-> > the ipc_probe() on drivers/platform/x86/intel_scu_ipc.c.
-> > The issue is that even though builtin_pci_driver(ipc_driver)
-> > is used this just exposes the probe routine, which can occur
-> > at any point in time if this bus supports hotplug. A race
-> > can happen between kernel_init_freeable() that calls the init
-> > calls (in this case registeres the intel_scu_ipc.c driver, and
-> > later free_initmem(), which would free the i2c_register_board_info().
-> > If a probe happens later in boot i2c_register_board_info() would
-> > not be present and we should get a page fault.
-> > 
-> > Signed-off-by: Luis R. Rodriguez <mcgrof@kernel.org>
-> 
-> Applied to for-current, thanks! Do you think this should go to stable?
+Signed-off-by: Patrice Chotard <patrice.chotard@st.com>
+Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+---
+ arch/arm/boot/dts/stm32f429.dtsi | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-Its a theoretical race, but a real one, but does fix allyesconfig builds.
-Up to you.
-
-  Luis
+diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
+index 434d4b9..4eaa107 100644
+--- a/arch/arm/boot/dts/stm32f429.dtsi
++++ b/arch/arm/boot/dts/stm32f429.dtsi
+@@ -323,6 +323,16 @@
+ 					slew-rate = <2>;
+ 				};
+ 			};
++
++			i2c1_pins_b: i2c1@0 {
++				pins1 {
++					pinmux = <STM32F429_PB9_FUNC_I2C1_SDA>;
++					drive-open-drain;
++				};
++				pins2 {
++					pinmux = <STM32F429_PB6_FUNC_I2C1_SCL>;
++				};
++			};
+ 		};
+ 
+ 		rcc: rcc@40023800 {
+@@ -395,6 +405,18 @@
+ 			interrupts = <80>;
+ 			clocks = <&rcc 0 38>;
+ 		};
++
++		i2c1: i2c@40005400 {
++			compatible = "st,stm32f4-i2c";
++			reg = <0x40005400 0x400>;
++			interrupts = <31>,
++				     <32>;
++			resets = <&rcc 277>;
++			clocks = <&rcc 0 149>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
+ 	};
+ };
+ 
+-- 
+1.9.1
