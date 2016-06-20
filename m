@@ -1,46 +1,35 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
-Date: Sun, 19 Jun 2016 23:51:45 +0200
-Message-ID: <20160619215145.GE26875@pengutronix.de>
-References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
- <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
- <20160427173308.GN7946@pengutronix.de>
- <20160619195641.GD26875@pengutronix.de>
- <20160619200030.GA3329@tetsubishi>
+From: "David.Wu" <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: Re: [PATCH v10 0/8] add i2c driver supported for rk3399
+Date: Mon, 20 Jun 2016 10:18:08 +0800
+Message-ID: <ab1eba11-e80f-c0e1-5639-6903f7948015@rock-chips.com>
+References: <1463407063-41218-1-git-send-email-david.wu@rock-chips.com>
+ <20160617115611.GC6876@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:34760 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751403AbcFSVvw (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 19 Jun 2016 17:51:52 -0400
-Content-Disposition: inline
-In-Reply-To: <20160619200030.GA3329@tetsubishi>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <20160617115611.GC6876@tetsubishi>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, briannorris-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, davidriley-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 
-Hello Wolfram,
-
-On Sun, Jun 19, 2016 at 10:00:30PM +0200, Wolfram Sang wrote:
-> > In the meantime I tested i2ctransfer, I really like it and it helpe=
-d me
-> > debugging a problem with an i2c rtc device that isn't usable with
-> > i2cget/i2cset.
->=20
-> I read this as Tested-by :)
-
-That's fine. For maximal correctness use my private email address for
-the tag as I did test during my free time.
-=20
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+SGkgV29sZnJhbe+8jAoK5ZyoIDIwMTYvNi8xNyAxOTo1NiwgV29sZnJhbSBTYW5nIOWGmemBkzoK
+PiBBcHBsaWVkIHdob2xlIHNlcmllcyB0byBmb3ItbmV4dCwgdGhhbmtzISBUaGlzIHdhcyBuaWNl
+bHkgcmVmYWN0b3JlZCBhbmQKPiBlYXN5IHRvIHJldmlldywgdGhhbmtzLiBBbHNvIHRoYW5rcyB0
+byBhbGwgcmV2aWV3ZXJzIHdobyBoZWxwZWQgdGhpcwo+IHNlcmllcy4gSSBmaXhlZCBvbmUgY2hl
+Y2twYXRjaCBpc3N1ZSBmb3IgeW91LCB0aG91Z2g6Cj4KPiBXQVJOSU5HOiBTdGF0ZW1lbnRzIHNo
+b3VsZCBzdGFydCBvbiBhIHRhYnN0b3AKPiAjMjc4OiBGSUxFOiBkcml2ZXJzL2kyYy9idXNzZXMv
+aTJjLXJrM3guYzo3ODk6Cj4gKwkgaWYgKG1pbl9kaXZfZm9yX2hvbGQgPj0gbWluX3RvdGFsX2Rp
+dikgewo+CgpUaGFua3MgZm9yIHlvdXIgZmluYWwgcmV2aWV377yBCgoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KTGludXgtcm9ja2NoaXAgbWFpbGluZyBs
+aXN0CkxpbnV4LXJvY2tjaGlwQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJh
+ZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1yb2NrY2hpcAo=
