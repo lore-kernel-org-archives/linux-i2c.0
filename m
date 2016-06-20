@@ -1,85 +1,58 @@
-From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [RFC PATCH 07/13] dt-bindings: i2c: Add support for 'i2c-bus'
- subnode
-Date: Mon, 20 Jun 2016 12:15:39 +0100
-Message-ID: <5767D05B.5000709@nvidia.com>
-References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
- <1466165027-17917-8-git-send-email-jonathanh@nvidia.com>
- <20160617163054.GD32754@leverpostej> <20160617164525.GL27475@ulmo.ba.sec>
+From: Abhishek Sahu <absahu@codeaurora.org>
+Subject: Re: [PATCH 1/2] i2c: qup: Cleared the error bits in ISR
+Date: Mon, 20 Jun 2016 18:18:41 +0530
+Message-ID: <7c979c4e5b5c1652211405ce1e93fe72@codeaurora.org>
+References: <1462797871-8595-1-git-send-email-absahu@codeaurora.org>
+ <1462797871-8595-2-git-send-email-absahu@codeaurora.org>
+ <000701d1ab9d$df9b3100$9ed19300$@codeaurora.org>
+ <934365f2bd30f242d8548e2a27483679@codeaurora.org>
+ <20160512051347.GE8453@hector.attlocal.net>
+ <20160512061843.GA6187@chewinlnx07.qualcomm.com>
+ <20160512175830.GA32019@hector>
+ <20160512193229.GA10499@chewinlnx07.qualcomm.com>
+ <CAPBZ5QdD6knEzQVW-BAgRSMcd=Gqv9_1Xt2LNc+qWgtre_2ZXQ@mail.gmail.com>
+ <20160512202755.GA3680@chewinlnx07.qualcomm.com>
+ <20160618163228.GG3017@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160617164525.GL27475-EkSeR96xj6Pcmrwk2tT4+A@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20160618163228.GG3017@tetsubishi>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Gross <andy.gross@linaro.org>, Sricharan <sricharan@codeaurora.org>, Andy Gross <agross@codeaurora.org>, Archit Taneja <architt@codeaurora.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, ntelkar@codeaurora.org, Linux Kernel list <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-
-On 17/06/16 17:45, Thierry Reding wrote:
-> * PGP Signed by an unknown key
+On 2016-06-18 22:02, Wolfram Sang wrote:
+>> We run the command i2cdetect for address 0x3 to 0x77. The QUP 
+>> generates
+>> write error for address 0x3 to 0x7 apart from other bus errors since
+>> these are reserved addresses. I was getting the crash in non DMA mode
+>> and BAM hang in DMA mode before putting the fix.
+>> 
+>> Also we have connected the I2C TPM and run the following script
+>> overnight for both DMA and Non DMA mode.  The script checks for
+>> all transfer length and we are generating multiple NACK and
+>> Non NACK error before each valid transfer.
+>> 
+>> a=1
+>> 
+>> while [ $a -lt 4096 ]
+>> do
+>>    echo $a
+>>    i2cdetect -y -a -r 0 0x03 0x77
+>>    tpm-manager get_random $a
+>>    i2cdetect -y -a -r 1 0x03 0x77
+>>    a=`expr $a + 1`
+>> done
 > 
-> On Fri, Jun 17, 2016 at 05:30:54PM +0100, Mark Rutland wrote:
->> On Fri, Jun 17, 2016 at 01:03:41PM +0100, Jon Hunter wrote:
->>> The I2C driver core for boards using device-tree assumes any subnode of
->>> an I2C adapter in the device-tree blob as being a I2C slave device.
->>> Although this makes complete sense, some I2C adapters may have subnodes
->>> which are not I2C slaves but subnodes presenting other features. For
->>> example some Tegra devices have an I2C interface which may share its
->>> pins with other devices and to share these pins subnodes for
->>> representing these pins so they have be shared via the pinctrl framework
->>> are needed.
->>>
->>> To allow I2C adapters to have non-I2C specific subnodes in device-tree
->>> that are not parsed by the I2C driver core by adding support for a
->>> 'i2c-bus' subnode where I2C slaves can be placed. If the 'i2c-bus'
->>> subnode is present then all I2C slaves must be placed under this subnode.
->>>
->>> Signed-off-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->>> ---
->>>  Documentation/devicetree/bindings/i2c/i2c.txt | 8 ++++++++
->>>  1 file changed, 8 insertions(+)
->>>
->>> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
->>> index f31b2ad1552b..ed56b08c7e6e 100644
->>> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
->>> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
->>> @@ -32,6 +32,14 @@ wants to support one of the below features, it should adapt the bindings below.
->>>  - clock-frequency
->>>  	frequency of bus clock in Hz.
->>>  
->>> +- i2c-bus
->>> +	For I2C adapters that have child nodes that are a mixture of both I2C
->>> +	devices and non-I2C devices (such as a pin controller), the 'i2c-bus'
->>> +	subnode can be used for populating I2C devices to prevent the I2C core
->>> +	from attempting to add any non-i2c nodes as I2C devices. If 'i2c-bus'
->>> +	subnode is present then all I2C slaves must be added under this
->>> +	subnode.
->>
->> The general idea seems sound.
->>
->> It would be good if we could remove the mention of the I2C core,
->> something like:
->>
->>   - i2c-bus
->> 	For I2C adapters that have child nodes that are a mixture of both I2C
->> 	devices and non-I2C devices (such as a pin controller), the 'i2c-bus'
->> 	subnode can be used for populating I2C devices. If an 'i2c-bus'
->> 	subnode is present, only subnodes of this will be considered as
->> 	I2C slaves.
->>
->> How are #address-cells and #size-cells handled in this case? I assume
->> that they should live under the i2c-bus subnode, which should be called
->> out.
-> 
-> Good catch. Yes, I think the i2c-bus subnode would be the right place
-> for #address-cells and #size-cells.
+> So, what is the outcome of this discussion?
 
-Yes, indeed. Thanks. Will fix.
-
-Cheers
-Jon
-
--- 
-nvpublic
+Discussion was regarding resetting the QUP state in ISR and it is the 
+part of
+existing code itself. The current patch only added the error checking 
+for bus
+errors so we can go ahead with this patch. I have shared the script 
+which we
+are using for testing error path.
