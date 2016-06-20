@@ -1,7 +1,7 @@
 From: "David.Wu" <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 Subject: Re: [PATCH v10 0/8] add i2c driver supported for rk3399
-Date: Mon, 20 Jun 2016 10:18:08 +0800
-Message-ID: <ab1eba11-e80f-c0e1-5639-6903f7948015@rock-chips.com>
+Date: Mon, 20 Jun 2016 10:18:19 +0800
+Message-ID: <cc893dec-0796-d5f4-4702-bebd6d8819d7@rock-chips.com>
 References: <1463407063-41218-1-git-send-email-david.wu@rock-chips.com>
  <20160617115611.GC6876@tetsubishi>
 Mime-Version: 1.0
