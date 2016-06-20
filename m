@@ -1,140 +1,86 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] i2c-smbus: Don't report duplicate alerts
-Date: Mon, 20 Jun 2016 11:31:31 +0200
-Message-ID: <20160620093131.GL24234@mail.corp.redhat.com>
-References: <1453222848-20457-1-git-send-email-minyard@acm.org>
- <20160303205754.GE1711@katana>
- <1457086557.4527.15.camel@chaos.site>
- <5720CC77.2080507@acm.org>
- <20160619120619.GA3072@tetsubishi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Subject: [PATCH v3] i2c: xlp9xx: add ACPI support for Broadcom Vulcan
+Date: Mon, 20 Jun 2016 14:56:18 +0530
+Message-ID: <1466414778-22879-1-git-send-email-tanmay.jagdale@broadcom.com>
+References: <20160618140420.GA1430@tetsubishi>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56658 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753501AbcFTJbh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 20 Jun 2016 05:31:37 -0400
-Content-Disposition: inline
-In-Reply-To: <20160619120619.GA3072@tetsubishi>
+Received: from mail-gw3-out.broadcom.com ([216.31.210.64]:11141 "EHLO
+	mail-gw3-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751938AbcFTJda (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jun 2016 05:33:30 -0400
+In-Reply-To: <20160618140420.GA1430@tetsubishi>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com, mika.westerberg@linux.intel.com, Tanmay Jagdale <tanmay.jagdale@broadcom.com>
 
-On Jun 19 2016 or thereabouts, Wolfram Sang wrote:
-> On Wed, Apr 27, 2016 at 09:28:07AM -0500, Corey Minyard wrote:
-> > On 03/04/2016 04:15 AM, Jean Delvare wrote:
-> > >Le Thursday 03 March 2016 =C3=A0 21:57 +0100, Wolfram Sang a =C3=A9=
-crit :
-> > >>On Tue, Jan 19, 2016 at 11:00:48AM -0600, minyard@acm.org wrote:
-> > >>>From: Corey Minyard <cminyard@mvista.com>
-> > >>>
-> > >>>Getting the same alert twice in a row is legal and normal,
-> > >>>especially on a fast device (like running in qemu).  Kind of
-> > >>>like interrupts.  So don't report duplicate alerts, and deliver
-> > >>>them normally.
-> > >>>
-> > >>>Signed-off-by: Corey Minyard <cminyard@mvista.com>
-> > >>Looks plausible to me, but I never used SMBALERT myself. Any chan=
-ce this
-> > >>can cause a regression? Jean, what do you think?
-> > >I'm afraid I had a good reason to add this check back then. I'll t=
-est
-> > >with my ADM1032 evaluation board when I get back home (tomorrow at=
- the
-> > >earliest.) Maybe my hardware was misbehaving, in which case I agre=
-e any
-> > >filtering should be done at the device driver level. But I must do=
-uble
-> > >check what the SMBus specification says too.
-> >=20
-> > I looked at the SMBus specification and I couldn't find anything th=
-at
-> > would speak to this particular issue.  It says it has to stop asser=
-ting
-> > the interrupt when the ack is received on the bus, but it doesn't s=
-ay
-> > when it can re-assert the interrupts.
-> >=20
-> > I will say that without this change SMBus alerts are fairly useless
-> > with IPMI over SMBus on both real hardware and in qemu.  It just
-> > spews out these warning messages in qemu, and it prints them out
-> > periodically on real hardware.
-> >=20
-> > To give an idea of what's happening here, on IPMI over SMBus, the
-> > IPMI controller (BMC) will signal that it needs the host to do some=
-thing
-> > using an alert.  The driver does an I2C write to send a request to =
-the
-> > BMC to find out what it needs.  The BMC performs the request then
-> > signals with an SMBus alert that the response is ready.  If the BMC=
- is
-> > very fast (like in the qemu case) or the host gets delayed enough b=
-efore
-> > coming back to this loop, the BMC will have the response ready and
-> > reassert alert before the next check in the loop.
-> >=20
-> > I don't see a way to fix this that handles both scenarios.
->=20
-> Jean: any news on this?
->=20
-> Adding Benjamin to CC since he dealt with alerts recently, maybe he h=
-as
-> something to add?
+Added ACPI support for the I2C controller present on Broadcom's
+Vulcan ARM64 processor. ACPI ID used by the controller is BRCM9007.
 
-Not much. I can see why Corey has such a patch but I miss why this chec=
-k
-was in in the first place. Given the scheduling and the irq and the
-worker, I'd say having a duplicate alert is valid in case the device
-reassert the line as soon as it gets contacted by the host.
+Changed the xlp9xx_i2c_get_frequency() function to use
+device_property_read_u32() API so that the "clock-frequency" value
+can be read from _DSD in ACPI mode.
 
-I think we need Jean to check whether the invalid duplicate alert was a
-misbehavior, just an extra check, or actually required in some cases.
+Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+---
+Changes in v3:
+	Sorted header file inclusion.
+	Rename vulcan_i2c_acpi_ids to xlp9xx_i2c_acpi_ids to stay
+	consistent with rest of the driver.
 
-Cheers,
-Benjamin
+Changes in v2:
+	Changed of_property_read_u32() to device_property_read_u32()
+	so that the "clock-frequency" can be read from DTS or ACPI.
 
->=20
-> >=20
-> > -corey
-> >=20
-> > >Either way the patch's subject is misleading. Should be "Don't fil=
-ter
-> > >out duplicate alerts" or something like that.
-> > >
-> > >>>---
-> > >>>  drivers/i2c/i2c-smbus.c | 7 -------
-> > >>>  1 file changed, 7 deletions(-)
-> > >>>
-> > >>>diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> > >>>index 94765a8..cecd423 100644
-> > >>>--- a/drivers/i2c/i2c-smbus.c
-> > >>>+++ b/drivers/i2c/i2c-smbus.c
-> > >>>@@ -75,7 +75,6 @@ static void smbus_alert(struct work_struct *wo=
-rk)
-> > >>>  {
-> > >>>  	struct i2c_smbus_alert *alert;
-> > >>>  	struct i2c_client *ara;
-> > >>>-	unsigned short prev_addr =3D 0;	/* Not a valid address */
-> > >>>  	alert =3D container_of(work, struct i2c_smbus_alert, alert);
-> > >>>  	ara =3D alert->ara;
-> > >>>@@ -99,18 +98,12 @@ static void smbus_alert(struct work_struct *=
-work)
-> > >>>  		data.flag =3D status & 1;
-> > >>>  		data.addr =3D status >> 1;
-> > >>>-		if (data.addr =3D=3D prev_addr) {
-> > >>>-			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
-> > >>>-				"0x%02x, skipping\n", data.addr);
-> > >>>-			break;
-> > >>>-		}
-> > >>>  		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
-> > >>>  			data.addr, data.flag);
-> > >>>  		/* Notify driver for the device which issued the alert */
-> > >>>  		device_for_each_child(&ara->adapter->dev, &data,
-> > >>>  				      smbus_do_alert);
-> > >>>-		prev_addr =3D data.addr;
-> > >>>  	}
-> > >>>  	/* We handled all alerts; re-enable level-triggered IRQs */
-> > >
-> >=20
+ drivers/i2c/busses/i2c-xlp9xx.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index c941418..55a7bef 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -6,6 +6,7 @@
+  * warranty of any kind, whether express or implied.
+  */
+ 
++#include <linux/acpi.h>
+ #include <linux/completion.h>
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+@@ -341,11 +342,10 @@ static struct i2c_algorithm xlp9xx_i2c_algo = {
+ static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
+ 				    struct xlp9xx_i2c_dev *priv)
+ {
+-	struct device_node *np = pdev->dev.of_node;
+ 	u32 freq;
+ 	int err;
+ 
+-	err = of_property_read_u32(np, "clock-frequency", &freq);
++	err = device_property_read_u32(&pdev->dev, "clock-frequency", &freq);
+ 	if (err) {
+ 		freq = XLP9XX_I2C_DEFAULT_FREQ;
+ 		dev_dbg(&pdev->dev, "using default frequency %u\n", freq);
+@@ -429,12 +429,21 @@ static const struct of_device_id xlp9xx_i2c_of_match[] = {
+ 	{ /* sentinel */ },
+ };
+ 
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id xlp9xx_i2c_acpi_ids[] = {
++	{"BRCM9007", 0},
++	{}
++};
++MODULE_DEVICE_TABLE(acpi, xlp9xx_i2c_acpi_ids);
++#endif
++
+ static struct platform_driver xlp9xx_i2c_driver = {
+ 	.probe = xlp9xx_i2c_probe,
+ 	.remove = xlp9xx_i2c_remove,
+ 	.driver = {
+ 		.name = "xlp9xx-i2c",
+ 		.of_match_table = xlp9xx_i2c_of_match,
++		.acpi_match_table = ACPI_PTR(xlp9xx_i2c_acpi_ids),
+ 	},
+ };
+ 
+-- 
+2.1.0
