@@ -1,65 +1,47 @@
-From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [RFC PATCH 03/13] dt-bindings: drm/tegra: Update DPAUX
- documentation
-Date: Mon, 20 Jun 2016 09:02:44 +0100
-Message-ID: <5767A324.5020305@nvidia.com>
-References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
- <1466165027-17917-4-git-send-email-jonathanh@nvidia.com>
- <20160617161306.GD27475@ulmo.ba.sec>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: Designware patches
+Date: Mon, 20 Jun 2016 11:07:32 +0300
+Message-ID: <6ddfd64d-8c9a-8b10-bea5-ff2165b83e00@linux.intel.com>
+References: <20160619170800.GB2933@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160617161306.GD27475-EkSeR96xj6Pcmrwk2tT4+A@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:30514 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752114AbcFTIHf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 20 Jun 2016 04:07:35 -0400
+In-Reply-To: <20160619170800.GB2933@tetsubishi>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>
 
+On 06/19/2016 08:08 PM, Wolfram Sang wrote:
+> Hi Jarkko and everyone,
+>
+> there are a bunch of patches pending for the designware driver and I am
+> a bit lost e.g. if a series is superseding another series by taking a
+> different approach, if there are contradicting series, or what would be
+> a good order to pick them. May I ask for some assistance here? The list
+> of patches can be seen here:
+>
+> http://patchwork.ozlabs.org/project/linux-i2c/list/?submitter=&state=&q=design&archive=&delegate=
+>
+> I'd suggest I apply patches whenever they get acked- or rev-by tags. Or
+> drop them when someone says so in a reply to the patch. Does that sound
+> like a plan?
+>
+Yeah, there has been some activity recently. So far I don't remember we 
+have any urgent fixes pending. Acked and reviewed patches are easy this 
+time: they are independent and there are no contradicting patches so 
+should be safe to apply.
 
-On 17/06/16 17:13, Thierry Reding wrote:
-> * PGP Signed by an unknown key
-> 
-> On Fri, Jun 17, 2016 at 01:03:37PM +0100, Jon Hunter wrote:
->> Update the DPAUX compatibility string information for Tegra124, Tegra132
->> and Tegra210. For Tegra210 an additional clock, 'sor-safe' is also
->> required for DPAUX and so add this clock information as well.
->>
->> Signed-off-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->> ---
->>  .../devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt    | 7 ++++---
->>  1 file changed, 4 insertions(+), 3 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt
->> index a3bd8c050c4e..361a472eac4b 100644
->> --- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt
->> +++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.txt
->> @@ -226,9 +226,9 @@ of the following host1x client modules:
->>    - nvidia,dpaux: phandle to a DispayPort AUX interface
->>  
->>  - dpaux: DisplayPort AUX interface
->> -  - compatible: For Tegra124, must contain "nvidia,tegra124-dpaux".  Otherwise,
->> -    must contain '"nvidia,<chip>-dpaux", "nvidia,tegra124-dpaux"', where
->> -    <chip> is tegra132.
->> +  - compatible : Should contain one of the following:
->> +    - "nvidia,tegra124-dpaux": for Tegra124 and Tegra132
->> +    - "nvidia,tegra210-dpaux": for Tegra210
->>    - reg: Physical base address and length of the controller's registers.
->>    - interrupts: The interrupt outputs from the controller.
->>    - clocks: Must contain an entry for each entry in clock-names.
->> @@ -236,6 +236,7 @@ of the following host1x client modules:
->>    - clock-names: Must include the following entries:
->>      - dpaux: clock input for the DPAUX hardware
->>      - parent: reference clock
->> +    - sor-safe: additional clock input for the DPAUX hardware on Tegra210
-> 
-> It might be worth calling this simply "safe" because that's the
-> contextual role of the clock, whereas sor-safe is the system name of the
-> clock.
+Lucas De Marchi's patch seems to be still problematic for  	Christian.
 
-Yes that is fine with me.
-
-Jon
+Jisheng Zhang's and Ulf Hansson's sets are both around CLK and PM. 
+Hinting there are things needs to be changed. I quess Jisheng's patches 
+had some opens and left floating. Ulf's recent set is under discussion.
 
 -- 
-nvpublic
+Jarkko
