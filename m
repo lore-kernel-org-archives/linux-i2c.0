@@ -1,113 +1,59 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 03/10] i2c: designware-platdrv: Unconditionally enable
- runtime PM
-Date: Mon, 20 Jun 2016 07:15:32 +0200
-Message-ID: <CAPDyKFo6PPE21GrsB8CE9QCkg3-E4vWhqZMfbgfoeTSFJRGEVA@mail.gmail.com>
-References: <1465916848-8207-1-git-send-email-ulf.hansson@linaro.org>
- <1465916848-8207-4-git-send-email-ulf.hansson@linaro.org> <334641d7-10e4-9dcb-5e99-3f244070645f@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
+Date: Mon, 20 Jun 2016 08:08:07 +0200
+Message-ID: <20160620060806.GA1763@katana>
+References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
+ <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+ <20160427173308.GN7946@pengutronix.de>
+ <20160619195641.GD26875@pengutronix.de>
+ <20160619200030.GA3329@tetsubishi>
+ <20160619215145.GE26875@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:35537 "EHLO
-	mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752076AbcFTFPf (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jun 2016 01:15:35 -0400
-Received: by mail-wm0-f47.google.com with SMTP id v199so53528416wmv.0
-        for <linux-i2c@vger.kernel.org>; Sun, 19 Jun 2016 22:15:34 -0700 (PDT)
-In-Reply-To: <334641d7-10e4-9dcb-5e99-3f244070645f@linux.intel.com>
+Received: from sauhun.de ([89.238.76.85]:33301 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752621AbcFTGIP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 20 Jun 2016 02:08:15 -0400
+Content-Disposition: inline
+In-Reply-To: <20160619215145.GE26875@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 
-On 15 June 2016 at 14:47, Jarkko Nikula <jarkko.nikula@linux.intel.com> wrote:
-> On 06/14/2016 06:07 PM, Ulf Hansson wrote:
->>
->> In cases when the designware specific flag "pm_runtime_disable" is set,
->> ->probe() calls pm_runtime_forbid() for the device, but without enabling
->> runtime PM. This increases the runtime PM usage count for the device, but
->> as runtime PM is disabled it's pointless.
->>
-> As far as I remember reason for that was to prevent suspending the device
-> when unloading the driver.
 
-Hmm. To me that's a weird way of implementing this.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Moreover, as i2c_dw_disable() indeed is called in ->remove() how will
-the pm_runtime_forbid() help to avoid that from happen?
 
->
->> Let's instead convert to unconditionally enable runtime PM, which has the
->> effect of making a parent device aware of its child.
->>
->> To also maintain the old behaviour when the "pm_runtime_disable" flag is
->> set, which prevents userspace to enable runtime PM suspend via sysfs,
->> switch from calling pm_runtime_forbid() into pm_runtime_get_noresume()
->> during ->probe().
->>
->> While changing this, let's also also correct the error path in ->probe()
->> and fix ->remove(), as to decrease the runtime PM usage count when it has
->> been in increased by pm_runtime_forbid() (after this change, by
->> pm_runtime_get_noresume()).
->>
->> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
->> ---
->>  drivers/i2c/busses/i2c-designware-platdrv.c | 25
->> +++++++++++++------------
->>  1 file changed, 13 insertions(+), 12 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->> b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index 19174e7..94ff953 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -236,21 +236,21 @@ static int dw_i2c_plat_probe(struct platform_device
->> *pdev)
->>         adap->dev.of_node = pdev->dev.of_node;
->
-> ...
->>
->> +       if (dev->pm_runtime_disabled)
->> +               pm_runtime_get_noresume(&pdev->dev);
->
->
->> @@ -267,10 +267,11 @@ static int dw_i2c_plat_remove(struct platform_device
->> *pdev)
->>
->>         i2c_dw_disable(dev);
->>
->> +       if (dev->pm_runtime_disabled)
->> +               pm_runtime_put_noidle(&pdev->dev);
->
->
-> That will trigger power down after returning from dw_i2c_plat_remove() by
-> looking at debug print from acpi_device_set_power() but now I don't find
-> what call chain is actually causing it.
+> That's fine. For maximal correctness use my private email address for
+> the tag as I did test during my free time.
 
-Oh, I didn't realize that by power down you meant the acpi power down.
+Can't you just provide the line I should use?
 
-Can you elaborate on why power down needs to be prevented?
 
-Is there a problem to power on the device again in the next ->probe() attempt?
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
 
->
-> Must be something to do with drivers/acpi/acpi_lpss.c and notifier calls
-> from drivers/base/dd.c. Also I was wondering why RPM usage counts don't
-> increase monotonically over repeated module load/unload cycle.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-$subject patch changes this, as I didn't think that was really the
-wanted behaviour.
+iQIcBAEBAgAGBQJXZ4hGAAoJEBQN5MwUoCm2nFMP/3/Mx2xw5+PTEryk6AoRjOdA
+5HYpph8LHt3+VUCADk9A377vRh/wPWtTQ9s++x/5N09iFJT6roBCeCagr7pAnPud
+QFxDtV0V+Qc1i9G2uQT/7uKtln5fjmbco6QVZC997Y4Rq43HcMZAdi23zPpu21oB
+wWdbPTolXbbB4CdBsPZL0Rfm9zihxdEsblaKXD5/miYx4vaCE0Qxy7G9nvBVbA6W
+lHTaW4TZkhYVaQcMbFNzy1XIh9H6VJO87c69AqvnkW4NuoRgZX9kw2e7YMt6KP2m
+HfrPH2Nqq47enNvHSrvOm4UJSWd2B7+bn2yzYCfTy33sKH5WEtI1A5IUc9jySF7W
+xrRFaTjIaPYIesgBXCrEjibDygx6s8w9oKT1Sref1Pg5Iv5PEStyZjfqw9ne9Rxf
+lYDekbxcOFSl3zn3aPGIZB9d770AhzpKPHKzgdIitSm0Q8O84wp3yFf4dRP1UMj3
+s+AQcSId6XO6SQU/QJDVsneVUr7uXd+U6BuazX3+fdwAb1oy+PqjbkuQ529EGhZX
+CinFFykmo1/q2i0VGv1DwbwjIe6+gQpbuiQZL/gGNcljWytcUHupOsx6ON58mrH7
+8qBCNUj2P/VzzKS7vw4jVaVJ/C9Vvg2CfWQFEpdK2vmgzAxOpJsqUeN92a2KLWim
+OeNAXvbPASA5ip7KWQGB
+=4Fi6
+-----END PGP SIGNATURE-----
 
-Perhaps acpi doesn't power down the device in case the runtime PM
-usage count > 0. I will have look and see what I can dig out.
-
->
-> I had a few paper notes about these when I last time looked and debugged PM
-> in i2c-designware but throw away them :-(
-
-Okay, I see.
-
-Seems like we definitely need to do some more testing on acpi enabled platforms.
-
-Kind regards
-Uffe
+--pf9I7BMVVzbSWLtt--
