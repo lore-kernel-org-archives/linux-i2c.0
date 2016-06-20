@@ -1,43 +1,140 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: Re: [RFC PATCH 06/13] pinctrl: pinconf: Add generic helper function
- for freeing mappings
-Date: Mon, 20 Jun 2016 10:26:54 +0100
-Message-ID: <5767B6DE.6060808@nvidia.com>
-References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
- <1466165027-17917-7-git-send-email-jonathanh@nvidia.com>
- <CACRpkdYzHXL6S71QwEsKa_Y=rJHaNcRWjwRECtp=oQcfgNDObA@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] i2c-smbus: Don't report duplicate alerts
+Date: Mon, 20 Jun 2016 11:31:31 +0200
+Message-ID: <20160620093131.GL24234@mail.corp.redhat.com>
+References: <1453222848-20457-1-git-send-email-minyard@acm.org>
+ <20160303205754.GE1711@katana>
+ <1457086557.4527.15.camel@chaos.site>
+ <5720CC77.2080507@acm.org>
+ <20160619120619.GA3072@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <CACRpkdYzHXL6S71QwEsKa_Y=rJHaNcRWjwRECtp=oQcfgNDObA@mail.gmail.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Rob Herring <robh+dt@kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "open list:DRM
- PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:56658 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753501AbcFTJbh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 20 Jun 2016 05:31:37 -0400
+Content-Disposition: inline
+In-Reply-To: <20160619120619.GA3072@tetsubishi>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Corey Minyard <cminyard@mvista.com>
 
-Ck9uIDE4LzA2LzE2IDEwOjA0LCBMaW51cyBXYWxsZWlqIHdyb3RlOgo+IE9uIEZyaSwgSnVuIDE3
-LCAyMDE2IGF0IDI6MDMgUE0sIEpvbiBIdW50ZXIgPGpvbmF0aGFuaEBudmlkaWEuY29tPiB3cm90
-ZToKPiAKPj4gVGhlIHBpbmNvbmYtZ2VuZXJpYy5oIGZpbGUgZXhwb3NlcyBmdW5jdGlvbnMgZm9y
-IGNyZWF0aW5nIGdlbmVyaWMgbWFwcGluZ3MKPj4gYnV0IGl0IGRvZXMgbm90IGV4cG9zZSBhIGZ1
-bmN0aW9uIGZvciBmcmVlaW5nIHRoZSBtYXBwaW5ncy4gQWRkIGEgZnVuY3Rpb24KPj4gZm9yIGZy
-ZWVpbmcgZ2VuZXJpYyBtYXBwaW5ncy4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSm9uIEh1bnRlciA8
-am9uYXRoYW5oQG52aWRpYS5jb20+Cj4gCj4gTG9va3MgcmVhc29uYWJsZS4gQ2FuIEkgYXBwbHkg
-aXQgaW4gaXNvbGF0aW9uIG9yIGRvIHlvdSBuZWVkIHRvIGtlZXAKPiBpdCBpbiB5b3VyIHNlcmll
-cyB3aXRoIG15IEFDSz8KClRoZXJlIGlzIGRlZmluaXRlbHkgYSBidWlsZCBkZXBlbmRlbmN5IG9u
-IHRoaXMgcGF0Y2ggZm9yIHRoZSBEUEFVWApkcml2ZXIuIFRoaWVycnkgd2FzIHN1Z2dlc3Rpbmcg
-KGluIHJlc3BvbnNlIHRvIHBhdGNoIDAwLzEzKSB0aGF0IGhlIHRha2UKdGhpcyB0aHJvdWdoIHRo
-ZSBkcm0vdGVncmEgYnJhbmNoIGlmIHlvdSBhcmUgb2sgd2l0aCB0aGF0PwoKPiBBY2tlZC1ieTog
-TGludXMgV2FsbGVpaiA8bGludXMud2FsbGVpakBsaW5hcm8ub3JnPgoKVGhhbmtzLgpKb24KCi0t
-IApudnB1YmxpYwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcK
-aHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
+On Jun 19 2016 or thereabouts, Wolfram Sang wrote:
+> On Wed, Apr 27, 2016 at 09:28:07AM -0500, Corey Minyard wrote:
+> > On 03/04/2016 04:15 AM, Jean Delvare wrote:
+> > >Le Thursday 03 March 2016 =C3=A0 21:57 +0100, Wolfram Sang a =C3=A9=
+crit :
+> > >>On Tue, Jan 19, 2016 at 11:00:48AM -0600, minyard@acm.org wrote:
+> > >>>From: Corey Minyard <cminyard@mvista.com>
+> > >>>
+> > >>>Getting the same alert twice in a row is legal and normal,
+> > >>>especially on a fast device (like running in qemu).  Kind of
+> > >>>like interrupts.  So don't report duplicate alerts, and deliver
+> > >>>them normally.
+> > >>>
+> > >>>Signed-off-by: Corey Minyard <cminyard@mvista.com>
+> > >>Looks plausible to me, but I never used SMBALERT myself. Any chan=
+ce this
+> > >>can cause a regression? Jean, what do you think?
+> > >I'm afraid I had a good reason to add this check back then. I'll t=
+est
+> > >with my ADM1032 evaluation board when I get back home (tomorrow at=
+ the
+> > >earliest.) Maybe my hardware was misbehaving, in which case I agre=
+e any
+> > >filtering should be done at the device driver level. But I must do=
+uble
+> > >check what the SMBus specification says too.
+> >=20
+> > I looked at the SMBus specification and I couldn't find anything th=
+at
+> > would speak to this particular issue.  It says it has to stop asser=
+ting
+> > the interrupt when the ack is received on the bus, but it doesn't s=
+ay
+> > when it can re-assert the interrupts.
+> >=20
+> > I will say that without this change SMBus alerts are fairly useless
+> > with IPMI over SMBus on both real hardware and in qemu.  It just
+> > spews out these warning messages in qemu, and it prints them out
+> > periodically on real hardware.
+> >=20
+> > To give an idea of what's happening here, on IPMI over SMBus, the
+> > IPMI controller (BMC) will signal that it needs the host to do some=
+thing
+> > using an alert.  The driver does an I2C write to send a request to =
+the
+> > BMC to find out what it needs.  The BMC performs the request then
+> > signals with an SMBus alert that the response is ready.  If the BMC=
+ is
+> > very fast (like in the qemu case) or the host gets delayed enough b=
+efore
+> > coming back to this loop, the BMC will have the response ready and
+> > reassert alert before the next check in the loop.
+> >=20
+> > I don't see a way to fix this that handles both scenarios.
+>=20
+> Jean: any news on this?
+>=20
+> Adding Benjamin to CC since he dealt with alerts recently, maybe he h=
+as
+> something to add?
+
+Not much. I can see why Corey has such a patch but I miss why this chec=
+k
+was in in the first place. Given the scheduling and the irq and the
+worker, I'd say having a duplicate alert is valid in case the device
+reassert the line as soon as it gets contacted by the host.
+
+I think we need Jean to check whether the invalid duplicate alert was a
+misbehavior, just an extra check, or actually required in some cases.
+
+Cheers,
+Benjamin
+
+>=20
+> >=20
+> > -corey
+> >=20
+> > >Either way the patch's subject is misleading. Should be "Don't fil=
+ter
+> > >out duplicate alerts" or something like that.
+> > >
+> > >>>---
+> > >>>  drivers/i2c/i2c-smbus.c | 7 -------
+> > >>>  1 file changed, 7 deletions(-)
+> > >>>
+> > >>>diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+> > >>>index 94765a8..cecd423 100644
+> > >>>--- a/drivers/i2c/i2c-smbus.c
+> > >>>+++ b/drivers/i2c/i2c-smbus.c
+> > >>>@@ -75,7 +75,6 @@ static void smbus_alert(struct work_struct *wo=
+rk)
+> > >>>  {
+> > >>>  	struct i2c_smbus_alert *alert;
+> > >>>  	struct i2c_client *ara;
+> > >>>-	unsigned short prev_addr =3D 0;	/* Not a valid address */
+> > >>>  	alert =3D container_of(work, struct i2c_smbus_alert, alert);
+> > >>>  	ara =3D alert->ara;
+> > >>>@@ -99,18 +98,12 @@ static void smbus_alert(struct work_struct *=
+work)
+> > >>>  		data.flag =3D status & 1;
+> > >>>  		data.addr =3D status >> 1;
+> > >>>-		if (data.addr =3D=3D prev_addr) {
+> > >>>-			dev_warn(&ara->dev, "Duplicate SMBALERT# from dev "
+> > >>>-				"0x%02x, skipping\n", data.addr);
+> > >>>-			break;
+> > >>>-		}
+> > >>>  		dev_dbg(&ara->dev, "SMBALERT# from dev 0x%02x, flag %d\n",
+> > >>>  			data.addr, data.flag);
+> > >>>  		/* Notify driver for the device which issued the alert */
+> > >>>  		device_for_each_child(&ara->adapter->dev, &data,
+> > >>>  				      smbus_do_alert);
+> > >>>-		prev_addr =3D data.addr;
+> > >>>  	}
+> > >>>  	/* We handled all alerts; re-enable level-triggered IRQs */
+> > >
+> >=20
