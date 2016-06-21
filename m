@@ -1,39 +1,43 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Question about I2C driver upstream from same SoC vendor
-Date: Tue, 21 Jun 2016 09:59:24 +0200
-Message-ID: <CAOAejn0EaPQK7A-YAN1RC6dVEB5wxtVvWq9Z0D0GnA66N9GoVA@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
+Date: Tue, 21 Jun 2016 11:12:55 +0200
+Message-ID: <20160621111255.1a27363e@endymion>
+References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
+	<1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+	<20160427173308.GN7946@pengutronix.de>
+	<20160619195641.GD26875@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:34561 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932851AbcFUIFp (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Jun 2016 04:05:45 -0400
-Received: by mail-pa0-f49.google.com with SMTP id bz2so4060372pad.1
-        for <linux-i2c@vger.kernel.org>; Tue, 21 Jun 2016 01:05:25 -0700 (PDT)
+Received: from mx2.suse.de ([195.135.220.15]:56711 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750998AbcFUJM6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Jun 2016 05:12:58 -0400
+In-Reply-To: <20160619195641.GD26875@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
+To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hallo Uwe,
 
-I am currently upstreaming a driver to support the I2C controller
-embedded in STM32F4 SoC from ST.
-In the meantime, I am thinking how to add the support of the I2C
-controller embedded in STM32F7 SoC.
-The I2C IP are very different between F4 and F7 SoC in term of IP
-engine, registers and so on.
-So, I have intended to develop 2 different drivers, the first one
-called i2c-stm32f4.c and the second one called i2c-stm32f7.c.
-I am wondering if it is the good way of working as I noticed that many
-maintainers prefer to have one driver that support all IPs of the same
-SoC vendor ?
-In our case, I think it will be possible to support both I2C IPs in
-one driver called i2c-stm32.c but the code will run of readability and
-will be difficult to maintain...
+On Sun, 19 Jun 2016 21:56:41 +0200, Uwe Kleine-K=C3=B6nig wrote:
+> > Note, I didn't check if this patch got applied in the meantime, my
+> > excuse is that http://lm-sensors.org where AFAIK the i2c-tools repo=
+ is
+> > located isn't reachable for me.
+>=20
+> This still stands. Where is the upstream repository of i2c-tools?
 
-Thanks in advance for your feedback.
+lm-sensors.org is dead, I am in the process of creating an i2c-tools
+repository at kernel.org. In the meantime you can use Guenter's git
+tree as a reference:
 
-BR,
-Cedric
+https://github.com/groeck/i2c-tools
+
+(This is what I will use as a base for the kernel.org repository.)
+
+--=20
+Jean Delvare
+SUSE L3 Support
