@@ -1,36 +1,48 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 1/5] dt-bindings: Document the STM32 I2C bindings
-Date: Tue, 21 Jun 2016 08:35:18 -0500
-Message-ID: <20160621133518.GA10968@rob-hp-laptop>
-References: <1466439609-1814-1-git-send-email-cedric.madianga@gmail.com>
- <1466439609-1814-2-git-send-email-cedric.madianga@gmail.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC] regmap: Add regmap_pipe_read API
+Date: Tue, 21 Jun 2016 19:42:51 +0100
+Message-ID: <20160621184251.GC28202@sirena.org.uk>
+References: <7ca3857aa8869a1e1f4709860f57f7d92abf1c6b.1466089603.git.leonard.crestez@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="Fig2xvG2VGoz8o/s"
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1466439609-1814-2-git-send-email-cedric.madianga@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Cc: devicetree@vger.kernel.org, wsa@the-dreams.de, linux-kernel@vger.kernel.org, linux@armlinux.org.uk, patrice.chotard@st.com, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <7ca3857aa8869a1e1f4709860f57f7d92abf1c6b.1466089603.git.leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 20, 2016 at 06:20:05PM +0200, M'boumba Cedric Madianga wrote:
-> This patch adds documentation of device tree bindings for the STM32 I2C
-> controller.
-> 
-> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-> ---
->  .../devicetree/bindings/i2c/i2c-stm32.txt          | 33 ++++++++++++++++++++++
->  1 file changed, 33 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
 
-Acked-by: Rob Herring <robh@kernel.org>
+--Fig2xvG2VGoz8o/s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Thu, Jun 16, 2016 at 06:24:36PM +0300, Crestez Dan Leonard wrote:
+
+> +		val = ((u8*)val) + read_len;
+
+This cast looks broken, you should be able to do pointer arithmetic on
+void pointers as though they were char *.
+
+--Fig2xvG2VGoz8o/s
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXaYqpAAoJECTWi3JdVIfQ7pEH/RFH3tcyBkhbnOSAj0PiWzlv
+1h4SRNxPL022/YNc1S/lx1aTwamipUyuPCteqlIfru0bg/77jXWbIyxBXIykJhgx
+vBZ31Ql7hKO2XPi0vPrI35B7SmGwqk1aQsL0OwDX8G/npG9AEz/TBFM4E7D10MEw
+jzRuVTsIbjXbETCZay5Jdq0s12HSj7WcgFZlZLEMolZlwLfaLZdnfrNap1cvgT0h
+a00q3JM3WaMYX+IR+XTeCKyZF/yCzsQhIu1PYzQs6YAX3gLlirN06XxBUuA88aCW
+P7FpIIoFLbt22ShIJSJno81Q8gDsFZJyyEHDRu2URyjunhMdF1TKa+jSK2S50mU=
+=Ig0V
+-----END PGP SIGNATURE-----
+
+--Fig2xvG2VGoz8o/s--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
