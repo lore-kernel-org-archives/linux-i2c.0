@@ -1,7 +1,7 @@
-From: Guenter Roeck <linux@roeck-us.net>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 1/2] i2c-tools: add new tool 'i2ctransfer'
-Date: Wed, 22 Jun 2016 13:40:34 -0700
-Message-ID: <20160622204034.GA29485@roeck-us.net>
+Date: Thu, 23 Jun 2016 00:18:04 +0200
+Message-ID: <20160622221759.GA1592@katana>
 References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
  <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
  <20160427173308.GN7946@pengutronix.de>
@@ -9,53 +9,59 @@ References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
  <20160621111255.1a27363e@endymion>
  <20160622185252.5ecfdf1d@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34272 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750904AbcFVUkw (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Jun 2016 16:40:52 -0400
+Received: from sauhun.de ([89.238.76.85]:46973 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751599AbcFVWSz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 22 Jun 2016 18:18:55 -0400
 Content-Disposition: inline
 In-Reply-To: <20160622185252.5ecfdf1d@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jean Delvare <jdelvare@suse.de>
-Cc: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-Hi Jean,
 
-On Wed, Jun 22, 2016 at 06:52:52PM +0200, Jean Delvare wrote:
-> Hi all,
->=20
-> On Tue, 21 Jun 2016 11:12:55 +0200, Jean Delvare wrote:
-> > On Sun, 19 Jun 2016 21:56:41 +0200, Uwe Kleine-K=F6nig wrote:
-> > > > Note, I didn't check if this patch got applied in the meantime,=
- my
-> > > > excuse is that http://lm-sensors.org where AFAIK the i2c-tools =
-repo is
-> > > > located isn't reachable for me.
-> > >=20
-> > > This still stands. Where is the upstream repository of i2c-tools?
-> >=20
-> > lm-sensors.org is dead, I am in the process of creating an i2c-tool=
-s
-> > repository at kernel.org. In the meantime you can use Guenter's git
-> > tree as a reference:
-> >=20
-> > https://github.com/groeck/i2c-tools
-> >=20
-> > (This is what I will use as a base for the kernel.org repository.)
->=20
-> This is (almost) done now. The new home of the i2c-tools repository i=
-s:
->=20
-> http://git.kernel.org/cgit/utils/i2c-tools/i2c-tools.git/
->=20
-Thanks a lot!
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Wonder if we should do the same with the lm-sensors repository,
-such as utils/lm-sensors/lm-sensors.git. What do you think ?
 
-Thanks,
-Guenter
+> Guenter, Wolfram and myself have write access.
+
+Wow, thanks!
+
+> Wolfram, I was thinking maybe we could create
+> Documentation/i2c/userspace-tools with a pointer to the new repository?
+
+I like the idea.
+
+Thanks for this work,
+
+   Wolfram
+
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXaw6WAAoJEBQN5MwUoCm2Z0AQAJjbWgBtB4nFoDCaLuiOwYnM
+FFyDccAoGHU31y7AOggEfhw1uRSZ4R/7ViccFbJDP6c09fY0QBUfelkYm+1jGXjt
+g20zKes7NxqiZ85tay4sVNDbIfssgsvSOA8RKYTxD0BWn+GbcwR9E2qiojW6/RjL
+yiNySMed3olTfRbSmB4xwlLbb7fQQOcZ2kbZLsY7xv5c06RqrPxY9DUM2erTdelf
+5pl8Dg2XrAkxYgLP2+b5L7rad/bOjfCYsAlpS8d85i00h4C3dzOAMw378ehUprXp
+mZgKBqQEek057p0MsguOSSPiUGrbE/YRiNZt4CEwrHa5Bc3WehZNXoN8Q2chzKxe
+X+vK7hdfjm0Aj39ASUgWY0I6cHDLtgq7Lxg3J+A1PrNJiFt5d69DBObTPY96y6fr
+KZBrstrEN7lMozdYI1xqqdPVdh1zRvEDsikChKaPOrIZWuCi94u2GI39BbFXfQl1
+L8m935zSncw37hA26EMAy+mIjo2RJKc8FZIvjUoir7+78xaX+uOLTBlzlGEW+6kG
+Zi/mFBYUtiHrV3h4fRWESOOAcS7etiiZkYlh3g34kKrjwKq4KxzjKIg6HWUPi6JX
+TJXNqhm7kZwLVjuyDhH+/6MiXLHa9vIdeJbCqQaCGnCVxGNcCdNlwI/4bGmzhG6S
+as+PR61J6pB12WC+QoiH
+=ARcc
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--
