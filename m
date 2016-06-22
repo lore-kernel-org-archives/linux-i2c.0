@@ -1,79 +1,66 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH] i2c: hibvt: add Hisilicon BVT I2C controller driver
-Date: Wed, 22 Jun 2016 11:25:10 +0100
-Message-ID: <20160622102509.GD25837@leverpostej>
-References: <1466585726-28467-1-git-send-email-wenpan@hisilicon.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [RFC] regmap: Add regmap_pipe_read API
+Date: Wed, 22 Jun 2016 11:06:51 +0100
+Message-ID: <20160622100651.GH28202@sirena.org.uk>
+References: <7ca3857aa8869a1e1f4709860f57f7d92abf1c6b.1466089603.git.leonard.crestez@intel.com>
+ <20160621184251.GC28202@sirena.org.uk>
+ <f3524d45-b266-056d-05b7-df2d4c007921@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:46493 "EHLO foss.arm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750904AbcFVK2r (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 22 Jun 2016 06:28:47 -0400
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="ZPDwMsyfds7q4mrK"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1466585726-28467-1-git-send-email-wenpan@hisilicon.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <f3524d45-b266-056d-05b7-df2d4c007921@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Crestez Dan Leonard <leonard.crestez@intel.com>
+Cc: linux-spi@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pan Wen <wenpan@hisilicon.com>
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, howell.yang@hisilicon.com, xuejiancheng@hisilicon.com
 
-On Wed, Jun 22, 2016 at 04:55:26PM +0800, Pan Wen wrote:
-> add Hisilicon BVT I2C controller driver support.
-> 
-> Signed-off-by: Pan Wen <wenpan@hisilicon.com>
-> ---
->  .../devicetree/bindings/i2c/i2c-hibvt.txt          |  24 +
->  drivers/i2c/busses/Kconfig                         |  10 +
->  drivers/i2c/busses/Makefile                        |   1 +
->  drivers/i2c/busses/i2c-hibvt.c                     | 736 +++++++++++++++++++++
->  4 files changed, 771 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
->  create mode 100644 drivers/i2c/busses/i2c-hibvt.c
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt b/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
-> new file mode 100644
-> index 0000000..3aa2cee
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
-> @@ -0,0 +1,24 @@
-> +Hisilicon BVT I2C master controller
-> +
-> +Required properties:
-> +- compatible: should be "hisilicon,hibvt-i2c".
-> +- reg: physical base address of the controller and length of memory mapped.
-> +     region.
-> +- interrupts: interrupt number to the cpu.
-> +- clocks: phandles to input clocks.
-> +
-> +Optional properties:
-> +- clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000.
-> +
-> +Other properties:
-> +see Documentation/devicetree/bindings/i2c/i2c.txt.
-> +
-> +Examples:
-> +i2c_bus0: i2c@12110000 {
-> +	compatible = "hisilicon,hibvt-i2c";
-> +	reg = <0x12110000 0x100>;
-> +	interrupts = <20>;
-> +	clocks = <&crg_ctrl HI3516CV300_APB_CLK>;
-> +	clock-names = "apb_pclk";
-> +	clock-frequency = <100000>;
-> +};
 
-The clock-names property was not described above, and the driver doesn't
-appear to use it.
+--ZPDwMsyfds7q4mrK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Please explciitly describe the clock-names you expect, and use them in
-the driver. If there is a single clock, then you can simply drop the
-clock-names property from the example.
+On Wed, Jun 22, 2016 at 11:32:20AM +0300, Crestez Dan Leonard wrote:
+> On 06/21/2016 09:42 PM, Mark Brown wrote:
+> > On Thu, Jun 16, 2016 at 06:24:36PM +0300, Crestez Dan Leonard wrote:
 
-Thanks,
-Mark.
+> >> +		val = ((u8*)val) + read_len;
 
-> +	i2c->clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(i2c->clk)) {
-> +		dev_err(i2c->dev, "cannot get clock\n");
-> +		return -ENOENT;
-> +	}
-> +	clk_prepare_enable(i2c->clk);
+> > This cast looks broken, you should be able to do pointer arithmetic on
+> > void pointers as though they were char *.
+
+> Pointer arithmetic on void* is not standard C, it's a GCC extension. I
+> know that GCC extensions are allowed for the kernel but is it really
+> encouraged to rely on them this way?
+
+Hrm, I thought it had been standardized in one of the more recent spec
+revisions but I can't seem to find that right now.
+
+> Anyway, are my concerns about the regmap_bus implementation for SPMI
+> valid? In theory this could be submitted in it's present form and let
+> regmap+spmi users
+
+That looks unfinished...
+
+> If this API is otherwise fine I can just resend this marked as [PATCH]
+> with the cast removed and some rearranged comments.
+
+Well, there's the naming.
+
+--ZPDwMsyfds7q4mrK
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXamM5AAoJECTWi3JdVIfQkcgH/AyMgf994mp/x2GvTcIVUVLw
+Q5Gx8XM6oHrTQbCEEpkZM/kKUALHsk4QaJ7Cibcp/FkLuRMoy96k6dhWp7PqId1Q
+4R90QJYJxXUEehBpMETNbP25tlxyndeJE/d94iNrB1yjnZAV0XIL+Fq9aFyP85uP
+rCVSWKzH0juUerS9FfTu1YmbhSzpgqSS4W3otDuDXj1Qva9tQq+Ck60PYuq1qMca
+g6bjGXqAfdjDxQQ2PYnBK3AaY8TbFoY5vFFCaasE5Apc5quLGE/3lMgbQAKnoFMd
+3BVGVRulN0AV2oR5AJVk/lJu63qAxQqRXgeYlakRiSyjtHjkkOa6xk/qx1eFjdQ=
+=v4Yf
+-----END PGP SIGNATURE-----
+
+--ZPDwMsyfds7q4mrK--
