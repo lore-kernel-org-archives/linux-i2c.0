@@ -1,42 +1,60 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC PATCH 00/13] Add support for Tegra DPAUX pinctrl
-Date: Thu, 23 Jun 2016 11:21:05 +0200
-Message-ID: <CACRpkdYGT9zwyi2Lsd6tyG5dVnPNH+1w9wo+w3=b7YX1pfBJUw@mail.gmail.com>
-References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com>
- <20160617165611.GO27475@ulmo.ba.sec> <20160617165842.GP27475@ulmo.ba.sec>
- <CACRpkdaEUUCs3UR9U331wuFTkRswU4tFEg6JLoMVkHeSXfS_sA@mail.gmail.com> <20160623080400.GA8136@ulmo.ba.sec>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: New location for i2c-tools.git
+Date: Thu, 23 Jun 2016 11:53:14 +0200
+Message-ID: <20160623115314.1e20f84f@endymion>
+References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
+	<1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+	<20160427173308.GN7946@pengutronix.de>
+	<20160619195641.GD26875@pengutronix.de>
+	<20160621111255.1a27363e@endymion>
+	<20160622185252.5ecfdf1d@endymion>
+	<20160623073249.GM26875@pengutronix.de>
+	<CA+TH9VkztGak0FugD0zLgOigBope5pT4FheQJkqhvg3xrnUxcw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160623080400.GA8136-EkSeR96xj6Pcmrwk2tT4+A@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "open list:DRM PANEL DRIVERS" <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:36579 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751080AbcFWJxR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jun 2016 05:53:17 -0400
+In-Reply-To: <CA+TH9VkztGak0FugD0zLgOigBope5pT4FheQJkqhvg3xrnUxcw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+Cc: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-On Thu, Jun 23, 2016 at 10:04 AM, Thierry Reding
-<thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Thu, Jun 23, 2016 at 09:49:20AM +0200, Linus Walleij wrote:
->> On Fri, Jun 17, 2016 at 6:58 PM, Thierry Reding
->> <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->>
->> > Oh wait... there's the pinctrl helper function that is a build-
->> > dependency. Linus, would you be okay if I took that through the
->> > drm-tegra tree along with the DPAUX driver change, and provide a
->> > stable branch for you to resolve conflicts against if needed?
->>
->> I have already applied it, but I can rebase and pull that patch out
->> on a separate immutable branch and then  merge that branch
->> into my devel and then you can pull it too.
->>
->> Would that work?
->
-> Yes, that would be just fine.
+Hi Angelo,
 
-OK use this:
-https://git.kernel.org/cgit/linux/kernel/git/linusw/linux-pinctrl.git/log/?h=devel-dt-free-map
+On Thu, 23 Jun 2016 09:57:49 +0200, Angelo Compagnucci wrote:
+> 2016-06-23 9:32 GMT+02:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@peng=
+utronix.de>:
+> > Hello,
+> >
+> > mainly for the archives I reply with an updated Subject.
+> >
+> > On Wed, Jun 22, 2016 at 06:52:52PM +0200, Jean Delvare wrote:
+> >> The new home of the i2c-tools repository is:
+> >>
+> >> http://git.kernel.org/cgit/utils/i2c-tools/i2c-tools.git/
+>=20
+> This repository presents something strange, the tagged release 3.1.2
+> of some months ago is no more.
+>=20
+> This is quite awful cause some distributions (ex: buildroot ) used
+> that tag as the latest released version and now they are broken.
+>=20
+> Can anyone fix this?
 
-I merged that into my devel branch too.
+Quoting myself from yesterday in this very thread:
 
-Yours,
-Linus Walleij
+"We are almost there, except that a few commits went to the
+i2c-tools-3.1 branch AFTER Guenter mirrored it for the last time, so
+they are missing from the git tree. I will extract them from my local
+copy tomorrow and commit them."
+
+Yesterday's tomorrow is today.
+
+--=20
+Jean Delvare
+SUSE L3 Support
