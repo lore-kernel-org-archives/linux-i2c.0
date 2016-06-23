@@ -1,43 +1,42 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: New location for i2c-tools.git
-Date: Thu, 23 Jun 2016 09:32:49 +0200
-Message-ID: <20160623073249.GM26875@pengutronix.de>
-References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
- <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
- <20160427173308.GN7946@pengutronix.de>
- <20160619195641.GD26875@pengutronix.de>
- <20160621111255.1a27363e@endymion>
- <20160622185252.5ecfdf1d@endymion>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC PATCH 13/13] arm64: tegra: Add DPAUX pinctrl bindings
+Date: Thu, 23 Jun 2016 09:46:48 +0200
+Message-ID: <CACRpkdY5po-1Bwd8_5ynVQZhRVqur=x=QjiM_D4YsgHsMbnGwg@mail.gmail.com>
+References: <1466165027-17917-1-git-send-email-jonathanh@nvidia.com> <1466165027-17917-14-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:53496 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751286AbcFWHcz (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jun 2016 03:32:55 -0400
-Content-Disposition: inline
-In-Reply-To: <20160622185252.5ecfdf1d@endymion>
+Received: from mail-oi0-f42.google.com ([209.85.218.42]:33020 "EHLO
+	mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751023AbcFWHqt (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jun 2016 03:46:49 -0400
+Received: by mail-oi0-f42.google.com with SMTP id u201so58373934oie.0
+        for <linux-i2c@vger.kernel.org>; Thu, 23 Jun 2016 00:46:49 -0700 (PDT)
+In-Reply-To: <1466165027-17917-14-git-send-email-jonathanh@nvidia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+To: Jon Hunter <jonathanh@nvidia.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-Hello,
+On Fri, Jun 17, 2016 at 2:03 PM, Jon Hunter <jonathanh@nvidia.com> wrote:
 
-mainly for the archives I reply with an updated Subject.
+> Add the DPAUX pinctrl states for the DPAUX nodes defining all three
+> possible states of "aux", "i2c" and "off". Also add the 'i2c-bus'
+> node for the DPAUX nodes so that the I2C driver core does not attempt
+> to parse the pinctrl state nodes.
+>
+> Populate the nodes for the pinctrl clients of the DPAUX pin controller.
+> There are two clients for each DPAUX instance, namely the SOR and one of
+> the I2C adapters. The SOR clients may used the DPAUX pins in either AUX
+> or I2C modes and so for these devices we don't define any of the generic
+> pinctrl states (default, idle, etc) because the SOR driver will directly
+> set the state needed. For I2C clients only the I2C mode is used and so
+> we can simplify matters by using the generic pinctrl states for default
+> and idle.
+>
+> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 
-On Wed, Jun 22, 2016 at 06:52:52PM +0200, Jean Delvare wrote:
-> The new home of the i2c-tools repository is:
->=20
-> http://git.kernel.org/cgit/utils/i2c-tools/i2c-tools.git/
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Thanks
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Yours
+Linus Walleij
