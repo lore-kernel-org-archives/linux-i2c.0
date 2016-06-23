@@ -1,77 +1,66 @@
-From: Jean Delvare <jdelvare@suse.de>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: New location for i2c-tools.git
-Date: Thu, 23 Jun 2016 19:40:16 +0200
-Message-ID: <20160623194016.6d89dc01@endymion>
-References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
-	<1434710432-4182-2-git-send-email-wsa@the-dreams.de>
-	<20160427173308.GN7946@pengutronix.de>
-	<20160619195641.GD26875@pengutronix.de>
-	<20160621111255.1a27363e@endymion>
-	<20160622185252.5ecfdf1d@endymion>
-	<20160623073249.GM26875@pengutronix.de>
-	<CA+TH9VkztGak0FugD0zLgOigBope5pT4FheQJkqhvg3xrnUxcw@mail.gmail.com>
-	<20160623115314.1e20f84f@endymion>
-	<CA+TH9VkXPFBgAiLHwx+_B96RRYMmtG-Kc_5qN-0Ps6FceBrVhg@mail.gmail.com>
+Date: Thu, 23 Jun 2016 20:50:00 +0200
+Message-ID: <20160623185000.GA1611@katana>
+References: <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+ <20160427173308.GN7946@pengutronix.de>
+ <20160619195641.GD26875@pengutronix.de>
+ <20160621111255.1a27363e@endymion>
+ <20160622185252.5ecfdf1d@endymion>
+ <20160623073249.GM26875@pengutronix.de>
+ <CA+TH9VkztGak0FugD0zLgOigBope5pT4FheQJkqhvg3xrnUxcw@mail.gmail.com>
+ <20160623115314.1e20f84f@endymion>
+ <CA+TH9VkXPFBgAiLHwx+_B96RRYMmtG-Kc_5qN-0Ps6FceBrVhg@mail.gmail.com>
+ <20160623194016.6d89dc01@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:46218 "EHLO mx2.suse.de"
+Received: from sauhun.de ([89.238.76.85]:50085 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751272AbcFWRkT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jun 2016 13:40:19 -0400
-In-Reply-To: <CA+TH9VkXPFBgAiLHwx+_B96RRYMmtG-Kc_5qN-0Ps6FceBrVhg@mail.gmail.com>
+	id S1751272AbcFWSuJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 23 Jun 2016 14:50:09 -0400
+Content-Disposition: inline
+In-Reply-To: <20160623194016.6d89dc01@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Angelo Compagnucci <angelo.compagnucci@gmail.com>
-Cc: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Angelo Compagnucci <angelo.compagnucci@gmail.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-On Thu, 23 Jun 2016 12:36:38 +0200, Angelo Compagnucci wrote:
-> 2016-06-23 11:53 GMT+02:00 Jean Delvare <jdelvare@suse.de>:
-> > Hi Angelo,
-> >
-> > On Thu, 23 Jun 2016 09:57:49 +0200, Angelo Compagnucci wrote:
-> >> 2016-06-23 9:32 GMT+02:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@p=
-engutronix.de>:
-> >> > Hello,
-> >> >
-> >> > mainly for the archives I reply with an updated Subject.
-> >> >
-> >> > On Wed, Jun 22, 2016 at 06:52:52PM +0200, Jean Delvare wrote:
-> >> >> The new home of the i2c-tools repository is:
-> >> >>
-> >> >> http://git.kernel.org/cgit/utils/i2c-tools/i2c-tools.git/
-> >>
-> >> This repository presents something strange, the tagged release 3.1=
-=2E2
-> >> of some months ago is no more.
-> >>
-> >> This is quite awful cause some distributions (ex: buildroot ) used
-> >> that tag as the latest released version and now they are broken.
-> >>
-> >> Can anyone fix this?
-> >
-> > Quoting myself from yesterday in this very thread:
-> >
-> > "We are almost there, except that a few commits went to the
-> > i2c-tools-3.1 branch AFTER Guenter mirrored it for the last time, s=
-o
-> > they are missing from the git tree. I will extract them from my loc=
-al
-> > copy tomorrow and commit them."
-> >
-> > Yesterday's tomorrow is today.
->=20
-> Sorry for the noise, I totally missed that conversation. A big thank =
-you!
 
-Everything should be there now.
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The only remaining problem is that some files have occurrences of $Id$,
-$Revision$ and $Date$, which SVN would replace on the fly but git does
-not. Not sure what to do with them, replace them with something git
-supports (not sure that exists?), or discard them.
 
---=20
-Jean Delvare
-SUSE L3 Support
+> The only remaining problem is that some files have occurrences of $Id$,
+> $Revision$ and $Date$, which SVN would replace on the fly but git does
+> not. Not sure what to do with them, replace them with something git
+> supports (not sure that exists?), or discard them.
+
+Discard them, I'd say. You have all the history on your disk, so you
+have all the information from there.
+
+
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXbC9YAAoJEBQN5MwUoCm2McsQAKjBidIOdMlv/FYhzLzura0s
+whlq8CV5drc1mM4EUPkZUdDGOgodWL8bozJS75/9yhEhpaYS3yo3PGzyf2FcKp8z
+/Xjm8aQkrpy1QXWBliCexKaBQpx/+RR4iutOlIwbHXmMmtumZudQspcYIBs2hh5S
+LeLtVlXrlApw9nIq9lDdUVEOyfKle/KFV/HD4zb7iEydbPwylShCJQSOVGuAF6Ni
+Hq2Mri4yuDQGfHsjElVHq2/PLxhHByRIRTGdCA31R3jriEV5Dwl8nXlDEXHfRJwS
+VFM1F25q5T81r8ZwVroVUNXnF8HmdexsF9abrN/TTgV1ggZdhzteVYeME9T9JA3e
+Ryrg43q56NJwQHYDg16t35hu3bEvoQEoAFQdWP3PKm7bX6j8SP3DEeK4XgzSox3R
+/IFNCWHdxWbaaDzGHir8lBakMKEZCi7cfjcJT8suFXVgiCcA3qok5/x9c1V1NLai
+L7RkKcHMYoDtd5lOCX3V6GuUDLJg5BjD78V/aSjbk6DzND1/scdU+hciheC/1/Hq
+KWWceWcy4FMrQLC4Tpvs0eCCg/8te3xWwxQbRw8AOOb2ne9hKY2q/odlF2XK/5k3
+N/fHwrJKvFDh8rFkS9+nH07NS75+eUParDQNU80Zo9ZSP7Y8k7zd8LCdb/H8USrV
+xOvkewxfCM8RPFKxHjdG
+=ZCSO
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--
