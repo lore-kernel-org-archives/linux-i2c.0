@@ -1,66 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: New location for i2c-tools.git
-Date: Thu, 23 Jun 2016 20:50:00 +0200
-Message-ID: <20160623185000.GA1611@katana>
-References: <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
- <20160427173308.GN7946@pengutronix.de>
- <20160619195641.GD26875@pengutronix.de>
- <20160621111255.1a27363e@endymion>
- <20160622185252.5ecfdf1d@endymion>
- <20160623073249.GM26875@pengutronix.de>
- <CA+TH9VkztGak0FugD0zLgOigBope5pT4FheQJkqhvg3xrnUxcw@mail.gmail.com>
- <20160623115314.1e20f84f@endymion>
- <CA+TH9VkXPFBgAiLHwx+_B96RRYMmtG-Kc_5qN-0Ps6FceBrVhg@mail.gmail.com>
- <20160623194016.6d89dc01@endymion>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v8 3/4] i2c: i801: add support of Host Notify
+Date: Thu, 23 Jun 2016 13:55:52 -0700
+Message-ID: <20160623205552.GO32561@dtor-ws>
+References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1465484030-28838-4-git-send-email-benjamin.tissoires@redhat.com>
+ <20160615081247.GQ24234@mail.corp.redhat.com>
+ <20160616060942.GA1403@tetsubishi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50085 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751272AbcFWSuJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 23 Jun 2016 14:50:09 -0400
-Content-Disposition: inline
-In-Reply-To: <20160623194016.6d89dc01@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Angelo Compagnucci <angelo.compagnucci@gmail.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-
-
---bg08WKrSYDhXBjb5
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20160616060942.GA1403@tetsubishi>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Jun 16, 2016 at 08:09:42AM +0200, Wolfram Sang wrote:
+> > > - removed the .resume hook as upstream changed suspend/resume hooks and there
+> > >   is no need in the end to re-enable host notify on resume (tested on Lenovo
+> > >   t440 and t450).
+> > 
+> > Actually, this hook seemed to be required on the Lenovo T440 (Haswell)
+> > but not on the T450 (Broadwell) laptop I have now here.
+> > 
+> > Wolfram, I can resend the whole series or a follow-up patch to re-enable
+> > after resume Host Notify. How do you prefer I deal with that?
+> 
+> That depends a little how we want to handle patch 4. I am going to apply
+> patches 1+2 today to my tree. Then you can just resend patch 3 which I
+> hope will get some review soon, but I will pick it up for 4.8 later
+> nonetheless. If it is not causing too much dependency hassle, I'd prefer
+> that patch 4 goes via Dmitry's input tree.
 
-> The only remaining problem is that some files have occurrences of $Id$,
-> $Revision$ and $Date$, which SVN would replace on the fly but git does
-> not. Not sure what to do with them, replace them with something git
-> supports (not sure that exists?), or discard them.
+Any chance I could get a stable branch with these 2 patches based on 4.6
+so that I can pull it and merge the #4? This way we do not need to wait
+for 2 releases to merge everything...
 
-Discard them, I'd say. You have all the history on your disk, so you
-have all the information from there.
+Thanks.
 
-
---bg08WKrSYDhXBjb5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXbC9YAAoJEBQN5MwUoCm2McsQAKjBidIOdMlv/FYhzLzura0s
-whlq8CV5drc1mM4EUPkZUdDGOgodWL8bozJS75/9yhEhpaYS3yo3PGzyf2FcKp8z
-/Xjm8aQkrpy1QXWBliCexKaBQpx/+RR4iutOlIwbHXmMmtumZudQspcYIBs2hh5S
-LeLtVlXrlApw9nIq9lDdUVEOyfKle/KFV/HD4zb7iEydbPwylShCJQSOVGuAF6Ni
-Hq2Mri4yuDQGfHsjElVHq2/PLxhHByRIRTGdCA31R3jriEV5Dwl8nXlDEXHfRJwS
-VFM1F25q5T81r8ZwVroVUNXnF8HmdexsF9abrN/TTgV1ggZdhzteVYeME9T9JA3e
-Ryrg43q56NJwQHYDg16t35hu3bEvoQEoAFQdWP3PKm7bX6j8SP3DEeK4XgzSox3R
-/IFNCWHdxWbaaDzGHir8lBakMKEZCi7cfjcJT8suFXVgiCcA3qok5/x9c1V1NLai
-L7RkKcHMYoDtd5lOCX3V6GuUDLJg5BjD78V/aSjbk6DzND1/scdU+hciheC/1/Hq
-KWWceWcy4FMrQLC4Tpvs0eCCg/8te3xWwxQbRw8AOOb2ne9hKY2q/odlF2XK/5k3
-N/fHwrJKvFDh8rFkS9+nH07NS75+eUParDQNU80Zo9ZSP7Y8k7zd8LCdb/H8USrV
-xOvkewxfCM8RPFKxHjdG
-=ZCSO
------END PGP SIGNATURE-----
-
---bg08WKrSYDhXBjb5--
+-- 
+Dmitry
