@@ -1,94 +1,77 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: [PATCH 11/12] arm64: tegra: Add SOR power-domain node
-Date: Thu, 23 Jun 2016 16:59:04 +0100
-Message-ID: <1466697545-11868-12-git-send-email-jonathanh@nvidia.com>
-References: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: New location for i2c-tools.git
+Date: Thu, 23 Jun 2016 19:40:16 +0200
+Message-ID: <20160623194016.6d89dc01@endymion>
+References: <1434710432-4182-1-git-send-email-wsa@the-dreams.de>
+	<1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+	<20160427173308.GN7946@pengutronix.de>
+	<20160619195641.GD26875@pengutronix.de>
+	<20160621111255.1a27363e@endymion>
+	<20160622185252.5ecfdf1d@endymion>
+	<20160623073249.GM26875@pengutronix.de>
+	<CA+TH9VkztGak0FugD0zLgOigBope5pT4FheQJkqhvg3xrnUxcw@mail.gmail.com>
+	<20160623115314.1e20f84f@endymion>
+	<CA+TH9VkXPFBgAiLHwx+_B96RRYMmtG-Kc_5qN-0Ps6FceBrVhg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:46218 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751272AbcFWRkT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jun 2016 13:40:19 -0400
+In-Reply-To: <CA+TH9VkXPFBgAiLHwx+_B96RRYMmtG-Kc_5qN-0Ps6FceBrVhg@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+Cc: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-Add node for SOR power-domain for Tegra210 and populate the SOR
-power-domain phandle for SOR and DPAUX nodes that are dependent
-on this power-domain.
+On Thu, 23 Jun 2016 12:36:38 +0200, Angelo Compagnucci wrote:
+> 2016-06-23 11:53 GMT+02:00 Jean Delvare <jdelvare@suse.de>:
+> > Hi Angelo,
+> >
+> > On Thu, 23 Jun 2016 09:57:49 +0200, Angelo Compagnucci wrote:
+> >> 2016-06-23 9:32 GMT+02:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@p=
+engutronix.de>:
+> >> > Hello,
+> >> >
+> >> > mainly for the archives I reply with an updated Subject.
+> >> >
+> >> > On Wed, Jun 22, 2016 at 06:52:52PM +0200, Jean Delvare wrote:
+> >> >> The new home of the i2c-tools repository is:
+> >> >>
+> >> >> http://git.kernel.org/cgit/utils/i2c-tools/i2c-tools.git/
+> >>
+> >> This repository presents something strange, the tagged release 3.1=
+=2E2
+> >> of some months ago is no more.
+> >>
+> >> This is quite awful cause some distributions (ex: buildroot ) used
+> >> that tag as the latest released version and now they are broken.
+> >>
+> >> Can anyone fix this?
+> >
+> > Quoting myself from yesterday in this very thread:
+> >
+> > "We are almost there, except that a few commits went to the
+> > i2c-tools-3.1 branch AFTER Guenter mirrored it for the last time, s=
+o
+> > they are missing from the git tree. I will extract them from my loc=
+al
+> > copy tomorrow and commit them."
+> >
+> > Yesterday's tomorrow is today.
+>=20
+> Sorry for the noise, I totally missed that conversation. A big thank =
+you!
 
-Please note that although neither the SOR or DPAUX drivers currently
-support runtime power-management, by populating the power-domain node
-the SOR power-domain will be turned on before probing SOR or DPAUX
-devices and kept on while the devices are bound.
+Everything should be there now.
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
----
- arch/arm64/boot/dts/nvidia/tegra210.dtsi | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+The only remaining problem is that some files have occurrences of $Id$,
+$Revision$ and $Date$, which SVN would replace on the fly but git does
+not. Not sure what to do with them, replace them with something git
+supports (not sure that exists?), or discard them.
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra210.dtsi b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-index ebf44f4059f8..ef317f0d773f 100644
---- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-@@ -34,6 +34,7 @@
- 			clock-names = "dpaux", "parent";
- 			resets = <&tegra_car 207>;
- 			reset-names = "dpaux";
-+			power-domains = <&pd_sor>;
- 			status = "disabled";
- 		};
- 
-@@ -154,6 +155,7 @@
- 			clock-names = "sor", "parent", "dp", "safe";
- 			resets = <&tegra_car 182>;
- 			reset-names = "sor";
-+			power-domains = <&pd_sor>;
- 			status = "disabled";
- 		};
- 
-@@ -168,6 +170,7 @@
- 			clock-names = "sor", "parent", "dp", "safe";
- 			resets = <&tegra_car 183>;
- 			reset-names = "sor";
-+			power-domains = <&pd_sor>;
- 			status = "disabled";
- 		};
- 
-@@ -180,6 +183,7 @@
- 			clock-names = "dpaux", "parent";
- 			resets = <&tegra_car 181>;
- 			reset-names = "dpaux";
-+			power-domains = <&pd_sor>;
- 			status = "disabled";
- 		};
- 
-@@ -592,6 +596,26 @@
- 				resets = <&tegra_car 198>;
- 				#power-domain-cells = <0>;
- 			};
-+
-+			pd_sor: sor {
-+				clocks = <&tegra_car TEGRA210_CLK_SOR0>,
-+					 <&tegra_car TEGRA210_CLK_SOR1>,
-+					 <&tegra_car TEGRA210_CLK_CSI>,
-+					 <&tegra_car TEGRA210_CLK_DSIA>,
-+					 <&tegra_car TEGRA210_CLK_DSIB>,
-+					 <&tegra_car TEGRA210_CLK_DPAUX>,
-+					 <&tegra_car TEGRA210_CLK_DPAUX1>,
-+					 <&tegra_car TEGRA210_CLK_MIPI_CAL>;
-+				resets = <&tegra_car TEGRA210_CLK_SOR0>,
-+					 <&tegra_car TEGRA210_CLK_SOR1>,
-+					 <&tegra_car TEGRA210_CLK_CSI>,
-+					 <&tegra_car TEGRA210_CLK_DSIA>,
-+					 <&tegra_car TEGRA210_CLK_DSIB>,
-+					 <&tegra_car TEGRA210_CLK_DPAUX>,
-+					 <&tegra_car TEGRA210_CLK_DPAUX1>,
-+					 <&tegra_car TEGRA210_CLK_MIPI_CAL>;
-+				#power-domain-cells = <0>;
-+			};
- 		};
- 	};
- 
--- 
-2.1.4
-
+--=20
+Jean Delvare
+SUSE L3 Support
