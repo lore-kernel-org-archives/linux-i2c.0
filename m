@@ -1,147 +1,97 @@
-From: Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
-Subject: Re: [PATCH v4 6/8] efi: load SSTDs from EFI variables
-Date: Thu, 23 Jun 2016 14:22:37 +0100
-Message-ID: <20160623132237.GG8415@codeblueprint.co.uk>
-References: <1466164336-9508-1-git-send-email-octavian.purdila@intel.com>
- <1466164336-9508-7-git-send-email-octavian.purdila@intel.com>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH 01/12] soc/tegra: pmc: Initialise resets associated with a power partition
+Date: Thu, 23 Jun 2016 16:58:54 +0100
+Message-ID: <1466697545-11868-2-git-send-email-jonathanh@nvidia.com>
+References: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1466164336-9508-7-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "Rafael J . Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:8188 "EHLO
+	hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751227AbcFWP7U (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Jun 2016 11:59:20 -0400
+In-Reply-To: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>
 
-On Fri, 17 Jun, at 02:52:14PM, Octavian Purdila wrote:
-> This patch allows SSDTs to be loaded from EFI variables. It works by
-> specifying the EFI variable name containing the SSDT to be loaded. All
-> variables with the same name (regardless of the vendor GUID) will be
-> loaded.
-> 
-> Note that we can't use acpi_install_table and we must rely on the
-> dynamic ACPI table loading and bus re-scanning mechanisms. That is
-> because I2C/SPI controllers are initialized earlier then the EFI
-> subsystems and all I2C/SPI ACPI devices are enumerated when the
-> I2C/SPI controllers are initialized.
-> 
-> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->  Documentation/acpi/ssdt-overlays.txt |  67 ++++++++++++++++++++++
->  Documentation/kernel-parameters.txt  |   7 +++
->  drivers/firmware/efi/efi.c           | 106 +++++++++++++++++++++++++++++++++++
->  3 files changed, 180 insertions(+)
+When registering the Tegra power partitions with the generic PM domain
+framework, the current state of the each partition is checked and used
+as the default state for the partition. However, the state of each reset
+associated with the partition is not initialised and so it is possible
+that the state of the resets are not in the expected state. For example,
+if a partition is on, then the resets should be de-asserted and if the
+partition is off, the resets should be asserted.
 
-[...]
+There have been cases where the bootloader has powered on a partition
+and only de-asserted some of the resets to some of the devices in the
+partition. This can cause accesses to these devices to hang the system
+when the kernel boots and attempts to probe these devices.
 
-> @@ -195,6 +197,107 @@ static void generic_ops_unregister(void)
->  	efivars_unregister(&generic_efivars);
->  }
->  
-> +#if IS_ENABLED(CONFIG_ACPI)
-> +#define EFIVAR_SSDT_NAME_MAX	16
-> +static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX];
-> +static int __init efivar_ssdt_setup(char *str)
-> +{
-> +	if (strlen(str) < sizeof(efivar_ssdt))
-> +		memcpy(efivar_ssdt, str, strlen(str));
-> +	else
-> +		pr_warn("efivar_ssdt: name too long: %s\n", str);
-> +	return 0;
-> +}
-> +__setup("efivar_ssdt=", efivar_ssdt_setup);
-> +
-> +static LIST_HEAD(efivar_ssdts);
-> +
-> +static inline void pr_efivar_name(efi_char16_t *name16)
-> +{
-> +	char name[EFIVAR_SSDT_NAME_MAX];
-> +	int i;
-> +
-> +	for (i = 0; i < EFIVAR_SSDT_NAME_MAX - 1; i++)
-> +		name[i] = name16[i] & 0xFF;
-> +	name[i] = 0;
-> +	pr_cont("%s", name);
-> +}
+Ideally, the driver for the device should ensure the reset has been
+de-asserted when probing, but the resets cannot be shared between the
+PMC driver (that needs to de-assert/assert the reset when turning the
+partition on or off) and another driver because we cannot ensure the
+reset is in the correct state.
 
-Please use the various ucs2_* functions we already have in lib/.
+To ensure the resets are in the correct state, when using the generic
+PM domain framework, put each reset associated with the partition in
+the correct state (based upon the partition's current state) when
+obtaining the resets for a partition.
 
-> +static __init int efivar_acpi_iter(efi_char16_t *name, efi_guid_t vendor,
-> +				   unsigned long name_size, void *data)
-> +{
-> +	int i;
-> +	int str_len = name_size / sizeof(efi_char16_t);
-> +	struct efivar_entry *entry;
-> +
-> +	if (str_len != strlen(efivar_ssdt) + 1)
-> +		return 0;
-> +
-> +	for (i = 0; i < str_len; i++)
-> +		if ((name[i] & 0xFF) != efivar_ssdt[i])
-> +			return 0;
-> +
-> +	entry = kzalloc(sizeof(*entry), GFP_KERNEL);
-> +	if (!entry)
-> +		return -ENOMEM;
-> +
-> +	memcpy(entry->var.VariableName, name, name_size);
-> +	memcpy(&entry->var.VendorGuid, &vendor, sizeof(efi_guid_t));
-> +
-> +	efivar_entry_add(entry, &efivar_ssdts);
-> +
-> +	return 0;
-> +}
-> +
-> +static __init int efivar_ssdt_load(void)
-> +{
-> +	struct efivar_entry *i;
-> +	int err;
-> +
-> +	err = efivar_init(efivar_acpi_iter, NULL, true, &efivar_ssdts);
-> +	if (err) {
-> +		pr_err("%s: efivar_init failed: %d\n", __func__, err);
-> +		return err;
-> +	}
-> +
-> +	list_for_each_entry(i, &efivar_ssdts, list) {
-> +		void *data;
-> +		unsigned long size;
-> +
-> +		pr_info("loading SSDT from EFI variable ");
-> +		pr_efivar_name(i->var.VariableName); pr_cont("\n");
-> +
-> +		err = efivar_entry_size(i, &size);
-> +		if (err) {
-> +			pr_err("failed to get size\n");
-> +			continue;
-> +		}
-> +
-> +		data = kmalloc(size, GFP_KERNEL);
-> +		if (!data)
-> +			continue;
-> +
-> +		err = efivar_entry_get(i, NULL, &size, data);
-> +		if (err) {
-> +			pr_err("failed to get data\n");
-> +			kfree(data);
-> +			continue;
-> +		}
-> +
-> +		err = acpi_load_table(data);
-> +		if (err) {
-> +			pr_err("failed to load table: %d\n", err);
-> +			kfree(data);
-> +			continue;
-> +		}
-> +	}
-> +
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+---
+ drivers/soc/tegra/pmc.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-Since 'efivar_ssdts' isn't exported to userspace and is never
-traversed again after its built in efivar_acpi_iter(), can't you just
-fold the code from the above list_for_each_entry() loop into
-efivar_acpi_iter()?
-
-You should be able to call efivar_entry_get() without 'entry' actually
-being on any list since the list is only used for duplicate variable
-detection in this case.
+diff --git a/drivers/soc/tegra/pmc.c b/drivers/soc/tegra/pmc.c
+index d13516981629..8a421a0b1ece 100644
+--- a/drivers/soc/tegra/pmc.c
++++ b/drivers/soc/tegra/pmc.c
+@@ -738,7 +738,7 @@ err:
+ }
+ 
+ static int tegra_powergate_of_get_resets(struct tegra_powergate *pg,
+-					 struct device_node *np)
++					 struct device_node *np, bool off)
+ {
+ 	struct reset_control *rst;
+ 	unsigned int i, count;
+@@ -758,6 +758,16 @@ static int tegra_powergate_of_get_resets(struct tegra_powergate *pg,
+ 			err = PTR_ERR(pg->resets[i]);
+ 			goto error;
+ 		}
++
++		if (off)
++			err = reset_control_assert(pg->resets[i]);
++		else
++			err = reset_control_deassert(pg->resets[i]);
++
++		if (err) {
++			reset_control_put(pg->resets[i]);
++			goto error;
++		}
+ 	}
+ 
+ 	pg->num_resets = count;
+@@ -798,14 +808,14 @@ static void tegra_powergate_add(struct tegra_pmc *pmc, struct device_node *np)
+ 	pg->genpd.power_on = tegra_genpd_power_on;
+ 	pg->pmc = pmc;
+ 
++	off = !tegra_powergate_is_powered(pg->id);
++
+ 	if (tegra_powergate_of_get_clks(pg, np))
+ 		goto set_available;
+ 
+-	if (tegra_powergate_of_get_resets(pg, np))
++	if (tegra_powergate_of_get_resets(pg, np, off))
+ 		goto remove_clks;
+ 
+-	off = !tegra_powergate_is_powered(pg->id);
+-
+ 	pm_genpd_init(&pg->genpd, NULL, off);
+ 
+ 	if (of_genpd_add_provider_simple(np, &pg->genpd))
+-- 
+2.1.4
