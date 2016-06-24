@@ -1,54 +1,56 @@
-From: Jean Delvare <jdelvare@suse.com>
-Subject: Re: i2c-i801 / SMBus timeouts on BayTrail board (U-Boot)
-Date: Fri, 24 Jun 2016 15:38:42 +0200
-Message-ID: <1466775522.8139.3.camel@chaos.suse>
-References: <576D2021.4030808@denx.de>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
+ PCI BAR
+Date: Fri, 24 Jun 2016 16:12:38 +0200
+Message-ID: <20160624161238.0fc748ad@endymion>
+References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com>
+	<20160608162913.GA24234@mail.corp.redhat.com>
+	<20160613111946.54779d0d@endymion>
+	<20160613094500.GY29844@pali>
+	<20160613094618.GG1791@lahna.fi.intel.com>
+	<20160613094830.GZ29844@pali>
+	<20160613095404.GH1791@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.nue.novell.com ([195.135.221.5]:44955 "EHLO
-	smtp.nue.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751454AbcFXNiz (ORCPT
-	<rfc822;groupwise-linux-i2c@vger.kernel.org:0:0>);
-	Fri, 24 Jun 2016 09:38:55 -0400
-In-Reply-To: <576D2021.4030808@denx.de>
+Received: from mx2.suse.de ([195.135.220.15]:54724 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751541AbcFXOMo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Jun 2016 10:12:44 -0400
+In-Reply-To: <20160613095404.GH1791@lahna.fi.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Stefan Roese <sr@denx.de>
-Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Chew, Kean ho" <kean.ho.chew@intel.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Pali =?UTF-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 
-Hi Stefan,
+Hi Mika,
 
-On ven., 2016-06-24 at 13:57 +0200, Stefan Roese wrote:
-> Hi,
-> 
-> I'm currently trying to use the SMBus on a congatec BayTrail board.
-> This works just fine when booting via the original BIOS. But when I
-> boot into Linux using U-Boot as bootloader, I get the following
-> errors:
-> 
-> [   81.877121] i801_smbus 0000:00:1f.3: Transaction timeout
-> [   81.879228] i801_smbus 0000:00:1f.3: Failed terminating the transaction
-> [   81.879320] i801_smbus 0000:00:1f.3: SMBus is busy, can't use it!
-> [   81.879373] i801_smbus 0000:00:1f.3: SMBus is busy, can't use it!
-> [   81.879421] i801_smbus 0000:00:1f.3: SMBus is busy, can't use it!
-> [   81.879496] i801_smbus 0000:00:1f.3: SMBus is busy, can't use it!
-> ...
-> 
-> I checked with an oscilloscope and the SMBus clock is not toggling
-> at all in this case. My feeling is, that some basic setup is missing
-> in this non-BIOS case. Like some clock enabling. Does anyone of you
-> have some idea here?
+On Mon, 13 Jun 2016 12:54:04 +0300, Mika Westerberg wrote:
+> On Mon, Jun 13, 2016 at 11:48:30AM +0200, Pali Roh=C3=A1r wrote:
+> > I mean to call acpi_remove_address_space_handler() in
+> > i801_acpi_io_handler() after acpi_reserved is properly set.
+> >=20
+> > As once acpi_reserved is set address space handler is not needed
+> > anymore.
+>=20
+> It is still needed as we handle all AML OpRegion access in this drive=
+r
+> from that point forward. Unless I'm missing something.
 
-No immediate idea, sorry. Two ideas:
+I think Pali is correct. The only purpose of handling the region is to
+detect that it is being accessed so we can set priv->acpi_reserved.
+Once it is set, i801_acpi_io_handler becomes transparent: it forwards
+the requests without doing anything with them. The very same would
+happen if we would unregister the handler at that point, but without th=
+e
+extra overhead.
 
-* Is this problem specific to Baytrail systems, or does i2c-i801 fail on
-all U-Boot systems?
+So while the current code does work fine, unregistering the handler
+when we set priv->acpi_reserved would be more optimal.
 
-* Did you try comparing the PCI configuration space of the SMBus device
-between original BIOS boot (working) and U-Boot boot (not working)?
+Unless both Pali and myself are missing something, that is.
 
--- 
+--=20
 Jean Delvare
 SUSE L3 Support
