@@ -1,35 +1,53 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v9 2/2] Input: synaptics-rmi4 - add SMBus support
-Date: Sat, 25 Jun 2016 05:47:31 +0800
-Message-ID: <201606250504.23UjMfXF%fengguang.wu@intel.com>
-References: <1466779303-8658-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v8 4/4] Input: synaptics-rmi4 - add SMBus support
+Date: Fri, 24 Jun 2016 16:35:05 -0700
+Message-ID: <20160624233505.GC11719@dtor-ws>
+References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1465484030-28838-5-git-send-email-benjamin.tissoires@redhat.com>
+ <20160623230635.GS32561@dtor-ws>
+ <20160624071931.GP24234@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1466779303-8658-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20160624071931.GP24234@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: kbuild-all@01.org, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.de>, Guenter Roeck <linux@roeck-us.net>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Fri, Jun 24, 2016 at 09:19:32AM +0200, Benjamin Tissoires wrote:
+> On Jun 23 2016 or thereabouts, Dmitry Torokhov wrote:
+> > On Thu, Jun 09, 2016 at 04:53:50PM +0200, Benjamin Tissoires wrote:
+> > > +
+> > > +static struct i2c_driver rmi_smb_driver = {
+> > > +	.driver = {
+> > > +		.owner	= THIS_MODULE,
+> > > +		.name	= "rmi4_smbus",
+> > > +		.pm	= &rmi_smb_pm,
+> > > +		.resume	= rmi_smb_resume,
+> > 
+> > Why rmi_smb_resume is not part of rmi_smb_pm?
+> > 
+> 
+> This is because rmi_smbus device both have a PS/2 interface and a SMBus
+> one. I'll have to check again now that I have a slightly different way
+> of binding smbus devices in my tree, but the issue was:
+> - having resume part of pm means it will get caught by PM directly
+> - the PS/2 node gets also resumed by PM
+> - calling PS/2 commands during resume switches the devices back into
+>   PS/2 and stops the SMBus communication.
+> 
+> So it's easier to wait only for the PS/2 PM resume call which will call
+> the SMBus resume function when the device is in a proper state.
+> 
+> I'll send out the updated patch with your comments next week hopefully.
 
-[auto build test WARNING on wsa/i2c/for-next]
-[also build test WARNING on v4.7-rc4 next-20160624]
-[cannot apply to input/next]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+Hmm, I think you will have to walk me through resume process. How do we
+tie in PS/2 and I2C on these devices abd have PS/2 code call into this
+driver?
 
-url:    https://github.com/0day-ci/linux/commits/Benjamin-Tissoires/i2c-i801-add-support-of-Host-Notify/20160624-224821
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux i2c/for-next
+Thanks.
 
-
-coccinelle warnings: (new ones prefixed by >>)
-
->> drivers/input/rmi4/rmi_smbus.c:448:3-8: No need to set .owner here. The core will do it.
-
-Please review and possibly fold the followup patch.
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+-- 
+Dmitry
