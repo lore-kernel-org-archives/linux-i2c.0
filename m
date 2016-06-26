@@ -1,149 +1,169 @@
-From: Phil Reid <preid@electromag.com.au>
+From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
 Subject: Re: [PATCH 1/2] Documentation: Add sbs-manager device tree node
  documentation
-Date: Sun, 26 Jun 2016 13:21:00 +0800
-Message-ID: <9ccbeeb9-3612-fe07-3396-48da7c832bc6@electromag.com.au>
+Date: Sun, 26 Jun 2016 09:10:24 +0200
+Message-ID: <1466925024.9121.3.camel@amnesix>
 References: <1466622436-27963-1-git-send-email-karl-heinz@schneider-inet.de>
- <1466622436-27963-2-git-send-email-karl-heinz@schneider-inet.de>
- <20160624175014.GA29990@rob-hp-laptop>
+	 <1466622436-27963-2-git-send-email-karl-heinz@schneider-inet.de>
+	 <20160624175014.GA29990@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from schneider-inet.de ([85.214.76.205]:60418 "EHLO
+	h1714509.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750940AbcFZHKf (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 26 Jun 2016 03:10:35 -0400
 In-Reply-To: <20160624175014.GA29990@rob-hp-laptop>
-Sender: linux-pm-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>, Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
 
-G'day Rob
+Hi Rob,
 
-Couple of thoughts / question below.
+sorry for resending, forgot the Cc.
 
-On 25/06/2016 01:50, Rob Herring wrote:
+Am Freitag, den 24.06.2016, 12:50 -0500 schrieb Rob Herring:
 > On Wed, Jun 22, 2016 at 09:07:15PM +0200, Karl-Heinz Schneider wrote:
->> This patch adds device tree documentation for the sbs-manager
->>
->> Reviewed-by: Phil Reid <preid@electromag.com.au>
->> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
->> ---
->>  .../devicetree/bindings/power/sbs,sbs-manager.txt  | 58 ++++++++++++++++++++++
->>  1 file changed, 58 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
->>
->> diff --git a/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
->> new file mode 100644
->> index 0000000..d52b466
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
->> @@ -0,0 +1,58 @@
->> +Binding for sbs-manager
->> +
->> +Required properties:
->> +- compatible: should be "sbs,sbs-manager" or "lltc,ltc1760" if device is a
->> +    ltc1760.
->
-> sbs is not a vendor. What chip is sbs-manager? I suspect you should drop
+> > This patch adds device tree documentation for the sbs-manager
+> > 
+> > Reviewed-by: Phil Reid <preid@electromag.com.au>
+> > Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+> > ---
+> >  .../devicetree/bindings/power/sbs,sbs-manager.txt  | 58
+++++++++++++++++++++++
+> >  1 file changed, 58 insertions(+)
+> >  create mode 100644
+Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+> > 
+> > diff --git
+a/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+> > new file mode 100644
+> > index 0000000..d52b466
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+> > @@ -0,0 +1,58 @@
+> > +Binding for sbs-manager
+> > +
+> > +Required properties:
+> > +- compatible: should be "sbs,sbs-manager" or "lltc,ltc1760" if
+device is a
+> > +    ltc1760.
+> 
+> sbs is not a vendor. What chip is sbs-manager? I suspect you should
+drop 
 > it and only list specific chips.
-This follows the interface to the existing paired sbs,sbs-battery driver defined in power/sbs-battery.c
-It implements a generic driver for the Smart Battery System Manager Specification.
-Spec available here: http://sbs-forum.org/specs/sbsm100b.pdf
+Yes it's not a specific chip. But it's the specification of the
+interface. See http://sbs-forum.org/specs/sbsm100b.pdf. One
+implementation (with special features) is the LTC1760.
 
-In addition the ltc1760 extends the spec.
+I choose this because the sbs-battery-driver did it the same way. You
+can find this in sbs-battery.c:
 
+static const struct of_device_id sbs_dt_ids[] = {
+        { .compatible = "sbs,sbs-battery" },
+        { .compatible = "ti,bq20z75" },
+        { }
+};
 
->
->> +- reg: integer, i2c address of the device. Should be <0xa>.
->> +
->> +Optional properties:
->> +- sbsm,i2c-retry-count: integer, number of retries for trying to read or write
->> +    to registers. Default: 1
->
-> Seems like a driver setting. Is having a retry in the driver a problem
+Why not keep a generic compatibility string?
+
+> 
+> > +- reg: integer, i2c address of the device. Should be <0xa>.
+> > +
+> > +Optional properties:
+> > +- sbsm,i2c-retry-count: integer, number of retries for trying to
+read or write
+> > +    to registers. Default: 1
+> 
+> Seems like a driver setting. Is having a retry in the driver a
+problem 
 > if the h/w works and never actually needs it?
-Similarly the sbs-battery driver specifies the same same retry behaviour. And is a model for this implementation.
+It could also be passed as a module parameter. But again the sbs-battery
+driver did it the same way, it just acted as template in this case...
 
-I've found the ltc1760 and sbs batteries to be problematic when communicating to them.
-A lot of drivers (and the associated hardware) don't handle multiple bus masters well.
-The bus arbitation doesn't seem to work correctly.
-Retries where the only thing I could do to to get things to work reliably.
-Mostly means the driver needs fixing, but in one case the designware core hardware seemed to be the problem for me.
-
-
->
->> +
->> +From OS view the device is basically an i2c-mux used to communicate with up to
->> +four smart battery devices at address 0xb. The driver actually implements this
->> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
->> +batteries. Channels will be numerated as 1, 2, 4 and 8.
->> +
->> +Example:
->> +
->> +batman@0a {
->> +    compatible = "sbs,sbs-manager";
->> +    reg = <0x0a>;
->> +    sbsm,i2c-retry-count = <3>;
->> +    #address-cells = <1>;
->> +    #size-cells = <0>;
->> +
->> +    channel1@1 {
->
+The retry problematic arises because the SBSM is itself an i2c master.
+And (at least the LTC) stretches hosts i2c clock if it does communicate
+with the connected batteries. This will likely disturb the hosts
+communication to any i2c chip connected on this bus sooner or later,
+including to the SBSM.
+> 
+> > +
+> > +From OS view the device is basically an i2c-mux used to communicate
+with up to
+> > +four smart battery devices at address 0xb. The driver actually
+implements this
+> > +behaviour. So standard i2c-mux nodes can be used to register up to
+four slave
+> > +batteries. Channels will be numerated as 1, 2, 4 and 8.
+> > +
+> > +Example:
+> > +
+> > +batman@0a {
+> > +    compatible = "sbs,sbs-manager";
+> > +    reg = <0x0a>;
+> > +    sbsm,i2c-retry-count = <3>;
+> > +    #address-cells = <1>;
+> > +    #size-cells = <0>;
+> > +
+> > +    channel1@1 {
+> 
 > channel@1
->
+> 
 > Do we have a standard node name for mux nodes? If not, we should.
->
->> +        #address-cells = <1>;
->> +        #size-cells = <0>;
->> +        reg = <1>;
->> +
->> +        battery1@0b {
->
+I don't know. Other mux binding docs name the cannels just "i2c" or
+"port". Spec names them (the battery) "Smart Battery [A,B..]".
+Can at least drop the number in front of the @.
+> 
+> > +        #address-cells = <1>;
+> > +        #size-cells = <0>;
+> > +        reg = <1>;
+> > +
+> > +        battery1@0b {
+> 
 > battery@b
->
->> +            compatible = "sbs-battery";
->
-> This should be an actual battery model. Or all this information is
+
+> 
+> > +            compatible = "sbs-battery";
+> 
+> This should be an actual battery model. Or all this information is 
 > generic, you don't really need it in DT.
-Do we really want to restrict to battery model?
-I have hardware where complete different sbs compliant batteries can be plugged in.
-Without the compatible flag here how do you get the sbs-battery driver to load and manage the battery itself?
-Or are you suggesting the manager should do this somehow?
-I'm still learning...
-
-
->
->> +            reg = <0x0b>;
->> +        };
->> +    };
->> +
->> +    channel2@2 {
->> +        #address-cells = <1>;
->> +        #size-cells = <0>;
->> +        reg = <2>;
->> +
->> +        battery2@0b {
->> +            compatible = "sbs-battery";
->> +            reg = <0x0b>;
->> +        };
->> +    };
->> +
->> +    channel3@4 {
->> +        #address-cells = <1>;
->> +        #size-cells = <0>;
->> +        reg = <4>;
->> +
->> +        battery3@0b {
->> +            compatible = "sbs-battery";
->> +            reg = <0x0b>;
->> +        };
->> +    };
->> +};
->> --
->> 1.9.1
->>
-
-
+A solution could be to bind the sbs-battery driver within the
+sbs-manager driver for all detected channels per default, if not
+otherwise state in device tree? Current implementation doesn't bind
+anything by itself. Don't know what is the preferred behaviour?
+> 
+> > +            reg = <0x0b>;
+> > +        };
+> > +    };
+> > +
+> > +    channel2@2 {
+> > +        #address-cells = <1>;
+> > +        #size-cells = <0>;
+> > +        reg = <2>;
+> > +
+> > +        battery2@0b {
+> > +            compatible = "sbs-battery";
+> > +            reg = <0x0b>;
+> > +        };
+> > +    };
+> > +
+> > +    channel3@4 {
+> > +        #address-cells = <1>;
+> > +        #size-cells = <0>;
+> > +        reg = <4>;
+> > +
+> > +        battery3@0b {
+> > +            compatible = "sbs-battery";
+> > +            reg = <0x0b>;
+> > +        };
+> > +    };
+> > +};
+> > -- 
+> > 1.9.1
+> > 
+Tanks for review.
 -- 
-Regards
-Phil Reid
-
+Greetings
