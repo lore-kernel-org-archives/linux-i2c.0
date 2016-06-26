@@ -1,304 +1,158 @@
-From: Stefan Agner <stefan@agner.ch>
-Subject: [PATCH 2/3] powerpc/dts: fix STMicroelectronics compatible strings
-Date: Sun, 26 Jun 2016 02:34:05 -0700
-Message-ID: <20160626093406.26785-2-stefan@agner.ch>
-References: <20160626093406.26785-1-stefan@agner.ch>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160626093406.26785-1-stefan@agner.ch>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, mark.rutland@arm.com, arnd@arndb.de, shawnguo@kernel.org, mpe@ellerman.id.au, paulus@samba.org, benh@kernel.crashing.org
-Cc: scottwood@freescale.com, dinguyen@opensource.altera.com, robh+dt@kernel.org, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Stefan Agner <stefan@agner.ch>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/2] Documentation: Add sbs-manager device tree node documentation
+Date: Sun, 26 Jun 2016 09:05:01 -0500
+Message-ID: <CAL_JsqL38hnQpchy8q+yk1rZQ1ngF4JUwFgN0V=mGyAyAq1GVg@mail.gmail.com>
+References: <1466622436-27963-1-git-send-email-karl-heinz@schneider-inet.de>
+ <1466622436-27963-2-git-send-email-karl-heinz@schneider-inet.de>
+ <20160624175014.GA29990@rob-hp-laptop> <9ccbeeb9-3612-fe07-3396-48da7c832bc6@electromag.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:47106 "EHLO mail.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751910AbcFZOF1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 26 Jun 2016 10:05:27 -0400
+In-Reply-To: <9ccbeeb9-3612-fe07-3396-48da7c832bc6@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>
+Cc: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>
 
-Replace the non-standard vendor prefix stm and st-micro with st for
-STMicroelectronics. The drivers do not specify the vendor prefixes
-since the I2C Core strips them away from the DT provided compatible
-string. Therefore, changing existing device trees does not have any
-impact on device detection.
+On Sun, Jun 26, 2016 at 12:21 AM, Phil Reid <preid@electromag.com.au> wrote:
+> G'day Rob
+>
+> Couple of thoughts / question below.
+>
+> On 25/06/2016 01:50, Rob Herring wrote:
+>>
+>> On Wed, Jun 22, 2016 at 09:07:15PM +0200, Karl-Heinz Schneider wrote:
+>>>
+>>> This patch adds device tree documentation for the sbs-manager
+>>>
+>>> Reviewed-by: Phil Reid <preid@electromag.com.au>
+>>> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+>>> ---
+>>>  .../devicetree/bindings/power/sbs,sbs-manager.txt  | 58
+>>> ++++++++++++++++++++++
+>>>  1 file changed, 58 insertions(+)
+>>>  create mode 100644
+>>> Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+>>> b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+>>> new file mode 100644
+>>> index 0000000..d52b466
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+>>> @@ -0,0 +1,58 @@
+>>> +Binding for sbs-manager
+>>> +
+>>> +Required properties:
+>>> +- compatible: should be "sbs,sbs-manager" or "lltc,ltc1760" if device is
+>>> a
+>>> +    ltc1760.
+>>
+>>
+>> sbs is not a vendor. What chip is sbs-manager? I suspect you should drop
+>> it and only list specific chips.
+>
+> This follows the interface to the existing paired sbs,sbs-battery driver
+> defined in power/sbs-battery.c
+> It implements a generic driver for the Smart Battery System Manager
+> Specification.
+> Spec available here: http://sbs-forum.org/specs/sbsm100b.pdf
+>
+> In addition the ltc1760 extends the spec.
 
-Signed-off-by: Stefan Agner <stefan@agner.ch>
----
- arch/powerpc/boot/dts/ac14xx.dts           | 2 +-
- arch/powerpc/boot/dts/akebono.dts          | 2 +-
- arch/powerpc/boot/dts/bluestone.dts        | 2 +-
- arch/powerpc/boot/dts/canyonlands.dts      | 2 +-
- arch/powerpc/boot/dts/currituck.dts        | 2 +-
- arch/powerpc/boot/dts/fsl/mpc8569mds.dts   | 2 +-
- arch/powerpc/boot/dts/fsl/p1022rdk.dts     | 2 +-
- arch/powerpc/boot/dts/glacier.dts          | 2 +-
- arch/powerpc/boot/dts/icon.dts             | 2 +-
- arch/powerpc/boot/dts/mpc5121ads.dts       | 2 +-
- arch/powerpc/boot/dts/mpc8349emitx.dts     | 2 +-
- arch/powerpc/boot/dts/mpc836x_rdk.dts      | 2 +-
- arch/powerpc/boot/dts/pdm360ng.dts         | 2 +-
- arch/powerpc/boot/dts/sam440ep.dts         | 2 +-
- arch/powerpc/boot/dts/xcalibur1501.dts     | 2 +-
- arch/powerpc/boot/dts/xpedite5200.dts      | 2 +-
- arch/powerpc/boot/dts/xpedite5200_xmon.dts | 2 +-
- arch/powerpc/boot/dts/xpedite5301.dts      | 2 +-
- arch/powerpc/boot/dts/xpedite5330.dts      | 2 +-
- arch/powerpc/boot/dts/xpedite5370.dts      | 2 +-
- 20 files changed, 20 insertions(+), 20 deletions(-)
+Chips will always vary from specs in some way either on purpose or by
+accident. sbs,sbs-manager is fine as a fallback string, but there
+should always be a chip specific string first.
 
-diff --git a/arch/powerpc/boot/dts/ac14xx.dts b/arch/powerpc/boot/dts/ac14xx.dts
-index a1b8837..27fcabc 100644
---- a/arch/powerpc/boot/dts/ac14xx.dts
-+++ b/arch/powerpc/boot/dts/ac14xx.dts
-@@ -231,7 +231,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t00";
-+				compatible = "st,m41t00";
- 				reg = <0x68>;
- 			};
- 		};
-diff --git a/arch/powerpc/boot/dts/akebono.dts b/arch/powerpc/boot/dts/akebono.dts
-index f92ecfe..e61d5dc 100644
---- a/arch/powerpc/boot/dts/akebono.dts
-+++ b/arch/powerpc/boot/dts/akebono.dts
-@@ -224,7 +224,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				rtc@68 {
--					compatible = "stm,m41t80", "m41st85";
-+					compatible = "st,m41t80", "m41st85";
- 					reg = <0x68>;
- 				};
- 			};
-diff --git a/arch/powerpc/boot/dts/bluestone.dts b/arch/powerpc/boot/dts/bluestone.dts
-index 7daaca3..b0b26d8 100644
---- a/arch/powerpc/boot/dts/bluestone.dts
-+++ b/arch/powerpc/boot/dts/bluestone.dts
-@@ -279,7 +279,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				rtc@68 {
--					compatible = "stm,m41t80";
-+					compatible = "st,m41t80";
- 					reg = <0x68>;
- 					interrupt-parent = <&UIC0>;
- 					interrupts = <0x9 0x8>;
-diff --git a/arch/powerpc/boot/dts/canyonlands.dts b/arch/powerpc/boot/dts/canyonlands.dts
-index 549c24c..0d6ac92 100644
---- a/arch/powerpc/boot/dts/canyonlands.dts
-+++ b/arch/powerpc/boot/dts/canyonlands.dts
-@@ -319,7 +319,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
-                                 rtc@68 {
--                                        compatible = "stm,m41t80";
-+                                        compatible = "st,m41t80";
-                                         reg = <0x68>;
- 					interrupt-parent = <&UIC2>;
- 					interrupts = <0x19 0x8>;
-diff --git a/arch/powerpc/boot/dts/currituck.dts b/arch/powerpc/boot/dts/currituck.dts
-index d2c8a87..4191e18 100644
---- a/arch/powerpc/boot/dts/currituck.dts
-+++ b/arch/powerpc/boot/dts/currituck.dts
-@@ -116,7 +116,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
-                                 rtc@68 {
--                                        compatible = "stm,m41t80", "m41st85";
-+                                        compatible = "st,m41t80", "m41st85";
-                                         reg = <0x68>;
-                                 };
- 			};
-diff --git a/arch/powerpc/boot/dts/fsl/mpc8569mds.dts b/arch/powerpc/boot/dts/fsl/mpc8569mds.dts
-index a95ff7d..8e94448 100644
---- a/arch/powerpc/boot/dts/fsl/mpc8569mds.dts
-+++ b/arch/powerpc/boot/dts/fsl/mpc8569mds.dts
-@@ -232,7 +232,7 @@
- 			mode = "cpu-qe";
- 
- 			serial-flash@0 {
--				compatible = "stm,m25p40";
-+				compatible = "st,m25p40";
- 				reg = <0>;
- 				spi-max-frequency = <25000000>;
- 			};
-diff --git a/arch/powerpc/boot/dts/fsl/p1022rdk.dts b/arch/powerpc/boot/dts/fsl/p1022rdk.dts
-index d505d7c..29e8af1 100644
---- a/arch/powerpc/boot/dts/fsl/p1022rdk.dts
-+++ b/arch/powerpc/boot/dts/fsl/p1022rdk.dts
-@@ -57,7 +57,7 @@
- 				clock-frequency = <12288000>;
- 			};
- 			rtc@68 {
--				compatible = "stm,m41t62";
-+				compatible = "st,m41t62";
- 				reg = <0x68>;
- 			};
- 			adt7461@4c{
-diff --git a/arch/powerpc/boot/dts/glacier.dts b/arch/powerpc/boot/dts/glacier.dts
-index 2000060..a7a802f 100644
---- a/arch/powerpc/boot/dts/glacier.dts
-+++ b/arch/powerpc/boot/dts/glacier.dts
-@@ -287,7 +287,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				rtc@68 {
--					compatible = "stm,m41t80";
-+					compatible = "st,m41t80";
- 					reg = <0x68>;
- 					interrupt-parent = <&UIC2>;
- 					interrupts = <0x19 0x8>;
-diff --git a/arch/powerpc/boot/dts/icon.dts b/arch/powerpc/boot/dts/icon.dts
-index abcd0ca..9c94fd7 100644
---- a/arch/powerpc/boot/dts/icon.dts
-+++ b/arch/powerpc/boot/dts/icon.dts
-@@ -256,7 +256,7 @@
- 				#size-cells = <0>;
- 
-                                 rtc@68 {
--                                        compatible = "stm,m41t00";
-+                                        compatible = "st,m41t00";
-                                         reg = <0x68>;
-                                 };
- 			};
-diff --git a/arch/powerpc/boot/dts/mpc5121ads.dts b/arch/powerpc/boot/dts/mpc5121ads.dts
-index c228a0a..75888ce 100644
---- a/arch/powerpc/boot/dts/mpc5121ads.dts
-+++ b/arch/powerpc/boot/dts/mpc5121ads.dts
-@@ -99,7 +99,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t62";
-+				compatible = "st,m41t62";
- 				reg = <0x68>;
- 			};
- 		};
-diff --git a/arch/powerpc/boot/dts/mpc8349emitx.dts b/arch/powerpc/boot/dts/mpc8349emitx.dts
-index cf85424..90aed3a 100644
---- a/arch/powerpc/boot/dts/mpc8349emitx.dts
-+++ b/arch/powerpc/boot/dts/mpc8349emitx.dts
-@@ -92,7 +92,7 @@
- 			dfsrr;
- 
- 			eeprom: at24@50 {
--				compatible = "st-micro,24c256";
-+				compatible = "st,24c256";
- 				reg = <0x50>;
- 			};
- 
-diff --git a/arch/powerpc/boot/dts/mpc836x_rdk.dts b/arch/powerpc/boot/dts/mpc836x_rdk.dts
-index daeacbd..47c5fc6 100644
---- a/arch/powerpc/boot/dts/mpc836x_rdk.dts
-+++ b/arch/powerpc/boot/dts/mpc836x_rdk.dts
-@@ -416,7 +416,7 @@
- 			gpios = <&qe_pio_e 18 0>;
- 
- 			flash {
--				compatible = "stm,nand512-a";
-+				compatible = "st,nand512-a";
- 			};
- 		};
- 
-diff --git a/arch/powerpc/boot/dts/pdm360ng.dts b/arch/powerpc/boot/dts/pdm360ng.dts
-index 871c16d..0cec724 100644
---- a/arch/powerpc/boot/dts/pdm360ng.dts
-+++ b/arch/powerpc/boot/dts/pdm360ng.dts
-@@ -103,7 +103,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t00";
-+				compatible = "st,m41t00";
- 				reg = <0x68>;
- 			};
- 		};
-diff --git a/arch/powerpc/boot/dts/sam440ep.dts b/arch/powerpc/boot/dts/sam440ep.dts
-index f0663be..088361c 100644
---- a/arch/powerpc/boot/dts/sam440ep.dts
-+++ b/arch/powerpc/boot/dts/sam440ep.dts
-@@ -196,7 +196,7 @@
- 				interrupt-parent = <&UIC0>;
- 				interrupts = <2 4>;
- 				rtc@68 {
--					compatible = "stm,m41t80";
-+					compatible = "st,m41t80";
- 					reg = <0x68>;
- 				};
- 			};
-diff --git a/arch/powerpc/boot/dts/xcalibur1501.dts b/arch/powerpc/boot/dts/xcalibur1501.dts
-index c409cba..1f2952d 100644
---- a/arch/powerpc/boot/dts/xcalibur1501.dts
-+++ b/arch/powerpc/boot/dts/xcalibur1501.dts
-@@ -238,7 +238,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t00",
-+				compatible = "st,m41t00",
- 				             "dallas,ds1338";
- 				reg = <0x68>;
- 			};
-diff --git a/arch/powerpc/boot/dts/xpedite5200.dts b/arch/powerpc/boot/dts/xpedite5200.dts
-index 8fd7b70..5b10e56 100644
---- a/arch/powerpc/boot/dts/xpedite5200.dts
-+++ b/arch/powerpc/boot/dts/xpedite5200.dts
-@@ -130,7 +130,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t00",
-+				compatible = "st,m41t00",
- 					     "dallas,ds1338";
- 				reg = <0x68>;
- 			};
-diff --git a/arch/powerpc/boot/dts/xpedite5200_xmon.dts b/arch/powerpc/boot/dts/xpedite5200_xmon.dts
-index 0baa828..646acfb 100644
---- a/arch/powerpc/boot/dts/xpedite5200_xmon.dts
-+++ b/arch/powerpc/boot/dts/xpedite5200_xmon.dts
-@@ -134,7 +134,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t00",
-+				compatible = "st,m41t00",
- 					     "dallas,ds1338";
- 				reg = <0x68>;
- 			};
-diff --git a/arch/powerpc/boot/dts/xpedite5301.dts b/arch/powerpc/boot/dts/xpedite5301.dts
-index 04cb410..7bcc94f 100644
---- a/arch/powerpc/boot/dts/xpedite5301.dts
-+++ b/arch/powerpc/boot/dts/xpedite5301.dts
-@@ -231,7 +231,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t00",
-+				compatible = "st,m41t00",
- 				             "dallas,ds1338";
- 				reg = <0x68>;
- 			};
-diff --git a/arch/powerpc/boot/dts/xpedite5330.dts b/arch/powerpc/boot/dts/xpedite5330.dts
-index 73f8620..86df8bc 100644
---- a/arch/powerpc/boot/dts/xpedite5330.dts
-+++ b/arch/powerpc/boot/dts/xpedite5330.dts
-@@ -267,7 +267,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t00",
-+				compatible = "st,m41t00",
- 				             "dallas,ds1338";
- 				reg = <0x68>;
- 			};
-diff --git a/arch/powerpc/boot/dts/xpedite5370.dts b/arch/powerpc/boot/dts/xpedite5370.dts
-index cd0ea2b..b8ade09 100644
---- a/arch/powerpc/boot/dts/xpedite5370.dts
-+++ b/arch/powerpc/boot/dts/xpedite5370.dts
-@@ -229,7 +229,7 @@
- 			};
- 
- 			rtc@68 {
--				compatible = "stm,m41t00",
-+				compatible = "st,m41t00",
- 				             "dallas,ds1338";
- 				reg = <0x68>;
- 			};
--- 
-2.8.3
+>>> +- reg: integer, i2c address of the device. Should be <0xa>.
+>>> +
+>>> +Optional properties:
+>>> +- sbsm,i2c-retry-count: integer, number of retries for trying to read or
+>>> write
+>>> +    to registers. Default: 1
+>>
+>>
+>> Seems like a driver setting. Is having a retry in the driver a problem
+>> if the h/w works and never actually needs it?
+>
+> Similarly the sbs-battery driver specifies the same same retry behaviour.
+> And is a model for this implementation.
+>
+> I've found the ltc1760 and sbs batteries to be problematic when
+> communicating to them.
+> A lot of drivers (and the associated hardware) don't handle multiple bus
+> masters well.
+> The bus arbitation doesn't seem to work correctly.
+> Retries where the only thing I could do to to get things to work reliably.
+> Mostly means the driver needs fixing, but in one case the designware core
+> hardware seemed to be the problem for me.
+
+I'm not questioning the need for a retry. I'm questioning the need to
+limit the retries and tune per platform. What would be the issue if
+the driver hardcodes the number of retries to 10? This will work for
+any h/w that needs 0, 1, 2, ..., or 10 retries. The only issue would
+be how long until it errors out.
+
+And yes, I can confirm DW i2c h/w is a POS at least for some versions.
+
+>>> +From OS view the device is basically an i2c-mux used to communicate with
+>>> up to
+>>> +four smart battery devices at address 0xb. The driver actually
+>>> implements this
+>>> +behaviour. So standard i2c-mux nodes can be used to register up to four
+>>> slave
+>>> +batteries. Channels will be numerated as 1, 2, 4 and 8.
+>>> +
+>>> +Example:
+>>> +
+>>> +batman@0a {
+>>> +    compatible = "sbs,sbs-manager";
+>>> +    reg = <0x0a>;
+>>> +    sbsm,i2c-retry-count = <3>;
+>>> +    #address-cells = <1>;
+>>> +    #size-cells = <0>;
+>>> +
+>>> +    channel1@1 {
+>>
+>>
+>> channel@1
+>>
+>> Do we have a standard node name for mux nodes? If not, we should.
+>>
+>>> +        #address-cells = <1>;
+>>> +        #size-cells = <0>;
+>>> +        reg = <1>;
+>>> +
+>>> +        battery1@0b {
+>>
+>>
+>> battery@b
+>>
+>>> +            compatible = "sbs-battery";
+>>
+>>
+>> This should be an actual battery model. Or all this information is
+>> generic, you don't really need it in DT.
+>
+> Do we really want to restrict to battery model?
+
+You're not. It is just being explicit in case some battery needs
+special handling and you only find that out after writing the binding.
+The DT model is such that the kernel can be updated with fixes without
+updating the DT. Specific compatible strings are needed for that to
+work.
+
+> I have hardware where complete different sbs compliant batteries can be
+> plugged in.
+> Without the compatible flag here how do you get the sbs-battery driver to
+> load and manage the battery itself?
+> Or are you suggesting the manager should do this somehow?
+> I'm still learning...
+
+sbs,sbs-battery can still be a fall-back compatible string.
+
+Rob
