@@ -1,53 +1,88 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v4 5/8] spi: add support for ACPI reconfigure
- notifications
-Date: Mon, 27 Jun 2016 15:17:13 +0100
-Message-ID: <20160627141713.GW28202@sirena.org.uk>
-References: <1466164336-9508-1-git-send-email-octavian.purdila@intel.com>
- <1466164336-9508-6-git-send-email-octavian.purdila@intel.com>
+From: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Subject: [PATCH] i2c: mv64xxx: Use clk_enable_prepare and
+ clk_disable_unprepare
+Date: Mon, 27 Jun 2016 20:17:22 +0530
+Message-ID: <20160627144722.GA31362@amitoj-Inspiron-3542>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="XGH+X5Sk6wksXc5a"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1466164336-9508-6-git-send-email-octavian.purdila@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, irina.tirdea@intel.com, leonard.crestez@intel.com
-List-Id: linux-i2c@vger.kernel.org
-
-
---XGH+X5Sk6wksXc5a
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:35938 "EHLO
+	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751644AbcF0Orb (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Jun 2016 10:47:31 -0400
 Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-On Fri, Jun 17, 2016 at 02:52:13PM +0300, Octavian Purdila wrote:
+Replace clk_enable and clk_prepare with clk_enable_prepare and
+clk_disable and clk_unprepare with clk_disable_unprepare.
 
-> This patch adds supports for SPI device enumeration and removal via
-> ACPI reconfiguration notifications that are send as a result of an
-> ACPI table load or unload operation.
+The Coccinelle semantic patch used to make this change is as follows:
+@@
+expression e;
+@@
 
-I still have the same concern I've had all the way through here: this is
-very similar to the equivalent DT code but not quite, especially in
-regard to the OF_POPULATED flag which has no ACPI equivalent.  This
-gives us ACPI code which just looks like it's missing something.  I'd
-like to see the comparison at least covered in the changelog so people
-have something to refer to in future when trying to understand why
-things are done this way.
+- clk_prepare(e);
+- clk_enable(e);
++ clk_prepare_enable(e);
 
---XGH+X5Sk6wksXc5a
-Content-Type: application/pgp-signature; name="signature.asc"
+@@
+expression e;
+@@
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+- clk_disable(e);
+- clk_unprepare(e);
++ clk_disable_unprepare(e);
 
-iQEcBAEBCAAGBQJXcTVoAAoJECTWi3JdVIfQ1NkIAICLFrq20hSWhgkKNPVK2Fxu
-ZlIUEeByk4Ko38eN/9XzEXP3JrQC5iIOe7or4AneoEpS2urUPg91Ozx0ylZUBzwV
-8SLbS3mvDTJ/skvMbC/zbBsLgMiJ8MjFGQbYvE622sgFup+bQ+v070l9fmCmB/MX
-NqeJO+LKISe68MA6fugIl6cgj2TR9ngvBbrc/tUFl2FXwzyd0yp14MM3uEHpMBSX
-A097r6EHZTzYQXe3C7V646BHlW2tm8EIi/j1xa5i6ssI+g1SB3Q0TbwOELN7jJ1W
-49rA7hTrS5HsUhlYTqE2xyXXg9sMuP94Nf77qNFsFrYdJBkBw/sffitdCvOY28Q=
-=ikos
------END PGP SIGNATURE-----
+Signed-off-by: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
---XGH+X5Sk6wksXc5a--
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 43207f5..79bae48 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -910,10 +910,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+ 	drv_data->clk = devm_clk_get(&pd->dev, NULL);
+-	if (!IS_ERR(drv_data->clk)) {
+-		clk_prepare(drv_data->clk);
+-		clk_enable(drv_data->clk);
+-	}
++	if (!IS_ERR(drv_data->clk))
++		clk_prepare_enable(drv_data->clk);
+ #endif
+ 	if (pdata) {
+ 		drv_data->freq_m = pdata->freq_m;
+@@ -966,10 +964,8 @@ exit_reset:
+ exit_clk:
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+-	if (!IS_ERR(drv_data->clk)) {
+-		clk_disable(drv_data->clk);
+-		clk_unprepare(drv_data->clk);
+-	}
++	if (!IS_ERR(drv_data->clk))
++		clk_disable_unprepare(drv_data->clk);
+ #endif
+ 	return rc;
+ }
+@@ -985,10 +981,8 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+ 		reset_control_assert(drv_data->rstc);
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+-	if (!IS_ERR(drv_data->clk)) {
+-		clk_disable(drv_data->clk);
+-		clk_unprepare(drv_data->clk);
+-	}
++	if (!IS_ERR(drv_data->clk))
++		clk_disable_unprepare(drv_data->clk);
+ #endif
+ 
+ 	return 0;
+-- 
+1.9.1
