@@ -1,57 +1,64 @@
-From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Subject: Re: [RFC 3/3] dts: beaglebone: Portable connector BB_RELAY_4PORT definition
-Date: Mon, 27 Jun 2016 21:52:39 +0300
-Message-ID: <7FD05D1D-6827-476B-A4A2-304A7FE7A1D2@konsulko.com>
-References: <1464986273-12039-1-git-send-email-pantelis.antoniou@konsulko.com> <1464986273-12039-4-git-send-email-pantelis.antoniou@konsulko.com> <577168BD.5030409@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:38548 "EHLO
-	mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751832AbcF0Swo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Jun 2016 14:52:44 -0400
-Received: by mail-wm0-f48.google.com with SMTP id r201so127923708wme.1
-        for <linux-i2c@vger.kernel.org>; Mon, 27 Jun 2016 11:52:44 -0700 (PDT)
-In-Reply-To: <577168BD.5030409@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Subject: Re: [PATCH 1/2] Documentation: Add sbs-manager device tree node
+ documentation
+Date: Mon, 27 Jun 2016 22:37:51 +0200
+Message-ID: <1467059871.9121.7.camel@amnesix>
+References: <1466622436-27963-1-git-send-email-karl-heinz@schneider-inet.de>
+	 <1466622436-27963-2-git-send-email-karl-heinz@schneider-inet.de>
+	 <20160624175014.GA29990@rob-hp-laptop>
+	 <83b7648c-43d6-7a32-29bb-65f2606399fd@axentia.se>
+	 <CAL_JsqKTQLD72Vx-PaFRiUegNhY30pmD7ewEXtoLNj4mj8=phA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CAL_JsqKTQLD72Vx-PaFRiUegNhY30pmD7ewEXtoLNj4mj8=phA@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Peter Rosin <peda@axentia.se>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Phil Reid <preid@electromag.com.au>
 List-Id: linux-i2c@vger.kernel.org
-To: Frank Rowand <frowand.list@gmail.com>
-Cc: Rob Herring <robherring2@gmail.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, Marek Vasut <marex@denx.de>, Wolfram Sang <wsa@the-dreams.de>, Stephen Boyd <stephen.boyd@linaro.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-Hi Frank,
+Am Montag, den 27.06.2016, 10:28 -0500 schrieb Rob Herring:
+> On Sun, Jun 26, 2016 at 5:35 PM, Peter Rosin <peda@axentia.se> wrote:
+> > On 2016-06-24 19:50, Rob Herring wrote:
+> >> On Wed, Jun 22, 2016 at 09:07:15PM +0200, Karl-Heinz Schneider wrote:
+> >>> This patch adds device tree documentation for the sbs-manager
+> >
+> > *snip*
+> >
+> >>> +
+> >>> +From OS view the device is basically an i2c-mux used to communicate with up to
+> >>> +four smart battery devices at address 0xb. The driver actually implements this
+> >>> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
+> >>> +batteries. Channels will be numerated as 1, 2, 4 and 8.
+> >>> +
+> >>> +Example:
+> >>> +
+> >>> +batman@0a {
+> >>> +    compatible = "sbs,sbs-manager";
+> >>> +    reg = <0x0a>;
+> >>> +    sbsm,i2c-retry-count = <3>;
+> >>> +    #address-cells = <1>;
+> >>> +    #size-cells = <0>;
+> >>> +
+> >>> +    channel1@1 {
+> >>
+> >> channel@1
+> >>
+> >> Do we have a standard node name for mux nodes? If not, we should.
+> >
+> > No name is enforced by the i2c mux support code, but I think "i2c"
+> > dominates, and quite possibly it is the only documented name?
+> 
+> The kernel generally doesn't care what node names are, but standard
+> naming is convention. If "i2c" is most common, then go with that.
+Will do so. 
 
-> On Jun 27, 2016, at 20:56 , Frank Rowand <frowand.list@gmail.com> wro=
-te:
->=20
-> On 06/03/16 13:37, Pantelis Antoniou wrote:
->> Example of a portable connector port for the BB_RELAY_4PORT cape
->>=20
->> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
->> ---
->> arch/arm/boot/dts/am335x-bone-common.dtsi | 48 +++++++++++++++++++++=
-++++++++++
->> 1 file changed, 48 insertions(+)
->=20
-> Pantelis,
->=20
-> Can you provide a pointer to information about the cape?
->=20
+"channelx" will go "i2c"
+"batteryx" will go "battery"
+> 
+> Rob
 
-This is the cape in question.
+Karl-Heinz
 
-http://elinux.org/CircuitCo:Relay_Cape
 
-The standard overlay for it is at:
-
-https://github.com/RobertCNelson/bb.org-overlays/blob/master/src/arm/BB=
--RELAY-4PORT-00A0.dts
-
-> Thanks,
->=20
-> Frank
->=20
-
-Regards
-
-=97 Pantelis
