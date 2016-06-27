@@ -1,100 +1,43 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH] dt-bindings: i2c: add bindings for nxp,pca9541
-Date: Mon, 27 Jun 2016 12:11:22 +0200
-Message-ID: <1467022282-21062-1-git-send-email-peda@axentia.se>
+From: Lukasz Gemborowski <lukasz.gemborowski@nokia.com>
+Subject: [PATCH] i2c: i2c-mux-reg: wrong condition checked for
+ of_address_to_resource return value
+Date: Mon, 27 Jun 2016 11:21:48 +0200
+Message-ID: <20160627092144.GA20023@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: devicetree@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Jiri Slaby <jslaby@suse.cz>, Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db3on0131.outbound.protection.outlook.com ([157.55.234.131]:49312
+	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750870AbcF0Kze (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 27 Jun 2016 06:55:34 -0400
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, peda@axentia.se, linux-i2c@vger.kernel.org
+Cc: alexander.sverdlin@nokia.com
 
-Fill the gap for this pre-existing driver.
+of_address_to_resource return 0 on successful call but
+devm_ioremap_resource is called only if it returns non-zero value
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Lukasz Gemborowski <lukasz.gemborowski@nokia.com>
+Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 ---
- .../devicetree/bindings/i2c/i2c-arb-pca9541.txt    | 33 ++++++++++++++++++++++
- MAINTAINERS                                        |  1 +
- 2 files changed, 34 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt
+ drivers/i2c/muxes/i2c-mux-reg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hi!
-
-I'm wondering about this driver. It is not a trivial device, and yet it
-has historically relied on the i2c core matching the chip w/o vendor
-prefix. This is not ideal. But what to do about the driver implementing
-this in terms of an i2c-mux, somthing which the chip is not; It is an
-i2c arbitrator. It just happens to rely on the i2c mux core also handling
-i2c gates and i2c arbitrators. But that seems like a Linux detail. So I
-don't know what to do here?
-
-That is, the patch - as is - describes something that would be trivial to
-support today, but at the same time it seems to be too tied to Linux.
-
-The problem is that the i2c@0 intermediate node is not really needed, but
-at the same time removing it would cause a disruption for the driver since
-it can't really use the i2c mux core if that node isn't there. I don't
-see a simple way to fix that in the i2c mux core either (but admittedly
-haven't given it too much thought).
-
-Any suggestions?
-
-Cheers,
-Peter
-
-PS. The driver source is in drivers/i2c/muxes/i2c-mux-pca9541.c
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt b/Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt
-new file mode 100644
-index 000000000000..edbe84935906
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt
-@@ -0,0 +1,33 @@
-+* NXP PCA9541 I2C bus master selector
-+
-+Required Properties:
-+
-+  - compatible: Must be "nxp,pca9541"
-+
-+  - reg: The I2C address of the device.
-+
-+  The following required properties are defined externally:
-+
-+  - Standard I2C mux properties. See i2c-mux.txt in this directory.
-+  - I2C child bus nodes. See i2c-mux.txt in this directory.
-+
-+
-+Example:
-+
-+	i2c-arbitrator@74 {
-+		compatible = "nxp,pca9541";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x74>;
-+
-+		i2c@0 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0>;
-+
-+			eeprom@54 {
-+				compatible = "at,24c08";
-+				reg = <0x54>;
-+			};
-+		};
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e1b090f86e0d..3dd44d0d166c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5521,6 +5521,7 @@ S:	Maintained
- F:	Documentation/i2c/i2c-topology
- F:	Documentation/i2c/muxes/
- F:	Documentation/devicetree/bindings/i2c/i2c-mux*
-+F:	Documentation/devicetree/bindings/i2c/i2c-arb*
- F:	drivers/i2c/i2c-mux.c
- F:	drivers/i2c/muxes/
- F:	include/linux/i2c-mux.h
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index 26e7c51..012a7ab 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -145,7 +145,7 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
+ 		mux->data.idle_in_use = true;
+ 
+ 	/* map address from "reg" if exists */
+-	if (of_address_to_resource(np, 0, &res)) {
++	if (!of_address_to_resource(np, 0, &res)) {
+ 		mux->data.reg_size = resource_size(&res);
+ 		mux->data.reg = devm_ioremap_resource(&pdev->dev, &res);
+ 		if (IS_ERR(mux->data.reg))
 -- 
-2.1.4
+2.5.0
