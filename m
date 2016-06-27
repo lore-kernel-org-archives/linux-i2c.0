@@ -1,65 +1,74 @@
-From: David Oberhollenzer <david.oberhollenzer@sigma-star.at>
-Subject: Sensor with 7 bit address above 0x77
-Date: Mon, 27 Jun 2016 13:39:45 +0200
-Message-ID: <17002e23-eaf4-125c-9402-4def2bf13e51@sigma-star.at>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 07/12] dt-bindings: i2c: Add support for 'i2c-bus' subnode
+Date: Mon, 27 Jun 2016 14:04:09 +0200
+Message-ID: <0e9ab029-ed95-c3cb-61f5-6acd9da12a24@axentia.se>
+References: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
+ <1466697545-11868-8-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.sigma-star.at ([95.130.255.111]:45996 "EHLO
-	mail.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751661AbcF0LkJ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Jun 2016 07:40:09 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.sigma-star.at (Postfix) with ESMTP id 716C416B4335
-	for <linux-i2c@vger.kernel.org>; Mon, 27 Jun 2016 13:40:06 +0200 (CEST)
+Received: from mail-db3on0146.outbound.protection.outlook.com ([157.55.234.146]:27037
+	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751639AbcF0MEW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 27 Jun 2016 08:04:22 -0400
+In-Reply-To: <1466697545-11868-8-git-send-email-jonathanh@nvidia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Richard Weinberger <richard@sigma-star.at>
+To: Jon Hunter <jonathanh@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org
 
-Hi!
+On 2016-06-23 17:59, Jon Hunter wrote:
+> The I2C driver core for boards using device-tree assumes any subnode of
+> an I2C adapter in the device-tree blob as being a I2C slave device.
+> Although this makes complete sense, some I2C adapters may have subnodes
+> which are not I2C slaves but subnodes presenting other features. For
+> example some Tegra devices have an I2C interface which may share its
+> pins with other devices and to share these pins subnodes for
+> representing these pins so they have be shared via the pinctrl framework
+> are needed.
+> 
+> To allow I2C adapters to have non-I2C specific subnodes in device-tree
+> that are not parsed by the I2C driver core by adding support for a
+> 'i2c-bus' subnode where I2C slaves can be placed. If the 'i2c-bus'
+> subnode is present then all I2C slaves must be placed under this subnode.
+> 
+> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+> Acked-by: Thierry Reding <treding@nvidia.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c.txt | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+> index f31b2ad1552b..71bea55d4c1b 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> @@ -32,6 +32,14 @@ wants to support one of the below features, it should adapt the bindings below.
+>  - clock-frequency
+>  	frequency of bus clock in Hz.
+>  
+> +- i2c-bus
+> +	For I2C adapters that have child nodes that are a mixture of both I2C
+> +	devices and non-I2C devices (such as a pin controller), the 'i2c-bus'
+> +	subnode can be used for populating I2C devices. If the 'i2c-bus'
+> +	subnode is present, only subnodes of this will be considered as I2C
+> +	slaves. The properties, '#address-cells' and '#size-cells' must be
+> +	defined under this subnode if present.
 
+Hmmm, those #-properties are listed above, under "Required properties", which
+is no longer 100% true. Maybe rephrase to
 
-I have an issue with a recently purchased I2C sensor that (according to the manufacturer) responds
-to bus address 0x78.
+	slaves. The required properties '#address-cells' and '#size-cells'
+	must be	defined under this subnode instead, if this subnode is present.
 
-The i2c-tools program i2cdetect only displays addresses in the range 0x03 to 0x77 and i2cdump
-complains that the address is out of range.
+to make the rules (even) clearer?
 
-Since 0x77 seems pretty arbitrary and strange for a hardware limit (0 bit right in the center),
-I assumed that the remaining 8 addresses above 0x77 might be reserved for some special use and
-started digging around in the documentation.
+Cheers,
+Peter
 
-
-Both programs mention the limitations in their manpages but give *no explanation* on why they
-exist or where those special values came from. i2cdetect seems to have a switch to override
-this behaviour, but i2cdump doesn't.
-
-I found no mentioning of the magic limits in the uapi headers. In fact, a quick git grep revealed
-that the i2c-tools are sprinkled with *hard-coded* address range checks.
-
-
-I found no mentioning in the kernel documentation either. A quick git grep in the kernel source
-lead me to i2c-core.c:897 (i2c_check_7bit_addr_validity_strict) where yet another hard-coded
-address check is performed.
-
-The comment above the line states that addresses 0x78-0x7b are used for 10-bit slave
-addressing. The documentation on 10-bit slave addressing (Documentation/i2c/ten-bit-addresses)
-says "...The leading 0xa (= 10) represents the 10 bit mode...". Wouldn't such an address
-on the bus be quite problematic as 0xA has a leading 1 bit (read/write select?).
-
-After a quick search on the mailing list, I found a number of messages regarding 10 bit addresses,
-mentioning _completely_ different address ranges for mapping 10 bit addresses.
-
-
-Since I don't have 10 bit addressed devices on the bus anyway (or anywhere else in the entire
-building), is there some magic ioctl that I can use to access them? According to the docs,
-I2C_TENBIT is already off by default?
-
-Is there a specific reason I can override i2cdetect but not i2cdump?
-
-
-Thanks,
-
-David
+> +
+>  - i2c-scl-falling-time-ns
+>  	Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
+>  	specification.
+> 
