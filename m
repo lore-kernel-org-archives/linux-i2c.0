@@ -1,55 +1,76 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 1/2] Documentation: Add sbs-manager device tree node
- documentation
-Date: Mon, 27 Jun 2016 00:35:17 +0200
-Message-ID: <83b7648c-43d6-7a32-29bb-65f2606399fd@axentia.se>
-References: <1466622436-27963-1-git-send-email-karl-heinz@schneider-inet.de>
- <1466622436-27963-2-git-send-email-karl-heinz@schneider-inet.de>
- <20160624175014.GA29990@rob-hp-laptop>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: i2c-mux-reg: wrong condition checked for
+ of_address_to_resource return value
+Date: Mon, 27 Jun 2016 11:26:24 +0200
+Message-ID: <20160627092624.GC1602@katana>
+References: <20160627092144.GA20023@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rQ2U398070+RC21q"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db3on0110.outbound.protection.outlook.com ([157.55.234.110]:43168
-	"EHLO emea01-db3-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751449AbcFZWua (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 26 Jun 2016 18:50:30 -0400
-In-Reply-To: <20160624175014.GA29990@rob-hp-laptop>
+Received: from sauhun.de ([89.238.76.85]:40332 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751215AbcF0J0b (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 27 Jun 2016 05:26:31 -0400
+Content-Disposition: inline
+In-Reply-To: <20160627092144.GA20023@nokia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>, Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Phil Reid <preid@electromag.com.au>
+To: Lukasz Gemborowski <lukasz.gemborowski@nokia.com>
+Cc: peda@axentia.se, linux-i2c@vger.kernel.org, alexander.sverdlin@nokia.com
 
-On 2016-06-24 19:50, Rob Herring wrote:
-> On Wed, Jun 22, 2016 at 09:07:15PM +0200, Karl-Heinz Schneider wrote:
->> This patch adds device tree documentation for the sbs-manager
 
-*snip*
+--rQ2U398070+RC21q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> +
->> +From OS view the device is basically an i2c-mux used to communicate with up to
->> +four smart battery devices at address 0xb. The driver actually implements this
->> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
->> +batteries. Channels will be numerated as 1, 2, 4 and 8.
->> +
->> +Example:
->> +
->> +batman@0a {
->> +    compatible = "sbs,sbs-manager";
->> +    reg = <0x0a>;
->> +    sbsm,i2c-retry-count = <3>;
->> +    #address-cells = <1>;
->> +    #size-cells = <0>;
->> +
->> +    channel1@1 {
-> 
-> channel@1
-> 
-> Do we have a standard node name for mux nodes? If not, we should.
+On Mon, Jun 27, 2016 at 11:21:48AM +0200, Lukasz Gemborowski wrote:
+> of_address_to_resource return 0 on successful call but
+> devm_ioremap_resource is called only if it returns non-zero value
+>=20
+> Signed-off-by: Lukasz Gemborowski <lukasz.gemborowski@nokia.com>
+> Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+> ---
+>  drivers/i2c/muxes/i2c-mux-reg.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-=
+reg.c
+> index 26e7c51..012a7ab 100644
+> --- a/drivers/i2c/muxes/i2c-mux-reg.c
+> +++ b/drivers/i2c/muxes/i2c-mux-reg.c
+> @@ -145,7 +145,7 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
+>  		mux->data.idle_in_use =3D true;
+> =20
+>  	/* map address from "reg" if exists */
+> -	if (of_address_to_resource(np, 0, &res)) {
+> +	if (!of_address_to_resource(np, 0, &res)) {
 
-No name is enforced by the i2c mux support code, but I think "i2c"
-dominates, and quite possibly it is the only documented name?
+Minor nit: I prefer '=3D=3D 0' in those cases to prevent the misleading
+reading of "if not of_address_to_resource...". '=3D=3D 0' can be easier read
+as 'is OK'.
 
-Cheers,
-Peter
+
+--rQ2U398070+RC21q
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXcPFAAAoJEBQN5MwUoCm2VM0P/29U9hCYiJOfMkZ9wdtFY9vk
+54nNBXdRj1mhq0tI07pd/7tr0RhTKRpwrZQRFNVqUw4L+zbmD8QQ2UTvUdPni3bX
+EK4xLwByL0b1C6DRYDNTWq9UA0WfR+IM9khYm8yQuTwzkqwCgQynBoprZA/8txuW
+QgUt/40iWP+ZDerOlN3c+5t+oOypOZoI4YTUNtnEdswoVAIs9rO5mTS2nRm0D8kW
+2s9v9Y7rVXWWmpUkAHvawy9zc0yN2EXAiPhPcj3x9OJNrcrsbAc4q0a6b4TliF3S
+1nt3+CjtxQBb1a0SgTvPBhx747b2arO59xc1JTXmRXp/ZoRn9bAHt2fZ7KILjoQH
+QqU1CawTTAdv4xr7/sVc3K+X+x4PICd4NOHDXU8RC2vBbWNpUlnP5c2Px0YRfz8T
+QJeXC0KyfIErLB5i52/ZE4tzw8A5yrMTqTux63gLeGIqr9yQYx8jF3LpnY9ziwo3
+uZ6xMAUcay7Hqa4jzQpDuH+aVq+m1tKe4OW3QI17V15XEH77Cj1HHE7MllQWQif6
+dFDQQPfhLfi884Cdpl0igt9OkQdWsGtF4/vsn1IGFbZN4JTEFY4kj57/oB6Htxqu
+xPLlnrWTrqXgCFVAl5O+DNmXIp27/nh7y76vJfR245gL6zFJPQ1bzalUy2N7cIJP
+jCDRZqC/AqUFmyZFYjwx
+=F8z3
+-----END PGP SIGNATURE-----
+
+--rQ2U398070+RC21q--
