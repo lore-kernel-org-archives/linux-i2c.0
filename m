@@ -1,51 +1,86 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/2] Documentation: Add sbs-manager device tree node documentation
-Date: Mon, 27 Jun 2016 10:28:35 -0500
-Message-ID: <CAL_JsqKTQLD72Vx-PaFRiUegNhY30pmD7ewEXtoLNj4mj8=phA@mail.gmail.com>
-References: <1466622436-27963-1-git-send-email-karl-heinz@schneider-inet.de>
- <1466622436-27963-2-git-send-email-karl-heinz@schneider-inet.de>
- <20160624175014.GA29990@rob-hp-laptop> <83b7648c-43d6-7a32-29bb-65f2606399fd@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: Sensor with 7 bit address above 0x77
+Date: Mon, 27 Jun 2016 17:46:17 +0200
+Message-ID: <20160627154617.GB3505@katana>
+References: <17002e23-eaf4-125c-9402-4def2bf13e51@sigma-star.at>
+ <20160627121319.GA1648@katana>
+ <dafe2d59-1a23-67cc-6a2a-50a43d0325f1@sigma-star.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <83b7648c-43d6-7a32-29bb-65f2606399fd@axentia.se>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Phil Reid <preid@electromag.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:41487 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751601AbcF0PqV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 27 Jun 2016 11:46:21 -0400
+Content-Disposition: inline
+In-Reply-To: <dafe2d59-1a23-67cc-6a2a-50a43d0325f1@sigma-star.at>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: David Oberhollenzer <david.oberhollenzer@sigma-star.at>
+Cc: linux-i2c@vger.kernel.org, Richard Weinberger <richard@sigma-star.at>
 
-On Sun, Jun 26, 2016 at 5:35 PM, Peter Rosin <peda@axentia.se> wrote:
-> On 2016-06-24 19:50, Rob Herring wrote:
->> On Wed, Jun 22, 2016 at 09:07:15PM +0200, Karl-Heinz Schneider wrote:
->>> This patch adds device tree documentation for the sbs-manager
->
-> *snip*
->
->>> +
->>> +From OS view the device is basically an i2c-mux used to communicate with up to
->>> +four smart battery devices at address 0xb. The driver actually implements this
->>> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
->>> +batteries. Channels will be numerated as 1, 2, 4 and 8.
->>> +
->>> +Example:
->>> +
->>> +batman@0a {
->>> +    compatible = "sbs,sbs-manager";
->>> +    reg = <0x0a>;
->>> +    sbsm,i2c-retry-count = <3>;
->>> +    #address-cells = <1>;
->>> +    #size-cells = <0>;
->>> +
->>> +    channel1@1 {
->>
->> channel@1
->>
->> Do we have a standard node name for mux nodes? If not, we should.
->
-> No name is enforced by the i2c mux support code, but I think "i2c"
-> dominates, and quite possibly it is the only documented name?
 
-The kernel generally doesn't care what node names are, but standard
-naming is convention. If "i2c" is most common, then go with that.
+--qlTNgmc+xy1dBmNv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rob
+
+> The way it is written in the spec (1111 0XX) probably caused people to
+> confuse it for 0xF0-0xF3 which I found in some messages on the mailing
+> list.
+
+Yes, it always causes confusion if the R/W bit is part of the address or
+not.
+
+> But that still leaves the question of where the 0xA... in the kernel docs
+> came from.
+
+less Documentation/i2c/ten-bit-addresses
+
+> Section 3.1.12 ends with some musings about the assignment of addresses in
+> "local systems". More specifically, it ends with the sentence "If it is k=
+nown
+> that the reserved address is never going to be used for its intended purp=
+ose,
+> a reserved address can be used for a slave address."
+>=20
+> I _do_ know that there are no 10 bit addressed slaves in my application, =
+so
+> the spec allows me to use at those 4 slave address. Apparently it is not =
+my
+> device that is broken.
+
+For your specific case, I agree. For the generic case, I don't. Maybe
+the word "broken" is too much, though, how about calling it "risky"?
+That being said, as I mentioned before, I think patches adding support
+for using "risky" addresses in i2c-tools are acceptable, so no
+show-stopper here.
+
+Can you share which device uses the address 0x78? I'd like to add it to
+my list of "interesting I2C devices".
+
+
+--qlTNgmc+xy1dBmNv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXcUpJAAoJEBQN5MwUoCm2whwP/02f3OaIUpEmHrxWgmgODFoA
+h9j/x2FPGCv/sAgrTdhC0jyGNoiiHW3wvxX+qtgzwG50KLtkAUoG6moRKjTe+kPP
+udz84u0flpQNxalAMRJL0/6V+I6fVOSYZkgycYrYkZE2dPKIxebt6NkM+e3OORNe
+YCMGIOTzJWfl+P522JTHlraI5fyaKucvaPF6bftH8jboujotNYJceL2PuUcl+gdv
+5UHgYabYUwfmv8HjQ5TqFDaOuofZUqJYuwdKoZgKXERYBP6Il2fE6aDBJVgsGGuO
+PVsg+zkPpPpFGb0LIWw2ytqFvp5UuTJ5MkypHVWiHo33Mha7Rl+I6YYJn+dC+yXg
+WiQnbCNj38Ttwbmcm8NUUbWo1w8luE0KveRj0/kRnsdIwtrjZ4Ybp8r2lMgIHGMa
+oLQfvYofTU6PeJ99siwWotExVhwpXwHV4x/CYg19rY0hSyXTz+HrXepX/CRuH16l
+POmBl3IIDOMpVfDmXDcmVN0Qshm1osJKOP0LwL1QM5B9gLeinI07GXAknC49RUz3
+YNAO7Kf8vM6m/wosAsmi/8TSPpkOrCb+myYsfwTbATv/FZCPyal1s1R6qxOAHxzQ
+KXOTzrQZo6b/yjjabKzmtLfRCPAcwZXaw1oHPZATym3yyqfF/gHgqlrt/pEK82vX
+19jaFOtMPuk6nFnduUmM
+=g/KG
+-----END PGP SIGNATURE-----
+
+--qlTNgmc+xy1dBmNv--
