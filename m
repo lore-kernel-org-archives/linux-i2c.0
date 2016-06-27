@@ -1,72 +1,119 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: Sensor with 7 bit address above 0x77
-Date: Mon, 27 Jun 2016 14:13:20 +0200
-Message-ID: <20160627121319.GA1648@katana>
-References: <17002e23-eaf4-125c-9402-4def2bf13e51@sigma-star.at>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] dt-bindings: i2c: add bindings for nxp,pca9541
+Date: Mon, 27 Jun 2016 06:17:36 -0700
+Message-ID: <57712770.3040204@roeck-us.net>
+References: <1467022282-21062-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:40874 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751854AbcF0MN0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 27 Jun 2016 08:13:26 -0400
-Content-Disposition: inline
-In-Reply-To: <17002e23-eaf4-125c-9402-4def2bf13e51@sigma-star.at>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56697 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751706AbcF0NRv (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Jun 2016 09:17:51 -0400
+In-Reply-To: <1467022282-21062-1-git-send-email-peda@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: David Oberhollenzer <david.oberhollenzer@sigma-star.at>
-Cc: linux-i2c@vger.kernel.org, Richard Weinberger <richard@sigma-star.at>
+To: Peter Rosin <peda@axentia.se>, devicetree@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Jiri Slaby <jslaby@suse.cz>, linux-i2c@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
 
+On 06/27/2016 03:11 AM, Peter Rosin wrote:
+> Fill the gap for this pre-existing driver.
+>
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+> ---
+>   .../devicetree/bindings/i2c/i2c-arb-pca9541.txt    | 33 ++++++++++++++++++++++
+>   MAINTAINERS                                        |  1 +
+>   2 files changed, 34 insertions(+)
+>   create mode 100644 Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt
+>
+> Hi!
+>
+> I'm wondering about this driver. It is not a trivial device, and yet it
+> has historically relied on the i2c core matching the chip w/o vendor
+> prefix. This is not ideal. But what to do about the driver implementing
+> this in terms of an i2c-mux, somthing which the chip is not; It is an
+> i2c arbitrator. It just happens to rely on the i2c mux core also handling
+> i2c gates and i2c arbitrators. But that seems like a Linux detail. So I
+> don't know what to do here?
+>
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The concept of arbitrators didn't exist when I wrote the driver. I would not
+have a problem with renaming the file if that is what you are asking for.
 
+> That is, the patch - as is - describes something that would be trivial to
+> support today, but at the same time it seems to be too tied to Linux.
+>
+> The problem is that the i2c@0 intermediate node is not really needed, but
+> at the same time removing it would cause a disruption for the driver since
+> it can't really use the i2c mux core if that node isn't there. I don't
+> see a simple way to fix that in the i2c mux core either (but admittedly
+> haven't given it too much thought).
+>
 
-> Both programs mention the limitations in their manpages but give *no explanation* on why they
-> exist or where those special values came from.
+The gpio arbitrator uses the same principle as well. Why not just leave it
+alone ? Besides, I think it is a good idea to have it, since it groups
+the i2c devices behind the chip together. I would not consider that to be
+a Linuxism, but a design choice.
 
-That could be added to them. But the first thing to look for such
-information is still the I2C specification which has a section about
-reserved addresses.
+Guenter
 
-> The comment above the line states that addresses 0x78-0x7b are used for 10-bit slave
-> addressing. The documentation on 10-bit slave addressing (Documentation/i2c/ten-bit-addresses)
-> says "...The leading 0xa (= 10) represents the 10 bit mode...". Wouldn't such an address
-> on the bus be quite problematic as 0xA has a leading 1 bit (read/write select?).
-
-Please read the above specification to understand how 10 bit addresses
-are transferred over the wire. I think reading it will answer most of
-your questions.
-
-> Is there a specific reason I can override i2cdetect but not i2cdump?
-
-Probably not. More likely, nobody needed it until now. Which is
-understandable since the device you have has to be considered broken
-regarding the I2C standard. But I think patches adding that could be
-acceptable. Jean has the last word on this.
-
-
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXcRhfAAoJEBQN5MwUoCm2s7MP/2yR2ucxAAww8wUBIh0k4Jtp
-U513bWo794i8+ZTdREiKDQUaNHRuFyrWtfVSR43ZBNfqbNHnekakTZcpVyFmB92X
-J28RrIsMj0jdGOVxuW5n8VOeszgNckj4G5PbvWtcycQAltl17JesxHqNMNNZcZck
-4V1bNSvxbEnoeJf9C0T6WNojZf6ji3XAaa8xU4M7OTXAguOBX8aFyt0J6Ww5Z4i+
-yGO5tLX2Kuakf9/ppgYBiWsT/YBaZ5UG6EBzOhIkSH9KOTVMRsRaDXlGqgiiJ6eT
-Ahh/IPHjrLWT8sWNTlqx/WNkFZlKzHKKv0dmfBp4AYp5ik4YcZcLK+U+cs16lp3R
-x9l8IUKGKxsHumHecLhscR2nifd4Qg+7MBN0ou7eqDoJ6UtJuw7kajhbx6ja/fP8
-tcAuLuyQyBGCVFT8bxodWJNFCMM/oCFxtEjinpsBQh++OOX3HTp+pDqlkBfclLQZ
-6GLY/g9vzc+0DXKeWx+crVLXGMEVCT/R+FJpTEcR98nbOUgnoUkzLg1KZsLFG+LG
-ZkxqhIKYKf5kjiSfAxdz5naXAGiNdROyVmE6nqTxiRoOyTnZtwBp2wNtswzi89Db
-oXZgUqSzfjotb7636tKQuW37kif9HtytIqqFc7LQsCc6MFyL5oBvLkwjFWUERyf8
-q0SpE3GjkTQBT+nrDVS3
-=wIvX
------END PGP SIGNATURE-----
-
---jI8keyz6grp/JLjh--
+> Any suggestions?
+>
+> Cheers,
+> Peter
+>
+> PS. The driver source is in drivers/i2c/muxes/i2c-mux-pca9541.c
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt b/Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt
+> new file mode 100644
+> index 000000000000..edbe84935906
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt
+> @@ -0,0 +1,33 @@
+> +* NXP PCA9541 I2C bus master selector
+> +
+> +Required Properties:
+> +
+> +  - compatible: Must be "nxp,pca9541"
+> +
+> +  - reg: The I2C address of the device.
+> +
+> +  The following required properties are defined externally:
+> +
+> +  - Standard I2C mux properties. See i2c-mux.txt in this directory.
+> +  - I2C child bus nodes. See i2c-mux.txt in this directory.
+> +
+> +
+> +Example:
+> +
+> +	i2c-arbitrator@74 {
+> +		compatible = "nxp,pca9541";
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		reg = <0x74>;
+> +
+> +		i2c@0 {
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			reg = <0>;
+> +
+> +			eeprom@54 {
+> +				compatible = "at,24c08";
+> +				reg = <0x54>;
+> +			};
+> +		};
+> +	};
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index e1b090f86e0d..3dd44d0d166c 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -5521,6 +5521,7 @@ S:	Maintained
+>   F:	Documentation/i2c/i2c-topology
+>   F:	Documentation/i2c/muxes/
+>   F:	Documentation/devicetree/bindings/i2c/i2c-mux*
+> +F:	Documentation/devicetree/bindings/i2c/i2c-arb*
+>   F:	drivers/i2c/i2c-mux.c
+>   F:	drivers/i2c/muxes/
+>   F:	include/linux/i2c-mux.h
+>
