@@ -1,56 +1,67 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 08/12] i2c: core: Add support for 'i2c-bus' subnode
-Date: Tue, 28 Jun 2016 23:33:57 +0200
-Message-ID: <20160628213357.GB1598@katana>
-References: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
- <1466697545-11868-9-git-send-email-jonathanh@nvidia.com>
- <20160628210952.GA1760@mithrandir.ba.sec>
+Subject: Re: [PATCH 1/3] Documentation: dt: i2c: use correct
+ STMicroelectronics vendor prefix
+Date: Tue, 28 Jun 2016 23:37:48 +0200
+Message-ID: <20160628213747.GC1598@katana>
+References: <20160626093406.26785-1-stefan@agner.ch>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s2ZSL+KKDSLx8OML"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="kVXhAStRUZ/+rrGn"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20160628210952.GA1760-+E7KM1FDEuO2P7RxrfNFTMXXUOn6P5/W@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20160626093406.26785-1-stefan-XLVq0VzYD2Y@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org, paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org, dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---s2ZSL+KKDSLx8OML
+--kVXhAStRUZ/+rrGn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Sun, Jun 26, 2016 at 02:34:04AM -0700, Stefan Agner wrote:
+> The documentation currently uses the non-standard vendor prefix stm
+> and st-micro for STMicroelectronics. The drivers do not specify the
+> vendor prefixes since the I2C Core strips them away from the DT
 
-> Would you be okay if I take this patch along with the device tree
-> binding change into a stable branch and provide a tag for you to pull
-> into the I2C tree?
+Note that people are working on changing that behaviour. Shouldn't
+affect this patch, though.
 
-Yes, once my comments to the previous patch are addressed, we can do
-that. For this patch already:
+> provided compatible string. Therefor, changing documentation and
+> existing device trees does not have any impact on device detection.
+>=20
+> Signed-off-by: Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>
 
 Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
+I am fine with Rob taking this.
 
---s2ZSL+KKDSLx8OML
+
+--kVXhAStRUZ/+rrGn
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXcu1FAAoJEBQN5MwUoCm2kTwP/3kia79Z9rkH1PliyhtW6xbz
-qCGsXd8gr58rDLdkREaMSUn6wBKf/huMAPNsW/YkKpM+D5l8xsK74TZZ6vExWgDb
-QfQHAY5VGDpbvjvhjxuh5DdpxWlhKnhb6hM0gjW52DNbGdhm8rDnEpugJ2/LMPZC
-j1PX9snIRefkFUuEjFlXihNAeZiy/Vc/U1DvDF4yCPGXJ3qlUuK7Yl0LnPKIHvg/
-q1F6wxJ/bEeW48Q+Nxrhfz7esCYqjkrw6Gmewm/+CXcXnKYmaTm2wS4hfU3cKwLz
-7ZxXXKdnna+JeJ9RPkkO0Tx/NkMof7ihGSUc8QDVAj/gwrfI4eovysirPUlPaieY
-beIU+Vh+Rhh/UUXjkPNEbZ5GqinkxN3x9vqM7eDA5pCyCmlFQBM9bTa1T65SpJaT
-BVi+kU3k3rEpjQS5z1xtcIyLNchLlN8RaOV+W4TaTsrWqXc1IritthyXWlTChr65
-JyC/dxVJTCI06b+3isrnivx7Bzi9vkKlt/0PddXZ+3tkddik0bB8BbHphJZuVfkv
-7Vw92HwpNLzDRzOsItiyRNHVXfC7qCUsCtReSGpmRcYFUo64B3DYyx01uH3qpD0F
-WAVplZf3Az9cHg+5t1JhcABoPmLPx4X0Z8H4jmJmOgnRgrtB28RFVO6k4YInmc2b
-FILM4AlgiKqej+NYHj2n
-=PcTT
+iQIcBAEBAgAGBQJXcu4rAAoJEBQN5MwUoCm25hwP/3Neb1khwkDPrTEtRKif++sX
+EKKboQAoOaHbZRG76rE5ZpT4SsbBqlO2uMCsLAIhP6wZ3maaaxjtCvIXy8LZBgMH
+hGd84jWDSUpMEwfU5yUNbvIvFLO56VbFUor3SvkdW0sWR7ypohQoYveGJng/yyrm
+oN8fgtLOSsrcwqC5SHUiMrtQB6sdKmjNzjk+76u1iItNN0NKvHk6+fWEiMped8Uz
+M1H3vT3i9Qpltp1pRQDgFJGCnmVcMWaFjHK2omPmL114AQz6fzlq1ONn5DtpyZqv
+FdhjMQt0YpUY5UXbJakICptKNBdnhsmSvx2j2ulcbll4Yr3Pv7MrLp0LDeJFrZc9
+bLx2b7xpQ9AMWtJ/xzqCegCYrbw+R/RA6CjqrfDEUCQ3uUVLFPyD97AWbQRUC8E+
+19Y9yV2U2tI4EPNUJj2iRb+akTWly6XSqqFpoJjTbv96G3q+vOFVXiyQFFxIe9MF
+eUHIGgVy7IupliFEL+ixcJ7fDRCuSVlcdVisF6Dq2+ZA1llITI+ipfSKxNvdpVvg
+aQqtY15fUmi0Ik/KaWaS3j3wcuJs/IXtZiMKlfrFt3b+daNwJ6jxoSj6nDAf3/t+
+ji8GA3SaY/dfhKl5drMt84n1i7qUk0cLibsRqD+tQawOwEG6rBsnSkajPL14W9EM
+AZck0wbS+M37N5Ztv2vr
+=vpYY
 -----END PGP SIGNATURE-----
 
---s2ZSL+KKDSLx8OML--
+--kVXhAStRUZ/+rrGn--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
