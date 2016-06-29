@@ -1,45 +1,101 @@
 From: Jon Hunter <jonathanh@nvidia.com>
-Subject: Re: [PATCH 07/12] dt-bindings: i2c: Add support for 'i2c-bus' subnode
-Date: Wed, 29 Jun 2016 09:05:49 +0100
-Message-ID: <5773815D.2050708@nvidia.com>
-References: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
- <1466697545-11868-8-git-send-email-jonathanh@nvidia.com>
- <20160628213216.GA1598@katana>
+Subject: [PATCH V2 02/11] drm/tegra: Clean-up if probing DPAUX fails
+Date: Wed, 29 Jun 2016 10:17:48 +0100
+Message-ID: <1467191877-26017-3-git-send-email-jonathanh@nvidia.com>
+References: <1467191877-26017-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20160628213216.GA1598@katana>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>, Rob Herring <robh+dt@kernel.org>, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:5992 "EHLO
+	hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751713AbcF2JSJ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Jun 2016 05:18:09 -0400
+In-Reply-To: <1467191877-26017-1-git-send-email-jonathanh@nvidia.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>, David Airlie <airlied@linux.ie>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>
 
-Ck9uIDI4LzA2LzE2IDIyOjMyLCBXb2xmcmFtIFNhbmcgd3JvdGU6Cj4gKiBQR1AgU2lnbmVkIGJ5
-IGFuIHVua25vd24ga2V5Cj4gCj4+IEZvcgo+PiBleGFtcGxlIHNvbWUgVGVncmEgZGV2aWNlcyBo
-YXZlIGFuIEkyQyBpbnRlcmZhY2Ugd2hpY2ggbWF5IHNoYXJlIGl0cwo+PiBwaW5zIHdpdGggb3Ro
-ZXIgZGV2aWNlcyBhbmQgdG8gc2hhcmUgdGhlc2UgcGlucyBzdWJub2RlcyBmb3IKPj4gcmVwcmVz
-ZW50aW5nIHRoZXNlIHBpbnMgc28gdGhleSBoYXZlIGJlIHNoYXJlZCB2aWEgdGhlIHBpbmN0cmwg
-ZnJhbWV3b3JrCj4+IGFyZSBuZWVkZWQuCj4gCj4gSSB0aGluayB0aGUgYWJvdmUgc2VudGVuY2Ug
-aXMgaGFyZCB0byBncmFzcC4gQ2FuIHlvdSBzcGxpdCBpdCBpbnRvIG1vcmUKPiBzZW50ZW5jZXMg
-cGVyaGFwcz8KCk9LLCB5ZXMgZG9lcyBzZWVtIGEgYml0IG9mIGEgbW91dGhmdWwuCgo+PiArLSBp
-MmMtYnVzCj4+ICsJRm9yIEkyQyBhZGFwdGVycyB0aGF0IGhhdmUgY2hpbGQgbm9kZXMgdGhhdCBh
-cmUgYSBtaXh0dXJlIG9mIGJvdGggSTJDCj4+ICsJZGV2aWNlcyBhbmQgbm9uLUkyQyBkZXZpY2Vz
-IChzdWNoIGFzIGEgcGluIGNvbnRyb2xsZXIpLCB0aGUgJ2kyYy1idXMnCj4gCj4gSSBzdWdnZXN0
-IHRvIGRyb3AgdGhlIHBocmFzZSBpbiB0aGUgcGFyYW50aGVzaXMuIEl0IGlzIHRydWUgZm9yIHlv
-dXIKPiBjYXNlLCBidXQgSSBkb24ndCB0aGluayBpdCdzIGdlbmVyaWMuIFNvLCBpdCBpcyBub3Qg
-YW4gb2J2aW91cyBleGFtcGxlCj4gbGlrZSAiWWVzLCBzdXJlLCBJIHNlZSB0aGF0IGEgcGluIGNv
-bnRyb2xsZXIgaGFzIEkyQyBub2RlcyBhbmQgbm9uLUkyQwo+IG5vZGVzIi4gQXQgbGVhc3QgZm9y
-IG1lLCBpdCB3YXMgbW9yZSBsaWtlICJJdCBoYXMgd2hhdD8iCgpPSywgd2lsbCBkcm9wIHRoYXQg
-cGFydC4KCkNoZWVycwpKb24KCi0tIApudnB1YmxpYwpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBs
-aXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1h
-bi9saXN0aW5mby9kcmktZGV2ZWwK
+If the probing of the DPAUX fails, then clocks are left enabled and the
+DPAUX reset de-asserted. Add code to perform the necessary clean-up on
+probe failure by disabling clocks and asserting the reset.
+
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+---
+ drivers/gpu/drm/tegra/dpaux.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/tegra/dpaux.c b/drivers/gpu/drm/tegra/dpaux.c
+index b24a0f14821a..0874a7e5b37b 100644
+--- a/drivers/gpu/drm/tegra/dpaux.c
++++ b/drivers/gpu/drm/tegra/dpaux.c
+@@ -321,28 +321,30 @@ static int tegra_dpaux_probe(struct platform_device *pdev)
+ 	if (IS_ERR(dpaux->clk_parent)) {
+ 		dev_err(&pdev->dev, "failed to get parent clock: %ld\n",
+ 			PTR_ERR(dpaux->clk_parent));
+-		return PTR_ERR(dpaux->clk_parent);
++		err = PTR_ERR(dpaux->clk_parent);
++		goto assert_reset;
+ 	}
+ 
+ 	err = clk_prepare_enable(dpaux->clk_parent);
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev, "failed to enable parent clock: %d\n",
+ 			err);
+-		return err;
++		goto assert_reset;
+ 	}
+ 
+ 	err = clk_set_rate(dpaux->clk_parent, 270000000);
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev, "failed to set clock to 270 MHz: %d\n",
+ 			err);
+-		return err;
++		goto disable_parent_clk;
+ 	}
+ 
+ 	dpaux->vdd = devm_regulator_get(&pdev->dev, "vdd");
+ 	if (IS_ERR(dpaux->vdd)) {
+ 		dev_err(&pdev->dev, "failed to get VDD supply: %ld\n",
+ 			PTR_ERR(dpaux->vdd));
+-		return PTR_ERR(dpaux->vdd);
++		err = PTR_ERR(dpaux->vdd);
++		goto disable_parent_clk;
+ 	}
+ 
+ 	err = devm_request_irq(dpaux->dev, dpaux->irq, tegra_dpaux_irq, 0,
+@@ -350,7 +352,7 @@ static int tegra_dpaux_probe(struct platform_device *pdev)
+ 	if (err < 0) {
+ 		dev_err(dpaux->dev, "failed to request IRQ#%u: %d\n",
+ 			dpaux->irq, err);
+-		return err;
++		goto disable_parent_clk;
+ 	}
+ 
+ 	disable_irq(dpaux->irq);
+@@ -360,7 +362,7 @@ static int tegra_dpaux_probe(struct platform_device *pdev)
+ 
+ 	err = drm_dp_aux_register(&dpaux->aux);
+ 	if (err < 0)
+-		return err;
++		goto disable_parent_clk;
+ 
+ 	/*
+ 	 * Assume that by default the DPAUX/I2C pads will be used for HDMI,
+@@ -393,6 +395,14 @@ static int tegra_dpaux_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, dpaux);
+ 
+ 	return 0;
++
++disable_parent_clk:
++	clk_disable_unprepare(dpaux->clk_parent);
++assert_reset:
++	reset_control_assert(dpaux->rst);
++	clk_disable_unprepare(dpaux->clk);
++
++	return err;
+ }
+ 
+ static int tegra_dpaux_remove(struct platform_device *pdev)
+-- 
+2.1.4
