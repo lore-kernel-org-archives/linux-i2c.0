@@ -1,67 +1,63 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/3] Documentation: dt: i2c: use correct
- STMicroelectronics vendor prefix
-Date: Tue, 28 Jun 2016 23:37:48 +0200
-Message-ID: <20160628213747.GC1598@katana>
-References: <20160626093406.26785-1-stefan@agner.ch>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
+ PCI BAR
+Date: Wed, 29 Jun 2016 09:56:33 +0200
+Message-ID: <20160629075633.GZ29844@pali>
+References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20160608162913.GA24234@mail.corp.redhat.com>
+ <20160613111946.54779d0d@endymion>
+ <20160613094500.GY29844@pali>
+ <20160613094618.GG1791@lahna.fi.intel.com>
+ <20160613094830.GZ29844@pali>
+ <20160613095404.GH1791@lahna.fi.intel.com>
+ <20160624161238.0fc748ad@endymion>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kVXhAStRUZ/+rrGn"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160626093406.26785-1-stefan-XLVq0VzYD2Y@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org, paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org, dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20160624161238.0fc748ad@endymion>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---kVXhAStRUZ/+rrGn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Jun 26, 2016 at 02:34:04AM -0700, Stefan Agner wrote:
-> The documentation currently uses the non-standard vendor prefix stm
-> and st-micro for STMicroelectronics. The drivers do not specify the
-> vendor prefixes since the I2C Core strips them away from the DT
-
-Note that people are working on changing that behaviour. Shouldn't
-affect this patch, though.
-
-> provided compatible string. Therefor, changing documentation and
-> existing device trees does not have any impact on device detection.
+On Friday 24 June 2016 16:12:38 Jean Delvare wrote:
+> Hi Mika,
 >=20
-> Signed-off-by: Stefan Agner <stefan-XLVq0VzYD2Y@public.gmane.org>
+> On Mon, 13 Jun 2016 12:54:04 +0300, Mika Westerberg wrote:
+> > On Mon, Jun 13, 2016 at 11:48:30AM +0200, Pali Roh=C3=A1r wrote:
+> > > I mean to call acpi_remove_address_space_handler() in
+> > > i801_acpi_io_handler() after acpi_reserved is properly set.
+> > >=20
+> > > As once acpi_reserved is set address space handler is not needed
+> > > anymore.
+> >=20
+> > It is still needed as we handle all AML OpRegion access in this dri=
+ver
+> > from that point forward. Unless I'm missing something.
+>=20
+> I think Pali is correct. The only purpose of handling the region is t=
+o
+> detect that it is being accessed so we can set priv->acpi_reserved.
+> Once it is set, i801_acpi_io_handler becomes transparent: it forwards
+> the requests without doing anything with them. The very same would
+> happen if we would unregister the handler at that point, but without =
+the
+> extra overhead.
+>=20
+> So while the current code does work fine, unregistering the handler
+> when we set priv->acpi_reserved would be more optimal.
+>=20
+> Unless both Pali and myself are missing something, that is.
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Yes, this is what I mean...
 
-I am fine with Rob taking this.
-
-
---kVXhAStRUZ/+rrGn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXcu4rAAoJEBQN5MwUoCm25hwP/3Neb1khwkDPrTEtRKif++sX
-EKKboQAoOaHbZRG76rE5ZpT4SsbBqlO2uMCsLAIhP6wZ3maaaxjtCvIXy8LZBgMH
-hGd84jWDSUpMEwfU5yUNbvIvFLO56VbFUor3SvkdW0sWR7ypohQoYveGJng/yyrm
-oN8fgtLOSsrcwqC5SHUiMrtQB6sdKmjNzjk+76u1iItNN0NKvHk6+fWEiMped8Uz
-M1H3vT3i9Qpltp1pRQDgFJGCnmVcMWaFjHK2omPmL114AQz6fzlq1ONn5DtpyZqv
-FdhjMQt0YpUY5UXbJakICptKNBdnhsmSvx2j2ulcbll4Yr3Pv7MrLp0LDeJFrZc9
-bLx2b7xpQ9AMWtJ/xzqCegCYrbw+R/RA6CjqrfDEUCQ3uUVLFPyD97AWbQRUC8E+
-19Y9yV2U2tI4EPNUJj2iRb+akTWly6XSqqFpoJjTbv96G3q+vOFVXiyQFFxIe9MF
-eUHIGgVy7IupliFEL+ixcJ7fDRCuSVlcdVisF6Dq2+ZA1llITI+ipfSKxNvdpVvg
-aQqtY15fUmi0Ik/KaWaS3j3wcuJs/IXtZiMKlfrFt3b+daNwJ6jxoSj6nDAf3/t+
-ji8GA3SaY/dfhKl5drMt84n1i7qUk0cLibsRqD+tQawOwEG6rBsnSkajPL14W9EM
-AZck0wbS+M37N5Ztv2vr
-=vpYY
------END PGP SIGNATURE-----
-
---kVXhAStRUZ/+rrGn--
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
