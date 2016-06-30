@@ -1,95 +1,44 @@
-From: Christopher Covington <cov@codeaurora.org>
-Subject: Re: [PATCH v4 1/2] i2c: qup: add ACPI support
-Date: Thu, 30 Jun 2016 14:50:44 -0400
-Message-ID: <57756A04.3030301@codeaurora.org>
-References: <1465409985-17113-1-git-send-email-austinwc@codeaurora.org>
- <4749471.m1cxc4jj96@wuerfel> <577503F2.90204@codeaurora.org>
- <4043322.Uc6lMkrL43@wuerfel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:55960 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751537AbcF3Sus (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jun 2016 14:50:48 -0400
-In-Reply-To: <4043322.Uc6lMkrL43@wuerfel>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Subject: [PATCH v2 0/2] Add support for Smart Battery System Manager
+Date: Thu, 30 Jun 2016 22:05:40 +0200
+Message-ID: <1467317142-14063-1-git-send-email-karl-heinz@schneider-inet.de>
+References: <1bFnWI-0000MX-9R>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1bFnWI-0000MX-9R>
+Sender: linux-pm-owner@vger.kernel.org
+To: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>, Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-arm-kernel@lists.infradead.org, Austin Christ <austinwc@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, timur@codeaurora.org, rruigrok@codeaurora.org, Philip Elcan <pelcan@codeaurora.org>, Sricharan R <sricharan@codeaurora.org>, Stephen Boyd <sboyd@codeaurora.org>
 
-Hi Arnd,
+This patch series adds support for Smart Battery System Manager.
+A SBSM is a device listening at I2C/SMBus address 0x0a and is capable of
+communicating up to four I2C smart battery devices. All smart battery
+devices are listening at address 0x0b, so the SBSM muliplexes between
+them. The driver makes use of the I2C-Mux framework to allow smart
+batteries to be bound via device tree, i.e. the sbs-battery driver.
 
-On 06/30/2016 07:52 AM, Arnd Bergmann wrote:
-> On Thursday, June 30, 2016 7:35:14 AM CEST Christopher Covington wrote:
->> Hi Arnd,
->>
->> On 06/08/2016 05:02 PM, Arnd Bergmann wrote:
->>> On Wednesday, June 8, 2016 12:19:44 PM CEST Austin Christ wrote:
->>>> +               ret = device_property_read_u32(qup->dev,
->>>> +                               "src-clock-hz", &src_clk_freq);
->>>> +               if (ret) {
->>>> +                       dev_warn(qup->dev, "using default src-clock-hz %d",
->>>> +                               DEFAULT_SRC_CLK);
->>>> +                       src_clk_freq = DEFAULT_SRC_CLK;
->>>> +               }
->>>>
->>>
->>> Where is this property documented?
->>
->> We plan on submitting documentation via dsd@acpica.org to
->> https://github.com/ahs3/dsd once it is operational. As I understand it
->> the project is brand new. It may take several months to begin accepting
->> submissions. In the mean time, we could potentially include
->> documentation in a reply to this thread, the cover of the next series, a
->> wiki page on codeaurora.org, a file in Documentation (perhaps to be
->> replaced by ACPICA style imports of the OS-neutral DSD project or a git
->> submodule) or potentially other means. Please let us know what you think
->> is sufficient.
-> 
-> As you are reusing part of the DT binding, it seems appropriate to put
-> the documentation for this into the binding documentation in the kernel.
+Via sysfs interface the online state and charge type are presented. If
+the driver is bound as ltc1760 (a Dual Smart Battery System Manager)
+the charge type can also be changed from trickle to fast.
 
-My understanding is that in the device tree case, the input/source clock
-frequency is assumed to be run-time managed through Global Clock
-Controller (GCC) code and the common clock framework.
+Changes:
+V2:
+* Fixed sample node names and compatible strings in binding documentaton.
+* Removed optional property "sbsm,i2c-retry-count"
+* Retry count hardcoded. Removed no longer needed OF readout function
+* Rebased onto v4.7rc-5
 
-drivers/i2c/busses/i2c-qup.c:1549
+Karl-Heinz Schneider (2):
+  Documentation: Add sbs-manager device tree node documentation
+  power: Adds support for Smart Battery System Manager
 
-src_clk_freq = clk_get_rate(qup->clk);
+ .../devicetree/bindings/power/sbs,sbs-manager.txt  |  57 ++++
+ drivers/power/Kconfig                              |  13 +
+ drivers/power/Makefile                             |   1 +
+ drivers/power/sbs-manager.c                        | 346 +++++++++++++++++++++
+ 4 files changed, 417 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+ create mode 100644 drivers/power/sbs-manager.c
 
-So a given I2C device tree entry points to the GCC device tree entry,
-but there isn't an explicit, fixed input/source clock frequency value.
-
-arch/arm64/boot/dts/qcom/msm8916.dtsi:310
-
-blsp_i2c2: i2c@78b6000 {
-        compatible = "qcom,i2c-qup-v2.2.1";
-        reg = <0x78b6000 0x1000>;
-        interrupts = <GIC_SPI 96 0>;
-        clocks = <&gcc GCC_BLSP1_AHB_CLK>,
-                <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>;
-        clock-names = "iface", "core";
-        pinctrl-names = "default", "sleep";
-        pinctrl-0 = <&i2c2_default>;
-        pinctrl-1 = <&i2c2_sleep>;
-        #address-cells = <1>;
-        #size-cells = <0>;
-        status = "disabled";
-};
-
-On the other hand, when ACPI is in use, the driver assumes a fixed
-input/source clock frequency value, which it tries to look up as a
-device property.
-
-(I'm out of my depth here, so somebody please correct me if I've
-described this wrong.)
-
-Thanks,
-Cov
-
--- 
-Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+--
+1.9.1
