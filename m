@@ -1,132 +1,95 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH V2 00/11] Add support for Tegra DPAUX pinctrl
-Date: Thu, 30 Jun 2016 15:25:09 +0200
-Message-ID: <20160630132509.GD26758@ulmo.ba.sec>
-References: <1467191877-26017-1-git-send-email-jonathanh@nvidia.com>
+From: Christopher Covington <cov@codeaurora.org>
+Subject: Re: [PATCH v4 1/2] i2c: qup: add ACPI support
+Date: Thu, 30 Jun 2016 14:50:44 -0400
+Message-ID: <57756A04.3030301@codeaurora.org>
+References: <1465409985-17113-1-git-send-email-austinwc@codeaurora.org>
+ <4749471.m1cxc4jj96@wuerfel> <577503F2.90204@codeaurora.org>
+ <4043322.Uc6lMkrL43@wuerfel>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1364237618=="
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1467191877-26017-1-git-send-email-jonathanh@nvidia.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, dri-devel@lists.freedesktop.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.29.96]:55960 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751537AbcF3Sus (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jun 2016 14:50:48 -0400
+In-Reply-To: <4043322.Uc6lMkrL43@wuerfel>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org, Austin Christ <austinwc@codeaurora.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, timur@codeaurora.org, rruigrok@codeaurora.org, Philip Elcan <pelcan@codeaurora.org>, Sricharan R <sricharan@codeaurora.org>, Stephen Boyd <sboyd@codeaurora.org>
 
+Hi Arnd,
 
---===============1364237618==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="AkbCVLjbJ9qUtAXD"
-Content-Disposition: inline
+On 06/30/2016 07:52 AM, Arnd Bergmann wrote:
+> On Thursday, June 30, 2016 7:35:14 AM CEST Christopher Covington wrote:
+>> Hi Arnd,
+>>
+>> On 06/08/2016 05:02 PM, Arnd Bergmann wrote:
+>>> On Wednesday, June 8, 2016 12:19:44 PM CEST Austin Christ wrote:
+>>>> +               ret = device_property_read_u32(qup->dev,
+>>>> +                               "src-clock-hz", &src_clk_freq);
+>>>> +               if (ret) {
+>>>> +                       dev_warn(qup->dev, "using default src-clock-hz %d",
+>>>> +                               DEFAULT_SRC_CLK);
+>>>> +                       src_clk_freq = DEFAULT_SRC_CLK;
+>>>> +               }
+>>>>
+>>>
+>>> Where is this property documented?
+>>
+>> We plan on submitting documentation via dsd@acpica.org to
+>> https://github.com/ahs3/dsd once it is operational. As I understand it
+>> the project is brand new. It may take several months to begin accepting
+>> submissions. In the mean time, we could potentially include
+>> documentation in a reply to this thread, the cover of the next series, a
+>> wiki page on codeaurora.org, a file in Documentation (perhaps to be
+>> replaced by ACPICA style imports of the OS-neutral DSD project or a git
+>> submodule) or potentially other means. Please let us know what you think
+>> is sufficient.
+> 
+> As you are reusing part of the DT binding, it seems appropriate to put
+> the documentation for this into the binding documentation in the kernel.
 
+My understanding is that in the device tree case, the input/source clock
+frequency is assumed to be run-time managed through Global Clock
+Controller (GCC) code and the common clock framework.
 
---AkbCVLjbJ9qUtAXD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+drivers/i2c/busses/i2c-qup.c:1549
 
-On Wed, Jun 29, 2016 at 10:17:46AM +0100, Jon Hunter wrote:
-> The Display Port Auxiliary (DPAUX) channel pads can be shared with an
-> internal I2C controller. Add pinctrl support for these pads so that the
-> I2C controller can request and use these pads.
->=20
-> This series has been tested with Thierry's patches for correcting the
-> parent clock for the DPAUX devices [0].
->=20
-> Changes from V1:
-> - Updated dt node names to use '-' instead of '_' per Rob H's feedback.
-> - Updated commit message and dt-binding description for 'i2c-bus' node
->   per Wolfram's feedback.
-> - Note the pinctrl patch to add a helper function for freeing mappings [1]
->   is not included in this latest version of the series as this has already
->   been picked up by Linus W.
->=20
-> Changes from initial RFC:
-> - Dropped patches for adding sor-safe clocks to DPAUX in favour of the
->   patches from Thierry [0].
-> - Split the DPAUX function to enable the DPAUX pads into two functions:
->   one for turning on and one for turning off the pads.
-> - Updated the description for the 'i2c-bus' node based upon Mark R's
->   feedback.
-> - Dropped the second test if the i2c-core when checking for the presence
->   of the 'i2c-bus' node based upon Thierry's feedback.
-> - Removed depedency on CONFIG_PINCTRL in the DPAUX driver in favour of
->   using #ifdef's per Thierry's feedback (note by removing the dependency
->   on CONFIG_PINCTRL I had to use #ifdefs as all the structures, function
->   tables, and functions may not be defined).
-> - Updated SOR power partition device-tree node to include all clocks and
->   resets as described in the Tegra210 TRM.
->=20
-> [0] http://marc.info/?l=3Dlinux-tegra&m=3D146667915802019&w=3D2
-> [1] http://marc.info/?l=3Dlinux-tegra&m=3D146669759407988&w=3D2
->=20
-> Jon Hunter (11):
->   soc/tegra: pmc: Initialise resets associated with a power partition
->   drm/tegra: Clean-up if probing DPAUX fails
->   drm/tegra: Add helper functions for setting up DPAUX pads
->   dt-bindings: display: Update Tegra DPAUX documentation
->   drm/tegra: Prepare DPAUX for supporting generic PM domains
->   dt-bindings: i2c: Add support for 'i2c-bus' subnode
->   i2c: core: Add support for 'i2c-bus' subnode
->   dt-bindings: Add bindings for Tegra DPAUX pinctrl driver
->   drm/tegra: Add pinctrl support for DPAUX
->   arm64: tegra: Add SOR power-domain node
->   arm64: tegra: Add DPAUX pinctrl bindings
->=20
->  .../display/tegra/nvidia,tegra20-host1x.txt        |  12 +-
->  Documentation/devicetree/bindings/i2c/i2c.txt      |   8 +
->  .../pinctrl/nvidia,tegra124-dpaux-padctl.txt       |  60 ++++++
->  arch/arm64/boot/dts/nvidia/tegra210.dtsi           |  78 +++++++
->  drivers/gpu/drm/tegra/dpaux.c                      | 239 +++++++++++++++=
-++----
->  drivers/i2c/i2c-core.c                             |  10 +-
->  drivers/soc/tegra/pmc.c                            |  18 +-
->  7 files changed, 373 insertions(+), 52 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/pinctrl/nvidia,tegr=
-a124-dpaux-padctl.txt
+src_clk_freq = clk_get_rate(qup->clk);
 
-Applied, thanks.
+So a given I2C device tree entry points to the GCC device tree entry,
+but there isn't an explicit, fixed input/source clock frequency value.
 
-Thierry
+arch/arm64/boot/dts/qcom/msm8916.dtsi:310
 
---AkbCVLjbJ9qUtAXD
-Content-Type: application/pgp-signature; name="signature.asc"
+blsp_i2c2: i2c@78b6000 {
+        compatible = "qcom,i2c-qup-v2.2.1";
+        reg = <0x78b6000 0x1000>;
+        interrupts = <GIC_SPI 96 0>;
+        clocks = <&gcc GCC_BLSP1_AHB_CLK>,
+                <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>;
+        clock-names = "iface", "core";
+        pinctrl-names = "default", "sleep";
+        pinctrl-0 = <&i2c2_default>;
+        pinctrl-1 = <&i2c2_sleep>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        status = "disabled";
+};
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+On the other hand, when ACPI is in use, the driver assumes a fixed
+input/source clock frequency value, which it tries to look up as a
+device property.
 
-iQIcBAABCAAGBQJXdR21AAoJEN0jrNd/PrOhq2kP/iOOsErmkiP3UVKV6vic778B
-tpXpmFVSkTpB4zvZzVtHLR/9fG1zbIFw5gam0BoI9Q4dzmytb5Kl4B/Ga/qQf0jI
-4ifKcy6G3bnuemsLYYOxMFl9s05AafyT9ng3I3r9VWAvxvFJuPgV8No12oOAnu/q
-BoKahjzS+A9p1VpLJSfSqRoMPGsJxYOspVnZXPYA1ltIjdqE8VoGhrFf14xZ2AuD
-6OenYvVoHqCxPqdXilDtaWBVwMu3V0F5zbZkQbiHcs9jZAKEqLgb4EfxkExYnbQf
-27+udNlWId17EfvN/PAbj1ZauHVdCCDhtfQ9gg7ao+Skh7D0FAiX+eQDUTxJPfRS
-MOP77t59XlpXlU6eRt7+ypAlywvdt0g6XtisO6fsnP+wQEe7Q7h4Yf74J6yKZ5h2
-ujUUss24X8p3Hwg2INtWvgmAy8Ud7XE7Hv6akeMRmgPAzDAbEsHYELEgtR8MaWM2
-vxAAznbJRdmBfI7hG9pbC6hsiJ1wMtHLNcQaQ2LoqKlz45iLskzpZsGDjE9Kg6/d
-S3Zl3apZQmMRX+/Ca6eOQfztI9RUnDxht6unySQ8C0sogHHIqx7omqRPCw1j4Urh
-okzAvNBUtIrGjIenTG8xCmiriReKJJWOfj4gJGKwb3XykY4l9Z9GqHgvyFYxUe2K
-M72jPaW0AjcYAeLkLee5
-=cAuv
------END PGP SIGNATURE-----
+(I'm out of my depth here, so somebody please correct me if I've
+described this wrong.)
 
---AkbCVLjbJ9qUtAXD--
+Thanks,
+Cov
 
---===============1364237618==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
-
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
-IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
-
---===============1364237618==--
+-- 
+Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
