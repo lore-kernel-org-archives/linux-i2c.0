@@ -1,483 +1,148 @@
-From: Frank Rowand <frowand.list@gmail.com>
-Subject: Re: Portable Device Tree Connector -- conceptual
-Date: Fri, 1 Jul 2016 11:21:58 -0700
-Message-ID: <5776B4C6.4060200@gmail.com>
-References: <5775B2FD.2000103@gmail.com>
- <199EAB87-47DA-4213-BE60-43C2E062AAD5@konsulko.com>
- <57769AF3.2040301@gmail.com>
- <BA83424E-093C-4D73-89E9-392BF1A1ADCB@konsulko.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v3 i2c/for-next] i2c: i801: recover from hardware PEC
+ errors
+Date: Fri, 1 Jul 2016 20:18:14 +0200
+Message-ID: <20160701201814.28524160@endymion>
+References: <1432332868-12705-1-git-send-email-ellen@cumulusnetworks.com>
+	<20150709165939.GB4744@katana>
+	<20160701113028.7a47c236@endymion>
+	<20160701154918.GB1372@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BA83424E-093C-4D73-89E9-392BF1A1ADCB@konsulko.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Cc: Rob Herring <robh+dt@kernel.org>, David Gibson <david@gibson.dropbear.id.au>, Stephen Boyd <stephen.boyd@linaro.org>, Mark Brown <broonie@kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, Marek Vasut <marex@denx.de>, Wolfram Sang <wsa@the-dreams.de>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:40594 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751964AbcGASdp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 1 Jul 2016 14:33:45 -0400
+In-Reply-To: <20160701154918.GB1372@tetsubishi>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ellen Wang <ellen@cumulusnetworks.com>, linux-i2c@vger.kernel.org
 
-On 07/01/16 09:56, Pantelis Antoniou wrote:
-> Hi Frank,
->=20
->> On Jul 1, 2016, at 19:31 , Frank Rowand <frowand.list@gmail.com> wro=
-te:
->>
->> On 07/01/16 03:59, Pantelis Antoniou wrote:
->>> Hi Frank,
->>>
->>> Comments inline.
->>>
->>>> On Jul 1, 2016, at 03:02 , Frank Rowand <frowand.list@gmail.com> w=
-rote:
->>>>
->>>> Hi All,
->>>>
->>>> I've been trying to wrap my head around what Pantelis and Rob have=
- written
->>>> on the subject of a device tree representation of a connector for =
-a
->>>> daughter board to connect to (eg a cape or a shield) and the repre=
-sentation
->>>> of the daughter board.  (Or any other physically pluggable object.=
-)
->>>>
->>>> After trying to make sense of what had been written (or presented =
-via slides
->>>> at a conference - thanks Pantelis!), I decided to go back to first=
- principals
->>>> of what we are trying to accomplish.  I came up with some really s=
-imple bogus
->>>> examples to try to explain what my thought process is.
->>>>
->>>> To start with, assume that the device that will eventually be on a=
- daughter
->>>> board is first soldered onto the main board.  Then the device tree=
- will
->>>> look like:
->>>>
->>>> $ cat board.dts
->>>> /dts-v1/;
->>>>
->>>> / {
->>>>       #address-cells =3D < 1 >;
->>>>       #size-cells =3D < 1 >;
->>>>
->>>>       tree_1: soc@0 {
->>>>               reg =3D <0x0 0x0>;
->>>>
->>>>               spi_1: spi1 {
->>>>               };
->>>>       };
->>>>
->>>> };
->>>>
->>>> &spi_1 {
->>>>       ethernet-switch@0 {
->>>>               compatible =3D "micrel,ks8995m";
->>>>       };
->>>> };
->>>>
->>>> #include "spi_codec.dtsi"
->>>>
->>>> $ cat spi_codec.dtsi
->>>> &spi_1 {
->>>> 	codec@1 {
->>>> 		compatible =3D "ti,tlv320aic26";
->>>> 	};
->>>> };
->>>>
->>>>
->>>> #----- codec chip on cape
->>>>
->>>> Then suppose I move the codec chip to a cape.  Then I will have th=
-e same
->>>> exact .dts and .dtsi and everything still works.
->>>>
->>>>
->>>> @----- codec chip on cape, overlay
->>>>
->>>> If I want to use overlays, I only have to add the version and "/pl=
-ugin/",
->>>> then use the '-@' flag for dtc (both for the previous board.dts an=
-d
->>>> this spi_codec_overlay.dts):
->>>>
->>>> $ cat spi_codec_overlay.dts
->>>> /dts-v1/;
->>>>
->>>> /plugin/;
->>>>
->>>> &spi_1 {
->>>> 	codec@1 {
->>>> 		compatible =3D "ti,tlv320aic26";
->>>> 	};
->>>> };
->>>>
->>>
->>> The correct form now for the /plugin/ declaration should be like
->>>
->>> /dts-v1/ /plugin/;
->>>
->>> The old method still works for backward compatibility.
->>>
->>> In fact with the new patches you don=E2=80=99t even /plugin/ since =
-when
->>> compiling an overlay we can turn on the plugin flag by looking
->>> at the output type (dtbo).
->>>
->>>>
->>>> #----- codec chip on cape, overlay, connector
->>>>
->>>> Now we move into the realm of connectors.  My mental model of what=
- the
->>>> hardware and driver look like has not changed.  The only thing tha=
-t has
->>>> changed is that I want to be able to specify that the connector th=
-at
->>>> the cape is plugged into has some pins that are the spi bus /soc/s=
-pi1.
->>>>
->>>
->>> That=E2=80=99s not nearly enough. You might have extra=20
->>> gpio/interrupt/dma/gpmc(memory-controller) pins.
->>
->> Yes.
->>
->> I was keeping the example _very_ simple.  I was trying to illustrate
->> the _concept_, not provide a full implementation.
->>
->> In a real use, the connector node would provide a node for each of t=
-he
->> things routed to the connector.
->>
->=20
-> We need the example of how to handle pinmux cause it=E2=80=99s the tr=
-ickiest
-> thing of all.
->=20
->>
->>> We can disregard dma and gpmc like interfaces for now but gpio and
->>> interrupt pins are required.
->>>
->>> For instance the spi device might have an extra gpio that it=E2=80=99=
-s using
->>> to signal some kind of condition (for example low-battery) which an
->>> application (not just the kernel) can use to make a platform specif=
-ic
->>> decision.
->>>
->>>> The following _almost_ but not quite gets me what I want.  Note th=
-at
->>>> the only thing the connector node does is provide some kind of
->>>> pointer or reference to what node(s) are physically routed through
->>>> the connector.  (This node will turn out to not actually work in
->>>> this example.)
->>>>
->>>> $ cat board_with_connector.dts
->>>> /dts-v1/;
->>>>
->>>> / {
->>>> 	#address-cells =3D < 1 >;
->>>> 	#size-cells =3D < 1 >;
->>>>
->>>> 	tree_1: soc@0 {
->>>> 		reg =3D <0x0 0x0>;
->>>>
->>>> 		spi_1: spi1 {
->>>> 		};
->>>> 	};
->>>>
->>>> 	connector_1: connector_1 {
->>>> 		spi1 {
->>>> 			target_phandle =3D <&spi_1>;
->>>> 			target_path =3D "/soc/spi1";
->>>> 		};
->>>> 	};
->>>>
->>>> };
->>>>
->>>> &spi_1 {
->>>> 	ethernet-switch@0 {
->>>> 		compatible =3D "micrel,ks8995m";
->>>> 	};
->>>> };
->>>>
->>>> $ cat spi_codec_overlay_with_connector.dts
->>>> /dts-v1/;
->>>>
->>>> /plugin/;
->>>>
->>>> &connector_1 {
->>>> 	spi1 {
->>>> 		codec@1 {
->>>> 			compatible =3D "ti,tlv320aic26";
->>>> 		};
->>>> 	};
->>>> };
->>>
->>> This is a subset of what=E2=80=99s supported by the patch I=E2=80=99=
-ve sent out.
->>
->> Yes.  Same comment as above.
->>
->>
->>> Your example works as long as you assume that there=E2=80=99s no pi=
-nmuxing
->>> related to the configuration of the spi controller when routed out
->>> to the connector pins.
->>
->> No.  Pinmuxing is part of the host board dts.
->>
->=20
-> It is part of the host board DTS yes, but the connector must have
-> a way to set the pinmux configuration according what the detected
-> expansion board expects.
->=20
->> The physical connector does not change the way that pinmuxing
->> works.  It is just the same as if there were wires physically
->> connected (soldered) between the daughter board and the main
->> board.
->>
->=20
-> The physical properties of the pin of the connector do not change.
->=20
-> However the routing of functions in the SoC do change.
->=20
-> By default most of the pins on the connector are HiZ or set to input =
-when
-> no expansion board is connected. The only fixed function pins that ar=
-e
-> known and configured by the host board dts are those that are used by
-> the host board=E2=80=99s identification scheme (i.e. I2C EEPROM, set =
-of GPIO inputs
-> etc).=20
->=20
-> When an expansion board is connected upon boot and probing of the the=
- expansion
-> board manager device it will use a method that is using the configure=
-d detection
-> pins to identify it.
->=20
-> After getting the ID it is going to find a corresponding overlay to a=
-pply.
->=20
-> This overlay will have to configure each pin accordingly.
->=20
-> It is perfectly for a pin on a connector to be a GPIO output for expa=
-nsion
-> board A, I2C bus SDA for board B, etc...
->=20
-> So there has to be a way to get the pinmux configuration according to=
- the
-> required connection function on each pin in use.
+On Fri, 1 Jul 2016 17:49:19 +0200, Wolfram Sang wrote:
+> 
+> > Sorry, this one fell trough the cracks. The patch is good and still
+> > needed. I have tested it successfully on several systems. Wolfram,
+> > please apply it.
+> > 
+> > Tested-by: Jean Delvare <jdelvare@suse.de>
+> > Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> 
+> Thanks, will do. Do you happen to have rebased it to latest
+> i2c/for-next?
 
-Again, this is exactly the same concept as if the daughter board was so=
-ldered
-directly to the host board with no connector involved.  The pinmux
-configuration has nothing to do with the physical connector, it is alre=
-ady
-described by the pinmux information in the host board .dtb.  The connec=
-tor
-node in the host .dtb does not need to duplicate any of that informatio=
-n.
+Here it is. I don't remember having anything to do to get it to apply
+though, refreshing was trivial.
 
-There already is a pinmux mechanism in place to choose which of the
-possible alternative uses of a set of pins is in use at any point
-in time.  The choice of active functionality can be changed at
-any time.
+From: Ellen Wang <ellen@cumulusnetworks.com>
+Subject: i2c: i801: recover from hardware PEC errors
 
-The pinmux configuration is already in place in the host board .dtb.
-The host board .dtb connector node only provides a mapping to what
-other nodes have hardware blocks that have signals that are routed
-to the physical connector.  There is no need for the connector node
-to be concerned with any of the details of those other nodes -- the
-other nodes already specify the details.
+On a CRC error while using hardware-supported PEC, an additional
+error bit is set in the auxiliary status register.  If this bit
+isn't cleared, all subsequent operations will fail, essentially
+hanging the controller.
 
->>> In reality there are may be many possible option of the same
->>> hardware block (spi/i2c) to be routed to different pins on the
->>> connector.
->>>
->>> You might get by if you have a number of selectable pre-canned
->>> spi configuration that are selected.
->>
->> Again, just the same as if the connector did not exist and
->> everything is hardwired.
->>
->> The connector node for the host board would contain a node for
->> each of the alternative uses of the pins.
->>
->=20
-> Right.
->=20
->>
->>> For instance if there are two spi controllers each of which have
->>> two different pinout options on the connector you would address
->>> each as a different spi controller on the connector, but then
->>> you=E2=80=99d end up with
->>>
->>> spi_connector_0 -> spi_0_mux_0
->>> spi_connector_1 -> spi_0_mux_1
->>> spi_connector_2 -> spi_1_mux_0
->>> spi_connector_3 -> spi_1_mux_1
->>
->> Yes.  But again, exactly the same as if the daughter board was
->> hard wired with no intervening physical connector.
->>
->=20
-> Yes.
->=20
->>
->>> It gets hairy though pretty fast with modern SoCs with extensive=20
->>> muxing options.
->>>
->>>>
->>>> The result is that the overlay fixup for spi1 on the cape will
->>>> relocate the spi1 node to /connector_1 in the host tree, so
->>>> this does not solve the connector linkage yet:
->>>>
->>>> -- chunk from the decompiled board_with_connector.dtb:
->>>>
->>>> 	__symbols__ {
->>>> 		connector_1 =3D "/connector_1";
->>>> 	};
->>>>
->>>> -- chunk from the decompiled spi_codec_overlay_with_connector.dtb:
->>>>
->>>> 	fragment@0 {
->>>> 		target =3D <0xffffffff>;
->>>> 		__overlay__ {
->>>> 			spi1 {
->>>> 				codec@1 {
->>>> 					compatible =3D "ti,tlv320aic26";
->>>> 				};
->>>> 			};
->>>> 		};
->>>> 	};
->>>> 	__fixups__ {
->>>> 		connector_1 =3D "/fragment@0:target:0";
->>>> 	};
->>>>
->>>>
->>>> #----- magic new dtc syntax
->>>>
->>>> What I really want is some way to tell dtc that I want to do one
->>>> level of dereferencing when resolving the path of device nodes
->>>> contained by the connector node in the overlay dts.
->>>>
->>>> The exact syntax does not matter here, I am just trying to get the
->>>> concept.  I will add the not yet implemented dtc feature of
->>>> "/connector/" to the connector node in both the tree dts and the
->>>> overlay dts, and show how the output of dtc would change.  The
->>>> "/connector/" directive tells dtc that for a base dts (hand
->>>> waving how it knows base vs overlay dts file) to look into
->>>> each node at that level and determine what other node it
->>>> maps to (again, hand waving, in this example just to
->>>> show the linkage, I have hard coded both the path and the
->>>> phandle of the target node that the connector child node
->>>> maps to).  The "/connector/" directive tells dtc that for
->>>> an overlay dts (again hand waving) to provide a fixup for
->>>> each child node.
->>>>
->>>> $ cat board_with_connector_v2.dts
->>>> /dts-v1/;
->>>>
->>>> / {
->>>> 	#address-cells =3D < 1 >;
->>>> 	#size-cells =3D < 1 >;
->>>>
->>>> 	tree_1: soc@0 {
->>>> 		reg =3D <0x0 0x0>;
->>>>
->>>> 		spi_1: spi1 {
->>>> 		};
->>>> 	};
->>>>
->>>> 	connector_1: connector_1 {
->>>> 		/connector/;
->>>> 		spi1 {
->>>> 			target_phandle =3D <&spi_1>;
->>>> 			target_path =3D "/soc/spi1";
->>>> 		};
->>>> 	};
->>>>
->>>> };
->>>>
->>>> &spi_1 {
->>>> 	ethernet-switch@0 {
->>>> 		compatible =3D "micrel,ks8995m";
->>>> 	};
->>>> };
->>>>
->>>> $ cat spi_codec_overlay_with_connector_v2.dts
->>>>
->>>> /dts-v1/;
->>>>
->>>> /plugin/;
->>>>
->>>> &connector_1 {
->>>> 	/connector/;
->>>> 	spi1 {
->>>> 		codec@1 {
->>>> 			compatible =3D "ti,tlv320aic26";
->>>> 		};
->>>> 	};
->>>> };
->>>>
->>>> -- chunk from the decompiled board_with_connector_v2.dtb:
->>>>
->>>> 	__symbols__ {
->>>>               connector_1 {
->>>>                       spi1 =3D "/soc@0/spi1";
->>>>               };
->>>>       };
->>>>
->>>> -- chunk from the decompiled spi_codec_overlay_with_connector_v2.d=
-tb:
->>>>
->>>> / {
->>>>
->>>> 	fragment@0 {
->>>> 		target =3D <0xffffffff>;
->>>> 		__overlay__ {
->>>> 			spi1 {
->>>> 				codec@1 {
->>>> 					compatible =3D "ti,tlv320aic26";
->>>> 				};
->>>> 			};
->>>> 		};
->>>> 	};
->>>> 	__fixups__ {
->>>>               connector_1 {
->>>> 		        spi1 =3D "/fragment@0/__overlay__:spi1:0";
->>>>               };
->>>> 	};
->>>>
->>>> Of course the overlay loader will also have to be modified to unde=
-rstand
->>>> the new information.
->>>>
->>>> Exact format of the __symbols__ and __fixups__ are implementation
->>>> details, I am just trying to present the model.
->>>>
->>>> Ignoring device tree source syntax and dtc implementation issues, =
-does
->>>> this conceptual model look more straight forward and a better dire=
-ction
->>>> for how to represent connectors?
->>>>
->>>
->>> We could use dtc sugar to get to something more elegant, I need som=
-e time
->>> to think about this a bit longer.
->>>
->>>> -Frank
->>>
->>> Regards
->>>
->>> =E2=80=94 Pantelis
->=20
-> Regards
->=20
-> =E2=80=94 Pantelis
->=20
->=20
+The fix is simple: check, report, and clear the bit in
+i801_check_post().  Also, in case the driver starts with the
+hardware in that state, clear it in i801_check_pre() as well.
+
+Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+Tested-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+---
+Update: fix typos in commit message, otherwise the same as v2
+
+This is essentially the patch from Jean Delvare, which handles
+the polling case while my original version didn't.  (Thank you!
+Please add appropriate attribution if you wish.)
+
+I tested all the additional code paths by selectively commenting
+out code: with interrupts, without interrupts, relying on check_pre()
+to clear CRCE, no clearing of CRCE at all (baseline).
+---
+ drivers/i2c/busses/i2c-i801.c |   53 ++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 51 insertions(+), 2 deletions(-)
+
+--- staging.orig/drivers/i2c/busses/i2c-i801.c	2016-07-01 20:15:52.738613909 +0200
++++ staging/drivers/i2c/busses/i2c-i801.c	2016-07-01 20:16:01.195694283 +0200
+@@ -144,6 +144,10 @@
+ /* TCO configuration bits for TCOCTL */
+ #define TCOCTL_EN		0x0100
+ 
++/* Auxiliary status register bits, ICH4+ only */
++#define SMBAUXSTS_CRCE		1
++#define SMBAUXSTS_STCO		2
++
+ /* Auxiliary control register bits, ICH4+ only */
+ #define SMBAUXCTL_CRC		1
+ #define SMBAUXCTL_E32B		2
+@@ -305,6 +309,29 @@ static int i801_check_pre(struct i801_pr
+ 		}
+ 	}
+ 
++	/*
++	 * Clear CRC status if needed.
++	 * During normal operation, i801_check_post() takes care
++	 * of it after every operation.  We do it here only in case
++	 * the hardware was already in this state when the driver
++	 * started.
++	 */
++	if (priv->features & FEATURE_SMBUS_PEC) {
++		status = inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE;
++		if (status) {
++			dev_dbg(&priv->pci_dev->dev,
++				"Clearing aux status flags (%02x)\n", status);
++			outb_p(status, SMBAUXSTS(priv));
++			status = inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE;
++			if (status) {
++				dev_err(&priv->pci_dev->dev,
++					"Failed clearing aux status flags (%02x)\n",
++					status);
++				return -EBUSY;
++			}
++		}
++	}
++
+ 	return 0;
+ }
+ 
+@@ -348,8 +375,30 @@ static int i801_check_post(struct i801_p
+ 		dev_err(&priv->pci_dev->dev, "Transaction failed\n");
+ 	}
+ 	if (status & SMBHSTSTS_DEV_ERR) {
+-		result = -ENXIO;
+-		dev_dbg(&priv->pci_dev->dev, "No response\n");
++		/*
++		 * This may be a PEC error, check and clear it.
++		 *
++		 * AUXSTS is handled differently from HSTSTS.
++		 * For HSTSTS, i801_isr() or i801_wait_intr()
++		 * has already cleared the error bits in hardware,
++		 * and we are passed a copy of the original value
++		 * in "status".
++		 * For AUXSTS, the hardware register is left
++		 * for us to handle here.
++		 * This is asymmetric, slightly iffy, but safe,
++		 * since all this code is serialized and the CRCE
++		 * bit is harmless as long as it's cleared before
++		 * the next operation.
++		 */
++		if ((priv->features & FEATURE_SMBUS_PEC) &&
++		    (inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE)) {
++			outb_p(SMBAUXSTS_CRCE, SMBAUXSTS(priv));
++			result = -EBADMSG;
++			dev_dbg(&priv->pci_dev->dev, "PEC error\n");
++		} else {
++			result = -ENXIO;
++			dev_dbg(&priv->pci_dev->dev, "No response\n");
++		}
+ 	}
+ 	if (status & SMBHSTSTS_BUS_ERR) {
+ 		result = -EAGAIN;
+
+
+-- 
+Jean Delvare
+SUSE L3 Support
