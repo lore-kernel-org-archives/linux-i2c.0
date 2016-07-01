@@ -1,111 +1,357 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v4 1/2] i2c: qup: add ACPI support
-Date: Fri, 01 Jul 2016 11:57:05 +0200
-Message-ID: <10912126.iSabHykBe6@wuerfel>
-References: <1465409985-17113-1-git-send-email-austinwc@codeaurora.org>
- <4043322.Uc6lMkrL43@wuerfel> <57756A04.3030301@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <57756A04.3030301@codeaurora.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Philip Elcan <pelcan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, wsa@the-dreams.de, linux-arm-msm@vger.kernel.org, timur@codeaurora.org, Stephen Boyd <sboyd@codeaurora.org>, linux-kernel@vger.kernel.org, rruigrok@codeaurora.org, Christopher Covington <cov@codeaurora.org>, Sricharan R <sricharan@codeaurora.org>, linux-i2c@vger.kernel.org
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Subject: Re: Portable Device Tree Connector -- conceptual
+Date: Fri, 1 Jul 2016 13:59:58 +0300
+Message-ID: <199EAB87-47DA-4213-BE60-43C2E062AAD5@konsulko.com>
+References: <5775B2FD.2000103@gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5775B2FD.2000103@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Frank Rowand <frowand.list@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, David Gibson <david@gibson.dropbear.id.au>, Stephen Boyd <stephen.boyd@linaro.org>, Mark Brown <broonie@kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, Marek Vasut <marex@denx.de>, Wolfram Sang <wsa@the-dreams.de>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, June 30, 2016 2:50:44 PM CEST Christopher Covington wrote:
-> Hi Arnd,
-> 
-> On 06/30/2016 07:52 AM, Arnd Bergmann wrote:
-> > On Thursday, June 30, 2016 7:35:14 AM CEST Christopher Covington wrote:
-> >> Hi Arnd,
-> >>
-> >> On 06/08/2016 05:02 PM, Arnd Bergmann wrote:
-> >>> On Wednesday, June 8, 2016 12:19:44 PM CEST Austin Christ wrote:
-> >>>> +               ret = device_property_read_u32(qup->dev,
-> >>>> +                               "src-clock-hz", &src_clk_freq);
-> >>>> +               if (ret) {
-> >>>> +                       dev_warn(qup->dev, "using default src-clock-hz %d",
-> >>>> +                               DEFAULT_SRC_CLK);
-> >>>> +                       src_clk_freq = DEFAULT_SRC_CLK;
-> >>>> +               }
-> >>>>
-> >>>
-> >>> Where is this property documented?
-> >>
-> >> We plan on submitting documentation via dsd@acpica.org to
-> >> https://github.com/ahs3/dsd once it is operational. As I understand it
-> >> the project is brand new. It may take several months to begin accepting
-> >> submissions. In the mean time, we could potentially include
-> >> documentation in a reply to this thread, the cover of the next series, a
-> >> wiki page on codeaurora.org, a file in Documentation (perhaps to be
-> >> replaced by ACPICA style imports of the OS-neutral DSD project or a git
-> >> submodule) or potentially other means. Please let us know what you think
-> >> is sufficient.
-> > 
-> > As you are reusing part of the DT binding, it seems appropriate to put
-> > the documentation for this into the binding documentation in the kernel.
-> 
-> My understanding is that in the device tree case, the input/source clock
-> frequency is assumed to be run-time managed through Global Clock
-> Controller (GCC) code and the common clock framework.
-> 
-> drivers/i2c/busses/i2c-qup.c:1549
-> 
-> src_clk_freq = clk_get_rate(qup->clk);
-> 
-> So a given I2C device tree entry points to the GCC device tree entry,
-> but there isn't an explicit, fixed input/source clock frequency value.
+Hi Frank,
 
-Correct.
+Comments inline.
 
-> arch/arm64/boot/dts/qcom/msm8916.dtsi:310
-> 
-> blsp_i2c2: i2c@78b6000 {
->         compatible = "qcom,i2c-qup-v2.2.1";
->         reg = <0x78b6000 0x1000>;
->         interrupts = <GIC_SPI 96 0>;
->         clocks = <&gcc GCC_BLSP1_AHB_CLK>,
->                 <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>;
->         clock-names = "iface", "core";
->         pinctrl-names = "default", "sleep";
->         pinctrl-0 = <&i2c2_default>;
->         pinctrl-1 = <&i2c2_sleep>;
->         #address-cells = <1>;
->         #size-cells = <0>;
->         status = "disabled";
+> On Jul 1, 2016, at 03:02 , Frank Rowand <frowand.list@gmail.com> wrot=
+e:
+>=20
+> Hi All,
+>=20
+> I've been trying to wrap my head around what Pantelis and Rob have wr=
+itten
+> on the subject of a device tree representation of a connector for a
+> daughter board to connect to (eg a cape or a shield) and the represen=
+tation
+> of the daughter board.  (Or any other physically pluggable object.)
+>=20
+> After trying to make sense of what had been written (or presented via=
+ slides
+> at a conference - thanks Pantelis!), I decided to go back to first pr=
+incipals
+> of what we are trying to accomplish.  I came up with some really simp=
+le bogus
+> examples to try to explain what my thought process is.
+>=20
+> To start with, assume that the device that will eventually be on a da=
+ughter
+> board is first soldered onto the main board.  Then the device tree wi=
+ll
+> look like:
+>=20
+> $ cat board.dts
+> /dts-v1/;
+>=20
+> / {
+>        #address-cells =3D < 1 >;
+>        #size-cells =3D < 1 >;
+>=20
+>        tree_1: soc@0 {
+>                reg =3D <0x0 0x0>;
+>=20
+>                spi_1: spi1 {
+>                };
+>        };
+>=20
 > };
-> 
-> On the other hand, when ACPI is in use, the driver assumes a fixed
-> input/source clock frequency value, which it tries to look up as a
-> device property.
+>=20
+> &spi_1 {
+>        ethernet-switch@0 {
+>                compatible =3D "micrel,ks8995m";
+>        };
+> };
+>=20
+> #include "spi_codec.dtsi"
+>=20
+> $ cat spi_codec.dtsi
+> &spi_1 {
+> 	codec@1 {
+> 		compatible =3D "ti,tlv320aic26";
+> 	};
+> };
+>=20
+>=20
+> #----- codec chip on cape
+>=20
+> Then suppose I move the codec chip to a cape.  Then I will have the s=
+ame
+> exact .dts and .dtsi and everything still works.
+>=20
+>=20
+> @----- codec chip on cape, overlay
+>=20
+> If I want to use overlays, I only have to add the version and "/plugi=
+n/",
+> then use the '-@' flag for dtc (both for the previous board.dts and
+> this spi_codec_overlay.dts):
+>=20
+> $ cat spi_codec_overlay.dts
+> /dts-v1/;
+>=20
+> /plugin/;
+>=20
+> &spi_1 {
+> 	codec@1 {
+> 		compatible =3D "ti,tlv320aic26";
+> 	};
+> };
+>=20
 
-Also correct.
- 
-> (I'm out of my depth here, so somebody please correct me if I've
-> described this wrong.)
+The correct form now for the /plugin/ declaration should be like
 
-What I'm saying was that the binding file could just document both
-cases as alternatives. We prefer to specify the clocks directly
-when using a dtb, but for the driver one of the two is ok, and
-the ACPI documentation will already have to refer to the DT binding
-for the other properties, so I think it makes sense to describe
-both the "clocks" and "src-clock-hz" properties in the same document
-as optional properties and clarify that at least one of the two
-is requried.
+/dts-v1/ /plugin/;
 
-Note that we have traditionally used "clock-frequency" as the
-property name for the input clock frequency in DT bindings that
-predate the generic clock handling (e.g. 8250 uarts on IBM Power
-servers), so we could use the same here.
+The old method still works for backward compatibility.
 
-	Arnd
+In fact with the new patches you don=E2=80=99t even /plugin/ since when
+compiling an overlay we can turn on the plugin flag by looking
+at the output type (dtbo).
+=20
+>=20
+> #----- codec chip on cape, overlay, connector
+>=20
+> Now we move into the realm of connectors.  My mental model of what th=
+e
+> hardware and driver look like has not changed.  The only thing that h=
+as
+> changed is that I want to be able to specify that the connector that
+> the cape is plugged into has some pins that are the spi bus /soc/spi1=
+=2E
+>=20
+
+That=E2=80=99s not nearly enough. You might have extra=20
+gpio/interrupt/dma/gpmc(memory-controller) pins.
+
+We can disregard dma and gpmc like interfaces for now but gpio and
+interrupt pins are required.
+
+=46or instance the spi device might have an extra gpio that it=E2=80=99=
+s using
+to signal some kind of condition (for example low-battery) which an
+application (not just the kernel) can use to make a platform specific
+decision.
+
+> The following _almost_ but not quite gets me what I want.  Note that
+> the only thing the connector node does is provide some kind of
+> pointer or reference to what node(s) are physically routed through
+> the connector.  (This node will turn out to not actually work in
+> this example.)
+>=20
+> $ cat board_with_connector.dts
+> /dts-v1/;
+>=20
+> / {
+> 	#address-cells =3D < 1 >;
+> 	#size-cells =3D < 1 >;
+>=20
+> 	tree_1: soc@0 {
+> 		reg =3D <0x0 0x0>;
+>=20
+> 		spi_1: spi1 {
+> 		};
+> 	};
+>=20
+> 	connector_1: connector_1 {
+> 		spi1 {
+> 			target_phandle =3D <&spi_1>;
+> 			target_path =3D "/soc/spi1";
+> 		};
+> 	};
+>=20
+> };
+>=20
+> &spi_1 {
+> 	ethernet-switch@0 {
+> 		compatible =3D "micrel,ks8995m";
+> 	};
+> };
+>=20
+> $ cat spi_codec_overlay_with_connector.dts
+> /dts-v1/;
+>=20
+> /plugin/;
+>=20
+> &connector_1 {
+> 	spi1 {
+> 		codec@1 {
+> 			compatible =3D "ti,tlv320aic26";
+> 		};
+> 	};
+> };
+
+This is a subset of what=E2=80=99s supported by the patch I=E2=80=99ve =
+sent out.
+
+Your example works as long as you assume that there=E2=80=99s no pinmux=
+ing
+related to the configuration of the spi controller when routed out
+to the connector pins.
+
+In reality there are may be many possible option of the same
+hardware block (spi/i2c) to be routed to different pins on the
+connector.
+
+You might get by if you have a number of selectable pre-canned
+spi configuration that are selected.
+
+=46or instance if there are two spi controllers each of which have
+two different pinout options on the connector you would address
+each as a different spi controller on the connector, but then
+you=E2=80=99d end up with
+
+spi_connector_0 -> spi_0_mux_0
+spi_connector_1 -> spi_0_mux_1
+spi_connector_2 -> spi_1_mux_0
+spi_connector_3 -> spi_1_mux_1
+
+It gets hairy though pretty fast with modern SoCs with extensive=20
+muxing options.
+=20
+>=20
+> The result is that the overlay fixup for spi1 on the cape will
+> relocate the spi1 node to /connector_1 in the host tree, so
+> this does not solve the connector linkage yet:
+>=20
+> -- chunk from the decompiled board_with_connector.dtb:
+>=20
+> 	__symbols__ {
+> 		connector_1 =3D "/connector_1";
+> 	};
+>=20
+> -- chunk from the decompiled spi_codec_overlay_with_connector.dtb:
+>=20
+> 	fragment@0 {
+> 		target =3D <0xffffffff>;
+> 		__overlay__ {
+> 			spi1 {
+> 				codec@1 {
+> 					compatible =3D "ti,tlv320aic26";
+> 				};
+> 			};
+> 		};
+> 	};
+> 	__fixups__ {
+> 		connector_1 =3D "/fragment@0:target:0";
+> 	};
+>=20
+>=20
+> #----- magic new dtc syntax
+>=20
+> What I really want is some way to tell dtc that I want to do one
+> level of dereferencing when resolving the path of device nodes
+> contained by the connector node in the overlay dts.
+>=20
+> The exact syntax does not matter here, I am just trying to get the
+> concept.  I will add the not yet implemented dtc feature of
+> "/connector/" to the connector node in both the tree dts and the
+> overlay dts, and show how the output of dtc would change.  The
+> "/connector/" directive tells dtc that for a base dts (hand
+> waving how it knows base vs overlay dts file) to look into
+> each node at that level and determine what other node it
+> maps to (again, hand waving, in this example just to
+> show the linkage, I have hard coded both the path and the
+> phandle of the target node that the connector child node
+> maps to).  The "/connector/" directive tells dtc that for
+> an overlay dts (again hand waving) to provide a fixup for
+> each child node.
+>=20
+> $ cat board_with_connector_v2.dts
+> /dts-v1/;
+>=20
+> / {
+> 	#address-cells =3D < 1 >;
+> 	#size-cells =3D < 1 >;
+>=20
+> 	tree_1: soc@0 {
+> 		reg =3D <0x0 0x0>;
+>=20
+> 		spi_1: spi1 {
+> 		};
+> 	};
+>=20
+> 	connector_1: connector_1 {
+> 		/connector/;
+> 		spi1 {
+> 			target_phandle =3D <&spi_1>;
+> 			target_path =3D "/soc/spi1";
+> 		};
+> 	};
+>=20
+> };
+>=20
+> &spi_1 {
+> 	ethernet-switch@0 {
+> 		compatible =3D "micrel,ks8995m";
+> 	};
+> };
+>=20
+> $ cat spi_codec_overlay_with_connector_v2.dts
+>=20
+> /dts-v1/;
+>=20
+> /plugin/;
+>=20
+> &connector_1 {
+> 	/connector/;
+> 	spi1 {
+> 		codec@1 {
+> 			compatible =3D "ti,tlv320aic26";
+> 		};
+> 	};
+> };
+>=20
+> -- chunk from the decompiled board_with_connector_v2.dtb:
+>=20
+> 	__symbols__ {
+>                connector_1 {
+>                        spi1 =3D "/soc@0/spi1";
+>                };
+>        };
+>=20
+> -- chunk from the decompiled spi_codec_overlay_with_connector_v2.dtb:
+>=20
+> / {
+>=20
+> 	fragment@0 {
+> 		target =3D <0xffffffff>;
+> 		__overlay__ {
+> 			spi1 {
+> 				codec@1 {
+> 					compatible =3D "ti,tlv320aic26";
+> 				};
+> 			};
+> 		};
+> 	};
+> 	__fixups__ {
+>                connector_1 {
+> 		        spi1 =3D "/fragment@0/__overlay__:spi1:0";
+>                };
+> 	};
+>=20
+> Of course the overlay loader will also have to be modified to underst=
+and
+> the new information.
+>=20
+> Exact format of the __symbols__ and __fixups__ are implementation
+> details, I am just trying to present the model.
+>=20
+> Ignoring device tree source syntax and dtc implementation issues, doe=
+s
+> this conceptual model look more straight forward and a better directi=
+on
+> for how to represent connectors?
+>=20
+
+We could use dtc sugar to get to something more elegant, I need some ti=
+me
+to think about this a bit longer.
+
+> -Frank
+
+Regards
+
+=E2=80=94 Pantelis
