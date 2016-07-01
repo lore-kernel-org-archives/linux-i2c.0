@@ -1,94 +1,275 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH v2 1/2] Documentation: Add sbs-manager device tree node
- documentation
-Date: Fri, 1 Jul 2016 00:52:17 +0200
-Message-ID: <20160630225217.GA11555@earth>
-References: <1bFnWI-0000MX-9R>
- <1467317142-14063-1-git-send-email-karl-heinz@schneider-inet.de>
- <1467317142-14063-2-git-send-email-karl-heinz@schneider-inet.de>
+From: Frank Rowand <frowand.list@gmail.com>
+Subject: Portable Device Tree Connector -- conceptual
+Date: Thu, 30 Jun 2016 17:02:05 -0700
+Message-ID: <5775B2FD.2000103@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:46576 "EHLO mail.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752065AbcF3Ww7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 30 Jun 2016 18:52:59 -0400
-Content-Disposition: inline
-In-Reply-To: <1467317142-14063-2-git-send-email-karl-heinz@schneider-inet.de>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:33565 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752043AbcGAACP (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jun 2016 20:02:15 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
+To: Rob Herring <robh+dt@kernel.org>, David Gibson <david@gibson.dropbear.id.au>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Stephen Boyd <stephen.boyd@linaro.org>, Mark Brown <broonie@kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>
+Cc: Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, linux@roeck-us.net, Marek Vasut <marex@denx.de>, wsa@the-dreams.de, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Pantelis Antoniou <panto@antoniou-consulting.com>
+
+Hi All,
+
+I've been trying to wrap my head around what Pantelis and Rob have written
+on the subject of a device tree representation of a connector for a
+daughter board to connect to (eg a cape or a shield) and the representation
+of the daughter board.  (Or any other physically pluggable object.)
+
+After trying to make sense of what had been written (or presented via slides
+at a conference - thanks Pantelis!), I decided to go back to first principals
+of what we are trying to accomplish.  I came up with some really simple bogus
+examples to try to explain what my thought process is.
+
+To start with, assume that the device that will eventually be on a daughter
+board is first soldered onto the main board.  Then the device tree will
+look like:
+
+$ cat board.dts
+/dts-v1/;
+
+/ {
+        #address-cells = < 1 >;
+        #size-cells = < 1 >;
+
+        tree_1: soc@0 {
+                reg = <0x0 0x0>;
+
+                spi_1: spi1 {
+                };
+        };
+
+};
+
+&spi_1 {
+        ethernet-switch@0 {
+                compatible = "micrel,ks8995m";
+        };
+};
+
+#include "spi_codec.dtsi"
+
+$ cat spi_codec.dtsi
+&spi_1 {
+	codec@1 {
+		compatible = "ti,tlv320aic26";
+	};
+};
 
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+#----- codec chip on cape
 
-Hi,
+Then suppose I move the codec chip to a cape.  Then I will have the same
+exact .dts and .dtsi and everything still works.
 
-On Thu, Jun 30, 2016 at 10:05:41PM +0200, Karl-Heinz Schneider wrote:
-> This patch adds device tree documentation for the sbs-manager
->=20
-> Reviewed-by: Phil Reid <preid@electromag.com.au>
-> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> ---
->  .../devicetree/bindings/power/sbs,sbs-manager.txt  | 52 ++++++++++++++++=
-++++++
->  1 file changed, 52 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/power/sbs,sbs-manag=
-er.txt
->=20
-> diff --git a/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt =
-b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
-> new file mode 100644
-> index 0000000..1d7e5ee
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
-> @@ -0,0 +1,52 @@
-> +Binding for sbs-manager
-> +
-> +Required properties:
-> +- compatible: should be "lltc,ltc1760" or use "sbs,sbs-manager" as fallb=
-ack.
-> +- reg: integer, i2c address of the device. Should be <0xa>.
-> +
-> +From OS view the device is basically an i2c-mux used to communicate with=
- up to
-> +four smart battery devices at address 0xb. The driver actually implement=
-s this
-> +behaviour. So standard i2c-mux nodes can be used to register up to four =
-slave
-> +batteries. Channels will be numerated as 1, 2, 4 and 8.
 
-I think it's better to use channel 1-4 and do the translation in the
-driver's channel select method. It means one does not have to worry
-about anybody accidently configuring channel 3 and it also maps
-nicely to the datasheet talking about BAT1-BAT4.
+@----- codec chip on cape, overlay
 
--- Sebastian
+If I want to use overlays, I only have to add the version and "/plugin/",
+then use the '-@' flag for dtc (both for the previous board.dts and
+this spi_codec_overlay.dts):
 
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature; name="signature.asc"
+$ cat spi_codec_overlay.dts
+/dts-v1/;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+/plugin/;
 
-iQIcBAEBCgAGBQJXdaKeAAoJENju1/PIO/qahvcP/3vmy11A4NUBox5Frmp8o76I
-UidXT3yiypDzsqHfr+TPk+yCg42lsmPaJDBxHwReY6Sz//4Tdwx2wEE4R1UoWZN8
-VGUsUZ6BVhYIrO0Nac3EaXnWlW14CVjuLEgiu3kP9SIbAarx+AyC3Dw+vi/B+FjR
-ym5d5RpI+7CiWYE6A/yVG36aBquHsb8SZBrNkUA7uboXohjHmuRDkCJH7/knukcj
-TwbunXrWeG/J+yPtR57Q3PVNOg45Y5KPFe7loXittqXSoCE7TE+tmLgS+gBu8lOB
-ouYJt2xpFOSVU0nkyYprVkZqFaJOC29exV4IiYjHaSlovQpsEC7svgW6Z5YRSsdL
-Qm+MQ4JLH7OgLlEEQO9Z9SgtVB9PUVmtaYHbE6ssUMRlEowWTlAbVGD08WS99ZI/
-XNqpvd3ZsnRJYWieY6WAElKnRXWlr/KwJXgTTqMuWkiuuNDrPADhCJRAqd1dnNl7
-YCE6jgCYk30rDuOgiZsmdKZb1qqCZboC72yJS4RDu6/LCeSU3az0ymQDxcwoR743
-i5QrNX+RhiI9MYX7Pb1iqxQaOBMgG65azRK57OAfEZ3Zsd448+SHXSN1JWzLnqUo
-u9BjCU4JOHVVgyf6dza9/e3qRJBYHHwWvragSTjGnABj5YQH/51MFAC2b9JGQmv7
-NUyIGhRlC7uoFNA9Hx/F
-=8sli
------END PGP SIGNATURE-----
+&spi_1 {
+	codec@1 {
+		compatible = "ti,tlv320aic26";
+	};
+};
 
---UlVJffcvxoiEqYs2--
+
+#----- codec chip on cape, overlay, connector
+
+Now we move into the realm of connectors.  My mental model of what the
+hardware and driver look like has not changed.  The only thing that has
+changed is that I want to be able to specify that the connector that
+the cape is plugged into has some pins that are the spi bus /soc/spi1.
+
+The following _almost_ but not quite gets me what I want.  Note that
+the only thing the connector node does is provide some kind of
+pointer or reference to what node(s) are physically routed through
+the connector.  (This node will turn out to not actually work in
+this example.)
+
+$ cat board_with_connector.dts
+/dts-v1/;
+
+/ {
+	#address-cells = < 1 >;
+	#size-cells = < 1 >;
+
+	tree_1: soc@0 {
+		reg = <0x0 0x0>;
+
+		spi_1: spi1 {
+		};
+	};
+
+	connector_1: connector_1 {
+		spi1 {
+			target_phandle = <&spi_1>;
+			target_path = "/soc/spi1";
+		};
+	};
+
+};
+
+&spi_1 {
+	ethernet-switch@0 {
+		compatible = "micrel,ks8995m";
+	};
+};
+
+$ cat spi_codec_overlay_with_connector.dts
+/dts-v1/;
+
+/plugin/;
+
+&connector_1 {
+	spi1 {
+		codec@1 {
+			compatible = "ti,tlv320aic26";
+		};
+	};
+};
+
+The result is that the overlay fixup for spi1 on the cape will
+relocate the spi1 node to /connector_1 in the host tree, so
+this does not solve the connector linkage yet:
+
+-- chunk from the decompiled board_with_connector.dtb:
+
+	__symbols__ {
+		connector_1 = "/connector_1";
+	};
+
+-- chunk from the decompiled spi_codec_overlay_with_connector.dtb:
+
+	fragment@0 {
+		target = <0xffffffff>;
+		__overlay__ {
+			spi1 {
+				codec@1 {
+					compatible = "ti,tlv320aic26";
+				};
+			};
+		};
+	};
+	__fixups__ {
+		connector_1 = "/fragment@0:target:0";
+	};
+
+
+#----- magic new dtc syntax
+
+What I really want is some way to tell dtc that I want to do one
+level of dereferencing when resolving the path of device nodes
+contained by the connector node in the overlay dts.
+
+The exact syntax does not matter here, I am just trying to get the
+concept.  I will add the not yet implemented dtc feature of
+"/connector/" to the connector node in both the tree dts and the
+overlay dts, and show how the output of dtc would change.  The
+"/connector/" directive tells dtc that for a base dts (hand
+waving how it knows base vs overlay dts file) to look into
+each node at that level and determine what other node it
+maps to (again, hand waving, in this example just to
+show the linkage, I have hard coded both the path and the
+phandle of the target node that the connector child node
+maps to).  The "/connector/" directive tells dtc that for
+an overlay dts (again hand waving) to provide a fixup for
+each child node.
+
+$ cat board_with_connector_v2.dts
+/dts-v1/;
+
+/ {
+	#address-cells = < 1 >;
+	#size-cells = < 1 >;
+
+	tree_1: soc@0 {
+		reg = <0x0 0x0>;
+
+		spi_1: spi1 {
+		};
+	};
+
+	connector_1: connector_1 {
+		/connector/;
+		spi1 {
+			target_phandle = <&spi_1>;
+			target_path = "/soc/spi1";
+		};
+	};
+
+};
+
+&spi_1 {
+	ethernet-switch@0 {
+		compatible = "micrel,ks8995m";
+	};
+};
+
+$ cat spi_codec_overlay_with_connector_v2.dts
+
+/dts-v1/;
+
+/plugin/;
+
+&connector_1 {
+	/connector/;
+	spi1 {
+		codec@1 {
+			compatible = "ti,tlv320aic26";
+		};
+	};
+};
+
+-- chunk from the decompiled board_with_connector_v2.dtb:
+
+	__symbols__ {
+                connector_1 {
+                        spi1 = "/soc@0/spi1";
+                };
+        };
+
+-- chunk from the decompiled spi_codec_overlay_with_connector_v2.dtb:
+
+/ {
+
+	fragment@0 {
+		target = <0xffffffff>;
+		__overlay__ {
+			spi1 {
+				codec@1 {
+					compatible = "ti,tlv320aic26";
+				};
+			};
+		};
+	};
+	__fixups__ {
+                connector_1 {
+		        spi1 = "/fragment@0/__overlay__:spi1:0";
+                };
+	};
+
+Of course the overlay loader will also have to be modified to understand
+the new information.
+
+Exact format of the __symbols__ and __fixups__ are implementation
+details, I am just trying to present the model.
+
+Ignoring device tree source syntax and dtc implementation issues, does
+this conceptual model look more straight forward and a better direction
+for how to represent connectors?
+
+-Frank
