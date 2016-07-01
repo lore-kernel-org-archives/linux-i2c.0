@@ -1,308 +1,458 @@
-From: Frank Rowand <frowand.list@gmail.com>
+From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 Subject: Re: Portable Device Tree Connector -- conceptual
-Date: Fri, 1 Jul 2016 09:44:44 -0700
-Message-ID: <57769DFC.3050503@gmail.com>
-References: <5775B2FD.2000103@gmail.com>
-Mime-Version: 1.0
+Date: Fri, 1 Jul 2016 19:56:56 +0300
+Message-ID: <BA83424E-093C-4D73-89E9-392BF1A1ADCB@konsulko.com>
+References: <5775B2FD.2000103@gmail.com> <199EAB87-47DA-4213-BE60-43C2E062AAD5@konsulko.com> <57769AF3.2040301@gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5775B2FD.2000103@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, David Gibson <david@gibson.dropbear.id.au>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Stephen Boyd <stephen.boyd@linaro.org>, Mark Brown <broonie@kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>
-Cc: Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, linux@roeck-us.net, Marek Vasut <marex@denx.de>, wsa@the-dreams.de, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Pantelis Antoniou <panto@antoniou-consulting.com>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <57769AF3.2040301-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Gibson <david-xT8FGy+AXnRB3Ne2BGzF6laj5H9X9Tb+@public.gmane.org>, Stephen Boyd <stephen.boyd-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/30/16 17:02, Frank Rowand wrote:
-> Hi All,
-> 
-> I've been trying to wrap my head around what Pantelis and Rob have written
-> on the subject of a device tree representation of a connector for a
-> daughter board to connect to (eg a cape or a shield) and the representation
-> of the daughter board.  (Or any other physically pluggable object.)
-> 
-> After trying to make sense of what had been written (or presented via slides
-> at a conference - thanks Pantelis!), I decided to go back to first principals
-> of what we are trying to accomplish.  I came up with some really simple bogus
-> examples to try to explain what my thought process is.
+Hi Frank,
 
-I was trying to keep the example as simple as possible because I wanted to
-focus on the concept.  I was trying to avoid getting into a big discussion
-about implementation details until getting feedback on the concepts.
+> On Jul 1, 2016, at 19:31 , Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrot=
+e:
+>=20
+> On 07/01/16 03:59, Pantelis Antoniou wrote:
+>> Hi Frank,
+>>=20
+>> Comments inline.
+>>=20
+>>> On Jul 1, 2016, at 03:02 , Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wr=
+ote:
+>>>=20
+>>> Hi All,
+>>>=20
+>>> I've been trying to wrap my head around what Pantelis and Rob have =
+written
+>>> on the subject of a device tree representation of a connector for a
+>>> daughter board to connect to (eg a cape or a shield) and the repres=
+entation
+>>> of the daughter board.  (Or any other physically pluggable object.)
+>>>=20
+>>> After trying to make sense of what had been written (or presented v=
+ia slides
+>>> at a conference - thanks Pantelis!), I decided to go back to first =
+principals
+>>> of what we are trying to accomplish.  I came up with some really si=
+mple bogus
+>>> examples to try to explain what my thought process is.
+>>>=20
+>>> To start with, assume that the device that will eventually be on a =
+daughter
+>>> board is first soldered onto the main board.  Then the device tree =
+will
+>>> look like:
+>>>=20
+>>> $ cat board.dts
+>>> /dts-v1/;
+>>>=20
+>>> / {
+>>>       #address-cells =3D < 1 >;
+>>>       #size-cells =3D < 1 >;
+>>>=20
+>>>       tree_1: soc@0 {
+>>>               reg =3D <0x0 0x0>;
+>>>=20
+>>>               spi_1: spi1 {
+>>>               };
+>>>       };
+>>>=20
+>>> };
+>>>=20
+>>> &spi_1 {
+>>>       ethernet-switch@0 {
+>>>               compatible =3D "micrel,ks8995m";
+>>>       };
+>>> };
+>>>=20
+>>> #include "spi_codec.dtsi"
+>>>=20
+>>> $ cat spi_codec.dtsi
+>>> &spi_1 {
+>>> 	codec@1 {
+>>> 		compatible =3D "ti,tlv320aic26";
+>>> 	};
+>>> };
+>>>=20
+>>>=20
+>>> #----- codec chip on cape
+>>>=20
+>>> Then suppose I move the codec chip to a cape.  Then I will have the=
+ same
+>>> exact .dts and .dtsi and everything still works.
+>>>=20
+>>>=20
+>>> @----- codec chip on cape, overlay
+>>>=20
+>>> If I want to use overlays, I only have to add the version and "/plu=
+gin/",
+>>> then use the '-@' flag for dtc (both for the previous board.dts and
+>>> this spi_codec_overlay.dts):
+>>>=20
+>>> $ cat spi_codec_overlay.dts
+>>> /dts-v1/;
+>>>=20
+>>> /plugin/;
+>>>=20
+>>> &spi_1 {
+>>> 	codec@1 {
+>>> 		compatible =3D "ti,tlv320aic26";
+>>> 	};
+>>> };
+>>>=20
+>>=20
+>> The correct form now for the /plugin/ declaration should be like
+>>=20
+>> /dts-v1/ /plugin/;
+>>=20
+>> The old method still works for backward compatibility.
+>>=20
+>> In fact with the new patches you don=E2=80=99t even /plugin/ since w=
+hen
+>> compiling an overlay we can turn on the plugin flag by looking
+>> at the output type (dtbo).
+>>=20
+>>>=20
+>>> #----- codec chip on cape, overlay, connector
+>>>=20
+>>> Now we move into the realm of connectors.  My mental model of what =
+the
+>>> hardware and driver look like has not changed.  The only thing that=
+ has
+>>> changed is that I want to be able to specify that the connector tha=
+t
+>>> the cape is plugged into has some pins that are the spi bus /soc/sp=
+i1.
+>>>=20
+>>=20
+>> That=E2=80=99s not nearly enough. You might have extra=20
+>> gpio/interrupt/dma/gpmc(memory-controller) pins.
+>=20
+> Yes.
+>=20
+> I was keeping the example _very_ simple.  I was trying to illustrate
+> the _concept_, not provide a full implementation.
+>=20
+> In a real use, the connector node would provide a node for each of th=
+e
+> things routed to the connector.
+>=20
 
-Secondly, thinking through the whole thing was complex enough for me that
-I missed some obvious answers to my hand waving.
+We need the example of how to handle pinmux cause it=E2=80=99s the tric=
+kiest
+thing of all.
 
-So in this reply, I will add the obvious fix to my hand waving, and add
-some complexity with one more important implementation detail.
+>=20
+>> We can disregard dma and gpmc like interfaces for now but gpio and
+>> interrupt pins are required.
+>>=20
+>> For instance the spi device might have an extra gpio that it=E2=80=99=
+s using
+>> to signal some kind of condition (for example low-battery) which an
+>> application (not just the kernel) can use to make a platform specifi=
+c
+>> decision.
+>>=20
+>>> The following _almost_ but not quite gets me what I want.  Note tha=
+t
+>>> the only thing the connector node does is provide some kind of
+>>> pointer or reference to what node(s) are physically routed through
+>>> the connector.  (This node will turn out to not actually work in
+>>> this example.)
+>>>=20
+>>> $ cat board_with_connector.dts
+>>> /dts-v1/;
+>>>=20
+>>> / {
+>>> 	#address-cells =3D < 1 >;
+>>> 	#size-cells =3D < 1 >;
+>>>=20
+>>> 	tree_1: soc@0 {
+>>> 		reg =3D <0x0 0x0>;
+>>>=20
+>>> 		spi_1: spi1 {
+>>> 		};
+>>> 	};
+>>>=20
+>>> 	connector_1: connector_1 {
+>>> 		spi1 {
+>>> 			target_phandle =3D <&spi_1>;
+>>> 			target_path =3D "/soc/spi1";
+>>> 		};
+>>> 	};
+>>>=20
+>>> };
+>>>=20
+>>> &spi_1 {
+>>> 	ethernet-switch@0 {
+>>> 		compatible =3D "micrel,ks8995m";
+>>> 	};
+>>> };
+>>>=20
+>>> $ cat spi_codec_overlay_with_connector.dts
+>>> /dts-v1/;
+>>>=20
+>>> /plugin/;
+>>>=20
+>>> &connector_1 {
+>>> 	spi1 {
+>>> 		codec@1 {
+>>> 			compatible =3D "ti,tlv320aic26";
+>>> 		};
+>>> 	};
+>>> };
+>>=20
+>> This is a subset of what=E2=80=99s supported by the patch I=E2=80=99=
+ve sent out.
+>=20
+> Yes.  Same comment as above.
+>=20
+>=20
+>> Your example works as long as you assume that there=E2=80=99s no pin=
+muxing
+>> related to the configuration of the spi controller when routed out
+>> to the connector pins.
+>=20
+> No.  Pinmuxing is part of the host board dts.
+>=20
 
+It is part of the host board DTS yes, but the connector must have
+a way to set the pinmux configuration according what the detected
+expansion board expects.
 
-> To start with, assume that the device that will eventually be on a daughter
-> board is first soldered onto the main board.  Then the device tree will
-> look like:
-> 
-> $ cat board.dts
-> /dts-v1/;
-> 
-> / {
->         #address-cells = < 1 >;
->         #size-cells = < 1 >;
-> 
->         tree_1: soc@0 {
->                 reg = <0x0 0x0>;
-> 
->                 spi_1: spi1 {
->                 };
->         };
-> 
-> };
-> 
-> &spi_1 {
->         ethernet-switch@0 {
->                 compatible = "micrel,ks8995m";
->         };
-> };
-> 
-> #include "spi_codec.dtsi"
-> 
-> $ cat spi_codec.dtsi
-> &spi_1 {
-> 	codec@1 {
-> 		compatible = "ti,tlv320aic26";
-> 	};
-> };
-> 
-> 
-> #----- codec chip on cape
-> 
-> Then suppose I move the codec chip to a cape.  Then I will have the same
-> exact .dts and .dtsi and everything still works.
-> 
-> 
-> @----- codec chip on cape, overlay
-> 
-> If I want to use overlays, I only have to add the version and "/plugin/",
-> then use the '-@' flag for dtc (both for the previous board.dts and
-> this spi_codec_overlay.dts):
-> 
-> $ cat spi_codec_overlay.dts
-> /dts-v1/;
-> 
-> /plugin/;
-> 
-> &spi_1 {
-> 	codec@1 {
-> 		compatible = "ti,tlv320aic26";
-> 	};
-> };
-> 
-> 
-> #----- codec chip on cape, overlay, connector
-> 
-> Now we move into the realm of connectors.  My mental model of what the
-> hardware and driver look like has not changed.  The only thing that has
-> changed is that I want to be able to specify that the connector that
-> the cape is plugged into has some pins that are the spi bus /soc/spi1.
-> 
-> The following _almost_ but not quite gets me what I want.  Note that
-> the only thing the connector node does is provide some kind of
-> pointer or reference to what node(s) are physically routed through
-> the connector.  (This node will turn out to not actually work in
-> this example.)
-> 
-> $ cat board_with_connector.dts
-> /dts-v1/;
-> 
-> / {
-> 	#address-cells = < 1 >;
-> 	#size-cells = < 1 >;
-> 
-> 	tree_1: soc@0 {
-> 		reg = <0x0 0x0>;
-> 
-> 		spi_1: spi1 {
-> 		};
-> 	};
-> 
-> 	connector_1: connector_1 {
-> 		spi1 {
-> 			target_phandle = <&spi_1>;
-> 			target_path = "/soc/spi1";
-> 		};
-> 	};
-> 
-> };
-> 
-> &spi_1 {
-> 	ethernet-switch@0 {
-> 		compatible = "micrel,ks8995m";
-> 	};
-> };
-> 
-> $ cat spi_codec_overlay_with_connector.dts
-> /dts-v1/;
-> 
-> /plugin/;
-> 
-> &connector_1 {
-> 	spi1 {
-> 		codec@1 {
-> 			compatible = "ti,tlv320aic26";
-> 		};
-> 	};
-> };
-> 
-> The result is that the overlay fixup for spi1 on the cape will
-> relocate the spi1 node to /connector_1 in the host tree, so
-> this does not solve the connector linkage yet:
-> 
-> -- chunk from the decompiled board_with_connector.dtb:
-> 
-> 	__symbols__ {
-> 		connector_1 = "/connector_1";
-> 	};
-> 
-> -- chunk from the decompiled spi_codec_overlay_with_connector.dtb:
-> 
-> 	fragment@0 {
-> 		target = <0xffffffff>;
-> 		__overlay__ {
-> 			spi1 {
-> 				codec@1 {
-> 					compatible = "ti,tlv320aic26";
-> 				};
-> 			};
-> 		};
-> 	};
-> 	__fixups__ {
-> 		connector_1 = "/fragment@0:target:0";
-> 	};
-> 
-> 
-> #----- magic new dtc syntax
-> 
-> What I really want is some way to tell dtc that I want to do one
-> level of dereferencing when resolving the path of device nodes
-> contained by the connector node in the overlay dts.
-> 
-> The exact syntax does not matter here, I am just trying to get the
-> concept.  I will add the not yet implemented dtc feature of
-> "/connector/" to the connector node in both the tree dts and the
-> overlay dts, and show how the output of dtc would change.  The
-> "/connector/" directive tells dtc that for a base dts (hand
-> waving how it knows base vs overlay dts file) to look into
-> each node at that level and determine what other node it
-> maps to (again, hand waving, in this example just to
-> show the linkage, I have hard coded both the path and the
-> phandle of the target node that the connector child node
-> maps to).  The "/connector/" directive tells dtc that for
-> an overlay dts (again hand waving) to provide a fixup for
-> each child node.
-> 
-> $ cat board_with_connector_v2.dts
-> /dts-v1/;
-> 
-> / {
-> 	#address-cells = < 1 >;
-> 	#size-cells = < 1 >;
-> 
-> 	tree_1: soc@0 {
-> 		reg = <0x0 0x0>;
-> 
-> 		spi_1: spi1 {
-> 		};
-> 	};
-> 
-> 	connector_1: connector_1 {
-> 		/connector/;
+> The physical connector does not change the way that pinmuxing
+> works.  It is just the same as if there were wires physically
+> connected (soldered) between the daughter board and the main
+> board.
+>=20
 
-Fix some hand waving by changing "/connector/" to "/socket/"
-to indicate this is the host board.
+The physical properties of the pin of the connector do not change.
 
+However the routing of functions in the SoC do change.
 
-> 		spi1 {
-> 			target_phandle = <&spi_1>;
-> 			target_path = "/soc/spi1";
-> 		};
-> 	};
-> 
-> };
-> 
-> &spi_1 {
-> 	ethernet-switch@0 {
-> 		compatible = "micrel,ks8995m";
-> 	};
-> };
-> 
-> $ cat spi_codec_overlay_with_connector_v2.dts
-> 
-> /dts-v1/;
-> 
-> /plugin/;
-> 
-> &connector_1 {
-> 	/connector/;
+By default most of the pins on the connector are HiZ or set to input wh=
+en
+no expansion board is connected. The only fixed function pins that are
+known and configured by the host board dts are those that are used by
+the host board=E2=80=99s identification scheme (i.e. I2C EEPROM, set of=
+ GPIO inputs
+etc).=20
 
-Fix some more hand waving by changing "/connector/" to "/plug/"
-to indicate this is the daughter board, or item plugged into
-the receptacle.
+When an expansion board is connected upon boot and probing of the the e=
+xpansion
+board manager device it will use a method that is using the configured =
+detection
+pins to identify it.
 
+After getting the ID it is going to find a corresponding overlay to app=
+ly.
 
-> 	spi1 {
-> 		codec@1 {
-> 			compatible = "ti,tlv320aic26";
-> 		};
-> 	};
-> };
-> 
-> -- chunk from the decompiled board_with_connector_v2.dtb:
-> 
-> 	__symbols__ {
->                 connector_1 {
->                         spi1 = "/soc@0/spi1";
->                 };
->         };
-> 
-> -- chunk from the decompiled spi_codec_overlay_with_connector_v2.dtb:
-> 
-> / {
-> 
-> 	fragment@0 {
-> 		target = <0xffffffff>;
-> 		__overlay__ {
-> 			spi1 {
-> 				codec@1 {
-> 					compatible = "ti,tlv320aic26";
-> 				};
-> 			};
-> 		};
-> 	};
-> 	__fixups__ {
->                 connector_1 {
-> 		        spi1 = "/fragment@0/__overlay__:spi1:0";
->                 };
-> 	};
-> 
-> Of course the overlay loader will also have to be modified to understand
-> the new information.
-> 
-> Exact format of the __symbols__ and __fixups__ are implementation
-> details, I am just trying to present the model.
-> 
-> Ignoring device tree source syntax and dtc implementation issues, does
-> this conceptual model look more straight forward and a better direction
-> for how to represent connectors?
-> 
-> -Frank
-> 
+This overlay will have to configure each pin accordingly.
 
-One more detail is how to ensure that a host board connector and a
-daughter board connector match (pin meaning, electrical characteristics,
-etc).  Both the host board connector .dtb node and the daughter board
-connector .dtbo node would have a compatible property that was specific
-to a connector specification.  For instance, there could be a
-"96boards,40-pin-connector" and a "96boards,60-pin-connector".  If a
-new incompatible version of the connector spec was created, a new
-compatible would have to be created, for example "96boards,40-pin-connector-gen2".
+It is perfectly for a pin on a connector to be a GPIO output for expans=
+ion
+board A, I2C bus SDA for board B, etc...
 
--Frank
+So there has to be a way to get the pinmux configuration according to t=
+he
+required connection function on each pin in use.
+
+>=20
+>> In reality there are may be many possible option of the same
+>> hardware block (spi/i2c) to be routed to different pins on the
+>> connector.
+>>=20
+>> You might get by if you have a number of selectable pre-canned
+>> spi configuration that are selected.
+>=20
+> Again, just the same as if the connector did not exist and
+> everything is hardwired.
+>=20
+> The connector node for the host board would contain a node for
+> each of the alternative uses of the pins.
+>=20
+
+Right.
+
+>=20
+>> For instance if there are two spi controllers each of which have
+>> two different pinout options on the connector you would address
+>> each as a different spi controller on the connector, but then
+>> you=E2=80=99d end up with
+>>=20
+>> spi_connector_0 -> spi_0_mux_0
+>> spi_connector_1 -> spi_0_mux_1
+>> spi_connector_2 -> spi_1_mux_0
+>> spi_connector_3 -> spi_1_mux_1
+>=20
+> Yes.  But again, exactly the same as if the daughter board was
+> hard wired with no intervening physical connector.
+>=20
+
+Yes.
+
+>=20
+>> It gets hairy though pretty fast with modern SoCs with extensive=20
+>> muxing options.
+>>=20
+>>>=20
+>>> The result is that the overlay fixup for spi1 on the cape will
+>>> relocate the spi1 node to /connector_1 in the host tree, so
+>>> this does not solve the connector linkage yet:
+>>>=20
+>>> -- chunk from the decompiled board_with_connector.dtb:
+>>>=20
+>>> 	__symbols__ {
+>>> 		connector_1 =3D "/connector_1";
+>>> 	};
+>>>=20
+>>> -- chunk from the decompiled spi_codec_overlay_with_connector.dtb:
+>>>=20
+>>> 	fragment@0 {
+>>> 		target =3D <0xffffffff>;
+>>> 		__overlay__ {
+>>> 			spi1 {
+>>> 				codec@1 {
+>>> 					compatible =3D "ti,tlv320aic26";
+>>> 				};
+>>> 			};
+>>> 		};
+>>> 	};
+>>> 	__fixups__ {
+>>> 		connector_1 =3D "/fragment@0:target:0";
+>>> 	};
+>>>=20
+>>>=20
+>>> #----- magic new dtc syntax
+>>>=20
+>>> What I really want is some way to tell dtc that I want to do one
+>>> level of dereferencing when resolving the path of device nodes
+>>> contained by the connector node in the overlay dts.
+>>>=20
+>>> The exact syntax does not matter here, I am just trying to get the
+>>> concept.  I will add the not yet implemented dtc feature of
+>>> "/connector/" to the connector node in both the tree dts and the
+>>> overlay dts, and show how the output of dtc would change.  The
+>>> "/connector/" directive tells dtc that for a base dts (hand
+>>> waving how it knows base vs overlay dts file) to look into
+>>> each node at that level and determine what other node it
+>>> maps to (again, hand waving, in this example just to
+>>> show the linkage, I have hard coded both the path and the
+>>> phandle of the target node that the connector child node
+>>> maps to).  The "/connector/" directive tells dtc that for
+>>> an overlay dts (again hand waving) to provide a fixup for
+>>> each child node.
+>>>=20
+>>> $ cat board_with_connector_v2.dts
+>>> /dts-v1/;
+>>>=20
+>>> / {
+>>> 	#address-cells =3D < 1 >;
+>>> 	#size-cells =3D < 1 >;
+>>>=20
+>>> 	tree_1: soc@0 {
+>>> 		reg =3D <0x0 0x0>;
+>>>=20
+>>> 		spi_1: spi1 {
+>>> 		};
+>>> 	};
+>>>=20
+>>> 	connector_1: connector_1 {
+>>> 		/connector/;
+>>> 		spi1 {
+>>> 			target_phandle =3D <&spi_1>;
+>>> 			target_path =3D "/soc/spi1";
+>>> 		};
+>>> 	};
+>>>=20
+>>> };
+>>>=20
+>>> &spi_1 {
+>>> 	ethernet-switch@0 {
+>>> 		compatible =3D "micrel,ks8995m";
+>>> 	};
+>>> };
+>>>=20
+>>> $ cat spi_codec_overlay_with_connector_v2.dts
+>>>=20
+>>> /dts-v1/;
+>>>=20
+>>> /plugin/;
+>>>=20
+>>> &connector_1 {
+>>> 	/connector/;
+>>> 	spi1 {
+>>> 		codec@1 {
+>>> 			compatible =3D "ti,tlv320aic26";
+>>> 		};
+>>> 	};
+>>> };
+>>>=20
+>>> -- chunk from the decompiled board_with_connector_v2.dtb:
+>>>=20
+>>> 	__symbols__ {
+>>>               connector_1 {
+>>>                       spi1 =3D "/soc@0/spi1";
+>>>               };
+>>>       };
+>>>=20
+>>> -- chunk from the decompiled spi_codec_overlay_with_connector_v2.dt=
+b:
+>>>=20
+>>> / {
+>>>=20
+>>> 	fragment@0 {
+>>> 		target =3D <0xffffffff>;
+>>> 		__overlay__ {
+>>> 			spi1 {
+>>> 				codec@1 {
+>>> 					compatible =3D "ti,tlv320aic26";
+>>> 				};
+>>> 			};
+>>> 		};
+>>> 	};
+>>> 	__fixups__ {
+>>>               connector_1 {
+>>> 		        spi1 =3D "/fragment@0/__overlay__:spi1:0";
+>>>               };
+>>> 	};
+>>>=20
+>>> Of course the overlay loader will also have to be modified to under=
+stand
+>>> the new information.
+>>>=20
+>>> Exact format of the __symbols__ and __fixups__ are implementation
+>>> details, I am just trying to present the model.
+>>>=20
+>>> Ignoring device tree source syntax and dtc implementation issues, d=
+oes
+>>> this conceptual model look more straight forward and a better direc=
+tion
+>>> for how to represent connectors?
+>>>=20
+>>=20
+>> We could use dtc sugar to get to something more elegant, I need some=
+ time
+>> to think about this a bit longer.
+>>=20
+>>> -Frank
+>>=20
+>> Regards
+>>=20
+>> =E2=80=94 Pantelis
+
+Regards
+
+=E2=80=94 Pantelis
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
