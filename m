@@ -1,357 +1,158 @@
-From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Subject: Re: Portable Device Tree Connector -- conceptual
-Date: Fri, 1 Jul 2016 13:59:58 +0300
-Message-ID: <199EAB87-47DA-4213-BE60-43C2E062AAD5@konsulko.com>
-References: <5775B2FD.2000103@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=utf-8
+From: Meelis Roos <mroos@linux.ee>
+Subject: Re: i2c-i801 hangs indefinitely on IBM x3550
+Date: Fri, 1 Jul 2016 15:02:58 +0300 (EEST)
+Message-ID: <alpine.LRH.2.20.1607011455120.12974@math.ut.ee>
+References: <alpine.SOC.1.00.1309241438110.29702@math.ut.ee> <20160701115330.1ff19621@endymion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5775B2FD.2000103@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Frank Rowand <frowand.list@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, David Gibson <david@gibson.dropbear.id.au>, Stephen Boyd <stephen.boyd@linaro.org>, Mark Brown <broonie@kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, Marek Vasut <marex@denx.de>, Wolfram Sang <wsa@the-dreams.de>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp1.it.da.ut.ee ([193.40.5.66]:39862 "EHLO smtp1.it.da.ut.ee"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751869AbcGAMBZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Jul 2016 08:01:25 -0400
+In-Reply-To: <20160701115330.1ff19621@endymion>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-Hi Frank,
-
-Comments inline.
-
-> On Jul 1, 2016, at 03:02 , Frank Rowand <frowand.list@gmail.com> wrot=
-e:
+> > Tried latest Debian kernel (3.10-3-amd64) and latest upstream kerne=
+l=20
+> > (3.12-rc2) on a decommisioned IBM x3550 server. i2c-i801 is autoloa=
+ded=20
+> > but all access to it seems to wait forever, including stopping rebo=
+ot=20
+> > from happening because modprobe is still running and blocked on thi=
+s.
+> >=20
+> > 00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus=
+ Controller (rev 09)
+> >         Subsystem: IBM Device 02dd
+> >         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-=
+ ParErr+ Stepping- SERR+ FastB2B- DisINTx+
+> >         Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >=
+TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx+
+> >         Interrupt: pin B routed to IRQ 20
+> >         Region 4: I/O ports at 0440 [size=3D32]
+> >         Kernel driver in use: i801_smbus
+> >=20
+> >=20
+> > [    3.028771] i801_smbus 0000:00:1f.3: SMBus using PCI Interrupt
+> > [...]
+> > [  240.172009] INFO: task modprobe:267 blocked for more than 120 se=
+conds.
 >=20
-> Hi All,
->=20
-> I've been trying to wrap my head around what Pantelis and Rob have wr=
-itten
-> on the subject of a device tree representation of a connector for a
-> daughter board to connect to (eg a cape or a shield) and the represen=
-tation
-> of the daughter board.  (Or any other physically pluggable object.)
->=20
-> After trying to make sense of what had been written (or presented via=
- slides
-> at a conference - thanks Pantelis!), I decided to go back to first pr=
-incipals
-> of what we are trying to accomplish.  I came up with some really simp=
-le bogus
-> examples to try to explain what my thought process is.
->=20
-> To start with, assume that the device that will eventually be on a da=
-ughter
-> board is first soldered onto the main board.  Then the device tree wi=
+> Most likely SMBus interrupts do not work properly on this machine.
+> Since then a number of improvements have been committed to the i2c-i8=
+01
+> driver to detect and workaround corner cases in this area. If you sti=
 ll
-> look like:
->=20
-> $ cat board.dts
-> /dts-v1/;
->=20
-> / {
->        #address-cells =3D < 1 >;
->        #size-cells =3D < 1 >;
->=20
->        tree_1: soc@0 {
->                reg =3D <0x0 0x0>;
->=20
->                spi_1: spi1 {
->                };
->        };
->=20
-> };
->=20
-> &spi_1 {
->        ethernet-switch@0 {
->                compatible =3D "micrel,ks8995m";
->        };
-> };
->=20
-> #include "spi_codec.dtsi"
->=20
-> $ cat spi_codec.dtsi
-> &spi_1 {
-> 	codec@1 {
-> 		compatible =3D "ti,tlv320aic26";
-> 	};
-> };
->=20
->=20
-> #----- codec chip on cape
->=20
-> Then suppose I move the codec chip to a cape.  Then I will have the s=
-ame
-> exact .dts and .dtsi and everything still works.
->=20
->=20
-> @----- codec chip on cape, overlay
->=20
-> If I want to use overlays, I only have to add the version and "/plugi=
-n/",
-> then use the '-@' flag for dtc (both for the previous board.dts and
-> this spi_codec_overlay.dts):
->=20
-> $ cat spi_codec_overlay.dts
-> /dts-v1/;
->=20
-> /plugin/;
->=20
-> &spi_1 {
-> 	codec@1 {
-> 		compatible =3D "ti,tlv320aic26";
-> 	};
-> };
->=20
+> have this machine, you may want to try to upgrade to kernel v3.19 or
+> later and see if it helps.
 
-The correct form now for the /plugin/ declaration should be like
-
-/dts-v1/ /plugin/;
-
-The old method still works for backward compatibility.
-
-In fact with the new patches you don=E2=80=99t even /plugin/ since when
-compiling an overlay we can turn on the plugin flag by looking
-at the output type (dtbo).
+The machine is still alive and kicking with latest 4.7-rc4+. However, I=
 =20
->=20
-> #----- codec chip on cape, overlay, connector
->=20
-> Now we move into the realm of connectors.  My mental model of what th=
-e
-> hardware and driver look like has not changed.  The only thing that h=
-as
-> changed is that I want to be able to specify that the connector that
-> the cape is plugged into has some pins that are the spi bus /soc/spi1=
-=2E
->=20
+do not remember the exact scenario  for testing.
 
-That=E2=80=99s not nearly enough. You might have extra=20
-gpio/interrupt/dma/gpmc(memory-controller) pins.
+Ran sensors, this works:
 
-We can disregard dma and gpmc like interfaces for now but gpio and
-interrupt pins are required.
+$ sensors
+i5k_amb-isa-0000
+Adapter: ISA adapter
+Ch. 0 DIMM 0:  +38.5=B0C  (low  =3D +104.0=B0C, high =3D +124.0=B0C)
+Ch. 0 DIMM 1:  +33.0=B0C  (low  =3D +100.0=B0C, high =3D +124.0=B0C)
+Ch. 1 DIMM 0:  +42.5=B0C  (low  =3D +101.0=B0C, high =3D +124.0=B0C)
+Ch. 1 DIMM 1:  +36.5=B0C  (low  =3D +99.5=B0C, high =3D +124.0=B0C)
+Ch. 2 DIMM 0:  +58.0=B0C  (low  =3D +127.5=B0C, high =3D +127.5=B0C)
+Ch. 3 DIMM 0:  +18.0=B0C  (low  =3D +127.5=B0C, high =3D +127.5=B0C)
 
-=46or instance the spi device might have an extra gpio that it=E2=80=99=
-s using
-to signal some kind of condition (for example low-battery) which an
-application (not just the kernel) can use to make a platform specific
-decision.
+coretemp-isa-0000
+Adapter: ISA adapter
+Core 0:       +43.0=B0C  (high =3D +86.0=B0C, crit =3D +100.0=B0C)
+Core 1:       +45.0=B0C  (high =3D +86.0=B0C, crit =3D +100.0=B0C)
 
-> The following _almost_ but not quite gets me what I want.  Note that
-> the only thing the connector node does is provide some kind of
-> pointer or reference to what node(s) are physically routed through
-> the connector.  (This node will turn out to not actually work in
-> this example.)
->=20
-> $ cat board_with_connector.dts
-> /dts-v1/;
->=20
-> / {
-> 	#address-cells =3D < 1 >;
-> 	#size-cells =3D < 1 >;
->=20
-> 	tree_1: soc@0 {
-> 		reg =3D <0x0 0x0>;
->=20
-> 		spi_1: spi1 {
-> 		};
-> 	};
->=20
-> 	connector_1: connector_1 {
-> 		spi1 {
-> 			target_phandle =3D <&spi_1>;
-> 			target_path =3D "/soc/spi1";
-> 		};
-> 	};
->=20
-> };
->=20
-> &spi_1 {
-> 	ethernet-switch@0 {
-> 		compatible =3D "micrel,ks8995m";
-> 	};
-> };
->=20
-> $ cat spi_codec_overlay_with_connector.dts
-> /dts-v1/;
->=20
-> /plugin/;
->=20
-> &connector_1 {
-> 	spi1 {
-> 		codec@1 {
-> 			compatible =3D "ti,tlv320aic26";
-> 		};
-> 	};
-> };
+aem1-isa-0000
+Adapter: ISA adapter
+power1:      188.16 W  (interval =3D   1.00 s)
+energy1:     720.82 MJ
 
-This is a subset of what=E2=80=99s supported by the patch I=E2=80=99ve =
-sent out.
+aem2-isa-0001
+Adapter: ISA adapter
+temp1:        +31.0=B0C =20
+temp2:        +20.0=B0C =20
+power1:      126.22 W  (interval =3D   1.00 s)
+power2:      200.69 W  (interval =3D   1.00 s)
+power3:       26.00 W =20
+power4:      374.00 W =20
+power5:      347.00 W =20
+power6:      265.40 W =20
+power7:      240.40 W =20
+energy1:     217.21 MJ
+energy2:     720.82 MJ
 
-Your example works as long as you assume that there=E2=80=99s no pinmux=
-ing
-related to the configuration of the spi controller when routed out
-to the connector pins.
+ibmpex-isa-0000
+Adapter: ISA adapter
+temp1:         +0.0=B0C =20
+temp2:         +0.0=B0C =20
+temp3:         +0.0=B0C =20
+temp4:         +0.0=B0C =20
+power1:      131.00 W  (lowest =3D   7.00 W, highest =3D 186.90 W)
+power2:      133.00 W  (lowest =3D   8.50 W, highest =3D 159.10 W)
+power3:      132.60 W  (lowest =3D   8.70 W, highest =3D 155.80 W)
+power4:      132.70 W  (lowest =3D   8.80 W, highest =3D 156.00 W)
+power5:      127.10 W  (lowest =3D   8.80 W, highest =3D 155.00 W)
+power6:      123.90 W  (lowest =3D   8.90 W, highest =3D 151.40 W)
+power7:      123.30 W  (lowest =3D   9.00 W, highest =3D 148.40 W)
+power8:      123.00 W  (lowest =3D   9.30 W, highest =3D 146.40 W)
+power9:      208.00 W  (lowest =3D  67.00 W, highest =3D 267.00 W)
+power10:     206.00 W  (lowest =3D  68.00 W, highest =3D 232.00 W)
+power11:     196.00 W  (lowest =3D  81.00 W, highest =3D 227.00 W)
 
-In reality there are may be many possible option of the same
-hardware block (spi/i2c) to be routed to different pins on the
-connector.
+But the hwmon sensors seem to be prom ohter places than i2c.
 
-You might get by if you have a number of selectable pre-canned
-spi configuration that are selected.
+mroos@x3550:/sys/bus/i2c/devices$ ls -al
+total 0
+drwxr-xr-x 2 root root 0 Jul  1 14:50 .
+drwxr-xr-x 4 root root 0 Jul  1 14:50 ..
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-0 -> ../../../devices/pci0000=
+:00/0000:00:1f.3/i2c-0
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-1 -> ../../../devices/pci0000=
+:00/0000:00:1e.0/0000:01:01.0/i2c-1
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-2 -> ../../../devices/pci0000=
+:00/0000:00:1e.0/0000:01:01.0/i2c-2
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-3 -> ../../../devices/pci0000=
+:00/0000:00:1e.0/0000:01:01.0/i2c-3
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-4 -> ../../../devices/pci0000=
+:00/0000:00:1e.0/0000:01:01.0/i2c-4
 
-=46or instance if there are two spi controllers each of which have
-two different pinout options on the connector you would address
-each as a different spi controller on the connector, but then
-you=E2=80=99d end up with
+So no i2c client drivers.
 
-spi_connector_0 -> spi_0_mux_0
-spi_connector_1 -> spi_0_mux_1
-spi_connector_2 -> spi_1_mux_0
-spi_connector_3 -> spi_1_mux_1
+devices/pci0000:00/0000:00:1f.3/i2c-0 is i801_smbus.
 
-It gets hairy though pretty fast with modern SoCs with extensive=20
-muxing options.
+modprobe eeprom + decode-dimms shows not dimm info but here is some i2c=
 =20
->=20
-> The result is that the overlay fixup for spi1 on the cape will
-> relocate the spi1 node to /connector_1 in the host tree, so
-> this does not solve the connector linkage yet:
->=20
-> -- chunk from the decompiled board_with_connector.dtb:
->=20
-> 	__symbols__ {
-> 		connector_1 =3D "/connector_1";
-> 	};
->=20
-> -- chunk from the decompiled spi_codec_overlay_with_connector.dtb:
->=20
-> 	fragment@0 {
-> 		target =3D <0xffffffff>;
-> 		__overlay__ {
-> 			spi1 {
-> 				codec@1 {
-> 					compatible =3D "ti,tlv320aic26";
-> 				};
-> 			};
-> 		};
-> 	};
-> 	__fixups__ {
-> 		connector_1 =3D "/fragment@0:target:0";
-> 	};
->=20
->=20
-> #----- magic new dtc syntax
->=20
-> What I really want is some way to tell dtc that I want to do one
-> level of dereferencing when resolving the path of device nodes
-> contained by the connector node in the overlay dts.
->=20
-> The exact syntax does not matter here, I am just trying to get the
-> concept.  I will add the not yet implemented dtc feature of
-> "/connector/" to the connector node in both the tree dts and the
-> overlay dts, and show how the output of dtc would change.  The
-> "/connector/" directive tells dtc that for a base dts (hand
-> waving how it knows base vs overlay dts file) to look into
-> each node at that level and determine what other node it
-> maps to (again, hand waving, in this example just to
-> show the linkage, I have hard coded both the path and the
-> phandle of the target node that the connector child node
-> maps to).  The "/connector/" directive tells dtc that for
-> an overlay dts (again hand waving) to provide a fixup for
-> each child node.
->=20
-> $ cat board_with_connector_v2.dts
-> /dts-v1/;
->=20
-> / {
-> 	#address-cells =3D < 1 >;
-> 	#size-cells =3D < 1 >;
->=20
-> 	tree_1: soc@0 {
-> 		reg =3D <0x0 0x0>;
->=20
-> 		spi_1: spi1 {
-> 		};
-> 	};
->=20
-> 	connector_1: connector_1 {
-> 		/connector/;
-> 		spi1 {
-> 			target_phandle =3D <&spi_1>;
-> 			target_path =3D "/soc/spi1";
-> 		};
-> 	};
->=20
-> };
->=20
-> &spi_1 {
-> 	ethernet-switch@0 {
-> 		compatible =3D "micrel,ks8995m";
-> 	};
-> };
->=20
-> $ cat spi_codec_overlay_with_connector_v2.dts
->=20
-> /dts-v1/;
->=20
-> /plugin/;
->=20
-> &connector_1 {
-> 	/connector/;
-> 	spi1 {
-> 		codec@1 {
-> 			compatible =3D "ti,tlv320aic26";
-> 		};
-> 	};
-> };
->=20
-> -- chunk from the decompiled board_with_connector_v2.dtb:
->=20
-> 	__symbols__ {
->                connector_1 {
->                        spi1 =3D "/soc@0/spi1";
->                };
->        };
->=20
-> -- chunk from the decompiled spi_codec_overlay_with_connector_v2.dtb:
->=20
-> / {
->=20
-> 	fragment@0 {
-> 		target =3D <0xffffffff>;
-> 		__overlay__ {
-> 			spi1 {
-> 				codec@1 {
-> 					compatible =3D "ti,tlv320aic26";
-> 				};
-> 			};
-> 		};
-> 	};
-> 	__fixups__ {
->                connector_1 {
-> 		        spi1 =3D "/fragment@0/__overlay__:spi1:0";
->                };
-> 	};
->=20
-> Of course the overlay loader will also have to be modified to underst=
-and
-> the new information.
->=20
-> Exact format of the __symbols__ and __fixups__ are implementation
-> details, I am just trying to present the model.
->=20
-> Ignoring device tree source syntax and dtc implementation issues, doe=
-s
-> this conceptual model look more straight forward and a better directi=
-on
-> for how to represent connectors?
->=20
+device now:
+lrwxrwxrwx 1 root root 0 Jul  1 14:51 1-0050 -> ../../../devices/pci000=
+0:00/0000:00:1e.0/0000:01:01.0/i2c-1/1-0050
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-0 -> ../../../devices/pci0000=
+:00/0000:00:1f.3/i2c-0
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-1 -> ../../../devices/pci0000=
+:00/0000:00:1e.0/0000:01:01.0/i2c-1
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-2 -> ../../../devices/pci0000=
+:00/0000:00:1e.0/0000:01:01.0/i2c-2
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-3 -> ../../../devices/pci0000=
+:00/0000:00:1e.0/0000:01:01.0/i2c-3
+lrwxrwxrwx 1 root root 0 Jul  1 14:50 i2c-4 -> ../../../devices/pci0000=
+:00/0000:00:1e.0/0000:01:01.0/i2c-4
 
-We could use dtc sugar to get to something more elegant, I need some ti=
-me
-to think about this a bit longer.
+However, this seems to be attached to ATi graphics so probably DDC.
 
-> -Frank
+Reboot is working fine.
 
-Regards
+SO how do I see if os working? Nothing in dmesg, reboot works so seems=20
+OK?
 
-=E2=80=94 Pantelis
+
+--=20
+Meelis Roos (mroos@linux.ee)
