@@ -1,112 +1,58 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] dt-bindings: i2c: add bindings for nxp,pca9541
-Date: Thu, 30 Jun 2016 20:20:44 -0500
-Message-ID: <20160701012044.GA5619@rob-hp-laptop>
-References: <1467022282-21062-1-git-send-email-peda@axentia.se>
- <57712770.3040204@roeck-us.net>
- <d7476000-e50c-b840-00a5-7eab1a0823fb@axentia.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v3 i2c/for-next] i2c: i801: recover from hardware PEC
+ errors
+Date: Fri, 1 Jul 2016 11:30:28 +0200
+Message-ID: <20160701113028.7a47c236@endymion>
+References: <1432332868-12705-1-git-send-email-ellen@cumulusnetworks.com>
+	<20150709165939.GB4744@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:34002 "EHLO
-	mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751704AbcGABjb (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Jun 2016 21:39:31 -0400
-Content-Disposition: inline
-In-Reply-To: <d7476000-e50c-b840-00a5-7eab1a0823fb@axentia.se>
+Received: from mx2.suse.de ([195.135.220.15]:55389 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751912AbcGAJoS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 1 Jul 2016 05:44:18 -0400
+In-Reply-To: <20150709165939.GB4744@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kalle Valo <kvalo@codeaurora.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Jiri Slaby <jslaby@suse.cz>, linux-i2c@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ellen Wang <ellen@cumulusnetworks.com>, linux-i2c@vger.kernel.org
 
-On Mon, Jun 27, 2016 at 06:27:21PM +0200, Peter Rosin wrote:
-> On 2016-06-27 15:17, Guenter Roeck wrote:
-> > On 06/27/2016 03:11 AM, Peter Rosin wrote:
-> >> Fill the gap for this pre-existing driver.
-> >>
-> >> Signed-off-by: Peter Rosin <peda@axentia.se>
-> >> ---
-> >>   .../devicetree/bindings/i2c/i2c-arb-pca9541.txt    | 33 ++++++++++++++++++++++
-> >>   MAINTAINERS                                        |  1 +
-> >>   2 files changed, 34 insertions(+)
-> >>   create mode 100644 Documentation/devicetree/bindings/i2c/i2c-arb-pca9541.txt
-> >>
-> >> Hi!
-> >>
-> >> I'm wondering about this driver. It is not a trivial device, and yet it
-> >> has historically relied on the i2c core matching the chip w/o vendor
-> >> prefix. This is not ideal. But what to do about the driver implementing
-> >> this in terms of an i2c-mux, somthing which the chip is not; It is an
-> >> i2c arbitrator. It just happens to rely on the i2c mux core also handling
-> >> i2c gates and i2c arbitrators. But that seems like a Linux detail. So I
-> >> don't know what to do here?
-> >>
+Hi Wolfram, Ellen,
+
+On Thu, 9 Jul 2015 18:59:39 +0200, Wolfram Sang wrote:
+> On Fri, May 22, 2015 at 03:14:28PM -0700, Ellen Wang wrote:
+> > On a CRC error while using hardware-supported PEC, an additional
+> > error bit is set in the auxiliary status register.  If this bit
+> > isn't cleared, all subsequent operations will fail, essentially
+> > hanging the controller.
 > > 
-> > The concept of arbitrators didn't exist when I wrote the driver. I would not
-> > have a problem with renaming the file if that is what you are asking for.
-> 
-> No, that was not my issue, I just wanted to document bindings for pca9541,
-> and I didn't like how it turned out.
-> 
-> I don't really care if the bindings doc is named i2c-mux-pca9541.txt (that
-> would match the name of the driver, but it still wouldn't make the chip a mux).
-
-So name it i2c-pca9541.txt or the somewhat standard nxp,pca9541.txt 
-following the compatible.
-
-> 
-> >> That is, the patch - as is - describes something that would be trivial to
-> >> support today, but at the same time it seems to be too tied to Linux.
-> >>
-> >> The problem is that the i2c@0 intermediate node is not really needed, but
-> >> at the same time removing it would cause a disruption for the driver since
-> >> it can't really use the i2c mux core if that node isn't there. I don't
-> >> see a simple way to fix that in the i2c mux core either (but admittedly
-> >> haven't given it too much thought).
-> >>
+> > The fix is simple: check, report, and clear the bit in
+> > i801_check_post().  Also, in case the driver starts with the
+> > hardware in that state, clear it in i801_check_pre() as well.
 > > 
-> > The gpio arbitrator uses the same principle as well. Why not just leave it
-> > alone ? Besides, I think it is a good idea to have it, since it groups
-> > the i2c devices behind the chip together. I would not consider that to be
-> > a Linuxism, but a design choice.
+> > Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+> > ---
+> > Update: fix typos in commit message, otherwise the same as v2
+> > 
+> > This is essentially the patch from Jean Delvare, which handles
+> > the polling case while my original version didn't.  (Thank you!
+> > Please add appropriate attribution if you wish.)
+> > 
+> > I tested all the additional code paths by selectively commenting
+> > out code: with interrupts, without interrupts, relying on check_pre()
+> > to clear CRCE, no clearing of CRCE at all (baseline).
 > 
-> The grouping argument would make sense if there was anything outside the
-> group. Also, the required reg property and the extra #address-cells and
-> #size-cells doesn't add anything and just gets in the way, and is indeed
-> the result of Linuxisms leaking back into device trees.
-> 
-> If there were no muxes and this was a new driver, the example bindings
-> would almost certainly have been something like:
-> 
-> 	i2c-arbitrator@74 {
-> 		compatible = "nxp,pca9541";
-> 		reg = <0x74>;
-> 
-> 		#address-cells = <1>;
-> 		#size-cells = <0>;
-> 
-> 		eeprom@54 {
-> 			compatible = "at,24c08";
-> 			reg = <0x54>;
-> 		};
-> 	};
-> 
-> which I find much nicer.
+> Jean, any comments or tags to add?
 
-Yes.
+Sorry, this one fell trough the cracks. The patch is good and still
+needed. I have tested it successfully on several systems. Wolfram,
+please apply it.
 
-> But, I can't find a way to implement that and keep backwards compatibility
-> with old existing device trees.
+Tested-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-I don't see any in the kernel tree nor is it documented, so there is not 
-compatibility to worry about.
-
-> 
-> Which is why I submitted the patch I did. It documents the pca9541 bindings,
-> something which is lacking, in terms of i2c-mux as the driver is written.
-> At the same time, this feels ugly and exposes linuxism and I wanted to make
-> that clear up front. The above simply looks better than the example in the
-> patch.
-> 
-> I intended to mark the submission [RFC PATCH], but I now realize that that
-> went missing along the way, sorry.
+-- 
+Jean Delvare
+SUSE L3 Support
