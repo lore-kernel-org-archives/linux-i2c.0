@@ -1,56 +1,111 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: i2c-i801 hangs indefinitely on IBM x3550
-Date: Fri, 1 Jul 2016 11:53:30 +0200
-Message-ID: <20160701115330.1ff19621@endymion>
-References: <alpine.SOC.1.00.1309241438110.29702@math.ut.ee>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v4 1/2] i2c: qup: add ACPI support
+Date: Fri, 01 Jul 2016 11:57:05 +0200
+Message-ID: <10912126.iSabHykBe6@wuerfel>
+References: <1465409985-17113-1-git-send-email-austinwc@codeaurora.org>
+ <4043322.Uc6lMkrL43@wuerfel> <57756A04.3030301@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:56029 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752240AbcGAJxd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 1 Jul 2016 05:53:33 -0400
-In-Reply-To: <alpine.SOC.1.00.1309241438110.29702@math.ut.ee>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <57756A04.3030301@codeaurora.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Philip Elcan <pelcan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, wsa@the-dreams.de, linux-arm-msm@vger.kernel.org, timur@codeaurora.org, Stephen Boyd <sboyd@codeaurora.org>, linux-kernel@vger.kernel.org, rruigrok@codeaurora.org, Christopher Covington <cov@codeaurora.org>, Sricharan R <sricharan@codeaurora.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-Hi Meelis,
-
-Cleaning up my mailbox, I found that I never replied to this message.
-First of all I would like to apologize for this.
-
-On Tue, 24 Sep 2013 14:46:30 +0300 (EEST), Meelis Roos wrote:
-> Tried latest Debian kernel (3.10-3-amd64) and latest upstream kernel 
-> (3.12-rc2) on a decommisioned IBM x3550 server. i2c-i801 is autoloaded 
-> but all access to it seems to wait forever, including stopping reboot 
-> from happening because modprobe is still running and blocked on this.
+On Thursday, June 30, 2016 2:50:44 PM CEST Christopher Covington wrote:
+> Hi Arnd,
 > 
-> 00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus Controller (rev 09)
->         Subsystem: IBM Device 02dd
->         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B- DisINTx+
->         Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx+
->         Interrupt: pin B routed to IRQ 20
->         Region 4: I/O ports at 0440 [size=32]
->         Kernel driver in use: i801_smbus
+> On 06/30/2016 07:52 AM, Arnd Bergmann wrote:
+> > On Thursday, June 30, 2016 7:35:14 AM CEST Christopher Covington wrote:
+> >> Hi Arnd,
+> >>
+> >> On 06/08/2016 05:02 PM, Arnd Bergmann wrote:
+> >>> On Wednesday, June 8, 2016 12:19:44 PM CEST Austin Christ wrote:
+> >>>> +               ret = device_property_read_u32(qup->dev,
+> >>>> +                               "src-clock-hz", &src_clk_freq);
+> >>>> +               if (ret) {
+> >>>> +                       dev_warn(qup->dev, "using default src-clock-hz %d",
+> >>>> +                               DEFAULT_SRC_CLK);
+> >>>> +                       src_clk_freq = DEFAULT_SRC_CLK;
+> >>>> +               }
+> >>>>
+> >>>
+> >>> Where is this property documented?
+> >>
+> >> We plan on submitting documentation via dsd@acpica.org to
+> >> https://github.com/ahs3/dsd once it is operational. As I understand it
+> >> the project is brand new. It may take several months to begin accepting
+> >> submissions. In the mean time, we could potentially include
+> >> documentation in a reply to this thread, the cover of the next series, a
+> >> wiki page on codeaurora.org, a file in Documentation (perhaps to be
+> >> replaced by ACPICA style imports of the OS-neutral DSD project or a git
+> >> submodule) or potentially other means. Please let us know what you think
+> >> is sufficient.
+> > 
+> > As you are reusing part of the DT binding, it seems appropriate to put
+> > the documentation for this into the binding documentation in the kernel.
 > 
+> My understanding is that in the device tree case, the input/source clock
+> frequency is assumed to be run-time managed through Global Clock
+> Controller (GCC) code and the common clock framework.
 > 
-> [    3.028771] i801_smbus 0000:00:1f.3: SMBus using PCI Interrupt
-> [...]
-> [  240.172009] INFO: task modprobe:267 blocked for more than 120 seconds.
+> drivers/i2c/busses/i2c-qup.c:1549
+> 
+> src_clk_freq = clk_get_rate(qup->clk);
+> 
+> So a given I2C device tree entry points to the GCC device tree entry,
+> but there isn't an explicit, fixed input/source clock frequency value.
 
-Most likely SMBus interrupts do not work properly on this machine.
-Since then a number of improvements have been committed to the i2c-i801
-driver to detect and workaround corner cases in this area. If you still
-have this machine, you may want to try to upgrade to kernel v3.19 or
-later and see if it helps.
+Correct.
 
-Alternatively the stand-alone driver at
-  http://jdelvare.nerim.net/devel/lm-sensors/drivers/i2c-i801/
-can be built for your current kernel.
+> arch/arm64/boot/dts/qcom/msm8916.dtsi:310
+> 
+> blsp_i2c2: i2c@78b6000 {
+>         compatible = "qcom,i2c-qup-v2.2.1";
+>         reg = <0x78b6000 0x1000>;
+>         interrupts = <GIC_SPI 96 0>;
+>         clocks = <&gcc GCC_BLSP1_AHB_CLK>,
+>                 <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>;
+>         clock-names = "iface", "core";
+>         pinctrl-names = "default", "sleep";
+>         pinctrl-0 = <&i2c2_default>;
+>         pinctrl-1 = <&i2c2_sleep>;
+>         #address-cells = <1>;
+>         #size-cells = <0>;
+>         status = "disabled";
+> };
+> 
+> On the other hand, when ACPI is in use, the driver assumes a fixed
+> input/source clock frequency value, which it tries to look up as a
+> device property.
 
--- 
-Jean Delvare
-SUSE L3 Support
+Also correct.
+ 
+> (I'm out of my depth here, so somebody please correct me if I've
+> described this wrong.)
+
+What I'm saying was that the binding file could just document both
+cases as alternatives. We prefer to specify the clocks directly
+when using a dtb, but for the driver one of the two is ok, and
+the ACPI documentation will already have to refer to the DT binding
+for the other properties, so I think it makes sense to describe
+both the "clocks" and "src-clock-hz" properties in the same document
+as optional properties and clarify that at least one of the two
+is requried.
+
+Note that we have traditionally used "clock-frequency" as the
+property name for the input clock frequency in DT bindings that
+predate the generic clock handling (e.g. 8250 uarts on IBM Power
+servers), so we could use the same here.
+
+	Arnd
