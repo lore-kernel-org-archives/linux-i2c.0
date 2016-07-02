@@ -1,44 +1,310 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v5 6/8] efi: load SSTDs from EFI variables
-Date: Sat, 2 Jul 2016 10:18:30 +0200
-Message-ID: <CAMuHMdXG2=1RBaVipW_piizZSWduiUyFLGM+45AnqRttr80S5A@mail.gmail.com>
-References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com> <1467404352-27101-7-git-send-email-octavian.purdila@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: frowand.list@gmail.com
+Subject: [RFC PATCH 0/1] Portable Device Tree Connector -- conceptual
+Date: Sat,  2 Jul 2016 16:55:49 -0700
+Message-ID: <1467503750-31703-1-git-send-email-frowand.list@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f66.google.com ([209.85.214.66]:33416 "EHLO
-	mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751128AbcGBISc (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jul 2016 04:18:32 -0400
-In-Reply-To: <1467404352-27101-7-git-send-email-octavian.purdila@intel.com>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:32791 "EHLO
+	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751469AbcGBX4O (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jul 2016 19:56:14 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, irina.tirdea@intel.com, Crestez Dan Leonard <leonard.crestez@intel.com>
+To: robh+dt@kernel.org, david@gibson.dropbear.id.au, pantelis.antoniou@konsulko.com, stephen.boyd@linaro.org, broonie@kernel.org, grant.likely@secretlab.ca, mark.rutland@arm.com
+Cc: mporter@konsulko.com, koen@dominion.thruhere.net, linux@roeck-us.net, marex@denx.de, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, panto@antoniou-consulting.com
 
-On Fri, Jul 1, 2016 at 10:19 PM, Octavian Purdila
-<octavian.purdila@intel.com> wrote:
-> --- a/drivers/firmware/efi/efi.c
-> +++ b/drivers/firmware/efi/efi.c
+From: Frank Rowand <frank.rowand@am.sony.com>
 
-> @@ -195,6 +198,85 @@ static void generic_ops_unregister(void)
->         efivars_unregister(&generic_efivars);
->  }
->
-> +#if IS_ENABLED(CONFIG_ACPI)
-> +#define EFIVAR_SSDT_NAME_MAX   16
-> +static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX];
+Hi All,
 
-I think efivar_ssdt[] is used from __init functions only, so it can be
-__initdata.
+This is version 2 of this email.
 
-Gr{oetje,eeting}s,
+Changes from version 1:
 
-                        Geert
+  - some rewording of the text
+  - removed new (theoretical) dtc directive "/connector/"
+  - added compatibility between mother board and daughter board
+  - added info on applying a single .dtbo to different connectors
+  - attached an RFC patch showing the required kernel changes
+  - changes to mother board .dts connector node:
+     - removed target_path property
+     - added connector-socket property
+  - changes to daughter board .dts connector node:
+     - added connector-plug property
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+I've been trying to wrap my head around what Pantelis and Rob have written
+on the subject of a device tree representation of a connector for a
+daughter board to connect to (eg a cape or a shield) and the representation
+of the daughter board.  (Or any other physically pluggable object.)
+
+After trying to make sense of what had been written (or presented via slides
+at a conference - thanks Pantelis!), I decided to go back to first principals
+of what we are trying to accomplish.  I came up with some really simple bogus
+examples to try to explain what my thought process is.
+
+This is an extremely simple example to illustrate the concepts.  It is not
+meant to represent the complexity of a real board.
+
+To start with, assume that the device that will eventually be on a daughter
+board is first soldered onto the mother board.  The mother board contains
+two devices connected via bus spi_1.  One device is described in the .dts
+file, the other is described in an included .dtsi file.
+Then the device tree files will look like:
+
+$ cat board.dts
+/dts-v1/;
+
+/ {
+        #address-cells = < 1 >;
+        #size-cells = < 1 >;
+
+        tree_1: soc@0 {
+                reg = <0x0 0x0>;
+
+                spi_1: spi1 {
+                };
+        };
+
+};
+
+&spi_1 {
+        ethernet-switch@0 {
+                compatible = "micrel,ks8995m";
+        };
+};
+
+#include "spi_codec.dtsi"
+
+
+$ cat spi_codec.dtsi
+&spi_1 {
+	codec@1 {
+		compatible = "ti,tlv320aic26";
+	};
+};
+
+
+#----- codec chip on cape
+
+Then suppose I move the codec chip to a cape.  Then I will have the same
+exact .dts and .dtsi and everything still works.
+
+
+@----- codec chip on cape, overlay
+
+If I want to use overlays, I only have to add the version and "/plugin/",
+then use the '-@' flag for dtc (both for the previous board.dts and
+this spi_codec_overlay.dts):
+
+$ cat spi_codec_overlay.dts
+/dts-v1/;
+
+/plugin/;
+
+&spi_1 {
+	codec@1 {
+		compatible = "ti,tlv320aic26";
+	};
+};
+
+
+Pantelis pointed out that the syntax has changed to be:
+   /dts-v1/ /plugin/;
+
+
+#----- codec chip on cape, overlay, connector
+
+Now we move into the realm of connectors.  My mental model of what the
+hardware and driver look like has not changed.  The only thing that has
+changed is that I want to be able to specify that the connector that
+the cape is plugged into has some pins that are the spi bus /soc/spi1.
+
+The following _almost_ but not quite gets me what I want.  Note that
+the only thing the connector node does is provide some kind of
+pointer or reference to what node(s) are physically routed through
+the connector.  The connector node does not need to describe the pins;
+it only has to point to the node that describes the pins.
+
+This example will turn out to be not sufficient.  It is a stepping
+stone in building my mental model.
+
+$ cat board_with_connector.dts
+/dts-v1/;
+
+/ {
+	#address-cells = < 1 >;
+	#size-cells = < 1 >;
+
+	tree_1: soc@0 {
+		reg = <0x0 0x0>;
+
+		spi_1: spi1 {
+		};
+	};
+
+	connector_1: connector_1 {
+		spi1 {
+			target_phandle = <&spi_1>;
+		};
+	};
+
+};
+
+&spi_1 {
+	ethernet-switch@0 {
+		compatible = "micrel,ks8995m";
+	};
+};
+
+
+$ cat spi_codec_overlay_with_connector.dts
+/dts-v1/;
+
+/plugin/;
+
+&connector_1 {
+	spi1 {
+		codec@1 {
+			compatible = "ti,tlv320aic26";
+		};
+	};
+};
+
+
+The result is that the overlay fixup for spi1 on the cape will
+relocate the spi1 node to /connector_1 in the host tree, so
+this does not solve the connector linkage yet:
+
+-- chunk from the decompiled board_with_connector.dtb:
+
+	__symbols__ {
+		connector_1 = "/connector_1";
+	};
+
+-- chunk from the decompiled spi_codec_overlay_with_connector.dtb:
+
+	fragment@0 {
+		target = <0xffffffff>;
+		__overlay__ {
+			spi1 {
+				codec@1 {
+					compatible = "ti,tlv320aic26";
+				};
+			};
+		};
+	};
+	__fixups__ {
+		connector_1 = "/fragment@0:target:0";
+	};
+
+
+After applying the overlay, the codec@1 node will be at
+/connector_1/spi1/codec@1.  What I want is for that node
+to be at /spi1/codec@1.
+
+
+
+#----- magic new syntax
+
+What I really want is some way to tell dtc that I want to do one
+level of dereferencing when resolving the path of device nodes
+contained by the connector node in the overlay dts.
+
+Version 1 of this email suggested using dtc magic to do this extra
+level of dereferencing.  This version of the email has changed to
+have the kernel code that applies the overlay do the extra level
+of dereferencing.
+
+The property "connector-socket" tells the kernel overlay code
+that this is a socket.  The overlay code does not actually
+do anything special as a result of this property; it is simply
+used as a sanity check that this node really is a socket.  The
+person writing the mother board .dts must provide the
+target_phandle property, which points to a node responsible for
+some of the pins on the connector.
+
+The property "connector-plug" tells the kernel overlay code
+that each child node in the overlay corresponds to a node in the
+socket, and the socket will contain one property that is
+a phandle pointing to the node that is the target of that child
+node in the overlay node.
+
+
+$ cat board_with_connector_v2.dts
+
+/dts-v1/;
+
+/ {
+	#address-cells = < 1 >;
+	#size-cells = < 1 >;
+
+	tree_1: soc@0 {
+		reg = <0x0 0x0>;
+
+		spi_1: spi1 {
+		};
+	};
+
+	connector_1: connector_1 {
+		compatible = "11-pin-accessory";
+		connector-socket;
+		spi1 {
+			target_phandle = <&spi_1>;
+		};
+	};
+
+};
+
+&spi_1 {
+	ethernet-switch@0 {
+		compatible = "micrel,ks8995m";
+	};
+};
+
+
+$ cat spi_codec_overlay_with_connector_v2.dts
+
+/dts-v1/;
+
+/plugin/;
+
+&connector_1 {
+	connector-plug;
+	compatible = "11-pin-accessory";
+
+	spi1 {
+		codec@1 {
+			compatible = "ti,tlv320aic26";
+		};
+	};
+};
+
+
+The spi_codec_overlay_with_connector_v2.dtb __fixups__ information
+is unchanged from the previous example, but the kernel overlay
+code will do the correct extra level of dereferencing when it
+detects the connector-plug property in the overlay.
+
+The one remaining piece that this patch does not provide is how
+the overlay manager (which does not yet exist in the mainline
+tree) can apply an overlay to two different targets.  That
+final step should be a trivial change to of_overlay_create(),
+adding a parameter that is a mapping of the target (or maybe
+even targets) in the overlay to different targets in the
+active device tree.
+
+This seems like a more straight forward way to handle connectors.
+
+First, ignoring pinctrl and pinmux, what does everyone think?
+
+Then, the next step is whether pinctrl and pinmux work with this method.
+Pantelis, can you point me to a good example for
+
+  1) an in-tree board dts file
+  2) an overlay file (I am assuming out of tree) that applies to the board
+  3) an in-tree .dtsi file that would provide the same features as
+     the overlay file if it was included by the board dts file
+
+It should be easier to discuss pinctrl and pinmux with an example.
+
+-Frank
