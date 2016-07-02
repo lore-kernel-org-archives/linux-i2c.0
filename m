@@ -1,67 +1,44 @@
-From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Subject: Re: [PATCH v2 1/2] Documentation: Add sbs-manager device tree node
- documentation
-Date: Fri, 01 Jul 2016 23:49:31 +0200
-Message-ID: <1467409771.9121.38.camel@amnesix>
-References: <1bFnWI-0000MX-9R>
-	 <1467317142-14063-1-git-send-email-karl-heinz@schneider-inet.de>
-	 <1467317142-14063-2-git-send-email-karl-heinz@schneider-inet.de>
-	 <20160630225217.GA11555@earth>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v5 6/8] efi: load SSTDs from EFI variables
+Date: Sat, 2 Jul 2016 10:18:30 +0200
+Message-ID: <CAMuHMdXG2=1RBaVipW_piizZSWduiUyFLGM+45AnqRttr80S5A@mail.gmail.com>
+References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com> <1467404352-27101-7-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from schneider-inet.de ([85.214.76.205]:36266 "EHLO
-	h1714509.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751900AbcGAVtl (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Jul 2016 17:49:41 -0400
-In-Reply-To: <20160630225217.GA11555@earth>
+Received: from mail-it0-f66.google.com ([209.85.214.66]:33416 "EHLO
+	mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751128AbcGBISc (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jul 2016 04:18:32 -0400
+In-Reply-To: <1467404352-27101-7-git-send-email-octavian.purdila@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, irina.tirdea@intel.com, Crestez Dan Leonard <leonard.crestez@intel.com>
 
-Hi Sebastian,
+On Fri, Jul 1, 2016 at 10:19 PM, Octavian Purdila
+<octavian.purdila@intel.com> wrote:
+> --- a/drivers/firmware/efi/efi.c
+> +++ b/drivers/firmware/efi/efi.c
 
-Am Freitag, den 01.07.2016, 00:52 +0200 schrieb Sebastian Reichel:
-> Hi,
-> 
-> On Thu, Jun 30, 2016 at 10:05:41PM +0200, Karl-Heinz Schneider wrote:
-> > This patch adds device tree documentation for the sbs-manager
-> > 
-> > Reviewed-by: Phil Reid <preid@electromag.com.au>
-> > Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> > ---
-> >  .../devicetree/bindings/power/sbs,sbs-manager.txt  | 52 ++++++++++++++++++++++
-> >  1 file changed, 52 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
-> > new file mode 100644
-> > index 0000000..1d7e5ee
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
-> > @@ -0,0 +1,52 @@
-> > +Binding for sbs-manager
-> > +
-> > +Required properties:
-> > +- compatible: should be "lltc,ltc1760" or use "sbs,sbs-manager" as fallback.
-> > +- reg: integer, i2c address of the device. Should be <0xa>.
-> > +
-> > +From OS view the device is basically an i2c-mux used to communicate with up to
-> > +four smart battery devices at address 0xb. The driver actually implements this
-> > +behaviour. So standard i2c-mux nodes can be used to register up to four slave
-> > +batteries. Channels will be numerated as 1, 2, 4 and 8.
-> 
-> I think it's better to use channel 1-4 and do the translation in the
-> driver's channel select method. It means one does not have to worry
-> about anybody accidently configuring channel 3 and it also maps
-> nicely to the datasheet talking about BAT1-BAT4.
-You're not the first one pointing that out... Will fix that in the next
-revision.
+> @@ -195,6 +198,85 @@ static void generic_ops_unregister(void)
+>         efivars_unregister(&generic_efivars);
+>  }
+>
+> +#if IS_ENABLED(CONFIG_ACPI)
+> +#define EFIVAR_SSDT_NAME_MAX   16
+> +static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX];
 
-> 
-> -- Sebastian
+I think efivar_ssdt[] is used from __init functions only, so it can be
+__initdata.
 
--- 
-Greetings
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
