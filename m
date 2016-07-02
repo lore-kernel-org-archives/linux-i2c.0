@@ -1,12 +1,14 @@
 From: frowand.list@gmail.com
-Subject: [RFC PATCH 0/1] Portable Device Tree Connector -- conceptual
-Date: Sat,  2 Jul 2016 16:55:49 -0700
-Message-ID: <1467503750-31703-1-git-send-email-frowand.list@gmail.com>
+Subject: [RFC PATCH 1/1] device tree connectors, using plugs and sockets.
+Date: Sat,  2 Jul 2016 16:55:50 -0700
+Message-ID: <1467503750-31703-2-git-send-email-frowand.list@gmail.com>
+References: <1467503750-31703-1-git-send-email-frowand.list@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:32791 "EHLO
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:32795 "EHLO
 	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751469AbcGBX4O (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jul 2016 19:56:14 -0400
+	with ESMTP id S1752456AbcGBX4P (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 2 Jul 2016 19:56:15 -0400
+In-Reply-To: <1467503750-31703-1-git-send-email-frowand.list@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: robh+dt@kernel.org, david@gibson.dropbear.id.au, pantelis.antoniou@konsulko.com, stephen.boyd@linaro.org, broonie@kernel.org, grant.likely@secretlab.ca, mark.rutland@arm.com
@@ -14,276 +16,18 @@ Cc: mporter@konsulko.com, koen@dominion.thruhere.net, linux@roeck-us.net, marex@
 
 From: Frank Rowand <frank.rowand@am.sony.com>
 
-Hi All,
-
-This is version 2 of this email.
-
-Changes from version 1:
-
-  - some rewording of the text
-  - removed new (theoretical) dtc directive "/connector/"
-  - added compatibility between mother board and daughter board
-  - added info on applying a single .dtbo to different connectors
-  - attached an RFC patch showing the required kernel changes
-  - changes to mother board .dts connector node:
-     - removed target_path property
-     - added connector-socket property
-  - changes to daughter board .dts connector node:
-     - added connector-plug property
-
-
-I've been trying to wrap my head around what Pantelis and Rob have written
-on the subject of a device tree representation of a connector for a
-daughter board to connect to (eg a cape or a shield) and the representation
-of the daughter board.  (Or any other physically pluggable object.)
-
-After trying to make sense of what had been written (or presented via slides
-at a conference - thanks Pantelis!), I decided to go back to first principals
-of what we are trying to accomplish.  I came up with some really simple bogus
-examples to try to explain what my thought process is.
-
-This is an extremely simple example to illustrate the concepts.  It is not
-meant to represent the complexity of a real board.
-
-To start with, assume that the device that will eventually be on a daughter
-board is first soldered onto the mother board.  The mother board contains
-two devices connected via bus spi_1.  One device is described in the .dts
-file, the other is described in an included .dtsi file.
-Then the device tree files will look like:
-
-$ cat board.dts
-/dts-v1/;
-
-/ {
-        #address-cells = < 1 >;
-        #size-cells = < 1 >;
-
-        tree_1: soc@0 {
-                reg = <0x0 0x0>;
-
-                spi_1: spi1 {
-                };
-        };
-
-};
-
-&spi_1 {
-        ethernet-switch@0 {
-                compatible = "micrel,ks8995m";
-        };
-};
-
-#include "spi_codec.dtsi"
-
-
-$ cat spi_codec.dtsi
-&spi_1 {
-	codec@1 {
-		compatible = "ti,tlv320aic26";
-	};
-};
-
-
-#----- codec chip on cape
-
-Then suppose I move the codec chip to a cape.  Then I will have the same
-exact .dts and .dtsi and everything still works.
-
-
-@----- codec chip on cape, overlay
-
-If I want to use overlays, I only have to add the version and "/plugin/",
-then use the '-@' flag for dtc (both for the previous board.dts and
-this spi_codec_overlay.dts):
-
-$ cat spi_codec_overlay.dts
-/dts-v1/;
-
-/plugin/;
-
-&spi_1 {
-	codec@1 {
-		compatible = "ti,tlv320aic26";
-	};
-};
-
-
-Pantelis pointed out that the syntax has changed to be:
-   /dts-v1/ /plugin/;
-
-
-#----- codec chip on cape, overlay, connector
-
-Now we move into the realm of connectors.  My mental model of what the
-hardware and driver look like has not changed.  The only thing that has
-changed is that I want to be able to specify that the connector that
-the cape is plugged into has some pins that are the spi bus /soc/spi1.
-
-The following _almost_ but not quite gets me what I want.  Note that
-the only thing the connector node does is provide some kind of
-pointer or reference to what node(s) are physically routed through
-the connector.  The connector node does not need to describe the pins;
-it only has to point to the node that describes the pins.
-
-This example will turn out to be not sufficient.  It is a stepping
-stone in building my mental model.
-
-$ cat board_with_connector.dts
-/dts-v1/;
-
-/ {
-	#address-cells = < 1 >;
-	#size-cells = < 1 >;
-
-	tree_1: soc@0 {
-		reg = <0x0 0x0>;
-
-		spi_1: spi1 {
-		};
-	};
-
-	connector_1: connector_1 {
-		spi1 {
-			target_phandle = <&spi_1>;
-		};
-	};
-
-};
-
-&spi_1 {
-	ethernet-switch@0 {
-		compatible = "micrel,ks8995m";
-	};
-};
-
-
-$ cat spi_codec_overlay_with_connector.dts
-/dts-v1/;
-
-/plugin/;
-
-&connector_1 {
-	spi1 {
-		codec@1 {
-			compatible = "ti,tlv320aic26";
-		};
-	};
-};
-
-
-The result is that the overlay fixup for spi1 on the cape will
-relocate the spi1 node to /connector_1 in the host tree, so
-this does not solve the connector linkage yet:
-
--- chunk from the decompiled board_with_connector.dtb:
-
-	__symbols__ {
-		connector_1 = "/connector_1";
-	};
-
--- chunk from the decompiled spi_codec_overlay_with_connector.dtb:
-
-	fragment@0 {
-		target = <0xffffffff>;
-		__overlay__ {
-			spi1 {
-				codec@1 {
-					compatible = "ti,tlv320aic26";
-				};
-			};
-		};
-	};
-	__fixups__ {
-		connector_1 = "/fragment@0:target:0";
-	};
-
-
-After applying the overlay, the codec@1 node will be at
-/connector_1/spi1/codec@1.  What I want is for that node
-to be at /spi1/codec@1.
-
-
-
-#----- magic new syntax
-
-What I really want is some way to tell dtc that I want to do one
-level of dereferencing when resolving the path of device nodes
-contained by the connector node in the overlay dts.
-
-Version 1 of this email suggested using dtc magic to do this extra
-level of dereferencing.  This version of the email has changed to
-have the kernel code that applies the overlay do the extra level
-of dereferencing.
-
-The property "connector-socket" tells the kernel overlay code
-that this is a socket.  The overlay code does not actually
-do anything special as a result of this property; it is simply
-used as a sanity check that this node really is a socket.  The
-person writing the mother board .dts must provide the
-target_phandle property, which points to a node responsible for
-some of the pins on the connector.
-
-The property "connector-plug" tells the kernel overlay code
-that each child node in the overlay corresponds to a node in the
-socket, and the socket will contain one property that is
-a phandle pointing to the node that is the target of that child
-node in the overlay node.
-
-
-$ cat board_with_connector_v2.dts
-
-/dts-v1/;
-
-/ {
-	#address-cells = < 1 >;
-	#size-cells = < 1 >;
-
-	tree_1: soc@0 {
-		reg = <0x0 0x0>;
-
-		spi_1: spi1 {
-		};
-	};
-
-	connector_1: connector_1 {
-		compatible = "11-pin-accessory";
-		connector-socket;
-		spi1 {
-			target_phandle = <&spi_1>;
-		};
-	};
-
-};
-
-&spi_1 {
-	ethernet-switch@0 {
-		compatible = "micrel,ks8995m";
-	};
-};
-
-
-$ cat spi_codec_overlay_with_connector_v2.dts
-
-/dts-v1/;
-
-/plugin/;
-
-&connector_1 {
-	connector-plug;
-	compatible = "11-pin-accessory";
-
-	spi1 {
-		codec@1 {
-			compatible = "ti,tlv320aic26";
-		};
-	};
-};
-
-
-The spi_codec_overlay_with_connector_v2.dtb __fixups__ information
-is unchanged from the previous example, but the kernel overlay
-code will do the correct extra level of dereferencing when it
-detects the connector-plug property in the overlay.
+This patch has been compiled but has not been booted.  It is likely
+to contain bugs.
+
+Problem: mother boards may contain multiple connectors that daughter
+boards may be attached to.  If two of the daughter boards can be
+described by the same .dtsi file, then it should be possible to
+apply the same .dtbo overlay file for each of the boards, specifying
+a different target connector for each board.
+
+This patch provides the foundation to allow that to occur, by
+creating the two halves of a connector, the socket on the mother
+board and the plug on the daughter board.
 
 The one remaining piece that this patch does not provide is how
 the overlay manager (which does not yet exist in the mainline
@@ -293,18 +37,234 @@ adding a parameter that is a mapping of the target (or maybe
 even targets) in the overlay to different targets in the
 active device tree.
 
-This seems like a more straight forward way to handle connectors.
+Signed-off-by: Frank Rowand <frank.rowand@am.sony.com>
+---
+ drivers/of/overlay.c | 141 ++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 118 insertions(+), 23 deletions(-)
 
-First, ignoring pinctrl and pinmux, what does everyone think?
-
-Then, the next step is whether pinctrl and pinmux work with this method.
-Pantelis, can you point me to a good example for
-
-  1) an in-tree board dts file
-  2) an overlay file (I am assuming out of tree) that applies to the board
-  3) an in-tree .dtsi file that would provide the same features as
-     the overlay file if it was included by the board dts file
-
-It should be easier to discuss pinctrl and pinmux with an example.
-
--Frank
+diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
+index 82250815e9a5..df9b0097a1e1 100644
+--- a/drivers/of/overlay.c
++++ b/drivers/of/overlay.c
+@@ -25,8 +25,9 @@
+ 
+ /**
+  * struct of_overlay_info - Holds a single overlay info
+- * @target:	target of the overlay operation
+- * @overlay:	pointer to the overlay contents node
++ * @target:		target of the overlay operation
++ * @overlay:		pointer to the overlay contents node
++ * @plug_targets:	pointer to array of plug target pointers
+  *
+  * Holds a single overlay state, including all the overlay logs &
+  * records.
+@@ -34,6 +35,7 @@
+ struct of_overlay_info {
+ 	struct device_node *target;
+ 	struct device_node *overlay;
++	struct device_node **plug_targets;
+ };
+ 
+ /**
+@@ -54,7 +56,8 @@ struct of_overlay {
+ };
+ 
+ static int of_overlay_apply_one(struct of_overlay *ov,
+-		struct device_node *target, const struct device_node *overlay);
++		struct device_node *target, const struct device_node *overlay,
++		bool plug_node, struct of_overlay_info *ovinfo);
+ 
+ static int of_overlay_apply_single_property(struct of_overlay *ov,
+ 		struct device_node *target, struct property *prop)
+@@ -97,7 +100,7 @@ static int of_overlay_apply_single_device_node(struct of_overlay *ov,
+ 	tchild = of_get_child_by_name(target, cname);
+ 	if (tchild != NULL) {
+ 		/* apply overlay recursively */
+-		ret = of_overlay_apply_one(ov, tchild, child);
++		ret = of_overlay_apply_one(ov, tchild, child, false, NULL);
+ 		of_node_put(tchild);
+ 	} else {
+ 		/* create empty tree as a target */
+@@ -112,7 +115,7 @@ static int of_overlay_apply_single_device_node(struct of_overlay *ov,
+ 		if (ret)
+ 			return ret;
+ 
+-		ret = of_overlay_apply_one(ov, tchild, child);
++		ret = of_overlay_apply_one(ov, tchild, child, false, NULL);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -128,33 +131,108 @@ static int of_overlay_apply_single_device_node(struct of_overlay *ov,
+  * by using the changeset.
+  */
+ static int of_overlay_apply_one(struct of_overlay *ov,
+-		struct device_node *target, const struct device_node *overlay)
++		struct device_node *target, const struct device_node *overlay,
++		bool plug_node, struct of_overlay_info *ovinfo)
+ {
+-	struct device_node *child;
++	struct device_node *overlay_child;
++	struct device_node *plug_target;
+ 	struct property *prop;
+ 	int ret;
++	u32 val;
+ 
+-	for_each_property_of_node(overlay, prop) {
+-		ret = of_overlay_apply_single_property(ov, target, prop);
+-		if (ret) {
+-			pr_err("%s: Failed to apply prop @%s/%s\n",
+-				__func__, target->full_name, prop->name);
+-			return ret;
++	if (!plug_node) {
++		for_each_property_of_node(overlay, prop) {
++			ret = of_overlay_apply_single_property(ov, target, prop);
++			if (ret) {
++				pr_err("%s: Failed to apply prop @%s/%s\n",
++					__func__, target->full_name, prop->name);
++				return ret;
++			}
+ 		}
+ 	}
+ 
+-	for_each_child_of_node(overlay, child) {
+-		ret = of_overlay_apply_single_device_node(ov, target, child);
+-		if (ret != 0) {
+-			pr_err("%s: Failed to apply single node @%s/%s\n",
+-					__func__, target->full_name,
+-					child->name);
+-			of_node_put(child);
+-			return ret;
++	if (plug_node) {
++		struct device_node *socket_child;
++		int child_cnt = 0;
++
++		if (WARN_ON(!ovinfo))
++			return -EINVAL;
++
++		for_each_child_of_node(overlay->child, overlay_child) {
++			child_cnt++;
++		}
++		/* plug_targets[] is NULL terminated */
++		child_cnt++;
++		ovinfo->plug_targets = kcalloc(child_cnt,
++					       sizeof(*ovinfo->plug_targets),
++					       GFP_KERNEL);
++
++		child_cnt = 0;
++		for_each_child_of_node(overlay->child, overlay_child) {
++
++			socket_child = of_get_child_by_name(target,
++							    overlay_child->name);
++			ret = of_property_read_u32(socket_child,
++						   "target_phandle", &val);
++			of_node_put(socket_child);
++			if (ret != 0)
++				goto overlay_child;
++			plug_target = of_find_node_by_phandle(val);
++			if (!plug_target)
++				goto overlay_child;
++			/* save for of_node_put() in of_free_overlay_info() */
++			ovinfo->plug_targets[child_cnt++] = plug_target;
++
++			ret = of_overlay_apply_single_device_node(ov, plug_target,
++								  overlay_child);
++			if (ret != 0)
++				goto plug_target;
++		}
++
++	} else {
++		for_each_child_of_node(overlay, overlay_child) {
++			ret = of_overlay_apply_single_device_node(ov, target,
++								  overlay_child);
++			if (ret != 0)
++				goto overlay_child;
+ 		}
+ 	}
+ 
+ 	return 0;
++
++plug_target:
++	of_node_put(plug_target);
++overlay_child:
++	of_node_put(overlay_child);
++	return ret;
++}
++
++static bool plug_compatible(struct device_node *overlay,
++			    struct device_node *target)
++{
++	struct property *prop_plug;
++	struct property *prop_socket;
++	const char *c_plug;
++	const char *c_socket;
++	bool socket_node;
++
++	socket_node = of_property_read_bool(target, "connector-socket");
++	if (!socket_node)
++		return false;
++
++	prop_plug = of_find_property(overlay, "compatible", NULL);
++	prop_socket = of_find_property(target, "compatible", NULL);
++
++	for (c_socket = of_prop_next_string(prop_plug, NULL); c_socket;
++	     c_socket = of_prop_next_string(prop_plug, c_socket)) {
++		for (c_plug = of_prop_next_string(prop_plug, NULL); c_plug;
++		     c_plug = of_prop_next_string(prop_plug, c_plug)) {
++			if (!of_compat_cmp(c_plug, c_socket, strlen(c_plug)))
++				return true;
++		}
++	}
++
++	return false;
+ }
+ 
+ /**
+@@ -168,13 +246,24 @@ static int of_overlay_apply_one(struct of_overlay *ov,
+  */
+ static int of_overlay_apply(struct of_overlay *ov)
+ {
+-	int i, err;
++	int i, err = 0;
++	bool plug_node = false;
+ 
+ 	/* first we apply the overlays atomically */
+ 	for (i = 0; i < ov->count; i++) {
+ 		struct of_overlay_info *ovinfo = &ov->ovinfo_tab[i];
+ 
+-		err = of_overlay_apply_one(ov, ovinfo->target, ovinfo->overlay);
++		plug_node = of_property_read_bool(ovinfo->overlay,
++						  "connector-plug");
++		if (plug_node) {
++			if (!plug_compatible(ovinfo->target, ovinfo->overlay))
++				err = -ENODEV;
++		}
++
++		if (err == 0)
++			err = of_overlay_apply_one(ov, ovinfo->target,
++						   ovinfo->overlay, plug_node,
++						   ovinfo);
+ 		if (err != 0) {
+ 			pr_err("%s: overlay failed '%s'\n",
+ 				__func__, ovinfo->target->full_name);
+@@ -309,6 +398,7 @@ static int of_build_overlay_info(struct of_overlay *ov,
+ static int of_free_overlay_info(struct of_overlay *ov)
+ {
+ 	struct of_overlay_info *ovinfo;
++	struct device_node **plug_targets;
+ 	int i;
+ 
+ 	/* do it in reverse */
+@@ -317,6 +407,11 @@ static int of_free_overlay_info(struct of_overlay *ov)
+ 
+ 		of_node_put(ovinfo->target);
+ 		of_node_put(ovinfo->overlay);
++		plug_targets = ovinfo->plug_targets;
++		while (*plug_targets != NULL) {
++			of_node_put(*plug_targets);
++			plug_targets++;
++		}
+ 	}
+ 	kfree(ov->ovinfo_tab);
+ 
+-- 
+1.9.1
