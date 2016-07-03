@@ -1,51 +1,50 @@
-From: Frank Rowand <frowand.list@gmail.com>
-Subject: Re: [RFC PATCH 0/1] Portable Device Tree Connector -- conceptual
-Date: Sat, 2 Jul 2016 23:06:43 -0700
-Message-ID: <5778AB73.2030603@gmail.com>
-References: <1467503750-31703-1-git-send-email-frowand.list@gmail.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v5 5/8] spi: add support for ACPI reconfigure
+ notifications
+Date: Sun, 3 Jul 2016 14:10:49 +0200
+Message-ID: <20160703121049.GM6247@sirena.org.uk>
+References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
+ <1467404352-27101-6-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1467503750-31703-1-git-send-email-frowand.list@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, david@gibson.dropbear.id.au, pantelis.antoniou@konsulko.com, stephen.boyd@linaro.org, broonie@kernel.org, grant.likely@secretlab.ca, mark.rutland@arm.com
-Cc: mporter@konsulko.com, koen@dominion.thruhere.net, linux@roeck-us.net, marex@denx.de, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, panto@antoniou-consulting.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="N/EvDld9rH7KvG42"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:38474 "EHLO
+	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752063AbcGCMLR (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 3 Jul 2016 08:11:17 -0400
+Content-Disposition: inline
+In-Reply-To: <1467404352-27101-6-git-send-email-octavian.purdila@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, irina.tirdea@intel.com, leonard.crestez@intel.com
 
-On 07/02/16 16:55, frowand.list@gmail.com wrote:
-> From: Frank Rowand <frank.rowand@am.sony.com>
-> 
-> Hi All,
-> 
-> This is version 2 of this email.
 
-< snip >
+--N/EvDld9rH7KvG42
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> The one remaining piece that this patch does not provide is how
-> the overlay manager (which does not yet exist in the mainline
-> tree) can apply an overlay to two different targets.  That
-> final step should be a trivial change to of_overlay_create(),
-> adding a parameter that is a mapping of the target (or maybe
-> even targets) in the overlay to different targets in the
-> active device tree.
-> 
-> This seems like a more straight forward way to handle connectors.
-> 
-> First, ignoring pinctrl and pinmux, what does everyone think?
-> 
-> Then, the next step is whether pinctrl and pinmux work with this method.
-> Pantelis, can you point me to a good example for
-> 
->   1) an in-tree board dts file
->   2) an overlay file (I am assuming out of tree) that applies to the board
->   3) an in-tree .dtsi file that would provide the same features as
->      the overlay file if it was included by the board dts file
-> 
-> It should be easier to discuss pinctrl and pinmux with an example.
+On Fri, Jul 01, 2016 at 11:19:09PM +0300, Octavian Purdila wrote:
+> This patch adds supports for SPI device enumeration and removal via
+> ACPI reconfiguration notifications that are send as a result of an
+> ACPI table load or unload operation.
 
-And I should have added that there are other complexities beyond
-pinctrl and pinmux that are not addressed.  Baby steps first,
-before the whole enchilada.
+Acked-by: Mark Brown <broonie@kernel.org>
 
--Frank
+--N/EvDld9rH7KvG42
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXeQDCAAoJECTWi3JdVIfQCogH/iI53CIKhH7n1rZmVFEhPqXL
+1I1PeKA1D9kcDMCgQKE3TJ1xw2+PxwQAtrb1HrBual7vkKFcq+idl5dh3T+mZnFT
+qPFdiPiZYBwaVQ+7mBD5pG/DcutRs2bFA89bvqBRtSjrTgQfZO/GI4LpVLFsAukg
+KSLdl4OnS9RbZHiaaoeAe/pSmTKz8V3vv+SrQbsXz9ZPMusLkQ/RhqS6+CBJYdlt
+TvQPTXjjzqhgVMxcJxAbO9Vj4jjLkEeF3/ShtNdl6nWJm5+bmOfafIIBxm99WAC1
+V/UVA3Ul2lHrR0rQjrxCaTq+6cTxpOzjtJI42IDD6GM+CZ5AcN9AZ1GgHChEwYY=
+=mWKT
+-----END PGP SIGNATURE-----
+
+--N/EvDld9rH7KvG42--
