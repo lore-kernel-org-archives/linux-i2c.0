@@ -1,81 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 4/8] i2c: add support for ACPI reconfigure
- notifications
-Date: Mon, 4 Jul 2016 09:34:15 +0900
-Message-ID: <20160704003414.GB1381@tetsubishi>
-References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
- <1467404352-27101-5-git-send-email-octavian.purdila@intel.com>
+From: Eric Anholt <eric@anholt.net>
+Subject: Re: [PATCH] i2c: bcm2835: Set up the clock stretching timeout at boot.
+Date: Sun, 03 Jul 2016 18:02:32 -0700
+Message-ID: <87lh1ip653.fsf@eliezer.anholt.net>
+References: <1464818845-5348-1-git-send-email-eric@anholt.net> <20160704003118.GA1381@tetsubishi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1467404352-27101-5-git-send-email-octavian.purdila@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Joel Becker <jlbec@evilplan.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, irina.tirdea@intel.com, leonard.crestez@intel.com
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anholt.net ([50.246.234.109]:41610 "EHLO anholt.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932182AbcGDBCl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 3 Jul 2016 21:02:41 -0400
+In-Reply-To: <20160704003118.GA1381@tetsubishi>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, linux-i2c@vger.kernel.org
 
+--=-=-=
+Content-Type: text/plain
 
---LyciRD1jyfeSSjG0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wolfram Sang <wsa@the-dreams.de> writes:
 
-On Fri, Jul 01, 2016 at 11:19:08PM +0300, Octavian Purdila wrote:
-> This patch adds supports for I2C device enumeration and removal via
-> ACPI reconfiguration notifications that are send as a result of an
-> ACPI table load or unload operation.
->=20
-> The code is very similar with the device tree reconfiguration code
-> with only small differences in the way we test and set the enumerated
-> state of the device:
->=20
->  * the equivalent of device tree's OF_POPULATED flag is the
->    flags.visited field in the ACPI device and the following
->    wrappers are used to manipulate it: acpi_device_enumerated(),
->    acpi_device_set_enumerated() and acpi_device_clear_enumerated()
->=20
->  * the device tree code checks of status of the OF_POPULATED flag to
->    avoid trying to create duplicate Linux devices in two places: once
->    when the controller is probed, and once when the reconfigure event
->    is received; in the ACPI code the check is performed only once when
->    the ACPI namespace is searched because this code path is invoked in
->    both of the two mentioned cases
->=20
-> The rest of the enumeration handling is similar with device tree: when
-> the Linux device is unregistered the ACPI device is marked as not
-> enumerated; also, when a device remove notification is received we
-> check that the device is in the enumerated state before continuing
-> with the removal of the Linux device.
->=20
-> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>> +	/*
+>> +	 * SMBUS says "Devices participating in a transfer will
+>> +	 * timeout when any clock low exceeds the value of
+>> +	 * T_TIMEOUT,MIN of 25 ms."
+>> +	 */
+>
+> SMBus has that timeout, but I2C doesn't. How about disabling the timeout
+> simply? Or using the max value if you want to keep the timeout
+> detection?
 
-It has Mika's ack already, but to make sure:
+Disabling the timeout seems fine to me.  We still have a 1-second
+timeout around the entire transfer.  I'll be back on my DSI branch this
+week and test it out then.
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-
---LyciRD1jyfeSSjG0
+--=-=-=
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXea8FAAoJEBQN5MwUoCm2gsYP/ifulwtMHVRioaK+UNuc2jDz
-S/swdbsc1HJYOy59m6SjOQOnG+qxJX1JSIfNFsKeUnNvyoeGki8sddKwZpuzv0qY
-t0HZkgTNuNfv7oxmL3/GmTQHHZyfqEuIkn41DQXHDaShFzzWohAndHIWVUaLdfBC
-BGHOwCJkeouke+/I13/Ro3DhyEKkx4NqKz5tbw0Va+o60ntR6mcDv0DNnNHa7qdA
-gtG6M/rhGmDKEbF72LgAITonEycKtdJrjL/BxyBEDxlhxDDPWl2dkMNQgbwKDuBa
-9ofYKT5Vze5TyYAHnEHwvAoyBDUvK8UyECH3f/Fd5sUAE5IIuSatXcUFJIcHoRJa
-9Z7oRvrp3q/Fcm71n4+z5YJHH9yKuVpJ1QzpnwmpxKNOxh081ifAqn0WCtbnWj9d
-Ds4P0SMdLU7MGr62T8tOkC8jJwsbpzzdZrJvk6+ppR+Iruq6/JjYBcFhmzeCqKt9
-8cWpLBJUUYyTuMxZR6oSP4OFKoTVPsxK1K8aSDZHBI1lQGK4jNxRySFrUNCksKCk
-dxyFFDgFXY/5MZrbp/54d1w15ncuvjUyyFkkVc/+1DcG/LAfe2thKl//RngIbvR7
-wQIQzffZN+EX/epKzvb/4TH2G9PIPgqFow8sqoQnTqynNzaYWH4jBtQycBjqrCtU
-oTIYNMfU88Lrhhz/AuMA
-=WWwN
+iQIcBAEBCgAGBQJXebWoAAoJELXWKTbR/J7o0lAQALCgOZnj2QvweW21cuIzEkIO
+9HwdrNoUMDE3DkC4zP111mKH3oa45wnf7fZh8EF2dIBJqQh6xZmkVIneJ4x0crNb
+pbPX3fMV6eb6tFZB5Fr2lg6eeP9pLvcaZKNNI1R6L8UTHeycSIP04SnflqF8zoZm
+z1s91Edp3PEICRKpCfn5D8qQM/93Odu51t/Y4+PpNHfCTbZA6/9AImGv+xsJ8ZWU
+JV4dMf65C+HyTrl9nx41W3LHX79LIYrSeCfPNhTfxplwLeo8LdU58+KPk0xT0lvr
+4ZqeZ48zcmTZ9wxm0QHMrGgbraze/g/ykIMufz/I9PA+qgFxp0dJNRjXM2HMD5/M
+iRkERJ1U2fyWiBmEVekT3f1bdlN1+kPqix4ZQJ9Fbd7dDgeml43LwPhBvoIzw00H
+snN1m8MTTJOLsyOD+J8jB8lLDhZLN4GyBeEVw9D4m5pWqrWf0JpSwRx1yNUIFrEp
+EVh4nrwpmJsIk0TZitIkW/4LOlHZdnG54ifXwodHG6Nmxz3VYqwcZ+aUxLEwzrZp
+IsNztLLRndw0+WqcuWiN67VxCcxxYYHm6c8iZM1n8yreo9/1DDqZkM5MBDKzZdw/
+BzDxb97JLuz+SKWClhCkewiF9RDhM+2efYW/Q1Li8Y8teWtxT0EENI0JRtsfSyex
+PItN14bWXFMIwwnenirR
+=HNBt
 -----END PGP SIGNATURE-----
-
---LyciRD1jyfeSSjG0--
+--=-=-=--
