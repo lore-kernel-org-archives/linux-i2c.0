@@ -1,81 +1,55 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
- PCI BAR
-Date: Mon, 4 Jul 2016 10:22:12 +0200
-Message-ID: <20160704102212.319cfd8e@endymion>
-References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com>
-	<20160608162913.GA24234@mail.corp.redhat.com>
-	<20160613111946.54779d0d@endymion>
-	<20160613094500.GY29844@pali>
-	<20160613094618.GG1791@lahna.fi.intel.com>
-	<20160613094830.GZ29844@pali>
-	<20160613095404.GH1791@lahna.fi.intel.com>
-	<20160624161238.0fc748ad@endymion>
-	<20160629103951.GX1711@lahna.fi.intel.com>
+Subject: Re: New location for i2c-tools.git
+Date: Mon, 4 Jul 2016 10:31:47 +0200
+Message-ID: <20160704103147.51185bdf@endymion>
+References: <1434710432-4182-2-git-send-email-wsa@the-dreams.de>
+	<20160427173308.GN7946@pengutronix.de>
+	<20160619195641.GD26875@pengutronix.de>
+	<20160621111255.1a27363e@endymion>
+	<20160622185252.5ecfdf1d@endymion>
+	<20160623073249.GM26875@pengutronix.de>
+	<CA+TH9VkztGak0FugD0zLgOigBope5pT4FheQJkqhvg3xrnUxcw@mail.gmail.com>
+	<20160623115314.1e20f84f@endymion>
+	<CA+TH9VkXPFBgAiLHwx+_B96RRYMmtG-Kc_5qN-0Ps6FceBrVhg@mail.gmail.com>
+	<20160623194016.6d89dc01@endymion>
+	<20160623185000.GA1611@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39883 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:41146 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750895AbcGDIWR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 4 Jul 2016 04:22:17 -0400
-In-Reply-To: <20160629103951.GX1711@lahna.fi.intel.com>
+	id S1753062AbcGDIbu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 4 Jul 2016 04:31:50 -0400
+In-Reply-To: <20160623185000.GA1611@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Pali =?UTF-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Angelo Compagnucci <angelo.compagnucci@gmail.com>, Uwe =?UTF-8?B?S2xl?= =?UTF-8?B?aW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-Hi Mika,
+Hi Wolfram,
 
-On Wed, 29 Jun 2016 13:39:51 +0300, Mika Westerberg wrote:
-> On Fri, Jun 24, 2016 at 04:12:38PM +0200, Jean Delvare wrote:
-> > I think Pali is correct. The only purpose of handling the region is to
-> > detect that it is being accessed so we can set priv->acpi_reserved.
-> > Once it is set, i801_acpi_io_handler becomes transparent: it forwards
-> > the requests without doing anything with them. The very same would
-> > happen if we would unregister the handler at that point, but without the
-> > extra overhead.
-> > 
-> > So while the current code does work fine, unregistering the handler
-> > when we set priv->acpi_reserved would be more optimal.
-> > 
-> > Unless both Pali and myself are missing something, that is.
+On Thu, 23 Jun 2016 20:50:00 +0200, Wolfram Sang wrote:
+> > The only remaining problem is that some files have occurrences of $Id$,
+> > $Revision$ and $Date$, which SVN would replace on the fly but git does
+> > not. Not sure what to do with them, replace them with something git
+> > supports (not sure that exists?), or discard them.
 > 
-> I'm not sure unregistering the handler actually resets back to the
-> default handler.
+> Discard them, I'd say. You have all the history on your disk, so you
+> have all the information from there.
 
-I'm no ACPI expert. I read the code of
-acpi_remove_address_space_handler() and a few other related ACPI
-functions and can't claim I understood it all. But indeed it doesn't
-look like it restores the original behavior. Probably
-acpi_install_address_space_handler(..., ACPI_ADR_SPACE_SYSTEM_IO,
-ACPI_DEFAULT_HANDLER, ...) should be used instead.
+For C source files, I agree, these keywords are useless.
 
-This raises another question though: if
-acpi_remove_address_space_handler() doesn't restore the previous
-behavior then we shouldn't be calling it when the driver is being
-unloaded either. As I understand it, it breaks the ACPI handling of the
-device.
+The problem is for scripts, like decode-dimms (and sensors-detect, for
+the lm-sensors part.) We can't "#include <version.h>" from these, and
+my experience is that including a "manual" version string in such
+scripts doesn't work because we tend to forget to update it (can
+probably be addressed with some discipline.)
 
-However I can't test it, as the installed handler is never called
-on my system. Can anyone test unloading the i2c-i801 driver on a system
-where ACPI actually accesses the device?
-
-After looking at the ACPI code, I am no longer convinced that restoring
-the default handler would improve performance. The default handler
-itself (acpi_ex_system_io_space_handler) has a lot of overhead. OTOH
-this makes me wonder if it is really correct to call
-acpi_os_read_port() and acpi_os_write_port() directly.
-acpi_ex_system_io_space_handler() calls acpi_hw_read_port() and
-acpi_hw_write_port() which perform additional checks. Actually it would
-seem safer to call acpi_ex_system_io_space_handler() instead... if it
-was exported. Oh well.
-
-> Besides, this patch has been already merged for a while
-> so it requires a followup patch on top.
-
-Correct, whatever we do.
+Also including the date turned out to be very convenient to figure out
+quickly if a user report was from a recent enough version of the script
+(particularly useful for sensors-detect, of which the latest snapshot
+was available for direct download and in-place execution.)
 
 -- 
 Jean Delvare
