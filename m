@@ -1,50 +1,55 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v5 5/8] spi: add support for ACPI reconfigure
- notifications
-Date: Sun, 3 Jul 2016 14:10:49 +0200
-Message-ID: <20160703121049.GM6247@sirena.org.uk>
-References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
- <1467404352-27101-6-git-send-email-octavian.purdila@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: bcm2835: Set up the clock stretching timeout at
+ boot.
+Date: Mon, 4 Jul 2016 09:31:19 +0900
+Message-ID: <20160704003118.GA1381@tetsubishi>
+References: <1464818845-5348-1-git-send-email-eric@anholt.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="N/EvDld9rH7KvG42"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:38474 "EHLO
-	mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752063AbcGCMLR (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 3 Jul 2016 08:11:17 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1467404352-27101-6-git-send-email-octavian.purdila@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1464818845-5348-1-git-send-email-eric@anholt.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eric Anholt <eric@anholt.net>
+Cc: linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, irina.tirdea@intel.com, leonard.crestez@intel.com
 
 
---N/EvDld9rH7KvG42
+--VS++wcV0S1rZb1Fb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Jul 01, 2016 at 11:19:09PM +0300, Octavian Purdila wrote:
-> This patch adds supports for SPI device enumeration and removal via
-> ACPI reconfiguration notifications that are send as a result of an
-> ACPI table load or unload operation.
+> +	/*
+> +	 * SMBUS says "Devices participating in a transfer will
+> +	 * timeout when any clock low exceeds the value of
+> +	 * T_TIMEOUT,MIN of 25 ms."
+> +	 */
 
-Acked-by: Mark Brown <broonie@kernel.org>
+SMBus has that timeout, but I2C doesn't. How about disabling the timeout
+simply? Or using the max value if you want to keep the timeout
+detection?
 
---N/EvDld9rH7KvG42
+
+--VS++wcV0S1rZb1Fb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v1
 
-iQEcBAEBCAAGBQJXeQDCAAoJECTWi3JdVIfQCogH/iI53CIKhH7n1rZmVFEhPqXL
-1I1PeKA1D9kcDMCgQKE3TJ1xw2+PxwQAtrb1HrBual7vkKFcq+idl5dh3T+mZnFT
-qPFdiPiZYBwaVQ+7mBD5pG/DcutRs2bFA89bvqBRtSjrTgQfZO/GI4LpVLFsAukg
-KSLdl4OnS9RbZHiaaoeAe/pSmTKz8V3vv+SrQbsXz9ZPMusLkQ/RhqS6+CBJYdlt
-TvQPTXjjzqhgVMxcJxAbO9Vj4jjLkEeF3/ShtNdl6nWJm5+bmOfafIIBxm99WAC1
-V/UVA3Ul2lHrR0rQjrxCaTq+6cTxpOzjtJI42IDD6GM+CZ5AcN9AZ1GgHChEwYY=
-=mWKT
+iQIcBAEBAgAGBQJXea5WAAoJEBQN5MwUoCm25yQP/0SVdel/LnOpqFx9mEXo+SSt
+Mt5jBziDwWlFmO+65C7K5qML9egszemXnSxE09i+pHUUMWWQu5V9yMwSFsYsxpTR
+seh7dvxo93AfON17zCz/KCxGyyZQAB5qk+tkSe5+6de0bpy+Two35tCAc8k/jeFE
+HCRxKlF6rYhY7OraY0whdViVhLtOPlnqcXuFJyegFANxzAwNRxwjguSnPBgYBYdz
+wav+opWhon8M1dE1R+Z+NJ5gLq4IjiLOFrxf88PsYhRJAuGc254j/AgPe1YVR1vU
+gpyDjZ3ulkjAV3iDRFp0+wZLLkAWtKDYeFFGAF+SLefdAEjwynheZWRQQGhHLE1G
+NsATIED8SmfVvwU1mJNuwZantepNO72K9KjlR6tmwLrKwPG5wW4CV+9dL/58kexT
+anBZqDc7aj2TNlSkGppKHb6PuY5Terzw+NJEoZ9JuW4b0Y1mMg7FN+TSZExvypLN
+vYGGUaI1vDI94zmifJOG2EQYiwvEjjBIjtZnQWZwwiDWTas69HhVkFKYZp9rFWOH
+Cj+hcB7kS9D/NAB6ZQcCgl1YzMUybcgxIHrUN3PpzZEDBfInCjj45xbk1TVLoPU9
+3c2wzY8o6gM47lo01Vx8JciOurw/Lor0G29+XXhBNf44Opa/nu0JVRgIycQ1tYde
+63NiRnttMz1zrw30gkcE
+=7pli
 -----END PGP SIGNATURE-----
 
---N/EvDld9rH7KvG42--
+--VS++wcV0S1rZb1Fb--
