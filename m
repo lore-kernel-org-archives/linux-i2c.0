@@ -1,55 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: bcm2835: Set up the clock stretching timeout at
- boot.
-Date: Mon, 4 Jul 2016 09:31:19 +0900
-Message-ID: <20160704003118.GA1381@tetsubishi>
-References: <1464818845-5348-1-git-send-email-eric@anholt.net>
+Subject: Re: [PATCH v5 4/8] i2c: add support for ACPI reconfigure
+ notifications
+Date: Mon, 4 Jul 2016 09:34:15 +0900
+Message-ID: <20160704003414.GB1381@tetsubishi>
+References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
+ <1467404352-27101-5-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1464818845-5348-1-git-send-email-eric@anholt.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eric Anholt <eric@anholt.net>
-Cc: linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, linux-i2c@vger.kernel.org
+In-Reply-To: <1467404352-27101-5-git-send-email-octavian.purdila@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Joel Becker <jlbec@evilplan.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, irina.tirdea@intel.com, leonard.crestez@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---VS++wcV0S1rZb1Fb
+--LyciRD1jyfeSSjG0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +	/*
-> +	 * SMBUS says "Devices participating in a transfer will
-> +	 * timeout when any clock low exceeds the value of
-> +	 * T_TIMEOUT,MIN of 25 ms."
-> +	 */
+On Fri, Jul 01, 2016 at 11:19:08PM +0300, Octavian Purdila wrote:
+> This patch adds supports for I2C device enumeration and removal via
+> ACPI reconfiguration notifications that are send as a result of an
+> ACPI table load or unload operation.
+>=20
+> The code is very similar with the device tree reconfiguration code
+> with only small differences in the way we test and set the enumerated
+> state of the device:
+>=20
+>  * the equivalent of device tree's OF_POPULATED flag is the
+>    flags.visited field in the ACPI device and the following
+>    wrappers are used to manipulate it: acpi_device_enumerated(),
+>    acpi_device_set_enumerated() and acpi_device_clear_enumerated()
+>=20
+>  * the device tree code checks of status of the OF_POPULATED flag to
+>    avoid trying to create duplicate Linux devices in two places: once
+>    when the controller is probed, and once when the reconfigure event
+>    is received; in the ACPI code the check is performed only once when
+>    the ACPI namespace is searched because this code path is invoked in
+>    both of the two mentioned cases
+>=20
+> The rest of the enumeration handling is similar with device tree: when
+> the Linux device is unregistered the ACPI device is marked as not
+> enumerated; also, when a device remove notification is received we
+> check that the device is in the enumerated state before continuing
+> with the removal of the Linux device.
+>=20
+> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-SMBus has that timeout, but I2C doesn't. How about disabling the timeout
-simply? Or using the max value if you want to keep the timeout
-detection?
+It has Mika's ack already, but to make sure:
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
 
---VS++wcV0S1rZb1Fb
+--LyciRD1jyfeSSjG0
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXea5WAAoJEBQN5MwUoCm25yQP/0SVdel/LnOpqFx9mEXo+SSt
-Mt5jBziDwWlFmO+65C7K5qML9egszemXnSxE09i+pHUUMWWQu5V9yMwSFsYsxpTR
-seh7dvxo93AfON17zCz/KCxGyyZQAB5qk+tkSe5+6de0bpy+Two35tCAc8k/jeFE
-HCRxKlF6rYhY7OraY0whdViVhLtOPlnqcXuFJyegFANxzAwNRxwjguSnPBgYBYdz
-wav+opWhon8M1dE1R+Z+NJ5gLq4IjiLOFrxf88PsYhRJAuGc254j/AgPe1YVR1vU
-gpyDjZ3ulkjAV3iDRFp0+wZLLkAWtKDYeFFGAF+SLefdAEjwynheZWRQQGhHLE1G
-NsATIED8SmfVvwU1mJNuwZantepNO72K9KjlR6tmwLrKwPG5wW4CV+9dL/58kexT
-anBZqDc7aj2TNlSkGppKHb6PuY5Terzw+NJEoZ9JuW4b0Y1mMg7FN+TSZExvypLN
-vYGGUaI1vDI94zmifJOG2EQYiwvEjjBIjtZnQWZwwiDWTas69HhVkFKYZp9rFWOH
-Cj+hcB7kS9D/NAB6ZQcCgl1YzMUybcgxIHrUN3PpzZEDBfInCjj45xbk1TVLoPU9
-3c2wzY8o6gM47lo01Vx8JciOurw/Lor0G29+XXhBNf44Opa/nu0JVRgIycQ1tYde
-63NiRnttMz1zrw30gkcE
-=7pli
+iQIcBAEBAgAGBQJXea8FAAoJEBQN5MwUoCm2gsYP/ifulwtMHVRioaK+UNuc2jDz
+S/swdbsc1HJYOy59m6SjOQOnG+qxJX1JSIfNFsKeUnNvyoeGki8sddKwZpuzv0qY
+t0HZkgTNuNfv7oxmL3/GmTQHHZyfqEuIkn41DQXHDaShFzzWohAndHIWVUaLdfBC
+BGHOwCJkeouke+/I13/Ro3DhyEKkx4NqKz5tbw0Va+o60ntR6mcDv0DNnNHa7qdA
+gtG6M/rhGmDKEbF72LgAITonEycKtdJrjL/BxyBEDxlhxDDPWl2dkMNQgbwKDuBa
+9ofYKT5Vze5TyYAHnEHwvAoyBDUvK8UyECH3f/Fd5sUAE5IIuSatXcUFJIcHoRJa
+9Z7oRvrp3q/Fcm71n4+z5YJHH9yKuVpJ1QzpnwmpxKNOxh081ifAqn0WCtbnWj9d
+Ds4P0SMdLU7MGr62T8tOkC8jJwsbpzzdZrJvk6+ppR+Iruq6/JjYBcFhmzeCqKt9
+8cWpLBJUUYyTuMxZR6oSP4OFKoTVPsxK1K8aSDZHBI1lQGK4jNxRySFrUNCksKCk
+dxyFFDgFXY/5MZrbp/54d1w15ncuvjUyyFkkVc/+1DcG/LAfe2thKl//RngIbvR7
+wQIQzffZN+EX/epKzvb/4TH2G9PIPgqFow8sqoQnTqynNzaYWH4jBtQycBjqrCtU
+oTIYNMfU88Lrhhz/AuMA
+=WWwN
 -----END PGP SIGNATURE-----
 
---VS++wcV0S1rZb1Fb--
+--LyciRD1jyfeSSjG0--
