@@ -1,64 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: tegra: Correct error path in probe
-Date: Wed, 6 Jul 2016 00:22:09 +0900
-Message-ID: <20160705152208.GC3641@tetsubishi>
-References: <1465936007-18599-1-git-send-email-jonathanh@nvidia.com>
+Subject: Re: [PATCH v2] i2c: i2c-mux-reg: wrong condition checked for
+ of_address_to_resource return value
+Date: Wed, 6 Jul 2016 00:32:00 +0900
+Message-ID: <20160705153200.GD3641@tetsubishi>
+References: <20160627092144.GA20023@nokia.com>
+ <20160627092624.GC1602@katana>
+ <20160627105747.GA20280@nokia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rQ2U398070+RC21q"
+	protocol="application/pgp-signature"; boundary="LTeJQqWS0MN7I/qa"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:48592 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:48608 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755208AbcGEPWX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 5 Jul 2016 11:22:23 -0400
+	id S1751544AbcGEPcJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 5 Jul 2016 11:32:09 -0400
 Content-Disposition: inline
-In-Reply-To: <1465936007-18599-1-git-send-email-jonathanh@nvidia.com>
+In-Reply-To: <20160627105747.GA20280@nokia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Shardar Shariff Md <smohammed@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Lukasz Gemborowski <lukasz.gemborowski@nokia.com>
+Cc: peda@axentia.se, linux-i2c@vger.kernel.org, alexander.sverdlin@nokia.com
 
 
---rQ2U398070+RC21q
+--LTeJQqWS0MN7I/qa
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 14, 2016 at 09:26:46PM +0100, Jon Hunter wrote:
-> Commit 497fbe24987b ("i2c: tegra: enable multi master mode for tegra210")
-> enables the Tegra I2C 'div_clk' for adapters using the multi-master mode
-> during the device probe. Although the probe error path was updated to
-> disable the clock on probe failure, there is one place after calling
-> tegra_i2c_init() where the clock will not be disabled on failure. Correct
-> the error path so that the 'div_clk' is disabled if calling
-> tegra_i2c_init() fails.
+On Mon, Jun 27, 2016 at 12:57:47PM +0200, Lukasz Gemborowski wrote:
+> of_address_to_resource return 0 on successful call but
+> devm_ioremap_resource is called only if it returns non-zero value
 >=20
-> Fixes: 497fbe24987b ("i2c: tegra: enable multi master mode for tegra210")
->=20
-> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+> Signed-off-by: Lukasz Gemborowski <lukasz.gemborowski@nokia.com>
+> Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
 Applied to for-current, thanks!
 
 
---rQ2U398070+RC21q
+--LTeJQqWS0MN7I/qa
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXe9CgAAoJEBQN5MwUoCm2+2wQAK9j2Bvh9dqorxuWTk8kpJ9D
-HT2XZaCn5mb68Gr62O9v1MCcHtEoYv0/f+bzPjxlkaQRxClZrJNHiSEne63t0ht1
-ITx+x+cNjrDyZH9+X7atXy/EUauaB426/CfqJBIXWyeZJguZRWCckzbBq2OY0wWq
-Qo/kTH0r4Xno0BG/t0bmlnuj+Qwafx//qTzxD6Udo3hD4qvEaPv8mn1kCNBHm4vK
-bACqg0XGtS6UHKUVqUWXrrq4bhvpVZs8s1bt6AHsHHIeQpCWdbnp5aArfWlHhZun
-+S1wA0VVYVnOGvioG7HEJNw0F1BGX/LjzjxVfMNRHRl9uuRk9srLph+rLxkBQa6a
-1oXB4fFS1l5+igHkwND7XECMHpHszxa4wzf5g8LC/eAFcD7AoitJyAUIUcTZK+wJ
-8L5zOWMFV+Il5JE4N5tTmTBThDkZBwcfBgmRr83xVctF3TI3tHkcBJGLrR8Cbqd7
-HT3KXXHeSyMZHCYlQXjktJ3dS8jD7AYOmUk8t3GG6zVmJXyAd0mOWbWkxJeZdsB+
-rD5sqlL8+aed/sQ3dQR9NL5L3joiDAzmxsRcQqskRF8u+Rf/L1wzajZiAg64uwRZ
-yf8kbcrKFB6xJ/jSx+f/AnbQxMgru6vlWIFbwzfclxHqoSVDSUhAY1cAbJlUXlHR
-WUcoYgY17GRbmYdb/0FN
-=ttie
+iQIcBAEBAgAGBQJXe9LvAAoJEBQN5MwUoCm2Nn0P/2HIQp+pyAWnhk1f6Z7Fh/C/
+aIPAxA90vIPrd1TXFxIY8C+KwipsqdRiWJfENtNDU9ztswlkY201Udo20Hdurd3l
+rI1FMXjC2VgYfGz/LQtXvMThFdvdB7SO1ERyvr/54P2x+ghLQSqE7W3tgdLiNZPu
+pCw3as6bW3v+9skVZcnsdm/xM6BCwUWPBfnF05dyLgAhFKHFCnHOQBnChTkUE5nI
+CdqTfzRJroFkwFNGsudKl0we9CkNLfrGHMSF5w15VcX3iX0Y7WQkOY5bTtpbREHG
+iS/ct8NIumMOxVBx18JlHFw8zVxIDQpSHwpdKxEWkEhnvJsN6HrEoFnVev4JODMP
+SMt2P1szET38ZT4uEju5x3itYQtkxIyv6qWvnmlQn/FAfhmmhSCleGt2KNWoDC+q
+UELZr+APqdHSxN20sOfxYv8XbfUDq3qijWU2TivV0EbI42YDZsDPsXsLxWThc0pS
+OPuwzbGjdhFSBsPwWK7rj1+WT6QnF4bi75YLZwLUNbeJ/DhQx0TeKk5uO304sOn4
+k26RYlhfeCoORd7GSuNc4geBXQCBCxYLGddivPQ1YMvx5ZsZdvcnOdvGu5riMwtG
+jj1gpKo9BakMMB/IfqSVCgoJWBC3/kpN9I13FVhfYWzSt/hvkIUkd4p71N8xCzEw
+67hf1n2JDWfi14/VOTe7
+=rZ8f
 -----END PGP SIGNATURE-----
 
---rQ2U398070+RC21q--
+--LTeJQqWS0MN7I/qa--
