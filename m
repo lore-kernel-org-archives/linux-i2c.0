@@ -1,45 +1,85 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
- PCI BAR
-Date: Tue, 5 Jul 2016 17:31:15 +0300
-Message-ID: <20160705143115.GP23527@lahna.fi.intel.com>
-References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com>
- <20160705115142.GO23527@lahna.fi.intel.com>
- <201607051356.58794@pali>
- <201607051400.58881@pali>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/6] Implement I2C restart handler
+Date: Tue, 5 Jul 2016 23:58:41 +0900
+Message-ID: <20160705145839.GA3641@tetsubishi>
+References: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:63021 "EHLO mga11.intel.com"
+Received: from sauhun.de ([89.238.76.85]:48532 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754372AbcGEObV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 5 Jul 2016 10:31:21 -0400
+	id S1751544AbcGEO6w (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 5 Jul 2016 10:58:52 -0400
 Content-Disposition: inline
-In-Reply-To: <201607051400.58881@pali>
+In-Reply-To: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Martin Vajnar <martin.vajnar@gmail.com>, Dominique Leuenberger <dimstar@opensuse.org>
+To: Stefan Christ <s.christ@phytec.de>
+Cc: linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Tue, Jul 05, 2016 at 02:00:58PM +0200, Pali Roh=E1r wrote:
-> On Tuesday 05 July 2016 13:56:58 Pali Roh=E1r wrote:
-> > On Tuesday 05 July 2016 13:51:42 Mika Westerberg wrote:
-> > > So are you able to test what happens when you unload the driver?
-> >=20
-> > As I wrote in previous email, I do not own these EliteBooks anymore=
-,
-> > so cannot test it. Just have DSDT dump...
+
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+> this is a request for feedback about a lockdep-warning-free I2C
+> restart_handler.  I would like to know whether someone had the problem al=
+ready
+> and how the best and mainline friendliest solution looks like.
+> I have an embedded board with the PMIC chip DA9063 that is also used as a
+> voltage regulator for DVFS. For a clean reboot/reset of the system I have=
+ to
+> set the bit nSHUTDOWN in the PMIC via I2C. The restart_handler call chain
+> is of type
 >=20
-> What about contacting last contributors to hp_accel.c driver? They=20
-> probably could test i801 changes if accelerometer still works.
+>     static ATOMIC_NOTIFIER_HEAD(restart_handler_list);
+>=20
+> So any code running as a restart_handler cannot (should not) wait, for ot=
+her
+> locks. When you use i2c_transfer/regmap you get lockdep warnings like [1].
 
-Good idea.
+Yes, this problem has come up occasionally. And it is not only about
+sleeping. IRQs are disabled, too.
 
-Added Martin and Dominique who did the last additions to that driver
-(hp_accel.c).
+My idea was to introduce master_xfer_irqless or similar to struct
+i2c_algorithm. I even discussed this shortly with Mark Brown how to
+interact with regmap; but this was too long ago, so I forgot what we
+agreed on :(
 
-Do you guys still have your HP machines around? If yes, maybe you can
-try v4.7-rc3+ (it should include commit a7ae81952cda ("i2c: i801: Allow
-ACPI SystemIO OpRegion to conflict with PCI BAR")) so that you unload
-i2c-i801.ko and see if accelerometer still works?
+> Any comments?=20
+
+I just skimmed very lightly over the patchset. Yet, seeing an I2C client
+messing directly with 'struct adapter' breaks so many abstractions, it
+hits my instant-NACK nerve ;)
+
+Thanks,
+
+   Wolfram
+
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXe8sfAAoJEBQN5MwUoCm2MjsQAKFZb+8MHf6pr9BOgVeozgDb
+uLRVqoNJDWV9wVDPUShXkKbl0GJA+SORJb4iNWOQu+IV04T6ndtjbhxjfDnXDsSj
+iG/3nEhotkhEJiwDnafWtko+fwLOoPLJfbqf61KususjDQumqNblmePPKfcVZCtl
+SAzlUXaNweXguD4XECtPdUm/w7Vy4sk3gJI1YtWMQDCUHIZtwLNiYcXR7lcmlsqC
+BoEDgCanYc3rfsQiBqQcAvjKfzUL3ppwcp13sSFB5N/QRdiq46lRB+KOC5HXeVHK
+L4/HoOex/OrGbUiDK+XBLn4+93wl48y8Z8FSaA+nBgE/V+CUWDLc7Wp4MutloiAV
+JWhs+Zis+KCTsZoUr9X7/4JBBCOaaSJByHKStaPpBiOJX0e/WirogoMTM/1VMCgj
+M+DDu73zTHOfogOFVXIifPYGRRTMCQyFCSsqhPZZGrQGlBYFwB0W5Gef9tg37Wud
+M2L0rAAaYYZVX3uvGyJ3rlxSg4U3bnzmTriRq9q9lORYJz8/LSw30d+LZN5+/dkP
+pkHHk02Ol6kXuE1EogNgXiPTdM72ekfFD4uFG6wwrFdT0NvUWXr3JYRMTWPGGMiQ
+EddNr64Yyl9clGVQCuga2fx+7tRk0bt6N8aQ56h8rD1IkvS1qelXTs+G145yn86o
+4ujm5aJGFa01IL7JOQ7q
+=5/2o
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--
