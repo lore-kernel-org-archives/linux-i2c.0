@@ -1,64 +1,75 @@
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Subject: Re: portable device tree connector -- problem statement
-Date: Tue, 5 Jul 2016 21:04:40 +0300
-Message-ID: <BAC6B4B6-37E3-4A35-83D4-76BCE43F92D5@konsulko.com>
-References: <577ACE0D.9050700@gmail.com> <20160705083152.GM6247@sirena.org.uk>
+Date: Tue, 5 Jul 2016 21:07:34 +0300
+Message-ID: <FAEEC972-73C1-49DF-8F2E-BC89EFF64E5D@konsulko.com>
+References: <577ACE0D.9050700@gmail.com> <20160705083152.GM6247@sirena.org.uk> <577BC30C.10105@gmail.com>
 Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f43.google.com ([74.125.82.43]:38409 "EHLO
-	mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752079AbcGESEr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Jul 2016 14:04:47 -0400
-Received: by mail-wm0-f43.google.com with SMTP id r201so163239771wme.1
-        for <linux-i2c@vger.kernel.org>; Tue, 05 Jul 2016 11:04:46 -0700 (PDT)
-In-Reply-To: <20160705083152.GM6247@sirena.org.uk>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <577BC30C.10105@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Frank Rowand <frowand.list@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>, Rob Herring <robh+dt@kernel.org>, David Gibson <david@gibson.dropbear.id.au>, stephen.boyd@linaro.org, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, marex@denx.de, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Frank Rowand <frowand.list@gmail.com>, Rob Herring <robh+dt@kernel.org>, David Gibson <david@gibson.dropbear.id.au>, Stephen Boyd <stephen.boyd@linaro.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, Marek Vasut <marex@denx.de>, Wolfram Sang <wsa@the-dreams.de>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-Hi Mark,
+Hi Frank,
 
-> On Jul 5, 2016, at 11:31 , Mark Brown <broonie@kernel.org> wrote:
+> On Jul 5, 2016, at 17:24 , Frank Rowand <frowand.list@gmail.com> wrot=
+e:
 >=20
-> On Mon, Jul 04, 2016 at 01:58:53PM -0700, Frank Rowand wrote:
+> On 07/05/16 01:31, Mark Brown wrote:
+>> On Mon, Jul 04, 2016 at 01:58:53PM -0700, Frank Rowand wrote:
+>>=20
+>>> On the other hand, I have no previous detailed knowledge of the bea=
+gle
+>>> family.
+>>=20
+>> This is in no way specific to the BeagleBones, there's plenty of oth=
+er
+>> boards out there with similar setups like the Raspberry Pi and its
+>> derivatives.
 >=20
->> On the other hand, I have no previous detailed knowledge of the beag=
-le
->> family.
->=20
-> This is in no way specific to the BeagleBones, there's plenty of othe=
+> Yes, absolutely.  I'm just picking on the beaglebones because that is
+> what Pantelis has recently used for examples.  (He has mentioned othe=
 r
-> boards out there with similar setups like the Raspberry Pi and its
-> derivatives. =20
+> connector types and expansion boards in his presentations.)
+>=20
+> And we need to think beyond beaglebone, pi, arduino, and grove=20
+> type of connectors.
+>=20
+> Some other connectors that are obvious are pci and possibly usb.
 >=20
 
-There are a lot of custom vendor boards that use it.
-We need to handle custom board too.
+Yes, in fact a growing number of platforms come with discoverable
+PCI/USB boards which provide the busses and interfaces that
+non-discoverable boards are plugged in.
 
->>    - for bones with the same pinout:
->>      - the pins are routed to different function blocks on the
->>        SOC because different bones may have different SOCs?
->>        - the different functional blocks are compatible or not?
+Think an i2c-bus on pci-e boards on which a number of I2C peripherals
+are located. The Vendor/Product IDs are the same for all these
+expansions boards since the h/w designers do not want to spend money
+on even a dip-switch or EEPROM for the IDs.
+
 >=20
-> This is the general case, there will be a substantial level of
-> compatibility between different base boards by virtue of the pinouts
-> being the same but obviously there will be some variation in the
-> specifics (and even where that exists it may not be enough to be visi=
-ble
-> at the DT level for the most part).  That said there will doubtless b=
-e
-> some plug in modules that want to rely on the specifics of a given ba=
-se
-> board rather than remain compatible with general users of the interfa=
-ce.
-
-Even for plug in modules that need a specific board it is typical that =
-new
-SoCs/boards appear in the future that are backwards compatible.
+>>>    - for bones with the same pinout:
+>>>      - the pins are routed to different function blocks on the
+>>>        SOC because different bones may have different SOCs?
+>>>        - the different functional blocks are compatible or not?
+>>=20
+>> This is the general case, there will be a substantial level of
+>> compatibility between different base boards by virtue of the pinouts
+>> being the same but obviously there will be some variation in the
+>> specifics (and even where that exists it may not be enough to be vis=
+ible
+>> at the DT level for the most part).  That said there will doubtless =
+be
+>> some plug in modules that want to rely on the specifics of a given b=
+ase
+>> board rather than remain compatible with general users of the interf=
+ace.
+>>=20
+>=20
 
 Regards
 
-=E2=80=94 Pantelis
+=97 Pantelis
