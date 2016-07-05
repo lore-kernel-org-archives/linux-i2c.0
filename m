@@ -1,85 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/6] Implement I2C restart handler
-Date: Tue, 5 Jul 2016 23:58:41 +0900
-Message-ID: <20160705145839.GA3641@tetsubishi>
-References: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
+Subject: Re: [PATCH] i2c: tegra: Correct error path in probe
+Date: Wed, 6 Jul 2016 00:22:09 +0900
+Message-ID: <20160705152208.GC3641@tetsubishi>
+References: <1465936007-18599-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+	protocol="application/pgp-signature"; boundary="rQ2U398070+RC21q"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:48532 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:48592 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751544AbcGEO6w (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 5 Jul 2016 10:58:52 -0400
+	id S1755208AbcGEPWX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 5 Jul 2016 11:22:23 -0400
 Content-Disposition: inline
-In-Reply-To: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
+In-Reply-To: <1465936007-18599-1-git-send-email-jonathanh@nvidia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Stefan Christ <s.christ@phytec.de>
-Cc: linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Jon Hunter <jonathanh@nvidia.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Shardar Shariff Md <smohammed@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---ew6BAiZeqk4r7MaW
+--rQ2U398070+RC21q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-> this is a request for feedback about a lockdep-warning-free I2C
-> restart_handler.  I would like to know whether someone had the problem al=
-ready
-> and how the best and mainline friendliest solution looks like.
-> I have an embedded board with the PMIC chip DA9063 that is also used as a
-> voltage regulator for DVFS. For a clean reboot/reset of the system I have=
- to
-> set the bit nSHUTDOWN in the PMIC via I2C. The restart_handler call chain
-> is of type
+On Tue, Jun 14, 2016 at 09:26:46PM +0100, Jon Hunter wrote:
+> Commit 497fbe24987b ("i2c: tegra: enable multi master mode for tegra210")
+> enables the Tegra I2C 'div_clk' for adapters using the multi-master mode
+> during the device probe. Although the probe error path was updated to
+> disable the clock on probe failure, there is one place after calling
+> tegra_i2c_init() where the clock will not be disabled on failure. Correct
+> the error path so that the 'div_clk' is disabled if calling
+> tegra_i2c_init() fails.
 >=20
->     static ATOMIC_NOTIFIER_HEAD(restart_handler_list);
+> Fixes: 497fbe24987b ("i2c: tegra: enable multi master mode for tegra210")
 >=20
-> So any code running as a restart_handler cannot (should not) wait, for ot=
-her
-> locks. When you use i2c_transfer/regmap you get lockdep warnings like [1].
+> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 
-Yes, this problem has come up occasionally. And it is not only about
-sleeping. IRQs are disabled, too.
-
-My idea was to introduce master_xfer_irqless or similar to struct
-i2c_algorithm. I even discussed this shortly with Mark Brown how to
-interact with regmap; but this was too long ago, so I forgot what we
-agreed on :(
-
-> Any comments?=20
-
-I just skimmed very lightly over the patchset. Yet, seeing an I2C client
-messing directly with 'struct adapter' breaks so many abstractions, it
-hits my instant-NACK nerve ;)
-
-Thanks,
-
-   Wolfram
+Applied to for-current, thanks!
 
 
---ew6BAiZeqk4r7MaW
+--rQ2U398070+RC21q
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXe8sfAAoJEBQN5MwUoCm2MjsQAKFZb+8MHf6pr9BOgVeozgDb
-uLRVqoNJDWV9wVDPUShXkKbl0GJA+SORJb4iNWOQu+IV04T6ndtjbhxjfDnXDsSj
-iG/3nEhotkhEJiwDnafWtko+fwLOoPLJfbqf61KususjDQumqNblmePPKfcVZCtl
-SAzlUXaNweXguD4XECtPdUm/w7Vy4sk3gJI1YtWMQDCUHIZtwLNiYcXR7lcmlsqC
-BoEDgCanYc3rfsQiBqQcAvjKfzUL3ppwcp13sSFB5N/QRdiq46lRB+KOC5HXeVHK
-L4/HoOex/OrGbUiDK+XBLn4+93wl48y8Z8FSaA+nBgE/V+CUWDLc7Wp4MutloiAV
-JWhs+Zis+KCTsZoUr9X7/4JBBCOaaSJByHKStaPpBiOJX0e/WirogoMTM/1VMCgj
-M+DDu73zTHOfogOFVXIifPYGRRTMCQyFCSsqhPZZGrQGlBYFwB0W5Gef9tg37Wud
-M2L0rAAaYYZVX3uvGyJ3rlxSg4U3bnzmTriRq9q9lORYJz8/LSw30d+LZN5+/dkP
-pkHHk02Ol6kXuE1EogNgXiPTdM72ekfFD4uFG6wwrFdT0NvUWXr3JYRMTWPGGMiQ
-EddNr64Yyl9clGVQCuga2fx+7tRk0bt6N8aQ56h8rD1IkvS1qelXTs+G145yn86o
-4ujm5aJGFa01IL7JOQ7q
-=5/2o
+iQIcBAEBAgAGBQJXe9CgAAoJEBQN5MwUoCm2+2wQAK9j2Bvh9dqorxuWTk8kpJ9D
+HT2XZaCn5mb68Gr62O9v1MCcHtEoYv0/f+bzPjxlkaQRxClZrJNHiSEne63t0ht1
+ITx+x+cNjrDyZH9+X7atXy/EUauaB426/CfqJBIXWyeZJguZRWCckzbBq2OY0wWq
+Qo/kTH0r4Xno0BG/t0bmlnuj+Qwafx//qTzxD6Udo3hD4qvEaPv8mn1kCNBHm4vK
+bACqg0XGtS6UHKUVqUWXrrq4bhvpVZs8s1bt6AHsHHIeQpCWdbnp5aArfWlHhZun
++S1wA0VVYVnOGvioG7HEJNw0F1BGX/LjzjxVfMNRHRl9uuRk9srLph+rLxkBQa6a
+1oXB4fFS1l5+igHkwND7XECMHpHszxa4wzf5g8LC/eAFcD7AoitJyAUIUcTZK+wJ
+8L5zOWMFV+Il5JE4N5tTmTBThDkZBwcfBgmRr83xVctF3TI3tHkcBJGLrR8Cbqd7
+HT3KXXHeSyMZHCYlQXjktJ3dS8jD7AYOmUk8t3GG6zVmJXyAd0mOWbWkxJeZdsB+
+rD5sqlL8+aed/sQ3dQR9NL5L3joiDAzmxsRcQqskRF8u+Rf/L1wzajZiAg64uwRZ
+yf8kbcrKFB6xJ/jSx+f/AnbQxMgru6vlWIFbwzfclxHqoSVDSUhAY1cAbJlUXlHR
+WUcoYgY17GRbmYdb/0FN
+=ttie
 -----END PGP SIGNATURE-----
 
---ew6BAiZeqk4r7MaW--
+--rQ2U398070+RC21q--
