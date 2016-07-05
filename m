@@ -1,102 +1,64 @@
-From: Frank Rowand <frowand.list@gmail.com>
-Subject: portable device tree connector -- problem statement
-Date: Mon, 4 Jul 2016 13:58:53 -0700
-Message-ID: <577ACE0D.9050700@gmail.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: portable device tree connector -- problem statement
+Date: Tue, 5 Jul 2016 10:31:52 +0200
+Message-ID: <20160705083152.GM6247@sirena.org.uk>
+References: <577ACE0D.9050700@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:33770 "EHLO
-	mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753838AbcGDU7E (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 4 Jul 2016 16:59:04 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="16g62bNiOXHZyjZa"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <577ACE0D.9050700-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, david-xT8FGy+AXnRB3Ne2BGzF6laj5H9X9Tb+@public.gmane.org, stephen.boyd-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, marex-ynQEQJNshbs@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Cc: Rob Herring <robh+dt@kernel.org>, david@gibson.dropbear.id.au, stephen.boyd@linaro.org, broonie@kernel.org, grant.likely@secretlab.ca, Mark Rutland <mark.rutland@arm.com>, mporter@konsulko.com, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, marex@denx.de, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, panto@antoniou-consulting.com
 
-Hi Pantelis,
 
-As I have been trying to understand the proposal for a portable device
-tree connector, I am starting to appreciate the possible complexity of
-the problem you are trying to solve.  I suspect that the details of the
-problem space are something you know a lot about and take for granted.
-On the other hand, I have no previous detailed knowledge of the beagle
-family.
+--16g62bNiOXHZyjZa
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This means that I do not have a functional requirements model to
-evaluate proposals against.
+On Mon, Jul 04, 2016 at 01:58:53PM -0700, Frank Rowand wrote:
 
-The following might or might not be correct, but it is the type
-of information that would help create a functional requirements
-model:
+> On the other hand, I have no previous detailed knowledge of the beagle
+> family.
 
-1) There are several different beaglebone boards
-    - beaglebone, several versions  (does not have P8, P9,
-      so not relevant?)
-    - beaglebone (at least 6 revisions)
-    - beaglebone black (at least 10 revisions)
-    - beaglebone green (adds Grove connectors)
-    - could be others, I don't know
+This is in no way specific to the BeagleBones, there's plenty of other
+boards out there with similar setups like the Raspberry Pi and its
+derivatives. =20
 
-2) The different beaglebones all have two expansion
-   connectors?
-    - all connectors have the same physical specification?
-    - the pinout of the same connectors (P8 and P9)
-      - is the same on all beaglebones?
-      - is different on different beaglebones?
-      - there is a small number of different pinouts?
-      - there is a large number of different pinouts?
-    - for bones with the same pinout:
-      - the pins are routed to different function blocks on the
-        SOC because different bones may have different SOCs?
-        - the different functional blocks are compatible or not?
-      - the pins are routed to different function blocks on the
-        SOC, even though different bones have the same SOC,
-        because that is a design decision by the bone designer?
-    - for bones with a different pinout:
-      - is there an overlap with the pinout of other bones, with
-        just some of the pins having a different definition?
+>     - for bones with the same pinout:
+>       - the pins are routed to different function blocks on the
+>         SOC because different bones may have different SOCs?
+>         - the different functional blocks are compatible or not?
 
-There are a lot of potential functional requirements based on
-the above questions.  This is not meant to be anywhere near
-exhaustive, just illustrative.
+This is the general case, there will be a substantial level of
+compatibility between different base boards by virtue of the pinouts
+being the same but obviously there will be some variation in the
+specifics (and even where that exists it may not be enough to be visible
+at the DT level for the most part).  That said there will doubtless be
+some plug in modules that want to rely on the specifics of a given base
+board rather than remain compatible with general users of the interface.
 
-1) Provide an interface definition that allows a single cape
-P8 definition to work on different versions of host board,
-where the pinout is consistent across the bones, and the
-routing of signals between the SOC (and other chips) to
-the P8 connector is consistent.
+--16g62bNiOXHZyjZa
+Content-Type: application/pgp-signature; name="signature.asc"
 
-2) Provide an interface definition that allows a single cape
-   P8 definition to work on different versions of host board,
-   where the pinout is consistent across the bones, but the
-   routing of signals between the SOC (and other chips) to
-   the P8 connector differs.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-   1a) Same as "1)", but for P9.
-   1b) Same as "1)", but for both P8 and P9.
+iQEcBAEBCAAGBQJXe3B2AAoJECTWi3JdVIfQ+e0H/2kaN1DHfEa1BPMPmuMRjtnt
+WHbX7eA28turg1rpwW+yQazaMTyQre8rBo4TC1jCNaABnxeK3tcUJA7XkcrQRhJ1
+Y5zUbq9yDn31wlN2G1DaSLSEGN1I/yr3EGRReEh3IQjMBI5Bq5VHlX5myG3UDeNy
+syuwh8mINgdSmImdYJ7QZZoZ7RH7/Y1I3+Tx1lUVeAYsJah5Sg9I4bCs2LCYTWME
+VCwH5ZMIbekhHasvADV4baHVLP1yxlf2HA/4O9m6/Xu239jQ47l2OwKbQpE+S2Pd
+o57A4ynxJXklteDvKEVFwSyD6Fe9eaPuzN6Yxw1aONWmKvqre/dr1R73bcRBdJs=
+=VMg8
+-----END PGP SIGNATURE-----
 
-3) Provide an interface definition that allows a single cape
-   P8 definition that only uses a specified subset of the P8
-   pins to work on different versions of the host board, where
-   the pinout of the specified subset is consistent across the
-   bones.
-
-   2a) Same as "2)", but for P9.
-   2b) Same as "2)", but for both P8 and P9.
-
-4) Provide an interface definition that requires a different
-   cape definition for different versions of host board.
-
-Again, there are more possible variations on what functional
-requirements might be useful to support in a portable device
-tree connector.  I was just trying to provide a flavor of
-what I am looking for.
-
-Is the problem statement and an explanation of the underlying
-constraints that lead to the problem statement available?
-
-Thanks,
-
-Frank
+--16g62bNiOXHZyjZa--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
