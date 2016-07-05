@@ -1,58 +1,59 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH 0/6] Implement I2C restart handler
-Date: Tue, 5 Jul 2016 08:41:04 -0700
-Message-ID: <577BD510.1070506@roeck-us.net>
-References: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
- <20160705145839.GA3641@tetsubishi>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 1/1] i2c: designware-pci: clarify a comment for
+ Merrifield
+Date: Wed, 6 Jul 2016 00:44:20 +0900
+Message-ID: <20160705154419.GF3641@tetsubishi>
+References: <1466413089-27352-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20160705145839.GA3641@tetsubishi>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stefan Christ <s.christ-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org>
-Cc: linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="924gEkU1VlJlwnwX"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:48637 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752103AbcGEPo1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 5 Jul 2016 11:44:27 -0400
+Content-Disposition: inline
+In-Reply-To: <1466413089-27352-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
 
-On 07/05/2016 07:58 AM, Wolfram Sang wrote:
-> Hi,
->
->> this is a request for feedback about a lockdep-warning-free I2C
->> restart_handler.  I would like to know whether someone had the problem already
->> and how the best and mainline friendliest solution looks like.
->> I have an embedded board with the PMIC chip DA9063 that is also used as a
->> voltage regulator for DVFS. For a clean reboot/reset of the system I have to
->> set the bit nSHUTDOWN in the PMIC via I2C. The restart_handler call chain
->> is of type
->>
->>      static ATOMIC_NOTIFIER_HEAD(restart_handler_list);
->>
->> So any code running as a restart_handler cannot (should not) wait, for other
->> locks. When you use i2c_transfer/regmap you get lockdep warnings like [1].
->
-> Yes, this problem has come up occasionally. And it is not only about
-> sleeping. IRQs are disabled, too.
->
-> My idea was to introduce master_xfer_irqless or similar to struct
-> i2c_algorithm. I even discussed this shortly with Mark Brown how to
-> interact with regmap; but this was too long ago, so I forgot what we
-> agreed on :(
->
->> Any comments?
->
-> I just skimmed very lightly over the patchset. Yet, seeing an I2C client
-> messing directly with 'struct adapter' breaks so many abstractions, it
-> hits my instant-NACK nerve ;)
->
 
-My NACK would be for two other reasons: First, for bypassing the watchdog core
-for handling the minimum time between heartbeats, second for bypassing
-the watchdog core to implement a reboot handler. Both are inadequately
-or not at all explained.
+--924gEkU1VlJlwnwX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Guenter
+On Mon, Jun 20, 2016 at 11:58:09AM +0300, Andy Shevchenko wrote:
+> There are more than 7 busses, but only 7 are user visible. Update comment
+> accordingly.
+>=20
+> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Applied to for-next, thanks!
+
+
+--924gEkU1VlJlwnwX
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXe9XSAAoJEBQN5MwUoCm21vEP/i+j8JZpujBhWg5bpmCtyzmk
+FZ+bEHpFBciBq+oWQLN9s0k510m9664lVARiIBx1NJ2jtTjyInZgMa/68Ub9H+DH
+fujw0KlLvt05jJuVLkwE+5w7b/QJMcw3R+uAp8sPqjMw5bwhMwfcP29BO76FkKji
+TYgTJ4O6z+fBFeVbU/prcQKx0r3Zm71xw0LBabyIN5FQ2vrFW0WXFIhzuLwbUDU9
+UJlu2i6aD1LNEwdZ1rUELHlatVEAE70P4Dy1wq7x6pCzIJEURlPP22kxcXjrXqA1
+yNwHdE/Al+4yTASOJ+o055O7NuMevoXLi3YwuWDfDTd4a6ekrpXjfuizBiwYNCEw
+7JVAGj100T3uW2ktjHqSIBzsWX0mmCf3skxoPtGBTwfQGyEoXrFCJGNuL7U6GLhw
+2wXWceHbgcyt7zRo7GvQmJ1Bse5kH0/kJvMHnAboI+3QCbChXUD1ZwBZ1EhOCeLN
+/fQUc7Jm9nd/3q62K0Z5rT65gx113I91iTBzkvJDJQs8zDjGvYlsuIn1qi9zqQwV
+ArNGkjWHhGvbZ2Qu3dEEsAj+A8kkp2TMTRx+ZDzqS34ODXNaWiRS6E6cU3bacdBq
+z/u9p5HNUTAASD/ZBJJR2Fy6Ps79QZ1z7iJFsRyE0OeU+C7f5SDvU2LBC1gpn2UZ
+oj7LVDvwNkuJvhCGocXD
+=fL3T
+-----END PGP SIGNATURE-----
+
+--924gEkU1VlJlwnwX--
