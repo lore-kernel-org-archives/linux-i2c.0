@@ -1,52 +1,45 @@
-From: Frank Rowand <frowand.list@gmail.com>
-Subject: Re: portable device tree connector -- problem statement
-Date: Tue, 5 Jul 2016 07:24:12 -0700
-Message-ID: <577BC30C.10105@gmail.com>
-References: <577ACE0D.9050700@gmail.com> <20160705083152.GM6247@sirena.org.uk>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with
+ PCI BAR
+Date: Tue, 5 Jul 2016 17:31:15 +0300
+Message-ID: <20160705143115.GP23527@lahna.fi.intel.com>
+References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20160705115142.GO23527@lahna.fi.intel.com>
+ <201607051356.58794@pali>
+ <201607051400.58881@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f67.google.com ([209.85.220.67]:36500 "EHLO
-	mail-pa0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751598AbcGEOYX (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Jul 2016 10:24:23 -0400
-In-Reply-To: <20160705083152.GM6247@sirena.org.uk>
+Received: from mga11.intel.com ([192.55.52.93]:63021 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754372AbcGEObV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 5 Jul 2016 10:31:21 -0400
+Content-Disposition: inline
+In-Reply-To: <201607051400.58881@pali>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Rob Herring <robh+dt@kernel.org>, david@gibson.dropbear.id.au, stephen.boyd@linaro.org, grant.likely@secretlab.ca, Mark Rutland <mark.rutland@arm.com>, mporter@konsulko.com, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, marex@denx.de, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, panto@antoniou-consulting.com
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Martin Vajnar <martin.vajnar@gmail.com>, Dominique Leuenberger <dimstar@opensuse.org>
 
-On 07/05/16 01:31, Mark Brown wrote:
-> On Mon, Jul 04, 2016 at 01:58:53PM -0700, Frank Rowand wrote:
-> 
->> On the other hand, I have no previous detailed knowledge of the beagle
->> family.
-> 
-> This is in no way specific to the BeagleBones, there's plenty of other
-> boards out there with similar setups like the Raspberry Pi and its
-> derivatives.
+On Tue, Jul 05, 2016 at 02:00:58PM +0200, Pali Roh=E1r wrote:
+> On Tuesday 05 July 2016 13:56:58 Pali Roh=E1r wrote:
+> > On Tuesday 05 July 2016 13:51:42 Mika Westerberg wrote:
+> > > So are you able to test what happens when you unload the driver?
+> >=20
+> > As I wrote in previous email, I do not own these EliteBooks anymore=
+,
+> > so cannot test it. Just have DSDT dump...
+>=20
+> What about contacting last contributors to hp_accel.c driver? They=20
+> probably could test i801 changes if accelerometer still works.
 
-Yes, absolutely.  I'm just picking on the beaglebones because that is
-what Pantelis has recently used for examples.  (He has mentioned other
-connector types and expansion boards in his presentations.)
+Good idea.
 
-And we need to think beyond beaglebone, pi, arduino, and grove 
-type of connectors.
+Added Martin and Dominique who did the last additions to that driver
+(hp_accel.c).
 
-Some other connectors that are obvious are pci and possibly usb.
-
-
->>     - for bones with the same pinout:
->>       - the pins are routed to different function blocks on the
->>         SOC because different bones may have different SOCs?
->>         - the different functional blocks are compatible or not?
-> 
-> This is the general case, there will be a substantial level of
-> compatibility between different base boards by virtue of the pinouts
-> being the same but obviously there will be some variation in the
-> specifics (and even where that exists it may not be enough to be visible
-> at the DT level for the most part).  That said there will doubtless be
-> some plug in modules that want to rely on the specifics of a given base
-> board rather than remain compatible with general users of the interface.
-> 
+Do you guys still have your HP machines around? If yes, maybe you can
+try v4.7-rc3+ (it should include commit a7ae81952cda ("i2c: i801: Allow
+ACPI SystemIO OpRegion to conflict with PCI BAR")) so that you unload
+i2c-i801.ko and see if accelerometer still works?
