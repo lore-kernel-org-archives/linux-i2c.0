@@ -1,52 +1,77 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [PATCH v5 2/8] acpi: fix enumeration (visited) flags for bus rescans
-Date: Wed, 6 Jul 2016 18:37:46 +0300
-Message-ID: <CAE1zotJg+bCUD+q_cbiO1=abx1PJbUdWVr03uutwR081iG4G1g@mail.gmail.com>
-References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
- <1467404352-27101-3-git-send-email-octavian.purdila@intel.com> <20160706150317.GH23527@lahna.fi.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/2] i2c-dev: don't get i2c adapter via i2c_dev
+Date: Wed, 6 Jul 2016 19:04:59 +0200
+Message-ID: <20160706190459.59c6c504@endymion>
+References: <cover.1467772840.git.viresh.kumar@linaro.org>
+	<c2ac0349b818d3f3787b939d5eb83e3c80fc205d.1467772840.git.viresh.kumar@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f53.google.com ([74.125.82.53]:38389 "EHLO
-	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932243AbcGFPhs (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Jul 2016 11:37:48 -0400
-Received: by mail-wm0-f53.google.com with SMTP id r201so197893425wme.1
-        for <linux-i2c@vger.kernel.org>; Wed, 06 Jul 2016 08:37:48 -0700 (PDT)
-In-Reply-To: <20160706150317.GH23527@lahna.fi.intel.com>
+Received: from mx2.suse.de ([195.135.220.15]:41190 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754175AbcGFRFW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 6 Jul 2016 13:05:22 -0400
+In-Reply-To: <c2ac0349b818d3f3787b939d5eb83e3c80fc205d.1467772840.git.viresh.kumar@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>, Leonard Crestez <leonard.crestez@intel.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
 
-On Wed, Jul 6, 2016 at 6:03 PM, Mika Westerberg
-<mika.westerberg@linux.intel.com> wrote:
-> On Fri, Jul 01, 2016 at 11:19:06PM +0300, Octavian Purdila wrote:
->> If the ACPI tables changes as a result of a dinamically loaded table and
->> a bus rescan is required the enumeration/visited flag are not
->> consistent.
->>
->> I2C/SPI are not directly enumerated in acpi_bus_attach(), however the
->> visited flag is set. This makes it impossible to check if an ACPI device
->> has already been enumerated by the I2C and SPI subsystems. To fix this
->> issue we only set the visited flags if the device is not I2C or SPI.
->>
->> With this change we also need to remove setting visited to false from
->> acpi_bus_attach(), otherwise if we rescan already enumerated I2C/SPI
->> devices we try to re-enumerate them.
->>
->> Note that I2C/SPI devices can be enumerated either via a scan handler
->> (when using PRP0001) or via regular device_attach(). In either case
->> the flow goes through acpi_default_enumeration() which makes it the
->> ideal place to mark the ACPI device as enumerated.
->
-> Hmm, this somehow fails to enumerate PRP0001 devices.
->
-> I'm adding following SSDT to my initrd and the resulting device is never
-> enumerated on SPI bus (it exists in /sys/bus/acpi/devices). If I use
-> normal ACPI IDs (non-PRP0001) then it works fine.
->
+Hi Viresh,
 
-I specifically tested with PRP0001 via initrd with I2C, I am not sure
-why it does not work on SPI. I'll give it a try tomorrow when I have
-access to my setup.
+A bit of background: at some point in time, the i2c adapter number (as
+represented internally by the kernel) could be different from the i2c
+device node number (as seen by user-space.) I put an end to this
+madness years ago, but it seems some legacy code from that time
+survived in i2c-dev.
+
+On Tue,  5 Jul 2016 19:57:06 -0700, Viresh Kumar wrote:
+> There is no code protecting i2c_dev to be freed after it is returned
+> from i2c_dev_get_by_minor() and using it to access the value which we
+> already have (minor) isn't safe really.
+
+I agree that i2c_dev_get_by_minor() looks racy by nature. It is
+possible that i2c_dev_get_by_minor() can be removed altogether. There
+are 2 other calling locations beyond the one you want to remove. If one
+can be removed then I suspect others can be removed as well (maybe with
+some more work though.)
+
+If i2c_dev_get_by_minor() needs to stay for whatever reason, then my
+next worry is that struct i2c_dev carries an unaccounted reference to
+an i2c_adapter. This looks seriously broken. i2c_dev->adap should only
+be set on open, and cleared on close.
+
+> Avoid using it and get the adapter directly from 'minor'.
+> 
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> ---
+>  drivers/i2c/i2c-dev.c | 7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+> index 6ecfd76270f2..66f323fd3982 100644
+> --- a/drivers/i2c/i2c-dev.c
+> +++ b/drivers/i2c/i2c-dev.c
+> @@ -485,13 +485,8 @@ static int i2cdev_open(struct inode *inode, struct file *file)
+>  	unsigned int minor = iminor(inode);
+>  	struct i2c_client *client;
+>  	struct i2c_adapter *adap;
+> -	struct i2c_dev *i2c_dev;
+> -
+> -	i2c_dev = i2c_dev_get_by_minor(minor);
+> -	if (!i2c_dev)
+> -		return -ENODEV;
+>  
+> -	adap = i2c_get_adapter(i2c_dev->adap->nr);
+> +	adap = i2c_get_adapter(minor);
+>  	if (!adap)
+>  		return -ENODEV;
+>  
+
+This is the most simple fix to your immediate problem. However it
+doesn't address the big design issue.
+
+-- 
+Jean Delvare
+SUSE L3 Support
