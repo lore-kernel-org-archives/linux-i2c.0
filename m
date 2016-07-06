@@ -1,90 +1,71 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v5 2/8] acpi: fix enumeration (visited) flags for bus
- rescans
-Date: Wed, 6 Jul 2016 18:03:17 +0300
-Message-ID: <20160706150317.GH23527@lahna.fi.intel.com>
-References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
- <1467404352-27101-3-git-send-email-octavian.purdila@intel.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH 00/14] eeprom: at24: driver rework and at24cs/at24mac support
+Date: Wed, 6 Jul 2016 17:04:41 +0200
+Message-ID: <CAMpxmJVQHt7WeE9oWN-efffAc1YZU8b8hiomm+C0bzg8mQ4Crw@mail.gmail.com>
+References: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1467404352-27101-3-git-send-email-octavian.purdila@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, irina.tirdea@intel.com, leonard.crestez@intel.com
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1464558832-2262-1-git-send-email-bgolaszewski@baylibre.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 01, 2016 at 11:19:06PM +0300, Octavian Purdila wrote:
-> If the ACPI tables changes as a result of a dinamically loaded table and
-> a bus rescan is required the enumeration/visited flag are not
-> consistent.
-> 
-> I2C/SPI are not directly enumerated in acpi_bus_attach(), however the
-> visited flag is set. This makes it impossible to check if an ACPI device
-> has already been enumerated by the I2C and SPI subsystems. To fix this
-> issue we only set the visited flags if the device is not I2C or SPI.
-> 
-> With this change we also need to remove setting visited to false from
-> acpi_bus_attach(), otherwise if we rescan already enumerated I2C/SPI
-> devices we try to re-enumerate them.
-> 
-> Note that I2C/SPI devices can be enumerated either via a scan handler
-> (when using PRP0001) or via regular device_attach(). In either case
-> the flow goes through acpi_default_enumeration() which makes it the
-> ideal place to mark the ACPI device as enumerated.
+2016-05-29 23:53 GMT+02:00 Bartosz Golaszewski <bgolaszewski@baylibre.com>:
+> Chips from the at24cs EEPROM series have an additional read-only
+> memory area containing a factory pre-programmed serial number. In
+> order to access it, a dummy write must be executed before reading
+> the serial number bytes.
+>
+> Chips from the at24mac familiy, apart from the serial number, have
+> a second special memory area containing a factory programmed
+> EUI-48/EUI64 mac address.
+>
+> The read-only serial/mac memory area is accessible on a different i2c
+> slave address (addr + 0x08). This patchset makes it possible to
+> instantiate a separate at24 device on this second address and access
+> the read-only area through the regular eeprom sysfs attribute or the
+> new nvmem subsystem.
+>
+> This series also contains several patches refactoring the driver code.
+> Most notably: the low-level read/write routines are split into more
+> specialized, smaller functions that no longer perform functionality
+> checks at runtime.
+>
+> Minor readability tweaks are also included.
+>
+> Tested with at24cs32 and at24cs02 chips (for both 16 and 8 bit address
+> pointers). I have no means of testing the support for at24mac chips, I
+> relied solely on the datasheet.
+>
+> Bartosz Golaszewski (14):
+>   eeprom: at24: improve the device_id table readability
+>   eeprom: at24: move at24_read() below at24_eeprom_write()
+>   eeprom: at24: coding style fixes
+>   eeprom: at24: call read/write functions via function pointers
+>   eeprom: at24: hide the read/write loop behind a macro
+>   eeprom: at24: split at24_eeprom_read() into specialized functions
+>   eeprom: at24: split at24_eeprom_write() into specialized functions
+>   eeprom: at24: platform_data: use BIT() macro
+>   eeprom: at24: platform_data: add serial number flag
+>   eeprom: at24: support reading the serial number
+>   eeprom: at24: add the at24cs series to the list of supported devices
+>   eeprom: at24: platform_data: add at24mac series flag
+>   eeprom: at24: add support for at24mac series
+>   eeprom: at24: add at24mac chips to the list of supported devices
+>
+>  drivers/misc/eeprom/at24.c         | 498 +++++++++++++++++++++++++------------
+>  include/linux/platform_data/at24.h |  11 +-
+>  2 files changed, 350 insertions(+), 159 deletions(-)
+>
+> --
+> 2.7.4
+>
 
-Hmm, this somehow fails to enumerate PRP0001 devices.
+Gentle ping.
 
-I'm adding following SSDT to my initrd and the resulting device is never
-enumerated on SPI bus (it exists in /sys/bus/acpi/devices). If I use
-normal ACPI IDs (non-PRP0001) then it works fine.
+Any chance of getting this series picked up for 4.8?
 
-/*
- * Minnowboard MAX
- *
- * http://wiki.minnowboard.org/MinnowBoard_MAX
- *
- * This adds Atmel AT25 compatible serial EEPROM to the SPI host controller
- * available on Minnowboard MAX low speed connector.
- */
-DefinitionBlock ("at25.aml", "SSDT", 5, "INTEL", "AT25", 1)
-{
-    External (_SB_.SPI1, DeviceObj)
-
-    Scope (\_SB.SPI1)
-    {
-        Device (EEP0) {
-            Name (_HID, "PRP0001")
-            Name (_DDN, "Atmel AT25 compatible EEPROM")
-            Name (_CRS, ResourceTemplate () {
-                SpiSerialBus (
-                    1,                      // Chip select
-                    PolarityLow,            // Chip select is active low
-                    FourWireMode,           // Full duplex
-                    8,                      // Bits per word is 8 (byte)
-                    ControllerInitiated,    // Don't care
-                    1000000,                // Initial bus speed is 1MHz
-                    ClockPolarityLow,       // SPI mode 0
-                    ClockPhaseFirst,        // SPI mode 0
-                    "\\_SB.SPI1",           // SPI host controller
-                    0                       // Must be 0
-                )
-            })
-
-            /*
-             * See Documentation/devicetree/bindings/eeprom/at25.txt for
-             * more information about these bindings.
-             */
-            Name (_DSD, Package () {
-                ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-                Package () {
-                    Package () {"compatible", Package () {"atmel,at25"}},
-                    Package () {"size", 1024},
-                    Package () {"pagesize", 32},
-                    Package () {"address-width", 16},
-                }
-            })
-        }
-    }
-}
+Thanks,
+Bartosz Golaszewski
