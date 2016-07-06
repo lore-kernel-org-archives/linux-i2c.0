@@ -1,33 +1,76 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 2/2] i2c-dev: Don't block the adapter from unregistering
-Date: Wed, 6 Jul 2016 06:50:57 -0700
-Message-ID: <20160706135057.GI2671@ubuntu>
-References: <cover.1467772840.git.viresh.kumar@linaro.org>
- <021486be2f5425ce2379219a7ac163ee14ba2aba.1467772840.git.viresh.kumar@linaro.org>
- <20160706065523.GA1439@tetsubishi>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 0/6] Implement I2C restart handler
+Date: Wed, 6 Jul 2016 23:16:52 +0900
+Message-ID: <20160706141650.GB1430@tetsubishi>
+References: <1467724943-13416-1-git-send-email-s.christ@phytec.de>
+ <20160705145839.GA3641@tetsubishi>
+ <20160706091838.GC7031@lws-christ>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:35534 "EHLO
-	mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754708AbcGFNu7 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Jul 2016 09:50:59 -0400
-Received: by mail-pf0-f174.google.com with SMTP id c2so80185039pfa.2
-        for <linux-i2c@vger.kernel.org>; Wed, 06 Jul 2016 06:50:59 -0700 (PDT)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20160706065523.GA1439@tetsubishi>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20160706091838.GC7031@lws-christ>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stefan Christ <s.christ-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org>
+Cc: linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
 
-On 06-07-16, 15:55, Wolfram Sang wrote:
-> Adding something to *every* i2c_client for this corner case sounds
-> pretty expensive to me.
 
-I agree with you on that. I wanted to avoid it, but I couldn't :(
+--zx4FCpZtqtKETZ7O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Lets see how Jean suggests to handle it.
 
--- 
-viresh
+> > My idea was to introduce master_xfer_irqless or similar to struct
+> > i2c_algorithm. I even discussed this shortly with Mark Brown how to
+> > interact with regmap; but this was too long ago, so I forgot what we
+> > agreed on :(
+>=20
+> Great. I was looking for exactly this kind of feedback.
+>=20
+> The term 'master_xfer_irqless' does not bring up anything on the internet=
+ and I
+> didn't find anything on the list linux-i2c. Can you point me to the discu=
+ssion,
+> so I can read it up and work on it?
+
+Sadly not. It was just an idea I had in my mind and some talking with
+Mark at FOSDEM. Then priorities changed and I worked on something else.
+You might want to look for threads where people implemented 'irqless' or
+'polling' i2c transfers. I recall at least one discussion in the last
+year, but can't seem to find it now :( Dunno if there is something
+worthwhile in there, though.
+
+Regards,
+
+   Wolfram
+
+
+--zx4FCpZtqtKETZ7O
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXfRLSAAoJEBQN5MwUoCm2Sp0P/0mMfBBdC6nWNH2iI9QnhhhB
+ZRd27VrpsONuwr51D179AUrPG3VDa5f5Nzg8MCjzoYgD6WVJeV8Fu9WL7s1vpOIF
+ebqwrP/l89UlkZ9v57hsPbvV3efrb4PCZzpJw5Om+vaGqEOsXlGGJxg/Wc8P/KTD
+Ij9BYz51OxXlVKrbtd7aSTfRV5SnYAK9krHC5mgmRJBef6RGh70aoh5fa+p3kA0J
+aX9yB2gWSseKpymrAQD+/8JL359AEzHjmKS63KQWAg6VPDqwk/ynqMmAMiNzsutV
+w7MQWOAuVTu87c1/M34wB1hfZS9TFUg2qsWHzzMgcyye/8S3Xn2JSRLxtIqzQkyT
+rn+Nu8sjMNAgc3JIZRWQ8oL1BmiRxyDEYH8Itfhal9n4Mv/fRhIExhnDME5RDDOy
+HTNbIfZoSNLMcKf34zK2CiDv3pRFT5aWzt5wOZx8sTVESQ7gKZMOC6YqNCvNgYMU
+Zhrv6py0u3EwDVBSaONC0epVcF7fkousIsGviLJniradUJ6kmnPd1rhugQPC98Bb
+Fga3Fh5NCkgVU5sOppQE+BkikgeYZZKLqRgHRmR+6Zh1EPBmNuDJZ1Qf9DxU25sV
+dK6NPkODCfO4DcrMOC4aDCGWQ6qbFB19rE3d5iS+J7277CW3N318bjuObuVEMcXv
+r9bEzGEXPhcTa+3KBn7p
+=O7e6
+-----END PGP SIGNATURE-----
+
+--zx4FCpZtqtKETZ7O--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
