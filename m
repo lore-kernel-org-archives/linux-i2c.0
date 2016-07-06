@@ -1,61 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv2] i2c: meson: allow build with COMPILE_TEST
-Date: Wed, 6 Jul 2016 09:09:36 +0900
-Message-ID: <20160706000935.GA1349@tetsubishi>
-References: <1467742788-16431-1-git-send-email-ben.dooks@codethink.co.uk>
- <1467743043-18703-1-git-send-email-ben.dooks@codethink.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 0/2] i2c-dev: Don't let userspace block adapter
+Date: Tue,  5 Jul 2016 19:57:05 -0700
+Message-ID: <cover.1467772840.git.viresh.kumar@linaro.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50460 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751157AbcGFAb7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 5 Jul 2016 20:31:59 -0400
-Content-Disposition: inline
-In-Reply-To: <1467743043-18703-1-git-send-email-ben.dooks@codethink.co.uk>
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:34846 "EHLO
+	mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751574AbcGFC5M (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Jul 2016 22:57:12 -0400
+Received: by mail-pf0-f180.google.com with SMTP id c2so75744329pfa.2
+        for <linux-i2c@vger.kernel.org>; Tue, 05 Jul 2016 19:57:12 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk, Ben Dooks <ben-linux@fluff.org>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>, Viresh Kumar <viresh.kumar@linaro.org>
 
+Hi Wolfram/Jean,
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am part of the kernel team for Google's projectara [1], where we are
+building a module smart phone.
 
-On Tue, Jul 05, 2016 at 07:24:03PM +0100, Ben Dooks wrote:
-> From: Ben Dooks <ben-linux@fluff.org>
->=20
-> This driver could be included in COMPILE_TEST so allow it to be
-> compiled when COMPILE_TEST is selected.
->=20
-> Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+This series tries to fix one of the problems we hit on our system as we
+are required to hotplug pretty much every thing on the phone and so this
+fixes hotplug issues with i2c-dev.
 
-Two signed-offs by you?
+As described in the second patch, the current implementation of i2c-dev
+file operations doesn't let the modules (hardware attached to the phone)
+eject from the phone as the cleanup path for the module hasn't finished
+yet (i2c adapter not removed).
 
+We can't let the userspace block the kernel devices forever in such
+cases.
 
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature; name="signature.asc"
+I was able to test them on the ARA phone with kernel 3.10 only and not
+mainline.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+--
+viresh
 
-iQIcBAEBAgAGBQJXfEw/AAoJEBQN5MwUoCm2MwQP/1orHvVGVCmRQd0Z93xy6o5w
-qQW9rgavm9uMwdxi5KJdNPOEIt1z9yL6wqn5amaHDXNK5sgd6TizbberQyz6J/tg
-ru32kctsC0sKCHDmZ0JrD6FHso5a1WnNsiAsDwoSxkkyz+9/j5duX1mHHJsLO2hf
-towAWdQry38v6NTNX2Rb9Okvwz0FgMbJDgI2PzR4LxVzWaiyLA7Ulq95jWdbL87f
-yoETyWn3Uym1Udq+gC4MdSPgxRZWpvAh2YLhxPEv6gqNue7jJ8DAiN//dzGYq3gx
-V57JCrKQAiPKzSbNaDOo80Qv1iVPHBC7mgDM9L3i0zs3GcOhy+45Mcmj02j6J9VF
-BoG9G0Y0URlN0f+iMGrraOh48usfvPRTinIHn5xt7yybLnQKb/IxAR1bKwEAEaVQ
-ibsDiTEV2gowO5csmOhMYOhCFnQ5vKcrb6jgw49HJTbcT6CjWTUMa0DhOa5zb2O/
-Iq8bwGTjMeFo1Ya+B/TjpakFEfuCnj2a1elY6orferZTBQnrcVjEfoXcsylMcI8W
-AbpHjooWHZc9fbRxTbpAgJ2oN9Z3Q49SXocfNWn2tcjuXTQJnmi9YV9P4A4ksYb+
-t/AD7aNhECgGDZTjP2GtHGenHS7wA9PSgQYIthoh2uIrdp6gIa2vQxGY+gNdS0Z0
-9vi3uJ/SJ7qUJ7otV24s
-=XhIC
------END PGP SIGNATURE-----
+[1] https://atap.google.com/ara/
 
---gKMricLos+KVdGMg--
+Viresh Kumar (2):
+  i2c-dev: don't get i2c adapter via i2c_dev
+  i2c-dev: Don't block the adapter from unregistering
+
+ drivers/i2c/i2c-dev.c | 79 ++++++++++++++++++++++++++++++++++++++++++---------
+ include/linux/i2c.h   |  1 +
+ 2 files changed, 67 insertions(+), 13 deletions(-)
+
+-- 
+2.7.4
