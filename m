@@ -1,150 +1,61 @@
-From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Subject: Re: [PATCH v5 0/8]  ACPI overlays
-Date: Wed, 06 Jul 2016 02:34:50 +0200
-Message-ID: <9539226.hSY6jyYgKd@vostro.rjw.lan>
-References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCHv2] i2c: meson: allow build with COMPILE_TEST
+Date: Wed, 6 Jul 2016 09:09:36 +0900
+Message-ID: <20160706000935.GA1349@tetsubishi>
+References: <1467742788-16431-1-git-send-email-ben.dooks@codethink.co.uk>
+ <1467743043-18703-1-git-send-email-ben.dooks@codethink.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1467404352-27101-1-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:50460 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751157AbcGFAb7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 5 Jul 2016 20:31:59 -0400
+Content-Disposition: inline
+In-Reply-To: <1467743043-18703-1-git-send-email-ben.dooks@codethink.co.uk>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: linux-kernel@lists.codethink.co.uk, Ben Dooks <ben-linux@fluff.org>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org
 
-On Friday, July 01, 2016 11:19:04 PM Octavian Purdila wrote:
-> This patch set enables custom ACPI board configuration by adding
-> mechanisms in the Linux kernel for loading user defined SSDTs.
-> 
-> In order to support ACPI open-ended hardware configurations we need a
-> way to augment the ACPI configuration provided by the firmware
-> image. A common example is connecting sensors on I2C / SPI buses on
-> development boards.
-> 
-> Although this can be accomplished by creating a kernel platform driver
-> or recompiling the firmware image with updated ACPI tables, neither is
-> practical: the former proliferates board specific kernel code while
-> the latter requires access to firmware tools which are often not
-> publicly available.
-> 
-> Because ACPI supports external references in AML code a more practical
-> way to augment firmware ACPI configuration is by dynamically loading
-> user defined SSDT tables that contain the board specific information.
-> 
-> Currently it is possible to load SSDT overlays using the upgrade
-> initrd mechanism introduced in 4.7. This patch series adds support for
-> two more methods:
-> 
-> * From an EFI variable
-> 
->  This is the preferred method, when EFI is supported on the platform,
->  because it allows a persistent, OS independent way of storing and
->  updating the user defined SSDTs. There is also work underway to
->  implement EFI support for loading user defined SSDTs and using this
->  method will make it easier to convert to the EFI loading mechanism
->  when that will arrive.
-> 
-> * From userspace via configfs
-> 
->  This is useful when we want to defer the operation to userspace for
->  platform detection, loading the SSDTs from a custom partition, etc.
-> 
-> 
-> Changes from v4:
-> 
-> * EFI: use ucs2_as_utf8 and memcmp to check if the variable name
->   matches the kernel command line parameter; fold the EFI ACPI table
->   load code in the iterator function
-> 
-> * I2C/SPI: add more information in the commit logs about how the
->   enumeration status is set and checked; also add a new check of the
->   enumerated status for the ACPI device remove reconfiguration
->   notification
-> 
-> Changes from v3:
-> 
-> * fix a bisectability issue reported by kbuild
-> 
-> * rework the enumeration fix to support PRP0001 enumeration; also,
->   introduce acpi_device_set/clear_enumerated() for clarity
-> 
-> * clear the enumerated status for acpi_device when the I2C/SPI clients
->   are removed (for example as a result of an adapter removal) to allow
->   the devices to be re-enumerated later
-> 
-> Changes from v2:
-> 
-> * fix a few issues caught by the kbuild test robot
-> 
-> * add more configfs table attributes
-> 
-> * removed the initrd based loading functionality from this patch set
->   as this can already be accomplished in 4.7 using the ACPI table
->   upgrade mechanism
-> 
-> * rebased to 4.7-rc3
-> 
-> Changes from v1:
-> 
-> * rebased on top of the ACPI install from initrd table functionality;
->   there is significant overlap between the 1st patch in this series
->   and these patch [1] from Lv - I kept it in this series until the
->   discussions around the taint and config option are resolved
-> 
-> * make sure EFI_RUNTIME_SERVICES are available before trying to use
->   EFI variables to load tables
-> 
-> * rework the ACPI reconfiguration notifications to work on device
->   granularity (device added or removed) instead of table granularity
->   (table loaded or unloaded)
-> 
-> * add support for table unloading / device removal
-> 
-> * note that the last patch is just a hack to be able to test the table
->   unload / device remove functionality, if someone wants to try out
->   this patch set
-> 
-> [1] https://patchwork.kernel.org/patch/8795931/
-> 
-> Octavian Purdila (8):
->   Documentation: acpi: add SSDT overlays documentation
->   acpi: fix enumeration (visited) flags for bus rescans
->   acpi: add support for ACPI reconfiguration notifiers
->   i2c: add support for ACPI reconfigure notifications
->   spi: add support for ACPI reconfigure notifications
->   efi: load SSTDs from EFI variables
->   acpi: add support for configfs
->   acpi: add support for loading SSDTs via configfs
-> 
->  Documentation/ABI/testing/configfs-acpi |  36 +++++
->  Documentation/acpi/ssdt-overlays.txt    | 172 ++++++++++++++++++++
->  Documentation/kernel-parameters.txt     |   7 +
->  MAINTAINERS                             |   1 +
->  drivers/acpi/Kconfig                    |   9 ++
->  drivers/acpi/Makefile                   |   1 +
->  drivers/acpi/bus.c                      |   9 ++
->  drivers/acpi/configfs.c                 | 267 ++++++++++++++++++++++++++++++++
->  drivers/acpi/internal.h                 |   3 +
->  drivers/acpi/scan.c                     |  81 +++++++++-
->  drivers/acpi/sysfs.c                    |   6 +-
->  drivers/firmware/efi/efi.c              |  85 ++++++++++
->  drivers/i2c/i2c-core.c                  | 175 ++++++++++++++++-----
->  drivers/spi/spi.c                       | 100 +++++++++++-
->  include/linux/acpi.h                    |  36 +++++
->  15 files changed, 932 insertions(+), 56 deletions(-)
->  create mode 100644 Documentation/ABI/testing/configfs-acpi
->  create mode 100644 Documentation/acpi/ssdt-overlays.txt
->  create mode 100644 drivers/acpi/configfs.c
 
-It looks like all patches in this series except for the [6/8] are good to go.
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Do any of them depend on the [6/8]?
+On Tue, Jul 05, 2016 at 07:24:03PM +0100, Ben Dooks wrote:
+> From: Ben Dooks <ben-linux@fluff.org>
+>=20
+> This driver could be included in COMPILE_TEST so allow it to be
+> compiled when COMPILE_TEST is selected.
+>=20
+> Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 
-Thanks,
-Rafael
+Two signed-offs by you?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--gKMricLos+KVdGMg
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXfEw/AAoJEBQN5MwUoCm2MwQP/1orHvVGVCmRQd0Z93xy6o5w
+qQW9rgavm9uMwdxi5KJdNPOEIt1z9yL6wqn5amaHDXNK5sgd6TizbberQyz6J/tg
+ru32kctsC0sKCHDmZ0JrD6FHso5a1WnNsiAsDwoSxkkyz+9/j5duX1mHHJsLO2hf
+towAWdQry38v6NTNX2Rb9Okvwz0FgMbJDgI2PzR4LxVzWaiyLA7Ulq95jWdbL87f
+yoETyWn3Uym1Udq+gC4MdSPgxRZWpvAh2YLhxPEv6gqNue7jJ8DAiN//dzGYq3gx
+V57JCrKQAiPKzSbNaDOo80Qv1iVPHBC7mgDM9L3i0zs3GcOhy+45Mcmj02j6J9VF
+BoG9G0Y0URlN0f+iMGrraOh48usfvPRTinIHn5xt7yybLnQKb/IxAR1bKwEAEaVQ
+ibsDiTEV2gowO5csmOhMYOhCFnQ5vKcrb6jgw49HJTbcT6CjWTUMa0DhOa5zb2O/
+Iq8bwGTjMeFo1Ya+B/TjpakFEfuCnj2a1elY6orferZTBQnrcVjEfoXcsylMcI8W
+AbpHjooWHZc9fbRxTbpAgJ2oN9Z3Q49SXocfNWn2tcjuXTQJnmi9YV9P4A4ksYb+
+t/AD7aNhECgGDZTjP2GtHGenHS7wA9PSgQYIthoh2uIrdp6gIa2vQxGY+gNdS0Z0
+9vi3uJ/SJ7qUJ7otV24s
+=XhIC
+-----END PGP SIGNATURE-----
+
+--gKMricLos+KVdGMg--
