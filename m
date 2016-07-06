@@ -1,102 +1,44 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 2/2] i2c-dev: Don't block the adapter from unregistering
-Date: Wed, 6 Jul 2016 07:33:23 -0700
-Message-ID: <20160706143323.GK2671@ubuntu>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH 0/2] i2c-dev: Don't let userspace block adapter
+Date: Wed, 6 Jul 2016 16:41:25 +0200
+Message-ID: <577D1895.3060202@metafoo.de>
 References: <cover.1467772840.git.viresh.kumar@linaro.org>
- <021486be2f5425ce2379219a7ac163ee14ba2aba.1467772840.git.viresh.kumar@linaro.org>
- <415dcaa7-8ad9-492e-5c5c-605173bc4345@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f177.google.com ([209.85.192.177]:35755 "EHLO
-	mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753130AbcGFOd0 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Jul 2016 10:33:26 -0400
-Received: by mail-pf0-f177.google.com with SMTP id c2so80459714pfa.2
-        for <linux-i2c@vger.kernel.org>; Wed, 06 Jul 2016 07:33:26 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <415dcaa7-8ad9-492e-5c5c-605173bc4345@axentia.se>
+Received: from www381.your-server.de ([78.46.137.84]:50345 "EHLO
+	www381.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753825AbcGFOlc (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Jul 2016 10:41:32 -0400
+In-Reply-To: <cover.1467772840.git.viresh.kumar@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
+To: Viresh Kumar <viresh.kumar@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
 
-On 06-07-16, 10:22, Peter Rosin wrote:
-> On 2016-07-06 04:57, Viresh Kumar wrote:
-> > The i2c-dev calls i2c_get_adapter() from the .open() callback, which
-> > doesn't let the adapter device unregister unless the .close() callback
-> > is called.
-> > 
-> > On some platforms (like Google ARA), this doesn't let the modules
-> > (hardware attached to the phone) eject from the phone as the cleanup
-> > path for the module hasn't finished yet (i2c adapter not removed).
-> > 
-> > We can't let the userspace block the kernel forever in such cases.
-> > 
-> > Fix this by calling i2c_get_adapter() from all other file operations,
-> > i.e.  read/write/ioctl, to make sure the adapter doesn't get away while
-> > we are in the middle of a operation, but not otherwise. In .open() we
-> > will release the adapter device before returning and so if there is no
-> > data transfer in progress, then the i2c-dev doesn't block the adapter
-> > from unregistering.
-> > 
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > ---
-> >  drivers/i2c/i2c-dev.c | 72 ++++++++++++++++++++++++++++++++++++++++++++++-----
-> >  include/linux/i2c.h   |  1 +
-> >  2 files changed, 66 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-> > index 66f323fd3982..b2562603daa9 100644
-> > --- a/drivers/i2c/i2c-dev.c
-> > +++ b/drivers/i2c/i2c-dev.c
-> > @@ -142,13 +142,25 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
-> >  	int ret;
-> >  
-> >  	struct i2c_client *client = file->private_data;
-> > +	struct i2c_adapter *adap;
-> > +
-> > +	adap = i2c_get_adapter(client->adapter_nr);
-> > +	if (!adap)
-> > +		return -ENODEV;
-> > +
-> > +	if (adap != client->adapter) {
-> > +		ret = -EINVAL;
-> > +		goto put_adapter;
-> > +	}
+On 07/06/2016 04:57 AM, Viresh Kumar wrote:
+> Hi Wolfram/Jean,
 > 
-> I don't see how this can work with the i2c-demux-pinctrl driver.
-> I also wonder if/how other muxes handle this relaxed adapter
-> lifetime thingy?
+> I am part of the kernel team for Google's projectara [1], where we are
+> building a module smart phone.
+> 
+> This series tries to fix one of the problems we hit on our system as we
+> are required to hotplug pretty much every thing on the phone and so this
+> fixes hotplug issues with i2c-dev.
+> 
+> As described in the second patch, the current implementation of i2c-dev
+> file operations doesn't let the modules (hardware attached to the phone)
+> eject from the phone as the cleanup path for the module hasn't finished
+> yet (i2c adapter not removed).
+> 
+> We can't let the userspace block the kernel devices forever in such
+> cases.
+> 
+> I was able to test them on the ARA phone with kernel 3.10 only and not
+> mainline.
 
-I would like to mention here that I am no I2C expert and have limited
-knowledge of it :)
-
-I haven't had a look at the muxes implementation earlier, now that I
-looked at them, I see that they unregister/register the adapter,
-perhaps while switching functionality.
-
-I am not sure though, if this patch will break it or not. And I don't
-have a way of testing it out.
-
-> Out of curiosity, why would client->adapter change anyway?
-> (that is, if not because of a demux-pinctrl op)
-
-I didn't mean that it will change, and perhaps we can add a
-WARN_ON(adap != client->adapter).
-
-But, thinking about it again now, I think it is possible.
-
-What about this sequence:
-
-- i2c-adap-register (address P1)
-- .open(), client->adapter = P1;
-- .read/write/ioctl()..
-- i2c-adap-unregister (adapter freed)
-- i2c-adap-register with same adapter_nr (address P2);
-- .read/write/ioctl().
-
-Wouldn't the address differ here ?
-
--- 
-viresh
+This sounds like you want hot-unplug. This is currently not support by the
+I2C framework for adapters. A better approach compared to this series might
+be to implement full hot-unplug support for I2C adapters. This will probably
+also be useful for additional usecases.
