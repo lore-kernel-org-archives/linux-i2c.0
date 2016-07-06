@@ -1,88 +1,67 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 1/2] i2c-dev: don't get i2c adapter via i2c_dev
-Date: Wed, 6 Jul 2016 10:07:22 -0700
-Message-ID: <20160706170722.GR2671@ubuntu>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 2/2] i2c-dev: Don't block the adapter from unregistering
+Date: Wed, 6 Jul 2016 19:12:18 +0200
+Message-ID: <20160706191218.483fd9fd@endymion>
 References: <cover.1467772840.git.viresh.kumar@linaro.org>
- <c2ac0349b818d3f3787b939d5eb83e3c80fc205d.1467772840.git.viresh.kumar@linaro.org>
- <20160706190459.59c6c504@endymion>
+	<021486be2f5425ce2379219a7ac163ee14ba2aba.1467772840.git.viresh.kumar@linaro.org>
+	<20160706065523.GA1439@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:34585 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752945AbcGFRHY (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Jul 2016 13:07:24 -0400
-Received: by mail-pa0-f41.google.com with SMTP id bz2so78121427pad.1
-        for <linux-i2c@vger.kernel.org>; Wed, 06 Jul 2016 10:07:24 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20160706190459.59c6c504@endymion>
+Received: from mx2.suse.de ([195.135.220.15]:42189 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755294AbcGFRMV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 6 Jul 2016 13:12:21 -0400
+In-Reply-To: <20160706065523.GA1439@tetsubishi>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
 
-Hi Jean,
-
-Thanks for the explanation.
-
-On 06-07-16, 19:04, Jean Delvare wrote:
-> Hi Viresh,
-> 
-> A bit of background: at some point in time, the i2c adapter number (as
-> represented internally by the kernel) could be different from the i2c
-> device node number (as seen by user-space.) I put an end to this
-> madness years ago, but it seems some legacy code from that time
-> survived in i2c-dev.
-> 
-> On Tue,  5 Jul 2016 19:57:06 -0700, Viresh Kumar wrote:
-> > There is no code protecting i2c_dev to be freed after it is returned
-> > from i2c_dev_get_by_minor() and using it to access the value which we
-> > already have (minor) isn't safe really.
-> 
-> I agree that i2c_dev_get_by_minor() looks racy by nature. It is
-> possible that i2c_dev_get_by_minor() can be removed altogether. There
-> are 2 other calling locations beyond the one you want to remove. If one
-> can be removed then I suspect others can be removed as well (maybe with
-> some more work though.)
-> 
-> If i2c_dev_get_by_minor() needs to stay for whatever reason, then my
-> next worry is that struct i2c_dev carries an unaccounted reference to
-> an i2c_adapter. This looks seriously broken. i2c_dev->adap should only
-> be set on open, and cleared on close.
-> 
-> > Avoid using it and get the adapter directly from 'minor'.
+On Wed, 6 Jul 2016 15:55:24 +0900, Wolfram Sang wrote:
+> On Tue, Jul 05, 2016 at 07:57:07PM -0700, Viresh Kumar wrote:
+> > The i2c-dev calls i2c_get_adapter() from the .open() callback, which
+> > doesn't let the adapter device unregister unless the .close() callback
+> > is called.
+> > 
+> > On some platforms (like Google ARA), this doesn't let the modules
+> > (hardware attached to the phone) eject from the phone as the cleanup
+> > path for the module hasn't finished yet (i2c adapter not removed).
+> > 
+> > We can't let the userspace block the kernel forever in such cases.
+> > 
+> > Fix this by calling i2c_get_adapter() from all other file operations,
+> > i.e.  read/write/ioctl, to make sure the adapter doesn't get away while
+> > we are in the middle of a operation, but not otherwise. In .open() we
+> > will release the adapter device before returning and so if there is no
+> > data transfer in progress, then the i2c-dev doesn't block the adapter
+> > from unregistering.
 > > 
 > > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > ---
-> >  drivers/i2c/i2c-dev.c | 7 +------
-> >  1 file changed, 1 insertion(+), 6 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-> > index 6ecfd76270f2..66f323fd3982 100644
-> > --- a/drivers/i2c/i2c-dev.c
-> > +++ b/drivers/i2c/i2c-dev.c
-> > @@ -485,13 +485,8 @@ static int i2cdev_open(struct inode *inode, struct file *file)
-> >  	unsigned int minor = iminor(inode);
-> >  	struct i2c_client *client;
-> >  	struct i2c_adapter *adap;
-> > -	struct i2c_dev *i2c_dev;
-> > -
-> > -	i2c_dev = i2c_dev_get_by_minor(minor);
-> > -	if (!i2c_dev)
-> > -		return -ENODEV;
-> >  
-> > -	adap = i2c_get_adapter(i2c_dev->adap->nr);
-> > +	adap = i2c_get_adapter(minor);
-> >  	if (!adap)
-> >  		return -ENODEV;
-> >  
 > 
-> This is the most simple fix to your immediate problem. However it
-> doesn't address the big design issue.
+> I'd think Jean has more experience with I2C hotplugging approaches and
+> difficulties, so I'd be interested in his high level review.
 
-Yeah, I was just looking to fix the file operation paths for my
-particular problem and didn't try to do a core wide fix as I had
-little knowledge of the I2C subsystem :(
+Well well... I don't like this patch at all to be honest.
+
+My first question would be: what is keeping /dev/i2c-* open all the
+time? Originally i2c-dev was developed with development and debugging
+tools in mind (the i2c-tools suite.) The device nodes were never meant
+to be kept open for more than a few seconds.
+
+Do you have user-space i2c device drivers on your system? Which ones,
+and why (I would expect all useful i2c devices to have a kernel
+driver.) And why do they keep their i2c device node opened all the time?
+
+Requesting and freeing the i2c adapter for every transaction is going
+to add a lot of overhead to all existing tools :-(
+
+It's not like every user can open i2c device nodes and block the
+system. Only selected users should be able to open i2c device nodes
+(only root by default) so they should be responsible for not
+misbehaving.
 
 -- 
-viresh
+Jean Delvare
+SUSE L3 Support
