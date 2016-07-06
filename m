@@ -1,40 +1,52 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 2/2] i2c-dev: Don't block the adapter from unregistering
-Date: Wed, 6 Jul 2016 08:37:03 -0700
-Message-ID: <20160706153703.GN2671@ubuntu>
-References: <cover.1467772840.git.viresh.kumar@linaro.org>
- <021486be2f5425ce2379219a7ac163ee14ba2aba.1467772840.git.viresh.kumar@linaro.org>
- <415dcaa7-8ad9-492e-5c5c-605173bc4345@axentia.se>
- <20160706143323.GK2671@ubuntu>
- <577D1907.20002@metafoo.de>
- <a65124df-0d47-41a8-b90f-0d6e3fd9ce4f@axentia.se>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [PATCH v5 2/8] acpi: fix enumeration (visited) flags for bus rescans
+Date: Wed, 6 Jul 2016 18:37:46 +0300
+Message-ID: <CAE1zotJg+bCUD+q_cbiO1=abx1PJbUdWVr03uutwR081iG4G1g@mail.gmail.com>
+References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
+ <1467404352-27101-3-git-send-email-octavian.purdila@intel.com> <20160706150317.GH23527@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <a65124df-0d47-41a8-b90f-0d6e3fd9ce4f@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:38389 "EHLO
+	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932243AbcGFPhs (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Jul 2016 11:37:48 -0400
+Received: by mail-wm0-f53.google.com with SMTP id r201so197893425wme.1
+        for <linux-i2c@vger.kernel.org>; Wed, 06 Jul 2016 08:37:48 -0700 (PDT)
+In-Reply-To: <20160706150317.GH23527@lahna.fi.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Matt Fleming <matt@codeblueprint.co.uk>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Joel Becker <jlbec@evilplan.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-efi@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-spi <linux-spi@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Irina Tirdea <irina.tirdea@intel.com>, Leonard Crestez <leonard.crestez@intel.com>
 
-On 06-07-16, 17:04, Peter Rosin wrote:
-> Exactly, so the stored address had better be correct, and in
+On Wed, Jul 6, 2016 at 6:03 PM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> On Fri, Jul 01, 2016 at 11:19:06PM +0300, Octavian Purdila wrote:
+>> If the ACPI tables changes as a result of a dinamically loaded table and
+>> a bus rescan is required the enumeration/visited flag are not
+>> consistent.
+>>
+>> I2C/SPI are not directly enumerated in acpi_bus_attach(), however the
+>> visited flag is set. This makes it impossible to check if an ACPI device
+>> has already been enumerated by the I2C and SPI subsystems. To fix this
+>> issue we only set the visited flags if the device is not I2C or SPI.
+>>
+>> With this change we also need to remove setting visited to false from
+>> acpi_bus_attach(), otherwise if we rescan already enumerated I2C/SPI
+>> devices we try to re-enumerate them.
+>>
+>> Note that I2C/SPI devices can be enumerated either via a scan handler
+>> (when using PRP0001) or via regular device_attach(). In either case
+>> the flow goes through acpi_default_enumeration() which makes it the
+>> ideal place to mark the ACPI device as enumerated.
+>
+> Hmm, this somehow fails to enumerate PRP0001 devices.
+>
+> I'm adding following SSDT to my initrd and the resulting device is never
+> enumerated on SPI bus (it exists in /sys/bus/acpi/devices). If I use
+> normal ACPI IDs (non-PRP0001) then it works fine.
+>
 
-No.
-
-> that case there is no need for the new adapter_nr in every
-> client, you could just go with client->adapter->nr instead.
-
-client->adapter may be a dangling pointer at this point if the adapter
-is freed, so we can't use that blindly for sure.
-
-> Which just shows that the whole thing is fishy and that the
-> adapter has to remain alive. BTW, is there any guarantee that
-> adapter numbers will not get reused?
-
-We are allocating them from idr and that will reuse them once they get
-freed.
-
--- 
-viresh
+I specifically tested with PRP0001 via initrd with I2C, I am not sure
+why it does not work on SPI. I'll give it a try tomorrow when I have
+access to my setup.
