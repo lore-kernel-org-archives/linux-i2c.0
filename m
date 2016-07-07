@@ -1,41 +1,66 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH 2/4] soc: fsl: add GUTS driver for QorIQ platforms
-Date: Thu, 07 Jul 2016 10:30:29 +0200
-Message-ID: <4094106.qfxJu3tJbO@wuerfel>
-References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
-	<1465609853.22191.151.camel@buserror.net>
-	<HE1PR04MB0889646206BFAD68046F3473F83B0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v5 2/8] acpi: fix enumeration (visited) flags for bus
+ rescans
+Date: Thu, 7 Jul 2016 12:00:13 +0300
+Message-ID: <20160707090013.GK23527@lahna.fi.intel.com>
+References: <1467404352-27101-1-git-send-email-octavian.purdila@intel.com>
+ <20160706150317.GH23527@lahna.fi.intel.com>
+ <CAE1zotJg+bCUD+q_cbiO1=abx1PJbUdWVr03uutwR081iG4G1g@mail.gmail.com>
+ <31239967.dEXrvihxAE@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <HE1PR04MB0889646206BFAD68046F3473F83B0-6LN7OEpIatX1kPMWxTxe+c9NdZoXdze2vxpqHgZTriW3zl9H0oFU5g@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs+mg8Ev75riOw@public.gmane.org
-	x-foundation.org" <iommu@>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <31239967.dEXrvihxAE-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Cc: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-spi <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Leonard Crestez <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVGh1cnNkYXksIEp1bHkgNywgMjAxNiAyOjM1OjMzIEFNIENFU1QgWWFuZ2JvIEx1IHdyb3Rl
-Ogo+IEhpIEFybmQsCj4gCj4gQ291bGQgeW91IHJlcGx5IHdoZW4geW91IHNlZSB0aGUgZW1haWw/
-Cj4gSWYgeW91ciBtZXRob2QgZG9lc27igJl0IHJlc29sdmUgdGhlIHByb2JsZW0sIHdlIHN0aWxs
-IHdhbnQgdG8gdXNlIG91ciBvbGQgcGF0Y2hzZXQuCj4gCj4gVGhpcyBndXRzIGRyaXZlciBoYWQg
-YmVlbiBkaXNjdXNzZWQgYWJvdXQgb25lIHllYXIgYW5kIGJsb2NrZWQgbWFueSB3b3JrYXJvdW5k
-IHVwc3RyZWFtLgo+IFNvIHBsZWFzZSBoZWxwIHRvIHJldmlldyBhbmQgY29tbWVudCBzb29uLgo+
-IAoKSSBkb24ndCByZWFsbHkgc2VlIGhvdyBtb3JlIGRpc2N1c3Npb24gaXMgZ29pbmcgdG8gaGVs
-cCB1cyBoZXJlLiBJIHRoaW5rCkkndmUgbWFkZSBpdCBwcmV0dHkgY2xlYXIgdGhhdCBJIGRvbid0
-IHdhbnQgdG8gc2VlIGFub3RoZXIgcGxhdGZvcm0Kc3BlY2lmaWMgd2F5IHRvIHJlYWQgYW4gU29D
-IHJldmlzaW9uIGFuZCBJJ3ZlIGV2ZW4gc2VudCBhIHByb29mLW9mLWNvbmNlcHQKcGF0Y2ggdG8g
-c2hvdyBob3cgdGhlIGludGVyZmFjZSBjYW4gd29yaywgbm93IGl0J3MgdXAgdG8geW91IHRvIGZp
-dCB0aGUKZ3V0cyBoYXJkd2FyZSBpbnRvIHRoYXQgYW5kIHNlbmQgYSBuZXcgcGF0Y2ggc2VyaWVz
-LgoKCUFybmQKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-CmlvbW11IG1haWxpbmcgbGlzdAppb21tdUBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby9pb21tdQ==
+On Wed, Jul 06, 2016 at 11:09:44PM +0200, Rafael J. Wysocki wrote:
+> On Wednesday, July 06, 2016 06:37:46 PM Octavian Purdila wrote:
+> > On Wed, Jul 6, 2016 at 6:03 PM, Mika Westerberg
+> > <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> > > On Fri, Jul 01, 2016 at 11:19:06PM +0300, Octavian Purdila wrote:
+> > >> If the ACPI tables changes as a result of a dinamically loaded table and
+> > >> a bus rescan is required the enumeration/visited flag are not
+> > >> consistent.
+> > >>
+> > >> I2C/SPI are not directly enumerated in acpi_bus_attach(), however the
+> > >> visited flag is set. This makes it impossible to check if an ACPI device
+> > >> has already been enumerated by the I2C and SPI subsystems. To fix this
+> > >> issue we only set the visited flags if the device is not I2C or SPI.
+> > >>
+> > >> With this change we also need to remove setting visited to false from
+> > >> acpi_bus_attach(), otherwise if we rescan already enumerated I2C/SPI
+> > >> devices we try to re-enumerate them.
+> > >>
+> > >> Note that I2C/SPI devices can be enumerated either via a scan handler
+> > >> (when using PRP0001) or via regular device_attach(). In either case
+> > >> the flow goes through acpi_default_enumeration() which makes it the
+> > >> ideal place to mark the ACPI device as enumerated.
+> > >
+> > > Hmm, this somehow fails to enumerate PRP0001 devices.
+> > >
+> > > I'm adding following SSDT to my initrd and the resulting device is never
+> > > enumerated on SPI bus (it exists in /sys/bus/acpi/devices). If I use
+> > > normal ACPI IDs (non-PRP0001) then it works fine.
+> > >
+> > 
+> > I specifically tested with PRP0001 via initrd with I2C, I am not sure
+> > why it does not work on SPI. I'll give it a try tomorrow when I have
+> > access to my setup.
+> 
+> OK, I'll wait for this test to conclude before applying the series, then. :-)
+
+I tested again and it works fine. I probably had an older version of the
+series applied or something like that. Now, I'm able to see my AT25 SPI
+eeprom successfully probed:
+
+[    7.264705] at25 spi-PRP0001:00: 1 KByte at25 eeprom, pagesize 32
+
+Sorry about the confusion.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
