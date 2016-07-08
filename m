@@ -1,57 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: meson: allow build with COMPILE_TEST
-Date: Fri, 8 Jul 2016 10:39:01 +0900
-Message-ID: <20160708013901.GB10192@tetsubishi>
-References: <1467836225-2427-1-git-send-email-ben-linux@fluff.org>
+Subject: Re: [PATCH v3] i2c: xlp9xx: add ACPI support for Broadcom Vulcan
+Date: Fri, 8 Jul 2016 10:42:43 +0900
+Message-ID: <20160708014242.GC10192@tetsubishi>
+References: <20160618140420.GA1430@tetsubishi>
+ <1466414778-22879-1-git-send-email-tanmay.jagdale@broadcom.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s2ZSL+KKDSLx8OML"
+	protocol="application/pgp-signature"; boundary="kVXhAStRUZ/+rrGn"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:33565 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:33588 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753464AbcGHBj0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 7 Jul 2016 21:39:26 -0400
+	id S1753470AbcGHBmw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 7 Jul 2016 21:42:52 -0400
 Content-Disposition: inline
-In-Reply-To: <1467836225-2427-1-git-send-email-ben-linux@fluff.org>
+In-Reply-To: <1466414778-22879-1-git-send-email-tanmay.jagdale@broadcom.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-kernel@lists.codethink.co.uk, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>
+To: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com, mika.westerberg@linux.intel.com
 
 
---s2ZSL+KKDSLx8OML
+--kVXhAStRUZ/+rrGn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 06, 2016 at 09:17:05PM +0100, Ben Dooks wrote:
-> This driver should be buildable with COMPILE_TEST so
-> add this to the dependency for it.
+On Mon, Jun 20, 2016 at 02:56:18PM +0530, Tanmay Jagdale wrote:
+> Added ACPI support for the I2C controller present on Broadcom's
+> Vulcan ARM64 processor. ACPI ID used by the controller is BRCM9007.
 >=20
-> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+> Changed the xlp9xx_i2c_get_frequency() function to use
+> device_property_read_u32() API so that the "clock-frequency" value
+> can be read from _DSD in ACPI mode.
+>=20
+> Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
 
-Care to explain why the first one was better? A bit confused here...
+Applied to for-next, thanks!
 
 
---s2ZSL+KKDSLx8OML
+--kVXhAStRUZ/+rrGn
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXfwQ0AAoJEBQN5MwUoCm29HgQAJ36Z5ANdJhtPDRA2Ro6SwXD
-zxzgbIXNyPzLeixXhouj4MQyC805cLKWLx6gArR+MfJjqBrUUtstKHP5VYHPIHnE
-0jShXjSWFQs8uL8y0kMMuXRCkHiHzgE6GJIP/wSn8wdpNDx5bkP2FUDjIbggavK0
-kDROQiJ3tWfyOccpp93uTNdeQzYj/crnTlZZeOUJGsaWhAv4aLmqR1o6IVzBDCt9
-hFlFt9F1o1CfRyVoSyL6bsvRWkFU2ERCuD9Az+erRc2oKdbv9+Eu3id3VSg6Z8lp
-r/zXjZwmfy+183mZor6BLkf4sYtchSTXcstJWTykpJj0KsiqKx0O8JJJ1ZrGpf61
-XDi5gaV7QmElxzMFT8TBdoPCZIHL4434OdtWr4+IeVq0BFwcYjBIbz91BpRW3Lcd
-WzR5fe2cS1domLsJCE93KEGO04C4ARaB0DIp9Jqukodc9iCv+eTuOMn7Hksy5l0g
-K5idIyumUxGVnEt7BZLQzGMLboEbyf2EzG7NSqmQt2wyK5Mh4a1YPIQ4yHJj4FEF
-oDS6faZ57sQLyOgjJzJVDWzjX+VMk1C42r0F95eA0rhv1KxajTiVqQOFQuDL+lnI
-KGMnUuKnXsRqr2nbFjZGT4SH5u8vH+yxIQWq+ogWJpHdyeRIjVh6RygYyl2914T5
-I89k1DLQl4Gu6NUiEELI
-=z25f
+iQIcBAEBAgAGBQJXfwURAAoJEBQN5MwUoCm2A7QQAJ8TvxZv1pyas8ScY48Z8Zgw
+lLbpFxpUilRXRubz9fD4xriu8mBG3SSO3IHM62r5f9GYNpfAGmsFRvUp53nXTjP8
+1XEy+OmdA1kQ1Q9j3UEBKVhqRBLs5YcwpZOntZ//+vRr/pB1PkxcfTUC1GxKOPiv
+ylFHUH6zm8XMhfgjHLV1y/MjrCY27znhGrf5YOk+j0HEKntw0v6Yirsqs2BqZagw
+dzUN7xsbF2HeOY+evUnuu01AB+PxFzXptTc1Vu/jKGUqs5mvCwonL6u4Qoncme9Y
+SuT40wWolda+WBAlYa8LgBqO2Vxvs9kqr1QDb05a9Wu+2mglXeGQ15kL/mXetbqb
+Z1rDt5ai1AdJ7NwznpmoVbkLYvsvt9TuwQxcds/o3EeVoHzBDibZKQGrelB18p/S
+tCk7mYRMKBJLyKcuF2RaGzmE8OLBGJinOvoEYAIeWLXW9arVqwcPoJ+zTBKmm4SX
+tzupj08UG5IwSlER++Emfru8BKlzctU4Pv/Ey9I4zssaPUkEva1Bg4+I7xNEEhB3
+oJMwLHndMNyHJvTflxgyVDAdIJ3PfgDK9KqkxXWA9B4nl2XeRAvnqQV5R8Le5WrH
+3egTUk6JfJh/9+2Ok6MPruy6ECpXBkQDuPTuZBh3NWwYkGQ6LsI19yeEoVC6H/hA
+5G29CXEBlt0x1DDzoS/I
+=CPBy
 -----END PGP SIGNATURE-----
 
---s2ZSL+KKDSLx8OML--
+--kVXhAStRUZ/+rrGn--
