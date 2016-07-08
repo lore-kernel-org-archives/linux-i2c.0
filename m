@@ -1,70 +1,45 @@
-From: Frank Rowand <frowand.list@gmail.com>
-Subject: Re: [RFC PATCH 0/1] Portable Device Tree Connector -- conceptual
-Date: Fri, 8 Jul 2016 12:25:50 -0700
-Message-ID: <577FFE3E.50600@gmail.com>
-References: <1467503750-31703-1-git-send-email-frowand.list@gmail.com>
- <20160707071548.GV14675@voom.fritz.box>
- <2D8CFA9A-C317-4C02-9893-169B4B77E01E@konsulko.com>
- <577FFCEB.9010600@gmail.com>
+From: Tim Harvey <tharvey@gateworks.com>
+Subject: Re: [PATCH] i2c: imx: add retries for i2c-0 on Ventana boards
+Date: Fri, 8 Jul 2016 12:49:04 -0700
+Message-ID: <CAJ+vNU2QLTh7-tbLB_b2S04+pMg3VFjN2kk8T2d6x1okdmbx1A@mail.gmail.com>
+References: <1467900229-5262-1-git-send-email-tharvey@gateworks.com> <20160708062846.GI16643@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:36667 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752537AbcGHT0D (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 8 Jul 2016 15:26:03 -0400
-In-Reply-To: <577FFCEB.9010600@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160708062846.GI16643@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Fabio Estevam <fabio.estevam@freescale.com>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>, David Gibson <david@gibson.dropbear.id.au>
-Cc: robh+dt@kernel.org, stephen.boyd@linaro.org, broonie@kernel.org, Grant Likely <grant.likely@secretlab.ca>, mark.rutland@arm.com, Matt Porter <mporter@konsulko.com>, koen@dominion.thruhere.net, linux@roeck-us.net, marex@denx.de, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Frank Rowand <frowand.list@gmail.com>
 
-On 07/08/16 12:20, Frank Rowand wrote:
-> On 07/08/16 00:26, Pantelis Antoniou wrote:
->> Hi David,
->>
->>> On Jul 7, 2016, at 10:15 , David Gibson <david@gibson.dropbear.id.a=
-u> wrote:
->>>
->=20
-> < snip >
->=20
->>> Given that we're going to need new code to support this new connect=
-or
->>> model, I think we should also fix some of the uglies in the current
->>> overlay format while we're at it.
->>>
->>
->> We need to keep compatibility with the old format. There are 5 milli=
-on
->> RPIs sold, half a million beaglebones and C.H.I.P. is coming out too=
-=2E
->> They all use overlays in one form or another.
->>
->> That=E2=80=99s not counting all the custom boards that actively use =
-them.
->>
->> We have a user base now.
->=20
-> Please not that I AM NOT suggesting the we remove compatibility with
-         ^^^ note
+On Thu, Jul 7, 2016 at 11:28 PM, Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig@pengutronix.de> wrote:
+> Hello Tim,
+>
+> On Thu, Jul 07, 2016 at 07:03:49AM -0700, Tim Harvey wrote:
+>> Gateworks Ventana IMX6 based boards have a Gateworks System Controll=
+er [1]
+>> (gsc) device that can NAK i2c transactions when its busy in an ADC l=
+oop. As
+>> this is always on i2c-0 we will add retries for that bus for any Ven=
+tana
+>> board.
+>
+> The right thing is to fix the drivers IMHO.
+>
 
-> the old format!!!
->=20
-> But I need to push back on the idea that we have a user base that we
-> need to keep compatibility with.  If I understand correctly, that
-> user base is based on using much code that is not in mainline, includ=
-ing
-> an altered dtc and a cape manager.
->=20
-> People using out of tree code can not use the fact that code exists a=
-nd
-> is being widely used to force us to mainline that out of tree code.
-> That is the risk of using out of tree code.
->=20
-> I do not want to start a big discussion about this now since there is
-> no plan to remove the compatibility at this point.
->=20
-> -Frank
->=20
+Hi Uwe,
+
+Thanks for the feedack!
+
+The issue I have is that the i2c device emulates several other devices
+with existing drivers (pca953x, ds1672, at24) and those drivers don't
+have any retry mechanism in place for a retry.
+
+Maybe if I converted those drivers to use regmap I could implement a
+regmap with retries in the mfd driver for my device?
+
+Regards,
+
+Tim
