@@ -1,62 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: xlp9xx: add ACPI support for Broadcom Vulcan
-Date: Fri, 8 Jul 2016 10:42:43 +0900
-Message-ID: <20160708014242.GC10192@tetsubishi>
-References: <20160618140420.GA1430@tetsubishi>
- <1466414778-22879-1-git-send-email-tanmay.jagdale@broadcom.com>
+From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: RE: [PATCH 2/4] soc: fsl: add GUTS driver for QorIQ platforms
+Date: Fri, 8 Jul 2016 03:05:41 +0000
+Message-ID: <HE1PR04MB0889950E99B791029F1670E9F83C0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
+	<1465609853.22191.151.camel@buserror.net>
+	<HE1PR04MB0889646206BFAD68046F3473F83B0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+	<4094106.qfxJu3tJbO@wuerfel>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kVXhAStRUZ/+rrGn"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:33588 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753470AbcGHBmw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 7 Jul 2016 21:42:52 -0400
-Content-Disposition: inline
-In-Reply-To: <1466414778-22879-1-git-send-email-tanmay.jagdale@broadcom.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <4094106.qfxJu3tJbO@wuerfel>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Yang-Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu@l>
 List-Id: linux-i2c@vger.kernel.org
-To: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
-Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com, mika.westerberg@linux.intel.com
 
-
---kVXhAStRUZ/+rrGn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jun 20, 2016 at 02:56:18PM +0530, Tanmay Jagdale wrote:
-> Added ACPI support for the I2C controller present on Broadcom's
-> Vulcan ARM64 processor. ACPI ID used by the controller is BRCM9007.
->=20
-> Changed the xlp9xx_i2c_get_frequency() function to use
-> device_property_read_u32() API so that the "clock-frequency" value
-> can be read from _DSD in ACPI mode.
->=20
-> Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
-
-Applied to for-next, thanks!
-
-
---kVXhAStRUZ/+rrGn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXfwURAAoJEBQN5MwUoCm2A7QQAJ8TvxZv1pyas8ScY48Z8Zgw
-lLbpFxpUilRXRubz9fD4xriu8mBG3SSO3IHM62r5f9GYNpfAGmsFRvUp53nXTjP8
-1XEy+OmdA1kQ1Q9j3UEBKVhqRBLs5YcwpZOntZ//+vRr/pB1PkxcfTUC1GxKOPiv
-ylFHUH6zm8XMhfgjHLV1y/MjrCY27znhGrf5YOk+j0HEKntw0v6Yirsqs2BqZagw
-dzUN7xsbF2HeOY+evUnuu01AB+PxFzXptTc1Vu/jKGUqs5mvCwonL6u4Qoncme9Y
-SuT40wWolda+WBAlYa8LgBqO2Vxvs9kqr1QDb05a9Wu+2mglXeGQ15kL/mXetbqb
-Z1rDt5ai1AdJ7NwznpmoVbkLYvsvt9TuwQxcds/o3EeVoHzBDibZKQGrelB18p/S
-tCk7mYRMKBJLyKcuF2RaGzmE8OLBGJinOvoEYAIeWLXW9arVqwcPoJ+zTBKmm4SX
-tzupj08UG5IwSlER++Emfru8BKlzctU4Pv/Ey9I4zssaPUkEva1Bg4+I7xNEEhB3
-oJMwLHndMNyHJvTflxgyVDAdIJ3PfgDK9KqkxXWA9B4nl2XeRAvnqQV5R8Le5WrH
-3egTUk6JfJh/9+2Ok6MPruy6ECpXBkQDuPTuZBh3NWwYkGQ6LsI19yeEoVC6H/hA
-5G29CXEBlt0x1DDzoS/I
-=CPBy
------END PGP SIGNATURE-----
-
---kVXhAStRUZ/+rrGn--
+SGkgQXJuZCwNCg0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEFybmQg
+QmVyZ21hbm4gW21haWx0bzphcm5kQGFybmRiLmRlXQ0KPiBTZW50OiBUaHVyc2RheSwgSnVseSAw
+NywgMjAxNiA0OjMwIFBNDQo+IFRvOiBZYW5nYm8gTHUNCj4gQ2M6IFNjb3R0IFdvb2Q7IGxpbnV4
+cHBjLWRldkBsaXN0cy5vemxhYnMub3JnOyBNYXJrIFJ1dGxhbmQ7IFVsZiBIYW5zc29uOw0KPiBs
+aW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBs
+aW51eC0NCj4gY2xrQHZnZXIua2VybmVsLm9yZzsgUWlhbmcgWmhhbzsgUnVzc2VsbCBLaW5nOyBC
+aHVwZXNoIFNoYXJtYTsgSm9lcmcNCj4gUm9lZGVsOyBDbGF1ZGl1IE1hbm9pbDsgZGV2aWNldHJl
+ZUB2Z2VyLmtlcm5lbC5vcmc7IEt1bWFyIEdhbGE7IFJvYg0KPiBIZXJyaW5nOyBTYW50b3NoIFNo
+aWxpbWthcjsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOw0KPiBuZXRkZXZA
+dmdlci5rZXJuZWwub3JnOyBsaW51eC1tbWNAdmdlci5rZXJuZWwub3JnOyBYaWFvYm8gWGllOyBZ
+YW5nLUxlbw0KPiBMaTsgaW9tbXVAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcNCj4gU3ViamVj
+dDogUmU6IFtQQVRDSCAyLzRdIHNvYzogZnNsOiBhZGQgR1VUUyBkcml2ZXIgZm9yIFFvcklRIHBs
+YXRmb3Jtcw0KPiANCj4gT24gVGh1cnNkYXksIEp1bHkgNywgMjAxNiAyOjM1OjMzIEFNIENFU1Qg
+WWFuZ2JvIEx1IHdyb3RlOg0KPiA+IEhpIEFybmQsDQo+ID4NCj4gPiBDb3VsZCB5b3UgcmVwbHkg
+d2hlbiB5b3Ugc2VlIHRoZSBlbWFpbD8NCj4gPiBJZiB5b3VyIG1ldGhvZCBkb2VzbuKAmXQgcmVz
+b2x2ZSB0aGUgcHJvYmxlbSwgd2Ugc3RpbGwgd2FudCB0byB1c2Ugb3VyDQo+IG9sZCBwYXRjaHNl
+dC4NCj4gPg0KPiA+IFRoaXMgZ3V0cyBkcml2ZXIgaGFkIGJlZW4gZGlzY3Vzc2VkIGFib3V0IG9u
+ZSB5ZWFyIGFuZCBibG9ja2VkIG1hbnkNCj4gd29ya2Fyb3VuZCB1cHN0cmVhbS4NCj4gPiBTbyBw
+bGVhc2UgaGVscCB0byByZXZpZXcgYW5kIGNvbW1lbnQgc29vbi4NCj4gPg0KPiANCj4gSSBkb24n
+dCByZWFsbHkgc2VlIGhvdyBtb3JlIGRpc2N1c3Npb24gaXMgZ29pbmcgdG8gaGVscCB1cyBoZXJl
+LiBJIHRoaW5rDQo+IEkndmUgbWFkZSBpdCBwcmV0dHkgY2xlYXIgdGhhdCBJIGRvbid0IHdhbnQg
+dG8gc2VlIGFub3RoZXIgcGxhdGZvcm0NCj4gc3BlY2lmaWMgd2F5IHRvIHJlYWQgYW4gU29DIHJl
+dmlzaW9uIGFuZCBJJ3ZlIGV2ZW4gc2VudCBhIHByb29mLW9mLQ0KPiBjb25jZXB0IHBhdGNoIHRv
+IHNob3cgaG93IHRoZSBpbnRlcmZhY2UgY2FuIHdvcmssIG5vdyBpdCdzIHVwIHRvIHlvdSB0bw0K
+PiBmaXQgdGhlIGd1dHMgaGFyZHdhcmUgaW50byB0aGF0IGFuZCBzZW5kIGEgbmV3IHBhdGNoIHNl
+cmllcy4NCj4gDQo+IAlBcm5kDQoNCkkgdGhpbmsgeW91ciBwcm9vZi1vZi1jb25jZXB0IHBhdGNo
+IGlzIHN0aWxsIGluIGRpc2N1c3Npb24uIFNvbWUgYW5zd2VycyBhcmUgbmVlZGVkIGZyb20geW91
+IHRvDQphZGRyZXNzIFNjb3R0J3MgY29tbWVudHMgb24geW91ciBwYXRjaHNldC4gSGF2ZSB5b3Ug
+cmVhY2hlZCBhbiBhZ3JlZW1lbnQ/DQoNClRoYW5rcy4NCg0KLSBZYW5nYm8gTHUNCg0KDQoNCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmlvbW11IG1haWxp
+bmcgbGlzdAppb21tdUBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby9pb21tdQ==
