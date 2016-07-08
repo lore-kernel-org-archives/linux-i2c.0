@@ -1,118 +1,30 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: [PATCH v7 1/8] Documentation: acpi: add SSDT overlays documentation
-Date: Fri,  8 Jul 2016 19:13:07 +0300
-Message-ID: <1467994394-23983-2-git-send-email-octavian.purdila@intel.com>
-References: <1467994394-23983-1-git-send-email-octavian.purdila@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1467994394-23983-1-git-send-email-octavian.purdila@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J . Wysocki" <rjw@rjwysocki.net>
-Cc: linux-acpi@vger.kernel.org, linux-efi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, leonard.crestez@intel.com, Octavian Purdila <octavian.purdila@intel.com>
+From: Eudean Sun <eudean@arista.com>
+Subject: Re: i2c-ismt: IRDPE error
+Date: Fri, 8 Jul 2016 17:24:43 +0000 (UTC)
+Message-ID: <loom.20160708T192055-392@post.gmane.org>
+References: <CABnNLvhGxcStPQxoZCRbR8Het2m7P7CZkYXYVbTmsO33aRxsTA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from plane.gmane.org ([80.91.229.3]:46314 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932386AbcGHRaH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 8 Jul 2016 13:30:07 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <gldi-i2c-1@m.gmane.org>)
+	id 1bLZbH-0002Fg-Ho
+	for linux-i2c@vger.kernel.org; Fri, 08 Jul 2016 19:30:03 +0200
+Received: from 172.56.8.162 ([172.56.8.162])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-i2c@vger.kernel.org>; Fri, 08 Jul 2016 19:30:03 +0200
+Received: from eudean by 172.56.8.162 with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-i2c@vger.kernel.org>; Fri, 08 Jul 2016 19:30:03 +0200
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- Documentation/acpi/ssdt-overlays.txt | 91 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 91 insertions(+)
- create mode 100644 Documentation/acpi/ssdt-overlays.txt
-
-diff --git a/Documentation/acpi/ssdt-overlays.txt b/Documentation/acpi/ssdt-overlays.txt
-new file mode 100644
-index 0000000..8050259
---- /dev/null
-+++ b/Documentation/acpi/ssdt-overlays.txt
-@@ -0,0 +1,91 @@
-+
-+In order to support ACPI open-ended hardware configurations (e.g. development
-+boards) we need a way to augment the ACPI configuration provided by the firmware
-+image. A common example is connecting sensors on I2C / SPI buses on development
-+boards.
-+
-+Although this can be accomplished by creating a kernel platform driver or
-+recompiling the firmware image with updated ACPI tables, neither is practical:
-+the former proliferates board specific kernel code while the latter requires
-+access to firmware tools which are often not publicly available.
-+
-+Because ACPI supports external references in AML code a more practical
-+way to augment firmware ACPI configuration is by dynamically loading
-+user defined SSDT tables that contain the board specific information.
-+
-+For example, to enumerate a Bosch BMA222E accelerometer on the I2C bus of the
-+Minnowboard MAX development board exposed via the LSE connector [1], the
-+following ASL code can be used:
-+
-+DefinitionBlock ("minnowmax.aml", "SSDT", 1, "Vendor", "Accel", 0x00000003)
-+{
-+    External (\_SB.I2C6, DeviceObj)
-+
-+    Scope (\_SB.I2C6)
-+    {
-+        Device (STAC)
-+        {
-+            Name (_ADR, Zero)
-+            Name (_HID, "BMA222E")
-+
-+            Method (_CRS, 0, Serialized)
-+            {
-+                Name (RBUF, ResourceTemplate ()
-+                {
-+                    I2cSerialBus (0x0018, ControllerInitiated, 0x00061A80,
-+                                  AddressingMode7Bit, "\\_SB.I2C6", 0x00,
-+                                  ResourceConsumer, ,)
-+                    GpioInt (Edge, ActiveHigh, Exclusive, PullDown, 0x0000,
-+                             "\\_SB.GPO2", 0x00, ResourceConsumer, , )
-+                    { // Pin list
-+                        0
-+                    }
-+                })
-+                Return (RBUF)
-+            }
-+        }
-+    }
-+}
-+
-+which can then be compiled to AML binary format:
-+
-+$ iasl minnowmax.asl
-+
-+Intel ACPI Component Architecture
-+ASL Optimizing Compiler version 20140214-64 [Mar 29 2014]
-+Copyright (c) 2000 - 2014 Intel Corporation
-+
-+ASL Input:     minnomax.asl - 30 lines, 614 bytes, 7 keywords
-+AML Output:    minnowmax.aml - 165 bytes, 6 named objects, 1 executable opcodes
-+
-+[1] http://wiki.minnowboard.org/MinnowBoard_MAX#Low_Speed_Expansion_Connector_.28Top.29
-+
-+The resulting AML code can then be loaded by the kernel using one of the methods
-+below.
-+
-+== Loading ACPI SSDTs from initrd ==
-+
-+This option allows loading of user defined SSDTs from initrd and it is useful
-+when the system does not support EFI or when there is not enough EFI storage.
-+
-+It works in a similar way with initrd based ACPI tables override/upgrade: SSDT
-+aml code must be placed in the first, uncompressed, initrd under the
-+"kernel/firmware/acpi" path. Multiple files can be used and this will translate
-+in loading multiple tables. Only SSDT and OEM tables are allowed. See
-+initrd_table_override.txt for more details.
-+
-+Here is an example:
-+
-+# Add the raw ACPI tables to an uncompressed cpio archive.
-+# They must be put into a /kernel/firmware/acpi directory inside the
-+# cpio archive.
-+# The uncompressed cpio archive must be the first.
-+# Other, typically compressed cpio archives, must be
-+# concatenated on top of the uncompressed one.
-+mkdir -p kernel/firmware/acpi
-+cp ssdt.aml kernel/firmware/acpi
-+
-+# Create the uncompressed cpio archive and concatenate the original initrd
-+# on top:
-+find kernel | cpio -H newc --create > /boot/instrumented_initrd
-+cat /boot/initrd >>/boot/instrumented_initrd
--- 
-2.7.4
+54K65rqiKOmYv+WwvOWFiOeUnyA8a2NoZW5nd3kgPGF0PiBnbWFpbC5jb20+IHdyaXRlczoKCj4gCj4gSGkgZXZlcnlvbmUsCj4gCj4gSeKAmW0gd29ya2luZyBvbiBhIGJvYXJkIHRoYXQgdXNpbmcgaW50ZWwgaVNNVCBjb250cm9sbGVyIHRvIGNvbW11bmljYXRlCj4gd2l0aCBjdXN0b20gSTJDIHNsYXZlIGRldmljZS4KPiBCdXQgc29tZXRpbWVzIEkgZ290IElSRFBFIGVycm9yIHdoaWxlIHJlYWRpbmcgZGF0YSBmcm9tIGRldmljZS4KPiAKPiBBbmQgSSBnb3QgaW5mb3JtYXRpb24gdGhhdCB0aGVyZSBpcyBhIEVycmF0YSBhYm91dCB0aGlzIGVycm9yIGFuZCBoYXMKPiBhIHdvcmthcm91bmQuCj4gRG9lcyBhbnlvbmUga25vdyB0aGUgZGV0YWlsIGFib3V0IHRoYXQgRXJyYXRhID8KClRoZXJlIGlzIHN1Y2ggYW4gZXJyYXRhLCBkZXRhaWxzIGFyZSBpbiB0aGUgU3BlY2lmaWNhdGlvbiBVcGRhdGUgZm9yIHRoZSAKSW50ZWwgQzIwMDAgKEludGVsIERvY3VtZW50IE51bWJlciA1MjA2NTMpLiBUaGF0IGlzIGNvdmVyZWQgdW5kZXIgTkRBIAp0aG91Z2ggc28geW91J2xsIGhhdmUgdG8gcmVxdWVzdCB5b3VyIG93biBjb3B5LgoKPiBBbmQgaGF2ZSB0aGlz
+ IHdvcmthcm91bmQgYWxyZWFkeSBiZSBpbXBsZW1lbnRlZCBpbiB0aGUgbGF0ZXN0IGkyYy1pc210IApkcml2ZXIgPwoKVGhpcyBjaGFuZ2UgYWRkcmVzc2VzIHRoZSBpc3N1ZSBhbmQgd2VudCBpbnRvIGtlcm5lbCB2ZXJzaW9uIDMuMTI6CgpodHRwczovL2dpdGh1Yi5jb20vdG9ydmFsZHMvbGludXgvY29tbWl0L2JmNDE2OTEwMGM5MDk2NjdlZGU2YWY2NzY2OGIzZWNjZQo2OTI4MzQz
