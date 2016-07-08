@@ -1,59 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c-dev: don't get i2c adapter via i2c_dev
-Date: Fri, 8 Jul 2016 10:31:54 +0900
-Message-ID: <20160708013152.GA10192@tetsubishi>
-References: <cover.1467772840.git.viresh.kumar@linaro.org>
- <c2ac0349b818d3f3787b939d5eb83e3c80fc205d.1467772840.git.viresh.kumar@linaro.org>
+Subject: Re: [PATCH v2] i2c: meson: allow build with COMPILE_TEST
+Date: Fri, 8 Jul 2016 10:39:01 +0900
+Message-ID: <20160708013901.GB10192@tetsubishi>
+References: <1467836225-2427-1-git-send-email-ben-linux@fluff.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="s2ZSL+KKDSLx8OML"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:33565 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753464AbcGHBj0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 7 Jul 2016 21:39:26 -0400
 Content-Disposition: inline
-In-Reply-To: <c2ac0349b818d3f3787b939d5eb83e3c80fc205d.1467772840.git.viresh.kumar@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
+In-Reply-To: <1467836225-2427-1-git-send-email-ben-linux@fluff.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: linux-kernel@lists.codethink.co.uk, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>
 
 
---X1bOJ3K7DJ5YkBrT
+--s2ZSL+KKDSLx8OML
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 05, 2016 at 07:57:06PM -0700, Viresh Kumar wrote:
-> There is no code protecting i2c_dev to be freed after it is returned
-> from i2c_dev_get_by_minor() and using it to access the value which we
-> already have (minor) isn't safe really.
+On Wed, Jul 06, 2016 at 09:17:05PM +0100, Ben Dooks wrote:
+> This driver should be buildable with COMPILE_TEST so
+> add this to the dependency for it.
 >=20
-> Avoid using it and get the adapter directly from 'minor'.
->=20
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 
-Applied to for-next, thanks!
+Care to explain why the first one was better? A bit confused here...
 
-Jean, thanks for providing the background information! That was exactly
-the missing piece for me.
 
---X1bOJ3K7DJ5YkBrT
+--s2ZSL+KKDSLx8OML
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXfwKIAAoJEBQN5MwUoCm2Bv4P/jSV7My2kcAEtWeoh6GhWP9Y
-Hh8HaTMSAHQVM2DTCPuce4bPuv9jDIWI6ETTU/zcEGI6SZhNjqPGrJdagAslza/d
-1g/5Ag5hMqeGPe0KAFvzi3xhQqZ2XDZD3mf3jtrEcOQofQirmBthNfJanrU7bb2Q
-7smfxTRDsDnA9fk1HkgGEtsk+z53PK7fU8n3PqgvvvU7tbwLT4+AL3mFmSWYTGTq
-1A1y+RRb2OYC99oaHEOhDJohZYCfT2QuX+UXdsiQusgaQQMy5O8+b9MT6soxm5EU
-4qwR062QTVdexBcK7koScp8mMWuj+OI95BUt8yxtEeHv9vYpo26YADV25nVwMpFw
-JpOwSDy/3NsFxg0qcEGmoaXLCv1ctViZxeig2Cs4TiBh7psbarTVeaVRt7w0dclw
-b++av2b4HsMs9gKT73mRu/9nF/UhMjywQuuNP9F+nkJzUDWolAjQdu5rGvNolZ/J
-6PNZo3q15bzHkFCW3jUeV8oaqfeY+FUHoeVIe6fepakX+vWjUItM5OO+RQp4l/0r
-NI88c5r40UJ0TFUqDaOxtQEa9EFNMPlFvqTPHSaK3Aa0c5BJ+S0rbjWWlB5/EJ5Y
-I/NW5bR8UieoUDJTuquZUIEWtNb8POQkbxfH1eMGX0EKBf0UU3TTcsLHXcfw9/6y
-YFvRrH/xx21uoNBEXCIh
-=mpcC
+iQIcBAEBAgAGBQJXfwQ0AAoJEBQN5MwUoCm29HgQAJ36Z5ANdJhtPDRA2Ro6SwXD
+zxzgbIXNyPzLeixXhouj4MQyC805cLKWLx6gArR+MfJjqBrUUtstKHP5VYHPIHnE
+0jShXjSWFQs8uL8y0kMMuXRCkHiHzgE6GJIP/wSn8wdpNDx5bkP2FUDjIbggavK0
+kDROQiJ3tWfyOccpp93uTNdeQzYj/crnTlZZeOUJGsaWhAv4aLmqR1o6IVzBDCt9
+hFlFt9F1o1CfRyVoSyL6bsvRWkFU2ERCuD9Az+erRc2oKdbv9+Eu3id3VSg6Z8lp
+r/zXjZwmfy+183mZor6BLkf4sYtchSTXcstJWTykpJj0KsiqKx0O8JJJ1ZrGpf61
+XDi5gaV7QmElxzMFT8TBdoPCZIHL4434OdtWr4+IeVq0BFwcYjBIbz91BpRW3Lcd
+WzR5fe2cS1domLsJCE93KEGO04C4ARaB0DIp9Jqukodc9iCv+eTuOMn7Hksy5l0g
+K5idIyumUxGVnEt7BZLQzGMLboEbyf2EzG7NSqmQt2wyK5Mh4a1YPIQ4yHJj4FEF
+oDS6faZ57sQLyOgjJzJVDWzjX+VMk1C42r0F95eA0rhv1KxajTiVqQOFQuDL+lnI
+KGMnUuKnXsRqr2nbFjZGT4SH5u8vH+yxIQWq+ogWJpHdyeRIjVh6RygYyl2914T5
+I89k1DLQl4Gu6NUiEELI
+=z25f
 -----END PGP SIGNATURE-----
 
---X1bOJ3K7DJ5YkBrT--
+--s2ZSL+KKDSLx8OML--
