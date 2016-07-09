@@ -1,63 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 3/7] i2c: improve error messages in i2c_register_adapter()
-Date: Sat,  9 Jul 2016 13:35:00 +0900
-Message-ID: <1468038904-2571-4-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 4/7] i2c: add error message when obtaining idr fails
+Date: Sat,  9 Jul 2016 13:35:01 +0900
+Message-ID: <1468038904-2571-5-git-send-email-wsa@the-dreams.de>
 References: <1468038904-2571-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:37716 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:37717 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751653AbcGIEff (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 9 Jul 2016 00:35:35 -0400
+	id S1751653AbcGIEfj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 9 Jul 2016 00:35:39 -0400
 In-Reply-To: <1468038904-2571-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>
 
-Switch to WARN if no adapter name is given, otherwise we won't know who
-missed to do that. Add error message if device registration fails.
-Update error message for missing algo to match style of the others.
+Fix some whitespace issues while here.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/i2c-core.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/i2c/i2c-core.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index cc3e3bf986591c..36183eacec105b 100644
+index 36183eacec105b..a94e7ccb9c3067 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -1610,14 +1610,11 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	}
+@@ -1690,13 +1690,12 @@ out_list:
+  */
+ static int __i2c_add_numbered_adapter(struct i2c_adapter *adap)
+ {
+-	int	id;
++	int id;
  
- 	/* Sanity checks */
--	if (unlikely(adap->name[0] == '\0')) {
--		pr_err("i2c-core: Attempt to register an adapter with "
--		       "no name!\n");
-+	if (WARN(!adap->name[0], "i2c adapter has no name"))
- 		goto out_list;
--	}
--	if (unlikely(!adap->algo)) {
--		pr_err("i2c-core: Attempt to register adapter '%s' with "
--		       "no algo!\n", adap->name);
-+
-+	if (!adap->algo) {
-+		pr_err("i2c-core: adapter '%s': no algo supplied!\n", adap->name);
- 		goto out_list;
- 	}
+ 	mutex_lock(&core_lock);
+-	id = idr_alloc(&i2c_adapter_idr, adap, adap->nr, adap->nr + 1,
+-		       GFP_KERNEL);
++	id = idr_alloc(&i2c_adapter_idr, adap, adap->nr, adap->nr + 1, GFP_KERNEL);
+ 	mutex_unlock(&core_lock);
+-	if (id < 0)
++	if (WARN(id < 0, "couldn't get idr"))
+ 		return id == -ENOSPC ? -EBUSY : id;
  
-@@ -1640,8 +1637,11 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	adap->dev.bus = &i2c_bus_type;
- 	adap->dev.type = &i2c_adapter_type;
- 	res = device_register(&adap->dev);
--	if (res)
-+	if (res) {
-+		pr_err("i2c-core: adapter '%s': can't register device (%d)\n",
-+			adap->name, res);
- 		goto out_list;
-+	}
+ 	return i2c_register_adapter(adap);
+@@ -1733,7 +1732,7 @@ int i2c_add_adapter(struct i2c_adapter *adapter)
+ 	id = idr_alloc(&i2c_adapter_idr, adapter,
+ 		       __i2c_first_dynamic_bus_num, 0, GFP_KERNEL);
+ 	mutex_unlock(&core_lock);
+-	if (id < 0)
++	if (WARN(id < 0, "couldn't get idr"))
+ 		return id;
  
- 	dev_dbg(&adap->dev, "adapter [%s] registered\n", adap->name);
- 
+ 	adapter->nr = id;
 -- 
 2.8.1
