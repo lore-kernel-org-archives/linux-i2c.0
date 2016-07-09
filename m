@@ -1,47 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/7] i2c: improve error messages when registering an adapter
-Date: Sat,  9 Jul 2016 13:34:57 +0900
-Message-ID: <1468038904-2571-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 1/7] i2c: free idr when sanity checks in i2c_register_adapter() fail
+Date: Sat,  9 Jul 2016 13:34:58 +0900
+Message-ID: <1468038904-2571-2-git-send-email-wsa@the-dreams.de>
+References: <1468038904-2571-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:37712 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:37713 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751653AbcGIEfT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 9 Jul 2016 00:35:19 -0400
+	id S1751653AbcGIEfY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 9 Jul 2016 00:35:24 -0400
+In-Reply-To: <1468038904-2571-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>
 
-The goal of this series is to have proper error messages whenever something in
-i2c_add_adapter() and friends fail. Then, we can hereafter drop all similar
-messages in drivers which is largely duplicated code and often not very helpful
-because they are too generic.
+On error, we should give idr back to the pool in any case.
 
-To achieve this goal, we make sure that dev_* is used whenever a device is
-available. pr_* is used when we have at least an adapter name. If not, we use
-WARN to show the user the code path that failed. Error messages were added,
-fixed, and made consistent. Also, the first patch fixes a potential leak found
-while creating this series. Also, i2c_register_adapter() was a bit refactored
-to be easier to handle. Please look at the patch descriptions for details. A
-brach is here:
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jean Delvare <jdelvare@suse.de>
+---
+ drivers/i2c/i2c-core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git strings/i2c
-
-Looking forward to comments.
-
-   Wolfram
-
-Wolfram Sang (7):
-  i2c: free idr when sanity checks in i2c_register_adapter() fail
-  i2c: cleanup i2c_register_adapter() by refactoring recovery init
-  i2c: improve error messages in i2c_register_adapter()
-  i2c: add error message when obtaining idr fails
-  i2c: print more info when of_i2c_notify fails
-  i2c: print more info when acpi_i2c_space_handler() fails
-  i2c: use pr_fmt in the core
-
- drivers/i2c/i2c-core.c | 124 ++++++++++++++++++++++++++-----------------------
- 1 file changed, 66 insertions(+), 58 deletions(-)
-
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 71ad532be1d891..7e6ff6d4cf659a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1560,7 +1560,7 @@ static int __process_new_adapter(struct device_driver *d, void *data)
+ 
+ static int i2c_register_adapter(struct i2c_adapter *adap)
+ {
+-	int res = 0;
++	int res = -EINVAL;
+ 
+ 	/* Can't register until after driver model init */
+ 	if (WARN_ON(!is_registered)) {
+@@ -1572,12 +1572,12 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 	if (unlikely(adap->name[0] == '\0')) {
+ 		pr_err("i2c-core: Attempt to register an adapter with "
+ 		       "no name!\n");
+-		return -EINVAL;
++		goto out_list;
+ 	}
+ 	if (unlikely(!adap->algo)) {
+ 		pr_err("i2c-core: Attempt to register adapter '%s' with "
+ 		       "no algo!\n", adap->name);
+-		return -EINVAL;
++		goto out_list;
+ 	}
+ 
+ 	if (!adap->lock_bus) {
 -- 
 2.8.1
