@@ -1,67 +1,69 @@
-From: Liviu Dudau <liviu.dudau@arm.com>
-Subject: Re: [RESEND][PATCH 1/2] i2c: versatile: Allow compile test build
-Date: Mon, 11 Jul 2016 09:44:57 +0100
-Message-ID: <20160711084457.GI8609@e106497-lin.cambridge.arm.com>
-References: <1468042283.21863.2.camel@ingics.com>
+From: Kieran Bingham <kieran@ksquared.org.uk>
+Subject: Re: [TEST PATCH] rtc: convert ds1307 to interim probe_new
+Date: Mon, 11 Jul 2016 10:13:25 +0100
+Message-ID: <57836335.1050702@bingham.xyz>
+References: <20160610133200.GB1624@katana>
+ <1465766027-485-1-git-send-email-kieran@bingham.xyz>
+ <20160613171324.GA2238@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:51377 "EHLO foss.arm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030542AbcGKIo7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 11 Jul 2016 04:44:59 -0400
-Content-Disposition: inline
-In-Reply-To: <1468042283.21863.2.camel@ingics.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160613171324.GA2238@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Javier Martinez Canillas <javier@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: Axel Lin <axel.lin@ingics.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Pawel Moll <pawel.moll@arm.com>, linux-i2c@vger.kernel.org
 
-On Sat, Jul 09, 2016 at 01:31:23PM +0800, Axel Lin wrote:
-> There is no build dependency for this driver, so enable COMPILE_TEST =
-to get
-> better build coverage.
->=20
-> Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Hi Wolfram,
 
-=46or the whole series:
+On 13/06/16 18:13, Wolfram Sang wrote:
+> 
+>> As we match on only the device, not the manufacturer, I've changed your sketch
+>> so that the test maxim line is on a compatible with name ds9999 to make it
+>> unique. Otherwise, we would match to the dallas,ds1307 id type.
+> 
+> OK, so I assumed correctly that userspace instantiation wouldn't have
+> worked fully.
+> 
+>> If you would prefer that we support separate manufacturers, I can update the
+>> match function so that it attempts a full match first, followed by a stripped
+>> manufacturer match. I'm not certain if we have a need for that at the moment
+>> though, as the current drivers simply match on the device name:
+> 
+> I think we *need* that. We can't instantiate my previous example via
+> userspace otherwise. Also, stripping vendor names is what we want to get
+> rid of with this series, no?
 
-Tested-and-acked-by: Liviu Dudau <Liviu.Dudau@arm.com>
+Awww <multiple expletives removed>
 
-Thanks,
-Liviu
+I just re-read this - Has this series been blocked on me without me
+realising?
 
-> ---
-> Resend with CC VE maintainers.
->  drivers/i2c/busses/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index faa8e68..6e0bba0 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -924,7 +924,7 @@ config I2C_UNIPHIER_F
-> =20
->  config I2C_VERSATILE
->  	tristate "ARM Versatile/Realview I2C bus support"
-> -	depends on ARCH_VERSATILE || ARCH_REALVIEW || ARCH_VEXPRESS
-> +	depends on ARCH_VERSATILE || ARCH_REALVIEW || ARCH_VEXPRESS || COMP=
-ILE_TEST
->  	select I2C_ALGOBIT
->  	help
->  	  Say yes if you want to support the I2C serial bus on ARMs Versati=
-le
-> --=20
-> 2.5.0
->=20
+/me cowers in a corner in shame...
 
---=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-| I would like to |
-| fix the world,  |
-| but they're not |
-| giving me the   |
- \ source code!  /
-  ---------------
-    =C2=AF\_(=E3=83=84)_/=C2=AF
+I think the aim of this series was to simplify the code structures.
+
+Making the vendor names usable, makes sense IMO, but I don't think that
+was a goal of the original series.
+
+I think the series was trying to make an improvement *without* changing
+functionality / usage.
+
+Re-introducing vendor names into the i2c matching would be a change in
+scope from my view, but if it's required to get this series moving let
+me know.
+
+>> This patch also demonstrates a method to obtain the device ID from the new
+>> match system for drivers which would normally have expected this information to
+>> be passed in.
+> 
+> Thanks for the testing!
+> 
+>    Wolfram
+> 
+
+-- 
+Regards
+
+Kieran Bingham
