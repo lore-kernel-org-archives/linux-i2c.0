@@ -1,70 +1,91 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH v2 3/3] acpi spi: Initialize modalias from of_compatible
-Date: Wed, 13 Jul 2016 14:22:02 +0200
-Message-ID: <CAJZ5v0jPfx0DEKkfJ8ma2_+emtbSrCv3KrmRGP7gG-6j6h3yfw@mail.gmail.com>
-References: <cover.1468409668.git.leonard.crestez@intel.com> <1d26e956f12fcd86ad915659adeb86e242b96ac7.1468409668.git.leonard.crestez@intel.com>
+From: Dan O'Donovan <dan@emutex.com>
+Subject: Re: [PATCH v2 0/3] Init device ids from ACPI of_compatible
+Date: Wed, 13 Jul 2016 15:15:44 +0100
+Message-ID: <57864D10.2020007@emutex.com>
+References: <cover.1468409668.git.leonard.crestez@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:36714 "EHLO
-	mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751122AbcGMMWU (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Jul 2016 08:22:20 -0400
-In-Reply-To: <1d26e956f12fcd86ad915659adeb86e242b96ac7.1468409668.git.leonard.crestez@intel.com>
+Received: from bert.emutex.com ([91.103.1.109]:34591 "EHLO bert.emutex.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752049AbcGMOQE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 13 Jul 2016 10:16:04 -0400
+In-Reply-To: <cover.1468409668.git.leonard.crestez@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>
-Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-spi <linux-spi@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Octavian Purdila <octavian.purdila@intel.com>
+To: Crestez Dan Leonard <leonard.crestez@intel.com>, linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
 
-On Wed, Jul 13, 2016 at 1:53 PM, Crestez Dan Leonard
-<leonard.crestez@intel.com> wrote:
-> When using devicetree spi_device.modalias is set to the compatible
-> string with the vendor prefix removed. For SPI devices described via
-> ACPI the i2c_board_info.type string is initialized by acpi_device_hid.
-> When using ACPI and DT ids this string ends up something like "PRP0001".
+On 07/13/2016 12:53 PM, Crestez Dan Leonard wrote:
+> When using devicetree stuff like i2c_client.name or spi_device.modalias
+> is initialized to the first DT compatible id with the vendor prefix
+> stripped. Since some drivers rely on this in order to differentiate between
+> hardware variants try to replicate it when using ACPI with DT ids.
 >
-> Change acpi_register_spi_device to use the of_compatible property if
-> present. This makes it easier to instantiate spi drivers through ACPI
-> with DT ids.
->
-> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+> This also makes it so that the i2c_device_id parameter passed to probe is
+> non-NULL when matching with ACPI and DT ids.
+This solves a problem for me, thanks Leonard!  For the series (in case
+it helps):
 
-Same as for the i2c patch: it looks good to me, but I'd prefer to get
-a word from Mika on it too.
+Tested-by: Dan O'Donovan <dan@emutex.com>
 
-> ---
->  drivers/spi/spi.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
 >
-> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-> index 7589c8a..49fdf6e 100644
-> --- a/drivers/spi/spi.c
-> +++ b/drivers/spi/spi.c
-> @@ -1679,13 +1679,22 @@ static acpi_status acpi_register_spi_device(struct spi_master *master,
->                 return AE_OK;
->         }
+> These patches are on top of linux-pm/linux-next. I delayed v2 until ACPI
+> overlays got in in order to avoid conflicts. I tested using ACPI overlays but
+> there is no actual dependency. This series just extends the PRP0001 feature to
+> be more useful for I2C/SPI.
 >
-> +       if (adev->data.of_compatible) {
-> +               ret = acpi_of_modalias(adev, spi->modalias, sizeof(spi->modalias));
-> +               if (ret) {
-> +                       spi_dev_put(spi);
-> +                       return AE_NOT_FOUND;
-> +               }
-> +       } else {
-> +               strlcpy(spi->modalias, acpi_device_hid(adev), sizeof(spi->modalias));
-> +       }
-> +
->         if (spi->irq < 0)
->                 spi->irq = acpi_dev_gpio_irq_get(adev, 0);
+> The patches only touches the ACPI-specific parts of the i2c and spi core.
 >
->         acpi_device_set_enumerated(adev);
+> Here is an example .dsl for an SPI accelerometer connected to minnowboard max:
 >
->         adev->power.flags.ignore_parent = true;
-> -       strlcpy(spi->modalias, acpi_device_hid(adev), sizeof(spi->modalias));
->         if (spi_add_device(spi)) {
->                 adev->power.flags.ignore_parent = false;
->                 dev_err(&master->dev, "failed to add SPI device %s from ACPI\n",
-> --
-
-Thanks,
-Rafael
+> Device (ACCL)
+> {
+>     Name (_ADR, Zero)
+>     Name (_HID, "PRP0001")
+>     Name (_CID, "PRP0001")
+>     Name (_UID, One)
+>
+>     Method (_CRS, 0, Serialized)
+>     {
+> 	Name (RBUF, ResourceTemplate ()
+> 	{
+> 	    SPISerialBus(1, PolarityLow, FourWireMode, 16,
+> 		    ControllerInitiated, 1000000, ClockPolarityLow,
+> 		    ClockPhaseFirst, "\\_SB.SPI1",)
+> 	    GpioInt (Edge, ActiveHigh, Exclusive, PullDown, 0x0000,
+> 		     "\\_SB.GPO2", 0x00, ResourceConsumer, , )
+> 	    { // Pin list
+> 		    1
+> 	    }
+> 	})
+> 	Return (RBUF)
+>     }
+>     Name (_DSD, Package ()
+>     {
+> 	ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+> 	Package ()
+> 	{
+> 	    Package () {"compatible", "st,lis3dh"},
+> 	}
+>     })
+> }
+>
+> Link to v1: https://www.spinics.net/lists/linux-acpi/msg66469.html
+> Changes:
+>  * Rebase on after acpi overlays got it.
+>  * Change acpi_of_modalias outlen param to size_t
+>  * Use {} after else
+>
+> Crestez Dan Leonard (3):
+>   acpi: Export acpi_of_modalias equiv of of_modalias_node
+>   acpi i2c: Initialize info.type from of_compatible
+>   acpi spi: Initialize modalias from of_compatible
+>
+>  drivers/acpi/bus.c      | 36 ++++++++++++++++++++++++++++++++++++
+>  drivers/i2c/i2c-core.c  |  8 +++++++-
+>  drivers/spi/spi.c       | 11 ++++++++++-
+>  include/acpi/acpi_bus.h |  1 +
+>  4 files changed, 54 insertions(+), 2 deletions(-)
+>
