@@ -1,62 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: nomadik: move runtime suspend of hw to _noirq
-Date: Thu, 14 Jul 2016 22:40:15 +0900
-Message-ID: <20160714134014.GI4149@tetsubishi>
-References: <1464008356-21162-1-git-send-email-linus.walleij@linaro.org>
- <CAPDyKFpvwQkqS9TRCj+JCOro-fdbkPKrXr6V7eEeSJLMah61Ng@mail.gmail.com>
- <CACRpkdbFvRKpzY82qWpt6CNLEe8GfgaSOJPaebaanOWbT7mC9Q@mail.gmail.com>
- <20160619171221.GD2933@tetsubishi>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with PCI BAR
+Date: Thu, 14 Jul 2016 16:20:36 +0200
+Message-ID: <4200975.LdYuAt9PZR@vostro.rjw.lan>
+References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com> <201607051400.58881@pali> <20160714115218.GC29844@pali>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fmvA4kSBHQVZhkR6"
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160619171221.GD2933@tetsubishi>
-Sender: linux-pm-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Kevin Hilman <khilman@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:43048 "HELO
+	cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751117AbcGNOPw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 14 Jul 2016 10:15:52 -0400
+In-Reply-To: <20160714115218.GC29844@pali>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 
-
---fmvA4kSBHQVZhkR6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Jun 19, 2016 at 07:12:21PM +0200, Wolfram Sang wrote:
->=20
-> > > This is indeed a generic problem, as we don't have a way to describe
-> > > these kind of dependences between devices. In other words, we need to
-> > > control the order of how devices becomes suspended/resumed. If that
-> > > could be done, we could likely avoid runtime resuming devices
-> > > unnecessarily.
+On Thursday, July 14, 2016 01:52:18 PM Pali Roh=C3=A1r wrote:
+> On Tuesday 05 July 2016 14:00:58 Pali Roh=C3=A1r wrote:
+> > On Tuesday 05 July 2016 13:56:58 Pali Roh=C3=A1r wrote:
+> > > On Tuesday 05 July 2016 13:51:42 Mika Westerberg wrote:
+> > > > So are you able to test what happens when you unload the driver=
+?
+> > >=20
+> > > As I wrote in previous email, I do not own these EliteBooks anymo=
+re,
+> > > so cannot test it. Just have DSDT dump...
 > >=20
-> > Correct, keep me in the loop and I can test some patches.
+> > What about contacting last contributors to hp_accel.c driver? They=20
+> > probably could test i801 changes if accelerometer still works.
 >=20
-> So, this patch is discarded in favor of a generic solution?
+> Or another option how to test this: Use acpi_call module which export=
+s
+> file /proc/acpi/call which can be used to issue ACPI method call from
+> userspace.
+>=20
+> If there are problems, there will be errors in dmesg or return value
+> from /proc/acpi/call is some error...
 
-Yes?
+That is plain dangerous, because some objects may not be evaulated with=
+out
+preparation.
 
+We had something like that before and dropped it.
 
---fmvA4kSBHQVZhkR6
-Content-Type: application/pgp-signature; name="signature.asc"
+We have an AML debugger in the kernel now, though, which in principle m=
+ay
+be used for such diagnostics I think.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXh5Y9AAoJEBQN5MwUoCm2wEkQAJb4fZ+8M0vDXdFE3XHBmqEP
-7AYyxuyZW2stNe/MX3DRhsFJI2lPYwl5Xb3bewEIttAgqbwJPS2BL1z9qeTy0jmm
-8PeDQq82GokWW4JKa0fssIMe2EQg2AVXPLwWCo/B15yQXNpJd4OqjEseRdzKLzDQ
-3dc7tJWA0m9ZQ47VoIcw0eKGmm94IJ+23rSm8Rs11eHEGguVhW7XiRtfLo7vReI5
-3pj7jqhfivD83bC4bJuPObuH1aHUnc4ySonHMCEw8/ljxJuugfgscv2cmLcLnD9W
-CVrbgZ5NSE1xnNRjPJaUz7QjwZeTMYk7EgXmOB45HbhE2hNulEipOYiI+tLtWuLW
-hGZZ4pwjCWaw+ackrJg5nwg7RsdEJ7dbCbuLzO6i5WwW/tEqb1tegkgzSEkap7E1
-zqnOPh6qs4ue2QxE6tNYHAfyaIcDTsqwKI90x68zgqOU06To6hPD586e7H+bABvR
-CZK+b6AhjUaD/6D1DhTYaEYyMWUOOufaycLf1HYZEUjkmr4na0y+9rGEcs95+mSc
-MlfWU7euU2efLtQ3GPFzyM6TAMbpDafqsJruOVsYEgSaiLtcGIrsBh5k8ujOynhY
-w4lRsCleSDjsj5fBlxeaefNDt3ZDTPhjzXLTrV8iAgZ3lMAgLPffAaSwKeaJU2m6
-DGI5RhIn3saaugsW0aRh
-=3bpH
------END PGP SIGNATURE-----
-
---fmvA4kSBHQVZhkR6--
+Thanks,
+Rafael
