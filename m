@@ -1,91 +1,72 @@
-From: Dan O'Donovan <dan@emutex.com>
-Subject: Re: [PATCH v2 0/3] Init device ids from ACPI of_compatible
-Date: Wed, 13 Jul 2016 15:15:44 +0100
-Message-ID: <57864D10.2020007@emutex.com>
-References: <cover.1468409668.git.leonard.crestez@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Jaedon Shin <jaedon.shin@gmail.com>
+Subject: Re: [PATCH 4/9] i2c: brcmstb: enable ACK condition
+Date: Thu, 14 Jul 2016 13:15:29 +0900
+Message-ID: <974DB801-538F-44AA-9ADD-239E9081077F@gmail.com>
+References: <1445395021-4204-1-git-send-email-jaedon.shin@gmail.com> <1445395021-4204-5-git-send-email-jaedon.shin@gmail.com> <20151130153712.GO1513@katana>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bert.emutex.com ([91.103.1.109]:34591 "EHLO bert.emutex.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752049AbcGMOQE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 13 Jul 2016 10:16:04 -0400
-In-Reply-To: <cover.1468409668.git.leonard.crestez@intel.com>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:32905 "EHLO
+	mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751019AbcGNEPe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Jul 2016 00:15:34 -0400
+Received: by mail-pf0-f195.google.com with SMTP id i6so3836128pfe.0
+        for <linux-i2c@vger.kernel.org>; Wed, 13 Jul 2016 21:15:34 -0700 (PDT)
+In-Reply-To: <20151130153712.GO1513@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>, linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
+To: Kamal Dasu <kdasu.kdev@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Florian Fainelli <f.fainelli@gmail.com>, linux-i2c@vger.kernel.org
 
-On 07/13/2016 12:53 PM, Crestez Dan Leonard wrote:
-> When using devicetree stuff like i2c_client.name or spi_device.modalias
-> is initialized to the first DT compatible id with the vendor prefix
-> stripped. Since some drivers rely on this in order to differentiate between
-> hardware variants try to replicate it when using ACPI with DT ids.
->
-> This also makes it so that the i2c_device_id parameter passed to probe is
-> non-NULL when matching with ACPI and DT ids.
-This solves a problem for me, thanks Leonard!  For the series (in case
-it helps):
+Hi Kamal,
 
-Tested-by: Dan O'Donovan <dan@emutex.com>
+On Dec 1, 2015, at 12:37 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> 
+> On Wed, Oct 21, 2015 at 11:36:56AM +0900, Jaedon Shin wrote:
+>> Removes the condition of a message with under 32 bytes in length. The
+>> messages that do not require an ACK are I2C_M_IGNORE_NAK flag.
+> 
+> Makes me wonder why it worked before? Kamal?
+> 
+>> 
+>> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+>> ---
+>> drivers/i2c/busses/i2c-brcmstb.c | 2 +-
+>> 1 file changed, 1 insertion(+), 1 deletion(-)
+>> 
+>> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
+>> index 2d7d155029dc..53eb8b0c9bad 100644
+>> --- a/drivers/i2c/busses/i2c-brcmstb.c
+>> +++ b/drivers/i2c/busses/i2c-brcmstb.c
+>> @@ -330,7 +330,7 @@ static int brcmstb_i2c_xfer_bsc_data(struct brcmstb_i2c_dev *dev,
+>> 	int no_ack = pmsg->flags & I2C_M_IGNORE_NAK;
+>> 
+>> 	/* see if the transaction needs to check NACK conditions */
+>> -	if (no_ack || len <= N_DATA_BYTES) {
 
->
-> These patches are on top of linux-pm/linux-next. I delayed v2 until ACPI
-> overlays got in in order to avoid conflicts. I tested using ACPI overlays but
-> there is no actual dependency. This series just extends the PRP0001 feature to
-> be more useful for I2C/SPI.
->
-> The patches only touches the ACPI-specific parts of the i2c and spi core.
->
-> Here is an example .dsl for an SPI accelerometer connected to minnowboard max:
->
-> Device (ACCL)
-> {
->     Name (_ADR, Zero)
->     Name (_HID, "PRP0001")
->     Name (_CID, "PRP0001")
->     Name (_UID, One)
->
->     Method (_CRS, 0, Serialized)
->     {
-> 	Name (RBUF, ResourceTemplate ()
-> 	{
-> 	    SPISerialBus(1, PolarityLow, FourWireMode, 16,
-> 		    ControllerInitiated, 1000000, ClockPolarityLow,
-> 		    ClockPhaseFirst, "\\_SB.SPI1",)
-> 	    GpioInt (Edge, ActiveHigh, Exclusive, PullDown, 0x0000,
-> 		     "\\_SB.GPO2", 0x00, ResourceConsumer, , )
-> 	    { // Pin list
-> 		    1
-> 	    }
-> 	})
-> 	Return (RBUF)
->     }
->     Name (_DSD, Package ()
->     {
-> 	ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-> 	Package ()
-> 	{
-> 	    Package () {"compatible", "st,lis3dh"},
-> 	}
->     })
-> }
->
-> Link to v1: https://www.spinics.net/lists/linux-acpi/msg66469.html
-> Changes:
->  * Rebase on after acpi overlays got it.
->  * Change acpi_of_modalias outlen param to size_t
->  * Use {} after else
->
-> Crestez Dan Leonard (3):
->   acpi: Export acpi_of_modalias equiv of of_modalias_node
->   acpi i2c: Initialize info.type from of_compatible
->   acpi spi: Initialize modalias from of_compatible
->
->  drivers/acpi/bus.c      | 36 ++++++++++++++++++++++++++++++++++++
->  drivers/i2c/i2c-core.c  |  8 +++++++-
->  drivers/spi/spi.c       | 11 ++++++++++-
->  include/acpi/acpi_bus.h |  1 +
->  4 files changed, 54 insertions(+), 2 deletions(-)
->
+Could you please explain why have NOACK with smaller transfer size? I don't find any 
+reason about NOACK when smaller size, and the driver always operates NOACK by "len <= xfersz".
+
+brcmstb_i2c_xfer(...)
+{
+	int xfersz = brcmstb_i2c_get_xfersz(dev);
+	...
+	bytes_to_xfer = min(len, xfersz);
+	...
+	brcmstb_i2c_xfer_bsc_data(..., bytes_to_xfer, ...);
+	...
+
+I have a plan for v2 that has for BMIPS_GENERIC and this patch with the latest driver.
+
+Thanks!
+--
+Jaedon
+
+>> +	if (no_ack) {
+>> 		cmd = (pmsg->flags & I2C_M_RD) ? CMD_RD_NOACK
+>> 			: CMD_WR_NOACK;
+>> 		pi2creg->ctlhi_reg |= BSC_CTLHI_REG_IGNORE_ACK_MASK;
+>> -- 
+>> 2.6.1
+>> 
