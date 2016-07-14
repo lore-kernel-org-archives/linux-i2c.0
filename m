@@ -1,85 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: Introducing a kernel driver for the DS28E17 Onewire to I2C
- master bridge; Feature request: introduce I2C_FUNC_STOP
-Date: Thu, 14 Jul 2016 22:19:22 +0900
-Message-ID: <20160714131921.GE4149@tetsubishi>
-References: <578612EB.1060709@gmx.de>
- <20160714095812.GA1563@tetsubishi>
- <57878B55.1030200@gmx.de>
+Subject: Re: [PATCH 1/3] i2c: core: Cleanup I2C ACPI namespace
+Date: Thu, 14 Jul 2016 22:35:25 +0900
+Message-ID: <20160714133524.GF4149@tetsubishi>
+References: <1465212383-24639-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <1465212383-24639-2-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vv4Sf/kQfcwinyKX"
+	protocol="application/pgp-signature"; boundary="yH1ZJFh+qWm+VodA"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:32845 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:32909 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751054AbcGNNTa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 14 Jul 2016 09:19:30 -0400
+	id S1750983AbcGNNff (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 14 Jul 2016 09:35:35 -0400
 Content-Disposition: inline
-In-Reply-To: <57878B55.1030200@gmx.de>
+In-Reply-To: <1465212383-24639-2-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Kandziora <jjj@gmx.de>
-Cc: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>
 
 
---vv4Sf/kQfcwinyKX
+--yH1ZJFh+qWm+VodA
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> Is there a special procedure to follow to have those three diffs queued?
-
-Try https://kernelnewbies.org/ or Documentation/SubmittingPatches for
-Kernel submission procedures.
-
-> As for sending the information to you instead of the list, the
-> MAINTAINERS file wasn't clear to me about this. And for the w1
-> subsystem, where this driver is also relevant to, there isn't a list
-> at all.
+On Mon, Jun 06, 2016 at 02:26:21PM +0300, Jarkko Nikula wrote:
+> I2C ACPI enumeration was originally implemented in another module under
+> drivers/acpi/ but was later moved into i2c-core with added support for
+> I2C ACPI operation region.
 >=20
-> It's not clear to me who's in charge of a driver which touches both
-> subsystems.
-
-Yes, this can be tricky at times. One tool to assist is
-scripts/get_maintainer.pl. Other than that, simply use all addresses
-mentioned in a MAINTAINERS entry for a subsystem. And if you touch
-multiple subsystems, just CC them all.
-
-> The datasheet says it can at least for a write to the pointer byte
-> followed by a read but it doesn't seem to work.
+> Rename these acpi_i2c_ prefixed functions, structures and defines in
+> i2c-core to i2c_acpi_ in order to have more consistent name space.
 >=20
-> - From my tests, it doesn't work, or it least it doesn't work the way
-> the ds28e17 bus master does the repeated start.
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-It would be really good if that would work. Having a STOP betwen those
-messages is unsafe. It won't probably matter for your setup, but
-still...
-
-> I will check it again.
-
-Thanks!
+Applied to for-next, thanks!
 
 
---vv4Sf/kQfcwinyKX
+--yH1ZJFh+qWm+VodA
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXh5FZAAoJEBQN5MwUoCm20iYP/R1V6ZLiJf+E7AhaH1wGseuQ
-dqkxqh0TZvgS7p8xjVVfOJhR26H4juWljAsoQaoj93nCUp4KjBMHOPn86rQnX1VI
-wuQwjXcRfZr9DtnivPJy/ogazSrpof80Ae7k3j9aj0kgtf6xjZqWXb92pX2Crzqn
-dIDGHnpUYdLkG2irqP+7nODamRXNwQXwqp200P9k3rUHOmqV2QT2ptN7OrYtPoVE
-lSieO+XfJxBIQunsOF8gwj9SIAmjhrTmY4wRhUkNTKDUmuP2gEf/pESgNsIrXbCB
-ZBmy029a4AdFGQXITgUU+EmYUiUM68Tw23le305xrhD8ycn2YNkdobD9LZSLNfcg
-EPOFNILVAeWVJsD4qbYvgAl9+g5co3Iv+iX2vZyiD535KukmQMuygabuhwpGQr0p
-tR6RxdQdDWG28DtiEp1ZkCd8saOD9qbmhnqlQkMsLlsBu/iYu0ftqp+HnWCcPUio
-0Nqk/hfgt1FjDShF0ZiA5fwzI2xhCBx/s74YXVCvJExoEkL6sarpZDwHcMRxzw3n
-/aog42sOoSR9OlLWQWj8tg/uwwmXrK1wQ80HPop/8OtZzMNA1WXGFxuFRUkn1zee
-d4uvMX2/ghluogioX4iclCoiU2LIMD9rsBzugkaUucJ/5fEgAt4e+HMPmVKfoYKR
-LmFNwJHpohMHTE/sHTWi
-=hgFc
+iQIcBAEBAgAGBQJXh5UbAAoJEBQN5MwUoCm2GqwP/1IChojKbcXco/DHXznFiaOG
+8Q501jugg7KB2QNjckDVjiq4YkNth3wDuuvUIb+k2ghpMy2SbaCxzI2mNLNm4ObX
+I+uk2wxW5TUdiNOXDMGO2OirXEdK67dEHm1OdNLsxUpJyD9ThB449mYQS6+9tsMm
+4Z5x5Q2nRqi3SBtDAnLFwpjZthUXHctXkK6YRwtX9b1yVK7D0i12Ty2XunT9+Cem
+Om9LhQvWIy7fmslFlYffa4vj4L0b5YDq4jIYtuh6RG3qyuhmreHRibHkgPQ76ujG
+Bxom5eFZoxbqT6hngdpFudn5LLW0zT88MyLQx5D2b5FjR4qK2WItkD4UiDWTrSMO
+pHWCSK+e4AGkityJerb0WDIbnOsJ1G8hghijoAHbOpwX6hMlRZYZvskKtpwBzHzg
+FbrqADG7rvwGOwiMIPt9HmZgnQdgCyblLNLeQLhKdqXlJqAVQknZX1qsIRXbdDor
+U740DQF0mGGysjWo+1Zvj47EydLL+UKce+ChoNvXfU1Ca8RExsgc+lcIME/fBfyj
+S69ulm0lMltaoXN3wcPfIgCxh1ZY0jWtbH4ehoMxNDuCI4wOzY2M4j5QfUIBGrVq
+rqFMldwriNa84ZZD75EbvM0ylKhkpWSg6EAzKJhWaWrx/utN8u/nIeoPblWs6qBH
+1LPxT1nkd8u/9Vgna1Bp
+=suvx
 -----END PGP SIGNATURE-----
 
---vv4Sf/kQfcwinyKX--
+--yH1ZJFh+qWm+VodA--
