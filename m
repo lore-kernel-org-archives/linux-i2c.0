@@ -1,88 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for v4.7
-Date: Thu, 14 Jul 2016 21:17:36 +0900
-Message-ID: <20160714121729.GA4426@tetsubishi>
+Subject: Re: [RESEND][PATCH 1/2] i2c: versatile: Allow compile test build
+Date: Thu, 14 Jul 2016 21:23:34 +0900
+Message-ID: <20160714122333.GB4149@tetsubishi>
+References: <1468042283.21863.2.camel@ingics.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60863 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:60892 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751001AbcGNMRs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 14 Jul 2016 08:17:48 -0400
+	id S1750897AbcGNMXo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 14 Jul 2016 08:23:44 -0400
 Content-Disposition: inline
+In-Reply-To: <1468042283.21863.2.camel@ingics.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Axel Lin <axel.lin@ingics.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Liviu Dudau <liviu.dudau@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Pawel Moll <pawel.moll@arm.com>, linux-i2c@vger.kernel.org
 
 
---EVF5PPMfhYS0aIcm
+--oC1+HKm2/end4ao3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Sat, Jul 09, 2016 at 01:31:23PM +0800, Axel Lin wrote:
+> There is no build dependency for this driver, so enable COMPILE_TEST to g=
+et
+> better build coverage.
+>=20
+> Signed-off-by: Axel Lin <axel.lin@ingics.com>
 
-I thought I sent you this pull request last week already, but it seems
-this travelling to Japan made me mix things up sadly.
-
-Please pull these 4 driver bugfixes for the I2C subsystem.
-
-Thanks,
-
-   Wolfram
+Applied to for-next, thanks!
 
 
-The following changes since commit 5edb56491d4812c42175980759da53388e5d86f5:
-
-  Linux 4.7-rc3 (2016-06-12 07:20:35 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 22ebf00eb56fe77922de8138aa9af9996582c2b3:
-
-  i2c: mux: reg: wrong condition checked for of_address_to_resource return value (2016-07-06 00:33:49 +0900)
-
-----------------------------------------------------------------
-Jon Hunter (1):
-      i2c: tegra: Correct error path in probe
-
-Luis R. Rodriguez (1):
-      i2c: remove __init from i2c_register_board_info()
-
-Lukasz Gemborowski (1):
-      i2c: mux: reg: wrong condition checked for of_address_to_resource return value
-
-Sricharan R (1):
-      i2c: qup: Fix wrong value of index variable
-
- drivers/i2c/busses/i2c-qup.c    | 2 ++
- drivers/i2c/busses/i2c-tegra.c  | 2 +-
- drivers/i2c/i2c-boardinfo.c     | 4 +---
- drivers/i2c/muxes/i2c-mux-reg.c | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
-
---EVF5PPMfhYS0aIcm
+--oC1+HKm2/end4ao3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXh4LYAAoJEBQN5MwUoCm2LCAP/RDPhhGEogdcoLFvu8qlpxLl
-awcUXRj3mKu6xuF7l5o5F5L0nn2GUSYA9w4nGhGTs4G9PcVOaaM0HpXYDPtp2f3D
-QOSqR9XWq6ALZfPk28XDNPGWCGN0QHZgb/n2RZZ/REgXD2Z/IA234+76lU54UEzN
-0W9IRxbfwFtXI/urfD2hgTr9kPsg7uZ48Y/5hq6RFEde83lG3lvswcMeOY8uBAFz
-J6WZq9ase4IGa3WAeyK5200BVHXSN0gwqqelmZuTbtdB3BHkWr5GYR3C3A7SqKCJ
-e9/nDO2ztQXAw9g0CmRiySf64dF5Y5UQ8zUFKQhWsg5gY/DhPWgooyTd5df4KBsV
-VZVyKbDZLzH0JQqlY69OhDSAsL7hsTtpFDZVhpdoM43+EB2+a21wn12OydMi4ttY
-gpWFw08kdvHPk5na4fxNMiIBY4/3w4sLBVf3x0EadhnsO7SxewWcUYMoVzzr2qeB
-/hVthmr5IV5gEEJ3AENDRh7SBkNwykAcpAgBmMm6B1VqjgZh0WqjmtZ9HpUcw++y
-bZzzkGmBFvIfuMO78D42UgjhKKx/UyMkItzc3awH5VikDrZ+4j5nVBjuFMLAOjhh
-qSBiL8rTW5Y2Xbp4bOVcOupvNdQstOKhVVyNsXadgxi7g8GCRtUJCRlBcsSR66+7
-Pd5NvM18DyMH+nPp+QWQ
-=UczD
+iQIcBAEBAgAGBQJXh4RFAAoJEBQN5MwUoCm294MQAJR7cAC81Y53LN/zNNC/9qCb
+JfJgjx2D7JvRM9W4SZ1RiNgfF66UXdfVlIWhWMTWJN57cVRjAz9G+Nc6GURXQGoz
+z0yNXH7rc1MKGce3jK4Odmj5EsWwlvv6/PO9DWiHr8gHNSYdHvp7UEk09zgRf4rl
+aCvtJzljmblNqdPXdgNc8xgJ0qFJV/C88vYNRJeVcSr4mJIdLcgZQQkRmF6doavR
+Ft+JUZ/YHmFVmRu+K3DsGlw0VXsJwtL9uIUdOZ2PNjX1K+PWZcNPao2hIlF7E7N+
+Rt+IM1QQtpq2oeqKi9ZsIEmVODbMgYNM57TuIS1m8C0fvMZIoGv+0+wBuVNxfIvj
+Ap22Ah/xm13Fa/bP6ffk1whuBlndHLv9eI9lhaz8IBZUpPpSwcm4x9PvE1y5HVce
+ncm7FBi5ZkKmi5B0cCmhnsg6QTSCAJ0oiJ7dwkiXbnRrVyGLbLy9miHplGv3Qwiz
+lkElYQZwECtgR/KvYDdT1d4nK1JU/Zj0TsBo3xIpSVm/2MTyn2l8XRmLasv5FsTb
+RU7/ORWpo4TReIadRZLrzVUsWoVOuYc+iOXkHHgoCY01NLizcdDK5U60Gka5jP7f
+apxCIffl7F99jeyBtyE0zYs6Yo2vS+aW6x8v0Z4z94s619r2+Ufv5yV8dSdEtGl0
+JcZKMYXmh+VM0z9qWEwS
+=t2Sh
 -----END PGP SIGNATURE-----
 
---EVF5PPMfhYS0aIcm--
+--oC1+HKm2/end4ao3--
