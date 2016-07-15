@@ -1,154 +1,90 @@
-From: Austin Christ <austinwc@codeaurora.org>
-Subject: [PATCH v5 1/2] i2c: qup: add ACPI support
-Date: Fri, 15 Jul 2016 14:08:41 -0600
-Message-ID: <1468613322-3219-2-git-send-email-austinwc@codeaurora.org>
-References: <1468613322-3219-1-git-send-email-austinwc@codeaurora.org>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1468613322-3219-1-git-send-email-austinwc@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: nkaje@codeaurora.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, linux-arm-kernel@lists.infradead.org, Austin Christ <austinwc@codeaurora.org>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: Re: [v10, 3/7] soc: fsl: add GUTS driver for QorIQ platforms
+Date: Fri, 15 Jul 2016 18:39:33 -0400
+Message-ID: <20160715223932.GC10758@windriver.com>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
+ <1462417950-46796-4-git-send-email-yangbo.lu@nxp.com>
+ <CAP=VYLqsV_M=8CM47k4kzdULCp_y0yP9t8Sq9=jFp6W593QJgw@mail.gmail.com>
+ <1468609977.25630.5.camel@buserror.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-clk-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1468609977.25630.5.camel@buserror.net>
+Sender: linux-clk-owner@vger.kernel.org
+To: Scott Wood <oss@buserror.net>
+Cc: Yangbo Lu <yangbo.lu@nxp.com>, linux-mmc@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, devicetree@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>, ulf.hansson@linaro.org, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Qiang Zhao <qiang.zhao@nxp.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Naveen Kaje <nkaje@codeaurora.org>
+[Re: [v10, 3/7] soc: fsl: add GUTS driver for QorIQ platforms] On 15/07=
+/2016 (Fri 14:12) Scott Wood wrote:
 
-Add support to get the device parameters from ACPI. Assume
-that the clocks are managed by firmware.
+> On Fri, 2016-07-15 at 12:43 -0400, Paul Gortmaker wrote:
+> > > +source "drivers/soc/fsl/qe/Kconfig"
 
-Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
-Signed-off-by: Austin Christ <austinwc@codeaurora.org>
-Reviewed-by: Sricharan R <sricharan@codeaurora.org>
----
- drivers/i2c/busses/i2c-qup.c | 58 ++++++++++++++++++++++++++++++++------------
- 1 file changed, 42 insertions(+), 16 deletions(-)
+[...]
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index dddd4da..245d0e6 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -14,6 +14,7 @@
-  *
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/atomic.h>
- #include <linux/clk.h>
- #include <linux/delay.h>
-@@ -132,6 +133,10 @@
- /* Max timeout in ms for 32k bytes */
- #define TOUT_MAX			300
- 
-+/* Default values. Use these if FW query fails */
-+#define DEFAULT_CLK_FREQ 100000
-+#define DEFAULT_SRC_CLK 20000000
-+
- struct qup_i2c_block {
- 	int	count;
- 	int	pos;
-@@ -1354,14 +1359,13 @@ static void qup_i2c_disable_clocks(struct qup_i2c_dev *qup)
- static int qup_i2c_probe(struct platform_device *pdev)
- {
- 	static const int blk_sizes[] = {4, 16, 32};
--	struct device_node *node = pdev->dev.of_node;
- 	struct qup_i2c_dev *qup;
- 	unsigned long one_bit_t;
- 	struct resource *res;
- 	u32 io_mode, hw_ver, size;
- 	int ret, fs_div, hs_div;
--	int src_clk_freq;
--	u32 clk_freq = 100000;
-+	u32 src_clk_freq = DEFAULT_SRC_CLK;
-+	u32 clk_freq = DEFAULT_CLK_FREQ;
- 	int blocks;
- 
- 	qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL);
-@@ -1372,7 +1376,11 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 	init_completion(&qup->xfer);
- 	platform_set_drvdata(pdev, qup);
- 
--	of_property_read_u32(node, "clock-frequency", &clk_freq);
-+	ret = device_property_read_u32(qup->dev, "clock-frequency", &clk_freq);
-+	if (ret) {
-+		dev_notice(qup->dev, "using default clock-frequency %d",
-+			DEFAULT_CLK_FREQ);
-+	}
- 
- 	if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-v1.1.1")) {
- 		qup->adap.algo = &qup_i2c_algo;
-@@ -1454,20 +1462,30 @@ nodma:
- 		return qup->irq;
- 	}
- 
--	qup->clk = devm_clk_get(qup->dev, "core");
--	if (IS_ERR(qup->clk)) {
--		dev_err(qup->dev, "Could not get core clock\n");
--		return PTR_ERR(qup->clk);
--	}
-+	if (has_acpi_companion(qup->dev)) {
-+		ret = device_property_read_u32(qup->dev,
-+				"src-clock-hz", &src_clk_freq);
-+		if (ret) {
-+			dev_notice(qup->dev, "using default src-clock-hz %d",
-+				DEFAULT_SRC_CLK);
-+		}
-+		ACPI_COMPANION_SET(&qup->adap.dev, ACPI_COMPANION(qup->dev));
-+	} else {
-+		qup->clk = devm_clk_get(qup->dev, "core");
-+		if (IS_ERR(qup->clk)) {
-+			dev_err(qup->dev, "Could not get core clock\n");
-+			return PTR_ERR(qup->clk);
-+		}
- 
--	qup->pclk = devm_clk_get(qup->dev, "iface");
--	if (IS_ERR(qup->pclk)) {
--		dev_err(qup->dev, "Could not get iface clock\n");
--		return PTR_ERR(qup->pclk);
-+		qup->pclk = devm_clk_get(qup->dev, "iface");
-+		if (IS_ERR(qup->pclk)) {
-+			dev_err(qup->dev, "Could not get iface clock\n");
-+			return PTR_ERR(qup->pclk);
-+		}
-+		qup_i2c_enable_clocks(qup);
-+		src_clk_freq = clk_get_rate(qup->clk);
- 	}
- 
--	qup_i2c_enable_clocks(qup);
--
- 	/*
- 	 * Bootloaders might leave a pending interrupt on certain QUP's,
- 	 * so we reset the core before registering for interrupts.
-@@ -1514,7 +1532,6 @@ nodma:
- 	size = QUP_INPUT_FIFO_SIZE(io_mode);
- 	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
- 
--	src_clk_freq = clk_get_rate(qup->clk);
- 	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
- 	hs_div = 3;
- 	qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff);
-@@ -1639,6 +1656,14 @@ static const struct of_device_id qup_i2c_dt_match[] = {
- };
- MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
- 
-+#if IS_ENABLED(CONFIG_ACPI)
-+static const struct acpi_device_id qup_i2c_acpi_match[] = {
-+	{ "QCOM8010"},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_match);
-+#endif
-+
- static struct platform_driver qup_i2c_driver = {
- 	.probe  = qup_i2c_probe,
- 	.remove = qup_i2c_remove,
-@@ -1646,6 +1671,7 @@ static struct platform_driver qup_i2c_driver = {
- 		.name = "i2c_qup",
- 		.pm = &qup_i2c_qup_pm_ops,
- 		.of_match_table = qup_i2c_dt_match,
-+		.acpi_match_table = ACPI_PTR(qup_i2c_acpi_match),
- 	},
- };
- 
--- 
-Qualcomm Datacenter Technologies as an affiliate of Qualcomm Technologies, Inc.
-Qualcomm Technologies, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+> > > +
+> > > +config FSL_GUTS
+> > > +=A0=A0=A0=A0=A0=A0=A0bool
+> > > diff --git a/drivers/soc/fsl/Makefile b/drivers/soc/fsl/Makefile
+> > > index 203307f..02afb7f 100644
+> > > --- a/drivers/soc/fsl/Makefile
+> > > +++ b/drivers/soc/fsl/Makefile
+> > > @@ -4,3 +4,4 @@
+> > >=20
+> > > =A0obj-$(CONFIG_QUICC_ENGINE)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0+=3D qe/
+> > > =A0obj-$(CONFIG_CPM)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0+=3D qe/
+> > > +obj-$(CONFIG_FSL_GUTS)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0+=3D guts.o
+> > > diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
+> > > new file mode 100644
+> > > index 0000000..fa155e6
+> > > --- /dev/null
+> > > +++ b/drivers/soc/fsl/guts.c
+> > > @@ -0,0 +1,119 @@
+> > > +/*
+> > > + * Freescale QorIQ Platforms GUTS Driver
+> > > + *
+> > > + * Copyright (C) 2016 Freescale Semiconductor, Inc.
+> > > + *
+> > > + * This program is free software; you can redistribute it and/or=
+ modify
+> > > + * it under the terms of the GNU General Public License as publi=
+shed by
+> > > + * the Free Software Foundation; either version 2 of the License=
+, or
+> > > + * (at your option) any later version.
+> > > + */
+> > > +
+> > > +#include <linux/io.h>
+> > > +#include <linux/module.h>
+> > Seems there was lots of discussion on this.=A0=A0If it does end up =
+being
+> > resent, it would be nice to get the module.h and other modular stuf=
+f
+> > gone since it is a bool Kconfig.
+>=20
+> I plan to resend just the GUTS driver portion and send it through the=
+ PPC
+> tree.
+>=20
+> I don't see any modular stuff in there besides the linux/module.h inc=
+lude.
+
+Great.  Normally I'm seeing the MODULE_DEVICE_TABLE and MODULE_AUTHOR
+and MODULE_LICENSE etc, so it has (unfortunately) become a knee jerk
+reaction to assume the latter follows a module.h presence...  thanks fo=
+r
+removing the extraneous include.
+
+Paul.
+--
+
+>=20
+> -Scott
+>=20
+>=20
