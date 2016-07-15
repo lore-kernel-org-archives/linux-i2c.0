@@ -1,77 +1,153 @@
 From: Austin Christ <austinwc@codeaurora.org>
-Subject: [PATCH v5 0/2] Add ACPI support and SMBus block read
-Date: Fri, 15 Jul 2016 14:08:40 -0600
-Message-ID: <1468613322-3219-1-git-send-email-austinwc@codeaurora.org>
+Subject: [PATCH v5 2/2] i2c: qup: support SMBus block read
+Date: Fri, 15 Jul 2016 14:08:42 -0600
+Message-ID: <1468613322-3219-3-git-send-email-austinwc@codeaurora.org>
+References: <1468613322-3219-1-git-send-email-austinwc@codeaurora.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:50010 "EHLO
+Received: from smtp.codeaurora.org ([198.145.29.96]:50038 "EHLO
 	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751288AbcGOUIt (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Jul 2016 16:08:49 -0400
+	with ESMTP id S1751638AbcGOUIz (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Jul 2016 16:08:55 -0400
+In-Reply-To: <1468613322-3219-1-git-send-email-austinwc@codeaurora.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: nkaje@codeaurora.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: linux-arm-msm@vger.kernel.org, rruigrok@codeaurora.org, timur@codeaurora.org, cov@codeaurora.org, linux-arm-kernel@lists.infradead.org, Austin Christ <austinwc@codeaurora.org>
 
-Add ACPI support to I2C QUP driver and get properties from ACPI table.
+From: Naveen Kaje <nkaje@codeaurora.org>
 
-Add support to the I2C QUP driver to correctly handle SMBus block reads by
-checking I2C_M_RECV_LEN flag and reading the first byte received as the
-message length.
+I2C QUP driver relies on SMBus emulation support from the framework.
+To handle SMBus block reads, the driver should check I2C_M_RECV_LEN
+flag and should read the first byte received as the message length.
 
-Documentation for the two properites used from ACPI will be submitted through
-dsd@acpica.org to https://github.com/ahs3/dsd. The documentation submitted will
-be the following:
+The driver configures the QUP hardware to read one byte. Once the
+message length is known from this byte, the QUP hardware is configured
+to read the rest.
 
-property-set:   I2C Device Properties
-set-type:       definition
-vendor:         Qualcomm Technologies, Inc.
-bus:            acpi
-device-id:      QCOM8010
-revision:       0
-derived-from:   /Qualcomm/acpi/QCOM8010/0
+Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+Signed-off-by: Austin Christ <austinwc@codeaurora.org>
+Reviewed-by: Sricharan R <sricharan@codeaurora.org>
+---
+ drivers/i2c/busses/i2c-qup.c | 68 ++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 65 insertions(+), 3 deletions(-)
 
-property:       clock-frequency
-type:           integer
-description:
-                Defines the target clock frequency of the I2C bus.
-values:
-                integer:            0..20000000
-                description:        integer value in hertz
-
-example:
-                Package (2) { "clock-frequency", 100000 }
-
-property:       src-clock-hz
-type:           integer
-description:
-                If present, defines the source clock frequency input
-                into the I2C QUP controller
-values:
-                integer:            100000..1000000000
-                description:        integer value in hertz
-example:
-                Package (2) { "src-clock-hz", 20000000}
-
-[V5]
- - remove warning and use correct ACPI function
-[V4]
- - correct error code
- - remove warning for fall back to default clock frequency
-[V3]
- - clean up unused variables
- - use constant instead of variable for smbus length field
-[V2]
- - rework the smbus block read and break into separate function
- - clean up redundant checks and variables
-
-Naveen Kaje (2):
-  i2c: qup: add ACPI support
-  i2c: qup: support SMBus block read
-
- drivers/i2c/busses/i2c-qup.c | 126 ++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 107 insertions(+), 19 deletions(-)
-
---
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 245d0e6..fd7861c 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -517,6 +517,33 @@ static int qup_i2c_get_data_len(struct qup_i2c_dev *qup)
+ 	return data_len;
+ }
+ 
++static bool qup_i2c_check_msg_len(struct i2c_msg *msg)
++{
++	return ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN));
++}
++
++static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
++			struct i2c_msg *msg)
++{
++	int len = 0;
++
++	if (msg->len > 1) {
++		tags[len++] = QUP_TAG_V2_DATARD_STOP;
++		tags[len++] = qup_i2c_get_data_len(qup) - 1;
++	} else {
++		tags[len++] = QUP_TAG_V2_START;
++		tags[len++] = addr & 0xff;
++
++		if (msg->flags & I2C_M_TEN)
++			tags[len++] = addr >> 8;
++
++		tags[len++] = QUP_TAG_V2_DATARD;
++		/* Read 1 byte indicating the length of the SMBus message */
++		tags[len++] = 1;
++	}
++	return len;
++}
++
+ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+ 			    struct i2c_msg *msg,  int is_dma)
+ {
+@@ -526,6 +553,10 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+ 
+ 	int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
+ 
++	/* Handle tags for SMBus block read */
++	if (qup_i2c_check_msg_len(msg))
++		return qup_i2c_set_tags_smb(addr, tags, qup, msg);
++
+ 	if (qup->blk.pos == 0) {
+ 		tags[len++] = QUP_TAG_V2_START;
+ 		tags[len++] = addr & 0xff;
+@@ -1065,9 +1096,17 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
+ 				struct i2c_msg *msg)
+ {
+ 	u32 val;
+-	int idx, pos = 0, ret = 0, total;
++	int idx, pos = 0, ret = 0, total, msg_offset = 0;
+ 
++	/*
++	 * If the message length is already read in
++	 * the first byte of the buffer, account for
++	 * that by setting the offset
++	 */
++	if (qup_i2c_check_msg_len(msg) && (msg->len > 1))
++		msg_offset = 1;
+ 	total = qup_i2c_get_data_len(qup);
++	total -= msg_offset;
+ 
+ 	/* 2 extra bytes for read tags */
+ 	while (pos < (total + 2)) {
+@@ -1087,8 +1126,8 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
+ 
+ 			if (pos >= (total + 2))
+ 				goto out;
+-
+-			msg->buf[qup->pos++] = val & 0xff;
++			msg->buf[qup->pos + msg_offset] = val & 0xff;
++			qup->pos++;
+ 		}
+ 	}
+ 
+@@ -1128,6 +1167,24 @@ static int qup_i2c_read_one_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 			goto err;
+ 
+ 		qup->blk.pos++;
++
++		/* Handle SMBus block read length */
++		if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
++			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
++				ret = -EPROTO;
++				goto err;
++			}
++			msg->len += msg->buf[0];
++			qup->pos = 0;
++			qup_i2c_set_read_mode_v2(qup, msg->len);
++			ret = qup_i2c_issue_xfer_v2(qup, msg);
++			if (ret)
++				goto err;
++			ret = qup_i2c_wait_for_complete(qup, msg);
++			if (ret)
++				goto err;
++			qup_i2c_set_blk_data(qup, msg);
++		}
+ 	} while (qup->blk.pos < qup->blk.count);
+ 
+ err:
+@@ -1210,6 +1267,11 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
+ 			goto out;
+ 		}
+ 
++		if (qup_i2c_check_msg_len(&msgs[idx])) {
++			ret = -EINVAL;
++			goto out;
++		}
++
+ 		if (msgs[idx].flags & I2C_M_RD)
+ 			ret = qup_i2c_read_one(qup, &msgs[idx]);
+ 		else
+-- 
 Qualcomm Datacenter Technologies as an affiliate of Qualcomm Technologies, Inc.
 Qualcomm Technologies, Inc. is a member of the
 Code Aurora Forum, a Linux Foundation Collaborative Project.
