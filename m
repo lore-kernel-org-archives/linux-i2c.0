@@ -1,90 +1,39 @@
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: Re: [v10, 3/7] soc: fsl: add GUTS driver for QorIQ platforms
-Date: Fri, 15 Jul 2016 18:39:33 -0400
-Message-ID: <20160715223932.GC10758@windriver.com>
-References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com>
- <1462417950-46796-4-git-send-email-yangbo.lu@nxp.com>
- <CAP=VYLqsV_M=8CM47k4kzdULCp_y0yP9t8Sq9=jFp6W593QJgw@mail.gmail.com>
- <1468609977.25630.5.camel@buserror.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-clk-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1468609977.25630.5.camel@buserror.net>
-Sender: linux-clk-owner@vger.kernel.org
-To: Scott Wood <oss@buserror.net>
-Cc: Yangbo Lu <yangbo.lu@nxp.com>, linux-mmc@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, devicetree@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>, ulf.hansson@linaro.org, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Qiang Zhao <qiang.zhao@nxp.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Subject: [PATCH] i2c: efm32: fix a failure path in efm32_i2c_probe()
+Date: Sat, 16 Jul 2016 02:36:38 +0300
+Message-ID: <1468625798-6767-1-git-send-email-khoroshilov@ispras.ru>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.ispras.ru ([83.149.199.45]:48236 "EHLO mail.ispras.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751431AbcGOXg6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 15 Jul 2016 19:36:58 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <kernel@pengutronix.de>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
-[Re: [v10, 3/7] soc: fsl: add GUTS driver for QorIQ platforms] On 15/07=
-/2016 (Fri 14:12) Scott Wood wrote:
+There is the only failure path in efm32_i2c_probe(),
+where clk_disable_unprepare() is missed.
 
-> On Fri, 2016-07-15 at 12:43 -0400, Paul Gortmaker wrote:
-> > > +source "drivers/soc/fsl/qe/Kconfig"
+Found by Linux Driver Verification project (linuxtesting.org).
 
-[...]
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+---
+ drivers/i2c/busses/i2c-efm32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > > +
-> > > +config FSL_GUTS
-> > > +=A0=A0=A0=A0=A0=A0=A0bool
-> > > diff --git a/drivers/soc/fsl/Makefile b/drivers/soc/fsl/Makefile
-> > > index 203307f..02afb7f 100644
-> > > --- a/drivers/soc/fsl/Makefile
-> > > +++ b/drivers/soc/fsl/Makefile
-> > > @@ -4,3 +4,4 @@
-> > >=20
-> > > =A0obj-$(CONFIG_QUICC_ENGINE)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0+=3D qe/
-> > > =A0obj-$(CONFIG_CPM)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0+=3D qe/
-> > > +obj-$(CONFIG_FSL_GUTS)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0+=3D guts.o
-> > > diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
-> > > new file mode 100644
-> > > index 0000000..fa155e6
-> > > --- /dev/null
-> > > +++ b/drivers/soc/fsl/guts.c
-> > > @@ -0,0 +1,119 @@
-> > > +/*
-> > > + * Freescale QorIQ Platforms GUTS Driver
-> > > + *
-> > > + * Copyright (C) 2016 Freescale Semiconductor, Inc.
-> > > + *
-> > > + * This program is free software; you can redistribute it and/or=
- modify
-> > > + * it under the terms of the GNU General Public License as publi=
-shed by
-> > > + * the Free Software Foundation; either version 2 of the License=
-, or
-> > > + * (at your option) any later version.
-> > > + */
-> > > +
-> > > +#include <linux/io.h>
-> > > +#include <linux/module.h>
-> > Seems there was lots of discussion on this.=A0=A0If it does end up =
-being
-> > resent, it would be nice to get the module.h and other modular stuf=
-f
-> > gone since it is a bool Kconfig.
->=20
-> I plan to resend just the GUTS driver portion and send it through the=
- PPC
-> tree.
->=20
-> I don't see any modular stuff in there besides the linux/module.h inc=
-lude.
-
-Great.  Normally I'm seeing the MODULE_DEVICE_TABLE and MODULE_AUTHOR
-and MODULE_LICENSE etc, so it has (unfortunately) become a knee jerk
-reaction to assume the latter follows a module.h presence...  thanks fo=
-r
-removing the extraneous include.
-
-Paul.
---
-
->=20
-> -Scott
->=20
->=20
+diff --git a/drivers/i2c/busses/i2c-efm32.c b/drivers/i2c/busses/i2c-efm32.c
+index 8eff62738877..e253598d764c 100644
+--- a/drivers/i2c/busses/i2c-efm32.c
++++ b/drivers/i2c/busses/i2c-efm32.c
+@@ -433,7 +433,7 @@ static int efm32_i2c_probe(struct platform_device *pdev)
+ 	ret = request_irq(ddata->irq, efm32_i2c_irq, 0, DRIVER_NAME, ddata);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to request irq (%d)\n", ret);
+-		return ret;
++		goto err_disable_clk;
+ 	}
+ 
+ 	ret = i2c_add_adapter(&ddata->adapter);
+-- 
+1.9.1
