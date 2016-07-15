@@ -1,67 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: Introducing a kernel driver for the DS28E17 Onewire to I2C
- master bridge; Feature request: introduce I2C_FUNC_STOP
-Date: Fri, 15 Jul 2016 20:26:00 +0900
-Message-ID: <20160715112559.GA1695@tetsubishi>
-References: <578612EB.1060709@gmx.de>
- <20160714095812.GA1563@tetsubishi>
- <57878B55.1030200@gmx.de>
- <20160714131921.GE4149@tetsubishi>
- <5788C54C.20705@gmx.de>
+Subject: Re: [RESEND PATCH 05/14] eeprom: at24: hide the read/write loop
+ behind a macro
+Date: Fri, 15 Jul 2016 21:24:30 +0900
+Message-ID: <20160715122429.GA2620@tetsubishi>
+References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
+ <1465202936-16832-6-git-send-email-bgolaszewski@baylibre.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:37811 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932483AbcGOL0L (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 15 Jul 2016 07:26:11 -0400
+	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5788C54C.20705@gmx.de>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1465202936-16832-6-git-send-email-bgolaszewski@baylibre.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Kandziora <jjj@gmx.de>
-Cc: linux-i2c@vger.kernel.org
 
 
---envbJBWh7q8WU6mo
+--BOKacYhQ+x31HxR3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+> +/*
+> + * Both reads and writes fail if the previous write didn't complete yet. This
+> + * macro loops a few times waiting at least long enough for one entire page
+> + * write to work.
+> + *
+> + * It takes two parameters: a variable in which the future timeout in jiffies
+> + * will be stored and a temporary variable holding the time of the last
+> + * iteration of processing the request. Both should be unsigned integers
+> + * holding at least 32 bits.
+> + */
+> +#define loop_until_timeout(tout, op_time)				\
+> +	for (tout = jiffies + msecs_to_jiffies(write_timeout),		\
+> +		op_time = jiffies;					\
+> +	     time_before(op_time, tout);				\
+> +	     usleep_range(1000, 1500), op_time = jiffies)
 
-> So, please discard my request for I2C_FUNC_STOP. It's not needed.
-
-Great! Thanks for looking into it again.
-
-> BUT, the DS28E17 can only do this for writes. Not for reads. Does it
-> make sense to expose that feature and announce it as I2C_FUNC_NOSTART
-> then?
-
-I would say no, since it is not generic.
-
-You should also populate an i2c_adapter_quirks structure and limit reads
-to 256 (and maybe other stuff), if not done already.
+There is one subtle change coming with this change: the do-while loop is
+guaranteed to run at least once while the for-loop doesn't.
 
 
---envbJBWh7q8WU6mo
+--BOKacYhQ+x31HxR3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXiMhHAAoJEBQN5MwUoCm2vLoP/1Jaqf5QtefwOGtaJiRJumrB
-0l4wJeM7am1W7F7uP7sB1Djeyw5x0YgwMUcVTsNyLAZBb1tgAVIf6471XnEkaYpr
-IURkUwxN43zAPbnT91R8qLcp9a5RgkQZC94VGvIiGJQR/+JtbQ+aqS+7poPHCjBN
-kpyXqa2im7HpdH4lIjdrHmpMu97L0fqAv69Ywslop5ZCR40tDTdDbzRVjQFpIWwA
-8OYYn97IlCpHhwANbzcaFQtVG9YTqR1AN2bwwCwazCo0tRzziLcPZDPGp9F7elAd
-3iw2W+XisItaWdVqpBVy2AiYWUB2ny9yq0bPssTCV9S+CCU0gZnUxdnmpf8SW/hl
-/8FLrnqpEMDrTYs4gTSEOkWkuVDfHOd0dACBV5rUF17BuFNugvTLo8CauBEhMCqr
-RqajYK+u+Sf5dteiHk19C1z+DyE5MUy8wjHRUV83nHKTX2XovVuoDn0l0Db1trOI
-OjEZRs02Hp3bXwUK7G2pqa7Z6wssFJgQlS4WrbwPv8jR1S/hlmkR7BI37NLdwapJ
-VvWjprPRBV/6wnO1/hJF0BWpk5JkJJ6QWeNUEbg7flRgCfWFuO7hdQaCtVFoLewh
-Dgv3peSnZCsGVJUVEBm+hTg1nodFzAE4US6+KTq7rDm70eZ7+rM9Xls4/mGDRuF3
-bbWC0+r+5i5et2BgB7Dt
-=kYiV
+iQIcBAEBAgAGBQJXiNX8AAoJEBQN5MwUoCm202YP/1gIB+YNwakpcsRp5OyPZVYr
+sXtuQRaWBywq1d8rCBMnbaGUZsR6yZam4FVrNkBHPJ/imebTrEyiRZDyApurmftF
+RJmy9ITv6PG6BuFdtDW+aaWBlmM2+cazZRW+x3JXcbBxsNV8XnkrTzJs3MZQMvfW
+SVI8O78YG0YE3+EjfIXGrAxjb7V5bhUVv5Z5qnYiUegwmG619jmO2aItleW3rngf
+05DEDE/4acnmEmSTxQlVCNEqQA7gkqd3aDdj+LcNjkXDJeUixgfNGeleLpABxVl5
+AzrENHNai0h+2fMsqb9GgpFrtopnoT914t9R+zHYfZSjrBfwdSdAyQ/f4vFNdFZk
+OziIRxTPtX23Yj/87JFICI/+v7a699A1YRvejBSCyeoMT0mmrYHtW6r/NBFzLjVa
+Xp1Ae1fdAsmd5yFTVSCwrpCntPibQ+oeB8uMYcCOWreY9qtSEDz5QCUDd9M0Cge2
+dvEqfYAHx6KEGzGwm3psV6EFekw1Q2QOHFLC+ltnfByngV0pD6CkKbfVRR8QZmEL
+aqHw7OYYRr/fWLIBl3OyptrftA3FhkA7d+YwVBXLup1EisRKwy++DjDI1bOf+gkK
+LQjUWKnGc0oblbPFm/2rUYNpiCtD5N8LK0KLGD1faxwDQkLhgiL+dDPuMbkTJ6zA
+sgoDVs6fphy7T4Od8Khr
+=riAe
 -----END PGP SIGNATURE-----
 
---envbJBWh7q8WU6mo--
+--BOKacYhQ+x31HxR3--
