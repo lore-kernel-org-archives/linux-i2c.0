@@ -1,37 +1,69 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [RESEND PATCH 11/14] eeprom: at24: add the at24cs series to the
- list of supported devices
-Date: Fri, 15 Jul 2016 10:54:24 +0200
-Message-ID: <CAMpxmJWeEXSsoTFfg-Lx3pMC0mfSY0=Ez4Tg1Z2nhf5wJyQTPA@mail.gmail.com>
-References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
- <1465202936-16832-12-git-send-email-bgolaszewski@baylibre.com> <20160715063047.GA7675@tetsubishi>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: Re: Introducing a kernel driver for the DS28E17 Onewire to I2C master
+ bridge; Feature request: introduce I2C_FUNC_STOP
+Date: Fri, 15 Jul 2016 13:13:16 +0200
+Message-ID: <5788C54C.20705@gmx.de>
+References: <578612EB.1060709@gmx.de> <20160714095812.GA1563@tetsubishi>
+ <57878B55.1030200@gmx.de> <20160714131921.GE4149@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f41.google.com ([209.85.214.41]:36557 "EHLO
-	mail-it0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751044AbcGOIyZ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Jul 2016 04:54:25 -0400
-Received: by mail-it0-f41.google.com with SMTP id f6so13552759ith.1
-        for <linux-i2c@vger.kernel.org>; Fri, 15 Jul 2016 01:54:25 -0700 (PDT)
-In-Reply-To: <20160715063047.GA7675@tetsubishi>
+Received: from mout.gmx.net ([212.227.15.15]:59626 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932511AbcGOLNU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 15 Jul 2016 07:13:20 -0400
+In-Reply-To: <20160714131921.GE4149@tetsubishi>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
+Cc: linux-i2c@vger.kernel.org
 
-2016-07-15 8:30 GMT+02:00 Wolfram Sang <wsa@the-dreams.de>:
->
->>       { "24c01",      AT24_DEVICE_MAGIC(1024 / 8,     0) },
->> +     { "24cs01",     AT24_DEVICE_MAGIC(128 / 8,
->
-> I encoded the size for EEPROMs with "x / 8" originally to make it
-> visible where the EEPROM name came from, i.e. that is from kilobits not
-> kilobytes. So, for the serial number I would simply encode the size as
-> 16 and not as (128 / 8), because it has nothing to do with the name. I
-> can fix this locally if you are okay with the idea?
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Sure, thanks!
+Am 14.07.2016 um 15:19 schrieb Wolfram Sang:
+> 
+>> The datasheet says it can at least for a write to the pointer
+>> byte followed by a read but it doesn't seem to work.
+>> 
+>> - From my tests, it doesn't work, or it least it doesn't work the
+>> way the ds28e17 bus master does the repeated start.
+> 
+> It would be really good if that would work. Having a STOP betwen
+> those messages is unsafe. It won't probably matter for your setup,
+> but still...
+> 
+I checked it again and it turned out to be a bug in my driver code,
+living there from my very first tries. The DS28E17 and DS7505 in
+conjunction support the Restart Condition.
 
-Bart
+So, please discard my request for I2C_FUNC_STOP. It's not needed.
+
+
+But I have another question, this time regarding I2C_FUNC_NOSTART. The
+DS28E17 can do an I2C write transfer without Start Condition, to
+continue a previous write without Stop Condition. My driver already
+uses that internally to do continous writes of more than 255 bytes,
+the buffer limit of the DS28E17.
+
+
+BUT, the DS28E17 can only do this for writes. Not for reads. Does it
+make sense to expose that feature and announce it as I2C_FUNC_NOSTART
+then?
+
+Kind regards
+
+	Jan
+
+
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iEYEARECAAYFAleIxUYACgkQzGZqmZvWQdnypwCgnrHFhOnGesAwn9P6qnrRA+UK
+yZ0An02KMy1Z+vKB8VO8Pn0XKFXP4e0t
+=Tqkg
+-----END PGP SIGNATURE-----
