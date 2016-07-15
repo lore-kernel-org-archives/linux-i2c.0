@@ -1,73 +1,122 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RESEND PATCH 05/14] eeprom: at24: hide the read/write loop
- behind a macro
-Date: Sat, 16 Jul 2016 00:03:52 +0900
-Message-ID: <20160715150352.GB5136@tetsubishi>
-References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
- <1465202936-16832-6-git-send-email-bgolaszewski@baylibre.com>
- <20160715122429.GA2620@tetsubishi>
- <CAMpxmJU+HDvUb__Q6UvuaVC70+GdSU312uVuXuicqsn6_v2uKQ@mail.gmail.com>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: Re: [v10, 3/7] soc: fsl: add GUTS driver for QorIQ platforms
+Date: Fri, 15 Jul 2016 12:43:41 -0400
+Message-ID: <CAP=VYLqsV_M=8CM47k4kzdULCp_y0yP9t8Sq9=jFp6W593QJgw@mail.gmail.com>
+References: <1462417950-46796-1-git-send-email-yangbo.lu@nxp.com> <1462417950-46796-4-git-send-email-yangbo.lu@nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1LKvkjL3sHcu1TtY"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:38513 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751071AbcGOPEF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 15 Jul 2016 11:04:05 -0400
-Content-Disposition: inline
-In-Reply-To: <CAMpxmJU+HDvUb__Q6UvuaVC70+GdSU312uVuXuicqsn6_v2uKQ@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1462417950-46796-4-git-send-email-yangbo.lu@nxp.com>
+Sender: netdev-owner@vger.kernel.org
+To: Yangbo Lu <yangbo.lu@nxp.com>
+Cc: linux-mmc@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, devicetree@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>, ulf.hansson@linaro.org, Scott Wood <oss@buserror.net>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Qiang Zhao <qiang.zhao@nxp.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, leoyang.li@nxp.com, xiaobo.xie@nxp.com
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
 
+On Wed, May 4, 2016 at 11:12 PM, Yangbo Lu <yangbo.lu@nxp.com> wrote:
+> The global utilities block controls power management, I/O device
+> enabling, power-onreset(POR) configuration monitoring, alternate
+> function selection for multiplexed signals,and clock control.
+>
+> This patch adds GUTS driver to manage and access global utilities
+> block.
+>
+> Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
+> Acked-by: Scott Wood <oss@buserror.net>
+> ---
+> Changes for v4:
+>         - Added this patch
+> Changes for v5:
+>         - Modified copyright info
+>         - Changed MODULE_LICENSE to GPL
+>         - Changed EXPORT_SYMBOL_GPL to EXPORT_SYMBOL
+>         - Made FSL_GUTS user-invisible
+>         - Added a complete compatible list for GUTS
+>         - Stored guts info in file-scope variable
+>         - Added mfspr() getting SVR
+>         - Redefined GUTS APIs
+>         - Called fsl_guts_init rather than using platform driver
+>         - Removed useless parentheses
+>         - Removed useless 'extern' key words
+> Changes for v6:
+>         - Made guts thread safe in fsl_guts_init
+> Changes for v7:
+>         - Removed 'ifdef' for function declaration in guts.h
+> Changes for v8:
+>         - Fixes lines longer than 80 characters checkpatch issue
+>         - Added 'Acked-by: Scott Wood'
+> Changes for v9:
+>         - None
+> Changes for v10:
+>         - None
+> ---
+>  drivers/soc/Kconfig      |   2 +-
+>  drivers/soc/fsl/Kconfig  |   8 +++
+>  drivers/soc/fsl/Makefile |   1 +
+>  drivers/soc/fsl/guts.c   | 119 ++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/fsl/guts.h | 126 +++++++++++++++++++++++++++++------------------
+>  5 files changed, 207 insertions(+), 49 deletions(-)
+>  create mode 100644 drivers/soc/fsl/Kconfig
+>  create mode 100644 drivers/soc/fsl/guts.c
+>
+> diff --git a/drivers/soc/Kconfig b/drivers/soc/Kconfig
+> index cb58ef0..7106463 100644
+> --- a/drivers/soc/Kconfig
+> +++ b/drivers/soc/Kconfig
+> @@ -2,7 +2,7 @@ menu "SOC (System On Chip) specific Drivers"
+>
+>  source "drivers/soc/bcm/Kconfig"
+>  source "drivers/soc/brcmstb/Kconfig"
+> -source "drivers/soc/fsl/qe/Kconfig"
+> +source "drivers/soc/fsl/Kconfig"
+>  source "drivers/soc/mediatek/Kconfig"
+>  source "drivers/soc/qcom/Kconfig"
+>  source "drivers/soc/rockchip/Kconfig"
+> diff --git a/drivers/soc/fsl/Kconfig b/drivers/soc/fsl/Kconfig
+> new file mode 100644
+> index 0000000..b313759
+> --- /dev/null
+> +++ b/drivers/soc/fsl/Kconfig
+> @@ -0,0 +1,8 @@
+> +#
+> +# Freescale SOC drivers
+> +#
+> +
+> +source "drivers/soc/fsl/qe/Kconfig"
+> +
+> +config FSL_GUTS
+> +       bool
+> diff --git a/drivers/soc/fsl/Makefile b/drivers/soc/fsl/Makefile
+> index 203307f..02afb7f 100644
+> --- a/drivers/soc/fsl/Makefile
+> +++ b/drivers/soc/fsl/Makefile
+> @@ -4,3 +4,4 @@
+>
+>  obj-$(CONFIG_QUICC_ENGINE)             += qe/
+>  obj-$(CONFIG_CPM)                      += qe/
+> +obj-$(CONFIG_FSL_GUTS)                 += guts.o
+> diff --git a/drivers/soc/fsl/guts.c b/drivers/soc/fsl/guts.c
+> new file mode 100644
+> index 0000000..fa155e6
+> --- /dev/null
+> +++ b/drivers/soc/fsl/guts.c
+> @@ -0,0 +1,119 @@
+> +/*
+> + * Freescale QorIQ Platforms GUTS Driver
+> + *
+> + * Copyright (C) 2016 Freescale Semiconductor, Inc.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + */
+> +
+> +#include <linux/io.h>
+> +#include <linux/module.h>
 
---1LKvkjL3sHcu1TtY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Seems there was lots of discussion on this.  If it does end up being
+resent, it would be nice to get the module.h and other modular stuff
+gone since it is a bool Kconfig.
 
-
-> >> +#define loop_until_timeout(tout, op_time)                            \
-> >> +     for (tout =3D jiffies + msecs_to_jiffies(write_timeout),        =
-  \
-> >> +             op_time =3D jiffies;                                    =
-  \
-> >> +          time_before(op_time, tout);                                \
-> >> +          usleep_range(1000, 1500), op_time =3D jiffies)
-> >
-> > There is one subtle change coming with this change: the do-while loop is
-> > guaranteed to run at least once while the for-loop doesn't.
-> >
->=20
-> While it's technically possible, it will never happen as long as
-> write_timeout is set to some sensible value.
-
-I know that. I prefer Linux to be rock-stable, though, even when
-slightly misconfigured (or under extreme load for that matter). An
-incremental patch would be enough, no need to resend.
-
-
---1LKvkjL3sHcu1TtY
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXiPtXAAoJEBQN5MwUoCm2UeEP/1FJLZTO47reCXmOEmp/H3/f
-zM91vkfZ7ns49vQ4UlDR37shPl3mqw7c1kb9yHVhDqg/OFkrv/4u5PEnhUgnBsvO
-o/Rt0mqxtFnKdK7fxeNq0IQgiUee/ysPlfpKgl6OFFOsX7f86brGd0KdDwn3ikDj
-G6lSPG24v4jBGe5RC5IzodYucIi5+Jp5w15KHML5lg1LSk3ndcaPjA1rM3FQx8Rb
-u29Pex+kfG3SKBYJjuL3SgprJrXZZWI8QblQb4wz64Q8HEtkKWmp9C8UH0i3Dtkj
-YeW/PcHZoBGA/h+Y9SluYboG6sOlZ4n/UYIDTVPKO93XVlkUqPYPNlkHrGcj6OUx
-SN1lD/FnYt4DG/bW4VckF5nbx7cN01hLgHiCSQrI+56kqnCxPfy3aM1TbgMf8LzX
-MWrLJsKR54l1qzkosHo03Gup8dFahvG11K0W4RHzz7O9aThRl7oMVEOSXZ4Lm6iA
-u1S5Fwu6C3TZlheQ3qLvhDDM+uqs7/ulSHp1LBhqXwDpBlwitTyqR/6CBf0SX0Fx
-airo+yEq7ILVsEXeJ+ihIWcYJ9toUDla1gsZv7ugd4ZWK1mPl7Uavp9jb6OQsUq8
-130+RiwBUr9GGPkvTp71lCvaOoQo9Tn373aoYnCpN0heCwLHHWV2emU2QXiFTnGJ
-TwqQZllCcobbXTL2EYQb
-=U1fx
------END PGP SIGNATURE-----
-
---1LKvkjL3sHcu1TtY--
+Thanks,
+Paul.
