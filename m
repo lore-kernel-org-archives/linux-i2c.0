@@ -1,60 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: Introducing a kernel driver for the DS28E17 Onewire to I2C
- master bridge; Feature request: introduce I2C_FUNC_STOP
-Date: Sat, 16 Jul 2016 13:51:03 +0900
-Message-ID: <20160716045101.GA1677@tetsubishi>
-References: <578612EB.1060709@gmx.de>
- <20160714095812.GA1563@tetsubishi>
- <57878B55.1030200@gmx.de>
- <20160714131921.GE4149@tetsubishi>
- <5788C54C.20705@gmx.de>
- <20160715112559.GA1695@tetsubishi>
- <578930F4.4080707@gmx.de>
+Subject: Re: [RESEND PATCH 05/14] eeprom: at24: hide the read/write loop
+ behind a macro
+Date: Sat, 16 Jul 2016 13:56:52 +0900
+Message-ID: <20160716045651.GB1677@tetsubishi>
+References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
+ <1465202936-16832-6-git-send-email-bgolaszewski@baylibre.com>
+ <20160715122429.GA2620@tetsubishi>
+ <CAMpxmJU+HDvUb__Q6UvuaVC70+GdSU312uVuXuicqsn6_v2uKQ@mail.gmail.com>
+ <20160715150352.GB5136@tetsubishi>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+	protocol="application/pgp-signature"; boundary="8P1HSweYDcXXzwPJ"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:42055 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:42086 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750871AbcGPEvV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 16 Jul 2016 00:51:21 -0400
+	id S1750871AbcGPE5c (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 16 Jul 2016 00:57:32 -0400
 Content-Disposition: inline
-In-Reply-To: <578930F4.4080707@gmx.de>
+In-Reply-To: <20160715150352.GB5136@tetsubishi>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Kandziora <jjj@gmx.de>
-Cc: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
 
 
---GvXjxJ+pjyke8COw
+--8P1HSweYDcXXzwPJ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-> What's the correct way to test for struct i2c_adapter_quirks et al?
 
-When you upstream stuff, it is for the current version only, so no check
-needed. You can do anything you want in your private version, of course.
+> > >> +#define loop_until_timeout(tout, op_time)                            \
+> > >> +     for (tout = jiffies + msecs_to_jiffies(write_timeout),          \
+> > >> +             op_time = jiffies;                                      \
+> > >> +          time_before(op_time, tout);                                \
+> > >> +          usleep_range(1000, 1500), op_time = jiffies)
+
+What about:
+
+#define loop_until_timeout(tout, op_time)                                \
+     for (tout = jiffies + msecs_to_jiffies(write_timeout), op_time = 0; \
+          op_time ? time_before(op_time, tout) : true;                   \
+          usleep_range(1000, 1500), op_time = jiffies)
+
+? Would probably need an explanation in a comment, though.
 
 
---GvXjxJ+pjyke8COw
+--8P1HSweYDcXXzwPJ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXib00AAoJEBQN5MwUoCm2WWYP/RDKbhPTQQia2S+qB+ytATsg
-0a4+LDF8FuAhCK+Mv6d+bOOgAA5YpnIPAF0uR5djQLBiFdL9ec1KN202wDEovL3m
-fD0k5BvtWXMH7/gpqP+qcY5rEv7OH83emIp6ZMnWO6lGkVM8KyiE6ogGNAB8oLHX
-P3EaT29q4c6npo+AEZzGGFycoBg8MZ8w5/QUZYx9dTAhDEO93gLWd6OnPOjeAwEj
-hAtbucxq3OzrXx71UXLTkL7z6c6pUTrjHANDh4RM1h9fDdm8Kz61kmglgHWQ72U7
-L6nfarqAI34hEXk/qMOhs38cpJV4tSrHDpAVmlsupH3GytlG7QRedcWdginl06QA
-spfovd1uOtcmt8+gty2z1tXZ6XWftSubZHbNuwistTB+x9Ur8brk8VsXP82Hbi5N
-4z5XGbsHPNG9AgcrYVYBsSCqejh69mc9nzu6OmCxVdQiIAgLaXOE1h7yYJlEhcg8
-mFCdVAnJCO1eo1bsxXV/ThPp7qLCEJIEYqKRn/wqWWglBHQEDlq3XCTwNu8Kuvx0
-iFCWCR6Cjpq+JZ3Lv3wZpVpbnUpTKR4ZhcfutZigbg3+ezfeY2rtjrrpQW2CfkhD
-dQ/83UN44u/9BOTLga+ysduVxTSVs7JnD4EKMfxI8geSe7I7nvPYOU8LssbhREDS
-2AvZYJ0y5SvVx753i0Od
-=koSh
+iQIcBAEBAgAGBQJXib6SAAoJEBQN5MwUoCm2ITUQAKymCpFx1rqBS3caXPapcgZe
+mWq8kMeKUphM/pRtxbULkdKvtPxe2/WXcac3cTowhtlhWUqBeps3H2GnE4O1zBd7
+tlFJ/XJXjCjb4sZxroU4d/KZmykOgo87nM6DXFv37d0Y6PB27pcHcC5j1BH/kPfD
+c2hBdyNQuy7fckBoR/TqpOWcDwQLJPp0aRPJJ8SVhijwqz59ttQo708e0jsz5oqa
+JybRTCcjf4/ySXptOoOh0d9OhqQJy8C5qNl0Ljo0Jkf3V9QuDdTSB5aKrRIRob3O
+TCQIPoh/jEvGRJWN31WoA0Afj70pmU6I+eb4W9tWsXo5pYmHW7H8bM7/QVVgEVXb
+US8MWXKUmnsAIcqB0ISDptEmjJdwmXvKiCpFS6lnzj6JEBZPFjGZNa5QMbsztU8H
+4R5oh+bch0MIQcY7HIDKtNhpkr6IYo9hDIZm9DNiEfTN+DSkRUaD4sujK96+0S5y
+4K8ufqKA304Sl/lupFWEQDv6tZ1WC9cucls32sZOnMVHyxg71i+54cOQjuCvr4qN
+KUvVcUBfQsJwIkR8EDHCPM4o5u50B2fkNk3HnOHs9KEeC36hRvzHVzZFyWGBrDwx
+N5SDl379JbsaJ7aqsiR5eKYnYxDP8e97IFOYXNJYCIRn5g4ocsM5o93LjwpVF66s
+lJ4XOXWfR29Vuio2XTsW
+=7n1e
 -----END PGP SIGNATURE-----
 
---GvXjxJ+pjyke8COw--
+--8P1HSweYDcXXzwPJ--
