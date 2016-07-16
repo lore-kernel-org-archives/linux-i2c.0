@@ -1,50 +1,68 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [RESEND PATCH 05/14] eeprom: at24: hide the read/write loop
- behind a macro
-Date: Sat, 16 Jul 2016 21:25:08 +0200
-Message-ID: <CAMpxmJWniibfkoQCFgpwH8D23t8V1+3g=NBY2tmNZsGN=6Ufvg@mail.gmail.com>
-References: <1465202936-16832-1-git-send-email-bgolaszewski@baylibre.com>
- <1465202936-16832-6-git-send-email-bgolaszewski@baylibre.com>
- <20160715122429.GA2620@tetsubishi> <CAMpxmJU+HDvUb__Q6UvuaVC70+GdSU312uVuXuicqsn6_v2uKQ@mail.gmail.com>
- <20160715150352.GB5136@tetsubishi> <20160716045651.GB1677@tetsubishi>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: [PATCH 1/2] wire: export w1_touch_bit
+Date: Sat, 16 Jul 2016 22:15:27 +0200
+Message-ID: <578A95DF.6070908@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f45.google.com ([209.85.214.45]:38371 "EHLO
-	mail-it0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751698AbcGPTZK (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Jul 2016 15:25:10 -0400
-Received: by mail-it0-f45.google.com with SMTP id j124so1970604ith.1
-        for <linux-i2c@vger.kernel.org>; Sat, 16 Jul 2016 12:25:09 -0700 (PDT)
-In-Reply-To: <20160716045651.GB1677@tetsubishi>
+Received: from mout.gmx.net ([212.227.17.21]:55156 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751666AbcGPUPb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 16 Jul 2016 16:15:31 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Evgeniy Polyakov <zbr@ioremap.net>
+Cc: linux-i2c@vger.kernel.org
 
-2016-07-16 6:56 GMT+02:00 Wolfram Sang <wsa@the-dreams.de>:
->
->> > >> +#define loop_until_timeout(tout, op_time)                            \
->> > >> +     for (tout = jiffies + msecs_to_jiffies(write_timeout),          \
->> > >> +             op_time = jiffies;                                      \
->> > >> +          time_before(op_time, tout);                                \
->> > >> +          usleep_range(1000, 1500), op_time = jiffies)
->
-> What about:
->
-> #define loop_until_timeout(tout, op_time)                                \
->      for (tout = jiffies + msecs_to_jiffies(write_timeout), op_time = 0; \
->           op_time ? time_before(op_time, tout) : true;                   \
->           usleep_range(1000, 1500), op_time = jiffies)
->
-> ? Would probably need an explanation in a comment, though.
->
+The w1_ds28e17 driver from the next part of this patch needs to emit
+single-bit read timeslots to the DS28E17. The w1 subsystem already
+has this function but it is not exported outside drivers/w1/w1_io.c
 
-Hi Wolfram,
+This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
+same as the other exported symbols in drivers/w1/w1_io.c
 
-thanks for the suggestion, it looks good. I'm not at home right now
-and don't have access to any device with which I could test it. I'll
-try to send the patch tomorrow evening or Monday morning.
+May be also useful later for writing drivers for other Onewire chips
+which do single-bit communication.
 
-Best regards,
-Bartosz Golaszewski
+Signed-off-by: Jan Kandziora <jjj@gmx.de>
+---
+ drivers/w1/w1.h    | 1 +
+ drivers/w1/w1_io.c | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+index 129895f..ac8a6a5 100644
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -302,6 +302,7 @@ int w1_attach_slave_device(struct w1_master *dev, struct w1_reg_num *rn);
+ int w1_slave_detach(struct w1_slave *sl);
+ 
+ u8 w1_triplet(struct w1_master *dev, int bdir);
++u8 w1_touch_bit(struct w1_master *dev, int bit);
+ void w1_write_8(struct w1_master *, u8);
+ u8 w1_read_8(struct w1_master *);
+ int w1_reset_bus(struct w1_master *);
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index f4bc8c1..1c34f97 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -66,7 +66,7 @@ static u8 w1_read_bit(struct w1_master *dev);
+  * @dev:	the master device
+  * @bit:	0 - write a 0, 1 - write a 0 read the level
+  */
+-static u8 w1_touch_bit(struct w1_master *dev, int bit)
++u8 w1_touch_bit(struct w1_master *dev, int bit)
+ {
+ 	if (dev->bus_master->touch_bit)
+ 		return dev->bus_master->touch_bit(dev->bus_master->data, bit);
+@@ -77,6 +77,7 @@ static u8 w1_touch_bit(struct w1_master *dev, int bit)
+ 		return 0;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(w1_touch_bit);
+ 
+ /**
+  * w1_write_bit() - Generates a write-0 or write-1 cycle.
+-- 
+2.1.4
