@@ -1,58 +1,38 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH] eeprom: at24: tweak the loop_until_timeout() macro
-Date: Sun, 17 Jul 2016 20:40:06 +0200
-Message-ID: <1468780806-13034-1-git-send-email-bgolaszewski@baylibre.com>
+From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Subject: Re: [PATCH v3 1/2] Documentation: Add sbs-manager device tree node
+ documentation
+Date: Sun, 17 Jul 2016 23:15:03 +0200
+Message-ID: <1468790103.3145.1.camel@amnesix>
+References: <1bIiDr-0004G1-0P>
+	 <1468349295-4935-1-git-send-email-karl-heinz@schneider-inet.de>
+	 <1468349295-4935-2-git-send-email-karl-heinz@schneider-inet.de>
+	 <20160716220502.GA19340@rob-hp-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f42.google.com ([74.125.82.42]:37728 "EHLO
-	mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751138AbcGQSkM (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Jul 2016 14:40:12 -0400
-Received: by mail-wm0-f42.google.com with SMTP id i5so89887141wmg.0
-        for <linux-i2c@vger.kernel.org>; Sun, 17 Jul 2016 11:40:11 -0700 (PDT)
+Received: from schneider-inet.de ([85.214.76.205]:47298 "EHLO
+	h1714509.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751188AbcGQVPN (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Jul 2016 17:15:13 -0400
+In-Reply-To: <20160716220502.GA19340@rob-hp-laptop>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, GregKH <greg@kroah.com>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Rob Herring <robh@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
 
-loop_until_timeout() replaced a do {} while loop in the at24 driver
-with a for loop which, under certain circumstances (such as heavy load
-or low value of the write_timeout argument), can lead to the code in
-the loop never being executed.
-
-Make sure that at least one iteration of the code enclosed within
-loop_until_timeout() is always executed.
-
-Suggested-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/misc/eeprom/at24.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0b8fafdb..1f62aaf 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -116,7 +116,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- /*
-  * Both reads and writes fail if the previous write didn't complete yet. This
-  * macro loops a few times waiting at least long enough for one entire page
-- * write to work.
-+ * write to work while making sure that at least one iteration is run before
-+ * checking the break condition.
-  *
-  * It takes two parameters: a variable in which the future timeout in jiffies
-  * will be stored and a temporary variable holding the time of the last
-@@ -124,9 +125,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
-  * holding at least 32 bits.
-  */
- #define loop_until_timeout(tout, op_time)				\
--	for (tout = jiffies + msecs_to_jiffies(write_timeout),		\
--		op_time = jiffies;					\
--	     time_before(op_time, tout);				\
-+	for (tout = jiffies + msecs_to_jiffies(write_timeout), op_time = 0; \
-+	     op_time ? time_before(op_time, tout) : true;		\
- 	     usleep_range(1000, 1500), op_time = jiffies)
- 
- static const struct i2c_device_id at24_ids[] = {
+Am Samstag, den 16.07.2016, 17:05 -0500 schrieb Rob Herring:
+> On Tue, Jul 12, 2016 at 08:48:14PM +0200, Karl-Heinz Schneider wrote:
+> > This patch adds device tree documentation for the sbs-manager
+> > 
+> > Reviewed-by: Phil Reid <preid@electromag.com.au>
+> > Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+> > ---
+> >  .../devicetree/bindings/power/sbs,sbs-manager.txt  | 52 ++++++++++++++++++++++
+> >  1 file changed, 52 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+> 
+> Acked-by: Rob Herring <robh@kernel.org>
+Thanks!
 -- 
-2.7.4
+Karl-Heinz
