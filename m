@@ -1,330 +1,267 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v9 1/2] i2c: i801: add support of Host Notify
-Date: Mon, 18 Jul 2016 16:12:45 +0200
-Message-ID: <20160718161245.5c744879@endymion>
-References: <1466779189-8455-1-git-send-email-benjamin.tissoires@redhat.com>
+From: David Gibson <david@gibson.dropbear.id.au>
+Subject: DT connectors, thoughts
+Date: Tue, 19 Jul 2016 00:20:37 +1000
+Message-ID: <20160718142037.GS16769@voom.fritz.box>
+References: <577ACE0D.9050700@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WVXkb2QE2eH0aWe4"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38931 "EHLO mx2.suse.de"
+Received: from ozlabs.org ([103.22.144.67]:57969 "EHLO ozlabs.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751041AbcGROMt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 18 Jul 2016 10:12:49 -0400
-In-Reply-To: <1466779189-8455-1-git-send-email-benjamin.tissoires@redhat.com>
+	id S1751356AbcGROUm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 18 Jul 2016 10:20:42 -0400
+Content-Disposition: inline
+In-Reply-To: <577ACE0D.9050700@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-
-Hi Benjamin,
-
-Once again, sorry for the late review.
-
-On Fri, 24 Jun 2016 16:39:49 +0200, Benjamin Tissoires wrote:
-> The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
-> in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
-> 
-> Enable the functionality unconditionally and propagate the alert
-> on each notification.
-> 
-> With a T440s and a Synaptics touchpad that implements Host Notify, the
-> payload data is always 0x0000, so I am not sure if the device actually
-> sends the payload or if there is a problem regarding the implementation.
-
-Out of curiosity, does it work on at least one machine?
-
-> Tested-by: Andrew Duggan <aduggan@synaptics.com>
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> changes in v2:
-> - removed the description of the Slave functionality support in the chip table
->   (the table shows what is supported, not what the hardware is capable of)
-> - use i2c-smbus to forward the notification
-> - remove the fifo, and directly retrieve the address and payload in the worker
-> - do not check for Host Notification is the feature is not enabled
-> - use inw_p() to read the payload instead of 2 inb_p() calls
-> - add /* fall-through */ comment
-> - unconditionally enable Host Notify if the hardware supports it (can be
->   disabled by the user)
-> 
-> no changes in v3
-> 
-> changes in v4:
-> - make use of the new API -> no more worker spawning here
-> - solved a race between the access of the Host Notify registers and the actual
->   I2C transfers.
-> 
-> changes in v5:
-> - added SKL Host Notify support
-> 
-> changes in v6:
-> - select I2C_SMBUS in Kconfig to prevent an undefined reference when I2C_I801
->   is set to 'Y' while I2C_SMBUS is set to 'M'
-> 
-> no changes in v7
-> 
-> changes in v8:
-> - reapplied after http://patchwork.ozlabs.org/patch/632768/ and merged the
->   conflict (minor conflict in the struct i801_priv).
-> - removed the .resume hook as upstream changed suspend/resume hooks and there
->   is no need in the end to re-enable host notify on resume (tested on Lenovo
->   t440 and t450).
-> - kept Wolfram's Acked-by as the changes were minor
-> 
-> changes in v9:
-> - re-add the .resume hook. Looks like the Lenovo T440 sometimes forget to
->   re-enable Host Notify on resume, so better have it reset for everybody
-> 
->  drivers/i2c/busses/Kconfig    |  1 +
->  drivers/i2c/busses/i2c-i801.c | 88 +++++++++++++++++++++++++++++++++++++++++--
->  2 files changed, 86 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index efa3d9b..b4b6cb0 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -91,6 +91,7 @@ config I2C_I801
->  	tristate "Intel 82801 (ICH/PCH)"
->  	depends on PCI
->  	select CHECK_SIGNATURE if X86 && DMI
-> +	select I2C_SMBUS
->  	help
->  	  If you say yes to this option, support will be included for the Intel
->  	  801 family of mainboard I2C interfaces.  Specifically, the following
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index b436963..312caed 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -72,6 +72,7 @@
->   * Block process call transaction	no
->   * I2C block read transaction		yes (doesn't use the block buffer)
->   * Slave mode				no
-> + * SMBus Host Notify			yes
->   * Interrupt processing			yes
->   *
->   * See the file Documentation/i2c/busses/i2c-i801 for details.
-> @@ -86,6 +87,7 @@
->  #include <linux/ioport.h>
->  #include <linux/init.h>
->  #include <linux/i2c.h>
-> +#include <linux/i2c-smbus.h>
->  #include <linux/acpi.h>
->  #include <linux/io.h>
->  #include <linux/dmi.h>
-> @@ -113,6 +115,10 @@
->  #define SMBPEC(p)	(8 + (p)->smba)		/* ICH3 and later */
->  #define SMBAUXSTS(p)	(12 + (p)->smba)	/* ICH4 and later */
->  #define SMBAUXCTL(p)	(13 + (p)->smba)	/* ICH4 and later */
-> +#define SMBSLVSTS(p)	(16 + (p)->smba)	/* ICH3 and later */
-> +#define SMBSLVCMD(p)	(17 + (p)->smba)	/* ICH3 and later */
-> +#define SMBNTFDADD(p)	(20 + (p)->smba)	/* ICH3 and later */
-> +#define SMBNTFDDAT(p)	(22 + (p)->smba)	/* ICH3 and later */
->  
->  /* PCI Address Constants */
->  #define SMBBAR		4
-> @@ -177,6 +183,12 @@
->  #define SMBHSTSTS_INTR		0x02
->  #define SMBHSTSTS_HOST_BUSY	0x01
->  
-> +/* Host Notify Status registers bits */
-> +#define SMBSLVSTS_HST_NTFY_STS	1
-> +
-> +/* Host Notify Command registers bits */
-> +#define SMBSLVCMD_HST_NTFY_INTREN	0x01
-
-"register" needs no "s" in these 2 comments. Also it would be nice to
-stick to hexadecimal for consistency (I know it's not the case
-elsewhere in the driver, but let's not add to it.)
-
-> +
->  #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
->  				 SMBHSTSTS_DEV_ERR)
->  
-> @@ -252,13 +264,17 @@ struct i801_priv {
->  	 */
->  	bool acpi_reserved;
->  	struct mutex acpi_lock;
-> +	struct smbus_host_notify *host_notify;
->  };
->  
-> +#define SMBHSTNTFY_SIZE		8
-
-This constant isn't used anywhere?
-
-> +
->  #define FEATURE_SMBUS_PEC	(1 << 0)
->  #define FEATURE_BLOCK_BUFFER	(1 << 1)
->  #define FEATURE_BLOCK_PROC	(1 << 2)
->  #define FEATURE_I2C_BLOCK_READ	(1 << 3)
->  #define FEATURE_IRQ		(1 << 4)
-> +#define FEATURE_HOST_NOTIFY	(1 << 5)
->  /* Not really a feature, but it's convenient to handle it as such */
->  #define FEATURE_IDF		(1 << 15)
->  #define FEATURE_TCO		(1 << 16)
-> @@ -269,6 +285,7 @@ static const char *i801_feature_names[] = {
->  	"Block process call",
->  	"I2C block read",
->  	"Interrupt",
-> +	"SMBus Host Notify",
->  };
->  
->  static unsigned int disable_features;
-> @@ -277,7 +294,8 @@ MODULE_PARM_DESC(disable_features, "Disable selected driver features:\n"
->  	"\t\t  0x01  disable SMBus PEC\n"
->  	"\t\t  0x02  disable the block buffer\n"
->  	"\t\t  0x08  disable the I2C block read functionality\n"
-> -	"\t\t  0x10  don't use interrupts ");
-> +	"\t\t  0x10  don't use interrupts\n"
-> +	"\t\t  0x20  disable SMBus Host Notify ");
->  
->  /* Make sure the SMBus host is ready to start transmitting.
->     Return 0 if it is, -EBUSY if it is not. */
-> @@ -511,8 +529,23 @@ static void i801_isr_byte_done(struct i801_priv *priv)
->  	outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
->  }
->  
-> +static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
-> +{
-> +	unsigned short addr;
-> +	unsigned int data;
-> +
-> +	addr = inb_p(SMBNTFDADD(priv)) >> 1;
-> +	data = inw_p(SMBNTFDDAT(priv));
-
-The ICH9 datasheet I'm looking at says the data is in 2 8-bit
-registers. I wonder if a 16-bit read is OK an all chipsets. Well, if it
-isn't we'll learn about it someday, I suppose.
-
-> +
-> +	i2c_handle_smbus_host_notify(priv->host_notify, addr, data);
-
-This can fail, in theory. Maybe this should be handled?
-
-> +
-> +	/* clear Host Notify bit and return */
-> +	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
-> +	return IRQ_HANDLED;
-> +}
-> +
->  /*
-> - * There are two kinds of interrupts:
-> + * There are three kinds of interrupts:
->   *
->   * 1) i801 signals transaction completion with one of these interrupts:
->   *      INTR - Success
-> @@ -524,6 +557,8 @@ static void i801_isr_byte_done(struct i801_priv *priv)
->   *
->   * 2) For byte-by-byte (I2C read/write) transactions, one BYTE_DONE interrupt
->   *    occurs for each byte of a byte-by-byte to prepare the next byte.
-> + *
-> + * 3) Host Notify interrupts
->   */
->  static irqreturn_t i801_isr(int irq, void *dev_id)
->  {
-> @@ -536,6 +571,12 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
->  	if (!(pcists & SMBPCISTS_INTS))
->  		return IRQ_NONE;
->  
-> +	if (priv->features & FEATURE_HOST_NOTIFY) {
-> +		status = inb_p(SMBSLVSTS(priv));
-> +		if (status & SMBSLVSTS_HST_NTFY_STS)
-> +			return i801_host_notify_isr(priv);
-> +	}
-> +
->  	status = inb_p(SMBHSTSTS(priv));
->  	if (status & SMBHSTSTS_BYTE_DONE)
->  		i801_isr_byte_done(priv);
-> @@ -847,7 +888,28 @@ static u32 i801_func(struct i2c_adapter *adapter)
->  	       I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_WRITE_I2C_BLOCK |
->  	       ((priv->features & FEATURE_SMBUS_PEC) ? I2C_FUNC_SMBUS_PEC : 0) |
->  	       ((priv->features & FEATURE_I2C_BLOCK_READ) ?
-> -		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0);
-> +		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0) |
-> +	       ((priv->features & FEATURE_HOST_NOTIFY) ?
-> +		I2C_FUNC_SMBUS_HOST_NOTIFY : 0);
-> +}
-> +
-> +static int i801_enable_host_notify(struct i2c_adapter *adapter)
-> +{
-> +	struct i801_priv *priv = i2c_get_adapdata(adapter);
-> +
-> +	if (!(priv->features & FEATURE_HOST_NOTIFY))
-> +		return -ENOTSUPP;
-
-Why do you return an error here? This forces you to special-case it on
-further error handling. You could simply return 0 instead, and save
-some tests.
-
-> +
-> +	if (!priv->host_notify)
-> +		priv->host_notify = i2c_setup_smbus_host_notify(adapter);
-> +	if (!priv->host_notify)
-> +		return -ENOMEM;
-
-Minor optimization: if priv->host_notify was already set, the second
-test is not needed.
-
-> +
-> +	outb_p(SMBSLVCMD_HST_NTFY_INTREN, SMBSLVCMD(priv));
-> +	/* clear Host Notify bit to allow a new notification */
-> +	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
-> +
-> +	return 0;
->  }
->  
->  static const struct i2c_algorithm smbus_algorithm = {
-> @@ -1379,6 +1441,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  		priv->features |= FEATURE_SMBUS_PEC;
->  		priv->features |= FEATURE_BLOCK_BUFFER;
->  		priv->features |= FEATURE_TCO;
-> +		priv->features |= FEATURE_HOST_NOTIFY;
->  		break;
->  
->  	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
-> @@ -1398,6 +1461,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  		priv->features |= FEATURE_BLOCK_BUFFER;
->  		/* fall through */
->  	case PCI_DEVICE_ID_INTEL_82801CA_3:
-> +		priv->features |= FEATURE_HOST_NOTIFY;
-> +		/* fall through */
->  	case PCI_DEVICE_ID_INTEL_82801BA_2:
->  	case PCI_DEVICE_ID_INTEL_82801AB_3:
->  	case PCI_DEVICE_ID_INTEL_82801AA_3:
-> @@ -1507,6 +1572,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  		return err;
->  	}
->  
-> +	/*
-> +	 * Enable Host Notify for chips that supports it.
-> +	 * It is done after i2c_add_adapter() so that we are sure the work queue
-> +	 * is not used if i2c_add_adapter() fails.
-> +	 */
-> +	err = i801_enable_host_notify(&priv->adapter);
-> +	if (err && err != -ENOTSUPP)
-> +		dev_warn(&dev->dev, "Unable to enable SMBus Host Notify\n");
-> +
->  	i801_probe_optional_slaves(priv);
->  	/* We ignore errors - multiplexing is optional */
->  	i801_add_mux(priv);
-> @@ -1553,6 +1627,14 @@ static int i801_suspend(struct device *dev)
->  
->  static int i801_resume(struct device *dev)
->  {
-> +	struct pci_dev *pci_dev = to_pci_dev(dev);
-> +	struct i801_priv *priv = pci_get_drvdata(pci_dev);
-> +	int err;
-> +
-> +	err = i801_enable_host_notify(&priv->adapter);
-> +	if (err && err != -ENOTSUPP)
-> +		dev_warn(dev, "Unable to enable SMBus Host Notify\n");
-> +
->  	return 0;
->  }
->  #endif
+To: Frank Rowand <frowand.list@gmail.com>
+Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Rob Herring <robh+dt@kernel.org>, stephen.boyd@linaro.org, broonie@kernel.org, grant.likely@secretlab.ca, Mark Rutland <mark.rutland@arm.com>, mporter@konsulko.com, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, marex@denx.de, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, panto@antoniou-consulting.com
 
 
--- 
-Jean Delvare
-SUSE L3 Support
+--WVXkb2QE2eH0aWe4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+Here's some of my thoughts on how a connector format for the DT could
+be done.  Sorry it's taken longer than I hoped - I've been pretty
+swamped in my day job.
+
+This is pretty early thoughts, but gives an outline of the approach I
+prefer.
+
+So.. start with an example of a board DT including a widget socket,
+which contains pins for an MMIO bus, an i2c bus and 2 interrupt lines.
+
+/dts-v1/;
+
+/ {
+	compatible =3D "foo,oldboard";
+	ranges;
+	soc@... {
+		ranges;
+		mmio: mmio-bus@... {
+			#address-cells =3D <2>;
+			#size-cells =3D <2>;
+			ranges;
+		};
+		i2c: i2c@... {
+		};
+		intc: intc@... {
+			#interrupt-cells =3D <2>;
+		};
+	};
+
+	connectors {
+		widget1 {
+			compatible =3D "foo,widget-socket";
+			w1_irqs: irqs {
+				interrupt-controller;
+				#address-cells =3D <0>;
+				#interrupt-cells =3D <1>;
+				interrupt-map-mask =3D <0xffffffff>;
+				interrupt-map =3D <
+					0 &intc 7 0
+					1 &intc 8 0
+				>;
+			};
+			aliases =3D {
+				i2c =3D &i2c;
+				intc =3D &w1_irqs;
+				mmio =3D &mmio;
+			};
+		};
+	};
+};
+
+Note that the symbols are local to the connector, and explicitly
+listed, rather than including all labels in the tree.  This is to
+enforce (or at the very least encourage) plugins to only access those
+parts of the base tree.
+
+Note also the use of an interrupt nexus node contained within the
+connector to control which irqs the socketed device can use.  I think
+this needs some work to properly handle unit addresses, but hope
+that's enough to give the rough idea.
+
+So, what does the thing that goes in the socket look like?  I'm
+thinking some new dts syntax like this:
+
+/dts-v1/;
+
+/plugin/ foo,widget-socket {
+	compatible =3D "foo,whirligig-widget";
+};
+
+&i2c {
+	whirligig-controller@... {
+		...
+		interrupt-parent =3D <&widget-irqs>;
+		interrupts =3D <0>;
+	};
+};
+
+Use of the /plugin/ keyword is rather different from existing
+practice, so we may want a new one instead.
+
+The idea is that this would be compiled to something like:
+
+/dts-v1/;
+
+/ {
+	socket-type =3D "foo,widget-socket";
+	compatible =3D "foo,whirligig-widget";
+
+	fragment@0 {
+		target-alias =3D "i2c";
+		__overlay__ {
+			whirligig-controller@... {
+				...
+				interrupt-parent =3D <0xffffffff>;
+				interrupts =3D <0>;
+			};
+		};
+	};
+	__phandle_fixups__ {
+		/* These are (path, property, offset) tuples) */
+		widget-irqs =3D
+			"/fragment@0/__overlay__/whirligig-controller@...",
+			"interrupt-parent", <0>;
+	};
+};
+
+
+Suppose then there's a new version of the board.  This extends the
+widget socket in a backwards compatible way, but there are now two
+interchangeable sockets, and they're wired up to different irqs and
+i2c lines on the baseboard:
+
+/dts-v1/;
+
+/ {
+	compatible =3D "foo,newboard";
+	ranges;
+	soc@... {
+		ranges;=09
+		mmio: mmio-bus@... {
+			#address-cells =3D <2>;
+			#size-cells =3D <2>;
+			ranges;
+		};
+		i2c0: i2c@... {
+		};
+		i2c1: i2c@... {
+		};
+		intc: intc@... {
+		};
+	};
+
+	connectors {
+		widget1 {
+			compatible =3D "foo,widget-socket-v2", "foo,widget-socket";
+			w1_irqs: irqs {
+				interrupt-controller;
+				#address-cells =3D <0>;
+				#interrupt-cells =3D <1>;
+				interrupt-map-mask =3D <0xffffffff>;
+				interrupt-map =3D <
+					0 &intc 17 0
+					1 &intc 8 0
+				>;
+			};
+			aliases =3D {
+				i2c =3D &i2c0;
+				intc =3D &w1_irqs;
+				mmio =3D &mmio;
+			};
+		};
+		widget2 {
+			compatible =3D "foo,widget-socket-v2", "foo,widget-socket";
+			w2_irqs: irqs {
+				interrupt-controller;
+				#address-cells =3D <0>;
+				#interrupt-cells =3D <1>;
+				interrupt-map-mask =3D <0xffffffff>;
+				interrupt-map =3D <
+					0 &intc 9 0
+					1 &intc 10 0
+				>;
+			};
+			aliases =3D {
+				i2c =3D &i2c1;
+				widget-irqs =3D &w2_irqs;
+				mmio =3D &mmio;
+			};
+		};
+	};
+};
+
+
+A socketed device could also have it's own connectors - the contrived
+example below has a little 256 byte mmio space (maybe some sort of LPC
+thingy?):
+
+
+/dts-v1/;
+
+/plugin/ foo,widget-socket-v2 {
+	compatible =3D "foo,superduper-widget};
+
+	connectors {
+		compatible =3D "foo,super-socket";
+		aliases {
+			superbus =3D &superbus;
+		};=09
+	};
+};
+
+&mmio {
+	superbus: super-bridge@100000000 {
+		#address-cells =3D <1>;
+		#size-cells =3D <1>;
+		ranges =3D <0x0  0xabcd0000 0x12345600  0x100>;
+	};
+};
+
+&i2c {
+	super-controller@... {
+		...
+	};
+	duper-controller@... {
+	};
+};
+
+Thoughts?
+
+
+--=20
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
+
+--WVXkb2QE2eH0aWe4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXjOW1AAoJEGw4ysog2bOS/nkP/2BkWMNiRsid7BTqhPoAL6Pj
+wPUl1SgeTxUgeos05gsn52atl5RrdilJ1P7c5DGXnguISmi+/rA2g8WCxRTR/bae
+NZ2SdSakwYXfquwJ4/6q9LtraCNNr5W0t+e8CMynRCgWUKmDW6Uw8k+aOcHt77pF
+vKDug+bXQKHGmmUBoVOjczXFZYrD9HUvlTRUYETYFEagIfqOqzgN/OvxlQVPTsvP
+lbDHpTGcIAFLJ+nvAh4JpMO83PGFwlt+yqmpwbAtm5Pvp2a3u2/fMB+6SsF+AmeI
+mBHwRc7LrRuSVHZvEgoDURd+00zBpfcr363YKAI4KXQfjJinjKdO8AgkASF8uTni
+mJHiNizQcEfbT4s985WRq6J/FKBRnt+MvB5ubdC3VD9OB7XkZwrpUsHFgVDVsfg2
+RCLFWYHTgfniz46FQ4UPrJALAhWR33CMFKwYup6I5IxxBSnzwZoRJ+po0zgBX5XA
+TM48iH3NccIexrzdzgjKwVLn2/XE8RA8M0R7j6fhomfVk71lFRi8AMp2xsltbZm1
++a8OPCDPXbF8BCFLiIhBgaZbd/WGSvscSwnXsg9e9Z4UxkbKleTJq8oTLYYVm7zf
+1iSMrOqwiISqdlQfC6oaEw+Snu7ixDvrcuhKy2Lp1mV3cSrvcyiQKrLV+dRlr1LI
+4S2cu5CjbtlzIWCLIt2f
+=cY8a
+-----END PGP SIGNATURE-----
+
+--WVXkb2QE2eH0aWe4--
