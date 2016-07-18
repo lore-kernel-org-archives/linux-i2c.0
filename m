@@ -1,75 +1,34 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mv64xxx: Use clk_enable_prepare and
- clk_disable_unprepare
-Date: Mon, 18 Jul 2016 20:23:27 +0200
-Message-ID: <20160718182326.GD1973@katana>
-References: <20160627144722.GA31362@amitoj-Inspiron-3542>
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH 2/2] i2c-dev: Don't block the adapter from unregistering
+Date: Mon, 18 Jul 2016 13:20:05 -0700
+Message-ID: <20160718202005.GA18283@ubuntu>
+References: <cover.1467772840.git.viresh.kumar@linaro.org>
+ <021486be2f5425ce2379219a7ac163ee14ba2aba.1467772840.git.viresh.kumar@linaro.org>
+ <20160706065523.GA1439@tetsubishi>
+ <20160706191218.483fd9fd@endymion>
+ <20160706205540.GJ4127@ubuntu>
+ <20160711142209.4711f229@endymion>
+ <20160711215058.GA7808@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n/aVsWSeQ4JHkrmm"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:54349 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751451AbcGRSXb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 18 Jul 2016 14:23:31 -0400
-Content-Disposition: inline
-In-Reply-To: <20160627144722.GA31362@amitoj-Inspiron-3542>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Amitoj Kaur Chawla <amitoj1606@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
-
-
---n/aVsWSeQ4JHkrmm
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20160711215058.GA7808@kroah.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>, Greg KH <gregkh@linuxfoundation.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
+List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 27, 2016 at 08:17:22PM +0530, Amitoj Kaur Chawla wrote:
-> Replace clk_enable and clk_prepare with clk_enable_prepare and
-> clk_disable and clk_unprepare with clk_disable_unprepare.
->=20
-> The Coccinelle semantic patch used to make this change is as follows:
-> @@
-> expression e;
-> @@
->=20
-> - clk_prepare(e);
-> - clk_enable(e);
-> + clk_prepare_enable(e);
->=20
-> @@
-> expression e;
-> @@
->=20
-> - clk_disable(e);
-> - clk_unprepare(e);
-> + clk_disable_unprepare(e);
->=20
-> Signed-off-by: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+On 11-07-16, 14:50, Greg KH wrote:
+> Ideally, yes, userspace will have closed that device node.  But again,
+> hardware isn't kind and sometimes decides to be yanked out by users
+> before they tell the kernel about it.  We handle this for almost all
+> other device subsystems, i2c is one of the last to be fixed up in this
+> manner.  Sorry it's taken us well over a decade to get here :)
+> 
+> hope that explains things better,
 
-I can't apply this one. Can you rebase to my i2c/for-next or v4.7-rc1?
+@Jean: Ping :)
 
-
---n/aVsWSeQ4JHkrmm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXjR6eAAoJEBQN5MwUoCm2mDUP/j+rvuFdHoEWwlIXmmtXwTqv
-P/wv3qR1gV5J3diVf8F4rU1GyqWw+3FF8wEOyCf0Ogh7Kwnir662f1RyIQ5B8TXo
-i1NHYrPDtYY+FVSLEF+l6Q4Hsv6wzRakYArv3nRx9E+1UUol/iybP+8WgYMHiM4M
-taipOB2GMt/BpSgSWOf93hrj/nYaV86IvzpZ7e4YN8PKXaU3C4kpL5LSGn1bLH1I
-YUY6OLWMXtikiTW5ncwmaNMp3lgDW72SDM4lo4dPhoHO190Qe7irFBErc9E7UtQj
-baORYqy85SkHWPK1XaJZwvD7nK1fv2e6dgjXekY5+cL9d+jgQgfd52zMVs3pOljE
-rBIklorb7GK7WMXlYqb0A43OrX2Y9fO39WXRYUateRuRD7xuLXRFuD05YIaaNf4L
-2LC+tG8MVlhLw9aVybxxk+0CbkYRYGNxdLV+zFKKJBj/bYGllDm56Kx2i6WOQAAt
-GVHiF539keQBIZW+3Y+qsbj+Kd5SpObsa2hP7Vc4jMDwCZqk0mBE3vEe9cT2f40V
-gTKsWBR0OXDgUdPkgGeetC/xH1yvddb5RTiDTKro2mCxWhX4p2H0DIQ2VuXhJ6IF
-em1g44RQcdwdh9iTBDyBWoohbUJTGKgJlGo6eP/XbCRbk7+PZ5cMFlsvVAkazzaP
-4jm4UV4T8jLDoCcij8ab
-=E0sm
------END PGP SIGNATURE-----
-
---n/aVsWSeQ4JHkrmm--
+-- 
+viresh
