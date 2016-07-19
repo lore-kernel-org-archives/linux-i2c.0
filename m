@@ -1,63 +1,59 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v8 2/4] i2c-smbus: add SMBus Host Notify support
-Date: Mon, 18 Jul 2016 22:47:43 +0200
-Message-ID: <20160718224743.01b4a330@endymion>
-References: <1465484030-28838-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1465484030-28838-3-git-send-email-benjamin.tissoires@redhat.com>
-	<20160718163109.4d2190e9@endymion>
-	<20160718163519.GT4663@mail.corp.redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 1/2] Documentation: Add sbs-manager device tree node
+ documentation
+Date: Tue, 19 Jul 2016 06:14:32 +0200
+Message-ID: <20160719041432.GB1640@katana>
+References: <1bIiDr-0004G1-0P>
+ <1468349295-4935-1-git-send-email-karl-heinz@schneider-inet.de>
+ <1468349295-4935-2-git-send-email-karl-heinz@schneider-inet.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20160718163519.GT4663@mail.corp.redhat.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Corey Minyard <minyard@acm.org>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OwLcNYc0lM97+oe1"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1468349295-4935-2-git-send-email-karl-heinz@schneider-inet.de>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 18 Jul 2016 18:35:19 +0200, Benjamin Tissoires wrote:
-> On Jul 18 2016 or thereabouts, Jean Delvare wrote:
-> > But what happens on i2c_adapter removal? What prevents the following
-> > sequence from happening?
-> > 
-> > 1* A Host Notify event happens.
-> > 2* The event is handled and queued by i2c_handle_smbus_host_notify().
-> > 3* Someone tears down the underlying i2c_adapter (for example "rmmod
-> >    i2c-i801".)
-> > 4* The workqueue is processed, accessing memory which has already been
-> >    freed.
-> > 
-> > Of course it would be back luck, but that's pretty much the definition
-> > of a race condition ;-)
-> 
-> Yes, you are right :(
-> Sorry for not doing things properly :/
 
-No worry. Bugs happen everywhere, we find them and fix them. That's
-part of the process. If we only submit patches which we are 100%
-certain are perfect, we never submit anything. I know something about
-that...
+--OwLcNYc0lM97+oe1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > To be on the safe side, don't we need a teardown function in i2c-smbus,
-> > that could be called before i2c_del_adapter, which would remove the
-> > host notify handle and flush the workqueue?
-> 
-> I was thinking at adding a devm action on the release of the struct
-> smbus_host_notify, but it's actually a bad idea because some other
-> resources (children moslty) might already be released when the devres
-> action will be called.
-> 
-> I think it might be easier to add a i2c_remove_host_notify() (or such)
-> which would make sure we call the cancel_work_sync() function. It would
-> be the responsibility of the caller to call it once
-> i2c_setup_smbus_host_notify() has been called. I'd say it has the
-> advantage of not adding any hidden data in the adapter to the cost of a
-> small pain in the adapter driver.
+> +batman@0a {
+> +    compatible = "lltc,ltc1760";
+> +    reg = <0x0a>;
+> +    #address-cells = <1>;
+> +    #size-cells = <0>;
+> +
+> +    i2c@1 {
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
 
-That's what I had in mind as well, but I'm open to any option which
-solves the problem really.
+Rob, aren't those two lines inherited from above?
 
--- 
-Jean Delvare
-SUSE L3 Support
+
+--OwLcNYc0lM97+oe1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXjakoAAoJEBQN5MwUoCm2qhQP/2aFO0ch+wWVsRAHz84bU2d6
+VYYB7jzAunwZIbBhRUZDdycApy1PWqLI0Fiq2QFise7OFqvCFuDB5HxvM5Dt8qHq
+rnpg2b5jKtjbWfhXp+QGUDyoWdI9qv5irPHXzilnwkBmK8BkLZ1khFpJ1NsIuqbW
+6tmjBjFDr7WOYq3nkAREKTRRBHJM43usFHTVS0WWqbGMHouVBsgCPHp2IVn0gnk8
+ng6UUsORBrYziM83V4upbIYRrlcrGHQd1sTnJYd0y6O/otD0WA/RqgWrK6eI5Ifx
+PwpwgARRcYzkZ0FX3fRNI7EOezwfSH3+Le1Tr3d4WyDmSoDxsJH1cpGe0Sx2pLEx
+/UEYTLiYYeS7UFctrFIn3VnF5AIZJQZvzuDVEnwAGY+qHFbsuYAAEJQ0R9dL8cwT
+0w/e/VNnSE/W5bPeIySVQepBPUwOpm4TsS0kYnpBkbP+T3bhw/Fru0y6g0EzfSqA
+74Foy1+t5z3P0XLQLkPKEkJqUkrH5LbaXiP5sookZqWEtzkybiq/tPrDbsmXW2o+
+Dee5am5dukowJgiSyrpv5A78cMX9yP7j9HWHMOwuBLDJBO3ZbNbowpHnNRpNQvkr
+AQI92E8pjZrQQJmDepb/V+ImntvvkN0r6CcLSEBk5R9yoFFGjK9EDQNTRDmqFV2S
+kM2sjycRi1a8aNjdVj61
+=29jR
+-----END PGP SIGNATURE-----
+
+--OwLcNYc0lM97+oe1--
