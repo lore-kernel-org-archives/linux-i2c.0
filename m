@@ -1,35 +1,69 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2 3/3] acpi spi: Initialize modalias from of_compatible
-Date: Tue, 19 Jul 2016 10:08:02 +0300
-Message-ID: <20160719070802.GO14693@lahna.fi.intel.com>
-References: <cover.1468409668.git.leonard.crestez@intel.com>
- <1d26e956f12fcd86ad915659adeb86e242b96ac7.1468409668.git.leonard.crestez@intel.com>
- <CAJZ5v0jPfx0DEKkfJ8ma2_+emtbSrCv3KrmRGP7gG-6j6h3yfw@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] staging: iio: light: isl29018/28: remove I2C_CLASS_HWMON
+ .class setting
+Date: Tue, 19 Jul 2016 09:13:51 +0200
+Message-ID: <20160719071343.GA2086@tetsubishi>
+References: <20160716022831.GA7636@d830.WORKGROUP>
+ <578C9843.10408@nvidia.com>
+ <dff1e871-de49-654f-5e9b-c9b230a35b0a@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s2ZSL+KKDSLx8OML"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAJZ5v0jPfx0DEKkfJ8ma2_+emtbSrCv3KrmRGP7gG-6j6h3yfw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Crestez Dan Leonard <leonard.crestez@intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Len Brown <lenb@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-spi <linux-spi@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Octavian Purdila <octavian.purdila@intel.com>
+In-Reply-To: <dff1e871-de49-654f-5e9b-c9b230a35b0a-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Alison Schofield <amsfield22-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 13, 2016 at 02:22:02PM +0200, Rafael J. Wysocki wrote:
-> On Wed, Jul 13, 2016 at 1:53 PM, Crestez Dan Leonard
-> <leonard.crestez@intel.com> wrote:
-> > When using devicetree spi_device.modalias is set to the compatible
-> > string with the vendor prefix removed. For SPI devices described via
-> > ACPI the i2c_board_info.type string is initialized by acpi_device_hid.
-> > When using ACPI and DT ids this string ends up something like "PRP0001".
-> >
-> > Change acpi_register_spi_device to use the of_compatible property if
-> > present. This makes it easier to instantiate spi drivers through ACPI
-> > with DT ids.
-> >
-> > Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
-> 
-> Same as for the i2c patch: it looks good to me, but I'd prefer to get
-> a word from Mika on it too.
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+--s2ZSL+KKDSLx8OML
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jul 18, 2016 at 02:30:46PM +0100, Jonathan Cameron wrote:
+> On 18/07/16 09:50, Laxman Dewangan wrote:
+> >=20
+> > On Saturday 16 July 2016 07:58 AM, Alison Schofield wrote:
+> >> I2C_CLASS_HWMON is for a hardware monitoring chip wanting
+> >> auto-detection.  IIO drivers don't typically use .class.
+> >> Remove it.
+> >>
+> >> Signed-off-by: Alison Schofield <amsfield22-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >> Cc: Daniel Baluta <daniel.baluta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >>
+> >=20
+> > Agree.
+> > Acked-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Any resulting ABI change from dropping it?
+
+What do you mean with ABI? This is only relevant for "automatic"
+instantiation. From me:
+
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+
+
+--s2ZSL+KKDSLx8OML
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXjdMuAAoJEBQN5MwUoCm2TGsQALDVdnG4ebAv1h4u01UDFIrP
+XOX7DMa3vznfDCi+FDQ7kBGI0kt2q/rwNKkVe468mtyFQHfzfVeHsgaEQ1XCoIkZ
+e8U7nOhxLwgkSPy81jy0gij//gik5cw7AyMa3rNMxtNoWf0m+26Fk11L7WgcGbYP
+s4qrZLRVdR/6VEXAI3vu7PBFXVI+Lf7dyA3gOMjUpo2lTv6caeUORhiTUjGbS/1g
+moe01F0YXPaU+OMoiPHQ6t7y/AWpngGWn2aHWhERDjoMoe59GriMp9ExDIP5cJeo
+jybS55IPmZwmciDfvJ105yFRtgN6xaAsuX50MbwCae9jFSZfwLYcUk6iKmulhZtm
+ouG7vp3tnkn4P2GZNpTX0ZtaFSLc6OfLarANhyUmR/oInyZh0EOxZ2lgMfYkWnvK
+XAsE0Gs17h2c9cws9yZJppzlWtdsoxP7wlEndmYdC5li90RiWHfeaZGQ2jaX7rCb
+96pK7y1CTP7A6CIxs+LuIb0rcUredk+Q8ypswnn1HTyb1wj/YvUkih0sBPuS/XCC
+WLu/Hc1ZQG0/PXj2gbwM4bfGwDbpQwpoaiIhwhGDwNoza7mV+1mj5SaTGUzNo4NS
+2E1P2nxUOHFJpFp6u08wv4PDvDpD6orljpPXTTb/BVBn2OlTGS7BuY5gfOCpLzuY
+2RySVuv5usvfTO80Jkm6
+=WEHl
+-----END PGP SIGNATURE-----
+
+--s2ZSL+KKDSLx8OML--
