@@ -1,58 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 2/2] power: Adds support for Smart Battery System
- Manager
-Date: Tue, 19 Jul 2016 06:17:29 +0200
-Message-ID: <20160719041729.GC1640@katana>
-References: <1bIiDr-0004G1-0P>
- <1468349295-4935-1-git-send-email-karl-heinz@schneider-inet.de>
- <1468349295-4935-3-git-send-email-karl-heinz@schneider-inet.de>
+Subject: Re: [PATCH] i2c: efm32: fix a failure path in efm32_i2c_probe()
+Date: Tue, 19 Jul 2016 06:23:27 +0200
+Message-ID: <20160719042327.GD1640@katana>
+References: <1468625798-6767-1-git-send-email-khoroshilov@ispras.ru>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GPJrCs/72TxItFYR"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="mSxgbZZZvrAyzONB"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:56346 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750769AbcGSEXe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 19 Jul 2016 00:23:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1468349295-4935-3-git-send-email-karl-heinz@schneider-inet.de>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
+In-Reply-To: <1468625798-6767-1-git-send-email-khoroshilov@ispras.ru>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <kernel@pengutronix.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
 
---GPJrCs/72TxItFYR
+--mSxgbZZZvrAyzONB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Jul 16, 2016 at 02:36:38AM +0300, Alexey Khoroshilov wrote:
+> There is the only failure path in efm32_i2c_probe(),
+> where clk_disable_unprepare() is missed.
+>=20
+> Found by Linux Driver Verification project (linuxtesting.org).
+>=20
+> Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+
+Applied to for-next, thanks!
 
 
-> +	data->muxc = i2c_mux_alloc(adapter, dev, SBSM_MAX_BATS, 0,
-> +				   I2C_MUX_LOCKED, &sbsm_select, NULL);
-> +	if (!data->muxc) {
-> +		dev_err(dev, "failed to alloc i2c mux\n");
-
-Don't print errors on ENOMEM.
-
-Other than that, looks good to me, yet Peter has more insight to
-i2c-muxes these days.
-
-
---GPJrCs/72TxItFYR
+--mSxgbZZZvrAyzONB
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXjanZAAoJEBQN5MwUoCm2GIYQAKSkSVgD9XZRQ9tPpAuqkWpY
-32tKIbgXaBX3ZCj2VIftzI9U7S7EgipDl9D2ikVUOOf+WVWmtSbp4nKhA1S8TQlv
-0vQo2w7WdB0a51fOrl/aMh+bkrKdPKK8iXPP75uY5j2P0GVXhEJau9x/Sm47SNur
-jL0GTbahD8QR+dgbpTFT4GYGyxK9uPXcLuRRtM2xYFJ1acw7gvMBqUHTkhKS6sjV
-xah6NGxN0n7imil/FF3OC/I1/+hq9Y95OILCiQCD8GpsSCy8v3XWEcXeQof+5Bgx
-m2WhWW2fOTrtFY1+QVc/9XLgC85AEYSfndGQ3B/9UT3T4hGma7+IBCkeGL7Mf/nr
-ESbV/8YGcOBUf084VuCjgBiWdC9BNQttF7hkHN9PjSGeJDu+BVBzC0spy8eotFby
-G59HxYWLk8gcvuKDQCwXJZTlRCuizLd1KcNCnIhQHrGQ5vqTrYS6lD4j9a9xNM8n
-owWgmazfEiS5xMCWNcoGWWa2+3dc4iGlQGlx1Da7NnA4FipFbjcUWwjFTuPztAWw
-NenSieMlOeXM5PBkUPnE9C9iXav/sPTf2MsdhLzJrCaSoXnDHCU39tWPivGVSISU
-2Lw5wEsBeuUga17vxXe4kptLRhFX3jqZHbFk/9nz9cIfb+nIjoVYPHvsh9sQtBoZ
-GvWSWCSNM5pacXzscB/W
-=dzDV
+iQIcBAEBAgAGBQJXjas/AAoJEBQN5MwUoCm2fkcP/RTvAzlEmZYc8kac/79q0nca
+UfLAdzIK3PmLrqYdpBkKcOdQF2lNkBf/xSD7cYZVsZ1zqzlLvviSpOU1PGTAQb8/
+mQZUV1YYL/fTul+YdG2pqsMHOrM+HENFN1iZ0ZpplSqOIXnxiCRkHicTiQ8LVWsT
+N9awj7vKej9hxiI3z7Jdgq7HTFL1mCpWIiHSguNo8advm384nkTvRBysXzNB/U60
+zv5cdOKx3/TDx3m6JoKq/5rSMP9ope0fd2JLgWbTjGKvz93zOaWM1Wu8RzOcXBKK
+T4ra6ThqpJekx0KmPwKZoeI7UgQcgdCLSr4Uv+t7LwLmZiO2qWt+E6eclALNmOhH
+H9HIJPuy0qg0KTIs+8LzBxuIm2wP0P/Y7ZzPmyLi6vUcHm+6ZWw9Yv8tXRtoKgpr
+0Fv3UqA2jEyDso1Zy9Qc+bZTWfG0yIN5a5MW9ixUTYfKNl4XnPbniKTpZaEff1c6
+ToogQ5LNKIkS2VfhKQo0MlzZsQ2IrUzfYieSvIRPcqaHBmc3WwVuuugJhbMnMSrO
+EwOKbz2B4BVeqFzcsWExxBtlzhlwpwZzpdguGfE3I/MM0wexuSmRGqBKlLz3ZigN
+flBbUhTQfDIgUmcQNYH9yOKt0h8C299hHFpCu1L8vT0QN+YZW6IulG9VIvHjT26Y
+4VfrFQsPMyb0YIjfZ0EQ
+=kfZo
 -----END PGP SIGNATURE-----
 
---GPJrCs/72TxItFYR--
+--mSxgbZZZvrAyzONB--
