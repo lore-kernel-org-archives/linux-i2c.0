@@ -1,72 +1,58 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v2 3/3] acpi spi: Initialize modalias from of_compatible
-Date: Tue, 19 Jul 2016 11:22:13 +0100
-Message-ID: <20160719102213.GZ30372@sirena.org.uk>
-References: <cover.1468409668.git.leonard.crestez@intel.com>
- <1d26e956f12fcd86ad915659adeb86e242b96ac7.1468409668.git.leonard.crestez@intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH]  i2c: i2c-smbus: drop useless stubs
+Date: Tue, 19 Jul 2016 13:15:49 +0200
+Message-ID: <20160719131549.3eb23323@endymion>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="0tC/8VcTcTa+VwnR"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1d26e956f12fcd86ad915659adeb86e242b96ac7.1468409668.git.leonard.crestez@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Crestez Dan Leonard <leonard.crestez@intel.com>
-Cc: linux-acpi@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:45986 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752713AbcGSLPw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 19 Jul 2016 07:15:52 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
+
+Drivers which use the SMBus extensions select I2C_SMBUS, so the
+stubs are not needed.
+
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+---
+ include/linux/i2c-smbus.h |   15 ---------------
+ 1 file changed, 15 deletions(-)
+
+--- linux-4.7-rc7.orig/include/linux/i2c-smbus.h	2016-07-19 13:06:08.873469372 +0200
++++ linux-4.7-rc7/include/linux/i2c-smbus.h	2016-07-19 13:11:46.265359168 +0200
+@@ -73,23 +73,8 @@ struct smbus_host_notify {
+ 	u8			addr;
+ };
+ 
+-#if IS_ENABLED(CONFIG_I2C_SMBUS)
+ struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap);
+ int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
+ 				 unsigned short addr, unsigned int data);
+-#else
+-static inline struct smbus_host_notify *
+-i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
+-{
+-	return NULL;
+-}
+-
+-static inline int
+-i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
+-			     unsigned short addr, unsigned int data)
+-{
+-	return 0;
+-}
+-#endif /* I2C_SMBUS */
+ 
+ #endif /* _LINUX_I2C_SMBUS_H */
 
 
---0tC/8VcTcTa+VwnR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Jul 13, 2016 at 02:53:42PM +0300, Crestez Dan Leonard wrote:
-> When using devicetree spi_device.modalias is set to the compatible
-> string with the vendor prefix removed. For SPI devices described via
-> ACPI the i2c_board_info.type string is initialized by acpi_device_hid.
-> When using ACPI and DT ids this string ends up something like "PRP0001".
-
-Please submit patches using subject lines reflecting the style for the
-subsystem.  This makes it easier for people to identify relevant
-patches.  Look at what existing commits in the area you're changing are
-doing and make sure your subject lines visually resemble what they're
-doing.
-
-> Change acpi_register_spi_device to use the of_compatible property if
-> present. This makes it easier to instantiate spi drivers through ACPI
-> with DT ids.
-
-This is basically fine but...
-
-> +	if (adev->data.of_compatible) {
-> +		ret = acpi_of_modalias(adev, spi->modalias, sizeof(spi->modalias));
-> +		if (ret) {
-> +			spi_dev_put(spi);
-> +			return AE_NOT_FOUND;
-> +		}
-
-The only reason this could fail currently is that there wasn't a
-compatible in the first place so why don't we just handle it like the no
-compatible case?  It's probably not realistic but it seems like there's
-a small chance this could regress some platform if we do add more error
-detection in acpi_of_modalias().
-
-I'm still not sure why if we want to translate ACPI into DT why we don't
-actually translate and avoid all this special casing and churn.
-
---0tC/8VcTcTa+VwnR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJXjf9UAAoJECTWi3JdVIfQjoEH/jMFF3z4brk2Hp4vGQPgsW8B
-Q7VIRuCfmaiU2wRv24WbLRx0UMYEXbtg61tOMMfv47NE4K1TR60W4EdoVgB1VQ9Z
-ihr7riF3hqB3dcxpN6RalLxArQJkuSXh3LunxgQHmW6xsytWpH6I8XCP4d2jY39D
-n37qxM8K/BuYBrFYEKSFUjRQBy8XjeUxprA/BgK512Avknpvj+r0LnhV7ptypsRD
-tUkuupmVWVxD3C7aTvGfDPf6zcfRmPlRgAAnNbFOxqrYW5eg2GxflystklLAsY6A
-v7Eexp1DymKNCT7UsiUqBvE3260uJrQA8dWUqevjm5ZPFnnvCm+8Iv9V2978AZA=
-=OX7b
------END PGP SIGNATURE-----
-
---0tC/8VcTcTa+VwnR--
+-- 
+Jean Delvare
+SUSE L3 Support
