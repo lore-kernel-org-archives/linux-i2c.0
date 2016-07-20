@@ -1,23 +1,17 @@
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 Subject: Re: DT connectors, thoughts
 Date: Wed, 20 Jul 2016 23:59:44 +0300
-Message-ID: <92F40218-DEFC-4046-A22E-7A1C790DD13F@konsulko.com>
+Message-ID: <442C02A9-582D-4FD8-8F05-7A6FCD5B6BCA@konsulko.com>
 References: <577ACE0D.9050700@gmail.com> <20160718142037.GS16769@voom.fritz.box>
 Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f46.google.com ([74.125.82.46]:38285 "EHLO
-	mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753417AbcGTU7v convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Jul 2016 16:59:51 -0400
-Received: by mail-wm0-f46.google.com with SMTP id o80so85812255wme.1
-        for <linux-i2c@vger.kernel.org>; Wed, 20 Jul 2016 13:59:50 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20160718142037.GS16769@voom.fritz.box>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: David Gibson <david@gibson.dropbear.id.au>
 Cc: Frank Rowand <frowand.list@gmail.com>, Rob Herring <robh+dt@kernel.org>, stephen.boyd@linaro.org, broonie@kernel.org, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, marex@denx.de, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 Hi David,
 
