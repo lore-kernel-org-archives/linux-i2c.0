@@ -1,45 +1,91 @@
-From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Subject: Re: [PATCH v3 2/2] power: Adds support for Smart Battery System
- Manager
-Date: Tue, 19 Jul 2016 20:51:05 +0200
-Message-ID: <1468954265.3053.3.camel@amnesix>
-References: <1bIiDr-0004G1-0P>
-	 <1468349295-4935-1-git-send-email-karl-heinz@schneider-inet.de>
-	 <1468349295-4935-3-git-send-email-karl-heinz@schneider-inet.de>
-	 <20160719041729.GC1640@katana>
+From: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Subject: [PATCH v2] 2c: mv64xxx: Use clk_enable_prepare and
+ clk_disable_unprepare
+Date: Wed, 20 Jul 2016 10:44:18 +0530
+Message-ID: <20160720051417.GA21765@amitoj-Inspiron-3542>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from schneider-inet.de ([85.214.76.205]:48756 "EHLO
-	h1714509.stratoserver.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751036AbcGSSvQ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Jul 2016 14:51:16 -0400
-In-Reply-To: <20160719041729.GC1640@katana>
+Received: from mail-pa0-f68.google.com ([209.85.220.68]:32886 "EHLO
+	mail-pa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751093AbcGTFOX (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Jul 2016 01:14:23 -0400
+Content-Disposition: inline
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: julia.lawall@lip6.fr
 
-Hi Wolfram,
+Replace clk_enable and clk_prepare with clk_enable_prepare and
+clk_disable and clk_unprepare with clk_disable_unprepare.
 
-Am Dienstag, den 19.07.2016, 06:17 +0200 schrieb Wolfram Sang:
-> > +	data->muxc = i2c_mux_alloc(adapter, dev, SBSM_MAX_BATS, 0,
-> > +				   I2C_MUX_LOCKED, &sbsm_select, NULL);
-> > +	if (!data->muxc) {
-> > +		dev_err(dev, "failed to alloc i2c mux\n");
-> 
-> Don't print errors on ENOMEM.
+The Coccinelle semantic patch used to make this change is as follows:
+@@
+expression e;
+@@
 
-Will be fixed on next revision.
+- clk_prepare(e);
+- clk_enable(e);
++ clk_prepare_enable(e);
 
-> 
-> Other than that, looks good to me, yet Peter has more insight to
-> i2c-muxes these days.
-> 
-Tanks for review. 
+@@
+expression e;
+@@
 
-Will wait another few days before sending a new revision, hence changes
-are rather small.
+- clk_disable(e);
+- clk_unprepare(e);
++ clk_disable_unprepare(e);
+
+Signed-off-by: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+---
+Changes in v2:
+        -Rebased patch
+
+ drivers/i2c/busses/i2c-mv64xxx.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 43207f5..79bae48 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -910,10 +910,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+ 	drv_data->clk = devm_clk_get(&pd->dev, NULL);
+-	if (!IS_ERR(drv_data->clk)) {
+-		clk_prepare(drv_data->clk);
+-		clk_enable(drv_data->clk);
+-	}
++	if (!IS_ERR(drv_data->clk))
++		clk_prepare_enable(drv_data->clk);
+ #endif
+ 	if (pdata) {
+ 		drv_data->freq_m = pdata->freq_m;
+@@ -966,10 +964,8 @@ exit_reset:
+ exit_clk:
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+-	if (!IS_ERR(drv_data->clk)) {
+-		clk_disable(drv_data->clk);
+-		clk_unprepare(drv_data->clk);
+-	}
++	if (!IS_ERR(drv_data->clk))
++		clk_disable_unprepare(drv_data->clk);
+ #endif
+ 	return rc;
+ }
+@@ -985,10 +981,8 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+ 		reset_control_assert(drv_data->rstc);
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+-	if (!IS_ERR(drv_data->clk)) {
+-		clk_disable(drv_data->clk);
+-		clk_unprepare(drv_data->clk);
+-	}
++	if (!IS_ERR(drv_data->clk))
++		clk_disable_unprepare(drv_data->clk);
+ #endif
+ 
+ 	return 0;
 -- 
-Karl-Heinz
+1.9.1
