@@ -1,73 +1,80 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: i801: use IS_ENABLED() instead of checking for
- built-in or module
-Date: Fri, 22 Jul 2016 12:00:31 +0200
-Message-ID: <20160722120031.7a160b6d@endymion>
-References: <1469117461-14764-1-git-send-email-javier@osg.samsung.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] i2c: nomadik: move runtime suspend of hw to _noirq
+Date: Fri, 22 Jul 2016 16:20:55 +0200
+Message-ID: <CACRpkdbgXrw4zR+Fbm7GMRzaqRqrM7muJ8NbUSkdX4PnB_Ew4w@mail.gmail.com>
+References: <1464008356-21162-1-git-send-email-linus.walleij@linaro.org>
+ <CAPDyKFpvwQkqS9TRCj+JCOro-fdbkPKrXr6V7eEeSJLMah61Ng@mail.gmail.com>
+ <CACRpkdbFvRKpzY82qWpt6CNLEe8GfgaSOJPaebaanOWbT7mC9Q@mail.gmail.com>
+ <20160619171221.GD2933@tetsubishi> <20160714134014.GI4149@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38328 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753788AbcGVKAf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 22 Jul 2016 06:00:35 -0400
-In-Reply-To: <1469117461-14764-1-git-send-email-javier@osg.samsung.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20160714134014.GI4149@tetsubishi>
+Sender: linux-pm-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Kevin Hilman <khilman@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Thu, 21 Jul 2016 12:11:01 -0400, Javier Martinez Canillas wrote:
-> The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
-> built-in or as a module, use that macro instead of open coding the same.
-> 
-> Using the macro makes the code more readable by helping abstract away some
-> of the Kconfig built-in and module enable details.
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> ---
-> 
->  drivers/i2c/busses/i2c-i801.c | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 68cec6128ac0..5ef9b733d153 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -98,8 +98,7 @@
->  #include <linux/platform_data/itco_wdt.h>
->  #include <linux/pm_runtime.h>
->  
-> -#if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
-> -		defined CONFIG_DMI
-> +#if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
->  #include <linux/gpio.h>
->  #include <linux/i2c-mux-gpio.h>
->  #endif
-> @@ -255,8 +254,7 @@ struct i801_priv {
->  	int len;
->  	u8 *data;
->  
-> -#if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
-> -		defined CONFIG_DMI
-> +#if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
->  	const struct i801_mux_config *mux_drvdata;
->  	struct platform_device *mux_pdev;
->  #endif
-> @@ -1133,8 +1131,7 @@ static void __init input_apanel_init(void) {}
->  static void i801_probe_optional_slaves(struct i801_priv *priv) {}
->  #endif	/* CONFIG_X86 && CONFIG_DMI */
->  
-> -#if (defined CONFIG_I2C_MUX_GPIO || defined CONFIG_I2C_MUX_GPIO_MODULE) && \
-> -		defined CONFIG_DMI
-> +#if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
->  static struct i801_mux_config i801_mux_config_asus_z8_d12 = {
->  	.gpio_chip = "gpio_ich",
->  	.values = { 0x02, 0x03 },
+On Thu, Jul 14, 2016 at 3:40 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Sun, Jun 19, 2016 at 07:12:21PM +0200, Wolfram Sang wrote:
+>>
+>> > > This is indeed a generic problem, as we don't have a way to describe
+>> > > these kind of dependences between devices. In other words, we need to
+>> > > control the order of how devices becomes suspended/resumed. If that
+>> > > could be done, we could likely avoid runtime resuming devices
+>> > > unnecessarily.
+>> >
+>> > Correct, keep me in the loop and I can test some patches.
+>>
+>> So, this patch is discarded in favor of a generic solution?
+>
+> Yes?
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+I'm reading Ulf's comment here again:
 
--- 
-Jean Delvare
-SUSE L3 Support
+> Moving the suspend operations to the *_noirq callbacks could improve
+> the situation, but unfortunate it's comes with a limitation.
+> That's because runtime PM has been disabled (by genpd or the PM core)
+> before the *_late callbacks is invoked, which means the I2C device
+> needs to be runtime resumed in an earlier phase to make it
+> operational.
+
+And I mean it means that in the .resume hook, i.e. this:
+
+static int nmk_i2c_resume_noirq(struct device *dev)
+{
+        return pm_runtime_force_resume(dev);
+}
+
+The force call will have no effect in *_noirq() because the runtime
+PM callbacks are turned off. The device will not be runtime resumed
+by the _force_ call as it should, it will still be runtime suspended
+when the device comes back up, and that makes it behave badly
+unless it goes through another suspend/resume cycle befor it is
+actually used. However we are saved by the fact that the driver
+does not use autosuspend, so what happens after the force resume
+is that the driver will just be runtime suspended again at late
+since there are no users.
+
+It will instead be properly resumed when the next I2C transaction
+comes in.
+
+It looks like this if I put prints in the runtime suspend/resume
+calls:
+
+[   28.863128] PM: early resume of devices complete after 0.854 msecs
+[   28.866302] nmk-i2c 80128000.i2c: nmk_i2c_runtime_resume
+[   29.132904] PM: resume of devices complete after 269.744 msecs
+[   29.363861] Restarting tasks ...
+[   29.373016] nmk-i2c 80128000.i2c: nmk_i2c_runtime_suspend
+[   29.384124] done.
+
+Then comes some real traffic (LED heartbeat):
+[   29.391113] nmk-i2c 80128000.i2c: nmk_i2c_runtime_resume
+[   29.396972] nmk-i2c 80128000.i2c: nmk_i2c_runtime_suspend
+(...)
+
+So I think the patch is fine.
+
+Yours,
+Linus Walleij
