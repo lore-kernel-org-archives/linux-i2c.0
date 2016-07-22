@@ -1,79 +1,59 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v2] 2c: mv64xxx: Use clk_enable_prepare and
- clk_disable_unprepare
-Date: Fri, 22 Jul 2016 09:28:36 +0200
-Message-ID: <20160722072836.GO5368@pengutronix.de>
-References: <20160720051417.GA21765@amitoj-Inspiron-3542>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH v2] i2c: designware-baytrail: Fix the Kconfig dependency fix
+Date: Fri, 22 Jul 2016 10:24:03 +0200
+Message-ID: <20160722102403.5c2d3c7e@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160720051417.GA21765@amitoj-Inspiron-3542>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Amitoj Kaur Chawla <amitoj1606@gmail.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:60547 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751482AbcGVIYH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 22 Jul 2016 04:24:07 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>, "David E. Box" <david.e.box@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Randy Dunlap <rdunlap@infradead.org>, Wolfram Sang <wsa@the-dreams.de>
 
-there is an i missing in the Subject.
+Commit b4ad0510f5d9 ("i2c: designware-baytrail: another fixup for
+proper Kconfig dependencies") claims that the "Baytrail driver" isn't
+tristate. But in fact there is no such thing as a "Baytrail driver",
+i2c-designware-baytrail is not a stand-alone driver but an optional
+addition to the i2c-designware-platform driver, and that driver *is*
+tristate. So there is no reason why I2C_DESIGNWARE_BAYTRAIL couldn't
+be enabled when IOSF_MBI=m, as long as I2C_DESIGNWARE_PLATFORM=m too.
 
-On Wed, Jul 20, 2016 at 10:44:18AM +0530, Amitoj Kaur Chawla wrote:
-> Replace clk_enable and clk_prepare with clk_enable_prepare and
-> clk_disable and clk_unprepare with clk_disable_unprepare.
->=20
-> The Coccinelle semantic patch used to make this change is as follows:
-> @@
-> expression e;
-> @@
->=20
-> - clk_prepare(e);
-> - clk_enable(e);
-> + clk_prepare_enable(e);
->=20
-> @@
-> expression e;
-> @@
->=20
-> - clk_disable(e);
-> - clk_unprepare(e);
-> + clk_disable_unprepare(e);
->=20
-> Signed-off-by: Amitoj Kaur Chawla <amitoj1606@gmail.com>
-> ---
-> Changes in v2:
->         -Rebased patch
->=20
->  drivers/i2c/busses/i2c-mv64xxx.c | 18 ++++++------------
->  1 file changed, 6 insertions(+), 12 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2=
-c-mv64xxx.c
-> index 43207f5..79bae48 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -910,10 +910,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
->  #if defined(CONFIG_HAVE_CLK)
->  	/* Not all platforms have a clk */
->  	drv_data->clk =3D devm_clk_get(&pd->dev, NULL);
-> -	if (!IS_ERR(drv_data->clk)) {
-> -		clk_prepare(drv_data->clk);
-> -		clk_enable(drv_data->clk);
-> -	}
-> +	if (!IS_ERR(drv_data->clk))
-> +		clk_prepare_enable(drv_data->clk);
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Fixes: b4ad0510f5d9 ("i2c: designware-baytrail: another fixup for proper Kconfig dependencies")
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: David E. Box <david.e.box@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+---
+Changes since v1:
+* Fixed Wolfram's Cc.
+* Split the dependency line to avoid too long a line (suggested by
+  Jarkko.)
+* Added more Ccs.
 
-When you touch this, better add error checking. I wonder why these
-functions are not marked __must_check.
+ drivers/i2c/busses/Kconfig |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Also using IS_ERR(drv_data->clk) is wrong here, becauce devm_clk_get
-might return -EPROBE_DEFER.
+--- linux-4.5-rc2.orig/drivers/i2c/busses/Kconfig	2016-02-02 14:32:22.762878539 +0100
++++ linux-4.5-rc2/drivers/i2c/busses/Kconfig	2016-02-04 21:01:49.075379053 +0100
+@@ -490,7 +490,8 @@ config I2C_DESIGNWARE_PCI
+ 
+ config I2C_DESIGNWARE_BAYTRAIL
+ 	bool "Intel Baytrail I2C semaphore support"
+-	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=y && ACPI
++	depends on I2C_DESIGNWARE_PLATFORM && ACPI
++	depends on IOSF_MBI=y || IOSF_MBI=I2C_DESIGNWARE_PLATFORM
+ 	help
+ 	  This driver enables managed host access to the PMIC I2C bus on select
+ 	  Intel BayTrail platforms using the X-Powers AXP288 PMIC. It allows
 
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+-- 
+Jean Delvare
+SUSE L3 Support
