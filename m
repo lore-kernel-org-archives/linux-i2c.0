@@ -1,59 +1,79 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH]  i2c: i2c-smbus: drop useless stubs
-Date: Fri, 22 Jul 2016 09:08:06 +0200
-Message-ID: <20160722070806.GC1605@katana>
-References: <20160719131549.3eb23323@endymion>
+Subject: Re: [PATCH v2] 2c: mv64xxx: Use clk_enable_prepare and
+ clk_disable_unprepare
+Date: Fri, 22 Jul 2016 09:14:23 +0200
+Message-ID: <20160722071423.GD1605@katana>
+References: <20160720051417.GA21765@amitoj-Inspiron-3542>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ctP54qlpMx3WjD+/"
+	protocol="application/pgp-signature"; boundary="8w3uRX/HFJGApMzv"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50773 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:50817 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751648AbcGVHIL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 22 Jul 2016 03:08:11 -0400
+	id S1751907AbcGVHO1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 22 Jul 2016 03:14:27 -0400
 Content-Disposition: inline
-In-Reply-To: <20160719131549.3eb23323@endymion>
+In-Reply-To: <20160720051417.GA21765@amitoj-Inspiron-3542>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr
 
 
---ctP54qlpMx3WjD+/
+--8w3uRX/HFJGApMzv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 19, 2016 at 01:15:49PM +0200, Jean Delvare wrote:
-> Drivers which use the SMBus extensions select I2C_SMBUS, so the
-> stubs are not needed.
+On Wed, Jul 20, 2016 at 10:44:18AM +0530, Amitoj Kaur Chawla wrote:
+> Replace clk_enable and clk_prepare with clk_enable_prepare and
+> clk_disable and clk_unprepare with clk_disable_unprepare.
 >=20
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
+> The Coccinelle semantic patch used to make this change is as follows:
+> @@
+> expression e;
+> @@
+>=20
+> - clk_prepare(e);
+> - clk_enable(e);
+> + clk_prepare_enable(e);
+>=20
+> @@
+> expression e;
+> @@
+>=20
+> - clk_disable(e);
+> - clk_unprepare(e);
+> + clk_disable_unprepare(e);
+>=20
+> Signed-off-by: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+> ---
+> Changes in v2:
+>         -Rebased patch
 
-Applied to for-next, thanks!
+I still can't apply and nothing changed to the previous patch you sent?
+To what did you rebase?
 
 
---ctP54qlpMx3WjD+/
+--8w3uRX/HFJGApMzv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXkcZWAAoJEBQN5MwUoCm2YsAQAIInfzwZc8UOOwojIcSc3700
-UrMz75mbjDuDQLBY9fwxTA1FA97GPp+jbPSJ/XyC1BC4+vo8zd0ah4NLIweC9GAs
-1mQ8CWc7w8cWpr/8DuH94LV6Hps8slMVsuA5JaFw3XX4OzH1SngokKY6D6YhLPOI
-dnpIuirSZseeva6R76VcSaWiTjVknwVLz4GOo3WNcXSOO4DRE1NHQjh787BnOCgR
-3vm2OSyMYfjxTGg/mYpjEgn52efyxpSvFziiWj24X+H4gIMfAjxhH3D7WDORKMzU
-F6KWybVbyeAmVTrT9n2kj9JvN3KA8Gfo1ISZfxpLSg3DYfK/Yr4Ij5HVO13CA8MY
-eJ3rBXwDIfZRsHrR5dwbSLV5kuJzoAgItVy24iGdCVY1VoT5z8on3D8/lNfdDvN6
-GMQ/3MN1P4MSwXrbAiwQVnCJt/ca65syzap85wJWSIeP/FDSquyjy1NXM4m8c4cD
-4bVVLX2BNF7CrTcM4+upiu++AHB7O7xi86Qp7+hRh+0xn/+wvt/kroAWehDz1boV
-h0Ch0kTe7Mi+XZmGOEc1mB2h1/uzANoI9BfwfRp7JAaUw84sgcAefgN4WLEDH8+x
-s38Sdq+z9D1K1wWPA1+RN9i0Vuo6xYTACa4oAgltLuQZijkvB6fCHcFWJfHPEtTb
-oSGYH1bvawx3Am2QFbg9
-=hK9J
+iQIcBAEBAgAGBQJXkcfPAAoJEBQN5MwUoCm2RPQP/2wU1CN5dRMN7rjhK6P9tX6x
+7fLvqywaaY5jOp6HQLWq/nKv2RwLvm7XvwItxS8Bc3cF6EoTDvU1bPvtEfmCdoaj
+P7deltutiCN6cVwj77XTQPtWbZto9bCWGwmaxr5Lt/kYrUu5tTJTyrxKprF4N5Zz
+MavwcCFFRCGCOFdwSdGCGBQx3OCNLD1+Azrcvb5ojq7z+D2MauOVna/dJfmOgmiF
+MtGi7tpdXpnlKT3creIR4fNt9mkwKuKNxwmugx26+LPW9KF+TtF3Z62IyUIJAUSS
+pbM8j6VsA7DL2kvGPgaafI9Dhx9KunU4UtK1VZ0pC2csw9ONmRZvBeqHr3QSFFmj
+oQok1yEAq2m2Fc/R+cU7qvfIL60Y7fe/XtzlZfKGJ+qqkKmNB+M3JcSuK9hG1I7q
+oBDJ3ZwZAmMsnWHlCBjL0XNqzoZBjXbgyfjKcW+XJWjeVJAT3C1bjVke4vfWoKrL
+EocqYnEns7qyilsu4fle46QYPmVGfRke2iFh1aIujWbCBoe3SY6meT+/4dTku8Y7
+s0wZIWixdraJ+W9EUldjWQysUMu2g/Id71J3WiTDymWIZ7UQ8QkdSR7pYcBHP37+
+6sFdExacCcJNZcy4v7jaYVHaREjAw95fJ25E2OyaUq7mQH4iSw8PHNDs+O+DH8Kd
+VyrC8tnSWTGpzDdhsB2D
+=9GgK
 -----END PGP SIGNATURE-----
 
---ctP54qlpMx3WjD+/--
+--8w3uRX/HFJGApMzv--
