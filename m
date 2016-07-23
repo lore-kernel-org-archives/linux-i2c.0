@@ -1,42 +1,47 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 2/2] Documentation: i2c: slave: give proper example for pm usage
-Date: Sat, 23 Jul 2016 22:06:52 +0200
-Message-ID: <1469304412-2652-2-git-send-email-wsa@the-dreams.de>
-References: <1469304412-2652-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 1/2] Documentation: i2c: slave: describe buffer problems a bit better
+Date: Sat, 23 Jul 2016 22:06:51 +0200
+Message-ID: <1469304412-2652-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35344 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:35343 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751260AbcGWUHC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	id S1751097AbcGWUHC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
 	Sat, 23 Jul 2016 16:07:02 -0400
-In-Reply-To: <1469304412-2652-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>
 
-pm_runtime_forbid was the wrong knob, this is the better one.
-
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- Documentation/i2c/slave-interface | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/i2c/slave-interface | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/Documentation/i2c/slave-interface b/Documentation/i2c/slave-interface
-index abd10186a9e9fc..80807adb8ded52 100644
+index 61ed05cd95317f..abd10186a9e9fc 100644
 --- a/Documentation/i2c/slave-interface
 +++ b/Documentation/i2c/slave-interface
-@@ -139,9 +139,9 @@ If you want to add slave support to the bus driver:
- * implement calls to register/unregister the slave and add those to the
-   struct i2c_algorithm. When registering, you probably need to set the i2c
-   slave address and enable slave specific interrupts. If you use runtime pm, you
--  should use pm_runtime_forbid() because your device usually needs to be powered
--  on always to be able to detect its slave address. When unregistering, do the
--  inverse of the above.
-+  should use pm_runtime_get_sync() because your device usually needs to be
-+  powered on always to be able to detect its slave address. When unregistering,
-+  do the inverse of the above.
+@@ -173,13 +173,14 @@ During development of this API, the question of using buffers instead of just
+ bytes came up. Such an extension might be possible, usefulness is unclear at
+ this time of writing. Some points to keep in mind when using buffers:
  
- * Catch the slave interrupts and send appropriate i2c_slave_events to the backend.
+-* Buffers should be opt-in and slave drivers will always have to support
+-  byte-based transactions as the ultimate fallback because this is how the
+-  majority of HW works.
+-
+-* For backends simulating hardware registers, buffers are not helpful because
+-  on writes an action should be immediately triggered. For reads, the data in
+-  the buffer might get stale.
++* Buffers should be opt-in and backend drivers will always have to support
++  byte-based transactions as the ultimate fallback anyhow because this is how
++  the majority of HW works.
++
++* For backends simulating hardware registers, buffers are largely not helpful
++  because after each byte written an action should be immediately triggered.
++  For reads, the data kept in the buffer might get stale if the backend just
++  updated a register because of internal processing.
  
+ * A master can send STOP at any time. For partially transferred buffers, this
+   means additional code to handle this exception. Such code tends to be
 -- 
 2.8.1
