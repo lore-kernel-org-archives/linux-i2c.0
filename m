@@ -1,34 +1,39 @@
-From: Jan Kandziora <jjj@gmx.de>
-Subject: Re: [PATCH 2/2] add w1_ds28e17 driver for the DS28E17 Onewire to I2C
- master bridge
-Date: Fri, 22 Jul 2016 22:56:15 +0200
-Message-ID: <5792886F.1010508@gmx.de>
-References: <578A95E4.1080903@gmx.de> <20160721070220.GE1664@katana>
+From: Evgeniy Polyakov <zbr@ioremap.net>
+Subject: Re: [PATCH 2/2] add w1_ds28e17 driver for the DS28E17 Onewire to I2C master bridge
+Date: Sat, 23 Jul 2016 07:44:57 +0300
+Message-ID: <80161469249097@web5m.yandex.ru>
+References: <578A95E4.1080903@gmx.de> <132011469036072@web17m.yandex.ru> <578FC09D.8040706@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.18]:54496 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750856AbcGVU4S (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 22 Jul 2016 16:56:18 -0400
-In-Reply-To: <20160721070220.GE1664@katana>
+Received: from forward3h.cmail.yandex.net ([87.250.230.18]:33821 "EHLO
+	forward3h.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750856AbcGWEwO (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sat, 23 Jul 2016 00:52:14 -0400
+In-Reply-To: <578FC09D.8040706@gmx.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Evgeniy Polyakov <zbr@ioremap.net>
-
-Am 21.07.2016 um 09:02 schrieb Wolfram Sang:
->> + +		/* Resume to same DS28E17. */ +		if 
->> (w1_reset_resume_command(sl->master)) +			return -ENXIO;
-> 
-> -ENXIO? Please check Documentation/i2c/fault-codes if that fits
-> 
-It's an error while addressing the DS28E17. I'm not sure about this,
-what to return when the bus master has gone, which may be only a
-temporary problem.
+To: Jan Kandziora <jjj@gmx.de>, Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
 
-Kind regards
 
-	Jan
+20.07.2016, 21:19, "Jan Kandziora" <jjj@gmx.de>:
+> Am 20.07.2016 um 19:34 schrieb Evgeniy Polyakov:
+>> =C2=A0Is that a hardware limitation that there is no interrupt or ot=
+her
+>> =C2=A0completion mechanism which would handle this case?
+>
+> Ah, forgot to address that question.
+>
+> The DS28E17 has a BUSY pin. We could add an interrupt-driven busy
+> mechanism but the mechanism without the interrupt line has to stay in
+> there because most people wouldn't add an interrupt line to their
+> Onewire installation just for having that.
+
+Ok, I see, its just a hardware issue which requires to have this potent=
+ially unhealthy busy loop.
+
+Both patches look good to me, thank you.
+Acked-by: Evgeniy Polyakov <zbr@ioremap.net>
