@@ -1,68 +1,97 @@
-From: Kachalov Anton <mouse@mayc.ru>
-Subject: i2c: slave support framework improvements
-Date: Sat, 23 Jul 2016 09:51:49 +0300
-Message-ID: <137031469256709@web4j.yandex.ru>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: i2c: slave support framework improvements
+Date: Sat, 23 Jul 2016 21:51:14 +0200
+Message-ID: <20160723195114.GA2104@katana>
+References: <137031469256709@web4j.yandex.ru>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from forward2h.cmail.yandex.net ([87.250.230.17]:55055 "EHLO
-	forward2h.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750774AbcGWG7O (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sat, 23 Jul 2016 02:59:14 -0400
-Received: from mxback5j.mail.yandex.net (mxback5j.mail.yandex.net [5.45.198.19])
-	by forward2h.cmail.yandex.net (Yandex) with ESMTP id 1055C206E8
-	for <linux-i2c@vger.kernel.org>; Sat, 23 Jul 2016 09:51:50 +0300 (MSK)
+Received: from sauhun.de ([89.238.76.85]:35231 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751234AbcGWTvX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sat, 23 Jul 2016 15:51:23 -0400
+Content-Disposition: inline
+In-Reply-To: <137031469256709@web4j.yandex.ru>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Kachalov Anton <mouse@mayc.ru>
+Cc: linux-i2c@vger.kernel.org
 
-SGVsbG8uCgpJJ20gd29ya2luZyBvbiBtdWx0aS1tYXN0ZXIgaTJjIHN1cHBvcnQgaW4gQXNwZWVk
-IFNvQyAoQVNUMjE1MCwgQVNUMjMwMCBhbmQgc28gb24pIGFuZCBzdWNjZWVkIHdpdGggZXZlbnQg
-cGFzc2luZyB0byB0aGUgc2xhdmUgc29mdHdhcmUgYmFja2VuZC4gQmVzaWRlcyBBU1QgaGFzIHR3
-byBvcGVyYXRpb24gbW9kZXM6IGJ5dGUgdHJhbnNmZXIgYW5kIGJ1ZmZlciB0cmFuc2Zlci4gV2hp
-bGUgaTJjIHNsYXZlIGZyYW1ld29yayBvcGVyYXRlcyBvdmVyIGJ5dGVzLiBJbiBjdXJyZW50IHNj
-aGVtZSBJIHdvdWxkIGFibGUgdG8gcmVjZWl2ZSBhbiBpbnRlcnJ1cHQgb24gYnVmZmVyIGZpbGwg
-dGhlbiBjYWxsIE4tdGltZXMgZXZlbnQgZnVuY3Rpb24gd2l0aCBvbmUgYnl0ZS4gSXQgaXMgYSBs
-aXR0bGUgb3ZlcmhlYWQgdGhlcmUuIFdoYXQgd2UgY2FuIGRvIHRoZXJlPwoKU2Vjb25kIG9uZSB0
-aGluZyB0aGF0IEkgd2FudCB0byBwb2ludCBpcyBhIHNsYXZlIHN1cHBvcnQgaW4gSTJDIE1VWC9z
-d2l0Y2ggZHJpdmVycy4gRm9yIGluc3RhbmNlIEkgdXNlIFBDQTk1NDggc3dpdGNoIGFuZCB3YW50
-IHRvIGhhdmUgTiAoTiA8PSA4KSBzbGF2ZXMgKG9uZSBwZXIgY2hhbm5lbCkuIFRoZSBnZW5lcmlj
-IHN3aXRjaGluZyBhbGdvIHRyaWVzIHRvIGRlc2VsZWN0IGNoYW5uZWwgZWFjaCB0aW1lIHRyYW5z
-bWlzc2lvbiBoYXMgZW5kZWQuIFNhbWV0aW1lLCBwY2E5NTR4IGFsbG93cyB0byBsZWF2ZSBjaGFu
-bmVsIHNlbGVjdGVkLiBJdCBpcyB2ZXJ5IHVzZWZ1bCBmb3Igc2xhdmUgb3BlcmF0aW9uIG1vZGUg
-KGUuZy4gSVBNQiBsaXN0ZW5lcikuIFRoZXJlIGlzIG5vIGV2aWRlbmNlIGZyb20gaTJjLW11eCBw
-b2ludCBvZiB2aWV3IGlmIHRoZSBjaGFubmVsIGlzIHJlYWxseSBkZXNlbGVjdGVkIG9yIG5vdC4g
-SWYgSSB3YW50IHRvIGNvZGUgYSBnZW5lcmljIHNsYXZlIHN1cHBvcnQgdG8gcmUtcmVnaXN0ZXIg
-c2xhdmVzIG9uIHBhcmVudCBhZGFwdGVyIChwcm9ncmFtIGkyYyBJUCByZWcgd2l0aCBwcm9wZXIg
-c2xhdmUgYWRkcmVzcykgZWFjaCB0aW1lIEkgc3dpdGNoIGJldHdlZW4gY2hhbm5lbHMsIEkgbmVl
-ZCB0byBsZWF2ZSBjaGFubmVsICJvcGVuIiB1bnRpbCBJIGV4cGxpY2l0bHkgd2FudHMgdG8gZGVz
-ZWxlY3QgdGhlIGNoYW5uZWwgdG8gbWFrZSBzbGF2ZSBkcml2ZXIgb3BlcmFibGUuIExpa2UgYSAi
-bG9jayIgY2hhbm5lbCBmdW5jdGlvbi4gRS5nLiBjaGVjayBmb3IgbG9jayBmbGFnIGJlZm9yZSBk
-b2luZyBkZXNlbGVjdCBpbiBpMmNfbXV4X3NtYnVzX3hmZXIuIFRoZXJlIGFyZSBmb3VyIGR1cGxp
-Y2F0ZSBzZWxlY3QvZGVzZWxlY3QgY29kZSBpbiBlYWNoICptdXgqeGZlciByb3V0aW5lIHRoYXQg
-bWlnaHQgYmUgd3JhcHBlZCB3aXRoIGNoYW5uZWwgbG9jayBjaGVjayBmb3IgdGhlIGRlc2NyaWJl
-ZCBhcHByb2FjaC4gRm9yIGdlbmVyaWMgaTJjLW11eCBzbGF2ZSBzd2l0Y2hpbmcgaXQgaXMgbmVl
-ZGVkIGEgc2xhdmVfc3dpdGNoIGZ1bmN0aW9uIHRvIGJlIGltcGxlbWVudGVkIGluIHNsYXZlIGRy
-aXZlciAobXV4L3BjYTk1NHggYW5kIGJ1cy9hc3BlZWQgZm9yIGluc3RhbmNlKS4KCkluIGN1cnJl
-bnQgaW1wbGVtZW50YXRpb24gSSBkaWQgc2V2ZXJhbCBoYWNrczogZHVtbXkgaTJjIHNsYXZlIGRy
-aXZlciBmb3IgaTJjLW11eC1wY2E5NTR4IHJlZ2lzdGVyZWQgb24gcGFyZW50IGFkYXB0ZXIncyBi
-dXMsIHByb3h5IGNhbGxiYWNrIHRoYXQgcGFzc2VzIGRhdGEgdG8gdGhlIG11eCdlcyBhcHByb3By
-aWF0ZSBzbGF2ZSwgbWFudWFsIGNhbGwgYWxnby0+cmVnX3NsYXZlL3VucmVnX3NsYXZlIHRvIGF2
-b2lkIGRlYWRsb2NrcyBpbiBzZWxlY3QvZGVzZWxlY3QgaGFuZGxlcnMuCk9uZSBvZiB0aGUgbW9z
-dCB0cmlja3kgcGFydCBoZXJlIGlzIGNhbGN1bGF0aW5nIHN0YXJ0aW5nIGkyYyBidXMgbnVtYmVy
-IGZvciBhcnJheSdzIG9mZnNldCAoYWRhcF9vZmYgZmllbGQpIGluIHNsYXZlX3JlZ2lzdGVyL3Vu
-cmVnaXN0ZXIgZHJpdmVyJ3Mgcm91dGluZXMuIEJldHRlciB0byBoYXZlIHNvbWV0aGluZyBsaWtl
-IGEgaTJjX211eF9jaGFubmVsKC4uLikgcm91dGluZSB0byBhY2Nlc3MgcHJpdmF0ZSAiY2hhbl9p
-ZCIgZmllbGQgb2YgbXV4LiBUaGUgc2Vjb25kIHRyaWNrIGlzIGEgaG90Zml4IG9mIGFsZ28gYXJy
-YXkgKGNhbWUgZnJvbSBpMmMtbXV4IGFzIGNvbnN0IHZhbHVlKSB0byBmaWxsIGl0IHdpdGggYWRk
-aXRpb25hbCBzbGF2ZXMgZnVuY3Rpb24gcG9pbnRlcnMuCgpIZXJlIGlzIGEgcGF0Y2g6Cmh0dHBz
-Oi8vZ2l0aHViLmNvbS95YS1tb3VzZS9vcGVuYm1jLXRhcmdldC9ibG9iL21hc3Rlci9hc3BlZWQv
-cGF0Y2hlcy00LjQvMDA2NS1pMmMtc2xhdmUtbXV4LXBjYTk1NHgucGF0Y2gKCkhlcmUgaXMgdGhl
-IHdvcmstaW4tcHJvZ3Jlc3MgSVBNSSBJMkMgZHJpdmVyIHRoYXQgcG9wdWxhdGVzIGkyYyBjbGll
-bnQgJiBzbGF2ZSBvbiBNVVggYnVzOgpodHRwczovL2dpdGh1Yi5jb20veWEtbW91c2Uvb3BlbmJt
-Yy1wYWNrYWdlcy9ibG9iL21hc3Rlci9rZXJuZWwvaXBtaS1pMmMvc3JjL2lwbWlfaTJjLmMKCldo
-YXQgc2hvdWxkIGJlIGltcHJvdmVkIGluIGkyYy1tdXggYW5kIGkyYyBzbGF2ZSBmcmFtZXdvcmsg
-dG8gcmV3cml0ZSBzdWNoIGNvZGUgdG8gaGF2ZSByb2J1c3QgY29kZSB3aXRob3V0IGEgbnVtYmVy
-IG9mIGhhY2tzLCB0cmlja3MgYW5kIHdvcmthcm91bmRzPyBBbnkgc3VnZ2VzdGlvbnMgYW5kIGNv
-bW1lbnRzIGFyZSB3ZWxjb21lLg==
+
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi,
+
+> I'm working on multi-master i2c support in Aspeed SoC (AST2150,
+> AST2300 and so on) and succeed with event passing to the slave
+> software backend. Besides AST has two operation modes: byte transfer
+
+Which upstream driver does that SoC use?
+
+> and buffer transfer. While i2c slave framework operates over bytes. In
+> current scheme I would able to receive an interrupt on buffer fill
+> then call N-times event function with one byte. It is a little
+> overhead there. What we can do there?
+
+Let me quote from Documentation/i2c/slave-interface:
+
+About buffers
+-------------
+
+During development of this API, the question of using buffers instead of just
+bytes came up. Such an extension might be possible, usefulness is unclear at
+this time of writing. Some points to keep in mind when using buffers:
+
+* Buffers should be opt-in and slave drivers will always have to support
+  byte-based transactions as the ultimate fallback because this is how the
+  majority of HW works.
+
+* For backends simulating hardware registers, buffers are not helpful because
+  on writes an action should be immediately triggered. For reads, the data in
+  the buffer might get stale.
+
+* A master can send STOP at any time. For partially transferred buffers, this
+  means additional code to handle this exception. Such code tends to be
+  error-prone.
+
+> Second one thing that I want to point is a slave support in I2C MUX/switch
+> drivers. For instance I use PCA9548 switch and want to have N (N <= 8) slaves
+> (one per channel)
+
+How do the other masters know that their channel is currently muxed then? And
+what if two of them want to access two of your slaves at the same time?
+
+This setup may work for one specific case but in general sounds pretty fragile
+to me. This fragility shows in all the hacks needed to work around the proper
+abstractions. I don't think much can be done about that.
+
+Regards,
+
+   Wolfram
+
+
+--nFreZHaLTZJo0R7j
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXk8qyAAoJEBQN5MwUoCm2sTsP/Rpf3pbPus4kRaMNu5YkZ3Hm
+W423cJ0PO9eIWtwxKObB7O2AwzOungBYRZv7kMtgOJHSAzhbAnkbl2IqSALd0kti
+dqIVpZ/mBsnEcLcmPUdVmiglW1h02Z6R3b/6t/O42+3vpsa9WyBOXpzkqKXxliNJ
+LDvygCPoSFMLggGXp2TmmlhIuetFCmXtDxHoGIgWDHuAFmSz/dnwzdenGNM+oJZq
+itA+MMW35vJDnJPiDdf1lgSJFHsVih0q22RRQCs6v6SraJp7qTrUDUdHUJZcplHB
+c7i2G05uyG9SV8aS86jyj3zkmvxpM+AvfpXydwjeQ/2kzaBxyP7ZRcty8vJDQgX5
+LNW67cYEX1xUK8SCMK5iMpUO09eoPQOA8SeJj4Gi4CSaf0oSGGaILSxXGqUAvKI8
+farAFfP23nIBnTIKQR6y2d1qNzUwRf00LFwGDmv+md4avw7UkoAvUJE2Z5QR5/Nk
+6dI1P4m1Tk++ribp0uM2/wjHr5CqMXfTqbN0+rbeCNHu4vT4Xox+HeFvpRy1G4i/
+yp+ByZdU1qYnJyc7OXqBFmxXkVl1oHSVHhAbYGmlhBdPMVdYpxGEyMeTVbQgK9++
+orYMrntv163NslUD1gJ6mLar8YZ58KFCTs5IW+4tazCI52HgBTvlOmbawAT81RS9
+OrIO0BGdDGzwQfD/Vaco
+=dlKm
+-----END PGP SIGNATURE-----
+
+--nFreZHaLTZJo0R7j--
