@@ -1,53 +1,65 @@
-From: Martin Vajnar <martin.vajnar@gmail.com>
-Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with PCI BAR
-Date: Sun, 24 Jul 2016 12:08:25 +0200
-Message-ID: <CAHHiRUQXt_ofTsLzwZWJPXe_-wPE-hAeTxbdnJt03V89rAJpNQ@mail.gmail.com>
-References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com>
- <20160705115142.GO23527@lahna.fi.intel.com> <201607051356.58794@pali>
- <201607051400.58881@pali> <20160705143115.GP23527@lahna.fi.intel.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH] staging: iio: light: isl29018/28: remove I2C_CLASS_HWMON
+ .class setting
+Date: Sun, 24 Jul 2016 12:30:08 +0100
+Message-ID: <6c46ec72-3cf2-0b8a-9a1f-38341573ccef@kernel.org>
+References: <20160716022831.GA7636@d830.WORKGROUP> <578C9843.10408@nvidia.com>
+ <dff1e871-de49-654f-5e9b-c9b230a35b0a@kernel.org>
+ <20160719071343.GA2086@tetsubishi>
+ <0d515ff9-252a-a8f9-49c1-89ef0b1e9887@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:36667 "EHLO
-	mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751870AbcGXKIq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 24 Jul 2016 06:08:46 -0400
-In-Reply-To: <20160705143115.GP23527@lahna.fi.intel.com>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:58788 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752188AbcGXLaL (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 24 Jul 2016 07:30:11 -0400
+In-Reply-To: <0d515ff9-252a-a8f9-49c1-89ef0b1e9887@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, Jean Delvare <jdelvare@suse.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Dominique Leuenberger <dimstar@opensuse.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Alison Schofield <amsfield22@gmail.com>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>
 
-2016-07-05 16:31 GMT+02:00 Mika Westerberg <mika.westerberg@linux.intel=
-=2Ecom>:
-> On Tue, Jul 05, 2016 at 02:00:58PM +0200, Pali Roh=C3=A1r wrote:
->> On Tuesday 05 July 2016 13:56:58 Pali Roh=C3=A1r wrote:
->> > On Tuesday 05 July 2016 13:51:42 Mika Westerberg wrote:
->> > > So are you able to test what happens when you unload the driver?
->> >
->> > As I wrote in previous email, I do not own these EliteBooks anymor=
-e,
->> > so cannot test it. Just have DSDT dump...
+On 20/07/16 16:08, Jonathan Cameron wrote:
+> On 19/07/16 08:13, Wolfram Sang wrote:
+>> On Mon, Jul 18, 2016 at 02:30:46PM +0100, Jonathan Cameron wrote:
+>>> On 18/07/16 09:50, Laxman Dewangan wrote:
+>>>>
+>>>> On Saturday 16 July 2016 07:58 AM, Alison Schofield wrote:
+>>>>> I2C_CLASS_HWMON is for a hardware monitoring chip wanting
+>>>>> auto-detection.  IIO drivers don't typically use .class.
+>>>>> Remove it.
+>>>>>
+>>>>> Signed-off-by: Alison Schofield <amsfield22@gmail.com>
+>>>>> Cc: Daniel Baluta <daniel.baluta@gmail.com>
+>>>>>
+>>>>
+>>>> Agree.
+>>>> Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
+>>> Any resulting ABI change from dropping it?
 >>
->> What about contacting last contributors to hp_accel.c driver? They
->> probably could test i801 changes if accelerometer still works.
+>> What do you mean with ABI? This is only relevant for "automatic"
+>> instantiation.
+> Cool, I was just being paranoid and didn't have time to check!
+> 
+> Thanks,
+> 
+> Jonathan
+>> From me:
+>>
+>> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+>>
 >
-> Good idea.
->
-> Added Martin and Dominique who did the last additions to that driver
-> (hp_accel.c).
->
-> Do you guys still have your HP machines around? If yes, maybe you can
-> try v4.7-rc3+ (it should include commit a7ae81952cda ("i2c: i801: All=
-ow
-> ACPI SystemIO OpRegion to conflict with PCI BAR")) so that you unload
-> i2c-i801.ko and see if accelerometer still works?
+Applied to the togreg branch of iio.git - initially pushed out
+as testing for the autoubuilders to play with it.
 
-I still have the HP ProBook 440 G3. I used v4.7-rc7 for the test. I
-tested all combinations of loading/unloading both hp_accel and
-i2c_i801 modules and whenever the hp_accel was loaded the
-accelerometer worked fine.
+thanks,
 
-Regards,
--Martin Vajnar
+Jonathan
+ 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
