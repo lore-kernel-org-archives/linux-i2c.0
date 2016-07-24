@@ -1,47 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 1/2] Documentation: i2c: slave: describe buffer problems a bit better
-Date: Sat, 23 Jul 2016 22:06:51 +0200
-Message-ID: <1469304412-2652-1-git-send-email-wsa@the-dreams.de>
+From: Martin Vajnar <martin.vajnar@gmail.com>
+Subject: Re: [v5] i2c: i801: Allow ACPI SystemIO OpRegion to conflict with PCI BAR
+Date: Sun, 24 Jul 2016 12:08:25 +0200
+Message-ID: <CAHHiRUQXt_ofTsLzwZWJPXe_-wPE-hAeTxbdnJt03V89rAJpNQ@mail.gmail.com>
+References: <1463990658-53854-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20160705115142.GO23527@lahna.fi.intel.com> <201607051356.58794@pali>
+ <201607051400.58881@pali> <20160705143115.GP23527@lahna.fi.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35343 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751097AbcGWUHC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sat, 23 Jul 2016 16:07:02 -0400
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:36667 "EHLO
+	mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751870AbcGXKIq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Sun, 24 Jul 2016 06:08:46 -0400
+In-Reply-To: <20160705143115.GP23527@lahna.fi.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, Jean Delvare <jdelvare@suse.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Matt Fleming <matt@codeblueprint.co.uk>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Dominique Leuenberger <dimstar@opensuse.org>
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- Documentation/i2c/slave-interface | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+2016-07-05 16:31 GMT+02:00 Mika Westerberg <mika.westerberg@linux.intel=
+=2Ecom>:
+> On Tue, Jul 05, 2016 at 02:00:58PM +0200, Pali Roh=C3=A1r wrote:
+>> On Tuesday 05 July 2016 13:56:58 Pali Roh=C3=A1r wrote:
+>> > On Tuesday 05 July 2016 13:51:42 Mika Westerberg wrote:
+>> > > So are you able to test what happens when you unload the driver?
+>> >
+>> > As I wrote in previous email, I do not own these EliteBooks anymor=
+e,
+>> > so cannot test it. Just have DSDT dump...
+>>
+>> What about contacting last contributors to hp_accel.c driver? They
+>> probably could test i801 changes if accelerometer still works.
+>
+> Good idea.
+>
+> Added Martin and Dominique who did the last additions to that driver
+> (hp_accel.c).
+>
+> Do you guys still have your HP machines around? If yes, maybe you can
+> try v4.7-rc3+ (it should include commit a7ae81952cda ("i2c: i801: All=
+ow
+> ACPI SystemIO OpRegion to conflict with PCI BAR")) so that you unload
+> i2c-i801.ko and see if accelerometer still works?
 
-diff --git a/Documentation/i2c/slave-interface b/Documentation/i2c/slave-interface
-index 61ed05cd95317f..abd10186a9e9fc 100644
---- a/Documentation/i2c/slave-interface
-+++ b/Documentation/i2c/slave-interface
-@@ -173,13 +173,14 @@ During development of this API, the question of using buffers instead of just
- bytes came up. Such an extension might be possible, usefulness is unclear at
- this time of writing. Some points to keep in mind when using buffers:
- 
--* Buffers should be opt-in and slave drivers will always have to support
--  byte-based transactions as the ultimate fallback because this is how the
--  majority of HW works.
--
--* For backends simulating hardware registers, buffers are not helpful because
--  on writes an action should be immediately triggered. For reads, the data in
--  the buffer might get stale.
-+* Buffers should be opt-in and backend drivers will always have to support
-+  byte-based transactions as the ultimate fallback anyhow because this is how
-+  the majority of HW works.
-+
-+* For backends simulating hardware registers, buffers are largely not helpful
-+  because after each byte written an action should be immediately triggered.
-+  For reads, the data kept in the buffer might get stale if the backend just
-+  updated a register because of internal processing.
- 
- * A master can send STOP at any time. For partially transferred buffers, this
-   means additional code to handle this exception. Such code tends to be
--- 
-2.8.1
+I still have the HP ProBook 440 G3. I used v4.7-rc7 for the test. I
+tested all combinations of loading/unloading both hp_accel and
+i2c_i801 modules and whenever the hp_accel was loaded the
+accelerometer worked fine.
+
+Regards,
+-Martin Vajnar
