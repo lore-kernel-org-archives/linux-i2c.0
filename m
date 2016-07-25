@@ -1,47 +1,62 @@
-From: Brian Norris <briannorris@chromium.org>
-Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
-Date: Mon, 25 Jul 2016 13:48:25 -0700
-Message-ID: <20160725204825.GA144142@google.com>
-References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
- <1469470451-111822-2-git-send-email-briannorris@chromium.org>
- <20160725204313.GA1698@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f169.google.com ([209.85.192.169]:32929 "EHLO
-	mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752903AbcGYUs2 (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Jul 2016 16:48:28 -0400
-Received: by mail-pf0-f169.google.com with SMTP id y134so67503033pfg.0
-        for <linux-i2c@vger.kernel.org>; Mon, 25 Jul 2016 13:48:28 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20160725204313.GA1698@katana>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v2] i2c: i2c-cros-ec-tunnel: Reduce logging noise
+Date: Mon, 25 Jul 2016 13:58:57 -0700
+Message-ID: <1469480337-8753-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Cc: dianders@chromium.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 25, 2016 at 10:43:13PM +0200, Wolfram Sang wrote:
-> On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
-> > cros_ec_cmd_xfer returns success status if the command transport
-> > completes successfully, but the execution result is incorrectly ignored.
-> > In many cases, the execution result is assumed to be successful, leading
-> > to ignored errors and operating on uninitialized data.
-> > 
-> > We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid these
-> > problems. Let's use it.
-> > 
-> > Signed-off-by: Brian Norris <briannorris@chromium.org>
-> 
-> I agree with Dmitry about Thierry pushing the patch. So:
-> 
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+If an i2c access through i2c-cros-ec-tunnel returns an error, the following
+log message is seen on the console.
 
-Fine with me, as long as Thierry is up for it.
+cros-ec-i2c-tunnel ff200000.spi:ec@0:i2c-tunnel:
+			Error parsing EC i2c message -121
 
-BTW, I think the dependency is on target for v4.8-rc1, so if Thierry
-misses this, then you should be able to apply this yourself after the
-merge window.
+This can happen a lot if, for example, the i2c-detect command is executed.
 
-Regards,
-Brian
+Since it is perfectly normal for an i2c controller to report an error,
+drop the message. Also, report -ENXIO instead of -EREMOTEIO if the access
+error is due to NAK from the device, and return -EIO instead of -EREMOTEIO
+for unknown errors, as suggested in Documentation/i2c/fault-codes.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v2: Drop message entirely instead of replacing it with dev_dbg,
+    and return -EIO instead of -EREMOTEIO for unknown errors.
+
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+index a0d95ff682ae..7b9b2ff97d77 100644
+--- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
++++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+@@ -154,8 +154,10 @@ static int ec_i2c_parse_response(const u8 *buf, struct i2c_msg i2c_msgs[],
+ 	resp = (const struct ec_response_i2c_passthru *)buf;
+ 	if (resp->i2c_status & EC_I2C_STATUS_TIMEOUT)
+ 		return -ETIMEDOUT;
+-	else if (resp->i2c_status & EC_I2C_STATUS_ERROR)
+-		return -EREMOTEIO;
++	else if (resp->i2c_status & EC_I2C_STATUS_NAK)
++		return -ENXIO;
++	else if (resp->i2c_status)
++		return -EIO;
+ 
+ 	/* Other side could send us back fewer messages, but not more */
+ 	if (resp->num_msgs > *num)
+@@ -222,10 +224,8 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
+ 	}
+ 
+ 	result = ec_i2c_parse_response(msg->data, i2c_msgs, &num);
+-	if (result < 0) {
+-		dev_err(dev, "Error parsing EC i2c message %d\n", result);
++	if (result < 0)
+ 		goto exit;
+-	}
+ 
+ 	/* Indicate success by saying how many messages were sent */
+ 	result = num;
+-- 
+2.5.0
