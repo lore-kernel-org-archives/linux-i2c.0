@@ -1,57 +1,58 @@
-From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Subject: Re: [PATCH v3 2/2] power: Adds support for Smart Battery System
- Manager
-Date: Mon, 25 Jul 2016 21:49:36 +0200
-Message-ID: <1469476176.22243.10.camel@amnesix>
-References: <1bIiDr-0004G1-0P>
-	 <1468349295-4935-1-git-send-email-karl-heinz@schneider-inet.de>
-	 <1468349295-4935-3-git-send-email-karl-heinz@schneider-inet.de>
-	 <20160719041729.GC1640@katana> <1468954265.3053.3.camel@amnesix>
-	 <e252c587-560e-ee85-5016-a0b92124e422@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <e252c587-560e-ee85-5016-a0b92124e422@axentia.se>
-Sender: linux-pm-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Phil Reid <preid@electromag.com.au>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] i2c: i2c-cros-ec-tunnel: Reduce logging noise
+Date: Mon, 25 Jul 2016 13:11:04 -0700
+Message-ID: <1469477464-28735-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34787 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752463AbcGYULM (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Jul 2016 16:11:12 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: dianders@chromium.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-Hi Peter, Hi Rob,
+If an i2c access through i2c-cros-ec-tunnel returns an error, the following
+log message is seen on the console.
 
-Am Montag, den 25.07.2016, 12:44 +0200 schrieb Peter Rosin:
-> On 2016-07-19 20:51, Karl-Heinz Schneider wrote:
-> >> Other than that, looks good to me, yet Peter has more insight to
-> >> i2c-muxes these days.
-> >>
-> > Tanks for review. 
-> > 
-> > Will wait another few days before sending a new revision, hence changes
-> > are rather small.
-> 
-> Looks good to me from a muxing perspective, with very a minor nit that the
-> devicetree bindings do not point to i2c-mux.txt for where "standard i2c-mux
-> nodes" are described.
-Right, will add it.
+cros-ec-i2c-tunnel ff200000.spi:ec@0:i2c-tunnel:
+			Error parsing EC i2c message -121
 
-like this: 
-@@ -7,7 +7,8 @@ Required properties:
- From OS view the device is basically an i2c-mux used to communicate with up to
- four smart battery devices at address 0xb. The driver actually implements this
- behaviour. So standard i2c-mux nodes can be used to register up to four slave
--batteries. Channels will be numerated starting from 1 to 4.
-+batteries. See Documentation/devicetree/bindings/i2c/i2c-mux.txt for more
-+information on i2c-mux nodes. Channels will be numerated starting from 1 to 4.
+This can happen a lot if, for example, the i2c-detect command is executed.
+
+Since it is perfectly normal for an i2c controller to report an error,
+replace the error message with a debug message. Also, report -ENXIO
+instead of -EREMOTEIO if the access error is due to NAK from the device,
+as suggested in Documentation/i2c/fault-codes.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+index a0d95ff682ae..95f26fecc6e9 100644
+--- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
++++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+@@ -154,7 +154,9 @@ static int ec_i2c_parse_response(const u8 *buf, struct i2c_msg i2c_msgs[],
+ 	resp = (const struct ec_response_i2c_passthru *)buf;
+ 	if (resp->i2c_status & EC_I2C_STATUS_TIMEOUT)
+ 		return -ETIMEDOUT;
+-	else if (resp->i2c_status & EC_I2C_STATUS_ERROR)
++	else if (resp->i2c_status & EC_I2C_STATUS_NAK)
++		return -ENXIO;
++	else if (resp->i2c_status)
+ 		return -EREMOTEIO;
  
- Example:
-
-Rob, are you OK with that change?
-> 
-> Cheers,
-> Peter
-tanks.
+ 	/* Other side could send us back fewer messages, but not more */
+@@ -223,7 +225,7 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
+ 
+ 	result = ec_i2c_parse_response(msg->data, i2c_msgs, &num);
+ 	if (result < 0) {
+-		dev_err(dev, "Error parsing EC i2c message %d\n", result);
++		dev_dbg(dev, "Error parsing EC i2c message %d\n", result);
+ 		goto exit;
+ 	}
+ 
 -- 
-Karl-Heinz
-
-
+2.5.0
