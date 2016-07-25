@@ -1,52 +1,46 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v3 2/2] power: Adds support for Smart Battery System
- Manager
-Date: Mon, 25 Jul 2016 12:44:49 +0200
-Message-ID: <e252c587-560e-ee85-5016-a0b92124e422@axentia.se>
-References: <1bIiDr-0004G1-0P>
- <1468349295-4935-1-git-send-email-karl-heinz@schneider-inet.de>
- <1468349295-4935-3-git-send-email-karl-heinz@schneider-inet.de>
- <20160719041729.GC1640@katana> <1468954265.3053.3.camel@amnesix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Brian Norris <briannorris@chromium.org>
+Subject: [PATCH 0/2] cros_ec: utilize cros_ec_cmd_xfer_status()
+Date: Mon, 25 Jul 2016 11:14:09 -0700
+Message-ID: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0109.outbound.protection.outlook.com ([104.47.2.109]:52551
-	"EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752488AbcGYRVT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 25 Jul 2016 13:21:19 -0400
-In-Reply-To: <1468954265.3053.3.camel@amnesix>
+Received: from mail-pa0-f53.google.com ([209.85.220.53]:32841 "EHLO
+	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753158AbcGYSO0 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Jul 2016 14:14:26 -0400
+Received: by mail-pa0-f53.google.com with SMTP id ks6so63637245pab.0
+        for <linux-i2c@vger.kernel.org>; Mon, 25 Jul 2016 11:14:26 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Phil Reid <preid@electromag.com.au>
+To: Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Brian Norris <briannorris@chromium.org>
 
-On 2016-07-19 20:51, Karl-Heinz Schneider wrote:
-> Hi Wolfram,
-> 
-> Am Dienstag, den 19.07.2016, 06:17 +0200 schrieb Wolfram Sang:
->>> +	data->muxc = i2c_mux_alloc(adapter, dev, SBSM_MAX_BATS, 0,
->>> +				   I2C_MUX_LOCKED, &sbsm_select, NULL);
->>> +	if (!data->muxc) {
->>> +		dev_err(dev, "failed to alloc i2c mux\n");
->>
->> Don't print errors on ENOMEM.
-> 
-> Will be fixed on next revision.
-> 
->>
->> Other than that, looks good to me, yet Peter has more insight to
->> i2c-muxes these days.
->>
-> Tanks for review. 
-> 
-> Will wait another few days before sending a new revision, hence changes
-> are rather small.
+Hi all,
 
-Looks good to me from a muxing perspective, with very a minor nit that the
-devicetree bindings do not point to i2c-mux.txt for where "standard i2c-mux
-nodes" are described.
+I was sorting through some out-of-tree patches to these drivers, and I realized
+we should probably start making use of cros_ec_cmd_xfer_status() in these
+drivers, now that Thierry has queued them up for v4.8; see:
 
-Cheers,
-Peter
+  git://git.kernel.org/pub/scm/linux/kernel/git/thierry.reding/linux-pwm.git
+  refs/heads/for-4.8/mfd
+
+  9798ac6d32c1 mfd: cros_ec: Add cros_ec_cmd_xfer_status() helper
+
+Thierry originally provided the above branch for Lee's sake, but I don't see
+why (if these are deemed fixes worthy of v4.8) that can't be pulled by Wolfram
+and/or Dmitry for their respective subsystems' patches.
+
+Please review.
+
+Regards,
+Brian
+
+Brian Norris (2):
+  i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
+  Input: cros_ec_keyb - Fix usage of cros_ec_cmd_xfer()
+
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c | 2 +-
+ drivers/input/keyboard/cros_ec_keyb.c   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+-- 
+2.8.0.rc3.226.g39d4020
