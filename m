@@ -1,65 +1,115 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH] staging: iio: light: isl29018/28: remove I2C_CLASS_HWMON
- .class setting
-Date: Sun, 24 Jul 2016 12:30:08 +0100
-Message-ID: <6c46ec72-3cf2-0b8a-9a1f-38341573ccef@kernel.org>
-References: <20160716022831.GA7636@d830.WORKGROUP> <578C9843.10408@nvidia.com>
- <dff1e871-de49-654f-5e9b-c9b230a35b0a@kernel.org>
- <20160719071343.GA2086@tetsubishi>
- <0d515ff9-252a-a8f9-49c1-89ef0b1e9887@kernel.org>
+From: Kachalov Anton <mouse@mayc.ru>
+Subject: Re: i2c: slave support framework improvements
+Date: Mon, 25 Jul 2016 10:02:08 +0300
+Message-ID: <27421469430128@web19h.yandex.ru>
+References: <137031469256709@web4j.yandex.ru> <20160723195114.GA2104@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:58788 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752188AbcGXLaL (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Sun, 24 Jul 2016 07:30:11 -0400
-In-Reply-To: <0d515ff9-252a-a8f9-49c1-89ef0b1e9887@kernel.org>
+Received: from forward1j.cmail.yandex.net ([5.255.227.19]:46542 "EHLO
+	forward1j.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751127AbcGYHJ2 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Jul 2016 03:09:28 -0400
+In-Reply-To: <20160723195114.GA2104@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Alison Schofield <amsfield22@gmail.com>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On 20/07/16 16:08, Jonathan Cameron wrote:
-> On 19/07/16 08:13, Wolfram Sang wrote:
->> On Mon, Jul 18, 2016 at 02:30:46PM +0100, Jonathan Cameron wrote:
->>> On 18/07/16 09:50, Laxman Dewangan wrote:
->>>>
->>>> On Saturday 16 July 2016 07:58 AM, Alison Schofield wrote:
->>>>> I2C_CLASS_HWMON is for a hardware monitoring chip wanting
->>>>> auto-detection.  IIO drivers don't typically use .class.
->>>>> Remove it.
->>>>>
->>>>> Signed-off-by: Alison Schofield <amsfield22@gmail.com>
->>>>> Cc: Daniel Baluta <daniel.baluta@gmail.com>
->>>>>
->>>>
->>>> Agree.
->>>> Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
->>> Any resulting ABI change from dropping it?
->>
->> What do you mean with ABI? This is only relevant for "automatic"
->> instantiation.
-> Cool, I was just being paranoid and didn't have time to check!
-> 
-> Thanks,
-> 
-> Jonathan
->> From me:
->>
->> Acked-by: Wolfram Sang <wsa@the-dreams.de>
->>
+Hello,
+
+23.07.2016, 22:51, "Wolfram Sang" <wsa@the-dreams.de>:
+> Hi,
 >
-Applied to the togreg branch of iio.git - initially pushed out
-as testing for the autoubuilders to play with it.
+>> =C2=A0I'm working on multi-master i2c support in Aspeed SoC (AST2150=
+,
+>> =C2=A0AST2300 and so on) and succeed with event passing to the slave
+>> =C2=A0software backend. Besides AST has two operation modes: byte tr=
+ansfer
+>
+> Which upstream driver does that SoC use?
 
-thanks,
+This one:
+https://github.com/openbmc/linux/blob/dev-4.4/drivers/i2c/busses/i2c-as=
+peed.c
 
-Jonathan
- 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Plus my work-in-progress patch with slave support:
+https://github.com/ya-mouse/openbmc-target/blob/master/aspeed/patches-4=
+=2E4/0068-openmouse-i2c-aspeed-slave-support.patch
+
+>
+>> =C2=A0and buffer transfer. While i2c slave framework operates over b=
+ytes. In
+>> =C2=A0current scheme I would able to receive an interrupt on buffer =
+fill
+>> =C2=A0then call N-times event function with one byte. It is a little
+>> =C2=A0overhead there. What we can do there?
+>
+> Let me quote from Documentation/i2c/slave-interface:
+>
+> About buffers
+> -------------
+>
+> During development of this API, the question of using buffers instead=
+ of just
+> bytes came up. Such an extension might be possible, usefulness is unc=
+lear at
+> this time of writing. Some points to keep in mind when using buffers:
+>
+> * Buffers should be opt-in and slave drivers will always have to supp=
+ort
+> =C2=A0=C2=A0byte-based transactions as the ultimate fallback because =
+this is how the
+> =C2=A0=C2=A0majority of HW works.
+>
+> * For backends simulating hardware registers, buffers are not helpful=
+ because
+> =C2=A0=C2=A0on writes an action should be immediately triggered. For =
+reads, the data in
+> =C2=A0=C2=A0the buffer might get stale.
+>
+> * A master can send STOP at any time. For partially transferred buffe=
+rs, this
+> =C2=A0=C2=A0means additional code to handle this exception. Such code=
+ tends to be
+> =C2=A0=C2=A0error-prone.
+>
+>> =C2=A0Second one thing that I want to point is a slave support in I2=
+C MUX/switch
+>> =C2=A0drivers. For instance I use PCA9548 switch and want to have N =
+(N <=3D 8) slaves
+>> =C2=A0(one per channel)
+>
+> How do the other masters know that their channel is currently muxed t=
+hen? And
+> what if two of them want to access two of your slaves at the same tim=
+e?
+
+In current implementation this I2C switch might be only switched from o=
+ne side (via i2c command). From the MUX point of view, there is only on=
+e master (which may mux) and a number of slaves behind each channel. Bu=
+t on proto level IPMB requires to act as multi-master to receive answer=
+s from other intelligent nodes. To receive answer requesting node have =
+to switch to slave mode after master write request.
+
+Please take a look at page 13:=20
+http://www.intel.com/content/www/us/en/servers/ipmi/ipmp-spec-v1-0.html
+
+The quote:
+"Intelligent devices on the Intelligent Platform Management Bus transmi=
+t requests and responses as bus
+Masters and receive requests and response as bus Slaves. Thus, the only=
+ Master Write transactions are
+seen between intelligent nodes."
+
+>
+> This setup may work for one specific case but in general sounds prett=
+y fragile
+> to me. This fragility shows in all the hacks needed to work around th=
+e proper
+> abstractions. I don't think much can be done about that.
+>
+> Regards,
+>
+> =C2=A0=C2=A0=C2=A0Wolfram
