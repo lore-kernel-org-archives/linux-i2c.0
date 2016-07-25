@@ -1,58 +1,62 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] i2c: i2c-cros-ec-tunnel: Reduce logging noise
-Date: Mon, 25 Jul 2016 13:11:04 -0700
-Message-ID: <1469477464-28735-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34787 "EHLO
-	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752463AbcGYULM (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Jul 2016 16:11:12 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
+Date: Mon, 25 Jul 2016 22:43:13 +0200
+Message-ID: <20160725204313.GA1698@katana>
+References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
+ <1469470451-111822-2-git-send-email-briannorris@chromium.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Return-path: <linux-input-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1469470451-111822-2-git-send-email-briannorris@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
+To: Brian Norris <briannorris@chromium.org>
+Cc: Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: dianders@chromium.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-If an i2c access through i2c-cros-ec-tunnel returns an error, the following
-log message is seen on the console.
 
-cros-ec-i2c-tunnel ff200000.spi:ec@0:i2c-tunnel:
-			Error parsing EC i2c message -121
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This can happen a lot if, for example, the i2c-detect command is executed.
+On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
+> cros_ec_cmd_xfer returns success status if the command transport
+> completes successfully, but the execution result is incorrectly ignored.
+> In many cases, the execution result is assumed to be successful, leading
+> to ignored errors and operating on uninitialized data.
+>=20
+> We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid t=
+hese
+> problems. Let's use it.
+>=20
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
 
-Since it is perfectly normal for an i2c controller to report an error,
-replace the error message with a debug message. Also, report -ENXIO
-instead of -EREMOTEIO if the access error is due to NAK from the device,
-as suggested in Documentation/i2c/fault-codes.
+I agree with Dmitry about Thierry pushing the patch. So:
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/i2c/busses/i2c-cros-ec-tunnel.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
-diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-index a0d95ff682ae..95f26fecc6e9 100644
---- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-+++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-@@ -154,7 +154,9 @@ static int ec_i2c_parse_response(const u8 *buf, struct i2c_msg i2c_msgs[],
- 	resp = (const struct ec_response_i2c_passthru *)buf;
- 	if (resp->i2c_status & EC_I2C_STATUS_TIMEOUT)
- 		return -ETIMEDOUT;
--	else if (resp->i2c_status & EC_I2C_STATUS_ERROR)
-+	else if (resp->i2c_status & EC_I2C_STATUS_NAK)
-+		return -ENXIO;
-+	else if (resp->i2c_status)
- 		return -EREMOTEIO;
- 
- 	/* Other side could send us back fewer messages, but not more */
-@@ -223,7 +225,7 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
- 
- 	result = ec_i2c_parse_response(msg->data, i2c_msgs, &num);
- 	if (result < 0) {
--		dev_err(dev, "Error parsing EC i2c message %d\n", result);
-+		dev_dbg(dev, "Error parsing EC i2c message %d\n", result);
- 		goto exit;
- 	}
- 
--- 
-2.5.0
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXlnnhAAoJEBQN5MwUoCm2cTgP/05LQBiho0grHj4NTlPiWpce
+kdvBbhyBgigcpxKcxRxQRrkgZMz9HSteJyulfAvvnJw1UEM1vMOT4MlEzkDrAjn4
+PnrpFJiyCeKyzxRLLDkkhaRpBzHzSS82ydAWPIDhLPCp2mdsmpftRO+uL1xHe8rj
+EzKO4ggxiZc51xJRRQjff5znqjAUcZAzuPwjw0HSqoFZOSWA6O+fs1zoO4xJuQGV
++ML1FRlOyhKzldZTx7iZwYtIe5yevFJH5tf2/rqH+1yn9IsrVs9B+4I+xF0amdT1
+Uy3EJ6EDHfQKSBeEWLKqchOL38nKoWUePvuKGDMQWUMyO0q7oYOgUUSMSCPnk1DQ
+THhchL7pFV4blCOzHhWB+HbjeNP2jqp5v8e/4y95dcJXWtivl0MWP8zOHB1eyc4g
+2SVTCYgkUwtca67vIco5iySQDCzkXF5ZHGmYDUaZumJockdPsTY3LRLN4AnXZDng
+EF2tZDgDRddAtodH9ZVDalUO7gEWJ/8Xi4njJlrLCLg4BTfcB4mZ4wsiKUcOc6xt
+IoaTC1TUmmXY5oxxPflmvO0/n/G6/pYV9cjYsdnpPeTtHkRjV77E8Smb8vYkLXrg
+jne24fgidVYfdLLwVXzf9/wX9xEViruzkXn4xRqpVpzOxvXH7INVKfyj2o2VveJk
+Or9Za28+AsP+17UTUdnN
+=hmpg
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--
