@@ -1,81 +1,65 @@
-From: wenpan <wenpan@hisilicon.com>
-Subject: Re: [PATCH v2] i2c: hibvt: add Hisilicon BVT I2C controller driver
-Date: Mon, 25 Jul 2016 15:28:04 +0800
-Message-ID: <b964a669-8c78-5551-4fbc-c61f504bab15@hisilicon.com>
-References: <1468316448-15256-1-git-send-email-wenpan@hisilicon.com>
- <20160716201555.GA6559@rob-hp-laptop>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: i2c: slave support framework improvements
+Date: Mon, 25 Jul 2016 10:28:14 +0200
+Message-ID: <20160725082813.GA3376@katana>
+References: <137031469256709@web4j.yandex.ru>
+ <20160723195114.GA2104@katana>
+ <27421469430128@web19h.yandex.ru>
+ <20160725072151.GA1599@katana>
+ <354241469432837@web19h.yandex.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from szxga03-in.huawei.com ([119.145.14.66]:30418 "EHLO
-	szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751589AbcGYIQi (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Jul 2016 04:16:38 -0400
-In-Reply-To: <20160716201555.GA6559@rob-hp-laptop>
+Received: from sauhun.de ([89.238.76.85]:50612 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751007AbcGYI2T (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 25 Jul 2016 04:28:19 -0400
+Content-Disposition: inline
+In-Reply-To: <354241469432837@web19h.yandex.ru>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, howell.yang@hisilicon.com, xuejiancheng@hisilicon.com, wenpan@hisilicom.com
+To: Kachalov Anton <mouse@mayc.ru>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi Rob,
 
-On 2016/7/17 4:15, Rob Herring wrote:
-> On Tue, Jul 12, 2016 at 05:40:48PM +0800, Pan Wen wrote:
->> add Hisilicon BVT I2C controller driver support.
->>
->> Signed-off-by: Pan Wen <wenpan@hisilicon.com>
->> ---
->> change log
->> v2:
->> 1)Fixed a compile error.
->> 2)Dropped the clock-names property.
->>  .../devicetree/bindings/i2c/i2c-hibvt.txt          |  23 +
->>  drivers/i2c/busses/Kconfig                         |  10 +
->>  drivers/i2c/busses/Makefile                        |   1 +
->>  drivers/i2c/busses/i2c-hibvt.c                     | 736 +++++++++++++++++++++
->>  4 files changed, 770 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
->>  create mode 100644 drivers/i2c/busses/i2c-hibvt.c
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt b/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
->> new file mode 100644
->> index 0000000..9b88afe
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
->> @@ -0,0 +1,23 @@
->> +Hisilicon BVT I2C master controller
->> +
->> +Required properties:
->> +- compatible: should be "hisilicon,hibvt-i2c".
-> 
-> Needs a SoC specific compatible string.
->
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-OK. Thanks for your comments. I will add a SoC specific compatible string in next version.
 
-Thanks,
-Pan.
+Please word wrap your messages.
 
->> +- reg: physical base address of the controller and length of memory mapped.
->> +     region.
->> +- interrupts: interrupt number to the cpu.
->> +- clocks: phandles to input clocks.
->> +
->> +Optional properties:
->> +- clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000.
->> +
->> +Other properties:
->> +see Documentation/devicetree/bindings/i2c/i2c.txt.
->> +
->> +Examples:
->> +i2c_bus0: i2c@12110000 {
->> +	compatible = "hisilicon,hibvt-i2c";
->> +	reg = <0x12110000 0x100>;
->> +	interrupts = <20>;
->> +	clocks = <&crg_ctrl HI3516CV300_APB_CLK>;
->> +	clock-frequency = <100000>;
->> +};
-> 
-> .
-> 
+> but the line is muxed until timeout or answer received by RMC. BMCs
+> are passive and only responds to requests.
+
+OK, I see.
+
+What about serialization? Can it happen that you send a request to BMC
+#1 and before the answer, you need to send an urgent request to BMC #2?
+
+Is it common in IPMI world to use muxes for this case?
+
+
+--k1lZvvs/B4yU6o8G
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXlc2dAAoJEBQN5MwUoCm2k3wP/AqrKXPd0c5nPGAMFmEaeWth
+egP9/5VFqgJ7SNgJcJRhup926HiveXTaB5i4C/JZIfJg+aoxSTPqFISxK6ym9ON6
+SHere3IScxp7wwErajZATrzW3OfixLaxHXrl55VjgxJcb2dRe9fX0BBovqDrH818
+fPrEloyVtjnuUSywPC6xWVdkE9i1iQRHItMLZP4MD15VB5rX0rGrXW8GvP6ioWn8
+mbLxcx8xGnzt9VMQ/UoKCOlCDX9MfqSHopuB+ChZf+Y9wC7bfrOZpt4+rqCA+ZCT
+wNNo/uznVSE3ocquHeRwmFlzsqc5coG6mZDkgN4DurY3pTxJ1qVuHldf5D9Us65f
+rTFDaFI5oL6tVPsGZjkwkjhrsQngw7ijVHVprDGLhYf73mxfaMGJ8dIobY1mZ6yY
+iuo6geSM5JM2C6NqaAo5I+Gmgl2R531CjyFV9wi8lvXLHdhDEsHWkbxzoq5cSQ0J
+k8/yDpN7/ywNWZ9rrj28yQRpIwHD65Vp0E3ahYN7sCirTliVZcL+cEqEmi7q6P39
+sks3DXx2TOKnnIRTmlISS7aqxcUIdM3KCCE2kZnxVsHR3AV0xAambm1+xVF21QUI
+iR92B+sZvE8QtHWgu+02u+NXwhYnxKZxvULFVDKYyBTNiwP7ApIoCnfb/k7j4PF8
+Bqkxmf/EsgfHVo8gC/Oa
+=YLui
+-----END PGP SIGNATURE-----
+
+--k1lZvvs/B4yU6o8G--
