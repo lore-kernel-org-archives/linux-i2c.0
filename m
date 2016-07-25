@@ -1,77 +1,70 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/2] Documentation: Add sbs-manager device tree node
- documentation
-Date: Mon, 25 Jul 2016 13:24:25 +0200
-Message-ID: <20160725112425.GA1607@katana>
-References: <1bIiDr-0004G1-0P>
- <1468349295-4935-1-git-send-email-karl-heinz@schneider-inet.de>
- <1468349295-4935-2-git-send-email-karl-heinz@schneider-inet.de>
- <20160719041432.GB1640@katana>
- <dfc8249b-08ec-888d-7a11-7c6033a1ab64@axentia.se>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: [PATCH v2 1/2] wire: export w1_touch_bit
+Date: Mon, 25 Jul 2016 13:51:09 +0200
+Message-ID: <5795FD2D.2010800@gmx.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <dfc8249b-08ec-888d-7a11-7c6033a1ab64@axentia.se>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Phil Reid <preid@electromag.com.au>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.15.19]:55448 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751648AbcGYLvO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 25 Jul 2016 07:51:14 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
+
+No changes in v2 against v1 in this subpatch.
 
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The w1_ds28e17 driver from the next part of this patch needs to emit
+single-bit read timeslots to the DS28E17. The w1 subsystem already
+has this function but it is not exported outside drivers/w1/w1_io.c
 
-On Mon, Jul 25, 2016 at 12:33:20PM +0200, Peter Rosin wrote:
-> On 2016-07-19 06:14, Wolfram Sang wrote:
-> >> +batman@0a {
-> >> +    compatible =3D "lltc,ltc1760";
-> >> +    reg =3D <0x0a>;
-> >> +    #address-cells =3D <1>;
-> >> +    #size-cells =3D <0>;
-> >> +
-> >> +    i2c@1 {
-> >> +        #address-cells =3D <1>;
-> >> +        #size-cells =3D <0>;
-> >=20
-> > Rob, aren't those two lines inherited from above?
->=20
-> I too think they are inherited, but am a bit undecided whether I want
-> that fact to be explored or not, as they just happen to match. They do
-> not express the same thing (it is for the i2c-mux number in the parent,
-> and for the i2c device address in the children).
+This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
+same as the other exported symbols in drivers/w1/w1_io.c
 
-Ah, I see. If they don't mean the same thing, then we should be rather
-safe than sorry, I guess.
-
-> But the repetitions are indeed tedious when there are many muxed
-> buses...
-
-Yes.
+May be also useful later for writing drivers for other Onewire chips
+which do single-bit communication.
 
 
---uAKRQypu60I7Lcqm
-Content-Type: application/pgp-signature; name="signature.asc"
+Signed-off-by: Jan Kandziora <jjj@gmx.de>
+---
+ drivers/w1/w1.h    | 1 +
+ drivers/w1/w1_io.c | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXlfbpAAoJEBQN5MwUoCm2bL0QAJ34m0eVW9QnJoeB/YbWxUOf
-8hm7XF1viRXOs92kzCKJnt0g2QnY+TeL9oFScS2GYAXeeFVt7xMJ8PWVcf3hbH2G
-ncqclqEEABBjtf9fAd4qveIZRdYNJPmjCmXbd1uEh6J4pEtfrzY9PYE1SCTfKOYD
-8uKrfpIkpJCKI1urIotEjX47oc7s+KQ9UVBHE6HJSPCBm+I+b3A59qjDEivPsjZ9
-xW/6xnU+JqL03WaQQHDeaLzU9TJmSgu5/FkbFJVitZ49FBBL/LT8wfLVXeqOcjpX
-t2/pJIan8cj8HXjh/sMiCqeyhaAyW55Uo2HLwV6ywwFMKLuYVV5IFiiskpytEA3w
-3tfaekAdrJZnrb+LvxEMr5GFHf2u0AkrBN4Mvn2m5/UyHY3B0vUsmPLiq8YmKZUj
-+3cu4Stg52B3WFatajPjEYK5XqMH2ojY4Tg3wLw/FqFn0v4mkruFPgivdRPg31GM
-ALJ0T0ORnCSw9oEydMvWbH5KISAOflkd7+DLuduBZXaFj2Xbl00r9pT1W0Ie7BBz
-xp7chyv/AakpF/P2R2OoUkT8r3TkBvzelDnTBDDPSBbgO/FgfSzv2Cv9ud7QEUfM
-b8pzpG/+ues3zaSfZxbXSzt0mhOrfz0tDsmqpfIyfDRXefGgPSNk6k6PwT2gts0a
-3NWbINgePl4NN7srNe9Y
-=U6PF
------END PGP SIGNATURE-----
-
---uAKRQypu60I7Lcqm--
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+index 129895f..ac8a6a5 100644
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -302,6 +302,7 @@ int w1_attach_slave_device(struct w1_master *dev, struct w1_reg_num *rn);
+ int w1_slave_detach(struct w1_slave *sl);
+  u8 w1_triplet(struct w1_master *dev, int bdir);
++u8 w1_touch_bit(struct w1_master *dev, int bit);
+ void w1_write_8(struct w1_master *, u8);
+ u8 w1_read_8(struct w1_master *);
+ int w1_reset_bus(struct w1_master *);
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index f4bc8c1..1c34f97 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -66,7 +66,7 @@ static u8 w1_read_bit(struct w1_master *dev);
+  * @dev:	the master device
+  * @bit:	0 - write a 0, 1 - write a 0 read the level
+  */
+-static u8 w1_touch_bit(struct w1_master *dev, int bit)
++u8 w1_touch_bit(struct w1_master *dev, int bit)
+ {
+ 	if (dev->bus_master->touch_bit)
+ 		return dev->bus_master->touch_bit(dev->bus_master->data, bit);
+@@ -77,6 +77,7 @@ static u8 w1_touch_bit(struct w1_master *dev, int bit)
+ 		return 0;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(w1_touch_bit);
+  /**
+  * w1_write_bit() - Generates a write-0 or write-1 cycle.
+-- 
+2.1.4
