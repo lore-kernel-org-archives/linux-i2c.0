@@ -1,62 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
-Date: Mon, 25 Jul 2016 22:43:13 +0200
-Message-ID: <20160725204313.GA1698@katana>
-References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
- <1469470451-111822-2-git-send-email-briannorris@chromium.org>
+Subject: Re: [PATCH] i2c: i2c-cros-ec-tunnel: Reduce logging noise
+Date: Mon, 25 Jul 2016 22:45:16 +0200
+Message-ID: <20160725204516.GB1698@katana>
+References: <1469477464-28735-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
-Return-path: <linux-input-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:54896 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753055AbcGYUpW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 25 Jul 2016 16:45:22 -0400
 Content-Disposition: inline
-In-Reply-To: <1469470451-111822-2-git-send-email-briannorris@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>
-Cc: Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <1469477464-28735-1-git-send-email-linux@roeck-us.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: dianders@chromium.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---bp/iNruPH9dso1Pn
+--wq9mPyueHGvFACwf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
-> cros_ec_cmd_xfer returns success status if the command transport
-> completes successfully, but the execution result is incorrectly ignored.
-> In many cases, the execution result is assumed to be successful, leading
-> to ignored errors and operating on uninitialized data.
->=20
-> We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid t=
-hese
-> problems. Let's use it.
->=20
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
 
-I agree with Dmitry about Thierry pushing the patch. So:
+> -	else if (resp->i2c_status & EC_I2C_STATUS_ERROR)
+> +	else if (resp->i2c_status & EC_I2C_STATUS_NAK)
+> +		return -ENXIO;
+> +	else if (resp->i2c_status)
+>  		return -EREMOTEIO;
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Since you mentioned Documentation/i2c/fault-codes already: -EIO?
+
+> =20
+>  	/* Other side could send us back fewer messages, but not more */
+> @@ -223,7 +225,7 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, stru=
+ct i2c_msg i2c_msgs[],
+> =20
+>  	result =3D ec_i2c_parse_response(msg->data, i2c_msgs, &num);
+>  	if (result < 0) {
+> -		dev_err(dev, "Error parsing EC i2c message %d\n", result);
+> +		dev_dbg(dev, "Error parsing EC i2c message %d\n", result);
+
+For me, this message can go entirely, but I'll leave this up to you.
 
 
---bp/iNruPH9dso1Pn
+--wq9mPyueHGvFACwf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXlnnhAAoJEBQN5MwUoCm2cTgP/05LQBiho0grHj4NTlPiWpce
-kdvBbhyBgigcpxKcxRxQRrkgZMz9HSteJyulfAvvnJw1UEM1vMOT4MlEzkDrAjn4
-PnrpFJiyCeKyzxRLLDkkhaRpBzHzSS82ydAWPIDhLPCp2mdsmpftRO+uL1xHe8rj
-EzKO4ggxiZc51xJRRQjff5znqjAUcZAzuPwjw0HSqoFZOSWA6O+fs1zoO4xJuQGV
-+ML1FRlOyhKzldZTx7iZwYtIe5yevFJH5tf2/rqH+1yn9IsrVs9B+4I+xF0amdT1
-Uy3EJ6EDHfQKSBeEWLKqchOL38nKoWUePvuKGDMQWUMyO0q7oYOgUUSMSCPnk1DQ
-THhchL7pFV4blCOzHhWB+HbjeNP2jqp5v8e/4y95dcJXWtivl0MWP8zOHB1eyc4g
-2SVTCYgkUwtca67vIco5iySQDCzkXF5ZHGmYDUaZumJockdPsTY3LRLN4AnXZDng
-EF2tZDgDRddAtodH9ZVDalUO7gEWJ/8Xi4njJlrLCLg4BTfcB4mZ4wsiKUcOc6xt
-IoaTC1TUmmXY5oxxPflmvO0/n/G6/pYV9cjYsdnpPeTtHkRjV77E8Smb8vYkLXrg
-jne24fgidVYfdLLwVXzf9/wX9xEViruzkXn4xRqpVpzOxvXH7INVKfyj2o2VveJk
-Or9Za28+AsP+17UTUdnN
-=hmpg
+iQIcBAEBAgAGBQJXlnpcAAoJEBQN5MwUoCm2IiYP/RJLmLV6qpxZs1VUvpbxfMdD
+OxFWLyTW/r7g37QuB0OZZ+U8TgtpdqZQY3eUF0KY6sdkM7sDcd0giUceXwSyljvx
+g+QDy9wiuX1is3fqjdmGkfjaK0Sz1LwD74yolmt7wkvpLvtMr1dkNiby+FdqHwV7
+aWa4vSe37sG4ZvkWanQ6nfaRbYGBIeXO3Msku9EiJ2tX4lRhUkCwgz1HBCXNIujH
+v8Yv7yo3SXvB2H0I8Pgo2X98Qt/gVz65hCOHIKBHe25qvSPRKfcGOeYIpC+4uZbi
+JdQv3y8YNzNx4SH8eSr8FtFwBC0aOr49wYZC2RKUz/8RcKR2fQXdKXPYCfE+K/t+
+BYVLrwnRZ6a44WaxRYxrw4h5Nwq2vtnGtExGntTclN/+AC14+jqsKh7FfFGAYLJr
+4zIVD3T5U6YS6lhDFS36Z/lv/PutmqTXCFoy2QgYz/KLl1yjgITYUZWzJmq4V0XS
+PaWFb+zMyarnOa9BQvgVa9GcvUiUcMh2rT/7cZI1h5CtdHVlIU1RChjJoheovqBR
++Q10ttgCeuJyZ1F96yBikPKafAhzvSckbyKptAX9+AKbjh7EBjWiopcNfoN20cdz
+4aJ/0LDwMz55JzwdL1HDr9tSrcNdQ+Cfy50hMebBpxnMcWZY3rTktAuVBPOlK/AR
+MKDcRN/EYUzqdjUD1WTe
+=X8fa
 -----END PGP SIGNATURE-----
 
---bp/iNruPH9dso1Pn--
+--wq9mPyueHGvFACwf--
