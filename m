@@ -1,41 +1,57 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 2/2] Input: cros_ec_keyb - Fix usage of cros_ec_cmd_xfer()
-Date: Mon, 25 Jul 2016 15:46:41 -0400
-Message-ID: <2607f36e-ee56-98c8-ba7d-ec44a34dd512@osg.samsung.com>
-References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
- <1469470451-111822-3-git-send-email-briannorris@chromium.org>
+From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Subject: Re: [PATCH v3 2/2] power: Adds support for Smart Battery System
+ Manager
+Date: Mon, 25 Jul 2016 21:49:36 +0200
+Message-ID: <1469476176.22243.10.camel@amnesix>
+References: <1bIiDr-0004G1-0P>
+	 <1468349295-4935-1-git-send-email-karl-heinz@schneider-inet.de>
+	 <1468349295-4935-3-git-send-email-karl-heinz@schneider-inet.de>
+	 <20160719041729.GC1640@katana> <1468954265.3053.3.camel@amnesix>
+	 <e252c587-560e-ee85-5016-a0b92124e422@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:47422
-	"EHLO s-opensource.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753024AbcGYTqx (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Jul 2016 15:46:53 -0400
-In-Reply-To: <1469470451-111822-3-git-send-email-briannorris@chromium.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <e252c587-560e-ee85-5016-a0b92124e422@axentia.se>
+Sender: linux-pm-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, Rob Herring <robh@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Phil Reid <preid@electromag.com.au>
 List-Id: linux-i2c@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>, Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-Hello Brian,
+Hi Peter, Hi Rob,
 
-On 07/25/2016 02:14 PM, Brian Norris wrote:
-> cros_ec_cmd_xfer returns success status if the command transport
-> completes successfully, but the execution result is incorrectly ignored.
-> In many cases, the execution result is assumed to be successful, leading
-> to ignored errors and operating on uninitialized data.
+Am Montag, den 25.07.2016, 12:44 +0200 schrieb Peter Rosin:
+> On 2016-07-19 20:51, Karl-Heinz Schneider wrote:
+> >> Other than that, looks good to me, yet Peter has more insight to
+> >> i2c-muxes these days.
+> >>
+> > Tanks for review. 
+> > 
+> > Will wait another few days before sending a new revision, hence changes
+> > are rather small.
 > 
-> We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid these
-> problems. Let's use it.
+> Looks good to me from a muxing perspective, with very a minor nit that the
+> devicetree bindings do not point to i2c-mux.txt for where "standard i2c-mux
+> nodes" are described.
+Right, will add it.
+
+like this: 
+@@ -7,7 +7,8 @@ Required properties:
+ From OS view the device is basically an i2c-mux used to communicate with up to
+ four smart battery devices at address 0xb. The driver actually implements this
+ behaviour. So standard i2c-mux nodes can be used to register up to four slave
+-batteries. Channels will be numerated starting from 1 to 4.
++batteries. See Documentation/devicetree/bindings/i2c/i2c-mux.txt for more
++information on i2c-mux nodes. Channels will be numerated starting from 1 to 4.
+ 
+ Example:
+
+Rob, are you OK with that change?
 > 
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
-> ---
-
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
-Best regards,
+> Cheers,
+> Peter
+tanks.
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Karl-Heinz
+
+
