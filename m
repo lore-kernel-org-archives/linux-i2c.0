@@ -1,89 +1,138 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
-Date: Tue, 26 Jul 2016 11:14:33 +0200
-Message-ID: <20160726091433.GC2433@ulmo.ba.sec>
-References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
- <1469470451-111822-2-git-send-email-briannorris@chromium.org>
- <20160725204313.GA1698@katana>
- <20160725204825.GA144142@google.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] i2c-dev: Don't block the adapter from unregistering
+Date: Tue, 26 Jul 2016 08:18:00 -0700
+Message-ID: <CAKdAkRQ_XaqBPzvCYKKBsH1Sah01rrk1qaHCvB_D3ObiA7=UJA@mail.gmail.com>
+References: <cover.1467772840.git.viresh.kumar@linaro.org> <021486be2f5425ce2379219a7ac163ee14ba2aba.1467772840.git.viresh.kumar@linaro.org>
+ <20160706065523.GA1439@tetsubishi> <20160706191218.483fd9fd@endymion>
+ <20160706205540.GJ4127@ubuntu> <20160711142209.4711f229@endymion>
+ <20160711215058.GA7808@kroah.com> <20160725113913.24204d73@endymion>
+ <20160725223140.GE25667@ubuntu> <20160726094139.6ad9189b@endymion>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="s9fJI615cBHmzTOP"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34803 "EHLO
-	mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751213AbcGZJOh (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jul 2016 05:14:37 -0400
-Content-Disposition: inline
-In-Reply-To: <20160725204825.GA144142@google.com>
+Received: from mail-ua0-f194.google.com ([209.85.217.194]:34156 "EHLO
+	mail-ua0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756953AbcGZPSD (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jul 2016 11:18:03 -0400
+In-Reply-To: <20160726094139.6ad9189b@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>, Greg KH <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
 
+Hi Jean,
 
---s9fJI615cBHmzTOP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Jul 26, 2016 at 12:41 AM, Jean Delvare <jdelvare@suse.de> wrote:
+> Hi Viresh,
+>
+> On Mon, 25 Jul 2016 15:31:40 -0700, Viresh Kumar wrote:
+>> On 25-07-16, 11:39, Jean Delvare wrote:
+>> > The problem is that the patch proposed by Viresh has nothing to do with
+>> > this. It's not adding notifications, just changing the time frame during
+>> > which user-space holds a reference to the i2c (bus) device. The goal as
+>> > I understand it is to allow *prepared* hot-unplug (in the form of
+>> > "rmmod i2c-bus-device-driver" or sysfs-based offlining?) while
+>>
+>> Not really. We are concerned about both prepared and Unprepared cases.
+>>
+>> This *hacky* patch was useful in case of *unprepared* hot-unplug as well.
+>>
+>> Here is the sequence of events:
+>> - open() i2c device from userspace
+>> - do some operations on the device read/write/ioctls() ..
+>> - Module hot-unplugged (*unprepared*)
+>> - Some of the ongoing i2c transactions may just fail, that is fine ..
+>> - Kernel detected the interrupt about module removal and tries to
+>>   cleanup the devices..
+>> - Now, kernel can not remove the i2c device, unless user application
+>>   has closed the file descriptor.
+>
+> Well, what is the application doing at that point? What error codes is
+> it getting? Should it not close the device node and bail out?
 
-On Mon, Jul 25, 2016 at 01:48:25PM -0700, Brian Norris wrote:
-> On Mon, Jul 25, 2016 at 10:43:13PM +0200, Wolfram Sang wrote:
-> > On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
-> > > cros_ec_cmd_xfer returns success status if the command transport
-> > > completes successfully, but the execution result is incorrectly ignor=
-ed.
-> > > In many cases, the execution result is assumed to be successful, lead=
-ing
-> > > to ignored errors and operating on uninitialized data.
-> > >=20
-> > > We've recently introduced the cros_ec_cmd_xfer_status() helper to avo=
-id these
-> > > problems. Let's use it.
-> > >=20
-> > > Signed-off-by: Brian Norris <briannorris@chromium.org>
-> >=20
-> > I agree with Dmitry about Thierry pushing the patch. So:
-> >=20
-> > Acked-by: Wolfram Sang <wsa@the-dreams.de>
->=20
-> Fine with me, as long as Thierry is up for it.
->=20
-> BTW, I think the dependency is on target for v4.8-rc1, so if Thierry
-> misses this, then you should be able to apply this yourself after the
-> merge window.
+It should. Will it? It is up to the application. It may decide to keep
+that file descriptor open forever.
 
-Why the rush? The behaviour of the cros_ec_cmd_xfer() function has not
-changed in at least a year, so this can't be very urgent. I merged the
-original patch because it is a dependency for another patch, but given
-the above I think it's fine if we wait until after v4.8-rc1 and let
-subsystem maintainers pick them up individually.
+>
+>> And so kernel is waiting in the driver's ->remove() callback forever.
+>>
+>> Also, there is no way to co-ordinate (in Android) with the
+>> Applications using the device.
+>
+> Why? Looks like a serious limitation.
+>
+> At this point I still don't know what application we are talking about,
+> why it has to be in user-space when I2C device drivers are supposed to
+> be on the kernel side, nor why they have to keep the i2c device node
+> opened all the time.
+>
+> Why do you insist on relying on i2c-dev when it is so clearly no
+> compatible with your requirements?
 
-On another note, the commit message makes it sound like this might fix
-potential bugs. Since it's been like that for a couple of releases, do
-we need to Cc: stable@vger.kernel.org?
+If you provide an interface expect it to be used, maybe even in the
+ways you did not anticipated. Kernel's (and out task) is to make the
+interface behave properly, not police users.
 
-Thierry
+>
+>> They can crash or fail out if they
+>> want to, but the kernel shouldn't stop removal of a hardware module in
+>> that case.
+>
+> If they crash or bail out, that would close the device, so no problem.
+> The problem would be if they stay alive and misbehave.
+>
+> If the kernel should be completely independent from what user-space is
+> doing, this is simply not compatible with reference counting. The whole
+> point of counting references is to know when a device is still in use,
+> and prevent it from being removed while this is the case. If you say
+> that devices can be removed at any time and this is OK, then you should
+> not be counting references at all, this is pointless. But I doubt the
+> i2c code is currently ready for this.
 
---s9fJI615cBHmzTOP
-Content-Type: application/pgp-signature; name="signature.asc"
+There are multitude of reference counts, all counting different
+things, not one refcount for the entire thing. You have refcount for
+the file object, you have memory refcounts, you have device object
+refcounts. And note that device and driver bond is not refcounted at
+all. It is supposed to be allowed to be broken at [pretty much] any
+moment. You just need to be careful when doing so ;)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+>
+>> > user-space processes have i2c device nodes open. Unprepared hot-unplug
+>> > will still go wrong exactly as it goes now.
+>>
+>> > My point is that prepared hot-unplug can already be achieved today
+>> > without any patch.
+>>
+>> Yeah, if we have the option of stopping the applications before the
+>> device is gone.
+>>
+>> > Or possibly improved by adding a notification
+>> > mechanism. But not by changing the reference holding design.
+>> >
+>> > Not only the proposed patch does not help and degrades the performance,
+>> > but it breaks assumptions. For example, it would allow an application
+>> > to open an i2c bus, then you remove its driver and load another i2c bus
+>> > driver, which gets the same bus number, and now the application writes
+>> > to a completely different I2C bus segment. The current reference model
+>> > prevents that, on purpose.
+>> >
+>> > So, again, nack from me.
+>>
+>> Yeah, the patch wasn't great and I knew it from the beginning. But we
+>> are looking for a solution that can be accepted and so need advice
+>> from you guys :)
+>
+> I have no idea, sorry. Hopefully Greg or Wolfram know more? Check what
+> other subsystems are doing?
 
-iQIcBAABCAAGBQJXlyn3AAoJEN0jrNd/PrOhg+sP/0vk3yToqKkpjduhElpFOT9f
-4JkfxT2aLBOusav+UoZhojTFFt/5HEKY5fQw37EgdDr1B8PL8OzG0QHzBEtr3Kqd
-dkjChewtUZY3F4rM/NhHv0/2oo5/kcZTNachVyGjek2MpquFnUNZT70P2TJzvMg6
-mwBbSMxf3fOCVCkVmaW3T97xZJBlltW0wVbQ5yO9xXrBrPVwfVvgWKqasFKd/u8R
-jgh6PfAi4GU8eZpNYuZQVBcQGA/AQUvMHS1+kPzo4pbCBQHowary2w4JlDiINV1J
-99U0EGEQpl/1NACsVORxpPODbsT/FuRxAz8JKhjtQ3KencN1iZz8WnCl06f9Sd4Y
-fR7Ha55hapZ8SgiUqfAp4exp+BAkXbXhRBwXPCekB3xSDWEgmi1xYjQ5sAqasz5W
-tbAWjSxtLHb3dFhVjRGAbHlbhAIirwqKf/YK8jfmhClNrGcLtZCCfY4Mp/ZhThXg
-yeKPZLiLRLhXW0ae/Jzy0TEDROsQkPRO71BMjCD0As9Pi5XLsa5403hsFJjH9J0q
-qtTO45WpgcllVNIEV+G+WcsHzycOlTGWnuHWYx5M+ZlyWcaOMIL7w7cc19E4Yf2/
-kxmjz0fb5y7AH6qqOpu2Edq8tJ4+uKwJIKyUzamt2IdXaF3tW4h1Nny8m93XIzLn
-EU4I6OWgUPT3yV3tkgjh
-=rie1
------END PGP SIGNATURE-----
+One option is to, upon device removal, to mark it as "dead" to allow
+accesses through i2c-dev to return error, release all hardware
+resources, but keep the object in memory in zombie state, waiting for
+the last user to drop the reference. Once that happens (maybe years
+later) you finally can release last bits of memory. You can check how
+we do that for input_dev/evdev pair.
 
---s9fJI615cBHmzTOP--
+Thanks.
+
+-- 
+Dmitry
