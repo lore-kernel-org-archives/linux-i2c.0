@@ -1,61 +1,115 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i801: use IS_ENABLED() instead of checking for
- built-in or module
-Date: Tue, 26 Jul 2016 08:49:41 +0200
-Message-ID: <20160726064941.GC1772@katana>
-References: <1469117461-14764-1-git-send-email-javier@osg.samsung.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 2/2] i2c-dev: Don't block the adapter from unregistering
+Date: Tue, 26 Jul 2016 09:41:39 +0200
+Message-ID: <20160726094139.6ad9189b@endymion>
+References: <cover.1467772840.git.viresh.kumar@linaro.org>
+	<021486be2f5425ce2379219a7ac163ee14ba2aba.1467772840.git.viresh.kumar@linaro.org>
+	<20160706065523.GA1439@tetsubishi>
+	<20160706191218.483fd9fd@endymion>
+	<20160706205540.GJ4127@ubuntu>
+	<20160711142209.4711f229@endymion>
+	<20160711215058.GA7808@kroah.com>
+	<20160725113913.24204d73@endymion>
+	<20160725223140.GE25667@ubuntu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oTHb8nViIGeoXxdp"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:58525 "EHLO pokefinder.org"
+Received: from mx2.suse.de ([195.135.220.15]:46982 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753572AbcGZGtq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 26 Jul 2016 02:49:46 -0400
-Content-Disposition: inline
-In-Reply-To: <1469117461-14764-1-git-send-email-javier@osg.samsung.com>
+	id S1751477AbcGZHlo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 26 Jul 2016 03:41:44 -0400
+In-Reply-To: <20160725223140.GE25667@ubuntu>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Greg KH <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
 
+Hi Viresh,
 
---oTHb8nViIGeoXxdp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, 25 Jul 2016 15:31:40 -0700, Viresh Kumar wrote:
+> On 25-07-16, 11:39, Jean Delvare wrote:
+> > The problem is that the patch proposed by Viresh has nothing to do with
+> > this. It's not adding notifications, just changing the time frame during
+> > which user-space holds a reference to the i2c (bus) device. The goal as
+> > I understand it is to allow *prepared* hot-unplug (in the form of
+> > "rmmod i2c-bus-device-driver" or sysfs-based offlining?) while
+> 
+> Not really. We are concerned about both prepared and Unprepared cases.
+> 
+> This *hacky* patch was useful in case of *unprepared* hot-unplug as well.
+> 
+> Here is the sequence of events:
+> - open() i2c device from userspace
+> - do some operations on the device read/write/ioctls() ..
+> - Module hot-unplugged (*unprepared*)
+> - Some of the ongoing i2c transactions may just fail, that is fine ..
+> - Kernel detected the interrupt about module removal and tries to
+>   cleanup the devices..
+> - Now, kernel can not remove the i2c device, unless user application
+>   has closed the file descriptor.
 
-On Thu, Jul 21, 2016 at 12:11:01PM -0400, Javier Martinez Canillas wrote:
-> The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
-> built-in or as a module, use that macro instead of open coding the same.
->=20
-> Using the macro makes the code more readable by helping abstract away some
-> of the Kconfig built-in and module enable details.
->=20
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Well, what is the application doing at that point? What error codes is
+it getting? Should it not close the device node and bail out?
 
-Applied to for-next, thanks!
+> And so kernel is waiting in the driver's ->remove() callback forever.
+> 
+> Also, there is no way to co-ordinate (in Android) with the
+> Applications using the device.
 
+Why? Looks like a serious limitation.
 
---oTHb8nViIGeoXxdp
-Content-Type: application/pgp-signature; name="signature.asc"
+At this point I still don't know what application we are talking about,
+why it has to be in user-space when I2C device drivers are supposed to
+be on the kernel side, nor why they have to keep the i2c device node
+opened all the time.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Why do you insist on relying on i2c-dev when it is so clearly no
+compatible with your requirements?
 
-iQIcBAEBAgAGBQJXlwgFAAoJEBQN5MwUoCm2Ic8P/2NLHHAIaGINV/Mit8gPkU00
-0ERLf/uNlDn1FrVcGHR9eQ8gHfYa5FOCc2TEFQFvoozDuznFGdMcZ2J/L5Of+SEg
-uK+cZQUoXQYMYXcCKqOmIrtt15KaMU+HeKGc7azdDEAYJ0K4PqVmBSOjrekS6pJh
-JVP8WtiOOqLArTxI2D4Icdm1eXmrc/XQAwamt64BaKdW23IfOZg+GC0/cbfxNDqA
-TTTT47gdTkJx6fdDuNB3GBRL6baKC56dxLnJiesIZ5R0h7/99t90rgLmPFBQQ0L+
-P6pTrfFqiCMLHDjktVU9VBePn68cgWRt1kvokAQWQg6ogzUqNz1VgbRqHl/JorU7
-gZOPbMEwJxw9so/I4ZjDP/SEeIM6HVzjLMnDNxM1FImnfJ2JEw3nFw7Z5GOHsc0M
-OZX0TsnQ+YNKbMriDtebbHv2ZyJmKUJIismrGa6Sl+GZdrG9MubzTL5+kIGIXswM
-0QG89DC+o9yNM2hH6WV33ZecrK7/kwoYZAEcpiW0uw7llIVFE4TmhPuaKG8limZX
-Tw01mmkh/F4o/S8akLlDsXOmv+Y7mmB8LBgHN4opDSJ+KXfLLB/0gpxUrDfGBUBg
-MAL3OC15mmZsWRJCE/5Tv4YeCTMRow+W6fbwLEG/mkJyoM0wiWXyk03KmBYA6Wkn
-mEulqVOHZ3uhivVJcnmt
-=glpI
------END PGP SIGNATURE-----
+> They can crash or fail out if they
+> want to, but the kernel shouldn't stop removal of a hardware module in
+> that case.
 
---oTHb8nViIGeoXxdp--
+If they crash or bail out, that would close the device, so no problem.
+The problem would be if they stay alive and misbehave.
+
+If the kernel should be completely independent from what user-space is
+doing, this is simply not compatible with reference counting. The whole
+point of counting references is to know when a device is still in use,
+and prevent it from being removed while this is the case. If you say
+that devices can be removed at any time and this is OK, then you should
+not be counting references at all, this is pointless. But I doubt the
+i2c code is currently ready for this.
+
+> > user-space processes have i2c device nodes open. Unprepared hot-unplug
+> > will still go wrong exactly as it goes now.
+> 
+> > My point is that prepared hot-unplug can already be achieved today
+> > without any patch.
+> 
+> Yeah, if we have the option of stopping the applications before the
+> device is gone.
+> 
+> > Or possibly improved by adding a notification
+> > mechanism. But not by changing the reference holding design.
+> > 
+> > Not only the proposed patch does not help and degrades the performance,
+> > but it breaks assumptions. For example, it would allow an application
+> > to open an i2c bus, then you remove its driver and load another i2c bus
+> > driver, which gets the same bus number, and now the application writes
+> > to a completely different I2C bus segment. The current reference model
+> > prevents that, on purpose.
+> > 
+> > So, again, nack from me.
+> 
+> Yeah, the patch wasn't great and I knew it from the beginning. But we
+> are looking for a solution that can be accepted and so need advice
+> from you guys :)
+
+I have no idea, sorry. Hopefully Greg or Wolfram know more? Check what
+other subsystems are doing? 
+
+-- 
+Jean Delvare
+SUSE L3 Support
