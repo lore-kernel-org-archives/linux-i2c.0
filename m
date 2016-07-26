@@ -1,77 +1,97 @@
-From: Brian Norris <briannorris@chromium.org>
-Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
-Date: Tue, 26 Jul 2016 11:38:20 -0700
-Message-ID: <20160726183819.GA9660@google.com>
-References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
- <1469470451-111822-2-git-send-email-briannorris@chromium.org>
- <20160725204313.GA1698@katana>
- <20160725204825.GA144142@google.com>
- <20160726091433.GC2433@ulmo.ba.sec>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v2] i2c: i2c-cros-ec-tunnel: Reduce logging noise
+Date: Tue, 26 Jul 2016 13:13:21 -0700
+Message-ID: <20160726201321.GA11345@roeck-us.net>
+References: <1469480337-8753-1-git-send-email-linux@roeck-us.net>
+ <CAD=FV=XEFuDKyA2sZCOze=KvatuH3qH8E69qkVW7RsVUzUNgDw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:43533 "EHLO
+	bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754312AbcGZUNY (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jul 2016 16:13:24 -0400
 Content-Disposition: inline
-In-Reply-To: <20160726091433.GC2433@ulmo.ba.sec>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <CAD=FV=XEFuDKyA2sZCOze=KvatuH3qH8E69qkVW7RsVUzUNgDw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Thierry,
-
-On Tue, Jul 26, 2016 at 11:14:33AM +0200, Thierry Reding wrote:
-> On Mon, Jul 25, 2016 at 01:48:25PM -0700, Brian Norris wrote:
-> > On Mon, Jul 25, 2016 at 10:43:13PM +0200, Wolfram Sang wrote:
-> > > On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
-> > > > cros_ec_cmd_xfer returns success status if the command transport
-> > > > completes successfully, but the execution result is incorrectly ignored.
-> > > > In many cases, the execution result is assumed to be successful, leading
-> > > > to ignored errors and operating on uninitialized data.
-> > > > 
-> > > > We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid these
-> > > > problems. Let's use it.
-> > > > 
-> > > > Signed-off-by: Brian Norris <briannorris@chromium.org>
-> > > 
-> > > I agree with Dmitry about Thierry pushing the patch. So:
-> > > 
-> > > Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> > 
-> > Fine with me, as long as Thierry is up for it.
-> > 
-> > BTW, I think the dependency is on target for v4.8-rc1, so if Thierry
-> > misses this, then you should be able to apply this yourself after the
-> > merge window.
+On Tue, Jul 26, 2016 at 11:20:31AM -0700, Doug Anderson wrote:
+> Hi,
 > 
-> Why the rush? The behaviour of the cros_ec_cmd_xfer() function has not
-> changed in at least a year, so this can't be very urgent. I merged the
-> original patch because it is a dependency for another patch, but given
-> the above I think it's fine if we wait until after v4.8-rc1 and let
-> subsystem maintainers pick them up individually.
+> On Mon, Jul 25, 2016 at 1:58 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> > If an i2c access through i2c-cros-ec-tunnel returns an error, the following
+> > log message is seen on the console.
+> >
+> > cros-ec-i2c-tunnel ff200000.spi:ec@0:i2c-tunnel:
+> >                         Error parsing EC i2c message -121
+> >
+> > This can happen a lot if, for example, the i2c-detect command is executed.
+> >
+> > Since it is perfectly normal for an i2c controller to report an error,
+> > drop the message. Also, report -ENXIO instead of -EREMOTEIO if the access
+> > error is due to NAK from the device, and return -EIO instead of -EREMOTEIO
+> > for unknown errors, as suggested in Documentation/i2c/fault-codes.
+> >
+> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> > ---
+> > v2: Drop message entirely instead of replacing it with dev_dbg,
+> >     and return -EIO instead of -EREMOTEIO for unknown errors.
+> >
+> >  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 10 +++++-----
+> >  1 file changed, 5 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> > index a0d95ff682ae..7b9b2ff97d77 100644
+> > --- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> > +++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> > @@ -154,8 +154,10 @@ static int ec_i2c_parse_response(const u8 *buf, struct i2c_msg i2c_msgs[],
+> >         resp = (const struct ec_response_i2c_passthru *)buf;
+> >         if (resp->i2c_status & EC_I2C_STATUS_TIMEOUT)
+> >                 return -ETIMEDOUT;
+> > -       else if (resp->i2c_status & EC_I2C_STATUS_ERROR)
+> > -               return -EREMOTEIO;
+> > +       else if (resp->i2c_status & EC_I2C_STATUS_NAK)
+> > +               return -ENXIO;
+> > +       else if (resp->i2c_status)
+> 
+> IMHO this should continue to be checking (resp->i2c_status &
+> EC_I2C_STATUS_ERROR).  There is no guarantee that all future status
+> bits will be errors but that #define should continue to be updated to
+> be all bits that are errors:
+> 
+> /* Any error */
+> #define EC_I2C_STATUS_ERROR (EC_I2C_STATUS_NAK | EC_I2C_STATUS_TIMEOUT)
+> 
+Ok, makes sense. I'll resubmit.
 
-I wasn't personally suggesting it was a rush -- actually, the contrary.
-I was just informing Wolfram and Dmitry that the dependency only was
-relevant *if* they were rushing to have the patches applied.
+Guenter
 
-Regarding timeline: some form of this patch was authored and submitted
-to our downstream tree over a year ago. I just happened to notice
-recently, now that the ..._status() helper is going upstream.
-
-> On another note, the commit message makes it sound like this might fix
-> potential bugs. Since it's been like that for a couple of releases, do
-> we need to Cc: stable@vger.kernel.org?
-
-It does potentially fix bugs. I suspect those bugs would probably occur
-mostly in cases of poorly-configured software (e.g., using the wrong EC
-protocol) or prototype hardware, but it's certainly possible this could
-head off in-the-field bugs. Perhaps Gwendal or Shawn could elaborate.
-
-At any rate, if you Cc: stable@vger.kernel.org, you'll want to include
-the dependency in the commit message. I think the format is something
-like this:
-
-Fixes: SHA ("i2c: wherever this driver was introduced")
-Cc: <stable@vger.kernel.org> # 9798ac6d32c1 mfd: cros_ec: Add cros_ec_cmd_xfer_status() helper
-
-Regards,
-Brian
+> 
+> > +               return -EIO;
+> >
+> >         /* Other side could send us back fewer messages, but not more */
+> >         if (resp->num_msgs > *num)
+> > @@ -222,10 +224,8 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
+> >         }
+> >
+> >         result = ec_i2c_parse_response(msg->data, i2c_msgs, &num);
+> > -       if (result < 0) {
+> > -               dev_err(dev, "Error parsing EC i2c message %d\n", result);
+> > +       if (result < 0)
+> 
+> Personally I wouldn't expect an i2c timeout and I would love i2c
+> timeouts to continue to be noisy.  ...but if others don't feel the
+> same way then I don't feel strongly.
+> 
+> Obviously NAKs shouldn't be noisy.  I'm terribly surprised that they
+> were before.  I know I've run i2cdetect before and not seen the noise.
+> Ah, I see.  Looks like this noisiness was introduced in commit
+> a841178445bb ("mfd: cros_ec: Use a zero-length array for command
+> data")
+> 
+> 
+> 
+> -Doug
