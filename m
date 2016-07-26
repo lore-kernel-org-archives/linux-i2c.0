@@ -1,79 +1,59 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 2/2] i2c-dev: Don't block the adapter from unregistering
-Date: Mon, 25 Jul 2016 15:31:40 -0700
-Message-ID: <20160725223140.GE25667@ubuntu>
-References: <cover.1467772840.git.viresh.kumar@linaro.org>
- <021486be2f5425ce2379219a7ac163ee14ba2aba.1467772840.git.viresh.kumar@linaro.org>
- <20160706065523.GA1439@tetsubishi>
- <20160706191218.483fd9fd@endymion>
- <20160706205540.GJ4127@ubuntu>
- <20160711142209.4711f229@endymion>
- <20160711215058.GA7808@kroah.com>
- <20160725113913.24204d73@endymion>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] Documentation: i2c: slave: describe buffer problems
+ a bit better
+Date: Tue, 26 Jul 2016 08:44:09 +0200
+Message-ID: <20160726064409.GA1772@katana>
+References: <1469304412-2652-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:58505 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753557AbcGZGoR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 26 Jul 2016 02:44:17 -0400
+Received: from dslb-188-103-102-175.188.103.pools.vodafone-ip.de ([188.103.102.175]:53132 helo=katana)
+	by pokefinder.org with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
+	(Exim 4.80)
+	(envelope-from <wsa@the-dreams.de>)
+	id 1bRw69-0005Qx-5u
+	for linux-i2c@vger.kernel.org; Tue, 26 Jul 2016 08:44:13 +0200
 Content-Disposition: inline
-In-Reply-To: <20160725113913.24204d73@endymion>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Greg KH <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>, Alex Elder <elder@linaro.org>
+In-Reply-To: <1469304412-2652-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-Hi Jean,
 
-On 25-07-16, 11:39, Jean Delvare wrote:
-> The problem is that the patch proposed by Viresh has nothing to do with
-> this. It's not adding notifications, just changing the time frame during
-> which user-space holds a reference to the i2c (bus) device. The goal as
-> I understand it is to allow *prepared* hot-unplug (in the form of
-> "rmmod i2c-bus-device-driver" or sysfs-based offlining?) while
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Not really. We are concerned about both prepared and Unprepared cases.
+On Sat, Jul 23, 2016 at 10:06:51PM +0200, Wolfram Sang wrote:
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-This *hacky* patch was useful in case of *unprepared* hot-unplug as well.
+Applied to for-next, thanks!
 
-Here is the sequence of events:
-- open() i2c device from userspace
-- do some operations on the device read/write/ioctls() ..
-- Module hot-unplugged (*unprepared*)
-- Some of the ongoing i2c transactions may just fail, that is fine ..
-- Kernel detected the interrupt about module removal and tries to
-  cleanup the devices..
-- Now, kernel can not remove the i2c device, unless user application
-  has closed the file descriptor.
 
-And so kernel is waiting in the driver's ->remove() callback forever.
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Also, there is no way to co-ordinate (in Android) with the
-Applications using the device.  They can crash or fail out if they
-want to, but the kernel shouldn't stop removal of a hardware module in
-that case.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-> user-space processes have i2c device nodes open. Unprepared hot-unplug
-> will still go wrong exactly as it goes now.
+iQIcBAEBAgAGBQJXlwa4AAoJEBQN5MwUoCm2wwEP/0ET4cHlRjanI6YzyAT66aCK
+Phgt7o2vLVczDzbOkzJylD+5QchToZfMH+qt6kXdtiFWzvDYAybAdajZPdiI+hbU
+qHy2CCBsvdSax5vgqti2HroA7QIFioyTp7IbfP4567sQXbBwAIQrhw+uzmNFy1af
+IEJ233GcnbeDZSBh/p4dRNJ9KmKnSj+6c2y1i3mi8DOpqf0cKpf5t/3pvZY3zS5M
+UtY3rLYB/w4kgoe/hfYnZJYAHGTLcn0rq7ZFF5dc1aVMRGWKFaAoOfQUH11GntLV
+hIK8n/pIozNAB6T40svvD41iwMk+X5a6E/Gk7sBMWrAxbyUqvAH5YVEnXNQmM5B4
+7SdkTgA0JHiezuHL5qgIm1NoL3Tn/Ckn6v6nVy8g2lKq+Q62YWqP/XWVuvBns9k8
+dK6ycHQkL2+/O0IiQRKEFSkWE+5lfrv6IT/8fLpV2dFIDb28K6Ba9YCMj1yZI2ag
+eJwyHP17+yTKyRVzRcbvC9asdMbEnhuMUIv11QmXeg8lbeua67SjDHxF4P1HHYEe
+gYK6sGJhxibNS4rTn9F3k+a9S1vJ+ZBlnspFjQYkCDQMLxhSWL0PvEl0D8t1QVM+
+LyG1K7xLaSYIhMvEaPnpL4apRpXnU2NGLBvZyxi3WFs4oBIybcUpidICQHRcVNeT
+4ibaMniQfKYGDA4d5e0z
+=eqRr
+-----END PGP SIGNATURE-----
 
-> My point is that prepared hot-unplug can already be achieved today
-> without any patch.
-
-Yeah, if we have the option of stopping the applications before the
-device is gone.
-
-> Or possibly improved by adding a notification
-> mechanism. But not by changing the reference holding design.
-> 
-> Not only the proposed patch does not help and degrades the performance,
-> but it breaks assumptions. For example, it would allow an application
-> to open an i2c bus, then you remove its driver and load another i2c bus
-> driver, which gets the same bus number, and now the application writes
-> to a completely different I2C bus segment. The current reference model
-> prevents that, on purpose.
-> 
-> So, again, nack from me.
-
-Yeah, the patch wasn't great and I knew it from the beginning. But we
-are looking for a solution that can be accepted and so need advice
-from you guys :)
-
--- 
-viresh
+--azLHFNyN32YCQGCU--
