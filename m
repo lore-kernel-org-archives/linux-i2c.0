@@ -1,75 +1,46 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v3] i2c: i2c-cros-ec-tunnel: Reduce logging noise
-Date: Tue, 26 Jul 2016 15:54:22 -0700
-Message-ID: <CAD=FV=Ueshp5O438_=MeuCLrCa8axTEx1iXEThyVxCUyg7i33Q@mail.gmail.com>
-References: <1469572441-25026-1-git-send-email-linux@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Phil Reid <preid@electromag.com.au>
+Subject: [RFC PATCH 0/1] i2c: i2c-mux-pca954x: Add interrupt controller support
+Date: Wed, 27 Jul 2016 11:05:55 +0800
+Message-ID: <1469588756-70579-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ua0-f178.google.com ([209.85.217.178]:35153 "EHLO
-	mail-ua0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753921AbcGZWyX (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jul 2016 18:54:23 -0400
-Received: by mail-ua0-f178.google.com with SMTP id l32so6193940ual.2
-        for <linux-i2c@vger.kernel.org>; Tue, 26 Jul 2016 15:54:23 -0700 (PDT)
-In-Reply-To: <1469572441-25026-1-git-send-email-linux@roeck-us.net>
+Received: from 203-59-230-133.perm.iinet.net.au ([203.59.230.133]:51396 "EHLO
+	preid-centos7.electromag.com.au" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751561AbcG0DO1 (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Jul 2016 23:14:27 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: wsa@the-dreams.de, peda@axentia.se, linux-i2c@vger.kernel.org
+Cc: Phil Reid <preid@electromag.com.au>
 
-Hi
+G'day All,
 
-On Tue, Jul 26, 2016 at 3:34 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> If an i2c access through i2c-cros-ec-tunnel returns an error, the following
-> log message is seen on the console.
->
-> cros-ec-i2c-tunnel ff200000.spi:ec@0:i2c-tunnel:
->                         Error parsing EC i2c message -121
->
-> This can happen a lot if, for example, the i2c-detect command is executed.
->
-> Since it is perfectly normal for an i2c controller to report an error,
-> drop the message. Also, report -ENXIO instead of -EREMOTEIO if the access
-> error is due to NAK from the device, and return -EIO instead of -EREMOTEIO
-> for other errors, as suggested in Documentation/i2c/fault-codes.
->
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> v3: Do not assume that unknown status bits reflect an error.
-> v2: Drop message entirely instead of replacing it with dev_dbg,
->     and return -EIO instead of -EREMOTEIO for unknown errors.
->
->  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-> index a0d95ff682ae..0e9653852069 100644
-> --- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-> +++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-> @@ -154,8 +154,10 @@ static int ec_i2c_parse_response(const u8 *buf, struct i2c_msg i2c_msgs[],
->         resp = (const struct ec_response_i2c_passthru *)buf;
->         if (resp->i2c_status & EC_I2C_STATUS_TIMEOUT)
->                 return -ETIMEDOUT;
-> +       else if (resp->i2c_status & EC_I2C_STATUS_NAK)
-> +               return -ENXIO;
->         else if (resp->i2c_status & EC_I2C_STATUS_ERROR)
-> -               return -EREMOTEIO;
-> +               return -EIO;
->
->         /* Other side could send us back fewer messages, but not more */
->         if (resp->num_msgs > *num)
-> @@ -222,10 +224,8 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
->         }
->
->         result = ec_i2c_parse_response(msg->data, i2c_msgs, &num);
-> -       if (result < 0) {
-> -               dev_err(dev, "Error parsing EC i2c message %d\n", result);
-> +       if (result < 0)
->                 goto exit;
-> -       }
->
->         /* Indicate success by saying how many messages were sent */
->         result = num;
+I'm seeking some feedback on this. Not really happy with it but can't think
+of a good solution.  
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+This patch adds support to read the irq status register from the a PCA9543
+i2c mux. This chip has two active low interrupt inputs with are combined    
+into a single active low interrupt output. It does not provide the ability 
+to mask interrupts. Only to read which interrupt line is active.
+
+On the hardware I'm interfacing too I have an ltc1760 sbs manager on each 
+multiplexed bus. On booting these may assert there SMBALERT irq outputs 
+immediately, again these devices have no ability to mask there interrupt. 
+So the irq is asserted during boot until the ltc1760 driver is started.
+And there's no way to mask it. My work around is to enable the irq until both
+irq pins are unmasked. Not sure what else to do. The masking could be a dts
+property to make it configurable.
+
+ltc1760 driver is currently being review for submission in 
+Karl-Heinz Schneider <karl-heinz@schneider-inet.de> patch series.
+
+Appreciate any feedback on what could be done here.
+
+
+Phil Reid (1):
+  i2c: i2c-mux-pca954x: Add interrupt controller support.
+
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 116 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 116 insertions(+)
+
+-- 
+1.8.3.1
