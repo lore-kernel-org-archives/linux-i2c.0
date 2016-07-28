@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 3/5] i2c: i801: use BIT() macro for bits definition
-Date: Thu, 28 Jul 2016 11:50:41 +0200
-Message-ID: <1469699443-22129-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/5] i2c: i2c-smbus: prevent races on remove when Host Notify is used
+Date: Thu, 28 Jul 2016 11:50:39 +0200
+Message-ID: <1469699443-22129-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1469699443-22129-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1469699443-22129-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -9,99 +9,103 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-i801 mixes hexadecimal and decimal values for defining bits. However,
-we have a nice BIT() macro for this exact purpose.
+struct host_notify contains its own workqueue, so there is a race when
+the adapter gets removed:
+- the adapter schedules a notification
+- the notification is on hold
+- the adapter gets removed and all its children too
+- the worker fires and access illegal memory
 
-No functional changes, cleanup only.
+Add an API to actually kill the workqueue and prevent it to access such
+illegal memory. I couldn't find a reliable way of automatically calling
+this, so it's the responsibility of the adapter driver to clean up after
+itself.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/i2c/busses/i2c-i801.c | 50 +++++++++++++++++++++----------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 14 ++++++++++++++
+ drivers/i2c/i2c-smbus.c       | 18 ++++++++++++++++++
+ include/linux/i2c-smbus.h     |  1 +
+ 3 files changed, 33 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 80d67b8..3321956 100644
+index 5ef9b73..cde9a7c 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -136,26 +136,26 @@
- #define SBREG_SMBCTRL		0xc6000c
+@@ -959,6 +959,19 @@ static int i801_enable_host_notify(struct i2c_adapter *adapter)
+ 	return 0;
+ }
  
- /* Host status bits for SMBPCISTS */
--#define SMBPCISTS_INTS		0x08
-+#define SMBPCISTS_INTS		BIT(3)
++static void i801_disable_host_notify(struct i2c_adapter *adapter)
++{
++	struct i801_priv *priv = i2c_get_adapdata(adapter);
++
++	if (!(priv->features & FEATURE_HOST_NOTIFY))
++		return;
++
++	/* disable Host Notify... */
++	outb_p(0, SMBSLVCMD(priv));
++	/* ...and kill the already queued notifications */
++	i2c_cancel_smbus_host_notify(priv->host_notify);
++}
++
+ static const struct i2c_algorithm smbus_algorithm = {
+ 	.smbus_xfer	= i801_access,
+ 	.functionality	= i801_func,
+@@ -1648,6 +1661,7 @@ static void i801_remove(struct pci_dev *dev)
+ 	pm_runtime_forbid(&dev->dev);
+ 	pm_runtime_get_noresume(&dev->dev);
  
- /* Control bits for SMBPCICTL */
--#define SMBPCICTL_INTDIS	0x0400
-+#define SMBPCICTL_INTDIS	BIT(10)
++	i801_disable_host_notify(&priv->adapter);
+ 	i801_del_mux(priv);
+ 	i2c_del_adapter(&priv->adapter);
+ 	i801_acpi_remove(priv);
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index b0d2679..60705dd 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -279,6 +279,8 @@ static void smbus_host_notify_work(struct work_struct *work)
+  * Returns a struct smbus_host_notify pointer on success, and NULL on failure.
+  * The resulting smbus_host_notify must not be freed afterwards, it is a
+  * managed resource already.
++ * To prevent races on remove, the caller needs to stop the embedded worker
++ * by calling i2c_cancel_smbus_host_notify().
+  */
+ struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
+ {
+@@ -299,6 +301,22 @@ struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
+ EXPORT_SYMBOL_GPL(i2c_setup_smbus_host_notify);
  
- /* Host configuration bits for SMBHSTCFG */
--#define SMBHSTCFG_HST_EN	1
--#define SMBHSTCFG_SMB_SMI_EN	2
--#define SMBHSTCFG_I2C_EN	4
-+#define SMBHSTCFG_HST_EN	BIT(0)
-+#define SMBHSTCFG_SMB_SMI_EN	BIT(1)
-+#define SMBHSTCFG_I2C_EN	BIT(2)
+ /**
++ * i2c_cancel_smbus_host_notify - Terminate any active Host Notification.
++ * @host_notify: the host_notify object to terminate
++ *
++ * Cancel any pending Host Notifcation. Must be called to ensure no races
++ * between the adaptor being removed and the Host Notify process being treated.
++ */
++void i2c_cancel_smbus_host_notify(struct smbus_host_notify *host_notify)
++{
++	if (!host_notify)
++		return;
++
++	cancel_work_sync(&host_notify->work);
++}
++EXPORT_SYMBOL_GPL(i2c_cancel_smbus_host_notify);
++
++/**
+  * i2c_handle_smbus_host_notify - Forward a Host Notify event to the correct
+  * I2C client.
+  * @host_notify: the struct host_notify attached to the relevant adapter
+diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
+index c2e3324..ac02827 100644
+--- a/include/linux/i2c-smbus.h
++++ b/include/linux/i2c-smbus.h
+@@ -76,5 +76,6 @@ struct smbus_host_notify {
+ struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap);
+ int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
+ 				 unsigned short addr, unsigned int data);
++void i2c_cancel_smbus_host_notify(struct smbus_host_notify *host_notify);
  
- /* TCO configuration bits for TCOCTL */
--#define TCOCTL_EN		0x0100
-+#define TCOCTL_EN		BIT(8)
- 
- /* Auxiliary status register bits, ICH4+ only */
--#define SMBAUXSTS_CRCE		1
--#define SMBAUXSTS_STCO		2
-+#define SMBAUXSTS_CRCE		BIT(0)
-+#define SMBAUXSTS_STCO		BIT(1)
- 
- /* Auxiliary control register bits, ICH4+ only */
--#define SMBAUXCTL_CRC		1
--#define SMBAUXCTL_E32B		2
-+#define SMBAUXCTL_CRC		BIT(0)
-+#define SMBAUXCTL_E32B		BIT(1)
- 
- /* Other settings */
- #define MAX_RETRIES		400
-@@ -170,27 +170,27 @@
- #define I801_I2C_BLOCK_DATA	0x18	/* ICH5 and later */
- 
- /* I801 Host Control register bits */
--#define SMBHSTCNT_INTREN	0x01
--#define SMBHSTCNT_KILL		0x02
--#define SMBHSTCNT_LAST_BYTE	0x20
--#define SMBHSTCNT_START		0x40
--#define SMBHSTCNT_PEC_EN	0x80	/* ICH3 and later */
-+#define SMBHSTCNT_INTREN	BIT(0)
-+#define SMBHSTCNT_KILL		BIT(1)
-+#define SMBHSTCNT_LAST_BYTE	BIT(5)
-+#define SMBHSTCNT_START		BIT(6)
-+#define SMBHSTCNT_PEC_EN	BIT(7)	/* ICH3 and later */
- 
- /* I801 Hosts Status register bits */
--#define SMBHSTSTS_BYTE_DONE	0x80
--#define SMBHSTSTS_INUSE_STS	0x40
--#define SMBHSTSTS_SMBALERT_STS	0x20
--#define SMBHSTSTS_FAILED	0x10
--#define SMBHSTSTS_BUS_ERR	0x08
--#define SMBHSTSTS_DEV_ERR	0x04
--#define SMBHSTSTS_INTR		0x02
--#define SMBHSTSTS_HOST_BUSY	0x01
-+#define SMBHSTSTS_BYTE_DONE	BIT(7)
-+#define SMBHSTSTS_INUSE_STS	BIT(6)
-+#define SMBHSTSTS_SMBALERT_STS	BIT(5)
-+#define SMBHSTSTS_FAILED	BIT(4)
-+#define SMBHSTSTS_BUS_ERR	BIT(3)
-+#define SMBHSTSTS_DEV_ERR	BIT(2)
-+#define SMBHSTSTS_INTR		BIT(1)
-+#define SMBHSTSTS_HOST_BUSY	BIT(0)
- 
- /* Host Notify Status register bits */
--#define SMBSLVSTS_HST_NTFY_STS	1
-+#define SMBSLVSTS_HST_NTFY_STS	BIT(0)
- 
- /* Host Notify Command register bits */
--#define SMBSLVCMD_HST_NTFY_INTREN	0x01
-+#define SMBSLVCMD_HST_NTFY_INTREN	BIT(0)
- 
- #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
- 				 SMBHSTSTS_DEV_ERR)
+ #endif /* _LINUX_I2C_SMBUS_H */
 -- 
 2.5.5
