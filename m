@@ -1,7 +1,7 @@
 From: Lucas De Marchi <lucas.demarchi@intel.com>
-Subject: [PATCH v3 1/3] i2c: designware: wait for disable/enable only if necessary
-Date: Thu, 28 Jul 2016 19:03:42 -0300
-Message-ID: <1469743424-2480-2-git-send-email-lucas.demarchi@intel.com>
+Subject: [PATCH v3 2/3] i2c: designware: detect when dynamic tar update is possible
+Date: Thu, 28 Jul 2016 19:03:43 -0300
+Message-ID: <1469743424-2480-3-git-send-email-lucas.demarchi@intel.com>
 References: <1469743424-2480-1-git-send-email-lucas.demarchi@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,90 +10,109 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1469743424-2480-1-git-send-email-lucas.demarchi@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: christian.ruppert@alitech.com, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>
+Cc: christian.ruppert@alitech.com, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, Lucas De Marchi <lucas.demarchi@intel.com>, =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-=46rom: Jos=C3=A9 Roberto de Souza <jose.souza@intel.com>
+This adapter can be synthesized with dynamic tar update enabled or disa=
+bled.
+When enabled it is not necessary to disable the adapter to change the s=
+lave
+address in some situations, which saves some time per transaction.
 
-If we aren't going to continue using the controller we can just disable
-it instead of waiting for it to complete. The biggest improvement here
-is when a I2C transaction is completed and it doesn't block until
-the adapter is disabled. When a new transfer is needed we will disable
-and wait for its completion.
+There is no direct register to know if this feature is enabled but we c=
+an do it
+indirectly by writing to the 10BIT_ADDR field in IC_CON: this field is
+read only when dynamic tar update is enabled.
 
-This way the adapter will continue changing its state in parallel to th=
-e
-execution of the thread that requested the I2C transaction saving most
-of the time 25~250 usec per I2C transaction.
-
-A simple program doing a register read (1 byte write, 1 byte read)
-alternating on 2 different slaves repeated 25k times for each and
-measurements taken 4 times we get:
-
-perf stat -r4 chrt -f 10 ./i2c-test /dev/i2c-1 25000 0x40 0x6 0x1e 0x00
-
-Before:
-	30.879317977 seconds time elapsed                 ( +- 14.83% )
-After:
-	8.638705161 seconds time elapsed                  ( +-  5.90% )
-
-Signed-off-by: Jos=C3=A9 Roberto de Souza <jose.souza@intel.com>
 Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Signed-off-by: Jos=C3=A9 Roberto de Souza <jose.souza@intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-designware-core.c | 37 ++++++++++++++++++++++--=
+--------
+ drivers/i2c/busses/i2c-designware-core.h |  1 +
+ 2 files changed, 27 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/bus=
 ses/i2c-designware-core.c
-index 99b54be..2c61585 100644
+index 2c61585..a8408db 100644
 --- a/drivers/i2c/busses/i2c-designware-core.c
 +++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -252,10 +252,15 @@ static u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, =
-u32 tf, int offset)
+@@ -388,6 +388,20 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 	/* configure the i2c master */
+ 	dw_writel(dev, dev->master_cfg , DW_IC_CON);
 =20
- static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
- {
-+	dw_writel(dev, enable, DW_IC_ENABLE);
-+}
++	/*
++	 * Test if dynamic TAR update is enabled in this controller by writin=
+g to
++	 * IC_10BITADDR_MASTER field in IC_CON: when it is enabled this field
++	 * is read-only so it should not succeed
++	 */
++	reg =3D dw_readl(dev, DW_IC_CON);
++	dw_writel(dev, reg ^ DW_IC_CON_10BITADDR_MASTER, DW_IC_CON);
 +
-+static void __i2c_dw_enable_and_wait(struct dw_i2c_dev *dev, bool enab=
-le)
-+{
- 	int timeout =3D 100;
-=20
- 	do {
--		dw_writel(dev, enable, DW_IC_ENABLE);
-+		__i2c_dw_enable(dev, enable);
- 		if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) =3D=3D enable)
- 			return;
-=20
-@@ -321,7 +326,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	}
-=20
- 	/* Disable the adapter */
--	__i2c_dw_enable(dev, false);
-+	__i2c_dw_enable_and_wait(dev, false);
-=20
- 	/* set standard and fast speed deviders for high/low periods */
-=20
-@@ -414,7 +419,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev=
-)
- 	u32 ic_con, ic_tar =3D 0;
++	if ((dw_readl(dev, DW_IC_CON) & DW_IC_CON_10BITADDR_MASTER) =3D=3D
++	    (reg & DW_IC_CON_10BITADDR_MASTER)) {
++		dev->dynamic_tar_update_enabled =3D true;
++		dev_dbg(dev->dev, "Dynamic TAR update enabled");
++	}
++
+ 	if (dev->release_lock)
+ 		dev->release_lock(dev);
+ 	return 0;
+@@ -416,28 +430,29 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c=
+_dev *dev)
+ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ {
+ 	struct i2c_msg *msgs =3D dev->msgs;
+-	u32 ic_con, ic_tar =3D 0;
++	u32 ic_tar =3D 0;
 =20
  	/* Disable the adapter */
--	__i2c_dw_enable(dev, false);
-+	__i2c_dw_enable_and_wait(dev, false);
+ 	__i2c_dw_enable_and_wait(dev, false);
 =20
  	/* if the slave address is ten bit address, enable 10BITADDR */
- 	ic_con =3D dw_readl(dev, DW_IC_CON);
-@@ -833,7 +838,7 @@ tx_aborted:
- void i2c_dw_disable(struct dw_i2c_dev *dev)
- {
- 	/* Disable controller */
--	__i2c_dw_enable(dev, false);
-+	__i2c_dw_enable_and_wait(dev, false);
+-	ic_con =3D dw_readl(dev, DW_IC_CON);
+-	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN) {
+-		ic_con |=3D DW_IC_CON_10BITADDR_MASTER;
++	if (dev->dynamic_tar_update_enabled) {
+ 		/*
+ 		 * If I2C_DYNAMIC_TAR_UPDATE is set, the 10-bit addressing
+-		 * mode has to be enabled via bit 12 of IC_TAR register.
+-		 * We set it always as I2C_DYNAMIC_TAR_UPDATE can't be
+-		 * detected from registers.
++		 * mode has to be enabled via bit 12 of IC_TAR register,
++		 * otherwise bit 4 of IC_CON is used.
+ 		 */
+-		ic_tar =3D DW_IC_TAR_10BITADDR_MASTER;
++		if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
++			ic_tar =3D DW_IC_TAR_10BITADDR_MASTER;
+ 	} else {
+-		ic_con &=3D ~DW_IC_CON_10BITADDR_MASTER;
++		u32 ic_con =3D dw_readl(dev, DW_IC_CON);
++		if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
++			ic_con |=3D DW_IC_CON_10BITADDR_MASTER;
++		else
++			ic_con &=3D ~DW_IC_CON_10BITADDR_MASTER;
++		dw_writel(dev, ic_con, DW_IC_CON);
+ 	}
 =20
- 	/* Disable all interupts */
- 	dw_writel(dev, 0, DW_IC_INTR_MASK);
+-	dw_writel(dev, ic_con, DW_IC_CON);
+-
+ 	/*
+ 	 * Set the slave (target) address and enable 10-bit addressing mode
+ 	 * if applicable.
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/bus=
+ses/i2c-designware-core.h
+index cd409e7..cd6e9ec 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -105,6 +105,7 @@ struct dw_i2c_dev {
+ 	int			(*acquire_lock)(struct dw_i2c_dev *dev);
+ 	void			(*release_lock)(struct dw_i2c_dev *dev);
+ 	bool			pm_runtime_disabled;
++	bool			dynamic_tar_update_enabled;
+ };
+=20
+ #define ACCESS_SWAP		0x00000001
 --=20
 2.7.4
