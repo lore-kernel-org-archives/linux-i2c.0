@@ -1,79 +1,114 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: i2c: slave support framework improvements
-Date: Thu, 28 Jul 2016 10:20:23 +0200
-Message-ID: <9bf9e528-de4a-df4d-fed4-ee1afbfb609a@axentia.se>
-References: <20160723195114.GA2104@katana> <27421469430128@web19h.yandex.ru>
- <20160725072151.GA1599@katana> <354241469432837@web19h.yandex.ru>
- <20160725082813.GA3376@katana> <1025301469437877@web19h.yandex.ru>
- <20160725094117.GB3376@katana> <1391831469440835@web19h.yandex.ru>
- <499754e2-f60a-5170-21f3-d756f768dd0d@axentia.se>
- <168841469551868@web14h.yandex.ru> <20160728074157.GA2693@katana>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
+Date: Thu, 28 Jul 2016 16:15:51 +0200
+Message-ID: <20160728141551.GC28342@ulmo.ba.sec>
+References: <1469470451-111822-1-git-send-email-briannorris@chromium.org>
+ <1469470451-111822-2-git-send-email-briannorris@chromium.org>
+ <20160725204313.GA1698@katana>
+ <20160725204825.GA144142@google.com>
+ <20160726091433.GC2433@ulmo.ba.sec>
+ <20160726183819.GA9660@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0104.outbound.protection.outlook.com ([104.47.2.104]:11359
-	"EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1757669AbcG1Mzq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 28 Jul 2016 08:55:46 -0400
-In-Reply-To: <20160728074157.GA2693@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="lCAWRPmW1mITcIfM"
+Return-path: <linux-input-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160726183819.GA9660@google.com>
+Sender: linux-input-owner@vger.kernel.org
+To: Brian Norris <briannorris@chromium.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Kachalov Anton <mouse@mayc.ru>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On 2016-07-28 09:41, Wolfram Sang wrote:
-> 
-> I didn't read all, just found my name in this paragraph.
-> 
->>> I'm also a bit surprised that you are allowed to create a new (dummy) device
->>> with an address that is already taken on a downstream mux client adapter.
->>> Is that a feature in the i2c core, or is it a bug? Wolfram?
->>
->> This is what I mean under the "populate all the slave devices beforehand".
->> From the i2c bus point of view, I just adding one device per bus. It's allowed.
->> From the adapter point of view, I duplicates clients with the same addr.
-> 
-> The slave device must be attached to the muxed adapter. There, the
-> address should be free. The parent adapter should be reconfigured
-> depending on the mux setting.
-> 
-> At least, that's the theory, dunno if this really works. I thought you
-> would be doing this already?
 
-Hi Wolfram,
+--lCAWRPmW1mITcIfM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thinking about this a bit more, this is what happens.
+On Tue, Jul 26, 2016 at 11:38:20AM -0700, Brian Norris wrote:
+> Hi Thierry,
+>=20
+> On Tue, Jul 26, 2016 at 11:14:33AM +0200, Thierry Reding wrote:
+> > On Mon, Jul 25, 2016 at 01:48:25PM -0700, Brian Norris wrote:
+> > > On Mon, Jul 25, 2016 at 10:43:13PM +0200, Wolfram Sang wrote:
+> > > > On Mon, Jul 25, 2016 at 11:14:10AM -0700, Brian Norris wrote:
+> > > > > cros_ec_cmd_xfer returns success status if the command transport
+> > > > > completes successfully, but the execution result is incorrectly i=
+gnored.
+> > > > > In many cases, the execution result is assumed to be successful, =
+leading
+> > > > > to ignored errors and operating on uninitialized data.
+> > > > >=20
+> > > > > We've recently introduced the cros_ec_cmd_xfer_status() helper to=
+ avoid these
+> > > > > problems. Let's use it.
+> > > > >=20
+> > > > > Signed-off-by: Brian Norris <briannorris@chromium.org>
+> > > >=20
+> > > > I agree with Dmitry about Thierry pushing the patch. So:
+> > > >=20
+> > > > Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> > >=20
+> > > Fine with me, as long as Thierry is up for it.
+> > >=20
+> > > BTW, I think the dependency is on target for v4.8-rc1, so if Thierry
+> > > misses this, then you should be able to apply this yourself after the
+> > > merge window.
+> >=20
+> > Why the rush? The behaviour of the cros_ec_cmd_xfer() function has not
+> > changed in at least a year, so this can't be very urgent. I merged the
+> > original patch because it is a dependency for another patch, but given
+> > the above I think it's fine if we wait until after v4.8-rc1 and let
+> > subsystem maintainers pick them up individually.
+>=20
+> I wasn't personally suggesting it was a rush -- actually, the contrary.
+> I was just informing Wolfram and Dmitry that the dependency only was
+> relevant *if* they were rushing to have the patches applied.
 
-In order to call i2c_slave_register, you need to have a slave device
-on the adapter in question. So, Anton creates a proxy slave device on the
-adapter the mux is connect to. This leads to an address conflict since
-the proxy needs the same address that the real slave device has already
-registered on the mux client adapter.
+Okay, I'll let Wolfram and Dmitry pick these up after v4.8-rc1 then.
 
-But that conflict does not happen! This is because the proxy slave device
-is created using i2c_new_dummy, and the I2C_CLIENT_SLAVE flag is added
-after the address conflict check in i2c_new_dummy.
+> > On another note, the commit message makes it sound like this might fix
+> > potential bugs. Since it's been like that for a couple of releases, do
+> > we need to Cc: stable@vger.kernel.org?
+>=20
+> It does potentially fix bugs. I suspect those bugs would probably occur
+> mostly in cases of poorly-configured software (e.g., using the wrong EC
+> protocol) or prototype hardware, but it's certainly possible this could
+> head off in-the-field bugs. Perhaps Gwendal or Shawn could elaborate.
+>=20
+> At any rate, if you Cc: stable@vger.kernel.org, you'll want to include
+> the dependency in the commit message. I think the format is something
+> like this:
+>=20
+> Fixes: SHA ("i2c: wherever this driver was introduced")
+> Cc: <stable@vger.kernel.org> # 9798ac6d32c1 mfd: cros_ec: Add cros_ec_cmd=
+_xfer_status() helper
 
-The proxy slave device is created when the mux is first selected
-on a channel that has a slave device on the client side of the mux, so
-the whole scheme fails if there is a mux client side access before
-the last real slave device has been registered. This access causes the
-above address conflict to happen for subsequent additions of slave
-devices on the client side, because then the proxy slave device now
-has the I2C_CLIENT_FLAG, which the real slave devices also have. This
-needs to be fixed somehow, but is not a bug in the i2c core. But the
-i2c core might still need to be involved in fixing the problem of
-course, for example by somehow not including the proxy slave device in
-the normal list of client devices. Or something.
+That's information you're supposed to add to your patch as the author,
+so as a courtesy to upstream maintainers, perhaps resend these two
+patches with a complete set of tags once v4.8-rc1 has been released?
 
-In proximity to this, I find it odd that you are allowed to register
-a slave device with the same address as a client device on an adapter
-(one has I2C_CLIENT_FLAG set, which sets I2C_ADDR_OFFSET_SLAVE before
-the address comparisons). Why is that possible? Yes, the two devices
-can probably talk each other, both being aware of who is master at
-the moment, but what about other masters on the bus?
+Thierry
 
-Cheers,
-Peter
+--lCAWRPmW1mITcIfM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCAAGBQJXmhOXAAoJEN0jrNd/PrOh18IP/3FYunhvuJZAGkbXFZxc3a8W
+vshi3WGN7SfTz4kJJiJViZNFJnuXFsEWd5mhmLyh3VPdS2X1Ko/22/TgecOw1tAe
+MyAUNnBITMv3g+6YG4v3rXUadveJaIBngQJR4zQ5RPUeyWXka8y0mADr3rtYhLd6
+5CrVngJVbSmLLoZy00z9FSWB0yCiRTVMbQbRmyADr7HaxZeMonQ3kE92NfyCOrzd
+9qTplgU6veHQReXQ7xZ0IHqBAxakRV2OtiN98D/OpxDlPperd/Ew4w3QhUsAKa+B
+J55euvbVQal7/ZKUkBez9QDz4p/akbfc8C1N/Jd3C749XspWq8Rs141mBycDrcV4
+lFXrBa8YkSnWsu3d7ngxTz7JTdB0LAysR156yEaoLfXN67p+lfsQWgM7fw9ge4KG
+ohmdygmhUbyN9k4dPm3xxtPwIrABHqyTmeFQqOx+3yVutsfK4l/j5Uf5HIKBovY1
+C3/MAy5xL9HSFI8mVHYKfkUthI8vY4ylX9UA2Gg1YFSmsdAI9dsTw3CIgZopEtHS
+sBeTabXswtyO5KKqJPqe2OSWomiiDCONqzyehU+S5YGdZELQSESmRpae9yctafr1
+mfKS5wL7H8AgLc/gktrlCjkvPK3a5RCJKoTE/kuWdzjLCqasIUzr0z7sOujH70I/
+xLZHzKsBPL02BH6k2VPf
+=FgKz
+-----END PGP SIGNATURE-----
+
+--lCAWRPmW1mITcIfM--
