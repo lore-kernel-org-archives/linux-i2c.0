@@ -1,348 +1,40 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v9 1/2] i2c: i801: add support of Host Notify
-Date: Thu, 28 Jul 2016 11:44:57 +0200
-Message-ID: <20160728094457.GN19383@mail.corp.redhat.com>
-References: <1466779189-8455-1-git-send-email-benjamin.tissoires@redhat.com>
- <20160718161245.5c744879@endymion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: [PATCH 0/5] i2c: Host Notify / i801 fixes
+Date: Thu, 28 Jul 2016 11:50:38 +0200
+Message-ID: <1469699443-22129-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54776 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36152 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755676AbcG1JpE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Thu, 28 Jul 2016 05:45:04 -0400
-Content-Disposition: inline
-In-Reply-To: <20160718161245.5c744879@endymion>
+	id S1753642AbcG1Jus (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 28 Jul 2016 05:50:48 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jean,
+Hi,
 
-On Jul 18 2016 or thereabouts, Jean Delvare wrote:
-> Hi Benjamin,
-> 
-> Once again, sorry for the late review.
-> 
-> On Fri, 24 Jun 2016 16:39:49 +0200, Benjamin Tissoires wrote:
-> > The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
-> > in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
-> > 
-> > Enable the functionality unconditionally and propagate the alert
-> > on each notification.
-> > 
-> > With a T440s and a Synaptics touchpad that implements Host Notify, the
-> > payload data is always 0x0000, so I am not sure if the device actually
-> > sends the payload or if there is a problem regarding the implementation.
-> 
-> Out of curiosity, does it work on at least one machine?
+this series comes to fix most of the remarks from Jean after reviewing my
+Host Notify series.
 
-I have tested the T440, t450 and t460 (3 different generation of Intel
-processor), and none seems to be working. The Synaptics touchpad used is
-mostly the same, so maybe that's a device issue.
-
-> 
-> > Tested-by: Andrew Duggan <aduggan@synaptics.com>
-> > Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> > changes in v2:
-> > - removed the description of the Slave functionality support in the chip table
-> >   (the table shows what is supported, not what the hardware is capable of)
-> > - use i2c-smbus to forward the notification
-> > - remove the fifo, and directly retrieve the address and payload in the worker
-> > - do not check for Host Notification is the feature is not enabled
-> > - use inw_p() to read the payload instead of 2 inb_p() calls
-> > - add /* fall-through */ comment
-> > - unconditionally enable Host Notify if the hardware supports it (can be
-> >   disabled by the user)
-> > 
-> > no changes in v3
-> > 
-> > changes in v4:
-> > - make use of the new API -> no more worker spawning here
-> > - solved a race between the access of the Host Notify registers and the actual
-> >   I2C transfers.
-> > 
-> > changes in v5:
-> > - added SKL Host Notify support
-> > 
-> > changes in v6:
-> > - select I2C_SMBUS in Kconfig to prevent an undefined reference when I2C_I801
-> >   is set to 'Y' while I2C_SMBUS is set to 'M'
-> > 
-> > no changes in v7
-> > 
-> > changes in v8:
-> > - reapplied after http://patchwork.ozlabs.org/patch/632768/ and merged the
-> >   conflict (minor conflict in the struct i801_priv).
-> > - removed the .resume hook as upstream changed suspend/resume hooks and there
-> >   is no need in the end to re-enable host notify on resume (tested on Lenovo
-> >   t440 and t450).
-> > - kept Wolfram's Acked-by as the changes were minor
-> > 
-> > changes in v9:
-> > - re-add the .resume hook. Looks like the Lenovo T440 sometimes forget to
-> >   re-enable Host Notify on resume, so better have it reset for everybody
-> > 
-> >  drivers/i2c/busses/Kconfig    |  1 +
-> >  drivers/i2c/busses/i2c-i801.c | 88 +++++++++++++++++++++++++++++++++++++++++--
-> >  2 files changed, 86 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> > index efa3d9b..b4b6cb0 100644
-> > --- a/drivers/i2c/busses/Kconfig
-> > +++ b/drivers/i2c/busses/Kconfig
-> > @@ -91,6 +91,7 @@ config I2C_I801
-> >  	tristate "Intel 82801 (ICH/PCH)"
-> >  	depends on PCI
-> >  	select CHECK_SIGNATURE if X86 && DMI
-> > +	select I2C_SMBUS
-> >  	help
-> >  	  If you say yes to this option, support will be included for the Intel
-> >  	  801 family of mainboard I2C interfaces.  Specifically, the following
-> > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> > index b436963..312caed 100644
-> > --- a/drivers/i2c/busses/i2c-i801.c
-> > +++ b/drivers/i2c/busses/i2c-i801.c
-> > @@ -72,6 +72,7 @@
-> >   * Block process call transaction	no
-> >   * I2C block read transaction		yes (doesn't use the block buffer)
-> >   * Slave mode				no
-> > + * SMBus Host Notify			yes
-> >   * Interrupt processing			yes
-> >   *
-> >   * See the file Documentation/i2c/busses/i2c-i801 for details.
-> > @@ -86,6 +87,7 @@
-> >  #include <linux/ioport.h>
-> >  #include <linux/init.h>
-> >  #include <linux/i2c.h>
-> > +#include <linux/i2c-smbus.h>
-> >  #include <linux/acpi.h>
-> >  #include <linux/io.h>
-> >  #include <linux/dmi.h>
-> > @@ -113,6 +115,10 @@
-> >  #define SMBPEC(p)	(8 + (p)->smba)		/* ICH3 and later */
-> >  #define SMBAUXSTS(p)	(12 + (p)->smba)	/* ICH4 and later */
-> >  #define SMBAUXCTL(p)	(13 + (p)->smba)	/* ICH4 and later */
-> > +#define SMBSLVSTS(p)	(16 + (p)->smba)	/* ICH3 and later */
-> > +#define SMBSLVCMD(p)	(17 + (p)->smba)	/* ICH3 and later */
-> > +#define SMBNTFDADD(p)	(20 + (p)->smba)	/* ICH3 and later */
-> > +#define SMBNTFDDAT(p)	(22 + (p)->smba)	/* ICH3 and later */
-> >  
-> >  /* PCI Address Constants */
-> >  #define SMBBAR		4
-> > @@ -177,6 +183,12 @@
-> >  #define SMBHSTSTS_INTR		0x02
-> >  #define SMBHSTSTS_HOST_BUSY	0x01
-> >  
-> > +/* Host Notify Status registers bits */
-> > +#define SMBSLVSTS_HST_NTFY_STS	1
-> > +
-> > +/* Host Notify Command registers bits */
-> > +#define SMBSLVCMD_HST_NTFY_INTREN	0x01
-> 
-> "register" needs no "s" in these 2 comments. Also it would be nice to
-> stick to hexadecimal for consistency (I know it's not the case
-> elsewhere in the driver, but let's not add to it.)
-> 
-> > +
-> >  #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
-> >  				 SMBHSTSTS_DEV_ERR)
-> >  
-> > @@ -252,13 +264,17 @@ struct i801_priv {
-> >  	 */
-> >  	bool acpi_reserved;
-> >  	struct mutex acpi_lock;
-> > +	struct smbus_host_notify *host_notify;
-> >  };
-> >  
-> > +#define SMBHSTNTFY_SIZE		8
-> 
-> This constant isn't used anywhere?
-> 
-> > +
-> >  #define FEATURE_SMBUS_PEC	(1 << 0)
-> >  #define FEATURE_BLOCK_BUFFER	(1 << 1)
-> >  #define FEATURE_BLOCK_PROC	(1 << 2)
-> >  #define FEATURE_I2C_BLOCK_READ	(1 << 3)
-> >  #define FEATURE_IRQ		(1 << 4)
-> > +#define FEATURE_HOST_NOTIFY	(1 << 5)
-> >  /* Not really a feature, but it's convenient to handle it as such */
-> >  #define FEATURE_IDF		(1 << 15)
-> >  #define FEATURE_TCO		(1 << 16)
-> > @@ -269,6 +285,7 @@ static const char *i801_feature_names[] = {
-> >  	"Block process call",
-> >  	"I2C block read",
-> >  	"Interrupt",
-> > +	"SMBus Host Notify",
-> >  };
-> >  
-> >  static unsigned int disable_features;
-> > @@ -277,7 +294,8 @@ MODULE_PARM_DESC(disable_features, "Disable selected driver features:\n"
-> >  	"\t\t  0x01  disable SMBus PEC\n"
-> >  	"\t\t  0x02  disable the block buffer\n"
-> >  	"\t\t  0x08  disable the I2C block read functionality\n"
-> > -	"\t\t  0x10  don't use interrupts ");
-> > +	"\t\t  0x10  don't use interrupts\n"
-> > +	"\t\t  0x20  disable SMBus Host Notify ");
-> >  
-> >  /* Make sure the SMBus host is ready to start transmitting.
-> >     Return 0 if it is, -EBUSY if it is not. */
-> > @@ -511,8 +529,23 @@ static void i801_isr_byte_done(struct i801_priv *priv)
-> >  	outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
-> >  }
-> >  
-> > +static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
-> > +{
-> > +	unsigned short addr;
-> > +	unsigned int data;
-> > +
-> > +	addr = inb_p(SMBNTFDADD(priv)) >> 1;
-> > +	data = inw_p(SMBNTFDDAT(priv));
-> 
-> The ICH9 datasheet I'm looking at says the data is in 2 8-bit
-> registers. I wonder if a 16-bit read is OK an all chipsets. Well, if it
-> isn't we'll learn about it someday, I suppose.
-
-Well, yes, I suppose too :)
-
-I am about to send a series to address all of your remarks. Thanks for
-the review!
+I couldn't find a better way for 1/5 to automatically kill the workqueue, so
+I am open to any suggestions.
+Regarding 3/5 (use of BIT), I am pretty sure I did not mess up, but I'd be glad
+to have an extra eye on the various hex to BIT changes.
 
 Cheers,
 Benjamin
 
-> 
-> > +
-> > +	i2c_handle_smbus_host_notify(priv->host_notify, addr, data);
-> 
-> This can fail, in theory. Maybe this should be handled?
-> 
-> > +
-> > +	/* clear Host Notify bit and return */
-> > +	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
-> > +	return IRQ_HANDLED;
-> > +}
-> > +
-> >  /*
-> > - * There are two kinds of interrupts:
-> > + * There are three kinds of interrupts:
-> >   *
-> >   * 1) i801 signals transaction completion with one of these interrupts:
-> >   *      INTR - Success
-> > @@ -524,6 +557,8 @@ static void i801_isr_byte_done(struct i801_priv *priv)
-> >   *
-> >   * 2) For byte-by-byte (I2C read/write) transactions, one BYTE_DONE interrupt
-> >   *    occurs for each byte of a byte-by-byte to prepare the next byte.
-> > + *
-> > + * 3) Host Notify interrupts
-> >   */
-> >  static irqreturn_t i801_isr(int irq, void *dev_id)
-> >  {
-> > @@ -536,6 +571,12 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
-> >  	if (!(pcists & SMBPCISTS_INTS))
-> >  		return IRQ_NONE;
-> >  
-> > +	if (priv->features & FEATURE_HOST_NOTIFY) {
-> > +		status = inb_p(SMBSLVSTS(priv));
-> > +		if (status & SMBSLVSTS_HST_NTFY_STS)
-> > +			return i801_host_notify_isr(priv);
-> > +	}
-> > +
-> >  	status = inb_p(SMBHSTSTS(priv));
-> >  	if (status & SMBHSTSTS_BYTE_DONE)
-> >  		i801_isr_byte_done(priv);
-> > @@ -847,7 +888,28 @@ static u32 i801_func(struct i2c_adapter *adapter)
-> >  	       I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_WRITE_I2C_BLOCK |
-> >  	       ((priv->features & FEATURE_SMBUS_PEC) ? I2C_FUNC_SMBUS_PEC : 0) |
-> >  	       ((priv->features & FEATURE_I2C_BLOCK_READ) ?
-> > -		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0);
-> > +		I2C_FUNC_SMBUS_READ_I2C_BLOCK : 0) |
-> > +	       ((priv->features & FEATURE_HOST_NOTIFY) ?
-> > +		I2C_FUNC_SMBUS_HOST_NOTIFY : 0);
-> > +}
-> > +
-> > +static int i801_enable_host_notify(struct i2c_adapter *adapter)
-> > +{
-> > +	struct i801_priv *priv = i2c_get_adapdata(adapter);
-> > +
-> > +	if (!(priv->features & FEATURE_HOST_NOTIFY))
-> > +		return -ENOTSUPP;
-> 
-> Why do you return an error here? This forces you to special-case it on
-> further error handling. You could simply return 0 instead, and save
-> some tests.
-> 
-> > +
-> > +	if (!priv->host_notify)
-> > +		priv->host_notify = i2c_setup_smbus_host_notify(adapter);
-> > +	if (!priv->host_notify)
-> > +		return -ENOMEM;
-> 
-> Minor optimization: if priv->host_notify was already set, the second
-> test is not needed.
-> 
-> > +
-> > +	outb_p(SMBSLVCMD_HST_NTFY_INTREN, SMBSLVCMD(priv));
-> > +	/* clear Host Notify bit to allow a new notification */
-> > +	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
-> > +
-> > +	return 0;
-> >  }
-> >  
-> >  static const struct i2c_algorithm smbus_algorithm = {
-> > @@ -1379,6 +1441,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
-> >  		priv->features |= FEATURE_SMBUS_PEC;
-> >  		priv->features |= FEATURE_BLOCK_BUFFER;
-> >  		priv->features |= FEATURE_TCO;
-> > +		priv->features |= FEATURE_HOST_NOTIFY;
-> >  		break;
-> >  
-> >  	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
-> > @@ -1398,6 +1461,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
-> >  		priv->features |= FEATURE_BLOCK_BUFFER;
-> >  		/* fall through */
-> >  	case PCI_DEVICE_ID_INTEL_82801CA_3:
-> > +		priv->features |= FEATURE_HOST_NOTIFY;
-> > +		/* fall through */
-> >  	case PCI_DEVICE_ID_INTEL_82801BA_2:
-> >  	case PCI_DEVICE_ID_INTEL_82801AB_3:
-> >  	case PCI_DEVICE_ID_INTEL_82801AA_3:
-> > @@ -1507,6 +1572,15 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
-> >  		return err;
-> >  	}
-> >  
-> > +	/*
-> > +	 * Enable Host Notify for chips that supports it.
-> > +	 * It is done after i2c_add_adapter() so that we are sure the work queue
-> > +	 * is not used if i2c_add_adapter() fails.
-> > +	 */
-> > +	err = i801_enable_host_notify(&priv->adapter);
-> > +	if (err && err != -ENOTSUPP)
-> > +		dev_warn(&dev->dev, "Unable to enable SMBus Host Notify\n");
-> > +
-> >  	i801_probe_optional_slaves(priv);
-> >  	/* We ignore errors - multiplexing is optional */
-> >  	i801_add_mux(priv);
-> > @@ -1553,6 +1627,14 @@ static int i801_suspend(struct device *dev)
-> >  
-> >  static int i801_resume(struct device *dev)
-> >  {
-> > +	struct pci_dev *pci_dev = to_pci_dev(dev);
-> > +	struct i801_priv *priv = pci_get_drvdata(pci_dev);
-> > +	int err;
-> > +
-> > +	err = i801_enable_host_notify(&priv->adapter);
-> > +	if (err && err != -ENOTSUPP)
-> > +		dev_warn(dev, "Unable to enable SMBus Host Notify\n");
-> > +
-> >  	return 0;
-> >  }
-> >  #endif
-> 
-> 
-> -- 
-> Jean Delvare
-> SUSE L3 Support
+Benjamin Tissoires (5):
+  i2c: i2c-smbus: prevent races on remove when Host Notify is used
+  i2c: i801: minor formatting issues
+  i2c: i801: use BIT() macro for bits definition
+  i2c: i801: do not report an error if FEATURE_HOST_NOTIFY is not set
+  i2c: i801: warn on i2c_handle_smbus_host_notify() errors
+
+ drivers/i2c/busses/i2c-i801.c | 93 ++++++++++++++++++++++++++-----------------
+ drivers/i2c/i2c-smbus.c       | 18 +++++++++
+ include/linux/i2c-smbus.h     |  1 +
+ 3 files changed, 76 insertions(+), 36 deletions(-)
+
+-- 
+2.5.5
