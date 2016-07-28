@@ -1,111 +1,55 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/5] i2c: i2c-smbus: prevent races on remove when Host Notify is used
-Date: Thu, 28 Jul 2016 11:50:39 +0200
-Message-ID: <1469699443-22129-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1469699443-22129-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1469699443-22129-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: i2c: slave support framework improvements
+Date: Thu, 28 Jul 2016 11:39:43 +0200
+Message-ID: <abd15f46-48d3-f8cc-c2bc-3cb861c2ca3c@axentia.se>
+References: <20160725082813.GA3376@katana> <1025301469437877@web19h.yandex.ru>
+ <20160725094117.GB3376@katana> <1391831469440835@web19h.yandex.ru>
+ <499754e2-f60a-5170-21f3-d756f768dd0d@axentia.se>
+ <168841469551868@web14h.yandex.ru> <20160728074157.GA2693@katana>
+ <9bf9e528-de4a-df4d-fed4-ee1afbfb609a@axentia.se>
+ <20160728083914.GC2693@katana>
+ <c72d3c73-30e4-1ee0-f763-99027e35051f@axentia.se>
+ <20160728091514.GA17499@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0095.outbound.protection.outlook.com ([104.47.2.95]:28832
+	"EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1756494AbcG1LNn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 28 Jul 2016 07:13:43 -0400
+In-Reply-To: <20160728091514.GA17499@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Kachalov Anton <mouse@mayc.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-struct host_notify contains its own workqueue, so there is a race when
-the adapter gets removed:
-- the adapter schedules a notification
-- the notification is on hold
-- the adapter gets removed and all its children too
-- the worker fires and access illegal memory
+On 2016-07-28 11:15, Wolfram Sang wrote:
+> 
+>> What I mean is that it is possible to have an i2c bus with some random
+>> i2c device at e.g. address 0x48, say some eeprom, and then register to
+>> be a slave device also at address 0x48, e.g. slave-24c02. If there is
+>> another master on the bus, it cannot sanely use any of these two devices
+>> at i2c address 0x48 since there is an address conflict.
+> 
+> That is an address conflict, yes. Even for a single-master system. You
+> need to make sure your slave address is unique on the bus. The kernel
+> can't really help you with that, because it could only detect address
+> conflicts if a driver would be attached to a device. If there is no
+> driver and all communication is done via i2c-dev, for example, then
+> I can't see a way to detect this.
 
-Add an API to actually kill the workqueue and prevent it to access such
-illegal memory. I couldn't find a reliable way of automatically calling
-this, so it's the responsibility of the adapter driver to clean up after
-itself.
+Why do you talk about i2c-dev and other random i2c accesses?
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/i2c/busses/i2c-i801.c | 14 ++++++++++++++
- drivers/i2c/i2c-smbus.c       | 18 ++++++++++++++++++
- include/linux/i2c-smbus.h     |  1 +
- 3 files changed, 33 insertions(+)
+I don't see where the conflict is prevented even if everything is
+registered properly with in-kernel drivers, and it looks trivial to
+prevent. Just stop accounting for the I2C_CLIENT_SLAVE flag when
+comparing addresses would fix it, I think. I also don't see how the
+tegra loopback has anything to do with this. Or rather, it has
+everything to do with this. Because that actually makes this a
+problem even without another master on the bus (but then registering
+as a slave makes no sense, but that's beside the point).
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 5ef9b73..cde9a7c 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -959,6 +959,19 @@ static int i801_enable_host_notify(struct i2c_adapter *adapter)
- 	return 0;
- }
- 
-+static void i801_disable_host_notify(struct i2c_adapter *adapter)
-+{
-+	struct i801_priv *priv = i2c_get_adapdata(adapter);
-+
-+	if (!(priv->features & FEATURE_HOST_NOTIFY))
-+		return;
-+
-+	/* disable Host Notify... */
-+	outb_p(0, SMBSLVCMD(priv));
-+	/* ...and kill the already queued notifications */
-+	i2c_cancel_smbus_host_notify(priv->host_notify);
-+}
-+
- static const struct i2c_algorithm smbus_algorithm = {
- 	.smbus_xfer	= i801_access,
- 	.functionality	= i801_func,
-@@ -1648,6 +1661,7 @@ static void i801_remove(struct pci_dev *dev)
- 	pm_runtime_forbid(&dev->dev);
- 	pm_runtime_get_noresume(&dev->dev);
- 
-+	i801_disable_host_notify(&priv->adapter);
- 	i801_del_mux(priv);
- 	i2c_del_adapter(&priv->adapter);
- 	i801_acpi_remove(priv);
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index b0d2679..60705dd 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -279,6 +279,8 @@ static void smbus_host_notify_work(struct work_struct *work)
-  * Returns a struct smbus_host_notify pointer on success, and NULL on failure.
-  * The resulting smbus_host_notify must not be freed afterwards, it is a
-  * managed resource already.
-+ * To prevent races on remove, the caller needs to stop the embedded worker
-+ * by calling i2c_cancel_smbus_host_notify().
-  */
- struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
- {
-@@ -299,6 +301,22 @@ struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
- EXPORT_SYMBOL_GPL(i2c_setup_smbus_host_notify);
- 
- /**
-+ * i2c_cancel_smbus_host_notify - Terminate any active Host Notification.
-+ * @host_notify: the host_notify object to terminate
-+ *
-+ * Cancel any pending Host Notifcation. Must be called to ensure no races
-+ * between the adaptor being removed and the Host Notify process being treated.
-+ */
-+void i2c_cancel_smbus_host_notify(struct smbus_host_notify *host_notify)
-+{
-+	if (!host_notify)
-+		return;
-+
-+	cancel_work_sync(&host_notify->work);
-+}
-+EXPORT_SYMBOL_GPL(i2c_cancel_smbus_host_notify);
-+
-+/**
-  * i2c_handle_smbus_host_notify - Forward a Host Notify event to the correct
-  * I2C client.
-  * @host_notify: the struct host_notify attached to the relevant adapter
-diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-index c2e3324..ac02827 100644
---- a/include/linux/i2c-smbus.h
-+++ b/include/linux/i2c-smbus.h
-@@ -76,5 +76,6 @@ struct smbus_host_notify {
- struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap);
- int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
- 				 unsigned short addr, unsigned int data);
-+void i2c_cancel_smbus_host_notify(struct smbus_host_notify *host_notify);
- 
- #endif /* _LINUX_I2C_SMBUS_H */
--- 
-2.5.5
+Cheers,
+Peter
