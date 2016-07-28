@@ -1,220 +1,282 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.8
-Date: Wed, 27 Jul 2016 23:05:17 +0200
-Message-ID: <20160727210514.GA1981@katana>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [RFC PATCH 1/1] i2c: i2c-mux-pca954x: Add interrupt controller
+ support.
+Date: Thu, 28 Jul 2016 10:44:38 +0800
+Message-ID: <4ce345bd-c618-eff8-a68e-632dd99e8239@electromag.com.au>
+References: <1469588756-70579-1-git-send-email-preid@electromag.com.au>
+ <1469588756-70579-2-git-send-email-preid@electromag.com.au>
+ <e96c68d6-7905-7bee-2173-b66d29e9969b@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:45022 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758565AbcG0VF0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 27 Jul 2016 17:05:26 -0400
-Content-Disposition: inline
+Received: from anchovy3.45ru.net.au ([203.30.46.155]:44901 "EHLO
+	anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1758919AbcG1Cop (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 27 Jul 2016 22:44:45 -0400
+In-Reply-To: <e96c68d6-7905-7bee-2173-b66d29e9969b@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+
+G'day Peter,
+
+Thanks for the feedback.
++linux-kernel@vger.kernel.org
+
+On 27/07/2016 13:32, Peter Rosin wrote:
+> On 2016-07-27 05:05, Phil Reid wrote:
+>> The pca9543 can aggregate multiple interrupts from each i2c bus.
+>> However it provides no ability to mask interrupts on each channel.
+>> So if one bus is asserting interrupts than it will continuously
+>> trigger the interrupts until another driver clears it. As a
+>> workaround don't enable interrupts until both irqs have been unmasked.
+>>
+>> Signed-off-by: Phil Reid <preid@electromag.com.au>
+>> ---
+>>  drivers/i2c/muxes/i2c-mux-pca954x.c | 116 ++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 116 insertions(+)
+>>
+>> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> index 284e342..9ff2540 100644
+>> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> @@ -45,9 +45,14 @@
+>>  #include <linux/of.h>
+>>  #include <linux/pm.h>
+>>  #include <linux/slab.h>
+>> +#include <linux/irq.h>
+>> +#include <linux/irqdomain.h>
+>> +#include <linux/interrupt.h>
+>
+> Please keep the includes sorted.
+>
+>>  #define PCA954X_MAX_NCHANS 8
+>>
+>> +#define PCA9543_IRQ_OFFSET 4
+>
+> PCA9544 and PCA9545 also support interrupts, and they look similar.
+> It would be preferable if the changes accommodated the other chips
+> supported by the driver. They all look similar, and the irq bits
+> looks like they are always in the same place, but I think I would
+> like this offset to go into the chip_desc struct all the same.
+> At the very least the define should be renamed PCA954X_IRQ_OFFSET.
+
+No problem. I was intending to clean things up for that but the interrupt masking
+was raising concerns with the whole patch.
+
+>
+>> +
+>>  enum pca_type {
+>>  	pca_9540,
+>>  	pca_9542,
+>> @@ -67,6 +72,8 @@ struct pca954x {
+>>  	struct i2c_client *client;
+>>  	bool idle_reset;
+>>  	struct gpio_desc *gpio;
+>> +	struct irq_domain *irq_domain;
+>> +	unsigned int irq_mask;
+>>  };
+>>
+>>  struct chip_desc {
+>> @@ -194,6 +201,110 @@ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+>>  	return pca954x_reg_write(muxc->parent, client, data->last_chan);
+>>  }
+>>
+>> +static irqreturn_t pca954x_irq_handler(int irq, void *devid)
+>> +{
+>> +	struct pca954x *data = i2c_mux_priv(devid);
+>> +	struct i2c_client *client = data->client;
+>> +	int i, ret, child_irq;
+>> +	unsigned int nhandled = 0;
+>> +
+>> +	ret = i2c_smbus_read_byte(client);
+>> +	if (ret < 0)
+>> +		return IRQ_NONE;
+>> +
+>> +	for (i = 0; i < 2; i++) {
+>
+> Please use nchans instead of 2 here.
+>
+>> +		if (ret & BIT(PCA9543_IRQ_OFFSET+i)) {
+>> +			child_irq = irq_find_mapping(data->irq_domain, i);
+>> +			handle_nested_irq(child_irq);
+>> +			nhandled++;
+>> +		}
+>> +	}
+>> +
+>> +	return (nhandled > 0) ? IRQ_HANDLED : IRQ_NONE;
+>> +}
+>> +
+>> +static void pca954x_irq_mask(struct irq_data *idata)
+>> +{
+>> +	struct i2c_mux_core *muxc = irq_data_get_irq_chip_data(idata);
+>> +	struct pca954x *data = i2c_mux_priv(muxc);
+>> +	unsigned int pos = idata->hwirq;
+>> +
+>> +	data->irq_mask &= ~BIT(pos);
+>> +	if ((data->irq_mask & 0x3) != 0)
+>
+> The 0x3 mask should probably also go into struct chip_desc, then a non-
+> empty value in this field could be used as trigger for initing the irq
+> stuff.
+>
+>> +		disable_irq(data->client->irq);
+>> +}
+>> +
+>> +static void pca954x_irq_unmask(struct irq_data *idata)
+>> +{
+>> +	struct i2c_mux_core *muxc = irq_data_get_irq_chip_data(idata);
+>> +	struct pca954x *data = i2c_mux_priv(muxc);
+>> +	unsigned int pos = idata->hwirq;
+>> +
+>> +	data->irq_mask |= ~BIT(pos);
+>> +	if ((data->irq_mask & 0x3) == 0x3)
+>
+> This is what you mentioned in the commit message, but I don't get it.
+> Please explain further, and also think about how the same problem
+> could be handled should there be 4 incoming irq lines as in pca9544
+> and pca9545.
+
+Yes this is the tricky point.
+
+Consider this:
+
+Host - pca954x + Dev1
+                \ Dev2
+
+In my case devs are ltc1760 that generate SMBALERT's (active low irq) which
+are not maskable in the device. There is nothing that can be configured in the
+device to prevent them assert an irq.
+
+If just considering them as shared interrupts, ie pca954x is not an irq ctlr, just a wired and.
+On boot Dev1 is registered and enable shared irq. If Dev2 is asserting SMBALERT
+this results in irq being continuously triggered, trigger Dev1 irq handler which
+can't clear the irq because it's being asserted by Dev2.
+
+My system eventually boots but spends alot of time looping in the irq for dev1
+until dev2 gets registered.
 
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Linus,
+The same problem occurs with the pca954x driver present, unless I disable the irq
+until both slaves have unmasked the irq. This is not a good generic solution as the
+system may be used with only one irq active.
 
-here is the I2C pull request for 4.8:
+It's really a deficiency in the hardware design but I'm not sure I'll get that fixed.
+Or I may be missing something obvious to deal with this situation
 
-* the core and i801 driver gained support for SMBus Host Notify
-* core support for more than one address in DT
-* i2c_add_adapter() has now better error messages. We can remove all
-  error messages from drivers calling it as a next step.
-* bigger updates to rk3x driver to support rk3399 SoC
-* the at24 eeprom driver got refactored and can now read special variants with
-  unique serials or fixed MAC addresses.
+>
+>> +		enable_irq(data->client->irq);
+>> +}
+>> +
+>> +static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
+>> +{
+>> +	return 0;
+>> +}
+>> +
+>> +static struct irq_chip pca954x_irq_chip = {
+>> +	.name			= "i2c-mux-pca954x",
+>> +	.irq_mask = pca954x_irq_mask,
+>> +	.irq_unmask = pca954x_irq_unmask,
+>> +	.irq_set_type = pca954x_irq_set_type,
+>> +};
+>> +
+>> +static int pca953x_irq_domain_map(struct irq_domain *h, unsigned int irq,
+>> +				 irq_hw_number_t hwirq)
+>
+> This function should be named pca954x_irq_domain_map.
+>
+>> +{
+>> +	struct i2c_mux_core *muxc = h->host_data;
+>> +
+>> +	irq_set_chip_data(irq, muxc);
+>> +	irq_set_chip_and_handler(irq, &pca954x_irq_chip, handle_level_irq);
+>> +	return 0;
+>> +}
+>> +
+>> +static const struct irq_domain_ops pca953x_irq_domain_ops = {
+>
+> This constant should be named pca954x_irq_domain_ops.
+>
+>> +	.map	= pca953x_irq_domain_map,
+>> +	.xlate	= irq_domain_xlate_twocell,
+>> +};
+>> +
+>> +static int pca953x_irq_setup(struct i2c_mux_core *muxc)
+>
+> This function should be named pca954x_irq_setup.
+>
+>> +{
+>> +	struct pca954x *data = i2c_mux_priv(muxc);
+>> +	struct i2c_client *client = data->client;
+>> +	int i, ret;
+>> +	int irq = client->irq;
+>> +
+>> +	if ((data->type != pca_9543) && (irq != -1))
+>> +		return 0;
+>
+> So here, please use the new irq mask value (0x3) that I proposed
+> above, instead of the explicitly check for pca9543.
+>
+>> +	ret = devm_request_threaded_irq(&client->dev, irq, NULL,
+>> +					pca954x_irq_handler,
+>> +					IRQF_TRIGGER_HIGH | IRQF_ONESHOT |
+>> +					   IRQF_SHARED,
+>> +					dev_name(&client->dev), muxc);
+>> +	if (ret) {
+>> +		dev_err(&client->dev, "failed to request irq %d %d\n",
+>> +			client->irq, ret);
+>> +		return ret;
+>> +	}
+>> +
+>> +	disable_irq(irq);
+>> +
+>> +	data->irq_domain = irq_domain_add_simple(client->dev.of_node,
+>> +						 2, 0, &pca953x_irq_domain_ops,
+>> +						 muxc);
+>> +
+>> +	for (i = 0; i < 2; i++)
+>
+> nchans instead of 2, two instances I guess? I know very little about kernel
+> interrupt handling and can't really say anything about if your code interfacing
+> the irq subsystem is good to go...
 
-The rest is regular driver updates and bugfixes. Please pull.
+I've add linux-kernel@vger.kernel.org to see if anyone else to offer suggestions.
 
-Thanks,
+>
+>> +		irq_set_parent(irq_find_mapping(data->irq_domain, i), irq);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>>  /*
+>>   * I2C init/probing/exit functions
+>>   */
+>> @@ -274,6 +385,10 @@ static int pca954x_probe(struct i2c_client *client,
+>>  		}
+>>  	}
+>>
+>> +	ret = pca953x_irq_setup(muxc);
+>> +	if (ret)
+>> +		goto irq_setup_failed;
+>> +
+>>  	dev_info(&client->dev,
+>>  		 "registered %d multiplexed busses for I2C %s %s\n",
+>>  		 num, chips[data->type].muxtype == pca954x_ismux
+>> @@ -281,6 +396,7 @@ static int pca954x_probe(struct i2c_client *client,
+>>
+>>  	return 0;
+>>
+>> +irq_setup_failed:
+>>  virt_reg_failed:
+>>  	i2c_mux_del_adapters(muxc);
+>>  	return ret;
+>>
+>
 
-   Wolfram
 
 
-The following changes since commit 5edb56491d4812c42175980759da53388e5d86f5:
-
-  Linux 4.7-rc3 (2016-06-12 07:20:35 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-4.8
-
-for you to fetch changes up to 175c7080f2747b96e4b5352e4c38ddf9a0eacfdb:
-
-  i2c: i801: use IS_ENABLED() instead of checking for built-in or module (2016-07-26 08:44:56 +0200)
-
-----------------------------------------------------------------
-Abhishek Sahu (2):
-      i2c: qup: Cleared the error bits in ISR
-      i2c: qup: Fixed the DMA segments length
-
-Alexey Khoroshilov (1):
-      i2c: efm32: fix a failure path in efm32_i2c_probe()
-
-Andy Shevchenko (4):
-      i2c: designware-pci: Make bus number allocation robust
-      i2c: designware-pci: Introduce Merrifield support
-      i2c: designware-pci: Sort header block alphabetically
-      i2c: designware-pci: clarify a comment for Merrifield
-
-Axel Lin (3):
-      i2c: robotfuzz-osif: Constify osif_table
-      i2c: versatile: Allow compile test build
-      i2c: versatile: Convert to use resource managed devm_* APIs
-
-Bartosz Golaszewski (11):
-      eeprom: at24: improve the device_id table readability
-      eeprom: at24: move at24_read() below at24_eeprom_write()
-      eeprom: at24: coding style fixes
-      eeprom: at24: call read/write functions via function pointers
-      eeprom: at24: hide the read/write loop behind a macro
-      eeprom: at24: split at24_eeprom_read() into specialized functions
-      eeprom: at24: split at24_eeprom_write() into specialized functions
-      eeprom: at24: platform_data: use BIT() macro
-      eeprom: at24: support reading the serial number for 24csxx
-      eeprom: at24: add support for at24mac series
-      eeprom: at24: tweak the loop_until_timeout() macro
-
-Ben Dooks (1):
-      i2c: meson: allow build with COMPILE_TEST
-
-Benjamin Tissoires (3):
-      i2c: add a protocol parameter to the alert callback
-      i2c: smbus: add SMBus Host Notify support
-      i2c: i801: add support of Host Notify
-
-David Wu (8):
-      i2c: rk3x: add documentation to fields in "struct rk3x_i2c"
-      i2c: rk3x: use struct "rk3x_i2c_calced_timings"
-      i2c: rk3x: Remove redundant rk3x_i2c_clean_ipd()
-      i2c: rk3x: Change SoC data to not use array
-      i2c: rk3x: Move spec timing data to "static const" structs
-      dt-bindings: i2c: rk3x: add support for rk3399
-      i2c: rk3x: add i2c support for rk3399 soc
-      i2c: rk3x: support fast-mode plus for rk3399
-
-Ellen Wang (1):
-      i2c: i801: recover from hardware PEC errors
-
-Eric Anholt (1):
-      i2c: bcm2835: Don't complain on -EPROBE_DEFER from getting our clock
-
-Jaedon Shin (2):
-      i2c: brcmstb: Make the driver buildable on BMIPS_GENERIC
-      i2c: brcmstb: Remove superfluous size check
-
-Jarkko Nikula (3):
-      i2c: designware: Allow build Baytrail semaphore support when IOSF_MBI=m
-      i2c: core: Cleanup I2C ACPI namespace
-      i2c: core: Add function for finding the bus speed from ACPI
-
-Javier Martinez Canillas (1):
-      i2c: i801: use IS_ENABLED() instead of checking for built-in or module
-
-Jean Delvare (4):
-      i2c: i801: Drop needless bit-wise OR
-      i2c: i2c-smbus: fix i2c_handle_smbus_host_notify documentation
-      i2c: Update the description of I2C_SMBUS
-      i2c: i2c-smbus: drop useless stubs
-
-Jean-Michel Hautbois (1):
-      i2c: Add generic support passing secondary devices addresses
-
-Naveen Kaje (1):
-      i2c: qup: use address helper function in read transfer
-
-Sricharan R (2):
-      i2c: qup: Fix broken dma when CONFIG_DEBUG_SG is enabled
-      i2c: qup: Fix error handling
-
-Tanmay Jagdale (1):
-      i2c: xlp9xx: add ACPI support for Broadcom Vulcan
-
-Weifeng Voon (1):
-      i2c: designware: Use transfer timeout from ioctl I2C_TIMEOUT
-
-William Breathitt Gray (2):
-      i2c: elektor: Utilize the module_isa_driver macro
-      i2c: pca-isa: Utilize the module_isa_driver macro
-
-Wolfram Sang (12):
-      i2c: jz4780: drop superfluous init
-      i2c: free idr when sanity checks in i2c_register_adapter() fail
-      i2c: cleanup i2c_register_adapter() by refactoring recovery init
-      i2c: improve error messages in i2c_register_adapter()
-      i2c: add error message when obtaining idr fails
-      i2c: print more info when of_i2c_notify fails
-      i2c: print more info when acpi_i2c_space_handler() fails
-      i2c: use pr_fmt in the core
-      Revert "i2c: core: Add function for finding the bus speed from ACPI"
-      Revert "i2c: core: Cleanup I2C ACPI namespace"
-      Documentation: i2c: slave: describe buffer problems a bit better
-      Documentation: i2c: slave: give proper example for pm usage
-
-viresh kumar (1):
-      i2c-dev: don't get i2c adapter via i2c_dev
-
- Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |  16 +-
- Documentation/devicetree/bindings/i2c/i2c.txt      |   7 +
- Documentation/i2c/slave-interface                  |  19 +-
- Documentation/i2c/smbus-protocol                   |   6 +
- drivers/char/ipmi/ipmi_ssif.c                      |   6 +-
- drivers/hwmon/lm90.c                               |   6 +-
- drivers/i2c/Kconfig                                |   4 +-
- drivers/i2c/busses/Kconfig                         |  11 +-
- drivers/i2c/busses/i2c-bcm2835.c                   |   3 +-
- drivers/i2c/busses/i2c-brcmstb.c                   |   3 +-
- drivers/i2c/busses/i2c-designware-core.c           |   2 +-
- drivers/i2c/busses/i2c-designware-core.h           |   1 +
- drivers/i2c/busses/i2c-designware-pcidrv.c         | 143 +++---
- drivers/i2c/busses/i2c-efm32.c                     |   2 +-
- drivers/i2c/busses/i2c-elektor.c                   |  14 +-
- drivers/i2c/busses/i2c-i801.c                      | 152 ++++++-
- drivers/i2c/busses/i2c-jz4780.c                    |   4 -
- drivers/i2c/busses/i2c-pca-isa.c                   |  15 +-
- drivers/i2c/busses/i2c-qup.c                       | 155 +++----
- drivers/i2c/busses/i2c-rk3x.c                      | 498 +++++++++++++++++----
- drivers/i2c/busses/i2c-robotfuzz-osif.c            |   2 +-
- drivers/i2c/busses/i2c-versatile.c                 |  46 +-
- drivers/i2c/busses/i2c-xlp9xx.c                    |  13 +-
- drivers/i2c/i2c-core.c                             | 165 ++++---
- drivers/i2c/i2c-dev.c                              |   7 +-
- drivers/i2c/i2c-smbus.c                            | 112 ++++-
- drivers/misc/eeprom/at24.c                         | 498 ++++++++++++++-------
- include/linux/i2c-smbus.h                          |  29 ++
- include/linux/i2c.h                                |  15 +-
- include/linux/platform_data/at24.h                 |  11 +-
- include/uapi/linux/i2c.h                           |   1 +
- 31 files changed, 1416 insertions(+), 550 deletions(-)
-
---fUYQa+Pmc3FrFX/N
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXmSIKAAoJEBQN5MwUoCm29ScP/3KfcJP9T/RL1xoTnBx7foso
-P/OIXXN196wScIOyidHKor1gK+0FeeBn4mCHeOMpAPJ4u9sFoXSajSDsWvR6cYvS
-cgAQM4v2vkYoj+a/TyTTH6CZlbhbCIaVl2Ng/ah6I3Jlrh6QXEf235RqgHp9Hfkw
-SOTPtVUaKdojinbkgy5H2EYkeMw6c0TYk1TXMKpp+TpKns4JihFtVyaGNXhTSn1b
-eHD7XfNvW6MOqEEs6yPNQfn1Afl/2l+fyjFhv+YRWpN0Z07b7HDIYvdhe4nO2iVo
-M8p4CDsuStc5dmDnKf4zjXAG0uMcLYd2SVJHgOw9DG3nQMWK1vtxgHux16HK1gVM
-Xh1Mx5srLfiw6QcdLxXDG4wftKpPFzOuLeBIUpR4TZ2CU9uauuQgu3yhnkEJv1zD
-8W5NONZaE0SBX7899xQaMPiEV1Nd9cCUI55iZfGGPTTV5vHBq5wKJkkATJeGIjO7
-5U93KlbqoobiPsQ639X1m/+3Zzp5BdEndaSFq33lNI9r8VXYmn+99lHG1rKCjbhH
-FAS7nZJtMnS0+n6BgdQ2uv8RXZmLzrRuKgZ4d2Up9bm9aHY+0XJ0IzmRzfZfjHbn
-r36kfjIk1VMS3Vgry3jYju7+5JGXOTGGJ35+1IQkQjjV2BOiB6UyAnxTEfZf7yjL
-fpB3f3eRVMPZWwvFTwYh
-=zyow
------END PGP SIGNATURE-----
-
---fUYQa+Pmc3FrFX/N--
+-- 
+Regards
+Phil Reid
