@@ -1,38 +1,34 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 4/5] i2c: i801: do not report an error if
- FEATURE_HOST_NOTIFY is not set
-Date: Fri, 29 Jul 2016 12:40:36 +0200
-Message-ID: <20160729124036.7deb99b7@endymion>
-References: <1469699443-22129-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1469699443-22129-5-git-send-email-benjamin.tissoires@redhat.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH 0/2] i2c: move adapter locking ops to struct, constify
+Date: Fri, 29 Jul 2016 10:17:55 +0200
+Message-ID: <1469780277-31085-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59764 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752544AbcG2Kkk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 29 Jul 2016 06:40:40 -0400
-In-Reply-To: <1469699443-22129-5-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-eopbgr30094.outbound.protection.outlook.com ([40.107.3.94]:62336
+	"EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752172AbcG2Oug (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 29 Jul 2016 10:50:36 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Thu, 28 Jul 2016 11:50:42 +0200, Benjamin Tissoires wrote:
-> we can skip one test when calling i801_enable_host_notify(). Given
-> that we call it all the time, it's better to consider the fact that
-> the adapter doesn't support Host Notify as not an error.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/i2c/busses/i2c-i801.c | 13 +++++++------
->  1 file changed, 7 insertions(+), 6 deletions(-)
-> (...)
+This allows the locking ops to be moved to .rodata, which is generally
+desireable. It also feels good to change all ops with one assignment.
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Cheers,
+Peter
 
-Thanks,
+Peter Rosin (2):
+  i2c: add i2c_trylock_bus wrapper, use it
+  i2c: move locking operations to their own struct
+
+ drivers/i2c/i2c-core.c | 15 +++++++++------
+ drivers/i2c/i2c-mux.c  | 29 ++++++++++++++++++-----------
+ include/linux/i2c.h    | 37 +++++++++++++++++++++++++++++++------
+ 3 files changed, 58 insertions(+), 23 deletions(-)
+
 -- 
-Jean Delvare
-SUSE L3 Support
+2.1.4
