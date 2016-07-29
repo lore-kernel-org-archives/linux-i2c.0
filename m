@@ -1,107 +1,154 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [RFC PATCH 1/1] i2c: i2c-mux-pca954x: Add interrupt controller
- support.
-Date: Fri, 29 Jul 2016 07:48:32 +0200
-Message-ID: <b9f67d9d-6d22-6bc8-16f6-e65ea2e853a0@axentia.se>
-References: <1469588756-70579-1-git-send-email-preid@electromag.com.au>
- <1469588756-70579-2-git-send-email-preid@electromag.com.au>
- <e96c68d6-7905-7bee-2173-b66d29e9969b@axentia.se>
- <4ce345bd-c618-eff8-a68e-632dd99e8239@electromag.com.au>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/5] i2c: i2c-smbus: prevent races on remove when Host
+ Notify is used
+Date: Fri, 29 Jul 2016 11:12:12 +0200
+Message-ID: <20160729111212.36b33ccc@endymion>
+References: <1469699443-22129-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1469699443-22129-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0123.outbound.protection.outlook.com ([104.47.2.123]:45533
-	"EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750752AbcG2Fsn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 29 Jul 2016 01:48:43 -0400
-In-Reply-To: <4ce345bd-c618-eff8-a68e-632dd99e8239@electromag.com.au>
+Received: from mx2.suse.de ([195.135.220.15]:48680 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750900AbcG2JMP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 29 Jul 2016 05:12:15 -0400
+In-Reply-To: <1469699443-22129-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2016-07-28 04:44, Phil Reid wrote:
-> G'day Peter,
-> 
-> Thanks for the feedback.
-> +linux-kernel@vger.kernel.org
-> 
-> On 27/07/2016 13:32, Peter Rosin wrote:
->> On 2016-07-27 05:05, Phil Reid wrote:
->>> +static void pca954x_irq_mask(struct irq_data *idata)
->>> +{
->>> +	struct i2c_mux_core *muxc = irq_data_get_irq_chip_data(idata);
->>> +	struct pca954x *data = i2c_mux_priv(muxc);
->>> +	unsigned int pos = idata->hwirq;
->>> +
->>> +	data->irq_mask &= ~BIT(pos);
->>> +	if ((data->irq_mask & 0x3) != 0)
->>
->> The 0x3 mask should probably also go into struct chip_desc, then a non-
->> empty value in this field could be used as trigger for initing the irq
->> stuff.
+Salut Benjamin,
 
-Ok, this comment just shows that I was not getting it. Please ignore it.
-Some other (new) thing in chip_desc is needed to trigger irq init for the
-chips that have irq support.
+On Thu, 28 Jul 2016 11:50:39 +0200, Benjamin Tissoires wrote:
+> struct host_notify contains its own workqueue, so there is a race when
+> the adapter gets removed:
+> - the adapter schedules a notification
+> - the notification is on hold
+> - the adapter gets removed and all its children too
+> - the worker fires and access illegal memory
+> 
+> Add an API to actually kill the workqueue and prevent it to access such
+> illegal memory. I couldn't find a reliable way of automatically calling
+> this, so it's the responsibility of the adapter driver to clean up after
+> itself.
 
->>> +		disable_irq(data->client->irq);
->>> +}
->>> +
->>> +static void pca954x_irq_unmask(struct irq_data *idata)
->>> +{
->>> +	struct i2c_mux_core *muxc = irq_data_get_irq_chip_data(idata);
->>> +	struct pca954x *data = i2c_mux_priv(muxc);
->>> +	unsigned int pos = idata->hwirq;
->>> +
->>> +	data->irq_mask |= ~BIT(pos);
->>> +	if ((data->irq_mask & 0x3) == 0x3)
->>
->> This is what you mentioned in the commit message, but I don't get it.
->> Please explain further, and also think about how the same problem
->> could be handled should there be 4 incoming irq lines as in pca9544
->> and pca9545.
-> 
-> Yes this is the tricky point.
-> 
-> Consider this:
-> 
-> Host - pca954x + Dev1
->                 \ Dev2
-> 
-> In my case devs are ltc1760 that generate SMBALERT's (active low irq) which
-> are not maskable in the device. There is nothing that can be configured in the
-> device to prevent them assert an irq.
-> 
-> If just considering them as shared interrupts, ie pca954x is not an irq ctlr, just a wired and.
-> On boot Dev1 is registered and enable shared irq. If Dev2 is asserting SMBALERT
-> this results in irq being continuously triggered, trigger Dev1 irq handler which
-> can't clear the irq because it's being asserted by Dev2.
-> 
-> My system eventually boots but spends alot of time looping in the irq for dev1
-> until dev2 gets registered.
-> 
-> 
-> 
-> The same problem occurs with the pca954x driver present, unless I disable the irq
-> until both slaves have unmasked the irq. This is not a good generic solution as the
-> system may be used with only one irq active.
-> 
-> It's really a deficiency in the hardware design but I'm not sure I'll get that fixed.
-> Or I may be missing something obvious to deal with this situation
+I'm no expert on the matter but I wonder if you could not just add it
+to i2c_adapter_dev_release()?
 
-Ok, I think I get the problem, but I too am at a loss and see no elegant solution.
-One sad thing about your workaround is that it is not working at all unless there
-is an irq user on all mux child segments that unmasks the corresponding irq. Right?
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/i2c/busses/i2c-i801.c | 14 ++++++++++++++
+>  drivers/i2c/i2c-smbus.c       | 18 ++++++++++++++++++
+>  include/linux/i2c-smbus.h     |  1 +
+>  3 files changed, 33 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 5ef9b73..cde9a7c 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -959,6 +959,19 @@ static int i801_enable_host_notify(struct i2c_adapter *adapter)
+>  	return 0;
+>  }
+>  
+> +static void i801_disable_host_notify(struct i2c_adapter *adapter)
+> +{
+> +	struct i801_priv *priv = i2c_get_adapdata(adapter);
 
-I think the default should be that the driver assumes sane HW, i.e. the irq inputs
-are not asserted unless some driver is able to clear them. You can then add an
-option to keep irqs disabled when the mask "is wrong". As a bonus, I think this
-"is wrong" test should be configurable so that you specify a bitmask of irqs that
-all has to be unmasked for the irq to be enabled (and use that instead of the 0x3
-in the pca954x_irq_mask/pca954x_irq_unmask functions). That makes the workaround
-more flexible.
+You pass the adapter as the parameter, but don't need it. All you need
+is priv, which the caller has too. So you could pass priv as the
+parameter directly and avoid the glue code.
 
-Cheers,
-Peter
+> +
+> +	if (!(priv->features & FEATURE_HOST_NOTIFY))
+> +		return;
+> +
+> +	/* disable Host Notify... */
+> +	outb_p(0, SMBSLVCMD(priv));
+
+This assumes there's only one bit in the register, which is not true.
+There are 3 bits. I did not notice the problem during my original
+review, but in i801_enable_host_notify() you are silently zero-ing the
+other 2 bits too, which isn't nice. You should only touch the bit that
+matters to you, both here and in i801_enable_host_notify().
+
+> +	/* ...and kill the already queued notifications */
+> +	i2c_cancel_smbus_host_notify(priv->host_notify);
+
+I thought we would rather process them than cancel them. But I suppose
+it makes no difference if the system is being shut down anyway.
+
+> +}
+> +
+>  static const struct i2c_algorithm smbus_algorithm = {
+>  	.smbus_xfer	= i801_access,
+>  	.functionality	= i801_func,
+> @@ -1648,6 +1661,7 @@ static void i801_remove(struct pci_dev *dev)
+>  	pm_runtime_forbid(&dev->dev);
+>  	pm_runtime_get_noresume(&dev->dev);
+>  
+> +	i801_disable_host_notify(&priv->adapter);
+>  	i801_del_mux(priv);
+>  	i2c_del_adapter(&priv->adapter);
+>  	i801_acpi_remove(priv);
+> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+> index b0d2679..60705dd 100644
+> --- a/drivers/i2c/i2c-smbus.c
+> +++ b/drivers/i2c/i2c-smbus.c
+> @@ -279,6 +279,8 @@ static void smbus_host_notify_work(struct work_struct *work)
+>   * Returns a struct smbus_host_notify pointer on success, and NULL on failure.
+>   * The resulting smbus_host_notify must not be freed afterwards, it is a
+>   * managed resource already.
+> + * To prevent races on remove, the caller needs to stop the embedded worker
+> + * by calling i2c_cancel_smbus_host_notify().
+>   */
+>  struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
+>  {
+> @@ -299,6 +301,22 @@ struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap)
+>  EXPORT_SYMBOL_GPL(i2c_setup_smbus_host_notify);
+>  
+>  /**
+> + * i2c_cancel_smbus_host_notify - Terminate any active Host Notification.
+> + * @host_notify: the host_notify object to terminate
+> + *
+> + * Cancel any pending Host Notifcation. Must be called to ensure no races
+> + * between the adaptor being removed and the Host Notify process being treated.
+
+"... and the Host Notification being processed." would sound better
+IMHO.
+
+> + */
+> +void i2c_cancel_smbus_host_notify(struct smbus_host_notify *host_notify)
+> +{
+> +	if (!host_notify)
+> +		return;
+
+Can this realistically happen (I mean without being a bug in the
+driver)?
+
+> +
+> +	cancel_work_sync(&host_notify->work);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_cancel_smbus_host_notify);
+> +
+> +/**
+>   * i2c_handle_smbus_host_notify - Forward a Host Notify event to the correct
+>   * I2C client.
+>   * @host_notify: the struct host_notify attached to the relevant adapter
+> diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
+> index c2e3324..ac02827 100644
+> --- a/include/linux/i2c-smbus.h
+> +++ b/include/linux/i2c-smbus.h
+> @@ -76,5 +76,6 @@ struct smbus_host_notify {
+>  struct smbus_host_notify *i2c_setup_smbus_host_notify(struct i2c_adapter *adap);
+>  int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
+>  				 unsigned short addr, unsigned int data);
+> +void i2c_cancel_smbus_host_notify(struct smbus_host_notify *host_notify);
+>  
+>  #endif /* _LINUX_I2C_SMBUS_H */
+
+
+-- 
+Jean Delvare
+SUSE L3 Support
