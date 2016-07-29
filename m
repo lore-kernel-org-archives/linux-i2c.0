@@ -1,155 +1,107 @@
-From: Lucas De Marchi <lucas.demarchi@intel.com>
-Subject: [PATCH v3 3/3] i2c: designware: do not disable adapter after transfer
-Date: Thu, 28 Jul 2016 19:03:44 -0300
-Message-ID: <1469743424-2480-4-git-send-email-lucas.demarchi@intel.com>
-References: <1469743424-2480-1-git-send-email-lucas.demarchi@intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [RFC PATCH 1/1] i2c: i2c-mux-pca954x: Add interrupt controller
+ support.
+Date: Fri, 29 Jul 2016 07:48:32 +0200
+Message-ID: <b9f67d9d-6d22-6bc8-16f6-e65ea2e853a0@axentia.se>
+References: <1469588756-70579-1-git-send-email-preid@electromag.com.au>
+ <1469588756-70579-2-git-send-email-preid@electromag.com.au>
+ <e96c68d6-7905-7bee-2173-b66d29e9969b@axentia.se>
+ <4ce345bd-c618-eff8-a68e-632dd99e8239@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1469743424-2480-1-git-send-email-lucas.demarchi@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: christian.ruppert@alitech.com, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, Lucas De Marchi <lucas.demarchi@intel.com>, =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0123.outbound.protection.outlook.com ([104.47.2.123]:45533
+	"EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750752AbcG2Fsn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 29 Jul 2016 01:48:43 -0400
+In-Reply-To: <4ce345bd-c618-eff8-a68e-632dd99e8239@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Disabling the adapter after each transfer adds additional delays
-for each I2C transfer. Even if we don't wait for it to be disabled
-anymore, on next transfer we will need to if we have several transfers
-in a row.
+On 2016-07-28 04:44, Phil Reid wrote:
+> G'day Peter,
+> 
+> Thanks for the feedback.
+> +linux-kernel@vger.kernel.org
+> 
+> On 27/07/2016 13:32, Peter Rosin wrote:
+>> On 2016-07-27 05:05, Phil Reid wrote:
+>>> +static void pca954x_irq_mask(struct irq_data *idata)
+>>> +{
+>>> +	struct i2c_mux_core *muxc = irq_data_get_irq_chip_data(idata);
+>>> +	struct pca954x *data = i2c_mux_priv(muxc);
+>>> +	unsigned int pos = idata->hwirq;
+>>> +
+>>> +	data->irq_mask &= ~BIT(pos);
+>>> +	if ((data->irq_mask & 0x3) != 0)
+>>
+>> The 0x3 mask should probably also go into struct chip_desc, then a non-
+>> empty value in this field could be used as trigger for initing the irq
+>> stuff.
 
-Now during the transfer init we check if IC_TAR can be changed
-dynamically, the status register for no activity and TX buffer being
-empty. In this case we don't need to disable it
+Ok, this comment just shows that I was not getting it. Please ignore it.
+Some other (new) thing in chip_desc is needed to trigger irq init for the
+chips that have irq support.
 
-When a transfer fails the adapter will still be disabled - this is a
-conservative approach. When transfers succeed, the adapter is left
-enabled and it's configured so to disable interrupts.
+>>> +		disable_irq(data->client->irq);
+>>> +}
+>>> +
+>>> +static void pca954x_irq_unmask(struct irq_data *idata)
+>>> +{
+>>> +	struct i2c_mux_core *muxc = irq_data_get_irq_chip_data(idata);
+>>> +	struct pca954x *data = i2c_mux_priv(muxc);
+>>> +	unsigned int pos = idata->hwirq;
+>>> +
+>>> +	data->irq_mask |= ~BIT(pos);
+>>> +	if ((data->irq_mask & 0x3) == 0x3)
+>>
+>> This is what you mentioned in the commit message, but I don't get it.
+>> Please explain further, and also think about how the same problem
+>> could be handled should there be 4 incoming irq lines as in pca9544
+>> and pca9545.
+> 
+> Yes this is the tricky point.
+> 
+> Consider this:
+> 
+> Host - pca954x + Dev1
+>                 \ Dev2
+> 
+> In my case devs are ltc1760 that generate SMBALERT's (active low irq) which
+> are not maskable in the device. There is nothing that can be configured in the
+> device to prevent them assert an irq.
+> 
+> If just considering them as shared interrupts, ie pca954x is not an irq ctlr, just a wired and.
+> On boot Dev1 is registered and enable shared irq. If Dev2 is asserting SMBALERT
+> this results in irq being continuously triggered, trigger Dev1 irq handler which
+> can't clear the irq because it's being asserted by Dev2.
+> 
+> My system eventually boots but spends alot of time looping in the irq for dev1
+> until dev2 gets registered.
+> 
+> 
+> 
+> The same problem occurs with the pca954x driver present, unless I disable the irq
+> until both slaves have unmasked the irq. This is not a good generic solution as the
+> system may be used with only one irq active.
+> 
+> It's really a deficiency in the hardware design but I'm not sure I'll get that fixed.
+> Or I may be missing something obvious to deal with this situation
 
-Alternating register reads on 2 slaves:
-perf stat -r4 chrt -f 10 ./i2c-test /dev/i2c-1 25000 0x40 0x6 0x1e 0x00
+Ok, I think I get the problem, but I too am at a loss and see no elegant solution.
+One sad thing about your workaround is that it is not working at all unless there
+is an irq user on all mux child segments that unmasks the corresponding irq. Right?
 
-Before:
-	8.638705161 seconds time elapsed                  ( +-  5.90% )
-After:
-	7.516821591 seconds time elapsed                  ( +-  0.11% )
+I think the default should be that the driver assumes sane HW, i.e. the irq inputs
+are not asserted unless some driver is able to clear them. You can then add an
+option to keep irqs disabled when the mask "is wrong". As a bonus, I think this
+"is wrong" test should be configurable so that you specify a bitmask of irqs that
+all has to be unmasked for the irq to be enabled (and use that instead of the 0x3
+in the pca954x_irq_mask/pca954x_irq_unmask functions). That makes the workaround
+more flexible.
 
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Signed-off-by: Jos=C3=A9 Roberto de Souza <jose.souza@intel.com>
----
- drivers/i2c/busses/i2c-designware-core.c | 55 +++++++++++++++++++++---=
---------
- 1 file changed, 37 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/bus=
-ses/i2c-designware-core.c
-index a8408db..d260689 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -89,7 +89,9 @@
- 					 DW_IC_INTR_TX_ABRT | \
- 					 DW_IC_INTR_STOP_DET)
-=20
--#define DW_IC_STATUS_ACTIVITY	0x1
-+#define DW_IC_STATUS_ACTIVITY		0x1
-+#define DW_IC_STATUS_TFE		BIT(2)
-+#define DW_IC_STATUS_MST_ACTIVITY	BIT(5)
-=20
- #define DW_IC_ERR_TX_ABRT	0x1
-=20
-@@ -431,9 +433,25 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *de=
-v)
- {
- 	struct i2c_msg *msgs =3D dev->msgs;
- 	u32 ic_tar =3D 0;
-+	bool enabled;
-=20
--	/* Disable the adapter */
--	__i2c_dw_enable_and_wait(dev, false);
-+	enabled =3D dw_readl(dev, DW_IC_ENABLE_STATUS) & 1;
-+
-+	if (enabled) {
-+		u32 ic_status;
-+
-+		/*
-+		 * Only disable adapter if ic_tar and ic_con can't be
-+		 * dynamically updated
-+		 */
-+		ic_status =3D dw_readl(dev, DW_IC_STATUS);
-+		if (!dev->dynamic_tar_update_enabled ||
-+		    (ic_status & DW_IC_STATUS_MST_ACTIVITY) ||
-+		    !(ic_status & DW_IC_STATUS_TFE)) {
-+			__i2c_dw_enable_and_wait(dev, false);
-+			enabled =3D false;
-+		}
-+	}
-=20
- 	/* if the slave address is ten bit address, enable 10BITADDR */
- 	if (dev->dynamic_tar_update_enabled) {
-@@ -462,8 +480,8 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev=
-)
- 	/* enforce disabled interrupts (due to HW issues) */
- 	i2c_dw_disable_int(dev);
-=20
--	/* Enable the adapter */
--	__i2c_dw_enable(dev, true);
-+	if (!enabled)
-+		__i2c_dw_enable(dev, true);
-=20
- 	/* Clear and enable interrupts */
- 	dw_readl(dev, DW_IC_CLR_INTR);
-@@ -644,7 +662,8 @@ static int i2c_dw_handle_tx_abort(struct dw_i2c_dev=
- *dev)
- }
-=20
- /*
-- * Prepare controller for a transaction and call i2c_dw_xfer_msg
-+ * Prepare controller for a transaction and start transfer by calling
-+ * i2c_dw_xfer_init()
-  */
- static int
- i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
-@@ -691,16 +710,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_m=
-sg msgs[], int num)
- 		goto done;
- 	}
-=20
--	/*
--	 * We must disable the adapter before returning and signaling the end
--	 * of the current transfer. Otherwise the hardware might continue
--	 * generating interrupts which in turn causes a race condition with
--	 * the following transfer.  Needs some more investigation if the
--	 * additional interrupts are a hardware bug or this driver doesn't
--	 * handle them correctly yet.
--	 */
--	__i2c_dw_enable(dev, false);
--
- 	if (dev->msg_err) {
- 		ret =3D dev->msg_err;
- 		goto done;
-@@ -838,9 +847,19 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *=
-dev_id)
- 	 */
-=20
- tx_aborted:
--	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_e=
-rr)
-+	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET))
-+			|| dev->msg_err) {
-+		/*
-+		 * We must disable interruts before returning and signaling
-+		 * the end of the current transfer. Otherwise the hardware
-+		 * might continue generating interrupts for non-existent
-+		 * transfers.
-+		 */
-+		i2c_dw_disable_int(dev);
-+		dw_readl(dev, DW_IC_CLR_INTR);
-+
- 		complete(&dev->cmd_complete);
--	else if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK)) {
-+	} else if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK)) {
- 		/* workaround to trigger pending interrupt */
- 		stat =3D dw_readl(dev, DW_IC_INTR_MASK);
- 		i2c_dw_disable_int(dev);
---=20
-2.7.4
+Cheers,
+Peter
