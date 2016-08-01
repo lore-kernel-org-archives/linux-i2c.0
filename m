@@ -1,46 +1,88 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v9 1/2] i2c: i801: add support of Host Notify
-Date: Mon, 1 Aug 2016 15:33:52 +0200
-Message-ID: <20160801153352.44943aae@endymion>
-References: <1466779189-8455-1-git-send-email-benjamin.tissoires@redhat.com>
-	<20160718161245.5c744879@endymion>
-	<20160728094457.GN19383@mail.corp.redhat.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [RFC] i2c: device-tree: Handling child nodes which are not i2c
+ devices
+Date: Mon, 1 Aug 2016 11:41:59 +0200
+Message-ID: <dd04aac8-5c8a-b10d-b726-b16e6d69c599@axentia.se>
+References: <57110A35.2070509@nvidia.com>
+ <CAAObsKC-DGH4GedCcZdv2zvesaTSo6ugsHSQU=J0=P1cZeyCDA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:34520 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752038AbcHANyJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 1 Aug 2016 09:54:09 -0400
-In-Reply-To: <20160728094457.GN19383@mail.corp.redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAAObsKC-DGH4GedCcZdv2zvesaTSo6ugsHSQU=J0=P1cZeyCDA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tomeu Vizoso <tomeu.vizoso-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 28 Jul 2016 11:44:57 +0200, Benjamin Tissoires wrote:
-> On Jul 18 2016 or thereabouts, Jean Delvare wrote:
-> > On Fri, 24 Jun 2016 16:39:49 +0200, Benjamin Tissoires wrote:
-> > > The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
-> > > in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
-> > > 
-> > > Enable the functionality unconditionally and propagate the alert
-> > > on each notification.
-> > > 
-> > > With a T440s and a Synaptics touchpad that implements Host Notify, the
-> > > payload data is always 0x0000, so I am not sure if the device actually
-> > > sends the payload or if there is a problem regarding the implementation.
-> > 
-> > Out of curiosity, does it work on at least one machine?
+On 2016-08-01 11:19, Tomeu Vizoso wrote:
+> On 15 April 2016 at 17:35, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
+>> Hi all,
+>>
+>> For Tegra we have an i2c device for display port, namely the display
+>> port auxiliary channel (or dpaux) as specified by the display port
+>> standard. If an design using Tegra does not utilise the display port
+>> interface, then the pads assigned to the dpaux can be re-assigned to
+>> another generic i2c controller (i2c6 for Tegra124/210). In other words,
+>> the pads can be re-used for a generic i2c interface.
+>>
+>> The registers that control whether the pads are mapped to the dpaux or
+>> i2c6 are located in the dpaux register space. Therefore, I am looking at
+>> adding pin controller support for dpaux so that i2c6 can request these
+>> pads if it is enabled and I was hoping to add a pinmux node the to dpaux
+>> device in device-tree to do this. For example, something like ...
+>>
+>>         dpaux@0,545c0000 {
+>>                 ...
+>>
+>>                 /* pinctrl node */
+>>                 pinmux {
+>>                         ...
+>>                 };
+>>         };
+>>
+>> Although the above works, when doing this I noticed that when the device
+>> booted, I would seeing the following error messages on boot ...
+>>
+>>  i2c i2c-5: of_i2c: modalias failure on ...
+>>
+>> These error messages being caused by the new pinmux node because it is
+>> not recognised as an i2c device. To avoid this error messages we have
+>> come up with a couple solutions but wanted to get some feedback on the
+>> best approach.
 > 
-> I have tested the T440, t450 and t460 (3 different generation of Intel
-> processor), and none seems to be working. The Synaptics touchpad used is
-> mostly the same, so maybe that's a device issue.
+> Hi,
+> 
+> I'm finding this issue as well on Rockchip SoCs, this is the specific
+> node that is raising this warning when an adapter is registered with
+> it:
+> 
+> edp: dp@ff970000 {
+>     compatible = "rockchip,rk3288-dp";
+>     ...
+>     ports {
+>         ...
+>     };
+> };
+> 
+> Has there been any agreement since this thread waned?
+> 
+> Thanks,
+> 
+> Tomeu
 
-May I ask why you are pushing the code upstream then, if it has no
-known (working) user?
+This is currently soaking in linux-next:
 
--- 
-Jean Delvare
-SUSE L3 Support
+dt-bindings: i2c: Add support for 'i2c-bus' subnode
+https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/commit/?h=i2c/for-next&id=98b00488459e
+
+i2c: core: Add support for 'i2c-bus' subnode
+https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/commit/?h=i2c/for-next&id=7e4c224abfe8
+
+Cheers,
+Peter
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
