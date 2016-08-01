@@ -1,103 +1,66 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [RFC PATCH 1/1] i2c: i2c-mux-pca954x: Add interrupt controller
- support.
-Date: Mon, 1 Aug 2016 16:52:33 +0800
-Message-ID: <8d071f25-722b-0202-2458-de1db64a38e3@electromag.com.au>
-References: <1469588756-70579-1-git-send-email-preid@electromag.com.au>
- <1469588756-70579-2-git-send-email-preid@electromag.com.au>
- <e96c68d6-7905-7bee-2173-b66d29e9969b@axentia.se>
- <4ce345bd-c618-eff8-a68e-632dd99e8239@electromag.com.au>
- <b9f67d9d-6d22-6bc8-16f6-e65ea2e853a0@axentia.se>
- <8efb7100-9a19-dd38-f10c-891905fc8e23@electromag.com.au>
- <61f5c328-9bbe-82c1-a969-60d1dae7db22@axentia.se>
+From: Christian Zigotzky <chzigotzky@xenosoft.de>
+Subject: [pasemi] problem with i2c-pasemi
+Date: Mon, 1 Aug 2016 11:01:04 +0200
+Message-ID: <dd444219-28f9-4fb9-a258-5131695abba1@xenosoft.de>
+References: <a84c2b93-4dac-9148-9ae2-0824491d1f50@xenosoft.de>
+ <ae855392-570c-e125-b71f-2d5bf0c33eef@xenosoft.de>
+ <d869fc32-ba80-529e-06dd-481ecf533642@xenosoft.de>
+ <8b0682d3-866a-31dd-f01b-3510f84307dc@xenosoft.de>
+ <2847029a-e3a4-8099-b72f-89d5731baaed@xenosoft.de>
+ <6ebc8c6f-ffee-ab4e-1ce1-bc29bf08569d@xenosoft.de>
+ <20160730182012.GA1608@katana>
+ <ae704d42-5b75-29c4-ac64-0302435c2f35@xenosoft.de>
+ <20160731063656.GA1606@katana>
+ <5f044abb-6ff3-6b65-68f3-e7348a8f6e8c@xenosoft.de>
+ <20160801073227.GA1691@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy1.45ru.net.au ([203.30.46.145]:45154 "EHLO
-	anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750954AbcHAIwh (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Aug 2016 04:52:37 -0400
-In-Reply-To: <61f5c328-9bbe-82c1-a969-60d1dae7db22@axentia.se>
+Received: from mo4-p04-ob.smtp.rzone.de ([81.169.146.176]:11378 "EHLO
+	mo4-p04-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752047AbcHAJID (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Aug 2016 05:08:03 -0400
+In-Reply-To: <20160801073227.GA1691@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Darren Stevens <darren@stevens-zone.net>, Olof Johansson <olof@lixom.net>, linuxppc-dev@lists.ozlabs.org, Adrian Cox <adrian@humboldt.co.uk>
+Cc: luigi burdo <intermediadc@hotmail.com>, Julian Margetson <runaway@candw.ms>, Steven Jeffery <sajeffer@gmail.com>, "R.T.Dickinson" <rtd@a-eon.com>, "R.T.Dickinson" <rtd2@xtra.co.nz>, Pat Wall <pjwall@mac.com>, Pat Wall <pjwall@me.com>, "contact@a-eon.com" <contact@a-eon.com>, "matthew@a-eon.biz" <matthew@a-eon.biz>, Kevin Saunders <kfs1971@gmail.com>, Lyle Hazelwood <lylehaze@gmail.com>, EntwicklerX <mail@entwickler-x.de>, "xray@relec.ch" <xray@relec.ch>, Steve-David Marguet <steve@esdeem.ch>, George Sokianos <walkero@gmail.com>, =?UTF-8?Q?Sinan_G=c3=bcrkan?= <sinan.amigaone@gmail.com>, Mike <michael.heltne@gmail.com>, Thomas Ferreira <macsociety@me.com>, Christian Zigotzky <info@xenosoft.de>, "pjs@pjsa.net" <pjs@pjsa.net>, Ben Cato Malkenes <ben.cato@gmail.com>, linux-i2c@vger.kernel.org
 
-On 1/08/2016 16:22, Peter Rosin wrote:
-> On 2016-08-01 08:25, Phil Reid wrote:
->> On 29/07/2016 13:48, Peter Rosin wrote:
->>> Ok, I think I get the problem, but I too am at a loss and see no elegant solution.
->>> One sad thing about your workaround is that it is not working at all unless there
->>> is an irq user on all mux child segments that unmasks the corresponding irq. Right?
->>>
->>> I think the default should be that the driver assumes sane HW, i.e. the irq inputs
->>> are not asserted unless some driver is able to clear them. You can then add an
->>> option to keep irqs disabled when the mask "is wrong". As a bonus, I think this
->>> "is wrong" test should be configurable so that you specify a bitmask of irqs that
->>> all has to be unmasked for the irq to be enabled (and use that instead of the 0x3
->>> in the pca954x_irq_mask/pca954x_irq_unmask functions). That makes the workaround
->>> more flexible.
+Hello Wolfram,
+
+Many thanks for your explanation. Olof knows the PASEMI platform very 
+well. Maybe he could explain more. Adrian has also a good knowledge 
+about the Nemo board.
+
+Cheers,
+
+Christian
+
+On 01 August 2016 at 09:32 AM, Wolfram Sang wrote:
+> On Sun, Jul 31, 2016 at 09:36:00AM +0200, Christian Zigotzky wrote:
+>> Here you are:
 >>
->> Correct, It works for my use case at the moment. There would need to be a way to define a mask.
->> Via device tree for example.
+>> i2c-0    i2c           Radeon i2c bit bus 0x90             I2C adapter
+>> i2c-1    i2c           Radeon i2c bit bus 0x91             I2C adapter
+>> i2c-2    i2c           Radeon i2c bit bus 0x92             I2C adapter
+>> i2c-3    i2c           Radeon i2c bit bus 0x93             I2C adapter
+>> i2c-4    i2c           Radeon i2c bit bus 0x94             I2C adapter
+>> i2c-5    i2c           Radeon i2c bit bus 0x95             I2C adapter
+>> i2c-6    i2c           Radeon i2c bit bus 0x96             I2C adapter
+>> i2c-7    i2c           Radeon i2c bit bus 0x97             I2C adapter
+>> i2c-8    i2c           card0-DP-1                          I2C adapter
+>> i2c-9    i2c           card0-DP-2                          I2C adapter
+> Thanks. So, that means you don't have any bus from i2c-pasemi, since all
+> numbered busses it wants to have [0-2] are already taken by the Radeon
+> card. This has always been the case, no change in behaviour since 2008.
+> Only since last merge window, the I2C core just reports this conflict.
+> Maybe a bit too noisy?
 >
-> Yes, some optional property in DT was my vision also.
+> I don't think using i2c_add_numbered_adapter is a good idea together
+> with PCI cards. I'd prefer to see i2c_add_adapter used. However, I don't
+> know the platform at all and if there is someone relying on a static
+> numbering scheme? I would assume this is not the case, because nobody
+> really noticed that the busses do not probe for a while. Anyone here
+> with more insight about PASEMI platform?
 >
->> I think sane devices that have irq masking don't really need the pca954x to be a irq source.
->> They could be configured with a shared IRQ as the pCA954x just ANDs then incoming lines together.
->
-> Right. And I suppose we don't know if this is already happening... AFAIU,
-> that approach would still work even if pca954x is made an interrupt source.
-> Or?
->
-> I mean, as you say, the pca954x functions as an electrical AND, and if
-> interrupt clients register with whatever the parent interrupt controller
-> is, they would be not be affected if there is also an interrupt controller
-> for pca954x?
->
-> Yes, such imaginary uses could have just wired all the irq lines together,
-> but we don't know if they actually did that or if they possibly went via
-> the irq routing in the pca954x for whatever reason...
->
->> So does my use case and workaround justify the complexity added to the driver?
->>
->> Thou there is possibly a performance benefit from reading the pca954x to dispatch the appropriate
->> irq, which would save alot of i2c transactions to probe each possible irq source device and assocaited
->> i2c mux switching.
->>
->> WDYR?
->
-> It was the last bit that I also realized, and it would be nice to not have to
-> dig through all irq devices on the child side of the mux (and other clients
-> sharing the irq line with the pca954x for that matter). In theory there could
-> be quite a few...
->
-> So, yes, I think it might be worthwhile to make it an interrupt controller.
-> And then the tweak with your mask is no longer the big part of it...
->
-> BTW, you also need to change bindings docs in
-> Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-Yeap, just wanted to nail down a direction before going thru that as well.
->
-> I also noticed that you are using irq_domain_add_legacy which is marked as,
-> *tada* legacy, and that most drivers should use a linear domain. Sounds like
-> a linear domain fits the use case here, no?
-I'll fix that.
->
-> And another note, the workaround for your limited hw is rather non-generic.
-> I mean, if the irq line from the pca954x to the parent interrupt controller
-> is shared with something else, then there would still be a flood even with
-> the workaround. Or am I misunderstanding that?
->
-
-Yes there's still going to be a flood in that case.
-My workaround is really specific to my hardware where I know that there is only
-one irq source on each input the pca954x.
-
-I'll start a patch with the irq support and then look at the how invasive my workaround is.
-
-Thanks
-
--- 
-Regards
-Phil Reid
