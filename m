@@ -1,59 +1,45 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 1/5] i2c: i2c-smbus: prevent races on remove when Host
- Notify is used
-Date: Mon, 1 Aug 2016 15:32:05 +0200
-Message-ID: <20160801153205.646a04df@endymion>
-References: <1469699443-22129-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1469699443-22129-2-git-send-email-benjamin.tissoires@redhat.com>
-	<20160729111212.36b33ccc@endymion>
+Subject: Re: [PATCH v9 1/2] i2c: i801: add support of Host Notify
+Date: Mon, 1 Aug 2016 15:33:52 +0200
+Message-ID: <20160801153352.44943aae@endymion>
+References: <1466779189-8455-1-git-send-email-benjamin.tissoires@redhat.com>
+	<20160718161245.5c744879@endymion>
+	<20160728094457.GN19383@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:60711 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:34520 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753758AbcHANcJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Mon, 1 Aug 2016 09:32:09 -0400
-In-Reply-To: <20160729111212.36b33ccc@endymion>
+	id S1752038AbcHANyJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Mon, 1 Aug 2016 09:54:09 -0400
+In-Reply-To: <20160728094457.GN19383@mail.corp.redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
-
-On Fri, 29 Jul 2016 11:12:12 +0200, Jean Delvare wrote:
-> On Thu, 28 Jul 2016 11:50:39 +0200, Benjamin Tissoires wrote:
-> > +static void i801_disable_host_notify(struct i2c_adapter *adapter)
-> > +{
-> > +	struct i801_priv *priv = i2c_get_adapdata(adapter);
+On Thu, 28 Jul 2016 11:44:57 +0200, Benjamin Tissoires wrote:
+> On Jul 18 2016 or thereabouts, Jean Delvare wrote:
+> > On Fri, 24 Jun 2016 16:39:49 +0200, Benjamin Tissoires wrote:
+> > > The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
+> > > in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
+> > > 
+> > > Enable the functionality unconditionally and propagate the alert
+> > > on each notification.
+> > > 
+> > > With a T440s and a Synaptics touchpad that implements Host Notify, the
+> > > payload data is always 0x0000, so I am not sure if the device actually
+> > > sends the payload or if there is a problem regarding the implementation.
+> > 
+> > Out of curiosity, does it work on at least one machine?
 > 
-> You pass the adapter as the parameter, but don't need it. All you need
-> is priv, which the caller has too. So you could pass priv as the
-> parameter directly and avoid the glue code.
-> 
-> > +
-> > +	if (!(priv->features & FEATURE_HOST_NOTIFY))
-> > +		return;
-> > +
-> > +	/* disable Host Notify... */
-> > +	outb_p(0, SMBSLVCMD(priv));
-> 
-> This assumes there's only one bit in the register, which is not true.
-> There are 3 bits. I did not notice the problem during my original
-> review, but in i801_enable_host_notify() you are silently zero-ing the
-> other 2 bits too, which isn't nice. You should only touch the bit that
-> matters to you, both here and in i801_enable_host_notify().
+> I have tested the T440, t450 and t460 (3 different generation of Intel
+> processor), and none seems to be working. The Synaptics touchpad used is
+> mostly the same, so maybe that's a device issue.
 
-Thinking about it some more, I'd like to add: what if host notify was
-enabled before the driver was loaded? The driver should leave the
-controller in the same state it found it, ideally. We have learned in
-the past that doing otherwise for PEC and I2C mode, for example, leads
-to problems (lock-up on shutdown) on some systems.
-
-This could happen with Host Notify as well. So I think you should save
-the value at driver load time and restore it at unload time (same we do
-with the hstcfg register.)
+May I ask why you are pushing the code upstream then, if it has no
+known (working) user?
 
 -- 
 Jean Delvare
