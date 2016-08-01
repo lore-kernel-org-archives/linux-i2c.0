@@ -1,66 +1,116 @@
-From: Christian Zigotzky <chzigotzky@xenosoft.de>
-Subject: [pasemi] problem with i2c-pasemi
-Date: Mon, 1 Aug 2016 11:01:04 +0200
-Message-ID: <dd444219-28f9-4fb9-a258-5131695abba1@xenosoft.de>
-References: <a84c2b93-4dac-9148-9ae2-0824491d1f50@xenosoft.de>
- <ae855392-570c-e125-b71f-2d5bf0c33eef@xenosoft.de>
- <d869fc32-ba80-529e-06dd-481ecf533642@xenosoft.de>
- <8b0682d3-866a-31dd-f01b-3510f84307dc@xenosoft.de>
- <2847029a-e3a4-8099-b72f-89d5731baaed@xenosoft.de>
- <6ebc8c6f-ffee-ab4e-1ce1-bc29bf08569d@xenosoft.de>
- <20160730182012.GA1608@katana>
- <ae704d42-5b75-29c4-ac64-0302435c2f35@xenosoft.de>
- <20160731063656.GA1606@katana>
- <5f044abb-6ff3-6b65-68f3-e7348a8f6e8c@xenosoft.de>
- <20160801073227.GA1691@katana>
+From: Tomeu Vizoso <tomeu.vizoso-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC] i2c: device-tree: Handling child nodes which are not i2c devices
+Date: Mon, 1 Aug 2016 11:19:37 +0200
+Message-ID: <CAAObsKC-DGH4GedCcZdv2zvesaTSo6ugsHSQU=J0=P1cZeyCDA@mail.gmail.com>
+References: <57110A35.2070509@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mo4-p04-ob.smtp.rzone.de ([81.169.146.176]:11378 "EHLO
-	mo4-p04-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752047AbcHAJID (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Aug 2016 05:08:03 -0400
-In-Reply-To: <20160801073227.GA1691@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <57110A35.2070509-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Darren Stevens <darren@stevens-zone.net>, Olof Johansson <olof@lixom.net>, linuxppc-dev@lists.ozlabs.org, Adrian Cox <adrian@humboldt.co.uk>
-Cc: luigi burdo <intermediadc@hotmail.com>, Julian Margetson <runaway@candw.ms>, Steven Jeffery <sajeffer@gmail.com>, "R.T.Dickinson" <rtd@a-eon.com>, "R.T.Dickinson" <rtd2@xtra.co.nz>, Pat Wall <pjwall@mac.com>, Pat Wall <pjwall@me.com>, "contact@a-eon.com" <contact@a-eon.com>, "matthew@a-eon.biz" <matthew@a-eon.biz>, Kevin Saunders <kfs1971@gmail.com>, Lyle Hazelwood <lylehaze@gmail.com>, EntwicklerX <mail@entwickler-x.de>, "xray@relec.ch" <xray@relec.ch>, Steve-David Marguet <steve@esdeem.ch>, George Sokianos <walkero@gmail.com>, =?UTF-8?Q?Sinan_G=c3=bcrkan?= <sinan.amigaone@gmail.com>, Mike <michael.heltne@gmail.com>, Thomas Ferreira <macsociety@me.com>, Christian Zigotzky <info@xenosoft.de>, "pjs@pjsa.net" <pjs@pjsa.net>, Ben Cato Malkenes <ben.cato@gmail.com>, linux-i2c@vger.kernel.org
 
-Hello Wolfram,
-
-Many thanks for your explanation. Olof knows the PASEMI platform very 
-well. Maybe he could explain more. Adrian has also a good knowledge 
-about the Nemo board.
-
-Cheers,
-
-Christian
-
-On 01 August 2016 at 09:32 AM, Wolfram Sang wrote:
-> On Sun, Jul 31, 2016 at 09:36:00AM +0200, Christian Zigotzky wrote:
->> Here you are:
->>
->> i2c-0    i2c           Radeon i2c bit bus 0x90             I2C adapter
->> i2c-1    i2c           Radeon i2c bit bus 0x91             I2C adapter
->> i2c-2    i2c           Radeon i2c bit bus 0x92             I2C adapter
->> i2c-3    i2c           Radeon i2c bit bus 0x93             I2C adapter
->> i2c-4    i2c           Radeon i2c bit bus 0x94             I2C adapter
->> i2c-5    i2c           Radeon i2c bit bus 0x95             I2C adapter
->> i2c-6    i2c           Radeon i2c bit bus 0x96             I2C adapter
->> i2c-7    i2c           Radeon i2c bit bus 0x97             I2C adapter
->> i2c-8    i2c           card0-DP-1                          I2C adapter
->> i2c-9    i2c           card0-DP-2                          I2C adapter
-> Thanks. So, that means you don't have any bus from i2c-pasemi, since all
-> numbered busses it wants to have [0-2] are already taken by the Radeon
-> card. This has always been the case, no change in behaviour since 2008.
-> Only since last merge window, the I2C core just reports this conflict.
-> Maybe a bit too noisy?
+On 15 April 2016 at 17:35, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
+> Hi all,
 >
-> I don't think using i2c_add_numbered_adapter is a good idea together
-> with PCI cards. I'd prefer to see i2c_add_adapter used. However, I don't
-> know the platform at all and if there is someone relying on a static
-> numbering scheme? I would assume this is not the case, because nobody
-> really noticed that the busses do not probe for a while. Anyone here
-> with more insight about PASEMI platform?
+> For Tegra we have an i2c device for display port, namely the display
+> port auxiliary channel (or dpaux) as specified by the display port
+> standard. If an design using Tegra does not utilise the display port
+> interface, then the pads assigned to the dpaux can be re-assigned to
+> another generic i2c controller (i2c6 for Tegra124/210). In other words,
+> the pads can be re-used for a generic i2c interface.
 >
+> The registers that control whether the pads are mapped to the dpaux or
+> i2c6 are located in the dpaux register space. Therefore, I am looking at
+> adding pin controller support for dpaux so that i2c6 can request these
+> pads if it is enabled and I was hoping to add a pinmux node the to dpaux
+> device in device-tree to do this. For example, something like ...
+>
+>         dpaux@0,545c0000 {
+>                 ...
+>
+>                 /* pinctrl node */
+>                 pinmux {
+>                         ...
+>                 };
+>         };
+>
+> Although the above works, when doing this I noticed that when the device
+> booted, I would seeing the following error messages on boot ...
+>
+>  i2c i2c-5: of_i2c: modalias failure on ...
+>
+> These error messages being caused by the new pinmux node because it is
+> not recognised as an i2c device. To avoid this error messages we have
+> come up with a couple solutions but wanted to get some feedback on the
+> best approach.
+
+Hi,
+
+I'm finding this issue as well on Rockchip SoCs, this is the specific
+node that is raising this warning when an adapter is registered with
+it:
+
+edp: dp@ff970000 {
+    compatible = "rockchip,rk3288-dp";
+    ...
+    ports {
+        ...
+    };
+};
+
+Has there been any agreement since this thread waned?
+
+Thanks,
+
+Tomeu
+
+> 1. Add a i2c-bus sub-node to the dpaux binding (suggested by Stephen
+>    Warren), so we would have something like the below. Then i2c devices
+>    for dpaux would be place in the i2c-bus sub-node.
+>
+>         dpaux@0,545c0000 {
+>                 ...
+>
+>                 /* pinctrl node */
+>                 pinmux {
+>                         ...
+>                 };
+>
+>                 /* place-holder for i2c devices */
+>                 i2c-bus {
+>                         ...
+>                 };
+>         };
+>
+>    To make the above work ideally we would like to make the 'i2c-bus'
+>    node a generic solution for all i2c devices, so the i2c core would
+>    check for the presence of this node and if it is found then would
+>    default to this node for looking for i2c-devices.
+>
+> 2. When registering i2c devices via device-tree, the function
+>    of_i2c_register_devices() checks to see if OF_POPULATED flag is set
+>    for a given node. If it is set, then the node is skipped. I believe
+>    this was added for device-tree overlays (commit 4f001fd30145 i2c:
+>    Mark instantiated device nodes with OF_POPULATE). Another option is
+>    for the dpaux driver to mark the pinmux node as populated before
+>    registering the i2c adapter and this will prevent the i2c core from
+>    trying to parse the pinmux node. I am not sure if this would be
+>    frowned upon in anyway or if we can guarantee that no future changes
+>    to DT overlays would change this in a way where it would not work.
+>
+> Let me know your thoughts.
+>
+> Cheers
+> Jon
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-tegra" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
