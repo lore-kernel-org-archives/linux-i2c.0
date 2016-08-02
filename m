@@ -1,48 +1,50 @@
-From: Baole Ni <baolex.ni@intel.com>
-Subject: [PATCH 0244/1285] Replace numeric parameter like 0444 with macro
-Date: Tue,  2 Aug 2016 18:52:46 +0800
-Message-ID: <20160802105246.30008-1-baolex.ni@intel.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 3/3] i2c: designware: Find bus speed from ACPI
+Date: Tue, 2 Aug 2016 17:03:47 +0300
+Message-ID: <5e268060-7350-c24a-a53f-c4d9e6b07403@linux.intel.com>
+References: <1465212383-24639-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <1465212383-24639-4-git-send-email-jarkko.nikula@linux.intel.com>
+ <20160714133645.GH4149@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linus.walleij@linaro.org, wsa@the-dreams.de, linux@roeck-us.net, airlied@linux.ie, kgene@kernel.org, k.kozlowski@samsung.com, dougthompson@xmission.com, bp@alien8.de
-Cc: linux-kernel@vger.kernel.org, dianders@chromium.org, baolex.ni@intel.com, aduggan@synaptics.com, linux-i2c@vger.kernel.org, chuansheng.liu@intel.com, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:4423 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S967153AbcHBOEX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 2 Aug 2016 10:04:23 -0400
+In-Reply-To: <20160714133645.GH4149@tetsubishi>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>
 
-I find that the developers often just specified the numeric value
-when calling a macro which is defined with a parameter for access permission.
-As we know, these numeric value for access permission have had the corresponding macro,
-and that using macro can improve the robustness and readability of the code,
-thus, I suggest replacing the numeric parameter with the macro.
+Hi
 
-Signed-off-by: Chuansheng Liu <chuansheng.liu@intel.com>
-Signed-off-by: Baole Ni <baolex.ni@intel.com>
----
- drivers/i2c/busses/i2c-stu300.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 07/14/2016 04:36 PM, Wolfram Sang wrote:
+> On Mon, Jun 06, 2016 at 02:26:23PM +0300, Jarkko Nikula wrote:
+>> Fast mode is the default speed of i2c-designware which can be overridden
+>> by platform data or by "clock-frequency" device property. Even though
+>> the ACPI 5.1 can pass device properties via _DSD method, shipping systems
+>> define the connection speed between I2C host and each slave in their
+>> I2cSerialBus resources. Which means speed is not defined per bus but per
+>> slave.
+>>
+>> As there is now support in i2c-core to find the bus speed from ACPI use
+>> that to set up the bus speed prior registering the I2C adapter.
+>>
+>> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>
+> I can't apply this one? Neither on v4.6, v4.7-rc1 or on i2c/for-next?
+>
+Sorry the delay, I was on vacation.
 
-diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-index 460c134..8128e25 100644
---- a/drivers/i2c/busses/i2c-stu300.c
-+++ b/drivers/i2c/busses/i2c-stu300.c
-@@ -133,7 +133,7 @@ enum stu300_error {
- 
- /* I2C clock speed, in Hz 0-400kHz*/
- static unsigned int scl_frequency = 100000;
--module_param(scl_frequency, uint,  0644);
-+module_param(scl_frequency, uint,  S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
- 
- /**
-  * struct stu300_dev - the stu300 driver state holder
+This one was dependent on Weifeng's fast mode + and high speed set while 
+the patches 1-2/3 conflicted with Octavian's set I guess.
+
+Weifeng's set appears to apply by resolving a single line. But since we 
+both need to resend anyway maybe it's easier for you if we post our sets 
+together after I resolve conflicts in my patches and do some testing?
+
 -- 
-2.9.2
+Jarkko
