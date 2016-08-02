@@ -1,40 +1,64 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3] i2c: hibvt: add Hisilicon BVT I2C controller driver
-Date: Mon, 1 Aug 2016 14:40:37 -0500
-Message-ID: <20160801194037.GA7981@rob-hp-laptop>
-References: <1470017939-2519-1-git-send-email-wenpan@hisilicon.com>
+From: Tomeu Vizoso <tomeu.vizoso@gmail.com>
+Subject: Re: [PATCH 08/12] i2c: core: Add support for 'i2c-bus' subnode
+Date: Tue, 2 Aug 2016 08:26:49 +0200
+Message-ID: <CAAObsKDGVz0XCxeqt+W31RZ-KEvqPnQaH0dkTUj2zL9oFZrPBw@mail.gmail.com>
+References: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
+ <1466697545-11868-9-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:36102 "EHLO
-	mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754747AbcHAToC (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Mon, 1 Aug 2016 15:44:02 -0400
-Content-Disposition: inline
-In-Reply-To: <1470017939-2519-1-git-send-email-wenpan@hisilicon.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <1466697545-11868-9-git-send-email-jonathanh@nvidia.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Jon Hunter <jonathanh@nvidia.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Rob Herring <robh+dt@kernel.org>, linux-gpio@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pan Wen <wenpan@hisilicon.com>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, howell.yang@hisilicon.com, xuejiancheng@hisilicon.com
 
-On Mon, Aug 01, 2016 at 10:18:59AM +0800, Pan Wen wrote:
-> add Hisilicon BVT I2C controller driver support.
-> 
-> Signed-off-by: Pan Wen <wenpan@hisilicon.com>
-> ---
-> change log
-> v3:
-> Add a SoC specific compatible string.
-> v2:
-> 1)Fixed a compile error.
-> 2)Dropped the clock-names property.
->  .../devicetree/bindings/i2c/i2c-hibvt.txt          |  24 +
-
-Acked-by: Rob Herring <robh@kernel.org>>
-
->  drivers/i2c/busses/Kconfig                         |  10 +
->  drivers/i2c/busses/Makefile                        |   1 +
->  drivers/i2c/busses/i2c-hibvt.c                     | 737 +++++++++++++++++++++
->  4 files changed, 772 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
->  create mode 100644 drivers/i2c/busses/i2c-hibvt.c
+T24gMjMgSnVuZSAyMDE2IGF0IDE3OjU5LCBKb24gSHVudGVyIDxqb25hdGhhbmhAbnZpZGlhLmNv
+bT4gd3JvdGU6Cj4gSWYgdGhlICdpMmMtYnVzJyBkZXZpY2UtdHJlZSBub2RlIGlzIHByZXNlbnQg
+Zm9yIGFuIEkyQyBhZGFwdGVyIHRoZW4KPiBwYXJzZSB0aGlzIHN1Ym5vZGUgZm9yIEkyQyBzbGF2
+ZXMuCj4KPiBTaWduZWQtb2ZmLWJ5OiBKb24gSHVudGVyIDxqb25hdGhhbmhAbnZpZGlhLmNvbT4K
+PiAtLS0KPiAgZHJpdmVycy9pMmMvaTJjLWNvcmUuYyB8IDEwICsrKysrKysrLS0KPiAgMSBmaWxl
+IGNoYW5nZWQsIDggaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL2kyYy9pMmMtY29yZS5jIGIvZHJpdmVycy9pMmMvaTJjLWNvcmUuYwo+IGluZGV4
+IDk1MmQyZjBjMDJjNS4uNzFhZDUzMmJlMWQ4IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaTJjL2ky
+Yy1jb3JlLmMKPiArKysgYi9kcml2ZXJzL2kyYy9pMmMtY29yZS5jCj4gQEAgLTE0NTIsNyArMTQ1
+Miw3IEBAIHN0YXRpYyBzdHJ1Y3QgaTJjX2NsaWVudCAqb2ZfaTJjX3JlZ2lzdGVyX2RldmljZShz
+dHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsCj4KPiAgc3RhdGljIHZvaWQgb2ZfaTJjX3JlZ2lzdGVy
+X2RldmljZXMoc3RydWN0IGkyY19hZGFwdGVyICphZGFwKQo+ICB7Cj4gLSAgICAgICBzdHJ1Y3Qg
+ZGV2aWNlX25vZGUgKm5vZGU7Cj4gKyAgICAgICBzdHJ1Y3QgZGV2aWNlX25vZGUgKmJ1cywgKm5v
+ZGU7Cj4KPiAgICAgICAgIC8qIE9ubHkgcmVnaXN0ZXIgY2hpbGQgZGV2aWNlcyBpZiB0aGUgYWRh
+cHRlciBoYXMgYSBub2RlIHBvaW50ZXIgc2V0ICovCj4gICAgICAgICBpZiAoIWFkYXAtPmRldi5v
+Zl9ub2RlKQo+IEBAIC0xNDYwLDExICsxNDYwLDE3IEBAIHN0YXRpYyB2b2lkIG9mX2kyY19yZWdp
+c3Rlcl9kZXZpY2VzKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCkKPgo+ICAgICAgICAgZGV2X2Ri
+ZygmYWRhcC0+ZGV2LCAib2ZfaTJjOiB3YWxraW5nIGNoaWxkIG5vZGVzXG4iKTsKPgo+IC0gICAg
+ICAgZm9yX2VhY2hfYXZhaWxhYmxlX2NoaWxkX29mX25vZGUoYWRhcC0+ZGV2Lm9mX25vZGUsIG5v
+ZGUpIHsKPiArICAgICAgIGJ1cyA9IG9mX2dldF9jaGlsZF9ieV9uYW1lKGFkYXAtPmRldi5vZl9u
+b2RlLCAiaTJjLWJ1cyIpOwo+ICsgICAgICAgaWYgKCFidXMpCj4gKyAgICAgICAgICAgICAgIGJ1
+cyA9IG9mX25vZGVfZ2V0KGFkYXAtPmRldi5vZl9ub2RlKTsKPiArCj4gKyAgICAgICBmb3JfZWFj
+aF9hdmFpbGFibGVfY2hpbGRfb2Zfbm9kZShidXMsIG5vZGUpIHsKPiAgICAgICAgICAgICAgICAg
+aWYgKG9mX25vZGVfdGVzdF9hbmRfc2V0X2ZsYWcobm9kZSwgT0ZfUE9QVUxBVEVEKSkKPiAgICAg
+ICAgICAgICAgICAgICAgICAgICBjb250aW51ZTsKPiAgICAgICAgICAgICAgICAgb2ZfaTJjX3Jl
+Z2lzdGVyX2RldmljZShhZGFwLCBub2RlKTsKPiAgICAgICAgIH0KPiArCj4gKyAgICAgICBvZl9u
+b2RlX3B1dChidXMpOwo+ICB9CgpTb3JyeSBmb3Igbm90IGNvbW1lbnRpbmcgZWFybGllciwgYnV0
+IEkgb25seSBmb3VuZCB0aGUgaXNzdWUgeWVzdGVyZGF5LgoKSSdtIGJvdGhlcmVkIGFzIHdlbGwg
+YnkgdGhlICJtb2RhbGlhcyBmYWlsdXJlIiBlcnJvciBtZXNzYWdlIGJ1dCBpbiBteQpjYXNlIHRo
+ZSBub2RlIGRvZXNuJ3QgaGF2ZSBhbnkgaTJjIGRldmljZXMsIHNvIHRoaXMgcGF0Y2ggaXNuJ3Qg
+YQpjb21wbGV0ZSBzb2x1dGlvbiB0byB0aGF0IHByb2JsZW0uCgpIYXMgdGhpcyBiZWVuIGNvbnNp
+ZGVyZWQgYWxyZWFkeT8KClRoYW5rcywKClRvbWV1Cgo+ICBzdGF0aWMgaW50IG9mX2Rldl9ub2Rl
+X21hdGNoKHN0cnVjdCBkZXZpY2UgKmRldiwgdm9pZCAqZGF0YSkKPiAtLQo+IDIuMS40Cj4KPiAt
+LQo+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNj
+cmliZSBsaW51eC10ZWdyYSIgaW4KPiB0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21v
+QHZnZXIua2VybmVsLm9yZwo+IE1vcmUgbWFqb3Jkb21vIGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtl
+cm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbApfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0
+cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
+aXN0aW5mby9kcmktZGV2ZWwK
