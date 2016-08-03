@@ -1,65 +1,152 @@
-From: Daniel Wagner <wagi@monom.org>
-Subject: [PATCH v0 4/4] i2c: meson: Use complete() instead of complete_all()
-Date: Wed,  3 Aug 2016 14:03:11 +0200
-Message-ID: <1470225791-16613-5-git-send-email-wagi@monom.org>
-References: <1470225791-16613-1-git-send-email-wagi@monom.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1470225791-16613-1-git-send-email-wagi@monom.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Beniamino Galvani <b.galvani@gmail.com>, Kamal Dasu <kdasu.kdev@gmail.com>, Ray Jui <rjui@broadcom.com>, Tim Kryger <tim.kryger@linaro.org>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org, Daniel Wagner <daniel.wagner@bmw-carit.de>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: [PATCH] i2c: at91: fix support of the "alternative command" feature
+Date: Wed, 3 Aug 2016 16:58:26 +0200
+Message-ID: <20160803145826.11927-1-ludovic.desroches@atmel.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtpout.microchip.com ([198.175.253.82]:41132 "EHLO
+	email.microchip.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756358AbcHCO6J (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 3 Aug 2016 10:58:09 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com, linux-arm-kernel@lists.infradead.org, Cyrille Pitchen <cyrille.pitchen@atmel.com>, Ludovic Desroches <ludovic.desroches@atmel.com>
 
-From: Daniel Wagner <daniel.wagner@bmw-carit.de>
+From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
 
-There is only one waiter for the completion, therefore there
-is no need to use complete_all(). Let's make that clear by
-using complete() instead of complete_all().
+The "alternative command" feature was introduced with sama5d2 SoCs.
 
-The usage pattern of the completion is:
+Its purpose is to let the hardware i2c controller automatically send the
+STOP condition on the i2c bus at the end of a data transfer.
+Without this feature, the i2c driver has to write the 'STOP' bit into the
+Control Register so the hardware i2c controller is triggered to send the
+STOP condition on the bus.
 
-meson_i2c_xfer_msg()
-  reinit_completion()
-  ...
-  /* Start the transfer */
-  ...
-  wait_for_completion_timeout()
+Using the "alternative command" feature requires to set the transfer data
+length into the 8bit DATAL field of the Alternative Command Register.
+Hence only data transfers up to 255 bytes can take advantage of the
+"alternative command" feature. For greater data transfer sizes, the driver
+should use the previous implementation, when the "alternative command"
+support was not implemented yet.
 
-Signed-off-by: Daniel Wagner <daniel.wagner@bmw-carit.de>
+Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
 ---
- drivers/i2c/busses/i2c-meson.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-at91.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 71d3929..76e2898 100644
---- a/drivers/i2c/busses/i2c-meson.c
-+++ b/drivers/i2c/busses/i2c-meson.c
-@@ -211,7 +211,7 @@ static void meson_i2c_stop(struct meson_i2c *i2c)
- 		meson_i2c_add_token(i2c, TOKEN_STOP);
- 	} else {
- 		i2c->state = STATE_IDLE;
--		complete_all(&i2c->done);
-+		complete(&i2c->done);
- 	}
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index f233726..1bb97f6 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -38,6 +38,7 @@
+ #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
+ #define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
+ #define AUTOSUSPEND_TIMEOUT		2000
++#define AT91_I2C_MAX_ALT_CMD_DATA_SIZE	256
+ 
+ /* AT91 TWI register definitions */
+ #define	AT91_TWI_CR		0x0000	/* Control Register */
+@@ -141,6 +142,7 @@ struct at91_twi_dev {
+ 	unsigned twi_cwgr_reg;
+ 	struct at91_twi_pdata *pdata;
+ 	bool use_dma;
++	bool use_alt_cmd;
+ 	bool recv_len_abort;
+ 	u32 fifo_size;
+ 	struct at91_twi_dma dma;
+@@ -269,7 +271,7 @@ static void at91_twi_write_next_byte(struct at91_twi_dev *dev)
+ 
+ 	/* send stop when last byte has been written */
+ 	if (--dev->buf_len == 0)
+-		if (!dev->pdata->has_alt_cmd)
++		if (!dev->use_alt_cmd)
+ 			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
+ 
+ 	dev_dbg(dev->dev, "wrote 0x%x, to go %d\n", *dev->buf, dev->buf_len);
+@@ -292,7 +294,7 @@ static void at91_twi_write_data_dma_callback(void *data)
+ 	 * we just have to enable TXCOMP one.
+ 	 */
+ 	at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_TXCOMP);
+-	if (!dev->pdata->has_alt_cmd)
++	if (!dev->use_alt_cmd)
+ 		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
  }
  
-@@ -238,7 +238,7 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
- 		dev_dbg(i2c->dev, "error bit set\n");
- 		i2c->error = -ENXIO;
- 		i2c->state = STATE_IDLE;
--		complete_all(&i2c->done);
-+		complete(&i2c->done);
- 		goto out;
+@@ -410,7 +412,7 @@ static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
  	}
  
-@@ -269,7 +269,7 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
- 		break;
- 	case STATE_STOP:
- 		i2c->state = STATE_IDLE;
--		complete_all(&i2c->done);
-+		complete(&i2c->done);
- 		break;
- 	case STATE_IDLE:
- 		break;
+ 	/* send stop if second but last byte has been read */
+-	if (!dev->pdata->has_alt_cmd && dev->buf_len == 1)
++	if (!dev->use_alt_cmd && dev->buf_len == 1)
+ 		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
+ 
+ 	dev_dbg(dev->dev, "read 0x%x, to go %d\n", *dev->buf, dev->buf_len);
+@@ -426,7 +428,7 @@ static void at91_twi_read_data_dma_callback(void *data)
+ 	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg[0]),
+ 			 dev->buf_len, DMA_FROM_DEVICE);
+ 
+-	if (!dev->pdata->has_alt_cmd) {
++	if (!dev->use_alt_cmd) {
+ 		/* The last two bytes have to be read without using dma */
+ 		dev->buf += dev->buf_len - 2;
+ 		dev->buf_len = 2;
+@@ -443,7 +445,7 @@ static void at91_twi_read_data_dma(struct at91_twi_dev *dev)
+ 	struct dma_chan *chan_rx = dma->chan_rx;
+ 	size_t buf_len;
+ 
+-	buf_len = (dev->pdata->has_alt_cmd) ? dev->buf_len : dev->buf_len - 2;
++	buf_len = (dev->use_alt_cmd) ? dev->buf_len : dev->buf_len - 2;
+ 	dma->direction = DMA_FROM_DEVICE;
+ 
+ 	/* Keep in mind that we won't use dma to read the last two bytes */
+@@ -651,7 +653,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 		unsigned start_flags = AT91_TWI_START;
+ 
+ 		/* if only one byte is to be read, immediately stop transfer */
+-		if (!has_alt_cmd && dev->buf_len <= 1 &&
++		if (!dev->use_alt_cmd && dev->buf_len <= 1 &&
+ 		    !(dev->msg->flags & I2C_M_RECV_LEN))
+ 			start_flags |= AT91_TWI_STOP;
+ 		at91_twi_write(dev, AT91_TWI_CR, start_flags);
+@@ -745,7 +747,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	int ret;
+ 	unsigned int_addr_flag = 0;
+ 	struct i2c_msg *m_start = msg;
+-	bool is_read, use_alt_cmd = false;
++	bool is_read;
+ 
+ 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
+ 
+@@ -768,14 +770,16 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 		at91_twi_write(dev, AT91_TWI_IADR, internal_address);
+ 	}
+ 
++	dev->use_alt_cmd = false;
+ 	is_read = (m_start->flags & I2C_M_RD);
+ 	if (dev->pdata->has_alt_cmd) {
+-		if (m_start->len > 0) {
++		if (m_start->len > 0 &&
++		    m_start->len < AT91_I2C_MAX_ALT_CMD_DATA_SIZE) {
+ 			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_ACMEN);
+ 			at91_twi_write(dev, AT91_TWI_ACR,
+ 				       AT91_TWI_ACR_DATAL(m_start->len) |
+ 				       ((is_read) ? AT91_TWI_ACR_DIR : 0));
+-			use_alt_cmd = true;
++			dev->use_alt_cmd = true;
+ 		} else {
+ 			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_ACMDIS);
+ 		}
+@@ -784,7 +788,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	at91_twi_write(dev, AT91_TWI_MMR,
+ 		       (m_start->addr << 16) |
+ 		       int_addr_flag |
+-		       ((!use_alt_cmd && is_read) ? AT91_TWI_MREAD : 0));
++		       ((!dev->use_alt_cmd && is_read) ? AT91_TWI_MREAD : 0));
+ 
+ 	dev->buf_len = m_start->len;
+ 	dev->buf = m_start->buf;
 -- 
-2.7.4
+2.9.0
