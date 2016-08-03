@@ -1,71 +1,59 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] i2c-tools: add .gitignore
-Date: Wed, 3 Aug 2016 17:22:16 +0200
-Message-ID: <20160803152216.GB17874@pengutronix.de>
-References: <1470214547-3113-1-git-send-email-wsa@the-dreams.de>
+From: Kamal Dasu <kdasu.kdev@gmail.com>
+Subject: Re: [PATCH v0 3/4] i2c: brcmstb: Use complete() instead of complete_all()
+Date: Wed, 3 Aug 2016 12:00:23 -0400
+Message-ID: <CAC=U0a07p0Dx1UAme0=4b5DWpbVZvqk2nSN_TCXCGtVQM=U=Yw@mail.gmail.com>
+References: <1470225791-16613-1-git-send-email-wagi@monom.org> <1470225791-16613-4-git-send-email-wagi@monom.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:59022 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752653AbcHCPoK (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 3 Aug 2016 11:44:10 -0400
-Content-Disposition: inline
-In-Reply-To: <1470214547-3113-1-git-send-email-wsa@the-dreams.de>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:32819 "EHLO
+	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753044AbcHCQAZ (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 3 Aug 2016 12:00:25 -0400
+In-Reply-To: <1470225791-16613-4-git-send-email-wagi@monom.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+To: Daniel Wagner <wagi@monom.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Beniamino Galvani <b.galvani@gmail.com>, Ray Jui <rjui@broadcom.com>, Tim Kryger <tim.kryger@linaro.org>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, "Jayachandran C <jchandra@broadcom.com>, bcm-kernel-feedback-list" <bcm-kernel-feedback-list@broadcom.com>, linux-kernel@vger.kernel.org, Daniel Wagner <daniel.wagner@bmw-carit.de>
 
-On Wed, Aug 03, 2016 at 10:55:47AM +0200, Wolfram Sang wrote:
-> Don't display generated files, so 'git status' becomes useful again.
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+LGTM
+
+On Wed, Aug 3, 2016 at 8:03 AM, Daniel Wagner <wagi@monom.org> wrote:
+> From: Daniel Wagner <daniel.wagner@bmw-carit.de>
+>
+> There is only one waiter for the completion, therefore there
+> is no need to use complete_all(). Let's make that clear by
+> using complete() instead of complete_all().
+>
+> The usage pattern of the completion is:
+>
+> brcmstb_send_i2c_cmd()
+>   reinit_completion()
+>   ...
+>   /* initiate transfer by setting iic_enable */
+>   ...
+>   brcmstb_i2c_wait_for_completion()
+>
+> Signed-off-by: Daniel Wagner <daniel.wagner@bmw-carit.de>
+
+Reviewed-by: Kamal Dasu <kdasu.kdev@gmail.com>
+
 > ---
->  .gitignore       | 8 ++++++++
->  tools/.gitignore | 4 ++++
->  2 files changed, 12 insertions(+)
->  create mode 100644 .gitignore
->  create mode 100644 tools/.gitignore
-> 
-> diff --git a/.gitignore b/.gitignore
-> new file mode 100644
-> index 0000000..0d86cb6
-> --- /dev/null
-> +++ b/.gitignore
-> @@ -0,0 +1,8 @@
-> +.*
-> +*.o
-> +*.o.*
-> +*.a
-> +*.so
-> +*.so.*
-> +*.so.dbg
-> +*.ao
-> diff --git a/tools/.gitignore b/tools/.gitignore
-> new file mode 100644
-> index 0000000..18c268a
-> --- /dev/null
-> +++ b/tools/.gitignore
-> @@ -0,0 +1,4 @@
-> +i2cdump
-> +i2cset
-> +i2cget
-> +i2cdetect
-
-better anchor these patterns and write
-
-	/i2cdump
-	...
-
-. Currently it doesn't matter much, but usually that's what you really
-want.
-
-Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+>  drivers/i2c/busses/i2c-brcmstb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
+> index 6a8cfc1..ab4ff96 100644
+> --- a/drivers/i2c/busses/i2c-brcmstb.c
+> +++ b/drivers/i2c/busses/i2c-brcmstb.c
+> @@ -228,7 +228,7 @@ static irqreturn_t brcmstb_i2c_isr(int irq, void *devid)
+>                 return IRQ_NONE;
+>
+>         brcmstb_i2c_enable_disable_irq(dev, INT_DISABLE);
+> -       complete_all(&dev->done);
+> +       complete(&dev->done);
+>
+>         dev_dbg(dev->device, "isr handled");
+>         return IRQ_HANDLED;
+> --
+> 2.7.4
