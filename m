@@ -1,24 +1,31 @@
-From: Kamal Dasu <kdasu.kdev@gmail.com>
-Subject: Re: [PATCH v0 3/4] i2c: brcmstb: Use complete() instead of complete_all()
-Date: Wed, 3 Aug 2016 12:00:23 -0400
-Message-ID: <CAC=U0a07p0Dx1UAme0=4b5DWpbVZvqk2nSN_TCXCGtVQM=U=Yw@mail.gmail.com>
-References: <1470225791-16613-1-git-send-email-wagi@monom.org> <1470225791-16613-4-git-send-email-wagi@monom.org>
+From: Ray Jui <ray.jui@broadcom.com>
+Subject: Re: [PATCH v0 1/4] i2c: bcm-iproc: Use complete() instead of
+ complete_all()
+Date: Wed, 3 Aug 2016 09:36:10 -0700
+Message-ID: <32341d5e-a3a1-368e-8319-67b95bb7ade8@broadcom.com>
+References: <1470225791-16613-1-git-send-email-wagi@monom.org>
+ <1470225791-16613-2-git-send-email-wagi@monom.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:32819 "EHLO
-	mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753044AbcHCQAZ (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 3 Aug 2016 12:00:25 -0400
-In-Reply-To: <1470225791-16613-4-git-send-email-wagi@monom.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1470225791-16613-2-git-send-email-wagi@monom.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Daniel Wagner <wagi@monom.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Kamal Dasu <kdasu.kdev@gmail.com>, Tim Kryger <tim.kryger@linaro.org>, Ray Jui <rjui@broadcom.com>, Daniel Wagner <daniel.wagner@bmw-carit.de>, linux-kernel@vger.kernel.org, Beniamino Galvani <b.galvani@gmail.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Daniel Wagner <wagi@monom.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Beniamino Galvani <b.galvani@gmail.com>, Ray Jui <rjui@broadcom.com>, Tim Kryger <tim.kryger@linaro.org>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, "Jayachandran C <jchandra@broadcom.com>, bcm-kernel-feedback-list" <bcm-kernel-feedback-list@broadcom.com>, linux-kernel@vger.kernel.org, Daniel Wagner <daniel.wagner@bmw-carit.de>
 
-LGTM
+Hi Daniel,
 
-On Wed, Aug 3, 2016 at 8:03 AM, Daniel Wagner <wagi@monom.org> wrote:
+On 8/3/2016 5:03 AM, Daniel Wagner wrote:
 > From: Daniel Wagner <daniel.wagner@bmw-carit.de>
 >
 > There is only one waiter for the completion, therefore there
@@ -27,33 +34,36 @@ On Wed, Aug 3, 2016 at 8:03 AM, Daniel Wagner <wagi@monom.org> wrote:
 >
 > The usage pattern of the completion is:
 >
-> brcmstb_send_i2c_cmd()
+> bcm_iproc_i2c_xfer_single_msg()
 >   reinit_completion()
 >   ...
->   /* initiate transfer by setting iic_enable */
+>   (activate the transfer)
 >   ...
->   brcmstb_i2c_wait_for_completion()
+>   wait_for_completion_timeout()
 >
 > Signed-off-by: Daniel Wagner <daniel.wagner@bmw-carit.de>
-
-Reviewed-by: Kamal Dasu <kdasu.kdev@gmail.com>
-
 > ---
->  drivers/i2c/busses/i2c-brcmstb.c | 2 +-
+>  drivers/i2c/busses/i2c-bcm-iproc.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-> index 6a8cfc1..ab4ff96 100644
-> --- a/drivers/i2c/busses/i2c-brcmstb.c
-> +++ b/drivers/i2c/busses/i2c-brcmstb.c
-> @@ -228,7 +228,7 @@ static irqreturn_t brcmstb_i2c_isr(int irq, void *devid)
->                 return IRQ_NONE;
+> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+> index 19c8438..95f7cac 100644
+> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
+> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+> @@ -158,7 +158,7 @@ static irqreturn_t bcm_iproc_i2c_isr(int irq, void *data)
 >
->         brcmstb_i2c_enable_disable_irq(dev, INT_DISABLE);
-> -       complete_all(&dev->done);
-> +       complete(&dev->done);
+>  	if (status & BIT(IS_M_START_BUSY_SHIFT)) {
+>  		iproc_i2c->xfer_is_done = 1;
+> -		complete_all(&iproc_i2c->done);
+> +		complete(&iproc_i2c->done);
+>  	}
 >
->         dev_dbg(dev->device, "isr handled");
->         return IRQ_HANDLED;
-> --
-> 2.7.4
+>  	writel(status, iproc_i2c->base + IS_OFFSET);
+>
+
+Yes each time there's only one waiter invoked from the main transfer 
+routine 'bcm_iproc_i2c_xfer_single_msg'.
+
+This change looks good to me, thanks!
+
+Acked-by: Ray Jui <ray.jui@broadcom.com>
