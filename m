@@ -1,152 +1,71 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: [PATCH] i2c: at91: fix support of the "alternative command" feature
-Date: Wed, 3 Aug 2016 16:58:26 +0200
-Message-ID: <20160803145826.11927-1-ludovic.desroches@atmel.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH] i2c-tools: add .gitignore
+Date: Wed, 3 Aug 2016 17:22:16 +0200
+Message-ID: <20160803152216.GB17874@pengutronix.de>
+References: <1470214547-3113-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtpout.microchip.com ([198.175.253.82]:41132 "EHLO
-	email.microchip.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756358AbcHCO6J (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 3 Aug 2016 10:58:09 -0400
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:59022 "EHLO
+	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752653AbcHCPoK (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Wed, 3 Aug 2016 11:44:10 -0400
+Content-Disposition: inline
+In-Reply-To: <1470214547-3113-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com, linux-arm-kernel@lists.infradead.org, Cyrille Pitchen <cyrille.pitchen@atmel.com>, Ludovic Desroches <ludovic.desroches@atmel.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 
-From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+On Wed, Aug 03, 2016 at 10:55:47AM +0200, Wolfram Sang wrote:
+> Don't display generated files, so 'git status' becomes useful again.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  .gitignore       | 8 ++++++++
+>  tools/.gitignore | 4 ++++
+>  2 files changed, 12 insertions(+)
+>  create mode 100644 .gitignore
+>  create mode 100644 tools/.gitignore
+> 
+> diff --git a/.gitignore b/.gitignore
+> new file mode 100644
+> index 0000000..0d86cb6
+> --- /dev/null
+> +++ b/.gitignore
+> @@ -0,0 +1,8 @@
+> +.*
+> +*.o
+> +*.o.*
+> +*.a
+> +*.so
+> +*.so.*
+> +*.so.dbg
+> +*.ao
+> diff --git a/tools/.gitignore b/tools/.gitignore
+> new file mode 100644
+> index 0000000..18c268a
+> --- /dev/null
+> +++ b/tools/.gitignore
+> @@ -0,0 +1,4 @@
+> +i2cdump
+> +i2cset
+> +i2cget
+> +i2cdetect
 
-The "alternative command" feature was introduced with sama5d2 SoCs.
+better anchor these patterns and write
 
-Its purpose is to let the hardware i2c controller automatically send the
-STOP condition on the i2c bus at the end of a data transfer.
-Without this feature, the i2c driver has to write the 'STOP' bit into the
-Control Register so the hardware i2c controller is triggered to send the
-STOP condition on the bus.
+	/i2cdump
+	...
 
-Using the "alternative command" feature requires to set the transfer data
-length into the 8bit DATAL field of the Alternative Command Register.
-Hence only data transfers up to 255 bytes can take advantage of the
-"alternative command" feature. For greater data transfer sizes, the driver
-should use the previous implementation, when the "alternative command"
-support was not implemented yet.
+. Currently it doesn't matter much, but usually that's what you really
+want.
 
-Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
----
- drivers/i2c/busses/i2c-at91.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+Best regards
+Uwe
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index f233726..1bb97f6 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -38,6 +38,7 @@
- #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
- #define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
- #define AUTOSUSPEND_TIMEOUT		2000
-+#define AT91_I2C_MAX_ALT_CMD_DATA_SIZE	256
- 
- /* AT91 TWI register definitions */
- #define	AT91_TWI_CR		0x0000	/* Control Register */
-@@ -141,6 +142,7 @@ struct at91_twi_dev {
- 	unsigned twi_cwgr_reg;
- 	struct at91_twi_pdata *pdata;
- 	bool use_dma;
-+	bool use_alt_cmd;
- 	bool recv_len_abort;
- 	u32 fifo_size;
- 	struct at91_twi_dma dma;
-@@ -269,7 +271,7 @@ static void at91_twi_write_next_byte(struct at91_twi_dev *dev)
- 
- 	/* send stop when last byte has been written */
- 	if (--dev->buf_len == 0)
--		if (!dev->pdata->has_alt_cmd)
-+		if (!dev->use_alt_cmd)
- 			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
- 
- 	dev_dbg(dev->dev, "wrote 0x%x, to go %d\n", *dev->buf, dev->buf_len);
-@@ -292,7 +294,7 @@ static void at91_twi_write_data_dma_callback(void *data)
- 	 * we just have to enable TXCOMP one.
- 	 */
- 	at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_TXCOMP);
--	if (!dev->pdata->has_alt_cmd)
-+	if (!dev->use_alt_cmd)
- 		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
- }
- 
-@@ -410,7 +412,7 @@ static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
- 	}
- 
- 	/* send stop if second but last byte has been read */
--	if (!dev->pdata->has_alt_cmd && dev->buf_len == 1)
-+	if (!dev->use_alt_cmd && dev->buf_len == 1)
- 		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
- 
- 	dev_dbg(dev->dev, "read 0x%x, to go %d\n", *dev->buf, dev->buf_len);
-@@ -426,7 +428,7 @@ static void at91_twi_read_data_dma_callback(void *data)
- 	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg[0]),
- 			 dev->buf_len, DMA_FROM_DEVICE);
- 
--	if (!dev->pdata->has_alt_cmd) {
-+	if (!dev->use_alt_cmd) {
- 		/* The last two bytes have to be read without using dma */
- 		dev->buf += dev->buf_len - 2;
- 		dev->buf_len = 2;
-@@ -443,7 +445,7 @@ static void at91_twi_read_data_dma(struct at91_twi_dev *dev)
- 	struct dma_chan *chan_rx = dma->chan_rx;
- 	size_t buf_len;
- 
--	buf_len = (dev->pdata->has_alt_cmd) ? dev->buf_len : dev->buf_len - 2;
-+	buf_len = (dev->use_alt_cmd) ? dev->buf_len : dev->buf_len - 2;
- 	dma->direction = DMA_FROM_DEVICE;
- 
- 	/* Keep in mind that we won't use dma to read the last two bytes */
-@@ -651,7 +653,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 		unsigned start_flags = AT91_TWI_START;
- 
- 		/* if only one byte is to be read, immediately stop transfer */
--		if (!has_alt_cmd && dev->buf_len <= 1 &&
-+		if (!dev->use_alt_cmd && dev->buf_len <= 1 &&
- 		    !(dev->msg->flags & I2C_M_RECV_LEN))
- 			start_flags |= AT91_TWI_STOP;
- 		at91_twi_write(dev, AT91_TWI_CR, start_flags);
-@@ -745,7 +747,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	int ret;
- 	unsigned int_addr_flag = 0;
- 	struct i2c_msg *m_start = msg;
--	bool is_read, use_alt_cmd = false;
-+	bool is_read;
- 
- 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
- 
-@@ -768,14 +770,16 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 		at91_twi_write(dev, AT91_TWI_IADR, internal_address);
- 	}
- 
-+	dev->use_alt_cmd = false;
- 	is_read = (m_start->flags & I2C_M_RD);
- 	if (dev->pdata->has_alt_cmd) {
--		if (m_start->len > 0) {
-+		if (m_start->len > 0 &&
-+		    m_start->len < AT91_I2C_MAX_ALT_CMD_DATA_SIZE) {
- 			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_ACMEN);
- 			at91_twi_write(dev, AT91_TWI_ACR,
- 				       AT91_TWI_ACR_DATAL(m_start->len) |
- 				       ((is_read) ? AT91_TWI_ACR_DIR : 0));
--			use_alt_cmd = true;
-+			dev->use_alt_cmd = true;
- 		} else {
- 			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_ACMDIS);
- 		}
-@@ -784,7 +788,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	at91_twi_write(dev, AT91_TWI_MMR,
- 		       (m_start->addr << 16) |
- 		       int_addr_flag |
--		       ((!use_alt_cmd && is_read) ? AT91_TWI_MREAD : 0));
-+		       ((!dev->use_alt_cmd && is_read) ? AT91_TWI_MREAD : 0));
- 
- 	dev->buf_len = m_start->len;
- 	dev->buf = m_start->buf;
 -- 
-2.9.0
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
