@@ -1,61 +1,59 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c-tools: fix feature test macros for glibc >= 2.20
-Date: Wed, 3 Aug 2016 13:23:11 +0200
-Message-ID: <20160803132311.59d53ad7@endymion>
-References: <1470213836-2848-1-git-send-email-wsa@the-dreams.de>
+From: Daniel Wagner <wagi@monom.org>
+Subject: [PATCH v0 0/4] Use complete() instead of complete_all()
+Date: Wed,  3 Aug 2016 14:03:07 +0200
+Message-ID: <1470225791-16613-1-git-send-email-wagi@monom.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:54708 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752270AbcHCLXN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 3 Aug 2016 07:23:13 -0400
-In-Reply-To: <1470213836-2848-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
+Cc: Kamal Dasu <kdasu.kdev@gmail.com>, Tim Kryger <tim.kryger@linaro.org>, Ray Jui <rjui@broadcom.com>, Daniel Wagner <daniel.wagner@bmw-carit.de>, linux-kernel@vger.kernel.org, Beniamino Galvani <b.galvani@gmail.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+From: Daniel Wagner <daniel.wagner@bmw-carit.de>
 
-On Wed,  3 Aug 2016 10:43:56 +0200, Wolfram Sang wrote:
-> Since glibc 2.20, the usage of _BSD_SOURCE is deprecated. Fix it like
-> described here:
-> 
-> https://sourceware.org/glibc/wiki/Release/2.20#Deprecation_of__BSD_SOURCE_and__SVID_SOURCE_feature_macros
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  tools/i2cbusses.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/tools/i2cbusses.c b/tools/i2cbusses.c
-> index b3093aa..28e3682 100644
-> --- a/tools/i2cbusses.c
-> +++ b/tools/i2cbusses.c
-> @@ -23,7 +23,8 @@
->  */
->  
->  /* For strdup and snprintf */
-> -#define _BSD_SOURCE 1
-> +#define _BSD_SOURCE 1 /* for glibc < 2.19 */
-> +#define _DEFAULT_SOURCE 1 /* for glibc >= 2.20 */
+Hi,
 
-Actually >= 2.19 if I read the web page you mentioned (which has the
-same "bug") correctly.
+Using complete_all() is not wrong per se but it suggest that there
+might be more than one reader. For -rt I am reviewing all
+complete_all() users and would like to leave only the real ones in the
+tree. The main problem for -rt about complete_all() is that it can be
+uses inside IRQ context and that can lead to unbounded amount work
+inside the interrupt handler. That is a no no for -rt.
 
-Other than that,
+The patches grouped per subsystem and in small batches to allow
+reviewing. Unfortanatly I am not so good in coming up with unique
+commit message, so please bear with me in that regard. I could also
+squash them together, although each patch containts a very short
+reasoning why there is only one waiter. Let me know what you rather
+prefer. One patch which updates all complete_all() users or those 4
+patches with some reasoning.
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+It is only test compiled because I don't have the all the hardware.
 
-Again the 3.1 branch would need the same fix.
+cheers,
+daniel
 
->  
->  #include <sys/types.h>
->  #include <sys/stat.h>
+Daniel Wagner (4):
+  i2c: bcm-iproc: Use complete() instead of complete_all()
+  i2c: bcm-kona: Use complete() instead of complete_all()
+  i2c: brcmstb: Use complete() instead of complete_all()
+  i2c: meson: Use complete() instead of complete_all()
 
-Thanks,
+ drivers/i2c/busses/i2c-bcm-iproc.c | 2 +-
+ drivers/i2c/busses/i2c-bcm-kona.c  | 2 +-
+ drivers/i2c/busses/i2c-brcmstb.c   | 2 +-
+ drivers/i2c/busses/i2c-meson.c     | 6 +++---
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
 -- 
-Jean Delvare
-SUSE L3 Support
+2.7.4
