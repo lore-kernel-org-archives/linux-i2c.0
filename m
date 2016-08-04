@@ -1,71 +1,26 @@
-From: Tomeu Vizoso <tomeu.vizoso@gmail.com>
-Subject: Re: [PATCH 08/12] i2c: core: Add support for 'i2c-bus' subnode
-Date: Thu, 4 Aug 2016 08:25:39 +0200
-Message-ID: <CAAObsKDyEJTqDpv7YcwF-fJ9c_Quz2mHMxm+HrScYJkB44jaBQ@mail.gmail.com>
-References: <1466697545-11868-1-git-send-email-jonathanh@nvidia.com>
- <1466697545-11868-9-git-send-email-jonathanh@nvidia.com>
- <CAAObsKDGVz0XCxeqt+W31RZ-KEvqPnQaH0dkTUj2zL9oFZrPBw@mail.gmail.com>
- <d0647634-7fc9-05e1-21b0-f96bccd5fc6a@nvidia.com>
+From: Peter Korsgaard <peter@korsgaard.com>
+Subject: Re: [PATCH] i2c: ocores: add missed clk_disable_unprepare() on failure paths
+Date: Thu, 04 Aug 2016 20:45:23 +0200
+Message-ID: <87wpjwfk58.fsf@dell.be.48ers.dk>
+References: <1470267524-14753-1-git-send-email-khoroshilov@ispras.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <d0647634-7fc9-05e1-21b0-f96bccd5fc6a@nvidia.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Rob Herring <robh+dt@kernel.org>, linux-gpio@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1470267524-14753-1-git-send-email-khoroshilov@ispras.ru> (Alexey
+	Khoroshilov's message of "Thu, 4 Aug 2016 02:38:44 +0300")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMiBBdWd1c3QgMjAxNiBhdCAwODo0OSwgSm9uIEh1bnRlciA8am9uYXRoYW5oQG52aWRpYS5j
-b20+IHdyb3RlOgo+Cj4gT24gMDIvMDgvMTYgMDc6MjYsIFRvbWV1IFZpem9zbyB3cm90ZToKPj4g
-T24gMjMgSnVuZSAyMDE2IGF0IDE3OjU5LCBKb24gSHVudGVyIDxqb25hdGhhbmhAbnZpZGlhLmNv
-bT4gd3JvdGU6Cj4+PiBJZiB0aGUgJ2kyYy1idXMnIGRldmljZS10cmVlIG5vZGUgaXMgcHJlc2Vu
-dCBmb3IgYW4gSTJDIGFkYXB0ZXIgdGhlbgo+Pj4gcGFyc2UgdGhpcyBzdWJub2RlIGZvciBJMkMg
-c2xhdmVzLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IEpvbiBIdW50ZXIgPGpvbmF0aGFuaEBudmlk
-aWEuY29tPgo+Pj4gLS0tCj4+PiAgZHJpdmVycy9pMmMvaTJjLWNvcmUuYyB8IDEwICsrKysrKysr
-LS0KPj4+ICAxIGZpbGUgY2hhbmdlZCwgOCBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+
-Pj4KPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9pMmMtY29yZS5jIGIvZHJpdmVycy9pMmMv
-aTJjLWNvcmUuYwo+Pj4gaW5kZXggOTUyZDJmMGMwMmM1Li43MWFkNTMyYmUxZDggMTAwNjQ0Cj4+
-PiAtLS0gYS9kcml2ZXJzL2kyYy9pMmMtY29yZS5jCj4+PiArKysgYi9kcml2ZXJzL2kyYy9pMmMt
-Y29yZS5jCj4+PiBAQCAtMTQ1Miw3ICsxNDUyLDcgQEAgc3RhdGljIHN0cnVjdCBpMmNfY2xpZW50
-ICpvZl9pMmNfcmVnaXN0ZXJfZGV2aWNlKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCwKPj4+Cj4+
-PiAgc3RhdGljIHZvaWQgb2ZfaTJjX3JlZ2lzdGVyX2RldmljZXMoc3RydWN0IGkyY19hZGFwdGVy
-ICphZGFwKQo+Pj4gIHsKPj4+IC0gICAgICAgc3RydWN0IGRldmljZV9ub2RlICpub2RlOwo+Pj4g
-KyAgICAgICBzdHJ1Y3QgZGV2aWNlX25vZGUgKmJ1cywgKm5vZGU7Cj4+Pgo+Pj4gICAgICAgICAv
-KiBPbmx5IHJlZ2lzdGVyIGNoaWxkIGRldmljZXMgaWYgdGhlIGFkYXB0ZXIgaGFzIGEgbm9kZSBw
-b2ludGVyIHNldCAqLwo+Pj4gICAgICAgICBpZiAoIWFkYXAtPmRldi5vZl9ub2RlKQo+Pj4gQEAg
-LTE0NjAsMTEgKzE0NjAsMTcgQEAgc3RhdGljIHZvaWQgb2ZfaTJjX3JlZ2lzdGVyX2RldmljZXMo
-c3RydWN0IGkyY19hZGFwdGVyICphZGFwKQo+Pj4KPj4+ICAgICAgICAgZGV2X2RiZygmYWRhcC0+
-ZGV2LCAib2ZfaTJjOiB3YWxraW5nIGNoaWxkIG5vZGVzXG4iKTsKPj4+Cj4+PiAtICAgICAgIGZv
-cl9lYWNoX2F2YWlsYWJsZV9jaGlsZF9vZl9ub2RlKGFkYXAtPmRldi5vZl9ub2RlLCBub2RlKSB7
-Cj4+PiArICAgICAgIGJ1cyA9IG9mX2dldF9jaGlsZF9ieV9uYW1lKGFkYXAtPmRldi5vZl9ub2Rl
-LCAiaTJjLWJ1cyIpOwo+Pj4gKyAgICAgICBpZiAoIWJ1cykKPj4+ICsgICAgICAgICAgICAgICBi
-dXMgPSBvZl9ub2RlX2dldChhZGFwLT5kZXYub2Zfbm9kZSk7Cj4+PiArCj4+PiArICAgICAgIGZv
-cl9lYWNoX2F2YWlsYWJsZV9jaGlsZF9vZl9ub2RlKGJ1cywgbm9kZSkgewo+Pj4gICAgICAgICAg
-ICAgICAgIGlmIChvZl9ub2RlX3Rlc3RfYW5kX3NldF9mbGFnKG5vZGUsIE9GX1BPUFVMQVRFRCkp
-Cj4+PiAgICAgICAgICAgICAgICAgICAgICAgICBjb250aW51ZTsKPj4+ICAgICAgICAgICAgICAg
-ICBvZl9pMmNfcmVnaXN0ZXJfZGV2aWNlKGFkYXAsIG5vZGUpOwo+Pj4gICAgICAgICB9Cj4+PiAr
-Cj4+PiArICAgICAgIG9mX25vZGVfcHV0KGJ1cyk7Cj4+PiAgfQo+Pgo+PiBTb3JyeSBmb3Igbm90
-IGNvbW1lbnRpbmcgZWFybGllciwgYnV0IEkgb25seSBmb3VuZCB0aGUgaXNzdWUgeWVzdGVyZGF5
-Lgo+Pgo+PiBJJ20gYm90aGVyZWQgYXMgd2VsbCBieSB0aGUgIm1vZGFsaWFzIGZhaWx1cmUiIGVy
-cm9yIG1lc3NhZ2UgYnV0IGluIG15Cj4+IGNhc2UgdGhlIG5vZGUgZG9lc24ndCBoYXZlIGFueSBp
-MmMgZGV2aWNlcywgc28gdGhpcyBwYXRjaCBpc24ndCBhCj4+IGNvbXBsZXRlIHNvbHV0aW9uIHRv
-IHRoYXQgcHJvYmxlbS4KPgo+IEJ1dCBpdCBpcyBhIGkyYyBhZGFwdGVyIGNvcnJlY3Q/IEkgZ3Vl
-c3MgSSBkb24ndCBjb21wbGV0ZWx5IHVuZGVyc3RhbmQKPiB0aGUgcHJvYmxlbT8KPgo+PiBIYXMg
-dGhpcyBiZWVuIGNvbnNpZGVyZWQgYWxyZWFkeT8KPgo+IFdoeSBjYW4ndCB5b3UgYWRkIGEgcGxh
-Y2UtaG9sZGVyICdpMmMtYnVzJyBub2RlIGZvciBpMmMgZGV2aWNlcyBzbyB3aGVuCj4gdGhleSBh
-cmUgYWRkaW5nIGluIHRoZSBmdXR1cmUgdGhleSBhcmUgcGxhY2VkIHVuZGVyIHRoaXMgbm9kZT8g
-VGhpcyBpcwo+IHdoYXQgSSBkaWQgZm9yIGRwYXV4LiBTZWUgcGF0Y2ggMTIvMTIgb2YgdGhpcyBz
-ZXJpZXMuCgpIYWRuJ3QgcmVhbGl6ZWQsIGFuZCBpdCBzb3VuZHMgZ29vZCBlbm91Z2ggdG8gbWUu
-CgpUaGFua3MsCgpUb21ldQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3Rv
-cC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmkt
-ZGV2ZWwK
+>>>>> "Alexey" == Alexey Khoroshilov <khoroshilov@ispras.ru> writes:
+
+ > clk_disable_unprepare() is missed on failure paths in ocores_i2c_probe().
+ > Found by Linux Driver Verification project (linuxtesting.org).
+
+ > Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+
+Acked-by: Peter Korsgaard <peter@korsgaard.com>
+
+-- 
+Bye, Peter Korsgaard
