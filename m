@@ -1,22 +1,13 @@
 From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 00/11] use of_property_read_bool
-Date: Fri,  5 Aug 2016 10:56:40 +0200
-Message-ID: <1470387411-15879-1-git-send-email-Julia.Lawall@lip6.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: netdev@vger.kernel.org
-Cc: alsa-devel@alsa-project.org, kernel-janitors@vger.kernel.org, linux-usb@vger.kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH 04/11] i2c: mpc: use of_property_read_bool
+Date: Fri,  5 Aug 2016 10:56:44 +0200
+Message-ID: <1470387411-15879-5-git-send-email-Julia.Lawall@lip6.fr>
+References: <1470387411-15879-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1470387411-15879-1-git-send-email-Julia.Lawall@lip6.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Use of_property_read_bool to check for the existence of a property.
@@ -34,19 +25,22 @@ statement S2,S1;
         S1 else S2
 // </smpl>
 
----
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
- arch/powerpc/sysdev/mpic.c                  |    2 +-
- drivers/i2c/busses/i2c-mpc.c                |    2 +-
- drivers/mmc/host/sdhci-of-esdhc.c           |    2 +-
- drivers/net/ethernet/freescale/xgmac_mdio.c |    3 +--
- drivers/phy/phy-qcom-ufs.c                  |    2 +-
- drivers/pinctrl/nomadik/pinctrl-nomadik.c   |    2 +-
- drivers/soc/fsl/qe/qe_tdm.c                 |    2 +-
- drivers/soc/ti/knav_qmss_queue.c            |    2 +-
- drivers/tty/serial/atmel_serial.c           |    8 ++++----
- drivers/usb/host/fsl-mph-dr-of.c            |    6 +++---
- sound/soc/codecs/ab8500-codec.c             |   10 +++++-----
- sound/soc/sh/rcar/ssi.c                     |    2 +-
- sound/soc/soc-core.c                        |    2 +-
- 13 files changed, 22 insertions(+), 23 deletions(-)
+---
+ drivers/i2c/busses/i2c-mpc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 48ecffe..4b5707b 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -700,7 +700,7 @@ static int fsl_i2c_probe(struct platform_device *op)
+ 		}
+ 	}
+ 
+-	if (of_get_property(op->dev.of_node, "fsl,preserve-clocking", NULL)) {
++	if (of_property_read_bool(op->dev.of_node, "fsl,preserve-clocking")) {
+ 		clock = MPC_I2C_CLOCK_PRESERVE;
+ 	} else {
+ 		prop = of_get_property(op->dev.of_node, "clock-frequency",
