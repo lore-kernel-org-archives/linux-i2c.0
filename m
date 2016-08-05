@@ -1,58 +1,52 @@
-From: Tim Kryger <tim.kryger@gmail.com>
-Subject: Re: [PATCH v0 2/4] i2c: bcm-kona: Use complete() instead of complete_all()
-Date: Thu, 4 Aug 2016 21:16:24 -0700
-Message-ID: <CAD7vxxLCtN1+vTj5_XL5N-w4YXcj=1jUj5PxQvFUzVT_E0m7ug@mail.gmail.com>
-References: <1470225791-16613-1-git-send-email-wagi@monom.org> <1470225791-16613-3-git-send-email-wagi@monom.org>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 00/11] use of_property_read_bool
+Date: Fri,  5 Aug 2016 10:56:40 +0200
+Message-ID: <1470387411-15879-1-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1470225791-16613-3-git-send-email-wagi@monom.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Wagner <wagi@monom.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Tim Kryger <tim.kryger@linaro.org>, Ray Jui <rjui@broadcom.com>, Daniel Wagner <daniel.wagner@bmw-carit.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Beniamino Galvani <b.galvani@gmail.com>, Broadcom Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>, linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: netdev@vger.kernel.org
+Cc: alsa-devel@alsa-project.org, kernel-janitors@vger.kernel.org, linux-usb@vger.kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 3, 2016 at 5:03 AM, Daniel Wagner <wagi@monom.org> wrote:
-> From: Daniel Wagner <daniel.wagner@bmw-carit.de>
->
-> There is only one waiter for the completion, therefore there
-> is no need to use complete_all(). Let's make that clear by
-> using complete() instead of complete_all().
->
-> The usage pattern of the completion is:
->
-> bcm_kona_send_i2c_cmd()
->   reinit_completion()
->   ...
->   bcm_kona_i2c_send_cmd_to_ctrl()
->   ...
->   wait_for_completion_timeout()
->
-> Signed-off-by: Daniel Wagner <daniel.wagner@bmw-carit.de>
+Use of_property_read_bool to check for the existence of a property.
 
-Reviewed-by: Tim Kryger <tim.kryger@gmail.com>
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
 
-> ---
->  drivers/i2c/busses/i2c-bcm-kona.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c-bcm-kona.c
-> index ac9f476..f987432 100644
-> --- a/drivers/i2c/busses/i2c-bcm-kona.c
-> +++ b/drivers/i2c/busses/i2c-bcm-kona.c
-> @@ -229,7 +229,7 @@ static irqreturn_t bcm_kona_i2c_isr(int irq, void *devid)
->                        dev->base + TXFCR_OFFSET);
->
->         writel(status & ~ISR_RESERVED_MASK, dev->base + ISR_OFFSET);
-> -       complete_all(&dev->done);
-> +       complete(&dev->done);
->
->         return IRQ_HANDLED;
->  }
-> --
-> 2.7.4
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+// <smpl>
+@@
+expression e1,e2;
+statement S2,S1;
+@@
+-       if (of_get_property(e1,e2,NULL))
++       if (of_property_read_bool(e1,e2))
+        S1 else S2
+// </smpl>
+
+---
+
+ arch/powerpc/sysdev/mpic.c                  |    2 +-
+ drivers/i2c/busses/i2c-mpc.c                |    2 +-
+ drivers/mmc/host/sdhci-of-esdhc.c           |    2 +-
+ drivers/net/ethernet/freescale/xgmac_mdio.c |    3 +--
+ drivers/phy/phy-qcom-ufs.c                  |    2 +-
+ drivers/pinctrl/nomadik/pinctrl-nomadik.c   |    2 +-
+ drivers/soc/fsl/qe/qe_tdm.c                 |    2 +-
+ drivers/soc/ti/knav_qmss_queue.c            |    2 +-
+ drivers/tty/serial/atmel_serial.c           |    8 ++++----
+ drivers/usb/host/fsl-mph-dr-of.c            |    6 +++---
+ sound/soc/codecs/ab8500-codec.c             |   10 +++++-----
+ sound/soc/sh/rcar/ssi.c                     |    2 +-
+ sound/soc/soc-core.c                        |    2 +-
+ 13 files changed, 22 insertions(+), 23 deletions(-)
