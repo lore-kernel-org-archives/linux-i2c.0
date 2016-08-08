@@ -1,91 +1,85 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 10/11] soc: ti: knav_qmss_queue: use
- of_property_read_bool
-Date: Fri, 5 Aug 2016 14:59:22 +0200 (CEST)
-Message-ID: <alpine.DEB.2.10.1608051456170.2999@hadrien>
-References: <1470387411-15879-1-git-send-email-Julia.Lawall@lip6.fr> <1470387411-15879-11-git-send-email-Julia.Lawall@lip6.fr> <c010a500-87ce-19ad-0109-f57eba3c6981@arm.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
+Subject: Re: Debian Jessie on QNAP TS-112P - Reboot instead of shutdown
+Date: Mon, 8 Aug 2016 09:13:56 +0200
+Message-ID: <20160808071356.znfz3jwytu3iavtz@perseus.defre.kleine-koenig.org>
+References: <20160717115512.GA10098@perseus.defre.kleine-koenig.org>
+ <578D1EE6.1070803@gmx.com>
+ <20160718192720.GA30825@perseus.defre.kleine-koenig.org>
+ <578E83B8.3000009@gmx.com>
+ <20160719201014.GA19250@perseus.defre.kleine-koenig.org>
+ <57A6328F.4060102@gmx.com>
+ <0a25e444-4103-ff2b-a1e4-9027db7c4ae3@kleine-koenig.org>
+ <57A70175.6090305@gmx.com>
+ <2c5a5526-2325-8683-aaa1-de067ae38d29@kleine-koenig.org>
+ <57A7827D.20007@gmx.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c010a500-87ce-19ad-0109-f57eba3c6981@arm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: Santosh Shilimkar <ssantosh@kernel.org>, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, linux-mmc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org, alsa-devel@alsa-project.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="gxlj7wmh7nwy73kw"
+Return-path: <bounce-debian-arm=debian-arm=m.gmane.org@lists.debian.org>
+Content-Disposition: inline
+In-Reply-To: <57A7827D.20007@gmx.com>
+Resent-Message-ID: <-BJYGoZjv9N.A.nHC.HFDqXB@bendel>
+List-URL: <https://lists.debian.org/debian-arm/>
+List-Post: <mailto:debian-arm@lists.debian.org>
+List-Help: <mailto:debian-arm-request@lists.debian.org?subject=help>
+List-Subscribe: <mailto:debian-arm-request@lists.debian.org?subject=subscribe>
+List-Unsubscribe: <mailto:debian-arm-request@lists.debian.org?subject=unsubscribe>
+List-Archive: https://lists.debian.org/msgid-search/20160808071356.znfz3jwytu3iavtz@perseus.defre.kleine-koenig.org
+To: Helge Wiemann <helge.wiemann@gmx.com>
+Cc: debian-arm@lists.debian.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
+--gxlj7wmh7nwy73kw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 5 Aug 2016, Robin Murphy wrote:
+Hello Helge,
 
-> Hi Julia,
->
-> On 05/08/16 09:56, Julia Lawall wrote:
-> > Use of_property_read_bool to check for the existence of a property.
->
-> This caught my eye since Rob told me off for doing the same recently[1].
->
-> > The semantic patch that makes this change is as follows:
-> > (http://coccinelle.lip6.fr/)
-> >
-> > // <smpl>
-> > @@
-> > expression e1,e2;
-> > statement S2,S1;
-> > @@
-> > -       if (of_get_property(e1,e2,NULL))
-> > +       if (of_property_read_bool(e1,e2))
-> >         S1 else S2
-> > // </smpl>
-> >
-> > Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-> >
-> > ---
-> >  drivers/soc/ti/knav_qmss_queue.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
-> > index b73e353..56b5d7c 100644
-> > --- a/drivers/soc/ti/knav_qmss_queue.c
-> > +++ b/drivers/soc/ti/knav_qmss_queue.c
-> > @@ -1240,7 +1240,7 @@ static int knav_setup_queue_range(struct knav_device *kdev,
-> >  	if (of_get_property(node, "qalloc-by-id", NULL))
->
-> According to the binding, "qalloc-by-id" _is_ a boolean property, so
-> this one really does deserve to be of_property_read_bool()...
->
-> >  		range->flags |= RANGE_RESERVED;
-> >
-> > -	if (of_get_property(node, "accumulator", NULL)) {
-> > +	if (of_property_read_bool(node, "accumulator")) {
->
-> ...whereas "accumulator" must have a value, so this isn't technically
-> appropriate. In general, most of these "if the property exists, read the
-> property and do stuff" checks are probably a sign of code that could be
-> simplified by refactoring the "do stuff" step to just specifically
-> handle the "read the property" step returning -EINVAL when it's not present.
+Cc: +=3D linux-i2c
 
-Thanks for the very helpful feedback.  I will rethink the patch set in
-light of this information.
+On Sun, Aug 07, 2016 at 08:48:29PM +0200, Helge Wiemann wrote:
+> I located the battery and removed it for 60 seconds, then booted up my NAS
+> and performed your commands. My syslog and tracelog are attached.
+>=20
+> I think this made no difference. The date is still incorrect.
 
-julia
+This didn't help, the bus is still stuck:
 
-> Robin.
->
-> [1]:https://www.mail-archive.com/iommu@lists.linux-foundation.org/msg13375.html
->
-> >  		ret = knav_init_acc_range(kdev, node, range);
-> >  		if (ret < 0) {
-> >  			devm_kfree(dev, range);
-> >
-> >
-> > _______________________________________________
-> > linux-arm-kernel mailing list
-> > linux-arm-kernel@lists.infradead.org
-> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> >
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+> [    2.817881] i2c i2c-0: mv64xxx_i2c_fsm: Ctlr Error -- state: 0x7, stat=
+us: 0x38, addr: 0x30, flags: 0x1
+
+This translates to:
+	state: MV64XXX_I2C_STATE_WAITING_FOR_SLAVE_DATA
+	status: MV64XXX_I2C_STATUS_MAST_LOST_ARB
+
+Not sure this is accurate though.
+
+=46rom a quick look the mv64xxx driver doesn't support bus recovery. So
+unless someone implements this the best bet is probably:
+
+ - do it by hand, maybe from the bootloader
+ - do it really by hand, by shortcutting ground and SCL up to 9 times
+   until SDA goes high again.
+
+Maybe someone from the i2c folks has a better idea.
+
+Best regards
+Uwe
+
+--gxlj7wmh7nwy73kw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBCgAGBQJXqDEwAAoJEMH8FHityuwJJmEIAJO2xklzBlCL0EjnMetLe+N+
+KPLGzR9QgtKS0HYqpQ5ScCOAGuOy7vbFNsaCNz575YF7UGac340+5Kw2YS1XdVez
+uiRQfwAU6lxk2KT80y8bDi4aTkRqpNwZI1fHIvm7Lts+6D9lPoe9vmSlF8oqsgj1
+zaTn7XcrI6QcgWIXk2nC+G5ko3cD1E23tmQTSaZg3rl61DLR7SXEbl8tRccWZQ3M
+j4eJzL7NnFA+pVgCKOvbSrtIKvEY8hgrFN06quN+nP1lQ+Jnqi3mA/7BynKpjazS
+STZQ6LI5WMVsa9Oph8/cBOdcXJipoPgR6eypU5nbdFyMq5N9B9hag21RkU3KFu4=
+=+Zq0
+-----END PGP SIGNATURE-----
+
+--gxlj7wmh7nwy73kw--
