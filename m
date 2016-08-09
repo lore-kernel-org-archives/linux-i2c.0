@@ -1,75 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: don't print error when adding adapter fails
-Date: Tue, 9 Aug 2016 16:39:15 +0200
-Message-ID: <20160809143915.GB1666@katana>
-References: <1470742581-12971-1-git-send-email-wsa-dev@sang-engineering.com>
- <1470742581-12971-2-git-send-email-wsa-dev@sang-engineering.com>
- <32d25618-83f6-b876-07b0-adb988516173@roeck-us.net>
+From: "Andrew F. Davis" <afd@ti.com>
+Subject: [PATCH v4 0/2] Add support for the TI SM-USB-DIG
+Date: Tue, 9 Aug 2016 09:55:15 -0500
+Message-ID: <20160809145517.22815-1-afd@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ftEhullJWpWg/VHq"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <32d25618-83f6-b876-07b0-adb988516173@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, adi-buildroot-devel@lists.sourceforge.net, linuxppc-dev@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-omap@vger.kernel.org, linux-rockchip@lists.infradead.org, kernel@stlinux.com, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([198.47.19.12]:39447 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751688AbcHIOzX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 9 Aug 2016 10:55:23 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Andrew F . Davis" <afd@ti.com>
 
+Hello all,
 
---ftEhullJWpWg/VHq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This series adds initial support for the TI SM-USB-DIG, this is a USB
+to I2C/SPI/1Wire/GPIO adapter, we only add support for I2C here, drivers
+for the other protocols are still in the works.
 
+Thanks,
+Andrew
 
-> >@@ -550,15 +550,10 @@ static int uniphier_fi2c_probe(struct platform_dev=
-ice *pdev)
-> > 	}
-> >
-> > 	ret =3D i2c_add_adapter(&priv->adap);
-> >-	if (ret) {
-> >-		dev_err(dev, "failed to add I2C adapter\n");
-> >-		goto err;
-> >-	}
-> >-
-> >-err:
-> > 	if (ret)
-> > 		clk_disable_unprepare(priv->clk);
-> >
-> >+ err:
->=20
-> You sure about that one ? It leaves the clock enabled in some of the erro=
-r paths.
+Changes from v3:
+ - Rebased on v4.8-rc1
+ - Added this cover letter to track series changes
 
-Uh, ehrm, where is the brown paper bag? Thanks, Guenter!
+Changes from v2:
+ - Rename sm-usb-dig -> ti-smusbdig
+ - Inline helper functions in header
+ - Alphabetize includes
 
-> Note: I dropped all individuals from Cc:; my mailer refused to accept the=
- reply because there
-> were too many.
+Changes from v1:
+ - Added missing dependency on USB to Kconfig
 
-Yes, the disadvantage of not breaking out.
+Andrew F. Davis (2):
+  mfd: ti-smusbdig: Add support for the TI SM-USB-DIG
+  i2c: ti-smusbdig: add TI SM-USB-DIG I2C bus driver
 
+ drivers/i2c/busses/Kconfig           |  10 ++
+ drivers/i2c/busses/Makefile          |   1 +
+ drivers/i2c/busses/i2c-ti-smusbdig.c | 189 +++++++++++++++++++++++++++++++++++
+ drivers/mfd/Kconfig                  |   9 ++
+ drivers/mfd/Makefile                 |   2 +
+ drivers/mfd/ti-smusbdig.c            | 138 +++++++++++++++++++++++++
+ include/linux/mfd/ti-smusbdig.h      |  75 ++++++++++++++
+ 7 files changed, 424 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-ti-smusbdig.c
+ create mode 100644 drivers/mfd/ti-smusbdig.c
+ create mode 100644 include/linux/mfd/ti-smusbdig.h
 
---ftEhullJWpWg/VHq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXqesTAAoJEBQN5MwUoCm2fdIQAKsMhNBydvOJrt8SvVKc4fd8
-39601dtUJkADzbUDKqrQm08buBble9GQe38/YIQXiPO1pRY1RQBmPLbdNTlEWMFW
-Rc2RFmg1L469UhoDgrarWvT/VFMPBGOXEVEMe/0HFX+xKXfzWwYtFHvoUBtWVv0a
-rmuq47nYitymT9AS2Pul4Jn93hT2iMiIXoqhsEoNC8NiW/JR2okn64C8dUhx+tYv
-cjwClAbJwCpd+hBwSYR6CCunZTUUMcpHxjVtgfckNHc6TPBGxwHRVGpye0dd176M
-z69gqUsx5ny+iNFeCZzgynfX0U0yzFYjNeyNFm9MuXDGD4cr6qB1PonvkStV4vKu
-cxomrG2RjT/36NHlJIbXklT2PSB0QOPjGkS+apvPlQ9eM4u24j+WlXyCtszOr/qP
-19wm6SZ+0rvlM56aPgpA935XkdCQJ8KffRTbqHxrXEthtKwhmRR1IFC1zSX7/1a9
-dA6AOB2i1fQ+FgZ/0vhmWQr72DvmTnM+T3HLWq/IK9u16j1tHRD2HA8IKDb4yY8W
-cVD511wu8qkLta47lkOVbLwxyWDBeLOT0Ekn67y6PvXoPItoFO7ormtLUkvaL7AW
-VYPILEWfsj/CAdATGEU2j//OIYakDl66HUp3yM9VxH+39gTboiHV1aFJ8/dfVZuF
-OGDTbDBP2wxqJac3m7M3
-=0rq4
------END PGP SIGNATURE-----
-
---ftEhullJWpWg/VHq--
+-- 
+2.9.2
