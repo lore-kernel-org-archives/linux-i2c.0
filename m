@@ -1,37 +1,35 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: [PATCH 1/5] gpu: drm: amd: amdgpu: amdgpu_i2c: don't print error when adding adapter fails
-Date: Tue,  9 Aug 2016 13:30:27 +0200
-Message-ID: <1470742232-12559-2-git-send-email-wsa-dev@sang-engineering.com>
-References: <1470742232-12559-1-git-send-email-wsa-dev@sang-engineering.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1470742232-12559-1-git-send-email-wsa-dev@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa-dev@sang-engineering.com>, Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org
+Subject: [PATCH 0/4] media: don't print error when adding adapter fails
+Date: Tue,  9 Aug 2016 13:35:12 +0200
+Message-ID: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:55514 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750798AbcHILfU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 9 Aug 2016 07:35:20 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa-dev@sang-engineering.com>, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 
-The core will do this for us now.
+Since v4.8-rc1, the I2C core will print detailed information when adding an I2C
+adapter fails. So, drivers can skip this now.
 
-Signed-off-by: Wolfram Sang <wsa-dev@sang-engineering.com>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Should go via subsystem tree, I'd think.
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-index 31a676376d732a..c93a92a840ead1 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-@@ -186,10 +186,8 @@ struct amdgpu_i2c_chan *amdgpu_i2c_create(struct drm_device *dev,
- 			 "AMDGPU i2c hw bus %s", name);
- 		i2c->adapter.algo = &amdgpu_atombios_i2c_algo;
- 		ret = i2c_add_adapter(&i2c->adapter);
--		if (ret) {
--			DRM_ERROR("Failed to register hw i2c %s\n", name);
-+		if (ret)
- 			goto out_free;
--		}
- 	} else {
- 		/* set the amdgpu bit adapter */
- 		snprintf(i2c->adapter.name, sizeof(i2c->adapter.name),
+Wolfram Sang (4):
+  media: pci: netup_unidvb: don't print error when adding adapter fails
+  media: pci: pt3: don't print error when adding adapter fails
+  media: platform: exynos4-is: fimc-is-i2c: don't print error when
+    adding adapter fails
+  media: usb: dvb-usb-v2: dvb_usb_core: don't print error when adding
+    adapter fails
+
+ drivers/media/pci/netup_unidvb/netup_unidvb_i2c.c | 5 +----
+ drivers/media/pci/pt3/pt3.c                       | 4 +---
+ drivers/media/platform/exynos4-is/fimc-is-i2c.c   | 5 +----
+ drivers/media/usb/dvb-usb-v2/dvb_usb_core.c       | 2 --
+ 4 files changed, 3 insertions(+), 13 deletions(-)
+
 -- 
 2.8.1
