@@ -1,38 +1,37 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: [PATCH 3/4] media: platform: exynos4-is: fimc-is-i2c: don't print error when adding adapter fails
-Date: Tue,  9 Aug 2016 13:35:15 +0200
-Message-ID: <1470742517-12774-4-git-send-email-wsa-dev@sang-engineering.com>
+Subject: [PATCH 2/4] media: pci: pt3: don't print error when adding adapter fails
+Date: Tue,  9 Aug 2016 13:35:14 +0200
+Message-ID: <1470742517-12774-3-git-send-email-wsa-dev@sang-engineering.com>
 References: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa-dev@sang-engineering.com>, Kyungmin Park <kyungmin.park@samsung.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa-dev@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 The core will do this for us now.
 
 Signed-off-by: Wolfram Sang <wsa-dev@sang-engineering.com>
 ---
- drivers/media/platform/exynos4-is/fimc-is-i2c.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/media/pci/pt3/pt3.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-is-i2c.c b/drivers/media/platform/exynos4-is/fimc-is-i2c.c
-index 7521aa59b0649c..fd888ef447a903 100644
---- a/drivers/media/platform/exynos4-is/fimc-is-i2c.c
-+++ b/drivers/media/platform/exynos4-is/fimc-is-i2c.c
-@@ -56,11 +56,8 @@ static int fimc_is_i2c_probe(struct platform_device *pdev)
- 	i2c_adap->class = I2C_CLASS_SPD;
- 
- 	ret = i2c_add_adapter(i2c_adap);
+diff --git a/drivers/media/pci/pt3/pt3.c b/drivers/media/pci/pt3/pt3.c
+index eff5e9f51ace3d..7fb649e523f46e 100644
+--- a/drivers/media/pci/pt3/pt3.c
++++ b/drivers/media/pci/pt3/pt3.c
+@@ -798,10 +798,8 @@ static int pt3_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	strlcpy(i2c->name, DRV_NAME, sizeof(i2c->name));
+ 	i2c_set_adapdata(i2c, pt3);
+ 	ret = i2c_add_adapter(i2c);
 -	if (ret < 0) {
--		dev_err(&pdev->dev, "failed to add I2C bus %s\n",
--						node->full_name);
+-		dev_err(&pdev->dev, "Failed to add i2c adapter\n");
 +	if (ret < 0)
- 		return ret;
+ 		goto err_i2cbuf;
 -	}
  
- 	platform_set_drvdata(pdev, isp_i2c);
- 
+ 	for (i = 0; i < PT3_NUM_FE; i++) {
+ 		ret = pt3_alloc_adapter(pt3, i);
 -- 
 2.8.1
