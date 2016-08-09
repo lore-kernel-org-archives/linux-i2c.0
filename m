@@ -1,69 +1,71 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v2] i2c-tools: add .gitignore
-Date: Tue,  9 Aug 2016 22:54:59 +0200
-Message-ID: <1470776099-16278-1-git-send-email-wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c-tools: fix feature test macros for glibc >= 2.20
+Date: Tue, 9 Aug 2016 22:40:11 +0200
+Message-ID: <20160809204011.GA1644@katana>
+References: <1470213836-2848-1-git-send-email-wsa@the-dreams.de>
+ <20160803132311.59d53ad7@endymion>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60158 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:60251 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752441AbcHIUzS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 9 Aug 2016 16:55:18 -0400
+	id S932324AbcHIVB6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 9 Aug 2016 17:01:58 -0400
+Content-Disposition: inline
+In-Reply-To: <20160803132311.59d53ad7@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.de>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-i2c@vger.kernel.org
 
-Don't display generated files, so 'git status' becomes useful again.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- .gitignore          | 8 ++++++++
- eeprog/.gitignore   | 1 +
- eepromer/.gitignore | 2 ++
- tools/.gitignore    | 4 ++++
- 4 files changed, 15 insertions(+)
- create mode 100644 .gitignore
- create mode 100644 eeprog/.gitignore
- create mode 100644 eepromer/.gitignore
- create mode 100644 tools/.gitignore
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/.gitignore b/.gitignore
-new file mode 100644
-index 0000000..0d86cb6
---- /dev/null
-+++ b/.gitignore
-@@ -0,0 +1,8 @@
-+.*
-+*.o
-+*.o.*
-+*.a
-+*.so
-+*.so.*
-+*.so.dbg
-+*.ao
-diff --git a/eeprog/.gitignore b/eeprog/.gitignore
-new file mode 100644
-index 0000000..916cb72
---- /dev/null
-+++ b/eeprog/.gitignore
-@@ -0,0 +1 @@
-+/eeprog
-diff --git a/eepromer/.gitignore b/eepromer/.gitignore
-new file mode 100644
-index 0000000..5f76592
---- /dev/null
-+++ b/eepromer/.gitignore
-@@ -0,0 +1,2 @@
-+/eeprom
-+/eepromer
-diff --git a/tools/.gitignore b/tools/.gitignore
-new file mode 100644
-index 0000000..b029dd5
---- /dev/null
-+++ b/tools/.gitignore
-@@ -0,0 +1,4 @@
-+/i2cdump
-+/i2cset
-+/i2cget
-+/i2cdetect
--- 
-2.8.1
+
+> >  /* For strdup and snprintf */
+> > -#define _BSD_SOURCE 1
+> > +#define _BSD_SOURCE 1 /* for glibc < 2.19 */
+> > +#define _DEFAULT_SOURCE 1 /* for glibc >=3D 2.20 */
+>=20
+> Actually >=3D 2.19 if I read the web page you mentioned (which has the
+> same "bug") correctly.
+
+On the web page it is not a bug, because it says "If ... you must
+support glibc < 2.19 and glibc >=3D 2.20 then define all three
+unconditionally". This is correct since 2.19 works with both options.
+
+However, I should probably use >=3D 2.19 and <=3D 2.19 here.
+
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+>=20
+> Again the 3.1 branch would need the same fix.
+
+Yes.
+
+
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXqj+rAAoJEBQN5MwUoCm2YbsQAI8rsitQp0mW23l5zOpwIH+s
+rOoOrhWervwCFHOvloNoBv18AWsYCTpo9fM9FPHMo+xbyf0JalB9b5+4E3uEmYL3
+jrz/LFlcOZdklpa6SWf6vN6X3xslEDwQyWXjHcEtJ1kU6mHmi3iyNY0TKV+Fes3H
+gtk9lhRf+Wh3mHhAqOKx5eKLJWTMx79Uw8Y80BvBY2/TsY9suQ3ArxYTxO2Gs9wP
+Z4/+EFrh/ub8RIlwEcb7SPvTFOu9Q835IJ2HdeEwkq1W5j5tto4MPP+YM6rpG0Jy
+JJe/SWEbCpRbdi8r7J2t99GBXEIvZFPxDZUkwaSqQdbZ4gUFXv2JN33J5ag/KM2W
+tQ0UJAubeQ+/ZWLcvax/qSedeP2QnVSI/4XFJEqyTk0hwRXW20z2xCJtS9hqpUeh
+JBYTAScYGLiEOXe5EGI2+4fvi5uQvvayuh9/+KavZ/WgmMG1odjedFU4PA1kqO5F
+BEN75Un4PZJ3NfqRWW8woFcL3qC3jSTYJGdtLhU8XEvArQGMn0C72NdUNYZNEY8f
+2u3xX/PY8FuvjGQIh1kMlj4S6TWXdvAStrRqLPIBqN6XDxIpYeXM+EFDtgzyY2WZ
+3CiiKaj69DsL+zhIT5eVBzO5K1VM3/mJtmv1AvaEpEu6KcagtEqhhoonc2koniIv
+IYDEapo6mNzy0AFUd1kt
+=1tiM
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--
