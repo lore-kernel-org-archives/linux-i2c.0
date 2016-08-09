@@ -1,32 +1,28 @@
-From: Pan Gao <pandy.gao@nxp.com>
-Subject: RE: [Patch V2] i2c: imx: add low power i2c bus driver
-Date: Tue, 9 Aug 2016 10:50:06 +0000
-Message-ID: <AM4PR0401MB1780D6811F0FE6B4C8B4AB88F61C0@AM4PR0401MB1780.eurprd04.prod.outlook.com>
-References: <1469872958-28834-1-git-send-email-pandy.gao@nxp.com>
- <CAKv63usTR55t5rFjALmmrbF0MUn5zZ95vcT7c-MEdo202Y7kyw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Wolfram Sang <wsa-dev@sang-engineering.com>
+Subject: [PATCH] video: don't print error when adding adapter fails
+Date: Tue,  9 Aug 2016 13:27:38 +0200
+Message-ID: <1470742059-12341-1-git-send-email-wsa-dev@sang-engineering.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0065.outbound.protection.outlook.com ([104.47.2.65]:32530
-	"EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750798AbcHILYI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 9 Aug 2016 07:24:08 -0400
-In-Reply-To: <CAKv63usTR55t5rFjALmmrbF0MUn5zZ95vcT7c-MEdo202Y7kyw@mail.gmail.com>
-Content-Language: en-US
+Received: from sauhun.de ([89.238.76.85]:55430 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751337AbcHIL1p (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 9 Aug 2016 07:27:45 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Crt Mori <cmo@melexis.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Frank Li <frank.li@nxp.com>, Fugang Duan <fugang.duan@nxp.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa-dev@sang-engineering.com>, linux-fbdev@vger.kernel.org
 
-IEZyb206IENydCBNb3JpIDxtYWlsdG86Y21vQG1lbGV4aXMuY29tPiBTZW50OiBUdWVzZGF5LCBB
-dWd1c3QgMDksIDIwMTYgNTozNyBQTQ0KPiBUbzogUGFuIEdhbyA8cGFuZHkuZ2FvQG54cC5jb20+
-DQo+IENjOiBXb2xmcmFtIFNhbmcgPHdzYUB0aGUtZHJlYW1zLmRlPjsgdS5rbGVpbmUta29lbmln
-QHBlbmd1dHJvbml4LmRlOw0KPiBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBGcmFuayBMaSA8
-ZnJhbmsubGlAbnhwLmNvbT47IEZ1Z2FuZyBEdWFuDQo+IDxmdWdhbmcuZHVhbkBueHAuY29tPg0K
-PiBTdWJqZWN0OiBSZTogW1BhdGNoIFYyXSBpMmM6IGlteDogYWRkIGxvdyBwb3dlciBpMmMgYnVz
-IGRyaXZlcg0KPiANCj4gSGV5LA0KPiBZb3UgaGF2ZSBhIHNtYWxsIHR5cG8gaW5zaWRlIGNvbW1p
-dCBtZXNzYWdlIHlvdSBtaWdodCBjb25zaWRlciBjaGFuZ2luZyBhbmQNCj4gZmV3IGFkZGl0aW9u
-YWwgbml0cGlja3MuDQoNClRoYW5rcyBmb3IgdGhlIGNvbW1lbnRzLCAgd2lsbCBjaGFuZ2UgaXQg
-aW4gbmV4dCB2ZXJzaW9uLg0KDQpCZXN0ICBSZWdhcmRzDQpHYW8gUGFuDQo=
+Since v4.8-rc1, the I2C core will print detailed information when adding an I2C
+adapter fails. So, drivers can skip this now.
+
+Should go via subsystem tree, I'd think.
+
+Wolfram Sang (1):
+  video: fbdev: mb862xx: mb862xx-i2c: don't print error when adding
+    adapter fails
+
+ drivers/video/fbdev/mb862xx/mb862xx-i2c.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+-- 
+2.8.1
