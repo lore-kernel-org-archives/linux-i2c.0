@@ -1,34 +1,38 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: [PATCH 4/4] media: usb: dvb-usb-v2: dvb_usb_core: don't print error when adding adapter fails
-Date: Tue,  9 Aug 2016 13:35:16 +0200
-Message-ID: <1470742517-12774-5-git-send-email-wsa-dev@sang-engineering.com>
+Subject: [PATCH 3/4] media: platform: exynos4-is: fimc-is-i2c: don't print error when adding adapter fails
+Date: Tue,  9 Aug 2016 13:35:15 +0200
+Message-ID: <1470742517-12774-4-git-send-email-wsa-dev@sang-engineering.com>
 References: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa-dev@sang-engineering.com>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa-dev@sang-engineering.com>, Kyungmin Park <kyungmin.park@samsung.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>, linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 The core will do this for us now.
 
 Signed-off-by: Wolfram Sang <wsa-dev@sang-engineering.com>
 ---
- drivers/media/usb/dvb-usb-v2/dvb_usb_core.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-is-i2c.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb-v2/dvb_usb_core.c b/drivers/media/usb/dvb-usb-v2/dvb_usb_core.c
-index 3fbb2cd19f5e2a..a8e6624fbe8347 100644
---- a/drivers/media/usb/dvb-usb-v2/dvb_usb_core.c
-+++ b/drivers/media/usb/dvb-usb-v2/dvb_usb_core.c
-@@ -82,8 +82,6 @@ static int dvb_usbv2_i2c_init(struct dvb_usb_device *d)
- 	ret = i2c_add_adapter(&d->i2c_adap);
- 	if (ret < 0) {
- 		d->i2c_adap.algo = NULL;
--		dev_err(&d->udev->dev, "%s: i2c_add_adapter() failed=%d\n",
--				KBUILD_MODNAME, ret);
- 		goto err;
- 	}
+diff --git a/drivers/media/platform/exynos4-is/fimc-is-i2c.c b/drivers/media/platform/exynos4-is/fimc-is-i2c.c
+index 7521aa59b0649c..fd888ef447a903 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is-i2c.c
++++ b/drivers/media/platform/exynos4-is/fimc-is-i2c.c
+@@ -56,11 +56,8 @@ static int fimc_is_i2c_probe(struct platform_device *pdev)
+ 	i2c_adap->class = I2C_CLASS_SPD;
+ 
+ 	ret = i2c_add_adapter(i2c_adap);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "failed to add I2C bus %s\n",
+-						node->full_name);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	platform_set_drvdata(pdev, isp_i2c);
  
 -- 
 2.8.1
