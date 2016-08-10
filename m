@@ -1,109 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] eeprom: at24: check if the chip is functional in probe()
-Date: Wed, 10 Aug 2016 16:07:15 +0200
-Message-ID: <20160810140715.GB1607@katana>
-References: <1470837257-15521-1-git-send-email-bgolaszewski@baylibre.com>
+From: Alex Deucher <alexdeucher@gmail.com>
+Subject: Re: [PATCH 4/5] gpu: drm: radeon: radeon_i2c: don't print error when
+ adding adapter fails
+Date: Wed, 10 Aug 2016 14:10:30 -0400
+Message-ID: <CADnq5_OYiBmpwJBz3CscnxcR8dC0UNmz+5OCXM-aFFFb5PV5zQ@mail.gmail.com>
+References: <1470742232-12559-1-git-send-email-wsa-dev@sang-engineering.com>
+ <1470742232-12559-5-git-send-email-wsa-dev@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1470837257-15521-1-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <1470742232-12559-5-git-send-email-wsa-dev@sang-engineering.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Wolfram Sang <wsa-dev@sang-engineering.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, LKML <linux-kernel@vger.kernel.org>, Maling list - DRI developers <dri-devel@lists.freedesktop.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---3uo+9/B/ebqu+fSQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Aug 10, 2016 at 03:54:17PM +0200, Bartosz Golaszewski wrote:
-> The at24 driver doesn't check if the chip is functional in its probe
-> function. This leads to instantiating devices that are not physically
-> present. For example the cape EEPROMs for BeagleBone Black are defined
-> in the device tree at four addresses on i2c2, but normally only one of
-> them is present.
->=20
-> If the userspace doesn't know the location in advance, it will need to
-> check if reading the nvmem attributes fails to determine which EEPROM
-> is actually there.
->=20
-> Try to read a single byte in probe() and bail-out with -ENODEV if the
-> read fails.
-
-That's basically OK...
-
->=20
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> ---
->  drivers/misc/eeprom/at24.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
->=20
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 3cdf8e1..ed1e4eb 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -593,6 +593,7 @@ static int at24_probe(struct i2c_client *client, cons=
-t struct i2c_device_id *id)
->  	struct at24_data *at24;
->  	int err;
->  	unsigned i, num_addresses;
-> +	char c;
-
-u8?
-
-> =20
->  	if (client->dev.platform_data) {
->  		chip =3D *(struct at24_platform_data *)client->dev.platform_data;
-> @@ -780,6 +781,15 @@ static int at24_probe(struct i2c_client *client, con=
-st struct i2c_device_id *id)
->  	if (chip.setup)
->  		chip.setup(at24->nvmem, chip.context);
-> =20
-> +	err =3D at24_read(at24, 0, &c, 1);
-
-Can't we do this before registering dummy clients and nvmem registration?
-
-> +	if (err) {
-> +		dev_err(&client->dev,
-> +			"error reading the test byte from EEPROM: %d\n", err);
-
-I don't think we should print an error in case of ENODEV.
-
-> +		nvmem_unregister(at24->nvmem);
-> +		err =3D -ENODEV;
-> +		goto err_clients;
-> +	}
-> +
->  	return 0;
-> =20
->  err_clients:
-> --=20
-> 2.7.4
->=20
-
---3uo+9/B/ebqu+fSQ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXqzUTAAoJEBQN5MwUoCm2j18P+wQHNLtHULATtyebcxfzkIyz
-JYbLgQf/5BaeCv4jziclIbCadegTHE9Zi6zwKE/duHJOseidP2fyoaSEv0guVejb
-PO8p6UlQrByFWV/QOG4NHXXiXP/oLfQyLQzbo5fd6WHPiWcLMkN6yITbbK5flwRT
-Scl29pgLsZ/l5b0fFG2GJcXkgajnwa167wT1aFJD90R/oQt5sJOz+2d8jXwp9mLG
-WXOHwQIb48hI+nzsiMBFuk2f1lzZJuEDE8VaC7AigT5Dmf543HEq7Bcir3Sdldij
-3pfOusIW4Hr9sc6UfQgd637OmepeR02iQep0bnFa3WUZX2WF97QsswSrORGqggZe
-QWJDCnStPPsIKzFR0QGR1Vs+NcdDOHM35xHq1vtLF3OYGyU0UWFJ9IZlXvKPjYKi
-1vJyXTt4zoeSJABAV9kiaAGU7VMZiva1k586MMoxPYhb2FZz45i1M69qJOwt98l9
-wf/gIHpPhaluVYaJzPsPv4vraMit59QfSjspHCs6RENGOACXK81lDF0zF/dzASX/
-rDyVSHhwQ38F7F60Z20csZzSTjn9B1uYw95sjnK8fstxYY2Bi9b3D1lwoOSyOMz1
-F5G/rK5QsJISaMPqdUbDYgUWhXLVTbFwIfY9jcyPLKVV2mcUI4Tg36v4l2MUuvon
-mHQ7W4YHERChKB8Eb8if
-=5HXV
------END PGP SIGNATURE-----
-
---3uo+9/B/ebqu+fSQ--
+T24gVHVlLCBBdWcgOSwgMjAxNiBhdCA3OjMwIEFNLCBXb2xmcmFtIFNhbmcKPHdzYS1kZXZAc2Fu
+Zy1lbmdpbmVlcmluZy5jb20+IHdyb3RlOgo+IFRoZSBjb3JlIHdpbGwgZG8gdGhpcyBmb3IgdXMg
+bm93Lgo+Cj4gU2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2EtZGV2QHNhbmctZW5naW5l
+ZXJpbmcuY29tPgoKQXBwbGllZCBwYXRjaGVzIDEsIDUuCgpUaGFua3MsCgpBbGV4Cgo+IC0tLQo+
+ICBkcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl9pMmMuYyB8IDggKystLS0tLS0KPiAgMSBm
+aWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1n
+aXQgYS9kcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl9pMmMuYyBiL2RyaXZlcnMvZ3B1L2Ry
+bS9yYWRlb24vcmFkZW9uX2kyYy5jCj4gaW5kZXggOTU5MGJjZDMyMWMwOWEuLjAyMWFhMDA1NjIz
+ZjgwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2kyYy5jCj4g
+KysrIGIvZHJpdmVycy9ncHUvZHJtL3JhZGVvbi9yYWRlb25faTJjLmMKPiBAQCAtOTM4LDEwICs5
+MzgsOCBAQCBzdHJ1Y3QgcmFkZW9uX2kyY19jaGFuICpyYWRlb25faTJjX2NyZWF0ZShzdHJ1Y3Qg
+ZHJtX2RldmljZSAqZGV2LAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAiUmFkZW9uIGkyYyBo
+dyBidXMgJXMiLCBuYW1lKTsKPiAgICAgICAgICAgICAgICAgaTJjLT5hZGFwdGVyLmFsZ28gPSAm
+cmFkZW9uX2kyY19hbGdvOwo+ICAgICAgICAgICAgICAgICByZXQgPSBpMmNfYWRkX2FkYXB0ZXIo
+JmkyYy0+YWRhcHRlcik7Cj4gLSAgICAgICAgICAgICAgIGlmIChyZXQpIHsKPiAtICAgICAgICAg
+ICAgICAgICAgICAgICBEUk1fRVJST1IoIkZhaWxlZCB0byByZWdpc3RlciBodyBpMmMgJXNcbiIs
+IG5hbWUpOwo+ICsgICAgICAgICAgICAgICBpZiAocmV0KQo+ICAgICAgICAgICAgICAgICAgICAg
+ICAgIGdvdG8gb3V0X2ZyZWU7Cj4gLSAgICAgICAgICAgICAgIH0KPiAgICAgICAgIH0gZWxzZSBp
+ZiAocmVjLT5od19jYXBhYmxlICYmCj4gICAgICAgICAgICAgICAgICAgIHJhZGVvbl9od19pMmMg
+JiYKPiAgICAgICAgICAgICAgICAgICAgQVNJQ19JU19EQ0UzKHJkZXYpKSB7Cj4gQEAgLTk1MCwx
+MCArOTQ4LDggQEAgc3RydWN0IHJhZGVvbl9pMmNfY2hhbiAqcmFkZW9uX2kyY19jcmVhdGUoc3Ry
+dWN0IGRybV9kZXZpY2UgKmRldiwKPiAgICAgICAgICAgICAgICAgICAgICAgICAgIlJhZGVvbiBp
+MmMgaHcgYnVzICVzIiwgbmFtZSk7Cj4gICAgICAgICAgICAgICAgIGkyYy0+YWRhcHRlci5hbGdv
+ID0gJnJhZGVvbl9hdG9tX2kyY19hbGdvOwo+ICAgICAgICAgICAgICAgICByZXQgPSBpMmNfYWRk
+X2FkYXB0ZXIoJmkyYy0+YWRhcHRlcik7Cj4gLSAgICAgICAgICAgICAgIGlmIChyZXQpIHsKPiAt
+ICAgICAgICAgICAgICAgICAgICAgICBEUk1fRVJST1IoIkZhaWxlZCB0byByZWdpc3RlciBodyBp
+MmMgJXNcbiIsIG5hbWUpOwo+ICsgICAgICAgICAgICAgICBpZiAocmV0KQo+ICAgICAgICAgICAg
+ICAgICAgICAgICAgIGdvdG8gb3V0X2ZyZWU7Cj4gLSAgICAgICAgICAgICAgIH0KPiAgICAgICAg
+IH0gZWxzZSB7Cj4gICAgICAgICAgICAgICAgIC8qIHNldCB0aGUgcmFkZW9uIGJpdCBhZGFwdGVy
+ICovCj4gICAgICAgICAgICAgICAgIHNucHJpbnRmKGkyYy0+YWRhcHRlci5uYW1lLCBzaXplb2Yo
+aTJjLT5hZGFwdGVyLm5hbWUpLAo+IC0tCj4gMi44LjEKPgo+IF9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fCj4gZHJpLWRldmVsIG1haWxpbmcgbGlzdAo+IGRy
+aS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKPiBodHRwczovL2xpc3RzLmZyZWVkZXNrdG9w
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbApfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBs
+aXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1h
+bi9saXN0aW5mby9kcmktZGV2ZWwK
