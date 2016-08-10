@@ -1,57 +1,63 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RESEND PATCH 2/2] Input: cros_ec_keyb - Fix usage of
- cros_ec_cmd_xfer()
-Date: Wed, 10 Aug 2016 14:16:21 -0700
-Message-ID: <20160810211621.GB21385@roeck-us.net>
-References: <1470861439-129201-1-git-send-email-briannorris@chromium.org>
- <1470861439-129201-3-git-send-email-briannorris@chromium.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: slave framework support for SMBus Alert
+Date: Wed, 10 Aug 2016 10:26:01 +0200
+Message-ID: <20160810082601.GC1607@katana>
+References: <1470787373-26738-1-git-send-email-brendanhiggins@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Pk6IbRAofICFmK5e"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:40588 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932173AbcHJSCX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Wed, 10 Aug 2016 14:02:23 -0400
 Content-Disposition: inline
-In-Reply-To: <1470861439-129201-3-git-send-email-briannorris@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, "# 9798ac6d32c1 mfd : cros_ec : Add cros_ec_cmd_xfer_status helper" <stable@vger.kernel.org>
+In-Reply-To: <1470787373-26738-1-git-send-email-brendanhiggins@google.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Brendan Higgins <brendanhiggins@google.com>
+Cc: linux-i2c@vger.kernel.org
 
-On Wed, Aug 10, 2016 at 01:37:19PM -0700, Brian Norris wrote:
-> cros_ec_cmd_xfer returns success status if the command transport
-> completes successfully, but the execution result is incorrectly ignored.
-> In many cases, the execution result is assumed to be successful, leading
-> to ignored errors and operating on uninitialized data.
-> 
-> We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid these
-> problems. Let's use it.
-> 
-> [Regarding the 'Fixes' tag; there is significant refactoring since the driver's
-> introduction, but the underlying logical error exists throughout I believe]
-> 
-> Fixes: 6af6dc2d2aa6 ("input: Add ChromeOS EC keyboard driver")
-> Cc: <stable@vger.kernel.org> # 9798ac6d32c1 mfd: cros_ec: Add cros_ec_cmd_xfer_status() helper
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
-> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+--Pk6IbRAofICFmK5e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> ---
->  drivers/input/keyboard/cros_ec_keyb.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index b01966dc7eb3..6e48616a3a88 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -160,7 +160,7 @@ static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
->  	msg->insize = ckdev->cols;
->  	msg->outsize = 0;
->  
-> -	ret = cros_ec_cmd_xfer(ckdev->ec, msg);
-> +	ret = cros_ec_cmd_xfer_status(ckdev->ec, msg);
->  	if (ret < 0) {
->  		dev_err(ckdev->dev, "Error transferring EC message %d\n", ret);
->  		goto exit;
-> -- 
-> 2.8.0.rc3.226.g39d4020
-> 
+
+> This has been tested with a slave mode driver I am currently working which I
+> can provide upon request (I am planning on submitting the driver as well, but
+> it part of a larger upstream submission).
+
+Thanks for the patch.
+
+When adding features to the core, I need a user for this feature
+upstream. So, I noticed what you need, yet the patch needs to be resend
+together with the i2c slave driver for a full review.
+
+Regards,
+
+   Wolfram
+
+
+--Pk6IbRAofICFmK5e
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXquUYAAoJEBQN5MwUoCm2GDQQAIuI+736DabO9Aa41y0jbV4Y
+0YZfpt9rUuNyVpbZxkffiykkZdC91tIXzLAK7pRjThiokY/XPO+oXyQxn9GJOO/x
+RPrlXRJNPBz7fAgTChnshkeV2gLDau+8lkbqlj1Ihx6Yd7oUVH1E21/ArUS9d3hD
+AylTOKQnCwJYp84/2Q8iE3y5Gd/4Q6FQI8fMUR8dA7HMbTaSd2mN+4iEJhgZD7IO
+mDYtVTI5lYEtmxurCurXeqG9YpxSwO/UMSx0h3MSVyCtBHN4U+kQL7BAp+PMLL1p
+yMlYOQNhTtAXzMtb11+Q5KS8WYEKp0aTOPPlqhe6QPFvN+r9RwIjoyiOHXOgHGOc
+BbwjF7MS1MtQtKUVeRnOZ1EeEkzgYTHfkitnH8A7CmdqZ3GByPC/pSBGKij5GpgF
+voewRkdPHWnJybnwaVNdYgChP8du/nYQKVjGeSa1CQUELKorEUuMJuU1m5cEva0t
+RkOKfX889oY4jGHNvMo7zGYcm+Ew9BCcmZAUik05Kf4bqTtzjl6xOHwVEmUX4DtI
+l0A5cLLnj+95lJjBY41GO2+6ibF28Hg9NigPifTS036e9bkvwKQ/ieSa26lA4zQU
+kSUpCkrMvP6dDrpWxpHI+ljlvxuGH/FWd8Q+o54qEN5dguhK4vMpgK+/gaeJ7AWS
+ZxyZaRfoiPlYKqeAcZYi
+=6tgX
+-----END PGP SIGNATURE-----
+
+--Pk6IbRAofICFmK5e--
