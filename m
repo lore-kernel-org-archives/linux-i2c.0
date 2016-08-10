@@ -1,35 +1,39 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v2] i2c-tools: add .gitignore
-Date: Wed, 10 Aug 2016 09:03:54 +0200
-Message-ID: <20160810070354.3imhv6elnyyz22nf@pengutronix.de>
-References: <1470776099-16278-1-git-send-email-wsa+renesas@sang-engineering.com>
+From: Abylay Ospan <aospan@netup.ru>
+Subject: Re: [PATCH 1/4] media: pci: netup_unidvb: don't print error when
+ adding adapter fails
+Date: Wed, 10 Aug 2016 11:06:54 -0400
+Message-ID: <CAK3bHNV8JQ6h09i9YFYJyHoi=XDF827iLZFROsc5mX28HW9ASw@mail.gmail.com>
+References: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
+ <1470742517-12774-2-git-send-email-wsa-dev@sang-engineering.com>
+ <CAK3bHNWmxQsAtefcUocoOcEwtWnpptiVxzhXR-+jVU524RmnPw@mail.gmail.com>
+ <20160809145856.GC1666@katana> <CAK3bHNUL3NjFFex4US09ZnxvKV-1oJAu=qVrZUSgeKy90CBiAA@mail.gmail.com>
+ <20160810145656.GD1607@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:46962 "EHLO
-	metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933416AbcHJSlx (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Wed, 10 Aug 2016 14:41:53 -0400
-Content-Disposition: inline
-In-Reply-To: <1470776099-16278-1-git-send-email-wsa+renesas@sang-engineering.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160810145656.GD1607@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sergey Kozlov <serjk@netup.ru>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media <linux-media@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 
-Hello,
+make sense. thanks for explaining and for patch !
 
-On Tue, Aug 09, 2016 at 10:54:59PM +0200, Wolfram Sang wrote:
-> Don't display generated files, so 'git status' becomes useful again.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+2016-08-10 10:56 GMT-04:00 Wolfram Sang <wsa@the-dreams.de>:
+>
+>> if we do not remove this it's also ok, right ? What the big deal to
+>> remove this type of messages (i'm just interested) ?
+>
+> * Saving memory, especially at runtime.
+> * Giving consistent and precise error messages
+>
+> This series is a first step of trying to move generic error messages
+> from drivers to subsystem cores.
+>
 
-Liebe Grüße
-Uwe
+
 
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Abylay Ospan,
+NetUP Inc.
+http://www.netup.tv
