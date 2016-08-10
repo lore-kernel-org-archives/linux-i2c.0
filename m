@@ -1,62 +1,55 @@
-From: Alex Deucher <alexdeucher@gmail.com>
-Subject: Re: [PATCH 4/5] gpu: drm: radeon: radeon_i2c: don't print error when
+From: Abylay Ospan <aospan@netup.ru>
+Subject: Re: [PATCH 1/4] media: pci: netup_unidvb: don't print error when
  adding adapter fails
-Date: Wed, 10 Aug 2016 14:10:30 -0400
-Message-ID: <CADnq5_OYiBmpwJBz3CscnxcR8dC0UNmz+5OCXM-aFFFb5PV5zQ@mail.gmail.com>
-References: <1470742232-12559-1-git-send-email-wsa-dev@sang-engineering.com>
- <1470742232-12559-5-git-send-email-wsa-dev@sang-engineering.com>
+Date: Wed, 10 Aug 2016 10:41:05 -0400
+Message-ID: <CAK3bHNUL3NjFFex4US09ZnxvKV-1oJAu=qVrZUSgeKy90CBiAA@mail.gmail.com>
+References: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
+ <1470742517-12774-2-git-send-email-wsa-dev@sang-engineering.com>
+ <CAK3bHNWmxQsAtefcUocoOcEwtWnpptiVxzhXR-+jVU524RmnPw@mail.gmail.com> <20160809145856.GC1666@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1470742232-12559-5-git-send-email-wsa-dev@sang-engineering.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Wolfram Sang <wsa-dev@sang-engineering.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, LKML <linux-kernel@vger.kernel.org>, Maling list - DRI developers <dri-devel@lists.freedesktop.org>, Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160809145856.GC1666@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sergey Kozlov <serjk@netup.ru>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media <linux-media@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVHVlLCBBdWcgOSwgMjAxNiBhdCA3OjMwIEFNLCBXb2xmcmFtIFNhbmcKPHdzYS1kZXZAc2Fu
-Zy1lbmdpbmVlcmluZy5jb20+IHdyb3RlOgo+IFRoZSBjb3JlIHdpbGwgZG8gdGhpcyBmb3IgdXMg
-bm93Lgo+Cj4gU2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2EtZGV2QHNhbmctZW5naW5l
-ZXJpbmcuY29tPgoKQXBwbGllZCBwYXRjaGVzIDEsIDUuCgpUaGFua3MsCgpBbGV4Cgo+IC0tLQo+
-ICBkcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl9pMmMuYyB8IDggKystLS0tLS0KPiAgMSBm
-aWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1n
-aXQgYS9kcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3JhZGVvbl9pMmMuYyBiL2RyaXZlcnMvZ3B1L2Ry
-bS9yYWRlb24vcmFkZW9uX2kyYy5jCj4gaW5kZXggOTU5MGJjZDMyMWMwOWEuLjAyMWFhMDA1NjIz
-ZjgwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2kyYy5jCj4g
-KysrIGIvZHJpdmVycy9ncHUvZHJtL3JhZGVvbi9yYWRlb25faTJjLmMKPiBAQCAtOTM4LDEwICs5
-MzgsOCBAQCBzdHJ1Y3QgcmFkZW9uX2kyY19jaGFuICpyYWRlb25faTJjX2NyZWF0ZShzdHJ1Y3Qg
-ZHJtX2RldmljZSAqZGV2LAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAiUmFkZW9uIGkyYyBo
-dyBidXMgJXMiLCBuYW1lKTsKPiAgICAgICAgICAgICAgICAgaTJjLT5hZGFwdGVyLmFsZ28gPSAm
-cmFkZW9uX2kyY19hbGdvOwo+ICAgICAgICAgICAgICAgICByZXQgPSBpMmNfYWRkX2FkYXB0ZXIo
-JmkyYy0+YWRhcHRlcik7Cj4gLSAgICAgICAgICAgICAgIGlmIChyZXQpIHsKPiAtICAgICAgICAg
-ICAgICAgICAgICAgICBEUk1fRVJST1IoIkZhaWxlZCB0byByZWdpc3RlciBodyBpMmMgJXNcbiIs
-IG5hbWUpOwo+ICsgICAgICAgICAgICAgICBpZiAocmV0KQo+ICAgICAgICAgICAgICAgICAgICAg
-ICAgIGdvdG8gb3V0X2ZyZWU7Cj4gLSAgICAgICAgICAgICAgIH0KPiAgICAgICAgIH0gZWxzZSBp
-ZiAocmVjLT5od19jYXBhYmxlICYmCj4gICAgICAgICAgICAgICAgICAgIHJhZGVvbl9od19pMmMg
-JiYKPiAgICAgICAgICAgICAgICAgICAgQVNJQ19JU19EQ0UzKHJkZXYpKSB7Cj4gQEAgLTk1MCwx
-MCArOTQ4LDggQEAgc3RydWN0IHJhZGVvbl9pMmNfY2hhbiAqcmFkZW9uX2kyY19jcmVhdGUoc3Ry
-dWN0IGRybV9kZXZpY2UgKmRldiwKPiAgICAgICAgICAgICAgICAgICAgICAgICAgIlJhZGVvbiBp
-MmMgaHcgYnVzICVzIiwgbmFtZSk7Cj4gICAgICAgICAgICAgICAgIGkyYy0+YWRhcHRlci5hbGdv
-ID0gJnJhZGVvbl9hdG9tX2kyY19hbGdvOwo+ICAgICAgICAgICAgICAgICByZXQgPSBpMmNfYWRk
-X2FkYXB0ZXIoJmkyYy0+YWRhcHRlcik7Cj4gLSAgICAgICAgICAgICAgIGlmIChyZXQpIHsKPiAt
-ICAgICAgICAgICAgICAgICAgICAgICBEUk1fRVJST1IoIkZhaWxlZCB0byByZWdpc3RlciBodyBp
-MmMgJXNcbiIsIG5hbWUpOwo+ICsgICAgICAgICAgICAgICBpZiAocmV0KQo+ICAgICAgICAgICAg
-ICAgICAgICAgICAgIGdvdG8gb3V0X2ZyZWU7Cj4gLSAgICAgICAgICAgICAgIH0KPiAgICAgICAg
-IH0gZWxzZSB7Cj4gICAgICAgICAgICAgICAgIC8qIHNldCB0aGUgcmFkZW9uIGJpdCBhZGFwdGVy
-ICovCj4gICAgICAgICAgICAgICAgIHNucHJpbnRmKGkyYy0+YWRhcHRlci5uYW1lLCBzaXplb2Yo
-aTJjLT5hZGFwdGVyLm5hbWUpLAo+IC0tCj4gMi44LjEKPgo+IF9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCj4gZHJpLWRldmVsIG1haWxpbmcgbGlzdAo+IGRy
-aS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKPiBodHRwczovL2xpc3RzLmZyZWVkZXNrdG9w
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbApfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBs
-aXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1h
-bi9saXN0aW5mby9kcmktZGV2ZWwK
+yes, you right. If we remove this message there is no big problem. But
+if we do not remove this it's also ok, right ? What the big deal to
+remove this type of messages (i'm just interested) ?
+
+
+For me it's ok to remove:
+Acked-by: Abylay Ospan <aospan@netup.ru>
+
+
+2016-08-09 10:58 GMT-04:00 Wolfram Sang <wsa@the-dreams.de>:
+>
+>> Sometimes it better to show more message - especially in error conditions :)
+>
+> Sure, if they contain additional information.
+>
+>> btw, do you make sanity check for "duplicate" log messages ?
+>
+> I checked all error messages if they contain additional information.
+>
+>>             ret = i2c_add_adapter(&i2c->adap);
+>>     -       if (ret) {
+>>     -               dev_err(&ndev->pci_dev->dev,
+>>     -                       "%s(): failed to add I2C adapter\n", __func__);
+>>     +       if (ret)
+>>                     return ret;
+>>     -       }
+>
+> IMHO, this one doesn't. __func__ is not helpful to users. And the error
+> messages in the core will make sure that a developer knows where to
+> start looking.
+>
+
+
+
+-- 
+Abylay Ospan,
+NetUP Inc.
+http://www.netup.tv
