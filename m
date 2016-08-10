@@ -1,80 +1,47 @@
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Subject: Re: [PATCH] video: fbdev: mb862xx: mb862xx-i2c: don't print error
- when adding adapter fails
-Date: Wed, 10 Aug 2016 13:24:54 +0300
-Message-ID: <176ef085-b9b5-ad0c-da46-9dcbad5e0c10@ti.com>
-References: <1470742059-12341-1-git-send-email-wsa-dev@sang-engineering.com>
- <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature";
-	boundary="knpuuscOehAqujvgwR8gqWvktJBWLPrDX"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-fbdev@vger.kernel.org
+From: Brian Norris <briannorris@chromium.org>
+Subject: [RESEND PATCH 2/2] Input: cros_ec_keyb - Fix usage of cros_ec_cmd_xfer()
+Date: Wed, 10 Aug 2016 13:37:19 -0700
+Message-ID: <1470861439-129201-3-git-send-email-briannorris@chromium.org>
+References: <1470861439-129201-1-git-send-email-briannorris@chromium.org>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1470861439-129201-1-git-send-email-briannorris@chromium.org>
+Sender: stable-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Brian Norris <briannorris@chromium.org>, "# 9798ac6d32c1 mfd : cros_ec : Add cros_ec_cmd_xfer_status helper" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
---knpuuscOehAqujvgwR8gqWvktJBWLPrDX
-Content-Type: multipart/mixed; boundary="xpGTDgb8JNS4CFXlPH0ulhhfhSR8boBOR"
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-To: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org,
- Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
- linux-fbdev@vger.kernel.org
-Message-ID: <176ef085-b9b5-ad0c-da46-9dcbad5e0c10@ti.com>
-Subject: Re: [PATCH] video: fbdev: mb862xx: mb862xx-i2c: don't print error
- when adding adapter fails
-References: <1470742059-12341-1-git-send-email-wsa-dev@sang-engineering.com>
- <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
-In-Reply-To: <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
+cros_ec_cmd_xfer returns success status if the command transport
+completes successfully, but the execution result is incorrectly ignored.
+In many cases, the execution result is assumed to be successful, leading
+to ignored errors and operating on uninitialized data.
 
---xpGTDgb8JNS4CFXlPH0ulhhfhSR8boBOR
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid these
+problems. Let's use it.
 
+[Regarding the 'Fixes' tag; there is significant refactoring since the driver's
+introduction, but the underlying logical error exists throughout I believe]
 
+Fixes: 6af6dc2d2aa6 ("input: Add ChromeOS EC keyboard driver")
+Cc: <stable@vger.kernel.org> # 9798ac6d32c1 mfd: cros_ec: Add cros_ec_cmd_xfer_status() helper
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/cros_ec_keyb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 09/08/16 14:27, Wolfram Sang wrote:
-> The core will do this for us now.
->=20
-> Signed-off-by: Wolfram Sang <wsa-dev@sang-engineering.com>
-> ---
->  drivers/video/fbdev/mb862xx/mb862xx-i2c.c | 7 +------
->  1 file changed, 1 insertion(+), 6 deletions(-)
-
-Thanks, queued for v4.9.
-
-One comment: the patch description should be "stand-alone" text, not a
-continuation of the subject. I fixed this.
-
- Tomi
-
-
---xpGTDgb8JNS4CFXlPH0ulhhfhSR8boBOR--
-
---knpuuscOehAqujvgwR8gqWvktJBWLPrDX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJXqwD2AAoJEPo9qoy8lh71dyUQAJLc+uI/O/5gY3Pwf/YXnNqv
-qcaxxexBkNv8KbHFUU74LvZ83p3bAV2vG9k9675PLfg6WBIUD6pKwvd0NcGQWcro
-0bWTkjSYK+iV9T2hCm4+jkn7RAJeLkyRBgFAWQK5fVtG506AZCl1ovgexiibJTU3
-24xkQPxepe1f+bYX83lotoJKPNUFVFMaPoRmJ5rf4RgcZpTYGr443ox5iHWGGgNX
-IbnP4kVbk4pA3LKf/LlNIR+Hoyn7XBDu9Oiz67o1oNzSQ0AiAdklQGOi6kdjdhPf
-+pR8lOldwlflMpU+0hpDyEwFA7ioHEOM6s2Y8leoXwhLzhaXNoZQPjMHgz0e56XE
-9Fk0A4zjOtFXOLeUQnBhTS5DAwcKHX/9F3DqzLcvBD9X9rUrTdG0hrkrKnKPnxXi
-w8enPSP2WpJsdoJRJ+p+U6NWzbErVX/X5Tb4C7JyOAVdn7ipTP8WEI18JY2S55cn
-rvQsdrjiYv2pc+Hm7UHjhTvXe2zjzEJgXZV9AZv3BNW13s6wCDBqxmmRBylqLkFK
-saSExqBmBZHoo1cpD/E/lN5eP/6251k3mongk2XSAjM5BwVllWjAZV7mWJwwJ49B
-wP4WL5ZLOz97COqQ6jawX2n8DRA2ib467kBKSadZwfd+FvvoiCvGltIMWNJ6ZKqv
-43BK2szkRLP/2/YHIJfl
-=kIyy
------END PGP SIGNATURE-----
-
---knpuuscOehAqujvgwR8gqWvktJBWLPrDX--
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index b01966dc7eb3..6e48616a3a88 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -160,7 +160,7 @@ static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
+ 	msg->insize = ckdev->cols;
+ 	msg->outsize = 0;
+ 
+-	ret = cros_ec_cmd_xfer(ckdev->ec, msg);
++	ret = cros_ec_cmd_xfer_status(ckdev->ec, msg);
+ 	if (ret < 0) {
+ 		dev_err(ckdev->dev, "Error transferring EC message %d\n", ret);
+ 		goto exit;
+-- 
+2.8.0.rc3.226.g39d4020
