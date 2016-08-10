@@ -1,63 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: slave framework support for SMBus Alert
-Date: Wed, 10 Aug 2016 10:26:01 +0200
-Message-ID: <20160810082601.GC1607@katana>
-References: <1470787373-26738-1-git-send-email-brendanhiggins@google.com>
+Subject: Re: [PATCH 1/4] media: pci: netup_unidvb: don't print error when
+ adding adapter fails
+Date: Wed, 10 Aug 2016 16:56:56 +0200
+Message-ID: <20160810145656.GD1607@katana>
+References: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
+ <1470742517-12774-2-git-send-email-wsa-dev@sang-engineering.com>
+ <CAK3bHNWmxQsAtefcUocoOcEwtWnpptiVxzhXR-+jVU524RmnPw@mail.gmail.com>
+ <20160809145856.GC1666@katana>
+ <CAK3bHNUL3NjFFex4US09ZnxvKV-1oJAu=qVrZUSgeKy90CBiAA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pk6IbRAofICFmK5e"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:40588 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932173AbcHJSCX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 10 Aug 2016 14:02:23 -0400
+	protocol="application/pgp-signature"; boundary="OROCMA9jn6tkzFBc"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1470787373-26738-1-git-send-email-brendanhiggins@google.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <CAK3bHNUL3NjFFex4US09ZnxvKV-1oJAu=qVrZUSgeKy90CBiAA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Abylay Ospan <aospan@netup.ru>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sergey Kozlov <serjk@netup.ru>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media <linux-media@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: linux-i2c@vger.kernel.org
 
 
---Pk6IbRAofICFmK5e
+--OROCMA9jn6tkzFBc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> This has been tested with a slave mode driver I am currently working which I
-> can provide upon request (I am planning on submitting the driver as well, but
-> it part of a larger upstream submission).
+> if we do not remove this it's also ok, right ? What the big deal to
+> remove this type of messages (i'm just interested) ?
 
-Thanks for the patch.
+* Saving memory, especially at runtime.
+* Giving consistent and precise error messages
 
-When adding features to the core, I need a user for this feature
-upstream. So, I noticed what you need, yet the patch needs to be resend
-together with the i2c slave driver for a full review.
-
-Regards,
-
-   Wolfram
+This series is a first step of trying to move generic error messages
+=66rom drivers to subsystem cores.
 
 
---Pk6IbRAofICFmK5e
+--OROCMA9jn6tkzFBc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXquUYAAoJEBQN5MwUoCm2GDQQAIuI+736DabO9Aa41y0jbV4Y
-0YZfpt9rUuNyVpbZxkffiykkZdC91tIXzLAK7pRjThiokY/XPO+oXyQxn9GJOO/x
-RPrlXRJNPBz7fAgTChnshkeV2gLDau+8lkbqlj1Ihx6Yd7oUVH1E21/ArUS9d3hD
-AylTOKQnCwJYp84/2Q8iE3y5Gd/4Q6FQI8fMUR8dA7HMbTaSd2mN+4iEJhgZD7IO
-mDYtVTI5lYEtmxurCurXeqG9YpxSwO/UMSx0h3MSVyCtBHN4U+kQL7BAp+PMLL1p
-yMlYOQNhTtAXzMtb11+Q5KS8WYEKp0aTOPPlqhe6QPFvN+r9RwIjoyiOHXOgHGOc
-BbwjF7MS1MtQtKUVeRnOZ1EeEkzgYTHfkitnH8A7CmdqZ3GByPC/pSBGKij5GpgF
-voewRkdPHWnJybnwaVNdYgChP8du/nYQKVjGeSa1CQUELKorEUuMJuU1m5cEva0t
-RkOKfX889oY4jGHNvMo7zGYcm+Ew9BCcmZAUik05Kf4bqTtzjl6xOHwVEmUX4DtI
-l0A5cLLnj+95lJjBY41GO2+6ibF28Hg9NigPifTS036e9bkvwKQ/ieSa26lA4zQU
-kSUpCkrMvP6dDrpWxpHI+ljlvxuGH/FWd8Q+o54qEN5dguhK4vMpgK+/gaeJ7AWS
-ZxyZaRfoiPlYKqeAcZYi
-=6tgX
+iQIcBAEBAgAGBQJXq0C4AAoJEBQN5MwUoCm209YP/jjuQcBKPDTSoGK0Oex4kpmD
+Bp/EgNeFMyKvXpTMsIr+wrSBZ7mABF4/DU3+wvZ5MscrmJfQCcMRnUYOfj/f5ELL
+nAdDKuXaucfH8FJFDFNxqf8A9jjH4sqk6uI0VbyMBgChiSKZqDlp5jNr/91w6bWa
+alLTyFQa876q32krSiQssH2U6/siK7t7Qbcky9OlBqmbUIsUN0rn4eozoUgvxsY6
+yZuPNxiPiwqiENmElGq7QguoFCEmS7D11/MVyjx/x9zs1BLaTgq12HWcUsmbzNWt
+ZZeYRh5eA7JuhdDxEwYfkecJ5jMEOejlk1AZxUiI7FLNEck35yUb4COD/hGG7r1f
+uz1aPqXnQ0vIaCA1yiWTPLGbqN2Fe4aQkTgm75ChF+h4H/F8QSc8XZfYTOKiecib
+lS/7y/4O7svgWhMEAURCP4/uYx2hblVgosHbsZCXruCG3sEqK+bGNzwUD09zdVpe
+wjyo5UiMyZm6F58cToa3YkUKAh5azm6vSuT6HlbdYtP9wicaZfUTxEUsDMxodVqg
+lrNcMco7kPT7nNdqAPt982v5ua6nG/O+AgYxWf9VJUyMmii3BoRG0L6uLSnFWBJW
+7GqJ+NstL5Xn/Nb0YCxGGG8bq9v+uiRIraDKsJdyNAtXPriu0XTKaC1pbO5BKXcv
+ThlMFSgopJTwXq5PzOAk
+=dlU7
 -----END PGP SIGNATURE-----
 
---Pk6IbRAofICFmK5e--
+--OROCMA9jn6tkzFBc--
