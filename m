@@ -1,39 +1,58 @@
-From: Abylay Ospan <aospan@netup.ru>
-Subject: Re: [PATCH 1/4] media: pci: netup_unidvb: don't print error when
- adding adapter fails
-Date: Wed, 10 Aug 2016 11:06:54 -0400
-Message-ID: <CAK3bHNV8JQ6h09i9YFYJyHoi=XDF827iLZFROsc5mX28HW9ASw@mail.gmail.com>
-References: <1470742517-12774-1-git-send-email-wsa-dev@sang-engineering.com>
- <1470742517-12774-2-git-send-email-wsa-dev@sang-engineering.com>
- <CAK3bHNWmxQsAtefcUocoOcEwtWnpptiVxzhXR-+jVU524RmnPw@mail.gmail.com>
- <20160809145856.GC1666@katana> <CAK3bHNUL3NjFFex4US09ZnxvKV-1oJAu=qVrZUSgeKy90CBiAA@mail.gmail.com>
- <20160810145656.GD1607@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH] eeprom: at24: check if the chip is functional in probe()
+Date: Wed, 10 Aug 2016 15:54:17 +0200
+Message-ID: <1470837257-15521-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160810145656.GD1607@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sergey Kozlov <serjk@netup.ru>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media <linux-media@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-make sense. thanks for explaining and for patch !
+The at24 driver doesn't check if the chip is functional in its probe
+function. This leads to instantiating devices that are not physically
+present. For example the cape EEPROMs for BeagleBone Black are defined
+in the device tree at four addresses on i2c2, but normally only one of
+them is present.
 
-2016-08-10 10:56 GMT-04:00 Wolfram Sang <wsa@the-dreams.de>:
->
->> if we do not remove this it's also ok, right ? What the big deal to
->> remove this type of messages (i'm just interested) ?
->
-> * Saving memory, especially at runtime.
-> * Giving consistent and precise error messages
->
-> This series is a first step of trying to move generic error messages
-> from drivers to subsystem cores.
->
+If the userspace doesn't know the location in advance, it will need to
+check if reading the nvmem attributes fails to determine which EEPROM
+is actually there.
 
+Try to read a single byte in probe() and bail-out with -ENODEV if the
+read fails.
 
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/misc/eeprom/at24.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 3cdf8e1..ed1e4eb 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -593,6 +593,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct at24_data *at24;
+ 	int err;
+ 	unsigned i, num_addresses;
++	char c;
+ 
+ 	if (client->dev.platform_data) {
+ 		chip = *(struct at24_platform_data *)client->dev.platform_data;
+@@ -780,6 +781,15 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (chip.setup)
+ 		chip.setup(at24->nvmem, chip.context);
+ 
++	err = at24_read(at24, 0, &c, 1);
++	if (err) {
++		dev_err(&client->dev,
++			"error reading the test byte from EEPROM: %d\n", err);
++		nvmem_unregister(at24->nvmem);
++		err = -ENODEV;
++		goto err_clients;
++	}
++
+ 	return 0;
+ 
+ err_clients:
 -- 
-Abylay Ospan,
-NetUP Inc.
-http://www.netup.tv
+2.7.4
