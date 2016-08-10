@@ -1,53 +1,109 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] video: fbdev: mb862xx: mb862xx-i2c: don't print error
- when adding adapter fails
-Date: Wed, 10 Aug 2016 12:43:29 +0200
-Message-ID: <20160810104329.GA1827@katana>
-References: <1470742059-12341-1-git-send-email-wsa-dev@sang-engineering.com>
- <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
- <176ef085-b9b5-ad0c-da46-9dcbad5e0c10@ti.com>
+Subject: Re: [PATCH] eeprom: at24: check if the chip is functional in probe()
+Date: Wed, 10 Aug 2016 16:07:15 +0200
+Message-ID: <20160810140715.GB1607@katana>
+References: <1470837257-15521-1-git-send-email-bgolaszewski@baylibre.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <176ef085-b9b5-ad0c-da46-9dcbad5e0c10@ti.com>
+In-Reply-To: <1470837257-15521-1-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-fbdev@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---ikeVEW9yuYc//A+q
+--3uo+9/B/ebqu+fSQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, Aug 10, 2016 at 03:54:17PM +0200, Bartosz Golaszewski wrote:
+> The at24 driver doesn't check if the chip is functional in its probe
+> function. This leads to instantiating devices that are not physically
+> present. For example the cape EEPROMs for BeagleBone Black are defined
+> in the device tree at four addresses on i2c2, but normally only one of
+> them is present.
+>=20
+> If the userspace doesn't know the location in advance, it will need to
+> check if reading the nvmem attributes fails to determine which EEPROM
+> is actually there.
+>=20
+> Try to read a single byte in probe() and bail-out with -ENODEV if the
+> read fails.
 
-> One comment: the patch description should be "stand-alone" text, not a
-> continuation of the subject. I fixed this.
+That's basically OK...
 
-I see. Will keep that in mind for the future. Thanks!
+>=20
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+>  drivers/misc/eeprom/at24.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+>=20
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 3cdf8e1..ed1e4eb 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -593,6 +593,7 @@ static int at24_probe(struct i2c_client *client, cons=
+t struct i2c_device_id *id)
+>  	struct at24_data *at24;
+>  	int err;
+>  	unsigned i, num_addresses;
+> +	char c;
 
+u8?
 
---ikeVEW9yuYc//A+q
+> =20
+>  	if (client->dev.platform_data) {
+>  		chip =3D *(struct at24_platform_data *)client->dev.platform_data;
+> @@ -780,6 +781,15 @@ static int at24_probe(struct i2c_client *client, con=
+st struct i2c_device_id *id)
+>  	if (chip.setup)
+>  		chip.setup(at24->nvmem, chip.context);
+> =20
+> +	err =3D at24_read(at24, 0, &c, 1);
+
+Can't we do this before registering dummy clients and nvmem registration?
+
+> +	if (err) {
+> +		dev_err(&client->dev,
+> +			"error reading the test byte from EEPROM: %d\n", err);
+
+I don't think we should print an error in case of ENODEV.
+
+> +		nvmem_unregister(at24->nvmem);
+> +		err =3D -ENODEV;
+> +		goto err_clients;
+> +	}
+> +
+>  	return 0;
+> =20
+>  err_clients:
+> --=20
+> 2.7.4
+>=20
+
+--3uo+9/B/ebqu+fSQ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXqwVRAAoJEBQN5MwUoCm2IqYQAIEzLHAXUUhluGAsHeoVcM1D
-FwjkXqgsgmh0Sz+bGlOdechyULRdDohdq8qteiPuKCu/vom8YF1fR21rZYxr/VTX
-GFOslWkixrmA1qRvI0tSjCNmtYOfXuvmmuiUHgeqXYo/d+sI2SURr3yCHgOX9ssd
-psYXlo3EWdFremhDQYhPHusf6spK0uZqsqua+pESBmb5jkQBwjw6BzAHAjHrkskY
-GvM2XVytkjy1pyQeWvBGGuOWBGjv2F7y1ncRBQ550ZSxc0xviikro2FF4/7uD6uw
-8b+069IVaEURVz+my4JrNQDI68wa/Kjrx/8cBjPTsiVdoceWrkTfrm3K234FeqVd
-V5eJRoXGQgkDj7Or938T0+wbWqfeelV8ASitLiZiyK+CJh1aKwJZWX/s56ze0QkG
-3wMiuVHYpvThRwzQfej3TMh/1ujeNSwFQB9u7hq17OdfaoJl9vxrrzUPJ4UoBYv6
-TBfwFiswMvtbgINkc9CvywnDQtLpKxY8TlQeNiFMQugrkHYxwTL23Kttc6Di/8+K
-QnfqwjTVl4eJI+bVszCcU5wTZZ40bjj6Q2wv7os5ytVoS2/HijCtLLYgybOyTcqs
-J4vuc4Pcoy70o2PcXG6GyRct91ZHw23nMqk8PulQKckkmISZY/XYri3uwYZzMKlS
-1GQxmJSMqb+BwIqwwCUc
-=kLMc
+iQIcBAEBAgAGBQJXqzUTAAoJEBQN5MwUoCm2j18P+wQHNLtHULATtyebcxfzkIyz
+JYbLgQf/5BaeCv4jziclIbCadegTHE9Zi6zwKE/duHJOseidP2fyoaSEv0guVejb
+PO8p6UlQrByFWV/QOG4NHXXiXP/oLfQyLQzbo5fd6WHPiWcLMkN6yITbbK5flwRT
+Scl29pgLsZ/l5b0fFG2GJcXkgajnwa167wT1aFJD90R/oQt5sJOz+2d8jXwp9mLG
+WXOHwQIb48hI+nzsiMBFuk2f1lzZJuEDE8VaC7AigT5Dmf543HEq7Bcir3Sdldij
+3pfOusIW4Hr9sc6UfQgd637OmepeR02iQep0bnFa3WUZX2WF97QsswSrORGqggZe
+QWJDCnStPPsIKzFR0QGR1Vs+NcdDOHM35xHq1vtLF3OYGyU0UWFJ9IZlXvKPjYKi
+1vJyXTt4zoeSJABAV9kiaAGU7VMZiva1k586MMoxPYhb2FZz45i1M69qJOwt98l9
+wf/gIHpPhaluVYaJzPsPv4vraMit59QfSjspHCs6RENGOACXK81lDF0zF/dzASX/
+rDyVSHhwQ38F7F60Z20csZzSTjn9B1uYw95sjnK8fstxYY2Bi9b3D1lwoOSyOMz1
+F5G/rK5QsJISaMPqdUbDYgUWhXLVTbFwIfY9jcyPLKVV2mcUI4Tg36v4l2MUuvon
+mHQ7W4YHERChKB8Eb8if
+=5HXV
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--3uo+9/B/ebqu+fSQ--
