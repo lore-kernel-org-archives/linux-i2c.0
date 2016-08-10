@@ -1,58 +1,80 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH] eeprom: at24: check if the chip is functional in probe()
-Date: Wed, 10 Aug 2016 15:54:17 +0200
-Message-ID: <1470837257-15521-1-git-send-email-bgolaszewski@baylibre.com>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Subject: Re: [PATCH] video: fbdev: mb862xx: mb862xx-i2c: don't print error
+ when adding adapter fails
+Date: Wed, 10 Aug 2016 13:24:54 +0300
+Message-ID: <176ef085-b9b5-ad0c-da46-9dcbad5e0c10@ti.com>
+References: <1470742059-12341-1-git-send-email-wsa-dev@sang-engineering.com>
+ <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature";
+	boundary="knpuuscOehAqujvgwR8gqWvktJBWLPrDX"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-fbdev@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The at24 driver doesn't check if the chip is functional in its probe
-function. This leads to instantiating devices that are not physically
-present. For example the cape EEPROMs for BeagleBone Black are defined
-in the device tree at four addresses on i2c2, but normally only one of
-them is present.
+--knpuuscOehAqujvgwR8gqWvktJBWLPrDX
+Content-Type: multipart/mixed; boundary="xpGTDgb8JNS4CFXlPH0ulhhfhSR8boBOR"
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+To: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org,
+ Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>,
+ linux-fbdev@vger.kernel.org
+Message-ID: <176ef085-b9b5-ad0c-da46-9dcbad5e0c10@ti.com>
+Subject: Re: [PATCH] video: fbdev: mb862xx: mb862xx-i2c: don't print error
+ when adding adapter fails
+References: <1470742059-12341-1-git-send-email-wsa-dev@sang-engineering.com>
+ <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
+In-Reply-To: <1470742059-12341-2-git-send-email-wsa-dev@sang-engineering.com>
 
-If the userspace doesn't know the location in advance, it will need to
-check if reading the nvmem attributes fails to determine which EEPROM
-is actually there.
+--xpGTDgb8JNS4CFXlPH0ulhhfhSR8boBOR
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Try to read a single byte in probe() and bail-out with -ENODEV if the
-read fails.
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/misc/eeprom/at24.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 3cdf8e1..ed1e4eb 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -593,6 +593,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	struct at24_data *at24;
- 	int err;
- 	unsigned i, num_addresses;
-+	char c;
- 
- 	if (client->dev.platform_data) {
- 		chip = *(struct at24_platform_data *)client->dev.platform_data;
-@@ -780,6 +781,15 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (chip.setup)
- 		chip.setup(at24->nvmem, chip.context);
- 
-+	err = at24_read(at24, 0, &c, 1);
-+	if (err) {
-+		dev_err(&client->dev,
-+			"error reading the test byte from EEPROM: %d\n", err);
-+		nvmem_unregister(at24->nvmem);
-+		err = -ENODEV;
-+		goto err_clients;
-+	}
-+
- 	return 0;
- 
- err_clients:
--- 
-2.7.4
+On 09/08/16 14:27, Wolfram Sang wrote:
+> The core will do this for us now.
+>=20
+> Signed-off-by: Wolfram Sang <wsa-dev@sang-engineering.com>
+> ---
+>  drivers/video/fbdev/mb862xx/mb862xx-i2c.c | 7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
+
+Thanks, queued for v4.9.
+
+One comment: the patch description should be "stand-alone" text, not a
+continuation of the subject. I fixed this.
+
+ Tomi
+
+
+--xpGTDgb8JNS4CFXlPH0ulhhfhSR8boBOR--
+
+--knpuuscOehAqujvgwR8gqWvktJBWLPrDX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJXqwD2AAoJEPo9qoy8lh71dyUQAJLc+uI/O/5gY3Pwf/YXnNqv
+qcaxxexBkNv8KbHFUU74LvZ83p3bAV2vG9k9675PLfg6WBIUD6pKwvd0NcGQWcro
+0bWTkjSYK+iV9T2hCm4+jkn7RAJeLkyRBgFAWQK5fVtG506AZCl1ovgexiibJTU3
+24xkQPxepe1f+bYX83lotoJKPNUFVFMaPoRmJ5rf4RgcZpTYGr443ox5iHWGGgNX
+IbnP4kVbk4pA3LKf/LlNIR+Hoyn7XBDu9Oiz67o1oNzSQ0AiAdklQGOi6kdjdhPf
++pR8lOldwlflMpU+0hpDyEwFA7ioHEOM6s2Y8leoXwhLzhaXNoZQPjMHgz0e56XE
+9Fk0A4zjOtFXOLeUQnBhTS5DAwcKHX/9F3DqzLcvBD9X9rUrTdG0hrkrKnKPnxXi
+w8enPSP2WpJsdoJRJ+p+U6NWzbErVX/X5Tb4C7JyOAVdn7ipTP8WEI18JY2S55cn
+rvQsdrjiYv2pc+Hm7UHjhTvXe2zjzEJgXZV9AZv3BNW13s6wCDBqxmmRBylqLkFK
+saSExqBmBZHoo1cpD/E/lN5eP/6251k3mongk2XSAjM5BwVllWjAZV7mWJwwJ49B
+wP4WL5ZLOz97COqQ6jawX2n8DRA2ib467kBKSadZwfd+FvvoiCvGltIMWNJ6ZKqv
+43BK2szkRLP/2/YHIJfl
+=kIyy
+-----END PGP SIGNATURE-----
+
+--knpuuscOehAqujvgwR8gqWvktJBWLPrDX--
