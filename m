@@ -1,40 +1,64 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 6/6] i2c: tegra: Add pinctrl support
-Date: Thu, 11 Aug 2016 20:31:40 +0530
-Message-ID: <57AC9354.1080603@nvidia.com>
-References: <1470910620-9898-1-git-send-email-jonathanh@nvidia.com> <1470910620-9898-7-git-send-email-jonathanh@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] eeprom: at24: check if the chip is functional in probe()
+Date: Thu, 11 Aug 2016 17:55:33 +0200
+Message-ID: <20160811155533.GA2185@katana>
+References: <1470837257-15521-1-git-send-email-bgolaszewski@baylibre.com>
+ <20160810140715.GB1607@katana>
+ <CAMpxmJVgvxXfdp97y-ud=35H+X13wFR22kzeLS4FnDZQ7NT2sA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1470910620-9898-7-git-send-email-jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:48030 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932267AbcHKPzl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Thu, 11 Aug 2016 11:55:41 -0400
+Content-Disposition: inline
+In-Reply-To: <CAMpxmJVgvxXfdp97y-ud=35H+X13wFR22kzeLS4FnDZQ7NT2sA@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
 
-On Thursday 11 August 2016 03:47 PM, Jon Hunter wrote:
-> On Tegra124/132 the pins for I2C6 are shared with the Display Port AUX
-> (DPAUX) channel and on Tegra210 the pins for I2C4 and I2C6 are shared
-> with DPAUX1 and DPAUX0, respectively. The multiplexing of the pins is
-> handled by a register in the DPAUX and so the Tegra DPAUX driver has
-> been updated to register a pinctrl device for managing these pins.
->
-> The pins for these particular I2C devices are bound to the I2C device
-> prior to probing. However, these I2C devices are in a different power
-> partition to the DPAUX devices that own the pins. Hence, it is desirable
-> to place the pins in the 'idle' state and allow the DPAUX power
-> partition to switch off, when these I2C devices is not in use.
-> Therefore, add calls to place the I2C pins in the 'default' and 'idle'
-> states when the I2C device is runtime resumed and suspended,
-> respectively.
->
-> Please note that the pinctrl functions that set the state of the pins
-> check to see if the devices has pins associated and will return zero
-> if they do not. Therefore, it is safe to call these pinctrl functions
-> even for I2C devices that do not have any pins associated.
->
-> Signed-off-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->
-Acked-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+> >> +     err =3D at24_read(at24, 0, &c, 1);
+> >
+> > Can't we do this before registering dummy clients and nvmem registratio=
+n?
+> >
+>=20
+> It should be ok for nvmem, but I'm not sure about the clients:
+> at24_translate_offset() will return one of the registered client
+> structures and though it should generally work for the first byte (it
+> would always be at24->client[0]), it won't be "rock solid" anymore.
+
+Agreed.
+
+
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXrJ/0AAoJEBQN5MwUoCm2y2kQAIgyXYQhQlZCboH4Kp1xve4X
+0wwjm3MGovvqpTftNKGyLTTYVCI1S7gMSWeeFaAJ3qtvgbC4gJv0ple6emmpibkb
+XOVNlBIkp/Sow673vyblVdHqUjsQf/K3MOBpsAWClhdPh72p1t9/AHB97XocoXFa
+M2p4CZ0PtMGXrmkILlcFDOz8kQWwR6Qy+K3uiqTH/I9GRHCMsG4+IrLmf6ROeMtj
+0Tz0W4VTFK6too7c5sMW3HTLhb8VggOT3PbOhKY7oe8/kUZv5a5p2aviJLpzCpPe
+YR3fclidaI2qJkckonmEiL7z7cSELTN/P9iHlsIHMzdhEh/cPYM8zMzB297VS0UB
+xA4M45rlrz58m4SR8vtHRKeiljznAzsjvPQ5pj8GIahpKRV5IB1JkQ1F6M+VQYrB
+4wBlWkTtYtaOi/es/InTw6Y3ZPwKw6HWi+xTP9F4oOEWaxC0w/S9PknUkEvFUqw9
+qvaNCBNKGffRDoX7vSfmzXXPzcf3aUlGg+yOIf8LM64OVIw3xLGcKnElCYjkVNju
+tWSUvEBgH6sYpDBMoQvrpRcigIY0lDDDqf0XHdlAIqO7v0q2ADGImzZUsjxotnLG
+541/rpQMpC+qh92fY1meuMaaHqdSXXNqWuYlACWaaxg+wCl4MTMA8rnpuOJeQhSb
+sl6rqeqA9fOBSqax/mgb
+=fULQ
+-----END PGP SIGNATURE-----
+
+--yrj/dFKFPuw6o+aM--
