@@ -1,220 +1,57 @@
 From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH 7/8] i2c: core: Add function for finding the bus speed from ACPI, take 2
-Date: Fri, 12 Aug 2016 17:02:53 +0300
-Message-ID: <1471010574-28598-8-git-send-email-jarkko.nikula@linux.intel.com>
+Subject: [PATCH 8/8] i2c: designware: Find bus speed from ACPI
+Date: Fri, 12 Aug 2016 17:02:54 +0300
+Message-ID: <1471010574-28598-9-git-send-email-jarkko.nikula@linux.intel.com>
 References: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
 Received: from mga09.intel.com ([134.134.136.24]:54302 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752596AbcHLODU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Aug 2016 10:03:20 -0400
+	id S1752596AbcHLODW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 12 Aug 2016 10:03:22 -0400
 In-Reply-To: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-ACPI 5 specification doesn't have property for the I2C bus speed but
-I2cSerialBus resource descriptor which define each controller-slave
-connection define the maximum speed supported by that connection.
+Fast mode is the default speed of i2c-designware which can be overridden
+by platform data or by "clock-frequency" device property. Even though
+the ACPI 5.1 can pass device properties via _DSD method, shipping systems
+define the connection speed between I2C host and each slave in their
+I2cSerialBus resources. Which means speed is not defined per bus but per
+slave.
 
-Thus finding the maximum safe speed for the bus is to walk through all
-I2cSerialBus resources that are associated to I2C controller and use the
-speed of slowest connection.
-
-Add function i2c_acpi_find_bus_speed() to the i2c-core that adapter
-drivers can call prior registering itself to core.
-
-This implies two-step walk through the I2cSerialBus resources: call to
-i2c_acpi_find_bus_speed() does the first scan and finds the safe bus
-speed that adapter drivers can set up. Adapter driver registration does
-the second scan when i2c-core creates the I2C slaves by calling the
-i2c_acpi_register_devices(). In that way the bus speed is set in case
-slave device probe gets called during registration and does communication.
-
-Previous version commit 55d38d060e99 ("i2c: core: Add function for finding
-the bus speed from ACPI") got reverted due merge conflicts from
-commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure
-notifications").
-
-This version is a bit bigger than previous version but is still sharing
-the lowest and complicated part of I2cSerialBus lookup routines with the
-existing code.
+As there is now support in i2c-core to find the bus speed from ACPI use
+that to set up the bus speed prior registering the I2C adapter.
 
 Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 ---
- drivers/i2c/i2c-core.c | 99 ++++++++++++++++++++++++++++++++++++++++++++------
- include/linux/i2c.h    |  9 +++++
- 2 files changed, 97 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index ac8aee255f9c..c61c961cf8f9 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -107,6 +107,9 @@ struct i2c_acpi_lookup {
- 	struct i2c_board_info *info;
- 	acpi_handle adapter_handle;
- 	acpi_handle device_handle;
-+	acpi_handle search_handle;
-+	u32 speed;
-+	u32 min_speed;
- };
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index cb846cb50512..0b42a12171f3 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -157,7 +157,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	struct i2c_adapter *adap;
+ 	struct resource *mem;
+ 	int irq, r;
+-	u32 ht = 0;
++	u32 acpi_speed, ht = 0;
  
- static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
-@@ -130,19 +133,18 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
- 		return 1;
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
+@@ -192,6 +192,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 					 &dev->clk_freq);
+ 	}
  
- 	info->addr = sb->slave_address;
-+	lookup->speed = sb->connection_speed;
- 	if (sb->access_mode == ACPI_I2C_10BIT_MODE)
- 		info->flags |= I2C_CLIENT_TEN;
++	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
++	if (acpi_speed)
++		dev->clk_freq = acpi_speed;
++
+ 	if (has_acpi_companion(&pdev->dev))
+ 		dw_i2c_acpi_configure(pdev);
  
- 	return 1;
- }
- 
--static int i2c_acpi_get_info(struct acpi_device *adev,
--			     struct i2c_board_info *info,
--			     acpi_handle *adapter_handle)
-+static int i2c_acpi_do_lookup(struct acpi_device *adev,
-+			      struct i2c_acpi_lookup *lookup)
- {
-+	struct i2c_board_info *info = lookup->info;
- 	struct list_head resource_list;
--	struct resource_entry *entry;
--	struct i2c_acpi_lookup lookup;
- 	int ret;
- 
- 	if (acpi_bus_get_status(adev) || !adev->status.present ||
-@@ -150,24 +152,41 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 		return -EINVAL;
- 
- 	memset(info, 0, sizeof(*info));
--	info->fwnode = acpi_fwnode_handle(adev);
--
--	memset(&lookup, 0, sizeof(lookup));
--	lookup.device_handle = acpi_device_handle(adev);
--	lookup.info = info;
-+	lookup->device_handle = acpi_device_handle(adev);
- 
- 	/* Look up for I2cSerialBus resource */
- 	INIT_LIST_HEAD(&resource_list);
- 	ret = acpi_dev_get_resources(adev, &resource_list,
--				     i2c_acpi_fill_info, &lookup);
-+				     i2c_acpi_fill_info, lookup);
- 	acpi_dev_free_resource_list(&resource_list);
- 
- 	if (ret < 0 || !info->addr)
- 		return -EINVAL;
- 
-+	return 0;
-+}
-+
-+static int i2c_acpi_get_info(struct acpi_device *adev,
-+			     struct i2c_board_info *info,
-+			     acpi_handle *adapter_handle)
-+{
-+	struct list_head resource_list;
-+	struct resource_entry *entry;
-+	struct i2c_acpi_lookup lookup;
-+	int ret;
-+
-+	memset(&lookup, 0, sizeof(lookup));
-+	lookup.info = info;
-+
-+	ret = i2c_acpi_do_lookup(adev, &lookup);
-+	if (ret)
-+		return ret;
-+
-+	info->fwnode = acpi_fwnode_handle(adev);
- 	*adapter_handle = lookup.adapter_handle;
- 
- 	/* Then fill IRQ number if any */
-+	INIT_LIST_HEAD(&resource_list);
- 	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
- 	if (ret < 0)
- 		return -EINVAL;
-@@ -248,6 +267,64 @@ static void i2c_acpi_register_devices(struct i2c_adapter *adap)
- 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
- }
- 
-+static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
-+					   void *data, void **return_value)
-+{
-+	struct i2c_acpi_lookup *lookup = data;
-+	struct acpi_device *adev;
-+
-+	if (acpi_bus_get_device(handle, &adev))
-+		return AE_OK;
-+
-+	if (i2c_acpi_do_lookup(adev, lookup))
-+		return AE_OK;
-+
-+	if (lookup->search_handle != lookup->adapter_handle)
-+		return AE_OK;
-+
-+	if (lookup->speed <= lookup->min_speed)
-+		lookup->min_speed = lookup->speed;
-+
-+	return AE_OK;
-+}
-+
-+/**
-+ * i2c_acpi_find_bus_speed - find I2C bus speed from ACPI
-+ * @dev: The device owning the bus
-+ *
-+ * Find the I2C bus speed by walking the ACPI namespace for all I2C slaves
-+ * devices connected to this bus and use the speed of slowest device.
-+ *
-+ * Returns the speed in Hz or zero
-+ */
-+u32 i2c_acpi_find_bus_speed(struct device *dev)
-+{
-+	struct i2c_acpi_lookup lookup;
-+	struct i2c_board_info dummy;
-+	acpi_status status;
-+
-+	if (!has_acpi_companion(dev))
-+		return 0;
-+
-+	memset(&lookup, 0, sizeof(lookup));
-+	lookup.search_handle = ACPI_HANDLE(dev);
-+	lookup.min_speed = UINT_MAX;
-+	lookup.info = &dummy;
-+
-+	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
-+				     I2C_ACPI_MAX_SCAN_DEPTH,
-+				     i2c_acpi_lookup_speed, NULL,
-+				     &lookup, NULL);
-+
-+	if (ACPI_FAILURE(status)) {
-+		dev_warn(dev, "unable to find I2C bus speed from ACPI\n");
-+		return 0;
-+	}
-+
-+	return lookup.min_speed != UINT_MAX ? lookup.min_speed : 0;
-+}
-+EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
-+
- static int i2c_acpi_match_adapter(struct device *dev, void *data)
- {
- 	struct i2c_adapter *adapter = i2c_verify_adapter(dev);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index fffdc270ca18..5cde08719fb6 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -766,4 +766,13 @@ static inline struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node
- }
- #endif /* CONFIG_OF */
- 
-+#if IS_ENABLED(CONFIG_ACPI)
-+u32 i2c_acpi_find_bus_speed(struct device *dev);
-+#else
-+static inline u32 i2c_acpi_find_bus_speed(struct device *dev)
-+{
-+	return 0;
-+}
-+#endif /* CONFIG_ACPI */
-+
- #endif /* _LINUX_I2C_H */
 -- 
 2.8.1
