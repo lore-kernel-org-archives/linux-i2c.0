@@ -1,57 +1,46 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH 8/8] i2c: designware: Find bus speed from ACPI
-Date: Fri, 12 Aug 2016 17:02:54 +0300
-Message-ID: <1471010574-28598-9-git-send-email-jarkko.nikula@linux.intel.com>
-References: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:54302 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752596AbcHLODW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Aug 2016 10:03:22 -0400
-In-Reply-To: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Christian Ruppert <christian.ruppert@alitech.com>
+Subject: Re: [PATCH v3 0/3] i2c: designware: improve performance for transfers
+Date: Fri, 12 Aug 2016 16:59:32 +0200
+Message-ID: <28c393bf-416b-b406-ff39-a2d85317a102@alitech.com>
+References: <1469743424-2480-1-git-send-email-lucas.demarchi@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1469743424-2480-1-git-send-email-lucas.demarchi@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lucas De Marchi <lucas.demarchi@intel.com>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Fast mode is the default speed of i2c-designware which can be overridden
-by platform data or by "clock-frequency" device property. Even though
-the ACPI 5.1 can pass device properties via _DSD method, shipping systems
-define the connection speed between I2C host and each slave in their
-I2cSerialBus resources. Which means speed is not defined per bus but per
-slave.
+On 29.07.2016 00:03, Lucas De Marchi wrote:
+> This can be considered a v3 of "i2c: designware: do not disable adapter after
+> transfer". Differences are:
+> 
+>     - Now there's a first patch that does not depend on IC_TAR being dynamically
+>       enabled/disabled: it just doesn't wait for the state change when not needed.
+> 
+>     - We added a patch that allows detecting if HW supports the dynamic TAR updates
+> 
+>     - In the last patch the bits were changed as suggested by Jarkko.
+> 
+>     - This is tested on BayTrail and CherryTrail, both of them returning true for
+>       "dynamically update TAR"
 
-As there is now support in i2c-core to find the bus speed from ACPI use
-that to set up the bus speed prior registering the I2C adapter.
+Tested-by: Christian Ruppert <christian.ruppert@alitech.com>
+on TB101 with Linux-4.7
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+Seems to work perfectly now, congratulations and thanks for your
+patience with our platform... This was a hard one!
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index cb846cb50512..0b42a12171f3 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -157,7 +157,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	struct i2c_adapter *adap;
- 	struct resource *mem;
- 	int irq, r;
--	u32 ht = 0;
-+	u32 acpi_speed, ht = 0;
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0)
-@@ -192,6 +192,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 					 &dev->clk_freq);
- 	}
- 
-+	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
-+	if (acpi_speed)
-+		dev->clk_freq = acpi_speed;
-+
- 	if (has_acpi_companion(&pdev->dev))
- 		dw_i2c_acpi_configure(pdev);
- 
--- 
-2.8.1
+> José Roberto de Souza (1):
+>   i2c: designware: wait for disable/enable only if necessary
+> 
+> Lucas De Marchi (2):
+>   i2c: designware: detect when dynamic tar update is possible
+>   i2c: designware: do not disable adapter after transfer
+> 
+>  drivers/i2c/busses/i2c-designware-core.c | 103 +++++++++++++++++++++----------
+>  drivers/i2c/busses/i2c-designware-core.h |   1 +
+>  2 files changed, 72 insertions(+), 32 deletions(-)
+> 
