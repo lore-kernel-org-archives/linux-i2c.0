@@ -1,13 +1,13 @@
 From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH 5/8] i2c: designware: Enable high speed mode
-Date: Fri, 12 Aug 2016 17:02:51 +0300
-Message-ID: <1471010574-28598-6-git-send-email-jarkko.nikula@linux.intel.com>
+Subject: [PATCH 3/8] i2c: designware: Enable fast mode plus
+Date: Fri, 12 Aug 2016 17:02:49 +0300
+Message-ID: <1471010574-28598-4-git-send-email-jarkko.nikula@linux.intel.com>
 References: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
 Received: from mga09.intel.com ([134.134.136.24]:54302 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752596AbcHLODP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Aug 2016 10:03:15 -0400
+	id S1752596AbcHLODM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 12 Aug 2016 10:03:12 -0400
 In-Reply-To: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -16,133 +16,56 @@ Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.i
 
 From: Weifeng Voon <weifeng.voon@intel.com>
 
-This patch enabled high speed mode. High speed mode can be turn on by
-setting the clk_freq to 3400000. High speed HCNT and LCNT are needed
-as there is no default value provided.
+This patch enabled fast mode plus. The fast mode plus and fast speed
+share the same HCNT and LCNT register. So, the fast mode plus will only
+run when the HCNT and LCNT value is provided. Else, it will run at fast
+speed as default.
 
 Signed-off-by: Weifeng Voon <weifeng.voon@intel.com>
 Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c    | 26 +++++++++++++++++++++++++-
- drivers/i2c/busses/i2c-designware-core.h    |  1 +
- drivers/i2c/busses/i2c-designware-platdrv.c | 16 +++++++++++-----
- 3 files changed, 37 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-designware-core.c    | 7 +++++--
+ drivers/i2c/busses/i2c-designware-platdrv.c | 9 ++++++---
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 07edff7a62e3..c5783ed9388d 100644
+index c6922b806fb7..07edff7a62e3 100644
 --- a/drivers/i2c/busses/i2c-designware-core.c
 +++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -42,6 +42,8 @@
- #define DW_IC_SS_SCL_LCNT	0x18
- #define DW_IC_FS_SCL_HCNT	0x1c
- #define DW_IC_FS_SCL_LCNT	0x20
-+#define DW_IC_HS_SCL_HCNT	0x24
-+#define DW_IC_HS_SCL_LCNT	0x28
- #define DW_IC_INTR_STAT		0x2c
- #define DW_IC_INTR_MASK		0x30
- #define DW_IC_RAW_INTR_STAT	0x34
-@@ -95,6 +97,9 @@
+@@ -347,8 +347,11 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
+ 	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
  
- #define DW_IC_TAR_10BITADDR_MASTER BIT(12)
- 
-+#define DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH	(BIT(2) | BIT(3))
-+#define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK	GENMASK(3, 2)
-+
- /*
-  * status codes
-  */
-@@ -293,7 +298,7 @@ static unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev)
- int i2c_dw_init(struct dw_i2c_dev *dev)
- {
- 	u32 hcnt, lcnt;
--	u32 reg;
-+	u32 reg, comp_param1;
- 	u32 sda_falling_time, scl_falling_time;
- 	int ret;
- 
-@@ -320,6 +325,8 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 		return -ENODEV;
- 	}
- 
-+	comp_param1 = dw_readl(dev, DW_IC_COMP_PARAM_1);
-+
- 	/* Disable the adapter */
- 	__i2c_dw_enable(dev, false);
- 
-@@ -369,6 +376,23 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
- 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
- 
-+	if ((dev->master_cfg & DW_IC_CON_SPEED_MASK) ==
-+		DW_IC_CON_SPEED_HIGH) {
-+		if ((comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
-+			!= DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH) {
-+			dev_err(dev->dev, "High Speed not supported!\n");
-+			dev->master_cfg &= ~DW_IC_CON_SPEED_MASK;
-+			dev->master_cfg |= DW_IC_CON_SPEED_FAST;
-+		} else if (dev->hs_hcnt && dev->hs_lcnt) {
-+			hcnt = dev->hs_hcnt;
-+			lcnt = dev->hs_lcnt;
-+			dw_writel(dev, hcnt, DW_IC_HS_SCL_HCNT);
-+			dw_writel(dev, lcnt, DW_IC_HS_SCL_LCNT);
-+			dev_dbg(dev->dev, "HighSpeed-mode HCNT:LCNT = %d:%d\n",
-+				hcnt, lcnt);
-+		}
-+	}
-+
- 	/* Configure SDA Hold Time if required */
- 	if (dev->sda_hold_time) {
- 		reg = dw_readl(dev, DW_IC_COMP_VERSION);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 84866db2d04f..22bfbe147870 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -26,6 +26,7 @@
- #define DW_IC_CON_MASTER		0x1
- #define DW_IC_CON_SPEED_STD		0x2
- #define DW_IC_CON_SPEED_FAST		0x4
-+#define DW_IC_CON_SPEED_HIGH		0x6
- #define DW_IC_CON_SPEED_MASK		0x6
- #define DW_IC_CON_10BITADDR_MASTER	0x10
- #define DW_IC_CON_RESTART_EN		0x20
+-	/* Set SCL timing parameters for fast-mode */
+-	if (dev->fs_hcnt && dev->fs_lcnt) {
++	/* Set SCL timing parameters for fast-mode or fast-mode plus */
++	if ((dev->clk_freq == 1000000) && dev->fp_hcnt && dev->fp_lcnt) {
++		hcnt = dev->fp_hcnt;
++		lcnt = dev->fp_lcnt;
++	} else if (dev->fs_hcnt && dev->fs_lcnt) {
+ 		hcnt = dev->fs_hcnt;
+ 		lcnt = dev->fs_lcnt;
+ 	} else {
 diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index d45481ee1b56..cb846cb50512 100644
+index cbe4fb31cb4b..ea92e9f3fba1 100644
 --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -197,12 +197,12 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+@@ -196,10 +196,13 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		dw_i2c_acpi_configure(pdev);
  
  	/*
- 	 * Only standard mode at 100kHz, fast mode at 400kHz,
--	 * and fast mode plus at 1MHz are supported.
-+	 * fast mode plus at 1MHz and high speed mode at 3.4MHz are supported.
+-	 * Only standard mode at 100kHz and fast mode at 400kHz are supported.
++	 * Only standard mode at 100kHz, fast mode at 400kHz,
++	 * and fast mode plus at 1MHz are supported.
  	 */
- 	if (dev->clk_freq != 100000 && dev->clk_freq != 400000
--	    && dev->clk_freq != 1000000) {
-+	    && dev->clk_freq != 1000000 && dev->clk_freq != 3400000) {
- 		dev_err(&pdev->dev,
--			"Only 100kHz, 400kHz and 1MHz are supported");
-+			"Only 100kHz, 400kHz, 1MHz and 3.4MHz supported");
+-	if (dev->clk_freq != 100000 && dev->clk_freq != 400000) {
+-		dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
++	if (dev->clk_freq != 100000 && dev->clk_freq != 400000
++	    && dev->clk_freq != 1000000) {
++		dev_err(&pdev->dev,
++			"Only 100kHz, 400kHz and 1MHz are supported");
  		return -EINVAL;
  	}
  
-@@ -221,10 +221,16 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
- 			  DW_IC_CON_RESTART_EN;
- 
--	if (dev->clk_freq == 100000)
-+	switch (dev->clk_freq) {
-+	case 100000:
- 		dev->master_cfg |= DW_IC_CON_SPEED_STD;
--	else
-+		break;
-+	case 3400000:
-+		dev->master_cfg |= DW_IC_CON_SPEED_HIGH;
-+		break;
-+	default:
- 		dev->master_cfg |= DW_IC_CON_SPEED_FAST;
-+	}
- 
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (!i2c_dw_plat_prepare_clk(dev, true)) {
 -- 
 2.8.1
