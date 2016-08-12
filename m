@@ -1,96 +1,84 @@
-From: Jaedon Shin <jaedon.shin@gmail.com>
-Subject: [PATCH] i2c: brcmstb: Fix START and STOP conditions
-Date: Fri, 12 Aug 2016 14:56:27 +0900
-Message-ID: <20160812055627.34668-1-jaedon.shin@gmail.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH v2] eeprom: at24: check if the chip is functional in probe()
+Date: Fri, 12 Aug 2016 13:32:57 +0200
+Message-ID: <1471001577-9269-1-git-send-email-bgolaszewski@baylibre.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35269 "EHLO
-	mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750878AbcHLF5V (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Fri, 12 Aug 2016 01:57:21 -0400
-Received: by mail-pf0-f193.google.com with SMTP id h186so955132pfg.2
-        for <linux-i2c@vger.kernel.org>; Thu, 11 Aug 2016 22:56:42 -0700 (PDT)
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:37266 "EHLO
+	mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751895AbcHLLdD (ORCPT
+	<rfc822;linux-i2c@vger.kernel.org>); Fri, 12 Aug 2016 07:33:03 -0400
+Received: by mail-wm0-f53.google.com with SMTP id i5so27214849wmg.0
+        for <linux-i2c@vger.kernel.org>; Fri, 12 Aug 2016 04:33:03 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, Jaedon Shin <jaedon.shin@gmail.com>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Fixes always repeated START when process multiple bytes with a message
-in combined transactions.
+The at24 driver doesn't check if the chip is functional in its probe
+function. This leads to instantiating devices that are not physically
+present. For example the cape EEPROMs for BeagleBone Black are defined
+in the device tree at four addresses on i2c2, but normally only one of
+them is present.
 
-The BSC has multiple data stroage that send or receive data at once, and
-it has the RESTART, NOSTART, NOSTOP to the condition flags. The problem
-is that begin repeated START for all the messages in combined
-transaction. If length of a data is over 32bytes, The BSC transmit
-repeated START in every 32bytes.
+If the userspace doesn't know the location in advance, it will need to
+check if reading the nvmem attributes fails to determine which EEPROM
+is actually there.
 
-Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+Try to read a single byte in probe() and bail-out with -ENODEV if the
+read fails.
+
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/i2c/busses/i2c-brcmstb.c | 27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+v1 -> v2:
+- renamed c to test_byte
+- changed the test_byte type to u8 (was char)
+- moved the check above the nvmem registration
+- moved the i2c_set_clientdata() call above both the nvmem
+  registration and the test byte read
+- removed the error message
 
-diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-index 3f5a4d71d3bf..51c5f0bd361d 100644
---- a/drivers/i2c/busses/i2c-brcmstb.c
-+++ b/drivers/i2c/busses/i2c-brcmstb.c
-@@ -465,6 +465,7 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
- 	u8 *tmp_buf;
- 	int len = 0;
- 	int xfersz = brcmstb_i2c_get_xfersz(dev);
-+	u32 cond, cond_per_msg;
+ drivers/misc/eeprom/at24.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 3cdf8e1..051b147 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -593,6 +593,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct at24_data *at24;
+ 	int err;
+ 	unsigned i, num_addresses;
++	u8 test_byte;
  
- 	if (dev->is_suspended)
- 		return -EBUSY;
-@@ -481,10 +482,11 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
- 			pmsg->buf ? pmsg->buf[0] : '0', pmsg->len);
- 
- 		if (i < (num - 1) && (msgs[i + 1].flags & I2C_M_NOSTART))
--			brcmstb_set_i2c_start_stop(dev, ~(COND_START_STOP));
-+			cond = ~COND_START_STOP;
- 		else
--			brcmstb_set_i2c_start_stop(dev,
--						   COND_RESTART | COND_NOSTOP);
-+			cond = COND_RESTART | COND_NOSTOP;
-+
-+		brcmstb_set_i2c_start_stop(dev, cond);
- 
- 		/* Send slave address */
- 		if (!(pmsg->flags & I2C_M_NOSTART)) {
-@@ -497,13 +499,24 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
- 			}
- 		}
- 
-+		cond_per_msg = cond;
-+
- 		/* Perform data transfer */
- 		while (len) {
- 			bytes_to_xfer = min(len, xfersz);
- 
--			if (len <= xfersz && i == (num - 1))
--				brcmstb_set_i2c_start_stop(dev,
--							   ~(COND_START_STOP));
-+			if (len <= xfersz) {
-+				if (i == (num - 1))
-+					cond_per_msg = cond_per_msg &
-+						~(COND_RESTART | COND_NOSTOP);
-+				else
-+					cond_per_msg = cond;
-+			} else {
-+				cond_per_msg = (cond_per_msg & ~COND_RESTART) |
-+					COND_NOSTOP;
-+			}
-+
-+			brcmstb_set_i2c_start_stop(dev, cond_per_msg);
- 
- 			rc = brcmstb_i2c_xfer_bsc_data(dev, tmp_buf,
- 						       bytes_to_xfer, pmsg);
-@@ -512,6 +525,8 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
- 
- 			len -=  bytes_to_xfer;
- 			tmp_buf += bytes_to_xfer;
-+
-+			cond_per_msg = COND_NOSTART | COND_NOSTOP;
+ 	if (client->dev.platform_data) {
+ 		chip = *(struct at24_platform_data *)client->dev.platform_data;
+@@ -743,6 +744,18 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  		}
  	}
  
++	i2c_set_clientdata(client, at24);
++
++	/*
++	 * Perform a one-byte test read to verify that the
++	 * chip is functional.
++	 */
++	err = at24_read(at24, 0, &test_byte, 1);
++	if (err) {
++		err = -ENODEV;
++		goto err_clients;
++	}
++
+ 	at24->nvmem_config.name = dev_name(&client->dev);
+ 	at24->nvmem_config.dev = &client->dev;
+ 	at24->nvmem_config.read_only = !writable;
+@@ -764,8 +777,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		goto err_clients;
+ 	}
+ 
+-	i2c_set_clientdata(client, at24);
+-
+ 	dev_info(&client->dev, "%u byte %s EEPROM, %s, %u bytes/write\n",
+ 		chip.byte_len, client->name,
+ 		writable ? "writable" : "read-only", at24->write_max);
 -- 
-2.9.2
+2.7.4
