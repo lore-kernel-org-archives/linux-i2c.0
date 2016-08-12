@@ -1,47 +1,56 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] i2c: mux: demux-pinctrl: properly roll back when adding adapter fails
-Date: Fri, 12 Aug 2016 18:40:23 +0200
-Message-ID: <1471020023-2263-1-git-send-email-wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c-tools: add .gitignore
+Date: Fri, 12 Aug 2016 20:34:39 +0200
+Message-ID: <20160812183439.GA2037@katana>
+References: <1470776099-16278-1-git-send-email-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:54600 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:55187 "EHLO pokefinder.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752591AbcHLQkl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Fri, 12 Aug 2016 12:40:41 -0400
+	id S1751254AbcHLSer (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Fri, 12 Aug 2016 14:34:47 -0400
+Content-Disposition: inline
+In-Reply-To: <1470776099-16278-1-git-send-email-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
 
-We also need to revert the dynamic OF change, so we get a consistent
-state again. Otherwise, we might have two devices enabled e.g. after
-pinctrl setup fails.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/muxes/i2c-demux-pinctrl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-index 8de073aed00148..215ac87f606d2d 100644
---- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-@@ -68,7 +68,7 @@ static int i2c_demux_activate_master(struct i2c_demux_pinctrl_priv *priv, u32 ne
- 	adap = of_find_i2c_adapter_by_node(priv->chan[new_chan].parent_np);
- 	if (!adap) {
- 		ret = -ENODEV;
--		goto err;
-+		goto err_with_revert;
- 	}
- 
- 	p = devm_pinctrl_get_select(adap->dev.parent, priv->bus_name);
-@@ -103,6 +103,8 @@ static int i2c_demux_activate_master(struct i2c_demux_pinctrl_priv *priv, u32 ne
- 
-  err_with_put:
- 	i2c_put_adapter(adap);
-+ err_with_revert:
-+	of_changeset_revert(&priv->chan[new_chan].chgset);
-  err:
- 	dev_err(priv->dev, "failed to setup demux-adapter %d (%d)\n", new_chan, ret);
- 	return ret;
--- 
-2.8.1
+On Tue, Aug 09, 2016 at 10:54:59PM +0200, Wolfram Sang wrote:
+> Don't display generated files, so 'git status' becomes useful again.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Pushed to master and 3.1-branch.
+
+
+--y0ulUmNC+osPPQO6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJXrha/AAoJEBQN5MwUoCm2TToP/3LxMOTj3lRp6TRk7REqQngs
+IcolVJTBm0ZseE9JdNyYfH1umG7SJUfbalW/4Lob/+k30iRF5WFyRgTKp3n7BagR
+MoEVQFOkFJFn7wyHqO4kl4aGjX/5yZf9CnDk6A/Wntyhtw3pDnfbHT6+pLP2gmpE
+3TGmhOmrx7zqSIKx1MP05leO/nb2wivCItaZxtN9Uxkjzf1d4xpdUI5OxAaNz2Tf
+GggAqF8dW7cH6cl/DE+7BB833GLNQtzsmBgrq1HxELExFfkLazxrT6Sgm8W9TiJb
+Id5S1USA1+63nX7oJGSI5hFWF9dsk9AIwk58hZB/QX65EgUfpZQYu2nIqXKdjmLm
+zryyblHL2CiSWSdGB5wKxSUVQIFylEy7EXgz2eoNEzffX1Yte8YZaYUMYrfRaF+1
+nHe/WXb02wBCB3kd0pTX/GxC3HU9m2+ocvaJ6guNJNCG8L5qWRwOYVWBlZIxfAvA
+tOIp7YDO2u8LZhGmjD0IzFNcou8je++5ItZZWgQ9DngoPRA2rbsGG58otaBD7g8P
+ReeGNzKP22mUFwsH7M+1KRJC+H3wkCbK+SOQeLFdHlULl95iR05su2xvuK1h8DOK
+bjZLdSgFhZDgeWRbjuo/3qfjOmB/NDl30VLg1ze8pnMG9HTymGbuyBgdHZF80znN
+51IU/tSbFgQgTUqHsKbo
+=y4t3
+-----END PGP SIGNATURE-----
+
+--y0ulUmNC+osPPQO6--
