@@ -1,55 +1,75 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mux: demux-pinctrl: properly roll back when adding
- adapter fails
-Date: Mon, 15 Aug 2016 00:21:31 +0200
-Message-ID: <20160814222131.GD10501@katana>
-References: <1471020023-2263-1-git-send-email-wsa+renesas@sang-engineering.com>
+Subject: Re: [RESEND PATCH 1/2] i2c: cros-ec-tunnel: Fix usage of
+ cros_ec_cmd_xfer()
+Date: Mon, 15 Aug 2016 00:24:08 +0200
+Message-ID: <20160814222408.GE10501@katana>
+References: <1470861439-129201-1-git-send-email-briannorris@chromium.org>
+ <1470861439-129201-2-git-send-email-briannorris@chromium.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C+ts3FVlLX8+P6JN"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="xJK8B5Wah2CMJs8h"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:40118 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750955AbcHNWYS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 14 Aug 2016 18:24:18 -0400
 Content-Disposition: inline
-In-Reply-To: <1471020023-2263-1-git-send-email-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+In-Reply-To: <1470861439-129201-2-git-send-email-briannorris@chromium.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Brian Norris <briannorris@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Olof Johansson <olof@lixom.net>, Brian Norris <computersforpeace@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Enric Balletbo <enric.balletbo@collabora.co.uk>, Shawn Nematbakhsh <shawnn@chromium.org>, Gwendal Grignou <gwendal@chromium.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, "# 9798ac6d32c1 mfd : cros_ec : Add cros_ec_cmd_xfer_status helper" <stable@vger.kernel.org>
 
 
---C+ts3FVlLX8+P6JN
+--xJK8B5Wah2CMJs8h
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 12, 2016 at 06:40:23PM +0200, Wolfram Sang wrote:
-> We also need to revert the dynamic OF change, so we get a consistent
-> state again. Otherwise, we might have two devices enabled e.g. after
-> pinctrl setup fails.
+On Wed, Aug 10, 2016 at 01:37:18PM -0700, Brian Norris wrote:
+> cros_ec_cmd_xfer returns success status if the command transport
+> completes successfully, but the execution result is incorrectly ignored.
+> In many cases, the execution result is assumed to be successful, leading
+> to ignored errors and operating on uninitialized data.
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> We've recently introduced the cros_ec_cmd_xfer_status() helper to avoid t=
+hese
+> problems. Let's use it.
+>=20
+> [Regarding the 'Fixes' tag; there is significant refactoring since the dr=
+iver's
+> introduction, but the underlying logical error exists throughout I believ=
+e]
+>=20
+> Fixes: 9d230c9e4f4e ("i2c: ChromeOS EC tunnel driver")
+> Cc: <stable@vger.kernel.org> # 9798ac6d32c1 mfd: cros_ec: Add cros_ec_cmd=
+_xfer_status() helper
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
 Applied to for-current, thanks!
 
 
---C+ts3FVlLX8+P6JN
+--xJK8B5Wah2CMJs8h
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXsO7rAAoJEBQN5MwUoCm21WYP/jPOVX6hp48xDxYJVPLmuTfM
-ve015GmEPYFJmaik0WI3JzbRprr1I39l1364M2seEFtGs7zebS4o8hYgdg6dzACQ
-Wn+JKIgixRPyPhkSA3OQY1JHjOzWPLYQqxXKZj56vWvTq9bCH0qzD5jj4tXL54uq
-MtZj+xGuKkApmz7FFl83n3MV/JkNcbiNxbSksdyuvNdkc++zd2fSEm140N3fJ7FB
-lWNv871v77nOMl/mAIUtc+R9CJW0kalxT60y1cYKoJik5SlDQWCNIZd0oLVJ4hO5
-xqInC4QDp+aWRTcxqoVaUxoKG3ymkI1C/xMYSjuMzujZUVW0MsYCsdW/m2uOc9ep
-JpMTdfNGAgv7V2/tgaLry2BXJy3EfRE6Zbqx23Y5YjsInKYzoiawoT7YEMygLAkE
-NHLdkHBVfnWjh3i4Z+U5P5hRqVCG/ggmExpuZsofsOCoFsoT/U7HBfDR8nejxEki
-A4Nq8EDQ4mdPPjktmMBMuQTZPMIZIeLiUtgytTB0Bc6L1LPvY1gR7feI629iYexr
-fqXWtTT6bXxwoV4ZJlVsazff2K1p7g30InyqkJ0bFi1QRBZZHqB3tYP8fnvhDVZZ
-6JtmIDA6KT1EOAzSw0vT+0lBdTTLMAPFtYivyYYJF0gVS3radUbCP6rbK0uXKMGZ
-q0I3C1araAl81Aa+jY7K
-=Xuc0
+iQIcBAEBAgAGBQJXsO+HAAoJEBQN5MwUoCm2H7YP/R26ooFIx47DxmKCPhPWKzwh
+SeUcoMn+BFpEqXdprAdL1Zz9j8GcKfAWTs+Vz+OqWRCWtTBZZXBDwPCim0udRalT
+Hikg1ZzaljyUCYhlHb0KAljoRVrtBZ7DWAPzMcf85RYQtE5E9CjtFAKoezA5fkNE
+EgtJoBbe2tE58X8F8RtfG9oGJKsAMBQDKnXBJVCIr9qyOuVLQiYeurO0vvt1CxUQ
+0XCdi1us3TmocLiTpbUAd5xBmEAISPeJ/GeibeYoFCIc++VF6uoycMHzsBJbOVSC
+/vheVOYeHpiCok0dGkv2oBjYyxkzzR7oJg7ZXXzC9lr3i25WAP/tqFoBdoYkE9hX
+HsacHvQ0h2QXUy2NaBtsvLZm32QAhoz/QLcHLiKBE7wHH7FSmTaHSfvhX1GhlMxi
+yDHh6QXieidr2ves38GhOi5OKRAU7z7I7IeIEBwVWxckMo06OctCzrd1w+V18uSP
+4Cq38gFf3ncSjSpRqtbBFNfJZMf98P7MTGbPNIKmLDu5h+VW9OHLn2AMgRkjGQ5c
+sVk+3h36Du2HMGKNqn3rrKFjaW2IhDGxk1UGayHsrJWRP7C/QzLFJRWpHio9yfyW
+RH7pIVq/69+MiBG21XBgK68vRP3QzZvi6fo2uDiyR0UHwp8pQqRT77eB0a7fQBxf
+rLE7pyMuXz5WvkZKTnWp
+=FLB3
 -----END PGP SIGNATURE-----
 
---C+ts3FVlLX8+P6JN--
+--xJK8B5Wah2CMJs8h--
