@@ -1,59 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: ocores: add missed clk_disable_unprepare() on
- failure paths
-Date: Mon, 15 Aug 2016 00:30:43 +0200
-Message-ID: <20160814223042.GF10501@katana>
-References: <1470267524-14753-1-git-send-email-khoroshilov@ispras.ru>
+Subject: Re: [PATCH] i2c: at91: fix support of the "alternative command"
+ feature
+Date: Mon, 15 Aug 2016 00:34:37 +0200
+Message-ID: <20160814223437.GG10501@katana>
+References: <20160803145826.11927-1-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0hHDr/TIsw4o3iPK"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:40147 "EHLO pokefinder.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751772AbcHNWau (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Sun, 14 Aug 2016 18:30:50 -0400
+	protocol="application/pgp-signature"; boundary="0qt3EE9wi45a2ZFX"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1470267524-14753-1-git-send-email-khoroshilov@ispras.ru>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20160803145826.11927-1-ludovic.desroches@atmel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ludovic Desroches <ludovic.desroches@atmel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com, linux-arm-kernel@lists.infradead.org, Cyrille Pitchen <cyrille.pitchen@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
 
---0hHDr/TIsw4o3iPK
+--0qt3EE9wi45a2ZFX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 04, 2016 at 02:38:44AM +0300, Alexey Khoroshilov wrote:
-> clk_disable_unprepare() is missed on failure paths in ocores_i2c_probe().
+On Wed, Aug 03, 2016 at 04:58:26PM +0200, Ludovic Desroches wrote:
+> From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
 >=20
-> Found by Linux Driver Verification project (linuxtesting.org).
+> The "alternative command" feature was introduced with sama5d2 SoCs.
 >=20
-> Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+> Its purpose is to let the hardware i2c controller automatically send the
+> STOP condition on the i2c bus at the end of a data transfer.
+> Without this feature, the i2c driver has to write the 'STOP' bit into the
+> Control Register so the hardware i2c controller is triggered to send the
+> STOP condition on the bus.
+>=20
+> Using the "alternative command" feature requires to set the transfer data
+> length into the 8bit DATAL field of the Alternative Command Register.
+> Hence only data transfers up to 255 bytes can take advantage of the
+> "alternative command" feature. For greater data transfer sizes, the driver
+> should use the previous implementation, when the "alternative command"
+> support was not implemented yet.
+>=20
+> Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
 
 Applied to for-current, thanks!
 
 
---0hHDr/TIsw4o3iPK
+--0qt3EE9wi45a2ZFX
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXsPESAAoJEBQN5MwUoCm2tasQAK+JtFBEEkdMlQbkIhmaIfrz
-ZMp6J2voQ/PFtZwkU5mo+ee4xh+qQ43AKldBxpXTTnOBw6eUCjzdbuscVErdvRSr
-OdDDiQ49dUnzMT10uKPVwOCw1HTO4y+hXtMegIWU2YjwAN98pG923QutlFsgSN/P
-85WM/0dLvMIqqbP42lLPgdM4tZSZ4vG5yKyHbKccrFkxVMZvsh/HK38STQceekpJ
-yTPX0Dp205pq+vkt8zw7o9BlsstQYvLC/LrfYERhaT0DgpgDunyIPlRiy2YxmxhG
-5Bf2sWunVjhSe39IkNwwEi2CvfnFIxlDr9SL6esq89nd3eBlek22qUm/V2cg5dTJ
-ecarV2eMwF7JknOOaGf9Lzi+tQoWMRM8b0h0oKeGuMaw5orBELEupVNA7KEzLUBZ
-y6Mn2WfVXf+rp4iIA0Q6Y+X5QSu2dkxjf7gCJpFuzhV6+KXmpnqNLJcgaCfofV8c
-/6yb3ydPLERqHe5yTvdV7cJIXCsgMSCyhLx8Phvpl4aheI76KsuECd32s4gaYenN
-NCiIBlb+ZkBw5QBpOTa8Pv2xapZF7ARlRZJORTBmQT/CJ0JWsxgWF5LKUlW8n3J9
-crF2a8XvCLO28J/TRVSXFl8IU1JRrhM7bAJ+aDncOkvCoznZ/IMIIXN/rV90JU8X
-pwQy+zTHwxDMpoxWUHKH
-=LgH4
+iQIcBAEBAgAGBQJXsPH9AAoJEBQN5MwUoCm20OIP/0C8qmkN4DTS/wvozM/VlgQo
+Rz/2wm3eDI6SK8qF6UChN4tp7qStV0Zkf4SwoCIS9iHdJ34kv3B64vaXTcS/jih7
+xnBj5HLqV5DH8Y6dMRda+esAguFS4QRl3gDtKvYn6JdfFmGxyM8a8g78tnKGHZgD
+LG69dykJnLRz0C29jRaaTyo1VCgION3dn2u7xo/6RSYGDzMf1DYt21Sy7mWkuvEJ
++oIHcExxJDjdKfvYZKpjItn9pCNPuEJSwwMV1tLRcRJX9Uf1eiNA+xNaBFHvQgbf
+9hPvpkfJ6lmOYkDITE4ozBEooRux/8lAIfEs3xn55fewgQHACt10swW8QOi1YrgB
+r77TT4d3I0I+yoe1GaarAuNjxY33AuVqOEiO6lc0yYIuzCu2h/BDHvVkOy0vZpRY
+LkQx9pC7hkEXhAON3tyl73G4ChjKX/1I1a8tl4Bndyov4FwQCHRTXHqBfpN1fMSZ
+Kdoe5HB086JdvydF6d9GrLCK8rv/VET8oljxnMcQQanTEVadjbaaCxtzeBEbDQ9B
+C2wLdiusnKyWdUAtvwI8nqGeF1uGBTbYk9/F/xxhV+6ZYFStUVcaCNPW1yoQ7Vr0
++wusfZIad/FNR9Bf8z7QCKj12QFqO9BluV4ZWFaIOrnLLifT79rIGIZhgkbnEopl
+BSuB7ViI6NNl+6wZ9Pz/
+=9yGF
 -----END PGP SIGNATURE-----
 
---0hHDr/TIsw4o3iPK--
+--0qt3EE9wi45a2ZFX--
