@@ -1,62 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: don't print error when adding adapter fails
-Date: Mon, 15 Aug 2016 00:17:20 +0200
-Message-ID: <20160814221719.GA10501@katana>
-References: <1470742581-12971-1-git-send-email-wsa-dev@sang-engineering.com>
+Subject: Re: [PATCH] i2c: uniphier{-f}: don't print error when adding adapter
+ fails
+Date: Mon, 15 Aug 2016 00:17:30 +0200
+Message-ID: <20160814221730.GB10501@katana>
+References: <1470773500-13946-1-git-send-email-wsa-dev@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:40070 "EHLO pokefinder.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752423AbcHNWRg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Sun, 14 Aug 2016 18:17:36 -0400
 Content-Disposition: inline
-In-Reply-To: <1470742581-12971-1-git-send-email-wsa-dev@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa-dev@sang-engineering.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, kernel@stlinux.com, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org
+In-Reply-To: <1470773500-13946-1-git-send-email-wsa-dev@sang-engineering.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa-dev@sang-engineering.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Guenter Roeck <linux@roeck-us.net>
 
 
---VbJkn9YxBvnuCH5J
+--qcHopEYAB45HaUaB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 09, 2016 at 01:36:16PM +0200, Wolfram Sang wrote:
-> Since v4.8-rc1, the I2C core will print detailed information when adding =
-an I2C
-> adapter fails. So, drivers can skip this now.
+On Tue, Aug 09, 2016 at 10:11:40PM +0200, Wolfram Sang wrote:
+> The core will do this for us now.
 >=20
-> I am still undecided if I apply this as a single patch or break it out. B=
-ut for
-> reviewing, avoiding the patch bomb is probably a good thing.
->=20
-> Should go via subsystem tree, I'd think.
->=20
-> Wolfram Sang (1):
->   i2c: don't print error when adding adapter fails
->=20
+> Signed-off-by: Wolfram Sang <wsa-dev@sang-engineering.com>
 
 Applied to for-next, thanks!
 
 
---VbJkn9YxBvnuCH5J
+--qcHopEYAB45HaUaB
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXsO3vAAoJEBQN5MwUoCm2w3IP/jptxJ55zOpqqrP4YiIo9d1P
-ldYqyfLqKHVN00p64U+1H3ryKADkcH4kyXCMj8NNrFmD1Sjp4t+IpSJrfbyjhjxD
-iYkgvfZCKtLXECOE3AnrtBvlwv0wdBIP4Riztq2WgAfwXJvebU8K3dld3fx0f3k0
-KUpk5uQ24K5RbYcSPS+PqqDi7LRvu1iRfsOyqA3j8n7nQ4uKVLLYbcst5NyFpG7x
-168XGity4IdRjQM4PeEEQkXWgN9UdbS/5Ah7vG52Ug3iEfzXgMSyjrUM5NfuxGv8
-oku57fUtN2y+uH2Od5gL0S27m49mGDxNPnhPK4CPItekcz2wxwaFlnb+3eOpRT57
-sADpkE1bpl70FdaWJdSeI9F689dUCvWVsRpg7dglHI8yxzk+oQOE8KfWMXSX0CCn
-JUBsKsSBR1FUDpFAaACjGvMSf4E/2gosQC6pxF2jSo3Y/i2JH+HgzhtQcxRJ2v5f
-zG711NoBMbzZMRteYN5NHidiDrzZeo9fGoGxWLmKuayR2oifMB8O1IVAwx8HeVJh
-hPGCi0ZSGsCYYZ/SZ6QmzYZAfrKnt/EDFjyywJ/egf6yvDB1xkIkbFGkK+V1OhGp
-C61jKV4qHvvDxkOf2l7W77AWxJOswfJW3JZzkMC+1eniXU1yULAsJ09I9Jhol3AZ
-GpCRWj5TN9jg1a0kP26G
-=vwEG
+iQIcBAEBAgAGBQJXsO36AAoJEBQN5MwUoCm2wwgP/iwmihw2IRRNZ2B7o3U/llIV
+mEAbb/BgOKBFe0chPEtraVBGiUUUPpGHb+aeRXyaoVfw+Vi5UX8Ia9FCQHAMffi4
+axup+Us8PLjpDyxSY2iog/IPYw6VdMGxzMXR4MB/Bss1f9Kjk5dzHPJ3TKflX/A5
+BD7NknJ+APv1XlT2jqSBlO1so6vgxaAFjlKew7MZbTrqXshtcPcDIAJ8f9j/LiAz
+dkYI12Z3Al0Z0s25LWDFe51WU7Xs6E25/od2l0ZakSn9iYvGdZOZzzDNEXag4EjU
+1Il/dmKqI9OQv15jRtu0nkL+NF1Dq8PsRRb2j8ChBqNm2y8uKOCTQ00VFH5tRB5p
+0tnxYtJuacsH5+ZBJrhT6TYRnrW/10q/7zXCziqaZ6MFXco92amIi+DnKGAWZHH4
+HTafi40hkL3p4aNT6rII5OHI84g7C7qT7kn33Ga9x6EA1Ck/mA4DrBx6JzG4bjyU
+v3sL/FHaKNcok5kJrfPoec1NwxSXTw/Cc0Y9F6uwNKdWdQLtJrlZa4wDfDVdHL9H
+PdTSmqbC+fiiQWP0f4U2XGqJnyMv+bxmckQfi6QVpw2LHOj5q38HrPd2D20EIgxa
++zS6jJqs//jH0+G1ACCHW7fRHfbbKALC5FoRqbmR6/uflUy3iguXqJ1UA4RBrRH+
+28nWkJY0qk+4/vLKqAMQ
+=x46h
 -----END PGP SIGNATURE-----
 
---VbJkn9YxBvnuCH5J--
+--qcHopEYAB45HaUaB--
