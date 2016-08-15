@@ -1,164 +1,84 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 5/8] i2c: mux: add support for 'i2c-mux', 'i2c-arb' and
- 'i2c-gate' DT subnodes
-Date: Mon, 15 Aug 2016 16:33:51 +0200
-Message-ID: <ec485bda-0e5b-943a-7842-4fb04b879324@axentia.se>
-References: <1471268431-5148-1-git-send-email-peda@axentia.se>
- <1471268431-5148-6-git-send-email-peda@axentia.se>
- <53bd470f-4243-c7fe-485a-3d8ec7cc034d@mentor.com>
+Subject: [PATCH v2 0/8] devicetree cleanup for i2c muxes/arbs/gates
+Date: Mon, 15 Aug 2016 15:40:23 +0200
+Message-ID: <1471268431-5148-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <53bd470f-4243-c7fe-485a-3d8ec7cc034d@mentor.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>, linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Guenter Roeck <linux@roeck-us.net>, "David S. Miller" <davem@davemloft.net>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Crestez Dan Leonard <leonard.crestez@intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Guenter Roeck <linux@roeck-us.net>, "David S. Miller" <davem@davemloft.net>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Crestez Dan Leonard <leonard.crestez@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vladimir,
+Hi!
 
-On 2016-08-15 15:55, Vladimir Zapolskiy wrote:
-> Hi Peter,
-> 
-> On 08/15/2016 04:40 PM, Peter Rosin wrote:
->> Backwards compatibility is preserved; the subnodes are in practice
->> optional.
->>
->> However, the mux core needs to know what subnode it should examine, so add
->> a couple of new flags for i2c_mux_alloc for this purpose.
->>
->> The rule is that if the mux core finds a 'reg' property in the appropriate
->> subnode, e.g. if 'reg' exists in the 'i2c-mux' subnode, then the mux core
->> will assume that this is an old style entry and not an i2c-mux subnode
->> (correspondingly for arbitrators and gates with 'i2c-arb' and 'i2c-gate').
->>
->> Signed-off-by: Peter Rosin <peda@axentia.se>
->> ---
->>  drivers/i2c/i2c-mux.c   | 44 ++++++++++++++++++++++++++++++++++++--------
->>  include/linux/i2c-mux.h |  8 ++++++--
->>  2 files changed, 42 insertions(+), 10 deletions(-)
->>
->> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
->> index 8eee98634cda..c1ae719d1a7a 100644
->> --- a/drivers/i2c/i2c-mux.c
->> +++ b/drivers/i2c/i2c-mux.c
->> @@ -255,6 +255,10 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
->>  	muxc->dev = dev;
->>  	if (flags & I2C_MUX_LOCKED)
->>  		muxc->mux_locked = true;
->> +	if (flags & I2C_MUX_ARBITRATOR)
->> +		muxc->arbitrator = true;
->> +	if (flags & I2C_MUX_GATE)
->> +		muxc->gate = true;
->>  	muxc->select = select;
->>  	muxc->deselect = deselect;
->>  	muxc->max_adapters = max_adapters;
->> @@ -335,18 +339,42 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
->>  	 * nothing if !CONFIG_OF.
->>  	 */
->>  	if (muxc->dev->of_node) {
->> -		struct device_node *child;
->> +		struct device_node *dev_node = muxc->dev->of_node;
->> +		struct device_node *mux_node, *child = NULL;
->>  		u32 reg;
->>
->> -		for_each_child_of_node(muxc->dev->of_node, child) {
->> -			ret = of_property_read_u32(child, "reg", &reg);
->> -			if (ret)
->> -				continue;
->> -			if (chan_id == reg) {
->> -				priv->adap.dev.of_node = child;
->> -				break;
-> 
-> missing of_node_put(child);
+The nxp pca9541 chip does not have any devicetree bindings.
+When trying to write such bindings matching the implementation,
+I stumbled upon something which I did not like. I had to
+give the node holding the i2c child bus a 'reg' property that
+is left unused and is really odd to explain from a devicetree
+point of view. It really is a leftover from the fact that linux
+implements i2c arbitrators (and i2c gates) using the i2c mux
+code. See this thread for history [1].
 
-Note, you are commenting on the old code that is removed, but I don't think
-there was any bug. A reference is stored away for later use, so better not
-of_node_put(child) or it might disappear from under us. Or do I have a
-fundamental misunderstanding?
+This series resolves the issues, and maintains backwards compat
+with old device trees (well, one could, in theory, create a
+device tree that would break with these changes, but my guess
+is that the odds for that happening inadvertedly are high...)
 
-> Also adding an empty line would be perfect.
+This should also help Crestez Dan Leonard with the mpu6050
+series containing the changes for its auxiliary i2c master [2],
+especially if you also consider the recent (very similar) changes
+from Jon Hunter that adds an optional 'i2c-bus' subnode [3].
 
-Strange comment for the split between removing and adding lines. What do you
-mean? I certainly don't miss any empty lines here...
+If this is ok, I will follow up with patches for other drivers
+so that they inform the i2c mux core if they are muxes, arbs or
+gates. As stated, they will continue to work with these changes,
+so there is no huge rush.
 
->> +		if (muxc->arbitrator)
->> +			mux_node = of_get_child_by_name(dev_node, "i2c-arb");
->> +		else if (muxc->gate)
->> +			mux_node = of_get_child_by_name(dev_node, "i2c-gate");
->> +		else
->> +			mux_node = of_get_child_by_name(dev_node, "i2c-mux");
->> +
->> +		if (mux_node) {
->> +			/* A "reg" property indicates an old-style DT entry */
->> +			if (!of_property_read_u32(mux_node, "reg", &reg)) {
->> +				of_node_put(mux_node);
->> +				mux_node = NULL;
->> +			}
->> +		}
->> +
->> +		if (!mux_node)
->> +			mux_node = of_node_get(dev_node);
->> +		else if (muxc->arbitrator || muxc->gate)
->> +			child = of_node_get(mux_node);
->> +
->> +		if (!child) {
->> +			for_each_child_of_node(mux_node, child) {
->> +				ret = of_property_read_u32(child, "reg", &reg);
->> +				if (ret)
->> +					continue;
->> +				if (chan_id == reg)
->> +					break;
-> 
-> missing of_node_put(child);
+The mux core does not really need to differentiate between
+arbitrators and gates. Should they be folded? What to call them
+in that case?
 
-Here you are commenting on the new code, but I think the same argument
-holds here as well. The reference to the child node is stored away...
+Changes since v1:
 
->>  			}
->>  		}
->> +
->> +		priv->adap.dev.of_node = child;
-
-...here, for later use (by i2c_add_adapter).
-
-Anyway, IF the of node really should be put, this is orthogonal to what
-I'm doing here, and the problem exists in other places as well (just grep
-for "dev.of_node = of_node_get". So, that would be fodder for future
-patches.
+- Fixes and additions suggested by Rob Herring (3/8 still needs an ack).
+- Inserted patch 6/8 so that the two arb drivers support the new more
+  compact dt syntax.
 
 Cheers,
 Peter
 
->> +		of_node_put(mux_node);
->>  	}
->>
->>  	/*
->> diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
->> index d4c1d12f900d..bd74d5706f3b 100644
->> --- a/include/linux/i2c-mux.h
->> +++ b/include/linux/i2c-mux.h
->> @@ -32,7 +32,9 @@
->>  struct i2c_mux_core {
->>  	struct i2c_adapter *parent;
->>  	struct device *dev;
->> -	bool mux_locked;
->> +	unsigned int mux_locked:1;
->> +	unsigned int arbitrator:1;
->> +	unsigned int gate:1;
->>
->>  	void *priv;
->>
->> @@ -51,7 +53,9 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
->>  				   int (*deselect)(struct i2c_mux_core *, u32));
->>
->>  /* flags for i2c_mux_alloc */
->> -#define I2C_MUX_LOCKED BIT(0)
->> +#define I2C_MUX_LOCKED     BIT(0)
->> +#define I2C_MUX_ARBITRATOR BIT(1)
->> +#define I2C_MUX_GATE       BIT(2)
->>
->>  static inline void *i2c_mux_priv(struct i2c_mux_core *muxc)
->>  {
->>
+[1] https://lkml.org/lkml/2016/6/27/203
+[2] https://lkml.org/lkml/2016/5/18/355
+[3] https://patchwork.ozlabs.org/patch/641934/
+
+Peter Rosin (8):
+  dt-bindings: i2c: add support for 'i2c-mux' subnode
+  dt-bindings: i2c: add support for 'i2c-arb' subnode
+  dt-bindings: i2c: add support for 'i2c-gate' subnode
+  dt-bindings: i2c: add bindings for nxp,pca9541
+  i2c: mux: add support for 'i2c-mux', 'i2c-arb' and 'i2c-gate' DT
+    subnodes
+  i2c: mux: inform the i2c mux core about how it is used
+  i2c: pca9541: add device tree binding
+  i2c: pca954x: add device tree binding
+
+ .../bindings/i2c/i2c-arb-gpio-challenge.txt        |  8 +---
+ Documentation/devicetree/bindings/i2c/i2c-arb.txt  | 35 ++++++++++++++++
+ Documentation/devicetree/bindings/i2c/i2c-gate.txt | 41 +++++++++++++++++++
+ Documentation/devicetree/bindings/i2c/i2c-mux.txt  | 23 ++++++++---
+ .../devicetree/bindings/i2c/nxp,pca9541.txt        | 29 ++++++++++++++
+ MAINTAINERS                                        |  2 +
+ drivers/i2c/i2c-mux.c                              | 44 +++++++++++++++++----
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c         |  2 +-
+ drivers/i2c/muxes/i2c-mux-pca9541.c                | 11 +++++-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 46 ++++++++++++++++------
+ include/linux/i2c-mux.h                            |  8 +++-
+ 11 files changed, 214 insertions(+), 35 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-arb.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-gate.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/nxp,pca9541.txt
+
+-- 
+2.1.4
