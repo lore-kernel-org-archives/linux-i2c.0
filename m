@@ -1,67 +1,48 @@
-From: "De Marchi, Lucas" <lucas.demarchi@intel.com>
-Subject: Re: [PATCH v3 2/3] i2c: designware: detect when dynamic tar update
- is possible
-Date: Tue, 16 Aug 2016 14:07:50 +0000
-Message-ID: <1471356468.2907.4.camel@intel.com>
-References: <1469743424-2480-1-git-send-email-lucas.demarchi@intel.com>
-	 <1469743424-2480-3-git-send-email-lucas.demarchi@intel.com>
-	 <f4c1fb29-b315-33ee-f029-684ef9cd6264@linux.intel.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [RFC 12/17] ASoC: samsung: Switch to new clock controller API
+Date: Tue, 16 Aug 2016 15:13:45 +0100
+Message-ID: <20160816141345.GT9347@sirena.org.uk>
+References: <1471354514-24224-1-git-send-email-k.kozlowski@samsung.com>
+ <1471354514-24224-13-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:38340 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932172AbcHPOH6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Tue, 16 Aug 2016 10:07:58 -0400
-In-Reply-To: <f4c1fb29-b315-33ee-f029-684ef9cd6264@linux.intel.com>
-Content-Language: en-US
-Content-ID: <83334F3C09DF94428D8B9864E4FB33BD@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="rePSHXHJe0GetUdz"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1471354514-24224-13-git-send-email-k.kozlowski@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Kukjin Kim <kgene@kernel.org>, Russell King <linux@armlinux.org.uk>, linux-clk@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, Marek Szyprowski <m.szyprowski@samsung.com>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Javier Martinez Canillas <javier@osg.samsung.com>, a.hajda@samsung.comB
 List-Id: linux-i2c@vger.kernel.org
-To: "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "christian.ruppert@alitech.com" <christian.ruppert@alitech.com>, "Souza, Jose" <jose.souza@intel.com>
 
-T24gVHVlLCAyMDE2LTA4LTE2IGF0IDE3OjAwICswMzAwLCBKYXJra28gTmlrdWxhIHdyb3RlOg0K
-PiBIaSwgKyBXb2xmcmFtDQo+IA0KPiBPbiAwNy8yOS8yMDE2IDAxOjAzIEFNLCBMdWNhcyBEZSBN
-YXJjaGkgd3JvdGU6DQo+ID4gDQo+ID4gVGhpcyBhZGFwdGVyIGNhbiBiZSBzeW50aGVzaXplZCB3
-aXRoIGR5bmFtaWMgdGFyIHVwZGF0ZSBlbmFibGVkIG9yDQo+ID4gZGlzYWJsZWQuDQo+ID4gV2hl
-biBlbmFibGVkIGl0IGlzIG5vdCBuZWNlc3NhcnkgdG8gZGlzYWJsZSB0aGUgYWRhcHRlciB0byBj
-aGFuZ2UNCj4gPiB0aGUgc2xhdmUNCj4gPiBhZGRyZXNzIGluIHNvbWUgc2l0dWF0aW9ucywgd2hp
-Y2ggc2F2ZXMgc29tZSB0aW1lIHBlciB0cmFuc2FjdGlvbi4NCj4gPiANCj4gPiBUaGVyZSBpcyBu
-byBkaXJlY3QgcmVnaXN0ZXIgdG8ga25vdyBpZiB0aGlzIGZlYXR1cmUgaXMgZW5hYmxlZCBidXQN
-Cj4gPiB3ZSBjYW4gZG8gaXQNCj4gPiBpbmRpcmVjdGx5IGJ5IHdyaXRpbmcgdG8gdGhlIDEwQklU
-X0FERFIgZmllbGQgaW4gSUNfQ09OOiB0aGlzIGZpZWxkDQo+ID4gaXMNCj4gPiByZWFkIG9ubHkg
-d2hlbiBkeW5hbWljIHRhciB1cGRhdGUgaXMgZW5hYmxlZC4NCj4gPiANCj4gPiBTaWduZWQtb2Zm
-LWJ5OiBMdWNhcyBEZSBNYXJjaGkgPGx1Y2FzLmRlbWFyY2hpQGludGVsLmNvbT4NCj4gPiBTaWdu
-ZWQtb2ZmLWJ5OiBKb3PDqSBSb2JlcnRvIGRlIFNvdXphIDxqb3NlLnNvdXphQGludGVsLmNvbT4N
-Cj4gPiAtLS0NCj4gPiDCoGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3JlLmMg
-fCAzNw0KPiA+ICsrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tDQo+ID4gwqBkcml2ZXJz
-L2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5oIHzCoMKgMSArDQo+ID4gwqAyIGZpbGVz
-IGNoYW5nZWQsIDI3IGluc2VydGlvbnMoKyksIDExIGRlbGV0aW9ucygtKQ0KPiA+IA0KPiA+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5jDQo+ID4g
-Yi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5jDQo+ID4gaW5kZXggMmM2
-MTU4NS4uYTg0MDhkYiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRl
-c2lnbndhcmUtY29yZS5jDQo+ID4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253
-YXJlLWNvcmUuYw0KPiA+IEBAIC0zODgsNiArMzg4LDIwIEBAIGludCBpMmNfZHdfaW5pdChzdHJ1
-Y3QgZHdfaTJjX2RldiAqZGV2KQ0KPiA+IMKgCS8qIGNvbmZpZ3VyZSB0aGUgaTJjIG1hc3RlciAq
-Lw0KPiA+IMKgCWR3X3dyaXRlbChkZXYsIGRldi0+bWFzdGVyX2NmZyAsIERXX0lDX0NPTik7DQo+
-ID4gDQo+ID4gKwkvKg0KPiA+ICsJwqAqIFRlc3QgaWYgZHluYW1pYyBUQVIgdXBkYXRlIGlzIGVu
-YWJsZWQgaW4gdGhpcw0KPiA+IGNvbnRyb2xsZXIgYnkgd3JpdGluZyB0bw0KPiANCj4gT3ZlciA4
-MCBjaGFyYWN0ZXJzIGluIHRoaXMgbGluZS4NCg0KSSdsbCBmaXggdGhpcyBhbmQgd2FpdCBmb3Ig
-bW9yZSBjb21tZW50cyAob3IgYSBmZXcgZGF5cykgYmVmb3JlIHNlbmRpbmcNCmEgbmV3IHZlcnNp
-b24uDQoNCj4gPiArCcKgKi8NCj4gPiArCXJlZyA9IGR3X3JlYWRsKGRldiwgRFdfSUNfQ09OKTsN
-Cj4gPiArCWR3X3dyaXRlbChkZXYsIHJlZyBeIERXX0lDX0NPTl8xMEJJVEFERFJfTUFTVEVSLA0K
-PiA+IERXX0lDX0NPTik7DQo+ID4gKw0KPiA+ICsJaWYgKChkd19yZWFkbChkZXYsIERXX0lDX0NP
-TikgJg0KPiA+IERXX0lDX0NPTl8xMEJJVEFERFJfTUFTVEVSKSA9PQ0KPiA+ICsJwqDCoMKgwqAo
-cmVnICYgRFdfSUNfQ09OXzEwQklUQUREUl9NQVNURVIpKSB7DQo+ID4gKwkJZGV2LT5keW5hbWlj
-X3Rhcl91cGRhdGVfZW5hYmxlZCA9IHRydWU7DQo+ID4gKwkJZGV2X2RiZyhkZXYtPmRldiwgIkR5
-bmFtaWMgVEFSIHVwZGF0ZSBlbmFibGVkIik7DQo+ID4gKwl9DQo+IA0KPiBJcyB0aGlzIHBvc3Np
-YmxlIHRvIG1vdmUgdG8gaTJjX2R3X3Byb2JlKCk/IEkgZ3Vlc3MgdGhlIGVuYWJsZWQNCj4gc3Rh
-dHVzwqANCj4gZG9lc24ndCBjaGFuZ2UgcnVudGltZT8NCg0KSXQgd2FzIGFjdHVhbGx5IHVzZWZ1
-bCBhdCB0aGlzIHBsYWNlIGR1cmluZyBkZXZlbG9wbWVudCBvZiB0aGlzIHBhdGNoDQpiZWNhdXNl
-IHdlIGNvdWxkIGNoZWNrIGFueSB1bmV4cGVjdGVkIGNoYW5nZSBpbiBiZWhhdmlvciB3aGVuIHJl
-c3VtaW5nLg0KV2UgZGlkIGNhdGNoIGEgYnVnIGJlY2F1c2Ugb2YgdGhpcyBhbmQgZml4ZWQuDQpJ
-J20gbm90IHN1cmUgaWYgbm93IGl0IG1ha2VzIG1vcmUgc2Vuc2UgdG8gbW92ZSB0byBwcm9iZSBt
-ZXRob2QuIEknZA0KbGVhdmUgaXQgd2hlcmUgaXQgaXMsIGJ1dCBJJ20gb3BlbiB0byBtb3ZlIGl0
-IHRoZXJlLg0KDQp0aGFua3MNCg0KTHVjYXMgRGUgTWFyY2hp
+
+--rePSHXHJe0GetUdz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Aug 16, 2016 at 03:35:09PM +0200, Krzysztof Kozlowski wrote:
+> Allocate a clock controller and use new clk_register_with_ctrl() API.
+
+Acked-by: Mark Brown <broonie@kernel.org>
+
+>  	i2s_unregister_clocks(i2s);
+> +	clk_ctrl_unregister(i2s->clk_ctrl);
+
+devm?
+
+--rePSHXHJe0GetUdz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJXsx+YAAoJECTWi3JdVIfQtXkH/iuQ4LWIduWwXQhaP0MDv7bv
+D4skQGj8vnnKjTNLSjxJaC5ozrwCOStLomdUmHsv9imnx5c5Ynr+ZJJttj2XrWOD
+T25EVIJdolAgYIFvi1VqG5P+K38mvpDD1Ku5zMc5LGoQSr7gflSDZujLqR47L/I8
+ISCbZ3tR02qdIQTFjSyC1NfRQJk2+p6KWsZVfPw64Gpce3/UrOziZzGAyCm7oDOz
+mxEJPuWxoGxOBdvznAx/T5bRgkxu9A8sAjoZ4KylH8xbmB6jPzHqWEsJOHc7Pt5e
+ByWqwA5SgiY4on1zD+SQ+VqhqlubXA/csSwVe1NBn50XbpXMiECryyWcH63bijM=
+=VovP
+-----END PGP SIGNATURE-----
+
+--rePSHXHJe0GetUdz--
