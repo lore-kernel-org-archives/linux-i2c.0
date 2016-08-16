@@ -1,70 +1,109 @@
-From: Kachalov Anton <mouse@mayc.ru>
-Subject: Re: i2c: slave support framework improvements
-Date: Tue, 16 Aug 2016 16:53:18 +0300
-Message-ID: <30371471355598@web10h.yandex.ru>
-References: <1391831469440835@web19h.yandex.ru>
-	 <499754e2-f60a-5170-21f3-d756f768dd0d@axentia.se>
-	 <168841469551868@web14h.yandex.ru> <20160728074157.GA2693@katana>
-	 <9bf9e528-de4a-df4d-fed4-ee1afbfb609a@axentia.se>
-	 <20160728083914.GC2693@katana>
-	 <c72d3c73-30e4-1ee0-f763-99027e35051f@axentia.se>
-	 <20160728091514.GA17499@katana>
-	 <abd15f46-48d3-f8cc-c2bc-3cb861c2ca3c@axentia.se>
-	 <b2070d79-ab76-a2f5-658f-d24ad0229b04@axentia.se>
-	 <20160816121205.GA2846@tetsubishi> <35e3622b-cc82-6b8b-2a2e-c62300080d89@axentia.se>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 3/8] dt-bindings: i2c: add support for 'i2c-gate'
+ subnode
+Date: Tue, 16 Aug 2016 08:57:51 -0500
+Message-ID: <20160816135751.GA32704@rob-hp-laptop>
+References: <1471268431-5148-1-git-send-email-peda@axentia.se>
+ <1471268431-5148-4-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from forward4p.cmail.yandex.net ([77.88.31.19]:59574 "EHLO
-	forward4p.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753677AbcHPNxy (ORCPT
-	<rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Aug 2016 09:53:54 -0400
-In-Reply-To: <35e3622b-cc82-6b8b-2a2e-c62300080d89@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1471268431-5148-4-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hello,
+On Mon, Aug 15, 2016 at 03:40:26PM +0200, Peter Rosin wrote:
+> Handle i2c gates similarly to how i2c arbitrators are handled.
+> This gets rid of a pointless 'reg' property for i2c gates.
+> 
+> I.e. this new and more compact style
+> 
+>         some-gate {
+>                 i2c-gate {
+>                         #address-cells = <1>;
+>                         #size-cells = <0>;
+> 
+>                         some-i2c-device@50 {
+>                                 reg = <0x50>;
+>                         };
+>                 };
+>         };
+> 
+> instead of the old
+> 
+>         some-gate {
+>                 #address-cells = <1>;
+>                 #size-cells = <0>;
+> 
+>                 i2c@0 {
+>                         reg = <0>;
+> 
+>                         #address-cells = <1>;
+>                         #size-cells = <0>;
+> 
+>                         some-i2c-device@50 {
+>                                 reg = <0x50>;
+>                         };
+>                 };
+>         };
+> 
+> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-gate.txt | 41 ++++++++++++++++++++++
+>  MAINTAINERS                                        |  1 +
+>  2 files changed, 42 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-gate.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-gate.txt b/Documentation/devicetree/bindings/i2c/i2c-gate.txt
+> new file mode 100644
+> index 000000000000..0b057fb2a15a
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-gate.txt
+> @@ -0,0 +1,41 @@
+> +An i2c gate is useful to e.g. reduce the digital noise for RF tuners connected
+> +to the i2c bus. Gates are similar to arbitrators in that you need to perform
+> +some kind of operation to access the i2c bus past the arbitrator/gate, but
+> +there are no competing masters to consider for gates and therefore there is
+> +no arbitration happening for gates.
+> +
+> +Common i2c gate properties.
+> +
+> +- i2c-gate child node
+> +
+> +Required properties for the i2c-gate child node:
+> +- #address-cells = <1>;
+> +- #size-cells = <0>;
+> +
+> +Optional properties for i2c-gate child node:
+> +- Child nodes conforming to i2c bus binding
+> +
+> +
+> +Example :
+> +
+> +	/*
+> +	   An Invensense mpu9150 at address 0x68 featuring an on-chip Asahi
+> +	   Kasei ak8975 compass behind a gate.
+> +	 */
+> +
+> +	mpu9150@68 {
+> +		compatible = "invensense,mpu9150";
+> +		reg = <0x68>;
+> +		interrupt-parent = <&gpio1>;
+> +		interrupts = <18 1>;
+> +
+> +		i2c-gate {
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			ax8975@0c {
 
-just want to remind my usage scenario where I have control board connected via i2c-mux switch to a number of Node. Control board and Nodes implements IPMB proto: each device acts as Slave (receive requests) and Master (send answers). Logically, there is one Master and many Slaves. Only Control board may switch i2c channel and talk to Nodes. CB's slave is constant (usually 0x20). To achieve this in our setup we instantiate a number of i2c-clients (dummy) and slaves with the same address. E.g. 0x11 for client write (Node) and 0x20 for slave read (ourselves, to receive answers from nodes).
+Drop the leading 0. With that,
 
-Therefore, we should treat i2c-switch as one-way gate with multi-master.
-
-Thanks.
-
-16.08.2016, 16:33, "Peter Rosin" <peda@axentia.se>:
-> On 2016-08-16 14:12, Wolfram Sang wrote:
->>  Hi Peter,
->>
->>>  If you really have a separate device on the bus with the same address
->>>  that you want to add slave support for, then there really is a conflict,
->>>  and the kernel knows it.
->>
->>  We still have a disagreement about "the kernel knows it". The kernel
->>  knows it only in one case, i.e. when you are able to describe all
->>  devices on the bus.
->>
->>  What about this compromise: We keep the current scheme, but print a
->>  warning when the kernel notices a slave device has the same address
->>  which is already claimed by a client driver. This will let most users
->>  know about the conflict but it will not hurt the debugging-via-loopback
->>  case, since people know what they are doing and will happily ignore it.
->>
->>  If you can agree to that, I'll cook up a patch later this week.
->
-> Hmm, maybe add a "slave loopback quirk" to adapters that allows this,
-> and forbid it if the quirk isn't present?
->
-> (or use whatever flag is appropriate, if quirks do not fit)
->
-> And/or require some kind of loopback flag when adding a client driver
-> that is supported via loopback to a slave driver.
->
-> Note, I do not feel strongly about this at all, I'm mainly trying to
-> understand what's going on. Now I do understand, and do not desperately
-> seek changes. It just looked fishy, that's all...
->
-> Cheers,
-> Peter
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
