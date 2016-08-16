@@ -1,48 +1,67 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v3 3/3] i2c: designware: do not disable adapter after
- transfer
-Date: Tue, 16 Aug 2016 17:00:20 +0300
-Message-ID: <fb003fe4-2f85-6c37-6af5-b9ad7e0c06ab@linux.intel.com>
+From: "De Marchi, Lucas" <lucas.demarchi@intel.com>
+Subject: Re: [PATCH v3 2/3] i2c: designware: detect when dynamic tar update
+ is possible
+Date: Tue, 16 Aug 2016 14:07:50 +0000
+Message-ID: <1471356468.2907.4.camel@intel.com>
 References: <1469743424-2480-1-git-send-email-lucas.demarchi@intel.com>
- <1469743424-2480-4-git-send-email-lucas.demarchi@intel.com>
+	 <1469743424-2480-3-git-send-email-lucas.demarchi@intel.com>
+	 <f4c1fb29-b315-33ee-f029-684ef9cd6264@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1469743424-2480-4-git-send-email-lucas.demarchi@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lucas De Marchi <lucas.demarchi@intel.com>, linux-i2c@vger.kernel.org
-Cc: christian.ruppert@alitech.com, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com, =?UTF-8?Q?Jos=c3=a9_Roberto_de_Souza?= <jose.souza@intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:38340 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932172AbcHPOH6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+	Tue, 16 Aug 2016 10:07:58 -0400
+In-Reply-To: <f4c1fb29-b315-33ee-f029-684ef9cd6264@linux.intel.com>
+Content-Language: en-US
+Content-ID: <83334F3C09DF94428D8B9864E4FB33BD@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "christian.ruppert@alitech.com" <christian.ruppert@alitech.com>, "Souza, Jose" <jose.souza@intel.com>
 
-Hi, + Wolfram
-
-On 07/29/2016 01:03 AM, Lucas De Marchi wrote:
-> Disabling the adapter after each transfer adds additional delays
-> for each I2C transfer. Even if we don't wait for it to be disabled
-> anymore, on next transfer we will need to if we have several transfers
-> in a row.
->
-> Now during the transfer init we check if IC_TAR can be changed
-> dynamically, the status register for no activity and TX buffer being
-> empty. In this case we don't need to disable it
->
-> When a transfer fails the adapter will still be disabled - this is a
-> conservative approach. When transfers succeed, the adapter is left
-> enabled and it's configured so to disable interrupts.
->
-> Alternating register reads on 2 slaves:
-> perf stat -r4 chrt -f 10 ./i2c-test /dev/i2c-1 25000 0x40 0x6 0x1e 0x00
->
-> Before:
-> 	8.638705161 seconds time elapsed                  ( +-  5.90% )
-> After:
-> 	7.516821591 seconds time elapsed                  ( +-  0.11% )
->
-> Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-> Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-> ---
->  drivers/i2c/busses/i2c-designware-core.c | 55 +++++++++++++++++++++-----------
->  1 file changed, 37 insertions(+), 18 deletions(-)
->
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+T24gVHVlLCAyMDE2LTA4LTE2IGF0IDE3OjAwICswMzAwLCBKYXJra28gTmlrdWxhIHdyb3RlOg0K
+PiBIaSwgKyBXb2xmcmFtDQo+IA0KPiBPbiAwNy8yOS8yMDE2IDAxOjAzIEFNLCBMdWNhcyBEZSBN
+YXJjaGkgd3JvdGU6DQo+ID4gDQo+ID4gVGhpcyBhZGFwdGVyIGNhbiBiZSBzeW50aGVzaXplZCB3
+aXRoIGR5bmFtaWMgdGFyIHVwZGF0ZSBlbmFibGVkIG9yDQo+ID4gZGlzYWJsZWQuDQo+ID4gV2hl
+biBlbmFibGVkIGl0IGlzIG5vdCBuZWNlc3NhcnkgdG8gZGlzYWJsZSB0aGUgYWRhcHRlciB0byBj
+aGFuZ2UNCj4gPiB0aGUgc2xhdmUNCj4gPiBhZGRyZXNzIGluIHNvbWUgc2l0dWF0aW9ucywgd2hp
+Y2ggc2F2ZXMgc29tZSB0aW1lIHBlciB0cmFuc2FjdGlvbi4NCj4gPiANCj4gPiBUaGVyZSBpcyBu
+byBkaXJlY3QgcmVnaXN0ZXIgdG8ga25vdyBpZiB0aGlzIGZlYXR1cmUgaXMgZW5hYmxlZCBidXQN
+Cj4gPiB3ZSBjYW4gZG8gaXQNCj4gPiBpbmRpcmVjdGx5IGJ5IHdyaXRpbmcgdG8gdGhlIDEwQklU
+X0FERFIgZmllbGQgaW4gSUNfQ09OOiB0aGlzIGZpZWxkDQo+ID4gaXMNCj4gPiByZWFkIG9ubHkg
+d2hlbiBkeW5hbWljIHRhciB1cGRhdGUgaXMgZW5hYmxlZC4NCj4gPiANCj4gPiBTaWduZWQtb2Zm
+LWJ5OiBMdWNhcyBEZSBNYXJjaGkgPGx1Y2FzLmRlbWFyY2hpQGludGVsLmNvbT4NCj4gPiBTaWdu
+ZWQtb2ZmLWJ5OiBKb3PDqSBSb2JlcnRvIGRlIFNvdXphIDxqb3NlLnNvdXphQGludGVsLmNvbT4N
+Cj4gPiAtLS0NCj4gPiDCoGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3JlLmMg
+fCAzNw0KPiA+ICsrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tDQo+ID4gwqBkcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5oIHzCoMKgMSArDQo+ID4gwqAyIGZpbGVz
+IGNoYW5nZWQsIDI3IGluc2VydGlvbnMoKyksIDExIGRlbGV0aW9ucygtKQ0KPiA+IA0KPiA+IGRp
+ZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5jDQo+ID4g
+Yi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5jDQo+ID4gaW5kZXggMmM2
+MTU4NS4uYTg0MDhkYiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRl
+c2lnbndhcmUtY29yZS5jDQo+ID4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253
+YXJlLWNvcmUuYw0KPiA+IEBAIC0zODgsNiArMzg4LDIwIEBAIGludCBpMmNfZHdfaW5pdChzdHJ1
+Y3QgZHdfaTJjX2RldiAqZGV2KQ0KPiA+IMKgCS8qIGNvbmZpZ3VyZSB0aGUgaTJjIG1hc3RlciAq
+Lw0KPiA+IMKgCWR3X3dyaXRlbChkZXYsIGRldi0+bWFzdGVyX2NmZyAsIERXX0lDX0NPTik7DQo+
+ID4gDQo+ID4gKwkvKg0KPiA+ICsJwqAqIFRlc3QgaWYgZHluYW1pYyBUQVIgdXBkYXRlIGlzIGVu
+YWJsZWQgaW4gdGhpcw0KPiA+IGNvbnRyb2xsZXIgYnkgd3JpdGluZyB0bw0KPiANCj4gT3ZlciA4
+MCBjaGFyYWN0ZXJzIGluIHRoaXMgbGluZS4NCg0KSSdsbCBmaXggdGhpcyBhbmQgd2FpdCBmb3Ig
+bW9yZSBjb21tZW50cyAob3IgYSBmZXcgZGF5cykgYmVmb3JlIHNlbmRpbmcNCmEgbmV3IHZlcnNp
+b24uDQoNCj4gPiArCcKgKi8NCj4gPiArCXJlZyA9IGR3X3JlYWRsKGRldiwgRFdfSUNfQ09OKTsN
+Cj4gPiArCWR3X3dyaXRlbChkZXYsIHJlZyBeIERXX0lDX0NPTl8xMEJJVEFERFJfTUFTVEVSLA0K
+PiA+IERXX0lDX0NPTik7DQo+ID4gKw0KPiA+ICsJaWYgKChkd19yZWFkbChkZXYsIERXX0lDX0NP
+TikgJg0KPiA+IERXX0lDX0NPTl8xMEJJVEFERFJfTUFTVEVSKSA9PQ0KPiA+ICsJwqDCoMKgwqAo
+cmVnICYgRFdfSUNfQ09OXzEwQklUQUREUl9NQVNURVIpKSB7DQo+ID4gKwkJZGV2LT5keW5hbWlj
+X3Rhcl91cGRhdGVfZW5hYmxlZCA9IHRydWU7DQo+ID4gKwkJZGV2X2RiZyhkZXYtPmRldiwgIkR5
+bmFtaWMgVEFSIHVwZGF0ZSBlbmFibGVkIik7DQo+ID4gKwl9DQo+IA0KPiBJcyB0aGlzIHBvc3Np
+YmxlIHRvIG1vdmUgdG8gaTJjX2R3X3Byb2JlKCk/IEkgZ3Vlc3MgdGhlIGVuYWJsZWQNCj4gc3Rh
+dHVzwqANCj4gZG9lc24ndCBjaGFuZ2UgcnVudGltZT8NCg0KSXQgd2FzIGFjdHVhbGx5IHVzZWZ1
+bCBhdCB0aGlzIHBsYWNlIGR1cmluZyBkZXZlbG9wbWVudCBvZiB0aGlzIHBhdGNoDQpiZWNhdXNl
+IHdlIGNvdWxkIGNoZWNrIGFueSB1bmV4cGVjdGVkIGNoYW5nZSBpbiBiZWhhdmlvciB3aGVuIHJl
+c3VtaW5nLg0KV2UgZGlkIGNhdGNoIGEgYnVnIGJlY2F1c2Ugb2YgdGhpcyBhbmQgZml4ZWQuDQpJ
+J20gbm90IHN1cmUgaWYgbm93IGl0IG1ha2VzIG1vcmUgc2Vuc2UgdG8gbW92ZSB0byBwcm9iZSBt
+ZXRob2QuIEknZA0KbGVhdmUgaXQgd2hlcmUgaXQgaXMsIGJ1dCBJJ20gb3BlbiB0byBtb3ZlIGl0
+IHRoZXJlLg0KDQp0aGFua3MNCg0KTHVjYXMgRGUgTWFyY2hp
