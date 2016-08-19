@@ -1,71 +1,50 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 0/8] i2c: designware: Support fast mode plus and high
- speed
-Date: Wed, 17 Aug 2016 19:53:13 +0300
-Message-ID: <1471452793.4887.151.camel@linux.intel.com>
-References: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v9 1/2] i2c: i801: add support of Host Notify
+Date: Fri, 19 Aug 2016 15:19:18 +0200
+Message-ID: <20160819131918.GY17850@mail.corp.redhat.com>
+References: <1466779189-8455-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20160718161245.5c744879@endymion>
+ <20160728094457.GN19383@mail.corp.redhat.com>
+ <20160801153352.44943aae@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:47288 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751839AbcHQQxV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-	Wed, 17 Aug 2016 12:53:21 -0400
-In-Reply-To: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
+Received: from mx1.redhat.com ([209.132.183.28]:34084 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754146AbcHSNTY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 19 Aug 2016 09:19:24 -0400
+Content-Disposition: inline
+In-Reply-To: <20160801153352.44943aae@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 2016-08-12 at 17:02 +0300, Jarkko Nikula wrote:
-> Patches here were posted before for v4.8 but got dropped due merge
-> conflicts with changes coming from ACPI subsystem.
+On Aug 01 2016 or thereabouts, Jean Delvare wrote:
+> On Thu, 28 Jul 2016 11:44:57 +0200, Benjamin Tissoires wrote:
+> > On Jul 18 2016 or thereabouts, Jean Delvare wrote:
+> > > On Fri, 24 Jun 2016 16:39:49 +0200, Benjamin Tissoires wrote:
+> > > > The i801 chip can handle the Host Notify feature since ICH 3 as mentioned
+> > > > in http://www.intel.com/content/dam/doc/datasheet/82801ca-io-controller-hub-3-datasheet.pdf
+> > > > 
+> > > > Enable the functionality unconditionally and propagate the alert
+> > > > on each notification.
+> > > > 
+> > > > With a T440s and a Synaptics touchpad that implements Host Notify, the
+> > > > payload data is always 0x0000, so I am not sure if the device actually
+> > > > sends the payload or if there is a problem regarding the implementation.
+> > > 
+> > > Out of curiosity, does it work on at least one machine?
+> > 
+> > I have tested the T440, t450 and t460 (3 different generation of Intel
+> > processor), and none seems to be working. The Synaptics touchpad used is
+> > mostly the same, so maybe that's a device issue.
 > 
-> http://www.spinics.net/lists/linux-i2c/msg24699.html
-> http://www.spinics.net/lists/linux-i2c/msg24857.html
-> 
-> I promised to resend both sets together since my set doesn't have much
-> use
-> without Weifeng's set and my patches are done on top of it.
-> 
-> Patches 1-4/8 are same than before. Patch 5/8 had tiny conflict with
-> the
-> ed1bf03470b8 ("i2c: designware-pci: Make bus number allocation
-> robust")
-> because both added the DW_IC_CON_SPEED_MASK.
-> 
-> Patches 6-7/8 are a bit larger due conflicts with the
-> commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure
-> notifications"). No changes in patch 8/8.
-
-Looks okay to me.
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-
-> 
-> Jarkko Nikula (3):
->   i2c: core: Cleanup I2C ACPI namespace, take 2
->   i2c: core: Add function for finding the bus speed from ACPI, take 2
->   i2c: designware: Find bus speed from ACPI
-> 
-> Weifeng Voon (5):
->   i2c: designware: Move clk_freq into struct dw_i2c_dev
->   i2c: designware: get fast plus and high speed *CNT configuration
->   i2c: designware: Enable fast mode plus
->   i2c: designware: set the common config before the if else
->   i2c: designware: Enable high speed mode
-> 
->  drivers/i2c/busses/i2c-designware-core.c    |  33 ++++-
->  drivers/i2c/busses/i2c-designware-core.h    |  11 ++
->  drivers/i2c/busses/i2c-designware-platdrv.c |  43 +++++--
->  drivers/i2c/i2c-core.c                      | 179
-> ++++++++++++++++++++--------
->  include/linux/i2c.h                         |   9 ++
->  5 files changed, 208 insertions(+), 67 deletions(-)
+> May I ask why you are pushing the code upstream then, if it has no
+> known (working) user?
 > 
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+K. Then I guess I'll just have to remove these reads from the driver.
+
+Cheers,
+Benjamin
