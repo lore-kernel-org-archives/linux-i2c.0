@@ -1,96 +1,57 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.8
-Date: Fri, 19 Aug 2016 20:28:20 +0200
-Message-ID: <20160819182816.GA1802@katana>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [RFC 00/17] clk: Add per-controller locks to fix
+	deadlocks
+Date: Fri, 19 Aug 2016 15:31:08 -0400
+Message-ID: <8519a1cf-ec51-2914-e4aa-27b26b9233de@osg.samsung.com>
+References: <1471354514-24224-1-git-send-email-k.kozlowski@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:40089 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752156AbcHSTCA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 19 Aug 2016 15:02:00 -0400
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <1471354514-24224-1-git-send-email-k.kozlowski@samsung.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Kukjin Kim <kgene@kernel.org>, Russell King <linux@armlinux.org.uk>, Mark Brown <broonie@kernel.org>, linux-clk@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org
+Cc: a.hajda@samsung.com, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Hello Krzysztof,
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 08/16/2016 09:34 AM, Krzysztof Kozlowski wrote:
+> Hi,
+> 
+> RFC, please, do not apply, maybe except patch #1 which is harmless.
+> 
+> 
+> Introduction
+> ============
+> The patchset brings new entity: clock controller representing a hardware
+> block.  The clock controller comes with its own prepare lock which
+> is used then in many places.  The idea is to fix the deadlock mentioned
+> in commit 10ff4c5239a1 ("i2c: exynos5: Fix possible ABBA deadlock by keeping
+> I2C clock prepared") and commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA deadlock
+> by keeping clock prepared").
+> 
+> 
 
-Linus,
+I'm not familiar enough with the common clock framework to do a proper review
+of this patch-set, but I've tested both on an Exynos5800 Peach Pi Chromebook
+and an Exynos5422 Odroid XU4 board and I didn't find any clock regressions.
 
-I2C has some pretty standard driver bugfixes and one minor cleanup for
-you. Please pull.
+Also, I confirmed that the possible deadlock in the Odroid XU4 that was fixed
+by reverted commit 10ff4c5239a1 doesn't happen anymore with your patches.
 
-Thanks,
+Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-   Wolfram
-
-
-The following changes since commit 29b4817d4018df78086157ea3a55c1d9424a7cfc:
-
-  Linux 4.8-rc1 (2016-08-07 18:18:00 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 0268263f0cf2239eb3a747936d8d36ef5f5e1688:
-
-  i2c: meson: Use complete() instead of complete_all() (2016-08-15 00:55:34 +0200)
-
-----------------------------------------------------------------
-Alexey Khoroshilov (1):
-      i2c: ocores: add missed clk_disable_unprepare() on failure paths
-
-Brian Norris (1):
-      i2c: cros-ec-tunnel: Fix usage of cros_ec_cmd_xfer()
-
-Cyrille Pitchen (1):
-      i2c: at91: fix support of the "alternative command" feature
-
-Daniel Wagner (4):
-      i2c: bcm-iproc: Use complete() instead of complete_all()
-      i2c: bcm-kona: Use complete() instead of complete_all()
-      i2c: brcmstb: Use complete() instead of complete_all()
-      i2c: meson: Use complete() instead of complete_all()
-
-Wolfram Sang (1):
-      i2c: mux: demux-pinctrl: properly roll back when adding adapter fails
-
- drivers/i2c/busses/i2c-at91.c           | 24 ++++++++++++++----------
- drivers/i2c/busses/i2c-bcm-iproc.c      |  2 +-
- drivers/i2c/busses/i2c-bcm-kona.c       |  2 +-
- drivers/i2c/busses/i2c-brcmstb.c        |  2 +-
- drivers/i2c/busses/i2c-cros-ec-tunnel.c |  2 +-
- drivers/i2c/busses/i2c-meson.c          |  6 +++---
- drivers/i2c/busses/i2c-ocores.c         | 14 ++++++++++----
- drivers/i2c/muxes/i2c-demux-pinctrl.c   |  4 +++-
- 8 files changed, 34 insertions(+), 22 deletions(-)
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXt0/AAAoJEBQN5MwUoCm2Ij8QAIiOb+vzjPGn0UcmsCy2GmqU
-Ir2WwFommxXy8LHwBG67B2nyt17A9hCIPwwU9Z9XWNcNBgWj557Tt6xcP2xmXI1p
-zsC+3ElaBrFJUA1OjzEPu+w7ZDBSqs89KhaGpGaUUid1X2yrOzam8YrcdpePbsv7
-5fMr0yNDsVrRRM+gF89iVV/0mteuAS+hLbtiuOPmoAOMHei/GikvrX55DE4cuhFA
-XVayzouZhpMvLfpxtv5oIrWFBTPEoSlPiWq2/HR9HnlafN7UuB/4ya97NzUzGFQS
-MZfXeNBKDzJr950RWbDAWKZowqi5KUpqwAevSJp72FoX4GhJ4H5VuSXdUjCEJEnr
-fvvn+/Y1k5gys5/WbOis2ExddfyLUSwVxUe0i44xxi32pVBbk22UfVmvqE7M9jaZ
-lyJlIM6jTlq+8aivxn0CUT6ekEUbkx0DZP+NYbXCgk7pLWS7LOVRjhkFQLi1XXF2
-Y/vluo8/DWaleBJHbULDkp4jTgE+gqKFYrwrKk9CYf7L96WWKPjFP+1qIgnCHYo3
-g9atNakrUX4xa8xq75z6TGfDNTdUmMGat9jYlpD5g5FnmizKl4rFwwliZC2Tp0A5
-msztMZv2SDHnmFkJw8e78Us9RN711Mgc6a1m7q7PDuk/JMrfE0DQFuBqe3Iz1pYR
-smLliQvGvdmEWhZ2ekoC
-=GFtn
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
