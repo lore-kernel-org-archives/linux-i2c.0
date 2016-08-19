@@ -1,58 +1,113 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 09/10] i2c: i801: warn on i2c_handle_smbus_host_notify() errors
-Date: Fri, 19 Aug 2016 15:27:41 +0200
-Message-ID: <1471613262-20682-10-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 04/10] i2c: i801: use BIT() macro for bits definition
+Date: Fri, 19 Aug 2016 15:27:36 +0200
+Message-ID: <1471613262-20682-5-git-send-email-benjamin.tissoires@redhat.com>
 References: <1471613262-20682-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55298 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754885AbcHSN27 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 19 Aug 2016 09:28:59 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1471613262-20682-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-There is a chance we get called while Host Notify is not available (yet),
-so we need to clear the Host Notify bit in those rare case.
+i801 mixes hexadecimal and decimal values for defining bits. However,
+we have a nice BIT() macro for this exact purpose.
+
+No functional changes, cleanup only.
 
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v2 (comments addressed in the previous patches)
+no changes in v2
 ---
- drivers/i2c/busses/i2c-i801.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-i801.c | 50 +++++++++++++++++++++----------------------
+ 1 file changed, 25 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 74fb144..c5ed44c 100644
+index 64da594..dc95518 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -579,12 +579,21 @@ static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
- {
- 	unsigned short addr;
- 	unsigned int data;
-+	int ret;
-+
-+	if (unlikely(!priv->host_notify))
-+		goto out;
+@@ -136,26 +136,26 @@
+ #define SBREG_SMBCTRL		0xc6000c
  
- 	addr = inb_p(SMBNTFDADD(priv)) >> 1;
- 	data = inw_p(SMBNTFDDAT(priv));
+ /* Host status bits for SMBPCISTS */
+-#define SMBPCISTS_INTS		0x08
++#define SMBPCISTS_INTS		BIT(3)
  
--	i2c_handle_smbus_host_notify(priv->host_notify, addr, data);
-+	ret = i2c_handle_smbus_host_notify(priv->host_notify, addr, data);
-+	if (ret < 0)
-+		dev_warn(&priv->pci_dev->dev,
-+			 "Host Notify handling failed: %d\n", ret);
+ /* Control bits for SMBPCICTL */
+-#define SMBPCICTL_INTDIS	0x0400
++#define SMBPCICTL_INTDIS	BIT(10)
  
-+
-+out:
- 	/* clear Host Notify bit and return */
- 	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
- 	return IRQ_HANDLED;
+ /* Host configuration bits for SMBHSTCFG */
+-#define SMBHSTCFG_HST_EN	1
+-#define SMBHSTCFG_SMB_SMI_EN	2
+-#define SMBHSTCFG_I2C_EN	4
++#define SMBHSTCFG_HST_EN	BIT(0)
++#define SMBHSTCFG_SMB_SMI_EN	BIT(1)
++#define SMBHSTCFG_I2C_EN	BIT(2)
+ 
+ /* TCO configuration bits for TCOCTL */
+-#define TCOCTL_EN		0x0100
++#define TCOCTL_EN		BIT(8)
+ 
+ /* Auxiliary status register bits, ICH4+ only */
+-#define SMBAUXSTS_CRCE		1
+-#define SMBAUXSTS_STCO		2
++#define SMBAUXSTS_CRCE		BIT(0)
++#define SMBAUXSTS_STCO		BIT(1)
+ 
+ /* Auxiliary control register bits, ICH4+ only */
+-#define SMBAUXCTL_CRC		1
+-#define SMBAUXCTL_E32B		2
++#define SMBAUXCTL_CRC		BIT(0)
++#define SMBAUXCTL_E32B		BIT(1)
+ 
+ /* Other settings */
+ #define MAX_RETRIES		400
+@@ -170,27 +170,27 @@
+ #define I801_I2C_BLOCK_DATA	0x18	/* ICH5 and later */
+ 
+ /* I801 Host Control register bits */
+-#define SMBHSTCNT_INTREN	0x01
+-#define SMBHSTCNT_KILL		0x02
+-#define SMBHSTCNT_LAST_BYTE	0x20
+-#define SMBHSTCNT_START		0x40
+-#define SMBHSTCNT_PEC_EN	0x80	/* ICH3 and later */
++#define SMBHSTCNT_INTREN	BIT(0)
++#define SMBHSTCNT_KILL		BIT(1)
++#define SMBHSTCNT_LAST_BYTE	BIT(5)
++#define SMBHSTCNT_START		BIT(6)
++#define SMBHSTCNT_PEC_EN	BIT(7)	/* ICH3 and later */
+ 
+ /* I801 Hosts Status register bits */
+-#define SMBHSTSTS_BYTE_DONE	0x80
+-#define SMBHSTSTS_INUSE_STS	0x40
+-#define SMBHSTSTS_SMBALERT_STS	0x20
+-#define SMBHSTSTS_FAILED	0x10
+-#define SMBHSTSTS_BUS_ERR	0x08
+-#define SMBHSTSTS_DEV_ERR	0x04
+-#define SMBHSTSTS_INTR		0x02
+-#define SMBHSTSTS_HOST_BUSY	0x01
++#define SMBHSTSTS_BYTE_DONE	BIT(7)
++#define SMBHSTSTS_INUSE_STS	BIT(6)
++#define SMBHSTSTS_SMBALERT_STS	BIT(5)
++#define SMBHSTSTS_FAILED	BIT(4)
++#define SMBHSTSTS_BUS_ERR	BIT(3)
++#define SMBHSTSTS_DEV_ERR	BIT(2)
++#define SMBHSTSTS_INTR		BIT(1)
++#define SMBHSTSTS_HOST_BUSY	BIT(0)
+ 
+ /* Host Notify Status register bits */
+-#define SMBSLVSTS_HST_NTFY_STS	1
++#define SMBSLVSTS_HST_NTFY_STS	BIT(0)
+ 
+ /* Host Notify Command register bits */
+-#define SMBSLVCMD_HST_NTFY_INTREN	0x01
++#define SMBSLVCMD_HST_NTFY_INTREN	BIT(0)
+ 
+ #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
+ 				 SMBHSTSTS_DEV_ERR)
 -- 
 2.5.5
