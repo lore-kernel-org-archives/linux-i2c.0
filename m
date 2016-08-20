@@ -1,72 +1,53 @@
-From: Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH v5] i2c: imx: make bus recovery through pinctrl optional
-Date: Fri, 19 Aug 2016 17:05:22 -0500
-Message-ID: <1471644322-22670-1-git-send-email-leoyang.li@nxp.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [RFC 00/17] clk: Add per-controller locks to fix deadlocks
+Date: Sat, 20 Aug 2016 18:03:07 +0200
+Message-ID: <20160820160307.GB6344@kozik-book>
+References: <1471354514-24224-1-git-send-email-k.kozlowski@samsung.com>
+ <8519a1cf-ec51-2914-e4aa-27b26b9233de@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Gao Pan <pandy.gao@nxp.com>, Li Yang <leoyang.li@nxp.com>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:36690 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753141AbcHTQDY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 20 Aug 2016 12:03:24 -0400
+Content-Disposition: inline
+In-Reply-To: <8519a1cf-ec51-2914-e4aa-27b26b9233de@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Krzysztof Kozlowski <k.kozlowski@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@codeaurora.org>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Kukjin Kim <kgene@kernel.org>, Russell King <linux@armlinux.org.uk>, Mark Brown <broonie@kernel.org>, linux-clk@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-
 
-U2luY2UgY29tbWl0IDFjNGI2YzNiY2YzMCAoImkyYzogaW14OiBpbXBsZW1lbnQgYnVzIHJlY292
-ZXJ5IikgdGhlCmRyaXZlciBzdGFydHMgdG8gdXNlIGdwaW8vcGluY3RybCB0byBkbyBpMmMgYnVz
-IHJlY292ZXJ5LiAgQnV0IHBpbmN0cmwKaXMgbm90IGFsd2F5cyBhdmFpbGFibGUgZm9yIHBsYXRm
-b3JtcyB3aXRoIHRoaXMgY29udHJvbGxlciBzdWNoIGFzIGxzMTAyMWEKYW5kIGxzMTA0M2EsIGFu
-ZCB0aGUgZGV2aWNlIHRyZWUgYmluZGluZyBhbHNvIG1lbnRpb25lZCB0aGlzIGdwaW8gYmFzZWQK
-cmVjb3ZlcnkgbWVjaGFuaXNtIGFzIG9wdGlvbmFsLiAgVGhlIHBhdGNoIG1ha2VzIGl0IHJlYWxs
-eSBvcHRpb25hbCB0aGF0CnRoZSBwcm9iZSBmdW5jdGlvbiB3b24ndCBiYWlsb3V0IGJ1dCBqdXN0
-IGRpc2FibGUgdGhlIGJ1cyByZWNvdmVyeSBmdW5jdGlvbgp3aGVuIHBpbmN0cmwgaXMgbm90IGF2
-YWlsYWJsZS4KClNpZ25lZC1vZmYtYnk6IExpIFlhbmcgPGxlb3lhbmcubGlAbnhwLmNvbT4KQ2M6
-IEdhbyBQYW4gPHBhbmR5Lmdhb0BueHAuY29tPgpDYzogVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xl
-aW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT4KQWNrZWQtYnk6IExpbnVzIFdhbGxlaWogPGxpbnVz
-LndhbGxlaWpAbGluYXJvLm9yZz4KLS0tCnY1OgpSZXZlcnQgdGhlIGxhc3QgbWludXRlIGNoYW5n
-ZSBvZiByZWNvdmVyeSBpbmZvIGluaXRpYWxpemF0aW9uIHRpbWluZywgaXQKd2lsbCBjYXVzZSBw
-cm9ibGVtIGlmIGluaXRpYWxpemVkIGFmdGVyIGkyY19hZGRfbnVtYmVyZWRfYWRhcHRlcigpCgp2
-NDoKUmVtb3ZlIHRoZSB1c2Ugb2YgSVNfRVJSX09SX05VTEwKTW92ZSB0aGUgY29uZGl0aW9uIGp1
-ZGdlbWVudCB0byBpMmNfaW14X2luaXRfcmVjb3ZlcnlfaW5mbygpCkNoYW5nZSB0aGUgdGltaW5n
-IG9mIHJlY292ZXJ5IGluaXRpYWxpemF0aW9uIHRvIGJlIGFmdGVyIGJ1cyByZWdpc3RyYXRpb24K
-CnYzOgpSZWJhc2VkIHRvIFdvbGZyYW0ncyBmb3ItbmV4dCBicmFuY2gKQWRkZWQgYWNrZWQtYnkg
-ZnJvbSBMaW51cyBXYWxsZWlqClVwZGF0ZSB0byB1c2UgbmV3IG54cCBlbWFpbCBhZGRyZXNzZXMg
-ZHVlIHRvIGNvbXBhbnkgbWVyZ2UKCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jIHwgMTUg
-KysrKysrKysrKysrKystCiAxIGZpbGUgY2hhbmdlZCwgMTQgaW5zZXJ0aW9ucygrKSwgMSBkZWxl
-dGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMgYi9kcml2
-ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jCmluZGV4IDE4NDRiYzkuLjdhZTc5OTIgMTAwNjQ0Ci0t
-LSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMKKysrIGIvZHJpdmVycy9pMmMvYnVzc2Vz
-L2kyYy1pbXguYwpAQCAtOTg5LDYgKzk4OSwxNSBAQCBzdGF0aWMgdm9pZCBpMmNfaW14X2luaXRf
-cmVjb3ZlcnlfaW5mbyhzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgsCiB7CiAJc3RydWN0
-IGkyY19idXNfcmVjb3ZlcnlfaW5mbyAqcmluZm8gPSAmaTJjX2lteC0+cmluZm87CiAKKwkvKiBp
-ZiBwaW5jdHJsIGlzIG5vdCBzdXBwb3J0ZWQgb24gdGhlIHN5c3RlbSAqLworCWlmIChJU19FUlIo
-aTJjX2lteC0+cGluY3RybCkpCisJCWkyY19pbXgtPnBpbmN0cmwgPSBOVUxMOworCisJaWYgKCFp
-MmNfaW14LT5waW5jdHJsKSB7CisJCWRldl9pbmZvKCZwZGV2LT5kZXYsICJjYW4ndCBnZXQgcGlu
-Y3RybCwgYnVzIHJlY292ZXJ5IG5vdCBzdXBwb3J0ZWRcbiIpOworCQlyZXR1cm47CisJfQorCiAJ
-aTJjX2lteC0+cGluY3RybF9waW5zX2RlZmF1bHQgPSBwaW5jdHJsX2xvb2t1cF9zdGF0ZShpMmNf
-aW14LT5waW5jdHJsLAogCQkJUElOQ1RSTF9TVEFURV9ERUZBVUxUKTsKIAlpMmNfaW14LT5waW5j
-dHJsX3BpbnNfZ3BpbyA9IHBpbmN0cmxfbG9va3VwX3N0YXRlKGkyY19pbXgtPnBpbmN0cmwsCkBA
-IC0xMDgxLDggKzEwOTAsMTEgQEAgc3RhdGljIGludCBpMmNfaW14X3Byb2JlKHN0cnVjdCBwbGF0
-Zm9ybV9kZXZpY2UgKnBkZXYpCiAJCXJldHVybiByZXQ7CiAJfQogCisJLyogb3B0aW9uYWwgYnVz
-IHJlY292ZXJ5IGZlYXR1cmUgdGhyb3VnaCBwaW5jdHJsICovCiAJaTJjX2lteC0+cGluY3RybCA9
-IGRldm1fcGluY3RybF9nZXQoJnBkZXYtPmRldik7Ci0JaWYgKElTX0VSUihpMmNfaW14LT5waW5j
-dHJsKSkgeworCS8qIGJhaWxvdXQgb24gLUVOT01FTSBvciAtRVBST0JFX0RFRkVSLCBjb250aW51
-ZSBmb3Igb3RoZXIgZXJyb3JzICovCisJaWYgKFBUUl9FUlIoaTJjX2lteC0+cGluY3RybCkgPT0g
-LUVOT01FTSB8fAorCQkJUFRSX0VSUihpMmNfaW14LT5waW5jdHJsKSA9PSAtRVBST0JFX0RFRkVS
-KSB7CiAJCXJldCA9IFBUUl9FUlIoaTJjX2lteC0+cGluY3RybCk7CiAJCWdvdG8gY2xrX2Rpc2Fi
-bGU7CiAJfQpAQCAtMTEyNSw2ICsxMTM3LDcgQEAgc3RhdGljIGludCBpMmNfaW14X3Byb2JlKHN0
-cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCiAJCQlpMmNfaW14LCBJTVhfSTJDX0kyQ1IpOwog
-CWlteF9pMmNfd3JpdGVfcmVnKGkyY19pbXgtPmh3ZGF0YS0+aTJzcl9jbHJfb3Bjb2RlLCBpMmNf
-aW14LCBJTVhfSTJDX0kyU1IpOwogCisJLyogSW5pdCBidXMgcmVjb3ZlcnkgaW5mbyBpZiBzdXBw
-b3J0ZWQgKi8KIAlpMmNfaW14X2luaXRfcmVjb3ZlcnlfaW5mbyhpMmNfaW14LCBwZGV2KTsKIAog
-CS8qIEFkZCBJMkMgYWRhcHRlciAqLwotLSAKMS45LjAKCgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdAps
-aW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVh
-ZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+On Fri, Aug 19, 2016 at 03:31:08PM -0400, Javier Martinez Canillas wrote:
+> Hello Krzysztof,
+> 
+> On 08/16/2016 09:34 AM, Krzysztof Kozlowski wrote:
+> > Hi,
+> > 
+> > RFC, please, do not apply, maybe except patch #1 which is harmless.
+> > 
+> > 
+> > Introduction
+> > ============
+> > The patchset brings new entity: clock controller representing a hardware
+> > block.  The clock controller comes with its own prepare lock which
+> > is used then in many places.  The idea is to fix the deadlock mentioned
+> > in commit 10ff4c5239a1 ("i2c: exynos5: Fix possible ABBA deadlock by keeping
+> > I2C clock prepared") and commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA deadlock
+> > by keeping clock prepared").
+> > 
+> > 
+> 
+> I'm not familiar enough with the common clock framework to do a proper review
+> of this patch-set, but I've tested both on an Exynos5800 Peach Pi Chromebook
+> and an Exynos5422 Odroid XU4 board and I didn't find any clock regressions.
+> 
+> Also, I confirmed that the possible deadlock in the Odroid XU4 that was fixed
+> by reverted commit 10ff4c5239a1 doesn't happen anymore with your patches.
+> 
+> Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
+Thanks for testing, I appreciate that!
+
+Best regards,
+Krzysztof
