@@ -1,129 +1,62 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH v10 3/8] i2c: thunderx: Add i2c driver for ThunderX SOC
-Date: Tue, 23 Aug 2016 23:22:09 +0200
-Message-ID: <20160823212209.GB28936@hardcore>
-References: <cover.1465997603.git.jglauber@cavium.com>
- <1ead8831e4dd879d452e8bc1a2a33ccba3a74b3d.1465997604.git.jglauber@cavium.com>
- <20160823203628.GB20872@katana>
+From: Lucas De Marchi <lucas.demarchi@intel.com>
+Subject: [PATCH v4 0/4] i2c: designware: improve performance for transfers
+Date: Tue, 23 Aug 2016 19:18:52 -0300
+Message-ID: <1471990736-30190-1-git-send-email-lucas.demarchi@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-by2nam03on0085.outbound.protection.outlook.com ([104.47.42.85]:34112
-        "EHLO NAM03-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1755008AbcHWV5g (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 23 Aug 2016 17:57:36 -0400
-Content-Disposition: inline
-In-Reply-To: <20160823203628.GB20872@katana>
+Received: from mga11.intel.com ([192.55.52.93]:54479 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753085AbcHWWTC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 23 Aug 2016 18:19:02 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Steven.Hill@caviumnetworks.com
+To: linux-i2c@vger.kernel.org
+Cc: Christian Ruppert <christian.ruppert@alitech.com>, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-On Tue, Aug 23, 2016 at 10:36:29PM +0200, Wolfram Sang wrote:
-> 
-> >  i2c-octeon-objs := i2c-cavium.o i2c-octeon-core.o
-> >  obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
-> > +i2c-thunderx-objs := i2c-cavium.o i2c-thunderx-core.o
-> > +obj-$(CONFIG_I2C_THUNDERX)	+= i2c-thunderx.o
-> 
-> Shouldn't that rather be "i2c-cavium-core.o", "i2c-octeon-platdrv.o",
-> and "i2c-thunderx-pcidrv.o" for the -objs? I mean, the cavium part is
-> the core-part...
-> 
-> > +skip:
-> > +	if (!i2c->sys_freq)
-> > +		i2c->sys_freq = SYS_FREQ_DEFAULT;
-> > +
-> > +	dev_info(dev, "Set system clock to %u\n", i2c->sys_freq);
-> 
-> Too many dev_info IMO, see later.
+Diff from v3:
 
-OK. I was working on an update where I dropped most of the messages.
+    - Fix over 80chars in one place
 
-> > +	i2c->adap.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
-> 
-> Do you really need that?
+    - Move check for adapter being able to dynamically update TAR to be done
+      on probe time rather than init as requested by Jarkko
 
-Not sure, just copy'n paste from what most of the other bus drivers do.
-Looking at i2c-core.c it might be a legacy thing, so I can probably
-remove it.
+For the previous version, Christian had added:
 
-> > +	ret = i2c_add_adapter(&i2c->adap);
-> > +	if (ret < 0) {
-> > +		dev_err(dev, "Failed to add i2c adapter\n");
-> 
-> I2C core does error reporting for you meanwhile.
+Tested-by: Christian Ruppert <christian.ruppert@alitech.com>
+on TB101 with Linux-4.7
 
-OK.
+And Jarkko added his Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+on patches 1 and 3 (now 4).
 
-> > +		goto out_irq;
-> > +	}
-> > +
-> > +	dev_info(i2c->dev, "probed\n");
-> 
-> I'd think all nice to know dev_info should go here in condensed form.
-> 
-> > +out_irq:
-> > +	devm_free_irq(dev, i2c->i2c_msix.vector, i2c);
-> 
-> If you need to free irq manually here anyhow, then you don't need the
-> devm variant.
+There's a new patch #2 as a preparatory work to move the check
+mentioned above to i2c_dw_probe().
 
-Yes. I paid attention to the devm documentation in the meantime and
-switched all probing to the managed fucntions and got rid of the goto's
-completely.
+v3 of "i2c: designware: do not disable adapter after transfer". Differences
+are:
 
-> > +out_msix:
-> > +	pci_disable_msix(pdev);
-> > +out_unmap:
-> > +	iounmap(i2c->twsi_base);
-> > +	thunder_i2c_clock_disable(dev, i2c->clk);
-> > +out_release_regions:
-> > +	pci_release_regions(pdev);
-> > +out_disable_device:
-> > +	pci_disable_device(pdev);
-> > +out_free_i2c:
-> > +	pci_set_drvdata(pdev, NULL);
-> 
-> Similar to devm_*, there is also pcim_* for PCI devices. You might want
-> to have a look for those.
+    - Now there's a first patch that does not depend on IC_TAR being dynamically
+      enabled/disabled: it just doesn't wait for the state change when not needed.
 
-See above.
+    - We added a patch that allows detecting if HW supports the dynamic TAR updates
 
-> > +	devm_kfree(dev, i2c);
-> 
-> Not needed.
+    - In the last patch the bits were changed as suggested by Jarkko.
 
-Yes.
+    - This is tested on BayTrail and CherryTrail, both of them returning true for
+      "dynamically update TAR"
 
-> > +	return ret;
-> > +}
-> > +
-> > +static void thunder_i2c_remove_pci(struct pci_dev *pdev)
-> > +{
-> > +	struct octeon_i2c *i2c = pci_get_drvdata(pdev);
-> > +	struct device *dev;
-> > +
-> > +	if (!i2c)
-> > +		return;
-> 
-> How should that happen?
+José Roberto de Souza (1):
+  i2c: designware: wait for disable/enable only if necessary
 
-Just a safety net, can be removed.
+Lucas De Marchi (3):
+  i2c: designware: add common functions for locking
+  i2c: designware: detect when dynamic tar update is possible
+  i2c: designware: do not disable adapter after transfer
 
-> > +
-> > +module_pci_driver(thunder_i2c_pci_driver);
-> > +
-> > +MODULE_LICENSE("GPL");
-> 
-> Please add a minimal GPL header at the top of the file, so it is clear
-> if you mean "v2" or "v2 or later".
+ drivers/i2c/busses/i2c-designware-core.c | 162 +++++++++++++++++++++----------
+ drivers/i2c/busses/i2c-designware-core.h |   1 +
+ 2 files changed, 111 insertions(+), 52 deletions(-)
 
-OK.
-
-> > +MODULE_AUTHOR("Fred Martin <fmartin@caviumnetworks.com>");
-> > +MODULE_DESCRIPTION("I2C-Bus adapter for Cavium ThunderX SOC");
-> > -- 
-> > 1.9.1
-> > 
+-- 
+2.7.4
