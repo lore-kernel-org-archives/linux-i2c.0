@@ -1,54 +1,79 @@
-From: Yadi Hu <yadi.hu@windriver.com>
-Subject: [PATCH] i2c-eg20t: use dynamically registered adapter number
-Date: Tue, 23 Aug 2016 17:05:58 +0800
-Message-ID: <1471943158-21377-1-git-send-email-yadi.hu@windriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail1.windriver.com ([147.11.146.13]:39738 "EHLO
-        mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751847AbcHWPH7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 Aug 2016 11:07:59 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: mux: demux-pinctrl: run properly with multiple instances
+Date: Tue, 23 Aug 2016 17:28:03 +0200
+Message-ID: <20160823152803.2051-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Simon Horman <horms@verge.net.au>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
-To: yadi.hu@windriver.com, jdelvare@suse.com, khali@linux-fr.org, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org
 
-From: Hu Yadi <Yadi.hu@windriver.com>
+We can't use a static property for all the changesets, so we now create
+dynamic ones for each changeset.
 
-The eg20t driver uses i2c_add_numbered_adapter() to register adapter:
-
-    pch_adap->nr = i;
-    ret = i2c_add_numbered_adapter(pch_adap);
-
-Variable i is assigned to 0, it means that i2c_eg20t is the first adapter
-by default. if another adapter registers before eg20t, above code return
-error for index conflict:
-
-    i2c_eg20t 0000:05:0c.2: pch_i2c_probe :i2c_add_adapter[ch:0] FAILED
-    i2c_eg20t: probe of 0000:05:0c.2 failed with error -16
-
-So, we can replace i2c_add_numbered_adapter() with i2c_add_adapter()
-interface.since it dynamically allocates the index number.
-
-Signed-off-by: Hu Yadi <Yadi.hu@windriver.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Fixes: 50a5ba87690814 ("i2c: mux: demux-pinctrl: add driver")
 ---
- drivers/i2c/busses/i2c-eg20t.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 7a51ddc..2f4c2af 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -913,8 +913,7 @@ static int __devinit pch_i2c_probe(struct pci_dev *pdev,
+Finally fixed this one!
+
+Simon: I think you can retest your demuxer-dts-series now.
+
+Pantelis: What happened to your series with the changeset helpers? It would
+have fixed this bug, too, and would still make this code easier to read, so a
+welcome addition. Also, I still haven't fully understood when it is safe to use
+a static property? It would be helpful to document this. I spent quite some
+time on this one because randomly broken pointers are hard to debug.
+
+ drivers/i2c/muxes/i2c-demux-pinctrl.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+index 215ac87f606d2d..e999125ce37d77 100644
+--- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+@@ -37,8 +37,6 @@ struct i2c_demux_pinctrl_priv {
+ 	struct i2c_demux_pinctrl_chan chan[];
+ };
  
- 		pch_i2c_init(&adap_info->pch_data[i]);
+-static struct property status_okay = { .name = "status", .length = 3, .value = "ok" };
+-
+ static int i2c_demux_master_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ {
+ 	struct i2c_demux_pinctrl_priv *priv = adap->algo_data;
+@@ -192,6 +190,7 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct i2c_demux_pinctrl_priv *priv;
++	struct property *props;
+ 	int num_chan, i, j, err;
  
--		pch_adap->nr = i;
--		ret = i2c_add_numbered_adapter(pch_adap);
-+               ret = i2c_add_adapter(pch_adap);
- 		if (ret) {
- 			pch_pci_err(pdev, "i2c_add_adapter[ch:%d] FAILED\n", i);
- 			goto err_add_adapter;
+ 	num_chan = of_count_phandle_with_args(np, "i2c-parent", NULL);
+@@ -202,7 +201,10 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv)
+ 			   + num_chan * sizeof(struct i2c_demux_pinctrl_chan), GFP_KERNEL);
+-	if (!priv)
++
++	props = devm_kcalloc(&pdev->dev, num_chan, sizeof(*props), GFP_KERNEL);
++
++	if (!priv || !props)
+ 		return -ENOMEM;
+ 
+ 	err = of_property_read_string(np, "i2c-bus-name", &priv->bus_name);
+@@ -220,8 +222,12 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+ 		}
+ 		priv->chan[i].parent_np = adap_np;
+ 
++		props[i].name = devm_kstrdup(&pdev->dev, "status", GFP_KERNEL);
++		props[i].value = devm_kstrdup(&pdev->dev, "ok", GFP_KERNEL);
++		props[i].length = 3;
++
+ 		of_changeset_init(&priv->chan[i].chgset);
+-		of_changeset_update_property(&priv->chan[i].chgset, adap_np, &status_okay);
++		of_changeset_update_property(&priv->chan[i].chgset, adap_np, &props[i]);
+ 	}
+ 
+ 	priv->num_chan = num_chan;
 -- 
-1.7.5.4
+2.9.3
