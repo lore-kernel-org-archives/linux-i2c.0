@@ -1,52 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v10 8/8] i2c: octeon: thunderx: Add MAINTAINERS entry
-Date: Tue, 23 Aug 2016 23:00:11 +0200
-Message-ID: <20160823210011.GE20872@katana>
-References: <cover.1465997603.git.jglauber@cavium.com>
- <529c10792168a7ada54f526a034ac1a0639a5c6f.1465997604.git.jglauber@cavium.com>
+Subject: Re: [PATCH 2/2] i2c: move locking operations to their own struct
+Date: Tue, 23 Aug 2016 23:16:00 +0200
+Message-ID: <20160823211600.GF20872@katana>
+References: <1469780277-31085-1-git-send-email-peda@axentia.se>
+ <1469780277-31085-3-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="wchHw8dVAp53YPj8"
+        protocol="application/pgp-signature"; boundary="z0eOaCaDLjvTGF2l"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <529c10792168a7ada54f526a034ac1a0639a5c6f.1465997604.git.jglauber@cavium.com>
+In-Reply-To: <1469780277-31085-3-git-send-email-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jan Glauber <jglauber@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Steven.Hill@caviumnetworks.com
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---wchHw8dVAp53YPj8
+--z0eOaCaDLjvTGF2l
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 15, 2016 at 03:51:34PM +0200, Jan Glauber wrote:
-> The i2c Octeon and ThunderX drivers are maintained by Cavium.
-> While at it fix the whitespace errors of the next entry.
+On Fri, Jul 29, 2016 at 10:17:57AM +0200, Peter Rosin wrote:
+> This makes it trivial to constify them, so do that.
+>=20
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-I'd rather have the network driver changes go in with a seperate patch
-(probably via netdev).
+Looks good. Could you rebase to i2c/for-next?
 
 
---wchHw8dVAp53YPj8
+--z0eOaCaDLjvTGF2l
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXvLlbAAoJEBQN5MwUoCm2odcQAKWQDmmgjBMta44Mq39C6p3A
-KrloT2x8K/9m+y7WqYRflub/JXhk8GIiw5yH/LMNovWm6Yox7VLSBd3MfXMjGdMe
-j3Z6sWSbGlpwfsImRiXiXEX9/njw2/cEs84MGFlCyjoUDPIL65r/OK2W62gtWNmv
-FW2W62yuZeoLS9aHjJZBEJfn+yls+t9uEm/RJwhXoQ61rovEobBVul4+BQl4287U
-7Dnrr+Yt3FRnWSFuNoIY4MhGXk1YDv8nGaX3FHEEIyl600rd+Vo9Lk7a/MVIiOMg
-JBOfDf257OxauUQHULE0HOPGnHngEdUhYyPXe24jnOTSTLyITiKivIvTGHTE99MG
-JUnzwXHRFhpxRZ+smcf/gN1564MHiqFEmOQtTio9maq/XwrQBNCVpbcKLdnazgb3
-yUOOhN9ES2sqBipS/2sKAOaSFwPpy9y5gnhxJS8JxUL/gzNh7+vvvg219qc9tsSO
-mcMzzw1pW189smMb+CHlYmugVK2MqO2rYECTvkJyJfY33BQsuzXQAY6ojYM8N7M3
-XqHq7Hw+eznxX7nzNw6I/W2Bjq4jhV0s0JgZ6e0RhVSWLU4yKrKelH64ehVytCjO
-U30uiSZ/i+PdzsyNpOo3doWO7Tow7iXRp8usBBYlmdg484vQP5wfD2+ZV0ZEVeWi
-K+1lUGzKyHGqcwXdLGBR
-=QsI0
+iQIcBAEBAgAGBQJXvL0QAAoJEBQN5MwUoCm2HI4P/RyTA48CcAz1m28T1hy0XJzU
+dft3Owl8CF6NFGD9VGjk0/mIzyu2BF01+43FfAgNXkSUo4TfDps1V/NXqS31+E50
+qyJpPIUn3fP8aQce0FNX7DNpTKeHugAXNfvRK5KTIaNvj1Iu/tIt5COq2MC4SCUk
+kiWWScEpg4I8m68o2ArjFJWWllogu1iOJuMmmm7+KRiRTgV8rpfiOkaEETO6f8Sd
+9IAO3lX4MNUFVEo00kV7m/VfLEiSJH8/3wA1+CItcQSLNkf6v+dCbXzA3XregsJW
+V/af60P6CfzoZ1Tmp6gVLZf1nwtB/4iNbY+inrul6zP4zebbI6wn/7eOM2uchSOR
+VQYH/A/uxaHaxAB6kOCuzX5YU9yKWlPpM4u3n1v5piUJgk6BQ6qKRLK4Mj4A6bix
+hA2DNyFMGI7Kfo4ESwQJBsIhyfnAYoS8dxHKfmKllX+Kf5lCmVB2mxbGjsS/HCsu
+I3Kf35uysFvWKcEr4zk20afufUFrRqi7QCem/95FDuIhT59F2PcmKfornYBW+2ZK
+LsIWHuhcnKlImPIlk/9bMpgkcmbMBzWCQ/lgnt/ze9jGW5YFJO4ZfjgbCVpw+Hmh
+oG4vRcMFvnfqdpGOfuCjB/aiZ9OgceAlP9LE+vzFRsxpYyVSssNF77cogU2YZAXB
+MLCpS7qciDLjkOw/AenF
+=nUqA
 -----END PGP SIGNATURE-----
 
---wchHw8dVAp53YPj8--
+--z0eOaCaDLjvTGF2l--
