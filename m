@@ -1,34 +1,36 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 2/2] i2c: rcar: use proper device with dma_mapping_error
-Date: Wed, 24 Aug 2016 11:19:29 +0200
-Message-ID: <20160824091929.2082-2-wsa+renesas@sang-engineering.com>
-References: <20160824091929.2082-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20160824091929.2082-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v4 0/4] i2c: designware: improve performance for transfers
+Date: Wed, 24 Aug 2016 13:31:11 +0300
+Message-ID: <638ba8ea-4817-a255-7937-c48b305ad999@linux.intel.com>
+References: <1471990736-30190-1-git-send-email-lucas.demarchi@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:50708 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754059AbcHXKdJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 24 Aug 2016 06:33:09 -0400
+In-Reply-To: <1471990736-30190-1-git-send-email-lucas.demarchi@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lucas De Marchi <lucas.demarchi@intel.com>, linux-i2c@vger.kernel.org
+Cc: Christian Ruppert <christian.ruppert@alitech.com>, mika.westerberg@linux.intel.com, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-We must use the same device we used for mapping.
-
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 52407f3c9e1cce..9bd849dacee872 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -378,7 +378,7 @@ static void rcar_i2c_dma(struct rcar_i2c_priv *priv)
- 	}
- 
- 	dma_addr = dma_map_single(chan->device->dev, buf, len, dir);
--	if (dma_mapping_error(dev, dma_addr)) {
-+	if (dma_mapping_error(chan->device->dev, dma_addr)) {
- 		dev_dbg(dev, "dma map failed, using PIO\n");
- 		return;
- 	}
--- 
-2.9.3
+On 08/24/2016 01:18 AM, Lucas De Marchi wrote:
+> Diff from v3:
+>
+>     - Fix over 80chars in one place
+>
+>     - Move check for adapter being able to dynamically update TAR to be done
+>       on probe time rather than init as requested by Jarkko
+>
+> For the previous version, Christian had added:
+>
+> Tested-by: Christian Ruppert <christian.ruppert@alitech.com>
+> on TB101 with Linux-4.7
+>
+> And Jarkko added his Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> on patches 1 and 3 (now 4).
+>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
