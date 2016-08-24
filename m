@@ -1,40 +1,89 @@
-From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 0/6] Some Tegra I2C Updates
-Date: Wed, 24 Aug 2016 12:10:23 +0100
-Message-ID: <f5152264-b42b-08ca-cc56-bcdfe78a2ec7@nvidia.com>
-References: <1470910620-9898-1-git-send-email-jonathanh@nvidia.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH 2/2] iio: gyro: Add driver for the MPU-3050 gyroscope
+Date: Wed, 24 Aug 2016 10:49:54 +0200
+Message-ID: <ed7493a1-37e4-2291-c66e-11cb97b6e5e3@axentia.se>
+References: <1471286287-25074-1-git-send-email-linus.walleij@linaro.org>
+ <53008712-7c50-79db-07ab-3544902887e1@kernel.org>
+ <285e7c3f-eedb-28ed-f651-926260d17a8a@axentia.se>
+ <c45a4c34d8c980d20e790741f33961f7@jic23.retrosnub.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1470910620-9898-1-git-send-email-jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <c45a4c34d8c980d20e790741f33961f7-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nick Vaccaro <nvaccaro-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Ge Gao <ggao-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Anna Si <asi-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Nathan Royer <nroyer-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Gregor Boirie <gregor.boirie-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+[CC'd linux-i2c@ and Wolfram Sang as the branch might end up with him]
 
-On 11/08/16 11:16, Jon Hunter wrote:
-> Add runtime-pm and pinctrl support for Tegra I2C driver.
+On 2016-08-23 16:38, jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org wrote:
+> On 23.08.2016 09:37, Peter Rosin wrote:
+>> On 2016-08-21 20:32, Jonathan Cameron wrote:
+>>> On 15/08/16 19:38, Linus Walleij wrote:
+>>>> Since the MPU-3050 has an outgoing I2C port it needs to act as
+>>>> an I2C mux. This means that the device is switching I2C traffic
+>>>> to devices beyond it. On my system this is the only way to reach
+>>>> the accelerometer. The "sensor fusion" ability of the MPU-3050
+>>>> to directly talk to the device on the outgoing I2C port is
+>>>> currently not used by the driver, but it has code to allow I2C
+>>>> traffic to pass through so that the Linux kernel can reach the
+>>>> device on the other side with a kernel driver.
+>>> Cc'd Peter Rosin as he's maintaining the i2c mux code now.
+>>
+>> The i2c-mux handling looks sane, with the current code, but I had
+>> an update in mind for the next merge window that affects this:
+>>
+>> [PATCH v2 0/8] devicetree cleanup for i2c muxes/arbs/gates
+>> https://lkml.org/lkml/2016/8/15/569
+>>
+>> Specifically patch 3/8 is relevant
+>>
+>> [PATCH v2 3/8] dt-bindings: i2c: add support for 'i2c-gate' subnode
+>> https://lkml.org/lkml/2016/8/15/270
+>>
+>> (implemented in 5/7)
+>>
+>> The above is not in next (yet). I don't know how this situation is
+>> best handled?
+>>
+>> Cheers,
+>> Peter
+> Hmm. Depends a bit on timing.  The merge window close for IIO is in
+> perhaps 3 weeks time.  If this driver isn't ready reasonably quickly
+> I'll probably hold it for next window anyway.
 > 
-> The first 4 patches are trivial clean-up/simplification changes.
+> If we do want to do the mux stuff and this in the same window then
+> the standard trick is a branch with just the relevant patches that
+> are the dependency in it and we both merge that into our trees.
+> Key thing is that we then don't touch this branch at all.
 > 
-> Jon Hunter (6):
->   i2c: tegra: Add missing new line characters
->   i2c: tegra: Remove non device-tree support
->   i2c: tegra: Use device name for adapter name
->   i2c: tegra: Simplify I2C resume
->   i2c: tegra: Add runtime power-management support
->   i2c: tegra: Add pinctrl support
-> 
->  drivers/i2c/busses/i2c-tegra.c | 97 +++++++++++++++++++++++++++---------------
->  1 file changed, 63 insertions(+), 34 deletions(-)
+> Git then sorts the mess out just fine when that works it's way to
+> Linus.  The two trees will have the same commit id's for the patches
+> so he'll get them via which ever tree he merges first.
 
-Any comments or can these be queued?
+Ok, but if the driver is ready in time, then this i2c-mux-dt-branch
+needs to have soaked in next for at least a week before we start
+relying on it. No?
 
-Cheers
-Jon
+Therefore, I better prepare the i2c-mux-dt-branch right away so that
+there is also time to make use of it. My plan is that I make the branch
+in the i2c-mux repo, then get it added to next somehow for soaking. I
+do not currently have a branch registered to be included in next, and I
+know it's just a matter of asking, but it seems rather pointless to add
+one just for this one-off occurrence? And since my series is closer to
+i2c than it is to iio, it feels righter to have it soak in next via the
+i2c tree.
 
--- 
-nvpublic
+Wolfram, is that ok with you? Or should I just bite the bullet and ask
+Stephen to include a brand new for-next branch from the i2c-mux repo
+instead?
+
+And a final question before I start with the i2c-mux-dt-branch; Is any
+base better than any other for it? I know i2c/for-next is based on
+v4.8-rc3 (at least currently, but I don't think Wolfram rebases
+willy-nillilly). So, would v4.8-rc3 be ok as a base for everyone?
+
+Cheers,
+Peter
