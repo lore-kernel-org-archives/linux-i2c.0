@@ -1,75 +1,249 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v11 0/8] i2c-octeon and i2c-thunderx driver
-Date: Wed, 24 Aug 2016 23:25:41 +0200
-Message-ID: <20160824212549.16140-1-jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34320 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755637AbcHXV0I (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 24 Aug 2016 17:26:08 -0400
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH v11 5/8] i2c: octeon,thunderx: Move register offsets to struct
+Date: Wed, 24 Aug 2016 23:25:46 +0200
+Message-ID: <20160824212549.16140-6-jglauber@cavium.com>
+References: <20160824212549.16140-1-jglauber@cavium.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160824212549.16140-1-jglauber@cavium.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+The register offsets are different between Octeon and ThunderX so move
+them into the algorithm struct and get rid of the define.
 
-this update should address all comments. The probe funtion
-is much easier to read now after using the managed device functions.
+Signed-off-by: Jan Glauber <jglauber@cavium.com>
+---
+ drivers/i2c/busses/i2c-octeon-core.c     | 28 ++++++++++++-------------
+ drivers/i2c/busses/i2c-octeon-core.h     | 35 ++++++++++++++++----------------
+ drivers/i2c/busses/i2c-octeon-platdrv.c  |  4 ++++
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c |  4 ++++
+ 4 files changed, 40 insertions(+), 31 deletions(-)
 
-We also had an issue with the 5ms timeout and some ipmi/ssif commands so
-I dropped the timeout setting to get the 1s default.
-
-Changes to v10:
-- Proper use of managed device functions
-- Renamed files
-- Removed i2c class setting
-- Droped timeout setting
-- Improved Kconfig dependency
-- Removed most probing kernel messages
-- select SMBUS instead of if-defing
-- Removed bogus i2c pointer check 
-- Explicitely mention GPL version
-- Drop whitespace fixes from MAINTAINERS patch
-
-Changes to v9:
-- rebased on top of upstreamed octeon i2c fixes
-- reduced default sclk to 700Mhz
-
-Changes to v8:
-- Use device property for clock-frequency setting in thunderx,
-  get rid of of_find_node_by_name
-- Simplify adap.name by using device name
-- SMBUS ACPI handling
-- Re-phrase SMBUS error/not-specified message
-
-Thanks,
-Jan
-
--------------------------------------------------
-
-Jan Glauber (8):
-  i2c: octeon: Rename driver to prepare for split
-  i2c: octeon: Split the driver into two parts
-  i2c: thunderx: Add i2c driver for ThunderX SOC
-  i2c: thunderx: Add SMBUS alert support
-  i2c: octeon,thunderx: Move register offsets to struct
-  i2c: octeon: Sort include files alphabetically
-  i2c: octeon: Use booleon values for booleon variables
-  i2c: octeon: thunderx: Add MAINTAINERS entry
-
- MAINTAINERS                                        |    8 +
- drivers/i2c/busses/Kconfig                         |   11 +
- drivers/i2c/busses/Makefile                        |    3 +
- .../i2c/busses/{i2c-octeon.c => i2c-octeon-core.c} | 1039 ++++++--------------
- drivers/i2c/busses/i2c-octeon-core.h               |  211 ++++
- drivers/i2c/busses/i2c-octeon-platdrv.c            |  288 ++++++
- drivers/i2c/busses/i2c-thunderx-pcidrv.c           |  259 +++++
- 7 files changed, 1077 insertions(+), 742 deletions(-)
- rename drivers/i2c/busses/{i2c-octeon.c => i2c-octeon-core.c} (57%)
- create mode 100644 drivers/i2c/busses/i2c-octeon-core.h
- create mode 100644 drivers/i2c/busses/i2c-octeon-platdrv.c
- create mode 100644 drivers/i2c/busses/i2c-thunderx-pcidrv.c
-
+diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
+index 23384ef..a327a5f 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.c
++++ b/drivers/i2c/busses/i2c-octeon-core.c
+@@ -99,7 +99,7 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ 
+ static bool octeon_i2c_hlc_test_valid(struct octeon_i2c *i2c)
+ {
+-	return (__raw_readq(i2c->twsi_base + SW_TWSI) & SW_TWSI_V) == 0;
++	return (__raw_readq(i2c->twsi_base + SW_TWSI(i2c)) & SW_TWSI_V) == 0;
+ }
+ 
+ static bool octeon_i2c_hlc_test_ready(struct octeon_i2c *i2c, bool *first)
+@@ -446,12 +446,12 @@ static int octeon_i2c_hlc_read(struct octeon_i2c *i2c, struct i2c_msg *msgs)
+ 	else
+ 		cmd |= SW_TWSI_OP_7;
+ 
+-	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI);
++	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
+ 	ret = octeon_i2c_hlc_wait(i2c);
+ 	if (ret)
+ 		goto err;
+ 
+-	cmd = __raw_readq(i2c->twsi_base + SW_TWSI);
++	cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
+ 	if ((cmd & SW_TWSI_R) == 0)
+ 		return -EAGAIN;
+ 
+@@ -459,7 +459,7 @@ static int octeon_i2c_hlc_read(struct octeon_i2c *i2c, struct i2c_msg *msgs)
+ 		msgs[0].buf[j] = (cmd >> (8 * i)) & 0xff;
+ 
+ 	if (msgs[0].len > 4) {
+-		cmd = __raw_readq(i2c->twsi_base + SW_TWSI_EXT);
++		cmd = __raw_readq(i2c->twsi_base + SW_TWSI_EXT(i2c));
+ 		for (i = 0; i  < msgs[0].len - 4 && i < 4; i++, j--)
+ 			msgs[0].buf[j] = (cmd >> (8 * i)) & 0xff;
+ 	}
+@@ -496,15 +496,15 @@ static int octeon_i2c_hlc_write(struct octeon_i2c *i2c, struct i2c_msg *msgs)
+ 
+ 		for (i = 0; i < msgs[0].len - 4 && i < 4; i++, j--)
+ 			ext |= (u64)msgs[0].buf[j] << (8 * i);
+-		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT);
++		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
+ 	}
+ 
+-	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI);
++	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
+ 	ret = octeon_i2c_hlc_wait(i2c);
+ 	if (ret)
+ 		goto err;
+ 
+-	cmd = __raw_readq(i2c->twsi_base + SW_TWSI);
++	cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
+ 	if ((cmd & SW_TWSI_R) == 0)
+ 		return -EAGAIN;
+ 
+@@ -539,19 +539,19 @@ static int octeon_i2c_hlc_comp_read(struct octeon_i2c *i2c, struct i2c_msg *msgs
+ 		cmd |= SW_TWSI_EIA;
+ 		ext = (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+ 		cmd |= (u64)msgs[0].buf[1] << SW_TWSI_IA_SHIFT;
+-		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT);
++		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
+ 	} else {
+ 		cmd |= (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+ 	}
+ 
+ 	octeon_i2c_hlc_int_clear(i2c);
+-	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI);
++	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
+ 
+ 	ret = octeon_i2c_hlc_wait(i2c);
+ 	if (ret)
+ 		goto err;
+ 
+-	cmd = __raw_readq(i2c->twsi_base + SW_TWSI);
++	cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
+ 	if ((cmd & SW_TWSI_R) == 0)
+ 		return -EAGAIN;
+ 
+@@ -559,7 +559,7 @@ static int octeon_i2c_hlc_comp_read(struct octeon_i2c *i2c, struct i2c_msg *msgs
+ 		msgs[1].buf[j] = (cmd >> (8 * i)) & 0xff;
+ 
+ 	if (msgs[1].len > 4) {
+-		cmd = __raw_readq(i2c->twsi_base + SW_TWSI_EXT);
++		cmd = __raw_readq(i2c->twsi_base + SW_TWSI_EXT(i2c));
+ 		for (i = 0; i  < msgs[1].len - 4 && i < 4; i++, j--)
+ 			msgs[1].buf[j] = (cmd >> (8 * i)) & 0xff;
+ 	}
+@@ -606,16 +606,16 @@ static int octeon_i2c_hlc_comp_write(struct octeon_i2c *i2c, struct i2c_msg *msg
+ 		set_ext = true;
+ 	}
+ 	if (set_ext)
+-		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT);
++		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
+ 
+ 	octeon_i2c_hlc_int_clear(i2c);
+-	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI);
++	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
+ 
+ 	ret = octeon_i2c_hlc_wait(i2c);
+ 	if (ret)
+ 		goto err;
+ 
+-	cmd = __raw_readq(i2c->twsi_base + SW_TWSI);
++	cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
+ 	if ((cmd & SW_TWSI_R) == 0)
+ 		return -EAGAIN;
+ 
+diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
+index 2ed6f7a..87151ea 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.h
++++ b/drivers/i2c/busses/i2c-octeon-core.h
+@@ -8,17 +8,6 @@
+ #include <linux/kernel.h>
+ #include <linux/pci.h>
+ 
+-/* Register offsets */
+-#if IS_ENABLED(CONFIG_I2C_THUNDERX)
+-	#define SW_TWSI			0x1000
+-	#define TWSI_INT		0x1010
+-	#define SW_TWSI_EXT		0x1018
+-#else
+-	#define SW_TWSI			0x00
+-	#define TWSI_INT		0x10
+-	#define SW_TWSI_EXT		0x18
+-#endif
+-
+ /* Controller command patterns */
+ #define SW_TWSI_V		BIT_ULL(63)	/* Valid bit */
+ #define SW_TWSI_EIA		BIT_ULL(61)	/* Extended internal address */
+@@ -98,9 +87,21 @@
+ 
+ #define I2C_OCTEON_EVENT_WAIT 80 /* microseconds */
+ 
++/* Register offsets */
++struct octeon_i2c_reg_offset {
++	unsigned int sw_twsi;
++	unsigned int twsi_int;
++	unsigned int sw_twsi_ext;
++};
++
++#define SW_TWSI(x)	(x->roff.sw_twsi)
++#define TWSI_INT(x)	(x->roff.twsi_int)
++#define SW_TWSI_EXT(x)	(x->roff.sw_twsi_ext)
++
+ struct octeon_i2c {
+ 	wait_queue_head_t queue;
+ 	struct i2c_adapter adap;
++	struct octeon_i2c_reg_offset roff;
+ 	struct clk *clk;
+ 	int irq;
+ 	int hlc_irq;		/* For cn7890 only */
+@@ -142,9 +143,9 @@ static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8
+ {
+ 	u64 tmp;
+ 
+-	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI);
++	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI(i2c));
+ 	do {
+-		tmp = __raw_readq(i2c->twsi_base + SW_TWSI);
++		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
+ 	} while ((tmp & SW_TWSI_V) != 0);
+ }
+ 
+@@ -166,9 +167,9 @@ static inline u8 octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg)
+ {
+ 	u64 tmp;
+ 
+-	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI);
++	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI(i2c));
+ 	do {
+-		tmp = __raw_readq(i2c->twsi_base + SW_TWSI);
++		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
+ 	} while ((tmp & SW_TWSI_V) != 0);
+ 
+ 	return tmp & 0xFF;
+@@ -189,7 +190,7 @@ static inline u8 octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg)
+  */
+ static inline u64 octeon_i2c_read_int(struct octeon_i2c *i2c)
+ {
+-	return __raw_readq(i2c->twsi_base + TWSI_INT);
++	return __raw_readq(i2c->twsi_base + TWSI_INT(i2c));
+ }
+ 
+ /**
+@@ -199,7 +200,7 @@ static inline u64 octeon_i2c_read_int(struct octeon_i2c *i2c)
+  */
+ static inline void octeon_i2c_write_int(struct octeon_i2c *i2c, u64 data)
+ {
+-	octeon_i2c_writeq_flush(data, i2c->twsi_base + TWSI_INT);
++	octeon_i2c_writeq_flush(data, i2c->twsi_base + TWSI_INT(i2c));
+ }
+ 
+ /* Prototypes */
+diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
+index c07d0ee..916ebee 100644
+--- a/drivers/i2c/busses/i2c-octeon-platdrv.c
++++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
+@@ -163,6 +163,10 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+ 	}
+ 	i2c->dev = &pdev->dev;
+ 
++	i2c->roff.sw_twsi = 0x00;
++	i2c->roff.twsi_int = 0x10;
++	i2c->roff.sw_twsi_ext = 0x18;
++
+ 	res_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	i2c->twsi_base = devm_ioremap_resource(&pdev->dev, res_mem);
+ 	if (IS_ERR(i2c->twsi_base)) {
+diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+index e8c3ce0..bba5b42 100644
+--- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
++++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+@@ -158,6 +158,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
++	i2c->roff.sw_twsi = 0x1000;
++	i2c->roff.twsi_int = 0x1010;
++	i2c->roff.sw_twsi_ext = 0x1018;
++
+ 	i2c->dev = dev;
+ 	pci_set_drvdata(pdev, i2c);
+ 	ret = pcim_enable_device(pdev);
 -- 
 2.9.0.rc0.21.g7777322
