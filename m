@@ -1,56 +1,32 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 2/2] i2c: move locking operations to their own struct
-Date: Wed, 24 Aug 2016 09:47:19 +0200
-Message-ID: <4ff4bdab-a322-8cf2-aec8-bfd4ae4c2f34@axentia.se>
-References: <1469780277-31085-1-git-send-email-peda@axentia.se>
- <1469780277-31085-3-git-send-email-peda@axentia.se>
- <20160823211600.GF20872@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0100.outbound.protection.outlook.com ([104.47.1.100]:59200
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752094AbcHXICi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 24 Aug 2016 04:02:38 -0400
-In-Reply-To: <20160823211600.GF20872@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/2] i2c: sh_mobile: use proper device with dma_mapping_error
+Date: Wed, 24 Aug 2016 11:19:28 +0200
+Message-ID: <20160824091929.2082-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On 2016-08-23 23:16, Wolfram Sang wrote:
-> On Fri, Jul 29, 2016 at 10:17:57AM +0200, Peter Rosin wrote:
->> This makes it trivial to constify them, so do that.
->>
->> Signed-off-by: Peter Rosin <peda@axentia.se>
-> 
-> Looks good. Could you rebase to i2c/for-next?
+We must use the same device we used for mapping.
 
-Right, no problem!
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-sh_mobile.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Cheers,
-Peter
-
-The following changes since commit 00f0ea70d2b82b7d7afeb1bdedc9169eb8ea6675:
-
-  eeprom: at24: check if the chip is functional in probe() (2016-08-22 08:19:58 +0200)
-
-are available in the git repository at:
-
-  https://github.com/peda-r/i2c-mux.git i2c-lock-op
-
-for you to fetch changes up to 4b42b8c2e3233671e49deee71458edb6737a38bf:
-
-  i2c: move locking operations to their own struct (2016-08-24 06:38:58 +0200)
-
-----------------------------------------------------------------
-Peter Rosin (2):
-      i2c: add i2c_trylock_bus wrapper, use it
-      i2c: move locking operations to their own struct
-
- drivers/i2c/i2c-core.c | 15 +++++++++------
- drivers/i2c/i2c-mux.c  | 29 ++++++++++++++++++-----------
- include/linux/i2c.h    | 37 +++++++++++++++++++++++++++++++------
- 3 files changed, 58 insertions(+), 23 deletions(-)
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 6fb3e264599229..05b1eeab9cf5f6 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -610,7 +610,7 @@ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
+ 		return;
+ 
+ 	dma_addr = dma_map_single(chan->device->dev, pd->msg->buf, pd->msg->len, dir);
+-	if (dma_mapping_error(pd->dev, dma_addr)) {
++	if (dma_mapping_error(chan->device->dev, dma_addr)) {
+ 		dev_dbg(pd->dev, "dma map failed, using PIO\n");
+ 		return;
+ 	}
+-- 
+2.9.3
