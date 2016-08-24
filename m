@@ -1,39 +1,56 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH v10 3/8] i2c: thunderx: Add i2c driver for ThunderX SOC
-Date: Tue, 23 Aug 2016 23:09:34 +0200
-Message-ID: <20160823210934.GA28936@hardcore>
-References: <cover.1465997603.git.jglauber@cavium.com>
- <1ead8831e4dd879d452e8bc1a2a33ccba3a74b3d.1465997604.git.jglauber@cavium.com>
- <20160823203628.GB20872@katana>
- <20160823203941.GC20872@katana>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 2/2] i2c: move locking operations to their own struct
+Date: Wed, 24 Aug 2016 09:47:19 +0200
+Message-ID: <4ff4bdab-a322-8cf2-aec8-bfd4ae4c2f34@axentia.se>
+References: <1469780277-31085-1-git-send-email-peda@axentia.se>
+ <1469780277-31085-3-git-send-email-peda@axentia.se>
+ <20160823211600.GF20872@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160823203941.GC20872@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Steven.Hill@caviumnetworks.com
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ve1eur01on0100.outbound.protection.outlook.com ([104.47.1.100]:59200
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752094AbcHXICi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 24 Aug 2016 04:02:38 -0400
+In-Reply-To: <20160823211600.GF20872@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Tue, Aug 23, 2016 at 10:39:41PM +0200, Wolfram Sang wrote:
-> On Tue, Aug 23, 2016 at 10:36:29PM +0200, Wolfram Sang wrote:
-> > 
-> > >  i2c-octeon-objs := i2c-cavium.o i2c-octeon-core.o
-> > >  obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
-> > > +i2c-thunderx-objs := i2c-cavium.o i2c-thunderx-core.o
-> > > +obj-$(CONFIG_I2C_THUNDERX)	+= i2c-thunderx.o
-> > 
-> > Shouldn't that rather be "i2c-cavium-core.o",
+On 2016-08-23 23:16, Wolfram Sang wrote:
+> On Fri, Jul 29, 2016 at 10:17:57AM +0200, Peter Rosin wrote:
+>> This makes it trivial to constify them, so do that.
+>>
+>> Signed-off-by: Peter Rosin <peda@axentia.se>
 > 
-> Thinking of it again, it should probably even be "i2c-octeon-core.o" to
-> avoid confusion because all the functions start with octeon_*
-> 
-> > "i2c-octeon-platdrv.o",  and "i2c-thunderx-pcidrv.o" for the -objs?
-> 
-> Those names still make sense :)
-> 
+> Looks good. Could you rebase to i2c/for-next?
 
-Agreed, the naming you propose looks much better.
+Right, no problem!
 
---Jan
+Cheers,
+Peter
+
+The following changes since commit 00f0ea70d2b82b7d7afeb1bdedc9169eb8ea6675:
+
+  eeprom: at24: check if the chip is functional in probe() (2016-08-22 08:19:58 +0200)
+
+are available in the git repository at:
+
+  https://github.com/peda-r/i2c-mux.git i2c-lock-op
+
+for you to fetch changes up to 4b42b8c2e3233671e49deee71458edb6737a38bf:
+
+  i2c: move locking operations to their own struct (2016-08-24 06:38:58 +0200)
+
+----------------------------------------------------------------
+Peter Rosin (2):
+      i2c: add i2c_trylock_bus wrapper, use it
+      i2c: move locking operations to their own struct
+
+ drivers/i2c/i2c-core.c | 15 +++++++++------
+ drivers/i2c/i2c-mux.c  | 29 ++++++++++++++++++-----------
+ include/linux/i2c.h    | 37 +++++++++++++++++++++++++++++++------
+ 3 files changed, 58 insertions(+), 23 deletions(-)
