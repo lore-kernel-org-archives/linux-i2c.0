@@ -1,7 +1,7 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v11 5/8] i2c: octeon,thunderx: Move register offsets to struct
-Date: Wed, 24 Aug 2016 23:25:46 +0200
-Message-ID: <20160824212549.16140-6-jglauber@cavium.com>
+Subject: [PATCH v11 7/8] i2c: octeon: Use booleon values for booleon variables
+Date: Wed, 24 Aug 2016 23:25:48 +0200
+Message-ID: <20160824212549.16140-8-jglauber@cavium.com>
 References: <20160824212549.16140-1-jglauber@cavium.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20160824212549.16140-1-jglauber@cavium.com>
@@ -10,240 +10,34 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Daney <ddaney@caviumnetworks.com>, Jan Glauber <jglauber@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The register offsets are different between Octeon and ThunderX so move
-them into the algorithm struct and get rid of the define.
+Initialize booleon values with true instead of 1.
 
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-octeon-core.c     | 28 ++++++++++++-------------
- drivers/i2c/busses/i2c-octeon-core.h     | 35 ++++++++++++++++----------------
- drivers/i2c/busses/i2c-octeon-platdrv.c  |  4 ++++
- drivers/i2c/busses/i2c-thunderx-pcidrv.c |  4 ++++
- 4 files changed, 40 insertions(+), 31 deletions(-)
+ drivers/i2c/busses/i2c-octeon-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
-index 23384ef..a327a5f 100644
+index a327a5f..f45ea5e 100644
 --- a/drivers/i2c/busses/i2c-octeon-core.c
 +++ b/drivers/i2c/busses/i2c-octeon-core.c
-@@ -99,7 +99,7 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
- 
- static bool octeon_i2c_hlc_test_valid(struct octeon_i2c *i2c)
+@@ -63,7 +63,7 @@ static bool octeon_i2c_test_ready(struct octeon_i2c *i2c, bool *first)
+ static int octeon_i2c_wait(struct octeon_i2c *i2c)
  {
--	return (__raw_readq(i2c->twsi_base + SW_TWSI) & SW_TWSI_V) == 0;
-+	return (__raw_readq(i2c->twsi_base + SW_TWSI(i2c)) & SW_TWSI_V) == 0;
- }
+ 	long time_left;
+-	bool first = 1;
++	bool first = true;
  
- static bool octeon_i2c_hlc_test_ready(struct octeon_i2c *i2c, bool *first)
-@@ -446,12 +446,12 @@ static int octeon_i2c_hlc_read(struct octeon_i2c *i2c, struct i2c_msg *msgs)
- 	else
- 		cmd |= SW_TWSI_OP_7;
- 
--	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI);
-+	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
- 	ret = octeon_i2c_hlc_wait(i2c);
- 	if (ret)
- 		goto err;
- 
--	cmd = __raw_readq(i2c->twsi_base + SW_TWSI);
-+	cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
- 	if ((cmd & SW_TWSI_R) == 0)
- 		return -EAGAIN;
- 
-@@ -459,7 +459,7 @@ static int octeon_i2c_hlc_read(struct octeon_i2c *i2c, struct i2c_msg *msgs)
- 		msgs[0].buf[j] = (cmd >> (8 * i)) & 0xff;
- 
- 	if (msgs[0].len > 4) {
--		cmd = __raw_readq(i2c->twsi_base + SW_TWSI_EXT);
-+		cmd = __raw_readq(i2c->twsi_base + SW_TWSI_EXT(i2c));
- 		for (i = 0; i  < msgs[0].len - 4 && i < 4; i++, j--)
- 			msgs[0].buf[j] = (cmd >> (8 * i)) & 0xff;
- 	}
-@@ -496,15 +496,15 @@ static int octeon_i2c_hlc_write(struct octeon_i2c *i2c, struct i2c_msg *msgs)
- 
- 		for (i = 0; i < msgs[0].len - 4 && i < 4; i++, j--)
- 			ext |= (u64)msgs[0].buf[j] << (8 * i);
--		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT);
-+		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
- 	}
- 
--	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI);
-+	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
- 	ret = octeon_i2c_hlc_wait(i2c);
- 	if (ret)
- 		goto err;
- 
--	cmd = __raw_readq(i2c->twsi_base + SW_TWSI);
-+	cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
- 	if ((cmd & SW_TWSI_R) == 0)
- 		return -EAGAIN;
- 
-@@ -539,19 +539,19 @@ static int octeon_i2c_hlc_comp_read(struct octeon_i2c *i2c, struct i2c_msg *msgs
- 		cmd |= SW_TWSI_EIA;
- 		ext = (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
- 		cmd |= (u64)msgs[0].buf[1] << SW_TWSI_IA_SHIFT;
--		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT);
-+		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
- 	} else {
- 		cmd |= (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
- 	}
- 
- 	octeon_i2c_hlc_int_clear(i2c);
--	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI);
-+	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
- 
- 	ret = octeon_i2c_hlc_wait(i2c);
- 	if (ret)
- 		goto err;
- 
--	cmd = __raw_readq(i2c->twsi_base + SW_TWSI);
-+	cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
- 	if ((cmd & SW_TWSI_R) == 0)
- 		return -EAGAIN;
- 
-@@ -559,7 +559,7 @@ static int octeon_i2c_hlc_comp_read(struct octeon_i2c *i2c, struct i2c_msg *msgs
- 		msgs[1].buf[j] = (cmd >> (8 * i)) & 0xff;
- 
- 	if (msgs[1].len > 4) {
--		cmd = __raw_readq(i2c->twsi_base + SW_TWSI_EXT);
-+		cmd = __raw_readq(i2c->twsi_base + SW_TWSI_EXT(i2c));
- 		for (i = 0; i  < msgs[1].len - 4 && i < 4; i++, j--)
- 			msgs[1].buf[j] = (cmd >> (8 * i)) & 0xff;
- 	}
-@@ -606,16 +606,16 @@ static int octeon_i2c_hlc_comp_write(struct octeon_i2c *i2c, struct i2c_msg *msg
- 		set_ext = true;
- 	}
- 	if (set_ext)
--		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT);
-+		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
- 
- 	octeon_i2c_hlc_int_clear(i2c);
--	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI);
-+	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
- 
- 	ret = octeon_i2c_hlc_wait(i2c);
- 	if (ret)
- 		goto err;
- 
--	cmd = __raw_readq(i2c->twsi_base + SW_TWSI);
-+	cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
- 	if ((cmd & SW_TWSI_R) == 0)
- 		return -EAGAIN;
- 
-diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
-index 2ed6f7a..87151ea 100644
---- a/drivers/i2c/busses/i2c-octeon-core.h
-+++ b/drivers/i2c/busses/i2c-octeon-core.h
-@@ -8,17 +8,6 @@
- #include <linux/kernel.h>
- #include <linux/pci.h>
- 
--/* Register offsets */
--#if IS_ENABLED(CONFIG_I2C_THUNDERX)
--	#define SW_TWSI			0x1000
--	#define TWSI_INT		0x1010
--	#define SW_TWSI_EXT		0x1018
--#else
--	#define SW_TWSI			0x00
--	#define TWSI_INT		0x10
--	#define SW_TWSI_EXT		0x18
--#endif
--
- /* Controller command patterns */
- #define SW_TWSI_V		BIT_ULL(63)	/* Valid bit */
- #define SW_TWSI_EIA		BIT_ULL(61)	/* Extended internal address */
-@@ -98,9 +87,21 @@
- 
- #define I2C_OCTEON_EVENT_WAIT 80 /* microseconds */
- 
-+/* Register offsets */
-+struct octeon_i2c_reg_offset {
-+	unsigned int sw_twsi;
-+	unsigned int twsi_int;
-+	unsigned int sw_twsi_ext;
-+};
-+
-+#define SW_TWSI(x)	(x->roff.sw_twsi)
-+#define TWSI_INT(x)	(x->roff.twsi_int)
-+#define SW_TWSI_EXT(x)	(x->roff.sw_twsi_ext)
-+
- struct octeon_i2c {
- 	wait_queue_head_t queue;
- 	struct i2c_adapter adap;
-+	struct octeon_i2c_reg_offset roff;
- 	struct clk *clk;
- 	int irq;
- 	int hlc_irq;		/* For cn7890 only */
-@@ -142,9 +143,9 @@ static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8
- {
- 	u64 tmp;
- 
--	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI);
-+	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI(i2c));
- 	do {
--		tmp = __raw_readq(i2c->twsi_base + SW_TWSI);
-+		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
- 	} while ((tmp & SW_TWSI_V) != 0);
- }
- 
-@@ -166,9 +167,9 @@ static inline u8 octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg)
- {
- 	u64 tmp;
- 
--	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI);
-+	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI(i2c));
- 	do {
--		tmp = __raw_readq(i2c->twsi_base + SW_TWSI);
-+		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
- 	} while ((tmp & SW_TWSI_V) != 0);
- 
- 	return tmp & 0xFF;
-@@ -189,7 +190,7 @@ static inline u8 octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg)
+ 	/*
+ 	 * Some chip revisions don't assert the irq in the interrupt
+@@ -176,7 +176,7 @@ static void octeon_i2c_hlc_disable(struct octeon_i2c *i2c)
   */
- static inline u64 octeon_i2c_read_int(struct octeon_i2c *i2c)
+ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
  {
--	return __raw_readq(i2c->twsi_base + TWSI_INT);
-+	return __raw_readq(i2c->twsi_base + TWSI_INT(i2c));
- }
+-	bool first = 1;
++	bool first = true;
+ 	int time_left;
  
- /**
-@@ -199,7 +200,7 @@ static inline u64 octeon_i2c_read_int(struct octeon_i2c *i2c)
-  */
- static inline void octeon_i2c_write_int(struct octeon_i2c *i2c, u64 data)
- {
--	octeon_i2c_writeq_flush(data, i2c->twsi_base + TWSI_INT);
-+	octeon_i2c_writeq_flush(data, i2c->twsi_base + TWSI_INT(i2c));
- }
- 
- /* Prototypes */
-diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
-index c07d0ee..916ebee 100644
---- a/drivers/i2c/busses/i2c-octeon-platdrv.c
-+++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
-@@ -163,6 +163,10 @@ static int octeon_i2c_probe(struct platform_device *pdev)
- 	}
- 	i2c->dev = &pdev->dev;
- 
-+	i2c->roff.sw_twsi = 0x00;
-+	i2c->roff.twsi_int = 0x10;
-+	i2c->roff.sw_twsi_ext = 0x18;
-+
- 	res_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	i2c->twsi_base = devm_ioremap_resource(&pdev->dev, res_mem);
- 	if (IS_ERR(i2c->twsi_base)) {
-diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-index e8c3ce0..bba5b42 100644
---- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-@@ -158,6 +158,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 	if (!i2c)
- 		return -ENOMEM;
- 
-+	i2c->roff.sw_twsi = 0x1000;
-+	i2c->roff.twsi_int = 0x1010;
-+	i2c->roff.sw_twsi_ext = 0x1018;
-+
- 	i2c->dev = dev;
- 	pci_set_drvdata(pdev, i2c);
- 	ret = pcim_enable_device(pdev);
+ 	/*
 -- 
 2.9.0.rc0.21.g7777322
