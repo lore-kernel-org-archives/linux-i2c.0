@@ -1,684 +1,609 @@
-From: vadimp@mellanox.com
-Subject: [patch 1/2] i2c: add master driver for mellanox systems
-Date: Wed, 24 Aug 2016 13:56:06 +0000
-Message-ID: <1472046966-111898-1-git-send-email-vadimp@mellanox.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:40424 "EHLO
-        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S932914AbcHXL5w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 24 Aug 2016 07:57:52 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [patch 2/2] i2c: mux: mellanox: add driver
+Date: Wed, 24 Aug 2016 15:54:55 +0200
+Message-ID: <9cf2abd0-443b-2964-c809-1ac5a4321f8b@axentia.se>
+References: <1472046988-111956-1-git-send-email-vadimp@mellanox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1472046988-111956-1-git-send-email-vadimp@mellanox.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: vadimp@mellanox.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+On 2016-08-24 15:56, Vadim Pasternak wrote:
+> From: Vadim Pasternak <vadimp@mellanox.com>
+> 
+> This driver allows I2C routing controlled through CPLD select registers on wide
+> range of Mellanox systems (CPLD Lattice device).
+> MUX selection is provided by digital and analog HW. Analog part is not under SW
+> control. Digital part is under CPLD control (channel selection/de-selection).
+> 
+> MUX logic description.
+> Mux selector can control 256 mux (channels), if utilized one CPLD register
+> (8 bits) as select register - register value specifies mux id.
+> Mux selector can control n*256 mux, if utilized n CPLD registers as select
+> registers.
+> The number of registers within the same CPLD can be combined to support mux
+> hierarchy.
+> This logic can be applied for LPC attached CPLD and fro I2C attached CPLD.
+> Driver can support different mux control logic, according to CPLD
+> implementation.
 
-Device driver for Mellanox I2C controller logic, implemented in Lattice CPLD device.
-Device supports:
-     - Master mode
-     - One physical bus
-    -  Polling mode
+This paragraph is strangely wrapped. And please limit to 75 chars per line
+as per checkpatch.
 
-The Kconfig currently controlling compilation of this code is:
-drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
+Also, I have a hard time getting the grips on the actual number of mux
+channels that can be controlled. You talk about n * 256 channels if you
+have n registers. But the code below appears to only deal with one
+register. So why complicate things in the comments and the commit
+message? It is also not entirely clear to me if you support 8 channels
+or if you really support 256 channels. That would be huge number of
+pins.
 
-Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
----
- drivers/i2c/busses/Kconfig       |  12 +
- drivers/i2c/busses/Makefile      |   1 +
- drivers/i2c/busses/i2c-mlxcpld.c | 609 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 622 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-mlxcpld.c
+Because from the text above, I would have guessed 256, but below...
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 5c3993b..1126142a 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1203,4 +1203,16 @@ config I2C_OPAL
- 	  This driver can also be built as a module. If so, the module will be
- 	  called as i2c-opal.
- 
-+config I2C_MLXCPLD
-+        tristate "Mellanox I2C driver"
-+        depends on X86_64
-+        default y
-+        help
-+	  This exposes the Mellanox platform I2C busses to the linux I2C layer
-+	  for X86 based systems.
-+	  Controller is implemented as CPLD logic.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called as i2c-mlxcpld.
-+
- endmenu
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 37f2819..4df3578 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -118,5 +118,6 @@ obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
- obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
- obj-$(CONFIG_I2C_XGENE_SLIMPRO) += i2c-xgene-slimpro.o
- obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
-+obj-$(CONFIG_I2C_MLXCPLD)	+= i2c-mlxcpld.o
- 
- ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
-new file mode 100644
-index 0000000..04cd987
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-mlxcpld.c
-@@ -0,0 +1,609 @@
-+/*
-+ * drivers/i2c/busses/i2c-mlxcpld.c
-+ * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
-+ * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the names of the copyright holders nor the names of its
-+ *    contributors may be used to endorse or promote products derived from
-+ *    this software without specific prior written permission.
-+ *
-+ * Alternatively, this software may be distributed under the terms of the
-+ * GNU General Public License ("GPL") version 2 as published by the Free
-+ * Software Foundation.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/delay.h>
-+#include <linux/init.h>
-+#include <linux/i2c.h>
-+#include <linux/platform_device.h>
-+
-+/* General defines */
-+#define MLXPLAT_CPLD_LPC_I2C_BASE_ADRR	0x2000
-+#define MLXCPLD_I2C_DEVICE_NAME		"mlxcpld_i2c"
-+#define MLXCPLD_I2C_VALID_FLAG		(I2C_M_RECV_LEN | I2C_M_RD)
-+#define MLXCPLD_I2C_BUS_NUM		1
-+#define MLXCPLD_I2C_DATA_REG_SZ		36
-+#define MLXCPLD_I2C_MAX_ADDR_LEN	4
-+#define MLXCPLD_I2C_RETR_NUM		2
-+#define MLXCPLD_I2C_XFER_TO		500000 /* msec */
-+#define MLXCPLD_I2C_POLL_TIME		2000   /* msec */
-+
-+/* LPC I2C registers */
-+#define MLXCPLD_LPCI2C_LPF_REG		0x0
-+#define MLXCPLD_LPCI2C_CTRL_REG		0x1
-+#define MLXCPLD_LPCI2C_HALF_CYC_REG	0x4
-+#define MLXCPLD_LPCI2C_I2C_HOLD_REG	0x5
-+#define MLXCPLD_LPCI2C_CMD_REG		0x6
-+#define MLXCPLD_LPCI2C_NUM_DAT_REG	0x7
-+#define MLXCPLD_LPCI2C_NUM_ADDR_REG	0x8
-+#define MLXCPLD_LPCI2C_STATUS_REG	0x9
-+#define MLXCPLD_LPCI2C_DATA_REG		0xa
-+
-+/* LPC I2C masks and parametres */
-+#define MLXCPLD_LPCI2C_RST_SEL_MASK	0x1
-+#define MLXCPLD_LPCI2C_LPF_DFLT		0x2
-+#define MLXCPLD_LPCI2C_HALF_CYC_100	0x1f
-+#define MLXCPLD_LPCI2C_I2C_HOLD_100	0x3c
-+#define MLXCPLD_LPCI2C_TRANS_END	0x1
-+#define MLXCPLD_LPCI2C_STATUS_NACK	0x10
-+#define MLXCPLD_LPCI2C_ERR_IND		-1
-+#define MLXCPLD_LPCI2C_NO_IND		0
-+#define MLXCPLD_LPCI2C_ACK_IND		1
-+#define MLXCPLD_LPCI2C_NACK_IND		2
-+
-+/**
-+ * mlxcpld_i2c_regs - controller registers:
-+ * @half_cyc - half cycle register
-+ * @i2c_hold - hold register
-+ * @config - config register
-+ * @cmd - command register
-+ * @cmd - status register
-+ * @data - register data
-+**/
-+struct mlxcpld_i2c_regs {
-+	u8 half_cyc;
-+	u8 i2c_hold;
-+	u8 config;
-+	u8 cmd;
-+	u8 status;
-+	u8 data[MLXCPLD_I2C_DATA_REG_SZ];
-+};
-+
-+/**
-+ * mlxcpld_i2c_curr_transf - current transaction parameters:
-+ * @cmd - command
-+ * @addr_width - address width
-+ * @data_len - data length
-+ * @cmd - command register
-+ * @msg_num - message number
-+ * @msg - pointer to message buffer
-+**/
-+struct mlxcpld_i2c_curr_transf {
-+	u8 cmd;
-+	u8 addr_width;
-+	u8 data_len;
-+	u8 msg_num;
-+	struct i2c_msg *msg;
-+};
-+
-+/**
-+ * mlxcpld_i2c_priv - private controller data:
-+ * @lpc_gen_dec_reg - register space
-+ * @adap - i2c adapter
-+ * @dev_id - device id
-+ * @base_addr - base IO address
-+ * @poll_time - polling time
-+ * @xfer_to - transfer timeout in microsec (500000)
-+ * @retr_num - access retries number (2)
-+ * @block_sz - maximum data block size (36),
-+ * @lock - bus access lock
-+ * @lpc_i2c_res - lpc i2c resourse
-+ * @lpc_cpld_res - lpc cpld resource
-+ * @xfer - current i2c transfer block
-+ * @pdev - platform device
-+**/
-+struct mlxcpld_i2c_priv {
-+	struct i2c_adapter adap;
-+	u16 dev_id;
-+	u16 base_addr;
-+	u16 poll_time;
-+	int xfer_to;
-+	int retr_num;
-+	int block_sz;
-+	struct mutex lock;
-+	struct mlxcpld_i2c_curr_transf xfer;
-+	struct platform_device *pdev;
-+};
-+struct platform_device *mlxcpld_i2c_plat_dev;
-+
-+static void mlxcpld_i2c_lpc_write_buf(u8 *data, u8 len, u32 addr)
-+{
-+	int i, nbyte, ndword;
-+
-+	nbyte = len % 4;
-+	ndword = len / 4;
-+	for (i = 0; i < ndword; i++)
-+		outl(*((u32 *)data + i), addr + i * 4);
-+	ndword *= 4;
-+	addr += ndword;
-+	data += ndword;
-+	for (i = 0; i < nbyte; i++)
-+		outb(*(data + i), addr + i);
-+}
-+
-+static void mlxcpld_i2c_lpc_read_buf(u8 *data, u8 len, u32 addr)
-+{
-+	int i, nbyte, ndword;
-+
-+	nbyte = len % 4;
-+	ndword = len / 4;
-+	for (i = 0; i < ndword; i++)
-+		*((u32 *)data + i) = inl(addr + i * 4);
-+	ndword *= 4;
-+	addr += ndword;
-+	data += ndword;
-+	for (i = 0; i < nbyte; i++)
-+		*(data + i) = inb(addr + i);
-+}
-+
-+static void mlxcpld_i2c_read_comm(struct mlxcpld_i2c_priv *priv, u8 offs,
-+				  u8 *data, u8 datalen)
-+{
-+	u32 addr = priv->base_addr + offs;
-+
-+	switch (datalen) {
-+	case 1:
-+		*(data) = inb(addr);
-+		break;
-+	case 2:
-+		*((u16 *)data) = inw(addr);
-+		break;
-+	case 3:
-+		*((u16 *)data) = inw(addr);
-+		*(data + 2) = inb(addr + 2);
-+		break;
-+	case 4:
-+		*((u32 *)data) = inl(addr);
-+		break;
-+	default:
-+		mlxcpld_i2c_lpc_read_buf(data, datalen, addr);
-+		break;
-+	}
-+}
-+
-+static void mlxcpld_i2c_write_comm(struct mlxcpld_i2c_priv *priv, u8 offs,
-+				   u8 *data, u8 datalen)
-+{
-+	u32 addr = priv->base_addr + offs;
-+
-+	switch (datalen) {
-+	case 1:
-+		outb(*(data), addr);
-+		break;
-+	case 2:
-+		outw(*((u16 *)data), addr);
-+		break;
-+	case 3:
-+		outw(*((u16 *)data), addr);
-+		outb(*(data + 2), addr + 2);
-+		break;
-+	case 4:
-+		outl(*((u32 *)data), addr);
-+		break;
-+	default:
-+		mlxcpld_i2c_lpc_write_buf(data, datalen, addr);
-+		break;
-+	}
-+}
-+
-+/* Check validity of current i2c message and all transfer.
-+ * Calculate also coomon length of all i2c messages in transfer.
-+ */
-+static int mlxcpld_i2c_invalid_len(struct mlxcpld_i2c_priv *priv,
-+				   const struct i2c_msg *msg, u8 *comm_len)
-+{
-+	u8 max_len = msg->flags == I2C_M_RD ? priv->block_sz -
-+		     MLXCPLD_I2C_MAX_ADDR_LEN : priv->block_sz;
-+
-+	if (msg->len < 0 || msg->len > max_len)
-+		return -EINVAL;
-+
-+	*comm_len += msg->len;
-+	if (*comm_len > priv->block_sz)
-+		return -EINVAL;
-+	else
-+		return 0;
-+}
-+
-+/* Check validity of received i2c messages parameters.
-+ *  Returns 0 if OK, other - in case of invalid parameters
-+ *  or common length of data that should be passed to CPLD
-+ */
-+static int mlxcpld_i2c_check_msg_params(struct mlxcpld_i2c_priv *priv,
-+					struct i2c_msg *msgs, int num,
-+					u8 *comm_len)
-+{
-+	int i;
-+
-+	if (!num) {
-+		dev_err(&priv->pdev->dev, "Incorrect 0 num of messages\n");
-+		return -EINVAL;
-+	}
-+
-+	if (unlikely(msgs[0].addr > 0x7f)) {
-+		dev_err(&priv->pdev->dev, "Invalid address 0x%03x\n",
-+			msgs[0].addr);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < num; ++i) {
-+		if (unlikely(!msgs[i].buf)) {
-+			dev_err(&priv->pdev->dev, "Invalid buf in msg[%d]\n",
-+				i);
-+			return -EINVAL;
-+		}
-+		if (unlikely(msgs[0].addr != msgs[i].addr)) {
-+			dev_err(&priv->pdev->dev, "Invalid addr in msg[%d]\n",
-+				i);
-+			return -EINVAL;
-+		}
-+		if (unlikely(mlxcpld_i2c_invalid_len(priv, &msgs[i],
-+						     comm_len))) {
-+			dev_err(&priv->pdev->dev, "Invalid len %d msg[%d], addr 0x%x, lag %u\n",
-+				msgs[i].len, i, msgs[i].addr, msgs[i].flags);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/* Check if transfer is completed and status of operation.
-+ * Returns 0 - transfer completed (both ACK or NACK),
-+ * negative - transfer isn't finished.
-+ */
-+static int mlxcpld_i2c_check_status(struct mlxcpld_i2c_priv *priv, int *status)
-+{
-+	u8 val;
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
-+
-+	if (val & MLXCPLD_LPCI2C_TRANS_END) {
-+		if (val & MLXCPLD_LPCI2C_STATUS_NACK)
-+			/* The slave is unable to accept the data. No such
-+			 * slave, command not understood, or unable to accept
-+			 * any more data.
-+			 */
-+			*status = MLXCPLD_LPCI2C_NACK_IND;
-+		else
-+			*status = MLXCPLD_LPCI2C_ACK_IND;
-+		return 0;
-+	}
-+	*status = MLXCPLD_LPCI2C_NO_IND;
-+
-+	return -EIO;
-+}
-+
-+static void mlxcpld_i2c_set_transf_data(struct mlxcpld_i2c_priv *priv,
-+					struct i2c_msg *msgs, int num,
-+					u8 comm_len)
-+{
-+	priv->xfer.msg = msgs;
-+	priv->xfer.msg_num = num;
-+
-+	/* All upper layers currently are never use transfer with more than
-+	 * 2 messages. Actually, it's also not so relevant in Mellanox systems
-+	 * because of HW limitation. Max size of transfer is o more than 20B
-+	 * in current x86 LPCI2C bridge.
-+	 */
-+	priv->xfer.cmd = (msgs[num - 1].flags & I2C_M_RD);
-+
-+	if (priv->xfer.cmd == I2C_M_RD) {
-+		if (comm_len == msgs[0].len) {
-+			/* Special case of addr_width = 0 */
-+			priv->xfer.addr_width = 0;
-+			priv->xfer.data_len = comm_len;
-+		} else {
-+			priv->xfer.addr_width = msgs[0].len;
-+			priv->xfer.data_len = comm_len - priv->xfer.addr_width;
-+		}
-+	} else {
-+		/* Width (I2C_NUM_ADDR reg) isn't used in write command. */
-+		priv->xfer.addr_width = 0;
-+		priv->xfer.data_len = comm_len;
-+	}
-+}
-+
-+/* Reset CPLD LPCI2C block */
-+static void mlxcpld_i2c_reset(struct mlxcpld_i2c_priv *priv)
-+{
-+	u8 val;
-+
-+	mutex_lock(&priv->lock);
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
-+	val &= ~MLXCPLD_LPCI2C_RST_SEL_MASK;
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
-+	mutex_unlock(&priv->lock);
-+}
-+
-+/* Make sure the CPLD is ready to start transmitting.
-+ * Return 0 if it is, -EBUSY if it is not.
-+ */
-+static int mlxcpld_i2c_check_busy(struct mlxcpld_i2c_priv *priv)
-+{
-+	u8 val;
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
-+
-+	if (val & MLXCPLD_LPCI2C_TRANS_END)
-+		return 0;
-+
-+	return -EIO;
-+}
-+
-+static int mlxcpld_i2c_wait_for_free(struct mlxcpld_i2c_priv *priv)
-+{
-+	int timeout = 0;
-+
-+	do {
-+		if (!mlxcpld_i2c_check_busy(priv))
-+			break;
-+		usleep_range(priv->poll_time/2, priv->poll_time);
-+		timeout += priv->poll_time;
-+	} while (timeout < priv->xfer_to);
-+
-+	if (timeout > priv->xfer_to)
-+		return -ETIMEDOUT;
-+
-+	return 0;
-+}
-+
-+/* Wait for master transfer to complete.
-+ * It puts current process to sleep until we get interrupt or timeout expires.
-+ * Returns the number of transferred or read bytes or error (<0).
-+ */
-+
-+static int mlxcpld_i2c_wait_for_tc(struct mlxcpld_i2c_priv *priv)
-+{
-+	int status, i = 1, timeout = 0;
-+	u8 datalen;
-+	int err = 0;
-+
-+	do {
-+		usleep_range(priv->poll_time / 2, priv->poll_time);
-+		if (!mlxcpld_i2c_check_status(priv, &status))
-+			break;
-+		timeout += priv->poll_time;
-+	} while (status == 0 && timeout < priv->xfer_to);
-+
-+	switch (status) {
-+	case MLXCPLD_LPCI2C_NO_IND:
-+		return -ETIMEDOUT;
-+	case MLXCPLD_LPCI2C_ACK_IND:
-+		if (priv->xfer.cmd == I2C_M_RD) {
-+			/* Actual read data len will be always the same as
-+			 * requested len. 0xff (line pull-up) will be returned
-+			 * if slave has no data to return. Thus don't read
-+			 * MLXCPLD_LPCI2C_NUM_DAT_REG reg from CPLD.
-+			 */
-+			err = datalen = priv->xfer.data_len;
-+			if (priv->xfer.msg_num == 1)
-+				i = 0;
-+
-+			if (!priv->xfer.msg[i].buf)
-+				err = -EINVAL;
-+			else
-+				mlxcpld_i2c_read_comm(priv,
-+						      MLXCPLD_LPCI2C_DATA_REG,
-+						      priv->xfer.msg[i].buf,
-+						      datalen);
-+		} else {
-+			err = priv->xfer.addr_width + priv->xfer.data_len;
-+		}
-+		break;
-+	case MLXCPLD_LPCI2C_NACK_IND:
-+		err = -EAGAIN;
-+		break;
-+	case MLXCPLD_LPCI2C_ERR_IND:
-+		err = -EIO;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return err;
-+}
-+
-+static void mlxcpld_i2c_xfer_msg(struct mlxcpld_i2c_priv *priv)
-+{
-+	int i, len = 0;
-+	u8 cmd;
-+
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_DAT_REG,
-+			       &priv->xfer.data_len, 1);
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_ADDR_REG,
-+			       &priv->xfer.addr_width, 1);
-+
-+	for (i = 0; i < priv->xfer.msg_num; i++) {
-+		if ((priv->xfer.msg[i].flags & I2C_M_RD) != I2C_M_RD) {
-+			/* Don't write to CPLD buffer in read transaction */
-+			mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_DATA_REG +
-+					       len, priv->xfer.msg[i].buf,
-+					       priv->xfer.msg[i].len);
-+			len += priv->xfer.msg[i].len;
-+		}
-+	}
-+
-+	/* Set target slave address with command for master transfer.
-+	 * It should be latest executed function before CPLD transaction.
-+	 */
-+	cmd = (priv->xfer.msg[0].addr << 1) | priv->xfer.cmd;
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CMD_REG, &cmd, 1);
-+}
-+
-+/* Generic lpc-i2c transfer.
-+ * Returns the number of processed messages or error (<0).
-+ */
-+static int mlxcpld_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			    int num)
-+{
-+	struct mlxcpld_i2c_priv *priv = i2c_get_adapdata(adap);
-+	u8 comm_len = 0;
-+	int err;
-+
-+	err = mlxcpld_i2c_check_msg_params(priv, msgs, num, &comm_len);
-+	if (err) {
-+		dev_err(&priv->pdev->dev, "Incorrect message\n");
-+		return err;
-+	}
-+
-+	/* Check bus state */
-+	if (mlxcpld_i2c_wait_for_free(priv)) {
-+		dev_err(&priv->pdev->dev, "LPCI2C bridge is busy\n");
-+
-+		/* Usually it means something serious has happened.
-+		 * We *cannot* have unfinished previous transfer
-+		 * so it doesn't make any sense to try to stop it.
-+		 * Probably we were not able to recover from the
-+		 * previous error.
-+		 * The only *reasonable* thing is soft reset.
-+		 */
-+		mlxcpld_i2c_reset(priv);
-+		if (mlxcpld_i2c_check_busy(priv)) {
-+			dev_err(&priv->pdev->dev, "LPCI2C bridge is busy after reset\n");
-+			return -EIO;
-+		}
-+	}
-+
-+	mlxcpld_i2c_set_transf_data(priv, msgs, num, comm_len);
-+
-+	mutex_lock(&priv->lock);
-+	/* Do real transfer. Can't fail */
-+	mlxcpld_i2c_xfer_msg(priv);
-+	/* Wait for transaction complete */
-+	err = mlxcpld_i2c_wait_for_tc(priv);
-+	mutex_unlock(&priv->lock);
-+
-+	return err < 0 ? err : num;
-+}
-+
-+static u32 mlxcpld_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
-+}
-+
-+static const struct i2c_algorithm mlxcpld_i2c_algo = {
-+	.master_xfer	= mlxcpld_i2c_xfer,
-+	.functionality	= mlxcpld_i2c_func
-+};
-+
-+static int __init mlxcpld_i2c_init(void)
-+{
-+	struct mlxcpld_i2c_priv *priv;
-+	struct i2c_adapter *adap;
-+	struct device *dev;
-+	int err;
-+
-+	mlxcpld_i2c_plat_dev = platform_device_alloc(MLXCPLD_I2C_DEVICE_NAME,
-+						     -1);
-+	if (!mlxcpld_i2c_plat_dev) {
-+		pr_err("Alloc %s platform device failed\n",
-+			MLXCPLD_I2C_DEVICE_NAME);
-+		return -ENOMEM;
-+	}
-+
-+	err = platform_device_add(mlxcpld_i2c_plat_dev);
-+	if (err) {
-+		pr_err("Add %s platform device failed (%d)\n",
-+			MLXCPLD_I2C_DEVICE_NAME, err);
-+		goto fail_platform_device_add;
-+	}
-+	dev = &mlxcpld_i2c_plat_dev->dev;
-+
-+	priv = devm_kzalloc(dev, sizeof(struct mlxcpld_i2c_priv), GFP_KERNEL);
-+	if (!priv) {
-+		err = -ENOMEM;
-+		dev_err(dev, "Failed to allocate mlxcpld_i2c_priv\n");
-+		goto fail_alloc;
-+	}
-+
-+	mutex_init(&priv->lock);
-+	platform_set_drvdata(mlxcpld_i2c_plat_dev, priv);
-+	priv->pdev = mlxcpld_i2c_plat_dev;
-+	priv->xfer_to = MLXCPLD_I2C_XFER_TO;
-+	priv->retr_num = MLXCPLD_I2C_RETR_NUM;
-+	priv->block_sz = MLXCPLD_I2C_DATA_REG_SZ;
-+	priv->poll_time = MLXCPLD_I2C_POLL_TIME;
-+	/* Register with i2c layer */
-+	adap = &priv->adap;
-+	adap->dev.parent = &mlxcpld_i2c_plat_dev->dev;
-+	snprintf(adap->name, sizeof(adap->name), "%s bridge controller",
-+		 MLXCPLD_I2C_DEVICE_NAME);
-+	strlcpy(adap->name, MLXCPLD_I2C_DEVICE_NAME, sizeof(adap->name));
-+	i2c_set_adapdata(adap, priv);
-+	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
-+	adap->algo = &mlxcpld_i2c_algo;
-+	adap->retries = priv->retr_num;
-+	adap->nr = MLXCPLD_I2C_BUS_NUM;
-+	adap->timeout = usecs_to_jiffies(priv->xfer_to);
-+
-+	err = i2c_add_numbered_adapter(adap);
-+	if (err) {
-+		dev_err(dev, "Failed to add %s adapter (%d)\n",
-+			MLXCPLD_I2C_DEVICE_NAME, err);
-+		goto fail_adapter;
-+	}
-+
-+	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADRR;
-+
-+	return 0;
-+
-+fail_adapter:
-+	mutex_destroy(&priv->lock);
-+fail_alloc:
-+	platform_device_del(mlxcpld_i2c_plat_dev);
-+fail_platform_device_add:
-+	platform_device_put(mlxcpld_i2c_plat_dev);
-+	return err;
-+}
-+
-+static void __exit mlxcpld_i2c_exit(void)
-+{
-+	struct mlxcpld_i2c_priv *priv;
-+
-+	priv = platform_get_drvdata(mlxcpld_i2c_plat_dev);
-+	i2c_del_adapter(&priv->adap);
-+	mutex_destroy(&priv->lock);
-+	platform_device_del(mlxcpld_i2c_plat_dev);
-+	platform_device_put(mlxcpld_i2c_plat_dev);
-+}
-+
-+module_init(mlxcpld_i2c_init);
-+module_exit(mlxcpld_i2c_exit);
-+
-+MODULE_AUTHOR("Michael Shych (michaels@mellanox.com)");
-+MODULE_DESCRIPTION("Mellanox I2C-CPLD controller driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:i2c-mlxcpld");
--- 
-2.1.4
+> Connectivity schema.
+> i2c-mlxcpld                                 Digital               Analog
+> driver
+> *--------*                                 * -> mux1 (virt bus2) -> mux -> |
+> | I2CLPC | i2c physical                    * -> mux2 (virt bus3) -> mux -> |
+> | bridge | bus 1                 *---------*                               |
+> | logic  |---------------------> * mux reg *                               |
+> | in CPLD|                       *---------*                               |
+> *--------*   i2c-mux-mlxpcld          ^    * -> muxn (virt busn) -> mux -> |
+>     |        driver                   |                                    |
+>     |        *---------------*        |                              Devices
+>     |        * CPLD (LPC bus)* select |
+>     |        * registers for *--------*
+>     |        * mux selection * deselect
+>     |        *---------------*
+>     |                 |
+> <-------->     <----------->
+> i2c cntrl      Board cntrl reg
+> reg space      space (mux select,
+>     |          IO, LED, WD, info)
+>     |                 |                  *-----*   *-----*
+>     *------------- LPC bus --------------| PCH |---| CPU |
+>                                          *-----*   *-----*
+> 
+> i2c-mux-mlxpcld does not necessary required i2c-mlxcpld. It can be use along
+> with another bus driver, and still control i2c routing through CPLD mux
+> selection, in case the system is equipped with CPLD capable of mux selection
+> control.
+> 
+> The Kconfig currently controlling compilation of this code is:
+> drivers/i2c/muxes/Kconfig:config I2C_MUX_MLXCPLD
+> 
+> Signed-off-by: Michael Shych <michaelsh@mellanox.com>
+> Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+> Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+> ---
+>  drivers/i2c/muxes/Kconfig           |  11 ++
+>  drivers/i2c/muxes/Makefile          |   1 +
+>  drivers/i2c/muxes/i2c-mux-mlxcpld.c | 352 ++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c/mlxcpld.h         |  67 +++++++
+>  4 files changed, 431 insertions(+)
+>  create mode 100644 drivers/i2c/muxes/i2c-mux-mlxcpld.c
+>  create mode 100644 include/linux/i2c/mlxcpld.h
+> 
+> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+> index e280c8e..b7ab144 100644
+> --- a/drivers/i2c/muxes/Kconfig
+> +++ b/drivers/i2c/muxes/Kconfig
+> @@ -81,4 +81,15 @@ config I2C_DEMUX_PINCTRL
+>  	  demultiplexer that uses the pinctrl subsystem. This is useful if you
+>  	  want to change the I2C master at run-time depending on features.
+>  
+> +config I2C_MUX_MLXCPLD
+> +        tristate "Mellanox CPLD based I2C multiplexer"
+> +        help
+> +          If you say yes to this option, support will be included for a
+> +          CPLD based I2C multiplexer. This driver provides access to
+> +          I2C busses connected through a MUX, which is controlled
+> +          by a CPLD registers.
+> +
+> +          This driver can also be built as a module.  If so, the module
+> +          will be called i2c-mux-mlxcpld.
+> +
+>  endmenu
+> diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+> index 7c267c2..e5c990e 100644
+> --- a/drivers/i2c/muxes/Makefile
+> +++ b/drivers/i2c/muxes/Makefile
+> @@ -10,5 +10,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
+>  obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
+>  obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
+>  obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
+> +obj-$(CONFIG_I2C_MUX_MLXCPLD)	+= i2c-mux-mlxcpld.o
+>  
+>  ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+> diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
+> new file mode 100644
+> index 0000000..ae860de
+> --- /dev/null
+> +++ b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
+> @@ -0,0 +1,352 @@
+> +/*
+> + * drivers/i2c/muxes/i2c-mux-mlxcpld.c
+> + * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
+> + * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions are met:
+> + *
+> + * 1. Redistributions of source code must retain the above copyright
+> + *    notice, this list of conditions and the following disclaimer.
+> + * 2. Redistributions in binary form must reproduce the above copyright
+> + *    notice, this list of conditions and the following disclaimer in the
+> + *    documentation and/or other materials provided with the distribution.
+> + * 3. Neither the names of the copyright holders nor the names of its
+> + *    contributors may be used to endorse or promote products derived from
+> + *    this software without specific prior written permission.
+> + *
+> + * Alternatively, this software may be distributed under the terms of the
+> + * GNU General Public License ("GPL") version 2 as published by the Free
+> + * Software Foundation.
+> + *
+> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+> + * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+> + * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+> + * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+> + * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+> + * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+> + * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+> + * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+> + * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+> + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+> + * POSSIBILITY OF SUCH DAMAGE.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/version.h>
+> +#include <linux/init.h>
+> +#include <linux/slab.h>
+> +#include <linux/device.h>
+> +#include <linux/i2c.h>
+> +#include <linux/i2c-mux.h>
+> +#include <linux/io.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/i2c/mlxcpld.h>
+> +
+> +#define CPLD_MUX_MAX_NCHANS	8
+> +#define CPLD_MUX_EXT_MAX_NCHANS	24
+
+...here, you say 8. Or 24 for some ext thingy, which is not mentioned in
+the commit message. So, what's going on? Why mess things up by mentioning
+256?
+
+> +
+> +/*
+> + * mlxcpld_mux types - kind of mux supported by driver:
+> + * @mlxcpld_mux_tor - LPC access; 8 channels/legs; select/deselect -
+> + *		      channel=first defined channel(2/10) + channel/leg
+> + * @mlxcpld_mux_mgmt - LPC access; 8 channels/legs; select/deselect  -
+> + *		       channel=1 + channel/leg
+> + * @mlxcpld_mux_mgmt_ext - LPC access; 24 channels/legs; select/deselect -
+> + *			   channel=1 + channel/leg
+> + * @mlxcpld_mux_module - I2C access; 8 channels/legs; select/deselect  -
+> + *			 channel=1 + channel/leg
+> + */
+
+Channels? Legs? If they are the same, then pick one name, and use it
+throughout. I prefer channels in that case.
+
+If you mean channels per leg, then you need to define what a leg is.
+
+> +enum mlxcpld_mux_type {
+> +	mlxcpld_mux_tor,
+> +	mlxcpld_mux_mgmt,
+> +	mlxcpld_mux_mgmt_ext,
+> +	mlxcpld_mux_module,
+> +};
+> +
+> +/* mlxcpld_mux_type - underlying physical bus, to which device is connected:
+> + * @lpc_access - LPC connected CPLD device
+> + * @i2c_access - I2C connected CPLD device
+> + */
+> +enum mlxcpld_mux_access_type {
+> +	lpc_access,
+> +	i2c_access,
+> +};
+> +
+> +/* mlxcpld_mux - mux control structure:
+> + * @type - mux type
+> + * @last_chan - last register value
+> + * @client - I2C device client
+> + */
+> +struct mlxcpld_mux {
+> +	enum mlxcpld_mux_type type;
+> +	u8 last_chan;
+> +	struct i2c_client *client;
+> +};
+> +
+> +/* mlxcpld_mux_desc - mux descriptor structure:
+> + * @nchans - number of channels
+> + * @muxtype - physical mux type (LPC or I2C)
+> + */
+> +struct mlxcpld_mux_desc {
+> +	u8 nchans;
+> +	enum mlxcpld_mux_access_type muxtype;
+> +};
+> +
+> +/* MUX logic description.
+> + * Mux selector can control 256 mux (channels), if utilized one CPLD register
+> + * (8 bits) as select register - register value specifies mux id.
+> + * Mux selector can control n*256 mux, if utilized n CPLD registers as select
+> + * registers.
+> + * The number of registers within the same CPLD can be combined to support
+> + * mux hierarchy.
+> + * This logic can be applied for LPC attached CPLD and fro I2C attached CPLD.
+> + * Driver can support different mux control logic, according to CPLD
+> + * implementation.
+> + *
+> + * Connectivity schema.
+> + *
+> + * i2c-mlxcpld                                 Digital               Analog
+> + * driver
+> + * *--------*                                 * -> mux1 (virt bus2) -> mux -> |
+> + * | I2CLPC | i2c physical                    * -> mux2 (virt bus3) -> mux -> |
+> + * | bridge | bus 1                 *---------*                               |
+> + * | logic  |---------------------> * mux reg *                               |
+> + * | in CPLD|                       *---------*                               |
+> + * *--------*   i2c-mux-mlxpcld          ^    * -> muxn (virt busn) -> mux -> |
+> + *     |        driver                   |                                    |
+> + *     |        *---------------*        |                              Devices
+> + *     |        * CPLD (LPC bus)* select |
+> + *     |        * registers for *--------*
+> + *     |        * mux selection * deselect
+> + *     |        *---------------*
+> + *     |                 |
+> + * <-------->     <----------->
+> + * i2c cntrl      Board cntrl reg
+> + * reg space      space (mux select,
+> + *     |          IO, LED, WD, info)
+> + *     |                 |                  *-----*   *-----*
+> + *     *------------- LPC bus --------------| PCH |---| CPU |
+> + *                                          *-----*   *-----*
+> + *
+> + * i2c-mux-mlxpcld does not necessary required i2c-mlxcpld. It can be use along
+> + * with another bus driver, and still control i2c routing through CPLD mux
+> + * selection, in case the system is equipped with CPLD capable of mux selection
+> + * control.
+> + */
+> +static const struct mlxcpld_mux_desc muxes[] = {
+> +	[mlxcpld_mux_tor] = {
+> +		.nchans = CPLD_MUX_MAX_NCHANS,
+> +		.muxtype = lpc_access,
+> +	},
+> +	[mlxcpld_mux_mgmt] = {
+> +		.nchans = CPLD_MUX_MAX_NCHANS,
+> +		.muxtype = lpc_access,
+> +	},
+> +	[mlxcpld_mux_mgmt_ext] = {
+> +		.nchans = CPLD_MUX_EXT_MAX_NCHANS,
+> +		.muxtype = lpc_access,
+> +	},
+> +	[mlxcpld_mux_module] = {
+> +		.nchans = CPLD_MUX_MAX_NCHANS,
+> +		.muxtype = i2c_access,
+> +	},
+> +};
+> +
+> +static const struct i2c_device_id mlxcpld_mux_id[] = {
+> +	{ "mlxcpld_mux_tor", mlxcpld_mux_tor },
+> +	{ "mlxcpld_mux_mgmt", mlxcpld_mux_mgmt },
+> +	{ "mlxcpld_mux_mgmt_ext", mlxcpld_mux_mgmt_ext },
+> +	{ "mlxcpld_mux_module", mlxcpld_mux_module },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, mlxcpld_mux_id);
+> +
+> +/* Write to mux register. Don't use i2c_transfer() and
+> + * i2c_smbus_xfer() for this as they will try to lock adapter a second time
+> + */
+> +static int mlxcpld_mux_reg_write(struct i2c_adapter *adap,
+> +				 struct i2c_client *client, u8 val,
+> +				 enum mlxcpld_mux_access_type muxtype)
+> +{
+> +	struct mlxcpld_mux_platform_data *pdata =
+> +						dev_get_platdata(&client->dev);
+> +	int ret = -ENODEV;
+> +
+> +	switch (muxtype) {
+> +	case lpc_access:
+> +		outb(val, pdata->addr); /* addr = CPLD base + offset */
+> +		ret = 1;
+> +		break;
+> +
+> +	case i2c_access:
+> +		if (adap->algo->master_xfer) {
+> +			struct i2c_msg msg;
+> +			u8 msgbuf[] = {pdata->sel_reg_addr, val};
+
+You assume there is pdata for all muxes connected via i2c. Is that
+certain?
+
+> +
+> +			msg.addr = pdata->addr;
+> +			msg.flags = 0;
+> +			msg.len = 2;
+> +			msg.buf = msgbuf;
+> +			return adap->algo->master_xfer(adap, &msg, 1);
+> +		}
+> +		dev_err(&client->dev, "SMBus isn't supported on this adapter\n");
+> +		break;
+> +
+> +	default:
+> +		dev_err(&client->dev, "Incorrect muxtype %d\n", muxtype);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
+> +{
+> +	struct mlxcpld_mux *data = i2c_mux_priv(muxc);
+> +	struct i2c_client *client = data->client;
+> +	struct mlxcpld_mux_platform_data *pdata =
+> +						dev_get_platdata(&client->dev);
+> +	const struct mlxcpld_mux_desc *mux = &muxes[data->type];
+> +	u8 regval;
+> +	int err;
+> +
+> +	switch (data->type) {
+> +	case mlxcpld_mux_tor:
+> +		regval = pdata->first_channel + chan;
+
+You assume that there is pdata for all muxes of type mlxcpld_mux_tor. Is
+that certain?
+
+> +		break;
+> +
+> +	case mlxcpld_mux_mgmt:
+> +	case mlxcpld_mux_mgmt_ext:
+> +	case mlxcpld_mux_module:
+> +		regval = chan + 1;
+> +		break;
+> +
+> +	default:
+> +		return -ENXIO;
+> +	}
+> +
+> +	/* Only select the channel if its different from the last channel */
+> +	if (data->last_chan != regval) {
+> +		err = mlxcpld_mux_reg_write(muxc->parent, client, regval,
+> +					    mux->muxtype);
+
+You are not making use of err, and you then set last_chan as if no
+error could ever occur. Is that a problem?
+
+> +		data->last_chan = regval;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int mlxcpld_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
+> +{
+> +	struct mlxcpld_mux *data = i2c_mux_priv(muxc);
+> +	struct i2c_client *client = data->client;
+> +	const struct mlxcpld_mux_desc *mux = &muxes[data->type];
+> +
+> +	/* Deselect active channel */
+> +	data->last_chan = 0;
+> +
+> +	return mlxcpld_mux_reg_write(muxc->parent, client, data->last_chan,
+> +				     mux->muxtype);
+> +}
+> +
+> +/* I2C init/probing/exit functions */
+> +static int mlxcpld_mux_probe(struct i2c_client *client,
+> +			     const struct i2c_device_id *id)
+> +{
+> +	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+> +	struct mlxcpld_mux_platform_data *pdata =
+> +						dev_get_platdata(&client->dev);
+> +	struct i2c_mux_core *muxc;
+> +	int num, force;
+> +	u8 nchans;
+> +	struct mlxcpld_mux *data;
+> +	int err;
+> +
+> +	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
+> +		return -ENODEV;
+> +
+> +	switch (id->driver_data) {
+> +	case mlxcpld_mux_tor:
+> +	case mlxcpld_mux_mgmt:
+> +	case mlxcpld_mux_mgmt_ext:
+> +	case mlxcpld_mux_module:
+> +		nchans = muxes[id->driver_data].nchans;
+> +		break;
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +
+> +	muxc = i2c_mux_alloc(adap, &client->dev, nchans, sizeof(*data), 0,
+> +			     mlxcpld_mux_select_chan, mlxcpld_mux_deselect);
+> +	if (!muxc)
+> +		return -ENOMEM;
+> +
+> +	data = i2c_mux_priv(muxc);
+> +	i2c_set_clientdata(client, muxc);
+> +	data->client = client;
+> +	data->type = id->driver_data;
+> +	data->last_chan = 0; /* force the first selection */
+> +
+> +	/* Only in mlxcpld_mux_tor first_channel can be different.
+> +	 * In other mlxcpld_mux types channel numbering begin from 1
+> +	 * Now create an adapter for each channel
+> +	 */
+> +	for (num = 0; num < muxes[data->type].nchans; num++) {
+> +		force = 0; /* dynamic adap number */
+> +		if (pdata) {
+> +			if (num < pdata->num_modes)
+> +				force = pdata->first_channel + num;
+
+It looks as if you, as soon as pdata is supplied, tie the adapter
+number to the needed register value to select the mux channel.
+That's not good. At all.
+
+Looks like you need to dig into pdata->modes[num].adap_id
+
+> +			else
+> +				/* discard unconfigured channels */
+> +				break;
+> +		}
+> +
+> +		err = i2c_mux_add_adapter(muxc, force, num, 0);
+> +		if (err) {
+> +			dev_err(&client->dev, "failed to register multiplexed adapter %d as bus %d\n",
+> +				num, force);
+> +			goto virt_reg_failed;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +
+> +virt_reg_failed:
+> +	i2c_mux_del_adapters(muxc);
+> +	return err;
+> +}
+> +
+> +static int mlxcpld_mux_remove(struct i2c_client *client)
+> +{
+> +	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+> +
+> +	i2c_mux_del_adapters(muxc);
+> +	return 0;
+> +}
+> +
+> +static struct i2c_driver mlxcpld_mux_driver = {
+> +	.driver		= {
+> +		.name	= "mlxcpld-mux",
+> +		.owner	= THIS_MODULE,
+
+.owner is not needed.
+
+> +	},
+> +	.probe		= mlxcpld_mux_probe,
+> +	.remove		= mlxcpld_mux_remove,
+> +	.id_table	= mlxcpld_mux_id,
+> +};
+> +
+
+Replace from here...
+
+> +static int __init mlxcpld_mux_init(void)
+> +{
+> +	return i2c_add_driver(&mlxcpld_mux_driver);
+> +}
+> +
+> +static void __exit mlxcpld_mux_exit(void)
+> +{
+> +	i2c_del_driver(&mlxcpld_mux_driver);
+> +}
+> +
+> +module_init(mlxcpld_mux_init);
+> +module_exit(mlxcpld_mux_exit);
+
+...to here, with
+
+module_i2c_driver(mlxcpld_mux_driver);
+
+> +
+> +MODULE_AUTHOR("Michael Shych (michaels@mellanox.com)");
+> +MODULE_DESCRIPTION("Mellanox I2C-CPLD-MUX driver");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_ALIAS("platform:i2c-mux-mlxcpld");
+> diff --git a/include/linux/i2c/mlxcpld.h b/include/linux/i2c/mlxcpld.h
+> new file mode 100644
+> index 0000000..cc3236e
+> --- /dev/null
+> +++ b/include/linux/i2c/mlxcpld.h
+> @@ -0,0 +1,67 @@
+> +/*
+> + * mlxcpld.h - Mellanox I2C multiplexer support in CPLD
+> + *
+> + * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
+> + * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions are met:
+> + *
+> + * 1. Redistributions of source code must retain the above copyright
+> + *    notice, this list of conditions and the following disclaimer.
+> + * 2. Redistributions in binary form must reproduce the above copyright
+> + *    notice, this list of conditions and the following disclaimer in the
+> + *    documentation and/or other materials provided with the distribution.
+> + * 3. Neither the names of the copyright holders nor the names of its
+> + *    contributors may be used to endorse or promote products derived from
+> + *    this software without specific prior written permission.
+> + *
+> + * Alternatively, this software may be distributed under the terms of the
+> + * GNU General Public License ("GPL") version 2 as published by the Free
+> + * Software Foundation.
+> + *
+> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+> + * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+> + * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+> + * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+> + * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+> + * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+> + * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+> + * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+> + * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+> + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+> + * POSSIBILITY OF SUCH DAMAGE.
+> + */
+> +
+> +#ifndef _LINUX_I2C_MLXCPLD_H
+> +#define _LINUX_I2C_MLXCPLD_H
+> +
+> +/* Platform data for the CPLD I2C multiplexers */
+> +
+> +/* mlxcpld_mux_platform_mode - per channel initialisation data:
+> + * @adap_id: bus number for the adapter. 0 = don't care
+> + * @deselect_on_exit: set this entry to 1, if your H/W needs deselection
+> + *		      of this channel after transaction.
+> + */
+> +struct mlxcpld_mux_platform_mode {
+> +	int adap_id;
+> +	unsigned int deselect_on_exit;
+> +};
+
+deselect_on_exit is not used anywhere...
+
+> +
+> +/* mlxcpld_mux_platform_data - per mux data, used with i2c_register_board_info
+> + * @modes - mux configuration model
+> + * @num_modes - number of adapters
+> + * @sel_reg_addr - mux select register offset in CPLD space
+> + * @first_channel - first channel to start virtual busses vector
+> + * @addr - address of mux device - set to mux select register offset on LPC
+> + *	   connected CPLDs or to I2C address on I2C conncted CPLDs
+> + */
+> +struct mlxcpld_mux_platform_data {
+> +	struct mlxcpld_mux_platform_mode *modes;
+
+...in fact, this entire member is not used at all, which makes the above
+struct mlxcpld_mux_platform_mode useless. Unless you intend to fix the
+above problem with mixing channel number with adapter number.
+
+> +	int num_modes;
+> +	int sel_reg_addr;
+> +	int first_channel;
+> +	unsigned short addr;
+> +};
+> +
+> +#endif /* _LINUX_I2C_MLXCPLD_H */
+> 
+
+I'm missing an entry in MAINTAINERS. Who will fix problems?
+I'm missing devicetree bindings. Is that not applicable?
+
+Cheers,
+Peter
