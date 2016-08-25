@@ -1,97 +1,47 @@
-From: Stephen Boyd <stephen.boyd@linaro.org>
-Subject: Re: DT connectors, thoughts
-Date: Thu, 25 Aug 2016 18:38:41 -0700
-Message-ID: <147217552167.17958.11590706771471540284@sboyd-linaro>
-References: <577ACE0D.9050700@gmail.com> <20160718142037.GS16769@voom.fritz.box>
- <CAL_JsqLkMA1VHfHpP4oCWtONWq5GeyS731r8PjjeL_DZ4u1Z_g@mail.gmail.com>
- <20160722042556.GL15941@voom.fritz.box>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2 6/8] i2c: mux: inform the i2c mux core about how it is
+ used
+Date: Thu, 25 Aug 2016 18:22:37 +0200
+Message-ID: <856c696f-b0c4-63f0-ee50-1b96556cf6e0@axentia.se>
+References: <1471268431-5148-1-git-send-email-peda@axentia.se>
+ <1471268431-5148-7-git-send-email-peda@axentia.se>
+ <20160825161900.GD2856@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160722042556.GL15941@voom.fritz.box>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Gibson <david@gibson.dropbear.id.au>, Rob Herring <robh+dt@kernel.org>
-Cc: Frank Rowand <frowand.list@gmail.com>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Mark Brown <broonie@kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>, Matt Porter <mporter@konsulko.com>, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, Marek =?utf-8?B?VmHFoXV0?= <marex@denx.de>, Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Pantelis Antoniou <panto@antoniou-consulting.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0110.outbound.protection.outlook.com ([104.47.2.110]:18432
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750734AbcHZEEI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 26 Aug 2016 00:04:08 -0400
+In-Reply-To: <20160825161900.GD2856@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Guenter Roeck <linux@roeck-us.net>, "David S. Miller" <davem@davemloft.net>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Crestez Dan Leonard <leonard.crestez@intel.com>
 
-Quoting David Gibson (2016-07-21 21:25:56)
-> On Thu, Jul 21, 2016 at 02:15:57PM -0500, Rob Herring wrote:
-> > On Mon, Jul 18, 2016 at 9:20 AM, David Gibson
-> > <david@gibson.dropbear.id.au> wrote:
-> > =
+On 2016-08-25 18:19, Wolfram Sang wrote:
+> 
+>> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+>> index 3cb8af635db5..f052c3067791 100644
+>> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+>> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+>> @@ -349,7 +349,8 @@ static int pca9541_probe(struct i2c_client *client,
+>>  	force = 0;
+>>  	if (pdata)
+>>  		force = pdata->modes[0].adap_id;
+>> -	muxc = i2c_mux_alloc(adap, &client->dev, 1, sizeof(*data), 0,
+>> +	muxc = i2c_mux_alloc(adap, &client->dev, 1, sizeof(*data),
+>> +			     I2C_MUX_ARBITRATOR,
+> 
+> Does it make sense to rename the file to i2c-arb-* somewhen then? Just
+> asking, I'll apply the patch anyhow.
 
-> > I understand how you are using i2c alias, but not the intc. It would
-> > help if the same names were not used in multiple places unless they
-> > are the same thing.
-> =
+There should be a clean branch with /only/ this series that both i2c and
+iio can share, to prevent merge problems. I said I'd make such a branch
+in the i2c-mux repo, but you are of course also welcome to provide that
+branch if you prefer...
 
-> Yes, sorry.  We have both the /soc/intc node which is the base board's
-> master interrupt controller.  Then we have the connector local 'intc'
-> alias which describes the local interrupt space for just the
-> connector.
-> =
-
-> > What does using aliases here buy us vs. just properties with a
-> > phandle?
-> =
-
-> Um.. I'm not sure what you mean.
-
-I think Rob means drop the aliases node and just have:
-
-	property =3D &phandle;
-
-In this example:
-
-	i2c =3D &i2c;
-	intc =3D &w1_irqs;
-	mmio =3D &mmio;
-
-or perhaps to have a list of phandles and names that map to them?
-
-	targets =3D <&i2c>, <&w1_irqs>, <&mmio>;
-	target-names =3D "i2c", "intc", "mmio";
-
-?
-
-> =
-
-> > >                                 mmio =3D &mmio;
-> > >                         };
-> > >                 };
-> > >         };
-> > > };
-> > >
-> > > Note that the symbols are local to the connector, and explicitly
-> > > listed, rather than including all labels in the tree.  This is to
-> > > enforce (or at the very least encourage) plugins to only access those
-> > > parts of the base tree.
-> > >
-> > > Note also the use of an interrupt nexus node contained within the
-> > > connector to control which irqs the socketed device can use.  I think
-> > > this needs some work to properly handle unit addresses, but hope
-> > > that's enough to give the rough idea.
-> > >
-> > > So, what does the thing that goes in the socket look like?  I'm
-> > > thinking some new dts syntax like this:
-> > >
-> > > /dts-v1/;
-> > >
-> > > /plugin/ foo,widget-socket {
-> > >         compatible =3D "foo,whirligig-widget";
-> > > };
-> > >
-> > > &i2c {
-> > >         whirligig-controller@... {
-> > >                 ...
-> > >                 interrupt-parent =3D <&widget-irqs>;
-> > >                 interrupts =3D <0>;
-> > >         };
-> > > };
-
-How would we support an expansion board that goes onto two
-sockets/connectors provided by the baseboard when the connectors
-"export" the same phandle aliases? From what I can tell with this design
-we'll be unable to describe a device on the expansion board that is
-wired to properties provided by the two connectors.
+Cheers,
+Peter
