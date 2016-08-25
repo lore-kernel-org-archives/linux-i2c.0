@@ -1,70 +1,79 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 5/6] i2c: tegra: Add runtime power-management support
-Date: Fri, 26 Aug 2016 00:31:31 +0200
-Message-ID: <20160825223130.GA1621@katana>
-References: <1470910620-9898-1-git-send-email-jonathanh@nvidia.com>
- <1470910620-9898-6-git-send-email-jonathanh@nvidia.com>
- <20160825192631.GA1614@katana>
- <c546ae53-005e-83d7-136d-d12a83b58549@nvidia.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [wsa:i2c/for-next 5/14] drivers/gpu/drm/drm_dp_helper.c:810:10:
+ error: 'struct i2c_adapter' has no member named 'lock_bus'; did you mean
+ 'lock_ops'?
+Date: Thu, 25 Aug 2016 22:04:58 +0200
+Message-ID: <5112628f-7061-89f9-83a6-8786c701ac36@axentia.se>
+References: <201608260342.3Jvnwngi%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <c546ae53-005e-83d7-136d-d12a83b58549-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ve1eur01on0129.outbound.protection.outlook.com ([104.47.1.129]:62189
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1756732AbcHYWjy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 25 Aug 2016 18:39:54 -0400
+In-Reply-To: <201608260342.3Jvnwngi%fengguang.wu@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: kbuild test robot <fengguang.wu@intel.com>
+Cc: kbuild-all@01.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
+On 2016-08-25 21:03, kbuild test robot wrote:
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+> head:   431f07e8b0097ded2ffb773d4ea6a797b2bc8bfe
+> commit: 24882319480379588d0cced458ed7dd670e93fc7 [5/14] i2c: move locking operations to their own struct
+> config: i386-randconfig-s0-201634 (attached as .config)
+> compiler: gcc-6 (Debian 6.1.1-9) 6.1.1 20160705
+> reproduce:
+>         git checkout 24882319480379588d0cced458ed7dd670e93fc7
+>         # save the attached .config to linux build tree
+>         make ARCH=i386 
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    drivers/gpu/drm/drm_dp_helper.c: In function 'drm_dp_aux_init':
+>>> drivers/gpu/drm/drm_dp_helper.c:810:10: error: 'struct i2c_adapter' has no member named 'lock_bus'; did you mean 'lock_ops'?
+>      aux->ddc.lock_bus = lock_bus;
+>              ^
+>>> drivers/gpu/drm/drm_dp_helper.c:811:10: error: 'struct i2c_adapter' has no member named 'trylock_bus'; did you mean 'lock_ops'?
+>      aux->ddc.trylock_bus = trylock_bus;
+>              ^
+>>> drivers/gpu/drm/drm_dp_helper.c:812:10: error: 'struct i2c_adapter' has no member named 'unlock_bus'; did you mean 'lock_ops'?
+>      aux->ddc.unlock_bus = unlock_bus;
+>              ^
+> 
+> vim +810 drivers/gpu/drm/drm_dp_helper.c
+> 
+> 4f71d0cb Dave Airlie    2014-06-04  804  	mutex_init(&aux->hw_mutex);
+> 4f71d0cb Dave Airlie    2014-06-04  805  
+> 88759686 Thierry Reding 2013-12-12  806  	aux->ddc.algo = &drm_dp_i2c_algo;
+> 88759686 Thierry Reding 2013-12-12  807  	aux->ddc.algo_data = aux;
+> 88759686 Thierry Reding 2013-12-12  808  	aux->ddc.retries = 3;
+> 88759686 Thierry Reding 2013-12-12  809  
+> 0c2f6f1a Chris Wilson   2016-06-17 @810  	aux->ddc.lock_bus = lock_bus;
+> 0c2f6f1a Chris Wilson   2016-06-17 @811  	aux->ddc.trylock_bus = trylock_bus;
+> 0c2f6f1a Chris Wilson   2016-06-17 @812  	aux->ddc.unlock_bus = unlock_bus;
+> acd8f414 Chris Wilson   2016-06-17  813  }
+> acd8f414 Chris Wilson   2016-06-17  814  EXPORT_SYMBOL(drm_dp_aux_init);
+> acd8f414 Chris Wilson   2016-06-17  815  
+> 
+> :::::: The code at line 810 was first introduced by commit
+> :::::: 0c2f6f1a561136a09c5de91889d0aa35e13f73d4 drm: Pass the drm_dp_aux->hw_mutex to i2c for its locking
+> 
+> :::::: TO: Chris Wilson <chris@chris-wilson.co.uk>
+> :::::: CC: Daniel Vetter <daniel.vetter@ffwll.ch>
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry about this, I obviously didn't know about that new user. Should
+have looked closer...
 
+Wolfram, should I send an amended patch so that you can replace this
+offender and keep things bisect-able, or do you want just a delta?
 
-> > You could have left the original 'return' instead of the 2 new ones, but
-> > you decide.
->=20
-> Yes I know, but I wanted to ensure for runtime-pm we only return 0 on
-> success. Yes clk_enable should only return 0 on success and a negative
-> error code otherwise, but I prefer this. So will leave as-is.
-
-OK.
-
->=20
-> >> -	if (tegra_i2c_flush_fifos(i2c_dev))
-> >> -		err =3D -ETIMEDOUT;
-> >> +	err =3D tegra_i2c_flush_fifos(i2c_dev);
-> >=20
-> > 'err' is assigned but where is it checked?
->=20
-> It will be returned by the function. This is no different to how it
-> works today if you look at the code. I did think about checking it right
-
-I agree. I missed it before, thanks for the heads up.
-
-
---9amGYk9869ThD9tj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXv3HCAAoJEBQN5MwUoCm2Cx4QAI4XcIJA+YV8nzY/mjvuierC
-aOmdb73rJdBtYGv+f8cvWPsBtSyyFrO0lzLYqJKcdhPypB7P2EuLNxP1orFmhKDU
-m2ZNqQ2i54mUUMMrXBSXtc8RWDri3aRsi8syb67VFEzkcTLwFO9NI8U9sNeKvn/r
-7c/ewD0vwEDyqwag0FYA2W5U6jIVtoQvO6nW20tnpXxbG/9DMz4pIYbPVxLfNI3p
-uMup5Tk3gnqycET+g+FfYvHxd2SABqdD2nj5aBejLckF5yLrBPoG1LebTuYgjSEx
-ZXieMjSyz1CjGOAwsRx0f+sXsZXxwt02bhF0Ieg+e5sySRqWuR4u/WCiUeEo6oQg
-qtXo5TQEgsNYAaU3XIT3YbLTa3HIIl+xTQcKKzLweRkIpyGC8nWYFQVYtrG652eJ
-dQDn3HhxQynUih+CDcKJUasLYVtgPKhOT7SHAYqmlyLuBglwT8xFM+Jh+bcR5zsC
-J2rzo+6NX9hM/Yu125a2bhy3OhPMMA3tYWNSQOj+D6pZ+OVcBnQ4oYk+qoMXBKKg
-lzWJ5a/FSr+gp9K88orzJvQFY0ap2y+788BbkjgVfs7jmvDQ1DlievAa77BU4AoK
-tPvpk+IX7KadRkPAynbcxIoXl58vTxTDxBJlsFWBelmc/3bJRpQW5W4ZDW/YNQQ5
-SwWrhiUgVt4pDoOU1ENk
-=2a7d
------END PGP SIGNATURE-----
-
---9amGYk9869ThD9tj--
+Cheers,
+Peter
