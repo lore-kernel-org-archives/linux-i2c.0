@@ -1,69 +1,131 @@
-From: Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH] i2c: qup: skip qup_i2c_suspend if the device is already runtime suspended
-Date: Thu, 25 Aug 2016 12:23:39 +0100
-Message-ID: <1472124219-1627-1-git-send-email-sudeep.holla@arm.com>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Cc: Sudeep Holla <sudeep.holla@arm.com>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] i2c: core: put literals on one line in dev_*() calls
+Date: Thu, 25 Aug 2016 17:42:10 +0300
+Message-ID: <1472136130-98421-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:38719 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755129AbcHYOm2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 25 Aug 2016 10:42:28 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-If the i2c device is already runtime suspended, if qup_i2c_suspend is
-executed during suspend-to-idle or suspend-to-ram it will result in the
-following splat:
+It's better to have strings in the code like they appeared in the output.
 
-WARNING: CPU: 3 PID: 1593 at drivers/clk/clk.c:476 clk_core_unprepare+0x80/0x90
-Modules linked in:
-
-CPU: 3 PID: 1593 Comm: bash Tainted: G        W       4.8.0-rc3 #14
-Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-PC is at clk_core_unprepare+0x80/0x90
-LR is at clk_unprepare+0x28/0x40
-pc : [<ffff0000086eecf0>] lr : [<ffff0000086f0c58>] pstate: 60000145
-Call trace:
- clk_core_unprepare+0x80/0x90
- qup_i2c_disable_clocks+0x2c/0x68
- qup_i2c_suspend+0x10/0x20
- platform_pm_suspend+0x24/0x68
- dpm_run_callback.isra.7+0x1c/0x70
- __device_suspend+0xf4/0x298
- dpm_suspend+0x10c/0x228
- dpm_suspend_start+0x68/0x78
- suspend_devices_and_enter+0xb8/0x460
- pm_suspend+0x1ec/0x240
- state_store+0x84/0xf8
- kobj_attr_store+0x14/0x28
- sysfs_kf_write+0x48/0x58
- kernfs_fop_write+0x15c/0x1f8
- __vfs_write+0x1c/0x100
- vfs_write+0x9c/0x1b8
- SyS_write+0x44/0xa0
- el0_svc_naked+0x24/0x28
-
-This patch fixes the issue by executing qup_i2c_pm_suspend_runtime
-conditionally in qup_i2c_suspend.
-
-Cc: Andy Gross <andy.gross@linaro.org>
-Cc: David Brown <david.brown@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-qup.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core.c | 43 +++++++++++++++++++++++--------------------
+ 1 file changed, 23 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 501bd15cb78e..a8497cfdae6f 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -1599,7 +1599,8 @@ static int qup_i2c_pm_resume_runtime(struct device *device)
- #ifdef CONFIG_PM_SLEEP
- static int qup_i2c_suspend(struct device *device)
- {
--	qup_i2c_pm_suspend_runtime(device);
-+	if (!pm_runtime_suspended(device))
-+		return qup_i2c_pm_suspend_runtime(device);
- 	return 0;
- }
-
---
-2.7.4
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index da3a02e..787fa7d 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -853,7 +853,7 @@ static int i2c_device_probe(struct device *dev)
+ 			status = 0;
+ 
+ 		if (status)
+-			dev_warn(&client->dev, "failed to set up wakeup irq");
++			dev_warn(&client->dev, "failed to set up wakeup irq\n");
+ 	}
+ 
+ 	dev_dbg(dev, "probe\n");
+@@ -1208,8 +1208,9 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ 	return client;
+ 
+ out_err:
+-	dev_err(&adap->dev, "Failed to register i2c client %s at 0x%02x "
+-		"(%d)\n", client->name, client->addr, status);
++	dev_err(&adap->dev,
++		"Failed to register i2c client %s at 0x%02x (%d)\n",
++		client->name, client->addr, status);
+ out_err_silent:
+ 	kfree(client);
+ 	return NULL;
+@@ -1678,8 +1679,8 @@ static int i2c_do_add_adapter(struct i2c_driver *driver,
+ 	if (driver->attach_adapter) {
+ 		dev_warn(&adap->dev, "%s: attach_adapter method is deprecated\n",
+ 			 driver->driver.name);
+-		dev_warn(&adap->dev, "Please use another way to instantiate "
+-			 "your i2c_client\n");
++		dev_warn(&adap->dev,
++			 "Please use another way to instantiate your i2c_client\n");
+ 		/* We ignore the return code; if it fails, too bad */
+ 		driver->attach_adapter(adap);
+ 	}
+@@ -2451,9 +2452,10 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	if (adap->algo->master_xfer) {
+ #ifdef DEBUG
+ 		for (ret = 0; ret < num; ret++) {
+-			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, "
+-				"len=%d%s\n", ret, (msgs[ret].flags & I2C_M_RD)
+-				? 'R' : 'W', msgs[ret].addr, msgs[ret].len,
++			dev_dbg(&adap->dev,
++				"master_xfer[%d] %c, addr=0x%02x, len=%d%s\n",
++				ret, (msgs[ret].flags & I2C_M_RD) ? 'R' : 'W',
++				msgs[ret].addr, msgs[ret].len,
+ 				(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
+ 		}
+ #endif
+@@ -2619,9 +2621,9 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+ 
+ 	/* Consistency check */
+ 	if (info.type[0] == '\0') {
+-		dev_err(&adapter->dev, "%s detection function provided "
+-			"no name for 0x%x\n", driver->driver.name,
+-			addr);
++		dev_err(&adapter->dev,
++			"%s detection function provided no name for 0x%x\n",
++			driver->driver.name, addr);
+ 	} else {
+ 		struct i2c_client *client;
+ 
+@@ -2659,9 +2661,8 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
+ 	/* Warn that the adapter lost class based instantiation */
+ 	if (adapter->class == I2C_CLASS_DEPRECATED) {
+ 		dev_dbg(&adapter->dev,
+-			"This adapter dropped support for I2C classes and "
+-			"won't auto-detect %s devices anymore. If you need it, check "
+-			"'Documentation/i2c/instantiating-devices' for alternatives.\n",
++			"This adapter dropped support for I2C classes and won't auto-detect %s devices anymore. "
++			"If you need it, check 'Documentation/i2c/instantiating-devices' for alternatives.\n",
+ 			driver->driver.name);
+ 		return 0;
+ 	}
+@@ -2677,8 +2678,9 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
+ 	temp_client->adapter = adapter;
+ 
+ 	for (i = 0; address_list[i] != I2C_CLIENT_END; i += 1) {
+-		dev_dbg(&adapter->dev, "found normal entry for adapter %d, "
+-			"addr 0x%02x\n", adap_id, address_list[i]);
++		dev_dbg(&adapter->dev,
++			"found normal entry for adapter %d, addr 0x%02x\n",
++			adap_id, address_list[i]);
+ 		temp_client->addr = address_list[i];
+ 		err = i2c_detect_address(temp_client, driver);
+ 		if (unlikely(err))
+@@ -2710,15 +2712,16 @@ i2c_new_probed_device(struct i2c_adapter *adap,
+ 	for (i = 0; addr_list[i] != I2C_CLIENT_END; i++) {
+ 		/* Check address validity */
+ 		if (i2c_check_7bit_addr_validity_strict(addr_list[i]) < 0) {
+-			dev_warn(&adap->dev, "Invalid 7-bit address "
+-				 "0x%02x\n", addr_list[i]);
++			dev_warn(&adap->dev, "Invalid 7-bit address 0x%02x\n",
++				 addr_list[i]);
+ 			continue;
+ 		}
+ 
+ 		/* Check address availability (7 bit, no need to encode flags) */
+ 		if (i2c_check_addr_busy(adap, addr_list[i])) {
+-			dev_dbg(&adap->dev, "Address 0x%02x already in "
+-				"use, not probing\n", addr_list[i]);
++			dev_dbg(&adap->dev,
++				"Address 0x%02x already in use, not probing\n",
++				addr_list[i]);
+ 			continue;
+ 		}
+ 
+-- 
+2.8.1
