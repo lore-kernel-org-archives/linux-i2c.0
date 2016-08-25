@@ -1,62 +1,213 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: Re: [PATCH 5/6] i2c: tegra: Add runtime power-management support
-Date: Thu, 25 Aug 2016 21:53:09 +0100
-Message-ID: <c546ae53-005e-83d7-136d-d12a83b58549@nvidia.com>
-References: <1470910620-9898-1-git-send-email-jonathanh@nvidia.com>
- <1470910620-9898-6-git-send-email-jonathanh@nvidia.com>
- <20160825192631.GA1614@katana>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v2] i2c: move locking operations to their own struct
+Date: Thu, 25 Aug 2016 23:07:01 +0200
+Message-ID: <1472159221-10807-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160825192631.GA1614@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0123.outbound.protection.outlook.com ([104.47.2.123]:51271
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753021AbcHYVlV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 25 Aug 2016 17:41:21 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, David Airlie <airlied@linux.ie>, Wolfram Sang <wsa@the-dreams.de>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
 
+This makes it trivial to constify them, so do that.
 
-On 25/08/16 20:26, Wolfram Sang wrote:
-> * PGP Signed by an unknown key
-> 
-> 
->> @@ -407,32 +410,39 @@ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
->>  			return ret;
->>  		}
->>  	}
->> +
->>  	ret = clk_enable(i2c_dev->div_clk);
->>  	if (ret < 0) {
->>  		dev_err(i2c_dev->dev,
->>  			"Enabling div clk failed, err %d\n", ret);
->>  		clk_disable(i2c_dev->fast_clk);
->> +		return ret;
->>  	}
->> -	return ret;
->> +
->> +	return 0;
-> 
-> You could have left the original 'return' instead of the 2 new ones, but
-> you decide.
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ drivers/gpu/drm/drm_dp_helper.c | 10 +++++++---
+ drivers/i2c/i2c-core.c          | 13 ++++++++-----
+ drivers/i2c/i2c-mux.c           | 25 ++++++++++++++++---------
+ include/linux/i2c.h             | 25 ++++++++++++++++++-------
+ 4 files changed, 49 insertions(+), 24 deletions(-)
 
-Yes I know, but I wanted to ensure for runtime-pm we only return 0 on
-success. Yes clk_enable should only return 0 on success and a negative
-error code otherwise, but I prefer this. So will leave as-is.
+Changes since v1:
 
->> -	if (tegra_i2c_flush_fifos(i2c_dev))
->> -		err = -ETIMEDOUT;
->> +	err = tegra_i2c_flush_fifos(i2c_dev);
-> 
-> 'err' is assigned but where is it checked?
+- Also fix the user in drivers/gpu (only compile-tested, but
+  it's simple enough...)
 
-It will be returned by the function. This is no different to how it
-works today if you look at the code. I did think about checking it right
-after this call and returning but then I am changing the behaviour and
-that should be another patch. I am not sure why it is like this in the
-first place, but I did not wish to introduce any different behaviour here.
+This takes care of the 0-day splat reported in:
+http://marc.info/?l=linux-i2c&m=147215193023544&w=2
 
-Cheers
-Jon
+Cheers,
+Peter
 
+diff --git a/drivers/gpu/drm/drm_dp_helper.c b/drivers/gpu/drm/drm_dp_helper.c
+index eae5ef963cb7..2bd064493ae7 100644
+--- a/drivers/gpu/drm/drm_dp_helper.c
++++ b/drivers/gpu/drm/drm_dp_helper.c
+@@ -790,6 +790,12 @@ static void unlock_bus(struct i2c_adapter *i2c, unsigned int flags)
+ 	mutex_unlock(&i2c_to_aux(i2c)->hw_mutex);
+ }
+ 
++static const struct i2c_lock_operations drm_dp_i2c_lock_ops = {
++	.lock_bus = lock_bus,
++	.trylock_bus = trylock_bus,
++	.unlock_bus = unlock_bus,
++};
++
+ /**
+  * drm_dp_aux_init() - minimally initialise an aux channel
+  * @aux: DisplayPort AUX channel
+@@ -807,9 +813,7 @@ void drm_dp_aux_init(struct drm_dp_aux *aux)
+ 	aux->ddc.algo_data = aux;
+ 	aux->ddc.retries = 3;
+ 
+-	aux->ddc.lock_bus = lock_bus;
+-	aux->ddc.trylock_bus = trylock_bus;
+-	aux->ddc.unlock_bus = unlock_bus;
++	aux->ddc.lock_ops = &drm_dp_i2c_lock_ops;
+ }
+ EXPORT_SYMBOL(drm_dp_aux_init);
+ 
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 56e50ca905ba..0bdda24a10b2 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1691,6 +1691,12 @@ static int __process_new_adapter(struct device_driver *d, void *data)
+ 	return i2c_do_add_adapter(to_i2c_driver(d), data);
+ }
+ 
++static const struct i2c_lock_operations i2c_adapter_lock_ops = {
++	.lock_bus =    i2c_adapter_lock_bus,
++	.trylock_bus = i2c_adapter_trylock_bus,
++	.unlock_bus =  i2c_adapter_unlock_bus,
++};
++
+ static int i2c_register_adapter(struct i2c_adapter *adap)
+ {
+ 	int res = -EINVAL;
+@@ -1710,11 +1716,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 		goto out_list;
+ 	}
+ 
+-	if (!adap->lock_bus) {
+-		adap->lock_bus = i2c_adapter_lock_bus;
+-		adap->trylock_bus = i2c_adapter_trylock_bus;
+-		adap->unlock_bus = i2c_adapter_unlock_bus;
+-	}
++	if (!adap->lock_ops)
++		adap->lock_ops = &i2c_adapter_lock_ops;
+ 
+ 	rt_mutex_init(&adap->bus_lock);
+ 	rt_mutex_init(&adap->mux_lock);
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 764f195795e4..14741ff31041 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -263,6 +263,18 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
+ }
+ EXPORT_SYMBOL_GPL(i2c_mux_alloc);
+ 
++static const struct i2c_lock_operations i2c_mux_lock_ops = {
++	.lock_bus =    i2c_mux_lock_bus,
++	.trylock_bus = i2c_mux_trylock_bus,
++	.unlock_bus =  i2c_mux_unlock_bus,
++};
++
++static const struct i2c_lock_operations i2c_parent_lock_ops = {
++	.lock_bus =    i2c_parent_lock_bus,
++	.trylock_bus = i2c_parent_trylock_bus,
++	.unlock_bus =  i2c_parent_unlock_bus,
++};
++
+ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 			u32 force_nr, u32 chan_id,
+ 			unsigned int class)
+@@ -312,15 +324,10 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	priv->adap.retries = parent->retries;
+ 	priv->adap.timeout = parent->timeout;
+ 	priv->adap.quirks = parent->quirks;
+-	if (muxc->mux_locked) {
+-		priv->adap.lock_bus = i2c_mux_lock_bus;
+-		priv->adap.trylock_bus = i2c_mux_trylock_bus;
+-		priv->adap.unlock_bus = i2c_mux_unlock_bus;
+-	} else {
+-		priv->adap.lock_bus = i2c_parent_lock_bus;
+-		priv->adap.trylock_bus = i2c_parent_trylock_bus;
+-		priv->adap.unlock_bus = i2c_parent_unlock_bus;
+-	}
++	if (muxc->mux_locked)
++		priv->adap.lock_ops = &i2c_mux_lock_ops;
++	else
++		priv->adap.lock_ops = &i2c_parent_lock_ops;
+ 
+ 	/* Sanity check on class */
+ 	if (i2c_mux_parent_classes(parent) & class)
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index c1f60a345db7..616f67635734 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -427,6 +427,20 @@ struct i2c_algorithm {
+ };
+ 
+ /**
++ * struct i2c_lock_operations - represent I2C locking operations
++ * @lock_bus: Get exclusive access to an I2C bus segment
++ * @trylock_bus: Try to get exclusive access to an I2C bus segment
++ * @unlock_bus: Release exclusive access to an I2C bus segment
++ *
++ * The main operations are wrapped by i2c_lock_bus and i2c_unlock_bus.
++ */
++struct i2c_lock_operations {
++	void (*lock_bus)(struct i2c_adapter *, unsigned int flags);
++	int (*trylock_bus)(struct i2c_adapter *, unsigned int flags);
++	void (*unlock_bus)(struct i2c_adapter *, unsigned int flags);
++};
++
++/**
+  * struct i2c_timings - I2C timing information
+  * @bus_freq_hz: the bus frequency in Hz
+  * @scl_rise_ns: time SCL signal takes to rise in ns; t(r) in the I2C specification
+@@ -536,6 +550,7 @@ struct i2c_adapter {
+ 	void *algo_data;
+ 
+ 	/* data fields that are valid for all devices	*/
++	const struct i2c_lock_operations *lock_ops;
+ 	struct rt_mutex bus_lock;
+ 	struct rt_mutex mux_lock;
+ 
+@@ -552,10 +567,6 @@ struct i2c_adapter {
+ 
+ 	struct i2c_bus_recovery_info *bus_recovery_info;
+ 	const struct i2c_adapter_quirks *quirks;
+-
+-	void (*lock_bus)(struct i2c_adapter *, unsigned int flags);
+-	int (*trylock_bus)(struct i2c_adapter *, unsigned int flags);
+-	void (*unlock_bus)(struct i2c_adapter *, unsigned int flags);
+ };
+ #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+ 
+@@ -597,7 +608,7 @@ int i2c_for_each_dev(void *data, int (*fn)(struct device *, void *));
+ static inline void
+ i2c_lock_bus(struct i2c_adapter *adapter, unsigned int flags)
+ {
+-	adapter->lock_bus(adapter, flags);
++	adapter->lock_ops->lock_bus(adapter, flags);
+ }
+ 
+ /**
+@@ -611,7 +622,7 @@ i2c_lock_bus(struct i2c_adapter *adapter, unsigned int flags)
+ static inline int
+ i2c_trylock_bus(struct i2c_adapter *adapter, unsigned int flags)
+ {
+-	return adapter->trylock_bus(adapter, flags);
++	return adapter->lock_ops->trylock_bus(adapter, flags);
+ }
+ 
+ /**
+@@ -623,7 +634,7 @@ i2c_trylock_bus(struct i2c_adapter *adapter, unsigned int flags)
+ static inline void
+ i2c_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
+ {
+-	adapter->unlock_bus(adapter, flags);
++	adapter->lock_ops->unlock_bus(adapter, flags);
+ }
+ 
+ static inline void
 -- 
-nvpublic
+2.1.4
