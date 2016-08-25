@@ -1,53 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: rcar: use proper device with dma_mapping_error
-Date: Thu, 25 Aug 2016 18:50:17 +0200
-Message-ID: <20160825165017.GL2856@katana>
-References: <20160824091929.2082-1-wsa+renesas@sang-engineering.com>
- <20160824091929.2082-2-wsa+renesas@sang-engineering.com>
+Subject: Re: [RFC 1/1] drivers: i2c: omap: Add slave support
+Date: Thu, 25 Aug 2016 19:14:30 +0200
+Message-ID: <20160825171430.GM2856@katana>
+References: <20160525141119.14486-1-rk@ti.com>
+ <20160525141119.14486-2-rk@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="0qVF/w3MHQqLSynd"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="DXTueXWT3Da08pik"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160824091929.2082-2-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
+In-Reply-To: <20160525141119.14486-2-rk@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ravikumar Kattekola <rk@ti.com>
+Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---0qVF/w3MHQqLSynd
+--DXTueXWT3Da08pik
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 24, 2016 at 11:19:29AM +0200, Wolfram Sang wrote:
-> We must use the same device we used for mapping.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Hi,
 
-Applied to for-current, thanks!
+> The omap i2c controller (at least on dra7x devices)
+> doesn't have  start/stop (STT/STP) support for slave mode
+> so event  #5 is not implemented in the driver.
+
+I think you can deduce that. If a new {READ|WRITE}_REQUESTED slave event
+comes in when you had *_PROCESSED events before, there must have been a
+STOP on the bus inbetween.
+
+> +		if (stat & OMAP_I2C_STAT_XRDY) {
+> +			i2c_slave_event(omap->slave, I2C_SLAVE_READ_REQUESTED,
+> +					&value);
+> +			omap_i2c_write_reg(omap, OMAP_I2C_DATA_REG, value);
+> +			i2c_slave_event(omap->slave, I2C_SLAVE_READ_PROCESSED,
+> +					&value);
+
+This looks fishy. READ_REQUESTED is only sent after the address phase.
+Have you read the documentation (Documentation/i2c/slave-interface)?
+Please say if it was unclear.
+
+> +	/* As of now, We dont need all interrupts be enabled */
+> +	omap->iestate = OMAP_I2C_IE_AAS | OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY;
+
+This looks even more fishy. Are you disabling the master interrupts?
+That's a no (unless there are HW constraints). Your driver should be
+able to switch between master and slave depending on what happens on the
+bus.
+
+For more guidance, here is my talk at ELCE 2015:
+https://www.youtube.com/watch?v=JdQ21jlwb58
+
+Regards,
+
+   Wolfram
 
 
---0qVF/w3MHQqLSynd
+--DXTueXWT3Da08pik
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXvyHJAAoJEBQN5MwUoCm2DGUP/2w6GuFJ+WPQ3w7w4vxeWrbr
-wYwiVMvauN6YWzOOQXOmZPDjtLKCOH+qwOqnuC8PHUpICBroA8XMf1RbgMWl3rUf
-1yvUXnedaHiuJRHJGKcMeIiCNwlhFSg0T1p9gMbD3zpg+JUElMdG6bJzOukW7eBd
-S9ZfTi41dOrqeH0+gRaAyFgahhp/jQli0jQ2m6dBtgmo6BNFV52lnu/s9Uij1I0w
-hBQxduZdPYz/Qa96xgotkSkbC0pOJX/cHB6UwexmypWofZs1Z8t/4WHv/pe44Vbf
-FVgqVYL98QLfLGj4u/Dcp6XKBArShJ7+w9IXfuJr5Bvr52EetbjoLpRChoY0Wja4
-qLo5pK2GRCuyIYn00liP4MY/R/uMHIXxrjn0Mf49LpJPUXQtiQ5t9p2vOiiKkQ+u
-9f+kYVQEgU/Mbi9BCqJui0ZkYZJVGOp5/CRh1fAosHr7d8yjMaksEybhYOTzOl4c
-kkhiSAZcFkDU17QLfEDA5WksBEmttkXbtYsljSCj0vuUv3evjEu+h3R7FBw2mA5J
-yekfMgAhrMZk28nGi+2iWeuNb2rs35+eERQ+8U6JaGJkDEt+YZ818u7TSokZxmmk
-MJLsgP85dIGEm/ZPpE/WplgKHoc2eCAo10mEmNjI50PpADZURdVMoKjSN8JNKN0m
-p0FiuDG4WJJ6lJTKUwrA
-=z+am
+iQIcBAEBAgAGBQJXvyd2AAoJEBQN5MwUoCm28FAQAI6Z/XY7WOE8MP9oZGs9x2pf
+vmxNM50Q66Did4j94gj8UrS9tLP++3cd22Wa/NEfn3CNZR5OvImW5VAac+Yt7qXM
+R8rPuVzH00uDTO+O0KZh6eB8OqkY4zA7BzV6XthWk7eeIaqrt05pQPzcNbn0Qez2
+Dt7rgSZTDcHfldZGp1InkcG+AZ31q75WtEZamFFktxeVQsjRODRQhfdwOy21ey5J
+kCDB7seZP41YQngTaI7KRNN5LPSH6TRnMixCJsv7OGMeLaSD8YCgRT+8QS/rySng
+tMYGdL5twJlCdOCMfnodLtvCb4HRpn3MaKetTPQ1Krf/Qn+7Kg7GcMRXmeeQvvkM
+gnEKKfRg7SlGyNuaSYbRbimEFleXpnBHqRe2o+UBlV1xod29dqECSgB1tU8A2VOh
+Or6R7DeBMaxHMz/+RA12s/XvIo4RP0mr03iW8yMxWksVT+ptmhwJCtbmbwYLdx2p
+g5KxngegRAVE8nBhZtjAmnvEweQWCMb+62yyPK5mCGgWO+bbvTeOvZ11DxXzz24n
+bmlnJuSo3hMP3OlUXedftpGe41p/zPOsHxGhATrGAbGKucEI21L0EFOTpDPqVXD3
+w9ROEj+HPfQXd4X1rpjdNje3ZgPQR1OBH2y+TuSzNyUX16RvSYhjAP5jOAKBvvta
+7Zsw+HE+zhC9Yp4DLoFk
+=ReR6
 -----END PGP SIGNATURE-----
 
---0qVF/w3MHQqLSynd--
+--DXTueXWT3Da08pik--
