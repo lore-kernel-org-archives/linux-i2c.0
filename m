@@ -1,35 +1,32 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [patch 2/2] i2c: mux: mellanox: add driver
-Date: Thu, 25 Aug 2016 14:50:30 +0800
-Message-ID: <201608251408.feJ5zXcz%fengguang.wu@intel.com>
-References: <1472046988-111956-1-git-send-email-vadimp@mellanox.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/2] i2c: sh_mobile: use proper device with dma_mapping_error
+Date: Thu, 25 Aug 2016 09:59:12 +0200
+Message-ID: <CAMuHMdUsm4bH8oiTAit6cooOfH6tzzuZ8QnfbOe+1gbzrpbRDQ@mail.gmail.com>
+References: <20160824091929.2082-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1472046988-111956-1-git-send-email-vadimp@mellanox.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: kbuild-all@01.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20160824091929.2082-1-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vadim,
+On Wed, Aug 24, 2016 at 11:19 AM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> We must use the same device we used for mapping.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[auto build test WARNING on wsa/i2c/for-next]
-[also build test WARNING on v4.8-rc3 next-20160824]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-[Suggest to use git(>=2.9.0) format-patch --base=<commit> (or --base=auto for convenience) to record what (public, well-known) commit your patch series was built on]
-[Check https://git-scm.com/docs/git-format-patch for more information]
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-url:    https://github.com/0day-ci/linux/commits/vadimp-mellanox-com/i2c-add-master-driver-for-mellanox-systems/20160824-200057
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+Gr{oetje,eeting}s,
 
+                        Geert
 
-coccinelle warnings: (new ones prefixed by >>)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
->> drivers/i2c/muxes/i2c-mux-mlxcpld.c:329:3-8: No need to set .owner here. The core will do it.
-
-Please review and possibly fold the followup patch.
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
