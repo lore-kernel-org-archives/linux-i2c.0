@@ -1,59 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v8 1/3] i2c: tegra: use readx_poll_timeout after
- config_load reg programmed
-Date: Thu, 25 Aug 2016 21:39:53 +0200
-Message-ID: <20160825193952.GC1614@katana>
-References: <1464356224-10339-1-git-send-email-smohammed@nvidia.com>
- <20160619172136.GE2933@tetsubishi>
- <6d21b4bd199844e3a359cc52823045db@bgmail102.nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/8] i2c: designware: Support fast mode plus and high
+ speed
+Date: Thu, 25 Aug 2016 21:55:26 +0200
+Message-ID: <20160825195526.GD1614@katana>
+References: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="qjNfmADvan18RZcF"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="Km1U/tdNT/EmXiR1"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:46958 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752158AbcHYT4o (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 25 Aug 2016 15:56:44 -0400
 Content-Disposition: inline
-In-Reply-To: <6d21b4bd199844e3a359cc52823045db-7W72rfoJkVlxWE4FnwvcdlaTQe2KTcn/@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shardar Mohammed <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1471010574-28598-1-git-send-email-jarkko.nikula@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Weifeng Voon <weifeng.voon@intel.com>
 
 
---qjNfmADvan18RZcF
+--Km1U/tdNT/EmXiR1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On Fri, Aug 12, 2016 at 05:02:46PM +0300, Jarkko Nikula wrote:
+> Patches here were posted before for v4.8 but got dropped due merge
+> conflicts with changes coming from ACPI subsystem.
+>=20
+> http://www.spinics.net/lists/linux-i2c/msg24699.html
+> http://www.spinics.net/lists/linux-i2c/msg24857.html
+>=20
+> I promised to resend both sets together since my set doesn't have much use
+> without Weifeng's set and my patches are done on top of it.
+>=20
+> Patches 1-4/8 are same than before. Patch 5/8 had tiny conflict with the
+> ed1bf03470b8 ("i2c: designware-pci: Make bus number allocation robust")
+> because both added the DW_IC_CON_SPEED_MASK.
+>=20
+> Patches 6-7/8 are a bit larger due conflicts with the
+> commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure
+> notifications"). No changes in patch 8/8.
 
-> > > +		err =3D readx_poll_timeout(readl, i2c_dev->base + reg_offset,
-> > > +					 val, val =3D=3D 0, 1000,
-> > > +					 I2C_CONFIG_LOAD_TIMEOUT);
-> >=20
-> > Any reason we can't use readl_poll_timeout() here?
-> [Shardar] Can be used, will change and push the new patchset.
-
-Still interested? Should be an easy change, but I am reluctant to fix it
-here with no testing.
+Applied to for-next, thanks!
 
 
---qjNfmADvan18RZcF
+--Km1U/tdNT/EmXiR1
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXv0mIAAoJEBQN5MwUoCm2HUAP/j0tNGDpEUD6yWcVIKR520Xd
-9+73JrDInfS1eoBHEydw7vxyu3lMnRrK7rLmC2YaG7z2r9h0ojtYCeNqrBkvUVgs
-LjPZ64Erl2YMoXmrZgzdWJE7O/mLmK7cmeC68NdUNsopjLOz/Jd/x482zc0lYXn7
-Fl16p/eEV3fDpXRmmytMJolLDcTuZPNco6iT6RFFrc4w+6gRkzf8j8jF/xzPTkCR
-ALtixNJtVmDIGpDfc57gcgyJxHuQLN1X1Ok5ElQOuO+xE5UDdbznfB4lTANRralJ
-nxOApS/p5Vz9EDRnTjlVGrUbrSOM7aB7u0qfjG5KEFocf/udIJqXDOVtA5RksiGN
-5G8GkgrnO51P5ah0AA2KQfr6yadBVH7t6czWwWBrkalRZFjGiQAgEBdeIL6s2I1e
-TlR6vqEL7Uk/QK+w3L2Hw4GUOB5wivsobYorUJy7dOfTNy2KNAO2L1hbOZuGYKK/
-WeLpzAPxmt60ljSlbxhXz07eC9MFmedhyOyQvlyNDy2pafWqr92L5punhGAeuXKe
-UXvd+8JFKZ3Ciib13AxDLGkMSoJ0EDUxf0lvjsZI+Fknvh8kN/RIPfmjPFIwYAiH
-Y+PaTnDLFCiRBwkLEJKTm2RXILsK5fajbQF79czRl3gZ2G5SNHIapdUgVSD/DsIx
-WDAUvmtdCHXzc3jeiszm
-=WCfr
+iQIcBAEBAgAGBQJXv00tAAoJEBQN5MwUoCm2ojUQAKCt9MBDAOcrax09P0SjLnpZ
+EkSjhc4mWpArQixwohI0a53dUsQ+GLdAWCGtEW70vJYL7YEAVNAoTcfivb2zEjg1
+2KzzuyI8N4OwSDHejvvB3oEsEB2iC9hAHN1A4PHl38jY//VSerFqpHmDrBD2fYi7
+d1n8dDu67yrU+Pj318o5xQrSFDZ1XSbayt32tjZvjghoWtvDfY6mhk0qxzfy4rUj
+XK5S5Lgxo4NMX2p67XqoDMMn+gdt6iAvq3BDwMD+WYX+MXX45ALWluZG1iTazo8I
+GQMK//aIaXH3p9TaGk8nUatHTdEYP9BFmb678CyZefnJHCk25U6tbuZObkypJwHz
+2RfEAziV1hr+2f7ORL+ZqVA2e5mYEsovKKiYBSQd+Ugh7QtiaIn9/n1kOdEMZnLI
+Jewlx3eBG3gobCHNK2LX9SMe28GcyDAK0z0MoMbMdqLdbwtCsxMQmcMgQWi/wM1g
+9nRBqLPl7VoWOCZSwUUUTfJK2MYLXs1MO1flxfrd7S4vbRAgxWKnAc6UI3q7Gpv/
+i9vvfBrAFcVHuZUAKh+3WOAg/KYyD6X3gG+CbG+jlt3W/ZHjuk1AFNGJncvpxTyb
+KJJDU7bhy4HC8+mHiQDND0eU4IjZxEtSK1oUSm9ConZhctrtpUHGp+TRuyYENpfh
+VFR8Fe62RrQWMedrtjj0
+=+1BO
 -----END PGP SIGNATURE-----
 
---qjNfmADvan18RZcF--
+--Km1U/tdNT/EmXiR1--
