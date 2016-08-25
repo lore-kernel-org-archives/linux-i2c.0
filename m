@@ -1,73 +1,99 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: designware-baytrail: Fix the Kconfig dependency
- fix
-Date: Thu, 25 Aug 2016 22:24:25 +0200
-Message-ID: <20160825202425.GH1614@katana>
-References: <20160722102403.5c2d3c7e@endymion>
+Subject: Re: [PATCH v4 0/4] i2c: designware: improve performance for transfers
+Date: Thu, 25 Aug 2016 22:07:21 +0200
+Message-ID: <20160825200720.GF1614@katana>
+References: <1471990736-30190-1-git-send-email-lucas.demarchi@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="+QwZB9vYiNIzNXIj"
+        protocol="application/pgp-signature"; boundary="8JPrznbw0YAQ/KXy"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47095 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:47128 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752847AbcHYUY3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 25 Aug 2016 16:24:29 -0400
+        id S1754459AbcHYUcC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 25 Aug 2016 16:32:02 -0400
 Content-Disposition: inline
-In-Reply-To: <20160722102403.5c2d3c7e@endymion>
+In-Reply-To: <1471990736-30190-1-git-send-email-lucas.demarchi@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, "David E. Box" <david.e.box@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Randy Dunlap <rdunlap@infradead.org>
+To: Lucas De Marchi <lucas.demarchi@intel.com>
+Cc: linux-i2c@vger.kernel.org, Christian Ruppert <christian.ruppert@alitech.com>, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-kernel@vger.kernel.org
 
 
---+QwZB9vYiNIzNXIj
-Content-Type: text/plain; charset=us-ascii
+--8JPrznbw0YAQ/KXy
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 22, 2016 at 10:24:03AM +0200, Jean Delvare wrote:
-> Commit b4ad0510f5d9 ("i2c: designware-baytrail: another fixup for
-> proper Kconfig dependencies") claims that the "Baytrail driver" isn't
-> tristate. But in fact there is no such thing as a "Baytrail driver",
-> i2c-designware-baytrail is not a stand-alone driver but an optional
-> addition to the i2c-designware-platform driver, and that driver *is*
-> tristate. So there is no reason why I2C_DESIGNWARE_BAYTRAIL couldn't
-> be enabled when IOSF_MBI=3Dm, as long as I2C_DESIGNWARE_PLATFORM=3Dm too.
+On Tue, Aug 23, 2016 at 07:18:52PM -0300, Lucas De Marchi wrote:
+> Diff from v3:
 >=20
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Fixes: b4ad0510f5d9 ("i2c: designware-baytrail: another fixup for proper =
-Kconfig dependencies")
-> Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Randy Dunlap <rdunlap@infradead.org>
-> Cc: David E. Box <david.e.box@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
+>     - Fix over 80chars in one place
+>=20
+>     - Move check for adapter being able to dynamically update TAR to be d=
+one
+>       on probe time rather than init as requested by Jarkko
+>=20
+> For the previous version, Christian had added:
+>=20
+> Tested-by: Christian Ruppert <christian.ruppert@alitech.com>
+> on TB101 with Linux-4.7
+>=20
+> And Jarkko added his Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.c=
+om>
+> on patches 1 and 3 (now 4).
+>=20
+> There's a new patch #2 as a preparatory work to move the check
+> mentioned above to i2c_dw_probe().
+>=20
+> v3 of "i2c: designware: do not disable adapter after transfer". Differenc=
+es
+> are:
+>=20
+>     - Now there's a first patch that does not depend on IC_TAR being dyna=
+mically
+>       enabled/disabled: it just doesn't wait for the state change when no=
+t needed.
+>=20
+>     - We added a patch that allows detecting if HW supports the dynamic T=
+AR updates
+>=20
+>     - In the last patch the bits were changed as suggested by Jarkko.
+>=20
+>     - This is tested on BayTrail and CherryTrail, both of them returning =
+true for
+>       "dynamically update TAR"
+>=20
+> Jos=C3=A9 Roberto de Souza (1):
+>   i2c: designware: wait for disable/enable only if necessary
+>=20
+> Lucas De Marchi (3):
+>   i2c: designware: add common functions for locking
+>   i2c: designware: detect when dynamic tar update is possible
+>   i2c: designware: do not disable adapter after transfer
 
-I applied a patch from Jarkko on 19.6.2016 which also changed the
-dependencies. Not sure if it is equal to your change, but this patch
-doesn't apply anymore.
+Applied to for-next, thanks! And thanks to all reviewers and testers,
+much appreciated!
 
 
---+QwZB9vYiNIzNXIj
+--8JPrznbw0YAQ/KXy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXv1P5AAoJEBQN5MwUoCm2UgwQAK86e9INFr7NxSeoyqajPx+/
-uwhI1nGE60bdFSHbVcUId3F+kyoXry652yko+hOY7W2k7cNnA+HYiTOHrzmkrq9R
-MyTCnL20y0I08JYX8pq2imrvqsqjcOmrwR3WB9RGbw0sFLytOXyDE1FOX7CtG//c
-NIavz6lZHEZ1gOgQr1dhLWGAS978wGvBMfiShWfX2JFtFtD5pTXvPuj/v54xKVpw
-AsE2oip4v04Pfya8iax70QlVxSUhYNDKCzVCUux7UHiYd9Wgkq1pPMHCwte236KG
-4vMhOHUXbHm+FZVvaAC7FcUO/pU8O4MxO4PVPDRdkhxb4n9lr+mOx8GErmeUzNFV
-2idzkG9G5fInWW7TL0RxNEDR/fMbtbY4y7lzpnvpwFUqBzocqD2nQVIbNxR78AU4
-NJDgznIr2iCktgHhJp4iE6VHcoRq1w6xgiyZFr3SmDZ1bC4p3WaWsarq8sZwkPXw
-iILSOIHWQ8ZA6i5ihks+oFBEs83+Igxb9mZVU692+5lW5ojz0WWaEcow86Ax89gQ
-1LjSb4rgRIU7dI1ImDFZ8w/m0KmJuN6AqBmgbTI7f11U3rhtWRm07zLSCdJJ9/dw
-SJCrRDuO62YUPjmQeqXiHWXsiSboPSkUFVxGvx1omW5XZmsoMP/k3gT0vOfs6QNA
-yAVFWFz0a/GRY8Nbjf5f
-=s58A
+iQIcBAEBAgAGBQJXv0/4AAoJEBQN5MwUoCm2g5QQALJaveIqHFgKMySUNo6AfxHG
+HTZUewv685sLvjSECic1fn7uoNeDyx6poqaeStOJAPohCf7HCNd4tCTFPt6OBavP
+Or33J3BmbekvvXerStlqEa9Bqfgq36eZilPWT6NTOxf9Cb5HiWjkO7Eu3z30pa9e
+TVnBd3rkb2d07dtvPttA9s+/EGrzMSNd/47vcgNvTYnCSra0RaHV2nh0q23NrAm8
+vIIz0M01TuJsmCM0jb3MdYRvg/RWCKptG2HJ0WRfh90Wl2YYgJmht3tK+7OfhesF
+sgCqJSmuDi8gpEjT55WI6cFPEPozyTkI0PyynMXEJVAnOzE/M8gZwsMdEmsUcV0k
+K9o8Wye2bT5rWVoxHKrIrEwv5ZVwbjthCUMGdj1GMqHTNzK6DdIsX8ph0KnVB/2P
+dabSn433z73VtMunbrqpRx9yVcUiBBV5bFmZAnycYtwkQ48GuKw4U2CZb5NCvZ1W
+Htq+DH3e5ghcsfgC/b30QBpERVhV5/xukF7wErBNcs0IoXxsc2mjK0aIZZwo5A+T
+qFEB6P4vsUosHN3gq9coQNUmJwqUEQuXWKgx/NuhSwUvHN+KFRadIxdsXQLfPFeB
+ptEBK+E4M+Ph7nQKGCdxgtBAueGjmRRE6iL+kJ9h2kjeZsVQSd9qomuwnniIEDwm
+s/FxUEtDSGNzMO9eUc8n
+=bT4p
 -----END PGP SIGNATURE-----
 
---+QwZB9vYiNIzNXIj--
+--8JPrznbw0YAQ/KXy--
