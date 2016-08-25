@@ -1,57 +1,34 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] iio: gyro: Add driver for the MPU-3050 gyroscope
-Date: Fri, 26 Aug 2016 00:52:53 +0200
-Message-ID: <20160825225253.GB1621@katana>
-References: <1471286287-25074-1-git-send-email-linus.walleij@linaro.org>
- <53008712-7c50-79db-07ab-3544902887e1@kernel.org>
- <285e7c3f-eedb-28ed-f651-926260d17a8a@axentia.se>
- <CACRpkdZeomin6_u=1hm-fJucMnQmAJXu01YaC0g1KdafWPD2kg@mail.gmail.com>
- <5903e282-aaf9-9c86-5df5-17b75d5b4018@axentia.se>
+From: "Shah, Nehal-bakulchandra" <Nehal-bakulchandra.Shah@amd.com>
+Subject: Question related i2c fixed clk rate
+Date: Thu, 25 Aug 2016 17:00:31 +0000
+Message-ID: <MWHPR12MB121624883C79696F1A248570A0ED0@MWHPR12MB1216.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47771 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756521AbcHYWxN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 25 Aug 2016 18:53:13 -0400
-Content-Disposition: inline
-In-Reply-To: <5903e282-aaf9-9c86-5df5-17b75d5b4018@axentia.se>
+Received: from mail-by2nam01on0086.outbound.protection.outlook.com ([104.47.34.86]:35904
+        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1758282AbcHYXg4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 25 Aug 2016 19:36:56 -0400
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Jonathan Cameron <jic23@kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Nick Vaccaro <nvaccaro@google.com>, Ge Gao <ggao@invensense.com>, Anna Si <asi@invensense.com>, Nathan Royer <nroyer@invensense.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Crestez Dan Leonard <leonard.crestez@intel.com>, Daniel Baluta <daniel.baluta@intel.com>, Gregor Boirie <gregor.boirie@parrot.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: "linux-i2c-owner@vger.kernel.org" <linux-i2c-owner@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
+Hi,
+I am new to this. Appreciate your help for my query.
+I am working on updating i2c-designware clock rate for AMD upcoming platfor=
+m. Here new 150000000 clk rate will be supported. I want to validate this b=
+ut currently in our platform I do not have any i2c lines out. Is there any =
+tool or way to check if this is getting setup properly.
+Basically I want to change
+ .fixed_clk_rate =3D 133000000 to=20
+.fixed_clk_rate =3D 150000000 in acpi_apd.c file.
 
---z6Eq5LdranGa6ru8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> Wolfram, please merge it into i2c/for-next
-
-Pulled, thanks!
-
-
---z6Eq5LdranGa6ru8
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXv3bFAAoJEBQN5MwUoCm2PZkP/iN1bw1f7e4ZGalUxRJzf4wK
-6mt8lWLHFjZHB22gVTwOmWGXXfHYnNGjg0Uyw7fZQVuLd+1YH15M44ou3rSFi385
-ieOzozjyyacfBLTRPBnDhkE36XW2k32QsJ5/qNOpU4SU0VAITcKnj3f7sdNcPyF/
-/05fNHCARnGr8Q9VPs2PLPVc9ArbWRQ5Ie1vRqJg5FcCOmBdQ/CZ2CR2UfNMAKNZ
-vX9Zum6+o+/iynOYvjZahO17wXhp2dRygjkaYpbs6jRNZXsTfjT5Z67Yv30m0krn
-mgAnsE0W+Pdv7+RRvM06LuBJTjKOWlLLzVS3wIHBHvOPDZ6/GPcnep6IExwIXpW3
-/vK/PiWZ8I7AhwNLFFo8hgOnWuyu0XTAu4aONQWcaiRd22edZGLUp2HCk8h1zDw9
-41pBPZi52N2ckVG+a418JhJ/i6nqnAeLWuY68H+TcXYlqD7dzp9TKTcXHXXYifZN
-MvB+PK+CiIebtmc1PgmyL20ke4myaZKkRJL0pJTDhqM4oi0OCCZn+N7ihrimRUYs
-O4qMi02TcV7IbLXoR/xCWTj3ugB6xWMANU9zBdD1EKFVsFx8h6f+Bg/WQ6RKpkLx
-/+fYZik/r2YSasLguZLveVxZIrpxjBOP1JJJDYQ02Voa4guGVHFiHbvDAyyUfqNI
-E2A3rcPW7PC0ybN2s6mO
-=1dDl
------END PGP SIGNATURE-----
-
---z6Eq5LdranGa6ru8--
+--
+Nehal
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in the=
+ body of a message to majordomo@vger.kernel.org More majordomo info at  htt=
+p://vger.kernel.org/majordomo-info.html
