@@ -1,58 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 3/8] dt-bindings: i2c: add support for 'i2c-gate'
- subnode
-Date: Thu, 25 Aug 2016 18:15:25 +0200
-Message-ID: <20160825161525.GC2856@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 6/8] i2c: mux: inform the i2c mux core about how it is
+ used
+Date: Thu, 25 Aug 2016 18:19:01 +0200
+Message-ID: <20160825161900.GD2856@katana>
 References: <1471268431-5148-1-git-send-email-peda@axentia.se>
- <1471268431-5148-4-git-send-email-peda@axentia.se>
- <20160816135751.GA32704@rob-hp-laptop>
+ <1471268431-5148-7-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="f0KYrhQ4vYSV2aJu"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:45989 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751615AbcHYQRa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 25 Aug 2016 12:17:30 -0400
+        protocol="application/pgp-signature"; boundary="/3yNEOqWowh/8j+e"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20160816135751.GA32704@rob-hp-laptop>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1471268431-5148-7-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Guenter Roeck <linux@roeck-us.net>, "David S. Miller" <davem@davemloft.net>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Crestez Dan Leonard <leonard.crestez@intel.com>
 
 
---f0KYrhQ4vYSV2aJu
+--/3yNEOqWowh/8j+e
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> > +			ax8975@0c {
->=20
-> Drop the leading 0. With that,
-
-I fixed that locally.
 
 
---f0KYrhQ4vYSV2aJu
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> index 3cb8af635db5..f052c3067791 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> @@ -349,7 +349,8 @@ static int pca9541_probe(struct i2c_client *client,
+>  	force = 0;
+>  	if (pdata)
+>  		force = pdata->modes[0].adap_id;
+> -	muxc = i2c_mux_alloc(adap, &client->dev, 1, sizeof(*data), 0,
+> +	muxc = i2c_mux_alloc(adap, &client->dev, 1, sizeof(*data),
+> +			     I2C_MUX_ARBITRATOR,
+
+Does it make sense to rename the file to i2c-arb-* somewhen then? Just
+asking, I'll apply the patch anyhow.
+
+
+--/3yNEOqWowh/8j+e
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXvxmdAAoJEBQN5MwUoCm2Fj8QAKva90It2WBPM9n32XDzmmnA
-Ssyyxof2tqf84WucjNSXE/tUmTSD8YwA3ysO8WDf8dGHIen+6p/n0tinlW+CzbEU
-4+3NReOxTf8lKiFJXK3bnVX64cNHCdWxOgMYa7a08hbcfmcGIvDkk+pcKnGDPQyp
-GJ8wxWlXVXOj2d+unAXECNw10QcJN3ZBILMpkYcSJi8TN4bAArNfI7MnADRHRGo9
-MwZC+dp6jQMwkzc/EyVmyuXFXU7zF35ncBedj1iDks9RDWtr/MYOeFrddeGvfdkr
-QS5jSfeRrho8srsk3s92TI8Rt73gOg02+nW5qXGHBYOxBvTQk6PXMefrKH1fBmUf
-+uc+rYewmib0iuuROMP3APsFQUTBWK8cK3dV/a8yHy4ioG8S14ED+snD4xgeS7l0
-tSyFye8u4ENeQ1HpbzYK3l0C/S2DTLPLaj6+eEsH2CFx6OKdKii3mOnubktMnzXb
-yqqpJtYBT4Bb0j7sfCUuoEdTl3tSGg/N2K7ABnBJdIbbUiyuqLMzk5+HpnRZ/ysd
-5v5o/Rp4avmoZcGLhyE+59KL08/H1CeglklJkPRw6AB6raXuDppXFqojDcgbzORw
-eRYrnrY3OmPsxyyM3ugx7wI8kE7h90wG3rRmweYsSyK0c+h0bfrByr5ZMbx6JqV/
-h8UccqZZgWXATmg0TGGm
-=u6of
+iQIcBAEBAgAGBQJXvxp0AAoJEBQN5MwUoCm2T6wP+gKqGD73U3CEn0nIaKK2/2TS
+KJG1P7cJo0AlBzVE1zMRU5EWVnoLJSsb9Qo6WoM7OfPFiQ86clo76TZoBd9aqmnM
+EbQ8T9Sdz6ENpegp6gRLRpdgV9ANZkfnE+w+2kUFTWAfULjXssiBAKzMWJSqDd94
+S7Msovg3cDL4ZBb8B+2X+0X92Vgi0OTlWaa5sFgC21ApCqWH/nxtY+M62S2pgNQW
+n9NUjtAlK6lm+4NqijrFTfiHqBPS8mlM9TC/gt/f8w5+IPp8NkRWkSS6ec4lm45Z
+zo5ZcOty7sqU0xPtqt2Vlyc3V/2yS7bUcoqKQzlu+LT7QAVfpVQk0jjW90SyGmyT
+1vFDghOUX4YqDgzrbfrvfMvcWoAfkb+yOYlmb/aMGRi5OKjI2dhvXF5uA22tGEM5
+lxdB8RGxQV5Dw+VHL4EtJOPv43ThEWdd236ZNLWygitjo9INmLfofUn2vWDjg7sn
+r86T+aN1WOIB5gXW52jVb7avd5aouz3bfeZ7uFbYvRXcVTmudRzqWKyqmeOZIpiR
+WRgT9GTPATIfu9HxY0F1WWFo+8Bi3VWM1HrBN3ajsSOUeTmz9qhGt3F7UZ1A/L2i
+ZyBwsoEp8vufCgwAvt0DdVexNRx5+MFPjJ216OovykF+AhcmebkDdD777bR/oLiw
+xO4g0BpWVvWDAQzbn7I7
+=o7Nj
 -----END PGP SIGNATURE-----
 
---f0KYrhQ4vYSV2aJu--
+--/3yNEOqWowh/8j+e--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
