@@ -1,73 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 5/6] i2c: tegra: Add runtime power-management support
-Date: Thu, 25 Aug 2016 21:26:31 +0200
-Message-ID: <20160825192631.GA1614@katana>
-References: <1470910620-9898-1-git-send-email-jonathanh@nvidia.com>
- <1470910620-9898-6-git-send-email-jonathanh@nvidia.com>
+Subject: Re: [wsa:i2c/for-next 5/14] drivers/gpu/drm/drm_dp_helper.c:810:10:
+ error: 'struct i2c_adapter' has no member named 'lock_bus'; did you mean
+ 'lock_ops'?
+Date: Thu, 25 Aug 2016 22:13:26 +0200
+Message-ID: <20160825201326.GG1614@katana>
+References: <201608260342.3Jvnwngi%fengguang.wu@intel.com>
+ <5112628f-7061-89f9-83a6-8786c701ac36@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="8S1fMsFYqgBC+BN/"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:47050 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756501AbcHYUNe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 25 Aug 2016 16:13:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1470910620-9898-6-git-send-email-jonathanh@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <5112628f-7061-89f9-83a6-8786c701ac36@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: kbuild test robot <fengguang.wu@intel.com>, kbuild-all@01.org, linux-i2c@vger.kernel.org
 
 
---dDRMvlgZJXvWKvBx
+--8S1fMsFYqgBC+BN/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> @@ -407,32 +410,39 @@ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
->  			return ret;
->  		}
->  	}
-> +
->  	ret = clk_enable(i2c_dev->div_clk);
->  	if (ret < 0) {
->  		dev_err(i2c_dev->dev,
->  			"Enabling div clk failed, err %d\n", ret);
->  		clk_disable(i2c_dev->fast_clk);
-> +		return ret;
->  	}
-> -	return ret;
-> +
-> +	return 0;
+> Sorry about this, I obviously didn't know about that new user. Should
+> have looked closer...
 
-You could have left the original 'return' instead of the 2 new ones, but
-you decide.
+I can recommend 'id-utils' to assist you with such things. Run 'mkid'
+with every -rc1 release, then you can use 'gid <function_name>' to get
+all users of the function in no time.
 
-> -	if (tegra_i2c_flush_fifos(i2c_dev))
-> -		err = -ETIMEDOUT;
-> +	err = tegra_i2c_flush_fifos(i2c_dev);
+> Wolfram, should I send an amended patch so that you can replace this
+> offender and keep things bisect-able, or do you want just a delta?
 
-'err' is assigned but where is it checked?
+Please send an amended patch. I'll merge it into my for-next without
+rebasing then.
 
-I'll apply patches 1-4 meanwhile.
+Thanks!
 
 
---dDRMvlgZJXvWKvBx
+--8S1fMsFYqgBC+BN/
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJXv0ZnAAoJEBQN5MwUoCm2xpgQAKKeLxboWQXkRbBfKQ5LGrnB
-Xki6vDfQTqe+POe34YmxPfj5wZ+e8kyqrfPvBK6Bq35feyc6jHt6NjF4QUVkIqBm
-NPEJTI32/Y8xg/P6Ft6/FWNQtZ/wD2v2EFTUxTE+t8ody8CzHFuQETFfkXLXpb3D
-eIzdyhRV8mxXBEUCl+sBqvb9aZcz5N9pmKCTmBWP4IFZqcV0ElJ2BE0vZg8KATIU
-cSex8/9sU+nor7Ela+OSHfHrX/OCP8UlhXM6VQFVr+qFBke8HHiR6ylNp9y3b1Ga
-bC6Cufz1SA3NRdacWuuaRY0b1aDGH4ILgXPhrMHuE1aTRmHAKHZlqjTaV+YMTLH8
-7Dq4FrtTQluN4iLRfl5e0/dgxxv5oVu0sam0jphC5CDxwggLgxrTxCIsBlGcipJw
-LMkSUhRGdrBMs/nwJfPnuAa0Y5BjkeGcTAHwaA68XT0JuQ1r4c6ek1rRdnB+r7AX
-prXdv/A95XArUsZq/G2tIfMsHu0zsAkNv/7i+m4c2QysrZqT2sXJmxkvLAlc8m/K
-L6JvVg/MoQmi4c7v3I7KZxjTFQlArq2FWzFFBhEWN6jc/0BG/94cU+Bn8WgrTyoQ
-pROk9VPFchxmOh/aV7BV+006C/YTK2TYPOPSERSiVUP5kCPwC6r6+mdosz9IuR09
-c1mGDHEtvqGMajH3J6W3
-=fkit
+iQIcBAEBAgAGBQJXv1FmAAoJEBQN5MwUoCm2rk0QALPAkDPCNNgZtYhk8X/v7DKn
+NHe2Fi6gc0IHM5/gg02ywZ+OW6STx+H6U7LaOh9bpDkoJ3zRwi7Z7zT3Z+7dnCiJ
+x7pG0j7Cfcxy0wTZqZrOlv1xq3FwHwp6Qp/wYkS/gNWmsGkhS02u74PSbofY2+aw
+7E9tQ6XX3YLPjhDWrvIpPK4tvvcwVDuQV1dtrMvNqa68pcR0c2mtMG+4XtqmEnXj
+ROix1mtk34nrzDpOIg8tvOhhMqwQzsuIhqLH9NLO2fvMJnuOlJHyylkgCQkFG12m
+pG4bZhDTZux/QUyqyZNeJazIbC0EynH/m6Z10GArSSsGEglAESlyXwCt/hiKE6ET
+3lfZjJxNMBVsh0A3QeJNGs1Udxvasn2ppn8YGjOgiFH28D+mQ3M6w3K/BdhAzeP0
+NI5PMJnkG9zDkkZJ6d+fS2o95l/cgmUQBoWEQbQy7JMPMSV9aIC1KFZHSJYnXzkp
+keJb1DDpjxm7xvjbPUrDU6nDWfQNWTvLp8XzVa/yiSySyNPcVBtge66MpoafxetU
+vek9W3q6pB6vwr5qAc3YEMzs0vWlPrz0ohhEO8YsSrSjaCf6CmHvmAvoytkZJlti
+xORPaPwm/654uKXuqzESe1E5KYJ7XkKCM8SIkhxzqBPbw7hxrir8tqVNZb5ixRPW
+Nb7ioJfmz0pIL9064oTh
+=OoEa
 -----END PGP SIGNATURE-----
 
---dDRMvlgZJXvWKvBx--
+--8S1fMsFYqgBC+BN/--
