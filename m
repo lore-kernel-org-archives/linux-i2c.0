@@ -1,209 +1,108 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: [PATCH V2 8/9] i2c: tegra: Add runtime power-management support
-Date: Fri, 26 Aug 2016 14:09:04 +0100
-Message-ID: <1472216945-11818-9-git-send-email-jonathanh@nvidia.com>
-References: <1472216945-11818-1-git-send-email-jonathanh@nvidia.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c-eg20t: use dynamically registered adapter number
+Date: Fri, 26 Aug 2016 17:30:19 +0200
+Message-ID: <20160826173019.1f939ce5@endymion>
+References: <1471943158-21377-1-git-send-email-yadi.hu@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1472216945-11818-1-git-send-email-jonathanh@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:34998 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751711AbcHZPa1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 26 Aug 2016 11:30:27 -0400
+In-Reply-To: <1471943158-21377-1-git-send-email-yadi.hu@windriver.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Yadi Hu <yadi.hu@windriver.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-Update the Tegra I2C driver to use runtime PM and move the code in the
-tegra_i2c_clock_enable/disable() functions to the PM runtime resume and
-suspend callbacks, respectively.
+Hi Yadi,
 
-Note that given that CONFIG_PM is not mandatory for Tegra, if CONFIG_PM
-is not enabled and so runtime PM is not enabled, ensure that the I2C
-clocks are turned on during probe and kept on by calling the resume
-callback directly.
+On Tue, 23 Aug 2016 17:05:58 +0800, Yadi Hu wrote:
+> From: Hu Yadi <Yadi.hu@windriver.com>
+> 
+> The eg20t driver uses i2c_add_numbered_adapter() to register adapter:
+> 
+>     pch_adap->nr = i;
+>     ret = i2c_add_numbered_adapter(pch_adap);
+> 
+> Variable i is assigned to 0, it means that i2c_eg20t is the first adapter
+> by default. if another adapter registers before eg20t, above code return
+> error for index conflict:
+> 
+>     i2c_eg20t 0000:05:0c.2: pch_i2c_probe :i2c_add_adapter[ch:0] FAILED
+>     i2c_eg20t: probe of 0000:05:0c.2 failed with error -16
+> 
+> So, we can replace i2c_add_numbered_adapter() with i2c_add_adapter()
+> interface.since it dynamically allocates the index number.
 
-In the function tegra_i2c_init(), the variable 'err' does not need to be
-initialised to zero in tegra_i2c_init() because it is initialised when
-pm_runtime_get_sync() is called. Furthermore, to ensure we only return 0
-from tegra_i2c_init(), it is necessary to re-initialise 'err' to 0 after
-a successful call to pm_runtime_get_sync() because it can return a
-positive value on success. However, alternatively re-initialise 'err' by
-using the return value of the function tegra_i2c_flush_fifos() because
-it can only be 0 or -ETIMEDOUT.
+This does the exact opposite of:
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 60 ++++++++++++++++++++++++++++++++----------
- 1 file changed, 46 insertions(+), 14 deletions(-)
+commit 07e8a51ff68353e01d795cceafbac9f54c49132b
+Author: Feng Tang <feng.tang@intel.com>
+Date:   Thu Jan 12 15:38:02 2012 +0800
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 3c27012fa96c..05e34dc29d5a 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -28,6 +28,7 @@
- #include <linux/of_device.h>
- #include <linux/module.h>
- #include <linux/reset.h>
-+#include <linux/pm_runtime.h>
- 
- #include <asm/unaligned.h>
- 
-@@ -401,8 +402,9 @@ static void tegra_dvc_init(struct tegra_i2c_dev *i2c_dev)
- 	dvc_writel(i2c_dev, val, DVC_CTRL_REG1);
- }
- 
--static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
-+static int tegra_i2c_runtime_resume(struct device *dev)
- {
-+	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 	int ret;
- 
- 	if (!i2c_dev->hw->has_single_clk_source) {
-@@ -413,32 +415,39 @@ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
- 			return ret;
- 		}
- 	}
-+
- 	ret = clk_enable(i2c_dev->div_clk);
- 	if (ret < 0) {
- 		dev_err(i2c_dev->dev,
- 			"Enabling div clk failed, err %d\n", ret);
- 		clk_disable(i2c_dev->fast_clk);
-+		return ret;
- 	}
--	return ret;
-+
-+	return 0;
- }
- 
--static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
-+static int tegra_i2c_runtime_suspend(struct device *dev)
- {
-+	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-+
- 	clk_disable(i2c_dev->div_clk);
- 	if (!i2c_dev->hw->has_single_clk_source)
- 		clk_disable(i2c_dev->fast_clk);
-+
-+	return 0;
- }
- 
- static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 val;
--	int err = 0;
-+	int err;
- 	u32 clk_divisor;
- 	unsigned long timeout = jiffies + HZ;
- 
--	err = tegra_i2c_clock_enable(i2c_dev);
-+	err = pm_runtime_get_sync(i2c_dev->dev);
- 	if (err < 0) {
--		dev_err(i2c_dev->dev, "Clock enable failed %d\n", err);
-+		dev_err(i2c_dev->dev, "runtime resume failed %d\n", err);
- 		return err;
- 	}
- 
-@@ -477,8 +486,7 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 		0 << I2C_FIFO_CONTROL_RX_TRIG_SHIFT;
- 	i2c_writel(i2c_dev, val, I2C_FIFO_CONTROL);
- 
--	if (tegra_i2c_flush_fifos(i2c_dev))
--		err = -ETIMEDOUT;
-+	err = tegra_i2c_flush_fifos(i2c_dev);
- 
- 	if (i2c_dev->is_multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
- 		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
-@@ -502,7 +510,7 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 	}
- 
- err:
--	tegra_i2c_clock_disable(i2c_dev);
-+	pm_runtime_put(i2c_dev->dev);
- 	return err;
- }
- 
-@@ -677,9 +685,9 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 	if (i2c_dev->is_suspended)
- 		return -EBUSY;
- 
--	ret = tegra_i2c_clock_enable(i2c_dev);
-+	ret = pm_runtime_get_sync(i2c_dev->dev);
- 	if (ret < 0) {
--		dev_err(i2c_dev->dev, "Clock enable failed %d\n", ret);
-+		dev_err(i2c_dev->dev, "runtime resume failed %d\n", ret);
- 		return ret;
- 	}
- 
-@@ -696,7 +704,9 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 		if (ret)
- 			break;
- 	}
--	tegra_i2c_clock_disable(i2c_dev);
-+
-+	pm_runtime_put(i2c_dev->dev);
-+
- 	return ret ?: i;
- }
- 
-@@ -902,12 +912,21 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		goto unprepare_fast_clk;
- 	}
- 
-+	pm_runtime_enable(&pdev->dev);
-+	if (!pm_runtime_enabled(&pdev->dev)) {
-+		ret = tegra_i2c_runtime_resume(&pdev->dev);
-+		if (ret < 0) {
-+			dev_err(&pdev->dev, "runtime resume failed\n");
-+			goto unprepare_div_clk;
-+		}
-+	}
-+
- 	if (i2c_dev->is_multimaster_mode) {
- 		ret = clk_enable(i2c_dev->div_clk);
- 		if (ret < 0) {
- 			dev_err(i2c_dev->dev, "div_clk enable failed %d\n",
- 				ret);
--			goto unprepare_div_clk;
-+			goto disable_rpm;
- 		}
- 	}
- 
-@@ -943,6 +962,11 @@ disable_div_clk:
- 	if (i2c_dev->is_multimaster_mode)
- 		clk_disable(i2c_dev->div_clk);
- 
-+disable_rpm:
-+	pm_runtime_disable(&pdev->dev);
-+	if (!pm_runtime_status_suspended(&pdev->dev))
-+		tegra_i2c_runtime_suspend(&pdev->dev);
-+
- unprepare_div_clk:
- 	clk_unprepare(i2c_dev->div_clk);
- 
-@@ -962,6 +986,10 @@ static int tegra_i2c_remove(struct platform_device *pdev)
- 	if (i2c_dev->is_multimaster_mode)
- 		clk_disable(i2c_dev->div_clk);
- 
-+	pm_runtime_disable(&pdev->dev);
-+	if (!pm_runtime_status_suspended(&pdev->dev))
-+		tegra_i2c_runtime_suspend(&pdev->dev);
-+
- 	clk_unprepare(i2c_dev->div_clk);
- 	if (!i2c_dev->hw->has_single_clk_source)
- 		clk_unprepare(i2c_dev->fast_clk);
-@@ -997,7 +1025,11 @@ static int tegra_i2c_resume(struct device *dev)
- 	return ret;
- }
- 
--static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_suspend, tegra_i2c_resume);
-+static const struct dev_pm_ops tegra_i2c_pm = {
-+	SET_RUNTIME_PM_OPS(tegra_i2c_runtime_suspend, tegra_i2c_runtime_resume,
-+			   NULL)
-+	SET_SYSTEM_SLEEP_PM_OPS(tegra_i2c_suspend, tegra_i2c_resume)
-+};
- #define TEGRA_I2C_PM	(&tegra_i2c_pm)
- #else
- #define TEGRA_I2C_PM	NULL
+    i2c-eg20t: use i2c_add_numbered_adapter to get a fixed bus number
+
+So my understanding is that you are not supposed to register another
+i2c bus before the eg20t buses. What is the conflicting driver? Is it
+creating the buses with static number or not?
+
+Looking at
+
+commit 03bde7c31a360f814ca42101d60563b1b803dca1
+Author: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Date:   Thu Mar 12 17:17:59 2015 +0100
+
+    i2c: busses with dynamic ids should start after fixed ids for DT
+
+it could be that you need to set some OF attribute to reserve i2c bus
+numbers <= 1 for static usage. Assuming you use OF. Or is it automatic,
+Wolfram?
+
+If not, it may make sense to add a helper function exposing
+__i2c_first_dynamic_bus_num to drivers (something like
+i2c_is_dynamic_bus_num().) After all, i2c_add_numbered_adapter() mostly
+makes sense if static i2c device definitions exist. If not,
+i2c_add_adapter() is just as good. So something like:
+
+	if (i2c_is_dynamic_bus_num(i))
+		ret = i2c_add_adapter(pch_adap);
+	else {
+		pch_adap->nr = i;
+		ret = i2c_add_numbered_adapter(pch_adap);
+	}
+
+may make sense. Unless someone has a better idea.
+
+> 
+> Signed-off-by: Hu Yadi <Yadi.hu@windriver.com>
+> ---
+>  drivers/i2c/busses/i2c-eg20t.c |    3 +--
+>  1 files changed, 1 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+> index 7a51ddc..2f4c2af 100644
+> --- a/drivers/i2c/busses/i2c-eg20t.c
+> +++ b/drivers/i2c/busses/i2c-eg20t.c
+> @@ -913,8 +913,7 @@ static int __devinit pch_i2c_probe(struct pci_dev *pdev,
+>  
+>  		pch_i2c_init(&adap_info->pch_data[i]);
+>  
+> -		pch_adap->nr = i;
+> -		ret = i2c_add_numbered_adapter(pch_adap);
+> +               ret = i2c_add_adapter(pch_adap);
+
+Coding style is wrong here. Please use tabs, as ./scripts/checkpatch.pl
+tells you. Always check your patches with this script before you post
+them, thanks.
+
+>  		if (ret) {
+>  			pch_pci_err(pdev, "i2c_add_adapter[ch:%d] FAILED\n", i);
+>  			goto err_add_adapter;
+
+
 -- 
-2.1.4
+Jean Delvare
+SUSE L3 Support
