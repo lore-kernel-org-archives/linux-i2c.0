@@ -1,47 +1,38 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 6/8] i2c: mux: inform the i2c mux core about how it is
- used
-Date: Thu, 25 Aug 2016 18:22:37 +0200
-Message-ID: <856c696f-b0c4-63f0-ee50-1b96556cf6e0@axentia.se>
-References: <1471268431-5148-1-git-send-email-peda@axentia.se>
- <1471268431-5148-7-git-send-email-peda@axentia.se>
- <20160825161900.GD2856@katana>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/2] iio: gyro: Add driver for the MPU-3050 gyroscope
+Date: Fri, 26 Aug 2016 09:39:03 +0200
+Message-ID: <CACRpkdZViewtQgW4GCuOkiKthqZMvXheORmg2rc-xG1cK4S4iA@mail.gmail.com>
+References: <1471286287-25074-1-git-send-email-linus.walleij@linaro.org>
+ <53008712-7c50-79db-07ab-3544902887e1@kernel.org> <285e7c3f-eedb-28ed-f651-926260d17a8a@axentia.se>
+ <CACRpkdZeomin6_u=1hm-fJucMnQmAJXu01YaC0g1KdafWPD2kg@mail.gmail.com> <5903e282-aaf9-9c86-5df5-17b75d5b4018@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0110.outbound.protection.outlook.com ([104.47.2.110]:18432
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750734AbcHZEEI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 26 Aug 2016 00:04:08 -0400
-In-Reply-To: <20160825161900.GD2856@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5903e282-aaf9-9c86-5df5-17b75d5b4018-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Nick Vaccaro <nvaccaro-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Ge Gao <ggao-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Anna Si <asi-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Nathan Royer <nroyer-ktqnL0SqcGIj5TC/SZClsA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Gregor Boirie <gregor.boirie-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Guenter Roeck <linux@roeck-us.net>, "David S. Miller" <davem@davemloft.net>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Crestez Dan Leonard <leonard.crestez@intel.com>
 
-On 2016-08-25 18:19, Wolfram Sang wrote:
-> 
->> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
->> index 3cb8af635db5..f052c3067791 100644
->> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
->> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
->> @@ -349,7 +349,8 @@ static int pca9541_probe(struct i2c_client *client,
->>  	force = 0;
->>  	if (pdata)
->>  		force = pdata->modes[0].adap_id;
->> -	muxc = i2c_mux_alloc(adap, &client->dev, 1, sizeof(*data), 0,
->> +	muxc = i2c_mux_alloc(adap, &client->dev, 1, sizeof(*data),
->> +			     I2C_MUX_ARBITRATOR,
-> 
-> Does it make sense to rename the file to i2c-arb-* somewhen then? Just
-> asking, I'll apply the patch anyhow.
+On Thu, Aug 25, 2016 at 10:32 PM, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org> wrote:
+> On 2016-08-25 14:44, Linus Walleij wrote:
 
-There should be a clean branch with /only/ this series that both i2c and
-iio can share, to prevent merge problems. I said I'd make such a branch
-in the i2c-mux repo, but you are of course also welcome to provide that
-branch if you prefer...
+>> Then the rest is merge mechanics, dunno the best there,
+>> Jonathan can decide.
+>
+> I waited a bit for someone to scream about v4.8-rc3 being a bad base
+> for some reason, but there was only silence. I have now pushed the
+> series, and it can be pulled by anyone interested.
+>
+> Wolfram, please merge it into i2c/for-next
+>
+> Linus/Jonathan, technically you don't need all patches and can skip
+> the last three, but it seems a bit over the top to be super anal
+> about that detail...
 
-Cheers,
-Peter
+OK I'll pull this into my development branch. At least we can
+merge the bindings, whether to merge the driver this or next merge
+window (or simply apply the patch to the I2C tree!) is another issue.
+
+Yours,
+Linus Walleij
