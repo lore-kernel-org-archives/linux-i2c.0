@@ -1,40 +1,36 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: Question related i2c fixed clk rate
-Date: Fri, 26 Aug 2016 14:29:14 +0300
-Message-ID: <64363513-96c8-9ace-131f-27fc176d146b@linux.intel.com>
-References: <MWHPR12MB121624883C79696F1A248570A0ED0@MWHPR12MB1216.namprd12.prod.outlook.com>
+From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH V2 0/9] Some Tegra I2C Updates
+Date: Fri, 26 Aug 2016 14:08:56 +0100
+Message-ID: <1472216945-11818-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:5458 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752985AbcHZLeD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 26 Aug 2016 07:34:03 -0400
-In-Reply-To: <MWHPR12MB121624883C79696F1A248570A0ED0@MWHPR12MB1216.namprd12.prod.outlook.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: "Shah, Nehal-bakulchandra" <Nehal-bakulchandra.Shah@amd.com>
-Cc: "linux-i2c-owner@vger.kernel.org" <linux-i2c-owner@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ken Xue <Ken.Xue@amd.com>, Xiangliang Yu <Xiangliang.Yu@amd.com>, Wang Hongcheng <annie.wang@amd.com>
 
-Hi
+Add runtime-pm and pinctrl support for Tegra I2C driver.
 
-+ Cc AMD contacts from acpi_apd.c changelog
+The first 6 patches are trivial clean-up/simplification changes.
 
-On 08/25/2016 08:00 PM, Shah, Nehal-bakulchandra wrote:
-> Hi,
-> I am new to this. Appreciate your help for my query.
-> I am working on updating i2c-designware clock rate for AMD upcoming platform. Here new 150000000 clk rate will be supported. I want to validate this but currently in our platform I do not have any i2c lines out. Is there any tool or way to check if this is getting setup properly.
-> Basically I want to change
->  .fixed_clk_rate = 133000000 to
-> .fixed_clk_rate = 150000000 in acpi_apd.c file.
->
-I guess what you want is to have a new static struct apd_device_desc 
-descriptor in drivers/acpi/acpi_apd.c and a new entry to 
-acpi_apd_device_ids[] for your new platform.
+Changes since V1:
+- Fixed cppcheck warning reported by Wolfram
+- Added 3 more clean-up patches to fix some checkpatch issues
 
-Something like what commits b790eb20b8e4 ("ACPI / APD: Add APM X-Gene 
-ACPI I2C device support") does.
+Jon Hunter (9):
+  i2c: tegra: Fix lines over 80 characters
+  i2c: tegra: Use BIT macro
+  i2c: tegra: Fix missing blank lines after declarations
+  i2c: tegra: Add missing new line characters
+  i2c: tegra: Remove non device-tree support
+  i2c: tegra: Use device name for adapter name
+  i2c: tegra: Simplify I2C resume
+  i2c: tegra: Add runtime power-management support
+  i2c: tegra: Add pinctrl support
+
+ drivers/i2c/busses/i2c-tegra.c | 193 ++++++++++++++++++++++++-----------------
+ 1 file changed, 114 insertions(+), 79 deletions(-)
 
 -- 
-Jarkko
+2.1.4
