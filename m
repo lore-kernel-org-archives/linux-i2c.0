@@ -1,74 +1,61 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH V2 9/9] i2c: tegra: Add pinctrl support
-Date: Fri, 26 Aug 2016 10:59:57 -0600
-Message-ID: <3beaeb38-02ab-4701-0f02-4e519d750c28@wwwdotorg.org>
-References: <1472216945-11818-1-git-send-email-jonathanh@nvidia.com>
- <1472216945-11818-10-git-send-email-jonathanh@nvidia.com>
- <75609713-af41-b4a4-226e-a5cb48ceab4e@wwwdotorg.org>
- <4a650548-22f7-1841-d9a6-b6cd637ed4bd@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4a650548-22f7-1841-d9a6-b6cd637ed4bd-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Zhuo-hao Lee <zhuo-hao.lee@intel.com>
+Subject: [PATCH v1] i2c: designware: save the preset value of DW_IC_SDA_HOLD
+Date: Sat, 27 Aug 2016 15:39:30 +0800
+Message-ID: <1472283570-31471-1-git-send-email-zhuo-hao.lee@intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:24616 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750825AbcH0Hjz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 27 Aug 2016 03:39:55 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: zhuo-hao.lee@intel.com, linux-kernel@vger.kernel.org
 
-On 08/26/2016 10:38 AM, Jon Hunter wrote:
->
-> On 26/08/16 16:55, Stephen Warren wrote:
->> On 08/26/2016 07:09 AM, Jon Hunter wrote:
->>> On Tegra124/132 the pins for I2C6 are shared with the Display Port AUX
->>> (DPAUX) channel and on Tegra210 the pins for I2C4 and I2C6 are shared
->>> with DPAUX1 and DPAUX0, respectively. The multiplexing of the pins is
->>> handled by a register in the DPAUX and so the Tegra DPAUX driver has
->>> been updated to register a pinctrl device for managing these pins.
->>>
->>> The pins for these particular I2C devices are bound to the I2C device
->>> prior to probing. However, these I2C devices are in a different power
->>> partition to the DPAUX devices that own the pins. Hence, it is desirable
->>> to place the pins in the 'idle' state and allow the DPAUX power
->>> partition to switch off, when these I2C devices is not in use.
->>> Therefore, add calls to place the I2C pins in the 'default' and 'idle'
->>> states when the I2C device is runtime resumed and suspended,
->>> respectively.
->>>
->>> Please note that the pinctrl functions that set the state of the pins
->>> check to see if the devices has pins associated and will return zero
->>> if they do not. Therefore, it is safe to call these pinctrl functions
->>> even for I2C devices that do not have any pins associated.
->>
->> I think this should be handled by drivers/i2c/muxes/i2c-mux-pinctrl.c
->> instead?
->
-> I remember having a look at i2c-mux some time back, but we did not have
-> requirement to share the pins dynamically at runtime between the DPAUX
-> and I2C devices.
->
-> The pins are just configured at probe time for either the DPAUX or I2C
-> device and then with this change when we are not active we can power
-> down the pins. However, the pins are always bound to either the DPAUX or
-> I2C.
+There are several ways to set the SDA hold time for i2c controller,
+including: Device Tree, built-in device properties and ACPI. However,
+if the SDA hold time is not specified by above method, we should
+read the value, where it is preset by firmware, and save it to
+sda_hold_time. This is needed because when i2c controller enters
+runtime suspend, the DW_IC_SDA_HOLD value will be reset to chipset
+default value. And during runtime resume, i2c_dw_init will be called
+to reconfigure i2c controller. If sda_hold_time is zero, the chipset
+default hold time will be used, that will be too short for some
+platforms. Therefore, to have a better tolerance, the DW_IC_SDA_HOLD
+value should be kept by sda_hold_time.
 
-Oh, so this isn't about 1 controller accessing 2 different physical 
-buses at runtime by re-routing the SoC pinmux (which is the use-case 
-i2c-mux-pinctrl handles), but simply about power-management.
+Signed-off-by: Zhuo-hao Lee <zhuo-hao.lee@intel.com>
+---
+ drivers/i2c/busses/i2c-designware-core.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-If the I2C controller didn't need to set a different pinctrl state 
-during idle, I would say that all the pin muxing should be set up at 
-system boot time, just like every other part of the pinmux is. In that 
-case, the fact that the pins could be routed to 1 of 2 I2C controllers 
-(DPAUX0 vs. I2C4) is irrelevant to the patch; the routing is a static 
-thing anyway.
-
-Thinking some more, i2c-mux-pinctrl actually could handle this case, 
-since it does define an idle pinmux state IIRC, or at least could be 
-trivially extended to do so. That said, doing this directly in the I2C 
-driver does seem better in this case, since the use-case is power about 
-the power advantages for a single bus, rather than anything to do with 
-multiple buses.
-
-Hence I'm OK with the concept of this patch. I didn't review the code 
-though.
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index c6922b8..fcd973d 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -367,13 +367,17 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+ 
+ 	/* Configure SDA Hold Time if required */
+-	if (dev->sda_hold_time) {
+-		reg = dw_readl(dev, DW_IC_COMP_VERSION);
+-		if (reg >= DW_IC_SDA_HOLD_MIN_VERS)
++	reg = dw_readl(dev, DW_IC_COMP_VERSION);
++	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
++		if (dev->sda_hold_time) {
+ 			dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
+-		else
+-			dev_warn(dev->dev,
+-				"Hardware too old to adjust SDA hold time.");
++		} else {
++			/* Keep previous hold time setting if no one set it */
++			dev->sda_hold_time = dw_readl(dev, DW_IC_SDA_HOLD);
++		}
++	} else {
++		dev_warn(dev->dev,
++			"Hardware too old to adjust SDA hold time.\n");
+ 	}
+ 
+ 	/* Configure Tx/Rx FIFO threshold levels */
+-- 
+1.9.1
