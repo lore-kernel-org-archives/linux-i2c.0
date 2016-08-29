@@ -1,97 +1,64 @@
-From: Shardar Shariff Md <smohammed@nvidia.com>
-Subject: [PATCH v9 2/4] i2c: tegra: add separate function for config_load programing
-Date: Mon, 29 Aug 2016 22:06:37 +0530
-Message-ID: <1472488599-13562-2-git-send-email-smohammed@nvidia.com>
-References: <1472488599-13562-1-git-send-email-smohammed@nvidia.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 2/2] iio: gyro: Add driver for the MPU-3050 gyroscope
+Date: Mon, 29 Aug 2016 18:41:22 +0100
+Message-ID: <4735c01a-0818-4d59-f9ec-4d77812ac905@kernel.org>
+References: <1471286287-25074-1-git-send-email-linus.walleij@linaro.org>
+ <53008712-7c50-79db-07ab-3544902887e1@kernel.org>
+ <285e7c3f-eedb-28ed-f651-926260d17a8a@axentia.se>
+ <CACRpkdZeomin6_u=1hm-fJucMnQmAJXu01YaC0g1KdafWPD2kg@mail.gmail.com>
+ <5903e282-aaf9-9c86-5df5-17b75d5b4018@axentia.se>
+ <CACRpkdZViewtQgW4GCuOkiKthqZMvXheORmg2rc-xG1cK4S4iA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1472488599-13562-1-git-send-email-smohammed@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: smohammed@nvidia.com, ldewangan@nvidia.com, wsa@the-dreams.de, swarren@wwwdotorg.org, thierry.reding@gmail.com, gnurou@gmail.com, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:42228 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754624AbcH2RlZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Aug 2016 13:41:25 -0400
+In-Reply-To: <CACRpkdZViewtQgW4GCuOkiKthqZMvXheORmg2rc-xG1cK4S4iA@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, Peter Rosin <peda@axentia.se>
+Cc: "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Nick Vaccaro <nvaccaro@google.com>, Ge Gao <ggao@invensense.com>, Anna Si <asi@invensense.com>, Nathan Royer <nroyer@invensense.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Crestez Dan Leonard <leonard.crestez@intel.com>, Daniel Baluta <daniel.baluta@intel.com>, Gregor Boirie <gregor.boirie@parrot.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Define separate function for configuration load register handling
-to make it use by different functions later.
+On 26/08/16 08:39, Linus Walleij wrote:
+> On Thu, Aug 25, 2016 at 10:32 PM, Peter Rosin <peda@axentia.se> wrote:
+>> On 2016-08-25 14:44, Linus Walleij wrote:
+> 
+>>> Then the rest is merge mechanics, dunno the best there,
+>>> Jonathan can decide.
+>>
+>> I waited a bit for someone to scream about v4.8-rc3 being a bad base
+>> for some reason, but there was only silence. I have now pushed the
+>> series, and it can be pulled by anyone interested.
+>>
+>> Wolfram, please merge it into i2c/for-next
+>>
+>> Linus/Jonathan, technically you don't need all patches and can skip
+>> the last three, but it seems a bit over the top to be super anal
+>> about that detail...
+> 
+> OK I'll pull this into my development branch. At least we can
+> merge the bindings, whether to merge the driver this or next merge
+> window (or simply apply the patch to the I2C tree!) is another issue.
+> 
+> Yours,
+> Linus Walleij
+When you post future versions Linus, please include a mention of 
+the dependency and a link to Peter's tree.
 
-Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+Peter, please can keep that branch around for now.
 
----
-Changes in v2:
-- Remove unnecessary paranthesis and align to 80 characters per line
+If we get this sorted in time to be prior to the next merge window
+I'll pull your tree into IIO as well as Wolfram having already
+pulled it into i2c.  Both will work there way upstream and
+all will be fine.  My pull request tag will simply have a description
+of why we are doing this.
 
-Changes in v3:
-- Add separate function for config load handling
-
-Changes in v4:
-- Move timeout calculation to separate patch
-
-Changes in v9:
-- Rebase with the changes to earlier patch1
----
----
- drivers/i2c/busses/i2c-tegra.c | 42 ++++++++++++++++++++++++++----------------
- 1 file changed, 26 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 41ffc8a..da79c5e 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -426,6 +426,29 @@ static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
- 		clk_disable(i2c_dev->fast_clk);
- }
- 
-+static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
-+{
-+	unsigned long reg_offset;
-+	void __iomem *addr;
-+	u32 val;
-+	int err;
-+
-+	if (i2c_dev->hw->has_config_load_reg) {
-+		reg_offset = tegra_i2c_reg_addr(i2c_dev, I2C_CONFIG_LOAD);
-+		addr = i2c_dev->base + reg_offset;
-+		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
-+		err = readl_poll_timeout(addr, val, val == 0, 1000,
-+					 I2C_CONFIG_LOAD_TIMEOUT);
-+		if (err) {
-+			dev_warn(i2c_dev->dev,
-+				 "timeout waiting for config load\n");
-+			return err;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 val;
-@@ -479,22 +502,9 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 	if (i2c_dev->is_multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
- 		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
- 
--	if (i2c_dev->hw->has_config_load_reg) {
--		unsigned long reg_offset;
--		void __iomem *addr;
--		u32 val;
--
--		reg_offset = tegra_i2c_reg_addr(i2c_dev, I2C_CONFIG_LOAD);
--		addr = i2c_dev->base + reg_offset;
--		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
--		err = readl_poll_timeout(addr, val, val == 0, 1000,
--					 I2C_CONFIG_LOAD_TIMEOUT);
--		if (err) {
--			dev_warn(i2c_dev->dev,
--				 "timeout waiting for config load\n");
--			goto err;
--		}
--	}
-+	err = tegra_i2c_wait_for_config_load(i2c_dev);
-+	if (err)
-+		goto err;
- 
- 	if (i2c_dev->irq_disabled) {
- 		i2c_dev->irq_disabled = 0;
--- 
-1.8.1.5
+Jonathan
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
