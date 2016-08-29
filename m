@@ -1,105 +1,65 @@
-From: Yadi Hu <yadi.hu@windriver.com>
-Subject: [PATCH] i2c-eg20t: fix race between i2c init and interrupt enable
-Date: Mon, 29 Aug 2016 10:56:55 +0800
-Message-ID: <1472439415-4024-1-git-send-email-yadi.hu@windriver.com>
+From: Yadi <yadi.hu@windriver.com>
+Subject: Re: [PATCH] i2c-eg20t: fix race between i2c init and interrupt enable
+Date: Mon, 29 Aug 2016 11:02:16 +0800
+Message-ID: <57C3A5B8.1000100@windriver.com>
+References: <1471943239-21420-1-git-send-email-yadi.hu@windriver.com>
+ <20160826173255.3171feaa@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail5.windriver.com ([192.103.53.11]:42328 "EHLO mail5.wrs.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756190AbcH2C5g (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 28 Aug 2016 22:57:36 -0400
+Received: from mail1.windriver.com ([147.11.146.13]:34048 "EHLO
+        mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756190AbcH2DCx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 28 Aug 2016 23:02:53 -0400
+In-Reply-To: <20160826173255.3171feaa@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: yadi.hu@windriver.com, jdelvare@suse.de, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org
 
-From: "Yadi.hu" <yadi.hu@windriver.com>
+On 2016年08月26日 23:32, Jean Delvare wrote:
+> Hi Yadi,
+>
+> On Tue, 23 Aug 2016 17:07:19 +0800, Yadi Hu wrote:
+>> From: Hu Yadi <Yadi.hu@windriver.com>
+>>
+>> The driver executes request_irq() function before the base address
+>> of i2c registers is remapped in kernel space. If i2c controller
+>> shares an interrupt line with other devices,it is possible that
+>> an interrupt arrives immediately after request_irq() is called.
+>> Since the interrupt handler pch_i2c_handler() is active, it will
+>> read its own register to determine if this interrupt was from
+>> its device.
+>> At this moment, base address of i2c registers is not remapped
+>> in kernel space yet,so the INT handler access a unknown address
+>> and a error occurs.
+>>
+>> Signed-off-by: Hu Yadi <Yadi.hu@windriver.com>
+>> ---
+>>   drivers/i2c/busses/i2c-eg20t.c |   25 ++++++++++++++-----------
+>>   1 files changed, 14 insertions(+), 11 deletions(-)
+>> (...)
+> ERROR: trailing whitespace
+> #66: FILE: drivers/i2c/busses/i2c-eg20t.c:896:
+> +^I$
+>
+> ERROR: code indent should use tabs where possible
+> #67: FILE: drivers/i2c/busses/i2c-eg20t.c:897:
+> +        for (i = 0; i < adap_info->ch_num; i++) {$
+>
+> WARNING: please, no spaces at the start of a line
+> #67: FILE: drivers/i2c/busses/i2c-eg20t.c:897:
+> +        for (i = 0; i < adap_info->ch_num; i++) {$
+>
+> total: 2 errors, 1 warnings, 44 lines checked
+>
+> I'll review your patch when it passes ./scripts/checkpatch.pl.
+>
+> Also note (not reported by the script): please do not add random blank
+> lines in the source code, it lowers readability.
+Hi Jean
 
-the driver executes request_irq() function before the base address
-of i2c registers is remapped in kernel space. If i2c controller
-shares an interrupt line with other devices,it is possible that
-an interrupt arrives immediately after request_irq() is called.
-Since the interrupt handler pch_i2c_handler() is active, it will
-read its own register to determine if this interrupt was from
-its own device.
-At this moment, base address of i2c registers is not remapped
-in kernel space yet,so the INT handler access a unknown address
-and a error occurs.
+Sorry for  mess up , I made a  patch V2 and send it off for review.
 
- Bad IO access at port 0x18 (return inl(port))
- Call Trace:
-  [<c102c733>] warn_slowpath_common+0x73/0xa0
-  [<c13109f5>] ? bad_io_access+0x45/0x50
-  [<c13109f5>] ? bad_io_access+0x45/0x50
-  [<c102c804>] warn_slowpath_fmt+0x34/0x40
-  [<c13109f5>] bad_io_access+0x45/0x50
-  [<c1310b62>] ioread32+0x22/0x40
-  [<c14c60db>] pch_i2c_handler+0x3b/0x120
-  [<c1092f34>] handle_irq_event_percpu+0x64/0x330
-  [<c109323b>] handle_irq_event+0x3b/0x60
-  [<c1095b50>] ? unmask_irq+0x30/0x30
-  [<c1095ba0>] handle_fasteoi_irq+0x50/0xe0
-  <IRQ>  [<c16e7e78>] ? do_IRQ+0x48/0xc0
-  [<c16e7f6f>] ? smp_apic_timer_interrupt+0x7f/0x17a
-  [<c16e7da9>] ? common_interrupt+0x29/0x30
-  [<c1008ebb>] ? mwait_idle+0x8b/0x2c0
-  [<c1009e8e>] ? cpu_idle+0x9e/0xc0
-  [<c16be408>] ? rest_init+0x6c/0x74
-  [<c19f770a>] ? start_kernel+0x311/0x318
-  [<c19f7231>] ? repair_env_string+0x51/0x51
-  [<c19f7078>] ? i386_start_kernel+0x78/0x7d
- ---[ end trace eb3a1028f468a140 ]---
- i2c_eg20t 0000:05:0c.2: pch_i2c_handler :I2C-3 mode(0) is not supported
-
-Signed-off-by: Yadi.hu <yadi.hu@windriver.com>
----
- drivers/i2c/busses/i2c-eg20t.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 137125b..48483a5 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -773,13 +773,6 @@ static int pch_i2c_probe(struct pci_dev *pdev,
- 	/* Set the number of I2C channel instance */
- 	adap_info->ch_num = id->driver_data;
- 
--	ret = request_irq(pdev->irq, pch_i2c_handler, IRQF_SHARED,
--		  KBUILD_MODNAME, adap_info);
--	if (ret) {
--		pch_pci_err(pdev, "request_irq FAILED\n");
--		goto err_request_irq;
--	}
--
- 	for (i = 0; i < adap_info->ch_num; i++) {
- 		pch_adap = &adap_info->pch_data[i].pch_adapter;
- 		adap_info->pch_i2c_suspended = false;
-@@ -808,16 +801,23 @@ static int pch_i2c_probe(struct pci_dev *pdev,
- 		}
- 	}
- 
-+	ret = request_irq(pdev->irq, pch_i2c_handler, IRQF_SHARED,
-+		  KBUILD_MODNAME, adap_info);
-+	if (ret) {
-+		pch_pci_err(pdev, "request_irq FAILED\n");
-+		goto err_request_irq;
-+	}
-+
- 	pci_set_drvdata(pdev, adap_info);
- 	pch_pci_dbg(pdev, "returns %d.\n", ret);
- 	return 0;
- 
-+err_request_irq:
-+	pci_iounmap(pdev, base_addr);
- err_add_adapter:
- 	for (j = 0; j < i; j++)
- 		i2c_del_adapter(&adap_info->pch_data[j].pch_adapter);
- 	free_irq(pdev->irq, adap_info);
--err_request_irq:
--	pci_iounmap(pdev, base_addr);
- err_pci_iomap:
- 	pci_release_regions(pdev);
- err_pci_req:
--- 
-2.7.4
+Yadi
