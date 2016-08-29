@@ -1,52 +1,105 @@
-From: "Mrs. Maimouna Farooq" <v23@arts-216.one>
-Subject: Re: For the Less Privileged
-Date: Mon, 29 Aug 2016 01:11:26 +0200
-Message-ID: <HE1PR05MB1420AB71F79ECA7462ADD097CBEE0__39946.7319985435$1472431452$gmane$org@HE1PR05MB1420.eurprd05.prod.outlook.com>
-Reply-To: <mrsmaimouna@gmail.com>
+From: Yadi Hu <yadi.hu@windriver.com>
+Subject: [PATCH] i2c-eg20t: fix race between i2c init and interrupt enable
+Date: Mon, 29 Aug 2016 10:56:55 +0800
+Message-ID: <1472439415-4024-1-git-send-email-yadi.hu@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur03hn0246.outbound.protection.outlook.com ([104.47.10.246]:64329
-        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1756323AbcH2Anz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 28 Aug 2016 20:43:55 -0400
-Content-Description: Mail message body
+Received: from mail5.windriver.com ([192.103.53.11]:42328 "EHLO mail5.wrs.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756190AbcH2C5g (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 28 Aug 2016 22:57:36 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: v23@arts-216.one
+To: yadi.hu@windriver.com, jdelvare@suse.de, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org
 
-For the Less Privileged,
+From: "Yadi.hu" <yadi.hu@windriver.com>
 
-I am very glad to write you this mail, my name is Mrs. Maimouna Farooq, and=
- I am from Omani ancestral origin living in Abidjan for many years with my =
-family. I am a good merchant; I have companies and good shares in various b=
-anks. I spend all my life on investment and Real Estate business. All the w=
-ay I lost my husband and two kids in a fatal train crash in 2014
+the driver executes request_irq() function before the base address
+of i2c registers is remapped in kernel space. If i2c controller
+shares an interrupt line with other devices,it is possible that
+an interrupt arrives immediately after request_irq() is called.
+Since the interrupt handler pch_i2c_handler() is active, it will
+read its own register to determine if this interrupt was from
+its own device.
+At this moment, base address of i2c registers is not remapped
+in kernel space yet,so the INT handler access a unknown address
+and a error occurs.
 
-Since I lost my family, I have been living a self-minding life; I don't kno=
-w much and care about people. But last year 2015 around July, I was sent a =
-letter of medical checkup as my personal doctor testified that I have lungs=
- cancer which can easily take off my life soon. I found it uneasy to surviv=
-e myself because a lot of investment cannot be run and manage by me again. =
-So I quickly call up a spiritual adviser to give me positive thinking on th=
-is solution as my adviser.
+ Bad IO access at port 0x18 (return inl(port))
+ Call Trace:
+  [<c102c733>] warn_slowpath_common+0x73/0xa0
+  [<c13109f5>] ? bad_io_access+0x45/0x50
+  [<c13109f5>] ? bad_io_access+0x45/0x50
+  [<c102c804>] warn_slowpath_fmt+0x34/0x40
+  [<c13109f5>] bad_io_access+0x45/0x50
+  [<c1310b62>] ioread32+0x22/0x40
+  [<c14c60db>] pch_i2c_handler+0x3b/0x120
+  [<c1092f34>] handle_irq_event_percpu+0x64/0x330
+  [<c109323b>] handle_irq_event+0x3b/0x60
+  [<c1095b50>] ? unmask_irq+0x30/0x30
+  [<c1095ba0>] handle_fasteoi_irq+0x50/0xe0
+  <IRQ>  [<c16e7e78>] ? do_IRQ+0x48/0xc0
+  [<c16e7f6f>] ? smp_apic_timer_interrupt+0x7f/0x17a
+  [<c16e7da9>] ? common_interrupt+0x29/0x30
+  [<c1008ebb>] ? mwait_idle+0x8b/0x2c0
+  [<c1009e8e>] ? cpu_idle+0x9e/0xc0
+  [<c16be408>] ? rest_init+0x6c/0x74
+  [<c19f770a>] ? start_kernel+0x311/0x318
+  [<c19f7231>] ? repair_env_string+0x51/0x51
+  [<c19f7078>] ? i386_start_kernel+0x78/0x7d
+ ---[ end trace eb3a1028f468a140 ]---
+ i2c_eg20t 0000:05:0c.2: pch_i2c_handler :I2C-3 mode(0) is not supported
 
-He minister to me to share my properties to the poor and needy, people that=
- need money to survive both students that need money for their education an=
-d business people for their investment and for less privilege around the gl=
-obe.
+Signed-off-by: Yadi.hu <yadi.hu@windriver.com>
+---
+ drivers/i2c/busses/i2c-eg20t.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-My condition would not allow me handle disbursement and carry out other fun=
-ctions actively, if you sincere and honest with heart for helping me distri=
-bute money to orphanages homes in your country and other country's you wish=
- to. I will give more information to you as I wait =
-
-
-Your response immediately.
-
-Best Regards,	=
-
-
-Mrs. Maimouna Farooq
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index 137125b..48483a5 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -773,13 +773,6 @@ static int pch_i2c_probe(struct pci_dev *pdev,
+ 	/* Set the number of I2C channel instance */
+ 	adap_info->ch_num = id->driver_data;
+ 
+-	ret = request_irq(pdev->irq, pch_i2c_handler, IRQF_SHARED,
+-		  KBUILD_MODNAME, adap_info);
+-	if (ret) {
+-		pch_pci_err(pdev, "request_irq FAILED\n");
+-		goto err_request_irq;
+-	}
+-
+ 	for (i = 0; i < adap_info->ch_num; i++) {
+ 		pch_adap = &adap_info->pch_data[i].pch_adapter;
+ 		adap_info->pch_i2c_suspended = false;
+@@ -808,16 +801,23 @@ static int pch_i2c_probe(struct pci_dev *pdev,
+ 		}
+ 	}
+ 
++	ret = request_irq(pdev->irq, pch_i2c_handler, IRQF_SHARED,
++		  KBUILD_MODNAME, adap_info);
++	if (ret) {
++		pch_pci_err(pdev, "request_irq FAILED\n");
++		goto err_request_irq;
++	}
++
+ 	pci_set_drvdata(pdev, adap_info);
+ 	pch_pci_dbg(pdev, "returns %d.\n", ret);
+ 	return 0;
+ 
++err_request_irq:
++	pci_iounmap(pdev, base_addr);
+ err_add_adapter:
+ 	for (j = 0; j < i; j++)
+ 		i2c_del_adapter(&adap_info->pch_data[j].pch_adapter);
+ 	free_irq(pdev->irq, adap_info);
+-err_request_irq:
+-	pci_iounmap(pdev, base_addr);
+ err_pci_iomap:
+ 	pci_release_regions(pdev);
+ err_pci_req:
+-- 
+2.7.4
