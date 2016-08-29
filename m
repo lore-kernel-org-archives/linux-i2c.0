@@ -1,65 +1,88 @@
-From: Yadi <yadi.hu@windriver.com>
-Subject: Re: [PATCH] i2c-eg20t: fix race between i2c init and interrupt enable
-Date: Mon, 29 Aug 2016 11:02:16 +0800
-Message-ID: <57C3A5B8.1000100@windriver.com>
-References: <1471943239-21420-1-git-send-email-yadi.hu@windriver.com>
- <20160826173255.3171feaa@endymion>
+From: Matthijs van Duin <matthijsvanduin@gmail.com>
+Subject: Re: [RFC 1/1] drivers: i2c: omap: Add slave support
+Date: Mon, 29 Aug 2016 05:43:01 +0200
+Message-ID: <20160829034301.GA21292@squirrel.local>
+References: <20160525141119.14486-1-rk@ti.com>
+ <20160525141119.14486-2-rk@ti.com>
+ <20160825171430.GM2856@katana>
+ <CAALWOA-XP+mfTcVPc1LZZofAaCK-KtKhFKKKHu2PyHWFrfir3A@mail.gmail.com>
+ <20160827172211.GA1601@katana>
+ <CAALWOA8mtMAszBv6rcXdMzE_mRrrh-wmn6ECMJ32z4cJcfcOjw@mail.gmail.com>
+ <20160828053502.GA1601@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail1.windriver.com ([147.11.146.13]:34048 "EHLO
-        mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756190AbcH2DCx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 28 Aug 2016 23:02:53 -0400
-In-Reply-To: <20160826173255.3171feaa@endymion>
+Received: from mail-wm0-f48.google.com ([74.125.82.48]:36501 "EHLO
+        mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932522AbcH2DnG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 28 Aug 2016 23:43:06 -0400
+Content-Disposition: inline
+In-Reply-To: <20160828053502.GA1601@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ravikumar Kattekola <rk@ti.com>, Tony Lindgren <tony@atomide.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
 
-On 2016年08月26日 23:32, Jean Delvare wrote:
-> Hi Yadi,
->
-> On Tue, 23 Aug 2016 17:07:19 +0800, Yadi Hu wrote:
->> From: Hu Yadi <Yadi.hu@windriver.com>
->>
->> The driver executes request_irq() function before the base address
->> of i2c registers is remapped in kernel space. If i2c controller
->> shares an interrupt line with other devices,it is possible that
->> an interrupt arrives immediately after request_irq() is called.
->> Since the interrupt handler pch_i2c_handler() is active, it will
->> read its own register to determine if this interrupt was from
->> its device.
->> At this moment, base address of i2c registers is not remapped
->> in kernel space yet,so the INT handler access a unknown address
->> and a error occurs.
->>
->> Signed-off-by: Hu Yadi <Yadi.hu@windriver.com>
->> ---
->>   drivers/i2c/busses/i2c-eg20t.c |   25 ++++++++++++++-----------
->>   1 files changed, 14 insertions(+), 11 deletions(-)
->> (...)
-> ERROR: trailing whitespace
-> #66: FILE: drivers/i2c/busses/i2c-eg20t.c:896:
-> +^I$
->
-> ERROR: code indent should use tabs where possible
-> #67: FILE: drivers/i2c/busses/i2c-eg20t.c:897:
-> +        for (i = 0; i < adap_info->ch_num; i++) {$
->
-> WARNING: please, no spaces at the start of a line
-> #67: FILE: drivers/i2c/busses/i2c-eg20t.c:897:
-> +        for (i = 0; i < adap_info->ch_num; i++) {$
->
-> total: 2 errors, 1 warnings, 44 lines checked
->
-> I'll review your patch when it passes ./scripts/checkpatch.pl.
->
-> Also note (not reported by the script): please do not add random blank
-> lines in the source code, it lowers readability.
-Hi Jean
+On 28 August 2016 at 07:35, Wolfram Sang <wsa@the-dreams.de> wrote:
+> Well, I2C is simple, what could go wrong? :/
 
-Sorry for  mess up , I made a  patch V2 and send it off for review.
+Actually I2C is elegant and *seems* simple, but in all its
+asynchronicity there are actually a surprising number of fine details
+you can trip over.  Maybe that's why so many i2c controllers suck: since
+i2c looks simple enough manufacturers are easily tempted to roll their
+own instead of licensing a good implementation.
 
-Yadi
+Having said that, most of the inconsistency and obnoxiousness of the TI
+I2C controller is not even excusable by that argument.  For example its
+irq registers *look* like the usual set { rawstatus, status, en, dis }
+that's their current standard ("Highlander") for peripherals. They do
+not however *behave* like the standard set however:
+  1. status isn't always (rawstatus & enabled)
+  2. status != 0 does not always imply the irq output is asserted
+  3. some enable-bits also change the behaviour of rawstatus
+All of these misbehaviours are unprecedented afaik.
+
+Normally you'd also expect each irq (raw)status bit to either
+  a. be an event, set by hw and can be cleared by software any time, or
+  b. be a level status, unaffected by software attempts to set/clear.
+Again the i2c controller decided this is far too little diversity.
+
+> So, it is possible to make a proper I2C slave with OMAP, but you need
+> to know those 100 gory details?
+
+Mostly.  There are some limitations such as:
+
+* No ability to selectively ACK/NACK when addressed as slave. If you're
+unable to respond for some time then you'd end up blocking the bus with
+clock stretching.  You could temporarily deconfigure your slave address
+but the TRM states changing slave address is forbidden while bus busy.
+
+* According to my notes it always ACKs a General Call and this cannot
+even be stalled using the SBLOCK register.  Since I don't care about GC
+there's no more details in my notes, but if this is true then on any bus
+where GC is used, irq handling will have real-time deadlines to avoid
+losing track of transaction boundaries and misinterpreting data.
+
+Finally, as my first link pointed out, various protocol errors can lock
+up the peripheral's internal state machine.  When operating as slave
+this is basically undetectable: all registers look normal and the
+bus-busy bit will continue to track start/stop, but the peripheral will
+not ACK any slave address anymore until you reset it.
+
+You could argue "well, but that requires bus protocol errors" but it is
+nevertheless a direct violation of the I2C standard:
+
+	I2C-bus compatible devices must reset their bus logic on receipt
+	of a START or repeated START condition such that they all
+	anticipate the sending of a slave address, even if these START
+	conditions are not positioned according to the proper format.
+
+Also, my testing showed pulsing SDA low on an idle bus sufficed to
+trigger this state.  It needs to pass the glitch filter of course, but
+this filter is implemented by sampling the bus requiring two consecutive
+samples to agree.  Two small glitches with just the right timing would
+therefore suffice.  Rather unlikely for random noise, but having lots of
+signals on your pcb that ultimately derive from the same clock source
+probably makes the odds a lot more favorable.
+
+Matthijs
