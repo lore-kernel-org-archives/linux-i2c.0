@@ -1,101 +1,63 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 1/2] Documentation: Add sbs-manager device tree node
- documentation
-Date: Wed, 31 Aug 2016 09:43:49 -0500
-Message-ID: <20160831144349.GA18510@rob-hp-laptop>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH v4 0/2] Add support for Smart Battery System Manager
+Date: Wed, 31 Aug 2016 17:10:44 +0200
+Message-ID: <20160831151044.xftg6k5f66n53jem@earth>
 References: <1bIiDr-0004G1-0P>
  <1472156461-25180-1-git-send-email-karl-heinz@schneider-inet.de>
- <1472156461-25180-2-git-send-email-karl-heinz@schneider-inet.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="jv7h5xtxyz5e2qhv"
 Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1472156461-25180-2-git-send-email-karl-heinz@schneider-inet.de>
+In-Reply-To: <1472156461-25180-1-git-send-email-karl-heinz@schneider-inet.de>
 Sender: linux-acpi-owner@vger.kernel.org
 To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
+Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 25, 2016 at 10:21:00PM +0200, Karl-Heinz Schneider wrote:
-> This patch adds device tree documentation for the sbs-manager
-> 
-> Reviewed-by: Phil Reid <preid@electromag.com.au>
-> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> ---
->  .../devicetree/bindings/power/sbs,sbs-manager.txt  | 53 ++++++++++++++++++++++
->  1 file changed, 53 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
-> new file mode 100644
-> index 0000000..6b1a87ce
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
-> @@ -0,0 +1,53 @@
-> +Binding for sbs-manager
-> +
-> +Required properties:
-> +- compatible: should be "lltc,ltc1760" or use "sbs,sbs-manager" as fallback.
-> +- reg: integer, i2c address of the device. Should be <0xa>.
 
-What happened to adding Phil's interrupt support into this? You don't 
-have to add the whole patch, just the binding part. The driver support 
-can come later.
+--jv7h5xtxyz5e2qhv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +
-> +From OS view the device is basically an i2c-mux used to communicate with up to
-> +four smart battery devices at address 0xb. The driver actually implements this
-> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
-> +batteries. See Documentation/devicetree/bindings/i2c/i2c-mux.txt for more
-> +information on i2c-mux nodes. Channels will be numerated starting from 1 to 4.
-> +
-> +Example:
-> +
-> +batman@0a {
+Hi,
 
-drop leading 0.
+On Thu, Aug 25, 2016 at 10:20:59PM +0200, Karl-Heinz Schneider wrote:
+> This patch series adds support for Smart Battery System Manager.
+> A SBSM is a device listening at I2C/SMBus address 0x0a and is capable of
+> communicating up to four I2C smart battery devices. All smart battery
+> devices are listening at address 0x0b, so the SBSM muliplexes between
+> them. The driver makes use of the I2C-Mux framework to allow smart
+> batteries to be bound via device tree, i.e. the sbs-battery driver.
+>=20
+> Via sysfs interface the online state and charge type are presented. If
+> the driver is bound as ltc1760 (a Dual Smart Battery System Manager)
+> the charge type can also be changed from trickle to fast.
 
-> +    compatible = "lltc,ltc1760";
-> +    reg = <0x0a>;
-> +    #address-cells = <1>;
-> +    #size-cells = <0>;
-> +
-> +    i2c@1 {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        reg = <1>;
-> +
-> +        battery@0b {
+Driver looks fine to me. Waiting for Rob's ACK on the DT bindings.
 
-and here...
+-- Sebastian
 
-> +            compatible = "ti,bq2060", "sbs,sbs-battery";
-> +            reg = <0x0b>;
-> +        };
-> +    };
-> +
-> +    i2c@2 {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        reg = <2>;
-> +
-> +        battery@0b {
-> +            compatible = "ti,bq2060", "sbs,sbs-battery";
-> +            reg = <0x0b>;
-> +        };
-> +    };
-> +
-> +    i2c@3 {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        reg = <3>;
-> +
-> +        battery@0b {
-> +            compatible = "ti,bq2060", "sbs,sbs-battery";
-> +            reg = <0x0b>;
-> +        };
-> +    };
-> +};
-> -- 
-> 2.7.4
-> 
+--jv7h5xtxyz5e2qhv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBCgAGBQJXxvNxAAoJENju1/PIO/qa49wP/3McyNdIOMNdL9ZRQkC85q1A
+EPs24jdq5hbqrM8AR1fVTQBE+5FgfB4+lW/W7JRLhRm2+wzDSXg8ZyiWHJO9toiz
+aRNlsOpXwGMxXqmZfkX9LhicKnF8qJ5sQLpP1PIMoBWNoUKwkpGNj7HMH8ZrByOx
+XsYBGeTqMZy8nlD190E2DFktcFQzqfYDeg8QEGOPZyCnP4NrfFlFq5dQ4HAjorM1
+sgXIB4uTlxj5uSnfzFQWbqd2S5PC/mW6XNH4MBpOrqdLjCquvfMqDQR8rX02tDyf
+QoziunCB2/rSDOcOFdnMyfqlveZ1v1teUtPmhOfRDzgGfoLGEBV2jUsu1zlbCBvx
+Zz53zlkwDWBqMQVZz2ICHcefOPfqi92Nhssf/o3WsHDXJ2L/a1XGr1geerI8FD7B
+95XN8nZ4Dvx38mBNugJa20Mp2BmeR+24fAZxMQgHrBCkwAUh8FVXbZfsJiVaH+n7
+JfdAusuVJ6HHpxiSNWeeXRkvG2mmPiqeMlgN+8zK9V+ndAf9L/1296083n74ochB
+40F3IoXIMdxZlgiK3oHwyESkI6ou6hBamFI70aSiKfoVPilKPjKMGu+86TSkqmuO
+vPe7c8RZ4xijBG0GjGYTATnKlnj2WoTAlx/f0f6mQSoYtkW51P18u4KQNylghBqX
+oTbVk894oMY8vLWlj/Hr
+=WrQJ
+-----END PGP SIGNATURE-----
+
+--jv7h5xtxyz5e2qhv--
