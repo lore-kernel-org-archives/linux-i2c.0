@@ -1,117 +1,101 @@
-From: Shardar Mohammed <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: tegra: use readl_poll_timeout after config_load
- reg programmed
-Date: Wed, 31 Aug 2016 13:30:53 +0000
-Message-ID: <1472650254799.24331@nvidia.com>
-References: <1472649758-5608-1-git-send-email-smohammed@nvidia.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 1/2] Documentation: Add sbs-manager device tree node
+ documentation
+Date: Wed, 31 Aug 2016 09:43:49 -0500
+Message-ID: <20160831144349.GA18510@rob-hp-laptop>
+References: <1bIiDr-0004G1-0P>
+ <1472156461-25180-1-git-send-email-karl-heinz@schneider-inet.de>
+ <1472156461-25180-2-git-send-email-karl-heinz@schneider-inet.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1472649758-5608-1-git-send-email-smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Content-Language: en-US
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1472156461-25180-2-git-send-email-karl-heinz@schneider-inet.de>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Cc: devicetree@vger.kernel.org, linux-pm@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Sebastian Reichel <sre@kernel.org>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, David Woodhouse <dwmw2@infradead.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Peter Rosin <peda@axentia.se>, Phil Reid <preid@electromag.com.au>
 List-Id: linux-i2c@vger.kernel.org
 
-Sorry ignore this series, forgot to mention patch series version.
-Pushed v11 series, please review v11 series.
+On Thu, Aug 25, 2016 at 10:21:00PM +0200, Karl-Heinz Schneider wrote:
+> This patch adds device tree documentation for the sbs-manager
+> 
+> Reviewed-by: Phil Reid <preid@electromag.com.au>
+> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+> ---
+>  .../devicetree/bindings/power/sbs,sbs-manager.txt  | 53 ++++++++++++++++++++++
+>  1 file changed, 53 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+> new file mode 100644
+> index 0000000..6b1a87ce
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/power/sbs,sbs-manager.txt
+> @@ -0,0 +1,53 @@
+> +Binding for sbs-manager
+> +
+> +Required properties:
+> +- compatible: should be "lltc,ltc1760" or use "sbs,sbs-manager" as fallback.
+> +- reg: integer, i2c address of the device. Should be <0xa>.
 
-Thanks,
-Shardar
-________________________________________
-From: Shardar Mohammed
-Sent: Wednesday, August 31, 2016 6:52 PM
-To: Shardar Mohammed; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org; thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Jonathan Hunter
-Subject: [PATCH 1/5] i2c: tegra: use readl_poll_timeout after config_load reg programmed
+What happened to adding Phil's interrupt support into this? You don't 
+have to add the whole patch, just the binding part. The driver support 
+can come later.
 
-After CONFIG_LOAD register is programmed instead of explicitly waiting
-for timeout, use readl_poll_timeout() to check for register value to get
-updated or wait till timeout.
+> +
+> +From OS view the device is basically an i2c-mux used to communicate with up to
+> +four smart battery devices at address 0xb. The driver actually implements this
+> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
+> +batteries. See Documentation/devicetree/bindings/i2c/i2c-mux.txt for more
+> +information on i2c-mux nodes. Channels will be numerated starting from 1 to 4.
+> +
+> +Example:
+> +
+> +batman@0a {
 
-Signed-off-by: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+drop leading 0.
 
----
-Changes in v4:
-- Split timeout calculation to separate patch
+> +    compatible = "lltc,ltc1760";
+> +    reg = <0x0a>;
+> +    #address-cells = <1>;
+> +    #size-cells = <0>;
+> +
+> +    i2c@1 {
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +        reg = <1>;
+> +
+> +        battery@0b {
 
-Changes in v5:
-- Move disabling of clock to separate patch
+and here...
 
-Changes in v8:
-- 1st change of [PATCH v7] series is merged, v8 is rebased on top of
-  merged change, here patch series is changed accordingly.
-- Updated the commit message as per review to properly reflect change.
-- calculate the register offset seperately to make code more readable.
-
-Changes in v9:
-- Use readl_poll_timeout() instead of readx_poll_timeout()
-
-Changes in V10:
-- Rebase on top of [PATCH V2 0/9] Some Tegra I2C Updates
-
-Changes in V11:
-- Fix sparse error
----
----
- drivers/i2c/busses/i2c-tegra.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index d86a993..e93c72a 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -30,6 +30,7 @@
- #include <linux/reset.h>
- #include <linux/pinctrl/consumer.h>
- #include <linux/pm_runtime.h>
-+#include <linux/iopoll.h>
-
- #include <asm/unaligned.h>
-
-@@ -112,6 +113,8 @@
- #define I2C_CLKEN_OVERRIDE                     0x090
- #define I2C_MST_CORE_CLKEN_OVR                 BIT(0)
-
-+#define I2C_CONFIG_LOAD_TIMEOUT                        1000000
-+
- /*
-  * msg_end_type: The bus control which need to be send at end of transfer.
-  * @MSG_END_STOP: Send stop pulse at end of transfer.
-@@ -448,7 +451,6 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
-        u32 val;
-        int err;
-        u32 clk_divisor;
--       unsigned long timeout = jiffies + HZ;
-
-        err = pm_runtime_get_sync(i2c_dev->dev);
-        if (err < 0) {
-@@ -497,15 +499,18 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
-                i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
-
-        if (i2c_dev->hw->has_config_load_reg) {
-+               unsigned long reg_offset;
-+               void __iomem *addr;
-+
-+               reg_offset = tegra_i2c_reg_addr(i2c_dev, I2C_CONFIG_LOAD);
-+               addr = i2c_dev->base + reg_offset;
-                i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
--               while (i2c_readl(i2c_dev, I2C_CONFIG_LOAD) != 0) {
--                       if (time_after(jiffies, timeout)) {
--                               dev_warn(i2c_dev->dev,
--                                       "timeout waiting for config load\n");
--                               err = -ETIMEDOUT;
--                               goto err;
--                       }
--                       msleep(1);
-+               err = readl_poll_timeout(addr, val, val == 0, 1000,
-+                                        I2C_CONFIG_LOAD_TIMEOUT);
-+               if (err) {
-+                       dev_warn(i2c_dev->dev,
-+                                "timeout waiting for config load\n");
-+                       goto err;
-                }
-        }
-
---
-1.8.1.5
+> +            compatible = "ti,bq2060", "sbs,sbs-battery";
+> +            reg = <0x0b>;
+> +        };
+> +    };
+> +
+> +    i2c@2 {
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +        reg = <2>;
+> +
+> +        battery@0b {
+> +            compatible = "ti,bq2060", "sbs,sbs-battery";
+> +            reg = <0x0b>;
+> +        };
+> +    };
+> +
+> +    i2c@3 {
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +        reg = <3>;
+> +
+> +        battery@0b {
+> +            compatible = "ti,bq2060", "sbs,sbs-battery";
+> +            reg = <0x0b>;
+> +        };
+> +    };
+> +};
+> -- 
+> 2.7.4
+> 
