@@ -1,23 +1,19 @@
-From: Shardar Shariff Md <smohammed@nvidia.com>
-Subject: [PATCH 1/5] i2c: tegra: use readl_poll_timeout after config_load reg programmed
-Date: Wed, 31 Aug 2016 18:52:34 +0530
-Message-ID: <1472649758-5608-1-git-send-email-smohammed@nvidia.com>
+From: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v11 1/5] i2c: tegra: use readl_poll_timeout after config_load reg programmed
+Date: Wed, 31 Aug 2016 18:58:40 +0530
+Message-ID: <1472650124-5702-1-git-send-email-smohammed@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:1266 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932393AbcHaNXK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 Aug 2016 09:23:10 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: smohammed@nvidia.com, wsa@the-dreams.de, swarren@wwwdotorg.org, thierry.reding@gmail.com, gnurou@gmail.com, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, jonathanh@nvidia.com
 
 After CONFIG_LOAD register is programmed instead of explicitly waiting
 for timeout, use readl_poll_timeout() to check for register value to get
 updated or wait till timeout.
 
-Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+Signed-off-by: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
 ---
 Changes in v4:
