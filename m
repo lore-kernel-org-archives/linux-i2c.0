@@ -1,13 +1,25 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 2/3] i2c: uniphier-f: avoid WARN_ON() of clk_disable() in failure path
-Date: Thu,  1 Sep 2016 20:46:29 +0900
-Message-ID: <1472730390-8907-3-git-send-email-yamada.masahiro@socionext.com>
+Subject: [PATCH 1/3] i2c: uniphier: avoid WARN_ON() of clk_disable() in
+ failure path
+Date: Thu,  1 Sep 2016 20:46:28 +0900
+Message-ID: <1472730390-8907-2-git-send-email-yamada.masahiro@socionext.com>
 References: <1472730390-8907-1-git-send-email-yamada.masahiro@socionext.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1472730390-8907-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
 If clk_prepare_enable() fails, clk_disable_unprepare() is called in
@@ -20,37 +32,37 @@ so that it can exploit "goto err" in case of error.
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
- drivers/i2c/busses/i2c-uniphier-f.c | 73 ++++++++++++++++---------------------
- 1 file changed, 32 insertions(+), 41 deletions(-)
+ drivers/i2c/busses/i2c-uniphier.c | 73 +++++++++++++++++----------------------
+ 1 file changed, 31 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index 3560853..2886685 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -455,41 +455,10 @@ static struct i2c_bus_recovery_info uniphier_fi2c_bus_recovery_info = {
- 	.unprepare_recovery = uniphier_fi2c_unprepare_recovery,
+diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
+index d6e612a..56e92af 100644
+--- a/drivers/i2c/busses/i2c-uniphier.c
++++ b/drivers/i2c/busses/i2c-uniphier.c
+@@ -316,50 +316,15 @@ static struct i2c_bus_recovery_info uniphier_i2c_bus_recovery_info = {
+ 	.unprepare_recovery = uniphier_i2c_unprepare_recovery,
  };
  
--static int uniphier_fi2c_clk_init(struct device *dev,
--				  struct uniphier_fi2c_priv *priv)
-+static void uniphier_fi2c_hw_init(struct uniphier_fi2c_priv *priv,
-+				  u32 bus_speed, unsigned long clk_rate)
+-static int uniphier_i2c_clk_init(struct device *dev,
+-				 struct uniphier_i2c_priv *priv)
++static void uniphier_i2c_hw_init(struct uniphier_i2c_priv *priv,
++				 u32 bus_speed, unsigned long clk_rate)
  {
 -	struct device_node *np = dev->of_node;
 -	unsigned long clk_rate;
--	u32 bus_speed, clk_count;
+-	u32 bus_speed;
 -	int ret;
 -
 -	if (of_property_read_u32(np, "clock-frequency", &bus_speed))
--		bus_speed = UNIPHIER_FI2C_DEFAULT_SPEED;
+-		bus_speed = UNIPHIER_I2C_DEFAULT_SPEED;
 -
 -	if (!bus_speed) {
 -		dev_err(dev, "clock-frequency should not be zero\n");
 -		return -EINVAL;
 -	}
 -
--	if (bus_speed > UNIPHIER_FI2C_MAX_SPEED)
--		bus_speed = UNIPHIER_FI2C_MAX_SPEED;
+-	if (bus_speed > UNIPHIER_I2C_MAX_SPEED)
+-		bus_speed = UNIPHIER_I2C_MAX_SPEED;
 -
 -	/* Get input clk rate through clk driver */
 -	priv->clk = devm_clk_get(dev, NULL);
@@ -68,22 +80,21 @@ index 3560853..2886685 100644
 -		dev_err(dev, "input clock rate should not be zero\n");
 -		return -EINVAL;
 -	}
-+	u32 clk_count;
+-
+ 	uniphier_i2c_reset(priv, true);
  
- 	uniphier_fi2c_reset(priv);
+ 	writel((clk_rate / bus_speed / 2 << 16) | (clk_rate / bus_speed),
+ 	       priv->membase + UNIPHIER_I2C_CLK);
  
-@@ -501,8 +470,6 @@ static int uniphier_fi2c_clk_init(struct device *dev,
- 	writel(clk_count / 16, priv->membase + UNIPHIER_FI2C_DSUT);
- 
- 	uniphier_fi2c_prepare_operation(priv);
+ 	uniphier_i2c_reset(priv, false);
 -
 -	return 0;
  }
  
- static int uniphier_fi2c_probe(struct platform_device *pdev)
-@@ -510,8 +477,9 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
+ static int uniphier_i2c_probe(struct platform_device *pdev)
+@@ -367,8 +332,9 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
  	struct device *dev = &pdev->dev;
- 	struct uniphier_fi2c_priv *priv;
+ 	struct uniphier_i2c_priv *priv;
  	struct resource *regs;
 -	int irq;
 -	int ret;
@@ -93,14 +104,14 @@ index 3560853..2886685 100644
  
  	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
  	if (!priv)
-@@ -528,6 +496,31 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
+@@ -385,6 +351,31 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
  		return irq;
  	}
  
 +	if (of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed))
-+		bus_speed = UNIPHIER_FI2C_DEFAULT_SPEED;
++		bus_speed = UNIPHIER_I2C_DEFAULT_SPEED;
 +
-+	if (!bus_speed || bus_speed > UNIPHIER_FI2C_MAX_SPEED) {
++	if (!bus_speed || bus_speed > UNIPHIER_I2C_MAX_SPEED) {
 +		dev_err(dev, "invalid clock-frequency %d\n", bus_speed);
 +		return -EINVAL;
 +	}
@@ -124,17 +135,17 @@ index 3560853..2886685 100644
 +
  	init_completion(&priv->comp);
  	priv->adap.owner = THIS_MODULE;
- 	priv->adap.algo = &uniphier_fi2c_algo;
-@@ -538,9 +531,7 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
+ 	priv->adap.algo = &uniphier_i2c_algo;
+@@ -395,9 +386,7 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
  	i2c_set_adapdata(&priv->adap, priv);
  	platform_set_drvdata(pdev, priv);
  
--	ret = uniphier_fi2c_clk_init(dev, priv);
+-	ret = uniphier_i2c_clk_init(dev, priv);
 -	if (ret)
 -		goto err;
-+	uniphier_fi2c_hw_init(priv, bus_speed, clk_rate);
++	uniphier_i2c_hw_init(priv, bus_speed, clk_rate);
  
- 	ret = devm_request_irq(dev, irq, uniphier_fi2c_interrupt, 0,
- 			       pdev->name, priv);
+ 	ret = devm_request_irq(dev, irq, uniphier_i2c_interrupt, 0, pdev->name,
+ 			       priv);
 -- 
 1.9.1
