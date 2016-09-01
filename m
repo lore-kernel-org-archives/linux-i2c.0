@@ -1,58 +1,49 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 3/3] i2c: uniphier-f: set the adapter to master mode when probing
-Date: Thu,  1 Sep 2016 20:46:30 +0900
-Message-ID: <1472730390-8907-4-git-send-email-yamada.masahiro@socionext.com>
-References: <1472730390-8907-1-git-send-email-yamada.masahiro@socionext.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1472730390-8907-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH] i2c: shmobile: Use ARCH_SHMOBILE instead of SUPERH
+Date: Thu, 1 Sep 2016 15:44:04 +0200
+Message-ID: <20160901134403.GB14300@verge.net.au>
+References: <1472636113-26988-1-git-send-email-geert+renesas@glider.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1472636113-26988-1-git-send-email-geert+renesas@glider.be>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, the adapter is set to the master mode at the first use.
-Since then, it is kept in the slave mode, so unexpected glitch
-signals on the I2C lines may cause the adapter into insane state.
-Setting it to the master mode along with initialization solves the
-problem.
+On Wed, Aug 31, 2016 at 11:35:13AM +0200, Geert Uytterhoeven wrote:
+> "i2c-sh_mobile" is used on sh7343, sh7366, sh7722, sh7723, and sh7724
+> only. As all of the above select ARCH_SHMOBILE, restrict its driver
+> dependencies from SUPERH to ARCH_SHMOBILE.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Reported-by: Akio Noda <noda.akio@socionext.com>
----
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 
- drivers/i2c/busses/i2c-uniphier-f.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index 2886685..829df91 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -458,16 +458,20 @@ static struct i2c_bus_recovery_info uniphier_fi2c_bus_recovery_info = {
- static void uniphier_fi2c_hw_init(struct uniphier_fi2c_priv *priv,
- 				  u32 bus_speed, unsigned long clk_rate)
- {
--	u32 clk_count;
-+	u32 tmp;
-+
-+	tmp = readl(priv->membase + UNIPHIER_FI2C_CR);
-+	tmp |= UNIPHIER_FI2C_CR_MST;
-+	writel(tmp, priv->membase + UNIPHIER_FI2C_CR);
- 
- 	uniphier_fi2c_reset(priv);
- 
--	clk_count = clk_rate / bus_speed;
-+	tmp = clk_rate / bus_speed;
- 
--	writel(clk_count, priv->membase + UNIPHIER_FI2C_CYC);
--	writel(clk_count / 2, priv->membase + UNIPHIER_FI2C_LCTL);
--	writel(clk_count / 2, priv->membase + UNIPHIER_FI2C_SSUT);
--	writel(clk_count / 16, priv->membase + UNIPHIER_FI2C_DSUT);
-+	writel(tmp, priv->membase + UNIPHIER_FI2C_CYC);
-+	writel(tmp / 2, priv->membase + UNIPHIER_FI2C_LCTL);
-+	writel(tmp / 2, priv->membase + UNIPHIER_FI2C_SSUT);
-+	writel(tmp / 16, priv->membase + UNIPHIER_FI2C_DSUT);
- 
- 	uniphier_fi2c_prepare_operation(priv);
- }
--- 
-1.9.1
+> ---
+>  drivers/i2c/busses/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 1f3239ead0377426..6d94e2ec5b4f7183 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -836,7 +836,7 @@ config I2C_SH7760
+>  config I2C_SH_MOBILE
+>  	tristate "SuperH Mobile I2C Controller"
+>  	depends on HAS_DMA
+> -	depends on SUPERH || ARCH_RENESAS || COMPILE_TEST
+> +	depends on ARCH_SHMOBILE || ARCH_RENESAS || COMPILE_TEST
+>  	help
+>  	  If you say yes to this option, support will be included for the
+>  	  built-in I2C interface on the Renesas SH-Mobile processor.
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
