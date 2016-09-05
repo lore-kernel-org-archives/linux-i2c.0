@@ -1,33 +1,38 @@
 From: David Lechner <david@lechnology.com>
-Subject: [PATCH 0/3] LEGO MINDSTORMS I2C support
-Date: Mon,  5 Sep 2016 15:40:11 -0500
-Message-ID: <1473108014-30787-1-git-send-email-david@lechnology.com>
+Subject: [PATCH 1/3] i2c: Add class for LEGO MINDSTORMS sensors
+Date: Mon,  5 Sep 2016 15:40:12 -0500
+Message-ID: <1473108014-30787-2-git-send-email-david@lechnology.com>
+References: <1473108014-30787-1-git-send-email-david@lechnology.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1473108014-30787-1-git-send-email-david@lechnology.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: David Lechner <david@lechnology.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I'm working on getting LEGO MINDSTORMS[1] support in the Linux kernel.
+LEGO MINDSTORMS (robotics system from LEGO) has a number of sensors
+that use I2C communications. These sensors have a well-know register
+layout, so they are easily detected.
 
-They have a system of modular sensors that are hot-plugable, some of which use
-I2C communications. Unfortunately, these don't necessary follow standard I2C
-conventions, but they do have a well-defined register layout, so they are
-easy to detect.
+This class is being added so that future drivers for these sensors can
+be automatically detected.
 
-This set of patches addresses the hot-plugability of the sensors.
+Signed-off-by: David Lechner <david@lechnology.com>
+---
+ include/linux/i2c.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-[1]: http://mindstorms.lego.com
-
-
-David Lechner (3):
-  i2c: Add class for LEGO MINDSTORMS sensors
-  i2c: Add special case for detecting LEGO devices
-  i2c: expose adapter probe and remove probed functions
-
- drivers/i2c/i2c-core.c | 62 ++++++++++++++++++++++++++++++++++++++------------
- include/linux/i2c.h    |  4 ++++
- 2 files changed, 52 insertions(+), 14 deletions(-)
-
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index fffdc27..3eab858 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -638,6 +638,7 @@ i2c_unlock_adapter(struct i2c_adapter *adapter)
+ #define I2C_CLASS_DDC		(1<<3)	/* DDC bus on graphics adapters */
+ #define I2C_CLASS_SPD		(1<<7)	/* Memory modules */
+ #define I2C_CLASS_DEPRECATED	(1<<8)	/* Warn users that adapter will stop using classes */
++#define I2C_CLASS_LEGO		(1<<9)	/* LEGO MINDSTORMS sensors */
+ 
+ /* Internal numbers to terminate lists */
+ #define I2C_CLIENT_END		0xfffeU
 -- 
 2.7.4
