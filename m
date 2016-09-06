@@ -1,127 +1,77 @@
-From: David Lechner <david@lechnology.com>
-Subject: [PATCH 3/3] i2c: expose adapter probe and remove probed functions
-Date: Mon,  5 Sep 2016 15:40:14 -0500
-Message-ID: <1473108014-30787-4-git-send-email-david@lechnology.com>
-References: <1473108014-30787-1-git-send-email-david@lechnology.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1473108014-30787-1-git-send-email-david@lechnology.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: David Lechner <david@lechnology.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: [v11, 0/8] Fix eSDHC host version register bug
+Date: Tue, 6 Sep 2016 16:28:15 +0800
+Message-ID: <1473150503-9550-1-git-send-email-yangbo.lu@nxp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, xiaobo.xie-3arQi8VN3Tc@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, leoyang.li-3arQi8VN3Tc@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Publicly expose functions for detecting devices and removing detected
-devices.
+This patchset is used to fix a host version register bug in the T4240-R1.0-R2.0
+eSDHC controller. To match the SoC version and revision, 10 previous version
+patchsets had tried many methods but all of them were rejected by reviewers.
+Such as
+	- dts compatible method
+	- syscon method
+	- ifdef PPC method
+	- GUTS driver getting SVR method
+Anrd suggested a soc_device_match method in v10, and this is the only available
+method left now. This v11 patchset introduces the soc_device_match interface in
+soc driver.
 
-Currently an i2c adapter only probes/detects new devices when the adapter
-is added or when a new i2c driver is added. This adds a new function,
-i2c_adapter_probe(), that allows detecting sensors at any time.
+The first six patches are to add the GUTS driver. This is used to register a
+soc device which contain soc version and revision information.
+The following two patches introduce the soc_device_match method in soc driver
+and apply it on esdhc driver to fix this bug.
 
-Furthermore, the function i2c_adapter_remove_probed() is added to remove
-the devices added by i2c_adapter_probe() at any time.
+Yangbo Lu (8):
+  dt: bindings: update Freescale DCFG compatible
+  ARM64: dts: ls2080a: add device configuration node
+  dt: bindings: move guts devicetree doc out of powerpc directory
+  powerpc/fsl: move mpc85xx.h to include/linux/fsl
+  soc: fsl: add GUTS driver for QorIQ platforms
+  MAINTAINERS: add entry for Freescale SoC drivers
+  base: soc: introduce soc_device_match() interface
+  mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
 
-The intended use of these functions is for LEGO MINDSTORMS sensors. These
-are hot-plugable I2C devices. When a sensor is connected, i2c_adapter_probe()
-is called to automatically configure the sensor. When the sensor is
-disconnected, i2c_adapter_remove_probed() is called to remove the
-automatically configured device.
+ Documentation/devicetree/bindings/arm/fsl.txt      |   6 +-
+ .../bindings/{powerpc => soc}/fsl/guts.txt         |   3 +
+ MAINTAINERS                                        |  11 +-
+ arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi     |   6 +
+ arch/powerpc/kernel/cpu_setup_fsl_booke.S          |   2 +-
+ arch/powerpc/sysdev/fsl_pci.c                      |   2 +-
+ drivers/base/Kconfig                               |   1 +
+ drivers/base/soc.c                                 |  61 +++
+ drivers/clk/clk-qoriq.c                            |   3 +-
+ drivers/i2c/busses/i2c-mpc.c                       |   2 +-
+ drivers/iommu/fsl_pamu.c                           |   3 +-
+ drivers/mmc/host/Kconfig                           |   1 +
+ drivers/mmc/host/sdhci-of-esdhc.c                  |  20 +
+ drivers/net/ethernet/freescale/gianfar.c           |   2 +-
+ drivers/soc/Kconfig                                |   2 +-
+ drivers/soc/fsl/Kconfig                            |  20 +
+ drivers/soc/fsl/Makefile                           |   1 +
+ drivers/soc/fsl/guts.c                             | 483 +++++++++++++++++++++
+ include/linux/fsl/guts.h                           | 127 ++++--
+ .../asm/mpc85xx.h => include/linux/fsl/svr.h       |   4 +-
+ include/linux/sys_soc.h                            |   3 +
+ 21 files changed, 702 insertions(+), 61 deletions(-)
+ rename Documentation/devicetree/bindings/{powerpc => soc}/fsl/guts.txt (91%)
+ create mode 100644 drivers/soc/fsl/Kconfig
+ create mode 100644 drivers/soc/fsl/guts.c
+ rename arch/powerpc/include/asm/mpc85xx.h => include/linux/fsl/svr.h (97%)
 
-Signed-off-by: David Lechner <david@lechnology.com>
----
- drivers/i2c/i2c-core.c | 45 ++++++++++++++++++++++++++++++++++++++-------
- include/linux/i2c.h    |  3 +++
- 2 files changed, 41 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 28436d9..2781a88 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1691,6 +1691,23 @@ static int __process_new_adapter(struct device_driver *d, void *data)
- 	return i2c_do_add_adapter(to_i2c_driver(d), data);
- }
- 
-+/**
-+ * i2c_adapter_probe - probe adapter for clients
-+ * @adap: The i2c adapter.
-+ *
-+ * This calls the detect function of each driver that matches the class of the
-+ * adapter. This function is called when an adapter is added, so there is no
-+ * need to call this manually, unless you have hot-plugable i2c devices that
-+ * are connected after the adapter is created.
-+ */
-+void i2c_adapter_probe(struct i2c_adapter *adap)
-+{
-+	mutex_lock(&core_lock);
-+	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
-+	mutex_unlock(&core_lock);
-+}
-+EXPORT_SYMBOL(i2c_adapter_probe);
-+
- static int i2c_register_adapter(struct i2c_adapter *adap)
- {
- 	int res = -EINVAL;
-@@ -1759,9 +1776,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 		i2c_scan_static_board_info(adap);
- 
- 	/* Notify drivers */
--	mutex_lock(&core_lock);
--	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
--	mutex_unlock(&core_lock);
-+	i2c_adapter_probe(adap);
- 
- 	return 0;
- 
-@@ -1904,6 +1919,25 @@ static int __process_removed_adapter(struct device_driver *d, void *data)
- }
- 
- /**
-+ * i2c_adapter_remove_probed - Remove clients that were automatically detected.
-+ * @adap: The i2c adapter.
-+ *
-+ * This removes all i2c clients from this adapter that were added via driver
-+ * detect() functions. This function is called when an adapter is removed, so
-+ * there is no need to call this manually, unless you have hot-plugable i2c
-+ * devices that are disconnected before the adapter is destroyed.
-+ *
-+ * Any clients that were added manually (e.g. via sysfs) are not removed.
-+ */
-+void i2c_adapter_remove_probed(struct i2c_adapter *adap)
-+{
-+	mutex_lock(&core_lock);
-+	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_removed_adapter);
-+	mutex_unlock(&core_lock);
-+}
-+EXPORT_SYMBOL(i2c_adapter_remove_probed);
-+
-+/**
-  * i2c_del_adapter - unregister I2C adapter
-  * @adap: the adapter being unregistered
-  * Context: can sleep
-@@ -1927,10 +1961,7 @@ void i2c_del_adapter(struct i2c_adapter *adap)
- 
- 	acpi_i2c_remove_space_handler(adap);
- 	/* Tell drivers about this removal */
--	mutex_lock(&core_lock);
--	bus_for_each_drv(&i2c_bus_type, NULL, adap,
--			       __process_removed_adapter);
--	mutex_unlock(&core_lock);
-+	i2c_adapter_remove_probed(adap);
- 
- 	/* Remove devices instantiated from sysfs */
- 	mutex_lock_nested(&adap->userspace_clients_lock,
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 3eab858..0016623 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -657,6 +657,9 @@ extern int i2c_add_adapter(struct i2c_adapter *);
- extern void i2c_del_adapter(struct i2c_adapter *);
- extern int i2c_add_numbered_adapter(struct i2c_adapter *);
- 
-+extern void i2c_adapter_probe(struct i2c_adapter *adap);
-+extern void i2c_adapter_remove_probed(struct i2c_adapter *adap);
-+
- extern int i2c_register_driver(struct module *, struct i2c_driver *);
- extern void i2c_del_driver(struct i2c_driver *);
- 
 -- 
-2.7.4
+2.1.0.27.g96db324
