@@ -1,176 +1,148 @@
-From: Leo Li <pku.leo@gmail.com>
-Subject: Re: [PATCH v5] i2c: imx: make bus recovery through pinctrl optional
-Date: Tue, 6 Sep 2016 18:14:42 -0500
-Message-ID: <CADRPPNQNFyAE3Thn+LYUVU5m-RPwkMAkfGfZ5PkNj8Dno-p7Rg@mail.gmail.com>
-References: <1471644322-22670-1-git-send-email-leoyang.li@nxp.com>
- <20160906185849.27pjhawadca5pwow@pengutronix.de> <CADRPPNQ+1qBNL5WA=Jo_keE7BPnoOs7a2T6CpTuciiF16qK6xQ@mail.gmail.com>
- <20160906210735.6wl5x2mdhnhdnh7y@pengutronix.de>
+From: "Y.B. Lu" <yangbo.lu@nxp.com>
+Subject: RE: [v11, 7/8] base: soc: introduce soc_device_match() interface
+Date: Wed, 7 Sep 2016 04:10:32 +0000
+Message-ID: <HE1PR04MB088939A28A68035F3393A441F8F80@HE1PR04MB0889.eurprd04.prod.outlook.com>
+References: <1473150503-9550-1-git-send-email-yangbo.lu@nxp.com>
+ <1473150503-9550-8-git-send-email-yangbo.lu@nxp.com>
+ <CAPDyKFrvg3Qr5m3xXvywsCoVvaiF7ggHAj0Aw=WCOXg65Pt0PQ@mail.gmail.com>
+ <6515108.aCEls7dUuW@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20160906210735.6wl5x2mdhnhdnh7y@pengutronix.de>
-Sender: linux-gpio-owner@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Li Yang <leoyang.li@nxp.com>, Gao Pan <pandy.gao@nxp.com>, Wolfram Sang <wsa@the-dreams.de>, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-mmc-owner@vger.kernel.org>
+In-Reply-To: <6515108.aCEls7dUuW@wuerfel>
+Content-Language: en-US
+Sender: linux-mmc-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Ulf Hansson <ulf.hansson@linaro.org>
+Cc: linux-mmc <linux-mmc@vger.kernel.org>, Scott Wood <oss@buserror.net>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-clk <linux-clk@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@free>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 6, 2016 at 4:07 PM, Uwe Kleine-K=C3=B6nig
-<u.kleine-koenig@pengutronix.de> wrote:
-> On Tue, Sep 06, 2016 at 03:06:41PM -0500, Leo Li wrote:
->> On Tue, Sep 6, 2016 at 1:58 PM, Uwe Kleine-K=C3=B6nig
->> <u.kleine-koenig@pengutronix.de> wrote:
->> > On Fri, Aug 19, 2016 at 05:05:22PM -0500, Li Yang wrote:
->> >> Since commit 1c4b6c3bcf30 ("i2c: imx: implement bus recovery") the
->> >> driver starts to use gpio/pinctrl to do i2c bus recovery.  But pinctr=
-l
->> >> is not always available for platforms with this controller such as ls=
-1021a
->> >> and ls1043a, and the device tree binding also mentioned this gpio bas=
-ed
->> >> recovery mechanism as optional.  The patch makes it really optional t=
-hat
->> >> the probe function won't bailout but just disable the bus recovery fu=
-nction
->> >> when pinctrl is not available.
->> >>
->> >> Signed-off-by: Li Yang <leoyang.li@nxp.com>
->> >> Cc: Gao Pan <pandy.gao@nxp.com>
->> >> Cc: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
->> >> Acked-by: Linus Walleij <linus.walleij@linaro.org>
->> >> ---
->> >> v5:
->> >> Revert the last minute change of recovery info initialization timing,=
- it
->> >> will cause problem if initialized after i2c_add_numbered_adapter()
->> >>
->> >> v4:
->> >> Remove the use of IS_ERR_OR_NULL
->> >> Move the condition judgement to i2c_imx_init_recovery_info()
->> >> Change the timing of recovery initialization to be after bus registra=
-tion
->> >>
->> >> v3:
->> >> Rebased to Wolfram's for-next branch
->> >> Added acked-by from Linus Walleij
->> >> Update to use new nxp email addresses due to company merge
->> >>
->> >>  drivers/i2c/busses/i2c-imx.c | 15 ++++++++++++++-
->> >>  1 file changed, 14 insertions(+), 1 deletion(-)
->> >>
->> >> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
-x.c
->> >> index 1844bc9..7ae7992 100644
->> >> --- a/drivers/i2c/busses/i2c-imx.c
->> >> +++ b/drivers/i2c/busses/i2c-imx.c
->> >> @@ -989,6 +989,15 @@ static void i2c_imx_init_recovery_info(struct im=
-x_i2c_struct *i2c_imx,
->> >>  {
->> >>       struct i2c_bus_recovery_info *rinfo =3D &i2c_imx->rinfo;
->> >>
->> >> +     /* if pinctrl is not supported on the system */
->> >> +     if (IS_ERR(i2c_imx->pinctrl))
->> >> +             i2c_imx->pinctrl =3D NULL;
->> >> +
->> >> +     if (!i2c_imx->pinctrl) {
->> >> +             dev_info(&pdev->dev, "can't get pinctrl, bus recovery n=
-ot supported\n");
->> >> +             return;
->> >> +     }
->> >> +
->> >>       i2c_imx->pinctrl_pins_default =3D pinctrl_lookup_state(i2c_imx-=
->pinctrl,
->> >>                       PINCTRL_STATE_DEFAULT);
->> >>       i2c_imx->pinctrl_pins_gpio =3D pinctrl_lookup_state(i2c_imx->pi=
-nctrl,
->> >> @@ -1081,8 +1090,11 @@ static int i2c_imx_probe(struct platform_devic=
-e *pdev)
->> >>               return ret;
->> >>       }
->> >>
->> >> +     /* optional bus recovery feature through pinctrl */
->> >>       i2c_imx->pinctrl =3D devm_pinctrl_get(&pdev->dev);
->> >> -     if (IS_ERR(i2c_imx->pinctrl)) {
->> >> +     /* bailout on -ENOMEM or -EPROBE_DEFER, continue for other erro=
-rs */
->> >> +     if (PTR_ERR(i2c_imx->pinctrl) =3D=3D -ENOMEM ||
->> >> +                     PTR_ERR(i2c_imx->pinctrl) =3D=3D -EPROBE_DEFER)=
- {
->> >>               ret =3D PTR_ERR(i2c_imx->pinctrl);
->> >>               goto clk_disable;
->> >>       }
->> >
->> > devm_pinctrl_get might return the following error-valued pointers:
->> >  - -EINVAL
->> >  - -ENOMEM
->> >  - -ENODEV
->> >  - -EPROBE_DEFER
->> >
->> > There are several error paths returning -EINVAL, one is when an invali=
-d
->> > phandle is used. Do you really want to ignore that?
->> >
->> > IMO error handling is better done with inverse logic, that is continue
->> > on some explicit error, bail out on all unknown stuff. This tends to b=
-e
->> > more robust. Also the comment should be improved to not explain that f=
-or
->> > -ENOMEM and -EPROBE_DEFER we bail out (which should be obvious for
->> > anyone who can read C) but to explain why.
->>
->> What you said is true for normal error handling, but in this scenario
->> it is intentional to ignore all pinctrl related errors except critical
->> ones because failing to have pinctrl for an optional feature shouldn't
->> impact the function of normal i2c.  We choose to catch -ENOMEM because
->> the error could also cause problem for i2c probe, and -EPROBE_DEFER
->> because it's possible that the pinctrl will be ready later and we want
->> to give it a chance.  The i2c driver really don't care why the pinctrl
->> was not usable.  I thought I added comment before the
->> devm_pinctrl_get() to explain that the pinctrl is optional.  Hopefully
->> you are not suggesting to explain what -ENOMEM and -EPROBE_DEFER mean
->> in the comment. :)
->
-> You wrote
->
->         /* optional bus recovery feature through pinctrl */
->
-> there. I'd expect to read something like:
->
->         /*
->          * If pinctrl is available it might be possible to switch the
->          * SDA and SCL lines to their GPIO functions and do a recovery
->          * procedure in this mode. If there is anything wrong with
->          * pinctrl we cannot do this and simply skip it.
->          */
+Hi Anrd and Uffe,
 
-Thanks.  I will use this.  This does looks more clear.  And more verbose to=
-o. :)
+Thank you for your comment.
+Please see my comment inline.
 
->
->> > Also I'd put
->> >
->> >         i2c_imx->pinctrl =3D NULL;
->> >
->> > directly after devm_pinctrl_get() which I consider the more obvious
->> > place for this.
->>
->> On the other hand, put it together with the actually judgement can
->> make it clear that it is catching both IS_ERR and NULL returns from
->> devm_pinctrl_get()?
->
-> When you do it immediately, you have:
->
->         if (i2c_imx->pinctrl)
->                 use_it();
->         else
->                 ignore_it();
->
 
-But you suggested the other way last time "Or maybe make
-i2c_imx_init_recovery_info aware of this situation to keep the caller
-simple?"  :)  Either way I think it is just personal preferences with
-both subtle pros and cons.  I don't think we should spend too much
-time on this.
 
-Regards,
-Leo
+Best regards,
+Yangbo Lu
+
+> -----Original Message-----
+> From: Arnd Bergmann [mailto:arnd@arndb.de]
+> Sent: Tuesday, September 06, 2016 8:46 PM
+> To: Ulf Hansson
+> Cc: Y.B. Lu; linux-mmc; Scott Wood; linuxppc-dev@lists.ozlabs.org;
+> devicetree@vger.kernel.org; linux-arm-kernel@lists.infradead.org; linux-
+> kernel@vger.kernel.org; linux-clk; linux-i2c@vger.kernel.org;
+> iommu@lists.linux-foundation.org; netdev@vger.kernel.org; Mark Rutland;
+> Rob Herring; Russell King; Jochen Friedrich; Joerg Roedel; Claudiu Manoil=
+;
+> Bhupesh Sharma; Qiang Zhao; Kumar Gala; Santosh Shilimkar; Leo Li; X.B.
+> Xie
+> Subject: Re: [v11, 7/8] base: soc: introduce soc_device_match() interface
+>=20
+> On Tuesday, September 6, 2016 1:44:23 PM CEST Ulf Hansson wrote:
+> > On 6 September 2016 at 10:28, Yangbo Lu <yangbo.lu@nxp.com> wrote:
+> > > We keep running into cases where device drivers want to know the
+> > > exact version of the a SoC they are currently running on. In the
+> > > past, this has usually been done through a vendor specific API that
+> > > can be called by a driver, or by directly accessing some kind of
+> > > version register that is not part of the device itself but that
+> > > belongs to a global register area of the chip.
+>=20
+> Please add "From: Arnd Bergmann <arnd@arndb.de>" as the first line, to
+> preserve authorship. If you use "git send-email" or "git format-patch",
+> that should happen automatically if the author field is set right (if not=
+,
+> use 'git commit --amend --author=3D"Arnd Bergmann <arnd@arndb.de>"'
+> to fix it).
+>=20
+
+[Lu Yangbo-B47093] Oh, I'm sorry for my careless. Will correct it in next v=
+ersion.
+
+> > > +
+> > > +/*
+> > > + * soc_device_match - identify the SoC in the machine
+> > > + * @matches: zero-terminated array of possible matches
+> >
+> > Perhaps also express the constraint on the matching entries. As you
+> > need at least one of the ->machine(), ->family(), ->revision() or
+> > ->soc_id() callbacks implemented, right!?
+>=20
+> They are not callbacks, just strings. Having an empty entry indicates the
+> end of the array, and this is not called.
+>=20
+> > > + *
+> > > + * returns the first matching entry of the argument array, or NULL
+> > > + * if none of them match.
+> > > + *
+> > > + * This function is meant as a helper in place of of_match_node()
+> > > + * in cases where either no device tree is available or the
+> > > + information
+> > > + * in a device node is insufficient to identify a particular
+> > > + variant
+> > > + * by its compatible strings or other properties. For new devices,
+> > > + * the DT binding should always provide unique compatible strings
+> > > + * that allow the use of of_match_node() instead.
+> > > + *
+> > > + * The calling function can use the .data entry of the
+> > > + * soc_device_attribute to pass a structure or function pointer for
+> > > + * each entry.
+> >
+> > I don't get the use case behind this, could you elaborate?
+> >
+> > Perhaps we should postpone adding the .data entry until we actually
+> > see a need for it?
+>=20
+> I think the interface is rather useless without a way to figure out which
+> entry you got. Almost all users of of_match_node() actually use the
+> returned ->data field, and I expect this to be the same here.
+>=20
+> > > + */
+> > > +const struct soc_device_attribute *soc_device_match(
+> > > +       const struct soc_device_attribute *matches) {
+> > > +       struct device *dev;
+> > > +       int ret;
+> > > +
+> > > +       for (ret =3D 0; ret =3D=3D 0; matches++) {
+> >
+> > This loop looks a bit weird and unsafe.
+>=20
+> Ah, and I thought I was being clever ;-)
+>=20
+> > 1) Perhaps using a while loop makes this more readable?
+> > 2) As this is an exported API, I guess validation of the ->matches
+> > pointer needs to be done before accessing it.
+>=20
+> Sounds fine.
+
+[Lu Yangbo-B47093] Ok, Will change this according to Uffe.=20
+And actually there is issue with this for() when I verified it again this m=
+orning.
+We will get matches++ rather than matches which is correct finally :)
+
+>=20
+> > > +               if (!(matches->machine || matches->family ||
+> > > +                     matches->revision || matches->soc_id))
+> > > +                       return NULL;
+> > > +               dev =3D NULL;
+> >
+> > There's no need to use a struct device just to assign it to NULL.
+> > Instead just provide the function below with NULL.
+> >
+> > > +               ret =3D bus_for_each_dev(&soc_bus_type, dev, (void
+> *)matches,
+> > > +                                      soc_device_match_one);
+>=20
+>=20
+> I don't remember what led to this, I think you are right, we should just
+> pass NULL as most other callers.
+
+[Lu Yangbo-B47093] Will correct it. Thanks. :)
+
+>=20
+> Thanks for the review.
+>=20
+> 	ARnd
+
