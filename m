@@ -1,51 +1,40 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH V2 9/9] i2c: tegra: Add pinctrl support
-Date: Wed, 7 Sep 2016 16:17:43 +0200
-Message-ID: <CACRpkdZb-dE0qNtBWQnPzsA0FUTg8ghWzu56Ezjm4p2xA35ukw@mail.gmail.com>
-References: <1472216945-11818-1-git-send-email-jonathanh@nvidia.com> <1472216945-11818-10-git-send-email-jonathanh@nvidia.com>
+From: Leo Li <pku.leo@gmail.com>
+Subject: Re: [PATCH v5] i2c: imx: make bus recovery through pinctrl optional
+Date: Wed, 7 Sep 2016 11:40:32 -0500
+Message-ID: <CADRPPNRppCf4v7S_i69XOmY8X6YwUeiwdkaRZwSDaao5XHKChQ@mail.gmail.com>
+References: <1471644322-22670-1-git-send-email-leoyang.li@nxp.com>
+ <20160906185849.27pjhawadca5pwow@pengutronix.de> <CADRPPNQ+1qBNL5WA=Jo_keE7BPnoOs7a2T6CpTuciiF16qK6xQ@mail.gmail.com>
+ <87ca69fb85848a0a86b34a9a9037a57b@agner.ch> <CADRPPNSPye45bmFshfwb+gDA0x0ygs4Ofa6HMYbKt9ER0oeccg@mail.gmail.com>
+ <CAChUvXOGjTn6K5588UVgjbRWUY+weDtk2qbOU-NM4=kA2znh=Q@mail.gmail.com>
+ <20160907055547.opp57zyxhlplhxhm@pengutronix.de> <CAChUvXMPDZB7=ZArQ5+6ae42N=Bsgv_OczGXnyhBjEdjt_yvsw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:34328 "EHLO
-        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754318AbcIGORo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 7 Sep 2016 10:17:44 -0400
-Received: by mail-oi0-f49.google.com with SMTP id m11so27482706oif.1
-        for <linux-i2c@vger.kernel.org>; Wed, 07 Sep 2016 07:17:44 -0700 (PDT)
-In-Reply-To: <1472216945-11818-10-git-send-email-jonathanh@nvidia.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CAChUvXMPDZB7=ZArQ5+6ae42N=Bsgv_OczGXnyhBjEdjt_yvsw@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Tracy Smith <tlsmith3777@gmail.com>
+Cc: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-gpio@vger.kernel.org, Li Yang <leoyang.li@nxp.com>, Stefan Agner <stefan@agner.ch>, Gao Pan <pandy.gao@nxp.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Fri, Aug 26, 2016 at 3:09 PM, Jon Hunter <jonathanh@nvidia.com> wrote:
-
-> On Tegra124/132 the pins for I2C6 are shared with the Display Port AUX
-> (DPAUX) channel and on Tegra210 the pins for I2C4 and I2C6 are shared
-> with DPAUX1 and DPAUX0, respectively. The multiplexing of the pins is
-> handled by a register in the DPAUX and so the Tegra DPAUX driver has
-> been updated to register a pinctrl device for managing these pins.
+On Wed, Sep 7, 2016 at 5:07 AM, Tracy Smith <tlsmith3777@gmail.com> wrote:
+> Hello, bus recovery is needed generally speaking because of potential
+> protocol errors that might cause a failure condition hanging the bus.
 >
-> The pins for these particular I2C devices are bound to the I2C device
-> prior to probing. However, these I2C devices are in a different power
-> partition to the DPAUX devices that own the pins. Hence, it is desirable
-> to place the pins in the 'idle' state and allow the DPAUX power
-> partition to switch off, when these I2C devices is not in use.
-> Therefore, add calls to place the I2C pins in the 'default' and 'idle'
-> states when the I2C device is runtime resumed and suspended,
-> respectively.
+> It happens frequently during bring-up of new I2C devices because firmware in
+> I2C controllers fail to handle properly protocol errors.
 >
-> Please note that the pinctrl functions that set the state of the pins
-> check to see if the devices has pins associated and will return zero
-> if they do not. Therefore, it is safe to call these pinctrl functions
-> even for I2C devices that do not have any pins associated.
+> Can NXP add bus recovery for the LS1021A and LS1043A in a separate patch--
+> unless there is no HW bus recovery mechanism?
 >
-> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-> Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
+> The concern is while fixing I.MX, NXP will fail to fix the driver bus
+> recovery for the LS1021A and LS1043A and the bus will hang.
+>
+> If bus recovery is supported on the LS1021A and the LS1043A, a patch should
+> be provided or added in this patch instead of simply disabling bus recovery.
+> Request NXP to consider the patch if there is HW support for bus recovery.
 
-This is exactly how I imagined these states being used,
-so obviously:
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+I'm not the right person to answer if this is possible.  I will
+forward your request to the related developer.
 
-Yours,
-Linus Walleij
+Thanks,
+Leo
