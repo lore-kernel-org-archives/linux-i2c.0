@@ -1,78 +1,115 @@
-From: Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH v6] i2c: imx: make bus recovery through pinctrl optional
-Date: Wed, 7 Sep 2016 12:03:16 -0500
-Message-ID: <1473267796-10403-1-git-send-email-leoyang.li@nxp.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v6] i2c: imx: make bus recovery through pinctrl optional
+Date: Wed, 7 Sep 2016 20:09:43 +0200
+Message-ID: <20160907180943.ia3pjqq4dynzuxvm@pengutronix.de>
+References: <1473267796-10403-1-git-send-email-leoyang.li@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Gao Pan <pandy.gao@nxp.com>, Li Yang <leoyang.li@nxp.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1473267796-10403-1-git-send-email-leoyang.li@nxp.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Li Yang <leoyang.li@nxp.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Gao Pan <pandy.gao@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-U2luY2UgY29tbWl0IDFjNGI2YzNiY2YzMCAoImkyYzogaW14OiBpbXBsZW1lbnQgYnVzIHJlY292
-ZXJ5IikgdGhlCmRyaXZlciBzdGFydHMgdG8gdXNlIGdwaW8vcGluY3RybCB0byBkbyBpMmMgYnVz
-IHJlY292ZXJ5LiAgQnV0IHBpbmN0cmwKaXMgbm90IGFsd2F5cyBhdmFpbGFibGUgZm9yIHBsYXRm
-b3JtcyB3aXRoIHRoaXMgY29udHJvbGxlciBzdWNoIGFzCmxzMTAyMWEgYW5kIGxzMTA0M2EsIGFu
-ZCB0aGUgZGV2aWNlIHRyZWUgYmluZGluZyBhbHNvIG1lbnRpb25lZCB0aGlzCmdwaW8gYmFzZWQg
-cmVjb3ZlcnkgbWVjaGFuaXNtIGFzIG9wdGlvbmFsLiAgVGhlIHBhdGNoIG1ha2VzIGl0IHJlYWxs
-eQpvcHRpb25hbCB0aGF0IHRoZSBwcm9iZSBmdW5jdGlvbiB3b24ndCBiYWlsb3V0IGJ1dCBqdXN0
-IGRpc2FibGUgdGhlCmJ1cyByZWNvdmVyeSBmdW5jdGlvbiB3aGVuIHBpbmN0cmwgaXMgbm90IHVz
-YWJsZS4KClNpZ25lZC1vZmYtYnk6IExpIFlhbmcgPGxlb3lhbmcubGlAbnhwLmNvbT4KQ2M6IEdh
-byBQYW4gPHBhbmR5Lmdhb0BueHAuY29tPgpDYzogVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5l
-LWtvZW5pZ0BwZW5ndXRyb25peC5kZT4KQWNrZWQtYnk6IExpbnVzIFdhbGxlaWogPGxpbnVzLndh
-bGxlaWpAbGluYXJvLm9yZz4KLS0tCnY2OgpVcGRhdGUgY29kZSBjb21tZW50Cgp2NToKUmV2ZXJ0
-IHRoZSBsYXN0IG1pbnV0ZSBjaGFuZ2Ugb2YgcmVjb3ZlcnkgaW5mbyBpbml0aWFsaXphdGlvbiB0
-aW1pbmcsIGl0CndpbGwgY2F1c2UgcHJvYmxlbSBpZiBpbml0aWFsaXplZCBhZnRlciBpMmNfYWRk
-X251bWJlcmVkX2FkYXB0ZXIoKQoKdjQ6ClJlbW92ZSB0aGUgdXNlIG9mIElTX0VSUl9PUl9OVUxM
-Ck1vdmUgdGhlIGNvbmRpdGlvbiBqdWRnZW1lbnQgdG8gaTJjX2lteF9pbml0X3JlY292ZXJ5X2lu
-Zm8oKQpDaGFuZ2UgdGhlIHRpbWluZyBvZiByZWNvdmVyeSBpbml0aWFsaXphdGlvbiB0byBiZSBh
-ZnRlciBidXMgcmVnaXN0cmF0aW9uCgp2MzoKUmViYXNlZCB0byBXb2xmcmFtJ3MgZm9yLW5leHQg
-YnJhbmNoCkFkZGVkIGFja2VkLWJ5IGZyb20gTGludXMgV2FsbGVpagpVcGRhdGUgdG8gdXNlIG5l
-dyBueHAgZW1haWwgYWRkcmVzc2VzIGR1ZSB0byBjb21wYW55IG1lcmdlCgogZHJpdmVycy9pMmMv
-YnVzc2VzL2kyYy1pbXguYyB8IDIyICsrKysrKysrKysrKysrKysrKysrKy0KIDEgZmlsZSBjaGFu
-Z2VkLCAyMSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9pMmMvYnVzc2VzL2kyYy1pbXguYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMKaW5k
-ZXggMTg0NGJjOS4uZjUyZmY0NyAxMDA2NDQKLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1p
-bXguYworKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jCkBAIC05ODksNiArOTg5LDE0
-IEBAIHN0YXRpYyB2b2lkIGkyY19pbXhfaW5pdF9yZWNvdmVyeV9pbmZvKHN0cnVjdCBpbXhfaTJj
-X3N0cnVjdCAqaTJjX2lteCwKIHsKIAlzdHJ1Y3QgaTJjX2J1c19yZWNvdmVyeV9pbmZvICpyaW5m
-byA9ICZpMmNfaW14LT5yaW5mbzsKIAorCS8qIElmIHBpbmN0cmwgaXMgbm90IGF2YWlsYWJsZSBk
-aXNhYmxlIGJ1cyByZWNvdmVyeSAqLworCWlmIChJU19FUlIoaTJjX2lteC0+cGluY3RybCkpCisJ
-CWkyY19pbXgtPnBpbmN0cmwgPSBOVUxMOworCWlmICghaTJjX2lteC0+cGluY3RybCkgeworCQlk
-ZXZfaW5mbygmcGRldi0+ZGV2LCAiY2FuJ3QgZ2V0IHBpbmN0cmwsIGJ1cyByZWNvdmVyeSBub3Qg
-c3VwcG9ydGVkXG4iKTsKKwkJcmV0dXJuOworCX0KKwogCWkyY19pbXgtPnBpbmN0cmxfcGluc19k
-ZWZhdWx0ID0gcGluY3RybF9sb29rdXBfc3RhdGUoaTJjX2lteC0+cGluY3RybCwKIAkJCVBJTkNU
-UkxfU1RBVEVfREVGQVVMVCk7CiAJaTJjX2lteC0+cGluY3RybF9waW5zX2dwaW8gPSBwaW5jdHJs
-X2xvb2t1cF9zdGF0ZShpMmNfaW14LT5waW5jdHJsLApAQCAtMTA4MSw4ICsxMDg5LDE5IEBAIHN0
-YXRpYyBpbnQgaTJjX2lteF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQogCQly
-ZXR1cm4gcmV0OwogCX0KIAorCS8qCisJICogSWYgcGluY3RybCBpcyBhdmFpbGFibGUgaXQgbWln
-aHQgYmUgcG9zc2libGUgdG8gc3dpdGNoIHRoZQorCSAqIFNEQSBhbmQgU0NMIGxpbmVzIHRvIHRo
-ZWlyIEdQSU8gZnVuY3Rpb25zIGFuZCBkbyBhIHJlY292ZXJ5CisJICogcHJvY2VkdXJlIGluIHRo
-aXMgbW9kZS4gSWYgdGhlcmUgaXMgYW55dGhpbmcgd3Jvbmcgd2l0aAorCSAqIHBpbmN0cmwgd2Ug
-Y2Fubm90IGRvIHRoaXMgYW5kIHNpbXBseSBub3QgZW5hYmxlIGl0LgorCSAqLwogCWkyY19pbXgt
-PnBpbmN0cmwgPSBkZXZtX3BpbmN0cmxfZ2V0KCZwZGV2LT5kZXYpOwotCWlmIChJU19FUlIoaTJj
-X2lteC0+cGluY3RybCkpIHsKKwkvKgorCSAqIEJhaWxvdXQgb24gY3JpdGljYWwgZXJyb3JzLCBj
-b250aW51ZSBmb3Igb3RoZXIgZXJyb3JzLgorCSAqIEJ1cyByZWNvdmVyeSB3aWxsIG5vdCBiZSBl
-bmFibGVkIGlmIHBpbmN0cmwgaXMgbm90IGF2YWlsYWJsZS4KKwkgKi8KKwlpZiAoUFRSX0VSUihp
-MmNfaW14LT5waW5jdHJsKSA9PSAtRU5PTUVNIHx8CisJCQlQVFJfRVJSKGkyY19pbXgtPnBpbmN0
-cmwpID09IC1FUFJPQkVfREVGRVIpIHsKIAkJcmV0ID0gUFRSX0VSUihpMmNfaW14LT5waW5jdHJs
-KTsKIAkJZ290byBjbGtfZGlzYWJsZTsKIAl9CkBAIC0xMTI1LDYgKzExNDQsNyBAQCBzdGF0aWMg
-aW50IGkyY19pbXhfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikKIAkJCWkyY19p
-bXgsIElNWF9JMkNfSTJDUik7CiAJaW14X2kyY193cml0ZV9yZWcoaTJjX2lteC0+aHdkYXRhLT5p
-MnNyX2Nscl9vcGNvZGUsIGkyY19pbXgsIElNWF9JMkNfSTJTUik7CiAKKwkvKiBJbml0IGJ1cyBy
-ZWNvdmVyeSBpbmZvIGlmIHN1cHBvcnRlZCAqLwogCWkyY19pbXhfaW5pdF9yZWNvdmVyeV9pbmZv
-KGkyY19pbXgsIHBkZXYpOwogCiAJLyogQWRkIEkyQyBhZGFwdGVyICovCi0tIAoxLjkuMAoKCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1r
-ZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpo
-dHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJu
-ZWwK
+Hello,
+
+On Wed, Sep 07, 2016 at 12:03:16PM -0500, Li Yang wrote:
+> Since commit 1c4b6c3bcf30 ("i2c: imx: implement bus recovery") the
+> driver starts to use gpio/pinctrl to do i2c bus recovery.  But pinctrl
+> is not always available for platforms with this controller such as
+> ls1021a and ls1043a, and the device tree binding also mentioned this
+> gpio based recovery mechanism as optional.  The patch makes it really
+> optional that the probe function won't bailout but just disable the
+> bus recovery function when pinctrl is not usable.
+> 
+> Signed-off-by: Li Yang <leoyang.li@nxp.com>
+> Cc: Gao Pan <pandy.gao@nxp.com>
+> Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> v6:
+> Update code comment
+> 
+> v5:
+> Revert the last minute change of recovery info initialization timing, it
+> will cause problem if initialized after i2c_add_numbered_adapter()
+> 
+> v4:
+> Remove the use of IS_ERR_OR_NULL
+> Move the condition judgement to i2c_imx_init_recovery_info()
+> Change the timing of recovery initialization to be after bus registration
+> 
+> v3:
+> Rebased to Wolfram's for-next branch
+> Added acked-by from Linus Walleij
+> Update to use new nxp email addresses due to company merge
+> 
+>  drivers/i2c/busses/i2c-imx.c | 22 +++++++++++++++++++++-
+>  1 file changed, 21 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 1844bc9..f52ff47 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -989,6 +989,14 @@ static void i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+>  {
+>  	struct i2c_bus_recovery_info *rinfo = &i2c_imx->rinfo;
+>  
+> +	/* If pinctrl is not available disable bus recovery */
+> +	if (IS_ERR(i2c_imx->pinctrl))
+> +		i2c_imx->pinctrl = NULL;
+
+I still prefer to do this in i2c_imx_probe to have a single place that
+assignes to i2c_imx->pinctrl.
+
+> +	if (!i2c_imx->pinctrl) {
+> +		dev_info(&pdev->dev, "can't get pinctrl, bus recovery not supported\n");
+> +		return;
+> +	}
+> +
+>  	i2c_imx->pinctrl_pins_default = pinctrl_lookup_state(i2c_imx->pinctrl,
+>  			PINCTRL_STATE_DEFAULT);
+>  	i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
+> @@ -1081,8 +1089,19 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  		return ret;
+>  	}
+>  
+> +	/*
+> +	 * If pinctrl is available it might be possible to switch the
+> +	 * SDA and SCL lines to their GPIO functions and do a recovery
+> +	 * procedure in this mode. If there is anything wrong with
+> +	 * pinctrl we cannot do this and simply not enable it.
+> +	 */
+>  	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+> -	if (IS_ERR(i2c_imx->pinctrl)) {
+> +	/*
+> +	 * Bailout on critical errors, continue for other errors.
+> +	 * Bus recovery will not be enabled if pinctrl is not available.
+> +	 */
+> +	if (PTR_ERR(i2c_imx->pinctrl) == -ENOMEM ||
+> +			PTR_ERR(i2c_imx->pinctrl) == -EPROBE_DEFER) {
+>  		ret = PTR_ERR(i2c_imx->pinctrl);
+>  		goto clk_disable;
+
+I'd not call EPROBE_DEFER a critical error. Maybe only handle this and
+also ignore ENOMEM? You argued that ENOMEM might affect the i2c driver,
+too. I'd say it's worth to try that because not enough memory might also
+happen because pinctrl_get asked for a too big chunk.
+
+>  	}
+> @@ -1125,6 +1144,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  			i2c_imx, IMX_I2C_I2CR);
+>  	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+>  
+> +	/* Init bus recovery info if supported */
+>  	i2c_imx_init_recovery_info(i2c_imx, pdev);
+>  
+>  	/* Add I2C adapter */
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
