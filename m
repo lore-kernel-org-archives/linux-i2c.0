@@ -1,148 +1,42 @@
-From: "Y.B. Lu" <yangbo.lu@nxp.com>
-Subject: RE: [v11, 7/8] base: soc: introduce soc_device_match() interface
-Date: Wed, 7 Sep 2016 04:10:32 +0000
-Message-ID: <HE1PR04MB088939A28A68035F3393A441F8F80@HE1PR04MB0889.eurprd04.prod.outlook.com>
-References: <1473150503-9550-1-git-send-email-yangbo.lu@nxp.com>
- <1473150503-9550-8-git-send-email-yangbo.lu@nxp.com>
- <CAPDyKFrvg3Qr5m3xXvywsCoVvaiF7ggHAj0Aw=WCOXg65Pt0PQ@mail.gmail.com>
- <6515108.aCEls7dUuW@wuerfel>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v5] i2c: imx: make bus recovery through pinctrl optional
+Date: Wed, 7 Sep 2016 07:55:47 +0200
+Message-ID: <20160907055547.opp57zyxhlplhxhm@pengutronix.de>
+References: <1471644322-22670-1-git-send-email-leoyang.li@nxp.com>
+ <20160906185849.27pjhawadca5pwow@pengutronix.de>
+ <CADRPPNQ+1qBNL5WA=Jo_keE7BPnoOs7a2T6CpTuciiF16qK6xQ@mail.gmail.com>
+ <87ca69fb85848a0a86b34a9a9037a57b@agner.ch>
+ <CADRPPNSPye45bmFshfwb+gDA0x0ygs4Ofa6HMYbKt9ER0oeccg@mail.gmail.com>
+ <CAChUvXOGjTn6K5588UVgjbRWUY+weDtk2qbOU-NM4=kA2znh=Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <6515108.aCEls7dUuW@wuerfel>
-Content-Language: en-US
-Sender: linux-mmc-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Ulf Hansson <ulf.hansson@linaro.org>
-Cc: linux-mmc <linux-mmc@vger.kernel.org>, Scott Wood <oss@buserror.net>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-clk <linux-clk@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@free>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAChUvXOGjTn6K5588UVgjbRWUY+weDtk2qbOU-NM4=kA2znh=Q@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tracy Smith <tlsmith3777@gmail.com>
+Cc: Leo Li <pku.leo@gmail.com>, Stefan Agner <stefan@agner.ch>, Gao Pan <pandy.gao@nxp.com>, Wolfram Sang <wsa@the-dreams.de>, lkml <linux-kernel@vger.kernel.org>, Li Yang <leoyang.li@nxp.com>, linux-gpio@vger.kernel.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Anrd and Uffe,
+Hello,
 
-Thank you for your comment.
-Please see my comment inline.
+On Tue, Sep 06, 2016 at 06:35:38PM -0500, Tracy Smith wrote:
+> >The patch makes it really optional that
+> >the probe function won't bailout but just disable the bus recovery function
+> >when pinctrl is not available.
+> 
+> in the case of the LS1043A and LS1021A, if the bus recovery function is
+> disabled, how will bus recovery occur?  Is there no option to recover the
+> bus for the LS1021a and LS1043a?
 
+Right. That's the situation that we had for all drivers some time ago.
+Most of the time this is no problem.
 
+Best regards
+Uwe
 
-Best regards,
-Yangbo Lu
-
-> -----Original Message-----
-> From: Arnd Bergmann [mailto:arnd@arndb.de]
-> Sent: Tuesday, September 06, 2016 8:46 PM
-> To: Ulf Hansson
-> Cc: Y.B. Lu; linux-mmc; Scott Wood; linuxppc-dev@lists.ozlabs.org;
-> devicetree@vger.kernel.org; linux-arm-kernel@lists.infradead.org; linux-
-> kernel@vger.kernel.org; linux-clk; linux-i2c@vger.kernel.org;
-> iommu@lists.linux-foundation.org; netdev@vger.kernel.org; Mark Rutland;
-> Rob Herring; Russell King; Jochen Friedrich; Joerg Roedel; Claudiu Manoil=
-;
-> Bhupesh Sharma; Qiang Zhao; Kumar Gala; Santosh Shilimkar; Leo Li; X.B.
-> Xie
-> Subject: Re: [v11, 7/8] base: soc: introduce soc_device_match() interface
->=20
-> On Tuesday, September 6, 2016 1:44:23 PM CEST Ulf Hansson wrote:
-> > On 6 September 2016 at 10:28, Yangbo Lu <yangbo.lu@nxp.com> wrote:
-> > > We keep running into cases where device drivers want to know the
-> > > exact version of the a SoC they are currently running on. In the
-> > > past, this has usually been done through a vendor specific API that
-> > > can be called by a driver, or by directly accessing some kind of
-> > > version register that is not part of the device itself but that
-> > > belongs to a global register area of the chip.
->=20
-> Please add "From: Arnd Bergmann <arnd@arndb.de>" as the first line, to
-> preserve authorship. If you use "git send-email" or "git format-patch",
-> that should happen automatically if the author field is set right (if not=
-,
-> use 'git commit --amend --author=3D"Arnd Bergmann <arnd@arndb.de>"'
-> to fix it).
->=20
-
-[Lu Yangbo-B47093] Oh, I'm sorry for my careless. Will correct it in next v=
-ersion.
-
-> > > +
-> > > +/*
-> > > + * soc_device_match - identify the SoC in the machine
-> > > + * @matches: zero-terminated array of possible matches
-> >
-> > Perhaps also express the constraint on the matching entries. As you
-> > need at least one of the ->machine(), ->family(), ->revision() or
-> > ->soc_id() callbacks implemented, right!?
->=20
-> They are not callbacks, just strings. Having an empty entry indicates the
-> end of the array, and this is not called.
->=20
-> > > + *
-> > > + * returns the first matching entry of the argument array, or NULL
-> > > + * if none of them match.
-> > > + *
-> > > + * This function is meant as a helper in place of of_match_node()
-> > > + * in cases where either no device tree is available or the
-> > > + information
-> > > + * in a device node is insufficient to identify a particular
-> > > + variant
-> > > + * by its compatible strings or other properties. For new devices,
-> > > + * the DT binding should always provide unique compatible strings
-> > > + * that allow the use of of_match_node() instead.
-> > > + *
-> > > + * The calling function can use the .data entry of the
-> > > + * soc_device_attribute to pass a structure or function pointer for
-> > > + * each entry.
-> >
-> > I don't get the use case behind this, could you elaborate?
-> >
-> > Perhaps we should postpone adding the .data entry until we actually
-> > see a need for it?
->=20
-> I think the interface is rather useless without a way to figure out which
-> entry you got. Almost all users of of_match_node() actually use the
-> returned ->data field, and I expect this to be the same here.
->=20
-> > > + */
-> > > +const struct soc_device_attribute *soc_device_match(
-> > > +       const struct soc_device_attribute *matches) {
-> > > +       struct device *dev;
-> > > +       int ret;
-> > > +
-> > > +       for (ret =3D 0; ret =3D=3D 0; matches++) {
-> >
-> > This loop looks a bit weird and unsafe.
->=20
-> Ah, and I thought I was being clever ;-)
->=20
-> > 1) Perhaps using a while loop makes this more readable?
-> > 2) As this is an exported API, I guess validation of the ->matches
-> > pointer needs to be done before accessing it.
->=20
-> Sounds fine.
-
-[Lu Yangbo-B47093] Ok, Will change this according to Uffe.=20
-And actually there is issue with this for() when I verified it again this m=
-orning.
-We will get matches++ rather than matches which is correct finally :)
-
->=20
-> > > +               if (!(matches->machine || matches->family ||
-> > > +                     matches->revision || matches->soc_id))
-> > > +                       return NULL;
-> > > +               dev =3D NULL;
-> >
-> > There's no need to use a struct device just to assign it to NULL.
-> > Instead just provide the function below with NULL.
-> >
-> > > +               ret =3D bus_for_each_dev(&soc_bus_type, dev, (void
-> *)matches,
-> > > +                                      soc_device_match_one);
->=20
->=20
-> I don't remember what led to this, I think you are right, we should just
-> pass NULL as most other callers.
-
-[Lu Yangbo-B47093] Will correct it. Thanks. :)
-
->=20
-> Thanks for the review.
->=20
-> 	ARnd
-
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
