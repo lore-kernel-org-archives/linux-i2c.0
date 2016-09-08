@@ -1,55 +1,57 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v11 1/5] i2c: tegra: use readl_poll_timeout after
- config_load reg programmed
-Date: Thu, 8 Sep 2016 22:37:25 +0200
-Message-ID: <20160908203725.GE3166@katana>
-References: <1472650124-5702-1-git-send-email-smohammed@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/3] i2c: uniphier: updates for v4.9
+Date: Thu, 8 Sep 2016 22:41:29 +0200
+Message-ID: <20160908204129.GF3166@katana>
+References: <1472730390-8907-1-git-send-email-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="T6xhMxlHU34Bk0ad"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="3yNHWXBV/QO9xKNm"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1472650124-5702-1-git-send-email-smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+In-Reply-To: <1472730390-8907-1-git-send-email-yamada.masahiro@socionext.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---T6xhMxlHU34Bk0ad
+--3yNHWXBV/QO9xKNm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 31, 2016 at 06:58:40PM +0530, Shardar Shariff Md wrote:
-> After CONFIG_LOAD register is programmed instead of explicitly waiting
-> for timeout, use readl_poll_timeout() to check for register value to get
-> updated or wait till timeout.
+On Thu, Sep 01, 2016 at 08:46:27PM +0900, Masahiro Yamada wrote:
 >=20
-> Signed-off-by: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>=20
+>=20
+> Masahiro Yamada (3):
+>   i2c: uniphier: avoid WARN_ON() of clk_disable() in failure path
+>   i2c: uniphier-f: avoid WARN_ON() of clk_disable() in failure path
+>   i2c: uniphier-f: set the adapter to master mode when probing
+>=20
 
-Series applied to for-next, thanks!
+Applied to for-next, thanks!
 
 
---T6xhMxlHU34Bk0ad
+--3yNHWXBV/QO9xKNm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX0cwFAAoJEBQN5MwUoCm2qDkP/jvG8mcn9WTArgfSeMzYM8Cz
-881IIoTVqc189vIjWt46rFOlnI8bmyomWB1UJm+vLGp64Jd8bKwhVkVlf/aZI6J0
-OKY+ZKtN4OL6HZGT5tnBpEXh7mREtQXWwWDcyxw1HgnzX28GNUgaW2NuJE6oNQ6t
-5Ov3ByvZFMzfvXaoIk0gDW9qSq0OJ32q3hFw6/3qopESp/Weg8vaPXRBBlD2M14+
-qbAbjWyBk9PIrmbsTptgkx2y8eDz5xPC1WpKfbFUc6a4RpNpEk087eE2s0u5rmJN
-1kFSY+QQqRSDDIQo2dbpSNkpUdeiImJfmzuFds5V2OKYYTZbL5H3A79BipF4sug0
-yvlabu+CzbsF9yPnUo2ru0/34GgbKfYIIHDJ8MwFJHSgNdQ0XelLPstBRoxKpENz
-DBn+ZjbxGxRj44tLFlKF2QHHo1YkU4ORn6n9ian2TNntXYDvQh/nDwvnp0Kr9j1f
-2xLtDc0XQyaHQuZ5LpUWhyzxW6qk/XbNu/90PKVRypsNa4teXHtI/fH1ZAR4eObH
-zIUHmcvddtgaj/MDBdiOD2m8cA988miE78UPPm6/LTNM142sGFTHLRV/1CXdsKNn
-t+JzMd3F7AWi6e07TcgIWr7udWZJwPtHzOvvzy/jcGLyJ76vyt3VJAlX2DF5wRpU
-C1JW+15inu5KQZdP0ltK
-=H4vK
+iQIcBAEBAgAGBQJX0cz5AAoJEBQN5MwUoCm2iGkP/1OVgN5jKtKsdJdxKM2A0iox
+xQhISQlglnM0LgjIVmqVODHpSJ91HlEvyf7SzHt8ZtgNUF1gA9410j0q8Jfua+hh
+EJ5LwKN9Rvu+GrCkOuBbrD7O/0ScEomXcD+sM2Qpmw6rmGWc3+/XZsjwDk1jvIxY
+LjpISG2X/NRHC71qhAtiCZAdUCdESob5R2nAR+MZOQNgfMrvjtvGGWTPmhpuQ/Re
+wvNYvGvXVZuIVbGDq+SpPERIiTrsn3i+fK4G+9Eu8h4YsLaksObtCb9IZct2mYj4
+J86CmEqSFrJxnpQmQxcZ5rS5sFpNt0mbS7dJVTU14PaWDQsCuumaCsne1h7YWR0o
+etJK87uZfwvtoLR9UsF9bMg8twKKry0j6pdrlr0Uvi1v/ZMicPBuSWAd//Mam/Qq
+4g/Xmzsooz2AuJNXyHjdlbx5k0I38rXcz0KWs/2N6hBtVgspOPazezkYzRXnDt4Y
+yZw2pVWtO1WAIIPKe8Za09MK3PH2XGSzlCJ/p6GOhWnuBrEdfPc9YdqQRnvJ9iYe
+5lg9TIpK/+08X2h/xPAesFXbK8GIv5tkvxZyFzH+6PM9VmdchFzzgH8vbhibwkvh
+kiI1A1Ao13aWXFRcx4ws6Z34w0ayU/fR+SXfIYcj/rxSIGWO1y3EjQaCRlFfIKS+
+0d9j8tOzkgCfwjqhAgEU
+=h/Ow
 -----END PGP SIGNATURE-----
 
---T6xhMxlHU34Bk0ad--
+--3yNHWXBV/QO9xKNm--
