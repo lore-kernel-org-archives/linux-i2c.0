@@ -1,67 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1] i2c: designware: save the preset value of
- DW_IC_SDA_HOLD
-Date: Thu, 8 Sep 2016 22:18:51 +0200
-Message-ID: <20160908201850.GA3166@katana>
-References: <1472283570-31471-1-git-send-email-zhuo-hao.lee@intel.com>
+Subject: Re: [PATCH] [trivial] i2c: Spelling s/acknowedge/acknowledge/
+Date: Thu, 8 Sep 2016 22:22:58 +0200
+Message-ID: <20160908202257.GB3166@katana>
+References: <1472636328-27229-1-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+        protocol="application/pgp-signature"; boundary="tsOsTdHNUZQcU9Ye"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50167 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:50181 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754584AbcIHUTD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 8 Sep 2016 16:19:03 -0400
+        id S1752455AbcIHUXD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 8 Sep 2016 16:23:03 -0400
 Content-Disposition: inline
-In-Reply-To: <1472283570-31471-1-git-send-email-zhuo-hao.lee@intel.com>
+In-Reply-To: <1472636328-27229-1-git-send-email-geert+renesas@glider.be>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Zhuo-hao Lee <zhuo-hao.lee@intel.com>
-Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Jiri Kosina <trivial@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---3MwIy2ne0vdjdPXF
+--tsOsTdHNUZQcU9Ye
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 27, 2016 at 03:39:30PM +0800, Zhuo-hao Lee wrote:
-> There are several ways to set the SDA hold time for i2c controller,
-> including: Device Tree, built-in device properties and ACPI. However,
-> if the SDA hold time is not specified by above method, we should
-> read the value, where it is preset by firmware, and save it to
-> sda_hold_time. This is needed because when i2c controller enters
-> runtime suspend, the DW_IC_SDA_HOLD value will be reset to chipset
-> default value. And during runtime resume, i2c_dw_init will be called
-> to reconfigure i2c controller. If sda_hold_time is zero, the chipset
-> default hold time will be used, that will be too short for some
-> platforms. Therefore, to have a better tolerance, the DW_IC_SDA_HOLD
-> value should be kept by sda_hold_time.
->=20
-> Signed-off-by: Zhuo-hao Lee <zhuo-hao.lee@intel.com>
+On Wed, Aug 31, 2016 at 11:38:48AM +0200, Geert Uytterhoeven wrote:
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
 Applied to for-current, thanks!
 
 
---3MwIy2ne0vdjdPXF
+--tsOsTdHNUZQcU9Ye
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX0ceqAAoJEBQN5MwUoCm2fZMQAKSUpaWvPIiUlP4nmnh1or+c
-w/YflOrnwovTgfoy3UxPao5RnxhTx9WCgF/JDzFQyQ5pzg7zwFA1sN4e6P2XQnDi
-uhGpLEauJbWYweqlDb/l0+NUouP24+jLCoOokpK3fiuxutFAiXj9uTIDu7gn1ZAL
-pu/IvLreb11/0n0uTa0LX3GkFAYermhLRJ6QaGOlyV/Oz62VTHaq3JID+T+Kan5P
-6vekOK52SGG37e58j4v0MO8G0H1OMnXu2LP+nNou7DQHsuZi5UpjceC5rWwhPtVQ
-1YMkbKnNybqXS2s8bhJsaXBgJx4BYwo2fKGnY/hJekWshOQZ13YKvFrMvKNIUucu
-RrxLSPfoCDIs2fRwwUolNEu2nF/0wmH28Bmd+iN3Qa/vXHv39d86hCJ3JnGUGv20
-R5AQooCJmQpFDcFI7S6NtI+Jl6bW6qghuREVSFBv6YKlxO1iKMUi6zqR2vVqUZz2
-NoXgh+LVK61WY4Ivpj2OdentpfjqkvFVWGvCUPsxk9+Qt7M06HN5NlnxK74U4NSz
-kOEfo2T7cvdYE+RqaoY85cnh9XB4URbdPezRaubMbhr9WJqKedMnI5t7VRwrV0ZO
-qJXnmpKcw9xezJxPRt9vogUBZrMPRJ6buAX8MDon5FhboA7UsQUFjWgNud/vbn8o
-EN7JqVp8xUHDJFL3nNPO
-=UKOp
+iQIcBAEBAgAGBQJX0cihAAoJEBQN5MwUoCm2SlcQAJs77bl9uJzIZ0MqZK3f0H62
+aWTiBa8T8qixAIqd+ZwfIWEN7KD7SthSYM1a5hrOh5F3WGnwEge9ey8sq9lXQukb
+3tL+067q7En9CWkdSXqzKK5f/Ec2tPlLWBAXVhJEJNC/gpI+qhyThwpzw+FlZeUX
+eYxdc1v+KpwNKnXEnwzU6YZbGgSXKh81y1tU5+tyn0jfjimK44eE9ApxQKxdwNde
+5U0Htl9pbekvmSOPQ2uOiDf3JFWnFJ6zQaXcsQBSYN2i7y0VQW3QRZM9XnUoPhGI
+7QfnybtD7Ng2aVBo5pqyJHCPbj3vWHFcjWVIkl7zQtDMai2uziJJE5yy1Gz+usVv
+iMBC3o16S7inw2dGr1CYlkbQTQwt3nMb66NNpNoJcT76nd/6yWvIYR70FGs3jr+C
+Y441UqHpT0ZmzSscRtBCP+7iT7RB0QgrEy7PUc15oBzXNud6GzS+CKZVhrZsbVWG
+EJcERg8bi1hlA+o+5NfuSnkH+YhakZk8yihNU2gBgWn4ufBo4703ASzPRpe1WrT/
+tuqyNA4iLeoNYlY0PwmqATtXs7EksommrF1TctLNogFRJWVx3ruGRFh/iwJTsRfS
+P2TWoX9nzTvx9oSJwVhLsxhWYNd0t1+JUDiaWlC5PuB1EtjDbj+VXx5e9XQ/cyer
+pBIvKtGqKwgm0tJdl2Gr
+=l2Hc
 -----END PGP SIGNATURE-----
 
---3MwIy2ne0vdjdPXF--
+--tsOsTdHNUZQcU9Ye--
