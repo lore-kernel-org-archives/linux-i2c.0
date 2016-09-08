@@ -1,54 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: shmobile: Use ARCH_SHMOBILE instead of SUPERH
-Date: Thu, 8 Sep 2016 22:24:28 +0200
-Message-ID: <20160908202428.GC3166@katana>
-References: <1472636113-26988-1-git-send-email-geert+renesas@glider.be>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: Fix assignment of boolean variables
+Date: Thu, 8 Sep 2016 22:26:10 +0200
+Message-ID: <20160908202610.GD3166@katana>
+References: <1473155445-3046-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="FsscpQKzF/jJk6ya"
-Return-path: <linux-sh-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="EP0wieDxd4TSJjHq"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1472636113-26988-1-git-send-email-geert+renesas@glider.be>
-Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+In-Reply-To: <1473155445-3046-1-git-send-email-jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---FsscpQKzF/jJk6ya
+--EP0wieDxd4TSJjHq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 31, 2016 at 11:35:13AM +0200, Geert Uytterhoeven wrote:
-> "i2c-sh_mobile" is used on sh7343, sh7366, sh7722, sh7723, and sh7724
-> only. As all of the above select ARCH_SHMOBILE, restrict its driver
-> dependencies from SUPERH to ARCH_SHMOBILE.
+On Tue, Sep 06, 2016 at 10:50:45AM +0100, Jon Hunter wrote:
+> Fix the following warnings reported by coccinelle for the Tegra I2C
+> driver.
 >=20
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> drivers/i2c/busses/i2c-tegra.c:513:2-23: WARNING: Assignment of bool to 0=
+/1
+> drivers/i2c/busses/i2c-tegra.c:539:3-24: WARNING: Assignment of bool to 0=
+/1
+>=20
+> Reported-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Signed-off-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---FsscpQKzF/jJk6ya
+--EP0wieDxd4TSJjHq
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX0cj8AAoJEBQN5MwUoCm2zcsP/jbopxl7BWo7UsAaQi3zMjxz
-SeKczNcBQVDiI+VTrMKXfl1grUvyxC7gkhGg4iAwZlPJFOltwDSDK4Otyupn7rau
-Wd5gEHQNjHOvDsXTTlMtR3WeiiJOPKuQgTv2F95aRIkfCljf3EUFhPCZltmpAaf8
-QUPcS/gR+AjMOedFDvVaZ6a79HuteWc643J+wXNRn/AWOrpGJ5o42o/q5xI79WG9
-xaHrdv5DXpC/FO11Tx9k42Mi2C4T/AaWKsrixoBZAzxCn92+FD6xpbGd8raTyENA
-MzgXLKq91GHuApIuGQHWIarI6tDwJ+gHVgfjFP5V4ySgzmBC/Iro+bzFUJtErRsL
-g2dH/DZErXUlC+fcFxUqiZQckGABOK2o9ESX/YS6AZKI650rV3K9mLv/tBiJLr20
-obJdHSKQ58kTyulUw70x9wGEhusR7q4mcWIpNaF+MOdJm0W/0ANWUt/PeVXz+Akd
-D/FRLf8SSLISj2w96yeNSK8svVDS7qI9Qif1UsA6BZhYSc3zCeuWTuE9SOrlP80k
-S1oEExi986bayDvhIj/y+6iS+Z4v62pxe+NVV22Bjpbh6CbNc8xrhdHuE/Kt+HtY
-vdu/+MSyg+jqEDPk1BuA4ClsckJmflOCiwXpvq4PRYfP6qRSxzw38/EsS8rkjzeD
-2Xxzv7lfQ/S+vQobWNwS
-=QxHr
+iQIcBAEBAgAGBQJX0cliAAoJEBQN5MwUoCm2X1sQAJYNli760Dgnsj3ZRN5O/jOk
+sDQ6/4TNVK2XgWrqgExV0tcYLdmwWO+nePmhNfirDi+sk+ExuCyaJGWk1mk/tx9Y
+vd36B59zZAItGkvKy9QIzuBKrePNw/NJxJ7hpFY7/EMDePXTiqJWryCekiE1l4BO
+a/SlBXVL1GU15cTFckByIidVKqERoPuJi4ultQiq9Vufr+Ws7cTv8JBJvLXCLwvR
+a+iab9wPAZtRs2NnoRPQZlja+pmZzQJCzJqszno7bXluJ9cIDzK7sbVNpRtRbA8H
+86YihFrvLxEmHdPRb3nzGS63Ak79I0rGUrDtjhKM0p/PsFzv0AZZoU6FLtQfw0Dr
+9JFqIWK1+Z48VvT+KdugWngfg95M89iju8a/7+umJnVNTrOE9NfnMhV1MI4b68yJ
+i+1v+8bo381P3lahGsn9Zn0Qh4+km/CiIoNQxor9KmSfTywV4lPEfRdOnKe/Roql
+6HqtohtzNOhlRbq5PBHBfSLG1n+8CzAH4hmv9s7cfWGYfR3k6oc9U4YP6r8B6IqG
+Ty9eT2CPrfu70GsoEJ3tAX4UinGAGd6GFUWgsMl+MSa9+khSaI57Irr01bHwSia/
+GLpIzWGKrJdU13+t1I6oo3h/0NJ5U1p55NFC7rZYoiOE2QGmC5eyPyMFQAeqljjK
+D00mn7USNCm+tzhBi2Yg
+=3ftH
 -----END PGP SIGNATURE-----
 
---FsscpQKzF/jJk6ya--
+--EP0wieDxd4TSJjHq--
