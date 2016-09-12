@@ -1,52 +1,101 @@
-From: Leo Li <pku.leo@gmail.com>
-Subject: Re: [PATCH v5] i2c: imx: make bus recovery through pinctrl optional
-Date: Mon, 12 Sep 2016 13:29:47 -0500
-Message-ID: <CADRPPNQW92jqwNgmxVK69Sqp13utoy=owSKMAxkC7tgRgjygGw@mail.gmail.com>
-References: <1471644322-22670-1-git-send-email-leoyang.li@nxp.com>
- <20160906185849.27pjhawadca5pwow@pengutronix.de> <CADRPPNQ+1qBNL5WA=Jo_keE7BPnoOs7a2T6CpTuciiF16qK6xQ@mail.gmail.com>
- <87ca69fb85848a0a86b34a9a9037a57b@agner.ch> <CADRPPNSPye45bmFshfwb+gDA0x0ygs4Ofa6HMYbKt9ER0oeccg@mail.gmail.com>
- <CAChUvXOGjTn6K5588UVgjbRWUY+weDtk2qbOU-NM4=kA2znh=Q@mail.gmail.com>
- <20160907055547.opp57zyxhlplhxhm@pengutronix.de> <CAChUvXMPDZB7=ZArQ5+6ae42N=Bsgv_OczGXnyhBjEdjt_yvsw@mail.gmail.com>
- <CADRPPNSLZ-Ck+40LZLdpEXPaBm+61AtrpRPgAcTCojWSsTBQDw@mail.gmail.com>
+From: Li Yang <leoyang.li@nxp.com>
+Subject: [PATCH v7] i2c: imx: make bus recovery through pinctrl optional
+Date: Mon, 12 Sep 2016 17:22:30 -0500
+Message-ID: <1473718950-6667-1-git-send-email-leoyang.li@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33683 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751212AbcILS3u (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Sep 2016 14:29:50 -0400
-In-Reply-To: <CADRPPNSLZ-Ck+40LZLdpEXPaBm+61AtrpRPgAcTCojWSsTBQDw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Gao Pan <pandy.gao@nxp.com>, Li Yang <leoyang.li@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <pandy.gao@nxp.com>, Ying Zhang <ying.zhang22455@nxp.com>
-Cc: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-gpio@vger.kernel.org, Li Yang <leoyang.li@nxp.com>, Stefan Agner <stefan@agner.ch>, lkml <linux-kernel@vger.kernel.org>, Tracy Smith <tlsmith3777@gmail.com>
 
-On Mon, Sep 12, 2016 at 11:35 AM, Leo Li <pku.leo@gmail.com> wrote:
-> On Wed, Sep 7, 2016 at 5:07 AM, Tracy Smith <tlsmith3777@gmail.com> wrote:
->> Hello, bus recovery is needed generally speaking because of potential
->> protocol errors that might cause a failure condition hanging the bus.
->>
->> It happens frequently during bring-up of new I2C devices because firmware in
->> I2C controllers fail to handle properly protocol errors.
->>
->> Can NXP add bus recovery for the LS1021A and LS1043A in a separate patch--
->> unless there is no HW bus recovery mechanism?
->>
->> The concern is while fixing I.MX, NXP will fail to fix the driver bus
->> recovery for the LS1021A and LS1043A and the bus will hang.
->>
->> If bus recovery is supported on the LS1021A and the LS1043A, a patch should
->> be provided or added in this patch instead of simply disabling bus recovery.
->> Request NXP to consider the patch if there is HW support for bus recovery.
->
-> FYI.  http://patchwork.ozlabs.org/patch/573879/
-
-Hi Gao Pan,
-
-Do you think the operations in the proposed patch is also usable on
-the I.MX SoC for bus recovery?  If so, would it be better to align the
-bus recovery implementation for both I.MX and QorIQ to use the same
-logic inside the IP?
-
-Regards,
-Leo
+U2luY2UgY29tbWl0IDFjNGI2YzNiY2YzMCAoImkyYzogaW14OiBpbXBsZW1lbnQgYnVzIHJlY292
+ZXJ5IikgdGhlCmRyaXZlciBzdGFydHMgdG8gdXNlIGdwaW8vcGluY3RybCB0byBzdXBwb3J0IG9w
+dGlvbmFsIGJ1cyByZWNvdmVyeQpmZWF0dXJlLiAgQnV0IHBpbmN0cmwgaXMgbm90IGFsd2F5cyB1
+c2FibGUuICBUaGVyZSBhcmUgcGxhdGZvcm1zIHN1Y2gKYXMgbHMxMDIxYSBhbmQgbHMxMDQzYSB0
+aGF0IGRvbid0IHN1cHBvcnQgcGluY3RybCwgYW5kIGl0IGNvdWxkIGp1c3QKYmUgYnJva2VuIGR1
+ZSB0byBvbGQvYnJva2VuIGRldmljZSB0cmVlLiAgVGhlIHBhdGNoIG1ha2VzIGl0IHJlYWxseQpv
+cHRpb25hbCB0aGF0IHRoZSBwcm9iZSBmdW5jdGlvbiB3b24ndCBiYWlsb3V0IG9uIHBpbmN0cmwg
+cHJvYmxlbXMKaW5zdGVhZCBpdCBqdXN0IGRpc2FibGVzIGJ1cyByZWNvdmVyeSBhbmQgcHJpbnRz
+IG91dCBub3RpZmljYXRpb24gd2hlbgp0aGVyZSBpcyBwcm9ibGVtIHdpdGggcGluY3RybC4gIFNp
+bmNlIHBpbmN0cmwgaXMgb25seSB1c2VkIGJ5IGJ1cwpyZWNvdmVyeSBpbiB0aGlzIGRyaXZlciwg
+bW92ZSBwaW5jdHJsIGluaXRpYWxpemF0aW9uIGludG8gYnVzIHJlY292ZXJ5CmluaXQgZnVuY3Rp
+b24gdG8gcHJldmVudCBjb25mdXNpb24uCgpTaWduZWQtb2ZmLWJ5OiBMaSBZYW5nIDxsZW95YW5n
+LmxpQG54cC5jb20+CkNjOiBHYW8gUGFuIDxwYW5keS5nYW9AbnhwLmNvbT4KQ2M6IFV3ZSBLbGVp
+bmUtS8O2bmlnIDx1LmtsZWluZS1rb2VuaWdAcGVuZ3V0cm9uaXguZGU+CkFja2VkLWJ5OiBMaW51
+cyBXYWxsZWlqIDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+Ci0tLQp2NzoKTW92ZSBwaW5jdHJs
+IGluaXQgaW50byB0aGUgaTJjX2lteF9pbml0X3JlY292ZXJ5X2luZm8oKQpVcGRhdGUgY29tbWl0
+IG1lc3NhZ2UgYW5kIGNvZGUgY29tbWVudAoKdjY6ClVwZGF0ZSBjb2RlIGNvbW1lbnQKCnY1OgpS
+ZXZlcnQgdGhlIGxhc3QgbWludXRlIGNoYW5nZSBvZiByZWNvdmVyeSBpbmZvIGluaXRpYWxpemF0
+aW9uIHRpbWluZywgaXQKd2lsbCBjYXVzZSBwcm9ibGVtIGlmIGluaXRpYWxpemVkIGFmdGVyIGky
+Y19hZGRfbnVtYmVyZWRfYWRhcHRlcigpCgp2NDoKUmVtb3ZlIHRoZSB1c2Ugb2YgSVNfRVJSX09S
+X05VTEwKTW92ZSB0aGUgY29uZGl0aW9uIGp1ZGdlbWVudCB0byBpMmNfaW14X2luaXRfcmVjb3Zl
+cnlfaW5mbygpCkNoYW5nZSB0aGUgdGltaW5nIG9mIHJlY292ZXJ5IGluaXRpYWxpemF0aW9uIHRv
+IGJlIGFmdGVyIGJ1cyByZWdpc3RyYXRpb24KCnYzOgpSZWJhc2VkIHRvIFdvbGZyYW0ncyBmb3It
+bmV4dCBicmFuY2gKQWRkZWQgYWNrZWQtYnkgZnJvbSBMaW51cyBXYWxsZWlqClVwZGF0ZSB0byB1
+c2UgbmV3IG54cCBlbWFpbCBhZGRyZXNzZXMgZHVlIHRvIGNvbXBhbnkgbWVyZ2UKCiBkcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLWlteC5jIHwgMzEgKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0t
+LQogMSBmaWxlIGNoYW5nZWQsIDIyIGluc2VydGlvbnMoKyksIDkgZGVsZXRpb25zKC0pCgpkaWZm
+IC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYyBiL2RyaXZlcnMvaTJjL2J1c3Nl
+cy9pMmMtaW14LmMKaW5kZXggMTg0NGJjOS4uNTRjZTljMSAxMDA2NDQKLS0tIGEvZHJpdmVycy9p
+MmMvYnVzc2VzL2kyYy1pbXguYworKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jCkBA
+IC05ODQsMTEgKzk4NCwyNCBAQCBzdGF0aWMgdm9pZCBpMmNfaW14X3VucHJlcGFyZV9yZWNvdmVy
+eShzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCiAJcGluY3RybF9zZWxlY3Rfc3RhdGUoaTJjX2lt
+eC0+cGluY3RybCwgaTJjX2lteC0+cGluY3RybF9waW5zX2RlZmF1bHQpOwogfQogCi1zdGF0aWMg
+dm9pZCBpMmNfaW14X2luaXRfcmVjb3ZlcnlfaW5mbyhzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmky
+Y19pbXgsCisvKgorICogV2Ugc3dpdGNoIFNDTCBhbmQgU0RBIHRvIHRoZWlyIEdQSU8gZnVuY3Rp
+b24gYW5kIGRvIHNvbWUgYml0YmFuZ2luZworICogZm9yIGJ1cyByZWNvdmVyeS4gVGhlc2UgYWx0
+ZXJuYXRpdmUgcGlubXV4IHNldHRpbmdzIGNhbiBiZQorICogZGVzY3JpYmVkIGluIHRoZSBkZXZp
+Y2UgdHJlZSBieSBhIHNlcGFyYXRlIHBpbmN0cmwgc3RhdGUgImdwaW8iLiBJZgorICogdGhpcyBp
+cyBtaXNzaW5nIHRoaXMgaXMgbm90IGEgYmlnIHByb2JsZW0sIHRoZSBvbmx5IGltcGxpY2F0aW9u
+IGlzCisgKiB0aGF0IHdlIGNhbid0IGRvIGJ1cyByZWNvdmVyeS4KKyAqLworc3RhdGljIGludCBp
+MmNfaW14X2luaXRfcmVjb3ZlcnlfaW5mbyhzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgs
+CiAJCXN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCiB7CiAJc3RydWN0IGkyY19idXNfcmVj
+b3ZlcnlfaW5mbyAqcmluZm8gPSAmaTJjX2lteC0+cmluZm87CiAKKwlpMmNfaW14LT5waW5jdHJs
+ID0gZGV2bV9waW5jdHJsX2dldCgmcGRldi0+ZGV2KTsKKwlpZiAoIWkyY19pbXgtPnBpbmN0cmwg
+fHwgSVNfRVJSKGkyY19pbXgtPnBpbmN0cmwpKSB7CisJCWRldl9pbmZvKCZwZGV2LT5kZXYsICJj
+YW4ndCBnZXQgcGluY3RybCwgYnVzIHJlY292ZXJ5IG5vdCBzdXBwb3J0ZWRcbiIpOworCQlyZXR1
+cm4gUFRSX0VSUihpMmNfaW14LT5waW5jdHJsKTsKKwl9CisKIAlpMmNfaW14LT5waW5jdHJsX3Bp
+bnNfZGVmYXVsdCA9IHBpbmN0cmxfbG9va3VwX3N0YXRlKGkyY19pbXgtPnBpbmN0cmwsCiAJCQlQ
+SU5DVFJMX1NUQVRFX0RFRkFVTFQpOwogCWkyY19pbXgtPnBpbmN0cmxfcGluc19ncGlvID0gcGlu
+Y3RybF9sb29rdXBfc3RhdGUoaTJjX2lteC0+cGluY3RybCwKQEAgLTEwMDEsNyArMTAxNCw3IEBA
+IHN0YXRpYyB2b2lkIGkyY19pbXhfaW5pdF9yZWNvdmVyeV9pbmZvKHN0cnVjdCBpbXhfaTJjX3N0
+cnVjdCAqaTJjX2lteCwKIAkgICAgSVNfRVJSKGkyY19pbXgtPnBpbmN0cmxfcGluc19kZWZhdWx0
+KSB8fAogCSAgICBJU19FUlIoaTJjX2lteC0+cGluY3RybF9waW5zX2dwaW8pKSB7CiAJCWRldl9k
+YmcoJnBkZXYtPmRldiwgInJlY292ZXJ5IGluZm9ybWF0aW9uIGluY29tcGxldGVcbiIpOwotCQly
+ZXR1cm47CisJCXJldHVybiAwOwogCX0KIAogCWRldl9kYmcoJnBkZXYtPmRldiwgInVzaW5nIHNj
+bC1ncGlvICVkIGFuZCBzZGEtZ3BpbyAlZCBmb3IgcmVjb3ZlcnlcbiIsCkBAIC0xMDExLDYgKzEw
+MjQsOCBAQCBzdGF0aWMgdm9pZCBpMmNfaW14X2luaXRfcmVjb3ZlcnlfaW5mbyhzdHJ1Y3QgaW14
+X2kyY19zdHJ1Y3QgKmkyY19pbXgsCiAJcmluZm8tPnVucHJlcGFyZV9yZWNvdmVyeSA9IGkyY19p
+bXhfdW5wcmVwYXJlX3JlY292ZXJ5OwogCXJpbmZvLT5yZWNvdmVyX2J1cyA9IGkyY19nZW5lcmlj
+X2dwaW9fcmVjb3Zlcnk7CiAJaTJjX2lteC0+YWRhcHRlci5idXNfcmVjb3ZlcnlfaW5mbyA9IHJp
+bmZvOworCisJcmV0dXJuIDA7CiB9CiAKIHN0YXRpYyB1MzIgaTJjX2lteF9mdW5jKHN0cnVjdCBp
+MmNfYWRhcHRlciAqYWRhcHRlcikKQEAgLTEwODEsMTIgKzEwOTYsNiBAQCBzdGF0aWMgaW50IGky
+Y19pbXhfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikKIAkJcmV0dXJuIHJldDsK
+IAl9CiAKLQlpMmNfaW14LT5waW5jdHJsID0gZGV2bV9waW5jdHJsX2dldCgmcGRldi0+ZGV2KTsK
+LQlpZiAoSVNfRVJSKGkyY19pbXgtPnBpbmN0cmwpKSB7Ci0JCXJldCA9IFBUUl9FUlIoaTJjX2lt
+eC0+cGluY3RybCk7Ci0JCWdvdG8gY2xrX2Rpc2FibGU7Ci0JfQotCiAJLyogUmVxdWVzdCBJUlEg
+Ki8KIAlyZXQgPSBkZXZtX3JlcXVlc3RfaXJxKCZwZGV2LT5kZXYsIGlycSwgaTJjX2lteF9pc3Is
+IDAsCiAJCQkJcGRldi0+bmFtZSwgaTJjX2lteCk7CkBAIC0xMTI1LDcgKzExMzQsMTEgQEAgc3Rh
+dGljIGludCBpMmNfaW14X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCiAJCQlp
+MmNfaW14LCBJTVhfSTJDX0kyQ1IpOwogCWlteF9pMmNfd3JpdGVfcmVnKGkyY19pbXgtPmh3ZGF0
+YS0+aTJzcl9jbHJfb3Bjb2RlLCBpMmNfaW14LCBJTVhfSTJDX0kyU1IpOwogCi0JaTJjX2lteF9p
+bml0X3JlY292ZXJ5X2luZm8oaTJjX2lteCwgcGRldik7CisJLyogSW5pdCBvcHRpb25hbCBidXMg
+cmVjb3ZlcnkgZnVuY3Rpb24gKi8KKwlyZXQgPSBpMmNfaW14X2luaXRfcmVjb3ZlcnlfaW5mbyhp
+MmNfaW14LCBwZGV2KTsKKwkvKiBHaXZlIGl0IGFub3RoZXIgY2hhbmNlIGlmIHBpbmN0cmwgdXNl
+ZCBpcyBub3QgcmVhZHkgeWV0ICovCisJaWYgKHJldCA9PSAtRVBST0JFX0RFRkVSKQorCQlnb3Rv
+IHJwbV9kaXNhYmxlOwogCiAJLyogQWRkIEkyQyBhZGFwdGVyICovCiAJcmV0ID0gaTJjX2FkZF9u
+dW1iZXJlZF9hZGFwdGVyKCZpMmNfaW14LT5hZGFwdGVyKTsKLS0gCjEuOS4wCgoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBt
+YWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9s
+aXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
