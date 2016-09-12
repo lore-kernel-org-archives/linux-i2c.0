@@ -1,66 +1,77 @@
-From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: Re: [PATCH] Drivers: i2c: busses: Use max macro instead of ternary operator
-Date: Sun, 11 Sep 2016 00:54:30 +0530
-Message-ID: <CAOH+1jFgt9He7z0YXUJHmXAJeUP0SmnZ3pD2bJd3F1XyPSPRdA@mail.gmail.com>
-References: <1473534490-16592-1-git-send-email-bhumirks@gmail.com> <1473535309.19464.5.camel@perches.com>
+From: Yadi <yadi.hu@windriver.com>
+Subject: Re: RESEND:i2c-eg20t: fix race between i2c init and interrupt enable
+Date: Mon, 12 Sep 2016 08:41:38 +0800
+Message-ID: <57D5F9C2.5060107@windriver.com>
+References: <1473240337-5694-1-git-send-email-yadi.hu@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:34491 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751505AbcIJTYd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 10 Sep 2016 15:24:33 -0400
-In-Reply-To: <1473535309.19464.5.camel@perches.com>
+Received: from mail5.windriver.com ([192.103.53.11]:52250 "EHLO mail5.wrs.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754563AbcILAm0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 11 Sep 2016 20:42:26 -0400
+In-Reply-To: <1473240337-5694-1-git-send-email-yadi.hu@windriver.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: wsa@the-dreams.de, jdelvare@suse.de
+Cc: linux-i2c@vger.kernel.org
 
-On Sun, Sep 11, 2016 at 12:51 AM, Joe Perches <joe@perches.com> wrote:
-> On Sun, 2016-09-11 at 00:38 +0530, Bhumika Goyal wrote:
->> Replace ternary operators with macro 'max' as it is shorter
->> and thus increases code readability. Macro max returns
->> the  maximum of the two compared values.
->> Done using coccinelle:
->>
->> @@
->> type T;
->> T x;
->> T y;
->> @@
->> (
->> - x < y ? x : y
->> + min(x,y)
->> - x > y ? x : y
->> + max(x,y)
->> )
->
-> Hello.
->
-> Please make sure to inspect and if appropriate modify the coccinelle
-> output for the 'best' coding style, for whatever definition of 'best'
-> you might use, before submitting automatically produced patches.
->
->> diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-> []
->> @@ -133,10 +133,10 @@ static const char * const jz4780_i2c_abrt_src[] = {
->>
->> #define JZ4780_I2C_ENB_I2C            BIT(0)
->>
->> -#define JZ4780_I2CSHCNT_ADJUST(n)    (((n) - 8) < 6 ? 6 : ((n) - 8))
->> -#define JZ4780_I2CSLCNT_ADJUST(n)    (((n) - 1) < 8 ? 8 : ((n) - 1))
->> -#define JZ4780_I2CFHCNT_ADJUST(n)    (((n) - 8) < 6 ? 6 : ((n) - 8))
->> -#define JZ4780_I2CFLCNT_ADJUST(n)    (((n) - 1) < 8 ? 8 : ((n) - 1))
->> +#define JZ4780_I2CSHCNT_ADJUST(n)    (max(6, (n) - 8))
->> +#define JZ4780_I2CSLCNT_ADJUST(n)    (max(8, (n) - 1))
->> +#define JZ4780_I2CFHCNT_ADJUST(n)    (max(6, (n) - 8))
->> +#define JZ4780_I2CFLCNT_ADJUST(n)    (max(8, (n) - 1))
->
-> For instance: the parentheses are unnecessary and could be removed
-> like the BIT macro above.
+ping....  any objection?
 
-Thanks for pointing it out. I will resend the patch.
+Yadi
 
-Thanks,
-Bhumika
->>
+
+On 2016年09月07日 17:25, Yadi Hu wrote:
+> the eg20t driver call request_irq() function before the pch_base_address,
+> base address of i2c controller's register, isassigned an effective value.
+>
+> it is one possible scenario that an interrupt which isn't inside eg20t
+> arrives immediately after request_irq() is executed when i2c controller
+> shares an interrupt number with others.  since the interrupt handler
+> pch_i2c_handler() has already active as shared action, it will be called
+> and read its own register to determine if this interrupt is from itself.
+>
+> At that moment, since base address of i2c registers is not remapped
+> in kernel space yet,so the INT handler will access an illegal address
+> and then a error occurs.
+>
+> Bad IO access at port 0x18 (return inl(port))
+>   Call Trace:
+>    [<c102c733>] warn_slowpath_common+0x73/0xa0
+>    [<c13109f5>] ? bad_io_access+0x45/0x50
+>    [<c13109f5>] ? bad_io_access+0x45/0x50
+>    [<c102c804>] warn_slowpath_fmt+0x34/0x40
+>    [<c13109f5>] bad_io_access+0x45/0x50
+>    [<c1310b62>] ioread32+0x22/0x40
+>    [<c14c60db>] pch_i2c_handler+0x3b/0x120
+>    [<c1092f34>] handle_irq_event_percpu+0x64/0x330
+>    [<c109323b>] handle_irq_event+0x3b/0x60
+>    [<c1095b50>] ? unmask_irq+0x30/0x30
+>    [<c1095ba0>] handle_fasteoi_irq+0x50/0xe0
+>    <IRQ>  [<c16e7e78>] ? do_IRQ+0x48/0xc0
+>    [<c16e7f6f>] ? smp_apic_timer_interrupt+0x7f/0x17a
+>    [<c16e7da9>] ? common_interrupt+0x29/0x30
+>    [<c1008ebb>] ? mwait_idle+0x8b/0x2c0
+>    [<c1009e8e>] ? cpu_idle+0x9e/0xc0
+>    [<c16be408>] ? rest_init+0x6c/0x74
+>    [<c19f770a>] ? start_kernel+0x311/0x318
+>    [<c19f7231>] ? repair_env_string+0x51/0x51
+>    [<c19f7078>] ? i386_start_kernel+0x78/0x7d
+>   ---[ end trace eb3a1028f468a140 ]---
+>   i2c_eg20t 0000:05:0c.2: pch_i2c_handler :I2C-3 mode(0) is not supported
+>
+> after testing last patch, replacing request_irq() location is not a
+> good idea,it might produce a little time windows ,in which the interrupts
+> occurring inside  will be omitted.
+>
+> the new patch adds a check point on interrupt handler in case field
+> 'pch_base_address' has not been initialed.
+>
+>
+> Yadi Hu (1)
+>      i2c-eg20t: fix race between i2c init and interrupt enable
+>
+> drivers/i2c/busses/i2c-eg20t.c |    5 +++++
+>   1 file changed, 5 insertions(+)
+>
