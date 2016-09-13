@@ -1,476 +1,87 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [patch v4] i2c: mux: mellanox: add driver
-Date: Tue, 13 Sep 2016 16:36:26 +0200
-Message-ID: <9ee51a2a-83c4-f96d-09dd-5eeda233b3b5@axentia.se>
-References: <1473777525-187890-1-git-send-email-vadimp@mellanox.com>
+From: Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [v11, 5/8] soc: fsl: add GUTS driver for QorIQ platforms
+Date: Tue, 13 Sep 2016 17:24:23 -0500
+Message-ID: <1473805463.30217.206.camel@buserror.net>
+References: <1473150503-9550-1-git-send-email-yangbo.lu@nxp.com>
+	<1473150503-9550-6-git-send-email-yangbo.lu@nxp.com>
+	<1473392840.30217.170.camel@buserror.net>
+	<HE1PR04MB08892D8354E38EC32F549E98F8FF0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+	<1473722714.30217.196.camel@buserror.net>
+	<HE1PR04MB08892E63EB2D579D6F0A7550F8FE0@HE1PR04MB0889.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1473777525-187890-1-git-send-email-vadimp@mellanox.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: vadimp@mellanox.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <HE1PR04MB08892E63EB2D579D6F0A7550F8FE0-6LN7OEpIatX1kPMWxTxe+c9NdZoXdze2vxpqHgZTriW3zl9H0oFU5g@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, "X.B. Xie" <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-It's shaping up, a few last nitpicks...
-
-On 2016-09-13 16:38, vadimp@mellanox.com wrote:
-> From: Vadim Pasternak <vadimp@mellanox.com>
-> 
-> This driver allows I2C routing controlled through CPLD select registers on
-> wide range of Mellanox systems (CPLD Lattice device).
-
-s/wide/a wide/
-
-But is it really still "a wide range" now that i2c-mux-reg handles most
-CPLD mux types?
-
-> MUX selection is provided by digital and analog HW. Analog part is not
-> under SW control.
-> Digital part is under CPLD control (channel selection/de-selection).
-> 
-> Connectivity schema.
-> i2c-mlxcpld                                 Digital               Analog
-> driver
-> *--------*                                 * -> mux1 (virt bus2) -> mux ->|
-> | I2CLPC | i2c physical                    * -> mux2 (virt bus3) -> mux ->|
-> | bridge | bus 1                 *---------*                              |
-> | logic  |---------------------> * mux reg *                              |
-> | in CPLD|                       *---------*                              |
-> *--------*   i2c-mux-mlxpcld          ^    * -> muxn (virt busn) -> mux ->|
->     |        driver                   |                                   |
->     |        *---------------*        |                             Devices
->     |        * CPLD (i2c bus)* select |
->     |        * registers for *--------*
->     |        * mux selection * deselect
->     |        *---------------*
->     |                 |
-> <-------->     <----------->
-> i2c cntrl      Board cntrl reg
-> reg space      space (mux select,
->                IO, LED, WD, info)
-> 
-> i2c-mux-mlxpcld does not necessarily require i2c-mlxcpld. It can be use
-
-s/use/used/
-
-> along with another bus driver, and still control i2c routing through CPLD
-> mux selection, in case the system is equipped with CPLD capable of mux
-> selection control.
-> 
-> The Kconfig currently controlling compilation of this code is:
-> drivers/i2c/muxes/Kconfig:config I2C_MUX_MLXCPLD
-> 
-> Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-> Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-> Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-> ---
-> v3->v4
->  Fixes issues pointed out by Peter:
->   - Remove mlxcpld_mux_type;
->   - Remove member type from mux control structure;
->   - Remove variable muxes;
->   - mlxcpld_mux_reg_write - set address from client;
->   - mlxcpld_mux_reg_write - try smbus_xfer
->   - mlxcpld_mux_select_chan - remove compare with for mux type;
->   - mlxcpld_mux_probe - use I2C_FUNC_SMBUS_WRITE_BYTE_DATA instead of
->     I2C_FUNC_SMBUS_BYTE
->   - mlxcpld_mux_probe - remove switch statement
->   - mlxcpld_mux_probe - update comment;
->   - mlxcpld_mux_probe -change logic in testing num_adaps;
->   - remove members first_channel and addr from mlxcpld_mux_plat_data
->     structure;
-> v2->v3
->  Fixes issues pointed out by Peter:
->   - Fix several comments;
->   - In MAINTAINERS file use linux-i2c instead of linux-kernel;
->   - Place include files in alphabetic order;
->   - When channel select fail, set last_chan to zero for cleaning last value;
->   - Return with error from probe if there is no platform data;
->   - Use i2c_mux_reg driver for the lpc_access cases:
->     it fit well for Mellanox system with LPC access - has been tested and it
-> 	works good.
->   - Limit this driver to i2c_access only one device (mlxcpld_mux_module).
-> v1->v2
->  Fixes issues pointed out by Peter:
->   - changes in commit cover massage;
->   - change leg to channel in comments;
->   - missed return err;
->   - use platform data mux array rather the offset from 1st channel in probe
->     routine;
->   - remove owner field from driver structure;
->   - use module_i2c_driver macros, instead if __init and __exit;
->   - remove deselect on exit flag;
->   - add record to MAINTAINER file;
-> ---
->  MAINTAINERS                         |   8 ++
->  drivers/i2c/muxes/Kconfig           |  11 ++
->  drivers/i2c/muxes/Makefile          |   1 +
->  drivers/i2c/muxes/i2c-mux-mlxcpld.c | 224 ++++++++++++++++++++++++++++++++++++
->  include/linux/i2c/mlxcpld.h         |  52 +++++++++
->  5 files changed, 296 insertions(+)
->  create mode 100644 drivers/i2c/muxes/i2c-mux-mlxcpld.c
->  create mode 100644 include/linux/i2c/mlxcpld.h
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 0bbe4b1..be83d69 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -7655,6 +7655,14 @@ W:	http://www.mellanox.com
->  Q:	http://patchwork.ozlabs.org/project/netdev/list/
->  F:	drivers/net/ethernet/mellanox/mlxsw/
->  
-> +MELLANOX MLXCPLD I2C MUX DRIVER
-> +M:	Vadim Pasternak <vadimp@mellanox.com>
-> +M:	Michael Shych <michaelsh@mellanox.com>
-> +L:	linux-i2c@vger.kernel.org
-> +S:	Supported
-> +W:	http://www.mellanox.com
-> +F:	drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> +
->  SOFT-ROCE DRIVER (rxe)
->  M:	Moni Shoua <monis@mellanox.com>
->  L:	linux-rdma@vger.kernel.org
-> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-> index e280c8e..b7ab144 100644
-> --- a/drivers/i2c/muxes/Kconfig
-> +++ b/drivers/i2c/muxes/Kconfig
-> @@ -81,4 +81,15 @@ config I2C_DEMUX_PINCTRL
->  	  demultiplexer that uses the pinctrl subsystem. This is useful if you
->  	  want to change the I2C master at run-time depending on features.
->  
-> +config I2C_MUX_MLXCPLD
-> +        tristate "Mellanox CPLD based I2C multiplexer"
-> +        help
-> +          If you say yes to this option, support will be included for a
-> +          CPLD based I2C multiplexer. This driver provides access to
-> +          I2C busses connected through a MUX, which is controlled
-> +          by a CPLD registers.
-
-s/registers/register/
-
-> +
-> +          This driver can also be built as a module.  If so, the module
-> +          will be called i2c-mux-mlxcpld.
-> +
->  endmenu
-> diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-> index 7c267c2..e5c990e 100644
-> --- a/drivers/i2c/muxes/Makefile
-> +++ b/drivers/i2c/muxes/Makefile
-> @@ -10,5 +10,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
->  obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
->  obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
->  obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
-> +obj-$(CONFIG_I2C_MUX_MLXCPLD)	+= i2c-mux-mlxcpld.o
-
-Please keep these lines sorted too.
-
->  
->  ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-> diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> new file mode 100644
-> index 0000000..08d3b1a
-> --- /dev/null
-> +++ b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> @@ -0,0 +1,224 @@
-> +/*
-> + * drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> + * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
-> + * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
-> + *
-> + * Redistribution and use in source and binary forms, with or without
-> + * modification, are permitted provided that the following conditions are met:
-> + *
-> + * 1. Redistributions of source code must retain the above copyright
-> + *    notice, this list of conditions and the following disclaimer.
-> + * 2. Redistributions in binary form must reproduce the above copyright
-> + *    notice, this list of conditions and the following disclaimer in the
-> + *    documentation and/or other materials provided with the distribution.
-> + * 3. Neither the names of the copyright holders nor the names of its
-> + *    contributors may be used to endorse or promote products derived from
-> + *    this software without specific prior written permission.
-> + *
-> + * Alternatively, this software may be distributed under the terms of the
-> + * GNU General Public License ("GPL") version 2 as published by the Free
-> + * Software Foundation.
-> + *
-> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-> + * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-> + * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-> + * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-> + * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-> + * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-> + * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-> + * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-> + * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-> + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-> + * POSSIBILITY OF SUCH DAMAGE.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/i2c.h>
-> +#include <linux/i2c-mux.h>
-> +#include <linux/io.h>
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +#include <linux/version.h>
-> +#include <linux/i2c/mlxcpld.h>
-> +
-> +#define CPLD_MUX_MAX_NCHANS	8
-> +
-> +/* mlxcpld_mux - mux control structure:
-> + * @last_chan - last register value
-> + * @client - I2C device client
-> + */
-> +struct mlxcpld_mux {
-> +	u8 last_chan;
-> +	struct i2c_client *client;
-> +};
-> +
-> +/* MUX logic description.
-> + * Driver can support different mux control logic, according to CPLD
-> + * implementation.
-> + *
-> + * Connectivity schema.
-> + *
-> + * i2c-mlxcpld                                 Digital               Analog
-> + * driver
-> + * *--------*                                 * -> mux1 (virt bus2) -> mux -> |
-> + * | I2CLPC | i2c physical                    * -> mux2 (virt bus3) -> mux -> |
-> + * | bridge | bus 1                 *---------*                               |
-> + * | logic  |---------------------> * mux reg *                               |
-> + * | in CPLD|                       *---------*                               |
-> + * *--------*   i2c-mux-mlxpcld          ^    * -> muxn (virt busn) -> mux -> |
-> + *     |        driver                   |                                    |
-> + *     |        *---------------*        |                              Devices
-> + *     |        * CPLD (i2c bus)* select |
-> + *     |        * registers for *--------*
-> + *     |        * mux selection * deselect
-> + *     |        *---------------*
-> + *     |                 |
-> + * <-------->     <----------->
-> + * i2c cntrl      Board cntrl reg
-> + * reg space      space (mux select,
-> + *                IO, LED, WD, info)
-> + *
-> + */
-> +
-> +static const struct i2c_device_id mlxcpld_mux_id[] = {
-> +	{ "mlxcpld_mux_module", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, mlxcpld_mux_id);
-> +
-> +/* Write to mux register. Don't use i2c_transfer() and
-> + * i2c_smbus_xfer() for this as they will try to lock adapter a second time
-> + */
-
-This comment has a strange shortish first line that disturbs me, and
-you are missing the ending period.
-
-/* Write to mux register. Don't use i2c_transfer() and i2c_smbus_xfer()
- * for this as they will try to lock adapter a second time.
- */
-
-> +static int mlxcpld_mux_reg_write(struct i2c_adapter *adap,
-> +				 struct i2c_client *client, u8 val)
-> +{
-> +	struct mlxcpld_mux_plat_data *pdata = dev_get_platdata(&client->dev);
-> +
-> +	if (adap->algo->master_xfer) {
-> +		struct i2c_msg msg;
-> +		u8 msgbuf[] = {pdata->sel_reg_addr, val};
-> +
-> +		msg.addr = client->addr;
-> +		msg.flags = 0;
-> +		msg.len = 2;
-> +		msg.buf = msgbuf;
-> +		return __i2c_transfer(adap, &msg, 1);
-> +	} else if (adap->algo->smbus_xfer) {
-> +		union i2c_smbus_data data;
-> +
-> +		data.byte = val;
-> +		return adap->algo->smbus_xfer(adap, client->addr,
-> +					      client->flags, I2C_SMBUS_WRITE,
-> +					      pdata->sel_reg_addr,
-> +					      I2C_SMBUS_BYTE_DATA, &data);
-> +	} else
-> +		return -ENODEV;
-> +}
-> +
-> +static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
-> +{
-> +	struct mlxcpld_mux *data = i2c_mux_priv(muxc);
-> +	struct i2c_client *client = data->client;
-> +	u8 regval = chan + 1;
-> +	int err = 0;
-> +
-> +	/* Only select the channel if its different from the last channel */
-> +	if (data->last_chan != regval) {
-> +		err = mlxcpld_mux_reg_write(muxc->parent, client, regval);
-> +		if (err)
-> +			data->last_chan = 0;
-> +		else
-> +			data->last_chan = regval;
-> +	}
-> +
-> +	return err;
-> +}
-> +
-> +static int mlxcpld_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
-> +{
-> +	struct mlxcpld_mux *data = i2c_mux_priv(muxc);
-> +	struct i2c_client *client = data->client;
-> +
-> +	/* Deselect active channel */
-> +	data->last_chan = 0;
-> +
-> +	return mlxcpld_mux_reg_write(muxc->parent, client, data->last_chan);
-> +}
-> +
-> +/* I2C init/probing/exit functions */
-> +static int mlxcpld_mux_probe(struct i2c_client *client,
-> +			     const struct i2c_device_id *id)
-> +{
-> +	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
-> +	struct mlxcpld_mux_plat_data *pdata = dev_get_platdata(&client->dev);
-> +	struct i2c_mux_core *muxc;
-> +	int num, force;
-> +	struct mlxcpld_mux *data;
-> +	int err;
-> +
-> +	if (!pdata)
-> +		return -EINVAL;
-> +
-> +	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
-> +		return -ENODEV;
-> +
-> +	muxc = i2c_mux_alloc(adap, &client->dev, CPLD_MUX_MAX_NCHANS,
-> +			     sizeof(*data), 0, mlxcpld_mux_select_chan,
-> +			     mlxcpld_mux_deselect);
-> +	if (!muxc)
-> +		return -ENOMEM;
-> +
-> +	data = i2c_mux_priv(muxc);
-> +	i2c_set_clientdata(client, muxc);
-> +	data->client = client;
-> +	data->last_chan = 0; /* force the first selection */
-> +
-> +	/* Create an adapter for each channel. */
-> +	for (num = 0; num < CPLD_MUX_MAX_NCHANS; num++) {
-> +		force = 0; /* dynamic adap number */
-
-This assignment can be dropped.
-
-> +		if (num >= pdata->num_adaps)
-> +			/* discard unconfigured channels */
-> +			break;
-> +
-> +		force = pdata->adap_ids[num];
-> +
-> +		err = i2c_mux_add_adapter(muxc, force, num, 0);
-> +		if (err) {
-> +			dev_err(&client->dev, "failed to register multiplexed adapter %d as bus %d\n",
-> +				num, force);
-
-There is generic error messages for all failures inside i2c_mux_add_adapter,
-so this message can be dropped. If the generic messages are not sufficient,
-please expand them instead of adding extra messages.
-
-> +			goto virt_reg_failed;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +
-> +virt_reg_failed:
-> +	i2c_mux_del_adapters(muxc);
-> +	return err;
-> +}
-> +
-> +static int mlxcpld_mux_remove(struct i2c_client *client)
-> +{
-> +	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
-> +
-> +	i2c_mux_del_adapters(muxc);
-> +	return 0;
-> +}
-> +
-> +static struct i2c_driver mlxcpld_mux_driver = {
-> +	.driver		= {
-> +		.name	= "mlxcpld-mux",
-> +	},
-> +	.probe		= mlxcpld_mux_probe,
-> +	.remove		= mlxcpld_mux_remove,
-> +	.id_table	= mlxcpld_mux_id,
-> +};
-> +
-> +module_i2c_driver(mlxcpld_mux_driver);
-> +
-> +MODULE_AUTHOR("Michael Shych (michaels@mellanox.com)");
-> +MODULE_DESCRIPTION("Mellanox I2C-CPLD-MUX driver");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:i2c-mux-mlxcpld");
-> diff --git a/include/linux/i2c/mlxcpld.h b/include/linux/i2c/mlxcpld.h
-> new file mode 100644
-> index 0000000..b08dcb1
-> --- /dev/null
-> +++ b/include/linux/i2c/mlxcpld.h
-> @@ -0,0 +1,52 @@
-> +/*
-> + * mlxcpld.h - Mellanox I2C multiplexer support in CPLD
-> + *
-> + * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
-> + * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
-> + *
-> + * Redistribution and use in source and binary forms, with or without
-> + * modification, are permitted provided that the following conditions are met:
-> + *
-> + * 1. Redistributions of source code must retain the above copyright
-> + *    notice, this list of conditions and the following disclaimer.
-> + * 2. Redistributions in binary form must reproduce the above copyright
-> + *    notice, this list of conditions and the following disclaimer in the
-> + *    documentation and/or other materials provided with the distribution.
-> + * 3. Neither the names of the copyright holders nor the names of its
-> + *    contributors may be used to endorse or promote products derived from
-> + *    this software without specific prior written permission.
-> + *
-> + * Alternatively, this software may be distributed under the terms of the
-> + * GNU General Public License ("GPL") version 2 as published by the Free
-> + * Software Foundation.
-> + *
-> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-> + * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-> + * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-> + * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-> + * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-> + * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-> + * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-> + * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-> + * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-> + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-> + * POSSIBILITY OF SUCH DAMAGE.
-> + */
-> +
-> +#ifndef _LINUX_I2C_MLXCPLD_H
-> +#define _LINUX_I2C_MLXCPLD_H
-> +
-> +/* Platform data for the CPLD I2C multiplexers */
-> +
-> +/* mlxcpld_mux_plat_data - per mux data, used with i2c_register_board_info
-> + * @adap_ids - adapter array
-> + * @num_adaps - number of adapters
-> + * @sel_reg_addr - mux select register offset in CPLD space
-> + */
-> +struct mlxcpld_mux_plat_data {
-> +	int *adap_ids;
-> +	int num_adaps;
-> +	int sel_reg_addr;
-> +};
-> +
-> +#endif /* _LINUX_I2C_MLXCPLD_H */
-> 
+T24gVHVlLCAyMDE2LTA5LTEzIGF0IDA3OjIzICswMDAwLCBZLkIuIEx1IHdyb3RlOgo+ID4gCgoK
+PiA+IAo+ID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0KPiA+IEZyb206IGxpbnV4LW1tYy1v
+d25lckB2Z2VyLmtlcm5lbC5vcmcgW21haWx0bzpsaW51eC1tbWMtCj4gPiBvd25lckB2Z2VyLmtl
+cm5lbC5vcmddIE9uIEJlaGFsZiBPZiBTY290dCBXb29kCj4gPiBTZW50OiBUdWVzZGF5LCBTZXB0
+ZW1iZXIgMTMsIDIwMTYgNzoyNSBBTQo+ID4gVG86IFkuQi4gTHU7IGxpbnV4LW1tY0B2Z2VyLmtl
+cm5lbC5vcmc7IHVsZi5oYW5zc29uQGxpbmFyby5vcmc7IEFybmQKPiA+IEJlcmdtYW5uCj4gPiBD
+YzogbGludXhwcGMtZGV2QGxpc3RzLm96bGFicy5vcmc7IGRldmljZXRyZWVAdmdlci5rZXJuZWwu
+b3JnOyBsaW51eC1hcm0tCj4gPiBrZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZzsgbGludXgta2Vy
+bmVsQHZnZXIua2VybmVsLm9yZzsgbGludXgtCj4gPiBjbGtAdmdlci5rZXJuZWwub3JnOyBsaW51
+eC1pMmNAdmdlci5rZXJuZWwub3JnOyBpb21tdUBsaXN0cy5saW51eC0KPiA+IGZvdW5kYXRpb24u
+b3JnOyBuZXRkZXZAdmdlci5rZXJuZWwub3JnOyBNYXJrIFJ1dGxhbmQ7IFJvYiBIZXJyaW5nOwo+
+ID4gUnVzc2VsbCBLaW5nOyBKb2NoZW4gRnJpZWRyaWNoOyBKb2VyZyBSb2VkZWw7IENsYXVkaXUg
+TWFub2lsOyBCaHVwZXNoCj4gPiBTaGFybWE7IFFpYW5nIFpoYW87IEt1bWFyIEdhbGE7IFNhbnRv
+c2ggU2hpbGlta2FyOyBMZW8gTGk7IFguQi4gWGllCj4gPiBTdWJqZWN0OiBSZTogW3YxMSwgNS84
+XSBzb2M6IGZzbDogYWRkIEdVVFMgZHJpdmVyIGZvciBRb3JJUSBwbGF0Zm9ybXMKPiA+IAo+ID4g
+QlRXLCBhcmVuJ3QgbHMyMDgwYSBhbmQgbHMyMDg1YSB0aGUgc2FtZSBkaWU/IMKgQW5kIGlzIHRo
+ZXJlIG5vIG5vbi1FCj4gPiB2ZXJzaW9uIG9mIExTMjA4MEEvTFMyMDQwQT8KPiBbTHUgWWFuZ2Jv
+LUI0NzA5M10gSSBjaGVja2VkIGFsbCB0aGUgc3ZyIHZhbHVlcyBpbiBjaGlwIGVycmF0YSBkb2Mg
+IlJldmlzaW9uCj4gbGV2ZWwgdG8gcGFydCBtYXJraW5nIGNyb3NzLXJlZmVyZW5jZSIgdGFibGUu
+Cj4gSSBmb3VuZCBsczIwODBhIGFuZCBsczIwODVhIHdlcmUgaW4gdHdvIHNlcGFyYXRlIGRvYy4g
+QW5kIEkgZGlkbuKAmXQgZmluZCBub24tCj4gRSB2ZXJzaW9uIG9mIExTMjA4MEEvTFMyMDQwQSBp
+biBjaGlwIGVycmF0YSBkb2MuCj4gRG8geW91IGtub3cgaXMgdGhlcmUgYW55IG90aGVyIGRvYyB3
+ZSBjYW4gY29uZmlybSB0aGlzPwoKTm8uIMKgVHJhZGl0aW9uYWxseSB3ZSd2ZSBhbHdheXMgaGFk
+IEUgYW5kIG5vbi1FIHZlcnNpb25zIG9mIGVhY2ggY2hpcCwgYnV0IEkKaGF2ZSBubyBrbm93bGVk
+Z2Ugb2Ygd2hldGhlciB0aGF0IGhhcyBjaGFuZ2VkIChJIGRvIG5vdGUgdGhhdCB0aGUgd2F5IHRo
+YXQgRS0Kc3RhdHVzIGlzIGluZGljYXRlZCBpbiBTVlIgaGFzIGNoYW5nZWQpLgoKQnV0IHBsZWFz
+ZSBsYWJlbCBMUzIwODBBIGFuZCBMUzIwODVBIGFzIHRoZSBzYW1lIGRpZSAob3IgcHJvdmlkZSBz
+dHJvbmcKZXZpZGVuY2UgdGhhdCB0aGV5IGFyZSBub3QpLgoKPiAKPiA+IAo+ID4gCj4gPiA+IAo+
+ID4gPiA+ID4gCj4gPiA+ID4gPiArCWRvIHsKPiA+ID4gPiA+ICsJCWlmICghbWF0Y2hlcy0+c29j
+X2lkKQo+ID4gPiA+ID4gKwkJCXJldHVybiBOVUxMOwo+ID4gPiA+ID4gKwkJaWYgKGdsb2JfbWF0
+Y2goc3ZyX21hdGNoLCBtYXRjaGVzLT5zb2NfaWQpKQo+ID4gPiA+ID4gKwkJCWJyZWFrOwo+ID4g
+PiA+ID4gKwl9IHdoaWxlIChtYXRjaGVzKyspOwo+ID4gPiA+IEFyZSB5b3UgZXhwZWN0aW5nICJt
+YXRjaGVzKysiIHRvIGV2ZXIgZXZhbHVhdGUgYXMgZmFsc2U/Cj4gPiA+IFtMdSBZYW5nYm8tQjQ3
+MDkzXSBZZXMsIHRoaXMgaXMgdXNlZCB0byBtYXRjaCB0aGUgc29jIHdlIHVzZSBpbgo+ID4gPiBx
+b3JpcV9zb2MgYXJyYXkgdW50aWwgZ2V0dGluZyB0cnVlLgo+ID4gPiBXZSBuZWVkIHRvIGdldCB0
+aGUgbmFtZSBhbmQgZGllIGluZm9ybWF0aW9uIGRlZmluZWQgaW4gYXJyYXkuCj4gPiBJJ20gbm90
+IGFza2luZyB3aGV0aGVyIHRoZSBnbG9iX21hdGNoIHdpbGwgZXZlciByZXR1cm4gdHJ1ZS4gwqBJ
+J20gc2F5aW5nCj4gPiB0aGF0ICJtYXRjaGVzKysiIHdpbGwgbmV2ZXIgYmVjb21lIE5VTEwuCj4g
+W0x1IFlhbmdiby1CNDcwOTNdIFRoZSBtYXRjaGVzKysgd2lsbCBuZXZlciBiZWNvbWUgTlVMTCB3
+aGlsZSBpdCB3aWxsIHJldHVybgo+IE5VTEwgYWZ0ZXIgbWF0Y2hpbmcgZm9yIGFsbCB0aGUgbWVt
+YmVycyBpbiBhcnJheS4KCiJtYXRjaGVzKysiIHdpbGwgbmV2ZXIgInJldHVybiBOVUxMIi4gwqBJ
+dCdzIGp1c3QgYW4gaW5jcmVtZW50aW5nIGFkZHJlc3MuIMKgSXQKd29uJ3QgYmUgbnVsbCB1bnRp
+bCB5b3Ugd3JhcCBhcm91bmQgdGhlIGFkZHJlc3Mgc3BhY2UsIGFuZCBldmVuIGlmIHRoZSBvdGhl
+cgpsb29wIHRlcm1pbmF0b3JzIG5ldmVyIGtpY2tlZCBpbiB5b3UnZCBjcmFzaCBsb25nIGJlZm9y
+ZSB0aGF0IGhhcHBlbnMuCgpQbGVhc2UgcmV3cml0ZSB0aGUgbG9vcCBhcyBzb21ldGhpbmcgbGlr
+ZToKCgl3aGlsZSAobWF0Y2hlcy0+c29jX2lkKSB7CgkJaWYgKGdsb2JfbWF0Y2goLi4uKSkKCQkJ
+cmV0dXJuIG1hdGNoZXM7CgoJCW1hdGNoZXMrKzsKCX0KCglyZXR1cm4gTlVMTDsKCgo+ID4gPiA+
+ID4gKwkvKiBSZWdpc3RlciBzb2MgZGV2aWNlICovCj4gPiA+ID4gPiArCXNvY19kZXZfYXR0ciA9
+IGt6YWxsb2Moc2l6ZW9mKCpzb2NfZGV2X2F0dHIpLCBHRlBfS0VSTkVMKTsKPiA+ID4gPiA+ICsJ
+aWYgKCFzb2NfZGV2X2F0dHIpIHsKPiA+ID4gPiA+ICsJCXJldCA9IC1FTk9NRU07Cj4gPiA+ID4g
+PiArCQlnb3RvIG91dF91bm1hcDsKPiA+ID4gPiA+ICsJfQo+ID4gPiA+IENvdWxkbid0IHRoaXMg
+YmUgc3RhdGljYWxseSBhbGxvY2F0ZWQ/Cj4gPiA+IFtMdSBZYW5nYm8tQjQ3MDkzXSBEbyB5b3Ug
+bWVhbiB3ZSBkZWZpbmUgdGhpcyBzdHJ1Y3Qgc3RhdGljYWxseSA/Cj4gPiA+IAo+ID4gPiBzdGF0
+aWMgc3RydWN0IHNvY19kZXZpY2VfYXR0cmlidXRlIHNvY19kZXZfYXR0cjsKPiA+IFllcy4KPiA+
+IAo+IFtMdSBZYW5nYm8tQjQ3MDkzXSBJdCdzIG9rIHRvIGRlZmluZSBpdCBzdGF0aWNhbGx5LiBJ
+cyB0aGVyZSBhbnkgbmVlZCB0byBkbwo+IHRoYXQ/CgpJdCdzIHNpbXBsZXIuCgotU2NvdHQKCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmlvbW11IG1haWxp
+bmcgbGlzdAppb21tdUBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby9pb21tdQ==
