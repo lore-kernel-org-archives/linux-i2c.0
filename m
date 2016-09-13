@@ -1,131 +1,39 @@
-From: Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [v11, 5/8] soc: fsl: add GUTS driver for QorIQ platforms
-Date: Mon, 12 Sep 2016 18:25:14 -0500
-Message-ID: <1473722714.30217.196.camel@buserror.net>
-References: <1473150503-9550-1-git-send-email-yangbo.lu@nxp.com>
-	<1473150503-9550-6-git-send-email-yangbo.lu@nxp.com>
-	<1473392840.30217.170.camel@buserror.net>
-	<HE1PR04MB08892D8354E38EC32F549E98F8FF0@HE1PR04MB0889.eurprd04.prod.outlook.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v7] i2c: imx: make bus recovery through pinctrl optional
+Date: Tue, 13 Sep 2016 08:47:29 +0200
+Message-ID: <20160913064729.6jtwlpkpi36gxtpj@pengutronix.de>
+References: <1473718950-6667-1-git-send-email-leoyang.li@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <HE1PR04MB08892D8354E38EC32F549E98F8FF0-6LN7OEpIatX1kPMWxTxe+c9NdZoXdze2vxpqHgZTriW3zl9H0oFU5g@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, "X.B. Xie" <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1473718950-6667-1-git-send-email-leoyang.li@nxp.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Li Yang <leoyang.li@nxp.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Gao Pan <pandy.gao@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gTW9uLCAyMDE2LTA5LTEyIGF0IDA2OjM5ICswMDAwLCBZLkIuIEx1IHdyb3RlOgo+IEhpIFNj
-b3R0LAo+IAo+IFRoYW5rcyBmb3IgeW91ciByZXZpZXcgOikKPiBTZWUgbXkgY29tbWVudCBpbmxp
-bmUuCj4gCj4gPiAKPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tCj4gPiBGcm9tOiBTY290
-dCBXb29kIFttYWlsdG86b3NzQGJ1c2Vycm9yLm5ldF0KPiA+IFNlbnQ6IEZyaWRheSwgU2VwdGVt
-YmVyIDA5LCAyMDE2IDExOjQ3IEFNCj4gPiBUbzogWS5CLiBMdTsgbGludXgtbW1jQHZnZXIua2Vy
-bmVsLm9yZzsgdWxmLmhhbnNzb25AbGluYXJvLm9yZzsgQXJuZAo+ID4gQmVyZ21hbm4KPiA+IENj
-OiBsaW51eHBwYy1kZXZAbGlzdHMub3psYWJzLm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5v
-cmc7IGxpbnV4LWFybS0KPiA+IGtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBsaW51eC1rZXJu
-ZWxAdmdlci5rZXJuZWwub3JnOyBsaW51eC0KPiA+IGNsa0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4
-LWkyY0B2Z2VyLmtlcm5lbC5vcmc7IGlvbW11QGxpc3RzLmxpbnV4LQo+ID4gZm91bmRhdGlvbi5v
-cmc7IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7IE1hcmsgUnV0bGFuZDsgUm9iIEhlcnJpbmc7Cj4g
-PiBSdXNzZWxsIEtpbmc7IEpvY2hlbiBGcmllZHJpY2g7IEpvZXJnIFJvZWRlbDsgQ2xhdWRpdSBN
-YW5vaWw7IEJodXBlc2gKPiA+IFNoYXJtYTsgUWlhbmcgWmhhbzsgS3VtYXIgR2FsYTsgU2FudG9z
-aCBTaGlsaW1rYXI7IExlbyBMaTsgWC5CLiBYaWUKPiA+IFN1YmplY3Q6IFJlOiBbdjExLCA1Lzhd
-IHNvYzogZnNsOiBhZGQgR1VUUyBkcml2ZXIgZm9yIFFvcklRIHBsYXRmb3Jtcwo+ID4gCj4gPiBP
-biBUdWUsIDIwMTYtMDktMDYgYXQgMTY6MjggKzA4MDAsIFlhbmdibyBMdSB3cm90ZToKPiA+ID4g
-Cj4gPiA+IFRoZSBnbG9iYWwgdXRpbGl0aWVzIGJsb2NrIGNvbnRyb2xzIHBvd2VyIG1hbmFnZW1l
-bnQsIEkvTyBkZXZpY2UKPiA+ID4gZW5hYmxpbmcsIHBvd2VyLW9ucmVzZXQoUE9SKSBjb25maWd1
-cmF0aW9uIG1vbml0b3JpbmcsIGFsdGVybmF0ZQo+ID4gPiBmdW5jdGlvbiBzZWxlY3Rpb24gZm9y
-IG11bHRpcGxleGVkIHNpZ25hbHMsYW5kIGNsb2NrIGNvbnRyb2wuCj4gPiA+IAo+ID4gPiBUaGlz
-IHBhdGNoIGFkZHMgYSBkcml2ZXIgdG8gbWFuYWdlIGFuZCBhY2Nlc3MgZ2xvYmFsIHV0aWxpdGll
-cyBibG9jay4KPiA+ID4gSW5pdGlhbGx5IG9ubHkgcmVhZGluZyBTVlIgYW5kIHJlZ2lzdGVyaW5n
-IHNvYyBkZXZpY2UgYXJlIHN1cHBvcnRlZC4KPiA+ID4gT3RoZXIgZ3V0cyBhY2Nlc3Nlcywgc3Vj
-aCBhcyByZWFkaW5nIFJDVywgc2hvdWxkIGV2ZW50dWFsbHkgYmUgbW92ZWQKPiA+ID4gaW50byB0
-aGlzIGRyaXZlciBhcyB3ZWxsLgo+ID4gPiAKPiA+ID4gU2lnbmVkLW9mZi1ieTogWWFuZ2JvIEx1
-IDx5YW5nYm8ubHVAbnhwLmNvbT4KPiA+ID4gU2lnbmVkLW9mZi1ieTogU2NvdHQgV29vZCA8b3Nz
-QGJ1c2Vycm9yLm5ldD4KPiA+IERvbid0IHB1dCBteSBzaWdub2ZmIG9uIHBhdGNoZXMgdGhhdCBJ
-IGRpZG4ndCBwdXQgaXQgb24KPiA+IG15c2VsZi4gwqBEZWZpbml0ZWx5IGRvbid0IHB1dCBtaW5l
-ICphZnRlciogeW91cnMgb24gcGF0Y2hlcyB0aGF0IHdlcmUKPiA+IGxhc3QgbW9kaWZpZWQgYnkg
-eW91Lgo+ID4gCj4gPiBJZiB5b3Ugd2FudCB0byBtZW50aW9uIHRoYXQgdGhlIHNvY19pZCBlbmNv
-ZGluZyB3YXMgbXkgc3VnZ2VzdGlvbiwgdGhlbgo+ID4gZG8gc28gZXhwbGljaXRseS4KPiA+IAo+
-IFtMdSBZYW5nYm8tQjQ3MDkzXSBJIGZvdW5kIHlvdXIgJ3NpZ25vZmYnIG9uIHRoaXMgcGF0Y2gg
-YXQgYmVsb3cgbGluay4KPiBodHRwOi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gvNjQ5MjEx
-Lwo+IAo+IFNvLCBsZXQgbWUganVzdCBjaGFuZ2UgdGhlIG9yZGVyIGluIG5leHQgdmVyc2lvbiA/
-Cj4gU2lnbmVkLW9mZi1ieTogU2NvdHQgV29vZCA8b3NzQGJ1c2Vycm9yLm5ldD4KPiBTaWduZWQt
-b2ZmLWJ5OiBZYW5nYm8gTHUgPHlhbmdiby5sdUBueHAuY29tPgoKTm8uIMKgVGhpcyBpc24ndCBt
-eSBwYXRjaCBzbyBteSBzaWdub2ZmIHNob3VsZG4ndCBiZSBvbiBpdC4KCj4gW0x1IFlhbmdiby1C
-NDcwOTNdIEl0J3MgYSBnb29kIGlkZWEgdG8gbW92ZSBkaWUgaW50byAuZmFtaWx5IEkgdGhpbmsu
-Cj4gSW4gbXkgb3BpbmlvbiwgaXQncyBiZXR0ZXIgdG8ga2VlcCBzdnIgYW5kIG5hbWUgaW4gc29j
-X2lkIGp1c3QgbGlrZSB5b3VyCj4gc3VnZ2VzdGlvbiBhYm92ZS4KPiA+IAo+ID4gCXsKPiA+IAkJ
-LnNvY19pZCA9ICJzdnI6MHg4NTQ5MDAxMCxuYW1lOlQxMDIzRSwiLAo+ID4gCQkuZmFtaWx5ID0g
-IlFvcklRIFQxMDI0IiwKPiA+IAl9Cj4gVGhlIHVzZXIgcHJvYmFibHkgZG9u4oCZdCBsaWtlIHRv
-IGxlYXJuIHRoZSBzdnIgdmFsdWUuIFdoYXQgdGhleSB3YW50IGlzIGp1c3QKPiB0byBtYXRjaCB0
-aGUgc29jIHRoZXkgdXNlLgo+IEl0J3MgY29udmVuaWVudCB0byB1c2UgbmFtZStyZXYgZm9yIHRo
-ZW0gdG8gbWF0Y2ggYSBzb2MuCgpXaGF0IHRoZSB1c2VyIHNob3VsZCB3YW50IDk5JSBvZiB0aGUg
-dGltZSBpcyB0byBtYXRjaCB0aGUgZGllIChwbHVzIHJldmlzaW9uKSwKbm90IHRoZSBzb2MuCgo+
-IFJlZ2FyZGluZyBzaHJpbmtpbmcgdGhlIHRhYmxlLCBJIHRoaW5rIGl0J3MgaGFyZCB0byB1c2Ug
-c3ZyK21hc2suIEJlY2F1c2UgSQo+IGZpbmQgbWFueSBwbGF0Zm9ybXMgdXNlIGRpZmZlcmVudCBt
-YXNrcy4KPiBXZSBjb3VsZG7igJl0IGtub3cgdGhlIG1hc2sgYWNjb3JkaW5nIHN2ciB2YWx1ZS4K
-ClRoZSBtYXNrIHdvdWxkIGJlIHBhcnQgb2YgdGhlIHRhYmxlOgoKewoJewoJCS5kaWUgPSAiVDEw
-MjQiLAoJCS5zdnIgPSAweDg1NDAwMDAwLAoJCS5tYXNrID0gMHhmZmYwMDAwMCwKCX0sCgl7CgkJ
-LmRpZSA9ICJUMTA0MCIsCgkJLnN2ciA9IDB4ODUyMDAwMDAsCgkJLm1hc2sgPSAweGZmZjAwMDAw
-LAoJfSwKCXsKCQkuZGllID0gIkxTMTA4OEEiLAoJCS5zdnIgPSAweDg3MDMwMDAwLAoJCS5tYXNr
-ID0gMHhmZmZmMDAwMCwKCX0sCgkuLi4KfQoKVGhlcmUncyBhIHNtYWxsIHJpc2sgdGhhdCB3ZSBn
-ZXQgdGhlIG1hc2sgd3JvbmcgYW5kIGEgZGlmZmVyZW50IGRpZSBpcyBjcmVhdGVkCnRoYXQgbWF0
-Y2hlcyBhbiBleGlzdGluZyB0YWJsZSwgYnV0IGl0IGRvZXNuJ3Qgc2VlbSB0b28gbGlrZWx5LCBh
-bmQgY2FuIGVhc2lseQpiZSBmaXhlZCB3aXRoIGEga2VybmVsIHVwZGF0ZSBpZiBpdCBoYXBwZW5z
-LgoKQlRXLCBhcmVuJ3QgbHMyMDgwYSBhbmQgbHMyMDg1YSB0aGUgc2FtZSBkaWU/IMKgQW5kIGlz
-IHRoZXJlIG5vIG5vbi1FIHZlcnNpb24Kb2YgTFMyMDgwQS9MUzIwNDBBPwoKPiA+ID4gKwlkbyB7
-Cj4gPiA+ICsJCWlmICghbWF0Y2hlcy0+c29jX2lkKQo+ID4gPiArCQkJcmV0dXJuIE5VTEw7Cj4g
-PiA+ICsJCWlmIChnbG9iX21hdGNoKHN2cl9tYXRjaCwgbWF0Y2hlcy0+c29jX2lkKSkKPiA+ID4g
-KwkJCWJyZWFrOwo+ID4gPiArCX0gd2hpbGUgKG1hdGNoZXMrKyk7Cj4gPiBBcmUgeW91IGV4cGVj
-dGluZyAibWF0Y2hlcysrIiB0byBldmVyIGV2YWx1YXRlIGFzIGZhbHNlPwo+IFtMdSBZYW5nYm8t
-QjQ3MDkzXSBZZXMsIHRoaXMgaXMgdXNlZCB0byBtYXRjaCB0aGUgc29jIHdlIHVzZSBpbiBxb3Jp
-cV9zb2MKPiBhcnJheSB1bnRpbCBnZXR0aW5nIHRydWUuwqAKPiBXZSBuZWVkIHRvIGdldCB0aGUg
-bmFtZSBhbmQgZGllIGluZm9ybWF0aW9uIGRlZmluZWQgaW4gYXJyYXkuCgpJJ20gbm90IGFza2lu
-ZyB3aGV0aGVyIHRoZSBnbG9iX21hdGNoIHdpbGwgZXZlciByZXR1cm4gdHJ1ZS4gwqBJJ20gc2F5
-aW5nIHRoYXQKIm1hdGNoZXMrKyIgd2lsbCBuZXZlciBiZWNvbWUgTlVMTC4KCj4gPiA+ICsJLyog
-UmVnaXN0ZXIgc29jIGRldmljZSAqLwo+ID4gPiArCXNvY19kZXZfYXR0ciA9IGt6YWxsb2Moc2l6
-ZW9mKCpzb2NfZGV2X2F0dHIpLCBHRlBfS0VSTkVMKTsKPiA+ID4gKwlpZiAoIXNvY19kZXZfYXR0
-cikgewo+ID4gPiArCQlyZXQgPSAtRU5PTUVNOwo+ID4gPiArCQlnb3RvIG91dF91bm1hcDsKPiA+
-ID4gKwl9Cj4gPiBDb3VsZG4ndCB0aGlzIGJlIHN0YXRpY2FsbHkgYWxsb2NhdGVkPwo+IFtMdSBZ
-YW5nYm8tQjQ3MDkzXSBEbyB5b3UgbWVhbiB3ZSBkZWZpbmUgdGhpcyBzdHJ1Y3Qgc3RhdGljYWxs
-eSA/Cj4gCj4gc3RhdGljIHN0cnVjdCBzb2NfZGV2aWNlX2F0dHJpYnV0ZSBzb2NfZGV2X2F0dHI7
-CgpZZXMuCgo+ID4gPiArCj4gPiA+ICsJc29jX2RldiA9IHNvY19kZXZpY2VfcmVnaXN0ZXIoc29j
-X2Rldl9hdHRyKTsKPiA+ID4gKwlpZiAoSVNfRVJSKHNvY19kZXYpKSB7Cj4gPiA+ICsJCXJldCA9
-IC1FTk9ERVY7Cj4gPiBXaHkgYXJlIHlvdSBjaGFuZ2luZyB0aGUgZXJyb3IgY29kZT8KPiBbTHUg
-WWFuZ2JvLUI0NzA5M10gV2hhdCBlcnJvciBjb2RlIHNob3VsZCB3ZSB1c2UgPyA6KQoKcmV0ID0g
-UFRSX0VSUihzb2NfZGV2KTsKCisJfQo+ID4gPiArCXJldHVybiAwOwo+ID4gPiArb3V0Ogo+ID4g
-PiArCWtmcmVlKHNvY19kZXZfYXR0ci0+bWFjaGluZSk7Cj4gPiA+ICsJa2ZyZWUoc29jX2Rldl9h
-dHRyLT5mYW1pbHkpOwo+ID4gPiArCWtmcmVlKHNvY19kZXZfYXR0ci0+c29jX2lkKTsKPiA+ID4g
-KwlrZnJlZShzb2NfZGV2X2F0dHItPnJldmlzaW9uKTsKPiA+ID4gKwlrZnJlZShzb2NfZGV2X2F0
-dHIpOwo+ID4gPiArb3V0X3VubWFwOgo+ID4gPiArCWlvdW5tYXAoZ3V0cy0+cmVncyk7Cj4gPiA+
-ICtvdXRfZnJlZToKPiA+ID4gKwlrZnJlZShndXRzKTsKPiA+IGRldm0KPiBbTHUgWWFuZ2JvLUI0
-NzA5M10gV2hhdCdzIHRoZSBkZXZtIG1lYW5pbmcgaGVyZSA6KQoKSWYgeW91IGFsbG9jYXRlIHRo
-ZXNlIHdpdGggZGV2bV9remFsbG9jKCksIGRldm1fa2FzcHJpbnRmKCksIGRldm1fa3N0cmR1cCgp
-LApldGMuIHRoZW4gdGhleSB3aWxsIGJlIGZyZWVkIGF1dG9tYXRpY2FsbHkgd2hlbiB0aGUgZGV2
-aWNlIGlzIHVuYm91bmQuCgo+IMKgCj4gPiAKPiA+IAo+ID4gPiAKPiA+ID4gK3N0YXRpYyBpbnQg
-ZnNsX2d1dHNfcmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKmRldikgewo+ID4gPiArCWtm
-cmVlKHNvY19kZXZfYXR0ci0+bWFjaGluZSk7Cj4gPiA+ICsJa2ZyZWUoc29jX2Rldl9hdHRyLT5m
-YW1pbHkpOwo+ID4gPiArCWtmcmVlKHNvY19kZXZfYXR0ci0+c29jX2lkKTsKPiA+ID4gKwlrZnJl
-ZShzb2NfZGV2X2F0dHItPnJldmlzaW9uKTsKPiA+ID4gKwlrZnJlZShzb2NfZGV2X2F0dHIpOwo+
-ID4gPiArCXNvY19kZXZpY2VfdW5yZWdpc3Rlcihzb2NfZGV2KTsKPiA+ID4gKwlpb3VubWFwKGd1
-dHMtPnJlZ3MpOwo+ID4gPiArCWtmcmVlKGd1dHMpOwo+ID4gPiArCXJldHVybiAwOwo+ID4gPiAr
-fQo+ID4gRG9uJ3QgZnJlZSB0aGUgbWVtb3J5IGJlZm9yZSB5b3UgdW5yZWdpc3RlciB0aGUgZGV2
-aWNlIHRoYXQgdXNlcyBpdCAobW9vdAo+ID4gaWYgeW91IHVzZSBkZXZtKS4KPiBbTHUgWWFuZ2Jv
-LUI0NzA5M10gVGhlIHNvYy5jIGRyaXZlciBtZW50aW9ucyB0aGF0Lgo+IEVuc3VyZSBzb2NfZGV2
-LT5hdHRyIGlzIGZyZWVkIHByaW9yIHRvIGNhbGxpbmcgc29jX2RldmljZV91bnJlZ2lzdGVyLgoK
-VGhhdCBjb21tZW50IGlzIHdyb25nLiDCoEZyZWVpbmcgdGhlIG1lbW9yeSBmaXJzdCBjcmVhdGVz
-IGEgcmFjZSBjb25kaXRpb24gdGhhdApjb3VsZCByZXN1bHQgaW4gYWNjZXNzaW5nIGZyZWVkIG1l
-bW9yeSwgaWYgc29tZXRoaW5nIGFjY2Vzc2VzIHRoZSBzb2MgZGV2aWNlCmluIHBhcmFsbGVsIHdp
-dGggdW5iaW5kaW5nLgoKLVNjb3R0CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwppb21tdSBtYWlsaW5nIGxpc3QKaW9tbXVAbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vaW9tbXU=
+On Mon, Sep 12, 2016 at 05:22:30PM -0500, Li Yang wrote:
+> Since commit 1c4b6c3bcf30 ("i2c: imx: implement bus recovery") the
+> driver starts to use gpio/pinctrl to support optional bus recovery
+> feature.  But pinctrl is not always usable.  There are platforms such
+> as ls1021a and ls1043a that don't support pinctrl, and it could just
+> be broken due to old/broken device tree.  The patch makes it really
+> optional that the probe function won't bailout on pinctrl problems
+> instead it just disables bus recovery and prints out notification when
+> there is problem with pinctrl.  Since pinctrl is only used by bus
+> recovery in this driver, move pinctrl initialization into bus recovery
+> init function to prevent confusion.
+> 
+> Signed-off-by: Li Yang <leoyang.li@nxp.com>
+> Cc: Gao Pan <pandy.gao@nxp.com>
+> Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
