@@ -1,40 +1,47 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH] i2c: i2c-mux-pca954x: retry updating the mux selection on failure
-Date: Wed, 14 Sep 2016 15:24:12 +0200
-Message-ID: <1473859452-8069-1-git-send-email-peda@axentia.se>
+From: Kevin Hilman <khilman@baylibre.com>
+Subject: Re: [PATCH 1/2] i2c: meson: add gxbb compatible string
+Date: Wed, 14 Sep 2016 08:19:02 -0700
+Message-ID: <7hr38mmrvd.fsf@baylibre.com>
+References: <1473846557-18123-1-git-send-email-jbrunet@baylibre.com>
+        <1473846557-18123-2-git-send-email-jbrunet@baylibre.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-he1eur01on0101.outbound.protection.outlook.com ([104.47.0.101]:43952
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1757910AbcINNY3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Sep 2016 09:24:29 -0400
+Received: from mail-pf0-f173.google.com ([209.85.192.173]:32940 "EHLO
+        mail-pf0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756348AbcINPTT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Sep 2016 11:19:19 -0400
+Received: by mail-pf0-f173.google.com with SMTP id g202so6713003pfb.0
+        for <linux-i2c@vger.kernel.org>; Wed, 14 Sep 2016 08:19:03 -0700 (PDT)
+In-Reply-To: <1473846557-18123-2-git-send-email-jbrunet@baylibre.com> (Jerome
+        Brunet's message of "Wed, 14 Sep 2016 11:49:16 +0200")
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "open list:I2C MUXES" <linux-i2c@vger.kernel.org>
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, open list <linux-kernel@vger.kernel.org>
+To: Jerome Brunet <jbrunet@baylibre.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Carlo Caione <carlo@caione.org>, Neil Armstrong <narmstrong@baylibre.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-The cached value of the last selected channel prevents retries on the
-next call, even on failure to update the selected channel. Fix that.
+Jerome Brunet <jbrunet@baylibre.com> writes:
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> From: Neil Armstrong <narmstrong@baylibre.com>
+>
+> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 528e755c468f..3278ebf1cc5c 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -164,7 +164,7 @@ static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
- 	/* Only select the channel if its different from the last channel */
- 	if (data->last_chan != regval) {
- 		ret = pca954x_reg_write(muxc->parent, client, regval);
--		data->last_chan = regval;
-+		data->last_chan = ret ? 0 : regval;
- 	}
- 
- 	return ret;
--- 
-2.1.4
+Acked-by: Kevin Hilman <khilman@baylibre.com>
+
+> ---
+>  drivers/i2c/busses/i2c-meson.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+> index 76e28980904f..30977e31cd98 100644
+> --- a/drivers/i2c/busses/i2c-meson.c
+> +++ b/drivers/i2c/busses/i2c-meson.c
+> @@ -473,6 +473,7 @@ static int meson_i2c_remove(struct platform_device *pdev)
+>  
+>  static const struct of_device_id meson_i2c_match[] = {
+>  	{ .compatible = "amlogic,meson6-i2c" },
+> +	{ .compatible = "amlogic,meson-gxbb-i2c" },
+>  	{ },
+>  };
+>  MODULE_DEVICE_TABLE(of, meson_i2c_match);
