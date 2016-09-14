@@ -1,121 +1,76 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] MAINTAINERS: Remove myself from PA Semi entries
-Date: Wed, 14 Sep 2016 02:31:57 +0200
-Message-ID: <20160914003157.GA1420@katana>
-References: <1473803318-25197-1-git-send-email-olof@lixom.net>
+From: Yadi <yadi.hu@windriver.com>
+Subject: Re: RESEND:i2c-eg20t: fix race between i2c init and interrupt enable
+Date: Wed, 14 Sep 2016 14:39:49 +0800
+Message-ID: <57D8F0B5.4010101@windriver.com>
+References: <1473240337-5694-1-git-send-email-yadi.hu@windriver.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1473803318-25197-1-git-send-email-olof@lixom.net>
-Sender: netdev-owner@vger.kernel.org
-To: Olof Johansson <olof@lixom.net>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, davem@davemloft.net, jdelvare@suse.com
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail1.windriver.com ([147.11.146.13]:50095 "EHLO
+        mail1.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751091AbcINGkv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Sep 2016 02:40:51 -0400
+In-Reply-To: <1473240337-5694-1-git-send-email-yadi.hu@windriver.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, jdelvare@suse.de
+Cc: linux-i2c@vger.kernel.org
 
+ping once again, any objection?
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yadi
 
-On Tue, Sep 13, 2016 at 02:48:38PM -0700, Olof Johansson wrote:
-> The platform is old, very few users and I lack bandwidth to keep after
-> it these days.
->=20
-> Mark the base platform as well as the drivers as orphans, patches have
-> been flowing through the fallback maintainers for a while already.
->=20
-> Signed-off-by: Olof Johansson <olof@lixom.net>
-> ---
->=20
-> Jean, Dave,
->=20
-> I was hoping to have Michael merge this since the bulk of the platform is=
- under him,
-> cc:ing you mostly to be aware that I am orphaning a driver in your subsys=
-tems.
-
-Let me answer for Jean since I took over I2C in November 2012 ;) I'd
-think the entry can go completely. The last 'F:' tag for the platform
-catches the I2C driver anyhow. But in general:
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-Thanks,
-
-   Wolfram
-
->=20
->=20
-> Thanks,
->=20
-> -Olof
->=20
->  MAINTAINERS | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
->=20
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index d8e81b1..411f4f7 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -7155,9 +7155,8 @@ F:	arch/powerpc/platforms/83xx/
->  F:	arch/powerpc/platforms/85xx/
-> =20
->  LINUX FOR POWERPC PA SEMI PWRFICIENT
-> -M:	Olof Johansson <olof@lixom.net>
->  L:	linuxppc-dev@lists.ozlabs.org
-> -S:	Maintained
-> +S:	Orphan
->  F:	arch/powerpc/platforms/pasemi/
->  F:	drivers/*/*pasemi*
->  F:	drivers/*/*/*pasemi*
-> @@ -8849,15 +8848,13 @@ S:	Maintained
->  F:	drivers/net/wireless/intersil/p54/
-> =20
->  PA SEMI ETHERNET DRIVER
-> -M:	Olof Johansson <olof@lixom.net>
->  L:	netdev@vger.kernel.org
-> -S:	Maintained
-> +S:	Orphan
->  F:	drivers/net/ethernet/pasemi/*
-> =20
->  PA SEMI SMBUS DRIVER
-> -M:	Olof Johansson <olof@lixom.net>
->  L:	linux-i2c@vger.kernel.org
-> -S:	Maintained
-> +S:	Orphan
->  F:	drivers/i2c/busses/i2c-pasemi.c
-> =20
->  PADATA PARALLEL EXECUTION MECHANISM
-> --=20
-> 2.8.0.rc3.29.gb552ff8
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJX2Jp8AAoJEBQN5MwUoCm2Up0QAIY9lV/dJ5rGJ2Yif7jf7MWt
-KDl35qc2kdtjxoXJoXh2iyyVKDEG0RK+QWFr6/oMq1BW0N/Jhy+xFQYAZo1Hy91K
-4w+3vYHIokcoeeLWLyoTAEdZsMD0PMdcchwlRb2+bc410rdfFf/O6b9BRYh1HWul
-7fIOA+F4EO5obEaGGPTjylMoy6n693N3O6rVgUJQkA4IFsys9LVXsBtn/Ia1t+wV
-QIsLm5gOHiNJbrIqSxmbmJzD8VuxV+crnS2M6eNQ3kCedLZStiUr+V02hkoRp+t4
-o9eCuCpzdnmxmcSRDhhFoax8VbX4vEax7T+9mWNRXrxGgYTa723yzzGLfg27Q1JE
-brZxbnG43ZFW45WGsQFS0IZIN3XW4xxaH+fXIcDSChEbX4D7UvJ8hX3utQXQqSZs
-yU5SRxwx738uVJYoRo9PqD2dlcP52utclIlm2rcfR0Zs0mlVaeJ0KJvvbRtAFe9h
-+wD3d4MnYs9WRmQblFfmg55IEL00FlyZps7pDd5hxyKALh7Fdsl5sE2WRr4STsis
-2FUrIk8q+h0LV4sVDjuoeF4AIuPmQGecUJz8PANC0VpFh+zZr6DkMCkm3hbeyy5e
-njf7CPr2jroSXOcbPr0nCzyEPVdqBFpGUL/SPO7dVyuIRaSguJwYWy1YpHgQ68ZN
-uIpM45WrHqDavHR984Xv
-=x6MH
------END PGP SIGNATURE-----
-
---FCuugMFkClbJLl1L--
+On 2016年09月07日 17:25, Yadi Hu wrote:
+> the eg20t driver call request_irq() function before the pch_base_address,
+> base address of i2c controller's register, isassigned an effective value.
+>
+> it is one possible scenario that an interrupt which isn't inside eg20t
+> arrives immediately after request_irq() is executed when i2c controller
+> shares an interrupt number with others.  since the interrupt handler
+> pch_i2c_handler() has already active as shared action, it will be called
+> and read its own register to determine if this interrupt is from itself.
+>
+> At that moment, since base address of i2c registers is not remapped
+> in kernel space yet,so the INT handler will access an illegal address
+> and then a error occurs.
+>
+> Bad IO access at port 0x18 (return inl(port))
+>   Call Trace:
+>    [<c102c733>] warn_slowpath_common+0x73/0xa0
+>    [<c13109f5>] ? bad_io_access+0x45/0x50
+>    [<c13109f5>] ? bad_io_access+0x45/0x50
+>    [<c102c804>] warn_slowpath_fmt+0x34/0x40
+>    [<c13109f5>] bad_io_access+0x45/0x50
+>    [<c1310b62>] ioread32+0x22/0x40
+>    [<c14c60db>] pch_i2c_handler+0x3b/0x120
+>    [<c1092f34>] handle_irq_event_percpu+0x64/0x330
+>    [<c109323b>] handle_irq_event+0x3b/0x60
+>    [<c1095b50>] ? unmask_irq+0x30/0x30
+>    [<c1095ba0>] handle_fasteoi_irq+0x50/0xe0
+>    <IRQ>  [<c16e7e78>] ? do_IRQ+0x48/0xc0
+>    [<c16e7f6f>] ? smp_apic_timer_interrupt+0x7f/0x17a
+>    [<c16e7da9>] ? common_interrupt+0x29/0x30
+>    [<c1008ebb>] ? mwait_idle+0x8b/0x2c0
+>    [<c1009e8e>] ? cpu_idle+0x9e/0xc0
+>    [<c16be408>] ? rest_init+0x6c/0x74
+>    [<c19f770a>] ? start_kernel+0x311/0x318
+>    [<c19f7231>] ? repair_env_string+0x51/0x51
+>    [<c19f7078>] ? i386_start_kernel+0x78/0x7d
+>   ---[ end trace eb3a1028f468a140 ]---
+>   i2c_eg20t 0000:05:0c.2: pch_i2c_handler :I2C-3 mode(0) is not supported
+>
+> after testing last patch, replacing request_irq() location is not a
+> good idea,it might produce a little time windows ,in which the interrupts
+> occurring inside  will be omitted.
+>
+> the new patch adds a check point on interrupt handler in case field
+> 'pch_base_address' has not been initialed.
+>
+>
+> Yadi Hu (1)
+>      i2c-eg20t: fix race between i2c init and interrupt enable
+>
+> drivers/i2c/busses/i2c-eg20t.c |    5 +++++
+>   1 file changed, 5 insertions(+)
+>
