@@ -1,35 +1,55 @@
-From: Yadi <yadi.hu@windriver.com>
-Subject: Re: RESEND:i2c-eg20t: fix race between i2c init and interrupt enable
-Date: Wed, 14 Sep 2016 15:49:46 +0800
-Message-ID: <57D9011A.9080300@windriver.com>
-References: <1473240337-5694-1-git-send-email-yadi.hu@windriver.com>
- <20160914072809.GA1417@katana>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [patch v5] i2c: mux: mellanox: add driver
+Date: Wed, 14 Sep 2016 09:49:45 +0200
+Message-ID: <eb927385-4598-2fd0-8200-7d6c4945569f@axentia.se>
+References: <1473799071-12830-1-git-send-email-vadimp@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:53365 "EHLO
-        mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1761594AbcINHut (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Sep 2016 03:50:49 -0400
-In-Reply-To: <20160914072809.GA1417@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1473799071-12830-1-git-send-email-vadimp@mellanox.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: vadimp@mellanox.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: jdelvare@suse.de, linux-i2c@vger.kernel.org
 
-On 2016年09月14日 15:28, Wolfram Sang wrote:
->> after testing last patch, replacing request_irq() location is not a
->> good idea,it might produce a little time windows ,in which the interrupts
->> occurring inside  will be omitted.
-> To give you a little feedback: I think I liked the previous patch
-> better, but need the weekend to think about it.
->
-> Thanks,
->
->     Wolfram
->
-thanks your feedback.
+On 2016-09-13 22:37, vadimp@mellanox.com wrote:
+> From: Vadim Pasternak <vadimp@mellanox.com>
+> 
+> This driver allows I2C routing controlled through CPLD select registers on
+> a wide range of Mellanox systems (CPLD Lattice device).
+> MUX selection is provided by digital and analog HW. Analog part is not
+> under SW control.
+> Digital part is under CPLD control (channel selection/de-selection).
 
+*snip*
 
-Yadi
+> +/* Platform data for the CPLD I2C multiplexers */
+> +
+> +/* mlxcpld_mux_plat_data - per mux data, used with i2c_register_board_info
+> + * @adap_ids - adapter array
+> + * @num_adaps - number of adapters
+> + * @sel_reg_addr - mux select register offset in CPLD space
+> + */
+> +struct mlxcpld_mux_plat_data {
+> +	int *adap_ids;
+> +	int num_adaps;
+> +	int sel_reg_addr;
+> +};
+> +
+> +#endif /* _LINUX_I2C_MLXCPLD_H */
+> 
+
+Hmm, you never confirmed that you need to support different register
+values in the CPLD with sel_reg_addr. I can see that there is a
+possibility that you actually really need it, but I'd like to remove
+that variable if at all possible.
+
+If you can confirm that you need that, this is
+
+Acked-by: Peter Rosin <peda@axentia.se>
+
+Otherwise, please just hard code the register address.
+
+Cheers,
+Peter
