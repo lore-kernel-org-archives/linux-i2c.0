@@ -1,38 +1,38 @@
-From: Andy Gross <andy.gross@linaro.org>
-Subject: Re: [PATCH] i2c: qup: skip qup_i2c_suspend if the device is already
- runtime suspended
-Date: Wed, 14 Sep 2016 12:33:07 -0500
-Message-ID: <20160914173307.GA5431@hector.attlocal.net>
-References: <1472124219-1627-1-git-send-email-sudeep.holla@arm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Subject: i2c: xlp9xx: ACPI support for I2C clients
+Date: Fri, 16 Sep 2016 00:57:39 +0530
+Message-ID: <1473967659-9000-1-git-send-email-tanmay.jagdale@broadcom.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f41.google.com ([209.85.218.41]:32850 "EHLO
-        mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1762069AbcINRdJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Sep 2016 13:33:09 -0400
-Received: by mail-oi0-f41.google.com with SMTP id r126so32772010oib.0
-        for <linux-i2c@vger.kernel.org>; Wed, 14 Sep 2016 10:33:09 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1472124219-1627-1-git-send-email-sudeep.holla@arm.com>
+Received: from mail-gw2-out.broadcom.com ([216.31.210.63]:49519 "EHLO
+        mail-gw2-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754805AbcIOThh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Sep 2016 15:37:37 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sudeep Holla <sudeep.holla@arm.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, David Brown <david.brown@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com, Tanmay Jagdale <tanmay.jagdale@broadcom.com>
 
-On Thu, Aug 25, 2016 at 12:23:39PM +0100, Sudeep Holla wrote:
-> If the i2c device is already runtime suspended, if qup_i2c_suspend is
-> executed during suspend-to-idle or suspend-to-ram it will result in the
-> following splat:
-> 
-<snip>
-> 
-> This patch fixes the issue by executing qup_i2c_pm_suspend_runtime
-> conditionally in qup_i2c_suspend.
-> 
-> Cc: Andy Gross <andy.gross@linaro.org>
-> Cc: David Brown <david.brown@linaro.org>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+The ACPI companion of the adapter has to be set for I2C controller
+code to read and attach the slave devices described in the ACPI table
+with the I2CSerialBus resource descriptor. Used ACPI_COMPANION_SET
+macro to set this.
 
-Reviewed-by: Andy Gross <andy.gross@linro.org>
+Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+---
+ drivers/i2c/busses/i2c-xlp9xx.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index 55a7bef..916f192 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -393,6 +393,7 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
+ 	init_completion(&priv->msg_complete);
+ 	priv->adapter.dev.parent = &pdev->dev;
+ 	priv->adapter.algo = &xlp9xx_i2c_algo;
++	ACPI_COMPANION_SET(&(priv->adapter.dev), ACPI_COMPANION(&pdev->dev));
+ 	priv->adapter.dev.of_node = pdev->dev.of_node;
+ 	priv->dev = &pdev->dev;
+ 
+-- 
+2.1.0
