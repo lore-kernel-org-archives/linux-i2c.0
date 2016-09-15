@@ -1,62 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] i2c: meson: add gxbb compatible string
-Date: Thu, 15 Sep 2016 21:41:47 +0200
-Message-ID: <20160915194146.GB7863@katana>
-References: <1473846557-18123-1-git-send-email-jbrunet@baylibre.com>
+Subject: Re: [PATCH v7] i2c: imx: make bus recovery through pinctrl optional
+Date: Thu, 15 Sep 2016 21:45:27 +0200
+Message-ID: <20160915194526.GC7863@katana>
+References: <1473718950-6667-1-git-send-email-leoyang.li@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50093 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755049AbcIOTmT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 15 Sep 2016 15:42:19 -0400
+        protocol="application/pgp-signature"; boundary="vEao7xgI/oilGqZ+"
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1473846557-18123-1-git-send-email-jbrunet@baylibre.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1473718950-6667-1-git-send-email-leoyang.li@nxp.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Li Yang <leoyang.li@nxp.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Gao Pan <pandy.gao@nxp.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
 List-Id: linux-i2c@vger.kernel.org
-To: Jerome Brunet <jbrunet@baylibre.com>
-Cc: Kevin Hilman <khilman@baylibre.com>, Carlo Caione <carlo@caione.org>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>
 
 
---3lcZGd9BuhuYXNfi
-Content-Type: text/plain; charset=us-ascii
+--vEao7xgI/oilGqZ+
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 14, 2016 at 11:49:15AM +0200, Jerome Brunet wrote:
-> This patchset adds a specific compatible string in the Meson I2C driver
-> for the Amlogic Meson gxbb SoC.
+On Mon, Sep 12, 2016 at 05:22:30PM -0500, Li Yang wrote:
+> Since commit 1c4b6c3bcf30 ("i2c: imx: implement bus recovery") the
+> driver starts to use gpio/pinctrl to support optional bus recovery
+> feature.  But pinctrl is not always usable.  There are platforms such
+> as ls1021a and ls1043a that don't support pinctrl, and it could just
+> be broken due to old/broken device tree.  The patch makes it really
+> optional that the probe function won't bailout on pinctrl problems
+> instead it just disables bus recovery and prints out notification when
+> there is problem with pinctrl.  Since pinctrl is only used by bus
+> recovery in this driver, move pinctrl initialization into bus recovery
+> init function to prevent confusion.
 >=20
-> Other patch series (pinctrl and device tree) are being sent to complete
-> the i2c support on meson gxbb
->=20
-> Neil Armstrong (2):
->   i2c: meson: add gxbb compatible string
->   dt-bindings: i2c-meson: add gxbb compatible string
+> Signed-off-by: Li Yang <leoyang.li@nxp.com>
+> Cc: Gao Pan <pandy.gao@nxp.com>
+> Cc: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Squashed both patches and applied to for-next, thanks!
+Applied to for-next. Thanks to all reviewers and to Li Yang for keeping
+at it!
 
 
---3lcZGd9BuhuYXNfi
+--vEao7xgI/oilGqZ+
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX2vl6AAoJEBQN5MwUoCm2CyEP/086DOOEtIlDpYTX2yQIHb78
-7LK6RVSsT2VZnd2ncj4+jH410hMKMtkT05evfmjoYQ30fy+9peS3r9WrWDNRcpn0
-YLvJc+oBw+ME0l/FG31ckHHj0bVqFdPn2sLa6oA4zM/xYWeUWaBYQ8CAP261JTE8
-lpOlerdeeabUtmmtrqY/GcW27pCdzz7/gmlj6E+elE3nN3hI6ialkpef32uVPFAH
-RILcKMY48L/z7OYhf1xjU80rgFR6Eab0XTOgubUpO4a6M0BM95V/KUd+lH0d8zzw
-atLGjuWhijTbN7Jv2MtsgBN15QFbOtb3DwYMs7QJmUFD0J4kxJrVpEPlvkYnyLJR
-cvnrXEYIJYiyRuM3rxSSqjrq46TtjoMvnRi7pf/SG2L0kwyM1191V+vsMojy9w8m
-UjLCW6gYzJ9rZIZMZvn8Dau2JJyHrLa7NyV4fFBvAanF0FQZrFYX5uBMxCIlz9Rt
-Gv4pKwXGpH94YwDLxx1XRg+nB1NY9oO2pmGltnkxJxLAF7z60/7SlHem0P4TUr7e
-/C/t47/Jnk+ERGzYOGUSRG9jRZo5of1NKXAuxDsIca/aNlCDNpqnMZeQveMY0egw
-e1pJsogT4LGPBFlKDRhhEImLOD1zWVMlpZZ1xXhIDleuNt6NGZFK+CYWpCq5MQ4b
-XBXLnMK9iDuyK6b8uhOQ
-=bfFd
+iQIcBAEBAgAGBQJX2vpWAAoJEBQN5MwUoCm2DjkP/AqohoYFvswOTcG1gE76O1p7
+mqXhtFdiA2VT2tfaWmQceRcj8jKLe1K3B6A9iKI0xPnX4jdMojN/k81lAD4UDfe6
+dOxUFajkakPylQrhNRKxt+S+c3aQ8xKjkNzv+FQNb/pRdXlExYI+2bf0pu75e5QV
+QAlGyeholc/3iz9AM3A72enRlsqCt3DvqGjOZHkWmgrcAVjXMwPOEvOBGAvYmLw8
+GLCHIq0yHh7GL8DCi6quvRpydLn2dsOA/TqgqV2fmG/1pHAM1fYsYc7qA9QZ5dCH
+CeZPnv2HquoA9zxYBRS89sNAx54RFugy/ppYEmHBl84rTTSWGLuv6C0yYNGZ4j84
+5Fzm0SNxfKCRebXvvWCjRhkTCg6ekdHPwuXgPeZZZuCNWsGYH6G093BWAzr2PrSv
+5KPw70aUmCmQvxJrlwo4lsP2vjfHFxeblJmToa5cgIO+HsggDJuf3T8vBbeHpDB3
+c9Bl0pXh+f57uV4LIIWUAVb/9VBDv3qXlfVoLva9loZxFu9OrOae/Ezdzn/KLul0
+rBEgVPeFTWO4DEtM6soFP+q4X3jJhTN/BTcTjzcL6xXi20vEVBWxvwL24lmIPfjE
+qk0GgXeA5zf1d1TjQpzL3snATgtjE0vq2IU/DpexjQJYIUuB2AZU+oYFHF/vpHby
+E6YUtbL1gsvBrwd2oA/D
+=RvnF
 -----END PGP SIGNATURE-----
 
---3lcZGd9BuhuYXNfi--
+--vEao7xgI/oilGqZ+--
