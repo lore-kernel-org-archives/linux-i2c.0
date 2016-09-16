@@ -1,35 +1,41 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] MAINTAINERS: Remove myself from PA Semi entries
-Date: Fri, 16 Sep 2016 01:50:47 -0400 (EDT)
-Message-ID: <20160916.015047.226492184456639112.davem@davemloft.net>
-References: <1473803318-25197-1-git-send-email-olof@lixom.net>
-        <87k2eeoo30.fsf@concordia.ellerman.id.au>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: i2c-mux-pca954x: retry updating the mux selection on
+ failure
+Date: Fri, 16 Sep 2016 09:01:17 +0200
+Message-ID: <1821185f-d97b-5394-a90e-d6b67545e06f@axentia.se>
+References: <1473859452-8069-1-git-send-email-peda@axentia.se>
+ <20160915195235.GD7863@katana>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from shards.monkeyblade.net ([184.105.139.130]:35088 "EHLO
-        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753446AbcIPFux (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Sep 2016 01:50:53 -0400
-In-Reply-To: <87k2eeoo30.fsf@concordia.ellerman.id.au>
+Received: from mail-db5eur01on0118.outbound.protection.outlook.com ([104.47.2.118]:51232
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751549AbcIPJem (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 16 Sep 2016 05:34:42 -0400
+In-Reply-To: <20160915195235.GD7863@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: mpe@ellerman.id.au
-Cc: olof@lixom.net, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, jdelvare@suse.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Wed, 14 Sep 2016 18:57:55 +1000
+[Resend, with lists added back...]
 
-> Olof Johansson <olof@lixom.net> writes:
-> 
->> Jean, Dave,
+On 2016-09-15 21:52, Wolfram Sang wrote:
+> On Wed, Sep 14, 2016 at 03:24:12PM +0200, Peter Rosin wrote:
+>> The cached value of the last selected channel prevents retries on the
+>> next call, even on failure to update the selected channel. Fix that.
 >>
->> I was hoping to have Michael merge this since the bulk of the platform is under him,
->> cc:ing you mostly to be aware that I am orphaning a driver in your subsystems.
+>> Signed-off-by: Peter Rosin <peda@axentia.se>
 > 
-> I'll merge it unless I hear otherwise from Dave.
+> Looks good. Is this 4.8 material or rather 4.9?
 
-Feel free to merge this.
+I have no real-world event or report backing the change, but it is
+simple enough and fixes problems that are potentially very hard to
+detect/reproduce. Certainly fodder for 4.8 and probably stable as
+well (if you care). But no biggie, so personally I don't mind if
+you wait until 4.9, but then again I don't depend on the driver...
 
-Thanks.
+Cheers,
+Peter
