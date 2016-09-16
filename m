@@ -1,46 +1,27 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v2 2/4] lockdep: make MAX_LOCKDEP_SUBCLASSES unconditionally visible
-Date: Fri, 16 Sep 2016 18:02:43 +0200
-Message-ID: <1474041765-17818-3-git-send-email-bgolaszewski@baylibre.com>
-References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+Subject: Re: [PATCH] gpio: pca953x: fix an incorrect lockdep warning
+Date: Fri, 16 Sep 2016 18:04:36 +0200
+Message-ID: <CAMpxmJUWJr7eEWDekSX=wwQ=vfuExfMDY1yFpnT8PW0vwMq0RQ@mail.gmail.com>
+References: <1474035484-25134-1-git-send-email-bgolaszewski@baylibre.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+In-Reply-To: <1474035484-25134-1-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-gpio-owner@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This define is needed by i2c_adapter_depth() to detect if we don't
-exceed the maximum number of lock subclasses. Make it visible even
-if lockdep is disabled.
+2016-09-16 16:18 GMT+02:00 Bartosz Golaszewski <bgolaszewski@baylibre.com>:
+> If an I2C GPIO multiplexer is driven by a GPIO provided by an expander
+> when there's a second expander using the same device driver on one of
+> the I2C bus segments, lockdep prints a deadlock warning when trying to
+> set the direction or the value of the GPIOs provided by the second
+> expander.
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- include/linux/lockdep.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+[snip]
 
-diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index eabe013..c1458fe 100644
---- a/include/linux/lockdep.h
-+++ b/include/linux/lockdep.h
-@@ -16,6 +16,8 @@ struct lockdep_map;
- extern int prove_locking;
- extern int lock_stat;
- 
-+#define MAX_LOCKDEP_SUBCLASSES		8UL
-+
- #ifdef CONFIG_LOCKDEP
- 
- #include <linux/linkage.h>
-@@ -29,8 +31,6 @@ extern int lock_stat;
-  */
- #define XXX_LOCK_USAGE_STATES		(1+3*4)
- 
--#define MAX_LOCKDEP_SUBCLASSES		8UL
--
- /*
-  * NR_LOCKDEP_CACHING_CLASSES ... Number of classes
-  * cached in the instance of lockdep_map
--- 
-2.7.4
+Superseded by v2.
 
+Thanks,
+Bartosz
