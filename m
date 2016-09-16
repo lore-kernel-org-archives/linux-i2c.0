@@ -1,70 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: RESEND:i2c-eg20t: fix race between i2c init and interrupt enable
-Date: Fri, 16 Sep 2016 22:04:57 +0200
-Message-ID: <20160916200456.GA2216@katana>
-References: <1473240337-5694-1-git-send-email-yadi.hu@windriver.com>
+From: David Lechner <david@lechnology.com>
+Subject: Re: [PATCH 0/3] LEGO MINDSTORMS I2C support
+Date: Fri, 16 Sep 2016 15:05:45 -0500
+Message-ID: <35c2d50b-4d1e-deb4-9b9e-a9f8b33a7f36@lechnology.com>
+References: <1473108014-30787-1-git-send-email-david@lechnology.com>
+ <20160915200045.GE7863@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:54450 "EHLO pokefinder.org"
+Received: from vern.gendns.com ([206.190.152.46]:59340 "EHLO vern.gendns.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965306AbcIPUFI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 16 Sep 2016 16:05:08 -0400
-Content-Disposition: inline
-In-Reply-To: <1473240337-5694-1-git-send-email-yadi.hu@windriver.com>
+        id S965171AbcIPUGC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 16 Sep 2016 16:06:02 -0400
+In-Reply-To: <20160915200045.GE7863@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Yadi Hu <yadi.hu@windriver.com>
-Cc: jdelvare@suse.de, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On 09/15/2016 03:00 PM, Wolfram Sang wrote:
+> On Mon, Sep 05, 2016 at 03:40:11PM -0500, David Lechner wrote:
+>> I'm working on getting LEGO MINDSTORMS[1] support in the Linux kernel.
+>>
+>> They have a system of modular sensors that are hot-plugable, some of which use
+>> I2C communications. Unfortunately, these don't necessary follow standard I2C
+>> conventions, but they do have a well-defined register layout, so they are
+>> easy to detect.
+>>
+>> This set of patches addresses the hot-plugability of the sensors.
+>>
+>> [1]: http://mindstorms.lego.com
+>
+> Thanks!
+>
+> For a review, I'd need users of this functionality. In this case, a
+> master driver and probably a sensor driver.
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Work in progress drivers:
 
+master: 
+https://github.com/ev3dev/lego-linux-drivers/blob/master/ev3/legoev3_i2c.c
+master: 
+https://github.com/ev3dev/lego-linux-drivers/blob/master/evb/evb_pru_i2c.c
+sensor: 
+https://github.com/ev3dev/lego-linux-drivers/blob/master/sensors/nxt_i2c_sensor_core.c
 
-> after testing last patch, replacing request_irq() location is not a
-> good idea,it might produce a little time windows ,in which the interrupts
-> occurring inside  will be omitted.
->=20
-> the new patch adds a check point on interrupt handler in case field
-> 'pch_base_address' has not been initialed.
+> Can any regular I2C master
+> talk to these devices if they support talking to addresses 0x00-0x7f?
 
-What about using two for-loops in probe like this pseudo code?
+Yes. I've tested this with the SoC I2C on Raspberry Pi. There are 
+several 3rd party LEGO MINDSTORMS compatible addon boards for RPi that 
+use the SoC I2C with LEGO sensors, which is part of my motivation for 
+this patchset.
 
-for (all_channels)
-	do_initialization
+> My first impression is that using a class is not the proper approach
+> because classes were used to limit access to devices, not to extend.
+> However, I'd need to see more code to check if that holds true.
+>
 
-request_irq()
-
-for (all_channels)
-	register_adapter
-
-
-This seems to me the correct order and most readable solution.
-
-
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJX3FBoAAoJEBQN5MwUoCm2ynUP/3hMn+5KnB1lWQAdebaN1IYW
-oafNgRPqwobbLjDixxx7r3IkUzb8EX3nO40z5AWmjQYrgXH4hCkg08GyZ4sB14cs
-GqWG8G/LG6+eXSMRGBKgSbKBaR+aV2swe2KKGaAL0zvU9+mBG1Kqi1/kmjreVhyF
-sgrCvsOD+QdwA6uSF5cwhYzk3bCuF5YXCPaEgPViUAqi9kAZmjajMIihbGV9vVDP
-6Y5f+hBgtGQiA82pS76UFYmCz6dwWIU/277v5vdQVBg2Tk74tjXolR95UfSQ25qs
-k9CY4aNUdvmzNgnBoevcNgpI27GI1zUYo44S/7Gr54l8e92TVt7aLPyXId3Ck/m1
-tbkEvZu7OvCbCYupiAoyub+AYMuE45mfTQLR5ltMlQXIh93ZIjopcZ7F1cBGQsFE
-2hGdQ/g9dGFjpCtT4Q2tpnVSfwJgFj7k1mKwfSBW3M8PnjscNKfgTbCMcrrW57hh
-0wsDRSDXznhOMoKmdt9FZja1OfYTC9xYuSODWXBsgCCfQbP/kHFM5KGkLUnAl0t9
-fBzg9AAk7yFmWNlpYctQjylSvKwmlAe+7Xoz+/ViCPACarnzpwmMqzetb5ERhEqo
-Mxk9gThkNhDdyV3vg0yBrOS2h4FcO6eHaP0cXip/ybA0mlGdXzSygO5Ji0pRMj3D
-N9Q0Sv667eTlTdnXq3NW
-=K/FN
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--
+I'm certainly open to other suggestions. This just seemed like the 
+obvious way to me.
