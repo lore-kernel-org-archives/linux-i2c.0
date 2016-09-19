@@ -1,96 +1,90 @@
-From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH 1/3] i2c: bcm2835: Fix hang for writing messages larger than 16 bytes
-Date: Mon, 19 Sep 2016 17:26:15 +0200
-Message-ID: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2 0/4] gpio: fix an incorrect lockdep warning
+Date: Mon, 19 Sep 2016 10:01:49 +0200
+Message-ID: <2f7d572c-59e0-f584-9748-48a1a45a1a50@axentia.se>
+References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+ <20160916172621.GA1426@katana>
+ <deaa654a-9afc-eae6-6bc8-75f2c3960970@axentia.se>
+ <20160916175842.GD1426@katana>
+ <587cdb60-d7fe-3ab2-b635-02c5072e102e@axentia.se>
+ <CAMpxmJUX8wszxhkoOyuqPeC8xgBjLXFRSWDSa0cOrJ92dUYX1g@mail.gmail.com>
+ <CAMpxmJX3_ec44Z0UVTNqSDjmNq+Oe3sk+szLE-Nj7X4pztbywQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMpxmJX3_ec44Z0UVTNqSDjmNq+Oe3sk+szLE-Nj7X4pztbywQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Writing messages larger than the FIFO size results in a hang, rendering
-the machine unusable. This is because the RXD status flag is set on the
-first interrupt which results in bcm2835_drain_rxfifo() stealing bytes
-from the buffer. The controller continues to trigger interrupts waiting
-for the missing bytes, but bcm2835_fill_txfifo() has none to give.
-In this situation wait_for_completion_timeout() apparently is unable to
-stop the madness.
+On 2016-09-18 21:45, Bartosz Golaszewski wrote:
+> 2016-09-18 21:43 GMT+02:00 Bartosz Golaszewski <bgolaszewski@baylibre.com>:
+>> 2016-09-18 10:52 GMT+02:00 Peter Rosin <peda@axentia.se>:
+>>> On 2016-09-16 19:58, Wolfram Sang wrote:
+>>>>
+>>>> Same here. And if it prevents us from false positive lockdep reports, I
+>>>> am all for fixing it.
+>>>
+>>> Except it doesn't, when I think some more about it...
+>>>
+>>> If you have two gpio-expanders on the same depth but on different i2c
+>>> branches you still end up with a splat if one is used to control a mux
+>>> to reach the other.
+>>>
+>>> The only way to solve it for good, that I see, is to have every instance
+>>> of the gpio-expander mutex in its own class. That might lead to many
+>>> lockdep classes but then again, how many gpio expanders could there be
+>>> in a system? A dozen or two seems extreme, so maybe that is the correct
+>>> approach anyway?
+>>
+>> Wouldn't it be enough to have a separate class for every base (as in:
+>> not having any parent adapters) i2c adapter?
+>>
+> 
+> Eeek -ESENTTOOEARLY
+> 
+> Of course not - since we could have two branches deeper on the tree
+> with the same problem.
+> 
+> Nevermind my last e-mail.
 
-The BCM2835 ARM Peripherals datasheet has this to say about the flags:
-  TXD: is set when the FIFO has space for at least one byte of data.
-  RXD: is set when the FIFO contains at least one byte of data.
-  TXW: is set during a write transfer and the FIFO is less than full.
-  RXR: is set during a read transfer and the FIFO is or more full.
+Right, but you have a point, we can avoid some lockdep classes if
+we work at it.
 
-Implementing the logic from the downstream i2c-bcm2708 driver solved
-the hang problem.
+We could recognize that no gpio-expander can be involved with
+muxing for a gpio-expander sitting on a root i2c adapter. That
+much is trivially obvious.
 
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
----
- drivers/i2c/busses/i2c-bcm2835.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+That means that we could treat all gpio-expanders sitting
+directly on a root i2c-adapter as we always have, just like
+v1 (and v2, implicitly) do, but instead of putting all other
+gpio-exanders in one lockdep class (as in v1) or in one lockdep
+class per depth (as in v2), we put all other gpio-mutexes in
+a lockdep class of their own.
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index d4f3239..f283b71 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -64,6 +64,7 @@ struct bcm2835_i2c_dev {
- 	int irq;
- 	struct i2c_adapter adapter;
- 	struct completion completion;
-+	struct i2c_msg *curr_msg;
- 	u32 msg_err;
- 	u8 *msg_buf;
- 	size_t msg_buf_remaining;
-@@ -126,14 +127,13 @@ static irqreturn_t bcm2835_i2c_isr(int this_irq, void *data)
- 		return IRQ_HANDLED;
- 	}
- 
--	if (val & BCM2835_I2C_S_RXD) {
--		bcm2835_drain_rxfifo(i2c_dev);
--		if (!(val & BCM2835_I2C_S_DONE))
--			return IRQ_HANDLED;
--	}
--
- 	if (val & BCM2835_I2C_S_DONE) {
--		if (i2c_dev->msg_buf_remaining)
-+		if (i2c_dev->curr_msg->flags & I2C_M_RD) {
-+			bcm2835_drain_rxfifo(i2c_dev);
-+			val = bcm2835_i2c_readl(i2c_dev, BCM2835_I2C_S);
-+		}
-+
-+		if ((val & BCM2835_I2C_S_RXD) || i2c_dev->msg_buf_remaining)
- 			i2c_dev->msg_err = BCM2835_I2C_S_LEN;
- 		else
- 			i2c_dev->msg_err = 0;
-@@ -141,11 +141,16 @@ static irqreturn_t bcm2835_i2c_isr(int this_irq, void *data)
- 		return IRQ_HANDLED;
- 	}
- 
--	if (val & BCM2835_I2C_S_TXD) {
-+	if (val & BCM2835_I2C_S_TXW) {
- 		bcm2835_fill_txfifo(i2c_dev);
- 		return IRQ_HANDLED;
- 	}
- 
-+	if (val & BCM2835_I2C_S_RXR) {
-+		bcm2835_drain_rxfifo(i2c_dev);
-+		return IRQ_HANDLED;
-+	}
-+
- 	return IRQ_NONE;
- }
- 
-@@ -155,6 +160,7 @@ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
- 	u32 c;
- 	unsigned long time_left;
- 
-+	i2c_dev->curr_msg = msg;
- 	i2c_dev->msg_buf = msg->buf;
- 	i2c_dev->msg_buf_remaining = msg->len;
- 	reinit_completion(&i2c_dev->completion);
--- 
-2.8.2
+Then we do not get any extra lockdep classes unless there are
+i2c muxes, which is better.
+
+But only i2c-mux-gpio can cause the recursion.
+
+I think the theoretical minimal number of lockdep classes is to
+create a new lockdep class for every i2c-mux-gpio instance.
+gpio-expanders needing a mutex could walk up the adapter tree
+looking for a i2c-mux-gpio and getting the lockdep class from
+there. If the root i2c adapter is reached, use some default
+lockdep class.
+
+That would consolidate muxes from different gpio-expander
+drivers into the one lockdep class. I don't know if that is
+a big no-no? I guess that can be handled too with more code,
+but it is starting to get messy...
+
+Or, do what the i2c-mux code is doing and use an rt_mutex instead
+of an ordinary mutex. That way you are very sure to not get any
+lockdep splat ... at all. Ok, sorry, that was not a serious
+suggestion, but it would be a tad bit simpler to implement...
+
+Cheers,
+Peter
