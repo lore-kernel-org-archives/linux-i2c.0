@@ -1,66 +1,35 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-eg20t: use dynamically registered adapter number
-Date: Mon, 19 Sep 2016 08:44:07 +0200
-Message-ID: <20160919064407.GA1407@katana>
-References: <1471943158-21377-1-git-send-email-yadi.hu@windriver.com>
- <20160826173019.1f939ce5@endymion>
- <20160917214912.GA4395@katana>
- <57DF5AC6.4050504@windriver.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v2 0/4] gpio: fix an incorrect lockdep warning
+Date: Mon, 19 Sep 2016 10:14:13 +0200
+Message-ID: <20160919081413.GR5016@twins.programming.kicks-ass.net>
+References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+ <20160916172621.GA1426@katana>
+ <deaa654a-9afc-eae6-6bc8-75f2c3960970@axentia.se>
+ <20160916175842.GD1426@katana>
+ <587cdb60-d7fe-3ab2-b635-02c5072e102e@axentia.se>
+ <CAMpxmJUX8wszxhkoOyuqPeC8xgBjLXFRSWDSa0cOrJ92dUYX1g@mail.gmail.com>
+ <CAMpxmJX3_ec44Z0UVTNqSDjmNq+Oe3sk+szLE-Nj7X4pztbywQ@mail.gmail.com>
+ <2f7d572c-59e0-f584-9748-48a1a45a1a50@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:35602 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758313AbcISGoR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 19 Sep 2016 02:44:17 -0400
-Content-Disposition: inline
-In-Reply-To: <57DF5AC6.4050504@windriver.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Yadi <yadi.hu@windriver.com>
-Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
-
-
---SUOF0GtieIMvvwua
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <2f7d572c-59e0-f584-9748-48a1a45a1a50@axentia.se>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Ingo Molnar <mingo@redhat.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Sep 19, 2016 at 10:01:49AM +0200, Peter Rosin wrote:
+> Or, do what the i2c-mux code is doing and use an rt_mutex instead
+> of an ordinary mutex. That way you are very sure to not get any
+> lockdep splat ... at all. Ok, sorry, that was not a serious
+> suggestion, but it would be a tad bit simpler to implement...
 
-> For my case, i2c-kempld register dynamically  itself by default,
-> consequently it would occupied i2c bus 0 and cause to fails for adding new
-> i2c bus with i2c_add_number_adpater(0).
+So I find it weird that people use rt_mutex as a locking primitive,
+since its only that one lock that then does PI and all the other locks
+that are related still create inversions.
 
-This is exactly the PASEMI case as well. A video card got probed before
-the pasemi driver and took all bus numbers it wants.
-
-> i2c-kempld.c
-...
-> how do you like it?
-
-Not much. If we change kempld, then another driver might come along next
-time and we have the same issue again. I want a generic solution.
-
-
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJX34k2AAoJEBQN5MwUoCm2W1sP/2+0M3vSZE2VGQ72RQd/pGGw
-rvz5jSUtN1O2v/40TW7s3zh3XSJrXYKt+GNfLYOPJHzvrnNoCIy+5DuJTy7EKJzi
-81p44ulvSqrRm6QMAUeePHbn6OCi8KkRGidXRQVoX0TJdRbIvyv6ww5FIMcvdvDg
-Si+IX2zHtwbTHejmkwfBtxOimkdVimB7BrnXH2Tn6iNoqrbTa+JEY17ydQ869lx7
-fxEWlBpnOmgZ9O8k1DEvB5NoV3uys1/7MoihCsbda2BTjpOahiN5Znbf0ZKsJbHS
-B1OCqW83zqkBWxne7qMc21RyGLHaW996e/EQN+0GWMLuQb3BQQf9Kkf/gBt/qo1i
-IHqNL+LmCBC0sQQhbLBXSlThOp9OE/2WN5CnKeeVRavUpOnUBVsCW32G+e5rTPP4
-bLydxaM1zT80K8sbyQLlgdIt/h4DFj/1VqkZGuAWyLxOTwTNWFFq2yie5tLvnAiK
-20QTslxKldl41Wi97ImrjIl0ZM5UZG7r/n1CWdJEXKvSfxPt+O8N1xoka/MJP17N
-Fob/4ymRUIi/PE8ztFFIEPbSrgBlrNYnv5Jti62F4lcwGHhRM4COsgpt3erRsPYs
-nFoV31aDbL4wp3/Y8pGcUrw/YuzCckPDVims3btoxakXZq9zRrdfDN+SjKyXlc3A
-MdlhuCVYMGUSOO6OqPDZ
-=qfCH
------END PGP SIGNATURE-----
-
---SUOF0GtieIMvvwua--
+In any case, since people have started doing this, adding lockdep
+support for rt_mutex is on the todo _somewhere_, so don't expect that to
+avoid splats forever.
