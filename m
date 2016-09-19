@@ -1,179 +1,96 @@
 From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH 2/3] i2c: bcm2835: Add support for combined write-read transfer
-Date: Mon, 19 Sep 2016 17:26:16 +0200
-Message-ID: <1474298777-5858-2-git-send-email-noralf@tronnes.org>
-References: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
+Subject: [PATCH 1/3] i2c: bcm2835: Fix hang for writing messages larger than 16 bytes
+Date: Mon, 19 Sep 2016 17:26:15 +0200
+Message-ID: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Some SMBus protocols use Repeated Start Condition to switch from write
-mode to read mode. Devices like MMA8451 won't work without it.
+Writing messages larger than the FIFO size results in a hang, rendering
+the machine unusable. This is because the RXD status flag is set on the
+first interrupt which results in bcm2835_drain_rxfifo() stealing bytes
+from the buffer. The controller continues to trigger interrupts waiting
+for the missing bytes, but bcm2835_fill_txfifo() has none to give.
+In this situation wait_for_completion_timeout() apparently is unable to
+stop the madness.
 
-When downstream implemented support for this in i2c-bcm2708, it broke
-support for some devices, so a module parameter was added and combined
-transfer was disabled by default.
-See https://github.com/raspberrypi/linux/issues/599
-It doesn't seem to have been any investigation into what the problem
-really was. Later there was added a timeout on the polling loop.
+The BCM2835 ARM Peripherals datasheet has this to say about the flags:
+  TXD: is set when the FIFO has space for at least one byte of data.
+  RXD: is set when the FIFO contains at least one byte of data.
+  TXW: is set during a write transfer and the FIFO is less than full.
+  RXR: is set during a read transfer and the FIFO is or more full.
 
-One of the devices mentioned to partially stop working was DS1307.
-
-I have run thousands of transfers to a DS1307 (rtc), MMA8451 (accel)
-and AT24C32 (eeprom) in parallel without problems.
+Implementing the logic from the downstream i2c-bcm2708 driver solved
+the hang problem.
 
 Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 107 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 98 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-bcm2835.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index f283b71..b3ce565 100644
+index d4f3239..f283b71 100644
 --- a/drivers/i2c/busses/i2c-bcm2835.c
 +++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -154,8 +154,39 @@ static irqreturn_t bcm2835_i2c_isr(int this_irq, void *data)
+@@ -64,6 +64,7 @@ struct bcm2835_i2c_dev {
+ 	int irq;
+ 	struct i2c_adapter adapter;
+ 	struct completion completion;
++	struct i2c_msg *curr_msg;
+ 	u32 msg_err;
+ 	u8 *msg_buf;
+ 	size_t msg_buf_remaining;
+@@ -126,14 +127,13 @@ static irqreturn_t bcm2835_i2c_isr(int this_irq, void *data)
+ 		return IRQ_HANDLED;
+ 	}
+ 
+-	if (val & BCM2835_I2C_S_RXD) {
+-		bcm2835_drain_rxfifo(i2c_dev);
+-		if (!(val & BCM2835_I2C_S_DONE))
+-			return IRQ_HANDLED;
+-	}
+-
+ 	if (val & BCM2835_I2C_S_DONE) {
+-		if (i2c_dev->msg_buf_remaining)
++		if (i2c_dev->curr_msg->flags & I2C_M_RD) {
++			bcm2835_drain_rxfifo(i2c_dev);
++			val = bcm2835_i2c_readl(i2c_dev, BCM2835_I2C_S);
++		}
++
++		if ((val & BCM2835_I2C_S_RXD) || i2c_dev->msg_buf_remaining)
+ 			i2c_dev->msg_err = BCM2835_I2C_S_LEN;
+ 		else
+ 			i2c_dev->msg_err = 0;
+@@ -141,11 +141,16 @@ static irqreturn_t bcm2835_i2c_isr(int this_irq, void *data)
+ 		return IRQ_HANDLED;
+ 	}
+ 
+-	if (val & BCM2835_I2C_S_TXD) {
++	if (val & BCM2835_I2C_S_TXW) {
+ 		bcm2835_fill_txfifo(i2c_dev);
+ 		return IRQ_HANDLED;
+ 	}
+ 
++	if (val & BCM2835_I2C_S_RXR) {
++		bcm2835_drain_rxfifo(i2c_dev);
++		return IRQ_HANDLED;
++	}
++
  	return IRQ_NONE;
  }
  
-+/*
-+ * Repeated Start Condition (Sr)
-+ * The BCM2835 ARM Peripherals datasheet mentions a way to trigger a Sr when it
-+ * talks about reading from a slave with 10 bit address. This is achieved by
-+ * issuing a write (without enabling interrupts), poll the I2CS.TA flag and
-+ * wait for it to be set, and then issue a read.
-+ * https://github.com/raspberrypi/linux/issues/254 shows how the firmware does
-+ * it and states that it's a workaround for a problem in the state machine.
-+ * This is the comment in the firmware code:
-+ *
-+ *     The I2C peripheral samples the values for rw_bit and xfer_count in the
-+ *     IDLE state if start is set.
-+ *
-+ *     We want to generate a ReSTART not a STOP at the end of the TX phase. In
-+ *     order to do that we must ensure the state machine goes
-+ *     RACK1 -> RACK2 -> SRSTRT1 (not RACK1 -> RACK2 -> SSTOP1).
-+ *
-+ *     So, in the RACK2 state when (TX) xfer_count==0 we must therefore have
-+ *     already set, ready to be sampled:
-+ *     READ; rw_bit     <= I2CC bit 0 - must be "read"
-+ *     ST;   start      <= I2CC bit 7 - must be "Go" in order to not issue STOP
-+ *     DLEN; xfer_count <= I2CDLEN    - must be equal to our read amount
-+ *
-+ *     The plan to do this is:
-+ *     1. Start the sub-address write, but don't let it finish (keep
-+ *        xfer_count > 0)
-+ *     2. Populate READ, DLEN and ST in preparation for ReSTART read sequence
-+ *     3. Let TX finish (write the rest of the data)
-+ *     4. Read back data as it arrives
-+ */
-+
- static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
--				struct i2c_msg *msg)
-+				struct i2c_msg *msg, struct i2c_msg *msg2)
- {
+@@ -155,6 +160,7 @@ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
  	u32 c;
  	unsigned long time_left;
-@@ -167,21 +198,70 @@ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
  
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, BCM2835_I2C_C_CLEAR);
- 
--	if (msg->flags & I2C_M_RD) {
--		c = BCM2835_I2C_C_READ | BCM2835_I2C_C_INTR;
--	} else {
--		c = BCM2835_I2C_C_INTT;
-+	if (!(msg->flags & I2C_M_RD))
- 		bcm2835_fill_txfifo(i2c_dev);
--	}
--	c |= BCM2835_I2C_C_ST | BCM2835_I2C_C_INTD | BCM2835_I2C_C_I2CEN;
- 
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_A, msg->addr);
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DLEN, msg->len);
--	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, c);
-+
-+	if (!msg2) {
-+		if (msg->flags & I2C_M_RD)
-+			c = BCM2835_I2C_C_READ | BCM2835_I2C_C_INTR;
-+		else
-+			c = BCM2835_I2C_C_INTT;
-+
-+		c |= BCM2835_I2C_C_ST | BCM2835_I2C_C_INTD |
-+		     BCM2835_I2C_C_I2CEN;
-+		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, c);
-+	} else {
-+		unsigned long flags;
-+		u32 stat, err = 0;
-+
-+		local_irq_save(flags);
-+
-+		/* Start write message */
-+		c = BCM2835_I2C_C_ST | BCM2835_I2C_C_I2CEN;
-+		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, c);
-+
-+		/* Wait for the transfer to become active */
-+		for (time_left = 100; time_left > 0; time_left--) {
-+			stat = bcm2835_i2c_readl(i2c_dev, BCM2835_I2C_S);
-+
-+			err = stat & (BCM2835_I2C_S_CLKT | BCM2835_I2C_S_ERR);
-+			if (err)
-+				break;
-+
-+			if (stat & BCM2835_I2C_S_TA)
-+				break;
-+		}
-+
-+		if (err || !time_left) {
-+			i2c_dev->msg_err = err;
-+			local_irq_restore(flags);
-+			goto error;
-+		}
-+
-+		/* Start read message */
-+		i2c_dev->curr_msg = msg2;
-+		i2c_dev->msg_buf = msg2->buf;
-+		i2c_dev->msg_buf_remaining = msg2->len;
-+		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DLEN, msg2->len);
-+
-+		c = BCM2835_I2C_C_READ | BCM2835_I2C_C_INTR |
-+		    BCM2835_I2C_C_INTD | BCM2835_I2C_C_ST |
-+		    BCM2835_I2C_C_I2CEN;
-+
-+		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, c);
-+
-+		local_irq_restore(flags);
-+	}
- 
- 	time_left = wait_for_completion_timeout(&i2c_dev->completion,
- 						BCM2835_I2C_TIMEOUT);
-+error:
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, BCM2835_I2C_C_CLEAR);
-+	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_S, BCM2835_I2C_S_CLKT |
-+			   BCM2835_I2C_S_ERR | BCM2835_I2C_S_DONE);
- 	if (!time_left) {
- 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
- 		return -ETIMEDOUT;
-@@ -209,8 +289,17 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 	int i;
- 	int ret = 0;
- 
-+	/* Combined write-read to the same address (smbus) */
-+	if (num == 2 && (msgs[0].addr == msgs[1].addr) &&
-+	    !(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
-+	    (msgs[0].len <= 16)) {
-+		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[0], &msgs[1]);
-+
-+		return ret ? ret : 2;
-+	}
-+
- 	for (i = 0; i < num; i++) {
--		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i]);
-+		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i], NULL);
- 		if (ret)
- 			break;
- 	}
++	i2c_dev->curr_msg = msg;
+ 	i2c_dev->msg_buf = msg->buf;
+ 	i2c_dev->msg_buf_remaining = msg->len;
+ 	reinit_completion(&i2c_dev->completion);
 -- 
 2.8.2
