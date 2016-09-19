@@ -1,109 +1,151 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [REGRESSION? v4.8] i2c-core: acpi_i2c_get_info() touches
- non-existent devices
-Date: Mon, 19 Sep 2016 11:48:07 +0300
-Message-ID: <20160919084807.GC1811@lahna.fi.intel.com>
-References: <87a8f4kfhe.fsf@gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c-eg20t: use dynamically registered adapter number
+Date: Mon, 19 Sep 2016 11:02:47 +0200
+Message-ID: <20160919110247.4e0657fb@endymion>
+References: <1471943158-21377-1-git-send-email-yadi.hu@windriver.com>
+        <20160826173019.1f939ce5@endymion>
+        <20160918192250.GA1415@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <87a8f4kfhe.fsf@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolai Stange <nicstange@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:40829 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752279AbcISJCy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Sep 2016 05:02:54 -0400
+In-Reply-To: <20160918192250.GA1415@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Yadi Hu <yadi.hu@windriver.com>, linux-i2c@vger.kernel.org
 
-On Mon, Sep 19, 2016 at 12:30:53AM +0200, Nicolai Stange wrote:
-> Hi,
-> 
-> I'm encountering the following:
-> 
-> [   10.409490] ERROR: Unable to locate IOAPIC for GSI 37
-> 
-> Note that the system works fine, so it's a "cosmetic" regression, I think.
-> 
-> 
-> I added a dump_stack() right below the printk() in question and it reads
-> as
-> 
-> [   10.410290] CPU: 6 PID: 710 Comm: systemd-udevd Not tainted 4.7.0-rc4+ #348
-> [   10.410962] Hardware name: Dell Inc. Latitude E6540/0725FP, BIOS A10 06/26/2014
-> [   10.411772]  0000000000000286 00000000b9050627 ffff8800c2e5f590 ffffffffa54161e7
-> [   10.412569]  0000000000000025 0000000000000001 ffff8800c2e5f5a0 ffffffffa50465df
-> [   10.413292]  ffff8800c2e5f5d0 ffffffffa5046ffd 0000000000000000 0000000000000025
-> [   10.414016] Call Trace:
-> [   10.414713]  [<ffffffffa54161e7>] dump_stack+0x68/0xa1
-> [   10.415406]  [<ffffffffa50465df>] mp_find_ioapic+0x4f/0x60
-> [   10.416131]  [<ffffffffa5046ffd>] mp_map_gsi_to_irq+0x1d/0xc0
-> [   10.416806]  [<ffffffffa503dbbb>] acpi_register_gsi_ioapic+0x7b/0x170
-> [   10.417494]  [<ffffffffa503da6f>] acpi_register_gsi+0xf/0x20
-> [   10.418217]  [<ffffffffa54a14d5>] acpi_dev_get_irqresource.part.3+0xd7/0x11d
-> [   10.418871]  [<ffffffffa54a139a>] ? acpi_dev_resource_address_space+0x31/0x67
-> [   10.419655]  [<ffffffffa54a168d>] acpi_dev_resource_interrupt+0x9b/0xab
-> [   10.420408]  [<ffffffffa54a1848>] acpi_dev_process_resource+0xbc/0xf7
-> [   10.421070]  [<ffffffffa54a178c>] ? acpi_dev_resource_memory+0x7c/0x7c
-> [   10.421732]  [<ffffffffa54c3ba2>] acpi_walk_resource_buffer+0x4d/0x85
-> [   10.422399]  [<ffffffffa54a178c>] ? acpi_dev_resource_memory+0x7c/0x7c
-> [   10.423158]  [<ffffffffa54c3e89>] acpi_walk_resources+0x83/0xb6
-> [   10.423831]  [<ffffffffa54a15b1>] acpi_dev_get_resources+0x96/0xd7
-> [   10.424505]  [<ffffffffa563f7c4>] acpi_i2c_get_info+0xe4/0x1a0
-> [   10.425181]  [<ffffffffa5642c06>] acpi_i2c_add_device+0x56/0xa0
-> [   10.425856]  [<ffffffffa54bf2ff>] acpi_ns_walk_namespace+0xe8/0x19d
-> [   10.426564]  [<ffffffffa5642bb0>] ? acpi_i2c_register_device+0x70/0x70
-> [   10.427418]  [<ffffffffa5642bb0>] ? acpi_i2c_register_device+0x70/0x70
-> [   10.428179]  [<ffffffffa54bf83d>] acpi_walk_namespace+0xa0/0xd5
-> [   10.428858]  [<ffffffffa56437a9>] i2c_register_adapter+0x369/0x500
-> [   10.429499]  [<ffffffffa564399c>] i2c_add_adapter+0x5c/0x70
-> [   10.430125]  [<ffffffffc07df7dd>] i801_probe+0x2bd/0x6a0 [i2c_i801]
-> [   10.431159]  [<ffffffffa50eb8dd>] ? trace_hardirqs_on+0xd/0x10
-> [   10.432196]  [<ffffffffa54682f2>] local_pci_probe+0x42/0xa0
-> [   10.432826]  [<ffffffffa5468e2a>] ? pci_match_device+0xca/0x110
-> [   10.433460]  [<ffffffffa5469243>] pci_device_probe+0x103/0x150
-> [   10.434083]  [<ffffffffa5545acc>] driver_probe_device+0x22c/0x440
-> [   10.434712]  [<ffffffffa5545db5>] __driver_attach+0xd5/0x100
-> [   10.435341]  [<ffffffffa5545ce0>] ? driver_probe_device+0x440/0x440
-> [   10.435963]  [<ffffffffa5543313>] bus_for_each_dev+0x73/0xc0
-> [   10.436676]  [<ffffffffa554519e>] driver_attach+0x1e/0x20
-> [   10.437356]  [<ffffffffa5544bc6>] bus_add_driver+0x1c6/0x290
-> [   10.437978]  [<ffffffffc07e5000>] ? 0xffffffffc07e5000
-> [   10.438699]  [<ffffffffa5546a50>] driver_register+0x60/0xe0
-> [   10.439502]  [<ffffffffc07e5000>] ? 0xffffffffc07e5000
-> [   10.440310]  [<ffffffffa5467e4d>] __pci_register_driver+0x5d/0x60
-> [   10.440313]  [<ffffffffc07e50af>] i2c_i801_init+0xaf/0x1000 [i2c_i801]
-> [   10.440314]  [<ffffffffc07e5000>] ? 0xffffffffc07e5000
-> [   10.440316]  [<ffffffffa5000450>] do_one_initcall+0x50/0x180
-> [   10.440319]  [<ffffffffa5101cc5>] ? rcu_read_lock_sched_held+0x45/0x80
-> [   10.440322]  [<ffffffffa5234e55>] ? kmem_cache_alloc_trace+0x2d5/0x340
-> [   10.440325]  [<ffffffffa51c1252>] do_init_module+0x5f/0x1da
-> [   10.440329]  [<ffffffffa512d615>] load_module+0x2195/0x2950
-> [   10.440331]  [<ffffffffa512a0e0>] ? __symbol_put+0x70/0x70
-> [   10.440334]  [<ffffffffa525dd3b>] ? vfs_read+0x11b/0x130
-> [   10.440337]  [<ffffffffa512e066>] SYSC_finit_module+0xe6/0x120
-> [   10.440339]  [<ffffffffa512e0be>] SyS_finit_module+0xe/0x10
-> [   10.440340]  [<ffffffffa5002fb1>] do_syscall_64+0x61/0x170
-> [   10.440343]  [<ffffffffa581e1da>] entry_SYSCALL64_slow_path+0x25/0x25
-> 
-> 
-> I bisected this to commit 525e6fabeae2 ("i2c / ACPI: add support for
-> ACPI reconfigure notifications").
-> 
-> The reason for the above message seems to be that acpi_i2c_get_info()
-> configures the IRQs for any ACPI devices that have got some
-> I2cSerialBus() resource, regardless of the actual adapter those are
-> attached to. This behaviour is different from before that commit.
-> 
-> My ACPI DSDT has got a PCI I2C adapter that isn't physically present, it
-> seems. No clue why.
-> 
-> That non-existent PCI I2C adapter is in turn I2cSerialBus()-referenced
-> by some ACPI device that has got exactly this interrupt 37 assigned.
-> 
-> So it looks like an attempt is made to configure this non-existent,
-> ACPI-listed I2C slave's IRQs when an actually existing I2C adapter (i801
-> SMBus) gets probed.
-> 
-> 
-> Let me know if I can provide you with any additional information,
+Hi Wolfram,
 
-Can you send me acpidump from that that machine?
+On Sun, 18 Sep 2016 21:22:50 +0200, Wolfram Sang wrote:
+> 
+> > If not, it may make sense to add a helper function exposing
+> > __i2c_first_dynamic_bus_num to drivers (something like
+> > i2c_is_dynamic_bus_num().) After all, i2c_add_numbered_adapter() mostly
+> > makes sense if static i2c device definitions exist. If not,
+> > i2c_add_adapter() is just as good. So something like:
+> > 
+> > 	if (i2c_is_dynamic_bus_num(i))
+> > 		ret = i2c_add_adapter(pch_adap);
+> > 	else {
+> > 		pch_adap->nr = i;
+> > 		ret = i2c_add_numbered_adapter(pch_adap);
+> > 	}
+> > 
+> > may make sense. Unless someone has a better idea.
+> 
+> PASEMI does:
+> 
+>         smbus->adapter.nr = PCI_FUNC(dev->devfn);
+> 
+> I am unsure if there is any guarantee in what order PCI_FUNCs are
+> probed, yet I have the feeling we could try a little harder to get the
+> numbered adapter. What about this (untested, just to get the idea)?
+> 
+> static inline int i2c_add_adapter_try_numbered(struct i2c_adapter *new_adap)
+> {
+> 	int ret;
+> 	struct i2c_adapter *old_adap = i2c_get_adapter(new_adap->nr);
+> 
+> 	if (old_adap && new_adap->nr >= __i2c_first_dynamic_bus_num) {
+
+Note that __i2c_first_dynamic_bus_num is not currently available to
+device driver, so your function can't actually be inlined. This is the
+reason why I proposed to introduce i2c_is_dynamic_bus_num(). If you
+prefer to expose __i2c_first_dynamic_bus_num directly instead, that's
+fine with me, but then you probably want to rename it.
+
+> 		i2c_put_adapter(old_adap);
+> 		dev_dbg(&new_adap->dev, "Static bus number occupied, trying dynamic number\n");
+> 		ret = i2c_add_adapter(new_adap);
+> 	} else {
+> 		ret = i2c_add_numbered_adapter(new_adap);
+
+You may be leaking a reference to old_adap here (if old_adap is set but
+new_adap->nr < __i2c_first_dynamic_bus_num.)
+
+> 	}
+> 
+> 	return ret;
+> }
+
+I'm a bit confused by the logic, it seems unnecessarily complex to me
+(but please keep in mind I am working in a noisy environment these days
+so maybe it's just me.)
+
+If old_adap is set, i2c_add_numbered_adapter() has no chance of
+working. So why are you additionally comparing with
+__i2c_first_dynamic_bus_num? For me you should check either, not both.
+
+My own proposal was checking __i2c_first_dynamic_bus_num. To be honest
+I can't see the added value of relying on i2c_get_adapter() instead.
+Would the result not be exactly the same? Plus it seems racy, just
+because i2c_get_adapter() returns NULL at one point in time doesn't
+mean the bus numbers will not have been assigned by the time you call
+i2c_add_numbered_adapter().
+
+> I used 'static inline' because I think the drivers needing this should
+> carry the extra weight. But no major objection to put sth like this also
+> into the core. The documentation for this function should carry a big
+> note that this is only a workaround and it should not be used directly.
+
+I don't care much where it goes, to be honest.
+
+If you consider it a workaround, what would be the "real fix" for you?
+
+I was wondering if selecting one of these drivers could set a Kconfig
+option to initialize __i2c_first_dynamic_bus_num to a non-zero value.
+Unfortunately there does not seem to be a way to set a numeric value to
+a Kconfig option using select. We would have to do it indirectly as
+with CONFIG_HZ:
+
+choice
+	default I2C_RESERVED_BUS_NR_0
+	config I2C_RESERVED_BUS_NR_0
+	config I2C_RESERVED_BUS_NR_2
+endchoice
+
+config I2C_RESERVED_BUS_NR
+	int
+	default 0 if I2C_RESERVED_BUS_NR_0
+	default 2 if I2C_RESERVED_BUS_NR_2
+
+config I2C_EG20T
+	tristate "Intel EG20T PCH/LAPIS Semicon IOH(ML7213/ML7223/ML7831) I2C"
+	depends on PCI && (X86_32 || MIPS || COMPILE_TEST)
+	select I2C_RESERVED_BUS_NR_2
+
+And in i2c-core.c:
+
+__i2c_first_dynamic_bus_num = I2C_RESERVED_BUS_NR;
+
+If that's possible at all... I'm not sure if select works on choice
+config options.
+
+Alternatively we could set the default directly based on driver
+selection:
+
+config I2C_RESERVED_BUS_NR
+	int
+	default 0
+	default 2 if I2C_EG20T
+
+This is more simple but a little harder to maintain. One possible
+problem is if the number of buses isn't known at build time but could
+change depending on the hardware, for example. Also I don't know if
+more than one such driver can be included in the same kernel.
+
+Or we can make it a user-visible option and leave it on whoever
+configures the kernel to get it right. In all cases it would move the
+decision to build-time instead of being set dynamically at run-time. 
+
+Note that I am not claiming this is necessarily better than my initial
+proposal. I just wanted to mention the possibility.
+
+-- 
+Jean Delvare
+SUSE L3 Support
