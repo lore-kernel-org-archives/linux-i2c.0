@@ -1,103 +1,109 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH 2/3] i2c: bcm2835: Add support for combined write-read
- transfer
-Date: Tue, 20 Sep 2016 10:41:15 +0200
-Message-ID: <fb5e8e93-c6af-0050-1e7d-a69b722feadb@tronnes.org>
-References: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
- <1474298777-5858-2-git-send-email-noralf@tronnes.org>
- <c47a0a10-4e0b-9025-8d38-af299d5f55da@martin.sperl.org>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2 0/4] gpio: fix an incorrect lockdep warning
+Date: Tue, 20 Sep 2016 10:48:33 +0200
+Message-ID: <e4b4c894-4913-b00f-0a9d-243258f2699b@axentia.se>
+References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+ <20160916172621.GA1426@katana>
+ <deaa654a-9afc-eae6-6bc8-75f2c3960970@axentia.se>
+ <20160916175842.GD1426@katana>
+ <587cdb60-d7fe-3ab2-b635-02c5072e102e@axentia.se>
+ <CAMpxmJUX8wszxhkoOyuqPeC8xgBjLXFRSWDSa0cOrJ92dUYX1g@mail.gmail.com>
+ <CAMpxmJX3_ec44Z0UVTNqSDjmNq+Oe3sk+szLE-Nj7X4pztbywQ@mail.gmail.com>
+ <2f7d572c-59e0-f584-9748-48a1a45a1a50@axentia.se>
+ <20160919081413.GR5016@twins.programming.kicks-ass.net>
+ <88940f9a-79bf-6c88-8e1d-f76f32dda04a@axentia.se>
+ <20160919090358.GU5016@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <c47a0a10-4e0b-9025-8d38-af299d5f55da@martin.sperl.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Martin Sperl <kernel@martin.sperl.org>, wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
-Cc: linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <20160919090358.GU5016@twins.programming.kicks-ass.net>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Ingo Molnar <mingo@redhat.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-CkRlbiAyMC4wOS4yMDE2IDA5OjE5LCBza3JldiBNYXJ0aW4gU3Blcmw6Cj4gSGkgTm9yYWxmIQo+
-Cj4gT24gMTkuMDkuMjAxNiAxNzoyNiwgTm9yYWxmIFRyw7hubmVzIHdyb3RlOgo+PiBTb21lIFNN
-QnVzIHByb3RvY29scyB1c2UgUmVwZWF0ZWQgU3RhcnQgQ29uZGl0aW9uIHRvIHN3aXRjaCBmcm9t
-IHdyaXRlCj4+IG1vZGUgdG8gcmVhZCBtb2RlLiBEZXZpY2VzIGxpa2UgTU1BODQ1MSB3b24ndCB3
-b3JrIHdpdGhvdXQgaXQuCj4+Cj4+IFdoZW4gZG93bnN0cmVhbSBpbXBsZW1lbnRlZCBzdXBwb3J0
-IGZvciB0aGlzIGluIGkyYy1iY20yNzA4LCBpdCBicm9rZQo+PiBzdXBwb3J0IGZvciBzb21lIGRl
-dmljZXMsIHNvIGEgbW9kdWxlIHBhcmFtZXRlciB3YXMgYWRkZWQgYW5kIGNvbWJpbmVkCj4+IHRy
-YW5zZmVyIHdhcyBkaXNhYmxlZCBieSBkZWZhdWx0Lgo+PiBTZWUgaHR0cHM6Ly9naXRodWIuY29t
-L3Jhc3BiZXJyeXBpL2xpbnV4L2lzc3Vlcy81OTkKPj4gSXQgZG9lc24ndCBzZWVtIHRvIGhhdmUg
-YmVlbiBhbnkgaW52ZXN0aWdhdGlvbiBpbnRvIHdoYXQgdGhlIHByb2JsZW0KPj4gcmVhbGx5IHdh
-cy4gTGF0ZXIgdGhlcmUgd2FzIGFkZGVkIGEgdGltZW91dCBvbiB0aGUgcG9sbGluZyBsb29wLgo+
-Pgo+PiBPbmUgb2YgdGhlIGRldmljZXMgbWVudGlvbmVkIHRvIHBhcnRpYWxseSBzdG9wIHdvcmtp
-bmcgd2FzIERTMTMwNy4KPj4KPj4gSSBoYXZlIHJ1biB0aG91c2FuZHMgb2YgdHJhbnNmZXJzIHRv
-IGEgRFMxMzA3IChydGMpLCBNTUE4NDUxIChhY2NlbCkKPj4gYW5kIEFUMjRDMzIgKGVlcHJvbSkg
-aW4gcGFyYWxsZWwgd2l0aG91dCBwcm9ibGVtcy4KPj4KPj4gU2lnbmVkLW9mZi1ieTogTm9yYWxm
-IFRyw7hubmVzIDxub3JhbGZAdHJvbm5lcy5vcmc+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvaTJjL2J1
-c3Nlcy9pMmMtYmNtMjgzNS5jIHwgMTA3IAo+PiArKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKy0tLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgOTggaW5zZXJ0aW9ucygrKSwgOSBkZWxl
-dGlvbnMoLSkKPiAuLi4KPj4gQEAgLTIwOSw4ICsyODksMTcgQEAgc3RhdGljIGludCBiY20yODM1
-X2kyY194ZmVyKHN0cnVjdCBpMmNfYWRhcHRlciAKPj4gKmFkYXAsIHN0cnVjdCBpMmNfbXNnIG1z
-Z3NbXSwKPj4gICAgICAgaW50IGk7Cj4+ICAgICAgIGludCByZXQgPSAwOwo+PiAgICsgICAgLyog
-Q29tYmluZWQgd3JpdGUtcmVhZCB0byB0aGUgc2FtZSBhZGRyZXNzIChzbWJ1cykgKi8KPj4gKyAg
-ICBpZiAobnVtID09IDIgJiYgKG1zZ3NbMF0uYWRkciA9PSBtc2dzWzFdLmFkZHIpICYmCj4+ICsg
-ICAgICAgICEobXNnc1swXS5mbGFncyAmIEkyQ19NX1JEKSAmJiAobXNnc1sxXS5mbGFncyAmIEky
-Q19NX1JEKSAmJgo+PiArICAgICAgICAobXNnc1swXS5sZW4gPD0gMTYpKSB7Cj4+ICsgICAgICAg
-IHJldCA9IGJjbTI4MzVfaTJjX3hmZXJfbXNnKGkyY19kZXYsICZtc2dzWzBdLCAmbXNnc1sxXSk7
-Cj4+ICsKPj4gKyAgICByZXR1cm4gcmV0ID8gcmV0IDogMjsKPj4gKyAgICB9Cj4+ICsKPj4gICAg
-ICAgZm9yIChpID0gMDsgaSA8IG51bTsgaSsrKSB7Cj4+IC0gICAgICAgIHJldCA9IGJjbTI4MzVf
-aTJjX3hmZXJfbXNnKGkyY19kZXYsICZtc2dzW2ldKTsKPj4gKyAgICAgICAgcmV0ID0gYmNtMjgz
-NV9pMmNfeGZlcl9tc2coaTJjX2RldiwgJm1zZ3NbaV0sIE5VTEwpOwo+PiAgICAgICAgICAgaWYg
-KHJldCkKPj4gICAgICAgICAgICAgICBicmVhazsKPj4gICAgICAgfQo+IFRoaXMgZG9lcyBub3Qg
-c2VlbSB0byBpbXBsZW1lbnQgdGhlIGkyY19tc2cgYXBpIGNvcnJlY3RseS4KPgo+IEFzIHBlciBj
-b21tZW50cyBpbiBpbmNsdWRlL3VhcGkvbGludXgvaTJjLmggb24gbGluZSA1OCBvbmx5IHRoZSBs
-YXN0IAo+IG1lc3NhZ2UKPiBpbiBhIGdyb3VwIHNob3VsZCAtIGJ5IGRlZmF1bHQgLSBzZW5kIGEg
-U1RPUC4KPgoKQXBwYXJlbnRseSBpdCdzIGEga25vd24gcHJvYmxlbSB0aGF0IHRoZSBpMmMgY29u
-dHJvbGxlciBkb2Vzbid0IHN1cHBvcnQKUmVwZWF0ZWQgU3RhcnQuIEl0IHdpbGwgYWx3YXlzIGlz
-c3VlIGEgU3RvcCB3aGVuIGl0IGhhcyB0cmFuc2ZlcnJlZCBETEVOCmJ5dGVzLgpSZWZzOgpodHRw
-Oi8vd3d3LmNpcmN1aXR3aXphcmQuZGUvcmFzcGktaTJjLWZpeC9yYXNwaS1pMmMtZml4Lmh0bWwK
-aHR0cDovL3Jhc3BiZXJyeXBpLnN0YWNrZXhjaGFuZ2UuY29tL3F1ZXN0aW9ucy8zMTcyOC9oYXMt
-YW55b25lLXN1Y2Nlc3NmdWxseS11c2VkLWkyYy1yZXBlYXRlZC1zdGFydHMtb24tdGhlLXBpMi1t
-eS1zY29wZS1zYXlzLXRoZXkKClVOTEVTUzogYSBTdGFydCBUcmFuc2ZlciAoU1QpIGlzIGlzc3Vl
-ZCBhZnRlciBUcmFuc2ZlciBBY3RpdmUgKFRBKSBpcyBzZXQKYW5kIGJlZm9yZSBET05FIGlzIHNl
-dCAob3IgdGhlIGxhc3QgYnl0ZSBpcyBzaGlmdGVkLCBJIGRvbid0IGtub3cgZXhjYXRseSkuClJl
-ZnM6Cmh0dHBzOi8vZ2l0aHViLmNvbS9yYXNwYmVycnlwaS9saW51eC9pc3N1ZXMvMjU0I2lzc3Vl
-Y29tbWVudC0xNTI1NDEzNApodHRwczovL3d3dy5yYXNwYmVycnlwaS5vcmcvZm9ydW1zL3ZpZXd0
-b3BpYy5waHA/cD04MDc4MzQmc2lkPTJiNjEyYzcyMDlmMjE3NWJmMWEyNjYzNTljNzJhZTZjI3A4
-MDc4MzQKCkkgZm91bmQgdGhpcyBhbnN3ZXIvcmVwb3J0IGJ5IGpvYW4gdGhhdCB0aGUgZG93bnN0
-cmVhbSBjb21iaW5lZCBzdXBwb3J0Cmlzbid0IHJlbGlhYmxlOgpodHRwOi8vcmFzcGJlcnJ5cGku
-c3RhY2tleGNoYW5nZS5jb20vcXVlc3Rpb25zLzMxNzI4L2hhcy1hbnlvbmUtc3VjY2Vzc2Z1bGx5
-LXVzZWQtaTJjLXJlcGVhdGVkLXN0YXJ0cy1vbi10aGUtcGkyLW15LXNjb3BlLXNheXMtdGhleQoK
-TXkgaW1wbGVtZW50YXRpb24gZGlmZmVycyBmcm9tIGRvd25zdHJlYW0gaW4gdGhhdCBJIHVzZSBs
-b2NhbF9pcnFfc2F2ZSgpCnRvIHByb3RlY3QgdGhlIHBvbGxpbmcgbG9vcC4gQnV0IHRoYXQgb25s
-eSBwcm90ZWN0cyBmcm9tIG1pc3NpbmcgdGhlIFRBCihkb3duc3RyZWFtIGNhbiBtaXNzIHRoZSBU
-QSBhbmQgaXNzdWUgYSBTdG9wKS4KClNvIGN1cnJlbnRseSBpbiBtYWlubGluZSB3ZSBoYXZlIGEg
-ZHJpdmVyIHRoYXQgc2F5cyBpdCBzdXBwb3J0IHRoZSBzdGFuZGFyZAooSTJDX0ZVTkNfSTJDKSwg
-YnV0IGl0IHJlYWxseSBvbmx5IHN1cHBvcnRzIG9uZSBtZXNzYWdlIHRyYW5zZmVycyBzaW5jZSBp
-dApjYW4ndCBkbyBSZVN0YXJ0LgoKV2hhdCBJIGhhdmUgZG9uZSBpbiB0aGlzIHBhdGNoIGlzIHRv
-IHN1cHBvcnQgUmVTdGFydCBmb3IgdHJhbnNmZXJzIHdpdGgKMiBtZXNzYWdlczogZmlyc3Qgd3Jp
-dGUsIHRoZW4gcmVhZC4gQnV0IG1heWJlIGEgYmV0dGVyIHNvbHV0aW9uIGlzIHRvIGp1c3QKbGVh
-dmUgdGhpcyBhbG9uZSBpZiBpdCBpcyBmbGFreSBhbmQgdXNlIGJpdGJhbmdpbmcgaW5zdGVhZC4g
-SSBkb24ndCBrbm93LgoKCk5vcmFsZi4KCgo+IEFzIGZhciBhcyBJIHVuZGVyc3RhbmQgIHlvdSB3
-b3VsZCBuZWVkIHRvIGltcGxlbWVudCB0aGUgSTJDX01fU1RPUCBmbGFnCj4gKGJ5IGV4cG9zaW5n
-ICBJMkNfRlVOQ19QUk9UT0NPTF9NQU5HTElORyBpbiBiY20yODM1X2kyY19mdW5jKQo+IHRvIG1h
-a2UgdGhpcyB3b3JrIGNvcnJlY3RseToKPgo+ICAgICAgZm9yIChpID0gMDsgaSA8IG51bTsgaSsr
-KSB7Cj4gKyAgICAgICAgYm9vbCBzZW5kX3N0b3AgPSAoaSA9PSBudW0gLSAxKSB8fG1zZ3NbaV0g
-Cj4gPGh0dHA6Ly9seHIuZnJlZS1lbGVjdHJvbnMuY29tL2lkZW50P2k9bXNnPi0+ZmxhZ3MgCj4g
-PGh0dHA6Ly9seHIuZnJlZS1lbGVjdHJvbnMuY29tL2lkZW50P2k9ZmxhZ3M+ICZJMkNfTV9TVE9Q
-IAo+IDxodHRwOi8vbHhyLmZyZWUtZWxlY3Ryb25zLmNvbS9pZGVudD9pPUkyQ19NX1NUT1A+Owo+
-IC0gICAgICAgIHJldCA9IGJjbTI4MzVfaTJjX3hmZXJfbXNnKGkyY19kZXYsICZtc2dzW2ldKTsK
-PiArICAgICAgICByZXQgPSBiY20yODM1X2kyY194ZmVyX21zZyhpMmNfZGV2LCAmbXNnc1tpXSwg
-c2VuZF9zdG9wKTsKPiAgICAgICAgICBpZiAocmV0KQo+ICAgICAgICAgICAgICBicmVhazsKPiAg
-ICAgIH0KPgo+IFRoZSBjb3JyZXNwb25kaW5nIGRldmljZSBkcml2ZXIgKG9yIHVzZXJzcGFjZSkg
-d2lsbCBuZWVkIHRvIHNldCB0aGUgCj4gZmxhZyBjb3JyZWN0bHkuCj4KPiBNYXJ0aW4KCgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2Vy
-bmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0
-cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVs
-Cg==
+On 2016-09-19 11:03, Peter Zijlstra wrote:
+> On Mon, Sep 19, 2016 at 10:48:44AM +0200, Peter Rosin wrote:
+>> On 2016-09-19 10:14, Peter Zijlstra wrote:
+>>> On Mon, Sep 19, 2016 at 10:01:49AM +0200, Peter Rosin wrote:
+>>>> Or, do what the i2c-mux code is doing and use an rt_mutex instead
+>>>> of an ordinary mutex. That way you are very sure to not get any
+>>>> lockdep splat ... at all. Ok, sorry, that was not a serious
+>>>> suggestion, but it would be a tad bit simpler to implement...
+>>>
+>>> So I find it weird that people use rt_mutex as a locking primitive,
+>>> since its only that one lock that then does PI and all the other locks
+>>> that are related still create inversions.
+>>
+>> So, someone took the bait :-)
+>>
+>> Yes, I too find it weird, and would like to get rid of it. It's just
+>> odd. It's been some years since the start though, waaay before me
+>> entering kernel space.
+>>
+>> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=194684e596af4b
+>>
+>>
+>> But it's hard to argue with the numbers given in the discussion:
+>>
+>> http://linux-i2c.vger.kernel.narkive.com/nokldJcc/patch-1-1-i2c-prevent-priority-inversion-on-top-of-bus-lock
+>>
+>> Has anything happened to the regular mutex implementation that might
+>> have changed the picture? *crosses fingers*
+> 
+> Use the -RT kernel and all locks will end up as rt_mutex. Avoiding
+> inversion on one specific lock, while there are then a gazillion other
+> than can equally create inversion doesn't make sense to me.
+
+So, are we willing to risk a regression and ask any victims of that
+fallout to switch to the -RT kernel? -RT is still not completely
+mainline, right? Is the part with the mutex->rt_mutex conversion
+in mainline? In other words, is it just a config option that we
+can ask victims to use, or will they have to defer to patches?
+
+I guess the relatively freshly introduced rt_mutex "mux_lock" in
+include/linux/i2c.h can be safely converted to an ordinary mutex since
+the only reason I went with rt_mutex was that "bus_lock" was an
+rt_mutex and they are grabbed in similar circumstances. I can certainly
+send a patch. However, the i2c muxing suffers from the issue we were
+originally discussing, potentially causing false positive lockdep
+reports when you build complex hierarchies with additional
+dependencies between branches coming from client devices in the
+hierarchy (such as i2c-muxes controlled by i2c-gpio-expanders).
+
+One pretty simple problematic case is:
+
+  .---.          .----.
+  |   |          |    |-- i2c2
+  |   |-- i2c0 --|mux0|          .----.
+  | l |          |    |-- i2c3 --|gpio|
+  | i |          '----'          '----'
+  | n |             .--------------'
+  | u |          .----.          .----.
+  | x |          |    |-- i2c4 --|dev0|
+  |   |-- i2c1 --|mux1|          '----'
+  |   |          |    |-- i2c5
+  '---'          '----'
+
+Accesses to dev0 will:
+
+1. lock i2c1:mux_lock (depth 0)
+2. switch mux1 to i2c4 using gpio
+ a lock i2c0:mux_lock (depth 0)
+ b switch mux0 to i2c3 using whatever
+ c access gpio
+ d unlock i2c0:mux_lock 
+3. access dev0
+4. unlock i2c1:mux_lock
+
+2a will cause a lockdep splat if i2c0:mux_lock is in the same
+lockdep class & subclass as i2c1:mux_lock. So, lockdep needs
+separate lockdep classes depending on the i2c root adapter
+(subclasses are needed to handle deeper trees, so they are off
+limits). Great fun. How do I go about creating a new lockdep
+class for every i2c root adapter instance?
+
+Cheers,
+Peter
+
