@@ -1,111 +1,53 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2] i2c / ACPI: Do not touch an I2C device if it belongs to another adapter
-Date: Tue, 20 Sep 2016 16:59:25 +0300
-Message-ID: <20160920135925.45450-1-mika.westerberg@linux.intel.com>
-References: <874m5ax3o4.fsf@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <874m5ax3o4.fsf@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Nicolai Stange <nicstange@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v2 0/4] gpio: fix an incorrect lockdep warning
+Date: Tue, 20 Sep 2016 17:33:29 +0200 (CEST)
+Message-ID: <alpine.DEB.2.20.1609201725550.6905@nanos>
+References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com> <20160916172621.GA1426@katana> <deaa654a-9afc-eae6-6bc8-75f2c3960970@axentia.se> <20160916175842.GD1426@katana> <587cdb60-d7fe-3ab2-b635-02c5072e102e@axentia.se>
+ <CAMpxmJUX8wszxhkoOyuqPeC8xgBjLXFRSWDSa0cOrJ92dUYX1g@mail.gmail.com> <CAMpxmJX3_ec44Z0UVTNqSDjmNq+Oe3sk+szLE-Nj7X4pztbywQ@mail.gmail.com> <2f7d572c-59e0-f584-9748-48a1a45a1a50@axentia.se> <20160919081413.GR5016@twins.programming.kicks-ass.net>
+ <88940f9a-79bf-6c88-8e1d-f76f32dda04a@axentia.se> <20160919090358.GU5016@twins.programming.kicks-ass.net> <e4b4c894-4913-b00f-0a9d-243258f2699b@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from Galois.linutronix.de ([146.0.238.70]:59844 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751643AbcITPgN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Sep 2016 11:36:13 -0400
+In-Reply-To: <e4b4c894-4913-b00f-0a9d-243258f2699b@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Peter Zijlstra <peterz@infradead.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Ingo Molnar <mingo@redhat.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-When enumerating I2C devices connected to an I2C adapter we scan the whole
-namespace (as it is possible to have devices anywhere in that namespace,
-not just below the I2C adapter device) and add each found device to the I2C
-bus in question.
+On Tue, 20 Sep 2016, Peter Rosin wrote:
+> On 2016-09-19 11:03, Peter Zijlstra wrote:
+> >
+> > Use the -RT kernel and all locks will end up as rt_mutex. Avoiding
+> > inversion on one specific lock, while there are then a gazillion other
+> > than can equally create inversion doesn't make sense to me.
 
-Now after commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI
-reconfigure notifications") checking of the adapter handle to the one found
-in the I2cSerialBus() resource was moved to happen after resources of the
-I2C device has been parsed. This means that if the I2cSerialBus() resource
-points to an adapter that does not exists in the system we still parse
-those resources. This is problematic in particular because
-acpi_dev_resource_interrupt() tries to configure GSI if the device also has
-an Interrupt() resource. Failing to do that results errrors like this to be
-printed on the console:
+That's true, but the locking of the i2c stuff is pretty much self contained
+and the results of using an rtmutex speak for themself.
 
-  [   10.409490] ERROR: Unable to locate IOAPIC for GSI 37
+One of the issues is that i2c needs to use threaded interrupt handlers and
+blocking out the handler thread with a preempted user space task is hurting
+performance badly.
 
-To fix this we pass the I2C adapter to i2c_acpi_get_info() and make sure
-the handle matches the one in the I2cSerialBus() resource before doing
-anything else to the device.
+I don't think that using a rtmutex there is wrong. It cures at least a very
+clear priority inversion issue versus the threaded interrupt handler.
 
-Reported-and-tested-by: Nicolai Stange <nicstange@gmail.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
-Changes from v1:
-  * Require that ACPI adapter device is present if !adapter
-  * Fill in adapter_handle only if not NULL
-  * Remove passing of adapter_handle in i2c_acpi_add_device()
+Forcing all i2c users off to RT is not really an option. RT has other
+drawbacks vs. throughput which you don't want to impose on everything which
+happens to use i2c.
 
- drivers/i2c/i2c-core.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+> 2a will cause a lockdep splat if i2c0:mux_lock is in the same
+> lockdep class & subclass as i2c1:mux_lock. So, lockdep needs
+> separate lockdep classes depending on the i2c root adapter
+> (subclasses are needed to handle deeper trees, so they are off
+> limits). Great fun. How do I go about creating a new lockdep
+> class for every i2c root adapter instance?
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index c61c961cf8f9..5476f906b9e0 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -168,6 +168,7 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
- 
- static int i2c_acpi_get_info(struct acpi_device *adev,
- 			     struct i2c_board_info *info,
-+			     struct i2c_adapter *adapter,
- 			     acpi_handle *adapter_handle)
- {
- 	struct list_head resource_list;
-@@ -182,8 +183,24 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 	if (ret)
- 		return ret;
- 
-+	if (adapter) {
-+		/* The adapter must match the one in I2cSerialBus() connector */
-+		if (ACPI_HANDLE(&adapter->dev) != lookup.adapter_handle)
-+			return -ENODEV;
-+	} else {
-+		struct acpi_device *adapter_adev;
-+
-+		/* The adapter must be present */
-+		if (acpi_bus_get_device(lookup.adapter_handle, &adapter_adev))
-+			return -ENODEV;
-+		if (acpi_bus_get_status(adapter_adev) ||
-+		    !adapter_adev->status.present)
-+			return -ENODEV;
-+	}
-+
- 	info->fwnode = acpi_fwnode_handle(adev);
--	*adapter_handle = lookup.adapter_handle;
-+	if (adapter_handle)
-+		*adapter_handle = lookup.adapter_handle;
- 
- 	/* Then fill IRQ number if any */
- 	INIT_LIST_HEAD(&resource_list);
-@@ -225,16 +242,12 @@ static acpi_status i2c_acpi_add_device(acpi_handle handle, u32 level,
- {
- 	struct i2c_adapter *adapter = data;
- 	struct acpi_device *adev;
--	acpi_handle adapter_handle;
- 	struct i2c_board_info info;
- 
- 	if (acpi_bus_get_device(handle, &adev))
- 		return AE_OK;
- 
--	if (i2c_acpi_get_info(adev, &info, &adapter_handle))
--		return AE_OK;
--
--	if (adapter_handle != ACPI_HANDLE(&adapter->dev))
-+	if (i2c_acpi_get_info(adev, &info, adapter, NULL))
- 		return AE_OK;
- 
- 	i2c_acpi_register_device(adapter, adev, &info);
-@@ -368,7 +381,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
- 
- 	switch (value) {
- 	case ACPI_RECONFIG_DEVICE_ADD:
--		if (i2c_acpi_get_info(adev, &info, &adapter_handle))
-+		if (i2c_acpi_get_info(adev, &info, NULL, &adapter_handle))
- 			break;
- 
- 		adapter = i2c_acpi_find_adapter_by_handle(adapter_handle);
--- 
-2.9.3
+lockdep_set_class() .....
+
+Thanks,
+
+	tglx
