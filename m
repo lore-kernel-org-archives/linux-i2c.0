@@ -1,85 +1,103 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH] i2c / ACPI: Do not touch an I2C device if it belongs to another adapter
-Date: Tue, 20 Sep 2016 11:00:27 +0300
-Message-ID: <20160920080027.19523-1-mika.westerberg@linux.intel.com>
-References: <87fuowf0tf.fsf@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87fuowf0tf.fsf@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Nicolai Stange <nicstange@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH 2/3] i2c: bcm2835: Add support for combined write-read
+ transfer
+Date: Tue, 20 Sep 2016 10:41:15 +0200
+Message-ID: <fb5e8e93-c6af-0050-1e7d-a69b722feadb@tronnes.org>
+References: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
+ <1474298777-5858-2-git-send-email-noralf@tronnes.org>
+ <c47a0a10-4e0b-9025-8d38-af299d5f55da@martin.sperl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <c47a0a10-4e0b-9025-8d38-af299d5f55da@martin.sperl.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Martin Sperl <kernel@martin.sperl.org>, wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
+Cc: linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-When enumerating I2C devices connected to an I2C adapter we scan the whole
-namespace (as it is possible to have devices anywhere in that namespace,
-not just below the I2C adapter device) and add each found device to the I2C
-bus in question.
-
-Now after commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI
-reconfigure notifications") checking of the adapter handle to the one found
-in the I2cSerialBus() resource was moved to happen after resources of the
-I2C device has been parsed. This means that if the I2cSerialBus() resource
-points to an adapter that does not exists in the system we still parse
-those resources. This is problematic in particular because
-acpi_dev_resource_interrupt() tries to configure GSI if the device also has
-an Interrupt() resource. Failing to do that results errrors like this to be
-printed on the console:
-
-  [   10.409490] ERROR: Unable to locate IOAPIC for GSI 37
-
-To fix this we pass the I2C adapter to i2c_acpi_get_info() and make sure
-the handle matches the one in the I2cSerialBus() resource before doing
-anything else to the device.
-
-Reported-by: Nicolai Stange <nicstange@gmail.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/i2c/i2c-core.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index c61c961cf8f9..eb32cb783fc8 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -168,6 +168,7 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
- 
- static int i2c_acpi_get_info(struct acpi_device *adev,
- 			     struct i2c_board_info *info,
-+			     struct i2c_adapter *adapter,
- 			     acpi_handle *adapter_handle)
- {
- 	struct list_head resource_list;
-@@ -182,6 +183,10 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 	if (ret)
- 		return ret;
- 
-+	/* The adapter must match the one in I2cSerialBus() connector */
-+	if (adapter && ACPI_HANDLE(&adapter->dev) != lookup.adapter_handle)
-+		return -ENODEV;
-+
- 	info->fwnode = acpi_fwnode_handle(adev);
- 	*adapter_handle = lookup.adapter_handle;
- 
-@@ -231,10 +236,7 @@ static acpi_status i2c_acpi_add_device(acpi_handle handle, u32 level,
- 	if (acpi_bus_get_device(handle, &adev))
- 		return AE_OK;
- 
--	if (i2c_acpi_get_info(adev, &info, &adapter_handle))
--		return AE_OK;
--
--	if (adapter_handle != ACPI_HANDLE(&adapter->dev))
-+	if (i2c_acpi_get_info(adev, &info, adapter, &adapter_handle))
- 		return AE_OK;
- 
- 	i2c_acpi_register_device(adapter, adev, &info);
-@@ -368,7 +370,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
- 
- 	switch (value) {
- 	case ACPI_RECONFIG_DEVICE_ADD:
--		if (i2c_acpi_get_info(adev, &info, &adapter_handle))
-+		if (i2c_acpi_get_info(adev, &info, NULL, &adapter_handle))
- 			break;
- 
- 		adapter = i2c_acpi_find_adapter_by_handle(adapter_handle);
--- 
-2.9.3
+CkRlbiAyMC4wOS4yMDE2IDA5OjE5LCBza3JldiBNYXJ0aW4gU3Blcmw6Cj4gSGkgTm9yYWxmIQo+
+Cj4gT24gMTkuMDkuMjAxNiAxNzoyNiwgTm9yYWxmIFRyw7hubmVzIHdyb3RlOgo+PiBTb21lIFNN
+QnVzIHByb3RvY29scyB1c2UgUmVwZWF0ZWQgU3RhcnQgQ29uZGl0aW9uIHRvIHN3aXRjaCBmcm9t
+IHdyaXRlCj4+IG1vZGUgdG8gcmVhZCBtb2RlLiBEZXZpY2VzIGxpa2UgTU1BODQ1MSB3b24ndCB3
+b3JrIHdpdGhvdXQgaXQuCj4+Cj4+IFdoZW4gZG93bnN0cmVhbSBpbXBsZW1lbnRlZCBzdXBwb3J0
+IGZvciB0aGlzIGluIGkyYy1iY20yNzA4LCBpdCBicm9rZQo+PiBzdXBwb3J0IGZvciBzb21lIGRl
+dmljZXMsIHNvIGEgbW9kdWxlIHBhcmFtZXRlciB3YXMgYWRkZWQgYW5kIGNvbWJpbmVkCj4+IHRy
+YW5zZmVyIHdhcyBkaXNhYmxlZCBieSBkZWZhdWx0Lgo+PiBTZWUgaHR0cHM6Ly9naXRodWIuY29t
+L3Jhc3BiZXJyeXBpL2xpbnV4L2lzc3Vlcy81OTkKPj4gSXQgZG9lc24ndCBzZWVtIHRvIGhhdmUg
+YmVlbiBhbnkgaW52ZXN0aWdhdGlvbiBpbnRvIHdoYXQgdGhlIHByb2JsZW0KPj4gcmVhbGx5IHdh
+cy4gTGF0ZXIgdGhlcmUgd2FzIGFkZGVkIGEgdGltZW91dCBvbiB0aGUgcG9sbGluZyBsb29wLgo+
+Pgo+PiBPbmUgb2YgdGhlIGRldmljZXMgbWVudGlvbmVkIHRvIHBhcnRpYWxseSBzdG9wIHdvcmtp
+bmcgd2FzIERTMTMwNy4KPj4KPj4gSSBoYXZlIHJ1biB0aG91c2FuZHMgb2YgdHJhbnNmZXJzIHRv
+IGEgRFMxMzA3IChydGMpLCBNTUE4NDUxIChhY2NlbCkKPj4gYW5kIEFUMjRDMzIgKGVlcHJvbSkg
+aW4gcGFyYWxsZWwgd2l0aG91dCBwcm9ibGVtcy4KPj4KPj4gU2lnbmVkLW9mZi1ieTogTm9yYWxm
+IFRyw7hubmVzIDxub3JhbGZAdHJvbm5lcy5vcmc+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvaTJjL2J1
+c3Nlcy9pMmMtYmNtMjgzNS5jIHwgMTA3IAo+PiArKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKy0tLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgOTggaW5zZXJ0aW9ucygrKSwgOSBkZWxl
+dGlvbnMoLSkKPiAuLi4KPj4gQEAgLTIwOSw4ICsyODksMTcgQEAgc3RhdGljIGludCBiY20yODM1
+X2kyY194ZmVyKHN0cnVjdCBpMmNfYWRhcHRlciAKPj4gKmFkYXAsIHN0cnVjdCBpMmNfbXNnIG1z
+Z3NbXSwKPj4gICAgICAgaW50IGk7Cj4+ICAgICAgIGludCByZXQgPSAwOwo+PiAgICsgICAgLyog
+Q29tYmluZWQgd3JpdGUtcmVhZCB0byB0aGUgc2FtZSBhZGRyZXNzIChzbWJ1cykgKi8KPj4gKyAg
+ICBpZiAobnVtID09IDIgJiYgKG1zZ3NbMF0uYWRkciA9PSBtc2dzWzFdLmFkZHIpICYmCj4+ICsg
+ICAgICAgICEobXNnc1swXS5mbGFncyAmIEkyQ19NX1JEKSAmJiAobXNnc1sxXS5mbGFncyAmIEky
+Q19NX1JEKSAmJgo+PiArICAgICAgICAobXNnc1swXS5sZW4gPD0gMTYpKSB7Cj4+ICsgICAgICAg
+IHJldCA9IGJjbTI4MzVfaTJjX3hmZXJfbXNnKGkyY19kZXYsICZtc2dzWzBdLCAmbXNnc1sxXSk7
+Cj4+ICsKPj4gKyAgICByZXR1cm4gcmV0ID8gcmV0IDogMjsKPj4gKyAgICB9Cj4+ICsKPj4gICAg
+ICAgZm9yIChpID0gMDsgaSA8IG51bTsgaSsrKSB7Cj4+IC0gICAgICAgIHJldCA9IGJjbTI4MzVf
+aTJjX3hmZXJfbXNnKGkyY19kZXYsICZtc2dzW2ldKTsKPj4gKyAgICAgICAgcmV0ID0gYmNtMjgz
+NV9pMmNfeGZlcl9tc2coaTJjX2RldiwgJm1zZ3NbaV0sIE5VTEwpOwo+PiAgICAgICAgICAgaWYg
+KHJldCkKPj4gICAgICAgICAgICAgICBicmVhazsKPj4gICAgICAgfQo+IFRoaXMgZG9lcyBub3Qg
+c2VlbSB0byBpbXBsZW1lbnQgdGhlIGkyY19tc2cgYXBpIGNvcnJlY3RseS4KPgo+IEFzIHBlciBj
+b21tZW50cyBpbiBpbmNsdWRlL3VhcGkvbGludXgvaTJjLmggb24gbGluZSA1OCBvbmx5IHRoZSBs
+YXN0IAo+IG1lc3NhZ2UKPiBpbiBhIGdyb3VwIHNob3VsZCAtIGJ5IGRlZmF1bHQgLSBzZW5kIGEg
+U1RPUC4KPgoKQXBwYXJlbnRseSBpdCdzIGEga25vd24gcHJvYmxlbSB0aGF0IHRoZSBpMmMgY29u
+dHJvbGxlciBkb2Vzbid0IHN1cHBvcnQKUmVwZWF0ZWQgU3RhcnQuIEl0IHdpbGwgYWx3YXlzIGlz
+c3VlIGEgU3RvcCB3aGVuIGl0IGhhcyB0cmFuc2ZlcnJlZCBETEVOCmJ5dGVzLgpSZWZzOgpodHRw
+Oi8vd3d3LmNpcmN1aXR3aXphcmQuZGUvcmFzcGktaTJjLWZpeC9yYXNwaS1pMmMtZml4Lmh0bWwK
+aHR0cDovL3Jhc3BiZXJyeXBpLnN0YWNrZXhjaGFuZ2UuY29tL3F1ZXN0aW9ucy8zMTcyOC9oYXMt
+YW55b25lLXN1Y2Nlc3NmdWxseS11c2VkLWkyYy1yZXBlYXRlZC1zdGFydHMtb24tdGhlLXBpMi1t
+eS1zY29wZS1zYXlzLXRoZXkKClVOTEVTUzogYSBTdGFydCBUcmFuc2ZlciAoU1QpIGlzIGlzc3Vl
+ZCBhZnRlciBUcmFuc2ZlciBBY3RpdmUgKFRBKSBpcyBzZXQKYW5kIGJlZm9yZSBET05FIGlzIHNl
+dCAob3IgdGhlIGxhc3QgYnl0ZSBpcyBzaGlmdGVkLCBJIGRvbid0IGtub3cgZXhjYXRseSkuClJl
+ZnM6Cmh0dHBzOi8vZ2l0aHViLmNvbS9yYXNwYmVycnlwaS9saW51eC9pc3N1ZXMvMjU0I2lzc3Vl
+Y29tbWVudC0xNTI1NDEzNApodHRwczovL3d3dy5yYXNwYmVycnlwaS5vcmcvZm9ydW1zL3ZpZXd0
+b3BpYy5waHA/cD04MDc4MzQmc2lkPTJiNjEyYzcyMDlmMjE3NWJmMWEyNjYzNTljNzJhZTZjI3A4
+MDc4MzQKCkkgZm91bmQgdGhpcyBhbnN3ZXIvcmVwb3J0IGJ5IGpvYW4gdGhhdCB0aGUgZG93bnN0
+cmVhbSBjb21iaW5lZCBzdXBwb3J0Cmlzbid0IHJlbGlhYmxlOgpodHRwOi8vcmFzcGJlcnJ5cGku
+c3RhY2tleGNoYW5nZS5jb20vcXVlc3Rpb25zLzMxNzI4L2hhcy1hbnlvbmUtc3VjY2Vzc2Z1bGx5
+LXVzZWQtaTJjLXJlcGVhdGVkLXN0YXJ0cy1vbi10aGUtcGkyLW15LXNjb3BlLXNheXMtdGhleQoK
+TXkgaW1wbGVtZW50YXRpb24gZGlmZmVycyBmcm9tIGRvd25zdHJlYW0gaW4gdGhhdCBJIHVzZSBs
+b2NhbF9pcnFfc2F2ZSgpCnRvIHByb3RlY3QgdGhlIHBvbGxpbmcgbG9vcC4gQnV0IHRoYXQgb25s
+eSBwcm90ZWN0cyBmcm9tIG1pc3NpbmcgdGhlIFRBCihkb3duc3RyZWFtIGNhbiBtaXNzIHRoZSBU
+QSBhbmQgaXNzdWUgYSBTdG9wKS4KClNvIGN1cnJlbnRseSBpbiBtYWlubGluZSB3ZSBoYXZlIGEg
+ZHJpdmVyIHRoYXQgc2F5cyBpdCBzdXBwb3J0IHRoZSBzdGFuZGFyZAooSTJDX0ZVTkNfSTJDKSwg
+YnV0IGl0IHJlYWxseSBvbmx5IHN1cHBvcnRzIG9uZSBtZXNzYWdlIHRyYW5zZmVycyBzaW5jZSBp
+dApjYW4ndCBkbyBSZVN0YXJ0LgoKV2hhdCBJIGhhdmUgZG9uZSBpbiB0aGlzIHBhdGNoIGlzIHRv
+IHN1cHBvcnQgUmVTdGFydCBmb3IgdHJhbnNmZXJzIHdpdGgKMiBtZXNzYWdlczogZmlyc3Qgd3Jp
+dGUsIHRoZW4gcmVhZC4gQnV0IG1heWJlIGEgYmV0dGVyIHNvbHV0aW9uIGlzIHRvIGp1c3QKbGVh
+dmUgdGhpcyBhbG9uZSBpZiBpdCBpcyBmbGFreSBhbmQgdXNlIGJpdGJhbmdpbmcgaW5zdGVhZC4g
+SSBkb24ndCBrbm93LgoKCk5vcmFsZi4KCgo+IEFzIGZhciBhcyBJIHVuZGVyc3RhbmQgIHlvdSB3
+b3VsZCBuZWVkIHRvIGltcGxlbWVudCB0aGUgSTJDX01fU1RPUCBmbGFnCj4gKGJ5IGV4cG9zaW5n
+ICBJMkNfRlVOQ19QUk9UT0NPTF9NQU5HTElORyBpbiBiY20yODM1X2kyY19mdW5jKQo+IHRvIG1h
+a2UgdGhpcyB3b3JrIGNvcnJlY3RseToKPgo+ICAgICAgZm9yIChpID0gMDsgaSA8IG51bTsgaSsr
+KSB7Cj4gKyAgICAgICAgYm9vbCBzZW5kX3N0b3AgPSAoaSA9PSBudW0gLSAxKSB8fG1zZ3NbaV0g
+Cj4gPGh0dHA6Ly9seHIuZnJlZS1lbGVjdHJvbnMuY29tL2lkZW50P2k9bXNnPi0+ZmxhZ3MgCj4g
+PGh0dHA6Ly9seHIuZnJlZS1lbGVjdHJvbnMuY29tL2lkZW50P2k9ZmxhZ3M+ICZJMkNfTV9TVE9Q
+IAo+IDxodHRwOi8vbHhyLmZyZWUtZWxlY3Ryb25zLmNvbS9pZGVudD9pPUkyQ19NX1NUT1A+Owo+
+IC0gICAgICAgIHJldCA9IGJjbTI4MzVfaTJjX3hmZXJfbXNnKGkyY19kZXYsICZtc2dzW2ldKTsK
+PiArICAgICAgICByZXQgPSBiY20yODM1X2kyY194ZmVyX21zZyhpMmNfZGV2LCAmbXNnc1tpXSwg
+c2VuZF9zdG9wKTsKPiAgICAgICAgICBpZiAocmV0KQo+ICAgICAgICAgICAgICBicmVhazsKPiAg
+ICAgIH0KPgo+IFRoZSBjb3JyZXNwb25kaW5nIGRldmljZSBkcml2ZXIgKG9yIHVzZXJzcGFjZSkg
+d2lsbCBuZWVkIHRvIHNldCB0aGUgCj4gZmxhZyBjb3JyZWN0bHkuCj4KPiBNYXJ0aW4KCgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2Vy
+bmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0
+cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVs
+Cg==
