@@ -1,84 +1,73 @@
-From: Martin Sperl <kernel@martin.sperl.org>
-Subject: Re: [PATCH 2/3] i2c: bcm2835: Add support for combined write-read
- transfer
-Date: Tue, 20 Sep 2016 09:19:13 +0200
-Message-ID: <c47a0a10-4e0b-9025-8d38-af299d5f55da@martin.sperl.org>
-References: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
- <1474298777-5858-2-git-send-email-noralf@tronnes.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [REGRESSION? v4.8] i2c-core: acpi_i2c_get_info() touches
+ non-existent devices
+Date: Tue, 20 Sep 2016 10:55:43 +0300
+Message-ID: <20160920075543.GL1811@lahna.fi.intel.com>
+References: <87a8f4kfhe.fsf@gmail.com>
+ <20160919084807.GC1811@lahna.fi.intel.com>
+ <20160919130324.GI1811@lahna.fi.intel.com>
+ <87fuowf0tf.fsf@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 212-186-180-163.static.upcbusiness.at ([212.186.180.163]:60354
-        "EHLO cgate.sperl.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751211AbcITHSr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Sep 2016 03:18:47 -0400
-In-Reply-To: <1474298777-5858-2-git-send-email-noralf@tronnes.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <87fuowf0tf.fsf@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nicolai Stange <nicstange@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
-Cc: linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-Hi Noralf!
+On Mon, Sep 19, 2016 at 03:58:52PM +0200, Nicolai Stange wrote:
+> > Can you try if the following patch cures the problem?
+> 
+> Unfortunately not. That patch installs the check after the
+> acpi_i2c_get_info() invocation which is part of the backtrace above.
 
-On 19.09.2016 17:26, Noralf Trønnes wrote:
-> Some SMBus protocols use Repeated Start Condition to switch from write
-> mode to read mode. Devices like MMA8451 won't work without it.
->
-> When downstream implemented support for this in i2c-bcm2708, it broke
-> support for some devices, so a module parameter was added and combined
-> transfer was disabled by default.
-> See https://github.com/raspberrypi/linux/issues/599
-> It doesn't seem to have been any investigation into what the problem
-> really was. Later there was added a timeout on the polling loop.
->
-> One of the devices mentioned to partially stop working was DS1307.
->
-> I have run thousands of transfers to a DS1307 (rtc), MMA8451 (accel)
-> and AT24C32 (eeprom) in parallel without problems.
->
-> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-> ---
->   drivers/i2c/busses/i2c-bcm2835.c | 107 +++++++++++++++++++++++++++++++++++----
->   1 file changed, 98 insertions(+), 9 deletions(-)
-...
-> @@ -209,8 +289,17 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
->   	int i;
->   	int ret = 0;
->   
-> +	/* Combined write-read to the same address (smbus) */
-> +	if (num == 2 && (msgs[0].addr == msgs[1].addr) &&
-> +	    !(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
-> +	    (msgs[0].len <= 16)) {
-> +		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[0], &msgs[1]);
+Ah, indeed it needs to happen before we parse resources.
+
+> I moved your check into i2c_get_info(), right in front of the IRQ
+> handling and this works.
+> 
+> So,
+> 
+>   Tested-by: Nicolai Stange <nicstange@gmail.com>
+
+Thanks.
+
+> for this:
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 74e5aea..3f2b3cf 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -141,6 +141,7 @@ static int acpi_i2c_get_info(struct acpi_device *adev,
+>  	struct list_head resource_list;
+>  	struct resource_entry *entry;
+>  	struct acpi_i2c_lookup lookup;
+> +	struct acpi_device *adapter_adev;
+>  	int ret;
+>  
+>  	if (acpi_bus_get_status(adev) || !adev->status.present ||
+> @@ -163,6 +164,12 @@ static int acpi_i2c_get_info(struct acpi_device *adev,
+>  	if (ret < 0 || !info->addr)
+>  		return -EINVAL;
+>  
+> +	/* The adapter must be present */
+> +	if (acpi_bus_get_device(lookup.adapter_handle, &adapter_adev))
+> +		return -EINVAL;
+> +	if (acpi_bus_get_status(adapter_adev) || !adapter_adev->status.present)
+> +		return -EINVAL;;
 > +
-> +	return ret ? ret : 2;
-> +	}
-> +
->   	for (i = 0; i < num; i++) {
-> -		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i]);
-> +		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i], NULL);
->   		if (ret)
->   			break;
->   	}
-This does not seem to implement the i2c_msg api correctly.
+>  	*adapter_handle = lookup.adapter_handle;
+>  
+>  	/* Then fill IRQ number if any */
+> 
+> 
+> 
+> But it is still true that acpi_i2c_register_devices() configures the
+> interrupts for all ACPI I2C slaves attached to an available adapter,
+> independent of whether their adapter is the one given as an argument or
+> not. I can't tell whether this is desired, just a note...
 
-As per comments in include/uapi/linux/i2c.h on line 58 only the last message
-in a group should - by default - send a STOP.
-
-As far as I understand  you would need to implement the I2C_M_STOP flag
-(by exposing  I2C_FUNC_PROTOCOL_MANGLING in bcm2835_i2c_func)
-to make this work correctly:
-
-  	for (i = 0; i < num; i++) {
-+		bool send_stop = (i == num - 1) ||msgs[i] <http://lxr.free-electrons.com/ident?i=msg>->flags <http://lxr.free-electrons.com/ident?i=flags>  &I2C_M_STOP <http://lxr.free-electrons.com/ident?i=I2C_M_STOP>;
--		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i]);
-+		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i], send_stop);
-  		if (ret)
-  			break;
-  	}
-
-The corresponding device driver (or userspace) will need to set the flag 
-correctly.
-
-Martin
+You are right it should not do that. I'll send you an updated patch
+shortly, can you try if it works?
