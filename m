@@ -1,84 +1,126 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v2 0/4] gpio: fix an incorrect lockdep warning
-Date: Tue, 20 Sep 2016 12:28:37 +0200
-Message-ID: <20160920102837.GS5012@twins.programming.kicks-ass.net>
-References: <20160916175842.GD1426@katana>
- <587cdb60-d7fe-3ab2-b635-02c5072e102e@axentia.se>
- <CAMpxmJUX8wszxhkoOyuqPeC8xgBjLXFRSWDSa0cOrJ92dUYX1g@mail.gmail.com>
- <CAMpxmJX3_ec44Z0UVTNqSDjmNq+Oe3sk+szLE-Nj7X4pztbywQ@mail.gmail.com>
- <2f7d572c-59e0-f584-9748-48a1a45a1a50@axentia.se>
- <20160919081413.GR5016@twins.programming.kicks-ass.net>
- <88940f9a-79bf-6c88-8e1d-f76f32dda04a@axentia.se>
- <20160919090358.GU5016@twins.programming.kicks-ass.net>
- <e4b4c894-4913-b00f-0a9d-243258f2699b@axentia.se>
- <CAMpxmJVNbsZewcui_WL0aZi3e4Q52=qHxGkm=w5EAr49YAqyaw@mail.gmail.com>
+From: Nicolai Stange <nicstange@gmail.com>
+Subject: Re: [PATCH] i2c / ACPI: Do not touch an I2C device if it belongs to another adapter
+Date: Tue, 20 Sep 2016 12:32:11 +0200
+Message-ID: <874m5ax3o4.fsf@gmail.com>
+References: <87fuowf0tf.fsf@gmail.com>
+        <20160920080027.19523-1-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMpxmJVNbsZewcui_WL0aZi3e4Q52=qHxGkm=w5EAr49YAqyaw@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Ingo Molnar <mingo@redhat.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160920080027.19523-1-mika.westerberg@linux.intel.com> (Mika
+        Westerberg's message of "Tue, 20 Sep 2016 11:00:27 +0300")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Nicolai Stange <nicstange@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 20, 2016 at 12:07:39PM +0200, Bartosz Golaszewski wrote:
-> 2016-09-20 10:48 GMT+02:00 Peter Rosin <peda@axentia.se>:
-> >
-> > One pretty simple problematic case is:
-> >
-> >   .---.          .----.
-> >   |   |          |    |-- i2c2
-> >   |   |-- i2c0 --|mux0|          .----.
-> >   | l |          |    |-- i2c3 --|gpio|
-> >   | i |          '----'          '----'
-> >   | n |             .--------------'
-> >   | u |          .----.          .----.
-> >   | x |          |    |-- i2c4 --|dev0|
-> >   |   |-- i2c1 --|mux1|          '----'
-> >   |   |          |    |-- i2c5
-> >   '---'          '----'
+Your patch fixes my issue, so feel free to add a
 
-Shees, and I suppose this is all external to SoC stuff, so people can
-stick on whatever they pretty well please. I mean, its an i2c bus, just
-order parts from ebay and stick on a board.
+  Tested-by: Nicolai Stange <nicstange@gmail.com>
 
-> > Accesses to dev0 will:
-> >
-> > 1. lock i2c1:mux_lock (depth 0)
-> > 2. switch mux1 to i2c4 using gpio
-> >  a lock i2c0:mux_lock (depth 0)
-> >  b switch mux0 to i2c3 using whatever
-> >  c access gpio
-> >  d unlock i2c0:mux_lock
-> > 3. access dev0
-> > 4. unlock i2c1:mux_lock
-> >
-> > 2a will cause a lockdep splat if i2c0:mux_lock is in the same
-> > lockdep class & subclass as i2c1:mux_lock. So, lockdep needs
-> > separate lockdep classes depending on the i2c root adapter
-> > (subclasses are needed to handle deeper trees, so they are off
-> > limits). Great fun. How do I go about creating a new lockdep
-> > class for every i2c root adapter instance?
-> >
-> 
-> I feel like it's just wrong to set an arbitrary limit on the number of
-> i2c branches - and this is what the result of this approach would be.
-> 
-> One solution that comes to mind is to have a separate, global set of
-> lock classes solely for gpio expanders. I think you mentioned earlier
-> that it's the only thing that can cause this kind of lockdep false
-> positives. We could potentially have a limited set of lock classes and
-> every expander that would need one would request it using some kind of
-> API ensuring that every instance gets a separate class. But this
-> sounds like a big hack too I'm afraid... And regmap would need to be
-> aware of that as well.
-> 
-> Anyways, we're past rc7 already and 4.9 will be the next LTS kernel.
-> We have real hardware here that runs on mainline linux and is
-> suffering from this issue. Are there any objections against merging
-> this series now and continuing the work on improving the solution for
-> 4.10?
+for this either.
 
-Seems sensible, I'll also see if I can come up with a better annotation
-that can help here.
+But please see my remark below.
+
+
+Mika Westerberg <mika.westerberg@linux.intel.com> writes:
+
+> When enumerating I2C devices connected to an I2C adapter we scan the whole
+> namespace (as it is possible to have devices anywhere in that namespace,
+> not just below the I2C adapter device) and add each found device to the I2C
+> bus in question.
+>
+> Now after commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI
+> reconfigure notifications") checking of the adapter handle to the one found
+> in the I2cSerialBus() resource was moved to happen after resources of the
+> I2C device has been parsed. This means that if the I2cSerialBus() resource
+> points to an adapter that does not exists in the system we still parse
+> those resources. This is problematic in particular because
+> acpi_dev_resource_interrupt() tries to configure GSI if the device also has
+> an Interrupt() resource. Failing to do that results errrors like this to be
+> printed on the console:
+>
+>   [   10.409490] ERROR: Unable to locate IOAPIC for GSI 37
+>
+> To fix this we pass the I2C adapter to i2c_acpi_get_info() and make sure
+> the handle matches the one in the I2cSerialBus() resource before doing
+> anything else to the device.
+>
+> Reported-by: Nicolai Stange <nicstange@gmail.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
+>  drivers/i2c/i2c-core.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index c61c961cf8f9..eb32cb783fc8 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -168,6 +168,7 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
+>  
+>  static int i2c_acpi_get_info(struct acpi_device *adev,
+>  			     struct i2c_board_info *info,
+> +			     struct i2c_adapter *adapter,
+>  			     acpi_handle *adapter_handle)
+>  {
+>  	struct list_head resource_list;
+> @@ -182,6 +183,10 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+>  	if (ret)
+>  		return ret;
+>  
+> +	/* The adapter must match the one in I2cSerialBus() connector */
+> +	if (adapter && ACPI_HANDLE(&adapter->dev) != lookup.adapter_handle)
+> +		return -ENODEV;
+> +
+
+Would it be sensible to add the adapter presence check you provided
+earlier, i.e.
+
++	else if (!adapter) {
++		/* The adapter must be present */
++		if (acpi_bus_get_device(lookup.adapter_handle, &adapter_adev))
++			return -ENODEV;
++		if (acpi_bus_get_status(adapter_adev) || !adapter_adev->status.present)
++			return -ENODEV;
++
++	}
+
+
+here, because we can't know if ...
+
+
+>  	info->fwnode = acpi_fwnode_handle(adev);
+>  	*adapter_handle = lookup.adapter_handle;
+>  
+> @@ -231,10 +236,7 @@ static acpi_status i2c_acpi_add_device(acpi_handle handle, u32 level,
+>  	if (acpi_bus_get_device(handle, &adev))
+>  		return AE_OK;
+>  
+> -	if (i2c_acpi_get_info(adev, &info, &adapter_handle))
+> -		return AE_OK;
+> -
+> -	if (adapter_handle != ACPI_HANDLE(&adapter->dev))
+> +	if (i2c_acpi_get_info(adev, &info, adapter, &adapter_handle))
+>  		return AE_OK;
+>  
+>  	i2c_acpi_register_device(adapter, adev, &info);
+> @@ -368,7 +370,7 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
+>  
+>  	switch (value) {
+>  	case ACPI_RECONFIG_DEVICE_ADD:
+> -		if (i2c_acpi_get_info(adev, &info, &adapter_handle))
+> +		if (i2c_acpi_get_info(adev, &info, NULL, &adapter_handle))
+>  			break;
+
+... the ACPI device added here is physically existent?
+
+>  
+>  		adapter = i2c_acpi_find_adapter_by_handle(adapter_handle);
+
+I suppose that it is always true that adev has been LoadTable()'d from
+some SSDT? Can't this SSDT be just as broken as my DSDT is? Not that
+I've seen such a case in the real world, I'm just asking.
+
+Thanks,
+
+Nicolai
