@@ -1,51 +1,84 @@
 From: Martin Sperl <kernel@martin.sperl.org>
-Subject: Re: [PATCH 1/3] i2c: bcm2835: Fix hang for writing messages larger
- than 16 bytes
-Date: Tue, 20 Sep 2016 08:46:58 +0200
-Message-ID: <e473206c-7f9c-7b7d-d75d-7879425fc2f9@martin.sperl.org>
+Subject: Re: [PATCH 2/3] i2c: bcm2835: Add support for combined write-read
+ transfer
+Date: Tue, 20 Sep 2016 09:19:13 +0200
+Message-ID: <c47a0a10-4e0b-9025-8d38-af299d5f55da@martin.sperl.org>
 References: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
+ <1474298777-5858-2-git-send-email-noralf@tronnes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
-Cc: linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from 212-186-180-163.static.upcbusiness.at ([212.186.180.163]:60354
+        "EHLO cgate.sperl.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751211AbcITHSr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Sep 2016 03:18:47 -0400
+In-Reply-To: <1474298777-5858-2-git-send-email-noralf@tronnes.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
+Cc: linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-T24gMTkuMDkuMjAxNiAxNzoyNiwgTm9yYWxmIFRyw7hubmVzIHdyb3RlOgo+IFdyaXRpbmcgbWVz
-c2FnZXMgbGFyZ2VyIHRoYW4gdGhlIEZJRk8gc2l6ZSByZXN1bHRzIGluIGEgaGFuZywgcmVuZGVy
-aW5nCj4gdGhlIG1hY2hpbmUgdW51c2FibGUuIFRoaXMgaXMgYmVjYXVzZSB0aGUgUlhEIHN0YXR1
-cyBmbGFnIGlzIHNldCBvbiB0aGUKPiBmaXJzdCBpbnRlcnJ1cHQgd2hpY2ggcmVzdWx0cyBpbiBi
-Y20yODM1X2RyYWluX3J4ZmlmbygpIHN0ZWFsaW5nIGJ5dGVzCj4gZnJvbSB0aGUgYnVmZmVyLiBU
-aGUgY29udHJvbGxlciBjb250aW51ZXMgdG8gdHJpZ2dlciBpbnRlcnJ1cHRzIHdhaXRpbmcKPiBm
-b3IgdGhlIG1pc3NpbmcgYnl0ZXMsIGJ1dCBiY20yODM1X2ZpbGxfdHhmaWZvKCkgaGFzIG5vbmUg
-dG8gZ2l2ZS4KSSByZW1lbWJlciBoYXZpbmcgc2VlbiBzaW1pbGFyIGludGVycnVwdCBpc3N1ZXMg
-d2l0aCB0aGUgU1BJIEhXLWJsb2NrLgo+IEluIHRoaXMgc2l0dWF0aW9uIHdhaXRfZm9yX2NvbXBs
-ZXRpb25fdGltZW91dCgpIGFwcGFyZW50bHkgaXMgdW5hYmxlIHRvCj4gc3RvcCB0aGUgbWFkbmVz
-cy4KVGhhdCBpcyBiZWNhdXNlIGl0IGlzIGEgbGV2ZWwgaXJxIHRoYXQgaW1tZWRpYXRlbHkgdHJp
-Z2dlcnMgYW5vdGhlciAKaW50ZXJydXB0IGdpdmluZwpubyBDUFUgbm8gdGltZSB0byBkbyBvdGhl
-ciAodGhyZWFkZWQpIE9TIGFjdGl2aXR5IC0gdGhpcyBtaWdodCBiZSBzbGlnaHRseQpkaWZmZXJl
-bnQgZm9yIG11bHRpLWNvcmUgbWFjaGluZXMuLi4KPiBUaGUgQkNNMjgzNSBBUk0gUGVyaXBoZXJh
-bHMgZGF0YXNoZWV0IGhhcyB0aGlzIHRvIHNheSBhYm91dCB0aGUgZmxhZ3M6Cj4gICAgVFhEOiBp
-cyBzZXQgd2hlbiB0aGUgRklGTyBoYXMgc3BhY2UgZm9yIGF0IGxlYXN0IG9uZSBieXRlIG9mIGRh
-dGEuCj4gICAgUlhEOiBpcyBzZXQgd2hlbiB0aGUgRklGTyBjb250YWlucyBhdCBsZWFzdCBvbmUg
-Ynl0ZSBvZiBkYXRhLgo+ICAgIFRYVzogaXMgc2V0IGR1cmluZyBhIHdyaXRlIHRyYW5zZmVyIGFu
-ZCB0aGUgRklGTyBpcyBsZXNzIHRoYW4gZnVsbC4KPiAgICBSWFI6IGlzIHNldCBkdXJpbmcgYSBy
-ZWFkIHRyYW5zZmVyIGFuZCB0aGUgRklGTyBpcyBvciBtb3JlIGZ1bGwuCj4KPiBJbXBsZW1lbnRp
-bmcgdGhlIGxvZ2ljIGZyb20gdGhlIGRvd25zdHJlYW0gaTJjLWJjbTI3MDggZHJpdmVyIHNvbHZl
-ZAo+IHRoZSBoYW5nIHByb2JsZW0uCj4KPiBTaWduZWQtb2ZmLWJ5OiBOb3JhbGYgVHLDuG5uZXM8
-bm9yYWxmQHRyb25uZXMub3JnPgpSZXZpZXdlZC1ieTogTWFydGluIFNwZXJsIDxrZXJuZWxAbWFy
-dGluLnNwZXJsLm9yZz4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxp
-c3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0
-aW5mby9saW51eC1hcm0ta2VybmVsCg==
+Hi Noralf!
+
+On 19.09.2016 17:26, Noralf Trønnes wrote:
+> Some SMBus protocols use Repeated Start Condition to switch from write
+> mode to read mode. Devices like MMA8451 won't work without it.
+>
+> When downstream implemented support for this in i2c-bcm2708, it broke
+> support for some devices, so a module parameter was added and combined
+> transfer was disabled by default.
+> See https://github.com/raspberrypi/linux/issues/599
+> It doesn't seem to have been any investigation into what the problem
+> really was. Later there was added a timeout on the polling loop.
+>
+> One of the devices mentioned to partially stop working was DS1307.
+>
+> I have run thousands of transfers to a DS1307 (rtc), MMA8451 (accel)
+> and AT24C32 (eeprom) in parallel without problems.
+>
+> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+> ---
+>   drivers/i2c/busses/i2c-bcm2835.c | 107 +++++++++++++++++++++++++++++++++++----
+>   1 file changed, 98 insertions(+), 9 deletions(-)
+...
+> @@ -209,8 +289,17 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+>   	int i;
+>   	int ret = 0;
+>   
+> +	/* Combined write-read to the same address (smbus) */
+> +	if (num == 2 && (msgs[0].addr == msgs[1].addr) &&
+> +	    !(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
+> +	    (msgs[0].len <= 16)) {
+> +		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[0], &msgs[1]);
+> +
+> +	return ret ? ret : 2;
+> +	}
+> +
+>   	for (i = 0; i < num; i++) {
+> -		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i]);
+> +		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i], NULL);
+>   		if (ret)
+>   			break;
+>   	}
+This does not seem to implement the i2c_msg api correctly.
+
+As per comments in include/uapi/linux/i2c.h on line 58 only the last message
+in a group should - by default - send a STOP.
+
+As far as I understand  you would need to implement the I2C_M_STOP flag
+(by exposing  I2C_FUNC_PROTOCOL_MANGLING in bcm2835_i2c_func)
+to make this work correctly:
+
+  	for (i = 0; i < num; i++) {
++		bool send_stop = (i == num - 1) ||msgs[i] <http://lxr.free-electrons.com/ident?i=msg>->flags <http://lxr.free-electrons.com/ident?i=flags>  &I2C_M_STOP <http://lxr.free-electrons.com/ident?i=I2C_M_STOP>;
+-		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i]);
++		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i], send_stop);
+  		if (ret)
+  			break;
+  	}
+
+The corresponding device driver (or userspace) will need to set the flag 
+correctly.
+
+Martin
