@@ -1,82 +1,176 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH v5 1/6] I2C: i2c-smbus: add device tree support
-Date: Wed, 21 Sep 2016 12:34:05 +0100
-Message-ID: <20160921113405.GE18176@leverpostej>
-References: <1474447274-90821-1-git-send-email-preid@electromag.com.au>
- <1474447274-90821-2-git-send-email-preid@electromag.com.au>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH 2/3] i2c: bcm2835: Add support for combined write-read
+ transfer
+Date: Wed, 21 Sep 2016 15:45:32 +0200
+Message-ID: <e141d8bb-e313-a8a5-1d3e-e2b46bd797c9@tronnes.org>
+References: <1474298777-5858-1-git-send-email-noralf@tronnes.org>
+ <1474298777-5858-2-git-send-email-noralf@tronnes.org>
+ <c47a0a10-4e0b-9025-8d38-af299d5f55da@martin.sperl.org>
+ <fb5e8e93-c6af-0050-1e7d-a69b722feadb@tronnes.org>
+ <4990930f-6d69-89c6-4b23-deae3d6713ed@martin.sperl.org>
+ <8053bf5c-7ddc-b4f7-1961-93f161731b16@tronnes.org>
+ <DF457EB8-D1B8-4BA4-B79C-AF01AF7CAA3B@martin.sperl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1474447274-90821-2-git-send-email-preid@electromag.com.au>
-Sender: linux-pm-owner@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, sre@kernel.org, andrea.merello@gmail.com, karl-heinz@schneider-inet.de, arnd@arndb.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <DF457EB8-D1B8-4BA4-B79C-AF01AF7CAA3B@martin.sperl.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: kernel@martin.sperl.org
+Cc: wsa@the-dreams.de, Stephen Warren <swarren@wwwdotorg.org>, Eric Anholt <eric@anholt.net>, linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 21, 2016 at 04:41:09PM +0800, Phil Reid wrote:
-> From: Andrea Merello <andrea.merello@gmail.com>
-> 
-> According to Documentation/i2c/smbus-protocol, a smbus controller driver
-> that wants to hook-in smbus extensions support, can call
-> i2c_setup_smbus_alert(). There are very few drivers that are currently
-> doing this.
-> 
-> However the i2c-smbus module can also work with any
-> smbus-extensions-unaware I2C controller, as long as we provide an extra
-> IRQ line connected to the I2C bus ALARM signal.
-> 
-> This patch makes it possible to go this way via DT. Note that the DT node
-> will indeed describe a (little) piece of HW, that is the routing of the
-> ALARM signal to an IRQ line (so it seems a fair DT use to me, but RFC).
 
-Which piece of hardware actually generates this IRQ? The I2C controller?
-A slave SMBus device? Or something else?
+Den 20.09.2016 13:29, skrev kernel@martin.sperl.org:
+>> On 20.09.2016, at 12:56, Noralf Trønnes <noralf@tronnes.org> wrote:
+>>
+>>
+>> Den 20.09.2016 12:15, skrev Martin Sperl:
+>>>
+>>> On 20.09.2016 10:41, Noralf Trønnes wrote:
+>>>> Den 20.09.2016 09:19, skrev Martin Sperl:
+>>>>> Hi Noralf!
+>>>>>
+>>>>> On 19.09.2016 17:26, Noralf Trønnes wrote:
+>>>>>> Some SMBus protocols use Repeated Start Condition to switch from write
+>>>>>> mode to read mode. Devices like MMA8451 won't work without it.
+>>>>>>
+>>>>>> When downstream implemented support for this in i2c-bcm2708, it broke
+>>>>>> support for some devices, so a module parameter was added and combined
+>>>>>> transfer was disabled by default.
+>>>>>> See https://github.com/raspberrypi/linux/issues/599
+>>>>>> It doesn't seem to have been any investigation into what the problem
+>>>>>> really was. Later there was added a timeout on the polling loop.
+>>>>>>
+>>>>>> One of the devices mentioned to partially stop working was DS1307.
+>>>>>>
+>>>>>> I have run thousands of transfers to a DS1307 (rtc), MMA8451 (accel)
+>>>>>> and AT24C32 (eeprom) in parallel without problems.
+>>>>>>
+>>>>>> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+>>>>>> ---
+>>>>>>   drivers/i2c/busses/i2c-bcm2835.c | 107
+>>>>>> +++++++++++++++++++++++++++++++++++----
+>>>>>>   1 file changed, 98 insertions(+), 9 deletions(-)
+>>>>> ...
+>>>>>> @@ -209,8 +289,17 @@ static int bcm2835_i2c_xfer(struct i2c_adapter
+>>>>>> *adap, struct i2c_msg msgs[],
+>>>>>>       int i;
+>>>>>>       int ret = 0;
+>>>>>>   +    /* Combined write-read to the same address (smbus) */
+>>>>>> +    if (num == 2 && (msgs[0].addr == msgs[1].addr) &&
+>>>>>> +        !(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
+>>>>>> +        (msgs[0].len <= 16)) {
+>>>>>> +        ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[0], &msgs[1]);
+>>>>>> +
+>>>>>> +    return ret ? ret : 2;
+>>>>>> +    }
+>>>>>> +
+>>>>>>       for (i = 0; i < num; i++) {
+>>>>>> -        ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i]);
+>>>>>> +        ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i], NULL);
+>>>>>>           if (ret)
+>>>>>>               break;
+>>>>>>       }
+>>>>> This does not seem to implement the i2c_msg api correctly.
+>>>>>
+>>>>> As per comments in include/uapi/linux/i2c.h on line 58 only the last
+>>>>> message
+>>>>> in a group should - by default - send a STOP.
+>>>>>
+>>>> Apparently it's a known problem that the i2c controller doesn't support
+>>>> Repeated Start. It will always issue a Stop when it has transferred DLEN
+>>>> bytes.
+>>>> Refs:
+>>>> http://www.circuitwizard.de/raspi-i2c-fix/raspi-i2c-fix.html
+>>>> http://raspberrypi.stackexchange.com/questions/31728/has-anyone-successfully-used-i2c-repeated-starts-on-the-pi2-my-scope-says-they
+>>>>
+>>>>
+>>>> UNLESS: a Start Transfer (ST) is issued after Transfer Active (TA) is set
+>>>> and before DONE is set (or the last byte is shifted, I don't know excatly).
+>>>> Refs:
+>>>> https://github.com/raspberrypi/linux/issues/254#issuecomment-15254134
+>>>> https://www.raspberrypi.org/forums/viewtopic.php?p=807834&sid=2b612c7209f2175bf1a266359c72ae6c#p807834
+>>>>
+>>>>
+>>>> I found this answer/report by joan that the downstream combined support
+>>>> isn't reliable:
+>>>> http://raspberrypi.stackexchange.com/questions/31728/has-anyone-successfully-used-i2c-repeated-starts-on-the-pi2-my-scope-says-they
+>>>>
+>>>>
+>>>> My implementation differs from downstream in that I use local_irq_save()
+>>>> to protect the polling loop. But that only protects from missing the TA
+>>>> (downstream can miss the TA and issue a Stop).
+>>>>
+>>>> So currently in mainline we have a driver that says it support the standard
+>>>> (I2C_FUNC_I2C), but it really only supports one message transfers since it
+>>>> can't do ReStart.
+>>>>
+>>>> What I have done in this patch is to support ReStart for transfers with
+>>>> 2 messages: first write, then read. But maybe a better solution is to just
+>>>> leave this alone if it is flaky and use bitbanging instead. I don't know.
+>>> I have not said that the approach you have taken is wrong or bad.
+>>>
+>> I didn't take it as such, I'm just not sure what's the best approach here,
+>> so I added and looked up some more information
+>>
+>>> I was only telling you that the portion inside the bcm2835_i2c_xfer:
+>>> +    /* Combined write-read to the same address (smbus) */
+>>> +    if (num == 2 && (msgs[0].addr == msgs[1].addr) &&
+>>> +        !(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD) &&
+>>> +        (msgs[0].len <= 16)) {
+>>> +        ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[0], &msgs[1]);
+>>> +
+>>> +        return ret ? ret : 2;
+>>> +    }
+>>> is very specific and maybe could be done in a "generic" manner
+>>> supporting more cases.
+>>>
+>> It has to be specific when it comes to number of messages. We can only
+>> support ReStart after the first message unless we use polling for the
+>> whole transfer. And in that case we can't disable interrupts for such
+>> a long period and we will end up sometimes loosing Transfer Active,
+>> resulting in Stop Condition between the messages.
+>> So we can only do transfers with 2 messages if we want Restart.
+>>
+>> It is possible to support more than 16 bytes for the first message,
+>> filling the FIFO after polling TA, but I'm not sure that is common.
+>> Mostly it's 1 or 2 bytes to set a register.
+>> The write-read restriction isn't absolutely necessary either, but it's the
+>> most common case I think. So it was about reusing bcm2835_i2c_xfer_msg().
+>> A less restrictive approach would require a dedicated function I think.
+>>
+>>> At least add a dev_warn_once for all num > 1 cases not handled by the
+>>> code above.
+>>>
+>>> This gives people an opportunity to detect such a situation if they
+>>> find something is not working as expected.
+>>>
+>> I agree.
+>>
+>> After reading joan's report I wonder if it would be best to add a module
+>> parameter like downstream has, so it can be disabled. What do you think?
+>>
+> I guess let us start simple:
+> * get warning in place about always issuing a stop for num > 1
+>    - instead we may just want to set max_num_msgs = 1 in quirks.
+> * apply your patch for the write (<=16) then read case.
+>    - maybe by setting quirks I2C_AQ_COMB_WRITE_THEN_READ
+>      plus max_comb_1st_msg_len = 16 and max_num_msgs = 2
+>
+> If this becomes too restrictive for some specific HW, then someone
+> may want to add the missing features.
+>
+> As for the module parameters: no idea if this is acceptable
+> or sensible.
+>
+> But that’s just my 2c...
 
-I'm not at all familiar with I2C or SMBus, and a quick scan of
-Documentation/i2c/smbus-protocol, has left me none-the-wiser on that
-front.
-
-> Note that AFAICT, by design, i2c-smbus module pretends to be an I2C slave
-> with address 0x0C (that is the alarm response address), and IMHO this is
-> quite consistent with usage in the DT as a I2C child node.
-> 
-> Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-smbus.txt | 20 ++++++++++++++++++++
->  drivers/i2c/i2c-smbus.c                             | 20 +++++++++++++++-----
->  2 files changed, 35 insertions(+), 5 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-smbus.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-smbus.txt b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
-> new file mode 100644
-> index 0000000..da83127
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
-> @@ -0,0 +1,20 @@
-> +* i2c-smbus extensions
-> +
-> +Required Properties:
-> +  - compatible: Must contain "smbus_alert"
-
-Nit: s/_/-/ in compatible strings please.
-
-> +  - interrupts: The irq line for smbus ALERT signal
-> +  - reg: I2C slave address. Set to 0x0C (alert response address).
-> +
-> +Note: The i2c-smbus module registers itself as a slave I2C device. Whenever
-> +a smbus controller directly support smbus extensions (and its driver supports
-> +this), there is no need to add anything special to the DT. Otherwise, for using
-> +i2c-smbus with any smbus-extensions-unaware I2C controllers, you need to
-> +route the smbus ALARM signal to an extra IRQ line, thus you need to describe
-> +this in the DT.
-
-Bindings shouldn't mention driver details (e.g. the i2c-smbus module
-behaviour). It feels like we're creating a virtual device for the sake
-of a driver, rather than accurately capturing the hardware.
-
-So as-is, I don't think this is the right way to describe this.
+It suddenly struct me that I had seen the TA bit set when I debugged the
+interrupt function. And it turns out that if I don't prefill the FIFO,
+then I can use the TXW interrupt to know when the transfer is active,
+no need for polling. It looks promising so far, need to run my testcases
+to be sure.
 
 Thanks,
-Mark.
+Noralf.
