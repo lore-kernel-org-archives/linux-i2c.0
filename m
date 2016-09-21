@@ -1,87 +1,45 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c / ACPI: Do not touch an I2C device if it belongs
- to another adapter
-Date: Wed, 21 Sep 2016 07:48:35 +0200
-Message-ID: <20160921054834.GC1484@katana>
-References: <874m5ax3o4.fsf@gmail.com>
- <20160920135925.45450-1-mika.westerberg@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="IpbVkmxF4tDyP/Kb"
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [PATCH 1/5] i2c: octeon,thunderx: Fix set SCL recovery function
+Date: Wed, 21 Sep 2016 08:51:02 +0200
+Message-ID: <cea4dddccc4f24d90c3783159c5236d6124facf0.1474439371.git.jglauber@cavium.com>
+References: <cover.1474439371.git.jglauber@cavium.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43973 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750752AbcIUFsn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 21 Sep 2016 01:48:43 -0400
-Content-Disposition: inline
-In-Reply-To: <20160920135925.45450-1-mika.westerberg@linux.intel.com>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:36226 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751635AbcIUGvl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Sep 2016 02:51:41 -0400
+In-Reply-To: <cover.1474439371.git.jglauber@cavium.com>
+In-Reply-To: <cover.1474439371.git.jglauber@cavium.com>
+References: <cover.1474439371.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Nicolai Stange <nicstange@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Dmitry Bazhenov <dmitry.bazhenov@auriga.com>, Jan Glauber <jglauber@cavium.com>
 
+From: Dmitry Bazhenov <dmitry.bazhenov@auriga.com>
 
---IpbVkmxF4tDyP/Kb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The set SCL recovery function unconditionally pulls the SCL line low.
+Only pull SCL line low according to val parameter.
 
-On Tue, Sep 20, 2016 at 04:59:25PM +0300, Mika Westerberg wrote:
-> When enumerating I2C devices connected to an I2C adapter we scan the whole
-> namespace (as it is possible to have devices anywhere in that namespace,
-> not just below the I2C adapter device) and add each found device to the I=
-2C
-> bus in question.
->=20
-> Now after commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI
-> reconfigure notifications") checking of the adapter handle to the one fou=
-nd
-> in the I2cSerialBus() resource was moved to happen after resources of the
-> I2C device has been parsed. This means that if the I2cSerialBus() resource
-> points to an adapter that does not exists in the system we still parse
-> those resources. This is problematic in particular because
-> acpi_dev_resource_interrupt() tries to configure GSI if the device also h=
-as
-> an Interrupt() resource. Failing to do that results errrors like this to =
-be
-> printed on the console:
->=20
->   [   10.409490] ERROR: Unable to locate IOAPIC for GSI 37
->=20
-> To fix this we pass the I2C adapter to i2c_acpi_get_info() and make sure
-> the handle matches the one in the I2cSerialBus() resource before doing
-> anything else to the device.
->=20
-> Reported-and-tested-by: Nicolai Stange <nicstange@gmail.com>
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Dmitry Bazhenov <dmitry.bazhenov@auriga.com>
+Signed-off-by: Jan Glauber <jglauber@cavium.com>
+[Changed commit message]
+---
+ drivers/i2c/busses/i2c-octeon-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Considering this for for-current. So shall we add:
-
-Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifica=
-tions")
-
-?
-
-
---IpbVkmxF4tDyP/Kb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJX4h8yAAoJEBQN5MwUoCm2lAYP/jWaWJdy6utifYyf+8GC4Gll
-79v/TiE9YfpYsGxhzxKosHCsXM+5QzlWYSOxoux5iQ9CW1tU9mHzfA709oYtq0ci
-KsLJjkzoYosf+m36Flb/aPe7lANfWAusXEOVfhOVXWPR6kaO/HMTahli4aISnER0
-Oo9YGvI7HHuzvO4zZz2hWRnzhFT1RANqg9TIm6Fk5A2zIHkK2yJW+ab63OOQ1F83
-5s/1CYhkuunC5cvu769tBLg3snaTkMKFVh6RkxnhSeZ1l4RK1tsCIKoa2Zr6VDtQ
-HRLfeoxONqDr2DIaFDEXrG0TATKaWIIhQO8VApSL/qIM1hhJG7ZXd/bxp51+W6ZE
-rJrlzEXbQchv+GDDywAvrExqXnmA7hDxZaxsxZh105u5o4fYc3wJNdDa/ynx9JC2
-zgWo92CM5xuDRDRq50uuGV6zyr2WSdg5fhFw8xz24MQT2Wd6UZZc0vjdv7YxCcC2
-FlWQt/OUovHgaXXW6bHFu6cUzPebGyUeMcD4x9ITZdc+7aTN8Y/c5vfZx3xo2od9
-Ryh0+JTcAJEmV7M5qdHQHi79RYpFK3IjlFGxYZdT1ER/8s7stULWfRG9RSROtRFe
-5s8w5QMwpGeAlxJ3RqbygjyQECOORqc6RryCByC7EBHjHaApyWPUrls/KF+PsO9B
-STOHF7vYvUGMN/8rIRzt
-=GHu/
------END PGP SIGNATURE-----
-
---IpbVkmxF4tDyP/Kb--
+diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
+index f45ea5e..f322242 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.c
++++ b/drivers/i2c/busses/i2c-octeon-core.c
+@@ -767,7 +767,7 @@ static void octeon_i2c_set_scl(struct i2c_adapter *adap, int val)
+ {
+ 	struct octeon_i2c *i2c = i2c_get_adapdata(adap);
+ 
+-	octeon_i2c_write_int(i2c, TWSI_INT_SCL_OVR);
++	octeon_i2c_write_int(i2c, val ? 0 : TWSI_INT_SCL_OVR);
+ }
+ 
+ static int octeon_i2c_get_sda(struct i2c_adapter *adap)
+-- 
+1.9.1
