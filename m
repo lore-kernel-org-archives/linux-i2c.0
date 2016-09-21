@@ -1,97 +1,106 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH v2 2/2] i2c: aspeed: added documentation for Aspeed I2C driver
-Date: Tue, 20 Sep 2016 16:03:48 -0700
-Message-ID: <CAFd5g472L=-fFmxWjYf7jWp4PMuNoSMfUJU_G1vr33RjBFjpEg@mail.gmail.com>
-References: <201609100847.j1qUadzy%fengguang.wu@intel.com> <1473472551-11149-1-git-send-email-brendanhiggins@google.com>
- <1473472551-11149-2-git-send-email-brendanhiggins@google.com>
- <20160919213536.GA19274@rob-hp-laptop> <CAFd5g46WR34A1FLNvuRck84EX1F3gbPDnDuBo2j-SVUEJPvXfg@mail.gmail.com>
- <CAFd5g46F1reb-d47YBtxOywPObsLWy+L4KEGuXVJPGvL29O+ng@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 4/4] gpio: pca953x: fix an incorrect lockdep warning
+Date: Wed, 21 Sep 2016 07:45:21 +0200
+Message-ID: <20160921054521.GB1484@katana>
+References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+ <1474041765-17818-5-git-send-email-bgolaszewski@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yb0-f171.google.com ([209.85.213.171]:36471 "EHLO
-        mail-yb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752045AbcITXDt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Sep 2016 19:03:49 -0400
-Received: by mail-yb0-f171.google.com with SMTP id u125so15742183ybg.3
-        for <linux-i2c@vger.kernel.org>; Tue, 20 Sep 2016 16:03:49 -0700 (PDT)
-In-Reply-To: <CAFd5g46F1reb-d47YBtxOywPObsLWy+L4KEGuXVJPGvL29O+ng@mail.gmail.com>
+Received: from sauhun.de ([89.238.76.85]:43963 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751226AbcIUFqF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 21 Sep 2016 01:46:05 -0400
+Content-Disposition: inline
+In-Reply-To: <1474041765-17818-5-git-send-email-bgolaszewski@baylibre.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Joel Stanley <joel@jms.id.au>, Jeremy Kerr <jk@ozlabs.org>
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-To be clear, these bus numbers are defined as part of the hardware
-specification. I am not sure if that was clear before.
 
-On Tue, Sep 20, 2016 at 11:08 AM, Brendan Higgins
-<brendanhiggins@google.com> wrote:
-> (sorry if you get a duplicate, I forgot to send plain text)
->
-> First off, someone pointed out to me that the mapping that I used
-> between addresses and bus numbers is not actually valid for busses
-> 8-14.
->
-> This could be fixed by checking the offset, but I am wondering if that
-> is the right way to do it. It seems like this is not completely
-> trivial so maybe this should be specified in the device tree? If that
-> is the case, should I do this as another reg entry or go back to the
-> way I was doing it before?
->
-> On Mon, Sep 19, 2016 at 4:26 PM, Brendan Higgins
-> <brendanhiggins@google.com> wrote:
->> Addressed in v3.
->>
->> Thanks!
->>
->> On Mon, Sep 19, 2016 at 2:35 PM, Rob Herring <robh@kernel.org> wrote:
->>> On Fri, Sep 09, 2016 at 06:55:51PM -0700, Brendan Higgins wrote:
->>>> Added device tree binding documentation for Aspeed I2C controller and
->>>> busses.
->>>>
->>>> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
->>>> ---
->>>> Changes for v2:
->>>>   - None
->>>> ---
->>>>  .../devicetree/bindings/i2c/i2c-aspeed.txt         | 63 ++++++++++++++++++++++
->>>>  1 file changed, 63 insertions(+)
->>>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->>>>
->>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->>>> new file mode 100644
->>>> index 0000000..df68f2a
->>>> --- /dev/null
->>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->>>> @@ -0,0 +1,63 @@
->>>> +Device tree configuration for the I2C controller and busses on the AST24XX
->>>> +and AST25XX SoCs.
->>>> +
->>>> +Controller:
->>>> +
->>>> +     Required Properties:
->>>> +     - #address-cells        : should be 1
->>>> +     - #size-cells           : should be 1
->>>> +     - #interrupt-cells      : should be 1
->>>> +     - compatible            : should be "aspeed,ast2400-i2c-controller"
->>>> +                               or "aspeed,ast2500-i2c-controller"
->>>> +     - reg                   : address start and range of controller
->>>> +     - ranges                : defines address offset and range for busses
->>>> +     - interrupts            : interrupt number
->>>> +     - clocks                : root clock of bus, should reference the APB
->>>> +                               clock
->>>> +     - clock-ranges          : specifies that child busses can inherit clocks
->>>> +     - interrupt-controller  : denotes that the controller receives and fires
->>>> +                               new interrupts for child busses
->>>> +
->>>> +Bus:
->>>> +
->>>> +     Required Properties:
->>>> +     - #address-cells        : should be 1
->>>> +     - #size-cells           : should be 0
->>>> +     - reg                   : address offset and range of bus
->>>> +     - compatible            : should be "aspeed,ast2400-i2c-bus"
->>>> +                               or "aspeed,ast2500-i2c-bus"
->>>> +     - bus                   : the bus's number
->>>
->>> Don't use indexes. The reg property is enough to id which bus is which.
+--QKdGvSO+nmPlgiQ/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Sep 16, 2016 at 06:02:45PM +0200, Bartosz Golaszewski wrote:
+> If an I2C GPIO multiplexer is driven by a GPIO provided by an expander
+> when there's a second expander using the same device driver on one of
+> the I2C bus segments, lockdep prints a deadlock warning when trying to
+> set the direction or the value of the GPIOs provided by the second
+> expander.
+>=20
+> The below diagram presents the setup:
+>=20
+>                                                - - - - -
+>  -------             ---------  Bus segment 1 |         |
+> |       |           |         |---------------  Devices
+> |       | SCL/SDA   |         |               |         |
+> | Linux |-----------| I2C MUX |                - - - - -
+> |       |    |      |         | Bus segment 2
+> |       |    |      |         |-------------------
+>  -------     |       ---------                    |
+>              |           |                    - - - - -
+>         ------------     | MUX GPIO          |         |
+>        |            |    |                     Devices
+>        |    GPIO    |    |                   |         |
+>        | Expander 1 |----                     - - - - -
+>        |            |                             |
+>         ------------                              | SCL/SDA
+>                                                   |
+>                                              ------------
+>                                             |            |
+>                                             |    GPIO    |
+>                                             | Expander 2 |
+>                                             |            |
+>                                              ------------
+>=20
+> The reason for lockdep warning is that we take the chip->i2c_lock in
+> pca953x_gpio_set_value() or pca953x_gpio_direction_output() and then
+> come right back to pca953x_gpio_set_value() when the GPIO mux kicks
+> in. The locks actually protect different expanders, but for lockdep
+> both are of the same class, so it says:
+>=20
+>   Possible unsafe locking scenario:
+>=20
+>         CPU0
+>         ----
+>    lock(&chip->i2c_lock);
+>    lock(&chip->i2c_lock);
+>=20
+>   *** DEADLOCK ***
+>=20
+>   May be due to missing lock nesting notation
+>=20
+> In order to get rid of the warning, retrieve the adapter nesting depth
+> and use it as lockdep subclass for chip->i2c_lock.
+>=20
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+Linus, we'd like that in 4.9. Can I get your ack for the gpio part?
+
+
+--QKdGvSO+nmPlgiQ/
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJX4h5wAAoJEBQN5MwUoCm2q2IQAK3UXvisqHb4hnf6re5CfGg8
+Sv9QeabfKYPTq0uL2qKzmcZmXdi0ES+vivSZl5y+duYKkZBSxqRX09jrL7+JaXO0
+dhPzEsbaag+7mGR/+yqrzN9rLwyfFCA3jj7DQqdSjxi+3IiGwNUu5blfcyuGJkcr
+foxMl8k9OyygnOxSbQpv2hFed6Hvbb9hspWKOBE98a3r0Zuc2UaGLq0UclhouTsl
+RMgQf041mLt9Sy0inm/Tmei75yF+R89mrCI1YT3V/PoQvqKjB96J//u9qJPBYDq9
+e6fFNy3mhoTTZHn16GA3q+TE/5ownVNKEbYEPX49v4fZ2ZFJu/i1l+os5ML8Fl+Y
+0jZZspNapqne75TporBiBBoljGByvELjPQIOwhyHucEm3ujUt8LeQTH8zpWz89HK
+JZWVF2MuyrFQW+DHkCopSkwRQXOwfhld16JMv6xDZxszpZMMJjp1bxxcY5FCIoki
+gtFlvOa1HXAiLSvgFilUNVBedZdiaETPVnpjqnMp5TKtLsvVAbhXRw28OHi8zNiY
+22tpLrD+gyr6TO5hcD64W9JZE5rIW20+OiGxzkviLqBbU4W403sVy/LJNiGLdkIW
+ODSLrtqIw8kc8nN6+ZXAIGrkHVb3XKvTwKJ5TvH0TXf1nxeH0+PaegxuOUjPNwuN
+UaIw6xtDywYTvwD3JKKP
+=xUs+
+-----END PGP SIGNATURE-----
+
+--QKdGvSO+nmPlgiQ/--
