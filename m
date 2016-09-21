@@ -1,54 +1,83 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [v12, 7/8] base: soc: introduce soc_device_match() interface
-Date: Wed, 21 Sep 2016 10:25:08 +0200
-Message-ID: <aa53da4f-205d-cfa1-c85c-00e82e928bbc@axentia.se>
-References: <1474441040-11946-1-git-send-email-yangbo.lu@nxp.com>
- <1474441040-11946-8-git-send-email-yangbo.lu@nxp.com>
- <1474444574.270880035@f136.i.mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1474444574.270880035@f136.i.mail.ru>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Alexander Shiyan <shc_work@mail.ru>, Yangbo Lu <yangbo.lu@nxp.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, ulf.hansson@linaro.org, Xiaobo Xie <xiaobo.xie@nxp.com>, Minghuan Lian <minghuan.lian@nxp.com>, linux-i2c@vger.kernel.org, linux-clk@vger.kernel.org, Qiang Zhao <qiang.zhao@nxp.com>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Joerg Roedel <joro@8bytes.org>, Jochen Friedrich <jochen@scram.de>, Claudiu Manoil <claudiu.manoil@freescale.com>, devicetree@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Scott Wood <oss@buserror.net>, Rob Herring <robh+dt@kernel.org>, Santosh Shilimkar <ssantosh@kernel.org>, linux-arm-kernel@lists.infradead.org, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, Leo Li <leoyang.li@nxp.com>, iommu@lists.linux-foundation.org, Kumar Gala <galak@codeaurora.org>, linuxppc-dev@lists.ozlabs.org
+From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Subject: [PATCH v5 2/6] i2c: i2c-smbus: Support threaded irq.
+Date: Wed, 21 Sep 2016 16:41:10 +0800
+Message-ID: <1474447274-90821-3-git-send-email-preid@electromag.com.au>
+References: <1474447274-90821-1-git-send-email-preid@electromag.com.au>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1474447274-90821-1-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, andrea.merello-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org, karl-heinz-X5L7DgJ4l23oE99TX8zNy7NAH6kLmebB@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxNi0wOS0yMSAwOTo1NiwgQWxleGFuZGVyIFNoaXlhbiB3cm90ZToKPj4g0KHRgNC10LTQ
-sCwgMjEg0YHQtdC90YLRj9Cx0YDRjyAyMDE2LCA5OjU3ICswMzowMCDQvtGCIFlhbmdibyBMdSA8
-eWFuZ2JvLmx1QG54cC5jb20+Ogo+Pgo+PiBGcm9tOiBBcm5kIEJlcmdtYW5uIDwgYXJuZEBhcm5k
-Yi5kZSA+Cj4+Cj4+IFdlIGtlZXAgcnVubmluZyBpbnRvIGNhc2VzIHdoZXJlIGRldmljZSBkcml2
-ZXJzIHdhbnQgdG8ga25vdyB0aGUgZXhhY3QKPj4gdmVyc2lvbiBvZiB0aGUgYSBTb0MgdGhleSBh
-cmUgY3VycmVudGx5IHJ1bm5pbmcgb24uIEluIHRoZSBwYXN0LCB0aGlzIGhhcwo+PiB1c3VhbGx5
-IGJlZW4gZG9uZSB0aHJvdWdoIGEgdmVuZG9yIHNwZWNpZmljIEFQSSB0aGF0IGNhbiBiZSBjYWxs
-ZWQgYnkgYQo+PiBkcml2ZXIsIG9yIGJ5IGRpcmVjdGx5IGFjY2Vzc2luZyBzb21lIGtpbmQgb2Yg
-dmVyc2lvbiByZWdpc3RlciB0aGF0IGlzCj4+IG5vdCBwYXJ0IG9mIHRoZSBkZXZpY2UgaXRzZWxm
-IGJ1dCB0aGF0IGJlbG9uZ3MgdG8gYSBnbG9iYWwgcmVnaXN0ZXIgYXJlYQo+PiBvZiB0aGUgY2hp
-cC4KPiAuLi4KPj4gK2NvbnN0IHN0cnVjdCBzb2NfZGV2aWNlX2F0dHJpYnV0ZSAqc29jX2Rldmlj
-ZV9tYXRjaCgKPj4gK2NvbnN0IHN0cnVjdCBzb2NfZGV2aWNlX2F0dHJpYnV0ZSAqbWF0Y2hlcykK
-Pj4gK3sKPj4gK2ludCByZXQgPSAwOwo+PiArCj4+ICtpZiAoIW1hdGNoZXMpCj4+ICtyZXR1cm4g
-TlVMTDsKPj4gKwo+PiArd2hpbGUgKCFyZXQpIHsKPj4gK2lmICghKG1hdGNoZXMtPm1hY2hpbmUg
-fHwgbWF0Y2hlcy0+ZmFtaWx5IHx8Cj4+ICsgICAgICBtYXRjaGVzLT5yZXZpc2lvbiB8fCBtYXRj
-aGVzLT5zb2NfaWQpKQo+PiArYnJlYWs7Cj4+ICtyZXQgPSBidXNfZm9yX2VhY2hfZGV2KCZzb2Nf
-YnVzX3R5cGUsIE5VTEwsICh2b2lkICopbWF0Y2hlcywKPj4gKyAgICAgICBzb2NfZGV2aWNlX21h
-dGNoX29uZSk7Cj4+ICtpZiAoIXJldCkKPj4gK21hdGNoZXMrKzsKPiAKPiBTbywgd2hhdCBoYXBw
-ZW4gaWYgbmV4dCAibWF0Y2hlcyIgKGFmdGVyIGluY3JlbWVudCkgd2lsbCBiZSBOVUxMPwoKQSBj
-cmFzaD8KCj4gSSB0aGluayB5b3Ugc2hvdWxkIHVzZSB3aGlsZShtYXRjaGVzKSBhdCB0aGUgc3Rh
-cnQgb2YgdGhpcyBwcm9jZWR1cmUuCgoqYXJyZ2gqCgoqSWYqIG1hdGNoZXMgd3JhcCwgeW91IGlu
-ZGVlZCBoYXZlICpiaWcqIHByb2JsZW1zLiAqRWxzZXdoZXJlKgoKSGludDogUGxlYXNlIHJlYWQg
-dGhlIHJldmlldyBjb21tZW50cyBvbiB0aGUgcHJldmlvdXMgdmVyc2lvbiBvZiB0aGlzCnNlcmll
-cyBbMV0gYmVmb3JlIGNvbW1lbnRpbmcgZnVydGhlci4KCkNoZWVycywKUGV0ZXIKClsxXSBodHRw
-czovL3d3dy5tYWlsLWFyY2hpdmUuY29tL25ldGRldkB2Z2VyLmtlcm5lbC5vcmcvbXNnMTI2NjE3
-Lmh0bWwKCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-bGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZy
-YWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGlu
-dXgtYXJtLWtlcm5lbAo=
+handle_nested_irq calls the threaded irq handler. So if the smbus_alert
+irq is being generated via this an null address is derefenced. Split
+IRQ up into separate functions to allow thread / non thread irq to work
+correctly.
+
+Signed-off-by: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+---
+ drivers/i2c/i2c-smbus.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index 5806db3..b641cc2 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -73,13 +73,12 @@ static int smbus_do_alert(struct device *dev, void *addrp)
+  * The alert IRQ handler needs to hand work off to a task which can issue
+  * SMBus calls, because those sleeping calls can't be made in IRQ context.
+  */
+-static void smbus_alert(struct work_struct *work)
++static irqreturn_t smbus_alert(int irq, void *d)
+ {
+-	struct i2c_smbus_alert *alert;
++	struct i2c_smbus_alert *alert = d;
+ 	struct i2c_client *ara;
+ 	unsigned short prev_addr = 0;	/* Not a valid address */
+ 
+-	alert = container_of(work, struct i2c_smbus_alert, alert);
+ 	ara = alert->ara;
+ 
+ 	for (;;) {
+@@ -116,6 +115,17 @@ static void smbus_alert(struct work_struct *work)
+ 		prev_addr = data.addr;
+ 	}
+ 
++	return IRQ_HANDLED;
++}
++
++static void smbalert_work(struct work_struct *work)
++{
++	struct i2c_smbus_alert *alert;
++
++	alert = container_of(work, struct i2c_smbus_alert, alert);
++
++	smbus_alert(alert->irq, alert);
++
+ 	/* We handled all alerts; re-enable level-triggered IRQs */
+ 	if (!alert->alert_edge_triggered)
+ 		enable_irq(alert->irq);
+@@ -158,12 +168,13 @@ static int smbalert_probe(struct i2c_client *ara,
+ 		alert->alert_edge_triggered = (irq_type & IRQ_TYPE_EDGE_BOTH);
+ 	}
+ 
+-	INIT_WORK(&alert->alert, smbus_alert);
++	INIT_WORK(&alert->alert, smbalert_work);
+ 	alert->ara = ara;
+ 
+ 	if (alert->irq > 0) {
+-		res = devm_request_irq(&ara->dev, alert->irq, smbalert_irq,
+-				       0, "smbus_alert", alert);
++		res = devm_request_threaded_irq(&ara->dev, alert->irq,
++						smbalert_irq, smbus_alert,
++						0, "smbus_alert", alert);
+ 		if (res)
+ 			return res;
+ 	}
+-- 
+1.8.3.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
