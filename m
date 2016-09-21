@@ -1,105 +1,79 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH 5/5] i2c: octeon,thunderx: Limit register access retries
-Date: Wed, 21 Sep 2016 08:51:06 +0200
-Message-ID: <a52c3157fd27c939185163d2df23e39174cabc60.1474439371.git.jglauber@cavium.com>
-References: <cover.1474439371.git.jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34321 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752733AbcIUGvm (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Sep 2016 02:51:42 -0400
-In-Reply-To: <cover.1474439371.git.jglauber@cavium.com>
-In-Reply-To: <cover.1474439371.git.jglauber@cavium.com>
-References: <cover.1474439371.git.jglauber@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: [v12, 0/8] Fix eSDHC host version register bug
+Date: Wed, 21 Sep 2016 14:57:12 +0800
+Message-ID: <1474441040-11946-1-git-send-email-yangbo.lu@nxp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, Minghuan Lian <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Jan Glauber <jglauber@cavium.com>
 
-Do not infinitely retry register readq and writeq operations
-in order to not lock up the CPU in case the TWSI gets stuck.
+This patchset is used to fix a host version register bug in the T4240-R1.0-R2.0
+eSDHC controller. To match the SoC version and revision, 10 previous version
+patchsets had tried many methods but all of them were rejected by reviewers.
+Such as
+	- dts compatible method
+	- syscon method
+	- ifdef PPC method
+	- GUTS driver getting SVR method
+Anrd suggested a soc_device_match method in v10, and this is the only available
+method left now. This v11 patchset introduces the soc_device_match interface in
+soc driver.
 
-Return -EIO in case of a failed data read. For all other
-cases just return so subsequent operations will fail
-and trigger the recovery.
+The first six patches of Yangbo are to add the GUTS driver. This is used to
+register a soc device which contain soc version and revision information.
+The other two patches introduce the soc_device_match method in soc driver
+and apply it on esdhc driver to fix this bug.
 
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
----
- drivers/i2c/busses/i2c-octeon-core.c |  4 +++-
- drivers/i2c/busses/i2c-octeon-core.h | 21 ++++++++++++++++-----
- 2 files changed, 19 insertions(+), 6 deletions(-)
+Arnd Bergmann (1):
+  base: soc: introduce soc_device_match() interface
 
-diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
-index b21aa3e..6ba0146 100644
---- a/drivers/i2c/busses/i2c-octeon-core.c
-+++ b/drivers/i2c/busses/i2c-octeon-core.c
-@@ -381,7 +381,9 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
- 		if (result)
- 			return result;
- 
--		data[i] = octeon_i2c_data_read(i2c);
-+		data[i] = octeon_i2c_data_read(i2c, &result);
-+		if (result)
-+			return result;
- 		if (recv_len && i == 0) {
- 			if (data[i] > I2C_SMBUS_BLOCK_MAX + 1)
- 				return -EPROTO;
-diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
-index 87151ea..177d4cc 100644
---- a/drivers/i2c/busses/i2c-octeon-core.h
-+++ b/drivers/i2c/busses/i2c-octeon-core.h
-@@ -141,11 +141,14 @@ static inline void octeon_i2c_writeq_flush(u64 val, void __iomem *addr)
-  */
- static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8 data)
- {
-+	int tries = 100;
- 	u64 tmp;
- 
- 	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI(i2c));
- 	do {
- 		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
-+		if (--tries < 0)
-+			return;
- 	} while ((tmp & SW_TWSI_V) != 0);
- }
- 
-@@ -163,24 +166,32 @@ static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8
-  *
-  * The I2C core registers are accessed indirectly via the SW_TWSI CSR.
-  */
--static inline u8 octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg)
-+static inline int octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg,
-+				      int *error)
- {
-+	int tries = 100;
- 	u64 tmp;
- 
- 	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI(i2c));
- 	do {
- 		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
-+		if (--tries < 0) {
-+			/* signal that the returned data is invalid */
-+			if (error)
-+				*error = -EIO;
-+			return 0;
-+		}
- 	} while ((tmp & SW_TWSI_V) != 0);
- 
- 	return tmp & 0xFF;
- }
- 
- #define octeon_i2c_ctl_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_CTL)
--#define octeon_i2c_data_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_DATA)
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_CTL, NULL)
-+#define octeon_i2c_data_read(i2c, error)				\
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_DATA, error)
- #define octeon_i2c_stat_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_STAT)
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_STAT, NULL)
- 
- /**
-  * octeon_i2c_read_int - read the TWSI_INT register
+Yangbo Lu (7):
+  dt: bindings: update Freescale DCFG compatible
+  ARM64: dts: ls2080a: add device configuration node
+  dt: bindings: move guts devicetree doc out of powerpc directory
+  powerpc/fsl: move mpc85xx.h to include/linux/fsl
+  soc: fsl: add GUTS driver for QorIQ platforms
+  MAINTAINERS: add entry for Freescale SoC drivers
+  mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
+
+ Documentation/devicetree/bindings/arm/fsl.txt      |   6 +-
+ .../bindings/{powerpc => soc}/fsl/guts.txt         |   3 +
+ MAINTAINERS                                        |  11 +-
+ arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi     |   6 +
+ arch/powerpc/kernel/cpu_setup_fsl_booke.S          |   2 +-
+ arch/powerpc/sysdev/fsl_pci.c                      |   2 +-
+ drivers/base/Kconfig                               |   1 +
+ drivers/base/soc.c                                 |  66 ++++++
+ drivers/clk/clk-qoriq.c                            |   3 +-
+ drivers/i2c/busses/i2c-mpc.c                       |   2 +-
+ drivers/iommu/fsl_pamu.c                           |   3 +-
+ drivers/mmc/host/Kconfig                           |   1 +
+ drivers/mmc/host/sdhci-of-esdhc.c                  |  20 ++
+ drivers/net/ethernet/freescale/gianfar.c           |   2 +-
+ drivers/soc/Kconfig                                |   2 +-
+ drivers/soc/fsl/Kconfig                            |  19 ++
+ drivers/soc/fsl/Makefile                           |   1 +
+ drivers/soc/fsl/guts.c                             | 257 +++++++++++++++++++++
+ include/linux/fsl/guts.h                           | 125 ++++++----
+ .../asm/mpc85xx.h => include/linux/fsl/svr.h       |   4 +-
+ include/linux/sys_soc.h                            |   3 +
+ 21 files changed, 478 insertions(+), 61 deletions(-)
+ rename Documentation/devicetree/bindings/{powerpc => soc}/fsl/guts.txt (91%)
+ create mode 100644 drivers/soc/fsl/Kconfig
+ create mode 100644 drivers/soc/fsl/guts.c
+ rename arch/powerpc/include/asm/mpc85xx.h => include/linux/fsl/svr.h (97%)
+
 -- 
-1.9.1
+2.1.0.27.g96db324
