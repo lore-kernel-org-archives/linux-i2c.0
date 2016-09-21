@@ -1,57 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/5] i2c: octeon,thunderx: Fix high-level controller
- status check
-Date: Wed, 21 Sep 2016 23:01:24 +0200
-Message-ID: <20160921210124.GF1513@katana>
+Subject: Re: [PATCH 5/5] i2c: octeon,thunderx: Limit register access retries
+Date: Wed, 21 Sep 2016 23:03:35 +0200
+Message-ID: <20160921210335.GG1513@katana>
 References: <cover.1474439371.git.jglauber@cavium.com>
- <3d2e2e4e91e2245318a278b19f22e9b1af3204d1.1474439371.git.jglauber@cavium.com>
+ <a52c3157fd27c939185163d2df23e39174cabc60.1474439371.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="+jhVVhN62yS6hEJ8"
+        protocol="application/pgp-signature"; boundary="+sHJum3is6Tsg7/J"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <3d2e2e4e91e2245318a278b19f22e9b1af3204d1.1474439371.git.jglauber@cavium.com>
+In-Reply-To: <a52c3157fd27c939185163d2df23e39174cabc60.1474439371.git.jglauber@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jan Glauber <jglauber@cavium.com>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---+jhVVhN62yS6hEJ8
+--+sHJum3is6Tsg7/J
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 21, 2016 at 08:51:04AM +0200, Jan Glauber wrote:
-> In case the high-level controller (HLC) is used the status code is
-> reported at a different location. Check that location after HLC
-> write operations if the ready bit is not set and return an appropriate
-> error code instead of always returning -EAGAIN.
+On Wed, Sep 21, 2016 at 08:51:06AM +0200, Jan Glauber wrote:
+> Do not infinitely retry register readq and writeq operations
+> in order to not lock up the CPU in case the TWSI gets stuck.
+>=20
+> Return -EIO in case of a failed data read. For all other
+> cases just return so subsequent operations will fail
+> and trigger the recovery.
 >=20
 > Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
-Applied to for-next, thanks!
+I didn't really check, but have you considered using
+readq_poll_timeout() from iopoll.h?
 
 
---+jhVVhN62yS6hEJ8
+--+sHJum3is6Tsg7/J
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX4vUkAAoJEBQN5MwUoCm2sqcQAKn7QUiMy4FbciCm7E9YL0Wu
-gYQStrkJarHUU3QdmHyx3Q8l7NWysImbXZzhJbIgxHm4Vt9uJO2Fm6NuIo/zTtt1
-/kBy669VfCBHmShkLnIZeVW8gXXGnnGiUNs4e8s58nhHssX7BT5Dc3YNOTAu6yXw
-OK7v+iG/ZaoXBvaFAkrM1iZ3l2hC69wl7i7lnxsAmblUd2WsMtQtLIF5DbleivrI
-O8yvRiCuZ3FrUKNh+KLFGlsGK7L83oGdXiD7y6TOwV0NDMd6CC3p9q9n/HFH8Xze
-C7DtkfhggwTpZy0SdeojvAxm8liqV0r0PLCAeEI1N8Q4FRDLEdF4Ni0zewtCtAUg
-AuOckwY2wAoV9M5MtrKgdlw5IEDypPysP96ApdNmWUrwRTrZ9WBJkG1MwTbIcWu9
-YFe2lEj0weGd0/xexC/u6d6NH1v7Mw1p8vHVZpNcXe7qNa7SS0doVqFexqBtWdG6
-CCtuvwWgjXd9j2eNUuLBExkWmzXPtRTdAFCtP4lbtSWS/6jBm8uJJ4Ensw33gyb+
-TSHeY8yWWnQLOw5bPaSj2T91SXAAwrysLXxXU8Ywgdkys/SEP765L7S/f/AHU+C0
-5QwvHn063+Br6uGk2uU70oh5lL1JxFzvze02wcEEB3pgytqiW/fS0bE5U5Zg1P2o
-W8ie8t4OmpVFCtSNWdiv
-=a0Td
+iQIcBAEBAgAGBQJX4vWnAAoJEBQN5MwUoCm2sA0P/iAS29xtjlehE+t+9mCOQFO5
+ujYBBIKfY52j59dLcztElaEfBcUInuUs3QXp4FQ9Xm/vu2lE/tVYW7vD/tWs+dnx
+ZO/3dPg3jQ4Bfok++njXfW+OlhGsoy/vlJaW4jry/ZBs++4dOhWQcIEObzbHrb2i
+bDpjcO5CWQx42iZUssKPGPmmcz3wI1zeDFSmvKj+48hBYkINp2QfsO2Zk7j8NLJm
+af0l/rcn6ucizGnCEvBZSkUKFEJH8XfW1sr6rDpIy+iakqKt1sFTxyublAGXpWWI
+nafVhEwD7JE+pjY4SD3ioEW6ZheLLDwWwEFf4gNa9BReq5+IxGgZEralcD3Ej000
+zdZ2/PZvEp3/g5s5uPeehKkaaGICG+UCsvdkwobb2OVc3xfvWUBtWBAyatskvgEr
+RVWNoNg1KMVnyWguyP9NbmtCWGph3vW7uNuCZy1HWhifLwa8dLKwtq9alMVjBxTJ
++rC7QrERR9AwEefZ7t8hVA6aR0enE1txRb5CGMlhHXQfB+kCYFqHtZ0xPouH16a3
+WdT8/ns+h5FyZRTAV4+N8AZYpDuhmadmZoRKrwbWx8MDmA2aCNn8/EgMvl04mZvf
+ap5ArJ5s9bQvPQqqPEbTN5LIf/RCsrZp0T/Z5LvBzGDRpJaJc91V+stMU2x6Mcft
+K9TvzcwI1iiqvrkPH9ys
+=J/KM
 -----END PGP SIGNATURE-----
 
---+jhVVhN62yS6hEJ8--
+--+sHJum3is6Tsg7/J--
