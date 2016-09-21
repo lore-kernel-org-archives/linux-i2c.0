@@ -1,106 +1,87 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 4/4] gpio: pca953x: fix an incorrect lockdep warning
-Date: Wed, 21 Sep 2016 07:45:21 +0200
-Message-ID: <20160921054521.GB1484@katana>
-References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
- <1474041765-17818-5-git-send-email-bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v2] i2c / ACPI: Do not touch an I2C device if it belongs
+ to another adapter
+Date: Wed, 21 Sep 2016 07:48:35 +0200
+Message-ID: <20160921054834.GC1484@katana>
+References: <874m5ax3o4.fsf@gmail.com>
+ <20160920135925.45450-1-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
+        protocol="application/pgp-signature"; boundary="IpbVkmxF4tDyP/Kb"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43963 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:43973 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751226AbcIUFqF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 21 Sep 2016 01:46:05 -0400
+        id S1750752AbcIUFsn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 21 Sep 2016 01:48:43 -0400
 Content-Disposition: inline
-In-Reply-To: <1474041765-17818-5-git-send-email-bgolaszewski@baylibre.com>
+In-Reply-To: <20160920135925.45450-1-mika.westerberg@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Nicolai Stange <nicstange@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---QKdGvSO+nmPlgiQ/
+--IpbVkmxF4tDyP/Kb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 16, 2016 at 06:02:45PM +0200, Bartosz Golaszewski wrote:
-> If an I2C GPIO multiplexer is driven by a GPIO provided by an expander
-> when there's a second expander using the same device driver on one of
-> the I2C bus segments, lockdep prints a deadlock warning when trying to
-> set the direction or the value of the GPIOs provided by the second
-> expander.
+On Tue, Sep 20, 2016 at 04:59:25PM +0300, Mika Westerberg wrote:
+> When enumerating I2C devices connected to an I2C adapter we scan the whole
+> namespace (as it is possible to have devices anywhere in that namespace,
+> not just below the I2C adapter device) and add each found device to the I=
+2C
+> bus in question.
 >=20
-> The below diagram presents the setup:
+> Now after commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI
+> reconfigure notifications") checking of the adapter handle to the one fou=
+nd
+> in the I2cSerialBus() resource was moved to happen after resources of the
+> I2C device has been parsed. This means that if the I2cSerialBus() resource
+> points to an adapter that does not exists in the system we still parse
+> those resources. This is problematic in particular because
+> acpi_dev_resource_interrupt() tries to configure GSI if the device also h=
+as
+> an Interrupt() resource. Failing to do that results errrors like this to =
+be
+> printed on the console:
 >=20
->                                                - - - - -
->  -------             ---------  Bus segment 1 |         |
-> |       |           |         |---------------  Devices
-> |       | SCL/SDA   |         |               |         |
-> | Linux |-----------| I2C MUX |                - - - - -
-> |       |    |      |         | Bus segment 2
-> |       |    |      |         |-------------------
->  -------     |       ---------                    |
->              |           |                    - - - - -
->         ------------     | MUX GPIO          |         |
->        |            |    |                     Devices
->        |    GPIO    |    |                   |         |
->        | Expander 1 |----                     - - - - -
->        |            |                             |
->         ------------                              | SCL/SDA
->                                                   |
->                                              ------------
->                                             |            |
->                                             |    GPIO    |
->                                             | Expander 2 |
->                                             |            |
->                                              ------------
+>   [   10.409490] ERROR: Unable to locate IOAPIC for GSI 37
 >=20
-> The reason for lockdep warning is that we take the chip->i2c_lock in
-> pca953x_gpio_set_value() or pca953x_gpio_direction_output() and then
-> come right back to pca953x_gpio_set_value() when the GPIO mux kicks
-> in. The locks actually protect different expanders, but for lockdep
-> both are of the same class, so it says:
+> To fix this we pass the I2C adapter to i2c_acpi_get_info() and make sure
+> the handle matches the one in the I2cSerialBus() resource before doing
+> anything else to the device.
 >=20
->   Possible unsafe locking scenario:
->=20
->         CPU0
->         ----
->    lock(&chip->i2c_lock);
->    lock(&chip->i2c_lock);
->=20
->   *** DEADLOCK ***
->=20
->   May be due to missing lock nesting notation
->=20
-> In order to get rid of the warning, retrieve the adapter nesting depth
-> and use it as lockdep subclass for chip->i2c_lock.
->=20
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> Reported-and-tested-by: Nicolai Stange <nicstange@gmail.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Linus, we'd like that in 4.9. Can I get your ack for the gpio part?
+Considering this for for-current. So shall we add:
+
+Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifica=
+tions")
+
+?
 
 
---QKdGvSO+nmPlgiQ/
+--IpbVkmxF4tDyP/Kb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX4h5wAAoJEBQN5MwUoCm2q2IQAK3UXvisqHb4hnf6re5CfGg8
-Sv9QeabfKYPTq0uL2qKzmcZmXdi0ES+vivSZl5y+duYKkZBSxqRX09jrL7+JaXO0
-dhPzEsbaag+7mGR/+yqrzN9rLwyfFCA3jj7DQqdSjxi+3IiGwNUu5blfcyuGJkcr
-foxMl8k9OyygnOxSbQpv2hFed6Hvbb9hspWKOBE98a3r0Zuc2UaGLq0UclhouTsl
-RMgQf041mLt9Sy0inm/Tmei75yF+R89mrCI1YT3V/PoQvqKjB96J//u9qJPBYDq9
-e6fFNy3mhoTTZHn16GA3q+TE/5ownVNKEbYEPX49v4fZ2ZFJu/i1l+os5ML8Fl+Y
-0jZZspNapqne75TporBiBBoljGByvELjPQIOwhyHucEm3ujUt8LeQTH8zpWz89HK
-JZWVF2MuyrFQW+DHkCopSkwRQXOwfhld16JMv6xDZxszpZMMJjp1bxxcY5FCIoki
-gtFlvOa1HXAiLSvgFilUNVBedZdiaETPVnpjqnMp5TKtLsvVAbhXRw28OHi8zNiY
-22tpLrD+gyr6TO5hcD64W9JZE5rIW20+OiGxzkviLqBbU4W403sVy/LJNiGLdkIW
-ODSLrtqIw8kc8nN6+ZXAIGrkHVb3XKvTwKJ5TvH0TXf1nxeH0+PaegxuOUjPNwuN
-UaIw6xtDywYTvwD3JKKP
-=xUs+
+iQIcBAEBAgAGBQJX4h8yAAoJEBQN5MwUoCm2lAYP/jWaWJdy6utifYyf+8GC4Gll
+79v/TiE9YfpYsGxhzxKosHCsXM+5QzlWYSOxoux5iQ9CW1tU9mHzfA709oYtq0ci
+KsLJjkzoYosf+m36Flb/aPe7lANfWAusXEOVfhOVXWPR6kaO/HMTahli4aISnER0
+Oo9YGvI7HHuzvO4zZz2hWRnzhFT1RANqg9TIm6Fk5A2zIHkK2yJW+ab63OOQ1F83
+5s/1CYhkuunC5cvu769tBLg3snaTkMKFVh6RkxnhSeZ1l4RK1tsCIKoa2Zr6VDtQ
+HRLfeoxONqDr2DIaFDEXrG0TATKaWIIhQO8VApSL/qIM1hhJG7ZXd/bxp51+W6ZE
+rJrlzEXbQchv+GDDywAvrExqXnmA7hDxZaxsxZh105u5o4fYc3wJNdDa/ynx9JC2
+zgWo92CM5xuDRDRq50uuGV6zyr2WSdg5fhFw8xz24MQT2Wd6UZZc0vjdv7YxCcC2
+FlWQt/OUovHgaXXW6bHFu6cUzPebGyUeMcD4x9ITZdc+7aTN8Y/c5vfZx3xo2od9
+Ryh0+JTcAJEmV7M5qdHQHi79RYpFK3IjlFGxYZdT1ER/8s7stULWfRG9RSROtRFe
+5s8w5QMwpGeAlxJ3RqbygjyQECOORqc6RryCByC7EBHjHaApyWPUrls/KF+PsO9B
+STOHF7vYvUGMN/8rIRzt
+=GHu/
 -----END PGP SIGNATURE-----
 
---QKdGvSO+nmPlgiQ/--
+--IpbVkmxF4tDyP/Kb--
