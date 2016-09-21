@@ -1,59 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 4/5] i2c: octeon,thunderx: Check bus state before
- starting a transaction
-Date: Wed, 21 Sep 2016 22:55:41 +0200
-Message-ID: <20160921205540.GC1513@katana>
+Subject: Re: [PATCH 1/5] i2c: octeon,thunderx: Fix set SCL recovery function
+Date: Wed, 21 Sep 2016 23:00:18 +0200
+Message-ID: <20160921210018.GD1513@katana>
 References: <cover.1474439371.git.jglauber@cavium.com>
- <21b1db0af4c62a53dc2fcec1e0b1f7b412e6f1be.1474439371.git.jglauber@cavium.com>
+ <cea4dddccc4f24d90c3783159c5236d6124facf0.1474439371.git.jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="s9fJI615cBHmzTOP"
+        protocol="application/pgp-signature"; boundary="MAH+hnPXVZWQ5cD/"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46638 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:46652 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933582AbcIUUzs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 21 Sep 2016 16:55:48 -0400
+        id S933582AbcIUVAZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 21 Sep 2016 17:00:25 -0400
 Content-Disposition: inline
-In-Reply-To: <21b1db0af4c62a53dc2fcec1e0b1f7b412e6f1be.1474439371.git.jglauber@cavium.com>
+In-Reply-To: <cea4dddccc4f24d90c3783159c5236d6124facf0.1474439371.git.jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jan Glauber <jglauber@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Dmitry Bazhenov <dmitry.bazhenov@auriga.com>
 
 
---s9fJI615cBHmzTOP
+--MAH+hnPXVZWQ5cD/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 21, 2016 at 08:51:05AM +0200, Jan Glauber wrote:
-> Add an additional status check before starting a transaction and,
-> if required, trigger the recovery if the check fails.
+On Wed, Sep 21, 2016 at 08:51:02AM +0200, Jan Glauber wrote:
+> From: Dmitry Bazhenov <dmitry.bazhenov@auriga.com>
 >=20
+> The set SCL recovery function unconditionally pulls the SCL line low.
+> Only pull SCL line low according to val parameter.
+>=20
+> Signed-off-by: Dmitry Bazhenov <dmitry.bazhenov@auriga.com>
 > Signed-off-by: Jan Glauber <jglauber@cavium.com>
+> [Changed commit message]
 
-Won't this break multi-master setups?
+Applied to for-next, thanks!
+
+Minor nit: please only use "octeon:" if you change octeon-core.
 
 
---s9fJI615cBHmzTOP
+--MAH+hnPXVZWQ5cD/
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX4vPMAAoJEBQN5MwUoCm25sQQAJkG+Dt2WEIAdsutFrakby7q
-nTN1bdeJ3j+mfR6fdLkVvfeZFs2YbC796lz7EDiHZErAavysmq8BBsxV3/tjd62h
-zvvv3DaP7TH2drowYzUAvVBuVrv1/nYkQfz3aYtJ1ee3XE0+b6BYi8vzDHWF2E1i
-eUrVq9165TQUtOn3ysZe6aizmF0BRYNQ8npn4bRPXrB+in2WiANrYNDPiBdk5oxi
-7voI0V8yTf7t1FwgJ4i3FvMyYoBiSXdZ9TkCxfVv6UfQwhtcq7aMn88f3fb0huoB
-BHzVyoqPhBY71b3yGy8qoOgp9dqjS8Y2PtkL6KiEqihP/q6lvzV8ch4RuTleh2X7
-otAbH6WjGpNzBaAF+bSqCmRPkqYZ7qihBSvFPtAKHNPDFi2qM9Zs2oGne8OxZqjK
-b6ZmGVUOIpNAl853JhZb2ILxGLmkxAWOgVPZhBvBRwUHhOrxD/91p1+yIr2s5ah/
-tJUNl7Ir94/judYCvoYUNN0/AZnnJLbND2i42E3riryvK9X/9rtIOBWo7pxVo2Ze
-nob6y8DFvK1hAr8IYGZlcAivZ88LwpancmC2zyegRYVcEQeoYT6sJ9W6ndQ8oF6k
-oIcAVnnwjOA4qSe1VbEhWAV6fZaQJWs5WoDbfLXzCalvHIdrogsUpSs7hNksga1L
-LY6vTshuNeqVg6Ex+RKl
-=fVIu
+iQIcBAEBAgAGBQJX4vTiAAoJEBQN5MwUoCm2tHAP/j9ByQavP2XPY8VkUdtVEds2
+EVu4twhDu7U6ILbIJKzkSBSTEpt3HJhW5qI6FL/YmtS765VTrr3J3C6qf8MRDUsa
+Q2Yl+8ZVCjZx/77H+EPrTRgOlkJbeJqjZPa/S9fRlDUmulI+YYlPlGoYBPdbm+0i
+vad5+Ma8adStJDah3kIuU6TSUDMDy/tUqj8I2ko9JcnFs2Ro/5q0yczFZ115ihny
++1T12yTLbZ+t3NDVKFLnEsaH7DA3qymYkw5QXlNEnXZtgkVowy55Dz5Z6Nk+IY5E
+Sk4rSWOebgGj5eRl1hemZh5qkuMbMcVpmZArKp4lAtab1W9zIwSN5WJwcqWbKJHQ
+3TCad14O59Y2jmSMLoZIUlIjRl/JzwovIB0c1m2ijmX3cjQ50qKe4UyZqJmaBIpi
+vTk9wdfE0RGHnNF+DSfk4DxeKPtVFIQxpFOjJwg6wfipIz0iDfOcyP/GqW7B2y1e
+6C9hodk7cEeXv8ZST+fQcLdoj8dmvrUPktFuq27BYFBKqY80vhL6PgLNY8knGJFK
+0dGwKXf+f6pPlDNdypKuupzRRgEhU/UF6e/u5NhTuRepr2iQ2FuHoAtLYSoa3LGk
+ZfnyAkO4PWzq/015Qg+fMTlBhwb+yaCq/DqdlpJndg6/An5WVkg6AY17c1gWvyVc
+DKCFmv+vkZyw6sjkVyh+
+=7bzY
 -----END PGP SIGNATURE-----
 
---s9fJI615cBHmzTOP--
+--MAH+hnPXVZWQ5cD/--
