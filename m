@@ -1,53 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: i2c: xlp9xx: ACPI support for I2C clients
-Date: Wed, 21 Sep 2016 23:17:25 +0200
-Message-ID: <20160921211725.GI1513@katana>
-References: <1473967659-9000-1-git-send-email-tanmay.jagdale@broadcom.com>
+From: Yadi <yadi.hu@windriver.com>
+Subject: Re: [PATCH] i2c-eg20t: fix race between i2c init and interrupt enable
+Date: Thu, 22 Sep 2016 09:04:06 +0800
+Message-ID: <57E32E06.8080803@windriver.com>
+References: <1474195951-7238-1-git-send-email-yadi.hu@windriver.com>
+ <1474195951-7238-2-git-send-email-yadi.hu@windriver.com>
+ <20160921161608.GB1432@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="rCb8EA+9TsBVtA92"
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46807 "EHLO pokefinder.org"
+Received: from mail5.windriver.com ([192.103.53.11]:33532 "EHLO mail5.wrs.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932959AbcIUVR3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 21 Sep 2016 17:17:29 -0400
-Content-Disposition: inline
-In-Reply-To: <1473967659-9000-1-git-send-email-tanmay.jagdale@broadcom.com>
+        id S1751562AbcIVBEx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 21 Sep 2016 21:04:53 -0400
+In-Reply-To: <20160921161608.GB1432@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
-Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: jdelvare@suse.de, linux-i2c@vger.kernel.org
+
+On 2016年09月22日 00:16, Wolfram Sang wrote:
+> On Sun, Sep 18, 2016 at 06:52:31PM +0800, Yadi Hu wrote:
+>> From: "Yadi.hu" <yadi.hu@windriver.com>
+>>
+>> the eg20t driver call request_irq() function before the pch_base_address,
+>> base address of i2c controller's register, is assigned an effective value.
+>>
+>> there is one possible scenario that an interrupt which isn't inside eg20t
+>> arrives immediately after request_irq() is executed when i2c controller
+>> shares an interrupt number with others. since the interrupt handler
+>> pch_i2c_handler() has already active as shared action, it will be called
+>> and read its own register to determine if this interrupt is from itself.
+>>
+>> At that moment, since base address of i2c registers is not remapped
+>> in kernel space yet,so the INT handler will access an illegal address
+>> and then a error occurs.
+>>
+>> Signed-off-by: Yadi.hu <yadi.hu@windriver.com>
+> Applied to for-next, thanks!
+>
+> Please make sure "V3" also appears in the patch subject since patch
+> management tools pick this up. "-v <nr>" in recent git versions makes
+> this super easy.
+
+Got it, I will resend the patch with V3 tag.
 
 
---rCb8EA+9TsBVtA92
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> +	ACPI_COMPANION_SET(&(priv->adapter.dev), ACPI_COMPANION(&pdev->dev));
-
-No need for parenthesis in the first argument.
-
-
---rCb8EA+9TsBVtA92
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJX4vjlAAoJEBQN5MwUoCm2YP8QALLcuvM2KnHNchZQMCs6QfJJ
-4aSkDJY/IIxTg0ttcRjDP9oqJcpn80SLUFbcNIIa7T3jE6EvcA0QyPOGCbcsuCPY
-DPQryFA7GAaV24HrTYKL/3wDyJnZHGEEz8uYs4m7KlUhYK+qab+ZOzSPK+ZWHlh9
-KQIIwt/9jp25ffap45U7heB2GYBdTxHlGbaHumkdbuSltDQ7QAF7GwDwyOgZS5FE
-Tw7Ipc0EeL0I9m8Z9SUMS4qX+i2xqG89WSl8Je9g4i/VMRi3UUTeGs9xVmLRalKj
-asE0+O04vdADT4mkFT8Io2m70C4Jv0jTDBmSknIIps2P07V5z8ZsvMiEpIjd9hgQ
-STfD/9Yxai76Mx3HqACYwxTR8q9cB6qctxcZTFFVoG92xl60a5lg3GvC63qIBVyM
-l7Tlgn0acxx9h2ML4KRkob0Hg5CfneY6O4C5TZrLc4ra5cEpaKh6bYU1ecW9iWXT
-Cqq3hJTSyMCapfNc7wz/fklLaqipp2m7RLr2wdIs9l/22IHw8lVwQEjejol5HVw/
-WDh0hxmxnZu+SubSKFG/Lt93faaBdg5YCkhWOOT1cmaxl61WfPsD4cSbzS6jUtg0
-1qGcjlM2Ih17LZqFgiwOo7kSdrGDdc9lS1cZKv7om3t+fvHKDIX7VcuALyZcZD6g
-V11odJc5aYWqKTRIGjiW
-=w9lT
------END PGP SIGNATURE-----
-
---rCb8EA+9TsBVtA92--
+Yadi
