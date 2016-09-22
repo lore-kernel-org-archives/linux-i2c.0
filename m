@@ -1,54 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: qup: skip qup_i2c_suspend if the device is already
- runtime suspended
-Date: Thu, 22 Sep 2016 20:10:07 +0200
-Message-ID: <20160922181007.GH1861@katana>
-References: <1472124219-1627-1-git-send-email-sudeep.holla@arm.com>
- <20160914173307.GA5431@hector.attlocal.net>
+Subject: Re: [PATCH v1 1/1] i2c: i801: Add support for Kaby Lake PCH-H
+Date: Thu, 22 Sep 2016 20:15:52 +0200
+Message-ID: <20160922181552.GI1861@katana>
+References: <1469457828-9871-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="smOfPzt+Qjm5bNGJ"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="X+nYw8KZ/oNxZ8JS"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:50304 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S966588AbcIVSP4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Sep 2016 14:15:56 -0400
 Content-Disposition: inline
-In-Reply-To: <20160914173307.GA5431@hector.attlocal.net>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Andy Gross <andy.gross@linaro.org>
-Cc: Sudeep Holla <sudeep.holla@arm.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, David Brown <david.brown@linaro.org>
+In-Reply-To: <1469457828-9871-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
 
 
---smOfPzt+Qjm5bNGJ
+--X+nYw8KZ/oNxZ8JS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+On Mon, Jul 25, 2016 at 05:43:48PM +0300, Andy Shevchenko wrote:
+> Intel Kaby Lake PCH-H has the same legacy SMBus host controller than Intel
+> Sunrisepoint PCH. It also has same iTCO watchdog on the bus.
 >=20
-> Reviewed-by: Andy Gross <andy.gross@linro.org>
+> Add Kaby Lake PCH-H PCI ID to the list of supported devices.
+>=20
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-I took the liberty to make "linaro" out of "linro".
+I guess Jean also wants the table at the top of the file to be extended
+;)
 
 
---smOfPzt+Qjm5bNGJ
+--X+nYw8KZ/oNxZ8JS
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX5B5/AAoJEBQN5MwUoCm2J6sP/2tm8Zz+1JJR5aDjLjZNm04b
-wxrvjS2LTw4LkO2xbpOPatcyjJE3FVUlPTzfZ+FjlEtIF5Gz8RWfggqqI4W1WmbT
-0fgo3c1xEsx7goaLJ/YYARiCeQ7Rz7OvxDoDHb+CiNsvqHlsIY90zrMi4nNweOhB
-9cdkCsSmrQjB/OwzHqfUbLDPg+k2GudekMEGZGy3Vl88a8dZE1L5Ux9Lojx5ttb6
-EALiaxxIlkEVicyyumLTHGKUAtz4dSSldAsO8vCFwkrkMXnAGZqSzs8RCTML7qm1
-k+CmpsNqxqhugZhinJ/oYt/BLYUWz+U3n4ItJngbqmytpZnh7r/04N2e4IYcCOxf
-81eyGo+B2tOgUI1I7xiykN8+d0jhjt4xJF+f192whhgDYpjFfHxmR7T/IHsBAnUw
-s7ZIdh53sH2EWBfaqDSKOEtrhsmzGh3yWSpSD1iNaHRHBzaxcggAkiRCARsg6hkP
-eVASG8mKmlWHgwCtEKsmkxg3uIi3ksVBDl6z2MZit3yXkFLtZ68dHl0N4oi1R3pY
-3kjbZz4WD9IcqJrPsn2Lcn29d3fWFocqke3c7IPdsNvxLAc/NBw2FNQfWF7Ewduc
-ETLL5MouW0nvwI4+lbACe29TPWXXVCehQH3MFuU2nVQbbwbQVyq9pzumsOoGqIrl
-FurIO6pKut4ft+zzHIdz
-=RSOt
+iQIcBAEBAgAGBQJX5B/YAAoJEBQN5MwUoCm2KDoQAIeJ4wJa5ddEbnu4RCugpc1e
+IBK8k1794btl8apv4DrmXsPIbJyBf25uS9anioj+a5OAhaww2b7uekO3RIA0HF+m
+L7AWIGVOms41RwlobzXEGlBK0TTv/qmBL7uUKpjEfUvy6MJARyJ/4HUdwZdZt/H0
+HNBohce3ljQZ+TE153FnwDj6RU0QnRyppDYZLvLUWX+FZ/Ysk5a+r26r7gqPUJwJ
+adfZ7mao9Kio97tgehbMIt4UBI4CqTKicsGvMmq/QlxweDveOSv84pu3ChWaEojs
+8X0wTtemdHjwSKPBliYqFuTA/01KPZnzv6R1mIr9MA6MswW1beCdCy2KngGr/ilf
+S4rdDV5V50FsFp0JabSiMCEC8HdYq0mJASc2Z/pjMRW2GsoKdm+J5RMdg+RgWc6s
+keq7pZi4p2Ga7Rix9RQxXHE6mGwFI9HxASNoxHRtnLqbb6TUK1RttxK71cBQnPSI
+tmP3IaE2IdAYJAce5m8Oyy2QGt66QpvbCotWYqKAAlF7JjU3I6e/6+b0ssXQf6e2
+jL6eueiF4SbFvKvsM0cbTWKSevjES1+Yyooykr3Rvx3K08dzCr/pCae0h2aoY7AO
+Fh1/Wns/mMeCY11AQyhff5mMppdVVtqUWwN/Oft3lx61ZwUmZZHLFoV2HqFSb8hF
+fEsYWZiiYcrrEukB6wy0
+=f54+
 -----END PGP SIGNATURE-----
 
---smOfPzt+Qjm5bNGJ--
+--X+nYw8KZ/oNxZ8JS--
