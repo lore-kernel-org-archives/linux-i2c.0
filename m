@@ -1,43 +1,38 @@
 From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH 4/5] i2c: octeon,thunderx: Check bus state before
- starting a transaction
-Date: Thu, 22 Sep 2016 18:08:32 +0200
-Message-ID: <20160922160832.GA2734@hardcore>
+Subject: Re: [PATCH 5/5] i2c: octeon,thunderx: Limit register access retries
+Date: Thu, 22 Sep 2016 18:40:18 +0200
+Message-ID: <20160922164018.GA2993@hardcore>
 References: <cover.1474439371.git.jglauber@cavium.com>
- <21b1db0af4c62a53dc2fcec1e0b1f7b412e6f1be.1474439371.git.jglauber@cavium.com>
- <20160921205540.GC1513@katana>
+ <a52c3157fd27c939185163d2df23e39174cabc60.1474439371.git.jglauber@cavium.com>
+ <20160921210335.GG1513@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-sn1nam01on0076.outbound.protection.outlook.com ([104.47.32.76]:50614
-        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754510AbcIVQIq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 22 Sep 2016 12:08:46 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160921205540.GC1513@katana>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <20160921210335.GG1513@katana>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, "Bazhenov, Dmitry" <dmitry.bazhenov@auriga.com>
+List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 21, 2016 at 10:55:41PM +0200, Wolfram Sang wrote:
-> On Wed, Sep 21, 2016 at 08:51:05AM +0200, Jan Glauber wrote:
-> > Add an additional status check before starting a transaction and,
-> > if required, trigger the recovery if the check fails.
+On Wed, Sep 21, 2016 at 11:03:35PM +0200, Wolfram Sang wrote:
+> On Wed, Sep 21, 2016 at 08:51:06AM +0200, Jan Glauber wrote:
+> > Do not infinitely retry register readq and writeq operations
+> > in order to not lock up the CPU in case the TWSI gets stuck.
+> > 
+> > Return -EIO in case of a failed data read. For all other
+> > cases just return so subsequent operations will fail
+> > and trigger the recovery.
 > > 
 > > Signed-off-by: Jan Glauber <jglauber@cavium.com>
 > 
-> Won't this break multi-master setups?
+> I didn't really check, but have you considered using
+> readq_poll_timeout() from iopoll.h?
 > 
 
-I'm afraid yes. I don't have a multi-master setup, but agree that we
-should not break it.
+Indeed, readq_poll_timeout() fits quite well here. It will lose some cycles
+on mips but I'm not convinced that matters with i2c.
 
-How about re-checking if the bus is idle until a timeout
-(i2c->adap.timeout ?) happens and only then recover?
-
-Additionaly we can check for arbitration loss as Dmitry did in his
-original patch.
+That would be the first user of readq_poll_timeout() in the kernel :)
 
 --Jan
