@@ -1,66 +1,62 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v2] i2c / ACPI: Do not touch an I2C device if it belongs
  to another adapter
-Date: Thu, 22 Sep 2016 11:49:30 +0300
-Message-ID: <20160922084930.GI1218@lahna.fi.intel.com>
+Date: Thu, 22 Sep 2016 10:59:24 +0200
+Message-ID: <20160922085924.GB1433@katana>
 References: <874m5ax3o4.fsf@gmail.com>
  <20160920135925.45450-1-mika.westerberg@linux.intel.com>
  <20160921054834.GC1484@katana>
  <20160921084502.GV1811@lahna.fi.intel.com>
  <20160921161435.GA1432@katana>
+ <20160922084930.GI1218@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:45047 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933051AbcIVIwj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 22 Sep 2016 04:52:39 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="XOIedfhf+7KOe/yw"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160921161435.GA1432@katana>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+In-Reply-To: <20160922084930.GI1218@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: Nicolai Stange <nicstange@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 21, 2016 at 06:14:38PM +0200, Wolfram Sang wrote:
-> On Wed, Sep 21, 2016 at 11:45:02AM +0300, Mika Westerberg wrote:
-> > On Wed, Sep 21, 2016 at 07:48:35AM +0200, Wolfram Sang wrote:
-> > > On Tue, Sep 20, 2016 at 04:59:25PM +0300, Mika Westerberg wrote:
-> > > > When enumerating I2C devices connected to an I2C adapter we scan the whole
-> > > > namespace (as it is possible to have devices anywhere in that namespace,
-> > > > not just below the I2C adapter device) and add each found device to the I2C
-> > > > bus in question.
-> > > > 
-> > > > Now after commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI
-> > > > reconfigure notifications") checking of the adapter handle to the one found
-> > > > in the I2cSerialBus() resource was moved to happen after resources of the
-> > > > I2C device has been parsed. This means that if the I2cSerialBus() resource
-> > > > points to an adapter that does not exists in the system we still parse
-> > > > those resources. This is problematic in particular because
-> > > > acpi_dev_resource_interrupt() tries to configure GSI if the device also has
-> > > > an Interrupt() resource. Failing to do that results errrors like this to be
-> > > > printed on the console:
-> > > > 
-> > > >   [   10.409490] ERROR: Unable to locate IOAPIC for GSI 37
-> > > > 
-> > > > To fix this we pass the I2C adapter to i2c_acpi_get_info() and make sure
-> > > > the handle matches the one in the I2cSerialBus() resource before doing
-> > > > anything else to the device.
-> > > > 
-> > > > Reported-and-tested-by: Nicolai Stange <nicstange@gmail.com>
-> > > > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > > 
-> > > Considering this for for-current. So shall we add:
-> > > 
-> > > Fixes: 525e6fabeae2 ("i2c / ACPI: add support for ACPI reconfigure notifications")
-> > > 
-> > > ?
-> > 
-> > Yes please :)
-> 
-> Huh? It doesn't apply on top of rc7 here? What did you base it on?
 
-It is based on linux-next as it is on top of Jarkko's I2C ACPI namespace
-cleanup patches. I'm wondering if I make an updated patch on top of
-v4.8-rc7 does it conflict with the I2C stuff in linux-next? What's your
-preference?
+--XOIedfhf+7KOe/yw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > Huh? It doesn't apply on top of rc7 here? What did you base it on?
+>=20
+> It is based on linux-next as it is on top of Jarkko's I2C ACPI namespace
+> cleanup patches. I'm wondering if I make an updated patch on top of
+> v4.8-rc7 does it conflict with the I2C stuff in linux-next? What's your
+> preference?
+
+I see. I'll add it to for-next, then. If someone wants it backported, it
+needs to be rewritten and re-tested.
+
+
+--XOIedfhf+7KOe/yw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJX451sAAoJEBQN5MwUoCm254sQAICw1KUc6ifBkcCV5fvT95LJ
+l+uO2qwuQFCc5qI9Uz227W83w9Naz/LG3rst8quih8s9p/c73/nLD70AhI6re80f
+Ufz1zHc4uROZqOjGQuENG644OHxx6t68zz0HFURPrNJKxLMIoCviDjMPtdsrkP+Q
+Uw+V5QIYvJU/BtaV4HzqWK4Q18XKDvTGaaCpscQD0HH8RA5G3ktduxE43ROhBmhd
+aSrDWeSpBMNvT43UmzRJ6NwRlWoutN5VqfZORfAqQDUHNZbscyp+66tb3AOXNL4F
+Jh6T5fYma05LhVyVKtqIgKmAIbAsvXVD5W5U85F9dhSXptN0tlqtQZ3B6koRzVEJ
+NVZYBGAsecepamerEOVtj3kXY5iuiapNGhARLS6KS9k+udWRDwYqpHyNHyX+hjo7
+8Bg+NCVOMyjczDLmGIHFYvKGxXr3SUJDDeus7gN+c0EBTz16UMFFrZEa8Zmcm19K
+xcRc35ekH6gqOCpvbnBDdzY+Gz4u7TcA+EQ4UZIQs6h1MrgiOXufgHTHqZMW9PS1
+TBVeCzrn/a7qfQOt56prE/y0xheBvyrY9wQWTw2XNS/0neIE3YTF4QIwBBk2fe0D
+9QWoFdPLH0YRXJZw5+XMoRmWE+TxAch+WhuCKXjJcL6rLIdbNaii2ljcIKOV0JiN
+90lX505ZLR9SJh6GzqNG
+=mX+4
+-----END PGP SIGNATURE-----
+
+--XOIedfhf+7KOe/yw--
