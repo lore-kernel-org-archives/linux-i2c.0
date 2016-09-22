@@ -1,49 +1,43 @@
-From: David Wu <david.wu@rock-chips.com>
-Subject: [PATCH 2/2] i2c: rk3x: Fix variable 'min_total_ns' unused warning
-Date: Thu, 22 Sep 2016 19:29:24 +0800
-Message-ID: <1474543764-51135-3-git-send-email-david.wu@rock-chips.com>
-References: <1474543764-51135-1-git-send-email-david.wu@rock-chips.com>
-Content-Type: text/plain; charset="utf-8"
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH 4/5] i2c: octeon,thunderx: Check bus state before
+ starting a transaction
+Date: Thu, 22 Sep 2016 18:08:32 +0200
+Message-ID: <20160922160832.GA2734@hardcore>
+References: <cover.1474439371.git.jglauber@cavium.com>
+ <21b1db0af4c62a53dc2fcec1e0b1f7b412e6f1be.1474439371.git.jglauber@cavium.com>
+ <20160921205540.GC1513@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lucky1.263xmail.com ([211.157.147.134]:46894 "EHLO
-        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756505AbcIVLaU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Sep 2016 07:30:20 -0400
-In-Reply-To: <1474543764-51135-1-git-send-email-david.wu@rock-chips.com>
+Received: from mail-sn1nam01on0076.outbound.protection.outlook.com ([104.47.32.76]:50614
+        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754510AbcIVQIq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Sep 2016 12:08:46 -0400
+Content-Disposition: inline
+In-Reply-To: <20160921205540.GC1513@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: heiko@sntech.de, wsa@the-dreams.de
-Cc: dianders@chromium.org, huangtao@rock-chips.com, wxt@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <david.wu@rock-chips.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, "Bazhenov, Dmitry" <dmitry.bazhenov@auriga.com>
 
-This patch fixs the following warning:
-drivers/i2c/busses/i2c-rk3x.c: In function 'rk3x_i2c_v1_calc_timings':
-drivers/i2c/busses/i2c-rk3x.c:745:41: warning: variable 'min_total_ns' set but not used [-Wunused-but-set-variable]
+On Wed, Sep 21, 2016 at 10:55:41PM +0200, Wolfram Sang wrote:
+> On Wed, Sep 21, 2016 at 08:51:05AM +0200, Jan Glauber wrote:
+> > Add an additional status check before starting a transaction and,
+> > if required, trigger the recovery if the check fails.
+> > 
+> > Signed-off-by: Jan Glauber <jglauber@cavium.com>
+> 
+> Won't this break multi-master setups?
+> 
 
-Signed-off-by: David Wu <david.wu@rock-chips.com>
----
- drivers/i2c/busses/i2c-rk3x.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+I'm afraid yes. I don't have a multi-master setup, but agree that we
+should not break it.
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 965477e..50702c7 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -742,7 +742,7 @@ static int rk3x_i2c_v1_calc_timings(unsigned long clk_rate,
- 				    struct i2c_timings *t,
- 				    struct rk3x_i2c_calced_timings *t_calc)
- {
--	unsigned long min_low_ns, min_high_ns, min_total_ns;
-+	unsigned long min_low_ns, min_high_ns;
- 	unsigned long min_setup_start_ns, min_setup_data_ns;
- 	unsigned long min_setup_stop_ns, max_hold_data_ns;
- 
-@@ -793,7 +793,6 @@ static int rk3x_i2c_v1_calc_timings(unsigned long clk_rate,
- 
- 	/* These are the min dividers needed for min hold times. */
- 	min_div_for_hold = (min_low_div + min_high_div);
--	min_total_ns = min_low_ns + min_high_ns;
- 
- 	/*
- 	 * This is the maximum divider so we don't go over the maximum.
--- 
-1.9.1
+How about re-checking if the bus is idle until a timeout
+(i2c->adap.timeout ?) happens and only then recover?
+
+Additionaly we can check for arbitration loss as Dmitry did in his
+original patch.
+
+--Jan
