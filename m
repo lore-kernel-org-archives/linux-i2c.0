@@ -1,39 +1,24 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] i2c / ACPI: Do not touch an I2C device if it belongs
- to another adapter
-Date: Thu, 22 Sep 2016 12:25:08 +0300
-Message-ID: <20160922092508.GJ1218@lahna.fi.intel.com>
-References: <874m5ax3o4.fsf@gmail.com>
- <20160920135925.45450-1-mika.westerberg@linux.intel.com>
- <20160921054834.GC1484@katana>
- <20160921084502.GV1811@lahna.fi.intel.com>
- <20160921161435.GA1432@katana>
- <20160922084930.GI1218@lahna.fi.intel.com>
- <20160922085924.GB1433@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: David Wu <david.wu@rock-chips.com>
+Subject: [PATCH 0/2] Fix warnings for i2c-rk3x.c
+Date: Thu, 22 Sep 2016 19:29:22 +0800
+Message-ID: <1474543764-51135-1-git-send-email-david.wu@rock-chips.com>
+Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:44066 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753183AbcIVJZV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 22 Sep 2016 05:25:21 -0400
-Content-Disposition: inline
-In-Reply-To: <20160922085924.GB1433@katana>
+Received: from lucky1.263xmail.com ([211.157.147.136]:50954 "EHLO
+        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751580AbcIVLaK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Sep 2016 07:30:10 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Nicolai Stange <nicstange@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: heiko@sntech.de, wsa@the-dreams.de
+Cc: dianders@chromium.org, huangtao@rock-chips.com, wxt@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, David Wu <david.wu@rock-chips.com>
 
-On Thu, Sep 22, 2016 at 10:59:24AM +0200, Wolfram Sang wrote:
-> 
-> > > Huh? It doesn't apply on top of rc7 here? What did you base it on?
-> > 
-> > It is based on linux-next as it is on top of Jarkko's I2C ACPI namespace
-> > cleanup patches. I'm wondering if I make an updated patch on top of
-> > v4.8-rc7 does it conflict with the I2C stuff in linux-next? What's your
-> > preference?
-> 
-> I see. I'll add it to for-next, then. If someone wants it backported, it
-> needs to be rewritten and re-tested.
+David Wu (2):
+  i2c: rk3x: Fix sparse warning
+  i2c: rk3x: fix variable 'min_total_ns' unused warning
 
-OK, thanks.
+ drivers/i2c/busses/i2c-rk3x.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+-- 
+1.9.1
