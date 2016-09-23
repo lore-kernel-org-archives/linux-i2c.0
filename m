@@ -1,106 +1,76 @@
 From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH v2 2/2] i2c: octeon: thunderx: Limit register access retries
-Date: Fri, 23 Sep 2016 11:40:39 +0200
-Message-ID: <1140690b8b727cd09afb9c5867983815f33a08c7.1474565039.git.jglauber@cavium.com>
+Subject: [PATCH v2 1/2] i2c: octeon: thunderx: Check bus state before starting a transaction
+Date: Fri, 23 Sep 2016 11:40:38 +0200
+Message-ID: <ccf553c14d5220f3f9233ac7695d27ee0d55bcc7.1474565039.git.jglauber@cavium.com>
 References: <cover.1474565039.git.jglauber@cavium.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:34557 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757333AbcIWJky (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Sep 2016 05:40:54 -0400
 In-Reply-To: <cover.1474565039.git.jglauber@cavium.com>
 In-Reply-To: <cover.1474565039.git.jglauber@cavium.com>
 References: <cover.1474565039.git.jglauber@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Dmitry Bazhenov <dmitry.bazhenov@auriga.com>, Jan Glauber <jglauber@cavium.com>
-List-Id: linux-i2c@vger.kernel.org
 
-Do not infinitely retry register readq and writeq operations
-in order to not lock up the CPU in case the TWSI gets stuck.
-
-Return -ETIMEDOUT in case of a failed data read. For all other
-cases just return so subsequent operations will fail
-and trigger the recovery.
+Add an additional status check before starting a transaction. If the
+check fails wait for some time to tolerate multi-master mode. After the
+timeout expires trigger the recovery.
 
 Signed-off-by: Jan Glauber <jglauber@cavium.com>
 ---
- drivers/i2c/busses/i2c-octeon-core.c |  4 +++-
- drivers/i2c/busses/i2c-octeon-core.h | 27 ++++++++++++++++-----------
- 2 files changed, 19 insertions(+), 12 deletions(-)
+ drivers/i2c/busses/i2c-octeon-core.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
-index f526511..1dfc4b8 100644
+index 5e63b17..f526511 100644
 --- a/drivers/i2c/busses/i2c-octeon-core.c
 +++ b/drivers/i2c/busses/i2c-octeon-core.c
-@@ -381,7 +381,9 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
- 		if (result)
- 			return result;
+@@ -630,6 +630,31 @@ static int octeon_i2c_hlc_comp_write(struct octeon_i2c *i2c, struct i2c_msg *msg
+ 	return ret;
+ }
  
--		data[i] = octeon_i2c_data_read(i2c);
-+		data[i] = octeon_i2c_data_read(i2c, &result);
-+		if (result)
-+			return result;
- 		if (recv_len && i == 0) {
- 			if (data[i] > I2C_SMBUS_BLOCK_MAX + 1)
- 				return -EPROTO;
-diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
-index 87151ea..1db7c83 100644
---- a/drivers/i2c/busses/i2c-octeon-core.h
-+++ b/drivers/i2c/busses/i2c-octeon-core.h
-@@ -5,6 +5,7 @@
- #include <linux/i2c.h>
- #include <linux/i2c-smbus.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
- 
-@@ -144,9 +145,9 @@ static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8
- 	u64 tmp;
- 
- 	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI(i2c));
--	do {
--		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
--	} while ((tmp & SW_TWSI_V) != 0);
++static int octeon_i2c_check_bus(struct octeon_i2c *i2c)
++{
++	u64 end = get_jiffies_64() + i2c->adap.timeout;
++	int stat, lines;
 +
-+	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp, tmp & SW_TWSI_V,
-+			   I2C_OCTEON_EVENT_WAIT, i2c->adap.timeout);
- }
- 
- #define octeon_i2c_ctl_write(i2c, val)					\
-@@ -163,24 +164,28 @@ static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8
-  *
-  * The I2C core registers are accessed indirectly via the SW_TWSI CSR.
-  */
--static inline u8 octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg)
-+static inline int octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg,
-+				      int *error)
- {
- 	u64 tmp;
-+	int ret;
- 
- 	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI(i2c));
--	do {
--		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
--	} while ((tmp & SW_TWSI_V) != 0);
- 
-+	ret = readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
-+				 tmp & SW_TWSI_V, I2C_OCTEON_EVENT_WAIT,
-+				 i2c->adap.timeout);
-+	if (error)
-+		*error = ret;
- 	return tmp & 0xFF;
- }
- 
- #define octeon_i2c_ctl_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_CTL)
--#define octeon_i2c_data_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_DATA)
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_CTL, NULL)
-+#define octeon_i2c_data_read(i2c, error)				\
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_DATA, error)
- #define octeon_i2c_stat_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_STAT)
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_STAT, NULL)
- 
++	while (time_before64(get_jiffies_64(), end)) {
++		stat = octeon_i2c_stat_read(i2c);
++
++		/* get I2C line state */
++		lines = octeon_i2c_read_int(i2c) & (TWSI_INT_SCL | TWSI_INT_SDA);
++
++		if (stat == STAT_IDLE && lines == (TWSI_INT_SCL | TWSI_INT_SDA))
++			return 0;
++
++		if (stat == STAT_LOST_ARB_38 || stat == STAT_LOST_ARB_68 ||
++		    stat == STAT_LOST_ARB_78 || stat == STAT_LOST_ARB_B0)
++			break;
++
++		usleep_range(I2C_OCTEON_EVENT_WAIT / 2, I2C_OCTEON_EVENT_WAIT);
++	}
++
++	/* bus check failed, try to recover */
++	return octeon_i2c_recovery(i2c);
++}
++
  /**
-  * octeon_i2c_read_int - read the TWSI_INT register
+  * octeon_i2c_xfer - The driver's master_xfer function
+  * @adap: Pointer to the i2c_adapter structure
+@@ -643,6 +668,10 @@ int octeon_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	struct octeon_i2c *i2c = i2c_get_adapdata(adap);
+ 	int i, ret = 0;
+ 
++	ret = octeon_i2c_check_bus(i2c);
++	if (ret)
++		goto out;
++
+ 	if (num == 1) {
+ 		if (msgs[0].len > 0 && msgs[0].len <= 8) {
+ 			if (msgs[0].flags & I2C_M_RD)
 -- 
 1.9.1
