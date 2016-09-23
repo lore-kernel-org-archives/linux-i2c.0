@@ -1,48 +1,83 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 0/2] i2c: meson: add gxbb compatible string
-Date: Fri, 23 Sep 2016 10:01:13 -0500
-Message-ID: <CAL_JsqKNFzo6RWJO5WOvsyO3e4UTo5Zn48aaDac=+uL_CQWerQ@mail.gmail.com>
-References: <1473846557-18123-1-git-send-email-jbrunet@baylibre.com> <20160915194146.GB7863@katana>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [patch v5] i2c: mux: mellanox: add driver
+Date: Fri, 23 Sep 2016 11:36:10 +0200
+Message-ID: <c530714e-b61e-8a38-a054-9d335f0e8a71@axentia.se>
+References: <1473799071-12830-1-git-send-email-vadimp@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:37828 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1034960AbcIWPBl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 23 Sep 2016 11:01:41 -0400
-Received: from mail.kernel.org (localhost [127.0.0.1])
-        by mail.kernel.org (Postfix) with ESMTP id 6FF0820451
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Sep 2016 15:01:40 +0000 (UTC)
-Received: from mail-yb0-f175.google.com (mail-yb0-f175.google.com [209.85.213.175])
-        (using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92E3D200BE
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Sep 2016 15:01:34 +0000 (UTC)
-Received: by mail-yb0-f175.google.com with SMTP id u125so67577676ybg.3
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Sep 2016 08:01:34 -0700 (PDT)
-In-Reply-To: <20160915194146.GB7863@katana>
+Received: from mail-db5eur01on0118.outbound.protection.outlook.com ([104.47.2.118]:21952
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S965725AbcIWPLQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 23 Sep 2016 11:11:16 -0400
+In-Reply-To: <1473799071-12830-1-git-send-email-vadimp@mellanox.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Carlo Caione <carlo@caione.org>, linux-amlogic@lists.infradead.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: vadimp@mellanox.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
 
-On Thu, Sep 15, 2016 at 2:41 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Wed, Sep 14, 2016 at 11:49:15AM +0200, Jerome Brunet wrote:
->> This patchset adds a specific compatible string in the Meson I2C driver
->> for the Amlogic Meson gxbb SoC.
->>
->> Other patch series (pinctrl and device tree) are being sent to complete
->> the i2c support on meson gxbb
->>
->> Neil Armstrong (2):
->>   i2c: meson: add gxbb compatible string
->>   dt-bindings: i2c-meson: add gxbb compatible string
->
-> Squashed both patches and applied to for-next, thanks!
+On 2016-09-13 22:37, vadimp@mellanox.com wrote:
+> From: Vadim Pasternak <vadimp@mellanox.com>
+> 
+> This driver allows I2C routing controlled through CPLD select registers on
+> a wide range of Mellanox systems (CPLD Lattice device).
+> MUX selection is provided by digital and analog HW. Analog part is not
+> under SW control.
+> Digital part is under CPLD control (channel selection/de-selection).
+> 
+> Connectivity schema.
+> i2c-mlxcpld                                 Digital               Analog
+> driver
+> *--------*                                 * -> mux1 (virt bus2) -> mux ->|
+> | I2CLPC | i2c physical                    * -> mux2 (virt bus3) -> mux ->|
+> | bridge | bus 1                 *---------*                              |
+> | logic  |---------------------> * mux reg *                              |
+> | in CPLD|                       *---------*                              |
+> *--------*   i2c-mux-mlxpcld          ^    * -> muxn (virt busn) -> mux ->|
+>     |        driver                   |                                   |
+>     |        *---------------*        |                             Devices
+>     |        * CPLD (i2c bus)* select |
+>     |        * registers for *--------*
+>     |        * mux selection * deselect
+>     |        *---------------*
+>     |                 |
+> <-------->     <----------->
+> i2c cntrl      Board cntrl reg
+> reg space      space (mux select,
+>                IO, LED, WD, info)
 
-Please don't squash. We ask people to split DT bindings for a reason
-being reviews and bindings may not go thru subsystem maintainers in
-the future. It also makes it harder to find things in the archives or
-patchwork (as does maintainer fixups of subject lines).
+Hmm, I'm wondering about the above schematics, which seems a bit
+overly complex. I mean, it's not relevant to this driver how the
+I2CLPC bridge logic in the CPLD is controlled. Particularly so
+since it does not need to be a this particular i2c adapter that
+is muxed.
 
-Rob
+But what I'm really wondering is if this mux can mux same other
+bus than is used to control the mux. I.e. is it possible to do
+something like this:
+
+  .---.          .-------------.
+  |   |          |             |-- i2c2 --
+  | l |-- i2c0 --| mlxcpld mux |
+  | i |          |             |-- i2c3 --
+  | n |          '-------------'
+  | u |                 |
+  | x |-- i2c1 ---------'
+  |   |
+  '---'
+
+Or is it always as below, with the mux being controlled from
+the same i2c bus it muxes?
+
+  .---.             .-------------.
+  | l |             |             |-- i2c1 --
+  | i |-- i2c0 --+--| mlxcpld mux |
+  | n |          |  |             |-- i2c2 --
+  | u |          |  '-------------'
+  | x |          |         |
+  '---'          '---------'
+
+Cheers,
+Peter
