@@ -1,35 +1,38 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH resend v3] i2c: hibvt: add Hisilicon BVT I2C controller
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] i2c: aspeed: added documentation for Aspeed I2C
  driver
-Date: Fri, 23 Sep 2016 12:49:30 -0500
-Message-ID: <20160923174930.GA2208@rob-hp-laptop>
-References: <1474284590-12652-1-git-send-email-wenpan@hisilicon.com>
+Date: Fri, 23 Sep 2016 13:02:19 -0500
+Message-ID: <20160923180219.GA9401@rob-hp-laptop>
+References: <CAFd5g47W-dGVt6hA+FSpqxCqvd5ZpQP=FCCpYGErahF0iKqTEQ@mail.gmail.com>
+ <1474327414-651-1-git-send-email-brendanhiggins@google.com>
+ <1474327414-651-2-git-send-email-brendanhiggins@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:34221 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030267AbcIWRtc (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Sep 2016 13:49:32 -0400
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1474284590-12652-1-git-send-email-wenpan@hisilicon.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1474327414-651-2-git-send-email-brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, jk-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pan Wen <wenpan@hisilicon.com>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, howell.yang@hisilicon.com, xuejiancheng@hisilicon.com, jalen.hsu@hisilicon.com, lvkuanliang@hisilicon.com, suwenping@hisilicon.com, raojun@hisilicon.com, kevin.lixu@hisilicon.com
 
-On Mon, Sep 19, 2016 at 07:29:50PM +0800, Pan Wen wrote:
-> add Hisilicon BVT I2C controller driver support.
+On Mon, Sep 19, 2016 at 04:23:34PM -0700, Brendan Higgins wrote:
+> Added device tree binding documentation for Aspeed I2C controller and
+> busses.
 > 
-> Signed-off-by: Pan Wen <wenpan@hisilicon.com>
+> Signed-off-by: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
 > ---
->  .../devicetree/bindings/i2c/i2c-hibvt.txt          |  24 +
+> Changes for v2:
+>   - None
+> Changes for v3:
+>   - Removed reference to "bus" device tree param
+> ---
+>  .../devicetree/bindings/i2c/i2c-aspeed.txt         | 61 ++++++++++++++++++++++
+>  1 file changed, 61 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
 
-Acked-by: Rob Herring <robh@kernel.org>
-
->  drivers/i2c/busses/Kconfig                         |  10 +
->  drivers/i2c/busses/Makefile                        |   1 +
->  drivers/i2c/busses/i2c-hibvt.c                     | 737 +++++++++++++++++++++
->  4 files changed, 772 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
->  create mode 100644 drivers/i2c/busses/i2c-hibvt.c
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
