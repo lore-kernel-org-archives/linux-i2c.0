@@ -1,81 +1,32 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v5 1/6] I2C: i2c-smbus: add device tree support
-Date: Fri, 23 Sep 2016 14:42:13 -0500
-Message-ID: <20160923194213.GA24328@rob-hp-laptop>
-References: <1474447274-90821-1-git-send-email-preid@electromag.com.au>
- <1474447274-90821-2-git-send-email-preid@electromag.com.au>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 0/4] i2c-dev: Fine-tuning for four function implementations
+Date: Fri, 23 Sep 2016 21:42:49 +0200
+Message-ID: <cedc3865-a884-a10e-6c93-0163fd36af92@users.sourceforge.net>
+References: <566ABCD9.1060404@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1474447274-90821-2-git-send-email-preid@electromag.com.au>
-Sender: linux-pm-owner@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, sre@kernel.org, andrea.merello@gmail.com, karl-heinz@schneider-inet.de, arnd@arndb.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <566ABCD9.1060404@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 21, 2016 at 04:41:09PM +0800, Phil Reid wrote:
-> From: Andrea Merello <andrea.merello@gmail.com>
-> 
-> According to Documentation/i2c/smbus-protocol, a smbus controller driver
-> that wants to hook-in smbus extensions support, can call
-> i2c_setup_smbus_alert(). There are very few drivers that are currently
-> doing this.
-> 
-> However the i2c-smbus module can also work with any
-> smbus-extensions-unaware I2C controller, as long as we provide an extra
-> IRQ line connected to the I2C bus ALARM signal.
-> 
-> This patch makes it possible to go this way via DT. Note that the DT node
-> will indeed describe a (little) piece of HW, that is the routing of the
-> ALARM signal to an IRQ line (so it seems a fair DT use to me, but RFC).
-> 
-> Note that AFAICT, by design, i2c-smbus module pretends to be an I2C slave
-> with address 0x0C (that is the alarm response address), and IMHO this is
-> quite consistent with usage in the DT as a I2C child node.
-> 
-> Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-smbus.txt | 20 ++++++++++++++++++++
->  drivers/i2c/i2c-smbus.c                             | 20 +++++++++++++++-----
->  2 files changed, 35 insertions(+), 5 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-smbus.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-smbus.txt b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
-> new file mode 100644
-> index 0000000..da83127
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-smbus.txt
-> @@ -0,0 +1,20 @@
-> +* i2c-smbus extensions
-> +
-> +Required Properties:
-> +  - compatible: Must contain "smbus_alert"
-> +  - interrupts: The irq line for smbus ALERT signal
-> +  - reg: I2C slave address. Set to 0x0C (alert response address).
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Fri, 23 Sep 2016 21:38:21 +0200
 
-This is not right. The 0xC address is special, not an actual device 
-address. The bindings should just have the actual device's compatible 
-string and address.
+A few update suggestions were taken into account
+from static source code analysis.
 
-> +
-> +Note: The i2c-smbus module registers itself as a slave I2C device. Whenever
-> +a smbus controller directly support smbus extensions (and its driver supports
-> +this), there is no need to add anything special to the DT. Otherwise, for using
-> +i2c-smbus with any smbus-extensions-unaware I2C controllers, you need to
-> +route the smbus ALARM signal to an extra IRQ line, thus you need to describe
-> +this in the DT.
+Markus Elfring (4):
+  Use kmalloc_array() in i2cdev_ioctl_rdwr()
+  Improve another size determination in i2cdev_ioctl_rdwr()
+  Rename jump labels in i2cdev_attach_adapter()
+  Adjust checks for null pointers in three functions
 
-Now, I guess what you need in the kernel is a common handler for 
-SMBALERT# and to know which interrupt line is SMBALERT#.
+ drivers/i2c/i2c-dev.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-The drivers should know this. A given h/w device will or will not handle 
-the "SMB Alert Response Address". So the drivers should register their 
-interrupt with the I2C/SMBus core.
-
-If a controller handles the SMBALERT, then it should make itself an 
-interrupt controller and that's what slave devices 'interrupts' property 
-will point to.
-
-Rob
+-- 
+2.10.0
