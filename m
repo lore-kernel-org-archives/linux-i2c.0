@@ -1,60 +1,68 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 3/4] i2c-dev: Rename jump labels in i2cdev_attach_adapter()
-Date: Fri, 23 Sep 2016 21:46:27 +0200
-Message-ID: <735c3aa5-0402-0e2b-1c6c-a5bfc17c9afd@users.sourceforge.net>
+Subject: [PATCH 4/4] i2c-dev: Adjust checks for null pointers in three
+ functions
+Date: Fri, 23 Sep 2016 21:47:31 +0200
+Message-ID: <7ba4f7a9-9af4-4a83-776c-930fb33f9e9e@users.sourceforge.net>
 References: <566ABCD9.1060404@users.sourceforge.net>
  <cedc3865-a884-a10e-6c93-0163fd36af92@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <kernel-janitors-owner@vger.kernel.org>
 In-Reply-To: <cedc3865-a884-a10e-6c93-0163fd36af92@users.sourceforge.net>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kernel-janitors-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Fri, 23 Sep 2016 21:21:39 +0200
+Date: Fri, 23 Sep 2016 21:30:20 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Adjust jump labels according to the current Linux coding style convention.
+The script "checkpatch.pl" can point information out like the following.
+
+Comparison to NULL could be written !…
+
+Thus fix the affected source code places.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/i2c/i2c-dev.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/i2c-dev.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index a6e35ce..7d3e3ca 100644
+index 7d3e3ca..8f7eddd 100644
 --- a/drivers/i2c/i2c-dev.c
 +++ b/drivers/i2c/i2c-dev.c
-@@ -555,7 +555,7 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
- 	i2c_dev->cdev.owner = THIS_MODULE;
- 	res = cdev_add(&i2c_dev->cdev, MKDEV(I2C_MAJOR, adap->nr), 1);
- 	if (res)
--		goto error_cdev;
-+		goto put_i2c;
+@@ -147,7 +147,7 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
+ 		count = 8192;
  
- 	/* register this i2c device with the driver core */
- 	i2c_dev->dev = device_create(i2c_dev_class, &adap->dev,
-@@ -563,15 +563,15 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
- 				     "i2c-%d", adap->nr);
- 	if (IS_ERR(i2c_dev->dev)) {
- 		res = PTR_ERR(i2c_dev->dev);
--		goto error;
-+		goto delete_cdev;
+ 	tmp = kmalloc(count, GFP_KERNEL);
+-	if (tmp == NULL)
++	if (!tmp)
+ 		return -ENOMEM;
+ 
+ 	pr_debug("i2c-dev: i2c-%d reading %zu bytes.\n",
+@@ -263,7 +263,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 	data_ptrs = kmalloc_array(rdwr_arg.nmsgs,
+ 				  sizeof(*data_ptrs),
+ 				  GFP_KERNEL);
+-	if (data_ptrs == NULL) {
++	if (!data_ptrs) {
+ 		kfree(rdwr_pa);
+ 		return -ENOMEM;
  	}
+@@ -374,7 +374,7 @@ static noinline int i2cdev_ioctl_smbus(struct i2c_client *client,
+ 				      client->flags, data_arg.read_write,
+ 				      data_arg.command, data_arg.size, NULL);
  
- 	pr_debug("i2c-dev: adapter [%s] registered as minor %d\n",
- 		 adap->name, adap->nr);
- 	return 0;
--error:
-+delete_cdev:
- 	cdev_del(&i2c_dev->cdev);
--error_cdev:
-+put_i2c:
- 	put_i2c_dev(i2c_dev);
- 	return res;
- }
+-	if (data_arg.data == NULL) {
++	if (!data_arg.data) {
+ 		dev_dbg(&client->adapter->dev,
+ 			"data is NULL pointer in ioctl I2C_SMBUS.\n");
+ 		return -EINVAL;
 -- 
 2.10.0
+
