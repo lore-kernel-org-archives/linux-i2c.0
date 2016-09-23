@@ -1,70 +1,57 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2] i2c: i801: Add support for Kaby Lake PCH-H
-Date: Fri, 23 Sep 2016 11:56:01 +0300
-Message-ID: <20160923085601.166121-1-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:46342 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933808AbcIWI4F (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 23 Sep 2016 04:56:05 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Subject: [PATCH] i2c: axxia: disable clks in case of failure in probe
+Date: Fri, 23 Sep 2016 11:15:26 +0200
+Message-ID: <1474622126-1996-1-git-send-email-khoroshilov@ispras.ru>
+References: <20160922175703.GE1861@katana>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160922175703.GE1861@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>
-Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+axxia_i2c_probe() does not disable clock in case of failure
+in i2c_add_adapter(). Also it ignores returned value from
+clk_prepare_enable().
 
-Intel Kaby Lake PCH-H has the same legacy SMBus host controller than Intel
-Sunrisepoint PCH. It also has same iTCO watchdog on the bus.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Add Kaby Lake PCH-H PCI ID to the list of supported devices.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
 ---
-Changes from v1:
-  * Call it Kaby Lake PCH-H instead of Kabypoint
-  * Add the device to the list of supported devices in comment on top of
-    the file.
+ drivers/i2c/busses/i2c-axxia.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
- drivers/i2c/busses/i2c-i801.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 5ef9b733d153..4785e102e31c 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -64,6 +64,7 @@
-  * Broxton (SOC)		0x5ad4	32	hard	yes	yes	yes
-  * Lewisburg (PCH)		0xa1a3	32	hard	yes	yes	yes
-  * Lewisburg Supersku (PCH)	0xa223	32	hard	yes	yes	yes
-+ * Kaby Lake PCH-H (PCH)	0xa2a3	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -226,6 +227,7 @@
- #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
- #define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xa1a3
- #define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
-+#define PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS	0xa2a3
+diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
+index d3bcaf4..4351a93 100644
+--- a/drivers/i2c/busses/i2c-axxia.c
++++ b/drivers/i2c/busses/i2c-axxia.c
+@@ -545,7 +545,11 @@ static int axxia_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- struct i801_mux_config {
- 	char *gpio_chip;
-@@ -1006,6 +1008,7 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BROXTON_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS) },
- 	{ 0, }
- };
+-	clk_prepare_enable(idev->i2c_clk);
++	ret = clk_prepare_enable(idev->i2c_clk);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to enable clock\n");
++		return ret;
++	}
  
-@@ -1482,6 +1485,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	case PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS:
- 		priv->features |= FEATURE_I2C_BLOCK_READ;
- 		priv->features |= FEATURE_IRQ;
- 		priv->features |= FEATURE_SMBUS_PEC;
+ 	i2c_set_adapdata(&idev->adapter, idev);
+ 	strlcpy(idev->adapter.name, pdev->name, sizeof(idev->adapter.name));
+@@ -558,7 +562,13 @@ static int axxia_i2c_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, idev);
+ 
+-	return i2c_add_adapter(&idev->adapter);
++	ret = i2c_add_adapter(&idev->adapter);
++	if (ret) {
++		clk_disable_unprepare(idev->i2c_clk);
++		return ret;
++	}
++
++	return 0;
+ }
+ 
+ static int axxia_i2c_remove(struct platform_device *pdev)
 -- 
-2.9.3
+2.7.4
