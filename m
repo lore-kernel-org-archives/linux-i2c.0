@@ -1,57 +1,34 @@
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH] i2c: axxia: disable clks in case of failure in probe
-Date: Fri, 23 Sep 2016 11:15:26 +0200
-Message-ID: <1474622126-1996-1-git-send-email-khoroshilov@ispras.ru>
-References: <20160922175703.GE1861@katana>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160922175703.GE1861@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [PATCH v2 0/2] i2c: octeon: thunderx: Recovery fixes and improvements
+Date: Fri, 23 Sep 2016 11:40:37 +0200
+Message-ID: <cover.1474565039.git.jglauber@cavium.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35080 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755168AbcIWJkx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Sep 2016 05:40:53 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Dmitry Bazhenov <dmitry.bazhenov@auriga.com>, Jan Glauber <jglauber@cavium.com>
 
-axxia_i2c_probe() does not disable clock in case of failure
-in i2c_add_adapter(). Also it ignores returned value from
-clk_prepare_enable().
+Hi Wolfram,
 
-Found by Linux Driver Verification project (linuxtesting.org).
+here are the remaining two patches with iopoll.h usage and a timed wait
+before entering the recovery on a failed bus check.
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
----
- drivers/i2c/busses/i2c-axxia.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+thanks,
+Jan
 
-diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
-index d3bcaf4..4351a93 100644
---- a/drivers/i2c/busses/i2c-axxia.c
-+++ b/drivers/i2c/busses/i2c-axxia.c
-@@ -545,7 +545,11 @@ static int axxia_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	clk_prepare_enable(idev->i2c_clk);
-+	ret = clk_prepare_enable(idev->i2c_clk);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to enable clock\n");
-+		return ret;
-+	}
- 
- 	i2c_set_adapdata(&idev->adapter, idev);
- 	strlcpy(idev->adapter.name, pdev->name, sizeof(idev->adapter.name));
-@@ -558,7 +562,13 @@ static int axxia_i2c_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, idev);
- 
--	return i2c_add_adapter(&idev->adapter);
-+	ret = i2c_add_adapter(&idev->adapter);
-+	if (ret) {
-+		clk_disable_unprepare(idev->i2c_clk);
-+		return ret;
-+	}
-+
-+	return 0;
- }
- 
- static int axxia_i2c_remove(struct platform_device *pdev)
+---------------------
+
+Jan Glauber (2):
+  i2c: octeon: thunderx: Check bus state before starting a transaction
+  i2c: octeon: thunderx: Limit register access retries
+
+ drivers/i2c/busses/i2c-octeon-core.c | 33 ++++++++++++++++++++++++++++++++-
+ drivers/i2c/busses/i2c-octeon-core.h | 27 ++++++++++++++++-----------
+ 2 files changed, 48 insertions(+), 12 deletions(-)
+
 -- 
-2.7.4
+1.9.1
