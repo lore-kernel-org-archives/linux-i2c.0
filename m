@@ -1,68 +1,77 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 4/4] i2c-dev: Adjust checks for null pointers in three
- functions
-Date: Fri, 23 Sep 2016 21:47:31 +0200
-Message-ID: <7ba4f7a9-9af4-4a83-776c-930fb33f9e9e@users.sourceforge.net>
-References: <566ABCD9.1060404@users.sourceforge.net>
- <cedc3865-a884-a10e-6c93-0163fd36af92@users.sourceforge.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/2] i2c: meson: add gxbb compatible string
+Date: Sat, 24 Sep 2016 00:13:12 +0200
+Message-ID: <20160923221312.GA5683@katana>
+References: <1473846557-18123-1-git-send-email-jbrunet@baylibre.com>
+ <20160915194146.GB7863@katana>
+ <CAL_JsqKNFzo6RWJO5WOvsyO3e4UTo5Zn48aaDac=+uL_CQWerQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <cedc3865-a884-a10e-6c93-0163fd36af92@users.sourceforge.net>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:55695 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934194AbcIWWNW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 23 Sep 2016 18:13:22 -0400
+Content-Disposition: inline
+In-Reply-To: <CAL_JsqKNFzo6RWJO5WOvsyO3e4UTo5Zn48aaDac=+uL_CQWerQ@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Carlo Caione <carlo@caione.org>, linux-amlogic@lists.infradead.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Fri, 23 Sep 2016 21:30:20 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-The script "checkpatch.pl" can point information out like the following.
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Comparison to NULL could be written !…
+On Fri, Sep 23, 2016 at 10:01:13AM -0500, Rob Herring wrote:
+> On Thu, Sep 15, 2016 at 2:41 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> > On Wed, Sep 14, 2016 at 11:49:15AM +0200, Jerome Brunet wrote:
+> >> This patchset adds a specific compatible string in the Meson I2C driver
+> >> for the Amlogic Meson gxbb SoC.
+> >>
+> >> Other patch series (pinctrl and device tree) are being sent to complete
+> >> the i2c support on meson gxbb
+> >>
+> >> Neil Armstrong (2):
+> >>   i2c: meson: add gxbb compatible string
+> >>   dt-bindings: i2c-meson: add gxbb compatible string
+> >
+> > Squashed both patches and applied to for-next, thanks!
+>=20
+> Please don't squash. We ask people to split DT bindings for a reason
+> being reviews and bindings may not go thru subsystem maintainers in
+> the future. It also makes it harder to find things in the archives or
+> patchwork (as does maintainer fixups of subject lines).
 
-Thus fix the affected source code places.
+I intentionally don't ask people to send me the patches squashed. So,
+you will have them seperate in patchwork et al. I only squash them just
+before commiting to my tree. That's because I found that when digging
+through git history, it is much more convenient to have all the
+information in one commit.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/i2c/i2c-dev.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 7d3e3ca..8f7eddd 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -147,7 +147,7 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
- 		count = 8192;
- 
- 	tmp = kmalloc(count, GFP_KERNEL);
--	if (tmp == NULL)
-+	if (!tmp)
- 		return -ENOMEM;
- 
- 	pr_debug("i2c-dev: i2c-%d reading %zu bytes.\n",
-@@ -263,7 +263,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
- 	data_ptrs = kmalloc_array(rdwr_arg.nmsgs,
- 				  sizeof(*data_ptrs),
- 				  GFP_KERNEL);
--	if (data_ptrs == NULL) {
-+	if (!data_ptrs) {
- 		kfree(rdwr_pa);
- 		return -ENOMEM;
- 	}
-@@ -374,7 +374,7 @@ static noinline int i2cdev_ioctl_smbus(struct i2c_client *client,
- 				      client->flags, data_arg.read_write,
- 				      data_arg.command, data_arg.size, NULL);
- 
--	if (data_arg.data == NULL) {
-+	if (!data_arg.data) {
- 		dev_dbg(&client->adapter->dev,
- 			"data is NULL pointer in ioctl I2C_SMBUS.\n");
- 		return -EINVAL;
--- 
-2.10.0
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJX5aj3AAoJEBQN5MwUoCm2LusP/1TIp4VeWIbb/kECbVvSlUuk
+7j9tIoVDjX7bmJmTkGdujfE+TsWFym2SLY0QMpQlwj4nG8Sl+06TrbUcxYKXafyk
+KjdPCue4qSujO+m39oy2DX4CM/6n92D9NxEiPuwhTpVKtqR5JGtZpG3+E4Dacxhe
+8pkEZa+pz0YhUdQhRHoyKXVDlzEQu6Th5evmgnISIvqab+pJhvvuM2+V/rxJTBxz
+eYRPiN6dwKhLiTXDMXVxlr3YT3hqU/2jXY7GFD92VR2T3fbyTwOuzpAeTRIg8l2H
+fer6wneOfoWgBKFop3sQ0+uvy1Car1R/1j3AYs5JBoRuP+CCl2+OdEF/9bx8SBTV
+Db6GDYmzbCi3WVIBekE/MrjLVyBgsU6TIfPWX4Q9Y89jBxsKy2O4JigJ3znydITp
+moqXthe6qxLRSvJjvEgxn8q/Ufj9ngAdVtLyyV7d5dBw8r4PGBIvMwPW5w2spcvk
+Oj6S8WP9kRibl/vnMBuzwDB9knpMfreODeOnm8GeVSOh5AbwF5WQwd0zdiwHw0LQ
+fBAbRQZzeDGsiNjFeC6C8CyXiA7ikzwAM2TEXJALqREKNNuIBj6c1iHLS9qPBRJx
+ZxFmqjyAxRNpfY+RhCs+Wmq15LQzUqlVK0OZC0RAf7dsZVnFXk8+OHZ9UA+92VfQ
+tirjXvkDNjWMWtjaX9X3
+=WfuS
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--
