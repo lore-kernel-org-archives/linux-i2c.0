@@ -1,70 +1,83 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] i2c: meson: add gxbb compatible string
-Date: Sat, 24 Sep 2016 01:26:42 +0200
-Message-ID: <20160923232641.GB5683@katana>
-References: <1473846557-18123-1-git-send-email-jbrunet@baylibre.com>
- <20160915194146.GB7863@katana>
- <CAL_JsqKNFzo6RWJO5WOvsyO3e4UTo5Zn48aaDac=+uL_CQWerQ@mail.gmail.com>
- <20160923221312.GA5683@katana>
- <CAL_JsqKi9Dk5-nF9xFD-89TTUinaGjMv5s1=N2b-Xyu98b+S3w@mail.gmail.com>
+Subject: [PULL REQUEST] i2c for 4.8
+Date: Sat, 24 Sep 2016 01:36:31 +0200
+Message-ID: <20160923233627.GA6259@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
+        protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:56069 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:56117 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752017AbcIWX0t (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 23 Sep 2016 19:26:49 -0400
+        id S1751021AbcIWXgh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 23 Sep 2016 19:36:37 -0400
 Content-Disposition: inline
-In-Reply-To: <CAL_JsqKi9Dk5-nF9xFD-89TTUinaGjMv5s1=N2b-Xyu98b+S3w@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Carlo Caione <carlo@caione.org>, linux-amlogic@lists.infradead.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---TRYliJ5NKNqkz5bu
+--BXVAT5kNtrzKuDFl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+
+Linus,
+
+I2C has 3 driver bugfixes for you, fixing uninitialized memory pointers
+(eg20t), pm/clock imbalance (qup), and a wrongly set cached variable
+(pc954x). Please pull.
+
+Thanks,
+
+   Wolfram
 
 
-> > I intentionally don't ask people to send me the patches squashed. So,
-> > you will have them seperate in patchwork et al. I only squash them just
-> > before commiting to my tree. That's because I found that when digging
-> > through git history, it is much more convenient to have all the
-> > information in one commit.
->=20
-> If git history was the only thing that mattered, then that would be
-> fine. But it is not. Maintainers should apply what's on the list.
-> Period.
+The following changes since commit 3be7988674ab33565700a37b210f502563d932e6:
 
-Huh? If you would *ask* me to stop squashing, I am listening to reasons.
-If you want to force arbitrary rules on me, I am not. There are reasons
-where squashing/modifying patches makes more sense compared to forcing
-the author to resend. DTS bindings may not be one, we can discuss that.
-But that rule without allowing exceptions seems impractical to me.
+  Linux 4.8-rc7 (2016-09-18 17:27:41 -0700)
 
+are available in the git repository at:
 
---TRYliJ5NKNqkz5bu
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 331dcf421c34d227784d07943eb01e4023a42b0a:
+
+  i2c: qup: skip qup_i2c_suspend if the device is already runtime suspended (2016-09-22 20:11:14 +0200)
+
+----------------------------------------------------------------
+Peter Rosin (1):
+      i2c: mux: pca954x: retry updating the mux selection on failure
+
+Sudeep Holla (1):
+      i2c: qup: skip qup_i2c_suspend if the device is already runtime suspended
+
+Yadi.hu (1):
+      i2c-eg20t: fix race between i2c init and interrupt enable
+
+ drivers/i2c/busses/i2c-eg20t.c      | 18 +++++++++++-------
+ drivers/i2c/busses/i2c-qup.c        |  3 ++-
+ drivers/i2c/muxes/i2c-mux-pca954x.c |  2 +-
+ 3 files changed, 14 insertions(+), 9 deletions(-)
+
+--BXVAT5kNtrzKuDFl
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX5boxAAoJEBQN5MwUoCm2HBQP/Agwbei8uHzkJwmNoH7cGrS5
-gUA3avuq40s8cKwOa/64zjSfPY0vPkwrvaw75OKqM1fIj2Bm316zwG6/6n3C5cvO
-s7D0m76j+7++HP/FA3N8awWDWlDSgB6trgavBOdBd2YXGJXMUh2JOuJgndP0D8YI
-6WyPr/d7ksypAWrTI9TnO0IVDtJoNvvgqe+Rf6viCmPgKPUFgE/w2XjKPvjVHG/t
-hlKO0fvfLw7q4VFtPro2VLFiz/RDS3uC1yaZmhRqIqDNeFkMJsWJFxQ3Bc5SPoDi
-X7b3DwHnUHnIqf76urS+pV8ATfyt0ylH1sHWvycI0EP+lk8FcXB+mOOdu/bvb4Nq
-7236laSLCnszkb+vtyOtG0hEonFk9qak8cFvi2E6Km991CMoxbME+09VAAQKAsTe
-c8a+hqJZsXHGWm6Atf5/IKbH0Jc8+uMmMORcmStcLuIl79JX5vbH9a7eS/8p62Jo
-uQDCLSbjUDx18qEag/5brfEzLhtjMsF8lMK8vPp0580WLdqbkt7Mbrd7Qq3wgKoG
-HSZHhTh2re9DvnRDrgnBJh0Y4QoEvSTUFVPdm1Ek+UVfJLUiDqvZwg9/P/AKVwDM
-Vv+Oke1HsZAq02tqAGLoQ9+9zrEQ9aU1QFKWbs4WvS3YWqazRCSqGzDE08fblhwo
-6dqATNoX8rnIZi3HTLh6
-=vfkI
+iQIcBAEBAgAGBQJX5bx7AAoJEBQN5MwUoCm2itMP/Rbut19AQbgcFM/4sDDtO835
+tQZ0ByEY+bw9L0U18RoM+nPKLNlhO+f4rCv+bdRmDoZ/4CXSnxRpvx8bU3BDJKA5
+9E4Unq1T9xV0N/gcSEdeRmwRKgcwMUQHNTYVwKRe5SOGS/yFxF05uCDmulkwOjWi
+Ye7KAfmtVC6TuNwkuEJixFzCIKhRaVXuA42KyApnnBp1UFXtnMUdQ1fbFN3uPuq3
+Dkpjgqd/G/eM9H0iAl/5UT69S/LYow3Q2QZFtAES+QgtRHFToJp8+4vxo2VTfSfE
+lsiDt1uo0f+wnwhaD4ZLw3yPoQDg89Ep38CNXp4QWI8yi/v+oz/Pt/rfwLB8Ymxs
+ebY1k07bLr86GvIENvsHMYxxsReppOmqU/zCQF2Y8ZB0FuN0zqY1Ug9HGtrumwNQ
+JJljeyoemsifvxwZwk4AGdvP/+WTw5caGYDkxHSuiLIbYYjLrT3MmzabBjx4rGmT
+mlEDRfqylCs6q24sOeFMDmGKIAxwhm4JBzJooDErx37sH+5aNOkfH3Sbfey1cvzR
+BHTsoNpYr7+PjsedChM4UJkpOBFlZRAAasa9OvpJayvOuTSUPxANpRTT1BwwZlnT
+o5m7lLftxJSn6FNYg6vQ2dLubNEVfq06pBiC2UQ2LoAT4q8BmjeOf2y+E0SWW3ba
+VrAtyN4sg/RABoZZ30oL
+=a78V
 -----END PGP SIGNATURE-----
 
---TRYliJ5NKNqkz5bu--
+--BXVAT5kNtrzKuDFl--
