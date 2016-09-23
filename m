@@ -1,39 +1,48 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: Re: [PATCH] i2c: uniphier-f: fix misdetection of incomplete STOP condition
-Date: Fri, 23 Sep 2016 22:33:47 +0900
-Message-ID: <CAK7LNAT_Kqm3t_pXuqKxG_p=N504NRKWKoVAFRiv0Fq1LHJQBQ@mail.gmail.com>
-References: <1474632241-10440-1-git-send-email-yamada.masahiro@socionext.com> <20160923121245.GA1580@katana>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 0/2] i2c: meson: add gxbb compatible string
+Date: Fri, 23 Sep 2016 10:01:13 -0500
+Message-ID: <CAL_JsqKNFzo6RWJO5WOvsyO3e4UTo5Zn48aaDac=+uL_CQWerQ@mail.gmail.com>
+References: <1473846557-18123-1-git-send-email-jbrunet@baylibre.com> <20160915194146.GB7863@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160923121245.GA1580@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:37828 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1034960AbcIWPBl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 23 Sep 2016 11:01:41 -0400
+Received: from mail.kernel.org (localhost [127.0.0.1])
+        by mail.kernel.org (Postfix) with ESMTP id 6FF0820451
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Sep 2016 15:01:40 +0000 (UTC)
+Received: from mail-yb0-f175.google.com (mail-yb0-f175.google.com [209.85.213.175])
+        (using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92E3D200BE
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Sep 2016 15:01:34 +0000 (UTC)
+Received: by mail-yb0-f175.google.com with SMTP id u125so67577676ybg.3
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Sep 2016 08:01:34 -0700 (PDT)
+In-Reply-To: <20160915194146.GB7863@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Carlo Caione <carlo@caione.org>, linux-amlogic@lists.infradead.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-Hi Wolfram,
-
-
-2016-09-23 21:12 GMT+09:00 Wolfram Sang <wsa@the-dreams.de>:
-> On Fri, Sep 23, 2016 at 09:04:01PM +0900, Masahiro Yamada wrote:
->> Currently, the status register FI2C_SR is checked immediately after
->> a STOP condition is issued in case of the deferred STOP condition.
->> It takes typically 5-10 usec until the corresponding bits in the
->> register are set, so the error check for "stop condition was not
->> completed" is very likely to be false positive.
+On Thu, Sep 15, 2016 at 2:41 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Wed, Sep 14, 2016 at 11:49:15AM +0200, Jerome Brunet wrote:
+>> This patchset adds a specific compatible string in the Meson I2C driver
+>> for the Amlogic Meson gxbb SoC.
 >>
->> Add wait code to relax the status register check.
+>> Other patch series (pinctrl and device tree) are being sent to complete
+>> the i2c support on meson gxbb
 >>
->> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+>> Neil Armstrong (2):
+>>   i2c: meson: add gxbb compatible string
+>>   dt-bindings: i2c-meson: add gxbb compatible string
 >
-> Use readl_poll_timeout?
->
+> Squashed both patches and applied to for-next, thanks!
 
-Yes, thanks for your advice!
+Please don't squash. We ask people to split DT bindings for a reason
+being reviews and bindings may not go thru subsystem maintainers in
+the future. It also makes it harder to find things in the archives or
+patchwork (as does maintainer fixups of subject lines).
 
-
-
--- 
-Best Regards
-Masahiro Yamada
+Rob
