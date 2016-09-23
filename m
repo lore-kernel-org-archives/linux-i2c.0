@@ -1,113 +1,51 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v5 3/6] Documentation: Add sbs-manager device tree node
- documentation
-Date: Fri, 23 Sep 2016 14:44:34 -0500
-Message-ID: <20160923194434.GA5771@rob-hp-laptop>
-References: <1474447274-90821-1-git-send-email-preid@electromag.com.au>
- <1474447274-90821-4-git-send-email-preid@electromag.com.au>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 1/4] i2c-dev: Use kmalloc_array() in i2cdev_ioctl_rdwr()
+Date: Fri, 23 Sep 2016 21:44:32 +0200
+Message-ID: <be56c41b-0b29-de40-0bce-700de64b7d92@users.sourceforge.net>
+References: <566ABCD9.1060404@users.sourceforge.net>
+ <cedc3865-a884-a10e-6c93-0163fd36af92@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:36285 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1031643AbcIWTog (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Sep 2016 15:44:36 -0400
-Content-Disposition: inline
-In-Reply-To: <1474447274-90821-4-git-send-email-preid@electromag.com.au>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cedc3865-a884-a10e-6c93-0163fd36af92@users.sourceforge.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-i2c@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, sre@kernel.org, andrea.merello@gmail.com, karl-heinz@schneider-inet.de, arnd@arndb.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 
-On Wed, Sep 21, 2016 at 04:41:11PM +0800, Phil Reid wrote:
-> From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> 
-> This patch adds device tree documentation for the sbs-manager
-> 
-> Reviewed-by: Phil Reid <preid@electromag.com.au>
-> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
-> ---
->  .../bindings/power/supply/sbs,sbs-manager.txt      | 62 ++++++++++++++++++++++
->  1 file changed, 62 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
-> new file mode 100644
-> index 0000000..2a04b30
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
-> @@ -0,0 +1,62 @@
-> +Binding for sbs-manager
-> +
-> +Required properties:
-> +- compatible: should be "lltc,ltc1760" or use "sbs,sbs-manager" as fallback.
-> +- reg: integer, i2c address of the device. Should be <0xa>.
-> +Optional properties:
-> +- gpio-controller: Marks the port as GPIO controller.
-> +  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
-> +- #gpio-cells: Should be <2>. The first cell is the pin number, the second cell
-> +  is used to specify optional parameters:
-> +  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Fri, 23 Sep 2016 20:30:07 +0200
 
-Is this leftover from the last version? It doesn't look like you are 
-using any GPIOs in the example.
+* A multiplication for the size determination of a memory allocation
+  indicated that an array data structure should be processed.
+  Thus use the corresponding function "kmalloc_array".
 
-> +
-> +From OS view the device is basically an i2c-mux used to communicate with up to
-> +four smart battery devices at address 0xb. The driver actually implements this
-> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
-> +batteries. See Documentation/devicetree/bindings/i2c/i2c-mux.txt for more
-> +information on i2c-mux nodes. Channels will be numerated starting from 1 to 4.
-> +
-> +Example:
-> +
-> +batman@0a {
-> +    compatible = "lltc,ltc1760";
-> +    reg = <0x0a>;
-> +    #address-cells = <1>;
-> +    #size-cells = <0>;
-> +
-> +    gpio-controller;
-> +    #gpio-cells = <2>;
-> +
-> +    i2c@1 {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        reg = <1>;
-> +
-> +        battery@b {
-> +            compatible = "ti,bq2060", "sbs,sbs-battery";
-> +            reg = <0xb>;
-> +        };
-> +    };
-> +
-> +    i2c@2 {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        reg = <2>;
-> +
-> +        battery@b {
-> +            compatible = "ti,bq2060", "sbs,sbs-battery";
-> +            reg = <0xb>;
-> +        };
-> +    };
-> +
-> +    i2c@3 {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        reg = <3>;
-> +
-> +        battery@b {
-> +            compatible = "ti,bq2060", "sbs,sbs-battery";
-> +            reg = <0xb>;
-> +        };
-> +    };
-> +};
-> -- 
-> 1.8.3.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  This issue was detected by using the Coccinelle software.
+
+* Replace the specification of a data type by a pointer dereference
+  to make the corresponding size determination a bit safer according to
+  the Linux coding style convention.
+
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/i2c/i2c-dev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 66f323f..6d8226d 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -260,7 +260,9 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 	if (IS_ERR(rdwr_pa))
+ 		return PTR_ERR(rdwr_pa);
+ 
+-	data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
++	data_ptrs = kmalloc_array(rdwr_arg.nmsgs,
++				  sizeof(*data_ptrs),
++				  GFP_KERNEL);
+ 	if (data_ptrs == NULL) {
+ 		kfree(rdwr_pa);
+ 		return -ENOMEM;
+-- 
+2.10.0
