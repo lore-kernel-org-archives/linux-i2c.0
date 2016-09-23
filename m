@@ -1,78 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c / ACPI: Do not touch an I2C device if it belongs
- to another adapter
-Date: Thu, 22 Sep 2016 19:46:28 +0200
-Message-ID: <20160922174628.GA1861@katana>
-References: <874m5ax3o4.fsf@gmail.com>
- <20160920135925.45450-1-mika.westerberg@linux.intel.com>
+From: Joel Stanley <joel@jms.id.au>
+Subject: Re: [PATCH v2 2/2] i2c: aspeed: added documentation for Aspeed I2C driver
+Date: Fri, 23 Sep 2016 15:32:03 +0930
+Message-ID: <CACPK8XcWbgfW_==aVjUataA2Yk26TSaO2o3Vt0pR68qKpkYxuA@mail.gmail.com>
+References: <201609100847.j1qUadzy%fengguang.wu@intel.com> <1473472551-11149-1-git-send-email-brendanhiggins@google.com>
+ <1473472551-11149-2-git-send-email-brendanhiggins@google.com>
+ <20160919213536.GA19274@rob-hp-laptop> <CAFd5g46WR34A1FLNvuRck84EX1F3gbPDnDuBo2j-SVUEJPvXfg@mail.gmail.com>
+ <CAFd5g46j02sb2w_DwaXAgnfcO=ONmJGZwqdRneNd0QHq-t53rA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20160920135925.45450-1-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Nicolai Stange <nicstange@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ua0-f196.google.com ([209.85.217.196]:34690 "EHLO
+        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757734AbcIWGCY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Sep 2016 02:02:24 -0400
+In-Reply-To: <CAFd5g46j02sb2w_DwaXAgnfcO=ONmJGZwqdRneNd0QHq-t53rA@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Brendan Higgins <brendanhiggins@google.com>
+Cc: Rob Herring <robh@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Jeremy Kerr <jk@ozlabs.org>
 
+Hi Brendan,
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Sep 21, 2016 at 3:35 AM, Brendan Higgins
+<brendanhiggins@google.com> wrote:
+> First off, someone pointed out to me that the mapping that I used between
+> addresses and bus numbers is not actually valid for busses 8-14.
+>
+> This could be fixed by checking the offset, but I am wondering if that is
+> the right way to do it. It seems like this is not completely trivial so
+> maybe this should be specified in the device tree? If that is the case,
+> should I do this as another reg entry or go back to the way I was doing it
+> before?
 
-On Tue, Sep 20, 2016 at 04:59:25PM +0300, Mika Westerberg wrote:
-> When enumerating I2C devices connected to an I2C adapter we scan the whole
-> namespace (as it is possible to have devices anywhere in that namespace,
-> not just below the I2C adapter device) and add each found device to the I=
-2C
-> bus in question.
->=20
-> Now after commit 525e6fabeae2 ("i2c / ACPI: add support for ACPI
-> reconfigure notifications") checking of the adapter handle to the one fou=
-nd
-> in the I2cSerialBus() resource was moved to happen after resources of the
-> I2C device has been parsed. This means that if the I2cSerialBus() resource
-> points to an adapter that does not exists in the system we still parse
-> those resources. This is problematic in particular because
-> acpi_dev_resource_interrupt() tries to configure GSI if the device also h=
-as
-> an Interrupt() resource. Failing to do that results errrors like this to =
-be
-> printed on the console:
->=20
->   [   10.409490] ERROR: Unable to locate IOAPIC for GSI 37
->=20
-> To fix this we pass the I2C adapter to i2c_acpi_get_info() and make sure
-> the handle matches the one in the I2cSerialBus() resource before doing
-> anything else to the device.
->=20
-> Reported-and-tested-by: Nicolai Stange <nicstange@gmail.com>
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+I don't see an alternative way to derive these numbers. As you
+mention, the block of SRAM in the middle of the IP screwing up the
+linear mapping.
 
-Applied to for-next, thanks!
+I suggest going back to what you have in v2, with a mention in the
+commit message as to why the bus property is necessary.
 
+Cheers,
 
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJX5Bj0AAoJEBQN5MwUoCm20OAP/39fPhfGQX6MOarontAEGygW
-1W3l+0OSi2OK5TAmMVWcPCs7/b1Hp3GdSK5qHXVuTy176bRwTBK4i3/CuopzPPu+
-NluA/niQOouxlwvXP5+4nUWT8trDfD2n24x0s1BcufFirmsfgZIatO/nQU9T4IGI
-J6FRiVqbMdHVegv7KMWIG2UNscw9W/u3KYw64K+g8iWsOBLVEqfJ/5ly1iL8T/CV
-HyGQT6nBpcma/Dp83dR25YPKAPW06iwsRymgwSVIiJrhwJ7WXRhfJ0sdWid+p7ZN
-yjnFuedFNTLCTrDkTno7FsTbASsaEouO11dlX5Vd9/lveGczQrBXiPD2Hc6NNE+E
-ywwZacONlxrdKGf9vzxwTUxvvlN4YplyfW6Mc4CPxSjvxZSOxkx8mLQCYoQIHIQJ
-pgxIPx7m0b4ZW+6evXdo6vgjdZ1xSFEJJFPMbGR6/fuJr2WRpgORoa7sP+ogCLfX
-901pLrempPz1A4APDnlp9xu2ULlNMwKsT11hcNyDzYpJA7KKggRp28diRuH430rF
-RKrgXLdUsOpnhVRAoQ7ywjK5LYbUMoytJSF4+IK/gNhebMhd3ENiKj33288o3Eaf
-8WQ0zUIuw6BpCQRvhy44YZQEaaCQT6z52J+HbRQm+kSOKGbNK6rxdmg6EDfwEfzs
-H52kCUK/BS9oub9Y+LIp
-=nyzK
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--
+Joel
