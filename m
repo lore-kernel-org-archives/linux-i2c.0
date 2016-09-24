@@ -1,102 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 0/4] gpio: fix an incorrect lockdep warning
-Date: Sat, 24 Sep 2016 10:56:04 +0200
-Message-ID: <20160924085604.GC1434@katana>
-References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v2] i2c: i801: Add support for Kaby Lake PCH-H
+Date: Sat, 24 Sep 2016 10:57:59 +0200
+Message-ID: <20160924085759.GD1434@katana>
+References: <20160923085601.166121-1-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="vEao7xgI/oilGqZ+"
+        protocol="application/pgp-signature"; boundary="PHCdUe6m4AxPMzOu"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:58849 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:58856 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S938318AbcIXI4R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 24 Sep 2016 04:56:17 -0400
+        id S1756764AbcIXI6F (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 24 Sep 2016 04:58:05 -0400
 Content-Disposition: inline
-In-Reply-To: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+In-Reply-To: <20160923085601.166121-1-mika.westerberg@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 
---vEao7xgI/oilGqZ+
+--PHCdUe6m4AxPMzOu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 16, 2016 at 06:02:41PM +0200, Bartosz Golaszewski wrote:
-> If an I2C GPIO multiplexer is driven by a GPIO provided by an expander
-> when there's a second expander using the same device driver on one of
-> the I2C bus segments, lockdep prints a deadlock warning when trying to
-> set the direction or the value of the GPIOs provided by the second
-> expander.
+On Fri, Sep 23, 2016 at 11:56:01AM +0300, Mika Westerberg wrote:
+> From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 >=20
-> This series exports an already existing function from i2c-core as
-> public API and reuses it in pca953x to pass a correct lock subclass
-> to lockdep.
+> Intel Kaby Lake PCH-H has the same legacy SMBus host controller than Intel
+> Sunrisepoint PCH. It also has same iTCO watchdog on the bus.
 >=20
-> Note: if this series gets merged, I'll prepare follow-up patches for
-> other expanders for which a similar problem could potentially occur.
+> Add Kaby Lake PCH-H PCI ID to the list of supported devices.
 >=20
-> Tested with the following setup:
->=20
->  -------             ---------  Bus segment 1 |         |
-> |       |           |         |---------------  Devices
-> |       | SCL/SDA   |         |               |         |
-> | Linux |-----------| I2C MUX |                - - - - -
-> |       |    |      |         | Bus segment 2
-> |       |    |      |         |-------------------
->  -------     |       ---------                    |
->              |           |                    - - - - -
->         ------------     | MUX GPIO          |         |
->        |            |    |                     Devices
->        |    GPIO    |    |                   |         |
->        | Expander 1 |----                     - - - - -
->        |            |                             |
->         ------------                              | SCL/SDA
->                                                   |
->                                              ------------
->                                             |            |
->                                             |    GPIO    |
->                                             | Expander 2 |
->                                             |            |
->                                              ------------
->=20
-> where expander 1 is a pca9534 and expander 2 is a pca9535.
->=20
-> v1 -> v2:
-> - added patches 1/4, 2/4 & 3/4
-> - used i2c_adapter_depth() in patch 4/4 in order to detect multiple
->   adapter nesting
->=20
-> Bartosz Golaszewski (4):
->   i2c: export i2c_adapter_depth()
->   lockdep: make MAX_LOCKDEP_SUBCLASSES unconditionally visible
->   i2c: add a warning to i2c_adapter_depth()
->   gpio: pca953x: fix an incorrect lockdep warning
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
 Applied to for-next, thanks!
 
 
---vEao7xgI/oilGqZ+
+--PHCdUe6m4AxPMzOu
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX5j+kAAoJEBQN5MwUoCm2/dUQAI5piDKXU6RoU7wPANUobl6x
-5gSbXjmxUkm4Lg0undyf01bEZKFdIo8beAMwb7LkkRV8OOL71v4hu5Z1qSpVTezF
-hMrQ3eU71c7RADs9m1tXx0Z9bW3HcvxKSlIrDNXQPzHE4V3uJ3wk09RaShqSkVJm
-2mprBTECBla0ATDf+RxmuQqD0r03sNlibtv/89gNvx18sAHOqADDDJ1N9KGF0Kma
-HlPafbFa+ONl546IW8yG373QQwAe+2kgt57pRUKwbImk8fiiKgdSiWB+euxJx7dF
-tWjHoa2y5DbwqzVfyYTcZq5nF1POfez0BWjtu6jRh5J+cNMAAxwb/frwCVUJQpp9
-W9P0Ui4YfJ0bwTDl4t+NN+8oh7MGId4FoqUYzyO7LSiO4zAiMPsKHflS3P89JqcO
-nwdajbwuUSZXAAQ4xhSxYOQ0pxrWJn70F+SoGwGBDnjz6+iAhuudH6x2uWFeKoCw
-7B6QzDrHhuEM47ZW4qfOjmcHlMS79oEqkpxJ5ZlJIlUiQItrftB6JeW2mfYo05Io
-cHrp2ohpO9Xorc3vePDdYa+yG6lIZLIb1NPPyeLh3Pdd2TAKHVwnGSggqFxWfkTb
-3E6+36NPzE6S4y+ZKZya0zGW+qwixsIybJXrc+CqfsmIvblzwZKzcHjQnVcE6feJ
-Bz2b3nISoCCqqZ9mWnzV
-=sMPK
+iQIcBAEBAgAGBQJX5kAXAAoJEBQN5MwUoCm2cWYP/jiFaOkYkFjUOXGU55jg4dXO
+w+t7oxPpzyhrmhW+iAIg2VRluflqjsFFIauMSacekH7sBTX2crYD2Dnhl01dppR2
+tsMT8uhMkgGXarRDRGFti64CoVI6wSAoa/8hVAm5oK65S8gda0QT841JlUbfjTT/
+MNE+qUa0xuBl8Pg2z33pE12Wu6vSPCdg1YRrW5jZNQKdirkyFlh+KUbzhVMh0KBJ
+3HcotQT9HS0ZhR5RBzcZucYVtCFEJFsnRRQmkBef6K47lvgfMMrQLE/mODbb3Q9F
+i7GJcWBZPWfdTesMvojBu5uNe8/D+DuV36cvtxKpyFQXPcohTXLznGI+2rThbU1m
+kWaTrlUd6m7gWaYrj+7hk2Bxq4/JeMIi1RQ42v0hkOw7Ke1TNZBaN0+qtW7kdKO4
+b+uYm/3pXWTWiIgeZXXq49zU1S7nTrPSS9AzhzjeUTVnFDIOCDRIdCweZRfsslam
+iiqF80SJoyNOrbAHxo4oBCXPpxkO/v8pQcgPReSA6NlRQIUO4HYec0WTywd83038
+KV10bCvK7DwmkoUCx2P+8bQxAtF67IZYbLDpG1D4FoYay+ag9GXztEjVPCyA3nQm
+7rOOBwoXDZgRK4mbBkyCaY68Tm3SWrr0pDXCYsfh3at6yO2CB4pVP/X3KYqgUFUE
+PFEVw0k4htAk9Mu34BTK
+=czcn
 -----END PGP SIGNATURE-----
 
---vEao7xgI/oilGqZ+--
+--PHCdUe6m4AxPMzOu--
