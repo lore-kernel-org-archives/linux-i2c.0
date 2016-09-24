@@ -1,73 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] i2c: meson: add gxbb compatible string
-Date: Sat, 24 Sep 2016 10:41:54 +0200
-Message-ID: <20160924084154.GA1434@katana>
-References: <1473846557-18123-1-git-send-email-jbrunet@baylibre.com>
- <20160915194146.GB7863@katana>
- <CAL_JsqKNFzo6RWJO5WOvsyO3e4UTo5Zn48aaDac=+uL_CQWerQ@mail.gmail.com>
- <20160923221312.GA5683@katana>
- <CAL_JsqKi9Dk5-nF9xFD-89TTUinaGjMv5s1=N2b-Xyu98b+S3w@mail.gmail.com>
- <20160923232641.GB5683@katana>
- <CAL_JsqJGQ2az=eO0PbfcTrAPxUsym=UaDOOy1Rsw0-AbzMjnXg@mail.gmail.com>
+Subject: Re: [PATCH v2 4/4] gpio: pca953x: fix an incorrect lockdep warning
+Date: Sat, 24 Sep 2016 10:55:24 +0200
+Message-ID: <20160924085524.GB1434@katana>
+References: <1474041765-17818-1-git-send-email-bgolaszewski@baylibre.com>
+ <1474041765-17818-5-git-send-email-bgolaszewski@baylibre.com>
+ <20160921054521.GB1484@katana>
+ <CACRpkdbYgetpYntO6KsVLh1n_7DU+1AD3AwVVkmV5ud5A6Q31g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:58809 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758289AbcIXImD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 24 Sep 2016 04:42:03 -0400
+        protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAL_JsqJGQ2az=eO0PbfcTrAPxUsym=UaDOOy1Rsw0-AbzMjnXg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <CACRpkdbYgetpYntO6KsVLh1n_7DU+1AD3AwVVkmV5ud5A6Q31g@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Carlo Caione <carlo@caione.org>, linux-amlogic@lists.infradead.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
 
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Sep 23, 2016 at 10:10:57AM +0200, Linus Walleij wrote:
+> On Wed, Sep 21, 2016 at 7:45 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>=20
+> >> In order to get rid of the warning, retrieve the adapter nesting depth
+> >> and use it as lockdep subclass for chip->i2c_lock.
+> >>
+> >> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> >
+> > Linus, we'd like that in 4.9. Can I get your ack for the gpio part?
+>=20
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+>=20
+> Sorry for not attending quick enough, I was down in the
+> block layer.
+
+Well, it was close but still quick enough. Glad to see that one can come
+back from the depths of the block layer ;)
 
 
-> I did state some reasons previously. Consistent rules for submitters
-> of DT bindings and being able to trace history beyond git. Now, I
-> guess you aren't changing the rules, but you probably aren't
-> requesting people to split DT bindings either? You might not be aware,
-> but we also generate a DT only tree with git-filter-branch[1] for
-> non-kernel projects to use bindings and dts files. For that, sure they
-> will only get the DT binding part of it, but what commit text do they
-> get? Finally, DT maintainer acks (which from me is a review really)
-> apply to the bindings only. Sometimes I review the drivers, but not
-> often. So I would like the git history of my reviews to be accurate in
-> terms of what I actually reviewed.
-
-Points taken. Will keep them seperate from now on.
-
-Thanks,
-
-   Wolfram
-
-
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJX5jxRAAoJEBQN5MwUoCm2VskQAJR5zEQEi/guKpAD2jffxSSR
-V1cvhn81Gb017mOsBKIZPHeC1l3/7G2Fqantqeo3Yozf94DS5ZiQENHWHIbCDAQG
-64JWBoeIhn3BykvsT0zVyKLthDF4RIgRJl+Q61fWEJrV8n4cbzDuoTgPUP/dGFJj
-FfDyh0lrDEbSLV9f7g8T1CXHVcjKX9HFLhPmf1J9jyQMgYap3lB7vz2EFyM0Xtsu
-N96JeDkwd1d9VYLjRAMwYzO4IEzLsU6InqkkpNbN3RxhPXjV6keAMN6IbFrQQS/8
-jFio4OXnC7kRjVUoOgQ6fGjdhG7Nrsz+XYiJo1DIJWj6FegATZ/VNbasOD8q995G
-tnHeYpdjTgM7M5dFuyO9U7Ny+MYyJTARp6HqdtAM9VBiI5WcywVFPmG3Z1aPw0Yp
-ynvnTBCpHfisW6LMm6eSkC+ncHMI0hI7HruRUS1km5++AgUC09p4zl8R1sxPpwZM
-IoBHp8ejNnhy6IOjY4Yg7E3PxEEQwAOe7/TDAWKFlWlt0kina6h9J+6VAC3hJCzW
-ue+aogoq7liwUJxG60n6+9rwS/XVA+QxytSvaRMlvRJw6FyQ533d+uloWYx/5Cuv
-gU3eyfPxvuM10tUnFQsZUd9jhAKgzK/ekO4zRxtzkorF/zH6F8Rh2PdsA6Mrao3M
-oU8CmXyXyMVuu2cacDR3
-=bwI7
+iQIcBAEBAgAGBQJX5j97AAoJEBQN5MwUoCm2V9UP/0nagaVZ6g0S/vVOHt7qB9RT
+c1rvYUdboDkAWm2iaIhewcOyY9HlyOhPIqtkZYL6KOPe1x9JbBnMSBOasrLQhTrY
+xyAUpEklc+ADVAkfI0tutYV2SuFR6Bcx6kY7E7lwbpB9ZkRIFHFi7ER5fPxJEpyb
+F/zQzMP4jTwpzMkHCcjxJrE8J8BcUpgkBvU5byVIHXRhN0whzAdhmb7B9pcbJmuH
+NpY7G3SkKxZHuO5Hj81seoXtNFEUXntL+72itmIJa2EunHhcN06uXR2++r97FHAq
+Fz/ULdAfFShHLZAbBWoKYLH16k3LvsjMJYI9bfguflkrqnXEMHRnVkbKKf9gbdif
+3HbbNmGTqVYMDYnOC+IwhwwW2wDpQbUaF2P2ypu4Y4OPX/HpjfAATWZ5srxzUxnC
+OYZK9na9bOqrBND6TmwK46hMqIbBvEnwcQ3lHzDmQl/5wZFXOGHyNwRCYoe+NuK1
+qPQvzQzNiexrLkOnogfKn2FaJ0RGtOYyDDmSey39TLt3D0BfaLE+x+pRD34XQOW4
+C6t3f7VZLAzui8TNgPAC74pa3r8EP0EfAIzrcmg268oBUOAzIoWKlPH5a0Pfp4mO
+6xg77xWsQqmFwjGQhMUXxramc0EnXXJpat46dAIKLus8FdSmxsnCZ/cYdGKq7117
+cD0wFlzrO41eao+tNYfE
+=AQ/c
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--3lcZGd9BuhuYXNfi--
