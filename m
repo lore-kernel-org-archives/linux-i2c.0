@@ -1,62 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] gpio: pca953x: add a comment explaining the need for a
- lockdep subclass
-Date: Mon, 26 Sep 2016 12:00:30 +0200
-Message-ID: <20160926100030.GA5606@katana>
-References: <1474883655-15824-1-git-send-email-bgolaszewski@baylibre.com>
- <1474883655-15824-2-git-send-email-bgolaszewski@baylibre.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1474883655-15824-2-git-send-email-bgolaszewski@baylibre.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+From: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+Subject: [PATCH v2] i2c: xlp9xx: ACPI support for I2C clients
+Date: Mon, 26 Sep 2016 16:13:03 +0530
+Message-ID: <1474886583-10569-1-git-send-email-tanmay.jagdale@broadcom.com>
+References: <20160921211725.GI1513@katana>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-gw1-out.broadcom.com ([216.31.210.62]:62776 "EHLO
+        mail-gw1-out.broadcom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1034211AbcIZKnx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Sep 2016 06:43:53 -0400
+In-Reply-To: <20160921211725.GI1513@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, jayachandran.chandrashekaran@broadcom.com, Tanmay Jagdale <tanmay.jagdale@broadcom.com>
 
+The ACPI companion of the adapter has to be set for I2C controller
+code to read and attach the slave devices described in the ACPI table
+with the I2CSerialBus resource descriptor. Used ACPI_COMPANION_SET
+macro to set this.
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Tanmay Jagdale <tanmay.jagdale@broadcom.com>
+---
+Changes in v2
+	- Fixed parenthesis
 
-On Mon, Sep 26, 2016 at 11:54:15AM +0200, Bartosz Golaszewski wrote:
-> This is a follow-up to commit 559b46990e76 ("gpio: pca953x: fix an
-> incorrect lockdep warning"). The reason for calling
-> lockdep_set_subclass() in pca953x_probe() is not explained in
-> the code.
->=20
-> Add a comment describing the problem, partial solution and required
-> future extensions.
->=20
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+ drivers/i2c/busses/i2c-xlp9xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-Linus, because of dependencies, I should probably pick it up?
-
-
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJX6PG+AAoJEBQN5MwUoCm22akP/i11EefXMZ7tyqfCrjwgr3hC
-GdXG7Lpi8vWy7sS6xaZvjWhB0xbwvjig89vp8GfBAxu+wYAGGDy0DPt2IT+h6ejr
-gt/F7Oj7wg3Xt1i3cdCMZPAPQEF+idJisnF30Imv19cJLthTj7Uacx/cYQFuJ+Qo
-xotVETWBS5GitErjQ9OLrBtJBDuyDS/KQH/V4Ryfo2nk48rYlzABva3WTgm0qXSW
-aB2xUKHCaY5VVrBnkTj/AeAVl0HzKrqVMNYzUNV+s7NmFjIFpXhgl2mY1t/j7bKl
-Ogp5KghzwFeuiR0bmGcp0nc9w0gH/4FHy3NCyX5wux7MLBN635a21l19UKR6M3TO
-SjI5u5ba9jqFTTBAzTTqr4YSsaJ6dKZ5MKQSm6aO9aYKw71AJcDE/NpOIW+GZCXo
-XhfuAxOLa0t/O9PbIheAWoiXfGiFlseMtvXUwHHL3WgMepAfwdTHRCy7DWUZ6hpR
-zllK/etiW7ci0ieoLaRu6HLAHxVvaKgsWId2C6rAhbnqLtSa7AlLB1Vg7n+U7eeY
-5sIeDoUfIkIK573JyQQ1euQhUj7lWg3FpSl5ZAXfmpxjbnigrpf/+m+etOq7QOdt
-BHWf8hZ9CvNvL6SE8/RtMwvoZrgRAmEvQ3NXQ693n70PXwx9xbUq33QYnPASgoWp
-Zhm1LDnT9sWGSoNcq5dm
-=y3Tl
------END PGP SIGNATURE-----
-
---7JfCtLOvnd9MIVvH--
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index 55a7bef..10e47dd 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -393,6 +393,7 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
+ 	init_completion(&priv->msg_complete);
+ 	priv->adapter.dev.parent = &pdev->dev;
+ 	priv->adapter.algo = &xlp9xx_i2c_algo;
++	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&pdev->dev));
+ 	priv->adapter.dev.of_node = pdev->dev.of_node;
+ 	priv->dev = &pdev->dev;
+ 
+-- 
+2.1.0
