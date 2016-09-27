@@ -1,130 +1,44 @@
 From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH v2 7/8] i2c: bcm2835: Add support for dynamic clock
-Date: Tue, 27 Sep 2016 13:57:05 +0200
-Message-ID: <1474977426-3272-8-git-send-email-noralf@tronnes.org>
+Subject: [PATCH v2 6/8] i2c: bcm2835: Support i2c-dev ioctl I2C_TIMEOUT
+Date: Tue, 27 Sep 2016 13:57:04 +0200
+Message-ID: <1474977426-3272-7-git-send-email-noralf@tronnes.org>
 References: <1474977426-3272-1-git-send-email-noralf@tronnes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.domeneshop.no ([194.63.252.55]:46570 "EHLO
-        smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933755AbcI0L56 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Sep 2016 07:57:58 -0400
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1474977426-3272-1-git-send-email-noralf@tronnes.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Cc: linux-rpi-kernel@lists.infradead.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-Support a dynamic clock by reading the frequency and setting the
-divisor in the transfer function instead of during probe.
-
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
----
- drivers/i2c/busses/i2c-bcm2835.c | 51 +++++++++++++++++++++++++---------------
- 1 file changed, 32 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 79dd15f..5aed514 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -58,6 +58,7 @@ struct bcm2835_i2c_dev {
- 	void __iomem *regs;
- 	struct clk *clk;
- 	int irq;
-+	u32 bus_clk_rate;
- 	struct i2c_adapter adapter;
- 	struct completion completion;
- 	struct i2c_msg *curr_msg;
-@@ -78,6 +79,30 @@ static inline u32 bcm2835_i2c_readl(struct bcm2835_i2c_dev *i2c_dev, u32 reg)
- 	return readl(i2c_dev->regs + reg);
- }
- 
-+static int bcm2835_i2c_set_divider(struct bcm2835_i2c_dev *i2c_dev)
-+{
-+	u32 divider;
-+
-+	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk),
-+			       i2c_dev->bus_clk_rate);
-+	/*
-+	 * Per the datasheet, the register is always interpreted as an even
-+	 * number, by rounding down. In other words, the LSB is ignored. So,
-+	 * if the LSB is set, increment the divider to avoid any issue.
-+	 */
-+	if (divider & 1)
-+		divider++;
-+	if ((divider < BCM2835_I2C_CDIV_MIN) ||
-+	    (divider > BCM2835_I2C_CDIV_MAX)) {
-+		dev_err_ratelimited(i2c_dev->dev, "Invalid clock-frequency\n");
-+		return -EINVAL;
-+	}
-+
-+	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
-+
-+	return 0;
-+}
-+
- static void bcm2835_fill_txfifo(struct bcm2835_i2c_dev *i2c_dev)
- {
- 	u32 val;
-@@ -215,7 +240,7 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- {
- 	struct bcm2835_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
- 	unsigned long time_left;
--	int i;
-+	int i, ret;
- 
- 	for (i = 0; i < (num - 1); i++)
- 		if (msgs[i].flags & I2C_M_RD) {
-@@ -224,6 +249,10 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 			return -EOPNOTSUPP;
- 		}
- 
-+	ret = bcm2835_i2c_set_divider(i2c_dev);
-+	if (ret)
-+		return ret;
-+
- 	i2c_dev->curr_msg = msgs;
- 	i2c_dev->num_msgs = num;
- 	reinit_completion(&i2c_dev->completion);
-@@ -274,7 +303,6 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- {
- 	struct bcm2835_i2c_dev *i2c_dev;
- 	struct resource *mem, *irq;
--	u32 bus_clk_rate, divider;
- 	int ret;
- 	struct i2c_adapter *adap;
- 
-@@ -298,27 +326,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
--				   &bus_clk_rate);
-+				   &i2c_dev->bus_clk_rate);
- 	if (ret < 0) {
- 		dev_warn(&pdev->dev,
- 			 "Could not read clock-frequency property\n");
--		bus_clk_rate = 100000;
--	}
--
--	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk), bus_clk_rate);
--	/*
--	 * Per the datasheet, the register is always interpreted as an even
--	 * number, by rounding down. In other words, the LSB is ignored. So,
--	 * if the LSB is set, increment the divider to avoid any issue.
--	 */
--	if (divider & 1)
--		divider++;
--	if ((divider < BCM2835_I2C_CDIV_MIN) ||
--	    (divider > BCM2835_I2C_CDIV_MAX)) {
--		dev_err(&pdev->dev, "Invalid clock-frequency\n");
--		return -ENODEV;
-+		i2c_dev->bus_clk_rate = 100000;
- 	}
--	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
- 
- 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!irq) {
--- 
-2.8.2
+VXNlIGkyY19hZGFwdGVyLT50aW1lb3V0IGZvciB0aGUgY29tcGxldGlvbiB0aW1lb3V0IHZhbHVl
+LiBUaGUgY29yZQpkZWZhdWx0IGlzIDEgc2Vjb25kLgoKU2lnbmVkLW9mZi1ieTogTm9yYWxmIFRy
+w7hubmVzIDxub3JhbGZAdHJvbm5lcy5vcmc+Ci0tLQogZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1i
+Y20yODM1LmMgfCA0ICstLS0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMyBkZWxl
+dGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJjbTI4MzUuYyBi
+L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtMjgzNS5jCmluZGV4IGYzYTE0NzIuLjc5ZGQxNWYg
+MTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtMjgzNS5jCisrKyBiL2RyaXZl
+cnMvaTJjL2J1c3Nlcy9pMmMtYmNtMjgzNS5jCkBAIC01Myw4ICs1Myw2IEBACiAjZGVmaW5lIEJD
+TTI4MzVfSTJDX0NESVZfTUlOCTB4MDAwMgogI2RlZmluZSBCQ00yODM1X0kyQ19DRElWX01BWAkw
+eEZGRkUKIAotI2RlZmluZSBCQ00yODM1X0kyQ19USU1FT1VUIChtc2Vjc190b19qaWZmaWVzKDEw
+MDApKQotCiBzdHJ1Y3QgYmNtMjgzNV9pMmNfZGV2IHsKIAlzdHJ1Y3QgZGV2aWNlICpkZXY7CiAJ
+dm9pZCBfX2lvbWVtICpyZWdzOwpAQCAtMjMzLDcgKzIzMSw3IEBAIHN0YXRpYyBpbnQgYmNtMjgz
+NV9pMmNfeGZlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIHN0cnVjdCBpMmNfbXNnIG1zZ3Nb
+XSwKIAliY20yODM1X2kyY19zdGFydF90cmFuc2ZlcihpMmNfZGV2KTsKIAogCXRpbWVfbGVmdCA9
+IHdhaXRfZm9yX2NvbXBsZXRpb25fdGltZW91dCgmaTJjX2Rldi0+Y29tcGxldGlvbiwKLQkJCQkJ
+CUJDTTI4MzVfSTJDX1RJTUVPVVQpOworCQkJCQkJYWRhcC0+dGltZW91dCk7CiAJaWYgKCF0aW1l
+X2xlZnQpIHsKIAkJYmNtMjgzNV9pMmNfd3JpdGVsKGkyY19kZXYsIEJDTTI4MzVfSTJDX0MsCiAJ
+CQkJICAgQkNNMjgzNV9JMkNfQ19DTEVBUik7Ci0tIAoyLjguMgoKCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBs
+aXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5m
+cmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
