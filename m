@@ -1,49 +1,119 @@
 From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH v2 0/8] i2c: bcm2835: Bring in changes from downstream
-Date: Tue, 27 Sep 2016 13:56:58 +0200
-Message-ID: <1474977426-3272-1-git-send-email-noralf@tronnes.org>
+Subject: [PATCH v2 2/8] i2c: bcm2835: Protect against unexpected TXW/RXR interrupts
+Date: Tue, 27 Sep 2016 13:57:00 +0200
+Message-ID: <1474977426-3272-3-git-send-email-noralf@tronnes.org>
+References: <1474977426-3272-1-git-send-email-noralf@tronnes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.domeneshop.no ([194.63.252.55]:37006 "EHLO
-        smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932876AbcI0L5w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Sep 2016 07:57:52 -0400
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1474977426-3272-1-git-send-email-noralf@tronnes.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+List-Id: linux-i2c@vger.kernel.org
 
-This patchset tries to bring in the lessons learned in the downstream
-driver i2c-bcm2708. The downstream clock stretcing timeout patch has
-been left out since clock stretching is broken/unreliable on this
-controller, so no point in setting it.
+If an unexpected TXW or RXR interrupt occurs (msg_buf_remaining == 0),
+the driver has no way to fill/drain the FIFO to stop the interrupts.
+In this case the controller has to be disabled and the transfer
+completed to avoid hang.
 
-This second version of the patchset has been expanded to try and
-encompass all the differences between mainline and downstream.
-Hopefully downstream can now start using this driver.
+(CLKT | ERR) and DONE interrupts are completed in their own paths, and
+the controller is disabled in the transfer function after completion.
+Unite the code paths and do disabling inside the interrupt routine.
 
-Thanks to Martin for jogging my memory with his comments which led to
-the discovery that interrupt could be used instead of polling for the
-Transfer Active state.
+Clear interrupt status bits in the united completion path instead of
+trying to do it on every interrupt which isn't necessary.
+Only CLKT, ERR and DONE can be cleared that way.
 
-Noralf.
+Add the status value to the error value in case of TXW/RXR errors to
+distinguish them from the other S_LEN error.
 
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+---
+ drivers/i2c/busses/i2c-bcm2835.c | 31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
-Noralf Trønnes (8):
-  i2c: bcm2835: Fix hang for writing messages larger than 16 bytes
-  i2c: bcm2835: Protect against unexpected TXW/RXR interrupts
-  i2c: bcm2835: Use ratelimited logging on transfer errors
-  i2c: bcm2835: Can't support I2C_M_IGNORE_NAK
-  i2c: bcm2835: Add support for Repeated Start Condition
-  i2c: bcm2835: Support i2c-dev ioctl I2C_TIMEOUT
-  i2c: bcm2835: Add support for dynamic clock
-  ARM: bcm2835: Disable i2c2 in the Device Tree
-
- arch/arm/boot/dts/bcm2835-rpi.dtsi |   4 -
- drivers/i2c/busses/i2c-bcm2835.c   | 210 +++++++++++++++++++++++--------------
- 2 files changed, 131 insertions(+), 83 deletions(-)
-
---
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index f283b71..df036ed 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -50,8 +50,6 @@
+ #define BCM2835_I2C_S_CLKT	BIT(9)
+ #define BCM2835_I2C_S_LEN	BIT(10) /* Fake bit for SW error reporting */
+ 
+-#define BCM2835_I2C_BITMSK_S	0x03FF
+-
+ #define BCM2835_I2C_CDIV_MIN	0x0002
+ #define BCM2835_I2C_CDIV_MAX	0xFFFE
+ 
+@@ -117,14 +115,11 @@ static irqreturn_t bcm2835_i2c_isr(int this_irq, void *data)
+ 	u32 val, err;
+ 
+ 	val = bcm2835_i2c_readl(i2c_dev, BCM2835_I2C_S);
+-	val &= BCM2835_I2C_BITMSK_S;
+-	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_S, val);
+ 
+ 	err = val & (BCM2835_I2C_S_CLKT | BCM2835_I2C_S_ERR);
+ 	if (err) {
+ 		i2c_dev->msg_err = err;
+-		complete(&i2c_dev->completion);
+-		return IRQ_HANDLED;
++		goto complete;
+ 	}
+ 
+ 	if (val & BCM2835_I2C_S_DONE) {
+@@ -137,21 +132,38 @@ static irqreturn_t bcm2835_i2c_isr(int this_irq, void *data)
+ 			i2c_dev->msg_err = BCM2835_I2C_S_LEN;
+ 		else
+ 			i2c_dev->msg_err = 0;
+-		complete(&i2c_dev->completion);
+-		return IRQ_HANDLED;
++		goto complete;
+ 	}
+ 
+ 	if (val & BCM2835_I2C_S_TXW) {
++		if (!i2c_dev->msg_buf_remaining) {
++			i2c_dev->msg_err = val | BCM2835_I2C_S_LEN;
++			goto complete;
++		}
++
+ 		bcm2835_fill_txfifo(i2c_dev);
+ 		return IRQ_HANDLED;
+ 	}
+ 
+ 	if (val & BCM2835_I2C_S_RXR) {
++		if (!i2c_dev->msg_buf_remaining) {
++			i2c_dev->msg_err = val | BCM2835_I2C_S_LEN;
++			goto complete;
++		}
++
+ 		bcm2835_drain_rxfifo(i2c_dev);
+ 		return IRQ_HANDLED;
+ 	}
+ 
+ 	return IRQ_NONE;
++
++complete:
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, BCM2835_I2C_C_CLEAR);
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_S, BCM2835_I2C_S_CLKT |
++			   BCM2835_I2C_S_ERR | BCM2835_I2C_S_DONE);
++	complete(&i2c_dev->completion);
++
++	return IRQ_HANDLED;
+ }
+ 
+ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
+@@ -181,8 +193,9 @@ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
+ 
+ 	time_left = wait_for_completion_timeout(&i2c_dev->completion,
+ 						BCM2835_I2C_TIMEOUT);
+-	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, BCM2835_I2C_C_CLEAR);
+ 	if (!time_left) {
++		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C,
++				   BCM2835_I2C_C_CLEAR);
+ 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
+ 		return -ETIMEDOUT;
+ 	}
+-- 
 2.8.2
