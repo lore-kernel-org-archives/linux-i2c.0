@@ -1,62 +1,80 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v2 3/8] i2c: bcm2835: Use ratelimited logging on transfer
- errors
-Date: Tue, 27 Sep 2016 21:27:54 +0200
-Message-ID: <66be95f1-3ed7-7abc-3def-b10582d609ea@tronnes.org>
-References: <1474977426-3272-1-git-send-email-noralf@tronnes.org>
- <1474977426-3272-4-git-send-email-noralf@tronnes.org>
- <74D9ED33-1B99-4ED6-88B5-879950D160C8@martin.sperl.org>
+From: Leo Li <leoyang.li@nxp.com>
+Subject: RE: [PATCH] i2c: imx: defer probe if bus recovery GPIOs are not ready
+Date: Tue, 27 Sep 2016 18:31:14 +0000
+Message-ID: <AM2PR04MB0770E6FB2035B855F216FE108FCC0@AM2PR04MB0770.eurprd04.prod.outlook.com>
+References: <20160927001858.11601-1-stefan@agner.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.domeneshop.no ([194.63.252.55]:54343 "EHLO
-        smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932573AbcI0T16 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Sep 2016 15:27:58 -0400
-In-Reply-To: <74D9ED33-1B99-4ED6-88B5-879950D160C8@martin.sperl.org>
+Received: from mail-db5eur01on0049.outbound.protection.outlook.com ([104.47.2.49]:42209
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751002AbcI1FF1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 28 Sep 2016 01:05:27 -0400
+In-Reply-To: <20160927001858.11601-1-stefan@agner.ch>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Martin Sperl <kernel@martin.sperl.org>
-Cc: wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net, linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Stefan Agner <stefan@agner.ch>, "wsa@the-dreams.de" <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 
-Den 27.09.2016 15:01, skrev Martin Sperl:
->> On 27 Sep 2016, at 13:57, Noralf Trønnes <noralf@tronnes.org> wrote:
->>
->> Writing to an AT24C32 generates on average 2x i2c transfer errors per
->> 32-byte page write. Which amounts to a lot for a 4k write. This is due
->> to the fact that the chip doesn't respond during it's internal write
->> cycle when the at24 driver tries and retries the next write.
->> Reduce this flooding of the log by using dev_err_ratelimited().
->>
->> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
->> Reviewed-by: Eric Anholt <eric@anholt.net>
->> ---
->> drivers/i2c/busses/i2c-bcm2835.c | 3 ++-
->> 1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
->> index df036ed..370a322 100644
->> --- a/drivers/i2c/busses/i2c-bcm2835.c
->> +++ b/drivers/i2c/busses/i2c-bcm2835.c
->> @@ -207,7 +207,8 @@ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
->>         (msg->flags & I2C_M_IGNORE_NAK))
->>         return 0;
->>
->> -    dev_err(i2c_dev->dev, "i2c transfer failed: %x\n", i2c_dev->msg_err);
->> +    dev_err_ratelimited(i2c_dev->dev, "i2c transfer failed: %x\n",
->> +                i2c_dev->msg_err);
-> Do we really need this error message at all?
->
-> Maybe just remove it instead, because error messages during
-> "normal"/successfull operations of at24 seems  strange.
->
-> Or make it a debug message instead.
 
-I have looked through 64 i2c bus drivers, 8 use dev_err and 2 use dev_warn
-on transfer errors (not timeouts). Several use dev_dbg.
+> -----Original Message-----
+> From: Stefan Agner [mailto:stefan@agner.ch]
+> Sent: Monday, September 26, 2016 7:19 PM
+> To: wsa@the-dreams.de
+> Cc: Leo Li <leoyang.li@nxp.com>; linux-i2c@vger.kernel.org; u.kleine-
+> koenig@pengutronix.de; linux-kernel@vger.kernel.org; Stefan Agner
+> <stefan@agner.ch>
+> Subject: [PATCH] i2c: imx: defer probe if bus recovery GPIOs are not read=
+y
+>=20
+> Some SoC might load the GPIO driver after the I2C driver and
+> using the I2C bus recovery mechanism via GPIOs. In this case
+> it is crucial to defer probing if the GPIO request functions
+> do so, otherwise the I2C driver gets loaded without recovery
+> mechanisms enabled.
+>=20
+> Signed-off-by: Stefan Agner <stefan@agner.ch>
 
-I'll change it to dev_dbg instead. Thanks.
+Acked-by: Li Yang <leoyang.li@nxp.com>
 
-Noralf.
+> ---
+> This is an actual issue on NXP Vybrid devices on which the GPIO
+> driver gets loaded rather later.
+>=20
+> --
+> Stefan
+>=20
+>  drivers/i2c/busses/i2c-imx.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 592a8f2..47fc1f1 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1009,10 +1009,13 @@ static int i2c_imx_init_recovery_info(struct
+> imx_i2c_struct *i2c_imx,
+>  	rinfo->sda_gpio =3D of_get_named_gpio(pdev->dev.of_node, "sda-gpios",
+> 0);
+>  	rinfo->scl_gpio =3D of_get_named_gpio(pdev->dev.of_node, "scl-gpios",
+> 0);
+>=20
+> -	if (!gpio_is_valid(rinfo->sda_gpio) ||
+> -	    !gpio_is_valid(rinfo->scl_gpio) ||
+> -	    IS_ERR(i2c_imx->pinctrl_pins_default) ||
+> -	    IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
+> +	if (rinfo->sda_gpio =3D=3D -EPROBE_DEFER ||
+> +	    rinfo->scl_gpio =3D=3D -EPROBE_DEFER) {
+> +		return -EPROBE_DEFER;
+> +	} else if (!gpio_is_valid(rinfo->sda_gpio) ||
+> +		   !gpio_is_valid(rinfo->scl_gpio) ||
+> +		   IS_ERR(i2c_imx->pinctrl_pins_default) ||
+> +		   IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
+>  		dev_dbg(&pdev->dev, "recovery information incomplete\n");
+>  		return 0;
+>  	}
+> --
+> 2.10.0
