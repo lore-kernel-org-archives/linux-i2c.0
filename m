@@ -1,65 +1,66 @@
-From: Nayna Jain <nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v2 2/2] Documentation: tpm: add the Physical TPM device tree binding documentation
-Date: Wed, 28 Sep 2016 04:30:41 -0400
-Message-ID: <1475051441-23008-2-git-send-email-nayna@linux.vnet.ibm.com>
-References: <1475051441-23008-1-git-send-email-nayna@linux.vnet.ibm.com>
+From: Nayna <nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [tpmdd-devel] [PATCH] Documentation: tpm: Adds the TPM device
+ tree node documentation
+Date: Wed, 28 Sep 2016 14:10:55 +0530
+Message-ID: <57EB8217.40202@linux.vnet.ibm.com>
+References: <1472532277-21933-1-git-send-email-nayna@linux.vnet.ibm.com>
+ <20160902145121.GA9636@rob-hp-laptop>
+ <20160902170613.GA5024@obsidianresearch.com>
+ <CAL_Jsq+jmAHSGTJPxWZgc_87NTA8uvWZSegx9E7krXKzDcgBmw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1475051441-23008-1-git-send-email-nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <CAL_Jsq+jmAHSGTJPxWZgc_87NTA8uvWZSegx9E7krXKzDcgBmw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Cc: robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, peterhuewe-Mmb7MZpHnFY@public.gmane.org, tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org, jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, hellerda-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, ltcgcw-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org, cclaudio-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, honclo-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, Nayna Jain <nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, gcwilson-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Newly added support of TPM 2.0 eventlog securityfs pseudo files in tpm
-device driver consumes device tree bindings representing I2C based
-Physical TPM. This patch adds the documentation for corresponding device
-tree bindings of I2C based Physical TPM. These bindings are similar to
-vtpm device tree bindings being used on IBM Power7+ and Power8 Systems
-running PowerVM.
 
-Suggested-by: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
-Signed-off-by: Nayna Jain <nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
----
-Changelog v2:
 
-- Include review feedbacks.
-  - Move the doc within bindings/security/tpm.
-  - Add example for compatible property in description.
-  - Delete implicit properties like status, label from description.
-  - Redefine linux,sml-base description.
+On 09/02/2016 11:27 PM, Rob Herring wrote:
+> On Fri, Sep 2, 2016 at 12:06 PM, Jason Gunthorpe
+> <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org> wrote:
+>> On Fri, Sep 02, 2016 at 09:51:21AM -0500, Rob Herring wrote:
+>>>> +- linux,sml-base : base address of the Event Log. It is a physical address.
+>>>> +              sml stands for shared memory log.
+>>>
+>>> How is it a physical address on an i2c device? Why 2 cells (which needs
+>>> to be documented also)?
+>>
+>> To be clear, as I understand it, this mechanism is a hand off from the
+>> boot firmware to Linux.
+>>
+>> The boot firmware talks i2c to the device, does some stuff, writes it
+>> to memory and then linux reads that stuff. I agree it seems crazy to
+>> include a random physical address like that.
+>
+> I'd put that in reserved-memory then if designing this from scratch...
 
- .../devicetree/bindings/security/tpm/tpm-i2c.txt     | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt
+Thanks for the review comments.
 
-diff --git a/Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt b/Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt
-new file mode 100644
-index 0000000..16df8bb
---- /dev/null
-+++ b/Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt
-@@ -0,0 +1,20 @@
-+* Device Tree Bindings for I2C based Trusted Platform Module(TPM)
-+
-+Required properties:
-+
-+- compatible     : 'manufacturer,model', eg. nuvoton,npct650
-+- linux,sml-base : 64-bit base address of the reserved memory allocated for
-+                   the firmware event log
-+- linux,sml-size : size of the memory allocated for the firmware event log
-+
-+Example (for OpenPower Systems with Nuvoton TPM 2.0 on I2C)
-+----------------------------------------------------------
-+
-+tpm@57 {
-+	reg = <0x57>;
-+	label = "tpm";
-+	compatible = "nuvoton,npct650", "nuvoton,npct601";
-+	linux,sml-base = <0x7f 0xfd450000>;
-+	linux,sml-size = <0x10000>;
-+	status = "okay";
-+};
--- 
-2.5.0
+Yes, it is in reserved-memory. I modified the explanation for 
+linux,sml-base property to be more descriptive now in my v2 version of 
+the patch, posted just now.
+>
+> Must not be completely random as somehow the kernel doesn't use that memory.
+>
+>> The linux,sml-* names appear to have been used by IBM for a long time
+>> on their enterprise PPC platforms (see drivers/char/tpm/tpm_of.c), so
+>> I've expected we have to keep them?
+>
+> Yes. I wasn't aware of that.
+>
+>> I asked Nayna to document this stuff IBM is doing so the rest of us
+>> in TPM land can have a hope of maintaining it...
+>>
+>> Jason
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
