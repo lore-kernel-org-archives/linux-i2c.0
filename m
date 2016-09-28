@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 08/10] i2c: i2c-smbus: fix return value of i2c_handle_smbus_host_notify()
-Date: Wed, 28 Sep 2016 10:15:47 +0200
-Message-ID: <1475050549-25542-9-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 09/10] i2c: i801: check if Host Notify is available during interrupt
+Date: Wed, 28 Sep 2016 10:15:48 +0200
+Message-ID: <1475050549-25542-10-git-send-email-benjamin.tissoires@redhat.com>
 References: <1475050549-25542-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1475050549-25542-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,41 +10,51 @@ To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-schedule_work() returns a boolean (true on success, false if the work
-was already queued).
-This doesn't match the "negative number on error" return model that the
-function exports.
-
-Given that schedule_work() will always return true (we have an internal
-.pending check protected by a spinlock), just return false and ignore
-the return value of schedule_work().
+There is a chance we get called while Host Notify is not available (yet),
+so we need to clear the Host Notify bit in those rare case.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v3
+changes in v3:
+- renamed from "i2c: i801: warn on i2c_handle_smbus_host_notify() errors"
+- removed the warnings and just kept the test
+- added some comments on why the errors are not treated
 
-new in v2
+no changes in v2 (comments addressed in the previous patches)
+
+i2c: i2c-i801: remove warnings on the handle host notify
+
+add a comment on i2c-i801
 ---
- drivers/i2c/i2c-smbus.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-i801.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index 819e5f2..f6780de 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -357,7 +357,10 @@ int i2c_handle_smbus_host_notify(struct smbus_host_notify *host_notify,
- 	host_notify->pending = true;
- 	spin_unlock_irqrestore(&host_notify->lock, flags);
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 422cce2..38e2421 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -580,11 +580,20 @@ static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
+ 	unsigned short addr;
+ 	unsigned int data;
  
--	return schedule_work(&host_notify->work);
-+	/* schedule_work is called if .pending is false, so it can't fail. */
-+	schedule_work(&host_notify->work);
++	if (unlikely(!priv->host_notify))
++		goto out;
 +
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(i2c_handle_smbus_host_notify);
+ 	addr = inb_p(SMBNTFDADD(priv)) >> 1;
+ 	data = inw_p(SMBNTFDDAT(priv));
  
++	/*
++	 * We don't notify about missed host notify events when the adapter
++	 * lags behind. The operation is still scheduled and will get
++	 * eventually processed.
++	 */
+ 	i2c_handle_smbus_host_notify(priv->host_notify, addr, data);
+ 
++out:
+ 	/* clear Host Notify bit and return */
+ 	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
+ 	return IRQ_HANDLED;
 -- 
 2.7.4
