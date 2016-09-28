@@ -1,59 +1,54 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 05/10] i2c: i801: use the BIT() macro for FEATURES_* also
-Date: Wed, 28 Sep 2016 10:15:44 +0200
-Message-ID: <1475050549-25542-6-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 03/10] i2c: i801: minor formatting issues
+Date: Wed, 28 Sep 2016 10:15:42 +0200
+Message-ID: <1475050549-25542-4-git-send-email-benjamin.tissoires@redhat.com>
 References: <1475050549-25542-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36556 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751726AbcI1IQB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 28 Sep 2016 04:16:01 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1475050549-25542-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-no functional changes
+No functional changes, just typos and remove unused #define.
 
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
 no changes in v3
 
-new in v2
+no changes in v2
 ---
- drivers/i2c/busses/i2c-i801.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 05ce265..55fa6e1 100644
+index 7334831..4696319bf 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -270,15 +270,15 @@ struct i801_priv {
+@@ -186,10 +186,10 @@
+ #define SMBHSTSTS_INTR		0x02
+ #define SMBHSTSTS_HOST_BUSY	0x01
+ 
+-/* Host Notify Status registers bits */
++/* Host Notify Status register bits */
+ #define SMBSLVSTS_HST_NTFY_STS	1
+ 
+-/* Host Notify Command registers bits */
++/* Host Notify Command register bits */
+ #define SMBSLVCMD_HST_NTFY_INTREN	0x01
+ 
+ #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
+@@ -270,8 +270,6 @@ struct i801_priv {
  	struct smbus_host_notify *host_notify;
  };
  
--#define FEATURE_SMBUS_PEC	(1 << 0)
--#define FEATURE_BLOCK_BUFFER	(1 << 1)
--#define FEATURE_BLOCK_PROC	(1 << 2)
--#define FEATURE_I2C_BLOCK_READ	(1 << 3)
--#define FEATURE_IRQ		(1 << 4)
--#define FEATURE_HOST_NOTIFY	(1 << 5)
-+#define FEATURE_SMBUS_PEC	BIT(0)
-+#define FEATURE_BLOCK_BUFFER	BIT(1)
-+#define FEATURE_BLOCK_PROC	BIT(2)
-+#define FEATURE_I2C_BLOCK_READ	BIT(3)
-+#define FEATURE_IRQ		BIT(4)
-+#define FEATURE_HOST_NOTIFY	BIT(5)
- /* Not really a feature, but it's convenient to handle it as such */
--#define FEATURE_IDF		(1 << 15)
--#define FEATURE_TCO		(1 << 16)
-+#define FEATURE_IDF		BIT(15)
-+#define FEATURE_TCO		BIT(16)
- 
- static const char *i801_feature_names[] = {
- 	"SMBus PEC",
+-#define SMBHSTNTFY_SIZE		8
+-
+ #define FEATURE_SMBUS_PEC	(1 << 0)
+ #define FEATURE_BLOCK_BUFFER	(1 << 1)
+ #define FEATURE_BLOCK_PROC	(1 << 2)
 -- 
 2.7.4
