@@ -1,15 +1,15 @@
 From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH v3 4/7] i2c: bcm2835: Can't support I2C_M_IGNORE_NAK
-Date: Wed, 28 Sep 2016 19:50:53 +0200
-Message-ID: <1475085056-5205-5-git-send-email-noralf@tronnes.org>
+Subject: [PATCH v3 6/7] i2c: bcm2835: Support i2c-dev ioctl I2C_TIMEOUT
+Date: Wed, 28 Sep 2016 19:50:55 +0200
+Message-ID: <1475085056-5205-7-git-send-email-noralf@tronnes.org>
 References: <1475085056-5205-1-git-send-email-noralf@tronnes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.domeneshop.no ([194.63.252.55]:52411 "EHLO
+Received: from smtp.domeneshop.no ([194.63.252.55]:59474 "EHLO
         smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751858AbcI1Rvm (ORCPT
+        with ESMTP id S1751873AbcI1Rvm (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Sep 2016 13:51:42 -0400
 In-Reply-To: <1475085056-5205-1-git-send-email-noralf@tronnes.org>
 Sender: linux-i2c-owner@vger.kernel.org
@@ -17,42 +17,35 @@ List-Id: linux-i2c@vger.kernel.org
 To: wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
 
-The controller can't support this flag, so remove it.
-
-Documentation/i2c/i2c-protocol states that all of the message is sent:
-
-I2C_M_IGNORE_NAK:
-    Normally message is interrupted immediately if there is [NA] from the
-    client. Setting this flag treats any [NA] as [A], and all of
-    message is sent.
-
->From the BCM2835 ARM Peripherals datasheet:
-
-    The ERR field is set when the slave fails to acknowledge either
-    its address or a data byte written to it.
-
-So when the controller doesn't receive an ack, it sets ERR and raises
-an interrupt. In other words, the whole message is not sent.
+Use i2c_adapter->timeout for the completion timeout value. The core
+default is 1 second.
 
 Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/i2c/busses/i2c-bcm2835.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 8cdb139..99857f8 100644
+index d42fee2..6a3e753 100644
 --- a/drivers/i2c/busses/i2c-bcm2835.c
 +++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -203,10 +203,6 @@ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
- 	if (likely(!i2c_dev->msg_err))
- 		return 0;
+@@ -53,8 +53,6 @@
+ #define BCM2835_I2C_CDIV_MIN	0x0002
+ #define BCM2835_I2C_CDIV_MAX	0xFFFE
  
--	if ((i2c_dev->msg_err & BCM2835_I2C_S_ERR) &&
--	    (msg->flags & I2C_M_IGNORE_NAK))
--		return 0;
+-#define BCM2835_I2C_TIMEOUT (msecs_to_jiffies(1000))
 -
- 	dev_dbg(i2c_dev->dev, "i2c transfer failed: %x\n", i2c_dev->msg_err);
+ struct bcm2835_i2c_dev {
+ 	struct device *dev;
+ 	void __iomem *regs;
+@@ -233,7 +231,7 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 	bcm2835_i2c_start_transfer(i2c_dev);
  
- 	if (i2c_dev->msg_err & BCM2835_I2C_S_ERR)
+ 	time_left = wait_for_completion_timeout(&i2c_dev->completion,
+-						BCM2835_I2C_TIMEOUT);
++						adap->timeout);
+ 	if (!time_left) {
+ 		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C,
+ 				   BCM2835_I2C_C_CLEAR);
 -- 
 2.8.2
