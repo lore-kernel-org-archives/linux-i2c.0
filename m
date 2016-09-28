@@ -1,141 +1,58 @@
-From: "FedEx Standard Overnight" <jeffery.russell@destini.ca>
-Subject: Courier was unable to deliver the parcel, ID000762941
-Date: Wed, 28 Sep 2016 15:36:00 -0400
-Message-ID: <4b0e144e4ffc94b7c3af80a4f875ef90@destini.ca>
-Reply-To: "FedEx Standard Overnight" <jeffery.russell@destini.ca>
+From: Eric Anholt <eric@anholt.net>
+Subject: Re: [PATCH v3 7/7] i2c: bcm2835: Add support for dynamic clock
+Date: Wed, 28 Sep 2016 14:24:36 -0700
+Message-ID: <87r383g1kb.fsf@eliezer.anholt.net>
+References: <1475085056-5205-1-git-send-email-noralf@tronnes.org> <1475085056-5205-8-git-send-email-noralf@tronnes.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-        boundary="b1_bb91cf40ed58eca2f6d0854e1add76df"
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha512; protocol="application/pgp-signature"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.perfora.net ([74.208.4.196]:62476 "EHLO mout.perfora.net"
+Received: from anholt.net ([50.246.234.109]:57414 "EHLO anholt.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932392AbcI1TgC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 28 Sep 2016 15:36:02 -0400
-Received: from infongp-us53.perfora.net ([198.71.62.2]) by mrelay.perfora.net
- (mreueus001) with ESMTPA (Nemesis) id 0M71wB-1b2Inl2IAn-00woYq for
- <linux-i2c@vger.kernel.org>; Wed, 28 Sep 2016 21:36:00 +0200
+        id S1754273AbcI1VYj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 28 Sep 2016 17:24:39 -0400
+In-Reply-To: <1475085056-5205-8-git-send-email-noralf@tronnes.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, swarren@wwwdotorg.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
 
---b1_bb91cf40ed58eca2f6d0854e1add76df
-Content-Type: text/plain; charset=us-ascii
+--=-=-=
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Dear Customer,
+Noralf Tr=C3=B8nnes <noralf@tronnes.org> writes:
 
-This is to confirm that one or more of your parcels has been shipped.
-Shipment Label is attached to email.
+> Support a dynamic clock by reading the frequency and setting the
+> divisor in the transfer function instead of during probe.
 
-Sincerely,
-Jeffery Russell,
-FedEx Support Manager.
+Is this fixing some particular case you could note in the commit
+message?  As is, it makes me think that we should be using a notifier
+for when the parent clock (that's the one I assume you're talking about
+being dynamic) changes.  But maybe you're working around a variable VPU
+clock being set by the firmware, because we don't have a notifier for
+it?
 
+I'm a bit worried because I think this is going to be pretty expensive
+to be doing per transfer.
 
---b1_bb91cf40ed58eca2f6d0854e1add76df
-Content-Type: application/zip; name="Delivery_Notification_000762941.zip"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=Delivery_Notification_000762941.zip
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-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
+-----BEGIN PGP SIGNATURE-----
 
-
---b1_bb91cf40ed58eca2f6d0854e1add76df--
+iQIcBAEBCgAGBQJX7DUUAAoJELXWKTbR/J7oJ18P/jr6nysOd7RwBHSg70SLeZPw
+iYgGAwVvyupu8JzIxzL8rGFXhm6G+PR3J4xfBAPu4+sPQr55+I+XEN0342dbsBlR
+WAWDPw8VSijpDMaPr7GX1Y5ct6/VxBZ2KBL4q25kLcoJKBj1prcci+gnRFGA78ot
+YDCJghLT2oVMP9l324dd6pXTMayxuPHUiOOdWvVsO92/vQ15MO+boxjDD7z7WP33
+pzZ6gOkkqNPvQeRDuf6s+w5Q6YMHLgNFsPySnBpOzwgVRfBrAYfBVYR+miIL0fc3
+8R23vcQER115BQl1sSMj6/aeb9bBplIO/OHzDI4WbfbBCuUBS8IbLMVXZgd+FjM3
+meVMsxUA7nExHas+NWifypv5U4N+sMlLmg0dlWHMCUDqsp8b85x9d3lPIHNiaGC1
+iN2jt3LqSXl6EK0j5M4kaoOHD5eatapE+6dAMOAmmQl11aG5JcFn+tyZmIlmQNei
+juYUasAzaoLHZ46cJE4QJDzeBzxZJspDW4HY7BMiWGWUMIvFjcyWhcM4h7nzen0y
+4IWdbUzfmwT8fs/e8+s0BDvR4XpYJr0CrM9k/vA0sFiIgi6rERAFoCVlFP8GY0Uu
+vStOKTCErM8yBO/iCna0ENIqgKMlgnHCUCgrXHHL1/htxjv423LNKDtZ2sGCH8BL
+LR4VY64eIG2tw4f3322Y
+=CkLA
+-----END PGP SIGNATURE-----
+--=-=-=--
