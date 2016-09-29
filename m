@@ -1,77 +1,66 @@
-From: Stefan Wahren <stefan.wahren@i2se.com>
-Subject: Re: [PATCH v3 2/7] i2c: bcm2835: Protect against unexpected TXW/RXR
- interrupts
-Date: Thu, 29 Sep 2016 07:37:23 +0200 (CEST)
-Message-ID: <1708178720.178936.b155d019-5320-4754-bbe2-4afc1ae71cd6.open-xchange@email.1und1.de>
-References: <1475085056-5205-1-git-send-email-noralf@tronnes.org>
- <1475085056-5205-3-git-send-email-noralf@tronnes.org>
- <87oa37fzx6.fsf@eliezer.anholt.net>
- <d93a0590-1783-b913-9362-007628cb17d6@tronnes.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] gpio: pca953x: add a comment explaining the need for a
+ lockdep subclass
+Date: Thu, 29 Sep 2016 08:06:38 +0200
+Message-ID: <20160929060638.GB1524@katana>
+References: <1474883655-15824-1-git-send-email-bgolaszewski@baylibre.com>
+ <1474883655-15824-2-git-send-email-bgolaszewski@baylibre.com>
+ <20160926100030.GA5606@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d93a0590-1783-b913-9362-007628cb17d6@tronnes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eric Anholt <eric@anholt.net>, wsa@the-dreams.de, swarren@wwwdotorg.org, =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20160926100030.GA5606@katana>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Linus Walleij <linus.walleij@linaro.org>
+Cc: Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
-> Noralf Trønnes <noralf@tronnes.org> hat am 29. September 2016 um 00:22
-> geschrieben:
-> 
-> 
-> 
-> Den 29.09.2016 00:00, skrev Eric Anholt:
-> > Noralf Trønnes <noralf@tronnes.org> writes:
-> >
-> >> If an unexpected TXW or RXR interrupt occurs (msg_buf_remaining == 0),
-> >> the driver has no way to fill/drain the FIFO to stop the interrupts.
-> >> In this case the controller has to be disabled and the transfer
-> >> completed to avoid hang.
-> >>
-> >> (CLKT | ERR) and DONE interrupts are completed in their own paths, and
-> >> the controller is disabled in the transfer function after completion.
-> >> Unite the code paths and do disabling inside the interrupt routine.
-> >>
-> >> Clear interrupt status bits in the united completion path instead of
-> >> trying to do it on every interrupt which isn't necessary.
-> >> Only CLKT, ERR and DONE can be cleared that way.
-> >>
-> >> Add the status value to the error value in case of TXW/RXR errors to
-> >> distinguish them from the other S_LEN error.
-> > I was surprised that not writing the TXW/RXR bits on handling their
-> > interrupts was OK, given that we were doing so before, but it's a level
-> > interrupt and those bits are basically ignored on write.
-> >
-> > This patch and 3, 4, and 6 are:
-> >
-> > Reviewed-by: Eric Anholt <eric@anholt.net>
-> >
-> > Patch 5 is:
-> >
-> > Acked-by: Eric Anholt <eric@anholt.net>
-> >
-> > Note for future debug: The I2C_C_CLEAR on errors will take some time to
-> > resolve -- if you were in non-idle state and I2C_C_READ, it sets an
-> > abort_rx flag and runs through the state machine to send a NACK and a
-> > STOP, I think.  Since we're setting CLEAR without I2CEN, that NACK will
-> > be hanging around queued up for next time we start the engine.
-> 
-> Maybe you're able to explain the issues I had with reset:
-> https://github.com/raspberrypi/linux/issues/1653
-> 
-> Should we put your note into the commit message?
-> It will most likely be lost if it just stays in this email.
+--6sX45UoQRIJXqkqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I prefer to have this kind of information as a code comment.
+On Mon, Sep 26, 2016 at 12:00:30PM +0200, Wolfram Sang wrote:
+> On Mon, Sep 26, 2016 at 11:54:15AM +0200, Bartosz Golaszewski wrote:
+> > This is a follow-up to commit 559b46990e76 ("gpio: pca953x: fix an
+> > incorrect lockdep warning"). The reason for calling
+> > lockdep_set_subclass() in pca953x_probe() is not explained in
+> > the code.
+> >=20
+> > Add a comment describing the problem, partial solution and required
+> > future extensions.
+> >=20
+> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>=20
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+>=20
+> Linus, because of dependencies, I should probably pick it up?
 
-> 
-> Noralf.
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+Linus, ping!
+
+
+--6sX45UoQRIJXqkqR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJX7K9uAAoJEBQN5MwUoCm2dlMP/3g/JaQgkdYNTx6ZdZa+odkW
+xcMex32LwA+SDGpXsWTULWcxcrPmTRl+21GbJys+DlPoM01HD1BDD8SgBqVAitIP
+63pVi+Ux7iX/2aZgvWXjlKrPdt2xJDlo64pZaUeE0PiZX1Sjm/IsO0HX3ZLh2cg7
+pICEQ8879RNDsSmga4hDE5rrsQAfX2Weq8m91X4wPSI42pz85RxOgsHX+tCw6EFn
+YCXSLYtMjaTs4JI0d/dH7PD/Xnlw8p74aO9RUjqa03ooOwZcAis2lNsTutyVvxf9
+SSjISVrZNQo1ZVNbf7A7Lzbg9+kQNIXxIR66zIpZELLVOH8gvqmi1Z1nq84SI7X8
+NtfLrFH8HRcBvREQRh2VROUIfJNl+fZUO1oMBjqXKpRh+MYZmVze9GakcBuRKbja
+Cwk4hF2G7fF3sen65E9bTcnm7GRzn25unySWMXO9nkJ2BelyQFJTWJEuVnmSOvv9
+Hfj3qDy5e679iMT/2hj4E9mh8ioCHBAaG6JcQvVn7AxXQpuKD/UFlLS2x48TnRnx
+0nO3WIfcsofOvVn9W8RYAiSPpMbIsqDYOYLARjc2oTNf8i5TXhpJXdGW2bfqycB/
+hsUqkK/PuIwmIOTYulwLGi6e+gHObtDKGR6H+iV0//3uz02+5bulW0lrlv/mRenV
+1eoheioHXUD1Ie66dAjJ
+=Ds3x
+-----END PGP SIGNATURE-----
+
+--6sX45UoQRIJXqkqR--
