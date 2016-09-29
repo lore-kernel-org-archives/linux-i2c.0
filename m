@@ -1,55 +1,26 @@
-From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: Re: [PATCH v2 1/2] Documentation: tpm: add the IBM Virtual TPM
- device tree binding documentation
-Date: Thu, 29 Sep 2016 14:04:13 +0300
-Message-ID: <20160929110413.GA14359@intel.com>
-References: <1475051441-23008-1-git-send-email-nayna@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:56348 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752406AbcI2LE2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 29 Sep 2016 07:04:28 -0400
-Content-Disposition: inline
-In-Reply-To: <1475051441-23008-1-git-send-email-nayna@linux.vnet.ibm.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Martin Sperl <martin@sperl.org>
+Subject: Re: [PATCH v3 3/7] i2c: bcm2835: Use dev_dbg logging on transfer errors
+Date: Thu, 29 Sep 2016 13:05:01 +0200
+Message-ID: <BB56B9B7-75EF-4674-9951-22426C3BD8BF@sperl.org>
+References: <1475085056-5205-1-git-send-email-noralf@tronnes.org> <1475085056-5205-4-git-send-email-noralf@tronnes.org>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1475085056-5205-4-git-send-email-noralf@tronnes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?utf-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>
+Cc: wsa@the-dreams.de, Stephen Warren <swarren@wwwdotorg.org>, Eric Anholt <eric@anholt.net>, linux-rpi-kernel <linux-rpi-kernel@lists.infradead.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Nayna Jain <nayna@linux.vnet.ibm.com>
-Cc: devicetree@vger.kernel.org, tpmdd-devel@lists.sourceforge.net, robh@kernel.org, wsa@the-dreams.de, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux-i2c@vger.kernel.org, peterhuewe@gmx.de, tpmdd@selhorst.net, hellerda@linux.vnet.ibm.com, ltcgcw@us.ibm.com, cclaudio@linux.vnet.ibm.com, honclo@linux.vnet.ibm.com
 
-On Wed, Sep 28, 2016 at 04:30:40AM -0400, Nayna Jain wrote:
-> Virtual TPM, which is being used on IBM POWER7+ and POWER8 systems running
-> POWERVM, is currently supported by tpm device driver but lacks the
-> documentation. This patch adds the missing documentation for the existing
-> support.
+On 28.09.2016, at 19:50, Noralf Trønnes <noralf@tronnes.org> wrote:
 > 
-> Suggested-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-> Signed-off-by: Nayna Jain <nayna@linux.vnet.ibm.com>
-> ---
-> Changelog v2:
+> Writing to an AT24C32 generates on average 2x i2c transfer errors per
+> 32-byte page write. Which amounts to a lot for a 4k write. This is due
+> to the fact that the chip doesn't respond during it's internal write
+> cycle when the at24 driver tries and retries the next write.
+> Only a handful drivers use dev_err() on transfer error, so switch to
+> dev_dbg() instead.
 > 
-> - New Patch
-> 
->  .../devicetree/bindings/security/tpm/ibmvtpm.txt   | 41 ++++++++++++++++++++++
->  1 file changed, 41 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt b/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
-> new file mode 100644
-> index 0000000..d89f999
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
-> @@ -0,0 +1,41 @@
-> +* Device Tree Bindings for IBM Virtual Trusted Platform Module(vtpm)
-> +
-> +Required properties:
-> +
-> +- compatible            : property name that conveys the platform architecture
-> +                          identifiers, as 'IBM,vtpm'
-> +- device_type           : specifies type of virtual device
-
-A generic device tree question. What is the difference between
-these fields? Why the I2C one does have 'device_type'?
-
-/Jarkko
+> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Reviewed-by: Martin Sperl <kernel@martin.sperl.org>
