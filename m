@@ -1,81 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] gpio: pca953x: add a comment explaining the need for a
- lockdep subclass
-Date: Thu, 29 Sep 2016 10:04:50 +0200
-Message-ID: <20160929080449.GA4032@katana>
-References: <1474883655-15824-1-git-send-email-bgolaszewski@baylibre.com>
- <1474883655-15824-2-git-send-email-bgolaszewski@baylibre.com>
- <20160926100030.GA5606@katana>
- <20160929060638.GB1524@katana>
- <CAMpxmJWmzju-gJ54irsqGb86i6THx4BXzqMAa=okqGAi=5bbrA@mail.gmail.com>
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: Re: [PATCH v2 1/2] Documentation: tpm: add the IBM Virtual TPM
+ device tree binding documentation
+Date: Thu, 29 Sep 2016 14:04:13 +0300
+Message-ID: <20160929110413.GA14359@intel.com>
+References: <1475051441-23008-1-git-send-email-nayna@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMpxmJWmzju-gJ54irsqGb86i6THx4BXzqMAa=okqGAi=5bbrA@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-List-Id: linux-i2c@vger.kernel.org
-
-
---Dxnq1zWXvFF0Q93v
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:56348 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752406AbcI2LE2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 29 Sep 2016 07:04:28 -0400
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1475051441-23008-1-git-send-email-nayna@linux.vnet.ibm.com>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
+To: Nayna Jain <nayna@linux.vnet.ibm.com>
+Cc: devicetree@vger.kernel.org, tpmdd-devel@lists.sourceforge.net, robh@kernel.org, wsa@the-dreams.de, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux-i2c@vger.kernel.org, peterhuewe@gmx.de, tpmdd@selhorst.net, hellerda@linux.vnet.ibm.com, ltcgcw@us.ibm.com, cclaudio@linux.vnet.ibm.com, honclo@linux.vnet.ibm.com
 
-On Thu, Sep 29, 2016 at 09:56:58AM +0200, Bartosz Golaszewski wrote:
-> 2016-09-29 8:06 GMT+02:00 Wolfram Sang <wsa@the-dreams.de>:
-> > On Mon, Sep 26, 2016 at 12:00:30PM +0200, Wolfram Sang wrote:
-> >> On Mon, Sep 26, 2016 at 11:54:15AM +0200, Bartosz Golaszewski wrote:
-> >> > This is a follow-up to commit 559b46990e76 ("gpio: pca953x: fix an
-> >> > incorrect lockdep warning"). The reason for calling
-> >> > lockdep_set_subclass() in pca953x_probe() is not explained in
-> >> > the code.
-> >> >
-> >> > Add a comment describing the problem, partial solution and required
-> >> > future extensions.
-> >> >
-> >> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >>
-> >> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> >>
-> >> Linus, because of dependencies, I should probably pick it up?
-> >
-> > Linus, ping!
-> >
->=20
-> Hi Wolfram,
->=20
-> this patch will not apply to the gpio tree. If Linus is too busy to
-> comment, maybe you could pick it up anyway - it doesn't change
-> anything in terms of functionality and it's better to have the code
-> commented when it's not obvious what it does.
+On Wed, Sep 28, 2016 at 04:30:40AM -0400, Nayna Jain wrote:
+> Virtual TPM, which is being used on IBM POWER7+ and POWER8 systems running
+> POWERVM, is currently supported by tpm device driver but lacks the
+> documentation. This patch adds the missing documentation for the existing
+> support.
+> 
+> Suggested-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+> Signed-off-by: Nayna Jain <nayna@linux.vnet.ibm.com>
+> ---
+> Changelog v2:
+> 
+> - New Patch
+> 
+>  .../devicetree/bindings/security/tpm/ibmvtpm.txt   | 41 ++++++++++++++++++++++
+>  1 file changed, 41 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt b/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
+> new file mode 100644
+> index 0000000..d89f999
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
+> @@ -0,0 +1,41 @@
+> +* Device Tree Bindings for IBM Virtual Trusted Platform Module(vtpm)
+> +
+> +Required properties:
+> +
+> +- compatible            : property name that conveys the platform architecture
+> +                          identifiers, as 'IBM,vtpm'
+> +- device_type           : specifies type of virtual device
 
-I want to pick it up and am likely to do so anyway, but to be formally
-perfect, I need an ack from Linus.
+A generic device tree question. What is the difference between
+these fields? Why the I2C one does have 'device_type'?
 
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJX7MshAAoJEBQN5MwUoCm2chsQAKzQPjgn+zgQt0All046Zwwj
-MwPtYxndHkr7D+ClGovfjcKgzsqPap46x0moAEwYeFqui8RfAToKLNN+247ogdzP
-3TmCOinWlParAuwJTath6DVGBTVicVyvhebRk25DoEUkGS9DztagN+8/VNxTXnUT
-E67XETPWQU6tJIKWdc6azyOkh0nAzhWcqAtZqLqzDVBfljzxLWmbDFb3OuNp89sj
-nUtHZtMmrPWIV/MIzMycrIwQyc4X6X6i4tLpqba2vJ0ll4SGj8T/uWrY0M43MC36
-DI2dms4kY8x4w4lF2FJPU07Z8iEnfzXyR7xn8pqIrZvJUT5++pYoPEJZT3lUnQgs
-fk1YmT+xH8LUDoodvnaq9vk3Nk0M1KB5DS2TZan0eruV8wb9MDkkLln3Sk9FHM7R
-ugNlwOhx3cCtQ0CwAAmpWBlljvhA5rkeXKwcrO4RgAF1wyPkKscwbYAlhedUtemQ
-/94wau3WbMFylY2eb8I6YlOnLqDEARvAv0UB5r4q9J3/DnoKcRbpkEeHSehfhXMu
-q3w59/IW86PXiADoNb30yAC+wJiMnxUDIBwKf6lhtSt4nE2aXD/LGwZmC0Ml2hv4
-DJ0e4SA0hSrTMbYIrvKqbTddPvmudz8EQvV+NwGZCuXz0bhBE8yLnwOQiuLj7s3y
-iA+DpZR+RfMD+2UWQZMo
-=JNFn
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--
+/Jarkko
