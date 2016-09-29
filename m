@@ -1,76 +1,81 @@
-From: Martin Sperl <kernel@martin.sperl.org>
-Subject: Re: [PATCH v3 7/7] i2c: bcm2835: Add support for dynamic clock
-Date: Thu, 29 Sep 2016 10:02:44 +0200
-Message-ID: <109bda50-455e-f91b-a3a1-bf00cb5745db@martin.sperl.org>
-References: <1475085056-5205-1-git-send-email-noralf@tronnes.org>
- <1475085056-5205-8-git-send-email-noralf@tronnes.org>
- <87r383g1kb.fsf@eliezer.anholt.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] gpio: pca953x: add a comment explaining the need for a
+ lockdep subclass
+Date: Thu, 29 Sep 2016 10:04:50 +0200
+Message-ID: <20160929080449.GA4032@katana>
+References: <1474883655-15824-1-git-send-email-bgolaszewski@baylibre.com>
+ <1474883655-15824-2-git-send-email-bgolaszewski@baylibre.com>
+ <20160926100030.GA5606@katana>
+ <20160929060638.GB1524@katana>
+ <CAMpxmJWmzju-gJ54irsqGb86i6THx4BXzqMAa=okqGAi=5bbrA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 212-186-180-163.static.upcbusiness.at ([212.186.180.163]:47838
-        "EHLO cgate.sperl.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754915AbcI2IBx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Sep 2016 04:01:53 -0400
-In-Reply-To: <87r383g1kb.fsf@eliezer.anholt.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMpxmJWmzju-gJ54irsqGb86i6THx4BXzqMAa=okqGAi=5bbrA@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Eric Anholt <eric@anholt.net>, =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, wsa@the-dreams.de, swarren@wwwdotorg.org
-Cc: linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-On 28.09.2016 23:24, Eric Anholt wrote:
-> Noralf Trønnes <noralf@tronnes.org> writes:
->
->> Support a dynamic clock by reading the frequency and setting the
->> divisor in the transfer function instead of during probe.
-> Is this fixing some particular case you could note in the commit
-> message?  As is, it makes me think that we should be using a notifier
-> for when the parent clock (that's the one I assume you're talking about
-> being dynamic) changes.  But maybe you're working around a variable VPU
-> clock being set by the firmware, because we don't have a notifier for
-> it?
->
-> I'm a bit worried because I think this is going to be pretty expensive
-> to be doing per transfer.
 
-Well, the clocks are all configured without CLK_GET_RATE_NOCACHE et. al.,
-so the value is read from cache, which is not (very) expensive
-(see clk_core_get_rate).
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This also means that any clock change of the VPU done by the firmware
-does not propagate to the linux kernel anyway and the unchanged
-cached value is returned.
+On Thu, Sep 29, 2016 at 09:56:58AM +0200, Bartosz Golaszewski wrote:
+> 2016-09-29 8:06 GMT+02:00 Wolfram Sang <wsa@the-dreams.de>:
+> > On Mon, Sep 26, 2016 at 12:00:30PM +0200, Wolfram Sang wrote:
+> >> On Mon, Sep 26, 2016 at 11:54:15AM +0200, Bartosz Golaszewski wrote:
+> >> > This is a follow-up to commit 559b46990e76 ("gpio: pca953x: fix an
+> >> > incorrect lockdep warning"). The reason for calling
+> >> > lockdep_set_subclass() in pca953x_probe() is not explained in
+> >> > the code.
+> >> >
+> >> > Add a comment describing the problem, partial solution and required
+> >> > future extensions.
+> >> >
+> >> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> >>
+> >> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> >>
+> >> Linus, because of dependencies, I should probably pick it up?
+> >
+> > Linus, ping!
+> >
+>=20
+> Hi Wolfram,
+>=20
+> this patch will not apply to the gpio tree. If Linus is too busy to
+> comment, maybe you could pick it up anyway - it doesn't change
+> anything in terms of functionality and it's better to have the code
+> commented when it's not obvious what it does.
 
-To make this work it would require a notification mechanism from the
-firmware to trigger a re-validation of all the caches. (or some sort of 
-watchdog
-process).
+I want to pick it up and am likely to do so anyway, but to be formally
+perfect, I need an ack from Linus.
 
-Adding a notifier to each driver (I2C, SPI) instead is - imo - a lot of 
-unnecessary
-code complexity, as any currently running transfer would still be impacted,
-because changing the clock-divider in flight is a asking for trouble.
-But then changing the vpu-clock speed while a I2s/SPI/... transfer is 
-running is
-also asking for trouble....
 
-The only place where - IMO - a notifier would make sense is with the 
-auxiliar
-UART driver(8250_bcm2835aux.c), as there we only read the clock rates
-when setting/changing the baud rate. But - again -  this would require some
-notification by the firmware in the first place and any reception in the
-window of change would go wrong because of unexpected effective baud
-rate changes.
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
 
-So as far as I can tell the change to read the current clock rate in the
-transfer function is a reasonable approach and the clock framework should
-handle the communication with the firmware about such changes.
-(And I remember having had some discussions around this subject
-with Phil Elwell or popcornmix some time ago on github where it boiled
-down to: what is the "right" interface? - I can not find the reference
-right now)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Reviewed-by: Martin Sperl <kernel@martin.sperl.org>
+iQIcBAEBAgAGBQJX7MshAAoJEBQN5MwUoCm2chsQAKzQPjgn+zgQt0All046Zwwj
+MwPtYxndHkr7D+ClGovfjcKgzsqPap46x0moAEwYeFqui8RfAToKLNN+247ogdzP
+3TmCOinWlParAuwJTath6DVGBTVicVyvhebRk25DoEUkGS9DztagN+8/VNxTXnUT
+E67XETPWQU6tJIKWdc6azyOkh0nAzhWcqAtZqLqzDVBfljzxLWmbDFb3OuNp89sj
+nUtHZtMmrPWIV/MIzMycrIwQyc4X6X6i4tLpqba2vJ0ll4SGj8T/uWrY0M43MC36
+DI2dms4kY8x4w4lF2FJPU07Z8iEnfzXyR7xn8pqIrZvJUT5++pYoPEJZT3lUnQgs
+fk1YmT+xH8LUDoodvnaq9vk3Nk0M1KB5DS2TZan0eruV8wb9MDkkLln3Sk9FHM7R
+ugNlwOhx3cCtQ0CwAAmpWBlljvhA5rkeXKwcrO4RgAF1wyPkKscwbYAlhedUtemQ
+/94wau3WbMFylY2eb8I6YlOnLqDEARvAv0UB5r4q9J3/DnoKcRbpkEeHSehfhXMu
+q3w59/IW86PXiADoNb30yAC+wJiMnxUDIBwKf6lhtSt4nE2aXD/LGwZmC0Ml2hv4
+DJ0e4SA0hSrTMbYIrvKqbTddPvmudz8EQvV+NwGZCuXz0bhBE8yLnwOQiuLj7s3y
+iA+DpZR+RfMD+2UWQZMo
+=JNFn
+-----END PGP SIGNATURE-----
 
-Thanks, Martin
+--Dxnq1zWXvFF0Q93v--
