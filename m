@@ -1,121 +1,51 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH v5 3/6] Documentation: Add sbs-manager device tree node
- documentation
-Date: Fri, 30 Sep 2016 15:58:09 +0800
-Message-ID: <1ab3ce40-cde3-b66b-6bf6-610a70e8ca75@electromag.com.au>
-References: <1474447274-90821-1-git-send-email-preid@electromag.com.au>
- <1474447274-90821-4-git-send-email-preid@electromag.com.au>
- <20160923194434.GA5771@rob-hp-laptop>
+From: Bob Hoover <bhoover@aimdigitalpros.com>
+Subject: iPhone Users Contacts
+Date: Fri, 30 Sep 2016 11:21:11 -0400
+Message-ID: <684021f1-a3f3-ba50-8bcd-e7adee7c166a@aimdigitalpros.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy3.45ru.net.au ([203.30.46.155]:52339 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751006AbcI3H6W (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Sep 2016 03:58:22 -0400
-In-Reply-To: <20160923194434.GA5771@rob-hp-laptop>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:35891 "EHLO
+        mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933145AbcI3QMN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Sep 2016 12:12:13 -0400
+Received: by mail-pa0-f45.google.com with SMTP id qn7so39872028pac.3
+        for <linux-i2c@vger.kernel.org>; Fri, 30 Sep 2016 09:12:13 -0700 (PDT)
+Received: from [127.0.0.1] ([103.6.157.159])
+        by smtp.gmail.com with ESMTPSA id q2sm29028738pfi.35.2016.09.30.09.12.11
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 30 Sep 2016 09:12:11 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, sre@kernel.org, andrea.merello@gmail.com, karl-heinz@schneider-inet.de, arnd@arndb.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-G'day Rob,
-On 24/09/2016 03:44, Rob Herring wrote:
-> On Wed, Sep 21, 2016 at 04:41:11PM +0800, Phil Reid wrote:
->> From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
->>
->> This patch adds device tree documentation for the sbs-manager
->>
->> Reviewed-by: Phil Reid <preid@electromag.com.au>
->> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
->> Signed-off-by: Phil Reid <preid@electromag.com.au>
->> ---
->>  .../bindings/power/supply/sbs,sbs-manager.txt      | 62 ++++++++++++++++++++++
->>  1 file changed, 62 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
->>
->> diff --git a/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
->> new file mode 100644
->> index 0000000..2a04b30
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
->> @@ -0,0 +1,62 @@
->> +Binding for sbs-manager
->> +
->> +Required properties:
->> +- compatible: should be "lltc,ltc1760" or use "sbs,sbs-manager" as fallback.
->> +- reg: integer, i2c address of the device. Should be <0xa>.
->> +Optional properties:
->> +- gpio-controller: Marks the port as GPIO controller.
->> +  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
->> +- #gpio-cells: Should be <2>. The first cell is the pin number, the second cell
->> +  is used to specify optional parameters:
->> +  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
->
-> Is this leftover from the last version? It doesn't look like you are
-> using any GPIOs in the example.
 
-Sorry didn't update the example. I still need the gpio exposed to the battery.
->
->> +
->> +From OS view the device is basically an i2c-mux used to communicate with up to
->> +four smart battery devices at address 0xb. The driver actually implements this
->> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
->> +batteries. See Documentation/devicetree/bindings/i2c/i2c-mux.txt for more
->> +information on i2c-mux nodes. Channels will be numerated starting from 1 to 4.
->> +
->> +Example:
->> +
->> +batman@0a {
->> +    compatible = "lltc,ltc1760";
->> +    reg = <0x0a>;
->> +    #address-cells = <1>;
->> +    #size-cells = <0>;
->> +
->> +    gpio-controller;
->> +    #gpio-cells = <2>;
->> +
->> +    i2c@1 {
->> +        #address-cells = <1>;
->> +        #size-cells = <0>;
->> +        reg = <1>;
->> +
->> +        battery@b {
->> +            compatible = "ti,bq2060", "sbs,sbs-battery";
->> +            reg = <0xb>;
-should have something like:
-                 sbs,battery-detect-gpios = <&batman 0 GPIO_ACTIVE_HIGH>;
+Hi,
 
->> +        };
->> +    };
->> +
->> +    i2c@2 {
->> +        #address-cells = <1>;
->> +        #size-cells = <0>;
->> +        reg = <2>;
->> +
->> +        battery@b {
->> +            compatible = "ti,bq2060", "sbs,sbs-battery";
->> +            reg = <0xb>;
->> +        };
->> +    };
->> +
->> +    i2c@3 {
->> +        #address-cells = <1>;
->> +        #size-cells = <0>;
->> +        reg = <3>;
->> +
->> +        battery@b {
->> +            compatible = "ti,bq2060", "sbs,sbs-battery";
->> +            reg = <0xb>;
->> +        };
->> +    };
->> +};
->> --
+Hope this email finds you well!
 
-Let me know your thoughts.
+We are email list vendors and provide only opt-in email list as per client’s requirements.
 
--- 
-Regards
-Phil Reid
+I am contacting you to know if you would be interested in reaching out to “iPhone Users Lists” and to know if you are looking for any other consumers List.
+
+We maintain iPhone Users Enthusiasts contacts with complete details like Name (First and Last), Address, City, State, Zip, County, Opt-in Email Addresses.
+
+  We also have data for All Mobile Phone Users (Android,iOS), IMAC Users, iPod Users, Smart Phone Users, iPad Users, Tablet Users, Samsung Users, Microsoft Users, PC Gamers, XBOX Gamers, Blackberry Users and many more...
+
+Guarantee Levels:
+•    100% permission based contacts compiled in compliance with CAN-SPAM laws.
+•    We update and verify our contacts in every 30-45-60 days depending on the list size.
+•    We guarantee 85% on email deliverable and 90% on other data fields.
+•    Any hard bounces more than 15% on emails will be replaced with fresh contacts at no cost.
+
+Please review and let us know your thoughts toward using or procuring our iPhone Users contacts.
+
+Regards,
+Bob
+
+
+---
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
