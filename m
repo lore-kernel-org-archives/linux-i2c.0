@@ -1,22 +1,22 @@
 From: Bob Hoover <bhoover@aimdigitalpros.com>
 Subject: iPhone Users Contacts
-Date: Fri, 30 Sep 2016 11:21:11 -0400
-Message-ID: <684021f1-a3f3-ba50-8bcd-e7adee7c166a@aimdigitalpros.com>
+Date: Fri, 30 Sep 2016 11:21:13 -0400
+Message-ID: <e665c7e2-1197-1367-83fc-8e957950dd2d@aimdigitalpros.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:35891 "EHLO
-        mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933145AbcI3QMN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Sep 2016 12:12:13 -0400
-Received: by mail-pa0-f45.google.com with SMTP id qn7so39872028pac.3
-        for <linux-i2c@vger.kernel.org>; Fri, 30 Sep 2016 09:12:13 -0700 (PDT)
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:33605 "EHLO
+        mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934096AbcI3QMS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Sep 2016 12:12:18 -0400
+Received: by mail-pa0-f54.google.com with SMTP id cd13so36682463pac.0
+        for <linux-i2c@vger.kernel.org>; Fri, 30 Sep 2016 09:12:17 -0700 (PDT)
 Received: from [127.0.0.1] ([103.6.157.159])
-        by smtp.gmail.com with ESMTPSA id q2sm29028738pfi.35.2016.09.30.09.12.11
+        by smtp.gmail.com with ESMTPSA id p1sm29005893pfd.61.2016.09.30.09.12.14
         for <linux-i2c@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 30 Sep 2016 09:12:11 -0700 (PDT)
+        Fri, 30 Sep 2016 09:12:15 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
