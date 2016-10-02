@@ -1,51 +1,90 @@
-From: Bob Hoover <bhoover@aimdigitalpros.com>
-Subject: iPhone Users Contacts
-Date: Fri, 30 Sep 2016 11:21:13 -0400
-Message-ID: <e665c7e2-1197-1367-83fc-8e957950dd2d@aimdigitalpros.com>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH v3 2/7] i2c: bcm2835: Protect against unexpected TXW/RXR
+ interrupts
+Date: Sun, 2 Oct 2016 16:19:57 +0200
+Message-ID: <0c943ee9-d152-79c4-2ad7-8a88c2d9c960@tronnes.org>
+References: <1475085056-5205-1-git-send-email-noralf@tronnes.org>
+ <1475085056-5205-3-git-send-email-noralf@tronnes.org>
+ <87oa37fzx6.fsf@eliezer.anholt.net>
+ <d93a0590-1783-b913-9362-007628cb17d6@tronnes.org>
+ <1708178720.178936.b155d019-5320-4754-bbe2-4afc1ae71cd6.open-xchange@email.1und1.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:33605 "EHLO
-        mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934096AbcI3QMS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Sep 2016 12:12:18 -0400
-Received: by mail-pa0-f54.google.com with SMTP id cd13so36682463pac.0
-        for <linux-i2c@vger.kernel.org>; Fri, 30 Sep 2016 09:12:17 -0700 (PDT)
-Received: from [127.0.0.1] ([103.6.157.159])
-        by smtp.gmail.com with ESMTPSA id p1sm29005893pfd.61.2016.09.30.09.12.14
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 30 Sep 2016 09:12:15 -0700 (PDT)
+Received: from smtp.domeneshop.no ([194.63.252.55]:47932 "EHLO
+        smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750820AbcJBOUJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 2 Oct 2016 10:20:09 -0400
+In-Reply-To: <1708178720.178936.b155d019-5320-4754-bbe2-4afc1ae71cd6.open-xchange@email.1und1.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Stefan Wahren <stefan.wahren@i2se.com>, Eric Anholt <eric@anholt.net>, wsa@the-dreams.de, swarren@wwwdotorg.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
 
 
-Hi,
+Den 29.09.2016 07:37, skrev Stefan Wahren:
+>> Noralf Trønnes <noralf@tronnes.org> hat am 29. September 2016 um 00:22
+>> geschrieben:
+>>
+>>
+>>
+>> Den 29.09.2016 00:00, skrev Eric Anholt:
+>>> Noralf Trønnes <noralf@tronnes.org> writes:
+>>>
+>>>> If an unexpected TXW or RXR interrupt occurs (msg_buf_remaining == 0),
+>>>> the driver has no way to fill/drain the FIFO to stop the interrupts.
+>>>> In this case the controller has to be disabled and the transfer
+>>>> completed to avoid hang.
+>>>>
+>>>> (CLKT | ERR) and DONE interrupts are completed in their own paths, and
+>>>> the controller is disabled in the transfer function after completion.
+>>>> Unite the code paths and do disabling inside the interrupt routine.
+>>>>
+>>>> Clear interrupt status bits in the united completion path instead of
+>>>> trying to do it on every interrupt which isn't necessary.
+>>>> Only CLKT, ERR and DONE can be cleared that way.
+>>>>
+>>>> Add the status value to the error value in case of TXW/RXR errors to
+>>>> distinguish them from the other S_LEN error.
+>>> I was surprised that not writing the TXW/RXR bits on handling their
+>>> interrupts was OK, given that we were doing so before, but it's a level
+>>> interrupt and those bits are basically ignored on write.
+>>>
+>>> This patch and 3, 4, and 6 are:
+>>>
+>>> Reviewed-by: Eric Anholt <eric@anholt.net>
+>>>
+>>> Patch 5 is:
+>>>
+>>> Acked-by: Eric Anholt <eric@anholt.net>
+>>>
+>>> Note for future debug: The I2C_C_CLEAR on errors will take some time to
+>>> resolve -- if you were in non-idle state and I2C_C_READ, it sets an
+>>> abort_rx flag and runs through the state machine to send a NACK and a
+>>> STOP, I think.  Since we're setting CLEAR without I2CEN, that NACK will
+>>> be hanging around queued up for next time we start the engine.
+>> Maybe you're able to explain the issues I had with reset:
+>> https://github.com/raspberrypi/linux/issues/1653
+>>
+>> Should we put your note into the commit message?
+>> It will most likely be lost if it just stays in this email.
+> I prefer to have this kind of information as a code comment.
 
-Hope this email finds you well!
+Eric, does this look good to you as a code comment:
 
-We are email list vendors and provide only opt-in email list as per client’s requirements.
-
-I am contacting you to know if you would be interested in reaching out to “iPhone Users Lists” and to know if you are looking for any other consumers List.
-
-We maintain iPhone Users Enthusiasts contacts with complete details like Name (First and Last), Address, City, State, Zip, County, Opt-in Email Addresses.
-
-  We also have data for All Mobile Phone Users (Android,iOS), IMAC Users, iPod Users, Smart Phone Users, iPad Users, Tablet Users, Samsung Users, Microsoft Users, PC Gamers, XBOX Gamers, Blackberry Users and many more...
-
-Guarantee Levels:
-•    100% permission based contacts compiled in compliance with CAN-SPAM laws.
-•    We update and verify our contacts in every 30-45-60 days depending on the list size.
-•    We guarantee 85% on email deliverable and 90% on other data fields.
-•    Any hard bounces more than 15% on emails will be replaced with fresh contacts at no cost.
-
-Please review and let us know your thoughts toward using or procuring our iPhone Users contacts.
-
-Regards,
-Bob
+/*
+  * Note about I2C_C_CLEAR on error:
+  * The I2C_C_CLEAR on errors will take some time to resolve -- if you 
+were in
+  * non-idle state and I2C_C_READ, it sets an abort_rx flag and runs through
+  * the state machine to send a NACK and a STOP. Since we're setting CLEAR
+  * without I2CEN, that NACK will be hanging around queued up for next time
+  * we start the engine.
+  */
 
 
----
-This email has been checked for viruses by Avast antivirus software.
-https://www.avast.com/antivirus
+If it is, I'll resend the series with this change and add all the ack's 
+and r-b's.
+
+Noralf.
