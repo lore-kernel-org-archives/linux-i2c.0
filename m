@@ -1,81 +1,42 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 3/4] Input: elan_i2c - add Host Notify support
-Date: Mon, 3 Oct 2016 16:33:17 +0200
-Message-ID: <20161003143317.GU19261@mail.corp.redhat.com>
-References: <1475073244-23068-1-git-send-email-benjamin.tissoires@redhat.com>
- <1475073244-23068-4-git-send-email-benjamin.tissoires@redhat.com>
- <20160930235744.GB1680@dtor-ws>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4] i2c: hibvt: add Hisilicon BVT I2C controller driver
+Date: Mon, 3 Oct 2016 13:52:54 -0500
+Message-ID: <20161003185254.GA29178@rob-hp-laptop>
+References: <1474959063-6126-1-git-send-email-wenpan@hisilicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55404 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753004AbcJCOdY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Oct 2016 10:33:24 -0400
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:35512 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753350AbcJCSw4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 3 Oct 2016 14:52:56 -0400
 Content-Disposition: inline
-In-Reply-To: <20160930235744.GB1680@dtor-ws>
+In-Reply-To: <1474959063-6126-1-git-send-email-wenpan@hisilicon.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: KT Liao <kt.liao@emc.com.tw>, Adrian Alves <aalves@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Corey Minyard <minyard@acm.org>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org
+To: Pan Wen <wenpan@hisilicon.com>
+Cc: wsa@the-dreams.de, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, howell.yang@hisilicon.com, xuejiancheng@hisilicon.com, jalen.hsu@hisilicon.com, lvkuanliang@hisilicon.com, suwenping@hisilicon.com, raojun@hisilicon.com, kevin.lixu@hisilicon.com
 
-[Adding the I2C folks]
-
-On Sep 30 2016 or thereabouts, Dmitry Torokhov wrote:
-> On Wed, Sep 28, 2016 at 04:34:03PM +0200, Benjamin Tissoires wrote:
-> > The Thinkpad series 13 uses Host Notify to report the interrupt.
-> > Add elan_smb_alert() to handle those interrupts and disable the irq
-> > handling on this case.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >  drivers/input/mouse/elan_i2c_core.c | 100 ++++++++++++++++++++++++++++--------
-> >  1 file changed, 78 insertions(+), 22 deletions(-)
-> > 
-> > diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> > index 2de1f75..11671c7 100644
-> > --- a/drivers/input/mouse/elan_i2c_core.c
-> > +++ b/drivers/input/mouse/elan_i2c_core.c
-> > @@ -96,6 +96,34 @@ struct elan_tp_data {
-> >  	bool			baseline_ready;
-> >  };
-> >  
-> > +static inline void elan_enable_irq(struct elan_tp_data *tp)
-> > +{
-> > +	if (tp->client->irq)
-> > +		enable_irq(tp->client->irq);
+On Tue, Sep 27, 2016 at 02:51:03PM +0800, Pan Wen wrote:
+> add Hisilicon BVT I2C controller driver support.
 > 
-> Hmm, so I wonder, why alert is not implemented as irqchip? Then clients
-> would not need to be bothered with these details, they'd simply requster
-> and manipulate irqs.
-> 
+> Signed-off-by: Pan Wen <wenpan@hisilicon.com>
+> ---
+> change log
+> v4:
+> Modify the default frequency to 100KHz.
+> v3:
+> Add a SoC specific compatible string.
+> v2:
+> 1)Fixed a compile error.
+> 2)Dropped the clock-names property.
+>  .../devicetree/bindings/i2c/i2c-hibvt.txt          |  24 +
 
-Sounds like a good idea. There are few things to be aware:
-- I don't think it will be OK to blindly add a Host Notify irq when none
-  is provided by ACPI, platform or device tree. I think we would need to
-  add an API (i2c_host_notify_to_irq()) that will be called by the driver
-- On both systems I have seen using Host Notify (Synaptics and Elan),
-  none is using the payload available in Host Notify. That means
-  that we can use in those case an irq but it'll add more complexity
-  when we actually need this payload to be retrieved
-- Host Notify uses the same .alert mechanism than SMBus Alert. I checked
-  the users of this mechanism (lm90 and ipmi_ssif), and none uses the
-  payload provided by SMbus Alert
-- lm90 can use a provided irq in addition to SMBus Alert, which is my
-  main concern if we override the client->irq in i2c-core.c
+Acked-by: Rob Herring <robh@kernel.org>
 
-The more I think of it, the more I think this is a good idea given that
-the mechanism provided by .alert are similar to irq (without the payload
-option), and would allow to reduce the code in i2c-smbus.
-
-I'd be fine to implement an irqchip for Host Notify, but do we want to:
-- remove the current (yet unused) .alert Host Notify support?
-- keep .alert and have an irqchip available depending on how the user
-  wants to address these notifications?
-- also switch SMBus Alert into an irq, which would mean we will lose the
-  payload availability (or we will need some API to retrieve it)?
-
-Any thoughts?
-
-Cheers,
-Benjamin
+>  drivers/i2c/busses/Kconfig                         |  10 +
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-hibvt.c                     | 737 +++++++++++++++++++++
+>  4 files changed, 772 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
+>  create mode 100644 drivers/i2c/busses/i2c-hibvt.c
