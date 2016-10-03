@@ -1,78 +1,42 @@
-From: Eric Anholt <eric@anholt.net>
-Subject: Re: [PATCH] i2c: bcm2835: Set up the clock stretching timeout at boot.
-Date: Mon, 03 Oct 2016 12:50:27 -0700
-Message-ID: <87int9nrek.fsf@eliezer.anholt.net>
-References: <1464818845-5348-1-git-send-email-eric@anholt.net> <20160704003118.GA1381@tetsubishi> <87lh1ip653.fsf@eliezer.anholt.net> <20160722072740.GG1605@katana>
+From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Subject: [PATCH v4 0/7] i2c: bcm2835: Bring in changes from downstream
+Date: Mon,  3 Oct 2016 22:06:07 +0200
+Message-ID: <1475525174-28604-1-git-send-email-noralf@tronnes.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20160722072740.GG1605@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.domeneshop.no ([194.63.252.55]:45716 "EHLO
+        smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751554AbcJCUGo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 3 Oct 2016 16:06:44 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This patchset tries to bring in the lessons learned in the downstream
+driver i2c-bcm2708. The downstream clock stretcing timeout patch has
+been left out since clock stretching is broken/unreliable on this
+controller, so no point in setting it.
 
-Wolfram Sang <wsa@the-dreams.de> writes:
+Changes since version 3:
+- Add comment about I2C_C_CLEAR on error
 
-> On Sun, Jul 03, 2016 at 06:02:32PM -0700, Eric Anholt wrote:
->> Wolfram Sang <wsa@the-dreams.de> writes:
->>=20
->> >> +	/*
->> >> +	 * SMBUS says "Devices participating in a transfer will
->> >> +	 * timeout when any clock low exceeds the value of
->> >> +	 * T_TIMEOUT,MIN of 25 ms."
->> >> +	 */
->> >
->> > SMBus has that timeout, but I2C doesn't. How about disabling the timeo=
-ut
->> > simply? Or using the max value if you want to keep the timeout
->> > detection?
->>=20
->> Disabling the timeout seems fine to me.  We still have a 1-second
->> timeout around the entire transfer.  I'll be back on my DSI branch this
->> week and test it out then.
->
-> Did it work?
+Noralf.
 
-Sorry for the long-delayed feedback: It turned out that the reason I was
-getting timeouts and looking into i2c in the first place was that the
-firmware was driving that controller behind my back, so I couldn't do
-useful testing anyway.
 
-I put together a patch
-(https://github.com/anholt/linux/commit/894200276239d2e4c60b378bdc52164fcb1=
-3af8d)
-but I'm a bit concerned by it: I don't see a way to get the controller
-back to its idle state without continuing through the I2C state machine,
-and if the clock is still being stretched it doesn't continue unless CLK
-is triggered.
+Noralf Trønnes (7):
+  i2c: bcm2835: Fix hang for writing messages larger than 16 bytes
+  i2c: bcm2835: Protect against unexpected TXW/RXR interrupts
+  i2c: bcm2835: Use dev_dbg logging on transfer errors
+  i2c: bcm2835: Can't support I2C_M_IGNORE_NAK
+  i2c: bcm2835: Add support for Repeated Start Condition
+  i2c: bcm2835: Support i2c-dev ioctl I2C_TIMEOUT
+  i2c: bcm2835: Add support for dynamic clock
 
-What is supposed to happen when adap->timeout times out while the clock
-is being stretched?  Should we be able to try starting a fresh new I2C
-transaction cleanly?
+ drivers/i2c/busses/i2c-bcm2835.c | 218 +++++++++++++++++++++++++--------------
+ 1 file changed, 139 insertions(+), 79 deletions(-)
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAEBCgAGBQJX8raDAAoJELXWKTbR/J7oJdwP/if5ubdJw9HWZ/w5H9Kp2Unf
-4cP08OISk5SZGAk1Sj+7Fi1+adRWKwkUXxnWnhVmudc+lexdS9stN6IEvEMzpuGE
-1gKLZ+U8n+rAI1nkQe28a2fbLJOLEyE30PNLt4kqVrgiC75WYqGHQ2i+eRZCZmAu
-hng7LNyyACPYrUOyM9JyWMMNhBEPzqleO5ZHiL0lEvpf6OIbw+/g/iKHBtqnW3Gu
-Mpk0riTmHgc2b/i/Um3Wd2/zzW/Ao/+HBv21kzNpd7sHBphmRDLNz8BtAJHS51mp
-yJUzC7+gkKDgnr8wJ9Rz1fyP1cl3Ffwp0NFnf4ejfOehWzzo3gAmZqeLTce6VhZI
-Z7wkHi4FpdiBvOZAF0de0ylJA/DsbUx89tGuW60BbmQcEKIK5vZRkiVhqVQvnQK8
-IK5iozev6iwTyPTTB9v199uRgmM2jszOXyJ5Np7VzvyH2gXfhAGbRv2NPEFV9YaG
-csDH8kpnK+JojQTcP9JoyMyS27XTFxYvi860ygCvZzXd5iMsAhC6kA0bR4AEV3y1
-wINE5y5veVRbJAfricKq0wMqMaW0Qijw3oopjDcnfbU6DWGOb2ZMjCvFy+bpOl2Y
-QRsjV5H+wZWFCfQax9QLbx6mmwjU+hY6tWBHl7IXA65/qdYhzNhpeYgNEqCT320I
-blv1laNkmHIMZ0YPs4Mu
-=WjdL
------END PGP SIGNATURE-----
---=-=-=--
+--
+2.8.2
