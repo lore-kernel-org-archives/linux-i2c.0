@@ -1,121 +1,78 @@
 From: Eric Anholt <eric@anholt.net>
-Subject: Re: [PATCH v3 2/7] i2c: bcm2835: Protect against unexpected TXW/RXR interrupts
-Date: Mon, 03 Oct 2016 12:42:29 -0700
-Message-ID: <8760p9xlqy.fsf@eliezer.anholt.net>
-References: <1475085056-5205-1-git-send-email-noralf@tronnes.org> <1475085056-5205-3-git-send-email-noralf@tronnes.org> <87oa37fzx6.fsf@eliezer.anholt.net> <d93a0590-1783-b913-9362-007628cb17d6@tronnes.org>
+Subject: Re: [PATCH] i2c: bcm2835: Set up the clock stretching timeout at boot.
+Date: Mon, 03 Oct 2016 12:50:27 -0700
+Message-ID: <87int9nrek.fsf@eliezer.anholt.net>
+References: <1464818845-5348-1-git-send-email-eric@anholt.net> <20160704003118.GA1381@tetsubishi> <87lh1ip653.fsf@eliezer.anholt.net> <20160722072740.GG1605@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; boundary="=-=-=";
         micalg=pgp-sha512; protocol="application/pgp-signature"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anholt.net ([50.246.234.109]:38286 "EHLO anholt.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751824AbcJCTmd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Oct 2016 15:42:33 -0400
-In-Reply-To: <d93a0590-1783-b913-9362-007628cb17d6@tronnes.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20160722072740.GG1605@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>, wsa@the-dreams.de, swarren@wwwdotorg.org
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
 
 --=-=-=
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Noralf Tr=C3=B8nnes <noralf@tronnes.org> writes:
+Wolfram Sang <wsa@the-dreams.de> writes:
 
-> Den 29.09.2016 00:00, skrev Eric Anholt:
->> Noralf Tr=C3=B8nnes <noralf@tronnes.org> writes:
->>
->>> If an unexpected TXW or RXR interrupt occurs (msg_buf_remaining =3D=3D =
-0),
->>> the driver has no way to fill/drain the FIFO to stop the interrupts.
->>> In this case the controller has to be disabled and the transfer
->>> completed to avoid hang.
->>>
->>> (CLKT | ERR) and DONE interrupts are completed in their own paths, and
->>> the controller is disabled in the transfer function after completion.
->>> Unite the code paths and do disabling inside the interrupt routine.
->>>
->>> Clear interrupt status bits in the united completion path instead of
->>> trying to do it on every interrupt which isn't necessary.
->>> Only CLKT, ERR and DONE can be cleared that way.
->>>
->>> Add the status value to the error value in case of TXW/RXR errors to
->>> distinguish them from the other S_LEN error.
->> I was surprised that not writing the TXW/RXR bits on handling their
->> interrupts was OK, given that we were doing so before, but it's a level
->> interrupt and those bits are basically ignored on write.
->>
->> This patch and 3, 4, and 6 are:
->>
->> Reviewed-by: Eric Anholt <eric@anholt.net>
->>
->> Patch 5 is:
->>
->> Acked-by: Eric Anholt <eric@anholt.net>
->>
->> Note for future debug: The I2C_C_CLEAR on errors will take some time to
->> resolve -- if you were in non-idle state and I2C_C_READ, it sets an
->> abort_rx flag and runs through the state machine to send a NACK and a
->> STOP, I think.  Since we're setting CLEAR without I2CEN, that NACK will
->> be hanging around queued up for next time we start the engine.
+> On Sun, Jul 03, 2016 at 06:02:32PM -0700, Eric Anholt wrote:
+>> Wolfram Sang <wsa@the-dreams.de> writes:
+>>=20
+>> >> +	/*
+>> >> +	 * SMBUS says "Devices participating in a transfer will
+>> >> +	 * timeout when any clock low exceeds the value of
+>> >> +	 * T_TIMEOUT,MIN of 25 ms."
+>> >> +	 */
+>> >
+>> > SMBus has that timeout, but I2C doesn't. How about disabling the timeo=
+ut
+>> > simply? Or using the max value if you want to keep the timeout
+>> > detection?
+>>=20
+>> Disabling the timeout seems fine to me.  We still have a 1-second
+>> timeout around the entire transfer.  I'll be back on my DSI branch this
+>> week and test it out then.
 >
-> Maybe you're able to explain the issues I had with reset:
-> https://github.com/raspberrypi/linux/issues/1653
+> Did it work?
 
-One of the questions I think you might have is "what state does the
-controller end up in after the various interrupts?"
+Sorry for the long-delayed feedback: It turned out that the reason I was
+getting timeouts and looking into i2c in the first place was that the
+firmware was driving that controller behind my back, so I couldn't do
+useful testing anyway.
 
-ERR:
-=2D produced if we get a nack that's not at the end of a read.
+I put together a patch
+(https://github.com/anholt/linux/commit/894200276239d2e4c60b378bdc52164fcb1=
+3af8d)
+but I'm a bit concerned by it: I don't see a way to get the controller
+back to its idle state without continuing through the I2C state machine,
+and if the clock is still being stretched it doesn't continue unless CLK
+is triggered.
 
-=2D Proceeds to repeated start if BCM2835_I2C_C_ST is queued, otherwise
-  stop.
-
-CLKT:
-=2D Triggered by a counter outside of the state machine when stretching
-  happens and then times out.
-
-=2D Sets cs_override, which causes proceeding through the state machine as
-  if the clock wasn't getting stretched, until the end of the next byte
-  sent/received.
-
-=2D According to Wolfram we shouldn't be timing out on clock stretching
-  for i2c, just on the transfer as a whole
-  (https://patchwork.kernel.org/patch/9148431/), so I wrote
-  https://github.com/anholt/linux/commit/894200276239d2e4c60b378bdc52164fcb=
-13af8d.
-  However, I don't see an obvious way to get back to IDLE while the
-  slave is still stretching, without triggering the clock stretching
-  timeout path.
-
-DONE:
-=2D Signaled at STOP, and just moves to IDLE state which keeps scl/sda
-  high and waits for a BCM2835_I2C_C_ST while we're not clearing the
-  FIFOs (if you do signal start while the fifos are clearing, the start
-  will hang around until the fifo clear is done).  This is the only way
-  to get to IDLE.
-
-I'm don't think I have an answer to the "what should I do?" question you
-had, but hopefully this helps.
+What is supposed to happen when adap->timeout times out while the clock
+is being stretched?  Should we be able to try starting a fresh new I2C
+transaction cleanly?
 
 --=-=-=
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIcBAEBCgAGBQJX8rSlAAoJELXWKTbR/J7o/HcP/1PyEP33RlKvIjgm2CxCQXYv
-yKB1snh0YBID8sWkrkdOOJ289RkAbdimCLcEoYhD1x0sj6zipriFnqP/OvZje1tL
-3HRAg8RrSJhEBRKCY7A/a0CcHySVLaSyFwn/Umxu6FjNIs6zahy7/RqWGVqGADOb
-0HW5ZpiomD1sQYQeSrgkOdGoTk/51YZ1zAe82eVuSENWTmETnC/X0KOt9gKaPKia
-YNKfsLEU7FgBZy45jUqSiqnM+ahMpCBvTF6UwGgCYW+6R/zf4iTBgqzMgUQlLtb6
-Wy5Ty7ReWJg4HvpHDtdex8o2HGFCW4UKKTU0Seukw4yeo+K9c6J3HSGA9X53PuEz
-o7qritr0l13wsbO1B8GWIth45ZnxZrhAw3B3FoTQbMLSwPS2osJVleh4MYPTnHqY
-Pj/aB0vtGaO5kYsO0u1rziDQklN7eB3hXQMDD0TVDte6D1I1fh6lJkp+fU3PhpVN
-VR/SYK2ieSh6ERSh7nZh/UqfjXTyadRtvrvr2bVahjhyBZVeGczTqxC1XcfWxVmp
-wzbWBJAgrF+4QADesQvFszsQzvo3AXXdlYwfMlDEB6B7TEv9fifanQC8FI2jlJ0X
-JyL3Bi3eG5PL4xMiAYPHgQq34vDuaHL8h+/Am/YDuZlQZXBbhLvcO8BCzxwJJCfd
-m1LdeUyc7vyGKs1dE4w2
-=Ou7f
+iQIcBAEBCgAGBQJX8raDAAoJELXWKTbR/J7oJdwP/if5ubdJw9HWZ/w5H9Kp2Unf
+4cP08OISk5SZGAk1Sj+7Fi1+adRWKwkUXxnWnhVmudc+lexdS9stN6IEvEMzpuGE
+1gKLZ+U8n+rAI1nkQe28a2fbLJOLEyE30PNLt4kqVrgiC75WYqGHQ2i+eRZCZmAu
+hng7LNyyACPYrUOyM9JyWMMNhBEPzqleO5ZHiL0lEvpf6OIbw+/g/iKHBtqnW3Gu
+Mpk0riTmHgc2b/i/Um3Wd2/zzW/Ao/+HBv21kzNpd7sHBphmRDLNz8BtAJHS51mp
+yJUzC7+gkKDgnr8wJ9Rz1fyP1cl3Ffwp0NFnf4ejfOehWzzo3gAmZqeLTce6VhZI
+Z7wkHi4FpdiBvOZAF0de0ylJA/DsbUx89tGuW60BbmQcEKIK5vZRkiVhqVQvnQK8
+IK5iozev6iwTyPTTB9v199uRgmM2jszOXyJ5Np7VzvyH2gXfhAGbRv2NPEFV9YaG
+csDH8kpnK+JojQTcP9JoyMyS27XTFxYvi860ygCvZzXd5iMsAhC6kA0bR4AEV3y1
+wINE5y5veVRbJAfricKq0wMqMaW0Qijw3oopjDcnfbU6DWGOb2ZMjCvFy+bpOl2Y
+QRsjV5H+wZWFCfQax9QLbx6mmwjU+hY6tWBHl7IXA65/qdYhzNhpeYgNEqCT320I
+blv1laNkmHIMZ0YPs4Mu
+=WjdL
 -----END PGP SIGNATURE-----
 --=-=-=--
