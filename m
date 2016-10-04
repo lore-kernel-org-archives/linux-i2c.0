@@ -1,45 +1,71 @@
-From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Subject: [PATCH v4 6/7] i2c: bcm2835: Support i2c-dev ioctl I2C_TIMEOUT
-Date: Mon,  3 Oct 2016 22:06:13 +0200
-Message-ID: <1475525174-28604-7-git-send-email-noralf@tronnes.org>
-References: <1475525174-28604-1-git-send-email-noralf@tronnes.org>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: [PATCH v3 1/2] wire: export w1_touch_bit
+Date: Tue, 4 Oct 2016 13:44:25 +0200
+Message-ID: <ac1ce126-d265-79e3-4d8c-41683607604c@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1475525174-28604-1-git-send-email-noralf@tronnes.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de, swarren@wwwdotorg.org, eric@anholt.net
-Cc: linux-rpi-kernel@lists.infradead.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.17.21]:53798 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752428AbcJDLoa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 4 Oct 2016 07:44:30 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-VXNlIGkyY19hZGFwdGVyLT50aW1lb3V0IGZvciB0aGUgY29tcGxldGlvbiB0aW1lb3V0IHZhbHVl
-LiBUaGUgY29yZQpkZWZhdWx0IGlzIDEgc2Vjb25kLgoKU2lnbmVkLW9mZi1ieTogTm9yYWxmIFRy
-w7hubmVzIDxub3JhbGZAdHJvbm5lcy5vcmc+ClJldmlld2VkLWJ5OiBFcmljIEFuaG9sdCA8ZXJp
-Y0BhbmhvbHQubmV0PgotLS0KIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtMjgzNS5jIHwgNCAr
-LS0tCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDMgZGVsZXRpb25zKC0pCgpkaWZm
-IC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1iY20yODM1LmMgYi9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLWJjbTI4MzUuYwppbmRleCAyNDFlMDhhLi5kMjA4NWRkIDEwMDY0NAotLS0gYS9k
-cml2ZXJzL2kyYy9idXNzZXMvaTJjLWJjbTI4MzUuYworKysgYi9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLWJjbTI4MzUuYwpAQCAtNTMsOCArNTMsNiBAQAogI2RlZmluZSBCQ00yODM1X0kyQ19DRElW
-X01JTgkweDAwMDIKICNkZWZpbmUgQkNNMjgzNV9JMkNfQ0RJVl9NQVgJMHhGRkZFCiAKLSNkZWZp
-bmUgQkNNMjgzNV9JMkNfVElNRU9VVCAobXNlY3NfdG9famlmZmllcygxMDAwKSkKLQogc3RydWN0
-IGJjbTI4MzVfaTJjX2RldiB7CiAJc3RydWN0IGRldmljZSAqZGV2OwogCXZvaWQgX19pb21lbSAq
-cmVnczsKQEAgLTI0Miw3ICsyNDAsNyBAQCBzdGF0aWMgaW50IGJjbTI4MzVfaTJjX3hmZXIoc3Ry
-dWN0IGkyY19hZGFwdGVyICphZGFwLCBzdHJ1Y3QgaTJjX21zZyBtc2dzW10sCiAJYmNtMjgzNV9p
-MmNfc3RhcnRfdHJhbnNmZXIoaTJjX2Rldik7CiAKIAl0aW1lX2xlZnQgPSB3YWl0X2Zvcl9jb21w
-bGV0aW9uX3RpbWVvdXQoJmkyY19kZXYtPmNvbXBsZXRpb24sCi0JCQkJCQlCQ00yODM1X0kyQ19U
-SU1FT1VUKTsKKwkJCQkJCWFkYXAtPnRpbWVvdXQpOwogCWlmICghdGltZV9sZWZ0KSB7CiAJCWJj
-bTI4MzVfaTJjX3dyaXRlbChpMmNfZGV2LCBCQ00yODM1X0kyQ19DLAogCQkJCSAgIEJDTTI4MzVf
-STJDX0NfQ0xFQVIpOwotLSAKMi44LjIKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0t
-a2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFp
-bG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+No changes in v3 against v2,v1 in this subpatch.
+
+
+The w1_ds28e17 driver from the next part of this patch needs to emit
+single-bit read timeslots to the DS28E17. The w1 subsystem already
+has this function but it is not exported outside drivers/w1/w1_io.c
+
+This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
+same as the other exported symbols in drivers/w1/w1_io.c
+
+May be also useful later for writing drivers for other Onewire chips
+which do single-bit communication.
+
+
+Signed-off-by: Jan Kandziora <jjj@gmx.de>
+---
+ drivers/w1/w1.h    | 1 +
+ drivers/w1/w1_io.c | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+index 129895f..ac8a6a5 100644
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -302,6 +302,7 @@ int w1_attach_slave_device(struct w1_master *dev,
+struct w1_reg_num *rn);
+ int w1_slave_detach(struct w1_slave *sl);
+  u8 w1_triplet(struct w1_master *dev, int bdir);
++u8 w1_touch_bit(struct w1_master *dev, int bit);
+ void w1_write_8(struct w1_master *, u8);
+ u8 w1_read_8(struct w1_master *);
+ int w1_reset_bus(struct w1_master *);
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index f4bc8c1..1c34f97 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -66,7 +66,7 @@ static u8 w1_read_bit(struct w1_master *dev);
+  * @dev:	the master device
+  * @bit:	0 - write a 0, 1 - write a 0 read the level
+  */
+-static u8 w1_touch_bit(struct w1_master *dev, int bit)
++u8 w1_touch_bit(struct w1_master *dev, int bit)
+ {
+ 	if (dev->bus_master->touch_bit)
+ 		return dev->bus_master->touch_bit(dev->bus_master->data, bit);
+@@ -77,6 +77,7 @@ static u8 w1_touch_bit(struct w1_master *dev, int bit)
+ 		return 0;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(w1_touch_bit);
+  /**
+  * w1_write_bit() - Generates a write-0 or write-1 cycle.
+-- 
+2.1.4
