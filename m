@@ -1,38 +1,119 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] gpio: pca953x: add a comment explaining the need for a
- lockdep subclass
-Date: Tue, 4 Oct 2016 14:17:45 +0200
-Message-ID: <CACRpkdbAF5sOf6FJTqT5i9xLm_3ykc3YNu71s5aobHpzKKGo+w@mail.gmail.com>
-References: <1474883655-15824-1-git-send-email-bgolaszewski@baylibre.com>
- <1474883655-15824-2-git-send-email-bgolaszewski@baylibre.com> <20160926100030.GA5606@katana>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH v3 2/7] i2c: bcm2835: Protect against unexpected TXW/RXR
+ interrupts
+Date: Tue, 4 Oct 2016 21:24:01 +0200
+Message-ID: <b5c2647f-fd75-61be-e9ba-b1e09630a1f0@tronnes.org>
+References: <1475085056-5205-1-git-send-email-noralf@tronnes.org>
+ <1475085056-5205-3-git-send-email-noralf@tronnes.org>
+ <87oa37fzx6.fsf@eliezer.anholt.net>
+ <d93a0590-1783-b913-9362-007628cb17d6@tronnes.org>
+ <8760p9xlqy.fsf@eliezer.anholt.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20160926100030.GA5606@katana>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Alexandre Courbot <gnurou@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Yong Li <yong.b.li@intel.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.domeneshop.no ([194.63.252.55]:42920 "EHLO
+        smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752140AbcJDTYM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 4 Oct 2016 15:24:12 -0400
+In-Reply-To: <8760p9xlqy.fsf@eliezer.anholt.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Eric Anholt <eric@anholt.net>, wsa@the-dreams.de, swarren@wwwdotorg.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
 
-On Mon, Sep 26, 2016 at 12:00 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Mon, Sep 26, 2016 at 11:54:15AM +0200, Bartosz Golaszewski wrote:
->> This is a follow-up to commit 559b46990e76 ("gpio: pca953x: fix an
->> incorrect lockdep warning"). The reason for calling
->> lockdep_set_subclass() in pca953x_probe() is not explained in
->> the code.
->>
->> Add a comment describing the problem, partial solution and required
->> future extensions.
->>
->> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+Den 03.10.2016 21:42, skrev Eric Anholt:
+> Noralf Trønnes <noralf@tronnes.org> writes:
 >
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+>> Den 29.09.2016 00:00, skrev Eric Anholt:
+>>> Noralf Trønnes <noralf@tronnes.org> writes:
+>>>
+>>>> If an unexpected TXW or RXR interrupt occurs (msg_buf_remaining == 0),
+>>>> the driver has no way to fill/drain the FIFO to stop the interrupts.
+>>>> In this case the controller has to be disabled and the transfer
+>>>> completed to avoid hang.
+>>>>
+>>>> (CLKT | ERR) and DONE interrupts are completed in their own paths, and
+>>>> the controller is disabled in the transfer function after completion.
+>>>> Unite the code paths and do disabling inside the interrupt routine.
+>>>>
+>>>> Clear interrupt status bits in the united completion path instead of
+>>>> trying to do it on every interrupt which isn't necessary.
+>>>> Only CLKT, ERR and DONE can be cleared that way.
+>>>>
+>>>> Add the status value to the error value in case of TXW/RXR errors to
+>>>> distinguish them from the other S_LEN error.
+>>> I was surprised that not writing the TXW/RXR bits on handling their
+>>> interrupts was OK, given that we were doing so before, but it's a level
+>>> interrupt and those bits are basically ignored on write.
+>>>
+>>> This patch and 3, 4, and 6 are:
+>>>
+>>> Reviewed-by: Eric Anholt <eric@anholt.net>
+>>>
+>>> Patch 5 is:
+>>>
+>>> Acked-by: Eric Anholt <eric@anholt.net>
+>>>
+>>> Note for future debug: The I2C_C_CLEAR on errors will take some time to
+>>> resolve -- if you were in non-idle state and I2C_C_READ, it sets an
+>>> abort_rx flag and runs through the state machine to send a NACK and a
+>>> STOP, I think.  Since we're setting CLEAR without I2CEN, that NACK will
+>>> be hanging around queued up for next time we start the engine.
+>> Maybe you're able to explain the issues I had with reset:
+>> https://github.com/raspberrypi/linux/issues/1653
+> One of the questions I think you might have is "what state does the
+> controller end up in after the various interrupts?"
 >
-> Linus, because of dependencies, I should probably pick it up?
+> ERR:
+> - produced if we get a nack that's not at the end of a read.
+>
+> - Proceeds to repeated start if BCM2835_I2C_C_ST is queued, otherwise
+>    stop.
+>
+> CLKT:
+> - Triggered by a counter outside of the state machine when stretching
+>    happens and then times out.
+>
+> - Sets cs_override, which causes proceeding through the state machine as
+>    if the clock wasn't getting stretched, until the end of the next byte
+>    sent/received.
+>
+> - According to Wolfram we shouldn't be timing out on clock stretching
+>    for i2c, just on the transfer as a whole
+>    (https://patchwork.kernel.org/patch/9148431/), so I wrote
+>    https://github.com/anholt/linux/commit/894200276239d2e4c60b378bdc52164fcb13af8d.
+>    However, I don't see an obvious way to get back to IDLE while the
+>    slave is still stretching, without triggering the clock stretching
+>    timeout path.
 
-Yes Acked-by: Linus Walleij <linus.walleij@linaro.org>
+If the transfer times out, whatever the reason, we clear the fifo
+(and disable). Doesn't that get us back to IDLE?
 
-Sorry was travelling.
+Code with my patches:
 
-Yours,
-Linus Walleij
+static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+                 int num)
+{
+[...]
+     bcm2835_i2c_start_transfer(i2c_dev);
+
+     time_left = wait_for_completion_timeout(&i2c_dev->completion,
+                         adap->timeout);
+     if (!time_left) {
+         bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C,
+                    BCM2835_I2C_C_CLEAR);
+         dev_err(i2c_dev->dev, "i2c transfer timed out\n");
+         return -ETIMEDOUT;
+     }
+
+> DONE:
+> - Signaled at STOP, and just moves to IDLE state which keeps scl/sda
+>    high and waits for a BCM2835_I2C_C_ST while we're not clearing the
+>    FIFOs (if you do signal start while the fifos are clearing, the start
+>    will hang around until the fifo clear is done).  This is the only way
+>    to get to IDLE.
+>
+> I'm don't think I have an answer to the "what should I do?" question you
+> had, but hopefully this helps.
