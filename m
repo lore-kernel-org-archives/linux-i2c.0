@@ -1,119 +1,97 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v3 2/7] i2c: bcm2835: Protect against unexpected TXW/RXR
- interrupts
-Date: Tue, 4 Oct 2016 21:24:01 +0200
-Message-ID: <b5c2647f-fd75-61be-e9ba-b1e09630a1f0@tronnes.org>
-References: <1475085056-5205-1-git-send-email-noralf@tronnes.org>
- <1475085056-5205-3-git-send-email-noralf@tronnes.org>
- <87oa37fzx6.fsf@eliezer.anholt.net>
- <d93a0590-1783-b913-9362-007628cb17d6@tronnes.org>
- <8760p9xlqy.fsf@eliezer.anholt.net>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH] i2c: don't print error when adding adapter fails
+Date: Wed, 5 Oct 2016 17:17:04 +0200
+Message-ID: <20161005171704.18fe1b9f@endymion>
+References: <1470742581-12971-1-git-send-email-wsa-dev@sang-engineering.com>
+ <1470742581-12971-2-git-send-email-wsa-dev@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.domeneshop.no ([194.63.252.55]:42920 "EHLO
-        smtp.domeneshop.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752140AbcJDTYM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 4 Oct 2016 15:24:12 -0400
-In-Reply-To: <8760p9xlqy.fsf@eliezer.anholt.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <1470742581-12971-2-git-send-email-wsa-dev-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-dev-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Cc: Krzysztof Kozlowski <k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Masahiro Yamada <yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sylvain Lemieux <slemieux.tyco-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>Ale
 List-Id: linux-i2c@vger.kernel.org
-To: Eric Anholt <eric@anholt.net>, wsa@the-dreams.de, swarren@wwwdotorg.org
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
 
+On Tue,  9 Aug 2016 13:36:17 +0200, Wolfram Sang wrote:
+> The core will do this for us now.
+> 
+> Signed-off-by: Wolfram Sang <wsa-dev-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-amd756.c         | 5 +----
+>  drivers/i2c/busses/i2c-at91.c           | 2 --
+>  drivers/i2c/busses/i2c-axxia.c          | 8 +-------
+>  drivers/i2c/busses/i2c-bcm-iproc.c      | 8 +-------
+>  drivers/i2c/busses/i2c-bcm-kona.c       | 4 +---
+>  drivers/i2c/busses/i2c-bfin-twi.c       | 4 +---
+>  drivers/i2c/busses/i2c-brcmstb.c        | 4 +---
+>  drivers/i2c/busses/i2c-cadence.c        | 4 +---
+>  drivers/i2c/busses/i2c-cpm.c            | 4 +---
+>  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 4 +---
+>  drivers/i2c/busses/i2c-davinci.c        | 4 +---
+>  drivers/i2c/busses/i2c-diolan-u2c.c     | 4 +---
+>  drivers/i2c/busses/i2c-dln2.c           | 4 +---
+>  drivers/i2c/busses/i2c-efm32.c          | 1 -
+>  drivers/i2c/busses/i2c-exynos5.c        | 4 +---
+>  drivers/i2c/busses/i2c-hix5hd2.c        | 4 +---
+>  drivers/i2c/busses/i2c-i801.c           | 1 -
+>  drivers/i2c/busses/i2c-ibm_iic.c        | 4 +---
+>  drivers/i2c/busses/i2c-img-scb.c        | 4 +---
+>  drivers/i2c/busses/i2c-imx.c            | 4 +---
+>  drivers/i2c/busses/i2c-isch.c           | 4 +---
+>  drivers/i2c/busses/i2c-ismt.c           | 4 +---
+>  drivers/i2c/busses/i2c-jz4780.c         | 4 +---
+>  drivers/i2c/busses/i2c-lpc2k.c          | 4 +---
+>  drivers/i2c/busses/i2c-meson.c          | 1 -
+>  drivers/i2c/busses/i2c-mpc.c            | 4 +---
+>  drivers/i2c/busses/i2c-mt65xx.c         | 4 +---
+>  drivers/i2c/busses/i2c-mxs.c            | 1 -
+>  drivers/i2c/busses/i2c-nforce2.c        | 1 -
+>  drivers/i2c/busses/i2c-nomadik.c        | 4 +---
+>  drivers/i2c/busses/i2c-ocores.c         | 4 +---
+>  drivers/i2c/busses/i2c-octeon.c         | 4 +---
+>  drivers/i2c/busses/i2c-omap.c           | 4 +---
+>  drivers/i2c/busses/i2c-piix4.c          | 1 -
+>  drivers/i2c/busses/i2c-pmcmsp.c         | 4 +---
+>  drivers/i2c/busses/i2c-pnx.c            | 4 +---
+>  drivers/i2c/busses/i2c-puv3.c           | 5 +----
+>  drivers/i2c/busses/i2c-pxa.c            | 4 +---
+>  drivers/i2c/busses/i2c-rcar.c           | 4 +---
+>  drivers/i2c/busses/i2c-riic.c           | 4 +---
+>  drivers/i2c/busses/i2c-rk3x.c           | 4 +---
+>  drivers/i2c/busses/i2c-s3c2410.c        | 1 -
+>  drivers/i2c/busses/i2c-sh7760.c         | 4 +---
+>  drivers/i2c/busses/i2c-sh_mobile.c      | 1 -
+>  drivers/i2c/busses/i2c-sirf.c           | 4 +---
+>  drivers/i2c/busses/i2c-st.c             | 4 +---
+>  drivers/i2c/busses/i2c-stu300.c         | 5 +----
+>  drivers/i2c/busses/i2c-tegra.c          | 4 +---
+>  drivers/i2c/busses/i2c-uniphier-f.c     | 7 +------
+>  drivers/i2c/busses/i2c-uniphier.c       | 7 +------
+>  drivers/i2c/busses/i2c-wmt.c            | 4 +---
+>  drivers/i2c/busses/i2c-xgene-slimpro.c  | 1 -
+>  drivers/i2c/busses/i2c-xiic.c           | 1 -
+>  drivers/i2c/busses/i2c-xlp9xx.c         | 4 +---
+>  drivers/i2c/busses/i2c-xlr.c            | 4 +---
+>  55 files changed, 44 insertions(+), 161 deletions(-)
+> (...)
 
-Den 03.10.2016 21:42, skrev Eric Anholt:
-> Noralf Trønnes <noralf@tronnes.org> writes:
->
->> Den 29.09.2016 00:00, skrev Eric Anholt:
->>> Noralf Trønnes <noralf@tronnes.org> writes:
->>>
->>>> If an unexpected TXW or RXR interrupt occurs (msg_buf_remaining == 0),
->>>> the driver has no way to fill/drain the FIFO to stop the interrupts.
->>>> In this case the controller has to be disabled and the transfer
->>>> completed to avoid hang.
->>>>
->>>> (CLKT | ERR) and DONE interrupts are completed in their own paths, and
->>>> the controller is disabled in the transfer function after completion.
->>>> Unite the code paths and do disabling inside the interrupt routine.
->>>>
->>>> Clear interrupt status bits in the united completion path instead of
->>>> trying to do it on every interrupt which isn't necessary.
->>>> Only CLKT, ERR and DONE can be cleared that way.
->>>>
->>>> Add the status value to the error value in case of TXW/RXR errors to
->>>> distinguish them from the other S_LEN error.
->>> I was surprised that not writing the TXW/RXR bits on handling their
->>> interrupts was OK, given that we were doing so before, but it's a level
->>> interrupt and those bits are basically ignored on write.
->>>
->>> This patch and 3, 4, and 6 are:
->>>
->>> Reviewed-by: Eric Anholt <eric@anholt.net>
->>>
->>> Patch 5 is:
->>>
->>> Acked-by: Eric Anholt <eric@anholt.net>
->>>
->>> Note for future debug: The I2C_C_CLEAR on errors will take some time to
->>> resolve -- if you were in non-idle state and I2C_C_READ, it sets an
->>> abort_rx flag and runs through the state machine to send a NACK and a
->>> STOP, I think.  Since we're setting CLEAR without I2CEN, that NACK will
->>> be hanging around queued up for next time we start the engine.
->> Maybe you're able to explain the issues I had with reset:
->> https://github.com/raspberrypi/linux/issues/1653
-> One of the questions I think you might have is "what state does the
-> controller end up in after the various interrupts?"
->
-> ERR:
-> - produced if we get a nack that's not at the end of a read.
->
-> - Proceeds to repeated start if BCM2835_I2C_C_ST is queued, otherwise
->    stop.
->
-> CLKT:
-> - Triggered by a counter outside of the state machine when stretching
->    happens and then times out.
->
-> - Sets cs_override, which causes proceeding through the state machine as
->    if the clock wasn't getting stretched, until the end of the next byte
->    sent/received.
->
-> - According to Wolfram we shouldn't be timing out on clock stretching
->    for i2c, just on the transfer as a whole
->    (https://patchwork.kernel.org/patch/9148431/), so I wrote
->    https://github.com/anholt/linux/commit/894200276239d2e4c60b378bdc52164fcb13af8d.
->    However, I don't see an obvious way to get back to IDLE while the
->    slave is still stretching, without triggering the clock stretching
->    timeout path.
+I like the idea.
 
-If the transfer times out, whatever the reason, we clear the fifo
-(and disable). Doesn't that get us back to IDLE?
+For i2c-amd756, i2c-diolan-u2c, i2c-i801, i2c-isch, i2c-ismt,
+i2c-nforce and i2c-piix4:
 
-Code with my patches:
+Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 
-static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
-                 int num)
-{
-[...]
-     bcm2835_i2c_start_transfer(i2c_dev);
-
-     time_left = wait_for_completion_timeout(&i2c_dev->completion,
-                         adap->timeout);
-     if (!time_left) {
-         bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C,
-                    BCM2835_I2C_C_CLEAR);
-         dev_err(i2c_dev->dev, "i2c transfer timed out\n");
-         return -ETIMEDOUT;
-     }
-
-> DONE:
-> - Signaled at STOP, and just moves to IDLE state which keeps scl/sda
->    high and waits for a BCM2835_I2C_C_ST while we're not clearing the
->    FIFOs (if you do signal start while the fifos are clearing, the start
->    will hang around until the fifo clear is done).  This is the only way
->    to get to IDLE.
->
-> I'm don't think I have an answer to the "what should I do?" question you
-> had, but hopefully this helps.
+-- 
+Jean Delvare
+SUSE L3 Support
