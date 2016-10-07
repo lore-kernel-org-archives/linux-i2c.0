@@ -1,636 +1,286 @@
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCHv2] hwmon: Add tc654 driver
-Date: Fri,  7 Oct 2016 14:38:44 +1300
-Message-ID: <20161007013845.10949-1-chris.packham@alliedtelesis.co.nz>
-References: <20161006225702.GA9365@roeck-us.net>
-Return-path: <linux-hwmon-owner@vger.kernel.org>
-In-Reply-To: <20161006225702.GA9365@roeck-us.net>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: linux@roeck-us.net, linux-hwmon@vger.kernel.org
-Cc: iwamoto@allied-telesis.co.jp, Joshua.Scott@alliedtelesis.co.nz, Chris Packham <chris.packham@alliedtelesis.co.nz>, Kevin Tsai <ktsai@capellamicro.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.9
+Date: Fri, 7 Oct 2016 11:32:29 +0200
+Message-ID: <20161007093226.GA2058@katana>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:55157 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750866AbcJGJci (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 7 Oct 2016 05:32:38 -0400
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add support for the tc654 and tc655 fan controllers from Microchip.
 
-http://ww1.microchip.com/downloads/en/DeviceDoc/20001734C.pdf
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
----
+Linus,
 
-Changes in v2:
-- Add Documentation/hwmon/tc654
-- Incorporate most of the review comments from Guenter. Additional error
-  handling is added. Unused/unnecessary code is removed. I decided not
-  to go down the regmap path yet. I may circle back to it when I look at
-  using regmap in the adm9240 driver.
+here is the 4.9 pull request from I2C including:
 
- .../devicetree/bindings/i2c/trivial-devices.txt    |   2 +
- Documentation/hwmon/tc654                          |  26 ++
- drivers/hwmon/Kconfig                              |  11 +
- drivers/hwmon/Makefile                             |   1 +
- drivers/hwmon/tc654.c                              | 513 +++++++++++++++++++++
- 5 files changed, 553 insertions(+)
- create mode 100644 Documentation/hwmon/tc654
- create mode 100644 drivers/hwmon/tc654.c
+* centralized error messages when registering to the core
+* improved lockdep annotations to prevent false positives
+* DT support for muxes, gates, and arbitrators
+* bus speeds can now be obtained from ACPI
+* i2c-octeon got refactored and now supports ThunderX SoCs, too
+* i2c-tegra and i2c-designware got a bigger bunch of updates
+* a couple of standard driver fixes and improvements
 
-diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-index 1416c6a0d2cd..833fb9f133d3 100644
---- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-+++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-@@ -122,6 +122,8 @@ microchip,mcp4662-502	Microchip 8-bit Dual I2C Digital Potentiometer with NV Mem
- microchip,mcp4662-103	Microchip 8-bit Dual I2C Digital Potentiometer with NV Memory (10k)
- microchip,mcp4662-503	Microchip 8-bit Dual I2C Digital Potentiometer with NV Memory (50k)
- microchip,mcp4662-104	Microchip 8-bit Dual I2C Digital Potentiometer with NV Memory (100k)
-+microchip,tc654		PWM Fan Speed Controller With Fan Fault Detection
-+microchip,tc655		PWM Fan Speed Controller With Fan Fault Detection
- national,lm63		Temperature sensor with integrated fan control
- national,lm75		I2C TEMP SENSOR
- national,lm80		Serial Interface ACPI-Compatible Microprocessor System Hardware Monitor
-diff --git a/Documentation/hwmon/tc654 b/Documentation/hwmon/tc654
-new file mode 100644
-index 000000000000..93796c5c7e79
---- /dev/null
-+++ b/Documentation/hwmon/tc654
-@@ -0,0 +1,26 @@
-+Kernel driver tc654
-+===================
-+
-+Supported chips:
-+  * Microship TC654 and TC655
-+    Prefix: 'tc654'
-+    Datasheet: http://ww1.microchip.com/downloads/en/DeviceDoc/20001734C.pdf
-+
-+Authors:
-+        Chris Packham <chris.packham@alliedtelesis.co.nz>
-+        Masahiko Iwamoto <iwamoto@allied-telesis.co.jp>
-+
-+Description
-+-----------
-+This driver implements support for the Microchip TC654 and TC655.
-+
-+The TC654 used the 2-wire interface compatible with the SMBUS 2.0
-+specification. The TC654 has two (2) inputs for measuring fan RPM and
-+one (1) PWM output which can be used for fan control.
-+
-+Configuration Notes
-+-------------------
-+Ordinarily the pwm1_mode ABI is used for controlling the pwm output
-+mode.  However, for this chip the output is always pwm, and the
-+pwm1_mode determines if the pwm output is controlled via the pwm1 value
-+or via the Vin analog input.
-diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-index 45cef3d2c75c..8681bc65cde5 100644
---- a/drivers/hwmon/Kconfig
-+++ b/drivers/hwmon/Kconfig
-@@ -907,6 +907,17 @@ config SENSORS_MCP3021
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called mcp3021.
- 
-+config SENSORS_TC654
-+	tristate "Microchip TC654/TC655 and compatibles"
-+	depends on I2C
-+	help
-+	  If you say yes here you get support for TC654 and TC655.
-+	  The TC654 and TC655 are PWM mode fan speed controllers with
-+	  FanSense technology for use with brushless DC fans.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called tc654.
-+
- config SENSORS_MENF21BMC_HWMON
- 	tristate "MEN 14F021P00 BMC Hardware Monitoring"
- 	depends on MFD_MENF21BMC
-diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-index aecf4ba17460..c651f0f1d047 100644
---- a/drivers/hwmon/Makefile
-+++ b/drivers/hwmon/Makefile
-@@ -122,6 +122,7 @@ obj-$(CONFIG_SENSORS_MAX6697)	+= max6697.o
- obj-$(CONFIG_SENSORS_MAX31790)	+= max31790.o
- obj-$(CONFIG_SENSORS_MC13783_ADC)+= mc13783-adc.o
- obj-$(CONFIG_SENSORS_MCP3021)	+= mcp3021.o
-+obj-$(CONFIG_SENSORS_TC654)	+= tc654.o
- obj-$(CONFIG_SENSORS_MENF21BMC_HWMON) += menf21bmc_hwmon.o
- obj-$(CONFIG_SENSORS_NCT6683)	+= nct6683.o
- obj-$(CONFIG_SENSORS_NCT6775)	+= nct6775.o
-diff --git a/drivers/hwmon/tc654.c b/drivers/hwmon/tc654.c
-new file mode 100644
-index 000000000000..cba31cbd3383
---- /dev/null
-+++ b/drivers/hwmon/tc654.c
-@@ -0,0 +1,513 @@
-+/*
-+ * tc654.c - Linux kernel modules for fan speed controller
-+ *
-+ * Copyright (C) 2016 Allied Telesis Labs NZ
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/hwmon.h>
-+#include <linux/hwmon-sysfs.h>
-+#include <linux/err.h>
-+#include <linux/mutex.h>
-+#include <linux/jiffies.h>
-+#include <linux/util_macros.h>
-+
-+enum tc654_regs {
-+	TC654_REG_RPM1 = 0x00,	/* RPM Output 1 */
-+	TC654_REG_RPM2 = 0x01,	/* RPM Output 2 */
-+	TC654_REG_FAN_FAULT1 = 0x02,	/* Fan Fault 1 Threshold */
-+	TC654_REG_FAN_FAULT2 = 0x03,	/* Fan Fault 2 Threshold */
-+	TC654_REG_CONFIG = 0x04,	/* Configuration */
-+	TC654_REG_STATUS = 0x05,	/* Status */
-+	TC654_REG_DUTY_CYCLE = 0x06,	/* Fan Speed Duty Cycle */
-+	TC654_REG_MFR_ID = 0x07,	/* Manufacturer Identification */
-+	TC654_REG_VER_ID = 0x08,	/* Version Identification */
-+};
-+
-+/* Macros to easily index the registers */
-+#define TC654_REG_RPM(idx) (TC654_REG_RPM1 + (idx))
-+#define TC654_REG_FAN_FAULT(idx) (TC654_REG_FAN_FAULT1 + (idx))
-+
-+/* Config register bits */
-+#define TC654_REG_CONFIG_RES 0x40	/* Resolution Selection */
-+#define TC654_REG_CONFIG_DUTYC 0x20	/* Duty Cycle Control Method */
-+#define TC654_REG_CONFIG_SDM 0x01	/* Shutdown Mode */
-+
-+/* Status register bits */
-+#define TC654_REG_STATUS_F2F 0x02	/* Fan 2 Fault */
-+#define TC654_REG_STATUS_F1F 0x01	/* Fan 1 Fault */
-+
-+/* RPM resolution for RPM Output registers */
-+#define TC654_HIGH_RPM_RESOLUTION 25	/* 25 RPM resolution */
-+#define TC654_LOW_RPM_RESOLUTION 50	/* 50 RPM resolution */
-+
-+/* Convert to the fan fault RPM threshold from register value */
-+#define TC654_FAN_FAULT_FROM_REG(val) ((val) * 50)	/* 50 RPM resolution */
-+
-+/* Convert to register value from the fan fault RPM threshold */
-+#define TC654_FAN_FAULT_TO_REG(val) (((val) / 50) & 0xff)
-+
-+/* Register data is read (and cached) at most once per second. */
-+#define TC654_UPDATE_INTERVAL	HZ
-+
-+struct tc654_data {
-+	struct i2c_client *client;
-+	struct device *hwmon_dev;
-+
-+	/* update mutex */
-+	struct mutex update_lock;
-+
-+	/* tc654 register cache */
-+	bool valid;
-+	unsigned long last_updated;	/* in jiffies */
-+
-+	u8 rpm_output[2];	/* The fan RPM data for fans 1 and 2 is then
-+				 * written to registers RPM1 and RPM2
-+				 */
-+	u8 fan_fault[2];	/* The Fan Fault Threshold Registers are used to
-+				 * set the fan fault threshold levels for fan 1
-+				 * and fan 2
-+				 */
-+	u8 config;	/* The Configuration Register is an 8-bit read/
-+			 * writable multi-function control register
-+			 *   7: Fan Fault Clear
-+			 *      1 = Clear Fan Fault
-+			 *      0 = Normal Operation (default)
-+			 *   6: Resolution Selection for RPM Output Registers
-+			 *      RPM Output Registers (RPM1 and RPM2) will be
-+			 *      set for
-+			 *      1 = 25 RPM (9-bit) resolution
-+			 *      0 = 50 RPM (8-bit) resolution (default)
-+			 *   5: Duty Cycle Control Method
-+			 *      The V OUT duty cycle will be controlled via
-+			 *      1 = the SMBus interface.
-+			 *      0 = via the V IN analog input pin. (default)
-+			 * 4,3: Fan 2 Pulses Per Rotation
-+			 *      00 = 1
-+			 *      01 = 2 (default)
-+			 *      10 = 4
-+			 *      11 = 8
-+			 * 2,1: Fan 1 Pulses Per Rotation
-+			 *      00 = 1
-+			 *      01 = 2 (default)
-+			 *      10 = 4
-+			 *      11 = 8
-+			 *   0: Shutdown Mode
-+			 *      1 = Shutdown mode.
-+			 *      0 = Normal operation. (default)
-+			 */
-+	u8 status;	/* The Status register provides all the information
-+			 * about what is going on within the TC654/TC655
-+			 * devices.
-+			 * 7,6: Unimplemented, Read as '0'
-+			 *   5: Over-Temperature Fault Condition
-+			 *      1 = Over-Temperature condition has occurred
-+			 *      0 = Normal operation. V IN is less than 2.6V
-+			 *   4: RPM2 Counter Overflow
-+			 *      1 = Fault condition
-+			 *      0 = Normal operation
-+			 *   3: RPM1 Counter Overflow
-+			 *      1 = Fault condition
-+			 *      0 = Normal operation
-+			 *   2: V IN Input Status
-+			 *      1 = V IN is open
-+			 *      0 = Normal operation. voltage present at V IN
-+			 *   1: Fan 2 Fault
-+			 *      1 = Fault condition
-+			 *      0 = Normal operation
-+			 *   0: Fan 1 Fault
-+			 *      1 = Fault condition
-+			 *      0 = Normal operation
-+			 */
-+	u8 duty_cycle;	/* The DUTY_CYCLE register is a 4-bit read/
-+			 * writable register used to control the duty
-+			 * cycle of the V OUT output.
-+			 */
-+};
-+
-+/* helper to grab and cache data, at most one time per second */
-+static struct tc654_data *tc654_update_client(struct device *dev)
-+{
-+	struct tc654_data *data = dev_get_drvdata(dev);
-+	struct i2c_client *client = data->client;
-+	int ret = 0;
-+
-+	mutex_lock(&data->update_lock);
-+	if (time_before(jiffies, data->last_updated + TC654_UPDATE_INTERVAL) &&
-+	    likely(data->valid))
-+		goto out;
-+
-+	ret = i2c_smbus_read_byte_data(client, TC654_REG_RPM(0));
-+	if (ret < 0)
-+		goto out;
-+	data->rpm_output[0] = ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, TC654_REG_RPM(1));
-+	if (ret < 0)
-+		goto out;
-+	data->rpm_output[1] = ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, TC654_REG_FAN_FAULT(0));
-+	if (ret < 0)
-+		goto out;
-+	data->fan_fault[0] = ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, TC654_REG_FAN_FAULT(1));
-+	if (ret < 0)
-+		goto out;
-+	data->fan_fault[1] = ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, TC654_REG_CONFIG);
-+	if (ret < 0)
-+		goto out;
-+	data->config = ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, TC654_REG_STATUS);
-+	if (ret < 0)
-+		goto out;
-+	data->status = ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, TC654_REG_DUTY_CYCLE);
-+	if (ret < 0)
-+		goto out;
-+	data->duty_cycle = ret;
-+
-+	data->last_updated = jiffies;
-+	data->valid = true;
-+out:
-+	mutex_unlock(&data->update_lock);
-+
-+	if (ret < 0)		/* upon error, encode it in return value */
-+		data = ERR_PTR(ret);
-+
-+	return data;
-+}
-+
-+/*
-+ * sysfs attributes
-+ */
-+
-+static ssize_t show_fan(struct device *dev, struct device_attribute *da,
-+			char *buf)
-+{
-+	int nr = to_sensor_dev_attr(da)->index;
-+	struct tc654_data *data = tc654_update_client(dev);
-+	int val;
-+
-+	if (IS_ERR(data))
-+		return PTR_ERR(data);
-+
-+	if (data->config & TC654_REG_CONFIG_RES)
-+		val = data->rpm_output[nr] * TC654_HIGH_RPM_RESOLUTION;
-+	else
-+		val = data->rpm_output[nr] * TC654_LOW_RPM_RESOLUTION;
-+
-+	return sprintf(buf, "%d\n", val);
-+}
-+
-+static ssize_t show_fan_min(struct device *dev, struct device_attribute *da,
-+			    char *buf)
-+{
-+	int nr = to_sensor_dev_attr(da)->index;
-+	struct tc654_data *data = tc654_update_client(dev);
-+
-+	if (IS_ERR(data))
-+		return PTR_ERR(data);
-+
-+	return sprintf(buf, "%d\n",
-+		       TC654_FAN_FAULT_FROM_REG(data->fan_fault[nr]));
-+}
-+
-+static ssize_t set_fan_min(struct device *dev, struct device_attribute *da,
-+			   const char *buf, size_t count)
-+{
-+	int nr = to_sensor_dev_attr(da)->index;
-+	struct tc654_data *data = dev_get_drvdata(dev);
-+	struct i2c_client *client = data->client;
-+	unsigned long val;
-+	int ret;
-+
-+	if (kstrtoul(buf, 10, &val))
-+		return -EINVAL;
-+
-+	clamp_val(val, 0, 12750);
-+
-+	mutex_lock(&data->update_lock);
-+
-+	data->fan_fault[nr] = TC654_FAN_FAULT_TO_REG(val);
-+	ret = i2c_smbus_write_byte_data(client, TC654_REG_FAN_FAULT(nr),
-+				  data->fan_fault[nr]);
-+
-+	mutex_unlock(&data->update_lock);
-+	return ret < 0 ? ret : count;
-+}
-+
-+static ssize_t show_fan_alarm(struct device *dev, struct device_attribute *da,
-+			      char *buf)
-+{
-+	int nr = to_sensor_dev_attr(da)->index;
-+	struct tc654_data *data = tc654_update_client(dev);
-+	int val;
-+
-+	if (IS_ERR(data))
-+		return PTR_ERR(data);
-+
-+	if (nr == 0)
-+		val = !!(data->status & TC654_REG_STATUS_F1F);
-+	else
-+		val = !!(data->status & TC654_REG_STATUS_F2F);
-+
-+	return sprintf(buf, "%d\n", val);
-+}
-+
-+static const u8 TC654_FAN_PULSE_SHIFT[] = { 1, 3 };
-+
-+static ssize_t show_fan_pulses(struct device *dev, struct device_attribute *da,
-+			      char *buf)
-+{
-+	int nr = to_sensor_dev_attr(da)->index;
-+	struct tc654_data *data = tc654_update_client(dev);
-+	u8 val;
-+
-+	if (IS_ERR(data))
-+		return PTR_ERR(data);
-+
-+	val = BIT((data->config >> TC654_FAN_PULSE_SHIFT[nr]) & 0x03);
-+	return sprintf(buf, "%d\n", val);
-+}
-+
-+static ssize_t set_fan_pulses(struct device *dev, struct device_attribute *da,
-+			     const char *buf, size_t count)
-+{
-+	int nr = to_sensor_dev_attr(da)->index;
-+	struct tc654_data *data = dev_get_drvdata(dev);
-+	struct i2c_client *client = data->client;
-+	u8 config;
-+	unsigned long val;
-+	int ret;
-+
-+	if (kstrtoul(buf, 10, &val))
-+		return -EINVAL;
-+
-+	switch (val) {
-+	case 1:
-+		config = 0;
-+		break;
-+	case 2:
-+		config = 1;
-+		break;
-+	case 4:
-+		config = 2;
-+		break;
-+	case 8:
-+		config = 3;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	mutex_lock(&data->update_lock);
-+
-+	data->config &= ~(0x03 << TC654_FAN_PULSE_SHIFT[nr]);
-+	data->config |= (config << TC654_FAN_PULSE_SHIFT[nr]);
-+	ret = i2c_smbus_write_byte_data(client, TC654_REG_CONFIG, data->config);
-+
-+	mutex_unlock(&data->update_lock);
-+	return ret < 0 ? ret : count;
-+}
-+
-+static ssize_t show_pwm_mode(struct device *dev,
-+			     struct device_attribute *da, char *buf)
-+{
-+	struct tc654_data *data = tc654_update_client(dev);
-+
-+	if (IS_ERR(data))
-+		return PTR_ERR(data);
-+
-+	return sprintf(buf, "%d\n", data->config & TC654_REG_CONFIG_DUTYC);
-+}
-+
-+static ssize_t set_pwm_mode(struct device *dev,
-+			    struct device_attribute *da,
-+			    const char *buf, size_t count)
-+{
-+	struct tc654_data *data = dev_get_drvdata(dev);
-+	struct i2c_client *client = data->client;
-+	unsigned long val;
-+	int ret;
-+
-+	if (kstrtoul(buf, 10, &val))
-+		return -EINVAL;
-+
-+	if (val != 0 && val != 1)
-+		return -EINVAL;
-+
-+	mutex_lock(&data->update_lock);
-+
-+	if (val)
-+		data->config |= TC654_REG_CONFIG_DUTYC;
-+	else
-+		data->config &= ~TC654_REG_CONFIG_DUTYC;
-+
-+	ret = i2c_smbus_write_byte_data(client, TC654_REG_CONFIG, data->config);
-+
-+	mutex_unlock(&data->update_lock);
-+	return ret < 0 ? ret : count;
-+}
-+
-+static const int tc654_pwm_map[16] = { 76, 88, 100, 112, 124, 141, 147, 171,
-+		183, 195, 207, 219, 231, 243, 255 };
-+
-+static ssize_t show_pwm(struct device *dev, struct device_attribute *da,
-+			       char *buf)
-+{
-+	struct tc654_data *data = tc654_update_client(dev);
-+	int pwm;
-+
-+	if (IS_ERR(data))
-+		return PTR_ERR(data);
-+
-+	if (data->config & TC654_REG_CONFIG_SDM)
-+		pwm = 0;
-+	else
-+		pwm = tc654_pwm_map[data->duty_cycle];
-+
-+	return sprintf(buf, "%d\n", pwm);
-+}
-+
-+static ssize_t set_pwm(struct device *dev, struct device_attribute *da,
-+			      const char *buf, size_t count)
-+{
-+	struct tc654_data *data = dev_get_drvdata(dev);
-+	struct i2c_client *client = data->client;
-+	unsigned long val;
-+	int ret;
-+
-+	if (kstrtoul(buf, 10, &val))
-+		return -EINVAL;
-+	if (val > 255)
-+		return -EINVAL;
-+
-+	if (val == 0)
-+		data->config |= TC654_REG_CONFIG_SDM;
-+	else
-+		data->config &= ~TC654_REG_CONFIG_SDM;
-+
-+	data->duty_cycle = find_closest(val, tc654_pwm_map,
-+					ARRAY_SIZE(tc654_pwm_map));
-+
-+	mutex_lock(&data->update_lock);
-+
-+	ret = i2c_smbus_write_byte_data(client, TC654_REG_CONFIG, data->config);
-+	if (ret < 0)
-+		goto out;
-+
-+	ret = i2c_smbus_write_byte_data(client, TC654_REG_DUTY_CYCLE,
-+				  data->duty_cycle);
-+	if (ret < 0)
-+		goto out;
-+
-+out:
-+	mutex_unlock(&data->update_lock);
-+	return ret < 0 ? ret : count;
-+}
-+
-+static SENSOR_DEVICE_ATTR(fan1_input, S_IRUGO, show_fan, NULL, 0);
-+static SENSOR_DEVICE_ATTR(fan2_input, S_IRUGO, show_fan, NULL, 1);
-+static SENSOR_DEVICE_ATTR(fan1_min, S_IWUSR | S_IRUGO, show_fan_min,
-+			  set_fan_min, 0);
-+static SENSOR_DEVICE_ATTR(fan2_min, S_IWUSR | S_IRUGO, show_fan_min,
-+			  set_fan_min, 1);
-+static SENSOR_DEVICE_ATTR(fan1_alarm, S_IRUGO, show_fan_alarm, NULL, 0);
-+static SENSOR_DEVICE_ATTR(fan2_alarm, S_IRUGO, show_fan_alarm, NULL, 1);
-+static SENSOR_DEVICE_ATTR(fan1_pulses, S_IWUSR | S_IRUGO, show_fan_pulses,
-+			  set_fan_pulses, 0);
-+static SENSOR_DEVICE_ATTR(fan2_pulses, S_IWUSR | S_IRUGO, show_fan_pulses,
-+			  set_fan_pulses, 1);
-+static SENSOR_DEVICE_ATTR(pwm1_mode, S_IWUSR | S_IRUGO,
-+			  show_pwm_mode, set_pwm_mode, 0);
-+static SENSOR_DEVICE_ATTR(pwm1, S_IWUSR | S_IRUGO, show_pwm,
-+			  set_pwm, 0);
-+
-+/* Driver data */
-+static struct attribute *tc654_attrs[] = {
-+	&sensor_dev_attr_fan1_input.dev_attr.attr,
-+	&sensor_dev_attr_fan2_input.dev_attr.attr,
-+	&sensor_dev_attr_fan1_min.dev_attr.attr,
-+	&sensor_dev_attr_fan2_min.dev_attr.attr,
-+	&sensor_dev_attr_fan1_alarm.dev_attr.attr,
-+	&sensor_dev_attr_fan2_alarm.dev_attr.attr,
-+	&sensor_dev_attr_fan1_pulses.dev_attr.attr,
-+	&sensor_dev_attr_fan2_pulses.dev_attr.attr,
-+	&sensor_dev_attr_pwm1_mode.dev_attr.attr,
-+	&sensor_dev_attr_pwm1.dev_attr.attr,
-+	NULL
-+};
-+
-+ATTRIBUTE_GROUPS(tc654);
-+
-+/*
-+ * device probe and removal
-+ */
-+
-+static int tc654_probe(struct i2c_client *client,
-+		       const struct i2c_device_id *id)
-+{
-+	struct device *dev = &client->dev;
-+	struct tc654_data *data;
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-+		return -ENODEV;
-+
-+	data = devm_kzalloc(dev, sizeof(struct tc654_data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->client = client;
-+	i2c_set_clientdata(client, data);
-+	mutex_init(&data->update_lock);
-+
-+	data->hwmon_dev =
-+	    devm_hwmon_device_register_with_groups(dev, client->name, data,
-+						   tc654_groups);
-+	if (IS_ERR(data->hwmon_dev))
-+		return PTR_ERR(data->hwmon_dev);
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id tc654_id[] = {
-+	{"tc654", 0},
-+	{"tc655", 0},
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, tc654_id);
-+
-+static struct i2c_driver tc654_driver = {
-+	.driver = {
-+		   .name = "tc654",
-+		   .owner = THIS_MODULE,
-+		   },
-+	.probe = tc654_probe,
-+	.id_table = tc654_id,
-+};
-+
-+module_i2c_driver(tc654_driver);
-+
-+MODULE_AUTHOR("Allied Telesis Labs");
-+MODULE_DESCRIPTION("Microchip TC654/TC655 driver");
-+MODULE_LICENSE("GPL");
--- 
-2.10.0.479.g7c56b16
+Please pull.
 
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit fa8410b355251fd30341662a40ac6b22d3e38468:
+
+  Linux 4.8-rc3 (2016-08-21 16:14:10 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-4.9
+
+for you to fetch changes up to 662786a5429c3a992c6f884a647ee32424822358:
+
+  i2c: axxia: disable clks in case of failure in probe (2016-09-24 11:26:55=
+ +0200)
+
+----------------------------------------------------------------
+Alexey Khoroshilov (1):
+      i2c: axxia: disable clks in case of failure in probe
+
+Andy Shevchenko (2):
+      i2c: core: put literals on one line in dev_*() calls
+      i2c: i801: Add support for Kaby Lake PCH-H
+
+Bartosz Golaszewski (5):
+      eeprom: at24: check if the chip is functional in probe()
+      i2c: export i2c_adapter_depth()
+      lockdep: make MAX_LOCKDEP_SUBCLASSES unconditionally visible
+      i2c: add a warning to i2c_adapter_depth()
+      gpio: pca953x: fix an incorrect lockdep warning
+
+David Wu (2):
+      i2c: rk3x: Fix sparse warning
+      i2c: rk3x: Fix variable 'min_total_ns' unused warning
+
+Dmitry Bazhenov (2):
+      i2c: octeon: Fix set SCL recovery function
+      i2c: octeon: Avoid sending STOP during recovery
+
+Geert Uytterhoeven (1):
+      i2c: shmobile: Use ARCH_SHMOBILE instead of SUPERH
+
+Jan Glauber (10):
+      i2c: octeon: Rename driver to prepare for split
+      i2c: octeon: Split the driver into two parts
+      i2c: thunderx: Add i2c driver for ThunderX SOC
+      i2c: thunderx: Add SMBUS alert support
+      i2c: octeon,thunderx: Move register offsets to struct
+      i2c: octeon: Sort include files alphabetically
+      i2c: octeon: Use booleon values for booleon variables
+      i2c: octeon: thunderx: Add MAINTAINERS entry
+      i2c: octeon: Fix high-level controller status check
+      i2c: octeon: thunderx: Limit register access retries
+
+Jarkko Nikula (3):
+      i2c: core: Cleanup I2C ACPI namespace, take 2
+      i2c: core: Add function for finding the bus speed from ACPI, take 2
+      i2c: designware: Find bus speed from ACPI
+
+Jon Hunter (10):
+      i2c: tegra: Fix lines over 80 characters
+      i2c: tegra: Use BIT macro
+      i2c: tegra: Fix missing blank lines after declarations
+      i2c: tegra: Add missing new line characters
+      i2c: tegra: Remove non device-tree support
+      i2c: tegra: Use device name for adapter name
+      i2c: tegra: Simplify I2C resume
+      i2c: tegra: Add runtime power-management support
+      i2c: tegra: Add pinctrl support
+      i2c: tegra: Fix assignment of boolean variables
+
+Jos=C3=A9 Roberto de Souza (1):
+      i2c: designware: wait for disable/enable only if necessary
+
+Lucas De Marchi (3):
+      i2c: designware: add common functions for locking
+      i2c: designware: detect when dynamic tar update is possible
+      i2c: designware: do not disable adapter after transfer
+
+Masahiro Yamada (4):
+      i2c: uniphier: avoid WARN_ON() of clk_disable() in failure path
+      i2c: uniphier-f: avoid WARN_ON() of clk_disable() in failure path
+      i2c: uniphier-f: set the adapter to master mode when probing
+      i2c: uniphier-f: fix misdetection of incomplete STOP condition
+
+Mika Westerberg (1):
+      i2c / ACPI: Do not touch an I2C device if it belongs to another adapt=
+er
+
+Neil Armstrong (1):
+      i2c: meson: add gxbb compatible string
+
+Peter Rosin (10):
+      i2c: add i2c_trylock_bus wrapper, use it
+      dt-bindings: i2c: add support for 'i2c-mux' subnode
+      dt-bindings: i2c: add support for 'i2c-arb' subnode
+      dt-bindings: i2c: add support for 'i2c-gate' subnode
+      dt-bindings: i2c: add bindings for nxp,pca9541
+      i2c: mux: add support for 'i2c-mux', 'i2c-arb' and 'i2c-gate' DT subn=
+odes
+      i2c: mux: inform the i2c mux core about how it is used
+      i2c: pca9541: add device tree binding
+      i2c: pca954x: add device tree binding
+      i2c: move locking operations to their own struct
+
+Shardar Shariff Md (5):
+      i2c: tegra: use readl_poll_timeout after config_load reg programmed
+      i2c: tegra: If fifo flush fails return error
+      i2c: tegra: add separate function for config_load programing
+      i2c: tegra: use atomic poll function during configuration
+      i2c: tegra: proper handling of error cases
+
+Ulrich Hecht (1):
+      i2c: rcar: add support for r8a7796 (R-Car M3-W)
+
+Weifeng Voon (5):
+      i2c: designware: Move clk_freq into struct dw_i2c_dev
+      i2c: designware: get fast plus and high speed *CNT configuration
+      i2c: designware: Enable fast mode plus
+      i2c: designware: set the common config before the if else
+      i2c: designware: Enable high speed mode
+
+Wolfram Sang (4):
+      i2c: don't print error when adding adapter fails
+      i2c: uniphier{-f}: don't print error when adding adapter fails
+      Merge branch 'i2c-mux-dt-3' of https://github.com/peda-r/i2c-mux into=
+ i2c/for-4.9
+      gpio: pca953x: variable 'id' was used twice
+
+Yang Li (1):
+      i2c: imx: make bus recovery through pinctrl optional
+
+ .../bindings/i2c/i2c-arb-gpio-challenge.txt        |    8 +-
+ Documentation/devicetree/bindings/i2c/i2c-arb.txt  |   35 +
+ Documentation/devicetree/bindings/i2c/i2c-gate.txt |   41 +
+ .../devicetree/bindings/i2c/i2c-meson.txt          |    2 +-
+ Documentation/devicetree/bindings/i2c/i2c-mux.txt  |   23 +-
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt |    1 +
+ .../devicetree/bindings/i2c/nxp,pca9541.txt        |   29 +
+ MAINTAINERS                                        |   10 +
+ drivers/gpio/gpio-pca953x.c                        |   16 +-
+ drivers/gpu/drm/drm_dp_helper.c                    |   10 +-
+ drivers/i2c/busses/Kconfig                         |   13 +-
+ drivers/i2c/busses/Makefile                        |    3 +
+ drivers/i2c/busses/i2c-amd756.c                    |    5 +-
+ drivers/i2c/busses/i2c-at91.c                      |    2 -
+ drivers/i2c/busses/i2c-axxia.c                     |    8 +-
+ drivers/i2c/busses/i2c-bcm-iproc.c                 |    8 +-
+ drivers/i2c/busses/i2c-bcm-kona.c                  |    4 +-
+ drivers/i2c/busses/i2c-bfin-twi.c                  |    4 +-
+ drivers/i2c/busses/i2c-brcmstb.c                   |    4 +-
+ drivers/i2c/busses/i2c-cadence.c                   |    4 +-
+ drivers/i2c/busses/i2c-cpm.c                       |    4 +-
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c            |    4 +-
+ drivers/i2c/busses/i2c-davinci.c                   |    4 +-
+ drivers/i2c/busses/i2c-designware-core.c           |  196 +++-
+ drivers/i2c/busses/i2c-designware-core.h           |   12 +
+ drivers/i2c/busses/i2c-designware-platdrv.c        |   43 +-
+ drivers/i2c/busses/i2c-diolan-u2c.c                |    4 +-
+ drivers/i2c/busses/i2c-dln2.c                      |    4 +-
+ drivers/i2c/busses/i2c-efm32.c                     |    1 -
+ drivers/i2c/busses/i2c-exynos5.c                   |    4 +-
+ drivers/i2c/busses/i2c-hix5hd2.c                   |    4 +-
+ drivers/i2c/busses/i2c-i801.c                      |    5 +-
+ drivers/i2c/busses/i2c-ibm_iic.c                   |    4 +-
+ drivers/i2c/busses/i2c-img-scb.c                   |    4 +-
+ drivers/i2c/busses/i2c-imx.c                       |   35 +-
+ drivers/i2c/busses/i2c-isch.c                      |    4 +-
+ drivers/i2c/busses/i2c-ismt.c                      |    4 +-
+ drivers/i2c/busses/i2c-jz4780.c                    |    4 +-
+ drivers/i2c/busses/i2c-lpc2k.c                     |    4 +-
+ drivers/i2c/busses/i2c-meson.c                     |    2 +-
+ drivers/i2c/busses/i2c-mpc.c                       |    4 +-
+ drivers/i2c/busses/i2c-mt65xx.c                    |    4 +-
+ drivers/i2c/busses/i2c-mxs.c                       |    1 -
+ drivers/i2c/busses/i2c-nforce2.c                   |    1 -
+ drivers/i2c/busses/i2c-nomadik.c                   |    4 +-
+ drivers/i2c/busses/i2c-ocores.c                    |    4 +-
+ .../i2c/busses/{i2c-octeon.c =3D> i2c-octeon-core.c} | 1084 ++++++--------=
+------
+ drivers/i2c/busses/i2c-octeon-core.h               |  216 ++++
+ drivers/i2c/busses/i2c-octeon-platdrv.c            |  286 ++++++
+ drivers/i2c/busses/i2c-omap.c                      |    4 +-
+ drivers/i2c/busses/i2c-piix4.c                     |    1 -
+ drivers/i2c/busses/i2c-pmcmsp.c                    |    4 +-
+ drivers/i2c/busses/i2c-pnx.c                       |    4 +-
+ drivers/i2c/busses/i2c-puv3.c                      |    5 +-
+ drivers/i2c/busses/i2c-pxa.c                       |    4 +-
+ drivers/i2c/busses/i2c-rcar.c                      |    5 +-
+ drivers/i2c/busses/i2c-riic.c                      |    4 +-
+ drivers/i2c/busses/i2c-rk3x.c                      |    9 +-
+ drivers/i2c/busses/i2c-s3c2410.c                   |    1 -
+ drivers/i2c/busses/i2c-sh7760.c                    |    4 +-
+ drivers/i2c/busses/i2c-sh_mobile.c                 |    1 -
+ drivers/i2c/busses/i2c-sirf.c                      |    4 +-
+ drivers/i2c/busses/i2c-st.c                        |    4 +-
+ drivers/i2c/busses/i2c-stu300.c                    |    5 +-
+ drivers/i2c/busses/i2c-tegra.c                     |  279 +++--
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c           |  259 +++++
+ drivers/i2c/busses/i2c-uniphier-f.c                |  106 +-
+ drivers/i2c/busses/i2c-uniphier.c                  |   78 +-
+ drivers/i2c/busses/i2c-wmt.c                       |    4 +-
+ drivers/i2c/busses/i2c-xgene-slimpro.c             |    1 -
+ drivers/i2c/busses/i2c-xiic.c                      |    1 -
+ drivers/i2c/busses/i2c-xlp9xx.c                    |    4 +-
+ drivers/i2c/busses/i2c-xlr.c                       |    4 +-
+ drivers/i2c/i2c-core.c                             |  272 +++--
+ drivers/i2c/i2c-mux.c                              |   73 +-
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c         |    2 +-
+ drivers/i2c/muxes/i2c-mux-pca9541.c                |   11 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                |   46 +-
+ drivers/misc/eeprom/at24.c                         |   15 +-
+ include/linux/i2c-mux.h                            |    8 +-
+ include/linux/i2c.h                                |   47 +-
+ include/linux/lockdep.h                            |    4 +-
+ 82 files changed, 2121 insertions(+), 1332 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-arb.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-gate.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/nxp,pca9541.txt
+ rename drivers/i2c/busses/{i2c-octeon.c =3D> i2c-octeon-core.c} (56%)
+ create mode 100644 drivers/i2c/busses/i2c-octeon-core.h
+ create mode 100644 drivers/i2c/busses/i2c-octeon-platdrv.c
+ create mode 100644 drivers/i2c/busses/i2c-thunderx-pcidrv.c
+
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJX92uqAAoJEBQN5MwUoCm2QKwP/jn23w5+xMJWhJnVd3hmGH03
+gvPQ/3y+sCRD+uQPiH331I5OIgej1f5s+32dsgjpKNzJRGirV3Ol5PKTTJ/o543X
+wjMlPNnf6bUgtQB6fW44XwtbBz8IQcFOBmqQC1lOzlKhOOQws+AIlDY3gs9FNp7w
+JpUOMuN6/Yy/uinvRJO4Jf8ncxlyJVKnEkXlbvNRH5oHCfqlZSXS9aRqnCwE/ytB
++6V229rwXINeMrcIwPJh9hyzDupnAGRhRsipjOZl2rcz9dDAxohIL6bP4Q12526y
+T/p2pmc165ul0qc9SAGQGtYhepVH8ubiqYTcJqNxbDz4zrWSiUlKADE5BOkHNqR5
+rT82nL2mz3DjSfBui2NT3CXlJYVM3HJbRcmmFl57YGJlunGqj0NOf3Kdvi+/Huwt
+DMBKsSbUs6kUQAycac67xA7V/BGhdpsRngngWG3NiRbpFR2spPulN/Fv2jvgnfjr
+hD/XOHkT0Sna7tBeu2y8TgBvbNNo47wnz+HrelzUkZaGJZBEDvYrt7BKV0/NFVfc
+owWxtcf3oNPa0JvSIw79GQM9U+POzPTCTqvEUgZzao6pdyfdr8P3QVm9D01y1CSB
+PcYnECNxpijYAe4L7kWe4enADoUKEeNwEtbtgxj4RFTMfmGOz2GTmUiL2AP/i1Uh
+he5fgrosgpdljT1TAzjB
+=LosV
+-----END PGP SIGNATURE-----
+
+--qDbXVdCdHGoSgWSk--
