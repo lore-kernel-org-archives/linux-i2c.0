@@ -1,29 +1,38 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PULL REQUEST] i2c for 4.9
-Date: Fri, 7 Oct 2016 14:17:20 -0700
-Message-ID: <CA+55aFxDBznCn_ui65W2F06ubZkdVVt2nQWn+ACFQpAQ26+aUw@mail.gmail.com>
-References: <20161007093226.GA2058@katana>
+From: Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 00/10] Introduce Juniper PTXPMB CPLD driver
+Date: Fri, 7 Oct 2016 16:39:56 -0700
+Message-ID: <57F8324C.2040804@gmail.com>
+References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:35515 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932146AbcJGVRW (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 7 Oct 2016 17:17:22 -0400
-In-Reply-To: <20161007093226.GA2058@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1475853451-22121-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Brian Norris <computersforpeace-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Debjit Ghosh <dghosh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Georgi Vlaev <gvlaev-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, JawaharBalaji Thirumalaisamy <jawaharb-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Rajat Jain <rajatjain-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Fri, Oct 7, 2016 at 2:32 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
->
-> here is the 4.9 pull request from I2C including:
+On 10/07/16 08:17, Pantelis Antoniou wrote:
+> Add Juniper's PTXPMB FPGA CPLD driver. Those FPGAs
+> are present in Juniper's PTX series of routers.
+> 
+> The MFD driver provices watchdog/i2c/gpio/mtd devices.
+> 
+> There are full device tree binding documents for the
+> master mfd driver and for all slave drivers.
+> 
+> This patchset is against mainline as of today: v4.8-9431-g3477d16
+> and is dependent on the "Juniper prerequisites" and
+> "Juniper infrastructure" patchsets sent earlier.
 
-Would you mind double-checking my merge.
+Pointers to the patchsets please.
 
-It looked very trivial, but it would be good to have somebody else
-give that gpio-pca953x.c conflict a look to verify that I didn't screw
-up the 'id' variable split.
+< snip >
 
-                    Linus
+-Frank
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
