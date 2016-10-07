@@ -1,67 +1,80 @@
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Subject: [PATCH 2/4] mfd: ptxpmb-ext-cpld: Add documentation for PTXPMB extended CPLD
-Date: Fri,  7 Oct 2016 18:19:32 +0300
-Message-ID: <1475853574-22339-3-git-send-email-pantelis.antoniou@konsulko.com>
-References: <1475853574-22339-1-git-send-email-pantelis.antoniou@konsulko.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1475853574-22339-1-git-send-email-pantelis.antoniou@konsulko.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 08/10] gpio: ptxpmb-cpld: Document bindings of PTXPMB's CPLD
+ GPIO
+Date: Fri,  7 Oct 2016 18:17:29 +0300
+Message-ID: <1475853451-22121-9-git-send-email-pantelis.antoniou@konsulko.com>
+References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+In-Reply-To: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
+Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
 To: Lee Jones <lee.jones@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org, netdev@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Frank Rowand <frowand.list@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>, Brian Norris <computersforpeace@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Georgi Vlaev <gvlaev@juniper.net>
 
-Add DT bindings document for the PTXPMB extended CPLD device.
+Add device tree bindings document for the GPIO driver of
+Juniper's PTXPMB/NGPMB CPLD.
 
 Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
 [Ported from Juniper kernel]
 Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- .../bindings/mfd/jnx-ptxpmb-ext-cpld.txt           | 35 ++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
+ .../bindings/gpio/jnx,gpio-ptxpmb-cpld.txt         | 30 ++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
 
-diff --git a/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
+diff --git a/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
 new file mode 100644
-index 0000000..098a548a
+index 0000000..1122021
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-ext-cpld.txt
-@@ -0,0 +1,35 @@
-+* Device tree bindings for Juniper's PTXPMB Extended CPLD FPGA MFD driver
-+
-+The device supports a gpio block which is described in the
-+jnx-gpio-ptxpmb-ext-cpld document.
++++ b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
+@@ -0,0 +1,30 @@
++Juniper PTXPMB CPLD GPIO block
 +
 +Required properties:
 +
-+- compatible:		"jnx,ptxpmb-ext-cpld"
++- compatible:
++    Must be "jnx,gpio-ptxpmb-cpld"
 +
-+- reg:			contains offset/length value for device state control
-+			registers space.
++- #gpio-cells:
++    Should be <2>.  The first cell is the pin number (within the controller's
++    pin space), and the second is used for the following flags:
++	bit[0]: direction (0 = out, 1 = in)
++	bit[1]: init high
++	bit[2]: active low
++
++- gpio-controller:
++    Specifies that the node is a GPIO controller.
 +
 +Optional properties:
 +
-+- interrupts:		The interrupt line(s) the /IRQ signal(s) for the device is
-+			connected to.
-+
-+- interrupt-parent:	The parent interrupt controller.
++- reg:
++    Address and length of the register set for the device. Usually supplied by
++    the parent MFD driver
 +
 +Example:
 +
-+ext-cpld@1,0 {
-+	compatible = "jnx,ptxpmb-ext-cpld";
-+	reg = <0x1 0 0x1000>;
-+	interrupt-parent = <&mpic>;
-+	interrupts = <7 2>, <8 2>;
-+
-+	gpio_ext_cpld: cpld-ext-gpio {
-+		compatible = "jnx,gpio-ptxpmb-ext-cpld";
-+		#gpio-cells = <2>;
-+		#interrupt-cells = <2>;
-+		gpio-controller;
-+		interrupt-controller;
-+	};
++gpio_cpld: cpld_gpio {
++	compatible = "jnx,gpio-ptxpmb-cpld";
++	#gpio-cells = <2>;
++	gpio-controller;
 +};
 -- 
 1.9.1
+
+
+______________________________________________________
+Linux MTD discussion mailing list
+http://lists.infradead.org/mailman/listinfo/linux-mtd/
