@@ -1,79 +1,55 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PULL REQUEST] i2c for 4.9
-Date: Fri, 7 Oct 2016 12:59:34 +0200
-Message-ID: <CAMpxmJWmy7hCL5zueVfWoz_OL3zh=rob10hY1qyswVtd=Esd=g@mail.gmail.com>
-References: <20161007093226.GA2058@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Subject: [PATCH 04/10] watchdog: ptxpmb-wdt: Add ptxpmb-wdt device tree bindings
+Date: Fri,  7 Oct 2016 18:17:25 +0300
+Message-ID: <1475853451-22121-5-git-send-email-pantelis.antoniou@konsulko.com>
+References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f52.google.com ([209.85.214.52]:37092 "EHLO
-        mail-it0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752842AbcJGK7f (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 7 Oct 2016 06:59:35 -0400
-Received: by mail-it0-f52.google.com with SMTP id z65so3485547itc.0
-        for <linux-i2c@vger.kernel.org>; Fri, 07 Oct 2016 03:59:35 -0700 (PDT)
-In-Reply-To: <20161007093226.GA2058@katana>
+Received: from mail-wm0-f46.google.com ([74.125.82.46]:36573 "EHLO
+        mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756911AbcJGPTz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 7 Oct 2016 11:19:55 -0400
+Received: by mail-wm0-f46.google.com with SMTP id k125so38626126wma.1
+        for <linux-i2c@vger.kernel.org>; Fri, 07 Oct 2016 08:19:54 -0700 (PDT)
+In-Reply-To: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Rob Herring <robh+dt@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, Peter Rosin <peda@axentia.se>, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <groeck@juniper.net>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, Rajat Jain <rajatjain@juniper.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@v
 
-2016-10-07 11:32 GMT+02:00 Wolfram Sang <wsa@the-dreams.de>:
-> Linus,
->
-> here is the 4.9 pull request from I2C including:
->
-> * centralized error messages when registering to the core
-> * improved lockdep annotations to prevent false positives
-> * DT support for muxes, gates, and arbitrators
-> * bus speeds can now be obtained from ACPI
-> * i2c-octeon got refactored and now supports ThunderX SoCs, too
-> * i2c-tegra and i2c-designware got a bigger bunch of updates
-> * a couple of standard driver fixes and improvements
->
-> Please pull.
->
-> Thanks,
->
->    Wolfram
->
->
-> The following changes since commit fa8410b355251fd30341662a40ac6b22d3e38468:
->
->   Linux 4.8-rc3 (2016-08-21 16:14:10 -0700)
->
-> are available in the git repository at:
->
->   git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-4.9
->
-> for you to fetch changes up to 662786a5429c3a992c6f884a647ee32424822358:
->
->   i2c: axxia: disable clks in case of failure in probe (2016-09-24 11:26:55 +0200)
->
-> ----------------------------------------------------------------
-> Alexey Khoroshilov (1):
->       i2c: axxia: disable clks in case of failure in probe
->
-> Andy Shevchenko (2):
->       i2c: core: put literals on one line in dev_*() calls
->       i2c: i801: Add support for Kaby Lake PCH-H
->
-> Bartosz Golaszewski (5):
->       eeprom: at24: check if the chip is functional in probe()
->       i2c: export i2c_adapter_depth()
->       lockdep: make MAX_LOCKDEP_SUBCLASSES unconditionally visible
->       i2c: add a warning to i2c_adapter_depth()
->       gpio: pca953x: fix an incorrect lockdep warning
->
+From: Georgi Vlaev <gvlaev@juniper.net>
 
-Hi Wolfram,
+Add binding document for the watchdog driver of PTXPMB CPLD.
 
-I see you didn't pick up the follow-up patch ("gpio: pca953x: add a
-comment explaining the need for a lockdep subclass"). Linus acked it
-in the end and I'd really prefer for it to go into 4.9, as I don't
-know if I'll have time to complete the solution for the lockdep issue
-in the next development cycle. Without this explanation, the random
-lockdep_set_subclass() call looks out of place.
+Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
+[Ported from Juniper kernel]
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ .../devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt     | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt
 
-Thanks,
-Bartosz
+diff --git a/Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt b/Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt
+new file mode 100644
+index 0000000..34b64f6
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt
+@@ -0,0 +1,17 @@
++Juniper's PTXPMB FPGA watchdog driver
++
++Required properties:
++
++- compatible:	Should be "jnx,ptxpmb-wdt"
++
++Optional properties:
++
++- reg : Specifies base physical address and size of the registers. It is
++  optional since the MFD parent driver supplies it, but can be overridden.
++
++Example:
++
++wdt {
++	compatible = "jnx,ptxpmb-wdt";
++	/* no properties defined */
++};
+-- 
+1.9.1
