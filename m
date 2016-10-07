@@ -1,232 +1,144 @@
-From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH 03/10] i2c/muxes: Juniper I2CS RE mux
-Date: Fri,  7 Oct 2016 18:21:02 +0300
-Message-ID: <1475853669-22480-4-git-send-email-pantelis.antoniou@konsulko.com>
-References: <1475853669-22480-1-git-send-email-pantelis.antoniou@konsulko.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1475853669-22480-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Avirup Banerjee <abanerjee-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Georgi Vlaev <gvlaev-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, JawaharBalaji Thirumalaisamy <jawaharb-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Subject: [PATCH 06/10] gpio: sam: Document bindings of SAM FPGA GPIO block
+Date: Fri,  7 Oct 2016 18:18:34 +0300
+Message-ID: <1475853518-22264-7-git-send-email-pantelis.antoniou@konsulko.com>
+References: <1475853518-22264-1-git-send-email-pantelis.antoniou@konsulko.com>
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1475853518-22264-1-git-send-email-pantelis.antoniou@konsulko.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, Peter Rosin <peda@axentia.se>, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, Maryam Seraj <mseraj@juniper.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.orgli
 List-Id: linux-i2c@vger.kernel.org
 
-From: Georgi Vlaev <gvlaev-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+From: Georgi Vlaev <gvlaev@juniper.net>
 
-Add support for Juniper I2C Slave RE multiplexer driver.
+Add device tree bindings document for the GPIO driver of
+Juniper's SAM FPGA.
 
-This I2C multiplexer driver allows the RE to access some of
-the FPC I2C buses. It's compatible only with the FPC variant of the
-I2CS.
-
-Signed-off-by: Georgi Vlaev <gvlaev-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
-Signed-off-by: Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
 [Ported from Juniper kernel]
-Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 ---
- drivers/i2c/muxes/Kconfig        |  10 +++
- drivers/i2c/muxes/Makefile       |   1 +
- drivers/i2c/muxes/i2c-mux-i2cs.c | 155 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 166 insertions(+)
- create mode 100644 drivers/i2c/muxes/i2c-mux-i2cs.c
+ .../devicetree/bindings/gpio/jnx,gpio-sam.txt      | 110 +++++++++++++++++++++
+ 1 file changed, 110 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/jnx,gpio-sam.txt
 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index f45a9cb..c95380d 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -30,6 +30,16 @@ config I2C_MUX_GPIO
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-gpio.
- 
-+config I2C_MUX_I2CS
-+	tristate "Juniper I2C Slave MFD client RE multiplexer"
-+	depends on MFD_JUNIPER_I2CS
-+	help
-+	  Select this to enable the Juniper I2C Slave RE multiplexer driver
-+	  on the relevant Juniper platforms.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-mux-i2cs.
-+
- config I2C_MUX_PCA9541
- 	tristate "NXP PCA9541 I2C Master Selector"
- 	help
-diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-index 78d8cba..45b4287 100644
---- a/drivers/i2c/muxes/Makefile
-+++ b/drivers/i2c/muxes/Makefile
-@@ -6,6 +6,7 @@ obj-$(CONFIG_I2C_ARB_GPIO_CHALLENGE)	+= i2c-arb-gpio-challenge.o
- obj-$(CONFIG_I2C_DEMUX_PINCTRL)		+= i2c-demux-pinctrl.o
- 
- obj-$(CONFIG_I2C_MUX_GPIO)	+= i2c-mux-gpio.o
-+obj-$(CONFIG_I2C_MUX_I2CS)	+= i2c-mux-i2cs.o
- obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
- obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
- obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
-diff --git a/drivers/i2c/muxes/i2c-mux-i2cs.c b/drivers/i2c/muxes/i2c-mux-i2cs.c
+diff --git a/Documentation/devicetree/bindings/gpio/jnx,gpio-sam.txt b/Documentation/devicetree/bindings/gpio/jnx,gpio-sam.txt
 new file mode 100644
-index 0000000..c498a44
+index 0000000..514c350
 --- /dev/null
-+++ b/drivers/i2c/muxes/i2c-mux-i2cs.c
-@@ -0,0 +1,155 @@
-+/*
-+ * Juniper Networks I2CS RE mux driver
-+ *
-+ * Copyright (C) 2012, 2013, 2014 Juniper Networks. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
++++ b/Documentation/devicetree/bindings/gpio/jnx,gpio-sam.txt
+@@ -0,0 +1,110 @@
++Juniper SAM FPGA GPIO block
 +
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-mux.h>
-+#include <linux/regmap.h>
-+#include <linux/platform_device.h>
-+#include <linux/mfd/jnx-i2cs-core.h>
++The controller's registers are organized as sets of eight 32-bit
++registers with each set controlling a bank of up to 32 pins.  A single
++interrupt is shared for all of the banks handled by the controller.
 +
-+#define MISC_IO_RE_EN	0x01
++Required properties:
 +
-+/*
-+ * Read/write to mux register.
-+ *   Don't use i2c_transfer()/i2c_smbus_xfer()
-+ *   for this as they will try to lock adapter a second time
-+ */
-+static int i2cs_mux_read_byte(struct i2c_client *client,
-+				  u8 offset, u8 *val)
-+{
-+	struct i2c_msg msg[2];
++- compatible:
++    Must be "jnx,gpio-sam"
 +
-+	msg[0].addr = client->addr;
-+	msg[0].flags = 0;
-+	msg[0].len = 1;
-+	msg[0].buf = &offset;
++- #gpio-cells:
++    Should be <2>.  The first cell is the pin number (within the controller's
++    pin space), and the second is used for the following flags:
++	bit[0]: direction (0 = out, 1 = in)
++	bit[1]: init high
++	bit[2]: active low
++	bit[3]: open drain
++	bit[4]: open drain
 +
-+	msg[1].addr = client->addr;
-+	msg[1].flags = I2C_M_RD;
-+	msg[1].len = 1;
-+	msg[1].buf = val;
++- gpio-controller:
++    Specifies that the node is a GPIO controller.
 +
-+	return client->adapter->algo->master_xfer(client->adapter, msg, 2);
-+}
++Optional properties:
 +
-+static int i2cs_mux_write_byte(struct i2c_client *client, u8 offset, u8 val)
-+{
-+	struct i2c_msg msg;
-+	char buf[2];
++- reg:
++    This driver is part of the SAM FPGA MFD driver, so the
++    address range is supplied by that driver. However you can
++    override using this property.
 +
-+	msg.addr = client->addr;
-+	msg.flags = 0;
-+	msg.len = 2;
-+	buf[0] = offset;
-+	buf[1] = val;
-+	msg.buf = buf;
++- gpio-base:
++    Base of the GPIO pins of this instance. If not present use system allocated.
 +
-+	return client->adapter->algo->master_xfer(client->adapter, &msg, 1);
-+}
++- gpio-count:
++    Number of GPIO pins of this instance. If not present read the number from
++    the one configured in the FPGA data. Maximum number is 512.
 +
-+static int i2cs_mux_select(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	int ret;
-+	u8 val = 0;
-+	struct i2c_client *client = i2c_mux_priv(muxc);
++- #interrupt-cells:
++    Should be <2>.  The first cell is the GPIO number, the second should specify
++    flags.  The following subset of flags is supported:
++    - bits[16,4:0] trigger type and level flags
++	bit  0: rising edge interrupt
++	bit  1: falling edge interrupt
++	bit  2: active high interrupt
++	bit  3: active low interrupt
++	bit  4: enable debounce
++	bit 16: signal is active low
++    See also Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
 +
-+	ret = i2cs_mux_read_byte(client, I2CS_MISC_IO, &val);
-+	if (ret < 0)
-+		return ret;
++- gpio-interrupts:
++    A number of triples that define the mapping of interrupt groupsb to a range of
++    pins. The first cell defines the interrupt group, the second is the start of
++    the pin range and the third the number of pins in the range.
 +
-+	val |= MISC_IO_RE_EN;
-+	ret = i2cs_mux_write_byte(client, I2CS_MISC_IO, val);
++- gpio-exports:
++    A subnode containing the list of pins that will be exported to user-space.
++    Each subnode contains:
++    Required properties:
++	- pin: The gpio to be exported and the relevant flags.
++    Optional properties:
++        - label: The label to use for export; if not supplied use the node name.
 +
-+	return ret;
-+}
++Example:
 +
-+static int i2cs_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	int ret;
-+	u8 val = 0;
-+	struct i2c_client *client = i2c_mux_priv(muxc);
++gpio20: gpio-sam {
++	compatible = "jnx,gpio-sam";
++	gpio-controller;
++	interrupt-controller;
++	/* 1st cell: gpio pin
++	 * 2nd cell: flags (bit mask)
++	 * bit  0: rising edge interrupt
++	 * bit  1: falling edge interrupt
++	 * bit  2: active high interrupt
++	 * bit  3: active low interrupt
++	 * bit  4: enable debounce
++	 * bit 16: signal is active low
++	 */
++	#interrupt-cells = <2>;
++	#gpio-cells = <2>;
++	gpio-count = <340>;
++	/* 1st cell: gpio interrupt status bit
++	 * 2nd cell: 1st pin
++	 * 3rd cell: # of pins
++	 */
++	gpio-interrupts =
++		<0 0 32>,	/* TL / TQ */
++		<1 32 32>,	/* PIC 1 */
++		<2 32 32>,	/* PIC 1 spare */
++		<7 148 32>,	/* PIC 0 */
++		<8 170 32>,	/* PIC 0 spare */
++		<16 318 22>;	/* FPC */
 +
-+	ret = i2cs_mux_read_byte(client, I2CS_MISC_IO, &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	val &= ~MISC_IO_RE_EN;
-+	ret = i2cs_mux_write_byte(client, I2CS_MISC_IO, val);
-+
-+	return 0;
-+}
-+
-+static int i2cs_mux_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct i2c_client *client;
-+	struct i2c_mux_core *muxc;
-+	int ret;
-+
-+	if (!dev->parent)
-+		return -ENODEV;
-+
-+	client = i2c_verify_client(dev->parent);
-+	if (!client)
-+		return -ENODEV;
-+
-+	muxc = i2c_mux_alloc(client->adapter, &client->dev, 1, 0, 0,
-+				i2cs_mux_select, i2cs_mux_deselect);
-+	if (!muxc)
-+		return -ENOMEM;
-+	muxc->priv = client;
-+
-+	ret = i2c_mux_add_adapter(muxc, 0, 0, 0);
-+	if (ret)
-+		return ret;
-+
-+	platform_set_drvdata(pdev, muxc);
-+
-+	return 0;
-+}
-+
-+static int i2cs_mux_remove(struct platform_device *pdev)
-+{
-+	i2c_mux_del_adapters(platform_get_drvdata(pdev));
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id i2cs_mux_of_match[] = {
-+	{ .compatible = "jnx,i2c-mux-i2cs", },
-+	{},
++	gpio-exports {
++		/*
++		 * flags:
++		 * GPIOF_DIR_IN			bit 0=1
++		 * GPIOF_DIR_OUT		bit 0=0
++		 * GPIOF_INIT_HIGH		bit 1=1
++		 *   GPIOF_INIT_HIGH is raw, not translated
++		 * GPIOF_ACTIVE_LOW		bit 2=1
++		 * GPIOF_OPEN_DRAIN		bit 3=1
++		 * GPIOF_OPEN_SOURCE		bit 4=1
++		 * GPIOF_EXPORT			bit 5=1
++		 * GPIOF_EXPORT_CHANGEABLE      bit 6=1
++		 */
++		tl0-rst {
++			pin = < 8 0x24 >;
++		};
++	};
 +};
-+MODULE_DEVICE_TABLE(of, i2cs_mux_of_match);
-+
-+static struct platform_driver i2cs_mux_driver = {
-+	.driver = {
-+		.name = "i2c-mux-i2cs",
-+		.owner  = THIS_MODULE,
-+		.of_match_table = of_match_ptr(i2cs_mux_of_match),
-+	},
-+	.probe = i2cs_mux_probe,
-+	.remove = i2cs_mux_remove,
-+};
-+module_platform_driver(i2cs_mux_driver);
-+
-+MODULE_DESCRIPTION("Juniper Networks I2CS RE Mux driver");
-+MODULE_AUTHOR("Georgi Vlaev <gvlaev-3r7Miqu9kMnR7s880joybQ@public.gmane.org>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:i2c-mux-i2cs");
 -- 
 1.9.1
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
