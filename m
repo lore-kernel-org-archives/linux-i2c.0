@@ -1,90 +1,110 @@
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Subject: [PATCH 00/10] Introduce Juniper PTXPMB CPLD driver
-Date: Fri,  7 Oct 2016 18:17:21 +0300
-Message-ID: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, linux-kernel@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Frank Rowand <frowand.list@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>, Brian Norris <computersforpeace@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Peter Rosin <peda@axentia.se>
+Subject: [PATCH 04/10] i2c: i2c-sam: Add device tree bindings
+Date: Fri,  7 Oct 2016 18:18:32 +0300
+Message-ID: <1475853518-22264-5-git-send-email-pantelis.antoniou@konsulko.com>
+References: <1475853518-22264-1-git-send-email-pantelis.antoniou@konsulko.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f50.google.com ([74.125.82.50]:35842 "EHLO
+        mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757151AbcJGPVC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 7 Oct 2016 11:21:02 -0400
+Received: by mail-wm0-f50.google.com with SMTP id k125so38690574wma.1
+        for <linux-i2c@vger.kernel.org>; Fri, 07 Oct 2016 08:21:02 -0700 (PDT)
+In-Reply-To: <1475853518-22264-1-git-send-email-pantelis.antoniou@konsulko.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, Peter Rosin <peda@axentia.se>, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, Maryam Seraj <mseraj@juniper.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.orgli
 
-Add Juniper's PTXPMB FPGA CPLD driver. Those FPGAs
-are present in Juniper's PTX series of routers.
+From: Georgi Vlaev <gvlaev@juniper.net>
 
-The MFD driver provices watchdog/i2c/gpio/mtd devices.
+Add binding document for the i2c driver of SAM FPGA.
 
-There are full device tree binding documents for the
-master mfd driver and for all slave drivers.
+Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
+[Ported from Juniper kernel]
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ .../devicetree/bindings/i2c/i2c-sam-mux.txt        | 20 ++++++++++
+ Documentation/devicetree/bindings/i2c/i2c-sam.txt  | 44 ++++++++++++++++++++++
+ 2 files changed, 64 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sam-mux.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sam.txt
 
-This patchset is against mainline as of today: v4.8-9431-g3477d16
-and is dependent on the "Juniper prerequisites" and
-"Juniper infrastructure" patchsets sent earlier.
-
-Georgi Vlaev (5):
-  mfd: ptxpmb-cpld: Add documentation for PTXPMB CPLD
-  watchdog: ptxpmb-wdt: Add ptxpmb-wdt device tree bindings
-  i2c: i2c-mux-ptxpmb-cpld: Add device tree bindings
-  gpio: ptxpmb-cpld: Document bindings of PTXPMB's CPLD GPIO
-  mtd: ngpmb_nvram: Add bindings for Juniper's ngpmb NVRAM
-
-Guenter Roeck (4):
-  mfd: Juniper PTXPMB CPLD Multi-function core driver
-  watchdog: Add support for PTXPMB CPLD watchdog
-  i2c/muxes: Juniper's PTXPMB CPLD I2C multiplexer
-  gpio: ptxpmb-cpld: Add support for PTXPMB CPLD's GPIO
-
-JawaharBalaji Thirumalaisamy (1):
-  mtd: devices: Add driver for memory mapped NVRAM on FPC
-
- .../bindings/gpio/jnx,gpio-ptxpmb-cpld.txt         |  30 ++
- .../bindings/i2c/jnx,i2c-mux-ptxpmb-cpld.txt       |  50 +++
- .../devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt    |  76 ++++
- .../devicetree/bindings/mtd/ngpmb-nvram.txt        |  22 ++
- .../bindings/watchdog/jnx-ptxpmb-wdt.txt           |  17 +
- drivers/gpio/Kconfig                               |  11 +
- drivers/gpio/Makefile                              |   1 +
- drivers/gpio/gpio-ptxpmb-cpld.c                    | 177 +++++++++
- drivers/i2c/muxes/Kconfig                          |  11 +
- drivers/i2c/muxes/Makefile                         |   1 +
- drivers/i2c/muxes/i2c-mux-ptxpmb.c                 | 299 +++++++++++++++
- drivers/mfd/Kconfig                                |  15 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/ptxpmb-cpld-core.c                     | 406 +++++++++++++++++++++
- drivers/mtd/devices/Kconfig                        |  11 +
- drivers/mtd/devices/Makefile                       |   1 +
- drivers/mtd/devices/jnx_pmb_nvram.c                | 191 ++++++++++
- drivers/watchdog/Kconfig                           |  12 +
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/ptxpmb_wdt.c                      | 283 ++++++++++++++
- include/linux/mfd/ptxpmb_cpld.h                    | 140 +++++++
- 21 files changed, 1756 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-cpld.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/jnx,i2c-mux-ptxpmb-cpld.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt
- create mode 100644 Documentation/devicetree/bindings/mtd/ngpmb-nvram.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt
- create mode 100644 drivers/gpio/gpio-ptxpmb-cpld.c
- create mode 100644 drivers/i2c/muxes/i2c-mux-ptxpmb.c
- create mode 100644 drivers/mfd/ptxpmb-cpld-core.c
- create mode 100644 drivers/mtd/devices/jnx_pmb_nvram.c
- create mode 100644 drivers/watchdog/ptxpmb_wdt.c
- create mode 100644 include/linux/mfd/ptxpmb_cpld.h
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-sam-mux.txt b/Documentation/devicetree/bindings/i2c/i2c-sam-mux.txt
+new file mode 100644
+index 0000000..10ddffa
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-sam-mux.txt
+@@ -0,0 +1,20 @@
++Juniper's SAM FPGA I2C accelerator mux
++
++The SAM FPGA I2C mux is present only on Juniper SAM FPGA PTX series
++of routers.
++
++The definition of the i2c sam bus is located in the i2c-sam.txt document.
++
++Required properties:
++- compatible: should be "jnx,i2c-sam-mux".
++- reg: master number and mux number.
++
++Optional properties:
++- speed: If present must be either 100000 or 400000. No other values supported.
++
++Examples:
++
++pe1i2c: i2c-sam-mux@1,0 {
++	compatible = "jnx,i2c-sam-mux";
++	reg = <1 0>;
++};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-sam.txt b/Documentation/devicetree/bindings/i2c/i2c-sam.txt
+new file mode 100644
+index 0000000..4830b48
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-sam.txt
+@@ -0,0 +1,44 @@
++Juniper's SAM FPGA I2C accelerator
++
++The SAM FPGA accelerator is used to connect the large number of
++I2C muxes that are present on Juniper PTX series of routers.
++While it's an i2c bus, no other devices are located besides
++i2c-sam-mux devices.
++
++The definition of the i2c sam mux is located in the i2c-sam-mux.txt document.
++
++Required properties:
++- compatible: should be "jnx,i2c-sam".
++- #address-cells: should be 2.
++- #size-cells: should be 0.
++- mux-channels: number of mux channels present
++
++Optional properties:
++- reg: offset and length of the register set for the device are optional since
++  typically the register range is provided by the parent SAM MFD device.
++- master-offset: Offset of where the master register memory starts.
++  Default value is 0x8000.
++- reverse-fill: Fill the start entries of transactions in reverse order
++- priority-tables: Use the pre-programmed priority tables in the FPGA
++- i2c-options: list of options to be written to the option field in the
++  FPGA controlling things like SCL push-pull drives, hold-times, etc.
++- bus-range: start of bus master range and number of masters.
++
++Examples:
++
++i2c-sam {
++	compatible = "jnx,i2c-sam";
++	mux-channels = <2>;
++	#size-cells = <0>;
++	#address-cells = <2>;
++
++	/* PE0 */ pe0i2c: i2c-sam-mux@0,0 {
++		compatible = "jnx,i2c-sam-mux";
++		reg = <0 0>;
++	};
++
++	/* PE1 */ pe1i2c: i2c-sam-mux@1,0 {
++		compatible = "jnx,i2c-sam-mux";
++		reg = <1 0>;
++	};
++};
 -- 
 1.9.1
-
-
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
