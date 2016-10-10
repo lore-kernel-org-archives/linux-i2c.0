@@ -1,88 +1,80 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 04/10] i2c: i2c-mux-i2cs: Add device tree bindings
-Date: Mon, 10 Oct 2016 17:48:51 +0200
-Message-ID: <83dc46b5-9c37-2813-0eca-267250e7cf2e@axentia.se>
-References: <1475853669-22480-1-git-send-email-pantelis.antoniou@konsulko.com>
- <1475853669-22480-5-git-send-email-pantelis.antoniou@konsulko.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 02/10] mfd: ptxpmb-cpld: Add documentation for PTXPMB CPLD
+Date: Mon, 10 Oct 2016 12:38:24 -0500
+Message-ID: <20161010173824.GA3245@rob-hp-laptop>
+References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
+ <1475853451-22121-3-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1475853669-22480-5-git-send-email-pantelis.antoniou@konsulko.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Jean Delvare <jdelvare@suse.com>, Avirup Banerjee <abanerjee@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-leds@vger.kernel.org, linux-hwmon@vger.kernel.org
+Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1475853451-22121-3-git-send-email-pantelis.antoniou@konsulko.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
+Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
+To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <groeck@juniper.net>, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Frank Rowand <frowand.list@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Rajat Jain <rajatjain@juniper.net>, linux-kernel@vger.kernel.org, Brian Norris <computersforpeace@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2016-10-07 17:21, Pantelis Antoniou wrote:
+On Fri, Oct 07, 2016 at 06:17:23PM +0300, Pantelis Antoniou wrote:
 > From: Georgi Vlaev <gvlaev@juniper.net>
 > 
-> Add binding document for the i2c mux driver of Juniper's I2CS FPGA.
+> Add DT bindings document for the PTXPMB CPLD MFD device.
 > 
 > Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
 > [Ported from Juniper kernel]
 > Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 > ---
->  .../devicetree/bindings/i2c/jnx,i2c-mux-i2cs.txt   | 27 ++++++++++++++++++++++
->  1 file changed, 27 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/jnx,i2c-mux-i2cs.txt
+>  .../devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt    | 76 ++++++++++++++++++++++
+>  1 file changed, 76 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/jnx,i2c-mux-i2cs.txt b/Documentation/devicetree/bindings/i2c/jnx,i2c-mux-i2cs.txt
+> diff --git a/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt
 > new file mode 100644
-> index 0000000..03d917f
+> index 0000000..cc3cbb9
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/jnx,i2c-mux-i2cs.txt
-> @@ -0,0 +1,27 @@
-> +* Juniper I2C Mux on I2CS
+> +++ b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt
+> @@ -0,0 +1,76 @@
+> +* Device tree bindings for Juniper's PTXPMB CPLD FPGA MFD driver
 > +
-> +	I2C mux driver for switching the RE access to the FPC i2c bus.
-> +	Compatible with the FPC variant of the I2CS.
+> +The device supports a number I2C muxes, hardware watchdog and a gpio block.
+> +Those devices bindings are described in the jnx-i2c-mux-ptxpmb-cpld,
+> +jnx-ptxpmb-wdt and jnx-gpio-ptxpmb-cpld documents.
 > +
 > +Required properties:
 > +
-> +  - compatible: "jnx,i2cs-mux-i2cs".
+> +- compatible:		"jnx,ptxpmb-cpld", "jnx,ngpmb-bcpld". They differ
 
-jnx,i2c-mux-i2cs
+bcpld? looks like a typo?
 
+> +			in the i2c-mux blocks.
 > +
-> +The following required properties are defined externally:
+> +- reg:			contains offset/length value for device state control
+> +			registers space.
 > +
-> +  - Standard I2C mux properties. See i2c-mux.txt in this directory.
-
-To accommodate changes pending for 4.9, change "mux" to "gate" in
-this line...
-
-> +  - I2C child bus nodes. See i2c-mux.txt in this directory.
-
-This line is wrong since the child nodes themselves are optional in
-i2c-gate.txt (and i2c-mux.txt). I guess you can just drop it since
-the child nodes are mentioned in i2c-gate.txt (and i2c-mux.txt).
-
+> +Optional properties:
+> +
+> +- interrupts:		The interrupt line(s) the /IRQ signal(s) for the device is
+> +			connected to.
+> +
+> +- interrupt-parent:	The parent interrupt controller.
 > +
 > +Example:
 > +
-> +fpc0_mux {
-> +	compatible = "jnx,i2c-mux-i2cs";
-> +	#address-cells = <1>;
-> +	#size-cells = <0>;
+> +cpld@0,0 {
 
-...drop these two...
+What bus is this on? If just simple-bus, then just '...@0'
 
-> +
-> +	fpc0i2c0: i2c@0 {
+> +	compatible = "jnx,ptxpmb-cpld";
+> +	reg = <0x0 0 0x10000>;
 
-...change i2c@0 to i2c-gate...
-
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		reg = <0>;
-
-...and drop reg.
-
-Cheers,
-Peter
-
-> +	};
-> +};
-> 
-
+______________________________________________________
+Linux MTD discussion mailing list
+http://lists.infradead.org/mailman/listinfo/linux-mtd/
