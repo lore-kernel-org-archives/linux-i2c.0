@@ -1,72 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 8/8] Input: elan_i2c - add Host Notify support
-Date: Mon, 10 Oct 2016 14:39:04 -0700
-Message-ID: <CAKdAkRRK746K_+qqi+5YYfJ8NMBwbn5MYa02N4tn-qkfjnVwGg@mail.gmail.com>
-References: <1476117755-8113-1-git-send-email-benjamin.tissoires@redhat.com> <1476117755-8113-9-git-send-email-benjamin.tissoires@redhat.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCHv4] hwmon: Add tc654 driver
+Date: Mon, 10 Oct 2016 16:54:42 -0500
+Message-ID: <20161010215442.GA22578@rob-hp-laptop>
+References: <b8294ac3-7bac-eeb3-8923-ed569a19cab2@roeck-us.net>
+ <20161010212633.5436-1-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1476117755-8113-9-git-send-email-benjamin.tissoires@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20161010212633.5436-1-chris.packham@alliedtelesis.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, Jonathan Corbet <corbet@lwn.net>, KT Liao <kt.liao@emc.com.tw>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: linux@roeck-us.net, linux-hwmon@vger.kernel.org, iwamoto@allied-telesis.co.jp, Joshua.Scott@alliedtelesis.co.nz, Kevin Tsai <ktsai@capellamicro.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Benjamin,
-
-On Mon, Oct 10, 2016 at 9:42 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> The Thinkpad series 13 uses Host Notify to report the interrupt.
-> Add elan_smb_alert() to handle those interrupts and disable the irq
-> handling on this case.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->
-
-Why do we have to do this in the driver instead of having I2C core set
-it up for us? I expect we'd be repeating this block of code for every
-driver that has an option of using SMbus notify.
-
-Thanks!
-
+On Tue, Oct 11, 2016 at 10:26:31AM +1300, Chris Packham wrote:
+> Add support for the tc654 and tc655 fan controllers from Microchip.
+> 
+> http://ww1.microchip.com/downloads/en/DeviceDoc/20001734C.pdf
+> 
+> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 > ---
->
-> new in v4 (was submitted on linux-input with the .alert callback)
-> ---
->  drivers/input/mouse/elan_i2c_core.c | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
->
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index 6f16eb4..4aaac5d 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -1040,6 +1040,21 @@ static int elan_probe(struct i2c_client *client,
->                                                 I2C_FUNC_SMBUS_BLOCK_DATA |
->                                                 I2C_FUNC_SMBUS_I2C_BLOCK)) {
->                 transport_ops = &elan_smbus_ops;
-> +
-> +               if (!irq) {
-> +                       if (!i2c_check_functionality(client->adapter,
-> +                                       I2C_FUNC_SMBUS_HOST_NOTIFY)) {
-> +                               dev_err(dev, "no Host Notify support\n");
-> +                               return -ENODEV;
-> +                       }
-> +
-> +                       irq = i2c_smbus_host_notify_to_irq(client);
-> +                       if (irq < 0) {
-> +                               dev_err(dev,
-> +                                       "Unable to request a Host Notify IRQ.\n");
-> +                               return irq;
-> +                       }
-> +               }
->         } else {
->                 dev_err(dev, "not a supported I2C/SMBus adapter\n");
->                 return -EIO;
-> --
-> 2.7.4
->
+> Changes in v4:
+> - tab-align values in #defines
+> - ensure locking in set_pwm covers updating cached values
+> - populate the cached value for the config register in tc654_probe()
+> 
+> Changes in v3:
+> - typofix in documentation
+> - add missing value to tc654_pwm_map, re-generate based on datasheet.
+> - remove unnecessary hwmon_dev member from struct tc654_data
+> - bug fixes in set_fan_min() and show_pwm_mode()
+> - miscellaneous style fixes
+>  
+> Changes in v2:
+> - Add Documentation/hwmon/tc654
+> - Incorporate most of the review comments from Guenter. Additional error
+>   handling is added. Unused/unnecessary code is removed. I decided not
+>   to go down the regmap path yet. I may circle back to it when I look at
+>   using regmap in the adm9240 driver.
+> 
+>  .../devicetree/bindings/i2c/trivial-devices.txt    |   2 +
 
+Expect a merge conflict with the IIO tree.
 
+Acked-by: Rob Herring <robh@kernel.org>
 
--- 
-Dmitry
+>  Documentation/hwmon/tc654                          |  31 ++
+>  drivers/hwmon/Kconfig                              |  11 +
+>  drivers/hwmon/Makefile                             |   1 +
+>  drivers/hwmon/tc654.c                              | 514 +++++++++++++++++++++
+>  5 files changed, 559 insertions(+)
+>  create mode 100644 Documentation/hwmon/tc654
+>  create mode 100644 drivers/hwmon/tc654.c
