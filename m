@@ -1,104 +1,47 @@
-From: Jacek Anaszewski <j.anaszewski@samsung.com>
-Subject: Re: [PATCH 08/10] leds: Add binding for Juniper's I2CS FPGA
-Date: Mon, 10 Oct 2016 11:41:45 +0200
-Message-ID: <36af086b-ffae-8f69-ee32-6a2956822bc6@samsung.com>
-References: <1475853669-22480-1-git-send-email-pantelis.antoniou@konsulko.com>
- <CGME20161007152351eucas1p1685ee4ca39b4b8845ae5076a023445d5@eucas1p1.samsung.com>
- <1475853669-22480-9-git-send-email-pantelis.antoniou@konsulko.com>
+From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [GIT PULL] i2c: 'i2c-bus' node support for v4.8-rc1
+Date: Mon, 10 Oct 2016 13:46:03 +0100
+Message-ID: <5e1eb22f-f1a8-71ec-b66b-422277e55ce0@nvidia.com>
+References: <20160701150056.26537-2-thierry.reding@gmail.com>
+ <20160701154430.GA1372@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailout2.w1.samsung.com ([210.118.77.12]:44175 "EHLO
-        mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751970AbcJJJly (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 10 Oct 2016 05:41:54 -0400
-In-reply-to: <1475853669-22480-9-git-send-email-pantelis.antoniou@konsulko.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20160701154430.GA1372@tetsubishi>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Jean Delvare <jdelvare@suse.com>, Peter Rosin <peda@axentia.se>, Avirup Banerjee <abanerjee@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-leds@vger.kernel.org, linux-hwmon@vger.kernel.org
 
-Hi Pantelis,
+Hi Wolfram,
 
-On 10/07/2016 05:21 PM, Pantelis Antoniou wrote:
-> From: Georgi Vlaev <gvlaev@juniper.net>
->
-> Document bindings for the I2CS FPGA leds.
->
-> Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
-> [Ported from Juniper kernel]
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-> ---
->  .../devicetree/bindings/leds/leds-i2cs.txt         | 34 ++++++++++++++++++++++
->  1 file changed, 34 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/leds/leds-i2cs.txt
->
-> diff --git a/Documentation/devicetree/bindings/leds/leds-i2cs.txt b/Documentation/devicetree/bindings/leds/leds-i2cs.txt
-> new file mode 100644
-> index 0000000..100e584
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/leds/leds-i2cs.txt
-> @@ -0,0 +1,34 @@
-> +Juniper I2CS LED driver.
-> +
-> +This is present in Juniper platforms that use a I2CS Slave FPGA.
-> +
-> +Required properties:
-> +  - compatible: must be "jnx,leds-i2cs"
+On 01/07/16 16:44, Wolfram Sang wrote:
+> * PGP Signed by an unknown key
+> 
+> On Fri, Jul 01, 2016 at 05:00:55PM +0200, Thierry Reding wrote:
+>> Hi Wolfram,
+>>
+>> The following changes since commit 1a695a905c18548062509178b98bc91e67510864:
+>>
+>>   Linux 4.7-rc1 (2016-05-29 09:29:24 -0700)
+>>
+>> are available in the git repository at:
+>>
+>>   git://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git tags/tegra-for-4.8-i2c
+>>
+>> for you to fetch changes up to 7e4c224abfe8e2a00f56a2ef0198e6de3ca1852c:
+>>
+>>   i2c: core: Add support for 'i2c-bus' subnode (2016-06-30 11:02:17 +0200)
+> 
+> Thanks, pulled.
 
-s/compatible:/compatible :/
+I was just checking the latest mainline and -next and I did not see the
+changes for the 'i2c-bus' node. Let me know if I have missed an email
+somewhere or if these were dropped for some reason.
 
-Also treat the description as a regular sentence, i.e. begin it
-with a capital letter and put a dot at the end.
-
-> +  - #address-cells : must be 1.
-> +  - #size-cells : must be 0.
-
-s/must/Must/
-
-> +Each led is represented as a sub-node of the jnx,leds-i2cs device.
-> +
-> +LED sub-node properties:
-> +- label : (optional) see Documentation/devicetree/bindings/leds/common.txt
-> +- reg : number of LED
-> +- linux,default-trigger : (optional)
-> +   see Documentation/devicetree/bindings/leds/common.txt
-
-Driver uses also "hw-blink" property. Please document it here, but
-add also a prefix:
-
-jnx,hw-blink
-
-Also "jnx" entry should be added to 
-Documentation/devicetree/bindings/vendor-prefixes.txt.
-
-> +Example:
-> +
-> +leds_fpc0: leds-jnx-i2cs {
-> +	compatible = "jnx,leds-i2cs";
-> +	#address-cells = <1>;
-> +	#size-cells = <0>;
-> +
-> +	fpc0-fail {
-> +		reg = <1>;
-
-It would be good to provide also an example of "label"
-property to suggest LED class device name according to
-the LED class device naming convention.
-See Documentation/leds/leds-class.txt for details.
-
-> +		linux,default-trigger = "fpc0-fail";
-> +	};
-> +
-> +	fpc0-ok {
-> +		reg = <2>;
-> +		linux,default-trigger = "fpc0-ok";
-> +	};
-> +};
->
-
+Cheers
+Jon
 
 -- 
-Best regards,
-Jacek Anaszewski
+nvpublic
