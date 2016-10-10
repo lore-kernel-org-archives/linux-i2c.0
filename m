@@ -1,80 +1,68 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 02/10] mfd: ptxpmb-cpld: Add documentation for PTXPMB CPLD
-Date: Mon, 10 Oct 2016 12:38:24 -0500
-Message-ID: <20161010173824.GA3245@rob-hp-laptop>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 04/10] watchdog: ptxpmb-wdt: Add ptxpmb-wdt device tree
+ bindings
+Date: Mon, 10 Oct 2016 12:41:18 -0500
+Message-ID: <20161010174117.GA16611@rob-hp-laptop>
 References: <1475853451-22121-1-git-send-email-pantelis.antoniou@konsulko.com>
- <1475853451-22121-3-git-send-email-pantelis.antoniou@konsulko.com>
+ <1475853451-22121-5-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1475853451-22121-3-git-send-email-pantelis.antoniou@konsulko.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <groeck@juniper.net>, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Frank Rowand <frowand.list@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Lee Jones <lee.jones@linaro.org>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Rajat Jain <rajatjain@juniper.net>, linux-kernel@vger.kernel.org, Brian Norris <computersforpeace@gmail.com>, David Woodhouse <dwmw2@infradead.org>, Peter Rosin <peda@axentia.se>
+In-Reply-To: <1475853451-22121-5-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Brian Norris <computersforpeace-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Debjit Ghosh <dghosh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Georgi Vlaev <gvlaev-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, JawaharBalaji Thirumalaisamy <jawaharb-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Rajat Jain <rajatjain-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.orglinux
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 07, 2016 at 06:17:23PM +0300, Pantelis Antoniou wrote:
-> From: Georgi Vlaev <gvlaev@juniper.net>
+On Fri, Oct 07, 2016 at 06:17:25PM +0300, Pantelis Antoniou wrote:
+> From: Georgi Vlaev <gvlaev-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
 > 
-> Add DT bindings document for the PTXPMB CPLD MFD device.
+> Add binding document for the watchdog driver of PTXPMB CPLD.
 > 
-> Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
+> Signed-off-by: Georgi Vlaev <gvlaev-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
 > [Ported from Juniper kernel]
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 > ---
->  .../devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt    | 76 ++++++++++++++++++++++
->  1 file changed, 76 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt
+>  .../devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt     | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt
+> diff --git a/Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt b/Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt
 > new file mode 100644
-> index 0000000..cc3cbb9
+> index 0000000..34b64f6
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/jnx-ptxpmb-cpld.txt
-> @@ -0,0 +1,76 @@
-> +* Device tree bindings for Juniper's PTXPMB CPLD FPGA MFD driver
-> +
-> +The device supports a number I2C muxes, hardware watchdog and a gpio block.
-> +Those devices bindings are described in the jnx-i2c-mux-ptxpmb-cpld,
-> +jnx-ptxpmb-wdt and jnx-gpio-ptxpmb-cpld documents.
+> +++ b/Documentation/devicetree/bindings/watchdog/jnx-ptxpmb-wdt.txt
+> @@ -0,0 +1,17 @@
+> +Juniper's PTXPMB FPGA watchdog driver
 > +
 > +Required properties:
 > +
-> +- compatible:		"jnx,ptxpmb-cpld", "jnx,ngpmb-bcpld". They differ
-
-bcpld? looks like a typo?
-
-> +			in the i2c-mux blocks.
-> +
-> +- reg:			contains offset/length value for device state control
-> +			registers space.
+> +- compatible:	Should be "jnx,ptxpmb-wdt"
 > +
 > +Optional properties:
 > +
-> +- interrupts:		The interrupt line(s) the /IRQ signal(s) for the device is
-> +			connected to.
-> +
-> +- interrupt-parent:	The parent interrupt controller.
+> +- reg : Specifies base physical address and size of the registers. It is
+> +  optional since the MFD parent driver supplies it, but can be overridden.
+
+What the driver does is irrelevant. It should be required or there's no 
+point to have the node. If the parent knows the address, then it knows 
+the type of device too and DT is not needed.
+
 > +
 > +Example:
 > +
-> +cpld@0,0 {
+> +wdt {
 
-What bus is this on? If just simple-bus, then just '...@0'
+s/wdt/watchdog/
 
-> +	compatible = "jnx,ptxpmb-cpld";
-> +	reg = <0x0 0 0x10000>;
-
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
+> +	compatible = "jnx,ptxpmb-wdt";
+> +	/* no properties defined */
+> +};
+> -- 
+> 1.9.1
+> 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
