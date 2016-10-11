@@ -1,122 +1,165 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4 8/8] Input: elan_i2c - add Host Notify support
-Date: Tue, 11 Oct 2016 16:20:52 +0200
-Message-ID: <20161011142051.GL30411@mail.corp.redhat.com>
-References: <1476117755-8113-1-git-send-email-benjamin.tissoires@redhat.com>
- <1476117755-8113-9-git-send-email-benjamin.tissoires@redhat.com>
- <CAKdAkRRK746K_+qqi+5YYfJ8NMBwbn5MYa02N4tn-qkfjnVwGg@mail.gmail.com>
+From: Austin Christ <austinwc@codeaurora.org>
+Subject: [PATCH v6 1/2] i2c: qup: add ACPI support
+Date: Tue, 11 Oct 2016 10:27:56 -0600
+Message-ID: <1476203277-6893-2-git-send-email-austinwc@codeaurora.org>
+References: <1476203277-6893-1-git-send-email-austinwc@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40738 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750989AbcJKOU6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 11 Oct 2016 10:20:58 -0400
-Content-Disposition: inline
-In-Reply-To: <CAKdAkRRK746K_+qqi+5YYfJ8NMBwbn5MYa02N4tn-qkfjnVwGg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1476203277-6893-1-git-send-email-austinwc@codeaurora.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: nkaje@codeaurora.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, timur@codeaurora.org, rruigrok@codeaurora.org, cov@codeaurora.org, sricharan@codeaurora.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, Jonathan Corbet <corbet@lwn.net>, KT Liao <kt.liao@emc.com.tw>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-On Oct 10 2016 or thereabouts, Dmitry Torokhov wrote:
-> Hi Benjamin,
-> 
-> On Mon, Oct 10, 2016 at 9:42 AM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> > The Thinkpad series 13 uses Host Notify to report the interrupt.
-> > Add elan_smb_alert() to handle those interrupts and disable the irq
-> > handling on this case.
-> >
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >
-> 
-> Why do we have to do this in the driver instead of having I2C core set
-> it up for us? I expect we'd be repeating this block of code for every
-> driver that has an option of using SMbus notify.
+From: Naveen Kaje <nkaje@codeaurora.org>
 
-I didn't want to assign blindly an IRQ for Host Notify because it's a
-device (as I2C client) feature. Not all SMBus clients on the Host Notify
-capable bus are capable of Host Notify, so I thought it was the
-responsibility of the driver to assign it.
+Add support to get the device parameters from ACPI. Assume
+that the clocks are managed by firmware.
 
-However, I can see your point, though I'd need some inputs (and I'll
-have to resend the series as the Intel bot showed me 2 mistakes).
+Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+Signed-off-by: Austin Christ <austinwc@codeaurora.org>
+Reviewed-by: Sricharan R <sricharan@codeaurora.org>
+---
+ drivers/i2c/busses/i2c-qup.c | 58 ++++++++++++++++++++++++++++++++------------
+ 1 file changed, 42 insertions(+), 16 deletions(-)
 
-So, if i2c-core gets to assign itself the IRQ for Host Notify, do we:
-1) assign an IRQ to any SMBus device on a Host Notify capable adapter
-   that doesn't have a valid provided IRQ?
-2) have a new field in struct i2c_board_info that explicitly requires
-   Host Notify as an IRQ?
-3) do not touch anything in i2c_core, let the caller of i2c_new_device
-   fill in the irq by a call to 
-   i2c_smbus_host_notify_to_irq(adapter, address)?
-
-1) has the advantage of being transparent for everybody, except we will
-provide IRQs to devices that don't have one (this can be ignored), but
-this may also lead to errors when IRQ is not correctly set by the caller
-where it should be, and the driver/developer doesn't understand why it
-is never triggered.
-
-2) is a nice compromise, but we will need some OF binding, add some work
-in for the callers of i2c_new_device() and will not work nicely with
-sysfs instantiated i2c devices (the new_device sysfs entry). The sysfs
-could be solved by adding some new address namespace, but that doesn't
-make sense I think
-
-3) requires less changes in i2c_core but it's going to be even harder
-to add a device through sysfs that is Host Notify capable given that we
-can't specify the IRQ.
-
-After thinking a bit, I think I'd lean toward 1), but I am open to other
-options as well.
-
-Cheers,
-Benjamin
-
-
-
-> 
-> Thanks!
-> 
-> > ---
-> >
-> > new in v4 (was submitted on linux-input with the .alert callback)
-> > ---
-> >  drivers/input/mouse/elan_i2c_core.c | 15 +++++++++++++++
-> >  1 file changed, 15 insertions(+)
-> >
-> > diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> > index 6f16eb4..4aaac5d 100644
-> > --- a/drivers/input/mouse/elan_i2c_core.c
-> > +++ b/drivers/input/mouse/elan_i2c_core.c
-> > @@ -1040,6 +1040,21 @@ static int elan_probe(struct i2c_client *client,
-> >                                                 I2C_FUNC_SMBUS_BLOCK_DATA |
-> >                                                 I2C_FUNC_SMBUS_I2C_BLOCK)) {
-> >                 transport_ops = &elan_smbus_ops;
-> > +
-> > +               if (!irq) {
-> > +                       if (!i2c_check_functionality(client->adapter,
-> > +                                       I2C_FUNC_SMBUS_HOST_NOTIFY)) {
-> > +                               dev_err(dev, "no Host Notify support\n");
-> > +                               return -ENODEV;
-> > +                       }
-> > +
-> > +                       irq = i2c_smbus_host_notify_to_irq(client);
-> > +                       if (irq < 0) {
-> > +                               dev_err(dev,
-> > +                                       "Unable to request a Host Notify IRQ.\n");
-> > +                               return irq;
-> > +                       }
-> > +               }
-> >         } else {
-> >                 dev_err(dev, "not a supported I2C/SMBus adapter\n");
-> >                 return -EIO;
-> > --
-> > 2.7.4
-> >
-> 
-> 
-> 
-> -- 
-> Dmitry
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 041050e..bf0957e 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -14,6 +14,7 @@
+  *
+  */
+ 
++#include <linux/acpi.h>
+ #include <linux/atomic.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+@@ -132,6 +133,10 @@
+ /* Max timeout in ms for 32k bytes */
+ #define TOUT_MAX			300
+ 
++/* Default values. Use these if FW query fails */
++#define DEFAULT_CLK_FREQ 100000
++#define DEFAULT_SRC_CLK 20000000
++
+ struct qup_i2c_block {
+ 	int	count;
+ 	int	pos;
+@@ -1356,14 +1361,13 @@ static void qup_i2c_disable_clocks(struct qup_i2c_dev *qup)
+ static int qup_i2c_probe(struct platform_device *pdev)
+ {
+ 	static const int blk_sizes[] = {4, 16, 32};
+-	struct device_node *node = pdev->dev.of_node;
+ 	struct qup_i2c_dev *qup;
+ 	unsigned long one_bit_t;
+ 	struct resource *res;
+ 	u32 io_mode, hw_ver, size;
+ 	int ret, fs_div, hs_div;
+-	int src_clk_freq;
+-	u32 clk_freq = 100000;
++	u32 src_clk_freq = DEFAULT_SRC_CLK;
++	u32 clk_freq = DEFAULT_CLK_FREQ;
+ 	int blocks;
+ 
+ 	qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL);
+@@ -1374,7 +1378,11 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 	init_completion(&qup->xfer);
+ 	platform_set_drvdata(pdev, qup);
+ 
+-	of_property_read_u32(node, "clock-frequency", &clk_freq);
++	ret = device_property_read_u32(qup->dev, "clock-frequency", &clk_freq);
++	if (ret) {
++		dev_notice(qup->dev, "using default clock-frequency %d",
++			DEFAULT_CLK_FREQ);
++	}
+ 
+ 	if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-v1.1.1")) {
+ 		qup->adap.algo = &qup_i2c_algo;
+@@ -1456,20 +1464,30 @@ nodma:
+ 		return qup->irq;
+ 	}
+ 
+-	qup->clk = devm_clk_get(qup->dev, "core");
+-	if (IS_ERR(qup->clk)) {
+-		dev_err(qup->dev, "Could not get core clock\n");
+-		return PTR_ERR(qup->clk);
+-	}
++	if (has_acpi_companion(qup->dev)) {
++		ret = device_property_read_u32(qup->dev,
++				"src-clock-hz", &src_clk_freq);
++		if (ret) {
++			dev_notice(qup->dev, "using default src-clock-hz %d",
++				DEFAULT_SRC_CLK);
++		}
++		ACPI_COMPANION_SET(&qup->adap.dev, ACPI_COMPANION(qup->dev));
++	} else {
++		qup->clk = devm_clk_get(qup->dev, "core");
++		if (IS_ERR(qup->clk)) {
++			dev_err(qup->dev, "Could not get core clock\n");
++			return PTR_ERR(qup->clk);
++		}
+ 
+-	qup->pclk = devm_clk_get(qup->dev, "iface");
+-	if (IS_ERR(qup->pclk)) {
+-		dev_err(qup->dev, "Could not get iface clock\n");
+-		return PTR_ERR(qup->pclk);
++		qup->pclk = devm_clk_get(qup->dev, "iface");
++		if (IS_ERR(qup->pclk)) {
++			dev_err(qup->dev, "Could not get iface clock\n");
++			return PTR_ERR(qup->pclk);
++		}
++		qup_i2c_enable_clocks(qup);
++		src_clk_freq = clk_get_rate(qup->clk);
+ 	}
+ 
+-	qup_i2c_enable_clocks(qup);
+-
+ 	/*
+ 	 * Bootloaders might leave a pending interrupt on certain QUP's,
+ 	 * so we reset the core before registering for interrupts.
+@@ -1516,7 +1534,6 @@ nodma:
+ 	size = QUP_INPUT_FIFO_SIZE(io_mode);
+ 	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
+ 
+-	src_clk_freq = clk_get_rate(qup->clk);
+ 	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
+ 	hs_div = 3;
+ 	qup->clk_ctl = (hs_div << 8) | (fs_div & 0xff);
+@@ -1641,6 +1658,14 @@ static const struct of_device_id qup_i2c_dt_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
+ 
++#if IS_ENABLED(CONFIG_ACPI)
++static const struct acpi_device_id qup_i2c_acpi_match[] = {
++	{ "QCOM8010"},
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_match);
++#endif
++
+ static struct platform_driver qup_i2c_driver = {
+ 	.probe  = qup_i2c_probe,
+ 	.remove = qup_i2c_remove,
+@@ -1648,6 +1673,7 @@ static struct platform_driver qup_i2c_driver = {
+ 		.name = "i2c_qup",
+ 		.pm = &qup_i2c_qup_pm_ops,
+ 		.of_match_table = qup_i2c_dt_match,
++		.acpi_match_table = ACPI_PTR(qup_i2c_acpi_match),
+ 	},
+ };
+ 
+-- 
+Qualcomm Datacenter Technologies as an affiliate of Qualcomm Technologies, Inc.
+Qualcomm Technologies, Inc. is a member of the
+Code Aurora Forum, a Linux Foundation Collaborative Project.
