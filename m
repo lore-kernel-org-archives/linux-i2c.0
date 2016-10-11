@@ -1,156 +1,172 @@
-From: Austin Christ <austinwc@codeaurora.org>
-Subject: [PATCH v6 2/2] i2c: qup: support SMBus block read
-Date: Tue, 11 Oct 2016 10:27:57 -0600
-Message-ID: <1476203277-6893-3-git-send-email-austinwc@codeaurora.org>
-References: <1476203277-6893-1-git-send-email-austinwc@codeaurora.org>
+From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
+Subject: [PATCH 3/5] i2c: i2c-piix4: coding style fix - long comments blocks
+Date: Tue, 11 Oct 2016 18:24:39 +0100
+Message-ID: <20161011172441.7422-4-palminha@synopsys.com>
+References: <20161011172441.7422-1-palminha@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1476203277-6893-1-git-send-email-austinwc@codeaurora.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: nkaje@codeaurora.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, timur@codeaurora.org, rruigrok@codeaurora.org, cov@codeaurora.org, sricharan@codeaurora.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161011172441.7422-1-palminha@synopsys.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: jdelvare@suse.com, wsa@the-dreams.de, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Naveen Kaje <nkaje@codeaurora.org>
-
-I2C QUP driver relies on SMBus emulation support from the framework.
-To handle SMBus block reads, the driver should check I2C_M_RECV_LEN
-flag and should read the first byte received as the message length.
-
-The driver configures the QUP hardware to read one byte. Once the
-message length is known from this byte, the QUP hardware is configured
-to read the rest.
-
-Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
-Signed-off-by: Austin Christ <austinwc@codeaurora.org>
-Reviewed-by: Sricharan R <sricharan@codeaurora.org>
+Signed-off-by: Carlos Palminha <palminha@synopsys.com>
 ---
- drivers/i2c/busses/i2c-qup.c | 64 +++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 61 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c | 94 ++++++++++++++++++++++++------------------
+ 1 file changed, 54 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index bf0957e..d34120a 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -517,6 +517,33 @@ static int qup_i2c_get_data_len(struct qup_i2c_dev *qup)
- 	return data_len;
- }
- 
-+static bool qup_i2c_check_msg_len(struct i2c_msg *msg)
-+{
-+	return ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN));
-+}
-+
-+static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
-+			struct i2c_msg *msg)
-+{
-+	int len = 0;
-+
-+	if (msg->len > 1) {
-+		tags[len++] = QUP_TAG_V2_DATARD_STOP;
-+		tags[len++] = qup_i2c_get_data_len(qup) - 1;
-+	} else {
-+		tags[len++] = QUP_TAG_V2_START;
-+		tags[len++] = addr & 0xff;
-+
-+		if (msg->flags & I2C_M_TEN)
-+			tags[len++] = addr >> 8;
-+
-+		tags[len++] = QUP_TAG_V2_DATARD;
-+		/* Read 1 byte indicating the length of the SMBus message */
-+		tags[len++] = 1;
-+	}
-+	return len;
-+}
-+
- static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 			    struct i2c_msg *msg,  int is_dma)
- {
-@@ -526,6 +553,10 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
- 
- 	int last = (qup->blk.pos == (qup->blk.count - 1)) && (qup->is_last);
- 
-+	/* Handle tags for SMBus block read */
-+	if (qup_i2c_check_msg_len(msg))
-+		return qup_i2c_set_tags_smb(addr, tags, qup, msg);
-+
- 	if (qup->blk.pos == 0) {
- 		tags[len++] = QUP_TAG_V2_START;
- 		tags[len++] = addr & 0xff;
-@@ -1065,9 +1096,17 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
- 				struct i2c_msg *msg)
- {
- 	u32 val;
--	int idx, pos = 0, ret = 0, total;
-+	int idx, pos = 0, ret = 0, total, msg_offset = 0;
- 
-+	/*
-+	 * If the message length is already read in
-+	 * the first byte of the buffer, account for
-+	 * that by setting the offset
-+	 */
-+	if (qup_i2c_check_msg_len(msg) && (msg->len > 1))
-+		msg_offset = 1;
- 	total = qup_i2c_get_data_len(qup);
-+	total -= msg_offset;
- 
- 	/* 2 extra bytes for read tags */
- 	while (pos < (total + 2)) {
-@@ -1087,8 +1126,8 @@ static int qup_i2c_read_fifo_v2(struct qup_i2c_dev *qup,
- 
- 			if (pos >= (total + 2))
- 				goto out;
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 5d6f637..85b1052 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -1,32 +1,32 @@
+ /*
+-    Copyright (c) 1998 - 2002 Frodo Looijaard <frodol@dds.nl> and
+-    Philip Edelbrock <phil@netroedge.com>
 -
--			msg->buf[qup->pos++] = val & 0xff;
-+			msg->buf[qup->pos + msg_offset] = val & 0xff;
-+			qup->pos++;
- 		}
+-    This program is free software; you can redistribute it and/or modify
+-    it under the terms of the GNU General Public License as published by
+-    the Free Software Foundation; either version 2 of the License, or
+-    (at your option) any later version.
+-
+-    This program is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-    GNU General Public License for more details.
+-*/
++ *  Copyright (c) 1998 - 2002 Frodo Looijaard <frodol@dds.nl> and
++ *  Philip Edelbrock <phil@netroedge.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ */
+ 
+ /*
+-   Supports:
+-	Intel PIIX4, 440MX
+-	Serverworks OSB4, CSB5, CSB6, HT-1000, HT-1100
+-	ATI IXP200, IXP300, IXP400, SB600, SB700/SP5100, SB800
+-	AMD Hudson-2, ML, CZ
+-	SMSC Victory66
+-
+-   Note: we assume there can only be one device, with one or more
+-   SMBus interfaces.
+-   The device can register multiple i2c_adapters (up to PIIX4_MAX_ADAPTERS).
+-   For devices supporting multiple ports the i2c_adapter should provide
+-   an i2c_algorithm to access them.
+-*/
++ * Supports:
++ *	Intel PIIX4, 440MX
++ *	Serverworks OSB4, CSB5, CSB6, HT-1000, HT-1100
++ *	ATI IXP200, IXP300, IXP400, SB600, SB700/SP5100, SB800
++ *	AMD Hudson-2, ML, CZ
++ *	SMSC Victory66
++ *
++ *  Note: we assume there can only be one device, with one or more
++ * SMBus interfaces.
++ * The device can register multiple i2c_adapters (up to PIIX4_MAX_ADAPTERS).
++ * For devices supporting multiple ports the i2c_adapter should provide
++ * an i2c_algorithm to access them.
++ */
+ 
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+@@ -97,14 +97,18 @@
+ 
+ /* insmod parameters */
+ 
+-/* If force is set to anything different from 0, we forcibly enable the
+-   PIIX4. DANGEROUS! */
++/*
++ * If force is set to anything different from 0, we forcibly enable the
++ * PIIX4. DANGEROUS!
++ */
+ static int force;
+ module_param (force, int, 0);
+ MODULE_PARM_DESC(force, "Forcibly enable the PIIX4. DANGEROUS!");
+ 
+-/* If force_addr is set to anything different from 0, we forcibly enable
+-   the PIIX4 at the given address. VERY DANGEROUS! */
++/*
++ * If force_addr is set to anything different from 0, we forcibly enable
++ * the PIIX4 at the given address. VERY DANGEROUS!
++ */
+ static int force_addr;
+ module_param (force_addr, int, 0);
+ MODULE_PARM_DESC(force_addr,
+@@ -132,8 +136,10 @@ static const struct dmi_system_id piix4_dmi_blacklist[] = {
+ 	{ }
+ };
+ 
+-/* The IBM entry is in a separate table because we only check it
+-   on Intel-based systems */
++/*
++ * The IBM entry is in a separate table because we only check it
++ * on Intel-based systems
++ */
+ static const struct dmi_system_id piix4_dmi_ibm[] = {
+ 	{
+ 		.ident = "IBM",
+@@ -172,8 +178,10 @@ static int piix4_setup(struct pci_dev *PIIX4_dev,
+ 	    (PIIX4_dev->device == PCI_DEVICE_ID_SERVERWORKS_CSB5))
+ 		srvrworks_csb5_delay = 1;
+ 
+-	/* On some motherboards, it was reported that accessing the SMBus
+-	   caused severe hardware problems */
++	/*
++	 * On some motherboards, it was reported that accessing the SMBus
++	 * caused severe hardware problems
++	 */
+ 	if (dmi_check_system(piix4_dmi_blacklist)) {
+ 		dev_err(&PIIX4_dev->dev,
+ 			"Accessing the SMBus on this system is unsafe!\n");
+@@ -215,8 +223,10 @@ static int piix4_setup(struct pci_dev *PIIX4_dev,
+ 
+ 	pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
+ 
+-	/* If force_addr is set, we program the new address here. Just to make
+-	   sure, we disable the PIIX4 first. */
++	/*
++	 * If force_addr is set, we program the new address here. Just to make
++	 * sure, we disable the PIIX4 first.
++	 */
+ 	if (force_addr) {
+ 		pci_write_config_byte(PIIX4_dev, SMBHSTCFG, temp & 0xfe);
+ 		pci_write_config_word(PIIX4_dev, SMBBA, piix4_smba);
+@@ -369,8 +379,10 @@ static int piix4_setup_aux(struct pci_dev *PIIX4_dev,
+ 			   const struct pci_device_id *id,
+ 			   unsigned short base_reg_addr)
+ {
+-	/* Set up auxiliary SMBus controllers found on some
+-	 * AMD chipsets e.g. SP5100 (SB700 derivative) */
++	/*
++	 * Set up auxiliary SMBus controllers found on some
++	 * AMD chipsets e.g. SP5100 (SB700 derivative)
++	 */
+ 
+ 	unsigned short piix4_smba;
+ 
+@@ -804,8 +816,10 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
  	}
  
-@@ -1128,6 +1167,20 @@ static int qup_i2c_read_one_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
- 			goto err;
- 
- 		qup->blk.pos++;
-+
-+		/* Handle SMBus block read length */
-+		if (qup_i2c_check_msg_len(msg) && (msg->len == 1)) {
-+			if (msg->buf[0] > I2C_SMBUS_BLOCK_MAX) {
-+				ret = -EPROTO;
-+				goto err;
-+			}
-+			msg->len += msg->buf[0];
-+			qup->pos = 0;
-+			qup_i2c_set_blk_data(qup, msg);
-+			/* set tag length for block read */
-+			qup->blk.tx_tag_len = 2;
-+			qup_i2c_set_read_mode_v2(qup, msg->buf[0]);
-+		}
- 	} while (qup->blk.pos < qup->blk.count);
- 
- err:
-@@ -1210,6 +1263,11 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
- 			goto out;
- 		}
- 
-+		if (qup_i2c_check_msg_len(&msgs[idx])) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+
- 		if (msgs[idx].flags & I2C_M_RD)
- 			ret = qup_i2c_read_one(qup, &msgs[idx]);
- 		else
+ 	if (retval > 0) {
+-		/* Try to add the aux adapter if it exists,
+-		 * piix4_add_adapter will clean up if this fails */
++		/*
++		 * Try to add the aux adapter if it exists,
++		 * piix4_add_adapter will clean up if this fails
++		 */
+ 		piix4_add_adapter(dev, retval, false, 0,
+ 				  is_sb800 ? piix4_aux_port_name_sb800 : "",
+ 				  &piix4_aux_adapter);
 -- 
-Qualcomm Datacenter Technologies as an affiliate of Qualcomm Technologies, Inc.
-Qualcomm Technologies, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+2.9.3
