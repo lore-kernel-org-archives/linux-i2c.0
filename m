@@ -1,33 +1,33 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH v3 2/2] i2c: aspeed: added documentation for Aspeed I2C driver
-Date: Wed, 12 Oct 2016 13:01:29 -0700
-Message-ID: <CAFd5g47UYhgNO8SE8jcVGcV7Ti1xnwgQWMzKF17i3e1WFC9e9Q@mail.gmail.com>
-References: <CAFd5g47W-dGVt6hA+FSpqxCqvd5ZpQP=FCCpYGErahF0iKqTEQ@mail.gmail.com>
- <1474327414-651-1-git-send-email-brendanhiggins@google.com>
- <1474327414-651-2-git-send-email-brendanhiggins@google.com> <20160923180219.GA9401@rob-hp-laptop>
+From: Chris Packham <Chris.Packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+Subject: Re: [PATCHv4] hwmon: Add tc654 driver
+Date: Wed, 12 Oct 2016 20:17:09 +0000
+Message-ID: <4384f55fd4464ca99fb837f1f0fdbde6@svr-chch-ex1.atlnz.lc>
+References: <20161010212633.5436-1-chris.packham@alliedtelesis.co.nz>
+ <20161012130301.GA21060@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yb0-f175.google.com ([209.85.213.175]:34931 "EHLO
-        mail-yb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755906AbcJLUBa (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 12 Oct 2016 16:01:30 -0400
-Received: by mail-yb0-f175.google.com with SMTP id 184so23399657yby.2
-        for <linux-i2c@vger.kernel.org>; Wed, 12 Oct 2016 13:01:30 -0700 (PDT)
-In-Reply-To: <20160923180219.GA9401@rob-hp-laptop>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: "linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Masahiko Iwamoto <iwamoto-sK/J6oeM9AhgKrQr38906+qrae++aQT8@public.gmane.org>, Joshua Scott <Joshua.Scott-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>, Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Joel Stanley <joel@jms.id.au>, Jeremy Kerr <jk@ozlabs.org>
 
-I never got an acknowledgement to this email:
-http://www.spinics.net/lists/devicetree/msg143944.html
-The "bus" number is something that is defined as part of the hardware
-specification for this device.
-
-It seems we will not be able to do away with the "bus" number parameter.
-
-Joel suggested going back to the way I was originally doing it:
-http://www.spinics.net/lists/devicetree/msg144134.html
-
-Cheers
+On 10/13/2016 02:03 AM, Guenter Roeck wrote:=0A=
+> On Tue, Oct 11, 2016 at 10:26:31AM +1300, Chris Packham wrote:=0A=
+>> > Add support for the tc654 and tc655 fan controllers from Microchip.=0A=
+>> >=0A=
+>> > http://ww1.microchip.com/downloads/en/DeviceDoc/20001734C.pdf=0A=
+>> >=0A=
+>> > Signed-off-by: Chris Packham <chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>=0A=
+>> > Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>=0A=
+> Applied to -next (after fixing continuation line alignments).=0A=
+>=0A=
+=0A=
+Sorry about those. I'll try to do better next time.=0A=
+=0A=
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
