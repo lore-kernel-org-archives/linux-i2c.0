@@ -1,62 +1,35 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2] i2c: i801: Fix I2C Block Read on 8-Series/C220 and
- later
-Date: Tue, 11 Oct 2016 20:20:45 +0200
-Message-ID: <20161011202045.43787f2e@endymion>
-References: <20161011131327.0eabd227@endymion>
-        <eb3c0e91-5744-3b49-515e-dd68ed5d88aa@linux.intel.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 5/5] i2c: i2c-piix4: coding style fix - quoted string
+ split across lines
+Date: Tue, 11 Oct 2016 19:03:56 -0700
+Message-ID: <1476237836.2116.8.camel@perches.com>
+References: <20161011172441.7422-1-palminha@synopsys.com>
+         <20161011173455.7803-1-palminha@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:40566 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753582AbcJKSUw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 11 Oct 2016 14:20:52 -0400
-In-Reply-To: <eb3c0e91-5744-3b49-515e-dd68ed5d88aa@linux.intel.com>
+Received: from smtprelay0070.hostedemail.com ([216.40.44.70]:47494 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1752957AbcJLCEC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 11 Oct 2016 22:04:02 -0400
+In-Reply-To: <20161011173455.7803-1-palminha@synopsys.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: jdelvare@suse.com, wsa@the-dreams.de
 
-Hi Jarkko,
+On Tue, 2016-10-11 at 18:34 +0100, Carlos Palminha wrote:
+[]
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+[]
+> @@ -260,7 +260,8 @@ static int piix4_setup(struct pci_dev *PIIX4_dev,
+>  	else if ((temp & 0x0E) == 0)
+>  		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus\n");
+>  	else
+> -		dev_err(&PIIX4_dev->dev, "Illegal Interrupt configuration "
+> +		dev_err(&PIIX4_dev->dev,
+> +			"Illegal Interrupt configuration "
+>  			"(or code out of date)!\n");
 
-On Tue, 11 Oct 2016 14:32:55 +0300, Jarkko Nikula wrote:
-> On 10/11/2016 02:13 PM, Jean Delvare wrote:
-> > Starting with the 8-Series/C220 PCH (Lynx Point), the SMBus
-> > controller includes a SPD EEPROM protection mechanism. Once the SPD
-> > Write Disable bit is set, only reads are allowed to slave addresses
-> > 0x50-0x57.
-> >
-> > However the legacy implementation of I2C Block Read since the ICH5
-> > looks like a write, and is therefore blocked by the SPD protection
-> > mechanism. This causes the eeprom and at24 drivers to fail.
-> >
-> > So assume that I2C Block Read is implemented as an actual read on
-> > these chipsets. I tested it on my Q87 chipset and it seems to work
-> > just fine.
-> >
-> > Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> > Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > Cc: Wolfram Sang <wsa@the-dreams.de>
-> > ---
-> > Changes since v1:
-> >  * Rebased on Linus' latest tree.
-> >
-> > Jarkko, still no information about this from your Windows or hardware
-> > folks?
->
-> No update, in fact some of the contacts have left the company :-(
-
-What do we do then? Without this patch, I2C Block Read doesn't work at
-all on recent chipsets. I don't think it can be worse with the patch.
-And it works fine on the few machines I tested on. So I would like this
-patch to go upstream.
-
-My coverage is limited though. Did anyone at Intel test this patch on
-other (recent) systems?
-
--- 
-Jean Delvare
-SUSE L3 Support
+typically, this format would be coalesced into a single line.
