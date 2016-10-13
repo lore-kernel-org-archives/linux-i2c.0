@@ -1,25 +1,23 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v5 3/6] i2c: i801: use BIT() macro for bits definition
-Date: Thu, 13 Oct 2016 14:10:37 +0200
-Message-ID: <1476360640-12901-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v5 5/6] i2c: i801: remove SMBNTFDDAT reads as they always seem to return 0
+Date: Thu, 13 Oct 2016 14:10:39 +0200
+Message-ID: <1476360640-12901-6-git-send-email-benjamin.tissoires@redhat.com>
 References: <1476360640-12901-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59254 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754762AbcJMMLJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 13 Oct 2016 08:11:09 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1476360640-12901-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Jean Delvare <jdelvare@suse.com>
+List-Id: linux-i2c@vger.kernel.org
 
-i801 mixes hexadecimal and decimal values for defining bits. However,
-we have a nice BIT() macro for this exact purpose.
+On the platform tested, reading SMBNTFDDAT always returns 0 (using 1 read
+of a word or 2 of 2 bytes). Given that we are not sure why and that we
+don't need to rely on the data parameter in the current users of Host
+Notify, remove this part of the code.
 
-No functional changes, cleanup only.
+If someone wants to re-enable it, just revert this commit and data should
+be available.
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
@@ -30,94 +28,41 @@ no changes in v4
 
 no changes in v3
 
-no changes in v2
+new in v2
 ---
- drivers/i2c/busses/i2c-i801.c | 50 +++++++++++++++++++++----------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index cfb74fc..5928ee2 100644
+index 88b2e31..42a6a89 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -136,26 +136,26 @@
- #define SBREG_SMBCTRL		0xc6000c
+@@ -117,7 +117,6 @@
+ #define SMBSLVSTS(p)	(16 + (p)->smba)	/* ICH3 and later */
+ #define SMBSLVCMD(p)	(17 + (p)->smba)	/* ICH3 and later */
+ #define SMBNTFDADD(p)	(20 + (p)->smba)	/* ICH3 and later */
+-#define SMBNTFDDAT(p)	(22 + (p)->smba)	/* ICH3 and later */
  
- /* Host status bits for SMBPCISTS */
--#define SMBPCISTS_INTS		0x08
-+#define SMBPCISTS_INTS		BIT(3)
+ /* PCI Address Constants */
+ #define SMBBAR		4
+@@ -578,12 +577,15 @@ static void i801_isr_byte_done(struct i801_priv *priv)
+ static irqreturn_t i801_host_notify_isr(struct i801_priv *priv)
+ {
+ 	unsigned short addr;
+-	unsigned int data;
  
- /* Control bits for SMBPCICTL */
--#define SMBPCICTL_INTDIS	0x0400
-+#define SMBPCICTL_INTDIS	BIT(10)
+ 	addr = inb_p(SMBNTFDADD(priv)) >> 1;
+-	data = inw_p(SMBNTFDDAT(priv));
  
- /* Host configuration bits for SMBHSTCFG */
--#define SMBHSTCFG_HST_EN	1
--#define SMBHSTCFG_SMB_SMI_EN	2
--#define SMBHSTCFG_I2C_EN	4
-+#define SMBHSTCFG_HST_EN	BIT(0)
-+#define SMBHSTCFG_SMB_SMI_EN	BIT(1)
-+#define SMBHSTCFG_I2C_EN	BIT(2)
+-	i2c_handle_smbus_host_notify(priv->host_notify, addr, data);
++	/*
++	 * With the tested platforms, reading SMBNTFDDAT (22 + (p)->smba)
++	 * always returns 0 and is safe to read.
++	 * We just use 0 given we have no use of the data right now.
++	 */
++	i2c_handle_smbus_host_notify(priv->host_notify, addr, 0);
  
- /* TCO configuration bits for TCOCTL */
--#define TCOCTL_EN		0x0100
-+#define TCOCTL_EN		BIT(8)
- 
- /* Auxiliary status register bits, ICH4+ only */
--#define SMBAUXSTS_CRCE		1
--#define SMBAUXSTS_STCO		2
-+#define SMBAUXSTS_CRCE		BIT(0)
-+#define SMBAUXSTS_STCO		BIT(1)
- 
- /* Auxiliary control register bits, ICH4+ only */
--#define SMBAUXCTL_CRC		1
--#define SMBAUXCTL_E32B		2
-+#define SMBAUXCTL_CRC		BIT(0)
-+#define SMBAUXCTL_E32B		BIT(1)
- 
- /* Other settings */
- #define MAX_RETRIES		400
-@@ -170,27 +170,27 @@
- #define I801_I2C_BLOCK_DATA	0x18	/* ICH5 and later */
- 
- /* I801 Host Control register bits */
--#define SMBHSTCNT_INTREN	0x01
--#define SMBHSTCNT_KILL		0x02
--#define SMBHSTCNT_LAST_BYTE	0x20
--#define SMBHSTCNT_START		0x40
--#define SMBHSTCNT_PEC_EN	0x80	/* ICH3 and later */
-+#define SMBHSTCNT_INTREN	BIT(0)
-+#define SMBHSTCNT_KILL		BIT(1)
-+#define SMBHSTCNT_LAST_BYTE	BIT(5)
-+#define SMBHSTCNT_START		BIT(6)
-+#define SMBHSTCNT_PEC_EN	BIT(7)	/* ICH3 and later */
- 
- /* I801 Hosts Status register bits */
--#define SMBHSTSTS_BYTE_DONE	0x80
--#define SMBHSTSTS_INUSE_STS	0x40
--#define SMBHSTSTS_SMBALERT_STS	0x20
--#define SMBHSTSTS_FAILED	0x10
--#define SMBHSTSTS_BUS_ERR	0x08
--#define SMBHSTSTS_DEV_ERR	0x04
--#define SMBHSTSTS_INTR		0x02
--#define SMBHSTSTS_HOST_BUSY	0x01
-+#define SMBHSTSTS_BYTE_DONE	BIT(7)
-+#define SMBHSTSTS_INUSE_STS	BIT(6)
-+#define SMBHSTSTS_SMBALERT_STS	BIT(5)
-+#define SMBHSTSTS_FAILED	BIT(4)
-+#define SMBHSTSTS_BUS_ERR	BIT(3)
-+#define SMBHSTSTS_DEV_ERR	BIT(2)
-+#define SMBHSTSTS_INTR		BIT(1)
-+#define SMBHSTSTS_HOST_BUSY	BIT(0)
- 
- /* Host Notify Status register bits */
--#define SMBSLVSTS_HST_NTFY_STS	1
-+#define SMBSLVSTS_HST_NTFY_STS	BIT(0)
- 
- /* Host Notify Command register bits */
--#define SMBSLVCMD_HST_NTFY_INTREN	0x01
-+#define SMBSLVCMD_HST_NTFY_INTREN	BIT(0)
- 
- #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
- 				 SMBHSTSTS_DEV_ERR)
+ 	/* clear Host Notify bit and return */
+ 	outb_p(SMBSLVSTS_HST_NTFY_STS, SMBSLVSTS(priv));
 -- 
 2.7.4
