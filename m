@@ -1,109 +1,83 @@
-From: Ravikumar <rk@ti.com>
-Subject: Re: [RFC 1/1] drivers: i2c: omap: Add slave support
-Date: Fri, 14 Oct 2016 14:27:35 +0530
-Message-ID: <ee8779c1-6203-b694-84ac-7f6780eafc79@ti.com>
-References: <20160525141119.14486-1-rk@ti.com>
- <20160525141119.14486-2-rk@ti.com> <20160825171430.GM2856@katana>
- <CAALWOA-XP+mfTcVPc1LZZofAaCK-KtKhFKKKHu2PyHWFrfir3A@mail.gmail.com>
- <20160827172211.GA1601@katana>
- <CAALWOA8mtMAszBv6rcXdMzE_mRrrh-wmn6ECMJ32z4cJcfcOjw@mail.gmail.com>
- <20160828053502.GA1601@katana> <20160829034301.GA21292@squirrel.local>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.9
+Date: Fri, 14 Oct 2016 13:37:42 +0200
+Message-ID: <20161014113739.GA2030@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([198.47.19.11]:57290 "EHLO bear.ext.ti.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751081AbcJNI4r (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 14 Oct 2016 04:56:47 -0400
-In-Reply-To: <20160829034301.GA21292@squirrel.local>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Matthijs van Duin <matthijsvanduin@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Tony Lindgren <tony@atomide.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
 
 
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Monday 29 August 2016 09:13 AM, Matthijs van Duin wrote:
-> On 28 August 2016 at 07:35, Wolfram Sang <wsa@the-dreams.de> wrote:
->> Well, I2C is simple, what could go wrong? :/
-> Actually I2C is elegant and *seems* simple, but in all its
-> asynchronicity there are actually a surprising number of fine details
-> you can trip over.  Maybe that's why so many i2c controllers suck: since
-> i2c looks simple enough manufacturers are easily tempted to roll their
-> own instead of licensing a good implementation.
->
-> Having said that, most of the inconsistency and obnoxiousness of the TI
-> I2C controller is not even excusable by that argument.  For example its
-> irq registers *look* like the usual set { rawstatus, status, en, dis }
-> that's their current standard ("Highlander") for peripherals. They do
-> not however *behave* like the standard set however:
->    1. status isn't always (rawstatus & enabled)
->    2. status != 0 does not always imply the irq output is asserted
->    3. some enable-bits also change the behaviour of rawstatus
-> All of these misbehaviours are unprecedented afaik.
-If I understand #1 correctly, you mean that bit value is different in 
-raw vs status registers.
-I've seen some times there was a delay in the value reflecting the 
-status register.
-So I choose to use the raw register.
+Linus,
+
+here is a small update pull request from I2C. It adds one comment to a
+change we did in this merge window to handle lockdep better, and pulls
+in a branch which should have been in 4.8 already improving DT support
+for I2C.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
-Now #2 and #3 would be crazy, do you have further notes on this?
-If I can reproduce these then I will follow up with the IP/HW team.
-> Normally you'd also expect each irq (raw)status bit to either
->    a. be an event, set by hw and can be cleared by software any time, or
->    b. be a level status, unaffected by software attempts to set/clear.
-> Again the i2c controller decided this is far too little diversity.
+The following changes since commit de34f4da7f62ff59ac6e1ef320b0fcfa3296fce3:
 
-yeah, seems so on dm814x.
+  Merge tag 'media/v4.9-1' of git://git.kernel.org/pub/scm/linux/kernel/git/mchehab/linux-media (2016-10-11 13:22:22 -0700)
 
-But, at least the description has been updated on Jacinto 6 device.
+are available in the git repository at:
 
-I see all 'status' bits are write 1 to clear except for Bus Busy (intended).
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
 
-While the 'raw' status register bits can not be cleared by writing 1,
-the description says write 1 to set the bit for debug purpose.
+for you to fetch changes up to b2edcdae3d9a29b25f6c161a8711caa74ce49991:
 
->> So, it is possible to make a proper I2C slave with OMAP, but you need
->> to know those 100 gory details?
-> Mostly.  There are some limitations such as:
->
-> * No ability to selectively ACK/NACK when addressed as slave. If you're
-> unable to respond for some time then you'd end up blocking the bus with
-> clock stretching.  You could temporarily deconfigure your slave address
-> but the TRM states changing slave address is forbidden while bus busy.
-Does this lead to bus lock up?
-> * According to my notes it always ACKs a General Call and this cannot
-> even be stalled using the SBLOCK register.  Since I don't care about GC
-> there's no more details in my notes, but if this is true then on any bus
-> where GC is used, irq handling will have real-time deadlines to avoid
-> losing track of transaction boundaries and misinterpreting data.
->
-> Finally, as my first link pointed out, various protocol errors can lock
-> up the peripheral's internal state machine.  When operating as slave
-> this is basically undetectable: all registers look normal and the
-> bus-busy bit will continue to track start/stop, but the peripheral will
-> not ACK any slave address anymore until you reset it.
->
-> You could argue "well, but that requires bus protocol errors" but it is
-> nevertheless a direct violation of the I2C standard:
->
-> 	I2C-bus compatible devices must reset their bus logic on receipt
-> 	of a START or repeated START condition such that they all
-> 	anticipate the sending of a slave address, even if these START
-> 	conditions are not positioned according to the proper format.
->
-> Also, my testing showed pulsing SDA low on an idle bus sufficed to
-> trigger this state.  It needs to pass the glitch filter of course, but
-> this filter is implemented by sampling the bus requiring two consecutive
-> samples to agree.  Two small glitches with just the right timing would
-> therefore suffice.  Rather unlikely for random noise, but having lots of
-> signals on your pcb that ultimately derive from the same clock source
-> probably makes the odds a lot more favorable.
->
-> Matthijs
-Thanks for sharing the steps to reproduce.
+  Merge tag 'tegra-for-4.8-i2c' of git://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux into i2c/for-next (2016-10-11 23:37:26 +0200)
 
-Regards,
-RK
+----------------------------------------------------------------
+Bartosz Golaszewski (1):
+      gpio: pca953x: add a comment explaining the need for a lockdep subclass
+
+Jon Hunter (2):
+      dt-bindings: i2c: Add support for 'i2c-bus' subnode
+      i2c: core: Add support for 'i2c-bus' subnode
+
+Wolfram Sang (1):
+      Merge tag 'tegra-for-4.8-i2c' of git://git.kernel.org/.../tegra/linux into i2c/for-next
+
+ Documentation/devicetree/bindings/i2c/i2c.txt |  8 ++++++++
+ drivers/gpio/gpio-pca953x.c                   | 16 ++++++++++++++++
+ drivers/i2c/i2c-core.c                        | 10 ++++++++--
+ 3 files changed, 32 insertions(+), 2 deletions(-)
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYAMODAAoJEBQN5MwUoCm2LBMP/3kPgaxUvHJY7TOxYpeGcHwB
+WhY8GzdgACaq5l3iOQOJ8hb5VpUb3xGfJJ5mEZ84FTYJiZoD2MwL8hdhnW1pOtFG
+FRngE0DuwQkwg1KhCbwZHh6Jjp+vpzcGGLUdmG0nYDE/JigJch8wCCXfm25gyl+U
+VTzguZ4nLJnSBAXeLGBq/xSaIGHnbEo52bP/IkJt9NDuccu81HGfqqVnD8Fo/UiC
+xBefpwyEYMFzcmb5pHsZbHb4gwOSlwkf4OclNea4Er94yGB9fK5wXxl/6Cvfjk6v
+lr19SQ6Byd/r56Gi76Z4NeMQ9LB09dmFZDyqkFvlKUlcVC0kvHgFRelDTbD86bG7
+9AjfmjPVFd3R586a+H4dmOXwLMdhpnGT8vQVMhPvL6GxVR1ITLW8L0VkFsTUz8Zo
+RKSVIRXHS5i8E/oyCjFV3JAoW0Fiysb8+WRVcg+hkd4V8WFdaxN7oMMvdETVF6kM
+kz6mJD3b7FALuMExvsFoeCTRIpmNhopUyxnjqERl+f+LTGycfGMC3T2nNNHtRJv5
+0HKlmCi3+8uKVA7U3QouOr31u+cS/ATjI4/XaO9ixdHgAUfGm5cB/noMoXcg0tyY
+owQ4Yz+gUd8NDNlXGVD0gwKpYsY8/N9Au5fBdcy4pElMuIPcMTO3F2SwHnYtG9zu
+TZIpz5mVdImyGSdlTkAe
+=0DXa
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--
