@@ -1,83 +1,50 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.9
-Date: Fri, 14 Oct 2016 13:37:42 +0200
-Message-ID: <20161014113739.GA2030@katana>
+From: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
+Subject: Re: [PATCH v2] i2c: i2c-piix4: several coding style fixes
+Date: Fri, 14 Oct 2016 12:52:50 +0100
+Message-ID: <3c9ba6ec-c137-fa3c-7b5b-7ea7ed58e865@synopsys.com>
+References: <20161013223901.16460-1-palminha@synopsys.com>
+ <20161014070825.qlawh2ttlwj24jge@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtprelay2.synopsys.com ([198.182.60.111]:56057 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754559AbcJNLz6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 14 Oct 2016 07:55:58 -0400
+In-Reply-To: <20161014070825.qlawh2ttlwj24jge@pengutronix.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>, Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On 14-10-2016 08:08, Uwe Kleine-König wrote:
+> Hello,
+>
+> On Thu, Oct 13, 2016 at 11:39:01PM +0100, Carlos Palminha wrote:
+>> @@ -196,7 +204,7 @@ static int piix4_setup(struct pci_dev *PIIX4_dev,
+>>  	} else {
+>>  		pci_read_config_word(PIIX4_dev, SMBBA, &piix4_smba);
+>>  		piix4_smba &= 0xfff0;
+>> -		if(piix4_smba == 0) {
+>> +		if (piix4_smba == 0) {
+>>  			dev_err(&PIIX4_dev->dev, "SMBus base address "
+>>  				"uninitialized - upgrade BIOS or use "
+>>  				"force_addr=0xaddr\n");
+>
+> did you left this message in three lines on purpose?
+>
+Hi Uwe,
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+There were some missing lines. I had some doubts regarding if the 
+"quoted string" could go with more than 80 chars. I see now that 
+checkpatch is ok.
 
-Linus,
+I'll resend a v3.
 
-here is a small update pull request from I2C. It adds one comment to a
-change we did in this merge window to handle lockdep better, and pulls
-in a branch which should have been in 4.8 already improving DT support
-for I2C.
+> Best regards
+> Uwe
+>
 
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit de34f4da7f62ff59ac6e1ef320b0fcfa3296fce3:
-
-  Merge tag 'media/v4.9-1' of git://git.kernel.org/pub/scm/linux/kernel/git/mchehab/linux-media (2016-10-11 13:22:22 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-
-for you to fetch changes up to b2edcdae3d9a29b25f6c161a8711caa74ce49991:
-
-  Merge tag 'tegra-for-4.8-i2c' of git://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux into i2c/for-next (2016-10-11 23:37:26 +0200)
-
-----------------------------------------------------------------
-Bartosz Golaszewski (1):
-      gpio: pca953x: add a comment explaining the need for a lockdep subclass
-
-Jon Hunter (2):
-      dt-bindings: i2c: Add support for 'i2c-bus' subnode
-      i2c: core: Add support for 'i2c-bus' subnode
-
-Wolfram Sang (1):
-      Merge tag 'tegra-for-4.8-i2c' of git://git.kernel.org/.../tegra/linux into i2c/for-next
-
- Documentation/devicetree/bindings/i2c/i2c.txt |  8 ++++++++
- drivers/gpio/gpio-pca953x.c                   | 16 ++++++++++++++++
- drivers/i2c/i2c-core.c                        | 10 ++++++++--
- 3 files changed, 32 insertions(+), 2 deletions(-)
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYAMODAAoJEBQN5MwUoCm2LBMP/3kPgaxUvHJY7TOxYpeGcHwB
-WhY8GzdgACaq5l3iOQOJ8hb5VpUb3xGfJJ5mEZ84FTYJiZoD2MwL8hdhnW1pOtFG
-FRngE0DuwQkwg1KhCbwZHh6Jjp+vpzcGGLUdmG0nYDE/JigJch8wCCXfm25gyl+U
-VTzguZ4nLJnSBAXeLGBq/xSaIGHnbEo52bP/IkJt9NDuccu81HGfqqVnD8Fo/UiC
-xBefpwyEYMFzcmb5pHsZbHb4gwOSlwkf4OclNea4Er94yGB9fK5wXxl/6Cvfjk6v
-lr19SQ6Byd/r56Gi76Z4NeMQ9LB09dmFZDyqkFvlKUlcVC0kvHgFRelDTbD86bG7
-9AjfmjPVFd3R586a+H4dmOXwLMdhpnGT8vQVMhPvL6GxVR1ITLW8L0VkFsTUz8Zo
-RKSVIRXHS5i8E/oyCjFV3JAoW0Fiysb8+WRVcg+hkd4V8WFdaxN7oMMvdETVF6kM
-kz6mJD3b7FALuMExvsFoeCTRIpmNhopUyxnjqERl+f+LTGycfGMC3T2nNNHtRJv5
-0HKlmCi3+8uKVA7U3QouOr31u+cS/ATjI4/XaO9ixdHgAUfGm5cB/noMoXcg0tyY
-owQ4Yz+gUd8NDNlXGVD0gwKpYsY8/N9Au5fBdcy4pElMuIPcMTO3F2SwHnYtG9zu
-TZIpz5mVdImyGSdlTkAe
-=0DXa
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
+Regards,
+C.Palminha
