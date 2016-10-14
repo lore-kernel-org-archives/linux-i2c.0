@@ -1,43 +1,71 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v2] i2c: i2c-piix4: several coding style fixes
-Date: Fri, 14 Oct 2016 09:08:25 +0200
-Message-ID: <20161014070825.qlawh2ttlwj24jge@pengutronix.de>
-References: <20161013223901.16460-1-palminha@synopsys.com>
+From: Ravikumar <a0131654@ti.com>
+Subject: Re: [RFC 1/1] drivers: i2c: omap: Add slave support
+Date: Fri, 14 Oct 2016 13:26:40 +0530
+Message-ID: <1731bbba-4dc6-745e-fcd2-1a91d6c20dd9@ti.com>
+References: <20160525141119.14486-1-rk@ti.com>
+ <20160525141119.14486-2-rk@ti.com> <20160825171430.GM2856@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:35814 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1757378AbcJNHIu (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 14 Oct 2016 03:08:50 -0400
-Content-Disposition: inline
-In-Reply-To: <20161013223901.16460-1-palminha@synopsys.com>
+Received: from devils.ext.ti.com ([198.47.26.153]:38262 "EHLO
+        devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932105AbcJNHzw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 14 Oct 2016 03:55:52 -0400
+In-Reply-To: <20160825171430.GM2856@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Carlos Palminha <CARLOS.PALMINHA@synopsys.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-
-Hello,
-
-On Thu, Oct 13, 2016 at 11:39:01PM +0100, Carlos Palminha wrote:
-> @@ -196,7 +204,7 @@ static int piix4_setup(struct pci_dev *PIIX4_dev,
->  	} else {
->  		pci_read_config_word(PIIX4_dev, SMBBA, &piix4_smba);
->  		piix4_smba &= 0xfff0;
-> -		if(piix4_smba == 0) {
-> +		if (piix4_smba == 0) {
->  			dev_err(&PIIX4_dev->dev, "SMBus base address "
->  				"uninitialized - upgrade BIOS or use "
->  				"force_addr=0xaddr\n");
-
-did you left this message in three lines on purpose?
-
-Best regards
-Uwe
+To: Wolfram Sang <wsa@the-dreams.de>, Ravikumar Kattekola <rk@ti.com>
+Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+On Thursday 25 August 2016 10:44 PM, Wolfram Sang wrote:
+> Hi,
+>
+>> The omap i2c controller (at least on dra7x devices)
+>> doesn't have  start/stop (STT/STP) support for slave mode
+>> so event  #5 is not implemented in the driver.
+> I think you can deduce that. If a new {READ|WRITE}_REQUESTED slave event
+> comes in when you had *_PROCESSED events before, there must have been a
+> STOP on the bus inbetween.
+I've found that the Bus free interrupt can be used for STOP condition in 
+slave mode.
+So this shouldn't be a problem anymore.
+>
+>> +		if (stat & OMAP_I2C_STAT_XRDY) {
+>> +			i2c_slave_event(omap->slave, I2C_SLAVE_READ_REQUESTED,
+>> +					&value);
+>> +			omap_i2c_write_reg(omap, OMAP_I2C_DATA_REG, value);
+>> +			i2c_slave_event(omap->slave, I2C_SLAVE_READ_PROCESSED,
+>> +					&value);
+> This looks fishy. READ_REQUESTED is only sent after the address phase.
+> Have you read the documentation (Documentation/i2c/slave-interface)?
+> Please say if it was unclear.
+Will fix this.
+>> +	/* As of now, We dont need all interrupts be enabled */
+>> +	omap->iestate = OMAP_I2C_IE_AAS | OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY;
+> This looks even more fishy. Are you disabling the master interrupts?
+> That's a no (unless there are HW constraints). Your driver should be
+> able to switch between master and slave depending on what happens on the
+> bus.
+Dynamic switching on OMAP I2C IP could be a  difficult task.
+There is no separate status register for master mode vs slave mode, it's 
+a common register.
+Even the interrupt status bits are reused.
+
+So i cant do a check on status like if(!MSR) slave_irq_handler();
+
+I think instead of status I may need to check the MST(1:master mode, 
+0:slave mode] bit in I2C_CON
+to take a decision on whether to call slave irq_handler or not.
+> For more guidance, here is my talk at ELCE 2015:
+> https://www.youtube.com/watch?v=JdQ21jlwb58
+Thanks for sharing the video.
+>
+> Regards,
+>
+>     Wolfram
+>
+
+Regards,
+RK
