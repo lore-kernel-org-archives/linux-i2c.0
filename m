@@ -1,87 +1,97 @@
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 1/2] i2c: bcm-iproc: constify i2c_adapter_quirks structures
-Date: Sat, 15 Oct 2016 19:32:01 +0200
-Message-ID: <1476552722-12352-2-git-send-email-Julia.Lawall@lip6.fr>
-References: <1476552722-12352-1-git-send-email-Julia.Lawall@lip6.fr>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] spi: mark device nodes only in case of successful instantiation
+Date: Sun, 16 Oct 2016 10:49:11 +0200
+Message-ID: <CAMuHMdUMvjZvwBMUrWTk+obbUYsfRJxPTmdnv7Fz6uzkQ8nbbQ@mail.gmail.com>
+References: <20161014193113.29275-1-ralf@ramses-pyramidenbau.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1476552722-12352-1-git-send-email-Julia.Lawall@lip6.fr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Scott Branden <sbranden@broadcom.com>, Jon Mason <jonmason@broadcom.com>, Ray Jui <rjui@broadcom.com>, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-io0-f195.google.com ([209.85.223.195]:33793 "EHLO
+        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750905AbcJPItN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 16 Oct 2016 04:49:13 -0400
+In-Reply-To: <20161014193113.29275-1-ralf@ramses-pyramidenbau.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
+Cc: Mark Brown <broonie@kernel.org>, linux-spi <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>
 
-Check for i2c_adapter_quirks structures that are only stored in the
-quirks field of an i2c_adapter structure.  This field is declared
-const, so i2c_adapter_quirks structures that have this property can be
-declared as const also.
+Hi Ralf,
 
-The semantic patch that makes this change is as follows:
-(http://coccinelle.lip6.fr/)
+(Cc i2c)
 
-// <smpl>
-@r disable optional_qualifier@
-identifier i;
-position p;
-@@
-static struct i2c_adapter_quirks i@p = { ... };
+On Fri, Oct 14, 2016 at 9:31 PM, Ralf Ramsauer
+<ralf@ramses-pyramidenbau.de> wrote:
+> Instantiated SPI device nodes are marked with OF_POPULATE. This was
+> introduced in bd6c164. On unloading, loaded device nodes will of course
+> be unmarked. The problem are nodes the fail during initialisation: If a
+> node failed during registration, it won't be unloaded and hence never be
+> unmarked again.
+>
+> So if a SPI driver module is unloaded and reloaded, it will skip nodes
+> that failed before.
+>
+> Skip device nodes that are already populated and mark them only in case
+> of success.
+>
+> Fixes: bd6c164 ("spi: Mark instantiated device nodes with OF_POPULATE")
+> Signed-off-by: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
+> Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+> Hi,
+>
+> imagine the following situation: you loaded a spi driver as module, but
+> it fails to instantiate, because of some reasons (e.g. some resources,
+> like gpios, might be in use in userspace).
+>
+> When reloading the driver, _all_ nodes, including previously failed
+> ones, should be probed again. This is not the case at the moment.
+> Current behaviour only re-registers nodes that were previously
+> successfully loaded.
+>
+> This small patches fixes this behaviour. I stumbled over this while
+> working on a spi driver.
 
-@ok@
-identifier r.i;
-struct i2c_adapter e;
-position p;
-@@
-e.quirks = &i@p;
+Thanks for your patch!
 
-@bad@
-position p != {r.p,ok.p};
-identifier r.i;
-struct i2c_adapter_quirks e;
-@@
-e@i@p
+>  drivers/spi/spi.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+> index 200ca22..f96a04e 100644
+> --- a/drivers/spi/spi.c
+> +++ b/drivers/spi/spi.c
+> @@ -1604,12 +1604,15 @@ static void of_register_spi_devices(struct spi_master *master)
+>                 return;
+>
+>         for_each_available_child_of_node(master->dev.of_node, nc) {
+> -               if (of_node_test_and_set_flag(nc, OF_POPULATED))
+> +               if (of_node_check_flag(nc, OF_POPULATED))
+>                         continue;
+>                 spi = of_register_spi_device(master, nc);
+> -               if (IS_ERR(spi))
+> +               if (IS_ERR(spi)) {
+>                         dev_warn(&master->dev, "Failed to create SPI device for %s\n",
+>                                 nc->full_name);
+> +                       continue;
+> +               }
+> +               of_node_set_flag(nc, OF_POPULATED);
 
-@depends on !bad disable optional_qualifier@
-identifier r.i;
-@@
-static
-+const
- struct i2c_adapter_quirks i = { ... };
-// </smpl>
+I think it's safer to keep the atomic test-and-set, but clear the flag on
+failure, cfr. of_platform_device_create_pdata() and of_amba_device_create().
 
-The effect on the layout of the .o file is shown by the following
-output of the size command, first before then after the
-transformation:
+Shouldn't of_spi_notify() be fixed, too?
 
-   text    data     bss     dec     hex filename
-   3458     744       8    4210    1072 drivers/i2c/busses/i2c-bcm-iproc.o
-   3490     720       8    4218    107a drivers/i2c/busses/i2c-bcm-iproc.o
+The same issue exists for i2c in of_i2c_register_devices() and of_i2c_notify(),
+which is what I had used as an example.
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Gr{oetje,eeting}s,
 
----
- drivers/i2c/busses/i2c-bcm-iproc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+                        Geert
 
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index 326b3db..318df55 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -395,7 +395,7 @@ static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap)
- 	.functionality = bcm_iproc_i2c_functionality,
- };
- 
--static struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
-+static const struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
- 	/* need to reserve one byte in the FIFO for the slave address */
- 	.max_read_len = M_TX_RX_FIFO_SIZE - 1,
- };
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
