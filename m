@@ -1,102 +1,129 @@
 From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Subject: Re: [PATCH 4/4] gpio: ptxpmb-ext-cpld: Document bindings of PTXPMB extended CPLD
-Date: Mon, 17 Oct 2016 22:10:01 +0300
-Message-ID: <FECF48A5-4540-4370-B2E1-5EEC10EEA22B@konsulko.com>
-References: <1475853574-22339-1-git-send-email-pantelis.antoniou@konsulko.com> <1475853574-22339-5-git-send-email-pantelis.antoniou@konsulko.com> <20161010201936.GB32418@rob-hp-laptop>
+Subject: Re: [PATCH 02/10] mfd: dt-bindings: Add bindings for the Juniper I2CS MFD
+Date: Mon, 17 Oct 2016 22:10:31 +0300
+Message-ID: <DA482672-7CBA-491D-9180-7DA70CBFA086@konsulko.com>
+References: <1475853669-22480-1-git-send-email-pantelis.antoniou@konsulko.com> <1475853669-22480-3-git-send-email-pantelis.antoniou@konsulko.com> <20161010202341.GA5652@rob-hp-laptop>
 Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161010201936.GB32418@rob-hp-laptop>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <20161010202341.GA5652@rob-hp-laptop>
+Sender: linux-leds-owner@vger.kernel.org
 To: Rob Herring <robh@kernel.org>
-Cc: Lee Jones <lee.jones@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org, linux-watchdog@vger.kernel.org, netdev@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Jean Delvare <jdelvare@suse.com>, Peter Rosin <peda@axentia.se>, Avirup Banerjee <abanerjee@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, devicetree <devicetree@vger.kernel.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-leds@vger.kernel.org, linux-hwmon@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Rob,
 
-> On Oct 10, 2016, at 23:19 , Rob Herring <robh@kernel.org> wrote:
+> On Oct 10, 2016, at 23:23 , Rob Herring <robh@kernel.org> wrote:
 >=20
-> On Fri, Oct 07, 2016 at 06:19:34PM +0300, Pantelis Antoniou wrote:
+> On Fri, Oct 07, 2016 at 06:21:01PM +0300, Pantelis Antoniou wrote:
 >> From: Georgi Vlaev <gvlaev@juniper.net>
 >>=20
->> Add device tree bindings document for the GPIO driver of
->> Juniper's PTXPMB extended CPLD.
+>> Add device tree bindings for the Juniper I2CS MFD driver.
 >>=20
 >> Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
 >> [Ported from Juniper kernel]
 >> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 >> ---
->> .../bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt     | 36 =
+>> Documentation/devicetree/bindings/mfd/jnx-i2cs.txt | 68 =
 ++++++++++++++++++++++
->> 1 file changed, 36 insertions(+)
->> create mode 100644 =
-Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt
+>> 1 file changed, 68 insertions(+)
+>> create mode 100644 Documentation/devicetree/bindings/mfd/jnx-i2cs.txt
 >>=20
->> diff --git =
-a/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt =
-b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt
+>> diff --git a/Documentation/devicetree/bindings/mfd/jnx-i2cs.txt =
+b/Documentation/devicetree/bindings/mfd/jnx-i2cs.txt
 >> new file mode 100644
->> index 0000000..87f01b9
+>> index 0000000..0ec103b
 >> --- /dev/null
->> +++ =
-b/Documentation/devicetree/bindings/gpio/jnx,gpio-ptxpmb-ext-cpld.txt
->> @@ -0,0 +1,36 @@
->> +Juniper PTXPMB extended CPLD GPIO block
+>> +++ b/Documentation/devicetree/bindings/mfd/jnx-i2cs.txt
+>> @@ -0,0 +1,68 @@
+>> +Device-Tree bindings for Juniper Networks I2CS FPGA MFD
 >> +
 >> +Required properties:
+>> +- compatible - Must be one of:
+>> +	"jnx,i2cs-rcb"	(Routing Engine or Control Board FRUs)
+>> +	"jnx,i2cs-fpc"	(Flexible Port Concentrator FRUs)
+>> +	"jnx,i2cs-sib"	(Switching Interface Board FRUs)
+>> +	"jnx,i2cs-fan"	(Fan Tray FRUs)
 >> +
->> +- compatible:
->> +    Must be "jnx,gpio-ptxpmb-ext-cpld"
+>> +Optional properties:
+>> +
+>> +Depending on the FRU, the I2CS MFD has varied group of sub-devices:
+>> +
+>> +Device                   Description
+>> +------                   -----------
+>> +jnx,i2cs-gpio		: Virtual gpio mapping driver
+>> +jnx,i2cs-fan-hwmon	: hwmon driver for fan trays
+>> +jnx,i2c-mux-i2cs	: I2C Mux driver for FPC FRUs
+>> +jnx,leds-i2cs		: Led driver
+>> +
+>> +All these optional nodes are described in their respective binding
+>> +documents.
+>> +
+>> +Example node:
+>> +
+>> +i2cs@54 {
+>> +	compatible =3D "jnx,i2cs-fpc";
+>> +	reg =3D <0x54>;
+>> +	#address-cells =3D <0>;
+>> +	#size-cells =3D <0>;
+>> +
+>> +	fpc2_mux {
 >=20
-> Generally, '-gpio' would be last.
+> Generic node names please.
 >=20
 
 OK.
 
+> mux {=20
+>=20
+>> +		compatible =3D "jnx,i2c-mux-i2cs";
+>> +		#address-cells =3D <1>;
+>> +		#size-cells =3D <0>;
+>> +
+>> +		fpc2i2c0: i2c@0 {
+>> +			#address-cells =3D <1>;
+>> +			#size-cells =3D <0>;
+>> +			reg =3D <0>;
+>> +		};
+>> +	};
+>> +
+>> +	fpc2_gpiomap: gpio-jnx-i2cs {
+>=20
+> gpio@54 {
+>=20
+OK
 
+>> +		compatible =3D "jnx,gpio-i2cs";
+>> +		reg =3D <0x54>;
+>> +		#gpio-cells =3D <2>;
+>> +		gpio-controller;
+>> +		interrupt-controller;
 >> +
->> +- #gpio-cells:
->> +    Should be <2>.  The first cell is the pin number (within the =
-controller's
->> +    pin space), and the second is used for the following flags:
->> +	bit[0]: direction (0 =3D out, 1 =3D in)
->> +	bit[1]: init high
->> +	bit[2]: active low
+>> +		/*
+>> +		 * Map bits [0-3] of reg 0x21 as gpio inputs, bits [4-7]
+>> +		 * as gpio outputs
+>> +		 */
+>> +		i2c-gpio-map =3D <0x21 0x0f>;
+>> +	};
+>> +
+>> +	leds-jnx-i2cs {
 >=20
-> Same comment as all the other gpio bindings...
->=20
->> +
->> +- gpio-controller:
->> +    Specifies that the node is a GPIO controller.
->> +
->> +- interrupt-controller:
->> +    Specifies that the node is an interrupt controller.
->> +
->> +Optional properties:
->> +
->> +- reg:
->> +    Address and length of the register set for the device. Usually =
-supplied
->> +    by the parent MFD device.
->=20
-> Make it required.
+> leds {
 >=20
 
-Hmm, the current driver supplies that range via platform data (it=E2=80=99=
-s an mfd driver).
-What=E2=80=99s the take on mixing those?
+OK.
 
+>> +		compatible =3D "jnx,leds-i2cs";
+>> +		#address-cells =3D <1>;
+>> +		#size-cells =3D <0>;
 >> +
->> +
->> +Example:
->> +
->> +gpio_ext_cpld: cpld-ext-gpio {
->> +	compatible =3D "jnx,gpio-ptxpmb-ext-cpld";
->> +	#gpio-cells =3D <2>;
->> +	#interrupt-cells =3D <2>;
->> +	gpio-controller;
->> +	interrupt-controller;
+>> +		sib8-active {
+>> +			reg =3D <0>;
+>> +			linux,default-trigger =3D "sib8-active";
+>> +		};
+>> +	};
 >> +};
 >> --=20
 >> 1.9.1
