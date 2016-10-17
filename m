@@ -1,78 +1,61 @@
-From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Subject: Re: [PATCH 10/10] hwmon: i2cs-fan: Add hwmon dts binding documentation
-Date: Mon, 17 Oct 2016 22:12:58 +0300
-Message-ID: <E38D5F40-C626-4143-82C3-916ECFEE30C7@konsulko.com>
-References: <1475853669-22480-1-git-send-email-pantelis.antoniou@konsulko.com> <1475853669-22480-11-git-send-email-pantelis.antoniou@konsulko.com> <20161010202903.GA9122@rob-hp-laptop>
+From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v2 0/2] spi, i2c: mark device nodes only in case of successful instantiation
+Date: Mon, 17 Oct 2016 22:15:27 +0300
+Message-ID: <72515578-AF72-4F37-AB69-EC1930D27FF4@konsulko.com>
+References: <20161017135957.20297-1-ralf@ramses-pyramidenbau.de>
 Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f172.google.com ([209.85.216.172]:34345 "EHLO
-        mail-qt0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932460AbcJQTMw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Oct 2016 15:12:52 -0400
-Received: by mail-qt0-f172.google.com with SMTP id q7so134939835qtq.1
-        for <linux-i2c@vger.kernel.org>; Mon, 17 Oct 2016 12:12:51 -0700 (PDT)
-In-Reply-To: <20161010202903.GA9122@rob-hp-laptop>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20161017135957.20297-1-ralf-ex4EvEgDZR1o7HI0AxOeTKwczVv4G7md@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ralf Ramsauer <ralf-ex4EvEgDZR1o7HI0AxOeTKwczVv4G7md@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux SPI <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel @ vger . kernel . org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Lee Jones <lee.jones@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Jean Delvare <jdelvare@suse.com>, Peter Rosin <peda@axentia.se>, Avirup Banerjee <abanerjee@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-leds@vger.kernel.org, linux-hwmon@vger.kernel.org
+
+Hi Ralf,
+
+> On Oct 17, 2016, at 16:59 , Ralf Ramsauer =
+<ralf-ex4EvEgDZR1o7HI0AxOeTKwczVv4G7md@public.gmane.org> wrote:
+>=20
+> Hi,
+>=20
+> this one fixes initialisation of I2C/SPI nodes.  Upon failure during
+> intialisation, nodes were erroneously populated and never unmarked.
+>=20
+> This lead to the problem that re-loaded drivers will never probe those =
+devices
+> again and can easily be fixed by clearing the OF_POPULATE flag when =
+the node
+> doesn't successfully initialise.
+>=20
+> For the discussion of v1, see
+> https://lkml.org/lkml/2016/10/14/483
+>=20
+>  Ralf
+>=20
+> changes since v1:
+>  - also fix I2C core driver
+>  - keep the atomic test-and-set, as Geert suggested
+>=20
+> Ralf Ramsauer (2):
+>  spi: mark device nodes only in case of successful instantiation
+>  i2c: mark device nodes only in case of successful instantiation
+>=20
+> drivers/i2c/i2c-core.c | 11 ++++++++++-
+> drivers/spi/spi.c      |  5 ++++-
+> 2 files changed, 14 insertions(+), 2 deletions(-)
+>=20
+> --=20
+> 2.10.1
+>=20
+
+Thanks for catching this.
+
+Acked-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 
 
-> On Oct 10, 2016, at 23:29 , Rob Herring <robh@kernel.org> wrote:
->=20
-> On Fri, Oct 07, 2016 at 06:21:09PM +0300, Pantelis Antoniou wrote:
->> From: Georgi Vlaev <gvlaev@juniper.net>
->>=20
->> Adds the I2CS Fan Tray hwmon device tree node documentation.
->>=20
->> Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
->> [Ported from Juniper kernel]
->> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
->> ---
->> Documentation/devicetree/bindings/hwmon/i2cs-fan.txt | 19 =
-+++++++++++++++++++
->> 1 file changed, 19 insertions(+)
->> create mode 100644 =
-Documentation/devicetree/bindings/hwmon/i2cs-fan.txt
->>=20
->> diff --git a/Documentation/devicetree/bindings/hwmon/i2cs-fan.txt =
-b/Documentation/devicetree/bindings/hwmon/i2cs-fan.txt
->> new file mode 100644
->> index 0000000..4ef880c
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/hwmon/i2cs-fan.txt
->> @@ -0,0 +1,19 @@
->> +Hwmon driver for Juniper fan trays on I2CS Slave FPGA
->=20
-> This is a h/w description, not a driver.
->=20
->> +
->> +Required properties:
->> +
->> +- compatible: "i2cs-fan-hwmon"
->=20
-> I doubt any fan control h/w has "hwmon" in the name.
->=20
->> +
->> +Optional properties:
->> +
->> +- num-fans: fans per tray (default 14)
->> +
->> +- tach-factor: TACH count scaling factor (default 120)
->=20
-> vendor prefixes needed.
->=20
->> +
->> +Example:
->> +
->> +fan-hwmon {
->> +	compatible =3D "jnx,i2cs-fan-hwmon";
->> +	num-fans =3D <6>;
->> +	tach-factor =3D <33>;
->> +};
->> --=20
->> 1.9.1
-
-OK on all three.=
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
