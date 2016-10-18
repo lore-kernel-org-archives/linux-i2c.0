@@ -1,50 +1,33 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 4/4] i2c: digicolor: Fix module autoload
-Date: Tue, 18 Oct 2016 18:01:48 -0300
-Message-ID: <1476824508-4679-5-git-send-email-javier@osg.samsung.com>
-References: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
+Subject: [PATCH 0/4] i2c: Fix module autoload for some i2c busses platform drivers
+Date: Tue, 18 Oct 2016 18:01:44 -0300
+Message-ID: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Baruch Siach <baruch@tkos.co.il>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-If the driver is built as a module, autoload won't work because the module
-alias information is not filled. So user-space can't match the registered
-device with the corresponding module.
+Hello Wolfram,
 
-Export the module alias information using the MODULE_DEVICE_TABLE() macro.
+I noticed that module autoload won't be working in some of the i2c
+busses drivers. This patch series contains the fixes for these.
 
-Before this patch:
+Best regards,
+Javier
 
-$ modinfo drivers/i2c/busses/i2c-digicolor.ko | grep alias
-$
 
-After this patch:
-
-$ modinfo drivers/i2c/busses/i2c-digicolor.ko | grep alias
-alias:          of:N*T*Ccnxt,cx92755-i2cC*
-alias:          of:N*T*Ccnxt,cx92755-i2c
-
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
----
+Javier Martinez Canillas (4):
+  i2c: jz4780: Fix module autoload
+  i2c: xlp9xx: Fix module autoload
+  i2c: xlr: Fix module autoload for OF registration
+  i2c: digicolor: Fix module autoload
 
  drivers/i2c/busses/i2c-digicolor.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-jz4780.c    | 1 +
+ drivers/i2c/busses/i2c-xlp9xx.c    | 1 +
+ drivers/i2c/busses/i2c-xlr.c       | 1 +
+ 4 files changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-digicolor.c b/drivers/i2c/busses/i2c-digicolor.c
-index 9604024e0eb0..49f2084f7bb5 100644
---- a/drivers/i2c/busses/i2c-digicolor.c
-+++ b/drivers/i2c/busses/i2c-digicolor.c
-@@ -368,6 +368,7 @@ static const struct of_device_id dc_i2c_match[] = {
- 	{ .compatible = "cnxt,cx92755-i2c" },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, dc_i2c_match);
- 
- static struct platform_driver dc_i2c_driver = {
- 	.probe   = dc_i2c_probe,
 -- 
 2.7.4
