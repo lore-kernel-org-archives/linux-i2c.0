@@ -1,7 +1,7 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 1/4] i2c: jz4780: Fix module autoload
-Date: Tue, 18 Oct 2016 18:01:45 -0300
-Message-ID: <1476824508-4679-2-git-send-email-javier@osg.samsung.com>
+Subject: [PATCH 3/4] i2c: xlr: Fix module autoload for OF registration
+Date: Tue, 18 Oct 2016 18:01:47 -0300
+Message-ID: <1476824508-4679-4-git-send-email-javier@osg.samsung.com>
 References: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
@@ -18,32 +18,33 @@ Export the module alias information using the MODULE_DEVICE_TABLE() macro.
 
 Before this patch:
 
-$ modinfo drivers/i2c/busses/i2c-jz4780.ko | grep alias
-$
+$ modinfo drivers/i2c/busses/i2c-xlr.ko | grep alias
+alias:          platform:xlr-i2cbus
 
 After this patch:
 
-$ modinfo drivers/i2c/busses/i2c-jz4780.ko | grep alias
-alias:          of:N*T*Cingenic,jz4780-i2cC*
-alias:          of:N*T*Cingenic,jz4780-i2c
+$ modinfo drivers/i2c/busses/i2c-xlr.ko | grep alias
+alias:          platform:xlr-i2cbus
+alias:          of:N*T*Csigma,smp8642-i2cC*
+alias:          of:N*T*Csigma,smp8642-i2c
 
 Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
 
- drivers/i2c/busses/i2c-jz4780.c | 1 +
+ drivers/i2c/busses/i2c-xlr.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-index b8ea62105f42..30132c3957cd 100644
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -729,6 +729,7 @@ static const struct of_device_id jz4780_i2c_of_matches[] = {
- 	{ .compatible = "ingenic,jz4780-i2c", },
- 	{ /* sentinel */ }
+diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
+index 0968f59b6df5..ad17d88d8573 100644
+--- a/drivers/i2c/busses/i2c-xlr.c
++++ b/drivers/i2c/busses/i2c-xlr.c
+@@ -358,6 +358,7 @@ static const struct of_device_id xlr_i2c_dt_ids[] = {
+ 	},
+ 	{ }
  };
-+MODULE_DEVICE_TABLE(of, jz4780_i2c_of_matches);
++MODULE_DEVICE_TABLE(of, xlr_i2c_dt_ids);
  
- static int jz4780_i2c_probe(struct platform_device *pdev)
+ static int xlr_i2c_probe(struct platform_device *pdev)
  {
 -- 
 2.7.4
