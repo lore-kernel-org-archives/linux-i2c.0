@@ -1,48 +1,67 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH] i2c: uniphier[-f]: fix bool logic calculation
-Date: Wed, 19 Oct 2016 13:38:31 +0900
-Message-ID: <1476851911-21729-1-git-send-email-yamada.masahiro@socionext.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: Re: [PATCH 4/4] i2c: digicolor: Fix module autoload
+Date: Wed, 19 Oct 2016 08:05:28 +0300
+Message-ID: <20161019050528.ahtibbag7n6gksic@tarshish>
+References: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
+ <1476824508-4679-5-git-send-email-javier@osg.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from guitar.tcltek.co.il ([192.115.133.116]:52023 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750775AbcJSFFf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 19 Oct 2016 01:05:35 -0400
+Content-Disposition: inline
+In-Reply-To: <1476824508-4679-5-git-send-email-javier@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-This code is working, but it should not depend on how "bool" is
-typedef'ed, or the bit position of I2C_M_RD.
+Hi Javier Martinez Canillas,
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+On Tue, Oct 18, 2016 at 06:01:48PM -0300, Javier Martinez Canillas wrote:
+> If the driver is built as a module, autoload won't work because the module
+> alias information is not filled. So user-space can't match the registered
+> device with the corresponding module.
+> 
+> Export the module alias information using the MODULE_DEVICE_TABLE() macro.
+> 
+> Before this patch:
+> 
+> $ modinfo drivers/i2c/busses/i2c-digicolor.ko | grep alias
+> $
+> 
+> After this patch:
+> 
+> $ modinfo drivers/i2c/busses/i2c-digicolor.ko | grep alias
+> alias:          of:N*T*Ccnxt,cx92755-i2cC*
+> alias:          of:N*T*Ccnxt,cx92755-i2c
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
- drivers/i2c/busses/i2c-uniphier-f.c | 2 +-
- drivers/i2c/busses/i2c-uniphier.c   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Acked-by: Baruch Siach <baruch@tkos.co.il>
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index db9105e..b54448e 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -309,7 +309,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- 					 struct i2c_msg *msg, bool stop)
- {
- 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
--	bool is_read = msg->flags & I2C_M_RD;
-+	bool is_read = !!(msg->flags & I2C_M_RD);
- 	unsigned long time_left;
- 
- 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
-diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-index 56e92af..cc80bb2 100644
---- a/drivers/i2c/busses/i2c-uniphier.c
-+++ b/drivers/i2c/busses/i2c-uniphier.c
-@@ -177,7 +177,7 @@ static int uniphier_i2c_stop(struct i2c_adapter *adap)
- static int uniphier_i2c_master_xfer_one(struct i2c_adapter *adap,
- 					struct i2c_msg *msg, bool stop)
- {
--	bool is_read = msg->flags & I2C_M_RD;
-+	bool is_read = !!(msg->flags & I2C_M_RD);
- 	bool recovery = false;
- 	int ret;
- 
+Thanks,
+baruch
+
+>  drivers/i2c/busses/i2c-digicolor.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-digicolor.c b/drivers/i2c/busses/i2c-digicolor.c
+> index 9604024e0eb0..49f2084f7bb5 100644
+> --- a/drivers/i2c/busses/i2c-digicolor.c
+> +++ b/drivers/i2c/busses/i2c-digicolor.c
+> @@ -368,6 +368,7 @@ static const struct of_device_id dc_i2c_match[] = {
+>  	{ .compatible = "cnxt,cx92755-i2c" },
+>  	{ },
+>  };
+> +MODULE_DEVICE_TABLE(of, dc_i2c_match);
+>  
+>  static struct platform_driver dc_i2c_driver = {
+>  	.probe   = dc_i2c_probe,
+
 -- 
-1.9.1
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
